@@ -158,3 +158,4 @@ shots-d2/
 # resolve app/node_modules/playwright. They are session scratch and two of them
 # reached a commit before this line existed (roadmap 8.10).
 *.tmp.mjs
+shots-taste/

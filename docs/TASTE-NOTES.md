@@ -616,3 +616,153 @@ updated a decade ago, and scores 0 keyframes and 0 running animations.
   **So every claim above is STRUCTURAL — the DOM, the CSS and the scripts — and
   none of it is a claim about how a page LOOKS.** The visual pass is still owed
   and should be taken before a page is built on this.
+
+---
+
+# BATCH 2, THE VISUAL PASS — 2026-09-08, AND IT CORRECTS THE SECTION ABOVE
+
+**His instruction:** *"find a way to get screenshots cuz you need those for
+dientifying sutff."* He is right, and § 8 above had already conceded it: the
+measured pass says what a page is BUILT FROM and nothing about whether it looks
+good.
+
+**HOW, since the Browser pane stayed hidden all session and black-frames every
+capture.** `taste-shots.tmp.mjs` drives Playwright and writes PNGs to disk, so
+nothing depends on a pane being visible — **90 frames, five down each of the
+eighteen pages, rendered at 1440 wide** (`deviceScaleFactor: 0.6`, so the
+LAYOUT is the desk layout and the file is a third of the pixels). Viewport
+frames rather than one full-page stitch, because this repo already records that
+a full-page capture of a page with a `position: fixed` ground returns every
+slice after the first EMPTY.
+
+## A. THE CORRECTION: A PHOTOGRAPH IS DEPTH, AND MY SCORE COULD NOT SEE ONE
+
+§ 0 scored depth as gradients + shadows + blur + canvas, and called
+**`landscape` "the one exception in eighteen"** at a score of 3.
+
+**Looking at it, there is no exception.** Its hero is a **full-bleed
+photograph** — a real garden, edge to edge, with a huge white headline over it
+and two pill buttons in the brand's teal and amber. The ground is not flat; it
+is a photograph. My metric counted every way of making a ground non-flat except
+the most obvious one.
+
+**So the rule is simply: THE GROUND IS NEVER A FLAT FILL.** A gradient, a glow,
+a texture, a canvas **or a photograph** all satisfy it. That also re-reads batch
+1 § 3's *"a real car PHOTOGRAPH as the hero at scale"* — it was never a separate
+observation from depth; it is the same observation.
+
+**And it is what `wisconsin` gets wrong while technically having a photo.** Its
+hero image is a snapshot of a classic car in a cluttered garage — shelving,
+another car, a person's arm — only ~360px tall, ending in a hard cut to pure
+white. **A photograph is depth; a snapshot with no focal point is clutter.**
+
+## B. WHAT "HORRIBLE FONT" ACTUALLY LOOKS LIKE — and it is worse than the data said
+
+`luster` measured as *Old Standard TT + Karla*. On screen it is **three type
+personalities in one hero**:
+
+1. a **swash script** wordmark (*Luster Mobile Detailing*), which the probe
+   never saw because it is set separately;
+2. the headline in a **serif with wide letter-spacing** — *"Bring The Luster
+   Back With our Professional Auto Detailing"*;
+3. the service-area line in the same serif again, smaller.
+
+**And all of it sits directly on the busiest part of a close-up soapy-mitt photo
+with no scrim**, so it is barely readable as well as dated.
+
+`wisconsin` is the same disease in the other direction: **Playfair Display**, a
+high-contrast Didone, for both the wordmark and *"We come to you!"* — a fashion
+and wedding face doing automotive work — plus a **raster clip-art "BOOK AN
+APPOINTMENT" button** and a cyan Before/After label.
+
+**THE RULE THIS SETTLES, and it is sharper than "no serif display": ONE type
+personality. A script logo plus a serif headline plus a serif body is three, and
+he can feel it instantly even though he described it as one thing, "font".**
+
+## C. THE FOUR WORLDS WORTH STEALING FROM, as seen rather than measured
+
+**`auxia` — cream, enormous left-aligned headline, and a ROUTED DIAGRAM.**
+The ground is warm bone (not white). The headline is ~90px, left, tight, black,
+with body copy at ~14px tucked under its left edge — an extreme size contrast
+this repo has never attempted. One electric blue (#0B4FFF) on a single button
+and the announcement bar, nothing else.
+**And the 5,362px section is the thing he was pointing at.** It is a flowchart:
+blue right-angled connector lines with rounded corners routing between floating
+pill-buttons and soft-shadowed cards, a monospace micro-label
+(*ANALYZING HISTORICAL BEHAVIOR*) sitting ON a connector, and a dark product
+window as the anchor. **Nothing is in a grid. It is drawn as a system**, and it
+draws itself as you scroll.
+**Transfers directly:** the detailing PROCESS, or the booking flow, as a routed
+diagram instead of three cards.
+
+**`authkit` — a dark ground made of LIGHT, not shadow.** Near-black navy with a
+faint starfield/noise, a soft radial glow behind the centre, and UI cards that
+float with blue-tinted glowing borders rather than drop shadows. A horizontal
+row of icon tiles joined by **dotted connectors**. A hairline rule with a
+small-caps label above the heading. Type is centred, light blue-white, and
+restrained. **This is the "lit glass" world site `i` already has** — worth
+comparing them directly.
+
+**`fora` — an atmospheric gradient sky.** Dark blue-grey at the top melting into
+warm mauve at the bottom over a soft hill silhouette, with a big product window
+rising into frame from the bottom edge. Centred, ~44px, REGULAR weight, not
+heavy. **It is a centred hero, which our anti-slop list warns about, and it
+works** — because the ground is atmospheric and one object is genuinely large.
+**Evidence that the never-defaults describe a failure mode, not a ban.**
+
+**`atelier` — the best detailer page, and it is LIGHT.** Warm cream ground, the
+whole page inside a rounded container with the ground showing at the edges. A
+white Tesla at golden hour bleeding into the hero, gradient-blended into the
+cream rather than cut out. A huge black headline. **Floating pill chips** —
+*Available Today* with a live green dot, and a review pill carrying an avatar
+stack and *4.9 · 1,250+ reviews*. A dark pill CTA. **A frosted translucent trust
+bar sitting ON the photo.**
+**This is the closest thing in either batch to a page we could actually ship for
+a detailer**, and it is nearer to the software sites than to the other ten
+detailers.
+
+## D. AND SEEING MELI EXPLAINS HIS "LACKING A BIT" COMPLETELY
+
+Its services section is a 2-up then 3-up grid of **five identical cards**: photo
+on top, dark body under, title, one grey line, a cyan *"Starting At $500"*.
+
+Three things are visible that no probe reported:
+
+1. **The photographs are unstyled.** A truck in front of a house, a car in a
+   garage doorway, a dashboard. Real work, honestly shown, and nothing like the
+   single styled golden-hour hero that carries `atelier`.
+2. **The cards are flat dark on flat dark** — a marginally lighter fill on the
+   same near-black, no gradient, no glow, no border that catches light. The
+   *"everything is a box"* complaint in its purest form.
+3. **The prices are 14px cyan** — the most commercially important number on the
+   page, set at body size.
+
+**He said it is his favourite and that it is lacking, and both are true.** The
+photography, the near-black and the single cyan are right; the page never
+changes ground, never changes rhythm, never gets big, and never has any light in
+it.
+
+## E. WHAT THE VISUAL PASS ADDS TO § 7's RULES
+
+7. **The ground is never a flat fill** — gradient, glow, texture, canvas or
+   photograph. This replaces § 7 rule 1 and absorbs batch 1 § 3's photograph
+   rule.
+8. **One type personality.** Not "no serif display" — one voice. Script + serif
+   + serif is what he called *"horrible font"*.
+9. **Text on a photograph gets a scrim, always.** Both bad sites fail this and
+   `atelier` passes it with a gradient blend.
+10. **The most important number on the page is not set at body size.** Meli's
+    prices are 14px.
+11. **A centred hero is not banned; a centred hero on a flat ground is.** `fora`
+    is the proof.
+
+## F. STILL NOT DONE
+
+- **Only nine of the eighteen have been looked at closely** — auxia, atelier,
+  landscape, authkit, fora, meli, luster, wisconsin, and mrgreen from the
+  measured pass. **The other nine have frames on disk and no one has opened
+  them.** `shots-taste/<key>-0..4.png`.
+- **Nothing has been looked at on a PHONE.** `node taste-shots.tmp.mjs --phone`
+  writes 392x844 frames and has not been run. Given that a detailer's customer
+  is on a phone, that is the more important pass of the two.
+- **The Dribbble link still needs a human eye** — probing it measures Dribbble.
