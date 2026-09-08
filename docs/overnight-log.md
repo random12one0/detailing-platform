@@ -3086,3 +3086,96 @@ form fits on every step at every size. No console errors.
 *(appended as they arise)*
 
 ---
+
+---
+
+## FOUR ANSWERS, 2026-09-08 — AND THE MISTAKE THAT MADE HIM REPEAT THEM
+
+**He was handed an eight-job artifact and several of the jobs were things he had
+already decided.** His words: *"a lot of the stuff on this artifact, your eight
+jobs are are things that I already answered. So, um, that's confusing."*
+
+**THE CAUSE IS WORTH MORE THAN THE FIX.** That page was built from RESEARCH — a
+session reading each external service's documentation and writing down what the
+owner would have to do at each one — and it was never checked against
+**this file, which is where his answers live.** Every item on it was true of the
+outside world and three of them were dead in this repo. **A list of what the
+owner COULD do is not a list of what the owner still HAS to do**, and the
+difference is only visible from the record.
+
+**THE RULE, and it costs one grep: before any list of asks reaches him, check
+each line against `docs/overnight-log.md` and the roadmap's OWNER items.** An
+ask he has already answered is worse than no ask, because it teaches him that
+the list has not been read and the next real one gets the same treatment.
+
+### 19. Stripe's business address — HE CANNOT, AND IT IS NOT A "LATER"
+
+> *"about the stripe giving me business address, I don't think I could do that
+> yet just because I don't have, like, a... I don't wanna... for me to do that,
+> I have to, like, set up all the personal details, and I can't send some of
+> that eighteen yet."*
+
+**He is not old enough to complete Stripe's business-details form**, so this is
+blocked by a fact rather than by a preference, and asking again in a month is
+asking again about his age. **It is off every list until he raises it.**
+
+**Nothing is broken by it.** `subscribe` already falls back without automatic
+tax and returns the reason, and CLAUDE.md's own note says that fallback cannot
+under-collect, because registering for tax needs that address anyway. The thing
+actually deferred is the nexus monitor, not the checkout.
+
+### 20. The Resend email cap — DECIDED, AND STOP RAISING IT
+
+> *"I remember we already talked about that that we're gonna do it once they get
+> close. So you don't need to remind me about that again."*
+
+The decision stands and it is his: **upgrade when a real detailer is close to
+the cap, not before.** The back office already prints *"Emails: N of 100
+today"* and turns red at four fifths, which is the trigger — a screen tells him,
+so a session does not have to.
+
+**A SESSION THAT MEETS THE 429 IN ITS OWN TEST RUN MUST NOT TREAT THAT AS THE
+TRIGGER.** `daily_quota_exceeded` during a night of building is the suites
+spending the allowance, which CLAUDE.md already documents; it is not a real
+detailer approaching a limit. Note it and carry on.
+
+### 21. Backups go to GITHUB, not to Supabase Pro — AND THE REPO IS PUBLIC
+
+> *"on the backups, we weren't gonna do super based backups, and we're gonna
+> back up to git hub. And I remember the stuff... some stuff he needed to do
+> that... to do for me."*
+
+**The $25/month Supabase Pro upgrade is refused and should not be re-proposed.**
+
+**THE ONE THING THAT HAS TO BE SAID BEFORE ANY OF IT IS BUILT, and it was put to
+him the moment he said it:** `random12one0/detailing-platform` is **public**. A
+database dump carries every customer's name, phone number, email and home
+address, and git keeps a committed file even after it is deleted — so a backup
+in that repo publishes his detailers' customer lists permanently.
+
+**Recommendation given: a SEPARATE PRIVATE repo** (e.g.
+`detailing-platform-backups`), free, same mechanism, no exposure. The
+alternative — encrypting the dump before committing — was named and argued
+against: it trades a free private repo for a key that must survive for ever,
+and a lost key is a lost backup.
+
+**AWAITING ONE WORD FROM HIM** before the job is built. Nothing else waits on it.
+**He also remembers there being something on ME here**; if the answer is not
+found in this file or the roadmap, ask him what he remembers rather than
+inventing a task.
+
+### 22. "One box left" was unreadable, and that is a copy defect
+
+> *"the number one, you said one one box left. I don't know what that means."*
+
+Job 0 on that artifact was headed *"The outage watcher — done, one box left"*.
+**It reads as unfinished work and it was not** — the switch is set, wired and
+proven end to end; the remainder was setting a period and a grace time on
+healthchecks.io, both of which have sensible defaults.
+
+**The defect is CLAUDE.md's copy rule from the other side.** That rule bans a
+sentence explaining what the control already says; this is its twin — **a
+heading whose own words cannot be understood without the paragraph under it.**
+"Done" and "one box left" contradict each other in six words, and he read the
+contradiction and not the paragraph. **A status is DONE or it is NOT; a
+remainder with a working default is not a remainder worth a heading.**
