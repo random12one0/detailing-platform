@@ -3248,10 +3248,53 @@ is kept; the entire visual design restarts from scratch.
       research is done: `docs/payments-research-2026-09-04.md`.**
       **STAGES 1 AND 2 ARE BUILT (2026-09-04 and 2026-09-05). STAGE 3, Stripe
       Connect so a detailer can take cards, is the whole of what is left, and
-      it is what unlocks charging for a monthly plan (2.14).** Stage 2 is
-      finished in code and **switched off waiting for a Stripe key** — test
-      mode needs no activated account, `docs/setup-steps-2026-09-04.md` step 2b
-      is the ten minutes.
+      it is what unlocks charging for a monthly plan (2.14).** ~~Stage 2 is
+      finished in code and **switched off waiting for a Stripe key**~~ — **the
+      key has been set since 2026-09-05 and stage 2 has been exercised end to
+      end; that sentence is spent.**
+
+      **STAGE 3's SERVER HALF IS BUILT, DEPLOYED AND CHECKED — 2026-09-08.**
+      What is left is the two SCREENS and a live run against Stripe.
+      **AND IT WAS NEVER BLOCKED BY DECEMBER, WHICH IS THE CORRECTION THAT
+      MATTERS**: this entry and several others read as though Connect waited on
+      the owner turning 18. **Express and Custom accounts require the holder to
+      be 18; `Standard` does not** — the payments research says so under *age
+      requirement* — and every part of Connect works in TEST MODE with no
+      activated account. It could have been built at any point in the last
+      week.
+      - `_shared/connect.ts` — every decision and every sum, **with no `fetch`
+        in the file**, so `tests/connect.test.mjs` (83 checks) runs the whole
+        of it with no key and no database. Same shape as `pricing.ts`.
+      - `_shared/stripe.ts` — `opts.stripeAccount` sets the `Stripe-Account`
+        header, **which is the entire difference between the money landing in
+        the detailer's balance and in ours**, plus the two OAuth calls, which
+        live on `connect.stripe.com` and report failures in a DIFFERENT SHAPE
+        (`{error: "invalid_grant"}` — a string where the rest of the API puts
+        an object, so `.error.message` is `undefined` and the one useful
+        sentence is lost).
+      - `connect-account` (owner-only, 404 not 403) and `pay-booking` (public,
+        the booking uuid is the credential, **no `application_fee_amount` and
+        there must never be one**).
+      - `stripe-webhook` routes on **`event.account`**: present means a
+        CONNECTED account. Without that branch a customer paying a detailer
+        $150 is handed to `completed()`, which reads it as a detailer buying a
+        subscription.
+      - `20260908001000_connected_accounts.sql`, applied. **The columns are NOT
+        on `business_settings` and that is a theft path rather than a
+        preference**: `authenticated` holds a TABLE-level UPDATE grant there
+        (`20260907003000`), so a member with the `settings` tick could PATCH
+        `stripe_account_id` and point their employer's card payments at their
+        own Stripe account, with nothing on any screen looking different.
+
+      **WHAT IS STILL OWED**, and none of it is arithmetic: the settings screen,
+      the Pay button on the receipt page and in the invoice email, and **one
+      real payment through a real connected account** — no session has yet
+      watched a card move money to a detailer. **Two dashboard jobs come with
+      it**: the `ca_…` Connect client id must be set as
+      `STRIPE_CONNECT_CLIENT_ID`, and **the webhook endpoint has to be told to
+      listen to events on connected accounts** — it is a separate setting, and
+      without it `event.account` never arrives and every card payment stays
+      showing unpaid.
 
       > *"We need to figure out payment cuz at least I need a way for my
       > customers to pay me."*

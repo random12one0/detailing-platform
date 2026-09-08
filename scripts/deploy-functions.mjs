@@ -48,6 +48,13 @@ const PUBLIC_FUNCTIONS = new Set([
   // asked to acquire one in order to leave. Same credential as the three
   // above — the row's own UUID.
   "unsubscribe",
+  // ROADMAP 2.20 STAGE 3 — the customer paying their detailer by card, from
+  // the receipt page. Same credential as every other entry above it: the
+  // booking's own UUID, held by somebody who has no session and never will.
+  // `connect-account` is deliberately NOT here — that one is the DETAILER's
+  // own session, and it is owner-only on top of that, because it decides which
+  // bank account the till points at.
+  "pay-booking",
   // ROADMAP 2.20 STAGE 2 — Stripe's webhook. It MUST be public and this is the
   // one entry in this list where that is load-bearing rather than convenient:
   // Stripe has no Supabase JWT to present, so with `verify_jwt` on, the

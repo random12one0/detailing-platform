@@ -1,5 +1,27 @@
 # `main` is NOT the deploy — measured 2026-09-08
 
+> **THE CAUSE IN THIS FILE IS WRONG AND THE CORRECTION IS `docs/OUTSTANDING.md`
+> § 6 PLUS COMMIT `e6c7020`, THE SAME DAY.** The symptom below is real and
+> every measurement in it holds. **The cause is not a disconnected repo — it is
+> Netlify BUILD CREDITS.** A deploy triggered on purpose came back
+> `state: error, skipped: true, "Skipped due to account credit usage
+> exceeded"`. Every build since 2026-09-06 has been **silently skipped**, which
+> from outside is indistinguishable from a git integration that was never
+> wired up.
+>
+> **So do NOT reconnect the repository — it is connected fine, and doing that
+> fixes nothing.** The fix is credits, or a pre-built
+> `netlify deploy --prod --dir=app/dist`, which skips their build system
+> entirely and needs a Netlify token this repo does not hold.
+>
+> **The wrong inference is left standing below rather than quietly replaced**,
+> because the reasoning is the lesson: `deploy_source: "api"` on the last
+> SUCCESSFUL deploy was read as "the repo is not connected", and **no amount of
+> inspecting a successful deploy could ever have produced the right answer.
+> Only triggering a new one could.** When a thing has stopped happening, make
+> it happen and read the error — do not infer the cause from the last time it
+> worked.
+
 **CLAUDE.md has said since 2026-08-30 that *"a push to `main` IS a publish —
 there is no second step to forget"*. That is false, and it has been false for
 at least two days.** Anything relying on it — including the sentence in
