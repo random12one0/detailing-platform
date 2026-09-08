@@ -299,15 +299,46 @@ if (!URL_ || !SERVICE) {
     // here; the third needs his healthchecks.io URL and PRINTS rather than
     // passing, because a check that cannot reach its subject must never
     // report a tick.
+    // **2f SETS THE URL TO NULL ITSELF NOW, AND THAT IS A REAL FIX RATHER THAN
+    // A TIDY-UP.** It used to lean on `quiet`, a run made with whatever URL
+    // happened to be in the row — which was null for the whole life of this
+    // feature, so the check passed by describing the state of the world rather
+    // than by arranging it. The moment the owner set a real URL (2026-09-07)
+    // it went red, and the failure was the test being wrong.
+    //
+    // A check that only holds while a column is empty is a check that expires
+    // the day the feature starts being used.
+    await setSettings({ healthcheck_url: null });
+    const unset = await run();
     check("2f · with no URL set, nothing is pinged and the run still succeeds",
-      quiet.success === true && quiet.pinged === false);
+      unset.success === true && unset.pinged === false,
+      JSON.stringify(unset).slice(0, 200));
+
     await setSettings({ healthcheck_url: "https://127.0.0.1:1/nothing-listens-here" });
     const broken = await run();
     check("2f-ii · a ping that cannot connect does not fail the run",
       broken.success === true && broken.pinged === false,
       JSON.stringify(broken).slice(0, 200));
-    console.log("  NOT MEASURED  2f-iii · a ping that SUCCEEDS — needs the owner's"
-      + " healthchecks.io URL in platform_settings.healthcheck_url");
+
+    // **THE THIRD PROPERTY, MEASURABLE FOR THE FIRST TIME.** It needs a real
+    // outside watcher, so it printed `NOT MEASURED` from the day it was written
+    // until the owner produced a Healthchecks URL — the rule this repo keeps:
+    // a check that cannot reach its subject must never report a tick.
+    //
+    // It really does ping his monitor, which is the point: a healthy ping is
+    // exactly what the scheduler sends every fifteen minutes, so this proves
+    // the wiring end to end rather than proving the code compiles.
+    if (settingsBefore?.healthcheck_url) {
+      await setSettings({ healthcheck_url: settingsBefore.healthcheck_url });
+      const live = await run();
+      check("2f-iii · and a ping that SUCCEEDS is reported as pinged",
+        live.success === true && live.pinged === true,
+        JSON.stringify(live).slice(0, 200));
+    } else {
+      console.log("  NOT MEASURED  2f-iii · a ping that SUCCEEDS — needs a real"
+        + " healthchecks.io URL in platform_settings.healthcheck_url"
+        + " (node scripts/set-healthcheck.mjs <url>)");
+    }
 
     // THE PRODUCTION JOBS. If one of them really is stale, our run claimed it
     // and emailed the simulator — correct, and it has to be SAID, because a
