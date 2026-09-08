@@ -766,3 +766,86 @@ it.
   writes 392x844 frames and has not been run. Given that a detailer's customer
   is on a phone, that is the more important pass of the two.
 - **The Dribbble link still needs a human eye** — probing it measures Dribbble.
+
+---
+
+# BATCH 2, THE PHONE PASS — 392x844, 2026-09-08
+
+**This is the pass that matters most and it was nearly skipped.** A detailer's
+customer meets their site on a phone; the desk layout is the one almost nobody
+sees. `node taste-shots.tmp.mjs --phone` writes 392x844 frames — the same width
+this repo already verifies every one of its own screens at.
+
+**The first number is the finding.** Every page gets LONGER on a phone, and how
+much longer is a design decision nobody made:
+
+```
+                desk        phone      growth
+  meli          8,279  ->  10,408      +26%
+  rcd           7,682  ->  12,021      +56%
+  agautospa     8,439  ->  12,152      +44%
+  carolina     11,838  ->  17,867      +51%
+  vessa        18,843  ->  26,364      +40%
+  landscape     7,243  ->  13,795      +90%
+  authkit       5,025  ->   4,759       -5%   <- the only one that SHRINKS
+  hughs         5,329  ->   4,965       -7%
+  atelier       9,290  ->   9,205       -1%
+```
+
+**A page that grows 50-90% on a phone has been re-flowed, not redesigned** —
+every multi-column grid became one column and the page simply got taller.
+`atelier` and `authkit` stay the same length or shrink, which means content was
+**re-thought** for the smaller screen rather than stacked.
+
+## G. THE SINGLE BEST IDEA IN EITHER BATCH — atelier's bottom dock
+
+On a phone `atelier` does two things no other site in the eighteen does:
+
+1. **The photograph moves BELOW the text.** On the desk the headline sits over
+   the car; on a phone the headline gets clean cream at the top and the car
+   fills the lower two-thirds, blended into the ground with a soft gradient so
+   there is no hard edge. **That is a different layout, not a squeezed one.**
+2. **A FLOATING BOTTOM DOCK** — a rounded bar fixed to the bottom of the screen
+   carrying three things: *Reviews*, a black **Book Now** pill, and *Services*.
+
+**The dock is the one I would steal first.** A mobile detailing customer's
+entire purpose is to book, and on every other site in this list booking means
+scrolling back to the top or reaching a CTA section thousands of pixels down.
+`atelier` puts it under the thumb permanently and it costs about 70px of screen.
+
+**None of our own pages do this**, and the booking page itself already has the
+harder half built — this is a fixed bar with one primary and two secondary
+actions.
+
+## H. AND THE PHONE MAKES MELI'S PROBLEM WORSE, NOT SMALLER
+
+Its five service cards become one column of five near-identical blocks about
+450px tall each — **roughly 2,400px of scrolling through the same shape five
+times**, with nothing changing but the photograph and the price. On the desk
+they were a 2-up and a 3-up, which at least varied. On a phone the sameness is
+total.
+
+**And there is no persistent way to book.** The prices do get better — the cyan
+*"Starting At $200"* is bigger relative to everything around it — but a customer
+who decides at card three has to go looking.
+
+## I. THE DIAGRAM SURVIVES A PHONE, AND HOW IT DOES IS THE USEFUL PART
+
+`auxia`'s routed connector diagram — the mechanic most worth stealing — does not
+break on a phone. **It re-routes VERTICALLY**: the blue line runs top-to-bottom
+between stacked elements instead of left-to-right, with the not-yet-reached
+tracks visible below in pale grey so the shape of what is coming is legible.
+The pill sits in a pale "pending" state until the scroll activates it.
+
+**So a system diagram is not a desktop-only idea**, which is the obvious
+objection to it. It needs the connectors to be authored as a route that can run
+either way, not as a horizontal row.
+
+## J. WHAT IS STILL OWED AFTER THIS
+
+- **Nine of eighteen have been looked at on the desk, four on a phone.** The
+  rest have frames on disk: `shots-taste/<key>-0..4.png` and `-0..4-p.png`.
+- **The Dribbble link still needs a human eye.**
+- **Nothing here has been checked at 320px**, which PRODUCT.md promises and this
+  repo sweeps by default. These are other people's sites so it is not a defect
+  list — but if the bottom dock is copied, 320 is where it will fail first.
