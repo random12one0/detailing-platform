@@ -25,26 +25,43 @@ afterwards, which is how you find out; the ownership rule is how you avoid it.
 
 | | Session | Owns (writes here) | Never touches |
 |---|---|---|---|
+| **M** | **Manager** — `manager.md` | `CLAUDE.md`, `docs/README.md`, `docs/roadmap.md`, `docs/OUTSTANDING.md`, `docs/overnight-log.md`, `docs/sessions/` | **Everything else.** It reads, it does not build. |
 | **A** | **Websites** — `websites.md` | `docs/tenant-sites/`, `docs/TASTE-NOTES.md`, `docs/design-*`, `scripts/build-examples.mjs` | `app/src`, `supabase/`, `tests/` |
 | **B** | **Product** — `product.md` | `app/src/**` — **exclusively** | `supabase/`, `docs/tenant-sites/` |
-| **C** | **Build** — `build.md` | `supabase/**`, `tests/**`, `scripts/**` (except build-examples), `docs/**` (except A's) | `app/src`, `docs/tenant-sites/` |
+| **C** | **Build** — `build.md` | `supabase/**`, `tests/**`, `scripts/**` (except build-examples), `docs/**` (except A's and M's) | `app/src`, `docs/tenant-sites/` |
 
-**Nothing overlaps.** A works on static HTML files that no test reads. B is the
-only writer of the React app. C is the only writer of the database, the edge
-functions, the tests and the rest of the docs.
+**Nothing overlaps.** M holds the plan and the record and writes no product
+code. A works on static HTML files that no test reads. B is the only writer of
+the React app. C is the only writer of the database, the edge functions, the
+tests and the rest of the docs.
+
+**There is exactly one manager and it is a long-running conversation** — it is
+not cleared at a work boundary the way a building session is. **Anything he does
+outside this repo** (Google, Stripe, Netlify, Resend, the bank, the CPA)
+**goes to the manager**, which writes it into the file it belongs in and
+unblocks whichever lane was waiting. A defect he can see on a screen goes
+straight to the lane that owns that screen.
 
 ## Starting one
 
-Paste one line. That is the whole thing.
+**Open a NEW session in this same folder — do not fork an existing one.** A
+fork carries the other conversation's whole context in with it, so a builder
+starts with a manager's head full of analysis instead of a clean read of its
+own brief, and the tokens it needs for the actual work are already spent.
+
+Then paste one line. That is the whole thing.
 
 ```
-Read docs/sessions/websites.md and do what it says.
+Read docs/sessions/websites.md and do what it says. Start by interviewing me.
 ```
 ```
-Read docs/sessions/product.md and do what it says.
+Read docs/sessions/product.md and do what it says. Start with the public pages.
 ```
 ```
 Read docs/sessions/build.md and do what it says.
+```
+```
+Read docs/sessions/manager.md. You are the manager for this project.
 ```
 
 ## The five rules all three share

@@ -139,31 +139,67 @@ badges.
 
 ---
 
-## 5. THE WORK, IN ORDER
+## 5. THE WORK — ONE SITE AT A TIME, WITH HIM IN THE ROOM
 
-**Do not build ten more.** Build **two**, all the way, and show him. Ten
-mediocre pages cost the same session time as two good ones and tell you less,
-because he cannot tell you what is wrong with ten at once — he could not last
-time, and said so: *"I really don't like any of them."*
+**HIS INSTRUCTION, 2026-09-08, AND IT IS THE WHOLE METHOD:** *"We're gonna make
+a website one at a time and just kind of… I'll just kinda go back and forth."*
 
-1. **Do the research he asked for and write it down** —
-   *"research on how to actually build good websites based off what people say
-   out there."* Put it in `docs/design-knowledge.md` **with sources**, and be
-   specific about what transfers to a detailer's site and what does not. Use
-   the web. Use the connectors.
+**That replaces every batch approach that came before it, and it is the fix for
+why the last four attempts failed.** Ten pages built in silence produced ten
+rejections and one sentence of feedback — *"I really don't like any of them"* —
+which is true and impossible to build from. **One page built in front of him
+produces a correction every twenty minutes.**
+
+### Before the first page — two things, once
+
+1. **Do the research he asked for and write it down** — *"research on how to
+   actually build good websites based off what people say out there."* Put it
+   in `docs/design-knowledge.md` **with sources**, and be specific about what
+   transfers to a detailer's site and what does not. Use the web. Use the
+   connectors.
 2. **Write the photograph rule down as a CHECK, not a sentence.** A ~30-line
    `tests/tenant-sites.test.mjs` that walks `docs/tenant-sites/*.html` and fails
    any page with no `<img>`, any `background-image` that is only a gradient, and
    any placeholder box. **A rule with no test is a rule that gets broken again**
    — this repo's own words, and this is the tenth proof of it.
-3. **Build two pages.** Different worlds, both photograph-led, both carrying the
-   contract's twelve. One dark, one light. **No centred hero on either.**
-4. **Screenshot both at 1440 and 392, five scroll positions**, and
-   `SendUserFile` the phone frames first — that is the shape he is holding.
-5. **Ask him one question, in one sentence, with a recommendation in it.**
 
-**Then stop and wait for his verdict before building a third.** That is the
-whole change from the last three attempts.
+### Then, per site — the loop
+
+1. **INTERVIEW HIM FIRST. Do not start from a brief you wrote yourself.**
+   Four or five short questions, answerable with one thumb: what kind of
+   detailer is this one, light or dark, what is the one thing the page has to
+   make somebody feel, name a site from his 21 that this should sit near, and
+   what it must NOT look like. **His refusals are worth more than his
+   approvals** — that is `TASTE-NOTES.md`'s own finding.
+2. **Find the photographs BEFORE the layout.** Search Unsplash, render the
+   candidates to a contact sheet, **look at it**, and send him the three or four
+   you want to use. The hero photo decides the page; picking it last means
+   building a layout that a photo then has to be squeezed into. If nothing
+   found is right, **ask him** — he has said he will go and source images
+   rather than have the work limited.
+3. **Build the page in passes and show each one.** The ground and the hero
+   first. Send it. Then the sections. Send it. Then the motion. Send it. **Never
+   more than about twenty minutes between screenshots.** He cannot see your
+   screen and he is on a phone.
+4. **`SendUserFile` at 392 first**, then 1440 when the desk layout is the point.
+   Viewport-sized crops down the page — a stitched full-page PNG is rejected at
+   400, and the limit is the image's HEIGHT rather than its size.
+5. **Every question you ask him carries your recommendation.** *"Your call"* is
+   an unfinished sentence.
+6. **When he says it is right, run the checks, commit, and ask what the next
+   one should be.** Do not roll straight into a second page on your own
+   initiative — the whole point of one-at-a-time is that he picks the next one.
+
+### The three rules of the loop
+
+- **Change one thing at a time when he gives a note.** He gave you a specific
+  complaint; a rebuild that also moves four other things means neither of you
+  knows what fixed it.
+- **Do not defend a page.** If he says it is wrong, it is wrong. Ask what about
+  it, change that, show him again.
+- **Write what he says into `docs/TASTE-NOTES.md` as he says it**, verbatim,
+  the same turn. That file is the only reason this attempt has evidence the
+  first three did not, and it only grows if somebody writes in it.
 
 ---
 

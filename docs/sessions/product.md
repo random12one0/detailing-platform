@@ -97,6 +97,40 @@ whole session and not an afternoon.**
 
 ---
 
+## 3b. THE KIND OF NOTE HE GIVES, AND HOW TO TAKE IT
+
+**His own examples, 2026-09-08:** *"the step-by-step stuff, I feel like it's
+still lacking a little bit"* and *"make the highlight around the mouse slightly
+smaller."*
+
+**Those are two completely different notes and confusing them wastes a day.**
+
+| | **A trim** | **A feeling** |
+|---|---|---|
+| Sounds like | *"slightly smaller"*, *"a bit tighter"*, *"move that up"* | *"lacking"*, *"doesn't feel right"*, *"kind of boring"* |
+| What to do | **Just do it.** One value, one file, show him the before and after. Do not ask a clarifying question about a 4px change. | **Do NOT start editing.** Ask what specifically — the pace? the amount on one screen? how it moves between steps? Get one concrete thing, change that one thing, show him. |
+| The failure | Turning it into a discussion | Guessing, rebuilding the whole thing, and getting a second *"still lacking"* |
+
+**A "feeling" note is a symptom and he is not obliged to diagnose it — that is
+your job.** Show him two versions rather than asking him to describe what he
+wants; he picks faster than he specifies, and every one of his most useful
+notes in this repo came from reacting to something rather than briefing it.
+
+**Batch the trims, act on the feelings one at a time.** Ten small fixes can ship
+in one pass and one screenshot. A "lacking" note gets its own loop.
+
+### The one standing complaint to expect
+
+**The booking flow's seven steps.** He has now said twice that they feel thin.
+Before touching them, read the numbers `sweep-booking-steps.mjs` prints — every
+step has a measured *spare room* figure and some are down to 16px on a phone.
+**That budget is the detailer's, not ours**, and his own rule is that a customer
+must never scroll inside a step. So *"make it feel like more"* cannot mean
+*"add height"*. It means motion between steps, the sense of progress, and what
+each step does with the room it already has.
+
+---
+
 ## 4. What is actually unfinished on your side
 
 Everything below is a real, unbuilt piece of `app/src`. Do these between
