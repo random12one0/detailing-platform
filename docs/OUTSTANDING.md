@@ -84,23 +84,34 @@ scratch project or 2.22 stays `[~]`.
 
 ## 3. MINE, UNBLOCKED, IN THE ORDER I WOULD DO THEM
 
-1. **The website research he asked for — IN FLIGHT.** All 18 sites he sent were
-   opened at 1440x900 and measured on 2026-09-08 (`taste-probe.tmp.mjs`).
-   Findings go in `docs/TASTE-NOTES.md`; the five sites built from them are the
-   deliverable. **This is what he told me to get back to.**
-2. **Roadmap 8.17 Spanish, stage 2b — PAUSED BY HIM 2026-09-07** and left
-   honestly unfinished: the dashboard is translated and proven by reading it in
-   a browser, but **the width sweep in Spanish has never passed at all five
-   widths.** Commit `294a7eb` says so. Resume only when he says.
-3. **Roadmap 9.2 — the gallery screens.** Newly unblocked by his 21 links. A
+1. ~~**The website research**~~ **DONE 2026-09-08, and it went further than the
+   brief.** All 18 sites measured (`taste-probe.tmp.mjs`), all 18 home pages
+   LOOKED AT, then every site crawled page by page — **855 frames across 18
+   sites, plus a 392x844 phone pass.** `docs/TASTE-NOTES.md` batch 2 is the
+   result: §0–§6 measured, §A–§F visual, §G–§J phone, §K–§N inner pages,
+   §O all eighteen one read each.
+2. ~~**The five sites built from it**~~ **SUPERSEDED — he asked for TEN, and
+   they are built.** `docs/tenant-sites/l-` through `u-`, serving at
+   /example1…10. No two share a kind of ground; four have no animation at all;
+   every one carries the contract's twelve and marks each managed figure
+   `data-live`. Real detailer data behind them:
+   `docs/tenant-site-source-data-2026-09-08.md`.
+3. **Roadmap 8.17 Spanish, stage 2b — the last unfinished verification.**
+   Paused by him on 2026-09-07 so the artifact could be built; that artifact
+   shipped, and on 2026-09-08 he asked to *"finish anything else that is...
+   needs to be done that's on the to do list that you could do."* The dashboard
+   is translated and proven by reading it in a browser; **the width sweep in
+   Spanish had never passed at all five widths** (commit `294a7eb` says so).
+   Running now.
+4. **Roadmap 9.2 — the gallery screens.** Newly unblocked by his 21 links. A
    `site_examples` table, back-office management, customer browse-and-favourite.
    **It must NOT live in this repo** — other designers' work does not go in a
    public repo.
-4. **Roadmap 6.1 / 6.2 — a believable demo business** with ~3 months of
+5. **Roadmap 6.1 / 6.2 — a believable demo business** with ~3 months of
    obviously-fictional history and a reset script.
-5. **Roadmap 9.5 — ten example sites at `/example1…10`.** `[~]`: the routing is
-   built and shipping; what is left is replacing the pages themselves once the
-   taste work lands.
+6. ~~**Roadmap 9.5 — ten example sites**~~ **DONE 2026-09-08.** The routing was
+   already built; the ten pages it serves are now the ten built on his own taste
+   evidence rather than the eleven that predate it.
 
 ## 4. BLOCKED, AND ON WHAT
 
@@ -128,3 +139,60 @@ already answered. So, um, that's confusing."*
 **A list of what he COULD do is not a list of what he still HAS to do**, and
 only the record can tell them apart. The full account is `docs/overnight-log.md`
 questions 19–22.
+
+---
+
+## 6. THE ONE THAT BLOCKS HIM SEEING ANYTHING — 2026-09-08
+
+**`detailingplatform.com` DOES NOT BUILD FROM GITHUB PUSHES, AND CLAUDE.md SAYS
+IT DOES.**
+
+He asked: *"can u make it so u dont have to sighn up to veiew rthe examples"*.
+There is no sign-up gate. `/example1` returns the SPA — verified with curl,
+`200`, `<title>Detailing Platform</title>` — because `_redirects` sends every
+unmatched path to `index.html` and **the example pages have never been on the
+live site at all.**
+
+**Measured through the Netlify API, not assumed:**
+
+```
+  site            detailplatform-admin-test  ->  detailingplatform.com
+  current deploy  6a9df606…  state: ready
+  created         2026-09-06T23:23:50Z
+  commit_ref      c47cfae   ("the ground, and the rail…")
+  deploy_source   api        has_source_zip: true
+```
+
+**A push to `main` at 06:26 on 2026-09-08 created NO new deploy** — twenty
+minutes later `currentDeploy` was still the 6 September one and the live bundle
+hash was unchanged. **`deploy_source: "api"` with a source zip is a manual or
+CLI upload, not a git-triggered build.**
+
+**SO CLAUDE.md's "A PUSH TO `main` IS A PUBLISH — there is no second step to
+forget" IS WRONG TODAY.** It was written on 2026-08-30 from an observation that
+was true then. It has quietly stopped being true, and it is load-bearing: it is
+why every session has assumed the live site tracks this branch. **The live site
+is 75 commits behind and nothing was going to change that on its own.**
+
+The live commit IS an ancestor of `HEAD` (`git merge-base --is-ancestor` says
+yes), so no work is at risk and a deploy is a strict fast-forward.
+
+**A DEPLOY WAS ATTEMPTED AND FAILED, and that is where this stops.** The Netlify
+MCP's `deploy-site` returns a `npx @netlify/mcp --site-id … --proxy-path …`
+command that zips the repo and builds it in Netlify's system. It uploaded and
+then returned **`500 Internal Server Error`** from the build API. Retried once,
+same result. **Not something this session can fix from here** — it needs either
+the dashboard or a reconnected git integration.
+
+### What he has to do, and it is one of two things
+
+1. **Reconnect the repo in Netlify** — *Site configuration → Build & deploy →
+   Continuous deployment* — so a push to `main` builds again. **This is the one
+   worth doing**, because it restores the rule the whole repo is written around.
+2. **Or deploy once by hand**, if he wants the examples up sooner:
+   `npx netlify deploy --prod --dir=app/dist` from the repo root, after
+   `npm run build --prefix app`.
+
+**Until one of those happens, nothing this session built reaches the live site**
+— not the ten example pages, not the Spanish dashboard, not the booking-page
+crash fix that production has been carrying since 2026-08-31.
