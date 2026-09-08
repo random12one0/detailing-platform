@@ -21,9 +21,16 @@ questions in `docs/overnight-log.md`, read one at a time on 2026-09-08.
 grep -nE "^- \[( |~)\] " docs/roadmap.md
 ```
 
+**AND A SECOND SOURCE FEEDS IT SINCE 2026-09-08: `docs/coworker-report-2026-09-08.md`** — what his cloud coworker measured in the actual dashboards. **Nine beliefs in this repo turned out to be wrong**, four of them pointing at work that is already done or is not needed, so read that file's § 3 before building anything this file lists.
+
 ---
 
-## 1. ON HIM — and it is FOUR things, not eight
+## 1. ON HIM — and it is FIVE things, not eight
+
+<!-- The count in this heading is a fact that rots: it has been wrong twice.
+     Count the table rows rather than trusting the number. -->
+
+**Nothing here takes more than a couple of minutes, and none of it is code.**
 
 Everything else that was ever on his list has been answered or refused. The
 page he actually reads is
@@ -31,17 +38,23 @@ https://claude.ai/code/artifact/e7683fbc-9436-48cb-ae47-c1868167205b
 
 | | What | Why only he can | Time |
 |---|---|---|---|
-| **1** | **Turn on Google sign-in** (roadmap 2.25) | A Google Cloud OAuth client on his account, then one toggle in Supabase. The button is BUILT and hides itself until the provider is on. | 10 min, free |
-| **2** | **Does a mailbox exist on `detailingplatform.com`?** | Google Business Profile's application form rejects a Gmail address. One-minute answer; if no, setting it up is MINE. | 1 min |
+| **1** | ~~**Turn on Google sign-in**~~ **SWITCHED ON — measured 2026-09-08, `/auth/v1/settings` answers `google: true`, so the button is LIVE on the sign-in screen.** What is left is not the toggle: Google's Audience page refuses *Publish app* AND saving a test user while Branding is incomplete, and **the only empty fields are the privacy policy and terms URLs**. Both pages are public and render on the live site. **He pastes `https://detailingplatform.com/privacy` and `https://detailingplatform.com/terms` into the Branding page.** Not a code task and not a bug — do not chase it as one. | 2 min |
+| **2** | ~~**Does a mailbox exist on `detailingplatform.com`?**~~ **ANSWERED 2026-09-08: YES — `andrew@` and `support@`, on iCloud Mail, and they existed before anybody asked.** The DNS is on **NS1**, not Cloudflare and not Netlify. The GBP application was filed from `andrewswashing@gmail.com` anyway, because that account holds the verified listing and the form has no contact-email field. | done |
+| **2b** | **NEW — read Resend's actual billing plan** at `resend.com/settings/billing`. **The account sent 200 emails on 7 Sep and 110 on 6 Sep, all delivered** — both above the 100/day free cap this product's counter is built against. So either he is not on the free plan, or **the back office's *"Emails: N of 100 today"* is measuring against a limit that does not exist.** The coworker's API access shows domains and metrics but not the plan. | 1 min |
+| **2c** | **NEW — two things in the Stripe dashboard that roadmap 2.20 stage 3 is waiting on**, now that its server half is deployed: the **`ca_…` Connect client id** set as `STRIPE_CONNECT_CLIENT_ID`, and **the webhook endpoint told to listen to events on CONNECTED accounts** — a separate setting, and without it `event.account` never arrives and every card payment a customer makes stays showing unpaid. | 5 min |
 | **3** | **The site gallery** (roadmap 9.1) — *mostly delivered 2026-09-08* | His taste, and nobody else's. **He sent 21 links with a verdict on each on 2026-09-08** — see `docs/TASTE-NOTES.md` batch 2. That is enough to start 9.2. | done for now |
 | **4** | **Two one-word answers** — a detailer's email on their site (switch? recommended), and whether the price editor should refuse an odd ladder (keep warning? recommended) | Both are business calls, not code ones. | 30 sec |
+| **5** | **Is `ENTITY` right?** `app/src/landing/legal.js` now prints *"Andrew Dietrich, doing business as Detailing Platform"* at the top of `/privacy` and `/terms`. **It is a GUESS at his paperwork** — sole trader, a DBA on his own name and an LLC are three different legal persons, and only he knows which one signs. One constant, one line to change, and free to change until somebody has actually agreed to those terms. | 30 sec |
 
 ### Off his list for good — do not re-raise any of these
 
 | Thing | Why it is closed |
 |---|---|
 | Stripe's business address | **He is not old enough to complete the form.** Blocked by a fact, not a preference. The no-tax fallback cannot under-collect. `overnight-log` Q19. |
-| Resend $20/month | **Decided:** upgrade when a real detailer nears the cap. The back office already prints *"Emails: N of 100 today"* and reddens at 80. A 429 in OUR OWN test runs is not the trigger. Q20. |
+| Resend $20/month | **Decided:** upgrade when a real detailer nears the cap — *"when a real detailer gets close"*, re-confirmed 2026-09-08. A 429 in OUR OWN test runs is not the trigger. Q20. **But the CAP ITSELF is now in doubt — see row 2b above; the counter may be measuring against a limit that does not exist.** |
+| Referral rewards | **Skipped entirely, 2026-09-08**, until there are detailers who could refer each other. That closes what § 4 lists against roadmap 8.15 — it is not waiting on him deciding what a referral earns; he has deferred the whole feature. |
+| Moving his own business onto the platform | **PARKED, and the INTENT is corrected: it is a COPY for DOGFOODING, not a cutover.** His live business keeps running and keeps taking real money throughout. **He has deliberately not shared the old project's `service_role` key — do not ask for it.** |
+| A postal address on the legal pages | **Dropped entirely, his call 2026-09-08** — email only, rather than publishing a home address. |
 | Supabase Pro $25/month for backups | **Refused.** Backups go to GitHub instead — see § 2. Q21. |
 | Send me detailer sites you like | **Done 2026-09-08.** Twenty-one links. |
 | The outage watcher | **Done and proven** 2026-09-07. A real ping reached his monitor. The *"one box left"* heading was a copy defect, not remaining work. Q22. |
@@ -50,7 +63,58 @@ https://claude.ai/code/artifact/e7683fbc-9436-48cb-ae47-c1868167205b
 
 ---
 
-## 2. DELEGATED TO HIS CLOUD COWORKER — the backup repo
+## 2. ~~DELEGATED TO HIS CLOUD COWORKER~~ — THE BACKUP REPO IS BUILT AND RUNNING
+
+> **DONE 2026-09-08.** It came back from the cloud coworker as a brief rather
+> than as a finished thing, and was finished here. What is below the line is
+> kept because its three warnings are still the reasons it works.
+
+**`random12one0/detailing-platform-backups` is private, holds exactly five
+files, and has produced a real encrypted backup.**
+
+| | |
+|---|---|
+| Release | `backup-2026-09-08` |
+| Asset | `dump-2026-09-08.pgc.age`, **714,366 bytes** |
+| Raw dump | 714,006 bytes — well clear of the 50 KB "this looks empty" floor |
+| Proven encrypted | downloaded and read by hand: begins `age-encryption.org/v1` with an X25519 stanza, and **not** `PGDMP` |
+| Schedule | 02:10 Pacific nightly, plus `workflow_dispatch` |
+
+**Two things about getting it up are worth keeping, because both cost time and
+neither is guessable:**
+
+1. **`gh auth refresh -h github.com -s workflow` FAILED with *"not logged in to
+   any hosts"* while `gh auth status` said the opposite.** The credential is in
+   the Windows **keyring** and `hosts.yml` carries the host with no token in
+   it, which gh 2.96's `refresh` cannot cope with. What worked was a fresh
+   login carrying the scope:
+   `gh auth login --hostname github.com --scopes workflow --git-protocol https --web`.
+   Without `workflow`, GitHub refuses the workflow file **and the REST contents
+   API answers 404 rather than 403**, which reads as a missing repository.
+2. **The first run failed and it was NEITHER cause the brief predicted** (not
+   the `[YOUR-PASSWORD]` brackets, not the direct-vs-pooler mix-up — the pooler
+   was already right). Postgres said `FATAL: database "postgres⏎" does not
+   exist`: **the secret had been saved with a trailing newline**, which lands
+   on the last path segment and becomes part of the database NAME. The workflow
+   trims it now (`tr -d "[:space:]"` — a connection string has no legitimate
+   whitespace) and `::add-mask::`s the trimmed value, **because it differs from
+   the secret GitHub knows about and so is not covered by GitHub's own
+   masking.**
+
+**STILL OPEN, AND THE SECOND ONE IS THE ACCEPTANCE TEST:**
+
+- **`HEALTHCHECK_URL` is not set**, so the "tell the outage watcher" step is a
+  no-op and a backup that stops will stop silently — the same argument roadmap
+  8.12 makes about the scheduler. Five minutes on healthchecks.io. (Not the
+  same URL as `platform_settings.healthcheck_url`, which watches a different
+  job.)
+- **Nothing has ever been restored**, so 2.22 stays `[~]`. Needs a scratch
+  Supabase project and the age private key, which is in his password manager
+  and deliberately nowhere else — not in CI, not in this repo, not here.
+
+---
+
+### The original brief, kept for its three warnings
 
 > *"Yeah. We'll do another gap repo. I'm having a a cloud... code... cloud
 > coworker do all the stuff for me."* — 2026-09-08, answering the private-repo
@@ -96,20 +160,30 @@ scratch project or 2.22 stays `[~]`.
    every one carries the contract's twelve and marks each managed figure
    `data-live`. Real detailer data behind them:
    `docs/tenant-site-source-data-2026-09-08.md`.
-3. **Roadmap 8.17 Spanish, stage 2b — the last unfinished verification.**
+3. ~~**Roadmap 2.20 stage 3 — Stripe Connect**~~ **THE SERVER HALF IS BUILT,
+   DEPLOYED AND CHECKED, 2026-09-08 — and § 4 was WRONG to call it blocked.**
+   `Standard` connected accounts have no age requirement (Express and Custom
+   do), and all of Connect works in test mode, so this could have been built at
+   any point in the last week. `_shared/connect.ts`, `connect-account`,
+   `pay-booking`, the webhook's `event.account` branch and
+   `connected_accounts` — 83 credential-free checks, fifteen breaks, migration
+   applied, four functions deployed, endpoints probed live. **What is left: the
+   two SCREENS, one real card payment, and § 1 row 2c.**
+
+4. **Roadmap 8.17 Spanish, stage 2b — the last unfinished verification.**
    Paused by him on 2026-09-07 so the artifact could be built; that artifact
    shipped, and on 2026-09-08 he asked to *"finish anything else that is...
    needs to be done that's on the to do list that you could do."* The dashboard
    is translated and proven by reading it in a browser; **the width sweep in
    Spanish had never passed at all five widths** (commit `294a7eb` says so).
    Running now.
-4. **Roadmap 9.2 — the gallery screens.** Newly unblocked by his 21 links. A
+5. **Roadmap 9.2 — the gallery screens.** Newly unblocked by his 21 links. A
    `site_examples` table, back-office management, customer browse-and-favourite.
    **It must NOT live in this repo** — other designers' work does not go in a
    public repo.
-5. **Roadmap 6.1 / 6.2 — a believable demo business** with ~3 months of
+6. **Roadmap 6.1 / 6.2 — a believable demo business** with ~3 months of
    obviously-fictional history and a reset script.
-6. ~~**Roadmap 9.5 — ten example sites**~~ **DONE 2026-09-08.** The routing was
+7. ~~**Roadmap 9.5 — ten example sites**~~ **DONE 2026-09-08.** The routing was
    already built; the ten pages it serves are now the ten built on his own taste
    evidence rather than the eleven that predate it.
 
@@ -117,12 +191,12 @@ scratch project or 2.22 stays `[~]`.
 
 | Item | Waiting on |
 |---|---|
-| **2.20 stage 3** — Stripe Connect, so a *detailer* can take cards | Stage 3 is the whole of what is left. It also unlocks charging for monthly plans (2.14). Needs a Stripe decision that is downstream of his age constraint. |
+| ~~**2.20 stage 3** — Stripe Connect~~ **NOT BLOCKED, AND NEVER WAS. The SERVER HALF IS BUILT, DEPLOYED AND CHECKED — 2026-09-08.** | **The age constraint in this row was wrong**: Express and Custom accounts require the holder to be 18, **`Standard` does not**, and every part of Connect works in TEST MODE with no activated account. Connect was in fact **already enabled** on the sandbox account with a Standard connected account sitting on it. What is left is the two SCREENS, one real payment, and § 1 row 2c's two dashboard settings. |
 | **7.2** — Sentry error monitoring | **His DSN.** A free account. Not urgent while nobody is on the product. |
 | **8.9** — the advanced money view | **The CUSTOMER-entered tip**, which does not exist yet — three of his six money figures are tip figures. Also two of the four questions in `docs/money-view-research-2026-09-07.md` § 6. |
-| **8.15** — referral links and loyalty | **What a referral actually earns.** A month free, cash, a discount? Cannot be guessed: it comes out of his margin. |
-| **8.16** — Google Business Profile | § 1 item 2, then two Google reviews in a fixed order (API access ~2 weeks, then sensitive-scope verification 3–5 days). **Build nothing until the first is answered.** |
-| **5.1 / 5.2 / 5.3** — moving his real business onto the platform | **The old project's `service_role` key.** The mapping is written and tested (`tests/legacy-import.test.mjs`, 47 checks); the I/O half has never run because the key in `.env` answers 403. **Hold this until the day he wants the move** — that key reads and writes a business taking real money. |
+| ~~**8.15** — referral links and loyalty~~ **CLOSED FOR NOW, 2026-09-08** | He **skipped the whole feature** until there are detailers who could refer each other. So it is not waiting on him naming a reward — it is deferred. |
+| **8.16** — Google Business Profile | **Application ONE IS SUBMITTED — case 6-3052000042070, 8 Sep, 7–10 business days** (not the ~2 weeks this row said), filed from `andrewswashing@gmail.com` because that account holds the verified listing. **Quota reads 0 until it lands; a non-zero quota IS the approval.** Application two (the sensitive-scope OAuth review) correctly waits. **Build nothing until the first is answered.** Detail: `docs/coworker-report-2026-09-08.md` § 4. |
+| **5.1 / 5.2 / 5.3** — moving his real business onto the platform | **The old project's `service_role` key.** The mapping is written and tested (`tests/legacy-import.test.mjs`, 47 checks); the I/O half has never run because the key in `.env` answers 403. **Hold this until the day he wants the move** — that key reads and writes a business taking real money. **AND THE INTENT IS CORRECTED, 2026-09-08: it is a COPY for DOGFOODING, never a cutover.** His live business keeps running and keeps taking money throughout, and **he has deliberately not shared the key. Do not ask for it.** |
 | **7.4** — founding-offer price sanity check | Him, and only worth asking once there is a real detailer to sell to. |
 | **9.3 / 9.4** — the site intake and the configurable advanced feature | 9.2. |
 
@@ -239,3 +313,67 @@ hid the second.**
 **Until one of those happens, nothing this session built reaches the live site**
 — not the ten example pages, not the Spanish dashboard, not the booking-page
 crash fix that production has been carrying since 2026-08-31.
+
+---
+
+## 7. ANOTHER SESSION IS WORKING IN THIS SAME REPO — 2026-09-08
+
+**Established by evidence, not suspicion.** While this session was running,
+commits appeared in the same repository that it did not make:
+
+```
+  a2d3714  13:33  Connect stage 3's server half is LIVE — deployed, probed…
+  0965e4e  13:29  Connect stage 3 is checked — 83 checks, fifteen breaks…
+  e6c7020  13:27  (this session — the Netlify credits finding)
+  c1d3043  13:20  Connect stage 3: the webhook branch and 83 checks — WIP…
+```
+
+**Its commits sit either side of this session's.** It is doing roadmap 2.20
+stage 3 (Stripe Connect), it has edited `tests/connect.test.mjs` in the working
+tree, and it has rewritten CLAUDE.md's `main`-is-a-publish rule — **incorporating
+the Netlify finding this session committed at 13:27, within minutes.**
+
+**That also explains the two mystery touches** this session spent time
+diagnosing: `landing/legal.js` and `landing/LegalPage.jsx` having their mtimes
+moved mid-sweep, twice, on files it never opened. CLAUDE.md already warns that
+*a second agent or session working in this same directory does it to you without
+your knowing* — this is that, observed.
+
+### What this session did about it
+
+- **Left every one of their changes alone**, committed and uncommitted.
+- **Wrote its own documentation into NEW files** — `tenant-sites-2026-09-08.md`
+  and `sweep-locators-2026-09-08.md` — rather than appending to CLAUDE.md, which
+  they had open with uncommitted edits.
+- **Did not revert, restage or "tidy"** `tests/connect.test.mjs`.
+
+### What he should know
+
+**Two agents sharing one working tree is workable but not free.** A browser
+script here takes ~9 minutes and is invalidated by any `app/src` write; the
+source guard now tells a touch from a real edit, which removes the false alarms
+but not the real ones. **If both sessions edit `app/src` at once, whichever is
+running a sweep is measuring a page that reloaded under it.**
+
+**The cheapest fix is a convention, not a tool:** one session owns `app/src` at
+a time, and the other works in `docs/`, `scripts/` or `tests/`. That is roughly
+what happened here by luck — this session was in scripts and docs while the
+other was in the edge functions.
+
+---
+
+## 8. WHERE THE SCRATCH SCREENSHOTS WENT — 2026-09-08
+
+**99 gitignored directories, about 700 MB**, moved to `../_repo-shots-archive/`:
+`screenshots/`, `shots/`, `shots-2.4/`, `shots-2.7/`, `shots-31-b/` and the rest
+of the accumulated per-item output from past sessions.
+
+**They were moved because they broke the deploy.** The Netlify deploy tool zips
+the WORKING DIRECTORY, not the git tree, so `.gitignore` does not save it — the
+repo was **1.3 GB** and the upload returned `500 Internal Server Error` twice.
+At 238 MB it went through (and was then skipped for build credits, § 6).
+
+**Nothing tracked was touched.** Delete the archive whenever; the current
+session's own output — `shots-taste/`, `shots-full/`, `shots-mocks/` — is still
+in the repo and still gitignored, and should be moved or deleted before the next
+deploy attempt for the same reason.
