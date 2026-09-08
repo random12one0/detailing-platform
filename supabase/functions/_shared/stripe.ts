@@ -28,6 +28,43 @@ const API_VERSION = "2024-06-20";
 
 export const stripeKey = () => Deno.env.get("STRIPE_SECRET_KEY") || "";
 export const webhookSecret = () => Deno.env.get("STRIPE_WEBHOOK_SECRET") || "";
+
+/**
+ * THE SECOND WEBHOOK SECRET, AND IT EXISTS BECAUSE OF A STRIPE CONSTRAINT
+ * NOBODY HERE KNEW ABOUT — 2026-09-08.
+ *
+ * A Stripe webhook endpoint's `connect` flag — the dashboard calls it
+ * **"Events from"** — is **CREATE-ONLY. It cannot be edited afterwards**, in
+ * the dashboard or through the API; it sits with the payload style and the
+ * API version as immutable metadata on the endpoint. Verified in the account
+ * itself rather than read in a doc: `we_1UCMpdJeoZO7o6Eenofj0orr` is
+ * permanently scoped to *"Your account"*.
+ *
+ * **SO THE `event.account` BRANCH IN `stripe-webhook` WAS UNREACHABLE.** It
+ * was written, reviewed, tested against the source and deployed, and no event
+ * carrying `event.account` could ever arrive at it, because the only endpoint
+ * registered is one that by construction never sends one. Every doc in this
+ * repo called the remaining work *"a separate setting"* on that endpoint.
+ * **There is no such setting.** It takes a SECOND endpoint.
+ *
+ * **AND A SECOND ENDPOINT ISSUES ITS OWN SIGNING SECRET**, which is the part
+ * that makes this a code change rather than a dashboard errand. Both endpoints
+ * can point at this same function — that is the cheap arrangement and the one
+ * chosen — but then one function has to accept two secrets, because a
+ * connected-account event signed with the connect secret fails verification
+ * against `STRIPE_WEBHOOK_SECRET` and comes back a 400. **The symptom that
+ * would produce is the worst kind: card payments silently never recorded, with
+ * a perfectly healthy-looking platform-billing endpoint beside it.**
+ *
+ * Deliberately SEPARATE from `STRIPE_WEBHOOK_SECRET` rather than replacing it:
+ * the platform-billing endpoint is live, working and carries every
+ * subscription this product has, and it keeps its own secret untouched.
+ *
+ * Empty until the endpoint is created, and empty is not an error — it means
+ * Connect's webhook is not switched on yet, which is true today.
+ */
+export const connectWebhookSecret = () =>
+  Deno.env.get("STRIPE_CONNECT_WEBHOOK_SECRET") || "";
 /**
  * THE PUBLISHABLE KEY, AND IT IS SERVED RATHER THAN BUILT IN.
  *

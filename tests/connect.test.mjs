@@ -426,5 +426,70 @@ console.log("\n§ 6 — the webhook, where a connected event must not be read as
     "a detailer's customer's card must never change what the detailer owes us");
 }
 
+// ---------------------------------------------------------------------------
+console.log("\n§ 7 — the SECOND webhook secret, without which § 6 is unreachable");
+{
+  // WHY THIS SECTION EXISTS, and it is the most expensive kind of defect this
+  // repo produces: § 6 above is CORRECT. It was written, reviewed, tested
+  // against the source and deployed — and it could never once have run.
+  //
+  // A Stripe endpoint's `connect` flag ("Events from" in the dashboard) is
+  // CREATE-ONLY and cannot be edited afterwards. The registered endpoint
+  // `we_1UCMpdJeoZO7o6Eenofj0orr` is permanently scoped to "Your account", so
+  // no event carrying `event.account` has ever been able to arrive. Every doc
+  // in this repo called the remaining work "a separate setting" on that
+  // endpoint. **There is no such setting.** It takes a SECOND endpoint, and a
+  // second endpoint issues its OWN signing secret.
+  const hook = code("supabase/functions/stripe-webhook/index.ts");
+  const shared = code("supabase/functions/_shared/stripe.ts");
+
+  check("there is a second secret accessor, reading its own env name",
+    /STRIPE_CONNECT_WEBHOOK_SECRET/.test(shared),
+    "one secret means every connect-endpoint event fails verification");
+
+  // SEPARATE, NOT REPLACING. The platform-billing endpoint is live and carries
+  // every subscription this product has.
+  check("and the platform secret is untouched beside it",
+    /STRIPE_WEBHOOK_SECRET/.test(shared) && /webhookSecret = \(\)/.test(shared),
+    "reusing one name takes the live billing endpoint down");
+
+  check("the webhook tries BOTH secrets",
+    /webhookSecret\(\), connectWebhookSecret\(\)/.test(hook),
+    "a connected event signed with the connect secret would 400");
+
+  check("an unset connect secret is skipped, never tried as an empty string",
+    /\.filter\(Boolean\)/.test(hook));
+
+  check("and no secret configured at all is a 503, not a 400",
+    /Webhook secret is not configured\.", 503/.test(hook),
+    "a 400 makes Stripe stop retrying an event we could have handled");
+
+  // ── BEHAVIOURAL, because everything above reads SOURCE and "tries both" is
+  // a loop — and a loop can be written to try the same secret twice.
+  const { verifyWebhook } = await import("../supabase/functions/_shared/stripe.ts");
+  const PLATFORM = "whsec_platform_one", CONNECT = "whsec_connect_two";
+  const sign = async (payload, secret, t) => {
+    const key = await crypto.subtle.importKey(
+      "raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+    const mac = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${t}.${payload}`));
+    return [...new Uint8Array(mac)].map((b) => b.toString(16).padStart(2, "0")).join("");
+  };
+  const body = JSON.stringify({ id: "evt_x", type: "account.updated", account: "acct_x" });
+  const now = Math.floor(Date.now() / 1000);
+  const header = `t=${now},v1=${await sign(body, CONNECT, now)}`;
+  const ok = async (secret) => {
+    try { await verifyWebhook(body, header, secret); return true; } catch { return false; }
+  };
+
+  check("a connect-signed event does NOT verify under the platform secret",
+    !(await ok(PLATFORM)),
+    "if this passes the section is vacuous — the two secrets are the same");
+  check("and it DOES verify under the connect secret",
+    await ok(CONNECT),
+    "the fallback cannot work if the second secret verifies nothing");
+  check("the connected account survives verification and can still be routed on",
+    (await verifyWebhook(body, header, CONNECT)).account === "acct_x");
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

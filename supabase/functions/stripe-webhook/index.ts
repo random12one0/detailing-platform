@@ -53,7 +53,7 @@ import { supabase } from "../_shared/db.ts";
 import { json } from "../_shared/http.ts";
 import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
 import { PLATFORM_URL } from "../_shared/config.ts";
-import { stripe, verifyWebhook, webhookSecret, StripeError } from "../_shared/stripe.ts";
+import { stripe, verifyWebhook, webhookSecret, connectWebhookSecret, StripeError } from "../_shared/stripe.ts";
 import { ourStatus } from "../_shared/platformBilling.ts";
 import { sendTenantEmail } from "../_shared/email.ts";
 import { platformBrand, PLATFORM_NAME } from "../_shared/platformBrand.ts";
@@ -90,13 +90,44 @@ Deno.serve(async (req) => {
   // RAW FIRST. The signature is over bytes — see _shared/stripe.ts.
   const raw = await req.text();
   let event: Obj;
-  try {
-    event = await verifyWebhook(raw, req.headers.get("Stripe-Signature"), webhookSecret());
-  } catch (err) {
-    const e = err as StripeError;
+
+  // TWO SECRETS, TRIED IN TURN — 2026-09-08, and `connectWebhookSecret`'s own
+  // header is why. A Stripe endpoint's "Events from" is CREATE-ONLY, so
+  // connected-account events need a SECOND endpoint, and a second endpoint
+  // gets its own signing secret. Both point here.
+  //
+  // TRIED RATHER THAN CHOSEN, and that is deliberate. The obvious version
+  // parses `event.account` out of the raw body first and picks a secret from
+  // it — which means an UNVERIFIED field decides which key verifies it. It is
+  // arguably still safe (a forged field just picks a key the signature then
+  // fails against), but it is a sentence somebody has to reason about
+  // correctly every time they read it, and getting it wrong is silent. Two
+  // HMACs over a few hundred bytes is nothing; a subtle authentication
+  // argument is not.
+  //
+  // The PLATFORM secret goes first because it is every event today. The error
+  // reported is the FIRST one, because "no signature header" is the useful
+  // message and the connect attempt's failure would only ever restate it.
+  const secrets = [webhookSecret(), connectWebhookSecret()].filter(Boolean);
+  let firstErr: StripeError | null = null;
+  for (const secret of secrets) {
+    try {
+      event = await verifyWebhook(raw, req.headers.get("Stripe-Signature"), secret);
+      firstErr = null;
+      break;
+    } catch (err) {
+      firstErr ??= err as StripeError;
+    }
+  }
+  if (firstErr || !secrets.length) {
+    // No secret configured at all is a 503, not a 400: nothing is wrong with
+    // the request, and telling Stripe 400 makes it stop retrying an event we
+    // could have handled once somebody sets the secret.
+    const e = firstErr ?? new StripeError("Webhook secret is not configured.", 503);
     console.error("webhook rejected:", e.message);
     return json({ error: e.message }, e.status ?? 400);
   }
+  event = event!;
 
   const id = String(event.id ?? "");
   const type = String(event.type ?? "");
