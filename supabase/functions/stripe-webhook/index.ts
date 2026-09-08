@@ -111,7 +111,17 @@ Deno.serve(async (req) => {
   }
 
   try {
-    await handle(type, asObj(asObj(event.data).object));
+    // ROADMAP 2.20 STAGE 3 — WHOSE EVENT IS THIS?
+    //
+    // `event.account` is present on an event from a CONNECTED account and
+    // absent on one about this platform's own Stripe account. That single
+    // field is the whole discriminator, and routing on it is not optional:
+    // `checkout.session.completed` now arrives from both directions, and a
+    // detailer's customer paying $150 would otherwise be handed to
+    // `completed()`, which reads it as a DETAILER buying a subscription.
+    const account = typeof event.account === "string" ? event.account : "";
+    const object = asObj(asObj(event.data).object);
+    await (account ? handleConnected(type, object, account) : handle(type, object));
     return json({ received: true });
   } catch (err) {
     // The event is recorded but its work failed, so a retry would see a
@@ -449,4 +459,93 @@ async function tell(
     businessId, to, subject: mail.subject, html: mail.html, text: mail.text,
     senderName: PLATFORM_NAME,
   });
+}
+
+// ---------------------------------------------------------------------------
+// A DETAILER'S OWN CUSTOMER PAID — roadmap 2.20 stage 3.
+//
+// These events come from a CONNECTED account, so nothing in here may touch a
+// subscription, a suspension or an invoice of ours. The only fact being
+// recorded is that one booking has been settled.
+//
+// TWO EVENT TYPES, ON PURPOSE, AND THE SECOND IS THE ONE THAT SAVES IT.
+// `checkout.session.completed` is the ordinary path. `payment_intent.succeeded`
+// is what still arrives when the customer's card needs a bank challenge and
+// the session finishes minutes later, or when Stripe's own retry completes a
+// payment the session never saw. Handling only the first leaves a paid job
+// showing as unpaid, which the detailer discovers by chasing somebody who has
+// already paid.
+//
+// IT IS SAFE TO RUN BOTH, AND THAT IS STRUCTURAL RATHER THAN CAREFUL:
+// `bookings.stripe_payment_intent` carries a UNIQUE index, so the second
+// writer of the same intent changes nothing.
+// ---------------------------------------------------------------------------
+
+async function handleConnected(type: string, object: Obj, account: string): Promise<void> {
+  if (type !== "checkout.session.completed" && type !== "payment_intent.succeeded") return;
+
+  const meta = asObj(object.metadata);
+  const bookingId = typeof meta.booking_id === "string" ? meta.booking_id : "";
+  if (!bookingId) return;
+
+  // The payment intent is the identity of the money. On a session it is a
+  // reference; on the intent itself it is the object's own id.
+  const intent = type === "payment_intent.succeeded"
+    ? String(object.id ?? "")
+    : typeof object.payment_intent === "string"
+    ? object.payment_intent
+    : String(asObj(object.payment_intent).id ?? "");
+  if (!intent) return;
+
+  const { data: booking } = await supabase
+    .from("bookings")
+    .select("id, business_id, payment_status, stripe_payment_intent")
+    .eq("id", bookingId)
+    .is("deleted_at", null)
+    .maybeSingle();
+  if (!booking) return;
+
+  // ---------------------------------------------------------------------
+  // THE CHECK THAT MATTERS, AND IT IS NOT ABOUT STRIPE BEING UNTRUSTWORTHY.
+  //
+  // The signature proves Stripe sent this. It does NOT prove who chose the
+  // metadata: a connected account is a stranger's own Stripe account, and
+  // whoever holds it can create a session carrying any `booking_id` they
+  // like and have Stripe deliver it here, correctly signed. Without this,
+  // one detailer could mark another detailer's jobs paid — for a dollar,
+  // from their own dashboard, in bulk.
+  //
+  // So the account that sent the event must be the account we have on file
+  // for the business that owns the booking. Anything else is dropped in
+  // silence: it is not our business to tell the sender why.
+  // ---------------------------------------------------------------------
+  const { data: conn } = await supabase
+    .from("connected_accounts")
+    .select("stripe_account_id")
+    .eq("business_id", booking.business_id)
+    .maybeSingle();
+  if (!conn?.stripe_account_id || conn.stripe_account_id !== account) {
+    console.error("connected event for a booking that is not this account's", bookingId, account);
+    return;
+  }
+
+  // Already settled — by this same payment, by cash the detailer recorded, or
+  // by a waiver. Nothing to do, and OVERWRITING would be wrong: a detailer
+  // who marked a job paid in cash and then got a duplicate card payment has a
+  // refund to make, not a status to flip.
+  if (booking.payment_status === "paid" || booking.payment_status === "waived") return;
+
+  const { error } = await supabase
+    .from("bookings")
+    .update({
+      payment_status: "paid",
+      paid_online_at: new Date().toISOString(),
+      stripe_payment_intent: intent,
+    })
+    .eq("id", booking.id);
+
+  // 23505 on the unique index means another delivery of the same payment got
+  // here first. That is this handler working, not failing — and throwing
+  // would release the event claim and invite Stripe to retry for ever.
+  if (error && error.code !== "23505") throw new Error(`could not record the payment: ${error.message}`);
 }
