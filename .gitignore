@@ -159,3 +159,5 @@ shots-d2/
 # reached a commit before this line existed (roadmap 8.10).
 *.tmp.mjs
 shots-taste/
+shots-full/
+shots-full-p/
