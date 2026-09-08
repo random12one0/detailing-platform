@@ -1,6 +1,11 @@
 // Prefilled customer texts. Seeded per business on first open, then fully
 // editable. Placeholders are filled from the booking when the owner taps
 // Text on a job.
+//
+// ROADMAP 8.17 STAGE 2B — the strings here are English KEYS. `t()` is applied
+// where they are DRAWN, and where they are SEEDED (`MessageTemplates.jsx`), so
+// a detailer's starting templates land in the language they are reading.
+import { t } from "./appI18n.js";
 
 export const PLACEHOLDERS = [
   ["{{customer_name}}", "the customer's first name"],
@@ -30,8 +35,8 @@ export function findBadTokens(body) {
     if (!KNOWN.has(name)) {
       problems.push(
         name.trim() === ""
-          ? "There is an empty {{ }} with nothing in it."
-          : `“{{${name}}}” isn’t one of the details we can fill in.`,
+          ? t("There is an empty {{ }} with nothing in it.")
+          : t("“{token}” isn’t one of the details we can fill in.", { token: `{{${name}}}` }),
       );
     }
   }

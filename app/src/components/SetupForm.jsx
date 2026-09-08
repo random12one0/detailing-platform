@@ -49,10 +49,14 @@ import Appearance from "../screens/more/Appearance.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
-import { t } from "../lib/appI18n.js";
+import { appIntlLocale, t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 
-const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+// ROADMAP 8.17 STAGE 2B — derived from `Intl`, like every other weekday list
+// in this product. A typed English array is English by construction.
+// 2026-01-04 is a Sunday, so index 0 stays Sunday in every language.
+const DAYS = () => [0, 1, 2, 3, 4, 5, 6].map((n) => new Date(Date.UTC(2026, 0, 4 + n))
+  .toLocaleDateString(appIntlLocale(), { weekday: "short", timeZone: "UTC" }));
 
 // The four reads that answer setupProgress()'s derivable half. NOT exported
 // and not shared with Business: that screen already asks six of these
@@ -100,13 +104,13 @@ function ThingEditor({ kind, draft, set, rows, onAdd }) {
         <div className="thoughts">
           <label className="field"><span>{t("Name")}</span>
             <input value={draft.name} autoComplete="off"
-              placeholder={kind === "services" ? "Full detail" : "Pet hair removal"}
+              placeholder={kind === "services" ? t("Full detail") : t("Pet hair removal")}
               onChange={(e) => set({ ...draft, name: e.target.value })} /></label>
           <div className="grid2">
             <label className="field"><span>{t("Price")}</span>
               <input type="number" inputMode="decimal" value={draft.price}
                 onChange={(e) => set({ ...draft, price: e.target.value })} /></label>
-            <label className="field"><span>{kind === "services" ? "Minutes" : "Extra minutes"}</span>
+            <label className="field"><span>{kind === "services" ? t("Minutes") : t("Extra minutes")}</span>
               <input type="number" inputMode="numeric" value={draft.minutes}
                 onChange={(e) => set({ ...draft, minutes: e.target.value })} /></label>
           </div>
@@ -136,7 +140,7 @@ function HoursEditor({ draft, set }) {
     <div className="card">
       <div className="thoughts">
         <div className="row wrap" style={{ gap: 6 }}>
-          {DAYS.map((name, i) => (
+          {DAYS().map((name, i) => (
             <button key={i} type="button" aria-pressed={draft.days.includes(i)}
               className={`chip ${draft.days.includes(i) ? "active" : ""}`}
               onClick={() => toggle(i)}>{name}</button>
@@ -462,11 +466,12 @@ export default function SetupForm({ onClose }) {
         <div className="progress-rule" aria-hidden="true">
           {STEPS.map(([k]) => <span key={k} className={progress.done.has(k) ? "on" : ""} />)}
         </div>
-        <span className="label">Step {i + 1} of {STEPS.length} · {name}</span>
+        <span className="label">{t("Step {n} of {total} · {name}",
+          { n: i + 1, total: STEPS.length, name: t(name) })}</span>
       </div>
 
       <div className={`setupstep ${dir > 0 ? "fwd" : "back"}`} key={key}>
-        <h2 className="title" ref={heading} tabIndex={-1}>{question}</h2>
+        <h2 className="title" ref={heading} tabIndex={-1}>{t(question)}</h2>
 
         {key === "services" && (
           <ThingEditor kind="services" draft={draft.services} set={put("services")}
@@ -529,7 +534,7 @@ export default function SetupForm({ onClose }) {
           {t("I'll do this later")}
         </button>
         <button className="btn primary" disabled={busy} onClick={() => go(i + 1, true)}>
-          {busy ? "Saving…" : last ? "Finish" : "Continue"}
+          {busy ? t("Saving…") : last ? t("Finish") : t("Continue")}
         </button>
       </div>
       {/* The one way to stop being asked. It is here rather than on Business's

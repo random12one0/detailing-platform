@@ -96,8 +96,8 @@ export default function Appearance() {
                panels, so painting the swatch from the ground would show a
                colour the page never paints. One function, no drift. */
             style={{ background: brandVarsFor(c.hex)["--bk-accent"] }}
-            title={c.name}
-            aria-label={c.name}
+            title={t(c.name)}
+            aria-label={t(c.name)}
             onClick={() => saveBrandColor(c.hex)}
           />
         ))}

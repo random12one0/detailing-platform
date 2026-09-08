@@ -47,7 +47,9 @@ export default function MessageTemplates() {
       .eq("business_id", business.id).order("sort_order");
     if (!data || data.length === 0) {
       await supabase.from("message_templates").insert(
-        DEFAULT_TEMPLATES.map((d) => ({ ...d, business_id: business.id })),
+        DEFAULT_TEMPLATES.map((d) => ({
+          ...d, label: t(d.label), body: t(d.body), business_id: business.id,
+        })),
       );
       const { data: seeded } = await supabase
         .from("message_templates").select("*")
@@ -67,7 +69,8 @@ export default function MessageTemplates() {
     // once saved — the message just goes out with "{{custmer_name}}" in it.
     const problems = findBadTokens(body);
     if (problems.length > 0) {
-      setMsg({ ok: false, text: `“${row.label}” not saved. ${problems.join(" ")}` });
+      setMsg({ ok: false, text: t("“{name}” not saved. {problems}",
+        { name: row.label, problems: problems.join(" ") }) });
       return { ok: false };
     }
     const { error } = await supabase
@@ -173,8 +176,8 @@ function TemplateCard({ row, business, onSave }) {
           <div className="chiprow wrap" style={{ marginTop: 6 }}>
             {PLACEHOLDERS.map(([token, meaning]) => (
               <button key={token} type="button" className="chip"
-                title={`Inserts ${meaning}`} onClick={() => insert(token)}>
-                {PLAIN[token] ?? meaning}
+                title={t("Inserts {meaning}", { meaning: t(meaning) })} onClick={() => insert(token)}>
+                {t(PLAIN[token] ?? meaning)}
               </button>
             ))}
           </div>
