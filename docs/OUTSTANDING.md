@@ -879,19 +879,65 @@ booking confirmation.**
 `docs/HANDOFF.md` has listed *"the platform shares the live business's Resend
 account"* as an open thread since 2026-08-29. This is what that thread costs.
 
-### THE FIX IS A SECOND FREE ACCOUNT, NOT A PAID PLAN
+### ~~THE FIX IS A SECOND FREE ACCOUNT~~ — WRONG, AND DANGEROUSLY SO
 
-**A separate Resend account for the platform costs nothing**, needs one signup
-and one domain verification, and solves all three problems at once:
+> **WITHDRAWN 2026-09-08, HOURS AFTER IT WAS WRITTEN. DO NOT CREATE A SECOND
+> RESEND ACCOUNT.** It would breach Resend's Acceptable Use Policy, quoted
+> verbatim:
+>
+> > *"Users are expressly forbidden from creating or using an account or
+> > multiple accounts with the aim of circumventing any quotas or limits
+> > imposed by our service."*
+>
+> **The stated purpose — separating so platform traffic stops consuming the
+> business's allowance — IS quota circumvention by that definition**, and
+> Andrew would own both accounts.
+>
+> **AND THE FAILURE MODE IS THE ONE THING THIS WHOLE THREAD HAS BEEN
+> PROTECTING.** `andrewsdetail.com` runs on that account. **An AUP suspension
+> takes out real customer booking confirmations on the revenue-generating
+> business** — strictly worse than the problem it was solving. A recommendation
+> whose downside is the thing you were guarding is not a cheap fix; it is a
+> bigger version of the risk wearing a smaller price tag.
+>
+> **A SECOND DOMAIN WAS NEVER GOING TO WORK EITHER**, and this half of the
+> reasoning was also wrong: Resend's own docs say the **"rate limit is per
+> team, not per API key or per domain."** The quota is 100/day and
+> 3,000/month, resetting at **midnight UTC, not rolling.**
+>
+> **It becomes legitimate LATER**, if the platform is ever its own legal
+> entity — then a separate account under that entity is a separate business
+> rather than a second account of the same one. Not available now, and it is
+> the same legal question as § 12 and § 1 row 5.
 
-1. His live business stops sharing a ceiling with a build session.
-2. Test traffic stops consuming a production allowance.
-3. **The back-office counter's numerator and denominator become the same
-   population again** — see below.
+### THE TWO OPTIONS THAT ARE ACTUALLY AVAILABLE
 
-**That is on him** (an account, an API key, a DNS record for
-`email.detailingplatform.com` on the new account). Until then, a session that
-books repeatedly should know it is spending somebody else's headroom.
+**1. SEND LESS OFTEN — free, ours, and it addresses the cause.** Not a dry run:
+the log-reading proof stays exactly as it is. The change is **how often the
+sending suites fire.** Eleven suites book, and every booking sends about five
+emails; `e2e-booking` walks two tenants and books, reschedules and cancels on
+each. **That battery belongs to a checkpoint, not to a commit.** The rule is
+now in the session briefs.
+
+**2. RESEND PRO, $20/month — and the justification is NOT the one we both
+rejected.** § 11 stands: real customer volume is ~2/day and there is no
+capacity argument. **This is insurance, and the axis matters** — Pro removes
+the **DAILY** cap, which is the one actually binding, so a build session can no
+longer threaten his live business's booking confirmations. **His call.**
+
+**MY RECOMMENDATION: do 1 now, and let 1 decide whether 2 is needed.** Option 1
+is free and fixes the cause; option 2 buys certainty on top of it. **And the
+trigger for spending the $20 should change.** *"When a real detailer gets
+close"* was a capacity trigger and capacity is not the risk. The honest
+triggers are: **the first time a real send is refused**, or **the first build
+day that still passes 100 after option 1**. The back-office counter is what
+reports both — that is what it is for.
+
+**The third option is not available yet.** If the platform ever becomes its own
+legal entity, a Resend account under that entity is a separate business rather
+than a second account of the same one, and the AUP problem disappears. **That
+is the same legal question as § 12 and § 1 row 5**, and it is one more reason
+to answer them together.
 
 ### AND THE COUNTER WAS MEASURING TWO DIFFERENT POPULATIONS — fixed
 
@@ -1004,3 +1050,59 @@ free to attempt and it closes the Google gap today rather than on the 13th.
 **Try it before paying for anything** — and if it is refused for credits too,
 then the top-up is the answer and we will have learned something worth writing
 down.
+
+---
+
+## 18. THE LOOP SPENDS METERED THIRD-PARTY BUDGET AND HAS NEVER COUNTED IT
+
+**His coworker's line, 2026-09-08, and it is the one worth keeping:** *"the same
+systemic issue as the 131 Netlify production deploys in one billing cycle — a
+high-frequency loop spending metered third-party budget."*
+
+**Two vendors, two overruns, one cause, found a week apart and diagnosed
+separately as if they were unrelated.** They are the same thing:
+
+| | Overrun | Cause |
+|---|---|---|
+| Netlify | **1,965 credits / 1,000** — 2x | deploy on every commit |
+| Resend | **117 sends / 100 a day** | five emails a booking, on every run of eleven suites |
+
+**Neither was noticed until it caused an outage**, and Netlify's was invisible
+for two days because a skipped build sends no failure email.
+
+### The inventory, so this stops being a surprise
+
+*Netlify and Resend read from their dashboards 2026-09-08; Supabase measured by
+the cloud coworker the same day.*
+
+| Service | Limit | Where we stand | Verdict |
+|---|---|---|---|
+| **Netlify** | 1,000 credits/mo | **1,965 used, 1.1 left**, resets 13 Sep | **OVER, 2x. Recurs.** § 17 |
+| **Resend daily** | 100/day | **117**, ~all test traffic | **OVER. The binding axis.** § 16 |
+| Resend monthly | 3,000/mo | 527 | Fine — 18% |
+| Supabase database | 500 MB | 33.37 MB | Fine — 7% |
+| Supabase egress | 5 GB | 0.887 GB | Fine |
+| Supabase edge invocations | 500,000/mo | 31,273 | Fine — 6% |
+| Supabase MAU | 50,000 | 126 | Fine |
+| Supabase storage | 1 GB | **0 GB** | Fine, and see the coworker report § 3 correction 4 — the "photos are filling it" premise was never true |
+
+**So it is exactly two meters, both on the two services with a per-PERIOD
+allowance rather than a per-total one.** Supabase is comfortable on every axis
+and needs nothing. **A general anxiety about free tiers would have been wrong;
+the specific measurement is what is useful.**
+
+### The rule that comes out of it
+
+**A high-frequency loop must not spend a metered budget on every iteration.**
+Both fixes are the same shape — move the expensive thing from *every commit* to
+*a checkpoint*:
+
+- **Deploys** belong to a publish, not to a push. § 17.
+- **The full email-sending battery** belongs to a checkpoint, not to a commit.
+  The credential-free suites cost nothing and stay per-change.
+
+**And the meters get read rather than assumed.** Both overruns were found by
+somebody opening a dashboard, and neither was visible from inside this repo —
+the fourth, fifth and sixth instances of the pattern in `docs/sessions/manager.md`
+§ 3. **A session that has been booking all day should say so**; the back office
+prints the email figure and Netlify prints the credit one.

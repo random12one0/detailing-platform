@@ -20,11 +20,13 @@ live   https://detailingplatform.com  →  assets/index-nOASGAhD.js
 local  npm run build --prefix app     →  assets/index-DgMEktHO.js
 ```
 
-Different bundles. **The cause is Netlify build credits**, not a disconnected
-repo — a deploy triggered on purpose returned
-`state: error, skipped: true, "Skipped due to account credit usage exceeded"`.
-Every push since has been silently SKIPPED, which from outside looks exactly
-like a repo that was never connected.
+Different bundles. **The cause is Netlify build credits** — read from the
+account 2026-09-08: **1,965 credits used against a 1,000/month plan, 1.1 left,
+resets 13 September.** The git integration IS connected (skipped builds are
+named `main@<sha>`), so **on 14 Sep every push publishes again and this
+paragraph expires.** `OUTSTANDING.md` § 17 has the arithmetic and the cadence
+options — **131 production deploys is twice the sustainable rate, so it recurs
+every cycle.**
 
 **The route that needs no build credits** — it uploads files that are already
 built, skipping Netlify's build system entirely:
@@ -68,11 +70,10 @@ command above, and it is the only honest answer.
 
 Both are one minute and both are currently making a screen lie.
 
-1. **Read Resend's actual plan** at `resend.com/settings/billing`. The account
-   sent **200 emails on 7 Sep and 110 on 6 Sep, all delivered** — both above
-   the 100/day free cap this product's counter is built against. So either he
-   is not on the free plan, or **the back office's *"Emails: N of 100 today"*
-   is reddening against a limit that does not exist.**
+1. ~~**Read Resend's actual plan.**~~ **ANSWERED 2026-09-08: free plan, and the
+   100/day cap is REAL.** The counter is correct — do not touch it. The
+   overrun is our own test traffic, not demand: § 4b and `OUTSTANDING.md` § 16.
+   **Do not create a second Resend account** — it breaches their AUP.
 2. **Count the Stripe webhook's events.** The coworker measured **six**;
    every document here says five. `invoice.payment_succeeded` is present and
    undocumented. Harmless — `stripe-webhook` already handles it — but every
@@ -103,6 +104,37 @@ another.
   (a second Google Cloud project he had to delete). Mark it or delete it.
 
 ---
+
+## 4b. THE BATTERY IS METERED — do not run the sending suites on every commit
+
+**2026-09-08.** Two third-party meters have been blown through by this project's
+own cadence, a week apart, diagnosed separately as if unrelated:
+
+- **Netlify:** 1,965 credits against a 1,000/month plan — deploy on every commit.
+- **Resend:** 117 sends against a 100/day cap — **entirely our own test
+  traffic**, on an account shared with **his live business's real customers.**
+
+**`docs/OUTSTANDING.md` § 18 is the full inventory.** Supabase is comfortable on
+every axis; it is exactly these two.
+
+**What that means for this lane:**
+
+| Run per change | Run at a checkpoint |
+|---|---|
+| The credential-free suites — they cost nothing | **`e2e-booking`** (two tenants, books/reschedules/cancels, ~5 emails a booking) |
+| `check-deployed`, `db-audit` | The eleven env-backed suites that BOOK |
+| A single `--slug=` or `--only` run | A deploy |
+
+**Do NOT "fix" this by stubbing the sends.** The e2e email leg reads the edge
+functions' own logs to prove the provider actually accepted the message —
+`sendTenantEmail` is best-effort by design, so a dead relay is a `console.error`
+invisible from every screen and every other suite, which is exactly how the
+roadmap 0.3 defect survived. **A dry run passes against a relay refusing
+everything.** Send less often; do not send less honestly.
+
+**And do NOT create a second Resend account.** It breaches their Acceptable Use
+Policy — multiple accounts to circumvent a quota — and a suspension would take
+out his live business's booking confirmations. § 16.
 
 ## 5. Before you finish
 
