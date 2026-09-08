@@ -271,6 +271,8 @@ were made more than once.
 
 - **A source edit during a browser script poisoned the same sweep twice in one hour, and the guard is the only reason anybody knows** — `sweep-widths.mjs` printed *clean at 1920, 1440, 392, 360, 320* on two consecutive runs and both were worthless, because `BusinessInfo.jsx` was saved mid-walk each time and Vite reloads the page on any edit under `app/src`. **A reload does not fail a run**: every check that script owns asks whether something is off an edge, and a screen that never opened has no edges to be wrong — so the damage is a GREEN run that measured less than it claims. `scripts/source-guard.mjs` named the file both times. **The lesson is not "be careful" — it is an ORDERING one**: finish every source edit, including the ones a baseline makes and reverts, before the browser opens. Baselining a check is source editing, and that is the half that caught this session out.
 
+- **The legal pages answer Google, and the emphasis had been printing as asterisks** — the brief said build `/privacy` and `/terms`; they had existed since 7.1 and the demo email typo was already fixed in 2.5, so **two of four tasks were done and the brief did not know it**. What was genuinely missing was the Google section — and the page was printing literal asterisks live, on the one sentence the owner asked to have said out loud. **The handed-over policy text was NOT shipped**: test 10 forbids governing-law and warranty clauses by name, pins an access disclosure that text deletes, and its cancellation section contradicts the twelve-month term `/pricing` discloses under AB 2863 — **a repo's tests outrank a brief that arrives without them.** Also, and it cost two wrong answers: **a 200 from `curl` on that domain means nothing** (every path returns index.html) and **`origin/main` is not the live site.**
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -15833,3 +15835,155 @@ taking it out again, six times in this case, and that is the half that caught
 this session out: the edits were not "changes", they were proof, and they
 reload the page exactly the same way.
 
+## The legal pages answer Google, and the emphasis had been printing as asterisks
+
+**2026-09-08.** A four-task brief arrived from a cowork session: push a backup
+repo, build `/privacy` and `/terms` from supplied text, confirm two
+recommendations, and fix a demo email typo and audit for it.
+
+**TWO OF THE FOUR WERE ALREADY DONE, AND CHECKING FIRST IS THE ONLY REASON
+NOTHING WAS OVERWRITTEN.** `/privacy` and `/terms` shipped in roadmap 7.1 on
+2026-09-06, public and linked from every marketing footer. The demo tenant's
+`contact_email` stopped being the typo domain in roadmap 2.5 on 2026-09-04.
+**A brief is a claim about the repo, not a fact about it.**
+
+### The typo audit came back clean, and it was asked of the DATABASE
+
+The grep found 49 hits across 19 files and **not one is a path that mails a
+real person**: demo sign-in identities (a login reused as a string, never as a
+mailbox), test fixtures, and narrative about the bug itself.
+
+The live database was asked separately, because a seed file is what the demo
+WOULD be and not what it IS: 13 businesses with no typo domain in
+`contact_email`, 13 `business_settings` rows with none in
+`notification_emails`, zero matching `customers` rows, and
+`platform_settings.owner_email` correct. `e2e-booking` then booked a real job
+and reported *"the owner's email was addressed to demo@example.com, and skipped
+as undeliverable"* — the fix behaving as designed rather than a bounce.
+
+**One stale doc is a live trap and is left in place deliberately**:
+`docs/phase2-engine-and-dashboard.md` still says the placeholder domain *"lives
+in exactly one file: `_shared/config.ts`"* and should be replaced when the real
+domain is bought. It was replaced long ago. A session acting on that sentence
+would go editing a file that is already correct.
+
+### A 200 on that domain is evidence of nothing
+
+The obvious check for *"is the page live"* is `curl`. **It returns 200 for
+every path on detailingplatform.com, including one that does not exist**,
+because `_redirects` sends unmatched paths to `index.html`. The check that
+looked like proof was proof of nothing.
+
+Reading `origin/main` was the second attempt and is **also wrong, for a reason
+another session found the same day**: the live site does not build from GitHub
+pushes, so the repo and the deployed bundle are two different facts. **The only
+way to know what is live is to load the page and read what it renders** — which
+showed the legal pages genuinely public, and showed the asterisks bug still
+live and this session's own additions not deployed.
+
+### What was actually missing: Google
+
+`/auth/v1/settings` answers `google: true`, so the sign-in button is live and
+CLAUDE.md's *"switched off"* entry was spent. What blocks publishing the consent
+screen is Branding's two empty fields — the privacy and terms URLs — **which
+already exist**. Not a code task, and not a bug to chase.
+
+Added to the privacy page: the three scopes, what each is for, and the
+**Limited Use** sentence Google's reviewer looks for by name. Those scopes are
+read out of the code rather than guessed — `signInWithOAuth({ provider:
+"google" })` passes no `scopes` option, so Supabase asks for GoTrue's defaults.
+
+**`business.manage` is deliberately absent.** The scope is not on the consent
+screen, the sync is not built, and the API application is still with Google.
+**A privacy policy describing a feature that does not exist is the one thing
+this file refuses to do**; it gets its paragraph the day the sync ships.
+
+**And "The four companies involved" had become untrue with nobody editing it.**
+The Google button appears by itself the moment the provider is switched on, so
+enabling Google silently made a heading wrong. **A count in a heading is a fact
+that rots**, and the heading no longer carries one.
+
+### The handed-over policy text was not shipped, and this is why
+
+`tests/landing-pricing.test.mjs` test 10 encodes three standing decisions, and
+the supplied text breaks all three:
+
+1. **10g forbids `arbitration`, `governing law`, `class action`, `warrant`,
+   `indemnif`, `limitation of liability`, `jurisdiction`.** The supplied terms
+   carry a Governing law section and a warranty disclaimer. The rule exists
+   because *borrowed boilerplate is worse than nothing — it is a promise the
+   owner has not made, in language he cannot check.*
+2. **10b-i/ii/iii pin the access disclosure** — his own condition from
+   2026-09-06 for the back office being built at all. **The supplied policy
+   does not contain it**, so pasting it in would quietly delete a disclosure
+   the product was built on the strength of.
+3. **10h pins the dunning promise.** The supplied terms say cancellation simply
+   ends at the billing month with no pro-rating, which **contradicts the
+   twelve-month term and the 50%-of-remaining exit fee** `/pricing` discloses
+   under AB 2863. Two documents on one site disagreeing about what leaving
+   costs is worse than one plain-English page.
+
+**So the Google-specific content went in and the rest did not.** The general
+form: **a repo's tests outrank an instruction that arrives without them.** A
+brief written by somebody who cannot see the test suite is a proposal.
+
+### The asterisks: markup that arrived with the content and was never rendered
+
+`legal.js` has written emphasis as `**like this**` since the day it was created
+and `LegalPage.jsx` rendered the raw string. So the literal asterisks printed,
+**live, on the one sentence the owner asked to have said plainly**. Nothing
+rendered it because nothing ever had to: the markup came with the content and
+the renderer was written for prose.
+
+`inline()` does emphasis, URLs and addresses in **one pass**, because two
+passes means the second walks over the first one's output. Checks 10k and 10l
+pin that no emphasis markup reaches a reader **and that nothing is dropped on
+the way** — a renderer that swallows a clause is worse than one that prints
+asterisks, because nobody can see what is missing.
+
+`ENTITY` and `EFFECTIVE` are one constant each. **`ENTITY` is a guess at his
+paperwork and is flagged as one**; sole trader, a DBA and an LLC are three
+different legal persons and only he knows which signs.
+
+### The backup repo, and a failure that was neither predicted cause
+
+Four files pushed; the fifth was refused because the token lacked the
+`workflow` scope — **and the REST contents API answered 404 rather than 403**,
+which reads as a missing repository. Then
+`gh auth refresh -h github.com -s workflow` reported *"not logged in to any
+hosts"* **while `gh auth status` reported the opposite**: the credential lives
+in the Windows keyring with no token in `hosts.yml`, which gh 2.96's `refresh`
+cannot cope with. A fresh `gh auth login --scopes workflow --web` worked.
+
+The first real run then failed at the dump step, and **neither of the two
+causes the brief predicted was it**. Postgres answered `FATAL: database
+"postgres" does not exist` with a line break inside the quoted name: **the
+secret had been saved with a trailing newline**, which lands on the last path
+segment and becomes part of the database NAME. The connection was already
+correct — it resolved to an IPv4 address on 5432, the session pooler.
+
+**Trimmed in the workflow rather than the secret being re-entered**, so the
+value never has to be handled again and the next paste cannot break it the same
+way. The trimmed value is masked first, **because it differs from the secret
+GitHub knows about and is therefore not covered by GitHub's own masking.**
+
+Proven rather than assumed: the release asset was downloaded and read, and it
+begins `age-encryption.org/v1` with an X25519 stanza rather than `PGDMP`. **It
+is still `[~]`, because nobody has restored one.**
+
+### And the Bash heredoc ate backslashes four times in one session
+
+CLAUDE.md already warns that `python` through a heredoc in this tool can arrive
+mangled. It happened four times here anyway. Three were cosmetic; once it wrote
+a **raw 0x08 backspace** into a test file, so a word-boundary regex became one
+matching an invisible control character — and a check whose four conditions
+were each provably true failed as a whole. **Same invisible-byte trap this repo
+has now hit three times**, found only by dumping the line through `cat -A`.
+
+The fix that actually works is not "be careful": it is to **write the value so
+it contains no escape sequences at all**. The connection-string trim in the
+backup workflow is `tr -d "[:space:]"` for exactly that reason — a character
+class needs no backslash, and a connection string has no legitimate whitespace
+to lose. Where content genuinely must contain backslashes, write the file with
+the Write tool and let a script read it, rather than passing it through a
+shell.

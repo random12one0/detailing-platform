@@ -20,6 +20,33 @@ the dashboard can actually be looked at:
 temporary — they reach the demo business only, and they must change before
 there is a real customer. See DECISIONS.md, "A guessable demo login".
 
+**THE TWO THINGS A COLD SESSION WILL GET WRONG, 2026-09-08.**
+**(1) A PUSH TO `main` IS NO LONGER A PUBLISH.** The live site does not build
+from GitHub pushes — measured through the Netlify API, `deploy_source: "api"`,
+and a push at 06:26 on 2026-09-08 produced no deploy at all. So `origin/main`
+and detailingplatform.com are **two different facts**, and
+`git rev-list --count origin/main..HEAD` answers only the first. Deploying is
+blocked on Netlify build credits (`docs/OUTSTANDING.md` § 6).
+**(2) `curl` CANNOT TELL YOU WHAT IS LIVE.** `_redirects` sends every unmatched
+path to `index.html`, so **every** URL on that domain returns 200 — including
+one that does not exist. Load the page and read what it renders. Both of these
+produced a confidently wrong answer this session before being caught.
+
+**GOOGLE SIGN-IN, THE LEGAL PAGES AND THE BACKUPS, 2026-09-08.** Google is
+**switched on** (`/auth/v1/settings` answers `google: true`), so the button is
+live on the sign-in screen; publishing the consent screen is blocked only by
+Branding's two empty fields, the privacy and terms URLs, **which already
+exist** — his paste, not a code task. `/privacy` now carries the three scopes
+and the **Limited Use** sentence Google's reviewer looks for by name;
+`business.manage` is deliberately absent until the sync is actually built.
+**A live rendering bug was found and fixed**: `legal.js` has written emphasis
+as `**like this**` since it was created and nothing ever rendered it, so the
+privacy page printed literal asterisks on the one sentence the owner asked to
+have said out loud. **The handed-over legal text was deliberately NOT
+shipped** — see DECISIONS.md, "The legal pages answer Google". **Backups are
+built and have produced a real encrypted dump** (roadmap 2.22, still `[~]`:
+nobody has restored one).
+
 **WHERE THE WORK IS, 2026-09-07 (overnight, Phase 8).** Roadmap **8.2 through
 8.8, 8.10, 8.11, 8.13 and 8.14 are done and committed and 8.12's code half is
 built**; 8.9 is blocked on two questions in

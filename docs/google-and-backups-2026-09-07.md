@@ -17,8 +17,21 @@ and already walked by `sweep-widths.mjs`.
 Careful with the obvious check: `curl https://detailingplatform.com/privacy`
 returns **200 for every path**, including `/definitely-not-a-real-page`,
 because Netlify serves `index.html` for the SPA's catch-all. **A 200 proves
-nothing.** What proves it is that `origin/main`'s `app/src/main.jsx` carries
-both routes — checked with `git show origin/main:app/src/main.jsx`.
+nothing.**
+
+~~What proves it is that `origin/main`'s `app/src/main.jsx` carries both
+routes.~~ **THAT SECOND CHECK IS ALSO WRONG, and it was corrected the same day
+by another session's finding: the live site does not build from GitHub
+pushes.** The deployed bundle is a manual upload, so `origin/main` and
+detailingplatform.com are two different facts and reading the repo answers the
+wrong one.
+
+**What actually proves it is loading the page and reading what it renders**,
+which was then done. The live pages DO render — so the two URLs are genuinely
+safe to give Google. What the live page also shows is that **this session's own
+changes are not on it**: it still prints the literal asterisks, still says "The
+four companies involved", and has no Google section and no effective date.
+**Everything below is true of the repo and not yet of the live site.**
 
 **The demo tenant's email typo was fixed in roadmap 2.5.** The brief asked for
 it to be fixed and audited. `businesses.contact_email` on `demo-detail` has
@@ -249,5 +262,12 @@ Both were recommendations in the brief that he has never actually answered, so
    and **is a guess at his paperwork**. Sole trader, a DBA and an LLC are three
    different legal persons.
 4. Andrew answers the two questions in §7.
-5. Whether to publish (this work is committed to local `main`, which is **67
-   commits ahead of `origin/main`** — pushing publishes all 67).
+5. ~~Whether to publish — pushing publishes all 67 commits.~~ **WRONG, and
+   corrected 2026-09-08.** The legal commits are on `origin/main` already, and
+   **that did not publish anything**: the live site does not build from
+   pushes. So the Google paragraph, the entity line and the asterisks fix are
+   in the repo and **not on the page Google will fetch.** That is fine for
+   pasting the two URLs into Branding today — the pages themselves are live and
+   render — but it has to be deployed before Google's later verification review
+   reads the policy. **Deploying is blocked on Netlify build credits**, which is
+   `docs/OUTSTANDING.md` § 6 and not this file's problem.
