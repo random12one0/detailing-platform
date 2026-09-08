@@ -28,6 +28,11 @@ import JobPhotos from "./JobPhotos.jsx";
 import FinalizeModal from "./FinalizeModal.jsx";
 import QuoteModal from "./QuoteModal.jsx";
 import Sheet from "./Sheet.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 // One vocabulary for the values a person reads, so the same booking does
 // not say "completed" in the sheet and "Completed" on the card, or show the
@@ -65,6 +70,7 @@ export const jobRecordProps = (b) => ({
 });
 
 export default function BookingDetail({ booking, onClose, onChanged }) {
+  useAppLocale();
   const { business } = useBusiness();
   const [templates, setTemplates] = useState([]);
   const [pickingText, setPickingText] = useState(false);
@@ -250,10 +256,10 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
           {notice && <div className="ok-box" role="status">{notice}</div>}
           <div className="actions-row">
             <a className="btn sm" href={`tel:${booking.customer_phone}`}>
-              <Phone size={18} strokeWidth={2} /> Call
+              <Phone size={18} strokeWidth={2} /> {t("Call")}
             </a>
             <button className="btn sm" onClick={openTextPicker}>
-              <MessageSquare size={18} strokeWidth={2} /> Text
+              <MessageSquare size={18} strokeWidth={2} /> {t("Text")}
             </button>
             {/* ONE TAP, AND ONLY WHERE IT MEANS SOMETHING. A drop-off job is
                 the customer coming to the detailer, so "I'm on my way" is the
@@ -261,12 +267,12 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                 Navigate button beside it already makes about an address. */}
             {onMyWay && booking.service_type === "mobile" && booking.customer_phone && (
               <a className="btn sm" data-on-my-way="" href={smsHref(filled(onMyWay.body))}>
-                <Navigation size={18} strokeWidth={2} /> On my way
+                <Navigation size={18} strokeWidth={2} /> {t("On my way")}
               </a>
             )}
             {address && (
               <a className="btn sm" href={mapsUrl(address)} target="_blank" rel="noreferrer">
-                <Navigation size={18} strokeWidth={2} /> Navigate
+                <Navigation size={18} strokeWidth={2} /> {t("Navigate")}
               </a>
             )}
           </div>
@@ -281,7 +287,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                 ? { target: "_blank", rel: "noreferrer" }
                 : {})}
             >
-              <CalendarPlus size={18} strokeWidth={2} /> Calendar
+              <CalendarPlus size={18} strokeWidth={2} /> {t("Calendar")}
             </a>
             {loadPrefs().contacts !== "off" && booking.customer_phone && (
               <button
@@ -293,7 +299,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                   address: booking.customer_address,
                 })}
               >
-                <UserPlus size={18} strokeWidth={2} /> Contacts
+                <UserPlus size={18} strokeWidth={2} /> {t("Contacts")}
               </button>
             )}
             {/* "Reminder", not "Remind them": 47px of text wraps the button
@@ -308,7 +314,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
               <button className="btn sm" disabled={busy}
                 onClick={() => act(() => api.sendReminder(business.id, booking.id, "customer"),
                   "Reminder sent to customer.", false)}>
-                <Bell size={18} strokeWidth={2} /> Reminder
+                <Bell size={18} strokeWidth={2} /> {t("Reminder")}
               </button>
             )}
           </div>
@@ -316,7 +322,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
 
         {!editing ? (
           <>
-            <h3 className="section-title">The job</h3>
+            <h3 className="section-title">{t("The job")}</h3>
             <div className="card tight">
               <p>{booking.service_type === "mobile" ? "Mobile" : "Drop-off"}</p>
               {address && <p className="quiet">{address}</p>}
@@ -379,11 +385,11 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                   here: it is a fact this product records, not tax advice it
                   gives. */}
               {booking.miles != null && (
-                <p className="muted">Miles driven: <span className="num">{booking.miles}</span></p>
+                <p className="muted">{t("Miles driven:")} <span className="num">{booking.miles}</span></p>
               )}
             </div>
 
-            <h3 className="section-title">The money</h3>
+            <h3 className="section-title">{t("The money")}</h3>
             <div className="card tight">
               <p className="body">
                 {charged == null
@@ -394,10 +400,9 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                      the first screenshot of a request record. */
                   ? <>{waiting ? "They asked for " : "Quoted "}<span className="num">{money(quoted)}</span></>
                   : diff === 0
-                    ? <>Charged <span className="num">{money(charged)}</span></>
+                    ? <>{t("Charged")} <span className="num">{money(charged)}</span></>
                     : <>
-                        Quoted <span className="num">{money(quoted)}</span> ·
-                        charged <strong className="num">{money(charged)}</strong>{" "}
+                        {t("Quoted")} <span className="num">{money(quoted)}</span> {t("· charged")} <strong className="num">{money(charged)}</strong>{" "}
                         ({diff > 0 ? `+${money(diff)} added on site` : `${money(-diff)} taken off`})
                       </>}
               </p>
@@ -407,8 +412,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                   and only one of them is what the job costs. */}
               {quotedAmount !== null && (
                 <p className="body">
-                  Quote sent for <strong className="num">{money(quotedAmount)}</strong> — not charged
-                  until they accept it.
+                  {t("Quote sent for")} <strong className="num">{money(quotedAmount)}</strong> {t("— not charged until they accept it.")}
                 </p>
               )}
               {/* Written by Finalize payment and, until now, printed nowhere. */}
@@ -416,13 +420,13 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
               {canFinalize ? (
                 <button className="btn primary" style={{ marginTop: "var(--sp-1)" }} disabled={busy}
                   onClick={() => setFinalizing(true)}>
-                  <CreditCard size={18} strokeWidth={2} /> Finalize payment
+                  <CreditCard size={18} strokeWidth={2} /> {t("Finalize payment")}
                 </button>
               ) : charged != null && booking.customer_email ? (
                 <button className="btn primary" style={{ marginTop: "var(--sp-1)" }} disabled={busy}
                   onClick={() => act(() => api.sendInvoice(business.id, booking.id),
                     "Invoice + thank-you sent.", false)}>
-                  Email invoice
+                  {t("Email invoice")}
                 </button>
               ) : null}
             </div>
@@ -435,10 +439,10 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
 
             {(booking.customer_notes || booking.admin_notes) && (
               <>
-                <h3 className="section-title">Notes</h3>
+                <h3 className="section-title">{t("Notes")}</h3>
                 <div className="card tight">
-                  {booking.customer_notes && <p><span className="muted">Customer:</span> {booking.customer_notes}</p>}
-                  {booking.admin_notes && <p><span className="muted">Private:</span> {booking.admin_notes}</p>}
+                  {booking.customer_notes && <p><span className="muted">{t("Customer:")}</span> {booking.customer_notes}</p>}
+                  {booking.admin_notes && <p><span className="muted">{t("Private:")}</span> {booking.admin_notes}</p>}
                 </div>
               </>
             )}
@@ -459,14 +463,14 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                    rather than adding to it. */
                 <>
                   <button className="btn primary" disabled={busy} onClick={() => respond("accept")}>
-                    <Check size={18} strokeWidth={2} /> Accept
+                    <Check size={18} strokeWidth={2} /> {t("Accept")}
                   </button>
                   <button className="btn" disabled={busy} onClick={() => setQuoting(true)}>
                     <MessageSquareQuote size={18} strokeWidth={2} />
                     {quotedAmount === null ? " Send a quote" : " Send a new quote"}
                   </button>
                   <button className="btn ghost" disabled={busy} onClick={() => respond("decline")}>
-                    <X size={18} strokeWidth={2} /> Decline
+                    <X size={18} strokeWidth={2} /> {t("Decline")}
                   </button>
                 </>
               ) : cancelled ? (
@@ -477,27 +481,27 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                       customer backed out when in fact the detailer said no. A
                       column nothing prints is a column nobody can trust. */}
                   {booking.declined_at && (
-                    <p className="quiet" style={{ margin: 0 }}>You declined this request.</p>
+                    <p className="quiet" style={{ margin: 0 }}>{t("You declined this request.")}</p>
                   )}
-                  <button className="btn" disabled={busy} onClick={() => setStatus("confirmed")}>Un-cancel</button>
+                  <button className="btn" disabled={busy} onClick={() => setStatus("confirmed")}>{t("Un-cancel")}</button>
                 </>
               ) : (
                 <>
                   {booking.status !== "completed" && (
                     <button className="btn primary" disabled={busy} onClick={() => setStatus("completed")}>
-                      <CheckCircle2 size={18} strokeWidth={2} /> Mark completed
+                      <CheckCircle2 size={18} strokeWidth={2} /> {t("Mark completed")}
                     </button>
                   )}
                   {booking.status !== "no_show" && (
-                    <button className="btn" disabled={busy} onClick={() => setStatus("no_show")}>Didn’t show up</button>
+                    <button className="btn" disabled={busy} onClick={() => setStatus("no_show")}>{t("Didn’t show up")}</button>
                   )}
-                  <button className="btn ghost" disabled={busy} onClick={() => setStatus("cancelled")}>Cancel the job</button>
+                  <button className="btn ghost" disabled={busy} onClick={() => setStatus("cancelled")}>{t("Cancel the job")}</button>
                 </>
               )}
             </div>
 
-            <h3 className="section-title">Change the time or details</h3>
-            <button className="btn" disabled={busy} onClick={() => setEditing(true)}>Edit</button>
+            <h3 className="section-title">{t("Change the time or details")}</h3>
+            <button className="btn" disabled={busy} onClick={() => setEditing(true)}>{t("Edit")}</button>
 
             {/* Delete used to be the biggest, reddest thing in the sheet —
                 the rarest action given the most weight, sitting beside two
@@ -505,51 +509,49 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                 detailer nearly always means, so deleting hides behind it
                 and says what it does that cancelling doesn't. */}
             <details className="disclose">
-              <summary>Remove this from my records too</summary>
+              <summary>{t("Remove this from my records too")}</summary>
               <p className="quiet" style={{ margin: "0 0 10px" }}>
-                Cancelling frees the slot and keeps the job in your history.
-                Removing takes it out of your records and your totals as well.
-                It cannot be undone.
+                {t("Cancelling frees the slot and keeps the job in your history. Removing takes it out of your records and your totals as well. It cannot be undone.")}
               </p>
               <button className="btn danger" disabled={busy} onClick={softDelete}>
-                Remove from records
+                {t("Remove from records")}
               </button>
             </details>
           </>
         ) : (
           <>
-            <h3 className="section-title">Change the time or details</h3>
-            <label className="field"><span>Name</span>
+            <h3 className="section-title">{t("Change the time or details")}</h3>
+            <label className="field"><span>{t("Name")}</span>
               <input value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} /></label>
-            <label className="field"><span>Phone</span>
+            <label className="field"><span>{t("Phone")}</span>
               <input value={form.customer_phone} onChange={(e) => setForm({ ...form, customer_phone: e.target.value })} /></label>
-            <label className="field"><span>Email</span>
+            <label className="field"><span>{t("Email")}</span>
               <input value={form.customer_email} onChange={(e) => setForm({ ...form, customer_email: e.target.value })} /></label>
-            <label className="field"><span>Address</span>
+            <label className="field"><span>{t("Address")}</span>
               <input value={form.customer_address} onChange={(e) => setForm({ ...form, customer_address: e.target.value })} /></label>
             <div className="grid2">
-              <label className="field"><span>Date</span>
+              <label className="field"><span>{t("Date")}</span>
                 <input type="date" value={form.booking_date} onChange={(e) => setForm({ ...form, booking_date: e.target.value })} /></label>
-              <label className="field"><span>Start</span>
+              <label className="field"><span>{t("Start")}</span>
                 <input type="time" value={form.start_time} onChange={(e) => setForm({ ...form, start_time: e.target.value })} /></label>
             </div>
-            <label className="field"><span>Private notes</span>
+            <label className="field"><span>{t("Private notes")}</span>
               <textarea value={form.admin_notes} onChange={(e) => setForm({ ...form, admin_notes: e.target.value })} /></label>
             <p className="muted" style={{ marginBottom: 8 }}>
               Date/time changes are re-checked against your hours, blockouts and other jobs — a conflicting move is rejected, not silently saved.
             </p>
             <div className="grid2">
-              <button className="btn" onClick={() => setEditing(false)}>Back</button>
-              <button className="btn primary" disabled={busy} onClick={saveEdit}>Save</button>
+              <button className="btn" onClick={() => setEditing(false)}>{t("Back")}</button>
+              <button className="btn primary" disabled={busy} onClick={saveEdit}>{t("Save")}</button>
             </div>
           </>
         )}
 
         {pickingText && (
-          <Sheet onClose={() => setPickingText(false)} title="Send a text" peek={48}>
+          <Sheet onClose={() => setPickingText(false)} title={t("Send a text")} peek={48}>
             <div className="tight">
               {templates.length === 0 && (
-                <p className="quiet">No templates yet — the gear, then Message templates.</p>
+                <p className="quiet">{t("No templates yet — the gear, then Message templates.")}</p>
               )}
               {templates.map((tpl) => (
                 <a key={tpl.id} className="card tappable" href={smsHref(filled(tpl.body))}
@@ -559,7 +561,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                   <div className="quiet" style={{ marginTop: "var(--sp-1)" }}>{filled(tpl.body)}</div>
                 </a>
               ))}
-              <a className="btn" href={`sms:${booking.customer_phone}`}>Write my own</a>
+              <a className="btn" href={`sms:${booking.customer_phone}`}>{t("Write my own")}</a>
             </div>
           </Sheet>
         )}

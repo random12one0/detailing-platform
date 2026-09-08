@@ -46,6 +46,11 @@ import { useBusiness } from "../context/BusinessContext.jsx";
 import { Segmented } from "./controls.jsx";
 import { setupProgress, STEPS } from "../lib/setup.js";
 import Appearance from "../screens/more/Appearance.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -93,12 +98,12 @@ function ThingEditor({ kind, draft, set, rows, onAdd }) {
       )}
       <div className="card">
         <div className="thoughts">
-          <label className="field"><span>Name</span>
+          <label className="field"><span>{t("Name")}</span>
             <input value={draft.name} autoComplete="off"
               placeholder={kind === "services" ? "Full detail" : "Pet hair removal"}
               onChange={(e) => set({ ...draft, name: e.target.value })} /></label>
           <div className="grid2">
-            <label className="field"><span>Price</span>
+            <label className="field"><span>{t("Price")}</span>
               <input type="number" inputMode="decimal" value={draft.price}
                 onChange={(e) => set({ ...draft, price: e.target.value })} /></label>
             <label className="field"><span>{kind === "services" ? "Minutes" : "Extra minutes"}</span>
@@ -138,10 +143,10 @@ function HoursEditor({ draft, set }) {
           ))}
         </div>
         <div className="grid2 wide">
-          <label className="field"><span>Open</span>
+          <label className="field"><span>{t("Open")}</span>
             <input type="time" value={draft.open}
               onChange={(e) => set({ ...draft, open: e.target.value })} /></label>
-          <label className="field"><span>Close</span>
+          <label className="field"><span>{t("Close")}</span>
             <input type="time" value={draft.close}
               onChange={(e) => set({ ...draft, close: e.target.value })} /></label>
         </div>
@@ -152,6 +157,7 @@ function HoursEditor({ draft, set }) {
 
 // ── the form ───────────────────────────────────────────────────────────────
 export default function SetupForm({ onClose }) {
+  useAppLocale();
   const { business, branding, settings, reload: reloadTenant } = useBusiness();
   const [counts, setCounts] = useState(null);
   const [rows, setRows] = useState({ services: [], addons: [], promos: [] });
@@ -431,7 +437,7 @@ export default function SetupForm({ onClose }) {
   return (
     <div className={`group setupform${leaving ? " leaving" : ""}`}>
       <div className="settings-head">
-        <button className="btn icon ghost" aria-label="Back" disabled={i === 0}
+        <button className="btn icon ghost" aria-label={t("Back")} disabled={i === 0}
           onClick={() => go(i - 1, false)}>
           <ChevronLeft strokeWidth={2} />
         </button>
@@ -441,8 +447,8 @@ export default function SetupForm({ onClose }) {
             screen over. The step underneath says what is being set up, so the
             title only has to name where you are — and this is the name the
             feature inventory already gives rows 118 and 119. */}
-        <h1 className="display">Getting started</h1>
-        <button className="x" aria-label="Close setup" onClick={close}>
+        <h1 className="display">{t("Getting started")}</h1>
+        <button className="x" aria-label={t("Close setup")} onClick={close}>
           <X size={18} strokeWidth={2} />
         </button>
       </div>
@@ -479,15 +485,15 @@ export default function SetupForm({ onClose }) {
                 </p>
               )}
               <div className="grid2">
-                <label className="field"><span>Code</span>
-                  <input value={draft.promos.code} autoComplete="off" placeholder="SUMMER10"
+                <label className="field"><span>{t("Code")}</span>
+                  <input value={draft.promos.code} autoComplete="off" placeholder={t("SUMMER10")}
                     onChange={(e) => put("promos")({ ...draft.promos, code: e.target.value })} /></label>
-                <label className="field"><span>Type</span>
-                  <Segmented value={draft.promos.type} label="Discount type"
+                <label className="field"><span>{t("Type")}</span>
+                  <Segmented value={draft.promos.type} label={t("Discount type")}
                     onChange={(v) => put("promos")({ ...draft.promos, type: v })}
                     options={[["percentage", "% off"], ["amount", "$ off"]]} /></label>
               </div>
-              <label className="field"><span>How much</span>
+              <label className="field"><span>{t("How much")}</span>
                 <input type="number" inputMode="decimal" value={draft.promos.value}
                   onChange={(e) => put("promos")({ ...draft.promos, value: e.target.value })} /></label>
             </div>
@@ -495,16 +501,16 @@ export default function SetupForm({ onClose }) {
         )}
         {key === "hours" && <HoursEditor draft={draft.hours} set={put("hours")} />}
         {key === "where" && (
-          <Segmented value={draft.where} onChange={put("where")} label="Where the work happens"
+          <Segmented value={draft.where} onChange={put("where")} label={t("Where the work happens")}
             options={[["mobile", "I go to them"], ["dropoff", "They come to me"], ["both", "Both"]]} />
         )}
         {key === "contact" && (
           <div className="card">
             <div className="thoughts">
-              <label className="field"><span>Phone</span>
+              <label className="field"><span>{t("Phone")}</span>
                 <input type="tel" value={draft.contact.phone} autoComplete="tel"
                   onChange={(e) => put("contact")({ ...draft.contact, phone: e.target.value })} /></label>
-              <label className="field"><span>Email</span>
+              <label className="field"><span>{t("Email")}</span>
                 <input type="email" value={draft.contact.email} autoComplete="email"
                   onChange={(e) => put("contact")({ ...draft.contact, email: e.target.value })} /></label>
             </div>
@@ -520,7 +526,7 @@ export default function SetupForm({ onClose }) {
             words. It also never marks the step done, which is what leaves the
             hole in the rule above. */}
         <button className="btn" disabled={busy} onClick={() => go(i + 1, false)}>
-          I'll do this later
+          {t("I'll do this later")}
         </button>
         <button className="btn primary" disabled={busy} onClick={() => go(i + 1, true)}>
           {busy ? "Saving…" : last ? "Finish" : "Continue"}
@@ -532,7 +538,7 @@ export default function SetupForm({ onClose }) {
           thing being dismissed is, not on the screen it nags from. */}
       <button className="btn sm inline ghost setupquit"
         onClick={async () => { await patchSetup({ dismissed: true }); close(); }}>
-        Don't remind me again
+        {t("Don't remind me again")}
       </button>
     </div>
   );

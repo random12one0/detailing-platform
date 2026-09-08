@@ -54,6 +54,11 @@
 //     sentence is an aria-live region so a screen reader hears each step.
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 // target · sentence · the tab it has to be on, when it is not the one you
 // are already looking at.
@@ -150,6 +155,7 @@ const GIVE_UP_MS = 1500;
 // `tour` names which of the six lists to run. It defaults to the shell so
 // the gear's *Show me around* keeps meaning what it meant.
 export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) {
+  useAppLocale();
   const STEPS = TOURS[tour] ?? TOURS.shell;
   const [i, setI] = useState(0);
   const [box, setBox] = useState(null);
@@ -387,7 +393,7 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
 
   return (
     <div className={`tourblock${leaving ? " leaving" : ""}`}
-      role="dialog" aria-modal="true" aria-label="Guided tour">
+      role="dialog" aria-modal="true" aria-label={t("Guided tour")}>
       {box && (
         <div className="spotlight" style={{
           top: box.top, left: box.left, width: box.width, height: box.height,
@@ -411,7 +417,7 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
             perfectly still reads as a glitch rather than as a change. */}
         <div aria-live="polite"><p className="body tourline" key={i}>{sentence}</p></div>
         <div className="btnrow">
-          <button className="btn sm inline ghost" onClick={close}>Skip the tour</button>
+          <button className="btn sm inline ghost" onClick={close}>{t("Skip the tour")}</button>
           <button className="btn sm inline primary" onClick={next}>
             {/* THE PLAN'S LENGTH, NOT THE LIST'S. A step whose target is
                 absent is dropped from the plan, so on a dashboard missing

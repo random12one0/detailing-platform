@@ -57,6 +57,11 @@ import BookingLink from "../components/BookingLink.jsx";
 import { setupProgress } from "../lib/setup.js";
 import { stateOf } from "../lib/maintenance.js";
 import { brandVarsFor } from "../lib/theme.js";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const time12 = (hm) => {
@@ -132,6 +137,7 @@ const humanNotice = (mins) => {
 };
 
 export default function Business({ onSetup }) {
+  useAppLocale();
   const { business, settings, branding, role, siteOrigin, reload: reloadTenant } = useBusiness();
   const wide = useWide();
   const [open, setOpen] = useState(null);
@@ -339,7 +345,7 @@ export default function Business({ onSetup }) {
   const index = (
     <>
       <div>
-        <h1 className="display">Business</h1>
+        <h1 className="display">{t("Business")}</h1>
         <p className="quiet" style={{ marginTop: 2 }}>{business.name}</p>
       </div>
 
@@ -348,7 +354,7 @@ export default function Business({ onSetup }) {
           <button className="nav-row" onClick={() => onSetup?.()}>
             <span className="ico"><ListChecks size={19} strokeWidth={2} /></span>
             <span className="txt">
-              <span className="name">Finish setting up</span>
+              <span className="name">{t("Finish setting up")}</span>
               <span className="now">{setup.count} of {setup.total} done</span>
             </span>
             <span className="chev"><ChevronRight size={18} strokeWidth={2} /></span>

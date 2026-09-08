@@ -31,6 +31,11 @@ import { addDays, dateLong } from "../lib/format.js";
 import JobRow from "./JobRow.jsx";
 import Sheet from "./Sheet.jsx";
 import { Segmented, Switch } from "./controls.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 const hhmm = (v) => (v ? v.slice(0, 5) : "");
 // An end date typed backwards is a slip, not an instruction to write nothing.
@@ -58,6 +63,7 @@ const spanNote = (start, end) => (end && end > start
   : "");
 
 export default function DaySheet({ date, bookings, inline = false, onClose, onOpenBooking, onNewBooking, onChanged }) {
+  useAppLocale();
   const { business, can, settings } = useBusiness();
   const [state, setState] = useState({ loading: true, blockout: null, override: null, dropoff: null });
   const [editing, setEditing] = useState(null); // null | "hours" | "blockout" | "dropoff"
@@ -209,7 +215,7 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
         <div className="group">
           <div className="tight day-jobs">
             {active.length === 0
-              ? <p className="quiet">Nothing booked.</p>
+              ? <p className="quiet">{t("Nothing booked.")}</p>
               : (
                 <div className="rows">
                   {active.map((b) => (
@@ -224,7 +230,7 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
                 jobs rather than the loudest thing in the panel. */}
             <div className="row" style={{ justifyContent: "flex-end" }}>
               <button className="btn sm inline" onClick={() => onNewBooking(date)}>
-                <Plus strokeWidth={2} /> Add a job
+                <Plus strokeWidth={2} /> {t("Add a job")}
               </button>
             </div>
           </div>
@@ -255,7 +261,7 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
           {showState && (
             <div className={`tight day-state${state.loading ? " refreshing" : ""}`}
               aria-busy={state.loading || undefined}>
-              <span className="label">This day</span>
+              <span className="label">{t("This day")}</span>
 
               {/* --- Blocked out ------------------------------------------ */}
               {shows(state.blockout) && (
@@ -269,7 +275,7 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
                           ("Blocked out") while the line under it named the
                           opposite, with a button to the side. It is one
                           thing with two states, so it is a switch. */}
-                      <div className="strong">Block this day</div>
+                      <div className="strong">{t("Block this day")}</div>
                       <div className="quiet" style={{ marginTop: 2 }}>
                         {state.loading ? "" : state.blockout
                           ? `${state.blockout.event_name}${state.blockout.all_day ? "" : ` · ${hhmm(state.blockout.start_time)}–${hhmm(state.blockout.end_time)}`}`
@@ -286,7 +292,7 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
                       onChange={own(() => (state.blockout
                         ? clearBlockout()
                         : setEditing(editing === "blockout" ? null : "blockout")))}
-                      label="Block this day"
+                      label={t("Block this day")}
                     />
                   )}
                 </div>
@@ -294,8 +300,8 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
                   <>
                     <hr className="rule" />
                     <div className="fields" onClick={(e) => e.stopPropagation()}>
-                      <label className="field"><span>Reason</span>
-                        <input value={block.event_name} placeholder="Vacation, appointment…"
+                      <label className="field"><span>{t("Reason")}</span>
+                        <input value={block.event_name} placeholder={t("Vacation, appointment…")}
                           onChange={(e) => setBlock({ ...block, event_name: e.target.value })} /></label>
                       {/* W2 — a range, defaulting to this one day. */}
                       <label className="field"><span>Through (inclusive)</span>
@@ -304,14 +310,14 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
                       <label className="row" style={{ gap: 10 }}>
                         <input type="checkbox" checked={block.all_day}
                           onChange={(e) => setBlock({ ...block, all_day: e.target.checked })} />
-                        <span className="body">All day</span>
+                        <span className="body">{t("All day")}</span>
                       </label>
                       {!block.all_day && (
                         <div className="grid2 wide">
-                          <label className="field"><span>From</span>
+                          <label className="field"><span>{t("From")}</span>
                             <input type="time" value={block.start_time}
                               onChange={(e) => setBlock({ ...block, start_time: e.target.value })} /></label>
-                          <label className="field"><span>To</span>
+                          <label className="field"><span>{t("To")}</span>
                             <input type="time" value={block.end_time}
                               onChange={(e) => setBlock({ ...block, end_time: e.target.value })} /></label>
                         </div>
@@ -333,7 +339,7 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
                   <div className="row" style={{ gap: 8 }}>
                     <CalendarClock size={18} strokeWidth={2} style={{ flexShrink: 0, color: "var(--text-muted)" }} />
                     <div>
-                      <div className="strong">Hours</div>
+                      <div className="strong">{t("Hours")}</div>
                       <div className="quiet" style={{ marginTop: 2 }}>
                         {state.loading ? "" : state.override
                           ? (state.override.open_time
@@ -355,14 +361,14 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
                     <hr className="rule" />
                     <div className="fields" onClick={(e) => e.stopPropagation()}>
                       <div className="grid2 wide">
-                        <label className="field"><span>Open</span>
+                        <label className="field"><span>{t("Open")}</span>
                           <input type="time" value={hours.open_time}
                             onChange={(e) => setHours({ ...hours, open_time: e.target.value })} /></label>
-                        <label className="field"><span>Close</span>
+                        <label className="field"><span>{t("Close")}</span>
                           <input type="time" value={hours.close_time}
                             onChange={(e) => setHours({ ...hours, close_time: e.target.value })} /></label>
                       </div>
-                      <p className="quiet">Leave both blank to be closed.</p>
+                      <p className="quiet">{t("Leave both blank to be closed.")}</p>
                       {/* W3 — the same range control the blockout has. He was
                           less sure about this one ("maybe we do the same for
                           the set hours as this for just a short time"), and
@@ -371,12 +377,12 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
                       <label className="field"><span>Through (inclusive)</span>
                         <input type="date" value={hours.end_date} min={date}
                           onChange={(e) => setHours({ ...hours, end_date: e.target.value })} /></label>
-                      <label className="field"><span>Note</span>
-                        <input value={hours.notes} placeholder="Optional"
+                      <label className="field"><span>{t("Note")}</span>
+                        <input value={hours.notes} placeholder={t("Optional")}
                           onChange={(e) => setHours({ ...hours, notes: e.target.value })} /></label>
                       <div className="btnrow">
                         {state.override && (
-                          <button className="btn" disabled={busy} onClick={clearHours}>Back to normal</button>
+                          <button className="btn" disabled={busy} onClick={clearHours}>{t("Back to normal")}</button>
                         )}
                         <button className="btn primary" disabled={busy} onClick={saveHours}>
                           {busy ? "Saving…" : hoursSpan > 1 ? `Save for ${hoursSpan} days` : "Save"}
@@ -412,7 +418,7 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
                   <div className="row" style={{ gap: 8 }}>
                     <Truck size={18} strokeWidth={2} style={{ flexShrink: 0, color: "var(--text-muted)" }} />
                     <div>
-                      <div className="strong">How this day works</div>
+                      <div className="strong">{t("How this day works")}</div>
                       <div className="quiet" style={{ marginTop: 2 }}>
                         {state.loading ? "" : state.dropoff
                           ? `${MODES[state.dropoff.mode ?? "dropoff"].said}`
@@ -433,15 +439,15 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
                   <>
                     <hr className="rule" />
                     <div className="fields" onClick={(e) => e.stopPropagation()}>
-                      <label className="field"><span>Only take</span>
+                      <label className="field"><span>{t("Only take")}</span>
                         <Segmented value={dropoff.mode}
                           onChange={(v) => setDropoff({ ...dropoff, mode: v })}
                           options={[["dropoff", "Drop-offs"], ["mobile", "Mobile jobs"]]} /></label>
                       <label className="field"><span>Through (inclusive)</span>
                         <input type="date" value={dropoff.end_date} min={date}
                           onChange={(e) => setDropoff({ ...dropoff, end_date: e.target.value })} /></label>
-                      <label className="field"><span>Reason</span>
-                        <input value={dropoff.reason} placeholder="Van in the shop…"
+                      <label className="field"><span>{t("Reason")}</span>
+                        <input value={dropoff.reason} placeholder={t("Van in the shop…")}
                           onChange={(e) => setDropoff({ ...dropoff, reason: e.target.value })} /></label>
                       <button className="btn primary" disabled={busy} onClick={saveDropoff}>
                         {busy ? "Saving…" : `${MODES[dropoff.mode].only} for ${dropoffSpan > 1 ? `these ${dropoffSpan} days` : "this day"}`}
@@ -473,7 +479,7 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
             <h2>{dateLong(date)}</h2>
             <p className="quiet" style={{ marginTop: 2 }}>{subtitle}</p>
           </div>
-          <button className="x" aria-label="Close the day" onClick={onClose}>
+          <button className="x" aria-label={t("Close the day")} onClick={onClose}>
             <X size={18} strokeWidth={2} />
           </button>
         </div>

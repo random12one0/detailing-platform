@@ -10,8 +10,14 @@ import { uploadBusinessPhoto } from "../../lib/upload.js";
 import TimezonePicker from "../../components/TimezonePicker.jsx";
 import TimezoneChangeGuard from "../../components/TimezoneChangeGuard.jsx";
 import { localTime } from "../../lib/format.js";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../../lib/appI18n.js";
+import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 export default function BusinessInfo() {
+  useAppLocale();
   const { business, branding, settings, reload } = useBusiness();
   const [biz, setBiz] = useState({
     name: business.name,
@@ -198,53 +204,53 @@ export default function BusinessInfo() {
 
   return (
     <div className="card">
-      <label className="field"><span>Business name</span>
+      <label className="field"><span>{t("Business name")}</span>
         <input value={biz.name} onChange={(e) => setBiz({ ...biz, name: e.target.value })} /></label>
       <div className="grid2">
         <label className="field"><span>Contact email (gets notifications)</span>
           <input value={biz.contact_email} onChange={(e) => setBiz({ ...biz, contact_email: e.target.value })} /></label>
-        <label className="field"><span>Phone</span>
+        <label className="field"><span>{t("Phone")}</span>
           <input value={biz.contact_phone} onChange={(e) => setBiz({ ...biz, contact_phone: e.target.value })} /></label>
       </div>
-      <label className="field"><span>Drop-off address</span>
+      <label className="field"><span>{t("Drop-off address")}</span>
         <input value={biz.dropoff_address} onChange={(e) => setBiz({ ...biz, dropoff_address: e.target.value })} /></label>
       {/* ROADMAP 2.19. NOT the drop-off address, and not decoration: a
           marketing email has to carry a postal address by law, and
           `send-campaign` refuses to send without one. A mobile detailer has no
           unit, so this is often a PO box — which is why it cannot borrow the
           field above it. It is printed on nothing else. */}
-      <label className="field"><span>Mailing address</span>
+      <label className="field"><span>{t("Mailing address")}</span>
         <input value={biz.mailing_address} onChange={(e) => setBiz({ ...biz, mailing_address: e.target.value })}
-          placeholder="e.g. PO Box 214, Lakewood CA 90713" /></label>
+          placeholder={t("e.g. PO Box 214, Lakewood CA 90713")} /></label>
       <p className="muted" style={{ marginTop: "calc(-1 * var(--sp-2))" }}>
-        Only ever printed at the bottom of an email you send your old customers. The law asks for it.
+        {t("Only ever printed at the bottom of an email you send your old customers. The law asks for it.")}
       </p>
       <div className="grid2">
         <label className="field"><span>Service area (shown on your site)</span>
-          <input value={biz.service_area} onChange={(e) => setBiz({ ...biz, service_area: e.target.value })} placeholder="e.g. Lakewood, California" /></label>
+          <input value={biz.service_area} onChange={(e) => setBiz({ ...biz, service_area: e.target.value })} placeholder={t("e.g. Lakewood, California")} /></label>
         {/* ROADMAP 3.2(b). Four digits, and the save drops anything else
             rather than arguing with it — the column's own check constraint is
             the half that holds. */}
-        <label className="field"><span>Detailing since</span>
+        <label className="field"><span>{t("Detailing since")}</span>
           <input value={biz.established_year} inputMode="numeric" maxLength={4} placeholder="e.g. 2016"
             onChange={(e) => setBiz({ ...biz, established_year: e.target.value })} /></label>
       </div>
       <label className="field">
-        <span>Timezone</span>
+        <span>{t("Timezone")}</span>
         {/* Every booking time, reminder and calendar date is computed in this
             zone. Picked from the real IANA list — never typed free-hand. */}
         <TimezonePicker value={biz.timezone} onChange={(tz) => setBiz({ ...biz, timezone: tz })} />
       </label>
 
-      <div className="section-title">Branding</div>
-      <label className="field"><span>Tagline</span>
+      <div className="section-title">{t("Branding")}</div>
+      <label className="field"><span>{t("Tagline")}</span>
         <input value={brand.tagline} onChange={(e) => setBrand({ ...brand, tagline: e.target.value })} /></label>
       <label className="field"><span>About / owner bio</span>
         <textarea value={brand.about_copy} onChange={(e) => setBrand({ ...brand, about_copy: e.target.value })} /></label>
 
       <div className="grid2">
-        <label className="field"><span>Logo</span>
-          {brand.logo_url && <img src={brand.logo_url} alt="logo" style={{ height: 48, marginBottom: 6, borderRadius: 8 }} />}
+        <label className="field"><span>{t("Logo")}</span>
+          {brand.logo_url && <img src={brand.logo_url} alt={t("logo")} style={{ height: 48, marginBottom: 6, borderRadius: 8 }} />}
           <input type="file" accept="image/*" onChange={(e) => upload(e, "logo_url", "branding")} /></label>
         <label className="field"><span>Hero photo</span>
           {brand.hero_image_url && <img src={brand.hero_image_url} alt="hero" style={{ height: 48, marginBottom: 6, borderRadius: 8, objectFit: "cover" }} />}
@@ -256,15 +262,14 @@ export default function BusinessInfo() {
           appear nowhere in this product: they are for the website, which is
           still being built, and a detailer who types in three badges and goes
           looking for them has been misled by a missing clause. */}
-      <div className="section-title">What customers should know</div>
+      <div className="section-title">{t("What customers should know")}</div>
       <p className="muted" style={{ marginTop: "calc(-1 * var(--sp-2))" }}>
-        Licences, certifications, warranties. They go on your website — that
-        part is still being built.
+        {t("Licences, certifications, warranties. They go on your website — that part is still being built.")}
       </p>
       {creds.map((c, i) => (
         <div className="grid2" key={i}>
           <label className="field"><span>{i === 0 ? "What it is" : ""}</span>
-            <input value={c.label} placeholder="e.g. Licensed & insured"
+            <input value={c.label} placeholder={t("e.g. Licensed & insured")}
               onChange={(e) => setCreds(creds.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))} /></label>
           {/* NOT "A line about it (optional)". Measured at 392: the pair's
               columns are about 150px, that label wraps to two lines and the
@@ -273,7 +278,7 @@ export default function BusinessInfo() {
               nothing the empty field does not already say. */}
           <label className="field"><span>{i === 0 ? "A line about it" : ""}</span>
             <span className="row" style={{ display: "flex", gap: "var(--sp-2)", alignItems: "center" }}>
-              <input value={c.detail} placeholder="e.g. Fully covered on your property"
+              <input value={c.detail} placeholder={t("e.g. Fully covered on your property")}
                 onChange={(e) => setCreds(creds.map((x, j) => (j === i ? { ...x, detail: e.target.value } : x)))} />
               <button className="btn sm inline icon ghost" aria-label={`Remove ${c.label || "this line"}`}
                 onClick={() => setCreds(creds.filter((_, j) => j !== i))}><X strokeWidth={2} /></button>
@@ -283,32 +288,32 @@ export default function BusinessInfo() {
       ))}
       <div className="btnrow">
         <button className="btn" onClick={() => setCreds([...creds, { label: "", detail: "" }])}>
-          Add a line
+          {t("Add a line")}
         </button>
       </div>
 
-      <div className="section-title">Links</div>
+      <div className="section-title">{t("Links")}</div>
       {/* FOUR SOCIAL FIELDS, NOT ONE. The columns for Facebook, TikTok and
           YouTube have been on `business_branding` since the first tenant
           migration and no screen ever offered them (inventory row 92), so a
           detailer whose customers are all on TikTok had nowhere to say so.
           Paired, because a phone stacks them at 320 anyway. */}
       <div className="grid2">
-        <label className="field"><span>Instagram</span>
+        <label className="field"><span>{t("Instagram")}</span>
           <input value={brand.social_instagram} onChange={(e) => setBrand({ ...brand, social_instagram: e.target.value })} /></label>
-        <label className="field"><span>Facebook</span>
+        <label className="field"><span>{t("Facebook")}</span>
           <input value={brand.social_facebook} onChange={(e) => setBrand({ ...brand, social_facebook: e.target.value })} /></label>
       </div>
       <div className="grid2">
-        <label className="field"><span>TikTok</span>
+        <label className="field"><span>{t("TikTok")}</span>
           <input value={brand.social_tiktok} onChange={(e) => setBrand({ ...brand, social_tiktok: e.target.value })} /></label>
-        <label className="field"><span>YouTube</span>
+        <label className="field"><span>{t("YouTube")}</span>
           <input value={brand.social_youtube} onChange={(e) => setBrand({ ...brand, social_youtube: e.target.value })} /></label>
       </div>
       <div className="grid2">
-        <label className="field"><span>Google review link</span>
+        <label className="field"><span>{t("Google review link")}</span>
           <input value={reviews.google_review_url} onChange={(e) => setReviews({ ...reviews, google_review_url: e.target.value })} /></label>
-        <label className="field"><span>Yelp review link</span>
+        <label className="field"><span>{t("Yelp review link")}</span>
           <input value={reviews.yelp_review_url} onChange={(e) => setReviews({ ...reviews, yelp_review_url: e.target.value })} /></label>
       </div>
 

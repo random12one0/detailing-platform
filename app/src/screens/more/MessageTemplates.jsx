@@ -20,6 +20,11 @@ import { MessageSquare, RotateCcw } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { DEFAULT_TEMPLATES, PLACEHOLDERS, fillTemplate, findBadTokens } from "../../lib/templates.js";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../../lib/appI18n.js";
+import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 // What the preview stands in for. Concrete enough to read as a real message.
 const SAMPLE = {
@@ -31,6 +36,7 @@ const SAMPLE = {
 };
 
 export default function MessageTemplates() {
+  useAppLocale();
   const { business } = useBusiness();
   const [rows, setRows] = useState(null);
   const [msg, setMsg] = useState(null);
@@ -77,10 +83,9 @@ export default function MessageTemplates() {
   return (
     <div className="group">
       <div className="tight">
-        <h2>Your messages</h2>
+        <h2>{t("Your messages")}</h2>
         <p className="quiet">
-          These are the texts you send from a job. Tap a detail to drop it in —
-          it fills itself in from the booking when you send.
+          {t("These are the texts you send from a job. Tap a detail to drop it in — it fills itself in from the booking when you send.")}
         </p>
       </div>
 
@@ -141,25 +146,25 @@ function TemplateCard({ row, business, onSave }) {
             <div className="row" style={{ gap: 6, marginTop: 4 }}>
               <span className="tag">
                 <MessageSquare size={11} strokeWidth={2} style={{ marginRight: 4 }} />
-                Text message
+                {t("Text message")}
               </span>
-              {isDefault && <span className="quiet">Not changed yet</span>}
+              {isDefault && <span className="quiet">{t("Not changed yet")}</span>}
             </div>
           </div>
           {original && !isDefault && (
             <button className="btn sm inline ghost" onClick={() => setBody(original.body)}>
-              <RotateCcw strokeWidth={2} /> Reset
+              <RotateCcw strokeWidth={2} /> {t("Reset")}
             </button>
           )}
         </div>
 
         <div>
           <label className="field">
-            <span>What you write</span>
+            <span>{t("What you write")}</span>
             <textarea ref={ref} value={body} onChange={(e) => setBody(e.target.value)} />
           </label>
           <div className="row between" style={{ marginTop: 4 }}>
-            <span className="quiet">Tap to add a detail</span>
+            <span className="quiet">{t("Tap to add a detail")}</span>
             <span className="quiet num">{preview.length} characters</span>
           </div>
           {/* wrap: these six are a palette you pick from, not a range you
@@ -178,20 +183,20 @@ function TemplateCard({ row, business, onSave }) {
         {/* The preview is the surface that looks like a message — a tinted
             bubble, not another input. It is what the customer receives. */}
         <div>
-          <span className="label">What Dana gets</span>
+          <span className="label">{t("What Dana gets")}</span>
           <div style={{
             marginTop: 6, background: "var(--accent-quiet)", border: "1px solid var(--accent-line)",
             borderRadius: "var(--r-lg)", borderBottomLeftRadius: 4,
             padding: "10px 14px", fontSize: "var(--t-body)", lineHeight: 1.45,
             whiteSpace: "pre-wrap", wordBreak: "break-word",
           }}>
-            {preview || <span className="quiet">Nothing to send yet.</span>}
+            {preview || <span className="quiet">{t("Nothing to send yet.")}</span>}
           </div>
         </div>
 
         {dirty && (
           <div className="btnrow">
-            <button className="btn" onClick={() => setBody(row.body)}>Undo</button>
+            <button className="btn" onClick={() => setBody(row.body)}>{t("Undo")}</button>
             <button className="btn primary" disabled={saving} onClick={save}>
               {saving ? "Saving…" : "Save"}
             </button>

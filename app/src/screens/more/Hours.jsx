@@ -20,6 +20,11 @@ import { useCallback, useEffect, useState } from "react";
 import { CalendarDays } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../../lib/appI18n.js";
+import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const PRESETS = [
@@ -30,6 +35,7 @@ const PRESETS = [
 const hhmm = (v) => (v ? v.slice(0, 5) : "");
 
 export default function Hours() {
+  useAppLocale();
   const { business } = useBusiness();
   const [week, setWeek] = useState(null);      // {0..6: {open,close}} — "" means closed
   const [dirty, setDirty] = useState(false);
@@ -121,7 +127,7 @@ export default function Hours() {
       <div className="tight">
         {/* Named as the instruction it is, so it never reads as a statement
             of the current hours. */}
-        <span className="label">Change several days at once</span>
+        <span className="label">{t("Change several days at once")}</span>
         <div className="card">
           <div className="thoughts">
             <div className="row wrap" style={{ gap: 6 }}>
@@ -143,24 +149,23 @@ export default function Hours() {
             <hr className="rule" style={{ margin: 0 }} />
 
             <div className="grid2 wide">
-              <label className="field"><span>Open</span>
+              <label className="field"><span>{t("Open")}</span>
                 <input type="time" value={bulk.open}
                   onChange={(e) => setBulk({ ...bulk, open: e.target.value })} /></label>
-              <label className="field"><span>Close</span>
+              <label className="field"><span>{t("Close")}</span>
                 <input type="time" value={bulk.close}
                   onChange={(e) => setBulk({ ...bulk, close: e.target.value })} /></label>
             </div>
             <div className="btnrow">
               <button className="btn" disabled={picked.length === 0} onClick={applyClosed}>
-                Mark closed
+                {t("Mark closed")}
               </button>
               <button className="btn primary" disabled={picked.length === 0} onClick={applyTimes}>
                 Apply to {picked.length} day{picked.length === 1 ? "" : "s"}
               </button>
             </div>
             <p className="quiet">
-              Pick the days, set the times, then apply. Adjust any single day below.
-              Nothing saves until you press Save hours.
+              {t("Pick the days, set the times, then apply. Adjust any single day below. Nothing saves until you press Save hours.")}
             </p>
           </div>
         </div>
@@ -184,26 +189,26 @@ export default function Hours() {
                   <>
                     <span className="times">
                       <span className="tfield">
-                        <span className="quiet tlab">Opens</span>
+                        <span className="quiet tlab">{t("Opens")}</span>
                         <input type="time" value={week[d].open} aria-label={`${label} open`}
                           onChange={(e) => setDay(d, "open", e.target.value)} />
                       </span>
-                      <span className="quiet tsep">to</span>
+                      <span className="quiet tsep">{t("to")}</span>
                       <span className="tfield">
-                        <span className="quiet tlab">Closes</span>
+                        <span className="quiet tlab">{t("Closes")}</span>
                         <input type="time" value={week[d].close} aria-label={`${label} close`}
                           onChange={(e) => setDay(d, "close", e.target.value)} />
                       </span>
                     </span>
                     <button className="btn sm inline ghost dayact" aria-label={`Close ${label}`}
-                      onClick={() => { setDay(d, "open", ""); setDay(d, "close", ""); }}>Close</button>
+                      onClick={() => { setDay(d, "open", ""); setDay(d, "close", ""); }}>{t("Close")}</button>
                   </>
                 ) : (
                   <>
-                    <span className="quiet" style={{ flex: 1 }}>Closed</span>
+                    <span className="quiet" style={{ flex: 1 }}>{t("Closed")}</span>
                     <button className="btn sm inline dayact"
                       onClick={() => { setDay(d, "open", bulk.open); setDay(d, "close", bulk.close); }}>
-                      Open
+                      {t("Open")}
                     </button>
                   </>
                 )}
@@ -222,8 +227,7 @@ export default function Hours() {
       <div className="row" style={{ gap: 8, alignItems: "flex-start" }}>
         <CalendarDays size={17} strokeWidth={2} style={{ flexShrink: 0, color: "var(--text-muted)", marginTop: 2 }} />
         <p className="quiet">
-          One-off changes — a day off, different hours for a single date, or a
-          drop-off-only stretch — are set by tapping that date on the Calendar.
+          {t("One-off changes — a day off, different hours for a single date, or a drop-off-only stretch — are set by tapping that date on the Calendar.")}
         </p>
       </div>
     </div>
