@@ -498,31 +498,78 @@ never recorded, beside a perfectly healthy billing endpoint.**
 
 ### WHAT IS ON HIM — and it is two things now, not two settings
 
-| | |
+**Not created yet as of 2026-09-08 — partially configured, then abandoned
+cleanly. Nothing saved, nothing to clean up.** Create it with EXACTLY this:
+
+| Field | Value |
 |---|---|
-| **1** | **Create a SECOND webhook endpoint in Stripe.** URL: the same function this repo already deploys — `<SUPABASE_URL>/functions/v1/stripe-webhook`. **Events from: Connected accounts.** Events: `account.updated` at minimum, plus the connected-account payment events the two screens need. |
-| **2** | **Copy the NEW signing secret it issues into Supabase edge secrets as `STRIPE_CONNECT_WEBHOOK_SECRET`.** That exact name — the code reads it. **Do not touch `STRIPE_WEBHOOK_SECRET`**; the billing endpoint is live and uses it. |
+| Event destination scope | **Connected accounts** |
+| **API version** | **`2024-06-20` — DO NOT ACCEPT THE DEFAULT.** See the trap below. |
+| Events | `account.updated`, `account.application.deauthorized`, `checkout.session.completed`, `payment_intent.succeeded` |
+| Destination | webhook endpoint, the same function this repo already deploys: `<SUPABASE_URL>/functions/v1/stripe-webhook` |
+| Then | copy its **NEW** signing secret into Supabase edge secrets as **`STRIPE_CONNECT_WEBHOOK_SECRET`** — that exact name, the code reads it. **Leave `STRIPE_WEBHOOK_SECRET` alone**; the live billing endpoint uses it. |
+
+### THE TRAP, and it would have cost a day
+
+**Stripe's create-endpoint form defaults the API version to
+`2026-08-26.dahlia`. The existing endpoint, and every line of this code, is
+`2024-06-20`.** An endpoint is registered AT a version and Stripe renders every
+event to that version's shape, so a second endpoint on the default sends
+**differently-shaped payloads for the same events**.
+
+**AND IT PASSES EVERY CHECK IN THIS REPO**, because they all run against the
+pinned shape. It fails only in production, quietly. **This repo has already
+measured that exact damage once**: at `2024-06-20` an invoice carries `charge`;
+at a newer version it does not, so the decline reason went silently null and
+the email stopped printing the one line a detailer can act on.
+
+**`2024-06-20` IS in the dropdown. It is just not the default.**
+
+**The code now checks itself**, so if this is ever got wrong the logs say so in
+one line instead of never — `event.api_version` against the pinned constant. It
+**logs and does not reject**: a 400 makes Stripe retry for three days and then
+disable the endpoint, which turns a wrong-shaped payment record into no record
+at all.
+
+### And two events were added, one of them at his recommendation
+
+- **`account.application.deauthorized`** — his suggestion, and he was right not
+  to add it unilaterally, because it needed handler code. Without it **the
+  platform never learns a detailer left**: the row keeps saying connected and
+  `pay-booking` keeps offering a card button routing to an account that has
+  revoked us. The customer meets that failure at the car.
+- **`account.updated`** was on the event list **and `handleConnected` returned
+  early on it** — it would have been delivered and done nothing. `charges_enabled`
+  is Stripe's answer and is re-read rather than remembered, so without it a
+  detailer Stripe later restricts keeps a card button that fails for everyone.
+
+Both are handled and deployed (`stripe-webhook` v27).
 
 **Already done, do not redo:** `STRIPE_CONNECT_CLIENT_ID` is set and verified.
 The sandbox account has OAuth enabled with
 `https://detailingplatform.com/settings/payments/connected` as the default
 redirect URI.
 
-### THE ONE THING STILL UNMEASURED, and it matters
+### WHICH ACCOUNT THE KEY BELONGS TO — answered 2026-09-08, by evidence
 
-**Which Stripe account does the app's `STRIPE_SECRET_KEY` actually belong to?**
-There are two — the sandbox `acct_1UCMm0JeoZO7o6Ee` and the parent
-`acct_1UCMliQuTsaIN5HA` — **and they have different client ids.** The one set is
-the SANDBOX's. **If the key belongs to the parent, OAuth will fail**, and it
-will fail at the moment a real detailer tries to connect their account.
+**`acct_1UCMm0JeoZO7o6Ee`, the sandbox. So the client id already set is the
+right one.**
 
-This session could not answer it: the key is a Supabase edge secret, not in
-`.env`, and reading it back was correctly refused. **One line answers it, and
-only the account id should ever be reported:**
+**Not measured directly, and the reasoning is what makes it trustworthy:** that
+account's endpoint shows **49 successful deliveries this week and 0 failures.**
+Those events exist only because the app created Checkout Sessions, and a key
+belonging to the parent account would have routed its events to the parent's
+endpoints instead. **The deliveries are the evidence; the key is the sandbox's.**
+
+**It is INFERENCE, and good inference — record it as that rather than as a
+measurement.** The direct check remains one line, and only the account id
+should ever be reported from it:
 
 ```
 curl -s https://api.stripe.com/v1/account -u "$STRIPE_SECRET_KEY:" | grep -o '"id": *"[^"]*"'
 ```
 
-**Expect `acct_1UCMm0JeoZO7o6Ee`.** Anything else means the client id set on
-2026-09-08 is the wrong one for the key in use.
+**This session cannot run it** — the key is a Supabase edge secret rather than
+anything in `.env`, and reading it back was correctly refused. Worth running if
+the key is ever to hand; anything other than `acct_1UCMm0JeoZO7o6Ee` means the
+client id is wrong for the key in use.

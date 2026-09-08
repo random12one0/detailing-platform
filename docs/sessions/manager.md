@@ -127,10 +127,10 @@ both URLs on 2026-09-08.**
 (`OUTSTANDING.md` § 9). **NONE of it is live** — the live page is still the
 6 Sep bundle. **Deploy before submitting Google application two**, or the
 reviewer reads the stale page.
-**Stripe Connect:** `STRIPE_CONNECT_CLIENT_ID` set and verified. The
-`event.account` branch was DEAD until 2026-09-08 — *"Events from"* is
-create-only, so it needs a SECOND endpoint. `stripe-webhook` now accepts two
-secrets; **waiting on him to create that endpoint and set
-`STRIPE_CONNECT_WEBHOOK_SECRET`.** `OUTSTANDING.md` § 10, including the one
-unmeasured thing: which Stripe account the app's key belongs to.
+**Stripe Connect:** client id set and correct (the key is the sandbox's —
+established by evidence, `OUTSTANDING.md` § 10). `stripe-webhook` v27 accepts
+two signing secrets, checks its own API version, and handles both account
+events. **Waiting on him to create the second endpoint — and the API version
+on that form MUST be set to `2024-06-20`, not the default.** `OUTSTANDING.md`
+§ 10 is the exact settings.
 **Lanes running:** websites (A), product (B). Build (C) not started.
