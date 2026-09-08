@@ -91,7 +91,7 @@ export default function Notifications() {
       setDevice(await pushState());
       reload();
     } catch (e) {
-      setPushErr(e.message || "Could not change that.");
+      setPushErr(e.message || t("Could not change that."));
       setDevice(await pushState());
     }
     setPushBusy(false);
@@ -148,9 +148,9 @@ export default function Notifications() {
   return (
     <>
       <Group title={t("What your customers get")}
-        blurb="Turning one off stops the email, not the booking.">
+        blurb={t("Turning one off stops the email, not the booking.")}>
         {CUSTOMER_EMAILS.map(([k, label, help]) => (
-          <Switch key={k} label={label} help={help}
+          <Switch key={k} label={t(label)} help={t(help)}
             checked={form[k]} onChange={(v) => set(k, v)} />
         ))}
         {/* ROADMAP 4.2 — "WHAT DOES MY CUSTOMER ACTUALLY GET?" The old site
@@ -166,7 +166,7 @@ export default function Notifications() {
             unfamiliar Send: who receives it, and whether it books anything. */}
         <div className="btnrow" style={{ marginTop: "var(--sp-3)" }}>
           <button className="btn" disabled={previewing} onClick={sendPreview}>
-            {previewing ? "Sending…" : "Send me a sample"}
+            {previewing ? t("Sending…") : t("Send me a sample")}
           </button>
         </div>
         {/* NO NEGATIVE MARGIN HERE, and that is the correction rather than
@@ -183,9 +183,9 @@ export default function Notifications() {
         {preview && <div className={preview.ok ? "ok-box" : "error-box"}>{preview.text}</div>}
       </Group>
 
-      <Group title={t("What you get")} blurb="Email you when…">
+      <Group title={t("What you get")} blurb={t("Email you when…")}>
         {OWNER_EMAILS.map(([k, label, help]) => (
-          <Switch key={k} label={label} help={help}
+          <Switch key={k} label={t(label)} help={help ? t(help) : undefined}
             checked={form[k]} onChange={(v) => set(k, v)} />
         ))}
         {/* THE SWITCH THAT DELIVERED NOTHING, REBUILT (roadmap 2.11 step 6
@@ -205,8 +205,8 @@ export default function Notifications() {
         ) : (
           <Switch label={t("Push notifications on this device")}
             help={device === "blocked"
-              ? "Blocked for this site. Turn notifications back on in your browser settings, then try again."
-              : "Allowed once per device, on the phone or computer you want the alerts on."}
+              ? t("Blocked for this site. Turn notifications back on in your browser settings, then try again.")
+              : t("Allowed once per device, on the phone or computer you want the alerts on.")}
             disabled={pushBusy || device === null || device === "blocked"}
             checked={device === "on"} onChange={togglePush} />
         )}
@@ -215,7 +215,7 @@ export default function Notifications() {
 
       <Group title={t("Where your alerts go")}>
         <Setting label={t("Main address")} help={t("From your business info. Always receives.")}>
-          <span className="quiet">{primary || "Not set"}</span>
+          <span className="quiet">{primary || t("Not set")}</span>
         </Setting>
         <Setting label={t("Also send to")} stacked
           help={t("A partner, a second inbox, whoever else needs to know.")}>
@@ -243,7 +243,7 @@ export default function Notifications() {
         </Setting>
       </Group>
 
-      <Group title={t("Timing")} blurb="Only affects nudges to you, not your customers.">
+      <Group title={t("Timing")} blurb={t("Only affects nudges to you, not your customers.")}>
         <Setting label={t("Nudge you before a job starts")} stacked>
           <DurationChoice value={form.owner_nudge_lead_minutes} presets={OWNER_NUDGE}
             onChange={(v) => set("owner_nudge_lead_minutes", v)} unit="minutes" customMax={720} />
@@ -270,15 +270,15 @@ export default function Notifications() {
           "Hi {name}" is the owner's own never-default. Nothing to typo,
           nothing to validate. */}
       <Group title={t("Your own words")}
-        blurb="Add a line to any email. Everything else stays as designed.">
+        blurb={t("Add a line to any email. Everything else stays as designed.")}>
         {MESSAGE_KINDS.map((k) => {
           const body = messages[k.key] ?? "";
           const open = openKind === k.key;
           return (
-            <Setting key={k.key} label={k.label} help={k.when} stacked>
+            <Setting key={k.key} label={t(k.label)} help={t(k.when)} stacked>
               {!open && (
                 <button className="btn sm inline ghost" onClick={() => setOpenKind(k.key)}>
-                  {body ? "Edit your line" : "Add a line"}
+                  {body ? t("Edit your line") : t("Add a line")}
                 </button>
               )}
               {!open && body && <p className="body" style={{ marginTop: 8 }}>{body}</p>}
@@ -288,12 +288,23 @@ export default function Notifications() {
                     placeholder={t("Anything you want them to know.")}
                     onChange={(e) => { setMessages({ ...messages, [k.key]: e.target.value }); setMsg(null); }} />
                   <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
-                    {k.presets.map((preset) => (
-                      <button key={preset} className="btn sm inline ghost"
-                        onClick={() => { setMessages({ ...messages, [k.key]: preset }); setMsg(null); }}>
-                        {preset.length > 44 ? `${preset.slice(0, 44)}…` : preset}
-                      </button>
-                    ))}
+                    {/* ROADMAP 8.17 STAGE 2B — A PRESET IS TRANSLATED AND A
+                        LEDGER NOTE IS NOT, and the line between them is who
+                        is choosing. This is a sentence OFFERED to a detailer
+                        to say to their own customers, so it belongs in the
+                        language they are reading; what gets stored is
+                        whatever they picked, which is their words either
+                        way. `plan_visits.note` is the other case — the
+                        SYSTEM writes it, so it stays one language. */}
+                    {k.presets.map((preset) => {
+                      const said = t(preset);
+                      return (
+                        <button key={preset} className="btn sm inline ghost"
+                          onClick={() => { setMessages({ ...messages, [k.key]: said }); setMsg(null); }}>
+                          {said.length > 44 ? `${said.slice(0, 44)}…` : said}
+                        </button>
+                      );
+                    })}
                   </div>
                   <div className="row" style={{ gap: 8 }}>
                     <button className="btn sm inline" onClick={() => setOpenKind(null)}>{t("Done")}</button>
@@ -313,7 +324,7 @@ export default function Notifications() {
 
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
       <button className="btn primary" disabled={busy} onClick={save}>
-        {busy ? "Saving…" : "Save notifications"}
+        {busy ? t("Saving…") : t("Save notifications")}
       </button>
     </>
   );

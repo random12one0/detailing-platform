@@ -56,7 +56,16 @@ const EMPTY_SVC = {
 const DOW = [["S", 0], ["M", 1], ["T", 2], ["W", 3], ["T", 4], ["F", 5], ["S", 6]];
 const EMPTY_ADDON = { name: "", description: "", price: "", duration_minutes: "0", is_active: true };
 const EMPTY_GROUP = { name: "", max_select: "1", is_exclusive: false, description: "" };
-const TITLE = { service: "service", addon: "add-on", group: "category", size: "vehicle size" };
+// ROADMAP 8.17 STAGE 2B — EIGHT WHOLE KEYS, not "Edit"/"New" glued to a noun.
+// Spanish agrees the article and the adjective with the noun's gender —
+// *Nuevo servicio* but *Nueva categoria* — so the two halves cannot be
+// translated apart. Same finding as Money's period sentences.
+const SHEET_TITLE = {
+  service: { edit: "Edit service", add: "New service" },
+  addon: { edit: "Edit add-on", add: "New add-on" },
+  group: { edit: "Edit category", add: "New category" },
+  size: { edit: "Edit vehicle size", add: "New vehicle size" },
+};
 
 // features is jsonb — an array of strings in the database, one per line in the
 // box. Blank lines are dropped rather than stored, so a stray Enter does not
@@ -253,8 +262,8 @@ export default function Catalog() {
       : supabase.from("service_groups").insert(payload);
     const { error } = await q;
     setMsg(error
-      ? { ok: false, text: error.code === "23505" ? "You already have a category with that name." : error.message }
-      : { ok: true, text: "Saved." });
+      ? { ok: false, text: error.code === "23505" ? t("You already have a category with that name.") : error.message }
+      : { ok: true, text: t("Saved.") });
     if (!error) setEditing(null);
     load();
   };
@@ -267,11 +276,13 @@ export default function Catalog() {
   const deleteGroup = async () => {
     const inUse = services.filter((s) => s.group_id === editing.id).length;
     if (inUse && !confirm(
-      `${inUse} service${inUse === 1 ? "" : "s"} ${inUse === 1 ? "is" : "are"} in this category. `
-      + "Deleting it keeps them — they just stop being grouped. Continue?")) return;
+      t(inUse === 1
+        ? "{count} service is in this category. Deleting it keeps them — they just stop being grouped. Continue?"
+        : "{count} services are in this category. Deleting it keeps them — they just stop being grouped. Continue?",
+      { count: inUse }))) return;
     const { error } = await supabase.from("service_groups").delete()
       .eq("id", editing.id).eq("business_id", business.id);
-    setMsg(error ? { ok: false, text: error.message } : { ok: true, text: "Category deleted." });
+    setMsg(error ? { ok: false, text: error.message } : { ok: true, text: t("Category deleted.") });
     if (!error) setEditing(null);
     load();
   };
@@ -337,8 +348,8 @@ export default function Catalog() {
   ].filter(({ group, rows }) => group || rows.length);
 
   const groupRule = (g) => (g.is_exclusive
-    ? "Booked on its own — nothing else can be added"
-    : g.max_select === 1 ? "Customers pick one" : "Customers pick any number");
+    ? t("Booked on its own — nothing else can be added")
+    : g.max_select === 1 ? t("Customers pick one") : t("Customers pick any number"));
 
   return (
     // A plain container, not a .card: the services inside it ARE the cards,
@@ -446,7 +457,7 @@ export default function Catalog() {
             <div className="tappable" style={{ flex: 1, minWidth: 0, cursor: "pointer" }}
               onClick={() => setEditing({ kind: "size", index: i, form: { label: s.label, examples: s.examples || "" } })}>
               <strong>{s.label}</strong>
-              <div className="muted">{i === 0 ? "Base price" : s.examples || "Costs extra"}</div>
+              <div className="muted">{i === 0 ? t("Base price") : s.examples || t("Costs extra")}</div>
             </div>
             <button className="btn sm inline icon" aria-label={t("Move up")} disabled={i === 0}
               onClick={() => moveSize(i, -1)}><ChevronUp strokeWidth={2} /></button>
@@ -469,7 +480,7 @@ export default function Catalog() {
 
       {editing && (
         <Sheet onClose={() => setEditing(null)}
-          title={`${editing.id || editing.index != null ? "Edit" : "New"} ${TITLE[editing.kind]}`}>
+          title={t(SHEET_TITLE[editing.kind][editing.id || editing.index != null ? "edit" : "add"])}>
 
           {editing.kind === "size" ? (
             <>
@@ -481,8 +492,8 @@ export default function Catalog() {
                   onChange={(e) => set({ examples: e.target.value })} /></label>
               <p className="muted">
                 {editing.index === 0
-                  ? "This is your base size — every price you set is the price for this one."
-                  : "You set what this size adds, per service, in each service's own screen."}
+                  ? t("This is your base size — every price you set is the price for this one.")
+                  : t("You set what this size adds, per service, in each service's own screen.")}
               </p>
               <button className="btn primary" onClick={saveSize}>{t("Save")}</button>
             </>
@@ -514,8 +525,8 @@ export default function Catalog() {
                   menu: $1,645 booked for work a $625 package included. */}
               <Switch label={t("Booked on its own")}
                 help={editing.form.is_exclusive
-                  ? "Choosing anything in here clears everything else — for a complete package that already includes your other services."
-                  : "Customers can combine these with services from your other categories."}
+                  ? t("Choosing anything in here clears everything else — for a complete package that already includes your other services.")
+                  : t("Customers can combine these with services from your other categories.")}
                 checked={editing.form.is_exclusive}
                 onChange={(v) => set({ is_exclusive: v })} />
               <button className="btn primary" onClick={saveGroup}>{t("Save")}</button>
@@ -547,8 +558,8 @@ export default function Catalog() {
                       what the number CLAIMS TO BE and never the arithmetic. */}
                   <Switch label={t("Show this as a starting price")}
                     help={editing.form.price_is_from
-                      ? `Customers see "from ${money(Number(editing.form.price) || 0)}".`
-                      : "Customers read this as a firm quote."}
+                      ? t("Customers see \"from {amount}\".", { amount: money(Number(editing.form.price) || 0) })
+                      : t("Customers read this as a firm quote.")}
                     checked={editing.form.price_is_from}
                     onChange={(v) => set({ price_is_from: v })} />
 
@@ -556,9 +567,9 @@ export default function Catalog() {
                       page's disclosure already does. StepServices renders this
                       list behind the eye; inline it would push step 1 off the
                       bottom of a phone for every tenant who filled it in. */}
-                  <label className="field"><span>What's included (one per line)</span>
+                  <label className="field"><span>{t("What's included (one per line)")}</span>
                     <textarea rows={5} value={editing.form.features}
-                      placeholder={"Hand wash and dry\nClay bar decontamination\nMachine polish\nSix-month sealant"}
+                      placeholder={t("Hand wash and dry\nClay bar decontamination\nMachine polish\nSix-month sealant")}
                       onChange={(e) => set({ features: e.target.value })} /></label>
                   <p className="muted" style={{ marginTop: 6, marginBottom: "var(--sp-4)" }}>
                     {t("Customers see these behind the eye on your booking page, so the list can be as long as it needs to be.")}
@@ -576,10 +587,10 @@ export default function Catalog() {
                       only be offered midweek. */}
                   <Setting label={t("Where this one can be done")}
                     help={editing.form.where === "either"
-                      ? "Wherever you work — the customer chooses."
+                      ? t("Wherever you work — the customer chooses.")
                       : editing.form.where === "dropoff"
-                        ? "Drop-off only. A customer who picks this can't choose mobile."
-                        : "Mobile only. A customer who picks this can't choose drop-off."}
+                        ? t("Drop-off only. A customer who picks this can't choose mobile.")
+                        : t("Mobile only. A customer who picks this can't choose drop-off.")}
                     stacked>
                     <Segmented value={editing.form.where} onChange={(v) => set({ where: v })}
                       options={[["either", "Either"], ["mobile", "Mobile only"], ["dropoff", "Drop-off only"]]} />
