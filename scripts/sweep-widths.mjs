@@ -375,6 +375,49 @@ const settle = async (page, cap = 2000) => {
 // pricing block six hundred lines above that. The helper written to fix this
 // race has now twice been unreachable at a site that still had it. Nothing in
 // it closes over anything, so there was never a reason for it to be in there.
+// ROADMAP 8.17 STAGE 2B — A CONTROL ADDRESSED BY ITS WORDS, IN EITHER
+// LANGUAGE.
+//
+// This script names sixteen controls by the text on them, and every one of
+// those names changes when the dashboard is Spanish — the first run under
+// `LANG_APP=es` timed out on the word "Today" and took the whole sweep with
+// it. That is the family CLAUDE.md already records twice (the auth form's
+// selectors, the booking page's `.bk-chip`): **a script that reaches for a
+// WORD breaks the day the word changes, and a translation changes every
+// word.**
+//
+// The fix is not a `data-testid` on sixteen controls — that is a product
+// change made for a test's convenience, and this repo has refused that trade
+// before. It is to accept EITHER name, read from the catalogue the product
+// itself ships. One helper, no product edit, and it keeps working when a
+// translation is corrected.
+//
+// The RAIL is different and is addressed by `data-tour` instead: those five
+// buttons already carry a stable attribute for the guided tour, so there is
+// nothing to look up.
+const APP_ES = (() => {
+  try {
+    const src = readFileSync(new URL("../app/src/lib/strings/appEs.js", import.meta.url), "utf8");
+    return new Map([...src.matchAll(/^\s*"((?:[^"\\]|\\.)*)":\s*"((?:[^"\\]|\\.)*)",?\s*$/gm)]
+      .map((m) => [m[1].replace(/\\"/g, '"'), m[2].replace(/\\"/g, '"')]));
+  } catch { return new Map(); }
+})();
+
+/** A button by its English name, matching the Spanish one too. */
+/** A control's accessible name, matching the Spanish one too.
+ *
+ *  Returns the plain English string when there is no translation (so an
+ *  untranslated control is matched exactly as before), and an ANCHORED regex
+ *  over both when there is. Playwright ignores `exact` for a regex, which is
+ *  why the anchors are in the pattern — dropping them would make every one of
+ *  these a substring match, and `Add` would start matching `Add a plan`. */
+const rx = (v) => v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const NAMED = (english) => {
+  const es = APP_ES.get(english);
+  if (!es || es === english) return english;
+  return new RegExp(`^(?:${rx(english)}|${rx(es)})$`);
+};
+
 const appear = async (loc, ms = 6000) => {
   try { await loc.first().waitFor({ state: "attached", timeout: ms }); return true; }
   catch { return false; }
@@ -624,12 +667,24 @@ for (const w of SIZES) {
   // Seeding this is not "turning the feature off for the tests": it is the
   // ordinary state of every account that has already used the product once,
   // which is what the other fifty measurements are about.
-  await page.evaluate(() => {
+  // ROADMAP 8.17 STAGE 2B — `LANG=es` SWEEPS THE SPANISH DASHBOARD, and the
+  // reason it is worth a flag is a MEASUREMENT rather than a worry: Spanish
+  // runs longer than English word for word, and this product supports a
+  // 320px floor where a settings row already puts its control under its
+  // words. A translation that overflows is a layout defect the catalogue
+  // cannot see and the DOM check cannot either — it reads TEXT, and text
+  // that is off the edge is still text.
+  //
+  // Default English, so every existing baseline in CLAUDE.md keeps meaning
+  // what it says.
+  const lang = process.env.LANG_APP === "es" ? "es" : "en";
+  await page.evaluate((lang) => {
     try {
       localStorage.setItem("dp.tours", JSON.stringify(["shell", "today", "money", "clients", "business"]));
       localStorage.setItem("dp.tour", "1");
+      localStorage.setItem("dp.lang.app", lang);
     } catch { /* private mode */ }
-  });
+  }, lang);
   await page.reload({ waitUntil: "domcontentloaded" });
   await page.waitForSelector(".tabbar", { timeout: 30000 });
   await settle(page, 2200);
@@ -652,8 +707,16 @@ for (const w of SIZES) {
     }
   }
 
-  for (const t of ["Today", "Calendar", "Money", "Clients", "Business"]) {
-    await page.getByRole("button", { name: t, exact: true }).first().click();
+  // **ADDRESSED BY `data-tour`, NEVER BY NAME — roadmap 8.17 stage 2b.**
+  // The rail said "Today" until the dashboard learned Spanish, where it says
+  // "Hoy", and a name-based locator then times out for fifteen seconds on
+  // the FIRST tab and takes the whole run with it. Same family as the auth
+  // form and the booking page's `.bk-chip`: a script that reaches for a WORD
+  // breaks the day the word changes, and a translation changes every word.
+  // The label stays in the list because it is what the output is read by.
+  for (const [key, t] of [["today", "Today"], ["calendar", "Calendar"],
+    ["money", "Money"], ["clients", "Clients"], ["business", "Business"]]) {
+    await page.locator(`.tabbar button[data-tour="${key}"]`).first().click();
     await settle(page, 1700);
     await say(t);
   }
@@ -665,7 +728,7 @@ for (const w of SIZES) {
   // because the record's shape depends on the job's state: the LIT card is a
   // finished, unpaid job (Finalize payment, no Mark completed) and the first
   // plain row is one still to do (Mark completed, no money action).
-  await page.getByRole("button", { name: "Today", exact: true }).first().click();
+  await page.locator(`.tabbar button[data-tour="today"]`).first().click();
   await settle(page, 1400);
 
   // ROADMAP 2.12 — THE REQUEST QUEUE AND THE QUOTE SHEET, and adding them
@@ -693,9 +756,9 @@ for (const w of SIZES) {
       await page.keyboard.press("Escape");
       await settle(page, 700);
       // Back to Today, then the quote sheet from the card's own button.
-      await page.getByRole("button", { name: "Today", exact: true }).first().click();
+      await page.locator(`.tabbar button[data-tour="today"]`).first().click();
       await settle(page, 1400);
-      await page.locator(".reqcard").first().getByRole("button", { name: "Quote", exact: true }).click();
+      await page.locator(".reqcard").first().getByRole("button", { name: NAMED("Quote"), exact: true }).click();
       await settle(page, 1300);
       await grow();
       await say("send a quote");
@@ -704,7 +767,7 @@ for (const w of SIZES) {
     }
   }
 
-  await page.getByRole("button", { name: "Today", exact: true }).first().click();
+  await page.locator(`.tabbar button[data-tour="today"]`).first().click();
   await settle(page, 1400);
   // TWO JOB STATES, AND WHICH DOOR THEY ARE BEHIND MOVED IN 2.12. They used to
   // be "the lit card" and "the first row"; a waiting request now takes the lit
@@ -736,7 +799,7 @@ for (const w of SIZES) {
   // detailer reaches it: the Tomorrow row below --wrap, the second column's
   // list above it.
   {
-    await page.getByRole("button", { name: "Today", exact: true }).first().click();
+    await page.locator(`.tabbar button[data-tour="today"]`).first().click();
     await settle(page, 1400);
     // TWO DOORS, AND NEITHER IS GUARANTEED — count before clicking. A
     // `.first().click()` on an empty locator throws after 15s and takes the
@@ -779,7 +842,7 @@ for (const w of SIZES) {
   // below are the ones that change the row's width: "6 months" is the widest
   // label, "Week" the widest period LABEL ("Aug 30 – Sep 5"), and Lifetime is
   // the one that draws no stepper at all.
-  await page.getByRole("button", { name: "Money", exact: true }).first().click();
+  await page.locator(`.tabbar button[data-tour="money"]`).first().click();
   // THE PERIOD CONTROL IS DRAWN AFTER THE MONEY READ, so `settle()` is the
   // wrong instrument for it — a cap on a repaint, never a wait for a network
   // round trip. This block was settle-then-count until 2026-09-06 and it lost
@@ -787,7 +850,7 @@ for (const w of SIZES) {
   // which reads as three renamed controls rather than as one slow query.
   // Third instance of exactly this in this file (Monthly plans, Team, and now
   // Money) — `appear()` is the tool and it is at module scope for this reason.
-  await appear(page.getByRole("radio", { name: "Month", exact: true }));
+  await appear(page.getByRole("radio", { name: NAMED("Month"), exact: true }));
   await settle(page, 1600);
   for (const k of ["Week", "6 months", "Lifetime"]) {
     const chip = page.getByRole("radio", { name: k, exact: true });
@@ -796,7 +859,7 @@ for (const w of SIZES) {
     await settle(page, 1500);
     await say(`Money · ${k}`);
   }
-  await page.getByRole("radio", { name: "Month", exact: true }).first().click();
+  await page.getByRole("radio", { name: NAMED("Month"), exact: true }).first().click();
   await settle(page, 1500);
   {
     const owed = page.locator(".card", { hasText: "Mark paid" }).first();
@@ -808,7 +871,7 @@ for (const w of SIZES) {
       await page.keyboard.press("Escape");
       await settle(page, 700);
     }
-    const add = page.getByRole("button", { name: "Add", exact: true });
+    const add = page.getByRole("button", { name: NAMED("Add"), exact: true });
     if (await add.count()) {
       await add.first().click();
       await settle(page, 1200);
@@ -826,7 +889,7 @@ for (const w of SIZES) {
   // columns, month rules) were never opened at any width. Same family as the
   // job record before stage 2 and as `dead-width`: a check that never reaches
   // a thing reports exactly like a check that reached it and found nothing.
-  await page.getByRole("button", { name: "Calendar", exact: true }).first().click();
+  await page.locator(`.tabbar button[data-tour="calendar"]`).first().click();
   await settle(page, 1500);
   {
     // The 2nd cell of the demo month carries two jobs; the panel opens under
@@ -851,13 +914,13 @@ for (const w of SIZES) {
       await settle(page, 600);
     }
   }
-  await page.getByRole("button", { name: "History", exact: true }).first().click();
+  await page.getByRole("button", { name: NAMED("History"), exact: true }).first().click();
   await settle(page, 2200);
   await say("Calendar · history");
   {
     // The nine chips are behind one control below --wrap and in the second
     // column above it, so the open filter bar is a phone-only state.
-    const filter = page.getByRole("button", { name: "Filter" });
+    const filter = page.getByRole("button", { name: NAMED("Filter") });
     if (await filter.count()) {
       await filter.first().click();
       await settle(page, 700);
@@ -902,7 +965,7 @@ for (const w of SIZES) {
   // width. The list is also the one in the product whose LAYOUT changes when a
   // record opens — full-bleed until then (§8) — so the closed state and the
   // open state are two different measurements of the same screen.
-  await page.getByRole("button", { name: "Clients", exact: true }).first().click();
+  await page.locator(`.tabbar button[data-tour="clients"]`).first().click();
   await settle(page, 1600);
   // THE ONE LINE THAT FIXES ALL SIX. Everything below depends on the list
   // having been drawn, so waiting for a row here is what makes the guards
@@ -920,7 +983,7 @@ for (const w of SIZES) {
     await say(`Clients · sorted by ${s}`);
   }
   {
-    const chip = page.getByRole("button", { name: "Not seen in 3 months" });
+    const chip = page.getByRole("button", { name: NAMED("Not seen in 3 months") });
     if (await chip.count()) {
       await chip.first().click();
       await settle(page, 700);
@@ -1045,7 +1108,7 @@ for (const w of SIZES) {
     continue;
   }
 
-  await page.getByRole("button", { name: "Business", exact: true }).first().click();
+  await page.locator(`.tabbar button[data-tour="business"]`).first().click();
   await settle(page, 1400);
 
   // THE QR IS BEHIND A BUTTON, SO IT IS A STATE THIS SCRIPT HAS TO ENTER.
@@ -1054,7 +1117,7 @@ for (const w of SIZES) {
   // after a click — which is the finding stage 6 hit four times over on the
   // job record, the calendar, Money and Clients, and the reason its own
   // settings rows are walked rather than assumed.
-  const qr = page.getByRole("button", { name: "Generate QR code" });
+  const qr = page.getByRole("button", { name: NAMED("Generate QR code") });
   if (await qr.count()) {
     await qr.first().click();
     await settle(page, 1200);
@@ -1072,13 +1135,13 @@ for (const w of SIZES) {
   // breaks at 320, not the list above it.
   await page.locator(".nav-row", { hasText: "Monthly plans" }).first().click().catch(() => {});
   await settle(page, 1300);
-  const addPlan = page.getByRole("button", { name: "Add a plan" });
+  const addPlan = page.getByRole("button", { name: NAMED("Add a plan") });
   if (await appear(addPlan)) {
     await addPlan.first().click();
     await settle(page, 800);
     await say("Business · Monthly plans, the plan form");
   } else { console.log(`${"the Add a plan button".padEnd(24)} NO SUCH BUTTON`); found++; }
-  const logMember = page.getByRole("button", { name: "Log a member" });
+  const logMember = page.getByRole("button", { name: NAMED("Log a member") });
   if (await appear(logMember)) {
     await logMember.first().click();
     await settle(page, 800);
@@ -1105,7 +1168,7 @@ for (const w of SIZES) {
   // takes the main area and its own index has to be measured too — until
   // this stage every one of these screens was reached from one list and four
   // of them have moved.
-  await page.getByRole("button", { name: "Settings", exact: true }).first().click();
+  await page.getByRole("button", { name: NAMED("Settings"), exact: true }).first().click();
   await settle(page, 1400);
   await say("the gear");
   await walk("gear", GEAR_ROWS);
@@ -1125,9 +1188,9 @@ for (const w of SIZES) {
   // Guarded rather than assumed: staff never see Notifications, and a future
   // layout may rename the button. A missing button is reported, not skipped —
   // silently measuring nothing is how this gap survived six times.
-  await page.getByRole("button", { name: "Notifications" }).first().click().catch(() => {});
+  await page.getByRole("button", { name: NAMED("Notifications") }).first().click().catch(() => {});
   await settle(page, 1200);
-  const addLine = page.getByRole("button", { name: "Add a line" });
+  const addLine = page.getByRole("button", { name: NAMED("Add a line") });
   if (await addLine.count() > 0) {
     await addLine.first().click();
     await settle(page, 700);
@@ -1150,9 +1213,9 @@ for (const w of SIZES) {
   // The demo seeds two members — an owner and a "Detailer" — so there is
   // always a second "Change" whose card carries the ticks; the first belongs
   // to the owner, whose editor is deliberately shorter (nothing to tick).
-  await page.getByRole("button", { name: "Team" }).first().click().catch(() => {});
+  await page.getByRole("button", { name: NAMED("Team") }).first().click().catch(() => {});
   await settle(page, 1200);
-  const change = page.getByRole("button", { name: "Change" });
+  const change = page.getByRole("button", { name: NAMED("Change") });
   // The member list is a database read too — same race, same fix as the two
   // plan buttons above. `count()` is taken AFTER the wait, because the block
   // wants the LAST member rather than the first.
@@ -1162,7 +1225,7 @@ for (const w of SIZES) {
     await settle(page, 700);
     await say("gear · Team, a role open");
   } else { console.log(`${"the Change button".padEnd(24)} NO SUCH BUTTON`); found++; }
-  await page.getByRole("button", { name: "Settings", exact: true }).first().click().catch(() => {});
+  await page.getByRole("button", { name: NAMED("Settings"), exact: true }).first().click().catch(() => {});
   await settle(page, 1000);
 
   // THE SUBSCRIPTION SCREEN, AND IT IS TWO DIFFERENT SCREENS — roadmap 2.20
@@ -1183,7 +1246,7 @@ for (const w of SIZES) {
   // being skipped, naming the exact command that would show it. A skipped
   // check reads exactly like a passing one; one console.log is the whole cure.
   //   node scripts/seed-demo.mjs --subscription=past_due
-  await page.getByRole("button", { name: "Settings", exact: true }).first().click().catch(() => {});
+  await page.getByRole("button", { name: NAMED("Settings"), exact: true }).first().click().catch(() => {});
   await settle(page, 1000);
   const billingRow = page.locator('[data-settings-key="billing"]');
   if (await appear(billingRow)) {
@@ -1286,7 +1349,7 @@ for (const w of SIZES) {
   // is the skip path; Continue is the one that commits and is never pressed.
   // `seed-demo.mjs` pins the demo at "6 of 7 done" so the row it opens from is
   // always there.
-  await page.getByRole("button", { name: "Business", exact: true }).first().click();
+  await page.locator(`.tabbar button[data-tour="business"]`).first().click();
   await settle(page, 1400);
   // WAIT FOR THE ROW RATHER THAN ASSUME IT, and the reason is a real property
   // of the screen: Business renders its rows immediately with "…" summaries
@@ -1322,7 +1385,7 @@ for (const w of SIZES) {
       const line = await page.locator(".setupform .label").first().textContent().catch(() => null);
       if (!line) break;                       // the form is gone
       await say(`setup · ${line.replace(/ · .*/, "").toLowerCase()}`);
-      const later = page.getByRole("button", { name: "I'll do this later" });
+      const later = page.getByRole("button", { name: NAMED("I'll do this later") });
       if (!(await later.count())) break;
       await later.click();
       await settle(page, 800);
@@ -1339,7 +1402,7 @@ for (const w of SIZES) {
     await settle(page, 700);
   }
 
-  await page.getByRole("button", { name: "Settings", exact: true }).first().click();
+  await page.getByRole("button", { name: NAMED("Settings"), exact: true }).first().click();
   await settle(page, 1400);
   const tourRow = page.locator(".nav-row", { hasText: "Show me around" });
   if (!(await tourRow.count())) {
