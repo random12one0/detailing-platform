@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HALO — Ceramic coating &amp; paint correction, Scottsdale</title>
+<meta name="description" content="Coating work, done in a controlled bay. Four stages, priced by what the paint actually needs.">
+
+<!--
+  ═══════════════════════════════════════════════════════════════════════════
+  MOCK-UP 3 OF TEN — 2026-09-08.
+  ═══════════════════════════════════════════════════════════════════════════
+
+  THE VARIABLE: a dark ground made of LIGHT, and the heaviest motion of the ten.
+
+  THIS IS THE ONE THAT ANSWERS HIS SENTENCE DIRECTLY. TASTE-NOTES § O on `auxia`
+  — *"good animations and good use of liek not eveyhtin is just a box with text
+  in it"* — the 5,362px section that is a ROUTED DIAGRAM: connectors running
+  between floating pills and cards, a monospace micro-label sitting ON a
+  connector, drawing itself as you scroll, and RE-ROUTING VERTICALLY on a phone
+  (§ I). That mechanic is rebuilt here as the four stages of a coating job.
+
+  WHY A DIAGRAM SUITS THIS BUSINESS AND NOT THE OTHER NINE. A coating is the one
+  detailing service that genuinely IS a sequence — decontaminate, correct, coat,
+  cure — where each stage gates the next and skipping one ruins the result. So
+  the diagram encodes something true. `docs/design-knowledge.md`'s rule: a
+  numbered or sequential device is only honest when the content is a sequence.
+
+  DEPTH IS MADE OF LIGHT, NOT SHADOW — the `authkit` reading, depth score 80,
+  the highest in the set: a near-black ground with a faint star field, a soft
+  radial glow behind the centre.
+
+  AND THE GLOW STAYS IN THE GROUND, NOT ON THE FURNITURE — corrected 2026-09-08
+  when the design hook flagged it. A zero-offset chromatic halo repeated on
+  every card is the default 'cool' look of AI-generated UI, and the hook was
+  right: `authkit` earns its light from ONE ground glow and an inner top
+  highlight, not from haloing each box. Cards now take a neutral elevation
+  shadow and a 1px inner highlight; the colour lives in the ground and the
+  connectors.
+
+  THE DATA is adapted from real coating pricing — $820 to $1,840 across three
+  sizes and two durations, with correction priced separately because it is a
+  different job. Source: docs/tenant-site-source-data-2026-09-08.md § 5.
+
+  CONTRAST, COMPUTED against the darkest and lightest points of the glow:
+    --ink  #E9EEF7 on #070A12   16.8:1  PASS
+    --ink  #E9EEF7 on #131A2B   12.4:1  PASS  (centre of glow)
+    --dim  #90A0BC on #070A12    7.6:1  PASS
+    --dim  #90A0BC on #131A2B    5.6:1  PASS
+    --cy   #5FD4E8 on #070A12   10.9:1  PASS
+    ink on --cy  #070A12 on #5FD4E8  10.9:1  PASS  (button)
+    --edge #3C4A66 on #070A12    3.1:1  PASS  (3:1, control edge)
+    --hair rgba(233,238,247,.10) DECORATIVE ONLY, never a control edge.
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- ONE grotesque, worked across its range, plus a MONO used only for the
+     diagram's micro-labels — which is a second ROLE, not a second personality:
+     it never sets a heading, a price or a sentence. -->
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --void:#070A12; --lift:#0D1220; --glow:#131A2B;
+  --ink:#E9EEF7; --dim:#90A0BC; --cy:#5FD4E8; --edge:#3C4A66;
+  --hair:rgba(233,238,247,.10);
+  --wrap:1120px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; color:var(--ink); background:var(--void);
+  font:400 17px/1.6 "Space Grotesk",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+/* GROUND MADE OF LIGHT — a radial glow plus a star field, both fixed. The star
+   field is a repeating radial gradient rather than an image, so it costs no
+   request and cannot 404. */
+.ground{
+  position:fixed; inset:0; z-index:-1;
+  background:
+    radial-gradient(60% 45% at 50% 18%, rgba(95,212,232,.10), transparent 70%),
+    radial-gradient(80% 60% at 50% 100%, rgba(95,212,232,.05), transparent 70%),
+    var(--void);
+}
+.ground::after{
+  content:""; position:absolute; inset:0; opacity:.5;
+  background-image:
+    radial-gradient(1px 1px at 12% 22%, rgba(233,238,247,.35), transparent),
+    radial-gradient(1px 1px at 68% 12%, rgba(233,238,247,.28), transparent),
+    radial-gradient(1px 1px at 34% 74%, rgba(233,238,247,.25), transparent),
+    radial-gradient(1px 1px at 88% 58%, rgba(233,238,247,.30), transparent),
+    radial-gradient(1px 1px at 52% 44%, rgba(233,238,247,.20), transparent),
+    radial-gradient(1px 1px at 78% 86%, rgba(233,238,247,.22), transparent);
+  background-size:340px 340px;
+}
+.wrap{max-width:var(--wrap); margin:0 auto; padding:0 22px}
+
+header{position:sticky; top:0; z-index:30; border-bottom:1px solid var(--hair);
+  background:rgba(7,10,18,.72); backdrop-filter:blur(10px)}
+header .wrap{display:flex; align-items:center; gap:18px; padding:14px 22px}
+.mark{font:700 19px/1 "Space Grotesk",sans-serif; letter-spacing:.28em}
+nav{margin-left:auto; display:flex; gap:22px; font-size:15px}
+nav a{color:var(--dim); text-decoration:none}
+nav a:hover{color:var(--ink)}
+.btn{
+  background:var(--cy); color:var(--void); text-decoration:none; border:0; cursor:pointer;
+  font:700 14px/1 "Space Grotesk",sans-serif; padding:12px 20px; border-radius:10px;
+}
+@media(max-width:860px){ nav{display:none} }
+
+.hero{padding:14vh 0 8vh; text-align:center}
+.chip{display:inline-flex; align-items:center; gap:8px; border:1px solid var(--edge);
+  border-radius:999px; padding:7px 15px; font:500 12.5px/1 "IBM Plex Mono",monospace;
+  letter-spacing:.08em; color:var(--dim); margin-bottom:26px}
+.chip i{width:6px;height:6px;border-radius:50%;background:var(--cy);font-style:normal}
+h1{font:700 clamp(40px,6.6vw,80px)/1.02 "Space Grotesk",sans-serif;
+  letter-spacing:-.03em; margin:0 0 20px; text-wrap:balance}
+h1 span{color:var(--cy)}
+.sub{max-width:54ch; margin:0 auto 30px; color:var(--dim); font-size:18px}
+
+/* ── THE DIAGRAM — the auxia mechanic ───────────────────────────────── */
+.flow{position:relative; padding:6vh 0 2vh}
+.track{display:grid; grid-template-columns:repeat(4,1fr); gap:0; position:relative}
+@media(max-width:880px){ .track{grid-template-columns:1fr; gap:0} }
+.node{position:relative; padding:0 14px 46px}
+.node .pill{
+  display:inline-flex; align-items:center; gap:9px; border-radius:999px; padding:11px 17px;
+  font:500 13px/1 "Space Grotesk",sans-serif; border:1px solid var(--edge);
+  background:var(--lift); color:var(--dim);
+}
+.node .pill b{font:500 12px/1 "IBM Plex Mono",monospace; color:var(--cy)}
+.node h3{font:700 17px/1.3 "Space Grotesk",sans-serif; margin:16px 0 6px}
+.node p{color:var(--dim); font-size:14.5px; margin:0}
+.node .price{font:500 13px/1 "IBM Plex Mono",monospace; color:var(--cy); margin-top:10px; display:block}
+/* the connector: a line that DRAWS as it enters, and re-routes vertically on a
+   phone — the property that made the mechanic survive mobile (§ I). */
+.node::before{
+  content:""; position:absolute; left:calc(50% + 60px); right:-50%; top:20px; height:1px;
+  background:linear-gradient(90deg, var(--cy), var(--edge));
+  transform-origin:left center; transform:scaleX(0); transition:transform .8s ease .1s;
+}
+.node.in::before{transform:scaleX(1)}
+.node:last-child::before{display:none}
+@media(max-width:880px){
+  .node::before{left:22px; right:auto; top:44px; bottom:-10px; width:1px; height:auto;
+    background:linear-gradient(180deg, var(--cy), var(--edge));
+    transform-origin:top center; transform:scaleY(0)}
+  .node.in::before{transform:scaleY(1)}
+  .node:last-child::before{display:none}
+}
+.flowlab{
+  font:500 11px/1 "IBM Plex Mono",monospace; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--dim); text-align:center; margin:0 0 26px;
+}
+
+section{padding:9vh 0}
+.lab{font:500 11.5px/1 "IBM Plex Mono",monospace; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--cy); margin:0 0 12px}
+h2{font:700 clamp(28px,4.2vw,46px)/1.08 "Space Grotesk",sans-serif;
+  letter-spacing:-.02em; margin:0 0 14px}
+.lede{color:var(--dim); max-width:58ch; margin:0 0 32px}
+
+/* cards that GLOW rather than drop a shadow */
+.cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:16px}
+.card{
+  border:1px solid var(--edge); border-radius:16px; padding:22px;
+  background:linear-gradient(165deg, rgba(95,212,232,.07), rgba(13,18,32,.6));
+  box-shadow:inset 0 1px 0 rgba(233,238,247,.09), 0 18px 40px -28px rgba(0,0,0,.9);
+}
+.card h3{margin:0 0 4px; font:700 18px/1.3 "Space Grotesk",sans-serif}
+.card .dur{font:400 12px/1 "IBM Plex Mono",monospace; color:var(--dim)}
+.card ul{margin:14px 0 0; padding:0 0 0 16px; color:var(--dim); font-size:14.5px}
+.card li{margin:5px 0}
+.card .row{display:flex; justify-content:space-between; gap:10px; padding:9px 0;
+  border-bottom:1px solid var(--hair); font-size:14.5px; font-variant-numeric:tabular-nums}
+.card .row:last-of-type{border-bottom:0}
+.card .row b{color:var(--cy); font-weight:500}
+.note{margin-top:16px; padding:12px 14px; border-radius:10px; font-size:14px; color:var(--dim);
+  background:rgba(95,212,232,.06); border:1px solid rgba(95,212,232,.18)}
+
+/* booking */
+.book{border:1px solid var(--edge); border-radius:18px; overflow:hidden;
+  background:linear-gradient(170deg, rgba(95,212,232,.06), rgba(13,18,32,.75))}
+.steps{display:flex; overflow-x:auto; border-bottom:1px solid var(--hair)}
+.steps b{flex:none; padding:13px 16px; font:500 12px/1 "IBM Plex Mono",monospace;
+  color:var(--dim); white-space:nowrap; border-right:1px solid var(--hair)}
+.steps b[aria-current]{color:var(--void); background:var(--cy)}
+.bb{padding:24px}
+fieldset{border:0; margin:0 0 20px; padding:0}
+legend{font:700 16px/1 "Space Grotesk",sans-serif; padding:0 0 12px}
+.opt{display:flex; gap:13px; align-items:center; padding:14px 16px; cursor:pointer;
+  border:1px solid var(--edge); border-radius:12px; margin-bottom:9px; background:rgba(7,10,18,.5)}
+.opt:hover{border-color:var(--cy)}
+.opt input{accent-color:var(--cy); width:17px; height:17px; flex:none}
+.opt .t{flex:1}
+.opt .t b{display:block; font:700 15px/1.3 "Space Grotesk",sans-serif}
+.opt .t small{color:var(--dim); font-size:13px}
+.opt .p{font:500 14px/1 "IBM Plex Mono",monospace; color:var(--cy)}
+.est{display:flex; justify-content:space-between; align-items:baseline; gap:14px;
+  border-top:1px solid var(--edge); padding-top:16px}
+.est .k{color:var(--dim); font-size:13.5px; max-width:36ch}
+.est .v{font:700 32px/1 "Space Grotesk",sans-serif; color:var(--cy); font-variant-numeric:tabular-nums}
+.go{width:100%; margin-top:16px; padding:15px; border-radius:12px}
+.tiny{color:var(--dim); font-size:12.5px; text-align:center; margin-top:11px}
+
+.gal{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px}
+.gal i{display:block; aspect-ratio:4/3; border-radius:12px; font-style:normal;
+  border:1px solid var(--edge);
+  background:linear-gradient(145deg, rgba(95,212,232,.20), rgba(13,18,32,.9));
+  box-shadow:inset 0 1px 0 rgba(233,238,247,.08)}
+.revs{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px}
+details{border-bottom:1px solid var(--hair); padding:15px 0}
+summary{cursor:pointer; font:500 16px/1.4 "Space Grotesk",sans-serif; list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+"; float:right; color:var(--cy)}
+details[open] summary::after{content:"–"}
+details p{color:var(--dim); font-size:15px; margin:11px 0 0}
+footer{border-top:1px solid var(--hair); padding:42px 0 60px; color:var(--dim); font-size:14.5px}
+.fgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:26px}
+footer b{display:block; color:var(--ink); margin-bottom:8px;
+  font:500 11px/1 "IBM Plex Mono",monospace; letter-spacing:.18em; text-transform:uppercase}
+
+@media(prefers-reduced-motion:no-preference){
+  .rv{opacity:0; transform:translateY(20px); transition:opacity .65s ease, transform .65s cubic-bezier(.2,.7,.3,1)}
+  .rv.in{opacity:1; transform:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .node::before{transition:none; transform:none !important}
+}
+html:not(.js) .rv{opacity:1; transform:none}
+</style>
+</head>
+<body>
+<div class="ground" aria-hidden="true"></div>
+
+<header>
+  <div class="wrap">
+    <span class="mark">HALO</span>
+    <nav>
+      <a href="#process">Process</a><a href="#pricing">Pricing</a>
+      <a href="#work">Work</a><a href="#faq">FAQ</a>
+    </nav>
+    <a class="btn" href="#book">Get a quote</a>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <span class="chip"><i></i>Booking into March · Scottsdale, AZ</span>
+    <h1>Paint is a surface.<br>We treat it like <span>one</span>.</h1>
+    <p class="sub">Ceramic coating and correction in a controlled, filtered bay.
+      No mobile coating work — light and dust decide the result, so we do not
+      pretend a driveway is a bay.</p>
+    <a class="btn" href="#book">See what your paint needs</a>
+  </div>
+
+  <!-- ── THE DIAGRAM: four stages, drawn as a route ─────────────────── -->
+  <div class="wrap flow" id="process">
+    <p class="flowlab">— One job, four stages, in this order —</p>
+    <div class="track">
+      <div class="node rv"><span class="pill"><b>01</b> Decontaminate</span>
+        <h3>Strip it back</h3>
+        <p>Wash, iron fallout, tar, clay. Nothing bonds to a surface that still
+          has last year on it.</p>
+        <span class="price" data-live="services.price">included</span></div>
+      <div class="node rv"><span class="pill"><b>02</b> Correct</span>
+        <h3>Remove the defects</h3>
+        <p>One or two machine passes depending on what the paint depth gauge
+          says. This is where the gloss comes from.</p>
+        <span class="price" data-live>from $390</span></div>
+      <div class="node rv"><span class="pill"><b>03</b> Coat</span>
+        <h3>Lay the ceramic</h3>
+        <p>Applied by panel, levelled by hand, in filtered air at a controlled
+          temperature.</p>
+        <span class="price" data-live>from $820</span></div>
+      <div class="node rv"><span class="pill"><b>04</b> Cure</span>
+        <h3>Leave it alone</h3>
+        <p>Twelve hours under IR, then it stays with us overnight. No water for
+          seven days after you collect it.</p>
+        <span class="price" data-live>included</span></div>
+    </div>
+  </div>
+
+  <!-- ── PRICING (contract § 2b) ────────────────────────────────────── -->
+  <section id="pricing">
+    <div class="wrap">
+      <p class="lab rv">Pricing</p>
+      <h2 class="rv">Priced by what the paint needs</h2>
+      <p class="lede rv">Every coating includes stages 1 and 4. What changes the
+        number is how much correction the paint takes, and how big the car is.</p>
+
+      <div class="cards rv">
+        <div class="card">
+          <h3>Halo 3</h3><span class="dur">3-year coating · one-step correction · 2 days</span>
+          <div class="row"><span>Coupe</span><b data-live="services.vehicle_size_adjustments">$820</b></div>
+          <div class="row"><span>Saloon</span><b data-live>$960</b></div>
+          <div class="row"><span>SUV / truck</span><b data-live>$1,180</b></div>
+        </div>
+        <div class="card">
+          <h3>Halo 5</h3><span class="dur">5-year coating · two-step correction · 3 days</span>
+          <div class="row"><span>Coupe</span><b data-live>$1,340</b></div>
+          <div class="row"><span>Saloon</span><b data-live>$1,520</b></div>
+          <div class="row"><span>SUV / truck</span><b data-live>$1,840</b></div>
+        </div>
+        <div class="card">
+          <h3>Correction only</h3><span class="dur">No coating — a sealant instead</span>
+          <div class="row"><span>One-step</span><b data-live>from $390</b></div>
+          <div class="row"><span>Two-step</span><b data-live>from $690</b></div>
+          <div class="row"><span>Wheels off</span><b data-live>+$180</b></div>
+        </div>
+      </div>
+      <p class="note rv" data-live="services.notes">Every quote is confirmed after a
+        paint-depth reading. Repainted panels, heavy oxidation and previously
+        polished-through clear coat all change the answer — we would rather find
+        that on the gauge than halfway through a pass.
+        <strong>A coating is not paint protection film and will not stop a stone chip.</strong></p>
+
+      <div class="cards rv" style="margin-top:16px">
+        <div class="card">
+          <h3>Maintenance</h3><span class="dur">Coating owners only</span>
+          <div class="row"><span>Every 6 months</span><b data-live="plans">$180</b></div>
+          <div class="row"><span>Annual, prepaid</span><b data-live>$320</b></div>
+          <p class="note" style="margin-top:12px">Keeping the maintenance schedule is
+            what keeps the warranty. We text you when it is due.</p>
+        </div>
+        <div class="card">
+          <h3>Add on</h3><span class="dur">To any coating booking</span>
+          <div class="row"><span>Interior ceramic</span><b data-live="add_ons">$240</b></div>
+          <div class="row"><span>Glass coating</span><b data-live>$160</b></div>
+          <div class="row"><span>Wheel faces</span><b data-live>$220</b></div>
+          <div class="row"><span>Collection, 15mi</span><b data-live>$45</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── BOOKING (contract § 2a) ────────────────────────────────────── -->
+  <section id="book">
+    <div class="wrap">
+      <p class="lab rv">Book</p>
+      <h2 class="rv">Start a quote</h2>
+      <p class="lede rv">Seven questions. We follow up with a paint reading before
+        anything is confirmed — the number below is a starting point, not a price.</p>
+      <div class="book rv">
+        <div class="steps" role="list">
+          <b role="listitem" aria-current="step">01 Service</b><b role="listitem">02 Extras</b>
+          <b role="listitem">03 Vehicle</b><b role="listitem">04 Where</b>
+          <b role="listitem">05 When</b><b role="listitem">06 You</b><b role="listitem">07 Review</b>
+        </div>
+        <form class="bb" onsubmit="return false">
+          <fieldset>
+            <legend>What are we quoting?</legend>
+            <label class="opt"><input type="radio" name="s" checked>
+              <span class="t"><b>Halo 3</b><small>3-year coating, one-step · 2 days</small></span>
+              <span class="p" data-live>from $820</span></label>
+            <label class="opt"><input type="radio" name="s">
+              <span class="t"><b>Halo 5</b><small>5-year coating, two-step · 3 days</small></span>
+              <span class="p" data-live>from $1,340</span></label>
+            <label class="opt"><input type="radio" name="s">
+              <span class="t"><b>Correction only</b><small>Polish and sealant · 1 day</small></span>
+              <span class="p" data-live>from $390</span></label>
+            <label class="opt"><input type="radio" name="s">
+              <span class="t"><b>Maintenance visit</b><small>Existing coatings only</small></span>
+              <span class="p" data-live>$180</span></label>
+          </fieldset>
+          <div class="est">
+            <span class="k">Starting point — confirmed after a paint-depth reading</span>
+            <span class="v" data-live="calculate-booking">$820</span>
+          </div>
+          <button class="btn go" type="submit">Continue</button>
+          <p class="tiny">No card taken here. We hold the bay for 48 hours while we confirm.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section id="work">
+    <div class="wrap">
+      <p class="lab rv">Work</p>
+      <h2 class="rv">Out of the bay</h2>
+      <div class="gal rv" data-live="job_photos"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="lab rv">Reviews</p>
+      <div class="revs rv" data-live="reviews">
+        <div class="card"><p style="margin:0 0 10px">&ldquo;They measured the paint,
+          showed me the readings, and told me the two-step was not worth it on my
+          car. Talked me down, not up.&rdquo;</p>
+          <span class="dur">Ravi M. — GR Corolla</span></div>
+        <div class="card"><p style="margin:0 0 10px">&ldquo;Three days is a long time
+          without a car and it was worth every hour of it.&rdquo;</p>
+          <span class="dur">Dana K. — Macan</span></div>
+        <div class="card"><p style="margin:0 0 10px">&ldquo;Eighteen months on and it
+          still beads. They text me when maintenance is due.&rdquo;</p>
+          <span class="dur">Tom A. — F-150</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <p class="lab rv">Questions</p>
+      <h2 class="rv">Before you ask</h2>
+      <div class="rv" data-live="business_faqs">
+        <details open><summary>Why does the price change after you look at it?</summary>
+          <p>Because we measure the clear coat before we cut into it. A car that has
+            been machine-polished before may not have the depth for a two-step, and
+            we will tell you that rather than take the money.</p></details>
+        <details><summary>Will a coating stop stone chips?</summary>
+          <p>No. That is paint protection film, which is a different product at a
+            different price. A coating makes the car easier to wash and keeps the
+            gloss; it is a few microns thick.</p></details>
+        <details><summary>Can you coat at my house?</summary>
+          <p>No, and anyone who says yes is guessing. Dust settles into a curing
+            coating and there is no fixing it afterwards without polishing it off.</p></details>
+        <details><summary>How long am I without the car?</summary>
+          <p>Two days for Halo 3, three for Halo 5. We have two loan cars, first
+            come first served, free.</p></details>
+        <details><summary>What happens if it rains in the first week?</summary>
+          <p>Rain is fine. Washing is not — no pressure washer, no automatic wash,
+            no soap for seven days. We send the aftercare by text.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap fgrid">
+      <div><b>Halo</b><p data-live="businesses">2210 N Scottsdale Rd, Unit 4<br>
+        Scottsdale, AZ 85257<br><a href="tel:+14805550164" style="color:var(--cy)"
+        data-live="businesses.contact_phone">(480) 555-0164</a></p></div>
+      <div><b>Hours</b><p data-live="business_hours">Mon–Fri 8am–6pm<br>Sat by appointment<br>Closed Sun</p></div>
+      <div><b>Pay</b><p data-live="business_settings.payment_handles">Card or bank transfer.
+        Deposit of $200 on coatings, taken when we confirm.</p></div>
+      <div><b>Area</b><p data-live="business_settings.service_area">Bay work only, Scottsdale.
+        Collection within 15 miles, $45.</p></div>
+    </div>
+    <div class="wrap" style="margin-top:28px; opacity:.65">
+      <p>Every price on this page is managed by the business and updates live.</p>
+    </div>
+  </footer>
+</main>
+
+<script>
+  document.documentElement.classList.add("js");
+  const targets = document.querySelectorAll(".rv, .node");
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches && "IntersectionObserver" in window) {
+    const io = new IntersectionObserver((es) => {
+      for (const e of es) if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+    }, { rootMargin: "0px 0px -10% 0px" });
+    for (const el of targets) io.observe(el);
+  } else {
+    for (const el of targets) el.classList.add("in");
+  }
+  const FROM = ["$820", "$1,340", "$390", "$180"];
+  document.querySelectorAll('input[name="s"]').forEach((r, i) =>
+    r.addEventListener("change", () => { document.querySelector(".est .v").textContent = FROM[i]; }));
+</script>
+</body>
+</html>

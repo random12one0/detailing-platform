@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Holloway &amp; Daughters — Auto Detailing since 1994, Cedar Rapids</title>
+<meta name="description" content="Three bays, two shifts, thirty-one years. Prices printed in full, no inspection surprises.">
+
+<!--
+  ═══════════════════════════════════════════════════════════════════════════
+  MOCK-UP 2 OF TEN — 2026-09-08.
+  ═══════════════════════════════════════════════════════════════════════════
+
+  THE VARIABLE HE CAN SEE ACROSS A ROOM: newsprint ground, and **ZERO
+  ANIMATION**. Not "reduced" — none. No transition, no transform, no reveal, no
+  observer, no script that moves anything. Mock-up 1 is a moving dusk sky; this
+  is a printed page. Nobody could confuse the two at a glance, which is the
+  whole instruction.
+
+  WHY BUILDING ONE WITH NO MOTION IS NOT LAZINESS. TASTE-NOTES § 0 shows every
+  page he disliked scoring near zero on motion — so a still page is a real risk.
+  It is taken deliberately for two reasons. **He asked for some with none**
+  (*"some with kind of animation, some with no animation"*). And the pages he
+  called static failed on something else as well: `rcd` is static AND puts a
+  line icon where a photograph belongs; `agautospa` is static AND has nine nav
+  items and three CTA colours. **Nothing here proves stillness alone is the
+  fault**, and a page can be still and still have a ground with something in it
+  — here, paper.
+
+  SO THE GROUND IS STILL NOT A FLAT FILL (TASTE-NOTES § A): it is stock, with a
+  printed rule grid and an ink-bleed warmth. Depth without light.
+
+  IT IS ALSO THE DENSEST PAGE OF THE TEN, on purpose. He said a page can be
+  *"a ton of information and words"* and still be harder to navigate than an
+  animated one — so this is the test of the other half of his sentence: dense,
+  but ordered like a printed catalogue, where density is the point rather than
+  the accident.
+
+  THE DATA is adapted from a real Iowa detailer whose ladder is a genuine
+  three-by-three matrix with uneven gaps, and whose FAQ is four anxieties and
+  one curiosity. Numbers moved, name invented. See
+  docs/tenant-site-source-data-2026-09-08.md § 1 and § 3.
+
+  CONTRAST, COMPUTED:
+    --ink   #1A1714 on #EFE9DD    13.1:1  PASS
+    --mid   #554C41 on #EFE9DD     6.4:1  PASS
+    --red   #A32B1E on #EFE9DD     5.8:1  PASS
+    paper on --red  #EFE9DD on #A32B1E  5.8:1  PASS  (button)
+    rule    #C2B7A4 on #EFE9DD     1.6:1  DECORATIVE ONLY — never a control edge
+    --edge  #8A7D6B on #EFE9DD     3.2:1  PASS  (3:1, this is the control edge)
+  The last two are two tokens on purpose: a decorative hairline and a control's
+  edge are not the same thing, which this repo learned by shipping form borders
+  at 1.29:1.
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- ONE PERSONALITY, and it is a newspaper's. A slab serif for the masthead and
+     headings, the same family's text cut for the body. NOT a display serif
+     paired with a neutral sans — that pairing is exactly what he called
+     "horrible font" on two sites (TASTE-NOTES § B). -->
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@300;400;700&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --paper:#EFE9DD; --paper-2:#E5DDCE; --ink:#1A1714; --mid:#554C41;
+  --red:#A32B1E; --rule:#C2B7A4; --edge:#8A7D6B;
+  --wrap:1180px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; color:var(--ink); background:var(--paper);
+  font:400 16px/1.55 "Roboto Slab",Georgia,serif;
+  /* THE GROUND IS PAPER, NOT A FILL — a printed rule grid plus ink warmth at
+     the edges. Fixed, so it reads as stock the page is printed on. */
+  background-image:
+    linear-gradient(rgba(194,183,164,.30) 1px, transparent 1px),
+    radial-gradient(120% 60% at 50% -10%, rgba(163,43,30,.05), transparent 60%),
+    radial-gradient(90% 50% at 50% 110%, rgba(26,23,20,.06), transparent 60%);
+  background-size:100% 30px, 100% 100%, 100% 100%;
+  background-attachment:scroll, fixed, fixed;
+}
+.wrap{max-width:var(--wrap); margin:0 auto; padding:0 22px}
+a{color:var(--red)}
+
+/* ── masthead ───────────────────────────────────────────────────────── */
+.mast{border-bottom:3px double var(--ink); padding:22px 0 14px}
+.mast .wrap{display:flex; align-items:flex-end; gap:20px; flex-wrap:wrap}
+.mast h1{
+  font:700 clamp(30px,5vw,54px)/0.95 "Roboto Slab",serif; margin:0;
+  letter-spacing:-.02em; text-transform:uppercase;
+}
+.mast .est{font:400 12px/1.4 "Roboto Condensed",sans-serif; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--mid); margin-left:auto; text-align:right}
+.subhead{
+  border-bottom:1px solid var(--ink); padding:8px 0;
+  font:700 12px/1 "Roboto Condensed",sans-serif; letter-spacing:.2em; text-transform:uppercase;
+}
+.subhead .wrap{display:flex; gap:26px; flex-wrap:wrap}
+.subhead a{color:var(--ink); text-decoration:none}
+.subhead a:hover{color:var(--red)}
+.subhead .r{margin-left:auto; color:var(--red)}
+
+/* ── the lede block, set as a newspaper front ───────────────────────── */
+.front{padding:32px 0 10px; border-bottom:1px solid var(--rule)}
+.front .wrap{display:grid; grid-template-columns:1.35fr 1fr; gap:38px}
+@media(max-width:860px){ .front .wrap{grid-template-columns:1fr; gap:24px} }
+.front h2{font:300 clamp(30px,4.6vw,50px)/1.06 "Roboto Slab",serif; margin:0 0 16px; letter-spacing:-.015em}
+.front .drop::first-letter{
+  float:left; font:700 62px/0.78 "Roboto Slab",serif; margin:5px 9px 0 0; color:var(--red);
+}
+.front p{margin:0 0 14px; color:var(--mid); font-size:16.5px}
+.sidebar{border-left:1px solid var(--rule); padding-left:26px}
+@media(max-width:860px){ .sidebar{border-left:0; padding-left:0; border-top:1px solid var(--rule); padding-top:20px} }
+.sidebar h3{font:700 11px/1 "Roboto Condensed",sans-serif; letter-spacing:.2em;
+  text-transform:uppercase; margin:0 0 12px; color:var(--red)}
+.factrow{display:flex; justify-content:space-between; gap:12px; padding:9px 0;
+  border-bottom:1px dotted var(--rule); font-size:15px}
+.factrow b{font-weight:700; font-variant-numeric:tabular-nums}
+
+/* ── section furniture ──────────────────────────────────────────────── */
+section{padding:40px 0; border-bottom:1px solid var(--rule)}
+.kicker{font:700 11px/1 "Roboto Condensed",sans-serif; letter-spacing:.22em;
+  text-transform:uppercase; color:var(--red); margin:0 0 10px}
+h3.big{font:700 clamp(24px,3.4vw,38px)/1.1 "Roboto Slab",serif; margin:0 0 8px; letter-spacing:-.01em}
+.stand{color:var(--mid); max-width:62ch; margin:0 0 26px; font-size:16.5px}
+
+/* ── the ladder, printed as a rate card ─────────────────────────────── */
+.tblwrap{overflow-x:auto}
+table{width:100%; border-collapse:collapse; font:400 15px/1.4 "Roboto Condensed",sans-serif}
+caption{text-align:left; font:700 11px/1 "Roboto Condensed",sans-serif;
+  letter-spacing:.2em; text-transform:uppercase; padding-bottom:10px; color:var(--mid)}
+th{font-weight:700; text-transform:uppercase; letter-spacing:.1em; font-size:11px;
+  padding:0 0 10px; border-bottom:2px solid var(--ink); text-align:right}
+th:first-child{text-align:left}
+td{padding:14px 0; border-bottom:1px solid var(--rule); text-align:right;
+  font-variant-numeric:tabular-nums; font-size:16px}
+td:first-child{text-align:left; font-family:"Roboto Slab",serif}
+td strong{display:block; font-weight:700; font-size:16px}
+td small{display:block; color:var(--mid); font-size:13.5px; max-width:48ch; margin-top:3px;
+  font-family:"Roboto Condensed",sans-serif}
+tfoot td{border:0; padding-top:16px; text-align:left; color:var(--mid); font-size:14px}
+
+/* ── two-column body, because a catalogue reads in columns ──────────── */
+.cols{columns:2; column-gap:38px; column-rule:1px solid var(--rule)}
+@media(max-width:760px){ .cols{columns:1} }
+.cols p{margin:0 0 13px; break-inside:avoid; color:var(--mid); font-size:15.5px}
+
+/* ── booking, set as a printed form ─────────────────────────────────── */
+.form{border:2px solid var(--ink); background:var(--paper-2)}
+.form .head{border-bottom:1px solid var(--ink); padding:14px 20px;
+  display:flex; justify-content:space-between; gap:14px; flex-wrap:wrap;
+  font:700 11px/1 "Roboto Condensed",sans-serif; letter-spacing:.2em; text-transform:uppercase}
+.form .body{padding:22px 20px}
+.stepline{font:400 12px/1 "Roboto Condensed",sans-serif; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--mid); margin:0 0 18px}
+.stepline b{color:var(--ink)}
+fieldset{border:0; padding:0; margin:0 0 20px}
+legend{font:700 14px/1 "Roboto Slab",serif; padding:0 0 12px}
+.opt{display:flex; gap:13px; align-items:flex-start; padding:12px;
+  border:1px solid var(--edge); background:var(--paper); margin-bottom:8px; cursor:pointer}
+.opt input{accent-color:var(--red); margin-top:3px; width:16px; height:16px; flex:none}
+.opt .t{flex:1}
+.opt .t b{display:block; font:700 15px/1.3 "Roboto Slab",serif}
+.opt .t small{color:var(--mid); font:400 13px/1.4 "Roboto Condensed",sans-serif}
+.opt .p{font:700 15px/1 "Roboto Condensed",sans-serif; font-variant-numeric:tabular-nums; white-space:nowrap}
+.total{display:flex; justify-content:space-between; align-items:baseline;
+  border-top:2px solid var(--ink); padding-top:14px; margin-top:6px}
+.total .k{font:400 12px/1.3 "Roboto Condensed",sans-serif; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--mid); max-width:34ch}
+.total .v{font:700 32px/1 "Roboto Slab",serif; font-variant-numeric:tabular-nums}
+button.go{
+  margin-top:16px; width:100%; border:0; cursor:pointer; background:var(--red);
+  color:var(--paper); padding:15px; font:700 13px/1 "Roboto Condensed",sans-serif;
+  letter-spacing:.2em; text-transform:uppercase;
+}
+.smallprint{color:var(--mid); font:400 12.5px/1.5 "Roboto Condensed",sans-serif; margin-top:12px}
+
+/* ── reviews as pull quotes, gallery as plates ──────────────────────── */
+.quotes{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:0}
+.quotes blockquote{margin:0; padding:0 24px; border-left:1px solid var(--rule)}
+.quotes blockquote:first-child{border-left:0; padding-left:0}
+.quotes p{font:300 19px/1.35 "Roboto Slab",serif; margin:0 0 12px}
+.quotes cite{font:400 12px/1.4 "Roboto Condensed",sans-serif; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--mid); font-style:normal}
+.plates{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px}
+.plates figure{margin:0}
+.plates i{display:block; aspect-ratio:5/4; font-style:normal; border:1px solid var(--edge);
+  background:
+    repeating-linear-gradient(45deg, rgba(26,23,20,.10) 0 2px, transparent 2px 5px),
+    linear-gradient(160deg, var(--paper-2), #D8CFBE);
+}
+.plates figcaption{font:400 11.5px/1.4 "Roboto Condensed",sans-serif;
+  color:var(--mid); margin-top:6px; text-transform:uppercase; letter-spacing:.08em}
+
+/* ── FAQ as a printed Q&A, everything open — no accordion, no motion ── */
+.qa dt{font:700 16px/1.35 "Roboto Slab",serif; margin:18px 0 5px}
+.qa dd{margin:0; color:var(--mid); font-size:15.5px; max-width:70ch}
+
+footer{padding:34px 0 60px; font:400 14px/1.6 "Roboto Condensed",sans-serif; color:var(--mid)}
+.fgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:26px}
+footer b{display:block; color:var(--ink); font:700 11px/1 "Roboto Condensed",sans-serif;
+  letter-spacing:.2em; text-transform:uppercase; margin-bottom:9px}
+
+/* THERE IS NO @keyframes IN THIS FILE, NO transition, NO transform, AND NO
+   SCRIPT THAT MOVES ANYTHING. That is the brief, not an omission — see the
+   header. `prefers-reduced-motion` needs no branch because there is nothing to
+   reduce. */
+</style>
+</head>
+<body>
+
+<div class="mast">
+  <div class="wrap">
+    <h1>Holloway &amp; Daughters</h1>
+    <p class="est">Auto detailing<br>Cedar Rapids, Iowa<br>Established 1994</p>
+  </div>
+</div>
+<div class="subhead">
+  <div class="wrap">
+    <a href="#rates">Rate card</a>
+    <a href="#book">Book a bay</a>
+    <a href="#plates">Recent work</a>
+    <a href="#qa">Questions</a>
+    <span class="r" data-live="business_settings.sale_banner">February: interiors $30 off, Tue–Thu</span>
+  </div>
+</div>
+
+<main>
+  <div class="front">
+    <div class="wrap">
+      <div>
+        <h2>Thirty-one years, three bays, and a price list we print in full.</h2>
+        <p class="drop">We have been on Sixteenth Avenue since 1994, which is long
+          enough to know that most people ringing a detailer are not asking what a
+          ceramic coating is. They are asking what it costs, whether we can get the
+          dog hair out, and whether we will still be here in March.</p>
+        <p>So the whole rate card is below — every service, every vehicle size, no
+          &ldquo;call for pricing&rdquo;. Where a price genuinely depends on
+          condition we say so on the line it belongs to, rather than at the bottom
+          in small type.</p>
+        <p>We are a drop-off shop. Two courtesy cars, and we will collect within
+          twelve miles for $35.</p>
+      </div>
+      <div class="sidebar">
+        <h3>At a glance</h3>
+        <div class="factrow"><span>Established</span><b>1994</b></div>
+        <div class="factrow"><span>Bays</span><b>3</b></div>
+        <div class="factrow"><span>Cars last year</span><b data-live>1,847</b></div>
+        <div class="factrow"><span>Google rating</span><b data-live="reviews">4.9</b></div>
+        <div class="factrow"><span>Next opening</span><b data-live="available-slots">Thu 12th</b></div>
+        <div class="factrow"><span>Collection radius</span><b>12 mi</b></div>
+        <h3 style="margin-top:22px">Certified</h3>
+        <p style="font:400 14px/1.5 'Roboto Condensed',sans-serif; color:var(--mid); margin:0">
+          IDA Certified Detailer · Gtechniq Accredited · Fully insured, $2m liability</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── THE RATE CARD (contract § 2b) ──────────────────────────────── -->
+  <section id="rates">
+    <div class="wrap">
+      <p class="kicker">Rate card</p>
+      <h3 class="big">Everything we do, and what it costs</h3>
+      <p class="stand">Prices by vehicle size. A price with &ldquo;from&rdquo; against
+        it is a starting point and we will confirm it before we begin — never after.</p>
+
+      <div class="tblwrap">
+        <table>
+          <caption>Detailing</caption>
+          <thead><tr><th>Service</th><th>Sedan</th><th>Mid-size</th><th>Oversized</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Interior</strong><small>Vacuum, steam extraction, leather conditioned or fabric spot-treated, glass, vents.</small></td>
+              <td data-live="services.price">$195</td><td data-live>$215</td><td data-live>$345</td></tr>
+            <tr><td><strong>Exterior</strong><small>Hand wash, clay decontamination, machine-applied sealant, tyres and trim.</small></td>
+              <td data-live>$215</td><td data-live>$245</td><td data-live>$370</td></tr>
+            <tr><td><strong>Full detail</strong><small>Both, plus engine bay, door jambs and boot.</small></td>
+              <td data-live>$245</td><td data-live>$275</td><td data-live>$415</td></tr>
+            <tr><td><strong>One-step correction</strong><small>from — removes most swirls and light oxidation. <em>Not a ceramic coating.</em></small></td>
+              <td data-live>$390</td><td data-live>$430</td><td data-live>$560</td></tr>
+            <tr><td><strong>Two-step correction</strong><small>from — heavier defects. Quoted after inspection in every case.</small></td>
+              <td data-live>$690</td><td data-live>$760</td><td data-live>$980</td></tr>
+          </tbody>
+          <tfoot><tr><td colspan="4" data-live="services.notes">
+            Third-row vehicles add $50 to interior and full detail. Excessive pet
+            hair is $45. Odour removal and smoke work is quoted separately — ring us.
+          </td></tr></tfoot>
+        </table>
+      </div>
+
+      <div class="tblwrap" style="margin-top:34px">
+        <table>
+          <caption>Coatings, film and glass</caption>
+          <thead><tr><th>Service</th><th>Coupe</th><th>Saloon</th><th>SUV / truck</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Ceramic coating, 3 year</strong><small>Includes the one-step correction above.</small></td>
+              <td data-live>$820</td><td data-live>$960</td><td data-live>$1,180</td></tr>
+            <tr><td><strong>Ceramic coating, 5 year</strong><small>Includes two-step. Two days in the bay.</small></td>
+              <td data-live>$1,340</td><td data-live>$1,520</td><td data-live>$1,840</td></tr>
+            <tr><td><strong>Paint protection film, front</strong><small>Bonnet, wings, mirrors.</small></td>
+              <td data-live>$1,150</td><td data-live>$1,290</td><td data-live>$1,490</td></tr>
+            <tr><td><strong>Window film</strong><small>Ceramic, lifetime warranty. Iowa legal limits observed.</small></td>
+              <td data-live>$310</td><td data-live>$340</td><td data-live>$395</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="tblwrap" style="margin-top:34px">
+        <table>
+          <caption>Extras &amp; monthly</caption>
+          <thead><tr><th>Item</th><th></th><th></th><th>Price</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Collection &amp; return</strong><small>Within twelve miles.</small></td><td></td><td></td><td data-live="add_ons">$35</td></tr>
+            <tr><td><strong>Headlight restoration</strong><small>Pair, sealed.</small></td><td></td><td></td><td data-live>$95</td></tr>
+            <tr><td><strong>Engine bay only</strong></td><td></td><td></td><td data-live>$75</td></tr>
+            <tr><td><strong>Maintenance plan</strong><small data-live="plans">One exterior a month, standing slot, cancel any time.</small></td><td></td><td></td><td data-live>$120/mo</td></tr>
+            <tr><td><strong>Maintenance plan, full</strong><small data-live="plans">One full detail a month.</small></td><td></td><td></td><td data-live>$235/mo</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── BOOKING, BUILT IN, AS A PRINTED FORM (contract § 2a) ───────── -->
+  <section id="book">
+    <div class="wrap">
+      <p class="kicker">Booking</p>
+      <h3 class="big">Book a bay</h3>
+      <p class="stand">Seven short questions. Nothing is taken today — we ring to
+        confirm the slot and the price before you bring it in.</p>
+
+      <div class="form">
+        <div class="head">
+          <span>Booking request · form 1994-A</span>
+          <span data-live="available-slots">Next opening: Thursday 12th, 8am</span>
+        </div>
+        <form class="body" onsubmit="return false">
+          <p class="stepline">Step <b>1 of 7</b> — Service · Extras · Vehicle · Where ·
+            When · Your details · Review</p>
+          <fieldset>
+            <legend>Which service?</legend>
+            <label class="opt"><input type="radio" name="s" checked>
+              <span class="t"><b>Interior</b><small>About 3 hours in the bay</small></span>
+              <span class="p" data-live>from $195</span></label>
+            <label class="opt"><input type="radio" name="s">
+              <span class="t"><b>Exterior</b><small>About 3 hours in the bay</small></span>
+              <span class="p" data-live>from $215</span></label>
+            <label class="opt"><input type="radio" name="s">
+              <span class="t"><b>Full detail</b><small>Most of a day — drop off by 8am</small></span>
+              <span class="p" data-live>from $245</span></label>
+            <label class="opt"><input type="radio" name="s">
+              <span class="t"><b>Ceramic coating</b><small>Two days. We will ring to arrange.</small></span>
+              <span class="p" data-live>from $820</span></label>
+          </fieldset>
+          <div class="total">
+            <span class="k">Estimate — confirmed by telephone before any work begins</span>
+            <span class="v" data-live="calculate-booking">$195</span>
+          </div>
+          <button class="go" type="submit">Continue to extras</button>
+          <p class="smallprint">We hold the bay for 24 hours while we confirm. No card
+            is taken on this page. Cancel free at any point before the day.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WORK & REVIEWS ─────────────────────────────────────────────── -->
+  <section id="plates">
+    <div class="wrap">
+      <p class="kicker">Recent work</p>
+      <h3 class="big">Out of the bays this month</h3>
+      <div class="plates" data-live="job_photos">
+        <figure><i></i><figcaption>2019 Highlander — full detail, third row</figcaption></figure>
+        <figure><i></i><figcaption>2007 Tacoma — two-step, 5yr coating</figcaption></figure>
+        <figure><i></i><figcaption>2021 Model 3 — interior, pet hair</figcaption></figure>
+        <figure><i></i><figcaption>1994 Miata — paint correction</figcaption></figure>
+        <figure><i></i><figcaption>2016 Odyssey — interior, odour</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="kicker">What people say</p>
+      <div class="quotes" data-live="reviews">
+        <blockquote><p>&ldquo;They rang me before starting to say the boot would cost
+          more, and asked first. Nobody does that.&rdquo;</p><cite>Janet R. — Marion</cite></blockquote>
+        <blockquote><p>&ldquo;Dropped a work van off at eight, had it back at four,
+          and the price was the price.&rdquo;</p><cite>Ade O. — Hiawatha</cite></blockquote>
+        <blockquote><p>&ldquo;Third car I have taken to Holloway. My father used
+          them.&rdquo;</p><cite>Mark V. — Cedar Rapids</cite></blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ — everything open, no accordion, no motion ─────────────── -->
+  <section id="qa">
+    <div class="wrap">
+      <p class="kicker">Questions</p>
+      <h3 class="big">The ones we get every week</h3>
+      <dl class="qa cols" data-live="business_faqs">
+        <dt>Why does the price change after you look at it?</dt>
+        <dd>On most cars it does not — the rate card is the rate card. It changes
+          when there is something the ladder cannot see: a third row, heavy pet
+          hair, smoke, or paint that needs two passes instead of one. We tell you
+          on the phone, before the work, every time.</dd>
+        <dt>Do you get all the pet hair out?</dt>
+        <dd>Nearly always. Embedded hair in older cloth sometimes needs a second
+          pass, which we charge at half. We will tell you which one you have when
+          we see it.</dd>
+        <dt>How often should I have it done?</dt>
+        <dd>Twice a year for most people in Iowa, and once more after a salted
+          winter. If you park outside under trees, three times.</dd>
+        <dt>What if it needs more than the package I booked?</dt>
+        <dd>We ring you. We do not add work and invoice for it afterwards — that
+          is the fastest way to lose somebody who has been coming for a decade.</dd>
+        <dt>Do you come to me?</dt>
+        <dd>No. We are a shop with three bays, because bays let us do coatings and
+          correction properly. We will collect the car within twelve miles for $35
+          and bring it back.</dd>
+        <dt>Is the coating a wax?</dt>
+        <dd>No. A wax lasts a few months; the three-year coating is a bonded layer
+          that survives washing. It is also not a force field — it will not stop a
+          stone chip.</dd>
+      </dl>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap fgrid">
+      <div><b>Holloway &amp; Daughters</b>
+        <p data-live="businesses">1604 Sixteenth Ave SW<br>Cedar Rapids, IA 52404<br>
+          <a href="tel:+13195550132" data-live="businesses.contact_phone">(319) 555-0132</a></p></div>
+      <div><b>Hours</b>
+        <p data-live="business_hours">Mon–Fri 7.30am–5.30pm<br>Sat 8am–2pm<br>Sun closed</p></div>
+      <div><b>How to pay</b>
+        <p data-live="business_settings.payment_handles">Card, cash or cheque on
+          collection. Trade accounts invoiced on the 1st.</p></div>
+      <div><b>Where we collect</b>
+        <p data-live="business_settings.service_area">Cedar Rapids, Marion, Hiawatha,
+          Robins, Fairfax. Twelve miles, $35.</p></div>
+    </div>
+    <div class="wrap" style="margin-top:26px; opacity:.7">
+      <p>Every figure on this page is managed by the business and updates live.
+        Prices shown include Iowa sales tax where applicable.</p>
+    </div>
+  </footer>
+</main>
+</body>
+</html>

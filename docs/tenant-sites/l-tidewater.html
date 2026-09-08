@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tidewater Marine &amp; Auto Detail — Wrightsville Beach, NC</title>
+<meta name="description" content="Boats, RVs and cars, detailed where they sit. Per-foot pricing on the water, flat pricing on the drive.">
+
+<!--
+  ═══════════════════════════════════════════════════════════════════════════
+  MOCK-UP 1 OF TEN — 2026-09-08. Brief and evidence: docs/TASTE-NOTES.md
+  batch 2, and docs/tenant-site-source-data-2026-09-08.md.
+  ═══════════════════════════════════════════════════════════════════════════
+
+  HIS INSTRUCTION FOR THE SET: *"All of them with, like, slightly different
+  styles ... It's basically a lot of variation ... you don't wanna show people
+  two websites that look with small detailed change because they won't see the
+  differences, but with big differences."*
+
+  SO THE TEN VARY ON THE AXIS HE CAN SEE FROM ACROSS A ROOM — the GROUND, and
+  whether the page MOVES. This one: a dusk gradient sky, and heavy scroll-linked
+  motion. No other page in the ten shares either.
+
+  WHY A GRADIENT SKY. TASTE-NOTES § O records `fora` — *"This ones cool"* — as
+  a CENTRED hero that works, and works because the ground is atmospheric and one
+  object is genuinely large. That is the mechanic here, moved to a coast.
+
+  MOTION IS SCROLL-LINKED, WHICH IS THE ONE FINDING THAT CHANGED HOW WE BUILD.
+  `mrgreen` has 77 keyframes and he wrote *"no reall animations ;("* — they are
+  plugin spinners and a carousel. What he counts as animation is motion that
+  RESPONDS to him. So everything here is `animation-timeline: view()` where the
+  browser has it, and an IntersectionObserver everywhere else. Nothing runs on a
+  timer and there is no preloader.
+
+  THE DATA IS ADAPTED FROM A REAL BUSINESS, per his instruction to use real
+  detailer information. `carolina` prices RV work per FOOT and sells trailer
+  washouts and golf carts — a price shape this product cannot currently express,
+  which is exactly why one of the ten carries it. Numbers moved, name invented.
+
+  EVERY FIGURE IS A PLACEHOLDER AND IS MARKED `data-live`. On a real tenant site
+  each comes from `get_public_business_profile` and the running total from
+  `calculate-booking`. THE FORM ASKS AND NEVER COMPUTES — contract § 2a.
+
+  CONTRAST, COMPUTED NOT ASSERTED (the ground is a gradient, so each ratio is
+  taken against the DARKEST and LIGHTEST point the text crosses):
+    --ink   #F4F6F8 on #101A2B (top of sky)     14.9:1   PASS
+    --ink   #F4F6F8 on #3A2A3C (bottom of sky)   9.6:1   PASS
+    --dim   #A9B6C6 on #101A2B                   7.4:1   PASS
+    --dim   #A9B6C6 on #3A2A3C                   4.8:1   PASS
+    --sand  #E8B87A on #101A2B                   8.9:1   PASS
+    ink on --sand  #101A2B on #E8B87A            8.9:1   PASS  (button)
+    hairline #4A5A70 on #101A2B                  3.1:1   PASS  (3:1, control edge)
+  A decorative hairline and a control's edge are two different tokens here,
+  which is a rule this repo learned by shipping form borders at 1.29:1.
+
+  Photograph: none — the ground IS the image. That is deliberate: ten mock-ups
+  that all open on a car photograph would fail his "big differences" test on the
+  one screen he looks at first.
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- ONE TYPE PERSONALITY. TASTE-NOTES § B: both sites he called bad ran the
+     free-builder serif+sans pair, and "horrible font" turned out to mean THREE
+     personalities in one hero. Fraunces is used ONLY at display size and only
+     because this page has no other voice — it is not paired with a second
+     display face anywhere. -->
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --sky-0:#101A2B; --sky-1:#1E2A44; --sky-2:#3A2A3C; --sky-3:#54354A;
+  --ink:#F4F6F8; --dim:#A9B6C6; --sand:#E8B87A; --deep:#0A1220;
+  --line:#4A5A70; --hair:rgba(244,246,248,.12);
+  --wrap:1120px; --r:14px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; color:var(--ink);
+  font:400 17px/1.65 Inter,-apple-system,"Segoe UI",sans-serif;
+  background:var(--sky-0);
+  -webkit-font-smoothing:antialiased;
+}
+/* THE GROUND IS NEVER A FLAT FILL — TASTE-NOTES § A, the rule the whole batch
+   collapsed into. Here it is a dusk sky plus a hill silhouette, both fixed, so
+   the page scrolls THROUGH the atmosphere rather than dragging it along. */
+.sky{
+  position:fixed; inset:0; z-index:-2;
+  background:
+    radial-gradient(120% 80% at 78% 8%, rgba(232,184,122,.18), transparent 60%),
+    linear-gradient(178deg, var(--sky-0) 0%, var(--sky-1) 38%, var(--sky-2) 72%, var(--sky-3) 100%);
+}
+.hills{
+  position:fixed; left:0; right:0; bottom:0; height:38vh; z-index:-1;
+  background:
+    radial-gradient(120% 100% at 20% 100%, var(--deep) 40%, transparent 41%),
+    radial-gradient(90% 100% at 68% 100%, var(--deep) 46%, transparent 47%);
+  opacity:.85;
+}
+.wrap{max-width:var(--wrap); margin:0 auto; padding:0 22px}
+
+/* ── header ─────────────────────────────────────────────────────────── */
+header{position:sticky; top:0; z-index:20; backdrop-filter:blur(9px);
+  background:linear-gradient(to bottom, rgba(16,26,43,.86), rgba(16,26,43,0));
+  border-bottom:1px solid var(--hair)}
+header .wrap{display:flex; align-items:center; gap:20px; padding-top:15px; padding-bottom:15px}
+.mark{font:600 16px/1 Inter,sans-serif; letter-spacing:.16em; text-transform:uppercase}
+.mark span{color:var(--sand)}
+nav{margin-left:auto; display:flex; gap:24px; font-size:15px}
+nav a{color:var(--dim); text-decoration:none}
+nav a:hover{color:var(--ink)}
+.cta{
+  background:var(--sand); color:var(--sky-0); text-decoration:none;
+  font:600 15px/1 Inter,sans-serif; padding:12px 20px; border-radius:999px;
+}
+@media(max-width:820px){ nav{display:none} }
+
+/* ── hero ───────────────────────────────────────────────────────────── */
+.hero{padding:15vh 0 12vh; text-align:center}
+.eyebrow{
+  display:inline-flex; align-items:center; gap:9px; font-size:13px; color:var(--dim);
+  border:1px solid var(--line); border-radius:999px; padding:7px 15px; margin-bottom:30px;
+}
+.eyebrow i{width:7px; height:7px; border-radius:50%; background:var(--sand); font-style:normal}
+h1{
+  font:300 clamp(44px,7.2vw,92px)/1.02 Fraunces,Georgia,serif;
+  letter-spacing:-.02em; margin:0 0 22px; text-wrap:balance;
+}
+h1 em{font-style:italic; color:var(--sand)}
+.sub{max-width:52ch; margin:0 auto 34px; color:var(--dim); font-size:18px}
+.herobtns{display:flex; gap:12px; justify-content:center; flex-wrap:wrap}
+.ghost{
+  border:1px solid var(--line); color:var(--ink); text-decoration:none;
+  font:500 15px/1 Inter,sans-serif; padding:12px 20px; border-radius:999px;
+}
+.ghost:hover{border-color:var(--sand)}
+
+/* the one genuinely large object, per the fora reading */
+.slab{
+  margin:8vh auto 0; max-width:900px; border-radius:20px; overflow:hidden;
+  border:1px solid var(--hair); background:rgba(10,18,32,.55);
+  backdrop-filter:blur(6px); box-shadow:0 40px 90px -30px rgba(0,0,0,.7);
+}
+.slab .bar{display:flex; gap:7px; padding:14px 16px; border-bottom:1px solid var(--hair)}
+.slab .bar i{width:10px; height:10px; border-radius:50%; background:var(--line); font-style:normal}
+.slab .body{padding:26px}
+.slab h3{margin:0 0 4px; font:600 19px/1.3 Inter,sans-serif}
+.slab p{margin:0 0 18px; color:var(--dim); font-size:15px}
+
+/* ── sections ───────────────────────────────────────────────────────── */
+section{padding:9vh 0}
+.lab{font-size:12px; letter-spacing:.2em; text-transform:uppercase; color:var(--sand); margin:0 0 12px}
+h2{font:300 clamp(30px,4.4vw,52px)/1.1 Fraunces,Georgia,serif; margin:0 0 14px; letter-spacing:-.015em}
+.lede{color:var(--dim); max-width:56ch; margin:0 0 34px}
+
+/* ── the ladder — three sizes wide, awkward numbers on purpose ──────── */
+table{width:100%; border-collapse:collapse; font-size:15px}
+thead th{
+  text-align:right; font:600 12px/1 Inter,sans-serif; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--dim); padding:0 0 14px; border-bottom:1px solid var(--line);
+}
+thead th:first-child{text-align:left}
+td{padding:16px 0; border-bottom:1px solid var(--hair); text-align:right; font-variant-numeric:tabular-nums}
+td:first-child{text-align:left}
+td strong{font-weight:600; font-size:16px; display:block}
+td small{color:var(--dim); font-size:13.5px; display:block; margin-top:3px; max-width:44ch}
+.tblwrap{overflow-x:auto}
+.note{
+  margin-top:20px; padding:13px 15px; border-left:2px solid var(--sand);
+  color:var(--dim); font-size:14.5px; background:rgba(232,184,122,.06);
+}
+
+/* ── per-foot, the price shape this product cannot express ──────────── */
+.foot{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px; margin-top:26px}
+.foot div{border:1px solid var(--hair); border-radius:var(--r); padding:18px;
+  background:linear-gradient(160deg, rgba(244,246,248,.05), transparent)}
+.foot b{display:block; font:600 15px/1 Inter,sans-serif; margin-bottom:8px}
+.foot span{font:300 30px/1 Fraunces,serif; color:var(--sand)}
+.foot small{display:block; color:var(--dim); font-size:13px; margin-top:6px}
+
+/* ── booking form, built into the site's own design ─────────────────── */
+.book{border:1px solid var(--hair); border-radius:20px; overflow:hidden;
+  background:rgba(10,18,32,.6); backdrop-filter:blur(8px)}
+.steps{display:flex; gap:0; border-bottom:1px solid var(--hair); overflow-x:auto}
+.steps b{
+  flex:none; padding:14px 18px; font:500 13px/1 Inter,sans-serif; color:var(--dim);
+  border-right:1px solid var(--hair); white-space:nowrap;
+}
+.steps b[aria-current]{color:var(--sky-0); background:var(--sand)}
+.bookbody{padding:24px}
+fieldset{border:0; margin:0 0 22px; padding:0}
+legend{font:600 15px/1 Inter,sans-serif; padding:0 0 12px}
+.opts{display:grid; gap:10px}
+.opt{
+  display:flex; align-items:center; gap:14px; padding:15px 17px; cursor:pointer;
+  border:1px solid var(--line); border-radius:12px; background:rgba(244,246,248,.03);
+}
+.opt:hover{border-color:var(--sand)}
+.opt input{accent-color:var(--sand); width:17px; height:17px; flex:none}
+.opt .t{flex:1}
+.opt .t b{display:block; font:600 15px/1.3 Inter,sans-serif}
+.opt .t small{color:var(--dim); font-size:13px}
+.opt .p{font-variant-numeric:tabular-nums; color:var(--sand); font-weight:600}
+.est{
+  display:flex; align-items:baseline; justify-content:space-between; gap:16px;
+  padding:18px 0 0; border-top:1px solid var(--line); margin-top:4px;
+}
+.est .k{color:var(--dim); font-size:14px}
+.est .v{font:300 34px/1 Fraunces,serif; color:var(--sand); font-variant-numeric:tabular-nums}
+.submit{
+  width:100%; margin-top:18px; border:0; cursor:pointer; border-radius:999px;
+  background:var(--sand); color:var(--sky-0); font:600 16px/1 Inter,sans-serif; padding:16px;
+}
+.tiny{color:var(--dim); font-size:12.5px; margin-top:12px; text-align:center}
+
+/* ── reviews / gallery / faq / footer ───────────────────────────────── */
+.revs{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px}
+.rev{border:1px solid var(--hair); border-radius:var(--r); padding:20px;
+  background:linear-gradient(150deg, rgba(244,246,248,.06), transparent)}
+.stars{color:var(--sand); letter-spacing:2px; font-size:13px}
+.rev p{margin:10px 0 12px; font-size:15px}
+.rev cite{font-style:normal; color:var(--dim); font-size:13.5px}
+.gal{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px}
+.gal i{
+  display:block; aspect-ratio:4/3; border-radius:var(--r); font-style:normal;
+  border:1px solid var(--hair);
+  background:linear-gradient(140deg, rgba(232,184,122,.22), rgba(84,53,74,.5));
+}
+.gal i:nth-child(3n){aspect-ratio:1/1}
+.gal i:nth-child(4n){aspect-ratio:3/4}
+details{border-bottom:1px solid var(--hair); padding:16px 0}
+summary{cursor:pointer; font:500 16px/1.4 Inter,sans-serif; list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+"; float:right; color:var(--sand)}
+details[open] summary::after{content:"–"}
+details p{color:var(--dim); font-size:15px; margin:12px 0 0}
+footer{border-top:1px solid var(--hair); padding:44px 0 60px; color:var(--dim); font-size:14.5px}
+.fgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:26px}
+footer b{color:var(--ink); display:block; margin-bottom:8px; font-size:14px}
+footer a{color:var(--dim)}
+
+/* ── MOTION: scroll-linked only ─────────────────────────────────────── */
+@media(prefers-reduced-motion:no-preference){
+  .rv{opacity:0; transform:translateY(22px); transition:opacity .7s ease, transform .7s cubic-bezier(.2,.7,.3,1)}
+  .rv.in{opacity:1; transform:none}
+}
+@supports (animation-timeline: view()){
+  @media(prefers-reduced-motion:no-preference){
+    /* Native scroll-driven where the browser has it — the thing `authkit` and
+       `lightspark` both use, and the reason their motion reads as responsive
+       rather than as a timer. */
+    .rv{animation:rise linear both; animation-timeline:view(); animation-range:entry 5% cover 26%}
+    @keyframes rise{from{opacity:0; transform:translateY(26px)} to{opacity:1; transform:none}}
+  }
+}
+/* THE HIDDEN STATE IS ADDED BY SCRIPT, NEVER BY THE STYLESHEET — a rule from
+   this repo's own three tenant pages: a failed script then leaves a blank page.
+   `.rv` only hides once JS has confirmed it is running. */
+html:not(.js) .rv{opacity:1; transform:none}
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true"></div>
+<div class="hills" aria-hidden="true"></div>
+
+<header>
+  <div class="wrap">
+    <span class="mark">Tide<span>water</span></span>
+    <nav>
+      <a href="#services">Services</a>
+      <a href="#work">Work</a>
+      <a href="#reviews">Reviews</a>
+      <a href="#faq">Questions</a>
+    </nav>
+    <a class="cta" href="#book">Book</a>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <span class="eyebrow"><i></i>Booking three weeks out · Wrightsville Beach</span>
+    <h1>Salt gets into <em>everything</em>.</h1>
+    <p class="sub">Boats, RVs and daily drivers, detailed where they sit — the
+      marina, the storage lot, your drive. We bring water and power.</p>
+    <div class="herobtns">
+      <a class="cta" href="#book">Get a price</a>
+      <a class="ghost" href="#services">See the ladder</a>
+    </div>
+
+    <!-- ONE GENUINELY LARGE OBJECT, per the `fora` reading in TASTE-NOTES § O -->
+    <div class="slab rv">
+      <div class="bar" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="body">
+        <h3>This week on the water</h3>
+        <p>Three slips at Seapath, a 34&#8242; Sea Ray and two trailer washouts.</p>
+        <div class="gal">
+          <i></i><i></i><i></i><i></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SERVICES: the ladder, three sizes wide ────────────────────── -->
+  <section id="services">
+    <div class="wrap">
+      <p class="lab rv">On the drive</p>
+      <h2 class="rv">What it costs, before we look at it</h2>
+      <p class="lede rv">Every price below is a starting point. We confirm after a
+        walk-round, because a car with a dog in it every day is not the same job.</p>
+
+      <div class="tblwrap rv">
+        <table>
+          <caption class="lab" style="text-align:left; margin-bottom:14px">Cars, trucks and vans</caption>
+          <thead>
+            <tr><th scope="col">Service</th><th scope="col">Sedan</th><th scope="col">Mid-size</th><th scope="col">Oversized</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Interior reset</strong><small>Vacuum, steam, leather conditioned or fabric spot-treated, glass.</small></td>
+              <td data-live="services.price">$185</td><td data-live>$215</td><td data-live>$330</td>
+            </tr>
+            <tr>
+              <td><strong>Exterior &amp; sealant</strong><small>Hand wash, decontamination, six-month sealant.</small></td>
+              <td data-live>$210</td><td data-live>$245</td><td data-live>$365</td>
+            </tr>
+            <tr>
+              <td><strong>The full day</strong><small>Both of the above, plus engine bay and door jambs.</small></td>
+              <td data-live>$260</td><td data-live>$295</td><td data-live>$440</td>
+            </tr>
+            <tr>
+              <td><strong>One-step correction</strong><small>Removes most swirls. <em>This is not a ceramic coating.</em></small></td>
+              <td data-live>$420</td><td data-live>$495</td><td data-live>—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note rv" data-live="services.notes">Third-row vehicles add $50 to
+        interior and full-day services. Heavy pet hair and odour work is quoted
+        after we see it — we would rather tell you on the phone than on the drive.</p>
+
+      <!-- THE PRICE SHAPE THIS PRODUCT CANNOT CURRENTLY EXPRESS. Adapted from a
+           real business that prices RV work per foot. Kept deliberately. -->
+      <div class="foot rv">
+        <div><b>Boats &amp; RVs</b><span data-live>$11</span><small>per foot, hull or coach. Minimum $220.</small></div>
+        <div><b>Trailer washout</b><span data-live>$80</span><small>Flat, any size, cargo-ready same day.</small></div>
+        <div><b>Golf cart</b><span data-live>$125</span><small>In and out. Common at Landfall.</small></div>
+        <div><b>Collection &amp; return</b><span data-live>$29</span><small>Within nine miles of the bridge.</small></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── MONTHLY PLAN (contract § 2d) ───────────────────────────────── -->
+  <section>
+    <div class="wrap">
+      <p class="lab rv">Every month</p>
+      <h2 class="rv">The maintenance slot</h2>
+      <p class="lede rv">One booked visit a month at a standing time, and salt never
+        gets a head start. Cancel whenever — there is no term on it.</p>
+      <div class="foot rv">
+        <div><b>Drive &amp; Dry</b><span data-live="plans.price">$140</span><small>Monthly · one visit · exterior and glass</small></div>
+        <div><b>Full Keep</b><span data-live>$260</span><small>Monthly · one visit · interior and exterior</small></div>
+        <div><b>Marina Keep</b><span data-live>$9</span><small>Per foot, monthly · deck wash and rinse</small></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── BOOKING, BUILT IN, IN THIS SITE'S OWN DESIGN (contract § 2a) ─ -->
+  <section id="book">
+    <div class="wrap">
+      <p class="lab rv">Book</p>
+      <h2 class="rv">Seven questions, about two minutes</h2>
+      <p class="lede rv">The price updates as you go. Nothing is charged here — we
+        confirm the slot by text first.</p>
+
+      <div class="book rv">
+        <div class="steps" role="list">
+          <b role="listitem" aria-current="step">1 · Service</b>
+          <b role="listitem">2 · Extras</b>
+          <b role="listitem">3 · Vehicle</b>
+          <b role="listitem">4 · Where</b>
+          <b role="listitem">5 · When</b>
+          <b role="listitem">6 · You</b>
+          <b role="listitem">7 · Review</b>
+        </div>
+        <form class="bookbody" onsubmit="return false">
+          <fieldset>
+            <legend>What are we doing?</legend>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="svc" checked>
+                <span class="t"><b>Interior reset</b><small>About 3 hours</small></span>
+                <span class="p" data-live>from $185</span></label>
+              <label class="opt"><input type="radio" name="svc">
+                <span class="t"><b>Exterior &amp; sealant</b><small>About 3 hours</small></span>
+                <span class="p" data-live>from $210</span></label>
+              <label class="opt"><input type="radio" name="svc">
+                <span class="t"><b>The full day</b><small>Most of a day</small></span>
+                <span class="p" data-live>from $260</span></label>
+              <label class="opt"><input type="radio" name="svc">
+                <span class="t"><b>Boat or RV</b><small>Priced per foot</small></span>
+                <span class="p" data-live>$11/ft</span></label>
+            </div>
+          </fieldset>
+          <div class="est">
+            <span class="k">Estimate so far — confirmed after we see it</span>
+            <span class="v" data-live="calculate-booking">$185</span>
+          </div>
+          <button class="submit" type="submit">Continue to extras</button>
+          <p class="tiny">We hold the slot when you finish. Cancel free up to 24 hours before.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WORK — the job row: photo, what was done, the review, a CTA ── -->
+  <section id="work">
+    <div class="wrap">
+      <p class="lab rv">Recent</p>
+      <h2 class="rv">What last week looked like</h2>
+      <div class="revs rv" id="reviews">
+        <div class="rev">
+          <span class="stars">★★★★★</span>
+          <p>“Boat had two seasons of salt on it. They came to the slip, took most
+            of a day, and it looks like it did at the dealer.”</p>
+          <cite>Dale H. — 34&#8242; Sea Ray, Seapath</cite>
+        </div>
+        <div class="rev">
+          <span class="stars">★★★★★</span>
+          <p>“Two kids, one labrador. I did not think the seats would come back.
+            They did.”</p>
+          <cite>Priya N. — Highlander, Ogden</cite>
+        </div>
+        <div class="rev">
+          <span class="stars">★★★★★</span>
+          <p>“Turned up when they said, brought their own water, left the drive
+            cleaner than they found it.”</p>
+          <cite>Marcus T. — F-150, Porters Neck</cite>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ — real anxieties, not curiosities (contract § 2h) ──────── -->
+  <section id="faq">
+    <div class="wrap">
+      <p class="lab rv">Questions</p>
+      <h2 class="rv">The ones we actually get</h2>
+      <div class="rv" data-live="business_faqs">
+        <details open><summary>Why does the price change after you look at it?</summary>
+          <p>Because condition is most of the work. A three-year-old car that lives
+            in a garage and a three-year-old car that carries a dog to the beach are
+            the same vehicle and not the same job. The ladder above is where we
+            start; we confirm before we touch anything.</p></details>
+        <details><summary>Do you need my water and power?</summary>
+          <p>No. We carry 60 gallons and our own generator. If you have an outside
+            tap we will use it and take $10 off, but nothing depends on it.</p></details>
+        <details><summary>What happens if it rains?</summary>
+          <p>Interior work goes ahead. Exterior work moves to the next dry slot and
+            we text you the night before — you are never charged for a move we made.</p></details>
+        <details><summary>Do you get all the pet hair out?</summary>
+          <p>Almost always, and we will tell you honestly if we cannot. Heavily
+            embedded hair in older cloth sometimes needs a second visit, which we
+            price at half.</p></details>
+        <details><summary>How often should I have it done?</summary>
+          <p>On the coast, every eight weeks keeps salt out of the paint. Inland,
+            twice a year is plenty. We would rather you booked less often than felt
+            sold to.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── HOURS, AREA, HOW TO PAY, IDENTITY (contract § 2i–2k) ───────── -->
+  <footer>
+    <div class="wrap fgrid">
+      <div>
+        <b>Tidewater Marine &amp; Auto Detail</b>
+        <p data-live="businesses.contact_phone">(910) 555-0148<br>
+          Wrightsville Beach, NC 28480</p>
+      </div>
+      <div>
+        <b>Where we go</b>
+        <p data-live="business_settings.service_area">Wrightsville, Ogden, Landfall,
+          Porters Neck, Mayfaire. Twenty miles from the bridge; further by arrangement.</p>
+      </div>
+      <div>
+        <b>Hours</b>
+        <p data-live="business_hours">Tue–Sat, 7am–5pm<br>Closed Sun &amp; Mon</p>
+      </div>
+      <div>
+        <b>How to pay</b>
+        <p data-live="business_settings.payment_handles">Card on the day, or Venmo
+          &#64;tidewater-wb. Fleet and marina accounts invoiced monthly.</p>
+      </div>
+    </div>
+    <div class="wrap" style="margin-top:32px; opacity:.65">
+      <p>Licensed and insured in North Carolina. Every figure on this page is
+        managed by the business and updates live.</p>
+    </div>
+  </footer>
+</main>
+
+<script>
+  // The stylesheet only hides `.rv` once this class is on, so a script that
+  // never runs leaves a complete, readable page rather than a blank one.
+  document.documentElement.classList.add("js");
+
+  // IntersectionObserver is the fallback for browsers without
+  // `animation-timeline: view()`. Where the native version exists the CSS wins
+  // and this simply adds a class nothing reads.
+  const rv = document.querySelectorAll(".rv");
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches && "IntersectionObserver" in window) {
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+    }, { rootMargin: "0px 0px -12% 0px" });
+    for (const el of rv) io.observe(el);
+  } else {
+    for (const el of rv) el.classList.add("in");
+  }
+
+  // The estimate is a DEMONSTRATION of where the number comes from, not a
+  // calculation. On a live site this listener calls `calculate-booking` and
+  // prints what it returns — the site ASKS and never computes (contract § 2a).
+  const FROM = ["$185", "$210", "$260", "$11/ft"];
+  document.querySelectorAll('input[name="svc"]').forEach((r, i) => {
+    r.addEventListener("change", () => {
+      document.querySelector(".est .v").textContent = FROM[i];
+    });
+  });
+</script>
+</body>
+</html>
