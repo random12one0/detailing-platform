@@ -281,3 +281,338 @@ only then write a brief. The brief still needs what
 produces variety — **a TENSION sentence and a one-noun answer to "what IS this
 page"** — but it now has a house style to resolve those tensions INSIDE, which
 is what was missing.
+
+---
+
+# BATCH 2 — 2026-09-08, HIS OWN WORDS, UNEDITED
+
+**This is the batch § 1 said was coming** (*"Now I'm gonna give more that I like
+more, but just quickly, this is what I could find"*). It is TWENTY-ONE links
+with a verdict on nearly every one, and — the part batch 1 did not have — **he
+names what is WRONG with the ones he dislikes**, which is worth more than the
+approvals, because a list of what to include cannot catch what everybody omits
+(§ 4c's finding, arriving again).
+
+**IT IS ALSO A CORRECTION TO BATCH 1'S READING.** § 3 was built from five sites
+he "could find". His covering note here:
+
+> *"Ps most of these arent like i really like except for the first one but even
+> that one still is lacking a bit and oesnt have much animation."*
+
+So **not one detailing site in either batch is a target.** The detailer sites
+are the FLOOR and the trade's vocabulary; the second list — none of them
+detailers — is where the bar is.
+
+## The raw message, verbatim
+
+### Car websites i like
+
+- https://www.melimobiledetailing.com/ — *"I liek this one"*
+- https://hughsdetailing.com/ — *"this one alroghjt"*
+- https://mrgreenclean.ca/ — *"layout good no reall animations ;("*
+- https://www.chicagoautopros.com/ — *"feels a little crowded buit still kinda good"*
+- https://carolinamobilecarwash.com/ — *"a little basic but sleek. And god animations just a little slow"*
+- https://lustermobiledetailing.godaddysites.com/ — *"example of a bad sight. Horrible font"*
+- https://www.6speedmobiledetailing.com/ — *"this one also not really good"*
+- https://www.agautospa.com/ — *"ehh"*
+- https://rcd.squarespace.com/ — *"layout is good very static page tho. And really like plain colors no cool backhgorund ro depth"*
+- https://wisconsinmobiledetailing.com/ — *"another bad one"*
+- https://dribbble.com/shots/27167430-Professional-Detailing-Website-Design — *"i like this main page kinda"*
+- https://atelierdetail.netlify.app/ — *"this ones good"*
+
+> *"Ps most of these arent like i really like except for the first one but even
+> that one still is lacking a bit and oesnt have much animation."*
+
+### Websites that arent detailers but i liek and thinkw e can tak einspo from
+
+- https://www.auxia.io/ — *"good animations and good use of liek not eveyhtin is just a box with text in it And having cool effects"*
+- https://pryzm.design/ — *"Saem witht his ones"*
+- https://www.lightspark.com/ — *"this one a little to white andtoo mahy straigh lines"*
+- https://vessa.design/brand/vanta — *"This ghas examople of hosu to use motion and other stuff"*
+- https://fora.so/ — *"This ones cool"*
+- https://www.authkit.com/
+- https://mobbin.com/mcp — *"Also i saw this ... but its not free"*
+- https://landscape-128.webflow.io/ — *"This is good"*
+
+### AND THE PARAGRAPH THAT IS THE ACTUAL BRIEF
+
+> *"One important thing i will say is it has to be easy for a person to navigate
+> and use. what you could get wrong or what I see people doing is that it's kind
+> of over animated sites that I've listed that, like, look really good. We have
+> a lot of animations. I think, like, oh, because all these animations would be
+> annoying to use or people aren't gonna like it. But, honestly, some of these,
+> like, regular websites I have, you know, a ton of information and words and
+> that are just kind of... tons of pictures everywhere might be even harder for
+> somebody to navigate because it's just a lot in your face. While some of these
+> other ones have animation and whatnot, they... the layout is very professional
+> and thought through to the point where nothing in the website gets
+> overwhelming. You know? And I think we can have a few different, you know,
+> types of website design. But, um, yeah, I just think that that even if we we
+> wanna make something that is very professional, looks good, and that makes the
+> person want to stay there more. So making something kinda basic and flat, you
+> know, doesn't really... isn't as inviting as something that has more
+> animations and has some depth to it, some animation... some, you know you
+> know, kind of moving things, within it, and everything is laid out nicely,
+> easy to read, easy to navigate, you know, and, like, stuff is laid out in
+> separate ways. So it's not just the same copy and pasting all the time for
+> those, you know, things are just... information is laid out in different
+> creative ways. So here's a lot for you to go through. Now I want you to not
+> just kind of look at this really quickly, but I want you to actually dive deep
+> into each one of these websites, everything about it, the design, you know,
+> how they, you know, use different things and the look of it and the code
+> behind it."*
+
+**FIVE THINGS IN THAT PARAGRAPH ARE INSTRUCTIONS AND NOT COMMENTARY:**
+
+1. **He pre-empts the objection he expects me to make.** He knows the animated
+   sites could be called annoying to use, and he has already rejected that
+   argument: a dense, flat, picture-everywhere page is *harder* to navigate, not
+   easier. **So "restraint" is not the safe answer here and must not be used as
+   one.**
+2. **The test is the LAYOUT carrying the animation, not the animation count.**
+   *"the layout is very professional and thought through to the point where
+   nothing in the website gets overwhelming."* Animation is allowed to be
+   generous exactly to the degree the layout is disciplined.
+3. **"Basic and flat isn't as inviting"** — § 4c's finding, restated by him
+   unprompted a day later, now as a positive requirement rather than a
+   complaint. Depth is the requirement; a flat ground is a defect.
+4. **NO ONE SECTION SHAPE REPEATED DOWN A PAGE.** *"it's not just the same copy
+   and pasting all the time… information is laid out in different creative
+   ways."* This is a rule about a SINGLE page's internal variety, and it is
+   different from § 5's rule about variety BETWEEN pages. Every page in
+   `docs/tenant-sites/` fails it to some degree: a ruled list, then another
+   ruled list, then a third.
+5. **"a few different types of website design"** — he still wants a RANGE, so
+   § 5's no-two-alike rule holds.
+
+## Analysis — see § BATCH 2 ANALYSIS below
+
+Written as each site was actually opened and read, rather than from the URL.
+
+---
+
+# BATCH 2 ANALYSIS — ALL EIGHTEEN MEASURED, 2026-09-08
+
+**Not read, not judged — OPENED.** Every site was loaded in a real Chromium at
+**1440x900**, scrolled top to bottom so lazy media and reveal-on-scroll fired,
+and then its own computed styles, stylesheets and scripts were read out of the
+page. `taste-probe.tmp.mjs` (scratch, gitignored) is the instrument; re-run it
+any time with `node taste-probe.tmp.mjs`.
+
+**Why measured rather than described.** This repo has spent two attempts
+guessing his taste from adjectives. Adjectives are what failed: *"clean",
+"premium", "professional"* produced three pages he called AI. **A number
+survives being copied into the next session.**
+
+## 0. THE ONE-LINE ANSWER
+
+**What separates every site he likes from every site he does not is DEPTH AND
+SCROLL-LINKED MOTION — and neither is about how much is on the page.**
+
+Scoring depth as *(kinds of gradient) + (kinds of shadow) + 5 if any blur is
+used + 8 per canvas*:
+
+```
+  LOVES     authkit 80   auxia 34   pryzm 29   atelier 27   fora 21   vessa 17
+  MEH/BAD   meli 11   sixspeed 10   mrgreen 7   hughs 7   chicago 7
+            agautospa 6   luster 6   rcd 5   wisconsin 2
+```
+
+**The line falls at about 15 and there is one exception in eighteen** —
+`landscape` (depth 3), which wins on colour and illustration instead. **Every
+site he called good is above the line or is that exception. Not one site he
+called bad is above it.**
+
+The same split, on motion:
+
+```
+  LOVES     gsap+lenis (auxia) · lenis (pryzm) · CSS scroll-driven timelines
+            (authkit, lightspark) · 104 will-change elements (fora) ·
+            Webflow IX2, 34 bound elements (landscape)
+  BAD       agautospa 0 keyframes 0 running · rcd 0 and 0 · wisconsin 0 running
+            · luster 0 running and FOUR transitions on the whole page
+```
+
+**Not one detailer site in the list has a single `<canvas>`. Zero out of
+eleven.** Four of the seven non-detailer sites do.
+
+## 1. THE FINDING THAT MATTERS MOST — a keyframe count is NOT motion
+
+**`mrgreen` has 77 keyframes and 28 animations running, and he wrote
+*"layout good no reall animations ;("*.** That looks like a contradiction and
+it is the single most useful thing in this batch.
+
+Its keyframes are named `eicon-spin`, `hide-scroll`, `fadeIn`, `pa-mask-tr` —
+**WordPress plugin furniture**: spinners, a mobile-menu lock, a one-shot fade.
+`carolina` is the same shape at four times the size — **155 keyframes**, of
+which the ones the probe caught are `preloader-circle`, `preloader_dot_one`,
+`fa-spin`. A preloader is not motion design; it is an apology for a slow page.
+
+**What he calls "animation" is motion that RESPONDS TO HIM.** Every site he
+praised for it is scroll-linked — GSAP+Lenis, a CSS `animation-timeline`, or
+Webflow interactions bound to scroll position. Every site he called static has
+motion that runs on a timer, on load, or on hover, and never on the scrollbar.
+
+**SO THE RULE FOR OUR PAGES: motion is driven by the scroll position, or it is
+decoration.** A page can have fifty `@keyframes` and read as dead.
+
+## 2. TYPE — the negative cases finally explain the rule
+
+Batch 1 § 3 noticed *"there is no serif display face anywhere in the set"* and
+could not say why. The two sites he calls bad say why:
+
+| | face 1 | face 2 | his words |
+|---|---|---|---|
+| luster | **Old Standard TT** (serif) | Karla | *"Horrible font"* |
+| wisconsin | Roboto | **Playfair Display** (serif) | *"another bad one"* |
+
+**Both are the free-Google-fonts serif-display-plus-sans pairing** — the
+default "elegant" move of every website builder, and the exact family CLAUDE.md
+already records him rejecting twice in our own pages (*Warm Editorial*).
+
+Against that, every site he loves runs **one grotesque, and usually a licensed
+one**:
+
+```
+  auxia       PP Neue Montreal (Pangram Pangram)
+  vessa       General Sans (Fontshare)
+  lightspark  Suisse Intl Variable (Swiss Typefaces)
+  authkit     Untitled Sans (Klim)
+  landscape   Manrope
+  pryzm/fora  Inter
+```
+
+**AND THE UNCOMFORTABLE ONE, recorded because it is true: `meli` — his
+favourite detailing site — is Inter and nothing else, 169 uses.** CLAUDE.md's
+never-defaults ban Inter as a design choice. **That ban is not wrong, but the
+reason has to be stated correctly: Inter is not what makes a page look
+AI-generated — it is what a page reaches for when nobody chose a typeface.**
+Two of the sites he loves use it deliberately and well. **The rule that
+actually holds across all eighteen is narrower and should replace the vague
+one: NO SERIF DISPLAY FACE, and no free-builder serif+sans pairing.**
+
+**The type SCALE is the other half, and it is where meli is thin.** Its largest
+text is 48px, used once; the page runs at 14 and 16. `mrgreen`, which he liked
+the layout of, sets **65px and 70px** headlines. Batch 1 § 3 said 100-200px.
+**Meli's "lacking a bit" is partly this: nothing on the page is big.**
+
+## 3. "NOT EVERYTHING IS A BOX WITH TEXT IN IT" — measured, with a twist
+
+Counting blocks that have their own ground or border AND contain text:
+
+```
+  agautospa 266   chicago 252   sixspeed 235      <- "ehh" / "crowded" / "not good"
+  atelier 243   pryzm 239   vessa 229             <- but he LIKES these
+  meli 109   carolina 77   auxia 43   luster 15
+  authkit 15   fora 11   mrgreen 9   landscape 8  <- LOVES
+```
+
+**Box count alone does not predict his verdict, and that is the twist.** The
+sites he calls crowded are boxy **with no depth** (chicago 7, agautospa 6,
+sixspeed 10). The sites he loves that are equally boxy are boxy **with heavy
+depth** (atelier 27, pryzm 29, vessa 17).
+
+**So "everything is a box" is not a complaint about containers. It is a
+complaint about FLAT containers.** A card with a gradient, a blur behind it and
+a real shadow does not read as a box; a card with a 1px border and a grey fill
+does. **This is the same finding as § 4c a day later: the ground is the tell.**
+
+## 4. THE RHYTHM — his "not just the same copy and pasting all the time"
+
+Dividing each page's tallest section by its median section:
+
+```
+  lightspark 5.6   auxia 5.3   authkit 4.5   landscape 3.3   carolina 3.1
+  fora 2.0   mrgreen 2.2
+  atelier 1.4   meli 1.3   pryzm 1.3   vessa 1.3   rcd 1.2   luster 1.2
+```
+
+**Every page with a ratio above 3 is one he likes.** The mechanism is always
+the same: one deliberately enormous section — auxia's *"Become a 10x Marketer"*
+is **5,362px of one continuous scroll-driven sequence** — surrounded by short
+ones. It creates a change of pace a metronomic page cannot have.
+
+**And meli is the counter-example that explains his own verdict.** Six sections
+after the hero, every one on the identical ground `#161B20`, every one carrying
+the identical Tailwind padding `py-20 md:py-32 px-4 sm:px-6 lg:px-8`, heights
+1441 / 1048 / 1166 / 1135 / 754 / 1108. **It is the same block six times with
+different words in it** — literally the thing he described — and he felt it
+without being able to name it.
+
+**BUT THE RATIO IS NOT SUFFICIENT ON ITS OWN**: pryzm and vessa sit at 1.3 and
+he loves both. They buy their variety inside the sections instead, with depth.
+**Rhythm and depth are two ways to pay for the same thing; a page needs one.**
+
+## 5. AND ONE BATCH-1 CONCLUSION IS NOW WRONG
+
+§ 3 credited **switching ground between sections** as a thing his favourites
+share. `rcd` is the test case, and it fails it:
+
+**`rcd` alternates FIVE grounds** — white, #F7F9FC, dark navy, white, navy —
+more than any other site in either batch. And his verdict is *"layout is good
+very static page tho. And really like plain colors no cool backhgorund ro
+depth."*
+
+**Ground SWITCHING is not what he was responding to. Ground QUALITY is.** rcd
+switches between five flat fills; auxia switches between grounds that carry
+gradients, blurred lights and canvases. **A flat ground is a flat ground
+whether or not the next one is a different colour.** § 3's bullet should be
+read as *the ground changes AND has something in it*, and the second half is
+the load-bearing one.
+
+## 6. WHAT THE BUILDER TELLS YOU, AND IT IS NOT NOTHING
+
+```
+  luster       GoDaddy Website Builder 8.0        BAD
+  wisconsin    WordPress                          BAD
+  mrgreen      WordPress + Elementor addons       "no real animations"
+  hughs        WordPress + Elementor 4.2.3        "alright"
+  agautospa    Duda + skrollr.min.js              "ehh"
+  carolina     WordPress                          "animations a little slow"
+  meli         Vite + React + Tailwind            his favourite detailer
+  atelier      Vite (Netlify)                     "this ones good"
+  landscape    Webflow                            "this is good"
+  auxia        Webflow + GSAP + Lenis             "good animations"
+```
+
+**This is correlation and not a rule** — a Webflow site can be terrible. But it
+explains a mechanism: a page builder ships its own motion (spinners,
+preloaders, one-shot fades) and its own flat card components, and **both of the
+things he consistently dislikes are things a builder gives you for free.**
+`agautospa` still loads `skrollr.min.js`, a parallax library last meaningfully
+updated a decade ago, and scores 0 keyframes and 0 running animations.
+
+## 7. WHAT THIS MEANS FOR THE NEXT PAGE — six rules, each traceable
+
+1. **Every ground gets something in it.** A gradient, a blurred light, a
+   texture, a canvas. Target 15+ on the depth score above. `i`, `j` and `k`
+   already have layered grounds (§ 4c); the earlier five do not.
+2. **Motion is bound to scroll position.** Not load, not hover, not a timer.
+   Native `animation-timeline: view()` where support allows, an
+   IntersectionObserver otherwise. **Never a preloader.**
+3. **One grotesque. No serif display, and never the builder serif+sans pair.**
+   A licensed face if one is available; Inter is acceptable when chosen and
+   paired with a real scale, which means a headline far bigger than 48px.
+4. **Buy variety with rhythm OR with depth, and say which.** Either one section
+   is 3x the median, or the sections carry enough depth that equal heights stop
+   mattering. A page with neither is meli.
+5. **Boxes are allowed; FLAT boxes are not.** If a block has its own ground, that
+   ground gets a gradient, a blur or a shadow that means something.
+6. **Navigation still wins.** His own sentence: *"it has to be easy for a person
+   to navigate and use."* He pre-empted the restraint argument and rejected it —
+   **so this is not permission to under-animate. It is the constraint that the
+   layout must be disciplined enough to carry the motion.**
+
+## 8. WHAT WAS NOT MEASURED, AND MUST NOT BE CLAIMED
+
+- **The Dribbble link was not probed.** `dribbble.com/shots/...` is a screenshot
+  on a portfolio site, so probing it measures Dribbble's page and not the design
+  he liked. It needs looking at, by eye.
+- **`mobbin.com/mcp` is a paid product**, noted by him as such. Not pursued.
+- **NO SCREENSHOTS EXIST FOR ANY OF THIS.** The Browser pane was hidden for the
+  whole session, which black-frames every capture — verified rather than
+  assumed, by reading `scrollY` and `elementFromPoint` at a position whose
+  screenshot came back empty while the DOM reported real content there.
+  **So every claim above is STRUCTURAL — the DOM, the CSS and the scripts — and
+  none of it is a claim about how a page LOOKS.** The visual pass is still owed
+  and should be taken before a page is built on this.
