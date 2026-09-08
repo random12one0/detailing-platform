@@ -120,8 +120,10 @@ every cycle unless the cadence changes (§ 17).** Credits reset **13 Sep**, and
 **the git integration is CONNECTED** — the skipped builds are named
 `main@<sha>` — so **on 14 Sep every push to `main` publishes again and
 CLAUDE.md's "a push is not a publish" flips back with nobody editing it.**
-**Untried and probably free: `npx netlify deploy --prod --dir=app/dist`** runs
-no build, so it should not touch credits. Try it before buying a top-up.
+**NO FREE ROUTE — the direct-upload idea is dead**: a production deploy is 15
+credits whether or not it builds (131 x 15 = 1,965 exactly). Wait for the 13th,
+or he buys credits. **But BRANCH deploys cost ZERO**, so a work branch takes
+the loop off the meter and gives him a free preview URL that opens on a phone.
 **Branch:** work is on `main`. `claude/superbase-access-anj1h7` is 94 behind and
 dead — do not use it.
 **Waiting on Google:** GBP case 6-3052000042070, filed 8 Sep, 7–10 business

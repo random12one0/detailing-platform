@@ -1025,9 +1025,29 @@ stale and work moved across.
 | B | A `[build] ignore` command in `netlify.toml` that skips unless the commit message carries a marker. In-repo and versioned. | **Its failure mode is "nothing ever deploys again"**, which is indistinguishable from today's outage, and it cannot be tested until credits reset. |
 | C | Turn off auto-publishing in the Netlify dashboard. | A setting in an admin panel nothing here can read — **the exact shape that has now bitten this project four times.** |
 
-**Recommendation: A.** It is the only one with no way to fail silently, and it
-is what this repo was designed around before the branch rotted. **It is his
-call because it changes how he publishes**, and it is not urgent until the 13th.
+**Recommendation: A, and it is stronger than the table above argues — measured
+2026-09-08.** Netlify's credit doc: **"Deploy Previews or branch deploys | 0
+credits"**, and **failed deploys and rollbacks bill nothing.** Only a
+SUCCESSFUL PRODUCTION deploy costs 15.
+
+**So a work branch does not RATION the budget — it takes the loop off the meter
+entirely.** 131 chargeable deploys become about one per publish. **That is a
+structural fix rather than a discipline one**, which also answers the objection
+that killed the branch last time: there is no ongoing restraint for anybody to
+maintain, and no way to forget it.
+
+**AND IT UNLOCKS SOMETHING THIS PROJECT HAS BEEN WORKING AROUND SINCE
+2026-09-05.** A branch deploy is a **real URL, free, and it opens on his
+phone.** The whole apparatus in `CLAUDE.md`'s first section — screenshot
+everything, never ask him to look at `localhost` — exists because he cannot
+reach a dev server from a phone on remote desktop. **A free branch preview is
+strictly better than a screenshot for anything he needs to SCROLL or PRESS**,
+and nothing in this repo has ever used one. Screenshots stay right for "does
+this look correct"; a preview URL is the answer for "try it".
+
+**THE REAL BUDGET IS ~64 PRODUCTION DEPLOYS A CYCLE, not 66.** 1,000 / 15 = 66,
+less about 36 credits drawn from the same pool this period by bandwidth (22.7),
+web requests (10.5) and compute (3).
 
 ### THE GOOGLE TIMING RISK — and a top-up is probably not needed
 
@@ -1036,20 +1056,31 @@ the 13th lands the corrected privacy policy first. **But Google may fetch at any
 point in the review, and today they would find the 6 September page — no Google
 section, no Limited Use disclosure.** That is the rejection § 9 exists to avoid.
 
-**He has been told he can buy a top-up. He probably does not need to.** A
-**direct upload of pre-built files runs no build**, so it should not touch build
-credits at all:
+> **WRONG — WITHDRAWN 2026-09-08, and it was written against a billing model
+> Netlify no longer uses.** Their credit doc: *"each successful production
+> deploy consumes 15 credits"*, and **build minutes are no longer calculated on
+> credit-based plans.** So `netlify deploy --prod --dir` is a PRODUCTION DEPLOY
+> and is charged the same 15 credits — *"runs no build"* saves nothing, because
+> **the build was never the billed unit.** It would be refused exactly as the
+> git deploys were.
+>
+> **The arithmetic confirms it exactly: 131 × 15 = 1,965**, which is the figure
+> on the billing page to the credit. Every credit went on deploy COUNT.
+>
+> **So there is NO free route to publishing to detailingplatform.com before
+> 13 September.** Two answers only: wait for the reset, or buy credits. § 17.
+
+**~~He has been told he can buy a top-up. He probably does not need to.~~** A
+**direct upload of pre-built files runs no build** — true, and irrelevant:
 
 ```
 npm run build --prefix app
 npx netlify deploy --prod --dir=app/dist
 ```
 
-**That is `OUTSTANDING.md` § 6 option 1 and it has never been tried.** It is
-free to attempt and it closes the Google gap today rather than on the 13th.
-**Try it before paying for anything** — and if it is refused for credits too,
-then the top-up is the answer and we will have learned something worth writing
-down.
+**~~That is § 6 option 1 and it has never been tried.~~ SUPERSEDED, not
+untried — see the correction above.** It is charged 15 credits like any other
+production deploy, and there are 1.1 left. **Do not spend time on it.**
 
 ---
 
