@@ -437,4 +437,158 @@ export const appEs = {
     "Si algo no está bien, dinos primero — preferimos arreglarlo a leerlo después.",
   "Reviews genuinely help a small business like ours. It takes about a minute.":
     "Las reseñas de verdad ayudan a un negocio pequeño como el nuestro. Toma como un minuto.",
+  // ── THE REST OF THE DASHBOARD ────────────────────────────────────────────
+  // Everything from here down is grouped by where a detailer meets it rather
+  // than by which file holds it, because the files are not what anybody is
+  // looking at.
+
+  // Plans — the four ways a plan can be priced, and the member ledger.
+  "$ / month": "$ / mes",
+  "$ / visit": "$ / visita",
+  "$ up front": "$ por adelantado",
+  "% off": "% de descuento",
+  "$ off": "$ de descuento",
+  "Ended": "Terminado",
+  "Lifetime": "De por vida",
+  "Log this member": "Registrar este miembro",
+  "nobody on it": "nadie en él",
+  " · hidden": " · oculto",
+  "{count} visit owed": "{count} visita pendiente",
+  "{count} visits owed": "{count} visitas pendientes",
+  "Next due {date}": "Siguiente el {date}",
+  "No set schedule": "Sin horario fijo",
+  "Customer": "Cliente",
+  "Add a plan first, then log the customers who are on it.":
+    "Agrega un plan primero, y luego registra a los clientes que están en él.",
+  "Nobody logged yet.": "Nadie registrado todavía.",
+  "Could not load your plans.": "No se pudieron cargar tus planes.",
+  "Plan saved.": "Plan guardado.",
+  "Member logged.": "Miembro registrado.",
+  "That customer is already on a plan. End the old one first.":
+    "Ese cliente ya está en un plan. Termina el anterior primero.",
+  "Visit skipped.": "Visita saltada.",
+  "Visit added.": "Visita agregada.",
+  "Put this in your bio and in your texts. It lists what you offer and lets people ask to join.":
+    "Pon esto en tu bio y en tus mensajes. Enseña lo que ofreces y deja que la gente pida entrar.",
+  "Our plans": "Nuestros planes",
+  "{visits} each time": "{visits} cada vez",
+
+  // Booking rules — the surcharge sheet, the travel areas and the warnings.
+  "I bring it": "Yo lo llevo",
+  "Just ask": "Solo pregunta",
+  "Must have": "Es necesario",
+  "I go to them": "Yo voy a ellos",
+  "They come to me": "Ellos vienen a mí",
+  "Both": "Ambos",
+  "They're booked": "Quedan agendados",
+  "They've asked": "Han pedido",
+  "Certain days": "Ciertos días",
+  "Short notice": "Poco aviso",
+  "Dollars": "Dólares",
+  "Percent": "Porcentaje",
+  "Percent (%)": "Porcentaje (%)",
+  "Amount ($)": "Cantidad ($)",
+  "Not set": "Sin definir",
+  "No extra charge": "Sin cargo extra",
+  "No limit": "Sin límite",
+  "Save booking rules": "Guardar reglas de citas",
+  "Edit travel area": "Editar zona de viaje",
+  "New travel area": "Nueva zona de viaje",
+  "Edit surcharge": "Editar recargo",
+  "New surcharge": "Nuevo recargo",
+  "Remove {name}": "Quitar {name}",
+  "{amount}, not charged": "{amount}, no se cobra",
+  "The time is theirs the moment they book it. Nothing waits on you.":
+    "La hora es suya desde que la agendan. Nada espera por ti.",
+  "The time is held for them and nobody else can take it, but they're told it's a request until you accept it. Requests wait on your Today screen.":
+    "La hora queda apartada y nadie más la puede tomar, pero se les dice que es una solicitud hasta que la aceptes. Las solicitudes esperan en tu pantalla de Hoy.",
+  "The customer picks one on your booking page and its fee is added.":
+    "El cliente escoge una en tu página de citas y se agrega su costo.",
+  "Optional. Add areas if you charge different amounts for different distances.":
+    "Opcional. Agrega zonas si cobras distinto según la distancia.",
+  "Optional. Extra charged on top for jobs that cost you more to take.":
+    "Opcional. Un cargo extra para trabajos que te cuestan más.",
+  "Charged when a job is booked with less notice than you set below.":
+    "Se cobra cuando agendan con menos aviso del que pongas abajo.",
+  "Charged on the days — and, if you set them, the hours — you choose below.":
+    "Se cobra los días — y, si los pones, las horas — que escojas abajo.",
+  "Only the days you pick.": "Solo los días que escojas.",
+  "Every day.": "Todos los días.",
+  "A percentage of the job's price before any discount.":
+    "Un porcentaje del precio del trabajo antes de cualquier descuento.",
+  "A flat amount added to the job.": "Una cantidad fija agregada al trabajo.",
+  "You carry your own — the customer is never asked about {what}.":
+    "Tú llevas el tuyo — nunca se le pregunta al cliente por {what}.",
+  "The booking page asks about {what} and records the answer, so you know what to load.":
+    "La página de citas pregunta por {what} y guarda la respuesta, para que sepas qué cargar.",
+  "The booking page asks about {what}, and a customer who can't provide it is blocked from booking.":
+    "La página de citas pregunta por {what}, y un cliente que no lo tenga no puede agendar.",
+  "a power outlet": "un tomacorriente",
+  "the calendar": "el calendario",
+  "A {hours}-hour gap between jobs means very few slots each day.":
+    "Un espacio de {hours} horas entre trabajos deja muy pocos horarios al día.",
+  "Nobody will be able to book sooner than {days} days out.":
+    "Nadie podrá agendar con menos de {days} días.",
+  "Customers can only book a few days ahead.":
+    "Los clientes solo pueden agendar con pocos días de anticipación.",
+  "Very fine slot grid — the time picker will be crowded.":
+    "Intervalos muy chicos — el selector de hora se va a ver saturado.",
+  "Very coarse slot grid — few start times will be offered.":
+    "Intervalos muy grandes — se van a ofrecer pocas horas de inicio.",
+  "That cap is unusual — double-check it's what you want.":
+    "Ese tope es poco común — revisa que sea lo que quieres.",
+  "Anything inside {days} days needs a phone call to change.":
+    "Cualquier cosa dentro de {days} días necesita una llamada para cambiarse.",
+  "Going away? Pick the day you're back and the page says so instead of taking bookings.":
+    "¿Te vas? Escoge el día que regresas y la página lo dice en vez de tomar citas.",
+  "Your page stays up and tells customers when you're back. It reopens itself on the day.":
+    "Tu página sigue arriba y les dice a los clientes cuándo regresas. Se reabre sola ese día.",
+
+  // The catalogue — services, add-ons, categories and vehicle sizes.
+  "Edit service": "Editar servicio",
+  "New service": "Nuevo servicio",
+  "Edit add-on": "Editar extra",
+  "New add-on": "Nuevo extra",
+  "Edit category": "Editar categoría",
+  "New category": "Nueva categoría",
+  "Edit vehicle size": "Editar tamaño de vehículo",
+  "New vehicle size": "Nuevo tamaño de vehículo",
+  "Just one": "Solo uno",
+  "Any number": "Cualquier cantidad",
+  "Either": "Cualquiera",
+  "Base price": "Precio base",
+  "Costs extra": "Cuesta extra",
+  "Booked on its own — nothing else can be added":
+    "Se agenda solo — no se le puede agregar nada más",
+  "Customers pick one": "Los clientes escogen uno",
+  "Customers pick any number": "Los clientes escogen los que quieran",
+  "You already have a category with that name.":
+    "Ya tienes una categoría con ese nombre.",
+  "Category deleted.": "Categoría eliminada.",
+  "Vehicle sizes saved.": "Tamaños de vehículo guardados.",
+  "Saved.": "Guardado.",
+  "{count} service is in this category. Deleting it keeps them — they just stop being grouped. Continue?":
+    "{count} servicio está en esta categoría. Al eliminarla se quedan — solo dejan de estar agrupados. ¿Continuar?",
+  "{count} services are in this category. Deleting it keeps them — they just stop being grouped. Continue?":
+    "{count} servicios están en esta categoría. Al eliminarla se quedan — solo dejan de estar agrupados. ¿Continuar?",
+  "This is your base size — every price you set is the price for this one.":
+    "Este es tu tamaño base — cada precio que pongas es el precio para este.",
+  "You set what this size adds, per service, in each service's own screen.":
+    "Lo que este tamaño agrega lo pones, por servicio, en la pantalla de cada servicio.",
+  "Choosing anything in here clears everything else — for a complete package that already includes your other services.":
+    "Escoger algo de aquí borra todo lo demás — para un paquete completo que ya incluye tus otros servicios.",
+  "Customers can combine these with services from your other categories.":
+    "Los clientes pueden combinar estos con servicios de tus otras categorías.",
+  "Customers see \"from {amount}\".": "Los clientes ven \"desde {amount}\".",
+  "Customers read this as a firm quote.":
+    "Los clientes leen esto como un precio en firme.",
+  "What's included (one per line)": "Qué incluye (uno por línea)",
+  "Hand wash and dry\nClay bar decontamination\nMachine polish\nSix-month sealant":
+    "Lavado y secado a mano\nDescontaminación con barra de arcilla\nPulido a máquina\nSellador de seis meses",
+  "Wherever you work — the customer chooses.":
+    "Donde sea que trabajes — el cliente escoge.",
+  "Drop-off only. A customer who picks this can't choose mobile.":
+    "Solo en el taller. Un cliente que escoja esto no puede escoger a domicilio.",
+  "Mobile only. A customer who picks this can't choose drop-off.":
+    "Solo a domicilio. Un cliente que escoja esto no puede escoger el taller.",
 };

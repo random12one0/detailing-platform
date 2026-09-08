@@ -171,8 +171,28 @@ const NOT_WORDS = new Set([
   "founding", "list", "invited", "accepted", "declined", "quoted", "expired",
 ]);
 
+/** SHAPES THAT ARE CODE WHEREVER THEY APPEAR.
+ *
+ *  These reach the sweep because the call that owns them is on an earlier
+ *  line — a `.select()` argument written across four lines is a string whose
+ *  `select(` is nowhere near it — so the call-site test cannot see them and
+ *  the shape has to. All six are unmistakable:
+ *
+ *    · a PostgREST embed — `plan:plans(id, name)`, `booking_add_ons(add_on:…)`
+ *    · a CSS media query — `(prefers-reduced-motion: reduce)`
+ *    · a font stack     — `Archivo, sans-serif`
+ *    · a selector list  — `.Tab, .Block`
+ */
+const CODE_SHAPES = [
+  /^[*\s,]*(?:[A-Za-z_]+:)?[A-Za-z_]+\([A-Za-z_ ,:()]*\)[,\s]*$/,  // PostgREST embed
+  /^\((?:prefers|min|max|any)-[a-z-]+:/,                    // a media query
+  /,\s*(sans-serif|serif|monospace|system-ui|ui-\w+)$/,     // a font stack
+  /^\.[A-Za-z][\w-]*(\s*,\s*\.[A-Za-z][\w-]*)+$/,           // a selector list
+];
+
 const looksLikeCode = (s) => (
-  s.length < 2
+  CODE_SHAPES.some((re) => re.test(s))
+  || s.length < 2
   || !/[A-Za-z]{2}/.test(s)
   || /^(https?:|mailto:|tel:|\/|\.\/|#|data:|blob:)/.test(s)
   || /^#[0-9a-fA-F]{3,8}$/.test(s)
