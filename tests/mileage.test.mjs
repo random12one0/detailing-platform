@@ -130,8 +130,12 @@ console.log("3. one tap, the detailer's own words, and only where it applies");
 
   // THE DETAILER'S OWN WORDING. Falling back to the shipped default would
   // send a customer a sentence the detailer thinks they replaced.
+  // The callback parameter is NOT pinned to a name — roadmap 8.17 renamed it
+  // `t`->`x` because `t` is the translator now, and this went red on a change
+  // that took nothing away. The back-reference is what keeps it honest: the
+  // row it tests has to be the row it found.
   check("3b · it uses the row, never DEFAULT_TEMPLATES",
-    /templates\.find\(\(t\) => t\.key === "on_my_way"\)/.test(REC)
+    /templates\.find\(\((\w+)\) => \1\.key === "on_my_way"\)/.test(REC)
     && !/DEFAULT_TEMPLATES/.test(REC));
   check("3b-ii · and it is not drawn until that row is in hand",
     /\{onMyWay &&/.test(REC));
