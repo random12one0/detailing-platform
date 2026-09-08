@@ -54,17 +54,33 @@ const OUT = path.join(ROOT, "app", "dist");
 // makes that link point at a different page. Ten, because ten is what he asked
 // for; `a-shop` is the oldest and the least like the references he sent, so it
 // is the one left out.
+// **REPLACED WHOLESALE 2026-09-08 — these are the ten he asked for**, built on
+// docs/TASTE-NOTES.md batch 2 (his own 21 links, measured and looked at) and on
+// real detailer data in docs/tenant-site-source-data-2026-09-08.md. His brief:
+// *"a lot of variation ... you don't wanna show people two websites that look
+// with small detailed change because they won't see the differences, but with
+// big differences."*
+//
+// SO THE ORDER IS AN ALTERNATION, not a ranking. Dark, light, dark, light — and
+// the four with NO ANIMATION are spread through rather than grouped, because he
+// will click through these in order and two still pages in a row would read as
+// a broken batch rather than as a choice.
+//
+// The eleven older pages stay in docs/tenant-sites/ and are no longer served:
+// a-shop, b-van and c-volume he called "very ai", and d–k were built before any
+// of his taste evidence existed. Nothing is deleted — they are the structural
+// range and the record of what was tried.
 const PAGES = [
-  ["i-apex.html", "Apex Auto Spa", "lit glass · electric blue · dark first"],
-  ["j-northside.html", "Northside Detail Co.", "ruled paper · orange · light first"],
-  ["k-cedar.html", "Cedar & Chrome", "painted red · the ground is the colour"],
-  ["f-sudsy.html", "Sudsy", "painted yellow · the price is the headline"],
-  ["e-kiln.html", "Kiln", "warm off-black · one photograph"],
-  ["h-fleet.html", "Fleet", "cool paper · built for volume"],
-  ["g-estate.html", "Estate", "card stock · editorial"],
-  ["d-ridgeline.html", "Ridgeline", "true black · serif display"],
-  ["c-volume.html", "Volume", "high-throughput · price-led"],
-  ["b-van.html", "One Van", "a single mobile detailer"],
+  ["p-northlight.html", "Northlight Detail", "a photograph as the ground · mobile dock · moderate motion"],
+  ["m-holloway.html", "Holloway & Daughters", "newsprint · dense rate card · NO animation"],
+  ["n-halo.html", "Halo", "dark ground made of light · a routed diagram · heavy motion"],
+  ["o-rinsecity.html", "Rinse City", "painted ink · the price is the page · almost no motion"],
+  ["q-meridian.html", "Meridian Auto Salon", "warm cream · page in a container · the quietest motion"],
+  ["r-railyard.html", "Rail & Yard", "blueprint grid · set in mono · NO animation"],
+  ["l-tidewater.html", "Tidewater", "dusk gradient sky · per-foot pricing · heavy motion"],
+  ["t-blackline.html", "Blackline", "black and paper · the ground flips · NO animation"],
+  ["s-vera.html", "Vera Interior Care", "clinical light · one column, no grid · moderate motion"],
+  ["u-cedarchrome.html", "Cedar & Chrome", "woven earth · staggered masonry · moderate motion"],
 ];
 
 /** The strip that says what somebody is looking at. Injected rather than

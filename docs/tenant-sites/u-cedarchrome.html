@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cedar &amp; Chrome — classic and collector car care, Asheville NC</title>
+<meta name="description" content="Single-stage paint, chrome, mohair and leather. Cars older than the products most people use on them.">
+
+<!--
+  ═══════════════════════════════════════════════════════════════════════════
+  MOCK-UP 10 OF TEN — 2026-09-08.
+  ═══════════════════════════════════════════════════════════════════════════
+
+  THE VARIABLE: a WARM EARTH ground with a woven texture, and the layout is a
+  STAGGERED MASONRY of photographs at unequal heights. Moderate motion.
+
+  THE MASONRY IS LIFTED FROM A PAGE HE DISLIKED, AND THAT IS DELIBERATE.
+  TASTE-NOTES § O on `agautospa` — *"ehh"* — records that its one genuinely good
+  part is a masonry photo grid with staggered tile heights and a white label
+  bottom-left. The rest of that page fails on a script logo, nine nav items
+  wrapping onto two lines, and three CTA colours in one viewport. **A device is
+  not guilty by association with the page it was found on**, and this is the
+  cleanest way to prove the analysis is reading mechanics rather than vibes.
+
+  UNEQUAL HEIGHTS ARE ALSO THE RHYTHM FINDING (§ 4). Every page he likes has one
+  section far taller than its median, or varies inside the section. A masonry
+  wall does the second at the tile level.
+
+  THE BUSINESS IS THE OLDEST-FASHIONED CUSTOMER IN THE TEN, which is what earns
+  the warmth: a 1967 Mustang's single-stage lacquer does not behave like modern
+  clear coat, and half the value is knowing what NOT to put on it. That produces
+  a page whose disclaimers are the most interesting copy on it.
+
+  CONTRAST, COMPUTED:
+    --ink   #22190F on #EDE3D3   12.8:1  PASS
+    --dim   #6A5B44 on #EDE3D3    5.2:1  PASS
+    --rust  #8C3B18 on #EDE3D3    6.4:1  PASS
+    cream on --rust  #EDE3D3 on #8C3B18  6.4:1  PASS  (button)
+    --ink on --moss #22190F on #C7CBB0    9.6:1  PASS  (the alternate band)
+    --weave rgba(34,25,15,.07)  DECORATIVE ONLY
+    --ctl   #8F7F66 on #EDE3D3    2.7:1  FAIL at 3:1 — so controls use --dim
+        (#6A5B44, 5.2:1). Caught by computing, before it shipped. --ctl survives
+        on non-interactive rules only.
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@300;400;600&family=Barlow+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --cream:#EDE3D3; --moss:#C7CBB0; --ink:#22190F; --dim:#6A5B44;
+  --rust:#8C3B18; --ctl:#8F7F66; --weave:rgba(34,25,15,.07);
+  --wrap:1180px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; color:var(--ink); background:var(--cream);
+  font:400 17px/1.65 Bitter,Georgia,serif; -webkit-font-smoothing:antialiased;
+  /* A WOVEN GROUND — two crossing hairline sets plus a warm vignette. Depth from
+     texture, which is a fourth kind after light, atmosphere and print. */
+  background-image:
+    repeating-linear-gradient(90deg, var(--weave) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(0deg, var(--weave) 0 1px, transparent 1px 4px),
+    radial-gradient(120% 70% at 50% -10%, rgba(140,59,24,.07), transparent 65%);
+  background-attachment:scroll, scroll, fixed;
+}
+.wrap{max-width:var(--wrap); margin:0 auto; padding:0 22px}
+a{color:var(--rust)}
+
+header{border-bottom:1px solid rgba(34,25,15,.18)}
+header .wrap{display:flex; align-items:center; gap:18px; padding:18px 22px}
+.mark{font:600 19px/1.1 Bitter,serif; letter-spacing:-.01em}
+.mark small{display:block; font:500 10px/1 "Barlow Condensed",sans-serif;
+  letter-spacing:.28em; text-transform:uppercase; color:var(--dim); margin-top:4px}
+nav{margin-left:auto; display:flex; gap:22px;
+  font:500 15px/1 "Barlow Condensed",sans-serif; letter-spacing:.08em; text-transform:uppercase}
+nav a{color:var(--dim); text-decoration:none}
+nav a:hover{color:var(--ink)}
+.btn{background:var(--rust); color:var(--cream); text-decoration:none; border:0; cursor:pointer;
+  font:600 14px/1 "Barlow Condensed",sans-serif; letter-spacing:.12em; text-transform:uppercase;
+  padding:13px 20px; border-radius:3px}
+.btn.ghost{background:transparent; color:var(--ink); border:1px solid var(--dim)}
+@media(max-width:880px){ nav{display:none} }
+
+.open{padding:8vh 0 4vh}
+.kick{font:500 12px/1 "Barlow Condensed",sans-serif; letter-spacing:.26em;
+  text-transform:uppercase; color:var(--rust); margin:0 0 16px}
+h1{font:300 clamp(36px,5.6vw,64px)/1.1 Bitter,serif; letter-spacing:-.02em; margin:0 0 18px; max-width:19ch}
+h1 b{font-weight:600}
+.open p{max-width:52ch; color:var(--dim); font-size:18.5px; margin:0 0 26px}
+.btnrow{display:flex; gap:12px; flex-wrap:wrap}
+
+/* ── THE MASONRY — unequal tiles, label bottom-left ─────────────────── */
+.wall{columns:3; column-gap:12px; margin-top:6vh}
+@media(max-width:900px){ .wall{columns:2} }
+@media(max-width:560px){ .wall{columns:1} }
+.wall figure{margin:0 0 12px; break-inside:avoid; position:relative; border-radius:4px; overflow:hidden}
+.wall i{display:block; font-style:normal; background:linear-gradient(155deg,#7E6A4E,#3A2E1E)}
+.wall figure:nth-child(3n) i{aspect-ratio:3/4; background:linear-gradient(155deg,#9E8A63,#4A3A26)}
+.wall figure:nth-child(3n+1) i{aspect-ratio:4/3}
+.wall figure:nth-child(3n+2) i{aspect-ratio:1/1; background:linear-gradient(155deg,#6E7458,#2C2E22)}
+.wall figcaption{
+  position:absolute; left:0; right:0; bottom:0; padding:26px 14px 12px; color:var(--cream);
+  background:linear-gradient(to top, rgba(20,14,8,.82), transparent);
+  font:500 13px/1.3 "Barlow Condensed",sans-serif; letter-spacing:.08em; text-transform:uppercase;
+}
+
+section{padding:7vh 0}
+.band{background:var(--moss)}
+h2{font:300 clamp(27px,4vw,46px)/1.12 Bitter,serif; letter-spacing:-.015em; margin:0 0 14px}
+h2 b{font-weight:600}
+.stand{color:var(--dim); max-width:58ch; margin:0 0 30px}
+.band .stand{color:#3E4232}
+
+.tblwrap{overflow-x:auto}
+table{width:100%; border-collapse:collapse; font-size:16px}
+th{text-align:right; font:500 11.5px/1 "Barlow Condensed",sans-serif; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--dim); padding:0 0 12px; border-bottom:1px solid var(--dim)}
+th:first-child{text-align:left}
+td{padding:17px 0; border-bottom:1px solid rgba(34,25,15,.16); text-align:right;
+  font-variant-numeric:tabular-nums}
+td:first-child{text-align:left}
+td strong{display:block; font-weight:600; font-size:17px}
+td small{display:block; color:var(--dim); font-size:14.5px; max-width:50ch; margin-top:4px}
+tfoot td{border:0; text-align:left; padding-top:16px; color:var(--dim); font-size:14.5px}
+
+.cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px}
+.c{border:1px solid rgba(34,25,15,.2); border-radius:4px; padding:22px; background:rgba(255,255,255,.35)}
+.c h3{margin:0 0 6px; font:600 18px/1.3 Bitter,serif}
+.c p{margin:0; color:var(--dim); font-size:15px}
+.c .v{font:300 30px/1 Bitter,serif; margin:12px 0 0; font-variant-numeric:tabular-nums}
+
+fieldset{border:0; margin:0 0 20px; padding:0}
+legend{font:600 16px/1 Bitter,serif; padding:0 0 12px}
+.opt{display:flex; gap:13px; align-items:center; padding:15px 17px; cursor:pointer;
+  border:1px solid var(--dim); border-radius:4px; margin-bottom:9px; background:rgba(255,255,255,.4)}
+.opt:has(input:checked){border-color:var(--rust); background:rgba(140,59,24,.07)}
+.opt input{accent-color:var(--rust); width:17px; height:17px; flex:none}
+.opt .t{flex:1} .opt .t b{display:block; font:600 15.5px/1.3 Bitter,serif}
+.opt .t small{color:var(--dim); font-size:13.5px}
+.opt .p{font-variant-numeric:tabular-nums; font-weight:600}
+.steps{display:flex; overflow-x:auto; border:1px solid var(--dim); border-bottom:0; border-radius:4px 4px 0 0}
+.steps b{flex:none; padding:12px 16px; font:500 12.5px/1 "Barlow Condensed",sans-serif;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--dim);
+  border-right:1px solid rgba(34,25,15,.18); white-space:nowrap}
+.steps b[aria-current]{background:var(--rust); color:var(--cream)}
+.bb{border:1px solid var(--dim); border-radius:0 0 4px 4px; padding:24px; background:rgba(255,255,255,.3)}
+.est{display:flex; justify-content:space-between; align-items:baseline; gap:14px;
+  border-top:1px solid var(--dim); padding-top:16px}
+.est .k{color:var(--dim); font-size:13.5px; max-width:34ch}
+.est .v{font:300 34px/1 Bitter,serif; font-variant-numeric:tabular-nums}
+.tiny{color:var(--dim); font-size:12.5px; text-align:center; margin-top:11px}
+
+details{border-bottom:1px solid rgba(34,25,15,.16); padding:16px 0}
+summary{cursor:pointer; font:600 16.5px/1.4 Bitter,serif; list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+"; float:right; color:var(--rust)}
+details[open] summary::after{content:"–"}
+details p{color:var(--dim); font-size:15.5px; margin:11px 0 0}
+footer{border-top:1px solid rgba(34,25,15,.2); padding:38px 0 60px; color:var(--dim); font-size:15px}
+.fgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:26px}
+footer b{display:block; color:var(--ink); font:500 11px/1 "Barlow Condensed",sans-serif;
+  letter-spacing:.2em; text-transform:uppercase; margin-bottom:9px}
+
+@media(prefers-reduced-motion:no-preference){
+  .rv{opacity:0; transform:translateY(18px); transition:opacity .75s ease, transform .75s cubic-bezier(.2,.7,.3,1)}
+  .rv.in{opacity:1; transform:none}
+}
+html:not(.js) .rv{opacity:1; transform:none}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <span class="mark">Cedar &amp; Chrome<small>Classic car care</small></span>
+    <nav><a href="#work">Work</a><a href="#rates">Rates</a><a href="#book">Book</a><a href="#qa">Questions</a></nav>
+    <a class="btn" href="#book">Arrange a viewing</a>
+  </div>
+</header>
+
+<main>
+  <div class="wrap open">
+    <p class="kick">Asheville, North Carolina · since 2009</p>
+    <h1>Cars older than the products <b>most people use on them</b>.</h1>
+    <p>Single-stage lacquer, real chrome, mohair, connolly hide and lacquered wood.
+      Half of what we are paid for is knowing what not to put on it.</p>
+    <div class="btnrow">
+      <a class="btn" href="#book">Arrange a viewing</a>
+      <a class="btn ghost" href="#rates">See the rates</a>
+    </div>
+    <!-- THE MASONRY WALL — unequal tiles, the one good part of a page he disliked -->
+    <div class="wall rv" data-live="job_photos">
+      <figure><i></i><figcaption>1967 Mustang — single-stage, hand glaze</figcaption></figure>
+      <figure><i></i><figcaption>1972 Bronco — chrome, bumper re-polish</figcaption></figure>
+      <figure><i></i><figcaption>1989 911 — mohair hood, interior</figcaption></figure>
+      <figure><i></i><figcaption>1954 Bel Air — full day, concours prep</figcaption></figure>
+      <figure><i></i><figcaption>1963 Land Rover — canvas &amp; leather</figcaption></figure>
+      <figure><i></i><figcaption>1978 MGB — wood dash, lacquer</figcaption></figure>
+    </div>
+  </div>
+
+  <section id="rates">
+    <div class="wrap">
+      <p class="kick rv">Rates</p>
+      <h2 class="rv">What it costs, <b>by the day</b></h2>
+      <p class="stand rv">Classic work is not priced by package, because no two of
+        these cars need the same thing. We quote in days after seeing it, and the
+        day rate is fixed.</p>
+      <div class="tblwrap rv">
+        <table data-live="services">
+          <thead><tr><th>Work</th><th>Half day</th><th>Full day</th><th>Typical</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Preservation detail</strong><small>Wash, decontaminate, hand glaze, wax. No machine on single-stage unless we agree it first.</small></td>
+              <td data-live="services.price">$340</td><td data-live>$620</td><td data-live>1 day</td></tr>
+            <tr><td><strong>Chrome &amp; brightwork</strong><small>Hand polished, sealed. Pitting is improved, not removed.</small></td>
+              <td data-live>$340</td><td data-live>$620</td><td data-live>½–1 day</td></tr>
+            <tr><td><strong>Interior — hide &amp; wood</strong><small>Cleaned, fed, lacquer inspected. Re-dyeing and re-lacquering are quoted separately.</small></td>
+              <td data-live>$340</td><td data-live>$620</td><td data-live>1 day</td></tr>
+            <tr><td><strong>Mohair or canvas hood</strong><small>Cleaned and re-proofed. Old hoods sometimes cannot be cleaned safely and we will say so.</small></td>
+              <td data-live>—</td><td data-live>$620</td><td data-live>1 day</td></tr>
+            <tr><td><strong>Concours preparation</strong><small>from — for a judged show. Underside, engine bay, every fastener.</small></td>
+              <td data-live>—</td><td data-live>$620</td><td data-live>3–5 days</td></tr>
+          </tbody>
+          <tfoot><tr><td colspan="4" data-live="services.notes">
+            <strong>What we will refuse.</strong> We do not machine-polish original
+            single-stage paint without a paint-depth reading and a conversation, and
+            on a genuinely original car we will usually advise against it. Patina is
+            not a defect, and a car only has original paint once.
+          </td></tr></tfoot>
+        </table>
+      </div>
+
+      <p class="kick rv" style="margin-top:34px">Kept on</p>
+      <div class="cards rv" data-live="plans">
+        <div class="c"><h3>Storage keep</h3><p>Monthly visit to a stored car — cover
+          off, wipe down, tyres checked, battery on.</p><p class="v">$180<span style="font-size:14px"> / month</span></p></div>
+        <div class="c"><h3>Season keep</h3><p>Four visits across the driving season,
+          one full day and three halves.</p><p class="v">$1,540<span style="font-size:14px"> / year</span></p></div>
+        <div class="c"><h3>Collection</h3><p data-live="add_ons">Enclosed trailer, within
+          120 miles. Longer by arrangement.</p><p class="v">$290<span style="font-size:14px"> each way</span></p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <p class="kick rv">Owners</p>
+      <h2 class="rv">What they <b>said afterwards</b></h2>
+      <div class="cards rv" data-live="reviews">
+        <div class="c" style="background:rgba(255,255,255,.4)"><p>&ldquo;They talked me
+          out of polishing the Mustang and explained why for twenty minutes. Then
+          charged me for a half day.&rdquo;</p>
+          <p style="margin-top:10px; font-size:13.5px">Warren D. — 1967 Mustang</p></div>
+        <div class="c" style="background:rgba(255,255,255,.4)"><p>&ldquo;The hood on the
+          911 was thirty years old. They tested a corner first and showed me before
+          doing the rest.&rdquo;</p>
+          <p style="margin-top:10px; font-size:13.5px">Ines R. — 1989 911</p></div>
+        <div class="c" style="background:rgba(255,255,255,.4)"><p>&ldquo;Took second in
+          class at Hilton Head. They prepared the underside for two days.&rdquo;</p>
+          <p style="margin-top:10px; font-size:13.5px">Cal M. — 1954 Bel Air</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="book">
+    <div class="wrap">
+      <p class="kick rv">Book</p>
+      <h2 class="rv">Arrange a <b>viewing</b></h2>
+      <p class="stand rv">Seven questions, then we come and look at the car — free,
+        and with no expectation. Most classic work is quoted in person.</p>
+      <div class="rv">
+        <div class="steps" role="list">
+          <b role="listitem" aria-current="step">1 Work</b><b role="listitem">2 Extras</b>
+          <b role="listitem">3 The car</b><b role="listitem">4 Where</b><b role="listitem">5 When</b>
+          <b role="listitem">6 You</b><b role="listitem">7 Review</b>
+        </div>
+        <form class="bb" onsubmit="return false">
+          <fieldset><legend>What are we looking at?</legend>
+            <label class="opt"><input type="radio" name="s" checked>
+              <span class="t"><b>Preservation detail</b><small>The usual starting point</small></span><span class="p" data-live>from $340</span></label>
+            <label class="opt"><input type="radio" name="s">
+              <span class="t"><b>Chrome &amp; brightwork</b><small>Half or full day</small></span><span class="p" data-live>from $340</span></label>
+            <label class="opt"><input type="radio" name="s">
+              <span class="t"><b>Interior — hide &amp; wood</b><small>One day</small></span><span class="p" data-live>from $340</span></label>
+            <label class="opt"><input type="radio" name="s">
+              <span class="t"><b>Concours preparation</b><small>Three to five days</small></span><span class="p" data-live>from $620</span></label>
+          </fieldset>
+          <div class="est"><span class="k">Day rate — the number of days is agreed after we see it</span>
+            <span class="v" data-live="calculate-booking">$340</span></div>
+          <button class="btn" type="submit" style="width:100%; margin-top:16px">Continue</button>
+          <p class="tiny">No card taken here. The viewing is free and we will tell you
+            if the car does not need us yet.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section id="qa">
+    <div class="wrap">
+      <p class="kick rv">Questions</p>
+      <h2 class="rv">The ones that <b>matter on an old car</b></h2>
+      <div class="rv" data-live="business_faqs">
+        <details open><summary>Will you machine-polish original paint?</summary>
+          <p>Only after a depth reading and a conversation, and usually we will
+            advise against it. Single-stage lacquer is thin, fifty years of it is
+            thinner, and a car only has original paint once. Hand glazing gets most
+            of the way with none of the risk.</p></details>
+        <details><summary>Can you get the pitting out of the chrome?</summary>
+          <p>No. Pitting is metal that has gone. We can make the rest of it bright
+            and seal it so it stops getting worse; anything more is re-plating, and we
+            will give you two people who do that properly.</p></details>
+        <details><summary>Is a ceramic coating a good idea?</summary>
+          <p>On a modern repaint, sometimes. On original paint, no — it is a decision
+            that is hard to undo and it changes how the car looks under judging. We
+            would rather wax it four times a year.</p></details>
+        <details><summary>Why is it priced by the day?</summary>
+          <p>Because we cannot know from a photograph whether the wood needs an hour
+            or a week. A package price on a 1963 car is a guess with a number
+            attached, and one of us ends up unhappy.</p></details>
+        <details><summary>Do you come to the car?</summary>
+          <p>Yes, for detailing work. Anything needing a controlled environment we
+            collect on an enclosed trailer.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap fgrid">
+      <div><b>Cedar &amp; Chrome</b><p data-live="businesses">Asheville, North Carolina<br>
+        <a href="tel:+18285550157" data-live="businesses.contact_phone">(828) 555-0157</a></p></div>
+      <div><b>Hours</b><p data-live="business_hours">Tue–Sat 9am–5pm<br>Closed Sun &amp; Mon<br>Show season by arrangement</p></div>
+      <div><b>Payment</b><p data-live="business_settings.payment_handles">Card, cheque or transfer,
+        on completion. No deposit on day-rate work.</p></div>
+      <div><b>Where we go</b><p data-live="business_settings.service_area">Asheville, Hendersonville,
+        Brevard, Black Mountain. Enclosed collection to 120 miles.</p></div>
+    </div>
+    <p class="wrap" style="margin-top:26px; opacity:.8">Every figure on this page is
+      managed by the business and updates live. Insured for cars in our care to $1m
+      per vehicle.</p>
+  </footer>
+</main>
+
+<script>
+  document.documentElement.classList.add("js");
+  const t = document.querySelectorAll(".rv");
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches && "IntersectionObserver" in window) {
+    const io = new IntersectionObserver((es) => {
+      for (const e of es) if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+    }, { rootMargin: "0px 0px -10% 0px" });
+    for (const el of t) io.observe(el);
+  } else { for (const el of t) el.classList.add("in"); }
+  const FROM = ["$340", "$340", "$340", "$620"];
+  document.querySelectorAll('input[name="s"]').forEach((r, i) =>
+    r.addEventListener("change", () => { document.querySelector(".est .v").textContent = FROM[i]; }));
+</script>
+</body>
+</html>

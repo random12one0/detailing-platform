@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BLACKLINE — paint protection film, Austin TX</title>
+<meta name="description" content="Film only. Full front from $1,690. We do not wash cars.">
+
+<!--
+  ═══════════════════════════════════════════════════════════════════════════
+  MOCK-UP 9 OF TEN — 2026-09-08.
+  ═══════════════════════════════════════════════════════════════════════════
+
+  THE VARIABLE: pure black and pure paper, HARD EDGES, type at poster scale, and
+  **NO ANIMATION**. Third of the four still pages, and still in a third distinct
+  way — mock-up 2 is a warm newspaper, 7 is a cold blueprint, this is a
+  high-contrast poster with nothing on it but weight.
+
+  ITS ONE DEVICE IS THE GROUND FLIPPING. TASTE-NOTES batch 1 § 3 listed *"the
+  page SWITCHING GROUND between sections, black band to white band"* as
+  something all five of his first references shared and none of our pages did.
+  Batch 2 § 5 then CORRECTED that — `rcd` alternates five grounds and he still
+  called it plain, so ground switching is not sufficient. **This page is the
+  honest test of the corrected claim:** it switches ground harder than anything
+  else in the ten, and it earns its depth from TYPE MASS rather than from
+  gradient or light. If it reads as flat, the correction was right and the file
+  should say so.
+
+  NO PHOTOGRAPH IN THE HERO, ON PURPOSE. Film is invisible when it is done well,
+  so a hero shot of a shiny car is a photograph of nothing. The page leads with
+  the number instead.
+
+  THE COPY IS THE REFUSAL. This business does one thing and says no to
+  everything else — which is the sharpest form of the specialism argument mock-up
+  8 also makes, and the opposite of `sixspeed`, which sells RV, marine and
+  aviation off one confused page.
+
+  DATA: real PPF pricing runs $1,150 to $1,490 for a front end in the source
+  file; this is adapted upward for a metro market and given a genuinely awkward
+  ladder.
+
+  CONTRAST, COMPUTED — both grounds, because this page has two:
+    --paper #F2F2F0 on --black #0A0A0A   18.4:1  PASS
+    --black #0A0A0A on --paper #F2F2F0   18.4:1  PASS
+    --grey  #9B9B98 on --black            7.6:1  PASS
+    --slate #5A5A57 on --paper            6.5:1  PASS
+    --acid  #D8FF3E on --black           16.9:1  PASS
+    --black on --acid                    16.9:1  PASS  (button)
+    rule on black rgba(242,242,240,.22)   DECORATIVE ONLY
+    --ctlD  #6E6E6B on --black            3.4:1  PASS  (3:1, control edge, dark)
+    --ctlL  #8A8A87 on --paper            3.1:1  PASS  (3:1, control edge, light)
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400;75..125,700;75..125,900&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --black:#0A0A0A; --paper:#F2F2F0; --grey:#9B9B98; --slate:#5A5A57;
+  --acid:#D8FF3E; --ctlD:#6E6E6B; --ctlL:#8A8A87;
+  --wrap:1180px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0; background:var(--black); color:var(--paper);
+  font:400 17px/1.5 Archivo,system-ui,sans-serif; -webkit-font-smoothing:antialiased}
+.wrap{max-width:var(--wrap); margin:0 auto; padding:0 22px}
+a{color:inherit}
+
+/* THE GROUND FLIPS. Every section declares which world it is in, and both
+   worlds define the full token set — never a colour that only works in one. */
+.dark{background:var(--black); color:var(--paper)}
+.light{background:var(--paper); color:var(--black)}
+.dark .dim{color:var(--grey)} .light .dim{color:var(--slate)}
+.dark .rule{border-color:rgba(242,242,240,.22)} .light .rule{border-color:rgba(10,10,10,.18)}
+
+header{border-bottom:2px solid var(--paper)}
+header .wrap{display:flex; align-items:center; gap:18px; padding:16px 22px}
+.mark{font:900 20px/1 Archivo,sans-serif; font-stretch:125%; letter-spacing:.02em}
+nav{margin-left:auto; display:flex; gap:22px; font:700 13px/1 Archivo,sans-serif;
+  text-transform:uppercase; letter-spacing:.1em}
+nav a{text-decoration:none; color:var(--grey)}
+nav a:hover{color:var(--paper)}
+.btn{background:var(--acid); color:var(--black); text-decoration:none; border:0; cursor:pointer;
+  font:700 13px/1 Archivo,sans-serif; text-transform:uppercase; letter-spacing:.12em; padding:14px 20px}
+.light .btn.inv{background:var(--black); color:var(--paper)}
+@media(max-width:880px){ nav{display:none} }
+
+.slab{padding:9vh 0; border-bottom:2px solid currentColor}
+.huge{font:900 clamp(52px,13vw,168px)/0.86 Archivo,sans-serif; font-stretch:125%;
+  letter-spacing:-.045em; margin:0; text-transform:uppercase}
+.huge em{font-style:normal; color:var(--acid)}
+.kick{font:700 12px/1 Archivo,sans-serif; letter-spacing:.28em; text-transform:uppercase; margin:0 0 22px}
+.lead{max-width:48ch; font-size:19px; margin:24px 0 28px}
+.btnrow{display:flex; gap:12px; flex-wrap:wrap}
+.btn.ghost{background:transparent; border:2px solid currentColor; color:inherit}
+
+h2{font:900 clamp(30px,5.2vw,64px)/0.94 Archivo,sans-serif; font-stretch:112%;
+  letter-spacing:-.03em; text-transform:uppercase; margin:0 0 16px}
+.stand{max-width:56ch; margin:0 0 30px; font-size:17.5px}
+
+/* the ladder — hard-ruled, no radius anywhere on this page */
+.tblwrap{overflow-x:auto}
+table{width:100%; border-collapse:collapse; font-size:16px}
+th{text-align:right; font:700 11px/1 Archivo,sans-serif; letter-spacing:.16em;
+  text-transform:uppercase; padding:0 0 12px; border-bottom:2px solid currentColor}
+th:first-child{text-align:left}
+td{padding:18px 0; border-bottom:1px solid; text-align:right; font-variant-numeric:tabular-nums}
+td:first-child{text-align:left}
+td strong{display:block; font:700 18px/1.2 Archivo,sans-serif}
+td small{display:block; font-size:14.5px; max-width:48ch; margin-top:4px}
+tfoot td{border:0; text-align:left; padding-top:16px; font-size:14.5px}
+
+.refuse{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:0; border:2px solid currentColor}
+.refuse div{padding:22px; border-left:2px solid currentColor}
+.refuse div:first-child{border-left:0}
+.refuse b{display:block; font:900 30px/1 Archivo,sans-serif; font-stretch:112%; margin-bottom:8px}
+@media(max-width:700px){ .refuse div{border-left:0; border-top:2px solid currentColor} .refuse div:first-child{border-top:0} }
+
+fieldset{border:0; margin:0 0 20px; padding:0}
+legend{font:700 13px/1 Archivo,sans-serif; letter-spacing:.16em; text-transform:uppercase; padding:0 0 14px}
+.opt{display:flex; gap:13px; align-items:center; padding:15px 17px; cursor:pointer;
+  border:2px solid var(--ctlD); margin-bottom:9px}
+.light .opt{border-color:var(--ctlL)}
+.opt:has(input:checked){border-color:var(--acid)}
+.light .opt:has(input:checked){border-color:var(--black); background:rgba(10,10,10,.05)}
+.opt input{accent-color:var(--acid); width:18px; height:18px; flex:none}
+.opt .t{flex:1} .opt .t b{display:block; font:700 16px/1.25 Archivo,sans-serif}
+.opt .t small{font-size:13.5px}
+.opt .p{font:700 17px/1 Archivo,sans-serif; font-variant-numeric:tabular-nums}
+.steps{display:flex; overflow-x:auto; border:2px solid currentColor; border-bottom:0}
+.steps b{flex:none; padding:13px 16px; font:700 11px/1 Archivo,sans-serif; letter-spacing:.12em;
+  text-transform:uppercase; border-right:1px solid; white-space:nowrap}
+.steps b[aria-current]{background:var(--acid); color:var(--black)}
+.bb{border:2px solid currentColor; padding:24px}
+.est{display:flex; justify-content:space-between; align-items:baseline; gap:16px;
+  border-top:2px solid currentColor; padding-top:16px}
+.est .k{font-size:13.5px; max-width:32ch}
+.est .v{font:900 44px/1 Archivo,sans-serif; font-stretch:112%; font-variant-numeric:tabular-nums}
+.tiny{font-size:13px; margin-top:12px}
+
+.gal{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:2px}
+.gal i{display:block; aspect-ratio:1/1; font-style:normal;
+  background:repeating-linear-gradient(135deg,#141414 0 8px,#1C1C1C 8px 16px)}
+.light .gal i{background:repeating-linear-gradient(135deg,#DEDEDA 0 8px,#E8E8E4 8px 16px)}
+.qa div{border-bottom:1px solid; padding:20px 0}
+.qa dt{font:700 19px/1.3 Archivo,sans-serif; margin:0 0 6px}
+.qa dd{margin:0; max-width:72ch; font-size:16px}
+footer{padding:40px 0 60px}
+.fgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:26px}
+footer b{display:block; font:700 11px/1 Archivo,sans-serif; letter-spacing:.18em;
+  text-transform:uppercase; margin-bottom:10px}
+
+/* NO @keyframes. NO transition. NO transform. NO script that moves anything. */
+</style>
+</head>
+<body>
+
+<header class="dark">
+  <div class="wrap">
+    <span class="mark">BLACKLINE</span>
+    <nav><a href="#price">Price</a><a href="#refuse">What we don't do</a>
+      <a href="#book">Book</a><a href="#qa">FAQ</a></nav>
+    <a class="btn" href="#book">Book a fitting</a>
+  </div>
+</header>
+
+<main>
+  <!-- BAND 1 — BLACK -->
+  <div class="dark slab">
+    <div class="wrap">
+      <p class="kick dim">Paint protection film · Austin, Texas</p>
+      <h1 class="huge">From<br><em>$1,690</em><br>Front end</h1>
+      <p class="lead dim">Bonnet, wings, mirrors and headlights, in one piece where
+        the panel allows it. Ten-year warranty, self-healing, no visible edge on
+        the bonnet line.</p>
+      <div class="btnrow">
+        <a class="btn" href="#book">Book a fitting</a>
+        <a class="btn ghost" href="#price">Full price list</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- BAND 2 — PAPER -->
+  <div class="light slab" id="price">
+    <div class="wrap">
+      <p class="kick dim">The whole price list</p>
+      <h2>No packages.<br>Panels.</h2>
+      <p class="stand dim">You buy the panels you want covered. Nothing is bundled,
+        and nothing is priced by &ldquo;level&rdquo;.</p>
+      <div class="tblwrap">
+        <table data-live="services">
+          <thead><tr><th>Coverage</th><th>Coupe</th><th>Saloon</th><th>SUV / truck</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Partial front</strong><small>Leading edge of bonnet, wings, mirrors. The cheapest honest option.</small></td>
+              <td data-live="services.price">$890</td><td data-live>$960</td><td data-live>$1,120</td></tr>
+            <tr><td><strong>Full front</strong><small>Whole bonnet, both wings, mirrors, headlights.</small></td>
+              <td data-live>$1,690</td><td data-live>$1,840</td><td data-live>$2,180</td></tr>
+            <tr><td><strong>Track pack</strong><small>Full front plus rockers, A-pillars and roof leading edge.</small></td>
+              <td data-live>$2,340</td><td data-live>$2,560</td><td data-live>$3,020</td></tr>
+            <tr><td><strong>Full body</strong><small>Every painted panel. Four to six days in the bay.</small></td>
+              <td data-live>$5,900</td><td data-live>$6,400</td><td data-live>$7,600</td></tr>
+            <tr><td><strong>Single panel</strong><small>from — bonnet, boot, one door, a bumper.</small></td>
+              <td data-live>$390</td><td data-live>$420</td><td data-live>$470</td></tr>
+          </tbody>
+          <tfoot><tr><td colspan="4" class="dim" data-live="services.notes">
+            Film goes on paint, not over damage. Existing chips, scratches and
+            orange peel are locked in underneath — we photograph everything before
+            we start and we will tell you what correction it needs first.
+            Corrections are quoted separately and we do not mark them up.
+          </td></tr></tfoot>
+        </table>
+      </div>
+      <p class="kick dim" style="margin-top:34px">Add on</p>
+      <div class="tblwrap">
+        <table data-live="add_ons">
+          <tbody>
+            <tr><td><strong>Ceramic over film</strong><small>Makes it easier to wash. Not a substitute for it.</small></td><td>$340</td></tr>
+            <tr><td><strong>Headlights only</strong></td><td>$220</td></tr>
+            <tr><td><strong>Door cups &amp; handles</strong></td><td>$140</td></tr>
+            <tr><td><strong>Annual inspection</strong><small data-live="plans">Edges checked and re-sealed. Keeps the warranty.</small></td><td>$95/yr</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- BAND 3 — BLACK. THE REFUSAL. -->
+  <div class="dark slab" id="refuse">
+    <div class="wrap">
+      <p class="kick dim">What we do not do</p>
+      <h2>One thing,<br>properly.</h2>
+      <div class="refuse">
+        <div><b>No washes</b><p class="dim" style="margin:0; font-size:15px">We do not
+          have a wash bay and we are not going to pretend. Three people in Austin do
+          it well and we will give you their numbers.</p></div>
+        <div><b>No tint</b><p class="dim" style="margin:0; font-size:15px">Different
+          film, different skill, different bay. Doing it badly on the side would cost
+          us the reputation the film work is built on.</p></div>
+        <div><b>No mobile</b><p class="dim" style="margin:0; font-size:15px">Film is
+          fitted wet in filtered air. A dust speck under the bonnet panel is a
+          permanent dust speck. There is no such thing as mobile PPF.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BAND 4 — PAPER. BOOKING. -->
+  <div class="light slab" id="book">
+    <div class="wrap">
+      <p class="kick dim">Book</p>
+      <h2>Seven questions</h2>
+      <p class="stand dim">We inspect the paint before quoting. The number below is
+        where it starts.</p>
+      <div class="steps" role="list">
+        <b aria-current="step" role="listitem">1 Coverage</b><b role="listitem">2 Add-ons</b>
+        <b role="listitem">3 Vehicle</b><b role="listitem">4 Bay</b><b role="listitem">5 When</b>
+        <b role="listitem">6 You</b><b role="listitem">7 Review</b>
+      </div>
+      <form class="bb" onsubmit="return false">
+        <fieldset><legend>What are we covering?</legend>
+          <label class="opt"><input type="radio" name="s" checked>
+            <span class="t"><b>Partial front</b><small>One day</small></span><span class="p" data-live>from $890</span></label>
+          <label class="opt"><input type="radio" name="s">
+            <span class="t"><b>Full front</b><small>Two days</small></span><span class="p" data-live>from $1,690</span></label>
+          <label class="opt"><input type="radio" name="s">
+            <span class="t"><b>Track pack</b><small>Three days</small></span><span class="p" data-live>from $2,340</span></label>
+          <label class="opt"><input type="radio" name="s">
+            <span class="t"><b>Full body</b><small>Four to six days</small></span><span class="p" data-live>from $5,900</span></label>
+        </fieldset>
+        <div class="est"><span class="k">Starting point — confirmed after paint inspection</span>
+          <span class="v" data-live="calculate-booking">$890</span></div>
+        <button class="btn inv" type="submit" style="width:100%; margin-top:18px">Continue</button>
+        <p class="tiny dim">$300 deposit when we confirm the bay date. No card on this page.</p>
+      </form>
+    </div>
+  </div>
+
+  <!-- BAND 5 — BLACK. WORK + REVIEWS. -->
+  <div class="dark slab">
+    <div class="wrap">
+      <p class="kick dim">Out of the bay</p>
+      <div class="gal" data-live="job_photos"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="tblwrap" style="margin-top:34px">
+        <table data-live="reviews">
+          <tbody>
+            <tr><td><strong>&ldquo;Told me the bonnet needed correcting first and that they don't do correction. Sent me elsewhere and re-booked me after.&rdquo;</strong><small class="dim">Sam K. — GR86</small></td><td>★★★★★</td></tr>
+            <tr><td><strong>&ldquo;Two years, no lifting at any edge, and the annual check took twenty minutes.&rdquo;</strong><small class="dim">Denise M. — Model 3</small></td><td>★★★★★</td></tr>
+            <tr><td><strong>&ldquo;Expensive and worth it. The bonnet has taken two stones I would have cried about.&rdquo;</strong><small class="dim">Wes T. — Bronco</small></td><td>★★★★★</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- BAND 6 — PAPER. FAQ. -->
+  <div class="light slab" id="qa">
+    <div class="wrap">
+      <p class="kick dim">Questions</p>
+      <h2>Before you book</h2>
+      <dl class="qa" data-live="business_faqs">
+        <div><dt>Will I be able to see the edges?</dt><dd>On the bonnet, no — we wrap
+          the leading edge. On wings and bumpers there is a cut line where the panel
+          ends, and on a light colour you will find it if you look for it. Anyone
+          telling you it is completely invisible has not fitted much film.</dd></div>
+        <div><dt>Does it need correcting first?</dt><dd>Usually a little. Film locks in
+          whatever is underneath, permanently. We inspect and tell you honestly —
+          and since we do not sell correction, we have no reason to over-recommend it.</dd></div>
+        <div><dt>How long does it last?</dt><dd>Ten-year warranty on the film against
+          yellowing and cracking. Real life on a daily driver in Texas sun is about
+          seven to nine years on horizontal panels.</dd></div>
+        <div><dt>Can I wash it normally?</dt><dd>After seven days, yes. No pressure
+          washer within a foot of an edge, ever.</dd></div>
+        <div><dt>What if a panel gets damaged?</dt><dd>We replace that panel's film at
+          cost plus fitting. That is why we price by panel — so one incident does not
+          mean redoing the whole car.</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <footer class="dark">
+    <div class="wrap fgrid">
+      <div><b>Blackline</b><p class="dim" data-live="businesses">4402 Burnet Rd, Bay 3<br>
+        Austin, TX 78756<br><a href="tel:+15125550194" data-live="businesses.contact_phone">(512) 555-0194</a></p></div>
+      <div><b>Hours</b><p class="dim" data-live="business_hours">Mon–Fri 8am–6pm<br>Saturday by appointment<br>Closed Sunday</p></div>
+      <div><b>Pay</b><p class="dim" data-live="business_settings.payment_handles">$300 deposit on
+        booking, balance on collection. Card or transfer.</p></div>
+      <div><b>Bay only</b><p class="dim" data-live="business_settings.service_area">Austin. We do not
+        travel and we do not fit on site.</p></div>
+    </div>
+    <p class="wrap dim" style="margin-top:26px; font-size:13.5px">Every price on this page
+      is managed by the business and updates live. XPEL-certified installers.</p>
+  </footer>
+</main>
+</body>
+</html>
