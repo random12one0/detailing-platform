@@ -99,7 +99,7 @@ export class StripeError extends Error {
 export async function stripe(
   path: string,
   body?: Record<string, unknown>,
-  opts: { method?: string; idempotencyKey?: string } = {},
+  opts: { method?: string; idempotencyKey?: string; stripeAccount?: string } = {},
 ): Promise<Record<string, unknown>> {
   const key = stripeKey();
   if (!key) throw new StripeError("Stripe is not configured on this deployment.", 503);
@@ -109,6 +109,19 @@ export async function stripe(
     "Stripe-Version": API_VERSION,
   };
   if (opts.idempotencyKey) headers["Idempotency-Key"] = opts.idempotencyKey;
+  // ROADMAP 2.20 STAGE 3 — ACTING AS A CONNECTED ACCOUNT.
+  //
+  // `Stripe-Account: acct_…` is the entire difference between a charge that
+  // belongs to this platform and one that belongs to the detailer. With it,
+  // the customer's money goes straight to the detailer's balance, the receipt
+  // carries the detailer's branding, and the dispute is theirs. Without it —
+  // one forgotten option — the identical call takes a stranger's customer's
+  // money into the PLATFORM's account, which is the one thing
+  // `docs/payments-research-2026-09-04.md` says must never happen.
+  //
+  // It is a header rather than a parameter because that is Stripe's own
+  // design: the same endpoint, a different actor.
+  if (opts.stripeAccount) headers["Stripe-Account"] = opts.stripeAccount;
 
   let payload: string | undefined;
   if (body) {
@@ -192,3 +205,61 @@ export async function verifyWebhook(
 
   return JSON.parse(rawBody) as Record<string, unknown>;
 }
+
+// ---------------------------------------------------------------------------
+// CONNECT OAUTH — roadmap 2.20 stage 3
+//
+// THIS IS A DIFFERENT HOST AND THAT IS THE WHOLE REASON THESE TWO ARE NOT
+// `stripe()` CALLS. Connect's OAuth endpoints live on `connect.stripe.com`,
+// not `api.stripe.com/v1`, and they authenticate with the secret key sent as a
+// FORM FIELD (`client_secret`) rather than as a bearer token. Routing them
+// through `stripe()` would mean two exceptions inside a function whose whole
+// value is having none.
+// ---------------------------------------------------------------------------
+
+const CONNECT_API = "https://connect.stripe.com";
+
+async function connectPost(path: string, body: Record<string, unknown>): Promise<Record<string, unknown>> {
+  const key = stripeKey();
+  if (!key) throw new StripeError("Stripe is not configured on this deployment.", 503);
+  const res = await fetch(`${CONNECT_API}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams(flatten({ client_secret: key, ...body })).toString(),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    // OAUTH REPORTS ITS ERRORS IN A DIFFERENT SHAPE. Everywhere else in
+    // Stripe's API a failure is `{error: {message}}`; here it is
+    // `{error: "invalid_grant", error_description: "…"}` — a STRING where the
+    // rest of the API puts an object. Reading `.error.message` off this gives
+    // `undefined` and the caller reports "Stripe returned 400", losing the one
+    // sentence that says what went wrong.
+    const e = json as { error?: string; error_description?: string };
+    throw new StripeError(e.error_description || e.error || `Stripe returned ${res.status}.`, res.status, e.error);
+  }
+  return json as Record<string, unknown>;
+}
+
+/**
+ * Trades the `code` from the consent redirect for the detailer's account id.
+ *
+ * The interesting field is `stripe_user_id` (`acct_…`). The access token that
+ * comes back with it is deliberately NOT stored: on a Standard account the
+ * platform's own secret key plus `Stripe-Account` is enough for everything
+ * this product does, and a stored OAuth token is one more credential that can
+ * leak while granting nothing extra.
+ */
+export const oauthToken = (code: string) =>
+  connectPost("/oauth/token", { grant_type: "authorization_code", code });
+
+/**
+ * Severs the connection from OUR side.
+ *
+ * The detailer keeps their Stripe account and every payment already taken —
+ * this only revokes this platform's access to it. Told to Stripe rather than
+ * only forgotten locally, because a row we deleted while Stripe still lists us
+ * as a connected platform is a detailer who cannot cleanly reconnect later.
+ */
+export const oauthDeauthorize = (clientId: string, accountId: string) =>
+  connectPost("/oauth/deauthorize", { client_id: clientId, stripe_user_id: accountId });
