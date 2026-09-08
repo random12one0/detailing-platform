@@ -53,7 +53,7 @@ import { supabase } from "../_shared/db.ts";
 import { json } from "../_shared/http.ts";
 import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
 import { PLATFORM_URL } from "../_shared/config.ts";
-import { stripe, verifyWebhook, webhookSecret, connectWebhookSecret, StripeError } from "../_shared/stripe.ts";
+import { stripe, verifyWebhook, webhookSecret, connectWebhookSecret, API_VERSION, StripeError } from "../_shared/stripe.ts";
 import { ourStatus } from "../_shared/platformBilling.ts";
 import { sendTenantEmail } from "../_shared/email.ts";
 import { platformBrand, PLATFORM_NAME } from "../_shared/platformBrand.ts";
@@ -131,6 +131,34 @@ Deno.serve(async (req) => {
 
   const id = String(event.id ?? "");
   const type = String(event.type ?? "");
+
+  // THE API VERSION THIS EVENT WAS SHAPED BY — checked, not assumed, 2026-09-08.
+  //
+  // An endpoint is registered AT a version and Stripe renders every event to
+  // that version's shape. Two endpoints on two versions send two different
+  // payloads for the same event, and **Stripe's create-endpoint form defaults
+  // to the newest version rather than to the one your other endpoints use** —
+  // so a mismatch is what you get by pressing the obvious button.
+  //
+  // **IT PASSES EVERY TEST IN THIS REPO**, because they all run against the
+  // pinned shape, and it fails only in production. This repo has measured the
+  // damage once already: at `2024-06-20` an invoice carries `charge`; at a
+  // newer version it does not, so the decline reason went silently null and
+  // the email simply stopped printing the one line a detailer can act on.
+  //
+  // **IT LOGS AND DOES NOT REJECT, and that is deliberate.** A 400 makes
+  // Stripe retry for three days and then disable the endpoint, which turns a
+  // wrong-shaped payment record into no payment record at all — a worse
+  // failure than the one being reported. What this buys is that the cause is
+  // named in the logs in ten seconds instead of never.
+  const sentWith = typeof event.api_version === "string" ? event.api_version : "";
+  if (sentWith && sentWith !== API_VERSION) {
+    console.error(
+      `API VERSION MISMATCH: endpoint sent ${sentWith}, this code is written for ${API_VERSION}.` +
+      ` Event ${id} (${type}) may have a different payload shape than every test here assumes.` +
+      ` Fix it on the ENDPOINT in Stripe — the version is create-only, so it needs a new endpoint.`,
+    );
+  }
 
   // THE LOCK, TAKEN BEFORE ANY WORK. A conflict means a duplicate delivery.
   const { error: claim } = await supabase.from("stripe_events").insert({ id, type });
@@ -513,6 +541,61 @@ async function tell(
 // ---------------------------------------------------------------------------
 
 async function handleConnected(type: string, object: Obj, account: string): Promise<void> {
+  // ── THE DETAILER DISCONNECTED US — 2026-09-08.
+  //
+  // Without this the platform never learns they left: the row keeps saying
+  // connected, the dashboard keeps showing it, and `pay-booking` keeps
+  // offering a card button that routes to an account which has revoked our
+  // access. The customer meets the failure, at the car, with the detailer
+  // standing there.
+  //
+  // **THE TRAP, AND IT IS THE WHOLE REASON THIS IS NOT TWO LINES:
+  // `data.object` HERE IS AN APPLICATION, NOT AN ACCOUNT.** Every other event
+  // in this function carries its subject in `data.object`; this one carries
+  // OURS — the platform application that was deauthorized — and the account
+  // that did it is only in `event.account`. Reading `object.id` gets the
+  // application id, matches no row, and silently does nothing, which looks
+  // exactly like a detailer who never disconnected.
+  if (type === "account.application.deauthorized") {
+    // `stripe_account_id` is nulled rather than merely disabled, because
+    // "connected" is read off that column in three places and a row still
+    // naming an account that revoked us is the bug being fixed.
+    // `card_payments_enabled` is DELIBERATELY UNTOUCHED — it is the
+    // detailer's own preference about being charged 2.9%, not Stripe's
+    // answer, and it should survive them reconnecting later.
+    const { error } = await supabase
+      .from("connected_accounts")
+      .update({
+        stripe_account_id: null,
+        charges_enabled: false,
+        connected_at: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("stripe_account_id", account);
+    if (error) throw new Error(`could not record the disconnect: ${error.message}`);
+    return;
+  }
+
+  // ── STRIPE CHANGED ITS MIND ABOUT THEM.
+  //
+  // `charges_enabled` is STRIPE'S ANSWER and is re-read rather than
+  // remembered (the column's own comment): a Standard account can be
+  // connected long before Stripe finishes checking it, and can be switched
+  // off again later. Without this event the row keeps whatever was true at
+  // the moment they connected — so a detailer Stripe has since restricted
+  // still gets a card button, and every customer pressing it fails.
+  if (type === "account.updated") {
+    const { error } = await supabase
+      .from("connected_accounts")
+      .update({
+        charges_enabled: object.charges_enabled === true,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("stripe_account_id", account);
+    if (error) throw new Error(`could not record the account update: ${error.message}`);
+    return;
+  }
+
   if (type !== "checkout.session.completed" && type !== "payment_intent.succeeded") return;
 
   const meta = asObj(object.metadata);

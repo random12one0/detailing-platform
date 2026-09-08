@@ -491,5 +491,80 @@ console.log("\n§ 7 — the SECOND webhook secret, without which § 6 is unreach
     (await verifyWebhook(body, header, CONNECT)).account === "acct_x");
 }
 
+// ---------------------------------------------------------------------------
+console.log("\n§ 8 — the API version, and the two account events");
+{
+  const hook = code("supabase/functions/stripe-webhook/index.ts");
+  const shared = code("supabase/functions/_shared/stripe.ts");
+  const fn = hook.slice(hook.indexOf("async function handleConnected"));
+
+  // ── THE VERSION. An endpoint is registered AT a version and Stripe renders
+  // every event to that version's shape. Stripe's create-endpoint form
+  // DEFAULTS to the newest version rather than to the one the other endpoints
+  // use, so a mismatch is what you get by pressing the obvious button — and
+  // it passes every check in this file, because they all run against the
+  // pinned shape. It fails only in production.
+  check("the pinned API version is exported so a caller can check against it",
+    /export const API_VERSION/.test(shared));
+  check("and the webhook compares the event's own version against it",
+    /event\.api_version/.test(hook) && /!== API_VERSION/.test(hook),
+    "a second endpoint on Stripe's default version is silent in every test here");
+  check("a mismatch LOGS and does not reject",
+    /API VERSION MISMATCH/.test(hook) && !/api_version[\s\S]{0,400}return json\(/.test(hook),
+    "a 400 makes Stripe disable the endpoint — no record at all beats a wrong one");
+
+  // ── DEAUTHORIZE. Without it the row keeps saying connected, and pay-booking
+  // keeps offering a card button routing to an account that revoked us. The
+  // customer meets that failure at the car.
+  check("a detailer disconnecting is handled",
+    /account\.application\.deauthorized/.test(fn),
+    "the platform never learns they left");
+
+  // SLICED TO THE ONE BRANCH, AND THE FIRST VERSION OF THIS WAS VACUOUS.
+  // It searched a window of characters after the event name for
+  // `.eq("stripe_account_id", account)` — and the account.updated branch
+  // below contains that exact line, so the check passed with the deauthorize
+  // branch rewritten to the wrong thing. Found by baselining, not by reading.
+  // A window is not a scope: take the slice.
+  const deauth = fn.slice(
+    fn.indexOf('type === "account.application.deauthorized"'),
+    fn.indexOf('type === "account.updated"'),
+  );
+  check("the deauthorize branch has subjects at all",
+    deauth.length > 200 && deauth.includes("connected_accounts"),
+    "every check below this is vacuous if the slice is empty");
+
+  // THE TRAP: on this event `data.object` is the APPLICATION, not the account.
+  // Reading `object.id` gets the application id, matches no row, and silently
+  // does nothing — indistinguishable from a detailer who never disconnected.
+  check("and it keys off event.account, never the object",
+    /\.eq\("stripe_account_id", account\)/.test(deauth) && !/object\.id/.test(deauth),
+    "data.object here is the application — object.id matches no row, in silence");
+  check("the disconnect clears the account id, not just the flag",
+    /stripe_account_id: null/.test(deauth),
+    "'connected' is read off that column in three places");
+  check("but leaves the detailer's own card-payments preference alone",
+    !/card_payments_enabled:/.test(deauth),
+    "that switch is their choice about a 2.9% fee, not Stripe's answer");
+
+  // ── ACCOUNT.UPDATED. charges_enabled is Stripe's answer and is re-read
+  // rather than remembered — a Standard account is connectable long before
+  // Stripe finishes checking it, and can be switched off again later.
+  check("account.updated is handled rather than silently dropped",
+    /type === "account\.updated"/.test(fn),
+    "it is on the endpoint's event list and would otherwise do nothing");
+  check("and it writes Stripe's answer, strictly",
+    /charges_enabled: object\.charges_enabled === true/.test(fn),
+    "a truthy read makes a missing field mean enabled, which is the unsafe direction");
+
+  // Both new branches sit BEFORE the payment guard, or that guard returns
+  // first and neither one is ever reached.
+  const guard = fn.indexOf('type !== "checkout.session.completed"');
+  check("both account branches come before the payment-type guard",
+    fn.indexOf("account.application.deauthorized") < guard &&
+    fn.indexOf('type === "account.updated"') < guard && guard > 0,
+    "the guard returns first and both handlers become unreachable");
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

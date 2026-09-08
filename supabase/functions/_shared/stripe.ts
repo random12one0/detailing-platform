@@ -24,7 +24,21 @@ const API = "https://api.stripe.com/v1";
 // Pinned rather than floating. Stripe changes response shapes between
 // versions, and an unpinned integration is one that breaks on a date nobody
 // chose. Raise it deliberately, after reading their changelog.
-const API_VERSION = "2024-06-20";
+//
+// **EXPORTED SINCE 2026-09-08 SO A WEBHOOK CAN CHECK ITSELF AGAINST IT.**
+// Every event Stripe delivers carries its endpoint's `api_version`, and an
+// endpoint registered at a different version sends a DIFFERENT PAYLOAD SHAPE
+// for the same event. This repo has already measured one: at `2024-06-20` an
+// invoice carries `charge` and `payment_intent`; at this account's newer
+// default it carries NEITHER — so `invoice.charge` reads as absent, the
+// decline reason is silently null, and everything still looks like it worked.
+//
+// **THE REASON IT NEEDS CHECKING RATHER THAN DOCUMENTING: Stripe's
+// create-endpoint form DEFAULTS to the newest version**, not to the one your
+// other endpoints use. So the mismatch is what you get by pressing the
+// obvious button, it passes every test in this repo (they all run against the
+// pinned shape), and it fails only in production, quietly.
+export const API_VERSION = "2024-06-20";
 
 export const stripeKey = () => Deno.env.get("STRIPE_SECRET_KEY") || "";
 export const webhookSecret = () => Deno.env.get("STRIPE_WEBHOOK_SECRET") || "";
