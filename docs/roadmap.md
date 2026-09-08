@@ -8048,6 +8048,25 @@ itself. **None is scheduled and none should be started without him saying
 where it goes.** Each says what it is, what happens if it is skipped, and the
 recommendation.
 
+- **P. AN UNKNOWN URL SHOWS A CUSTOMER THE STAFF SIGN-IN SCREEN — found
+  2026-09-08, live, and it is a gap in the PLAN rather than a defect anybody
+  introduced.** `https://detailingplatform.com/zzz-does-not-exist` returns the
+  app, and the router's catch-all falls through to auth. **There is no 404
+  page in this product at all.**
+  **WHY IT MATTERS MORE THAN IT SOUNDS, and it is not about tidiness:** the
+  URLs that arrive cold are a customer's own — `/booking/<id>` from a
+  confirmation email, `/book/<slug>` from a text message, `/plan/<memberId>`.
+  **A mistyped or truncated one currently answers with a password form**, and
+  a customer reads that as *this business is gone* or *my booking was
+  cancelled*. It is the same reasoning that made the SPA catch-all necessary
+  in the first place — a 404 there is a lost booking — except that here the
+  fallback is worse than a 404, because it looks like a different product.
+  **Skipped:** nothing breaks; it is invisible to anybody who only ever
+  follows working links, which is everybody testing it.
+  **Recommendation: a real not-found page** naming the business where the host
+  identifies one, with the booking link on it — so a customer who fumbled a
+  link lands somewhere that can still take their booking. Small, and it needs
+  his yes on the wording rather than on the work.
 - **F. ~~A CUSTOMER CANNOT MOVE THEIR BOOKING~~ BUILT 2026-09-06.**
   `available-slots` takes an optional `exclude_booking_id` and
   `ManageBookingPage`'s reschedule picker passes the booking's own id — the one
