@@ -87,7 +87,7 @@ export default function LegalPage({ which }) {
               legal person is ONE constant in `legal.js` — see its header, it
               is still a guess at Andrew's paperwork. */}
           <p className="legalnote" data-rv="" style={{ "--i": 3 }}>
-            {ENTITY} · Effective {EFFECTIVE}
+            {ENTITY} · <span style={{ whiteSpace: "nowrap" }}>Effective {EFFECTIVE}</span>
           </p>
         </section>
 
