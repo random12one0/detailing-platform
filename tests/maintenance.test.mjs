@@ -142,8 +142,11 @@ console.log("\n6. the detailer's own words");
 
   // THE CUSTOMISABLE PART HE ASKED FOR. A dropdown of coating brands would be
   // this product deciding which manufacturers exist.
+  // The `t(` is optional: roadmap 8.17 wrapped the placeholder for Spanish and
+  // this went red on a change that took nothing away. The half with teeth is
+  // the second one — no <option> list of coating brands, ever.
   check("the label is typed, never picked from a list we wrote",
-    /placeholder="e\.g\. Ceramic Pro annual inspection"/.test(screen)
+    /placeholder=\{?(?:t\()?"e\.g\. Ceramic Pro annual inspection"/.test(screen)
       && !/<option[^>]*>Ceramic Pro/.test(screen));
   // A warranty is a contract between the customer and a manufacturer, and a
   // sentence we invent about what it covers is one we cannot stand behind.

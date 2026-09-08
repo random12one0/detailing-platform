@@ -277,8 +277,12 @@ console.log("\n5. a guide on every tab");
 
   // NEVER TWO OVERLAYS. The shell tour's own steps move tabs, and the setup
   // form is the same problem one screen earlier.
+  // The loop variable is NOT pinned to a name: roadmap 8.17 renamed it `t`→`x`
+  // because `t` is the translator now, and this check went red on a rename
+  // that changed no behaviour. The back-reference is what keeps it honest —
+  // both halves have to read the SAME tab.
   check("5i · a guide never fires while the first run is up",
-    /if \(!firstRun && TOURS\[t\.key\] && !tourSeen\(t\.key\)\)/.test(app));
+    /if \(!firstRun && TOURS\[(\w+)\.key\] && !tourSeen\(\1\.key\)\)/.test(app));
   // NOT `!gear`: pressing a tab is how you LEAVE the gear, so reading it there
   // reads the state the press is ending.
   check("5j · and is not blocked by the gear it is leaving",
@@ -295,8 +299,10 @@ console.log("\n5. a guide on every tab");
   // The plan drops absent targets, so the button on the last step has to read
   // the PLAN's length — it said "Next" and then closed, which reads as the
   // tour breaking.
+  // `t(` is optional so the check survives the string being translated — what
+  // it guards is the TEST (the plan's length, not STEPS'), not the spelling.
   check("5m · the last step says Done, however short the plan is",
-    /i \+ 1 === \(plan \?\? STEPS\)\.length \? "Done"/.test(src));
+    /i \+ 1 === \(plan \?\? STEPS\)\.length \? (?:t\()?"Done"/.test(src));
 }
 
 // ── 6 · THE FORM MUST NOT ANSWER FOR THE DETAILER ────────────────────────
