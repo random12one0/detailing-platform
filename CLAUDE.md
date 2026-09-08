@@ -2447,6 +2447,49 @@ explaining it; if they still have to ask "so should I?", it failed.
   same way. **Order the work: all source editing, all baselining, THEN the
   browser.**
 
+- **A `try/catch` THAT RETURNS AN EMPTY DEFAULT CAN HIDE A ReferenceError, AND
+  IT HID ONE FOR THE WHOLE LIFE OF A FEATURE — 2026-09-08.** `sweep-widths.mjs`
+  built its Spanish lookup as
+
+      const APP_ES = (() => {
+        try { const src = readFileSync(...); return new Map(...); }
+        catch { return new Map(); }        // <- silent
+      })();
+
+  **and `readFileSync` was never imported.** The catch swallowed
+  `ReferenceError: readFileSync is not defined`, handed back an empty Map, and
+  `NAMED()` — whose whole job is "match the English name OR the Spanish one" —
+  fell back to English for **every control, on every run, since the day 8.17
+  wrote it.** So `LANG_APP=es` looked supported, and the Spanish sweep had never
+  once completed.
+  **THE CODE READS CORRECTLY.** Nothing in it is wrong to the eye; the import
+  list four hundred lines above is where the defect lives. It survived a review,
+  a commit and three sessions.
+  **WHAT FOUND IT, after two nine-minute runs were spent on wrong theories:
+  printing the value.** `APP_ES entries: 0` ended it in one run. The two wrong
+  theories both came from reading Playwright's timeout message —
+  `name: 'Quote'` — and assuming it was a formatting quirk. **It is not: a regex
+  name prints as a regex, so a quoted string in that log always means a string
+  was passed.** Proven with a four-line script against `setContent` rather than
+  argued about.
+  **THE RULES.** A catch that returns a neutral default must SAY something —
+  this one now prints `SPANISH CATALOGUE DID NOT LOAD` and the sweep exits 1
+  when `LANG_APP=es` and the catalogue is empty, because an English sweep
+  wearing a Spanish label is worse than no sweep. And **when a helper "does
+  nothing", print what it is working from before theorising about what it does
+  with it.**
+- **AND THE i18n CHECKS HAVE A THIRD BLIND SPOT: ENGLISH BETWEEN JSX
+  EXPRESSIONS — `scripts/i18n-fragments.mjs`, new 2026-09-08.** Today printed
+  **"1 done · 4 to go"** on a Spanish dashboard, from
+  `<div>{done} done · {todays.length - done} to go</div>`. **Both existing
+  instruments reported clean**: `i18n-survey` hunts string LITERALS and this is
+  JSX text; `spanish-dom` compares visible text against catalogue KEYS, and
+  "1 done · 4 to go" could never be a key. The shape is **prose broken into
+  short fragments by `{...}` holes** — invisible in English by construction,
+  invisible to an owner who does not read Spanish, and first met by a detailer.
+  Thirteen across 95 files on the first run; all fixed. It ignores single words
+  on purpose, because one-word fragments are units and separators and a check
+  that cries wolf every run is one nobody reads.
 - Report what was observed, never "this should work."
 
 - **`e2e-booking` REPORTS 78/82 WITH FOUR EMAIL FAILURES ONCE THE DAY'S 100

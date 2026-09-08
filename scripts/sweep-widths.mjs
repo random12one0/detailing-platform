@@ -63,6 +63,7 @@
 // headless browser does not, and that difference is the whole of W14: the
 // Share button it adds is what pushed Open off the screen. A sweep that does
 // not stub it closes a real bug as "does not reproduce".
+import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { reportSourceMoved, watchSource } from "./source-guard.mjs";
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
@@ -400,8 +401,26 @@ const APP_ES = (() => {
     const src = readFileSync(new URL("../app/src/lib/strings/appEs.js", import.meta.url), "utf8");
     return new Map([...src.matchAll(/^\s*"((?:[^"\\]|\\.)*)":\s*"((?:[^"\\]|\\.)*)",?\s*$/gm)]
       .map((m) => [m[1].replace(/\\"/g, '"'), m[2].replace(/\\"/g, '"')]));
-  } catch { return new Map(); }
+  } catch (e) {
+    // **NEVER SILENT AGAIN.** This catch returned an empty Map for the whole
+    // life of the feature and the cause was `readFileSync is not defined` — the
+    // import was simply missing. An empty catalogue makes NAMED() fall back to
+    // English for EVERY control, so `LANG_APP=es` looked like it was supported
+    // and could never once have completed. A swallowed ReferenceError that
+    // degrades a whole feature to a no-op is this repo's oldest failure shape
+    // wearing its best disguise: the code reads correctly and does nothing.
+    console.error(`SPANISH CATALOGUE DID NOT LOAD — every locator will use English: ${e}`);
+    return new Map();
+  }
 })();
+
+// And say so out loud when it is empty in a run that asked for Spanish, because
+// "0 entries" is the difference between a Spanish sweep and an English one
+// wearing a Spanish label.
+if (process.env.LANG_APP === "es" && APP_ES.size === 0) {
+  console.error("REFUSING TO PRETEND: LANG_APP=es but the catalogue is empty.");
+  process.exit(1);
+}
 
 /** A button by its English name, matching the Spanish one too. */
 /** A control's accessible name, matching the Spanish one too.
@@ -567,7 +586,7 @@ for (const w of SIZES) {
       await p2.waitForSelector("input[type=email]", { timeout: 20000 });
       await settle(p2);
       found += await say("the way in", p2);
-      const make = p2.locator("form button.btn").filter({ hasText: "Create an account" });
+      const make = p2.locator("form button.btn").filter({ hasText: NAMED("Create an account") });
       if (await make.count()) {
         await make.click();
         await settle(p2);
@@ -576,9 +595,9 @@ for (const w of SIZES) {
         console.log(`${"the way in · new account".padEnd(24)} NOT MEASURED — no "Create an account" button`);
         found++;
       }
-      const forgot = p2.locator("form button.btn").filter({ hasText: "I already have an account" });
+      const forgot = p2.locator("form button.btn").filter({ hasText: NAMED("I already have an account") });
       if (await forgot.count()) await forgot.click();
-      const reset = p2.locator("form button.btn").filter({ hasText: "I forgot my password" });
+      const reset = p2.locator("form button.btn").filter({ hasText: NAMED("I forgot my password") });
       if (await reset.count()) {
         await reset.click();
         await settle(p2);
@@ -814,7 +833,7 @@ for (const w of SIZES) {
     // WHOLE remaining pass with it, which is the most expensive way this
     // script can fail: four widths lost to a missing row. It cost a timed run
     // on 2026-09-03. Nothing in here may assume the demo's shape.
-    const tomorrowRow = page.locator(".row-item", { hasText: "Tomorrow" }).first();
+    const tomorrowRow = page.locator(".row-item", { hasText: NAMED("Tomorrow") }).first();
     const deskRow = page.locator(".col-2 .settled-row").first();
     let opened = false;
     if (await tomorrowRow.count()) {
@@ -850,6 +869,12 @@ for (const w of SIZES) {
   // below are the ones that change the row's width: "6 months" is the widest
   // label, "Week" the widest period LABEL ("Aug 30 – Sep 5"), and Lifetime is
   // the one that draws no stepper at all.
+  // COME BACK FROM WHATEVER THE JOB-RECORD BLOCK LEFT OPEN. That block ends on
+  // an open record in the second column, and arriving at Money with it still up
+  // is why the period control was not there: the tab press lands, the screen
+  // says Money, and the record is still holding the column the control is in.
+  await page.keyboard.press("Escape");
+  await settle(page, 500);
   await page.locator(`.tabbar button[data-tour="money"]`).first().click();
   // THE PERIOD CONTROL IS DRAWN AFTER THE MONEY READ, so `settle()` is the
   // wrong instrument for it — a cap on a repaint, never a wait for a network
@@ -874,10 +899,18 @@ for (const w of SIZES) {
     await settle(page, 1500);
     await say(`Money · ${k}`);
   }
-  await page.getByRole("radio", { name: NAMED("Month"), exact: true }).first().click();
-  await settle(page, 1500);
+  // CONDITIONAL, BECAUSE A MISSING CONTROL MUST NOT KILL THE RUN. This line
+  // threw and took the whole Spanish sweep down twice — after the guard above
+  // had ALREADY printed that the control was absent. A sweep that dies at the
+  // first width measures nothing at the other four, and this repo's rule is
+  // that a check is a diagnosis and never a gate.
+  const monthChip = page.getByRole("radio", { name: NAMED("Month"), exact: true });
+  if (await monthChip.count()) {
+    await monthChip.first().click();
+    await settle(page, 1500);
+  }
   {
-    const owed = page.locator(".card", { hasText: "Mark paid" }).first();
+    const owed = page.locator(".card", { hasText: NAMED("Mark paid") }).first();
     if (await owed.count()) {
       await owed.locator("[role=button]").first().click();
       await settle(page, 1500);
@@ -1112,7 +1145,12 @@ for (const w of SIZES) {
 
   const walk = async (label, rows) => {
     for (const key of rows) {
-      const row = page.locator(".nav-row", { hasText: key });
+      // NAMED, or NINETEEN SETTINGS SCREENS GO UNMEASURED IN SPANISH — which is
+      // exactly what happened on the first Spanish run that got this far: the
+      // sweep printed "clean at all five widths" AND nineteen NO SUCH ROW lines
+      // in the same output. The geometry verdict was true of the screens it
+      // opened and silent about the ones it never reached.
+      const row = page.locator(".nav-row", { hasText: NAMED(key) });
       if (!(await row.count())) { console.log(`${key.padEnd(24)} NO SUCH ROW (${label})`); found++; continue; }
       await row.first().click();
       await settle(page, 1600);
@@ -1157,7 +1195,7 @@ for (const w of SIZES) {
   // segmented control beside a number field, and the member form is two
   // drop-downs, a date and a money field on one row — which is the shape that
   // breaks at 320, not the list above it.
-  await page.locator(".nav-row", { hasText: "Monthly plans" }).first().click().catch(() => {});
+  await page.locator(".nav-row", { hasText: NAMED("Monthly plans") }).first().click().catch(() => {});
   await settle(page, 1300);
   const addPlan = page.getByRole("button", { name: NAMED("Add a plan") });
   if (await appear(addPlan)) {
@@ -1382,7 +1420,7 @@ for (const w of SIZES) {
   // cannot see that — there is no spinner and the DOM goes quiet — so the
   // click below raced the fetch and reported NO SUCH ROW. It bit in `--lite`
   // first, because everything settles sooner with no animations running.
-  const finish = page.locator(".nav-row", { hasText: "Finish setting up" });
+  const finish = page.locator(".nav-row", { hasText: NAMED("Finish setting up") });
   await finish.first().waitFor({ timeout: 10000 }).catch(() => {});
   if (!(await finish.count())) {
     console.log(`${"the setup row".padEnd(24)} NO SUCH ROW (re-run scripts/seed-demo.mjs)`);
@@ -1428,7 +1466,7 @@ for (const w of SIZES) {
 
   await page.getByRole("button", { name: NAMED("Settings"), exact: true }).first().click();
   await settle(page, 1400);
-  const tourRow = page.locator(".nav-row", { hasText: "Show me around" });
+  const tourRow = page.locator(".nav-row", { hasText: NAMED("Show me around") });
   if (!(await tourRow.count())) {
     console.log(`${"the tour row".padEnd(24)} NO SUCH ROW`);
     found++;
