@@ -4719,9 +4719,30 @@ is kept; the entire visual design restarts from scratch.
       and server-side pricing are what cannot be bypassed, and none of them
       moved.
 
-- [~] 2.22 **BACK THE DATABASE UP FOR FREE — HE SAID YES ON 2026-09-08 AND
-      HANDED IT TO HIS CLOUD COWORKER, SO IT IS NO LONGER THIS SESSION'S.
-      WRITTEN AND DOCUMENTED 2026-09-06, WAITING ON TWO SECRETS.**
+- [~] 2.22 **BACK THE DATABASE UP FOR FREE — BUILT, RUNNING, AND IT HAS
+      PRODUCED A REAL ENCRYPTED BACKUP (2026-09-08). STILL `[~]` FOR ONE
+      REASON: NOBODY HAS RESTORED ONE.**
+      `random12one0/detailing-platform-backups`, private, five files, nightly
+      at 02:10 Pacific. Release `backup-2026-09-08` carries
+      `dump-2026-09-08.pgc.age` at **714,366 bytes** from a 714,006-byte dump,
+      and it was **downloaded and checked by hand**: it begins
+      `age-encryption.org/v1` with an X25519 stanza and not `PGDMP`, so it is
+      genuinely encrypted rather than a dump wearing the extension.
+      **THE FIRST RUN FAILED AND IT WAS NEITHER PREDICTED CAUSE.** Not the
+      `[YOUR-PASSWORD]` brackets and not the direct-vs-pooler mix-up — the
+      session pooler was already correct. The secret had been saved **with a
+      trailing newline**, so the newline landed on the last path segment and
+      the database NAME became `postgres⏎`; Postgres reports that as
+      `FATAL: database "postgres⏎" does not exist`, which reads as a wrong
+      database or a bad connection string rather than as one stray byte.
+      The workflow trims it now, and masks the trimmed value **because it
+      differs from the secret and so is not covered by GitHub's own masking**.
+      **WHAT IS LEFT IS THE ACCEPTANCE TEST AND ONE SECRET:** restore once
+      into a scratch project and compare row counts (needs the age private
+      key, which is in his password manager and deliberately nowhere else),
+      and set `HEALTHCHECK_URL` so a backup that stops does not stop silently.
+      ~~Handed to his cloud coworker.~~ It came back as a brief and was
+      finished here.
       > *"Yeah. We'll do another gap repo. I'm having a a cloud... code...
       > cloud coworker do all the stuff for me."*
       **THE ONE THING HE WAS ASKED AND ANSWERED: a SEPARATE PRIVATE repo.**
@@ -4736,9 +4757,18 @@ is kept; the entire visual design restarts from scratch.
       switch-on is `docs/ops/backups.md`. **It is not ticked because it has
       never run** — a backup nobody has restored is a backup nobody should
       count on, and this one has not even fired once.
-      **The workflow file is not under .github/ on purpose:** GitHub refuses a
-      push that creates one unless the token carries the `workflow` scope, and
-      this session's does not. The owner moves it into place.
+      ~~**The workflow file is not under .github/ on purpose:** GitHub refuses
+      a push that creates one unless the token carries the `workflow` scope,
+      and this session's does not. The owner moves it into place.~~
+      **RESOLVED 2026-09-08 — it IS under `.github/workflows/` in the backups
+      repo now.** The scope was the real obstacle and the fix is worth keeping:
+      `gh auth refresh -h github.com -s workflow` **failed with "not logged in
+      to any hosts" while `gh auth status` said he WAS logged in** — the
+      credential lives in the Windows keyring with no token in `hosts.yml`,
+      which gh 2.96's `refresh` cannot cope with. A fresh
+      `gh auth login --scopes workflow --web` worked. Note also that without
+      the scope the **REST contents API answers 404, not 403**, which reads as
+      a missing repository rather than a refused permission.
 
       **BACK THE DATABASE UP FOR FREE — his own idea, 2026-09-04, and it — his own idea, 2026-09-04, and it
       works.**

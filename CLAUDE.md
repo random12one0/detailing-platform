@@ -62,11 +62,26 @@ explaining it; if they still have to ask "so should I?", it failed.
 ## Ground rules
 
 - Work on branch `claude/superbase-access-anj1h7`. **Never merge to `main` on
-  your own initiative — ask.** `main` auto-deploys to production
-  (detailingplatform.com), and that is now confirmed by observation rather
-  than inherited from a note: a push to `main` on 2026-08-30 republished the
-  live site by itself, with no upload and no dashboard visit. **A push to
-  `main` IS a publish** — there is no second step to forget.
+  your own initiative — ask.**
+  **~~`main` auto-deploys to production. A push to `main` IS a publish.~~
+  FALSE AS OF 2026-09-08, AND IT WAS THE MOST LOAD-BEARING STALE LINE IN THIS
+  FILE.** Measured through the Netlify API rather than assumed: the live deploy
+  on detailingplatform.com carries `deploy_source: "api"` and a source zip — a
+  manual upload — and **a push to `main` at 06:26 on 2026-09-08 created no new
+  deploy at all**, with the live bundle hash unchanged twenty minutes later.
+  It was true when it was written on 2026-08-30 and stopped being true quietly,
+  which is exactly what this rule warned about happening to something else.
+  **SO A PUSH IS NOT A PUBLISH AND THE TWO NUMBERS ARE DIFFERENT NUMBERS.**
+  `origin/main` and the LIVE SITE are separate facts, and
+  `git rev-list --count origin/main..HEAD` answers only the first — a session
+  that reads it and says "we are nearly up to date" is describing GitHub while
+  the owner is looking at Netlify. **To find out what is actually live, read
+  the deployed page, not the repo** (`docs/OUTSTANDING.md` § 6 has the API
+  calls). Deploying is currently BLOCKED on Netlify build credits.
+  **AND `curl` CANNOT ANSWER IT EITHER**: `_redirects` sends every unmatched
+  path to `index.html`, so **every** URL on that domain returns 200, including
+  one that does not exist. A 200 there is not evidence of anything. Load the
+  page and read what it renders.
   The owner can say yes, and did on 2026-08-30: the redesign through roadmap
   2.2 is live, and `main`, the branch and this machine are the same commit.
   **HE MADE IT A STANDING PERMISSION ON 2026-09-04** — *"yes we can publish
@@ -2458,6 +2473,37 @@ explaining it; if they still have to ask "so should I?", it failed.
   same way. **Order the work: all source editing, all baselining, THEN the
   browser.**
 
+- **AND COMMIT BEFORE YOU BASELINE, BECAUSE BASELINING REVERTS WITH GIT AND
+  GIT REVERTS TO WHAT IS COMMITTED — 2026-09-08, roadmap 2.20 stage 3.** The
+  loop is: break the thing the check guards, run the check, `git checkout --`
+  the file. **On a file whose feature is not yet committed, that third step
+  deletes the feature**, and every later break in the same run then measures a
+  file that no longer contains the code. Here it silently removed a whole
+  webhook handler mid-run; the give-away was the FINAL "restored" run
+  reporting **75/8 when the same suite had opened at 82/1**.
+  **The tell is the restored run, so always take one** — a baseline session
+  that ends without re-running the green case cannot know what it left behind.
+  Same family as the source-guard entry above: the damage is not a red run, it
+  is a run that measured less than it claims.
+
+- **WHEN A THING HAS STOPPED HAPPENING, MAKE IT HAPPEN AND READ THE ERROR —
+  never infer the cause from the last time it worked. 2026-09-08, and it cost
+  a wrong answer that would have sent the owner to fix something that was not
+  broken.** The live site had not rebuilt since 2026-09-06. Netlify's API was
+  asked about the last SUCCESSFUL deploy, which said `deploy_source: "api"`,
+  and that was read as *the GitHub integration is disconnected* — plausible,
+  consistent with every symptom, and **wrong**. Triggering a deploy on purpose
+  returned the actual answer in one line: `state: error, skipped: true,
+  "Skipped due to account credit usage exceeded"`. **Netlify build credits.**
+  Every build since had been SILENTLY SKIPPED, which from outside is
+  indistinguishable from a repo that was never connected.
+  **No amount of inspecting a successful deploy could have produced that
+  answer.** And the first two attempts to trigger one failed for an unrelated
+  reason that MASKED it — a 500 on upload, because the deploy tool zips the
+  working directory and this one was 1.3 GB of gitignored screenshot folders.
+  **A failure during upload and a skip during build are two different
+  failures, and the first hid the second.**
+
 - **A `try/catch` THAT RETURNS AN EMPTY DEFAULT CAN HIDE A ReferenceError, AND
   IT HID ONE FOR THE WHOLE LIFE OF A FEATURE — 2026-09-08.** `sweep-widths.mjs`
   built its Spanish lookup as
@@ -2773,7 +2819,8 @@ never re-open a decision he has made or redesign what he has approved
 (`demo@demo.com` is the standing example — "improving" it locks him out of his
 own back office); never write to the live business project
 `adtlnvihwrcqcasqcjwd` and never deploy to the `andrewsauto` Netlify site;
-a push to `main` IS a publish and the commit has to say why it was needed;
+a push to `main` still has to say why it was needed (though it is no longer a
+publish — see Ground rules);
 migrations stay append-only and `reference/` stays read-only.
 
 **AND THE STOP RULE IS STILL A RULE.** `docs/standing-work.md` § 6: two

@@ -1,5 +1,34 @@
 # Nightly backups — how to switch them on
 
+> **⚠ THIS FILE DESCRIBES A DESIGN THAT WAS NOT BUILT. DO NOT FOLLOW IT.**
+> Corrected 2026-09-08 from `docs/coworker-report-2026-09-08.md` § 3.5, which
+> read the repository that actually exists.
+>
+> **The plan below encrypts with a symmetric `BACKUP_PASSPHRASE`. What was
+> actually built uses an `age` KEYPAIR**, and the difference is the whole
+> security argument:
+>
+> | | This file says | What exists |
+> |---|---|---|
+> | Encryption | one shared passphrase | `age` public/private keypair |
+> | What CI holds | the passphrase — **so CI can decrypt** | the PUBLIC key only, committed in the clear as `backup-key.pub` — **CI cannot decrypt** |
+> | If the repo or a secret leaks | every backup is readable | every backup is **unreadable**, because the private key never exists in CI at all |
+> | Where the dump lands | (unstated) | a **release asset**, never committed — git cannot forget a committed file, and these dumps are real customers' names, phones and addresses |
+> | Retention | 90 days | **30 days plus the 1st of each month** |
+>
+> The private key is in Andrew's password manager and the encrypt/decrypt round
+> trip was tested end to end. **A session that follows the steps below rebuilds
+> the weaker design and leaves him with two backup repositories.**
+>
+> **What is still TRUE and load-bearing in this file:** the session-pooler
+> warning in step 2 (GitHub runners are IPv4-only; the direct connection is
+> IPv6 and can never work, and it fails with an error that reads exactly like a
+> wrong password), the `workflow`-scope explanation, and *"a backup nobody has
+> restored is not a backup"*. **Everything about the passphrase is superseded.**
+>
+> Kept rather than deleted because the reasoning is what the correction is
+> against — see CLAUDE.md's rule on superseded entries.
+
 2026-09-06. Ten minutes, once, and then it runs itself.
 
 **Why this file exists instead of the workflow just being committed:** GitHub
