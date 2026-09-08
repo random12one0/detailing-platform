@@ -237,9 +237,18 @@ console.log("5. what no running test could notice");
     !/^\s*extraVehicles:/m.test(strip(read(`supabase/functions/${d}/index.ts`))));
   check("5b · and every one of them says how many cars there are",
     forgot.length === 0, `forgot: ${forgot.join(", ")}`);
+  // **RE-POINTED, NOT RELAXED — 2026-09-07.** This pinned the literal
+  // `vehicleFact(b)`, and roadmap 8.17 stage 2a gave that helper a LANGUAGE
+  // argument, so two of the three call sites became `vehicleFact(b, b.lang)`
+  // and the count fell to one. The rule it guards is unchanged and is the
+  // reason it exists: three tables draw the vehicle row and they all draw it
+  // from one function, so a three-car job cannot say "one car" on one of them.
+  // It counts CALLS now rather than a spelling, and still insists each one is
+  // passed the booking.
+  const factCalls = strip(read("supabase/functions/_shared/emailTemplates.ts"))
+    .match(/vehicleFact\(b[,)]/g) ?? [];
   check("5c · the fact row is ONE function, so all three tables agree",
-    (strip(read("supabase/functions/_shared/emailTemplates.ts"))
-      .match(/vehicleFact\(b\)/g) ?? []).length === 3);
+    factCalls.length === 3, `${factCalls.length} calls`);
 
   // 5d — THE DEALERSHIP FORM COMPUTES NOTHING. *"There shouldn't be auto
   // calculations, because obviously when they do this there's discounts."*

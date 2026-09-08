@@ -35,9 +35,11 @@
 //   node tests/payments.test.mjs
 
 import { paymentHandles } from "../supabase/functions/_shared/payments.ts";
+import { readFileSync } from "node:fs";
 import {
   customerConfirmationEmail,
   customerReminderEmail,
+  followupEmail,
   invoiceEmail,
   requestDecisionEmail,
 } from "../supabase/functions/_shared/emailTemplates.ts";
@@ -300,6 +302,123 @@ console.log("\n6 · who a campaign can actually reach");
   check("someone both opted out and bounced is counted once, as opted out",
     optedOut === 2 && bounced === 1, `optedOut ${optedOut}, bounced ${bounced}`);
 }
+
+// --- 7 · A REVIEW LINK IS A LINK -------------------------------------------
+// Roadmap 8 audit, 2026-09-07. `business_settings.google_review_url` and
+// `yelp_review_url` are the SAME SHAPE as the payment handles above, one
+// column over, and until this section they had none of the same protection:
+// plain `text`, written straight from a browser form, dropped into an `href`.
+//
+// A detailer could type `"><a href="…">Confirm your card</a><a href="` and put
+// an arbitrary link inside every thank-you email their customers receive — an
+// email those customers correctly trust, because it genuinely came from their
+// detailer. And both columns are published by `get_public_business_profile`,
+// so they land on the tenant's own website too, where a `javascript:` href is
+// not inert the way it is in a mail client.
+//
+// THREE LAYERS AND THIS PINS ALL THREE, because each one alone is a list
+// somebody has to keep: the ESCAPE in `emailKit.ts` (the sink), the CHECK
+// CONSTRAINT in `20260907009000_review_links_are_links.sql` (the store), and
+// the guard in `BusinessInfo.jsx` (the courtesy — without it the constraint's
+// own wording reaches the screen).
+console.log("\n7 · a review link is a link");
+{
+  const read = (p) => readFileSync(new URL(`../${p}`, import.meta.url), "utf8");
+
+  // The hostile set. Every one of these is a value a detailer can type into
+  // their own settings form today.
+  const HOSTILE = [
+    `"><a href="https://evil.test">Confirm your card</a><a href="`,
+    `javascript:alert(document.cookie)`,
+    `https://ok.test" onmouseover="alert(1)`,
+    `data:text/html,<script>alert(1)</script>`,
+    `http://plain.test/reviews`,
+    `https://${"x".repeat(200)}`,
+    `https://a`,
+  ];
+  const REAL = [
+    "https://g.page/r/CX9aBcDeFgHiJ/review",
+    "https://search.google.com/local/writereview?placeid=ChIJN1t_tDeuEmsRUsoyG83frY4",
+    "https://www.yelp.com/writeareview/biz/abc-detailing-denver?return_url=%2Fbiz%2Fabc",
+  ];
+
+  // -- 7a · THE SINK. Rendered rather than read, because the question is what
+  // reaches a customer's mail client and not what the file says.
+  const benign = followupEmail({ ...brandBase, googleReviewUrl: REAL[0], yelpReviewUrl: null }, "Dana Reyes");
+  const attacked = followupEmail({ ...brandBase, googleReviewUrl: HOSTILE[0], yelpReviewUrl: null }, "Dana Reyes");
+  const anchors = (h) => (h.match(/<a\s/g) ?? []).length;
+
+  check("7a · a quoted break-out adds no anchor to the email",
+    anchors(attacked.html) === anchors(benign.html),
+    `${anchors(attacked.html)} vs ${anchors(benign.html)}`);
+  check("7a-ii · and the words it tried to smuggle in are not markup",
+    !/>\s*Confirm your card\s*</.test(attacked.html),
+    "the injected label reached the document as an element's text");
+  check("7a-iii · the value is still THERE, escaped rather than dropped",
+    attacked.html.includes("&quot;&gt;&lt;a href="),
+    "if this fails the escape may have become a strip, which hides the defect");
+
+  // The three above are worthless if the fixture never draws a link at all —
+  // the `email-brand` 7a-iii shape. This asserts they have subjects.
+  check("7a-iv · and the benign fixture really does draw one",
+    anchors(benign.html) > 0 && benign.html.includes(REAL[0]),
+    "the whole of 7a passes vacuously if this is false");
+
+  // -- 7b · THE STORE. The constraint's own pattern, lifted out of the
+  // migration rather than retyped, so a later edit to it is measured here.
+  const sql = read("supabase/migrations/20260907009000_review_links_are_links.sql");
+  const patterns = [...sql.matchAll(/~ '(\^https:[^']+)'/g)].map((m) => m[1]);
+  check("7b · both columns carry a pattern and both are the same one",
+    patterns.length === 2 && patterns[0] === patterns[1],
+    `${patterns.length} found`);
+  check("7b-ii · and it is anchored at both ends",
+    Boolean(patterns[0]?.startsWith("^") && patterns[0]?.endsWith("$")),
+    "an unanchored pattern matches a PREFIX, which is every hostile value above");
+
+  // Postgres and JS agree on this character class — it uses nothing the two
+  // spell differently, and `\[` / `\]` are the only escapes in it.
+  const dbAllows = (v) => new RegExp(patterns[0]).test(v);
+  for (const v of HOSTILE) {
+    check(`7b-iii · the database refuses ${JSON.stringify(v).slice(0, 44)}`, !dbAllows(v));
+  }
+  for (const v of REAL) {
+    check(`7b-iv · and takes a real one · ${v.slice(8, 32)}…`, dbAllows(v));
+  }
+
+  // -- 7c · THE COURTESY, AND THE ONE PROPERTY THAT MAKES IT WORTH HAVING:
+  // it is exactly as strict as the database. Looser and it waves a value
+  // through for the constraint to refuse in its own wording, which is the
+  // thing it exists to prevent; stricter and it refuses a link that would
+  // have worked, with nothing for the detailer to argue with.
+  const jsx = read("app/src/screens/more/BusinessInfo.jsx");
+  const guard = jsx.match(/const badLink = \(v\) => \{[\s\S]*?\n  \};/)?.[0];
+  check("7c · the form has a guard at all", Boolean(guard),
+    "no badLink in BusinessInfo.jsx");
+  check("7c-ii · and `save` refuses before it writes",
+    /if \(badLink\(value\)\) \{[\s\S]{0,340}?return;/.test(jsx),
+    "the guard is there but nothing returns on it");
+
+  const browserRe = guard?.match(/\/(\^https:.*?)\/\.test/)?.[1];
+  check("7c-iii · its pattern can be read out of the file", Boolean(browserRe));
+  if (browserRe) {
+    const uiAllows = (v) => new RegExp(browserRe).test(String(v ?? "").trim());
+    // A CORPUS, NOT A STRING COMPARE. Two patterns can be spelled differently
+    // and mean the same thing; the property is that they AGREE.
+    const corpus = [...HOSTILE, ...REAL,
+      "https://ok.test/a|b", "https://ok.test/a^b", "https://ok.test/{1}",
+      "https://ok.test/café", "https://ok.test/a b", "https://ok.test/a<b",
+      "https://OK.test/A-Z_0.9~", "HTTPS://ok.test/x", "https://ok.test/'q'",
+    ];
+    const disagree = corpus.filter((v) => uiAllows(v) !== dbAllows(v));
+    check("7c-iv · the form and the database agree on every value",
+      disagree.length === 0,
+      disagree.map((v) => `${JSON.stringify(v)} ui=${uiAllows(v)} db=${dbAllows(v)}`).join("; "));
+    check("7c-v · and the corpus really exercises the question",
+      corpus.some((v) => !dbAllows(v)) && corpus.some((v) => dbAllows(v)),
+      "every value falls the same way, so 7c-iv could not fail");
+  }
+}
+
 
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

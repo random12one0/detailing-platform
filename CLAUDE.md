@@ -2370,6 +2370,72 @@ explaining it; if they still have to ask "so should I?", it failed.
   see:** a `:has()` may not contain another `:has()`, and the browser drops the
   whole rule silently. It was found by logging `.app-main`'s own width before
   and after a click, not by reading the file.
+- **THE DATABASE HAS ITS OWN HEALTH CHECK NOW: `node scripts/db-audit.mjs` —
+  new 2026-09-07, read-only, safe against any project.** Four lints:
+  a table with **RLS off**, **RLS on with no policies**, a **`security definer`
+  function with no pinned `search_path`**, and a **foreign key with no index**.
+  Supabase's own advisors cover this ground and are good; they are also behind
+  a login and a permission this session does not hold, which makes them a check
+  somebody has to remember to visit. **Both allowlists are NAMED rather than
+  guessed** — eight tables meant to have no policies, four keys meant to have
+  no index — so a NINTH or a FIFTH is a finding rather than noise. **Run it
+  after any migration.** Baselined against four planted defects, and section 1
+  was not exercised on the first attempt because Supabase enabled RLS on the
+  planted table by itself, so it landed in section 2: a check that looked
+  proven and had never run.
+  **Its first FK detector reported a COVERED key** — it demanded an index whose
+  leading columns equalled the key exactly, and `booking_vehicles(business_id,
+  booking_id)` is served by `booking_vehicles_booking_idx`. A composite key is
+  served by an index on its most selective part. **Reporting a covered key is
+  the same defect as missing an uncovered one**: both end with somebody
+  ignoring the output.
+  It found nine unindexed keys a real operation walks; `20260907008000_foreign_
+  key_indexes.sql` is those nine. **Five were left out on purpose** — all point
+  at `auth.users` and this product never deletes an auth user (forgetting a
+  customer deletes a `customers` row, removing a staff member deletes a
+  MEMBERSHIP). Both files carry the list and the reasoning, so they move
+  together.
+
+- **A REVIEW LINK IS A LINK, AND IT IS CONSTRAINED WHERE IT IS STORED —
+  2026-09-07, the one real risk the audit found.**
+  `business_settings.google_review_url` and `yelp_review_url` were plain `text`
+  written straight from a browser form, and `followupEmail` dropped them
+  **unescaped into an `href`**. A detailer could type
+  `"><a href="…">Confirm your card</a><a href="` into their own settings and
+  put an arbitrary link inside **every thank-you email their customers
+  receive** — an email those customers correctly trust, because it genuinely
+  came from their detailer. **And both columns reach
+  `get_public_business_profile`**, so they land on the tenant's own website,
+  where a `javascript:` href is not inert the way it is in mail.
+  **`emailKit.ts` escapes all four of its attribute URLs now, and that was not
+  accepted as the fix.** That closes the SINK and there are three sinks — the
+  email, the public profile, and whatever a tenant site does with the value.
+  Escaping each is a list to keep, and this repo has been short by one on
+  exactly that shape of list twice. **So it is an https-only CHECK CONSTRAINT
+  on both columns** (`20260907009000_review_links_are_links.sql`), which is
+  `payments.ts`'s existing position for payment handles one column over.
+  **`BusinessInfo.jsx`'s guard uses the constraint's character class CHARACTER
+  FOR CHARACTER**, and `tests/payments.test.mjs` § 7c runs a corpus through
+  both. **A looser guard is worse than none** — it waves a value through and
+  the constraint's own wording reaches the screen, which is the exact thing the
+  guard exists to prevent. Six breaks all caught.
+
+- **FINISH EVERY SOURCE EDIT BEFORE THE BROWSER OPENS — INCLUDING THE ONES A
+  BASELINE MAKES AND REVERTS. 2026-09-07, and this rule is already in this file
+  twice.** `sweep-widths.mjs` printed *clean at all five widths* on two
+  consecutive runs and **both were worthless**: one file under `app/src` was
+  saved mid-walk each time, Vite reloaded the page, and the script was driving
+  a page that navigated out from under it. **A mid-run reload does not fail a
+  run** — every check that script owns is about an EDGE, and a screen that
+  never opened has no edges to be wrong — so the damage is a GREEN run that
+  measured less than it claims. `source-guard.mjs` named the file both times
+  and is the only reason either was thrown away.
+  **The new half is what counted as an "edit".** Baselining a check means
+  writing a defect into a source file and taking it back out, six times here,
+  and those are not changes — they are proof. They reload the page exactly the
+  same way. **Order the work: all source editing, all baselining, THEN the
+  browser.**
+
 - Report what was observed, never "this should work."
 
 - **`e2e-booking` REPORTS 78/82 WITH FOUR EMAIL FAILURES ONCE THE DAY'S 100

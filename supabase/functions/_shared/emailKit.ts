@@ -340,11 +340,31 @@ export function buttonBlock(brand: Brand, label: string, href: string): string {
   return `<tr><td style="${PAD} padding-top:32px;">
     <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
       <td class="bg-accent" bgcolor="${brand.accentFill}" style="background-color:${brand.accentFill}; border-radius:100px;">
-        <a href="${href}" target="_blank" class="c-accent-ink" style="display:inline-block; padding:15px 34px; font-family:${WORDS}; font-size:15px; font-weight:bold; line-height:1; color:${brand.accentInk}; text-decoration:none; border-radius:100px;">${esc(label)}</a>
+        <a href="${esc(href)}" target="_blank" class="c-accent-ink" style="display:inline-block; padding:15px 34px; font-family:${WORDS}; font-size:15px; font-weight:bold; line-height:1; color:${brand.accentInk}; text-decoration:none; border-radius:100px;">${esc(label)}</a>
       </td>
     </tr></table>
   </td></tr>`;
 }
+
+/**
+ * **EVERY URL THAT LANDS IN AN ATTRIBUTE IS ESCAPED — 2026-09-07.**
+ *
+ * `buttonBlock`'s `href`, the masthead's `src`, the footer's site link and the
+ * opt-out link all interpolate a URL straight into an attribute, and one of
+ * those URLs is typed by a detailer into a settings box:
+ * `business_settings.google_review_url` reaches `buttonBlock` through
+ * `followupEmail`. With no escape, `"><a href="…">Confirm your card</a><a href="`
+ * puts an arbitrary link inside every thank-you email their customers receive —
+ * an email those customers correctly trust, because it really did come from
+ * their detailer.
+ *
+ * **THE VALUE IS ALSO CONSTRAINED WHERE IT IS STORED**
+ * (`20260907009000_review_links_are_links.sql`), because there are three sinks
+ * — this email, `get_public_business_profile`, and whatever a tenant site does
+ * with it — and escaping each one is a list to keep. This escape is the
+ * belt; the constraint is the braces, and it is the half that also protects a
+ * BROWSER, where a `javascript:` href is not inert the way it is in mail.
+ */
 
 /** Fine print. `fog2` is the floor for 11–13px — never fainter. */
 export function fineBlock(text: string, top = 20): string {
@@ -372,7 +392,7 @@ function masthead(brand: Brand): string {
   return `<tr><td style="${PAD} padding-top:38px;">
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" bgcolor="${EMAIL_BONE}" style="background-color:${EMAIL_BONE}; border-radius:8px;"><tr>
       <td style="padding:12px 16px;">
-        <img src="${brand.logoUrl}" alt="${esc(brand.brandName)}" height="30" style="height:30px; width:auto; max-width:220px; border:0; display:block;">
+        <img src="${esc(brand.logoUrl)}" alt="${esc(brand.brandName)}" height="30" style="height:30px; width:auto; max-width:220px; border:0; display:block;">
       </td>
     </tr></table>
   </td></tr>`;
@@ -444,9 +464,9 @@ function footer(
       <tr><td align="center" class="c-fog2" style="padding-top:24px; font-family:${WORDS}; font-size:13px; line-height:1.7; color:${L.fog2};">
         <div class="c-ink2" style="color:${L.ink2}; font-weight:bold;">${esc(brand.brandName)}</div>
         ${brand.contactPhone ? `<div>${esc(brand.contactPhone)}</div>` : ""}
-        <div><a href="${brand.siteUrl}" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(host)}</a></div>
+        <div><a href="${esc(brand.siteUrl)}" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(host)}</a></div>
         ${legal ? `<div style="padding-top:10px; font-size:11px;">${esc(legal.mailingAddress)}</div>` : ""}
-        ${legal ? `<div style="padding-top:10px; font-size:11px;"><a href="${legal.unsubscribeUrl}" class="c-accent" style="color:${brand.accent};">${esc(T(lang)("Stop getting emails like this"))}</a></div>` : ""}
+        ${legal ? `<div style="padding-top:10px; font-size:11px;"><a href="${esc(legal.unsubscribeUrl)}" class="c-accent" style="color:${brand.accent};">${esc(T(lang)("Stop getting emails like this"))}</a></div>` : ""}
         <div style="padding-top:10px; font-size:11px;">${reachUs(brand, legal, lang)}</div>
       </td></tr>
     </table>

@@ -2986,6 +2986,101 @@ the whole business to, sign out rather than leaving both parked.
 
 ---
 
+## The audit you asked for while you were out
+
+You asked me to test every aspect of the site, look for errors and risks, and
+make improvements — including in the database. Here is what came out of it in
+plain words.
+
+**Four things needed doing. Only one of them was a risk, and it is fixed.**
+
+### The risk: a review link could be turned into a fake link
+
+On the settings screen a detailer types in their Google and Yelp review
+addresses, and we put those into the thank-you email their customers get after
+a job. We were putting whatever they typed straight into that email without
+checking it was a web address at all.
+
+Think of it like a form that asks for a phone number and accepts a paragraph.
+A detailer who understood what they were doing could type something crafted
+instead of a link, and end up with **their own extra link inside every
+thank-you email their customers receive** — an email those customers trust,
+because it genuinely did come from their detailer. The obvious abuse is a
+"confirm your card details" link. The same value also goes onto that
+detailer's own website, where it is a bit worse, because a browser will do
+more with a bad link than an email app will.
+
+To be clear about the size of it: this is a detailer being able to misuse
+their own customers, not anybody getting at other detailers' data or at yours.
+Nobody has ever done it, because there are no detailers on the product yet.
+That is exactly why it is a good day to fix it.
+
+**Three layers now, and the important one is the middle:**
+
+1. The email now escapes every address it puts in a link, so nothing typed can
+   break out and become markup.
+2. **The database itself now refuses anything that is not an `https://` web
+   address.** This is the one that matters. There are three different places
+   the value ends up — the email, the website, and anything we build later —
+   and fixing each one is a list somebody has to remember. Refusing it at the
+   point it is *stored* means every place downstream is safe for free,
+   including the ones that do not exist yet.
+3. The settings screen now says *"That Google review link doesn't look like a
+   web address. Paste the whole thing, starting with https://"* rather than
+   letting the database's own error message reach the screen, which reads like
+   a crash.
+
+The check I wrote runs a list of both good and bad addresses through the screen
+and through the database and fails if the two ever disagree — because a screen
+that is more relaxed than the database is worse than no screen at all: it lets
+something through and the crash happens one step later.
+
+### Nine missing indexes in the database
+
+An index is a table of contents. Without one, the database reads a whole table
+from the start every time it needs to check something. It is invisible until
+it is not — everything is instant with fifty bookings, and the first time you
+feel it is a detailer deleting a service and watching the screen hang, which
+looks like our bug rather than a missing index.
+
+Nine were missing on things a person actually does — deleting a service,
+deleting an add-on, unpublishing a gallery photo, deleting a campaign link,
+forgetting a customer. Added. Five others are deliberately left alone, because
+they only matter when an account is deleted and nothing in this product ever
+deletes one; that reasoning is written into both files so nobody "fixes" it
+later.
+
+I also wrote `scripts/db-audit.mjs`, which asks the database four health
+questions and can be run any time. Supabase has its own version of this and it
+is good — it is also behind a login, which makes it something someone has to
+remember to go and look at. This one lives in the project and runs with the
+credentials everything else already uses.
+
+### Two tests that had quietly stopped testing anything
+
+Two checks were still describing code the way it looked before an earlier
+change. Neither had ever gone red — they had gone *quiet*, which is worse,
+because a green tick that is not actually checking anything is the thing this
+project has been caught by more than any other. Found by running the whole set
+of tests rather than only the ones near what I had just changed. Both fixed and
+then deliberately broken to prove they now catch it.
+
+### Fifteen bits of backend running older code than the repo said
+
+Not a defect in anything — just code that had been written and committed
+without being pushed out to the server. Redeployed, and everything that talks
+to the live system re-run against the new copies.
+
+### Everything else came back clean
+
+The full set of tests is green — around 2,300 individual checks across 29
+files. The page-layout sweep is clean at all five screen widths. The booking
+form fits on every step at every size. No console errors.
+
+**Nothing here is blocking and nothing needs you.**
+
+---
+
 ## Judgement calls made alone
 
 *(appended as they arise)*

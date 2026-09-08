@@ -45,6 +45,20 @@ if (!SUPABASE_ACCESS_TOKEN || !SUPABASE_PROJECT_REF) {
   process.exit(1);
 }
 
+// **A DEPLOY MADE BEFORE THE COMMIT READS AS STALE, AND THAT IS CORRECT
+// RATHER THAN A BUG — noted 2026-09-07 after it cost a few minutes.** The
+// ordinary order of work is: change a function, deploy it, verify against the
+// deployed copy, THEN commit. That leaves the deploy timestamp earlier than the
+// commit timestamp, and fifteen functions read STALE the moment the commit
+// lands even though the running code is exactly what was committed.
+//
+// The tool cannot tell that apart from a genuinely missed deploy — it compares
+// times, not content — and **"I cannot prove the running copy matches" is the
+// right answer to give.** Redeploying is idempotent and takes a minute, so the
+// fix is to redeploy rather than to reason about it. Do not soften this check;
+// its whole value is that it found 28 of 28 stale once, with gaps up to 36
+// hours.
+//
 // Last commit touching any of these paths, as a unix timestamp. `--` guards
 // against a path that also looks like a revision.
 function lastCommit(paths) {

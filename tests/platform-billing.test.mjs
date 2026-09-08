@@ -1097,8 +1097,13 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
   // Reply-To — and was false on the two emails where somebody most needs a
   // person, because the platform has no inbox yet.
   const kit = read("supabase/functions/_shared/emailKit.ts");
+  // **RE-POINTED, NOT RELAXED — 2026-09-07.** Roadmap 8.17 stage 2a gave the
+  // footer a LANGUAGE argument, so the call is `reachUs(brand, legal, lang)`
+  // and an exact-string check went red on a correct change. What it asserts is
+  // that the last line is COMPUTED from the brand rather than typed, and that
+  // is what it reads now.
   check("the footer's last line is computed rather than fixed",
-    kit.includes("reachUs(brand, legal)"));
+    /reachUs\(brand, legal[,)]/.test(kit));
   check("no address means it offers the phone instead of a reply",
     /if \(brand\.contactEmail\) return/.test(kit) && /call or text/.test(kit));
   check("and neither means it promises nothing at all",

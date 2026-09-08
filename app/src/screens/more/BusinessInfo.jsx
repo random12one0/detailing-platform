@@ -63,7 +63,43 @@ export default function BusinessInfo() {
   // Changing timezone is silent unless there are future bookings whose
   // displayed times would move; then we show exactly what will change,
   // using a real job from their calendar.
+  // ROADMAP 8 AUDIT, 2026-09-07 — A REVIEW LINK HAS TO BE A LINK.
+  //
+  // Both of these become an `href`: in the thank-you email, and on the
+  // detailer's own website through `get_public_business_profile`. A pasted
+  // `javascript:` or a value with a quote in it is a link a detailer can point
+  // anywhere inside mail their own customers trust.
+  //
+  // **THE DATABASE IS THE ENFORCEMENT** — a check constraint on both columns,
+  // `20260907009000_review_links_are_links.sql` — and this is the COURTESY, the
+  // same division the emailable predicate uses. Without it the constraint's own
+  // message reaches the screen, and *"new row violates check constraint
+  // business_settings_google_review_url_is_https"* is not something to show
+  // somebody who pasted a link with `http` on the front.
+  // The character class is the CONSTRAINT'S OWN, character for character. A
+  // looser one here is worse than none: it waves a value through and the
+  // database then refuses it with its own wording, which is the exact thing
+  // this guard exists to prevent. `tests/payments.test.mjs` § 7 runs a corpus
+  // through both and fails on any value the two disagree about.
+  const badLink = (v) => {
+    const t = String(v ?? "").trim();
+    return t !== "" && !/^https:\/\/[A-Za-z0-9._~:/?#@!$&*+,;=%()[\]-]{3,180}$/.test(t);
+  };
+
   const save = async () => {
+    for (const [label, value] of [
+      ["Google", reviews.google_review_url],
+      ["Yelp", reviews.yelp_review_url],
+    ]) {
+      if (badLink(value)) {
+        setMsg({
+          ok: false,
+          text: `That ${label} review link doesn't look like a web address. `
+            + `Paste the whole thing, starting with https://`,
+        });
+        return;
+      }
+    }
     if (biz.timezone !== business.timezone) {
       const { data: upcoming } = await supabase
         .from("bookings")

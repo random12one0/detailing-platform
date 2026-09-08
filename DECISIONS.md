@@ -267,6 +267,10 @@ were made more than once.
 
 - **Roadmap 8.17 — Spanish, and "I can't check that" is the design brief** — nobody who can approve this product can read the output, so the question is never *how do we translate well* but **what makes a wrong translation cheap to find and cheap to fix.** Four answers shape everything: **the ENGLISH IS THE KEY**, so an untranslated string renders correct English rather than a debug identifier; a copy edit that orphans its translation FAILS a check rather than going quiet; **English is never taken away**, so a confusing line is an annoyance somebody switches out of; and **`es-US` never `es-ES`**, which keeps `$1,234.50` and the 12-hour clock. **Staged from a MEASUREMENT**: ~2,600 candidate strings in the product, 148 of them the whole booking journey — a complete audience for 6% of the work. No library, because `t()` is a lookup, an interpolation and a change event. The calendar's words come from `Intl` and its weekday initials are DERIVED, because Spanish's are L M M J V S D — a different set in a different order. **And the picker cost 25px of every step until it was measured**: a chip's 44px tap floor against a 19px masthead put eight steps past the bottom of a 392 screen; negative block margins keep the tap area and give the row its height back, and the whole feature now costs 1px. It also broke the booking sweep by being the first `.bk-chip` on the page — which failed one step later, reading as a broken form rather than a renamed handle.
 
+- **The audit, 2026-09-07 — the one real risk in it was a review link, and the database is where it got fixed** — at his ask to *"look for any errors or risks and make improvements… even in the database."* `business_settings.google_review_url` and `yelp_review_url` were plain `text`, written straight from a browser form with no validation of any kind, and the thank-you email dropped them **unescaped into an `href`**. So a detailer could type `"><a href="…">Confirm your card</a><a href="` and put an arbitrary link inside every thank-you email their own customers receive — an email those customers correctly trust, because it genuinely came from their detailer. **And it reaches further than email**: both columns are published by `get_public_business_profile`, so they land on the tenant's own website too, where a `javascript:` href is not inert the way it is in a mail client. **Escaping the sink was not accepted as the fix**, because there are three sinks — the email, the public profile, and whatever a tenant site does with it — and escaping each one is a list to keep, which this repo has already been short by one on twice. **So the value is constrained where it is STORED**, https-only by check constraint, which is `payments.ts`'s existing position for payment handles applied one column over. **The browser guard uses the constraint's character class CHARACTER FOR CHARACTER**, and a corpus is run through both in `tests/payments.test.mjs` § 7: a looser guard is worse than none, because it waves a value through and the database then refuses it in its own wording — *"new row violates check constraint business_settings_google_review_url_is_https"* — which is the exact thing the guard exists to prevent. Six breaks all caught. **The rest of the audit found no second risk**: nine missing foreign-key indexes (`scripts/db-audit.mjs`, four read-only lints, baselined against four planted defects), two stale checks left over from an earlier stage, and fifteen edge functions running code older than the commit that describes them.
+
+- **A source edit during a browser script poisoned the same sweep twice in one hour, and the guard is the only reason anybody knows** — `sweep-widths.mjs` printed *clean at 1920, 1440, 392, 360, 320* on two consecutive runs and both were worthless, because `BusinessInfo.jsx` was saved mid-walk each time and Vite reloads the page on any edit under `app/src`. **A reload does not fail a run**: every check that script owns asks whether something is off an edge, and a screen that never opened has no edges to be wrong — so the damage is a GREEN run that measured less than it claims. `scripts/source-guard.mjs` named the file both times. **The lesson is not "be careful" — it is an ORDERING one**: finish every source edit, including the ones a baseline makes and reverts, before the browser opens. Baselining a check is source editing, and that is the half that caught this session out.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -15656,3 +15660,176 @@ name. A Spanish customer meets a **Spanish form around an English menu**.
 That is still worth having: the confusing part of a booking form is never the
 noun you are choosing between, it is knowing what step you are on and what goes
 in the box.
+
+## The audit, 2026-09-07 — the one real risk in it was a review link, and the database is where it got fixed
+
+His ask, while he was out: *"Can you do tests and stuff on every aspect of the
+website. Look for any errors or risks and make improvements… Even in the
+database u can do stuff with that also no blocking make sure everything is
+prepped for the next stages."*
+
+### What it actually found
+
+Four things, and only one of them is a risk.
+
+1. **An unvalidated review link reaching an unescaped `href`.** Below.
+2. **Nine foreign keys with no index**, found by `scripts/db-audit.mjs`.
+3. **Two stale checks** left behind by an earlier stage, found by running the
+   FULL battery rather than the suites the last item touched.
+4. **Fifteen edge functions running code older than the commit describing
+   them**, found by `check-deployed`. Redeployed; not a defect in anything.
+
+### The risk
+
+`business_settings.google_review_url` and `yelp_review_url` were plain `text`
+columns, written straight from a browser form with **no validation of any
+kind**, and `followupEmail` dropped them into an attribute unescaped:
+
+```
+<a href="${href}" …>
+```
+
+So a detailer could type
+
+```
+"><a href="https://…">Confirm your card</a><a href="
+```
+
+into their own settings and have an arbitrary link appear inside **every
+thank-you email their customers receive** — an email those customers correctly
+trust, because it genuinely came from their detailer. That is the whole of the
+attack: no platform compromise, no other tenant's data, one detailer given a
+channel into their own customers' inboxes with our sending reputation on it.
+
+**And it reaches further than email.** Both columns are published by
+`get_public_business_profile`, so they land on the tenant's own website too
+(phase 3). In a BROWSER a `javascript:` href is not inert the way it is in a
+mail client, and that is the version of this that actually runs code.
+
+### Why the escape was not accepted as the fix
+
+`emailKit.ts` escapes every URL it puts in an attribute now — all four of them,
+not just the one that was found — and that closes the break-out. **But that is
+the fix for the SINK, and there are three sinks**: the email, the public
+profile, and whatever a tenant site does with the value. Escaping each one is a
+list somebody has to keep, and this repo has already been short by one on
+exactly that shape of list twice.
+
+**So the value is constrained where it is STORED.** `20260907009000_review_
+links_are_links.sql` adds an https-only check constraint to both columns. That
+is not a new position: `payments.ts` already takes it for payment handles —
+*only a plain username or a pasted `https:` URL becomes a link* — and this is
+the same rule one column over.
+
+`https` only, not `http`: a review link is a public page on Google or Yelp and
+both are https, so allowing plaintext buys nothing and permits a downgrade.
+**`not valid` was not needed** — every existing row was checked first: fourteen
+settings rows, one review URL each on two of them, both already https.
+
+### The browser guard is the courtesy, and its only property is agreement
+
+Without something in `BusinessInfo.jsx`, the constraint's own message reaches
+the screen, and *"new row violates check constraint
+business_settings_google_review_url_is_https"* is not something to show
+somebody who pasted a link with `http` on the front.
+
+**Its character class is the constraint's, character for character**, and
+`tests/payments.test.mjs` § 7c runs a corpus through both and fails on any
+value the two disagree about. That check is the whole reason the guard is worth
+having:
+
+- **Looser than the database** and it waves a value through for the constraint
+  to refuse in its own wording — which is precisely the thing it exists to
+  prevent, so a loose guard is *worse* than no guard.
+- **Stricter than the database** and it refuses a link that would have worked,
+  with nothing for the detailer to argue with.
+
+A corpus rather than a string compare, because two patterns can be spelled
+differently and mean the same thing; agreement is the property, not spelling.
+
+### What is pinned, and how it was proven
+
+`tests/payments.test.mjs` § 7 — 21 checks in the suite that already owns *what
+refuses to become a link*, because a review URL is the same shape as a payment
+handle one column over and a second file would be the copy that rots.
+
+- **7a renders the email rather than reading the file.** The question is what
+  reaches a customer's mail client, not what the source says. It counts
+  anchors in an attacked render against a benign one, asserts the smuggled
+  label is not an element's text, and asserts the value is still **there,
+  escaped rather than dropped** — a strip would hide the defect instead of
+  fixing it. **7a-iv exists only to prove the other three have subjects**
+  (the `email-brand` 7a-iii shape).
+- **7b lifts the pattern out of the migration** rather than retyping it, so a
+  later edit to the constraint is measured here, and runs the hostile set and
+  three real Google/Yelp URLs through it.
+- **7c reads the guard out of the JSX** and runs the corpus through both.
+
+Six breaks, each caught by the checks that name it: the escape removed (3
+fail), the constraint's tail anchor removed (4, including the agreement
+check from the other side), the guard loosened (1), the guard tightened (1),
+and the `return` taken out of `save` (1).
+
+### The other three
+
+**`scripts/db-audit.mjs`** asks four questions of the live schema, read-only,
+with the credentials every other script already uses: a table with RLS off, RLS
+on with no policies, a `security definer` function with no pinned
+`search_path`, and a foreign key with no index. Supabase's own advisors cover
+this ground and are good — they are also behind a login and a permission this
+session does not hold, which makes them a check somebody has to remember to go
+and look at. Both allowlists are NAMED rather than guessed (eight tables that
+are meant to have no policies, four keys that are meant to have no index), so
+a NINTH or a FIFTH is a finding rather than noise: **a check that cries wolf on
+every run is a check nobody reads.**
+
+Baselined against four planted defects, one per section, each applied to the
+live project and removed. **Section 1 was not exercised on the first attempt** —
+Supabase enabled RLS on the planted table by itself, so it landed in section 2
+— which is the same family as everything else in this file: the check looked
+proven and had never run.
+
+**Its foreign-key detector was too strict on the first version**, demanding an
+index whose leading columns equalled the key exactly, and it reported
+`booking_vehicles(business_id, booking_id)` as unindexed with
+`booking_vehicles_booking_idx` sitting right there. A composite key is served
+by an index on its most selective part. **Reporting a covered key is the same
+defect as missing an uncovered one**: both end with somebody ignoring the
+output.
+
+**Nine of the fourteen keys got an index** (`20260907008000_foreign_key_
+indexes.sql`) — the ones a real operation walks, because every index costs
+something on every insert and *"index every foreign key"* is a default rather
+than an argument. The five left out all point at `auth.users`, and this product
+never deletes an auth user: forgetting a customer deletes a `customers` row,
+removing a staff member deletes a MEMBERSHIP. Both files carry the same list
+and the same reasoning, so if that stops being true they change together.
+
+**The two stale checks were found by running the full battery**, which had not
+been run after the stage that broke them — `multi-vehicle` 5c described a
+function that had been folded into one call site, and `platform-billing`'s
+footer check named an argument list that had gained a parameter. Both were
+re-pointed and baselined. Neither had ever gone red; both had gone quiet.
+
+## A source edit during a browser script poisoned the same sweep twice in one hour
+
+`sweep-widths.mjs` printed *clean at 1920, 1440, 392, 360, 320 — nothing off
+the screen, nothing outside its own box, no boxes touching* on two consecutive
+runs, and **both were worthless**. `BusinessInfo.jsx` was saved mid-walk each
+time; Vite reloads the whole page on any edit under `app/src`, and the script
+was then driving a page that navigated out from under it.
+
+**A mid-run reload does not fail a run.** Every check that script owns asks
+whether something is off an edge, and a screen that never opened has no edges
+to be wrong — so the damage is not a red run, it is a GREEN one that measured
+less than it claims. `scripts/source-guard.mjs` named the file both times,
+which is the only reason either run was thrown away rather than signed off.
+
+CLAUDE.md already carries this rule twice and it still happened twice, so the
+useful part is not *be careful*. **It is an ordering rule: finish every source
+edit before the browser opens — including the ones a BASELINE makes and
+reverts.** Baselining a check means writing a defect into a source file and
+taking it out again, six times in this case, and that is the half that caught
+this session out: the edits were not "changes", they were proof, and they
+reload the page exactly the same way.
+

@@ -8445,6 +8445,52 @@ recommendation.
   research session after Phase 8's build items**, so it can also report on
   whatever the auth work in 8.2 turns up.
 
+### 8.21 — the audit, at his ask while he was out — **DONE 2026-09-07**
+
+> *"Can you do tests and stuff on every aspect of the website. Look for any
+> errors or risks and make improvements… Even in the database u can do stuff
+> with that also no blocking make sure everything is prepped for the next
+> stages."*
+
+- [x] **The full battery, all 29 credential-free suites plus the env-backed
+      ones** — ~2,300 checks. **Two were stale**, left over from stage 2a and
+      found only by running the WHOLE set rather than the suites near the last
+      change: `multi-vehicle` 5c described a helper that had been folded into
+      one call site, and `platform-billing`'s footer check named an argument
+      list that had since gained a parameter. Neither had ever gone red; both
+      had gone quiet. Re-pointed and baselined.
+- [x] **`scripts/db-audit.mjs`** — four read-only lints on the live schema
+      (RLS off; RLS on with no policies; `security definer` with no pinned
+      `search_path`; a foreign key with no index), with both allowlists NAMED
+      rather than guessed so a new one is a finding and not noise. Baselined
+      against four planted defects.
+- [x] **`20260907008000_foreign_key_indexes.sql`** — nine indexes, on the keys
+      a real operation actually walks. The five left out all point at
+      `auth.users`, which this product never deletes; both files carry the
+      list and the reasoning so they move together.
+- [x] **`20260907009000_review_links_are_links.sql` — the one real risk.**
+      `google_review_url` / `yelp_review_url` were plain `text` from a browser
+      form landing in an unescaped `href`, so a detailer could put an arbitrary
+      link inside every thank-you email their own customers receive, and the
+      same value reaches their website through
+      `get_public_business_profile`. **Fixed at the STORE rather than at the
+      sink** — there are three sinks and escaping each one is a list to keep —
+      with `emailKit.ts` escaping all four of its attribute URLs anyway and
+      `BusinessInfo.jsx` carrying the constraint's character class character
+      for character. `tests/payments.test.mjs` § 7, 21 checks, six breaks all
+      caught.
+- [x] **Deployment currency restored** — fifteen functions were running code
+      older than the commit describing them; all thirty redeployed and the
+      env-backed battery re-run against the new copies.
+- [x] **The layout sweep, the booking-step sweep and the console: clean.**
+      **The sweep had to be run three times** — the first two printed clean and
+      were thrown away because a source file was saved mid-walk each time, and
+      a screen that never opened has no edges to be wrong. The rule that came
+      out of it is in CLAUDE.md: **finish every source edit before the browser
+      opens, including the ones a BASELINE makes and reverts.**
+
+**Nothing here was blocking and nothing needs him.**
+
 ## Standing owner jobs
 
 - Pick and approve at every **OWNER** checkpoint — the plan stalls without
