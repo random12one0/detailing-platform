@@ -437,6 +437,23 @@ const NAMED = (english) => {
   return new RegExp(`^(?:${rx(english)}|${rx(es)})$`);
 };
 
+/** The same idea for `hasText`, WITHOUT the anchors.
+ *
+ *  **`hasText` is a SUBSTRING match and `name` is not**, so handing it NAMED()'s
+ *  anchored pattern asks for a row whose entire text is the label — and a
+ *  `.nav-row` carries the label, its description and a chevron. In English this
+ *  was invisible because a plain STRING passed to `hasText` already matches as a
+ *  substring; the anchors only appeared when the value became a regex.
+ *
+ *  Found 2026-09-08 on the first Spanish run after NAMED() was repaired:
+ *  nineteen settings rows still reported NO SUCH ROW, having swapped one wrong
+ *  matcher for another. **Two matchers that look interchangeable and are not.** */
+const NAMED_TEXT = (english) => {
+  const es = APP_ES.get(english);
+  if (!es || es === english) return english;
+  return new RegExp(`(?:${rx(english)}|${rx(es)})`);
+};
+
 const appear = async (loc, ms = 6000) => {
   try { await loc.first().waitFor({ state: "attached", timeout: ms }); return true; }
   catch { return false; }
@@ -586,7 +603,7 @@ for (const w of SIZES) {
       await p2.waitForSelector("input[type=email]", { timeout: 20000 });
       await settle(p2);
       found += await say("the way in", p2);
-      const make = p2.locator("form button.btn").filter({ hasText: NAMED("Create an account") });
+      const make = p2.locator("form button.btn").filter({ hasText: NAMED_TEXT("Create an account") });
       if (await make.count()) {
         await make.click();
         await settle(p2);
@@ -595,9 +612,9 @@ for (const w of SIZES) {
         console.log(`${"the way in · new account".padEnd(24)} NOT MEASURED — no "Create an account" button`);
         found++;
       }
-      const forgot = p2.locator("form button.btn").filter({ hasText: NAMED("I already have an account") });
+      const forgot = p2.locator("form button.btn").filter({ hasText: NAMED_TEXT("I already have an account") });
       if (await forgot.count()) await forgot.click();
-      const reset = p2.locator("form button.btn").filter({ hasText: NAMED("I forgot my password") });
+      const reset = p2.locator("form button.btn").filter({ hasText: NAMED_TEXT("I forgot my password") });
       if (await reset.count()) {
         await reset.click();
         await settle(p2);
@@ -833,7 +850,7 @@ for (const w of SIZES) {
     // WHOLE remaining pass with it, which is the most expensive way this
     // script can fail: four widths lost to a missing row. It cost a timed run
     // on 2026-09-03. Nothing in here may assume the demo's shape.
-    const tomorrowRow = page.locator(".row-item", { hasText: NAMED("Tomorrow") }).first();
+    const tomorrowRow = page.locator(".row-item", { hasText: NAMED_TEXT("Tomorrow") }).first();
     const deskRow = page.locator(".col-2 .settled-row").first();
     let opened = false;
     if (await tomorrowRow.count()) {
@@ -910,7 +927,7 @@ for (const w of SIZES) {
     await settle(page, 1500);
   }
   {
-    const owed = page.locator(".card", { hasText: NAMED("Mark paid") }).first();
+    const owed = page.locator(".card", { hasText: NAMED_TEXT("Mark paid") }).first();
     if (await owed.count()) {
       await owed.locator("[role=button]").first().click();
       await settle(page, 1500);
@@ -953,7 +970,7 @@ for (const w of SIZES) {
         // NAMED, because these are the day's own editors and every one of them
         // translates — addressed in English they were skipped in Spanish, and
         // the `continue` below made that look exactly like a clean run.
-        const card = page.locator(".daypanel .card", { hasText: NAMED(label) });
+        const card = page.locator(".daypanel .card", { hasText: NAMED_TEXT(label) });
         if (!(await card.count())) {
           console.log(`Calendar · day, ${label}`.padEnd(24) + "NOT MEASURED — no such editor on this day");
           found++; continue;
@@ -1150,7 +1167,7 @@ for (const w of SIZES) {
       // sweep printed "clean at all five widths" AND nineteen NO SUCH ROW lines
       // in the same output. The geometry verdict was true of the screens it
       // opened and silent about the ones it never reached.
-      const row = page.locator(".nav-row", { hasText: NAMED(key) });
+      const row = page.locator(".nav-row", { hasText: NAMED_TEXT(key) });
       if (!(await row.count())) { console.log(`${key.padEnd(24)} NO SUCH ROW (${label})`); found++; continue; }
       await row.first().click();
       await settle(page, 1600);
@@ -1195,7 +1212,7 @@ for (const w of SIZES) {
   // segmented control beside a number field, and the member form is two
   // drop-downs, a date and a money field on one row — which is the shape that
   // breaks at 320, not the list above it.
-  await page.locator(".nav-row", { hasText: NAMED("Monthly plans") }).first().click().catch(() => {});
+  await page.locator(".nav-row", { hasText: NAMED_TEXT("Monthly plans") }).first().click().catch(() => {});
   await settle(page, 1300);
   const addPlan = page.getByRole("button", { name: NAMED("Add a plan") });
   if (await appear(addPlan)) {
@@ -1420,7 +1437,7 @@ for (const w of SIZES) {
   // cannot see that — there is no spinner and the DOM goes quiet — so the
   // click below raced the fetch and reported NO SUCH ROW. It bit in `--lite`
   // first, because everything settles sooner with no animations running.
-  const finish = page.locator(".nav-row", { hasText: NAMED("Finish setting up") });
+  const finish = page.locator(".nav-row", { hasText: NAMED_TEXT("Finish setting up") });
   await finish.first().waitFor({ timeout: 10000 }).catch(() => {});
   if (!(await finish.count())) {
     console.log(`${"the setup row".padEnd(24)} NO SUCH ROW (re-run scripts/seed-demo.mjs)`);
@@ -1466,7 +1483,7 @@ for (const w of SIZES) {
 
   await page.getByRole("button", { name: NAMED("Settings"), exact: true }).first().click();
   await settle(page, 1400);
-  const tourRow = page.locator(".nav-row", { hasText: NAMED("Show me around") });
+  const tourRow = page.locator(".nav-row", { hasText: NAMED_TEXT("Show me around") });
   if (!(await tourRow.count())) {
     console.log(`${"the tour row".padEnd(24)} NO SUCH ROW`);
     found++;
