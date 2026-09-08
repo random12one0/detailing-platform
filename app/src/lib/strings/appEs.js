@@ -370,4 +370,71 @@ export const appEs = {
   "{amount} a year": "{amount} al año",
   "{amount} a month · next {date}": "{amount} al mes · siguiente {date}",
   "{amount} a year · next {date}": "{amount} al año · siguiente {date}",
+
+  // ── THE DETAILER'S OWN WORDS ON EACH EMAIL ───────────────────────────────
+  // `lib/emailMessages.js`: which email, when it goes out, and the prewritten
+  // sentences a detailer can adopt.
+  //
+  // **THE PRESETS ARE TRANSLATED AND THAT IS A DECISION.** A detailer reading
+  // a Spanish dashboard is choosing words to say to their OWN customers, so
+  // they should be offered them in the language they are reading — and what
+  // gets stored is whatever they picked, which is their words either way.
+  // `plan_visits.note` is the opposite case: the system writes it, so it stays
+  // one language for ever. The test is who is choosing.
+  "Booking confirmed": "Cita confirmada",
+  "The moment a customer books.": "En cuanto un cliente agenda.",
+  "Please have the car somewhere we can reach all four sides, and clear anything valuable out of the cabin before we arrive.":
+    "Por favor deja el carro donde podamos llegar a los cuatro lados, y saca cualquier cosa de valor de la cabina antes de que lleguemos.",
+  "We'll text you when we're on the way. If anything changes, just reply to this email.":
+    "Te mandamos un mensaje cuando vayamos en camino. Si algo cambia, solo responde a este correo.",
+  "Request received": "Solicitud recibida",
+  "When a customer asks for a time and you haven't answered yet.":
+    "Cuando un cliente pide una hora y aún no has respondido.",
+  "We usually answer the same day. Your time is held until we do.":
+    "Normalmente respondemos el mismo día. Tu horario queda apartado hasta entonces.",
+  "If you need it sooner than that, give us a call and we'll see what we can move.":
+    "Si lo necesitas antes, llámanos y vemos qué podemos mover.",
+  "Quote": "Cotización",
+  "When you send a price back.": "Cuando mandas un precio de vuelta.",
+  "This price holds for seven days. If the car is in better shape than the photos suggested, we'll charge less, not more.":
+    "Este precio se mantiene por siete días. Si el carro está mejor de lo que se veía en las fotos, cobramos menos, no más.",
+  "Request accepted": "Solicitud aceptada",
+  "When you say yes to a request.": "Cuando aceptas una solicitud.",
+  "Looking forward to it. We'll be in touch the day before.":
+    "Con gusto te esperamos. Te contactamos el día anterior.",
+  "Request declined": "Solicitud rechazada",
+  "When you can't take one.": "Cuando no puedes tomarla.",
+  "If you can be flexible on the day, message us — we often have cancellations.":
+    "Si puedes ser flexible con el día, escríbenos — seguido tenemos cancelaciones.",
+  "Appointment reminder": "Recordatorio de cita",
+  "Before the job. Timing is set in Booking rules.":
+    "Antes del trabajo. El tiempo se ajusta en Reglas de citas.",
+  "Please leave the car unlocked and move it out of the garage if you can.":
+    "Por favor deja el carro abierto y sácalo del garaje si puedes.",
+  "We'll need access to a tap and an outlet. If that's a problem, let us know and we'll bring our own.":
+    "Vamos a necesitar una llave de agua y un tomacorriente. Si eso es problema, avísanos y llevamos los nuestros.",
+  "Second reminder": "Segundo recordatorio",
+  "Only if you've switched the second one on.": "Solo si activaste el segundo.",
+  "See you shortly — we're on schedule.": "Nos vemos pronto — vamos a tiempo.",
+  "Rescheduled": "Reagendada",
+  "When a booking moves.": "Cuando una cita se mueve.",
+  "Sorry for the change. Everything else about the job stays the same.":
+    "Perdón por el cambio. Todo lo demás del trabajo sigue igual.",
+  "When a booking is called off.": "Cuando se cancela una cita.",
+  "No hard feelings — book again any time and we'll fit you in.":
+    "Sin problema — agenda otra vez cuando quieras y te acomodamos.",
+  "Receipt": "Recibo",
+  "After the job is paid.": "Después de que se paga el trabajo.",
+  "Thanks for your business. Keep this for your records.":
+    "Gracias por tu preferencia. Guarda esto para tus registros.",
+  "Invoice": "Factura",
+  "When there's still something owed.": "Cuando todavía se debe algo.",
+  "Payment can be cash, card or Zelle — whatever is easiest.":
+    "El pago puede ser en efectivo, tarjeta o Zelle — lo que te sea más fácil.",
+  "Thank-you and review request": "Agradecimiento y reseña",
+  "After you record payment.": "Después de que registras el pago.",
+  "If anything isn't right, tell us first — we'd rather fix it than read about it.":
+    "Si algo no está bien, dinos primero — preferimos arreglarlo a leerlo después.",
+  "Reviews genuinely help a small business like ours. It takes about a minute.":
+    "Las reseñas de verdad ayudan a un negocio pequeño como el nuestro. Toma como un minuto.",
 };

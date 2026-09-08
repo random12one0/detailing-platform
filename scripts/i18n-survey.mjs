@@ -255,8 +255,15 @@ function candidates(raw) {
   // 2 · EVERY OTHER STRING LITERAL, minus what the header rules out. This is
   // the half the first version did not have, and it is where `"Next up"` and
   // `"Waiting on you"` live.
-  for (const m of src.matchAll(/(["'])((?:[^"'\\\n]|\\.)*)\1/g)) {
-    const text = m[2];
+  // **THE BODY MAY ONLY EXCLUDE THE OPENING QUOTE, NOT BOTH.** The first
+  // version used one pattern with a backreference and a body of `[^"'\\\n]`,
+  // which cannot match `"We'll text you"` at all — so the sweep then found
+  // `'ll text you when we'` as if it were a single-quoted string and reported
+  // that fragment as an untranslated line. Every contraction in the product
+  // came back mangled. Two alternatives, one per quote character, is the only
+  // shape a regex can express this in.
+  for (const m of src.matchAll(/"((?:[^"\\\n]|\\.)*)"|'((?:[^'\\\n]|\\.)*)'/g)) {
+    const text = m[1] ?? m[2];
     if (!text) continue;
     const before = src.slice(Math.max(0, m.index - 60), m.index);
 
