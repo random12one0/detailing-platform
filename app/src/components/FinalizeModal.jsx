@@ -134,7 +134,10 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
                   className={`chip${paymentNotes === m ? " active" : ""}`}
                   onClick={() => setPaymentNotes(paymentNotes === m ? "" : m)}
                 >
-                  {m}
+                  {/* The CHIP is translated; `paymentNotes` keeps the English,
+                      because it is written to the booking and read back on a
+                      receipt months later. The `plan_visits.note` rule. */}
+                  {t(m)}
                 </button>
               ))}
             </div>
@@ -180,7 +183,7 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
                 <div className="row-item" key={i} style={{ cursor: "default" }}>
                   <span className="txt">
                     <span className="nm">{it.label}</span>
-                    <span className="sub">{CATEGORIES.find(([k]) => k === it.category)?.[1]}</span>
+                    <span className="sub">{t(CATEGORIES.find(([k]) => k === it.category)?.[1] ?? "")}</span>
                   </span>
                   <span className="figure sm">
                     {it.category === "discount" ? `-${money(it.amount)}` : money(it.amount)}
@@ -215,7 +218,7 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
           <div className="confirm-box">
             <p>
               {t("Mark this job complete and record")} <strong>{money(finalAmount)}</strong> as{" "}
-              <strong>{PAYMENT_LABELS[paymentStatus]}</strong>
+              <strong>{t(PAYMENT_LABELS[paymentStatus])}</strong>
               {items.length > 0 && <> , including {items.length} extra item{items.length > 1 ? "s" : ""}</>}?
             </p>
             <div className="row" style={{ gap: 8, marginTop: 10 }}>
@@ -223,7 +226,7 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
                 {t("Go back")}
               </button>
               <button className="btn primary inline" disabled={busy} onClick={save}>
-                {busy ? "Saving…" : "Yes, finalize"}
+                {busy ? t("Saving…") : t("Yes, finalize")}
               </button>
             </div>
           </div>

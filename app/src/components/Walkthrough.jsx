@@ -404,7 +404,7 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
         {/* The count is the "more steps rather than fewer" constraint made
             visible — it is what tells someone the tour is seven short things
             rather than an unknown number of long ones. */}
-        <span className="label">{i + 1} of {(plan ?? STEPS).length}</span>
+        <span className="label">{t("{n} of {total}", { n: i + 1, total: (plan ?? STEPS).length })}</span>
         {/* THE LIVE REGION IS THE WRAPPER, NOT THE SENTENCE, and the two are
             not interchangeable: a screen reader announces content INSERTED
             into a region it is already watching, and `key` below replaces the
@@ -415,7 +415,7 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
             arrival — without it React swaps the text node and the step lands
             with no motion at all, which on an overlay that is otherwise
             perfectly still reads as a glitch rather than as a change. */}
-        <div aria-live="polite"><p className="body tourline" key={i}>{sentence}</p></div>
+        <div aria-live="polite"><p className="body tourline" key={i}>{t(sentence)}</p></div>
         <div className="btnrow">
           <button className="btn sm inline ghost" onClick={close}>{t("Skip the tour")}</button>
           <button className="btn sm inline primary" onClick={next}>
@@ -425,7 +425,7 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
                 which reads as the tour breaking. Harmless while every
                 dashboard had all seven; per-tab guides make a short plan
                 the ordinary case. */}
-            {i + 1 === (plan ?? STEPS).length ? "Done" : "Next"}
+            {i + 1 === (plan ?? STEPS).length ? t("Done") : t("Next")}
           </button>
         </div>
       </div>

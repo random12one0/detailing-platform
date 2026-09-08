@@ -34,7 +34,7 @@ import { Segmented, Switch } from "./controls.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
-import { t } from "../lib/appI18n.js";
+import { appIntlLocale, t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 
 const hhmm = (v) => (v ? v.slice(0, 5) : "");
@@ -59,7 +59,8 @@ const MODES = {
 };
 // "· through Fri 5 Sep", and nothing at all for a single day.
 const spanNote = (start, end) => (end && end > start
-  ? ` · through ${new Date(`${end}T12:00:00`).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}`
+  ? ` · ${t("through {date}", { date: new Date(`${end}T12:00:00`)
+    .toLocaleDateString(appIntlLocale(), { weekday: "short", month: "short", day: "numeric" }) })}`
   : "");
 
 export default function DaySheet({ date, bookings, inline = false, onClose, onOpenBooking, onNewBooking, onChanged }) {
@@ -141,6 +142,9 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
 
   const saveBlockout = () => run(() => supabase.from("blockout_dates").insert({
     business_id: business.id,
+    // Stored, not drawn: the fallback lands in `blockout_dates.event_name`
+    // and stays there, so it is one language for ever — the `plan_visits.note`
+    // rule. What the SCREEN draws for it is translated below.
     event_name: block.event_name.trim() || "Closed",
     start_date: date, end_date: laterOf(date, block.end_date),
     all_day: block.all_day,
@@ -210,7 +214,8 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
   const hoursSpan = spanOf(hours.end_date);
   const dropoffSpan = spanOf(dropoff.end_date);
 
-  const subtitle = active.length === 0 ? "No jobs" : `${active.length} job${active.length > 1 ? "s" : ""}`;
+  const subtitle = active.length === 0 ? t("No jobs")
+    : t(active.length === 1 ? "{count} job" : "{count} jobs", { count: active.length });
   const body = (
         <div className="group">
           <div className="tight day-jobs">
@@ -280,7 +285,7 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
                         {state.loading ? "" : state.blockout
                           ? `${state.blockout.event_name}${state.blockout.all_day ? "" : ` · ${hhmm(state.blockout.start_time)}–${hhmm(state.blockout.end_time)}`}`
                             + spanNote(state.blockout.start_date, state.blockout.end_date)
-                          : "Bookings allowed as normal"}
+                          : t("Bookings allowed as normal")}
                       </div>
                     </div>
                   </div>
@@ -304,7 +309,7 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
                         <input value={block.event_name} placeholder={t("Vacation, appointment…")}
                           onChange={(e) => setBlock({ ...block, event_name: e.target.value })} /></label>
                       {/* W2 — a range, defaulting to this one day. */}
-                      <label className="field"><span>Through (inclusive)</span>
+                      <label className="field"><span>{t("Through (inclusive)")}</span>
                         <input type="date" value={block.end_date} min={date}
                           onChange={(e) => setBlock({ ...block, end_date: e.target.value })} /></label>
                       <label className="row" style={{ gap: 10 }}>
@@ -323,7 +328,9 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
                         </div>
                       )}
                       <button className="btn primary" disabled={busy} onClick={saveBlockout}>
-                        {busy ? "Saving…" : blockSpan > 1 ? `Block these ${blockSpan} days` : "Block this day"}
+                        {busy ? t("Saving…") : blockSpan > 1
+                          ? t("Block these {count} days", { count: blockSpan })
+                          : t("Block this day")}
                       </button>
                     </div>
                   </>
@@ -343,16 +350,17 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
                       <div className="quiet" style={{ marginTop: 2 }}>
                         {state.loading ? "" : state.override
                           ? (state.override.open_time
-                            ? `${hhmm(state.override.open_time)}–${hhmm(state.override.close_time)} just for this day`
-                            : "Closed just for this day")
-                          : "Your normal hours for this weekday"}
+                            ? t("{from}–{to} just for this day", {
+                              from: hhmm(state.override.open_time), to: hhmm(state.override.close_time) })
+                            : t("Closed just for this day"))
+                          : t("Your normal hours for this weekday")}
                       </div>
                     </div>
                   </div>
                   {canEdit && (
                     <button className="btn sm inline" disabled={busy}
                       onClick={own(() => setEditing(editing === "hours" ? null : "hours"))}>
-                      {state.override ? "Change" : "Set"}
+                      {state.override ? t("Change") : t("Set")}
                     </button>
                   )}
                 </div>
@@ -374,7 +382,7 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
                           the set hours as this for just a short time"), and
                           the shape that answers it is the one already on the
                           other two cards, so there was nothing to invent. */}
-                      <label className="field"><span>Through (inclusive)</span>
+                      <label className="field"><span>{t("Through (inclusive)")}</span>
                         <input type="date" value={hours.end_date} min={date}
                           onChange={(e) => setHours({ ...hours, end_date: e.target.value })} /></label>
                       <label className="field"><span>{t("Note")}</span>
@@ -424,14 +432,14 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
                           ? `${MODES[state.dropoff.mode ?? "dropoff"].said}`
                             + spanNote(state.dropoff.start_date, state.dropoff.end_date)
                             + (state.dropoff.reason ? ` · ${state.dropoff.reason}` : "")
-                          : "Mobile and drop-off both bookable"}
+                          : t("Mobile and drop-off both bookable")}
                       </div>
                     </div>
                   </div>
                   {canEdit && (
                     <button className="btn sm inline" disabled={busy}
                       onClick={own(() => (state.dropoff ? clearDropoff() : setEditing(editing === "dropoff" ? null : "dropoff")))}>
-                      {state.dropoff ? "Remove" : "Set"}
+                      {state.dropoff ? t("Remove") : t("Set")}
                     </button>
                   )}
                 </div>
@@ -443,14 +451,17 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
                         <Segmented value={dropoff.mode}
                           onChange={(v) => setDropoff({ ...dropoff, mode: v })}
                           options={[["dropoff", "Drop-offs"], ["mobile", "Mobile jobs"]]} /></label>
-                      <label className="field"><span>Through (inclusive)</span>
+                      <label className="field"><span>{t("Through (inclusive)")}</span>
                         <input type="date" value={dropoff.end_date} min={date}
                           onChange={(e) => setDropoff({ ...dropoff, end_date: e.target.value })} /></label>
                       <label className="field"><span>{t("Reason")}</span>
                         <input value={dropoff.reason} placeholder={t("Van in the shop…")}
                           onChange={(e) => setDropoff({ ...dropoff, reason: e.target.value })} /></label>
                       <button className="btn primary" disabled={busy} onClick={saveDropoff}>
-                        {busy ? "Saving…" : `${MODES[dropoff.mode].only} for ${dropoffSpan > 1 ? `these ${dropoffSpan} days` : "this day"}`}
+                        {busy ? t("Saving…")
+                          : dropoffSpan > 1
+                            ? t("{mode} for these {count} days", { mode: t(MODES[dropoff.mode].only), count: dropoffSpan })
+                            : t("{mode} for this day", { mode: t(MODES[dropoff.mode].only) })}
                       </button>
                     </div>
                   </>
