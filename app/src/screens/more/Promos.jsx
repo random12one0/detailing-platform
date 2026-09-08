@@ -9,8 +9,14 @@ import { money } from "../../lib/format.js";
 // screen crashed the whole app the moment it rendered. Found by roadmap
 // 2.3's settings sweep; pre-existing, not caused by the restyle.
 import { DurationChoice, Group, Segmented, Setting, Switch } from "../../components/controls.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../../lib/appI18n.js";
+import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 export default function Promos() {
+  useAppLocale();
   const { business, settings, reload } = useBusiness();
   const [codes, setCodes] = useState([]);
   const [form, setForm] = useState({ code: "", type: "percentage", value: "", usage_limit: "", once_per_customer: false });
@@ -62,7 +68,7 @@ export default function Promos() {
 
   return (
     <>
-      <Group title="Site-wide sale"
+      <Group title={t("Site-wide sale")}
         blurb="Comes off every booking automatically — no code for the customer to enter.">
         <Switch label="Sale is running" checked={sale.active}
           help={sale.active
@@ -79,13 +85,13 @@ export default function Promos() {
             </Setting>
             <Setting label="What to call it" stacked
               help="Shown on the booking page beside the discount. Leave blank for just the percentage.">
-              <input value={sale.label} placeholder="e.g. Spring Sale"
+              <input value={sale.label} placeholder={t("e.g. Spring Sale")}
                 onChange={(e) => setSale({ ...sale, label: e.target.value })} />
             </Setting>
           </>
         )}
       </Group>
-      <button className="btn" onClick={saveSale} style={{ marginBottom: "var(--sp-5)" }}>Save sale</button>
+      <button className="btn" onClick={saveSale} style={{ marginBottom: "var(--sp-5)" }}>{t("Save sale")}</button>
 
       <div className="card">
       {/* .thoughts, because every child of this card was a bare sibling with
@@ -94,17 +100,17 @@ export default function Promos() {
           W11, "boxes touching each other". Flow containers, not per-element
           margins — theme.css § SPACE. */}
       <div className="thoughts">
-      <div className="section-title" style={{ marginTop: 0, marginBottom: 0 }}>Promo codes</div>
+      <div className="section-title" style={{ marginTop: 0, marginBottom: 0 }}>{t("Promo codes")}</div>
       <div className="grid2">
-        <label className="field"><span>Code</span>
-          <input value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} placeholder="SUMMER10" /></label>
-        <label className="field"><span>Type</span>
+        <label className="field"><span>{t("Code")}</span>
+          <input value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} placeholder={t("SUMMER10")} /></label>
+        <label className="field"><span>{t("Type")}</span>
           <Segmented value={form.type}
             onChange={(v) => setForm({ ...form, type: v })}
             options={[["percentage", "% off"], ["amount", "$ off"]]} /></label>
       </div>
       <div className="grid2">
-        <label className="field"><span>Value</span>
+        <label className="field"><span>{t("Value")}</span>
           <input type="number" inputMode="decimal" value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })} /></label>
         <label className="field"><span>Usage limit (blank = unlimited)</span>
           <input type="number" inputMode="numeric" value={form.usage_limit} onChange={(e) => setForm({ ...form, usage_limit: e.target.value })} /></label>
@@ -115,9 +121,9 @@ export default function Promos() {
           are a row. */}
       <label className="row" style={{ gap: 10, cursor: "pointer" }}>
         <input type="checkbox" checked={form.once_per_customer} onChange={(e) => setForm({ ...form, once_per_customer: e.target.checked })} />
-        <span className="body">One use per customer</span>
+        <span className="body">{t("One use per customer")}</span>
       </label>
-      <button className="btn" onClick={addCode}>Add code</button>
+      <button className="btn" onClick={addCode}>{t("Add code")}</button>
 
       {codes.map((c) => (
         <div className="card row between" key={c.id} style={{ opacity: c.is_active ? 1 : 0.5 }}>

@@ -11,10 +11,16 @@ import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { todayLocal } from "../lib/format.js";
 import Sheet from "./Sheet.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 const CATEGORIES = ["product", "gas", "equipment", "supplies", "other"];
 
 export default function ExpenseModal({ onClose, onSaved }) {
+  useAppLocale();
   const { business } = useBusiness();
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState(null);
@@ -48,10 +54,10 @@ export default function ExpenseModal({ onClose, onSaved }) {
   };
 
   return (
-    <Sheet onClose={onClose} title="Add expense" peek={62}>
+    <Sheet onClose={onClose} title={t("Add expense")} peek={62}>
 
         <label className="field">
-          <span>Amount</span>
+          <span>{t("Amount")}</span>
           <input
             ref={amountRef}
             type="number"
@@ -63,7 +69,7 @@ export default function ExpenseModal({ onClose, onSaved }) {
           />
         </label>
 
-        <div className="section-title" style={{ marginTop: 4 }}>Category</div>
+        <div className="section-title" style={{ marginTop: 4 }}>{t("Category")}</div>
         <div className="row" style={{ flexWrap: "wrap", gap: 8 }}>
           {CATEGORIES.map((c) => (
             <button
@@ -79,14 +85,14 @@ export default function ExpenseModal({ onClose, onSaved }) {
 
         {!showMore ? (
           <button className="btn ghost" style={{ marginTop: 12 }} onClick={() => setShowMore(true)}>
-            Add a note or change the date
+            {t("Add a note or change the date")}
           </button>
         ) : (
           <div style={{ marginTop: 12 }}>
-            <label className="field"><span>Note</span>
+            <label className="field"><span>{t("Note")}</span>
               <input value={description} placeholder={category || "Description"}
                 onChange={(e) => setDescription(e.target.value)} /></label>
-            <label className="field"><span>Date</span>
+            <label className="field"><span>{t("Date")}</span>
               <input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></label>
           </div>
         )}

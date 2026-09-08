@@ -34,11 +34,17 @@ import { Star, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { Segmented } from "../../components/controls.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../../lib/appI18n.js";
+import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 const BLANK = { author: "", quote: "", rating: 5, source: "" };
 const RATINGS = [[5, "5"], [4, "4"], [3, "3"], [2, "2"], [1, "1"]];
 
 export default function Reviews() {
+  useAppLocale();
   const { business } = useBusiness();
   const [rows, setRows] = useState([]);
   const [form, setForm] = useState(BLANK);
@@ -107,18 +113,16 @@ export default function Reviews() {
             one sentence. The copy rule bans a sentence that repeats the
             label; this one carries a fact nothing else on the screen does. */}
         <p className="quiet" style={{ marginTop: 0 }}>
-          What customers have said about your work. They go on your website —
-          that part is still being built, so collect them now and they will be
-          there when it lands.
+          {t("What customers have said about your work. They go on your website — that part is still being built, so collect them now and they will be there when it lands.")}
         </p>
 
-        <label className="field"><span>Who said it</span>
-          <input value={form.author} placeholder="First name and last initial"
+        <label className="field"><span>{t("Who said it")}</span>
+          <input value={form.author} placeholder={t("First name and last initial")}
             onChange={(e) => setForm({ ...form, author: e.target.value })} /></label>
 
-        <label className="field"><span>What they said</span>
+        <label className="field"><span>{t("What they said")}</span>
           <textarea value={form.quote} rows={3}
-            placeholder="Their words, not yours."
+            placeholder={t("Their words, not yours.")}
             onChange={(e) => setForm({ ...form, quote: e.target.value })} /></label>
 
         {/* NOT PAIRED. Measured at 392: a five-cell segmented control beside
@@ -126,14 +130,14 @@ export default function Reviews() {
             two lines, which then pushes the two controls out of line with
             each other. § THE 320 FLOOR already stacks paired fields at 320;
             this pair does not survive 392 either, so it is not a pair. */}
-        <label className="field"><span>Stars</span>
+        <label className="field"><span>{t("Stars")}</span>
             {/* Five options, and a segmented control is what the design
                 system asks for at that count. The number is what a website
                 draws stars from, so it is stored as one. */}
           <Segmented label="Stars" value={Number(form.rating)} options={RATINGS}
             onChange={(v) => setForm({ ...form, rating: v })} /></label>
-        <label className="field"><span>Where it came from</span>
-          <input value={form.source} placeholder="Google, in person, a text…"
+        <label className="field"><span>{t("Where it came from")}</span>
+          <input value={form.source} placeholder={t("Google, in person, a text…")}
             onChange={(e) => setForm({ ...form, source: e.target.value })} /></label>
 
         <div className="btnrow">
@@ -142,7 +146,7 @@ export default function Reviews() {
             {editing ? "Save changes" : "Add review"}
           </button>
           {editing && (
-            <button className="btn" onClick={() => { setEditing(null); setForm(BLANK); }}>Cancel</button>
+            <button className="btn" onClick={() => { setEditing(null); setForm(BLANK); }}>{t("Cancel")}</button>
           )}
         </div>
 
@@ -151,7 +155,7 @@ export default function Reviews() {
         {/* AN EMPTY SCREEN IS ONE SENTENCE, NAMED IN THE CUSTOMER'S TERMS
             (§11's state rule) — never "No records." */}
         {!busy && !error && rows.length === 0 && (
-          <p className="body">No reviews yet — your website has nothing from a customer on it.</p>
+          <p className="body">{t("No reviews yet — your website has nothing from a customer on it.")}</p>
         )}
 
         <div className={`rows${busy ? " refreshing" : ""}`} aria-busy={busy || undefined}>

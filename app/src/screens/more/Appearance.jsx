@@ -31,8 +31,14 @@ import { useState } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { PRESET_COLORS, brandVarsFor, describeAccent, CUSTOMER_BG, HOUSE_ACCENT } from "../../lib/theme.js";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../../lib/appI18n.js";
+import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 export default function Appearance() {
+  useAppLocale();
   const { business, branding, reload } = useBusiness();
   const [custom, setCustom] = useState(branding?.primary_color || HOUSE_ACCENT);
   const [msg, setMsg] = useState(null);
@@ -75,9 +81,7 @@ export default function Appearance() {
           and a heading repeated twelve pixels below itself is noise. */}
       <div className="tight">
         <p className="quiet">
-          It marks the buttons and highlights on your booking page, on your
-          website, and on this dashboard. If a colour is too faint to read,
-          it is adjusted just enough to stay legible.
+          {t("It marks the buttons and highlights on your booking page, on your website, and on this dashboard. If a colour is too faint to read, it is adjusted just enough to stay legible.")}
         </p>
       </div>
 
@@ -103,7 +107,7 @@ export default function Appearance() {
           choice has a visible effect, so it is what makes the choice
           make sense. Drawn on the booking page's own ground. */}
       <div className="tight">
-        <span className="label">On your booking page</span>
+        <span className="label">{t("On your booking page")}</span>
         <div className="sunken" style={{ background: CUSTOMER_BG }}>
           <div className="row between" style={{ gap: 12 }}>
             <span className="num" style={{ color: v["--bk-accent-text"], fontSize: "var(--t-strong)" }}>
@@ -116,17 +120,17 @@ export default function Appearance() {
                 color: v["--bk-accent-ink"], fontWeight: 700, pointerEvents: "none",
               }}
             >
-              Book it
+              {t("Book it")}
             </span>
           </div>
         </div>
       </div>
 
       <label className="field">
-        <span>Any other colour</span>
+        <span>{t("Any other colour")}</span>
         <div className="row" style={{ gap: 10 }}>
           <input type="color" value={custom} onChange={(e) => setCustom(e.target.value)} style={{ maxWidth: 90 }} />
-          <button className="btn inline" onClick={() => saveBrandColor(custom)}>Use this colour</button>
+          <button className="btn inline" onClick={() => saveBrandColor(custom)}>{t("Use this colour")}</button>
         </div>
       </label>
 

@@ -53,6 +53,11 @@ import { api } from "../../lib/api.js";
 import { appearanceFromTokens, loadStripeJs } from "../../lib/stripejs.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { planAndTerm, planChoice } from "../../lib/planChoice.js";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../../lib/appI18n.js";
+import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 const usd = (cents) =>
   `$${(cents / 100).toLocaleString("en-US", {
@@ -117,6 +122,7 @@ const RUNGS = [
 ];
 
 export default function Billing() {
+  useAppLocale();
   const { business } = useBusiness();
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
@@ -311,7 +317,7 @@ export default function Billing() {
   if (!data) {
     return (
       <div className="card" data-loading="">
-        <p className="quiet" style={{ margin: 0 }}>Checking your subscription…</p>
+        <p className="quiet" style={{ margin: 0 }}>{t("Checking your subscription…")}</p>
       </div>
     );
   }
@@ -341,8 +347,8 @@ export default function Billing() {
     return (
       <p className="quiet" style={{ marginTop: "var(--sp-5)" }}>
         Something not right with a charge?{" "}
-        {c.phone && <>Call or text <span className="num">{c.phone}</span>. </>}
-        {c.email && <>Or email <a href={`mailto:${c.email}`}>{c.email}</a>.</>}
+        {c.phone && <>{t("Call or text")} <span className="num">{c.phone}</span>. </>}
+        {c.email && <>{t("Or email")} <a href={`mailto:${c.email}`}>{c.email}</a>.</>}
       </p>
     );
   }
@@ -386,10 +392,7 @@ export default function Billing() {
           <div className="error-box" data-billing-dunning="down">
             <TriangleAlert strokeWidth={2} />
             <span>
-              <strong>Your booking page is offline.</strong> The last
-              subscription ended after the payments stopped going through.
-              Picking a plan below turns the page back on straight away —
-              nothing was deleted and nothing is owed from before.
+              <strong>{t("Your booking page is offline.")}</strong> {t("The last subscription ended after the payments stopped going through. Picking a plan below turns the page back on straight away — nothing was deleted and nothing is owed from before.")}
             </span>
           </div>
         )}
@@ -402,7 +405,7 @@ export default function Billing() {
           what keeps your booking page online.
         </p>
 
-        <div className="section-title">Ways to pay</div>
+        <div className="section-title">{t("Ways to pay")}</div>
         {/* THE BUILD FEE IS 94% OF WHAT LEAVES THE BANK ON DAY ONE AND WAS ONE
             PRESS PAST THE DECISION. Every rung printed "$60 a month" while the
             first charge was $1,059 — which is the same dishonesty this ladder's
@@ -417,7 +420,7 @@ export default function Billing() {
                 thing on the screen. "These" names the three it sits above. */}
             Every one of these also includes the one-time{" "}
             {listBuildFee > buildFee && <s className="was">{usd(listBuildFee)}</s>}
-            <span className="num">{usd(buildFee)}</span> build.
+            <span className="num">{usd(buildFee)}</span> {t("build.")}
           </p>
         )}
         <div className="rows">
@@ -478,7 +481,7 @@ export default function Billing() {
             difference in product. */}
         {data.quotes.booking && (
           <>
-            <div className="section-title">Or just the booking page</div>
+            <div className="section-title">{t("Or just the booking page")}</div>
             <div className="rows">
               <button
                 className="row-item"
@@ -487,9 +490,9 @@ export default function Billing() {
                 onClick={() => pickRung("booking")}
               >
                 <span className="txt">
-                  <span className="nm">Booking page only</span>
+                  <span className="nm">{t("Booking page only")}</span>
                   <span className="sub full">
-                    No build fee and no term. Keep the website you have.
+                    {t("No build fee and no term. Keep the website you have.")}
                   </span>
                 </span>
                 <span className="figure sm">
@@ -518,20 +521,20 @@ export default function Billing() {
             changed is the one somebody is about to be charged. */}
         {q && (
           <div className="swap" key={`${chosen}:${promo?.code ?? ""}`}>
-            <div className="section-title">Before you pay</div>
+            <div className="section-title">{t("Before you pay")}</div>
             <div className="facts">
               <div>
-                <span className="quiet">Today</span>
+                <span className="quiet">{t("Today")}</span>
                 <span className="v strong num">{usd(q.first_charge_cents)}</span>
               </div>
               {q.setup_cents > 0 && (
                 <div>
-                  <span className="quiet">Of that, the build</span>
-                  <span className="v"><span className="strong num">{usd(q.setup_cents)}</span> once</span>
+                  <span className="quiet">{t("Of that, the build")}</span>
+                  <span className="v"><span className="strong num">{usd(q.setup_cents)}</span> {t("once")}</span>
                 </div>
               )}
               <div>
-                <span className="quiet">Then</span>
+                <span className="quiet">{t("Then")}</span>
                 <span className="v">
                   <span className="strong num">{usd(q.recurring_cents)}</span>
                   {" "}{q.bill_interval === "year" ? "every year" : "every month"}
@@ -545,8 +548,8 @@ export default function Billing() {
                   that does not exist on the thing being bought. */}
               {data.founding && chosen !== "booking" && (
                 <div>
-                  <span className="quiet">Founding price</span>
-                  <span className="v">Locked for as long as you stay</span>
+                  <span className="quiet">{t("Founding price")}</span>
+                  <span className="v">{t("Locked for as long as you stay")}</span>
                 </div>
               )}
             </div>
@@ -600,11 +603,11 @@ export default function Billing() {
                     control was unusable. `input { width: 100% }` is global
                     here, so a squeezed label is a squeezed input. */}
                 <label className="field">
-                  <span>Promo code</span>
+                  <span>{t("Promo code")}</span>
                   <input
                     value={typed}
                     data-billing-promo=""
-                    placeholder="If you were given one"
+                    placeholder={t("If you were given one")}
                     autoCapitalize="characters"
                     spellCheck={false}
                     disabled={!!promo || busy}
@@ -665,7 +668,7 @@ export default function Billing() {
                 the ladder is never cluttered by a form nobody opened. */}
             {pay && (
               <>
-                <div className="section-title">Card details</div>
+                <div className="section-title">{t("Card details")}</div>
                 <div ref={elementRef} data-billing-card="" style={{ marginBottom: "var(--sp-4)" }} />
               </>
             )}
@@ -673,7 +676,7 @@ export default function Billing() {
             {!data.configured && (
               <div className="warn-box">
                 <TriangleAlert strokeWidth={2} />
-                <span>Card payments are not switched on yet. Nothing here will charge you.</span>
+                <span>{t("Card payments are not switched on yet. Nothing here will charge you.")}</span>
               </div>
             )}
             {error && <div className="error-box">{error}</div>}
@@ -706,8 +709,7 @@ export default function Billing() {
                 screen where a reader is deciding whether to trust us. */}
             {pay && (
               <p className="muted" style={{ marginTop: "var(--sp-2)" }}>
-                The card fields above are Stripe's own — your number is sent
-                straight to them and never reaches us.
+                {t("The card fields above are Stripe's own — your number is sent straight to them and never reaches us.")}
               </p>
             )}
           </div>
@@ -739,17 +741,17 @@ export default function Billing() {
           </div>
         )}
 
-        <div className="section-title">What you pay us</div>
+        <div className="section-title">{t("What you pay us")}</div>
         <div className="facts">
           <div>
-            <span className="quiet">Plan</span>
+            <span className="quiet">{t("Plan")}</span>
             <span className="v">
               {sub.plan === "booking" ? "Booking system" : "Website and booking system"}
               {data.founding ? " · founding price" : ""}
             </span>
           </div>
           <div>
-            <span className="quiet">You pay</span>
+            <span className="quiet">{t("You pay")}</span>
             <span className="v">
               <span className="strong num">{usd(sub.recurring_cents)}</span>
               {" "}{sub.bill_interval === "year" ? "a year" : "a month"}
@@ -768,12 +770,12 @@ export default function Billing() {
                   before billing details are taken — /pricing does that — and
                   this is the copy that has to still be findable a year later,
                   which is what makes the fee defensible in a dispute. */}
-              <span className="quiet">Committed until</span>
+              <span className="quiet">{t("Committed until")}</span>
               <span className="v">{dateLong(`${sub.term_ends_on}T12:00:00Z`)}</span>
             </div>
           )}
           <div>
-            <span className="quiet">Card</span>
+            <span className="quiet">{t("Card")}</span>
             <span className="v">
               {/* Stripe writes the brand lowercase ("visa"), and a card is a
                   proper noun everywhere a person has ever seen one. */}
@@ -785,12 +787,12 @@ export default function Billing() {
         </div>
 
         <button className="btn" disabled={busy} onClick={() => act(() => api.billingPortal(business.id))}>
-          <CreditCard strokeWidth={2} /> Update card
+          <CreditCard strokeWidth={2} /> {t("Update card")}
         </button>
 
         {data.invoices.length > 0 && (
           <>
-            <div className="section-title">Payments</div>
+            <div className="section-title">{t("Payments")}</div>
             <div className="rows">
               {data.invoices.map((inv) => {
                 // AN INVOICE WITH NO DOCUMENT BEHIND IT IS NOT A LINK. `href="#"`
@@ -831,7 +833,7 @@ export default function Billing() {
                 : ""}
             </p>
             <button className="btn" disabled={busy} onClick={() => act(() => api.billingResume(business.id))}>
-              Keep my subscription
+              {t("Keep my subscription")}
             </button>
           </>
         ) : confirming ? (
@@ -844,14 +846,14 @@ export default function Billing() {
                 same voice as every other figure on the screen. */}
             <div className="facts">
               <div>
-                <span className="quiet">To pay now</span>
+                <span className="quiet">{t("To pay now")}</span>
                 <span className="v strong num">
                   {data.exit_fee_cents > 0 ? usd(data.exit_fee_cents) : "Nothing"}
                 </span>
               </div>
               {data.exit_fee_cents > 0 && (
                 <div>
-                  <span className="quiet">Why</span>
+                  <span className="quiet">{t("Why")}</span>
                   <span className="v">You committed to {sub.term_months} months</span>
                 </div>
               )}
@@ -877,12 +879,12 @@ export default function Billing() {
               {busy ? "One moment" : "Yes, cancel it"}
             </button>
             <button className="btn ghost" style={{ marginTop: 10 }} onClick={() => setConfirming(false)}>
-              Never mind
+              {t("Never mind")}
             </button>
           </>
         ) : (
           <button className="btn danger" data-billing-cancel="" onClick={() => setConfirming(true)}>
-            Cancel my subscription
+            {t("Cancel my subscription")}
           </button>
         )}
         {reachUs()}

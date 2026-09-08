@@ -34,6 +34,11 @@ import {
 } from "../../lib/plans.js";
 import { MoneyField, Segmented, Setting, Stepper, Switch } from "../../components/controls.jsx";
 import BookingLink from "../../components/BookingLink.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../../lib/appI18n.js";
+import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 // FOUR SHAPES, WHICH IS THIS CONTROL'S CEILING (controls.jsx: "two to four
 // mutually exclusive options"). A fifth would have to become a drop-down, and
@@ -70,6 +75,7 @@ const planToForm = (p) => ({
 });
 
 export default function Plans() {
+  useAppLocale();
   const { business, can, siteOrigin } = useBusiness();
   // Logging a member records what somebody pays, so the database gates it on
   // the same tick that hides lifetime spend on Clients. A role that can read
@@ -223,12 +229,12 @@ export default function Plans() {
 
   const planEditor = (
     <div className="thoughts">
-      <label className="field"><span>Name</span>
-        <input value={planForm.name} maxLength={60} placeholder="Every-other-week wash"
+      <label className="field"><span>{t("Name")}</span>
+        <input value={planForm.name} maxLength={60} placeholder={t("Every-other-week wash")}
           onChange={(e) => setPlanForm({ ...planForm, name: e.target.value })} /></label>
-      <label className="field"><span>What's included</span>
+      <label className="field"><span>{t("What's included")}</span>
         <textarea value={planForm.description} rows={3}
-          placeholder="Exterior wash, wheels, glass and a quick interior wipe-down."
+          placeholder={t("Exterior wash, wheels, glass and a quick interior wipe-down.")}
           onChange={(e) => setPlanForm({ ...planForm, description: e.target.value })} /></label>
 
       {/* A PLAN WITHOUT A RHYTHM IS A REAL PLAN — a member rate with no
@@ -251,7 +257,7 @@ export default function Plans() {
             <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
               <input type="number" inputMode="numeric" min={1} max={52}
                 style={{ flex: "0 0 76px", width: 76 }}
-                aria-label="How many" value={planForm.cadence_count}
+                aria-label={t("How many")} value={planForm.cadence_count}
                 onChange={(e) => setPlanForm({ ...planForm, cadence_count: e.target.value })} />
               <Segmented label="Weeks, months or years" value={planForm.cadence_unit} options={UNITS}
                 onChange={(v) => setPlanForm({ ...planForm, cadence_unit: v })} />
@@ -284,7 +290,7 @@ export default function Plans() {
           {planForm.price_kind === "percent_off" ? (
             <input type="number" inputMode="numeric" min={0} max={100}
               style={{ flex: "0 0 90px", width: 90 }}
-              aria-label="Percent off" value={planForm.price_amount}
+              aria-label={t("Percent off")} value={planForm.price_amount}
               onChange={(e) => setPlanForm({ ...planForm, price_amount: e.target.value })} />
           ) : (
             <MoneyField value={planForm.price_amount}
@@ -305,13 +311,13 @@ export default function Plans() {
       <Setting stacked label="Minimum term"
         help="Leave blank for none. Most detailers advertise cancel-anytime as a selling point.">
         <input type="number" inputMode="numeric" min={1} style={{ maxWidth: 120 }}
-          placeholder="No term" value={planForm.term_months}
+          placeholder={t("No term")} value={planForm.term_months}
           onChange={(e) => setPlanForm({ ...planForm, term_months: e.target.value })} />
       </Setting>
 
       <div className="row" style={{ gap: 8 }}>
-        <button className="btn primary inline" onClick={savePlan}>Save plan</button>
-        <button className="btn ghost inline" onClick={() => setEditPlan(null)}>Cancel</button>
+        <button className="btn primary inline" onClick={savePlan}>{t("Save plan")}</button>
+        <button className="btn ghost inline" onClick={() => setEditPlan(null)}>{t("Cancel")}</button>
       </div>
     </div>
   );
@@ -338,13 +344,13 @@ export default function Plans() {
             hundred, and the platform's own picker is better than anything
             drawn here. */}
         {!m && (
-          <label className="field"><span>Customer</span>
+          <label className="field"><span>{t("Customer")}</span>
             <select value={f.customer_id} onChange={(e) => setMemberForm({ ...f, customer_id: e.target.value })}>
-              <option value="">Choose someone…</option>
+              <option value="">{t("Choose someone…")}</option>
               {customers.map((c) => <option key={c.id} value={c.id}>{c.name} · {c.phone}</option>)}
             </select></label>
         )}
-        <label className="field"><span>Plan</span>
+        <label className="field"><span>{t("Plan")}</span>
           <select value={f.plan_id} onChange={(e) => {
             const p = plansById.get(e.target.value);
             // The price follows the plan when the plan changes, and stays
@@ -356,7 +362,7 @@ export default function Plans() {
               price_amount: String(p?.price_amount ?? f.price_amount),
             });
           }}>
-            <option value="">Choose a plan…</option>
+            <option value="">{t("Choose a plan…")}</option>
             {plans.filter((p) => p.is_active || p.id === f.plan_id)
               .map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select></label>
@@ -370,10 +376,10 @@ export default function Plans() {
         )}
 
         <div className="grid2">
-          <label className="field"><span>Member since</span>
+          <label className="field"><span>{t("Member since")}</span>
             <input type="date" value={f.started_on}
               onChange={(e) => setMemberForm({ ...f, started_on: e.target.value })} /></label>
-          <label className="field"><span>What they pay</span>
+          <label className="field"><span>{t("What they pay")}</span>
             {f.price_kind === "percent_off" ? (
               <input type="number" inputMode="numeric" min={0} max={100} value={f.price_amount}
                 onChange={(e) => setMemberForm({ ...f, price_amount: e.target.value })} />
@@ -383,31 +389,31 @@ export default function Plans() {
             )}</label>
         </div>
 
-        <label className="field"><span>Notes</span>
-          <textarea value={f.notes} rows={2} placeholder="Agreed on the phone, first Tuesday of the month."
+        <label className="field"><span>{t("Notes")}</span>
+          <textarea value={f.notes} rows={2} placeholder={t("Agreed on the phone, first Tuesday of the month.")}
             onChange={(e) => setMemberForm({ ...f, notes: e.target.value })} /></label>
 
         {m && (
           <div className="tight">
-            <span className="label">Visits</span>
+            <span className="label">{t("Visits")}</span>
             <div className="ledger two">
-              <div><span className="figure">{l.used}</span><span className="lbl">taken</span></div>
-              <div><span className="figure">{l.owed}</span><span className="lbl">owed</span></div>
+              <div><span className="figure">{l.used}</span><span className="lbl">{t("taken")}</span></div>
+              <div><span className="figure">{l.owed}</span><span className="lbl">{t("owed")}</span></div>
             </div>
             {/* A SKIP IS THE TRADE'S OWN ANTI-BREAKAGE TOOL, not a penalty:
                 ZS Clean sells "one free skip per year" and Tang lets you
                 pause while you travel. Six of ten sampled detailers advertise
                 against contracts. */}
             <div className="row" style={{ gap: 8 }}>
-              <button className="btn ghost inline" onClick={() => adjust(m, -1, "Skipped")}>Skip a visit</button>
-              <button className="btn ghost inline" onClick={() => adjust(m, 1, "Added by hand")}>Add a visit</button>
+              <button className="btn ghost inline" onClick={() => adjust(m, -1, "Skipped")}>{t("Skip a visit")}</button>
+              <button className="btn ghost inline" onClick={() => adjust(m, 1, "Added by hand")}>{t("Add a visit")}</button>
             </div>
           </div>
         )}
 
         <div className="row" style={{ gap: 8 }}>
           <button className="btn primary inline" onClick={saveMember}>{m ? "Save" : "Log this member"}</button>
-          <button className="btn ghost inline" onClick={() => setEditMember(null)}>Cancel</button>
+          <button className="btn ghost inline" onClick={() => setEditMember(null)}>{t("Cancel")}</button>
         </div>
       </div>
     );
@@ -493,10 +499,9 @@ export default function Plans() {
     <div>
       {error && <div className="error-box">{error}</div>}
 
-      <div className="section-title" style={{ marginTop: 0 }}>Your plans</div>
+      <div className="section-title" style={{ marginTop: 0 }}>{t("Your plans")}</div>
       <p className="muted" style={{ marginBottom: 8 }}>
-        What you offer on a rhythm. You agree the price and the dates with the customer
-        yourself — this remembers them and tells you who is owed a visit.
+        {t("What you offer on a rhythm. You agree the price and the dates with the customer yourself — this remembers them and tells you who is owed a visit.")}
       </p>
       {/* THE LIST AND THE EDITOR ARE ONE FRAME WITH ITS CONTENTS REPLACED,
           which is the owner's own third kind of motion: "the GUI kind of
@@ -514,14 +519,13 @@ export default function Plans() {
           <>
             {loaded && plans.length === 0 && (
               <p className="body">
-                No plans yet. Most detailers start with one — a wash every other week, or a
-                monthly rate.
+                {t("No plans yet. Most detailers start with one — a wash every other week, or a monthly rate.")}
               </p>
             )}
             {plans.length > 0 && <div className="rows cols">{plans.map(planRow)}</div>}
             {loaded && maySetPlans && (
               <button className="btn inline" onClick={() => { setPlanForm(BLANK_PLAN); setEditPlan("new"); }}>
-                Add a plan
+                {t("Add a plan")}
               </button>
             )}
           </>
@@ -554,9 +558,9 @@ export default function Plans() {
         </div>
       )}
 
-      <div className="section-title">Members</div>
+      <div className="section-title">{t("Members")}</div>
       <p className="muted" style={{ marginBottom: 8 }}>
-        Who is on a plan, and who is owed a visit nobody has booked yet.
+        {t("Who is on a plan, and who is owed a visit nobody has booked yet.")}
       </p>
       <div className="swap tight" key={editMember ?? (owedOnly ? "owed" : "member-list")}>
         {editMember ? (
@@ -582,7 +586,7 @@ export default function Plans() {
               </p>
             )}
             {shown.length > 0 && <div className="rows cols">{shown.map(memberRow)}</div>}
-            {loaded && owedOnly && shown.length === 0 && <p className="body">Nobody is waiting on a visit.</p>}
+            {loaded && owedOnly && shown.length === 0 && <p className="body">{t("Nobody is waiting on a visit.")}</p>}
             {mayWrite && plans.length > 0 && (
               <button className="btn inline" onClick={() => {
                 const pl = plans.find((x) => x.is_active) ?? plans[0];
@@ -592,7 +596,7 @@ export default function Plans() {
                   price_amount: String(pl?.price_amount ?? ""), notes: "",
                 });
                 setEditMember("new");
-              }}>Log a member</button>
+              }}>{t("Log a member")}</button>
             )}
           </>
         )}

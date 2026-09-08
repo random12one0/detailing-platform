@@ -28,6 +28,11 @@ import { Check, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { api } from "../../lib/api.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../../lib/appI18n.js";
+import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 // The same normalisation the server and the database use. Three copies of a
 // string rule is two too many, but this one is a COURTESY — it shows the
@@ -37,6 +42,7 @@ const tidy = (v) => String(v || "").trim().toLowerCase()
   .replace(/^https?:\/\//, "").replace(/\/.*$/, "").replace(/:\d+$/, "").replace(/^www\./, "");
 
 export default function WebAddress() {
+  useAppLocale();
   const { business } = useBusiness();
   const [rows, setRows] = useState([]);
   const [input, setInput] = useState("");
@@ -116,27 +122,26 @@ export default function WebAddress() {
             : `Your booking page is detailingplatform.com/book/${business.slug}, and that is what your customers' emails link to. Put your own address here and they use yours instead.`}
         </p>
 
-        <label className="field"><span>Your address</span>
-          <input value={input} placeholder="e.g. book.yourdetailing.com" inputMode="url"
+        <label className="field"><span>{t("Your address")}</span>
+          <input value={input} placeholder={t("e.g. book.yourdetailing.com")} inputMode="url"
             onChange={(e) => setInput(e.target.value)} /></label>
         {/* SAID BEFORE THEY TYPE IT, not after it fails. A subdomain is the
             ordinary answer because most detailers' main address already
             points at a website of their own, and an apex that already serves
             something cannot also serve this. */}
         <p className="muted" style={{ marginTop: "calc(-1 * var(--sp-2))" }}>
-          Usually a subdomain like <strong>book.</strong>yourdetailing.com. It has to be one
-          you are not already using for something else.
+          {t("Usually a subdomain like")} <strong>{t("book.")}</strong>{t("yourdetailing.com. It has to be one you are not already using for something else.")}
         </p>
 
         <div className="btnrow">
-          <button className="btn primary" disabled={!tidy(input)} onClick={add}>Add this address</button>
+          <button className="btn primary" disabled={!tidy(input)} onClick={add}>{t("Add this address")}</button>
         </div>
 
         {note && <div className={note.ok ? "ok-box" : "error-box"}>{note.text}</div>}
         {error && <div className="error-box">{error}</div>}
 
         {!busy && rows.length === 0 && (
-          <p className="body">Nothing here yet — you are on detailingplatform.com.</p>
+          <p className="body">{t("Nothing here yet — you are on detailingplatform.com.")}</p>
         )}
 
         <div className={`rows rows-stack${busy ? " refreshing" : ""}`} aria-busy={busy || undefined}>
@@ -149,7 +154,7 @@ export default function WebAddress() {
                 </span>
               </span>
               {r.verified_at
-                ? <span className="pill completed" aria-label="Live"><Check size={14} strokeWidth={2.5} /></span>
+                ? <span className="pill completed" aria-label={t("Live")}><Check size={14} strokeWidth={2.5} /></span>
                 : (
                   <button className="btn sm inline ghost" disabled={checking === r.id}
                     onClick={() => check(r)}>
@@ -164,17 +169,17 @@ export default function WebAddress() {
 
         {rows.length > 0 && !live && (
           <>
-            <div className="section-title">What has to happen</div>
+            <div className="section-title">{t("What has to happen")}</div>
             {/* A NUMBERED LIST, WHICH THE DESIGN SYSTEM ALLOWS ONLY FOR A REAL
                 SEQUENCE — and this is one: none of these three works before
                 the one above it. */}
             <ol className="body" style={{ paddingLeft: "1.2em", display: "grid", gap: "var(--sp-3)" }}>
-              <li>You add the address above. Done.</li>
+              <li>{t("You add the address above. Done.")}</li>
               {/* SAYING OUT LOUD THAT ONE STEP IS OURS. A detailer who does
                   not know this presses Check, sees it fail, and concludes the
                   feature is broken. */}
-              <li><strong>We switch it on at our end.</strong> Tell us the address and we do it — it takes a couple of minutes and it cannot be done from here.</li>
-              <li>You point the address at us with your domain company (a CNAME record). Then press <strong>Check it</strong>.</li>
+              <li><strong>{t("We switch it on at our end.")}</strong> {t("Tell us the address and we do it — it takes a couple of minutes and it cannot be done from here.")}</li>
+              <li>You point the address at us with your domain company (a CNAME record). Then press <strong>{t("Check it")}</strong>.</li>
             </ol>
           </>
         )}

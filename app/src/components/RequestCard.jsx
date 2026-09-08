@@ -22,11 +22,17 @@
 
 import { Check, MessageSquareQuote, X } from "lucide-react";
 import { dateLong, money, time12 } from "../lib/format.js";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 export default function RequestCard({
   booking, lit = false, busy = false, leaving = false,
   onAccept, onDecline, onQuote, onClick,
 }) {
+  useAppLocale();
   const services = (booking.services ?? []).map((s) => s.name_at_booking).filter(Boolean);
   const quoted = booking.quoted_at ? Number(booking.quoted_amount) : null;
 
@@ -91,14 +97,14 @@ export default function RequestCard({
           this product's own BookingCard both keep. Same expression as
           BookingCard's Mark complete, and for the same reason. */}
       <button className={`btn${lit ? " primary" : ""}`} disabled={busy} onClick={() => onAccept(booking)}>
-        <Check size={18} strokeWidth={2} /> Accept
+        <Check size={18} strokeWidth={2} /> {t("Accept")}
       </button>
       <div className="btnrow" style={{ marginTop: "var(--sp-2)" }}>
         <button className="btn sm" disabled={busy} onClick={() => onQuote(booking)}>
           <MessageSquareQuote size={18} strokeWidth={2} /> {quoted === null ? "Quote" : "Re-quote"}
         </button>
         <button className="btn sm ghost" disabled={busy} onClick={() => onDecline(booking)}>
-          <X size={18} strokeWidth={2} /> Decline
+          <X size={18} strokeWidth={2} /> {t("Decline")}
         </button>
       </div>
     </div>

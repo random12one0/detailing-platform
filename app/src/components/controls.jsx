@@ -5,6 +5,11 @@
 // you touch is different.
 
 import { Check, Minus, Plus } from "lucide-react";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 // A row: what it is on the left, the control on the right, and a plain
 // sentence underneath saying what it does. The sentence is the point — a
@@ -84,6 +89,7 @@ export function Segmented({ value, onChange, options, disabled = false, label })
 // working out that the field wants 1440. `unit` is what the DATABASE stores,
 // so nothing about the schema changes.
 export function DurationChoice({ value, onChange, presets, unit = "minutes", allowCustom = true, customMax = 100000 }) {
+  useAppLocale();
   const num = value === "" || value === null || value === undefined ? null : Number(value);
   const isPreset = presets.some(([v]) => v === num);
   const custom = num !== null && !isPreset;
@@ -101,7 +107,7 @@ export function DurationChoice({ value, onChange, presets, unit = "minutes", all
           <button type="button" aria-pressed={custom}
             className={`choice${custom ? " on" : ""}`}
             onClick={() => { if (!custom) onChange(presets[presets.length - 1][0]); }}>
-            Custom
+            {t("Custom")}
           </button>
         )}
       </div>
@@ -121,6 +127,7 @@ export function DurationChoice({ value, onChange, presets, unit = "minutes", all
 // limit", because an empty box meaning unlimited is a guess the user has to
 // make. `null` is the unlimited value in the database.
 export function Stepper({ value, onChange, min = 1, max = 99, suffix, unlimitedLabel }) {
+  useAppLocale();
   const unlimited = value === null || value === undefined || value === "";
   const n = unlimited ? min : Number(value);
   return (
@@ -133,10 +140,10 @@ export function Stepper({ value, onChange, min = 1, max = 99, suffix, unlimitedL
       )}
       {!unlimited && (
         <div className="stepper">
-          <button type="button" aria-label="Less" disabled={n <= min}
+          <button type="button" aria-label={t("Less")} disabled={n <= min}
             onClick={() => onChange(Math.max(min, n - 1))}><Minus size={16} strokeWidth={2.5} /></button>
           <span className="num">{n}{suffix ? ` ${suffix}` : ""}</span>
-          <button type="button" aria-label="More" disabled={n >= max}
+          <button type="button" aria-label={t("More")} disabled={n >= max}
             onClick={() => onChange(Math.min(max, n + 1))}><Plus size={16} strokeWidth={2.5} /></button>
         </div>
       )}

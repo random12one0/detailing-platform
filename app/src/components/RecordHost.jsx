@@ -15,6 +15,11 @@ import { X } from "lucide-react";
 import Sheet from "./Sheet.jsx";
 import { useWide } from "../hooks/useWide.js";
 import { useLeaving } from "../hooks/useLeaving.js";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 // IT ANIMATES OUT, NOT JUST IN — roadmap 2.17, and the exit is the half that
 // gets skipped. Below --wrap a record has always left the way it arrived
@@ -30,6 +35,7 @@ import { useLeaving } from "../hooks/useLeaving.js";
 // The record still gets this component — the seam between a sheet and a column
 // is exactly what it exists to hide — it just draws no box (screen designs §9).
 export default function RecordHost({ open = true, onClose, title, subtitle, children, footer, bare = false }) {
+  useAppLocale();
   const wide = useWide();
   // A CLOSE THE PERSON ASKED FOR — the X, or Escape. A record that closes
   // because something CHANGED (a payment finalized, a booking cancelled) is
@@ -104,7 +110,7 @@ export default function RecordHost({ open = true, onClose, title, subtitle, chil
           {title && <h2 style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</h2>}
           {subtitle && <p className="quiet" style={{ marginTop: 2 }}>{subtitle}</p>}
         </div>
-        <button className="x" aria-label="Close" onClick={close}><X size={18} strokeWidth={2} /></button>
+        <button className="x" aria-label={t("Close")} onClick={close}><X size={18} strokeWidth={2} /></button>
       </div>
       <div className="record-body swap" key={`b-${swapKey}`}>{children}</div>
       {footer}

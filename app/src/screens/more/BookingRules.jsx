@@ -25,6 +25,11 @@ import { useBusiness } from "../../context/BusinessContext.jsx";
 import { addDays, money, todayLocal } from "../../lib/format.js";
 import Sheet from "../../components/Sheet.jsx";
 import { DurationChoice, Group, MoneyField, Segmented, Setting, Stepper, Switch } from "../../components/controls.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../../lib/appI18n.js";
+import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 // Presets are phrased the way someone says them out loud. The stored value
 // is still the raw number in the unit the column expects.
@@ -100,6 +105,7 @@ const WARN = {
 };
 
 export default function BookingRules() {
+  useAppLocale();
   const { business, settings, reload } = useBusiness();
   const [form, setForm] = useState(() => ({
     buffer_minutes: settings?.buffer_minutes ?? 0,
@@ -308,7 +314,7 @@ export default function BookingRules() {
       {/* The consequence, before the controls: this is the number that
           answers "did that do what I wanted". */}
       <div className="sunken flush row between" style={{ marginBottom: "var(--sp-5)" }}>
-        <span className="quiet">Open slots in the next 7 days</span>
+        <span className="quiet">{t("Open slots in the next 7 days")}</span>
         <span className="strong num">{slotCount === null ? "—" : slotCount}</span>
       </div>
 
@@ -318,7 +324,7 @@ export default function BookingRules() {
           other detailers might want it that they just put in a request".
           Both keep the slot — see the help text, which is the one thing here
           a detailer cannot work out from the labels. */}
-      <Group title="When someone books">
+      <Group title={t("When someone books")}>
         <Setting label="What a booking means" stacked
           help={form.booking_mode === "request"
             ? "The time is held for them and nobody else can take it, but they're told it's a request until you accept it. Requests wait on your Today screen."
@@ -329,7 +335,7 @@ export default function BookingRules() {
         </Setting>
       </Group>
 
-      <Group title="What you offer">
+      <Group title={t("What you offer")}>
         <Setting label="Where you work"
           stacked>
           <Segmented value={mode} onChange={setMode} options={[
@@ -445,7 +451,7 @@ export default function BookingRules() {
         )}
       </Group>
 
-      <Group title="When you can be booked">
+      <Group title={t("When you can be booked")}>
         {/* ROADMAP 8.13 — CLOSED UNTIL I SAY IT'S OPEN, and it is FIRST in
             this group because when you are away nothing else in it applies.
 
@@ -472,7 +478,7 @@ export default function BookingRules() {
               <button className="btn sm" onClick={() => {
                 set("closed_until", "");
                 set("closed_note", "");
-              }}>Open now</button>
+              }}>{t("Open now")}</button>
             )}
           </div>
         </Setting>
@@ -482,7 +488,7 @@ export default function BookingRules() {
         {form.closed_until && (
           <Setting label="Anything to tell them" stacked>
             <input value={form.closed_note} maxLength={200}
-              placeholder="Back on the 14th — call for anything urgent"
+              placeholder={t("Back on the 14th — call for anything urgent")}
               onChange={(e) => set("closed_note", e.target.value)} />
           </Setting>
         )}
@@ -522,7 +528,7 @@ export default function BookingRules() {
         </Setting>
       </Group>
 
-      <Group title="Changes and reminders">
+      <Group title={t("Changes and reminders")}>
         <Setting label="They can change or cancel until"
           help="Closer than this and they have to call you."
           stacked>
@@ -585,7 +591,7 @@ export default function BookingRules() {
           evening rate) and by how little notice a job was booked with (a rush
           fee). They are worked out on the server and printed on the customer's
           receipt under the name written here — never a silent number. */}
-      <Group title="Surcharges"
+      <Group title={t("Surcharges")}
         blurb="Optional. Extra charged on top for jobs that cost you more to take.">
         <div className="card">
           {form.price_rules.map((r, i) => (
@@ -602,7 +608,7 @@ export default function BookingRules() {
             </div>
           ))}
           {form.price_rules.length === 0 && (
-            <p className="quiet">None. Every job is priced the same whenever it is booked.</p>
+            <p className="quiet">{t("None. Every job is priced the same whenever it is booked.")}</p>
           )}
           <button className="btn inline" style={{ marginTop: "var(--sp-3)" }}
             onClick={() => setEditing({ kind: "rule", form: { ...EMPTY_RULE } })}>
@@ -616,8 +622,8 @@ export default function BookingRules() {
           <TriangleAlert strokeWidth={2} />
           <span>{w.text}</span>
           <span className="actions">
-            <button onClick={() => dismiss(w.key, false)}>Dismiss</button>
-            <button onClick={() => dismiss(w.key, true)}>Never</button>
+            <button onClick={() => dismiss(w.key, false)}>{t("Dismiss")}</button>
+            <button onClick={() => dismiss(w.key, true)}>{t("Never")}</button>
           </span>
         </div>
       ))}
@@ -633,19 +639,19 @@ export default function BookingRules() {
           title={`${editing.index != null ? "Edit" : "New"} ${editing.kind === "zone" ? "travel area" : "surcharge"}`}>
           {editing.kind === "zone" ? (
             <>
-              <label className="field"><span>Area name</span>
-                <input value={editing.form.name} placeholder="e.g. Within 10 miles"
+              <label className="field"><span>{t("Area name")}</span>
+                <input value={editing.form.name} placeholder={t("e.g. Within 10 miles")}
                   onChange={(e) => setEditing({ ...editing, form: { ...editing.form, name: e.target.value } })} /></label>
               <Setting label="Extra for this area" help="Added to the customer's total when they pick it.">
                 <MoneyField value={editing.form.fee}
                   onChange={(v) => setEditing({ ...editing, form: { ...editing.form, fee: v } })} />
               </Setting>
-              <button className="btn primary" onClick={saveZone}>Save area</button>
+              <button className="btn primary" onClick={saveZone}>{t("Save area")}</button>
             </>
           ) : (
             <>
-              <label className="field"><span>What the customer sees</span>
-                <input value={editing.form.label} placeholder="e.g. Weekend rate"
+              <label className="field"><span>{t("What the customer sees")}</span>
+                <input value={editing.form.label} placeholder={t("e.g. Weekend rate")}
                   onChange={(e) => setEditing({ ...editing, form: { ...editing.form, label: e.target.value } })} /></label>
               <Setting label="When it applies" stacked
                 help={editing.form.kind === "lead_time"
@@ -680,10 +686,10 @@ export default function BookingRules() {
                     onChange={(v) => setEditing({ ...editing, form: { ...editing.form, timed: v } })} />
                   {editing.form.timed && (
                     <div className="grid2">
-                      <label className="field"><span>From</span>
+                      <label className="field"><span>{t("From")}</span>
                         <input type="time" value={editing.form.start_time}
                           onChange={(e) => setEditing({ ...editing, form: { ...editing.form, start_time: e.target.value } })} /></label>
-                      <label className="field"><span>Until</span>
+                      <label className="field"><span>{t("Until")}</span>
                         <input type="time" value={editing.form.end_time}
                           onChange={(e) => setEditing({ ...editing, form: { ...editing.form, end_time: e.target.value } })} /></label>
                     </div>
@@ -711,7 +717,7 @@ export default function BookingRules() {
                 <input type="number" inputMode="decimal" value={editing.form.amount}
                   onChange={(e) => setEditing({ ...editing, form: { ...editing.form, amount: e.target.value } })} /></label>
 
-              <button className="btn primary" onClick={saveRule}>Save surcharge</button>
+              <button className="btn primary" onClick={saveRule}>{t("Save surcharge")}</button>
             </>
           )}
         </Sheet>

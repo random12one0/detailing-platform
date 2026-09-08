@@ -38,6 +38,11 @@ import SettingsHost from "./SettingsHost.jsx";
 import { detectPlatform, loadPrefs, PLATFORMS } from "../lib/platform.js";
 import { roleName } from "../lib/permissions.js";
 import { SUPPORT_EMAIL, SUPPORT_SHORT } from "../lib/support.js";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 // The device row answers itself like every other row: what it will open.
 const MAPS_NAME = { apple: "Apple Maps", google: "Google Maps", waze: "Waze" };
@@ -70,6 +75,7 @@ function billingNow(sub) {
 }
 
 export default function GearMenu({ onClose, onTour, initial = null }) {
+  useAppLocale();
   const {
     business, settings, subscription, label, role, can, memberships, signOut,
     accounts, addAccount, useAccount,
@@ -189,7 +195,7 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
 
   const account = (
     <div className="tight">
-      <span className="label">Account</span>
+      <span className="label">{t("Account")}</span>
       <div className="card">
         <div className="thoughts">
           {/* The detailer's own word for this role when they set one, spelled
@@ -230,7 +236,7 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
               a second person has actually signed in. */}
           {accounts.length > 0 && (
             <div style={{ marginBottom: "var(--sp-2)" }}>
-              <span className="label">Also signed in here</span>
+              <span className="label">{t("Also signed in here")}</span>
               {accounts.map((a) => (
                 <button
                   key={a.userId}
@@ -263,10 +269,10 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
             style={{ marginBottom: "var(--sp-1)" }}
             onClick={async () => { setSwitching(true); await addAccount(); }}
           >
-            <UserPlus strokeWidth={2} /> Add another account
+            <UserPlus strokeWidth={2} /> {t("Add another account")}
           </button>
           <button className="btn" onClick={signOut}>
-            <LogOut strokeWidth={2} /> Sign out
+            <LogOut strokeWidth={2} /> {t("Sign out")}
           </button>
         </div>
       </div>
@@ -277,12 +283,12 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
     <>
       <div className="row between" style={{ alignItems: "flex-start", gap: "var(--sp-3)" }}>
         <div style={{ minWidth: 0 }}>
-          <h1 className="display">Settings</h1>
+          <h1 className="display">{t("Settings")}</h1>
           {/* The tab bar cannot say where you are — this is not a tab — so
               the way back is a control rather than a lit button. */}
           <p className="quiet" style={{ marginTop: 2 }}>{business.name}</p>
         </div>
-        <button className="x" aria-label="Close settings" onClick={onClose}>
+        <button className="x" aria-label={t("Close settings")} onClick={onClose}>
           <X size={18} strokeWidth={2} />
         </button>
       </div>

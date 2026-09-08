@@ -11,6 +11,11 @@ import { money } from "../lib/format.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import Sheet from "./Sheet.jsx";
 import { Segmented } from "./controls.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 // The ways a detailer actually gets paid. "Other" keeps the free field
 // useful without making it the default path.
@@ -33,6 +38,7 @@ const CATEGORIES = [
 ];
 
 export default function FinalizeModal({ booking, onClose, onDone }) {
+  useAppLocale();
   const { business } = useBusiness();
   const [items, setItems] = useState([]);
   const [draft, setDraft] = useState({ category: "custom", label: "", amount: "" });
@@ -99,18 +105,18 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
   };
 
   return (
-    <Sheet onClose={onClose} title="Finalize payment"
+    <Sheet onClose={onClose} title={t("Finalize payment")}
       subtitle={`Estimated total ${money(booking.total_price)}`}>
 
         {/* THE COMMON CASE FIRST. This sheet used to open on the extra-items
             form, so the answer needed on nearly every job — the total, how
             they paid, and the button that ends it — sat below the fold. */}
         <div className="card row between">
-          <strong>Final total</strong>
+          <strong>{t("Final total")}</strong>
           <span className="big">{money(finalAmount)}</span>
         </div>
 
-        <div className="section-title">How they paid</div>
+        <div className="section-title">{t("How they paid")}</div>
         <Segmented
           value={paymentStatus}
           onChange={setPaymentStatus}
@@ -132,9 +138,9 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
                 </button>
               ))}
             </div>
-            <label className="field"><span>Anything to note</span>
+            <label className="field"><span>{t("Anything to note")}</span>
               <input value={paymentNotes} onChange={(e) => setPaymentNotes(e.target.value)}
-                placeholder="Optional — cheque number, split payment…" /></label>
+                placeholder={t("Optional — cheque number, split payment…")} /></label>
           </>
         )}
 
@@ -159,13 +165,13 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
             value={miles}
             data-finalize-miles=""
             onChange={(e) => setMiles(e.target.value.replace(/[^0-9]/g, ""))}
-            placeholder="Round trip, for your mileage deduction"
+            placeholder={t("Round trip, for your mileage deduction")}
           />
         </label>
 
         {/* Extras are the minority of jobs, so they fold away. */}
         <details className="disclose" open={items.length > 0}>
-          <summary>Add an extra charge or discount</summary>
+          <summary>{t("Add an extra charge or discount")}</summary>
           {/* Added charges are a running list of amounts — a receipt, which
               is ruled rows, not a stack of cards. */}
           {items.length > 0 && (
@@ -179,14 +185,14 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
                   <span className="figure sm">
                     {it.category === "discount" ? `-${money(it.amount)}` : money(it.amount)}
                   </span>
-                  <button className="btn ghost inline" onClick={() => setItems(items.filter((_, j) => j !== i))} aria-label="Remove">
+                  <button className="btn ghost inline" onClick={() => setItems(items.filter((_, j) => j !== i))} aria-label={t("Remove")}>
                     <X size={16} strokeWidth={2} />
                   </button>
                 </div>
               ))}
             </div>
           )}
-          <label className="field"><span>What kind</span>
+          <label className="field"><span>{t("What kind")}</span>
             <Segmented
               value={draft.category}
               onChange={(v) => setDraft({ ...draft, category: v })}
@@ -194,13 +200,13 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
             />
           </label>
           <div className="grid2">
-            <label className="field"><span>Amount</span>
+            <label className="field"><span>{t("Amount")}</span>
               <input type="number" inputMode="decimal" value={draft.amount}
                 onChange={(e) => setDraft({ ...draft, amount: e.target.value })} /></label>
-            <label className="field"><span>Label</span>
-              <input value={draft.label} onChange={(e) => setDraft({ ...draft, label: e.target.value })} placeholder="e.g. Pet hair" /></label>
+            <label className="field"><span>{t("Label")}</span>
+              <input value={draft.label} onChange={(e) => setDraft({ ...draft, label: e.target.value })} placeholder={t("e.g. Pet hair")} /></label>
           </div>
-          <button className="btn" onClick={addItem}>Add item</button>
+          <button className="btn" onClick={addItem}>{t("Add item")}</button>
         </details>
 
         {error && <div className="error-box">{error}</div>}
@@ -208,13 +214,13 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
         {confirming ? (
           <div className="confirm-box">
             <p>
-              Mark this job complete and record <strong>{money(finalAmount)}</strong> as{" "}
+              {t("Mark this job complete and record")} <strong>{money(finalAmount)}</strong> as{" "}
               <strong>{PAYMENT_LABELS[paymentStatus]}</strong>
               {items.length > 0 && <> , including {items.length} extra item{items.length > 1 ? "s" : ""}</>}?
             </p>
             <div className="row" style={{ gap: 8, marginTop: 10 }}>
               <button className="btn ghost inline" disabled={busy} onClick={() => setConfirming(false)}>
-                Go back
+                {t("Go back")}
               </button>
               <button className="btn primary inline" disabled={busy} onClick={save}>
                 {busy ? "Saving…" : "Yes, finalize"}

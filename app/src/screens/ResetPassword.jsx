@@ -22,8 +22,14 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase.js";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 export default function ResetPassword() {
+  useAppLocale();
   const [state, setState] = useState("checking");   // checking | ready | dead | done
   const [password, setPassword] = useState("");
   const [again, setAgain] = useState("");
@@ -70,41 +76,40 @@ export default function ResetPassword() {
           {state === "dead" ? "That link has expired" : "Choose a new password"}
         </h1>
 
-        {state === "checking" && <p className="quiet" data-loading="1">Checking your link…</p>}
+        {state === "checking" && <p className="quiet" data-loading="1">{t("Checking your link…")}</p>}
 
         {state === "dead" && (
           <>
             <p className="quiet" style={{ marginBottom: 16 }}>
-              A reset link works once and lasts an hour. Ask for a new one and
-              it will be in your inbox in a minute.
+              {t("A reset link works once and lasts an hour. Ask for a new one and it will be in your inbox in a minute.")}
             </p>
-            <a className="btn primary" href="/app">Back to sign in</a>
+            <a className="btn primary" href="/app">{t("Back to sign in")}</a>
           </>
         )}
 
         {state === "done" && (
           <>
             <p className="quiet" style={{ marginBottom: 16 }}>
-              Done — you are signed in.
+              {t("Done — you are signed in.")}
             </p>
-            <div className="ok-box">Taking you to your dashboard…</div>
+            <div className="ok-box">{t("Taking you to your dashboard…")}</div>
           </>
         )}
 
         {state === "ready" && (
           <form onSubmit={submit}>
             <p className="quiet" style={{ marginBottom: 16 }}>
-              Eight characters or more. You will be signed in straight after.
+              {t("Eight characters or more. You will be signed in straight after.")}
             </p>
             <label className="field">
-              <span>New password</span>
+              <span>{t("New password")}</span>
               <input
                 type="password" value={password} minLength={8} required
                 autoComplete="new-password" autoFocus
                 onChange={(e) => setPassword(e.target.value)} />
             </label>
             <label className="field">
-              <span>Type it again</span>
+              <span>{t("Type it again")}</span>
               <input
                 type="password" value={again} minLength={8} required
                 autoComplete="new-password"

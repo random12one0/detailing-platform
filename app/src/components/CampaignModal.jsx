@@ -27,6 +27,11 @@ import { useState } from "react";
 import { api } from "../lib/api.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import Sheet from "./Sheet.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 // A STARTING DRAFT, NOT A TEMPLATE PICKER. The email research's finding is
 // that this trade means WORDING when it says "premade templates" (five of six
@@ -40,6 +45,7 @@ const DRAFT_MESSAGE = "It's been a few months since we last took care of your ca
   + "just use the button below and pick a time that suits you.";
 
 export default function CampaignModal({ people, onClose, onSent }) {
+  useAppLocale();
   const { business } = useBusiness();
   const [subject, setSubject] = useState(DRAFT_SUBJECT);
   const [message, setMessage] = useState(DRAFT_MESSAGE);
@@ -95,7 +101,7 @@ export default function CampaignModal({ people, onClose, onSent }) {
   // leaving the detailer to assume.
   if (result) {
     return (
-      <Sheet onClose={onClose} title="Sent"
+      <Sheet onClose={onClose} title={t("Sent")}
         subtitle={`${result.sent} ${result.sent === 1 ? "person" : "people"} will get it`}>
         {result.failed > 0 && (
           <div className="error-box">
@@ -109,15 +115,15 @@ export default function CampaignModal({ people, onClose, onSent }) {
           </p>
         )}
         <p className="quiet">
-          Replies come to your own inbox, not to us.
+          {t("Replies come to your own inbox, not to us.")}
         </p>
-        <button className="btn primary" onClick={onClose}>Done</button>
+        <button className="btn primary" onClick={onClose}>{t("Done")}</button>
       </Sheet>
     );
   }
 
   return (
-    <Sheet onClose={onClose} title="Email your customers"
+    <Sheet onClose={onClose} title={t("Email your customers")}
       subtitle={`${chosen.length} ${chosen.length === 1 ? "person" : "people"}`}>
 
       {/* THE LAW'S REQUIREMENT, STATED WHERE IT CAN BE ACTED ON. The server
@@ -125,16 +131,15 @@ export default function CampaignModal({ people, onClose, onSent }) {
           typing the message would be the worst possible moment to learn it. */}
       {!address && (
         <div className="error-box">
-          Add your mailing address under Business info first. An email like this has to
-          carry one at the bottom — that is the law, not our rule.
+          {t("Add your mailing address under Business info first. An email like this has to carry one at the bottom — that is the law, not our rule.")}
         </div>
       )}
 
-      <label className="field"><span>Subject</span>
+      <label className="field"><span>{t("Subject")}</span>
         <input value={subject} maxLength={120} autoFocus
           onChange={(e) => { setSubject(e.target.value); setConfirming(false); }} /></label>
 
-      <label className="field"><span>What you want to say</span>
+      <label className="field"><span>{t("What you want to say")}</span>
         <textarea value={message} rows={6} maxLength={2000}
           onChange={(e) => { setMessage(e.target.value); setConfirming(false); }} /></label>
 
@@ -143,13 +148,12 @@ export default function CampaignModal({ people, onClose, onSent }) {
           way to book get wrapped around it — and the unsubscribe line is not
           optional, so saying it here stops it arriving as a surprise. */}
       <p className="muted" style={{ marginBottom: 8 }}>
-        Their name, your logo, a <strong>Book again</strong> button and a way to stop
-        getting these are added for you.
+        {t("Their name, your logo, a")} <strong>{t("Book again")}</strong> {t("button and a way to stop getting these are added for you.")}
       </p>
 
       {reachable.length > 0 && (
         <div className="tight">
-          <span className="label">Going to</span>
+          <span className="label">{t("Going to")}</span>
           {/* Press a name to leave that person out. The chip is the same
               control the Clients screen filters with, in its second job. */}
           <div className="clientfilters">
@@ -181,12 +185,12 @@ export default function CampaignModal({ people, onClose, onSent }) {
       {confirming ? (
         <div className="confirm-box">
           <p>
-            Send this to <strong>{chosen.length} {chosen.length === 1 ? "person" : "people"}</strong>?
+            {t("Send this to")} <strong>{chosen.length} {chosen.length === 1 ? "person" : "people"}</strong>?
             It cannot be taken back.
           </p>
           <div className="row" style={{ gap: 8, marginTop: 10 }}>
             <button className="btn ghost inline" disabled={busy} onClick={() => setConfirming(false)}>
-              Go back
+              {t("Go back")}
             </button>
             <button className="btn primary inline" disabled={busy} onClick={send}>
               {busy ? "Sending…" : "Yes, send it"}

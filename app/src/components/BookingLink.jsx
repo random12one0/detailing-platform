@@ -39,6 +39,11 @@ import { Check, Copy, Download, ExternalLink, QrCode, Share2, TriangleAlert } fr
 import qrcode from "qrcode-generator";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { bookable } from "../book/core.js";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 // 4 modules of clear margin is the spec’s own figure, not a taste choice —
 // below it a scanner cannot find the code’s edge against whatever it is
@@ -72,6 +77,7 @@ export default function BookingLink({
   footnote = "Put this in your bio, on your cards and in your texts. Customers book themselves from here.",
   shareTitle = "Book with us",
 }) {
+  useAppLocale();
   // Roadmap 8.4 — whether this link can actually take a booking. `settings`
   // is null for the moment before the context resolves, and `bookable` says
   // no to that; the warning would flash on every load. Absent settings is not
@@ -215,9 +221,8 @@ export default function BookingLink({
           <div className="error-box" style={{ marginBottom: "var(--sp-3)" }}>
             <TriangleAlert size={18} strokeWidth={2} />
             <span>
-              <strong>This link can’t take a booking yet.</strong> Answer{" "}
-              <em>where you work</em> in your setup — until then anyone who opens it is
-              told you are still setting up.
+              <strong>{t("This link can’t take a booking yet.")}</strong> Answer{" "}
+              <em>{t("where you work")}</em> {t("in your setup — until then anyone who opens it is told you are still setting up.")}
             </span>
           </div>
         )}
@@ -233,17 +238,17 @@ export default function BookingLink({
             which fits at every width and never depends on how many there are. */}
         {canShare && (
           <button className="btn primary" style={{ marginTop: 12 }} onClick={share}>
-            <Share2 size={18} strokeWidth={2} /> Share
+            <Share2 size={18} strokeWidth={2} /> {t("Share")}
           </button>
         )}
         <div className="btnrow" style={{ marginTop: canShare ? 8 : 12 }}>
           <button className={`btn${canShare ? "" : " primary"}`} onClick={copy}>
             {copied
-              ? <><Check size={18} strokeWidth={2} /> Copied</>
-              : <><Copy size={18} strokeWidth={2} /> Copy</>}
+              ? <><Check size={18} strokeWidth={2} /> {t("Copied")}</>
+              : <><Copy size={18} strokeWidth={2} /> {t("Copy")}</>}
           </button>
           <a className="btn" href={`/book/${slug}${path}`} target="_blank" rel="noreferrer">
-            <ExternalLink size={18} strokeWidth={2} /> Open
+            <ExternalLink size={18} strokeWidth={2} /> {t("Open")}
           </a>
         </div>
         {/* ITS OWN LINE, never a third button beside Copy and Open — W14.
@@ -254,7 +259,7 @@ export default function BookingLink({
         {!qrOpen ? (
           <button className="btn" style={{ marginTop: 8, width: "100%" }}
             onClick={() => setQrOpen(true)}>
-            <QrCode size={18} strokeWidth={2} /> Generate QR code
+            <QrCode size={18} strokeWidth={2} /> {t("Generate QR code")}
           </button>
         ) : (
           <div className="tight" style={{ marginTop: 10 }}>
@@ -267,7 +272,7 @@ export default function BookingLink({
             </div>
             <div className="btnrow">
               <button className="btn primary" onClick={saveQr}>
-                <Download size={18} strokeWidth={2} /> Save
+                <Download size={18} strokeWidth={2} /> {t("Save")}
               </button>
               {canCopyImage && (
                 <button className="btn" onClick={copyQr}>
@@ -276,8 +281,8 @@ export default function BookingLink({
                       with one label on one card, doing different things, is
                       the label failing at its only job. */}
                   {qrCopied
-                    ? <><Check size={18} strokeWidth={2} /> Copied</>
-                    : <><Copy size={18} strokeWidth={2} /> Copy image</>}
+                    ? <><Check size={18} strokeWidth={2} /> {t("Copied")}</>
+                    : <><Copy size={18} strokeWidth={2} /> {t("Copy image")}</>}
                 </button>
               )}
             </div>

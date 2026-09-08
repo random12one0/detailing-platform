@@ -25,6 +25,11 @@ import { supabase } from "../../lib/supabase.js";
 import { api } from "../../lib/api.js";
 import { PERMISSIONS, permissionSummary, roleName } from "../../lib/permissions.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../../lib/appI18n.js";
+import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 // The name and the ticks, in one shape — used on a member and on the invite
 // form, which are the same question asked before and after somebody exists.
@@ -38,7 +43,7 @@ function RoleFields({ label, permissions, onLabel, onToggle }) {
           stacks every non-switch setting; this one needed it 32px earlier. */}
       <Setting stacked label="What you call this role"
         help="Their own title in your business. Shown to them and in their invite.">
-        <input value={label} placeholder="Staff" maxLength={40}
+        <input value={label} placeholder={t("Staff")} maxLength={40}
           onChange={(e) => onLabel(e.target.value)} />
       </Setting>
       {PERMISSIONS.map((p) => (
@@ -51,6 +56,7 @@ function RoleFields({ label, permissions, onLabel, onToggle }) {
 }
 
 export default function Team() {
+  useAppLocale();
   const { business, session } = useBusiness();
   const [members, setMembers] = useState([]);
   const [invites, setInvites] = useState([]);
@@ -163,15 +169,15 @@ export default function Team() {
   return (
     // A container, not a card — the member rows inside are the objects.
     <div>
-      <div className="section-title" style={{ marginTop: 0 }}>Your name</div>
-      <p className="muted" style={{ marginBottom: 8 }}>Used to greet you on the Today screen.</p>
+      <div className="section-title" style={{ marginTop: 0 }}>{t("Your name")}</div>
+      <p className="muted" style={{ marginBottom: 8 }}>{t("Used to greet you on the Today screen.")}</p>
       <div className="row" style={{ gap: 8 }}>
         <input placeholder={me?.first_name || "First name"} value={nameDraft}
           onChange={(e) => setNameDraft(e.target.value)} />
-        <button className="btn inline" onClick={saveMyName}>Save</button>
+        <button className="btn inline" onClick={saveMyName}>{t("Save")}</button>
       </div>
 
-      <div className="section-title">Team</div>
+      <div className="section-title">{t("Team")}</div>
       <div className="tight">
       {members.map((m) => {
         const open = editing === m.user_id;
@@ -241,7 +247,7 @@ export default function Team() {
 
               {open && (
                 <button className="btn ghost" disabled={lastOwner} onClick={() => removeMember(m)}>
-                  <X size={18} strokeWidth={2} /> Remove from the team
+                  <X size={18} strokeWidth={2} /> {t("Remove from the team")}
                 </button>
               )}
             </div>
@@ -250,11 +256,11 @@ export default function Team() {
       })}
       </div>
 
-      <div className="section-title">Invite someone</div>
+      <div className="section-title">{t("Invite someone")}</div>
       <div className="grid2">
-        <label className="field"><span>Email</span>
+        <label className="field"><span>{t("Email")}</span>
           <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></label>
-        <label className="field"><span>Access</span>
+        <label className="field"><span>{t("Access")}</span>
           <Segmented value={form.role} label="Access"
             onChange={(v) => setForm({ ...form, role: v })}
             options={[["staff", "Custom role"], ["owner", "Owner"]]} /></label>
@@ -274,14 +280,14 @@ export default function Team() {
       {lastLink && (
         <div className="card row between" style={{ marginTop: 12 }}>
           <span className="muted" style={{ wordBreak: "break-all" }}>{lastLink}</span>
-          <button className="btn ghost inline" aria-label="Copy link"
+          <button className="btn ghost inline" aria-label={t("Copy link")}
             onClick={() => navigator.clipboard?.writeText(lastLink)}>
             <Copy size={18} strokeWidth={2} />
           </button>
         </div>
       )}
 
-      {invites.length > 0 && <div className="section-title">Pending invites</div>}
+      {invites.length > 0 && <div className="section-title">{t("Pending invites")}</div>}
       {invites.map((inv) => (
         <div className="card row between" key={inv.id}>
           <div style={{ minWidth: 0 }}>
@@ -290,7 +296,7 @@ export default function Team() {
               {roleName(inv.role, inv.label)} · expires {String(inv.expires_at).slice(0, 10)}
             </div>
           </div>
-          <button className="btn ghost inline" onClick={() => revoke(inv)}>Revoke</button>
+          <button className="btn ghost inline" onClick={() => revoke(inv)}>{t("Revoke")}</button>
         </div>
       ))}
 

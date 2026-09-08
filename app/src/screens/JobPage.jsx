@@ -16,8 +16,14 @@ import { useBusiness } from "../context/BusinessContext.jsx";
 import { withLocal, BOOKING_SELECT } from "../hooks/useBookings.js";
 import Auth from "./Auth.jsx";
 import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 export default function JobPage() {
+  useAppLocale();
   const { id } = useParams();
   const navigate = useNavigate();
   const { session, business, loading } = useBusiness();
@@ -40,8 +46,8 @@ export default function JobPage() {
   if (booking === null) {
     return (
       <div className="center">
-        <p>Booking not found.</p>
-        <button className="btn inline" onClick={() => navigate("/app")}>Go to dashboard</button>
+        <p>{t("Booking not found.")}</p>
+        <button className="btn inline" onClick={() => navigate("/app")}>{t("Go to dashboard")}</button>
       </div>
     );
   }
@@ -59,7 +65,7 @@ export default function JobPage() {
       <main className="app-main">
         <button className="btn inline ghost" style={{ marginBottom: "var(--sp-3)" }}
           onClick={() => navigate("/app")}>
-          <ChevronLeft strokeWidth={2} /> Dashboard
+          <ChevronLeft strokeWidth={2} /> {t("Dashboard")}
         </button>
         {/* THIS PAGE IS THE RECORD'S CONTAINER, SO IT OWES THE HEADER A
             CONTAINER GIVES. The record deliberately does not repeat the date

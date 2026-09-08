@@ -42,8 +42,14 @@ import { MoneyField } from "./controls.jsx";
 // F-018 was three copies of "which month is this" disagreeing; a fourth copy
 // of "which instant is 8am here" is how that happens again.
 import { localDateTimeToInstant } from "../../../supabase/functions/_shared/tz.ts";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 export default function BulkJobModal({ onClose, onSaved }) {
+  useAppLocale();
   const { business } = useBusiness();
   const [company, setCompany] = useState("");
   const [cars, setCars] = useState("");
@@ -108,20 +114,20 @@ export default function BulkJobModal({ onClose, onSaved }) {
   };
 
   return (
-    <Sheet onClose={onClose} title="Log a bulk job" peek={62}>
+    <Sheet onClose={onClose} title={t("Log a bulk job")} peek={62}>
       <label className="field">
-        <span>Who for</span>
+        <span>{t("Who for")}</span>
         <input
           ref={firstRef}
           value={company}
-          placeholder="e.g. Ridgeline Motors"
+          placeholder={t("e.g. Ridgeline Motors")}
           onChange={(e) => setCompany(e.target.value)}
         />
       </label>
 
       <div className="grid2">
         <label className="field">
-          <span>Cars</span>
+          <span>{t("Cars")}</span>
           <input type="number" inputMode="numeric" min="1" placeholder="10"
             value={cars} onChange={(e) => setCars(e.target.value)} />
         </label>
@@ -131,7 +137,7 @@ export default function BulkJobModal({ onClose, onSaved }) {
             field in this form that matters read as a control rather than as a
             figure. Looked at, not reasoned about. */}
         <label className="field">
-          <span>Paid</span>
+          <span>{t("Paid")}</span>
           <MoneyField value={amount} onChange={setAmount} placeholder="0" />
         </label>
       </div>
@@ -140,13 +146,13 @@ export default function BulkJobModal({ onClose, onSaved }) {
           "$95 a car" under the two fields above would be a figure nobody
           agreed to, on a deal whose whole point is that it was negotiated. */}
       <label className="field">
-        <span>Day</span>
+        <span>{t("Day")}</span>
         <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
       </label>
 
       <label className="field">
         <span>Note (optional)</span>
-        <input value={notes} placeholder="What was included"
+        <input value={notes} placeholder={t("What was included")}
           onChange={(e) => setNotes(e.target.value)} />
       </label>
 

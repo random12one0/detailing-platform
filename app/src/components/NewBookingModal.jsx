@@ -11,6 +11,11 @@ import { money, time12, todayLocal } from "../lib/format.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import Sheet from "./Sheet.jsx";
 import { Segmented } from "./controls.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 // W9 — the sizes are the detailer's own list now. The fallback is the three
 // this product shipped with, for a settings row that predates the column.
@@ -19,6 +24,7 @@ const FALLBACK_SIZES = [
 ];
 
 export default function NewBookingModal({ onClose, onCreated, initialDate }) {
+  useAppLocale();
   const { business, settings } = useBusiness();
   const sizes = Array.isArray(settings?.vehicle_sizes) && settings.vehicle_sizes.length
     ? settings.vehicle_sizes : FALLBACK_SIZES;
@@ -129,24 +135,24 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
   };
 
   return (
-    <Sheet onClose={onClose} title="New booking">
+    <Sheet onClose={onClose} title={t("New booking")}>
 
-        <label className="field"><span>Customer name</span>
+        <label className="field"><span>{t("Customer name")}</span>
           <input value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} /></label>
         <div className="grid2">
-          <label className="field"><span>Phone</span>
+          <label className="field"><span>{t("Phone")}</span>
             <input value={form.customer_phone} onChange={(e) => setForm({ ...form, customer_phone: e.target.value })} /></label>
           <label className="field"><span>Email (optional)</span>
             <input value={form.customer_email} onChange={(e) => setForm({ ...form, customer_email: e.target.value })} /></label>
         </div>
         <div className="grid2">
-          <label className="field"><span>Type</span>
+          <label className="field"><span>{t("Type")}</span>
             {/* Two options do not need an OS wheel; the app already solves
                 this with Segmented in Booking rules. */}
             <Segmented value={form.service_type}
               onChange={(v) => setForm({ ...form, service_type: v })}
               options={[["mobile", "Mobile"], ["dropoff", "Drop-off"]]} /></label>
-          <label className="field"><span>Vehicle size</span>
+          <label className="field"><span>{t("Vehicle size")}</span>
             {/* Segmented up to four, a drop-down past it. Same rule as the
                 customer's booking page and the same reason: a segmented
                 control is for a choice you can see all of at once, and a
@@ -162,11 +168,11 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
             )}</label>
         </div>
         {form.service_type === "mobile" && (
-          <label className="field"><span>Address</span>
+          <label className="field"><span>{t("Address")}</span>
             <input value={form.customer_address} onChange={(e) => setForm({ ...form, customer_address: e.target.value })} /></label>
         )}
 
-        <div className="section-title">Services</div>
+        <div className="section-title">{t("Services")}</div>
         <div className="row" style={{ flexWrap: "wrap", gap: 8 }}>
           {catalog.services.map((s) => (
             <button key={s.id} className={`chip ${form.service_ids.includes(s.id) ? "active" : ""}`}
@@ -174,11 +180,11 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
               {s.name} · {money(s.price)}
             </button>
           ))}
-          {catalog.services.length === 0 && <p className="muted">No active services yet. Add them in the More tab under Services.</p>}
+          {catalog.services.length === 0 && <p className="muted">{t("No active services yet. Add them in the More tab under Services.")}</p>}
         </div>
         {catalog.addOns.length > 0 && (
           <>
-            <div className="section-title">Add-ons</div>
+            <div className="section-title">{t("Add-ons")}</div>
             <div className="row" style={{ flexWrap: "wrap", gap: 8 }}>
               {catalog.addOns.map((a) => (
                 <button key={a.id} className={`chip ${form.add_ons.includes(a.id) ? "active" : ""}`}
@@ -190,8 +196,8 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
           </>
         )}
 
-        <div className="section-title">When</div>
-        <label className="field"><span>Date</span>
+        <div className="section-title">{t("When")}</div>
+        <label className="field"><span>{t("Date")}</span>
           <input type="date" value={form.booking_date}
             onChange={(e) => setForm({ ...form, booking_date: e.target.value, start_time: "" })} /></label>
         {slots && (
@@ -202,16 +208,16 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
                 {time12(s)}
               </button>
             ))}
-            {slots.length === 0 && <p className="muted">No open slots that day.</p>}
+            {slots.length === 0 && <p className="muted">{t("No open slots that day.")}</p>}
           </div>
         )}
 
-        <label className="field" style={{ marginTop: 12 }}><span>Private notes</span>
+        <label className="field" style={{ marginTop: 12 }}><span>{t("Private notes")}</span>
           <input value={form.admin_notes} onChange={(e) => setForm({ ...form, admin_notes: e.target.value })} /></label>
 
         {quote && (
           <div className="card row between">
-            <span>Estimated total</span>
+            <span>{t("Estimated total")}</span>
             <strong>{money(quote.total)}</strong>
           </div>
         )}

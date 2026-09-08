@@ -28,6 +28,11 @@ import { X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import BookingLink from "../../components/BookingLink.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../../lib/appI18n.js";
+import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 // The same shape the database's own check constraint allows
 // (`slug ~ '^[a-z0-9][a-z0-9-]*$'`), applied while they type so the refusal is
@@ -38,6 +43,7 @@ const slugify = (v) => String(v || "").toLowerCase().trim()
 const BLANK = { name: "", slug: "", promo_code: "" };
 
 export default function Campaigns() {
+  useAppLocale();
   const { business, siteOrigin } = useBusiness();
   const [rows, setRows] = useState([]);
   const [codes, setCodes] = useState([]);
@@ -125,17 +131,15 @@ export default function Campaigns() {
             opens it. "Campaign link" reads as tracking; the half that earns
             its place is that the discount is already on. */}
         <p className="quiet" style={{ marginTop: 0 }}>
-          A booking link of its own for a flyer, a QR code or a post. Whoever
-          opens it gets your discount applied already, and you can see how many
-          came that way.
+          {t("A booking link of its own for a flyer, a QR code or a post. Whoever opens it gets your discount applied already, and you can see how many came that way.")}
         </p>
 
-        <label className="field"><span>What is it for</span>
-          <input value={form.name} placeholder="e.g. Golf course flyer"
+        <label className="field"><span>{t("What is it for")}</span>
+          <input value={form.name} placeholder={t("e.g. Golf course flyer")}
             onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
 
         <div className="grid2">
-          <label className="field"><span>The bit on the end of the link</span>
+          <label className="field"><span>{t("The bit on the end of the link")}</span>
             <input value={slugTouched ? form.slug : previewSlug}
               placeholder="golf-course-flyer"
               onChange={(e) => { setSlugTouched(true); setForm({ ...form, slug: e.target.value }); }} /></label>
@@ -147,7 +151,7 @@ export default function Campaigns() {
           <label className="field"><span>Discount to apply (optional)</span>
             <select value={form.promo_code}
               onChange={(e) => setForm({ ...form, promo_code: e.target.value })}>
-              <option value="">No discount</option>
+              <option value="">{t("No discount")}</option>
               {codes.map((c) => <option key={c} value={c}>{c}</option>)}
             </select></label>
         </div>
@@ -160,7 +164,7 @@ export default function Campaigns() {
 
         <div className="btnrow">
           <button className="btn primary" disabled={!form.name.trim() || !previewSlug} onClick={add}>
-            Make the link
+            {t("Make the link")}
           </button>
         </div>
 
@@ -169,7 +173,7 @@ export default function Campaigns() {
 
         {/* AN EMPTY SCREEN IS ONE SENTENCE, IN THE DETAILER'S TERMS. */}
         {!busy && rows.length === 0 && !error && (
-          <p className="body">Nothing here yet — every booking you get is counted as somebody who just found you.</p>
+          <p className="body">{t("Nothing here yet — every booking you get is counted as somebody who just found you.")}</p>
         )}
 
         <div className={`rows rows-stack${busy ? " refreshing" : ""}`} aria-busy={busy || undefined}>

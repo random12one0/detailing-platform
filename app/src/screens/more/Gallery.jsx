@@ -7,8 +7,14 @@ import { Camera, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { uploadBusinessPhoto } from "../../lib/upload.js";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../../lib/appI18n.js";
+import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 export default function Gallery() {
+  useAppLocale();
   const { business } = useBusiness();
   const [images, setImages] = useState([]);
   const [busy, setBusy] = useState(false);
@@ -63,7 +69,7 @@ export default function Gallery() {
   return (
     <div className="card">
       <label className="btn primary" style={{ cursor: "pointer" }}>
-        {busy ? "Uploading…" : <><Camera size={18} strokeWidth={2} /> Add photos</>}
+        {busy ? "Uploading…" : <><Camera size={18} strokeWidth={2} /> {t("Add photos")}</>}
         <input type="file" accept="image/*" multiple hidden onChange={addPhotos} disabled={busy} />
       </label>
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
@@ -72,7 +78,7 @@ export default function Gallery() {
           <div key={img.id} style={{ position: "relative", opacity: img.is_active ? 1 : 0.4 }}>
             <img src={img.image_url || img.after_url} alt={img.caption || ""} onClick={() => toggle(img)} />
             <button className="btn ghost inline" style={{ position: "absolute", top: 2, right: 2, minHeight: 32, padding: "0 8px" }}
-              onClick={() => remove(img)} aria-label="Remove"><X size={16} strokeWidth={2} /></button>
+              onClick={() => remove(img)} aria-label={t("Remove")}><X size={16} strokeWidth={2} /></button>
           </div>
         ))}
       </div>

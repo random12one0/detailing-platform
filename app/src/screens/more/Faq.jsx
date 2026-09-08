@@ -30,6 +30,11 @@ import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { Switch } from "../../components/controls.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../../lib/appI18n.js";
+import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 const BLANK = { q: "", a: "" };
 
@@ -44,6 +49,7 @@ const withKeys = (list) =>
   }));
 
 export default function Faq() {
+  useAppLocale();
   const { business, settings, reload } = useBusiness();
   const [rows, setRows] = useState(() => withKeys(settings?.faqs));
   const [enabled, setEnabled] = useState(settings?.faq_enabled ?? false);
@@ -113,8 +119,7 @@ export default function Faq() {
             nowhere in this product: the booking page's steps are on a measured
             height budget and a block of questions cannot go on one. */}
         <p className="quiet" style={{ marginTop: 0 }}>
-          The questions customers actually ask you. They go on your website —
-          that part is still being built.
+          {t("The questions customers actually ask you. They go on your website — that part is still being built.")}
         </p>
 
         {/* The help line is not a restatement of the label: it answers the
@@ -128,13 +133,13 @@ export default function Faq() {
           onChange={(v) => { setEnabled(v); persist(rows, v); }}
         />
 
-        <label className="field"><span>The question</span>
-          <input value={form.q} placeholder="e.g. Do you need my water?"
+        <label className="field"><span>{t("The question")}</span>
+          <input value={form.q} placeholder={t("e.g. Do you need my water?")}
             onChange={(e) => setForm({ ...form, q: e.target.value })} /></label>
 
-        <label className="field"><span>Your answer</span>
+        <label className="field"><span>{t("Your answer")}</span>
           <textarea value={form.a} rows={3}
-            placeholder="In your own words. Nothing here is written for you."
+            placeholder={t("In your own words. Nothing here is written for you.")}
             onChange={(e) => setForm({ ...form, a: e.target.value })} /></label>
 
         <div className="btnrow">
@@ -142,7 +147,7 @@ export default function Faq() {
             {editing === null ? "Add question" : "Save changes"}
           </button>
           {editing !== null && (
-            <button className="btn" onClick={() => { setEditing(null); setForm(BLANK); }}>Cancel</button>
+            <button className="btn" onClick={() => { setEditing(null); setForm(BLANK); }}>{t("Cancel")}</button>
           )}
         </div>
 
@@ -151,7 +156,7 @@ export default function Faq() {
         {/* AN EMPTY SCREEN IS ONE SENTENCE, NAMED IN THE CUSTOMER'S TERMS
             (§11's state rule) — never "No records." */}
         {rows.length === 0 && !error && (
-          <p className="body">Nothing here yet — your website has no questions section.</p>
+          <p className="body">{t("Nothing here yet — your website has no questions section.")}</p>
         )}
 
         <div className={`rows rows-stack${busy ? " refreshing" : ""}`} aria-busy={busy || undefined}>

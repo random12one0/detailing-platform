@@ -17,6 +17,11 @@ import { useBusiness } from "../../context/BusinessContext.jsx";
 import { DurationChoice, Group, HourChoice, Setting, Switch } from "../../components/controls.jsx";
 import { disablePush, enablePush, pushState } from "../../lib/push.js";
 import { cleanMessages, MESSAGE_KINDS, MESSAGE_MAX } from "../../lib/emailMessages.js";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../../lib/appI18n.js";
+import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 const CUSTOMER_EMAILS = [
   ["email_customer_confirmation", "Booking confirmation",
@@ -35,6 +40,7 @@ const OWNER_NUDGE = [[15, "15 min"], [30, "30 min"], [60, "1 hour"], [120, "2 ho
 const FINALIZE = [[30, "30 min"], [60, "1 hour"], [120, "2 hours"], [240, "4 hours"]];
 
 export default function Notifications() {
+  useAppLocale();
   const { business, settings, reload } = useBusiness();
   const [form, setForm] = useState(() => {
     const f = {};
@@ -141,7 +147,7 @@ export default function Notifications() {
 
   return (
     <>
-      <Group title="What your customers get"
+      <Group title={t("What your customers get")}
         blurb="Turning one off stops the email, not the booking.">
         {CUSTOMER_EMAILS.map(([k, label, help]) => (
           <Switch key={k} label={label} help={help}
@@ -172,13 +178,12 @@ export default function Notifications() {
             text is not past an edge, not outside its parent and not two boxes
             touching. */}
         <p className="muted">
-          A made-up booking, priced from your own services, sent to you and
-          nobody else. Nothing is saved and no time is taken.
+          {t("A made-up booking, priced from your own services, sent to you and nobody else. Nothing is saved and no time is taken.")}
         </p>
         {preview && <div className={preview.ok ? "ok-box" : "error-box"}>{preview.text}</div>}
       </Group>
 
-      <Group title="What you get" blurb="Email you when…">
+      <Group title={t("What you get")} blurb="Email you when…">
         {OWNER_EMAILS.map(([k, label, help]) => (
           <Switch key={k} label={label} help={help}
             checked={form[k]} onChange={(v) => set(k, v)} />
@@ -195,7 +200,7 @@ export default function Notifications() {
         {device === "unsupported" ? (
           <Setting label="Push notifications"
             help="On an iPhone, add this dashboard to your home screen first — Safari only allows it there.">
-            <span className="quiet">Not available in this browser</span>
+            <span className="quiet">{t("Not available in this browser")}</span>
           </Setting>
         ) : (
           <Switch label="Push notifications on this device"
@@ -208,14 +213,14 @@ export default function Notifications() {
         {pushErr && <div className="error-box">{pushErr}</div>}
       </Group>
 
-      <Group title="Where your alerts go">
+      <Group title={t("Where your alerts go")}>
         <Setting label="Main address" help="From your business info. Always receives.">
           <span className="quiet">{primary || "Not set"}</span>
         </Setting>
         <Setting label="Also send to" stacked
           help="A partner, a second inbox, whoever else needs to know.">
           <div className="tight">
-            {recipients.length === 0 && <p className="quiet">Nobody else.</p>}
+            {recipients.length === 0 && <p className="quiet">{t("Nobody else.")}</p>}
             {recipients.map((e) => (
               <div className="row between sunken flush" key={e}>
                 <span className="row" style={{ gap: 8, minWidth: 0 }}>
@@ -229,16 +234,16 @@ export default function Notifications() {
               </div>
             ))}
             <div className="row" style={{ gap: 8 }}>
-              <input type="email" inputMode="email" placeholder="name@example.com"
+              <input type="email" inputMode="email" placeholder={t("name@example.com")}
                 value={newEmail} onChange={(e) => setNewEmail(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addEmail(); } }} />
-              <button className="btn sm inline" onClick={addEmail}>Add</button>
+              <button className="btn sm inline" onClick={addEmail}>{t("Add")}</button>
             </div>
           </div>
         </Setting>
       </Group>
 
-      <Group title="Timing" blurb="Only affects nudges to you, not your customers.">
+      <Group title={t("Timing")} blurb="Only affects nudges to you, not your customers.">
         <Setting label="Nudge you before a job starts" stacked>
           <DurationChoice value={form.owner_nudge_lead_minutes} presets={OWNER_NUDGE}
             onChange={(v) => set("owner_nudge_lead_minutes", v)} unit="minutes" customMax={720} />
@@ -264,7 +269,7 @@ export default function Notifications() {
           name and states their date, vehicle and address, so a second
           "Hi {name}" is the owner's own never-default. Nothing to typo,
           nothing to validate. */}
-      <Group title="Your own words"
+      <Group title={t("Your own words")}
         blurb="Add a line to any email. Everything else stays as designed.">
         {MESSAGE_KINDS.map((k) => {
           const body = messages[k.key] ?? "";
@@ -280,7 +285,7 @@ export default function Notifications() {
               {open && (
                 <div className="tight">
                   <textarea rows={3} maxLength={MESSAGE_MAX} value={body}
-                    placeholder="Anything you want them to know."
+                    placeholder={t("Anything you want them to know.")}
                     onChange={(e) => { setMessages({ ...messages, [k.key]: e.target.value }); setMsg(null); }} />
                   <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
                     {k.presets.map((preset) => (
@@ -291,11 +296,11 @@ export default function Notifications() {
                     ))}
                   </div>
                   <div className="row" style={{ gap: 8 }}>
-                    <button className="btn sm inline" onClick={() => setOpenKind(null)}>Done</button>
+                    <button className="btn sm inline" onClick={() => setOpenKind(null)}>{t("Done")}</button>
                     {body && (
                       <button className="btn sm inline ghost"
                         onClick={() => { const m = { ...messages }; delete m[k.key]; setMessages(m); setMsg(null); }}>
-                        Clear
+                        {t("Clear")}
                       </button>
                     )}
                   </div>

@@ -14,12 +14,18 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Camera, Image as ImageIcon, Trash2, Upload } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 import {
   KINDS, addPhoto, budgetFor, budgetWords, mb, publishToGallery, removePhoto,
   roomFor, signedUrls,
 } from "../lib/photos.js";
 
 export default function JobPhotos({ booking }) {
+  useAppLocale();
   const { business, can } = useBusiness();
   const [photos, setPhotos] = useState(null);      // null = not read yet
   const [urls, setUrls] = useState({});
@@ -94,13 +100,13 @@ export default function JobPhotos({ booking }) {
 
   return (
     <>
-      <h3 className="section-title" data-tour="photos">Photos</h3>
+      <h3 className="section-title" data-tour="photos">{t("Photos")}</h3>
       <div className="card tight">
         {error && <p className="error-box">{error}</p>}
         {warn && <p className="quiet">{warn}</p>}
 
         {photos === null ? (
-          <p className="quiet">Loading…</p>
+          <p className="quiet">{t("Loading…")}</p>
         ) : (
           KINDS.map(([kind, word]) => {
             const mine = photos.filter((p) => p.kind === kind);
@@ -110,7 +116,7 @@ export default function JobPhotos({ booking }) {
                   <span className="label">{word}{mine.length > 0 ? ` · ${mine.length}` : ""}</span>
                   <button className="btn small" disabled={busy}
                     onClick={() => { kindRef.current = kind; pick.current?.click(); }}>
-                    <Camera size={16} strokeWidth={2} /> Add
+                    <Camera size={16} strokeWidth={2} /> {t("Add")}
                   </button>
                 </div>
                 {mine.length > 0 && (
@@ -147,17 +153,17 @@ export default function JobPhotos({ booking }) {
           <div className="row" style={{ gap: 8 }} onClick={(e) => e.stopPropagation()}>
             {can("settings") && !open.gallery_id && (
               <button className="btn small" disabled={busy} onClick={() => publish(open).then(() => setOpen(null))}>
-                <Upload size={16} strokeWidth={2} /> Put on my website
+                <Upload size={16} strokeWidth={2} /> {t("Put on my website")}
               </button>
             )}
-            {open.gallery_id && <span className="quiet"><ImageIcon size={15} /> On your website</span>}
+            {open.gallery_id && <span className="quiet"><ImageIcon size={15} /> {t("On your website")}</span>}
             {can("settings") && (
               <button className="btn small warn" disabled={busy}
                 onClick={() => drop(open).then(() => setOpen(null))}>
-                <Trash2 size={16} strokeWidth={2} /> Delete
+                <Trash2 size={16} strokeWidth={2} /> {t("Delete")}
               </button>
             )}
-            <button className="btn small" onClick={() => setOpen(null)}>Close</button>
+            <button className="btn small" onClick={() => setOpen(null)}>{t("Close")}</button>
           </div>
         </div>
       )}

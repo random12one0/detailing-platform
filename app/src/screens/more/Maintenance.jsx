@@ -25,6 +25,11 @@ import { CalendarClock, Check, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { nextDue, saySoon, stateOf } from "../../lib/maintenance.js";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../../lib/appI18n.js";
+import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 const BLANK = { customer_id: "", label: "", vehicle: "", due_on: "", repeat_months: "12" };
 
@@ -35,6 +40,7 @@ const BLANK = { customer_id: "", label: "", vehicle: "", due_on: "", repeat_mont
 const ORDER = { missed: 0, due: 1, waiting: 2, met: 3, cancelled: 4 };
 
 export default function Maintenance() {
+  useAppLocale();
   const { business } = useBusiness();
   const [rows, setRows] = useState(null);
   const [customers, setCustomers] = useState([]);
@@ -117,50 +123,48 @@ export default function Maintenance() {
             monthly plans they already have, and the difference — a date with a
             consequence rather than a rhythm — is the whole feature. */}
         <p className="quiet" style={{ marginTop: 0 }}>
-          For work that has a deadline rather than a rhythm — a coating warranty
-          that voids if the yearly inspection is missed. Your customer gets a
-          reminder at 60, 30 and 14 days, and again the day before.
+          {t("For work that has a deadline rather than a rhythm — a coating warranty that voids if the yearly inspection is missed. Your customer gets a reminder at 60, 30 and 14 days, and again the day before.")}
         </p>
 
-        <label className="field"><span>Whose car</span>
+        <label className="field"><span>{t("Whose car")}</span>
           <select value={form.customer_id}
             onChange={(e) => setForm({ ...form, customer_id: e.target.value })}>
-            <option value="">Choose a customer…</option>
+            <option value="">{t("Choose a customer…")}</option>
             {customers.map((c) => (
               <option key={c.id} value={c.id}>{c.name} · {c.phone}</option>
             ))}
           </select>
         </label>
 
-        <label className="field"><span>What is owed</span>
-          <input value={form.label} placeholder="e.g. Ceramic Pro annual inspection"
+        <label className="field"><span>{t("What is owed")}</span>
+          <input value={form.label} placeholder={t("e.g. Ceramic Pro annual inspection")}
             onChange={(e) => setForm({ ...form, label: e.target.value })} /></label>
 
         <label className="field"><span>Which car (optional)</span>
-          <input value={form.vehicle} placeholder="e.g. 2021 Tacoma"
+          <input value={form.vehicle} placeholder={t("e.g. 2021 Tacoma")}
             onChange={(e) => setForm({ ...form, vehicle: e.target.value })} /></label>
 
         <div className="pair">
-          <label className="field"><span>Due by</span>
+          <label className="field"><span>{t("Due by")}</span>
             <input type="date" value={form.due_on}
               onChange={(e) => setForm({ ...form, due_on: e.target.value })} /></label>
           {/* MONTHS, NOT A CADENCE PICKER. This is how long until the NEXT one
               once this is done, and blank means it never comes round again. */}
           <label className="field"><span>Then every (months)</span>
             <input type="number" min="1" max="120" value={form.repeat_months}
-              placeholder="blank = one-off"
+              placeholder={t("blank = one-off")}
               onChange={(e) => setForm({ ...form, repeat_months: e.target.value })} /></label>
         </div>
 
         <div className="btnrow">
           <button className="btn primary" disabled={busy || !form.customer_id || !form.label.trim() || !form.due_on}
-            onClick={add}>Add deadline</button>
+            onClick={add}>{t("Add deadline")}</button>
         </div>
 
         {error && <div className="error-box">{error}</div>}
 
         {rows !== null && rows.length === 0 && !error && (
-          <p className="body">Nothing has a deadline yet — this is for coatings and warranties.</p>
+          <p className="body">{t("Nothing has a deadline yet — this is for coatings and warranties.")}</p>
         )}
 
         {/* `rows` AND NOT `rows-stack`. The stacking variant exists for the
@@ -181,8 +185,8 @@ export default function Maintenance() {
                     {/* `--bad` IS THE PRODUCT'S FIXED RED AND NEVER THE
                         TENANT'S ACCENT (design-system law 11b): a missed
                         warranty is a state, not an identity. */}
-                    {state === "missed" && <span className="pill bad" style={{ marginLeft: 8 }}>Missed</span>}
-                    {state === "met" && <span className="pill" style={{ marginLeft: 8 }}>Done</span>}
+                    {state === "missed" && <span className="pill bad" style={{ marginLeft: 8 }}>{t("Missed")}</span>}
+                    {state === "met" && <span className="pill" style={{ marginLeft: 8 }}>{t("Done")}</span>}
                   </span>
                   {/* THE TIMING COMES FIRST, and that was a fix rather than a
                       choice: with the name first the line clipped at 392 to

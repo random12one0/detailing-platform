@@ -29,8 +29,14 @@ import { useState } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { Switch } from "../../components/controls.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../../lib/appI18n.js";
+import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 export default function Payments() {
+  useAppLocale();
   const { business, settings, reload } = useBusiness();
   const [pay, setPay] = useState({
     pay_cash: !!settings?.pay_cash,
@@ -72,8 +78,7 @@ export default function Payments() {
           otherwise conclude it is broken. The copy rule (2026-09-01) bans a
           sentence that repeats a label; this repeats none of them. */}
       <p className="quiet" style={{ marginTop: 0 }}>
-        These go on a customer's booking confirmation, their reminder, and any
-        invoice still owed. Never on a receipt for money already paid.
+        {t("These go on a customer's booking confirmation, their reminder, and any invoice still owed. Never on a receipt for money already paid.")}
       </p>
 
       <Switch
@@ -83,15 +88,14 @@ export default function Payments() {
         onChange={(v) => setPay({ ...pay, pay_cash: v })}
       />
 
-      <div className="section-title">Apps</div>
+      <div className="section-title">{t("Apps")}</div>
       {/* THE SENTENCE GOVERNS ALL THREE FIELDS, SO IT SITS ABOVE THEM. It was
           under PayPal on the first pass and read as a caption about PayPal —
           the @ and the $ it names belong to the two fields above that one.
           Same shape as `controls.jsx`'s `Group` blurb, which is the house
           pattern for exactly this. */}
       <p className="muted" style={{ margin: "0 0 var(--sp-3)" }}>
-        Just the username — we add the @ or $ and make it a link they can tap.
-        Anything else still shows, but they will have to type it in themselves.
+        {t("Just the username — we add the @ or $ and make it a link they can tap. Anything else still shows, but they will have to type it in themselves.")}
       </p>
       {/* NOT PAIRED, AND THIS ONE WAS MEASURED. Two `.grid2` fields at 392
           leave 155px each, which holds `@andrews-detail` and clips anything
@@ -102,27 +106,27 @@ export default function Payments() {
           character by character against another app. The row it saves is free
           on a page that already scrolls. Same finding as Reviews.jsx: a pair
           that does not survive 392 is not a pair. */}
-      <label className="field"><span>Venmo</span>
+      <label className="field"><span>{t("Venmo")}</span>
         <input value={pay.pay_venmo} onChange={set("pay_venmo")}
           placeholder="your-handle" maxLength={120} /></label>
-      <label className="field"><span>Cash App</span>
+      <label className="field"><span>{t("Cash App")}</span>
         <input value={pay.pay_cashapp} onChange={set("pay_cashapp")}
-          placeholder="yourhandle" maxLength={120} /></label>
-      <label className="field"><span>PayPal</span>
+          placeholder={t("yourhandle")} maxLength={120} /></label>
+      <label className="field"><span>{t("PayPal")}</span>
         <input value={pay.pay_paypal} onChange={set("pay_paypal")}
-          placeholder="your-handle, or paste your PayPal.Me link" maxLength={120} /></label>
+          placeholder={t("your-handle, or paste your PayPal.Me link")} maxLength={120} /></label>
 
-      <div className="section-title">Bank and anything else</div>
+      <div className="section-title">{t("Bank and anything else")}</div>
       {/* ZELLE IS NOT AN APP WITH A PAGE. It lives inside a bank's own app and
           is reached by phone number or email, so there is nothing to link to
           and the field asks for a different thing from the three above it.
           That is why it is under its own heading rather than in the pair. */}
-      <label className="field"><span>Zelle</span>
+      <label className="field"><span>{t("Zelle")}</span>
         <input value={pay.pay_zelle} onChange={set("pay_zelle")}
-          placeholder="The phone number or email your Zelle is on" maxLength={120} /></label>
-      <label className="field"><span>Anything else</span>
+          placeholder={t("The phone number or email your Zelle is on")} maxLength={120} /></label>
+      <label className="field"><span>{t("Anything else")}</span>
         <input value={pay.pay_other} onChange={set("pay_other")}
-          placeholder="e.g. Apple Pay, or a check" maxLength={120} /></label>
+          placeholder={t("e.g. Apple Pay, or a check")} maxLength={120} /></label>
 
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
       <button className="btn primary" disabled={busy} onClick={save}>{busy ? "Saving" : "Save"}</button>

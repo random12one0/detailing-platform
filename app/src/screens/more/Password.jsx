@@ -17,8 +17,14 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase.js";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../../lib/appI18n.js";
+import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 export default function Password() {
+  useAppLocale();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [again, setAgain] = useState("");
@@ -49,16 +55,16 @@ export default function Password() {
   return (
     <form className="group" onSubmit={save}>
       <p className="quiet">
-        {email ? <>The password for <strong>{email}</strong>.</> : "Your sign-in password."}
+        {email ? <>{t("The password for")} <strong>{email}</strong>.</> : "Your sign-in password."}
         {" "}Eight characters or more.
       </p>
       <label className="field">
-        <span>New password</span>
+        <span>{t("New password")}</span>
         <input type="password" value={password} minLength={8} required
           autoComplete="new-password" onChange={(e) => setPassword(e.target.value)} />
       </label>
       <label className="field">
-        <span>Type it again</span>
+        <span>{t("Type it again")}</span>
         <input type="password" value={again} minLength={8} required
           autoComplete="new-password" onChange={(e) => setAgain(e.target.value)} />
       </label>

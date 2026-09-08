@@ -24,6 +24,11 @@ import { useBusiness } from "../../context/BusinessContext.jsx";
 import { money } from "../../lib/format.js";
 import Sheet from "../../components/Sheet.jsx";
 import { Segmented, Setting, Switch } from "../../components/controls.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../../lib/appI18n.js";
+import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 // Today's three, and the fallback for a business whose settings row predates
 // the column. Defined once here and once in the migration's DEFAULT; they say
@@ -70,6 +75,7 @@ const slugKey = (label, taken) => {
 };
 
 export default function Catalog() {
+  useAppLocale();
   const { business, settings, reload } = useBusiness();
   const [groups, setGroups] = useState([]);
   const [services, setServices] = useState([]);
@@ -139,7 +145,7 @@ export default function Catalog() {
   // which is not always the previous one in the flat list.
   const Reorder = ({ kind, index, above }) => (
     above === null || above === undefined ? <span className="reorder-gap" aria-hidden="true" /> : (
-      <button className="btn sm inline icon" aria-label="Move up"
+      <button className="btn sm inline icon" aria-label={t("Move up")}
         onClick={(e) => { e.stopPropagation(); move(kind, index, above - index); }}><ChevronUp strokeWidth={2} /></button>
     )
   );
@@ -351,7 +357,7 @@ export default function Catalog() {
           shrinking — § THE 320 FLOOR's own answer for a row that no longer
           fits, and the two are the same size on both lines. */}
       <div className="row wrap between">
-        <h3>Services</h3>
+        <h3>{t("Services")}</h3>
         <div className="row wrap" style={{ gap: 6 }}>
           <button className="btn inline" onClick={() => setEditing({ kind: "group", form: { ...EMPTY_GROUP } })}>+ Category</button>
           <button className="btn inline" onClick={() => openService(null)}>+ Service</button>
@@ -377,7 +383,7 @@ export default function Catalog() {
               {gi > 0 && <Reorder kind="group" index={gi} above={gi - 1} />}
             </div>
           ) : groups.length > 0 && (
-            <span className="label">Not in a category</span>
+            <span className="label">{t("Not in a category")}</span>
           )}
 
           {rows.map(({ s, i }, k) => (
@@ -398,15 +404,15 @@ export default function Catalog() {
               it is a thing the detailer made and can open, and hiding it
               would make a category they created disappear. */}
           {group && rows.length === 0 && (
-            <p className="muted">Nothing in this one yet.</p>
+            <p className="muted">{t("Nothing in this one yet.")}</p>
           )}
         </div>
       ))}
 
-      {services.length === 0 && <p className="muted">No services yet — customers can't book until you add one.</p>}
+      {services.length === 0 && <p className="muted">{t("No services yet — customers can't book until you add one.")}</p>}
 
       <div className="row between" style={{ marginTop: "var(--sp-5)" }}>
-        <h3>Add-ons</h3>
+        <h3>{t("Add-ons")}</h3>
         <button className="btn inline" onClick={() => setEditing({ kind: "addon", form: { ...EMPTY_ADDON } })}>+ Add</button>
       </div>
       <div className="tight">
@@ -427,7 +433,7 @@ export default function Catalog() {
           axis every service is priced along, and the per-service numbers are
           three lines further down the same sheet. */}
       <div className="row between" style={{ marginTop: "var(--sp-5)" }}>
-        <h3>Vehicle sizes</h3>
+        <h3>{t("Vehicle sizes")}</h3>
         <button className="btn inline" onClick={() => setEditing({ kind: "size", form: { label: "", examples: "" } })}>+ Add</button>
       </div>
       <p className="muted" style={{ marginBottom: "var(--sp-3)" }}>
@@ -442,9 +448,9 @@ export default function Catalog() {
               <strong>{s.label}</strong>
               <div className="muted">{i === 0 ? "Base price" : s.examples || "Costs extra"}</div>
             </div>
-            <button className="btn sm inline icon" aria-label="Move up" disabled={i === 0}
+            <button className="btn sm inline icon" aria-label={t("Move up")} disabled={i === 0}
               onClick={() => moveSize(i, -1)}><ChevronUp strokeWidth={2} /></button>
-            <button className="btn sm inline icon" aria-label="Move down" disabled={i === sizes.length - 1}
+            <button className="btn sm inline icon" aria-label={t("Move down")} disabled={i === sizes.length - 1}
               onClick={() => moveSize(i, 1)}><ChevronDown strokeWidth={2} /></button>
             <button className="btn sm inline icon" aria-label={`Remove ${s.label}`} disabled={sizes.length <= 1}
               onClick={() => removeSize(i)}><X strokeWidth={2} /></button>
@@ -467,30 +473,29 @@ export default function Catalog() {
 
           {editing.kind === "size" ? (
             <>
-              <label className="field"><span>Name</span>
-                <input value={editing.form.label} placeholder="e.g. Pickup truck"
+              <label className="field"><span>{t("Name")}</span>
+                <input value={editing.form.label} placeholder={t("e.g. Pickup truck")}
                   onChange={(e) => set({ label: e.target.value })} /></label>
               <label className="field"><span>Examples (optional)</span>
-                <input value={editing.form.examples} placeholder="e.g. F-150, Silverado, Ram"
+                <input value={editing.form.examples} placeholder={t("e.g. F-150, Silverado, Ram")}
                   onChange={(e) => set({ examples: e.target.value })} /></label>
               <p className="muted">
                 {editing.index === 0
                   ? "This is your base size — every price you set is the price for this one."
                   : "You set what this size adds, per service, in each service's own screen."}
               </p>
-              <button className="btn primary" onClick={saveSize}>Save</button>
+              <button className="btn primary" onClick={saveSize}>{t("Save")}</button>
             </>
           ) : editing.kind === "group" ? (
             <>
-              <label className="field"><span>Name</span>
-                <input value={editing.form.name} placeholder="e.g. Interior"
+              <label className="field"><span>{t("Name")}</span>
+                <input value={editing.form.name} placeholder={t("e.g. Interior")}
                   onChange={(e) => set({ name: e.target.value })} /></label>
               <label className="field"><span>Description (optional)</span>
-                <input value={editing.form.description} placeholder="e.g. Everything inside the car"
+                <input value={editing.form.description} placeholder={t("e.g. Everything inside the car")}
                   onChange={(e) => set({ description: e.target.value })} /></label>
               <p className="muted" style={{ marginTop: 6, marginBottom: "var(--sp-4)" }}>
-                One line under the heading on your booking page. Leave it blank
-                unless it earns its space — that screen is tight on a phone.
+                {t("One line under the heading on your booking page. Leave it blank unless it earns its space — that screen is tight on a phone.")}
               </p>
 
               <Setting label="How many can they choose?"
@@ -513,18 +518,18 @@ export default function Catalog() {
                   : "Customers can combine these with services from your other categories."}
                 checked={editing.form.is_exclusive}
                 onChange={(v) => set({ is_exclusive: v })} />
-              <button className="btn primary" onClick={saveGroup}>Save</button>
+              <button className="btn primary" onClick={saveGroup}>{t("Save")}</button>
               {editing.id && (
                 <button className="btn danger" style={{ marginTop: "var(--sp-3)" }} onClick={deleteGroup}>
-                  Delete category
+                  {t("Delete category")}
                 </button>
               )}
             </>
           ) : (
             <>
-              <label className="field"><span>Name</span>
+              <label className="field"><span>{t("Name")}</span>
                 <input value={editing.form.name} onChange={(e) => set({ name: e.target.value })} /></label>
-              <label className="field"><span>Description</span>
+              <label className="field"><span>{t("Description")}</span>
                 <textarea value={editing.form.description} onChange={(e) => set({ description: e.target.value })} /></label>
               <div className="grid2">
                 <label className="field"><span>Price ($)</span>
@@ -556,13 +561,12 @@ export default function Catalog() {
                       placeholder={"Hand wash and dry\nClay bar decontamination\nMachine polish\nSix-month sealant"}
                       onChange={(e) => set({ features: e.target.value })} /></label>
                   <p className="muted" style={{ marginTop: 6, marginBottom: "var(--sp-4)" }}>
-                    Customers see these behind the eye on your booking page, so
-                    the list can be as long as it needs to be.
+                    {t("Customers see these behind the eye on your booking page, so the list can be as long as it needs to be.")}
                   </p>
 
                   <label className="field"><span>Category (optional)</span>
                     <select value={editing.form.group_id} onChange={(e) => set({ group_id: e.target.value })}>
-                      <option value="">No category</option>
+                      <option value="">{t("No category")}</option>
                       {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
                     </select></label>
 
@@ -607,7 +611,7 @@ export default function Catalog() {
 
                   <div className="section-title">Bigger vehicles (added on top)</div>
                   {sizes.length < 2 ? (
-                    <p className="muted">One size, so one price.</p>
+                    <p className="muted">{t("One size, so one price.")}</p>
                   ) : (
                     <div className="grid2">
                       {sizes.slice(1).map((sz) => (
@@ -630,7 +634,7 @@ export default function Catalog() {
                   : "Hidden from customers. Past bookings keep it."}
                 checked={editing.form.is_active}
                 onChange={(v) => set({ is_active: v })} />
-              <button className="btn primary" onClick={editing.kind === "service" ? saveService : saveAddOn}>Save</button>
+              <button className="btn primary" onClick={editing.kind === "service" ? saveService : saveAddOn}>{t("Save")}</button>
             </>
           )}
         </Sheet>

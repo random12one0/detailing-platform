@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase.js";
 import ParkedAccounts from "../components/ParkedAccounts.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 // Which third-party sign-ins this project actually has switched on.
 //
@@ -39,6 +44,7 @@ function GoogleMark() {
 }
 
 export default function Auth() {
+  useAppLocale();
   // Arriving from a pricing button means you came to start, not to sign in.
   const params = new URLSearchParams(window.location.search);
   // THREE MODES, NOT TWO. "reset" is asking for the email; it is a mode of
@@ -103,7 +109,7 @@ export default function Auth() {
       <div className="app-dots" aria-hidden="true" />
       <div className="authwrap">
         <div className="authmark">
-          <span className="label">Detailing Platform</span>
+          <span className="label">{t("Detailing Platform")}</span>
           <b>{resetting ? "Reset your password" : creating ? "Create your account" : "Welcome back"}</b>
         </div>
       {/* ROADMAP 8.18 — the way back after *Add another account*. The
@@ -123,9 +129,9 @@ export default function Auth() {
           <>
             <button type="button" className="btn oauth" onClick={withGoogle} disabled={busy}>
               <GoogleMark />
-              Continue with Google
+              {t("Continue with Google")}
             </button>
-            <div className="or"><span>or</span></div>
+            <div className="or"><span>{t("or")}</span></div>
           </>
         )}
 
@@ -134,12 +140,12 @@ export default function Auth() {
             directly, so the two inputs touched. One class, not a margin. */}
         <div className="fields">
           <label className="field">
-            <span>Email</span>
+            <span>{t("Email")}</span>
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
           </label>
           {!resetting && (
             <label className="field">
-              <span>Password</span>
+              <span>{t("Password")}</span>
               <input
                 type="password" value={password} minLength={creating ? 8 : undefined}
                 onChange={(e) => setPassword(e.target.value)} required
@@ -184,7 +190,7 @@ export default function Auth() {
             type="button" className="btn ghost sm"
             onClick={() => { setMode("reset"); setError(""); setSent(false); }}
           >
-            I forgot my password
+            {t("I forgot my password")}
           </button>
         )}
         </div>

@@ -18,8 +18,14 @@ import { api } from "../lib/api.js";
 import { money } from "../lib/format.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import Sheet from "./Sheet.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 export default function QuoteModal({ booking, onClose, onSent }) {
+  useAppLocale();
   const { business } = useBusiness();
   const [amount, setAmount] = useState(
     booking.quoted_amount != null ? String(booking.quoted_amount) : String(booking.total_price ?? ""),
@@ -50,10 +56,10 @@ export default function QuoteModal({ booking, onClose, onSent }) {
   };
 
   return (
-    <Sheet onClose={onClose} title="Send a quote"
+    <Sheet onClose={onClose} title={t("Send a quote")}
       subtitle={`${booking.customer_name} asked for ${money(asked)}`}>
 
-      <label className="field"><span>Your price</span>
+      <label className="field"><span>{t("Your price")}</span>
         <input type="number" inputMode="decimal" value={amount} autoFocus
           onChange={(e) => { setAmount(e.target.value); setConfirming(false); }} /></label>
 
@@ -65,13 +71,12 @@ export default function QuoteModal({ booking, onClose, onSent }) {
         </p>
       )}
 
-      <label className="field"><span>Why, in a sentence</span>
+      <label className="field"><span>{t("Why, in a sentence")}</span>
         <textarea value={note} onChange={(e) => setNote(e.target.value)}
-          placeholder="Optional — they'll read this in the email" /></label>
+          placeholder={t("Optional — they'll read this in the email")} /></label>
 
       <p className="muted" style={{ marginBottom: 8 }}>
-        Their time stays held while they decide, and nothing changes on the job
-        until they accept.
+        {t("Their time stays held while they decide, and nothing changes on the job until they accept.")}
       </p>
 
       {error && <div className="error-box">{error}</div>}
@@ -79,12 +84,12 @@ export default function QuoteModal({ booking, onClose, onSent }) {
       {confirming ? (
         <div className="confirm-box">
           <p>
-            Email <strong>{booking.customer_name}</strong> a price of{" "}
+            {t("Email")} <strong>{booking.customer_name}</strong> a price of{" "}
             <strong>{money(value)}</strong>?
           </p>
           <div className="row" style={{ gap: 8, marginTop: 10 }}>
             <button className="btn ghost inline" disabled={busy} onClick={() => setConfirming(false)}>
-              Go back
+              {t("Go back")}
             </button>
             <button className="btn primary inline" disabled={busy} onClick={send}>
               {busy ? "Sending…" : "Yes, send it"}

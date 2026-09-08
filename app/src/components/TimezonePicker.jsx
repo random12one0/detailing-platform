@@ -5,6 +5,11 @@
 // business (the database rejects one too, via validate_timezone()).
 
 import { useMemo, useState } from "react";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 // Ordered first because most detailers are here; the full list follows.
 const COMMON = [
@@ -41,6 +46,7 @@ function offsetLabel(tz) {
 }
 
 export default function TimezonePicker({ value, onChange }) {
+  useAppLocale();
   const [query, setQuery] = useState("");
   const zones = useMemo(() => {
     const all = allZones();
@@ -61,7 +67,7 @@ export default function TimezonePicker({ value, onChange }) {
       </div>
       <input
         type="search"
-        placeholder="Search for your city or region"
+        placeholder={t("Search for your city or region")}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         style={{ marginBottom: 8 }}
@@ -77,7 +83,7 @@ export default function TimezonePicker({ value, onChange }) {
             {pretty(z)} — {offsetLabel(z)}
           </option>
         ))}
-        {matches.length === 0 && <option disabled>No matching timezone</option>}
+        {matches.length === 0 && <option disabled>{t("No matching timezone")}</option>}
       </select>
     </div>
   );

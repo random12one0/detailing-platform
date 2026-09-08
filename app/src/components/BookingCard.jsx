@@ -12,6 +12,11 @@
 
 import { CheckCircle2, CreditCard, MessageSquare, Navigation, Phone } from "lucide-react";
 import { mapsUrl, money, time12 } from "../lib/format.js";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 const STATUS_LABEL = {
   confirmed: "Confirmed", completed: "Completed",
@@ -26,6 +31,7 @@ export default function BookingCard({
   booking, onClick, showDate = false, isNext = false,
   onMarkComplete, onFinalize, dense = false, rail = "",
 }) {
+  useAppLocale();
   const services = (booking.services ?? []).map((s) => s.name_at_booking).filter(Boolean);
   const isMobile = booking.service_type === "mobile";
   const amount = booking.final_amount ?? booking.total_price;
@@ -71,7 +77,7 @@ export default function BookingCard({
             <span className={`pill ${booking.status}`}>
               {STATUS_LABEL[booking.status] ?? booking.status}
             </span>
-            {booking.payment_status === "paid" && <span className="pill paid">Paid</span>}
+            {booking.payment_status === "paid" && <span className="pill paid">{t("Paid")}</span>}
           </div>
 
           {services.length > 0 && <div className="body">{services.join(" · ")}</div>}
@@ -92,16 +98,16 @@ export default function BookingCard({
               {isMobile && booking.customer_address && (
                 <a className="btn sm" href={mapsUrl(booking.customer_address)}
                   target="_blank" rel="noopener noreferrer">
-                  <Navigation strokeWidth={2} /> Navigate
+                  <Navigation strokeWidth={2} /> {t("Navigate")}
                 </a>
               )}
               {booking.customer_phone && (
                 <>
                   <a className="btn sm" href={`tel:${booking.customer_phone}`}>
-                    <Phone strokeWidth={2} /> Call
+                    <Phone strokeWidth={2} /> {t("Call")}
                   </a>
                   <a className="btn sm" href={`sms:${booking.customer_phone}`}>
-                    <MessageSquare strokeWidth={2} /> Text
+                    <MessageSquare strokeWidth={2} /> {t("Text")}
                   </a>
                 </>
               )}
@@ -111,13 +117,13 @@ export default function BookingCard({
           {onMarkComplete && booking.status === "confirmed" && (
             <button className={`btn${isNext ? " primary" : ""}`} style={{ marginTop: "var(--sp-2)" }}
               onClick={() => onMarkComplete(booking)}>
-              <CheckCircle2 strokeWidth={2} /> Mark complete
+              <CheckCircle2 strokeWidth={2} /> {t("Mark complete")}
             </button>
           )}
           {onFinalize && booking.status === "completed" && !booking.finalized_at && (
             <button className={`btn${isNext ? " primary" : ""}`} style={{ marginTop: "var(--sp-2)" }}
               onClick={() => onFinalize(booking)}>
-              <CreditCard strokeWidth={2} /> Finalize payment
+              <CreditCard strokeWidth={2} /> {t("Finalize payment")}
             </button>
           )}
         </>

@@ -8,6 +8,11 @@
 import { useEffect, useState } from "react";
 import { Group, Setting } from "../../components/controls.jsx";
 import { Segmented } from "../../components/controls.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../../lib/appI18n.js";
+import { useAppLocale } from "../../hooks/useAppLocale.js";
 import {
   PLATFORMS, calendarUrlFor, defaultPrefs, detectPlatform, loadPrefs,
   savePrefs, saveContact,
@@ -20,6 +25,7 @@ const PLATFORM_NAME = {
 };
 
 export default function Preferences() {
+  useAppLocale();
   const [prefs, setPrefs] = useState(loadPrefs);
   const platform = detectPlatform();
 
@@ -33,7 +39,7 @@ export default function Preferences() {
         and you can pick differently there.
       </p>
 
-      <Group title="Getting there" blurb="Used by every Navigate button.">
+      <Group title={t("Getting there")} blurb="Used by every Navigate button.">
         <Setting label="Maps" stacked>
           <Segmented
             value={prefs.maps}
@@ -44,7 +50,7 @@ export default function Preferences() {
       </Group>
 
       <Group
-        title="Adding a job to your calendar"
+        title={t("Adding a job to your calendar")}
         blurb="Used by “Add to calendar” on a booking."
       >
         <Setting label="Calendar" stacked>
@@ -74,13 +80,13 @@ export default function Preferences() {
               if (href) window.open(href, "_blank", "noopener");
             }}
           >
-            Test
+            {t("Test")}
           </button>
         </Setting>
       </Group>
 
       <Group
-        title="Saving a customer to your phone"
+        title={t("Saving a customer to your phone")}
         blurb="Used by “Add to contacts” on a job."
       >
         <Setting
@@ -103,7 +109,7 @@ export default function Preferences() {
               email: "sample@example.com", org: "Saved from your dashboard",
             })}
           >
-            Test
+            {t("Test")}
           </button>
         </Setting>
       </Group>
@@ -113,7 +119,7 @@ export default function Preferences() {
         className="btn ghost"
         onClick={() => setPrefs(defaultPrefs(platform))}
       >
-        Reset to what this device suggests
+        {t("Reset to what this device suggests")}
       </button>
     </>
   );

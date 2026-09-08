@@ -26,6 +26,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 const PEEK = 56;      // vh it opens at
 const FULL = 92;      // vh when pulled all the way up
@@ -36,6 +41,7 @@ export default function Sheet({
   open = true, onClose, title, subtitle, children, footer,
   peek = PEEK, dismissible = true,
 }) {
+  useAppLocale();
   const [height, setHeight] = useState(peek);
   const [dragging, setDragging] = useState(false);
   const [leaving, setLeaving] = useState(false);
@@ -172,7 +178,7 @@ export default function Sheet({
               {subtitle && <p className="quiet" style={{ marginTop: 2 }}>{subtitle}</p>}
             </div>
             {dismissible && (
-              <button className="x" aria-label="Close"
+              <button className="x" aria-label={t("Close")}
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => { e.stopPropagation(); close(); }}>
                 <X size={18} strokeWidth={2} />

@@ -5,6 +5,11 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "../lib/supabase.js";
 import { roleName } from "../lib/permissions.js";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 const FN = (name) => `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${name}`;
 const headers = {
@@ -14,6 +19,7 @@ const headers = {
 };
 
 export default function AcceptInvite() {
+  useAppLocale();
   const { token } = useParams();
   const navigate = useNavigate();
   const [info, setInfo] = useState(undefined);
@@ -61,7 +67,7 @@ export default function AcceptInvite() {
     return (
       <div className="center" style={{ padding: 16 }}>
         <div className="card" style={{ maxWidth: 380 }}>
-          <h1 style={{ marginBottom: 8 }}>Invite unavailable</h1>
+          <h1 style={{ marginBottom: 8 }}>{t("Invite unavailable")}</h1>
           <p className="muted">{info.error}</p>
         </div>
       </div>
@@ -76,7 +82,7 @@ export default function AcceptInvite() {
           {info.email} · {roleName(info.role, info.label)}
         </p>
         <label className="field">
-          <span>Choose a password</span>
+          <span>{t("Choose a password")}</span>
           <input type="password" value={password} minLength={8} required autoComplete="new-password"
             onChange={(e) => setPassword(e.target.value)} />
         </label>

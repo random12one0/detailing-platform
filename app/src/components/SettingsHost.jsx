@@ -34,6 +34,11 @@ import { ChevronLeft, X } from "lucide-react";
 import { useWide } from "../hooks/useWide.js";
 import { useLeaving } from "../hooks/useLeaving.js";
 import { SCREENS } from "../screens/more/index.js";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 // IT ANIMATES OUT AT A DESK — roadmap 2.17. A settings screen entering and
 // leaving the second column was a hard cut in both directions, measured on the
@@ -43,6 +48,7 @@ import { SCREENS } from "../screens/more/index.js";
 // duration for the three containers.
 
 export default function SettingsHost({ open, onClose, splitClass, empty, children }) {
+  useAppLocale();
   const wide = useWide();
   // BELOW --wrap THERE IS NOTHING TO ANIMATE OUT — the screen is the page, and
   // it leaves by the page changing. The delay would be 180ms of a dead back
@@ -98,7 +104,7 @@ export default function SettingsHost({ open, onClose, splitClass, empty, childre
     return (
       <div className="group settings-page">
         <div className="settings-head">
-          <button ref={back} className="btn icon ghost" aria-label="Back" onClick={close}>
+          <button ref={back} className="btn icon ghost" aria-label={t("Back")} onClick={close}>
             <ChevronLeft strokeWidth={2} />
           </button>
           <h1 className="display">{title}</h1>
@@ -134,7 +140,7 @@ export default function SettingsHost({ open, onClose, splitClass, empty, childre
         <aside key={open} className={`col-2 settings-col${leaving ? " leaving" : ""}`} aria-label={title}>
           <div className="row between" style={{ alignItems: "flex-start", gap: "var(--sp-3)" }}>
             <h2>{title}</h2>
-            <button className="x" aria-label="Close" onClick={close}><X size={18} strokeWidth={2} /></button>
+            <button className="x" aria-label={t("Close")} onClick={close}><X size={18} strokeWidth={2} /></button>
           </div>
           <div className="settings-body"><Active /></div>
         </aside>
