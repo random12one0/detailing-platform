@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RINSE CITY — $34 wash and vac, 25 minutes, Reseda</title>
+<meta name="description" content="Express exterior and interior. Twenty-five minutes, no appointment, or book a slot and skip the queue.">
+
+<!--
+  ═══════════════════════════════════════════════════════════════════════════
+  MOCK-UP 4 OF TEN — 2026-09-08.
+  ═══════════════════════════════════════════════════════════════════════════
+
+  THE VARIABLE: a PAINTED FLAT COLOUR ground — one saturated ink, screen-printed
+  — and almost no motion (two hover transitions and nothing else; no reveal, no
+  observer, no scroll effect).
+
+  WHY THIS IS NOT A CONTRADICTION OF "THE GROUND IS NEVER A FLAT FILL"
+  (TASTE-NOTES § A). A painted ground is not an unconsidered fill: it carries a
+  halftone screen and a registration offset, which is depth from PRINT rather
+  than from light or atmosphere. Ten pages that all reached for a gradient would
+  be ten colourways of one idea, which is this repo's recorded failure — *three
+  agents given one brief produced one family; varying the palette while fixing
+  the skeleton does not produce variety.*
+
+  THE TENSION, which is what actually produces difference (briefs § 5): LOUD AND
+  CHEAP WITHOUT BECOMING A DISCOUNT VOUCHER. The price is the headline at
+  shopfront size; the copy underneath is dry, not excited. No exclamation marks,
+  no starbursts, no countdown.
+
+  IT IS THE ONE PAGE IN THE TEN WHERE THE PRICE IS THE HERO. Every other mock-up
+  leads with the work; this business's whole proposition is a number and a
+  clock, and pretending otherwise would be designing against the client.
+
+  DATA adapted from a real express operator: a $29 collection, a walk-in tier
+  from $175, and a genuinely awkward membership price. Source:
+  docs/tenant-site-source-data-2026-09-08.md § 4.
+
+  CONTRAST, COMPUTED:
+    --ink   #17110A on #F0541F   5.9:1  PASS   (body on the painted ground)
+    --ink   #17110A on #FFF6EC  16.4:1  PASS
+    --paper #FFF6EC on #17110A  16.4:1  PASS   (reversed panels)
+    --paper #FFF6EC on #F0541F   2.8:1  FAIL — SO IT IS NEVER USED THAT WAY.
+        White on this orange is below 4.5:1 and the page does not do it anywhere;
+        every reversal goes to the near-black instead. Measured before it shipped.
+    --edge  #17110A at 60% on #F0541F  3.4:1  PASS  (3:1, control edge)
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- ONE FAMILY ACROSS ITS RANGE — 800 against 400, the weight-extreme remedy,
+     with the EXPANDED cut reserved for the shopfront numbers. Nothing else. -->
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400;75..125,600;75..125,800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --orange:#F0541F; --paper:#FFF6EC; --ink:#17110A;
+  --edge:rgba(23,17,10,.55); --rule:rgba(23,17,10,.22);
+  --wrap:1100px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; color:var(--ink); background:var(--orange);
+  font:400 17px/1.5 Archivo,system-ui,sans-serif;
+  /* PAINTED, NOT FILLED — a halftone screen at 3px and a faint registration
+     offset. Depth from print. */
+  background-image:
+    radial-gradient(rgba(23,17,10,.10) 1px, transparent 1.4px),
+    linear-gradient(115deg, rgba(255,246,236,.05), transparent 40%);
+  background-size:5px 5px, 100% 100%;
+}
+.wrap{max-width:var(--wrap); margin:0 auto; padding:0 22px}
+a{color:inherit}
+
+header{border-bottom:2px solid var(--ink)}
+header .wrap{display:flex; align-items:center; gap:18px; padding:14px 22px}
+.mark{font:800 22px/1 Archivo,sans-serif; font-stretch:125%; letter-spacing:-.02em; text-transform:uppercase}
+nav{margin-left:auto; display:flex; gap:20px; font:600 14px/1 Archivo,sans-serif; text-transform:uppercase; letter-spacing:.06em}
+nav a{text-decoration:none}
+nav a:hover{text-decoration:underline; text-underline-offset:4px}
+.btn{
+  display:inline-block; background:var(--ink); color:var(--paper); text-decoration:none;
+  font:600 14px/1 Archivo,sans-serif; text-transform:uppercase; letter-spacing:.08em;
+  padding:13px 20px; border:0; cursor:pointer;
+  transition:transform .12s ease;
+}
+.btn:hover{transform:translateY(-2px)}
+@media(max-width:800px){ nav{display:none} }
+
+/* ── THE PRICE IS THE PAGE ──────────────────────────────────────────── */
+.shout{padding:6vh 0 5vh; border-bottom:2px solid var(--ink)}
+.shout .num{
+  font:800 clamp(84px,22vw,260px)/0.82 Archivo,sans-serif; font-stretch:125%;
+  letter-spacing:-.05em; margin:0; display:block;
+}
+.shout .clock{
+  font:600 clamp(22px,4.4vw,44px)/1 Archivo,sans-serif; font-stretch:112%;
+  text-transform:uppercase; letter-spacing:-.01em; margin:6px 0 22px;
+}
+.shout p{max-width:46ch; margin:0 0 24px; font-size:18px}
+.shoutbtns{display:flex; gap:12px; flex-wrap:wrap}
+.btn.ghost{background:transparent; color:var(--ink); border:2px solid var(--ink)}
+
+/* ── everything else is a LIST ──────────────────────────────────────── */
+section{padding:5vh 0; border-bottom:2px solid var(--ink)}
+h2{font:800 clamp(26px,4vw,44px)/1.02 Archivo,sans-serif; font-stretch:112%;
+  text-transform:uppercase; letter-spacing:-.02em; margin:0 0 6px}
+.stand{max-width:56ch; margin:0 0 26px}
+.lab{font:600 12px/1 Archivo,sans-serif; text-transform:uppercase; letter-spacing:.2em; margin:0 0 10px}
+
+.list{border-top:1px solid var(--rule)}
+.row{
+  display:flex; align-items:baseline; gap:18px; padding:16px 0;
+  border-bottom:1px solid var(--rule); flex-wrap:wrap;
+}
+.row .n{font:600 19px/1.2 Archivo,sans-serif; flex:1 1 220px}
+.row .n small{display:block; font-weight:400; font-size:14.5px; opacity:.8; max-width:52ch}
+.row .t{font:400 14px/1 Archivo,sans-serif; opacity:.75; width:90px; text-align:right}
+.row .p{
+  font:800 26px/1 Archivo,sans-serif; font-stretch:112%;
+  font-variant-numeric:tabular-nums; width:130px; text-align:right;
+}
+@media(max-width:640px){ .row .t{width:auto} .row .p{width:auto; margin-left:auto} }
+
+/* reversed panel — the ONLY place white appears, and never on the orange */
+.slab{background:var(--ink); color:var(--paper); padding:34px 0; margin:0}
+.slab h2{color:var(--paper)}
+.slab .row{border-color:rgba(255,246,236,.22)}
+.slab .list{border-color:rgba(255,246,236,.22)}
+.slab .btn{background:var(--paper); color:var(--ink)}
+
+/* ── booking — a counter ticket ─────────────────────────────────────── */
+.ticket{border:2px solid var(--ink); background:var(--paper)}
+.ticket .top{
+  display:flex; justify-content:space-between; gap:14px; flex-wrap:wrap;
+  border-bottom:2px dashed var(--ink); padding:14px 20px;
+  font:600 12px/1 Archivo,sans-serif; text-transform:uppercase; letter-spacing:.16em;
+}
+.ticket .body{padding:22px 20px}
+fieldset{border:0; margin:0 0 18px; padding:0}
+legend{font:600 15px/1 Archivo,sans-serif; text-transform:uppercase; letter-spacing:.08em; padding:0 0 12px}
+.opt{
+  display:flex; align-items:center; gap:13px; padding:13px 15px; cursor:pointer;
+  border:2px solid var(--edge); margin-bottom:8px; background:transparent;
+}
+.opt:has(input:checked){border-color:var(--ink); background:rgba(240,84,31,.10)}
+.opt input{accent-color:var(--orange); width:18px; height:18px; flex:none}
+.opt .t{flex:1}
+.opt .t b{display:block; font:600 15px/1.2 Archivo,sans-serif}
+.opt .t small{opacity:.75; font-size:13px}
+.opt .p{font:800 18px/1 Archivo,sans-serif; font-variant-numeric:tabular-nums}
+.total{display:flex; justify-content:space-between; align-items:baseline; gap:14px;
+  border-top:2px solid var(--ink); padding-top:14px}
+.total .k{font-size:13px; opacity:.8; max-width:32ch}
+.total .v{font:800 40px/1 Archivo,sans-serif; font-stretch:112%; font-variant-numeric:tabular-nums}
+.tiny{font-size:12.5px; opacity:.75; margin-top:10px}
+
+.gal{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px}
+.gal i{display:block; aspect-ratio:1/1; font-style:normal; border:2px solid var(--ink);
+  background:
+    repeating-linear-gradient(135deg, rgba(23,17,10,.14) 0 4px, transparent 4px 9px),
+    var(--paper);
+}
+.qa{border-top:1px solid var(--rule)}
+.qa div{border-bottom:1px solid var(--rule); padding:16px 0}
+.qa dt{font:600 17px/1.3 Archivo,sans-serif; margin:0 0 5px}
+.qa dd{margin:0; max-width:70ch; opacity:.85; font-size:15.5px}
+footer{padding:34px 0 60px; font-size:15px}
+.fgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:24px}
+footer b{display:block; font:600 12px/1 Archivo,sans-serif; text-transform:uppercase;
+  letter-spacing:.18em; margin-bottom:8px}
+
+/* NO reveal, NO observer, NO scroll effect. The only motion in this file is a
+   2px lift on a button hover, which is feedback rather than decoration. */
+@media(prefers-reduced-motion:reduce){ .btn{transition:none} .btn:hover{transform:none} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <span class="mark">Rinse City</span>
+    <nav>
+      <a href="#menu">Menu</a><a href="#book">Book</a>
+      <a href="#member">Membership</a><a href="#qa">Questions</a>
+    </nav>
+    <a class="btn" href="#book">Book a slot</a>
+  </div>
+</header>
+
+<main>
+  <div class="wrap shout">
+    <p class="lab">Reseda Blvd · open seven days</p>
+    <span class="num" data-live="services.price">$34</span>
+    <p class="clock">Wash &amp; vac · 25 minutes</p>
+    <p>Drive in, or book a slot and skip the queue. Two people on the car, hand
+      dried, interior vacuumed and glass done. That is the whole offer.</p>
+    <div class="shoutbtns">
+      <a class="btn" href="#book">Book a slot</a>
+      <a class="btn ghost" href="#menu">See the menu</a>
+    </div>
+  </div>
+
+  <!-- ── THE MENU (contract § 2b + § 2c) ────────────────────────────── -->
+  <section id="menu">
+    <div class="wrap">
+      <p class="lab">The menu</p>
+      <h2>Everything, and what it costs</h2>
+      <p class="stand">Prices are per vehicle size. Anything larger than a
+        long-wheelbase van we will do, but ring first.</p>
+      <div class="list" data-live="services">
+        <div class="row"><span class="n">Wash &amp; vac<small>Exterior hand wash, hand dry, interior vacuum, glass.</small></span><span class="t">25 min</span><span class="p">$34</span></div>
+        <div class="row"><span class="n">Wash &amp; vac, large<small>SUV, truck, three-row.</small></span><span class="t">30 min</span><span class="p">$44</span></div>
+        <div class="row"><span class="n">Plus wax<small>Spray sealant over the wash. Lasts about eight weeks.</small></span><span class="t">40 min</span><span class="p">$62</span></div>
+        <div class="row"><span class="n">Interior deep<small>Steam, extraction, leather conditioned. Booked only.</small></span><span class="t">2 hr</span><span class="p">$175</span></div>
+        <div class="row"><span class="n">Full detail<small>Interior deep plus decontamination and sealant.</small></span><span class="t">4 hr</span><span class="p">$310</span></div>
+      </div>
+
+      <p class="lab" style="margin-top:30px">Add on</p>
+      <div class="list" data-live="add_ons">
+        <div class="row"><span class="n">Collection &amp; return<small>Within four miles. We text when we set off.</small></span><span class="t"></span><span class="p">$29</span></div>
+        <div class="row"><span class="n">Pet hair<small>Per vehicle, however bad it is.</small></span><span class="t">+20 min</span><span class="p">$25</span></div>
+        <div class="row"><span class="n">Engine bay</span><span class="t">+15 min</span><span class="p">$35</span></div>
+        <div class="row"><span class="n">Headlight restoration<small>Pair, sealed.</small></span><span class="t">+30 min</span><span class="p">$85</span></div>
+      </div>
+      <p class="tiny" data-live="services.notes" style="margin-top:16px; font-size:14px">
+        Heavily soiled interiors are quoted on the day before we start — we will
+        show you the car and tell you the number, and you can say no.</p>
+    </div>
+  </section>
+
+  <!-- ── MEMBERSHIP (contract § 2d) — reversed panel ────────────────── -->
+  <div class="slab" id="member">
+    <div class="wrap">
+      <p class="lab">Every month</p>
+      <h2>Unlimited, if you want it</h2>
+      <div class="list" data-live="plans">
+        <div class="row"><span class="n">Basic<small>Unlimited wash &amp; vac. One car, named plate.</small></span><span class="t">monthly</span><span class="p">$68</span></div>
+        <div class="row"><span class="n">Plus<small>Unlimited wash, vac and wax.</small></span><span class="t">monthly</span><span class="p">$97</span></div>
+        <div class="row"><span class="n">Two cars<small>Both plates, either tier.</small></span><span class="t">monthly</span><span class="p">$154</span></div>
+      </div>
+      <p style="margin:18px 0 22px; opacity:.85; max-width:56ch">No term, cancel in the
+        app or by text. If you use it twice a month it costs less than paying twice.</p>
+      <a class="btn" href="#book">Start a membership</a>
+    </div>
+  </div>
+
+  <!-- ── BOOKING (contract § 2a) ────────────────────────────────────── -->
+  <section id="book">
+    <div class="wrap">
+      <p class="lab">Book</p>
+      <h2>Take a slot</h2>
+      <p class="stand">Booked cars go straight into bay two. Walk-ins are welcome
+        and wait behind them.</p>
+      <div class="ticket">
+        <div class="top">
+          <span>Slot request</span>
+          <span data-live="available-slots">Next: today 2.40pm</span>
+        </div>
+        <form class="body" onsubmit="return false">
+          <p class="lab">Step 1 of 7 — service · extras · vehicle · where · when · you · review</p>
+          <fieldset>
+            <legend>What are we doing?</legend>
+            <label class="opt"><input type="radio" name="s" checked>
+              <span class="t"><b>Wash &amp; vac</b><small>25 minutes</small></span><span class="p" data-live>$34</span></label>
+            <label class="opt"><input type="radio" name="s">
+              <span class="t"><b>Plus wax</b><small>40 minutes</small></span><span class="p" data-live>$62</span></label>
+            <label class="opt"><input type="radio" name="s">
+              <span class="t"><b>Interior deep</b><small>2 hours — booked only</small></span><span class="p" data-live>$175</span></label>
+            <label class="opt"><input type="radio" name="s">
+              <span class="t"><b>Full detail</b><small>4 hours — booked only</small></span><span class="p" data-live>$310</span></label>
+          </fieldset>
+          <div class="total">
+            <span class="k">Estimate — final price confirmed on the forecourt</span>
+            <span class="v" data-live="calculate-booking">$34</span>
+          </div>
+          <button class="btn" type="submit" style="width:100%; margin-top:16px">Continue</button>
+          <p class="tiny">No card taken here. Turn up within ten minutes of the slot
+            or we give it to the queue.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="lab">This week</p>
+      <h2>Off the forecourt</h2>
+      <div class="gal" data-live="job_photos"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="lab">Reviews</p>
+      <div class="list" data-live="reviews">
+        <div class="row"><span class="n">&ldquo;Twenty-five minutes, and they meant twenty-five minutes.&rdquo;<small>Ana R. — Tarzana</small></span><span class="p" style="font-size:18px">★★★★★</span></div>
+        <div class="row"><span class="n">&ldquo;Membership pays for itself if you drive the 101 every day.&rdquo;<small>Kev D. — Northridge</small></span><span class="p" style="font-size:18px">★★★★★</span></div>
+        <div class="row"><span class="n">&ldquo;Told me the interior deep was not worth it on a lease car. Saved me $175.&rdquo;<small>Marisol P. — Reseda</small></span><span class="p" style="font-size:18px">★★★★★</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="qa">
+    <div class="wrap">
+      <p class="lab">Questions</p>
+      <h2>Asked every day</h2>
+      <dl class="qa" data-live="business_faqs">
+        <div><dt>Do I need to book?</dt><dd>No, for a wash and vac — drive in. Yes for
+          the interior deep and the full detail, because those take a bay for hours.</dd></div>
+        <div><dt>Is it a machine wash?</dt><dd>No. Two people, hand wash, hand dry. No
+          brushes ever touch the paint.</dd></div>
+        <div><dt>Why is my price different from the menu?</dt><dd>It should not be. The
+          only thing that changes it is size, and the two sizes are on the menu. If
+          the interior needs more than a vacuum we tell you before we start.</dd></div>
+        <div><dt>Do you get pet hair out?</dt><dd>Most of it, for $25. Heavily embedded
+          hair in old cloth sometimes needs the interior deep instead, and we will
+          say so rather than take the $25 and disappoint you.</dd></div>
+        <div><dt>What if it rains?</dt><dd>We stay open. A wash in the rain is still a
+          clean car, and we do not charge you again if it is wet by the time you get
+          home.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap fgrid">
+      <div><b>Rinse City</b><p data-live="businesses">18420 Reseda Blvd<br>Reseda, CA 91335<br>
+        <a href="tel:+18185550119" data-live="businesses.contact_phone">(818) 555-0119</a></p></div>
+      <div><b>Open</b><p data-live="business_hours">Mon–Sat 8am–7pm<br>Sun 9am–5pm<br>Last car 30 min before</p></div>
+      <div><b>Pay</b><p data-live="business_settings.payment_handles">Card or cash on the
+        forecourt. Memberships by card only.</p></div>
+      <div><b>Collection</b><p data-live="business_settings.service_area">Reseda, Tarzana,
+        Northridge, Winnetka. Four miles, $29.</p></div>
+    </div>
+    <p class="wrap" style="margin-top:26px; opacity:.75; font-size:13.5px">
+      Every price on this page is managed by the business and updates live.</p>
+  </footer>
+</main>
+</body>
+</html>

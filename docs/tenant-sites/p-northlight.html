@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Northlight Detail — mobile detailing, Portland OR</title>
+<meta name="description" content="We come to you. One van, two people, a full day on one car.">
+
+<!--
+  ═══════════════════════════════════════════════════════════════════════════
+  MOCK-UP 5 OF TEN — 2026-09-08.
+  ═══════════════════════════════════════════════════════════════════════════
+
+  THE VARIABLE: the ground IS a PHOTOGRAPH, full bleed, and the page is built
+  around it. Moderate motion. And it is the one that carries the single best
+  idea found in either batch.
+
+  TASTE-NOTES § G — ATELIER'S BOTTOM DOCK. On a phone, `atelier` moves the
+  photograph BELOW the headline rather than squashing the pair together, and
+  pins a rounded bar to the bottom of the screen: Reviews · **Book Now** ·
+  Services. A mobile detailing customer's entire purpose is to book, and on
+  every other site in the eighteen booking means scrolling back to the top. It
+  costs ~70px. **No page in this repo does it.** This one does.
+
+  AND § A — the correction that a PHOTOGRAPH IS DEPTH. `landscape` scored 3 on
+  gradients and shadows and he likes it, because its ground is a real image. My
+  own depth metric counted every way of making a ground non-flat except the most
+  obvious one. This page is the deliberate test of that: almost no gradient
+  furniture, one photographic ground, and a scrim so the type never sits on the
+  busy part — which is precisely what `luster` gets wrong.
+
+  THE PHOTOGRAPH IS A CSS-DRAWN STAND-IN, not a file. These mock-ups are
+  committed to a PUBLIC repo and shipped to /example5, so a real photograph
+  would need a licence, a credit and a byte budget; the header of every page in
+  this folder says the imagery is placeholder. On a live tenant site this layer
+  is `business_media` and the gallery is `job_photos`.
+
+  CONTRAST, COMPUTED against the scrim, not against the image (an image has no
+  single luminance, so the SCRIM is what the ratio is taken against — the rule
+  from this repo's own gradient-ground correction):
+    --ink   #FFFFFF over scrim rgba(12,16,20,.72) on the image  >= 11.2:1  PASS
+    --dim   #D6DCE2 over the same scrim                          >= 8.1:1  PASS
+    --ink   #14181C on #F2F0EC (the paper sections)             14.6:1    PASS
+    --moss  #2F5D4A on #F2F0EC                                   6.9:1    PASS
+    paper on --moss  #F2F0EC on #2F5D4A                          6.9:1    PASS  (button)
+    --edge  #9AA3A8 on #F2F0EC                                   2.6:1    DECOR ONLY
+    --ctl   #5E686D on #F2F0EC                                   4.6:1    PASS  (control edge)
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --paper:#F2F0EC; --ink:#14181C; --dim:#5E686D; --moss:#2F5D4A;
+  --edge:#9AA3A8; --ctl:#5E686D; --scrim:rgba(12,16,20,.72);
+  --wrap:1080px; --dock:74px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0; color:var(--ink); background:var(--paper);
+  font:400 17px/1.6 Outfit,system-ui,sans-serif; -webkit-font-smoothing:antialiased}
+.wrap{max-width:var(--wrap); margin:0 auto; padding:0 22px}
+
+/* ── the photographic ground ────────────────────────────────────────── */
+.shot{
+  position:relative; min-height:88vh; display:flex; align-items:flex-end;
+  color:#fff; overflow:hidden;
+}
+.shot .img{
+  position:absolute; inset:0; z-index:0;
+  /* stand-in for a real photograph — a wet-tarmac dusk, drawn */
+  background:
+    radial-gradient(80% 55% at 72% 26%, rgba(255,214,170,.55), transparent 62%),
+    radial-gradient(60% 40% at 20% 78%, rgba(90,130,150,.45), transparent 70%),
+    linear-gradient(178deg, #1B242C 0%, #2A3A44 44%, #43535C 70%, #6A7278 100%);
+}
+.shot .img::after{
+  content:""; position:absolute; inset:0;
+  background:repeating-linear-gradient(97deg, rgba(255,255,255,.05) 0 2px, transparent 2px 7px);
+  opacity:.5;
+}
+/* THE SCRIM. Both bad sites in the batch set type straight onto the busiest
+   part of a photograph. Every ratio above is taken against this, not the image. */
+.shot .scrim{
+  position:absolute; inset:0; z-index:1;
+  background:linear-gradient(to top, var(--scrim) 0%, rgba(12,16,20,.55) 42%, rgba(12,16,20,.15) 100%);
+}
+.shot .wrap{position:relative; z-index:2; padding-bottom:8vh; padding-top:14vh}
+.badge{display:inline-flex; align-items:center; gap:9px; border:1px solid rgba(255,255,255,.4);
+  border-radius:999px; padding:7px 15px; font-size:13.5px; margin-bottom:26px}
+.badge i{width:7px; height:7px; border-radius:50%; background:#7FE0AE; font-style:normal}
+h1{font:300 clamp(42px,7vw,86px)/1.03 Outfit,sans-serif; letter-spacing:-.025em; margin:0 0 18px; max-width:15ch}
+h1 b{font-weight:700}
+.shot p{max-width:46ch; color:#D6DCE2; font-size:18px; margin:0 0 28px}
+.row-cta{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
+.btn{display:inline-block; background:var(--moss); color:var(--paper); text-decoration:none;
+  border:0; cursor:pointer; font:500 15px/1 Outfit,sans-serif; padding:14px 22px; border-radius:999px}
+.btn.light{background:var(--paper); color:var(--ink)}
+.proof{display:inline-flex; align-items:center; gap:10px; background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.3); border-radius:999px; padding:9px 15px; font-size:14px;
+  backdrop-filter:blur(6px)}
+.proof .av{display:flex}
+.proof .av i{width:24px; height:24px; border-radius:50%; font-style:normal; margin-left:-8px;
+  border:2px solid rgba(255,255,255,.6); background:linear-gradient(140deg,#8FA6B4,#43535C)}
+.proof .av i:first-child{margin-left:0}
+
+header{position:absolute; top:0; left:0; right:0; z-index:5; color:#fff}
+header .wrap{display:flex; align-items:center; gap:18px; padding:20px 22px}
+.mark{font:500 16px/1 Outfit,sans-serif; letter-spacing:.22em; text-transform:uppercase}
+nav{margin-left:auto; display:flex; gap:22px; font-size:15px}
+nav a{color:rgba(255,255,255,.85); text-decoration:none}
+nav a:hover{color:#fff}
+@media(max-width:860px){ nav{display:none} }
+
+section{padding:8vh 0}
+.lab{font:500 12px/1 Outfit,sans-serif; letter-spacing:.2em; text-transform:uppercase; color:var(--moss); margin:0 0 12px}
+h2{font:300 clamp(28px,4.2vw,46px)/1.1 Outfit,sans-serif; letter-spacing:-.02em; margin:0 0 14px}
+h2 b{font-weight:700}
+.lede{color:var(--dim); max-width:56ch; margin:0 0 32px}
+
+/* ── the ladder ─────────────────────────────────────────────────────── */
+.tblwrap{overflow-x:auto}
+table{width:100%; border-collapse:collapse; font-size:15.5px}
+th{text-align:right; font:500 11.5px/1 Outfit,sans-serif; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--dim); padding:0 0 12px; border-bottom:1px solid var(--ctl)}
+th:first-child{text-align:left}
+td{padding:16px 0; border-bottom:1px solid rgba(94,104,109,.2); text-align:right;
+  font-variant-numeric:tabular-nums}
+td:first-child{text-align:left}
+td strong{display:block; font-weight:500; font-size:16.5px}
+td small{display:block; color:var(--dim); font-size:14px; max-width:46ch; margin-top:3px}
+.note{margin-top:18px; padding:14px 16px; border-radius:12px; background:rgba(47,93,74,.07);
+  border-left:3px solid var(--moss); color:var(--dim); font-size:14.5px}
+
+/* ── the job row — meli's portfolio mechanic, § L ───────────────────── */
+.jobs{display:grid; gap:14px}
+.job{
+  display:grid; grid-template-columns:210px 1fr; gap:22px; align-items:start;
+  border:1px solid rgba(94,104,109,.22); border-radius:16px; padding:16px; background:#fff;
+}
+@media(max-width:700px){ .job{grid-template-columns:1fr} }
+.job .pic{position:relative; aspect-ratio:4/3; border-radius:11px; overflow:hidden;
+  background:linear-gradient(150deg,#3D4C55,#8FA6B4)}
+.job .pic b{position:absolute; left:9px; top:9px; background:var(--moss); color:var(--paper);
+  font:500 10.5px/1 Outfit,sans-serif; letter-spacing:.1em; text-transform:uppercase;
+  padding:6px 9px; border-radius:6px}
+.job h3{margin:0 0 3px; font:500 19px/1.25 Outfit,sans-serif}
+.job h3 span{color:var(--moss); font-weight:400}
+.job .did{color:var(--dim); font-size:14.5px; margin:0 0 12px}
+.job .quote{border-top:1px solid rgba(94,104,109,.2); padding-top:12px; margin-top:12px}
+.job .quote p{margin:0 0 6px; font-size:15px; font-style:italic}
+.job .quote cite{font-style:normal; color:var(--dim); font-size:13.5px}
+.job .stars{color:#C88A2E; font-size:13px; letter-spacing:2px}
+
+/* ── booking ────────────────────────────────────────────────────────── */
+.book{border:1px solid rgba(94,104,109,.25); border-radius:18px; background:#fff; overflow:hidden}
+.steps{display:flex; overflow-x:auto; border-bottom:1px solid rgba(94,104,109,.2)}
+.steps b{flex:none; padding:13px 17px; font:500 12.5px/1 Outfit,sans-serif; color:var(--dim);
+  white-space:nowrap; border-right:1px solid rgba(94,104,109,.15)}
+.steps b[aria-current]{color:var(--paper); background:var(--moss)}
+.bb{padding:24px}
+fieldset{border:0; margin:0 0 20px; padding:0}
+legend{font:500 16px/1 Outfit,sans-serif; padding:0 0 12px}
+.opt{display:flex; gap:13px; align-items:center; padding:14px 16px; cursor:pointer;
+  border:1px solid var(--ctl); border-radius:12px; margin-bottom:9px}
+.opt:has(input:checked){border-color:var(--moss); background:rgba(47,93,74,.06)}
+.opt input{accent-color:var(--moss); width:17px; height:17px; flex:none}
+.opt .t{flex:1}
+.opt .t b{display:block; font:500 15px/1.3 Outfit,sans-serif}
+.opt .t small{color:var(--dim); font-size:13px}
+.opt .p{font-variant-numeric:tabular-nums; font-weight:500}
+.est{display:flex; justify-content:space-between; align-items:baseline; gap:14px;
+  border-top:1px solid var(--ctl); padding-top:16px}
+.est .k{color:var(--dim); font-size:13.5px; max-width:34ch}
+.est .v{font:300 34px/1 Outfit,sans-serif; font-variant-numeric:tabular-nums}
+.tiny{color:var(--dim); font-size:12.5px; margin-top:11px; text-align:center}
+
+details{border-bottom:1px solid rgba(94,104,109,.2); padding:15px 0}
+summary{cursor:pointer; font:500 16px/1.4 Outfit,sans-serif; list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+"; float:right; color:var(--moss)}
+details[open] summary::after{content:"–"}
+details p{color:var(--dim); font-size:15px; margin:11px 0 0}
+footer{border-top:1px solid rgba(94,104,109,.2); padding:40px 0 calc(40px + var(--dock));
+  color:var(--dim); font-size:14.5px}
+.fgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:24px}
+footer b{display:block; color:var(--ink); margin-bottom:8px; font-weight:500}
+
+/* ── THE BOTTOM DOCK — atelier's idea, § G. Phone only. ─────────────── */
+.dock{display:none}
+@media(max-width:760px){
+  .dock{
+    display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:10px;
+    position:fixed; left:12px; right:12px; bottom:12px; z-index:40;
+    background:rgba(255,255,255,.86); backdrop-filter:blur(14px);
+    border:1px solid rgba(94,104,109,.28); border-radius:999px; padding:9px 12px;
+    box-shadow:0 12px 30px -12px rgba(20,24,28,.4);
+  }
+  .dock a{text-decoration:none; color:var(--dim); text-align:center;
+    font:500 11.5px/1.3 Outfit,sans-serif; display:block}
+  .dock a.mid{background:var(--moss); color:var(--paper); border-radius:999px;
+    padding:13px 22px; font-size:14.5px}
+  body{padding-bottom:calc(var(--dock) + 4px)}
+  /* AND THE PHOTOGRAPH MOVES BELOW THE HEADLINE rather than being squashed —
+     the other half of what atelier does on a phone. */
+  .shot{min-height:0; display:block}
+  .shot .wrap{padding-top:96px; padding-bottom:26px; color:var(--ink)}
+  .shot .img{top:auto; height:52vh; border-radius:18px; left:12px; right:12px; bottom:-40px}
+  .shot .scrim{display:none}
+  .shot{padding-bottom:calc(52vh - 20px); background:var(--paper)}
+  .shot h1{color:var(--ink)}
+  .shot p{color:var(--dim)}
+  .badge{border-color:var(--ctl); color:var(--dim)}
+  header{position:static; color:var(--ink)}
+  header .mark{color:var(--ink)}
+}
+
+@media(prefers-reduced-motion:no-preference){
+  .rv{opacity:0; transform:translateY(18px); transition:opacity .6s ease, transform .6s cubic-bezier(.2,.7,.3,1)}
+  .rv.in{opacity:1; transform:none}
+}
+html:not(.js) .rv{opacity:1; transform:none}
+</style>
+</head>
+<body>
+
+<div class="shot">
+  <div class="img" aria-hidden="true"></div>
+  <div class="scrim" aria-hidden="true"></div>
+  <header>
+    <div class="wrap">
+      <span class="mark">Northlight</span>
+      <nav><a href="#pricing">Pricing</a><a href="#work">Work</a><a href="#faq">FAQ</a></nav>
+      <a class="btn light" href="#book">Book</a>
+    </div>
+  </header>
+  <div class="wrap">
+    <span class="badge"><i></i>Two slots left this week</span>
+    <h1>We bring the <b>whole shop</b> to your drive.</h1>
+    <p>One van, two people, a full day on one car. Water, power and a filtered
+      canopy, so the work does not depend on your weather or your tap.</p>
+    <div class="row-cta">
+      <a class="btn" href="#book">Get a price</a>
+      <span class="proof"><span class="av"><i></i><i></i><i></i></span>
+        <span data-live="reviews">4.9 · 612 reviews</span></span>
+    </div>
+  </div>
+</div>
+
+<main>
+  <section id="pricing">
+    <div class="wrap">
+      <p class="lab rv">Pricing</p>
+      <h2 class="rv">What it costs, <b>by size</b></h2>
+      <p class="lede rv">Starting points. We confirm on the drive before anything
+        gets wet, and you can say no.</p>
+      <div class="tblwrap rv">
+        <table>
+          <thead><tr><th>Service</th><th>Sedan</th><th>Mid-size</th><th>Oversized</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Interior</strong><small>Steam, extraction, leather or fabric, glass, vents.</small></td>
+              <td data-live="services.price">$205</td><td data-live>$235</td><td data-live>$355</td></tr>
+            <tr><td><strong>Exterior</strong><small>Hand wash, decontamination, six-month sealant.</small></td>
+              <td data-live>$225</td><td data-live>$260</td><td data-live>$380</td></tr>
+            <tr><td><strong>Both — the full day</strong><small>Plus engine bay, jambs and boot.</small></td>
+              <td data-live>$265</td><td data-live>$300</td><td data-live>$450</td></tr>
+            <tr><td><strong>One-step correction</strong><small>from — most swirls. <em>Not a ceramic coating.</em></small></td>
+              <td data-live>$410</td><td data-live>$470</td><td data-live>$620</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note rv" data-live="services.notes">Third-row vehicles add $50 on
+        interior and full-day work. Pet hair is $30. Anything that needs odour
+        treatment we quote on the phone first — never on the drive with the doors
+        already open.</p>
+      <p class="lab rv" style="margin-top:34px">Monthly</p>
+      <div class="tblwrap rv">
+        <table data-live="plans">
+          <tbody>
+            <tr><td><strong>Keep it clean</strong><small>One exterior a month, same day each month.</small></td><td>$135/mo</td></tr>
+            <tr><td><strong>Keep it all</strong><small>One full day a month.</small></td><td>$255/mo</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── THE JOB ROW — § L: photo, package, what was done, review, CTA ─ -->
+  <section id="work">
+    <div class="wrap">
+      <p class="lab rv">Recent work</p>
+      <h2 class="rv">Every car we finished <b>last week</b></h2>
+      <p class="lede rv">The photograph, what we actually did, and what they said
+        afterwards — all in one place, because they are the same story.</p>
+      <div class="jobs rv" data-live="job_photos">
+        <article class="job">
+          <div class="pic"><b>Full day</b></div>
+          <div>
+            <h3>2018 Outback <span>· Full day</span></h3>
+            <p class="did">Interior steam and extraction, two dogs' worth of hair,
+              exterior decontamination and sealant, headlights sealed.</p>
+            <div class="quote"><span class="stars">★★★★★</span>
+              <p>&ldquo;I genuinely thought the boot was a write-off. It is not.&rdquo;</p>
+              <cite data-live="reviews">Hannah W. — Sellwood</cite></div>
+          </div>
+        </article>
+        <article class="job">
+          <div class="pic"><b>Correction</b></div>
+          <div>
+            <h3>2015 WRX <span>· One-step correction</span></h3>
+            <p class="did">Single machine pass, sealant, wheels off and faces
+              cleaned. Owner watched the whole thing from a deck chair.</p>
+            <div class="quote"><span class="stars">★★★★★</span>
+              <p>&ldquo;They explained what they were doing while they did it.&rdquo;</p>
+              <cite data-live="reviews">Tom B. — Beaverton</cite></div>
+          </div>
+        </article>
+        <article class="job">
+          <div class="pic"><b>Interior</b></div>
+          <div>
+            <h3>2022 Sienna <span>· Interior</span></h3>
+            <p class="did">Three rows, two car seats out and back in, spilled
+              smoothie under the middle bench. Four hours.</p>
+            <div class="quote"><span class="stars">★★★★★</span>
+              <p>&ldquo;Turned up in the rain and just put the canopy up.&rdquo;</p>
+              <cite data-live="reviews">Ope A. — Hillsboro</cite></div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="book">
+    <div class="wrap">
+      <p class="lab rv">Book</p>
+      <h2 class="rv">Seven questions, <b>two minutes</b></h2>
+      <div class="book rv">
+        <div class="steps" role="list">
+          <b role="listitem" aria-current="step">1 Service</b><b role="listitem">2 Extras</b>
+          <b role="listitem">3 Vehicle</b><b role="listitem">4 Where</b><b role="listitem">5 When</b>
+          <b role="listitem">6 You</b><b role="listitem">7 Review</b>
+        </div>
+        <form class="bb" onsubmit="return false">
+          <fieldset>
+            <legend>What are we doing?</legend>
+            <label class="opt"><input type="radio" name="s" checked>
+              <span class="t"><b>Interior</b><small>About 3 hours</small></span><span class="p" data-live>from $205</span></label>
+            <label class="opt"><input type="radio" name="s">
+              <span class="t"><b>Exterior</b><small>About 3 hours</small></span><span class="p" data-live>from $225</span></label>
+            <label class="opt"><input type="radio" name="s">
+              <span class="t"><b>The full day</b><small>6–7 hours on your drive</small></span><span class="p" data-live>from $265</span></label>
+            <label class="opt"><input type="radio" name="s">
+              <span class="t"><b>One-step correction</b><small>Most of a day</small></span><span class="p" data-live>from $410</span></label>
+          </fieldset>
+          <div class="est"><span class="k">Estimate — confirmed on the drive before we start</span>
+            <span class="v" data-live="calculate-booking">$205</span></div>
+          <button class="btn" type="submit" style="width:100%; margin-top:16px">Continue to extras</button>
+          <p class="tiny">We need a hose or 60ft of drive. No card taken here.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <p class="lab rv">Questions</p>
+      <h2 class="rv">The ones we <b>actually get</b></h2>
+      <div class="rv" data-live="business_faqs">
+        <details open><summary>Do you need my water and power?</summary>
+          <p>No. We carry both. If you would rather we used your outside tap we will,
+            and it takes $10 off.</p></details>
+        <details><summary>What if it rains? It is Portland.</summary>
+          <p>We work under a canopy. Interior always goes ahead; heavy correction
+            work we will move rather than rush, and you are never charged for a move
+            we made.</p></details>
+        <details><summary>Why does the price change after you look at it?</summary>
+          <p>Condition is most of the work. The ladder above assumes a normally used
+            car. We tell you the number on the drive, before anything is wet.</p></details>
+        <details><summary>Where can you park?</summary>
+          <p>A driveway, a wide kerb, or a flat spot in a car park. We need about
+            two car lengths and we cannot work on a hill.</p></details>
+        <details><summary>Do you take the car away?</summary>
+          <p>No. Everything happens where the car is, which is the point.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap fgrid">
+      <div><b>Northlight Detail</b><p data-live="businesses">Portland, Oregon<br>
+        <a href="tel:+15035550187" style="color:var(--moss)" data-live="businesses.contact_phone">(503) 555-0187</a></p></div>
+      <div><b>Hours</b><p data-live="business_hours">Tue–Sat 8am–6pm<br>Closed Sun &amp; Mon</p></div>
+      <div><b>Pay</b><p data-live="business_settings.payment_handles">Card on the day, or
+        Venmo &#64;northlight-pdx.</p></div>
+      <div><b>Where we go</b><p data-live="business_settings.service_area">Portland, Beaverton,
+        Sellwood, Hillsboro, Lake Oswego. 25 miles.</p></div>
+    </div>
+    <p class="wrap" style="margin-top:26px; opacity:.75">Every figure on this page is
+      managed by the business and updates live. Licensed and insured in Oregon.</p>
+  </footer>
+</main>
+
+<!-- THE DOCK — phone only, booking always under the thumb -->
+<nav class="dock" aria-label="Quick actions">
+  <a href="#work">Recent<br>work</a>
+  <a class="mid" href="#book">Book now</a>
+  <a href="#pricing">See<br>pricing</a>
+</nav>
+
+<script>
+  document.documentElement.classList.add("js");
+  const t = document.querySelectorAll(".rv");
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches && "IntersectionObserver" in window) {
+    const io = new IntersectionObserver((es) => {
+      for (const e of es) if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+    }, { rootMargin: "0px 0px -12% 0px" });
+    for (const el of t) io.observe(el);
+  } else { for (const el of t) el.classList.add("in"); }
+  const FROM = ["$205", "$225", "$265", "$410"];
+  document.querySelectorAll('input[name="s"]').forEach((r, i) =>
+    r.addEventListener("change", () => { document.querySelector(".est .v").textContent = FROM[i]; }));
+</script>
+</body>
+</html>
