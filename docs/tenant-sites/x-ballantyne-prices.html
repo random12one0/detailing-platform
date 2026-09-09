@@ -79,7 +79,9 @@ html[data-c="c"]{
 }
 
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
+/* NO `scroll-behavior: smooth` HERE — it fights the weighted scroll every
+   frame and stalls it. Jump links are eased by script instead. */
+html{scroll-behavior:auto}
 body{margin:0;background:var(--ground);color:var(--ink);
   font-family:"Instrument Sans",ui-sans-serif,system-ui,sans-serif;font-size:16px;line-height:1.55;
   -webkit-font-smoothing:antialiased;overflow-x:clip}
@@ -672,6 +674,77 @@ var STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
     tick();
   }, { passive: true });
   place();
+})();
+
+
+// ── the weighted scroll ──────────────────────────────────────────────────
+// LIFTED FROM OUR OWN LANDING PAGE, CONSTANTS AND ALL — `app/src/landing/
+// thread.js`, where it has been the owner's stated favourite for weeks. The
+// version written from scratch for this page used LERP 0.115 with no wheel
+// multiplier and he called it *"a complete horrible mess"*: twice the
+// catch-up rate with each notch carrying its raw distance is exactly the
+// lurch-and-stop he described.
+//
+//   WHEEL is how far one notch of the gesture carries you.
+//   LERP is how much of the remaining gap closes each frame, so a SMALLER
+//   number is a LONGER tail. Below about 0.04 it stops feeling weighted and
+//   starts feeling broken.
+//
+// It moves the REAL scroll position rather than translating a wrapper, so
+// position:sticky keeps working. Fine pointers only — a phone's one-to-one
+// finger scroll is the thing phones already get right — and `?smooth=0`
+// turns it off so both can be felt on one machine in one sitting.
+(function () {
+  if (STILL) return;
+  if (!matchMedia("(pointer: fine)").matches) return;
+  if (new URLSearchParams(location.search).get("smooth") === "0") return;
+  var WHEEL = 1.22, LERP = 0.055;
+  var target = scrollY, cur = target, raf = 0;
+  // jump links go through the SAME easing, which is why the page can no
+  // longer carry `scroll-behavior: smooth`: the browser's own animation was
+  // chasing a target this one moves every frame, and the two cancelled each
+  // other out — one wheel notch travelled 14px in 1.4 seconds against the
+  // landing page's 334.
+  window.__glide = function (y) {
+    target = Math.max(0, Math.min(maxY(), y));
+    if (!raf) raf = requestAnimationFrame(step);
+  };
+  var maxY = function () { return document.documentElement.scrollHeight - innerHeight; };
+  addEventListener("wheel", function (e) {
+    if (e.ctrlKey) return;                       // leave browser zoom alone
+    e.preventDefault();
+    var d = e.deltaY * (e.deltaMode === 1 ? 18 : 1) * WHEEL;
+    target = Math.max(0, Math.min(maxY(), target + d));
+    if (!raf) raf = requestAnimationFrame(step);
+  }, { passive: false });
+  function step() {
+    cur += (target - cur) * LERP;
+    if (Math.abs(target - cur) < 0.25) { cur = target; raf = 0; }
+    else raf = requestAnimationFrame(step);
+    scrollTo(0, cur);
+  }
+  // anything else that scrolls — keyboard, scrollbar, a jump link — resyncs,
+  // so the two never fight each other
+  addEventListener("scroll", function () {
+    if (!raf) { cur = target = scrollY; }
+  }, { passive: true });
+})();
+
+// ── jump links ───────────────────────────────────────────────────────────
+// Smooth by script rather than by stylesheet, so the weighted scroll owns
+// every scroll on the page and nothing competes with it.
+(function () {
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!a) return;
+    var id = a.getAttribute("href").slice(1);
+    var t = id && document.getElementById(id);
+    if (!t) return;
+    e.preventDefault();
+    var y = t.getBoundingClientRect().top + scrollY - 70;   // clear the header
+    if (window.__glide) window.__glide(y);
+    else scrollTo({ top: y, behavior: STILL ? "auto" : "smooth" });
+  });
 })();
 
 // ── the pointer light ────────────────────────────────────────────────────

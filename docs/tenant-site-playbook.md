@@ -559,6 +559,30 @@ reading it.**
     the page.** With a negative bottom margin it sat on the copyright line,
     and overhanging by 12px it read as cut rather than faded.
 
+### From site 3 — the scroll, done properly, 2026-09-09
+80. **THE WEIGHTED SCROLL ALREADY EXISTS IN THIS REPO. PORT IT, DO NOT WRITE
+    ONE.** `app/src/landing/thread.js` — **WHEEL 1.22, LERP 0.055** — is the
+    owner's stated favourite and has been for weeks. The hand-rolled version
+    used LERP 0.115 with no wheel multiplier and he called it *"a complete
+    horrible mess"*: double the catch-up rate with each notch carrying its raw
+    distance is a lurch and a dead stop. **The constants ARE the feel.**
+81. **`scroll-behavior: smooth` AND A WEIGHTED SCROLL CANNOT COEXIST.** The
+    browser animates toward a target this thing moves every frame and the two
+    cancel: one wheel notch travelled **14px in 1.4 seconds** against the
+    landing page's 334. The stylesheet rule goes; jump links are eased by
+    script through the same easing instead.
+82. **HIS ORDER FOR THE HERO, 2026-09-09** — everything travels up, at
+    different rates: the **headline and buttons fastest** (lag 0, moving with
+    the page), the **strip next** (lag 0.12), the **photograph slowest**
+    (lag 0.30). The gap between the text and the picture opening as you
+    scroll is the thing he could see fora doing.
+83. **A SLOWER LAYER NEEDS MORE SLACK.** At lag 0.30 the photograph travels
+    half again as far as it did at 0.20, so its scale goes to 1.58 — the cap
+    is measured from the frame, so this is arithmetic rather than taste.
+84. **Compare a feel against something he has already approved**, not against
+    a description. Sampling both curves every 100ms turned *"does this feel
+    right"* into two rows of numbers.
+
 ### Traps that cost a measurement here, and will again
 25. **`flex: 0 0 min(a,b)` is invalid** — a math function in the shorthand's
     basis drops the whole declaration and the item sizes to content.
