@@ -154,7 +154,38 @@ body{
 }
 
 /* Nav */
-.nav{display:flex;align-items:center;gap:26px;padding:20px 30px}
+/* His note: "when we're not on mobile there's no floating thing anywhere where
+   I could choose work, prices and book when I'm not at the top of the screen."
+   DEVICE-INVENTORY I2 — F1 was filed as a PHONE device and the need is not
+   phone-specific. The desk gets a header that STAYS and condenses; the phone
+   keeps the dock. */
+.nav{
+  position:sticky;top:0;z-index:20;
+  display:flex;align-items:center;gap:26px;padding:20px 30px;
+  transition:padding 260ms var(--e),background 260ms var(--e),
+             box-shadow 260ms var(--e),backdrop-filter 260ms var(--e);
+}
+.nav.stuck{
+  padding:11px 30px;
+  background:rgba(244,239,229,.84);backdrop-filter:blur(16px) saturate(1.3);
+  box-shadow:0 1px 0 var(--hair),0 10px 30px rgba(23,19,14,.07);
+}
+.mark i{transition:opacity 200ms var(--e),max-height 260ms var(--e)}
+.nav.stuck .mark i{opacity:0;max-height:0;overflow:hidden}
+
+/* ═══ PAGE TRANSITIONS ═════════════════════════════════════════════════
+   "Right now it's just loading a new site every time and it's this flash."
+   Three tabs of ONE site should not flash white between them. Chrome does it
+   from the at-rule; the class pair is the same shape by hand for everything
+   else. Both off under reduced motion, and NEITHER can block a navigation —
+   the fallback hops on a timer, not on an animation event. */
+@view-transition{navigation:auto}
+::view-transition-old(root){animation:pt-out 190ms var(--e) both}
+::view-transition-new(root){animation:pt-in 320ms var(--e) both}
+@keyframes pt-out{to{opacity:0;transform:translateY(-6px)}}
+@keyframes pt-in{from{opacity:0;transform:translateY(8px)}}
+html.pt-out body{opacity:0;transform:translateY(-6px);transition:opacity 190ms var(--e),transform 190ms var(--e)}
+html.pt-in body{animation:pt-in 320ms var(--e) both}
 .mark{
   font:800 19px/1 var(--display);letter-spacing:-.02em;
   font-variation-settings:"wdth" 84;
@@ -251,6 +282,16 @@ body{
 /* F1 · the phone dock. ~70px, and § G calls it the single best idea in
    either batch. Hidden on the desk, where the nav never leaves. */
 .dock{display:none}
+/* The dock says WHERE YOU ARE — "that black pill would move to prices, showing
+   what page you're on rather than just being quick links." One indicator, moved
+   by transform from the current link's own geometry, so a fourth item needs no
+   new numbers. */
+.dock .ind{
+  position:absolute;z-index:0;top:6px;bottom:6px;left:0;width:0;
+  background:var(--ink);border-radius:999px;
+  transform:translateX(var(--x,0));
+  transition:transform 380ms var(--e),width 380ms var(--e);
+}
 
 /* ═══ SHARED SECTION FURNITURE ═══════════════════════════════════════════
    Deliberately thin. Every section below owns its own SHAPE — the rule he
@@ -738,6 +779,59 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
   .addons{padding:48px 16px 56px}
 }
 
+/* ═══ THE BOOKING PROGRESS BAR ═════════════════════════════════════════
+   His note: "I don't think you should be able to click it. It should just be
+   a progress bar that fits the entire screen… like andrewsdetail.com — step
+   one, two, three, four, five, six, seven, just to know what step you're on.
+   You click next. I don't like that you could skip around, because I even
+   have it that you can't go to the next page until the previous is filled."
+   Seven equal segments fit ANY width because they are fractions, which is the
+   other half of his complaint — the old rail overflowed a phone. Nothing here
+   is focusable: a progress bar is an indicator, not a menu. */
+.bk-prog{padding:14px 16px 4px}
+.bk-lab{margin:0 0 10px;display:flex;flex-wrap:wrap;gap:5px 10px;align-items:baseline;
+  font-size:13px;color:var(--paper-2)}
+.bk-lab b{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--paper-3);font-weight:600}
+.bk-lab [data-name]{font:800 17px/1 var(--display);font-variation-settings:"wdth" 88;
+  letter-spacing:-.02em;color:var(--paper)}
+.bk-bar{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px}
+.bk-bar i{
+  height:4px;border-radius:999px;background:rgba(255,255,255,.15);
+  font-size:0;overflow:hidden;transition:background 300ms var(--e);
+}
+.bk-bar i.done{background:rgba(255,168,64,.45)}
+.bk-bar i.now{background:var(--amber)}
+.bk-next[disabled]{opacity:.40;cursor:not-allowed}
+.bk-next[disabled]:hover{transform:none;filter:none}
+
+/* ═══ PRICES · one row, two columns ═══════════════════════════════════
+   "Add-ons should be closer to the packages… everything is layered, one
+   thing for each entire width of the screen. On desktop you could easily
+   have these next to each other." DEVICE-INVENTORY I5. */
+.pricerow{
+  display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
+  gap:26px;align-items:start;padding:56px 30px 0;
+}
+.pricerow h2{margin:0 0 8px;font:800 clamp(22px,2.4vw,30px)/1.1 var(--display);
+  font-variation-settings:"wdth" 86;letter-spacing:-.025em}
+.pnote{margin:0 0 16px;color:var(--ink-2);font-size:14px}
+.pbox{
+  background:rgba(255,255,255,.52);border:1px solid var(--hair);
+  border-radius:var(--r-card);padding:24px 24px 20px;
+}
+.pbox dl{margin:14px 0 0;display:grid;gap:0}
+.pbox dl > div{padding:14px 0;border-top:1px solid var(--hair)}
+.pbox dt{margin:0 0 5px;font-size:11.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-2);font-weight:600}
+.pbox dd{margin:0;font-size:14.5px;color:var(--ink)}
+.pbox dd b{font-weight:700}
+.pboxend{margin:16px 0 0;padding-top:14px;border-top:1px solid var(--hair);
+  font-size:13px;color:var(--ink-2)}
+@media (max-width:1000px){.pricerow{grid-template-columns:1fr;gap:34px}}
+@media (max-width:760px){.pricerow{padding:44px 16px 0}.pbox{padding:20px}}
+@media (min-width:761px) and (max-height:500px){.pricerow{grid-template-columns:1fr}}
+
 /* ═══ RESPONSIVE ═══════════════════════════════════════════════════════ */
 @media (max-width:1000px){
   .tiles{grid-template-columns:repeat(2,1fr);grid-auto-rows:150px}
@@ -772,6 +866,25 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
    above this point is width-only, so the guard belongs on any rule that
    would otherwise fire on a 844px-wide phone. */
 @media (min-width:761px) and (max-height:500px){
+  /* THE PORTRAIT RULE — a rotated phone (844x390) is WIDER than the dock's
+     760px breakpoint, so without this the dock vanishes and the header goes
+     sticky the moment somebody turns the handset. Rotation must change
+     nothing. */
+  .dock{
+    display:flex;position:fixed;z-index:30;left:10px;right:10px;bottom:10px;
+    align-items:stretch;gap:0;padding:6px;
+    background:rgba(244,239,229,.90);backdrop-filter:blur(18px);
+    border:1px solid var(--hair);border-radius:999px;
+    box-shadow:0 10px 34px rgba(10,7,4,.20);
+  }
+  .dock a{
+    position:relative;z-index:1;flex:1;text-align:center;text-decoration:none;
+    color:var(--ink-2);font-size:12.5px;font-weight:600;padding:12px 2px;
+    border-radius:999px;transition:color 260ms var(--e);
+  }
+  .dock a[aria-current]{color:var(--bone)}
+  .nav{position:static}
+  body{padding-bottom:84px}
   .plans{grid-template-columns:1fr}
   .flow::before,.node::before{display:none}
   .faqcols{columns:1}
@@ -799,18 +912,25 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
   .pill--rev{display:none}
 
   .dock{
-    display:flex;position:fixed;z-index:9;left:10px;right:10px;bottom:10px;
-    align-items:center;gap:8px;padding:8px;
-    background:rgba(244,239,229,.86);backdrop-filter:blur(18px);
+    display:flex;position:fixed;z-index:30;left:10px;right:10px;bottom:10px;
+    align-items:stretch;gap:0;padding:6px;
+    background:rgba(244,239,229,.90);backdrop-filter:blur(18px);
     border:1px solid var(--hair);border-radius:999px;
     box-shadow:0 10px 34px rgba(10,7,4,.20);
   }
-  .dock a{flex:1;text-align:center;text-decoration:none;color:var(--ink-2);font-size:13px;font-weight:600;padding:10px 4px}
-  .dock a.book{flex:1.5;background:var(--ink);color:var(--bone);border-radius:999px}
-  body{padding-bottom:78px}
+  .dock a{
+    position:relative;z-index:1;flex:1;text-align:center;text-decoration:none;
+    color:var(--ink-2);font-size:12.5px;font-weight:600;padding:12px 2px;
+    border-radius:999px;transition:color 260ms var(--e);
+  }
+  .dock a[aria-current]{color:var(--bone)}
+  .nav{position:static}
+  body{padding-bottom:84px}
 }
 
 @media (prefers-reduced-motion:reduce){
+  @view-transition{navigation:none}
+  html.pt-out body,html.pt-in body{animation:none;opacity:1;transform:none;transition:none}
   *{animation-duration:.01ms!important;transition-duration:.01ms!important}
   html{scroll-behavior:auto}
 }
@@ -904,89 +1024,6 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
   </section>
 
 
-  <!-- ═══ 4 · PRICES, A TASTE ══════════════════════════════════════════
-       His note 1: the full package block belongs on the Prices tab, because
-       a nav that names Prices and then scrolls to an anchor has lied. The
-       home page carries the ladder and the link. -->
-  <section class="ladder" aria-label="Prices">
-    <div class="sechead">
-      <h2>What it <em>costs.</em></h2>
-      <p>Sedan prices. SUVs and trucks are listed on the prices page.</p>
-    </div>
-    <ul class="rungs" data-from="get_public_business_profile.services + calculate-booking">
-      <li><b>Express Wash</b><i>Outside only &middot; about 90 min</i><em>$89</em></li>
-      <li><b>Full Detail</b><i>Inside and out &middot; about 4 hrs</i><em>$219</em></li>
-      <li><b>Ceramic Package</b><i>Correction + 3-year coating &middot; 2 days</i><em>$890</em></li>
-    </ul>
-    <a class="ladderlink" href="v-goldenhour-prices.html">
-      All three sizes, and what is in each package &rarr;</a>
-  </section>
-
-
-  <!-- ═══ 5 · RECENT WORK, A TASTE — three tiles, the rest behind the tab ══ -->
-  <section class="work" aria-label="Recent work">
-    <div class="sechead">
-      <h2>Some recent <em>work.</em></h2>
-      <p>Three from the last fortnight. No filters, no stock photos.</p>
-    </div>
-    <div class="tiles tiles--3" data-from="job_photos">
-      <figure class="t t1">
-        <img src="https://images.unsplash.com/photo-1604417619789-b145daaec6d0?fm=jpg&amp;fit=crop&amp;w=1400&amp;h=1050&amp;q=78"
-             alt="A detailed dark hatchback photographed in evening light." loading="lazy">
-        <figcaption>Golf R &middot; Full Detail</figcaption>
-      </figure>
-      <figure class="t t2">
-        <img src="https://images.unsplash.com/photo-1665453031228-332ad0c2ec3e?fm=jpg&amp;fit=crop&amp;w=1000&amp;h=1250&amp;q=78"
-             alt="Water beading on freshly sealed paint." loading="lazy">
-        <figcaption>Sealant, six-month</figcaption>
-      </figure>
-      <figure class="t t4">
-        <img src="https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?fm=jpg&amp;fit=crop&amp;w=1400&amp;h=800&amp;q=78"
-             alt="A car mid-wash, covered in snow foam." loading="lazy">
-        <figcaption>Foam pre-soak</figcaption>
-      </figure>
-    </div>
-    <a class="ladderlink" href="v-goldenhour-work.html">The full gallery &rarr;</a>
-  </section>
-
-
-  <!-- ═══ 7 · ONE RECENT JOB, WHOLE ══════════════════════════════════════
-       E1 · the single most transferable thing found in the eighteen
-       (TASTE-NOTES § L): a gallery, a service menu, a testimonial and a
-       booking CTA collapsed into ONE object. Every other site spends four
-       sections on those four jobs.
-       AND THIS PRODUCT CAN GENERATE IT — job_photos, booking_services, the
-       vehicle, the customer's first name and city, the review link. A
-       completed job becomes this row with nobody typing anything. -->
-  <section class="job" aria-label="A recent job">
-    <div class="jobrow" data-from="the detailer's own completed bookings">
-      <div class="jobshot">
-        <img src="https://images.unsplash.com/photo-1639062909256-f3a109eec5b1?fm=jpg&amp;fit=crop&amp;w=1200&amp;h=900&amp;q=78"
-             alt="A recently detailed car parked under trees in evening light.">
-        <span class="jobbadge">Full Detail &middot; $259</span>
-      </div>
-      <div class="jobbody">
-        <h3>2021 BMW 330i <em>&mdash; Green Lake</em></h3>
-        <p class="jobdid">
-          Winter salt off the wheels and arches, one-stage polish and sealant on
-          the bonnet and roof, interior steam-cleaned, driver&rsquo;s seat
-          re-conditioned.
-        </p>
-        <a class="jobcta" href="#book">Book this package</a>
-        <blockquote class="jobrev">
-          &ldquo;On time, four hours in our driveway, and I could not find a
-          single swirl afterwards. The seat looks new, and booking took a minute.&rdquo;
-          <cite>
-            <b>Marcus T.</b> &middot; Green Lake
-            <span class="stars" aria-label="Five stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
-            <span class="src">Google</span>
-          </cite>
-        </blockquote>
-      </div>
-    </div>
-  </section>
-
-
   <!-- ═══ 8 · FAQ ════════════════════════════════════════════════════════
        The objections a mobile detailer actually gets. Its shape is a
        two-column accordion — nothing else on the page opens. -->
@@ -1045,15 +1082,14 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
     </div>
 
     <div class="bk">
-      <ol class="bk-rail" data-from="core.js stepsFor(addOns)">
-        <li class="on"><b>1</b>Services</li>
-        <li><b>2</b>Extras</li>
-        <li><b>3</b>Vehicle</li>
-        <li><b>4</b>Location</li>
-        <li><b>5</b>When</li>
-        <li><b>6</b>Details</li>
-        <li><b>7</b>Review</li>
-      </ol>
+      <div class="bk-prog" data-from="core.js stepsFor(addOns)">
+        <p class="bk-lab"><b>Step <span data-n>1</span> of <span data-t>7</span></b>
+           <span data-name>Services</span></p>
+        <div class="bk-bar" role="progressbar" aria-valuemin="1" aria-valuemax="7" aria-valuenow="1">
+          <i data-seg>Services</i><i data-seg>Extras</i><i data-seg>Vehicle</i>
+          <i data-seg>Location</i><i data-seg>When</i><i data-seg>Details</i><i data-seg>Review</i>
+        </div>
+      </div>
 
       <div class="bk-body">
 
@@ -1154,7 +1190,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
           </div>
           <label class="fld">Email<input type="email" autocomplete="email" placeholder="you@example.com"></label>
           <label class="fld">Anything we should know?
-            <input type="text" placeholder="Gate code, where to park, a stain to look at"></label>
+            <input type="text" data-optional placeholder="Gate code, where to park, a stain to look at"></label>
         </div>
 
         <!-- 7 · REVIEW -->
@@ -1230,10 +1266,12 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
 
 </div>
 
-<nav class="dock" aria-label="Quick actions">
+<nav class="dock" aria-label="Sections">
+  <span class="ind" aria-hidden="true"></span>
+  <a href="v-goldenhour.html" aria-current="page">Home</a>
   <a href="v-goldenhour-work.html">Work</a>
-  <a class="book" href="#book">Book now</a>
   <a href="v-goldenhour-prices.html">Prices</a>
+  <a href="#book">Book</a>
 </nav>
 
 <script>
@@ -1339,43 +1377,78 @@ var REDUCED = matchMedia("(prefers-reduced-motion:reduce)").matches;
 })();
 
 
-/* THE BOOKING WIDGET — core.js's sequence, drawn in this site's design.
-   `stepsFor(addOns)` decides how many steps exist; this reads the rail rather
-   than hard-coding 7, so a tenant with no add-ons gets six and "Step 3 of 7"
-   is never a lie. A real site calls createBookingTransport(); this static
-   demo has no keys, so the figures are stand-ins and the SEQUENCE is the
-   thing being demonstrated. */
+/* The widget drives the progress bar and GATES Continue.
+   `core.js` owns the real gate — canAdvance(stepName, {form, settings, quote,
+   quoting}) — so a live tenant site asks the core. This static demo has no
+   form state, so it asks the DOM the same question: is every required control
+   on this step answered? The RULE being demonstrated (you cannot advance past
+   an unfilled step) is the core's rule, not a new one. */
 (function(){
-  var rail = document.querySelector(".bk-rail");
-  if (!rail) return;
-  var steps = [].slice.call(rail.children);
+  var prog = document.querySelector(".bk-prog");
+  if (!prog) return;
+  var segs  = [].slice.call(prog.querySelectorAll("[data-seg]"));
   var panes = [].slice.call(document.querySelectorAll(".bk-step"));
+  var lblN  = prog.querySelector("[data-n]");
+  var lblT  = prog.querySelector("[data-t]");
+  var lblNm = prog.querySelector("[data-name]");
+  var bar   = prog.querySelector(".bk-bar");
   var back  = document.querySelector(".bk-back");
   var next  = document.querySelector(".bk-next");
+  var bk    = document.querySelector(".bk");
   var at = 0;
+  lblT.textContent = segs.length;
+
+  function filled(i){
+    var pane = panes[i];
+    if (!pane) return true;
+    var groups = {};
+    [].forEach.call(pane.querySelectorAll('input[type="radio"]'), function(r){
+      groups[r.name] = groups[r.name] || r.checked;
+    });
+    for (var k in groups) if (!groups[k]) return false;
+    var texts = pane.querySelectorAll('input[type="text"],input[type="email"],input[type="tel"]');
+    for (var j = 0; j < texts.length; j++) {
+      if (texts[j].dataset.optional !== undefined) continue;
+      if (!texts[j].value.trim()) return false;
+    }
+    if (pane.querySelector(".slots") && !pane.querySelector(".slots .sl.sel")) return false;
+    if (pane.querySelector(".cal-grid") && !pane.querySelector(".cal-grid .d.sel")) return false;
+    return true;
+  }
+
+  function gate(){
+    var ok = filled(at);
+    next.disabled = !ok;
+    next.title = ok ? "" : "Fill in this step first";
+  }
 
   function show(i){
-    at = Math.max(0, Math.min(steps.length - 1, i));
-    steps.forEach(function(li, k){
-      li.classList.toggle("on", k === at);
-      li.classList.toggle("done", k < at);
+    at = Math.max(0, Math.min(segs.length - 1, i));
+    segs.forEach(function(seg, k){
+      seg.classList.toggle("done", k < at);
+      seg.classList.toggle("now", k === at);
     });
     panes.forEach(function(pane, k){
       pane.classList.toggle("on", k === at);
       if (k === at) [].forEach.call(pane.children, function(c, n){ c.style.setProperty("--k", n); });
     });
+    lblN.textContent = at + 1;
+    lblNm.textContent = segs[at].textContent;
+    bar.setAttribute("aria-valuenow", at + 1);
+    bar.setAttribute("aria-valuetext", "Step " + (at + 1) + " of " + segs.length + ": " + segs[at].textContent);
     back.disabled = at === 0;
-    next.textContent = at === steps.length - 1 ? "Confirm booking" : "Continue";
-    next.hidden = at === steps.length - 1;   /* the last step has its own button */
+    next.hidden = at === segs.length - 1;
+    gate();
   }
-  next.addEventListener("click", function(){ show(at + 1); });
+
+  next.addEventListener("click", function(){ if (filled(at)) show(at + 1); });
   back.addEventListener("click", function(){ show(at - 1); });
-  steps.forEach(function(li, k){
-    li.addEventListener("click", function(){ show(k); });
-    li.style.cursor = "pointer";
+  bk.addEventListener("input", gate);
+  bk.addEventListener("change", gate);
+  bk.addEventListener("click", function(e){
+    if (e.target.closest(".d,.sl")) setTimeout(gate, 0);
   });
-  /* The calendar and the slots pick, because a demo somebody cannot press is
-     a screenshot with extra steps. */
+
   document.querySelectorAll(".cal-grid .d:not(.off)").forEach(function(d){
     d.addEventListener("click", function(){
       document.querySelectorAll(".cal-grid .d.sel").forEach(function(o){ o.classList.remove("sel"); });
@@ -1402,6 +1475,55 @@ var REDUCED = matchMedia("(prefers-reduced-motion:reduce)").matches;
       if (input) input.checked = true;
       document.getElementById("book").scrollIntoView({ behavior: "smooth", block: "start" });
     });
+  });
+})();
+
+
+/* The header condenses once you have left the top. rAF-throttled, class only. */
+(function(){
+  var nav = document.querySelector(".nav");
+  if (!nav) return;
+  var t = 0;
+  function read(){ nav.classList.toggle("stuck", window.scrollY > 18); t = 0; }
+  addEventListener("scroll", function(){ if (!t) t = requestAnimationFrame(read); }, { passive:true });
+  read();
+})();
+
+/* The dock indicator, placed from the CURRENT link's own box — correct at 320
+   and at 430 with one set of numbers. Re-placed after the webfont lands,
+   because a pill sized before it is a pill in the wrong place. */
+(function(){
+  var dock = document.querySelector(".dock");
+  if (!dock) return;
+  var ind = dock.querySelector(".ind"), cur = dock.querySelector("a[aria-current]");
+  if (!ind || !cur) return;
+  function place(){
+    var d = dock.getBoundingClientRect(), a = cur.getBoundingClientRect();
+    if (!a.width) return;
+    ind.style.width = a.width + "px";
+    ind.style.setProperty("--x", (a.left - d.left) + "px");
+  }
+  place();
+  addEventListener("resize", place);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(place);
+})();
+
+/* Cross-fade between tabs for browsers without view transitions. */
+(function(){
+  if (matchMedia("(prefers-reduced-motion:reduce)").matches) return;
+  if (document.startViewTransition) return;
+  var root = document.documentElement;
+  root.classList.add("pt-in");
+  addEventListener("pageshow", function(){
+    root.classList.remove("pt-out"); root.classList.add("pt-in");
+  });
+  document.addEventListener("click", function(e){
+    var a = e.target.closest && e.target.closest('a[href$=".html"]');
+    if (!a || a.target || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    e.preventDefault();
+    root.classList.remove("pt-in");
+    root.classList.add("pt-out");
+    setTimeout(function(){ location.href = a.href; }, 190);
   });
 })();
 

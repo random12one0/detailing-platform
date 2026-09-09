@@ -329,3 +329,58 @@ a DIFFERENT layout, not a squeezed one** — so below 760px the bar leaves the
 photograph entirely and becomes a solid card on the ground beneath it.
 **Generalises:** every device positioned `absolute` inside a fixed-ratio box owes
 a phone answer, and "it wraps" is not one.
+
+---
+
+## I · FOUR CORRECTIONS TO THIS INVENTORY — 2026-09-08, from his desktop pass
+
+The inventory was written from what his reference sites CONTAIN. Four entries
+turned out to be wrong about WHERE or WHY, and every correction came from him
+looking at a built page rather than from more analysis.
+
+### I1 · A2 IS NOT "PUT A PHOTOGRAPH ON EVERY PAGE"
+**A2 as written produced decoration.** His words: *"every picture has to add
+value… it's not just there because, hey, we did research and you need pictures
+in your website."* And, on a full-bleed band above a price table: *"why is our
+image supposed to be about the pricing?"*
+**The corrected rule:** a photograph must CARRY information or be carried BY it
+(the hero qualifies — the availability pill, the review pill and the trust bar
+sit on it), and **a page whose subject is not visual owes no photograph at
+all.** Integrated beats spotlit: the same photo inside a row with a package, a
+price and a review earns its space; alone across the page it does not.
+
+### I2 · F1 IS NOT A PHONE DEVICE
+The floating dock was filed under "PHONE". **The need is "can somebody act from
+anywhere on a 5,000px page", and a desk has that need too** — his first note
+was that the desktop has no persistent way to reach Work, Prices or Book once
+you have scrolled. **Desktop gets a condensing sticky header; the phone keeps
+the dock.**
+**And a dock owes a CURRENT state.** *"That black pill would move to prices —
+showing what page you're on rather than just being quick links."* A row of links
+that never indicates position is a menu, not navigation.
+
+### I3 · E1 IS A GALLERY DEVICE, NOT A HOME-PAGE DEVICE
+The portfolio row is still the most transferable thing in the eighteen, and on
+the HOME page he could not tell what it was: *"this random 'book this package'…
+what is this? This is completely not necessary."* On the Work page, among other
+jobs and under a heading that frames them, he liked it. **One job alone on a
+page about the business reads as an orphan. Placement was the fault, not the
+device.**
+
+### I4 · A PREVIEW OF ANOTHER PAGE IS NOT A SECTION
+**New, and it deletes two sections this inventory would otherwise encourage.**
+*"Customers don't really like to look at the details if you're not able to get
+to it easily… we don't even need 'some recent work' — what's the point? We have
+a whole work page. There should be no copies."*
+**A teaser is a second, worse copy of a page that already exists**, and the nav
+is how somebody reaches the real one. This does NOT retire D5 or D7 — it moves
+them to the page they belong on.
+
+### I5 · A NEW ENTRY — THE FULL-WIDTH BAND IS A DEFAULT, NOT A DECISION
+*"Everything right now is layered — one thing for each entire width of the
+screen. But on desktop you could easily have these next to each other… actually
+analyse where stuff just takes up too much space."*
+**A four-item list across 1,380px is mostly empty ground.** Ask of every
+section: does this need the whole width, or is it sharing a row with the thing
+it belongs beside? Add-ons belong beside the packages they modify, not four
+screens below them.

@@ -154,7 +154,38 @@ body{
 }
 
 /* Nav */
-.nav{display:flex;align-items:center;gap:26px;padding:20px 30px}
+/* His note: "when we're not on mobile there's no floating thing anywhere where
+   I could choose work, prices and book when I'm not at the top of the screen."
+   DEVICE-INVENTORY I2 — F1 was filed as a PHONE device and the need is not
+   phone-specific. The desk gets a header that STAYS and condenses; the phone
+   keeps the dock. */
+.nav{
+  position:sticky;top:0;z-index:20;
+  display:flex;align-items:center;gap:26px;padding:20px 30px;
+  transition:padding 260ms var(--e),background 260ms var(--e),
+             box-shadow 260ms var(--e),backdrop-filter 260ms var(--e);
+}
+.nav.stuck{
+  padding:11px 30px;
+  background:rgba(244,239,229,.84);backdrop-filter:blur(16px) saturate(1.3);
+  box-shadow:0 1px 0 var(--hair),0 10px 30px rgba(23,19,14,.07);
+}
+.mark i{transition:opacity 200ms var(--e),max-height 260ms var(--e)}
+.nav.stuck .mark i{opacity:0;max-height:0;overflow:hidden}
+
+/* ═══ PAGE TRANSITIONS ═════════════════════════════════════════════════
+   "Right now it's just loading a new site every time and it's this flash."
+   Three tabs of ONE site should not flash white between them. Chrome does it
+   from the at-rule; the class pair is the same shape by hand for everything
+   else. Both off under reduced motion, and NEITHER can block a navigation —
+   the fallback hops on a timer, not on an animation event. */
+@view-transition{navigation:auto}
+::view-transition-old(root){animation:pt-out 190ms var(--e) both}
+::view-transition-new(root){animation:pt-in 320ms var(--e) both}
+@keyframes pt-out{to{opacity:0;transform:translateY(-6px)}}
+@keyframes pt-in{from{opacity:0;transform:translateY(8px)}}
+html.pt-out body{opacity:0;transform:translateY(-6px);transition:opacity 190ms var(--e),transform 190ms var(--e)}
+html.pt-in body{animation:pt-in 320ms var(--e) both}
 .mark{
   font:800 19px/1 var(--display);letter-spacing:-.02em;
   font-variation-settings:"wdth" 84;
@@ -251,6 +282,16 @@ body{
 /* F1 · the phone dock. ~70px, and § G calls it the single best idea in
    either batch. Hidden on the desk, where the nav never leaves. */
 .dock{display:none}
+/* The dock says WHERE YOU ARE — "that black pill would move to prices, showing
+   what page you're on rather than just being quick links." One indicator, moved
+   by transform from the current link's own geometry, so a fourth item needs no
+   new numbers. */
+.dock .ind{
+  position:absolute;z-index:0;top:6px;bottom:6px;left:0;width:0;
+  background:var(--ink);border-radius:999px;
+  transform:translateX(var(--x,0));
+  transition:transform 380ms var(--e),width 380ms var(--e);
+}
 
 /* ═══ SHARED SECTION FURNITURE ═══════════════════════════════════════════
    Deliberately thin. Every section below owns its own SHAPE — the rule he
@@ -917,10 +958,82 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
   .nomatch{margin:16px 16px 0}
 }
 @media (min-width:761px) and (max-height:500px){
+  /* THE PORTRAIT RULE — a rotated phone (844x390) is WIDER than the dock's
+     760px breakpoint, so without this the dock vanishes and the header goes
+     sticky the moment somebody turns the handset. Rotation must change
+     nothing. */
+  .dock{
+    display:flex;position:fixed;z-index:30;left:10px;right:10px;bottom:10px;
+    align-items:stretch;gap:0;padding:6px;
+    background:rgba(244,239,229,.90);backdrop-filter:blur(18px);
+    border:1px solid var(--hair);border-radius:999px;
+    box-shadow:0 10px 34px rgba(10,7,4,.20);
+  }
+  .dock a{
+    position:relative;z-index:1;flex:1;text-align:center;text-decoration:none;
+    color:var(--ink-2);font-size:12.5px;font-weight:600;padding:12px 2px;
+    border-radius:999px;transition:color 260ms var(--e);
+  }
+  .dock a[aria-current]{color:var(--bone)}
+  .nav{position:static}
+  body{padding-bottom:84px}
   .jrow,.jrow--flip{grid-template-columns:1fr}
   .jrow--flip .jshot{order:0}
   .fcards{grid-template-columns:1fr}
 }
+
+/* ═══ THE BOOKING PROGRESS BAR ═════════════════════════════════════════
+   His note: "I don't think you should be able to click it. It should just be
+   a progress bar that fits the entire screen… like andrewsdetail.com — step
+   one, two, three, four, five, six, seven, just to know what step you're on.
+   You click next. I don't like that you could skip around, because I even
+   have it that you can't go to the next page until the previous is filled."
+   Seven equal segments fit ANY width because they are fractions, which is the
+   other half of his complaint — the old rail overflowed a phone. Nothing here
+   is focusable: a progress bar is an indicator, not a menu. */
+.bk-prog{padding:14px 16px 4px}
+.bk-lab{margin:0 0 10px;display:flex;flex-wrap:wrap;gap:5px 10px;align-items:baseline;
+  font-size:13px;color:var(--paper-2)}
+.bk-lab b{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--paper-3);font-weight:600}
+.bk-lab [data-name]{font:800 17px/1 var(--display);font-variation-settings:"wdth" 88;
+  letter-spacing:-.02em;color:var(--paper)}
+.bk-bar{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px}
+.bk-bar i{
+  height:4px;border-radius:999px;background:rgba(255,255,255,.15);
+  font-size:0;overflow:hidden;transition:background 300ms var(--e);
+}
+.bk-bar i.done{background:rgba(255,168,64,.45)}
+.bk-bar i.now{background:var(--amber)}
+.bk-next[disabled]{opacity:.40;cursor:not-allowed}
+.bk-next[disabled]:hover{transform:none;filter:none}
+
+/* ═══ PRICES · one row, two columns ═══════════════════════════════════
+   "Add-ons should be closer to the packages… everything is layered, one
+   thing for each entire width of the screen. On desktop you could easily
+   have these next to each other." DEVICE-INVENTORY I5. */
+.pricerow{
+  display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
+  gap:26px;align-items:start;padding:56px 30px 0;
+}
+.pricerow h2{margin:0 0 8px;font:800 clamp(22px,2.4vw,30px)/1.1 var(--display);
+  font-variation-settings:"wdth" 86;letter-spacing:-.025em}
+.pnote{margin:0 0 16px;color:var(--ink-2);font-size:14px}
+.pbox{
+  background:rgba(255,255,255,.52);border:1px solid var(--hair);
+  border-radius:var(--r-card);padding:24px 24px 20px;
+}
+.pbox dl{margin:14px 0 0;display:grid;gap:0}
+.pbox dl > div{padding:14px 0;border-top:1px solid var(--hair)}
+.pbox dt{margin:0 0 5px;font-size:11.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-2);font-weight:600}
+.pbox dd{margin:0;font-size:14.5px;color:var(--ink)}
+.pbox dd b{font-weight:700}
+.pboxend{margin:16px 0 0;padding-top:14px;border-top:1px solid var(--hair);
+  font-size:13px;color:var(--ink-2)}
+@media (max-width:1000px){.pricerow{grid-template-columns:1fr;gap:34px}}
+@media (max-width:760px){.pricerow{padding:44px 16px 0}.pbox{padding:20px}}
+@media (min-width:761px) and (max-height:500px){.pricerow{grid-template-columns:1fr}}
 
 /* ═══ RESPONSIVE ═══════════════════════════════════════════════════════ */
 @media (max-width:1000px){
@@ -983,18 +1096,25 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
   .pill--rev{display:none}
 
   .dock{
-    display:flex;position:fixed;z-index:9;left:10px;right:10px;bottom:10px;
-    align-items:center;gap:8px;padding:8px;
-    background:rgba(244,239,229,.86);backdrop-filter:blur(18px);
+    display:flex;position:fixed;z-index:30;left:10px;right:10px;bottom:10px;
+    align-items:stretch;gap:0;padding:6px;
+    background:rgba(244,239,229,.90);backdrop-filter:blur(18px);
     border:1px solid var(--hair);border-radius:999px;
     box-shadow:0 10px 34px rgba(10,7,4,.20);
   }
-  .dock a{flex:1;text-align:center;text-decoration:none;color:var(--ink-2);font-size:13px;font-weight:600;padding:10px 4px}
-  .dock a.book{flex:1.5;background:var(--ink);color:var(--bone);border-radius:999px}
-  body{padding-bottom:78px}
+  .dock a{
+    position:relative;z-index:1;flex:1;text-align:center;text-decoration:none;
+    color:var(--ink-2);font-size:12.5px;font-weight:600;padding:12px 2px;
+    border-radius:999px;transition:color 260ms var(--e);
+  }
+  .dock a[aria-current]{color:var(--bone)}
+  .nav{position:static}
+  body{padding-bottom:84px}
 }
 
 @media (prefers-reduced-motion:reduce){
+  @view-transition{navigation:none}
+  html.pt-out body,html.pt-in body{animation:none;opacity:1;transform:none;transition:none}
   *{animation-duration:.01ms!important;transition-duration:.01ms!important}
   html{scroll-behavior:auto}
 }
@@ -1020,7 +1140,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
 
   <header class="pagehead">
     <p class="crumb"><a href="v-goldenhour.html">Home</a> &rsaquo; Work</p>
-    <h1>Every car, <em>as it left.</em></h1>
+    <h1>Our recent <em>work.</em></h1>
     <p class="pagelede">Photographed on the day, in whatever light there was. No
        filters and no stock photos &mdash; if it is on this page, we did it.</p>
     <div class="headstats" data-from="the detailer's completed bookings">
@@ -1090,7 +1210,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
        product can GENERATE it from a completed booking with nobody typing. -->
   <section class="jobs" aria-label="Three recent jobs">
     <div class="jobshead">
-      <h2>Three of them, <em>in full.</em></h2>
+      <h2>Three jobs <em>in full.</em></h2>
       <p>What the car came in like, what we did, and what the owner said afterwards.</p>
     </div>
 
@@ -1158,9 +1278,9 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
   <!-- Shape #5 · the closing band. Not a booking area — an entry point. -->
   <section class="cta">
     <div class="ctain">
-      <h2>Yours next? <em>Pick a time.</em></h2>
+      <h2>Ready to <em>book?</em></h2>
       <p>Two slots left this week in North Seattle.</p>
-      <a class="ctabtn" href="v-goldenhour.html#book">Get a price</a>
+      <a class="ctabtn" href="v-goldenhour.html#book">Book now</a>
     </div>
   </section>
 
@@ -1201,10 +1321,12 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
 
 </div>
 
-<nav class="dock" aria-label="Quick actions">
-  <a href="v-goldenhour-work.html">Work</a>
-  <a class="book" href="v-goldenhour.html#book">Book now</a>
+<nav class="dock" aria-label="Sections">
+  <span class="ind" aria-hidden="true"></span>
+  <a href="v-goldenhour.html">Home</a>
+  <a href="v-goldenhour-work.html" aria-current="page">Work</a>
   <a href="v-goldenhour-prices.html">Prices</a>
+  <a href="v-goldenhour.html#book">Book</a>
 </nav>
 
 <script>
@@ -1406,6 +1528,55 @@ var REDUCED = matchMedia("(prefers-reduced-motion:reduce)").matches;
   if (reset) reset.addEventListener("click", function(){
     chips.forEach(function(o){ o.setAttribute("aria-selected", o.dataset.filter === "all" ? "true" : "false"); });
     apply("all");
+  });
+})();
+
+
+/* The header condenses once you have left the top. rAF-throttled, class only. */
+(function(){
+  var nav = document.querySelector(".nav");
+  if (!nav) return;
+  var t = 0;
+  function read(){ nav.classList.toggle("stuck", window.scrollY > 18); t = 0; }
+  addEventListener("scroll", function(){ if (!t) t = requestAnimationFrame(read); }, { passive:true });
+  read();
+})();
+
+/* The dock indicator, placed from the CURRENT link's own box — correct at 320
+   and at 430 with one set of numbers. Re-placed after the webfont lands,
+   because a pill sized before it is a pill in the wrong place. */
+(function(){
+  var dock = document.querySelector(".dock");
+  if (!dock) return;
+  var ind = dock.querySelector(".ind"), cur = dock.querySelector("a[aria-current]");
+  if (!ind || !cur) return;
+  function place(){
+    var d = dock.getBoundingClientRect(), a = cur.getBoundingClientRect();
+    if (!a.width) return;
+    ind.style.width = a.width + "px";
+    ind.style.setProperty("--x", (a.left - d.left) + "px");
+  }
+  place();
+  addEventListener("resize", place);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(place);
+})();
+
+/* Cross-fade between tabs for browsers without view transitions. */
+(function(){
+  if (matchMedia("(prefers-reduced-motion:reduce)").matches) return;
+  if (document.startViewTransition) return;
+  var root = document.documentElement;
+  root.classList.add("pt-in");
+  addEventListener("pageshow", function(){
+    root.classList.remove("pt-out"); root.classList.add("pt-in");
+  });
+  document.addEventListener("click", function(e){
+    var a = e.target.closest && e.target.closest('a[href$=".html"]');
+    if (!a || a.target || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    e.preventDefault();
+    root.classList.remove("pt-in");
+    root.classList.add("pt-out");
+    setTimeout(function(){ location.href = a.href; }, 190);
   });
 })();
 

@@ -413,3 +413,25 @@ same way — a sentence that reads fine and earns nothing.
 *Prices* owes real pages behind them. The home page carries a taste; the dump
 lives on its own tab. *"There's literally a tab called Work — that's where
 recent work should go."*
+
+## COPY AND NAMING · rule 7 — A HEADING IS A LABEL, NOT A LINE (2026-09-08)
+
+> *"'Three things move the number.' Still a little bit on the startup kind of
+> naming. **You don't need to be as creative with the text.** It could just be
+> something simpler that gets the point across — that these things will make it
+> cost more."*
+
+Rule 4 said *advertisement, not literature*, and it was being applied to body
+copy while headings kept the metaphors. **A heading is the most likely thing on
+a page to be read and the least forgiving place to be clever.**
+
+| Was | Is |
+|---|---|
+| Three things move the number | What can change the price |
+| Booking takes about a minute | *(deleted — rule 6)* |
+| Every car, as it left | Our recent work |
+| Some recent work | *(deleted — the page is the section)* |
+
+**And a call to action must be the NEXT thing the reader wants, not the thing
+the page just did.** *"'Get a price' on the pricing page kinda feels weird"* —
+on a page of prices, the next step is **Book**.

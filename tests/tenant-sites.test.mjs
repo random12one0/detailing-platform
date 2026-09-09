@@ -21,7 +21,9 @@ import { join } from "node:path";
 const DIR = "docs/tenant-sites";
 const files = readdirSync(DIR).filter(f => /^v-.*\.html$/.test(f)).sort();
 
-let checks = 0, fails = 0;
+let checks = 0, fails = 0, siteImgs = 0;
+// the home page is the one with no -suffix; the tabs hang off it
+const isHome = (f) => /^v-[a-z]+\.html$/.test(f);
 const ok = (cond, msg) => {
   checks++;
   if (!cond) { fails++; console.log("  FAIL  " + msg); }
@@ -36,19 +38,27 @@ for (const f of files) {
   const html = readFileSync(join(DIR, f), "utf8");
   const body = html.slice(html.indexOf("<body"));
 
-  // 1 · A REAL PHOTOGRAPH. The regression that started this file.
+  // 1 · PHOTOGRAPHS ARE A SITE-LEVEL RULE, NOT A PAGE-LEVEL ONE.
+  //     This check first demanded an <img> on EVERY page, and the owner read
+  //     the result back at me: "even on a pricing page there should probably
+  //     be no images — why is our image supposed to be about the pricing?"
+  //     A check that FORCES decoration is worse than no check, and A2 was
+  //     never a rule about pages — it was a rule about a site that shows no
+  //     work. DEVICE-INVENTORY I1. The site total is asserted after the loop.
   const imgs = (body.match(/<img\b/g) || []).length;
-  ok(imgs > 0, `${f}: no <img> on the page at all (device A2 is "never")`);
+  siteImgs += imgs;
 
-  // 2 · ABOVE THE FOLD. "A photograph at scale" is a claim about the FOLD —
-  //     site k-cedar's recorded failure, and it recurred on v-goldenhour.
-  //     Cheap proxy: the first <img> appears before the halfway point of the
-  //     body markup. Not a substitute for looking, but it fails loudly when a
-  //     hero photo is pushed under three sections of type.
-  if (imgs > 0) {
-    const first = body.indexOf("<img");
-    ok(first < body.length * 0.5,
-       `${f}: first <img> is ${Math.round(first / body.length * 100)}% down the body — the photograph is not near the top`);
+  // 2 · ABOVE THE FOLD, ON THE HOME PAGE. "A photograph at scale" is a claim
+  //     about the FOLD — k-cedar's recorded failure, and it recurred here.
+  //     A cheap proxy, and no substitute for looking, but it fails loudly
+  //     when a hero photo is pushed under sections of type.
+  if (isHome(f)) {
+    ok(imgs > 0, `${f}: the HOME page carries no <img> at all (device A2)`);
+    if (imgs > 0) {
+      const first = body.indexOf("<img");
+      ok(first < body.length * 0.5,
+         `${f}: first <img> is ${Math.round(first / body.length * 100)}% down the body — the photograph is not near the top`);
+    }
   }
 
   // 3 · NO GREY PLACEHOLDER BOXES. CLAUDE.md § Design: "never a grey
@@ -94,6 +104,11 @@ for (const f of files) {
   ok(/detail|auto|car|wash|valet|spa/i.test(title),
      `${f}: <title> names no trade word — "${title}"`);
 }
+
+// The site as a whole still owes real photography — this is the guard that
+// would have caught the ten pages with zero <img> between them.
+ok(siteImgs >= 5, `the v- site carries only ${siteImgs} image(s) across ${files.length} pages`);
+ok(files.some(isHome), "no home page (v-<name>.html) found among the v- pages");
 
 console.log(`tenant-sites: ${checks} checks over ${files.length} page(s), ${fails} failed`);
 process.exit(fails ? 1 : 0);

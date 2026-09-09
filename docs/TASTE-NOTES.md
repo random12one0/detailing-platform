@@ -1428,3 +1428,164 @@ Two dark panels stacked with a 0px gap read as one panel with a rule through it.
 ### WHAT HE LIKED — worth as much as the critiques
 The pricing package block (*"looks great, by the way. I love it"*), the
 **Areas we cover** scrolling marquee, and the overall look.
+
+## BATCH 3e — EVERY PICTURE MUST EARN ITS SPACE, AND PREVIEWS ARE A TAX (2026-09-08)
+
+Reviewed on **desktop** (his note), then on the phone. Summarised at his
+request. **Two of these overturn things this repo told itself were rules.**
+
+### 1 · EVERY PICTURE MUST ADD VALUE — and this OVERTURNS how A2 was being applied
+> *"There's this big image on the main page and there's nothing on it… a lot of
+> the images weren't used as 'here's a big image', it's just a background. It's
+> taking up a lot of space and not really adding a lot of value. **So every
+> picture has to add value. That's important. It's not just there because, hey,
+> we did research and you need pictures in your website.**… I think we kind of
+> **overdid the images.**"*
+>
+> *"On the prices page there's this big image that, again, is just taking up
+> space. And I think even on a pricing page there should probably be no images.
+> **Why is our image supposed to be about the pricing?**"*
+>
+> *"I'm not saying have no images on the main page… I think the photos are fine
+> being **implemented into the website**, not necessarily being a spotlight on
+> the images, but integrated into the site **with information**."*
+
+**A2 ("a real photograph, above the fold") was written against a real
+regression — ten pages with ZERO photographs — and this session then swung to
+the other failure.** The rule is not "put photographs on pages". It is:
+
+- **A photograph must carry information or be carried BY it.** The home hero
+  qualifies because the availability pill, the review pill and the trust bar
+  sit ON it. A full-bleed band with nothing on it does not.
+- **A page whose subject is not visual does not owe a photograph at all.** A
+  price table is about numbers.
+- **Integrated beats spotlit.** A photo inside a row that also carries a
+  package, a price and a review earns its space; the same photo alone across
+  the page does not.
+- `tests/tenant-sites.test.mjs` was requiring an image on EVERY page, which
+  would have forced the exact decoration he is objecting to. **Changed to: the
+  SITE must carry photographs and the HOME page must have one above the fold.**
+
+### 2 · NO PREVIEWS. A LINK IS NOT A TEASER.
+> *"I don't like this 'what it costs' preview before you go to the pricing page…
+> **customers don't really like to look at the details if you're not able to get
+> to it easily.** 'What it costs' could be completely removed. We don't even need
+> that at all. And we don't even need 'some recent work' — what's the point? We
+> have a whole work page. **It should be really straightforward. There should be
+> no copies.**"*
+
+**This reverses the structure his previous note produced.** Batch 3d said the
+dump goes behind the tab and the home page keeps a taste. **The taste is now
+gone too** — a preview is a second, worse copy of a page that already exists,
+and the nav is how somebody gets there. *"Obviously somebody might want it
+different, but I think this is a smarter decision. And you could disagree with
+me, by the way."*
+
+### 3 · THE ONE-JOB ROW WAS CONFUSING, NOT COMPELLING
+> *"This random 'Book this package'. I don't get what this is. '2021 BMW 330i.
+> Winter salt off the wheels and arches, one stage polish and sealant.' **What is
+> this?** There's a random review and this random description… this is completely
+> not necessary."*
+
+**E1 — the portfolio row — is `TASTE-NOTES` § L's "single most transferable
+thing found so far", and on the HOME page he could not tell what it was.** It
+works on the Work page (*"I like the fact that there's some reviews on this page
+too, that's good"*) where it sits among other jobs and has a heading explaining
+it. **The device is right; the placement was wrong.** One job, alone, on a page
+about the business, reads as an orphan.
+
+### 4 · A DESKTOP HAS NO PERSISTENT NAVIGATION
+> *"When we're not on mobile there's no floating thing anywhere where I could
+> choose work, prices and book when I'm not at the top of the screen. Whereas
+> mobile has this pill floating at the bottom the entire time. **So that's
+> obviously a problem.**"*
+
+F1 was written as a PHONE device. **The need is not phone-specific** — it is
+"can somebody act from anywhere on a 5,000px page". Desktop gets a sticky
+header that condenses on scroll.
+
+### 5 · THE DOCK MUST SAY WHERE YOU ARE, AND PAGES MUST NOT FLASH
+> *"There's no real animation when I switch, and you can't really tell what page
+> you're on. **I would like if when I click prices, that black pill that's going
+> over 'book now' would move to prices** — kind of showing what page you're on
+> rather than just being quick links. And a nicer transition to each site,
+> because right now it's just loading a new site every time and it's this flash."*
+
+The indicator moves; the pages cross-fade. A multi-page tenant site that flashes
+white between tabs feels like three sites rather than one.
+
+### 6 · THE BOOKING STEPS ARE A PROGRESS BAR, NOT A MENU
+> *"I don't think you should be able to click it. It should just be a progress
+> bar that fits the entire screen… it doesn't even fit on the entire page. Like
+> **andrewsdetail.com and my booking widget — it's just step one, two, three,
+> four, five, six, seven, just to know what step you're on. You click next.** I
+> don't like that you could skip around, because I even have it that **you can't
+> go to the next page until the previous page is actually filled out.**"*
+
+Clickable steps were my addition and they are wrong twice: they let somebody
+skip a required step, and they made the rail wider than a phone.
+`core.js` already owns the gate — **`canAdvance(stepName, {form, settings,
+quote, quoting})`** — so the widget asks the core rather than inventing rules.
+
+### 7 · SIMPLIFY THE PRICES PAGE, AND USE THE HORIZONTAL SPACE
+> *"Add-ons should be closer to the packages… the add-ons feel kind of hidden…
+> this whole pricing page could just be simplified: the prices, the three
+> packages, the add-ons side by side, and then just a small box somewhere that
+> says size, condition, distance could cost more money. **Everything right now is
+> layered — one thing for each entire width of the screen. But on desktop you
+> could easily have the side by side next to each other.** Now don't only do that
+> for what I just said, but **actually analyse where stuff just takes up too much
+> space.**"*
+
+**A full-width band is the default, not a decision.** On a 1440px desk a
+four-item list across the whole width is mostly empty ground.
+
+### 8 · STILL TOO CLEVER — "three things move the number"
+> *"Still a little bit on the startup kind of naming. 'Three things move the
+> number.' **You don't need to be as creative with the text.** It could just be
+> something simpler that gets the point across — that these things will make it
+> cost more."*
+
+`COPY AND NAMING` rule 4 again, on a HEADING this time. A heading is a label,
+not a line.
+
+### 9 · "GET A PRICE" IS WRONG ON THE PRICES PAGE
+> *"There's a button at the bottom that says 'know what you want, pick a time',
+> and then it says 'get a price'. Instead it should be like 'book', because 'get
+> a price' on the pricing page kinda feels weird."*
+
+A call to action has to be the next thing the reader wants, not the same thing
+the page just did.
+
+### 10 · THE GRID DOTS ARE MINE AND HE NOTICED
+> *"I noticed you used the grid dots as the background, just copying what my site
+> does. Now I'm not saying it's bad, you could keep the grid dots. **I just, in
+> the other webs we make, I want different things, not just the same thing over
+> again.**"*
+
+Kept on this site. **The next site gets a different ground — not the dot field,
+and not a recolour of it.** This is `design-knowledge`'s "varying the palette
+while fixing the skeleton does not produce variety", arriving about a texture.
+
+### 11 · A BUG — an image rendering as a sliver on the phone
+> *"There's one image on the mobile page that's literally a sliver because it's
+> sized weird, and there's space on the right so it's off-centred."*
+
+The home page's three-tile grid at 392: `.tiles--3 .t4` spans 6 of 2 tracks.
+**It goes with the section**, but the cause is general: **a grid whose spans
+exceed the track count at a breakpoint silently produces slivers**, and only a
+screenshot shows it.
+
+### WHAT HE LIKED
+The pricing page's gradient and look (*"definitely looks really good"*), the
+**side-by-side comparison table** (*"really cool… I like that"*), **areas we
+cover**, **common questions**, the Work page (*"this is simple… I like that
+there's some reviews on this page too"*), and the booking widget as a preview.
+
+### PARKED, HIS OWN OPEN QUESTION
+> *"I'm debating on having the 'book your detail' be its own separate tab like
+> prices and work, or keeping it on the bottom. I think they'll work."*
+
+Left where it is. Raise it again once he has seen the simplified home page,
+because that page is now short enough that a separate Book tab would leave very
+little on it.
