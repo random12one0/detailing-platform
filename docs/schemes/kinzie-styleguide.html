@@ -1,0 +1,1078 @@
+<!doctype html>
+<html lang="en" data-c="b">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kinzie — design sheet</title>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     SITE 4 · THE DESIGN SHEET, not a preview of a page.
+
+     His instruction, 2026-09-09: *"it shouldn't just be like this thing where
+     it's like approved the home page… here's the font we're gonna use, an
+     example of the font. Here's the colors that we're choosing, and here's
+     example of the colors… here's the specific animation when you scroll and
+     the specific animation on this part… kind of how are we gonna have sharp
+     corners, round corners, something between… and then also one kind of cool
+     feature that we take from our inspirations… basically it's like the
+     template. You could take our design sheet and then drag and drop stuff to
+     make the website."*
+
+     So every block below is a SPECIMEN with its numbers next to it, and every
+     motion block RUNS. Nothing here is a mock-up of a section of the site.
+
+     THE PAIR: chicagoautopros.com x auxia.io, both measured off the live pages
+     2026-09-09 (docs/TASTE-NOTES.md section 8). Where they disagree, the
+     resolution is stated in the sheet rather than assumed.
+
+     THE TWO COLOURWAYS ARE HIS PICK: *"B and C are the best do both."*
+     B = graphite. C = paper. ?c=b|c, or the switcher top right.
+     ══════════════════════════════════════════════════════════════════════ -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=Familjen+Grotesk:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap">
+
+<style>
+/* ═══ 1 · THE TWO COLOURWAYS ══════════════════════════════════════════════
+   Geometry, type and motion are SHARED. Only colour forks — which is what
+   "one skeleton, two paints" means and is why switching is one attribute.
+   Every ratio in a comment was computed off the RENDERED page by
+   .tmp-site4/contrast-sheet.mjs with the glyphs painted out. None was typed
+   from judgement; three were wrong when they were. */
+:root{
+  /* ── shape. Chicago measured SQUARE: 11 elements at 1px, 2 at 25px, and the
+        only round thing on the page is a 50% icon badge, twenty of them. ── */
+  --r-edge:2px;      /* buttons, cards, inputs, panels, tabs — everything     */
+  --r-badge:50%;     /* the icon badge, and nothing else                      */
+  --r-pill:999px;    /* ONE control on the page: the availability chip        */
+  --hair:1px;        /* a decorative hairline                                 */
+  --edgew:1.5px;     /* a control's edge — a different thing, needs 3:1       */
+  --slant:-4.2deg;   /* the page's one angle. Every seam is this or nothing.  */
+
+  /* ── motion. Ported from site 3, constants included. ── */
+  --t-hover:180ms;
+  --t-exit:180ms;
+  --t-arrive:520ms;
+  --t-answer:460ms;
+  --stagger:60ms;
+  --ramp:cubic-bezier(.16,1,.3,1);          /* everything that ARRIVES       */
+  --ease-out:cubic-bezier(.4,.14,1,1);      /* everything that LEAVES        */
+
+  --wrap:1080px;
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E");
+}
+
+/* ── B · graphite ─────────────────────────────────────────────────────── */
+html[data-c="b"]{
+  --ground:#1B1F26;
+  --ground-2:#161A20;
+  --sky:radial-gradient(74% 44% at 6% -8%, rgba(11,79,255,.26), transparent 64%),
+        radial-gradient(56% 36% at 98% 18%, rgba(255,236,198,.07), transparent 70%),
+        linear-gradient(#1B1F26 0%, #14181E 58%, #1B1F26 100%);
+  --lattice:rgba(122,160,255,.40);
+  --surface:rgba(242,241,234,.055);
+  --surface-2:rgba(242,241,234,.10);
+  --ink:#F2F1EA;          /* worst pair in this colourway, built sheet: 4.82:1 */
+  --ink-2:#B6BCC6;
+  --ink-3:#8F97A3;
+  --accent:#0B4FFF;       /* a FILL. White on it: 5.87:1                       */
+  --accent-text:#5C8BFF;  /* the SAME blue as TEXT is 2.81:1 here. Two tokens. */
+  --on-accent:#FFFFFF;
+  --rule:rgba(242,241,234,.16);      /* decorative hairline                    */
+  --edge:rgba(242,241,234,.42);      /* a control's edge — 3:1                 */
+  --band:#F4F1E6;                    /* the paper band cut into the graphite   */
+  --band-ink:#14181E;
+  --live:#4ADE9B;
+  --shadow:0 22px 52px -26px rgba(0,0,0,.72);
+}
+/* ── C · paper ────────────────────────────────────────────────────────── */
+html[data-c="c"]{
+  --ground:#FFFFFF;
+  --ground-2:#F1F0EA;
+  --sky:radial-gradient(74% 44% at 6% -8%, rgba(255,240,208,.72), transparent 64%),
+        radial-gradient(58% 38% at 98% 18%, rgba(11,79,255,.075), transparent 70%),
+        linear-gradient(#FFFFFF 0%, #F7F5EE 58%, #FFFFFF 100%);
+  --lattice:rgba(11,79,255,.30);
+  --surface:#FFFFFF;
+  --surface-2:#F1F0EA;
+  --ink:#14181E;          /* worst pair in this colourway, built sheet: 4.92:1 */
+  --ink-2:#4A525E;
+  --ink-3:#5F6774;
+  --accent:#0B4FFF;
+  --accent-text:#0B4FFF;  /* on paper the fill colour reads as text unchanged  */
+  --on-accent:#FFFFFF;
+  --rule:rgba(20,24,30,.13);
+  --edge:rgba(20,24,30,.40);
+  --band:#1B1F26;                    /* the graphite band cut into the paper   */
+  --band-ink:#F2F1EA;
+  --live:#0E7C55;
+  --shadow:0 18px 40px -22px rgba(20,24,30,.34);
+}
+
+/* ═══ 2 · THE SHEET ITSELF ════════════════════════════════════════════════ */
+*{box-sizing:border-box}
+html{scroll-behavior:auto}     /* never `smooth`: it fights the weighted scroll */
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:"Familjen Grotesk",system-ui,sans-serif;font-weight:400;
+  font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  overflow-x:clip}                /* `hidden` here silently kills position:sticky */
+.sky{position:fixed;inset:0;z-index:0;pointer-events:none;background:var(--sky)}
+.sky:after{content:"";position:absolute;inset:0;
+  background-image:radial-gradient(var(--lattice) 1.1px, transparent 1.1px);
+  background-size:15px 15px;
+  -webkit-mask-image:linear-gradient(164deg,#000 0 22%,transparent 56%);
+          mask-image:linear-gradient(164deg,#000 0 22%,transparent 56%)}
+.sky:before{content:"";position:absolute;inset:-20%;background-image:var(--grain);
+  opacity:.9;mix-blend-mode:overlay}
+main{position:relative;z-index:1;max-width:var(--wrap);margin:0 auto;
+  padding:0 clamp(16px,4vw,34px) 120px}
+
+h1,h2,h3,h4{font-family:"Bai Jamjuree",system-ui,sans-serif;font-weight:700;
+  letter-spacing:-.024em;margin:0}
+.lbl{font-family:"Spline Sans Mono",ui-monospace,monospace;font-weight:400;
+  font-size:11px;line-height:1.2;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3)}
+p{margin:0 0 14px;color:var(--ink-2);max-width:68ch}
+code{font-family:"Spline Sans Mono",ui-monospace,monospace;font-size:.86em;
+  color:var(--accent-text)}
+
+/* ── the masthead ─────────────────────────────────────────────────────── */
+.top{position:relative;padding:clamp(34px,7vw,70px) 0 clamp(26px,4vw,42px)}
+.top h1{font-size:clamp(40px,8.6vw,92px);line-height:.92;margin:12px 0 16px}
+.top h1 em{font-style:normal;color:var(--accent-text)}
+.pair{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.pair span{font-family:"Spline Sans Mono";font-size:11.5px;letter-spacing:.06em;
+  padding:8px 12px;border-radius:var(--r-edge);background:var(--surface);
+  box-shadow:inset 0 0 0 var(--hair) var(--rule);color:var(--ink-2)}
+
+/* the paint switcher — bottom right on the built site, up here on the sheet */
+.paint{position:fixed;right:14px;bottom:14px;z-index:30;display:flex;gap:6px;
+  padding:6px;border-radius:var(--r-edge);background:var(--surface-2);
+  backdrop-filter:blur(12px);box-shadow:inset 0 0 0 var(--hair) var(--edge)}
+.paint button{font:500 12px/1 "Familjen Grotesk";padding:9px 13px;cursor:pointer;
+  border:0;border-radius:var(--r-edge);background:transparent;color:var(--ink-2)}
+.paint button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+
+/* ── a section of the sheet ───────────────────────────────────────────── */
+section{padding:clamp(32px,5.5vw,60px) 0;border-top:var(--hair) solid var(--rule)}
+section > .lbl{display:block;margin-bottom:10px}
+section > h2{font-size:clamp(26px,4.4vw,42px);line-height:1.06;margin-bottom:12px}
+.note{font-size:14px;color:var(--ink-3);max-width:68ch;margin:0 0 22px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:760px){.g3,.g4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:430px){.g2,.g3,.g4{grid-template-columns:minmax(0,1fr)}}
+
+.card{background:var(--surface);border-radius:var(--r-edge);padding:16px;
+  box-shadow:inset 0 0 0 var(--hair) var(--rule);min-width:0}
+.card h4{font-size:16px;margin-bottom:6px}
+.card p{font-size:13.5px;margin:0}
+
+/* ═══ 3 · COLOUR SPECIMENS ═══════════════════════════════════════════════ */
+.swatch{border-radius:var(--r-edge);overflow:hidden;
+  box-shadow:inset 0 0 0 var(--hair) var(--rule)}
+.swatch .chipfill{height:76px;display:grid;place-items:center;
+  font-family:"Spline Sans Mono";font-size:11px;letter-spacing:.1em}
+.swatch .meta{padding:11px 13px;background:var(--surface)}
+.swatch b{display:block;font-family:"Bai Jamjuree";font-weight:600;font-size:13.5px}
+.swatch small{display:block;font-family:"Spline Sans Mono";font-size:10.5px;
+  color:var(--ink-3);margin-top:3px;letter-spacing:.04em}
+.ratio{display:inline-block;margin-top:7px;font-family:"Spline Sans Mono";font-size:10px;
+  letter-spacing:.08em;padding:4px 7px;border-radius:var(--r-edge);
+  background:color-mix(in srgb,var(--live) 20%,transparent);
+  box-shadow:inset 0 0 0 var(--hair) color-mix(in srgb,var(--live) 55%,transparent);
+  color:var(--ink)}
+
+/* ═══ 4 · TYPE SPECIMENS ═════════════════════════════════════════════════ */
+.spec{padding:20px 0;border-bottom:var(--hair) dashed var(--rule);
+  display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:18px;align-items:baseline}
+@media (max-width:640px){.spec{grid-template-columns:minmax(0,1fr);gap:6px}}
+.spec .val{font-family:"Spline Sans Mono";font-size:11px;color:var(--ink-3);
+  letter-spacing:.06em;text-align:right}
+@media (max-width:640px){.spec .val{text-align:left}}
+.s-hero{font-family:"Bai Jamjuree";font-weight:700;font-size:clamp(46px,11vw,116px);
+  line-height:.9;letter-spacing:-.03em}
+.s-h1{font-family:"Bai Jamjuree";font-weight:700;font-size:clamp(34px,6.4vw,64px);line-height:.97}
+.s-h2{font-family:"Bai Jamjuree";font-weight:700;font-size:clamp(26px,4.2vw,42px);line-height:1.05}
+.s-h3{font-family:"Bai Jamjuree";font-weight:600;font-size:24px;line-height:1.25}
+.s-body{font-size:16px;line-height:1.7;color:var(--ink)}
+.s-small{font-size:13px;line-height:1.55;color:var(--ink-2)}
+.aa{font-family:"Bai Jamjuree";font-weight:700;font-size:64px;line-height:1;
+  letter-spacing:-.02em;word-break:break-all}
+.aa.body{font-family:"Familjen Grotesk";font-weight:500}
+.aa.mono{font-family:"Spline Sans Mono";font-weight:400;font-size:40px;letter-spacing:0}
+
+/* ═══ 5 · SHAPE ══════════════════════════════════════════════════════════ */
+.shapes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+@media (max-width:640px){.shapes{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.shapes > div{text-align:center}
+.sq{height:86px;background:var(--surface-2);
+  box-shadow:inset 0 0 0 var(--edgew) var(--edge);display:grid;place-items:center;
+  font-family:"Spline Sans Mono";font-size:11px;color:var(--ink-2);margin-bottom:8px}
+.sq.a{border-radius:var(--r-edge)}
+.sq.b{border-radius:var(--r-badge);width:86px;margin-inline:auto}
+.sq.c{border-radius:var(--r-pill);height:44px;margin-top:21px;margin-bottom:29px}
+.sq.no{border-radius:16px;opacity:.42;position:relative}
+.sq.no:after{content:"";position:absolute;inset:0;
+  background:linear-gradient(to top right,transparent calc(50% - 1px),
+    var(--accent-text) calc(50% - 1px) calc(50% + 1px),transparent calc(50% + 1px))}
+
+/* ═══ 6 · ELEMENTS ═══════════════════════════════════════════════════════ */
+.btn{display:inline-flex;align-items:center;gap:8px;font:600 14px/1 "Familjen Grotesk";
+  padding:14px 20px;border:0;border-radius:var(--r-edge);cursor:pointer;
+  background:var(--accent);color:var(--on-accent);
+  transition:background var(--t-hover) var(--ease-out),transform var(--t-hover) var(--ease-out)}
+.btn:hover{background:color-mix(in srgb,var(--accent) 86%,#000)}
+.btn:active{background:color-mix(in srgb,var(--accent) 72%,#000);transform:translateY(1px)}
+.btn:focus-visible{outline:3px solid var(--accent-text);outline-offset:3px}
+.btn[disabled]{opacity:.42;cursor:not-allowed}
+.btn.two{background:transparent;color:var(--ink);
+  box-shadow:inset 0 0 0 var(--edgew) var(--edge)}
+.btn.two:hover{background:var(--surface-2)}
+.row-el{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+
+.field{display:block}
+.field .lbl{display:block;margin-bottom:7px}
+.field input{width:100%;font:400 15px/1 "Familjen Grotesk";padding:14px 14px;
+  border-radius:var(--r-edge);background:var(--surface);color:var(--ink);
+  border:var(--edgew) solid var(--edge);
+  transition:border-color var(--t-hover) var(--ease-out)}
+.field input:focus{outline:0;border-color:var(--accent-text);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--accent-text) 26%,transparent)}
+.field input[aria-invalid="true"]{border-color:#E5484D}
+
+.chip{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;
+  border-radius:var(--r-pill);font-family:"Spline Sans Mono";font-size:11px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);
+  box-shadow:inset 0 0 0 var(--hair) var(--edge)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--live);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--live) 26%,transparent)}
+.badge{width:56px;height:56px;border-radius:var(--r-badge);display:grid;place-items:center;
+  background:color-mix(in srgb,var(--accent) 22%,transparent);
+  box-shadow:inset 0 0 0 var(--hair) color-mix(in srgb,var(--accent) 52%,transparent)}
+.badge svg{width:26px;height:26px;stroke:var(--accent-text);fill:none;stroke-width:1.7}
+
+.ticks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 18px;
+  font-size:14px;color:var(--ink-2);margin:0;padding:0;list-style:none}
+@media (max-width:520px){.ticks{grid-template-columns:minmax(0,1fr)}}
+.ticks li{position:relative;padding-left:22px;min-width:0}
+.ticks li:before{content:"";position:absolute;left:2px;top:.62em;width:9px;height:5px;
+  border-left:2px solid var(--accent-text);border-bottom:2px solid var(--accent-text);
+  transform:rotate(-45deg)}
+
+.price{display:grid;grid-template-columns:minmax(0,1fr) repeat(3,84px);gap:10px;
+  align-items:center;padding:15px 16px;border-radius:var(--r-edge);
+  background:var(--surface);box-shadow:inset 0 0 0 var(--hair) var(--rule)}
+@media (max-width:600px){.price{grid-template-columns:minmax(0,1fr) repeat(3,1fr)}}
+.price b{font-family:"Bai Jamjuree";font-weight:600;font-size:15px}
+.price i{font-style:normal;font-family:"Bai Jamjuree";font-weight:700;font-size:17px;
+  text-align:right;display:block}
+.price .hd{font-family:"Spline Sans Mono";font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-3);text-align:right}
+
+/* the slanted seam — the page's signature, shown as a specimen */
+.seam{position:relative;height:220px;border-radius:var(--r-edge);overflow:hidden;
+  background:var(--surface-2)}
+.seam img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.seam .panel{position:absolute;left:-6%;right:34%;top:-14%;bottom:-14%;
+  background:var(--band);transform:rotate(var(--slant));
+  box-shadow:var(--shadow)}
+.seam .panel span{position:absolute;left:16%;top:50%;
+  transform:translateY(-50%) rotate(calc(var(--slant) * -1));
+  font-family:"Bai Jamjuree";font-weight:700;font-size:20px;color:var(--band-ink)}
+.seam .tag{position:absolute;right:12px;bottom:12px;z-index:3;
+  font-family:"Spline Sans Mono";font-size:10px;letter-spacing:.1em;
+  padding:6px 9px;border-radius:var(--r-edge);color:#fff;
+  background:rgba(12,15,20,.62);backdrop-filter:blur(8px)}
+
+/* ═══ 7 · THE POINTER LIGHT ══════════════════════════════════════════════ */
+.lit{position:relative;isolation:isolate}
+.lit:before,.lit:after{content:"";position:absolute;inset:0;border-radius:inherit;
+  pointer-events:none;opacity:0;transition:opacity 420ms var(--ramp)}
+.lit:before{z-index:0;background:radial-gradient(200px circle at var(--mx,50%) var(--my,50%),
+  color-mix(in srgb,var(--ink) 13%,transparent),transparent 62%)}
+.lit:after{z-index:1;padding:1px;
+  background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),
+  color-mix(in srgb,var(--accent-text) 78%,transparent),transparent 60%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask-composite:exclude}
+.lit.on:before{opacity:1}
+.lit.on:after{opacity:.92}
+.lit > *{position:relative;z-index:2}
+@media (hover:none){.lit:before,.lit:after{display:none}}
+
+/* ═══ 8 · REVEALS ════════════════════════════════════════════════════════
+   The hidden state is added by SCRIPT, never here: a page whose script fails
+   must still be readable rather than blank. The marker is namespaced (`rv-`)
+   because a bare class like `.in` meets other people's markup. */
+.rv-hidden{opacity:0;transform:translateY(22px) scale(.995);
+  transition:opacity 320ms var(--ramp),transform 320ms var(--ramp)}
+.rv-in{opacity:1;transform:none;
+  transition:opacity var(--t-arrive) var(--ramp),transform var(--t-arrive) var(--ramp)}
+
+/* ═══ 9 · MOTION SPECIMENS — each one RUNS ═══════════════════════════════ */
+.demo{border-radius:var(--r-edge);background:var(--surface);
+  box-shadow:inset 0 0 0 var(--hair) var(--rule);padding:16px;min-width:0}
+.demo h4{font-size:15px;margin-bottom:4px}
+.demo .num{font-family:"Spline Sans Mono";font-size:10.5px;letter-spacing:.06em;
+  color:var(--ink-3);display:block;margin-bottom:14px}
+.stage{height:112px;border-radius:var(--r-edge);background:var(--surface-2);
+  display:grid;place-items:center;position:relative;overflow:hidden;margin-bottom:12px}
+.blk{width:46px;height:46px;border-radius:var(--r-edge);background:var(--accent)}
+.blk.sm{width:30px;height:30px}
+.trio{display:flex;gap:8px}
+.replay{font:500 12px/1 "Familjen Grotesk";padding:9px 12px;cursor:pointer;border:0;
+  border-radius:var(--r-edge);background:var(--surface-2);color:var(--ink-2);
+  box-shadow:inset 0 0 0 var(--hair) var(--edge)}
+.replay:hover{color:var(--ink)}
+
+@keyframes d-arrive{from{opacity:0;transform:translateY(22px) scale(.995)}to{opacity:1;transform:none}}
+@keyframes d-exit{from{opacity:1;transform:none}to{opacity:0;transform:translateY(-10px)}}
+@keyframes d-swap{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.run-arrive{animation:d-arrive var(--t-arrive) var(--ramp) both}
+.run-exit{animation:d-exit var(--t-exit) var(--ease-out) both}
+.run-swap > *{animation:d-swap var(--t-arrive) var(--ramp) both}
+.run-swap > *:nth-child(2){animation-delay:55ms}
+.run-swap > *:nth-child(3){animation-delay:110ms}
+.run-stag > *{animation:d-arrive var(--t-arrive) var(--ramp) both}
+.run-stag > *:nth-child(2){animation-delay:var(--stagger)}
+.run-stag > *:nth-child(3){animation-delay:calc(var(--stagger) * 2)}
+
+/* the FAQ answer — 0fr to 1fr, so a real height animates without measuring one */
+.q{border-radius:var(--r-edge);background:var(--surface-2);overflow:hidden;
+  box-shadow:inset 0 0 0 var(--hair) var(--rule)}
+.q summary{cursor:pointer;list-style:none;padding:14px 16px;font-weight:600;font-size:14.5px;
+  display:flex;justify-content:space-between;gap:12px}
+.q summary::-webkit-details-marker{display:none}
+.q summary:after{content:"+";font-family:"Bai Jamjuree";font-size:19px;line-height:1;
+  color:var(--accent-text);flex:none;transition:transform var(--t-hover) var(--ease-out)}
+.q.is-open summary:after{transform:rotate(45deg)}
+.q .a{display:grid;grid-template-rows:0fr;opacity:0;
+  transition:grid-template-rows var(--t-answer) var(--ramp),opacity 300ms var(--ramp)}
+.q .a > div{overflow:hidden;min-height:0;transform:translateY(-6px);
+  transition:transform var(--t-answer) var(--ramp)}
+.q.is-open .a{grid-template-rows:1fr;opacity:1}
+.q.is-open .a > div{transform:none}
+.q p{padding:0 16px 14px;margin:0;font-size:13.5px}
+
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tabs button{font:500 13px/1 "Familjen Grotesk";padding:10px 14px;cursor:pointer;border:0;
+  border-radius:var(--r-edge);background:transparent;color:var(--ink-2);
+  transition:background var(--t-hover) var(--ease-out),color var(--t-hover) var(--ease-out)}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--on-accent)}
+.panel[hidden]{display:none}   /* display:grid outranks [hidden] — say it */
+.panel{display:grid;gap:8px}
+
+/* ═══ 10 · THE SIGNATURE — the routed line, on the bias, drawn by scroll ══ */
+.sig{position:relative;padding:clamp(30px,5vw,54px) 0}
+.route{position:relative;height:clamp(300px,42vw,380px);border-radius:var(--r-edge);
+  overflow:hidden;background:var(--surface);
+  box-shadow:inset 0 0 0 var(--hair) var(--rule)}
+.route svg{position:absolute;inset:0;width:100%;height:100%}
+.route .base{stroke:color-mix(in srgb,var(--accent) 22%,transparent);
+  stroke-width:2;fill:none}
+.route .draw{stroke:var(--accent-text);stroke-width:2.4;fill:none;
+  stroke-dasharray:var(--len);stroke-dashoffset:calc(var(--len) * (1 - var(--p,0)))}
+.stops{position:absolute;inset:0}
+.stop{position:absolute;transform:translate(-50%,-50%);text-align:center;width:130px}
+.stop:last-child{transform:translate(-78%,-50%)}
+.stop .knot{width:15px;height:15px;border-radius:var(--r-badge);margin:0 auto 18px;
+  background:var(--surface);
+  box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent) 40%,transparent);
+  transition:background 220ms var(--ramp),box-shadow 220ms var(--ramp),transform 220ms var(--ramp)}
+.stop.on .knot{background:var(--accent);transform:scale(1.28);
+  box-shadow:inset 0 0 0 2px var(--accent),0 0 0 6px color-mix(in srgb,var(--accent) 22%,transparent)}
+.stop b{display:block;font-family:"Bai Jamjuree";font-weight:600;font-size:14px;
+  opacity:calc(.4 + var(--in,0) * .6);
+  transform:translateY(calc((1 - var(--in,0)) * 8px))}
+.stop small{display:block;font-family:"Spline Sans Mono";font-size:9.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-3);margin-top:3px;
+  opacity:calc(var(--in,0) * .9);
+  transform:translateY(calc((1 - var(--in,0)) * 8px))}
+@media (max-width:700px){
+  .route{height:auto;padding:22px 0}
+  .route svg{display:none}
+  .stops{position:static}
+  .stop{position:static;transform:none;text-align:left;display:grid;
+    grid-template-columns:15px minmax(0,1fr);gap:14px;align-items:start;
+    padding:14px 16px;border-left:2px solid color-mix(in srgb,var(--accent) 22%,transparent)}
+  .stop .knot{margin:5px 0 0}
+}
+
+/* the two-layer parallax, shown live */
+.plx{position:relative;height:clamp(240px,40vw,340px);border-radius:var(--r-edge);
+  overflow:hidden;background:var(--surface-2)}
+.plx img{position:absolute;left:0;top:-14%;width:100%;height:128%;object-fit:cover;
+  transform:translate3d(0,var(--par,0px),0) scale(1.06)}
+.plx .over{position:absolute;left:6%;right:6%;top:50%;
+  transform:translate3d(0,calc(-50% + var(--par,0px)),0);
+  background:var(--band);color:var(--band-ink);border-radius:var(--r-edge);
+  padding:16px 18px;box-shadow:var(--shadow)}
+.plx .over b{font-family:"Bai Jamjuree";font-weight:700;font-size:17px}
+.plx .over span{display:block;font-family:"Spline Sans Mono";font-size:10px;
+  letter-spacing:.1em;text-transform:uppercase;margin-top:5px;opacity:.7}
+
+/* ═══ 11 · REDUCED MOTION — ONE implementation, and it is this one ═══════ */
+@media (prefers-reduced-motion:reduce){
+  .rv-hidden{opacity:1;transform:none;transition:none}
+  .rv-in{transition:none}
+  .q .a{transition:none}
+  .run-arrive,.run-exit,.run-swap > *,.run-stag > *{animation:none}
+  .route .draw{stroke-dashoffset:0}
+  .plx img,.plx .over{transform:none}
+  .lit:before,.lit:after{transition:none}
+}
+
+.foot{padding:40px 0 0;border-top:var(--hair) solid var(--rule);
+  font-size:13px;color:var(--ink-3)}
+</style>
+</head>
+<body>
+<div class="sky"></div>
+
+<div class="paint" role="group" aria-label="Colourway">
+  <button data-paint="b" aria-pressed="true">B graphite</button>
+  <button data-paint="c" aria-pressed="false">C paper</button>
+</div>
+
+<main>
+
+<!-- ═══ MASTHEAD ═══════════════════════════════════════════════════════ -->
+<header class="top">
+  <span class="lbl">Site 4 · design sheet · not a page</span>
+  <h1>Kinzie Mobile<br>Detailing — the <em>rules</em>.</h1>
+  <p>Everything a page for this business is built from: the faces at real sizes,
+     the colours with their measured contrast, the corner family, every element
+     in every state, every animation running rather than described, and the one
+     scroll effect taken from the references. Drag from here.</p>
+  <div class="pair">
+    <span>PAIR · chicagoautopros.com × auxia.io</span>
+    <span>BOTH MEASURED LIVE 2026-09-09</span>
+    <span>TWO COLOURWAYS, ONE SKELETON</span>
+  </div>
+</header>
+
+<!-- ═══ WHAT THE PAIR RESOLVED ═════════════════════════════════════════ -->
+<section data-rv="0">
+  <span class="lbl">01 — where this comes from</span>
+  <h2>The two references disagree. That is the point.</h2>
+  <p class="note">Neither was described from memory. Both were opened and their
+    computed styles read, because every feel this project guessed at was
+    rejected and every one it measured was kept.</p>
+  <div class="grid g3">
+    <div class="card lit"><h4>Chicago Auto Pros</h4>
+      <p>Square: 11 elements at 1px, and the only round thing on the page is a
+         50% icon badge, twenty of them. Heavy: headline 60px/700, and the
+         <em>body</em> is 15px/600. Royal blue, 31 uses. Every seam a diagonal.</p></div>
+    <div class="card lit"><h4>auxia.io</h4>
+      <p>Round: pills, 16px panels, 12 and 8 inside them. One weight — 500,
+         everywhere, from 13px to 96px. Bone ground. Electric blue: 7 solid
+         uses and 36 at 20% alpha, which is all the line-work.</p></div>
+    <div class="card lit"><h4>The resolution</h4>
+      <p>Chicago's corners, weight and density; auxia's ground, line-work and
+         technical labels. Their one real conflict — diagonal seams against
+         right-angle routing — is settled by running the schematic
+         <em>on the bias</em>, so both are one gesture at two scales.</p></div>
+  </div>
+</section>
+
+<!-- ═══ COLOUR ═════════════════════════════════════════════════════════ -->
+<section data-rv="0">
+  <span class="lbl">02 — colour</span>
+  <h2>Two paints, one skeleton.</h2>
+  <p class="note">Switch them bottom-right. Every ratio below was computed off
+    this rendered page with the glyphs painted out — not from the token table,
+    which was wrong three times out of thirty-nine when it was tried that way.</p>
+
+  <div class="grid g4" style="margin-bottom:14px">
+    <div class="swatch"><div class="chipfill" style="background:var(--ground);color:var(--ink)">GROUND</div>
+      <div class="meta"><b>Ground</b><small id="v-ground">—</small><span class="ratio">the page</span></div></div>
+    <div class="swatch"><div class="chipfill" style="background:var(--surface-2);color:var(--ink)">SURFACE</div>
+      <div class="meta"><b>Surface</b><small id="v-surface">—</small><span class="ratio" id="r-surface">—</span></div></div>
+    <div class="swatch"><div class="chipfill" style="background:var(--accent);color:var(--on-accent)">ACCENT · FILL</div>
+      <div class="meta"><b>Accent, as a fill</b><small>#0B4FFF</small><span class="ratio" id="r-accent">—</span></div></div>
+    <div class="swatch"><div class="chipfill" style="background:var(--ground);color:var(--accent-text)">ACCENT · TEXT</div>
+      <div class="meta"><b>Accent, as text</b><small id="v-acctext">—</small><span class="ratio" id="r-acctext">—</span></div></div>
+  </div>
+
+  <div class="grid g4">
+    <div class="swatch"><div class="chipfill" style="background:var(--ground);color:var(--ink)">Aa</div>
+      <div class="meta"><b>Ink</b><small id="v-ink">—</small><span class="ratio" id="r-ink">—</span></div></div>
+    <div class="swatch"><div class="chipfill" style="background:var(--ground);color:var(--ink-2)">Aa</div>
+      <div class="meta"><b>Ink 2 — body</b><small id="v-ink2">—</small><span class="ratio" id="r-ink2">—</span></div></div>
+    <div class="swatch"><div class="chipfill" style="background:var(--ground);color:var(--ink-3)">Aa</div>
+      <div class="meta"><b>Ink 3 — labels</b><small id="v-ink3">—</small><span class="ratio" id="r-ink3">—</span></div></div>
+    <div class="swatch"><div class="chipfill" style="background:var(--band);color:var(--band-ink)">BAND</div>
+      <div class="meta"><b>The opposite band</b><small id="v-band">—</small><span class="ratio" id="r-band">—</span></div></div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h4>An accent used as a fill and an accent used as text are two tokens.</h4>
+    <p>Found by measuring, on this sheet. <code>#0B4FFF</code> carries white at
+      5.87:1 as a button, and is 2.81:1 as a headline word on graphite. The
+      lighter <code>#5C8BFF</code> is the reverse — 5.19:1 as text, 3.19:1 under
+      white as a fill. One token cannot be both, so there are two.</p>
+  </div>
+</section>
+
+<!-- ═══ TYPE ═══════════════════════════════════════════════════════════ -->
+<section data-rv="0">
+  <span class="lbl">03 — type</span>
+  <h2>Three faces, and each has one job.</h2>
+  <p class="note">Bai Jamjuree is Chicago's own face, read off the live page —
+    he asked for its text as well as its look. Familjen Grotesk carries every
+    sentence at one weight, which is auxia's discipline. Spline Sans Mono is
+    labels only.</p>
+
+  <div class="grid g3" style="margin-bottom:8px">
+    <div class="card"><div class="aa">Aa</div><h4 style="margin-top:8px">Bai Jamjuree</h4>
+      <p>600, 700. Headlines, prices, numbers. Squared bowls, flat terminals.</p></div>
+    <div class="card"><div class="aa body">Aa</div><h4 style="margin-top:8px">Familjen Grotesk</h4>
+      <p>400, 500. Every sentence. Never a headline.</p></div>
+    <div class="card"><div class="aa mono">Aa</div><h4 style="margin-top:8px">Spline Sans Mono</h4>
+      <p>400. Labels, prices' column heads, availability. Never a paragraph.</p></div>
+  </div>
+
+  <div class="spec"><div class="s-hero">Detailing</div>
+    <div class="val">hero · 116 / 104 · 700<br>392px: 44 / 42</div></div>
+  <div class="spec"><div class="s-h1">Detailing packages</div>
+    <div class="val">h1 · 64 / 62 · 700</div></div>
+  <div class="spec"><div class="s-h2">Service area</div>
+    <div class="val">h2 · 42 / 44 · 700</div></div>
+  <div class="spec"><div class="s-h3">Full Maintenance Detail</div>
+    <div class="val">h3 · 24 / 30 · 600</div></div>
+  <div class="spec"><div class="s-body">Two-bucket hand wash, paint decontamination,
+    clay bar, one-step polish, silica spray sealant. Hot water extraction of
+    carpets and cloth seats.</div>
+    <div class="val">body · 16 / 27 · 400<br>68ch maximum</div></div>
+  <div class="spec"><div class="s-small">Prices start here and depend on vehicle
+    size and condition at inspection.</div>
+    <div class="val">small · 13 / 20 · 400</div></div>
+  <div class="spec"><div class="lbl">Next opening · Thu 11 Sep</div>
+    <div class="val">label · 11 / 12 · mono<br>tracking .14em, upper</div></div>
+</section>
+
+<!-- ═══ SHAPE ══════════════════════════════════════════════════════════ -->
+<section data-rv="0">
+  <span class="lbl">04 — shape</span>
+  <h2>Sharp. One badge is round. One control is a pill.</h2>
+  <p class="note">This is the single biggest thing separating site 4 from site 3,
+    which is built on 24 / 16 / 12 / 8. Two sites sharing a corner family read
+    as one studio, whatever else changes.</p>
+  <div class="shapes">
+    <div><div class="sq a">2px</div><span class="lbl">buttons · cards · inputs<br>panels · tabs · everything</span></div>
+    <div><div class="sq b">50%</div><span class="lbl">the icon badge<br>and nothing else</span></div>
+    <div><div class="sq c">999px</div><span class="lbl">one control on the page:<br>the availability chip</span></div>
+    <div><div class="sq no">16px</div><span class="lbl">never. a mid radius is<br>site 3's language</span></div>
+  </div>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card"><h4>Two border widths, and they are different things</h4>
+      <p>A decorative hairline is <code>1px</code> at low alpha. The edge of
+        something you type in or press is <code>1.5px</code> and must clear
+        3:1 — a control whose edge you cannot see is not a control.</p></div>
+    <div class="card"><h4>Depth is the slant and the overlap</h4>
+      <p>One shadow exists, and only on a panel that overlaps a photograph.
+        Everywhere else the page gets its depth from the diagonal seam and from
+        things sitting on top of other things.</p></div>
+  </div>
+</section>
+
+<!-- ═══ THE SEAM ═══════════════════════════════════════════════════════ -->
+<section data-rv="0">
+  <span class="lbl">05 — the seam</span>
+  <h2>Every seam is a cut, at one angle.</h2>
+  <p class="note">Chicago's signature, measured: photograph and panel meet on a
+    slant and the side flips each row. One variable — <code>--slant</code> — and
+    it flattens to zero below 768px, because a diagonal seam across a 392px
+    column is a wedge of dead space rather than a gesture.</p>
+  <div class="seam">
+    <img src="https://images.unsplash.com/photo-1632605157148-6313421c504b?fm=jpg&w=1600&q=72"
+         alt="A clear protective film being lifted away from a blue painted panel">
+    <div class="panel"><span>Paint protection film</span></div>
+    <span class="tag">--slant: -4.2deg</span>
+  </div>
+</section>
+
+<!-- ═══ ELEMENTS ═══════════════════════════════════════════════════════ -->
+<section data-rv="0">
+  <span class="lbl">06 — elements</span>
+  <h2>Every part, in every state.</h2>
+  <p class="note">Hover them, tab to them. One primary button per screenful, and
+    a button is never a link.</p>
+
+  <div class="grid g2">
+    <div class="card"><h4>Buttons</h4>
+      <div class="row-el" style="margin-top:12px">
+        <button class="btn">Book a detail</button>
+        <button class="btn two">See prices</button>
+        <button class="btn" disabled>Fully booked</button>
+      </div>
+      <p style="margin-top:12px">default · hover · active · focus-visible (tab to
+        it) · disabled. Label is a verb plus a noun, never “Submit”.</p></div>
+
+    <div class="card"><h4>Field</h4>
+      <div style="margin-top:12px;display:grid;gap:10px">
+        <label class="field"><span class="lbl">Vehicle</span>
+          <input placeholder="2019 Audi A4"></label>
+        <label class="field"><span class="lbl">Postcode</span>
+          <input value="6014" aria-invalid="true"></label>
+      </div></div>
+
+    <div class="card"><h4>Availability chip and icon badge</h4>
+      <div class="row-el" style="margin-top:14px">
+        <span class="chip"><i class="dot"></i>Next opening Thu 11 Sep</span>
+        <span class="badge"><svg viewBox="0 0 24 24"><path d="M3 13l2-5a2 2 0 012-1.4h10A2 2 0 0119 8l2 5v5h-3M3 18v-5m0 5h3m12 0H6"/><circle cx="7.5" cy="17.5" r="1.8"/><circle cx="16.5" cy="17.5" r="1.8"/></svg></span>
+        <span class="badge"><svg viewBox="0 0 24 24"><path d="M12 3l7 3.5v5c0 4.2-2.9 7.9-7 9-4.1-1.1-7-4.8-7-9v-5z"/><path d="M9 12l2 2 4-4"/></svg></span>
+      </div>
+      <p style="margin-top:14px">The chip is the only pill. The badge is the only
+        circle. Both are load-bearing precisely because they are the exceptions.</p></div>
+
+    <div class="card"><h4>Two-column tick list</h4>
+      <ul class="ticks" style="margin-top:12px">
+        <li>Two-bucket hand wash</li><li>Paint decontamination</li>
+        <li>Clay bar treatment</li><li>One-step polish</li>
+        <li>Silica spray sealant</li><li>Hot water extraction</li>
+      </ul>
+      <p style="margin-top:12px">One column below 520px. Never a bullet.</p></div>
+  </div>
+
+  <div style="margin-top:14px">
+    <div class="price" style="background:transparent;box-shadow:none;padding-bottom:4px">
+      <b class="lbl" style="letter-spacing:.14em">Package</b>
+      <span class="hd">Cars</span><span class="hd">Midsize</span><span class="hd">Over-size</span>
+    </div>
+    <div style="display:grid;gap:8px">
+      <div class="price lit"><b>Full Enhancement Detail</b>
+        <i data-from="calculate-booking">$995</i><i data-from="calculate-booking">$1,195</i><i data-from="calculate-booking">$1,645</i></div>
+      <div class="price lit"><b>Full Maintenance Detail</b>
+        <i data-from="calculate-booking">$620</i><i data-from="calculate-booking">$845</i><i data-from="calculate-booking">$1,195</i></div>
+    </div>
+    <p style="margin-top:10px;font-size:13px;color:var(--ink-3)">Prices start here
+      and depend on vehicle size and condition at inspection. Every figure on the
+      built page carries <code>data-from</code> naming the endpoint that owns it —
+      a number printed is not a number charged.</p>
+  </div>
+</section>
+
+<!-- ═══ MOTION ═════════════════════════════════════════════════════════ -->
+<section data-rv="0">
+  <span class="lbl">07 — motion</span>
+  <h2>Every animation, running.</h2>
+  <p class="note">Press replay on any of them. The rule underneath all of it:
+    <strong>an animation that plays once is a bug</strong> — leaving the screen
+    in either direction re-arms it, so scrolling back up and down plays it again,
+    for ever.</p>
+
+  <div class="grid g3">
+    <div class="demo"><h4>Arrive</h4>
+      <span class="num">520ms · cubic-bezier(.16,1,.3,1) · 22px up</span>
+      <div class="stage"><div class="blk" data-anim="run-arrive"></div></div>
+      <button class="replay" data-replay>Replay</button></div>
+
+    <div class="demo"><h4>Leave</h4>
+      <span class="num">180ms · cubic-bezier(.4,.14,1,1) · 10px up</span>
+      <div class="stage"><div class="blk" data-anim="run-exit"></div></div>
+      <button class="replay" data-replay>Replay</button></div>
+
+    <div class="demo"><h4>Stagger — down a page, never across a row</h4>
+      <span class="num">60ms apart · a row arrives together</span>
+      <div class="stage"><div class="trio" data-anim="run-stag">
+        <div class="blk sm"></div><div class="blk sm"></div><div class="blk sm"></div></div></div>
+      <button class="replay" data-replay>Replay</button></div>
+
+    <div class="demo"><h4>Swap — the frame stays, the contents change</h4>
+      <span class="num">520ms · 55ms apart · capped at 160ms</span>
+      <div class="stage"><div class="trio" data-anim="run-swap">
+        <div class="blk sm"></div><div class="blk sm"></div><div class="blk sm"></div></div></div>
+      <button class="replay" data-replay>Replay</button></div>
+
+    <div class="demo"><h4>The answer ramps open</h4>
+      <span class="num">460ms · 0fr → 1fr, so a real height animates</span>
+      <details class="q" style="margin-bottom:12px"><summary>How often should a car be detailed?</summary>
+        <div class="a"><div><p>Twice a year for a car kept outside, once for a
+          garaged one. A maintenance wash between them keeps the coating
+          working.</p></div></div></details>
+      <p style="font-size:12.5px;margin:0">A transition cannot start from
+        <code>display:none</code>, so the element is held open and the state is a
+        class.</p></div>
+
+    <div class="demo"><h4>The pointer lights the content</h4>
+      <span class="num">420ms · a soft fill plus a brighter EDGE</span>
+      <div class="stage lit" style="cursor:crosshair"><span class="lbl">move over me</span></div>
+      <p style="font-size:12.5px;margin:0">One delegated listener writes two custom
+        properties on the surface under the cursor. Sixty surfaces, one listener.</p></div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h4>The weighted scroll — ported, not written</h4>
+    <p><code>WHEEL 1.22 · LERP 0.055</code>, lifted from our own landing page,
+      constants included. A version written from scratch used 0.115 with no wheel
+      multiplier and read as a lurch and a dead stop. It moves the real scroll
+      position rather than a wrapper, so sticky elements keep working; it is off
+      on touch, where a finger already gets it right; and the stylesheet cannot
+      carry <code>scroll-behavior: smooth</code>, because the browser would be
+      animating toward a target this moves every frame.</p>
+  </div>
+</section>
+
+<!-- ═══ THE SIGNATURE ══════════════════════════════════════════════════ -->
+<section class="sig" data-rv="0">
+  <span class="lbl">08 — the one taken from the references</span>
+  <h2>A line that draws itself as you scroll, on the bias.</h2>
+  <p class="note">auxia routes its page along a hairline that fills with the
+    scroll. Chicago cuts every seam on a diagonal. This is both: the same line,
+    running at the page's own angle, lighting each stage as it reaches it.
+    <strong>Scroll slowly through it</strong> — every part of the section is glued
+    to the scroll, and nothing in it plays on a timer.</p>
+
+  <div class="route" id="route">
+    <svg viewBox="0 0 1000 360" preserveAspectRatio="none" aria-hidden="true">
+      <path class="base" d="M30 288 L120 282 L310 268 L390 210 L580 196 L660 138 L850 124 L930 66 L990 62"/>
+      <path class="draw" d="M30 288 L120 282 L310 268 L390 210 L580 196 L660 138 L850 124 L930 66 L990 62"/>
+    </svg>
+    <div class="stops">
+      <div class="stop" style="left:12%;top:78.3%"><div class="knot"></div>
+        <b>Book</b><small>Pick a slot</small></div>
+      <div class="stop" style="left:39%;top:58.3%"><div class="knot"></div>
+        <b>We arrive</b><small>Two-hour window</small></div>
+      <div class="stop" style="left:66%;top:38.3%"><div class="knot"></div>
+        <b>The work</b><small>6 hrs to 1 day</small></div>
+      <div class="stop" style="left:93%;top:18.3%"><div class="knot"></div>
+        <b>Walk-round</b><small>Before you pay</small></div>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:20px">
+    <div>
+      <h4 style="font-size:17px;margin-bottom:8px">Two layers, travelling against each other</h4>
+      <p style="font-size:14px">The photograph sinks while the panel on it climbs.
+        The <em>sign</em> is the effect: same speed in the same direction is one
+        layer. And the limit is <strong>approached, never hit</strong> —
+        <code>off = cap × (1 − e<sup>−raw/cap</sup>)</code>, so a layer still moves
+        on the first pixel and never changes speed in a single frame. A hard clamp
+        makes it stop dead, and that is visible immediately.</p>
+    </div>
+    <div class="plx" id="plx">
+      <img data-par="0.30" data-par-cap="fit"
+           src="https://images.unsplash.com/photo-1670882011931-0d08b5ea3681?fm=jpg&w=1400&q=72"
+           alt="Three detailers working along the flank of a grey sports car">
+      <div class="over" data-par="-0.12" data-par-cap="46">
+        <b>Full Maintenance Detail</b><span>6+ hours · from $620</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ LAYOUT ═════════════════════════════════════════════════════════ -->
+<section data-rv="0">
+  <span class="lbl">09 — layout and spacing</span>
+  <h2>1080 wide, an 8px scale, and the phone is a re-layout.</h2>
+  <div class="grid g3">
+    <div class="card"><h4>Scale</h4>
+      <p><code>2 · 4 · 8 · 12 · 16 · 24 · 32 · 40 · 64 · 96</code>. Nothing between.</p></div>
+    <div class="card"><h4>Widths swept</h4>
+      <p>1920 · 1440 · 768 · 392 · 320. 392 is the real customer; 320 is the floor
+        the product promises.</p></div>
+    <div class="card"><h4>What changes on a phone</h4>
+      <p>The slant flattens to 0°. The routed line goes vertical down the left
+        gutter. A bottom dock appears. Rotating the phone changes nothing.</p></div>
+  </div>
+</section>
+
+<!-- ═══ THE RULES ══════════════════════════════════════════════════════ -->
+<section data-rv="0">
+  <span class="lbl">10 — the rules a builder cannot break</span>
+  <h2>Ten things, each one paid for.</h2>
+  <div class="grid g2">
+    <div class="card"><h4>1 · An animation that plays once is a bug</h4>
+      <p>Leaving the viewport in either direction re-arms the element.</p></div>
+    <div class="card"><h4>2 · Reveals come from the scroll, not an observer</h4>
+      <p>IntersectionObserver does not fire in some embedded browsers, and because
+        the hidden state is added by script, an observer that never fires is a
+        blank page.</p></div>
+    <div class="card"><h4>3 · Never take the wheel away</h4>
+      <p>Weight comes from what the page's own layers do. A lerped hijack was
+        built once and rejected on sight.</p></div>
+    <div class="card"><h4>4 · If one part of a section is scroll-linked, all of it is</h4>
+      <p>A line that fills with the scroll beside headings that fade on arrival is
+        the seam that reads as glitchy.</p></div>
+    <div class="card"><h4>5 · A row arrives together</h4>
+      <p>Stagger down a page, never across a row. A per-card delay on four cards
+        in one row is a queue, and a queue is what “delayed” means.</p></div>
+    <div class="card"><h4>6 · Every contrast figure is computed, then written</h4>
+      <p>Off the rendered page, sampling inside the fill with the glyphs painted
+        out. Never off the token table.</p></div>
+    <div class="card"><h4>7 · Every heading is a label</h4>
+      <p>If it would work as a band name it is wrong. No heading counts anything —
+        counts go stale the moment the section grows.</p></div>
+    <div class="card"><h4>8 · Delete any sentence that adds no fact</h4>
+      <p>And never sell the baseline: “we come to you” is the trade, not a reason
+        to book.</p></div>
+    <div class="card"><h4>9 · A photograph above the fold is a claim about the fold</h4>
+      <p>Measure it at 900px tall, not in the file.</p></div>
+    <div class="card"><h4>10 · Proof is a different shape on every site</h4>
+      <p>Rating / years / cars-done, in that order, is banned — it was recognised
+        across three sites at a glance.</p></div>
+  </div>
+</section>
+
+<p class="foot">Kinzie Mobile Detailing · site 4 design sheet · built 2026-09-09 ·
+  <code>docs/schemes/kinzie-styleguide.html</code>. The filled scheme is
+  <code>docs/schemes/kinzie-mobile-detailing-scheme.md</code>; the pair's
+  measurements are <code>docs/TASTE-NOTES.md</code> § 8.</p>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// The sheet runs the same motion system the built page will, so what he
+// presses here is what he gets there. Ported from x-ballantyne.html rather
+// than rewritten — the constants ARE the feel.
+// ═══════════════════════════════════════════════════════════════════════
+var STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// ── the paint ──────────────────────────────────────────────────────────
+(function () {
+  var q = new URLSearchParams(location.search).get("c");
+  if (q === "b" || q === "c") document.documentElement.setAttribute("data-c", q);
+  var btns = [].slice.call(document.querySelectorAll("[data-paint]"));
+  function sync() {
+    var c = document.documentElement.getAttribute("data-c");
+    btns.forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.paint === c)); });
+    readColours();
+  }
+  btns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.documentElement.setAttribute("data-c", b.dataset.paint); sync();
+    });
+  });
+  sync();
+})();
+
+// ── the swatch panel reads its own computed values and computes its own
+//    ratios, so a token edited in the stylesheet cannot leave a stale figure
+//    printed beside it. This is the check that caught three real failures.
+function readColours() {
+  var cs = getComputedStyle(document.documentElement);
+  var g = function (n) { return cs.getPropertyValue(n).trim(); };
+  var toRGB = function (v, over) {
+    var d = document.createElement("i"); d.style.color = v; document.body.appendChild(d);
+    var c = getComputedStyle(d).color; d.remove();
+    var n = c.match(/[\d.]+/g).map(Number);
+    var a = n.length > 3 ? n[3] : 1;
+    // A TOKEN WITH ALPHA IS NOT ITS OWN COLOUR. Reading the raw rgb reported
+    // 1.00:1 for the surface panel — a false pass, and the same class of fault
+    // as sampling a rounded corner.
+    if (a >= 1 || !over) return n.slice(0, 3);
+    return n.slice(0, 3).map(function (ch, i) { return ch * a + over[i] * (1 - a); });
+  };
+  var lin = function (c) { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+  var L = function (a) { return 0.2126 * lin(a[0]) + 0.7152 * lin(a[1]) + 0.0722 * lin(a[2]); };
+  var ratio = function (a, b) { var x = L(a), y = L(b); if (y > x) { var t = x; x = y; y = t; }
+    return ((x + 0.05) / (y + 0.05)); };
+  var ground = toRGB(g("--ground"));
+  var surface = toRGB(g("--surface-2"), ground);
+  var band = toRGB(g("--band"), ground);
+  var put = function (id, v) { var e = document.getElementById(id); if (e) e.textContent = v; };
+  var pair = function (id, tok, against) {
+    var r = ratio(toRGB(g(tok), against || ground), against || ground);
+    put(id, r.toFixed(2) + ":1");
+  };
+  put("v-ground", g("--ground").toUpperCase());
+  put("v-surface", g("--surface-2").toUpperCase());
+  put("v-ink", g("--ink").toUpperCase());
+  put("v-ink2", g("--ink-2").toUpperCase());
+  put("v-ink3", g("--ink-3").toUpperCase());
+  put("v-acctext", g("--accent-text").toUpperCase());
+  put("v-band", g("--band").toUpperCase() + " / " + g("--band-ink").toUpperCase());
+  pair("r-ink", "--ink"); pair("r-ink2", "--ink-2"); pair("r-ink3", "--ink-3");
+  pair("r-acctext", "--accent-text");
+  pair("r-surface", "--ink", surface);
+  pair("r-accent", "--on-accent", toRGB(g("--accent")));
+  pair("r-band", "--band-ink", band);
+}
+
+// ── reveals, and they REPLAY ───────────────────────────────────────────
+(function () {
+  if (STILL) return;
+  var els = [].slice.call(document.querySelectorAll("[data-rv]"));
+  els.forEach(function (el) { el.classList.add("rv-hidden"); });
+  var ticking = false;
+  function pass() {
+    ticking = false;
+    var h = innerHeight;
+    els.forEach(function (el) {
+      var r = el.getBoundingClientRect();
+      // anything that has entered AT ALL is on its way in — a 400px-deep row
+      // that waits for its top to clear 92% of the screen is already half
+      // visible before it starts, and that is exactly what "delayed" means
+      var seen = r.top < h * 0.995 && r.bottom > 0;
+      if (seen === !el.classList.contains("rv-hidden")) return;
+      if (el._t) clearTimeout(el._t);
+      if (seen) {
+        el._t = setTimeout(function () {
+          el.classList.remove("rv-hidden"); el.classList.add("rv-in");
+        }, (+(el.dataset.rv || 0)) * 60);
+      } else { el.classList.remove("rv-in"); el.classList.add("rv-hidden"); }
+    });
+  }
+  function tick() { if (!ticking) { ticking = true; requestAnimationFrame(pass); } }
+  addEventListener("scroll", tick, { passive: true });
+  addEventListener("resize", tick, { passive: true });
+  addEventListener("load", tick);
+  pass();
+})();
+
+// ── parallax: travel-based, capped, and the cap is APPROACHED ──────────
+(function () {
+  if (STILL) return;
+  var layers = [].slice.call(document.querySelectorAll("[data-par]"));
+  if (!layers.length) return;
+  function anchor() {
+    layers.forEach(function (el) {
+      var r = el.getBoundingClientRect();
+      el._from = Math.max(0, r.top + scrollY - innerHeight);
+    });
+  }
+  anchor();
+  var ticking = false;
+  function place() {
+    ticking = false;
+    layers.forEach(function (el) {
+      var f = parseFloat(el.dataset.par) || 0, cap;
+      if (el.dataset.parCap === "fit") {
+        var fr = el.parentElement.getBoundingClientRect();
+        cap = Math.max(0, (el.getBoundingClientRect().height - fr.height) / 2 - 2);
+      } else cap = parseFloat(el.dataset.parCap) || 120;
+      var travel = Math.max(0, scrollY - el._from);
+      var raw = travel * f;
+      var off = cap ? Math.sign(raw) * cap * (1 - Math.exp(-Math.abs(raw) / cap)) : 0;
+      el.style.setProperty("--par", off.toFixed(1) + "px");
+    });
+  }
+  function tick() { if (!ticking) { ticking = true; requestAnimationFrame(place); } }
+  addEventListener("scroll", tick, { passive: true });
+  addEventListener("resize", function () { anchor(); tick(); }, { passive: true });
+  place();
+})();
+
+// ── the routed line draws itself with the scroll ───────────────────────
+// Every part of this section shares ONE progress number. Nothing in it has a
+// transition or a timer, which is why it runs backwards on the way up without
+// anybody writing a second animation.
+(function () {
+  var box = document.getElementById("route");
+  if (!box) return;
+  var draw = box.querySelector(".draw");
+  var stops = [].slice.call(box.querySelectorAll(".stop"));
+  if (draw) {
+    var len = draw.getTotalLength ? draw.getTotalLength() : 2400;
+    draw.style.setProperty("--len", len.toFixed(1));
+  }
+  if (STILL) {
+    box.style.setProperty("--p", "1");
+    stops.forEach(function (s) { s.classList.add("on"); s.style.setProperty("--in", "1"); });
+    return;
+  }
+  var ticking = false;
+  function paint() {
+    ticking = false;
+    var r = box.getBoundingClientRect();
+    var p = (innerHeight * 0.80 - r.top) / (innerHeight * 0.50);
+    p = Math.max(0, Math.min(1, p));
+    box.style.setProperty("--p", p.toFixed(3));
+    stops.forEach(function (s, i) {
+      var start = (i / stops.length) * 0.78;
+      var local = Math.max(0, Math.min(1, (p - start) / 0.30));
+      s.style.setProperty("--in", local.toFixed(3));
+      s.classList.toggle("on", local > 0.55);
+    });
+  }
+  addEventListener("scroll", function () {
+    if (!ticking) { ticking = true; requestAnimationFrame(paint); }
+  }, { passive: true });
+  addEventListener("resize", paint, { passive: true });
+  paint();
+})();
+
+// ── the weighted scroll — WHEEL 1.22 / LERP 0.055, ported ──────────────
+(function () {
+  if (STILL) return;
+  if (!matchMedia("(pointer: fine)").matches) return;
+  if (new URLSearchParams(location.search).get("smooth") === "0") return;
+  var WHEEL = 1.22, LERP = 0.055;
+  var target = scrollY, cur = target, raf = 0;
+  var maxY = function () { return document.documentElement.scrollHeight - innerHeight; };
+  addEventListener("wheel", function (e) {
+    if (e.ctrlKey) return;
+    e.preventDefault();
+    var d = e.deltaY * (e.deltaMode === 1 ? 18 : 1) * WHEEL;
+    target = Math.max(0, Math.min(maxY(), target + d));
+    if (!raf) raf = requestAnimationFrame(step);
+  }, { passive: false });
+  function step() {
+    cur += (target - cur) * LERP;
+    if (Math.abs(target - cur) < 0.25) { cur = target; raf = 0; }
+    else raf = requestAnimationFrame(step);
+    scrollTo(0, cur);
+  }
+  addEventListener("scroll", function () { if (!raf) { cur = target = scrollY; } }, { passive: true });
+})();
+
+// ── the pointer light: ONE delegated listener ──────────────────────────
+(function () {
+  if (matchMedia("(hover: none)").matches) return;
+  var current = null;
+  addEventListener("pointermove", function (e) {
+    var el = e.target.closest ? e.target.closest(".lit") : null;
+    if (el !== current) {
+      if (current) current.classList.remove("on");
+      current = el;
+      if (current) current.classList.add("on");
+    }
+    if (!current) return;
+    var r = current.getBoundingClientRect();
+    current.style.setProperty("--mx", ((e.clientX - r.left) / r.width * 100).toFixed(1) + "%");
+    current.style.setProperty("--my", ((e.clientY - r.top) / r.height * 100).toFixed(1) + "%");
+  }, { passive: true });
+})();
+
+// ── the FAQ answer: held open, state is a class ────────────────────────
+(function () {
+  [].slice.call(document.querySelectorAll(".q")).forEach(function (d) {
+    var sum = d.querySelector("summary");
+    if (!sum) return;
+    var start = d.open;
+    d.open = true;
+    d.classList.toggle("is-open", start);
+    sum.setAttribute("aria-expanded", String(start));
+    sum.addEventListener("click", function (e) {
+      e.preventDefault();
+      var next = !d.classList.contains("is-open");
+      d.classList.toggle("is-open", next);
+      sum.setAttribute("aria-expanded", String(next));
+    });
+  });
+})();
+
+// ── the replay buttons on the motion specimens ─────────────────────────
+(function () {
+  [].slice.call(document.querySelectorAll("[data-replay]")).forEach(function (btn) {
+    var target = btn.closest(".demo").querySelector("[data-anim]");
+    if (!target) return;
+    var cls = target.dataset.anim;
+    function run() {
+      target.classList.remove(cls);
+      void target.offsetWidth;         // removing the class is what re-arms it
+      target.classList.add(cls);
+    }
+    btn.addEventListener("click", run);
+    run();
+  });
+})();
+</script>
+</body>
+</html>

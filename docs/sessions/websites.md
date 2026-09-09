@@ -1,11 +1,61 @@
 # Session A — websites, and nothing else
 
-## THE FIRST DELIVERABLE IS A FILLED DESIGN SCHEME, NOT A PAGE.
+## THE FIRST DELIVERABLE IS A RENDERED DESIGN SHEET. EVERY SESSION. NO EXCEPTIONS.
 
-Copy `docs/DESIGN-SCHEME-TEMPLATE.md` to `docs/schemes/<tenant>-scheme.md`,
-fill it from `docs/TASTE-NOTES.md` and `docs/DEVICE-INVENTORY.md`, and get
-Andrew's yes on §1, §2, §3 and §9. **No HTML exists before he says yes.**
-`docs/schemes/prime-mobile-detailing-scheme.md` is a filled example.
+**His instruction, 2026-09-09, and he asked for it to be permanent:** *"make
+sure it does this every time every session before making website."*
+
+**What he asked for, in his own words the same night:** *"it shouldn't just be
+like this thing where it's like approved the home page — it shouldn't even be
+like a preview of anything. It should be like, here's the font we're gonna use,
+an example of the font. Here's the colors that we're choosing, and here's
+example of the colors… here's the specific animation when you scroll and the
+specific animation on this part and whatnot… kind of how are we gonna have
+sharp corners, round corners, something between, kind of saying what elements
+we're gonna use inside of it. And then also one kind of cool feature that we
+take from our inspirations, like maybe a cool scroll effect that looks really
+good… basically it's like the template. You could take our design sheet and
+then drag and drop stuff to make the website, if that makes sense. Like that's
+kind of the rules on making the website, not just a preview of the home page."*
+
+**SO: `docs/schemes/<tenant>-styleguide.html` — a REAL PAGE THAT RUNS, before a
+line of the site exists.** `docs/schemes/kinzie-styleguide.html` is the worked
+example and the thing to copy. It carries, in this order:
+
+1. **Where the pair comes from**, with both references' MEASURED numbers.
+2. **Colour** — every token as a swatch, and **the page computes its own
+   contrast ratios and prints them beside each one**, so a token edited in the
+   stylesheet cannot leave a stale figure next to it. Every colourway, live,
+   on a switcher.
+3. **Type** — each face as a specimen, then the whole scale at real size with
+   its numbers beside it.
+4. **Shape** — the corner family demonstrated, including **the corner we are
+   NOT using, crossed out**, and the two border widths as different things.
+5. **The signature seam or gesture**, as a specimen.
+6. **Every element in every state** — buttons (default / hover / active /
+   focus-visible / disabled), fields, chips, badges, lists, the price row.
+7. **Every animation, RUNNING, with a replay button and its numbers.**
+8. **The one thing taken from the inspirations**, live and scroll-driven.
+9. **Layout and spacing.**
+10. **The rules a builder cannot break**, as a numbered list.
+
+**IT IS NOT A MOCK-UP OF A SECTION OF THE SITE.** Nothing in it is a preview.
+If a block could be lifted into the finished page as-is, it is in the wrong
+document — this is the parts bin, not the assembly.
+
+**THE MARKDOWN SCHEME STILL EXISTS AND IS STILL FILLED FIRST** — copy
+`docs/DESIGN-SCHEME-TEMPLATE.md` to `docs/schemes/<tenant>-scheme.md` from
+`docs/TASTE-NOTES.md` and `docs/DEVICE-INVENTORY.md`. **But it is the RECORD
+and the sheet is the ASK.** *"I want all visual, actually. Like, barely any
+text, all visual."* — 2026-09-08. He approves the sheet, not the file.
+
+**HOW HE SEES IT: publish the sheet as an ARTIFACT and send the link**, because
+it is a URL that opens on a phone and he can press the replay buttons, flip the
+colourway and feel the scroll. Screenshots are the fallback, in viewport-sized
+crops, never a stitched full-page PNG. **A page he can TRY beats a picture of
+one, and this is the first thing in this repo that has ever needed that.**
+
+**No HTML for the SITE exists before he says yes to the sheet.**
 
 **ONE direction, never three.** It is a **style guide**, never a design system.
 

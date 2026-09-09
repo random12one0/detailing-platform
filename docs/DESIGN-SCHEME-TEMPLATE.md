@@ -1,6 +1,19 @@
 # DESIGN SCHEME — <TENANT NAME>
 
-**Fill this in BEFORE any HTML exists. Andrew approves it. Then build.**
+**Fill this in BEFORE any HTML exists. Then build.**
+
+> **THIS FILE IS THE RECORD. IT IS NOT WHAT ANDREW APPROVES — 2026-09-09.**
+> He approves a **rendered design sheet**, `docs/schemes/<tenant>-styleguide.html`,
+> and he asked for that to be permanent: *"make sure it does this every time
+> every session before making website."* His description of it: *"here's the
+> font we're gonna use, an example of the font. Here's the colors that we're
+> choosing, and here's example of the colors… here's the specific animation
+> when you scroll… you could take our design sheet and then drag and drop stuff
+> to make the website. That's the rules on making the website, not just a
+> preview of the home page."*
+> **The worked example is `docs/schemes/kinzie-styleguide.html`.** Everything
+> below is what fills it, plus the arithmetic and the sources — which are worth
+> keeping and are not what he wants to look at.
 
 This is a **style tile**, not a design system. The distinction is real and matters:
 Nielsen Norman Group defines a design system as the parent thing — multi-product,

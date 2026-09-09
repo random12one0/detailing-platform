@@ -39,9 +39,23 @@ goes to a car owner and is about the car.**
    kind of detailer, light or dark, the one thing the page must make somebody
    feel, which two of his twenty-one it should sit near, what it must NOT be.
    **His refusals are worth more than his approvals.**
-2. **Fill in `docs/DESIGN-SCHEME-TEMPLATE.md` and stop for a yes.** The
-   filled copy is `docs/schemes/<tenant>-scheme.md` and it is **the first
-   deliverable of the session — no HTML exists until Andrew approves it.**
+2. **BUILD `docs/schemes/<tenant>-styleguide.html` AND STOP FOR A YES. EVERY
+   SESSION, BEFORE ANY SITE EXISTS — his standing instruction, 2026-09-09:**
+   *"make sure it does this every time every session before making website."*
+   A rendered sheet that RUNS: the faces as specimens, the colours as swatches
+   **with the ratios the page computes for itself**, the corner family
+   including the corner we are not using, every element in every state, every
+   animation with a replay button and its numbers, the one scroll effect taken
+   from the references, and the rules as a list. **Not a preview of any part of
+   the site** — *"you could take our design sheet and then drag and drop stuff
+   to make the website… that's the rules on making the website, not just a
+   preview of the home page."* `docs/schemes/kinzie-styleguide.html` is the
+   worked example. **Publish it as an Artifact and send him the link**, because
+   he can press it; screenshots are the fallback.
+   The filled copy of `docs/DESIGN-SCHEME-TEMPLATE.md` is
+   `docs/schemes/<tenant>-scheme.md`, it is still written first, and it is
+   **the record. The sheet is the ask.** No HTML for the SITE exists until
+   Andrew approves the sheet.
    - **HE APPROVES A PICTURE, NOT THE FILE — his ruling, 2026-09-08:** *"I want
      all visual, actually. Like, barely any text, all visual. Right now, you
      just gave me text."* Render the tile to **three 620x870 frames** and send
@@ -617,6 +631,42 @@ reading it.**
 90. **A ROW ARRIVES TOGETHER.** A per-card stagger on four cards in one row is
     a queue, and a queue is what "delayed" means. Stagger down a page, never
     across a row.
+
+### From site 4 — the design sheet becomes the gate, 2026-09-09
+91. **A RENDERED DESIGN SHEET IS THE FIRST DELIVERABLE OF EVERY WEBSITE
+    SESSION, FOR EVER — his standing instruction:** *"make sure it does this
+    every time every session before making website."* See § 1 step 2 and
+    `docs/sessions/websites.md`. The worked example is
+    `docs/schemes/kinzie-styleguide.html`.
+92. **NOTHING ON THE SHEET IS A PREVIEW OF THE SITE.** *"It shouldn't even be
+    like a preview of anything."* If a block could be lifted into the finished
+    page as-is it belongs in the page, not the sheet. The sheet is the parts
+    bin: faces, swatches, corners, states, animations, the one borrowed scroll
+    effect, the rules.
+93. **THE SHEET COMPUTES ITS OWN CONTRAST AND PRINTS IT BESIDE EACH SWATCH.**
+    A figure written by hand goes stale the first time a token moves, and this
+    repo has shipped that fault at least four times. Reading the computed value
+    out of the live page and printing it makes the stale case impossible.
+    **It immediately caught a figure this session had typed as 5.03:1 and
+    which is 5.87:1** — the fifth time a hand-typed ratio has been wrong here.
+94. **A TOKEN WITH ALPHA IS NOT ITS OWN COLOUR.** The sheet's first reader took
+    the raw rgb of `rgba(242,241,234,.10)` and reported **1.00:1** for the
+    surface panel, which is a FALSE PASS and the same class of fault as
+    sampling a rounded corner. Composite over what it sits on, then measure.
+95. **ANIMATIONS ARE SHOWN RUNNING, NEVER DESCRIBED.** *"Here's the specific
+    animation when you scroll and the specific animation on this part."* Each
+    one gets a stage, a replay button and its numbers. **A replay works by
+    removing the class, forcing a reflow, and adding it back** — an animation
+    that has already finished does not restart on its own.
+96. **THE SHEET IS AN ARTIFACT, NOT A SCREENSHOT.** It is the first thing in
+    this repo that he has to PRESS rather than look at, so it goes out as a URL
+    that opens on his phone. Screenshots stay right for *"does this look
+    correct"*; a link is the answer for *"try it"*.
+97. **A LABEL PLACED NEAR A DRAWN LINE IS NOT ON IT.** The routed diagram's four
+    stops were positioned by eye at percentages that looked about right and sat
+    visibly off the path. Place a stop on the PATH'S OWN VERTEX, converted from
+    the viewBox, and give the label real clearance — 9px put the text on top of
+    the stroke.
 
 ### Traps that cost a measurement here, and will again
 25. **`flex: 0 0 min(a,b)` is invalid** — a math function in the shorthand's

@@ -1910,3 +1910,65 @@ are DIAGONAL and auxia's routing is ORTHOGONAL. They cannot both be right on
 one page. **Resolved by running the schematic on the bias** — the routed line
 takes the page's own slant angle, so the connector diagram and the section
 seams are the same gesture at two scales.
+
+## 9 · HE CHANGED WHAT THE FIRST DELIVERABLE IS — 2026-09-09
+
+### His pick of the grounds, in one line
+
+> *"B and C are the best do both."*
+
+So site 4 ships **two colourways on one skeleton**: **B graphite**, **C paper**.
+Not three, and not a light/dark pair of the same idea — B's ground is a lit
+graphite and C's is warm white with a dark band cut into it, so each has the
+other as its band colour.
+
+### And then the thing that changes every future session
+
+> *"It shouldn't just be like this thing where it's like approved the home
+> page — it shouldn't even be like a preview of anything. It should be like,
+> here's the font we're gonna use, an example of the font. Here's the colors
+> that we're choosing, and here's example of the colors… here's the specific
+> animation when you scroll and the specific animation on this part and
+> whatnot. Um, it kind of certified, like, kind of how are we gonna have sharp
+> corners, round corners, something between, you know, kind of saying what
+> elements we're gonna use inside of it. And then also one, like, kind of cool
+> feature that we take from our inspirations, um, like, maybe a cool scroll
+> effect that looks really good or something like that. Um, and then as well,
+> it's just, like, a ton of design stuff… basically, it's, like, kind of, like,
+> the template. It's, like, you could take our design sheet and then, like,
+> drag and drop stuff to make the website, if that makes sense. Like, that's
+> kind of, like, the rules on making the website, not just a preview of the
+> home page."*
+
+Then, unprompted, the part that makes it permanent:
+
+> *"make sure it does this every time every session before making website"*
+
+**THIS IS A DIFFERENT ARTEFACT FROM ANYTHING THIS REPO HAS BUILT.** Every
+previous attempt showed him a hero — a picture of the top of a page — and asked
+whether it was right. He is asking for the **parts bin**: the faces, the
+swatches, the corner family, every element in every state, every animation
+running, one borrowed scroll effect, and the rules. **Nothing on it is a
+preview of the site**, and a block that could be lifted into the finished page
+as-is is in the wrong document.
+
+**Built the same night: `docs/schemes/kinzie-styleguide.html`**, and the gate is
+now written into `docs/sessions/websites.md` (top of file),
+`docs/tenant-site-playbook.md` § 1 step 2 and its rules 91–97, and the header of
+`docs/DESIGN-SCHEME-TEMPLATE.md`.
+
+**TWO THINGS THE SHEET CAUGHT IN ITS FIRST HOUR, both of which are why it is
+worth having:**
+
+1. **It computes its own contrast and prints it beside each swatch**, so a
+   figure cannot go stale when a token moves. It immediately contradicted a
+   ratio this session had typed by hand — 5.03:1 written, **5.87:1 measured** —
+   the fifth hand-typed ratio to be wrong in this repo.
+2. **A token with alpha is not its own colour.** The first reader took the raw
+   rgb of `rgba(242,241,234,.10)` and reported **1.00:1** for the surface panel:
+   a false pass, and the same class of fault as sampling a rounded corner.
+
+**AND IT IS THE FIRST THING HERE THAT HAS TO BE PRESSED RATHER THAN LOOKED AT**,
+so it goes out as an Artifact URL that opens on his phone — he can hit the
+replay buttons, flip the colourway and feel the weighted scroll. Screenshots
+stay right for *"does this look correct"*; a link is the answer for *"try it"*.
