@@ -237,3 +237,95 @@ through the same shape**, with nothing changing but the photograph and the
 price, and no persistent way to book.
 
 **That is the target. Not "avoid looking generic" — "do not be thin."**
+
+---
+
+## G · OUR OWN LANDING PAGE'S MECHANICS — added 2026-09-08, at his instruction
+
+**He reopened this source himself:** *"especially our detailingplatform.com
+landing page, I really like the look of our website, just how it flows and
+animations and whatnot… those cool kind of features that a normal website won't
+have, like the glow around your mouse."* (`TASTE-NOTES` § BATCH 3.)
+
+**THE MECHANICS CROSS OVER. THE SKIN NEVER DOES** — no Archivo, no JetBrains
+Mono, no `#0B0D0E`, no accent green, no section order. All eight are read out of
+`app/src/landing/thread.js`, which is **read-only to this session.** Reimplement
+them in the tenant page's own file; do not import from `app/src`.
+
+### G1 · The cursor glow on the ground
+A soft light following the pointer, **lerped at 0.09 so it lags slightly** —
+*"the small lag is the difference between a lit surface and a torch taped to the
+mouse."* One composited layer moved by transform. **The device he named by
+name.**
+**When NOT to:** on a phone (no cursor), or under `prefers-reduced-motion`. Both
+already guarded by `FINE && !LITE`.
+
+### G2 · The weighted scroll
+Wheel distance ×1.22 eased at 0.055 toward a banked target. **Thirty lines
+instead of a 3 KB library, and it moves the real scroll position** so
+`position: sticky` keeps working. `?smooth=0` turns it off.
+**When NOT to:** touch devices — a finger scroll is the thing phones get right.
+
+### G3 · `data-glow` — the pointer hotspot on a card
+Card tracks `--mx`/`--my` and lights under the cursor. Cheap, no rAF.
+**When NOT to:** on more than one KIND of surface per page.
+
+### G4 · `data-tilt` — 5° tilt with a travelling highlight
+Rotation plus a light position, one rAF, reset on `pointerleave`.
+**When NOT to:** on anything containing a form field or a photograph's subject.
+
+### G5 · The pinned beat with scrubbed progress
+A section holds still while its contents advance on scroll progress, and the
+scroll gets **heavier inside the beat (×0.5)** and light again on the way out.
+**When NOT to:** more than twice on a page, and never on a beat under one screen
+tall.
+
+### G6 · The number that rolls up
+A figure counts to its value when it enters frame, on an eased curve.
+**Pairs with C5, the stat strip.**
+**When NOT to:** on a price. A price that animates reads as a price that moves.
+
+### G7 · Reveal-on-scroll with a per-element progress variable
+`--rp` / `--ep` set per element rather than a binary class, so the reveal can be
+scrubbed rather than triggered. **The hidden state is added by SCRIPT, never by
+the stylesheet** — a failed script must not leave a blank page.
+
+### G8 · Parallax by `--py`
+Elements offset against scroll by a small factor. **Cheapest depth device
+available**, and depth is the requirement.
+**When NOT to:** on text somebody has to read while it moves.
+
+---
+
+## H · THREE DEFECTS FROM SITE `v-goldenhour`, PASS 1 — 2026-09-08
+
+All three were invisible in the source and obvious in a screenshot. Two of them
+would have shipped under a comment claiming a pass.
+
+### H1 · A CONTRAST FIGURE COMPUTED FROM THE TOKEN TABLE CAN BE A LIE
+The Book button was written `color:var(--bone)` on `background:var(--ink)` and
+the calculator duly reported **16.13:1**. It rendered at about **2.4:1**, because
+`.nav a` is (0,1,1) and `.navbook` was (0,1,0) — **the cascade handed it
+`--ink-2`, grey on near-black.** The ratio was correct about the intent and
+wrong about the page.
+**The rule that follows:** the existing repo rule *"a contrast comment is written
+AFTER the calculator runs"* is necessary and NOT sufficient. **A ratio for text
+inside a nested selector must be read off the RENDERED page**
+(`getComputedStyle`), not off the token it was assigned.
+
+### H2 · "A PHOTOGRAPH AT SCALE" IS A CLAIM ABOUT THE FOLD, AGAIN
+Site `k-cedar` recorded this exact failure and it recurred anyway: the headline
+at `clamp(52px,10.4vw,152px)` pushed the hero photograph to **640px down a 900px
+screen**, so a page whose whole subject is a photograph opened on type and empty
+ground. Fixed at 112px max and 17ch, photo top now **432px**.
+**Measure it:** the hero image's `getBoundingClientRect().top` must be under half
+the viewport height. This is an ABSOLUTE with a right answer, which is the only
+kind of judgement worth trusting here.
+
+### H3 · A DEVICE THAT FITS ON THE DESK CAN RUN OFF ITS OWN CONTAINER ON A PHONE
+C3, the frosted trust bar ON the photograph, stacked to four rows at 392 and its
+button fell off the bottom edge of the image. **F2's rule is that the phone gets
+a DIFFERENT layout, not a squeezed one** — so below 760px the bar leaves the
+photograph entirely and becomes a solid card on the ground beneath it.
+**Generalises:** every device positioned `absolute` inside a fixed-ratio box owes
+a phone answer, and "it wraps" is not one.

@@ -225,3 +225,156 @@ fonts, ground, or color roles.
   end-of-queue polish.
 - OPINION — Placeholder imagery is the fastest way to lose a $900 sale.
   Real photography or nothing.
+
+---
+
+# THE SECTION LIST AND THE ORDER — researched 2026-09-08, at his ask
+
+> *"I don't think this is a full page. I think it should definitely be a little
+> bigger than this. More of the content side, I think it's lacking. I think you
+> should do some more research into existing detailing websites and kind of,
+> like, some research into what each website should have and the order shown in
+> and whatnot."*
+
+**This answers a question the anti-slop work never did.** Every design rule in
+this repo is about how a section LOOKS. None of them says which sections exist
+or what order they go in — and `docs/tenant-sites-diagnosis-2026-09-09.md` § 2
+already found that the section ORDER is what the 2026 slop recipe actually is.
+So an ORDER derived from evidence is the direct counter to an order absorbed
+from other AI pages.
+
+## A · What the trade's own sites contain — already measured in this repo
+
+`docs/tenant-site-research-2026-09-05.md` § 3 counted six real detailer sites.
+**Do not re-derive it.** 6/6 carry: phone at the top of every page, packages
+with 10–20-line inclusion lists, before/after photography, reviews with a star
+rating and a source, and a named service area. 5/6 carry the **vehicle-size
+price ladder** and **credentials** (licensed, insured, certified, years in
+business). 4/6 carry **disclaimers on a service** and a specials block.
+
+## B · What the conversion literature says about ORDER
+
+- **Roughly 60% of visitors never scroll past the first screen**, so the fold
+  must carry the headline, a proof point and one call to action — not just the
+  headline. ([Zoho landing-page checklist][z], [Involve Digital][i])
+- **Stack two to three forms of social proof INSIDE the fold**, not in a
+  testimonials section further down. ([Involve Digital][i])
+- **Locality is a trust signal and it is early** — city name, service area or
+  address before the scroll, because *"local visitors trust local businesses,
+  but only if they can confirm you're actually local."* ([Bipper Media][b])
+- **Social proof goes NEXT TO the decision, not in a section of its own** —
+  beside pricing and inside the booking form. ([Design Detail][d])
+  This is `DEVICE-INVENTORY` C4 arriving from a second, independent direction.
+- **A price table that switches by vehicle type** is named as a conversion
+  device in the trade specifically. ([Design Detail][d]) It is also
+  `DEVICE-INVENTORY` D7, and this product already has the ladder in
+  `vehicle_size`.
+- **Before/after sliders beat static photos.** ([Design Detail][d])
+
+## C · THE ORDER, for a one-page mobile detailer
+
+Each line says what it answers. **A section that answers nothing gets cut**,
+which is the actual defence against the slop sequence — not a ban on any
+particular shape.
+
+1. **Hero** — *what is this and can you come to me?* Headline, one photograph at
+   scale, availability, phone, one CTA.
+2. **Proof strip, ON the fold** — *why you?* Two or three of: rating and review
+   count, insured, years, cars done.
+3. **Service area** — *do you come HERE?* Named towns, not a radius alone.
+4. **Packages with the vehicle-size ladder** — *how much?* Three sizes, the full
+   tick list of what is included, and the disclaimer.
+5. **Before / after** — *does it actually work?*
+6. **How it works** — *what happens on the day?* Four or five steps, drawn as a
+   system rather than three cards (`DEVICE-INVENTORY` D2/D3).
+7. **One recent job, whole** — photo + package + what was done + that customer's
+   review + a Book button, as ONE object (`DEVICE-INVENTORY` E1).
+8. **FAQ** — *the objection you have not answered yet.* Water, power, weather,
+   cancellation, how long it takes.
+9. **Book** — the form, with the rating strip inside it (C4).
+10. **Footer** — hours with an open/closed state, phone, area, the oversized
+    wordmark (B2).
+
+**Two orderings are deliberately NOT the default recipe:** the proof is on the
+fold rather than in a testimonial band, and the price ladder comes before the
+gallery rather than after it — because *"how much"* is the question the site
+exists to answer and burying it makes the detailer field the phone call they
+paid to avoid (`tenant-site-research-2026-09-05.md` § 4a).
+
+[z]: https://www.zoho.com/landingpage/landing-page-checklist.html
+[i]: https://www.involvedigital.com/insights/landing-page-design-high-conversion-2026
+[b]: https://bippermedia.com/seo/local-service-pages-may/
+[d]: https://www.designdetail.io/blog/car-detailing-website-best-practices-conversions
+
+---
+
+# COPY AND NAMING — the third failure mode, 2026-09-08
+
+**The repo could see a page that looks generic (§ 1) and a page that is thin
+(`tenant-sites-diagnosis-2026-09-09`). It could not see a page whose WORDS are a
+startup's words**, and `v-goldenhour` shipped as *"Sundown Detail Co."* with the
+tagline *"the last hour of light, at your kerb"*, passing every visual gate.
+His verdict: *"This is not even close to what a detailer would actually have."*
+Full quote: `TASTE-NOTES` § BATCH 3c.
+
+## The evidence — the eighteen sites he sent, read for their NAMES
+
+| Site | Shape of the name |
+|---|---|
+| melimobiledetailing | owner's name + trade |
+| hughsdetailing | owner's name + trade |
+| agautospa | initials + trade |
+| chicagoautopros | **place** + trade |
+| carolinamobilecarwash | **place** + trade |
+| wisconsinmobiledetailing | **place** + trade |
+| lustermobiledetailing | one plain word + trade |
+| 6speedmobiledetailing | one plain word + trade |
+| mrgreenclean | one plain phrase |
+| **atelierdetail** | **the only crafted name in the eighteen** |
+
+**AND `atelierdetail.netlify.app` IS A DESIGNER'S DEMO, NOT A BUSINESS.** So the
+single example of a mood-name in the whole reference set is the one site that has
+no customers. That is the finding, and it is a measurement rather than an
+opinion. ([Grounded Group name survey][g], [Jobber][j])
+
+## The rules
+
+1. **NAME = [a person, a place, or one plain word] + [the trade].** *Prime
+   Mobile Detailing.* *Hugh's Detailing.* *Chicago Auto Pros.* **Never a mood,
+   never a compound coinage, never a word that needs the tagline to explain it.**
+   The trade word — *detailing, auto spa, mobile detailing, car wash* — is IN the
+   name, because that is how somebody finds it.
+2. **THE TAGLINE STATES THE TRADE AND THE PLACE.** *"Mobile auto detailing —
+   North Seattle."* Real ones read *"We bring the shine to you"*, *"Luxury
+   Mobile Detailing New York"*, *"Where quality meets convenience"*. ([Rontar
+   slogan survey][r]) **A metaphor is not a tagline.**
+3. **NEVER STATE THE STANDARD AS IF IT WERE A FEATURE.** *"We arrive with our own
+   water and power"* — his words: *"that's standard."* A mobile detailer bringing
+   water is the job. **This is the sibling of the 2026-09-01 rule against copy
+   that explains what the label already said** (`design-system.md`): that one
+   bans restating the CONTROL, this one bans restating the BASELINE. The test is
+   the same shape — *does this sentence tell somebody something they did not
+   already assume?*
+4. **ADVERTISEMENT, NOT LITERATURE.** His phrasing: *"more like 'hey, we're good
+   at what we're doing', not some poem."* Say the thing plainly and
+   confidently. **No sentence on a tenant page may be a metaphor**, and no
+   package may be named for a mood — real ladders are *Express / Full /
+   Ceramic*, *Level I / II / III*, *Bronze / Silver / Gold*.
+5. **SPECIFICS BEAT ADJECTIVES, AND THAT IS THE ESCAPE FROM BLAND.** Plain does
+   not mean empty. *"6 years, 1,240 cars"*, *"$1.20/mile past 12 miles"*,
+   *"cancel free up to 24 hours"* are plain AND worth reading. **A page that
+   removes the poetry and puts nothing in its place has traded one defect for
+   another.**
+
+## The check this needs, and does not yet have
+
+Every rule above is prose, and this repo's own most-repeated finding is that a
+rule with no test gets broken again. A cheap first pass for
+`tests/tenant-sites.test.mjs`: fail any page whose `<title>` or `.mark` contains
+no trade word from a small list; fail on a banned-metaphor word list in the
+`<h1>`. **Not built yet — named here so it is a decision rather than an
+oversight.**
+
+[g]: https://groundedgroup.com/mobile-detailing-name-ideas/
+[j]: https://www.getjobber.com/academy/auto-detailing/car-detailing-business-names/
+[r]: https://www.rontar.com/blog/car-detailing-slogan-ideas/

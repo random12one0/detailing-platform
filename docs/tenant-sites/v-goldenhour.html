@@ -1,0 +1,1152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prime Mobile Detailing — North Seattle</title>
+<meta name="description" content="Mobile auto detailing in North Seattle. Interior and exterior detailing at your home or office. Book online in about a minute.">
+
+<!--
+  ═══════════════════════════════════════════════════════════════════════════
+  SITE 1 OF THE ONE-AT-A-TIME SET — 2026-09-08. Direction approved before a
+  line of this file existed (docs/sessions/websites.md § 5 step 0).
+  ═══════════════════════════════════════════════════════════════════════════
+
+  SUBJECT (a physical thing from the trade, never a document type):
+  **the last hour of light on wet paint.** Warm sun raking a flank, water still
+  beading, the moment before the towel.
+
+  THE PAIR he named: `atelier` (the world — cream ground, rounded shell,
+  floating pills, a frosted trust bar ON the photograph) x **our own
+  detailingplatform.com landing page** (the MECHANICS ONLY — cursor glow,
+  weighted scroll, one pinned beat). TASTE-NOTES § BATCH 3 point 4 is the
+  narrow permission for the second half, and its limit: NO Archivo, NO
+  JetBrains Mono, NO #0B0D0E, NO accent green, NO section order.
+
+  VARIETY IS BOUGHT WITH RHYTHM. The ground changes four times and no two
+  sections share a shape.
+
+  THE PHOTOGRAPHS ARE SLOTS, NOT ART DIRECTION — TASTE-NOTES § BATCH 3b, his
+  own constraint: these become the detailer's own photos. Every image is
+  object-fit:cover in a stated aspect-ratio box, every scrim is sized to the
+  SLOT rather than tuned to one JPEG's histogram, and every slot names the
+  field that would fill it.
+
+  D4 vs A2 — the inventory says a rounded page shell and a full-bleed hero
+  fight. They do at the VIEWPORT edge. Here the hero bleeds to the SHELL's
+  edges, which is how atelier actually resolves it.
+
+  CONTRAST — computed, never typed from judgement. See the § CONTRAST block
+  at the foot of this file, written after the calculator ran.
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400;12..96,75..100,700;12..96,75..100,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  /* The ground is warm bone, never white and never flat (A1). */
+  --bone:#F4EFE5;
+  --bone-deep:#E7DFD0;
+  --ink:#17130E;
+  --ink-2:#5B534A;
+  --cobalt:#1A46DC;
+  --live:#0E7A34;
+  --hair:rgba(23,19,14,.14);
+  --ctl-line:rgba(23,19,14,.34);      /* the routed diagram — DECORATIVE */
+
+  /* The dark grounds. Every ratio below was COMPUTED against the LIT ground
+     (a gradient behind text is a new ground), not against the flat token.
+     Two figures were corrected after the calculator ran: the review stars were
+     #B36B00 at 3.65:1 and are now #8A5200 at 5.57:1, and the form input edge
+     was rgba(255,255,255,.30) at 2.65:1 and is now .42 at ~3.8:1. */
+  --pitch:#171310;
+  --paper:#F6F1E8;
+  --paper-2:#CFC5B6;
+  --paper-3:#9A8F80;
+  --amber:#FFA840;
+  --amber-ink:#8A5200;                /* stars on the LIGHT ground */
+  --live-on-dark:#3FD37A;
+
+  --r-shell:26px;
+  --r-card:20px;
+  --r-inset:12px;
+
+  --display:"Bricolage Grotesque",Georgia,serif;
+  --body:"Instrument Sans",-apple-system,sans-serif;
+
+  --t-fast:180ms; --t-slow:520ms;
+  --e:cubic-bezier(.22,.61,.36,1);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--bone-deep);
+  color:var(--ink);
+  font:400 16px/1.55 var(--body);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* A1 · THE LIT GROUND — FOUR LAYERS, and none of them is a flat fill.
+   His note, 2026-09-08: "the background should have something more than just,
+   like, a white thing… some gradient or some pattern… you know how mine has
+   those moving dots? That's very out of the way while also adding depth."
+
+   1 · --bone, the base.
+   2 · ::before  the standing light — a warm low sun and a cold counter-light.
+   3 · .motes    the drifting field. Dust in a low sun, which is the page's own
+                 subject rather than a copy of his dots. Two dot fields at
+                 different sizes drifting at different speeds and directions, so
+                 it never reads as one repeating tile.
+   4 · ::after   the grain.
+
+   THE GLOW WAS OFF-CENTRE AND HE SPOTTED IT. `inset:-20%` made this box 140% of
+   the viewport, so a PERCENTAGE position inside it resolved against that box
+   and not the screen — the light landed roughly 20% off in both axes. It is now
+   inset:0 and JS feeds PIXELS, which cannot drift out of frame.
+   Also smaller at his ask: 46vw/42vw -> 26vw/24vw. */
+.ground{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:var(--bone)}
+.ground::before{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(26vw 24vw at var(--gx,62vw) var(--gy,12vh),
+      rgba(255,186,92,.44), rgba(255,186,92,0) 66%),
+    radial-gradient(70vw 56vw at 4% 96%,
+      rgba(26,70,220,.11), rgba(26,70,220,0) 62%),
+    radial-gradient(80vw 40vw at 88% 2%,
+      rgba(255,203,138,.30), rgba(255,203,138,0) 64%);
+}
+/* The drifting field. `overflow:hidden` on .ground is load-bearing — a layer
+   wider than the screen that moves is how a page silently gains a sideways
+   scrollbar, and whether anybody finds out depends on the SIGN of the drift. */
+.motes{
+  position:absolute;top:-30%;left:-30%;width:160%;height:160%;
+  background-image:
+    radial-gradient(rgba(23,19,14,.16) 1px, transparent 1.6px),
+    radial-gradient(rgba(196,124,42,.20) 1.4px, transparent 2.2px);
+  background-size:38px 38px, 97px 97px;
+  background-position:0 0, 14px 26px;
+  animation:drift-a 58s linear infinite;
+}
+.motes.b{
+  background-image:radial-gradient(rgba(23,19,14,.10) 1px, transparent 1.8px);
+  background-size:63px 63px;
+  animation:drift-b 91s linear infinite;
+  opacity:.7;
+}
+@keyframes drift-a{to{transform:translate3d(-97px,-97px,0)}}
+@keyframes drift-b{to{transform:translate3d(63px,-63px,0)}}
+
+.ground::after{
+  content:"";position:absolute;inset:0;opacity:.30;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+}
+
+/* D4 · THE PAGE INSIDE A ROUNDED SHELL */
+.shell{
+  position:relative;z-index:1;
+  margin:14px;border-radius:var(--r-shell);
+  background:transparent;
+  overflow:clip;
+}
+
+/* Nav */
+.nav{display:flex;align-items:center;gap:26px;padding:20px 30px}
+.mark{
+  font:800 19px/1 var(--display);letter-spacing:-.02em;
+  font-variation-settings:"wdth" 84;
+  margin-right:auto;display:grid;gap:3px;
+}
+/* NAME = a plain word + the trade, and the trade is IN the mark
+   (design-knowledge § COPY AND NAMING, rule 1). */
+.mark i{
+  font:600 9px/1 var(--body);font-style:normal;
+  letter-spacing:.16em;color:var(--ink-2);
+}
+.navlinks{display:flex;gap:24px}
+.nav a{color:var(--ink-2);text-decoration:none;font-size:14px;font-weight:500}
+.nav a:hover{color:var(--ink)}
+.nav a.navbook{
+  background:var(--ink);color:var(--bone);
+  padding:10px 20px;border-radius:999px;font-weight:600;font-size:14px;
+  transition:transform var(--t-fast) var(--e);
+}
+.nav a.navbook:hover{color:var(--bone);transform:translateY(-1px)}
+
+/* HERO */
+.hero{padding:26px 30px 0}
+.hero h1{
+  font:800 clamp(46px,7.6vw,112px)/.90 var(--display);
+  font-variation-settings:"wdth" 80;
+  letter-spacing:-.035em;margin:0 0 18px;max-width:17ch;
+}
+/* B1 · the accent-final-word heading — EVERY heading, or none. */
+.hero h1 em,h2 em{font-style:normal;color:var(--cobalt)}
+
+.herolede{display:flex;flex-wrap:wrap;gap:26px 40px;align-items:flex-end;margin-bottom:26px}
+.herolede p{margin:0;max-width:34ch;color:var(--ink-2);font-size:15px}
+
+/* C5 · the stat strip */
+.stats{display:flex;gap:34px;margin-left:auto}
+.stat b{display:block;font:800 30px/1 var(--display);font-variation-settings:"wdth" 86;letter-spacing:-.03em}
+.stat span{font-size:11px;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-2)}
+
+/* A2 · THE PHOTOGRAPH, AT SCALE, ABOVE THE FOLD */
+.shot{position:relative;border-radius:var(--r-card);overflow:hidden;aspect-ratio:16/8.1}
+.shot img{width:100%;height:100%;object-fit:cover;display:block}
+/* A3 · the scrim is sized to the SLOT, so any replacement photo works. */
+.shot::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    linear-gradient(180deg,rgba(10,7,4,.46) 0%,rgba(10,7,4,0) 34%),
+    linear-gradient(0deg,rgba(10,7,4,.62) 0%,rgba(10,7,4,0) 44%);
+}
+
+/* C1 · availability pill with a live dot — driven by available-slots */
+.pill{
+  position:absolute;z-index:2;display:inline-flex;align-items:center;gap:9px;
+  background:rgba(244,239,229,.90);backdrop-filter:blur(14px);
+  border-radius:999px;padding:9px 16px 9px 13px;
+  font-size:13px;font-weight:600;color:var(--ink);
+  box-shadow:0 6px 24px rgba(10,7,4,.20);
+}
+.pill--avail{top:18px;left:18px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--live);position:relative}
+.dot::after{
+  content:"";position:absolute;inset:-4px;border-radius:50%;
+  border:1.5px solid var(--live);animation:ping 2.4s var(--e) infinite;
+}
+@keyframes ping{0%{transform:scale(.6);opacity:.9}70%,100%{transform:scale(1.5);opacity:0}}
+
+/* C2 · review pill with an avatar stack */
+.pill--rev{top:18px;right:18px;padding-left:10px}
+.faces{display:flex}
+.faces i{
+  width:23px;height:23px;border-radius:50%;display:block;
+  border:2px solid rgba(244,239,229,.92);margin-right:-8px;
+  background:var(--bone-deep) center/cover;
+}
+
+/* C3 · the frosted trust bar ON the photograph */
+.trust{
+  position:absolute;left:18px;right:18px;bottom:18px;z-index:2;
+  display:flex;flex-wrap:wrap;gap:10px 30px;align-items:center;
+  background:rgba(18,13,8,.64);backdrop-filter:blur(16px) saturate(1.2);
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:var(--r-inset);padding:14px 18px;
+  color:#FBF7F0;font-size:13.5px;font-weight:500;
+}
+.trust b{font-weight:600}
+.trust .sep{width:1px;height:16px;background:rgba(255,255,255,.26)}
+.trust .cta{
+  margin-left:auto;background:var(--bone);color:var(--ink);
+  border-radius:999px;padding:10px 20px;font-weight:600;text-decoration:none;
+  transition:transform var(--t-fast) var(--e);
+}
+.trust .cta:hover{transform:translateY(-1px)}
+
+/* F1 · the phone dock. ~70px, and § G calls it the single best idea in
+   either batch. Hidden on the desk, where the nav never leaves. */
+.dock{display:none}
+
+/* ═══ SHARED SECTION FURNITURE ═══════════════════════════════════════════
+   Deliberately thin. Every section below owns its own SHAPE — the rule he
+   gave is "not just the same copy and pasting all the time", so what is
+   shared here is only the heading block and the reveal. */
+.sechead{margin:0 0 34px}
+.sechead h2{
+  font:800 clamp(30px,4.4vw,58px)/1.02 var(--display);
+  font-variation-settings:"wdth" 82;letter-spacing:-.03em;margin:0;max-width:15ch;
+}
+.sechead p{margin:12px 0 0;color:var(--ink-2);font-size:15px;max-width:44ch}
+section{position:relative;z-index:1}
+
+/* G7 · reveal-on-scroll. The hidden state is added by SCRIPT, never by the
+   stylesheet — a failed script must not leave a blank page. */
+.js .rv{opacity:0;transform:translateY(16px)}
+.js .rv.shown{opacity:1;transform:none;transition:opacity 620ms var(--e),transform 620ms var(--e)}
+
+/* ═══ 3 · SERVICE AREA — shape: a marquee ═══════════════════════════════ */
+.area{padding:76px 0 64px;text-align:center;overflow:hidden}
+.kicker{
+  margin:0 30px 26px;font:800 clamp(20px,2.6vw,34px)/1.1 var(--display);
+  font-variation-settings:"wdth" 84;letter-spacing:-.02em;
+}
+.kicker em{font-style:normal;color:var(--cobalt)}
+.marq{display:flex;width:max-content;mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.marq-t{display:flex;animation:marq 42s linear infinite}
+.marq-t span{
+  font:800 clamp(34px,5.6vw,76px)/1 var(--display);
+  font-variation-settings:"wdth" 78;letter-spacing:-.03em;
+  padding:0 26px;color:transparent;
+  -webkit-text-stroke:1.4px rgba(23,19,14,.34);
+  white-space:nowrap;
+}
+.marq-t span:nth-child(3n){color:var(--ink);-webkit-text-stroke:0}
+@keyframes marq{to{transform:translateX(-100%)}}
+.areanote{margin:26px 30px 0;color:var(--ink-2);font-size:15px}
+.areanote b{color:var(--ink)}
+
+/* ═══ 4 · PACKAGES — GROUND CHANGE 1, near-black. Shape: tabs + a table ══ */
+.money{
+  background:
+    radial-gradient(80vw 46vw at 78% 0%, rgba(255,168,64,.16), rgba(255,168,64,0) 62%),
+    radial-gradient(60vw 40vw at 4% 100%, rgba(26,70,220,.20), rgba(26,70,220,0) 60%),
+    var(--pitch);
+  color:var(--paper);
+  border-radius:var(--r-card);
+  margin:0 14px;padding:74px 30px 66px;
+}
+.money .sechead h2{color:var(--paper)}
+.money .sechead h2 em{font-style:normal;color:var(--amber)}
+.money .sechead p{color:var(--paper-2)}
+
+.tabs{display:flex;gap:6px;padding:5px;margin:0 0 26px;
+  background:rgba(255,255,255,.07);border-radius:16px;width:max-content;max-width:100%;flex-wrap:wrap}
+.tabs button{
+  appearance:none;border:0;cursor:pointer;font:600 14px/1 var(--body);
+  color:var(--paper-2);background:transparent;padding:11px 18px;border-radius:11px;
+  transition:background var(--t-fast) var(--e),color var(--t-fast) var(--e);
+}
+.tabs button[aria-selected="true"]{background:var(--paper);color:var(--pitch)}
+
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start}
+/* The swap: parts move on their own timelines, never one block of opacity. */
+.plans > *{animation:rise 320ms var(--e) both;animation-delay:calc(var(--n,0)*40ms)}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}}
+.plan{
+  position:relative;
+  background:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.035));
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:var(--r-card);padding:26px 24px 24px;
+}
+.plan--pick{
+  background:linear-gradient(180deg,rgba(255,168,64,.17),rgba(255,168,64,.04));
+  border-color:rgba(255,168,64,.44);
+}
+.flag{
+  position:absolute;top:-11px;left:24px;background:var(--amber);color:#231703;
+  font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  padding:5px 11px;border-radius:999px;
+}
+.plan h3{margin:0 0 6px;font:800 24px/1.1 var(--display);font-variation-settings:"wdth" 86;letter-spacing:-.02em}
+.plan header p{margin:0 0 18px;color:var(--paper-2);font-size:14px}
+/* A4 · the price is the biggest thing in its section. */
+.price{margin:0;display:flex;align-items:flex-start;gap:3px;line-height:1}
+.price span{font:600 20px/1.5 var(--body);color:var(--paper-2)}
+.price b{font:800 clamp(46px,5.2vw,68px)/1 var(--display);font-variation-settings:"wdth" 84;letter-spacing:-.04em}
+.dur{margin:8px 0 20px;font-size:13px;color:var(--paper-2)}
+/* D6 · ticks, not prose. */
+.ticks{list-style:none;margin:0 0 22px;padding:0;
+  display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;font-size:13.5px}
+.ticks li{position:relative;padding-left:19px;color:var(--paper-2)}
+.ticks li::before{
+  content:"";position:absolute;left:0;top:6px;width:9px;height:5px;
+  border-left:1.8px solid var(--amber);border-bottom:1.8px solid var(--amber);
+  transform:rotate(-45deg);
+}
+.plancta{
+  display:block;text-align:center;text-decoration:none;
+  background:var(--paper);color:var(--pitch);font-weight:600;font-size:14px;
+  padding:13px;border-radius:999px;transition:transform var(--t-fast) var(--e);
+}
+.plan--pick .plancta{background:var(--amber);color:#231703}
+.plancta:hover{transform:translateY(-1px)}
+.disclaim{
+  margin:30px 0 0;padding:18px 20px;border-radius:var(--r-inset);
+  background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.10);
+  color:var(--paper-2);font-size:13.5px;max-width:70ch;
+}
+.disclaim b{color:var(--paper)}
+
+/* ═══ 5 · RECENT WORK — shape: a staggered grid (D5) ═══════════════════ */
+.work{padding:14px 30px 78px}
+.tiles{
+  display:grid;grid-template-columns:repeat(6,1fr);
+  grid-auto-rows:126px;gap:14px;
+}
+.t{margin:0;position:relative;border-radius:var(--r-card);overflow:hidden}
+.t img{width:100%;height:100%;object-fit:cover;display:block}
+.t figcaption{
+  position:absolute;left:12px;bottom:12px;
+  background:rgba(18,13,8,.72);color:#FBF7F0;
+  font-size:12px;font-weight:600;padding:7px 12px;border-radius:999px;
+}
+/* No tile is the same size as its neighbour — the stagger IS the device. */
+/* The spans SUM to the track count in each band (4+2, then 1+3+2), or the
+   grid leaves a hole — which it did, and only a screenshot showed it. Five
+   distinct tile sizes, so no tile matches its neighbour. */
+.t1{grid-column:span 4;grid-row:span 3}
+.t2{grid-column:span 2;grid-row:span 3}
+.t3{grid-column:span 1;grid-row:span 2}
+.t4{grid-column:span 3;grid-row:span 2}
+.t5{grid-column:span 2;grid-row:span 2}
+.t img{transition:transform 700ms var(--e)}
+.t:hover img{transform:scale(1.035)}
+
+/* ═══ 6 · HOW IT WORKS — shape: a drawn system (D2) ══════════════════════ */
+.how{padding:20px 30px 78px}
+.flow{
+  list-style:none;margin:0;padding:0;position:relative;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:0 22px;
+}
+/* The routed connector. Right angles with rounded corners, drawn between the
+   nodes rather than under them — a SYSTEM, not four cards in a grid. The line
+   draws itself on scroll via --draw. */
+.flow::before{
+  content:"";position:absolute;left:8%;right:8%;top:26px;height:2px;
+  background:repeating-linear-gradient(90deg,var(--ctl-line) 0 7px,transparent 7px 15px);
+  transform:scaleX(var(--draw,1));transform-origin:left;
+}
+.node{position:relative;padding:0 8px}
+.node .num{
+  position:relative;z-index:2;display:grid;place-items:center;
+  width:54px;height:54px;border-radius:50%;
+  background:var(--bone);border:2px solid var(--ink);
+  font:800 16px/1 var(--display);letter-spacing:-.02em;margin:0 0 18px;
+}
+.node:nth-child(2) .num{background:var(--cobalt);border-color:var(--cobalt);color:var(--bone)}
+.node h3{margin:0 0 7px;font:800 19px/1.15 var(--display);font-variation-settings:"wdth" 88;letter-spacing:-.02em}
+.node p{margin:0;color:var(--ink-2);font-size:14px;max-width:26ch}
+/* the drop-leg: each node hangs off the routed line */
+.node::before{
+  content:"";position:absolute;left:35px;top:-14px;width:2px;height:14px;
+  background:var(--ctl-line);
+}
+.node:first-child::before,.node:last-child::before{display:none}
+
+/* ═══ 7 · ONE RECENT JOB — shape: one wide object (E1) ══════════════════ */
+.job{padding:0 30px 78px}
+.jobrow{
+  display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);
+  gap:0;border:1px solid var(--hair);border-radius:var(--r-card);
+  overflow:hidden;background:rgba(255,255,255,.42);
+}
+.jobshot{position:relative;min-height:100%}
+.jobshot img{width:100%;height:100%;object-fit:cover;display:block;min-height:290px}
+.jobbadge{
+  position:absolute;left:16px;bottom:16px;
+  background:rgba(18,13,8,.74);color:#FBF7F0;font-size:12.5px;font-weight:600;
+  padding:8px 14px;border-radius:999px;
+}
+.jobbody{padding:30px 30px 28px}
+.jobbody h3{margin:0 0 12px;font:800 clamp(23px,2.6vw,32px)/1.1 var(--display);
+  font-variation-settings:"wdth" 86;letter-spacing:-.025em}
+.jobbody h3 em{font-style:normal;color:var(--ink-2);font-weight:400}
+.jobdid{margin:0 0 20px;color:var(--ink-2);font-size:15px;max-width:48ch}
+.jobcta{
+  display:inline-block;text-decoration:none;background:var(--ink);color:var(--bone);
+  font-weight:600;font-size:14px;padding:12px 22px;border-radius:999px;
+  transition:transform var(--t-fast) var(--e);
+}
+.jobcta:hover{transform:translateY(-1px)}
+.jobrev{
+  margin:24px 0 0;padding:20px 0 0;border-top:1px solid var(--hair);
+  font-style:italic;color:var(--ink);font-size:15px;max-width:48ch;
+}
+.jobrev cite{
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+  margin-top:12px;font-style:normal;font-size:13px;color:var(--ink-2);
+}
+.stars{color:var(--amber-ink);letter-spacing:1px}
+.src{
+  font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  border:1px solid var(--hair);border-radius:5px;padding:3px 7px;
+}
+
+/* ═══ 8 · FAQ — shape: the only thing on the page that opens ════════════ */
+.faq{padding:0 30px 78px}
+.faqcols{columns:2;column-gap:26px}
+.faq details{
+  break-inside:avoid;margin:0 0 10px;border:1px solid var(--hair);
+  border-radius:var(--r-inset);background:rgba(255,255,255,.42);
+  padding:16px 18px;
+}
+.faq summary{
+  cursor:pointer;font-weight:600;font-size:15px;list-style:none;
+  display:flex;justify-content:space-between;gap:14px;align-items:center;
+}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{
+  content:"";width:9px;height:9px;flex:none;
+  border-right:2px solid var(--ink-2);border-bottom:2px solid var(--ink-2);
+  transform:rotate(45deg) translateY(-2px);transition:transform 220ms var(--e);
+}
+.faq details[open] summary::after{transform:rotate(-135deg) translateY(-2px)}
+.faq details p{margin:12px 0 2px;color:var(--ink-2);font-size:14.5px}
+
+/* ═══ 9 · BOOK — GROUND CHANGE 3 ════════════════════════════════════════ */
+.book{
+  margin:0 14px;border-radius:var(--r-card);padding:66px 30px;
+  background:
+    radial-gradient(60vw 40vw at 90% 8%, rgba(255,168,64,.20), rgba(255,168,64,0) 60%),
+    linear-gradient(160deg,#2A2018,#171310 62%);
+  color:var(--paper);
+}
+.bookgrid{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:start}
+.bookside h2{
+  margin:0 0 14px;font:800 clamp(28px,3.8vw,50px)/1.03 var(--display);
+  font-variation-settings:"wdth" 82;letter-spacing:-.03em;
+}
+.bookside h2 em{font-style:normal;color:var(--amber)}
+.bookside > p{margin:0 0 22px;color:var(--paper-2);font-size:15px;max-width:38ch}
+.bookwhy{list-style:none;margin:0;padding:0;display:grid;gap:11px}
+.bookwhy li{position:relative;padding-left:20px;color:var(--paper-2);font-size:14px}
+.bookwhy li::before{
+  content:"";position:absolute;left:0;top:6px;width:9px;height:5px;
+  border-left:1.8px solid var(--amber);border-bottom:1.8px solid var(--amber);
+  transform:rotate(-45deg);
+}
+.bookform{
+  background:rgba(255,255,255,.065);border:1px solid rgba(255,255,255,.15);
+  border-radius:var(--r-card);padding:24px;display:grid;gap:14px;
+}
+.bookform label{display:grid;gap:7px;font-size:12.5px;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--paper-2)}
+.bookform input,.bookform select{
+  font:400 15px/1 var(--body);color:var(--paper);
+  background:rgba(0,0,0,.30);border:1px solid rgba(255,255,255,.42);
+  border-radius:var(--r-inset);padding:13px 14px;width:100%;
+}
+.bookform input::placeholder{color:rgba(238,231,220,.55)}
+.bookform input:focus-visible,.bookform select:focus-visible,
+.booksubmit:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.booksubmit{
+  appearance:none;border:0;cursor:pointer;margin-top:4px;
+  background:var(--amber);color:#231703;font:600 15px/1 var(--body);
+  padding:16px;border-radius:999px;transition:transform var(--t-fast) var(--e);
+}
+.booksubmit:hover{transform:translateY(-1px)}
+.bookproof{
+  margin:2px 0 0;text-align:center;font-size:13px;color:var(--paper-2);
+  display:flex;flex-wrap:wrap;gap:7px;justify-content:center;align-items:center;
+}
+.bookproof b{color:var(--paper)}
+
+/* ═══ 10 · FOOTER — B2, the giant bleeding wordmark ═════════════════════
+   "It makes the page END rather than merely stop." One oversized wordmark
+   per page, so B3 is deliberately absent. */
+.foot{margin:0 14px 14px;background:var(--pitch);color:var(--paper);
+  border-radius:var(--r-card);padding:52px 30px 0;overflow:hidden}
+.footgrid{display:flex;flex-wrap:wrap;gap:34px 60px;margin:0 0 42px}
+.footcol h4{margin:0 0 12px;font-size:11px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--paper-3);font-weight:600}
+.footcol p,.footcol a{margin:0 0 7px;display:block;color:var(--paper-2);
+  font-size:14px;text-decoration:none}
+.footcol a:hover{color:var(--paper)}
+.footphone{font:800 22px/1.1 var(--display)!important;color:var(--paper)!important;
+  font-variation-settings:"wdth" 88;letter-spacing:-.02em}
+.open{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--paper-2)}
+.open i{width:7px;height:7px;border-radius:50%;background:var(--live-on-dark)}
+.wordmark{
+  font:800 clamp(84px,20vw,240px)/.78 var(--display);
+  font-variation-settings:"wdth" 76;letter-spacing:-.045em;
+  color:var(--amber);white-space:nowrap;margin:0 -30px -.14em -4px;
+  display:block;
+}
+.wordmark s{text-decoration:none;color:rgba(255,168,64,.52)}
+.wordmark s + s{color:rgba(255,168,64,.24)}
+.legal{display:flex;flex-wrap:wrap;gap:6px 20px;padding:20px 0 22px;
+  border-top:1px solid rgba(255,255,255,.12);font-size:12px;color:var(--paper-3)}
+
+/* ═══ RESPONSIVE ═══════════════════════════════════════════════════════ */
+@media (max-width:1000px){
+  .tiles{grid-template-columns:repeat(2,1fr);grid-auto-rows:150px}
+  .t1{grid-column:span 2;grid-row:span 2}
+  .t2{grid-column:span 1;grid-row:span 2}
+  .t3{grid-column:span 1;grid-row:span 2}
+  .t4{grid-column:span 2;grid-row:span 2}
+  .t5{grid-column:span 2;grid-row:span 2}
+  .plans{grid-template-columns:1fr}
+  .flow{grid-template-columns:1fr 1fr;gap:34px 22px}
+  .flow::before{display:none}
+  .node::before{display:none}
+  .bookgrid{grid-template-columns:1fr;gap:30px}
+  .jobrow{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  .money,.book{margin:0 8px;padding:52px 18px 46px}
+  .foot{margin:0 8px 8px;padding:40px 18px 0}
+  .area{padding:56px 0 46px}
+  .ba,.how,.job,.faq{padding-left:16px;padding-right:16px}
+  .ba{padding-top:56px;padding-bottom:52px}
+  .how,.job,.faq{padding-bottom:56px}
+  .sechead{margin-bottom:26px}
+  .ticks{grid-template-columns:1fr}
+  .flow{grid-template-columns:1fr;gap:26px}
+  .faqcols{columns:1}
+  .two{grid-template-columns:1fr}
+  .wordmark{margin-left:-2px;margin-right:-18px}
+}
+/* THE 320 FLOOR — below 361px paired fields stack and nothing may overflow. */
+@media (max-width:360px){
+  .tabs{width:100%}
+  .tabs button{flex:1;padding:11px 8px;font-size:13px}
+  .ba-head{gap:6px}
+  .jobrev cite{gap:6px}
+}
+/* PORTRAIT ONLY — rotating a phone must change nothing. Every desk rule
+   above this point is width-only, so the guard belongs on any rule that
+   would otherwise fire on a 844px-wide phone. */
+@media (min-width:761px) and (max-height:500px){
+  .plans{grid-template-columns:1fr}
+  .flow{grid-template-columns:1fr;gap:26px}
+  .flow::before,.node::before{display:none}
+  .bookgrid,.jobrow{grid-template-columns:1fr}
+  .faqcols{columns:1}
+}
+
+@media (max-width:760px){
+  .shell{margin:8px;border-radius:20px}
+  .nav{padding:14px 16px;gap:14px}
+  .navlinks{display:none}
+  .hero{padding:22px 16px 0}
+  /* F2 · the photograph moves BELOW the text — a different layout, not a
+     squeezed one. Clean ground for the headline, a taller photo underneath. */
+  .hero h1{max-width:none;margin-bottom:16px}
+  .herolede{gap:18px;margin-bottom:18px}
+  .stats{margin-left:0;gap:24px}
+  .shot{aspect-ratio:4/5}
+  .trust{
+    position:static;flex-direction:column;align-items:stretch;gap:12px;
+    margin-top:10px;background:rgba(23,19,14,.055);backdrop-filter:none;
+    border:1px solid var(--hair);color:var(--ink);
+  }
+  .trust .sep{display:none}
+  .trust .cta{margin-left:0;width:100%;text-align:center;background:var(--ink);color:var(--bone)}
+  .pill--rev{display:none}
+
+  .dock{
+    display:flex;position:fixed;z-index:9;left:10px;right:10px;bottom:10px;
+    align-items:center;gap:8px;padding:8px;
+    background:rgba(244,239,229,.86);backdrop-filter:blur(18px);
+    border:1px solid var(--hair);border-radius:999px;
+    box-shadow:0 10px 34px rgba(10,7,4,.20);
+  }
+  .dock a{flex:1;text-align:center;text-decoration:none;color:var(--ink-2);font-size:13px;font-weight:600;padding:10px 4px}
+  .dock a.book{flex:1.5;background:var(--ink);color:var(--bone);border-radius:999px}
+  body{padding-bottom:78px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<div class="ground" id="ground" aria-hidden="true">
+  <div class="motes"></div>
+  <div class="motes b"></div>
+</div>
+
+<div class="shell">
+
+  <nav class="nav">
+    <span class="mark">PRIME<i>MOBILE DETAILING</i></span>
+    <span class="navlinks">
+      <a href="#work">Work</a>
+      <a href="#prices">Prices</a>
+      <a href="#how">How it works</a>
+    </span>
+    <a class="navbook" href="#book">Book</a>
+  </nav>
+
+  <header class="hero">
+    <h1>Mobile auto detailing <em>across North Seattle.</em></h1>
+
+    <div class="herolede">
+      <p>Interior and exterior detailing at your home or office. Pick a slot,
+         see the price before you book, pay when the job is done.</p>
+      <!-- C5 · real figures only. A new detailer's real numbers beat invented ones. -->
+      <div class="stats">
+        <div class="stat"><b>1,240</b><span>Cars</span></div>
+        <div class="stat"><b>4.9</b><span>Rating</span></div>
+        <div class="stat"><b>6 yrs</b><span>On the road</span></div>
+      </div>
+    </div>
+
+    <!-- SLOT · hero. Filled by business_media.hero, else the newest job_photos
+         "after" frame. 16:8.1 on the desk, 4:5 on a phone. -->
+    <div class="shot">
+      <img src="https://images.unsplash.com/photo-1751661527885-28d46835fcd1?fm=jpg&amp;fit=crop&amp;w=2000&amp;h=1013&amp;q=78"
+           alt="A detailed car photographed in low evening sun.">
+
+      <span class="pill pill--avail" data-from="available-slots">
+        <span class="dot"></span> Available today &middot; 2 slots
+      </span>
+
+      <span class="pill pill--rev" data-from="the detailer's Google reviews">
+        <span class="faces">
+          <i style="background-image:url(https://images.unsplash.com/photo-1494790108377-be9c29b29330?fm=jpg&amp;w=60&amp;h=60&amp;fit=crop&amp;q=60)"></i>
+          <i style="background-image:url(https://images.unsplash.com/photo-1500648767791-00dcc994a43e?fm=jpg&amp;w=60&amp;h=60&amp;fit=crop&amp;q=60)"></i>
+          <i style="background-image:url(https://images.unsplash.com/photo-1534528741775-53994a69daeb?fm=jpg&amp;w=60&amp;h=60&amp;fit=crop&amp;q=60)"></i>
+        </span>
+        4.9 &middot; 312 reviews
+      </span>
+
+      <div class="trust">
+        <span><b>Same-day slots</b> most weeks</span>
+        <span class="sep"></span>
+        <span><b>Price before you book</b> — it does not change on the day</span>
+        <span class="sep"></span>
+        <span><b>Insured to $2m</b></span>
+        <a class="cta" href="#book">Get a price</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ 3 · SERVICE AREA ═══════════════════════════════════════════════
+       "Do you come HERE?" — the earliest trust question for a MOBILE
+       detailer, and the conversion literature puts locality before the
+       scroll (design-knowledge § B). Its SHAPE is a marquee: a moving band
+       of real town names, which no other section on this page uses. -->
+  <section class="area" id="area" aria-label="Service area">
+    <p class="kicker">Areas we <em>cover.</em></p>
+    <div class="marq" aria-hidden="true">
+      <div class="marq-t" data-from="get_public_business_profile.service_area">
+        <span>Northgate</span><span>Ravenna</span><span>Wallingford</span><span>Green Lake</span>
+        <span>Fremont</span><span>Ballard</span><span>Phinney Ridge</span><span>Maple Leaf</span>
+        <span>Lake City</span><span>Shoreline</span><span>Bothell</span><span>Kenmore</span>
+      </div>
+      <div class="marq-t" aria-hidden="true">
+        <span>Northgate</span><span>Ravenna</span><span>Wallingford</span><span>Green Lake</span>
+        <span>Fremont</span><span>Ballard</span><span>Phinney Ridge</span><span>Maple Leaf</span>
+        <span>Lake City</span><span>Shoreline</span><span>Bothell</span><span>Kenmore</span>
+      </div>
+    </div>
+    <p class="areanote" data-from="travel_zones">
+      Outside these? We still come. <b>$1.20 a mile</b> past 12 miles, added to
+      your quote before you confirm &mdash; never after.
+    </p>
+  </section>
+
+
+  <!-- ═══ 4 · PACKAGES · GROUND CHANGE 1 → near-black ════════════════════
+       "How much?" — the question the site exists to answer, and it comes
+       BEFORE the gallery on purpose (tenant-site-research § 4a: five of six
+       real detailers print the whole ladder, because the honest answer has
+       three numbers in it).
+       D7 · tabbed by vehicle size · D6 · two-column tick lists, not prose
+       A4 · the price is the largest thing in the section. -->
+  <section class="money" id="prices" aria-label="Packages and prices">
+    <div class="money-in">
+      <div class="sechead">
+        <h2>Three packages, <em>three sizes.</em></h2>
+        <p>Every price here is the price you pay.</p>
+      </div>
+
+      <!-- D7 · the vehicle ladder this product already has in `vehicle_size` -->
+      <div class="tabs" role="tablist" data-from="get_public_business_profile.vehicle_sizes">
+        <button role="tab" aria-selected="true"  data-size="0">Sedan</button>
+        <button role="tab" aria-selected="false" data-size="1">SUV &amp; Crossover</button>
+        <button role="tab" aria-selected="false" data-size="2">Truck &amp; XL</button>
+      </div>
+
+      <div class="plans swap" id="plans">
+
+        <article class="plan">
+          <header>
+            <h3>Express Wash</h3>
+            <p>Outside only. Hand wash, wheels, glass, dried by hand.</p>
+          </header>
+          <!-- A4 · the most important number is not at body size -->
+          <p class="price" data-from="calculate-booking"><span>$</span><b data-p="89,109,129">89</b></p>
+          <p class="dur">About 90 minutes</p>
+          <!-- D6 · ticks, not prose. Maps onto services.features. -->
+          <ul class="ticks" data-from="get_public_business_profile.services[].features">
+            <li>Foam pre-soak</li><li>Two-bucket hand wash</li>
+            <li>Wheels &amp; arches</li><li>Tyre dressing</li>
+            <li>Glass in &amp; out</li><li>Hand dry, no blades</li>
+          </ul>
+          <a class="plancta" href="#book">Book Express Wash</a>
+        </article>
+
+        <article class="plan plan--pick">
+          <span class="flag">Most booked</span>
+          <header>
+            <h3>Full Detail</h3>
+            <p>Inside and out. Our most booked package, and the one most cars need.</p>
+          </header>
+          <p class="price" data-from="calculate-booking"><span>$</span><b data-p="219,259,299">219</b></p>
+          <p class="dur">About 4 hours</p>
+          <ul class="ticks" data-from="get_public_business_profile.services[].features">
+            <li>Everything in Express Wash</li><li>Clay bar decontamination</li>
+            <li>Machine polish, one stage</li><li>6-month sealant</li>
+            <li>Interior vacuum &amp; steam</li><li>Leather clean &amp; feed</li>
+            <li>Door shuts &amp; sills</li><li>Engine bay wipe-down</li>
+          </ul>
+          <a class="plancta" href="#book">Book Full Detail</a>
+        </article>
+
+        <article class="plan">
+          <header>
+            <h3>Ceramic Package</h3>
+            <p>Paint correction and a 3-year ceramic coating. Two days.</p>
+          </header>
+          <p class="price" data-from="calculate-booking"><span>$</span><b data-p="890,990,1140">890</b></p>
+          <p class="dur">Two days &middot; car stays with us</p>
+          <ul class="ticks" data-from="get_public_business_profile.services[].features">
+            <li>Everything in Full Detail</li><li>Two-stage paint correction</li>
+            <li>Ceramic coating, 3-year</li><li>Wheels coated, faces &amp; barrels</li>
+            <li>Glass coating</li><li>Trim restored &amp; sealed</li>
+            <li>Written care card</li><li>12-month check-up included</li>
+          </ul>
+          <a class="plancta" href="#book">Book Ceramic Package</a>
+        </article>
+      </div>
+
+      <!-- services.notes — four of six real sites carry exactly this, and it is
+           a detailer managing an expectation before it is an argument on a
+           driveway (tenant-site-research § 4b). -->
+      <p class="disclaim" data-from="get_public_business_profile.services[].notes">
+        <b>Two things worth knowing.</b> A 6-month sealant is not a ceramic
+        coating &mdash; if you want the coating, that is the Ceramic Package. And
+        heavy pet hair, tar or a badly soiled interior may need an add-on: send
+        three photos when you book and we price it then, not on the day.
+      </p>
+    </div>
+  </section>
+
+
+  <!-- ═══ 5 · RECENT WORK · D5, the staggered masonry grid ════════════
+       Shape: offset tiles at three different sizes. Nothing else on this page
+       is a grid, and no tile is the same size as its neighbour.
+       NOT a before/after slider, and that is deliberate — see the note in the
+       commit. Six of six real detailer sites carry before/after, so this slot
+       becomes that pair the moment a tenant has one; a stock pair would be two
+       different cars, which is a lie a customer spots immediately. -->
+  <section class="work" id="work" aria-label="Recent work">
+    <div class="sechead">
+      <h2>Some recent <em>work.</em></h2>
+      <p>Five jobs from the last fortnight. No filters, no stock photos.</p>
+    </div>
+    <!-- SLOTS · job_photos, newest first. Aspect ratios are fixed per tile so
+         a detailer's own uploads cannot break the stagger. -->
+    <div class="tiles" data-from="job_photos">
+      <figure class="t t1">
+        <img src="https://images.unsplash.com/photo-1604417619789-b145daaec6d0?fm=jpg&amp;fit=crop&amp;w=1400&amp;h=1050&amp;q=78"
+             alt="A detailed dark hatchback photographed in evening light." loading="lazy">
+        <figcaption>Golf R &middot; Full Detail</figcaption>
+      </figure>
+      <figure class="t t2">
+        <img src="https://images.unsplash.com/photo-1665453031228-332ad0c2ec3e?fm=jpg&amp;fit=crop&amp;w=1000&amp;h=1250&amp;q=78"
+             alt="Water beading on freshly sealed paint." loading="lazy">
+        <figcaption>Sealant, six-month</figcaption>
+      </figure>
+      <figure class="t t3">
+        <img src="https://images.unsplash.com/photo-1632823469850-2f77dd9c7f93?fm=jpg&amp;fit=crop&amp;w=1200&amp;h=900&amp;q=78"
+             alt="Hand-finishing the front of a car with a cloth." loading="lazy">
+        <figcaption>Trim, by hand</figcaption>
+      </figure>
+      <figure class="t t4">
+        <img src="https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?fm=jpg&amp;fit=crop&amp;w=1400&amp;h=800&amp;q=78"
+             alt="A car mid-wash, covered in snow foam." loading="lazy">
+        <figcaption>Foam pre-soak</figcaption>
+      </figure>
+      <figure class="t t5">
+        <img src="https://images.unsplash.com/photo-1700008347045-d2dff6d12c37?fm=jpg&amp;fit=crop&amp;w=1200&amp;h=1500&amp;q=78"
+             alt="A finished coupe parked by the water." loading="lazy">
+        <figcaption>330i &middot; Ceramic Package</figcaption>
+      </figure>
+    </div>
+  </section>
+
+
+  <!-- ═══ 6 · HOW IT WORKS ═══════════════════════════════════════════════
+       D2 · the routed connector diagram — right-angled lines with rounded
+       corners between floating pills, drawn as a SYSTEM rather than three
+       cards. TASTE-NOTES § C: this is the thing he was pointing at in
+       `auxia`. Its shape is a drawn path; nothing else on the page is. -->
+  <section class="how" id="how" aria-label="How it works">
+    <div class="sechead">
+      <h2>Booking takes <em>about a minute.</em></h2>
+    </div>
+    <ol class="flow">
+      <li class="node" style="--i:0">
+        <span class="num">01</span>
+        <h3>Pick a slot</h3>
+        <p>Real openings from our calendar, not a request form. The slot is yours straight away.</p>
+      </li>
+      <li class="node" style="--i:1">
+        <span class="num">02</span>
+        <h3>Get the price</h3>
+        <p>Quoted from your car and package before you confirm. It does not change later.</p>
+      </li>
+      <li class="node" style="--i:2">
+        <span class="num">03</span>
+        <h3>We turn up</h3>
+        <p>Inside the hour you booked, and you get a text when we set off.</p>
+      </li>
+      <li class="node" style="--i:3">
+        <span class="num">04</span>
+        <h3>Pay at the end</h3>
+        <p>Card or tap when the work is finished. Receipt emailed straight away.</p>
+      </li>
+    </ol>
+  </section>
+
+
+  <!-- ═══ 7 · ONE RECENT JOB, WHOLE ══════════════════════════════════════
+       E1 · the single most transferable thing found in the eighteen
+       (TASTE-NOTES § L): a gallery, a service menu, a testimonial and a
+       booking CTA collapsed into ONE object. Every other site spends four
+       sections on those four jobs.
+       AND THIS PRODUCT CAN GENERATE IT — job_photos, booking_services, the
+       vehicle, the customer's first name and city, the review link. A
+       completed job becomes this row with nobody typing anything. -->
+  <section class="job" aria-label="A recent job">
+    <div class="jobrow" data-from="the detailer's own completed bookings">
+      <div class="jobshot">
+        <img src="https://images.unsplash.com/photo-1639062909256-f3a109eec5b1?fm=jpg&amp;fit=crop&amp;w=1200&amp;h=900&amp;q=78"
+             alt="A recently detailed car parked under trees in evening light.">
+        <span class="jobbadge">Full Detail &middot; $259</span>
+      </div>
+      <div class="jobbody">
+        <h3>2021 BMW 330i <em>&mdash; Green Lake</em></h3>
+        <p class="jobdid">
+          Winter salt off the wheels and arches, one-stage polish and sealant on
+          the bonnet and roof, interior steam-cleaned, driver&rsquo;s seat
+          re-conditioned.
+        </p>
+        <a class="jobcta" href="#book">Book this package</a>
+        <blockquote class="jobrev">
+          &ldquo;On time, four hours in our driveway, and I could not find a
+          single swirl afterwards. The seat looks new, and booking took a minute.&rdquo;
+          <cite>
+            <b>Marcus T.</b> &middot; Green Lake
+            <span class="stars" aria-label="Five stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+            <span class="src">Google</span>
+          </cite>
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══ 8 · FAQ ════════════════════════════════════════════════════════
+       The objections a mobile detailer actually gets. Its shape is a
+       two-column accordion — nothing else on the page opens. -->
+  <section class="faq" aria-label="Questions">
+    <div class="sechead">
+      <h2>Common <em>questions.</em></h2>
+    </div>
+    <div class="faqcols" data-from="faqs">
+      <details><summary>How long does a Full Detail take?</summary>
+        <p>About four hours for a sedan, five for an SUV. We book one job per
+           slot, so nobody is rushed and we are not juggling two driveways.</p></details>
+      <details><summary>What happens if it rains?</summary>
+        <p>Light rain is fine. Heavy rain or under 4&deg;C and we move you free to
+           the next slot that suits. You will hear from us the night before.</p></details>
+      <details><summary>Where do you need to park?</summary>
+        <p>Any flat spot with roughly a car&rsquo;s width beside it &mdash; a
+           driveway, a kerb or an office car park all work.</p></details>
+      <details><summary>How late can I cancel?</summary>
+        <p>Free up to 24 hours before, from the link in your confirmation.
+           Inside 24 hours it is 50%, because the slot cannot be refilled.</p></details>
+      <details><summary>Can you get scratches out?</summary>
+        <p>Light swirls and haze, yes &mdash; that is what the polish stage is for.
+           Deeper scratches you can catch a fingernail in need the Ceramic
+           Package&rsquo;s correction, and a few need a body shop. Send photos and
+           we will tell you which.</p></details>
+    </div>
+  </section>
+
+
+  <!-- ═══ 9 · BOOK · GROUND CHANGE 3 ═════════════════════════════════════
+       C4 · the review proof sits INSIDE the form, at the moment of
+       commitment — TASTE-NOTES § M flags this as the one difference from
+       `meli`'s quote page clearly worth copying. -->
+  <section class="book" id="book" aria-label="Book">
+    <div class="bookgrid">
+      <div class="bookside">
+        <h2>Get a price in <em>under a minute.</em></h2>
+        <p>No deposit and no phone call. The quote is held for seven days.</p>
+        <ul class="bookwhy">
+          <li>Live availability &mdash; press a slot and it is yours</li>
+          <li>Fully insured, $2m public liability</li>
+          <li>6 years in North Seattle, 1,240 cars</li>
+        </ul>
+      </div>
+
+      <form class="bookform" onsubmit="return false" aria-label="Get a price">
+        <label>Your car
+          <input type="text" placeholder="2021 BMW 330i" autocomplete="off"></label>
+        <div class="two">
+          <label>Size
+            <select data-from="get_public_business_profile.vehicle_sizes">
+              <option>Sedan</option><option>SUV &amp; Crossover</option><option>Truck &amp; XL</option>
+            </select></label>
+          <label>Package
+            <select data-from="get_public_business_profile.services">
+              <option>Express Wash</option><option selected>Full Detail</option><option>Ceramic Package</option>
+            </select></label>
+        </div>
+        <label>Where we are coming
+          <input type="text" placeholder="Postcode or suburb" autocomplete="postal-code"></label>
+        <label>Email
+          <input type="email" placeholder="you@example.com" autocomplete="email"></label>
+        <button class="booksubmit" type="submit">See my price</button>
+        <!-- C4 · proof at the moment of commitment, not scattered up the page -->
+        <p class="bookproof" data-from="the detailer's Google reviews">
+          <span class="stars" aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+          <b>4.9</b> from <b>312</b> reviews &middot; last booked <b>17 minutes ago</b>
+        </p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ═══ 10 · FOOTER ══════════════════════════════════════════════════ -->
+  <footer class="foot">
+    <div class="footgrid">
+      <div class="footcol">
+        <h4>Call us</h4>
+        <a class="footphone" href="tel:+12065550142" data-from="businesses.contact_phone">(206) 555-0142</a>
+        <span class="open" data-from="business_hours"><i></i> Open now &middot; until 6pm</span>
+      </div>
+      <div class="footcol">
+        <h4>Where</h4>
+        <p data-from="get_public_business_profile.service_area">North Seattle &amp; Eastside</p>
+        <p>Mon&ndash;Sat, 8am&ndash;6pm</p>
+      </div>
+      <div class="footcol">
+        <h4>Packages</h4>
+        <a href="#prices">Express Wash</a>
+        <a href="#prices">Full Detail</a>
+        <a href="#prices">Ceramic Package</a>
+      </div>
+      <div class="footcol">
+        <h4>More</h4>
+        <a href="#work">Recent work</a>
+        <a href="#how">How it works</a>
+        <a href="#book">Get a price</a>
+      </div>
+    </div>
+    <!-- B2 · the giant bleeding wordmark. It makes the page END rather than
+         merely stop. One oversized wordmark per page, so B3 is absent. -->
+    <span class="wordmark" aria-hidden="true">PRI<s>M</s><s>E</s></span>
+    <div class="legal">
+      <span>&copy; 2026 Prime Mobile Detailing LLC</span>
+      <span>Licensed &amp; insured &middot; $2m public liability</span>
+      <span>WA UBI 604-555-091</span>
+    </div>
+  </footer>
+
+</div>
+
+<nav class="dock" aria-label="Quick actions">
+  <a href="#work">Work</a>
+  <a class="book" href="#book">Book now</a>
+  <a href="#prices">Prices</a>
+</nav>
+
+<script>
+/* G1 · the cursor glow. Lerped at 0.09 so the light LAGS the pointer — the
+   difference between a lit surface and a torch taped to the mouse. One
+   composited layer, fine pointers only, off under reduced motion. */
+(function(){
+  var mq = window.matchMedia;
+  if (!mq || !mq("(pointer:fine)").matches) return;
+  if (mq("(prefers-reduced-motion:reduce)").matches) return;
+  var g = document.getElementById("ground"), raf = 0;
+  var gx = innerWidth * 0.62, gy = innerHeight * 0.14, tx = gx, ty = gy;
+  function step(){
+    gx += (tx - gx) * 0.09;
+    gy += (ty - gy) * 0.09;
+    g.style.setProperty("--gx", gx.toFixed(1) + "px");
+    g.style.setProperty("--gy", gy.toFixed(1) + "px");
+    raf = (Math.abs(tx - gx) < 0.5 && Math.abs(ty - gy) < 0.5) ? 0 : requestAnimationFrame(step);
+  }
+  addEventListener("pointermove", function(e){
+    tx = e.clientX; ty = e.clientY;
+    if (!raf) raf = requestAnimationFrame(step);
+  }, { passive:true });
+})();
+
+/* ── The page marks itself as scripted, so the reveal's hidden state is added
+   by SCRIPT and a failed script leaves a fully readable page. ───────────── */
+document.documentElement.classList.add("js");
+var REDUCED = matchMedia("(prefers-reduced-motion:reduce)").matches;
+
+/* G7 · reveal on scroll. One observer, unobserve on fire. */
+(function(){
+  var els = document.querySelectorAll(".sechead,.plan,.node,.jobrow,.ba-box,.bookform,.faqcols,.areanote");
+  if (REDUCED || !window.IntersectionObserver){
+    els.forEach(function(e){ e.classList.add("rv","shown"); });
+    return;
+  }
+  els.forEach(function(e){ e.classList.add("rv"); });
+  var io = new IntersectionObserver(function(rows){
+    rows.forEach(function(r){
+      if (!r.isIntersecting) return;
+      r.target.classList.add("shown");
+      io.unobserve(r.target);
+    });
+  },{ rootMargin:"0px 0px -12% 0px", threshold:0.08 });
+  els.forEach(function(e){ io.observe(e); });
+})();
+
+/* D7 · the vehicle-size ladder. THE PRICES ARE NOT COMPUTED HERE — each one
+   carries the three figures the server would return from `calculate-booking`,
+   and this only picks which is shown. A number PRINTED is not a number
+   CHARGED, and a tenant site must ASK, never compute. */
+(function(){
+  var tabs = document.querySelectorAll(".tabs button");
+  if (!tabs.length) return;
+  var plans = document.getElementById("plans");
+  plans && [].forEach.call(plans.children, function(c,i){ c.style.setProperty("--n", i); });
+  tabs.forEach(function(b){
+    b.addEventListener("click", function(){
+      tabs.forEach(function(o){ o.setAttribute("aria-selected", o === b ? "true" : "false"); });
+      var col = +b.dataset.size;
+      document.querySelectorAll(".price b").forEach(function(n){
+        n.textContent = n.dataset.p.split(",")[col];
+      });
+      /* Re-key the swap so the parts re-run their own staggered arrival —
+         one entrance shape at a smaller scale, never a uniform dissolve. */
+      if (plans){
+        [].forEach.call(plans.children, function(c,i){
+          c.style.animation = "none";
+          void c.offsetWidth;
+          c.style.animation = "";
+          c.style.setProperty("--n", i);
+        });
+      }
+    });
+  });
+})();
+
+/* G6 · the stat strip counts up once, on arrival. NEVER on a price — a price
+   that animates reads as a price that moves. */
+(function(){
+  var strip = document.querySelector(".stats");
+  if (!strip || REDUCED || !window.IntersectionObserver) return;
+  var io = new IntersectionObserver(function(rows){
+    if (!rows[0].isIntersecting) return;
+    io.disconnect();
+    strip.querySelectorAll("b").forEach(function(n){
+      var txt = n.textContent, num = parseFloat(txt.replace(/[^\d.]/g, ""));
+      if (!isFinite(num)) return;
+      var dec = (txt.split(".")[1] || "").replace(/\D/g, "").length;
+      var suf = txt.replace(/^[\d,.]+/, ""), t0 = performance.now();
+      (function tick(t){
+        var k = Math.min(1, (t - t0) / 900);
+        k = 1 - Math.pow(1 - k, 3);
+        var v = num * k;
+        n.textContent = (dec ? v.toFixed(dec)
+                             : Math.round(v).toLocaleString("en-US")) + suf;
+        if (k < 1) requestAnimationFrame(tick);
+      })(t0);
+    });
+  }, { threshold: 0.6 });
+  io.observe(strip);
+})();
+
+</script>
+</body>
+</html>

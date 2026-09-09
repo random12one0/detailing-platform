@@ -1166,3 +1166,189 @@ recorded so the next page has both in hand.
 eleven screens, centred body copy in every right-hand panel, and a modal over
 the middle of the hero. The tick list is the good part of a bad page, which is
 the same finding as `agautospa`'s masonry.
+
+---
+
+# BATCH 3 — 2026-09-08, THE SET BRIEF. HIS OWN WORDS, UNEDITED
+
+**Said while the first site's photo search was running, unprompted.** He stopped
+the session to widen the job from *one site* to *a SET of about five*, and to
+add a source nobody had permission to use before: **our own landing page.**
+
+## The raw message, verbatim
+
+> *"We're gonna make, like, maybe, like, five websites, maybe more. But,
+> basically, each one is gonna be based off of, um, based off of a couple
+> websites that I've chosen that I like the look of. Um, not all of them. Each
+> website, uh, all the websites that I talked about and are documented should be
+> analyzed for every single time we make a new website. But, basically, what I
+> mean by... I wanna have, like, five websites that have different looks. That
+> doesn't mean one website looks good, one website looks bad. That just means
+> that there's, like, a slightly different layout and look to it. Let them not
+> [be] five websites that are almost exactly identical. I mean, all of the
+> websites that I sent to you, I would classify all of those of not being
+> completely different websites and not identical, but they're all still good.
+> Whereas, like, the... where you gave me this really sleek one versus this one,
+> it was, like, a notepad. That's too far.*
+>
+> *And then also use kinda some of the design schemes that we've been using in my
+> actual website, at andrewdetail.com. That one... actually actually ignore the
+> andrewdetail.com. It is a good website in my opinion, but it's... you're just
+> keeping [it in] the back of your mind. But especially our detailingplatform.com
+> website or landing page, I really like the look of our website, just kind of
+> how it flows and animations and whatnot. So I want a lot of these... I have,
+> like, those cool kind of features that, you know, maybe a normal website won't
+> have, like, you know, the glow around your mouse for one example.*
+>
+> *Um, but that's just... I wanna keep blabbering on here, and don't take any way
+> I'm saying too hard to heart. Um, like, don't make any of this, like, [a] rule
+> that you have to exactly follow. I'm just kinda yapping just to kinda give you
+> a better understanding of what I'm looking for. But everything should feel very
+> polished and well made. And we're just gonna use the inspiration from websites
+> that I found. and knowledge. I definitely want you to do research into, like,
+> what... basically, well, one, each website has to have all the stuff that we
+> need for it to basically be working with... well, actually, these example
+> websites don't, but it should be shown, basically, the connection between the
+> admin dashboard and the website. You know? So the pricing needs to be on there
+> and a booking widget and, you know, all that stuff. As well as, you know, maybe
+> somewhere websites got different pages, whereas one is all on one page. So
+> there could be some variation there. Obviously, when I have a detailer and they
+> can explain what they want the website to be. These are just the examples for
+> them to see. But, obviously, they'll change. And I definitely wanna kinda go
+> over the form that we've made because I know AI made a form better and how good
+> it is, um, yet. But then... yeah. So just try to do a really good... try to do
+> really good on these websites, please. Really try to impress me based off of
+> what you've collected from my taste and whatnot."*
+
+## NINE THINGS IN THAT ARE INSTRUCTIONS, NOT COMMENTARY
+
+1. **THE UNIT OF WORK IS A SET OF ~FIVE, NOT FIVE INDEPENDENT PAGES.** Each one
+   is *"based off of a couple websites that I've chosen"* — **a PAIR from his 21,
+   named out loud, different for each site.** This is the same "name two families
+   to remix, never one" finding `docs/design-knowledge.md` already reached, now
+   arriving as his own instruction and with a fixed source list.
+2. **THE SPREAD HAS A CEILING AND A FLOOR, AND HE GAVE BOTH.** *"Not completely
+   different and not identical, but they're all still good"* — his own 21 are the
+   calibration. **The sleek page versus the notepad page is TOO FAR.** So the
+   variety target is his 18-site spread, not the maximum distance two briefs can
+   produce. This retires the older instinct that variety means maximum distance.
+3. **ALL EIGHTEEN GET RE-READ FOR EVERY SITE.** *"All the websites that I talked
+   about and are documented should be analyzed for every single time we make a new
+   website."* § O and the archive frames are not a one-time pass.
+4. **OUR OWN LANDING PAGE IS NOW A SOURCE — AND THIS IS A NARROW, DELIBERATE
+   REOPENING.** *"Especially our detailingplatform.com landing page, I really
+   like the look of our website, just how it flows and animations and whatnot…
+   those cool kind of features that a normal website won't have, like the glow
+   around your mouse."*
+   **What he is pointing at is the MECHANICS — the flow, the motion, the pointer
+   glow — and not the skin.** `CLAUDE.md`'s existing rule already draws that exact
+   line (*"a tenant site inherits our METHOD and never our SKIN"*), and it stands:
+   **no Archivo, no JetBrains Mono, no `#0B0D0E`, no accent green, no section
+   order.** What crosses over is the DEVICE. `docs/sessions/websites.md` § 2 says
+   not to read `design-system.md`; **that stays true for the identity and is now
+   overridden for the motion and the pointer devices only.**
+5. **`andrewsdetail.com` IS EXPLICITLY OUT.** He raised it and withdrew it in the
+   same breath: *"actually ignore… just keeping [it in] the back of your mind."*
+   **Do not build from it.** `reference/` remains read-only canon for the BOOKING
+   WIDGET's behaviour, which is a separate matter.
+6. **EVERY EXAMPLE SITE MUST SHOW THE DASHBOARD CONNECTION.** *"The pricing needs
+   to be on there and a booking widget and all that stuff."* This is
+   `docs/tenant-site-contract.md` § 2 restated by the owner. A demo page that
+   prints a made-up price is the failure the contract exists to stop.
+7. **PAGE COUNT IS ITSELF A DIMENSION OF THE VARIETY.** *"Maybe some websites got
+   different pages, whereas one is all on one page."* At least one of the five is
+   multi-page. Nothing in `docs/tenant-sites/` has ever been.
+8. **THESE ARE SHOWROOM EXAMPLES, NOT FINAL CLIENT SITES.** *"These are just the
+   examples for them to see… obviously, they'll change."* They are what a signing
+   detailer picks from.
+9. **HE WANTS TO REVIEW THE BOOKING FORM ITSELF, SEPARATELY.** *"I definitely
+   wanna kinda go over the form that we've made because I [don't] know how good it
+   is yet."* **Owed to him: a screenshot walk of the real booking flow at 392.**
+   Parked as its own item so it does not derail the first site.
+
+**AND HIS OWN GUARD ON ALL OF THE ABOVE:** *"Don't take any way I'm saying too
+hard to heart… don't make any of this a rule that you have to exactly follow. I'm
+just kinda yapping to give you a better understanding."* Read the nine as
+DIRECTION, not as nine more never-defaults. The one hard sentence in the message
+is the last one: ***"everything should feel very polished and well made."***
+
+## BATCH 3b — THE PHOTOGRAPHS ARE SLOTS, NOT ART DIRECTION (2026-09-08)
+
+Approving the twelve-photo contact sheet for site 1, he added the constraint
+that matters more than the approval:
+
+> *"It's not that important just because of the fact that, obviously, they're
+> all gonna get… it's all gonna be the detailer's photos, not our photos
+> eventually. Once we get the company, we're not gonna have, like, stock photos
+> on the website, or maybe only a couple. So just some photos are fine."*
+
+**SO A PAGE MUST NOT BE ART-DIRECTED AROUND ONE PARTICULAR PHOTOGRAPH.** Every
+image sits in a SLOT with a stated shape and role — hero, process, portfolio,
+texture — that a tenant's own `job_photos` or `business-media` upload drops into
+without the layout collapsing. **A hero that only works because the sun happens
+to be in the top-left corner of that JPEG is a hero that breaks for the first
+real client.**
+
+Concretely, and this binds every page from here:
+- The scrim (A3) is a **gradient over the slot**, sized to the slot, never a
+  blend tuned to one image's histogram.
+- Text on a photo sits inside a scrimmed band whose contrast is computed against
+  **black and against white**, so any replacement photo still clears it.
+- `object-fit: cover` with a stated aspect ratio on every slot. No absolute
+  positioning that assumes where the car is in frame.
+- Alt text describes the ROLE, and each slot carries a comment naming which
+  field would fill it.
+
+**This does NOT relax A2.** Stock is a stand-in for a real photograph, not for
+no photograph — the regression the ten rejected pages had was ZERO images, and
+that stays a hard failure.
+
+## BATCH 3c — THE COPY IS WRONG, AND IT IS WRONG THE SAME WAY EVERY TIME (2026-09-08)
+
+He interrupted the build to say this, and asked for it saved so **every future
+website carries it**:
+
+> *"I think when it builds a website it almost builds it as, like, this new
+> upcoming techy kind of branding. So, for example, our name is Sundown, and our
+> tagline is 'the last hour of light at your kerb.' **This is not even close to
+> what a detailer would actually have.** …the branding is usually just, like,
+> Andrew's Detailing or Prime Detailing or something more basic. It's not, like,
+> Sundown. And no one has a tagline that's 'the last hour of light at your
+> kerb.' Like, what IS that tagline? **A more obvious tagline would be, like,
+> Mobile Auto Detailing.** It doesn't need to be this very crafted branding. It
+> should be more simple. Use actual inspiration for how to name the website and
+> write things.*
+>
+> *Like, for example: 'Mobile detailing across the north side. We arrive with our
+> own water and power, work in your driveway, and leave when the paint is dry.'
+> **That just sounds weird.** Not only do you not need to state that we arrive
+> with our own water and power — **that's standard.** So don't say things that
+> are obvious, first of all… **But don't make it this, like, English professor.**
+> Make it more like 'we provide quality auto detailing' — something more
+> advertisement-focused, more like **'hey, we're good at what we're doing'**, not
+> some poem, if this makes sense. Now I'm kind of over-exaggerating that you're
+> writing a poem, but I'm trying to get my point across, that the wording should
+> actually be good and not how you're doing right now. And I think that's a
+> common practice **for everything.** And I think even my own landing page needs
+> updating on the wording, but don't worry about that."*
+
+**THIS IS A THIRD FAILURE MODE AND THE REPO HAD NO NAME FOR IT.** § 1's
+anti-slop rules catch a page that looks generic. The diagnosis of 2026-09-09
+caught a page that is thin. **Neither can see a page whose WORDS are a startup's
+words.** `v-goldenhour` cleared every visual gate in this repo and was named
+*Sundown Detail Co.* with the tagline *"the last hour of light, at your kerb"* —
+which is a Series-A SaaS brand wearing a detailer's clothes.
+
+**Three named defects, all his:**
+1. **Crafted branding.** A trade name is *[a person, a place, or a plain word] +
+   [detailing / auto spa / mobile detailing / car wash]*. It is not a mood.
+2. **A tagline that is a metaphor.** The tagline says the TRADE and the PLACE.
+3. **Stating the standard as if it were a feature** — *"we arrive with our own
+   water and power"*. A mobile detailer bringing water is the job, not a selling
+   point. **This is the existing "copy that explains what the label already said"
+   rule (`design-system.md`, 2026-09-01) arriving from the other direction:**
+   that one bans restating the control, this one bans restating the baseline.
+
+**The derived rules live in `docs/design-knowledge.md` § "COPY AND NAMING".**
+His last sentence — *"even my own landing page needs updating on the wording"* —
+is parked, not actioned; he said not to worry about it.
