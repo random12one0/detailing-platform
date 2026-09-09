@@ -132,9 +132,12 @@ privacy policy** (four form fields, a legitimacy check); review TWO does, and
 cannot start until one returns. **Credits reset 13 Sep, before that. So the
 timing gap closes itself — DO NOT buy credits**, and nothing else user-facing
 needs to ship in five days (zero detailers, not going public yet).
-**Waiting on him:** `OUTSTANDING.md` § 1 — and the live one is **§ 12: why open
-Stripe in a parent's name NOW rather than in December in his own name.**
-Recommendation is wait; nothing in the build needs it.
+**Waiting on him:** `OUTSTANDING.md` § 1. **§ 12 IS ANSWERED — 2026-09-08, *"we
+are gonna wait."*** No parent on the Stripe account, no parent's bank account,
+no ownership transfer. Everything legal happens the week of 2 December in his
+own name, exactly as `setup-steps` STEP 0 always said. **The one decision still
+open is the WORK BRANCH (§ 17), and it has a deadline: on 14 Sep pushes start
+publishing again.**
 **Resend:** cap is REAL and account-wide, 100/day. The 117 on 8 Sep was
 **entirely our own test traffic** — real customer email is ~2/day, so the
 "upgrade when a detailer gets close" deferral STANDS. **Do not push the $20.**

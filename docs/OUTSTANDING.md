@@ -676,7 +676,30 @@ a support ticket; moving between two legal *persons* is a new account — and
 Andrew's, or stays and merely changes who signs.** Nobody here has established
 which.
 
-### THE QUESTION FOR HIM, AND THE RECOMMENDATION IS "WAIT"
+### ANSWERED 2026-09-08: **"we are gonna wait."**
+
+> **HE DECIDED TO WAIT.** No Stripe account opened in a parent's name, no
+> business bank account in a parent's name, and no ownership transfer to
+> sequence later. **Everything legal happens in the week of 2 December, in his
+> own name** — which is what `docs/setup-steps-2026-09-04.md` STEP 0 already
+> says, so **that file is no longer contradicted and its flag can come off.**
+>
+> **What this closes:** the guardian-owner plan, the handover ordering (Stripe
+> Support first, then payouts), and the disagreement about whether a handover
+> costs a support ticket or a whole new account. **None of it happens, so none
+> of it needs resolving.**
+>
+> **What stays true regardless:** the code must never hardcode the account
+> holder, the business name on receipts, or payout details —
+> `tests/connect.test.mjs` § 9 holds that, and it is worth keeping whether or
+> not an ownership change ever occurs.
+>
+> **And it leaves `ENTITY` simpler.** § 1 row 5 asks whether *"Andrew Dietrich,
+> doing business as Detailing Platform"* is right. With no parent on the
+> paperwork, **that guess is now probably correct** — confirm it with the CPA
+> in December rather than changing it now.
+
+### ~~THE QUESTION FOR HIM, AND THE RECOMMENDATION IS "WAIT"~~ — he chose wait
 
 **Why open it now with a parent, rather than in December in his own name?**
 

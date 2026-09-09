@@ -23,8 +23,16 @@ give actual advice.
 
 ## STEP 0 — ANSWERED 2026-09-04: he turns 18 on 2 DECEMBER 2026
 
-> **CHALLENGED 2026-09-08 AND NOT YET RESOLVED — read `docs/OUTSTANDING.md`
-> § 12 before acting on anything below.** This section says *"no dad on the
+> **CHALLENGED 2026-09-08 AND RESOLVED THE SAME DAY IN THIS FILE'S FAVOUR.**
+> A report said Stripe requires a guardian as legal account owner under 18, and
+> proposed opening the account in a parent's name. **He answered: *"we are gonna
+> wait."*** So there is no guardian, no parent's bank account and no ownership
+> transfer — **everything below stands exactly as written.** The account is
+> opened in his own name in December, which is what STEP 0 has always said.
+> `docs/OUTSTANDING.md` § 12 keeps the reasoning, because the guardian
+> requirement is real and would apply to anyone who did open early.
+>
+> *(Original flag, kept for the record:)* This section says *"no dad on the
 > Stripe account"* and treats the guardian question as moot. A later report
 > says **Stripe requires a guardian as the legal account owner while the
 > holder is under 18**, and that the account will be opened in a parent's name
