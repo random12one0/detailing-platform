@@ -1,6 +1,15 @@
 # Session A — websites, and nothing else
 
-## READ `docs/tenant-site-playbook.md` FIRST. IT IS THE PLAN.
+## THE FIRST DELIVERABLE IS A FILLED DESIGN SCHEME, NOT A PAGE.
+
+Copy `docs/DESIGN-SCHEME-TEMPLATE.md` to `docs/schemes/<tenant>-scheme.md`,
+fill it from `docs/TASTE-NOTES.md` and `docs/DEVICE-INVENTORY.md`, and get
+Andrew's yes on §1, §2, §3 and §9. **No HTML exists before he says yes.**
+`docs/schemes/prime-mobile-detailing-scheme.md` is a filled example.
+
+**ONE direction, never three.** It is a **style guide**, never a design system.
+
+## THEN `docs/tenant-site-playbook.md`. IT IS THE PLAN.
 
 Everything about how these pages get built lives there, written as
 instructions: the loop, the naming and copy rules, what a photograph owes, the

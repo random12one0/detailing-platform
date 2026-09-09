@@ -12,6 +12,7 @@ Its companions, and you need all three:
 | `docs/DEVICE-INVENTORY.md` | The twenty-one devices a page can be built from, each with a **when NOT to**. |
 | `docs/TASTE-NOTES.md` | The owner's own words about twenty-one sites he chose, plus his verdict on everything built so far. **The evidence.** |
 | `docs/tenant-site-contract.md` | The twelve things a site owes the product, each written as *what silently stops working if you omit it*. |
+| `docs/DESIGN-SCHEME-TEMPLATE.md` | **The style tile every site starts from.** Copy it to `docs/schemes/<tenant>-scheme.md`, fill it, get a yes. **No HTML before that.** |
 
 `tests/tenant-sites.test.mjs` enforces the parts of this file that a script can
 see. Run it before you finish. It does not replace looking at the page.
@@ -38,9 +39,24 @@ goes to a car owner and is about the car.**
    kind of detailer, light or dark, the one thing the page must make somebody
    feel, which two of his twenty-one it should sit near, what it must NOT be.
    **His refusals are worth more than his approvals.**
-2. **Write ONE direction paragraph and stop for a yes.** Subject, ground,
-   accent, display face, which devices, and whether variety comes from rhythm or
-   depth. One paragraph costs one message; a wrong build costs a session.
+2. **Fill in `docs/DESIGN-SCHEME-TEMPLATE.md` and stop for a yes.** The
+   filled copy is `docs/schemes/<tenant>-scheme.md` and it is **the first
+   deliverable of the session — no HTML exists until Andrew approves it.**
+   `docs/schemes/prime-mobile-detailing-scheme.md` is a worked example.
+   - **It is a STYLE GUIDE, never a design system.** A design system is the
+     parent thing — multi-product, governance, a component code library
+     (Nielsen Norman Group). Scope creep here is a real risk and the
+     terminology invites it.
+   - **ONE direction, fully resolved. Never three.** Options get mixed and
+     matched into a Frankenstein; that is the strongest consensus in the
+     design-review literature. If you cannot choose, narrow against
+     `TASTE-NOTES.md` first, then present one.
+   - **Fill it from `TASTE-NOTES.md` and `DEVICE-INVENTORY.md`, not from your
+     own priors.** Every value in §3–§9 traces to a site Andrew rated or to a
+     numeric floor: depth ≥ 15, rhythm ≥ 3 **or** depth ≥ 20, WCAG 4.5:1 / 3:1.
+   - **Hand him §1, §2, §3 and §9 only** — the four approval questions at the
+     foot of the template. Everything else is detail he can change later; do
+     not ask him to ratify a document line by line.
 3. **Find the photographs before the layout.** Search Unsplash, render the
    candidates to a contact sheet, **look at it**, send him three or four. The
    hero decides the page. If nothing fits, ask — he will source images rather

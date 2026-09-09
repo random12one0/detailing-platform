@@ -435,3 +435,37 @@ a page to be read and the least forgiving place to be clever.**
 **And a call to action must be the NEXT thing the reader wants, not the thing
 the page just did.** *"'Get a price' on the pricing page kinda feels weird"* —
 on a page of prices, the next step is **Book**.
+
+
+---
+
+# TWO CORRECTIONS TO CARRY FORWARD — 2026-09-08
+
+Both were found by checking a rule against the systems that supposedly publish
+it, rather than against a blog that repeats it.
+
+## 1 · "60-30-10" IS NOT A RULE. DO NOT USE IT.
+
+The claim that a palette should be 60% dominant, 30% secondary, 10% accent
+**appears in none of GOV.UK, Carbon, Material, Atlassian, Polaris or Spectrum**,
+and has no attributable origin. It is interior-design folklore that migrated
+into UI blogs and then into training data.
+
+**What real specifications document instead: colour ROLES and CONTRAST RATIOS.**
+Material 3's framing is the useful one — roles are *"the connective tissue
+between elements of the UI and what color goes where."* A page is correct
+because every pair clears 4.5:1 (or 3:1 for large text and control edges), not
+because the accent occupies a tenth of the pixels.
+
+## 2 · MATERIAL'S FIXED EASING AND DURATION TOKENS ARE DEPRECATED.
+
+Material has moved to a **spring-physics** motion system and marks its fixed
+easing/duration tokens as no longer maintained. Quoting them as current is
+quoting a retired spec.
+
+**Use IBM Carbon's values** — they are current, they are published with the
+purpose of each duration, and they are copied verbatim into
+`DESIGN-SCHEME-TEMPLATE.md` § 7. The half that matters most and is easiest to
+skip: **entrance and exit curves are asymmetric on purpose** — decelerate for
+things arriving, accelerate for things leaving. Site 1 uses one house curve for
+both, which is the specific thing site 2 should not repeat.
