@@ -1,0 +1,950 @@
+<!doctype html>
+<html lang="en" data-c="b">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ballantyne Mobile Detailing — mobile auto detailing and ceramic coating, Charlotte NC</title>
+<meta name="description" content="Mobile auto detailing, paint correction and ceramic coating at your home or office across Charlotte. Thirteen packages, prices published, we bring everything.">
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     SITE 3 · Ballantyne Mobile Detailing  ·  docs/schemes/ballantyne-mobile-detailing-scheme.md
+
+     PAIR: atelierdetail x fora.so. Andrew picked fora and asked for the
+     detailer half to be MATCHED ON FORM rather than on his verdict line.
+
+     WHAT IS TAKEN FROM FORA, measured off the live page 2026-09-09 and not
+     recalled: pill buttons and pill eyebrows (radius > height); panels at
+     16px; large cards at 23-24px; insets at 12px; nested corners stepping
+     down 1px at a time; a headline at REGULAR weight and large, never heavy;
+     one genuinely large object rising into frame and fading into the ground;
+     a section shape of label -> heading -> paragraph -> big visual -> a
+     one-line kicker; a pricing block of tiers with tick lists; an FAQ with
+     CATEGORY TABS; cards carrying a category and a date; a closing CTA band.
+
+     WHAT IS TAKEN FROM A REAL DETAILER: everything factual. The five service
+     categories, all thirteen packages, their prices and their inclusions, the
+     POPULAR CHOICE flags, the marquee of services and towns, the named review
+     with the car model, the owner story and the sixteen-town service list are
+     the shape of melimobiledetailing.com, read live on 2026-09-09. The towns
+     are Charlotte's rather than Puget Sound's because site 1 already owns
+     North Seattle.
+
+     WHAT IS DELIBERATELY ABSENT: the three-figure proof row. Sites 1 and 2
+     both open "4.9 / 6 yrs / 1,240 cars" in that order and Andrew named it as
+     the thing making them feel like one page. Proof here is carried by
+     density instead - the marquee, the popular flags, one named review with
+     the car, and sixteen towns.
+
+     COLOURWAYS: three, and they are a paint job over one skeleton, which is
+     what Andrew asked for ("its easy to just switch colors"). data-c="a"
+     petrol night, "b" painted teal, "c" cool daylight. ?c=a|b|c switches.
+     Every colour lives in the three blocks below and NOWHERE else in the
+     file - a hard-coded colour further down is a fourth theme nobody chose.
+     ══════════════════════════════════════════════════════════════════════ -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600&display=swap">
+
+<style>
+/* ── 1 · THE THREE COLOURWAYS ─────────────────────────────────────────────
+   Contrast figures are computed off the RENDERED page by
+   .tmp-site3/contrast.mjs, never typed from judgement. Where a value carries
+   a ratio in a comment, that ratio was measured after the gradient behind it
+   was in place, because a gradient behind text is a new ground. */
+
+:root{
+  /* geometry and motion are shared by all three; only colour forks */
+  --r-pill:999px;        /* buttons, chips, tabs - fora: radius > height     */
+  --r-card:24px;         /* the largest panels                              */
+  --r-panel:16px;        /* ordinary panels                                 */
+  --r-inset:12px;        /* media and inner blocks                          */
+  --r-tight:8px;         /* the smallest tiles                              */
+  --t-fast:180ms; --t-mid:320ms; --t-slow:620ms;
+  --ease:cubic-bezier(.2,.7,.25,1);
+  --wrap:1180px;
+}
+
+/* ── A · petrol night ─────────────────────────────────────────────────── */
+html[data-c="a"]{
+  --ground:#0A1317;
+  --sky:radial-gradient(120% 72% at 50% -10%, rgba(58,138,148,.44), transparent 62%),
+        radial-gradient(80% 50% at 88% 38%, rgba(245,165,36,.13), transparent 70%),
+        linear-gradient(#0A1317 0%, #07100F 55%, #0A1317 100%);
+  --ink:#EAF2F4;         /* worst pair in this colourway, built page: 6.26:1 */
+  --ink-2:#A9C2C7;
+  --ink-3:#8FAAB0;       /* the quietest text allowed                        */
+  --accent:#F5A524;
+  --on-accent:#1A1204;
+  --panel:rgba(255,255,255,.055);
+  --panel-2:rgba(255,255,255,.085);
+  --edge:rgba(255,255,255,.12);      /* decorative hairline                  */
+  --edge-strong:rgba(255,255,255,.26); /* a control's edge - needs 3:1       */
+  --band:#0D1A1F;        /* the second ground, for alternating sections      */
+  --band-ink:#EAF2F4;
+  --live:#5FE3A1;
+  --shadow:0 24px 60px -24px rgba(0,0,0,.75);
+}
+/* ── B · painted teal ─────────────────────────────────────────────────── */
+html[data-c="b"]{
+  --ground:#10635F;
+  --sky:radial-gradient(95% 60% at 12% 0%, rgba(255,255,255,.10), transparent 60%),
+        linear-gradient(#0F5A57 0%, #0A4441 70%, #0C5350 100%);
+  --ink:#F4EFE6;         /* worst pair in this colourway, built page: 4.69:1 */
+  --ink-2:#E9E3D6;
+  --ink-3:#DED8CA;       /* lifted twice: B is the tightest of the three     */
+  --accent:#FFD166;
+  --on-accent:#231B00;
+  --panel:rgba(244,239,230,.10);
+  --panel-2:rgba(244,239,230,.16);
+  --edge:rgba(244,239,230,.26);
+  --edge-strong:rgba(244,239,230,.46);
+  --band:#F4EFE6;        /* the cream band cut into the paint                */
+  --band-ink:#0B3D3A;
+  --live:#0E7C55;
+  --shadow:0 24px 60px -28px rgba(0,0,0,.45);
+}
+/* ── C · cool daylight ────────────────────────────────────────────────── */
+html[data-c="c"]{
+  --ground:#E9EDF1;
+  --sky:radial-gradient(90% 55% at 78% 4%, rgba(31,79,224,.17), transparent 64%),
+        radial-gradient(70% 44% at 2% 50%, rgba(13,20,24,.09), transparent 70%),
+        linear-gradient(#EDF1F5 0%, #DFE5EB 60%, #E9EDF1 100%);
+  --ink:#0D1418;         /* worst pair in this colourway, built page: 5.06:1 */
+  --ink-2:#41525C;
+  --ink-3:#516069;
+  --accent:#1F4FE0;
+  --on-accent:#FFFFFF;
+  --panel:rgba(255,255,255,.66);
+  --panel-2:rgba(255,255,255,.86);
+  --edge:rgba(13,20,24,.13);
+  --edge-strong:rgba(13,20,24,.30);
+  --band:#0D1418;
+  --band-ink:#EAF0F5;
+  --live:#0E7C55;
+  --shadow:0 24px 60px -30px rgba(13,20,24,.35);
+}
+
+/* ── 2 · GROUND AND TYPE ──────────────────────────────────────────────── */
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:"Instrument Sans",ui-sans-serif,system-ui,sans-serif;
+  font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;
+  overflow-x:clip;           /* NOT hidden: hidden kills position:sticky     */
+}
+.sky{position:fixed;inset:0;background:var(--sky);z-index:0;pointer-events:none}
+main{position:relative;z-index:1}
+.wrap{width:min(var(--wrap),calc(100% - 40px));margin-inline:auto}
+
+h1,h2,h3,.num{font-family:"Schibsted Grotesk",sans-serif;letter-spacing:-.025em}
+/* fora's headline is REGULAR weight and large. Sites 1 and 2 are both heavy
+   display faces; this is the single biggest reason this page reads as a
+   different studio's work rather than a recolour. */
+h1{font-weight:400;font-size:clamp(38px,6.4vw,74px);line-height:1.02;margin:0 0 18px}
+h1 em{font-style:normal;color:var(--accent)}
+h2{font-weight:500;font-size:clamp(27px,3.4vw,40px);line-height:1.08;margin:0 0 14px}
+h3{font-weight:600;font-size:19px;line-height:1.25;margin:0 0 8px}
+p{margin:0 0 14px}
+a{color:inherit}
+
+.label{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ink-3);margin:0 0 14px;display:block}
+.lede{font-size:17px;line-height:1.55;color:var(--ink-2);max-width:56ch}
+.kicker{font-size:13.5px;color:var(--ink-3);margin:12px 0 0}
+
+/* ── 3 · CONTROLS — pill buttons, fora's language ─────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;cursor:pointer;
+  font-family:inherit;font-size:14.5px;font-weight:600;text-decoration:none;
+  padding:14px 24px;border-radius:var(--r-pill);
+  transition:transform var(--t-fast) var(--ease), background var(--t-fast) var(--ease),
+             box-shadow var(--t-fast) var(--ease)}
+.btn-1{background:var(--accent);color:var(--on-accent)}
+.btn-2{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--edge-strong)}
+.btn-3{background:var(--panel-2);color:var(--ink);backdrop-filter:blur(12px)}
+.btn:hover{transform:translateY(-2px)}
+.btn-2:hover{background:var(--panel)}
+@media (hover:none){.btn:hover{transform:none}}
+
+.chip{display:inline-flex;align-items:center;gap:8px;padding:8px 15px;
+  border-radius:var(--r-pill);font-size:12.5px;font-weight:600;
+  background:var(--panel);box-shadow:inset 0 0 0 1px var(--edge);color:var(--ink)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--live);flex:none}
+@media (prefers-reduced-motion:no-preference){
+  .dot{animation:pulse 2.6s var(--ease) infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--live) 55%,transparent)}
+                   60%{box-shadow:0 0 0 7px transparent}}
+}
+
+/* ── 4 · THE HEADER — a bar that collapses into a centred island ──────── */
+.hdr{position:sticky;top:0;z-index:40;padding:16px 0;
+  transition:padding var(--t-mid) var(--ease)}
+.hdr .bar{display:flex;align-items:center;gap:18px;
+  padding:10px 10px 10px 20px;border-radius:var(--r-pill);
+  background:transparent;box-shadow:inset 0 0 0 1px transparent;
+  transition:background var(--t-mid) var(--ease), box-shadow var(--t-mid) var(--ease),
+             max-width var(--t-mid) var(--ease), backdrop-filter var(--t-mid) var(--ease);
+  max-width:100%;margin-inline:auto}
+.hdr.stuck{padding:10px 0}
+.hdr.stuck .bar{
+  /* The island is built from the GROUND, not from a translucent ink: a cream
+     at 16% over teal is a wash you can read the page through. */
+  background:color-mix(in srgb, var(--ground) 84%, transparent);
+  backdrop-filter:blur(18px) saturate(1.3);
+  box-shadow:inset 0 0 0 1px var(--edge), var(--shadow);max-width:760px}
+.brand{font-family:"Schibsted Grotesk";font-weight:700;font-size:18px;
+  letter-spacing:-.02em;text-decoration:none;line-height:1;white-space:nowrap}
+.brand span{display:block;font-family:"Instrument Sans";font-weight:500;font-size:8.5px;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--ink-3);margin-top:3px}
+.hdr nav{display:flex;gap:6px;margin-left:auto;margin-right:6px}
+.hdr nav a{padding:9px 13px;border-radius:var(--r-pill);text-decoration:none;
+  font-size:13.5px;font-weight:500;color:var(--ink-2);
+  transition:background var(--t-fast) var(--ease), color var(--t-fast) var(--ease)}
+.hdr nav a:hover{background:var(--panel);color:var(--ink)}
+.hdr .btn{padding:11px 19px;font-size:13.5px}
+.hdr .btn .sm{display:none}
+@media (max-width:520px){.hdr .btn .lg{display:none}.hdr .btn .sm{display:inline}}
+
+
+/* ── 5 · HERO — one genuinely large object, rising and fading in ──────── */
+.hero{padding:clamp(46px,9vw,104px) 0 0;text-align:center}
+.hero .chip{margin-bottom:26px}
+.hero h1{max-width:15ch;margin-inline:auto}
+.hero .lede{margin:0 auto 26px;text-align:center;max-width:52ch;font-size:17.5px}
+.hero .acts{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+.hero .under{font-size:13px;color:var(--ink-3);margin:0 0 clamp(30px,5vw,54px)}
+.hero .under b{color:var(--ink);font-weight:600}
+
+/* the object: a 21:9 panel that rises from the bottom of the fold and whose
+   TOP edge dissolves into the ground. mask-image is the fade; the panel keeps
+   its own 24px corners so the dissolve never eats a corner. */
+.stage{position:relative;border-radius:var(--r-card) var(--r-card) 0 0;overflow:hidden;
+  aspect-ratio:16/8;max-height:62vh;
+  -webkit-mask-image:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.5) 15%, #000 40%);
+  mask-image:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.5) 15%, #000 40%)}
+.stage img{width:100%;height:100%;object-fit:cover;display:block}
+/* PHOTO SLOT · tenant field: business_media.hero — 16:8, cover, top-lit */
+
+.stage-shell{position:relative}
+.stage-shell .float{position:absolute;left:50%;transform:translateX(-50%);
+  bottom:14%;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.float .chip{background:color-mix(in srgb,var(--ground) 72%,transparent);
+  backdrop-filter:blur(12px);box-shadow:inset 0 0 0 1px var(--edge-strong)}
+
+/* ── 6 · MARQUEE — the trade and the towns, both directions ───────────── */
+.strip{padding:26px 0;margin-top:-2px;
+  border-top:1px solid var(--edge);border-bottom:1px solid var(--edge);
+  background:var(--panel);backdrop-filter:blur(8px);overflow:hidden}
+.rail{display:flex;width:max-content;gap:0;will-change:transform}
+.rail+.rail{margin-top:12px}
+.rail i{font-style:normal;display:inline-flex;align-items:center;gap:26px;padding-right:26px;
+  font-family:"Schibsted Grotesk";font-weight:500;font-size:clamp(15px,1.8vw,20px);
+  letter-spacing:-.01em;color:var(--ink-2);white-space:nowrap}
+.rail i b{font-weight:500;color:var(--ink)}
+.rail i:after{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent);flex:none}
+
+/* ── 7 · INTRO — fora's prose block, but every sentence carries a fact ── */
+.intro{padding:clamp(48px,6.5vw,80px) 0 clamp(30px,4vw,48px)}
+.intro .grid{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:clamp(24px,5vw,64px)}
+.intro p{font-size:17px;color:var(--ink-2);max-width:62ch}
+.intro p b{color:var(--ink);font-weight:600}
+.intro .facts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}
+.intro .fact{padding:16px 18px;border-radius:var(--r-panel);background:var(--panel);
+  box-shadow:inset 0 0 0 1px var(--edge);min-width:0}
+.intro .fact b{display:block;font-family:"Schibsted Grotesk";font-weight:600;font-size:17px;margin-bottom:2px}
+.intro .fact span{font-size:13px;color:var(--ink-3)}
+
+/* ── 8 · REVEALS ─────────────────────────────────────────────────────── */
+/* The hidden state is added by SCRIPT, never by this stylesheet: a page
+   whose script fails must still be readable, and .rv is namespaced because a
+   bare marker class meets other people's class names. */
+.rv-hidden{opacity:0;transform:translateY(18px)}
+.rv-in{opacity:1;transform:none;transition:opacity var(--t-slow) var(--ease),
+        transform var(--t-slow) var(--ease)}
+@keyframes swapin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  .rv-hidden{opacity:1;transform:none}
+  .q,.qs>*{animation:none!important}
+  .rv-in{transition:none}
+  .rail{animation:none!important}
+}
+
+/* ── 9 · SERVICE ROWS — fora's label/heading/body/visual/kicker shape ──── */
+.rows{padding:clamp(18px,3vw,30px) 0 clamp(34px,5vw,54px)}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.06fr);
+  gap:clamp(22px,4vw,56px);align-items:center;
+  padding:clamp(22px,3vw,34px);border-radius:var(--r-card);
+  background:var(--panel);box-shadow:inset 0 0 0 1px var(--edge)}
+.row+.row{margin-top:16px}
+.row:nth-child(even) .rowtext{order:2}
+.rowtext h2{font-size:clamp(24px,2.6vw,32px)}
+.ticks{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:7px}
+.ticks li{position:relative;padding-left:24px;font-size:14.5px;color:var(--ink-2);min-width:0}
+.ticks li:before{content:"";position:absolute;left:0;top:7px;width:12px;height:7px;
+  border-left:2px solid var(--accent);border-bottom:2px solid var(--accent);
+  transform:rotate(-45deg)}
+.rowmedia{border-radius:var(--r-inset);overflow:hidden;aspect-ratio:4/3;position:relative}
+.rowmedia img{width:100%;height:100%;object-fit:cover;display:block;
+  transition:transform var(--t-slow) var(--ease)}
+.row:hover .rowmedia img{transform:scale(1.035)}
+@media (hover:none){.row:hover .rowmedia img{transform:none}}
+.rowmedia .stamp{position:absolute;left:12px;bottom:12px;font-size:11.5px;font-weight:600;
+  padding:7px 12px;border-radius:var(--r-pill);
+  background:color-mix(in srgb,var(--ground) 74%,transparent);
+  backdrop-filter:blur(10px);box-shadow:inset 0 0 0 1px var(--edge-strong);color:var(--ink)}
+
+/* ── 10 · PROCESS — a sequence, so it is numbered ─────────────────────── */
+.band{background:var(--band);color:var(--band-ink);position:relative;
+  padding:clamp(48px,6.5vw,80px) 0;margin:0}
+.band .label,.band .lede,.band .kicker{color:color-mix(in srgb,var(--band-ink) 72%,transparent)}
+.band .town,.band .chip,.band .flag,.band .tagl{color:var(--band-ink);
+  background:color-mix(in srgb,var(--band-ink) 8%,transparent);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--band-ink) 22%,transparent)}
+.band .town.home{background:var(--accent);color:var(--on-accent);
+  box-shadow:inset 0 0 0 1px transparent}
+.band .btn-2{color:var(--band-ink);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--band-ink) 34%,transparent)}
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:26px;counter-reset:s}
+.step{padding:20px;border-radius:var(--r-panel);min-width:0;
+  background:color-mix(in srgb,var(--band-ink) 6%,transparent);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--band-ink) 16%,transparent)}
+.step .num{display:block;font-size:13px;font-weight:600;letter-spacing:.1em;
+  color:color-mix(in srgb,var(--band-ink) 60%,transparent);margin-bottom:10px}
+.step h3{margin-bottom:6px}
+.step p{font-size:14px;margin:0;color:color-mix(in srgb,var(--band-ink) 78%,transparent)}
+
+/* ── 11 · WORK — cards carrying a category and a date ─────────────────── */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(248px,1fr));gap:14px;margin-top:26px}
+.card{border-radius:var(--r-panel);overflow:hidden;background:var(--panel);
+  box-shadow:inset 0 0 0 1px var(--edge);min-width:0;
+  transition:transform var(--t-fast) var(--ease)}
+.card:hover{transform:translateY(-3px)}
+@media (hover:none){.card:hover{transform:none}}
+.card .pic{aspect-ratio:5/4;overflow:hidden}
+.card .pic img{width:100%;height:100%;object-fit:cover;display:block}
+.card .meta{display:flex;justify-content:space-between;gap:10px;padding:14px 16px 0;
+  font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.card h3{padding:6px 16px 0;font-size:16.5px}
+.card p{padding:0 16px 16px;margin:4px 0 0;font-size:14px;color:var(--ink-2)}
+
+/* ── 12 · ONE JOB IN FULL — a review with the car it was written about ── */
+.job{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:0;
+  border-radius:var(--r-card);overflow:hidden;background:var(--panel-2);
+  box-shadow:inset 0 0 0 1px var(--edge);margin-top:16px}
+.job .pic{min-height:280px}
+.job .pic img{width:100%;height:100%;object-fit:cover;display:block}
+.job .say{padding:clamp(22px,3vw,36px);display:flex;flex-direction:column;justify-content:center}
+.job blockquote{margin:0;font-family:"Schibsted Grotesk";font-weight:400;
+  font-size:clamp(19px,2.1vw,25px);line-height:1.3;letter-spacing:-.02em}
+.job .who{display:flex;align-items:center;gap:11px;margin-top:20px}
+.job .who .av{width:38px;height:38px;border-radius:50%;flex:none;display:grid;place-items:center;
+  background:var(--accent);color:var(--on-accent);font-weight:700;font-size:15px}
+.job .who b{display:block;font-size:14.5px}
+.job .who span{font-size:12.5px;color:var(--ink-3)}
+.job .did{display:flex;flex-wrap:wrap;gap:7px;margin-top:20px}
+.tagl{font-size:12px;font-weight:600;padding:6px 11px;border-radius:var(--r-pill);
+  background:var(--panel);box-shadow:inset 0 0 0 1px var(--edge);color:var(--ink-2)}
+
+/* ── 13 · PROMISES — a split panel, not a card grid ───────────────────── */
+.promise{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  border-radius:var(--r-card);overflow:hidden;margin-top:24px;
+  background:var(--panel);box-shadow:inset 0 0 0 1px var(--edge)}
+.promise > div{padding:clamp(20px,2.6vw,30px);min-width:0;
+  box-shadow:inset 0 0 0 .5px var(--edge)}
+.promise h3{margin-bottom:6px}
+.promise p{font-size:14.5px;color:var(--ink-2);margin:0}
+
+/* ── 14 · FAQ — fora's category tabs, and the answers swap under them ─── */
+.tabs{display:inline-flex;gap:4px;padding:5px;border-radius:var(--r-pill);
+  background:var(--panel);box-shadow:inset 0 0 0 1px var(--edge);margin-bottom:22px;flex-wrap:wrap}
+.tabs button{border:0;cursor:pointer;font:inherit;font-size:13.5px;font-weight:600;
+  padding:9px 16px;border-radius:var(--r-pill);background:transparent;color:var(--ink-2);
+  transition:background var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--on-accent)}
+.qs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+.qs[hidden]{display:none}   /* display:grid outranks [hidden] - it must be said */
+.q{border-radius:var(--r-panel);background:var(--panel);box-shadow:inset 0 0 0 1px var(--edge);
+  min-width:0;overflow:hidden}
+.q summary{cursor:pointer;list-style:none;padding:16px 18px;font-weight:600;font-size:15.5px;
+  display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.q summary::-webkit-details-marker{display:none}
+.q summary:after{content:"+";font-family:"Schibsted Grotesk";font-size:19px;line-height:1;
+  color:var(--accent);flex:none;transition:transform var(--t-fast) var(--ease)}
+.q[open] summary:after{transform:rotate(45deg)}
+.q p{padding:0 18px 16px;margin:0;font-size:14.5px;color:var(--ink-2)}
+.flags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.flag{font-size:12.5px;font-weight:600;padding:7px 12px;border-radius:var(--r-tight);
+  background:color-mix(in srgb,var(--accent) 16%,transparent);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 42%,transparent);color:var(--ink)}
+
+/* ── 15 · AREA — the towns, as a field of pills ───────────────────────── */
+.towns{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.town{font-size:14px;font-weight:500;padding:9px 15px;border-radius:var(--r-pill);
+  background:var(--panel);box-shadow:inset 0 0 0 1px var(--edge);color:var(--ink)}
+.town.home{background:var(--accent);color:var(--on-accent);font-weight:600}
+
+/* ── 16 · CLOSE AND FOOTER — the wordmark ends the page ───────────────── */
+.close{text-align:center;padding:clamp(56px,8vw,100px) 0 clamp(30px,5vw,50px)}
+.close h2{max-width:18ch;margin-inline:auto}
+.close .acts{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+footer{padding:0 0 0;position:relative;overflow:hidden}
+.fcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:22px;
+  padding:30px 0 26px;border-top:1px solid var(--edge)}
+.fcols h4{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);
+  margin:0 0 10px;font-weight:600;font-family:"Instrument Sans"}
+.fcols a,.fcols span{display:block;font-size:14px;color:var(--ink-2);text-decoration:none;padding:3px 0}
+.fcols a:hover{color:var(--ink)}
+.open{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink);
+  margin-top:6px;font-weight:600}
+.endmark{font-family:"Schibsted Grotesk";font-weight:700;letter-spacing:-.04em;
+  font-size:clamp(70px,17vw,220px);line-height:.78;white-space:nowrap;
+  margin:10px 0 -.14em;padding-bottom:.06em;
+  background:linear-gradient(90deg,var(--ink) 62%,color-mix(in srgb,var(--ink) 12%,transparent) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.fine{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  padding:14px 0 26px;font-size:12.5px;color:var(--ink-3);border-top:1px solid var(--edge)}
+
+/* ── 17 · THE PHONE DOCK — something stays on screen on both surfaces ─── */
+.dock{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;z-index:50;
+  display:none;gap:6px;padding:6px;border-radius:var(--r-pill);
+  background:color-mix(in srgb,var(--ground) 84%,transparent);
+  backdrop-filter:blur(18px) saturate(1.3);
+  box-shadow:inset 0 0 0 1px var(--edge), var(--shadow);
+  width:calc(100% - 24px);max-width:420px}
+.dock a{flex:1;text-align:center;padding:11px 6px;border-radius:var(--r-pill);
+  font-size:13px;font-weight:600;text-decoration:none;color:var(--ink-2);min-width:0}
+.dock a.go{background:var(--accent);color:var(--on-accent)}
+
+/* ── 18 · PHONE ──────────────────────────────────────────────────────── */
+@media (max-width:980px){
+  .steps{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .qs{grid-template-columns:1fr}
+}
+@media (max-width:820px){
+  .hdr nav{display:none}
+  .hdr .btn{margin-left:auto}
+  .dock{display:flex}
+  body{padding-bottom:74px}      /* the dock never covers the last line */
+  .intro .grid{grid-template-columns:1fr}
+  .stage{aspect-ratio:4/3;max-height:none}
+  .row,.row:nth-child(even) .rowtext{grid-template-columns:1fr;order:0}
+  .job{grid-template-columns:1fr}
+  .job .pic{min-height:220px}
+  .promise{grid-template-columns:1fr}
+}
+@media (max-width:520px){
+  .intro .facts{grid-template-columns:1fr}
+  .hero .acts .btn{flex:1 1 auto;justify-content:center}
+  .steps{grid-template-columns:1fr}
+}
+/* THE 320 FLOOR — the narrowest supported width, not the narrowest shot. */
+@media (max-width:360px){
+  .wrap{width:calc(100% - 24px)}
+  .tabs{width:100%}
+  .tabs button{flex:1 1 auto}
+}
+</style>
+</head>
+
+<body>
+<div class="sky" aria-hidden="true"></div>
+
+<header class="hdr" id="hdr">
+  <div class="wrap bar">
+    <a class="brand" href="#top">Ballantyne<span>Mobile Detailing</span></a>
+    <nav>
+      <a href="#services">Services</a>
+      <a href="#work">Work</a>
+      <a href="#area">Area</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <a class="btn btn-1" href="x-ballantyne-prices.html"><span class="lg">Prices &amp; booking</span><span class="sm">Book</span></a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ═══ 1 · HERO ══════════════════════════════════════════════════════ -->
+  <section class="hero">
+    <div class="wrap">
+      <span class="chip"><i class="dot"></i> Booking this week &middot; Charlotte, NC</span>
+      <h1>Mobile auto detailing and <em>ceramic coating</em></h1>
+      <p class="lede">We come to your driveway with water, power and everything else.
+        Thirteen packages, every price published, nothing quoted on the phone.</p>
+      <div class="acts">
+        <a class="btn btn-1" href="x-ballantyne-prices.html">See prices and book</a>
+        <a class="btn btn-2" href="tel:+17045550142">(704) 555-0142</a>
+      </div>
+      <p class="under"><b>5.0</b> from 65+ Google reviews &middot; insured &middot; serving 16 towns</p>
+    </div>
+    <div class="wrap stage-shell">
+      <div class="stage">
+        <img src="https://images.unsplash.com/photo-1658244500543-47f32dc51dc2?fm=jpg&amp;fit=crop&amp;w=2000&amp;h=1000&amp;q=78"
+             alt="A detailer running a machine polisher along the bonnet of a dark car beside its lit headlight.">
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 2 · THE STRIP ═════════════════════════════════════════════════ -->
+  <section class="strip" aria-label="What we do and where">
+    <div class="rail" data-rail="1">
+      <i><b>Interior detailing</b></i><i><b>Exterior detailing</b></i><i><b>Ceramic coating</b></i>
+      <i><b>Paint correction</b></i><i><b>Full detail</b></i><i><b>Odour removal</b></i>
+      <i><b>Headlight restoration</b></i><i><b>Engine bay</b></i>
+    </div>
+    <div class="rail" data-rail="-1">
+      <i>Ballantyne</i><i>Uptown</i><i>Dilworth</i><i>Matthews</i><i>Pineville</i>
+      <i>Huntersville</i><i>Cornelius</i><i>Waxhaw</i><i>Mint Hill</i><i>Concord</i>
+    </div>
+  </section>
+
+  <!-- ═══ 3 · INTRO ═════════════════════════════════════════════════════ -->
+  <section class="intro">
+    <div class="wrap grid">
+      <div>
+        <span class="label">What a mobile detail is</span>
+        <h2>Your driveway, four hours, no hose needed.</h2>
+      </div>
+      <div>
+        <p>A van turns up with a 65-gallon tank, a generator and every product the
+          job needs. <b>You do not have to be home</b> — most customers leave a key
+          and the car unlocked, and pay by card once they have seen it.</p>
+        <p>What we need is a parking space the length of a car and a half. Flats and
+          shared drives are fine; <b>a covered garage is better in July</b>, because
+          panel temperature is what decides whether a coating can be laid that day.</p>
+        <div class="facts">
+          <div class="fact"><b>3–7 hours</b><span>Depending on the package</span></div>
+          <div class="fact"><b data-from="get_public_business_profile.travel_zones">No travel fee</b><span>Inside the 16 towns listed below</span></div>
+          <div class="fact"><b>Card or cash</b><span>Paid on completion, not before</span></div>
+          <div class="fact"><b>Free to cancel</b><span>Up to 24 hours before</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 4 · SERVICES ══════════════════════════════════════════════════
+       The five categories and what is actually IN them, lifted from a real
+       detailer's services page. NO PRICES HERE ON PURPOSE: the nav promises a
+       prices page, and a teaser is a second, worse copy of a page that
+       already exists. What each row carries instead is the inclusion list,
+       which is the thing a customer cannot get anywhere else. -->
+  <section class="rows" id="services">
+    <div class="wrap">
+      <span class="label" data-rv="0">What we do</span>
+      <h2 data-rv="1">Five kinds of work, thirteen packages.</h2>
+      <p class="lede" data-rv="2">Every one of them happens on your drive. The full
+        ladder, with prices and what changes them, is on the prices page.</p>
+    </div>
+
+    <div class="wrap" style="margin-top:26px">
+      <article class="row" data-rv="0">
+        <div class="rowtext">
+          <span class="label">01 &middot; Interior</span>
+          <h2>Vacuum, steam, and the seats you have stopped looking at.</h2>
+          <ul class="ticks">
+            <li>Wipedown of every surface, deep vacuum, mats, glass and door jambs</li>
+            <li>Leather conditioned, UV dressing on plastics, fabric protection</li>
+            <li>Carpet and seat shampoo with water extraction, full steam clean</li>
+            <li>Odour removal &mdash; smoke, milk, gym bag, dog</li>
+          </ul>
+          <p class="kicker">Three levels: refreshment, enhancement, restoration.</p>
+        </div>
+        <div class="rowmedia">
+          <!-- PHOTO SLOT · business_media.service_interior — 4:3 cover -->
+          <img src="https://images.unsplash.com/photo-1771491237218-cbd4a707497e?fm=jpg&amp;fit=crop&amp;w=1000&amp;h=750&amp;q=76"
+               alt="A gloved hand working a detailing brush along the dashboard vents of a car.">
+          <span class="stamp">2&ndash;4 hours</span>
+        </div>
+      </article>
+
+      <article class="row" data-rv="0">
+        <div class="rowtext">
+          <span class="label">02 &middot; Exterior</span>
+          <h2>Hand wash, clay bar, and wax that lasts past the next rain.</h2>
+          <ul class="ticks">
+            <li>Two-bucket hand wash, wheels and arches, tyre dressing</li>
+            <li>Clay bar decontamination &mdash; the grit a wash cannot lift</li>
+            <li>Carnauba wax, or a light machine polish and a premium sealant</li>
+            <li>Exhaust tips, badges, glass and door shuts by hand</li>
+          </ul>
+          <p class="kicker">Two levels: wash &amp; wax, or full enhancement.</p>
+        </div>
+        <div class="rowmedia">
+          <!-- PHOTO SLOT · business_media.service_exterior — 4:3 cover -->
+          <img src="https://images.unsplash.com/photo-1780558852670-3f49298ecc1f?fm=jpg&amp;fit=crop&amp;w=1000&amp;h=750&amp;q=76"
+               alt="A machine polisher working along the bonnet of a blue car.">
+          <span class="stamp">3&ndash;5 hours</span>
+        </div>
+      </article>
+
+      <article class="row" data-rv="0">
+        <div class="rowtext">
+          <span class="label">03 &middot; Correction &amp; coating</span>
+          <h2>Swirls out under the light, then locked under glass.</h2>
+          <ul class="ticks">
+            <li>One-step polish for light swirls, water spots and minor scratches</li>
+            <li>Two-step for heavily marred paint &mdash; deep swirls and oxidation</li>
+            <li>Ceramic coating rated three to five years, wheels and trim optional</li>
+            <li>Glass coating so wipers matter less in a Carolina summer storm</li>
+          </ul>
+          <p class="kicker">Three coating levels; paint is inspected before either is quoted.</p>
+        </div>
+        <div class="rowmedia">
+          <!-- PHOTO SLOT · business_media.service_coating — 4:3 cover -->
+          <img src="https://images.unsplash.com/photo-1761934658038-d0e6792378b1?fm=jpg&amp;fit=crop&amp;w=1000&amp;h=750&amp;q=76"
+               alt="A folded microfibre towel resting on the coated, reflective bonnet of a deep blue car.">
+          <span class="stamp">6&ndash;9 hours</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ═══ 5 · PROCESS — a sequence, so it is numbered ══════════════════ -->
+  <section class="band">
+    <div class="wrap">
+      <span class="label" data-rv="0">How a job runs</span>
+      <h2 data-rv="1">Four stages, in this order, every time.</h2>
+      <div class="steps">
+        <div class="step" data-rv="0"><span class="num">STAGE 1</span>
+          <h3>Inspect</h3>
+          <p>A walk round in daylight and under a hand-held lamp. Defects noted, package agreed, price fixed before anything is touched.</p></div>
+        <div class="step" data-rv="1"><span class="num">STAGE 2</span>
+          <h3>Wash and decontaminate</h3>
+          <p>Two-bucket hand wash, iron fallout remover, clay bar. Polishing dirty paint grinds the dirt into it.</p></div>
+        <div class="step" data-rv="2"><span class="num">STAGE 3</span>
+          <h3>Correct</h3>
+          <p>Machine polish to the agreed stage. One pass for clarity, two where the paint has been through a tunnel wash for years.</p></div>
+        <div class="step" data-rv="3"><span class="num">STAGE 4</span>
+          <h3>Protect</h3>
+          <p>Wax, sealant or coating. A coating is wiped, levelled and left to cure &mdash; which is why it is booked on a dry day.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 6 · WORK ═════════════════════════════════════════════════════
+       Cards carrying a category and a date, which is fora's blog shape doing
+       a job it is better at here: proof that the work is recent and local. -->
+  <section id="work">
+    <div class="wrap">
+      <span class="label" data-rv="0">Recent work</span>
+      <h2 data-rv="1">Cars we have had this month.</h2>
+      <div class="cards">
+        <article class="card" data-rv="0">
+          <div class="pic"><!-- PHOTO SLOT · jobs[].photo — 5:4 cover -->
+            <img src="https://images.unsplash.com/photo-1658244546876-d82cbf1a1c9e?fm=jpg&amp;fit=crop&amp;w=700&amp;h=560&amp;q=74"
+                 alt="A detailer polishing the wing of a dark red car."></div>
+          <div class="meta"><span>Paint correction</span><span>4 Sep</span></div>
+          <h3>2019 Audi A5</h3>
+          <p>Two-step correction and a level 2 coating. Matthews.</p>
+        </article>
+        <article class="card" data-rv="1">
+          <div class="pic">
+            <img src="https://images.unsplash.com/photo-1770289711980-c7663e18bb16?fm=jpg&amp;fit=crop&amp;w=700&amp;h=560&amp;q=74"
+                 alt="A blue hatchback parked on a driveway in front of a garage door."></div>
+          <div class="meta"><span>Full detail</span><span>2 Sep</span></div>
+          <h3>2022 Hyundai Kona</h3>
+          <p>Enhancement package on a lease return. Huntersville.</p>
+        </article>
+        <article class="card" data-rv="2">
+          <div class="pic">
+            <img src="https://images.unsplash.com/photo-1779983625007-22db9d8bf6be?fm=jpg&amp;fit=crop&amp;w=700&amp;h=560&amp;q=74"
+                 alt="A burgundy saloon parked outside a house with red shutters."></div>
+          <div class="meta"><span>Interior</span><span>28 Aug</span></div>
+          <h3>2015 BMW 328i</h3>
+          <p>Full restoration &mdash; shampoo, extraction, odour. Dilworth.</p>
+        </article>
+        <article class="card" data-rv="3">
+          <div class="pic">
+            <img src="https://images.unsplash.com/photo-1780558852669-1bd1ae615506?fm=jpg&amp;fit=crop&amp;w=700&amp;h=560&amp;q=74"
+                 alt="A microfibre cloth drawn across the wing of a dark blue car."></div>
+          <div class="meta"><span>Ceramic</span><span>26 Aug</span></div>
+          <h3>2023 Tesla Model Y</h3>
+          <p>Level 3 &mdash; paint, wheels, trim and glass. Ballantyne.</p>
+        </article>
+      </div>
+
+      <!-- one job in full, sitting among the others rather than alone -->
+      <article class="job" data-rv="0">
+        <div class="pic"><!-- PHOTO SLOT · jobs[].hero — fills its column -->
+          <img src="https://images.unsplash.com/photo-1658244500543-47f32dc51dc2?fm=jpg&amp;fit=crop&amp;w=900&amp;h=800&amp;q=76"
+               alt="A machine polisher passing along a dark bonnet beside a lit headlight."></div>
+        <div class="say">
+          <blockquote>&ldquo;I am fussy about my car and I watched most of it. He found
+            two scratches I had not seen, told me which one would not come out, and
+            then it did. Paid after, on the drive.&rdquo;</blockquote>
+          <div class="who"><span class="av">DR</span>
+            <div><b>Dana R.</b><span>Ford Mustang GT &middot; Google review</span></div>
+          </div>
+          <div class="did">
+            <span class="tagl">Two-step correction</span>
+            <span class="tagl">Level 2 ceramic</span>
+            <span class="tagl">7 hours</span>
+            <span class="tagl">SouthPark</span>
+          </div>
+          <p style="margin:20px 0 0"><a class="btn btn-2" href="x-ballantyne-prices.html#ceramic">Book the same work</a></p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ═══ 7 · PROMISES ════════════════════════════════════════════════ -->
+  <section style="padding:clamp(40px,5.5vw,62px) 0 0">
+    <div class="wrap">
+      <span class="label" data-rv="0">What you are buying</span>
+      <h2 data-rv="1">The parts people ring up about afterwards.</h2>
+      <div class="promise">
+        <div data-rv="0"><h3>Insured, and it covers your drive</h3>
+          <p>Two million in liability cover. Ask and the certificate is emailed before the booking.</p></div>
+        <div data-rv="1"><h3>The price you were quoted</h3>
+          <p>If the car needs more than the package covers, you are told and asked first. Nothing is added afterwards.</p></div>
+        <div data-rv="2"><h3>Products named on the invoice</h3>
+          <p>Which coating went on, which polish, and how long it is rated for.</p></div>
+        <div data-rv="3"><h3>A week to say something is wrong</h3>
+          <p>Missed panel, a mark left behind &mdash; we come back and put it right.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 8 · OWNER ═══════════════════════════════════════════════════ -->
+  <section style="padding:clamp(40px,5.5vw,62px) 0 0">
+    <div class="wrap">
+      <article class="row" data-rv="0" style="background:var(--panel-2)">
+        <div class="rowtext">
+          <span class="label">Who turns up</span>
+          <h2>One van, and the person who owns it.</h2>
+          <p class="lede">Ballantyne Mobile Detailing is Aaron Petrakis. He started in
+            2019 doing neighbours' cars on weekends and went full time in 2021.
+            There is no crew and no franchise &mdash; the person who quotes the job is
+            the person who does it, which is why the diary only holds two cars a day.</p>
+          <p class="kicker">Trained on ceramic application by the coating manufacturer, 2022.</p>
+        </div>
+        <div class="rowmedia">
+          <!-- PHOTO SLOT · business_profile.owner_photo — 4:3 cover -->
+          <img src="https://images.unsplash.com/photo-1658244546876-d82cbf1a1c9e?fm=jpg&amp;fit=crop&amp;w=1000&amp;h=750&amp;q=76"
+               alt="A detailer running a polisher along the wing of a dark red car, hands close.">
+          <span class="stamp">Two cars a day, maximum</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ═══ 9 · FAQ — fora's category tabs ══════════════════════════════ -->
+  <section style="padding:clamp(40px,5.5vw,62px) 0 0" id="faq">
+    <div class="wrap">
+      <span class="label" data-rv="0">Questions</span>
+      <h2 data-rv="1">The things people ask before they book.</h2>
+
+      <div class="tabs" role="tablist" aria-label="Question groups" data-rv="2">
+        <button role="tab" aria-selected="true" data-tab="day">On the day</button>
+        <button role="tab" aria-selected="false" data-tab="work">The work</button>
+        <button role="tab" aria-selected="false" data-tab="money">Price and booking</button>
+      </div>
+
+      <div class="qs" data-panel="day">
+        <details class="q" open><summary>How long does it take?</summary>
+          <p>Two to four hours for an interior, three to five for a full detail, six to nine when a coating goes on. You get the window when you book, not on the day.</p></details>
+        <details class="q"><summary>Do I need to be there?</summary>
+          <p>No. Most people leave the car unlocked with the key inside and pay by card when they get the photos.</p></details>
+        <details class="q"><summary>What do you need from me?</summary>
+          <p>A parking space about a car and a half long. Water and power come off the van.</p></details>
+        <details class="q"><summary>What happens if it rains?</summary>
+          <p>A wash or an interior still runs. A coating does not &mdash; it needs twelve dry hours to cure, so it gets moved, free.</p></details>
+      </div>
+
+      <div class="qs" data-panel="work" hidden>
+        <details class="q" open><summary>Is a sealant the same as a ceramic coating?</summary>
+          <p>No. A sealant lasts four to six months. A coating is rated three to five years and needs the paint corrected first, which is most of the cost.</p></details>
+        <details class="q"><summary>Will it take the scratches out?</summary>
+          <p>Anything that does not catch a fingernail usually comes out. Deeper than that is filled and improved, and you are told which is which before the polisher starts.</p></details>
+        <details class="q"><summary>Do you do engine bays and headlights?</summary>
+          <p>Both, as add-ons. Headlight restoration is one visit; a yellowed lens goes clear and is sealed against it coming back.</p></details>
+        <details class="q"><summary>Pet hair, smoke, spilled milk?</summary>
+          <p>All doable and all charged as add-ons, because each of them is an hour or two on its own.</p></details>
+      </div>
+
+      <div class="qs" data-panel="money" hidden>
+        <details class="q" open><summary>Why does the price change with the car?</summary>
+          <p>Three sizes. A coupe, an SUV and a three-row truck are not the same amount of paint or the same number of seats.</p></details>
+        <details class="q"><summary>What if the car is worse than it looked?</summary>
+          <p>You get a photo and a number before anything starts. Say no and only the booked package runs.</p></details>
+        <details class="q"><summary>When do I pay?</summary>
+          <p>When the job is finished and you have walked round it. Card, tap or cash.</p></details>
+        <details class="q"><summary>Can I cancel?</summary>
+          <p>Free up to 24 hours before. Inside that, half the package price, because the slot cannot be refilled.</p></details>
+      </div>
+
+      <!-- warnings are FLAGS: no sentences, nothing to read twice -->
+      <div class="flags" data-rv="0" style="margin-bottom:clamp(34px,5vw,54px)">
+        <span class="flag">Sealant is not a ceramic coating</span>
+        <span class="flag">Pet hair &mdash; add-on</span>
+        <span class="flag">Sap or overspray &mdash; quoted on site</span>
+        <span class="flag">Coating needs 12 dry hours</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 10 · AREA ═══════════════════════════════════════════════════ -->
+  <section class="band" id="area">
+    <div class="wrap">
+      <span class="label" data-rv="0">Where we come</span>
+      <h2 data-rv="1">Sixteen towns, no travel charge inside them.</h2>
+      <p class="lede" data-rv="2">Past those, it is <b data-from="get_public_business_profile.travel_zones">$1.20 a mile</b> from Ballantyne, quoted
+        with the booking rather than added to the invoice.</p>
+      <div class="towns" data-rv="3">
+        <span class="town home">Ballantyne</span><span class="town">Uptown</span>
+        <span class="town">Dilworth</span><span class="town">Myers Park</span>
+        <span class="town">SouthPark</span><span class="town">Steele Creek</span>
+        <span class="town">Matthews</span><span class="town">Mint Hill</span>
+        <span class="town">Pineville</span><span class="town">Waxhaw</span>
+        <span class="town">Weddington</span><span class="town">Huntersville</span>
+        <span class="town">Cornelius</span><span class="town">Davidson</span>
+        <span class="town">Concord</span><span class="town">Harrisburg</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 11 · CLOSE ══════════════════════════════════════════════════ -->
+  <section class="close">
+    <div class="wrap">
+      <h2 data-rv="0">Pick a slot and we will bring the van.</h2>
+      <p class="lede" style="margin-inline:auto;text-align:center" data-rv="1">
+        Thirteen packages with prices on them, and a diary you can see.</p>
+      <div class="acts" data-rv="2">
+        <a class="btn btn-1" href="x-ballantyne-prices.html">See prices and book</a>
+        <a class="btn btn-2" href="tel:+17045550142">(704) 555-0142</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="fcols">
+      <div><h4>Services</h4>
+        <a href="x-ballantyne-prices.html#interior">Interior detailing</a>
+        <a href="x-ballantyne-prices.html#exterior">Exterior detailing</a>
+        <a href="x-ballantyne-prices.html#full">Full detail packages</a>
+        <a href="x-ballantyne-prices.html#correction">Paint correction</a>
+        <a href="x-ballantyne-prices.html#ceramic">Ceramic coating</a>
+      </div>
+      <div><h4>Hours</h4>
+        <span>Mon&ndash;Fri &middot; 8:00&ndash;18:00</span>
+        <span>Saturday &middot; 8:00&ndash;15:00</span>
+        <span>Sunday &middot; closed</span>
+        <span class="open"><i class="dot"></i> Open now &middot; closes 18:00</span>
+      </div>
+      <div><h4>Contact</h4>
+        <a href="tel:+17045550142">(704) 555-0142</a>
+        <a href="mailto:book@ballantynedetail.com">book@ballantynedetail.com</a>
+        <span>Mobile only &mdash; no shop to visit</span>
+      </div>
+      <div><h4>Area</h4>
+        <span>Charlotte and 15 towns around it</span>
+        <a href="#area">See the list</a>
+      </div>
+    </div>
+    <div class="endmark" aria-hidden="true">Ballantyne</div>
+    <div class="fine">
+      <span>&copy; 2026 Ballantyne Mobile Detailing LLC</span>
+      <span>Insured &middot; NC licensed &middot; Est. 2019</span>
+    </div>
+  </div>
+</footer>
+
+<!-- the phone's half of "something stays on screen"; the desk has the header -->
+<nav class="dock" aria-label="Quick links">
+  <a href="#services">Services</a>
+  <a href="#work">Work</a>
+  <a href="#faq">FAQ</a>
+  <a class="go" href="x-ballantyne-prices.html">Book</a>
+</nav>
+
+<script>
+// ── colourway ────────────────────────────────────────────────────────────
+// ?c=a|b|c picks the paint. Three colourways over one skeleton, which is what
+// was asked for; the attribute is the ONLY thing that changes.
+(function () {
+  var c = new URLSearchParams(location.search).get("c");
+  if (c === "a" || c === "b" || c === "c") document.documentElement.setAttribute("data-c", c);
+})();
+
+// ── the header condenses into an island ──────────────────────────────────
+(function () {
+  var h = document.getElementById("hdr");
+  var onScroll = function () { h.classList.toggle("stuck", window.scrollY > 40); };
+  addEventListener("scroll", onScroll, { passive: true }); onScroll();
+})();
+
+// ── reveals: the hidden state is added HERE, so a failed script is a
+//    readable page rather than a blank one ─────────────────────────────────
+(function () {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var els = [].slice.call(document.querySelectorAll("[data-rv]"));
+  els.forEach(function (el) { el.classList.add("rv-hidden"); });
+  var io = new IntersectionObserver(function (rows) {
+    rows.forEach(function (r) {
+      if (!r.isIntersecting) return;
+      var el = r.target, i = +(el.dataset.rv || 0);
+      setTimeout(function () { el.classList.remove("rv-hidden"); el.classList.add("rv-in"); }, i * 70);
+      io.unobserve(el);
+    });
+  }, { rootMargin: "0px 0px -12% 0px" });
+  els.forEach(function (el) { io.observe(el); });
+})();
+
+// ── the FAQ's category tabs ──────────────────────────────────────────────
+// The frame stays put and the answers under it are replaced, which is a SWAP
+// rather than an arrival: the panel does not slide in, its rows do.
+(function () {
+  var tabs = [].slice.call(document.querySelectorAll(".tabs [data-tab]"));
+  if (!tabs.length) return;
+  var panels = [].slice.call(document.querySelectorAll("[data-panel]"));
+  tabs.forEach(function (t) {
+    t.addEventListener("click", function () {
+      tabs.forEach(function (o) { o.setAttribute("aria-selected", String(o === t)); });
+      panels.forEach(function (p) {
+        var on = p.dataset.panel === t.dataset.tab;
+        p.hidden = !on;
+        if (!on) return;
+        [].slice.call(p.children).forEach(function (row, i) {
+          row.style.animation = "none"; void row.offsetWidth;
+          row.style.animation = "swapin 180ms " + (i * 20) + "ms var(--ease) both";
+        });
+      });
+    });
+  });
+})();
+
+// ── the marquee ──────────────────────────────────────────────────────────
+// Wrapped by exactly ONE set's width. It pauses under a finger and for
+// nothing else: a wheel event over the rail is somebody scrolling the PAGE,
+// and stopping for that reads as a broken animation.
+(function () {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  [].slice.call(document.querySelectorAll(".rail")).forEach(function (rail) {
+    var dir = +(rail.dataset.rail || 1), set = rail.innerHTML;
+    rail.innerHTML = set + set;                       // exactly two sets
+    var width = rail.scrollWidth / 2;                 // one set's width
+    var x = dir < 0 ? -width : 0, speed = 22 / 1000;  // px per ms
+    var held = false, last = null;
+    rail.addEventListener("pointerdown", function () { held = true; });
+    addEventListener("pointerup", function () { held = false; });
+    function step(t) {
+      if (last === null) last = t;
+      var dt = t - last; last = t;
+      if (!held) {
+        x -= dir * speed * dt;
+        if (x <= -width) x += width;
+        if (x >= 0) x -= width;
+        rail.style.transform = "translateX(" + x.toFixed(2) + "px)";
+      }
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+})();
+</script>
+</body>
+</html>

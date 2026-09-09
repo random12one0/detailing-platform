@@ -422,6 +422,37 @@ reading it.**
     anti-aliased blend of fill and ground and reported 1.64:1 for a pair that
     is really 8.80:1. A false FAIL costs the same as a false pass.
 
+### From site 3 — his notes on pass one, 2026-09-09
+36. **Proof must be a DIFFERENT SHAPE on every site.** Rating / years / cars
+    done, in that order and format, is banned — he recognised it across three
+    sites and it is what made them feel like one page. Changing the numbers is
+    not enough; change what is counted and how it is laid out.
+37. **The header is part of that too** — a site whose top bar looks like the
+    last site's reads as the same site.
+38. **Copy the reference's MEASURED devices, not its mood.** Open it in a
+    browser, read its computed radii, weights and section shapes, and take
+    them. Two corner families: pill controls, 12–16px panels, and corners that
+    step down 1px when they nest.
+39. **A big headline at REGULAR weight is a different studio's work** from the
+    same headline at 700+. It was the single largest reason site 3's first
+    frame read like sites 1 and 2.
+40. **Transplant a real detailer's whole content set.** His named weakness in
+    everything built so far is thinness: not enough real information. Five
+    categories, every package, every inclusion, the add-ons, the town list.
+41. **A count in the copy is a fact and gets counted** — the ladder is
+    thirteen packages, and the page said fourteen until someone added them up.
+42. **Same shoot, same branding.** Two of the photographs used here came from
+    one shoot; rejecting the frame that showed the logo left its sibling in
+    the page, and the sibling had the same logo. Reject by SHOOT.
+43. **`display:grid` outranks the `hidden` attribute.** Three FAQ groups
+    rendered at once and the tabs did nothing visible. `.qs[hidden]{display:none}`.
+44. **A band is a new ground and everything dropped on it must be re-derived** —
+    the town pills kept the page's cream ink on a cream band and were
+    invisible, which every check passed.
+45. **A contrast sampler must paint the glyphs out and shoot the ground.**
+    Sampling beside a text box lands on a rounded corner and invents failures:
+    it reported 1.19:1 for dark text on an amber pill that is really 9:1.
+
 ### Traps that cost a measurement here, and will again
 25. **`flex: 0 0 min(a,b)` is invalid** — a math function in the shorthand's
     basis drops the whole declaration and the item sizes to content.

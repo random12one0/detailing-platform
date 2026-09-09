@@ -1771,3 +1771,65 @@ pull already done off ten of them. Invent only what no real site supplies
 (the business name, the person, the town list, the review text). **Invented
 numbers must still be plausible for the trade** — that file's § 5 is the real
 range.
+
+## 5 · SITE 3, HIS NOTES ON PASS ONE — 2026-09-09
+
+**All three colourways ship.** *"they all look good so lets do all 3 cuz its
+easy to just switch colors."* One skeleton, three paints, switched with
+`?c=a|b|c`. **Colour is the only thing that forks** — a hard-coded colour
+anywhere below the token blocks is a fourth theme nobody chose.
+
+### THE REPEATED PROOF ROW IS THE THING THAT MAKES THEM FEEL LIKE ONE PAGE
+
+> *"So far, lately, all three of them have had this basically five point nine
+> Google Star view six years in hundred twenty four card detailed. All of them
+> have had that next exact same order in the exact same format with almost
+> exactly the same details."*
+
+**Rating, years, cars-done — in that order, in that format — is now banned.**
+It is not enough to change the numbers: the ORDER, the FORMAT and WHICH FACTS
+are what he recognised. Every site proves itself a different way. Site 3 has no
+stat row at all; its proof is a marquee of services and towns, "most booked"
+flags on the ladder, one named review with the car it was written about, and
+sixteen towns.
+
+**The same applies to the header.** *"the tab at the top looks a lot like one
+of the other ones."* Site 3's is a full-width transparent bar that condenses
+into a centred island on scroll.
+
+### COPY THE REFERENCE SITE'S ACTUAL DEVICES, NOT ITS MOOD
+
+> *"Can we make it look more like Fora? Like, actually, looking kinda, like,
+> copy the design, the kind of animations, and, like, what's in it. Copy some,
+> like, actual things from their website… they have, like, a pricing area, or,
+> like, how their hero is kind of faded into the website at the top… they copy,
+> like, how round our corners are and what their buttons look like."*
+
+**Open the reference in a browser and MEASURE it.** fora.so, read live
+2026-09-09: buttons and eyebrows are full pills (radius > height); panels are
+16px; the largest cards 23–24px; insets 12px; nested corners step down 1px at a
+time; **the headline is REGULAR weight, not heavy**; one object is far larger
+than anything else and rises into frame with its top edge dissolved into the
+ground; sections run label → heading → paragraph → big visual → one-line
+kicker; there is a pricing block of tiers with tick lists, an FAQ with CATEGORY
+TABS, and cards carrying a category and a date.
+
+**He noticed the two corner families himself** — the pill, and *"more
+squareish. Like, a squircle. But obviously we can't do a squircle because it
+can't work with everything."* That is the 12–16px panel language sitting beside
+the pill controls. **No `corner-shape`, no worklet.**
+
+### THE REAL WEAKNESS: NOT ENOUGH INFORMATION
+
+> *"look at one of the other detailing websites, the actual real websites, and
+> find a way to put all of the information that's on the website into ours…
+> the only weakness with all of them is that they don't have all the
+> information in detail that would want on them."*
+
+**Take a real detailer's site and transplant its CONTENT WHOLESALE.** Site 3 is
+built on melimobiledetailing.com read live 2026-09-09: five service categories,
+thirteen packages with their real prices and real inclusion lists, "popular
+choice" flags, a marquee of services and towns, a named review carrying the car
+model, an owner story, and a sixteen-town service list. **Invent only what no
+real site supplies** — the name, the towns, the reviewer, the dates — and keep
+invented numbers inside the trade's real range.
