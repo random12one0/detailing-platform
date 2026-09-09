@@ -453,6 +453,23 @@ reading it.**
     Sampling beside a text box lands on a rounded corner and invents failures:
     it reported 1.19:1 for dark text on an amber pill that is really 9:1.
 
+### From site 3 — the copy pass, 2026-09-09
+46. **Run the copy pass as a LIST OF HEADINGS before anything else.** Print
+    every `h1`/`h2`/label in page order and read them as a column: ten of site
+    3's eleven headings were phrases, and that is invisible while you are
+    reading the page section by section.
+47. **A label above a heading must not restate it.** `01 · Interior` over
+    "Interior detailing" is the rule's own example, and numbering three
+    services is a numbered marker on something that is not a sequence.
+48. **Never sell the baseline.** "We come to your driveway with water, power
+    and everything else" is the job, not a reason to book. It shipped anyway,
+    in the hero, on the site whose playbook names it as the worked example.
+49. **A heading that counts is a heading that goes stale.** Two here did:
+    "Five kinds of work, thirteen packages" and "Sixteen towns".
+50. **A batch of string replacements must report which ones MISSED.** An
+    all-or-nothing patch that asserts on the first miss writes nothing and
+    looks like it ran; three passes here silently applied nothing at all.
+
 ### Traps that cost a measurement here, and will again
 25. **`flex: 0 0 min(a,b)` is invalid** — a math function in the shorthand's
     basis drops the whole declaration and the item sizes to content.
