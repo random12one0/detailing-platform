@@ -867,7 +867,16 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
 // was asked for; the attribute is the ONLY thing that changes.
 (function () {
   var c = new URLSearchParams(location.search).get("c");
-  if (c === "a" || c === "b" || c === "c") document.documentElement.setAttribute("data-c", c);
+  if (c !== "a" && c !== "b" && c !== "c") return;
+  document.documentElement.setAttribute("data-c", c);
+  // hand the choice on: a link to this site's other page keeps the paint
+  addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("a[href]").forEach(function (a) {
+      var h = a.getAttribute("href");
+      if (!h || /^(#|tel:|mailto:|https?:)/.test(h)) return;
+      a.setAttribute("href", h + (h.indexOf("?") < 0 ? "?" : "&") + "c=" + c);
+    });
+  });
 })();
 
 // ── the header condenses into an island ──────────────────────────────────

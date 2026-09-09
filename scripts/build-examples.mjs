@@ -96,6 +96,14 @@ const MULTI = [
   // of ten from 2026-09-07. `extras` is empty, which the rewrite handles.
   ["ex2", "w-delgado.html", "Delgado Mobile Detailing",
    "dark made of light · the process drawn as wiring · one page", {}],
+  // SITE 3 CARRIES THREE COLOURWAYS ON ONE SKELETON — his ask, 2026-09-09:
+  // *"they all look good so lets do all 3 cuz its easy to just switch
+  // colors."* `?c=a` petrol night, `?c=b` painted teal (the default), `?c=c`
+  // cool daylight, and the page hands the choice on to its own links so it
+  // survives a click through to the prices page.
+  ["ex3", "x-ballantyne.html", "Ballantyne Mobile Detailing",
+   "three colourways · fora's corner language · the whole price ladder · two pages",
+   { "x-ballantyne-prices.html": "prices.html" }],
 ];
 
 const PAGES = [
