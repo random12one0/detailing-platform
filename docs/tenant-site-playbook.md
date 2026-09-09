@@ -388,8 +388,13 @@ reading it.**
 21. **An FAQ must not reflow columns when one opens** — CSS `columns` is one
     flow in two tubes; use a two-column grid.
 22. **A review rail loops for ever**, wrapped by exactly one set's width (not
-    half the scrollWidth — that is out by half a gap). Interaction pauses it and
-    it resumes; it never stops for good.
+    half the scrollWidth — that is out by half a gap). **It pauses ONLY under a
+    finger or a held button, and nothing else.** Pausing on `wheel` or on
+    `pointerenter` reads as a broken animation: a wheel event over the rail is
+    somebody scrolling the PAGE, so the marquee stopped for 2.5s every time the
+    cursor happened to be over the reviews — *"it's stopping and going."*
+    A marquee has no reason to yield to a hover or a page scroll; it yields to a
+    drag because it would otherwise fight one.
 23. **A process diagram reads in the page's reading order**, numbered, plain
     stage names, with a sentence saying what it is.
 24. **He approves a design as three 620x870 pictures, never as a document.**

@@ -1377,16 +1377,22 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
       }
       auto = requestAnimationFrame(step);
     }
-    function hold(){
-      paused = true;
+    /* IT NEVER PAUSES EXCEPT UNDER A FINGER OR A HELD BUTTON.
+       The first version also paused on `wheel` and on `pointerenter`, which is
+       why he saw it "stopping and going": a wheel event over the rail is
+       somebody scrolling the PAGE, not touching the rail, and it bought a
+       2.5-second stop every time the cursor happened to be over the reviews.
+       Hovering did the same. An infinite marquee has no reason to stop for
+       either — only for an actual drag, which it would otherwise fight. */
+    function grab(){ paused = true; clearTimeout(idle); }
+    function release(){
       clearTimeout(idle);
-      idle = setTimeout(function(){ pos = rail.scrollLeft; paused = false; }, 2500);
+      idle = setTimeout(function(){ pos = rail.scrollLeft; paused = false; }, 500);
     }
-    ["pointerdown","wheel","touchstart","keydown"].forEach(function(ev){
-      rail.addEventListener(ev, hold, { passive: true });
-    });
-    rail.addEventListener("pointerenter", function(){ paused = true; clearTimeout(idle); });
-    rail.addEventListener("pointerleave", hold);
+    rail.addEventListener("pointerdown", grab, { passive: true });
+    rail.addEventListener("touchstart", grab, { passive: true });
+    addEventListener("pointerup", release, { passive: true });
+    addEventListener("touchend", release, { passive: true });
     var railIO = new IntersectionObserver(function(es){
       es.forEach(function(e){
         if (!e.isIntersecting) return;
