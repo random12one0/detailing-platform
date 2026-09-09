@@ -329,69 +329,57 @@ is now `TASTE-NOTES.md` § BATCH 4b and step 2 of the playbook.
 
 ---
 
-# WHAT WAS ACTUALLY MEASURED AFTER THE BUILD
+# BUILT, REVIEWED TWICE, AND SIGNED OFF — 2026-09-08
 
-Built as `docs/tenant-sites/w-delgado.html`, served at `/ex2`.
+Built as `docs/tenant-sites/w-delgado.html`, served at `/ex2`. He approved the
+direction as three rendered frames, then gave two rounds of notes; both are
+applied and the result is the page in the repo. **His sign-off: "ok i think we
+are good."**
+
+## WHERE THE SCHEME AND THE BUILT PAGE DIVERGE — the page is right
+
+Three sections above describe the direction as APPROVED. Two of them were then
+overtaken by his notes, and this is the record of it:
+
+1. **§ 2's subject survives as art direction and NOT as copy.** The dark, lit
+   ground is his favourite thing about the page — *"I liked how it looks to
+   start… you did good"* — but the night STORY is gone from every headline,
+   review, FAQ and opening-hours line, because he did not believe it: *"no car
+   detailer would actually do that."* **A subject drives the look and never the
+   sales copy.** Playbook ledger 11.
+2. **§ 3's type scale is smaller than specified.** The H1 was to run at 130px;
+   it runs at a 72px maximum, because the headline is now a sentence that says
+   what the business does rather than two words. **His instruction outranks the
+   device** — D1 still holds in that nothing else approaches it.
+3. **§ 9's device list gained one and lost one.** The side rail is new, from
+   his rule that something must stay on screen on every site. The package badge
+   and Book button came off the portfolio rows, because they listed the
+   packages a second time.
+
+## THE GATES, ALL MEASURED ON THE FINAL PAGE
 
 | Gate | Result |
 |---|---|
 | Console, every width | **0 errors, 0 warnings** |
 | Sideways scroll | **none** at 320 / 360 / 392 / 768 / 844x390 / 1440 / 1920 |
-| Hero photo above the fold | 320 → **406** of 844 · 360 → **382** · 392 → **332** · 1440 → **116** of 900. All under half. |
-| Contrast | every text node read off the **rendered** page against its own composited ground — **0 failures** |
-| Text on the photograph, against a **white** photo | chip **6.36:1** · caption **13.34:1** · job badge **12.48:1** · cold label **4.84:1** |
-| Phone vs desk length | 8,074 vs 5,864 — the phone is longer, and it is a re-layout rather than a stack (spine, not scroller) |
-| `tenant-sites` | **52 checks over 4 pages in 2 sites, 0 failed** |
-| `composition` / `design-contrast` / `landing-pricing` / `route-contract` | 94 / all pairs / 107 / 31 — all pass |
+| Sticky header | top **0** after a 2,000px scroll |
+| Hero photo above the fold | 320 → **380** of 844 · 360 → **380** · 392 → **330** · 1440 → **116** of 900 |
+| Contrast | every text node read off the **rendered** page — **0 failures** |
+| Text on the photograph vs a **white** photo | chip 6.36:1 · caption 13.34:1 · badge 12.48:1 |
+| Review marquee | wraps 1307 → 28, seam card identical, stops only under a finger |
+| `tenant-sites` | **62 checks over 4 pages in 2 sites, 0 failed** |
+| `composition` / `design-contrast` / `landing-pricing` / `route-contract` | 94 / all pairs / 107 / 31 |
 
-## SEVEN FAULTS FOUND BY LOOKING, NOT BY A CHECK
+## WHAT THIS SITE PUT INTO THE RULES LEDGER
 
-1. **The heading said "three levels of correction" and only two package cards
-   existed.** The ceramic package lived in the ladder and the widget only. It
-   now has a wide card spanning the second row — which also gives the section a
-   shape no other section on the page uses.
-2. **The portfolio rows were 900px tall on the desk**, because the photograph
-   was in normal flow and drove the row height. Absolutely positioned inside a
-   relative slot, the TEXT sets the height and the photo covers whatever it is
-   given — which is also what makes the slot survive a tenant's own upload at
-   any ratio.
-3. **`.job .who` kept the quote's italic.** The fix I wrote was `(0,2,1)` and
-   the rule it had to beat was `.job .rev p` at `(0,3,1)`. **The same cascade
-   fault as `H1`, in type instead of colour** — a declaration is not a fact
-   about the page until it is read off the rendered page.
-4. **The grid was left to auto-place** and put the ladder in column one.
-5. **A "Book this package" link stretched to 620px** — an `<a>` in a flex
-   column stretches, and a call to action is not a banner.
-6. **A mono label sat on top of a node in the diagram.**
-7. **The copy said "the ladder on the right"** — true on a desk, false on a
-   phone, where it is underneath. Deleted rather than reworded: it restated a
-   control that is already labelled *By vehicle size*.
+**24 of the 30 entries in `docs/tenant-site-playbook.md` § 10 came from this
+site**, and six of them are enforced by a check. The largest are: the H1 states
+the service; every heading is a label; copy is written from the real-detailer
+harvest; something stays on screen on every site; and `overflow-x: hidden` on
+`html`/`body` silently disables `position: sticky`.
 
-## AND TWO FOUND BY SWEEPING
-
-- **The hero photo fell below the fold at 320 (451px) and 360 (424px)** — `H2`
-  recurring for the third recorded time. The headline was already at its clamp
-  floor, so 56px came out of the gaps instead.
-- **Rotating the phone swapped the dock for the header nav.** The LAYOUT was
-  already guarded on `min-height:500px`, so the columns did not move — but the
-  navigation was gated on width alone and changed anyway. **A rule that spends
-  height must ask about height, and so must one that spends it on furniture.**
-
-## AND ONE FOUND BY THE CHECK, ONCE THE CHECK COULD SEE THE PAGE
-
-`tests/tenant-sites.test.mjs` matched `^v-` — site 1's prefix, hard-coded when
-site 1 was the only site. Run against site 2 it printed *"37 checks over 3
-pages, 0 failed"* and had measured **nothing** about the new page: **a check
-that does not cover the thing you just built reads exactly like a passing one**,
-which is the sentence that file exists to enforce, failing on itself. It now
-walks `^[vw]-` and totals **per site** rather than pooling — one aggregate lets
-one site's photographs cover another site's having none. Widened, it immediately
-failed site 2 twice (four images against a floor of five, and the word
-"placeholder" in a script comment), and it was baselined by stripping site 2's
-`<img>` elements and confirming it fails.
-
-## WHAT IS STILL UNPROVEN
-
-**Whether he likes it.** A model comparing two competent pages scores about a
-coin flip against human raters. Everything above is an absolute with a right
-answer; the judgement is his.
+**The most expensive lesson was not a design one.** Three separate faults ran
+every frame, threw nothing and did nothing — a marquee undone by scroll
+snapping, a sub-pixel increment quantised to zero, and a check that could not
+see the page it was run against. **None was visible without writing a value and
+reading it back.** Ledger 25-30.
