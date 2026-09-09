@@ -391,13 +391,18 @@ a{color:inherit}
   letter-spacing:0;color:color-mix(in srgb,var(--band-ink) 62%,transparent);
   background:var(--band);
   box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--band-ink) 22%,transparent);
-  transition:color 380ms var(--ramp),box-shadow 380ms var(--ramp),transform 380ms var(--ramp)}
+  transition:color 200ms var(--ramp),box-shadow 200ms var(--ramp),transform 200ms var(--ramp)}
 .step.on .num{color:var(--on-accent);background:var(--accent);transform:scale(1.12);
   box-shadow:inset 0 0 0 2px var(--accent),0 0 0 6px color-mix(in srgb,var(--accent) 22%,transparent)}
-.step h3{margin-bottom:6px;transition:opacity 380ms var(--ramp)}
+.step h3{margin-bottom:6px}
 .step p{font-size:14px;margin:0;color:color-mix(in srgb,var(--band-ink) 78%,transparent)}
-.step h3,.step p{opacity:.5;transition:opacity 420ms var(--ramp)}
-.step.on h3,.step.on p{opacity:1}
+/* TIED TO THE SCROLL, NOT TO A TIMER. --in is this stage's own share of the
+   rail's progress, written every frame by the same pass that fills the line,
+   so a stage brightens and settles exactly as far as you have scrolled and
+   runs backwards on the way up. A transition here would fight it — the
+   "it gets into place and THEN plays an animation" he described. */
+.step h3,.step p{opacity:calc(.26 + .74 * var(--in,0));
+  transform:translateY(calc((1 - var(--in,0)) * 9px));transition:none}
 
 /* ── 11 · WORK — cards carrying a category and a date ─────────────────── */
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(248px,1fr));gap:14px;margin-top:26px}
@@ -648,16 +653,16 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
       <h2 data-rv="1">Inspect, wash, correct, protect</h2>
       <div class="steps" id="steps">
         <div class="track" aria-hidden="true"><i></i></div>
-        <div class="step" data-rv="0"><span class="num">1</span>
+        <div class="step"><span class="num">1</span>
           <h3>Inspect</h3>
           <p>A walk round in daylight and under a hand-held lamp. Defects noted, package agreed, price fixed before anything is touched.</p></div>
-        <div class="step" data-rv="1"><span class="num">2</span>
+        <div class="step"><span class="num">2</span>
           <h3>Wash and decontaminate</h3>
           <p>Two-bucket hand wash, iron fallout remover, clay bar. Polishing dirty paint grinds the dirt into it.</p></div>
-        <div class="step" data-rv="2"><span class="num">3</span>
+        <div class="step"><span class="num">3</span>
           <h3>Correct</h3>
           <p>Machine polish to the agreed stage. One pass for light swirls, two for paint that has been through tunnel washes.</p></div>
-        <div class="step" data-rv="3"><span class="num">4</span>
+        <div class="step"><span class="num">4</span>
           <h3>Protect</h3>
           <p>Wax, sealant or coating. A coating is wiped, levelled and left to cure &mdash; which is why it is booked on a dry day.</p></div>
       </div>
@@ -682,7 +687,7 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
           <h3>2019 Audi A5</h3>
           <p>Two-step correction and a level 2 coating. Matthews.</p>
         </article>
-        <article class="card lit" data-rv="1">
+        <article class="card lit" data-rv="0">
           <div class="pic">
             <img src="https://images.unsplash.com/photo-1770289711980-c7663e18bb16?fm=jpg&amp;fit=crop&amp;w=700&amp;h=560&amp;q=74"
                  alt="A blue hatchback parked on a driveway in front of a garage door."></div>
@@ -690,7 +695,7 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
           <h3>2022 Hyundai Kona</h3>
           <p>Enhancement package on a lease return. Huntersville.</p>
         </article>
-        <article class="card lit" data-rv="2">
+        <article class="card lit" data-rv="0">
           <div class="pic">
             <img src="https://images.unsplash.com/photo-1779983625007-22db9d8bf6be?fm=jpg&amp;fit=crop&amp;w=700&amp;h=560&amp;q=74"
                  alt="A burgundy saloon parked outside a house with red shutters."></div>
@@ -698,7 +703,7 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
           <h3>2015 BMW 328i</h3>
           <p>Full restoration &mdash; shampoo, extraction, odour. Dilworth.</p>
         </article>
-        <article class="card lit" data-rv="3">
+        <article class="card lit" data-rv="0">
           <div class="pic">
             <img src="https://images.unsplash.com/photo-1780558852669-1bd1ae615506?fm=jpg&amp;fit=crop&amp;w=700&amp;h=560&amp;q=74"
                  alt="A microfibre cloth drawn across the wing of a dark blue car."></div>
@@ -946,13 +951,19 @@ var STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (STILL) return;
   var els = [].slice.call(document.querySelectorAll("[data-rv]"));
   els.forEach(function (el) { el.classList.add("rv-hidden"); });
+  // a row of cards should land together: the queue is what reads as lag
   var ticking = false;
   function pass() {
     ticking = false;
     var h = innerHeight;
     els.forEach(function (el) {
       var r = el.getBoundingClientRect();
-      var seen = r.top < h * 0.92 && r.bottom > 0;
+      // A TALL BLOCK MUST NOT WAIT FOR ITS TOP TO CLEAR 92% OF THE SCREEN.
+      // The row of work cards is 400px deep, so by the time its top reached
+      // that line the row was already half on screen and only then began a
+      // half-second arrival — which reads exactly as the lag he described.
+      // Anything that has entered at all is on its way in.
+      var seen = r.top < h * 0.995 && r.bottom > 0;
       if (seen === !el.classList.contains("rv-hidden")) return;   // no change
       if (el._t) clearTimeout(el._t);
       if (seen) {
@@ -1184,7 +1195,11 @@ var STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (!box) return;
   var fill = box.querySelector(".track i");
   var steps = [].slice.call(box.querySelectorAll(".step"));
-  if (STILL) { if (fill) fill.style.width = "100%"; steps.forEach(function (s) { s.classList.add("on"); }); return; }
+  if (STILL) {
+    if (fill) fill.style.width = "100%";
+    steps.forEach(function (s) { s.classList.add("on"); s.style.setProperty("--in", "1"); });
+    return;
+  }
   var ticking = false;
   function draw() {
     ticking = false;
@@ -1194,8 +1209,15 @@ var STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
     var p = (innerHeight * 0.78 - r.top) / (innerHeight * 0.46);
     p = Math.max(0, Math.min(1, p));
     box.style.setProperty("--p", p.toFixed(3));
+    // each stage gets its own WINDOW of the rail's progress, so the four
+    // brighten in turn as the line reaches them rather than all at once when
+    // the section arrives. Written as a number the stylesheet reads, which is
+    // what keeps it glued to the scroll in both directions.
     steps.forEach(function (s, i) {
-      s.classList.toggle("on", p >= (i + 0.35) / steps.length);
+      var start = (i / steps.length) * 0.78;
+      var local = Math.max(0, Math.min(1, (p - start) / 0.30));
+      s.style.setProperty("--in", local.toFixed(3));
+      s.classList.toggle("on", local > 0.55);
     });
   }
   addEventListener("scroll", function () {

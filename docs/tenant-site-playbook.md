@@ -601,6 +601,23 @@ reading it.**
     before the text clips against the edge — check it at the deepest travel,
     at three widths, rather than assuming.
 
+### From site 3 — scroll-linked vs time-based, 2026-09-09
+88. **IF A SECTION HAS A SCROLL-LINKED PART, EVERY PART OF IT IS
+    SCROLL-LINKED.** The rail's line filled with the scroll while the four
+    stage headings played a 420ms fade on arrival, and he named the seam
+    exactly: *"it's more of, when it gets into place, then it plays an
+    animation — not each tick is part of the scroll."* Mixing the two inside
+    one section is what reads as glitchy. Give each part its own share of the
+    same progress value and no transition at all.
+89. **A TALL BLOCK MUST NOT WAIT FOR ITS TOP TO CLEAR 92% OF THE SCREEN.** The
+    row of work cards is 400px deep, so by the time its top reached that line
+    the row was already half visible and only THEN began a half-second
+    arrival — the lag he could see. Reveal on entry: measured, the row now
+    starts arriving with 27px of itself on screen.
+90. **A ROW ARRIVES TOGETHER.** A per-card stagger on four cards in one row is
+    a queue, and a queue is what "delayed" means. Stagger down a page, never
+    across a row.
+
 ### Traps that cost a measurement here, and will again
 25. **`flex: 0 0 min(a,b)` is invalid** — a math function in the shorthand's
     basis drops the whole declaration and the item sizes to content.
