@@ -1833,3 +1833,37 @@ choice" flags, a marquee of services and towns, a named review carrying the car
 model, an owner story, and a sixteen-town service list. **Invent only what no
 real site supplies** — the name, the towns, the reviewer, the dates — and keep
 invented numbers inside the trade's real range.
+
+## 7 · SITE 3 IS SIGNED OFF — 2026-09-09, *"I think we're good"*
+
+**Ballantyne Mobile Detailing** — `docs/tenant-sites/x-ballantyne.html` and
+`x-ballantyne-prices.html`, served at `/ex3` and `/ex3/prices.html`, three
+colourways on one skeleton.
+
+### WHAT MADE THIS ONE WORK, AND IT IS THE METHOD FOR EVERY SITE AFTER IT
+
+1. **The reference was MEASURED, not described.** fora's hero was tracked
+   layer by layer through scroll bands (§ 6), its corner radii and type
+   weights read off the live page, and its weighted-scroll constants taken
+   from our own landing page rather than invented. **Every time this session
+   guessed at a feel, he rejected it; every time it measured, he kept it.**
+2. **The copy was audited as a COLUMN OF HEADINGS**, not read in place. Ten of
+   eleven were phrases; they are labels now. No sentence survives that adds no
+   fact, and nothing sells the baseline.
+3. **The facts came off a real detailer's site** — melimobiledetailing.com,
+   read live: five categories, thirteen packages with real prices and real
+   inclusion lists, add-ons, a sixteen-town area. **His instruction: use their
+   information, invent only what no real site supplies.**
+4. **Proof is a different shape on every site.** The rating / years / cars-done
+   row is banned — he recognised it across three sites in one glance.
+5. **Motion is verified by PROBE, not by screenshot.** A still frame cannot
+   tell a 90ms snap from a 460ms ramp, and every motion fault this session
+   fixed was found by reading numbers out of the running page.
+
+### PARKED, WITH HIS AGREEMENT
+
+**The booking form's layout on the prices page.** He looked at it and said
+*"it doesn't really build correctly, but that's kinda fine, I don't really
+care honestly."* It draws the core's seven-step sequence and is honest about
+what it is; it has not had a layout pass. **Not a defect to fix silently —
+ask before spending time on it.**

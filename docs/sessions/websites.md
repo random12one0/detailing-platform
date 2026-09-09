@@ -292,6 +292,35 @@ is worth a measured +17% on finding where the flaw actually is.
 
 ---
 
+## 5b. SITE 4 — HIS BRIEF, GIVEN 2026-09-09
+
+**Site 3 is signed off** (`TASTE-NOTES.md` § 7). His instruction for the next
+one, in his own words: *"find a pair of two actually really good websites, one
+that's non-detailer and one that is a detailer. Maybe we could do inspiration
+from chicagoautopros.com. And then find one of the general design inspirations
+that kinda follows that look, and implement the animations into the Chicago
+Auto Pros look, as well as text."*
+
+**So the detailer half is CHOSEN: `chicagoautopros.com`** — the one he called
+*"a little crowded but still kinda good"*, which is the point: it is the
+information-dense end of the trade, and site 3 proved that density is what he
+wants more of.
+
+**The non-detailer half is NOT chosen, and it is the first job.** Pick it by
+**opening the frames in `../_repo-shots-archive/shots-taste/` and matching on
+FORM** — panel shape, chrome, how photographs are held — exactly as
+`atelier x fora` was matched for site 3, and never on his one-line verdict.
+The eight non-detailers on his list are `auxia`, `pryzm`, `lightspark`,
+`vessa`, `fora` *(spent on site 3)*, `authkit`, `landscape-128` and the Mobbin
+page he ruled out himself. **Say which one and why in one sentence before
+building.**
+
+**What transfers wholesale from site 3:** the whole motion system — reveals
+that replay in both directions, the weighted scroll at WHEEL 1.22 / LERP
+0.055, the pointer light, scroll-linked sections that carry no timers, the
+asymptotic parallax limit — and the copy rules. `tenant-site-playbook.md` § 10
+rules **31 to 90** are all from this build.
+
 ## 6. WHAT NOT TO DO
 
 - **Do not rebuild the existing ten.** They serve `/example1…10` and he can
