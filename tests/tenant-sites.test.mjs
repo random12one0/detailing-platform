@@ -11,26 +11,42 @@
 // It caught its first live regression the day it was written: the new prices
 // page had no photograph on it.
 //
-// SCOPE: only the pages this session builds and maintains — the `v-` set. The
-// twenty-one earlier mock-ups are kept as a record and are not retro-fitted
-// (`docs/sessions/websites.md` § 6: do not rebuild the existing ten).
+// SCOPE: only the pages this session builds and maintains — one letter prefix
+// per SITE, currently `v-` (Prime Mobile Detailing) and `w-` (Delgado Mobile
+// Detailing). The twenty-one earlier mock-ups are kept as a record and are not
+// retro-fitted (`docs/sessions/websites.md` § 6: do not rebuild the ten).
+//
+// WIDENED 2026-09-08, AND THE REASON IS THIS FILE'S OWN HEADER. The pattern was
+// hard-coded `^v-` when site 1 was the only site. Site 2 was then built, this
+// check ran, printed "37 checks over 3 pages, 0 failed", and had measured
+// NOTHING about the new page. **A check that does not cover the thing you just
+// built reads exactly like a passing one** — the sentence this file exists to
+// enforce, failing on the file itself the first time a second site appeared.
+// The per-site totals below are now grouped by prefix, because one aggregate
+// across two sites lets one site's photographs cover another site's having
+// none, which is the same hole in a different shape.
 
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const DIR = "docs/tenant-sites";
-const files = readdirSync(DIR).filter(f => /^v-.*\.html$/.test(f)).sort();
+const SITE = /^([a-z])-[a-z]+(?:-[a-z]+)?\.html$/;
+const files = readdirSync(DIR).filter(f => /^[vw]-.*\.html$/.test(f)).sort();
+const siteOf = (f) => f[0];
 
-let checks = 0, fails = 0, siteImgs = 0;
-// the home page is the one with no -suffix; the tabs hang off it
-const isHome = (f) => /^v-[a-z]+\.html$/.test(f);
+let checks = 0, fails = 0;
+// per SITE, never pooled: {v: {imgs, home}, w: {...}}
+const per = {};
+const bucket = (f) => (per[siteOf(f)] ||= { imgs: 0, home: false });
+// the home page is the one with no -suffix; any tabs hang off it
+const isHome = (f) => /^[a-z]-[a-z]+\.html$/.test(f);
 const ok = (cond, msg) => {
   checks++;
   if (!cond) { fails++; console.log("  FAIL  " + msg); }
 };
 
 if (!files.length) {
-  console.log("tenant-sites: NO v-*.html PAGES FOUND — a skipped check reads exactly like a passing one.");
+  console.log("tenant-sites: NO [vw]-*.html PAGES FOUND — a skipped check reads exactly like a passing one.");
   process.exit(1);
 }
 
@@ -46,7 +62,8 @@ for (const f of files) {
   //     never a rule about pages — it was a rule about a site that shows no
   //     work. DEVICE-INVENTORY I1. The site total is asserted after the loop.
   const imgs = (body.match(/<img\b/g) || []).length;
-  siteImgs += imgs;
+  bucket(f).imgs += imgs;
+  if (isHome(f)) bucket(f).home = true;
 
   // 2 · ABOVE THE FOLD, ON THE HOME PAGE. "A photograph at scale" is a claim
   //     about the FOLD — k-cedar's recorded failure, and it recurred here.
@@ -107,8 +124,11 @@ for (const f of files) {
 
 // The site as a whole still owes real photography — this is the guard that
 // would have caught the ten pages with zero <img> between them.
-ok(siteImgs >= 5, `the v- site carries only ${siteImgs} image(s) across ${files.length} pages`);
-ok(files.some(isHome), "no home page (v-<name>.html) found among the v- pages");
+for (const [key, s] of Object.entries(per)) {
+  ok(s.imgs >= 5, `site "${key}-" carries only ${s.imgs} image(s) across its pages`);
+  ok(s.home, `site "${key}-" has no home page (${key}-<name>.html)`);
+}
 
-console.log(`tenant-sites: ${checks} checks over ${files.length} page(s), ${fails} failed`);
+console.log(`tenant-sites: ${checks} checks over ${files.length} page(s) in `
+  + `${Object.keys(per).length} site(s) [${Object.keys(per).join(", ")}], ${fails} failed`);
 process.exit(fails ? 1 : 0);

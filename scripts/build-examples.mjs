@@ -89,6 +89,13 @@ const MULTI = [
   ["ex1", "v-goldenhour.html", "Prime Mobile Detailing",
    "photograph as the ground · sticky header + dock · three pages",
    { "v-goldenhour-work.html": "work.html", "v-goldenhour-prices.html": "prices.html" }],
+  // SITE 2 IS ONE PAGE, AND THE PAGE COUNT IS PART OF THE VARIETY — his own
+  // instruction (TASTE-NOTES batch 3, item 7). It sits in MULTI rather than
+  // in PAGES because these are the sites built from an APPROVED SCHEME and
+  // they get a named slug he can send to somebody; PAGES is the numbered set
+  // of ten from 2026-09-07. `extras` is empty, which the rewrite handles.
+  ["ex2", "w-delgado.html", "Delgado Mobile Detailing",
+   "dark made of light · the process drawn as wiring · one page", {}],
 ];
 
 const PAGES = [

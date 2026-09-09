@@ -42,6 +42,18 @@ goes to a car owner and is about the car.**
 2. **Fill in `docs/DESIGN-SCHEME-TEMPLATE.md` and stop for a yes.** The
    filled copy is `docs/schemes/<tenant>-scheme.md` and it is **the first
    deliverable of the session — no HTML exists until Andrew approves it.**
+   - **HE APPROVES A PICTURE, NOT THE FILE — his ruling, 2026-09-08:** *"I want
+     all visual, actually. Like, barely any text, all visual. Right now, you
+     just gave me text."* Render the tile to **three 620x870 frames** and send
+     them: (1) the face — real ground, wordmark, headline at real size with its
+     accent word, real buttons, chip, stats, hero photo in its slot; (2) the
+     parts — colour blocks, type specimen, panels in their states, controls, a
+     sketch of the page's one signature device; (3) the photograph shortlist
+     with the rejections named. **A style tile is a visual artefact — that is
+     the whole point of the format this template cites.** The markdown keeps
+     the reasoning and the arithmetic; it is the record, not the ask.
+     `TASTE-NOTES.md` § BATCH 4b. **And 870px is the observed height ceiling
+     for a file that reaches his phone — 1240 did not load.**
    `docs/schemes/prime-mobile-detailing-scheme.md` is a worked example.
    - **It is a STYLE GUIDE, never a design system.** A design system is the
      parent thing — multi-product, governance, a component code library

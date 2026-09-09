@@ -1594,3 +1594,79 @@ there's some reviews on this page too"*), and the booking widget as a preview.
 Left where it is. Raise it again once he has seen the simplified home page,
 because that page is now short enough that a separate Book tab would leave very
 little on it.
+
+---
+
+# BATCH 4 — THE SITE 2 INTERVIEW, 2026-09-08
+
+**The first time the direction gate in `docs/tenant-site-playbook.md` § 1 was
+actually used.** Four tappable questions, each carrying a recommendation. He
+answered all four, and **he overruled the first one**, which is the useful part
+— his refusals are worth more than his approvals.
+
+| Question | His answer | What I had recommended |
+|---|---|---|
+| What kind of detailer is site 2? | **"Another mobile detailer, different flavour"** | A fixed shop doing ceramic + paint correction |
+| Light page or dark page? | **"Dark, made of light"** | same |
+| Which two of your 21 should it sit near? | **`authkit` × `auxia`** | same |
+| One page or several? | **"One long page with jump links"** | same |
+
+## WHAT THE OVERRULE MEANS, AND IT IS A REAL CONSTRAINT
+
+I recommended a fixed shop specifically to put maximum distance between site 1
+and site 2 without leaving the trade. **He chose a second mobile detailer**, so
+the BUSINESS TYPE can no longer carry any of the variety.
+
+**That is not a smaller job, it is a harder one.** Everything §5 of the playbook
+lists as what must differ between two sites — section order, ground, type,
+shapes, page count — now has to carry the entire difference on its own, with the
+two pages selling the identical service to the identical customer. A recoloured
+copy is the recorded cause of the first failure in this project and this is the
+single most likely place for it to happen again.
+
+**The answer taken:** the FLAVOUR of mobile detailer differs. Site 1 is a
+generalist at your kerb in the afternoon. Site 2 is a **paint-correction and
+coating specialist who works after dark under his own lighting rig**, in Mesa,
+Arizona, where nobody polishes at noon for half the year. The dark ground is
+then a fact about the business rather than a styling choice — which is the test
+§2 of the scheme template sets for a subject.
+
+Scheme: `docs/schemes/delgado-mobile-detailing-scheme.md`. Awaiting his yes.
+
+## BATCH 4b — "I WANT ALL VISUAL, BARELY ANY TEXT" (2026-09-08)
+
+Handed the filled scheme for site 2 as a written paragraph plus a link to the
+markdown file, he answered:
+
+> *"I don't know what the prompt was, but what you gave me is just text, and I
+> want, like, visual. Like, I want all visual, actually. Like, barely any text,
+> all visual. Right now, you just gave me text."*
+
+**AND HE IS RIGHT ABOUT THE FORM OF THE THING, NOT JUST THE MESSAGE.** A style
+tile is a VISUAL artefact — that is the entire point of Samantha Warren's
+format, which `docs/DESIGN-SCHEME-TEMPLATE.md` cites by name in its own header:
+colour swatches, a type specimen, textures, buttons, on one board a client
+LOOKS at. **The template turned it into a 300-line prose document and the
+approval step turned it into reading.** The gate was invented so he could
+approve a direction cheaply; a document he has to read on a phone is not cheap.
+
+**THE RULE THAT FOLLOWS, AND IT BINDS EVERY SITE FROM HERE:**
+
+**The scheme's APPROVAL ARTEFACT IS A RENDERED IMAGE, NOT THE MARKDOWN FILE.**
+Three frames at 620x870, sent with `SendUserFile`:
+
+1. **The face** — the real ground with its real treatment, the wordmark, the
+   headline at its actual size with the accent word in it, the real buttons,
+   the availability chip, the stat strip, and the hero photograph in its slot.
+2. **The parts** — colour swatches as blocks, the type specimen at 76px beside
+   15px body, panels in their real states, the controls, and a sketch of the
+   page's one signature device.
+3. **The photographs** — the shortlist, with the rejections named underneath.
+
+**The markdown file still gets written and still holds the reasoning** — the
+contrast arithmetic, the device list, the refusals. It is the record. **It is
+not what he is asked to approve.** He approves the picture.
+
+**Also, and separately: a 800x1240 PNG did not load for him** (*"not loading"*).
+The CLAUDE.md rule says the limit is the image's HEIGHT. **870 is the working
+ceiling observed so far; 1240 is not.** Frames, not one tall board.

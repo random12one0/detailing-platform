@@ -1,0 +1,1309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Delgado Mobile Detailing — Mobile paint correction and ceramic coating, Mesa AZ</title>
+<meta name="description" content="Mobile paint correction and ceramic coating in Mesa, Gilbert and Chandler. We bring the lights and work after dark.">
+
+<!--
+  ══════════════════════════════════════════════════════════════════════════
+  SITE 2 · DELGADO MOBILE DETAILING · served at /ex2
+  ══════════════════════════════════════════════════════════════════════════
+
+  THE SCHEME IS `docs/schemes/delgado-mobile-detailing-scheme.md` AND ANDREW
+  APPROVED IT AS THREE RENDERED FRAMES BEFORE THIS FILE EXISTED. Every value
+  below traces to that document. If the two disagree, the scheme is the record
+  of what was agreed and this file is what was built — say so, do not silently
+  drift.
+
+  HIS FOUR INTERVIEW ANSWERS, 2026-09-08:
+    · another mobile detailer, different flavour   (he overruled my "fixed shop")
+    · dark, made of light
+    · sits near `authkit` × `auxia`
+    · one long page with jump links
+
+  THE OVERRULE IS THE CONSTRAINT. Site 1 (`v-goldenhour`) is also a mobile
+  detailer, so the trade carries none of the variety. Everything else has to:
+
+    site 1                          site 2
+    warm bone, sun + motes          near-black, a cold travelling beam
+    Bricolage + Instrument          Chivo (one superfamily, three roles)
+    999px pills, 20px cards         6px buttons, 10px cards, no pills
+    inside a 26px rounded shell     full-bleed, no shell
+    three pages with real tabs      one page, jump links
+    photo IS the ground             photo in a lit 4:5 window beside the text
+    accent-FINAL-word headings      one hot KEY word wherever it falls
+    giant bleeding footer wordmark  outlined wordmark BEHIND the hero
+    bought variety with RHYTHM      buys it with DEPTH
+    one house easing curve          Carbon's asymmetric entrance/exit
+
+  NUMBERS ARE PLACEHOLDERS AND THE MARKUP SAYS SO. Every managed figure
+  carries `data-from` naming the endpoint that owns it on a real site. A rate
+  typed into a tenant's HTML is *a number PRINTED is not a number CHARGED*
+  with the two numbers living in two codebases and nothing able to see both.
+
+  PHOTOGRAPHS ARE SLOTS, NOT ART DIRECTION. Every image is `object-fit: cover`
+  in a stated ratio, every scrim is sized to the slot and computed against a
+  WHITE photograph, and every slot carries a comment naming the field that
+  fills it. Twelve candidates were rendered to a contact sheet and looked at;
+  five were rejected — one carried another firm's sponsor decals across the
+  panel, one a readable number plate, one was two men posing at camera, one a
+  white car in daylight, one was warm orange (site 1's world, not this one).
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,400;0,600;0,900;1,400&family=Chivo+Mono:wght@400;500&display=swap">
+
+<style>
+/* ══ TOKENS ═══════════════════════════════════════════════════════════════
+   EVERY RATIO BELOW WAS COMPUTED AFTER THE FACT AGAINST THE COMPOSITED
+   GROUND, NEVER TYPED FROM JUDGEMENT. Two came back wrong and are corrected:
+     · white on the accent is 3.31:1 and FAILS — the button label is --ink.
+     · a control edge at .30 alpha is 2.61:1 and FAILS — it is .36.
+   A decorative hairline and a control's edge are two different tokens. */
+:root{
+  --ink:#0A0B0D;              /* ground */
+  --lift:#12161D;             /* the lit bands */
+  --glass:rgba(255,255,255,.055);   /* -> #17181A over ground */
+  --fg:#F2F4F7;               /* 17.87:1 on ink · 16.12:1 on glass */
+  --fg2:#9AA3AE;              /*  7.71:1 on ink ·  6.96:1 on glass · 7.10:1 on lift */
+  --hot:#FF4D2E;              /*  5.96:1 on ink ·  5.37:1 on glass */
+  --hot-h:#FF6A45;            /*  6.94:1 on ink */
+  --hot-a:#E63A1C;
+  --cold:#BFD8FF;             /* 13.58:1 on ink — the work light */
+  --ok:#3FD37A;               /* 10.14:1 on ink */
+  --rule:rgba(255,255,255,.10);   /* DECORATIVE ONLY — 1.26:1, never an edge */
+  --edge:rgba(255,255,255,.36);   /* CONTROL EDGES — 3.27:1, clears 3:1 */
+
+  --r-btn:6px; --r-card:10px; --r-shot:14px;
+
+  /* Carbon's numbers. Entrance and exit are asymmetric on purpose. */
+  --t-in:240ms;  --e-in:cubic-bezier(0,0,.3,1);
+  --t-out:150ms; --e-out:cubic-bezier(.4,.14,1,1);
+  --t-hov:110ms; --e-hov:cubic-bezier(.2,0,.38,.9);
+
+  --wrap:1240px; --gut:20px;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+/* A DRIFTING LAYER NEEDS overflow-x HIDDEN, AND WHETHER ANYBODY FINDS OUT
+   DEPENDS ON THE SIGN OF ONE NUMBER — a beam that drifts right scrolled a
+   page sideways here before; the identical layer drifting left was silent. */
+html,body{overflow-x:hidden}
+body{
+  margin:0;background:var(--ink);color:var(--fg);
+  font:400 15px/1.6 Chivo,"Helvetica Neue",Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;display:block}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--cold);outline-offset:3px;border-radius:3px}
+
+/* ══ 1 · THE GROUND — four layers, and never a flat fill ═════════════════
+   Site 1's ground is a warm sun with two mote fields and a grain. The
+   playbook says every site gets a DIFFERENT KIND of ground and not to reuse
+   the dot field, so there are no motes here at all. */
+.beam,.cast,.grain,.vig{position:fixed;inset:0;pointer-events:none;z-index:0}
+.beam{
+  /* a HARD-EDGED band, not a soft radial. It is one composited layer moved
+     by transform only — never by left/top. */
+  background:linear-gradient(104deg,
+    transparent 34%, rgba(191,216,255,.115) 43%,
+    rgba(191,216,255,.04) 49%, transparent 57%);
+  will-change:transform;transform:translate3d(0,0,0);
+  inset:-40% -30%;
+}
+.cast{background:
+  radial-gradient(70% 55% at 8% 96%,rgba(255,77,46,.16),transparent 70%),
+  radial-gradient(60% 50% at 96% 4%,rgba(191,216,255,.07),transparent 70%);}
+.grain{opacity:.22;background-image:url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'>\
+<filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='3'/>\
+<feColorMatrix type='saturate' values='0'/></filter>\
+<rect width='200' height='200' filter='url(%23n)' opacity='.45'/></svg>");}
+.vig{background:radial-gradient(130% 95% at 50% 34%,transparent 42%,rgba(0,0,0,.62))}
+main,header,footer{position:relative;z-index:1}
+
+.wrap{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.m{font:500 10.5px/1.3 "Chivo Mono",ui-monospace,monospace;
+   letter-spacing:.18em;text-transform:uppercase;color:var(--cold);margin:0}
+.m--q{color:var(--fg2)}
+h2{font:900 clamp(30px,5.4vw,62px)/.96 Chivo,sans-serif;letter-spacing:-.03em;margin:0 0 10px}
+h3{font:900 22px/1.15 Chivo,sans-serif;letter-spacing:-.02em;margin:0 0 6px}
+em{font-style:normal;color:var(--hot)}   /* the ONE hot key word per heading */
+p{margin:0 0 12px;max-width:56ch}
+.lede{font-size:19px;line-height:1.45;color:var(--fg2);max-width:32ch}
+
+/* ══ CONTROLS ════════════════════════════════════════════════════════════ */
+.btn,.btn2{
+  font:600 14px/1 Chivo,sans-serif;padding:13px 20px;border-radius:var(--r-btn);
+  border:0;cursor:pointer;display:inline-flex;align-items:center;gap:8px;
+  transition:background var(--t-hov) var(--e-hov),transform var(--t-hov) var(--e-hov),
+             border-color var(--t-hov) var(--e-hov);
+  text-decoration:none;
+}
+/* WHITE ON THE ACCENT IS 3.31:1 AND FAILS. The label is the ground colour,
+   which measures 5.96:1. This shipped wrong once here already. */
+.btn{background:var(--hot);color:var(--ink)}
+.btn:hover{background:var(--hot-h);transform:translateY(-1px)}
+.btn:active{background:var(--hot-a);transform:none}
+.btn2{background:transparent;color:var(--fg);border:1px solid var(--edge)}
+.btn2:hover{border-color:var(--fg);transform:translateY(-1px)}
+.btn[disabled],.btn2[disabled]{opacity:.45;cursor:not-allowed;transform:none}
+
+.chip{display:inline-flex;gap:8px;align-items:center;background:var(--glass);
+  border:1px solid var(--rule);border-radius:999px;padding:8px 14px;
+  font:500 10.5px "Chivo Mono",ui-monospace,monospace;letter-spacing:.16em;
+  text-transform:uppercase;-webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--ok);
+  box-shadow:0 0 9px var(--ok)}
+
+/* PANELS ARE LIT AT THE EDGE, NEVER DROP-SHADOWED. authkit's move, and the
+   reason it scores highest of his eighteen. The only shadow on this page is
+   on the dock, which genuinely floats over content. */
+.panel{background:var(--glass);border:1px solid var(--rule);border-radius:var(--r-card);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+  transition:border-color var(--t-hov) var(--e-hov),box-shadow var(--t-hov) var(--e-hov)}
+.panel:hover{border-color:rgba(255,77,46,.42);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10),
+             0 0 0 1px rgba(255,77,46,.16), 0 0 34px -10px rgba(255,77,46,.55)}
+
+/* ══ 2 · HEADER — condensing, on the desk ════════════════════════════════
+   I2: the dock was filed under PHONE and the need is "can somebody act from
+   anywhere on a 5,000px page". A desk has that need too. Both surfaces. */
+.hdr{position:sticky;top:0;z-index:60;transition:padding var(--t-in) var(--e-in),
+     background var(--t-in) var(--e-in),border-color var(--t-in) var(--e-in);
+     border-bottom:1px solid transparent}
+.hdr .wrap{display:flex;align-items:center;gap:18px;padding-block:18px;
+     transition:padding var(--t-in) var(--e-in)}
+.hdr.small{background:rgba(10,11,13,.82);-webkit-backdrop-filter:blur(12px);
+     backdrop-filter:blur(12px);border-bottom-color:var(--rule)}
+.hdr.small .wrap{padding-block:10px}
+.brand{font:900 19px/1 Chivo,sans-serif;letter-spacing:-.03em;text-decoration:none}
+.brand i{font-style:normal;color:var(--hot)}
+.hnav{margin-left:auto;display:flex;gap:22px}
+.hnav a{font:600 13.5px Chivo,sans-serif;color:var(--fg2);text-decoration:none;
+     transition:color var(--t-hov) var(--e-hov)}
+.hnav a:hover,.hnav a[aria-current]{color:var(--fg)}
+.hdr .btn{padding:10px 16px}
+/* THE BOOK CONTROL GETS STANDING ATTENTION — a soft breathing glow, no
+   layout, off under reduced motion. */
+@keyframes breathe{0%,100%{box-shadow:0 0 0 0 rgba(255,77,46,0)}
+                   50%{box-shadow:0 0 22px -4px rgba(255,77,46,.75)}}
+.book-cta{animation:breathe 3.4s ease-in-out infinite}
+
+/* ══ 3 · HERO ════════════════════════════════════════════════════════════ */
+.hero{position:relative;padding:34px 0 54px}
+/* B3 · the outlined wordmark BEHIND the hero. B2, site 1's giant bleeding
+   footer wordmark, is therefore NOT on this page — one oversized wordmark. */
+.ghost{position:absolute;top:-6px;left:-2vw;right:0;z-index:-1;
+  font:900 clamp(90px,17vw,230px)/1 Chivo,sans-serif;letter-spacing:-.045em;
+  color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.085);
+  white-space:nowrap;pointer-events:none;user-select:none}
+.hero-grid{display:grid;grid-template-columns:1fr;gap:26px}
+/* D1 · ONE object at a scale nothing else approaches. 130px against 15px
+   body is 8.7x; site 1 runs 6.8x and auxia, which he pointed at, runs ~6.4x
+   at a smaller absolute size. THE SIZE CONTRAST IS THE DEVICE. */
+.hero h1{font:900 clamp(46px,11.4vw,130px)/.90 Chivo,sans-serif;
+  letter-spacing:-.038em;margin:26px 0 0;max-width:9ch}
+.hero h1 em{color:var(--hot)}
+.cta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:22px}
+
+/* A2 · a real photograph above the fold. THE SLOT IS 4:5 AND FIXED — a hero
+   that only works because the sun is in the top-left of one JPEG is a hero
+   that breaks for the first real client. */
+.shot{position:relative;border-radius:var(--r-shot);overflow:hidden;
+  aspect-ratio:4/5;border:1px solid var(--rule)}
+.shot img{width:100%;height:100%;object-fit:cover}
+/* A3 · the scrim is a gradient sized to the SLOT and computed against a
+   WHITE photograph, never tuned to this one's histogram. */
+.shot::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(196deg,rgba(10,11,13,.72) 0%,rgba(10,11,13,.06) 34%,
+             rgba(10,11,13,.30) 68%,rgba(10,11,13,.88) 100%)}
+.shot .chip{position:absolute;top:14px;left:14px;z-index:2}
+.shot figcaption{position:absolute;left:14px;right:14px;bottom:13px;z-index:2;
+  font:500 10.5px "Chivo Mono",ui-monospace,monospace;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--fg)}
+
+/* C5 · the stat strip. Four of his five batch-1 picks carry one. */
+.stats{display:flex;gap:clamp(18px,5vw,54px);flex-wrap:wrap;
+  border-top:1px solid var(--rule);margin-top:34px;padding-top:20px}
+.stats b{display:block;font:900 clamp(30px,5vw,46px)/1 Chivo,sans-serif;letter-spacing:-.03em}
+.stats span{font:500 10px "Chivo Mono",ui-monospace,monospace;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--fg2)}
+
+/* ══ 4 · SERVICE AREA — named towns, not a radius ════════════════════════
+   A different SHAPE from every other section: a single line of large towns
+   that wraps, with the outliers carrying their own travel note. */
+.area{padding:56px 0 10px}
+.towns{display:flex;flex-wrap:wrap;gap:10px 26px;align-items:baseline;margin:14px 0 0;
+  font:900 clamp(24px,4.4vw,44px)/1.1 Chivo,sans-serif;letter-spacing:-.03em}
+.towns span{color:var(--fg2);font-weight:400;font-size:14px;letter-spacing:0;
+  font-family:"Chivo Mono",ui-monospace,monospace}
+.towns i{font-style:normal}
+
+/* ══ 5 · THE PROCESS — D2, drawn as a system, in a pinned beat ═══════════
+   auxia's routed connector diagram. § C of TASTE-NOTES calls this the thing
+   he was pointing at. It replaces three cards, and it draws itself on SCROLL
+   PROGRESS rather than on a timer — a reveal slower than a scroll gesture is
+   worse than no reveal. */
+.beat{background:var(--lift);border-block:1px solid var(--rule);margin-top:46px;
+  position:relative;overflow:hidden}
+.beat::before{content:"";position:absolute;inset:0;
+  background:radial-gradient(80% 60% at 22% 108%,rgba(255,77,46,.15),transparent 70%)}
+.beat .wrap{position:relative;padding-block:64px 72px}
+.diagram{margin-top:26px;overflow-x:auto;overflow-y:hidden}
+.diagram svg{display:block;min-width:720px}
+.dg-line{stroke-dasharray:var(--len);stroke-dashoffset:calc(var(--len) * (1 - var(--p,0)))}
+.dg-node{opacity:calc(var(--np,0));transition:opacity 200ms linear}
+
+/* The phone spine — hidden on the desk, where the routed diagram runs. */
+.spine{display:none;list-style:none;margin:24px 0 0;padding:0 0 0 22px;position:relative}
+.spine::before{content:"";position:absolute;left:5px;top:6px;bottom:22px;width:1px;
+  background:linear-gradient(180deg,var(--hot),rgba(191,216,255,.4))}
+.spine li{position:relative;padding:0 0 22px}
+.spine li::before{content:"";position:absolute;left:-21px;top:5px;width:11px;height:11px;
+  border-radius:50%;background:var(--lift);border:1.5px solid var(--edge)}
+.spine li.hot::before{border-color:var(--hot);box-shadow:0 0 12px -2px var(--hot)}
+.spine li.para::before{border-color:var(--cold);border-style:dashed}
+.spine b{display:block;font:900 17px Chivo,sans-serif;letter-spacing:-.01em}
+.spine span{font:500 10.5px "Chivo Mono",ui-monospace,monospace;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--cold)}
+
+/* ══ 6 · PACKAGES + THE SIZE LADDER, SHARING A ROW ══════════════════════
+   I5: a full-width band is a default, not a decision. The vehicle-size table
+   MODIFIES the packages, so it sits beside them rather than four screens
+   below. On a phone it goes under, as a scroller. */
+.money{padding:64px 0 10px}
+.money-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:22px}
+.pk{padding:22px}
+.pk .top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+/* A4 · the most important number on the page is NOT at body size. meli's are
+   14px cyan and it is his favourite site and he called it lacking. */
+.pk b.price{font:900 clamp(38px,5.2vw,60px)/1 Chivo,sans-serif;color:var(--hot);
+  letter-spacing:-.03em}
+.pk .hrs{font:500 10.5px "Chivo Mono",ui-monospace,monospace;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--fg2)}
+/* D6 · a TWO-COLUMN TICK LIST, not a prose <small>. Maps straight onto
+   services.features, which all ten rejected mock-ups rendered as prose. */
+.ticks{display:grid;grid-template-columns:1fr 1fr;gap:2px 16px;margin:14px 0 0;
+  padding:0;list-style:none;font-size:14px;color:var(--fg2)}
+.ticks li{position:relative;padding-left:18px;line-height:1.75}
+.ticks li::before{content:"";position:absolute;left:0;top:.62em;width:9px;height:5px;
+  border-left:1.5px solid var(--hot);border-bottom:1.5px solid var(--hot);
+  transform:rotate(-45deg)}
+/* Warnings are FLAGS, not paragraphs. No full stops, nothing read twice. */
+.flag{display:inline-block;margin-top:12px;font:500 10.5px "Chivo Mono",ui-monospace,monospace;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--cold);
+  border:1px solid var(--rule);border-radius:4px;padding:5px 9px}
+
+.pk--wide .ticks{grid-template-columns:1fr 1fr}
+
+/* D7 · the price table tabbed by vehicle size — the ladder this product
+   already has in `vehicle_size`. */
+.ladder{padding:20px}
+.tabs{display:flex;gap:6px;background:rgba(255,255,255,.04);padding:4px;
+  border-radius:8px;border:1px solid var(--rule)}
+.tabs button{flex:1;font:600 12.5px Chivo,sans-serif;padding:9px 6px;border:0;
+  border-radius:5px;background:transparent;color:var(--fg2);cursor:pointer;
+  transition:background var(--t-hov) var(--e-hov),color var(--t-hov) var(--e-hov)}
+.tabs button[aria-selected=true]{background:var(--hot);color:var(--ink)}
+.tabs button:hover:not([aria-selected=true]){color:var(--fg)}
+table{width:100%;border-collapse:collapse;margin-top:14px;font-size:14px}
+th,td{text-align:left;padding:11px 0;border-bottom:1px solid var(--rule)}
+th{font:500 10px "Chivo Mono",ui-monospace,monospace;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--fg2)}
+td:last-child,th:last-child{text-align:right}
+td b{font-weight:900;font-size:17px}
+tbody tr:last-child td{border-bottom:0}
+
+/* ══ 7 · WORK — E1 portfolio rows, PLURAL ═══════════════════════════════
+   I3: one job alone on a page about the business reads as an orphan. He could
+   not tell what it was. Among other jobs, under a heading, he liked it. */
+.work{padding:64px 0 10px}
+.job{display:grid;grid-template-columns:1fr;gap:0;overflow:hidden;margin-top:16px}
+.job .ph{position:relative;aspect-ratio:16/10;min-height:250px}
+.job .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.job .badge{position:absolute;top:12px;left:12px;background:rgba(10,11,13,.86);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  border:1px solid var(--rule);border-radius:4px;padding:6px 10px;
+  font:500 10px "Chivo Mono",ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase}
+.job .body{padding:20px 22px 22px}
+.job .body .btn{align-self:flex-start}
+.job .did{color:var(--fg2);font-size:14px;margin:6px 0 14px}
+.job .rev{border-top:1px solid var(--rule);padding-top:14px;margin-top:4px}
+.job .rev p{font-style:italic;font-size:14px;color:var(--fg);margin:0 0 8px}
+.job .rev p.who{font-style:normal;font:500 10.5px "Chivo Mono",ui-monospace,monospace;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--fg2)}
+.stars{color:var(--hot);letter-spacing:2px}
+
+/* ══ 8 · REVIEWS — a compact rail, a shape used nowhere else ═════════════ */
+.rail{display:flex;gap:12px;overflow-x:auto;padding:4px 0 14px;margin-top:18px;
+  scroll-snap-type:x mandatory}
+.rail .q{flex:0 0 min(320px,78vw);padding:18px;scroll-snap-align:start}
+.rail .q p{font-size:14.5px;margin:8px 0 10px}
+
+/* ══ 9 · FAQ — two columns on a desk, an accordion everywhere ═══════════ */
+.faq{padding:64px 0 10px}
+.qs{columns:2;column-gap:26px;margin-top:20px}
+details{break-inside:avoid;margin:0 0 10px;border:1px solid var(--rule);
+  border-radius:var(--r-card);background:var(--glass);
+  transition:border-color var(--t-hov) var(--e-hov)}
+details:hover{border-color:var(--edge)}
+summary{cursor:pointer;list-style:none;padding:14px 16px;font-weight:600;font-size:15px;
+  display:flex;justify-content:space-between;gap:12px;align-items:center}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--hot);font-weight:900;font-size:19px;line-height:1}
+details[open] summary::after{content:"–"}
+details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width:none}
+
+/* ══ 10 · THE BOOKING WIDGET ════════════════════════════════════════════
+   ONE booking area per page. Every other Book control is an entry point that
+   scrolls here. It ASKS and never computes: every price from
+   `calculate-booking`, every open time from `available-slots`. */
+.book{margin-top:52px;background:var(--lift);border-top:1px solid var(--rule);
+  position:relative;overflow:hidden}
+.book::before{content:"";position:absolute;inset:0;
+  background:radial-gradient(70% 55% at 88% 0%,rgba(191,216,255,.09),transparent 70%)}
+.book .wrap{position:relative;padding-block:64px 72px}
+.bk{max-width:760px;margin:26px 0 0;border:1px solid var(--rule);
+  border-radius:var(--r-card);background:rgba(10,11,13,.55)}
+.bk-prog{padding:16px 20px 0}
+.bk-lab{display:flex;justify-content:space-between;gap:12px;margin:0 0 9px;
+  font:500 10.5px "Chivo Mono",ui-monospace,monospace;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--fg2)}
+.bk-lab b{color:var(--fg);font-weight:500}
+/* THE STEPS ARE A PROGRESS BAR, NOT A MENU. Seven equal fractions, so it
+   fits any width, and not clickable — `canAdvance()` owns that rule. */
+.bk-bar{display:flex;gap:4px}
+.bk-bar i{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.13);
+  font-size:0;transition:background var(--t-in) var(--e-in)}
+.bk-bar i.on{background:var(--hot)}
+.bk-body{padding:20px}
+.bk-step{display:none}
+.bk-step.on{display:block}
+.opts{display:grid;gap:8px;margin-top:12px}
+.opts--row{grid-auto-flow:column;grid-auto-columns:1fr}
+.opt{display:flex;align-items:center;gap:12px;padding:13px 14px;cursor:pointer;
+  border:1px solid var(--edge);border-radius:var(--r-btn);background:rgba(255,255,255,.03);
+  transition:border-color var(--t-hov) var(--e-hov),background var(--t-hov) var(--e-hov)}
+.opt:hover{border-color:var(--fg)}
+.opt:has(:checked){border-color:var(--hot);background:rgba(255,77,46,.09)}
+.opt input{accent-color:var(--hot);flex:0 0 auto}
+.opt .ob{flex:1}
+.opt .ob b{display:block;font-size:14.5px}
+.opt .ob i{font-style:normal;font-size:12.5px;color:var(--fg2)}
+.opt em{font-weight:900;font-size:16px;color:var(--hot)}
+.opt--sm{justify-content:center;text-align:center}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.fld{display:block;font:500 10.5px "Chivo Mono",ui-monospace,monospace;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--fg2);margin-top:10px}
+.fld input,.fld select{display:block;width:100%;margin-top:6px;padding:12px;
+  font:400 14px Chivo,sans-serif;color:var(--fg);background:rgba(255,255,255,.04);
+  border:1px solid var(--edge);border-radius:var(--r-btn)}
+.cal{border:1px solid var(--rule);border-radius:var(--r-btn);padding:12px;margin-top:12px}
+.cal-head{display:flex;justify-content:space-between;font-weight:900;font-size:15px}
+.cal-dow,.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:8px}
+.cal-dow i{font:500 10px "Chivo Mono",ui-monospace,monospace;text-align:center;color:var(--fg2);font-style:normal}
+.cal-grid .d{height:34px;border:1px solid var(--rule);border-radius:5px;background:transparent;
+  color:var(--fg);font:600 13px Chivo,sans-serif;cursor:pointer;
+  transition:border-color var(--t-hov) var(--e-hov),background var(--t-hov) var(--e-hov)}
+.cal-grid .d:hover{border-color:var(--fg)}
+.cal-grid .d.sel{background:var(--hot);color:var(--ink);border-color:var(--hot)}
+.cal-grid .d.off{opacity:.3;cursor:not-allowed}
+.slots{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.sl{padding:10px 14px;border:1px solid var(--edge);border-radius:var(--r-btn);
+  background:transparent;color:var(--fg);font:600 13px Chivo,sans-serif;cursor:pointer}
+.sl.sel{background:var(--hot);color:var(--ink);border-color:var(--hot)}
+.sl.off{opacity:.32;cursor:not-allowed}
+.revl{margin:12px 0 0;padding:0;list-style:none;font-size:14px}
+.revl li{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--rule)}
+.revl li.tot{border-bottom:0;font-weight:900;font-size:17px}
+.bk-foot{display:flex;align-items:center;gap:12px;padding:14px 20px;
+  border-top:1px solid var(--rule);flex-wrap:wrap}
+.bk-run{margin:0;font:500 10.5px "Chivo Mono",ui-monospace,monospace;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--fg2)}
+.bk-run b{display:block;font:900 24px Chivo,sans-serif;color:var(--fg);letter-spacing:-.02em}
+.bk-btns{margin-left:auto;display:flex;gap:8px}
+/* C4 · the proof sits INSIDE the form, at the moment of commitment. */
+.bookproof{display:flex;align-items:center;gap:9px;padding:13px 20px;margin:0;
+  border-top:1px solid var(--rule);font-size:13px;color:var(--fg2)}
+
+/* ══ 11 · FOOTER ═══════════════════════════════════════════════════════ */
+.ft{border-top:1px solid var(--rule);margin-top:0;padding:44px 0 34px;background:var(--ink)}
+.ft-grid{display:grid;grid-template-columns:1fr;gap:22px}
+.ft a{text-decoration:none;color:var(--fg2);transition:color var(--t-hov) var(--e-hov)}
+.ft a:hover{color:var(--fg)}
+.hours{margin:8px 0 0;padding:0;list-style:none;font-size:14px;color:var(--fg2)}
+.hours li{display:flex;justify-content:space-between;max-width:250px;padding:3px 0}
+.open{color:var(--ok);font-weight:600}
+.ft-legal{margin-top:26px;padding-top:16px;border-top:1px solid var(--rule);
+  font-size:12px;color:var(--fg2)}
+
+/* ══ 12 · THE DOCK — both surfaces need it; the phone keeps this one ═════
+   I2: a dock owes a CURRENT state. A row of links that never indicates
+   position is a menu, not navigation. The indicator is sized from the link's
+   OWN box, so one set of numbers covers 320 and 430. */
+.dock{position:fixed;left:12px;right:12px;bottom:12px;z-index:70;display:none;
+  background:rgba(16,19,25,.88);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border:1px solid var(--rule);border-radius:14px;padding:6px;
+  box-shadow:0 10px 30px rgba(0,0,0,.55)}
+.dock-in{display:flex;position:relative}
+.dock a{flex:1;text-align:center;padding:11px 4px;font:600 12px Chivo,sans-serif;
+  color:var(--fg2);text-decoration:none;position:relative;z-index:2;
+  transition:color var(--t-hov) var(--e-hov)}
+.dock a.here{color:var(--ink)}
+.dock a.dock-book{color:var(--hot)}
+.dock a.dock-book.here{color:var(--ink)}
+.dock .ind{position:absolute;top:0;height:100%;border-radius:9px;background:var(--hot);
+  transition:transform var(--t-in) var(--e-in),width var(--t-in) var(--e-in);z-index:1}
+
+/* ══ 13 · REVEALS — G7 ══════════════════════════════════════════════════
+   THE HIDDEN STATE IS ADDED BY SCRIPT, NEVER BY THE STYLESHEET, so a failed
+   script cannot leave a blank page. And the marker class is NAMESPACED — an
+   un-namespaced `.in` met `<div class="wrap in">` here once and silently
+   broke a whole hero with no console error. */
+.dg-hide{opacity:0;transform:translate3d(0,18px,0)}
+.dg-rv{opacity:1;transform:none;
+  transition:opacity 420ms var(--e-in),transform 420ms var(--e-in)}
+
+/* ══ 14 · DESK ══════════════════════════════════════════════════════════
+   THE PORTRAIT GUARD. `min-width:761px` alone fires on a phone turned
+   sideways (844px wide) and re-lays the whole page out. Rotation must change
+   nothing, so every desk rule that spends HEIGHT asks about height. */
+@media (min-width:761px) and (min-height:500px){
+  .hero{padding:44px 0 64px}
+  .hero-grid{grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);
+    gap:40px;align-items:end}
+  .hero h1{margin-top:44px}
+  /* Two packages and the ladder on row one; the flagship spans row two.
+     A shape no other section on this page uses. */
+  .money-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,.92fr)}
+  .pk--wide{grid-column:1 / 3;grid-row:2}
+  .pk--wide .ticks{grid-template-columns:repeat(3,1fr)}
+  .ladder{grid-column:3;grid-row:1 / 3}
+  .job{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:stretch}
+  .job .ph{aspect-ratio:auto}
+  .job .body{display:flex;flex-direction:column;justify-content:center}
+  .ft-grid{grid-template-columns:1.4fr 1fr 1fr}
+  .dock{display:none}
+}
+@media (max-width:760px),(max-height:499px){
+  .qs{columns:1}
+}
+/* F2 · THE PHONE GETS A DIFFERENT LAYOUT, NOT A SQUEEZED ONE. On the desk
+   the photograph sits beside the headline; on the phone the headline gets
+   clean ground and the photograph fills a wider band beneath it. */
+@media (max-width:760px),(max-height:499px){
+  .dock{display:block}
+  .diagram{display:none}
+  .spine{display:block}
+  body{padding-bottom:78px}
+  .shot{aspect-ratio:3/2}
+  .hdr .hnav{display:none}
+  .hdr .btn{margin-left:auto}
+  .money-grid{grid-template-columns:1fr}
+  .two{grid-template-columns:1fr}
+  .opts--row{grid-auto-flow:row}
+}
+/* THE 320 FLOOR — PRODUCT.md promises 320 and the sweep runs it. */
+@media (max-width:420px){
+  /* Buys back 56px so the photograph stays above the fold at 320 and 360. */
+  .hero{padding-top:16px}
+  .hero h1{margin-top:12px}
+  .hero .lede{margin-top:10px;font-size:17px}
+  .cta{margin-top:16px}
+  .hero-grid{gap:18px}
+}
+@media (max-width:360px){
+  :root{--gut:14px}
+  .stats{gap:14px}
+  .ticks{grid-template-columns:1fr}
+  .cta{flex-direction:column;align-items:stretch}
+  .cta .btn,.cta .btn2{justify-content:center}
+  .dock a{font-size:11px;padding:10px 2px}
+}
+
+/* ══ 15 · REDUCED MOTION — one implementation, and it is this one ═══════
+   The static version must still read correctly: the beam parks, the diagram
+   draws complete, reveals are inert. Guarded here AND in script. */
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;
+    transition-duration:.001ms!important}
+  .dg-hide{opacity:1;transform:none}
+  .dg-line{stroke-dashoffset:0}
+  .dg-node{opacity:1}
+  .beam{transform:none!important}
+}
+</style>
+</head>
+
+<body>
+
+<!-- ═══ THE GROUND ═════════════════════════════════════════════════════ -->
+<div class="beam" id="beam" aria-hidden="true"></div>
+<div class="cast" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="vig" aria-hidden="true"></div>
+
+<!-- ═══ HEADER ═════════════════════════════════════════════════════════ -->
+<header class="hdr" id="hdr">
+  <div class="wrap">
+    <a class="brand" href="#top">Delgado<i>.</i></a>
+    <nav class="hnav" aria-label="Sections">
+      <a href="#process">Process</a>
+      <a href="#packages">Packages</a>
+      <a href="#work">Work</a>
+    </nav>
+    <a class="btn book-cta" href="#book">Book correction</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ═══ 1 · HERO ═════════════════════════════════════════════════════ -->
+  <section class="hero">
+    <div class="wrap">
+      <!-- B3 · the outlined wordmark behind the hero. NOT paired with B2. -->
+      <div class="ghost" aria-hidden="true">DELGADO</div>
+
+      <div class="hero-grid">
+        <div>
+          <p class="m" data-from="get_public_business_profile.service_area">
+            Mesa &middot; Gilbert &middot; Chandler</p>
+          <h1>Paint,<br>after <em>dark</em>.</h1>
+          <p class="lede">Mobile paint correction and ceramic coating.
+             We bring the lights.</p>
+          <div class="cta">
+            <a class="btn book-cta" href="#book">Book correction</a>
+            <a class="btn2" href="#packages">See packages</a>
+          </div>
+        </div>
+
+        <!-- SLOT · hero. Filled from `business-media` on a real site.
+             4:5 on the desk, 3:2 on a phone. object-fit: cover both ways. -->
+        <figure class="shot" style="margin:0">
+          <img src="https://images.unsplash.com/photo-1571408194382-e5989d133359?fm=jpg&amp;w=1200&amp;q=78"
+               alt="Shop lights raking across a dark car's paint at night"
+               width="1200" height="1500" loading="eager">
+          <!-- C1 · driven by `available-slots`. A hard-coded "available today"
+               is a lie the booking engine can contradict. -->
+          <span class="chip" data-from="available-slots">
+            <span class="dot" aria-hidden="true"></span>Booking tonight</span>
+          <figcaption>Two-stage correction &middot; Gilbert</figcaption>
+        </figure>
+      </div>
+
+      <!-- C5 · real figures only. A new detailer's real numbers beat none. -->
+      <div class="stats">
+        <div><b data-roll="1180">1,180</b><span>cars</span></div>
+        <div><b data-roll="6">6</b><span>years</span></div>
+        <div><b data-roll="4.9">4.9</b><span data-from="testimonials">rating</span></div>
+        <div><b>9pm</b><span>latest start</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 2 · SERVICE AREA ═════════════════════════════════════════════ -->
+  <section class="area" aria-labelledby="area-h">
+    <div class="wrap">
+      <p class="m m--q">Where we come</p>
+      <h2 id="area-h">Anywhere with a <em>driveway</em>.</h2>
+      <div class="towns" data-from="get_public_business_profile.service_area">
+        <i>Mesa</i><i>Gilbert</i><i>Chandler</i><i>Tempe</i>
+        <i>Queen Creek <span data-from="travel_zones">+$25</span></i>
+        <i>Apache Junction <span data-from="travel_zones">+$25</span></i>
+      </div>
+      <p style="margin-top:16px;color:var(--fg2)">
+        Power and water come off the van. A flat driveway and about eight feet
+        round the car is all we need.</p>
+    </div>
+  </section>
+
+  <!-- ═══ 3 · THE PROCESS — D2, in a pinned beat ═══════════════════════ -->
+  <section class="beat" id="process" aria-labelledby="proc-h">
+    <div class="wrap">
+      <p class="m">The work</p>
+      <h2 id="proc-h">What the <em>light</em> shows.</h2>
+      <p style="color:var(--fg2)">Correction is a lighting job. Under a swirl
+         lamp the clear coat stops being shiny and starts being readable — every
+         wash mark, every buffer trail, every bit of etching.</p>
+
+      <!-- PHONE · the same four steps as a vertical spine. -->
+      <ol class="spine">
+        <li><b>Inspect, lit</b><span>Swirl lamp over every panel</span></li>
+        <li><b>Decontaminate</b><span>Clay + iron remover</span></li>
+        <li class="hot"><b>Correct — 1 or 2 stage</b><span>4&ndash;9 hrs</span></li>
+        <li><b>Coat and cure</b><span>24 hr cure — keep it dry</span></li>
+        <li class="para"><b>Interior</b><span>Runs alongside</span></li>
+      </ol>
+
+      <div class="diagram" id="diagram" aria-hidden="true">
+        <svg viewBox="0 0 940 330">
+          <!-- Right-angled connectors with rounded corners, routed rather
+               than gridded. Each node is OPAQUE so a connector terminates at
+               its edge instead of running through the label — found by
+               looking at the style tile, invisible in the source. -->
+          <path class="dg-line" data-l="1" d="M150 46 H300 a12 12 0 0 1 12 12 V96 a12 12 0 0 0 12 12 H392"
+                stroke="#FF4D2E" stroke-width="1.6" fill="none"/>
+          <path class="dg-line" data-l="2" d="M560 108 H660 a12 12 0 0 1 12 12 V174 a12 12 0 0 0 12 12 H736"
+                stroke="#FF4D2E" stroke-width="1.6" fill="none"/>
+          <path class="dg-line" data-l="3" d="M736 200 H700 a12 12 0 0 0 -12 12 V266 a12 12 0 0 1 -12 12 H392"
+                stroke="#FF4D2E" stroke-width="1.6" fill="none"/>
+          <path class="dg-line" data-l="4" d="M80 60 V244 a12 12 0 0 0 12 12 H300"
+                stroke="rgba(191,216,255,.42)" stroke-width="1.4" fill="none" stroke-dasharray="4 5"/>
+
+          <g class="dg-node" data-n="1">
+            <rect x="14" y="28" width="136" height="36" rx="6" fill="#161A21" stroke="rgba(255,255,255,.18)"/>
+            <text x="30" y="51" fill="#F2F4F7" font-family="Chivo,sans-serif" font-size="14" font-weight="600">Inspect, lit</text>
+          </g>
+          <g class="dg-node" data-n="2">
+            <rect x="392" y="90" width="168" height="36" rx="6" fill="#161A21" stroke="rgba(255,255,255,.18)"/>
+            <text x="408" y="113" fill="#F2F4F7" font-family="Chivo,sans-serif" font-size="14" font-weight="600">Decontaminate</text>
+          </g>
+          <g class="dg-node" data-n="3">
+            <rect x="736" y="168" width="190" height="36" rx="6" fill="#161A21" stroke="rgba(255,77,46,.55)"/>
+            <text x="752" y="191" fill="#F2F4F7" font-family="Chivo,sans-serif" font-size="14" font-weight="600">Correct — 1 or 2 stage</text>
+          </g>
+          <g class="dg-node" data-n="4">
+            <rect x="236" y="260" width="156" height="36" rx="6" fill="#161A21" stroke="rgba(255,255,255,.18)"/>
+            <text x="252" y="283" fill="#F2F4F7" font-family="Chivo,sans-serif" font-size="14" font-weight="600">Coat and cure</text>
+          </g>
+          <g class="dg-node" data-n="5">
+            <rect x="14" y="226" width="120" height="36" rx="6" fill="#161A21" stroke="rgba(191,216,255,.35)"/>
+            <text x="30" y="249" fill="#BFD8FF" font-family="Chivo,sans-serif" font-size="14" font-weight="600">Interior</text>
+          </g>
+
+          <text x="322" y="86" fill="#BFD8FF" font-family="Chivo Mono,monospace" font-size="10" letter-spacing="1.8">CLAY + IRON REMOVER</text>
+          <text x="682" y="164" fill="#BFD8FF" font-family="Chivo Mono,monospace" font-size="10" letter-spacing="1.8">4–9 HRS</text>
+          <text x="470" y="256" fill="#BFD8FF" font-family="Chivo Mono,monospace" font-size="10" letter-spacing="1.8">24 HR CURE — KEEP IT DRY</text>
+          <text x="150" y="248" fill="#BFD8FF" font-family="Chivo Mono,monospace" font-size="10" letter-spacing="1.8">RUNS ALONGSIDE</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 4 · PACKAGES, SHARING A ROW WITH THE SIZE LADDER ═════════════ -->
+  <section class="money" id="packages" aria-labelledby="pk-h">
+    <div class="wrap">
+      <p class="m m--q">Prices</p>
+      <h2 id="pk-h">Three levels of <em>correction</em>.</h2>
+      <p style="color:var(--fg2)">Sedan prices.</p>
+
+      <div class="money-grid" data-from="get_public_business_profile.services">
+        <article class="panel pk">
+          <div class="top">
+            <b class="price" data-from="calculate-booking">$340</b>
+            <span class="hrs">One stage &middot; 4 hrs</span>
+          </div>
+          <h3>Gloss Enhancement</h3>
+          <ul class="ticks" data-from="services.features">
+            <li>Decontamination wash</li><li>Iron and tar removal</li>
+            <li>Clay bar</li><li>One-stage polish</li>
+            <li>6-month sealant</li><li>Tyres and trim dressed</li>
+          </ul>
+          <span class="flag">Sealant is not a coating</span>
+        </article>
+
+        <article class="panel pk">
+          <div class="top">
+            <b class="price" data-from="calculate-booking">$620</b>
+            <span class="hrs">Two stage &middot; 9 hrs</span>
+          </div>
+          <h3>Paint Correction</h3>
+          <ul class="ticks" data-from="services.features">
+            <li>Everything in Gloss</li><li>Compound stage</li>
+            <li>Refine stage</li><li>Swirls and buffer trails out</li>
+            <li>Paint depth read</li><li>Before and after, lit</li>
+          </ul>
+          <span class="flag">Deep scratches — not all come out</span>
+        </article>
+
+        <article class="panel pk pk--wide">
+          <div class="top">
+            <b class="price" data-from="calculate-booking">$1,150</b>
+            <span class="hrs">Two evenings &middot; 24 hr cure</span>
+          </div>
+          <h3>Ceramic, 3 year</h3>
+          <ul class="ticks ticks--wide" data-from="services.features">
+            <li>Everything in Correction</li><li>Panel wipe and prep</li>
+            <li>3-year ceramic coating</li><li>Wheels and glass coated</li>
+            <li>Annual check included</li><li>Written warranty</li>
+          </ul>
+          <span class="flag">Keep it dry for 24 hours</span>
+        </article>
+
+        <aside class="panel ladder" aria-labelledby="ld-h">
+          <h3 id="ld-h" style="font-size:17px">By vehicle size</h3>
+          <!-- D7 · the ladder this product already has in `vehicle_size`. -->
+          <div class="tabs" role="tablist" aria-label="Vehicle size"
+               data-from="get_public_business_profile.vehicle_sizes">
+            <button role="tab" aria-selected="true" data-size="sedan">Sedan</button>
+            <button role="tab" aria-selected="false" data-size="suv">SUV</button>
+            <button role="tab" aria-selected="false" data-size="truck">Truck</button>
+          </div>
+          <table data-from="calculate-booking">
+            <thead><tr><th>Package</th><th>Price</th></tr></thead>
+            <tbody id="ladder-body">
+              <tr><td>Gloss Enhancement</td><td><b>$340</b></td></tr>
+              <tr><td>Paint Correction</td><td><b>$620</b></td></tr>
+              <tr><td>Ceramic, 3 year</td><td><b>$1,150</b></td></tr>
+              <tr><td>Interior reset</td><td><b>$210</b></td></tr>
+            </tbody>
+          </table>
+          <span class="flag" data-from="get_public_business_profile.add_ons">
+            Pet hair or heavy soiling — add-on</span>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 5 · WORK — E1 rows, plural ═══════════════════════════════════ -->
+  <section class="work" id="work" aria-labelledby="w-h">
+    <div class="wrap">
+      <p class="m m--q">Recent jobs</p>
+      <h2 id="w-h">Cars we have had <em>under</em> the lights.</h2>
+
+      <article class="panel job">
+        <!-- SLOT · job photo. Filled from `job_photos`. -->
+        <div class="ph">
+          <img src="https://images.unsplash.com/photo-1718936689857-61da6351ec0d?fm=jpg&amp;w=900&amp;q=78"
+               alt="A dark car being coated under a single hard light" loading="lazy">
+          <span class="badge" data-from="booking_services">Ceramic, 3 year</span>
+        </div>
+        <div class="body">
+          <h3>2022 Audi RS5 &middot; Mesa</h3>
+          <p class="did">Two-stage correction, then a three-year coating.
+             Nine hours over two evenings.</p>
+          <div class="rev" data-from="the detailer's Google reviews">
+            <span class="stars" aria-hidden="true">★★★★★</span>
+            <p>“Turned up at seven with his own lights and worked till one in
+               the morning. The car has never looked like this.”</p>
+            <p class="who">Rafael M. &middot; Mesa</p>
+          </div>
+          <a class="btn" href="#book" style="margin-top:14px">Book this package</a>
+        </div>
+      </article>
+
+      <article class="panel job">
+        <div class="ph">
+          <img src="https://images.unsplash.com/photo-1632823471808-08b572e7381c?fm=jpg&amp;w=900&amp;q=78"
+               alt="A rotary polisher being worked across a panel" loading="lazy">
+          <span class="badge" data-from="booking_services">Paint Correction</span>
+        </div>
+        <div class="body">
+          <h3>2019 Ford F-150 &middot; Gilbert</h3>
+          <p class="did">Compound and refine on the whole truck. Buffer trails
+             from a previous shop taken out.</p>
+          <div class="rev" data-from="the detailer's Google reviews">
+            <span class="stars" aria-hidden="true">★★★★★</span>
+            <p>“Showed me the paint under the light before and after. I could
+               actually see what I was paying for.”</p>
+            <p class="who">Dana W. &middot; Gilbert</p>
+          </div>
+          <a class="btn" href="#book" style="margin-top:14px">Book this package</a>
+        </div>
+      </article>
+
+      <article class="panel job">
+        <div class="ph">
+          <img src="https://images.unsplash.com/photo-1608259243654-70c070e0f6ed?fm=jpg&amp;w=900&amp;q=78"
+               alt="Interior of a car being detailed" loading="lazy">
+          <span class="badge" data-from="booking_services">Interior reset</span>
+        </div>
+        <div class="body">
+          <h3>2018 Tesla Model 3 &middot; Chandler</h3>
+          <p class="did">Full interior extraction, leather cleaned and fed,
+             vents and seat rails done by hand.</p>
+          <div class="rev" data-from="the detailer's Google reviews">
+            <span class="stars" aria-hidden="true">★★★★★</span>
+            <p>“Two kids and a dog had happened to this car. It came back like
+               a demonstrator.”</p>
+            <p class="who">Priya S. &middot; Chandler</p>
+          </div>
+          <a class="btn" href="#book" style="margin-top:14px">Book this package</a>
+        </div>
+      </article>
+      <article class="panel job">
+        <div class="ph">
+          <img src="https://images.unsplash.com/photo-1643808971709-155fdde38397?fm=jpg&amp;w=900&amp;q=78"
+               alt="A car under the work lights at night, seen from the front" loading="lazy">
+          <span class="badge" data-from="booking_services">Gloss Enhancement</span>
+        </div>
+        <div class="body">
+          <h3>2020 Honda Accord &middot; Tempe</h3>
+          <p class="did">One-stage polish and a six-month sealant. Four hours
+             on a Thursday evening.</p>
+          <div class="rev" data-from="the detailer's Google reviews">
+            <span class="stars" aria-hidden="true">★★★★★</span>
+            <p>“I did not know a normal car could look like this. He talked me
+               out of the expensive package.”</p>
+            <p class="who">Elena V. &middot; Tempe</p>
+          </div>
+          <a class="btn" href="#book" style="margin-top:14px">Book this package</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ═══ 6 · REVIEWS — a rail, a shape used nowhere else on the page ═══ -->
+  <section class="work" style="padding-top:52px" aria-labelledby="rv-h">
+    <div class="wrap">
+      <p class="m m--q">What people say</p>
+      <h2 id="rv-h" style="font-size:clamp(26px,4vw,42px)">
+        <span data-from="testimonials">4.9</span> from
+        <span data-from="testimonials">312</span> <em>reviews</em>.</h2>
+      <div class="rail" data-from="testimonials">
+        <blockquote class="panel q">
+          <span class="stars" aria-hidden="true">★★★★★</span>
+          <p>“Quoted a two stage, found the paint was thinner than expected on
+             one door, and called me before touching it.”</p>
+          <p class="who">Marco T. &middot; Tempe</p>
+        </blockquote>
+        <blockquote class="panel q">
+          <span class="stars" aria-hidden="true">★★★★★</span>
+          <p>“Works late so I don't lose a day. Car was done by the time I
+             woke up.”</p>
+          <p class="who">Alicia R. &middot; Mesa</p>
+        </blockquote>
+        <blockquote class="panel q">
+          <span class="stars" aria-hidden="true">★★★★★</span>
+          <p>“Third detailer I've used out here and the first one who measured
+             anything.”</p>
+          <p class="who">Ben K. &middot; Queen Creek</p>
+        </blockquote>
+        <blockquote class="panel q">
+          <span class="stars" aria-hidden="true">★★★★☆</span>
+          <p>“Ran an hour over. Told me up front it might, so no complaints
+             from me.”</p>
+          <p class="who">Sam O. &middot; Chandler</p>
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 7 · FAQ ══════════════════════════════════════════════════════ -->
+  <section class="faq" aria-labelledby="faq-h">
+    <div class="wrap">
+      <p class="m m--q">Before you book</p>
+      <h2 id="faq-h">The awkward <em>questions</em>.</h2>
+      <div class="qs" data-from="faqs">
+        <details><summary>Why at night?</summary>
+          <p>Panel temperature. Compound flashes off too fast on hot paint and
+             a coating will not level, so from May to October the work starts
+             after the sun is off the car.</p></details>
+        <details><summary>How long will it take?</summary>
+          <p>Four hours for a one stage, up to nine for a two stage, and a
+             coating adds a day of curing you cannot drive in rain.</p></details>
+        <details><summary>What if it rains?</summary>
+          <p>We move you, free, to the next dry evening. A coating that gets
+             wet inside 24 hours has to be redone.</p></details>
+        <details><summary>Will every scratch come out?</summary>
+          <p>No. If a scratch catches your fingernail it is through the clear
+             coat and polishing will not remove it. We read the paint depth
+             first and tell you which ones are staying.</p></details>
+        <details><summary>Where do you park?</summary>
+          <p>A flat driveway with about eight feet round the car. No garage
+             needed — the lights are ours.</p></details>
+        <details><summary>Can I cancel?</summary>
+          <p>Free up to 24 hours before. Nothing is charged when you book.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 8 · THE BOOKING WIDGET ═══════════════════════════════════════
+       ONE booking area per page. The header, the dock and every package
+       button are entry points that scroll here. -->
+  <section class="book" id="book" aria-labelledby="bk-h">
+    <div class="wrap">
+      <p class="m">Book</p>
+      <h2 id="bk-h">Pick an <em>evening</em>.</h2>
+      <p style="color:var(--fg2)">You see the price before anything is
+         confirmed, and nothing is taken now.</p>
+
+      <div class="bk">
+        <div class="bk-prog" data-from="core.js stepsFor(addOns)">
+          <p class="bk-lab"><b>Step <span data-n>1</span> of <span data-t>7</span></b>
+             <span data-name>Services</span></p>
+          <!-- A PROGRESS BAR, NOT A MENU. Seven equal fractions, not
+               clickable — `canAdvance()` owns whether you can move. -->
+          <div class="bk-bar" role="progressbar" aria-valuemin="1" aria-valuemax="7"
+               aria-valuenow="1" aria-label="Booking progress">
+            <i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </div>
+        </div>
+
+        <div class="bk-body">
+          <!-- 1 · SERVICES -->
+          <div class="bk-step on" data-step="0">
+            <h3>What does the car need?</h3>
+            <div class="opts" data-from="get_public_business_profile.services">
+              <label class="opt"><input type="radio" name="svc" value="gloss">
+                <span class="ob"><b>Gloss Enhancement</b><i>One stage &middot; about 4 hrs</i></span>
+                <em data-from="calculate-booking">$340</em></label>
+              <label class="opt"><input type="radio" name="svc" value="correction" checked>
+                <span class="ob"><b>Paint Correction</b><i>Two stage &middot; about 9 hrs</i></span>
+                <em data-from="calculate-booking">$620</em></label>
+              <label class="opt"><input type="radio" name="svc" value="ceramic">
+                <span class="ob"><b>Ceramic, 3 year</b><i>Correction + coating &middot; two evenings</i></span>
+                <em data-from="calculate-booking">$1,150</em></label>
+            </div>
+          </div>
+
+          <!-- 2 · EXTRAS -->
+          <div class="bk-step" data-step="1">
+            <h3>Anything to add?</h3>
+            <div class="opts" data-from="get_public_business_profile.add_ons">
+              <label class="opt"><input type="checkbox">
+                <span class="ob"><b>Interior reset</b><i>Extraction, leather, vents</i></span>
+                <em data-from="calculate-booking">+$210</em></label>
+              <label class="opt"><input type="checkbox">
+                <span class="ob"><b>Headlight restoration</b><i>Per pair, sanded and sealed</i></span>
+                <em data-from="calculate-booking">+$95</em></label>
+              <label class="opt"><input type="checkbox">
+                <span class="ob"><b>Wheels off</b><i>Barrels and arches</i></span>
+                <em data-from="calculate-booking">+$120</em></label>
+            </div>
+          </div>
+
+          <!-- 3 · VEHICLE -->
+          <div class="bk-step" data-step="2">
+            <h3>Which car is it?</h3>
+            <div class="opts opts--row" data-from="get_public_business_profile.vehicle_sizes">
+              <label class="opt opt--sm"><input type="radio" name="sz" checked><span class="ob"><b>Sedan</b></span></label>
+              <label class="opt opt--sm"><input type="radio" name="sz"><span class="ob"><b>SUV</b></span></label>
+              <label class="opt opt--sm"><input type="radio" name="sz"><span class="ob"><b>Truck</b></span></label>
+            </div>
+            <div class="two">
+              <label class="fld">Make and model
+                <input type="text" placeholder="2022 Audi RS5"></label>
+              <label class="fld">Paint colour
+                <input type="text" placeholder="Black"></label>
+            </div>
+            <label class="fld">Condition
+              <select data-from="core.js VEHICLE_CONDITIONS">
+                <option>Normal use</option>
+                <option>Swirled, never corrected</option>
+                <option>Showroom, maintenance only</option>
+              </select></label>
+          </div>
+
+          <!-- 4 · LOCATION -->
+          <div class="bk-step" data-step="3">
+            <h3>Where are we coming?</h3>
+            <div class="opts opts--row" data-from="core.js offersBothModes(settings)">
+              <label class="opt opt--sm"><input type="radio" name="mode" checked><span class="ob"><b>We come to you</b></span></label>
+              <label class="opt opt--sm"><input type="radio" name="mode"><span class="ob"><b>Drop off with us</b></span></label>
+            </div>
+            <label class="fld">Address
+              <input type="text" placeholder="Street, city" autocomplete="street-address"></label>
+            <label class="fld">Travel zone
+              <select data-from="get_public_business_profile.travel_zones">
+                <option>Mesa, Gilbert, Chandler, Tempe — no travel charge</option>
+                <option>Queen Creek — +$25</option>
+                <option>Apache Junction — +$25</option>
+              </select></label>
+          </div>
+
+          <!-- 5 · WHEN -->
+          <div class="bk-step" data-step="4">
+            <h3>Which evening?</h3>
+            <div class="cal" data-from="available-slots">
+              <div class="cal-head"><b>September 2026</b><span>&#8249;&nbsp;&nbsp;&#8250;</span></div>
+              <div class="cal-dow"><i>M</i><i>T</i><i>W</i><i>T</i><i>F</i><i>S</i><i>S</i></div>
+              <div class="cal-grid">
+                <button class="d off" type="button" disabled>31</button><button class="d" type="button">1</button>
+                <button class="d" type="button">2</button><button class="d off" type="button" disabled>3</button>
+                <button class="d" type="button">4</button><button class="d" type="button">5</button>
+                <button class="d off" type="button" disabled>6</button><button class="d" type="button">7</button>
+                <button class="d sel" type="button" aria-pressed="true">8</button><button class="d" type="button">9</button>
+                <button class="d" type="button">10</button><button class="d off" type="button" disabled>11</button>
+                <button class="d" type="button">12</button><button class="d off" type="button" disabled>13</button>
+                <button class="d" type="button">14</button><button class="d" type="button">15</button>
+                <button class="d off" type="button" disabled>16</button><button class="d" type="button">17</button>
+                <button class="d" type="button">18</button><button class="d" type="button">19</button>
+                <button class="d off" type="button" disabled>20</button>
+              </div>
+            </div>
+            <div class="slots" data-from="available-slots">
+              <button class="sl" type="button">5:30 pm</button>
+              <button class="sl sel" type="button" aria-pressed="true">7:00 pm</button>
+              <button class="sl" type="button">8:30 pm</button>
+              <button class="sl off" type="button" disabled>9:00 pm</button>
+            </div>
+          </div>
+
+          <!-- 6 · DETAILS -->
+          <div class="bk-step" data-step="5">
+            <h3>How do we reach you?</h3>
+            <div class="two">
+              <label class="fld">Name<input type="text" autocomplete="name" placeholder="Rafael Moreno"></label>
+              <label class="fld">Phone<input type="tel" autocomplete="tel" placeholder="(480) 555-0142"></label>
+            </div>
+            <label class="fld">Email<input type="email" autocomplete="email" placeholder="you@example.com"></label>
+            <label class="fld">Anything we should know?
+              <input type="text" data-optional placeholder="Gate code, where the outside light is"></label>
+          </div>
+
+          <!-- 7 · REVIEW -->
+          <div class="bk-step" data-step="6">
+            <h3>Everything right?</h3>
+            <ul class="revl" data-from="calculate-booking">
+              <li><span>Paint Correction &middot; Sedan</span><span>$620</span></li>
+              <li><span>Interior reset</span><span>$210</span></li>
+              <li><span>Travel — Mesa</span><span>$0</span></li>
+              <li class="tot"><span>Total</span><span>$830</span></li>
+            </ul>
+            <p style="margin:12px 0 14px;color:var(--fg2);font-size:14px">
+              Tuesday 8 September, 7:00 pm &middot; at your address</p>
+            <button class="btn" type="button" data-from="create-booking">Confirm booking</button>
+            <p style="margin-top:12px;color:var(--fg2);font-size:13px">
+              Nothing is taken now. You pay when the work is finished, and you
+              can cancel free up to 24 hours before.</p>
+          </div>
+        </div>
+
+        <div class="bk-foot">
+          <p class="bk-run" data-from="calculate-booking">
+            <span>Running total</span><b>$830</b></p>
+          <div class="bk-btns">
+            <button class="btn2" type="button" id="bk-back" disabled>Back</button>
+            <button class="btn" type="button" id="bk-next">Continue</button>
+          </div>
+        </div>
+
+        <!-- C4 · the proof sits INSIDE the form, at the moment of commitment. -->
+        <p class="bookproof" data-from="testimonials">
+          <span class="stars" aria-hidden="true">★★★★★</span>
+          <b style="color:var(--fg)">4.9</b> from <b style="color:var(--fg)">312</b> reviews
+        </p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ═══ FOOTER ═════════════════════════════════════════════════════════ -->
+<footer class="ft">
+  <div class="wrap">
+    <div class="ft-grid">
+      <div>
+        <p class="brand" style="font-size:26px;margin:0 0 8px">Delgado<i>.</i></p>
+        <p style="color:var(--fg2);margin:0">Mobile paint correction and ceramic
+           coating. Mesa, Arizona.</p>
+      </div>
+      <div>
+        <p class="m m--q">Hours</p>
+        <ul class="hours" data-from="business_hours">
+          <li><span>Mon–Thu</span><span>4pm – 1am</span></li>
+          <li><span>Fri</span><span>4pm – 11pm</span></li>
+          <li><span>Sat</span><span>10am – 8pm</span></li>
+          <li><span>Sun</span><span>Closed</span></li>
+        </ul>
+        <p class="open" style="margin-top:10px;font-size:13px" data-from="business_hours">
+          <span class="dot" aria-hidden="true" style="display:inline-block;vertical-align:middle;margin-right:6px"></span>
+          Open now — until 1am</p>
+      </div>
+      <div>
+        <p class="m m--q">Get hold of us</p>
+        <p style="margin:8px 0 0">
+          <a href="tel:+14805550142" data-from="businesses.contact_phone">(480) 555-0142</a><br>
+          <a href="#book">Book online</a>
+        </p>
+      </div>
+    </div>
+    <p class="ft-legal">© 2026 Delgado Mobile Detailing. Licensed and insured.</p>
+  </div>
+</footer>
+
+<!-- ═══ THE DOCK — I2, and it says WHERE YOU ARE ═══════════════════════ -->
+<nav class="dock" aria-label="Quick navigation">
+  <div class="dock-in">
+    <span class="ind" aria-hidden="true"></span>
+    <a href="#process">Process</a>
+    <a href="#packages">Packages</a>
+    <a href="#work">Work</a>
+    <a class="dock-book" href="#book">Book</a>
+  </div>
+</nav>
+
+<script>
+(function(){
+  "use strict";
+  var LITE = matchMedia("(prefers-reduced-motion: reduce)").matches ||
+             /(?:^|[?&])lite=1(?:&|$)/.test(location.search);
+  var FINE = matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+  /* ── G7 · REVEALS. The hidden state is added HERE, never by the
+     stylesheet, so a failed script cannot leave a blank page. The class is
+     namespaced (`dg-`) — an un-namespaced marker met `class="wrap in"` on an
+     earlier page here and silently broke a whole hero. */
+  if (!LITE && "IntersectionObserver" in window) {
+    var targets = document.querySelectorAll(
+      ".hero-grid > div, .shot, .stats, .area .towns, .beat h2, .diagram," +
+      " .pk, .ladder, .job, .rail, .qs, .bk, .ft-grid");
+    targets.forEach(function(el, i){
+      el.classList.add("dg-hide");
+      el.style.transitionDelay = (Math.min(i, 3) * 60) + "ms";
+    });
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if (e.isIntersecting) {
+          e.target.classList.remove("dg-hide");
+          e.target.classList.add("dg-rv");
+          io.unobserve(e.target);
+        }
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.05 });
+    targets.forEach(function(el){ io.observe(el); });
+  }
+
+  /* ── G1 · THE POINTER BEAM. One composited layer, transform only, lerped
+     so it lags — the lag is the difference between a lit surface and a torch
+     taped to the mouse. Off on touch and under reduced motion. */
+  var beam = document.getElementById("beam");
+  if (beam && FINE && !LITE) {
+    var tx = 0, ty = 0, cx = 0, cy = 0, running = false;
+    addEventListener("pointermove", function(e){
+      tx = (e.clientX / innerWidth - .5) * 200;
+      ty = (e.clientY / innerHeight - .5) * 90;
+      if (!running) { running = true; requestAnimationFrame(tick); }
+    }, { passive: true });
+    function tick(){
+      cx += (tx - cx) * .07; cy += (ty - cy) * .07;
+      beam.style.transform = "translate3d(" + cx.toFixed(2) + "px," + cy.toFixed(2) + "px,0)";
+      if (Math.abs(tx - cx) > .3 || Math.abs(ty - cy) > .3) requestAnimationFrame(tick);
+      else running = false;
+    }
+  }
+
+  /* ── THE CONDENSING HEADER */
+  var hdr = document.getElementById("hdr");
+  addEventListener("scroll", function(){
+    hdr.classList.toggle("small", scrollY > 40);
+  }, { passive: true });
+
+  /* ── G5 + D2 · THE DIAGRAM DRAWS ITSELF ON SCROLL PROGRESS, not on a
+     timer. A reveal slower than a scroll gesture is worse than no reveal. */
+  var dg = document.getElementById("diagram");
+  if (dg) {
+    var lines = dg.querySelectorAll(".dg-line");
+    var nodes = dg.querySelectorAll(".dg-node");
+    lines.forEach(function(p){
+      var len = p.getTotalLength();
+      p.style.setProperty("--len", len);
+    });
+    if (LITE) {
+      lines.forEach(function(p){ p.style.setProperty("--p", 1); });
+      nodes.forEach(function(n){ n.style.setProperty("--np", 1); });
+    } else {
+      var draw = function(){
+        var r = dg.getBoundingClientRect();
+        var p = 1 - (r.top - innerHeight * .18) / (innerHeight * .70);
+        p = Math.max(0, Math.min(1, p));
+        lines.forEach(function(el, i){
+          var seg = Math.max(0, Math.min(1, (p - i * .13) / .42));
+          el.style.setProperty("--p", seg);
+        });
+        nodes.forEach(function(el, i){
+          el.style.setProperty("--np", p > (i * .12 + .04) ? 1 : 0);
+        });
+      };
+      draw();
+      addEventListener("scroll", draw, { passive: true });
+      addEventListener("resize", draw);
+    }
+  }
+
+  /* ── G6 · THE STATS ROLL UP ONCE. Never a price — a price that animates
+     reads as a price that moves. */
+  if (!LITE && "IntersectionObserver" in window) {
+    var rio = new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if (!e.isIntersecting) return;
+        rio.unobserve(e.target);
+        var end = parseFloat(e.target.getAttribute("data-roll"));
+        var dec = (end % 1) ? 1 : 0, t0 = performance.now(), DUR = 900;
+        (function step(now){
+          var k = Math.min(1, (now - t0) / DUR);
+          var v = end * (1 - Math.pow(1 - k, 3));
+          e.target.textContent = dec ? v.toFixed(1) : Math.round(v).toLocaleString();
+          if (k < 1) requestAnimationFrame(step);
+        })(t0);
+      });
+    }, { threshold: .6 });
+    document.querySelectorAll("[data-roll]").forEach(function(el){ rio.observe(el); });
+  }
+
+  /* ── THE DOCK'S CURRENT STATE. The indicator is sized from the link's OWN
+     box, so one set of numbers covers 320 and 430. A row of links that never
+     indicates position is a menu, not navigation. */
+  var dock = document.querySelector(".dock");
+  if (dock) {
+    var links = [].slice.call(dock.querySelectorAll("a"));
+    var ind = dock.querySelector(".ind");
+    function place(a){
+      if (!a) return;
+      ind.style.width = a.offsetWidth + "px";
+      ind.style.transform = "translateX(" + a.offsetLeft + "px)";
+      links.forEach(function(l){ l.classList.toggle("here", l === a); });
+    }
+    var secs = links.map(function(a){ return document.querySelector(a.getAttribute("href")); });
+    var sio = new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if (!e.isIntersecting) return;
+        var i = secs.indexOf(e.target);
+        if (i > -1) place(links[i]);
+      });
+    }, { rootMargin: "-45% 0px -45% 0px" });
+    secs.forEach(function(s){ if (s) sio.observe(s); });
+    addEventListener("resize", function(){ place(dock.querySelector("a.here")); });
+  }
+
+  /* ── THE VEHICLE-SIZE LADDER. It ASKS and never computes — on a real site
+     every one of these figures comes from `calculate-booking`, and the table
+     carries `data-from` saying so. The multiples below stand in for that call
+     on a demo page and are the only numbers here not owned by an endpoint. */
+  var LADDER = {
+    sedan: [340, 620, 1150, 210],
+    suv:   [420, 740, 1380, 250],
+    truck: [480, 840, 1560, 280]
+  };
+  var rows = document.getElementById("ladder-body");
+  var tabs = document.querySelectorAll(".tabs button");
+  tabs.forEach(function(b){
+    b.addEventListener("click", function(){
+      tabs.forEach(function(x){ x.setAttribute("aria-selected", String(x === b)); });
+      var vals = LADDER[b.getAttribute("data-size")];
+      rows.querySelectorAll("td b").forEach(function(cell, i){
+        cell.textContent = "$" + vals[i].toLocaleString();
+      });
+    });
+  });
+
+  /* ── THE WIDGET'S STEPS. A PROGRESS BAR, NOT A MENU — you cannot jump, and
+     on a real site `canAdvance()` decides whether Continue is even live. */
+  var NAMES = ["Services","Extras","Vehicle","Location","When","Details","Review"];
+  var steps = document.querySelectorAll(".bk-step");
+  var segs  = document.querySelectorAll(".bk-bar i");
+  var at = 0;
+  function show(n){
+    at = Math.max(0, Math.min(steps.length - 1, n));
+    steps.forEach(function(s, i){ s.classList.toggle("on", i === at); });
+    segs.forEach(function(s, i){ s.classList.toggle("on", i <= at); });
+    document.querySelector("[data-n]").textContent = at + 1;
+    document.querySelector("[data-name]").textContent = NAMES[at];
+    document.querySelector(".bk-bar").setAttribute("aria-valuenow", at + 1);
+    document.getElementById("bk-back").disabled = at === 0;
+    document.getElementById("bk-next").textContent =
+      at === steps.length - 1 ? "Confirm" : "Continue";
+  }
+  document.getElementById("bk-next").addEventListener("click", function(){ show(at + 1); });
+  document.getElementById("bk-back").addEventListener("click", function(){ show(at - 1); });
+})();
+</script>
+</body>
+</html>
