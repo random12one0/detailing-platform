@@ -400,6 +400,28 @@ reading it.**
 24. **He approves a design as three 620x870 pictures, never as a document.**
     870px is the observed height ceiling for a file that reaches his phone.
 
+### From site 3 — the interview, 2026-09-09
+31. **The trade is FIXED: every example site is an ordinary mobile detailer.**
+    Do not ask him what kind of detailer it is — he sells to mobile detailers
+    and the question reads as not knowing that. What varies is the design, the
+    words, the prices, the stats, the area and the look. *(`TASTE-NOTES.md`
+    § BATCH 5.1 — it retires question 1 of § 1 above.)*
+32. **The ground is picked from RENDERED FRAMES, not from adjectives.** Offer
+    two or three heroes at 620x870 that are identical in every respect except
+    the ground, and let him answer with a letter. Vary one thing or his answer
+    means nothing.
+33. **The pair must RESOLVE, so match the two references on FORM by opening
+    their frames** — panel shape, chrome, how a photograph is held — never on
+    his one-line verdict. He refused to name the detailer half himself and told
+    the session to go and look.
+34. **Facts come off a real detailer's site**
+    (`docs/tenant-site-source-data-2026-09-08.md`); invent only what no real
+    site supplies, and keep invented numbers inside that file's § 5 range.
+35. **A contrast sampler must sample INSIDE anything with its own fill**, at
+    its padding on the vertical centre — a point on a 999px corner is an
+    anti-aliased blend of fill and ground and reported 1.64:1 for a pair that
+    is really 8.80:1. A false FAIL costs the same as a false pass.
+
 ### Traps that cost a measurement here, and will again
 25. **`flex: 0 0 min(a,b)` is invalid** — a math function in the shorthand's
     basis drops the whole declaration and the item sizes to content.

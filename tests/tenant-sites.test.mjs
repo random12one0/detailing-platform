@@ -31,7 +31,13 @@ import { join } from "node:path";
 
 const DIR = "docs/tenant-sites";
 const SITE = /^([a-z])-[a-z]+(?:-[a-z]+)?\.html$/;
-const files = readdirSync(DIR).filter(f => /^[vw]-.*\.html$/.test(f)).sort();
+// FROZEN LEGACY, not an allowlist of the new. `a-` to `u-` are the twenty-one
+// earlier mock-ups, kept as a record and never retro-fitted; EVERYTHING ELSE in
+// the directory is covered automatically. An allowlist has to be widened by
+// hand for every new site and was not, once, already — so the set that needs
+// maintaining is the one that never grows again.
+const LEGACY = /^[a-u]-/;
+const files = readdirSync(DIR).filter(f => f.endsWith(".html") && !LEGACY.test(f)).sort();
 const siteOf = (f) => f[0];
 
 let checks = 0, fails = 0;

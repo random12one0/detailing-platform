@@ -1703,3 +1703,71 @@ that reaches his phone; 1240 did not load.**
 **Site N+1 starts from every rule above, not from the brief alone.** The
 cumulative list lives in `docs/tenant-site-playbook.md` § 10 and is the last
 thing to read before building.
+
+---
+
+# BATCH 5 — THE SITE 3 INTERVIEW, 2026-09-09
+
+**Written as instructions the same turn he answered, per § 6.**
+
+## 1 · EVERY EXAMPLE SITE IS A MOBILE DETAILER. STOP OFFERING HIM OTHER TRADES.
+
+He was asked to pick a business type for site 3 and rejected the question:
+
+> *"my website im selling a service to mobile detailers… thats why we are just
+> building mobile detailers just basic mobile detailers like myself. just
+> websites that are different designs different words different prices
+> different stats different areas different look but all still professionally
+> made and thought through."*
+
+**THE TRADE IS FIXED AND IS NOT A VARIABLE.** Every example site is an ordinary
+mobile detailer. **What varies, and it is a closed list:** the design, the
+words, the prices, the stats, the service area, the look. **What does not
+vary:** the trade, and the quality.
+
+This kills the "what kind of detailer" interview question in
+`tenant-site-playbook.md` § 1 and in `docs/sessions/websites.md` § 5 — **do not
+ask it again.** A fixed shop, a PPF studio and an interior specialist are all
+the wrong answer, and offering them reads as not knowing what he sells. He is
+open to branching out later; it is not the focus and it is not site 3.
+
+## 2 · HE ANSWERS A LOOK QUESTION WITH A PICTURE REQUEST
+
+Asked light or dark, he replied: *"can u gve me like an example of 3 visual."*
+
+**So the ground is chosen from RENDERED FRAMES, not from a description** — the
+same rule as § 5 above, arriving one level earlier than the scheme. **Render
+the candidate grounds as real hero frames at 620x870, identical in every
+respect except the ground, and let him pick a letter.** Vary ONE thing so his
+answer means something.
+
+## 3 · THE DETAILER HALF OF THE PAIR IS CHOSEN BY LOOKING, NOT BY VERDICT
+
+He picked `fora.so` and refused to pick its partner:
+
+> *"lets do fora.so but idk what to do for the detailer sight. look through the
+> detailer sights and find one that is similar look to fora cuz the chicago
+> auto pros is a very different to fora."*
+
+**A pair must RESOLVE, not collide.** Two references that share no formal
+language give an agent nothing to reconcile, and it defaults to one of them.
+**Open the frames in `../_repo-shots-archive/shots-taste/` and match on FORM** —
+panel shape, chrome, how photographs are held — never on his verdict line.
+
+**Chosen for site 3: `atelierdetail.netlify.app` × `fora.so`** — measured off
+the frames, both hold their hero photograph inside one giant rounded card, both
+float a pill nav above it, both carry an availability pill and a trust bar in
+its own rounded panel. Fora is the dark, atmospheric version of Atelier's
+layout, which is exactly a tension worth resolving.
+
+## 4 · THE FACTS COME OFF A REAL DETAILER'S SITE
+
+> *"for all of these example detailer sights use their information from the
+> website. then make up information that we dont have."*
+
+**Services, package names, price ladders, disclaimers and FAQs are lifted from
+a REAL detailer site** — `docs/tenant-site-source-data-2026-09-08.md` is the
+pull already done off ten of them. Invent only what no real site supplies
+(the business name, the person, the town list, the review text). **Invented
+numbers must still be plausible for the trade** — that file's § 5 is the real
+range.

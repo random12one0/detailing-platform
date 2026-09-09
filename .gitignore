@@ -167,3 +167,4 @@ shots-mocks/
 app/public/ex*
 app/public/example*
 app/public/examples
+.tmp-*/
