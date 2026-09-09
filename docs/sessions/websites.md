@@ -33,11 +33,13 @@ never-default in `CLAUDE.md` and still be bare — and ten of them did.
 
 **Three things follow, and they change what this session does:**
 
-1. **Build MORE, not less.** The device inventory in
-   `tenant-sites-diagnosis-2026-09-09.md` § 5.2 is the concrete list, drawn from
-   the sites he likes. **A page ships with ten or more of them.** Restraint is
-   not the safe answer here and never was — he pre-empted that argument in
-   writing.
+1. **Build MORE, not less. `docs/DEVICE-INVENTORY.md` IS THE LIST** — twenty-one
+   devices, every one seen on a site HE picked, each with what it is, when to use
+   it and **when NOT to**. **A page ships with TEN OR MORE.** The ten he rejected
+   carry two to four each, which is the measurable form of "very basic".
+   Restraint is not the safe answer here and never was — he pre-empted that
+   argument in writing. **Read that file before the interview**, because the
+   devices are what the direction paragraph commits to.
 2. **The "what IS this page, in one noun" question is producing the notepad.**
    Asked about a PAGE it returns a DOCUMENT TYPE — four of the ten he rejected
    are literally stationery (newsprint, blueprint, black-and-paper, a page in a
