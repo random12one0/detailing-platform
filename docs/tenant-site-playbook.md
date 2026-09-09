@@ -119,6 +119,33 @@ Seattle."* A metaphor is not a tagline.
 **Packages are named plainly** — Express / Full / Ceramic, Level I / II / III,
 Bronze / Silver / Gold. Never for a mood.
 
+### THE H1 IS THE SERVICE AND THE PLACE — 2026-09-08, and it is now a check
+
+**He rejected a headline reading *"Paint, after dark"*:** *"What the hell does
+that mean? … it's too creative. It's too startup. It's too AI AI looking. **The
+first bold thing should be explaining what this is.**"* The replacement is the
+sentence that was already sitting under it as a subtitle — *Mobile paint
+correction and ceramic coating* — and the subtitle, *"We bring the lights"*,
+was deleted: *"not necessary, not needed. **I'm trying to get all of the AI
+fluff out of here as possible.**"*
+
+**HE HAD RAISED THIS BEFORE AND EXPECTED IT LOGGED, AND IT WAS** — rule 4
+below, *"Be literature"*, written before site 2 was built. **The build broke it
+in every heading anyway.** So the five rules below get the thing this repo says
+a rule needs: `tests/tenant-sites.test.mjs` check 9 fails a home page whose
+`<h1>` names no SERVICE. It was baselined against *"Paint, after dark"* — and
+the first version PASSED it, because the word list included bare *paint*. A
+material is not a service. Re-baselined until it failed.
+
+**The test for any heading, and it is his:** does a stranger know what this
+business does after reading it? *How a paint correction works* passes.
+*What the light shows* does not.
+
+**And the source for the words is in the repo already:**
+`docs/tenant-site-source-data-2026-09-08.md` — real FAQ questions, real
+condition disclaimers, real service names, pulled off ten live detailer sites.
+**Site 2 was written without opening it and every FAQ had to be replaced.**
+
 ### The five things copy must never do
 
 1. **Restate the control.** If the label already says it, delete the sentence.
@@ -223,6 +250,22 @@ Each line says what it answers. **A section that answers nothing gets cut.**
 
 ## 6 · NAVIGATION AND MOTION
 
+- **SOMETHING STAYS ON SCREEN, ON EVERY SITE — his rule, 2026-09-08:** *"I
+  think for every single site, there should be some sort of sticky top bar. Or
+  it doesn't have to be the top. It could be top, it could be bottom, it could
+  be on the side. Something. Just some way where something stays no matter
+  where you are in the site."* On the desk he suggested the side himself —
+  *"I think on the side will look cool because there's just kind of empty space
+  there"* — and site 2 has a dot rail there.
+- **AND `overflow-x: hidden` ON `html` OR `body` SILENTLY DISABLES
+  `position: sticky`.** It makes the document a scroll container, so a sticky
+  header sticks to a box that never scrolls and rides away. Site 2 shipped
+  exactly this — the overflow was there to stop a drifting light layer
+  scrolling the page sideways, **so the fix for one recorded rule broke
+  another**, and he found it before any check did. **`overflow-x: clip` does
+  not have this effect**; better still, contain the overflow on the one element
+  that causes it. `tests/tenant-sites.test.mjs` checks 10 and 11 hold both
+  halves.
 - **Somebody must be able to act from anywhere on a 5,000px page.** The desk
   gets a sticky header that condenses on scroll; the phone gets a floating dock.
   **Both surfaces, always.**

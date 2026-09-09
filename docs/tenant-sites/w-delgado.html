@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Delgado Mobile Detailing — Mobile paint correction and ceramic coating, Mesa AZ</title>
-<meta name="description" content="Mobile paint correction and ceramic coating in Mesa, Gilbert and Chandler. We bring the lights and work after dark.">
+<meta name="description" content="Mobile paint correction and ceramic coating in Phoenix, Scottsdale and Tempe. We come to your driveway, evenings and weekends.">
 
 <!--
   ══════════════════════════════════════════════════════════════════════════
@@ -89,10 +89,14 @@
 
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-behavior:smooth}
-/* A DRIFTING LAYER NEEDS overflow-x HIDDEN, AND WHETHER ANYBODY FINDS OUT
-   DEPENDS ON THE SIGN OF ONE NUMBER — a beam that drifts right scrolled a
-   page sideways here before; the identical layer drifting left was silent. */
-html,body{overflow-x:hidden}
+/* the sticky header is 60-72px; a jump target has to clear it */
+section[id],main[id]{scroll-margin-top:86px}
+/* A DRIFTING LAYER NEEDS overflow-x HIDDEN — BUT NEVER ON html OR body.
+   That makes the document a scroll container and `position:sticky` then
+   sticks to a box which does not scroll, so the header rides away. Measured:
+   header top was -2000 after a 2000px scroll. It goes on the one container
+   that can actually overflow — the hero, which holds the oversized wordmark. */
+html,body{overflow-x:clip}
 body{
   margin:0;background:var(--ink);color:var(--fg);
   font:400 15px/1.6 Chivo,"Helvetica Neue",Arial,sans-serif;
@@ -188,7 +192,7 @@ p{margin:0 0 12px;max-width:56ch}
 .hnav a{font:600 13.5px Chivo,sans-serif;color:var(--fg2);text-decoration:none;
      transition:color var(--t-hov) var(--e-hov)}
 .hnav a:hover,.hnav a[aria-current]{color:var(--fg)}
-.hdr .btn{padding:10px 16px}
+.hdr .btn{padding:10px 16px;margin-left:auto}
 /* THE BOOK CONTROL GETS STANDING ATTENTION — a soft breathing glow, no
    layout, off under reduced motion. */
 @keyframes breathe{0%,100%{box-shadow:0 0 0 0 rgba(255,77,46,0)}
@@ -196,7 +200,7 @@ p{margin:0 0 12px;max-width:56ch}
 .book-cta{animation:breathe 3.4s ease-in-out infinite}
 
 /* ══ 3 · HERO ════════════════════════════════════════════════════════════ */
-.hero{position:relative;padding:34px 0 54px}
+.hero{position:relative;padding:34px 0 54px;overflow:hidden}
 /* B3 · the outlined wordmark BEHIND the hero. B2, site 1's giant bleeding
    footer wordmark, is therefore NOT on this page — one oversized wordmark. */
 .ghost{position:absolute;top:-6px;left:-2vw;right:0;z-index:-1;
@@ -207,8 +211,12 @@ p{margin:0 0 12px;max-width:56ch}
 /* D1 · ONE object at a scale nothing else approaches. 130px against 15px
    body is 8.7x; site 1 runs 6.8x and auxia, which he pointed at, runs ~6.4x
    at a smaller absolute size. THE SIZE CONTRAST IS THE DEVICE. */
-.hero h1{font:900 clamp(46px,11.4vw,130px)/.90 Chivo,sans-serif;
-  letter-spacing:-.038em;margin:26px 0 0;max-width:9ch}
+/* THE HEADLINE IS NOW A SENTENCE THAT SAYS WHAT THE BUSINESS DOES, so it
+   cannot run at 130px. D1 still holds — nothing else on the page comes near
+   72px — but his instruction outranks the device: "the first bold thing
+   should be explaining what this is." */
+.hero h1{font:900 clamp(32px,5.6vw,72px)/1.0 Chivo,sans-serif;
+  letter-spacing:-.035em;margin:20px 0 0;max-width:14ch}
 .hero h1 em{color:var(--hot)}
 .cta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:22px}
 
@@ -216,7 +224,7 @@ p{margin:0 0 12px;max-width:56ch}
    that only works because the sun is in the top-left of one JPEG is a hero
    that breaks for the first real client. */
 .shot{position:relative;border-radius:var(--r-shot);overflow:hidden;
-  aspect-ratio:4/5;border:1px solid var(--rule)}
+  aspect-ratio:5/6;border:1px solid var(--rule)}
 .shot img{width:100%;height:100%;object-fit:cover}
 /* A3 · the scrim is a gradient sized to the SLOT and computed against a
    WHITE photograph, never tuned to this one's histogram. */
@@ -244,6 +252,14 @@ p{margin:0 0 12px;max-width:56ch}
 .towns span{color:var(--fg2);font-weight:400;font-size:14px;letter-spacing:0;
   font-family:"Chivo Mono",ui-monospace,monospace}
 .towns i{font-style:normal}
+/* The three facts that were loose sentences. A definition list, because that
+   is what they are — and it is a shape no other section on the page uses. */
+.facts{margin:26px 0 0;display:grid;gap:0;border-top:1px solid var(--rule)}
+.facts > div{display:grid;grid-template-columns:150px 1fr;gap:16px;padding:14px 0;
+  border-bottom:1px solid var(--rule)}
+.facts dt{font:500 10.5px "Chivo Mono",ui-monospace,monospace;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--cold)}
+.facts dd{margin:0;color:var(--fg2)}
 
 /* ══ 5 · THE PROCESS — D2, drawn as a system, in a pinned beat ═══════════
    auxia's routed connector diagram. § C of TASTE-NOTES calls this the thing
@@ -325,12 +341,19 @@ tbody tr:last-child td{border-bottom:0}
    not tell what it was. Among other jobs, under a heading, he liked it. */
 .work{padding:64px 0 10px}
 .job{display:grid;grid-template-columns:1fr;gap:0;overflow:hidden;margin-top:16px}
-.job .ph{position:relative;aspect-ratio:16/10;min-height:250px}
+.job .ph{position:relative;aspect-ratio:16/10}
 .job .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .job .badge{position:absolute;top:12px;left:12px;background:rgba(10,11,13,.86);
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
   border:1px solid var(--rule);border-radius:4px;padding:6px 10px;
   font:500 10px "Chivo Mono",ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase}
+/* A GRID ITEM'S AUTOMATIC MINIMUM IS ITS MIN-CONTENT, NOT ZERO. Measured at
+   392: .job was 352px wide and .body resolved to 400 and was clipped by the
+   card, cutting the review mid-word — "worke", "looked li". `min-width:0` is
+   the fix, and it goes on EVERY grid child that holds text rather than on the
+   one row where it was noticed: the same shape is one text change away in the
+   hero, the packages and the footer. */
+.job > *,.money-grid > *,.hero-grid > *,.ft-grid > *{min-width:0}
 .job .body{padding:20px 22px 22px}
 .job .body .btn{align-self:flex-start}
 .job .did{color:var(--fg2);font-size:14px;margin:6px 0 14px}
@@ -342,8 +365,9 @@ tbody tr:last-child td{border-bottom:0}
 
 /* ══ 8 · REVIEWS — a compact rail, a shape used nowhere else ═════════════ */
 .rail{display:flex;gap:12px;overflow-x:auto;padding:4px 0 14px;margin-top:18px;
-  scroll-snap-type:x mandatory}
-.rail .q{flex:0 0 min(320px,78vw);padding:18px;scroll-snap-align:start}
+  scrollbar-width:none;-ms-overflow-style:none}
+.rail::-webkit-scrollbar{display:none}
+.rail .q{flex:0 0 min(320px,72vw);padding:18px;border-color:var(--edge)}
 .rail .q p{font-size:14.5px;margin:8px 0 10px}
 
 /* ══ 9 · FAQ — two columns on a desk, an accordion everywhere ═══════════ */
@@ -461,6 +485,23 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
 .dock .ind{position:absolute;top:0;height:100%;border-radius:9px;background:var(--hot);
   transition:transform var(--t-in) var(--e-in),width var(--t-in) var(--e-in);z-index:1}
 
+/* ══ THE SIDE RAIL ══════════════════════════════════════════════════════ */
+.rail-nav{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:65;
+  display:none;flex-direction:column;gap:2px}
+.rail-nav a{display:flex;align-items:center;gap:9px;justify-content:flex-end;
+  padding:6px 4px;text-decoration:none;color:var(--fg2);
+  font:600 12px Chivo,sans-serif;transition:color var(--t-hov) var(--e-hov)}
+.rail-nav span{opacity:0;transform:translateX(6px);
+  transition:opacity var(--t-hov) var(--e-hov),transform var(--t-hov) var(--e-hov)}
+.rail-nav a:hover span,.rail-nav a.here span{opacity:1;transform:none}
+.rail-nav a:hover,.rail-nav a.here{color:var(--fg)}
+.rail-nav i{width:9px;height:9px;border-radius:50%;flex:0 0 auto;
+  border:1.5px solid var(--edge);
+  transition:background var(--t-hov) var(--e-hov),border-color var(--t-hov) var(--e-hov),
+             box-shadow var(--t-hov) var(--e-hov)}
+.rail-nav a.here i{background:var(--hot);border-color:var(--hot);
+  box-shadow:0 0 14px -2px var(--hot)}
+
 /* ══ 13 · REVEALS — G7 ══════════════════════════════════════════════════
    THE HIDDEN STATE IS ADDED BY SCRIPT, NEVER BY THE STYLESHEET, so a failed
    script cannot leave a blank page. And the marker class is NAMESPACED — an
@@ -477,19 +518,22 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
 @media (min-width:761px) and (min-height:500px){
   .hero{padding:44px 0 64px}
   .hero-grid{grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);
-    gap:40px;align-items:end}
+    gap:40px;align-items:center}
   .hero h1{margin-top:44px}
   /* Two packages and the ladder on row one; the flagship spans row two.
      A shape no other section on this page uses. */
   .money-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,.92fr)}
-  .pk--wide{grid-column:1 / 3;grid-row:2}
-  .pk--wide .ticks{grid-template-columns:repeat(3,1fr)}
-  .ladder{grid-column:3;grid-row:1 / 3}
+  /* Four packages two-by-two, the size table alongside both rows. */
+  .money-grid{grid-template-areas:"a b l" "c d l"}
+  .pk:nth-of-type(1){grid-area:a} .pk:nth-of-type(2){grid-area:b}
+  .pk:nth-of-type(3){grid-area:c} .pk:nth-of-type(4){grid-area:d}
+  .ladder{grid-area:l;align-self:start}
   .job{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:stretch}
-  .job .ph{aspect-ratio:auto}
+  .job .ph{aspect-ratio:auto;min-height:250px}
   .job .body{display:flex;flex-direction:column;justify-content:center}
   .ft-grid{grid-template-columns:1.4fr 1fr 1fr}
   .dock{display:none}
+  .rail-nav{display:flex}
 }
 @media (max-width:760px),(max-height:499px){
   .qs{columns:1}
@@ -499,12 +543,12 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
    clean ground and the photograph fills a wider band beneath it. */
 @media (max-width:760px),(max-height:499px){
   .dock{display:block}
+  .ticks{grid-template-columns:1fr}
   .diagram{display:none}
   .spine{display:block}
   body{padding-bottom:78px}
   .shot{aspect-ratio:3/2}
-  .hdr .hnav{display:none}
-  .hdr .btn{margin-left:auto}
+  .hdr .btn{display:none}
   .money-grid{grid-template-columns:1fr}
   .two{grid-template-columns:1fr}
   .opts--row{grid-auto-flow:row}
@@ -554,12 +598,7 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
 <header class="hdr" id="hdr">
   <div class="wrap">
     <a class="brand" href="#top">Delgado<i>.</i></a>
-    <nav class="hnav" aria-label="Sections">
-      <a href="#process">Process</a>
-      <a href="#packages">Packages</a>
-      <a href="#work">Work</a>
-    </nav>
-    <a class="btn book-cta" href="#book">Book correction</a>
+    <a class="btn book-cta" href="#book">Book a detail</a>
   </div>
 </header>
 
@@ -574,12 +613,12 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
       <div class="hero-grid">
         <div>
           <p class="m" data-from="get_public_business_profile.service_area">
-            Mesa &middot; Gilbert &middot; Chandler</p>
-          <h1>Paint,<br>after <em>dark</em>.</h1>
-          <p class="lede">Mobile paint correction and ceramic coating.
-             We bring the lights.</p>
+            Phoenix &middot; Scottsdale &middot; Tempe</p>
+          <h1>Mobile paint correction and <em>ceramic coating</em>.</h1>
+          <p class="lede">We come to you. Phoenix and the East Valley,
+             six days a week.</p>
           <div class="cta">
-            <a class="btn book-cta" href="#book">Book correction</a>
+            <a class="btn book-cta" href="#book">Book a detail</a>
             <a class="btn2" href="#packages">See packages</a>
           </div>
         </div>
@@ -588,13 +627,13 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
              4:5 on the desk, 3:2 on a phone. object-fit: cover both ways. -->
         <figure class="shot" style="margin:0">
           <img src="https://images.unsplash.com/photo-1571408194382-e5989d133359?fm=jpg&amp;w=1200&amp;q=78"
-               alt="Shop lights raking across a dark car's paint at night"
+               alt="Light raking across a dark car's paint after a correction"
                width="1200" height="1500" loading="eager">
           <!-- C1 · driven by `available-slots`. A hard-coded "available today"
                is a lie the booking engine can contradict. -->
           <span class="chip" data-from="available-slots">
-            <span class="dot" aria-hidden="true"></span>Booking tonight</span>
-          <figcaption>Two-stage correction &middot; Gilbert</figcaption>
+            <span class="dot" aria-hidden="true"></span>Next opening Thu 11 Sep</span>
+          <figcaption>2022 Audi RS5 &mdash; two-stage correction</figcaption>
         </figure>
       </div>
 
@@ -603,7 +642,6 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
         <div><b data-roll="1180">1,180</b><span>cars</span></div>
         <div><b data-roll="6">6</b><span>years</span></div>
         <div><b data-roll="4.9">4.9</b><span data-from="testimonials">rating</span></div>
-        <div><b>9pm</b><span>latest start</span></div>
       </div>
     </div>
   </section>
@@ -611,16 +649,21 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
   <!-- ═══ 2 · SERVICE AREA ═════════════════════════════════════════════ -->
   <section class="area" aria-labelledby="area-h">
     <div class="wrap">
-      <p class="m m--q">Where we come</p>
-      <h2 id="area-h">Anywhere with a <em>driveway</em>.</h2>
+      <p class="m m--q">Service area</p>
+      <h2 id="area-h">Where we <em>cover</em>.</h2>
       <div class="towns" data-from="get_public_business_profile.service_area">
-        <i>Mesa</i><i>Gilbert</i><i>Chandler</i><i>Tempe</i>
-        <i>Queen Creek <span data-from="travel_zones">+$25</span></i>
-        <i>Apache Junction <span data-from="travel_zones">+$25</span></i>
+        <i>Phoenix</i><i>Scottsdale</i><i>Tempe</i><i>Mesa</i><i>Chandler</i>
       </div>
-      <p style="margin-top:16px;color:var(--fg2)">
-        Power and water come off the van. A flat driveway and about eight feet
-        round the car is all we need.</p>
+      <!-- TRAVEL IS A RADIUS. His note: "most detailers don't really work that
+           way, it's more of a radius." -->
+      <dl class="facts">
+        <div><dt data-from="travel_zones">Travel</dt>
+             <dd>Free inside 25 miles of central Phoenix, then $1.50 a mile</dd></div>
+        <div><dt>Insurance</dt>
+             <dd>$2M liability &mdash; certificate on request</dd></div>
+        <div><dt data-from="get_public_business_profile.services">Booking</dt>
+             <dd>Two to five days out, most weeks</dd></div>
+      </dl>
     </div>
   </section>
 
@@ -628,60 +671,58 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
   <section class="beat" id="process" aria-labelledby="proc-h">
     <div class="wrap">
       <p class="m">The work</p>
-      <h2 id="proc-h">What the <em>light</em> shows.</h2>
-      <p style="color:var(--fg2)">Correction is a lighting job. Under a swirl
-         lamp the clear coat stops being shiny and starts being readable — every
-         wash mark, every buffer trail, every bit of etching.</p>
+      <h2 id="proc-h">How a paint <em>correction</em> works.</h2>
+      <p style="color:var(--fg2)">Four stages, in order. Interior work runs at
+         the same time, so a full job is one visit and not two.</p>
 
       <!-- PHONE · the same four steps as a vertical spine. -->
       <ol class="spine">
-        <li><b>Inspect, lit</b><span>Swirl lamp over every panel</span></li>
-        <li><b>Decontaminate</b><span>Clay + iron remover</span></li>
-        <li class="hot"><b>Correct — 1 or 2 stage</b><span>4&ndash;9 hrs</span></li>
-        <li><b>Coat and cure</b><span>24 hr cure — keep it dry</span></li>
-        <li class="para"><b>Interior</b><span>Runs alongside</span></li>
+        <li><b>1 &middot; Inspect</b><span>Paint depth read first</span></li>
+        <li><b>2 &middot; Wash and decontaminate</b><span>Clay and iron remover</span></li>
+        <li class="hot"><b>3 &middot; Machine polish</b><span>One or two stages</span></li>
+        <li><b>4 &middot; Seal or coat</b><span>Sealant 6 months, coating 3 years</span></li>
+        <li class="para"><b>Interior</b><span>At the same time</span></li>
       </ol>
 
       <div class="diagram" id="diagram" aria-hidden="true">
         <svg viewBox="0 0 940 330">
-          <!-- Right-angled connectors with rounded corners, routed rather
-               than gridded. Each node is OPAQUE so a connector terminates at
-               its edge instead of running through the label — found by
-               looking at the style tile, invisible in the source. -->
-          <path class="dg-line" data-l="1" d="M150 46 H300 a12 12 0 0 1 12 12 V96 a12 12 0 0 0 12 12 H392"
+          <!-- Connectors: right-angled with rounded corners, routed rather than
+               gridded, each one drawn on scroll progress. Node fills are OPAQUE
+               so a line terminates at an edge instead of crossing a label. -->
+          <path class="dg-line" data-l="1" d="M150 46 H206 a12 12 0 0 1 12 12 V110 a12 12 0 0 0 12 12 H250"
                 stroke="#FF4D2E" stroke-width="1.6" fill="none"/>
-          <path class="dg-line" data-l="2" d="M560 108 H660 a12 12 0 0 1 12 12 V174 a12 12 0 0 0 12 12 H736"
+          <path class="dg-line" data-l="2" d="M486 122 H516 a12 12 0 0 1 12 12 V186 a12 12 0 0 0 12 12 H560"
                 stroke="#FF4D2E" stroke-width="1.6" fill="none"/>
-          <path class="dg-line" data-l="3" d="M736 200 H700 a12 12 0 0 0 -12 12 V266 a12 12 0 0 1 -12 12 H392"
+          <path class="dg-line" data-l="3" d="M736 198 H752 a12 12 0 0 1 12 12 V262 a12 12 0 0 0 12 12 H788"
                 stroke="#FF4D2E" stroke-width="1.6" fill="none"/>
-          <path class="dg-line" data-l="4" d="M80 60 V244 a12 12 0 0 0 12 12 H300"
+          <path class="dg-line" data-l="4" d="M80 64 V274"
                 stroke="rgba(191,216,255,.42)" stroke-width="1.4" fill="none" stroke-dasharray="4 5"/>
 
           <g class="dg-node" data-n="1">
             <rect x="14" y="28" width="136" height="36" rx="6" fill="#161A21" stroke="rgba(255,255,255,.18)"/>
-            <text x="30" y="51" fill="#F2F4F7" font-family="Chivo,sans-serif" font-size="14" font-weight="600">Inspect, lit</text>
+            <text x="30" y="51" fill="#F2F4F7" font-family="Chivo,sans-serif" font-size="14" font-weight="600">1 &#183; Inspect</text>
           </g>
           <g class="dg-node" data-n="2">
-            <rect x="392" y="90" width="168" height="36" rx="6" fill="#161A21" stroke="rgba(255,255,255,.18)"/>
-            <text x="408" y="113" fill="#F2F4F7" font-family="Chivo,sans-serif" font-size="14" font-weight="600">Decontaminate</text>
+            <rect x="250" y="104" width="236" height="36" rx="6" fill="#161A21" stroke="rgba(255,255,255,.18)"/>
+            <text x="266" y="127" fill="#F2F4F7" font-family="Chivo,sans-serif" font-size="14" font-weight="600">2 &#183; Wash and decontaminate</text>
           </g>
           <g class="dg-node" data-n="3">
-            <rect x="736" y="168" width="190" height="36" rx="6" fill="#161A21" stroke="rgba(255,77,46,.55)"/>
-            <text x="752" y="191" fill="#F2F4F7" font-family="Chivo,sans-serif" font-size="14" font-weight="600">Correct — 1 or 2 stage</text>
+            <rect x="560" y="180" width="176" height="36" rx="6" fill="#161A21" stroke="rgba(255,77,46,.55)"/>
+            <text x="576" y="203" fill="#F2F4F7" font-family="Chivo,sans-serif" font-size="14" font-weight="600">3 &#183; Machine polish</text>
           </g>
           <g class="dg-node" data-n="4">
-            <rect x="236" y="260" width="156" height="36" rx="6" fill="#161A21" stroke="rgba(255,255,255,.18)"/>
-            <text x="252" y="283" fill="#F2F4F7" font-family="Chivo,sans-serif" font-size="14" font-weight="600">Coat and cure</text>
+            <rect x="788" y="256" width="146" height="36" rx="6" fill="#161A21" stroke="rgba(255,255,255,.18)"/>
+            <text x="804" y="279" fill="#F2F4F7" font-family="Chivo,sans-serif" font-size="14" font-weight="600">4 &#183; Seal or coat</text>
           </g>
           <g class="dg-node" data-n="5">
-            <rect x="14" y="226" width="120" height="36" rx="6" fill="#161A21" stroke="rgba(191,216,255,.35)"/>
-            <text x="30" y="249" fill="#BFD8FF" font-family="Chivo,sans-serif" font-size="14" font-weight="600">Interior</text>
+            <rect x="14" y="274" width="120" height="36" rx="6" fill="#161A21" stroke="rgba(191,216,255,.35)"/>
+            <text x="30" y="297" fill="#BFD8FF" font-family="Chivo,sans-serif" font-size="14" font-weight="600">Interior</text>
           </g>
 
-          <text x="322" y="86" fill="#BFD8FF" font-family="Chivo Mono,monospace" font-size="10" letter-spacing="1.8">CLAY + IRON REMOVER</text>
-          <text x="682" y="164" fill="#BFD8FF" font-family="Chivo Mono,monospace" font-size="10" letter-spacing="1.8">4–9 HRS</text>
-          <text x="470" y="256" fill="#BFD8FF" font-family="Chivo Mono,monospace" font-size="10" letter-spacing="1.8">24 HR CURE — KEEP IT DRY</text>
-          <text x="150" y="248" fill="#BFD8FF" font-family="Chivo Mono,monospace" font-size="10" letter-spacing="1.8">RUNS ALONGSIDE</text>
+          <text x="228" y="100" fill="#BFD8FF" font-family="Chivo Mono,monospace" font-size="10" letter-spacing="1.8">PAINT DEPTH READ FIRST</text>
+          <text x="538" y="176" fill="#BFD8FF" font-family="Chivo Mono,monospace" font-size="10" letter-spacing="1.8">ONE OR TWO STAGES</text>
+          <text x="700" y="252" fill="#BFD8FF" font-family="Chivo Mono,monospace" font-size="10" letter-spacing="1.8">SEALANT OR 3-YEAR COATING</text>
+          <text x="150" y="298" fill="#BFD8FF" font-family="Chivo Mono,monospace" font-size="10" letter-spacing="1.8">AT THE SAME TIME</text>
         </svg>
       </div>
     </div>
@@ -691,7 +732,7 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
   <section class="money" id="packages" aria-labelledby="pk-h">
     <div class="wrap">
       <p class="m m--q">Prices</p>
-      <h2 id="pk-h">Three levels of <em>correction</em>.</h2>
+      <h2 id="pk-h">Packages and what they <em>include</em>.</h2>
       <p style="color:var(--fg2)">Sedan prices.</p>
 
       <div class="money-grid" data-from="get_public_business_profile.services">
@@ -723,18 +764,32 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
           <span class="flag">Deep scratches — not all come out</span>
         </article>
 
-        <article class="panel pk pk--wide">
+        <article class="panel pk">
           <div class="top">
             <b class="price" data-from="calculate-booking">$1,150</b>
-            <span class="hrs">Two evenings &middot; 24 hr cure</span>
+            <span class="hrs">Two visits &middot; 24 hr cure</span>
           </div>
           <h3>Ceramic, 3 year</h3>
-          <ul class="ticks ticks--wide" data-from="services.features">
+          <ul class="ticks" data-from="services.features">
             <li>Everything in Correction</li><li>Panel wipe and prep</li>
             <li>3-year ceramic coating</li><li>Wheels and glass coated</li>
             <li>Annual check included</li><li>Written warranty</li>
           </ul>
           <span class="flag">Keep it dry for 24 hours</span>
+        </article>
+
+        <article class="panel pk">
+          <div class="top">
+            <b class="price" data-from="calculate-booking">$210</b>
+            <span class="hrs">Inside only &middot; 3 hrs</span>
+          </div>
+          <h3>Interior reset</h3>
+          <ul class="ticks" data-from="services.features">
+            <li>Hot water extraction</li><li>Leather cleaned and fed</li>
+            <li>Vents and seat rails</li><li>Glass inside</li>
+            <li>Odour treatment</li><li>Mats shampooed</li>
+          </ul>
+          <span class="flag">Pet hair or heavy soiling &mdash; add-on</span>
         </article>
 
         <aside class="panel ladder" aria-labelledby="ld-h">
@@ -766,26 +821,24 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
   <section class="work" id="work" aria-labelledby="w-h">
     <div class="wrap">
       <p class="m m--q">Recent jobs</p>
-      <h2 id="w-h">Cars we have had <em>under</em> the lights.</h2>
+      <h2 id="w-h">Cars we have <em>corrected</em>.</h2>
 
       <article class="panel job">
         <!-- SLOT · job photo. Filled from `job_photos`. -->
         <div class="ph">
           <img src="https://images.unsplash.com/photo-1718936689857-61da6351ec0d?fm=jpg&amp;w=900&amp;q=78"
                alt="A dark car being coated under a single hard light" loading="lazy">
-          <span class="badge" data-from="booking_services">Ceramic, 3 year</span>
         </div>
         <div class="body">
           <h3>2022 Audi RS5 &middot; Mesa</h3>
           <p class="did">Two-stage correction, then a three-year coating.
-             Nine hours over two evenings.</p>
+             Nine hours across two visits.</p>
           <div class="rev" data-from="the detailer's Google reviews">
             <span class="stars" aria-hidden="true">★★★★★</span>
-            <p>“Turned up at seven with his own lights and worked till one in
-               the morning. The car has never looked like this.”</p>
+            <p>“Came after work on a Tuesday and stayed until it was done.
+               The car has never looked like this.”</p>
             <p class="who">Rafael M. &middot; Mesa</p>
           </div>
-          <a class="btn" href="#book" style="margin-top:14px">Book this package</a>
         </div>
       </article>
 
@@ -793,7 +846,6 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
         <div class="ph">
           <img src="https://images.unsplash.com/photo-1632823471808-08b572e7381c?fm=jpg&amp;w=900&amp;q=78"
                alt="A rotary polisher being worked across a panel" loading="lazy">
-          <span class="badge" data-from="booking_services">Paint Correction</span>
         </div>
         <div class="body">
           <h3>2019 Ford F-150 &middot; Gilbert</h3>
@@ -805,7 +857,6 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
                actually see what I was paying for.”</p>
             <p class="who">Dana W. &middot; Gilbert</p>
           </div>
-          <a class="btn" href="#book" style="margin-top:14px">Book this package</a>
         </div>
       </article>
 
@@ -813,7 +864,6 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
         <div class="ph">
           <img src="https://images.unsplash.com/photo-1608259243654-70c070e0f6ed?fm=jpg&amp;w=900&amp;q=78"
                alt="Interior of a car being detailed" loading="lazy">
-          <span class="badge" data-from="booking_services">Interior reset</span>
         </div>
         <div class="body">
           <h3>2018 Tesla Model 3 &middot; Chandler</h3>
@@ -825,26 +875,23 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
                a demonstrator.”</p>
             <p class="who">Priya S. &middot; Chandler</p>
           </div>
-          <a class="btn" href="#book" style="margin-top:14px">Book this package</a>
         </div>
       </article>
       <article class="panel job">
         <div class="ph">
           <img src="https://images.unsplash.com/photo-1643808971709-155fdde38397?fm=jpg&amp;w=900&amp;q=78"
-               alt="A car under the work lights at night, seen from the front" loading="lazy">
-          <span class="badge" data-from="booking_services">Gloss Enhancement</span>
+               alt="A car in the bay under work lights, seen from the front" loading="lazy">
         </div>
         <div class="body">
           <h3>2020 Honda Accord &middot; Tempe</h3>
           <p class="did">One-stage polish and a six-month sealant. Four hours
-             on a Thursday evening.</p>
+             on a Thursday afternoon.</p>
           <div class="rev" data-from="the detailer's Google reviews">
             <span class="stars" aria-hidden="true">★★★★★</span>
             <p>“I did not know a normal car could look like this. He talked me
                out of the expensive package.”</p>
             <p class="who">Elena V. &middot; Tempe</p>
           </div>
-          <a class="btn" href="#book" style="margin-top:14px">Book this package</a>
         </div>
       </article>
     </div>
@@ -866,8 +913,8 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
         </blockquote>
         <blockquote class="panel q">
           <span class="stars" aria-hidden="true">★★★★★</span>
-          <p>“Works late so I don't lose a day. Car was done by the time I
-             woke up.”</p>
+          <p>“Booked a Saturday so I didn't have to take a day off work.
+             Straightforward the whole way through.”</p>
           <p class="who">Alicia R. &middot; Mesa</p>
         </blockquote>
         <blockquote class="panel q">
@@ -890,27 +937,28 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
   <section class="faq" aria-labelledby="faq-h">
     <div class="wrap">
       <p class="m m--q">Before you book</p>
-      <h2 id="faq-h">The awkward <em>questions</em>.</h2>
+      <h2 id="faq-h">Questions we get <em>asked</em>.</h2>
       <div class="qs" data-from="faqs">
-        <details><summary>Why at night?</summary>
-          <p>Panel temperature. Compound flashes off too fast on hot paint and
-             a coating will not level, so from May to October the work starts
-             after the sun is off the car.</p></details>
-        <details><summary>How long will it take?</summary>
-          <p>Four hours for a one stage, up to nine for a two stage, and a
-             coating adds a day of curing you cannot drive in rain.</p></details>
-        <details><summary>What if it rains?</summary>
-          <p>We move you, free, to the next dry evening. A coating that gets
-             wet inside 24 hours has to be redone.</p></details>
+        <details><summary>Why does the price change after you look at the car?</summary>
+          <p>The listed price assumes normal use. Heavy swirls, etched water
+             spots or a car that has never been corrected take more stages, and
+             we tell you the new number before we start, not after.</p></details>
         <details><summary>Will every scratch come out?</summary>
           <p>No. If a scratch catches your fingernail it is through the clear
              coat and polishing will not remove it. We read the paint depth
              first and tell you which ones are staying.</p></details>
-        <details><summary>Where do you park?</summary>
-          <p>A flat driveway with about eight feet round the car. No garage
-             needed — the lights are ours.</p></details>
-        <details><summary>Can I cancel?</summary>
-          <p>Free up to 24 hours before. Nothing is charged when you book.</p></details>
+        <details><summary>Do you remove all stains and pet hair?</summary>
+          <p>Most of it. Heavy pet hair and set-in stains are charged as an
+             add-on because they can double the interior time.</p></details>
+        <details><summary>Do you need power and water?</summary>
+          <p>No. The van carries both. We need a parking space beside the car
+             and about eight feet of room to work.</p></details>
+        <details><summary>How often should I have this done?</summary>
+          <p>A correction is a one-off. After it, a maintenance wash every four
+             to six weeks keeps the finish; a coating stretches that out.</p></details>
+        <details><summary>What if my car needs more than the package I booked?</summary>
+          <p>We call you before touching it. Nothing is charged at booking, and
+             you can cancel free up to 24 hours before.</p></details>
       </div>
     </div>
   </section>
@@ -921,7 +969,7 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
   <section class="book" id="book" aria-labelledby="bk-h">
     <div class="wrap">
       <p class="m">Book</p>
-      <h2 id="bk-h">Pick an <em>evening</em>.</h2>
+      <h2 id="bk-h">Book a <em>detail</em>.</h2>
       <p style="color:var(--fg2)">You see the price before anything is
          confirmed, and nothing is taken now.</p>
 
@@ -949,7 +997,7 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
                 <span class="ob"><b>Paint Correction</b><i>Two stage &middot; about 9 hrs</i></span>
                 <em data-from="calculate-booking">$620</em></label>
               <label class="opt"><input type="radio" name="svc" value="ceramic">
-                <span class="ob"><b>Ceramic, 3 year</b><i>Correction + coating &middot; two evenings</i></span>
+                <span class="ob"><b>Ceramic, 3 year</b><i>Correction + coating &middot; two visits</i></span>
                 <em data-from="calculate-booking">$1,150</em></label>
             </div>
           </div>
@@ -1011,7 +1059,7 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
 
           <!-- 5 · WHEN -->
           <div class="bk-step" data-step="4">
-            <h3>Which evening?</h3>
+            <h3>When suits you?</h3>
             <div class="cal" data-from="available-slots">
               <div class="cal-head"><b>September 2026</b><span>&#8249;&nbsp;&nbsp;&#8250;</span></div>
               <div class="cal-dow"><i>M</i><i>T</i><i>W</i><i>T</i><i>F</i><i>S</i><i>S</i></div>
@@ -1098,14 +1146,13 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
       <div>
         <p class="m m--q">Hours</p>
         <ul class="hours" data-from="business_hours">
-          <li><span>Mon–Thu</span><span>4pm – 1am</span></li>
-          <li><span>Fri</span><span>4pm – 11pm</span></li>
-          <li><span>Sat</span><span>10am – 8pm</span></li>
+          <li><span>Mon–Fri</span><span>8am – 8pm</span></li>
+          <li><span>Sat</span><span>8am – 6pm</span></li>
           <li><span>Sun</span><span>Closed</span></li>
         </ul>
         <p class="open" style="margin-top:10px;font-size:13px" data-from="business_hours">
           <span class="dot" aria-hidden="true" style="display:inline-block;vertical-align:middle;margin-right:6px"></span>
-          Open now — until 1am</p>
+          Open now — until 8pm</p>
       </div>
       <div>
         <p class="m m--q">Get hold of us</p>
@@ -1118,6 +1165,17 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
     <p class="ft-legal">© 2026 Delgado Mobile Detailing. Licensed and insured.</p>
   </div>
 </footer>
+
+<!-- ═══ THE SIDE RAIL — the desk's persistent navigation ══════════════
+     It shows WHERE YOU ARE and moves you; the sticky header carries the one
+     call to action. Hidden on a phone, which has the dock. -->
+<nav class="rail-nav" aria-label="Sections">
+  <a href="#top"><i></i><span>Top</span></a>
+  <a href="#process"><i></i><span>Process</span></a>
+  <a href="#packages"><i></i><span>Prices</span></a>
+  <a href="#work"><i></i><span>Work</span></a>
+  <a href="#book"><i></i><span>Book</span></a>
+</nav>
 
 <!-- ═══ THE DOCK — I2, and it says WHERE YOU ARE ═══════════════════════ -->
 <nav class="dock" aria-label="Quick navigation">
@@ -1261,6 +1319,65 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
     }, { rootMargin: "-45% 0px -45% 0px" });
     secs.forEach(function(s){ if (s) sio.observe(s); });
     addEventListener("resize", function(){ place(dock.querySelector("a.here")); });
+  }
+
+  /* ── THE SIDE RAIL SAYS WHERE YOU ARE, the same job the dock does on a
+     phone and by the same observer. */
+  var rnav = document.querySelector(".rail-nav");
+  if (rnav) {
+    var rl = [].slice.call(rnav.querySelectorAll("a"));
+    var rsec = rl.map(function(a){ return document.querySelector(a.getAttribute("href")); });
+    var rio2 = new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if (!e.isIntersecting) return;
+        var i = rsec.indexOf(e.target);
+        if (i > -1) rl.forEach(function(l, j){ l.classList.toggle("here", j === i); });
+      });
+    }, { rootMargin: "-45% 0px -45% 0px" });
+    rsec.forEach(function(x){ if (x) rio2.observe(x); });
+  }
+
+  /* ── THE REVIEW RAIL AUTO-SCROLLS. His note: the desktop scrollbar was ugly
+     (now hidden in CSS) and "once you get to it, waits like a second and then
+     starts auto scrolling." It stops the moment anybody touches it — an
+     animation that fights the reader is worse than none — and it never runs
+     under reduced motion. */
+  var rail = document.querySelector(".rail");
+  if (rail && !LITE) {
+    var auto = null, killed = false;
+    var stop = function(){ killed = true; if (auto) cancelAnimationFrame(auto); };
+    ["pointerdown","wheel","touchstart","keydown"].forEach(function(ev){
+      rail.addEventListener(ev, stop, { passive: true, once: true });
+    });
+    rail.addEventListener("pointerenter", function(){ if (auto) cancelAnimationFrame(auto); });
+    rail.addEventListener("pointerleave", function(){ if (!killed) run(); });
+    var run = function(){
+      var last = performance.now();
+      // THE POSITION IS KEPT IN A FLOAT, NOT READ BACK OFF scrollLeft. At 60fps
+      // 22px/s is 0.37px per frame; scrollLeft quantises that to zero, so a
+      // version that did `scrollLeft = scrollLeft + dt*k` accumulated NOTHING —
+      // it ran every frame, threw nothing, and moved the rail 0px. Measured by
+      // writing scrollLeft and reading it back; no other instrument sees it.
+      var pos = rail.scrollLeft;
+      (function step(now){
+        if (killed) return;
+        var dt = Math.min(now - last, 50); last = now;
+        var max = rail.scrollWidth - rail.clientWidth;
+        if (max <= 0) { auto = requestAnimationFrame(step); return; }
+        pos += dt * 0.022;                 // 22 px a second — slower than reading
+        if (pos >= max) pos = 0;
+        rail.scrollLeft = pos;
+        auto = requestAnimationFrame(step);
+      })(last);
+    };
+    var railIO = new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if (!e.isIntersecting) return;
+        railIO.disconnect();
+        setTimeout(function(){ if (!killed) run(); }, 1000);
+      });
+    }, { threshold: .35 });
+    railIO.observe(rail);
   }
 
   /* ── THE VEHICLE-SIZE LADDER. It ASKS and never computes — on a real site

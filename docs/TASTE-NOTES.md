@@ -1670,3 +1670,129 @@ not what he is asked to approve.** He approves the picture.
 **Also, and separately: a 800x1240 PNG did not load for him** (*"not loading"*).
 The CLAUDE.md rule says the limit is the image's HEIGHT. **870 is the working
 ceiling observed so far; 1240 is not.** Frames, not one tall board.
+
+---
+
+# BATCH 4c — SITE 2, HIS FULL CRITIQUE, 2026-09-08
+
+**The most useful message in this file.** Fifteen separate notes on one page he
+was looking at, and the largest is not about this page at all.
+
+## THE HEADLINE FINDING — COPY IS THE FAILING SUBSYSTEM, IN HIS OWN WORDS
+
+> *"I think that's the only place that I've had the most trouble with is your
+> text generation for websites. And we really need to work on this."*
+
+> *"Right off the bat, we have this thing called paint after dark. What the hell
+> does that mean? Like, what? … I guess it has something to do with polishing or
+> detailing, whatever that… but it's too creative. It's too startup. It's too AI
+> AI looking."*
+
+> *"The first bold thing should be explaining what this is… it should just be
+> Mobile paint correction and ceramic coating. That should just be it right
+> there. And then this we bring the lights, not necessary, not needed. **I'm
+> trying to get all of the AI fluff out of here as possible.**"*
+
+**AND HE SAID HE HAD RAISED IT BEFORE AND EXPECTED IT LOGGED:** *"I went over
+this before with the previous session, and I thought this was logged about your
+wordings on stuff, not being AI and not kind of overdoing it and not trying to
+be creative with it, but more straightforward."* It IS logged — playbook § 3,
+rule 4, *"Be literature"* — **and site 2 broke it in every heading anyway.**
+A rule in a file that the build does not follow is not a rule.
+
+### THE RULE, RESTATED SO IT CANNOT BE MISREAD
+
+**THE H1 IS THE SERVICE AND THE PLACE. Not a phrase, not an image, not a
+mood.** *Mobile paint correction and ceramic coating.* If a heading would work
+as a band name, it is wrong. Every heading he named:
+
+| What was there | What he said |
+|---|---|
+| **Paint, after dark.** | *"What the hell does that mean… too creative, too startup, too AI"* |
+| **We bring the lights.** | *"Not necessary, not needed"* |
+| **What the light shows.** | *"Such an unnecessary title… basically every title here is just not it"* |
+| **Cars we have had under the lights.** | *"Not needed. It should just be cars we've corrected or something, straight to the point"* |
+| **The awkward questions.** | *"Again, another title that's weird"* |
+| **Anywhere with a driveway.** | *"Rephrase that to be more strict to the point"* |
+| *"Power and water come off the van. A flat driveway and about eight feet round the car is all we need."* | *"That doesn't make sense… a lot of driveways aren't flat. I don't know what this text is doing either. The majority of it is just text. **It feels like gibberish, not thought through.**"* |
+
+**And the fix he named is research, which he has now asked for twice:** *"that's
+one of the things I wanted you to kind of analyze actual detailers so I could
+see what they have text wise on their website."*
+**`docs/tenant-site-source-data-2026-09-08.md` ALREADY HAS IT** — real FAQ
+questions, real condition disclaimers, real service names, pulled off ten live
+sites — **and site 2 was written without opening it.**
+
+## THE PREMISE ITSELF IS QUESTIONED
+
+> *"Is this whole point that they only work at night? I feel like no car
+> detailer would actually do that. I'm gonna have, like, oh, you know, we only
+> do this type of thing at these temperatures or something."*
+
+**So the night story is out as the PITCH.** He likes the dark look and said so
+first — *"I liked how it looks to start… just the theming of it. You did good"*
+— so the ground stays and the story goes. **A subject may drive art direction
+and must never become the sales copy.**
+
+## A RULE FOR EVERY SITE, NOT JUST THIS ONE
+
+> *"One thing I changed is the header to stay sticky at the top… **I think for
+> every single site, there should be some sort of sticky top bar. Or it doesn't
+> have to be the top. It could be top, it could be bottom, it could be on the
+> side. Something. Just some way where something stays no matter where you are
+> in the site.**"*
+
+> *"There's, like, a little sticky thing at the bottom, like the other site. Why
+> isn't there one like that on the desktop version… **I think on the side will
+> look cool because there's just kind of empty space there.**"*
+
+## THE REST, IN ORDER
+
+1. **Places must be real and recognisable.** *"Base all of these websites in
+   real places so you can have real names, not these weird kind of gibberish
+   fake names."* Mesa / Gilbert / Chandler / Tempe / Queen Creek / Apache
+   Junction ARE real Arizona towns — **and he read them as invented**, which is
+   the answer that matters. Pick a metro a stranger recognises.
+2. **Travel is a RADIUS, not a per-town surcharge.** *"Plus twenty five, plus
+   twenty five — does that mean it's twenty five dollars to go to those areas? I
+   feel like most detailers don't really work that way. It's more of a radius."*
+3. **"9pm latest start" does not belong in the stat strip.** *"Feels like it
+   doesn't belong there. I think that should be separate and somewhere that's
+   more obvious."*
+4. **"Booking tonight" is meaningless to him.** *"I don't know what that means."*
+   And the photo caption *"Two-stage correction · Gilbert"*: *"I suppose that's
+   supposed to be the description of the thing"* — a guess, so it failed.
+5. **THE ROUTED DIAGRAM FAILED.** *"Inspect lit, interior, coat and cure,
+   decontaminate, correction one to two stage — this is just confusing to what
+   this is supposed to be. Like, what even are we showing here? I'm confused by
+   what this is."* **`DEVICE-INVENTORY` D2 is the device § C called "the thing
+   he was pointing at" on `auxia`, and on a detailer's page he could not read
+   it.** The device is not the problem; the labels were mono micro-text with no
+   sentence saying what the picture IS.
+6. **The prices section is right** — *"three levels of correction, I think this
+   is good"* — **except Interior reset is in the size table with no card**, which
+   he spotted immediately.
+7. **Two-column tick lists must go to ONE column on a phone.** *"Works with this
+   desktop. But as soon as we shrink to mobile, the two columns instantly
+   becomes kind of a problem."*
+8. **The work section repeats the packages and should not.** *"Why do we have
+   the packages listed again? Just have the packages listed once up where the
+   pricing is, and then just have these all be reviews. And they can be reviews
+   with images or not."*
+9. **The FAQ must be realistic.** *"Where do you park? That's kind of a weird
+   question… Can these FAQ things actually be realistic, please?"*
+10. **The desktop review rail has an ugly scrollbar and should auto-scroll.**
+    *"Maybe once you get to it, waits like a second and then starts auto
+    scrolling the reviews. That'd be cool. But this is ugly kinda scroll bar
+    here on desktop. And in mobile view it looks like there's only one review."*
+
+## WHAT HE LIKED — worth as much as the critiques
+
+- *"Right off the bat, I liked how it looks to start. You know? Just the theming
+  of it. **You did good.**"*
+- *"We already have the Delgado logo up here, which **looks really nice. Looks
+  really sweet.**"*
+- *"Prices, three levels of correction. **I think this is good.**"*
+- The stats — *"I think those are some good stats"* (bar the 9pm one).
+- *"The mobile looks good. I like the reviews."*
+- *"Then there's the booking widget, right, which **that looks fine.**"*

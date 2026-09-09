@@ -115,6 +115,42 @@ for (const f of files) {
        `${f}: advertises the website rather than the detailing — "${phrase}"`);
   }
 
+  // 9 · THE H1 SAYS WHAT THE BUSINESS DOES. His rule, 2026-09-08, on a
+  //     headline that read "Paint, after dark": *"What the hell does that
+  //     mean… it's too creative. It's too startup. It's too AI AI looking.
+  //     The first bold thing should be explaining what this is."*
+  //     **The rule was already written — playbook § 3 rule 4 — and the build
+  //     broke it anyway**, which is this repo's own finding about rules with
+  //     no test. This is the testable half: an absolute with a right answer.
+  const h1 = (html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/) || [, ""])[1]
+    .replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  if (isHome(f)) {
+    // BASELINED AND FOUND TOO WEAK ON THE FIRST TRY: this list originally
+    //     included bare "paint", so the exact headline he rejected —
+    //     "Paint, after dark" — PASSED. A material is not a service. The list
+    //     is SERVICES only, and the check was re-baselined against that
+    //     headline until it failed.
+    ok(/detailing|detail|correction|coating|ceramic|wash|valet|polish/i.test(h1),
+       `${f}: the <h1> names no trade word — "${h1}". It has to say what the ` +
+       `business does, not evoke it.`);
+  }
+
+  // 10 · SOMETHING STAYS NO MATTER WHERE YOU ARE. His rule for EVERY site:
+  //     "there should be some sort of sticky top bar. Or it doesn't have to be
+  //     the top. It could be top, it could be bottom, it could be on the side."
+  ok(/position:\s*(sticky|fixed)/.test(html),
+     `${f}: nothing on this page is sticky or fixed — a reader 5,000px down ` +
+     `has no way to act`);
+
+  // 11 · AND overflow-x:hidden ON html OR body SILENTLY DISABLES IT. Measured
+  //     on this very page: the header was `position:sticky` and rode away,
+  //     because overflow-x:hidden makes the document a scroll container and
+  //     sticky then sticks to a box that never scrolls. `clip` does not.
+  //     THE FIX FOR ONE RULE HERE BROKE ANOTHER, and only he noticed.
+  ok(!/(?:^|[^-\w])(?:html|body)[^{]*\{[^}]*overflow-x:\s*hidden/.test(html),
+     `${f}: overflow-x:hidden on html or body — this disables position:sticky. ` +
+     `Use overflow-x:clip, or contain the overflow on the element that causes it.`);
+
   // 8 · THE NAME CARRIES THE TRADE (rule 1). Of the eighteen sites he sent,
   //     the only crafted name is a designer's demo with no customers.
   const title = (html.match(/<title>([^<]*)<\/title>/) || [, ""])[1];
