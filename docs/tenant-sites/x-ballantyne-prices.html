@@ -133,16 +133,20 @@ a{color:inherit}
   font-size:12.5px;font-weight:600;background:var(--panel);box-shadow:inset 0 0 0 1px var(--edge)}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--live);flex:none}
 
-/* header — same island behaviour as the home page */
+/* header — the same top fade as the home page, not a pill island */
 .hdr{position:sticky;top:0;z-index:40;padding:16px 0;transition:padding var(--t-mid) var(--ease)}
+.hdr:before{content:"";position:absolute;left:0;right:0;top:0;height:190%;
+  pointer-events:none;opacity:0;transition:opacity var(--t-mid) var(--ease);
+  background:linear-gradient(var(--ground) 18%,
+    color-mix(in srgb,var(--ground) 72%,transparent) 52%, transparent);
+  -webkit-mask:linear-gradient(#000 55%,transparent);mask:linear-gradient(#000 55%,transparent)}
+.hdr.stuck:before{opacity:1}
+.hdr .wrap{position:relative;z-index:1}
 .hdr .bar{display:flex;align-items:center;gap:18px;padding:10px 10px 10px 20px;
   border-radius:var(--r-pill);max-width:100%;margin-inline:auto;
   transition:background var(--t-mid) var(--ease),box-shadow var(--t-mid) var(--ease),
              max-width var(--t-mid) var(--ease)}
-.hdr.stuck{padding:10px 0}
-.hdr.stuck .bar{background:color-mix(in srgb,var(--ground) 84%,transparent);
-  backdrop-filter:blur(18px) saturate(1.3);box-shadow:inset 0 0 0 1px var(--edge),var(--shadow);
-  max-width:760px}
+.hdr.stuck{padding:12px 0}
 .brand{font-family:"Schibsted Grotesk";font-weight:700;font-size:18px;letter-spacing:-.02em;
   text-decoration:none;line-height:1;white-space:nowrap}
 .brand span{display:block;font-family:"Instrument Sans";font-weight:500;font-size:8.5px;
@@ -197,6 +201,16 @@ a{color:inherit}
   text-decoration:none;color:var(--accent)}
 .pack .go a:hover{text-decoration:underline}
 
+
+/* what is in the package, under the price. Space-efficient on purpose: the
+   whole ladder has to stay scannable with thirteen of these on one page. */
+.inc{list-style:none;margin:14px 0 0;padding:12px 0 0;display:grid;gap:5px;
+  border-top:1px solid var(--edge)}
+.inc li{position:relative;padding-left:15px;font-size:12.5px;line-height:1.42;
+  color:var(--ink-2);min-width:0}
+.inc li:before{content:"";position:absolute;left:0;top:6px;width:6px;height:6px;
+  border-radius:50%;background:color-mix(in srgb,var(--accent) 80%,transparent)}
+.pack p{font-size:14px;color:var(--ink-2);margin:12px 0 0}
 .addons{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:18px}
 .addon{display:flex;justify-content:space-between;gap:12px;padding:14px 16px;
   border-radius:var(--r-inset);background:var(--panel);box-shadow:inset 0 0 0 1px var(--edge);
@@ -333,6 +347,7 @@ footer{padding:26px 0 0;position:relative;overflow:hidden}
           <div class="price" data-from="calculate-booking"><sup>$</sup>200</div>
           <span class="from">2 hours &middot; from</span>
           <p>Thorough wipedown of all surfaces, deep vacuum, floor mats, windows and door jambs.</p>
+          <ul class="inc"><li>Every surface wiped down</li><li>Deep vacuum, seats, boot and mats</li><li>Glass inside</li><li>Door jambs and sills</li></ul>
           <div class="go"><a href="#book">Book this &rarr;</a></div>
         </article>
         <article class="pack lit" data-rv="1">
@@ -340,6 +355,7 @@ footer{padding:26px 0 0;position:relative;overflow:hidden}
           <div class="price" data-from="calculate-booking"><sup>$</sup>250</div>
           <span class="from">3 hours &middot; from</span>
           <p>Everything above plus leather conditioning, UV dressing on plastics and fabric protection.</p>
+          <ul class="inc"><li>Everything in Refreshment</li><li>Leather cleaned and conditioned</li><li>UV dressing on plastics and vinyl</li><li>Fabric protection on seats and mats</li></ul>
           <div class="go"><a href="#book">Book this &rarr;</a></div>
         </article>
         <article class="pack pick lit" data-rv="2">
@@ -348,6 +364,7 @@ footer{padding:26px 0 0;position:relative;overflow:hidden}
           <div class="price" data-from="calculate-booking"><sup>$</sup>300</div>
           <span class="from">4 hours &middot; from</span>
           <p>Full carpet and seat shampoo with water extraction, steam clean throughout, odour removal.</p>
+          <ul class="inc"><li>Everything in Enhancement</li><li>Carpet and seat shampoo, water extracted</li><li>Steam clean throughout</li><li>Odour treatment included</li></ul>
           <div class="go"><a href="#book">Book this &rarr;</a></div>
         </article>
       </div>
@@ -360,6 +377,7 @@ footer{padding:26px 0 0;position:relative;overflow:hidden}
           <div class="price" data-from="calculate-booking"><sup>$</sup>120</div>
           <span class="from">2 hours &middot; from</span>
           <p>Hand wash, clay bar decontamination, wheels, tyre dressing and a carnauba wax.</p>
+          <ul class="inc"><li>Two-bucket hand wash</li><li>Clay bar decontamination</li><li>Wheels, arches and tyre dressing</li><li>Carnauba wax, 4&ndash;6 months</li></ul>
           <div class="go"><a href="#book">Book this &rarr;</a></div>
         </article>
         <article class="pack pick lit" data-rv="2">
@@ -368,6 +386,7 @@ footer{padding:26px 0 0;position:relative;overflow:hidden}
           <div class="price" data-from="calculate-booking"><sup>$</sup>400</div>
           <span class="from">4 hours &middot; from</span>
           <p>Hand wash, clay bar, a light machine polish to lift minor imperfections, premium sealant.</p>
+          <ul class="inc"><li>Everything in Wash &amp; Wax</li><li>Iron fallout remover</li><li>Light machine polish</li><li>Premium sealant, 8&ndash;12 months</li></ul>
           <div class="go"><a href="#book">Book this &rarr;</a></div>
         </article>
       </div>
@@ -380,6 +399,7 @@ footer{padding:26px 0 0;position:relative;overflow:hidden}
           <div class="price" data-from="calculate-booking"><sup>$</sup>275</div>
           <span class="from">4 hours &middot; from</span>
           <p>Exterior hand wash and wheel clean paired with the Interior Refreshment.</p>
+          <ul class="inc"><li>Exterior hand wash and wheels</li><li>Interior Refreshment in full</li><li>Glass inside and out</li><li>Tyres dressed</li></ul>
           <div class="go"><a href="#book">Book this &rarr;</a></div>
         </article>
         <article class="pack lit" data-rv="1">
@@ -387,6 +407,7 @@ footer{padding:26px 0 0;position:relative;overflow:hidden}
           <div class="price" data-from="calculate-booking"><sup>$</sup>350</div>
           <span class="from">5 hours &middot; from</span>
           <p>Clean and protect, inside and out: Wash &amp; Wax with the Interior Enhancement.</p>
+          <ul class="inc"><li>Wash &amp; Wax in full</li><li>Interior Enhancement in full</li><li>Leather and plastics protected</li><li>Sealant, 8&ndash;12 months</li></ul>
           <div class="go"><a href="#book">Book this &rarr;</a></div>
         </article>
         <article class="pack pick lit" data-rv="2">
@@ -395,6 +416,7 @@ footer{padding:26px 0 0;position:relative;overflow:hidden}
           <div class="price" data-from="calculate-booking"><sup>$</sup>500</div>
           <span class="from">7 hours &middot; from</span>
           <p>Interior restoration, Wash &amp; Wax, a light clear coat polish and a clear coat sealant.</p>
+          <ul class="inc"><li>Interior Restoration in full</li><li>Wash &amp; Wax in full</li><li>Light clear coat polish</li><li>Clear coat sealant</li></ul>
           <div class="go"><a href="#book">Book this &rarr;</a></div>
         </article>
       </div>
@@ -407,6 +429,7 @@ footer{padding:26px 0 0;position:relative;overflow:hidden}
           <div class="price" data-from="calculate-booking"><sup>$</sup>500</div>
           <span class="from">6 hours &middot; from</span>
           <p>Single-stage machine polish for light swirls, minor scratches and water spots.</p>
+          <ul class="inc"><li>Wash, decontamination and clay</li><li>Single-stage machine polish</li><li>Light swirls and water spots out</li><li>Finished with a sealant</li></ul>
           <div class="go"><a href="#book">Book this &rarr;</a></div>
         </article>
         <article class="pack pick lit" data-rv="2">
@@ -415,6 +438,7 @@ footer{padding:26px 0 0;position:relative;overflow:hidden}
           <div class="price" data-from="calculate-booking"><sup>$</sup>750</div>
           <span class="from">9 hours &middot; from</span>
           <p>Cut and refine for heavily marred paint &mdash; deep swirls, scratches and oxidation.</p>
+          <ul class="inc"><li>Wash, decontamination and clay</li><li>Cut and refine, two stages</li><li>Deep swirls and oxidation out</li><li>Paint depth checked first</li></ul>
           <div class="go"><a href="#book">Book this &rarr;</a></div>
         </article>
       </div>
@@ -427,6 +451,7 @@ footer{padding:26px 0 0;position:relative;overflow:hidden}
           <div class="price" data-from="calculate-booking"><sup>$</sup>800</div>
           <span class="from">1 day &middot; from</span>
           <p>Full exterior decontamination, one-step correction, and a three-to-five year coating.</p>
+          <ul class="inc"><li>Full exterior decontamination</li><li>One-step correction</li><li>Coating on paint, 3&ndash;5 years</li><li>Cure time on site</li></ul>
           <div class="go"><a href="#book">Book this &rarr;</a></div>
         </article>
         <article class="pack lit" data-rv="1">
@@ -434,6 +459,7 @@ footer{padding:26px 0 0;position:relative;overflow:hidden}
           <div class="price" data-from="calculate-booking"><sup>$</sup>1,000</div>
           <span class="from">1 day &middot; from</span>
           <p>Level 1 plus a ceramic coating on the exterior glass.</p>
+          <ul class="inc"><li>Everything in Level 1</li><li>Coating on exterior glass</li><li>Wipers matter less in rain</li><li>Aftercare kit included</li></ul>
           <div class="go"><a href="#book">Book this &rarr;</a></div>
         </article>
         <article class="pack pick lit" data-rv="2">
@@ -442,6 +468,7 @@ footer{padding:26px 0 0;position:relative;overflow:hidden}
           <div class="price" data-from="calculate-booking"><sup>$</sup>1,200</div>
           <span class="from">2 days &middot; from</span>
           <p>Two-step correction, coating on paint, wheels, trim and glass.</p>
+          <ul class="inc"><li>Two-step correction first</li><li>Coating on paint, wheels and trim</li><li>Coating on glass</li><li>Annual check-up included</li></ul>
           <div class="go"><a href="#book">Book this &rarr;</a></div>
         </article>
       </div>
@@ -599,6 +626,43 @@ var STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
   pass();
 })();
 
+
+// ── parallax: two layers travelling against each other ───────────────────
+// His note, pointing at fora: *"these trees and mountains move up, and then
+// this panel moves down... both of them are actually moving."* Each marked
+// layer moves at its own fraction of the distance the section has travelled
+// through the viewport, and the SIGN is the whole effect — the hero photo
+// sinks while the strip under it climbs.
+//
+// The offset is measured from the element's own position on screen rather
+// than from scrollY, so a layer halfway down the page does not start life
+// three thousand pixels out of place.
+(function () {
+  if (STILL) return;
+  var layers = [].slice.call(document.querySelectorAll("[data-par]"));
+  if (!layers.length) return;
+  var ticking = false;
+  function place() {
+    ticking = false;
+    var h = innerHeight;
+    layers.forEach(function (el) {
+      var r = el.getBoundingClientRect();
+      if (r.bottom < -200 || r.top > h + 200) return;      // off screen, no work
+      var mid = r.top + r.height / 2;
+      var off = (mid - h / 2) / h;                          // -1 .. 1 across the screen
+      var f = parseFloat(el.dataset.par) || 0;
+      el.style.setProperty("--par", (off * f * h).toFixed(1) + "px");
+      if (!el.style.getPropertyValue("--par")) return;
+      if (el.hasAttribute("data-par-self")) el.style.transform =
+        "translate3d(0," + (off * f * h).toFixed(1) + "px,0)";
+    });
+  }
+  function tick() { if (!ticking) { ticking = true; requestAnimationFrame(place); } }
+  addEventListener("scroll", tick, { passive: true });
+  addEventListener("resize", tick, { passive: true });
+  place();
+})();
+
 // ── the pointer light ────────────────────────────────────────────────────
 // ONE listener on the document rather than two per card: at ~60 lit surfaces
 // that is 120 listeners doing what one delegated handler does, and the custom
@@ -631,6 +695,13 @@ var STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
   tabs.forEach(function (t) {
     t.addEventListener("click", function () {
       tabs.forEach(function (o) { o.setAttribute("aria-selected", String(o === t)); });
+      // EVERY QUESTION CLOSES ON A TAB CHANGE — his note: a tab you come back
+      // to should be reset rather than remembering what you had open.
+      document.querySelectorAll(".q.is-open").forEach(function (q) {
+        q.classList.remove("is-open");
+        var sm = q.querySelector("summary");
+        if (sm) sm.setAttribute("aria-expanded", "false");
+      });
       panels.forEach(function (p) {
         var on = p.dataset.panel === t.dataset.tab;
         p.hidden = !on;

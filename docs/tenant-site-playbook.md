@@ -510,6 +510,31 @@ reading it.**
     attribute instead. `ex3` gets a paint switcher in its place, bottom-right,
     clear of the phone dock.
 
+### From site 3 — the parallax pass, 2026-09-09
+61. **TWO LAYERS TRAVELLING AGAINST EACH OTHER, and the SIGN is the effect.**
+    His ask, pointing at fora: *"both of them are actually moving."* One layer
+    sinks while the next climbs. Measured over 700px of scroll here: the hero
+    photograph +112px, the strip under it -78px.
+62. **Parallax offset comes from the element's own position on screen, never
+    from `scrollY`** — a layer halfway down the page would otherwise start
+    life thousands of pixels out of place.
+63. **Move the IMAGE inside its frame, not the masked frame.** The hero's fade
+    belongs to the frame; translating the frame drags the dissolve down the
+    page with it.
+64. **A header can be a FADE instead of a widget** — a ground-to-transparent
+    wash from the top edge, appearing on scroll. He preferred it to the pill
+    island precisely because it reads as part of the page.
+65. **A horizontal rail must go VERTICAL below the desk.** Wrapped into two
+    rows, the line existed only above the first row and stages 3 and 4 put
+    their numbers inside the text of 1 and 2. Check it with a rectangle
+    intersection test at 1440 / 768 / 392 / 320, not by eye.
+66. **Switching tabs resets what is open underneath them.** A tab you return
+    to should be closed, not remembering the state you left.
+67. **A section can be deleted rather than fixed.** The home page's three
+    service rows became one line on the prices page instead: the detail
+    belongs beside the price it applies to, and the home page was carrying a
+    second, vaguer copy of it.
+
 ### Traps that cost a measurement here, and will again
 25. **`flex: 0 0 min(a,b)` is invalid** — a math function in the shorthand's
     basis drops the whole declaration and the item sizes to content.
