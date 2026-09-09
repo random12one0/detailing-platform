@@ -1,5 +1,20 @@
 # Session A — websites, and nothing else
 
+## READ `docs/tenant-site-playbook.md` FIRST. IT IS THE PLAN.
+
+Everything about how these pages get built lives there, written as
+instructions: the loop, the naming and copy rules, what a photograph owes, the
+section order, navigation and motion, the booking widget, and the verification
+that has actually caught faults here. **It supersedes every older instruction
+in this file about HOW to build.**
+
+What remains below is context: why this session exists, where the reference
+material is, which skills are available, and the ownership rules. **Sections
+0 and 1 are a record of a failure that the playbook already encodes — read
+them for the evidence, not for instructions.**
+
+---
+
 **You are the website session.** You build detailer websites and you improve
 how detailer websites get built. **You do not touch `app/src`, the database,
 the edge functions or the tests** — another session owns those and is probably

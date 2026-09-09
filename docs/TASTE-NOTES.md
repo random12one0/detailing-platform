@@ -1,5 +1,10 @@
 # TASTE-NOTES — what the owner actually likes the look of
 
+> **This file is the EVIDENCE — his own words, in the order he said them.**
+> The instructions distilled from it live in `docs/tenant-site-playbook.md`,
+> which is what to read before building. Come here for a quote, a verdict, or
+> the reasoning behind a rule.
+
 **Started 2026-09-07, from five sites he sent unprompted.** This is the file
 `CLAUDE.md` has said was missing since 2026-09-05: *"what unblocks it is HIS
 taste, not another attempt… two or three detailer sites whose VIBE he likes."*

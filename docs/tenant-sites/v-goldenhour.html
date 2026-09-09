@@ -207,34 +207,46 @@ html.pt-in body{animation:pt-in 320ms var(--e) both}
 }
 .nav a.navbook:hover{color:var(--bone);transform:translateY(-1px)}
 
-/* HERO */
-.hero{padding:26px 30px 0}
-.hero h1{
-  font:800 clamp(46px,7.6vw,112px)/.90 var(--display);
-  font-variation-settings:"wdth" 80;
-  letter-spacing:-.035em;margin:0 0 18px;max-width:17ch;
+/* HERO — the photograph IS the ground (A2 + I1) */
+.hero{
+  position:relative;isolation:isolate;
+  min-height:min(86vh,780px);
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:30px;border-radius:var(--r-card);overflow:hidden;
 }
-/* B1 · the accent-final-word heading — EVERY heading, or none. */
-.hero h1 em,h2 em{font-style:normal;color:var(--cobalt)}
-
-.herolede{display:flex;flex-wrap:wrap;gap:26px 40px;align-items:flex-end;margin-bottom:26px}
-.herolede p{margin:0;max-width:34ch;color:var(--ink-2);font-size:15px}
-
-/* C5 · the stat strip */
-.stats{display:flex;gap:34px;margin-left:auto}
-.stat b{display:block;font:800 30px/1 var(--display);font-variation-settings:"wdth" 86;letter-spacing:-.03em}
-.stat span{font-size:11px;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-2)}
-
-/* A2 · THE PHOTOGRAPH, AT SCALE, ABOVE THE FOLD */
-.shot{position:relative;border-radius:var(--r-card);overflow:hidden;aspect-ratio:16/8.1}
-.shot img{width:100%;height:100%;object-fit:cover;display:block}
-/* A3 · the scrim is sized to the SLOT, so any replacement photo works. */
-.shot::after{
-  content:"";position:absolute;inset:0;pointer-events:none;
+/* SLOT · hero. business_media.hero, else the newest job_photos "after" frame.
+   object-fit:cover on a stated box, so a replacement cannot break the layout. */
+.heroimg{position:absolute;inset:0;z-index:-2}
+.heroimg img{width:100%;height:100%;object-fit:cover;display:block}
+/* A3 · the scrim is sized to the SLOT and strong enough for ANY photograph:
+   .76 where the type sits, thinning to the right where nothing does. */
+.hero::before{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
   background:
-    linear-gradient(180deg,rgba(10,7,4,.46) 0%,rgba(10,7,4,0) 34%),
-    linear-gradient(0deg,rgba(10,7,4,.62) 0%,rgba(10,7,4,0) 44%);
+    linear-gradient(94deg,rgba(10,7,4,.82) 0%,rgba(10,7,4,.76) 46%,rgba(10,7,4,.32) 78%,rgba(10,7,4,.16) 100%),
+    linear-gradient(0deg,rgba(10,7,4,.60) 0%,rgba(10,7,4,0) 42%);
 }
+.hero h1{
+  font:800 clamp(40px,6.6vw,102px)/.94 var(--display);
+  font-variation-settings:"wdth" 80;
+  letter-spacing:-.035em;margin:0 0 18px;max-width:15ch;color:#FBF7F0;
+}
+/* B1 · the accent-final-word heading. A LIGHTER cobalt on the photograph —
+   the page's #1A46DC computes 1.7:1 against this scrim. */
+.hero h1 em{font-style:normal;color:#A8BEFF}
+h2 em{font-style:normal;color:var(--cobalt)}
+
+.herolede{display:flex;flex-wrap:wrap;gap:22px 40px;align-items:flex-end;margin-bottom:22px}
+.herolede p{margin:0;max-width:36ch;color:#DED5C7;font-size:15.5px}
+
+/* C5 · the stat strip, on the photograph */
+.stats{display:flex;gap:34px;margin-left:auto}
+.stat b{display:block;font:800 30px/1 var(--display);font-variation-settings:"wdth" 86;
+  letter-spacing:-.03em;color:#FBF7F0}
+.stat span{font-size:11px;letter-spacing:.10em;text-transform:uppercase;color:#DED5C7}
+/* the tab pages' stat row sits on the light ground and keeps the ink tokens */
+.headstats .stat b{color:var(--ink)}
+.headstats .stat span{color:var(--ink-2)}
 
 /* C1 · availability pill with a live dot — driven by available-slots */
 .pill{
@@ -244,7 +256,7 @@ html.pt-in body{animation:pt-in 320ms var(--e) both}
   font-size:13px;font-weight:600;color:var(--ink);
   box-shadow:0 6px 24px rgba(10,7,4,.20);
 }
-.pill--avail{top:18px;left:18px}
+.pill--avail{top:26px;left:30px}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--live);position:relative}
 .dot::after{
   content:"";position:absolute;inset:-4px;border-radius:50%;
@@ -253,7 +265,7 @@ html.pt-in body{animation:pt-in 320ms var(--e) both}
 @keyframes ping{0%{transform:scale(.6);opacity:.9}70%,100%{transform:scale(1.5);opacity:0}}
 
 /* C2 · review pill with an avatar stack */
-.pill--rev{top:18px;right:18px;padding-left:10px}
+.pill--rev{top:26px;right:30px;padding-left:10px}
 .faces{display:flex}
 .faces i{
   width:23px;height:23px;border-radius:50%;display:block;
@@ -263,7 +275,7 @@ html.pt-in body{animation:pt-in 320ms var(--e) both}
 
 /* C3 · the frosted trust bar ON the photograph */
 .trust{
-  position:absolute;left:18px;right:18px;bottom:18px;z-index:2;
+  position:relative;z-index:2;margin-top:6px;
   display:flex;flex-wrap:wrap;gap:10px 30px;align-items:center;
   background:rgba(18,13,8,.64);backdrop-filter:blur(16px) saturate(1.2);
   border:1px solid rgba(255,255,255,.16);
@@ -832,6 +844,79 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
 @media (max-width:760px){.pricerow{padding:44px 16px 0}.pbox{padding:20px}}
 @media (min-width:761px) and (max-height:500px){.pricerow{grid-template-columns:1fr}}
 
+/* Book carries a standing glow on both surfaces — his note: "have some
+   something that makes Book just a little more nicer, kinda giving your
+   attention." A breathing shadow, no layout, off under reduced motion. */
+@keyframes bookglow{
+  0%,100%{box-shadow:0 0 0 0 rgba(26,70,220,.34),0 6px 18px rgba(23,19,14,.14)}
+  50%    {box-shadow:0 0 0 7px rgba(26,70,220,0),0 6px 22px rgba(23,19,14,.20)}
+}
+.nav a.navbook{animation:bookglow 3.2s var(--e) infinite}
+.dock a.bk{
+  background:var(--ink);color:var(--bone);
+  animation:bookglow 3.2s var(--e) infinite;
+}
+.dock a.bk[aria-current]{color:var(--bone)}
+@media (prefers-reduced-motion:reduce){
+  .nav a.navbook,.dock a.bk{animation:none;box-shadow:0 0 0 3px rgba(26,70,220,.26)}
+}
+
+/* ═══ REVIEWS, COMPACT ═════════════════════════════════════════════════
+   Three short ones in one row. "Make it so the reviews don't take up as much
+   space, but still, you know, reviews." */
+.says{padding:6px 30px 66px}
+.saysrail{
+  display:grid;grid-template-columns:auto repeat(3,minmax(0,1fr));
+  gap:0;align-items:stretch;
+  border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);
+}
+.sayslede{
+  margin:0;padding:22px 26px 22px 0;display:flex;flex-direction:column;
+  justify-content:center;gap:3px;white-space:nowrap;
+}
+.sayslede b{font:800 34px/1 var(--display);font-variation-settings:"wdth" 86;letter-spacing:-.03em}
+.sayslede span{font-size:12.5px;color:var(--ink-2)}
+.sayslede .stars{color:var(--amber-ink);letter-spacing:1px;font-size:13px}
+.says figure{
+  margin:0;padding:22px 22px;border-left:1px solid var(--hair);
+  transition:background 220ms var(--e);
+}
+.says figure:hover{background:rgba(23,19,14,.035)}
+.says blockquote{margin:0 0 10px;font-size:14.5px;font-style:italic;color:var(--ink)}
+.says figcaption{font-size:12px;color:var(--ink-2)}
+
+/* ═══ THE WARNING FLAGS ════════════════════════════════════════════════
+   "Really quick to-the-point warnings, not a paragraph that the person has
+   to read." No sentences, no full stops. */
+.flags{list-style:none;margin:26px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.flags li{
+  display:flex;align-items:center;gap:9px;
+  background:rgba(0,0,0,.30);border:1px solid rgba(255,255,255,.13);
+  border-radius:999px;padding:9px 16px 9px 12px;
+  font-size:13px;color:var(--paper-2);
+}
+.flags li::before{
+  content:"!";display:grid;place-items:center;flex:none;
+  width:17px;height:17px;border-radius:50%;
+  background:rgba(255,168,64,.24);color:var(--amber);
+  font:700 11px/1 var(--body);
+}
+@media (max-width:900px){
+  .saysrail{grid-template-columns:1fr 1fr}
+  .sayslede{grid-column:1/-1;padding:20px 0;flex-direction:row;align-items:baseline;gap:12px;
+    border-bottom:1px solid var(--hair)}
+  .says figure:nth-child(2){border-left:0}
+}
+@media (max-width:760px){
+  .says{padding:0 16px 52px}
+  .saysrail{grid-template-columns:1fr}
+  .says figure{border-left:0;border-top:1px solid var(--hair);padding:18px 0}
+  .says figure:nth-child(2){border-top:0}
+}
+@media (min-width:761px) and (max-height:500px){
+  .saysrail{grid-template-columns:1fr 1fr}
+}
+
 /* ═══ RESPONSIVE ═══════════════════════════════════════════════════════ */
 @media (max-width:1000px){
   .tiles{grid-template-columns:repeat(2,1fr);grid-auto-rows:150px}
@@ -895,20 +980,17 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
   .shell{margin:8px;border-radius:20px}
   .nav{padding:14px 16px;gap:14px}
   .navlinks{display:none}
-  .hero{padding:22px 16px 0}
+  .hero{padding:20px 16px;min-height:min(92vh,700px);border-radius:20px}
   /* F2 · the photograph moves BELOW the text — a different layout, not a
      squeezed one. Clean ground for the headline, a taller photo underneath. */
   .hero h1{max-width:none;margin-bottom:16px}
   .herolede{gap:18px;margin-bottom:18px}
   .stats{margin-left:0;gap:24px}
-  .shot{aspect-ratio:4/5}
-  .trust{
-    position:static;flex-direction:column;align-items:stretch;gap:12px;
-    margin-top:10px;background:rgba(23,19,14,.055);backdrop-filter:none;
-    border:1px solid var(--hair);color:var(--ink);
-  }
+  /* F2 · the phone gets a DIFFERENT layout, not a squeezed one — the photo
+     is still the ground, the hero is taller, and the trust bar stacks on it. */
+  .trust{flex-direction:column;align-items:stretch;gap:12px;margin-top:12px}
   .trust .sep{display:none}
-  .trust .cta{margin-left:0;width:100%;text-align:center;background:var(--ink);color:var(--bone)}
+  .trust .cta{margin-left:0;width:100%;text-align:center}
   .pill--rev{display:none}
 
   .dock{
@@ -955,6 +1037,10 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
   </nav>
 
   <header class="hero">
+    <div class="heroimg" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1751661527885-28d46835fcd1?fm=jpg&amp;fit=crop&amp;w=2400&amp;h=1500&amp;q=78"
+           alt="A car photographed in low evening sun after detailing.">
+    </div>
     <h1>Mobile auto detailing <em>across North Seattle.</em></h1>
 
     <div class="herolede">
@@ -967,12 +1053,6 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
         <div class="stat"><b>6 yrs</b><span>On the road</span></div>
       </div>
     </div>
-
-    <!-- SLOT · hero. Filled by business_media.hero, else the newest job_photos
-         "after" frame. 16:8.1 on the desk, 4:5 on a phone. -->
-    <div class="shot">
-      <img src="https://images.unsplash.com/photo-1751661527885-28d46835fcd1?fm=jpg&amp;fit=crop&amp;w=2000&amp;h=1013&amp;q=78"
-           alt="A detailed car photographed in low evening sun.">
 
       <span class="pill pill--avail" data-from="available-slots">
         <span class="dot"></span> Available today &middot; 2 slots
@@ -993,9 +1073,8 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
         <span><b>Price before you book</b> — it does not change on the day</span>
         <span class="sep"></span>
         <span><b>Insured to $2m</b></span>
-        <a class="cta" href="#book">Get a price</a>
+        <a class="cta" href="#book">Book now</a>
       </div>
-    </div>
   </header>
 
   <!-- ═══ 3 · SERVICE AREA ═══════════════════════════════════════════════
@@ -1023,6 +1102,25 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
     </p>
   </section>
 
+
+
+  <!-- Compact by design — three short ones in one row, not a testimonial
+       section. C5's sibling: proof where somebody is still deciding. -->
+  <section class="says" aria-label="What customers say">
+    <div class="saysrail" data-from="testimonials">
+      <p class="sayslede"><b>4.9</b> from <span>312 reviews</span>
+         <span class="stars" aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</span></p>
+      <figure><blockquote>&ldquo;Booked Tuesday, done Thursday, and the car
+        looked better than the day I got it.&rdquo;</blockquote>
+        <figcaption>Marcus T. &middot; Green Lake</figcaption></figure>
+      <figure><blockquote>&ldquo;Turned up on time and worked around my
+        neighbour&rsquo;s car without being asked.&rdquo;</blockquote>
+        <figcaption>Dana R. &middot; Ballard</figcaption></figure>
+      <figure><blockquote>&ldquo;Quoted $219, paid $219. That is rarer than it
+        should be.&rdquo;</blockquote>
+        <figcaption>Peter H. &middot; Wallingford</figcaption></figure>
+    </div>
+  </section>
 
   <!-- ═══ 8 · FAQ ════════════════════════════════════════════════════════
        The objections a mobile detailer actually gets. Its shape is a
@@ -1268,10 +1366,9 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
 
 <nav class="dock" aria-label="Sections">
   <span class="ind" aria-hidden="true"></span>
-  <a href="v-goldenhour.html" aria-current="page">Home</a>
   <a href="v-goldenhour-work.html">Work</a>
   <a href="v-goldenhour-prices.html">Prices</a>
-  <a href="#book">Book</a>
+  <a class="bk" href="#book">Book</a>
 </nav>
 
 <script>
@@ -1496,7 +1593,8 @@ var REDUCED = matchMedia("(prefers-reduced-motion:reduce)").matches;
   var dock = document.querySelector(".dock");
   if (!dock) return;
   var ind = dock.querySelector(".ind"), cur = dock.querySelector("a[aria-current]");
-  if (!ind || !cur) return;
+  if (!ind) return;
+  if (!cur) { ind.style.display = "none"; return; }   /* home page: no tab is current */
   function place(){
     var d = dock.getBoundingClientRect(), a = cur.getBoundingClientRect();
     if (!a.width) return;
