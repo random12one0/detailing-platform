@@ -222,3 +222,47 @@ metro, because two sites naming the same towns read as one page.
 
 **Every price on the built page carries `data-from`** naming the endpoint that
 owns it. *A number PRINTED is not a number CHARGED.*
+
+## 11. THE COPY, AS A COLUMN OF HEADINGS — written before the HTML
+
+Playbook rule 46: print every heading in page order and read them as a column.
+Ten of site 3's eleven were phrases and that is invisible while reading the page
+section by section. **Every one below is a label. None is a phrase, none counts
+anything (rule 49), and none restates the label above it (rule 47).**
+
+```
+ h1   Mobile detailing and paint protection across Chicago
+ h2   Services
+ h2   Detailing packages
+ h2   How a visit runs
+ h2   Recent work
+ h2   Service area
+ h2   Questions
+ h2   Book a detail
+```
+
+**Eight headings. No numbers in any of them.** "Five services" and "Sixteen
+towns" are exactly the headings site 3 had to rewrite.
+
+### The sentences that are allowed to exist
+
+Rule 9: delete any sentence that adds no fact. Rule 48: never sell the baseline
+— *"we bring water and power"* is the job, not a reason to book.
+
+- **Hero paragraph** — carries three facts and no adjectives: how many services,
+  how the prices are structured, where the work happens.
+- **Each service** gets one sentence naming what it protects against and one
+  naming the turnaround. Nothing that repeats the service's own name.
+- **Each package** carries its real inclusion list and nothing narrating it.
+- **The disclaimer sits on the price table**, in Chicago's own shape:
+  *"Prices start here and depend on vehicle size and condition at inspection."*
+- **The FAQ answers are the real seven**, cut to the facts.
+
+### What is banned on this page specifically
+
+- Any variant of *"we come to you"* as a selling line. It is the trade.
+- A rating / years / cars-done proof row (rule 36) — sites 1, 2 and 3 all had
+  one and he recognised it across all three. **Proof here is the three-figure
+  frosted bar ON the photograph, and it counts different things**: the review
+  count, the maintenance turnaround, and the installer certification.
+- A heading that would work as a band name (rule 8).
