@@ -247,7 +247,7 @@ p{margin:0 0 12px;max-width:56ch}
    A different SHAPE from every other section: a single line of large towns
    that wraps, with the outliers carrying their own travel note. */
 .area{padding:56px 0 10px}
-.towns{display:flex;flex-wrap:wrap;gap:10px 26px;align-items:baseline;margin:14px 0 0;
+.towns{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;margin:14px 0 0;
   font:900 clamp(24px,4.4vw,44px)/1.1 Chivo,sans-serif;letter-spacing:-.03em}
 .towns span{color:var(--fg2);font-weight:400;font-size:14px;letter-spacing:0;
   font-family:"Chivo Mono",ui-monospace,monospace}
@@ -367,12 +367,19 @@ tbody tr:last-child td{border-bottom:0}
 .rail{display:flex;gap:12px;overflow-x:auto;padding:4px 0 14px;margin-top:18px;
   scrollbar-width:none;-ms-overflow-style:none}
 .rail::-webkit-scrollbar{display:none}
-.rail .q{flex:0 0 min(320px,72vw);padding:18px;border-color:var(--edge)}
+/* `flex: 0 0 min(320px,72vw)` IS INVALID — a math function in the basis of the
+   shorthand drops the WHOLE declaration, so the cards fell back to `0 1 auto`
+   and sized to their content at 400px. That is the real reason only one review
+   showed on a phone. Measured: card pitch 412px where 332 was intended. */
+/* `blockquote` carries a UA margin of 1em 40px, so the cards sat 412px apart
+   where 332 was intended and the flex `gap` was doing almost nothing. Measured
+   off the offsets, not the stylesheet. */
+.rail .q{flex:0 0 auto;width:min(320px,72vw);padding:18px;margin:0;border-color:var(--edge)}
 .rail .q p{font-size:14.5px;margin:8px 0 10px}
 
 /* ══ 9 · FAQ — two columns on a desk, an accordion everywhere ═══════════ */
 .faq{padding:64px 0 10px}
-.qs{columns:2;column-gap:26px;margin-top:20px}
+.qs{display:grid;grid-template-columns:1fr 1fr;gap:0 26px;align-items:start;margin-top:20px}
 details{break-inside:avoid;margin:0 0 10px;border:1px solid var(--rule);
   border-radius:var(--r-card);background:var(--glass);
   transition:border-color var(--t-hov) var(--e-hov)}
@@ -489,12 +496,16 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
 .rail-nav{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:65;
   display:none;flex-direction:column;gap:2px}
 .rail-nav a{display:flex;align-items:center;gap:9px;justify-content:flex-end;
-  padding:6px 4px;text-decoration:none;color:var(--fg2);
-  font:600 12px Chivo,sans-serif;transition:color var(--t-hov) var(--e-hov)}
-.rail-nav span{opacity:0;transform:translateX(6px);
-  transition:opacity var(--t-hov) var(--e-hov),transform var(--t-hov) var(--e-hov)}
-.rail-nav a:hover span,.rail-nav a.here span{opacity:1;transform:none}
-.rail-nav a:hover,.rail-nav a.here{color:var(--fg)}
+  padding:6px 0;text-decoration:none;color:var(--fg2);
+  font:600 12px Chivo,sans-serif;
+  /* the row sits INWARD and the current one travels OUTWARD, toward the edge */
+  transform:translateX(-8px);
+  transition:color var(--t-hov) var(--e-hov),transform var(--t-in) var(--e-in),
+             opacity var(--t-hov) var(--e-hov);
+  opacity:.62}
+.rail-nav span{white-space:nowrap}
+.rail-nav a:hover{opacity:1;color:var(--fg);transform:translateX(-4px)}
+.rail-nav a.here{opacity:1;color:var(--fg);transform:translateX(0)}
 .rail-nav i{width:9px;height:9px;border-radius:50%;flex:0 0 auto;
   border:1.5px solid var(--edge);
   transition:background var(--t-hov) var(--e-hov),border-color var(--t-hov) var(--e-hov),
@@ -536,7 +547,7 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
   .rail-nav{display:flex}
 }
 @media (max-width:760px),(max-height:499px){
-  .qs{columns:1}
+  .qs{grid-template-columns:1fr}
 }
 /* F2 · THE PHONE GETS A DIFFERENT LAYOUT, NOT A SQUEEZED ONE. On the desk
    the photograph sits beside the headline; on the phone the headline gets
@@ -652,7 +663,7 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
       <p class="m m--q">Service area</p>
       <h2 id="area-h">Where we <em>cover</em>.</h2>
       <div class="towns" data-from="get_public_business_profile.service_area">
-        <i>Phoenix</i><i>Scottsdale</i><i>Tempe</i><i>Mesa</i><i>Chandler</i>
+        <i>Phoenix,</i><i>Scottsdale,</i><i>Tempe,</i><i>Mesa,</i><i>Chandler</i>
       </div>
       <!-- TRAVEL IS A RADIUS. His note: "most detailers don't really work that
            way, it's more of a radius." -->
@@ -848,14 +859,14 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
                alt="A rotary polisher being worked across a panel" loading="lazy">
         </div>
         <div class="body">
-          <h3>2019 Ford F-150 &middot; Gilbert</h3>
+          <h3>2019 Ford F-150 &middot; Scottsdale</h3>
           <p class="did">Compound and refine on the whole truck. Buffer trails
              from a previous shop taken out.</p>
           <div class="rev" data-from="the detailer's Google reviews">
             <span class="stars" aria-hidden="true">★★★★★</span>
             <p>“Showed me the paint under the light before and after. I could
                actually see what I was paying for.”</p>
-            <p class="who">Dana W. &middot; Gilbert</p>
+            <p class="who">Dana W. &middot; Scottsdale</p>
           </div>
         </div>
       </article>
@@ -921,7 +932,7 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
           <span class="stars" aria-hidden="true">★★★★★</span>
           <p>“Third detailer I've used out here and the first one who measured
              anything.”</p>
-          <p class="who">Ben K. &middot; Queen Creek</p>
+          <p class="who">Ben K. &middot; Phoenix</p>
         </blockquote>
         <blockquote class="panel q">
           <span class="stars" aria-hidden="true">★★★★☆</span>
@@ -1051,9 +1062,9 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
               <input type="text" placeholder="Street, city" autocomplete="street-address"></label>
             <label class="fld">Travel zone
               <select data-from="get_public_business_profile.travel_zones">
-                <option>Mesa, Gilbert, Chandler, Tempe — no travel charge</option>
-                <option>Queen Creek — +$25</option>
-                <option>Apache Junction — +$25</option>
+                <option>Inside 25 miles of central Phoenix — no travel charge</option>
+                <option>25 to 40 miles — $1.50 a mile</option>
+                <option>Over 40 miles — call us</option>
               </select></label>
           </div>
 
@@ -1170,11 +1181,11 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
      It shows WHERE YOU ARE and moves you; the sticky header carries the one
      call to action. Hidden on a phone, which has the dock. -->
 <nav class="rail-nav" aria-label="Sections">
-  <a href="#top"><i></i><span>Top</span></a>
-  <a href="#process"><i></i><span>Process</span></a>
-  <a href="#packages"><i></i><span>Prices</span></a>
-  <a href="#work"><i></i><span>Work</span></a>
-  <a href="#book"><i></i><span>Book</span></a>
+  <a href="#top"><span>Top</span><i></i></a>
+  <a href="#process"><span>Process</span><i></i></a>
+  <a href="#packages"><span>Prices</span><i></i></a>
+  <a href="#work"><span>Work</span><i></i></a>
+  <a href="#book"><span>Book</span><i></i></a>
 </nav>
 
 <!-- ═══ THE DOCK — I2, and it says WHERE YOU ARE ═══════════════════════ -->
@@ -1296,46 +1307,46 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
     document.querySelectorAll("[data-roll]").forEach(function(el){ rio.observe(el); });
   }
 
-  /* ── THE DOCK'S CURRENT STATE. The indicator is sized from the link's OWN
-     box, so one set of numbers covers 320 and 430. A row of links that never
-     indicates position is a menu, not navigation. */
-  var dock = document.querySelector(".dock");
-  if (dock) {
-    var links = [].slice.call(dock.querySelectorAll("a"));
-    var ind = dock.querySelector(".ind");
-    function place(a){
-      if (!a) return;
-      ind.style.width = a.offsetWidth + "px";
-      ind.style.transform = "translateX(" + a.offsetLeft + "px)";
-      links.forEach(function(l){ l.classList.toggle("here", l === a); });
-    }
+  /* ── WHERE YOU ARE, ANSWERED ONCE FOR BOTH NAVIGATIONS.
+     The current section is the LAST one whose top has passed the reading line
+     (a third of the way down), and "none of them yet" is a real answer that
+     puts you on Top. An IntersectionObserver cannot say this: #top is <main>
+     and wraps the whole page, so it always intersects and the indicator got
+     stuck on whichever section fired last. */
+  function trackNav(root, links, opts){
+    if (!root) return;
     var secs = links.map(function(a){ return document.querySelector(a.getAttribute("href")); });
-    var sio = new IntersectionObserver(function(es){
-      es.forEach(function(e){
-        if (!e.isIntersecting) return;
-        var i = secs.indexOf(e.target);
-        if (i > -1) place(links[i]);
-      });
-    }, { rootMargin: "-45% 0px -45% 0px" });
-    secs.forEach(function(s){ if (s) sio.observe(s); });
-    addEventListener("resize", function(){ place(dock.querySelector("a.here")); });
+    var line = function(){ return innerHeight * 0.34; };
+    var current = -1;
+    function pick(){
+      var at = 0;                       // default to the first link (Top)
+      for (var i = 1; i < secs.length; i++) {
+        if (secs[i] && secs[i].getBoundingClientRect().top <= line()) at = i;
+      }
+      // the last section counts as current once the page is at its end
+      if (scrollY + innerHeight >= document.documentElement.scrollHeight - 4)
+        at = secs.length - 1;
+      if (at === current) return;
+      current = at;
+      links.forEach(function(l, j){ l.classList.toggle("here", j === at); });
+      if (opts && opts.indicator) {
+        var a = links[at];
+        opts.indicator.style.width = a.offsetWidth + "px";
+        opts.indicator.style.transform = "translateX(" + a.offsetLeft + "px)";
+      }
+    }
+    addEventListener("scroll", pick, { passive: true });
+    addEventListener("resize", function(){ current = -1; pick(); });
+    pick();
   }
 
-  /* ── THE SIDE RAIL SAYS WHERE YOU ARE, the same job the dock does on a
-     phone and by the same observer. */
-  var rnav = document.querySelector(".rail-nav");
-  if (rnav) {
-    var rl = [].slice.call(rnav.querySelectorAll("a"));
-    var rsec = rl.map(function(a){ return document.querySelector(a.getAttribute("href")); });
-    var rio2 = new IntersectionObserver(function(es){
-      es.forEach(function(e){
-        if (!e.isIntersecting) return;
-        var i = rsec.indexOf(e.target);
-        if (i > -1) rl.forEach(function(l, j){ l.classList.toggle("here", j === i); });
-      });
-    }, { rootMargin: "-45% 0px -45% 0px" });
-    rsec.forEach(function(x){ if (x) rio2.observe(x); });
+  var dock = document.querySelector(".dock");
+  if (dock) {
+    trackNav(dock, [].slice.call(dock.querySelectorAll("a")),
+             { indicator: dock.querySelector(".ind") });
   }
+  var rnav = document.querySelector(".rail-nav");
+  if (rnav) trackNav(rnav, [].slice.call(rnav.querySelectorAll("a")));
 
   /* ── THE REVIEW RAIL AUTO-SCROLLS. His note: the desktop scrollbar was ugly
      (now hidden in CSS) and "once you get to it, waits like a second and then
@@ -1344,40 +1355,47 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
      under reduced motion. */
   var rail = document.querySelector(".rail");
   if (rail && !LITE) {
-    var auto = null, killed = false;
-    var stop = function(){ killed = true; if (auto) cancelAnimationFrame(auto); };
-    ["pointerdown","wheel","touchstart","keydown"].forEach(function(ev){
-      rail.addEventListener(ev, stop, { passive: true, once: true });
+    var set = [].slice.call(rail.children);
+    set.forEach(function(n){
+      var c = n.cloneNode(true);
+      c.setAttribute("aria-hidden", "true");   // a screen reader reads them once
+      rail.appendChild(c);
     });
-    rail.addEventListener("pointerenter", function(){ if (auto) cancelAnimationFrame(auto); });
-    rail.addEventListener("pointerleave", function(){ if (!killed) run(); });
-    var run = function(){
-      var last = performance.now();
-      // THE POSITION IS KEPT IN A FLOAT, NOT READ BACK OFF scrollLeft. At 60fps
-      // 22px/s is 0.37px per frame; scrollLeft quantises that to zero, so a
-      // version that did `scrollLeft = scrollLeft + dt*k` accumulated NOTHING —
-      // it ran every frame, threw nothing, and moved the rail 0px. Measured by
-      // writing scrollLeft and reading it back; no other instrument sees it.
-      var pos = rail.scrollLeft;
-      (function step(now){
-        if (killed) return;
-        var dt = Math.min(now - last, 50); last = now;
-        var max = rail.scrollWidth - rail.clientWidth;
-        if (max <= 0) { auto = requestAnimationFrame(step); return; }
-        pos += dt * 0.022;                 // 22 px a second — slower than reading
-        if (pos >= max) pos = 0;
-        rail.scrollLeft = pos;
-        auto = requestAnimationFrame(step);
-      })(last);
+    // exactly one set's advance — NOT scrollWidth/2, which is out by half a gap
+    var lap = function(){
+      return rail.children[set.length].offsetLeft - rail.children[0].offsetLeft;
     };
+    var pos = 0, auto = null, paused = true, idle = null;
+    function step(now){
+      var dt = Math.min(now - (step.last || now), 50); step.last = now;
+      if (!paused) {
+        var L = lap();
+        // the position is a float: 0.37px a frame quantises to zero if you
+        // read it back off scrollLeft, which is how the first version ran
+        // every frame and moved the rail nothing at all.
+        if (L > 0) { pos += dt * 0.022; if (pos >= L) pos -= L; rail.scrollLeft = pos; }
+      }
+      auto = requestAnimationFrame(step);
+    }
+    function hold(){
+      paused = true;
+      clearTimeout(idle);
+      idle = setTimeout(function(){ pos = rail.scrollLeft; paused = false; }, 2500);
+    }
+    ["pointerdown","wheel","touchstart","keydown"].forEach(function(ev){
+      rail.addEventListener(ev, hold, { passive: true });
+    });
+    rail.addEventListener("pointerenter", function(){ paused = true; clearTimeout(idle); });
+    rail.addEventListener("pointerleave", hold);
     var railIO = new IntersectionObserver(function(es){
       es.forEach(function(e){
         if (!e.isIntersecting) return;
         railIO.disconnect();
-        setTimeout(function(){ if (!killed) run(); }, 1000);
+        setTimeout(function(){ pos = rail.scrollLeft; paused = false; }, 1000);
       });
     }, { threshold: .35 });
     railIO.observe(rail);
+    auto = requestAnimationFrame(step);
   }
 
   /* ── THE VEHICLE-SIZE LADDER. It ASKS and never computes — on a real site

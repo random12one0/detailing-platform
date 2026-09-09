@@ -1597,202 +1597,109 @@ little on it.
 
 ---
 
-# BATCH 4 — THE SITE 2 INTERVIEW, 2026-09-08
-
-**The first time the direction gate in `docs/tenant-site-playbook.md` § 1 was
-actually used.** Four tappable questions, each carrying a recommendation. He
-answered all four, and **he overruled the first one**, which is the useful part
-— his refusals are worth more than his approvals.
-
-| Question | His answer | What I had recommended |
-|---|---|---|
-| What kind of detailer is site 2? | **"Another mobile detailer, different flavour"** | A fixed shop doing ceramic + paint correction |
-| Light page or dark page? | **"Dark, made of light"** | same |
-| Which two of your 21 should it sit near? | **`authkit` × `auxia`** | same |
-| One page or several? | **"One long page with jump links"** | same |
-
-## WHAT THE OVERRULE MEANS, AND IT IS A REAL CONSTRAINT
-
-I recommended a fixed shop specifically to put maximum distance between site 1
-and site 2 without leaving the trade. **He chose a second mobile detailer**, so
-the BUSINESS TYPE can no longer carry any of the variety.
-
-**That is not a smaller job, it is a harder one.** Everything §5 of the playbook
-lists as what must differ between two sites — section order, ground, type,
-shapes, page count — now has to carry the entire difference on its own, with the
-two pages selling the identical service to the identical customer. A recoloured
-copy is the recorded cause of the first failure in this project and this is the
-single most likely place for it to happen again.
-
-**The answer taken:** the FLAVOUR of mobile detailer differs. Site 1 is a
-generalist at your kerb in the afternoon. Site 2 is a **paint-correction and
-coating specialist who works after dark under his own lighting rig**, in Mesa,
-Arizona, where nobody polishes at noon for half the year. The dark ground is
-then a fact about the business rather than a styling choice — which is the test
-§2 of the scheme template sets for a subject.
-
-Scheme: `docs/schemes/delgado-mobile-detailing-scheme.md`. Awaiting his yes.
-
-## BATCH 4b — "I WANT ALL VISUAL, BARELY ANY TEXT" (2026-09-08)
-
-Handed the filled scheme for site 2 as a written paragraph plus a link to the
-markdown file, he answered:
-
-> *"I don't know what the prompt was, but what you gave me is just text, and I
-> want, like, visual. Like, I want all visual, actually. Like, barely any text,
-> all visual. Right now, you just gave me text."*
-
-**AND HE IS RIGHT ABOUT THE FORM OF THE THING, NOT JUST THE MESSAGE.** A style
-tile is a VISUAL artefact — that is the entire point of Samantha Warren's
-format, which `docs/DESIGN-SCHEME-TEMPLATE.md` cites by name in its own header:
-colour swatches, a type specimen, textures, buttons, on one board a client
-LOOKS at. **The template turned it into a 300-line prose document and the
-approval step turned it into reading.** The gate was invented so he could
-approve a direction cheaply; a document he has to read on a phone is not cheap.
-
-**THE RULE THAT FOLLOWS, AND IT BINDS EVERY SITE FROM HERE:**
-
-**The scheme's APPROVAL ARTEFACT IS A RENDERED IMAGE, NOT THE MARKDOWN FILE.**
-Three frames at 620x870, sent with `SendUserFile`:
-
-1. **The face** — the real ground with its real treatment, the wordmark, the
-   headline at its actual size with the accent word in it, the real buttons,
-   the availability chip, the stat strip, and the hero photograph in its slot.
-2. **The parts** — colour swatches as blocks, the type specimen at 76px beside
-   15px body, panels in their real states, the controls, and a sketch of the
-   page's one signature device.
-3. **The photographs** — the shortlist, with the rejections named underneath.
-
-**The markdown file still gets written and still holds the reasoning** — the
-contrast arithmetic, the device list, the refusals. It is the record. **It is
-not what he is asked to approve.** He approves the picture.
-
-**Also, and separately: a 800x1240 PNG did not load for him** (*"not loading"*).
-The CLAUDE.md rule says the limit is the image's HEIGHT. **870 is the working
-ceiling observed so far; 1240 is not.** Frames, not one tall board.
 
 ---
 
-# BATCH 4c — SITE 2, HIS FULL CRITIQUE, 2026-09-08
+# SITE 2 — DELGADO. WHAT HE DECIDED, AS INSTRUCTIONS. 2026-09-08
 
-**The most useful message in this file.** Fifteen separate notes on one page he
-was looking at, and the largest is not about this page at all.
+**Format rule, his, and it applies to this whole file from here on:** *"You
+should convert all of what I say into precise instruction, formatted nicely, so
+the next session can read fast."* **Do not paste transcripts.** Quote him only
+where the quote IS the rule and is shorter than the paraphrase.
 
-## THE HEADLINE FINDING — COPY IS THE FAILING SUBSYSTEM, IN HIS OWN WORDS
+## 1 · WHAT HE CHOSE, WHEN ASKED
 
-> *"I think that's the only place that I've had the most trouble with is your
-> text generation for websites. And we really need to work on this."*
+Four questions, four answers. He overruled one recommendation, and the overrule
+is the constraint the site was built against.
 
-> *"Right off the bat, we have this thing called paint after dark. What the hell
-> does that mean? Like, what? … I guess it has something to do with polishing or
-> detailing, whatever that… but it's too creative. It's too startup. It's too AI
-> AI looking."*
-
-> *"The first bold thing should be explaining what this is… it should just be
-> Mobile paint correction and ceramic coating. That should just be it right
-> there. And then this we bring the lights, not necessary, not needed. **I'm
-> trying to get all of the AI fluff out of here as possible.**"*
-
-**AND HE SAID HE HAD RAISED IT BEFORE AND EXPECTED IT LOGGED:** *"I went over
-this before with the previous session, and I thought this was logged about your
-wordings on stuff, not being AI and not kind of overdoing it and not trying to
-be creative with it, but more straightforward."* It IS logged — playbook § 3,
-rule 4, *"Be literature"* — **and site 2 broke it in every heading anyway.**
-A rule in a file that the build does not follow is not a rule.
-
-### THE RULE, RESTATED SO IT CANNOT BE MISREAD
-
-**THE H1 IS THE SERVICE AND THE PLACE. Not a phrase, not an image, not a
-mood.** *Mobile paint correction and ceramic coating.* If a heading would work
-as a band name, it is wrong. Every heading he named:
-
-| What was there | What he said |
+| Question | His answer |
 |---|---|
-| **Paint, after dark.** | *"What the hell does that mean… too creative, too startup, too AI"* |
-| **We bring the lights.** | *"Not necessary, not needed"* |
-| **What the light shows.** | *"Such an unnecessary title… basically every title here is just not it"* |
-| **Cars we have had under the lights.** | *"Not needed. It should just be cars we've corrected or something, straight to the point"* |
-| **The awkward questions.** | *"Again, another title that's weird"* |
-| **Anywhere with a driveway.** | *"Rephrase that to be more strict to the point"* |
-| *"Power and water come off the van. A flat driveway and about eight feet round the car is all we need."* | *"That doesn't make sense… a lot of driveways aren't flat. I don't know what this text is doing either. The majority of it is just text. **It feels like gibberish, not thought through.**"* |
+| Kind of detailer | **Another mobile detailer** — not the fixed shop I recommended |
+| Light or dark | **Dark, made of light** |
+| Which two of his 21 | **`authkit` × `auxia`** |
+| Page count | **One page, jump links** |
 
-**And the fix he named is research, which he has now asked for twice:** *"that's
-one of the things I wanted you to kind of analyze actual detailers so I could
-see what they have text wise on their website."*
-**`docs/tenant-site-source-data-2026-09-08.md` ALREADY HAS IT** — real FAQ
-questions, real condition disclaimers, real service names, pulled off ten live
-sites — **and site 2 was written without opening it.**
+**Consequence:** with two mobile detailers in the set, the trade carries none of
+the variety. Ground, type, shape, section order and page count carry all of it.
 
-## THE PREMISE ITSELF IS QUESTIONED
+## 2 · COPY — THE FAILING SUBSYSTEM, AND HE SAID SO
 
-> *"Is this whole point that they only work at night? I feel like no car
-> detailer would actually do that. I'm gonna have, like, oh, you know, we only
-> do this type of thing at these temperatures or something."*
+> *"The only place I've had the most trouble with is your text generation for
+> websites. And we really need to work on this."*
 
-**So the night story is out as the PITCH.** He likes the dark look and said so
-first — *"I liked how it looks to start… just the theming of it. You did good"*
-— so the ground stays and the story goes. **A subject may drive art direction
-and must never become the sales copy.**
+**Rules, in force for every site:**
 
-## A RULE FOR EVERY SITE, NOT JUST THIS ONE
+1. **The H1 states the service.** *Mobile paint correction and ceramic coating.*
+   Not a phrase, not an image, not a mood. He rejected *"Paint, after dark"* as
+   *"too creative, too startup, too AI."*
+2. **Every heading is a label, not a line.** *How a paint correction works*, not
+   *What the light shows*. *Cars we have corrected*, not *Cars we have had under
+   the lights*. *Questions we get asked*, not *The awkward questions*.
+3. **Delete any sentence that adds no fact.** *"We bring the lights"* went.
+   *"Power and water come off the van, a flat driveway and eight feet round the
+   car"* went — *"a lot of driveways aren't flat… it feels like gibberish, not
+   thought through."*
+4. **Write copy from `docs/tenant-site-source-data-2026-09-08.md`**, which holds
+   real FAQs, disclaimers and service names off ten live detailer sites. Site 2
+   was written without opening it and every FAQ had to be replaced.
+5. **A subject may drive art direction and must never become the sales copy.**
+   The dark ground stayed because he liked it; the night STORY was cut because
+   he did not believe it — *"no car detailer would actually do that."*
+6. **Places must be real and recognisable.** Real Arizona suburbs read as
+   invented to him. Name a metro a stranger knows.
+7. **Travel is a radius**, not a per-town surcharge. *"Most detailers don't work
+   that way."*
+8. **Every city named anywhere must be one the service area lists.**
+9. **A heading must not count things** — *"Three levels of correction"* became
+   false the moment a fourth package was added.
+10. **Numbers and lists get commas.** Run-on lists are harder to read on a phone.
 
-> *"One thing I changed is the header to stay sticky at the top… **I think for
-> every single site, there should be some sort of sticky top bar. Or it doesn't
-> have to be the top. It could be top, it could be bottom, it could be on the
-> side. Something. Just some way where something stays no matter where you are
-> in the site.**"*
+**Enforced by `tests/tenant-sites.test.mjs` check 9:** a home page whose `<h1>`
+names no service fails. Baselined against *"Paint, after dark"* — and the first
+version PASSED it because the word list included bare *paint*. A material is not
+a service.
 
-> *"There's, like, a little sticky thing at the bottom, like the other site. Why
-> isn't there one like that on the desktop version… **I think on the side will
-> look cool because there's just kind of empty space there.**"*
+## 3 · STRUCTURE AND BEHAVIOUR
 
-## THE REST, IN ORDER
+1. **Something stays on screen, on every site.** *"Top, bottom, or the side.
+   Something. Just some way where something stays no matter where you are."*
+   Desk gets a sticky header plus a side rail; phone gets the dock.
+2. **A position indicator shows all its labels, always**, sits flush on one
+   axis, and the current one travels outward while the rest sit inward.
+3. **Never list the packages twice.** Prices are stated once, in the prices
+   section. The work section is reviews with photographs — no package badge, no
+   Book button on a job row.
+4. **Every package in the price table gets a card.** He spotted the one that had
+   a price and no card in seconds.
+5. **Two-column lists become one column on a phone.**
+6. **An FAQ must not reflow columns when one opens.** CSS `columns` is one flow
+   poured into two tubes; use a two-column grid.
+7. **A review rail scrolls for ever** — cards cloned, position wrapped by one
+   set's width, seam invisible. Interaction pauses it and it resumes; it never
+   stops for good.
+8. **A process diagram reads in the page's reading order**, is numbered, uses
+   plain stage names, and carries a sentence saying what it is. Site 2's first
+   version put stage 4 to the left of stage 3 and he could not read it.
 
-1. **Places must be real and recognisable.** *"Base all of these websites in
-   real places so you can have real names, not these weird kind of gibberish
-   fake names."* Mesa / Gilbert / Chandler / Tempe / Queen Creek / Apache
-   Junction ARE real Arizona towns — **and he read them as invented**, which is
-   the answer that matters. Pick a metro a stranger recognises.
-2. **Travel is a RADIUS, not a per-town surcharge.** *"Plus twenty five, plus
-   twenty five — does that mean it's twenty five dollars to go to those areas? I
-   feel like most detailers don't really work that way. It's more of a radius."*
-3. **"9pm latest start" does not belong in the stat strip.** *"Feels like it
-   doesn't belong there. I think that should be separate and somewhere that's
-   more obvious."*
-4. **"Booking tonight" is meaningless to him.** *"I don't know what that means."*
-   And the photo caption *"Two-stage correction · Gilbert"*: *"I suppose that's
-   supposed to be the description of the thing"* — a guess, so it failed.
-5. **THE ROUTED DIAGRAM FAILED.** *"Inspect lit, interior, coat and cure,
-   decontaminate, correction one to two stage — this is just confusing to what
-   this is supposed to be. Like, what even are we showing here? I'm confused by
-   what this is."* **`DEVICE-INVENTORY` D2 is the device § C called "the thing
-   he was pointing at" on `auxia`, and on a detailer's page he could not read
-   it.** The device is not the problem; the labels were mono micro-text with no
-   sentence saying what the picture IS.
-6. **The prices section is right** — *"three levels of correction, I think this
-   is good"* — **except Interior reset is in the size table with no card**, which
-   he spotted immediately.
-7. **Two-column tick lists must go to ONE column on a phone.** *"Works with this
-   desktop. But as soon as we shrink to mobile, the two columns instantly
-   becomes kind of a problem."*
-8. **The work section repeats the packages and should not.** *"Why do we have
-   the packages listed again? Just have the packages listed once up where the
-   pricing is, and then just have these all be reviews. And they can be reviews
-   with images or not."*
-9. **The FAQ must be realistic.** *"Where do you park? That's kind of a weird
-   question… Can these FAQ things actually be realistic, please?"*
-10. **The desktop review rail has an ugly scrollbar and should auto-scroll.**
-    *"Maybe once you get to it, waits like a second and then starts auto
-    scrolling the reviews. That'd be cool. But this is ugly kinda scroll bar
-    here on desktop. And in mobile view it looks like there's only one review."*
+## 4 · WHAT HE LIKED, AND IT IS EVIDENCE TOO
 
-## WHAT HE LIKED — worth as much as the critiques
+The theming on sight; the wordmark; the price section; the stat figures; the
+mobile layout; the booking widget. **The dark, lit ground is approved** — it is
+the copy and the wiring around it that were wrong.
 
-- *"Right off the bat, I liked how it looks to start. You know? Just the theming
-  of it. **You did good.**"*
-- *"We already have the Delgado logo up here, which **looks really nice. Looks
-  really sweet.**"*
-- *"Prices, three levels of correction. **I think this is good.**"*
-- The stats — *"I think those are some good stats"* (bar the 9pm one).
-- *"The mobile looks good. I like the reviews."*
-- *"Then there's the booking widget, right, which **that looks fine.**"*
+## 5 · HOW HE APPROVES A DESIGN
+
+**A picture, never a document.** *"I want all visual, actually. Barely any text,
+all visual."* Render the scheme as **three 620x870 frames** — the face, the
+parts, the photographs — and send those. The markdown holds the arithmetic and
+is the record, not the ask. **870px is the observed height ceiling for a file
+that reaches his phone; 1240 did not load.**
+
+## 6 · NOTHING IS THROWN AWAY BETWEEN SITES
+
+> *"Every single one we should improve from… don't forget all of the advice and
+> critique that I gave you this session."*
+
+**Site N+1 starts from every rule above, not from the brief alone.** The
+cumulative list lives in `docs/tenant-site-playbook.md` § 10 and is the last
+thing to read before building.

@@ -78,7 +78,13 @@ goes to a car owner and is about the car.**
    pictures. `SendUserFile` at 392 first, then 1440.
 5. **Every question carries your recommendation.** *"Your call"* is an
    unfinished sentence.
-6. **Write what he says into `TASTE-NOTES.md` the same turn, verbatim.**
+6. **Write what he says into `TASTE-NOTES.md` the same turn — as
+   INSTRUCTIONS, not as a transcript.** His rule, 2026-09-08: *"You should
+   convert all of what I say into precise instruction, formatted nicely, so the
+   next session can read fast. It doesn't have to dissect this big block of
+   text."* Quote him only where the quote IS the rule and is shorter than the
+   paraphrase. **Then add any new rule to section 10 below**, which is what the
+   next site starts from.
 7. **When he says it is right: run the checks, commit, and ask what the next
    one should be.** Never start a second site on your own initiative.
 
@@ -337,6 +343,71 @@ Then, and this is the part that finds real faults:
 **Report what was observed, never "this should work."**
 
 ---
+
+## 10 · THE RULES LEDGER — every site starts here
+
+**His instruction, 2026-09-08:** *"Every single one we should improve from...
+don't forget all of the advice and critique that I gave you this session."*
+A site is not built from its brief alone; it is built from this list plus its
+brief. **Add to it every time he gives a note, and never start a page without
+reading it.**
+
+### From site 1 — Prime Mobile Detailing
+1. A nav tab is a promise: no previews or teasers of a page that exists.
+2. Every picture must add value; a page whose subject is not visual owes none.
+3. The desk needs persistent navigation too, not just the phone.
+4. The booking steps are a progress bar, not a menu.
+5. A contrast figure is read off the RENDERED page, never off the token table.
+6. A photograph above the fold is a claim about the FOLD — measure it.
+
+### From site 2 — Delgado Mobile Detailing
+7. **The H1 states the service.** No phrase, no mood, no metaphor.
+   *(checked: `tenant-sites` 9)*
+8. **Every heading is a label.** If it would work as a band name, it is wrong.
+9. **Delete any sentence that adds no fact.**
+10. **Write copy from `docs/tenant-site-source-data-2026-09-08.md`** — real
+    FAQs, disclaimers and service names off ten live detailer sites.
+11. **A subject drives art direction and never the sales copy.**
+12. **Places are real and recognisable; travel is a radius; every city named
+    anywhere is one the service area lists.**
+13. **A heading must not count things** — counts go stale the moment the
+    section grows.
+14. **Something stays on screen: top, bottom or side, on every site.**
+    *(checked: `tenant-sites` 10)*
+15. **`overflow-x: hidden` on `html`/`body` silently disables
+    `position: sticky`.** Use `clip`, or contain it on the element that
+    overflows. *(checked: `tenant-sites` 11)*
+16. **A position indicator shows every label always**, sits flush on one axis,
+    and the current one travels outward while the rest sit inward.
+17. **"Which one is current" is a POSITION question, not an intersection one.**
+    An observer on a wrapper that spans the page never yields, and the
+    indicator sticks.
+18. **Never list the packages twice.** Work rows are reviews with photographs.
+19. **Every package in the price table gets a card.**
+20. **Two-column lists become one column on a phone.**
+21. **An FAQ must not reflow columns when one opens** — CSS `columns` is one
+    flow in two tubes; use a two-column grid.
+22. **A review rail loops for ever**, wrapped by exactly one set's width (not
+    half the scrollWidth — that is out by half a gap). Interaction pauses it and
+    it resumes; it never stops for good.
+23. **A process diagram reads in the page's reading order**, numbered, plain
+    stage names, with a sentence saying what it is.
+24. **He approves a design as three 620x870 pictures, never as a document.**
+    870px is the observed height ceiling for a file that reaches his phone.
+
+### Traps that cost a measurement here, and will again
+25. **`flex: 0 0 min(a,b)` is invalid** — a math function in the shorthand's
+    basis drops the whole declaration and the item sizes to content.
+26. **`blockquote` carries a 40px UA margin each side.** Zero it, or the flex
+    `gap` is not the pitch you think it is.
+27. **`scroll-snap` returns an animated scroll to its snap point on the same
+    frame.** A marquee and snap points cannot coexist.
+28. **Writing `scrollLeft = scrollLeft + small` accumulates nothing** —
+    sub-pixel increments quantise to zero. Keep the position in a float.
+29. **A grid item's automatic minimum is its min-content, not zero.** Text gets
+    clipped mid-word. `min-width: 0` on every grid child that holds text.
+30. **`min-height` plus `aspect-ratio` derives a WIDTH.** A 250px min-height at
+    16/10 is a 400px box inside a 352px card.
 
 ## 9 · WHAT NOT TO DO
 
