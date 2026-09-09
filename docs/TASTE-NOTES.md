@@ -1833,3 +1833,56 @@ choice" flags, a marquee of services and towns, a named review carrying the car
 model, an owner story, and a sixteen-town service list. **Invent only what no
 real site supplies** — the name, the towns, the reviewer, the dates — and keep
 invented numbers inside the trade's real range.
+
+## 6 · FORA'S FIRST SCREEN, MEASURED — 2026-09-09
+
+**His ask:** *"really analyse how fora does it… as soon as you load the page,
+what's there and how everything moves when you scroll… all of it kinda has
+different moving parts, at different velocities."* Measured at 1440x900 with
+`.tmp-site3/probe-fora2.mjs`, tracking each layer's own top edge through seven
+scroll bands. **factor 0 = travels with the page, positive = LAGS it (drifts
+down the screen), 1.0 = pinned to the viewport.**
+
+| Layer | Size at rest | Factor | Behaviour |
+|---|---|---|---|
+| Far background band | 1440x531 at y=738 | **+0.31** | lags 31%, constant in every band |
+| Nearer background band | 1440x496 at y=773 | **+0.17** | lags 17%, constant |
+| The product window | 960x676 at y=594 | **0.00** | moves exactly with the page |
+| Headline / eyebrow / subhead | — | **0.00** | normal |
+| The nav | 1440x48 | **1.00** | pinned |
+
+### FOUR THINGS THAT CHANGE HOW WE BUILD THIS
+
+1. **THE PARALLAX IS ON THE BACKGROUND, NOT ON THE HERO OBJECT.** Fora's big
+   panel — the thing your eye goes to — does not move differently at all.
+   What moves is the atmosphere behind it, in two bands at two speeds. Putting
+   the lag on our hero photograph was mimicking the wrong element.
+2. **IT IS LINEAR AND IT NEVER STOPS.** The same 0.31 in the first 120px of
+   scroll as in the last band measured. No easing in, no cap, no range where
+   it holds still — which is exactly his *"should be moving down instantly by
+   the first scroll."* A capped layer that freezes is not this.
+3. **TWO SPEEDS, NOT ONE.** 0.31 and 0.17 on layers that sit almost on top of
+   each other. One lagging layer reads as a slow background; two reads as
+   depth, because they separate as you scroll.
+4. **NOTHING FADES AND NOTHING SCALES.** Every opacity stayed 1.00 and every
+   height stayed fixed through the whole scroll. The effect is position only.
+
+### THE FIRST SCREEN AT REST, AND ITS SPACING
+
+Measured, top of viewport downward, at 1440x900:
+
+| | y | size |
+|---|---|---|
+| Nav row | 20 | 14px regular |
+| Eyebrow pill | 160 | 14px regular, 30px tall |
+| **Headline** | 214 | **56px, weight 400, line-height 72.8 (1.3)** |
+| Subhead | 376 | 14px / 21px |
+| One button | 479 | 48px tall |
+| The product window | 594 | 960x676, 24px top corners, cut by the fold |
+| Background bands | 738 and 773 | full width, 531 and 496 tall |
+
+**The proportions worth copying:** the hero text starts about 18% down the
+viewport and ends by 60%; the big object begins at **66% of the viewport
+height** and is deliberately cut off by the fold; the headline is **large and
+LIGHT** — 56px at weight 400 — while the body around it is only 14px, a ratio
+of four to one; and one call to action, not two.

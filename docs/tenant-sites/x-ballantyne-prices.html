@@ -628,39 +628,98 @@ var STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 
 // ── parallax: two layers travelling against each other ───────────────────
-// His note, pointing at fora: *"these trees and mountains move up, and then
-// this panel moves down... both of them are actually moving."* Each marked
-// layer moves at its own fraction of the distance the section has travelled
-// through the viewport, and the SIGN is the whole effect — the hero photo
-// sinks while the strip under it climbs.
+// His note, pointing at fora: *"both of them are actually moving"* — and the
+// correction after the first attempt: *"the image should be moving down
+// instantly by the first scroll."*
 //
-// The offset is measured from the element's own position on screen rather
-// than from scrollY, so a layer halfway down the page does not start life
-// three thousand pixels out of place.
+// SO THE OFFSET IS TRAVEL SINCE THE LAYER ENTERED, NOT ITS POSITION ON SCREEN.
+// Position-based parallax puts a layer at rest at some offset already and
+// moves it only as it crosses the middle of the screen: the hero, which is
+// visible at scroll zero, barely moved at all. Travel-based starts at exactly
+// zero and moves on the first pixel of scroll.
+//
+// EVERY LAYER IS CAPPED, and the cap is what keeps a hole from opening: an
+// image may travel only into the slack its own scale() hides, and a box in
+// normal flow is never moved at all — its CONTENTS are, inside a parent that
+// clips. The first version translated the strip itself and left a gap between
+// the photograph and it, because a box that moves leaves its space behind.
 (function () {
   if (STILL) return;
   var layers = [].slice.call(document.querySelectorAll("[data-par]"));
   if (!layers.length) return;
+  layers.forEach(function (el) {
+    var r = el.getBoundingClientRect();
+    // the scroll position at which this layer first entered the viewport
+    el._from = Math.max(0, r.top + scrollY - innerHeight);
+  });
   var ticking = false;
   function place() {
     ticking = false;
-    var h = innerHeight;
     layers.forEach(function (el) {
-      var r = el.getBoundingClientRect();
-      if (r.bottom < -200 || r.top > h + 200) return;      // off screen, no work
-      var mid = r.top + r.height / 2;
-      var off = (mid - h / 2) / h;                          // -1 .. 1 across the screen
       var f = parseFloat(el.dataset.par) || 0;
-      el.style.setProperty("--par", (off * f * h).toFixed(1) + "px");
-      if (!el.style.getPropertyValue("--par")) return;
-      if (el.hasAttribute("data-par-self")) el.style.transform =
-        "translate3d(0," + (off * f * h).toFixed(1) + "px,0)";
+      // cap="fit" MEASURES the slack instead of trusting a typed number: a
+      // scaled image hides (its height - its frame's height) / 2 above and
+      // below, and one pixel past that is empty ground inside the frame.
+      // Typed as 150 against a real slack of 67, it showed 81px of it.
+      var cap;
+      // cap="none" is fora's own behaviour: a background band lags for ever
+      // and simply scrolls away. Only a layer INSIDE a frame needs a limit.
+      if (el.dataset.parCap === "none") cap = Infinity;
+      else if (el.dataset.parCap === "fit") {
+        var f2 = el.parentElement.getBoundingClientRect();
+        cap = Math.max(0, (el.getBoundingClientRect().height - f2.height) / 2 - 2);
+      } else cap = parseFloat(el.dataset.parCap) || 120;
+      var travel = Math.max(0, scrollY - el._from);
+      var off = Math.max(-cap, Math.min(cap, travel * f));
+      el.style.setProperty("--par", off.toFixed(1) + "px");
     });
   }
   function tick() { if (!ticking) { ticking = true; requestAnimationFrame(place); } }
   addEventListener("scroll", tick, { passive: true });
-  addEventListener("resize", tick, { passive: true });
+  addEventListener("resize", function () {
+    layers.forEach(function (el) {
+      var r = el.getBoundingClientRect();
+      el._from = Math.max(0, r.top + scrollY - innerHeight);
+    });
+    tick();
+  }, { passive: true });
   place();
+})();
+
+// ── the weighted scroll ──────────────────────────────────────────────────
+// His ask: *"the one that fora has when you scroll and stop it slides a bit."*
+// The wheel sets a TARGET and the page eases toward it, so a flick keeps
+// gliding for a few hundred milliseconds after the fingers stop.
+//
+// WHAT IT DELIBERATELY DOES NOT TOUCH: touch devices, which already have
+// momentum of their own and would fight this; anything under
+// prefers-reduced-motion; and every other way of scrolling — keyboard, a
+// scrollbar drag, a jump link — which stay native and simply re-sync the
+// target. Nothing here can gate a tap: the page is never prevented from
+// moving, only eased toward where the wheel already asked it to go.
+(function () {
+  if (STILL) return;
+  if (matchMedia("(hover: none)").matches) return;   // phones keep their own
+  var target = scrollY, current = scrollY, running = false;
+  var K = 0.115;                                     // how quickly it catches up
+  function limit() { return document.documentElement.scrollHeight - innerHeight; }
+  function step() {
+    current += (target - current) * K;
+    if (Math.abs(target - current) < 0.5) { current = target; running = false; }
+    scrollTo(0, current);
+    if (running) requestAnimationFrame(step);
+  }
+  addEventListener("wheel", function (e) {
+    if (e.ctrlKey) return;                           // pinch zoom is not a scroll
+    e.preventDefault();
+    var d = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1);
+    target = Math.max(0, Math.min(limit(), target + d));
+    if (!running) { running = true; requestAnimationFrame(step); }
+  }, { passive: false });
+  // anything else that scrolls the page owns the position again
+  addEventListener("scroll", function () {
+    if (!running) { target = current = scrollY; }
+  }, { passive: true });
 })();
 
 // ── the pointer light ────────────────────────────────────────────────────

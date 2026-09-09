@@ -535,6 +535,35 @@ reading it.**
     belongs beside the price it applies to, and the home page was carrying a
     second, vaguer copy of it.
 
+### From site 3 — fora's hero, measured, 2026-09-09 (TASTE-NOTES § 6)
+68. **MEASURE A REFERENCE'S MOTION, DO NOT DESCRIBE IT.** Track each layer's
+    own top edge through scroll bands and compute
+    `(deltaTop + deltaScroll) / deltaScroll`: 0 means it travels with the
+    page, positive means it lags, 1.0 means it is pinned. Fora's hero came
+    out at 0.31 and 0.17 for two background bands, 0.00 for the big object
+    and 0.00 for every line of text.
+69. **THE PARALLAX BELONGS ON THE BACKGROUND, NOT ON THE SUBJECT.** The thing
+    the eye goes to moves with the page; the atmosphere behind it is what
+    lags. Putting it on our hero photograph was mimicking the wrong element,
+    and the fix needed the measurement to find.
+70. **TWO SPEEDS, NOT ONE.** One lagging layer reads as a slow background;
+    two, close together and at different rates, read as depth because they
+    separate as you scroll.
+71. **LINEAR AND UNCAPPED.** The same factor in the first 120px as in the
+    last band — no easing in, no range where it holds. A layer inside a frame
+    still needs a cap measured from the frame's own slack; a background band
+    that simply scrolls away needs none.
+72. **NOTHING FADED AND NOTHING SCALED** in the whole hero: every opacity
+    stayed 1.00 and every height stayed fixed. The effect is position only.
+73. **THE TYPE RATIO IS FOUR TO ONE AND THE HEADLINE IS LIGHT** — 56px at
+    weight 400 over 14px body, one call to action, the big object starting at
+    66% of the viewport height and cut by the fold.
+74. **A LAYER WIDER THAN THE PAGE NEEDS ITS OWN CLIP.** The two new bands
+    overhang by 10% each side and made the document scroll sideways at all
+    seven widths. `overflow-x: clip` on the section that holds them — `hidden`
+    would make it a scroll container, which is how a sticky header died here
+    once already.
+
 ### Traps that cost a measurement here, and will again
 25. **`flex: 0 0 min(a,b)` is invalid** — a math function in the shorthand's
     basis drops the whole declaration and the item sizes to content.
