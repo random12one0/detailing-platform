@@ -265,7 +265,7 @@ a{color:inherit}
   backdrop-filter:blur(12px);box-shadow:inset 0 0 0 1px var(--edge-strong)}
 
 /* ── 6 · MARQUEE — the trade and the towns, both directions ───────────── */
-.strip{padding:34px 0;margin-top:-2px;
+.strip{padding:48px 0;margin-top:-2px;
   transform:translate3d(0,var(--par,0px),0);
   border-top:1px solid var(--edge);border-bottom:1px solid var(--edge);
   background:var(--panel);backdrop-filter:blur(8px);overflow:hidden}
@@ -605,7 +605,7 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
   <!-- the strip climbs while the photograph above it sinks: two layers on
        opposite headings, which is the fora move he asked for. -->
   <section class="strip" aria-label="What we do and where">
-    <div class="stripinner" data-par="0.12" data-par-cap="30">
+    <div class="stripinner" data-par="0.12" data-par-cap="44">
     <div class="rail" data-rail="1">
       <i><b>Interior detailing</b></i><i><b>Exterior detailing</b></i><i><b>Ceramic coating</b></i>
       <i><b>Paint correction</b></i><i><b>Full detail</b></i><i><b>Odour removal</b></i>
@@ -1002,7 +1002,17 @@ var STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
         cap = Math.max(0, (el.getBoundingClientRect().height - fr.height) / 2 - 2);
       } else cap = parseFloat(el.dataset.parCap) || 120;
       var travel = Math.max(0, scrollY - el._from);
-      var off = Math.max(-cap, Math.min(cap, travel * f));
+      // THE LIMIT IS APPROACHED, NEVER HIT. A hard clamp makes a layer stop
+      // dead the moment it reaches its cap and travel at page speed from then
+      // on, which he spotted immediately: *"right as the bar reaches the lower
+      // third of the screen it just starts scrolling at the same speed."*
+      // This is linear at the start — so it still moves on the first pixel —
+      // and eases asymptotically toward the cap, so the layer keeps
+      // differentiating for as long as it is on screen and there is never a
+      // frame where its speed changes abruptly.
+      var raw = travel * f;
+      var off = cap === Infinity ? raw
+        : Math.sign(raw) * cap * (1 - Math.exp(-Math.abs(raw) / cap));
       el.style.setProperty("--par", off.toFixed(1) + "px");
     });
   }

@@ -660,7 +660,17 @@ var STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
         cap = Math.max(0, (el.getBoundingClientRect().height - fr.height) / 2 - 2);
       } else cap = parseFloat(el.dataset.parCap) || 120;
       var travel = Math.max(0, scrollY - el._from);
-      var off = Math.max(-cap, Math.min(cap, travel * f));
+      // THE LIMIT IS APPROACHED, NEVER HIT. A hard clamp makes a layer stop
+      // dead the moment it reaches its cap and travel at page speed from then
+      // on, which he spotted immediately: *"right as the bar reaches the lower
+      // third of the screen it just starts scrolling at the same speed."*
+      // This is linear at the start — so it still moves on the first pixel —
+      // and eases asymptotically toward the cap, so the layer keeps
+      // differentiating for as long as it is on screen and there is never a
+      // frame where its speed changes abruptly.
+      var raw = travel * f;
+      var off = cap === Infinity ? raw
+        : Math.sign(raw) * cap * (1 - Math.exp(-Math.abs(raw) / cap));
       el.style.setProperty("--par", off.toFixed(1) + "px");
     });
   }

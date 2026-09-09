@@ -583,6 +583,24 @@ reading it.**
     a description. Sampling both curves every 100ms turned *"does this feel
     right"* into two rows of numbers.
 
+### From site 3 — the parallax limit, 2026-09-09
+85. **A PARALLAX LIMIT IS APPROACHED, NEVER HIT.** A hard clamp makes a layer
+    stop dead at its cap and travel at page speed from then on, and he saw it
+    instantly: *"right as the bar reaches the lower third of the screen it
+    just starts scrolling at the same speed."* Use
+    `off = cap * (1 - exp(-raw / cap))` — linear at the start, so the layer
+    still moves on the first pixel, and asymptotic after, so it keeps
+    differentiating for as long as it is on screen and never changes speed in
+    one frame.
+86. **A CLAMPED LAYER STOPS AT A DIFFERENT MOMENT FROM ITS NEIGHBOURS**, which
+    is what makes the stop visible: the strip locked at 250px of scroll while
+    the photograph kept lagging to 500. Two layers whose caps expire at
+    different times read as one of them breaking.
+87. **Room to move is padding, and it has to be MEASURED.** Contents drifting
+    inside a clipped band can only travel as far as the band's own padding
+    before the text clips against the edge — check it at the deepest travel,
+    at three widths, rather than assuming.
+
 ### Traps that cost a measurement here, and will again
 25. **`flex: 0 0 min(a,b)` is invalid** — a math function in the shorthand's
     basis drops the whole declaration and the item sizes to content.
