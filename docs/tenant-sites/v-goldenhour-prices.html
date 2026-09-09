@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Prices — Prime Mobile Detailing</title>
-<meta name="description" content="Full detailing prices for sedans, SUVs and trucks in North Seattle. Every package, everything included, and the add-ons.">
+<meta name="description" content="Car detailing prices for sedans, SUVs and trucks in North Seattle. Every package side by side, the add-ons, and the three things that change the number.">
 
 <!--
   ═══════════════════════════════════════════════════════════════════════════
@@ -738,10 +738,189 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
   .addons{padding:48px 16px 56px}
 }
 
+/* ═══ TAB PAGES ═════════════════════════════════════════════════════════
+   His note: "it's just white pages… the layout should be more thought
+   through." Both tabs were a headline, one block and a footer. Each now has
+   five sections, no two the same SHAPE, and a ground change in the middle —
+   the same rhythm rule the home page follows. */
+.pagehead{padding:30px 30px 30px;max-width:74ch}
+.crumb{margin:0 0 18px;font-size:12.5px;color:var(--ink-2)}
+.crumb a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--hair)}
+.crumb a:hover{color:var(--ink)}
+.pagehead h1{
+  margin:0 0 14px;font:800 clamp(38px,6vw,86px)/.94 var(--display);
+  font-variation-settings:"wdth" 80;letter-spacing:-.035em;max-width:13ch;
+}
+.pagehead h1 em{font-style:normal;color:var(--cobalt)}
+.pagelede{margin:0;color:var(--ink-2);font-size:15.5px;max-width:52ch}
+.headstats{display:flex;flex-wrap:wrap;gap:10px 44px;margin-top:30px;
+  padding-top:26px;border-top:1px solid var(--hair)}
+.nav a[aria-current="page"]{color:var(--ink)}
+.nav a[aria-current="page"]::after{transform:scaleX(1)}
+
+/* ── filter chips ─────────────────────────────────────────────────────── */
+.filters{display:flex;flex-wrap:wrap;gap:7px;margin:0 30px 20px}
+.filters button{
+  appearance:none;cursor:pointer;font:600 13.5px/1 var(--body);
+  background:transparent;border:1px solid var(--hair);color:var(--ink-2);
+  padding:11px 18px;border-radius:999px;
+  transition:background 200ms var(--e),border-color 200ms var(--e),color 200ms var(--e),transform 200ms var(--e);
+}
+.filters button:hover{border-color:rgba(23,19,14,.42);color:var(--ink);transform:translateY(-1px)}
+.filters button[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--bone)}
+.nomatch{margin:20px 30px 0;color:var(--ink-2);font-size:15px}
+.nomatch button{appearance:none;background:none;border:0;cursor:pointer;
+  font:600 15px/1 var(--body);color:var(--cobalt);text-decoration:underline}
+
+/* ── the nine-tile grid ───────────────────────────────────────────────── */
+.tiles--9 .t6{grid-column:span 3;grid-row:span 2}
+.tiles--9 .t7{grid-column:span 2;grid-row:span 3}
+.tiles--9 .t8{grid-column:span 3;grid-row:span 2}
+.tiles--9 .t9{grid-column:span 4;grid-row:span 2}
+.t.hide{display:none}
+.t{animation:tilein 420ms var(--e) both}
+@keyframes tilein{from{opacity:0;transform:scale(.97)}}
+
+/* ── GROUND CHANGE · the portfolio rows ───────────────────────────────── */
+.jobs{
+  margin:20px 14px;border-radius:var(--r-card);padding:64px 30px 60px;
+  background:
+    radial-gradient(70vw 40vw at 12% 0%, rgba(26,70,220,.20), rgba(26,70,220,0) 60%),
+    radial-gradient(60vw 40vw at 92% 100%, rgba(255,168,64,.16), rgba(255,168,64,0) 60%),
+    var(--pitch);
+  color:var(--paper);
+}
+.jobshead{max-width:46ch;margin:0 0 40px}
+.jobshead h2{margin:0 0 12px;font:800 clamp(28px,3.8vw,50px)/1.03 var(--display);
+  font-variation-settings:"wdth" 82;letter-spacing:-.03em;max-width:15ch}
+.jobshead h2 em{font-style:normal;color:var(--amber)}
+.jobshead p{margin:0;color:var(--paper-2);font-size:15px}
+.jrow{
+  display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);
+  gap:32px;align-items:center;
+  padding:34px 0;border-top:1px solid rgba(255,255,255,.13);
+}
+.jrow:first-of-type{border-top:0;padding-top:0}
+.jrow--flip .jshot{order:2}
+.jshot{position:relative;border-radius:var(--r-card);overflow:hidden;aspect-ratio:13/10}
+.jshot img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 800ms var(--e)}
+.jrow:hover .jshot img{transform:scale(1.04)}
+.jbadge{
+  position:absolute;left:14px;bottom:14px;background:rgba(18,13,8,.80);
+  color:#FBF7F0;font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:999px;
+}
+.jwhen{margin:0 0 8px;font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--paper-3)}
+.jbody h3{margin:0 0 12px;font:800 clamp(23px,2.7vw,34px)/1.08 var(--display);
+  font-variation-settings:"wdth" 86;letter-spacing:-.025em}
+.jdid{margin:0 0 20px;color:var(--paper-2);font-size:15px;max-width:50ch}
+.jrow blockquote{
+  margin:0 0 20px;padding:16px 18px;border-radius:var(--r-inset);
+  background:rgba(255,255,255,.06);border-left:3px solid var(--amber);
+  font-style:italic;font-size:14.5px;color:var(--paper);max-width:52ch;
+}
+.jrow cite{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin-top:11px;
+  font-style:normal;font-size:12.5px;color:var(--paper-2)}
+.jrow .stars{color:var(--amber);letter-spacing:1px}
+.jrow .src{font-size:10.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+  border:1px solid rgba(255,255,255,.24);border-radius:5px;padding:3px 7px}
+.jcta{
+  display:inline-block;text-decoration:none;background:var(--paper);color:var(--pitch);
+  font-weight:600;font-size:14px;padding:13px 24px;border-radius:999px;
+  transition:transform var(--t-fast) var(--e),filter var(--t-fast) var(--e);
+}
+.jcta:hover{transform:translateY(-2px);filter:brightness(1.04)}
+
+/* ── the closing band. An ENTRY POINT, never a second booking area. ───── */
+.cta{padding:66px 30px 82px;text-align:center}
+.ctain h2{margin:0 0 10px;font:800 clamp(30px,5vw,66px)/.98 var(--display);
+  font-variation-settings:"wdth" 80;letter-spacing:-.035em}
+.ctain h2 em{font-style:normal;color:var(--cobalt)}
+.ctain p{margin:0 0 24px;color:var(--ink-2);font-size:15.5px}
+.ctabtn{
+  display:inline-block;text-decoration:none;background:var(--ink);color:var(--bone);
+  font-weight:600;font-size:16px;padding:18px 40px;border-radius:999px;
+  transition:transform var(--t-fast) var(--e),filter var(--t-fast) var(--e);
+}
+.ctabtn:hover{transform:translateY(-2px);filter:brightness(1.25)}
+
+/* ── PRICES · the comparison table ────────────────────────────────────── */
+.cmp{padding:70px 30px 0}
+.cmpwrap{overflow-x:auto;border:1px solid var(--hair);border-radius:var(--r-card);
+  background:rgba(255,255,255,.46)}
+.cmptable{border-collapse:collapse;width:100%;min-width:640px;font-size:14.5px}
+.cmptable th,.cmptable td{padding:14px 16px;text-align:left;border-bottom:1px solid var(--hair)}
+.cmptable thead th{
+  font:800 17px/1.2 var(--display);font-variation-settings:"wdth" 88;
+  letter-spacing:-.02em;vertical-align:bottom;border-bottom:2px solid var(--ink);
+}
+.cmptable thead th span{display:block;font:400 13px/1 var(--body);color:var(--ink-2);margin-top:5px}
+.cmptable thead th.pick{color:var(--cobalt)}
+.cmptable tbody th{font-weight:400;color:var(--ink)}
+.cmptable td{text-align:center;color:var(--ink-2)}
+.cmptable td.pick{background:rgba(26,70,220,.055)}
+.cmptable td.y::after{
+  content:"";display:inline-block;width:11px;height:6px;
+  border-left:2px solid var(--cobalt);border-bottom:2px solid var(--cobalt);
+  transform:rotate(-45deg) translateY(-2px);
+}
+.cmptable td.n::after{content:"\2013";color:rgba(23,19,14,.36)}
+.cmptable td.s{font-weight:600;color:var(--ink);font-size:13.5px}
+.cmptable tbody tr:hover th,.cmptable tbody tr:hover td{background:rgba(23,19,14,.045)}
+.cmptable tbody tr:hover td.pick{background:rgba(26,70,220,.10)}
+.cmptable .lastrow th,.cmptable .lastrow td{border-bottom:0}
+
+/* ── PRICES · GROUND CHANGE · the three factors ───────────────────────── */
+.factors{margin:70px 14px 0;border-radius:var(--r-card);padding:60px 30px 58px;
+  background:
+    radial-gradient(60vw 40vw at 88% 4%, rgba(255,168,64,.17), rgba(255,168,64,0) 60%),
+    linear-gradient(168deg,#241C15,#171310 66%);
+  color:var(--paper)}
+.factorshead{max-width:48ch;margin:0 0 34px}
+.factorshead h2{margin:0 0 12px;font:800 clamp(28px,3.8vw,50px)/1.03 var(--display);
+  font-variation-settings:"wdth" 82;letter-spacing:-.03em;max-width:15ch}
+.factorshead h2 em{font-style:normal;color:var(--amber)}
+.factorshead p{margin:0;color:var(--paper-2);font-size:15px}
+.fcards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.fcard{
+  background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.13);
+  border-radius:var(--r-card);overflow:hidden;padding:0 0 20px;
+  transition:transform 300ms var(--e),border-color 260ms var(--e);
+}
+.fcard:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.30)}
+.fcard img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;margin-bottom:18px}
+.fcard h3{margin:0 20px 8px;font:800 21px/1.1 var(--display);
+  font-variation-settings:"wdth" 88;letter-spacing:-.02em}
+.fcard p{margin:0 20px 12px;color:var(--paper-2);font-size:14px}
+.fnum{font-size:13px!important;color:var(--paper-2)!important;
+  padding-top:12px;border-top:1px solid rgba(255,255,255,.12);margin-bottom:0!important}
+.fnum b{color:var(--amber)}
+.addons{padding:70px 30px 0}
 .pageband{margin:0 30px 40px;border-radius:var(--r-card);overflow:hidden;aspect-ratio:16/5}
 .pageband img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 900ms var(--e)}
 .pageband:hover img{transform:scale(1.03)}
-@media (max-width:760px){.pageband{margin:0 16px 30px;aspect-ratio:16/9}}
+
+@media (max-width:1000px){
+  .jrow,.jrow--flip{grid-template-columns:1fr;gap:22px}
+  .jrow--flip .jshot{order:0}
+  .fcards{grid-template-columns:1fr}
+  .tiles--9 .t6,.tiles--9 .t7,.tiles--9 .t8,.tiles--9 .t9{grid-column:span 2;grid-row:span 2}
+}
+@media (max-width:760px){
+  .pagehead{padding:18px 16px 24px}
+  .headstats{gap:14px 30px;margin-top:22px;padding-top:20px}
+  .filters{margin:0 16px 16px}
+  .jobs{margin:16px 8px;padding:48px 16px 44px}
+  .cmp,.addons{padding:52px 16px 0}
+  .factors{margin:52px 8px 0;padding:46px 16px 44px}
+  .cta{padding:52px 16px 62px}
+  .pageband{margin:0 16px 30px;aspect-ratio:16/9}
+  .nomatch{margin:16px 16px 0}
+}
+@media (min-width:761px) and (max-height:500px){
+  .jrow,.jrow--flip{grid-template-columns:1fr}
+  .jrow--flip .jshot{order:0}
+  .fcards{grid-template-columns:1fr}
+}
 
 /* ═══ RESPONSIVE ═══════════════════════════════════════════════════════ */
 @media (max-width:1000px){
@@ -838,7 +1017,6 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
     </span>
     <a class="navbook" href="v-goldenhour.html#book">Book</a>
   </nav>
-
   <header class="pagehead">
     <p class="crumb"><a href="v-goldenhour.html">Home</a> &rsaquo; Prices</p>
     <h1>Prices, <em>all three sizes.</em></h1>
@@ -943,6 +1121,82 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
 
 
 
+
+  <!-- Shape #3 · the comparison table. The cards above answer "what does each
+       one cost"; this answers "what is the difference", which is a different
+       question and wants a different shape. D6's ticks, laid across three
+       columns instead of down one. -->
+  <section class="cmp" aria-label="What is in each package">
+    <div class="sechead">
+      <h2>Side by side, <em>line by line.</em></h2>
+      <p>The same list for every package, so the gaps are the point.</p>
+    </div>
+    <div class="cmpwrap">
+      <table class="cmptable" data-from="get_public_business_profile.services[].features">
+        <thead>
+          <tr><th scope="col">What you get</th>
+              <th scope="col">Express<span>$89</span></th>
+              <th scope="col" class="pick">Full Detail<span>$219</span></th>
+              <th scope="col">Ceramic<span>$890</span></th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">Two-bucket hand wash</th><td class="y"></td><td class="y pick"></td><td class="y"></td></tr>
+          <tr><th scope="row">Wheels, arches and tyres</th><td class="y"></td><td class="y pick"></td><td class="y"></td></tr>
+          <tr><th scope="row">Glass, inside and out</th><td class="y"></td><td class="y pick"></td><td class="y"></td></tr>
+          <tr><th scope="row">Hand dry, no blades</th><td class="y"></td><td class="y pick"></td><td class="y"></td></tr>
+          <tr><th scope="row">Interior vacuum and steam</th><td class="n"></td><td class="y pick"></td><td class="y"></td></tr>
+          <tr><th scope="row">Leather clean and feed</th><td class="n"></td><td class="y pick"></td><td class="y"></td></tr>
+          <tr><th scope="row">Clay bar decontamination</th><td class="n"></td><td class="y pick"></td><td class="y"></td></tr>
+          <tr><th scope="row">Machine polish</th><td class="n"></td><td class="s pick">One stage</td><td class="s">Two stage</td></tr>
+          <tr><th scope="row">Paint protection</th><td class="n"></td><td class="s pick">6-month sealant</td><td class="s">3-year coating</td></tr>
+          <tr><th scope="row">Wheels coated, faces and barrels</th><td class="n"></td><td class="n pick"></td><td class="y"></td></tr>
+          <tr><th scope="row">Glass coating</th><td class="n"></td><td class="n pick"></td><td class="y"></td></tr>
+          <tr><th scope="row">Trim restored and sealed</th><td class="n"></td><td class="n pick"></td><td class="y"></td></tr>
+          <tr><th scope="row">12-month check-up</th><td class="n"></td><td class="n pick"></td><td class="y"></td></tr>
+          <tr class="lastrow"><th scope="row">How long it takes</th>
+              <td class="s">90 min</td><td class="s pick">4 hrs</td><td class="s">2 days</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- GROUND CHANGE · shape #4 — the three things that move a price, each with
+       a photograph. This is the honest version of "prices may vary", and four
+       of six real detailer sites carry some form of it
+       (tenant-site-research § 4b). -->
+  <section class="factors" aria-label="What changes your price">
+    <div class="factorshead">
+      <h2>Three things move <em>the number.</em></h2>
+      <p>All three are quoted before you confirm. None of them is decided on the driveway.</p>
+    </div>
+    <div class="fcards">
+      <article class="fcard">
+        <img src="https://images.unsplash.com/photo-1582138549913-cb8468d90b76?fm=jpg&amp;fit=crop&amp;w=900&amp;h=620&amp;q=78"
+             alt="A large SUV parked on an open road." loading="lazy">
+        <h3>Size</h3>
+        <p>A truck has roughly half as much paint again as a sedan and takes
+           longer at every stage. Three sizes, and the table above switches
+           between them.</p>
+        <p class="fnum" data-from="get_public_business_profile.vehicle_sizes">Sedan &rarr; SUV <b>+$40</b> &middot; Truck &amp; XL <b>+$80</b></p>
+      </article>
+      <article class="fcard">
+        <img src="https://images.unsplash.com/photo-1771491237209-b89bc7290588?fm=jpg&amp;fit=crop&amp;w=900&amp;h=620&amp;q=78"
+             alt="Working dust out of dashboard vents with a brush." loading="lazy">
+        <h3>Condition</h3>
+        <p>Pet hair, heavy tar or an interior that has had a hard year add real
+           hours. Send three photos when you book and we price it then.</p>
+        <p class="fnum" data-from="get_public_business_profile.add_ons">Add-ons run <b>$35 &ndash; $80</b></p>
+      </article>
+      <article class="fcard">
+        <img src="https://images.unsplash.com/photo-1751661527885-28d46835fcd1?fm=jpg&amp;fit=crop&amp;w=900&amp;h=620&amp;q=78"
+             alt="A car photographed on a road at sunset." loading="lazy">
+        <h3>Distance</h3>
+        <p>North Seattle costs nothing extra. The Eastside is a flat fee. Past
+           twelve miles it is by the mile, added to the quote and not after it.</p>
+        <p class="fnum" data-from="get_public_business_profile.travel_zones">North Seattle <b>$0</b> &middot; Eastside <b>+$18</b> &middot; then <b>$1.20/mi</b></p>
+      </article>
+    </div>
+  </section>
   <section class="addons" aria-label="Add-ons">
     <div class="sechead">
       <h2>Add-ons, <em>if you need them.</em></h2>
@@ -957,6 +1211,15 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
     <a class="ladderlink" href="v-goldenhour.html#book">Book and see your total &rarr;</a>
   </section>
 
+
+
+  <section class="cta">
+    <div class="ctain">
+      <h2>Know what you want? <em>Pick a time.</em></h2>
+      <p>The quote is confirmed before anything is.</p>
+      <a class="ctabtn" href="v-goldenhour.html#book">Get a price</a>
+    </div>
+  </section>
 
   <!-- ═══ 10 · FOOTER ══════════════════════════════════════════════════ -->
   <footer class="foot">
@@ -1167,6 +1430,39 @@ var REDUCED = matchMedia("(prefers-reduced-motion:reduce)").matches;
       if (input) input.checked = true;
       document.getElementById("book").scrollIntoView({ behavior: "smooth", block: "start" });
     });
+  });
+})();
+
+
+/* The Work page's package filter. A real site filters `job_photos` by the
+   package on the completed booking; here the tag is on the tile. It hides
+   rather than reflows, so the stagger never rebuilds mid-animation, and it
+   says so when a filter empties — a grid that silently goes blank reads as
+   broken. */
+(function(){
+  var chips = document.querySelectorAll(".filters button");
+  if (!chips.length) return;
+  var tiles = [].slice.call(document.querySelectorAll(".tiles--9 .t"));
+  var empty = document.querySelector(".nomatch");
+  function apply(want){
+    var shown = 0;
+    tiles.forEach(function(t){
+      var on = want === "all" || t.dataset.tag === want;
+      t.classList.toggle("hide", !on);
+      if (on) shown++;
+    });
+    if (empty) empty.hidden = shown > 0;
+  }
+  chips.forEach(function(b){
+    b.addEventListener("click", function(){
+      chips.forEach(function(o){ o.setAttribute("aria-selected", o === b ? "true" : "false"); });
+      apply(b.dataset.filter);
+    });
+  });
+  var reset = document.querySelector("[data-reset]");
+  if (reset) reset.addEventListener("click", function(){
+    chips.forEach(function(o){ o.setAttribute("aria-selected", o.dataset.filter === "all" ? "true" : "false"); });
+    apply("all");
   });
 })();
 

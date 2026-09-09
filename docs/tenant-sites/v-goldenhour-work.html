@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Recent work — Prime Mobile Detailing</title>
-<meta name="description" content="Photographs of recent detailing work in North Seattle — full details, ceramic coatings and paint correction.">
+<meta name="description" content="Photographs of recent car detailing work in North Seattle — full details, ceramic coatings and paint correction, with what was done and what the owner said.">
 
 <!--
   ═══════════════════════════════════════════════════════════════════════════
@@ -738,6 +738,190 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
   .addons{padding:48px 16px 56px}
 }
 
+/* ═══ TAB PAGES ═════════════════════════════════════════════════════════
+   His note: "it's just white pages… the layout should be more thought
+   through." Both tabs were a headline, one block and a footer. Each now has
+   five sections, no two the same SHAPE, and a ground change in the middle —
+   the same rhythm rule the home page follows. */
+.pagehead{padding:30px 30px 30px;max-width:74ch}
+.crumb{margin:0 0 18px;font-size:12.5px;color:var(--ink-2)}
+.crumb a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--hair)}
+.crumb a:hover{color:var(--ink)}
+.pagehead h1{
+  margin:0 0 14px;font:800 clamp(38px,6vw,86px)/.94 var(--display);
+  font-variation-settings:"wdth" 80;letter-spacing:-.035em;max-width:13ch;
+}
+.pagehead h1 em{font-style:normal;color:var(--cobalt)}
+.pagelede{margin:0;color:var(--ink-2);font-size:15.5px;max-width:52ch}
+.headstats{display:flex;flex-wrap:wrap;gap:10px 44px;margin-top:30px;
+  padding-top:26px;border-top:1px solid var(--hair)}
+.nav a[aria-current="page"]{color:var(--ink)}
+.nav a[aria-current="page"]::after{transform:scaleX(1)}
+
+/* ── filter chips ─────────────────────────────────────────────────────── */
+.filters{display:flex;flex-wrap:wrap;gap:7px;margin:0 30px 20px}
+.filters button{
+  appearance:none;cursor:pointer;font:600 13.5px/1 var(--body);
+  background:transparent;border:1px solid var(--hair);color:var(--ink-2);
+  padding:11px 18px;border-radius:999px;
+  transition:background 200ms var(--e),border-color 200ms var(--e),color 200ms var(--e),transform 200ms var(--e);
+}
+.filters button:hover{border-color:rgba(23,19,14,.42);color:var(--ink);transform:translateY(-1px)}
+.filters button[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--bone)}
+.nomatch{margin:20px 30px 0;color:var(--ink-2);font-size:15px}
+.nomatch button{appearance:none;background:none;border:0;cursor:pointer;
+  font:600 15px/1 var(--body);color:var(--cobalt);text-decoration:underline}
+
+/* ── the nine-tile grid ───────────────────────────────────────────────── */
+.tiles--9 .t6{grid-column:span 3;grid-row:span 2}
+.tiles--9 .t7{grid-column:span 2;grid-row:span 3}
+.tiles--9 .t8{grid-column:span 3;grid-row:span 2}
+.tiles--9 .t9{grid-column:span 4;grid-row:span 2}
+.t.hide{display:none}
+.t{animation:tilein 420ms var(--e) both}
+@keyframes tilein{from{opacity:0;transform:scale(.97)}}
+
+/* ── GROUND CHANGE · the portfolio rows ───────────────────────────────── */
+.jobs{
+  margin:20px 14px;border-radius:var(--r-card);padding:64px 30px 60px;
+  background:
+    radial-gradient(70vw 40vw at 12% 0%, rgba(26,70,220,.20), rgba(26,70,220,0) 60%),
+    radial-gradient(60vw 40vw at 92% 100%, rgba(255,168,64,.16), rgba(255,168,64,0) 60%),
+    var(--pitch);
+  color:var(--paper);
+}
+.jobshead{max-width:46ch;margin:0 0 40px}
+.jobshead h2{margin:0 0 12px;font:800 clamp(28px,3.8vw,50px)/1.03 var(--display);
+  font-variation-settings:"wdth" 82;letter-spacing:-.03em;max-width:15ch}
+.jobshead h2 em{font-style:normal;color:var(--amber)}
+.jobshead p{margin:0;color:var(--paper-2);font-size:15px}
+.jrow{
+  display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);
+  gap:32px;align-items:center;
+  padding:34px 0;border-top:1px solid rgba(255,255,255,.13);
+}
+.jrow:first-of-type{border-top:0;padding-top:0}
+.jrow--flip .jshot{order:2}
+.jshot{position:relative;border-radius:var(--r-card);overflow:hidden;aspect-ratio:13/10}
+.jshot img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 800ms var(--e)}
+.jrow:hover .jshot img{transform:scale(1.04)}
+.jbadge{
+  position:absolute;left:14px;bottom:14px;background:rgba(18,13,8,.80);
+  color:#FBF7F0;font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:999px;
+}
+.jwhen{margin:0 0 8px;font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--paper-3)}
+.jbody h3{margin:0 0 12px;font:800 clamp(23px,2.7vw,34px)/1.08 var(--display);
+  font-variation-settings:"wdth" 86;letter-spacing:-.025em}
+.jdid{margin:0 0 20px;color:var(--paper-2);font-size:15px;max-width:50ch}
+.jrow blockquote{
+  margin:0 0 20px;padding:16px 18px;border-radius:var(--r-inset);
+  background:rgba(255,255,255,.06);border-left:3px solid var(--amber);
+  font-style:italic;font-size:14.5px;color:var(--paper);max-width:52ch;
+}
+.jrow cite{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin-top:11px;
+  font-style:normal;font-size:12.5px;color:var(--paper-2)}
+.jrow .stars{color:var(--amber);letter-spacing:1px}
+.jrow .src{font-size:10.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+  border:1px solid rgba(255,255,255,.24);border-radius:5px;padding:3px 7px}
+.jcta{
+  display:inline-block;text-decoration:none;background:var(--paper);color:var(--pitch);
+  font-weight:600;font-size:14px;padding:13px 24px;border-radius:999px;
+  transition:transform var(--t-fast) var(--e),filter var(--t-fast) var(--e);
+}
+.jcta:hover{transform:translateY(-2px);filter:brightness(1.04)}
+
+/* ── the closing band. An ENTRY POINT, never a second booking area. ───── */
+.cta{padding:66px 30px 82px;text-align:center}
+.ctain h2{margin:0 0 10px;font:800 clamp(30px,5vw,66px)/.98 var(--display);
+  font-variation-settings:"wdth" 80;letter-spacing:-.035em}
+.ctain h2 em{font-style:normal;color:var(--cobalt)}
+.ctain p{margin:0 0 24px;color:var(--ink-2);font-size:15.5px}
+.ctabtn{
+  display:inline-block;text-decoration:none;background:var(--ink);color:var(--bone);
+  font-weight:600;font-size:16px;padding:18px 40px;border-radius:999px;
+  transition:transform var(--t-fast) var(--e),filter var(--t-fast) var(--e);
+}
+.ctabtn:hover{transform:translateY(-2px);filter:brightness(1.25)}
+
+/* ── PRICES · the comparison table ────────────────────────────────────── */
+.cmp{padding:70px 30px 0}
+.cmpwrap{overflow-x:auto;border:1px solid var(--hair);border-radius:var(--r-card);
+  background:rgba(255,255,255,.46)}
+.cmptable{border-collapse:collapse;width:100%;min-width:640px;font-size:14.5px}
+.cmptable th,.cmptable td{padding:14px 16px;text-align:left;border-bottom:1px solid var(--hair)}
+.cmptable thead th{
+  font:800 17px/1.2 var(--display);font-variation-settings:"wdth" 88;
+  letter-spacing:-.02em;vertical-align:bottom;border-bottom:2px solid var(--ink);
+}
+.cmptable thead th span{display:block;font:400 13px/1 var(--body);color:var(--ink-2);margin-top:5px}
+.cmptable thead th.pick{color:var(--cobalt)}
+.cmptable tbody th{font-weight:400;color:var(--ink)}
+.cmptable td{text-align:center;color:var(--ink-2)}
+.cmptable td.pick{background:rgba(26,70,220,.055)}
+.cmptable td.y::after{
+  content:"";display:inline-block;width:11px;height:6px;
+  border-left:2px solid var(--cobalt);border-bottom:2px solid var(--cobalt);
+  transform:rotate(-45deg) translateY(-2px);
+}
+.cmptable td.n::after{content:"\2013";color:rgba(23,19,14,.36)}
+.cmptable td.s{font-weight:600;color:var(--ink);font-size:13.5px}
+.cmptable tbody tr:hover th,.cmptable tbody tr:hover td{background:rgba(23,19,14,.045)}
+.cmptable tbody tr:hover td.pick{background:rgba(26,70,220,.10)}
+.cmptable .lastrow th,.cmptable .lastrow td{border-bottom:0}
+
+/* ── PRICES · GROUND CHANGE · the three factors ───────────────────────── */
+.factors{margin:70px 14px 0;border-radius:var(--r-card);padding:60px 30px 58px;
+  background:
+    radial-gradient(60vw 40vw at 88% 4%, rgba(255,168,64,.17), rgba(255,168,64,0) 60%),
+    linear-gradient(168deg,#241C15,#171310 66%);
+  color:var(--paper)}
+.factorshead{max-width:48ch;margin:0 0 34px}
+.factorshead h2{margin:0 0 12px;font:800 clamp(28px,3.8vw,50px)/1.03 var(--display);
+  font-variation-settings:"wdth" 82;letter-spacing:-.03em;max-width:15ch}
+.factorshead h2 em{font-style:normal;color:var(--amber)}
+.factorshead p{margin:0;color:var(--paper-2);font-size:15px}
+.fcards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.fcard{
+  background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.13);
+  border-radius:var(--r-card);overflow:hidden;padding:0 0 20px;
+  transition:transform 300ms var(--e),border-color 260ms var(--e);
+}
+.fcard:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.30)}
+.fcard img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;margin-bottom:18px}
+.fcard h3{margin:0 20px 8px;font:800 21px/1.1 var(--display);
+  font-variation-settings:"wdth" 88;letter-spacing:-.02em}
+.fcard p{margin:0 20px 12px;color:var(--paper-2);font-size:14px}
+.fnum{font-size:13px!important;color:var(--paper-2)!important;
+  padding-top:12px;border-top:1px solid rgba(255,255,255,.12);margin-bottom:0!important}
+.fnum b{color:var(--amber)}
+.addons{padding:70px 30px 0}
+.pageband{margin:0 30px 40px;border-radius:var(--r-card);overflow:hidden;aspect-ratio:16/5}
+.pageband img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 900ms var(--e)}
+.pageband:hover img{transform:scale(1.03)}
+
+@media (max-width:1000px){
+  .jrow,.jrow--flip{grid-template-columns:1fr;gap:22px}
+  .jrow--flip .jshot{order:0}
+  .fcards{grid-template-columns:1fr}
+  .tiles--9 .t6,.tiles--9 .t7,.tiles--9 .t8,.tiles--9 .t9{grid-column:span 2;grid-row:span 2}
+}
+@media (max-width:760px){
+  .pagehead{padding:18px 16px 24px}
+  .headstats{gap:14px 30px;margin-top:22px;padding-top:20px}
+  .filters{margin:0 16px 16px}
+  .jobs{margin:16px 8px;padding:48px 16px 44px}
+  .cmp,.addons{padding:52px 16px 0}
+  .factors{margin:52px 8px 0;padding:46px 16px 44px}
+  .cta{padding:52px 16px 62px}
+  .pageband{margin:0 16px 30px;aspect-ratio:16/9}
+  .nomatch{margin:16px 16px 0}
+}
+@media (min-width:761px) and (max-height:500px){
+  .jrow,.jrow--flip{grid-template-columns:1fr}
+  .jrow--flip .jshot{order:0}
+  .fcards{grid-template-columns:1fr}
+}
+
 /* ═══ RESPONSIVE ═══════════════════════════════════════════════════════ */
 @media (max-width:1000px){
   .tiles{grid-template-columns:repeat(2,1fr);grid-auto-rows:150px}
@@ -838,49 +1022,147 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
     <p class="crumb"><a href="v-goldenhour.html">Home</a> &rsaquo; Work</p>
     <h1>Every car, <em>as it left.</em></h1>
     <p class="pagelede">Photographed on the day, in whatever light there was. No
-       filters and no stock photos &mdash; if it is on this page we did it.</p>
+       filters and no stock photos &mdash; if it is on this page, we did it.</p>
+    <div class="headstats" data-from="the detailer's completed bookings">
+      <div class="stat"><b>1,240</b><span>Cars detailed</span></div>
+      <div class="stat"><b>312</b><span>Reviews</span></div>
+      <div class="stat"><b>4.9</b><span>Average</span></div>
+      <div class="stat"><b>6 yrs</b><span>On the road</span></div>
+    </div>
   </header>
 
-  <!-- ═══ 5 · RECENT WORK · D5, the staggered masonry grid ════════════
-       Shape: offset tiles at three different sizes. Nothing else on this page
-       is a grid, and no tile is the same size as its neighbour.
-       NOT a before/after slider, and that is deliberate — see the note in the
-       commit. Six of six real detailer sites carry before/after, so this slot
-       becomes that pair the moment a tenant has one; a stock pair would be two
-       different cars, which is a lie a customer spots immediately. -->
-  <section class="work" id="work" aria-label="Recent work">
-        <!-- SLOTS · job_photos, newest first. Aspect ratios are fixed per tile so
-         a detailer's own uploads cannot break the stagger. -->
-    <div class="tiles" data-from="job_photos">
-      <figure class="t t1">
+  <!-- Filter chips. Shape #2 on this page, and the only control on it.
+       A real site filters `job_photos` by the package on the booking. -->
+  <div class="filters" role="tablist" aria-label="Filter by package">
+    <button role="tab" aria-selected="true" data-filter="all">Everything</button>
+    <button role="tab" aria-selected="false" data-filter="express">Express Wash</button>
+    <button role="tab" aria-selected="false" data-filter="full">Full Detail</button>
+    <button role="tab" aria-selected="false" data-filter="ceramic">Ceramic Package</button>
+  </div>
+
+  <!-- Shape #3 · the staggered grid. Nine tiles, five distinct sizes. -->
+  <section class="work" aria-label="Gallery">
+    <div class="tiles tiles--9 swapg" data-from="job_photos">
+      <figure class="t t1" data-tag="full">
         <img src="https://images.unsplash.com/photo-1604417619789-b145daaec6d0?fm=jpg&amp;fit=crop&amp;w=1400&amp;h=1050&amp;q=78"
-             alt="A detailed dark hatchback photographed in evening light." loading="lazy">
-        <figcaption>Golf R &middot; Full Detail</figcaption>
-      </figure>
-      <figure class="t t2">
+             alt="A dark hatchback photographed in low evening sun after a full detail." loading="lazy">
+        <figcaption>Golf R &middot; Full Detail</figcaption></figure>
+      <figure class="t t2" data-tag="full">
         <img src="https://images.unsplash.com/photo-1665453031228-332ad0c2ec3e?fm=jpg&amp;fit=crop&amp;w=1000&amp;h=1250&amp;q=78"
-             alt="Water beading on freshly sealed paint." loading="lazy">
-        <figcaption>Sealant, six-month</figcaption>
-      </figure>
-      <figure class="t t3">
+             alt="Water beading on a freshly sealed bonnet." loading="lazy">
+        <figcaption>Sealant, six-month</figcaption></figure>
+      <figure class="t t3" data-tag="ceramic">
         <img src="https://images.unsplash.com/photo-1632823469850-2f77dd9c7f93?fm=jpg&amp;fit=crop&amp;w=1200&amp;h=900&amp;q=78"
-             alt="Hand-finishing the front of a car with a cloth." loading="lazy">
-        <figcaption>Trim, by hand</figcaption>
-      </figure>
-      <figure class="t t4">
+             alt="Hand-finishing the front end of a car." loading="lazy">
+        <figcaption>Trim, by hand</figcaption></figure>
+      <figure class="t t4" data-tag="express">
         <img src="https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?fm=jpg&amp;fit=crop&amp;w=1400&amp;h=800&amp;q=78"
-             alt="A car mid-wash, covered in snow foam." loading="lazy">
-        <figcaption>Foam pre-soak</figcaption>
-      </figure>
-      <figure class="t t5">
+             alt="A car mid-wash under snow foam." loading="lazy">
+        <figcaption>Foam pre-soak</figcaption></figure>
+      <figure class="t t5" data-tag="ceramic">
         <img src="https://images.unsplash.com/photo-1700008347045-d2dff6d12c37?fm=jpg&amp;fit=crop&amp;w=1200&amp;h=1500&amp;q=78"
-             alt="A finished coupe parked by the water." loading="lazy">
-        <figcaption>330i &middot; Ceramic Package</figcaption>
-      </figure>
+             alt="A coated coupe parked by the water at dusk." loading="lazy">
+        <figcaption>330i &middot; Ceramic Package</figcaption></figure>
+      <figure class="t t6" data-tag="full">
+        <img src="https://images.unsplash.com/photo-1771491237218-cbd4a707497e?fm=jpg&amp;fit=crop&amp;w=1400&amp;h=800&amp;q=78"
+             alt="Cleaning the dashboard of a classic car by hand." loading="lazy">
+        <figcaption>Interior, classic</figcaption></figure>
+      <figure class="t t7" data-tag="full">
+        <img src="https://images.unsplash.com/photo-1771491237209-b89bc7290588?fm=jpg&amp;fit=crop&amp;w=1000&amp;h=1250&amp;q=78"
+             alt="Working vents and switchgear with a detailing brush." loading="lazy">
+        <figcaption>Vents and switchgear</figcaption></figure>
+      <figure class="t t8" data-tag="express">
+        <img src="https://images.unsplash.com/photo-1639062909256-f3a109eec5b1?fm=jpg&amp;fit=crop&amp;w=1200&amp;h=900&amp;q=78"
+             alt="A finished saloon parked under trees in evening light." loading="lazy">
+        <figcaption>330i &middot; Express Wash</figcaption></figure>
+      <figure class="t t9" data-tag="full">
+        <img src="https://images.unsplash.com/photo-1771491237225-01931a752f58?fm=jpg&amp;fit=crop&amp;w=1400&amp;h=800&amp;q=78"
+             alt="Finishing an interior dashboard after a full detail." loading="lazy">
+        <figcaption>Dash, finished</figcaption></figure>
     </div>
+    <p class="nomatch" hidden>Nothing in that package yet. <button type="button" data-reset>Show everything</button></p>
   </section>
 
+  <!-- GROUND CHANGE · shape #4 — E1 portfolio rows, alternating side. Each is
+       one job as a single object: photo, package, what was done, the customer's
+       own review, and the way to book the same thing. TASTE-NOTES § L calls
+       this the single most transferable thing found in the eighteen, and this
+       product can GENERATE it from a completed booking with nobody typing. -->
+  <section class="jobs" aria-label="Three recent jobs">
+    <div class="jobshead">
+      <h2>Three of them, <em>in full.</em></h2>
+      <p>What the car came in like, what we did, and what the owner said afterwards.</p>
+    </div>
 
+    <article class="jrow" data-from="the detailer's own completed bookings">
+      <div class="jshot">
+        <img src="https://images.unsplash.com/photo-1639062909256-f3a109eec5b1?fm=jpg&amp;fit=crop&amp;w=1300&amp;h=1000&amp;q=78"
+             alt="A saloon photographed after a full detail, parked under trees." loading="lazy">
+        <span class="jbadge">Full Detail &middot; $259</span>
+      </div>
+      <div class="jbody">
+        <p class="jwhen">2 September &middot; Green Lake</p>
+        <h3>2021 BMW 330i</h3>
+        <p class="jdid">Winter salt off the wheels and arches, one-stage polish
+           and sealant on the bonnet and roof, interior steam-cleaned, and the
+           driver&rsquo;s seat re-conditioned where it had gone shiny.</p>
+        <blockquote>&ldquo;On time, four hours in our driveway, and I could not
+           find a single swirl afterwards. The seat looks new.&rdquo;
+          <cite><b>Marcus T.</b><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="src">Google</span></cite>
+        </blockquote>
+        <a class="jcta" href="v-goldenhour.html#book" data-book="full">Book a Full Detail</a>
+      </div>
+    </article>
+
+    <article class="jrow jrow--flip" data-from="the detailer's own completed bookings">
+      <div class="jshot">
+        <img src="https://images.unsplash.com/photo-1700008347045-d2dff6d12c37?fm=jpg&amp;fit=crop&amp;w=1300&amp;h=1000&amp;q=78"
+             alt="A coated coupe photographed by the water at dusk." loading="lazy">
+        <span class="jbadge">Ceramic Package &middot; $990</span>
+      </div>
+      <div class="jbody">
+        <p class="jwhen">27 August &middot; Ballard</p>
+        <h3>2018 BMW 330i Touring</h3>
+        <p class="jdid">Two days. Two-stage correction took out eleven years of
+           wash marks, then a three-year coating on the paint, wheels and glass.
+           Trim restored and sealed. Care card written for the owner.</p>
+        <blockquote>&ldquo;I have had this car since new and it has never looked
+           like this. The wheels are the part I keep staring at.&rdquo;
+          <cite><b>Dana R.</b><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="src">Google</span></cite>
+        </blockquote>
+        <a class="jcta" href="v-goldenhour.html#book" data-book="ceramic">Book a Ceramic Package</a>
+      </div>
+    </article>
+
+    <article class="jrow" data-from="the detailer's own completed bookings">
+      <div class="jshot">
+        <img src="https://images.unsplash.com/photo-1771491237218-cbd4a707497e?fm=jpg&amp;fit=crop&amp;w=1300&amp;h=1000&amp;q=78"
+             alt="Cleaning the dashboard of a classic car by hand." loading="lazy">
+        <span class="jbadge">Full Detail &middot; $299</span>
+      </div>
+      <div class="jbody">
+        <p class="jwhen">24 August &middot; Wallingford</p>
+        <h3>1989 Mercedes 300E</h3>
+        <p class="jdid">Thirty-six years of dust out of the vents and switchgear
+           with a brush, leather fed twice, and the chrome brought back without
+           touching the patina the owner asked us to leave alone.</p>
+        <blockquote>&ldquo;They asked first before doing anything to the chrome.
+           Nobody else has ever asked.&rdquo;
+          <cite><b>Peter H.</b><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="src">Google</span></cite>
+        </blockquote>
+        <a class="jcta" href="v-goldenhour.html#book" data-book="full">Book a Full Detail</a>
+      </div>
+    </article>
+  </section>
+
+  <!-- Shape #5 · the closing band. Not a booking area — an entry point. -->
+  <section class="cta">
+    <div class="ctain">
+      <h2>Yours next? <em>Pick a time.</em></h2>
+      <p>Two slots left this week in North Seattle.</p>
+      <a class="ctabtn" href="v-goldenhour.html#book">Get a price</a>
+    </div>
+  </section>
 
   <!-- ═══ 10 · FOOTER ══════════════════════════════════════════════════ -->
   <footer class="foot">
@@ -1091,6 +1373,39 @@ var REDUCED = matchMedia("(prefers-reduced-motion:reduce)").matches;
       if (input) input.checked = true;
       document.getElementById("book").scrollIntoView({ behavior: "smooth", block: "start" });
     });
+  });
+})();
+
+
+/* The Work page's package filter. A real site filters `job_photos` by the
+   package on the completed booking; here the tag is on the tile. It hides
+   rather than reflows, so the stagger never rebuilds mid-animation, and it
+   says so when a filter empties — a grid that silently goes blank reads as
+   broken. */
+(function(){
+  var chips = document.querySelectorAll(".filters button");
+  if (!chips.length) return;
+  var tiles = [].slice.call(document.querySelectorAll(".tiles--9 .t"));
+  var empty = document.querySelector(".nomatch");
+  function apply(want){
+    var shown = 0;
+    tiles.forEach(function(t){
+      var on = want === "all" || t.dataset.tag === want;
+      t.classList.toggle("hide", !on);
+      if (on) shown++;
+    });
+    if (empty) empty.hidden = shown > 0;
+  }
+  chips.forEach(function(b){
+    b.addEventListener("click", function(){
+      chips.forEach(function(o){ o.setAttribute("aria-selected", o === b ? "true" : "false"); });
+      apply(b.dataset.filter);
+    });
+  });
+  var reset = document.querySelector("[data-reset]");
+  if (reset) reset.addEventListener("click", function(){
+    chips.forEach(function(o){ o.setAttribute("aria-selected", o.dataset.filter === "all" ? "true" : "false"); });
+    apply("all");
   });
 })();
 
