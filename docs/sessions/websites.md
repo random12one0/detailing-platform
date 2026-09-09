@@ -13,7 +13,44 @@ there."*
 
 ---
 
-## 1. THE DIAGNOSIS IS ALREADY MADE. DO NOT REDO IT.
+## 0. READ THIS BEFORE § 1 — THE DIAGNOSIS CHANGED, 2026-09-09
+
+**`docs/tenant-sites-diagnosis-2026-09-09.md` supersedes § 1 below.** § 1's
+photograph finding is CORRECT and was verified twice — but it is a symptom, and
+the owner has since named the disease himself:
+
+> *"It's not even a problem of, oh, when it generates a website it looks like
+> AI. **It just doesn't look good.** It doesn't have those elements that
+> professionally made websites have. The theming was weird — it gave me like a
+> **notepad looking theme**… it was very bland, **there wasn't much to it. There
+> needs to be MORE in the website, different features and whatnot**… It was like
+> **very basic.**"*
+
+**THE FAILURE IS THINNESS, NOT SLOP.** Every anti-slop rule in this repo is
+built to catch a page trying too hard in a generic way. His complaint is the
+opposite: **the pages are not doing enough.** A page can pass every
+never-default in `CLAUDE.md` and still be bare — and ten of them did.
+
+**Three things follow, and they change what this session does:**
+
+1. **Build MORE, not less.** The device inventory in
+   `tenant-sites-diagnosis-2026-09-09.md` § 5.2 is the concrete list, drawn from
+   the sites he likes. **A page ships with ten or more of them.** Restraint is
+   not the safe answer here and never was — he pre-empted that argument in
+   writing.
+2. **The "what IS this page, in one noun" question is producing the notepad.**
+   Asked about a PAGE it returns a DOCUMENT TYPE — four of the ten he rejected
+   are literally stationery (newsprint, blueprint, black-and-paper, a page in a
+   container). **The noun must be a physical thing from the TRADE**: paint,
+   water, light, foam, a car at a specific hour. **Paper, ledger, catalogue,
+   notebook, logbook, receipt and schedule are banned answers.**
+3. **THE BUILD REGRESSED AND NOBODY NOTICED.** The eleven pages before these ten
+   all carried real photographs. The ten newest carry none. **Photography was
+   removed between round three and round four**, and every check stayed green,
+   because no check in this repo looks for the ABSENCE of something. That is the
+   deeper bug and it is worth a sweep of its own.
+
+## 1. THE PHOTOGRAPH FINDING — verified twice, and still true
 
 Three attempts at these pages have now been rejected. Each one burned a session
 guessing. **The fourth attempt has evidence the first three did not**, and the
@@ -165,6 +202,16 @@ produces a correction every twenty minutes.**
 
 ### Then, per site — the loop
 
+0. **THE DIRECTION-APPROVAL GATE — NEW, AND IT IS THE MOST IMPORTANT STEP.**
+   **Before any HTML exists**, write **ONE paragraph** and stop for his yes or
+   no: the SUBJECT (a physical thing from the trade, never a document type), the
+   ground, the accent, the display face, **which devices from the inventory**,
+   and whether the page buys variety with rhythm or with depth.
+   **He did not reject ten sites one at a time — he was handed ten and said "all
+   ten, I really don't like any of them."** Four rounds of that is four chances
+   to correct direction that nobody took, because **the direction was never a
+   separately reviewable thing.** One paragraph costs one message and would have
+   saved four builds.
 1. **INTERVIEW HIM FIRST. Do not start from a brief you wrote yourself.**
    Four or five short questions, answerable with one thumb: what kind of
    detailer is this one, light or dark, what is the one thing the page has to
@@ -189,6 +236,22 @@ produces a correction every twenty minutes.**
 6. **When he says it is right, run the checks, commit, and ask what the next
    one should be.** Do not roll straight into a second page on your own
    initiative — the whole point of one-at-a-time is that he picks the next one.
+
+### And two rules from the research — `tenant-sites-diagnosis-2026-09-09.md` § 3
+
+**SCORE AND REVERT.** After each revision, re-run the gates. **If a number went
+down, revert rather than fixing forward.** In the one study with real numbers,
+the single largest contributor was not the critic — it was refusing to accept a
+revision that scored worse than what it replaced. This repo currently accepts
+every revision by default.
+
+**YOU CANNOT JUDGE WHETHER THIS IS GOOD. MEASURED, NOT MODESTY.** A model
+comparing two competent pages scores ~50% against human raters — a coin flip —
+while scoring >75% on absolutes with a right answer. **So measure absolutes
+(is a photograph present, is it above the fold, contrast, section-height ratio,
+device count) and let HIM judge whether it looks good.** And when you do
+critique, cite this repo's own named rules rather than giving an opinion — that
+is worth a measured +17% on finding where the flaw actually is.
 
 ### The three rules of the loop
 
