@@ -47,7 +47,18 @@ import { fileURLToPath } from "node:url";
 // path. Measured, not reasoned about.
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const SRC = path.join(ROOT, "docs", "tenant-sites");
-const OUT = path.join(ROOT, "app", "dist");
+// TWO TARGETS, AND THE REASON IS THE DEV SERVER.
+//   `app/dist` is what a BUILD produces and what Netlify uploads.
+//   `app/public` is what `npm run dev` serves, and it is the only way
+//   `localhost:5173/ex1` can exist without running a build first — his ask,
+//   2026-09-08: *"so that way when you go to the localhost and you go /ex1, it
+//   goes to the link, instead of it just being hosted after opening it on my
+//   files."*
+// The dev copy is GITIGNORED (`app/public/ex*`, `app/public/example*`), so the
+// header's rule holds: `docs/tenant-sites/` stays the only copy in git and
+// there is nothing that can drift.
+const DEV = process.argv.includes("--dev");
+const OUT = path.join(ROOT, "app", DEV ? "public" : "dist");
 
 // **THE ORDER IS FIXED AND WRITTEN DOWN**, because `/example3` is a URL he will
 // send to somebody, and a list that re-sorts itself when a file is renamed
@@ -70,6 +81,16 @@ const OUT = path.join(ROOT, "app", "dist");
 // a-shop, b-van and c-volume he called "very ai", and d–k were built before any
 // of his taste evidence existed. Nothing is deleted — they are the structural
 // range and the record of what was tried.
+// A SITE CAN BE MORE THAN ONE PAGE. `ex1` has Work and Prices as real tabs,
+// and a nav that names a tab owes a page behind it. The extra files are copied
+// alongside `index.html` and their cross-links are rewritten, so `/ex1/work`
+// works the same way `/ex1` does.
+const MULTI = [
+  ["ex1", "v-goldenhour.html", "Prime Mobile Detailing",
+   "photograph as the ground · sticky header + dock · three pages",
+   { "v-goldenhour-work.html": "work.html", "v-goldenhour-prices.html": "prices.html" }],
+];
+
 const PAGES = [
   ["p-northlight.html", "Northlight Detail", "a photograph as the ground · mobile dock · moderate motion"],
   ["m-holloway.html", "Holloway & Daughters", "newsprint · dense rate card · NO animation"],
@@ -131,13 +152,57 @@ async function main() {
     }
   }
 
+  // THE MULTI-PAGE SITES. Same banner, same placeholder warning; the only
+  // difference is that the cross-links are rewritten from the source
+  // filenames to the served ones.
+  const multi = [];
+  for (const [slug, entry, title, note, extras] of MULTI) {
+    try {
+      const dir = path.join(OUT, slug);
+      await mkdir(dir, { recursive: true });
+      // ROOT-ABSOLUTE, NOT RELATIVE, AND IT IS THE WHOLE REASON THE TABS
+      // BROKE. He asked for `/ex1` without a trailing slash, so the browser
+      // resolves a relative `work.html` against `/` and asks for
+      // `/work.html` — which matches no file, hits the SPA fallback and draws
+      // the app shell. Measured: clicking Work from `/ex1` landed on
+      // "Detailing Platform" with two console errors.
+      // `/ex1/work.html` cannot be resolved wrongly from any path.
+      const rewrite = (html) => {
+        let out = html;
+        for (const [from, to] of Object.entries(extras)) {
+          out = out.split(from).join(`/${slug}/${to}`);
+        }
+        out = out.split(entry).join(`/${slug}/`);
+        return out;
+      };
+      for (const [src, dest] of [[entry, "index.html"], ...Object.entries(extras)]) {
+        const html = rewrite(await readFile(path.join(SRC, src), "utf8"));
+        const withBanner = html.includes("</body>")
+          ? html.replace("</body>", `${banner(title, note, slug.toUpperCase())}\n</body>`)
+          : html + banner(title, note, slug.toUpperCase());
+        await writeFile(path.join(dir, dest), withBanner, "utf8");
+      }
+      multi.push([slug, title, note]);
+      console.log(`  ${slug}: ${1 + Object.keys(extras).length} pages`);
+    } catch (e) {
+      console.log(`  ${slug}: SKIPPED — ${String(e.message).slice(0, 90)}`);
+    }
+  }
+
   // AND AN INDEX, because ten URLs he has to remember is nine too many.
   try {
-    const list = rows.map(([n, title, note]) => `
+    const list = [
+      ...multi.map(([slug, title, note]) => `
+      <a href="/${slug}">
+        <b>${slug}</b>
+        <span><em>${title}</em>${note}</span>
+      </a>`),
+      ...rows.map(([n, title, note]) => `
       <a href="/example${n}">
         <b>${n}</b>
         <span><em>${title}</em>${note}</span>
-      </a>`).join("");
+      </a>`),
+    ].join("");
     await mkdir(path.join(OUT, "examples"), { recursive: true });
     await writeFile(path.join(OUT, "examples", "index.html"), `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
@@ -199,7 +264,11 @@ price on a phone changes the website.</p>
   //
   // Rules are PREPENDED because `_redirects` is first-match-wins and the
   // catch-all at the bottom would otherwise take every one of them.
-  try {
+  // NOT IN DEV. `OUT` is `app/public` there, and `app/public/_redirects` is a
+  // COMMITTED file — the first dev run prepended eleven rules to it. Vite's dev
+  // server ignores `_redirects` entirely (it serves `public/` directly), so the
+  // rules would have been noise in git and nothing else.
+  if (!DEV) try {
     const rp = path.join(OUT, "_redirects");
     const existing = await readFile(rp, "utf8").catch(() => "");
     if (!existing.includes("# examples (generated)")) {
@@ -208,6 +277,11 @@ price on a phone changes the website.</p>
         "# A directory index needs its slash; these serve it without one.",
         ...Array.from({ length: made }, (_, i) =>
           `/example${i + 1}    /example${i + 1}/index.html    200`),
+        ...multi.flatMap(([slug, , , ]) => [
+          `/${slug}    /${slug}/index.html    200`,
+          `/${slug}/work    /${slug}/work.html    200`,
+          `/${slug}/prices    /${slug}/prices.html    200`,
+        ]),
         "/examples    /examples/index.html    200",
         "",
       ].join("\n");
@@ -218,7 +292,9 @@ price on a phone changes the website.</p>
     console.log(`  the rewrites: SKIPPED — ${String(e.message).slice(0, 80)}`);
   }
 
-  console.log(`${made} example sites → app/dist/example1…${made} (+ /examples)`);
+  const where = DEV ? "app/public" : "app/dist";
+  console.log(`${made} example sites + ${multi.length} multi-page → ${where}/ (+ /examples)`);
+  if (DEV) console.log("  dev copy is gitignored; `npm run dev --prefix app` then /ex1");
 }
 
 main().catch((e) => {

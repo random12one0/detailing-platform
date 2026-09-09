@@ -162,3 +162,8 @@ shots-taste/
 shots-full/
 shots-full-p/
 shots-mocks/
+
+# generated example sites — docs/tenant-sites/ is the only copy in git
+app/public/ex*
+app/public/example*
+app/public/examples
