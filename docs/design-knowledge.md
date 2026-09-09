@@ -378,3 +378,38 @@ oversight.**
 [g]: https://groundedgroup.com/mobile-detailing-name-ideas/
 [j]: https://www.getjobber.com/academy/auto-detailing/car-detailing-business-names/
 [r]: https://www.rontar.com/blog/car-detailing-slogan-ideas/
+
+## COPY AND NAMING · rule 6 — TWO PITCHES, POINTING OPPOSITE WAYS (2026-09-08)
+
+He called this **the most important thing** in his critique of `v-goldenhour`:
+
+> *"We shouldn't advertise anything about the website or the process… 'Booking
+> takes about a minute — pick a slot, get the price, we turn up, pay at the end.'
+> **That's something I advertise. That's my website.** 'Hey, your customers could
+> book in a minute' — that's something I'm advertising, not a detailer. They're
+> advertising their detailing business, not their website."*
+
+**OUR pitch goes to a detailer and is about booking, slots, dashboards and
+minutes saved. THEIR pitch goes to a car owner and is about the car.** A tenant
+page that explains how its own booking works has printed our sales deck on
+somebody else's shopfront.
+
+**THE TEST, and it is one question:** *does a CAR OWNER care about this
+sentence, or does a DETAILER care about it?*
+
+| Goes | Stays |
+|---|---|
+| "Booking takes about a minute" | "About four hours for a sedan, five for an SUV" |
+| "Live availability — press a slot and it is yours" | "Free to cancel up to 24 hours before" |
+| "Pick a slot → get the price → we turn up → pay at the end" | "$1.20 a mile past 12 miles, added before you confirm" |
+| Anything naming the website, the dashboard or the system | Anything about the car, the price, the time or the risk |
+
+**This is the third member of a family.** `design-system.md` bans copy that
+restates the CONTROL; `COPY AND NAMING` rule 3 bans copy that restates the
+BASELINE; this bans copy that describes the WRONG PRODUCT. All three fail the
+same way — a sentence that reads fine and earns nothing.
+
+**A structural corollary, from the same critique:** a nav that names *Work* and
+*Prices* owes real pages behind them. The home page carries a taste; the dump
+lives on its own tab. *"There's literally a tab called Work — that's where
+recent work should go."*

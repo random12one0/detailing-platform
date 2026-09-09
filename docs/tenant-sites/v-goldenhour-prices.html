@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Prime Mobile Detailing — North Seattle</title>
-<meta name="description" content="Mobile auto detailing in North Seattle. Interior and exterior detailing at your home or office. Book online in about a minute.">
+<title>Prices — Prime Mobile Detailing</title>
+<meta name="description" content="Full detailing prices for sedans, SUVs and trucks in North Seattle. Every package, everything included, and the add-ons.">
 
 <!--
   ═══════════════════════════════════════════════════════════════════════════
@@ -738,6 +738,11 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
   .addons{padding:48px 16px 56px}
 }
 
+.pageband{margin:0 30px 40px;border-radius:var(--r-card);overflow:hidden;aspect-ratio:16/5}
+.pageband img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 900ms var(--e)}
+.pageband:hover img{transform:scale(1.03)}
+@media (max-width:760px){.pageband{margin:0 16px 30px;aspect-ratio:16/9}}
+
 /* ═══ RESPONSIVE ═══════════════════════════════════════════════════════ */
 @media (max-width:1000px){
   .tiles{grid-template-columns:repeat(2,1fr);grid-auto-rows:150px}
@@ -826,370 +831,130 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
 <div class="shell">
 
   <nav class="nav">
-    <span class="mark">PRIME<i>MOBILE DETAILING</i></span>
+    <a class="mark" href="v-goldenhour.html" style="text-decoration:none;color:inherit">PRIME<i>MOBILE DETAILING</i></a>
     <span class="navlinks">
       <a href="v-goldenhour-work.html">Work</a>
-      <a href="v-goldenhour-prices.html">Prices</a>
+      <a href="v-goldenhour-prices.html" aria-current="page">Prices</a>
     </span>
-    <a class="navbook" href="#book">Book</a>
+    <a class="navbook" href="v-goldenhour.html#book">Book</a>
   </nav>
 
-  <header class="hero">
-    <h1>Mobile auto detailing <em>across North Seattle.</em></h1>
-
-    <div class="herolede">
-      <p>Interior and exterior detailing at your home or office. Pick a slot,
-         see the price before you book, pay when the job is done.</p>
-      <!-- C5 · real figures only. A new detailer's real numbers beat invented ones. -->
-      <div class="stats">
-        <div class="stat"><b>1,240</b><span>Cars</span></div>
-        <div class="stat"><b>4.9</b><span>Rating</span></div>
-        <div class="stat"><b>6 yrs</b><span>On the road</span></div>
-      </div>
-    </div>
-
-    <!-- SLOT · hero. Filled by business_media.hero, else the newest job_photos
-         "after" frame. 16:8.1 on the desk, 4:5 on a phone. -->
-    <div class="shot">
-      <img src="https://images.unsplash.com/photo-1751661527885-28d46835fcd1?fm=jpg&amp;fit=crop&amp;w=2000&amp;h=1013&amp;q=78"
-           alt="A detailed car photographed in low evening sun.">
-
-      <span class="pill pill--avail" data-from="available-slots">
-        <span class="dot"></span> Available today &middot; 2 slots
-      </span>
-
-      <span class="pill pill--rev" data-from="the detailer's Google reviews">
-        <span class="faces">
-          <i style="background-image:url(https://images.unsplash.com/photo-1494790108377-be9c29b29330?fm=jpg&amp;w=60&amp;h=60&amp;fit=crop&amp;q=60)"></i>
-          <i style="background-image:url(https://images.unsplash.com/photo-1500648767791-00dcc994a43e?fm=jpg&amp;w=60&amp;h=60&amp;fit=crop&amp;q=60)"></i>
-          <i style="background-image:url(https://images.unsplash.com/photo-1534528741775-53994a69daeb?fm=jpg&amp;w=60&amp;h=60&amp;fit=crop&amp;q=60)"></i>
-        </span>
-        4.9 &middot; 312 reviews
-      </span>
-
-      <div class="trust">
-        <span><b>Same-day slots</b> most weeks</span>
-        <span class="sep"></span>
-        <span><b>Price before you book</b> — it does not change on the day</span>
-        <span class="sep"></span>
-        <span><b>Insured to $2m</b></span>
-        <a class="cta" href="#book">Get a price</a>
-      </div>
-    </div>
+  <header class="pagehead">
+    <p class="crumb"><a href="v-goldenhour.html">Home</a> &rsaquo; Prices</p>
+    <h1>Prices, <em>all three sizes.</em></h1>
+    <p class="pagelede">Pick your car&rsquo;s size at the top of the table. Every
+       figure is what you pay &mdash; there is no separate quote step and nothing
+       is added on the day.</p>
   </header>
 
-  <!-- ═══ 3 · SERVICE AREA ═══════════════════════════════════════════════
-       "Do you come HERE?" — the earliest trust question for a MOBILE
-       detailer, and the conversion literature puts locality before the
-       scroll (design-knowledge § B). Its SHAPE is a marquee: a moving band
-       of real town names, which no other section on this page uses. -->
-  <section class="area" id="area" aria-label="Service area">
-    <p class="kicker">Areas we <em>cover.</em></p>
-    <div class="marq" aria-hidden="true">
-      <div class="marq-t" data-from="get_public_business_profile.service_area">
-        <span>Northgate</span><span>Ravenna</span><span>Wallingford</span><span>Green Lake</span>
-        <span>Fremont</span><span>Ballard</span><span>Phinney Ridge</span><span>Maple Leaf</span>
-        <span>Lake City</span><span>Shoreline</span><span>Bothell</span><span>Kenmore</span>
-      </div>
-      <div class="marq-t" aria-hidden="true">
-        <span>Northgate</span><span>Ravenna</span><span>Wallingford</span><span>Green Lake</span>
-        <span>Fremont</span><span>Ballard</span><span>Phinney Ridge</span><span>Maple Leaf</span>
-        <span>Lake City</span><span>Shoreline</span><span>Bothell</span><span>Kenmore</span>
-      </div>
-    </div>
-    <p class="areanote" data-from="travel_zones">
-      Outside these? We still come. <b>$1.20 a mile</b> past 12 miles, added to
-      your quote before you confirm &mdash; never after.
-    </p>
-  </section>
+  <!-- SLOT · a wide band. A2 is "never" — the prices page shipped with ZERO
+       photographs, which is the exact regression the ten rejected pages had,
+       and only a count caught it. tests/tenant-sites.test.mjs now fails on it. -->
+  <div class="pageband">
+    <img src="https://images.unsplash.com/photo-1632823469850-2f77dd9c7f93?fm=jpg&amp;fit=crop&amp;w=2000&amp;h=620&amp;q=78"
+         alt="Hand-finishing the front of a car during a full detail." loading="lazy">
+  </div>
 
-
-  <!-- ═══ 4 · PRICES, A TASTE ══════════════════════════════════════════
-       His note 1: the full package block belongs on the Prices tab, because
-       a nav that names Prices and then scrolls to an anchor has lied. The
-       home page carries the ladder and the link. -->
-  <section class="ladder" aria-label="Prices">
-    <div class="sechead">
-      <h2>What it <em>costs.</em></h2>
-      <p>Sedan prices. SUVs and trucks are listed on the prices page.</p>
-    </div>
-    <ul class="rungs" data-from="get_public_business_profile.services + calculate-booking">
-      <li><b>Express Wash</b><i>Outside only &middot; about 90 min</i><em>$89</em></li>
-      <li><b>Full Detail</b><i>Inside and out &middot; about 4 hrs</i><em>$219</em></li>
-      <li><b>Ceramic Package</b><i>Correction + 3-year coating &middot; 2 days</i><em>$890</em></li>
-    </ul>
-    <a class="ladderlink" href="v-goldenhour-prices.html">
-      All three sizes, and what is in each package &rarr;</a>
-  </section>
-
-
-  <!-- ═══ 5 · RECENT WORK, A TASTE — three tiles, the rest behind the tab ══ -->
-  <section class="work" aria-label="Recent work">
-    <div class="sechead">
-      <h2>Some recent <em>work.</em></h2>
-      <p>Three from the last fortnight. No filters, no stock photos.</p>
-    </div>
-    <div class="tiles tiles--3" data-from="job_photos">
-      <figure class="t t1">
-        <img src="https://images.unsplash.com/photo-1604417619789-b145daaec6d0?fm=jpg&amp;fit=crop&amp;w=1400&amp;h=1050&amp;q=78"
-             alt="A detailed dark hatchback photographed in evening light." loading="lazy">
-        <figcaption>Golf R &middot; Full Detail</figcaption>
-      </figure>
-      <figure class="t t2">
-        <img src="https://images.unsplash.com/photo-1665453031228-332ad0c2ec3e?fm=jpg&amp;fit=crop&amp;w=1000&amp;h=1250&amp;q=78"
-             alt="Water beading on freshly sealed paint." loading="lazy">
-        <figcaption>Sealant, six-month</figcaption>
-      </figure>
-      <figure class="t t4">
-        <img src="https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?fm=jpg&amp;fit=crop&amp;w=1400&amp;h=800&amp;q=78"
-             alt="A car mid-wash, covered in snow foam." loading="lazy">
-        <figcaption>Foam pre-soak</figcaption>
-      </figure>
-    </div>
-    <a class="ladderlink" href="v-goldenhour-work.html">The full gallery &rarr;</a>
-  </section>
-
-
-  <!-- ═══ 7 · ONE RECENT JOB, WHOLE ══════════════════════════════════════
-       E1 · the single most transferable thing found in the eighteen
-       (TASTE-NOTES § L): a gallery, a service menu, a testimonial and a
-       booking CTA collapsed into ONE object. Every other site spends four
-       sections on those four jobs.
-       AND THIS PRODUCT CAN GENERATE IT — job_photos, booking_services, the
-       vehicle, the customer's first name and city, the review link. A
-       completed job becomes this row with nobody typing anything. -->
-  <section class="job" aria-label="A recent job">
-    <div class="jobrow" data-from="the detailer's own completed bookings">
-      <div class="jobshot">
-        <img src="https://images.unsplash.com/photo-1639062909256-f3a109eec5b1?fm=jpg&amp;fit=crop&amp;w=1200&amp;h=900&amp;q=78"
-             alt="A recently detailed car parked under trees in evening light.">
-        <span class="jobbadge">Full Detail &middot; $259</span>
-      </div>
-      <div class="jobbody">
-        <h3>2021 BMW 330i <em>&mdash; Green Lake</em></h3>
-        <p class="jobdid">
-          Winter salt off the wheels and arches, one-stage polish and sealant on
-          the bonnet and roof, interior steam-cleaned, driver&rsquo;s seat
-          re-conditioned.
-        </p>
-        <a class="jobcta" href="#book">Book this package</a>
-        <blockquote class="jobrev">
-          &ldquo;On time, four hours in our driveway, and I could not find a
-          single swirl afterwards. The seat looks new, and booking took a minute.&rdquo;
-          <cite>
-            <b>Marcus T.</b> &middot; Green Lake
-            <span class="stars" aria-label="Five stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
-            <span class="src">Google</span>
-          </cite>
-        </blockquote>
-      </div>
-    </div>
-  </section>
-
-
-  <!-- ═══ 8 · FAQ ════════════════════════════════════════════════════════
-       The objections a mobile detailer actually gets. Its shape is a
-       two-column accordion — nothing else on the page opens. -->
-  <section class="faq" aria-label="Questions">
-    <div class="sechead">
-      <h2>Common <em>questions.</em></h2>
-    </div>
-    <div class="faqcols" data-from="faqs">
-      <details><summary>How long does a Full Detail take?</summary>
-        <p>About four hours for a sedan, five for an SUV. We book one job per
-           slot, so nobody is rushed and we are not juggling two driveways.</p></details>
-      <details><summary>What happens if it rains?</summary>
-        <p>Light rain is fine. Heavy rain or under 4&deg;C and we move you free to
-           the next slot that suits. You will hear from us the night before.</p></details>
-      <details><summary>Where do you need to park?</summary>
-        <p>Any flat spot with roughly a car&rsquo;s width beside it &mdash; a
-           driveway, a kerb or an office car park all work.</p></details>
-      <details><summary>How late can I cancel?</summary>
-        <p>Free up to 24 hours before, from the link in your confirmation.
-           Inside 24 hours it is 50%, because the slot cannot be refilled.</p></details>
-      <details><summary>Can you get scratches out?</summary>
-        <p>Light swirls and haze, yes &mdash; that is what the polish stage is for.
-           Deeper scratches you can catch a fingernail in need the Ceramic
-           Package&rsquo;s correction, and a few need a body shop. Send photos and
-           we will tell you which.</p></details>
-    </div>
-  </section>
-
-
-  <!-- ═══ THE BOOKING WIDGET — ONE PER PAGE ══════════════════════════════
-       His note, and it is `tenant-site-contract.md` §2n: *"there's three
-       different booking areas… our booking system isn't in this demo website…
-       you're creating features that we don't have and not using the features
-       that we actually have."*
-
-       So this is `app/src/book/core.js`'s REAL sequence, drawn in this site's
-       own design:
-         Services → Extras → Vehicle → Location → When → Details → Review
-       Extras appears because this tenant has add-ons; `stepsFor(addOns)` drops
-       it when they do not, so "Step 3 of 7" is never a lie.
-
-       IT ASKS AND NEVER COMPUTES. Every figure below carries `data-from`
-       naming the endpoint that owns it — `calculate-booking` for money,
-       `available-slots` for times, `get_public_business_profile` for the menu.
-       This file is a static demo with no keys, so the numbers are stand-ins
-       for those calls and the wiring is the point; a real tenant site calls
-       `createBookingTransport()` and nothing about the markup changes.
-
-       Every other Book control on this page is an ENTRY POINT that scrolls
-       here and carries its selection in. -->
-  <section class="book" id="book" aria-label="Book">
-    <div class="bookhead">
-      <h2>Book your <em>detail.</em></h2>
-      <p>Choose what you want done, pick a time that suits, and see the price
-         before anything is confirmed.</p>
-    </div>
-
-    <div class="bk">
-      <ol class="bk-rail" data-from="core.js stepsFor(addOns)">
-        <li class="on"><b>1</b>Services</li>
-        <li><b>2</b>Extras</li>
-        <li><b>3</b>Vehicle</li>
-        <li><b>4</b>Location</li>
-        <li><b>5</b>When</li>
-        <li><b>6</b>Details</li>
-        <li><b>7</b>Review</li>
-      </ol>
-
-      <div class="bk-body">
-
-        <!-- 1 · SERVICES -->
-        <div class="bk-step on" data-step="0">
-          <h3>What would you like done?</h3>
-          <div class="opts" data-from="get_public_business_profile.services">
-            <label class="opt"><input type="radio" name="svc" value="express">
-              <span class="ob"><b>Express Wash</b><i>Outside only &middot; about 90 min</i></span>
-              <em data-from="calculate-booking">$89</em></label>
-            <label class="opt"><input type="radio" name="svc" value="full" checked>
-              <span class="ob"><b>Full Detail</b><i>Inside and out &middot; about 4 hrs</i></span>
-              <em data-from="calculate-booking">$219</em></label>
-            <label class="opt"><input type="radio" name="svc" value="ceramic">
-              <span class="ob"><b>Ceramic Package</b><i>Correction + 3-year coating &middot; 2 days</i></span>
-              <em data-from="calculate-booking">$890</em></label>
-          </div>
-        </div>
-
-        <!-- 2 · EXTRAS -->
-        <div class="bk-step" data-step="1">
-          <h3>Anything to add?</h3>
-          <div class="opts" data-from="get_public_business_profile.add_ons">
-            <label class="opt"><input type="checkbox">
-              <span class="ob"><b>Pet hair removal</b><i>Adds about 45 min</i></span>
-              <em data-from="calculate-booking">+$45</em></label>
-            <label class="opt"><input type="checkbox">
-              <span class="ob"><b>Engine bay clean</b><i>Degreased and dressed</i></span>
-              <em data-from="calculate-booking">+$40</em></label>
-            <label class="opt"><input type="checkbox">
-              <span class="ob"><b>Headlight restoration</b><i>Per pair, sanded and sealed</i></span>
-              <em data-from="calculate-booking">+$80</em></label>
-          </div>
-        </div>
-
-        <!-- 3 · VEHICLE -->
-        <div class="bk-step" data-step="2">
-          <h3>Which car is it?</h3>
-          <div class="opts opts--row" data-from="get_public_business_profile.vehicle_sizes">
-            <label class="opt opt--sm"><input type="radio" name="sz" checked><span class="ob"><b>Sedan</b></span></label>
-            <label class="opt opt--sm"><input type="radio" name="sz"><span class="ob"><b>SUV</b></span></label>
-            <label class="opt opt--sm"><input type="radio" name="sz"><span class="ob"><b>Truck &amp; XL</b></span></label>
-          </div>
-          <div class="two">
-            <label class="fld">Make and model
-              <input type="text" placeholder="2021 BMW 330i"></label>
-            <label class="fld">Condition
-              <select data-from="core.js VEHICLE_CONDITIONS">
-                <option>Normal use</option><option>Heavily soiled</option><option>Showroom, maintenance only</option>
-              </select></label>
-          </div>
-        </div>
-
-        <!-- 4 · LOCATION -->
-        <div class="bk-step" data-step="3">
-          <h3>Where are we coming?</h3>
-          <div class="opts opts--row" data-from="core.js offersBothModes(settings)">
-            <label class="opt opt--sm"><input type="radio" name="mode" checked><span class="ob"><b>We come to you</b></span></label>
-            <label class="opt opt--sm"><input type="radio" name="mode"><span class="ob"><b>Drop off with us</b></span></label>
-          </div>
-          <label class="fld">Address
-            <input type="text" placeholder="Street, suburb" autocomplete="street-address"></label>
-          <label class="fld">Travel zone
-            <select data-from="get_public_business_profile.travel_zones">
-              <option>North Seattle &mdash; no travel charge</option>
-              <option>Eastside &mdash; +$18</option>
-              <option>Outside 12 miles &mdash; $1.20 a mile</option>
-            </select></label>
-        </div>
-
-        <!-- 5 · WHEN -->
-        <div class="bk-step" data-step="4">
-          <h3>When suits you?</h3>
-          <div class="cal" data-from="available-slots">
-            <div class="cal-head"><b>September 2026</b><span class="cal-nav">&#8249;&nbsp;&nbsp;&#8250;</span></div>
-            <div class="cal-dow"><i>M</i><i>T</i><i>W</i><i>T</i><i>F</i><i>S</i><i>S</i></div>
-            <div class="cal-grid">
-              <button class="d off">31</button><button class="d">1</button><button class="d">2</button>
-              <button class="d off">3</button><button class="d">4</button><button class="d">5</button><button class="d off">6</button>
-              <button class="d">7</button><button class="d sel">8</button><button class="d">9</button>
-              <button class="d">10</button><button class="d off">11</button><button class="d">12</button><button class="d off">13</button>
-              <button class="d">14</button><button class="d">15</button><button class="d off">16</button>
-              <button class="d">17</button><button class="d">18</button><button class="d">19</button><button class="d off">20</button>
-            </div>
-          </div>
-          <div class="slots" data-from="available-slots">
-            <button class="sl">8:00 am</button><button class="sl sel">10:30 am</button>
-            <button class="sl">1:00 pm</button><button class="sl off">3:30 pm</button>
-          </div>
-        </div>
-
-        <!-- 6 · DETAILS -->
-        <div class="bk-step" data-step="5">
-          <h3>How do we reach you?</h3>
-          <div class="two">
-            <label class="fld">Name<input type="text" autocomplete="name" placeholder="Marcus Turner"></label>
-            <label class="fld">Phone<input type="tel" autocomplete="tel" placeholder="(206) 555-0134"></label>
-          </div>
-          <label class="fld">Email<input type="email" autocomplete="email" placeholder="you@example.com"></label>
-          <label class="fld">Anything we should know?
-            <input type="text" placeholder="Gate code, where to park, a stain to look at"></label>
-        </div>
-
-        <!-- 7 · REVIEW -->
-        <div class="bk-step" data-step="6">
-          <h3>Everything right?</h3>
-          <dl class="rev" data-from="calculate-booking">
-            <div><dt>Full Detail &middot; Sedan</dt><dd>$219</dd></div>
-            <div><dt>Engine bay clean</dt><dd>$40</dd></div>
-            <div><dt>Travel &mdash; North Seattle</dt><dd>$0</dd></div>
-            <div class="tot"><dt>Total</dt><dd>$259</dd></div>
-          </dl>
-          <p class="revwhen">Tuesday 8 September, 10:30 am &middot; at your address</p>
-          <button class="bk-confirm" type="button" data-from="create-booking">Confirm booking</button>
-          <p class="revnote">Nothing is taken now. You pay when the work is finished,
-             and you can cancel free up to 24 hours before.</p>
-        </div>
-
+  <!-- ═══ 4 · PACKAGES · GROUND CHANGE 1 → near-black ════════════════════
+       "How much?" — the question the site exists to answer, and it comes
+       BEFORE the gallery on purpose (tenant-site-research § 4a: five of six
+       real detailers print the whole ladder, because the honest answer has
+       three numbers in it).
+       D7 · tabbed by vehicle size · D6 · two-column tick lists, not prose
+       A4 · the price is the largest thing in the section. -->
+  <section class="money" id="prices" aria-label="Packages and prices">
+    <div class="money-in">
+      <div class="sechead">
+        <h2>Three packages, <em>three sizes.</em></h2>
+        <p>Every price here is the price you pay.</p>
       </div>
 
-      <div class="bk-foot">
-        <p class="bk-run" data-from="calculate-booking">
-          <span>Running total</span><b>$259</b>
-        </p>
-        <div class="bk-btns">
-          <button class="bk-back" type="button">Back</button>
-          <button class="bk-next" type="button">Continue</button>
-        </div>
+      <!-- D7 · the vehicle ladder this product already has in `vehicle_size` -->
+      <div class="tabs" role="tablist" data-from="get_public_business_profile.vehicle_sizes">
+        <button role="tab" aria-selected="true"  data-size="0">Sedan</button>
+        <button role="tab" aria-selected="false" data-size="1">SUV &amp; Crossover</button>
+        <button role="tab" aria-selected="false" data-size="2">Truck &amp; XL</button>
       </div>
 
-      <!-- C4 · the proof sits INSIDE the form, at the moment of commitment. -->
-      <p class="bookproof" data-from="testimonials">
-        <span class="stars" aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
-        <b>4.9</b> from <b>312</b> reviews
+      <div class="plans swap" id="plans">
+
+        <article class="plan">
+          <header>
+            <h3>Express Wash</h3>
+            <p>Outside only. Hand wash, wheels, glass, dried by hand.</p>
+          </header>
+          <!-- A4 · the most important number is not at body size -->
+          <p class="price" data-from="calculate-booking"><span>$</span><b data-p="89,109,129">89</b></p>
+          <p class="dur">About 90 minutes</p>
+          <!-- D6 · ticks, not prose. Maps onto services.features. -->
+          <ul class="ticks" data-from="get_public_business_profile.services[].features">
+            <li>Foam pre-soak</li><li>Two-bucket hand wash</li>
+            <li>Wheels &amp; arches</li><li>Tyre dressing</li>
+            <li>Glass in &amp; out</li><li>Hand dry, no blades</li>
+          </ul>
+          <a class="plancta" href="v-goldenhour.html#book" data-book="express">Book Express Wash</a>
+        </article>
+
+        <article class="plan plan--pick">
+          <span class="flag">Most booked</span>
+          <header>
+            <h3>Full Detail</h3>
+            <p>Inside and out. Our most booked package, and the one most cars need.</p>
+          </header>
+          <p class="price" data-from="calculate-booking"><span>$</span><b data-p="219,259,299">219</b></p>
+          <p class="dur">About 4 hours</p>
+          <ul class="ticks" data-from="get_public_business_profile.services[].features">
+            <li>Everything in Express Wash</li><li>Clay bar decontamination</li>
+            <li>Machine polish, one stage</li><li>6-month sealant</li>
+            <li>Interior vacuum &amp; steam</li><li>Leather clean &amp; feed</li>
+            <li>Door shuts &amp; sills</li><li>Engine bay wipe-down</li>
+          </ul>
+          <a class="plancta" href="v-goldenhour.html#book" data-book="full">Book Full Detail</a>
+        </article>
+
+        <article class="plan">
+          <header>
+            <h3>Ceramic Package</h3>
+            <p>Paint correction and a 3-year ceramic coating. Two days.</p>
+          </header>
+          <p class="price" data-from="calculate-booking"><span>$</span><b data-p="890,990,1140">890</b></p>
+          <p class="dur">Two days &middot; car stays with us</p>
+          <ul class="ticks" data-from="get_public_business_profile.services[].features">
+            <li>Everything in Full Detail</li><li>Two-stage paint correction</li>
+            <li>Ceramic coating, 3-year</li><li>Wheels coated, faces &amp; barrels</li>
+            <li>Glass coating</li><li>Trim restored &amp; sealed</li>
+            <li>Written care card</li><li>12-month check-up included</li>
+          </ul>
+          <a class="plancta" href="v-goldenhour.html#book" data-book="ceramic">Book Ceramic Package</a>
+        </article>
+      </div>
+
+      <!-- services.notes — four of six real sites carry exactly this, and it is
+           a detailer managing an expectation before it is an argument on a
+           driveway (tenant-site-research § 4b). -->
+      <p class="disclaim" data-from="get_public_business_profile.services[].notes">
+        <b>Two things worth knowing.</b> A 6-month sealant is not a ceramic
+        coating &mdash; if you want the coating, that is the Ceramic Package. And
+        heavy pet hair, tar or a badly soiled interior may need an add-on: send
+        three photos when you book and we price it then, not on the day.
       </p>
     </div>
+  </section>
+
+
+
+  <section class="addons" aria-label="Add-ons">
+    <div class="sechead">
+      <h2>Add-ons, <em>if you need them.</em></h2>
+      <p>Added to your quote before you confirm, never after.</p>
+    </div>
+    <ul class="rungs" data-from="get_public_business_profile.add_ons">
+      <li><b>Pet hair removal</b><i>Adds about 45 minutes</i><em>+$45</em></li>
+      <li><b>Engine bay clean</b><i>Degreased, rinsed and dressed</i><em>+$40</em></li>
+      <li><b>Headlight restoration</b><i>Per pair &mdash; sanded, polished, sealed</i><em>+$80</em></li>
+      <li><b>Tar and iron removal</b><i>Where the paint needs it</i><em>+$35</em></li>
+    </ul>
+    <a class="ladderlink" href="v-goldenhour.html#book">Book and see your total &rarr;</a>
   </section>
 
 
@@ -1232,7 +997,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
 
 <nav class="dock" aria-label="Quick actions">
   <a href="v-goldenhour-work.html">Work</a>
-  <a class="book" href="#book">Book now</a>
+  <a class="book" href="v-goldenhour.html#book">Book now</a>
   <a href="v-goldenhour-prices.html">Prices</a>
 </nav>
 

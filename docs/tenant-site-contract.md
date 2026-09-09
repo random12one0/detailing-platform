@@ -603,3 +603,42 @@ the current answer lives.
 4. **Nothing has been built against this yet.** The first real test is the
    first client's site, and the honest expectation is that building one finds a
    thirteenth implementation nobody thought of.
+
+---
+
+## §2n · A DEMO SITE RUNS THE REAL BOOKING FLOW. ONE PER PAGE. — added 2026-09-08
+
+**The owner, on `v-goldenhour`, and it is the sharpest statement of why this
+file exists:**
+
+> *"There's three different booking areas… our booking system isn't in this demo
+> website. All of our demo websites are meant to show a real example of what
+> their websites look like, and their actual website is going to be connected to
+> their admin dashboard. **So you're kind of creating features that we don't
+> have and not using the features that we actually have.**"*
+
+**WHAT SILENTLY STOPS WORKING IF A SITE OMITS THIS:** nothing, visibly — which
+is the whole danger. A hand-drawn four-field quote form looks like a booking
+form, demos like a booking form, and is a demo of a product we do not sell. The
+detailer who signs on the strength of it gets something else.
+
+**The rule, in three parts:**
+
+1. **ONE booking area per page.** Every other *Book* control — the nav, a
+   package card's CTA, the phone dock — is an ENTRY POINT that scrolls to it and
+   carries its selection in. Three doors that each look like the form is the
+   confusion he named.
+2. **It draws `app/src/book/core.js`'s sequence** — `Services → [Extras] →
+   Vehicle → Location → When → Details → Review`. Extras only when the tenant
+   has add-ons. Core's own header: *"a site is free to draw these as one long
+   page instead — the ORDER is the rule, the pagination is not."*
+3. **It ASKS and never computes.** Every price from `calculate-booking`, every
+   open time from `available-slots`, the profile from
+   `get_public_business_profile`, the submit through `create-booking`. §2b
+   already says this about printed prices; **this extends it to the FORM
+   ITSELF**, because a form that invents its own steps invents its own rules.
+
+**AND THE COPY RULE THAT COMES WITH IT (`design-knowledge` § COPY AND NAMING,
+rule 6):** the site must not ADVERTISE the booking system either. *"Booking
+takes about a minute"* is our pitch to the detailer, on the detailer's page.
+The site sells detailing.

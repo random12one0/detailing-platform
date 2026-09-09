@@ -1352,3 +1352,79 @@ which is a Series-A SaaS brand wearing a detailer's clothes.
 **The derived rules live in `docs/design-knowledge.md` § "COPY AND NAMING".**
 His last sentence — *"even my own landing page needs updating on the wording"* —
 is parked, not actioned; he said not to worry about it.
+
+## BATCH 3d — THE DEMO WAS ADVERTISING US, AND IT INVENTED A BOOKING FORM WE ALREADY HAVE (2026-09-08)
+
+Summarised at his request (*"remember and keep in the docs, you could summarise
+my wording"*). Five critiques, one of which he called the most important thing.
+
+### 1 · A NAV TAB IS A PROMISE. THE DUMP GOES BEHIND IT.
+> *"On this main page you kind of put both images of their work and prices in the
+> same area, which I think is not a good thing… there's literally a tab called
+> Work. That's where recent work should go. And the same with prices — you have
+> this pricing package placed, which looks great, by the way, I love it. But that
+> should also be in the Prices tab that you'd literally have selected."*
+
+The home page carries **a taste** of each and the **full set lives on its own
+page**. A nav that names Work and Prices and then scrolls to an anchor on the
+same page is a nav that lied. **This also settles the multi-page question he
+raised in BATCH 3 point 7 — site 1 is multi-page.**
+
+### 2 · A TENANT SITE NEVER ADVERTISES THE WEBSITE OR THE BOOKING PROCESS. HIS MOST IMPORTANT NOTE.
+> *"This is the most important thing. We shouldn't advertise anything about the
+> website or the process. Right now you have 'Booking takes about a minute — pick
+> a slot, get the price, we turn up, pay at the end.' That's not something we
+> should advertise, because that's the detailer advertising their own website.
+> **That's something I advertise. That's my website.** 'Hey, your customers could
+> book in a minute' — that's something I'm advertising, not a detailer. They're
+> advertising their detailing business, not their website."*
+
+**THERE ARE TWO PITCHES AND THEY POINT IN OPPOSITE DIRECTIONS.** Ours goes to
+the detailer and is about booking, slots, dashboards and minutes. **Theirs goes
+to a car owner and is about the car.** A tenant page that explains how booking
+works has put OUR sales copy on THEIR site.
+**The test for any sentence on a tenant page: does a car owner care, or does a
+detailer care?** *"Free up to 24 hours before"* is the customer's answer to a
+real worry and stays. *"Live availability — press a slot and it is yours"* is
+our feature list and goes. The whole "How it works / Booking takes about a
+minute" section was cut on this note.
+
+### 3 · THE DEMOS MUST RUN OUR ACTUAL SYSTEM, NOT A FORM THAT LOOKS LIKE ONE
+> *"There's three different booking areas, which I'm confused by… our booking
+> system isn't in this demo website. All of our demo websites are meant to show a
+> real example of what their websites look like, and their actual website is
+> going to be connected to their admin dashboard. **So you're kind of creating
+> features that we don't have and not using the features that we actually
+> have.**"*
+
+**This is the sharpest possible statement of `tenant-site-contract.md`'s whole
+purpose, and the page failed it.** The page had an invented four-field quote
+form, a *"Book this package"* button somewhere else, and a nav *Book* — three
+doors, none of which was the product.
+**One booking area per page.** Every other Book control is an ENTRY POINT that
+carries its selection into it. And it draws `app/src/book/core.js`'s real
+sequence — **Services → [Extras] → Vehicle → Location → When → Details →
+Review** — because *"the ORDER is the rule, the pagination is not"* (core.js).
+Prices come from `calculate-booking`, times from `available-slots`. **A demo
+that invents a form is a demo of a product we do not sell.**
+
+### 4 · MORE HOVER, AND THE SCROLL MOTION IS NOT LANDING
+> *"There could be more reactive text, like whenever you hover over things. I
+> think everything should almost have a reaction if you hover over it — not
+> everything-everything, but a lot of stuff. And there's no animation in the
+> page… no animation as you scroll up or down."*
+
+The reveals were built and are too quiet to register. **A hover state on
+anything a pointer can reach**, and scroll motion that is actually visible.
+
+### 5 · THE BOOK SECTION AND THE FOOTER READ AS ONE THING
+> *"There's this weird place at the bottom where there's 'get pricing under a
+> minute' and then, like, connected — it looks like it's supposed to be
+> separated, but it's not. But this huge logo of Prime and a call-us and
+> whatnot."*
+
+Two dark panels stacked with a 0px gap read as one panel with a rule through it.
+
+### WHAT HE LIKED — worth as much as the critiques
+The pricing package block (*"looks great, by the way. I love it"*), the
+**Areas we cover** scrolling marquee, and the overall look.
