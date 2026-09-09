@@ -535,6 +535,30 @@ reading it.**
     belongs beside the price it applies to, and the home page was carrying a
     second, vaguer copy of it.
 
+### From site 3 — the reversal, 2026-09-09. **READ 75 BEFORE TOUCHING SCROLL.**
+75. **NEVER HIJACK THE WHEEL. NOT ON ANY SITE.** A lerped smooth-scroll was
+    built to imitate fora's weight and his verdict was immediate: *"when I
+    scroll it's super delayed and super fast and stops abruptly — it's just
+    horrible."* Native scrolling is not a thing to improve. Weight comes from
+    what the page's own layers do, never from taking the wheel away.
+76. **A MEASUREMENT CAN BE RIGHT AND THE BUILD STILL WRONG.** Fora's factors
+    were measured correctly (0.31 / 0.17 background, 0.00 subject) and the
+    page built from them was worse, because two big glows added at the bottom
+    of the hero changed the thing he already liked. **Measure the reference,
+    then change ONE thing and show it.**
+77. **A REVERT CAN TAKE MORE THAN IT SHOULD.** Reverting that commit also
+    removed the gap fix and the first-scroll movement, which had ridden along
+    in the same commit. **Commit a fix and an experiment separately**, or a
+    reversal costs the fix too.
+78. **The footer's status dot was 0px wide** — `.fcols span{display:block}` at
+    (0,2,0) beat `.open{display:inline-flex}` at (0,1,0), so the dot stopped
+    being a flex item, fell back to `display:inline`, and an inline box
+    ignores width. It rendered as a dark sliver. Give a dot
+    `display:inline-block` so it carries a box wherever it is dropped.
+79. **An oversized wordmark needs its own clipped band and a word WIDER than
+    the page.** With a negative bottom margin it sat on the copyright line,
+    and overhanging by 12px it read as cut rather than faded.
+
 ### Traps that cost a measurement here, and will again
 25. **`flex: 0 0 min(a,b)` is invalid** — a math function in the shorthand's
     basis drops the whole declaration and the item sizes to content.

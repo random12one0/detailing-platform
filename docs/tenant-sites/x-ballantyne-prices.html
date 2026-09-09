@@ -131,7 +131,8 @@ a{color:inherit}
 @media (hover:none){.btn:hover{transform:none}}
 .chip{display:inline-flex;align-items:center;gap:8px;padding:8px 15px;border-radius:var(--r-pill);
   font-size:12.5px;font-weight:600;background:var(--panel);box-shadow:inset 0 0 0 1px var(--edge)}
-.dot{width:7px;height:7px;border-radius:50%;background:var(--live);flex:none}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;
+  background:var(--live);flex:none}
 
 /* header — the same top fade as the home page, not a pill island */
 .hdr{position:sticky;top:0;z-index:40;padding:16px 0;transition:padding var(--t-mid) var(--ease)}
@@ -627,39 +628,49 @@ var STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
 })();
 
 
-// ── parallax: two layers travelling against each other ───────────────────
-// His note, pointing at fora: *"these trees and mountains move up, and then
-// this panel moves down... both of them are actually moving."* Each marked
-// layer moves at its own fraction of the distance the section has travelled
-// through the viewport, and the SIGN is the whole effect — the hero photo
-// sinks while the strip under it climbs.
+// ── parallax ─────────────────────────────────────────────────────────────
+// One rule: a layer moves by a fraction of the distance it has TRAVELLED
+// since it entered the viewport. Travel-based, so it is at zero when the page
+// loads and moves on the first pixel of scroll — position-based parallax sits
+// pre-offset at rest and barely moves, which is why the first version could
+// not be seen.
 //
-// The offset is measured from the element's own position on screen rather
-// than from scrollY, so a layer halfway down the page does not start life
-// three thousand pixels out of place.
+// EVERY LAYER IS CAPPED. cap="fit" measures the slack a scaled image actually
+// hides — (its height - its frame's height) / 2 — because one pixel past that
+// is empty ground inside the frame. A box in normal flow is never moved at
+// all: its CONTENTS are, inside a parent that clips, since a block that moves
+// leaves its space behind and that hole was the gap under the photograph.
 (function () {
   if (STILL) return;
   var layers = [].slice.call(document.querySelectorAll("[data-par]"));
   if (!layers.length) return;
+  layers.forEach(function (el) {
+    var r = el.getBoundingClientRect();
+    el._from = Math.max(0, r.top + scrollY - innerHeight);
+  });
   var ticking = false;
   function place() {
     ticking = false;
-    var h = innerHeight;
     layers.forEach(function (el) {
-      var r = el.getBoundingClientRect();
-      if (r.bottom < -200 || r.top > h + 200) return;      // off screen, no work
-      var mid = r.top + r.height / 2;
-      var off = (mid - h / 2) / h;                          // -1 .. 1 across the screen
-      var f = parseFloat(el.dataset.par) || 0;
-      el.style.setProperty("--par", (off * f * h).toFixed(1) + "px");
-      if (!el.style.getPropertyValue("--par")) return;
-      if (el.hasAttribute("data-par-self")) el.style.transform =
-        "translate3d(0," + (off * f * h).toFixed(1) + "px,0)";
+      var f = parseFloat(el.dataset.par) || 0, cap;
+      if (el.dataset.parCap === "fit") {
+        var fr = el.parentElement.getBoundingClientRect();
+        cap = Math.max(0, (el.getBoundingClientRect().height - fr.height) / 2 - 2);
+      } else cap = parseFloat(el.dataset.parCap) || 120;
+      var travel = Math.max(0, scrollY - el._from);
+      var off = Math.max(-cap, Math.min(cap, travel * f));
+      el.style.setProperty("--par", off.toFixed(1) + "px");
     });
   }
   function tick() { if (!ticking) { ticking = true; requestAnimationFrame(place); } }
   addEventListener("scroll", tick, { passive: true });
-  addEventListener("resize", tick, { passive: true });
+  addEventListener("resize", function () {
+    layers.forEach(function (el) {
+      var r = el.getBoundingClientRect();
+      el._from = Math.max(0, r.top + scrollY - innerHeight);
+    });
+    tick();
+  }, { passive: true });
   place();
 })();
 

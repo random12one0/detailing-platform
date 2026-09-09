@@ -193,7 +193,8 @@ a{color:inherit}
 .chip{display:inline-flex;align-items:center;gap:8px;padding:8px 15px;
   border-radius:var(--r-pill);font-size:12.5px;font-weight:600;
   background:var(--panel);box-shadow:inset 0 0 0 1px var(--edge);color:var(--ink)}
-.dot{width:7px;height:7px;border-radius:50%;background:var(--live);flex:none}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;
+  background:var(--live);flex:none}
 @media (prefers-reduced-motion:no-preference){
   .dot{animation:pulse 2.6s var(--ease) infinite}
   @keyframes pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--live) 55%,transparent)}
@@ -252,7 +253,7 @@ a{color:inherit}
   mask-image:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.5) 15%, #000 40%)}
 .stage img{width:100%;height:100%;object-fit:cover;display:block;
   /* it travels inside its own frame, so the frame's fade stays where it is */
-  transform:translate3d(0,var(--par,0px),0) scale(1.12);will-change:transform}
+  transform:translate3d(0,var(--par,0px),0) scale(1.42);will-change:transform}
 /* PHOTO SLOT · tenant field: business_media.hero — 16:8, cover, top-lit */
 
 .stage-shell{position:relative}
@@ -262,10 +263,11 @@ a{color:inherit}
   backdrop-filter:blur(12px);box-shadow:inset 0 0 0 1px var(--edge-strong)}
 
 /* ── 6 · MARQUEE — the trade and the towns, both directions ───────────── */
-.strip{padding:26px 0;margin-top:-2px;
+.strip{padding:34px 0;margin-top:-2px;
   transform:translate3d(0,var(--par,0px),0);
   border-top:1px solid var(--edge);border-bottom:1px solid var(--edge);
   background:var(--panel);backdrop-filter:blur(8px);overflow:hidden}
+.stripinner{transform:translate3d(0,var(--par,0px),0);will-change:transform}
 .rail{display:flex;width:max-content;gap:0;will-change:transform}
 .rail+.rail{margin-top:12px}
 .rail i{font-style:normal;display:inline-flex;align-items:center;gap:26px;padding-right:26px;
@@ -483,13 +485,22 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
 .fcols a:hover{color:var(--ink)}
 .open{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink);
   margin-top:6px;font-weight:600}
+/* THE WORDMARK ENDS THE PAGE, IT DOES NOT SIT ON THE FINE PRINT.
+   The negative bottom margin pulled the copyright line up INTO the letters,
+   and the fade finished inside the page instead of running off the edge, so
+   the word looked cut rather than faded. It now has its own band, clipped, and
+   the gradient reaches transparent at 100% of a word that is wider than the
+   band it sits in. */
+.endband{overflow:hidden;margin:18px 0 0}
 .endmark{font-family:"Schibsted Grotesk";font-weight:700;letter-spacing:-.04em;
-  font-size:clamp(70px,17vw,220px);line-height:.78;white-space:nowrap;
-  margin:10px 0 -.14em;padding-bottom:.06em;
-  background:linear-gradient(90deg,var(--ink) 62%,color-mix(in srgb,var(--ink) 12%,transparent) 100%);
+  font-size:clamp(66px,17.4vw,236px);line-height:.82;white-space:nowrap;
+  margin:0;padding-bottom:.08em;width:112%;
+  background:linear-gradient(90deg,var(--ink) 46%,
+    color-mix(in srgb,var(--ink) 8%,transparent) 88%, transparent 100%);
   -webkit-background-clip:text;background-clip:text;color:transparent}
 .fine{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;
-  padding:14px 0 26px;font-size:12.5px;color:var(--ink-3);border-top:1px solid var(--edge)}
+  padding:16px 0 30px;margin-top:4px;font-size:12.5px;color:var(--ink-3);
+  border-top:1px solid var(--edge)}
 
 /* ── 17 · THE PHONE DOCK — something stays on screen on both surfaces ─── */
 .dock{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;z-index:50;
@@ -574,8 +585,9 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
       <p class="under"><b>5.0</b> from 65+ Google reviews &middot; insured &middot; serving 16 towns</p>
     </div>
     <div class="wrap stage-shell">
-      <div class="stage" data-par="-0.16">
-        <img src="https://images.unsplash.com/photo-1658244500543-47f32dc51dc2?fm=jpg&amp;fit=crop&amp;w=2000&amp;h=1000&amp;q=78"
+      <div class="stage">
+        <img data-par="0.20" data-par-cap="fit"
+             src="https://images.unsplash.com/photo-1658244500543-47f32dc51dc2?fm=jpg&amp;fit=crop&amp;w=2000&amp;h=1000&amp;q=78"
              alt="A detailer running a machine polisher along the bonnet of a dark car beside its lit headlight.">
       </div>
     </div>
@@ -584,7 +596,8 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
   <!-- ═══ 2 · THE STRIP ═════════════════════════════════════════════════ -->
   <!-- the strip climbs while the photograph above it sinks: two layers on
        opposite headings, which is the fora move he asked for. -->
-  <section class="strip" data-par="0.10" aria-label="What we do and where">
+  <section class="strip" aria-label="What we do and where">
+    <div class="stripinner" data-par="-0.08" data-par-cap="20">
     <div class="rail" data-rail="1">
       <i><b>Interior detailing</b></i><i><b>Exterior detailing</b></i><i><b>Ceramic coating</b></i>
       <i><b>Paint correction</b></i><i><b>Full detail</b></i><i><b>Odour removal</b></i>
@@ -593,6 +606,7 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
     <div class="rail" data-rail="-1">
       <i>Ballantyne</i><i>Uptown</i><i>Dilworth</i><i>Matthews</i><i>Pineville</i>
       <i>Huntersville</i><i>Cornelius</i><i>Waxhaw</i><i>Mint Hill</i><i>Concord</i>
+    </div>
     </div>
   </section>
 
@@ -688,8 +702,9 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
 
       <!-- one job in full, sitting among the others rather than alone -->
       <article class="job lit" data-rv="0">
-        <div class="pic" data-par="-0.05"><!-- PHOTO SLOT · jobs[].hero — fills its column -->
-          <img src="https://images.unsplash.com/photo-1658244500543-47f32dc51dc2?fm=jpg&amp;fit=crop&amp;w=900&amp;h=800&amp;q=76"
+        <div class="pic"><!-- PHOTO SLOT · jobs[].hero — fills its column -->
+          <img data-par="0.20" data-par-cap="fit"
+             src="https://images.unsplash.com/photo-1658244500543-47f32dc51dc2?fm=jpg&amp;fit=crop&amp;w=900&amp;h=800&amp;q=76"
                alt="A machine polisher passing along a dark bonnet beside a lit headlight."></div>
         <div class="say">
           <blockquote>&ldquo;I am fussy about my car and I watched most of it. He found
@@ -855,7 +870,7 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
         <a href="#area">See the list</a>
       </div>
     </div>
-    <div class="endmark" aria-hidden="true">Ballantyne</div>
+    <div class="endband" aria-hidden="true"><div class="endmark">Ballantyne</div></div>
     <div class="fine">
       <span>&copy; 2026 Ballantyne Mobile Detailing LLC</span>
       <span>Insured &middot; NC licensed &middot; Est. 2019</span>
@@ -949,39 +964,49 @@ var STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
 })();
 
 
-// ── parallax: two layers travelling against each other ───────────────────
-// His note, pointing at fora: *"these trees and mountains move up, and then
-// this panel moves down... both of them are actually moving."* Each marked
-// layer moves at its own fraction of the distance the section has travelled
-// through the viewport, and the SIGN is the whole effect — the hero photo
-// sinks while the strip under it climbs.
+// ── parallax ─────────────────────────────────────────────────────────────
+// One rule: a layer moves by a fraction of the distance it has TRAVELLED
+// since it entered the viewport. Travel-based, so it is at zero when the page
+// loads and moves on the first pixel of scroll — position-based parallax sits
+// pre-offset at rest and barely moves, which is why the first version could
+// not be seen.
 //
-// The offset is measured from the element's own position on screen rather
-// than from scrollY, so a layer halfway down the page does not start life
-// three thousand pixels out of place.
+// EVERY LAYER IS CAPPED. cap="fit" measures the slack a scaled image actually
+// hides — (its height - its frame's height) / 2 — because one pixel past that
+// is empty ground inside the frame. A box in normal flow is never moved at
+// all: its CONTENTS are, inside a parent that clips, since a block that moves
+// leaves its space behind and that hole was the gap under the photograph.
 (function () {
   if (STILL) return;
   var layers = [].slice.call(document.querySelectorAll("[data-par]"));
   if (!layers.length) return;
+  layers.forEach(function (el) {
+    var r = el.getBoundingClientRect();
+    el._from = Math.max(0, r.top + scrollY - innerHeight);
+  });
   var ticking = false;
   function place() {
     ticking = false;
-    var h = innerHeight;
     layers.forEach(function (el) {
-      var r = el.getBoundingClientRect();
-      if (r.bottom < -200 || r.top > h + 200) return;      // off screen, no work
-      var mid = r.top + r.height / 2;
-      var off = (mid - h / 2) / h;                          // -1 .. 1 across the screen
-      var f = parseFloat(el.dataset.par) || 0;
-      el.style.setProperty("--par", (off * f * h).toFixed(1) + "px");
-      if (!el.style.getPropertyValue("--par")) return;
-      if (el.hasAttribute("data-par-self")) el.style.transform =
-        "translate3d(0," + (off * f * h).toFixed(1) + "px,0)";
+      var f = parseFloat(el.dataset.par) || 0, cap;
+      if (el.dataset.parCap === "fit") {
+        var fr = el.parentElement.getBoundingClientRect();
+        cap = Math.max(0, (el.getBoundingClientRect().height - fr.height) / 2 - 2);
+      } else cap = parseFloat(el.dataset.parCap) || 120;
+      var travel = Math.max(0, scrollY - el._from);
+      var off = Math.max(-cap, Math.min(cap, travel * f));
+      el.style.setProperty("--par", off.toFixed(1) + "px");
     });
   }
   function tick() { if (!ticking) { ticking = true; requestAnimationFrame(place); } }
   addEventListener("scroll", tick, { passive: true });
-  addEventListener("resize", tick, { passive: true });
+  addEventListener("resize", function () {
+    layers.forEach(function (el) {
+      var r = el.getBoundingClientRect();
+      el._from = Math.max(0, r.top + scrollY - innerHeight);
+    });
+    tick();
+  }, { passive: true });
   place();
 })();
 
