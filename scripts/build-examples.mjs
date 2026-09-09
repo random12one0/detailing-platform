@@ -119,32 +119,61 @@ const PAGES = [
   ["u-cedarchrome.html", "Cedar & Chrome", "woven earth · staggered masonry · moderate motion"],
 ];
 
-/** The strip that says what somebody is looking at. Injected rather than
- *  written into the source files, so the pages themselves stay exactly what a
- *  client's site would be. */
-const banner = (title, note, n) => `
-<!-- THE STRIP IS FIXED, SO THE PAGE HAS TO GIVE IT ROOM. Seen at 392, where it
-     wraps to two lines and covered the last paragraph of the page — a fixed bar
-     is out of flow, so nothing under it moves unless something is told to. Two
-     heights because the strip has two heights. -->
+// ───────────────────────────────────────────────────────────────────────────
+// THE EXAMPLE STRIP IS GONE — his instruction, 2026-09-09: *"for every single
+// example that's hosted... there's this little thing on the bottom that says
+// example three... just completely remove that because it's not needed, and it
+// also hides some elements in some of the websites."*
+//
+// It was there to say the prices are placeholders. That warning still exists
+// where it cannot cover anything: every price on every one of these pages
+// carries a `data-from` attribute naming the endpoint that owns it, which is
+// the durable form of the same statement and is in the file rather than
+// painted over the page.
+//
+// WHAT REPLACES IT ON ex3 ONLY: a paint switcher, because that site ships in
+// three colourways and he could not find a way to change them. It is one
+// small control, out of the corner of the page, and it says what it is.
+// ───────────────────────────────────────────────────────────────────────────
+const PAINTS = `
 <style>
-  body{padding-bottom:64px!important}
-  @media (max-width:760px){ body{padding-bottom:118px!important} }
+  .paintpick{position:fixed;right:14px;bottom:14px;z-index:2147483646;
+    display:flex;align-items:center;gap:8px;padding:7px 9px 7px 13px;border-radius:999px;
+    font:600 12px/1 ui-sans-serif,system-ui,-apple-system,sans-serif;
+    background:rgba(12,16,18,.72);color:#F2F1EC;backdrop-filter:blur(14px) saturate(1.3);
+    box-shadow:0 10px 30px -12px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.16)}
+  .paintpick b{font-weight:600;opacity:.8;letter-spacing:.04em}
+  .paintpick button{width:20px;height:20px;padding:0;border-radius:50%;cursor:pointer;
+    border:1px solid rgba(255,255,255,.34);transition:transform 180ms cubic-bezier(.16,1,.3,1)}
+  .paintpick button:hover{transform:scale(1.16)}
+  .paintpick button[aria-pressed="true"]{box-shadow:0 0 0 2px #F2F1EC;transform:scale(1.16)}
+  .paintpick [data-paint="a"]{background:#0A1317}
+  .paintpick [data-paint="b"]{background:#10635F}
+  .paintpick [data-paint="c"]{background:#E9EDF1}
+  /* it must not sit on top of the phone dock */
+  @media (max-width:820px){ .paintpick{bottom:80px} }
 </style>
-<div style="position:fixed;left:0;right:0;bottom:0;z-index:2147483647;
-  font:600 12.5px/1.5 ui-sans-serif,system-ui,-apple-system,sans-serif;
-  background:#0B0D0E;color:#F2F1EC;border-top:1px solid #333B40;
-  padding:9px 14px;display:flex;gap:10px;flex-wrap:wrap;align-items:baseline;
-  box-shadow:0 -8px 24px -12px rgba(0,0,0,.6);">
-  <span style="color:#38E08B;letter-spacing:.1em;text-transform:uppercase;
-    font-size:11px;">Example ${n}</span>
-  <span>${title}</span>
-  <span style="color:#8B9499;font-weight:400;">${note}</span>
-  <span style="color:#8B9499;font-weight:400;margin-left:auto;">
-    Prices and times are placeholders — on a real site every one of them comes
-    live from that detailer's own dashboard.
-  </span>
-</div>`;
+<div class="paintpick" role="group" aria-label="Colourway">
+  <b>Colour</b>
+  <button data-paint="a" title="Night" aria-label="Night"></button>
+  <button data-paint="b" title="Teal" aria-label="Teal"></button>
+  <button data-paint="c" title="Daylight" aria-label="Daylight"></button>
+</div>
+<script>
+(function () {
+  var root = document.documentElement, saved = null;
+  var btns = [].slice.call(document.querySelectorAll(".paintpick [data-paint]"));
+  try { saved = localStorage.getItem("ex3-paint"); } catch (e) {}
+  var q = new URLSearchParams(location.search).get("c");
+  function set(p) {
+    root.setAttribute("data-c", p);
+    try { localStorage.setItem("ex3-paint", p); } catch (e) {}
+    btns.forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.paint === p)); });
+  }
+  set(q || (saved === "a" || saved === "b" || saved === "c" ? saved : "b"));
+  btns.forEach(function (b) { b.addEventListener("click", function () { set(b.dataset.paint); }); });
+})();
+<\/script>`;
 
 async function main() {
   let made = 0;
@@ -155,11 +184,7 @@ async function main() {
       const html = await readFile(path.join(SRC, file), "utf8");
       const dir = path.join(OUT, `example${n}`);
       await mkdir(dir, { recursive: true });
-      // Before `</body>` so it sits above everything and needs no stylesheet.
-      const withBanner = html.includes("</body>")
-        ? html.replace("</body>", `${banner(title, note, n)}\n</body>`)
-        : html + banner(title, note, n);
-      await writeFile(path.join(dir, "index.html"), withBanner, "utf8");
+      await writeFile(path.join(dir, "index.html"), html, "utf8");
       rows.push([n, title, note]);
       made++;
     } catch (e) {
@@ -167,9 +192,8 @@ async function main() {
     }
   }
 
-  // THE MULTI-PAGE SITES. Same banner, same placeholder warning; the only
-  // difference is that the cross-links are rewritten from the source
-  // filenames to the served ones.
+  // THE MULTI-PAGE SITES. The cross-links are rewritten from the source
+  // filenames to the served ones, and ex3 gets the paint switcher.
   const multi = [];
   for (const [slug, entry, title, note, extras] of MULTI) {
     try {
@@ -191,11 +215,10 @@ async function main() {
         return out;
       };
       for (const [src, dest] of [[entry, "index.html"], ...Object.entries(extras)]) {
-        const html = rewrite(await readFile(path.join(SRC, src), "utf8"));
-        const withBanner = html.includes("</body>")
-          ? html.replace("</body>", `${banner(title, note, slug.toUpperCase())}\n</body>`)
-          : html + banner(title, note, slug.toUpperCase());
-        await writeFile(path.join(dir, dest), withBanner, "utf8");
+        let html = rewrite(await readFile(path.join(SRC, src), "utf8"));
+        // the paint switcher, on the one site that has paints to switch
+        if (slug === "ex3") html = html.replace("</body>", PAINTS + "</body>");
+        await writeFile(path.join(dir, dest), html, "utf8");
       }
       multi.push([slug, title, note]);
       console.log(`  ${slug}: ${1 + Object.keys(extras).length} pages`);

@@ -470,6 +470,46 @@ reading it.**
     all-or-nothing patch that asserts on the first miss writes nothing and
     looks like it ran; three passes here silently applied nothing at all.
 
+### From site 3 — the animation pass, 2026-09-09. **51 IS FOR EVERY SITE.**
+51. **AN ANIMATION THAT PLAYS ONCE IS A BUG — his rule, and it binds every
+    site we build.** *"If there's an animation scrolling down, when you scroll
+    back up, there should be an animation again. And when you scroll back
+    down, the animation should have it again."* Leaving the viewport in
+    either direction re-arms the element.
+52. **Drive reveals from the SCROLL, not from IntersectionObserver.** IO does
+    not fire at all in some embedded browser views, and because the hidden
+    state is added by script, an observer that never fires is a BLANK PAGE.
+    One rAF-throttled pass over ~40 elements costs nothing. Measured here.
+53. **A transition cannot start from `display:none`, and `<details>` hides its
+    own content while closed.** The answer snapped to full height in under
+    90ms while wearing a 460ms transition that never ran. Hold the element
+    open for the session, drive the state with a class, and set
+    `aria-expanded` by hand.
+54. **The pointer lights the CONTENT, not the ground** — a soft fill plus a
+    brighter EDGE, from one delegated `pointermove` that writes two custom
+    properties on the surface under the cursor. Sixty surfaces do not get
+    sixty listeners.
+55. **A sequence gets drawn as one thing.** Four equal boxes said "four
+    unrelated items" about the one part of the page that is genuinely in
+    order; a line that fills with the scroll, lighting each stage as it
+    passes, says what the section means.
+56. **Not everything is a box.** His word for this page was *"literally
+    everything is in a box"*. Facts in a row, promises and small groups take
+    a rule above them, not a fill and a border each.
+57. **A heading hard against the section above it reads as amateur.** He
+    named it on the work section; it had no top padding at all.
+58. **Verify motion with a PROBE, not a screenshot** — a still frame cannot
+    tell a 90ms snap from a 460ms ramp, and a screenshot taken mid-transition
+    looks like a blank page and is not one. `.tmp-site3/probe-motion.mjs`
+    reads the mid-flight value.
+59. **Probe the element you ACTED on.** `querySelector(".q.is-open")` returned
+    the question that starts open, and reported a snap belonging to a
+    different element for two rounds.
+60. **The hosted examples carry no banner strip.** It covered page elements
+    and the placeholder warning it carried lives in every price's `data-from`
+    attribute instead. `ex3` gets a paint switcher in its place, bottom-right,
+    clear of the phone dock.
+
 ### Traps that cost a measurement here, and will again
 25. **`flex: 0 0 min(a,b)` is invalid** — a math function in the shorthand's
     basis drops the whole declaration and the item sizes to content.

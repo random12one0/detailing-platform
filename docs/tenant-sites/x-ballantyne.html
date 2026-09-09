@@ -62,7 +62,13 @@
   --r-tight:8px;         /* the smallest tiles                              */
   --t-fast:180ms; --t-mid:320ms; --t-slow:620ms;
   --ease:cubic-bezier(.2,.7,.25,1);
+  /* the ramp everything that ARRIVES uses: slow out of the gate, long settle.
+     A 180ms linear-ish fade is the "fast and not smooth" he named on the FAQ. */
+  --ramp:cubic-bezier(.16,1,.3,1);
+  --t-arrive:520ms;
   --wrap:1180px;
+  /* one grain, defined once, tinted by whatever it sits on */
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.055'/%3E%3C/svg%3E");
 }
 
 /* ── A · petrol night ─────────────────────────────────────────────────── */
@@ -80,6 +86,7 @@ html[data-c="a"]{
   --panel-2:rgba(255,255,255,.085);
   --edge:rgba(255,255,255,.12);      /* decorative hairline                  */
   --edge-strong:rgba(255,255,255,.26); /* a control's edge - needs 3:1       */
+  --glow:#2E7F8A; --glow2:#F5A524;
   --band:#0D1A1F;        /* the second ground, for alternating sections      */
   --band-ink:#EAF2F4;
   --live:#5FE3A1;
@@ -92,13 +99,14 @@ html[data-c="b"]{
         linear-gradient(#0F5A57 0%, #0A4441 70%, #0C5350 100%);
   --ink:#F4EFE6;         /* worst pair in this colourway, built page: 4.69:1 */
   --ink-2:#E9E3D6;
-  --ink-3:#DED8CA;       /* lifted twice: B is the tightest of the three     */
+  --ink-3:#F0EBE1;       /* lifted twice: B is the tightest of the three     */
   --accent:#FFD166;
   --on-accent:#231B00;
   --panel:rgba(244,239,230,.10);
   --panel-2:rgba(244,239,230,.16);
   --edge:rgba(244,239,230,.26);
   --edge-strong:rgba(244,239,230,.46);
+  --glow:#2BA79B; --glow2:#FFD166;
   --band:#F4EFE6;        /* the cream band cut into the paint                */
   --band-ink:#0B3D3A;
   --live:#0E7C55;
@@ -119,6 +127,7 @@ html[data-c="c"]{
   --panel-2:rgba(255,255,255,.86);
   --edge:rgba(13,20,24,.13);
   --edge-strong:rgba(13,20,24,.30);
+  --glow:#8FB0FF; --glow2:#FFFFFF;
   --band:#0D1418;
   --band-ink:#EAF0F5;
   --live:#0E7C55;
@@ -135,6 +144,20 @@ body{
   overflow-x:clip;           /* NOT hidden: hidden kills position:sticky     */
 }
 .sky{position:fixed;inset:0;background:var(--sky);z-index:0;pointer-events:none}
+/* THREE LAYERS OVER THE PAINT, because a flat fill under a gradient is still
+   flat: two slow-drifting glows and a grain. `overflow` is contained on the
+   layer itself — a drifting child of <body> scrolls the page sideways, and
+   whether anybody notices depends on the SIGN of one number. */
+.sky:before,.sky:after{content:"";position:absolute;inset:-20%;pointer-events:none}
+.sky:before{background:
+  radial-gradient(38% 30% at 22% 28%, color-mix(in srgb,var(--glow) 34%,transparent), transparent 70%),
+  radial-gradient(30% 26% at 82% 62%, color-mix(in srgb,var(--glow2) 40%,transparent), transparent 72%)}
+.sky:after{opacity:.5;background-image:var(--grain);background-size:180px 180px}
+@media (prefers-reduced-motion:no-preference){
+  .sky:before{animation:drift 46s ease-in-out infinite alternate}
+}
+@keyframes drift{from{transform:translate3d(-2%,-1%,0) scale(1)}
+                 to{transform:translate3d(3%,2%,0) scale(1.08)}}
 main{position:relative;z-index:1}
 .wrap{width:min(var(--wrap),calc(100% - 40px));margin-inline:auto}
 
@@ -250,24 +273,53 @@ a{color:inherit}
 .intro p{font-size:17px;color:var(--ink-2);max-width:62ch}
 .intro p b{color:var(--ink);font-weight:600}
 .intro .facts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}
-.intro .fact{padding:16px 18px;border-radius:var(--r-panel);background:var(--panel);
-  box-shadow:inset 0 0 0 1px var(--edge);min-width:0}
+/* NOT EVERYTHING IS A BOX — his note. These four are facts in a row; a fill
+   and a border around each one says "four separate objects", which they are
+   not. A rule above each is enough to group them. */
+.intro .fact{padding:14px 0 0;border-top:2px solid var(--edge);min-width:0}
 .intro .fact b{display:block;font-family:"Schibsted Grotesk";font-weight:600;font-size:17px;margin-bottom:2px}
 .intro .fact span{font-size:13px;color:var(--ink-3)}
+
+/* ── 7b · THE POINTER LIGHT ──────────────────────────────────────────
+   His note: the CONTENT lights up under the cursor, and its EDGE lights up
+   more than the rest. One overlay per lit surface, driven by two custom
+   properties a single document-level listener writes. Neutralised on touch,
+   where there is no pointer to follow. */
+.lit{position:relative;isolation:isolate}
+.lit:before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  opacity:0;transition:opacity 420ms var(--ramp);z-index:0;
+  background:radial-gradient(220px circle at var(--mx,50%) var(--my,50%),
+    color-mix(in srgb,var(--ink) 12%,transparent), transparent 62%)}
+.lit:after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  opacity:0;transition:opacity 420ms var(--ramp);z-index:1;
+  padding:1px;
+  background:radial-gradient(280px circle at var(--mx,50%) var(--my,50%),
+    color-mix(in srgb,var(--accent) 72%,transparent), transparent 60%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask-composite:exclude}
+.lit.on:before{opacity:1}
+.lit.on:after{opacity:.9}
+.lit > *{position:relative;z-index:2}
+@media (hover:none){.lit:before,.lit:after{display:none}}
 
 /* ── 8 · REVEALS ─────────────────────────────────────────────────────── */
 /* The hidden state is added by SCRIPT, never by this stylesheet: a page
    whose script fails must still be readable, and .rv is namespaced because a
    bare marker class meets other people's class names. */
-.rv-hidden{opacity:0;transform:translateY(18px)}
-.rv-in{opacity:1;transform:none;transition:opacity var(--t-slow) var(--ease),
-        transform var(--t-slow) var(--ease)}
-@keyframes swapin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* AN ANIMATION THAT HAPPENS ONCE IS A BUG — his rule, 2026-09-09, and it is
+   for every site: scroll up and back down and it plays again, for ever. The
+   hidden state is still added by script, so a page whose script fails is a
+   readable page rather than a blank one. */
+.rv-hidden{opacity:0;transform:translateY(22px) scale(.995);
+  transition:opacity 320ms var(--ramp),transform 320ms var(--ramp)}
+.rv-in{opacity:1;transform:none;
+  transition:opacity var(--t-arrive) var(--ramp),transform var(--t-arrive) var(--ramp)}
 @media (prefers-reduced-motion:reduce){
-  .rv-hidden{opacity:1;transform:none}
-  .q,.qs>*{animation:none!important}
+  .rv-hidden{opacity:1;transform:none;transition:none}
   .rv-in{transition:none}
-  .rail{animation:none!important}
+  .rail,.sky:before{animation:none!important}
+  .q .a{transition:none!important}
 }
 
 /* ── 9 · SERVICE ROWS — fora's label/heading/body/visual/kicker shape ──── */
@@ -305,14 +357,30 @@ a{color:inherit}
   box-shadow:inset 0 0 0 1px transparent}
 .band .btn-2{color:var(--band-ink);
   box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--band-ink) 34%,transparent)}
-.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:26px;counter-reset:s}
-.step{padding:20px;border-radius:var(--r-panel);min-width:0;
-  background:color-mix(in srgb,var(--band-ink) 6%,transparent);
-  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--band-ink) 16%,transparent)}
-.step .num{display:block;font-size:13px;font-weight:600;letter-spacing:.1em;
-  color:color-mix(in srgb,var(--band-ink) 60%,transparent);margin-bottom:10px}
-.step h3{margin-bottom:6px}
+/* FOUR STAGES ARE A SEQUENCE, SO THEY ARE DRAWN AS ONE — a line that fills
+   as the section crosses the screen, with each stage lighting as the fill
+   reaches it. Four equal boxes said "four unrelated things" about the one
+   part of this page that is genuinely in order. */
+.steps{position:relative;margin-top:38px;padding-top:34px;
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(14px,2.6vw,30px)}
+.steps .track{position:absolute;left:0;right:0;top:11px;height:2px;
+  background:color-mix(in srgb,var(--band-ink) 18%,transparent);border-radius:2px}
+.steps .track i{position:absolute;inset:0 auto 0 0;width:calc(var(--p,0) * 100%);
+  background:var(--accent);border-radius:2px;
+  transition:width 220ms linear}
+.step{position:relative;min-width:0;padding-right:8px}
+.step .num{position:absolute;top:-34px;left:0;width:22px;height:22px;border-radius:50%;
+  display:grid;place-items:center;font-size:11px;font-weight:700;font-family:"Instrument Sans";
+  letter-spacing:0;color:color-mix(in srgb,var(--band-ink) 62%,transparent);
+  background:var(--band);
+  box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--band-ink) 22%,transparent);
+  transition:color 380ms var(--ramp),box-shadow 380ms var(--ramp),transform 380ms var(--ramp)}
+.step.on .num{color:var(--on-accent);background:var(--accent);transform:scale(1.12);
+  box-shadow:inset 0 0 0 2px var(--accent),0 0 0 6px color-mix(in srgb,var(--accent) 22%,transparent)}
+.step h3{margin-bottom:6px;transition:opacity 380ms var(--ramp)}
 .step p{font-size:14px;margin:0;color:color-mix(in srgb,var(--band-ink) 78%,transparent)}
+.step h3,.step p{opacity:.5;transition:opacity 420ms var(--ramp)}
+.step.on h3,.step.on p{opacity:1}
 
 /* ── 11 · WORK — cards carrying a category and a date ─────────────────── */
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(248px,1fr));gap:14px;margin-top:26px}
@@ -348,10 +416,8 @@ a{color:inherit}
 
 /* ── 13 · PROMISES — a split panel, not a card grid ───────────────────── */
 .promise{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-  border-radius:var(--r-card);overflow:hidden;margin-top:24px;
-  background:var(--panel);box-shadow:inset 0 0 0 1px var(--edge)}
-.promise > div{padding:clamp(20px,2.6vw,30px);min-width:0;
-  box-shadow:inset 0 0 0 .5px var(--edge)}
+  gap:clamp(18px,3vw,44px);margin-top:26px}
+.promise > div{padding:18px 0 0;border-top:1px solid var(--edge);min-width:0}
 .promise h3{margin-bottom:6px}
 .promise p{font-size:14.5px;color:var(--ink-2);margin:0}
 
@@ -362,16 +428,29 @@ a{color:inherit}
   padding:9px 16px;border-radius:var(--r-pill);background:transparent;color:var(--ink-2);
   transition:background var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 .tabs button[aria-selected="true"]{background:var(--accent);color:var(--on-accent)}
+/* the answers under the tabs FADE AND RISE, staggered, on the same ramp as
+   everything else that arrives. 180ms with no stagger was the snap he named. */
+@keyframes swapin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 .qs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
 .qs[hidden]{display:none}   /* display:grid outranks [hidden] - it must be said */
 .q{border-radius:var(--r-panel);background:var(--panel);box-shadow:inset 0 0 0 1px var(--edge);
   min-width:0;overflow:hidden}
 .q summary{cursor:pointer;list-style:none;padding:16px 18px;font-weight:600;font-size:15.5px;
-  display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+  display:flex;justify-content:space-between;gap:12px;align-items:flex-start;
+  transition:color 260ms var(--ramp)}
+.q:hover summary{color:var(--ink)}
 .q summary::-webkit-details-marker{display:none}
 .q summary:after{content:"+";font-family:"Schibsted Grotesk";font-size:19px;line-height:1;
   color:var(--accent);flex:none;transition:transform var(--t-fast) var(--ease)}
-.q[open] summary:after{transform:rotate(45deg)}
+.q.is-open summary:after{transform:rotate(45deg)}
+/* THE ANSWER RAMPS OPEN. 0fr -> 1fr animates a real height without measuring
+   one, and the text rises inside it rather than appearing at full size. */
+.q .a{display:grid;grid-template-rows:0fr;opacity:0;
+  transition:grid-template-rows 460ms var(--ramp),opacity 300ms var(--ramp)}
+.q .a > div{overflow:hidden;min-height:0;transform:translateY(-6px);
+  transition:transform 460ms var(--ramp)}
+.q.is-open .a{grid-template-rows:1fr;opacity:1}
+.q.is-open .a > div{transform:none}
 .q p{padding:0 18px 16px;margin:0;font-size:14.5px;color:var(--ink-2)}
 .flags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
 .flag{font-size:12.5px;font-weight:600;padding:7px 12px;border-radius:var(--r-tight);
@@ -537,7 +616,7 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
     </div>
 
     <div class="wrap" style="margin-top:26px">
-      <article class="row" data-rv="0">
+      <article class="row lit" data-rv="0">
         <div class="rowtext">
           <h2>Interior detailing</h2>
           <ul class="ticks">
@@ -556,7 +635,7 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
         </div>
       </article>
 
-      <article class="row" data-rv="0">
+      <article class="row lit" data-rv="0">
         <div class="rowtext">
           <h2>Exterior detailing</h2>
           <ul class="ticks">
@@ -578,7 +657,7 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
         </div>
       </article>
 
-      <article class="row" data-rv="0">
+      <article class="row lit" data-rv="0">
         <div class="rowtext">
           <h2>Paint correction and ceramic coating</h2>
           <ul class="ticks">
@@ -604,17 +683,18 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
     <div class="wrap">
       <span class="label" data-rv="0">The process</span>
       <h2 data-rv="1">Inspect, wash, correct, protect</h2>
-      <div class="steps">
-        <div class="step" data-rv="0"><span class="num">STAGE 1</span>
+      <div class="steps" id="steps">
+        <div class="track" aria-hidden="true"><i></i></div>
+        <div class="step" data-rv="0"><span class="num">1</span>
           <h3>Inspect</h3>
           <p>A walk round in daylight and under a hand-held lamp. Defects noted, package agreed, price fixed before anything is touched.</p></div>
-        <div class="step" data-rv="1"><span class="num">STAGE 2</span>
+        <div class="step" data-rv="1"><span class="num">2</span>
           <h3>Wash and decontaminate</h3>
           <p>Two-bucket hand wash, iron fallout remover, clay bar. Polishing dirty paint grinds the dirt into it.</p></div>
-        <div class="step" data-rv="2"><span class="num">STAGE 3</span>
+        <div class="step" data-rv="2"><span class="num">3</span>
           <h3>Correct</h3>
           <p>Machine polish to the agreed stage. One pass for light swirls, two for paint that has been through tunnel washes.</p></div>
-        <div class="step" data-rv="3"><span class="num">STAGE 4</span>
+        <div class="step" data-rv="3"><span class="num">4</span>
           <h3>Protect</h3>
           <p>Wax, sealant or coating. A coating is wiped, levelled and left to cure &mdash; which is why it is booked on a dry day.</p></div>
       </div>
@@ -623,13 +703,15 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
 
   <!-- ═══ 6 · WORK ═════════════════════════════════════════════════════
        Cards carrying a category and a date, which is fora's blog shape doing
-       a job it is better at here: proof that the work is recent and local. -->
-  <section id="work">
+       a job it is better at here: proof that the work is recent and local.
+       THE TOP PADDING IS NOT DECORATION: this heading sat hard against the
+       band above it and read as a mistake. -->
+  <section id="work" style="padding:clamp(52px,7vw,86px) 0 0">
     <div class="wrap">
       <span class="label" data-rv="0">Recent work</span>
       <h2 data-rv="1">Cars we worked on this month</h2>
       <div class="cards">
-        <article class="card" data-rv="0">
+        <article class="card lit" data-rv="0">
           <div class="pic"><!-- PHOTO SLOT · jobs[].photo — 5:4 cover -->
             <img src="https://images.unsplash.com/photo-1658244546876-d82cbf1a1c9e?fm=jpg&amp;fit=crop&amp;w=700&amp;h=560&amp;q=74"
                  alt="A detailer polishing the wing of a dark red car."></div>
@@ -637,7 +719,7 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
           <h3>2019 Audi A5</h3>
           <p>Two-step correction and a level 2 coating. Matthews.</p>
         </article>
-        <article class="card" data-rv="1">
+        <article class="card lit" data-rv="1">
           <div class="pic">
             <img src="https://images.unsplash.com/photo-1770289711980-c7663e18bb16?fm=jpg&amp;fit=crop&amp;w=700&amp;h=560&amp;q=74"
                  alt="A blue hatchback parked on a driveway in front of a garage door."></div>
@@ -645,7 +727,7 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
           <h3>2022 Hyundai Kona</h3>
           <p>Enhancement package on a lease return. Huntersville.</p>
         </article>
-        <article class="card" data-rv="2">
+        <article class="card lit" data-rv="2">
           <div class="pic">
             <img src="https://images.unsplash.com/photo-1779983625007-22db9d8bf6be?fm=jpg&amp;fit=crop&amp;w=700&amp;h=560&amp;q=74"
                  alt="A burgundy saloon parked outside a house with red shutters."></div>
@@ -653,7 +735,7 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
           <h3>2015 BMW 328i</h3>
           <p>Full restoration &mdash; shampoo, extraction, odour. Dilworth.</p>
         </article>
-        <article class="card" data-rv="3">
+        <article class="card lit" data-rv="3">
           <div class="pic">
             <img src="https://images.unsplash.com/photo-1780558852669-1bd1ae615506?fm=jpg&amp;fit=crop&amp;w=700&amp;h=560&amp;q=74"
                  alt="A microfibre cloth drawn across the wing of a dark blue car."></div>
@@ -664,7 +746,7 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
       </div>
 
       <!-- one job in full, sitting among the others rather than alone -->
-      <article class="job" data-rv="0">
+      <article class="job lit" data-rv="0">
         <div class="pic"><!-- PHOTO SLOT · jobs[].hero — fills its column -->
           <img src="https://images.unsplash.com/photo-1658244500543-47f32dc51dc2?fm=jpg&amp;fit=crop&amp;w=900&amp;h=800&amp;q=76"
                alt="A machine polisher passing along a dark bonnet beside a lit headlight."></div>
@@ -708,7 +790,7 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
   <!-- ═══ 8 · OWNER ═══════════════════════════════════════════════════ -->
   <section style="padding:clamp(40px,5.5vw,62px) 0 0">
     <div class="wrap">
-      <article class="row" data-rv="0" style="background:var(--panel-2)">
+      <article class="row lit" data-rv="0" style="background:var(--panel-2)">
         <div class="rowtext">
           <span class="label">Who turns up</span>
           <h2>Aaron Petrakis, owner</h2>
@@ -740,36 +822,24 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
       </div>
 
       <div class="qs" data-panel="day">
-        <details class="q" open><summary>How long does it take?</summary>
-          <p>Two to four hours for an interior, three to five for a full detail, six to nine when a coating goes on. You get the window when you book, not on the day.</p></details>
-        <details class="q"><summary>Do I need to be there?</summary>
-          <p>No. Most people leave the car unlocked with the key inside and pay by card when they get the photos.</p></details>
-        <details class="q"><summary>What do you need from me?</summary>
-          <p>A parking space about a car and a half long. Water and power come off the van.</p></details>
-        <details class="q"><summary>What happens if it rains?</summary>
-          <p>A wash or an interior still runs. A coating does not &mdash; it needs twelve dry hours to cure, so it gets moved, free.</p></details>
+        <details class="q lit" open><summary>How long does it take?</summary><div class="a"><div><p>Two to four hours for an interior, three to five for a full detail, six to nine when a coating goes on. You get the window when you book, not on the day.</p></div></div></details>
+        <details class="q lit"><summary>Do I need to be there?</summary><div class="a"><div><p>No. Most people leave the car unlocked with the key inside and pay by card when they get the photos.</p></div></div></details>
+        <details class="q lit"><summary>What do you need from me?</summary><div class="a"><div><p>A parking space about a car and a half long. Water and power come off the van.</p></div></div></details>
+        <details class="q lit"><summary>What happens if it rains?</summary><div class="a"><div><p>A wash or an interior still runs. A coating does not &mdash; it needs twelve dry hours to cure, so it gets moved, free.</p></div></div></details>
       </div>
 
       <div class="qs" data-panel="work" hidden>
-        <details class="q" open><summary>Is a sealant the same as a ceramic coating?</summary>
-          <p>No. A sealant lasts four to six months. A coating is rated three to five years and needs the paint corrected first, which is most of the cost.</p></details>
-        <details class="q"><summary>Will it take the scratches out?</summary>
-          <p>Anything that does not catch a fingernail usually comes out. Deeper than that is filled and improved, and you are told which is which before the polisher starts.</p></details>
-        <details class="q"><summary>Do you do engine bays and headlights?</summary>
-          <p>Both, as add-ons. Headlight restoration is one visit; a yellowed lens goes clear and is sealed against it coming back.</p></details>
-        <details class="q"><summary>Pet hair, smoke, spilled milk?</summary>
-          <p>All doable and all charged as add-ons, because each of them is an hour or two on its own.</p></details>
+        <details class="q lit" open><summary>Is a sealant the same as a ceramic coating?</summary><div class="a"><div><p>No. A sealant lasts four to six months. A coating is rated three to five years and needs the paint corrected first, which is most of the cost.</p></div></div></details>
+        <details class="q lit"><summary>Will it take the scratches out?</summary><div class="a"><div><p>Anything that does not catch a fingernail usually comes out. Deeper than that is filled and improved, and you are told which is which before the polisher starts.</p></div></div></details>
+        <details class="q lit"><summary>Do you do engine bays and headlights?</summary><div class="a"><div><p>Both, as add-ons. Headlight restoration is one visit; a yellowed lens goes clear and is sealed against it coming back.</p></div></div></details>
+        <details class="q lit"><summary>Pet hair, smoke, spilled milk?</summary><div class="a"><div><p>All doable and all charged as add-ons, because each of them is an hour or two on its own.</p></div></div></details>
       </div>
 
       <div class="qs" data-panel="money" hidden>
-        <details class="q" open><summary>Why does the price change with the car?</summary>
-          <p>Three sizes. A coupe, an SUV and a three-row truck are not the same amount of paint or the same number of seats.</p></details>
-        <details class="q"><summary>What if the car is worse than it looked?</summary>
-          <p>You get a photo and a number before anything starts. Say no and only the booked package runs.</p></details>
-        <details class="q"><summary>When do I pay?</summary>
-          <p>When the job is finished and you have walked round it. Card, tap or cash.</p></details>
-        <details class="q"><summary>Can I cancel?</summary>
-          <p>Free up to 24 hours before. Inside that, half the package price, because the slot cannot be refilled.</p></details>
+        <details class="q lit" open><summary>Why does the price change with the car?</summary><div class="a"><div><p>Three sizes. A coupe, an SUV and a three-row truck are not the same amount of paint or the same number of seats.</p></div></div></details>
+        <details class="q lit"><summary>What if the car is worse than it looked?</summary><div class="a"><div><p>You get a photo and a number before anything starts. Say no and only the booked package runs.</p></div></div></details>
+        <details class="q lit"><summary>When do I pay?</summary><div class="a"><div><p>When the job is finished and you have walked round it. Card, tap or cash.</p></div></div></details>
+        <details class="q lit"><summary>Can I cancel?</summary><div class="a"><div><p>Free up to 24 hours before. Inside that, half the package price, because the slot cannot be refilled.</p></div></div></details>
       </div>
 
       <!-- warnings are FLAGS: no sentences, nothing to read twice -->
@@ -791,14 +861,14 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
         <b data-from="get_public_business_profile.travel_zones">$1.20 a mile</b> from
         Ballantyne, quoted with the booking.</p>
       <div class="towns" data-rv="3">
-        <span class="town home">Ballantyne</span><span class="town">Uptown</span>
-        <span class="town">Dilworth</span><span class="town">Myers Park</span>
-        <span class="town">SouthPark</span><span class="town">Steele Creek</span>
-        <span class="town">Matthews</span><span class="town">Mint Hill</span>
-        <span class="town">Pineville</span><span class="town">Waxhaw</span>
-        <span class="town">Weddington</span><span class="town">Huntersville</span>
-        <span class="town">Cornelius</span><span class="town">Davidson</span>
-        <span class="town">Concord</span><span class="town">Harrisburg</span>
+        <span class="town home">Ballantyne</span><span class="town lit">Uptown</span>
+        <span class="town lit">Dilworth</span><span class="town lit">Myers Park</span>
+        <span class="town lit">SouthPark</span><span class="town lit">Steele Creek</span>
+        <span class="town lit">Matthews</span><span class="town lit">Mint Hill</span>
+        <span class="town lit">Pineville</span><span class="town lit">Waxhaw</span>
+        <span class="town lit">Weddington</span><span class="town lit">Huntersville</span>
+        <span class="town lit">Cornelius</span><span class="town lit">Davidson</span>
+        <span class="town lit">Concord</span><span class="town lit">Harrisburg</span>
       </div>
     </div>
   </section>
@@ -861,14 +931,25 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
 </nav>
 
 <script>
-// ── colourway ────────────────────────────────────────────────────────────
-// ?c=a|b|c picks the paint. Three colourways over one skeleton, which is what
-// was asked for; the attribute is the ONLY thing that changes.
+// ─────────────────────────────────────────────────────────────────────────
+// THE MOTION SYSTEM. Shared by both pages of this site; the prices page runs
+// the same file minus the pieces it has no markup for.
+//
+// Andrew's rules, 2026-09-09, and the first is for every site we build:
+//   * an animation that plays once is a bug. Scroll up, scroll back down, it
+//     plays again, for ever.
+//   * everything that arrives does so on ONE ramp — slow out, long settle.
+//     A 180ms fade with no stagger is the "fast and not smooth" he named.
+//   * the CONTENT lights up under the pointer, edges brightest, not the
+//     background.
+// ─────────────────────────────────────────────────────────────────────────
+var STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// ── the paint, and it is handed on to this site's own links ──────────────
 (function () {
   var c = new URLSearchParams(location.search).get("c");
   if (c !== "a" && c !== "b" && c !== "c") return;
   document.documentElement.setAttribute("data-c", c);
-  // hand the choice on: a link to this site's other page keeps the paint
   addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll("a[href]").forEach(function (a) {
       var h = a.getAttribute("href");
@@ -881,30 +962,76 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
 // ── the header condenses into an island ──────────────────────────────────
 (function () {
   var h = document.getElementById("hdr");
-  var onScroll = function () { h.classList.toggle("stuck", window.scrollY > 40); };
-  addEventListener("scroll", onScroll, { passive: true }); onScroll();
+  if (!h) return;
+  var f = function () { h.classList.toggle("stuck", window.scrollY > 40); };
+  addEventListener("scroll", f, { passive: true }); f();
 })();
 
-// ── reveals: the hidden state is added HERE, so a failed script is a
-//    readable page rather than a blank one ─────────────────────────────────
+// ── reveals, and they REPLAY ─────────────────────────────────────────────
+// Leaving the viewport in EITHER direction re-arms the element, so scrolling
+// back down plays it again — his rule, and it is for every site.
+//
+// DRIVEN BY THE SCROLL, NOT BY IntersectionObserver, and that was measured
+// rather than preferred: IO does not fire at all in some embedded browser
+// views, and because the hidden state is added by script, a page whose
+// observer never fires is a BLANK PAGE. One rAF-throttled pass over ~37
+// elements costs nothing and cannot fail that way. It is also the same
+// mechanism the process rail below uses, so the page has one scroll loop
+// rather than two ideas about what "on screen" means.
 (function () {
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (STILL) return;
   var els = [].slice.call(document.querySelectorAll("[data-rv]"));
   els.forEach(function (el) { el.classList.add("rv-hidden"); });
-  var io = new IntersectionObserver(function (rows) {
-    rows.forEach(function (r) {
-      if (!r.isIntersecting) return;
-      var el = r.target, i = +(el.dataset.rv || 0);
-      setTimeout(function () { el.classList.remove("rv-hidden"); el.classList.add("rv-in"); }, i * 70);
-      io.unobserve(el);
+  var ticking = false;
+  function pass() {
+    ticking = false;
+    var h = innerHeight;
+    els.forEach(function (el) {
+      var r = el.getBoundingClientRect();
+      var seen = r.top < h * 0.92 && r.bottom > 0;
+      if (seen === !el.classList.contains("rv-hidden")) return;   // no change
+      if (el._t) clearTimeout(el._t);
+      if (seen) {
+        el._t = setTimeout(function () {
+          el.classList.remove("rv-hidden"); el.classList.add("rv-in");
+        }, (+(el.dataset.rv || 0)) * 60);
+      } else {
+        el.classList.remove("rv-in"); el.classList.add("rv-hidden");
+      }
     });
-  }, { rootMargin: "0px 0px -12% 0px" });
-  els.forEach(function (el) { io.observe(el); });
+  }
+  function tick() { if (!ticking) { ticking = true; requestAnimationFrame(pass); } }
+  addEventListener("scroll", tick, { passive: true });
+  addEventListener("resize", tick, { passive: true });
+  addEventListener("load", tick);
+  pass();
 })();
 
-// ── the FAQ's category tabs ──────────────────────────────────────────────
-// The frame stays put and the answers under it are replaced, which is a SWAP
-// rather than an arrival: the panel does not slide in, its rows do.
+// ── the pointer light ────────────────────────────────────────────────────
+// ONE listener on the document rather than two per card: at ~60 lit surfaces
+// that is 120 listeners doing what one delegated handler does, and the custom
+// properties are written only on the surface actually under the cursor.
+(function () {
+  if (matchMedia("(hover: none)").matches) return;
+  var current = null;
+  addEventListener("pointermove", function (e) {
+    var el = e.target.closest ? e.target.closest(".lit") : null;
+    if (el !== current) {
+      if (current) current.classList.remove("on");
+      current = el;
+      if (current) current.classList.add("on");
+    }
+    if (!current) return;
+    var r = current.getBoundingClientRect();
+    current.style.setProperty("--mx", ((e.clientX - r.left) / r.width * 100).toFixed(1) + "%");
+    current.style.setProperty("--my", ((e.clientY - r.top) / r.height * 100).toFixed(1) + "%");
+  }, { passive: true });
+  addEventListener("pointerleave", function () {
+    if (current) { current.classList.remove("on"); current = null; }
+  });
+})();
+
+// ── the FAQ's tabs ───────────────────────────────────────────────────────
 (function () {
   var tabs = [].slice.call(document.querySelectorAll(".tabs [data-tab]"));
   if (!tabs.length) return;
@@ -915,14 +1042,68 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
       panels.forEach(function (p) {
         var on = p.dataset.panel === t.dataset.tab;
         p.hidden = !on;
-        if (!on) return;
+        if (!on || STILL) return;
         [].slice.call(p.children).forEach(function (row, i) {
           row.style.animation = "none"; void row.offsetWidth;
-          row.style.animation = "swapin 180ms " + (i * 20) + "ms var(--ease) both";
+          row.style.animation = "swapin 520ms " + (i * 55) + "ms var(--ramp) both";
         });
       });
     });
   });
+})();
+
+// ── the FAQ's answers ────────────────────────────────────────────────────
+// A TRANSITION CANNOT START FROM display:none, and <details> keeps its own
+// content out of the box tree while closed — which is why the ramp never ran
+// and the answer snapped to 60.9px inside 90ms while wearing a 460ms
+// transition. The element is therefore held OPEN for the whole session and
+// the state is ours: the 0fr -> 1fr wrapper is always rendered, so it always
+// has a previous style to animate from. `aria-expanded` is maintained by hand
+// because the native one would now always read true.
+(function () {
+  [].slice.call(document.querySelectorAll(".q")).forEach(function (d) {
+    var sum = d.querySelector("summary");
+    if (!sum) return;
+    var start = d.open;
+    d.open = true;                      // stays open; .is-open is the real state
+    d.classList.toggle("is-open", start);
+    sum.setAttribute("aria-expanded", String(start));
+    sum.addEventListener("click", function (e) {
+      e.preventDefault();
+      var next = !d.classList.contains("is-open");
+      d.classList.toggle("is-open", next);
+      sum.setAttribute("aria-expanded", String(next));
+    });
+  });
+})();
+
+// ── the process rail draws itself ────────────────────────────────────────
+// The fill is the section's own progress across the viewport, so it advances
+// with the scroll rather than on a timer, and it runs BACKWARDS on the way up.
+(function () {
+  var box = document.getElementById("steps");
+  if (!box) return;
+  var fill = box.querySelector(".track i");
+  var steps = [].slice.call(box.querySelectorAll(".step"));
+  if (STILL) { if (fill) fill.style.width = "100%"; steps.forEach(function (s) { s.classList.add("on"); }); return; }
+  var ticking = false;
+  function draw() {
+    ticking = false;
+    var r = box.getBoundingClientRect();
+    // 0 when the rail's top reaches three-quarters down the screen, 1 when it
+    // has climbed to a third of the way up
+    var p = (innerHeight * 0.78 - r.top) / (innerHeight * 0.46);
+    p = Math.max(0, Math.min(1, p));
+    box.style.setProperty("--p", p.toFixed(3));
+    steps.forEach(function (s, i) {
+      s.classList.toggle("on", p >= (i + 0.35) / steps.length);
+    });
+  }
+  addEventListener("scroll", function () {
+    if (!ticking) { ticking = true; requestAnimationFrame(draw); }
+  }, { passive: true });
+  addEventListener("resize", draw, { passive: true });
+  draw();
 })();
 
 // ── the marquee ──────────────────────────────────────────────────────────
@@ -930,12 +1111,12 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
 // nothing else: a wheel event over the rail is somebody scrolling the PAGE,
 // and stopping for that reads as a broken animation.
 (function () {
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (STILL) return;
   [].slice.call(document.querySelectorAll(".rail")).forEach(function (rail) {
     var dir = +(rail.dataset.rail || 1), set = rail.innerHTML;
-    rail.innerHTML = set + set;                       // exactly two sets
-    var width = rail.scrollWidth / 2;                 // one set's width
-    var x = dir < 0 ? -width : 0, speed = 22 / 1000;  // px per ms
+    rail.innerHTML = set + set;
+    var width = rail.scrollWidth / 2;
+    var x = dir < 0 ? -width : 0, speed = 22 / 1000;
     var held = false, last = null;
     rail.addEventListener("pointerdown", function () { held = true; });
     addEventListener("pointerup", function () { held = false; });
@@ -952,6 +1133,19 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
     }
     requestAnimationFrame(step);
   });
+})();
+
+// ── the price page's category rail ───────────────────────────────────────
+(function () {
+  var links = [].slice.call(document.querySelectorAll(".catbar a"));
+  if (!links.length) return;
+  var secs = links.map(function (a) { return document.querySelector(a.getAttribute("href")); });
+  function mark() {
+    var y = window.scrollY + 160, best = 0;
+    secs.forEach(function (s, i) { if (s && s.offsetTop <= y) best = i; });
+    links.forEach(function (a, i) { a.classList.toggle("on", i === best); });
+  }
+  addEventListener("scroll", mark, { passive: true }); mark();
 })();
 </script>
 </body>
