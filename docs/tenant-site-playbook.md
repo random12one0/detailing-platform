@@ -668,6 +668,51 @@ reading it.**
     the viewBox, and give the label real clearance — 9px put the text on top of
     the stroke.
 
+### From site 4 — the drawn line is retired, 2026-09-09
+98. **THE DRAWN CONNECTOR / NUMBERED STEP RAIL IS BANNED. It is in FOURTEEN of
+    the twenty-six pages in `docs/tenant-sites` and he recognised it:** *"I feel
+    like we've kind of overused that — almost like each one of our websites has
+    that."* Counted, not guessed. **A device that appears on more than half the
+    set is no longer a signature; it is the house tell**, which is the same
+    failure as the banned rating/years/cars-done proof row (rule 36), one level
+    up. Before adopting a scroll device, grep the set for it.
+99. **HIS SECOND COMPLAINT WAS ABOUT THE TEXT, NOT THE LINE:** *"text isn't
+    really cohesive and it kinda… yeah, it's weird."* Four labels pinned at four
+    heights along a diagonal is a scatter. **In a scroll-driven section, move
+    the PICTURE and hold the TEXT STILL** — one heading, one sentence, one
+    readout, all anchored. The replacement's copy does not move a pixel.
+100. **THE REPLACEMENT: a pinned panel and a squeegee the scroll drags across
+    it**, uncovering coated paint from bare. It is the site's own subject rather
+    than a diagram of it, it reuses the page's one angle, and it is one progress
+    number feeding the clip, the blade, the two words, the bar and the readout —
+    so it runs backwards on the way up with no second animation written.
+101. **A CUT AND A LINE THAT SHOULD LIE ON EACH OTHER CAN LEAN OPPOSITE WAYS AND
+    LOOK ALMOST RIGHT.** `rotate(-4.2deg)` puts the top of an edge to the LEFT;
+    the first `clip-path` put it to the right. **Measured, the two centres
+    agreed to within 1px and the leans were inverted** — invisible in a
+    screenshot, obvious the moment the top and bottom x of each were printed.
+    A bounding box cannot see a sign; compute the ends.
+
+### Three ways a contrast checker lies, all found in one hour — 2026-09-09
+102. **NEVER SHOOT `fullPage` TO GET A GROUND.** A `position: fixed` ground
+    paints once at the top of a full-page screenshot; every pixel below the
+    first screen came back WHITE and **manufactured seven failures in the light
+    colourway and none in the dark one.** Shoot the viewport, a screen at a time.
+103. **READ THE COLOURS BEFORE PAINTING THE GLYPHS OUT.** Injecting
+    `color: transparent` first makes every computed colour `rgba(0,0,0,0)`, so
+    all 227 pairs report 1.00:1 and the run "fails" completely. Collect, then
+    paint out, then sample.
+104. **NEVER MATCH TWO PASSES BY INDEX.** The peel's own labels fade from
+    opacity 0 to 1 as the scrub runs, so they are filtered OUT of a pass taken
+    at rest and IN on a later one — **every index after them shifts, and a
+    label gets reported against a different element's ground.** It read 2.70:1
+    for text that is really 5.71:1 and it survived three attempts to explain it
+    away as a sampling artefact. Stamp an id on the element and match on that.
+105. **A SINGLE PIXEL IS NOT A GROUND** when the ground carries a lattice or a
+    texture. Sample five points across the element and take the median by
+    luminance. (This one did not fix 104 — worth having anyway, and worth
+    knowing it is not the answer when the number is wildly wrong.)
+
 ### Traps that cost a measurement here, and will again
 25. **`flex: 0 0 min(a,b)` is invalid** — a math function in the shorthand's
     basis drops the whole declaration and the item sizes to content.

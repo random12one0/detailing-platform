@@ -1972,3 +1972,53 @@ worth having:**
 so it goes out as an Artifact URL that opens on his phone — he can hit the
 replay buttons, flip the colourway and feel the weighted scroll. Screenshots
 stay right for *"does this look correct"*; a link is the answer for *"try it"*.
+
+## 10 · THE DRAWN LINE IS RETIRED — 2026-09-09, and he counted it before we did
+
+> *"Only thing I don't like is the line that draws itself as you scroll on the
+> bias. I feel like we've kind of overused that — almost like each one of our
+> websites has that. So have something that's different with that response to
+> scrolling. It's really cool and executed properly… because even this one, the
+> one that you've made in this artifact, it's not that good because, like, text
+> isn't really cohesive and it kinda… yeah, it's weird. So just do something
+> different."*
+
+**HE IS RIGHT AND IT IS COUNTABLE: a drawn connector or a numbered step rail is
+in FOURTEEN of the twenty-six pages in `docs/tenant-sites`.** He spotted from
+one artefact what nobody here had measured across the set.
+
+**THE TRANSFERABLE RULE IS NOT ABOUT THAT DEVICE.** It is the same failure as
+the banned rating / years / cars-done proof row, one level up: **a device that
+appears on more than half the set has stopped being a signature and become the
+house tell.** Before adopting a scroll device on the next site, grep the set.
+
+**AND HIS SECOND SENTENCE IS THE MORE USEFUL ONE.** *"Text isn't really
+cohesive."* Four labels pinned at four heights along a diagonal is a scatter,
+not a section — and that is true of the device wherever it appears. **In a
+scroll-driven section, move the PICTURE and hold the TEXT STILL.**
+
+### What replaced it
+
+**A pinned panel and a squeegee the scroll drags across it**, uncovering coated
+paint from bare. It is this site's own subject rather than a diagram of it; it
+reuses the page's one angle; the heading, the sentence and the readout do not
+move a pixel; and it is **one progress number** feeding the clip, the blade, the
+two words, the bar and the percentage, so it runs backwards on the way up
+without a second animation existing.
+
+**One fault in it was a SIGN, and a wrong sign looks almost right.** The cut and
+the blade leaned in opposite directions. Measured, their centres agreed to
+within 1px — a bounding box cannot see a lean — and it was obvious the instant
+the top and bottom x of each were printed.
+
+**AND THE CONTRAST CHECKER LIED THREE DIFFERENT WAYS IN ONE HOUR**, each of
+which invents a result rather than missing one: a full-page screenshot cannot
+capture a `position: fixed` ground (seven false failures in the light colourway
+and none in the dark); painting the glyphs out before reading their colours
+makes all 227 pairs 1.00:1; and matching two passes by array index breaks the
+moment an element fades in mid-scroll and shifts every index after it. That last
+one read **2.70:1 for text that is really 5.71:1** and survived three attempts
+to explain it away. All three are playbook rules 102–105.
+
+**Final state: 202 text pairs measured in each colourway, all pass**, worst
+4.52:1 in graphite and 5.24:1 in paper against a 4.5 floor.
