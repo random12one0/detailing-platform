@@ -1867,3 +1867,46 @@ colourways on one skeleton.
 care honestly."* It draws the core's seven-step sequence and is honest about
 what it is; it has not had a layout pass. **Not a defect to fix silently —
 ask before spending time on it.**
+
+## 8 · SITE 4 — THE PAIR, MEASURED BEFORE ANYTHING WAS BUILT (2026-09-09)
+
+**His brief:** *"find a pair of two actually really good websites, one that's
+non-detailer and one that is a detailer. Maybe we could do inspiration from
+chicagoautopros.com. And then find one of the general design inspirations that
+kinda follows that look, and implement the animations into the Chicago Auto
+Pros look, as well as text."*
+
+**THE NON-DETAILER HALF IS `auxia.io`,** picked by opening frames and matching
+on FORM (rule 33), never on his verdict line. The eight candidates were
+`auxia`, `pryzm`, `lightspark`, `vessa`, `authkit`, `landscape`, `fora`
+(spent on site 3) and the Mobbin page he ruled out.
+
+**Why auxia and not the other seven, in one sentence:** it is the only one
+whose form ANSWERS Chicago's — both are one loud blue on a pale ground with
+dot-grid margins and a scroll-position device — while disagreeing about
+everything that makes a page, which is what gives the pair something to
+resolve. The rejects and why: `lightspark` and `vessa` are sparse documents
+and would feed the thinness he already named (`vessa` is literally a brand
+guidelines PDF, the banned notepad family); `pryzm` and `authkit` are dark
+glow pages and site 3 already ships a dark colourway; `landscape` is a Webflow
+template with a plain photo grid.
+
+### MEASURED OFF THE LIVE PAGES, 2026-09-09 — not recalled, not described
+
+| | chicagoautopros.com | auxia.io |
+|---|---|---|
+| **Corners** | **SQUARE.** 11 elements at 1px, 2 at 25px, 1 at 50px. The only round thing is the icon badge at **50% (20 of them)** | **ROUND.** pills (503px/1600px, 46), **16px panels (30)**, 12px (8), 8px (12), 24px (3) |
+| **Type weight** | **HEAVY and mixed.** h1 60px/700, sections 42/700, 30/700, 24/700, and the **BODY is 15px/600** (59 of them) | **ONE WEIGHT: 500, everywhere.** 13 / 16 / 20 / 32 / 64 / 96px, all 500 |
+| **Face** | Bai Jamjuree 700 (headline), Poppins (body), Jura (eyebrows) | PP Neue Montreal + IBM Plex Mono (technical labels only) |
+| **Ground** | white + `#EEE` panels on graphite slate | bone `#FEFDF5`, warm grey `#F0EFE3` |
+| **Accent** | `rgb(41,88,167)` royal blue, 31 uses | `rgb(11,79,255)` electric blue, 7 solid + **36 at 20% alpha** (the line-work) |
+| **h1 metrics** | 60px / 700 / line-height 60px (1.0) / letter-spacing normal | 40px / 500 / lh 38px (0.95) / **ls −1.2px** |
+| **The signature** | **Every seam is a DIAGONAL.** Photo and panel meet on a slant, the side flips each row, and the whole page sits inside a slanted blue frame | **A routed hairline** with rounded elbows that DRAWS ITSELF with the scroll — blue where drawn, grey ahead of it |
+| **Position device** | dots pinned to the right edge | the drawn line itself |
+| **Other devices seen** | circular icon badge, rotating "SCROLL DOWN" ring, dot-grid confetti, giant ghosted wordmark behind a section, photo carousel with arrows | dot-grid inside a blue band, per-line scroll-linked text fade, dark product panel floating on bone |
+
+**THE TENSION THE PAIR CREATES, and it has a wrong answer:** Chicago's seams
+are DIAGONAL and auxia's routing is ORTHOGONAL. They cannot both be right on
+one page. **Resolved by running the schematic on the bias** — the routed line
+takes the page's own slant angle, so the connector diagram and the section
+seams are the same gesture at two scales.
