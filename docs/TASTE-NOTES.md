@@ -2138,3 +2138,68 @@ on a 4.2° slant), the corner language (2px everywhere, one 50% badge, one
 pill), the type (Bai Jamjuree / Familjen Grotesk / Spline Sans Mono) and the
 section order. **What must NOT differ: the quality, the booking widget being
 ours, and every never-default.**
+
+## 14 · SITE 5 — BOTH REFERENCES MEASURED, AND HE CHANGED WHAT A REFERENCE IS FOR (2026-09-09)
+
+**The Dribbble link, resolved.** `https://dribbble.com/shots/27167430-Professional-Detailing-Website-Design`
+by **DamiraDovlatova** — a New York detailing studio concept. Loaded at full
+resolution and measured:
+
+- Near-black page. One **giant round-cornered red panel** (~28px at page scale)
+  holding a full-bleed photograph of a red car's headlight.
+- Headline **"PROFESSIONAL / DETAILING"** in a heavy **ITALIC** condensed, white,
+  the second word roughly double the first. It is the whole left half of the panel.
+- A white **capsule** button, a small white **4.9 rating card**, a pin reading
+  `BROOKLYN, NY`, and two lines of tiny all-caps at top right: *"TRUSTED BY CAR
+  OWNERS WHO / EXPECT PRECISION, NOT SHORTCUTS."*
+- A **red glass card** with a ceramic-coating bottle in it.
+- A small red **tab hanging below the panel**: `EXPLORE MORE ↓`.
+- Below: a giant ghost word **SERVICES** with cropped car photos over it.
+- The designer's own note: *"bold, high-impact visual identity… clear,
+  structured, and easy to scan… strong typography, high-contrast colour
+  accents… clarity, hierarchy and memorability, even with an intense palette."*
+
+**HE THEN CHANGED THE JOB OF THE SECOND REFERENCE, AND THIS IS THE PART THAT
+CHANGES HOW EVERY LATER SITE GETS BRIEFED.** Verbatim: *"use the
+carolinamobilecarwash.com website to get all of your information and basically
+use all of the information that's on their website. Like, literally every
+single thing… obviously don't make an exact copy of their website. It's a good
+design. But I'm basically trying to figure out the best way of how you take…
+how I could get you to generate a website that actually is accurate on what a
+detailer would want, and the best way to do that is just to have you look at an
+actual website and just copy all the details."*
+
+**So a pair is now a LOOK reference and a FACTS reference.** Crawl the facts
+one page by page and port everything; share nothing of its design. Playbook
+rules 125–131.
+
+**WHAT WAS PORTED** (all crawled 2026-09-09, eight pages): twenty-two services;
+per-foot RV pricing ($11 / $18 / $25 / $35 / $40 a foot); the packages ($55
+exterior, $110 express, $195 deluxe wax, $200 express seats/carpets, $300
+deluxe interior, $390 super detail, $395 paint correction, $750 ceramic); semi
+work ($80 trailer washout, $175 day cab, $400 sleeper, $685 in-and-out); golf
+cart $125; monthly plans (wash $95/$135, maintenance $45/$55, twelve months);
+the eight-line detail checklist; fourteen service towns; the deposit, weather
+and no-rush policies; the six FAQs; and the motto **"If it drives, we detail
+it."**
+
+**SITE 5 IS GANDY MOBILE DETAILING, TAMPA BAY, FL.** Near-black lacquer, one
+loud red, **Kanit 900 italic / Epilogue / Azeret Mono** (none used in any of the
+28 pages here), **28px corners with one square price cell** — the exact
+inversion of site 4 — and the page changes ground twice.
+
+**THE SIGNATURE IS THE VEHICLE SWITCHBOARD**: eight vehicle-type tiles that swap
+the price ladder in place. Carolina segments by what a vehicle **IS**; every
+site in this set so far ladders by **SIZE**, so this alone re-orders the middle
+of the page.
+
+**THE DESIGN SHEET IS BUILT, MEASURED AND SENT** —
+`docs/schemes/gandy-styleguide.html`, published as an artifact he can press.
+Every contrast figure is computed by the page (worst pair 4.06:1 for a control's
+edge against a 3:1 floor; white on the red 4.90:1); no horizontal overflow at
+320/360/392/768/1440/1920; console clean at every width.
+
+**TWO RECOMMENDATIONS HE HAS NOT ANSWERED, both taken as "yes" so the work could
+continue, both easy to reverse:** site 5 gets **no footer wordmark** (6 of 28
+pages, all of them sites 1–4) and **no marquee band** (6 of 28, all sites 1–3),
+even though Carolina has one.

@@ -933,3 +933,54 @@ anything interactive, which is most of what these pages are.
     since the design-sheet process began. Same shape as the drawn connector at
     14 of 26. He likes it and asked only that it be smaller. **Recommended,
     unanswered: site 5 does not get one.**
+
+### From site 5 — the references arrive as CONTENT, not only as a look, 2026-09-09
+125. **HE HANDED OVER A REAL DETAILER'S WHOLE SITE AND SAID TO TAKE THE
+    INFORMATION, NOT THE DESIGN.** Verbatim: *"use all of the information
+    that's on their website. Like, literally every single thing… obviously
+    don't make an exact copy of their website."* And the reason, which is the
+    part that generalises: *"I'm trying to figure out the best way of how you
+    take… how I could get you to generate a website that actually is accurate
+    on what a detailer would want, and the best way to do that is just to have
+    you look at an actual website and just copy all the details."*
+    **So a reference now has TWO halves that are read separately: the LOOK
+    reference and the FACTS reference.** Crawl the facts one properly — every
+    page, not the home page — and port the prices, the packages, the plans,
+    the service area, the policies and the FAQ. Then build a look that shares
+    nothing with it. `carolinamobilecarwash.com` is Barlow Condensed and
+    DM Sans on white; site 5 is Kanit italic on near-black, and both of those
+    faces are banned on it by name for exactly that reason.
+126. **CRAWL THE SITE FROM THE BROWSER, NOT FROM THE HOME PAGE'S TEXT.** The
+    home page returns the catalogue with the prices ALIGNED TO THE WRONG
+    ROWS — their own bug — and the accordion answers on `/faqs/` are invisible
+    to a text scrape. One `fetch` + `DOMParser` loop over the eight real URLs
+    got every page in one call and cost nothing.
+127. **SEGMENT BY WHAT THE VEHICLE IS, NOT BY WHAT SIZE IT IS.** Bus, RV, golf
+    cart, semi, trailer, boat, fleet. **Every site in this set so far ladders
+    small / midsize / large**, so this one change re-orders the whole middle of
+    a page and is the cheapest real variety available. It is also what a
+    detailer actually sells.
+128. **A MARQUEE / TICKER BAND IS NOW A HOUSE TELL TOO** — 6 of 28 pages, and
+    those 6 are sites 1, 2 and 3. Carolina has one (*"IF IT DRIVES… WE DETAIL
+    IT!"*) and site 5 still refuses it. **Before adopting ANY device off a
+    reference, grep the set for it** — that is now two devices caught this way
+    (rule 98) and one caught too late (rule 124).
+129. **A PHOTOGRAPH IS NOT VERIFIED UNTIL ITS LABEL IS BESIDE IT.** The first
+    switchboard put eight car photographs under eight vehicle labels — a car
+    under "SEMI & TRAILER", a dashboard under "BOAT" — and every check in this
+    repo passed. **Render the tiles WITH their captions and look at the
+    grid**, not at the photographs alone. A caption also lies: Unsplash calls
+    a Class C motorhome "white and brown van".
+130. **IMAGES BUILT BY STRING CONCATENATION IN JS ARE INVISIBLE TO THE ARTIFACT
+    BAKER.** `scripts/tenant-site-artifact.mjs` matches `src="https://images.
+    unsplash…"` in the source text, so seven tiles assembled as
+    `'<img src="…' + PHOTO[k] + '…">'` were left as remote URLs, which an
+    artifact's CSP blocks silently. **Static `<img>` in the HTML, always** —
+    it is also better for the page. Count the "remote photographs to bake"
+    line against what the page actually shows.
+131. **TRAP 29 BITES A GRID AT 320 EVEN WHEN THE MEDIA QUERY IS RIGHT.** The
+    two-column grid was correctly collapsed to one column and still overflowed
+    by 54px, because a grid item's automatic minimum is its min-content and
+    `carolinamobilecarwash.com` is one 312px word. `.grid > *{min-width:0}`
+    plus `overflow-wrap:anywhere` on headings. **Measure
+    `scrollWidth - clientWidth` at every width; do not read the media query.**

@@ -1,0 +1,822 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gandy — design sheet</title>
+
+<!-- SITE 5 design sheet. The parts bin, not a preview of any page. -->
+<!-- The pair: Dribbble 27167430 (DamiraDovlatova) x carolinamobilecarwash.com -->
+<!-- Every colour figure below is computed off the rendered page, never typed. -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@1,800;1,900&family=Epilogue:ital,wght@0,400;0,500;0,600;1,400&family=Azeret+Mono:wght@400;700&display=swap">
+
+<style>
+/* 1 - TOKENS */
+:root{
+  --ground:#0B0B0C;
+  --ground-2:#141416;
+  --surface:rgba(255,255,255,.055);
+  --surface-2:rgba(255,255,255,.10);
+  --ink:#F6F3F1;
+  --ink-2:#BAB5B1;
+  --ink-3:#948E8A;
+  --accent:#E10E1F;        /* a FILL only */
+  --accent-text:#FF6A63;   /* the same idea as TEXT - a second token */
+  --on-accent:#FFFFFF;
+  --band:#F2EFE9;
+  --band-ink:#131314;
+  --rule:rgba(255,255,255,.16);   /* decorative hairline */
+  --edge:rgba(255,255,255,.42);   /* a control's edge - needs 3:1 */
+  --hair:1px;
+  --edgew:1.5px;
+
+  --r-panel:28px;
+  --r-card:16px;
+  --r-inset:10px;
+  --r-pill:999px;
+  --r-cell:0px;            /* the price cell, and nothing else */
+
+  --lean:-12deg;           /* the type's own lean. Every cut uses it. */
+
+  --t-hover:180ms;
+  --t-exit:180ms;
+  --t-swap:180ms;
+  --t-settle:380ms;
+  --t-reveal:460ms;
+  --t-wipe:520ms;
+  --t-unmask:620ms;
+  --ramp:cubic-bezier(.16,1,.3,1);
+  --out:cubic-bezier(.4,.14,1,1);
+
+  --wrap:1140px;
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.055'/%3E%3C/svg%3E");
+}
+
+/* 2 - THE SHEET */
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:"Epilogue",system-ui,sans-serif;font-size:16px;line-height:1.62;
+  -webkit-font-smoothing:antialiased;overflow-x:clip}
+.lacquer{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(66% 46% at 8% 104%, rgba(225,14,31,.30), transparent 66%),
+    radial-gradient(48% 34% at 96% -6%, rgba(198,214,255,.10), transparent 70%),
+    linear-gradient(#0B0B0C 0%, #131315 54%, #0B0B0C 100%);}
+.lacquer::after{content:"";position:absolute;inset:0;background-image:var(--grain)}
+main{position:relative;z-index:1;max-width:var(--wrap);margin:0 auto;padding:0 24px 120px}
+
+h1,h2,h3,.disp{font-family:"Kanit",system-ui,sans-serif;font-style:italic;
+  font-weight:900;text-transform:uppercase;letter-spacing:-.01em;line-height:.94;margin:0}
+h1{font-size:clamp(44px,9vw,96px)}
+h2{font-size:clamp(28px,4.4vw,44px)}
+h3{font-size:20px}
+p{margin:10px 0 0;color:var(--ink-2);max-width:64ch}
+.mono,.cap{font-family:"Azeret Mono",ui-monospace,monospace}
+.cap{font-size:10px;letter-spacing:.20em;text-transform:uppercase;color:var(--ink-3)}
+b{color:var(--ink)}
+code{font-family:"Azeret Mono",monospace;font-size:12px;color:var(--accent-text)}
+
+header.top{padding:64px 0 40px;border-bottom:var(--hair) solid var(--rule)}
+.badge{display:inline-block;background:var(--accent);color:var(--on-accent);
+  border-radius:var(--r-pill);padding:6px 14px;font-family:"Azeret Mono",monospace;
+  font-size:10px;letter-spacing:.18em;text-transform:uppercase}
+.lede{font-size:18px;max-width:70ch}
+.jump{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
+.jump a{font-family:"Azeret Mono",monospace;font-size:11px;letter-spacing:.10em;
+  text-transform:uppercase;color:var(--ink-2);text-decoration:none;
+  border:var(--hair) solid var(--rule);border-radius:var(--r-pill);padding:7px 12px;
+  transition:color var(--t-hover),border-color var(--t-hover)}
+.jump a:hover{color:var(--ink);border-color:var(--edge)}
+
+section{padding:64px 0;border-bottom:var(--hair) solid var(--rule)}
+section > .cap{display:block;margin-bottom:12px}
+.grid{display:grid;gap:16px;margin-top:28px}
+.grid > *{min-width:0}                       /* trap 29: a grid item's auto minimum is min-content */
+h2,h3,.disp,.note,code{overflow-wrap:anywhere}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.panel{background:var(--surface);border:var(--hair) solid var(--rule);
+  border-radius:var(--r-panel);padding:22px}
+.card{background:var(--surface);border:var(--hair) solid var(--rule);
+  border-radius:var(--r-card);padding:18px}
+.note{color:var(--ink-3);font-size:14px}
+
+/* 3 - COLOUR SWATCHES */
+.sw{border-radius:var(--r-card);overflow:hidden;border:var(--hair) solid var(--rule)}
+.sw .chip{height:104px}
+.sw .meta{padding:12px 14px;background:var(--ground-2)}
+.sw .meta b{display:block;font-size:14px}
+.sw .meta small{font-family:"Azeret Mono",monospace;font-size:11px;color:var(--ink-3);overflow-wrap:anywhere;display:block}
+.ratio{display:inline-block;margin-top:6px;font-family:"Azeret Mono",monospace;
+  font-size:10px;letter-spacing:.06em;padding:3px 8px;border-radius:var(--r-pill);
+  background:rgba(255,255,255,.08);color:var(--ink-2)}
+.ratio.pass{color:#7BE3A6}
+.ratio.fail{color:#FF6A63}
+
+/* 4 - TYPE SPECIMENS */
+.spec{padding:24px;border-radius:var(--r-card);background:var(--ground-2);
+  border:var(--hair) solid var(--rule)}
+.spec .row{border-top:var(--hair) solid var(--rule);padding-top:14px;margin-top:14px}
+.spec .row:first-of-type{border-top:0;margin-top:0;padding-top:0}
+.kanit{font-family:"Kanit";font-style:italic;font-weight:900;text-transform:uppercase;
+  font-size:52px;line-height:.92;letter-spacing:-.015em}
+.epi{font-family:"Epilogue";font-size:17px;line-height:1.6;color:var(--ink-2)}
+.aze{font-family:"Azeret Mono";font-weight:700;font-size:30px;letter-spacing:-.02em}
+
+/* 5 - CORNERS */
+.corner{display:grid;place-items:center;height:112px;background:var(--surface-2);
+  border:var(--edgew) solid var(--edge)}
+.corner.p{border-radius:var(--r-panel)}
+.corner.c{border-radius:var(--r-card)}
+.corner.i{border-radius:var(--r-inset)}
+.corner.pill{border-radius:var(--r-pill)}
+.corner.sq{border-radius:var(--r-cell);background:var(--accent);border-color:var(--accent)}
+.corner.no{border-radius:4px;border-style:dashed;opacity:.45}
+
+/* 6 - CONTROLS, EVERY STATE */
+.btn{font-family:"Azeret Mono",monospace;font-weight:700;font-size:11px;
+  letter-spacing:.16em;text-transform:uppercase;border:0;cursor:pointer;
+  padding:14px 22px;border-radius:var(--r-pill);background:var(--accent);
+  color:var(--on-accent);transition:transform var(--t-hover),filter var(--t-hover)}
+.btn:hover{filter:brightness(1.12)}
+.btn:active{transform:translateY(1px) scale(.985)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.btn[disabled]{background:var(--surface-2);color:var(--ink-3);cursor:not-allowed;filter:none}
+.btn.ghost{background:transparent;color:var(--ink);border:var(--edgew) solid var(--edge)}
+.btn.ghost:hover{border-color:var(--ink)}
+.state{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.inp{width:100%;font-family:"Epilogue";font-size:15px;color:var(--ink);
+  background:var(--surface);border:var(--edgew) solid var(--edge);
+  border-radius:var(--r-inset);padding:12px 14px;transition:border-color var(--t-hover)}
+.inp:focus{outline:0;border-color:var(--accent-text)}
+.inp.err{border-color:var(--accent-text)}
+.chip-s{display:inline-flex;gap:8px;align-items:center;font-family:"Azeret Mono",monospace;
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);
+  background:var(--surface);border:var(--hair) solid var(--rule);
+  border-radius:var(--r-pill);padding:7px 12px}
+.dot{width:6px;height:6px;border-radius:50%;background:#4ADE9B}
+.pricerow{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
+  padding:14px 0;border-top:var(--hair) solid var(--rule)}
+.pricerow:first-child{border-top:0}
+.pricerow .nm{font-family:"Kanit";font-style:italic;font-weight:800;font-size:17px;
+  text-transform:uppercase;letter-spacing:-.005em}
+.pricerow .sub{display:block;font-family:"Epilogue";font-style:normal;font-weight:400;
+  font-size:13px;color:var(--ink-3);text-transform:none;letter-spacing:0;margin-top:2px}
+.cell{font-family:"Azeret Mono",monospace;font-weight:700;font-size:15px;
+  background:var(--accent);color:var(--on-accent);border-radius:var(--r-cell);
+  padding:6px 10px;white-space:nowrap}
+.glass{background:rgba(225,14,31,.30);border:var(--hair) solid rgba(255,255,255,.24);
+  border-radius:var(--r-card);padding:16px;backdrop-filter:blur(9px)}
+
+/* 7 - MOTION SPECIMENS */
+.demo{background:var(--ground-2);border:var(--hair) solid var(--rule);
+  border-radius:var(--r-card);padding:16px;overflow:hidden}
+.stage{position:relative;height:170px;border-radius:var(--r-card);overflow:hidden;
+  background:#000;display:grid;place-items:center}
+.stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.replay{margin-top:12px;font-family:"Azeret Mono",monospace;font-size:10px;
+  letter-spacing:.14em;text-transform:uppercase;padding:8px 12px;cursor:pointer;
+  border:var(--hair) solid var(--rule);border-radius:var(--r-pill);
+  background:transparent;color:var(--ink-3);transition:color var(--t-hover)}
+.replay:hover{color:var(--ink)}
+.nums{margin-top:8px;font-family:"Azeret Mono",monospace;font-size:11px;color:var(--ink-3)}
+
+@keyframes gd-unmask{from{clip-path:inset(42% 0 42% 0 round var(--r-panel))}
+  to{clip-path:inset(0 0 0 0 round var(--r-panel))}}
+.a-unmask.run{animation:gd-unmask var(--t-unmask) var(--ramp) both}
+
+.wipe{position:relative;display:inline-block;overflow:hidden;padding:0 2px}
+@keyframes gd-wipe{from{clip-path:polygon(0 0,0 0,-24% 100%,-24% 100%)}
+  to{clip-path:polygon(0 0,124% 0,100% 100%,-24% 100%)}}
+.a-wipe.run .wipe{animation:gd-wipe var(--t-wipe) var(--ramp) both}
+.a-wipe.run .wipe:nth-child(2){animation-delay:90ms}
+
+@keyframes gd-settle{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.a-settle.run > *{animation:gd-settle var(--t-settle) var(--ramp) both}
+.a-settle.run > *:nth-child(2){animation-delay:40ms}
+.a-settle.run > *:nth-child(3){animation-delay:80ms}
+.a-settle.run > *:nth-child(4){animation-delay:120ms}
+
+@keyframes gd-reveal{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:none}}
+.a-reveal.run{animation:gd-reveal var(--t-reveal) var(--ramp) both}
+
+@keyframes gd-rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* 8 - THE GLOSS, scroll-linked. One progress number drives everything. */
+.gloss-wrap{position:relative;border-radius:var(--r-panel);overflow:hidden;
+  border:var(--hair) solid var(--rule);height:260px}
+.gloss-wrap img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.92)}
+.gloss-bar{position:absolute;top:-30%;bottom:-30%;width:34%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.42),transparent);
+  transform:translateX(var(--gx,-60%)) rotate(var(--lean));pointer-events:none}
+.gloss-read{position:absolute;left:16px;bottom:14px;font-family:"Azeret Mono",monospace;
+  font-size:11px;color:#fff;background:rgba(0,0,0,.55);padding:6px 10px;border-radius:var(--r-pill)}
+
+/* 9 - THE SIGNATURE: the vehicle switchboard */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.tile{position:relative;border:0;padding:0;cursor:pointer;overflow:hidden;
+  border-radius:var(--r-card);background:var(--ground-2);aspect-ratio:4/3;
+  transition:transform var(--t-hover),box-shadow var(--t-hover)}
+.tile img{width:100%;height:100%;object-fit:cover;opacity:.52;
+  transition:opacity var(--t-hover),transform var(--t-hover)}
+.tile::after{content:"";position:absolute;inset:auto 0 0 0;height:56%;pointer-events:none;
+  background:linear-gradient(transparent,rgba(0,0,0,.86))}
+.tile.motto::after{display:none}
+.tile .lab{z-index:1;position:absolute;left:10px;bottom:9px;font-family:"Kanit";font-style:italic;
+  font-weight:900;text-transform:uppercase;font-size:15px;color:#fff;
+  text-shadow:0 2px 10px rgba(0,0,0,.85);letter-spacing:-.01em}
+.tile:hover img{opacity:.72;transform:scale(1.03)}
+.tile[aria-pressed="true"]{box-shadow:inset 0 0 0 2.5px var(--accent)}
+.tile[aria-pressed="true"] img{opacity:.9}
+.tile:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.tile.motto{background:var(--accent);display:grid;place-items:center}
+.tile.motto .lab{position:static;text-align:center;font-size:19px;line-height:1;padding:0 10px;text-shadow:none}
+.ladder{margin-top:18px}
+.gd-swap > *{animation:gd-rise var(--t-swap) var(--ramp) both}
+.gd-swap > *:nth-child(2){animation-delay:20ms}
+.gd-swap > *:nth-child(3){animation-delay:40ms}
+.gd-swap > *:nth-child(4){animation-delay:60ms}
+.gd-swap > *:nth-child(5){animation-delay:80ms}
+.gd-swap > *:nth-child(n+6){animation-delay:100ms}
+
+/* 10 - THE LIGHT BAND, because the page switches ground */
+.bandbox{background:var(--band);color:var(--band-ink);border-radius:var(--r-panel);
+  padding:28px;margin-top:22px}
+.bandbox h3{color:var(--band-ink)}
+.bandbox p{color:#4A4744}
+.bandbox .cap{color:#6B6764}
+.bandbox .cell{background:var(--band-ink);color:var(--band)}
+
+/* 11 - PHOTOGRAPHY */
+.shot{border-radius:var(--r-card);overflow:hidden;border:var(--hair) solid var(--rule)}
+.shot img{width:100%;height:170px;object-fit:cover;display:block}
+.shot.reject img{filter:grayscale(1) brightness(.55)}
+.shot figcaption{padding:10px 12px;font-size:13px;color:var(--ink-2);background:var(--ground-2)}
+
+/* 12 - THE RULES */
+ol.rules{margin:24px 0 0;padding-left:22px;color:var(--ink-2)}
+ol.rules li{margin-bottom:12px}
+
+/* 13 - THE PHONE IS A RE-LAYOUT */
+@media (max-width:820px){
+  .g4,.g3{grid-template-columns:repeat(2,1fr)}
+  .tiles{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:560px){
+  .g2{grid-template-columns:1fr}
+  main{padding:0 16px 90px}
+  .kanit{font-size:38px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:1ms !important;animation-delay:0ms !important;transition-duration:1ms !important}
+}
+</style>
+</head>
+<body>
+<div class="lacquer"></div>
+<main>
+
+<header class="top">
+  <span class="badge">Site 5 &middot; design sheet</span>
+  <h1 style="margin-top:18px">Gandy<br>Mobile Detailing</h1>
+  <p class="lede">Tampa Bay, Florida. This is the parts bin for site&nbsp;5 &mdash;
+  faces, colours, corners, controls, motion and the one signature device.
+  <b>Nothing on this page is a preview of the website.</b> If a block here could
+  be lifted into the finished page as-is, it belongs in the page, not here.</p>
+  <div class="jump">
+    <a href="#pair">The pair</a><a href="#colour">Colour</a><a href="#type">Type</a>
+    <a href="#corners">Corners</a><a href="#ground">Ground</a><a href="#parts">Parts</a>
+    <a href="#motion">Motion</a><a href="#gloss">The gloss</a><a href="#sig">The signature</a>
+    <a href="#photo">Photography</a><a href="#rules">The rules</a>
+  </div>
+</header>
+
+<section id="pair">
+  <span class="cap">01 &middot; the pair</span>
+  <h2>A poster that has to hold a catalogue.</h2>
+  <p>Both references were loaded and measured on 9 September, not remembered.</p>
+  <div class="grid g2">
+    <div class="panel">
+      <span class="cap">Reference A &mdash; the look</span>
+      <h3 style="margin-top:8px">Dribbble 27167430</h3>
+      <p class="note">&ldquo;Professional Detailing Website Design&rdquo;, DamiraDovlatova.
+      A studio concept: one screen, red on black, a heavy <b>italic</b> headline at
+      poster size over a full-bleed car photograph inside one big round-cornered
+      panel, tiny all-caps micro-labels, a glass product card, a hanging tab.</p>
+    </div>
+    <div class="panel">
+      <span class="cap">Reference B &mdash; the content</span>
+      <h3 style="margin-top:8px">carolinamobilecarwash.com</h3>
+      <p class="note">A real working detailer in Summerville, SC. Twenty-two
+      services across eight <b>vehicle types</b> &mdash; bus, RV, golf cart, semi,
+      boat, fleet &mdash; per-foot pricing, monthly plans, fourteen towns, and the
+      deposit / weather / no-rush policies nobody puts on a site.</p>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:16px;border-color:var(--accent)">
+    <span class="cap">the tension, and it has a wrong answer</span>
+    <p style="color:var(--ink)">A poster has no catalogue in it and a catalogue has
+    no poster in it. <b>Resolution: the poster is the first screen and never returns.
+    From the second screen down the page is a depot board</b> &mdash; the sign bolted
+    to a yard wall listing everything they will wash and what it costs. The join
+    between the two is the vehicle switch below.</p>
+  </div>
+</section>
+
+<section id="colour">
+  <span class="cap">02 &middot; colour</span>
+  <h2>Near-black lacquer, one loud red, one light band.</h2>
+  <p>Every ratio below is <b>computed by this page against its own rendered
+  ground</b> and printed beside the swatch. A figure typed by hand goes stale the
+  first time a token moves, and this repo has shipped that fault five times.
+  Tokens with transparency are composited before measuring &mdash; the raw value of a
+  10% white is a false pass at 1.00:1.</p>
+  <div class="grid g4">
+    <div class="sw"><div class="chip" style="background:var(--ground)"></div>
+      <div class="meta"><b>Ground</b><small id="v-ground">&mdash;</small>
+      <span class="ratio">the page</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--surface-2)"></div>
+      <div class="meta"><b>Surface</b><small id="v-surface">&mdash;</small>
+      <span class="ratio" id="r-surface">&mdash;</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--accent)"></div>
+      <div class="meta"><b>Accent, as a fill</b><small id="v-accent">&mdash;</small>
+      <span class="ratio" id="r-accent">&mdash;</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--accent-text)"></div>
+      <div class="meta"><b>Accent, as text</b><small id="v-acctext">&mdash;</small>
+      <span class="ratio" id="r-acctext">&mdash;</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--ink)"></div>
+      <div class="meta"><b>Ink</b><small id="v-ink">&mdash;</small>
+      <span class="ratio" id="r-ink">&mdash;</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--ink-2)"></div>
+      <div class="meta"><b>Ink 2 &mdash; body</b><small id="v-ink2">&mdash;</small>
+      <span class="ratio" id="r-ink2">&mdash;</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--ink-3)"></div>
+      <div class="meta"><b>Ink 3 &mdash; labels</b><small id="v-ink3">&mdash;</small>
+      <span class="ratio" id="r-ink3">&mdash;</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--band)"></div>
+      <div class="meta"><b>The light band</b><small id="v-band">&mdash;</small>
+      <span class="ratio" id="r-band">&mdash;</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--edge)"></div>
+      <div class="meta"><b>A control's edge</b><small id="v-edge">&mdash;</small>
+      <span class="ratio" id="r-edge">&mdash;</span></div></div>
+    <div class="sw"><div class="chip" style="background:var(--rule)"></div>
+      <div class="meta"><b>A decorative hairline</b><small id="v-rule">&mdash;</small>
+      <span class="ratio" id="r-rule">&mdash;</span></div></div>
+  </div>
+  <p class="note" style="margin-top:18px"><b>Two tokens for one red, on purpose.</b>
+  A red that passes with white on it as a button fill does not pass as small red
+  text on near-black. <b>And a hairline and a control's edge are two different
+  things</b> &mdash; decoration has no floor, an edge needs 3:1.</p>
+</section>
+
+<section id="type">
+  <span class="cap">03 &middot; type</span>
+  <h2>Three faces, each with one job.</h2>
+  <p>None of the three appears in any of the twenty-eight pages already in this
+  repo &mdash; checked, not assumed. Barlow&nbsp;Condensed and DM&nbsp;Sans are
+  banned here by name because they are Carolina's own faces, and copying those
+  would be the copy he told me not to make.</p>
+  <div class="spec" style="margin-top:26px">
+    <div class="row">
+      <span class="cap">Kanit 900 italic &mdash; display only</span>
+      <div class="kanit" style="margin-top:10px">If it drives<br>we detail it</div>
+      <p class="note">Poster headline, section headings, vehicle names, price
+      names. <b>The italic is the brand, so it never leaks into body copy.</b></p>
+    </div>
+    <div class="row">
+      <span class="cap">Epilogue 400/500/600 &mdash; every sentence</span>
+      <div class="epi" style="margin-top:10px">We bring the water, the power and the
+      crew to your driveway, your office car park, the marina or the storage yard.
+      No drop-off, no waiting room, no hose of yours needed.</div>
+    </div>
+    <div class="row">
+      <span class="cap">Azeret Mono 400/700 &mdash; numbers and micro-labels</span>
+      <div class="aze" style="margin-top:10px">$11/FT &nbsp; $195 &nbsp; $750 &nbsp; 4.9</div>
+      <p class="note">The catalogue is the point of this page and a catalogue
+      needs tabular figures. Boxy and heavy, so a price reads as a stamped number.</p>
+    </div>
+  </div>
+</section>
+
+<section id="corners">
+  <span class="cap">04 &middot; corners</span>
+  <h2>Round, and the only square thing is a price.</h2>
+  <p>The exact inversion of site&nbsp;4, which was 2px everywhere with one round
+  badge. This is the most visible single difference between the two sites and it
+  is deliberate.</p>
+  <div class="grid g3">
+    <div><div class="corner p"><span class="cap">28px</span></div>
+      <p class="note">Panels, the hero, the switchboard.</p></div>
+    <div><div class="corner c"><span class="cap">16px</span></div>
+      <p class="note">Cards, vehicle tiles, the glass card.</p></div>
+    <div><div class="corner i"><span class="cap">10px</span></div>
+      <p class="note">Inputs and small controls.</p></div>
+    <div><div class="corner pill"><span class="cap">999px</span></div>
+      <p class="note">Buttons and chips. Capsules stay capsules.</p></div>
+    <div><div class="corner sq"><span class="cap">0px</span></div>
+      <p class="note">The price cell, and nothing else.</p></div>
+    <div><div class="corner no"><span class="cap">not used</span></div>
+      <p class="note"><b>The corner we are NOT using:</b> a small 4px radius. It
+      is neither soft nor sharp, and a page that mixes it with 28px reads as two
+      corner languages.</p></div>
+  </div>
+</section>
+
+<section id="ground">
+  <span class="cap">05 &middot; ground</span>
+  <h2>Lacquer, and the page changes ground twice.</h2>
+  <p>His own note: <i>&ldquo;a very plain colored black background&hellip; maybe a
+  gradient, a little pattern, something just to make it feel more
+  professional.&rdquo;</i> The ground here is what a red car's flank does under a
+  lamp &mdash; a wide red bloom low-left, a cold bloom top-right, a vertical
+  falloff and a fine grain. Four layers, one fixed element, no loop. <b>The whole
+  page you are reading is standing on it.</b></p>
+  <div class="bandbox">
+    <span class="cap">and this is the light band</span>
+    <h3 style="margin-top:8px">Black band to white band.</h3>
+    <p>All five sites he sent unprompted switch ground between sections, and not
+    one of my five pages did. Two sections take this treatment &mdash; ceramic
+    coating and the monthly plan &mdash; and everything else is black.
+    <b>A new ground means every ratio has to be taken again</b>, which is why the
+    band's own ink is a separate token measured separately.</p>
+    <div class="state"><span class="cell">$195</span>
+      <span class="cell">$750</span><span class="cell">$11/FT</span></div>
+  </div>
+</section>
+
+<section id="parts">
+  <span class="cap">06 &middot; the parts, in every state</span>
+  <h2>Every control, drawn every way it can look.</h2>
+  <div class="grid g2">
+    <div class="panel">
+      <span class="cap">buttons</span>
+      <div class="state" style="margin-top:14px">
+        <button class="btn">Book a detail</button>
+        <button class="btn ghost">See prices</button>
+        <button class="btn" disabled>Unavailable</button>
+      </div>
+      <p class="note">Rest, hover (brighten 12%), press (1px down, 98.5%),
+      focus (2px ink ring, 3px offset), disabled. Same 180ms everywhere.</p>
+    </div>
+    <div class="panel">
+      <span class="cap">fields</span>
+      <div style="margin-top:14px;display:grid;gap:10px">
+        <input class="inp" placeholder="Your name">
+        <input class="inp err" value="not-an-email">
+      </div>
+      <p class="note">Rest, focus (edge goes to the text-red), error (same red,
+      plus a message in the real page). The edge is 1.5px and clears 3:1.</p>
+    </div>
+    <div class="panel">
+      <span class="cap">chips and readouts</span>
+      <div class="state" style="margin-top:14px">
+        <span class="chip-s"><i class="dot"></i>Booking this week</span>
+        <span class="chip-s">Fully mobile</span>
+        <span class="chip-s">Licensed &amp; insured</span>
+      </div>
+    </div>
+    <div class="panel">
+      <span class="cap">the glass card</span>
+      <div class="glass" style="margin-top:14px">
+        <span class="cap" style="color:rgba(255,255,255,.8)">premium</span>
+        <div class="disp" style="font-size:24px;margin-top:6px">Ceramic coating</div>
+      </div>
+      <p class="note">Borrowed from the Dribbble shot. Used once on the page.</p>
+    </div>
+    <div class="panel" style="grid-column:1/-1">
+      <span class="cap">a price row, which is what most of this site is</span>
+      <div style="margin-top:12px">
+        <div class="pricerow"><span class="nm">Express super clean
+          <span class="sub">Wash, wheels, glass, vacuum and wipe-down.</span></span>
+          <span class="cell">from $110</span></div>
+        <div class="pricerow"><span class="nm">Deluxe wax
+          <span class="sub">Full interior and exterior with a machine buff wax.</span></span>
+          <span class="cell">from $195</span></div>
+        <div class="pricerow"><span class="nm">RV wash &amp; wax
+          <span class="sub">Sold by the foot, because that is how an RV is sold.</span></span>
+          <span class="cell">$35/ft</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="motion">
+  <span class="cap">07 &middot; motion</span>
+  <h2>Every animation, running.</h2>
+  <p>Press replay on any of them. <b>The mechanism is different from site 4's, not
+  just the numbers</b> &mdash; site 4 arrives by sliding things up on a stagger;
+  this page arrives by <b>cutting</b>, along the type's own lean.</p>
+  <div class="grid g2">
+    <div class="demo">
+      <span class="cap">the unmask &mdash; the hero panel opens</span>
+      <div class="stage" style="margin-top:12px">
+        <div class="a-unmask" data-anim="run" style="position:absolute;inset:8px;
+          border-radius:var(--r-panel);overflow:hidden">
+          <img src="https://images.unsplash.com/photo-1770316937743-503c62f72534?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=900&h=600" alt="red bonnet running into a headlight">
+        </div>
+      </div>
+      <button class="replay" data-replay>Replay</button>
+      <div class="nums">clip-path inset 42% &rarr; 0, 620ms, cubic-bezier(.16,1,.3,1)</div>
+    </div>
+    <div class="demo">
+      <span class="cap">the italic wipe &mdash; the headline arrives</span>
+      <div class="stage" style="margin-top:12px;background:var(--ground-2)">
+        <div class="a-wipe" data-anim="run" style="text-align:center">
+          <span class="wipe disp" style="font-size:40px">Everything</span>
+          <span class="wipe disp" style="font-size:40px">that drives</span>
+        </div>
+      </div>
+      <button class="replay" data-replay>Replay</button>
+      <div class="nums">edge cut at -12deg, 520ms, second word +90ms</div>
+    </div>
+    <div class="demo">
+      <span class="cap">the settle &mdash; chips and labels, last</span>
+      <div class="stage" style="margin-top:12px;background:var(--ground-2)">
+        <div class="a-settle" data-anim="run" style="display:flex;gap:8px;flex-wrap:wrap;
+          justify-content:center;padding:16px">
+          <span class="chip-s">Tampa Bay</span><span class="chip-s">4.9</span>
+          <span class="chip-s">82 reviews</span><button class="btn">Book</button>
+        </div>
+      </div>
+      <button class="replay" data-replay>Replay</button>
+      <div class="nums">opacity + 10px rise, 380ms, 40ms apart</div>
+    </div>
+    <div class="demo">
+      <span class="cap">the reveal &mdash; a section arriving on scroll</span>
+      <div class="stage" style="margin-top:12px;background:var(--ground-2)">
+        <div class="a-reveal card" data-anim="run"
+          style="width:78%;padding:18px;background:var(--surface);border-radius:var(--r-card)">
+          <div class="disp" style="font-size:22px">Where we roll</div>
+          <p class="note" style="margin-top:4px">Fourteen towns around Tampa Bay.</p>
+        </div>
+      </div>
+      <button class="replay" data-replay>Replay</button>
+      <div class="nums">scale .985 &rarr; 1 with opacity, 460ms. <b>Not a translate.</b></div>
+    </div>
+  </div>
+  <p class="note" style="margin-top:20px"><b>Carried in and not re-argued:</b>
+  anything that opens ships its exit in the same change; nothing animates twice;
+  a swap is never a direct child of the arrival container; the hidden state of a
+  reveal is added by script, never by the stylesheet, or a failed script is a
+  blank page.</p>
+</section>
+
+<section id="gloss">
+  <span class="cap">08 &middot; the one effect borrowed from the references</span>
+  <h2>The gloss travels as you scroll.</h2>
+  <p>The Dribbble panel's whole character is specular &mdash; a lit red surface.
+  This takes that literally: a highlight band, cut at the same &minus;12&deg; as
+  the type, dragged across the panel by <b>one scroll progress number</b>. Scroll
+  this page and watch it; scroll back up and it runs backwards, because there is
+  only the one number and no second animation was written.</p>
+  <div class="gloss-wrap" style="margin-top:22px">
+    <img src="https://images.unsplash.com/photo-1689182358896-2514cd65dfff?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=1200&h=600" alt="a detailer washing a red car in a garage">
+    <div class="gloss-bar" id="gbar"></div>
+    <div class="gloss-read" id="gread">progress 0.00</div>
+  </div>
+  <div class="nums" style="margin-top:10px">scroll-linked, no timer, no library.
+  The band is 34% wide and travels &minus;60% &rarr; 220%.</div>
+</section>
+
+<section id="sig">
+  <span class="cap">09 &middot; the signature device</span>
+  <h2>The vehicle switchboard.</h2>
+  <p>This is the join between the poster and the catalogue, and it is the single
+  most transferable thing in the Carolina reference: <b>that site segments by what
+  the vehicle IS, not by what size it is.</b> Every site in this set so far
+  ladders small / midsize / large. Press a tile.</p>
+  <div class="tiles" style="margin-top:22px" id="tiles">
+    <button class="tile" type="button" data-k="car" aria-pressed="true"><img alt="a red bonnet running into the headlight" src="https://images.unsplash.com/photo-1770316937743-503c62f72534?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=400&h=300"><span class="lab">Car &amp; SUV</span></button>
+    <button class="tile" type="button" data-k="truck" aria-pressed="false"><img alt="a pickup truck at sunset" src="https://images.unsplash.com/photo-1649793395985-967862a3b73f?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=400&h=300"><span class="lab">Truck, van &amp; dually</span></button>
+    <button class="tile" type="button" data-k="rv" aria-pressed="false"><img alt="a motorhome parked on a road" src="https://images.unsplash.com/photo-1596470693312-9a3686a0af0f?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=400&h=300"><span class="lab">RV &amp; camper</span></button>
+    <button class="tile" type="button" data-k="boat" aria-pressed="false"><img alt="two boats at a wooden pier" src="https://images.unsplash.com/photo-1760124057265-494a3e86a841?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=400&h=300"><span class="lab">Boat</span></button>
+    <button class="tile" type="button" data-k="cart" aria-pressed="false"><img alt="a row of golf carts" src="https://images.unsplash.com/photo-1561251224-e393160cd769?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=400&h=300"><span class="lab">Golf cart</span></button>
+    <button class="tile" type="button" data-k="semi" aria-pressed="false"><img alt="a semi truck and trailer on a highway" src="https://images.unsplash.com/photo-1592838064575-70ed626d3a0e?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=400&h=300"><span class="lab">Semi &amp; trailer</span></button>
+    <button class="tile" type="button" data-k="fleet" aria-pressed="false"><img alt="a blue work pickup" src="https://images.unsplash.com/photo-1551830820-330a71b99659?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=400&h=300"><span class="lab">Fleet</span></button>
+    <button class="tile motto" type="button" data-k="any" aria-pressed="false"><span class="lab">If it drives</span></button>
+  </div>
+  <div class="panel ladder" id="ladder"></div>
+  <p class="note" style="margin-top:14px"><b>The heading and the sentence above do
+  not move.</b> Four labels drifting at four heights is a scatter &mdash; in a
+  swap, the content changes and the frame holds still. The rows rise 8px on a
+  20ms stagger, capped at 160ms, and furniture opts out.</p>
+</section>
+
+<section id="photo">
+  <span class="cap">10 &middot; photography</span>
+  <h2>Nineteen were rendered and looked at. Eleven survived.</h2>
+  <p>Alt text does not mention badges, so every candidate goes to a contact sheet
+  and gets looked at. Two were rejected for exactly that, and a third for being a
+  motorhome that a caption called a van.</p>
+  <div class="grid g4" style="margin-top:22px">
+    <figure class="shot" style="margin:0">
+      <img src="https://images.unsplash.com/photo-1770316937743-503c62f72534?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=600&h=400" alt="red bonnet and headlight">
+      <figcaption><b>Hero.</b> One long diagonal for the italic to sit along.
+      No badge, no plate.</figcaption></figure>
+    <figure class="shot" style="margin:0">
+      <img src="https://images.unsplash.com/photo-1689182358896-2514cd65dfff?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=600&h=400" alt="washing a red car in a garage">
+      <figcaption><b>The work.</b> A real person, real foam, a real garage.</figcaption></figure>
+    <figure class="shot" style="margin:0">
+      <img src="https://images.unsplash.com/photo-1658244500543-47f32dc51dc2?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=600&h=400" alt="a polisher on black paint">
+      <figcaption><b>Paint correction.</b> The machine actually doing it.</figcaption></figure>
+    <figure class="shot reject" style="margin:0">
+      <img src="https://images.unsplash.com/photo-1622329821376-a19fd6002562?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=600&h=400" alt="a detailer leaning over a dark car">
+      <figcaption><b>Rejected.</b> It is a <b>Bugatti</b>, and there is another
+      firm's logo on the shirt. Found by looking, not by reading the caption.</figcaption></figure>
+  </div>
+  <p class="note" style="margin-top:16px">Photographs are cropped to 16:10 or 4:3,
+  desaturated ~8% so the red of the page stays the loudest red on screen, and
+  always inside a 16px or 28px corner. <b>Never a grey placeholder box.</b></p>
+</section>
+
+<section id="rules" style="border-bottom:0">
+  <span class="cap">11 &middot; the rules</span>
+  <h2>Ten things, each one paid for.</h2>
+  <ol class="rules">
+    <li><b>The italic is the brand.</b> Display leans; nothing else does.</li>
+    <li><b>Red is a fill, never small text on the dark ground.</b> Two tokens,
+      because one red cannot do both jobs.</li>
+    <li><b>28px corners, and the only square thing on the page is a price cell.</b></li>
+    <li><b>A hairline and a control's edge are two tokens.</b> Decoration has no
+      floor; an edge needs 3:1.</li>
+    <li><b>The page changes ground twice</b> &mdash; black, light, black. Every
+      ratio is taken again on the new ground.</li>
+    <li><b>Segment by what the vehicle IS, not by what size it is.</b> That is
+      the whole reason this site does not look like the other four.</li>
+    <li><b>No footer wordmark.</b> It is on six of the twenty-eight pages here and
+      all six are sites 1&ndash;4. A device on that many is a house tell.</li>
+    <li><b>No marquee band</b>, even though Carolina has one, for the same reason:
+      it is already on sites 1, 2 and 3.</li>
+    <li><b>Every price shown here is an example's number.</b> A real tenant's
+      ladder comes from the platform, never from the file.</li>
+    <li><b>The booking form is ours, in this skin.</b> A bespoke form may ask;
+      it may never compute a price or decide a free slot.</li>
+  </ol>
+  <p class="note" style="margin-top:24px">Design sheet for site 5, 9 September 2026.
+  The record is <code>docs/schemes/gandy-mobile-detailing-scheme.md</code>.</p>
+</section>
+
+</main>
+
+<script>
+var STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* the swatches read their own computed values and compute their own ratios */
+(function () {
+  var cs = getComputedStyle(document.documentElement);
+  function g(n) { return cs.getPropertyValue(n).trim(); }
+  function toRGB(v, over) {
+    var d = document.createElement("i");
+    d.style.color = v; document.body.appendChild(d);
+    var c = getComputedStyle(d).color; d.remove();
+    var n = c.match(/[\d.]+/g).map(Number);
+    var a = n.length > 3 ? n[3] : 1;
+    if (a >= 1 || !over) return n.slice(0, 3);
+    return n.slice(0, 3).map(function (ch, i) { return ch * a + over[i] * (1 - a); });
+  }
+  function lin(c) { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }
+  function L(a) { return 0.2126 * lin(a[0]) + 0.7152 * lin(a[1]) + 0.0722 * lin(a[2]); }
+  function ratio(a, b) { var x = L(a), y = L(b); if (y > x) { var t = x; x = y; y = t; }
+    return (x + 0.05) / (y + 0.05); }
+  var ground = toRGB(g("--ground"));
+  var surface = toRGB(g("--surface-2"), ground);
+  var band = toRGB(g("--band"), ground);
+  function put(id, v) { var e = document.getElementById(id); if (e) e.textContent = v; }
+  function pair(id, tok, against, floor) {
+    var r = ratio(toRGB(g(tok), against || ground), against || ground);
+    var e = document.getElementById(id); if (!e) return;
+    e.textContent = r.toFixed(2) + ":1";
+    if (floor) e.className = "ratio " + (r >= floor ? "pass" : "fail");
+  }
+  put("v-ground", g("--ground").toUpperCase());
+  put("v-surface", g("--surface-2").toUpperCase());
+  put("v-accent", g("--accent").toUpperCase());
+  put("v-acctext", g("--accent-text").toUpperCase());
+  put("v-ink", g("--ink").toUpperCase());
+  put("v-ink2", g("--ink-2").toUpperCase());
+  put("v-ink3", g("--ink-3").toUpperCase());
+  put("v-band", g("--band").toUpperCase() + " / " + g("--band-ink").toUpperCase());
+  put("v-edge", g("--edge").toUpperCase());
+  put("v-rule", g("--rule").toUpperCase());
+  pair("r-ink", "--ink", null, 4.5);
+  pair("r-ink2", "--ink-2", null, 4.5);
+  pair("r-ink3", "--ink-3", null, 4.5);
+  pair("r-acctext", "--accent-text", null, 4.5);
+  pair("r-surface", "--ink", surface, 4.5);
+  pair("r-accent", "--on-accent", toRGB(g("--accent")), 4.5);
+  pair("r-band", "--band-ink", band, 4.5);
+  pair("r-edge", "--edge", null, 3);
+  var rr = ratio(toRGB(g("--rule"), ground), ground);
+  var re = document.getElementById("r-rule");
+  if (re) { re.textContent = rr.toFixed(2) + ":1 decorative"; }
+})();
+
+/* the replay buttons */
+(function () {
+  [].slice.call(document.querySelectorAll("[data-replay]")).forEach(function (btn) {
+    var target = btn.closest(".demo").querySelector("[data-anim]");
+    if (!target) return;
+    var cls = target.dataset.anim;
+    function run() {
+      target.classList.remove(cls);
+      void target.offsetWidth;
+      target.classList.add(cls);
+    }
+    btn.addEventListener("click", run);
+    run();
+  });
+})();
+
+/* the gloss - one scroll progress number drives the band and the readout */
+(function () {
+  var wrap = document.querySelector(".gloss-wrap");
+  var bar = document.getElementById("gbar");
+  var read = document.getElementById("gread");
+  if (!wrap || !bar) return;
+  var ticking = false;
+  function pass() {
+    ticking = false;
+    var r = wrap.getBoundingClientRect();
+    var p = (innerHeight - r.top) / (innerHeight + r.height);
+    p = Math.max(0, Math.min(1, p));
+    bar.style.setProperty("--gx", (-60 + p * 280) + "%");
+    read.textContent = "progress " + p.toFixed(2);
+  }
+  function tick() { if (!ticking) { ticking = true; requestAnimationFrame(pass); } }
+  addEventListener("scroll", tick, { passive: true });
+  addEventListener("resize", tick, { passive: true });
+  pass();
+})();
+
+/* THE SIGNATURE - the vehicle switchboard */
+(function () {
+  var TYPES = [
+    { k: "car",   n: "Car &amp; SUV", rows: [
+      ["Exterior premium wash", "Foam bath, wheels, glass, dressed tyres.", "from $55"],
+      ["Express super clean", "Wash plus a full interior vacuum and wipe-down.", "from $110"],
+      ["Deluxe wax", "Inside and out, finished with a machine buff wax.", "from $195"],
+      ["Super detail", "The full job. Seats, carpets, paint, trim.", "from $390"]] },
+    { k: "truck", n: "Truck, van &amp; dually", rows: [
+      ["Exterior premium wash", "Sized for a crew cab, a long bed or a panel van.", "from $75"],
+      ["Express super clean", "Wash plus interior, every row of seats.", "from $135"],
+      ["Deluxe wax", "Machine buff wax over the whole body.", "from $235"],
+      ["Super detail", "Everything, including the bed and the running boards.", "from $450"]] },
+    { k: "rv",    n: "RV &amp; camper", rows: [
+      ["Detail wash", "Exterior only. Sold by the foot, as an RV is.", "$11/ft"],
+      ["Wash &amp; wax", "Protects the surface and keeps it road-ready.", "$35/ft"],
+      ["Wash, wax &amp; compound", "Adds oxidation removal for chalky sides.", "$40/ft"],
+      ["Standard interior", "A full interior for a well-kept rig.", "$18/ft"],
+      ["Deep interior", "For an RV back from heavy use or long storage.", "$25/ft"]] },
+    { k: "boat",  n: "Boat", rows: [
+      ["Hull and deck wash", "Salt off, deck scrubbed, rails polished.", "from $210"],
+      ["Wash, wax &amp; compound", "Gelcoat brought back and sealed.", "from $400"]] },
+    { k: "cart",  n: "Golf cart", rows: [
+      ["Full cart detail", "Inside and out. The hardest small job there is.", "$125"],
+      ["Seats and canopy", "Vinyl cleaned, conditioned and protected.", "$80"]] },
+    { k: "semi",  n: "Semi &amp; trailer", rows: [
+      ["Trailer washout", "Clean, compliant and cargo-ready.", "$80"],
+      ["Day cab exterior", "Exterior only, tanks and wheels included.", "$175"],
+      ["Sleeper cab exterior", "The full rig, outside.", "$400"],
+      ["Interior and exterior", "For a driver who lives in it.", "$685"]] },
+    { k: "fleet", n: "Fleet", rows: [
+      ["Fleet maintenance plan", "Priced per vehicle, per visit, on a schedule.", "quote"],
+      ["Employee car day", "We come to your yard and do the staff cars.", "quote"],
+      ["Headlight restoration", "Across the fleet, in one visit.", "from $95"]] },
+    { k: "any",   n: "If it drives", rows: [
+      ["Anything else with wheels", "Motorcycles, ATVs, trailers, tractors, aircraft.", "quote"],
+      ["Ask, and we will price it", "Call or text and we will tell you the same day.", "quote"]] }
+  ];
+  var tiles = document.getElementById("tiles");
+  var ladder = document.getElementById("ladder");
+  if (!tiles || !ladder) return;
+
+  [].slice.call(tiles.children).forEach(function (b, i) {
+    b.addEventListener("click", function () { pick(i); });
+  });
+
+  function pick(i) {
+    [].slice.call(tiles.children).forEach(function (el, j) {
+      el.setAttribute("aria-pressed", j === i ? "true" : "false");
+    });
+    var t = TYPES[i];
+    var html = '<span class="cap">' + t.n + " &middot; " + t.rows.length + " services</span>";
+    t.rows.forEach(function (r) {
+      html += '<div class="pricerow"><span class="nm">' + r[0] +
+        '<span class="sub">' + r[1] + "</span></span>" +
+        '<span class="cell">' + r[2] + "</span></div>";
+    });
+    ladder.innerHTML = html;
+    if (STILL) return;
+    ladder.classList.remove("gd-swap");
+    void ladder.offsetWidth;
+    ladder.classList.add("gd-swap");
+  }
+  pick(0);
+})();
+</script>
+</body>
+</html>
