@@ -104,6 +104,14 @@ const MULTI = [
   ["ex3", "x-ballantyne.html", "Ballantyne Mobile Detailing",
    "three colourways · fora's corner language · the whole price ladder · two pages",
    { "x-ballantyne-prices.html": "prices.html" }],
+  // SITE 4 SHIPS ITS OWN PAINT SWITCHER, so it does NOT get the injected one
+  // ex3 has. His pick from the design sheet was *"B and C are the best do
+  // both"*, and the control was designed into the page rather than floated
+  // over it — the scheme's shape rule says the only pill on that page is the
+  // availability chip, so a rounded pill dropped on top would be the one
+  // thing on the page that breaks its own corner language.
+  ["ex4", "y-kinzie.html", "Kinzie Mobile Detailing",
+   "bone paper or graphite · every seam a 4.2° diagonal · a real before/after wipe · one page", {}],
 ];
 
 const PAGES = [
@@ -220,7 +228,7 @@ async function main() {
         if (slug === "ex3") html = html.replace("</body>", PAINTS + "</body>");
         await writeFile(path.join(dir, dest), html, "utf8");
       }
-      multi.push([slug, title, note]);
+      multi.push([slug, title, note, Object.values(extras)]);
       console.log(`  ${slug}: ${1 + Object.keys(extras).length} pages`);
     } catch (e) {
       console.log(`  ${slug}: SKIPPED — ${String(e.message).slice(0, 90)}`);
@@ -265,7 +273,7 @@ async function main() {
   .n{margin-top:34px;color:#8B9499;font-size:14px;border-top:1px solid #272D31;padding-top:18px}
 </style></head><body><div class="w">
 <h1>Example sites</h1>
-<p class="l">Ten deliberately unalike detailing sites. Nobody is meant to choose
+<p class="l">Deliberately unalike detailing sites. Nobody is meant to choose
 between them — they are the range.</p>
 ${list}
 <p class="n">Every price and time on these is a placeholder. On a real
@@ -315,10 +323,14 @@ price on a phone changes the website.</p>
         "# A directory index needs its slash; these serve it without one.",
         ...Array.from({ length: made }, (_, i) =>
           `/example${i + 1}    /example${i + 1}/index.html    200`),
-        ...multi.flatMap(([slug, , , ]) => [
+        // ONE RULE PER PAGE THAT EXISTS. This used to emit /work and
+        // /prices for every multi site regardless: ex2 is one page and had
+        // two rules pointing at files it does not contain, and ex4 would
+        // have added two more. A rewrite to a missing file is dead config
+        // that looks like a working route.
+        ...multi.flatMap(([slug, , , pages]) => [
           `/${slug}    /${slug}/index.html    200`,
-          `/${slug}/work    /${slug}/work.html    200`,
-          `/${slug}/prices    /${slug}/prices.html    200`,
+          ...pages.map((f) => `/${slug}/${f.replace(/\.html$/, "")}    /${slug}/${f}    200`),
         ]),
         "/examples    /examples/index.html    200",
         "",
