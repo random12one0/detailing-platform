@@ -18,6 +18,85 @@ worth having are the ones a detailer would not think to volunteer.
 
 ---
 
+## REVISED 2026-09-09 — read this before building the form
+
+**He asked to see the survey and to make it the best possible.** It was
+78 open questions in eleven sections, and the honest problem with it is not
+what it asks but that **almost nobody finishes it**: every question was a
+blank box, and the make-or-break ones were scattered through the middle. §11
+of this file already admitted the risk. **The revision keeps every good
+question below and changes the SHAPE.**
+
+**A working version to fill in is published as an artifact** (private to the
+owner). Everything structural about it is recorded here, because an artifact is
+not a durable home for a decision.
+
+**1 · TWELVE QUESTIONS ARE PROMOTED TO THE FRONT AND ARE THE WHOLE BRIEF.**
+A detailer who gives up after ten minutes must still have handed over enough
+to build a site. In order: the exact name (1.1); how long and how you started
+(short form Q1); what makes yours different (3.1); the towns covered (2.1);
+face and name on it or not (1.3); insured (5.1); what exactly you guarantee
+(5.2); what the first screen must let somebody DO (new); **should prices be on
+the site at all (new)**; what photographs exist (4.1); two or three sites you
+like (8.1); anything you must NOT say (8.7).
+
+**2 · MOST OF IT BECOMES A TAP.** 40 of the 79 are now a choice you press
+rather than a box you fill. A blank box is what makes somebody close the tab,
+and the research file's own finding — *never more than three options side by
+side* — applies to written answers too.
+
+**3 · TEN ARE CUT, and every one of them breaks rule 1 above or duplicates
+another section.** Plans (3.9) and large-vehicle pricing (6.9) are in the
+dashboard. Social links (4.3) are stored. The domain was asked at 1.8 AND
+9.1; the existing website at 1.7 AND 9.3; the payment timing at 6.1 is now a
+switch in the product. **A form that asks the same thing in two sections gets
+two answers and one of them is wrong.**
+
+**4 · ELEVEN ARE ADDED. The largest is a real gap:**
+
+- **Should your prices be on the site at all?** Nothing anywhere asked it.
+  Plenty of detailers deliberately hide prices, the booking page has them
+  regardless, and the answer changes the entire page. Three answers: all of
+  them, a *from* price, or quote on request.
+- Local rules that change the work — water restrictions, HOA, a council that
+  bans washing on the street. A rinseless-only detailer needs the site to sell
+  that rather than hide it.
+- How far ahead you are usually booked. *"Next available Thursday"* is a
+  promise, and a site implying same-day when they are three weeks out costs
+  the call.
+- Full-time or alongside another job. Never printed; it decides what the site
+  is allowed to promise about reply speed.
+- A licence, permit or registration number, where the state requires it shown
+  on advertising — a website counts.
+- Whether any of it needs to be in Spanish. The booking side already is.
+- Whose phone actually rings.
+- A vehicle worth photographing — a wrapped van is the best asset most
+  detailers own and nobody offers it.
+- Plus the four the 2026-09-07 research listed and this file never folded in:
+  the three visual either/ors, and the refusal list.
+
+**5 · THE THREE LOOK-AND-FEEL QUESTIONS ARE PICTURES.** Movement or stillness,
+photographs big or facts big, dark or light — each shown as two plainly
+different rendered pages. `docs/tenant-site-intake-research-2026-09-07.md`:
+a non-designer cannot see a small difference, so the two options have to look
+obviously unalike, and there must never be more than three.
+
+**6 · "WHY IT IS ASKED" MOVES BEHIND A LINK.** The reasons in the tables below
+are good and they are for US; printed beside every question they turn a form
+into a lecture, which is the owner's own copy rule (*does the sentence add a
+fact the control does not already carry?*).
+
+**7 · THE ONE THING STILL BLOCKED IS STILL BLOCKED, and it is his:** the wall
+of real detailing sites to pick favourites from (roadmap 9.1). It is marked in
+the form as pending rather than quietly left out.
+
+**WHAT DID NOT CHANGE:** every question below keeps its wording unless named
+above, the one-note-per-question rule, nothing compulsory, and the rule on the
+other side of the form — **nothing on the finished site may claim anything
+this form did not establish.**
+
+---
+
 ## How this is meant to work
 
 **Every question has a notes box.** Not a general notes box at the end — one
