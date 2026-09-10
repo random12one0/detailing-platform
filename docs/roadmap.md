@@ -3286,15 +3286,96 @@ is kept; the entire visual design restarts from scratch.
         `stripe_account_id` and point their employer's card payments at their
         own Stripe account, with nothing on any screen looking different.
 
-      **WHAT IS STILL OWED**, and none of it is arithmetic: the settings screen,
-      the Pay button on the receipt page and in the invoice email, and **one
-      real payment through a real connected account** — no session has yet
-      watched a card move money to a detailer. **Two dashboard jobs come with
-      it**: the `ca_…` Connect client id must be set as
-      `STRIPE_CONNECT_CLIENT_ID`, and **the webhook endpoint has to be told to
-      listen to events on connected accounts** — it is a separate setting, and
-      without it `event.account` never arrives and every card payment stays
-      showing unpaid.
+      ~~**WHAT IS STILL OWED**, and none of it is arithmetic: the settings
+      screen, the Pay button on the receipt page and in the invoice email~~
+      — **BOTH SCREENS ARE BUILT, 2026-09-10.** What is left is **one real
+      payment through a real connected account**, and it is an OWNER job
+      rather than a build one: it needs somebody to sign in to Stripe.
+
+      **AND THE FIRST OF THE TWO DASHBOARD JOBS WAS ALREADY DONE — MEASURED,
+      NOT ASSUMED.** `connect-account` was called as the demo owner against
+      the DEPLOYED function and answered `available: true` with a real
+      `client_id=ca_VCmLryXJX3mC2ypm3vnatW5xRZkccQPQ` in the consent URL, so
+      `STRIPE_CONNECT_CLIENT_ID` has been set since stage 3's server half went
+      out. **This entry said it was owed for two days.** The lesson is the one
+      this file keeps re-learning: a state a session can PROBE should never be
+      recorded from memory. **The Connect button therefore works today** and
+      sends a detailer to a real `connect.stripe.com` consent screen.
+
+      **THE SECOND ONE IS STILL OWED AND IT IS THE ONE THAT MATTERS**: the
+      webhook endpoint has to be told to **listen to events on connected
+      accounts.** It is a separate tick in Stripe's own dashboard, and without
+      it `event.account` never arrives — so a customer's card would clear, the
+      detailer's balance would go up, and **every one of those bookings would
+      still say unpaid in the dashboard for ever.** Nobody can find that out
+      from this repo; it has to be looked at in Stripe.
+
+      **WHAT THE TWO SCREENS ARE, so the next session does not go looking for
+      a fifteenth settings screen:**
+      - **The settings block is on top of "How you get paid"**, not a screen of
+        its own. It is the same question — how a customer pays you — with a
+        processor behind it, and the six handle fields are the other half of
+        the same answer. **The block is OWNER-ONLY while the fields below it
+        are not**, which looks inconsistent on one screen and is the honest
+        shape: a handle is a line of text in an email, and this decides which
+        BANK ACCOUNT a customer's money lands in. `connect-account` refuses
+        anybody else with a 404; hiding the block is a courtesy.
+      - **`/settings/payments/connected` IS A ROUTE NOW.** It is Stripe's
+        registered redirect and `connect.ts` builds the `redirect_uri` from the
+        same constant, so it forwards to `?settings=payments` with the `code`
+        and `state` still attached. Without it the callback fell through to the
+        catch-all, landed on Today, and **the connection silently did not
+        happen** — a single-use code spent on nothing. The code is wiped out of
+        the address bar, because a refresh that retried it would report a
+        failure about a connection that had just worked. **And ANY deep link
+        now outranks the first-run form, not only `billing`** — otherwise the
+        setup form opens on top of a returning consent and the tour on top of
+        that, which is testing loop F-003 all over again.
+      - **The customer's Pay button is on `/booking/:id`**, in its own card
+        above the actions, because those three are about the APPOINTMENT and
+        this one is about the money. **The invoice email's button is the SAME
+        LINK, relabelled** — *"Pay $360.00 by card"* going to that page. An
+        email cannot create a payment: a checkout session made when the invoice
+        was written would carry that morning's amount and would still be in the
+        inbox after the customer handed over cash.
+
+      **AND THE SHARED DECISION HAD A GAP THE SCREENS FOUND: A REQUEST NOBODY
+      HAS ACCEPTED YET WAS PAYABLE.** In request mode a booking sits at
+      `pending` while the detailer decides, and its own email says *"we're
+      holding your time"* and charges nothing — so a card taken there is money
+      moved for work that may then be **declined**, refunded out of the
+      detailer's own balance for a decision the product let the customer make
+      first. `payability` refuses it (`not_accepted`), cancelled still outranks
+      it, and `total_price` on a pending row is only an estimate anyway.
+
+      **THE ONE THING NO SUITE COULD HAVE CAUGHT, AND IT IS THE SECOND TIME
+      THIS EXACT CLASS HAS BITTEN THIS ITEM.** The server's status sentence was
+      put in `.row-item .sub`, which is a single nowrap line, so at 320 a
+      detailer read *"Stripe has not finis…"* — the whole instruction gone.
+      **Stage 2's audit had already found the same class clipping *"You are
+      committing to twelve months"* off a phone**, and CLAUDE.md carries the
+      rule: no check in this repo can see clipped text, because an ellipsis has
+      a perfectly normal box. Two more came out of the same looking pass: the
+      ready sentence said *"from their receipt"* when a paid receipt is exactly
+      where the button never goes, and the switch's help repeated what the two
+      sentences above it had already said.
+
+      **WHAT IS NOT COVERED BY A SEED, DELIBERATELY.** The connected states
+      need a `connected_accounts` row with a real `acct_…` in it. A FAKE one
+      would put a Pay button on the demo booking page — which is on the live
+      site — that fails at Stripe the moment anybody pressed it, and Refresh
+      and Disconnect would both error. So the five settings states and the four
+      customer states were photographed by substituting the RESPONSE (real
+      component, real stylesheet, real widths, no database write), and
+      **`sweep-widths.mjs` still only reaches the not-connected state.** The
+      seed belongs with the real test account, which is the same owner action
+      that unblocks the live run.
+
+      **AND THE BUSINESS ROW SUMMARY STILL SAYS NOTHING ABOUT CARD**, on
+      purpose. Deciding "card is on" in `Business.jsx` means a second
+      implementation of `cardStatus` in a browser file, which is the one thing
+      `tests/connect.test.mjs` § 10 exists to prevent. It is one tap away on
+      the screen itself.
 
       > *"We need to figure out payment cuz at least I need a way for my
       > customers to pay me."*

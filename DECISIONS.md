@@ -273,6 +273,8 @@ were made more than once.
 
 - **The legal pages answer Google, and the emphasis had been printing as asterisks** — the brief said build `/privacy` and `/terms`; they had existed since 7.1 and the demo email typo was already fixed in 2.5, so **two of four tasks were done and the brief did not know it**. What was genuinely missing was the Google section — and the page was printing literal asterisks live, on the one sentence the owner asked to have said out loud. **The handed-over policy text was NOT shipped**: test 10 forbids governing-law and warranty clauses by name, pins an access disclosure that text deletes, and its cancellation section contradicts the twelve-month term `/pricing` discloses under AB 2863 — **a repo's tests outrank a brief that arrives without them.** Also, and it cost two wrong answers: **a 200 from `curl` on that domain means nothing** (every path returns index.html) and **`origin/main` is not the live site.**
 
+- **Roadmap 2.20 stage 3 — the two screens, and the one gap the screens found in the server half** — the settings block went on top of *How you get paid* rather than becoming a fifteenth settings screen, because it is the same question with a processor behind it; **owner-only while the six handle fields under it are not**, which is the honest shape rather than an inconsistency. **NEITHER SCREEN MAY DECIDE "READY" FOR ITSELF**: `cardStatus` and `payability` are Deno and cannot be imported from `app/`, so the only thing preventing a second implementation in a browser file is a check that fails if either screen so much as NAMES the three flags — and all four server callers are pinned by their IMPORT, because the first version of that check read whole files and `send-invoice` says the word `cardStatus` in its own comment. **A REQUEST NOBODY HAS ACCEPTED WAS PAYABLE**: `pending` charges nothing and its email says *we're holding your time*, so a card there is money moved for work that may be declined, refunded from the detailer's own balance. **The email's button is the same LINK relabelled**, never a checkout — a session made when the invoice was written carries that morning's amount and outlives the cash the customer handed over. **`STRIPE_CONNECT_CLIENT_ID` was already set and the roadmap said it was owed for two days**: a state a session can PROBE must never be recorded from memory. And **the status sentence was clipped by `.row-item .sub`** at 320, which is the identical nowrap defect stage 2's own audit had already recorded.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -15987,3 +15989,151 @@ class needs no backslash, and a connection string has no legitimate whitespace
 to lose. Where content genuinely must contain backslashes, write the file with
 the Write tool and let a script read it, rather than passing it through a
 shell.
+
+## Roadmap 2.20 stage 3 — the two screens, and the one gap the screens found in the server half
+
+*2026-09-10. The server half was built, deployed and checked on 2026-09-08 and
+nothing in it was rebuilt. What follows is the screens, plus the three things
+building them found out about the half that was already finished.*
+
+### The settings block is not a fifteenth settings screen
+
+`Payments.jsx` — *How you get paid* — already answers exactly this question,
+and the six payment handles on it are the answer for a detailer who takes no
+cards. Putting Connect anywhere else would have split one question across two
+rows of the Business index. So it is a card at the top of that screen, above a
+second card holding what was already there.
+
+**The block is OWNER-ONLY and the fields below it are not.** That looks
+inconsistent on one screen and it is the truthful shape: a handle is a line of
+text in a customer's email, and connecting a Stripe account decides which BANK
+ACCOUNT a customer's money lands in. There is no permission tick that means
+*may connect a payment account and nothing else*, and roadmap 2.13 already
+refused to invent one for `team` for the same reason. `connect-account` answers
+a 404 to anybody but the owner, from the server; hiding the block is a courtesy
+so staff are not shown a control that will not work.
+
+### Neither screen may decide "ready" for itself, and a check enforces it
+
+Three separate things have to be true before a customer can be offered a card:
+Stripe has to say the account can take charges, the detailer has to have
+switched card on, and the platform has to have a Connect client id at all.
+`cardStatus` in `supabase/functions/_shared/connect.ts` is the one place that
+resolves those into a state and a sentence.
+
+**It is Deno, and `app/` cannot import out of `supabase/`.** That is the same
+constraint that produced this repo's one sanctioned second implementation
+(`brandColor.js`), and here it would be far worse: a screen that worked out
+"ready" for itself would disagree with the server the first time Stripe turned
+an account off, and the disagreement would be a Pay button that fails at the
+till in front of somebody's customer. So the screens print the verdict they
+were handed and compute none of it, and `tests/connect.test.mjs` § 10 fails if
+either file so much as MENTIONS `charges_enabled`, `card_payments_enabled` or
+`stripe_account_id`.
+
+**The four server callers are pinned by their IMPORT, not by the name.** The
+first version of that check tested `/cardStatus|payability/` against the whole
+file, and baselining it — taking the real call out of `send-invoice` and
+replacing it with an inline flag — left it passing, because that file's own
+COMMENT says *"it is `cardStatus` that answers"*. **A regex over a file with
+comments in it is reading prose.** It reads the import statement now. That was
+the seventh check this repo has shipped that guarded nothing, and the only
+reason it was found is the rule that says commit first and then break what
+each new check guards.
+
+### A request nobody has accepted yet was payable, and that is the server half's one real gap
+
+In request mode (roadmap 2.12) a booking sits at `pending` while the detailer
+decides, and its own customer email says *"we're holding your time"* and
+charges nothing. `payability` refused a cancelled booking, a paid one, a waived
+one and a partly-paid one — and let a pending request straight through.
+
+**A card taken there is money moved for work that may then be DECLINED.** The
+refund comes out of the detailer's own balance, on a direct charge, for a
+decision this product let the customer make first. And `total_price` on a
+pending row is an estimate until a quote is accepted, so the figure would have
+been wrong as well as premature.
+
+Fixed in `payability` rather than in the three callers — one guard where they
+all route through — with its own reason (`not_accepted`) so the endpoint's
+status code and the screen agree, and cancelled still asked first, because a
+declined request is cancelled and that is the truer thing to say.
+
+### The email's button is the same link, relabelled — never a checkout
+
+An unpaid invoice from a business that takes cards says *"Pay $360.00 by
+card"*, and it goes where *"View this online"* has always gone: `/booking/:id`.
+
+**An email cannot create a payment.** A Stripe session made when the invoice
+was written would carry the amount owed that morning and would still be sitting
+in the inbox after the customer handed over cash. The page asks the server at
+the moment of the press, which is the only time the answer is true — the same
+reasoning `pay-booking`'s own header already carries about the receipt link
+outliving every switch on the settings screen.
+
+It has its own fixture in `render-emails.mjs`, because a branch nothing renders
+is a branch nothing checks, and the unpaid invoice above it takes the other
+side of the branch.
+
+### `STRIPE_CONNECT_CLIENT_ID` was already set, and the roadmap said it was owed
+
+The roadmap listed two Stripe-dashboard jobs as outstanding. **One of them had
+been done since the server half shipped.** Calling the DEPLOYED
+`connect-account` as the demo owner returned `available: true` and a consent
+URL carrying a real `client_id=ca_…`, which means the Connect button has
+worked for two days while three files said it could not.
+
+**A state a session can PROBE must never be recorded from memory.** This is the
+same class as the stale check-counts and the stale branch name that CLAUDE.md
+keeps having to correct, and the probe took one script and ninety seconds.
+
+The second job is still owed and it is the one that matters: **the webhook has
+to be told to listen to events on connected accounts.** Without it
+`event.account` never arrives, so a customer's card clears, the detailer's
+balance goes up, and the booking says unpaid in the dashboard for ever. Nothing
+in this repo can discover that; it has to be looked at in Stripe.
+
+### Three defects that only looking at the screen could find
+
+All three were in code that passed all twelve credential-free suites.
+
+**The status sentence was clipped.** It was put in `.row-item .sub`, a single
+nowrap line, so at 320 a detailer read *"Stripe has not finis…"* and the whole
+instruction was invisible. **Stage 2's own audit had already found that same
+class cutting *"You are committing to twelve months"* off a phone**, and
+CLAUDE.md carries the rule it produced: no check here can see clipped text,
+because an ellipsis has a perfectly normal box. Anything that has to be READ
+wraps.
+
+**The ready sentence named the wrong page** — *"Customers can pay by card from
+their receipt"* — and a paid receipt is precisely where the button never goes.
+That is stage 1's paid/unpaid branch, which exists because of the owner's own
+complaint about his old site listing payment methods for money already handed
+over.
+
+**And the switch explained what the two sentences above it had just said.** Its
+help text drew *"A Pay button goes on your customers' booking pages…"* directly
+under a status line saying whether card was live and a lead paragraph saying
+what card payments are and cost. The owner's copy rule is a test — does the
+sentence add a fact the control does not already carry — and this one added
+none, in both states where it drew.
+
+### What is deliberately not seeded, and what that costs
+
+The connected states need a `connected_accounts` row with a real `acct_…` in
+it. **A fake one would put a Pay button on the demo booking page — which is on
+the live site — that fails at Stripe the moment anybody presses it**, and
+Refresh and Disconnect would both error. So the five settings states and the
+four customer states were photographed by substituting the RESPONSE: the real
+component, the real stylesheet, the real widths, no database write.
+
+**The cost is stated rather than hidden: `sweep-widths.mjs` still only reaches
+the not-connected state.** The seed belongs with a real Stripe test account,
+which is the same owner action that unblocks the one live payment this stage
+still owes.
+
+### And the Business row summary still says nothing about card, on purpose
+
+Deciding "card is on" in `Business.jsx` means a second implementation of
+`cardStatus` in a browser file, which is the one thing § 10 exists to prevent.
+The screen itself is one tap away, and every state on it is unambiguous.

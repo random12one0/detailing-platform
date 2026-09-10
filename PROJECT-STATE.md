@@ -6438,3 +6438,90 @@ failing job in the repo**, which is how somebody learns to ignore a red mark.
 - **2.24's overlay**, **2.25's screen**, **6.1's demo site** (taste),
   **5.1's run** (credential), **7.2** (DSN), and the two 4.2 items.
 - Everything else on the roadmap is ticked.
+
+## ROADMAP 2.20 STAGE 3 — THE TWO SCREENS, SO A DETAILER CAN TAKE CARDS (2026-09-10)
+
+**The server half was built, deployed and checked on 2026-09-08 and nothing in
+it was rebuilt.** This is the settings screen, the customer's Pay button, the
+route Stripe sends a detailer back to, and the three things building them found
+out about the half that was already finished.
+
+### What was built
+
+- **A card-payments block on top of `Payments.jsx`** — *How you get paid* —
+  rather than a fifteenth settings screen, because it is the same question with
+  a processor behind it. Five states (`unavailable`, `not_connected`,
+  `unverified`, `off`, `ready`), Connect / Check again / the detailer's own
+  switch / Disconnect. **Owner-only while the six handle fields under it are
+  not**, enforced by the server with a 404.
+- **`/settings/payments/connected` as a route**, forwarding to
+  `?settings=payments` with the `code` and `state` still attached. It is
+  Stripe's registered redirect URI and `connect.ts` builds the `redirect_uri`
+  from the same constant.
+- **A Pay card on `/booking/:id`**, above the actions and below the quote, with
+  the amount in the button; a "Paid" note on Stripe's `?paid=1` return, because
+  the row is marked paid by the WEBHOOK and that is a different request
+  arriving on its own schedule.
+- **The invoice email's button, relabelled** — *"Pay $360.00 by card"* — to the
+  same page it always pointed at. Its own fixture in `render-emails.mjs`.
+- **35 Spanish keys**: 8 on the customer's page, 1 in the email catalogue, 26
+  on the settings screen.
+
+### The gap the screens found in the server half
+
+**A REQUEST NOBODY HAD ACCEPTED WAS PAYABLE.** A `pending` booking charges
+nothing and its own email says *"we're holding your time"*, so a card taken
+there is money moved for work that may then be declined — refunded out of the
+detailer's own balance, for a decision the product let the customer make first.
+`payability` refuses it now, with cancelled still asked first.
+
+### `STRIPE_CONNECT_CLIENT_ID` was already set
+
+Probed against the DEPLOYED function: `available: true`, and a real
+`client_id=ca_…` in the consent URL. **The roadmap said it was still owed and
+had done for two days.** `docs/OUTSTANDING.md` § 10 had it right.
+
+### Three defects only looking could find, and one check that guarded nothing
+
+The status sentence was clipped by `.row-item .sub` at 320 — **the identical
+nowrap defect stage 2's own audit had already recorded**; the ready sentence
+named the receipt, which is the one page the button never appears on; and the
+switch's help repeated the two sentences above it.
+
+And baselining caught the seventh check this repo has shipped that tested
+nothing: it matched `cardStatus` anywhere in four files, and `send-invoice`
+says that word in its own comment. It reads the import statement now.
+
+### Verified
+
+`connect` 119, `spanish` 58, `composition` 94, `payments` 66,
+`landing-pricing` 107, `route-contract` 32, `email-brand` 189, `booking-core`
+205, `design-contrast` all pairs, `custom-domains` 60, `request-mode` 51,
+`tenant-sites` 129 — all pass. `e2e-booking` 82/0. `sweep-booking-steps`: every
+step fits at all four widths, spare room identical to the recorded figures.
+`sweep-widths`: clean. Five settings states x six widths x normal and lite plus
+four customer states and Spanish at 320 — 91 screenshots, console clean apart
+from the two React Router future-flag warnings this app prints everywhere, and
+no horizontal overflow at 320 in either language.
+
+**`platform-billing` fails one check** — *"and clearing it back to the files is
+a real button"* — and it **failed identically with this work stashed**, so it
+is not from this item.
+
+### What stage 3 still owes, and it is not code
+
+**One real payment through a real connected account.** It needs somebody signed
+in to Stripe, and two things:
+
+1. **Create the connected-accounts webhook endpoint** — `docs/OUTSTANDING.md`
+   § 10 has the exact table, including the API version trap. Without it a card
+   clears, the detailer's balance goes up, and **the booking says unpaid in the
+   dashboard for ever.**
+2. **Finish the consent screen.** It does NOT need a Netlify publish: the
+   redirect lands on the old bundle, and the `code` and `state` can be copied
+   out of that address bar into `localhost:5173` inside Stripe's five-minute
+   window. Written up in § 10.
+
+**And `sweep-widths.mjs` still only reaches the not-connected state**, because
+seeding a fake `acct_…` would put a Pay button on the demo booking page that
+fails at Stripe. The seed belongs with the real test account.

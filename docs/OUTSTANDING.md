@@ -557,6 +557,73 @@ The sandbox account has OAuth enabled with
 `https://detailingplatform.com/settings/payments/connected` as the default
 redirect URI.
 
+### THE TWO SCREENS ARE BUILT — 2026-09-10, roadmap 2.20 stage 3
+
+**Re-verified against the DEPLOYED function rather than taken from this file:**
+`connect-account` answers `available: true` as the demo owner and hands back a
+consent URL carrying `client_id=ca_VCmLryXJX3mC2ypm3vnatW5xRZkccQPQ`. So the
+line above is right and **the roadmap entry that said the client id was still
+owed was wrong for two days.** Corrected there.
+
+`/settings/payments/connected` is now a real route in `app/src/main.jsx`, which
+is what the redirect URI above has always needed — until today the callback
+fell through to the catch-all, landed on Today, and the connection silently did
+not happen. `tests/route-contract` and `tests/connect.test.mjs` § 10 both read
+the router against `connect.ts`'s own constant so the two cannot drift.
+
+### HOW TO DO THE ONE REAL PAYMENT WITHOUT SPENDING A NETLIFY CREDIT
+
+**The problem nobody had noticed: the redirect URI points at
+`detailingplatform.com`, which is serving an OLD bundle** (§ 6 — credits are
+out). So finishing the consent screen lands on a page that has never heard of
+this feature, and publishing to fix that costs 15 credits this account does not
+have.
+
+**It does not need a publish, and it does not need a dashboard change.** Read
+from Stripe's own OAuth reference, 2026-09-10, not inferred:
+
+- *"An authorization code you can use in the next call… **This can only be used
+  once and expires in 5 minutes.**"*
+- *"Connect allows you to define more than one redirect URI."*
+- *"the **live mode** `redirect_uri` must use a secure HTTPS connection"* — so
+  a test-mode one does not have to.
+
+**So there are two ways, and the first needs nothing at all:**
+
+1. **COPY THE QUERY STRING ACROSS.** Press *Connect Stripe* on
+   `localhost:5173`, finish Stripe's consent screen, and it will land on
+   `https://detailingplatform.com/settings/payments/connected?code=…&state=…`
+   showing the old app. **Copy everything from `?` onwards out of the address
+   bar** and open
+   `http://localhost:5173/settings/payments/connected?code=…&state=…`. Five
+   minutes is plenty, and the screen does the rest. Nothing to configure and
+   nothing to publish.
+2. Or add `http://localhost:5173/settings/payments/connected` as a second
+   redirect URI in the sandbox's platform settings — but our code builds the
+   `redirect_uri` from `PLATFORM_URL`, so using it would also mean pointing
+   that at localhost, which changes every link in every email. **Option 1 is
+   the recommendation.**
+
+**And two facts from that same doc page confirm the existing design rather than
+changing it**, which is worth recording because both look like bugs on a first
+read of `connect-account`:
+
+- *"Per OAuth v2, this endpoint isn't idempotent. **Consuming an authorization
+  code more than once revokes the account connection.**"* That is exactly why
+  `finish` clears the single-use `state` BEFORE it calls Stripe, and why the
+  screen wipes `code` and `state` out of the address bar — a refresh that
+  retried the exchange would DISCONNECT the account it had just connected.
+- The 30-minute `stateFresh` window is not in conflict with Stripe's 5-minute
+  code: ours only has to cover the round trip, and it is deliberately longer so
+  somebody who stops to create a Stripe account mid-flow is not sent back to
+  the start.
+
+**What is still on him, unchanged:** create the connected-accounts webhook
+endpoint from the table above (API version `2024-06-20`, NOT the default) and
+put its new signing secret in as `STRIPE_CONNECT_WEBHOOK_SECRET`. Without it a
+card would clear, the detailer's balance would go up, and **the booking would
+say unpaid in the dashboard for ever.**
+
 ### WHICH ACCOUNT THE KEY BELONGS TO — answered 2026-09-08, by evidence
 
 **`acct_1UCMm0JeoZO7o6Ee`, the sandbox. So the client id already set is the
