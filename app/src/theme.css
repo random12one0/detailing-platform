@@ -3572,3 +3572,55 @@ html:not(.lite) .intake .mini-move .b1 { animation: intake-drift 3.2s ease-in-ou
    around three fields each. */
 .intake .siterow { padding: 14px 0; border-top: 1px solid var(--line); }
 .intake .siterow:first-of-type { border-top: 0; }
+
+/* SAY IT INSTEAD OF TYPING IT. Twenty-one open boxes, and a detailer with wet
+   hands will talk for a minute and will not type for one. The button hides
+   itself where the browser has no speech recognition rather than sitting there
+   doing nothing (Firefox); Chrome and Safari both have it. */
+.intake .dictate { margin-top: 8px; display: inline-flex; width: auto; align-self: start; align-items: center; gap: 6px; }
+.intake .dictate.on { border-color: var(--accent); color: var(--accent); }
+
+/* START FROM ONE OF THESE. Real sentences off real detailers' sites, for the
+   questions the survey proved nobody answers — a rain policy exists on one
+   site in fifty-two. It disappears the moment there is an answer in the box:
+   it is a way in, not a menu. */
+.intake .starters { margin-top: 10px; }
+.intake .chip.starter {
+  max-width: 100%; white-space: normal; text-align: left; line-height: 1.35;
+  padding: 8px 13px; font-size: 13.5px;
+}
+
+/* POINT AT THE PAGE. Same question, same answers, but the answer is WHERE it
+   will be rather than a word for where it will be. */
+.intake .placepick { margin-top: 12px; }
+.intake .placeframe { position: relative; }
+.intake .placepage {
+  position: relative; height: 240px; background: var(--ink-0);
+  border: 1px solid var(--line); border-radius: var(--r-inset); corner-shape: var(--corner);
+  overflow: hidden;
+}
+.intake .placepage i { position: absolute; display: block; border-radius: 3px; }
+.intake .placepage .pp-ph {
+  left: 6%; right: 6%; top: 24%; height: 34%;
+  background: linear-gradient(135deg, #59636D, #2A3136);
+}
+.intake .placepage .b1 { left: 6%; right: 40%; top: 62%; height: 8px; background: var(--fog); }
+.intake .placepage .b2 { left: 6%; right: 55%; top: 74%; height: 8px; background: var(--accent); }
+.intake .placespot {
+  position: absolute; background: none; font: inherit; color: inherit; cursor: pointer;
+  border: 2px dashed var(--line-2); border-radius: 6px;
+  display: grid; place-items: center; transition: all var(--t-exit) var(--e-out);
+}
+.intake .placespot span { font-size: 12px; font-weight: 600; opacity: .75; }
+.intake .placespot:hover { border-color: var(--accent); }
+.intake .placespot.on {
+  border-style: solid; border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.intake .placespot.on span { opacity: 1; }
+.intake .placenone { margin-top: 10px; }
+
+/* THE PROMISE, READ BACK. Eight questions, not seventy-three — the point is to
+   let somebody see a commitment before they make it, not to narrate the form. */
+.intake .willsay { margin: 10px 0 0; font-size: 14px; color: var(--fog); }
+.intake .willsay b { color: var(--ink-text, inherit); font-weight: 620; }

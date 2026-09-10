@@ -24,7 +24,7 @@
 // nothing, writes nothing, needs no session, renders outside BusinessProvider
 // — so every context read tolerates there being no provider above it.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ExternalLink, X, Check, Plus, Trash2 } from "lucide-react";
+import { ChevronLeft, ExternalLink, X, Check, Plus, Trash2, Mic } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { addPhoto } from "../lib/photos.js";
@@ -40,6 +40,131 @@ function Mini({ kind }) {
   return (
     <div className={`mini ${dark ? "dark" : "light"} mini-${kind}`} aria-hidden="true">
       <i className="mini-ph" /><i className="mini-b b1" /><i className="mini-b b2" /><i className="mini-b ac" />
+    </div>
+  );
+}
+
+/* ── talk instead of typing ─────────────────────────────────────────────── */
+// **THE CHEAPEST LARGE WIN IN THE FORM, AND IT COSTS NOTHING TO RUN.** Speech
+// recognition is built into the browser — no service, no key, no bill — and
+// there are twenty-one open boxes here. A detailer standing in a driveway with
+// wet hands will talk for a minute and will not type for one.
+//
+// **IT APPENDS, IT NEVER REPLACES.** A dictation that wiped what somebody had
+// already typed would be a worse experience than no dictation, and the failure
+// is silent — they look away while talking. Same reason it stops itself: a
+// microphone somebody forgot to turn off is a privacy problem, not a bug.
+//
+// **AND IT HIDES ITSELF WHERE IT DOES NOT WORK** rather than offering a button
+// that does nothing. Firefox has no support; every Chrome and Safari does.
+const SR = typeof window !== "undefined"
+  && (window.SpeechRecognition || window.webkitSpeechRecognition);
+
+function Dictate({ value, onText }) {
+  const [on, setOn] = useState(false);
+  const rec = useRef(null);
+  useEffect(() => () => rec.current?.stop(), []);
+  if (!SR) return null;
+
+  const toggle = () => {
+    if (on) { rec.current?.stop(); return; }
+    const r = new SR();
+    r.lang = document.documentElement.lang || "en-US";
+    r.interimResults = false;
+    r.continuous = true;
+    r.onresult = (e) => {
+      let said = "";
+      for (let i = e.resultIndex; i < e.results.length; i += 1) {
+        if (e.results[i].isFinal) said += e.results[i][0].transcript;
+      }
+      if (said.trim()) onText(said.trim());
+    };
+    r.onend = () => setOn(false);
+    r.onerror = () => setOn(false);
+    rec.current = r;
+    r.start();
+    setOn(true);
+  };
+
+  return (
+    <button type="button" className={`btn sm dictate${on ? " on" : ""}`} onClick={toggle}
+      aria-pressed={on} aria-label={on ? t("Stop") : t("Say it instead")}>
+      <Mic size={14} strokeWidth={2} /> {on ? t("Listening… tap to stop") : t("Say it instead")}
+    </button>
+  );
+}
+
+/* ── a long answer, with the two things that stop it being an empty box ─── */
+// **A BLANK BOX IS WHY THE POLICY QUESTIONS GO UNANSWERED.** The survey of 52
+// real detailers' sites found a rain policy on ONE of them and a cancellation
+// policy on seven (docs/tenant-site-research-2026-09-10.md § 1c). That is not
+// refusal — nobody objects to having a rain policy. It is not knowing how to
+// start. **Writing from nothing is a different task from correcting a
+// sentence, and only one of them is a task anybody does standing up.**
+//
+// So a question may carry `starters`: two or three real sentences, taken from
+// sites that actually publish one. Tapping puts it in the box to be edited. It
+// is deliberately NOT a default value — an unedited starter that nobody read
+// is a promise the detailer never made, which is the one thing this form must
+// never produce.
+function LongAnswer({ q, value, set }) {
+  const box = useRef(null);
+  return (
+    <>
+      {q.starters?.length > 0 && !value?.trim() && (
+        <div className="starters">
+          <span className="label">{t("Start from one of these, then change it")}</span>
+          <div className="row wrap" style={{ gap: 6, marginTop: 6 }}>
+            {q.starters.map((sx) => (
+              <button key={sx} type="button" className="chip starter"
+                onClick={() => { set(sx); box.current?.focus(); }}>{t(sx)}</button>
+            ))}
+          </div>
+        </div>
+      )}
+      <textarea ref={box} rows={3} className="intakeinput" aria-label={t(q.question)}
+        value={value ?? ""} onChange={(e) => set(e.target.value)} />
+      <Dictate value={value} onText={(said) => set(((value ?? "") + " " + said).trim())} />
+    </>
+  );
+}
+
+/* ── point at the page instead of reading a label ───────────────────────── */
+// **A CHIP THAT SAYS "FOOTER ONLY" IS A DESCRIPTION OF A PLACE. THIS IS THE
+// PLACE.** Same question, same four answers, but the answer is where it will
+// actually be rather than a word for where it will be — which is the whole of
+// his complaint about the look questions, applied to a positional one.
+const SPOTS = [
+  ["top", "Top of every page", { left: "6%", top: "7%", width: "88%", height: "13%" }],
+  ["hero", "Under the headline", { left: "6%", top: "44%", width: "52%", height: "13%" }],
+  ["foot", "Footer only", { left: "6%", top: "80%", width: "88%", height: "13%" }],
+];
+function PlacePicker({ value, set, options }) {
+  const spots = SPOTS.filter(([k]) => options.includes(k));
+  return (
+    <div className="placepick">
+      {/* THE SPOTS LIVE INSIDE THE FRAME, NOT BESIDE IT. They are absolutely
+          positioned in percentages, so their containing block has to be the
+          drawn page and nothing else — with the wrapper omitted they resolved
+          against the whole step and three tap targets landed in the margin,
+          over the questions below. Found by looking; no console error, no
+          sideways scroll, every percentage correct. */}
+      <div className="placeframe">
+        <div className="placepage" aria-hidden="true">
+          <i className="pp-ph" /><i className="pp-b b1" /><i className="pp-b b2" />
+        </div>
+        {spots.map(([k, label, box]) => (
+          <button key={k} type="button" style={box} aria-pressed={value === k}
+            className={`placespot${value === k ? " on" : ""}`}
+            onClick={() => set(value === k ? "" : k)}>
+            <span>{t(label)}</span>
+          </button>
+        ))}
+      </div>
+      <button type="button" className={`chip placenone${value === "none" ? " active" : ""}`}
+        aria-pressed={value === "none"} onClick={() => set(value === "none" ? "" : "none")}>
+        {t("Not on the site at all")}
+      </button>
     </div>
   );
 }
@@ -70,8 +195,11 @@ function Question({ q, a, set }) {
       )}
 
       {q.type === "long" && (
-        <textarea rows={3} className="intakeinput" aria-label={t(q.question)}
-          value={v ?? ""} onChange={(e) => set(q.id, e.target.value)} />
+        <LongAnswer q={q} value={v} set={(x) => set(q.id, x)} />
+      )}
+
+      {q.type === "place" && (
+        <PlacePicker value={v} set={(x) => set(q.id, x)} options={q.options} />
       )}
 
       {(q.type === "one" || q.type === "many") && (
@@ -104,6 +232,16 @@ function Question({ q, a, set }) {
 
       {q.type === "colour" && <Colours value={v} set={(x) => set(q.id, x)} />}
       {q.type === "photos" && <Photos value={v} set={(x) => set(q.id, x)} />}
+
+      {/* WHAT THE ANSWER WILL SAY OUT LOUD. Only on questions whose answer
+          becomes a PROMISE — a reply time, a guarantee, a cancellation window.
+          He was right to worry about clutter, so it appears after the answer
+          is picked and on eight questions rather than seventy-three: the point
+          is to let somebody see a commitment before they make it, not to
+          narrate the form back at them. */}
+      {q.says && v && !Array.isArray(v) && (
+        <p className="willsay">{t("On your site:")} <b>{t(q.says(v))}</b></p>
+      )}
     </div></div>
   );
 }
@@ -457,13 +595,33 @@ export default function SiteIntake({ onClose, preview = false }) {
         {step.lede && <p className="quiet">{t(step.lede)}</p>}
 
         {step.kind === "hello" && (
-          <div className="card"><div className="thoughts">
-            <ul className="plainlist">
-              <li>{t("About fifteen minutes.")}</li>
-              <li>{t("Skip anything you want.")}</li>
-              <li>{t("It saves as you go.")}</li>
-            </ul>
-          </div></div>
+          <>
+            <div className="card"><div className="thoughts">
+              <ul className="plainlist">
+                <li>{t("About fifteen minutes.")}</li>
+                <li>{t("Skip anything you want.")}</li>
+                <li>{t("It saves as you go.")}</li>
+              </ul>
+            </div></div>
+            {/* HIS IDEA, 2026-09-10, AND IT IS BETTER THAN THE ONE IT
+                REPLACED. The proposal on the table was to READ their old site
+                and pre-fill from it; he refused the machinery — *"I don't
+                wanna have to connect an AI and have it whatever"* — and asked
+                for this instead: take the address, and tell them that anything
+                already on it can be skipped.
+                **It gets most of the value for none of the cost, and it is
+                honest.** A person building the site reads the old one; the
+                form never claims to have read anything. */}
+            <div className="card"><div className="thoughts">
+              <h3 className="qtext">{t("Got a website already?")}</h3>
+              <input type="url" className="intakeinput" placeholder="https://…"
+                aria-label={t("Your current website")}
+                value={a.oldsite ?? ""} onChange={(e) => set("oldsite", e.target.value)} />
+              {a.oldsite?.trim() && (
+                <p className="quiet">{t("Then skip any question it already answers. We will take that from your site.")}</p>
+              )}
+            </div></div>
+          </>
         )}
 
         {step.kind === "look" && (
