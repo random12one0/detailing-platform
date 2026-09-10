@@ -1166,3 +1166,13 @@ anything interactive, which is most of what these pages are.
     transform for POSITION at all:** the shape script already knew the tab's
     left edge and width, so the label is placed with `left` and `width` and
     centred with `text-align`, which no animation can touch.
+162. **THE EXAMPLE SITES LIVE ON LOCALHOST, NOT ON THE DOMAIN — his
+    instruction, 2026-09-10:** *"Don't go to detailingplatform.com/ex1, as
+    we're not currently publishing our live site there — I ran out of Netlify
+    credits. But everything is able to be viewed on localhost."*
+    `node scripts/build-examples.mjs --dev` then `npm run dev --prefix app`,
+    and they are at `localhost:5173/ex1` … `/ex5`.
+    **Checking the live domain is worse than useless**: `_redirects` returns
+    200 for every path, so `/ex5` answers with the app shell and a session can
+    "confirm" either that the page is live or that it is broken, both wrongly.
+    Measured 2026-09-09 on `/ex4`.

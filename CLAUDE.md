@@ -2,7 +2,47 @@
 
 Read before working. These rules survive every `/clear`; chat instructions don't.
 
-## THE OWNER IS AWAY AND ON A PHONE — from 2026-09-05, for about three days
+## THE LIVE DOMAIN IS NOT PUBLISHING — his instruction, 2026-09-10
+
+*"Please note to not go to detailingplatform.com/ex1, as we're not currently
+publishing our live site there — I ran out of Netlify credits. But everything
+is able to be viewed on localhost."*
+
+**SO `detailingplatform.com` IS NOT EVIDENCE OF ANYTHING RIGHT NOW.** It is
+serving an old bundle, and `_redirects` sends every unmatched path to
+`index.html`, so **every** URL there returns 200 — including `/ex1` … `/ex5`,
+which come back as the app shell rather than as the example sites. A session
+that curls the domain and reads a 200 has learned nothing, and one that reads
+the app shell and concludes the example pages are broken has learned something
+false. **Verified 2026-09-09: `/ex4` serves the app shell, and the free branch
+preview never built either.**
+
+**THE EXAMPLE SITES ARE A LOCALHOST THING:**
+
+```
+node scripts/build-examples.mjs --dev
+npm run dev --prefix app
+```
+
+then `localhost:5173/ex1` … `/ex5`. `docs/tenant-sites/` stays the only copy in
+git; the dev copies under `app/public/ex*` are gitignored.
+
+**Do not publish to the domain to work around this.** Credits are out; see
+Ground rules and `docs/OUTSTANDING.md` § 17.
+
+## ~~THE OWNER IS AWAY AND ON A PHONE~~ — EXPIRED, 2026-09-10
+
+**HE IS BACK AT HIS DESK AND CAN OPEN LOCALHOST — his own words above,
+2026-09-10: *"everything is able to be viewed on localhost."*** The section
+below said the opposite and was written for three days from 2026-09-05, which
+is the exact stale-line failure this file keeps warning about. **Kept, not
+deleted, because everything in it is right again the next time he travels —
+and because the rules it contains about SHOWING rather than DESCRIBING are
+good practice whether or not he is away.**
+
+**What changes today:** `localhost:5173/ex5` is a real answer to *"let me see
+it"*, and it is now the ONLY one. Screenshots stay right for *"does this look
+correct"*; the dev server is the answer for *"let me try it"*.
 
 <!-- REMOVE THIS WHOLE SECTION when he says he is back from vacation. He asked
      for it to live here rather than in a chat message precisely so it survives

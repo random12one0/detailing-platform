@@ -2365,6 +2365,13 @@ The design sheet was approved first (§ 12–13, rule 91), then the page, then
   back.
 - No footer wordmark and no marquee band, both taken as recommendations he
   never answered.
+- ~~**`/ex5` IS NOT REACHABLE FROM HIS PHONE.**~~ **ANSWERED 2026-09-10 AND IT
+  IS NOT A PROBLEM: he is back at his desk and opens these on localhost.** His
+  words: *"we're not currently publishing our live site there — I ran out of
+  Netlify credits, but everything is able to be viewed on localhost."* So
+  `/ex5` is exactly where it should be, the branch `preview-ex5` is spare, and
+  nothing needs deploying. The original note, kept because it is the reason the
+  domain must not be used as evidence:
 - **`/ex5` IS NOT REACHABLE FROM HIS PHONE.** The example pages are not on the
   live deploy (checked: `detailingplatform.com/ex4` serves the app shell), and
   the free branch preview never built — `preview-ex5--detailplatform-admin-test.netlify.app/ex5`
