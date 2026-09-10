@@ -990,8 +990,6 @@ export const appEs = {
   // reports them in and the order somebody will re-read them in.
   " · founding price": " · precio de fundador",
   ", and ": ", y ",
-  "A Pay button goes on your customers' booking pages and on any invoice still owed.":
-    "Un botón de Pagar aparece en la página de cita de tus clientes y en cualquier factura pendiente.",
   "A booking link of its own for a flyer, a QR code or a post. Whoever opens it gets your discount applied already, and you can see how many came that way.":
     "Un enlace de citas propio para un volante, un código QR o una publicación. Quien lo abra ya trae tu descuento aplicado, y puedes ver cuántos llegaron por ahí.",
   "A job booked closer than this gets the surcharge.":
@@ -1047,8 +1045,6 @@ export const appEs = {
   "Apps": "Aplicaciones",
   "Area name": "Nombre de la zona",
   "Ask how dirty the vehicle is": "Preguntar qué tan sucio está el vehículo",
-  "Available once Stripe has finished checking your account.":
-    "Disponible en cuanto Stripe termine de revisar tu cuenta.",
   "Back on the 14th — call for anything urgent":
     "Regreso el 14 — llama si es urgente",
   "Back to normal": "Volver a lo normal",
@@ -1127,7 +1123,7 @@ export const appEs = {
     "Se cuenta desde el día que entró cada miembro.",
   "Customer name": "Nombre del cliente",
   "Customer:": "Cliente:",
-  "Customers can pay by card from their receipt.":
+  "Customers can pay by card from their booking page.":
     "Tus clientes pueden pagar con tarjeta desde su recibo.",
   "Customers see these behind the eye on your booking page, so the list can be as long as it needs to be.":
     "Los clientes ven esto detrás del ojo en tu página de citas, así que la lista puede ser tan larga como haga falta.",
@@ -1410,7 +1406,7 @@ export const appEs = {
   "Stars": "Estrellas",
   "Start times you offer": "Horas de inicio que ofreces",
   "Start": "Inicio",
-  "Stripe account {last4}": "Cuenta de Stripe {last4}",
+  "Stripe account ending {last4}": "Cuenta de Stripe que termina en {last4}",
   "Stripe did not finish connecting. Try again.":
     "Stripe no terminó de conectarse. Inténtalo de nuevo.",
   "Stripe has not finished checking your account yet, so card payments are not live. Finish the details Stripe asked for.":

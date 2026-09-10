@@ -155,7 +155,11 @@ export function cardStatus(s: ConnectSettings | null | undefined): CardStatus {
       detail: "Card payments are switched off. Your customers pay the ways you list instead.",
     };
   }
-  return { ready: true, state: "ready", detail: "Customers can pay by card from their receipt." };
+  // NOT "from their receipt", which is what this said until the screens
+  // were looked at: a PAID receipt never carries the button, by design
+  // (stage 1, the owner's own complaint about his old site). It is the
+  // booking page and an invoice still owed.
+  return { ready: true, state: "ready", detail: "Customers can pay by card from their booking page." };
 }
 
 /** What a Stripe account object says about itself, reduced to what we store. */

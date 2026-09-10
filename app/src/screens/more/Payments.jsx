@@ -222,7 +222,7 @@ export default function Payments() {
             <p className="body">{t("Card payments are not switched on yet. Nothing for you to do — we will tell you when they are.")}</p>
           ) : !card.connected ? (
             <>
-              <p className="body">{t("You will need a Stripe account. If you do not have one, Stripe makes it during this.")}</p>
+              <p className="muted" style={{ margin: "0 0 var(--sp-3)" }}>{t("You will need a Stripe account. If you do not have one, Stripe makes it during this.")}</p>
               <div className="btnrow">
                 <button className="btn primary" disabled={cardBusy === "start"} onClick={connect}>
                   {cardBusy === "start" ? t("Opening Stripe") : t("Connect Stripe")}
@@ -233,12 +233,11 @@ export default function Payments() {
             <>
               <div className="row-item" style={{ cursor: "default" }}>
                 <span className="txt">
-                  <span className="nm">{t("Stripe account {last4}", { last4: card.accountHint })}</span>
-                  {/* THE SERVER'S OWN SENTENCE, not one worked out here.
-                      `cardStatus` orders its four states so that somebody who
-                      switched card off is told that first, rather than being
-                      told something that reads as a fault. */}
-                  <span className="sub">{t(card.detail)}</span>
+                  {/* "ending", because four characters on their own read as
+                      the whole account id. It is the last four of `acct_…`,
+                      which is all a detailer needs to tell two Stripe
+                      accounts apart. */}
+                  <span className="nm">{t("Stripe account ending {last4}", { last4: card.accountHint })}</span>
                 </span>
                 {card.chargesEnabled
                   ? <span className="pill completed" aria-label={t("Ready")}><Check size={14} strokeWidth={2.5} /></span>
@@ -249,16 +248,35 @@ export default function Payments() {
                     </button>
                   )}
               </div>
+              {/* THE SERVER'S OWN SENTENCE, AND IT IS BELOW THE ROW RATHER
+                  THAN INSIDE IT — MEASURED, not preferred. `.row-item .sub`
+                  is a single nowrap line, so at 320 this read *"Stripe has
+                  not finis…"* and the whole instruction — finish the details
+                  Stripe asked for — was invisible. **The identical defect is
+                  already on the record from stage 2**, where the same class
+                  clipped *"You are committing to twelve months"* off a phone,
+                  and CLAUDE.md carries the rule it produced: no check in this
+                  repo can see clipped text, because an ellipsis has a
+                  perfectly normal box. Anything that has to be READ wraps.
+
+                  `cardStatus` orders its four states so that somebody who
+                  switched card off is told that first, rather than being told
+                  something that reads as a fault. */}
+              <p className="muted" style={{ margin: "var(--sp-2) 0 0" }}>{t(card.detail)}</p>
 
               {/* THE DETAILER'S OWN SWITCH, and it cannot be turned on before
                   Stripe says the account can take a charge - the server
                   refuses that with a 409, and the control is disabled so
                   nobody meets the refusal. */}
+              {/* NO `help`, AND IT HAD ONE UNTIL THE SCREEN WAS LOOKED AT.
+                  Both sentences it carried were already on the screen: the
+                  status line directly above says whether card is live, and
+                  the lead paragraph says what card payments are and what they
+                  cost. The owner's copy rule is a test — does the sentence
+                  add a fact the control does not already carry — and this one
+                  added none, twice, in the two states where it drew. */}
               <Switch
                 label={t("Take card payments")}
-                help={card.chargesEnabled
-                  ? t("A Pay button goes on your customers' booking pages and on any invoice still owed.")
-                  : t("Available once Stripe has finished checking your account.")}
                 checked={card.cardPaymentsEnabled}
                 disabled={!card.chargesEnabled || cardBusy === "toggle"}
                 onChange={(v) => cardAction("toggle", { enabled: v }, t("Could not save that. Try again."))}
