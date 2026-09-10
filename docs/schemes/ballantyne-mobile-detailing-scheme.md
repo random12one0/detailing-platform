@@ -68,7 +68,7 @@ against a white photograph, and a comment naming the tenant field that fills it.
 ## 3. THE TILE — pending
 
 The three candidate grounds as sent, all measured off the rendered frame with
-the sampler in `.tmp-site3/contrast.mjs` (text colour from computed style,
+the sampler in `docs/schemes/measure/site3-contrast.mjs` (text colour from computed style,
 ground colour from a real pixel):
 
 | | Ground | Accent | Worst measured pair |

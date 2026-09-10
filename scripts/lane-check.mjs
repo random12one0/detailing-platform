@@ -67,6 +67,14 @@ const LANES = {
       "docs/design-directions/",
       "docs/design-knowledge.md",
       "docs/design-system.md",
+      // FOUND BY THE TOOL ON ITS SECOND REAL RUN, 2026-09-10: it called the
+      // websites PLAYBOOK lane C's, because it sits under C's `docs/` prefix.
+      // It is the rulebook `websites.md` sends every A session to read, and
+      // every rule in it was written by one. **Named explicitly rather than by
+      // a `docs/tenant-site-` prefix**, because `tenant-site-contract.md` and
+      // `tenant-site-kit.md` next to it are engineering documents and are not
+      // A's to edit.
+      "docs/tenant-site-playbook.md",
       "scripts/build-examples.mjs",
       "app/public/img/",
     ],
@@ -100,6 +108,7 @@ const LANES = {
       "docs/overnight-log.md",
       "docs/sessions/",
       "scripts/lane-check.mjs",
+      "docs/tenant-site-playbook.md",
     ],
   },
   M: {

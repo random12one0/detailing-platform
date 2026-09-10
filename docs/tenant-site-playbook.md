@@ -527,7 +527,7 @@ reading it.**
     named it on the work section; it had no top padding at all.
 58. **Verify motion with a PROBE, not a screenshot** — a still frame cannot
     tell a 90ms snap from a 460ms ramp, and a screenshot taken mid-transition
-    looks like a blank page and is not one. `.tmp-site3/probe-motion.mjs`
+    looks like a blank page and is not one. `docs/schemes/measure/site3-probe-motion.mjs`
     reads the mid-flight value.
 59. **Probe the element you ACTED on.** `querySelector(".q.is-open")` returned
     the question that starts open, and reported a snap belonging to a
@@ -886,7 +886,7 @@ anything interactive, which is most of what these pages are.
     beats silently did nothing while the eighth worked perfectly** — which
     sent three rounds of probing after the wrong thing. Count the rules the
     browser ACCEPTED (`style.sheet.cssRules.length`) and assert the keyframe
-    blocks parsed; `.tmp-site4/probe-arrive.mjs` does both.
+    blocks parsed; `docs/schemes/measure/site4-probe-arrive.mjs` does both.
 116. **AN ARRIVAL IS AN ANIMATION, NEVER A TRANSITION.** A transition needs
     the element to already carry a `transition` property BEFORE its value
     changes; hiding with `transition:none` and revealing by removing the class
@@ -1008,7 +1008,7 @@ anything interactive, which is most of what these pages are.
     ground, enumerate EVERY inherited colour, not the ones you happened to use
     in the heading.
 136. **THE CONTRAST INSTRUMENT LIED THREE MORE WAYS, all found in one hour and
-    all now fixed in `.tmp-site5/contrast.mjs`.** (a) **Clamping a sample row
+    all now fixed in `docs/schemes/measure/site5-contrast.mjs`.** (a) **Clamping a sample row
     into the viewport samples a different element's ground** — an element whose
     centre is off-screen reported 1.78:1 for footer links that are really 9.7:1.
     Require the CENTRE to be on screen and scroll in smaller steps. (b) **A

@@ -1,4 +1,8 @@
-# DESIGN SCHEME — Kinzie Mobile Detailing (site 4)
+# DESIGN SCHEME — Kinzie Mobile Detailing  *(site 4 \u00b7 `ex4`)*
+
+**BUILT AND SIGNED OFF 2026-09-09. The page is
+`docs/tenant-sites/y-kinzie.html`, served at `/ex4`**, and its design sheet is
+`docs/schemes/kinzie-styleguide.html`. Nothing here is outstanding.
 
 **Pair:** `chicagoautopros.com` (detailer half, chosen by him) ×
 `auxia.io` (non-detailer half, chosen by matching FORM in the frames).
@@ -60,7 +64,7 @@ panel meet on a slant and the side flips each row.
 | border-edge | `rgba(20,24,30,.38)` | anything you type in or press — needs 3:1 |
 | success / error | `#0E7C55` / `#B3261E` | form states |
 
-**Every ratio in the built page is computed by `.tmp-site4/contrast.mjs` off the
+**Every ratio in the built page is computed by `docs/schemes/measure/site4-contrast.mjs` off the
 RENDERED page and quoted in the token block — never typed from judgement.** Site
 3 shipped a token whose comment claimed 4.5:1 and which was 3.93:1, and a
 sampler that read a rounded corner invented two failures. Sample INSIDE any

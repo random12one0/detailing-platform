@@ -1,7 +1,18 @@
-# DESIGN SCHEME — Gandy Mobile Detailing (site 5)
+# DESIGN SCHEME — Tampa Bay Auto Detail  *(site 5 · `ex5`)*
+
+**BUILT AND SIGNED OFF 2026-09-09. The page is
+`docs/tenant-sites/z-tampabay.html`, served at `/ex5`.** Nothing here is
+outstanding; this file is kept for the two references and the ported facts,
+which is what a scheme is for.
+
+**DRAFTED AS "GANDY MOBILE DETAILING" AND RENAMED BY THE OWNER** — playbook
+rule 138, *a tenant's name is a sign, not a brand*: *"The name Gandy goes
+against the don't-use-a-startup-name thing."* The old name is recorded here
+once, and nowhere else, because rule 138 cites it and somebody following that
+rule has to be able to find this file.
 
 **Tampa Bay, FL.** Filled 2026-09-09 from the two references the owner sent
-that night. This file is the RECORD; `docs/schemes/gandy-styleguide.html` is
+that night. This file is the RECORD; `docs/schemes/tampabay-styleguide.html` is
 the ASK — playbook rule 91.
 
 **THE PAIR, both measured off the live thing, not remembered:**
@@ -21,8 +32,10 @@ appears here.
 
 ## 1. WORDS — who this business is
 
-- **Gandy Mobile Detailing**, Tampa Bay, Florida. Named for Gandy Boulevard,
-  the same way site 4 was named for a Chicago street.
+- **Tampa Bay Auto Detail**, Tampa Bay, Florida. Drafted as *Gandy Mobile
+  Detailing*, named for Gandy Boulevard the way site 4 was named for a Chicago
+  street, and **renamed on his ruling**: a detailer's sign says the trade and
+  the place, not an invented product name.
 - Fully mobile. Brings its own water and power. No shop.
 - **Serves everything that drives**, which is the whole point of the vehicle
   switch: daily drivers, trucks and duallys, vans, RVs, boats, golf carts,
@@ -215,7 +228,8 @@ never from the file.
 ## 11. PHOTOGRAPHY
 
 Nine candidates were rendered to a contact sheet and looked at
-(`.tmp-site5/contact.png`), because alt text does not mention badges.
+(rendered to a throwaway contact sheet and LOOKED at, playbook rule 100),
+because alt text does not mention badges.
 
 - **Hero: Unsplash `1VDPJNOxCHs`** — a bright red bonnet running into the
   headlight, one long diagonal for the italic to sit along. No badge, no
@@ -233,7 +247,7 @@ Nine candidates were rendered to a contact sheet and looked at
 
 # THE APPROVAL — the four questions
 
-1. **The words.** Gandy Mobile Detailing, Tampa Bay, everything that drives.
+1. **The words.** Tampa Bay Auto Detail, Tampa Bay, everything that drives.
 2. **The subject.** A depot board: one loud poster, then the whole catalogue.
 3. **The tile.** Near-black lacquer, one loud red, one light band; Kanit 900
    italic over Epilogue and Azeret Mono; 28px corners.

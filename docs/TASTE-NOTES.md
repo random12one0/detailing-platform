@@ -2082,7 +2082,7 @@ not say. My first hero arrival silently did nothing for seven of its eight
 elements, because **a CSS comment closed fourteen lines early and a paragraph
 of English was being parsed as CSS.** No console error. Page rendered. One
 element animated perfectly. It took three rounds of probing the wrong thing.
-`.tmp-site4/probe-arrive.mjs` now counts the rules the browser actually
+`docs/schemes/measure/site4-probe-arrive.mjs` now counts the rules the browser actually
 ACCEPTED against the file — **a stylesheet that fails to parse still renders a
 page**, and this repo writes very long comments.
 
@@ -2183,8 +2183,9 @@ the eight-line detail checklist; fourteen service towns; the deposit, weather
 and no-rush policies; the six FAQs; and the motto **"If it drives, we detail
 it."**
 
-**SITE 5 IS GANDY MOBILE DETAILING, TAMPA BAY, FL.** Near-black lacquer, one
-loud red, **Kanit 900 italic / Epilogue / Azeret Mono** (none used in any of the
+**SITE 5 IS TAMPA BAY AUTO DETAIL, TAMPA BAY, FL** — drafted as *Gandy
+Mobile Detailing* and renamed by him under playbook rule 138. Near-black
+lacquer, one loud red, **Kanit 900 italic / Epilogue / Azeret Mono** (none used in any of the
 28 pages here), **28px corners with one square price cell** — the exact
 inversion of site 4 — and the page changes ground twice.
 
@@ -2194,7 +2195,9 @@ site in this set so far ladders by **SIZE**, so this alone re-orders the middle
 of the page.
 
 **THE DESIGN SHEET IS BUILT, MEASURED AND SENT** —
-`docs/schemes/gandy-styleguide.html`, published as an artifact he can press.
+`docs/schemes/tampabay-styleguide.html`. **The artifact it was first sent as
+is dead** — he closed artifacts the same night, and a tenant page goes out at
+`/ex<N>` and nowhere else.
 Every contrast figure is computed by the page (worst pair 4.06:1 for a control's
 edge against a 3:1 floor; white on the red 4.90:1); no horizontal overflow at
 320/360/392/768/1440/1920; console clean at every width.
@@ -2214,15 +2217,15 @@ stats that they have on their page. Basically, the entire website. But… it
 always looks good so we could go ahead and get started making the website."*
 
 **SO "PORT THE FACTS" MEANS THE WHOLE SITE, NOT THE PRICE LIST.** The full
-capture is `docs/schemes/gandy-mobile-detailing-scheme.md` Appendix 2 and it
+capture is `docs/schemes/tampabay-auto-detail-scheme.md` Appendix 2 and it
 adds, beyond the prices: the three named tiers (Express / Executive /
 Add-ons), the four stat counters read out of the markup because they animate
 from zero, the five two-line claims, the six warnings, the four fleet
 benefits, the hours bar, gift cards, the payment methods and the footer's
 repeat of the service area.
 
-**`docs/tenant-sites/z-tampabay.html` is the page.** Gandy Mobile Detailing,
-Tampa Bay. Verified by looking and by measuring: **254 text elements sampled
+**`docs/tenant-sites/z-tampabay.html` is the page, served at `/ex5`.** Tampa
+Bay Auto Detail, Tampa Bay. Verified by looking and by measuring: **254 text elements sampled
 off the rendered pixels at 1440, 392 and 320 with zero below floor, worst
 4.79:1**; no horizontal overflow at 320/360/392/768/1440/1920; console clean at
 every width; the reduced-motion path leaves nothing invisible; all four
