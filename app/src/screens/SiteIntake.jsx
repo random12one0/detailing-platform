@@ -236,13 +236,6 @@ function Question({ q, a, set }) {
         {q.req && <span className="req" title={t("Needed")}>*</span>}
       </h3>
 
-      {a.oldsite?.trim() && (
-        <button type="button" className={`chip webchip${onWeb ? " active" : ""}`}
-          aria-pressed={onWeb} onClick={() => set(`${q.id}::web`, onWeb ? "" : true)}>
-          <Globe size={13} strokeWidth={2} /> {t("It is on my website")}
-        </button>
-      )}
-
       {!onWeb && (<>
 
       {q.type === "text" && (
@@ -311,6 +304,18 @@ function Question({ q, a, set }) {
         <p className="willsay">{t("On your site:")} <b>{t(q.says(v))}</b></p>
       )}
       </>)}
+
+      {/* **UNDER THE ANSWER, NOT ABOVE IT.** Offered first it is the first
+          thing on every question and reads as the recommended route — a
+          detailer would tap it forty times and we would have a brief made of
+          "look at their old site". It is an escape from a question somebody
+          has read, so it goes where an escape goes. */}
+      {a.oldsite?.trim() && (
+        <button type="button" className={`chip webchip${onWeb ? " active" : ""}`}
+          aria-pressed={onWeb} onClick={() => set(`${q.id}::web`, onWeb ? "" : true)}>
+          <Globe size={13} strokeWidth={2} /> {t("It is on my website")}
+        </button>
+      )}
     </div></div>
   );
 }

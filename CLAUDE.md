@@ -143,6 +143,36 @@ Do not skip a check because he cannot watch it, and do not ask him to run one.
 answerable in a sentence typed with one thumb. Give him the recommendation
 first and the reasoning after it, per the rule below.
 
+## A DETAILER'S ANSWERS BECOME A BRIEF FILE — `scripts/site-brief.mjs`
+
+His workflow, 2026-09-10: *"as soon as someone submits a form, I get an
+application, and then I can just open up Claude Code and go to my website
+builder agent and be like, hey, new intake form, start building."*
+
+```
+node --env-file=.env scripts/site-brief.mjs <slug>     # or --all
+```
+
+Writes `docs/clients/<slug>-brief.md` — which is the path
+`docs/tenant-site-kit.md` § 5 already tells an agent to read, so the file lands
+where the process looks rather than inventing a second place. **That file plus
+the kit is the whole handover.**
+
+**THE QUESTIONS COME FROM `app/src/lib/siteIntake.js` BY IMPORT, NEVER A COPY.**
+That file has no imports of any kind, the same discipline `book/core.js` keeps,
+so a Node script can read it. A second list here would go stale the first time
+a question was reworded and would print an old question above a new answer.
+
+**AN UNANSWERED QUESTION IS PRINTED AS UNANSWERED**, and the count is at the
+bottom. Dropping blanks would let an agent read a brief and believe it was
+complete, and the rule on the other side of this form is that nothing on the
+finished site may claim anything the brief did not establish.
+
+**TWO PIECES OF THIS WORKFLOW ARE STILL MISSING and neither is code he can
+see:** nothing emails him when a form is submitted, and the back office cannot
+show him a brief — that needs a new `platform-admin` action and a deploy.
+`docs/status-2026-09-10.md` is the standing list.
+
 ## AMERICAN ENGLISH, EVERYWHERE A PERSON READS IT — his instruction, 2026-09-10
 
 He found **"Cheque"** in the website intake form and asked what it was:
