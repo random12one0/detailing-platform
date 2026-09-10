@@ -124,6 +124,11 @@ site is the recorded cause of the first failure in this project.
 **The page count is part of the variety.** At least one site is a single page
 with a jump-link header; at least one has real tabs.
 
+**Built so far:** 1 Prime (`v-goldenhour*.html`), 2 Delgado (`w-delgado.html`),
+3 Ballantyne (`x-ballantyne*.html`), **4 Kinzie (`y-kinzie.html`, 2026-09-09)**
+— bone/graphite, one loud blue, every seam a 4.2° diagonal, and the first of
+the set whose before/after is a real customer's car rather than a device.
+
 ---
 
 ## 3 · NAMING AND COPY
@@ -765,3 +770,97 @@ reading it.**
     car**, so it carries the word "Placeholder" in the section and a comment in
     the markup. Swapping in a real pair is two `src` values and deleting one
     `filter` line.
+
+### From site 4 — the build, 2026-09-09. `docs/tenant-sites/y-kinzie.html`
+**Live and pressable on his phone:**
+`https://claude.ai/code/artifact/d069c813-eda8-46ea-952a-979b585ea9c4`
+The repo file keeps its Unsplash URLs and is 400 KB. The ARTIFACT copy has
+every photograph baked in, because **the artifact CSP blocks external images
+with no visible error** and a published copy would otherwise render with five
+holes in it. `.tmp-site4/build-artifact.mjs` does the baking and strips the
+document wrapper the artifact host supplies itself.
+
+107. **A WARNING WRITTEN IN THE DESIGN SHEET DOES NOT TRANSFER BY HAVING BEEN
+    READ.** `kinzie-styleguide.html` carries the comment *"display:grid
+    outranks [hidden] — say it"* beside its own tab component. The built page
+    used `.ptable{display:grid}` with `[hidden]` panels and **rendered all
+    three vehicle ladders at once — nine price rows instead of three** — and
+    it survived a full screenshot pass, because nine plausible rows look like
+    a long table. **Before writing a component the sheet already contains,
+    grep the sheet for that component and read its comments**, rather than
+    reproducing it from memory of having read the file an hour earlier.
+108. **FIXED CHROME CANNOT BE TRANSLUCENT ON A PAGE THAT FLIPS ITS GROUND.**
+    The nav was `color-mix(var(--ground) 82%, transparent)` over a blur.
+    Measured: its accent wordmark is **5.19:1 over the graphite ground and
+    3.03:1 when the paper band scrolls under it**, and the paint switcher's
+    label **1.69:1**. One element, two grounds, and the failing ground exists
+    only in the middle of the page — invisible at the top, invisible at the
+    bottom, invisible to any check that samples one screen. Anything
+    `position: fixed` on a two-band page takes an opaque fill.
+109. **AN OVERLAY PANEL INSIDE A FLIPPED BAND MUST USE `--ground`, NEVER
+    `--band`.** `--band` **is** the band it is sitting on, so the panel came
+    out invisible **in both colourways at once**. The symmetry is the tell: a
+    fault that shows in both paints is structural rather than chromatic, and
+    the fix is symmetric too — `--ground` is the opposite of the band in both.
+110. **A MATCHED PAIR CAN BE MANUFACTURED FROM AN UNMATCHED ONE, AND HERE IS
+    THE METHOD.** Rule 106 says a true pair only exists when somebody sets a
+    tripod. He sent one stacked frame shot handheld — same car, same driveway,
+    different camera position — and it was made usable by measurement rather
+    than by eye. **Split at the row with the largest row-to-row difference**
+    (1024 of 2048, scanned for, not guessed). **Read two landmarks at 4x on
+    both halves**: the wheel-hub centre cap and the bonnet badge, because both
+    are small, high-contrast and unambiguous. Take the similarity transform
+    between them — **scale 0.9391, offset 186.2 / 33.0 px**; rotation came out
+    at 0.44° and was dropped. **Then crop each half THROUGH that transform**
+    so the car lands in the same place in both frames. Residual at the two
+    landmarks: **1.8px and 7.8px on a 1400px frame**.
+    **WHAT IT CANNOT FIX DECIDED THE CROP.** The A-pillar and door were ~15px
+    out after a fit anchored on the nose, because the two shots differ in
+    PERSPECTIVE and a similarity transform has no perspective term. So the
+    frame was tightened onto the region the fit is exact in — nose, bonnet,
+    headlight, front wheel — which is also the better gloss picture. The one
+    thing left is the **front wheel, which turned about 9° between the shots**:
+    rim, tyre and hub cap overlay exactly and the spokes are half a spoke out.
+    Named in the file rather than hidden.
+    **The instrument was a headless canvas.** There is no `sharp`, no `jimp`
+    and no PIL on this machine; Playwright is already installed and a canvas
+    crops, scales and encodes webp. `.tmp-site4/imgtool.mjs`.
+111. **THE CONTRAST MEASUREMENT LIED TWICE MORE, ON TOP OF 102–105.**
+    (a) **Removing `.rv-hidden` STARTS a 520 ms transition.** A sampler that
+    strips the class and reads 120 ms later measures elements **22px above
+    where their own `getBoundingClientRect` says they are** — it reported
+    1.58:1 for a caption that is really about 6:1, and **it did not reproduce
+    on the next run**, which is exactly how a session talks itself into
+    "sampling artefact" and moves on. Kill transitions and animations outright
+    before measuring; the run is then identical twice, and that is the test.
+    (b) **Text scrolling under an OPAQUE fixed nav is not visible, and
+    sampling it reads the nav's own fill as the ground** — two h2s at 1.07:1,
+    both false. Exclude the nav's height from the sampled band, and say so in
+    the script so the next reader knows the gap is deliberate.
+112. **A VIEWPORT-HEIGHT MEDIA BOX BECOMES A PORTRAIT CROP ON A PHONE, AND
+    WHAT IT CROPS OUT IS THE PART THAT MADE THE EFFECT WORK.** The wipe panel
+    was `height: min(60vh, 560px)`. At 768x1024 that is a 1.26 box holding a
+    1.93 photograph, so `object-fit: cover` removed the entire nose of the
+    car — and the nose is what makes the two halves read as ONE car across the
+    blade. **Below the breakpoint the box is an ASPECT** (`aspect-ratio:16/10`,
+    `height:auto`), so the picture decides its height instead of the screen.
+113. **THE PAGE'S FIRST SEAM WAS THE ONLY FLAT ONE.** Every band boundary was
+    the 4.2° slant and the hero's bottom edge — the first one anybody sees —
+    was horizontal, because a hero gets written before the seam system does.
+    Cut the hero on the same angle. **`--cut: calc(100vw * 0.0734)` is
+    tan(4.2°) as a real offset**, so the clip-paths, the wipe's `--tilt` and
+    every band agree by construction rather than by three numbers typed to
+    match.
+114. **A 568px-TALL PHONE IS A SEPARATE LAYOUT FOR A PINNED SECTION.** A
+    `place-items: center` grid whose content is taller than its box overflows
+    at **both** ends, so the heading is cut off the top and the panel off the
+    bottom **and neither is reachable by scrolling, because the section is
+    pinned.** Measured at 320x568 after the fix: heading top 48px, progress
+    bar bottom 442px, dock top 494px — it fits with 52px to spare, but only
+    once the head's type was cut (h2 42→26px, readout 34→24px) and the panel
+    became an aspect.
+    **MEASURE THE PINNED FRAME, NOT THE FRAME ON THE WAY IN.** A screenshot
+    taken at a scroll fraction usually catches the section BEFORE the pin
+    engages, which looks broken and is not — and hides the real pinned state,
+    which may be. `.tmp-site4/probe-pin.mjs` scrolls to `wrapTop + f * (wrapH
+    - viewport)` and prints the rects.

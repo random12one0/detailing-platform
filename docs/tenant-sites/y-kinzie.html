@@ -25,7 +25,9 @@
      ?c=b graphite, ?c=c paper. Switcher bottom right. Only COLOUR forks.
 
      THE BEFORE/AFTER IS REAL, and it is his own photograph — he sent it
-     2026-09-09 as one stacked frame. It was split at row 1024 (found by
+     2026-09-09 as one stacked frame, and it is
+     app/public/img/Black-FRS-Before-and-After-Polish-3.jpg — untracked, because
+     app/public belongs to another lane; the transform below is the record. It was split at row 1024 (found by
      row-difference, not by eye), and the two halves were then MATCHED:
      landmarks on the wheel-hub cap and the bonnet badge were read at 4x on
      both, giving after -> before as scale 0.9391, offset (186.2, 33.0) px.
@@ -195,6 +197,11 @@ h2 em{font-style:normal;color:var(--accent-text)}
   transition:color var(--t-hover) var(--ease-out)}
 .navlinks a:hover{color:var(--ink)}
 @media (max-width:900px){.navlinks{display:none}}
+@media (max-width:520px){
+  .nav{padding:9px 14px}
+  .nav .btn{padding:11px 14px;font-size:13px}
+  .mark{font-size:15px}
+}
 
 /* the right-edge position dots, Chicago's own */
 .dots{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:19;
@@ -267,7 +274,7 @@ h2 em{font-style:normal;color:var(--accent-text)}
 /* ═══ 5 · CONTROLS ═══════════════════════════════════════════════════════ */
 .btn{display:inline-flex;align-items:center;gap:8px;font:600 14px/1 "Familjen Grotesk";
   padding:15px 22px;border:0;border-radius:var(--r-edge);cursor:pointer;
-  text-decoration:none;background:var(--accent);color:var(--on-accent);
+  text-decoration:none;background:var(--accent);color:var(--on-accent);white-space:nowrap;
   transition:background var(--t-hover) var(--ease-out),transform var(--t-hover) var(--ease-out)}
 .btn:hover{background:color-mix(in srgb,var(--accent) 86%,#000)}
 .btn:active{background:color-mix(in srgb,var(--accent) 72%,#000);transform:translateY(1px)}
@@ -410,15 +417,32 @@ h2 em{font-style:normal;color:var(--accent-text)}
   background:color-mix(in srgb,var(--ink) 15%,transparent)}
 .peelbar i{position:absolute;inset:0 auto 0 0;width:var(--p-pc,0%);
   background:var(--accent);border-radius:2px}
-@media (max-width:720px){
-  .peelwrap{height:220vh}
-  .panelbox{height:min(42vh,320px)}
+@media (max-width:900px){.panelbox{height:auto;aspect-ratio:16/10}}
+@media (max-width:720px){.peelwrap{height:220vh}}
+/* a 568px-tall phone: the peel's head and its panel do not both fit, and a
+   centred grid that overflows is cut at BOTH ends rather than one */
+@media (max-width:560px){
+  .side{font-size:9.5px;padding:7px 10px}
+  .side.r{top:12px;bottom:auto}      /* both at the bottom is 300px of label in 260px */
+}
+@media (max-width:767px){
+  .peelhead h2{font-size:26px}
+  .peelhead p{font-size:13.5px;margin-top:8px}
+  .readout b{font-size:24px;margin-bottom:3px}
+  .peelhead{gap:10px;margin-bottom:12px}
 }
 /* the dock is 74px of the screen the pin thinks it has, so the pinned panel
    has to give it back or the progress bar sits underneath it */
 @media (max-width:767px){
   .peel{height:calc(100vh - 78px)}
   .hero{padding-bottom:calc(96px + var(--cut) * .6)}
+  /* the pill moved to the top on phones and the nav arrives underneath it,
+     so one of the two has to go: the pill, which the hero has already said */
+  .nav.on ~ .avail{opacity:0;visibility:hidden}
+  .avail{transition:opacity var(--t-exit) var(--ease-out)}
+  .hero .wrap{padding-top:58px}
+  .paint{padding:4px;gap:4px}
+  .paint button{padding:7px 9px;font-size:11px}
 }
 
 /* ═══ 10 · PORTFOLIO · E1 ════════════════════════════════════════════════ */
