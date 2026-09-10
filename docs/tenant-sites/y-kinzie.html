@@ -1953,6 +1953,81 @@ var STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
   });
 })();
 
+// ── IN-PAGE LINKS TRAVEL, THEY DO NOT TELEPORT ────────────────────────
+// His ask, 2026-09-09: *"when you hit one of the links — book a detail, or
+// pricing — instead of just teleporting you there... either you can make it
+// so it scrolls from wherever you are to the place nicely, or have it where
+// it teleports you instantly but all of the stuff loads in."*
+//
+// The first, and it has a side effect worth having: because every reveal on
+// this page is scroll-LINKED rather than time-based, travelling through the
+// page plays them on the way past and the destination arrives with its own
+// reveal still running. A teleport would land on a section already finished.
+//
+// WHY NOT `scroll-behavior: smooth`: the stylesheet's own comment says it —
+// it fights the weighted wheel scroll, which is driving `scrollTop` itself.
+// This drives the same property and tells that module where it ended up.
+//
+// IT IS INTERRUPTIBLE. A wheel, a touch or a key during the travel stops it
+// dead and hands the page straight back — a link must never take the scroll
+// hostage for a second. Reduced motion jumps, because that is the preference.
+(function () {
+  var nav = document.getElementById("nav");
+  var raf = 0;
+
+  function destOf(el) {
+    var raw = el.getBoundingClientRect().top + scrollY;
+    var over = nav && raw > innerHeight * 0.72 ? nav.offsetHeight : 0;
+    var y = raw - over - 14;
+    var max = document.documentElement.scrollHeight - innerHeight;
+    return Math.max(0, Math.min(max, y));
+  }
+
+  function stop() {
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
+  }
+  ["wheel", "touchstart", "keydown", "pointerdown"].forEach(function (ev) {
+    addEventListener(ev, stop, { passive: true });
+  });
+
+  function travel(to, done) {
+    var from = scrollY, d = to - from;
+    if (Math.abs(d) < 2) { done(); return; }
+    // far enough to need time, never long enough to feel like waiting
+    var ms = Math.min(1000, 360 + Math.abs(d) * 0.2);
+    var t0 = performance.now();
+    stop();
+    if (window.__kinzieSync) window.__kinzieSync(from);
+    (function step(now) {
+      var p = Math.min(1, (now - t0) / ms);
+      var e = 1 - Math.pow(1 - p, 3);        // the same shape as --ramp
+      var y = from + d * e;
+      scrollTo(0, y);
+      if (window.__kinzieSync) window.__kinzieSync(y);
+      if (p < 1) raf = requestAnimationFrame(step);
+      else { raf = 0; done(); }
+    })(t0);
+  }
+
+  addEventListener("click", function (e) {
+    var a = e.target.closest ? e.target.closest('a[href^="#"]') : null;
+    if (!a || a.getAttribute("href").length < 2) return;
+    var id = a.getAttribute("href");
+    var el = document.querySelector(id);
+    if (!el) return;
+    e.preventDefault();
+    var land = function () {
+      history.replaceState(null, "", id);
+      // replaceState fires no hashchange, and the booking widget listens for
+      // one to put itself back to step 1 when somebody arrives at it
+      dispatchEvent(new Event("hashchange"));
+    };
+    var to = destOf(el);
+    if (STILL) { scrollTo(0, to); if (window.__kinzieSync) window.__kinzieSync(to); land(); return; }
+    travel(to, land);
+  }, true);
+})();
+
 // ── the pointer light: ONE delegated listener ──────────────────────────
 (function () {
   if (matchMedia("(hover: none)").matches) return;
@@ -1995,6 +2070,15 @@ var STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
     scrollTo(0, cur);
   }
   addEventListener("scroll", function () { if (!raf) { cur = target = scrollY; } }, { passive: true });
+  // THE ONE WAY IN. An anchor travel drives `scrollTo` itself, so it has to
+  // tell this module where the page now is — otherwise leftover wheel
+  // momentum keeps pulling toward wherever the reader last flicked, and the
+  // two fight for the same scrollTop. Also used to CANCEL that momentum the
+  // instant a link is pressed.
+  window.__kinzieSync = function (y) {
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    cur = target = y;
+  };
 })();
 </script>
 </body>
