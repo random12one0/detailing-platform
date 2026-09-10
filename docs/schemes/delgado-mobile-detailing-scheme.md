@@ -1,9 +1,14 @@
 # DESIGN SCHEME — Delgado Mobile Detailing  *(site 2 · `ex2`)*
 
-**Written BEFORE any HTML exists.** Andrew answered the four interview questions
+**BUILT AND SIGNED OFF 2026-09-08. The page is
+`docs/tenant-sites/w-delgado.html`, served at `/ex2`.** One page, by his own
+instruction that the page COUNT is part of the variety. **Nothing here is
+outstanding.**
+
+*Written BEFORE any HTML existed. Andrew answered the four interview questions
 on 2026-09-08 and three of the four picks below are his, not mine — including
-the one he overruled me on. Nothing gets built until he approves §1, §2, §3 and
-§9.
+the one he overruled me on. Kept as the RECORD of what was asked and answered,
+not as a to-do list.*
 
 **His four answers, verbatim from the interview:**
 

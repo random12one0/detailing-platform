@@ -1,15 +1,23 @@
 # DESIGN SCHEME — Ballantyne Mobile Detailing  *(site 3 · `ex3`)*
 
-**Written BEFORE any HTML exists.** Started 2026-09-09 from Andrew's interview
-answers. **§3's ground is PENDING his pick** — three frames were sent and he
-answers with a letter. Nothing gets built until §1, §2, §3 and §9 have his yes.
+**BUILT AND SIGNED OFF 2026-09-09. The pages are
+`docs/tenant-sites/x-ballantyne.html` and `x-ballantyne-prices.html`, served at
+`/ex3`.** §3's ground was the open question and he answered it with all three
+— *"they all look good so lets do all 3 cuz its easy to just switch colors"* —
+so the page ships a colourway switch: `?c=a` petrol night, `?c=b` painted teal
+(the default), `?c=c` cool daylight. **Nothing here is outstanding.**
+
+*Written BEFORE any HTML existed, from Andrew's interview answers on 2026-09-09,
+which is why the sections below are phrased as questions and pending picks.
+Kept as the RECORD of what was asked and answered — read it that way, not as a
+to-do list.*
 
 ## His four answers, and one of them was a correction
 
 | Question | His answer |
 |---|---|
 | What kind of detailer? | **Rejected the question.** Every example site is an ordinary mobile detailer like him. *(now playbook rule 31)* |
-| Light or dark? | **"can u gve me like an example of 3 visual"** — three rendered grounds, sent 2026-09-09, awaiting a letter |
+| Light or dark? | **"can u gve me like an example of 3 visual"** — three rendered grounds, sent 2026-09-09. **ANSWERED: all three, as a switch.** |
 | Which two of his 21? | **`fora.so` is his.** He refused the detailer half and told the session to go and find the one that LOOKS like fora |
 | One page or several? | **Two pages — home + prices/book** |
 

@@ -1,4 +1,4 @@
-# DESIGN SCHEME — Kinzie Mobile Detailing  *(site 4 \u00b7 `ex4`)*
+# DESIGN SCHEME — Kinzie Mobile Detailing  *(site 4 · `ex4`)*
 
 **BUILT AND SIGNED OFF 2026-09-09. The page is
 `docs/tenant-sites/y-kinzie.html`, served at `/ex4`**, and its design sheet is
