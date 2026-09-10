@@ -679,12 +679,15 @@ h2 em{font-style:normal;color:var(--accent-text)}
   text-transform:uppercase;color:#9AA2AE}
 
 /* ═══ 15 · F1 · the phone dock ═══════════════════════════════════════════ */
-.dock{position:fixed;left:0;right:0;bottom:0;z-index:22;display:none;gap:8px;
-  padding:10px clamp(12px,3vw,18px) calc(10px + env(safe-area-inset-bottom));
-  background:var(--ground);
-  box-shadow:inset 0 1px 0 var(--rule)}
-.dock .btn{flex:1;justify-content:center;padding:14px 12px}
-@media (max-width:767px){.dock{display:flex}body{padding-bottom:74px}}
+/* ONE control, floating clear of the edges rather than a slab bolted across
+   the bottom: no panel, no blur, no second button to be a different height
+   from the first. The phone number still lives in the footer, where somebody
+   looking for it looks. */
+.dock{position:fixed;left:14px;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));
+  z-index:22;display:none}
+.dock .btn{width:100%;justify-content:center;padding:17px 12px;
+  box-shadow:0 14px 34px -10px rgba(0,0,0,.55)}
+@media (max-width:767px){.dock{display:block}body{padding-bottom:88px}}
 
 /* the paint switcher */
 .paint{position:fixed;right:14px;bottom:14px;z-index:23;display:flex;gap:6px;padding:6px;
@@ -711,6 +714,62 @@ h2 em{font-style:normal;color:var(--accent-text)}
 .lit.on:after{opacity:.92}
 .lit > *{position:relative;z-index:2}
 @media (hover:none){.lit:before,.lit:after{display:none}}
+
+/* === 16b - THE ARRIVAL, ONCE, ON FIRST PAINT ========================
+   HIS ASK, 2026-09-09: *"maybe just, like, if the first time opening the
+   website, there's just, like, the front page all kind of loads in nicely
+   with this animation. So I'm just popping into place."*
+
+   ONE STAGGER FOR THE WHOLE SCREEN, which is the arrival budget: a screen
+   gets a single orchestrated moment, not a scattering of effects. Eight
+   things on one 70ms beat, each travelling the same 22px on the same curve
+   the rest of the page uses. The photograph is the exception and gets a
+   longer, slower settle underneath it, because a ground that arrives at the
+   same speed as the text on top of it reads as one flat card sliding in.
+
+   THE HIDDEN STATE IS ADDED BY SCRIPT AND HAS A DEAD MAN'S SWITCH. `.pre`
+   goes on the root element from a tiny inline script BEFORE the hero is
+   parsed - added at the end of the body it would flash the hero visible and
+   then hide it. A page whose main script never runs would then be stuck
+   hidden, which is the reveal rule inverted and worse, so that same inline
+   script removes `.pre` after 2.5s no matter what else happened.
+
+   `--i` is inline on each element rather than set from script, so the ORDER
+   survives a script that dies: the failsafe fires and everything arrives at
+   once instead of nothing arriving at all.
+
+   IT IS AN ANIMATION, NOT A TRANSITION, and the first version got that wrong.
+   A transition needs the element to already carry a `transition` property
+   BEFORE its value changes; hiding with `transition:none` and revealing by
+   removing the class changes both in one style recalculation, and the
+   measured result was the whole hero arriving instantly - eight beats over
+   in under 150ms, which is the pop it was written to replace. Shot as a
+   strip of frames at 0/150/300/500/750/1100/1500ms, which is the only way
+   that was ever going to be visible.
+
+   `both` is what makes the delay work: the element holds the `from` state
+   through its delay instead of flashing at full opacity and then starting.
+   It also means the arrival completes on its own if every other script on
+   the page dies - the class is the only thing JS has to do.
+
+   THE SHEET NEEDS ITS OWN KEYFRAMES, and this would have shipped as a bug.
+   `.sheetobj` already carries `transform: rotate(var(--slant))`; an
+   animation that sets `transform: translateY(...)` REPLACES that rotation
+   for its whole run and then snaps back at the end. Any element with a
+   resting transform needs that transform written into its keyframes. */
+@keyframes arrive-in{
+  from{opacity:0;transform:translateY(22px) scale(.995)}
+  to  {opacity:1;transform:none}}
+@keyframes sheet-in{
+  from{opacity:0;transform:rotate(var(--slant)) translateY(22px)}
+  to  {opacity:1;transform:rotate(var(--slant))}}
+@keyframes shot-in{
+  from{opacity:0;transform:scale(1.055)}
+  to  {opacity:1;transform:none}}
+.pre [data-in]{animation:arrive-in var(--t-arrive) var(--ramp) both;
+  animation-delay:calc(var(--i,0) * 70ms)}
+.pre .sheetobj[data-in]{animation-name:sheet-in}
+.pre .hero .shot{animation:shot-in 1500ms var(--ramp) both}
 
 /* ═══ 17 · REVEALS — SCROLL-LINKED, AND THERE IS NO TIMER ════════════════
    HIS COMPLAINT, 2026-09-09, and it names the mechanism exactly: *"the first
@@ -740,6 +799,7 @@ h2 em{font-style:normal;color:var(--accent-text)}
 /* ═══ 18 · REDUCED MOTION — ONE implementation, and it is this one ═══════ */
 @media (prefers-reduced-motion:reduce){
   .rv-on{opacity:1;transform:none}
+  .pre [data-in],.pre .hero .shot{animation:none}
   .q .a{transition:none}
   .plx img,.plx .over,.hero .shot img{transform:none}
   .lit:before,.lit:after{transition:none}
@@ -749,6 +809,24 @@ h2 em{font-style:normal;color:var(--accent-text)}
 </style>
 </head>
 <body>
+<script>
+/* See stylesheet section 16b. This is the ONLY thing script does for the
+   arrival: mark the root before the hero is parsed, so the animation is in
+   place ahead of first paint rather than being applied after the hero has
+   already shown. The animation finishes itself; the class comes off at 2.5s
+   only so nothing lingers on the element afterwards. Reduced motion never
+   gets the mark, so it never gets the animation. */
+(function () {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var d = document.documentElement;
+  d.classList.add("pre");
+  var off = function () { d.classList.remove("pre"); };
+  addEventListener("animationend", function (e) {
+    if (e.animationName === "shot-in") off();          // the longest of them
+  }, true);
+  setTimeout(off, 2500);
+})();
+</script>
 <div class="sky"></div>
 
 <nav class="nav" id="nav">
@@ -772,7 +850,7 @@ h2 em{font-style:normal;color:var(--accent-text)}
   <a href="#book" aria-label="Book"></a>
 </div>
 
-<span class="avail"><i class="dot"></i>Taking bookings for next week</span>
+<span class="avail" data-in style="--i:7"><i class="dot"></i>Taking bookings for next week</span>
 
 <main>
 
@@ -783,18 +861,18 @@ h2 em{font-style:normal;color:var(--accent-text)}
          src="https://images.unsplash.com/photo-1746079074371-e28f14c76e37?fm=jpg&amp;fit=crop&amp;w=2200&amp;h=1400&amp;q=80"
          alt="A detailer running a machine polisher along the rear quarter of a dark car, masking tape along the trim">
   </div>
-  <div class="sheetobj"></div>
+  <div class="sheetobj" data-in style="--i:6"></div>
   <div class="wrap">
-    <span class="lbl">Kinzie Mobile Detailing · Chicago</span>
-    <h1>Mobile detailing and paint protection across <em>Chicago</em></h1>
-    <p>Five services. Every price is set by vehicle size and confirmed at inspection.
-       Ten neighborhoods, from Ravenswood down to Hyde Park.</p>
-    <div class="herocta">
+    <span class="lbl" data-in style="--i:1">Kinzie Mobile Detailing &middot; Chicago</span>
+    <h1 data-in style="--i:2">Mobile detailing and paint protection across <em>Chicago</em></h1>
+    <p data-in style="--i:3">Five services. Every price is set by vehicle size and
+       confirmed at inspection. Ten neighborhoods, from Ravenswood down to Hyde Park.</p>
+    <div class="herocta" data-in style="--i:4">
       <a class="btn" href="#book">Book a detail</a>
       <a class="btn two" href="#services">See the prices</a>
     </div>
     <!-- C3 · three figures, and deliberately three DIFFERENT kinds of thing -->
-    <div class="trust">
+    <div class="trust" data-in style="--i:5">
       <div><b>212</b><span>Google reviews</span></div>
       <div><b>6+ hrs</b><span>Maintenance visit</span></div>
       <div><b>XPEL</b><span>Certified installer</span></div>
@@ -1368,7 +1446,7 @@ h2 em{font-style:normal;color:var(--accent-text)}
 </main>
 
 <footer class="foot">
-  <div class="wrap" style="padding-inline:0">
+  <div class="wrap">
     <div class="footgrid">
       <div>
         <h4>Kinzie Mobile Detailing</h4>
@@ -1415,8 +1493,7 @@ h2 em{font-style:normal;color:var(--accent-text)}
 </footer>
 
 <!-- F1 · the phone dock -->
-<div class="dock">
-  <a class="btn two ink" href="tel:+13125550148">Call</a>
+<div class="dock" data-in style="--i:7">
   <a class="btn" href="#book">Book a detail</a>
 </div>
 
