@@ -2321,3 +2321,54 @@ until 900px and overlapped between 900 and 1024. It stacks below 1024 now.
 The three-tier split (Express / Executive / Add-ons) sitting beside the vehicle
 board, with ceramic coating pulled out on its own: *"I guess it kinda makes
 sense. So I think it's fine."* **Do not redesign it.**
+
+## 17 · SITE 5 IS SIGNED OFF — 2026-09-09, *"It looks good. I think we're all finished with this example."*
+
+**`docs/tenant-sites/z-tampabay.html`, served at `/ex5`. Tampa Bay Auto Detail.**
+Five sites built; this is the first one delivered without an artifact.
+
+### What it took, in the order he said it
+
+The design sheet was approved first (§ 12–13, rule 91), then the page, then
+**three review rounds**. Every note is in § 16 as instructions. The short form:
+
+1. **The name.** *"We're not inventing a new product."* Gandy → Tampa Bay Auto
+   Detail. This became rule 138 and it binds every future site.
+2. **The words.** Six headings and one half-sentence, all the same fault.
+3. **The prices.** *"I actually need exactly what comes in each package."*
+4. **The photograph.** *"Did you need this entire image red, or can you not just
+   find an image of a car that is red?"*
+5. **The cutout.** Two attempts. The first was arithmetically exact and rendered
+   empty (rule 150).
+6. **The motion.** Reveals were on sections, not parts, so the page looked dead
+   while the code worked (rule 152).
+7. **The switch.** *"It's not super obvious that it's supposed to click"* — a
+   photograph reads as decoration however well it behaves (rule 157).
+
+### THREE THINGS THAT COST A ROUND EACH AND WOULD AGAIN
+
+- **A SECOND COPY GOES STALE AND HE REVIEWS IT.** Two of his rounds were spent
+  on faults already fixed in the repo file and still live in the artifact he
+  had open — including both "mobile bugs" and the cutout he said was missing.
+  This is why artifacts are off (CLAUDE.md, rule 149) and it is the strongest
+  argument in that rule.
+- **AN ENTRANCE THAT ENDS ON `transform` OWNS IT FOR EVER — three times on one
+  page.** It threw the tab off the right edge, then ignored the shape written
+  by script, then pushed the tab's label 48px off centre, **which he caught in
+  a crop I had sent him myself.** Rules 143, 151, 161.
+- **A ZOOMED SHOT PROVES ONE THING AND HIDES THE REST.** Rule 160.
+
+### STILL OPEN, AND HE CLOSED THEM BY SIGNING OFF
+
+- *"If it drives, we detail it"* was removed from the heading AND the eyebrow
+  when he had only asked for the heading to be simpler. He did not ask for it
+  back.
+- No footer wordmark and no marquee band, both taken as recommendations he
+  never answered.
+- **`/ex5` IS NOT REACHABLE FROM HIS PHONE.** The example pages are not on the
+  live deploy (checked: `detailingplatform.com/ex4` serves the app shell), and
+  the free branch preview never built — `preview-ex5--detailplatform-admin-test.netlify.app/ex5`
+  was still 404 seven minutes after the push, so **branch deploys are not
+  building on that account either.** The branch `preview-ex5` is on GitHub and
+  costs nothing; delete it whenever. Publishing to the domain costs ~15 credits
+  against an account already over budget until 13 September.
