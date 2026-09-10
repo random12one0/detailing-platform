@@ -687,11 +687,18 @@ console.log("\n\u00a7 10 \u2014 the two screens, which are the half no behaviour
   // AND ALL FOUR CALLERS ASK THE SAME FUNCTION. Four copies of "can this
   // business take a card" is four chances to offer a button that does not
   // work; the count is what makes a fifth copy visible.
+  //
+  // **IT LOOKS FOR THE IMPORT, NOT FOR THE NAME, AND THE FIRST VERSION DID
+  // THE OPPOSITE AND TESTED NOTHING.** Baselined by taking `cardStatus` out
+  // of `send-invoice` and replacing it with an inline flag: the check still
+  // passed, because that file's own COMMENT says "it is `cardStatus` that
+  // answers" and the regex was reading comments. A file cannot import a
+  // module in a comment.
   const callers = ["supabase/functions/pay-booking/index.ts",
     "supabase/functions/get-booking-receipt/index.ts",
     "supabase/functions/send-invoice/index.ts",
     "supabase/functions/connect-account/index.ts"]
-    .filter((f) => /cardStatus|payability/.test(read(f)));
+    .filter((f) => /^import \{[^}]*\} from "\.\.\/_shared\/connect\.ts";/m.test(read(f)));
   check("every server caller goes through the shared decision", callers.length === 4,
     `only ${callers.length}: ${callers.join(", ")}`);
 
