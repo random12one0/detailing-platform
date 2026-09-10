@@ -2053,3 +2053,88 @@ shifted bottle or an opened door reads as a glitch rather than as clean paint.
 
 **Until then the section says "Placeholder" in as many words** and the markup
 says why. Swapping a real pair in is two `src` values and deleting one CSS line.
+
+
+---
+
+## 12 · SITE 4 IS SIGNED OFF — 2026-09-09, *"honestly, really good… love it"*
+
+His words across the last review, in order, because every one of them was a
+real defect and four of them were things no check in this repo could see:
+
+- *"Honestly, really good. Only critique is that there's no, like, loading
+  animations… maybe just, like, if the first time opening the website, the
+  front page all kind of loads in nicely."*
+- *"I don't understand why there's a button just to call. I feel like no site
+  has that… especially since the call is a different height than the book a
+  detail too, it just kinda is a little off putting."*
+- *"At the very, very bottom… it's basically touching the very left of the
+  screen. So that could have some padding."*
+- *"When you hit one of the links… instead of just teleporting you there…
+  either it scrolls from wherever you are to the place nicely, or it teleports
+  you instantly but all of the stuff loads in."*
+- Earlier the same night: *"one problem with the booking is that [combining]
+  needs to be separated, like if someone wanted to get a full detail and their
+  windows tinted."*
+
+**THE ONE THAT SHOULD CHANGE HOW THE NEXT SITE IS BUILT** is the one he did
+not say. My first hero arrival silently did nothing for seven of its eight
+elements, because **a CSS comment closed fourteen lines early and a paragraph
+of English was being parsed as CSS.** No console error. Page rendered. One
+element animated perfectly. It took three rounds of probing the wrong thing.
+`.tmp-site4/probe-arrive.mjs` now counts the rules the browser actually
+ACCEPTED against the file — **a stylesheet that fails to parse still renders a
+page**, and this repo writes very long comments.
+
+**And the footer wordmark is a house tell forming.** Counted: it is on 6 of
+the 28 pages in `docs/tenant-sites`, and those 6 are sites 1, 2, 3 and 4 —
+**every site built since the design-sheet process started.** That is the exact
+shape of the drawn connector line he retired at 14 of 26. He likes it (*"I
+mean, I think it's cool"*) and asked only for it to be smaller, which it is.
+**Recommendation, not yet answered: site 5 does not get one.**
+
+## 13 · SITE 5 — HIS TWO REFERENCES, 2026-09-09
+
+His brief, verbatim: *"I want this one to be different using different, you
+know, loading effects, different scroll effects, different everything
+basically, but still being, like, really good."*
+
+**Reference A — a DRIBBBLE SHOT, not a site.** He said *"dripple dot com
+professional detailing website design… it's just a main screen concept."*
+**`dripple.com` was loaded and is a PARKED DOMAIN FOR SALE** whose own page
+lists "Dribbble" among its related searches, so the name is a mis-hearing and
+the thing he means is a **Dribbble shot titled something like "Professional
+Detailing Website Design"**. His own words confirm the form: a shot is a
+single rendered screen, which is exactly *"just a main screen concept"*.
+**ASK HIM FOR THE LINK BEFORE SEARCHING** — Dribbble has hundreds under that
+phrase and picking the wrong one wastes the whole interview.
+
+**Reference B — `carolinamobilecarwash.com`, LOADED AND MEASURED 2026-09-09.**
+Real, live, and a genuinely different skeleton from anything in the set:
+
+- **A display face at a size nothing here has used**: "CAR DETAILING" set in a
+  heavy CONDENSED all-caps, edge to edge across the full viewport, over a
+  photograph. Not a headline on a page — the headline IS the page.
+- **Red as the single accent**, on a black-and-photograph ground.
+- **Photo tiles as navigation**: a four-across row of full-bleed photographs,
+  each captioned with a vehicle type.
+- **SEGMENTED BY VEHICLE TYPE, NOT VEHICLE SIZE** — bus, RV, golf cart, semi
+  truck and trailer washing. Every site in this set so far ladders by size
+  (cars / midsize / over-size). **This is a different commercial model** —
+  fleet and speciality work rather than one household car — and it is the
+  single most transferable thing in the reference.
+- A wide top nav with eight items, a search field and a chat bubble.
+
+**WHAT THE PAIR RESOLVES TO IS THE NEXT SESSION'S JOB, NOT THIS ONE'S.** The
+tension is already visible though: a Dribbble concept is a single perfect
+screen with no second page to be consistent with, and Carolina is a working
+site with eight nav items and a fleet catalogue behind them.
+
+**WHAT MUST BE DIFFERENT FROM SITE 4**, from his *"different everything"*:
+the arrival (site 4 is one 70ms stagger of eight beats), the scroll effects
+(site 4's reveals are scroll-LINKED with no timers, and its signature is a
+dragged before/after wipe), the ground (bone/graphite with a blue dot lattice
+on a 4.2° slant), the corner language (2px everywhere, one 50% badge, one
+pill), the type (Bai Jamjuree / Familjen Grotesk / Spline Sans Mono) and the
+section order. **What must NOT differ: the quality, the booking widget being
+ours, and every never-default.**

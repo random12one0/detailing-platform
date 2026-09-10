@@ -877,3 +877,59 @@ anything interactive, which is most of what these pages are.
     engages, which looks broken and is not — and hides the real pinned state,
     which may be. Scroll to `wrapTop + f * (wrapH - viewport)`
     and print the rects; a fraction of the whole page lands almost anywhere.
+
+### From site 4 — his review of the built page, 2026-09-09
+115. **A STYLESHEET THAT FAILS TO PARSE STILL RENDERS A PAGE, AND THIS REPO
+    WRITES VERY LONG COMMENTS.** A comment closed fourteen lines early and a
+    paragraph of English was parsed as CSS. The file looked right, the page
+    rendered, the console was clean, and **seven of the hero's eight arrival
+    beats silently did nothing while the eighth worked perfectly** — which
+    sent three rounds of probing after the wrong thing. Count the rules the
+    browser ACCEPTED (`style.sheet.cssRules.length`) and assert the keyframe
+    blocks parsed; `.tmp-site4/probe-arrive.mjs` does both.
+116. **AN ARRIVAL IS AN ANIMATION, NEVER A TRANSITION.** A transition needs
+    the element to already carry a `transition` property BEFORE its value
+    changes; hiding with `transition:none` and revealing by removing the class
+    changes both in one style recalculation. Measured: the whole hero arrived
+    in under 150ms, which is the pop it was written to replace.
+    `animation-fill-mode: both` holds the `from` state through the delay AND
+    finishes the arrival if every other script on the page dies, so the class
+    is the only thing JS has to do.
+117. **ANY ELEMENT WITH A RESTING TRANSFORM NEEDS THAT TRANSFORM WRITTEN INTO
+    ITS KEYFRAMES.** The hero's film sheet carries `rotate(var(--slant))`; an
+    arrival that animates `transform: translateY(...)` REPLACES that rotation
+    for the whole run and snaps back at the end.
+118. **A `fill: both` ANIMATION KEEPS WINNING AFTER IT ENDS.** It outranks
+    normal declarations for as long as it is declared, so a later rule on the
+    same property cannot take effect. Take the marker class off on the last
+    `animationend`, with a timer as the floor under it.
+119. **MEASURE AN ANIMATION BY SEEKING IT, NEVER BY SCREENSHOTTING A CLOCK.**
+    `goto` returns hundreds of ms after the animation starts, so every frame
+    showed a finished hero. `document.getAnimations().forEach(a => {a.pause();
+    a.currentTime = t})` gives the exact frame — and **re-arm before every
+    seek**, because seeking past the end fires the page's own cleanup and the
+    next measurement then finds no animations at all.
+120. **A SMOOTH ANCHOR SCROLL CANNOT BE `scroll-behavior: smooth` ON A PAGE
+    WITH A WEIGHTED WHEEL.** Both drive `scrollTop` and argue over it. Drive
+    it yourself and tell the wheel module where it ended up. **Interruptible
+    is the part that matters more than the easing** — a wheel, touch or key
+    during the travel stops it dead; a link must never hold the scroll for a
+    second.
+121. **RESERVING SPACE FOR A STICKY NAV MEANS ASKING WHERE THE DESTINATION IS,
+    NOT WHERE THE NAV IS NOW.** The bar is down at the top of the page and up
+    by the time a travel lands, so reading its current state reserved nothing
+    and put every destination underneath it.
+122. **A DOCK WITH TWO BUTTONS HAS TWO HEIGHTS.** The filled and outlined
+    variants carry different box models, which he saw. He also asked what a
+    Call button is doing there at all — *"I feel like no site has that"* —
+    and both problems stop existing when the second button does.
+123. **`padding-inline: 0` ON A FULL-BLEED FOOTER'S WRAP IS TWO BUGS.** The
+    footer spans the viewport, so the `calc(50vw - 50%)` above it evaluates to
+    zero and the override is the only padding in play: text on the glass at
+    phone widths, and the footer 34px out of line with every other section at
+    desk widths. Measured at x=129 against a heading at x=164.
+124. **THE GIANT FOOTER WORDMARK IS A HOUSE TELL FORMING.** 6 of 28 pages in
+    `docs/tenant-sites`, and those 6 are sites 1, 2, 3 and 4 — every site
+    since the design-sheet process began. Same shape as the drawn connector at
+    14 of 26. He likes it and asked only that it be smaller. **Recommended,
+    unanswered: site 5 does not get one.**
