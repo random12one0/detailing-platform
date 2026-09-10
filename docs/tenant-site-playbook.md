@@ -1132,3 +1132,22 @@ anything interactive, which is most of what these pages are.
     is red?"* A `mix-blend-mode: multiply` over a red fill turned a photograph
     of a red car into a flat red panel — the picture stopped being a picture.
     **Find the right photograph; do not tint the wrong one.**
+157. **A SWITCH BUILT OUT OF PHOTOGRAPHS DOES NOT LOOK LIKE A SWITCH.** *"It's
+    not super obvious that it's supposed to click on cars, SUV, truck, van…
+    it just looks like, oh, these are images and then pricing, but not really
+    knowing that each one of these images shows the pricing for that."* A
+    photograph reads as decoration however well it behaves. Four things fixed
+    it and all four were needed: **a control's edge on every tile**, **a badge
+    that says which state it is in** (a `+` you can open, a `✓` on the one you
+    are reading), **a lift on hover**, and **one sentence above the row** —
+    *"Tap a vehicle — the price list below changes to match it."* The ladder
+    also says *"Showing"* rather than just naming the type.
+158. **A CSS HEX ESCAPE MUST BE TERMINATED.** `content:"\2713"` painted **13**
+    in the badge, because the parser kept reading digits. Use the literal glyph
+    or put a space after the escape.
+159. **A REPLACEMENT THAT SPANS A COMMENT-TO-COMMENT RANGE EATS WHATEVER ELSE
+    IS IN IT.** Rewriting the tab's CSS block silently deleted the
+    `.hero{padding-bottom}` line that had been added to it two edits earlier,
+    and the tab went back to touching the band below. **Measure the thing the
+    edit was supposed to protect** — `numbers.top - poster.bottom` is one line
+    and it caught it.
