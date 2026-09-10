@@ -154,11 +154,19 @@ console.log("\ntest 4: the public routes sit outside the owner's session context
 // ---------------------------------------------------------------------------
 // THE EXAMPLE PAGES NEED THEIR SLASH REWRITTEN, AND THE ORDER IS THE RULE.
 //
-// Each page is built as `example1/index.html`, a DIRECTORY — so `/example1/`
-// resolves and `/example1` does not: it matches no file, falls through to
+// **THE TEN NUMBERED /exampleN PAGES WERE DELETED 2026-09-10** at the owner's
+// instruction — his second time asking, and the reason is in
+// `scripts/build-examples.mjs` where the list used to be. This check followed
+// them: it asserted ten rewrites that must no longer exist, and a test that
+// pins a deleted feature is a test that stops the deletion.
+//
+// **What it holds now is /ex1 … /ex5**, which are the sites he is building one
+// at a time and the only ones served. The mechanism is unchanged and so is the
+// bug it guards: each page is built as `ex1/index.html`, a DIRECTORY — so
+// `/ex1/` resolves and `/ex1` does not: it matches no file, falls through to
 // `/* /index.html 200`, and serves the app shell, which (roadmap item P) draws
-// a SIGN-IN FORM. `/example1` without the slash is the URL he asked for and
-// the one he would send somebody.
+// a SIGN-IN FORM. `/ex1` without the slash is the URL he asked for and the one
+// he would send somebody.
 //
 // `_redirects` is FIRST-MATCH-WINS, so the generated rules are worthless
 // unless they sit ABOVE the catch-all. That ordering is the only thing a
@@ -179,13 +187,19 @@ console.log("\ntest 4: the public routes sit outside the owner's session context
     check("the catch-all is still there", catchAll > -1,
       "without it /book/:slug 404s, and a 404 there is a lost booking");
     check("every example path is rewritten to its own index.html",
-      Array.from({ length: 10 }, (_, i) => `/example${i + 1}    /example${i + 1}/index.html`)
+      Array.from({ length: 5 }, (_, i) => `/ex${i + 1}    /ex${i + 1}/index.html`)
         .every((r) => red.includes(r)) && red.includes("/examples    /examples/index.html"),
-      "a slashless /exampleN falls through and draws the sign-in screen");
+      "a slashless /exN falls through and draws the sign-in screen");
     check("and every one of them sits ABOVE the catch-all",
-      catchAll > -1 && red.indexOf("/example1    ") > -1 &&
+      catchAll > -1 && red.indexOf("/ex1    ") > -1 &&
       red.lastIndexOf("/examples    /examples/index.html") < catchAll,
       "_redirects is first-match-wins — below the catch-all they never fire");
+    // AND THE DELETED ONES STAY DELETED. Without this the rewrites could come
+    // back with the pages and nothing would say so — which is exactly how they
+    // survived being asked for once already.
+    check("and no /exampleN rewrite came back",
+      !/\/example\d/.test(red),
+      "the ten numbered pages were deleted on purpose — scripts/build-examples.mjs says why");
   }
 }
 

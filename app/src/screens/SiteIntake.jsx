@@ -1,123 +1,339 @@
 // THE WEBSITE BRIEF — the screen a detailer fills in so their site can be
 // built. Roadmap 9.3.
 //
-// The owner, 2026-09-09, after being shown the questions as a document:
-// *"it should be, like, popped up basically once the detailer signs in and
-// they pay… a next-next type of thing with visuals and information and links
-// to some of our example websites."*
-//
-// **IT WEARS THE PRODUCT'S OWN CHROME AND ADDS ALMOST NO CSS.** `.setupform`,
+// It wears the first-run form's chrome unchanged — `.setupform`,
 // `.settings-head`, `.progress-rule`, `.setupstep`, `.setupfoot`, `.card`,
-// `.thoughts`, `.field` and `.chip` are the first-run form's, unchanged — this
-// IS the first-run form's sibling and a second set of stepper styles is how
-// two forms in one product start to look like two products. Only the example
-// gallery and the either/or picker are new, and both are in theme.css beside
-// the rest.
+// `.thoughts`, `.field`, `.chip`. A second stepper is how one product comes to
+// look like two. The questions are `lib/siteIntake.js`, not this file.
 //
-// **THE QUESTIONS ARE `lib/siteIntake.js` AND NOT THIS FILE**, same as
-// `lib/setup.js`: they are printed here and on Business, and the count is
-// printed in both places.
+// REBUILT 2026-09-10 to his notes. Five things changed and each is a rule for
+// anything added here later:
 //
-// **EVERY KEYSTROKE IS SAVED, AND LEAVING IS NOT AN ANSWER.** A form this long
-// is filled in over several sittings from a van, so there is no Save button
-// and no confirm-on-leave: the draft is written a second after typing stops,
-// and re-entering lands on the step they left. `submitted_at` is the only
-// thing the last button sets, because a half-finished draft is not a brief and
-// building a site from one is how a detailer ends up with a website claiming
-// something they never said.
+//   · **A question is asked with the right control, not with a radio button.**
+//     A colour is a colour picker. Photographs are an upload. Other people's
+//     websites are a list of links. *"Rather than a test they have to take."*
+//   · **The note box per question is gone**; a multiple-choice question has an
+//     **Other** option, which is where the extra answer belongs.
+//   · **"Why we ask" is gone.** It was written for us.
+//   · **The examples are WALKED** — one per screen, the real page in a frame,
+//     with liked/not, what specifically, and a box. Both directions.
+//   · **No reassurance in the copy.** No "there is no wrong answer", no
+//     telling a detailer what we already know about their own business.
+//
+// `preview` is the owner looking without being a detailer (2026-09-10): reads
+// nothing, writes nothing, needs no session, renders outside BusinessProvider
+// — so every context read tolerates there being no provider above it.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ExternalLink, X, Check } from "lucide-react";
+import { ChevronLeft, ExternalLink, X, Check, Plus, Trash2 } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
-import { EITHER, EXAMPLES, STEPS, intakeProgress } from "../lib/siteIntake.js";
+import { addPhoto } from "../lib/photos.js";
+import { DISLIKED, EITHER, LIKED, STEPS, intakeProgress } from "../lib/siteIntake.js";
 import { t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 
-// A LITTLE DRAWN PAGE, NOT A SCREENSHOT. Six of them, built from divs, so the
-// either/or asks its question in pictures without shipping twelve images —
-// and so the two options in a pair are guaranteed to look plainly unalike,
-// which is the research finding the whole step rests on.
+// A little drawn page, four bars, shown until the real one loads. Not a
+// screenshot: nothing is downloaded and the six kinds are guaranteed to look
+// plainly unalike.
 function Mini({ kind }) {
   const dark = kind !== "light" && kind !== "facts";
   return (
     <div className={`mini ${dark ? "dark" : "light"} mini-${kind}`} aria-hidden="true">
-      <i className="mini-ph" />
-      <i className="mini-b b1" />
-      <i className="mini-b b2" />
-      <i className="mini-b ac" />
+      <i className="mini-ph" /><i className="mini-b b1" /><i className="mini-b b2" /><i className="mini-b ac" />
     </div>
   );
 }
 
-// DECLARED AT MODULE SCOPE, AND THAT IS NOT TIDINESS. Nested inside the
-// screen it is a NEW component type on every render, so React threw the input
-// away and rebuilt it on each keystroke — the field lost focus after one
-// letter and the form was unusable. `a` and `set` come in as props instead.
+/* ── one question ───────────────────────────────────────────────────────── */
+// AT MODULE SCOPE, and that is not tidiness: nested inside the screen it is a
+// new component type on every render, so React threw the input away and
+// rebuilt it on each keystroke and the field lost focus after one letter.
 function Question({ q, a, set }) {
-  const [why, setWhy] = useState(false);
-  const [note, setNote] = useState(!!a[`${q.id}::n`]);
   const v = a[q.id];
+  const otherKey = `${q.id}::other`;
+  const other = a[otherKey];
+  const [showOther, setShowOther] = useState(!!other);
+
+  const chip = (o, on, onClick) => (
+    <button key={o} type="button" className={`chip ${on ? "active" : ""}`} aria-pressed={on} onClick={onClick}>
+      {t(o)}
+    </button>
+  );
+
   return (
     <div className="card"><div className="thoughts">
-      <div className="qhead">
-        <h3 className="qtext">{t(q.question)}</h3>
-        {q.why && (
-          <button type="button" className="btn sm inline ghost" onClick={() => setWhy(!why)}>
-            {why ? t("hide") : t("why we ask")}
-          </button>
-        )}
-      </div>
-      {why && <p className="quiet whyline">{t(q.why)}</p>}
+      <h3 className="qtext">{t(q.question)}</h3>
 
       {q.type === "text" && (
         <input type="text" className="intakeinput" aria-label={t(q.question)}
           value={v ?? ""} onChange={(e) => set(q.id, e.target.value)} />
       )}
+
       {q.type === "long" && (
         <textarea rows={3} className="intakeinput" aria-label={t(q.question)}
           value={v ?? ""} onChange={(e) => set(q.id, e.target.value)} />
       )}
+
       {(q.type === "one" || q.type === "many") && (
-        <div className="row wrap" style={{ gap: 6, marginTop: 8 }}>
-          {q.options.map((o) => {
-            const on = q.type === "many" ? (v ?? []).includes(o) : v === o;
-            return (
-              <button key={o} type="button" className={`chip ${on ? "active" : ""}`}
-                aria-pressed={on}
-                onClick={() => {
-                  if (q.type === "many") {
-                    const s = v ?? [];
-                    set(q.id, on ? s.filter((x) => x !== o) : s.concat([o]));
-                  } else set(q.id, on ? "" : o);
-                }}>{t(o)}</button>
-            );
-          })}
-        </div>
+        <>
+          <div className="row wrap" style={{ gap: 6, marginTop: 8 }}>
+            {q.options.map((o) => {
+              const on = q.type === "many" ? (v ?? []).includes(o) : v === o;
+              return chip(o, on, () => {
+                if (q.type === "many") {
+                  const s = v ?? [];
+                  set(q.id, on ? s.filter((x) => x !== o) : s.concat([o]));
+                } else set(q.id, on ? "" : o);
+              });
+            })}
+            {/* OTHER, WHICH REPLACED THE NOTE BOX ON EVERY QUESTION. His
+                words: an option to *"write something else — another option or
+                an additional option"*. It is a chip like the rest, so it reads
+                as one of the answers rather than as an escape hatch. */}
+            {q.other && chip("Other", showOther, () => {
+              setShowOther(!showOther);
+              if (showOther) set(otherKey, "");
+            })}
+          </div>
+          {q.other && showOther && (
+            <input type="text" className="intakeinput" placeholder={t("Type it here")}
+              aria-label={t("Other")} value={other ?? ""} onChange={(e) => set(otherKey, e.target.value)} />
+          )}
+        </>
       )}
 
-      {/* ONE NOTE BOX PER QUESTION — the owner's rule, 2026-09-06. A single
-          box at the end loses "we do offer that, but only for regulars",
-          because nobody remembers it eleven questions later. Folded away
-          until it is wanted, or every question would look like two. */}
-      {note ? (
-        <label className="field"><span>{t("Note")}</span>
-          <textarea rows={2} value={a[`${q.id}::n`] ?? ""}
-            onChange={(e) => set(`${q.id}::n`, e.target.value)} /></label>
-      ) : (
-        <button type="button" className="btn sm inline ghost" onClick={() => setNote(true)}>
-          {t("Add a note")}
-        </button>
-      )}
+      {q.type === "colour" && <Colours value={v} set={(x) => set(q.id, x)} />}
+      {q.type === "photos" && <Photos value={v} set={(x) => set(q.id, x)} />}
     </div></div>
   );
 }
 
-// `preview` is the owner looking at the form without being a detailer.
-// He asked for it 2026-09-10: *"if I go to /website, it makes me want to sign
-// up as a detailer or as a business, and I don't wanna do that right now."*
-// It reads nothing, writes nothing and needs no session, so it renders outside
-// BusinessProvider — which is why every context read below tolerates its
-// absence rather than assuming a provider is above it.
+/* ── colours: a picker, a hex box, and as many as they have ─────────────── */
+// A COLOUR IS NOT A MULTIPLE-CHOICE QUESTION. His note: *"there should be some
+// more interactive elements — a colour picker, a place to upload exact hexes,
+// and multiple colours."* Both halves are the same value: the native swatch is
+// for somebody who has never seen a hex code, and the text box is for the one
+// who has it written on an invoice from the sign shop.
+const HEX = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i;
+function Colours({ value, set }) {
+  const list = Array.isArray(value) ? value : [];
+  const put = (n, hex) => set(list.map((c, i) => (i === n ? hex : c)));
+  return (
+    <div className="colours">
+      {list.map((c, n) => (
+        <div className="colourrow" key={n}>
+          <input type="color" aria-label={t("Colour {n}", { n: n + 1 })}
+            value={HEX.test(c) ? (c.startsWith("#") ? c : `#${c}`) : "#000000"}
+            onChange={(e) => put(n, e.target.value)} />
+          <input type="text" className="intakeinput" aria-label={t("Hex code")}
+            placeholder="#1A1A1A" value={c} onChange={(e) => put(n, e.target.value)} />
+          <button type="button" className="btn icon ghost" aria-label={t("Remove")}
+            onClick={() => set(list.filter((_, i) => i !== n))}>
+            <Trash2 size={16} strokeWidth={2} />
+          </button>
+        </div>
+      ))}
+      <button type="button" className="btn sm" onClick={() => set(list.concat([""]))}>
+        <Plus size={14} strokeWidth={2.4} /> {list.length ? t("Another colour") : t("Add a colour")}
+      </button>
+    </div>
+  );
+}
+
+/* ── photos: the question and the upload are one control ────────────────── */
+// **THE BIGGEST SINGLE GAP IN THE TRADE IS HERE.** Two thirds of real
+// detailers' sites have no before-and-after photographs at all
+// (docs/tenant-site-research-2026-09-10.md § 1c) while every guide calls them
+// the most important thing on the page — so *"have you got photos?"* answered
+// yes and nothing attached is the failure this control exists to prevent. His
+// note: *"do you have any photos — yes or no — and then if so, upload them."*
+function Photos({ value, set }) {
+  const { business } = useBusiness() ?? {};
+  const v = value ?? {};
+  const files = v.files ?? [];
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  const pick = async (e) => {
+    const chosen = Array.from(e.target.files ?? []);
+    if (!chosen.length) return;
+    setBusy(true); setErr("");
+    const done = [...files];
+    for (const file of chosen) {
+      try {
+        // No business means the preview, where there is nothing to attach a
+        // photograph to. The name is still recorded so the control behaves.
+        if (business?.id) await addPhoto({ file, businessId: business.id, kind: "gallery" });
+        done.push(file.name);
+      } catch (x) { setErr(x.message); }
+    }
+    set({ ...v, files: done });
+    setBusy(false);
+    e.target.value = "";
+  };
+
+  return (
+    <>
+      <div className="row wrap" style={{ gap: 6, marginTop: 8 }}>
+        {["A phone full of them", "A few good ones", "Almost none", "Not mine"].map((o) => (
+          <button key={o} type="button" className={`chip ${v.have === o ? "active" : ""}`}
+            aria-pressed={v.have === o} onClick={() => set({ ...v, have: v.have === o ? "" : o })}>
+            {t(o)}
+          </button>
+        ))}
+      </div>
+      {v.have && v.have !== "Almost none" && (
+        <div className="uploadbox">
+          <label className="btn sm">
+            {busy ? t("Uploading…") : t("Choose photos")}
+            <input type="file" accept="image/*" multiple hidden onChange={pick} disabled={busy} />
+          </label>
+          {files.length > 0 && (
+            <span className="label">{t("{n} added", { n: files.length })}</span>
+          )}
+          {!business?.id && <span className="label">{t("Sign in to upload for real")}</span>}
+          {err && <span className="label">{err}</span>}
+        </div>
+      )}
+    </>
+  );
+}
+
+/* ── one of our sites, with the real page in it ─────────────────────────── */
+// **THE FRAME IS THE POINT.** He asked for *"a little preview of what the site
+// looks like"* and for them to go through every one. The pages are real routes
+// on this same origin (`scripts/build-examples.mjs`), so this is the site
+// itself scaled down rather than a picture of it that goes stale — the same
+// reason that script copies at build time instead of committing a duplicate.
+// `Mini` sits underneath until it loads, so the card is never an empty box.
+const FRAME_W = 1280, FRAME_H = 900;
+function LookStep({ site, value, set }) {
+  const v = value ?? {};
+  const chips = v.chips ?? [];
+  const [loaded, setLoaded] = useState(false);
+  const words = v.verdict === "no" ? DISLIKED : LIKED;
+
+  // THE SCALE IS MEASURED, NOT GUESSED. The frame renders at a desktop 1280
+  // and is transformed down, so what a detailer sees is the desk layout rather
+  // than a phone layout pretending to be one. A fixed scale factor left a
+  // 150px strip of dead card beside it at 1440 and cropped it at 320, because
+  // the column this sits in is a different width at every breakpoint — so the
+  // factor comes from the box itself.
+  const box = useRef(null);
+  const [scale, setScale] = useState(0);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const fit = () => setScale(el.clientWidth / FRAME_W);
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const toggle = (w) => set({ ...v, chips: chips.includes(w) ? chips.filter((x) => x !== w) : chips.concat([w]) });
+
+  return (
+    <>
+      <p className="quiet">{t(site.note)}</p>
+
+      <div className="sitecard" ref={box}
+        style={{ height: scale ? `${Math.round(FRAME_H * scale)}px` : "260px" }}>
+        {!loaded && <Mini kind={site.kind} />}
+        {scale > 0 && (
+          <iframe className="siteframe" src={site.href} title={site.name} loading="lazy"
+            tabIndex={-1} onLoad={() => setLoaded(true)}
+            style={{ width: FRAME_W, height: FRAME_H, transform: `scale(${scale})` }} />
+        )}
+        <a className="btn sm" href={site.href} target="_blank" rel="noreferrer">
+          {t("Open it")} <ExternalLink size={13} strokeWidth={2} />
+        </a>
+      </div>
+
+      <div className="card"><div className="thoughts">
+        <div className="row wrap" style={{ gap: 6 }}>
+          <button type="button" className={`chip ${v.verdict === "yes" ? "active" : ""}`}
+            aria-pressed={v.verdict === "yes"}
+            onClick={() => set({ ...v, verdict: v.verdict === "yes" ? "" : "yes", chips: [] })}>
+            <Check size={13} strokeWidth={2.4} /> {t("I like it")}
+          </button>
+          <button type="button" className={`chip ${v.verdict === "no" ? "active" : ""}`}
+            aria-pressed={v.verdict === "no"}
+            onClick={() => set({ ...v, verdict: v.verdict === "no" ? "" : "no", chips: [] })}>
+            {t("Not for me")}
+          </button>
+        </div>
+
+        {/* THE WORDS ONLY APPEAR ONCE THEY HAVE PICKED A SIDE, and they are a
+            DIFFERENT SET each way. A single list of adjectives cannot say
+            whether "dark" was the reason they liked it or the reason they
+            did not, and his ask was explicitly for both directions. */}
+        {v.verdict && (
+          <>
+            <span className="label">{v.verdict === "yes" ? t("What did you like?") : t("What put you off?")}</span>
+            <div className="row wrap" style={{ gap: 6, marginTop: 6 }}>
+              {words.map((w) => (
+                <button key={w} type="button" className={`chip ${chips.includes(w) ? "active" : ""}`}
+                  aria-pressed={chips.includes(w)} onClick={() => toggle(w)}>{t(w)}</button>
+              ))}
+            </div>
+            <textarea rows={2} className="intakeinput"
+              placeholder={v.verdict === "yes"
+                ? t("Anything specific — a feature, a section, the way something works")
+                : t("Anything specific")}
+              aria-label={t("Your thoughts")}
+              value={v.note ?? ""} onChange={(e) => set({ ...v, note: e.target.value })} />
+          </>
+        )}
+      </div></div>
+    </>
+  );
+}
+
+/* ── other people's sites ───────────────────────────────────────────────── */
+// His ask: a place to say *"I like this car detailing website, and here's
+// why"* — **and the other half, which he was explicit about:** *"we also need
+// stuff saying here's negatives that I don't like and why."* One list, each
+// row carrying which way it goes, because a site somebody hates is worth as
+// much as one they love and a separate list for each would get half filled in.
+function SitesStep({ value, set }) {
+  const rows = Array.isArray(value) ? value : [];
+  const put = (n, patch) => set(rows.map((r, i) => (i === n ? { ...r, ...patch } : r)));
+  return (
+    <>
+      {/* A RULED LIST, NOT A STACK OF CARDS. `composition` test 1 forbids
+          mapping records onto `.card` and it is right here: these are rows
+          somebody adds four of, and four cards is four boxes of chrome around
+          three fields each. */}
+      {rows.map((r, n) => (
+        <div className="siterow" key={n}>
+          <div className="colourrow">
+            <input type="url" className="intakeinput" placeholder="https://…" aria-label={t("Web address")}
+              value={r.url ?? ""} onChange={(e) => put(n, { url: e.target.value })} />
+            <button type="button" className="btn icon ghost" aria-label={t("Remove")}
+              onClick={() => set(rows.filter((_, i) => i !== n))}>
+              <Trash2 size={16} strokeWidth={2} />
+            </button>
+          </div>
+          <div className="row wrap" style={{ gap: 6, marginTop: 8 }}>
+            <button type="button" className={`chip ${r.verdict === "yes" ? "active" : ""}`}
+              aria-pressed={r.verdict === "yes"} onClick={() => put(n, { verdict: "yes" })}>{t("I like it")}</button>
+            <button type="button" className={`chip ${r.verdict === "no" ? "active" : ""}`}
+              aria-pressed={r.verdict === "no"} onClick={() => put(n, { verdict: "no" })}>{t("I don't")}</button>
+          </div>
+          <textarea rows={2} className="intakeinput" aria-label={t("Why")}
+            placeholder={r.verdict === "no" ? t("What's wrong with it?") : t("What do you like about it?")}
+            value={r.why ?? ""} onChange={(e) => put(n, { why: e.target.value })} />
+        </div>
+      ))}
+      <button type="button" className="btn sm" onClick={() => set(rows.concat([{ url: "", verdict: "", why: "" }]))}>
+        <Plus size={14} strokeWidth={2.4} /> {rows.length ? t("Another one") : t("Add a website")}
+      </button>
+    </>
+  );
+}
+
+/* ── the screen ─────────────────────────────────────────────────────────── */
 export default function SiteIntake({ onClose, preview = false }) {
   useAppLocale();
   const { business, role } = useBusiness() ?? {};
@@ -145,8 +361,7 @@ export default function SiteIntake({ onClose, preview = false }) {
   }, [business?.id, preview]);
 
   // ONE WRITER, DEBOUNCED. Every editor on every step goes through `set`, so
-  // there is one upsert in this file rather than one per question — the same
-  // reason the first-run form holds a single `draft` and commits it once.
+  // there is one upsert in this file rather than one per question.
   const push = useCallback(async (answers, step, extra) => {
     if (preview || !business?.id || !owner) return;
     const { error } = await supabase.from("site_intake")
@@ -156,10 +371,12 @@ export default function SiteIntake({ onClose, preview = false }) {
   }, [business?.id, owner, preview]);
 
   const set = (id, value) => {
-    const next = { ...a, [id]: value };
-    setA(next);
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => push(next, i), 900);
+    setA((prev) => {
+      const next = { ...prev, [id]: value };
+      clearTimeout(timer.current);
+      timer.current = setTimeout(() => push(next, i), 900);
+      return next;
+    });
   };
   useEffect(() => () => clearTimeout(timer.current), []);
 
@@ -185,25 +402,18 @@ export default function SiteIntake({ onClose, preview = false }) {
 
   if (row === undefined) return <div className="group" />;
 
-  // ALREADY SENT. Not a dead end and not a lock: they can carry on editing,
-  // because a detailer who remembers something on Tuesday should be able to
-  // add it. It just stops the form asking to be finished again.
   if (row?.submitted_at && i === STEPS.length - 1) {
     return (
-      <div className="group setupform">
+      <div className="group setupform intake">
         <div className="settings-head">
           <span />
           <h1 className="display">{t("Your website")}</h1>
           <button className="x" aria-label={t("Close")} onClick={onClose}><X size={18} strokeWidth={2} /></button>
         </div>
         <div className="setupstep">
-          <h2 className="title">{t("That is everything we need.")}</h2>
-          <p className="quiet">
-            {t("We have your answers. Nothing on your site will claim anything you did not tell us here — if you want to change something, come back to this page any time.")}
-          </p>
-          <div className="card"><div className="thoughts">
-            <p className="quiet">{t("{done} of {total} questions answered.", { done: p.done, total: p.total })}</p>
-          </div></div>
+          <h2 className="title">{t("Got it.")}</h2>
+          <p className="quiet">{t("{done} of {total} answered. Come back any time to change something.",
+            { done: p.done, total: p.total })}</p>
           <div className="setupfoot">
             <button className="btn" onClick={() => go(0)}>{t("Go back through it")}</button>
             <button className="btn primary" onClick={onClose}>{t("Done")}</button>
@@ -215,6 +425,9 @@ export default function SiteIntake({ onClose, preview = false }) {
 
   const step = STEPS[i];
   const last = i === STEPS.length - 1;
+  // The one step with a bar: he asked for it to be required, and a disabled
+  // Continue beside a live Skip says "we want this" without trapping anybody.
+  const sitesEmpty = step.kind === "sites" && !(a.others ?? []).some((r) => r.url?.trim());
 
   return (
     <div className="group setupform intake">
@@ -243,57 +456,32 @@ export default function SiteIntake({ onClose, preview = false }) {
         <h2 className="title" ref={heading} tabIndex={-1}>{t(step.title)}</h2>
         {step.lede && <p className="quiet">{t(step.lede)}</p>}
 
-        {/* ── the opening screen: what this is, and what it is not ───── */}
         {step.kind === "hello" && (
+          <div className="card"><div className="thoughts">
+            <ul className="plainlist">
+              <li>{t("About fifteen minutes.")}</li>
+              <li>{t("Skip anything you want.")}</li>
+              <li>{t("It saves as you go.")}</li>
+            </ul>
+          </div></div>
+        )}
+
+        {step.kind === "look" && (
+          <LookStep site={step.site} value={a[`look${step.site.n}`]}
+            set={(x) => set(`look${step.site.n}`, x)} />
+        )}
+
+        {step.kind === "sites" && (
           <>
-            <p className="quiet">
-              {t("You have told us what you charge and when you work. This is the other half — the things a website needs that a booking page does not, in your own words.")}
-            </p>
-            <div className="card"><div className="thoughts">
-              <ul className="plainlist">
-                <li>{t("About fifteen minutes. Most of it is tapping, not typing.")}</li>
-                <li>{t("Nothing is compulsory. Skip anything and we will use our judgement and tell you where we did.")}</li>
-                <li>{t("It saves as you type, so you can stop halfway and come back to this page.")}</li>
-                <li>{t("We never ask for anything already in your dashboard — your prices, hours, colour and photographs come straight from it.")}</li>
-              </ul>
-            </div></div>
-            <p className="quiet">
-              {t("One promise in return: nothing on your finished site will claim anything you did not say here.")}
-            </p>
+            <SitesStep value={a.others} set={(x) => set("others", x)} />
+            {/* A DEAD BUTTON WITH NO REASON IS A BUG, even when the button is
+                meant to be dead. He asked for this step to be required, so
+                Continue waits — but it says what it is waiting for, and Skip
+                stays live, because nothing in this form traps anybody. */}
+            {sitesEmpty && <p className="quiet">{t("Add one, or skip.")}</p>}
           </>
         )}
 
-        {/* ── the gallery: real pages of ours, opened in a new tab ───── */}
-        {step.kind === "looks" && (
-          <div className="exgrid">
-            {EXAMPLES.map(([href, name, note, kind]) => {
-              const picked = (a.looks ?? []).includes(href);
-              return (
-                <div key={href} className={`excard ${picked ? "on" : ""}`}>
-                  <Mini kind={kind} />
-                  <div className="exbody">
-                    <b>{name}</b>
-                    <span className="quiet">{note}</span>
-                  </div>
-                  <div className="exfoot">
-                    <button type="button" className={`chip ${picked ? "active" : ""}`} aria-pressed={picked}
-                      onClick={() => {
-                        const s = a.looks ?? [];
-                        set("looks", picked ? s.filter((x) => x !== href) : s.concat([href]));
-                      }}>
-                      {picked ? <><Check size={13} strokeWidth={2.4} /> {t("Liked")}</> : t("I like this")}
-                    </button>
-                    <a className="btn sm inline ghost" href={href} target="_blank" rel="noreferrer">
-                      {t("Open")} <ExternalLink size={13} strokeWidth={2} />
-                    </a>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* ── the three either/ors, asked in pictures ─────────────────── */}
         {step.kind === "either" && EITHER.map(([id, question, left, right]) => (
           <div className="card" key={id}><div className="thoughts">
             <h3 className="qtext">{t(question)}</h3>
@@ -312,25 +500,21 @@ export default function SiteIntake({ onClose, preview = false }) {
         {(step.qs ?? []).map((q) => <Question key={q.id} q={q} a={a} set={set} />)}
 
         {!owner && !preview && (
-          <p className="quiet">{t("Only the owner of this business can answer this, so nothing here will save.")}</p>
+          <p className="quiet">{t("Only the owner can answer this, so nothing here will save.")}</p>
         )}
         {err && <div className="error-box">{err}</div>}
       </div>
 
       <div className="setupfoot">
         <button className="btn" disabled={busy} onClick={() => (last ? onClose() : go(i + 1))}>
-          {last ? t("Finish later") : t("Skip this bit")}
+          {last ? t("Finish later") : t("Skip")}
         </button>
-        <button className="btn primary" disabled={busy} onClick={() => (last ? finish() : go(i + 1))}>
-          {busy ? t("Saving…") : last ? t("Send it to us") : t("Continue")}
+        <button className="btn primary" disabled={busy || sitesEmpty}
+          onClick={() => (last ? finish() : go(i + 1))}>
+          {busy ? t("Saving…") : last ? t("Send it") : t("Continue")}
         </button>
       </div>
 
-      {/* THE ONE WAY TO STOP BEING ASKED. It writes `dismissed` rather than
-          hiding the form locally: the platform needs to know the difference
-          between a detailer who has not got to it and one who does not want a
-          website, and a flag in this browser answers neither. The form stays
-          reachable at /website afterwards. */}
       {!preview && (
         <button className="btn sm inline ghost setupquit" disabled={busy}
           onClick={async () => { await push(a, i, { dismissed: true }); onClose(); }}>

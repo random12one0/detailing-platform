@@ -3467,24 +3467,48 @@ button.warn-box:hover { border-color: var(--fog-2); }
 .intake .plainlist li { margin: 6px 0; }
 .intake .intakecount { display: block; text-align: center; margin-top: 14px; }
 
-/* THE GALLERY. Real routes on this domain (`/example1`… , written by
-   scripts/build-examples.mjs), opened in a NEW TAB — a detailer who navigates
-   away mid-form does not come back. */
-.intake .exgrid {
-  display: grid; gap: 10px; margin-top: 12px;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+/* ONE OF OUR SITES, WITH THE REAL PAGE IN IT. `/ex1` … `/ex5` are routes on
+   this same origin (scripts/build-examples.mjs), so the card shows the site
+   itself rather than a screenshot of it that goes stale the day the page is
+   edited. It is scaled rather than shrunk: the frame renders at desktop width
+   and is transformed down, so what a detailer sees is the layout they would
+   get, not a phone layout pretending to be one.
+   `pointer-events: none` — the frame is a PICTURE here; Open it is the way in.
+   Ten of these used to be a grid of numbered pages he had rejected; they are
+   deleted, and the walk replaced the grid. */
+.intake .sitecard {
+  position: relative; margin-top: 14px;
+  border: 1px solid var(--line); border-radius: var(--r-panel); corner-shape: var(--corner);
+  background: var(--ink-1); overflow: hidden;
 }
-.intake .excard {
-  background: var(--ink-1); border: 1px solid var(--line);
-  border-radius: var(--r-panel); corner-shape: var(--corner);
-  overflow: hidden; display: flex; flex-direction: column;
+.intake .siteframe {
+  display: block; border: 0; transform-origin: 0 0;
+  pointer-events: none;                          /* a PICTURE; Open it is the way in */
 }
-.intake .excard.on { border-color: var(--accent); }
-.intake .exbody { padding: 10px 12px 2px; display: grid; gap: 2px; }
-.intake .exbody b { font-size: 14px; }
-.intake .exbody .quiet { font-size: 12.5px; line-height: 1.35; }
-.intake .exfoot { padding: 10px 12px; display: flex; gap: 8px; align-items: center; justify-content: space-between; margin-top: auto; }
-.intake .exfoot .chip { display: inline-flex; align-items: center; gap: 5px; }
+.intake .sitecard .mini { position: absolute; inset: 0; height: 100%; }
+.intake .sitecard .btn {
+  position: absolute; right: 10px; bottom: 10px; z-index: 2;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+
+/* COLOURS. A colour is not a multiple-choice question — the swatch is for
+   somebody who has never seen a hex code and the box is for the one who has it
+   written on an invoice from the sign shop. Both write the same value. */
+.intake .colours { display: grid; gap: 8px; margin-top: 10px; justify-items: start; }
+.intake .colourrow { display: flex; gap: 8px; align-items: center; width: 100%; }
+.intake .colourrow input[type=color] {
+  flex: none; width: 42px; height: 40px; padding: 2px; cursor: pointer;
+  background: var(--ink-0); border: 1px solid var(--line);
+  border-radius: var(--r-inset); corner-shape: var(--corner);
+}
+.intake .colourrow .intakeinput { margin-top: 0; }
+
+/* THE UPLOAD. Two thirds of real detailers' sites have no before-and-after
+   photographs while every guide calls them the most important thing on the
+   page — so "have you got photos?" answered yes with nothing attached is the
+   exact failure this control exists to prevent. */
+.intake .uploadbox { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 12px; }
+.intake .uploadbox .btn { cursor: pointer; flex: none; }
 
 /* THE EITHER/OR. Two options, never three — a non-designer cannot see a small
    difference, and past three people pick at random
@@ -3534,7 +3558,6 @@ html:not(.lite) .intake .mini-move .b1 { animation: intake-drift 3.2s ease-in-ou
 }
 @media (max-width: 420px) {
   .intake .pairgrid { grid-template-columns: 1fr; }
-  .intake .exgrid { grid-template-columns: 1fr; }
 }
 /* A bare input inside `.thoughts` has no `.field` label wrapping it — the
    question above IS the label — so it takes the field's own metrics here
@@ -3544,3 +3567,8 @@ html:not(.lite) .intake .mini-move .b1 { animation: intake-drift 3.2s ease-in-ou
   border: 1px solid var(--line); border-radius: var(--r-inset); corner-shape: var(--corner);
   padding: 10px 12px; font: inherit; color: var(--ink-text, inherit); resize: vertical;
 }
+/* The other-sites list. A ruled row rather than a card, per composition 1:
+   these are rows somebody adds four of, and four cards is four boxes of chrome
+   around three fields each. */
+.intake .siterow { padding: 14px 0; border-top: 1px solid var(--line); }
+.intake .siterow:first-of-type { border-top: 0; }
