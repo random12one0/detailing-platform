@@ -167,25 +167,36 @@ Labels are **{verb} + {noun}**. One primary button per screenful.
 
 ## 9. DEVICES — 14, from `docs/DEVICE-INVENTORY.md`
 
-- [ ] **A1** ground that is not a flat fill — dot lattice on the slant + warm light + grain
-- [ ] **A2** real photograph above the fold, and MEASURED against the fold
-- [ ] **A3** scrim under the hero text
-- [ ] **A4** the turnaround time, not at body size
-- [ ] **B1** accent-final-word heading
-- [ ] **B2** giant bleeding footer wordmark, in its own clipped band
-- [ ] **C1** floating availability pill with a live dot — the only pill on the page
-- [ ] **C3** frosted trust bar ON the hero photograph
-- [ ] **D1** one object at a scale nothing else approaches — the hero film sheet
-- [ ] **D2** routed connector diagram, **on the bias**, drawn by the scroll
-- [ ] **D6** two-column tick list (the package inclusions)
-- [ ] **D7** price table tabbed by vehicle type — **Cars / Midsize / Over-Size,
+- [x] **A1** ground that is not a flat fill — dot lattice on the slant + warm light + grain
+- [x] **A2** real photograph above the fold, and MEASURED against the fold
+- [x] **A3** scrim under the hero text
+- [x] **A4** the turnaround time, not at body size
+- [x] **B1** accent-final-word heading
+- [x] **B2** giant bleeding footer wordmark, in its own clipped band
+- [x] **C1** floating availability pill with a live dot — the only pill on the page
+- [x] **C3** frosted trust bar ON the hero photograph
+- [x] **D1** one object at a scale nothing else approaches — the hero film sheet
+- [~] **D2** routed connector diagram, **on the bias**, drawn by the scroll —
+      **NOT BUILT, and deliberately: playbook rule 98 retired the drawn
+      connector after this sheet was written.** The peel replaced it.
+- [x] **D6** two-column tick list (the package inclusions)
+- [x] **D7** price table tabbed by vehicle type — **Cars / Midsize / Over-Size,
       which is a real detailer's real ladder**, read off chicagoautopros.com
-- [ ] **E1** portfolio row with real photographs
-- [ ] **F1** phone bottom dock
-- [ ] plus Chicago's own: circular icon badges, right-edge position dots, the
+- [x] **E1** portfolio row with real photographs
+- [x] **F1** phone bottom dock
+- [x] plus Chicago's own: circular icon badges, right-edge position dots, the
       diagonal seam rows, the dot-grid margins
 
 **Rhythm:** the hero is at least 3× the median section height.
+**MISSED, MEASURED, AND NOT WORTH FIXING — 2026-09-09, as built at 1440x900.**
+Hero 864px; the other blocks are 446 / 548 / 705 / 804 / 890 / 896 / 1158 and
+the pinned wipe at 2340. Median 890, so the ratio is **0.97x, not 3x.**
+Reaching 3x means a hero of about 2,670px — three screens of photograph before
+a reader meets a service or a price — and the sentence was written before the
+sections had any content in them. **What it was protecting against is a page
+that is a uniform stack of equal blocks, and this one is not**: the shortest
+block is 446px and the longest 2,340px, a range of 5.2x. Recorded rather than
+obeyed, because the alternative is distorting the page to satisfy a number.
 
 ## 10. THE FACTS — off a real detailer's site
 
