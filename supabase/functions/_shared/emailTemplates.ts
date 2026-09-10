@@ -631,6 +631,14 @@ export function invoiceEmail(
   totals: { chargesSubtotal: number; discountsTotal: number; tipTotal: number; totalPaid: number },
   paymentStatus: string,
   paymentNotes: string | null,
+  /**
+   * ROADMAP 2.20 STAGE 3 — may this customer be offered a card button.
+   *
+   * IT DEFAULTS TO FALSE, which is the answer for every business that has not
+   * connected a Stripe account and switched card on — all of them until one
+   * does. `send-invoice` asks `cardStatus` for it; nothing in here decides.
+   */
+  cardReady = false,
 ): Mail {
   const tt = T(b.lang);
   const ref = String(b.id).split("-")[0].toUpperCase();
@@ -688,7 +696,23 @@ export function invoiceEmail(
     paid ? "" : paymentBlock(brand, "", b.lang),
     paymentNotes ? proseBlock(`<strong class="c-ink" style="color:${G.ink};">${esc(tt("Notes"))}</strong><br>${esc(paymentNotes)}`, 26) : "",
     ownWords(brand, paid ? "receipt" : "invoice"),
-    buttonBlock(brand, tt("View this online"), b.receiptUrl),
+    // ROADMAP 2.20 STAGE 3 — THE SAME URL, RELABELLED. The button has always
+    // gone to `/booking/:id`, and that page is where the Pay button lives —
+    // so an unpaid invoice from a business that takes cards says what pressing
+    // it is FOR, and everything else is unchanged.
+    //
+    // A LINK, NEVER A CHECKOUT. An email cannot create a payment: a Stripe
+    // session made when the invoice was WRITTEN would carry the amount owed
+    // that morning and would still be sitting in the inbox after the customer
+    // handed over cash. The page asks the server at the moment of the press,
+    // which is the only time the answer is true.
+    buttonBlock(
+      brand,
+      !paid && cardReady
+        ? tt("Pay {amount} by card", { amount: money(Number(totals.totalPaid)) })
+        : tt("View this online"),
+      b.receiptUrl,
+    ),
     fineBlock(tt("Keep this for your records. Reply to this email if anything looks wrong.")),
   ].filter(Boolean);
 

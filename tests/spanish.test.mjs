@@ -239,6 +239,14 @@ console.log("4. what is still hard-coded on the booking surface");
       // followed by `(` is a call; prose only ever has a SPACE before its
       // brackets, as in "(optional)".
       if (/[A-Za-z_$]\(/.test(text)) continue;
+      // **AND NEITHER IS A TERNARY.** Same defect one shape along, found by
+      // roadmap 2.20 stage 3: `</div>` and the line after it end up adjacent
+      // once the `//` comments between them are stripped (`^\s*` eats the
+      // newline), so `) : card?.ready && !isCancelled ? (` was reported as
+      // untranslated English. `?.` reads as PROSE because `?` and `.` are both
+      // sentence punctuation. None of these four ever appears in a sentence
+      // shown to a customer, so recognising them costs the check nothing.
+      if (/\?\.|&&|\|\||=>/.test(text)) continue;
       if (PROSE.test(text)) left.push(`${path.basename(p)}: ${text.slice(0, 48)}`);
     }
     for (const m of src.match(/(?:placeholder|aria-label)="[^"]{4,}"/g) ?? []) {

@@ -202,6 +202,23 @@ export const api = {
   billingPortal: (businessId) => callFn("platform-billing", { business_id: businessId, action: "portal" }),
   billingCancel: (businessId) => callFn("platform-billing", { business_id: businessId, action: "cancel" }),
   billingResume: (businessId) => callFn("platform-billing", { business_id: businessId, action: "resume" }),
+
+  // ROADMAP 2.20 STAGE 3 — the DETAILER's own Stripe account, so THEIR
+  // customers can pay THEM by card. One call for all six actions, because
+  // the endpoint answers every one of them with the same status object and a
+  // screen that draws one shape wants one function.
+  //
+  // OWNER-ONLY ON THE SERVER, and it answers 404 rather than 403 to anybody
+  // else — the screen hiding the block is a courtesy, not the enforcement.
+  connect: (businessId, action, extra = {}) =>
+    callFn("connect-account", { business_id: businessId, action, ...extra }),
+
+  // ROADMAP 2.20 STAGE 3 — the CUSTOMER's end. Public: the booking's own
+  // unguessable uuid is the credential, like the receipt it is pressed from.
+  // Returns a `checkout.stripe.com` url to leave for; the server decides
+  // whether a card can be taken at all at the moment of the press, because a
+  // link in an inbox outlives every switch on the settings screen.
+  payBooking: (bookingId) => callFn("pay-booking", { booking_id: bookingId }),
 };
 
 // The times on a day that THIS service type can actually have.

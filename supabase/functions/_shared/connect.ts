@@ -214,6 +214,7 @@ export interface Payability {
     | "not_available"
     | "already_paid"
     | "cancelled"
+    | "not_accepted"
     | "nothing_due"
     | "below_minimum"
     | "business_offline";
@@ -248,6 +249,18 @@ export function payability(input: PayabilityInput): Payability {
 
   if (input.booking?.status === "cancelled") {
     return no("cancelled", "This appointment was cancelled, so there is nothing to pay.");
+  }
+  // A REQUEST NOBODY HAS ACCEPTED YET IS NOT A BILL. In request mode
+  // (roadmap 2.12) a booking sits at `pending` while the detailer decides,
+  // and its own customer email says so in as many words: *"we're holding your
+  // time"*, charging nothing. Taking a card on it means money moved for work
+  // that may then be DECLINED — and a refund on a connected account is the
+  // detailer's to make, out of their own balance, for a decision the product
+  // let the customer make first. `total_price` on a pending row is also only
+  // an estimate until a quote is accepted, so the figure would be wrong as
+  // well as premature.
+  if (input.booking?.status === "pending") {
+    return no("not_accepted", "This is still a request. You can pay once it has been accepted.");
   }
   // 'waived' is the detailer deciding this one is free. 'partial' is deliberately
   // NOT payable here: we do not know what part is left, and guessing at a

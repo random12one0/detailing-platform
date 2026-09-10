@@ -147,11 +147,17 @@ const humanNotice = (mins) => {
   return t("{count} min notice", { count: mins });
 };
 
-export default function Business({ onSetup }) {
+export default function Business({ onSetup, initial = null }) {
   useAppLocale();
   const { business, settings, branding, role, siteOrigin, reload: reloadTenant } = useBusiness();
   const wide = useWide();
-  const [open, setOpen] = useState(null);
+  // ROADMAP 2.20 STAGE 3 — `initial` is how Stripe's own consent screen gets
+  // back to the row that asked for it. Same prop and same one line as
+  // `GearMenu`, which has carried it since the checkout deep link: a detailer
+  // who has just come back from `connect.stripe.com` is holding a single-use
+  // code, and landing them on this index instead of on the screen that reads
+  // it loses the connection with nothing on screen saying so.
+  const [open, setOpen] = useState(initial);
   const [counts, setCounts] = useState(null);
 
   // One round trip for every summary line on the screen.

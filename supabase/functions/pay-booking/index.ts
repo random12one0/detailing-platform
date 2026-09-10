@@ -47,6 +47,7 @@ const STATUS: Record<string, number> = {
   not_available: 409,
   already_paid: 409,
   cancelled: 409,
+  not_accepted: 409,
   nothing_due: 409,
   below_minimum: 409,
   business_offline: 409,

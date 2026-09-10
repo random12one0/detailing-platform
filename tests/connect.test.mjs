@@ -38,6 +38,7 @@ import {
   checkoutLineName,
   CONNECT_SCOPE,
   connectReturnUrl,
+  CONNECT_RETURN_PATH,
   payability,
   STATE_TTL_MINUTES,
   stateFresh,
@@ -199,6 +200,20 @@ console.log("\n§ 3 — may this booking be paid right now");
   const both = no({ total_price: "150.00", payment_status: "paid", status: "cancelled" });
   check("cancelled outranks already-paid", both.reason === "cancelled", both.reason);
 
+  // A REQUEST NOBODY HAS ACCEPTED IS NOT A BILL — stage 3's screens found
+  // this. In request mode a booking sits at `pending` while the detailer
+  // decides, and its own email says *"we're holding your time"* and charges
+  // nothing. A card taken there is money moved for work that may then be
+  // DECLINED, and the refund comes out of the detailer's own balance for a
+  // decision this product let the customer make first.
+  const req = no({ total_price: "150.00", payment_status: "pending", status: "pending" });
+  check("a request nobody has accepted yet cannot be paid",
+    req.ok === false && req.reason === "not_accepted", req.reason);
+  // Cancelled outranks it, the same way it outranks already-paid: a declined
+  // request is cancelled, and that is the truer thing to say.
+  const reqCancelled = no({ total_price: "150.00", payment_status: "pending", status: "cancelled" });
+  check("cancelled outranks not-accepted", reqCancelled.reason === "cancelled", reqCancelled.reason);
+
   const off = no({ total_price: "150.00", payment_status: "pending" }, { stripe_account_id: "a" });
   check("a business that cannot take cards is refused",
     off.ok === false && off.reason === "not_available");
@@ -220,7 +235,7 @@ console.log("\n§ 3 — may this booking be paid right now");
   // EVERY REFUSAL IS SAYABLE TO A CUSTOMER. They are shown on a page the
   // customer reached from their own email, so none may mention Stripe, the
   // platform, or the detailer's account.
-  const refusals = [paid, waived, partial, cancelled, off, suspended, nothing, tiny];
+  const refusals = [paid, waived, partial, cancelled, req, off, suspended, nothing, tiny];
   check("every refusal has a message", refusals.every((r) => r.message.length > 10));
   check("no refusal names Stripe or the platform to a customer",
     refusals.every((r) => !/stripe|platform|connect/i.test(r.message)),
@@ -616,6 +631,78 @@ console.log("\n§ 9 — an ownership change must be invisible to the app");
   check("the legal entity is exactly one constant, in one file",
     entityFiles.length === 1 && entityFiles[0].endsWith("legal.js"),
     `found in ${entityFiles.length} files — it must stay a one-line change`);
+}
+
+// ---------------------------------------------------------------------------
+console.log("\n\u00a7 10 \u2014 the two screens, which are the half no behavioural check sees");
+{
+  const payments = read("app/src/screens/more/Payments.jsx");
+  const manage = read("app/src/book/ManageBookingPage.jsx");
+  const receipt = read("supabase/functions/get-booking-receipt/index.ts");
+  const main = read("app/src/main.jsx");
+  const app = read("app/src/App.jsx");
+  const invoice = read("supabase/functions/send-invoice/index.ts");
+
+  // NEITHER SCREEN MAY WORK OUT "READY" FOR ITSELF. `cardStatus` lives in
+  // Deno and cannot be imported from `app/`, so the only thing stopping a
+  // second implementation appearing in a browser file is this check. A screen
+  // that decided for itself would disagree with the server the first time
+  // Stripe turned an account off, and the disagreement would be a Pay button
+  // that fails at the till.
+  for (const [name, src] of [["the settings screen", payments], ["the customer's page", manage]]) {
+    check(`${name} reads the server's verdict rather than the three flags`,
+      !/charges_enabled|card_payments_enabled|stripe_account_id/.test(src), name);
+  }
+
+  // THE DETAILER'S SWITCH CANNOT BE OFFERED BEFORE STRIPE SAYS YES. The
+  // server answers 409; the control is disabled so nobody meets the refusal.
+  check("the switch is disabled until Stripe has approved the account",
+    /disabled=\{!card\.chargesEnabled/.test(payments));
+
+  // DISCONNECTING IS ONE PRESS BEHIND ONE CONFIRM, and the confirm names what
+  // stops — the same posture the billing screen's cancel button ships with.
+  check("disconnect asks first, and says what stops",
+    /confirm\(t\("Disconnect Stripe\?[^"]*Pay button/.test(payments), "no confirm, or it does not say");
+
+  // THE CONSENT CODE IS SINGLE USE, so a refresh must not retry it.
+  check("the returning consent code is wiped out of the address bar",
+    /history\.replaceState/.test(payments) && /q\.delete\("code"\)/.test(payments));
+
+  // WHERE STRIPE SENDS THEM BACK HAS TO BE A ROUTE. Without it the callback
+  // falls through to the catch-all, lands on Today, and the connection
+  // silently does not happen. `tests/route-contract` pins the path itself
+  // against `connect.ts`; this pins that something reads the code.
+  check("the router serves the return path", main.includes(CONNECT_RETURN_PATH));
+  check("and it forwards the code and the state rather than dropping them",
+    /settings=payments\$\{window\.location\.search/.test(main));
+  check("and the dashboard opens the screen that reads them",
+    /deepLink\.current === "payments"/.test(app));
+
+  // THE PUBLIC ENDPOINT MUST NOT SHIP THE DETAILER'S ONBOARDING STATE. The
+  // `detail` sentence is written in the detailer's words and this endpoint is
+  // reachable by anybody holding a booking link.
+  check("the receipt endpoint sends a boolean, not the detailer's status sentence",
+    /card = \{ ready:/.test(receipt) && !/\bdetail\b/.test(receipt.split("let card")[1] ?? ""));
+
+  // AND ALL FOUR CALLERS ASK THE SAME FUNCTION. Four copies of "can this
+  // business take a card" is four chances to offer a button that does not
+  // work; the count is what makes a fifth copy visible.
+  const callers = ["supabase/functions/pay-booking/index.ts",
+    "supabase/functions/get-booking-receipt/index.ts",
+    "supabase/functions/send-invoice/index.ts",
+    "supabase/functions/connect-account/index.ts"]
+    .filter((f) => /cardStatus|payability/.test(read(f)));
+  check("every server caller goes through the shared decision", callers.length === 4,
+    `only ${callers.length}: ${callers.join(", ")}`);
+
+  // THE INVOICE'S BUTTON IS A LINK, NEVER A CHECKOUT. A Stripe session made
+  // when the email was written would carry that morning's amount and would
+  // still be in the inbox after the customer paid cash.
+  check("the invoice email is handed the answer rather than deciding it",
+    /cardReady,?\n?\s*\);/.test(invoice) || /cardReady,/.test(invoice));
+  const tpl = read("supabase/functions/_shared/emailTemplates.ts");
+  check("and a PAID receipt never carries a pay button",
+    /!paid && cardReady/.test(tpl), "the branch does not test `paid`");
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

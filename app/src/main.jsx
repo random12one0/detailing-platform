@@ -151,6 +151,23 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             <SiteIntake preview onClose={() => { window.location.href = "/"; }} />
           </div></div>
         } />
+        {/* ROADMAP 2.20 STAGE 3 — WHERE STRIPE SENDS A DETAILER BACK, and the
+            path is not ours to choose: it is registered in Stripe's own
+            dashboard and `supabase/functions/_shared/connect.ts` builds the
+            `redirect_uri` from the same constant. A mismatch of one character
+            ends the consent screen in `redirect_uri_mismatch`, which reads
+            like a broken integration and is a typo — `tests/route-contract`
+            reads both files and fails if they drift.
+
+            IT FORWARDS RATHER THAN RENDERS, keeping the `code` and the
+            `state`: the settings screen is a screen INSIDE the dashboard, not
+            a route, so there is nothing here to draw. `?settings=payments` is
+            the same deep link `?settings=billing` already used for the
+            checkout, and `App.jsx` opens Business on that screen. */}
+        <Route path="/settings/payments/connected" element={
+          <Navigate replace
+            to={`/app?settings=payments${window.location.search.replace(/^\?/, "&")}`} />
+        } />
         <Route path="/app/*" element={<Wrapped><App /></Wrapped>} />
         <Route path="/*" element={<Wrapped><App /></Wrapped>} />
       </Routes>

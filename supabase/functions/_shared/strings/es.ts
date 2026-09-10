@@ -150,6 +150,10 @@ export const es: Record<string, string> = {
   "What is due": "Lo que se debe",
   "Total paid": "Total pagado",
   "Notes": "Notas",
+  // ROADMAP 2.20 STAGE 3 — the same button, relabelled on an unpaid
+  // invoice from a business that takes cards. It goes to the booking page,
+  // where the card button lives; an email cannot create a payment.
+  "Pay {amount} by card": "Pagar {amount} con tarjeta",
   "View this online": "Verlo en línea",
   "Keep this for your records. Reply to this email if anything looks wrong.":
     "Guárdalo para tus registros. Responde a este correo si algo no cuadra.",

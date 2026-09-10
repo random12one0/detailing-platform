@@ -274,6 +274,22 @@ export const es = {
   "Cancel this booking": "Cancelar esta reserva",
   "Call": "Llama al",
 
+  // ROADMAP 2.20 STAGE 3 — paying by card, on the page the customer reaches
+  // from their own email. "Tarjeta" is the word every Spanish-language
+  // checkout in the US uses, and "pagar con tarjeta" is the whole phrase.
+  "Pay online": "Pagar en línea",
+  "You can pay by card now if you like, or settle it with {business} on the day.":
+    "Si quieres, puedes pagar con tarjeta ahora, o pagarle a {business} el mismo día.",
+  "Pay {amount} by card": "Pagar {amount} con tarjeta",
+  "Opening…": "Abriendo…",
+  "Card details are handled by Stripe. We never see them.":
+    "Los datos de tu tarjeta los maneja Stripe. Nosotros nunca los vemos.",
+  "We could not start the payment. Please try again.":
+    "No pudimos iniciar el pago. Inténtalo de nuevo.",
+  "Paid": "Pagado",
+  "Thank you — your card payment went through. Your receipt is on its way by email.":
+    "Gracias — tu pago con tarjeta se realizó. Tu recibo va en camino por correo.",
+
   // ── The opt-out, reached from an email ─────────────────────────────────
   "This link has expired": "Este enlace ya venció",
   "Reply to the email you got instead — it reaches the business directly.":

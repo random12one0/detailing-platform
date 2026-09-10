@@ -14,6 +14,7 @@ import { json, preflight } from "../_shared/http.ts";
 import { businessById, getSettings, requireMember } from "../_shared/tenant.ts";
 import { buildBrand, extraVehiclesFor, sendTenantEmail } from "../_shared/email.ts";
 import { followupEmail, invoiceEmail, type InvoiceRow } from "../_shared/emailTemplates.ts";
+import { cardStatus } from "../_shared/connect.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
 import { receiptUrl } from "../_shared/config.ts";
 import { siteFor } from "../_shared/tenantSite.ts";
@@ -146,6 +147,22 @@ Deno.serve(async (req) => {
       receiptUrl: receiptUrl(await siteFor(supabase, business.id), booking.id),
     };
 
+    // ROADMAP 2.20 STAGE 3 — WHETHER THIS INVOICE CARRIES A PAY BUTTON, and
+    // it is `cardStatus` that answers, not this file. Three things have to be
+    // true — an account connected, Stripe happy with it, the detailer having
+    // switched card on — and a fourth copy of that test is a fourth chance to
+    // put a button in front of somebody that does not work.
+    const { data: conn } = await supabase
+      .from("connected_accounts")
+      .select("stripe_account_id, charges_enabled, card_payments_enabled")
+      .eq("business_id", business.id)
+      .maybeSingle();
+    const cardReady = cardStatus({
+      stripe_account_id: conn?.stripe_account_id ?? null,
+      stripe_charges_enabled: conn?.charges_enabled ?? false,
+      card_payments_enabled: conn?.card_payments_enabled ?? false,
+    }).ready;
+
     const invoice = invoiceEmail(
       brand,
       emailData,
@@ -153,13 +170,14 @@ Deno.serve(async (req) => {
       { chargesSubtotal, discountsTotal, tipTotal, totalPaid },
       booking.payment_status,
       booking.payment_notes,
+      cardReady,
     );
     const sent = await sendTenantEmail({
       businessId: business.id,
       to: booking.customer_email,
       subject: invoice.subject,
       html: invoice.html,
-      text: invoice.text, text: invoice.text,
+      text: invoice.text,
     });
     if (!sent) return json({ error: "email_failed" }, 502);
 

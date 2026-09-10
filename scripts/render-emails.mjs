@@ -230,6 +230,12 @@ const EMAILS = [
   ["customer-declined", "Customer · request declined", () => T.requestDecisionEmail(brand, booking, "declined", { manageUrl: booking.receiptUrl })],
   ["customer-receipt", "Customer · receipt (paid)", () => T.invoiceEmail(brand, booking, invoiceRows, invoiceTotals, "paid", "Paid by card on the day.")],
   ["customer-invoice", "Customer · invoice (unpaid)", () => T.invoiceEmail(brand, booking, invoiceRows, invoiceTotals, "unpaid", null)],
+  // ROADMAP 2.20 STAGE 3 — ITS OWN FIXTURE, because the pay button is a
+  // BRANCH and the unpaid invoice above it takes the other side. A fixture
+  // that only ever renders `cardReady = false` cannot reach the button at
+  // all, and a check that cannot reach a case reads exactly like a check that
+  // passes.
+  ["customer-invoice-card", "Customer · invoice (unpaid, card accepted)", () => T.invoiceEmail(brand, booking, invoiceRows, invoiceTotals, "unpaid", null, true)],
   ["customer-reschedule", "Customer · rescheduled", () => T.rescheduleEmail(brand, booking, "2026-09-12", "08:00", false)],
   ["customer-cancellation", "Customer · cancelled", () => T.cancellationEmail(brand, booking, false)],
   ["customer-followup", "Customer · thank-you and review request", () => T.followupEmail(brand, "Dana Ortiz", LANG)],

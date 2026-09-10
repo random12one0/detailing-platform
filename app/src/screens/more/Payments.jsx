@@ -24,9 +24,35 @@
 // NO PERMISSION KEY OF ITS OWN. `business_settings` writes ride `settings`,
 // which is what every other screen on this tab already uses; a detailer who
 // can change their prices can change where the money goes to.
+//
+// ---------------------------------------------------------------------------
+// STAGE 3 PUT CARD PAYMENTS AT THE TOP OF IT, AND THE ONE BLOCK IS OWNER-ONLY
+// WHILE THE SIX FIELDS BELOW IT ARE NOT.
+// ---------------------------------------------------------------------------
+// That looks inconsistent on one screen and it is the honest shape: a handle
+// is a line of text in an email, and connecting a Stripe account decides
+// which BANK ACCOUNT a customer's money lands in. `connect-account` refuses
+// anybody but the owner and answers 404 rather than 403 — hiding the block
+// here is a courtesy so staff are not shown a control that will not work.
+//
+// THREE SWITCHES HAVE TO BE ON AND ONLY ONE OF THEM IS OURS. Stripe has to
+// say the account can take charges, the detailer has to say they want card,
+// and the platform has to have a Connect client id at all. `cardStatus` in
+// `supabase/functions/_shared/connect.ts` is the one place that resolves the
+// three into a state, and it is the SERVER that draws the conclusion — this
+// screen prints the answer it was given and works none of it out. The public
+// pay endpoint asks the same function again at the moment a customer presses,
+// because a link in an inbox outlives every switch on this screen.
+//
+// AND CONNECTING IS NOT SWITCHING ON. Card costs the detailer 2.9% + 30c,
+// which is exactly why they hold up a Venmo code today; an account that
+// connected and immediately started charging them a fee on every job would
+// be a cost they did not agree to. The switch is theirs and starts off.
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { Check } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
+import { api } from "../../lib/api.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { Switch } from "../../components/controls.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
@@ -51,6 +77,106 @@ export default function Payments() {
 
   const set = (k) => (e) => setPay({ ...pay, [k]: e.target.value });
 
+  // --- CARD PAYMENTS (stage 3) -------------------------------------------
+  // `card` is whatever `connect-account` last said, and NOTHING here works
+  // any of it out. A screen that decided "ready" for itself would be a second
+  // implementation of `cardStatus`, and the two would disagree the first time
+  // Stripe turned an account off.
+  const [card, setCard] = useState(null);       // null while the answer is out
+  const [cardBusy, setCardBusy] = useState(""); // which button is working
+  const [cardMsg, setCardMsg] = useState(null); // {ok, text}
+
+  // WHAT COMES BACK FROM STRIPE'S CONSENT SCREEN. `/settings/payments/connected`
+  // is the address registered with Stripe (`connect.ts`, the return path) and
+  // `main.jsx` forwards it here with the `code` and the `state` still attached.
+  // Read ONCE, at mount, and then wiped out of the address bar: the code is
+  // single-use, and a refresh that retried it would show a detailer an error
+  // about a connection that had in fact just worked.
+  const [returned] = useState(() => {
+    const q = new URLSearchParams(window.location.search);
+    const code = q.get("code"), state = q.get("state");
+    if (code && state) {
+      q.delete("code"); q.delete("state"); q.delete("error"); q.delete("error_description");
+      const rest = q.toString();
+      window.history.replaceState({}, "", window.location.pathname + (rest ? "?" + rest : ""));
+    }
+    return code && state ? { code, state } : null;
+  });
+
+  const loadCard = useCallback(async () => {
+    try {
+      setCard(await api.connect(business.id, "status"));
+    } catch (_) {
+      // A 404 here is a STAFF member, which is the ordinary case and not a
+      // fault: the block simply does not draw for them.
+      setCard({ unavailable: true });
+    }
+  }, [business.id]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (returned) {
+        setCardBusy("finish");
+        try {
+          const r = await api.connect(business.id, "finish", returned);
+          if (!cancelled) {
+            setCard(r);
+            setCardMsg({ ok: true, text: t("Stripe is connected.") });
+          }
+        } catch (_) {
+          if (!cancelled) {
+            setCardMsg({ ok: false, text: t("Stripe did not finish connecting. Try again.") });
+            await loadCard();
+          }
+        }
+        if (!cancelled) setCardBusy("");
+        return;
+      }
+      await loadCard();
+    })();
+    return () => { cancelled = true; };
+  }, [returned, business.id, loadCard]);
+
+  // LEAVING FOR STRIPE. `start` writes a single-use state against this
+  // business before it hands back a url, so the callback can be recognised as
+  // ours; the browser then goes to `connect.stripe.com`, not to a page here.
+  const connect = async () => {
+    setCardBusy("start");
+    setCardMsg(null);
+    try {
+      const r = await api.connect(business.id, "start");
+      window.location.href = r.url;
+      return;                                  // no state to unwind - we leave
+    } catch (_) {
+      setCardMsg({ ok: false, text: t("Could not reach Stripe. Try again in a minute.") });
+    }
+    setCardBusy("");
+  };
+
+  // ONE HANDLER FOR THE THREE THAT COME BACK WITH A STATUS. `refresh`,
+  // `toggle` and `disconnect` all answer with the same object the screen is
+  // already drawing, so there is nothing to reconcile - the answer replaces
+  // what was there.
+  const cardAction = async (action, extra, failure) => {
+    setCardBusy(action);
+    setCardMsg(null);
+    try {
+      setCard(await api.connect(business.id, action, extra));
+    } catch (_) {
+      setCardMsg({ ok: false, text: failure });
+    }
+    setCardBusy("");
+  };
+
+  const disconnect = async () => {
+    // ONE PRESS BEHIND ONE CONFIRM, naming what stops. Disconnecting also
+    // switches card off, so a customer holding a receipt loses a button they
+    // may already have been looking at.
+    if (!confirm(t("Disconnect Stripe? Your customers will not be able to pay by card, and any receipt they are holding loses its Pay button."))) return;
+    await cardAction("disconnect", {}, t("Could not disconnect. Try again."));
+  };
+
   const save = async () => {
     setBusy(true);
     setMsg(null);
@@ -71,8 +197,90 @@ export default function Payments() {
     setBusy(false);
   };
 
+  // The block draws for the OWNER only. `card` is null while the answer is
+  // out and `{unavailable: true}` when the endpoint said no - which is what a
+  // staff member gets, so both of those draw nothing rather than an error.
+  const showCard = card && !card.unavailable;
+
   return (
+    <>
+      {showCard && (
+        <div className="card">
+          <div className="section-title" style={{ marginTop: 0 }}>{t("Card payments")}</div>
+          {/* THE FACT NO CONTROL BELOW CARRIES: where the money goes and who
+              pays the fee. A detailer weighing this against the Venmo code
+              they hold up today is deciding about 2.9% + 30c, and it is not a
+              number this product should make them go and look up. */}
+          <p className="quiet" style={{ marginTop: 0 }}>
+            {t("Your customers pay by card from their booking page, and the money goes straight to your own Stripe account — we never hold it. Stripe takes 2.9% + 30¢ of each payment.")}
+          </p>
+
+          {!card.available ? (
+            /* THE PLATFORM'S OWN SWITCH IS OFF. Saying so is the alternative
+               to a button that answers 503 - the detailer has done nothing
+               wrong and there is nothing here for them to fix. */
+            <p className="body">{t("Card payments are not switched on yet. Nothing for you to do — we will tell you when they are.")}</p>
+          ) : !card.connected ? (
+            <>
+              <p className="body">{t("You will need a Stripe account. If you do not have one, Stripe makes it during this.")}</p>
+              <div className="btnrow">
+                <button className="btn primary" disabled={cardBusy === "start"} onClick={connect}>
+                  {cardBusy === "start" ? t("Opening Stripe") : t("Connect Stripe")}
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="row-item" style={{ cursor: "default" }}>
+                <span className="txt">
+                  <span className="nm">{t("Stripe account {last4}", { last4: card.accountHint })}</span>
+                  {/* THE SERVER'S OWN SENTENCE, not one worked out here.
+                      `cardStatus` orders its four states so that somebody who
+                      switched card off is told that first, rather than being
+                      told something that reads as a fault. */}
+                  <span className="sub">{t(card.detail)}</span>
+                </span>
+                {card.chargesEnabled
+                  ? <span className="pill completed" aria-label={t("Ready")}><Check size={14} strokeWidth={2.5} /></span>
+                  : (
+                    <button className="btn sm inline ghost" disabled={cardBusy === "refresh"}
+                      onClick={() => cardAction("refresh", {}, t("Could not reach Stripe. Try again in a minute."))}>
+                      {cardBusy === "refresh" ? t("Checking") : t("Check again")}
+                    </button>
+                  )}
+              </div>
+
+              {/* THE DETAILER'S OWN SWITCH, and it cannot be turned on before
+                  Stripe says the account can take a charge - the server
+                  refuses that with a 409, and the control is disabled so
+                  nobody meets the refusal. */}
+              <Switch
+                label={t("Take card payments")}
+                help={card.chargesEnabled
+                  ? t("A Pay button goes on your customers' booking pages and on any invoice still owed.")
+                  : t("Available once Stripe has finished checking your account.")}
+                checked={card.cardPaymentsEnabled}
+                disabled={!card.chargesEnabled || cardBusy === "toggle"}
+                onChange={(v) => cardAction("toggle", { enabled: v }, t("Could not save that. Try again."))}
+              />
+
+              <div className="btnrow">
+                <button className="btn ghost" disabled={cardBusy === "disconnect"} onClick={disconnect}>
+                  {cardBusy === "disconnect" ? t("Disconnecting") : t("Disconnect Stripe")}
+                </button>
+              </div>
+            </>
+          )}
+
+          {cardMsg && <div className={cardMsg.ok ? "ok-box" : "error-box"}>{cardMsg.text}</div>}
+        </div>
+      )}
+
     <div className="card">
+      {/* WHAT THIS SECOND CARD IS FOR, now that there are two. Card is a
+          button a customer presses; these are handles a customer reads and
+          types into another app themselves. */}
+      {showCard && <div className="section-title" style={{ marginTop: 0 }}>{t("Other ways to pay you")}</div>}
       {/* THE ONE FACT THE FIELDS CANNOT CARRY: which emails these land on. A
           detailer who fills this in and then checks a paid receipt would
           otherwise conclude it is broken. The copy rule (2026-09-01) bans a
@@ -131,5 +339,6 @@ export default function Payments() {
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
       <button className="btn primary" disabled={busy} onClick={save}>{busy ? "Saving" : "Save"}</button>
     </div>
+    </>
   );
 }

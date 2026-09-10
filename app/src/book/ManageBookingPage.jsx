@@ -15,7 +15,7 @@ import { useLocale } from "../hooks/useLocale.js";
 import LanguagePicker from "./LanguagePicker.jsx";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import { CalendarClock, Check, Phone, X } from "lucide-react";
+import { CalendarClock, Check, CreditCard, Phone, X } from "lucide-react";
 import { api, icsUrl, slotsForType } from "../lib/api.js";
 import { money, time12 } from "../lib/format.js";
 import { BookingBusinessProvider, useBookingBusiness } from "./BookingBusinessContext.jsx";
@@ -26,15 +26,19 @@ export default function ManageBookingPage() {
   const { id } = useParams();
   // ROADMAP 8.10 — `group` is the OTHER appointments this customer made in
   // the same go, and it is empty for every booking that is not one of a pair.
-  const [state, setState] = useState({ status: "loading", booking: null, business: null, group: [] });
+  // ROADMAP 2.20 STAGE 3 — `card` is the server's answer to "may this person
+  // be offered a card button", and it is two booleans with no explanation in
+  // it on purpose: the sentence `cardStatus` writes is in the DETAILER's
+  // words and this page is public.
+  const [state, setState] = useState({ status: "loading", booking: null, business: null, group: [], card: null });
 
   const load = useCallback(async () => {
     try {
       const r = await api.bookingReceipt(id);
       if (!r?.booking) throw new Error("not_found");
-      setState({ status: "ready", booking: r.booking, business: r.business, group: r.group ?? [] });
+      setState({ status: "ready", booking: r.booking, business: r.business, group: r.group ?? [], card: r.card ?? null });
     } catch {
-      setState({ status: "not_found", booking: null, business: null, group: [] });
+      setState({ status: "not_found", booking: null, business: null, group: [], card: null });
     }
   }, [id]);
 
@@ -59,7 +63,7 @@ export default function ManageBookingPage() {
   return (
     <BookingBusinessProvider slug={state.business.slug}>
       <ManageInner booking={state.booking} receiptBusiness={state.business}
-        group={state.group} onChanged={load} />
+        group={state.group} card={state.card} onChanged={load} />
     </BookingBusinessProvider>
   );
 }
@@ -69,7 +73,7 @@ export default function ManageBookingPage() {
 // service_area/dropoff_address, so cancellation_window_hours is not on it —
 // reading the window off the context business silently yielded 0, which made
 // the whole closed-window branch dead code. It is read from the receipt.
-function ManageInner({ booking, receiptBusiness, group = [], onChanged }) {
+function ManageInner({ booking, receiptBusiness, group = [], card = null, onChanged }) {
   const { business, branding, brandVars, slug, status } = useBookingBusiness();
   const [mode, setMode] = useState(null); // null | "reschedule" | "cancelled"
   const [busy, setBusy] = useState(false);
@@ -80,6 +84,17 @@ function ManageInner({ booking, receiptBusiness, group = [], onChanged }) {
   // here, so it asks first — inline, naming the appointment, which a native
   // confirm() cannot do.
   const [confirmCancel, setConfirmCancel] = useState(false);
+  // ROADMAP 2.20 STAGE 3 — PAYING BY CARD.
+  //
+  // `?paid=1` IS STRIPE'S `success_url` COMING BACK, and it is the only thing
+  // this page knows about the payment for the first second or two: the row is
+  // marked paid by the WEBHOOK, which is a different request arriving on its
+  // own schedule. Reloading and finding `unpaid` is the ordinary case, not a
+  // failure, so the page thanks them from the URL rather than from the row —
+  // a page that showed "still owed" one second after a card cleared would
+  // have a customer paying twice.
+  const [justPaid] = useState(() => new URLSearchParams(window.location.search).get("paid") === "1");
+  const [paying, setPaying] = useState(false);
 
   const durationMinutes = useMemo(
     () => Math.round((new Date(booking.end_at) - new Date(booking.start_at)) / 60000),
@@ -176,6 +191,26 @@ function ManageInner({ booking, receiptBusiness, group = [], onChanged }) {
   if (status !== "ready") {
     return <div className="bk"><div className="bk-center"><div className="bk-spinner" /></div></div>;
   }
+
+  // THE SERVER CREATES THE CHECKOUT AND WE LEAVE FOR IT. Nothing about a card
+  // is rendered by this page — `pay-booking` answers with a
+  // `checkout.stripe.com` url on the DETAILER's own account, and it re-decides
+  // payability inside that same request, so a page that has been sitting open
+  // since yesterday cannot start a payment the detailer has since switched
+  // off. `message` is written for a customer and is shown as it arrives.
+  const pay = async () => {
+    setPaying(true);
+    setError("");
+    try {
+      const r = await api.payBooking(booking.id);
+      if (!r?.url) throw new Error("no_url");
+      window.location.href = r.url;
+      return;                        // leaving — no state to unwind
+    } catch (e) {
+      setError(e?.message || t("We could not start the payment. Please try again."));
+    }
+    setPaying(false);
+  };
 
   const openDates = Object.entries(days ?? {})
     // The times THIS booking can move to. It keeps its own service type
@@ -302,6 +337,49 @@ function ManageInner({ booking, receiptBusiness, group = [], onChanged }) {
           </div>
         )}
 
+        {/* PAYING BY CARD — ITS OWN CARD, ABOVE THE ACTIONS.
+            It is not in `.bk-actions` with the others because those three are
+            about the APPOINTMENT (move it, save it, cancel it) and this one is
+            about the money. Same reason the quote above has its own card: two
+            different questions in one box leaves the customer working out
+            which one the buttons belong to.
+
+            IT IS DRAWN FROM THE SERVER'S ANSWER AND NOTHING ELSE. `card.ready`
+            already accounts for the business having connected an account,
+            Stripe having approved it, the detailer having switched it on, this
+            booking not being paid, not being cancelled, not being a request
+            nobody has accepted, and the amount clearing Stripe's 50c floor —
+            `payability` in `_shared/connect.ts` is the one place that decides
+            all of it, and the endpoint asks it again at the press. */}
+        {justPaid ? (
+          <div className="bk-card" style={{ marginTop: 14 }}>
+            <div className="bk-step-label">{t("Paid")}</div>
+            <p className="bk-body" style={{ marginTop: 6 }}>
+              {t("Thank you — your card payment went through. Your receipt is on its way by email.")}
+            </p>
+          </div>
+        ) : card?.ready && !isCancelled ? (
+          <div className="bk-card" style={{ marginTop: 14 }}>
+            <div className="bk-step-label">{t("Pay online")}</div>
+            {/* THE FACT THE BUTTON CANNOT CARRY: that this is optional. A
+                customer who has arranged to hand over cash must not read a Pay
+                button as a demand — and the detailer's own handles are printed
+                in the same email this link came from. */}
+            <p className="bk-body" style={{ marginTop: 6 }}>
+              {t("You can pay by card now if you like, or settle it with {business} on the day.",
+                { business: business.name })}
+            </p>
+            <button className="bk-btn primary" style={{ marginTop: 14 }}
+              disabled={paying} onClick={pay}>
+              <CreditCard size={18} strokeWidth={2} />{" "}
+              {paying ? t("Opening…") : t("Pay {amount} by card", { amount: money(card.amountCents / 100) })}
+            </button>
+            <p className="bk-muted" style={{ marginTop: 10 }}>
+              {t("Card details are handled by Stripe. We never see them.")}
+            </p>
+          </div>
+        ) : null}
+
         {error && <div className="bk-error">{error}</div>}
 
         {isCancelled ? (
@@ -405,7 +483,13 @@ function ManageInner({ booking, receiptBusiness, group = [], onChanged }) {
               // is open is the price, and two filled buttons make the customer
               // choose between two things the page is equally insisting on.
               // Seen in the first screenshot of a quote on this page.
-              <button className={`bk-btn${quote === null ? " primary" : ""}`} disabled={busy} onClick={loadSlots}>
+              /* AND A PAY BUTTON TAKES THE FILL THE SAME WAY A QUOTE DOES.
+                 The rule is one filled thing per screen; when there is money
+                 owed and a way to pay it, that is what the page is insisting
+                 on, and two filled buttons make the customer choose between
+                 two things the page says are equally the point. */
+              <button className={`bk-btn${quote === null && !(card?.ready && !justPaid) ? " primary" : ""}`}
+                disabled={busy} onClick={loadSlots}>
                 <CalendarClock size={18} strokeWidth={2} /> {busy ? t("Loading…") : t("Change the time")}
               </button>
             )}

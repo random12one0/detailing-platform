@@ -8,6 +8,7 @@ import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { businessById, getSettings } from "../_shared/tenant.ts";
 import { dateStrIn, timeStrIn } from "../_shared/tz.ts";
+import { cardStatus, payability } from "../_shared/connect.ts";
 
 const BOOKING_SELECT = `
   *,
@@ -75,10 +76,46 @@ Deno.serve(async (req) => {
       }));
     }
 
+    // ROADMAP 2.20 STAGE 3 — MAY THIS CUSTOMER BE OFFERED A CARD BUTTON?
+    //
+    // TWO BOOLEANS AND NOT ONE WORD OF EXPLANATION. `cardStatus().detail` is
+    // written in the DETAILER's words — "finish the details Stripe asked for"
+    // — and this endpoint is public, so shipping it here would print a
+    // business's onboarding state to anybody holding a booking link. The
+    // customer gets a button or no button.
+    //
+    // AND IT IS ASKED AGAIN AT THE PRESS. `pay-booking` runs the same two
+    // functions on the same row, because this answer travels into a page that
+    // can sit open on a phone for a day, and into an email that lives in an
+    // inbox for ever. This one decides whether to DRAW the button; that one
+    // decides whether it works.
+    let card = { ready: false, amountCents: 0 };
+    if (business) {
+      const { data: conn } = await supabase
+        .from("connected_accounts")
+        .select("stripe_account_id, charges_enabled, card_payments_enabled")
+        .eq("business_id", business.id)
+        .maybeSingle();
+      const settingsForCard = {
+        stripe_account_id: conn?.stripe_account_id ?? null,
+        stripe_charges_enabled: conn?.charges_enabled ?? false,
+        card_payments_enabled: conn?.card_payments_enabled ?? false,
+      };
+      if (cardStatus(settingsForCard).ready) {
+        const verdict = payability({
+          booking,
+          settings: settingsForCard,
+          businessStatus: business.status,
+        });
+        if (verdict.ok) card = { ready: true, amountCents: verdict.amountCents };
+      }
+    }
+
     return json({
       // Empty for every booking that is not part of one, which is all of them
       // until a customer books two cars on two days.
       group,
+      card,
       booking: {
         ...booking,
         booking_date: dateStrIn(tz, new Date(booking.start_at)),

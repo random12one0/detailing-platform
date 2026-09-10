@@ -104,6 +104,21 @@ export default function App() {
   // it does not otherwise need.
   const [gearScreen, setGearScreen] = useState(() =>
     deepLink.current === "billing" ? "billing" : null);
+  // ROADMAP 2.20 STAGE 3 — THE SECOND DEEP LINK, AND IT LANDS ON BUSINESS
+  // RATHER THAN ON THE GEAR, because "How you get paid" is a Business row.
+  // Stripe sends a detailer back to `/settings/payments/connected` with the
+  // consent code on it; `main.jsx` forwards that here as
+  // `?settings=payments&code=…&state=…` and this is what puts the screen the
+  // code belongs to on the screen. Without it they land on Today holding a
+  // single-use code that nothing reads, and the connection silently does not
+  // happen.
+  //
+  // STATE RATHER THAN THE REF, and that is the whole difference: `Business`
+  // unmounts when a tab changes, so a ref would re-open the payments screen
+  // every time the detailer came back to that tab for the rest of the
+  // session. Cleared by any tab press below, like `intent`.
+  const [bizScreen, setBizScreen] = useState(() =>
+    deepLink.current === "payments" ? "payments" : null);
   // FIRST RUN — ONE STATE, TWO SEPARATE THINGS (screen designs §13, and the
   // owner kept them two on purpose). "setup" is the stepped form, "tour" is
   // the walkthrough; neither is a mode the shell has to know anything else
@@ -119,7 +134,7 @@ export default function App() {
   // because they are different lifetimes: the first run happens once ever,
   // and a tab guide happens once per tab and can arrive months later.
   const [tabTour, setTabTour] = useState(null);
-  const [tab, setTab] = useState("today");
+  const [tab, setTab] = useState(deepLink.current === "payments" ? "business" : "today");
   // WHAT A SCREEN WAS OPENED *FOR* — roadmap 2.19, and it is one string
   // because there is one case. Today's re-book prompt has to land on Clients
   // with the "not seen in 3 months" filter already on: sending somebody to a
@@ -199,7 +214,12 @@ export default function App() {
     // when it CLOSES, so a form that never opened is not marked, and the
     // next load offers it. Pay first, set up second — which is also the
     // order they chose.
-    if (deepLink.current === "billing") return;
+    // ANY deep link, not only billing. This read `=== "billing"` until
+    // roadmap 2.20 stage 3 added a second one, and the bug it was written to
+    // fix would have come straight back: the setup form opening on top of a
+    // returning Stripe consent, then the tour on top of that, leaves the
+    // detailer on Today with a spent code and no connection.
+    if (deepLink.current) return;
     if (role === "owner") {
       // ROADMAP 7.3's FINAL PASS, finding 2, fixed 2026-09-06 — but in
       // `SetupForm`, not here. `setup.seen` used to be written when the form
@@ -356,6 +376,10 @@ export default function App() {
             )
             : (
               <Active refreshKey={rev} onSetup={() => setFirstRun("setup")} intent={intent}
+                // Only `Business` reads it; the other tabs ignore a prop they
+                // were not given a use for, which is cheaper than a second
+                // render path in this switch for one destination.
+                initial={bizScreen}
                 onGo={(dest, why = null) => {
                   // ROADMAP 2.20 STAGE 2 — "billing" is the one destination
                   // that is a SETTINGS SCREEN rather than a tab. Today's
@@ -379,7 +403,7 @@ export default function App() {
           <button key={x.key} data-tour={x.key}
             className={!gear && firstRun !== "setup" && activeTab.key === x.key ? "active" : ""}
             onClick={() => {
-              setTab(x.key); setGear(false); setIntent(null);
+              setTab(x.key); setGear(false); setIntent(null); setBizScreen(null);
               if (firstRun === "setup") setFirstRun(null);
               // ROADMAP 2.24 — the guide for a tab arrives the first time
               // this browser opens it, and only then.

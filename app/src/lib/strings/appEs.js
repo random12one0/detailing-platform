@@ -990,6 +990,8 @@ export const appEs = {
   // reports them in and the order somebody will re-read them in.
   " · founding price": " · precio de fundador",
   ", and ": ", y ",
+  "A Pay button goes on your customers' booking pages and on any invoice still owed.":
+    "Un botón de Pagar aparece en la página de cita de tus clientes y en cualquier factura pendiente.",
   "A booking link of its own for a flyer, a QR code or a post. Whoever opens it gets your discount applied already, and you can see how many came that way.":
     "Un enlace de citas propio para un volante, un código QR o una publicación. Quien lo abra ya trae tu descuento aplicado, y puedes ver cuántos llegaron por ahí.",
   "A job booked closer than this gets the surcharge.":
@@ -1045,6 +1047,8 @@ export const appEs = {
   "Apps": "Aplicaciones",
   "Area name": "Nombre de la zona",
   "Ask how dirty the vehicle is": "Preguntar qué tan sucio está el vehículo",
+  "Available once Stripe has finished checking your account.":
+    "Disponible en cuanto Stripe termine de revisar tu cuenta.",
   "Back on the 14th — call for anything urgent":
     "Regreso el 14 — llama si es urgente",
   "Back to normal": "Volver a lo normal",
@@ -1069,8 +1073,13 @@ export const appEs = {
     "Cancelar libera el horario y deja el trabajo en tu historial. Eliminar lo saca de tus registros y de tus totales también. No se puede deshacer.",
   "Cancelling": "Cancelando",
   "Card details": "Datos de la tarjeta",
+  "Card payments": "Pagos con tarjeta",
+  "Card payments are not switched on yet. Nothing for you to do — we will tell you when they are.":
+    "Los pagos con tarjeta todavía no están activos. No tienes que hacer nada — te avisamos cuando lo estén.",
   "Card payments are not switched on yet. Nothing here will charge you.":
     "Los pagos con tarjeta aún no están activos. Nada de aquí te va a cobrar.",
+  "Card payments are switched off. Your customers pay the ways you list instead.":
+    "Los pagos con tarjeta están apagados. Tus clientes pagan por las formas que pusiste.",
   "Cars in one booking": "Carros en una cita",
   "Cars": "Carros",
   "Category": "Categoría",
@@ -1081,6 +1090,7 @@ export const appEs = {
   "Charged": "Cobrado",
   "Chase me about a request I haven't answered":
     "Recordarme una solicitud que no he respondido",
+  "Check again": "Revisar otra vez",
   "Check your booked jobs": "Revisa tus trabajos agendados",
   "Checking your link…": "Revisando tu enlace…",
   "Checking your subscription…": "Revisando tu suscripción…",
@@ -1099,6 +1109,9 @@ export const appEs = {
   "Closes": "Cierra",
   "Code": "Código",
   "Committed until": "Comprometido hasta",
+  "Connect Stripe": "Conectar Stripe",
+  "Connect a Stripe account to take card payments.":
+    "Conecta una cuenta de Stripe para aceptar pagos con tarjeta.",
   "Contacts": "Contactos",
   "Continue to payment": "Continuar al pago",
   "Continue with Google": "Continuar con Google",
@@ -1106,10 +1119,16 @@ export const appEs = {
   "Copy image": "Copiar imagen",
   "Copy link": "Copiar enlace",
   "Copy": "Copiar",
+  "Could not disconnect. Try again.": "No se pudo desconectar. Inténtalo de nuevo.",
+  "Could not reach Stripe. Try again in a minute.":
+    "No pudimos comunicarnos con Stripe. Inténtalo en un minuto.",
+  "Could not save that. Try again.": "No se pudo guardar. Inténtalo de nuevo.",
   "Counted from the day each member joined.":
     "Se cuenta desde el día que entró cada miembro.",
   "Customer name": "Nombre del cliente",
   "Customer:": "Cliente:",
+  "Customers can pay by card from their receipt.":
+    "Tus clientes pueden pagar con tarjeta desde su recibo.",
   "Customers see these behind the eye on your booking page, so the list can be as long as it needs to be.":
     "Los clientes ven esto detrás del ojo en tu página de citas, así que la lista puede ser tan larga como haga falta.",
   "Dashboard": "Panel",
@@ -1122,6 +1141,10 @@ export const appEs = {
   "Detailing Platform": "Detailing Platform",
   "Detailing since": "Detallando desde",
   "Didn’t show up": "No se presentó",
+  "Disconnect Stripe": "Desconectar Stripe",
+  "Disconnect Stripe? Your customers will not be able to pay by card, and any receipt they are holding loses its Pay button.":
+    "¿Desconectar Stripe? Tus clientes no podrán pagar con tarjeta, y cualquier recibo que tengan pierde su botón de Pagar.",
+  "Disconnecting": "Desconectando",
   "Discount type": "Tipo de descuento",
   "Dismiss": "Descartar",
   "Don't remind me again": "No me lo recuerdes otra vez",
@@ -1297,6 +1320,7 @@ export const appEs = {
   "Open now": "Abierto ahora",
   "Open slots in the next 7 days": "Horarios libres en los próximos 7 días",
   "Open": "Abre",
+  "Opening Stripe": "Abriendo Stripe",
   "Opens a sample.": "Abre una muestra.",
   "Opens": "Abre",
   "Optional — cheque number, split payment…":
@@ -1306,6 +1330,7 @@ export const appEs = {
   "Optional": "Opcional",
   "Or email": "O correo",
   "Or just the booking page": "O solo la página de citas",
+  "Other ways to pay you": "Otras formas de pagarte",
   "Password": "Contraseña",
   "Pausing stops the visits counting up. Coming back starts again from today — the paused ones are not owed.":
     "Pausar detiene la cuenta de visitas. Al regresar empieza otra vez desde hoy — las pausadas no se deben.",
@@ -1328,6 +1353,7 @@ export const appEs = {
   "Put on my website": "Poner en mi sitio web",
   "Quote sent for": "Cotización enviada por",
   "Quoted": "Cotizado",
+  "Ready": "Listo",
   "Reason": "Motivo",
   "Remind the night before for early jobs":
     "Recordar la noche antes para trabajos temprano",
@@ -1384,9 +1410,16 @@ export const appEs = {
   "Stars": "Estrellas",
   "Start times you offer": "Horas de inicio que ofreces",
   "Start": "Inicio",
+  "Stripe account {last4}": "Cuenta de Stripe {last4}",
+  "Stripe did not finish connecting. Try again.":
+    "Stripe no terminó de conectarse. Inténtalo de nuevo.",
+  "Stripe has not finished checking your account yet, so card payments are not live. Finish the details Stripe asked for.":
+    "Stripe todavía no termina de revisar tu cuenta, así que los pagos con tarjeta no están activos. Completa los datos que Stripe te pidió.",
+  "Stripe is connected.": "Stripe está conectado.",
   "Subject": "Asunto",
   "Surcharges": "Recargos",
   "Tagline": "Lema",
+  "Take card payments": "Aceptar pagos con tarjeta",
   "Taken off every car after the first, because you unpack once. It never changes the price.":
     "Se le quita a cada carro después del primero, porque desempacas una sola vez. Nunca cambia el precio.",
   "Taking you to your dashboard…": "Llevándote a tu panel…",
@@ -1515,8 +1548,12 @@ export const appEs = {
     "Conservas todo hasta el {date}, y este mes no se reembolsa.",
   "You pay": "Pagas",
   "You take cash on the day.": "Cobras en efectivo el mismo día.",
+  "You will need a Stripe account. If you do not have one, Stripe makes it during this.":
+    "Vas a necesitar una cuenta de Stripe. Si no tienes una, Stripe la crea en este mismo paso.",
   "Your address": "Tu dirección",
   "Your booking page is offline.": "Tu página de citas está fuera de línea.",
+  "Your customers pay by card from their booking page, and the money goes straight to your own Stripe account — we never hold it. Stripe takes 2.9% + 30¢ of each payment.":
+    "Tus clientes pagan con tarjeta desde su página de cita, y el dinero va directo a tu propia cuenta de Stripe — nosotros nunca lo tenemos. Stripe se queda con 2.9% + 30¢ de cada pago.",
   "Your day's jobs, sent once each morning.":
     "Los trabajos de tu día, una vez cada mañana.",
   "Your messages": "Tus mensajes",
