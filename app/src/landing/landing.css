@@ -164,9 +164,22 @@
 
 /* ── The continuous ground ────────────────────────────────────────────
    One fixed layer under the whole page. It is what makes the sections
-   blend into each other instead of stacking. Lightness moves; hue and
-   chroma do not — a drifting coloured wash is the same tell as a glow
-   drawn with a gradient. */
+   blend into each other instead of stacking.
+
+   THIS FILE USED TO SAY "lightness moves; hue and chroma do not — a
+   drifting coloured wash is the same tell as a glow drawn with a
+   gradient." THE OWNER LIFTED THAT, 2026-09-09, having been shown that it
+   was a rule rather than an oversight: *"I don't know that was a rule to
+   start with, so yeah, that's fine if you change that."* It came out of
+   Octolane's page, where a coloured light bends slowly through an
+   otherwise empty ground, and it is the second half of the complaint he
+   has now made twice about flat backgrounds.
+
+   THE CAUTION IN THE OLD RULE IS KEPT AS A DOSE. One of the two drifting
+   patches takes the accent and the other stays colourless, at .055 against
+   the neutral .09 — low enough that you cannot point at where the green
+   is, high enough that the ground is no longer grey. A wash you can
+   NAME is the tell the old sentence was worried about; this is under it. */
 .ld .ground { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
 .ld .ground b {
   position: absolute; display: block; border-radius: 50%;
@@ -177,7 +190,13 @@
 /* At 22s/29s the movement was real but too slow to read as movement,
    which was the whole point of it. */
 .ld .ground b:nth-of-type(1) { width: 76vmax; height: 76vmax; left: -20vmax; top: -26vmax; animation: ld-drift-a 15s ease-in-out infinite alternate; }
-.ld .ground b:nth-of-type(2) { width: 54vmax; height: 54vmax; right: -16vmax; top: 36vh; animation: ld-drift-b 19s ease-in-out infinite alternate; }
+.ld .ground b:nth-of-type(2) {
+  width: 54vmax; height: 54vmax; right: -16vmax; top: 36vh;
+  animation: ld-drift-b 19s ease-in-out infinite alternate;
+  /* The one that carries the hue. Its own gradient, so the neutral patch
+     above is untouched and the two never average into a single tint. */
+  background: radial-gradient(circle, rgba(56,224,139,.055), rgba(56,224,139,0) 68%);
+}
 @keyframes ld-drift-a {
   0%   { transform: translate3d(0,0,0) scale(1); opacity: .8; }
   50%  { opacity: 1; }
@@ -202,6 +221,13 @@
   will-change: transform;
 }
 @keyframes ld-dots { from { transform: translate3d(0,0,0); } to { transform: translate3d(92px,92px,0); } }
+/* The canvas lattice, and the switch between the two. `thread.js` adds
+   `.field` only when it has actually started drawing — so a browser where
+   the canvas fails, or any path where the script never runs, still has the
+   CSS dots rather than a blank ground. */
+.ld .ground .dotfield { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ld .ground.field .dots { display: none; }
+.ld .ground:not(.field) .dotfield { display: none; }
 
 /* The light follows the pointer across the WHOLE page, not just the
    buttons. It lerps toward the cursor rather than tracking it exactly —
@@ -209,8 +235,11 @@
    attachment. Fine pointers only: a phone has no cursor to follow.
    Lightness only, no hue. It sits under <main>, so a section with its own
    opaque ground (the light band) hides it automatically. */
+/* HALVED, 2026-09-09 — the owner: *"can you make the glow around the mouse
+   two times smaller."* 420 -> 210, and the margin with it, or the light
+   stops being centred on the pointer. */
 .ld .ground .cursor {
-  position: absolute; top: 0; left: 0; width: 420px; height: 420px; margin: -210px 0 0 -210px;
+  position: absolute; top: 0; left: 0; width: 210px; height: 210px; margin: -105px 0 0 -105px;
   background: radial-gradient(circle, rgba(226,234,238,.17), rgba(226,234,238,0) 66%);
   transform: translate3d(var(--gx,-999px), var(--gy,-999px), 0);
   opacity: 0; transition: opacity 600ms linear;
@@ -394,31 +423,178 @@
 .ld .fine { font-size: 13px; color: var(--fog-2); line-height: 1.45; }
 
 /* ═══ 1. HERO — left-heavy asymmetric, one floating object ════════════ */
-.ld .hero { padding: clamp(124px,17vh,186px) 0 clamp(70px,10vh,120px); }
+/* THE TAB STRIP HAD TO BE PAID FOR OUT OF THE PADDING, and this was
+   measured rather than eyeballed. Adding the strip grew the hero ~184px,
+   which put section 2's top edge from 117px ABOVE the fold at 1440x900 to
+   67px below it — so the first screen stopped saying there was anything
+   under it, and at 1920 left 463px of bare ground. Down from
+   17vh/10vh: the hero keeps its air, the next section keeps its edge on
+   the first screen, and nothing else moved. */
+.ld .hero { padding: clamp(112px,14vh,152px) 0 clamp(34px,5vh,64px); }
 .ld .hero .grid { display: grid; grid-template-columns: minmax(0,1.32fr) minmax(0,.68fr); gap: clamp(30px,4vw,56px); align-items: center; }
 .ld .hero h1 { margin: 16px 0 0; }
-/* THE ROTATING LINE IS PART OF THE TITLE. It had drifted into being a
-   caption — a dimmer colour, a lighter weight, a narrower width axis and
-   18px of air under the headline. All four are the headline's own values
-   now and the gap is closed to 8px. What is left is a size step, which is
-   a hierarchy inside one block rather than a demotion out of it.
-
-   THE SIZE IS THE CONSTRAINT, AND IT DECIDED THE COPY: at 0.66 of the
-   headline the column takes about 25 characters on one line. The height is
-   reserved so nothing shoves the page up and down as the phrases change. */
-.ld .hero .tail {
-  margin: 8px 0 0; min-height: 1.02em;
-  font-size: clamp(25px,3.25vw,47px); line-height: 1.02; letter-spacing: -.026em; text-wrap: balance;
-  font-variation-settings: "wdth" 116, "wght" 760; color: var(--bone);
-}
-@media (max-width: 470px) { .ld .hero .tail { min-height: calc(1.02em * 2); } }
-/* Below ~340px even the condensed tail runs out of column. One
+/* Below ~340px even the condensed headline runs out of column. One
    old-iPhone-SE width, one line. */
 @media (max-width: 340px) { .ld .disp.xl { font-size: 34px; } }
-.ld .caret { display: inline-block; width: .055em; height: .72em; margin-left: .05em; background: var(--ac); vertical-align: -.04em; animation: ld-blink 1.05s steps(1) infinite; }
-@keyframes ld-blink { 0%,49% { opacity: 1; } 50%,100% { opacity: 0; } }
 .ld .hero .lede { margin-top: 26px; }
 .ld .hero .ctas { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; margin-top: 34px; }
+
+/* ── THE ROTATION, 2026-09-08 ─────────────────────────────────────────
+   The typewriter tail and its blinking caret were here until this item and
+   are GONE, along with `#tw` in the markup and the five phrases it typed.
+   They were doing a smaller version of this job — one line changing under
+   a fixed headline — and running both would have been two things rotating
+   past each other. `thread.js` already guards on `id("tw")` being absent
+   ("no hero on this page", written for /pricing), so its typewriter simply
+   never starts; nothing there needed changing.
+
+   ONE GRID CELL, THREE PANES. Not absolute positioning: the tallest pane
+   sets the column's height, so the fold does not move when a longer
+   sentence comes round. Absolute would collapse the parent to nothing and
+   put the whole page's scroll height on a six-second timer. */
+.ld .hpanes { display: grid; }
+.ld .hpane {
+  grid-area: 1 / 1;
+  /* NO TRAVEL ON THE TEXT PANE. It used to slide 12px and fade, which the
+     owner called *"basic"* — and with the headline retyping underneath it,
+     a simultaneous slide is a second animation arguing with the first.
+     The type is the transition; this only hides the pane that is leaving. */
+  opacity: 0; visibility: hidden;
+  transition: opacity 140ms linear, visibility 0s linear 140ms;
+}
+/* `visibility` rather than `display`, so the hidden panes still occupy the
+   cell and still set the height. And it is transitioned to `hidden` on a
+   DELAY equal to the fade — without that it snaps away on frame one and
+   the outgoing pane never fades at all. */
+.ld .hpane.on { opacity: 1; visibility: visible; transition-delay: 0s, 0s; }
+/* `min-height` HOLDS THE LINE WHILE IT IS STILL BEING WRITTEN. An empty
+   block collapses to nothing, so without this the lede and the buttons
+   under a retyping headline jump up and settle back down twice a cycle. */
+.ld .hpane .hline { display: block; min-height: .95em; }
+/* The blinking caret, back from the old tail line and now following the
+   headline as it writes itself. */
+.ld .caret {
+  display: inline-block; width: .055em; height: .72em; margin-left: .05em;
+  background: var(--ac); vertical-align: -.04em;
+  animation: ld-blink 1.05s steps(1) infinite;
+}
+@keyframes ld-blink { 0%,49% { opacity: 1; } 50%,100% { opacity: 0; } }
+.ld .hpane .lab { display: block; }
+
+/* THE TAB IS THE PROGRESS BAR. A separate indicator would be a second
+   thing to look at saying what this already says. */
+/* THREE ACROSS, OR THREE DOWN — never two and a stray. `flex-wrap` on a
+   148px basis gives 2+1 at 392, and the odd one out reads as a mistake
+   rather than as a row. Below 470 they are a list; above it they are a
+   strip. The width where they stop fitting is the width the nav's links
+   already give up at, so the page changes its mind in one place. */
+.ld .htabs { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin-top: clamp(28px,4vh,42px); }
+@media (max-width: 470px) { .ld .htabs { grid-template-columns: 1fr; } }
+.ld .htab {
+  position: relative; overflow: hidden; cursor: pointer;
+  text-align: left; font: inherit; font-size: 13.5px;
+  font-variation-settings: "wdth" 100, "wght" 600;
+  color: var(--fog); background: rgba(255,255,255,.022);
+  border: 0; box-shadow: inset 0 0 0 1px var(--line);
+  border-radius: var(--ld-r-inset); corner-shape: var(--ld-corner);
+  padding: 11px 14px 13px;
+  transition: color var(--t-hover) linear, box-shadow var(--t-hover) linear;
+}
+.ld .htab:hover { color: var(--bone-2); box-shadow: inset 0 0 0 1px var(--line-2); }
+.ld .htab[aria-selected="true"] { color: var(--bone); box-shadow: inset 0 0 0 1px var(--line-2); }
+.ld .htab-bar {
+  position: absolute; left: 0; bottom: 0; height: 2px; width: 100%;
+  background: var(--ac); transform: scaleX(0); transform-origin: left center;
+}
+.ld .htab[aria-selected="true"] .htab-bar { animation: ld-htab 4050ms linear forwards;   /* the full cycle: ~650 type + 3000 hold + ~300 erase + 120 */ }
+/* Steered: the bar is a state, not a countdown. Filling it after autoplay
+   has stopped would promise a change that is no longer coming. */
+.ld .htab.held[aria-selected="true"] .htab-bar { animation: none; transform: scaleX(1); }
+@keyframes ld-htab { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+/* NO `@media (prefers-reduced-motion)` HERE, and that is a rule this file
+   states about itself at the top: `.lite` is put on <html> by main.jsx for
+   BOTH `?lite=1` and the media query, so a second implementation in this
+   sheet would be a fork that `?lite=1` could not reach. The lite rules for
+   this component live in the `.lite` block at the bottom of the file with
+   every other one. `tests/composition.test.mjs` § 9 fails on the query. */
+
+/* The visual column, stacked the same way and for the same reason. */
+.ld .hvis { display: grid; }
+.ld .hv {
+  grid-area: 1 / 1;
+  opacity: 0; visibility: hidden; transform: translate3d(0, 12px, 0);
+  transition: opacity var(--t-exit) var(--e-out),
+              transform var(--t-exit) var(--e-out),
+              visibility 0s linear var(--t-exit);
+}
+.ld .hv.on { opacity: 1; visibility: visible; transform: none; transition-delay: 0s, 0s, 0s; }
+
+/* 1 · the browser window */
+.ld .hbrow {
+  display: flex; align-items: center; gap: 12px; padding: 9px 12px;
+  background: var(--ink-3); border-radius: var(--ld-r-panel) var(--ld-r-panel) 0 0;
+  corner-shape: var(--ld-corner);
+}
+.ld .hbrow-d { display: flex; gap: 5px; }
+.ld .hbrow-d i { width: 7px; height: 7px; border-radius: 50%; background: var(--line-2); }
+.ld .hbrow-u {
+  flex: 1; text-align: center; font-size: 11px; color: var(--fog);
+  background: var(--ink-0); border-radius: 100px; padding: 4px 10px;
+}
+.ld .hshot { position: relative; overflow: hidden; }
+.ld .hshot img { display: block; width: 100%; height: auto; }
+.ld .hshot-t {
+  position: absolute; left: 14px; right: 14px; bottom: 12px;
+  text-shadow: 0 1px 12px rgba(0,0,0,.85);
+}
+/* The scrim, not a text-shadow alone: law 9 is measured, and white type
+   over a photograph is not a contrast figure anybody can compute. It goes
+   to FULL --ink-0 at the bottom and starts climbing at 30%, so the two
+   lines of type sit on a known colour rather than on whatever part of the
+   car is behind them — the image is only ~140px tall in this pane, and the
+   first draft's .86 floor left the business name over a lit body panel. */
+.ld .hshot::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(11,13,14,0) 30%, rgba(11,13,14,.72) 62%, var(--ink-0));
+}
+.ld .hshot-t { z-index: 1; }
+.ld .hstrip {
+  display: flex; justify-content: space-between; gap: 12px;
+  padding: 12px 15px; font-size: 13.5px; color: var(--bone-2);
+  background: var(--ink-1); box-shadow: inset 0 -1px 0 var(--line);
+}
+.ld .hstrip:last-child {
+  border-radius: 0 0 var(--ld-r-panel) var(--ld-r-panel);
+  corner-shape: var(--ld-corner); box-shadow: none;
+}
+
+/* 2 & 3 · THE FRAME. One treatment for all three panes, because the three
+   pictures are the same shape and giving each its own furniture would be
+   three ideas where the page needs one. No browser chrome: two of the three
+   are app screens, not web pages, and a title bar drawn round a dashboard
+   is a small lie.
+
+   THE SCALE-MODEL VERSION THAT WAS HERE IS GONE — a live 392px screen
+   scaled to .61. It was the more clever build and it was the worse one:
+   readable at a desk only if you leaned in, and unreadable on a phone. The
+   whole `.hphone` / `.hscreen` / `.uiscale` apparatus went with it, and so
+   did the `booking.css` import at the top of LandingPage.jsx. */
+.ld .hframe {
+  border-radius: var(--ld-r-panel); corner-shape: var(--ld-corner);
+  overflow: hidden; background: var(--ink-1);
+  box-shadow: inset 0 0 0 1px var(--line), 0 30px 70px -28px rgba(0,0,0,.9);
+  /* NEVER DRAWN LARGER THAN IT WAS CAPTURED, and drawn a little smaller on
+     purpose. The sources are 531, 443 and 530px wide; the column here is
+     ~566 at 1440, so at full width they were being shown at 1:1 CSS pixels,
+     which on any 2x screen is HALF resolution — that is the softness the
+     owner is seeing, and no amount of re-encoding fixes it because the
+     detail was never captured. Capping at 430 puts a 531px image into a
+     430px box, so it downsamples instead of upsampling and comes back
+     sharp. The real fix is 2x sources; this is what can be done without
+     them. */
+  max-width: 430px; margin-left: auto;
+}
+.ld .hframe img { display: block; width: 100%; height: auto; }
 
 /* The floating object. Pointer parallax on a fine pointer only: on a phone
    there is no cursor and a touch-driven tilt just fights the scroll. */
@@ -442,6 +618,13 @@
 .ld .wght-620 { font-variation-settings: "wght" 620; }
 @media (max-width: 900px) {
   .ld .hero .grid { grid-template-columns: 1fr; gap: 44px; }
+  /* CENTRED ONCE IT IS NO LONGER A COLUMN. `margin-left: auto` is what
+     pins the frame to the right of the visual column at a desk, where it
+     is correct — the hero is left-heavy and the object hangs off the right
+     edge. In one column there is no right edge to hang off, so the same
+     rule just shoved it against the screen. The owner spotted it on a
+     tablet. */
+  .ld .hframe { margin-inline: auto; }
   .ld .hero { padding-top: 116px; }
 }
 
@@ -859,6 +1042,46 @@
   background: radial-gradient(circle, rgba(56,224,139,.13), rgba(56,224,139,0) 62%);
 }
 .ld .end .wrap { position: relative; }
+
+/* ── THE CORNERS CARRY FACTS — borrowed from octolane.com ─────────────
+   The second half of move 5 on his list of five sites. Theirs sits tiny
+   monospace fragments in all four corners of an otherwise empty page, and
+   what makes it work is that they are FACTS rather than decoration: read
+   them and you know something you did not.
+
+   SO THESE ARE THE FOUR THINGS A DETAILER ASKS BEFORE SIGNING, in the
+   fewest words each will go into, and none of them is repeated anywhere
+   else on this section. No prices here on purpose — every figure on this
+   page comes from `pricing.js` through `P`, and a hard-coded number in a
+   decorative corner is exactly how that rule gets broken quietly.
+
+   HIDDEN BELOW 900px, because at one column there are no spare corners:
+   they would land on the headline. Decoration that has to fight for space
+   is not decoration. */
+.ld .end .corners { position: absolute; inset: 0; pointer-events: none; }
+.ld .end .corner {
+  position: absolute;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
+  line-height: 1.9; color: var(--fog);
+}
+.ld .end .corner b { color: var(--ac); font-weight: 400; }
+.ld .end .corner.tl { top: 22px; left: var(--gut); }
+.ld .end .corner.tr { top: 22px; right: var(--gut); text-align: right; }
+.ld .end .corner.bl { bottom: 22px; left: var(--gut); }
+.ld .end .corner.br { bottom: 22px; right: var(--gut); text-align: right; }
+/* THE CORNERS SURVIVE A PHONE NOW, rather than being switched off. Hiding
+   them was the lazy read of "there are no spare corners at this width" —
+   there are, the TEXT was simply too wide for two of them to share a line.
+   8.5px with the tracking pulled in and a 46% cap on each fits all four
+   inside 392 with room to spare, and the section's own padding (126px top,
+   101px bottom at that width) already keeps them clear of the headline and
+   the buttons. Measured, not assumed. */
+@media (max-width: 900px) {
+  .ld .end .corner { font-size: 8.5px; letter-spacing: .1em; line-height: 1.75; max-width: 46%; }
+  .ld .end .corner.tl, .ld .end .corner.tr { top: 16px; }
+  .ld .end .corner.bl, .ld .end .corner.br { bottom: 16px; }
+}
 .ld .end .disp { font-size: clamp(32px,5.4vw,70px); }
 .ld .end .lede { margin-inline: auto; margin-top: 22px; color: var(--bone-2); }
 .ld .end .ctas { display: flex; flex-wrap: wrap; gap: 18px 26px; justify-content: center; align-items: center; margin-top: clamp(30px,5vh,44px); }
@@ -867,13 +1090,352 @@
 .ld .softlink .ar { transition: transform var(--t-hover) var(--e-out); }
 .ld .softlink:hover .ar { transform: translateX(3px); }
 
-/* ═══ THE LITE PATH ═══════════════════════════════════════════════════
-   One class on <html>, set in app/src/main.jsx by ?lite=1, by
-   prefers-reduced-motion, and by this page's own load-timeout safety net.
-   It puts every entrance into its end state using the SAME CSS the
-   animation targets, so it cannot drift out of sync with the animation it
-   replaces. A landing page that hides its own copy is worse than one that
-   does not animate. */
+
+/* ═══ 2b. THE FIGURES — three numbers, counted up ════════════════════
+   voiceflow.com's move. Ruled, not boxed: three cards here would be the
+   evenly-spaced trio the never-defaults ban, and the rule between them
+   says "three of one thing" just as well for the price of a hairline.
+   The figures are monospaced because law 8 says every figure on this page
+   is, and because a number that changes width as it counts makes the
+   whole row twitch. */
+.ld .figs { padding: clamp(56px,9vh,104px) 0 clamp(10px,2vh,24px); }
+.ld .fig3 {
+  display: grid; grid-template-columns: repeat(3, minmax(0,1fr));
+  border-top: 1px solid var(--line);
+}
+.ld .fig3-i { padding: clamp(26px,4vh,40px) clamp(16px,2.4vw,34px) clamp(26px,4vh,40px) 0; }
+.ld .fig3-i + .fig3-i { border-left: 1px solid var(--line); padding-left: clamp(20px,2.6vw,38px); }
+.ld .fig3-n {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: clamp(38px,5.4vw,72px); line-height: 1; letter-spacing: -.03em;
+  color: var(--bone); font-variant-numeric: tabular-nums;
+}
+.ld .fig3-c { margin-top: 14px; color: var(--fog); font-size: 14.5px; line-height: 1.5; max-width: 30ch; }
+/* One column below the split. Three 72px figures do not fit across a
+   phone, and shrinking them to fit is how a headline figure stops being
+   one. */
+@media (max-width: 760px) {
+  .ld .fig3 { grid-template-columns: 1fr; }
+  .ld .fig3-i { padding: 22px 0; }
+  .ld .fig3-i + .fig3-i { border-left: 0; border-top: 1px solid var(--line); padding-left: 0; }
+  .ld .fig3-n { font-size: 46px; }
+  .ld .fig3-c { max-width: none; }
+}
+
+/* ═══ 3b. THE WALL — three rows of real screens, always moving ══════
+   pryzm.design's move, on the second attempt. The first was a static grid
+   with a 58-second nudge, and it read as a photograph of a wall: the owner
+   asked for it to be *"constantly scrolling"*, more spread out, hover-
+   responsive, rounded, and mixed in size — and for the copy to sit OVER
+   the field rather than in a section of its own.
+
+   WHAT WAS MEASURED OFF THEIR PAGE, not remembered: 14px corners; four
+   tile widths (175/195/215/235) across three aspects (4:3, 1:1, 3:4); the
+   whole field transformed as one layer. Ours varies size the cheaper way —
+   a fixed row height with tiles sized by their own aspect — so a landscape
+   site shot comes out ~1.9x the width of a portrait phone shot with no
+   per-tile bookkeeping, and the three row heights differ as well.
+
+   NO SECTION FURNITURE. No border, no ground of its own, no padding that
+   announces a band — the rows bleed off both edges and the page's own
+   ground shows between them, which is what "integrated into the
+   background" has to mean if it is to mean anything. */
+.ld .wall {
+  position: relative;
+  padding: clamp(70px,11vh,124px) 0 clamp(56px,9vh,100px);
+  isolation: isolate;
+  /* MIN-HEIGHT, BECAUSE THE ROWS ARE ABSOLUTE AND CANNOT PUSH IT OPEN.
+     196 + 248 + 168 plus two gaps is ~680px of rows against a section the
+     copy only made ~444 tall, so the top row was cut off mid-tile and the
+     field read as clipped rather than as continuing. The grid centres the
+     copy in whatever height wins. */
+  min-height: clamp(600px, 80vh, 860px);
+  display: grid; align-content: center;
+}
+.ld .wallrows {
+  position: absolute; inset: 0; z-index: 0;
+  display: flex; flex-direction: column; justify-content: center;
+  gap: clamp(18px,2.6vw,34px);
+  overflow: hidden;
+  /* The rows fade out at both ends so they read as continuing past the
+     screen rather than as three strips that were laid down. */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+}
+.ld .wrow { overflow: hidden; }
+/* Three heights, so the field has a horizon rather than a rule. */
+.ld .wrow.r1 { --rh: 196px; }
+.ld .wrow.r2 { --rh: 248px; }
+.ld .wrow.r3 { --rh: 168px; }
+.ld .wtrack {
+  display: flex; width: max-content;
+  gap: clamp(18px,2.6vw,34px);
+  animation: ld-slide var(--dur, 96s) linear infinite;
+  will-change: transform;
+}
+.ld .wrow[data-rev] .wtrack { animation-direction: reverse; }
+/* EXACTLY -50%, because each track holds the nine TWICE. Any other figure
+   and the loop visibly jumps once a minute — which is the sort of defect
+   nobody catches in a screenshot. */
+@keyframes ld-slide { from { transform: translate3d(0,0,0); } to { transform: translate3d(-50%,0,0); } }
+/* Hover stops the row, so a tile can actually be looked at. */
+.ld .wrow:hover .wtrack, .ld .wrow:focus-within .wtrack { animation-play-state: paused; }
+
+.ld .wt {
+  margin: 0; position: relative; flex: none; overflow: hidden;
+  height: var(--rh);
+  border-radius: var(--ld-r-panel); corner-shape: var(--ld-corner);
+  box-shadow: inset 0 0 0 1px var(--line);
+  background: var(--ink-1);
+  transition: transform var(--t-hover) var(--e-out),
+              box-shadow var(--t-hover) linear,
+              filter var(--t-hover) linear;
+  filter: saturate(.92) brightness(.86);
+}
+/* The tile answers the pointer: forward, brighter, lit at the edge. Small
+   numbers on purpose — this is a field of dozens, and a 1.08 scale on one
+   of them shoves its neighbours out of the way. */
+.ld .wt:hover {
+  transform: translate3d(0,-5px,0) scale(1.025);
+  filter: none;
+  box-shadow: inset 0 0 0 1px var(--line-2), 0 22px 44px -18px rgba(0,0,0,.86);
+  z-index: 1;
+}
+.ld .wt img { display: block; height: 100%; width: auto; }
+.ld .wt figcaption {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 20px 11px 8px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 9px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--bone); opacity: 0;
+  background: linear-gradient(180deg, rgba(11,13,14,0), rgba(11,13,14,.9));
+  transition: opacity var(--t-hover) linear;
+}
+.ld .wt:hover figcaption { opacity: 1; }
+
+/* The copy, over the field, with its own pool of dark under it. */
+.ld .wallcopy { position: relative; z-index: 1; }
+/* THE POOL HAS TO BE DARK ENOUGH TO READ ON, and the first attempt was
+   not: at .82 in the middle the tiles behind the headline were still
+   legible through it, which makes both harder to read than either alone.
+   Wider, deeper, and reaching further left so the eyebrow is inside it —
+   that label sat on a tile edge and was the least readable thing on the
+   page. */
+.ld .wallcopy::before {
+  content: ""; position: absolute; z-index: -1;
+  inset: -26% -12% -30% -40%;
+  background: radial-gradient(66% 74% at 30% 50%,
+              rgba(11,13,14,.985), rgba(11,13,14,.94) 42%,
+              rgba(11,13,14,.62) 68%, rgba(11,13,14,0) 88%);
+}
+.ld .wallcopy .disp { font-size: clamp(30px,4.6vw,58px); }
+.ld .wallcopy .lede { margin-top: 20px; max-width: 40ch; }
+
+@media (max-width: 900px) {
+  .ld .wrow.r1 { --rh: 150px; }
+  .ld .wrow.r2 { --rh: 188px; }
+  .ld .wrow.r3 { --rh: 132px; }
+  /* The scrim has to cover the whole width once the copy does. */
+  .ld .wallcopy::before { inset: -12% -40% -16% -40%;
+    background: radial-gradient(84% 58% at 50% 50%, rgba(11,13,14,.97), rgba(11,13,14,.86) 52%, rgba(11,13,14,.34) 92%); }
+}
+@media (max-width: 560px) {
+  .ld .wrow.r1 { --rh: 124px; }
+  .ld .wrow.r2 { --rh: 152px; }
+  .ld .wrow.r3 { --rh: 110px; }
+  /* 80vh of section for 422px of rows left ~250px of bare ground under
+     them on a phone. The rows are what the section is; the height follows
+     them rather than the viewport. */
+  .ld .wall { min-height: 0; padding: clamp(56px,8vh,90px) 0 clamp(44px,6vh,72px); }
+  .ld .wallrows { position: relative; inset: auto; margin: 0 calc(-1 * var(--gut)); }
+  .ld .wallcopy { margin-top: clamp(-190px, -22vh, -140px); }
+}
+
+/* ═══ 4b. THE FIGURE — the cut-out, built into the band ═══════════════
+   Roadmap-less, 2026-09-09, at the owner's ask. The photograph is used
+   WHOLE: its own transparency is the only edge in the section, and its
+   bottom sits flush with the band's bottom so the man stands on the
+   boundary instead of being cut by a rectangle we chose. There is no
+   mask on him anywhere — the version before this one faded him on a
+   diagonal and he called it *"really horrible"*, and he is right that a
+   straight line drawn across a person is the most obvious tell there is.
+
+   THE DEPTH IS THE POINT, and it is three layers deep:
+       z 1  the headline's last line, and the card behind his shoulder
+       z 2  the man
+       z 3  the two cards over his forearm
+   Take away the middle layer and this is a photo beside some text. */
+.ld .figband {
+  position: relative;
+  padding: clamp(56px,7vh,92px) 0 0;   /* no bottom padding: he reaches it */
+  overflow: hidden;
+}
+/* The pool of light he stands in. A RADIAL shadow, not a mask — the
+   distinction the owner drew: softening the GROUND under a figure is
+   depth, softening the FIGURE is a crop you are trying to hide. */
+.ld .figband::before {
+  content: ""; position: absolute; z-index: 0; pointer-events: none;
+  right: 0; bottom: -8%; width: 62%; height: 58%;
+  background: radial-gradient(52% 50% at 62% 62%, rgba(56,224,139,.10), rgba(56,224,139,0) 70%),
+              radial-gradient(46% 40% at 58% 96%, rgba(0,0,0,.55), rgba(0,0,0,0) 72%);
+}
+/* ONE CELL, NOT TWO COLUMNS. Two columns cannot overlap, and overlap is
+   the only reason to use a cut-out at all — side by side, this is a photo
+   next to some text and the transparency has bought nothing. Both children
+   sit in the same grid area and the widths are set so they meet in the
+   middle: the copy runs to 62%, the figure starts at 46%, and the 16% they
+   share is where the words pass behind him. */
+.ld .figgrid { position: relative; z-index: 1; display: grid; }
+.ld .figgrid > * { grid-area: 1 / 1; }
+.ld .figcopy {
+  position: relative; z-index: 1;
+  width: 54%; align-self: end;
+  padding-bottom: clamp(56px,8vh,96px);
+}
+/* THE RULES ARE WHAT GOES BEHIND HIM, NOT THE WORDS. The first attempt
+   overlapped the headline and ate the "ce" off "office" — which broke the
+   rule written three comments above this one: a sentence you cannot finish
+   reading is not a design. A hairline disappearing behind a person says the
+   same thing about depth and costs nothing, so the list is wider than its
+   column and its labels stay hard left where they are always legible.
+   132% of 54% is ~71% of the wrap, which reaches ~19% past where he starts. */
+.ld .figlist { margin-top: clamp(26px,4vh,40px); width: 132%; }
+.ld .figrow {
+  display: flex; align-items: baseline; justify-content: flex-start; gap: 16px;
+  padding: 14px 0; border-top: 1px solid var(--line);
+  font-size: 15.5px; color: var(--bone-2);
+}
+.ld .figrow:last-child { border-bottom: 1px solid var(--line); }
+.ld .figrow .mono { color: var(--fog-2); font-size: 12.5px; }
+
+.ld .figman { position: relative; align-self: end; width: 48%; margin-left: 52%; }
+
+/* ── THE SECTION ANSWERS THE SCROLL, AND UNDOES ITSELF GOING BACK UP ──
+   His ask, 2026-09-09: *"figure out an animation that happens when you
+   scroll down and then scroll back up."*
+
+   THE CARDS COME OUT FROM BEHIND HIM. That is the one move a cut-out can
+   make that a photograph cannot, so it is the one this section makes: at
+   the start of the band all four are gathered on his body, small and
+   nearly transparent; as it crosses the screen they travel out to their
+   places and settle. He grows about 4% from a bottom-pinned origin as they
+   go, which reads as him stepping forward.
+
+   REVERSIBLE BY CONSTRUCTION, NOT BY A SECOND ANIMATION. `--fp` is a
+   POSITION, computed from where the band sits in the viewport (law 5), so
+   scrolling back up runs the whole thing backwards for free. A time-based
+   version would need an exit animation, and would then need to decide what
+   to do when somebody scrolls up in the middle of it.
+
+   IT COMPOSES WITH THE PARALLAX RATHER THAN FIGHTING IT. Each card still
+   carries `data-parallax`, which sets `--py`; that term is added inside
+   this transform instead of on a wrapper, because two rules setting
+   `transform` on one element is the older of the two bugs this page has
+   already had.
+
+   DEFAULT `--fp: 1`, SET LOWER BY SCRIPT — never the other way round. The
+   finished state is what a page with no JavaScript, a failed script or a
+   crawler gets; parking the cards at opacity .08 in the stylesheet would
+   mean one thrown error hides half the section for ever. */
+.ld .figband { --fp: 1; }
+.ld .figwin {
+  transform-origin: 50% 100%;
+  transform: scale(calc(1.07 - .07 * var(--fp, 1)));
+  /* Origin at the bottom on purpose: his feet stay welded to the band's
+     bottom edge at every value, so the scale can never open a gap under
+     him and put page ground where his legs were. */
+}
+.ld .figcard {
+  --gx: 0px; --gy: 0px;
+  opacity: calc(.08 + .92 * var(--fp, 1));
+  transform:
+    translate3d(calc((1 - var(--fp, 1)) * var(--gx)),
+                calc((1 - var(--fp, 1)) * var(--gy) + var(--py, 0px)), 0)
+    scale(calc(.93 + .07 * var(--fp, 1)));
+}
+/* Each one's gathering point is toward his torso, so they converge on the
+   person rather than on the middle of the box. */
+.ld .figcard.back { --gx: 132px;  --gy: 48px; }
+.ld .figcard.next { --gx: -128px; --gy: 36px; }
+.ld .figcard.pay  { --gx: 152px;  --gy: 14px; }
+.ld .figcard.done { --gx: 118px;  --gy: -28px; }
+
+/* `block` + `bottom: 0` and nothing else. The image is not cropped, not
+   masked and not framed; every edge you can see is the man's own. */
+/* CROPPED TO THE BELT LINE, his ask: *"if he can actually crop into his
+   waist, into his belt line, I think that looked better and it frees up
+   some space."* The waistband sits at about y=1330 of 1672, so the window
+   is 941x1330 and the picture hangs out of the bottom of it.
+
+   THIS IS NOT THE HARD EDGE HE OBJECTED TO, and the difference is worth
+   keeping straight: the cut he called bad ran across his HAT, mid-picture,
+   with page visible under it. This one lands exactly on the band's bottom
+   edge, so what reads is a man standing behind the boundary rather than a
+   photograph with a slice taken out of it. */
+.ld .figwin { position: relative; z-index: 2; overflow: hidden; aspect-ratio: 941 / 1330; }
+.ld .figimg {
+  display: block; position: absolute; top: 0; left: 0;
+  width: 100%; height: auto; margin-bottom: -1px;
+  /* -1px: a subpixel row of the page's ground was showing under him at
+     some widths, which drew exactly the horizontal line this section
+     exists to avoid. */
+}
+.ld .figcard {
+  position: absolute;
+  border-radius: var(--ld-r-inset); corner-shape: var(--ld-corner);
+  padding: 12px 15px;
+  background: linear-gradient(150deg, rgba(30,35,39,.96), rgba(17,20,23,.96));
+  box-shadow: inset 0 0 0 1px var(--line-2), 0 18px 40px -16px rgba(0,0,0,.8);
+  backdrop-filter: blur(3px);
+}
+.ld .figcard-t { font-size: 14px; font-variation-settings: "wdth" 100, "wght" 620; }
+.ld .figcard-s { display: block; color: var(--fog); font-size: 12px; margin-top: 3px; }
+/* THE BACK CARD DOES NOT WRAP — it is MEANT to run out of sight behind
+   him, and a card that reflows to three lines instead has stopped being
+   partly hidden and started being badly fitted. Nowrap plus a width wider
+   than the gap means the sentence ends behind a person, which reads as
+   depth; ending at a clip edge reads as a bug. */
+.ld .figcard.back  { z-index: 1; left: -4%;  top: 12%;  width: 268px;
+                     white-space: nowrap; overflow: hidden; }
+.ld .figcard.front { z-index: 3; }
+.ld .figcard.pay   { left: -12%; top: 47%; width: 210px; }
+/* ON HIS RIGHT — his note: *"add one or something to the right side of the
+   guy, because they're on the left currently of the guy's back, just to
+   balance it out."* It sits BEHIND him like the booking card, so the pair
+   of back-layer cards brackets him and the two front ones do not all hang
+   off one shoulder. */
+/* `left: auto` IS THE WHOLE FIX, and it is not obvious: this card also
+   carries `.back`, which sets `left: -4%`. An absolutely positioned box
+   given a width, a left AND a right resolves by keeping `left` and
+   dropping `right` in a left-to-right document — so the "balancing" card
+   sat on the same side as the other three and balanced nothing. */
+.ld .figcard.next  { z-index: 1; left: auto; right: -9%; top: 34%; width: 208px;
+                     white-space: nowrap; overflow: hidden; }
+.ld .figcard.done  { left: 6%;  top: 70%; display: flex; align-items: center; gap: 10px; }
+.ld .figcard .tick {
+  display: grid; place-items: center; width: 22px; height: 22px; flex: none;
+  border-radius: 50%; background: var(--ac); color: #04150C; font-size: 13px;
+}
+
+/* Below the split the man goes UNDER the words rather than beside them:
+   at one column there is no "beside". He keeps his full width and the
+   copy sits on top of the empty half of the picture, which is the one
+   place text can overlap him without landing on his back. */
+@media (max-width: 900px) {
+  .ld .figgrid { display: block; }
+  .ld .figcopy { width: auto; padding-bottom: 0; }
+  .ld .figlist { width: auto; }
+  .ld .figman { width: min(420px, 92%); margin: -22px auto 0; }
+  .ld .figcard.back { left: -2%; top: 8%; width: min(252px, 78%); }
+  .ld .figcard.pay  { left: -4%; top: 46%; width: min(196px, 58%); }
+  .ld .figcard.done { left: 2%; top: 70%; }
+  .ld .figcard.next { left: auto; right: -2%; top: 30%; width: min(196px, 60%); }
+}
+@media (max-width: 470px) {
+  .ld .figcard { padding: 10px 12px; }
+  .ld .figcard-t { font-size: 12.5px; }
+  .ld .figcard-s { font-size: 11px; }
+}
+
 .lite .ld [data-rv] { opacity: 1 !important; transform: none !important; transition: none !important; }
 .lite .ld .mask > span { transform: none !important; transition: none !important; }
 .lite .ld .ground b { animation: none !important; opacity: .8 !important; }
@@ -888,6 +1450,25 @@
 .lite .ld .float, .lite .ld .widget-hold { transform: none !important; }
 .lite .ld .vsrow { --rp: 1; }
 .lite .ld .end::before { transform: translateX(-50%); opacity: 1; }
+/* THE HERO ROTATION, LITE. The panes still SWAP — the tabs are a control
+   and a control that does nothing is broken, not calm — they just swap
+   without travelling or fading. The timer is what lite actually stops, and
+   it is stopped in the component, which reads the same `.lite` class rather
+   than asking matchMedia a second time. The bar is shown full because in
+   lite there is no countdown for it to be counting. */
+.lite .ld .hpane, .lite .ld .hv { transition: none !important; transform: none !important; }
+.lite .ld .htab-bar { animation: none !important; transform: scaleX(1) !important; }
+/* The caret only exists while something is typing, and in lite nothing
+   types — the component writes the headline out whole. Hidden anyway, so a
+   blink cannot survive a code path nobody expected. */
+.lite .ld .caret { display: none !important; }
+/* The wall holds still in lite. It keeps its tiles — they are content, not
+   an effect — and only the travel stops. */
+.lite .ld .wtrack { animation: none !important; }
+/* Lite keeps the plain CSS lattice: `thread.js` never starts the canvas
+   under `.lite`, and this is the belt to that braces. */
+.lite .ld .ground .dotfield { display: none !important; }
+.lite .ld .ground .dots { display: block !important; }
 
 /* ══ /pricing ═════════════════════════════════════════════════════════
    ROADMAP 2.20 STAGE 2. The second `.ld` page, and it shares this file

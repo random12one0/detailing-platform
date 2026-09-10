@@ -35,7 +35,7 @@
 export const EXAMPLES = [
   ["/ex1", "Prime Mobile Detailing", "A big photo up top. Three pages.", "photo"],
   ["/ex2", "Delgado Mobile Detailing", "Dark, with the work drawn out step by step.", "move"],
-  ["/ex3", "Ballantyne Mobile Detailing", "The whole price list on the page. Three colours to pick from.", "facts"],
+  ["/ex3", "Ballantyne Mobile Detailing", "The whole price list on the page. Three colors to pick from.", "facts"],
   ["/ex4", "Kinzie Mobile Detailing", "Light and papery. A real before-and-after slider.", "light"],
   ["/ex5", "Tampa Bay Auto Detail", "One huge photo and one loud red.", "dark"],
 ];
@@ -45,7 +45,7 @@ export const EXAMPLES = [
 // nothing (docs/tenant-site-research-2026-09-10.md § 2a). Ten and nine: enough
 // to find the answer in, few enough to read.
 export const LIKED = [
-  "The whole look", "The colours", "The photos", "The layout",
+  "The whole look", "The colors", "The photos", "The layout",
   "The wording", "How it moves", "Easy to read", "Looks expensive",
   "Feels local", "Straight to the point",
 ];
@@ -156,46 +156,46 @@ export const STEPS = [
 
   { key: "you", name: "You", title: "You",
     qs: [
-      q("A1", "The name as it should appear on the site — punctuation and all", "text"),
+      q("A1", "The name as it should appear on the site — punctuation and all", "text", null, false, { req: true }),
       q("A2", "For the About page: how you started, and how long you have been at it", "long"),
       q("A5", "Your face and name on the site?", "one",
-        ["Face and name", "Name only", "Neither"]),
+        ["Face and name", "Name only", "Neither"], true),
     ] },
 
   { key: "work", name: "Your work", title: "What you do, and where",
     qs: [
       q("A3", "What should the site say makes you different from the detailer three towns over?", "long"),
-      q("A4", "Which towns should the site say you cover?", "long"),
+      q("A4", "Which towns should the site say you cover?", "long", null, false, { req: true }),
       q("A8", "What should someone be able to do on the first screen?", "one",
-        ["Book", "Ring you", "Get a quote", "See prices", "See your work"], true),
+        ["Book", "Ring you", "Get a quote", "See prices", "See your work"], true, { req: true }),
     ] },
 
   { key: "promise", name: "Promises", title: "What the site can promise",
     lede: "Leave one blank and the site says nothing about it.",
     qs: [
-      q("A6", "Can the site say you are insured?", "one", ["Yes", "Not yet", "In progress"], false, { says: says("A6") }),
+      q("A6", "Can the site say you are insured?", "one", ["Yes", "Not yet", "In progress"], true, { req: true, says: says("A6") }),
       q("A7", "What guarantee should the site make?", "long", null, false, { starters: starters("A7") }),
-      q("A12", "Anything the site must never say?", "long"),
+      q("A12", "Anything the site must never say?", "long", null, false, { req: true }),
     ] },
 
   { key: "show", name: "Photos and prices", title: "Photos and prices",
     qs: [
-      q("A10", "Photos of your work, for the site", "photos"),
+      q("A10", "Photos of your work, for the site", "photos", null, false, { req: true }),
       q("A9", "Should prices be on the site?", "one",
-        ["Yes, all of them", "A “from” price", "No, quote on request"]),
+        ["Yes, all of them", "A “from” price", "No, quote on request"], true, { req: true }),
     ] },
 
   { key: "feel", name: "Look", kind: "either", title: "How it should look",
     qs: [
       q("H6", "Should the site read serious and premium, or friendly and local?", "one",
-        ["Serious and premium", "Friendly and local", "Somewhere between"], true),
-      q("H5", "Colours for the site", "colour"),
+        ["Serious and premium", "Friendly and local", "Somewhere between"], true, { req: true }),
+      q("H5", "Colors for the site", "color", null, false, { req: true }),
       q("H7", "Any wording the site has to use word for word?", "long"),
     ] },
 
   { key: "where", name: "Where", title: "Where you work",
     qs: [
-      q("B3", "Does the site need an address people can drive to?", "one", ["Yes", "No, I go to them", "Both"]),
+      q("B3", "Does the site need an address people can drive to?", "one", ["Yes", "No, I go to them", "Both"], true),
       q("B4", "What should the site tell people to have ready?", "many",
         ["Outdoor tap", "Power socket", "A driveway", "Shade", "A parking space", "Nothing, I carry it all"], true),
       q("B2", "What should the site say about travel charges?", "text"),
@@ -203,9 +203,9 @@ export const STEPS = [
         ["Flat or condo car parks", "Public streets", "Multi-storey car parks", "None of these are a problem"], true),
       q("B6", "Any local rules the site should mention?", "long"),
       q("B8", "How soon should the site suggest you can come out?", "one",
-        ["Same day", "A few days", "A week or two", "A month or more", "It swings"], false, { says: says("B8") }),
+        ["Same day", "A few days", "A week or two", "A month or more", "It swings"], true, { says: says("B8") }),
       q("B7", "Should the site have a section for businesses — dealerships, fleets, offices?", "one",
-        ["Yes", "No", "I'd like to"]),
+        ["Yes", "No", "I'd like to"], true),
     ] },
 
   { key: "jobs", name: "The jobs", title: "The work itself",
@@ -219,21 +219,21 @@ export const STEPS = [
       q("C6", "Should the site offer a quote as well as a price?", "one", ["Yes", "No"], false, { says: says("C6") }),
       q("C4", "Should the site name the products you use?", "text"),
       q("C7", "How loud should your monthly plans be?", "one",
-        ["Front and centre", "Mentioned", "Quiet", "I don't offer them"]),
+        ["Front and centre", "Mentioned", "Quiet", "I don't offer them"], true),
       q("C8", "So the site does not over-promise: full-time, or alongside another job?", "one",
-        ["Full-time", "Part-time", "Weekends"]),
+        ["Full-time", "Part-time", "Weekends"], true),
     ] },
 
   { key: "proof", name: "Proof", title: "Proof",
     qs: [
-      q("D1", "Will the photos on the site be yours?", "one", ["All mine", "Mostly mine", "Some are stock"]),
+      q("D1", "Will the photos on the site be yours?", "one", ["All mine", "Mostly mine", "Some are stock"], true),
       q("D2", "A wrapped van or signed truck the site could show?", "one",
-        ["Yes", "No", "Not yet"]),
+        ["Yes", "No", "Not yet"], true),
       q("D3", "What rating and how many reviews should the site show?", "text"),
       q("D4", "How should the site credit a review?", "one",
-        ["First name and initial", "First name only", "Anonymous", "Don't use them"], false, { says: says("D4") }),
+        ["First name and initial", "First name only", "Anonymous", "Don't use them"], true, { says: says("D4") }),
       q("D5", "Certifications the site should show?", "long"),
-      q("D6", "Video for the site?", "one", ["Yes, plenty", "A bit", "None"]),
+      q("D6", "Video for the site?", "one", ["Yes, plenty", "A bit", "None"], true),
       q("D7", "Any press or local mentions the site should carry?", "long"),
     ] },
 
@@ -248,7 +248,7 @@ export const STEPS = [
       q("E6", "Which of these should the site say you will work on?", "many",
         ["Brand-new", "Leases", "Wraps", "PPF", "Matte paint", "None of these"], true),
       q("E5", "Minimum charge, if the site should show one", "text"),
-      q("E7", "A licence or permit number the site has to display?", "text"),
+      q("E7", "A license or permit number the site has to display?", "text"),
     ] },
 
   { key: "money", name: "Money", title: "Money",
@@ -256,10 +256,10 @@ export const STEPS = [
       q("F1", "What should the site say your cancellation policy is?", "long", null, false, { starters: starters("F1") }),
       q("F2", "And what it says about a no-show", "long", null, false, { starters: starters("F2") }),
       q("F3", "Which ways to pay should the site list?", "many",
-        ["Card", "Cash", "Venmo", "Zelle", "Cash App", "PayPal", "Invoice", "Cheque"], true),
+        ["Card", "Cash", "Venmo", "Zelle", "Cash App", "PayPal", "Invoice", "Check"], true),
       q("F6", "Which discounts should the site advertise?", "many",
         ["Military", "First responder", "Senior", "Student", "Repeat customer", "None"], true),
-      q("F5", "Should the site sell gift cards?", "one", ["Yes", "No", "At Christmas"], false, { says: says("F5") }),
+      q("F5", "Should the site sell gift cards?", "one", ["Yes", "No", "At Christmas"], true, { says: says("F5") }),
     ] },
 
   { key: "reach", name: "Contact", title: "How people reach you",
@@ -268,14 +268,14 @@ export const STEPS = [
       // POINT AT THE PAGE INSTEAD OF READING A LABEL. A chip that says
       // "Footer only" is a description of a place; this is the place.
       q("G2", "Where on the page should the number go?", "place", ["top", "hero", "foot"]),
-      q("G4", "Should the site invite text messages?", "one", ["Yes", "No", "Only after booking"], false, { says: says("G4") }),
+      q("G4", "Should the site invite text messages?", "one", ["Yes", "No", "Only after booking"], true, { says: says("G4") }),
       q("G5", "What should the site promise about how fast you reply?", "one",
-        ["Within the hour", "Same day", "Within a day", "When I can"], false, { says: says("G5") }),
-      q("G3", "Should the site show your email?", "one", ["Yes", "No"]),
-      q("G7", "Should the site have a contact form as well as booking?", "one", ["Yes", "No"]),
+        ["Within the hour", "Same day", "Within a day", "When I can"], true, { says: says("G5") }),
+      q("G3", "Should the site show your email?", "one", ["Yes", "No"], true),
+      q("G7", "Should the site have a contact form as well as booking?", "one", ["Yes", "No"], true),
       q("G6", "Which socials should the site link — and which should it leave off?", "long"),
       q("G8", "Should the site be in Spanish too?", "one",
-        ["No", "Whole site", "Booking part only"]),
+        ["No", "Whole site", "Booking part only"], true),
     ] },
 
   { key: "launch", name: "Launch", title: "Things that hold a launch up",
@@ -284,9 +284,9 @@ export const STEPS = [
       q("I2", "If not, what should the address be?", "text"),
       q("I3", "Is there a site now — what is wrong with it, and who controls it?", "long"),
       q("I7", "Have you got a logo for it?", "one",
-        ["A vector file (.ai .svg .eps)", "A PNG or JPG", "A photo of one", "No logo"]),
-      q("I4", "Is there a business email on that address?", "one", ["Yes", "No", "Don't know"]),
-      q("I5", "Is your Google Business Profile claimed and verified?", "one", ["Yes", "No", "Don't know"]),
+        ["A vector file (.ai .svg .eps)", "A PNG or JPG", "A photo of one", "No logo"], true),
+      q("I4", "Is there a business email on that address?", "one", ["Yes", "No", "Don't know"], true),
+      q("I5", "Is your Google Business Profile claimed and verified?", "one", ["Yes", "No", "Don't know"], true),
       q("I8", "Anything already written the site could use? Flyer text, an Instagram bio.", "long"),
       q("I9", "Anyone else who has to approve the site?", "text"),
     ] },
@@ -297,8 +297,9 @@ export const STEPS = [
         ["Word of mouth", "Instagram", "Google", "Facebook", "A sign on the van", "Ads"], true),
       q("J2", "What should the site bring you more of?", "long"),
       q("J4", "Any season the site should push?", "long"),
-      q("J3", "Will you send ads to the site?", "one", ["Yes", "No", "I've tried"]),
-      q("J5", "Should the site collect email addresses?", "one", ["Yes", "No", "Maybe later"]),
+      q("J3", "Will you send ads to the site?", "one", ["Yes", "No", "I've tried"], true),
+      q("J5", "Should the site ask people to sign up for offers and reminders?", "one",
+        ["Yes", "No", "Maybe later"], true),
     ] },
 
   { key: "end", name: "Anything else", kind: "end", title: "Anything else",
@@ -326,7 +327,7 @@ export const ALL = STEPS.flatMap((s) => [
   ...(s.qs ?? []),
 ]);
 
-const answered = (v) => {
+export const answered = (v) => {
   if (Array.isArray(v)) return v.length > 0;
   if (v && typeof v === "object") return Object.keys(v).length > 0 && !!(v.verdict || v.chips?.length || v.note);
   return !!(v && String(v).trim());

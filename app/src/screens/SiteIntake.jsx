@@ -24,22 +24,54 @@
 // nothing, writes nothing, needs no session, renders outside BusinessProvider
 // — so every context read tolerates there being no provider above it.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ExternalLink, X, Check, Plus, Trash2, Mic } from "lucide-react";
+import { ChevronLeft, ExternalLink, X, Check, Plus, Trash2, Mic, Globe } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { addPhoto } from "../lib/photos.js";
-import { DISLIKED, EITHER, LIKED, STEPS, intakeProgress } from "../lib/siteIntake.js";
+import { DISLIKED, EITHER, LIKED, STEPS, answered, intakeProgress } from "../lib/siteIntake.js";
 import { t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 
-// A little drawn page, four bars, shown until the real one loads. Not a
-// screenshot: nothing is downloaded and the six kinds are guaranteed to look
-// plainly unalike.
+// A REAL LITTLE PAGE, NOT A DIAGRAM OF ONE.
+//
+// **This replaced four grey bars, and the four grey bars were his complaint:**
+// *"All of these — moves as you scroll, the card fills the screen, words and
+// numbers lead — should be better examples rather than just these empty boxes
+// and dashes that you can't really tell what it is. They should be more actual
+// examples, so we could create our own designs that fit those examples."*
+//
+// He is right and the reason is simple: **a diagram cannot answer a question
+// about how something looks.** Bars have no typeface, no photograph, no price
+// and no motion, so "moves as you scroll" was being asked with a picture that
+// could not move and "the car fills the screen" with a picture that had no car.
+//
+// So every option is now a page with real type, a real photograph, a real
+// headline and a real price — the same content in all six, because the ONLY
+// thing that may differ between two options is the thing being asked about.
+// Change the content as well and a detailer is choosing between two businesses
+// rather than between two designs.
+//
+// **`move` genuinely moves and `still` genuinely does not** — the pan and the
+// rise are real animations, on an infinite loop, so the difference survives
+// somebody just looking at the screen. Both stop under `.lite`, like every
+// other animation in this product; the degradation rule is one code path and
+// this does not get a second one.
+const SAMPLE_PHOTO = "/img/tenant-site-hero.jpg";
+
 function Mini({ kind }) {
-  const dark = kind !== "light" && kind !== "facts";
   return (
-    <div className={`mini ${dark ? "dark" : "light"} mini-${kind}`} aria-hidden="true">
-      <i className="mini-ph" /><i className="mini-b b1" /><i className="mini-b b2" /><i className="mini-b ac" />
+    <div className={`samp samp-${kind}`} aria-hidden="true">
+      <div className="samp-bar"><b>PRIME</b><span>Work</span><span>Prices</span></div>
+      <div className="samp-hero">
+        <img src={SAMPLE_PHOTO} alt="" />
+        <h4>Mobile detailing<br />across North Seattle</h4>
+      </div>
+      <div className="samp-body">
+        <div className="samp-row"><span>Full detail</span><b>$235</b></div>
+        <div className="samp-row"><span>Express wash</span><b>$65</b></div>
+        <div className="samp-row"><span>Ceramic coating</span><b>$1,200</b></div>
+      </div>
+      <div className="samp-cta">Book</div>
     </div>
   );
 }
@@ -161,10 +193,16 @@ function PlacePicker({ value, set, options }) {
           </button>
         ))}
       </div>
-      <button type="button" className={`chip placenone${value === "none" ? " active" : ""}`}
-        aria-pressed={value === "none"} onClick={() => set(value === "none" ? "" : "none")}>
-        {t("Not on the site at all")}
-      </button>
+      <div className="row wrap" style={{ gap: 6, marginTop: 10 }}>
+        <button type="button" className={`chip${value === "none" ? " active" : ""}`}
+          aria-pressed={value === "none"} onClick={() => set(value === "none" ? "" : "none")}>
+          {t("Not on the site at all")}
+        </button>
+        <button type="button" className={`chip${value === "other" ? " active" : ""}`}
+          aria-pressed={value === "other"} onClick={() => set(value === "other" ? "" : "other")}>
+          {t("Other")}
+        </button>
+      </div>
     </div>
   );
 }
@@ -178,6 +216,12 @@ function Question({ q, a, set }) {
   const otherKey = `${q.id}::other`;
   const other = a[otherKey];
   const [showOther, setShowOther] = useState(!!other);
+  // HIS IDEA, 2026-09-10: *"a button that says, you know, the website answers
+  // this question."* It only appears once they have given us their old
+  // address on the first screen — offered without one it would be a button
+  // pointing at nothing. It counts as answered, because it is an answer: the
+  // information exists and we know where to get it.
+  const onWeb = a[`${q.id}::web`] === true;
 
   const chip = (o, on, onClick) => (
     <button key={o} type="button" className={`chip ${on ? "active" : ""}`} aria-pressed={on} onClick={onClick}>
@@ -186,8 +230,20 @@ function Question({ q, a, set }) {
   );
 
   return (
-    <div className="card"><div className="thoughts">
-      <h3 className="qtext">{t(q.question)}</h3>
+    <div className={`card${onWeb ? " onweb" : ""}`}><div className="thoughts">
+      <h3 className="qtext">
+        {t(q.question)}
+        {q.req && <span className="req" title={t("Needed")}>*</span>}
+      </h3>
+
+      {a.oldsite?.trim() && (
+        <button type="button" className={`chip webchip${onWeb ? " active" : ""}`}
+          aria-pressed={onWeb} onClick={() => set(`${q.id}::web`, onWeb ? "" : true)}>
+          <Globe size={13} strokeWidth={2} /> {t("It is on my website")}
+        </button>
+      )}
+
+      {!onWeb && (<>
 
       {q.type === "text" && (
         <input type="text" className="intakeinput" aria-label={t(q.question)}
@@ -230,7 +286,7 @@ function Question({ q, a, set }) {
         </>
       )}
 
-      {q.type === "colour" && <Colours value={v} set={(x) => set(q.id, x)} />}
+      {q.type === "color" && <Colours value={v} set={(x) => set(q.id, x)} />}
       {q.type === "photos" && <Photos value={v} set={(x) => set(q.id, x)} />}
 
       {/* WHAT THE ANSWER WILL SAY OUT LOUD. Only on questions whose answer
@@ -242,11 +298,12 @@ function Question({ q, a, set }) {
       {q.says && v && !Array.isArray(v) && (
         <p className="willsay">{t("On your site:")} <b>{t(q.says(v))}</b></p>
       )}
+      </>)}
     </div></div>
   );
 }
 
-/* ── colours: a picker, a hex box, and as many as they have ─────────────── */
+/* ── colors: a picker, a hex box, and as many as they have ──────────────── */
 // A COLOUR IS NOT A MULTIPLE-CHOICE QUESTION. His note: *"there should be some
 // more interactive elements — a colour picker, a place to upload exact hexes,
 // and multiple colours."* Both halves are the same value: the native swatch is
@@ -260,7 +317,7 @@ function Colours({ value, set }) {
     <div className="colours">
       {list.map((c, n) => (
         <div className="colourrow" key={n}>
-          <input type="color" aria-label={t("Colour {n}", { n: n + 1 })}
+          <input type="color" aria-label={t("Color {n}", { n: n + 1 })}
             value={HEX.test(c) ? (c.startsWith("#") ? c : `#${c}`) : "#000000"}
             onChange={(e) => put(n, e.target.value)} />
           <input type="text" className="intakeinput" aria-label={t("Hex code")}
@@ -272,7 +329,7 @@ function Colours({ value, set }) {
         </div>
       ))}
       <button type="button" className="btn sm" onClick={() => set(list.concat([""]))}>
-        <Plus size={14} strokeWidth={2.4} /> {list.length ? t("Another colour") : t("Add a colour")}
+        <Plus size={14} strokeWidth={2.4} /> {list.length ? t("Another color") : t("Add a color")}
       </button>
     </div>
   );
@@ -373,6 +430,15 @@ function LookStep({ site, value, set }) {
 
   return (
     <>
+      {/* WHAT TO DO WITH IT, BECAUSE "here is a website, do you like it" is
+          not a task. His note: *"it should be like, here's an example website
+          we made, look through it, analyse things you like about it and don't
+          like, and then report below."* A detailer handed a page with two
+          buttons under it answers in two seconds and tells us nothing; one
+          who is told to go and look at it comes back with something. */}
+      <p className="quiet">
+        {t("A site we built. Open it, scroll it, click around. Then say what you liked and what you did not.")}
+      </p>
       <p className="quiet">{t(site.note)}</p>
 
       <div className="sitecard" ref={box}
@@ -563,9 +629,33 @@ export default function SiteIntake({ onClose, preview = false }) {
 
   const step = STEPS[i];
   const last = i === STEPS.length - 1;
-  // The one step with a bar: he asked for it to be required, and a disabled
-  // Continue beside a live Skip says "we want this" without trapping anybody.
-  const sitesEmpty = step.kind === "sites" && !(a.others ?? []).some((r) => r.url?.trim());
+
+  // WHAT THIS STEP STILL NEEDS BEFORE IT WILL LET GO.
+  //
+  // **Required is new and it is his call, 2026-09-10** — his example was the
+  // colours: *"I think that should be required to at least have one colour
+  // that they choose."* The test I applied to the rest: **could we build the
+  // site without it, or would we be guessing at something the detailer would
+  // recognise as wrong the moment they saw it?** Nine questions pass, plus a
+  // verdict on each of the five example sites, which he asked for by name:
+  // *"have that be required for every single website."*
+  //
+  // **A required question can still be answered "it is on my website"** — that
+  // is an answer, not a dodge: the information exists and we know where it is.
+  //
+  // The other 64 stay optional. A form that demands all 73 gets none of them.
+  const need = (() => {
+    if (step.kind === "look") {
+      return (a[`look${step.site.n}`] ?? {}).verdict ? [] : [t("Say whether you like it.")];
+    }
+    if (step.kind === "sites") {
+      return (a.others ?? []).some((r) => r.url?.trim()) ? [] : [t("Add at least one website.")];
+    }
+    return (step.qs ?? [])
+      .filter((x) => x.req && a[`${x.id}::web`] !== true && !answered(a[x.id]))
+      .map((x) => t(x.question));
+  })();
+  const blocked = need.length > 0;
 
   return (
     <div className="group setupform intake">
@@ -629,16 +719,7 @@ export default function SiteIntake({ onClose, preview = false }) {
             set={(x) => set(`look${step.site.n}`, x)} />
         )}
 
-        {step.kind === "sites" && (
-          <>
-            <SitesStep value={a.others} set={(x) => set("others", x)} />
-            {/* A DEAD BUTTON WITH NO REASON IS A BUG, even when the button is
-                meant to be dead. He asked for this step to be required, so
-                Continue waits — but it says what it is waiting for, and Skip
-                stays live, because nothing in this form traps anybody. */}
-            {sitesEmpty && <p className="quiet">{t("Add one, or skip.")}</p>}
-          </>
-        )}
+        {step.kind === "sites" && <SitesStep value={a.others} set={(x) => set("others", x)} />}
 
         {step.kind === "either" && EITHER.map(([id, question, left, right]) => (
           <div className="card" key={id}><div className="thoughts">
@@ -663,11 +744,26 @@ export default function SiteIntake({ onClose, preview = false }) {
         {err && <div className="error-box">{err}</div>}
       </div>
 
+      {/* A DEAD BUTTON WITH NO REASON IS A BUG, even when it is meant to be
+          dead. Continue waits, and this says exactly what it is waiting for. */}
+      {blocked && (
+        <p className="needline">
+          {step.kind === "look" || step.kind === "sites"
+            ? need[0]
+            : t("{n} still needed on this page.", { n: need.length })}
+        </p>
+      )}
+
       <div className="setupfoot">
-        <button className="btn" disabled={busy} onClick={() => (last ? onClose() : go(i + 1))}>
-          {last ? t("Finish later") : t("Skip")}
-        </button>
-        <button className="btn primary" disabled={busy || sitesEmpty}
+        {/* SKIP DISAPPEARS ON A STEP THAT REQUIRES SOMETHING, or "required"
+            means nothing. The close button is always there, so nobody is
+            trapped in the form — only in the step. */}
+        {!blocked && (
+          <button className="btn" disabled={busy} onClick={() => (last ? onClose() : go(i + 1))}>
+            {last ? t("Finish later") : t("Skip")}
+          </button>
+        )}
+        <button className="btn primary" disabled={busy || blocked}
           onClick={() => (last ? finish() : go(i + 1))}>
           {busy ? t("Saving…") : last ? t("Send it") : t("Continue")}
         </button>

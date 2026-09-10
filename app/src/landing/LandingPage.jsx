@@ -91,6 +91,135 @@ export default function LandingPage() {
     return () => window.removeEventListener("keydown", k);
   }, []);
 
+  /* ── THE HERO ROTATES, 2026-09-08 ────────────────────────────────────
+     The owner's note: the page reads as a wall of text and the first screen
+     is the worst of it, because the product is THREE things and the hero
+     had one screen to name all three. It named them in a list — "the site,
+     the booking page inside it, and the dashboard you run it from" — which
+     is a sentence about a product rather than a thing that happens to a
+     detailer.
+
+     So: one thing at a time, three times. Each pane is a SCENE, which is
+     the shape he signed off (five-moves § 07) — the reader has stood in it.
+     The visual changes with the words, because a hero that swaps its
+     headline over a fixed picture is a slideshow of captions.
+
+     LAW 4 IS NOT SPENT HERE. The pane change uses the reveal preset the
+     rest of the page already uses (`--t-reveal`, `--e-out`) at a shorter
+     scale; it is not a third motion. Law 2 is satisfied by it rather than
+     by anything new.
+
+     ROTATION STOPS THE MOMENT SOMEBODY STEERS. Autoplay that fights the
+     visitor is worse than no autoplay: they press *Your dashboard*, read
+     two lines, and the page takes it away from them. One press and it is
+     theirs; the pause control says so out loud for anybody reading with a
+     screen reader, which is why the label is a real button and not an icon.
+     Reduced motion never starts it at all. */
+  const HERO = [
+    {
+      k: "site",
+      tab: "Your website",
+      lab: "For detailers",
+      h: ["They look you up", "before they call."],
+      p: "What they find is either a Facebook page from four years ago, or your own site — your work, your prices, your name in the address bar.",
+      cta: "See it with your name on it",
+    },
+    {
+      k: "book",
+      tab: "Your booking page",
+      lab: "Built into that page",
+      h: ["Saturday", "fills itself."],
+      p: "They pick a service and a time on your own page, in the middle of the night, and it is on your calendar before you wake up.",
+      cta: "See how booking works",
+    },
+    {
+      k: "dash",
+      tab: "Your dashboard",
+      lab: "And the room behind it",
+      h: ["The whole day,", "in your pocket."],
+      p: "Who is booked, what you are owed, what you spent. Change a price at a red light and your site changes with it.",
+      cta: "Look inside the dashboard",
+    },
+  ];
+  /* THE WALL'S TILES, AS DATA. The headline counts them, so the number on
+     the page cannot drift from the number of pictures under it — this repo
+     has had four different stale counts written into prose, and a marketing
+     claim is a worse place for the fifth than a comment is.
+     EIGHTEEN, EACH USED ONCE. Nine was the first set and every row repeated
+     the same handful, which is the duplication the owner saw straight away.
+     All from ex1/ex2/ex3 — the older `example*` mock-ups are out, including
+     the orange one that kept catching the eye. */
+  const WALL = [
+    [["site-ex1-home", "A detailer's site"], ["book-5-time", "Picking a time"],
+     ["dash-today", "Today"], ["site-ex2-mid", "Services and prices"],
+     ["book-2-extras", "Adding extras"], ["dash-clients", "Their customers"]],
+    [["site-ex2-home", "A detailer's site"], ["book-1-service", "Choosing a service"],
+     ["dash-calendar", "The month"], ["site-ex3-prices", "Their prices"],
+     ["book-6-contact", "Their details"], ["site-ex1-work", "Their work"]],
+    [["site-ex3-home", "A detailer's site"], ["book-7-review", "Before they confirm"],
+     ["dash-money", "The money"], ["site-ex1-prices", "Their prices"],
+     ["book-3-vehicle", "Their vehicle"], ["book-4-where", "Where to go"]],
+  ];
+  const WALL_SPEED = ["46s", "58s", "40s"];
+
+  const [pane, setPane] = useState(0);
+  const [steered, setSteered] = useState(false);
+
+  /* THE HEADLINE WRITES ITSELF, RUBS ITSELF OUT, AND WRITES THE NEXT ONE.
+     The owner, 2026-09-09: *"the exact same animation as before, where it
+     writes it out and then unwrites it and then writes it back… the reverse
+     animation and then the animation again for the new text."*
+
+     THE FIRST VERSION ONLY DID HALF OF IT. It typed the incoming line, but
+     the outgoing one left with its pane, so there was no un-writing to
+     watch. That is why this is ONE state machine and not a timer beside a
+     typewriter: the erase has to FINISH before the pane may change, and two
+     independent timers cannot agree on when that is.
+
+         typing   chars climb to the end        17ms each
+         holding  the line sits still           2200ms — the part he reads
+         erasing  chars fall back to zero        9ms each; rubbing out is
+                                                 always quicker than writing
+         then, and only then, the pane advances and typing starts again.
+
+     THE PANE CHANGES AT ZERO CHARACTERS, which is what makes it read as one
+     movement rather than two: the label, the sentence and the picture all
+     cross-fade at the moment the headline is empty, so nothing is ever seen
+     changing underneath a written line.
+
+     `steered` parks the machine in `holding` — somebody who pressed a tab
+     wants to read that one, not watch it be erased. */
+  const [chars, setChars] = useState(0);
+  const [phase, setPhase] = useState("typing");
+  const total = HERO[pane].h.reduce((n, l) => n + l.length, 0);
+  const lite = typeof document !== "undefined"
+    && document.documentElement.classList.contains("lite");
+
+  useEffect(() => {
+    // `.lite` on <html> is main.jsx's single switch for BOTH `?lite=1` and
+    // reduced motion. In lite the line is simply present and nothing runs.
+    if (lite) { setChars(total); return; }
+    let t = 0;
+    if (phase === "typing") {
+      if (chars < total) t = setTimeout(() => setChars(chars + 1), chars === 0 ? 90 : 17);
+      else setPhase("holding");
+    } else if (phase === "holding") {
+      if (steered) return;
+      t = setTimeout(() => setPhase("erasing"), 3000);   // +800ms, his ask
+    } else {
+      if (chars > 0) t = setTimeout(() => setChars(chars - 1), 9);
+      else t = setTimeout(() => {
+        setPane((k) => (k + 1) % HERO.length);
+        setPhase("typing");
+      }, 120);                       // a beat of empty ground between the two
+    }
+    return () => clearTimeout(t);
+  }, [chars, phase, steered, total, lite, HERO.length]);
+
+  const typed = Math.min(chars, total);
+
+  const steer = (i) => { setPane(i); setSteered(true); setPhase("typing"); setChars(0); };
+
   return (
     <div className="ld">
       <Ground />
@@ -157,60 +286,152 @@ export default function LandingPage() {
         <section className="hero">
           <div className="wrap grid">
             <div>
-              <span className="lab" data-rv="">For detailers</span>
-              <h1 className="disp xl">
-                <span className="mask"><span>A real website</span></span>
-                <span className="mask"><span>for your detailing</span></span>
-                <span className="mask"><span>business.</span></span>
-              </h1>
-              <p className="tail" data-rv="" style={{ "--i": 1 }}>
-                <span id="tw"></span><i className="caret" aria-hidden="true"></i>
-              </p>
-              <p className="lede" data-rv="" style={{ "--i": 2 }}>
-                One build: the site your customers land on, the booking page
-                inside it, and the dashboard you run it from. Your services,
-                your prices, your hours.
-              </p>
-              <div className="ctas" data-rv="" style={{ "--i": 3 }}>
-                <a className="cta" href="/pricing" data-glow="">
-                  See it with your name on it<span className="ar">→</span>
-                </a>
-                <span className="fine">
-                  Built by a detailer who got tired<br />of booking jobs at 11pm.
-                </span>
+              {/* ALL THREE PANES ARE IN THE DOM AND STACKED IN ONE GRID CELL.
+                  The tallest sets the height, so the page below never moves
+                  as they swap — the failure the old typewriter line already
+                  reserved two lines to avoid, now applying to a whole block.
+                  `aria-live` is deliberately ABSENT: this rotates on a timer,
+                  and a live region that announces every six seconds talks
+                  over the person reading it. The tabs are the accessible
+                  route in, and they are real buttons. */}
+              <div className="hpanes">
+                {HERO.map((s, i) => (
+                  <div className={`hpane${i === pane ? " on" : ""}`} key={s.k}
+                       aria-hidden={i === pane ? undefined : true}>
+                    <span className="lab">{s.lab}</span>
+                    {/* Only the LIVE pane types; the other two hold their
+                        full text, which is what keeps the grid cell's height
+                        constant while a line is still being written. The
+                        caret sits after the last character typed so far, and
+                        goes when the line is finished. */}
+                    <h1 className="disp xl">
+                      {s.h.map((line, li) => {
+                        const before = s.h.slice(0, li).reduce((n, l) => n + l.length, 0);
+                        /* AN INACTIVE PANE'S HEADLINE IS EMPTY, NOT FULL,
+                           and that one word is the whole of his complaint:
+                           *"even though it disappears, it reappears in the
+                           last second just to fade out — this weird snappy
+                           thing."* The outgoing pane kept its FULL text
+                           while it faded, so the line you had just watched
+                           being rubbed out flashed back complete for the
+                           140ms of the cross-fade. Empty here means the
+                           headline is only ever written or erased — never
+                           faded — which is the separation he asked for,
+                           without a second element to keep in step. The
+                           `min-height` on `.hline` holds the two lines of
+                           space open, so nothing moves while it is blank. */
+                        const shown = i === pane ? line.slice(0, Math.max(0, typed - before)) : "";
+                        const writing = i === pane && typed > before && typed < before + line.length;
+                        return (
+                          <span className="hline" key={line}>
+                            {shown}
+                            {writing && <i className="caret" aria-hidden="true"></i>}
+                          </span>
+                        );
+                      })}
+                    </h1>
+                    <p className="lede">{s.p}</p>
+                    <div className="ctas">
+                      <a className="cta" href="/pricing" data-glow=""
+                         tabIndex={i === pane ? undefined : -1}>
+                        {s.cta}<span className="ar">→</span>
+                      </a>
+                      <span className="fine">
+                        Built by a detailer who got tired<br />of booking jobs at 11pm.
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* The tab strip doubles as the progress indicator — the fill
+                  IS the timer, so the page never runs a countdown the
+                  visitor cannot see. It stops being animated the moment
+                  somebody steers, because a bar that keeps filling after
+                  autoplay has stopped is lying about what happens next. */}
+              <div className="htabs" role="tablist" aria-label="What the product is">
+                {HERO.map((s, i) => (
+                  <button key={s.k} type="button" role="tab"
+                          className={`htab${steered ? " held" : ""}`}
+                          aria-selected={i === pane}
+                          onClick={() => steer(i)}>
+                    {s.tab}
+                    <i className="htab-bar" aria-hidden="true"></i>
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* The product doing its own selling: the same lit job card the
-                real dashboard uses, shown as a booking that arrived on its
-                own. The reveal lives on a WRAPPER, not on .float — .float
-                owns its own transform for the parallax and the two would
-                overwrite each other. */}
+            {/* THE VISUAL CHANGES WITH THE WORDS, and that is the whole
+                reason this is not a slideshow of captions. Three panes,
+                stacked in one grid cell like the text, so the column has one
+                height and the fold never moves.
+
+                Every one of them is the PRODUCT, never a photograph of a
+                car — law 10, and it is the distinction that survives this
+                rebuild unchanged: the photo inside pane one is a picture of
+                a CLIENT's website, which is what a detailer's site is made
+                of, and it is the only photograph on the page.
+
+                `aria-hidden` on all three: the words beside them already say
+                everything these draw, and a screen reader walking three
+                decorative mock-ups is three times the noise for none of the
+                meaning. The reveal sits on the WRAPPER, not on `.float` —
+                `.float` owns its own transform for the parallax and the two
+                would overwrite each other. */}
             <div data-rv="lift" style={{ "--i": 2 }}>
               <div className="float" data-parallax="18" aria-hidden="true">
-                <div className="litcard" data-tilt="">
-                  <span className="lab ac">New booking · just now</span>
-                  <div className="rowline" style={{ marginTop: 10 }}>
-                    <div>
-                      <div className="wght-620" style={{ fontSize: 17 }}>
-                        Saturday, 9:00 AM — Full Detail
-                      </div>
-                      <div style={{ color: "var(--fog)", fontSize: 13, marginTop: 3 }}>
-                        Marcus Hill · booked himself at 9:41 last night
-                      </div>
+                <div className="hvis">
+
+                  {/* THE OWNER'S OWN SCREENSHOTS, 2026-09-09.
+
+                      Two builds preceded this one and both were wrong, in
+                      opposite directions. First: hand-drawn mock-ups, which
+                      he called fake. Then: the REAL components rendered live
+                      and scaled down, which is the version that sounds right
+                      in a commit message and looked, in his words, *"pretty
+                      horrible… the booking page is just horrible, what even
+                      is that?"* — and he was right. A 392px screen shrunk to
+                      .61 is not the screen; the type goes to 8px, the touch
+                      targets go to nothing, and every proportion the real
+                      layout is built on stops holding.
+
+                      SO THE LESSON IS NOT "SCREENSHOTS BEAT COMPONENTS". It
+                      is that a MINIATURE OF A PHONE SCREEN IS UNREADABLE, and
+                      that a picture cropped to what actually matters beats
+                      both. His three are shot at roughly square, close in on
+                      the part worth seeing, and are legible at the size this
+                      column really is.
+
+                      What they cost is the thing I flagged before and it is
+                      still true: they go stale when the screens change. That
+                      is a real trade, made knowingly, and the fix when it
+                      comes due is four fresh screenshots — not a rebuild. */}
+
+                  {/* 1 · a real tenant site. */}
+                  <div className={`hv${pane === 0 ? " on" : ""}`}>
+                    <div className="hframe">
+                      <img src="/img/pane-site.webp" width="531" height="459"
+                           loading="lazy" decoding="async" alt="" />
                     </div>
-                    <div className="mono" style={{ fontSize: 24 }}>$240</div>
                   </div>
-                </div>
-                <div className="substack">
-                  <div className="plain rowline">
-                    <span style={{ color: "var(--fog)", fontSize: 14 }}>Sunday, 10:30 AM — Interior Reset</span>
-                    <span className="mono" style={{ fontSize: 15 }}>$120</span>
+
+                  {/* 2 · the real booking page, step 1 of 7. */}
+                  <div className={`hv${pane === 1 ? " on" : ""}`}>
+                    <div className="hframe">
+                      <img src="/img/pane-booking.webp" width="443" height="462"
+                           loading="lazy" decoding="async" alt="" />
+                    </div>
                   </div>
-                  <div className="plain rowline">
-                    <span style={{ color: "var(--fog)", fontSize: 14 }}>Monday, 8:00 AM — Express Wash</span>
-                    <span className="mono" style={{ fontSize: 15 }}>$65</span>
+
+                  {/* 3 · the real dashboard. */}
+                  <div className={`hv${pane === 2 ? " on" : ""}`}>
+                    <div className="hframe">
+                      <img src="/img/pane-dashboard.webp" width="530" height="500"
+                           loading="lazy" decoding="async" alt="" />
+                    </div>
                   </div>
+
                 </div>
               </div>
             </div>
@@ -285,6 +506,43 @@ export default function LandingPage() {
             <div className="cost" id="cost" aria-hidden="true">holds for 3.0 screens · then releases</div>
           </div>
         </div>
+
+        {/* ══ 2b · THE FIGURES ═══════════════════════════════════════════
+            BORROWED FROM voiceflow.com — three numbers that roll up from
+            zero as they arrive. A number is read in a glance; the sentence
+            it replaces takes four seconds, and this page's whole problem
+            is that it asks for too many of those four seconds.
+
+            EVERY ONE OF THESE IS ALREADY CLAIMED IN PROSE FURTHER DOWN.
+            That is the point: nothing new is being asserted, three of the
+            page's existing claims are just being said in the form people
+            actually read. Voiceflow's own version of this strip is
+            customer counts and message volumes, which we do not have and
+            will not invent — so ours are facts about the deal instead.
+
+            THE COUNTER IS THE PAGE'S OWN, `data-count` in thread.js, which
+            already drives the two prices in the pricing section. It starts
+            when the row reveals, so the numbers cannot run before anybody
+            is looking at them. */}
+        <section className="figs wrap" aria-label="What the deal is">
+          <div className="fig3" data-rv="" data-count-host="">
+            <div className="fig3-i">
+              <div className="fig3-n"><span data-count="0" data-suffix="%">0%</span></div>
+              <p className="fig3-c">Commission on every job you take. A fully
+                booked month costs the same as a slow one.</p>
+            </div>
+            <div className="fig3-i">
+              <div className="fig3-n"><span data-count="24" data-suffix="/7">24/7</span></div>
+              <p className="fig3-c">Your page keeps taking bookings while you
+                are under a car, or asleep.</p>
+            </div>
+            <div className="fig3-i">
+              <div className="fig3-n"><span data-count="3" data-suffix="">3</span></div>
+              <p className="fig3-c">The site, the booking page and the screen
+                you run both from. One build, one bill.</p>
+            </div>
+          </div>
+        </section>
 
         {/* ══ 3 · YOUR OWN WEBSITE ═══════════════════════════════════════
             The ground goes light and the object breaks the top edge of the
@@ -381,6 +639,122 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* ══ 3b · THE WALL ══════════════════════════════════════════════
+            BORROWED FROM pryzm.design, the last of the five. Theirs is a
+            slow-drifting field of their own work behind quiet type, and the
+            reason it works is that the work IS the argument — you do not
+            have to be told they are good at backgrounds.
+
+            OURS IS NINE REAL SCREENS, PHOTOGRAPHED FROM THE RUNNING
+            PRODUCT — not mock-ups, not stock, and not photographs of cars,
+            which law 10 keeps off this page because we sell software. Three
+            detailer sites we have actually built, three steps of the real
+            booking flow, three tabs of the real dashboard. Every one was
+            captured by driving the live app and cropping to the part that
+            sells; the recipe is a script, so refreshing the set is a run
+            rather than a design job.
+
+            WHICH NINE, AND WHY THOSE: the owner asked to prioritise what
+            earns the most marketing. Picking a time and the month view are
+            the two screens that answer "can it really handle my diary";
+            the three sites answer "will mine look generic"; Money and the
+            review step answer the two things detailers ask about last.
+            Deliberately NOT here: settings, empty states, and the five
+            other booking steps, which are the product being thorough
+            rather than the product being good. */}
+        <section className="wall" aria-labelledby="wallh">
+          {/* THREE ROWS THAT NEVER STOP MOVING, which is the correction to
+              the version before this: that one was a static grid with a
+              slow 58-second nudge, and the owner is right that it read as
+              a picture of a wall rather than a wall.
+
+              MEASURED OFF pryzm.design RATHER THAN REMEMBERED. Their tiles
+              are 14px-rounded and come in four widths (175/195/215/235)
+              across three aspects (4:3, 1:1, 3:4), and the whole field is
+              one transformed layer. What they do NOT do is auto-scroll —
+              theirs answers the pointer — but he asked for constant travel,
+              so this is their grammar on a marquee.
+
+              EACH ROW CARRIES THE NINE TWICE and slides exactly -50%, so
+              the loop closes on itself with no jump. The three rows run at
+              92s, 116s and 78s, the middle one reversed, and each shuffles
+              the nine into a different order — three rows at one speed in
+              one order is a grid that happens to be moving.
+
+              HOVER STOPS THE ROW IT IS IN. A tile that lifts while its own
+              row keeps sliding out from under the pointer is a thing you
+              cannot actually look at.
+
+              EIGHTEEN TILES, EACH USED EXACTLY ONCE ACROSS THE THREE ROWS.
+              The first set was nine, which meant every row repeated the
+              same handful and the duplicates were the first thing the owner
+              saw. Eighteen is enough that a tile's second appearance is its
+              loop copy, half a row away.
+
+              AND THEY ALL COME FROM ex1/ex2/ex3 NOW. The orange one that
+              kept catching the eye was `example4`, one of the older
+              mock-ups; the current three are the only sites in here, shot
+              at several points down each page — a hero, a prices table, a
+              work gallery — so one site yields three genuinely different
+              tiles rather than three copies of its own header. */}
+          <div className="wallrows" aria-hidden="true">
+            {WALL.map((row, i) => (
+              <div key={i} className={`wrow r${i + 1}`} data-rev={i === 1 ? "" : undefined}
+                   style={{ "--dur": WALL_SPEED[i] }}>
+                {/* THE NINE ARE LAID DOWN TWICE and the track slides exactly
+                    -50%, so the loop closes on itself with no jump. Any
+                    other figure and it stutters once a minute — a defect no
+                    screenshot ever catches. */}
+                <div className="wtrack">
+                  {[...row, ...row].map(([file, cap], j) => (
+                    <figure className="wt" key={`${file}-${j}`}>
+                      <img src={`/img/wall/${file}.webp`} loading="lazy" decoding="async" alt="" />
+                      <figcaption>{cap}</figcaption>
+                    </figure>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* OVER the field, not beside it. His note: *"text elements above
+              them, not like their own section, so they're more integrated
+              into the background."* The scrim is local to the words — a
+              soft pool behind this block only — so the screens either side
+              of it stay at full brightness and legible, which is the whole
+              reason they are here. */}
+          <div className="wrap wallcopy">
+            {/* THE COPY MAKES THE CLAIM; THE PICTURES ARE THE EVIDENCE.
+                It read the other way round until the owner caught it,
+                2026-09-09: *"Why is it just explaining what the pictures
+                are? It should be… advertising what we provide, not
+                advertising that I've prebuilt some stuff."* He is right,
+                and the eyebrow was the worst of it — "Already built" sold
+                OUR preparation, which is not a thing anybody is buying.
+
+                SO THE WALL IS NOW A WITNESS TO A SENTENCE ABOUT THE READER.
+                "Every one of these was built for one person" turns eighteen
+                screenshots from a list of contents into proof of the only
+                claim that matters here — that nothing is picked off a
+                shelf — and "yours will be too" is the turn that makes them
+                about him rather than about us.
+
+                AND THE COUNT IS GONE WITH IT. A number was the right fix
+                while the headline was a caption; a headline that no longer
+                counts anything cannot go stale at all, which is better. */}
+            <span className="lab" data-rv="">What gets built</span>
+            <h2 className="disp" id="wallh" style={{ marginTop: 12 }}>
+              <span className="mask"><span>Every one of these</span></span>
+              <span className="mask" style={{ "--i": 1 }}><span>was built for one person.</span></span>
+            </h2>
+            <p className="lede" data-rv="" style={{ "--i": 2 }}>
+              Yours will be too. A site designed around the work you actually
+              do, the booking page living inside it, and the screen you run
+              the week from — not a template with your name dropped into it.
+            </p>
+          </div>
+        </section>
+
         {/* ══ 4 · WHAT YOU GET ═══════════════════════════════════════════
             A full-width ruled list: an enumeration is a ruled list, and four
             parallel capabilities are not four objects you pick between.
@@ -432,6 +806,90 @@ export default function LandingPage() {
                 customers see changes the second you save it. No emailing a web
                 guy and waiting until Thursday.
               </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ══ 4b · THE FIGURE ════════════════════════════════════════════
+            THE OWNER'S CUT-OUT, BUILT INTO THE PAGE RATHER THAN PLACED ON
+            IT. His brief, 2026-09-09: *"I wanted it to be integrated into
+            the site so we could take advantage of the fact that he's cut
+            out — so we have text underneath him or overlaid, and things
+            going around him."*
+
+            FOUR RULES CAME OUT OF THE VERSION HE REJECTED, and they are
+            what this section is shaped by:
+
+            1. **NO CROP THROUGH HIS BODY.** The image is used WHOLE. Its
+               own alpha is the only edge: transparent above the hat, down
+               both sides, and his legs stop at the picture's bottom, which
+               is put flush with the band's bottom so he stands ON it.
+               Nothing is sliced, so nothing needs hiding.
+            2. **NO LINEAR FADE.** *"Don't do this kind of angled. Do a more
+               circular fade."* There is no fade at all here, which is
+               better than a good one — the only softening is a radial
+               shadow pooled under his feet, and that is a shadow, not a
+               mask.
+            3. **THE TEXT GOES BEHIND HIM.** That is the whole reason to
+               have a cut-out instead of a photograph, so the headline runs
+               under his arm on purpose. It is the LAST line that is
+               overlapped — never a first line and never the lede, because
+               a sentence you cannot finish reading is not a design.
+            4. **THINGS AROUND HIM.** Three real fragments of the product,
+               at three depths: one behind his shoulder, two in front. They
+               are the same components the dashboard uses. */}
+        <section className="figband" aria-labelledby="figh">
+          <div className="wrap figgrid">
+            <div className="figcopy">
+              <span className="lab" data-rv="">Where you actually work</span>
+              <h2 className="disp" id="figh" style={{ marginTop: 14 }}>
+                <span className="mask"><span>Your back office</span></span>
+                <span className="mask" style={{ "--i": 1 }}><span>fits in one hand.</span></span>
+              </h2>
+              <p className="lede" data-rv="" style={{ "--i": 2 }}>
+                Between two cars, in somebody&apos;s driveway, at a red light.
+                Mark a job done, take the money for it, move tomorrow&apos;s
+                booking — without going home first.
+              </p>
+              <div className="figlist" data-rv="" style={{ "--i": 3 }}>
+                <div className="figrow"><span>Take a card payment</span><span className="mono">on the driveway</span></div>
+                <div className="figrow"><span>Mark a job complete</span><span className="mono">one tap</span></div>
+                <div className="figrow"><span>Move a booking</span><span className="mono">they get told</span></div>
+              </div>
+            </div>
+
+            <div className="figman" aria-hidden="true">
+              {/* BEHIND HIM — the one card the figure overlaps, which is
+                  what sells the depth. Anything important would be a
+                  mistake here; this is the oldest of the three events and
+                  the one you are meant to read past. */}
+              <div className="figcard back" data-parallax="10">
+                <span className="lab ac">Booked · 9:41pm</span>
+                <div className="figcard-t">Sunday, 10:30 — Interior Reset</div>
+              </div>
+
+              <div className="figwin">
+                <img className="figimg" src="/img/detailer-phone.webp"
+                     width="941" height="1672" loading="lazy" decoding="async" alt="" />
+              </div>
+
+              {/* IN FRONT — pinned to his forearm and to the ground he
+                  stands on, so they read as the phone's own output rather
+                  than as page furniture. */}
+              {/* His right, behind him — the balancing card. */}
+              <div className="figcard back next" data-parallax="12">
+                <span className="lab">Tomorrow</span>
+                <div className="figcard-t">8:00 — Express Wash · $65</div>
+              </div>
+
+              <div className="figcard front pay" data-parallax="-16">
+                <div className="figcard-t">$95 · paid by card</div>
+                <span className="figcard-s">Marcus Hill · Wash &amp; Wax</span>
+              </div>
+              <div className="figcard front done" data-parallax="-8">
+                <span className="tick" aria-hidden="true">✓</span>
+                <div className="figcard-t">Marked complete</div>
+              </div>
             </div>
           </div>
         </section>
@@ -647,6 +1105,15 @@ export default function LandingPage() {
             end: centred everywhere is the tell, centred once against ten
             sections that are not is a full stop. */}
         <section className="end" aria-labelledby="endh">
+          {/* aria-hidden: every one of these four is said in full somewhere
+              above, and a screen reader reading the page's closing argument
+              should not have to walk four fragments of shorthand first. */}
+          <div className="corners" aria-hidden="true">
+            <span className="corner tl">// what it is<br />site <b>·</b> booking <b>·</b> dashboard</span>
+            <span className="corner tr">// commission<br /><b>0%</b> · always</span>
+            <span className="corner bl">// setup<br />no migration</span>
+            <span className="corner br">// cancel<br />any time · data is yours</span>
+          </div>
           <div className="wrap">
             <h2 className="disp" id="endh">
               <span className="mask"><span>Your next customer is</span></span>
@@ -689,7 +1156,15 @@ export function Ground() {
   return (
     <div className="ground" id="ground" aria-hidden="true">
       <b></b><b></b>
+      {/* TWO LATTICES, ONE SHOWN. `.dots` is the CSS one — a repeating
+          background drifting on the compositor, which is free and is what a
+          phone and the reduced-motion path keep. `#dotfield` is the canvas
+          that reacts to the pointer, and `thread.js` only turns it on for a
+          FINE pointer with motion allowed; when it does, it puts `.field` on
+          the ground and the CSS one hides. A phone has no cursor for dots to
+          avoid, so there is nothing to degrade to. */}
       <span className="dots"></span>
+      <canvas className="dotfield" id="dotfield"></canvas>
       <span className="cursor" id="cursorGlow"></span>
       <i></i>
     </div>

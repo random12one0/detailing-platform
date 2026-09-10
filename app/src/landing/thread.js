@@ -140,7 +140,13 @@ export function initThread() {
     function roll(el) {
       const to = +el.getAttribute("data-count");
       const pre = el.getAttribute("data-prefix") || "";
-      const final = pre + to.toLocaleString("en-US");
+      /* A SUFFIX, added 2026-09-09 for the figures band. The counter already
+         had a prefix for "$"; "%" and "/7" sit on the other side and there
+         was nowhere to put them. Two lines here beat a second counter — and
+         a second counter is how one of them ends up easing differently from
+         the other and nobody can say why. */
+      const suf = el.getAttribute("data-suffix") || "";
+      const final = pre + to.toLocaleString("en-US") + suf;
       el.style.display = "inline-block";
       el.style.minWidth = final.length + "ch";
       if (LITE) { el.textContent = final; return; }
@@ -154,7 +160,7 @@ export function initThread() {
         if (!t0) t0 = t;
         const p = Math.min(1, (t - t0) / 900);
         const e2 = 1 - Math.pow(1 - p, 3);            // decelerate into place
-        el.textContent = pre + Math.round(to * e2).toLocaleString("en-US");
+        el.textContent = pre + Math.round(to * e2).toLocaleString("en-US") + suf;
         if (p < 1) requestAnimationFrame(tick);
       });
     }
@@ -382,6 +388,37 @@ export function initThread() {
       });
     }
 
+    /* ── The figure's cards come out from behind him ──────────────────
+       One progress value for the whole band, eased, so the four cards and
+       the man himself share a single timeline instead of four. The window
+       is the band's own approach rather than the page's, so it behaves the
+       same on a tall viewport and a short one — and because it is derived
+       from POSITION, scrolling back up plays it backwards with no exit
+       animation to write and nothing to interrupt. */
+    const figband = document.querySelector(".ld .figband");
+    const figman = document.querySelector(".ld .figman");
+    if (figband && figman) {
+      addScrub(figband, (el, vh) => {
+        /* MEASURED OFF THE MAN, NOT OFF THE BAND — this is why the owner
+           could not see the animation at all. The band is ~1100px tall and
+           he stands at the BOTTOM of it, so a window keyed to the band's
+           top finished while he was still below the fold: by the time he
+           was on screen the cards had already arrived. The subject of an
+           animation has to be the thing it is measured against. */
+        const r = figman.getBoundingClientRect();
+        /* THE WINDOW OPENS AT 0.75 OF THE SCREEN, NOT AT THE BOTTOM EDGE.
+           Measured: the first version was 55% finished while the band's top
+           was still 735px down an 900px viewport — so the cards had all but
+           arrived before anybody had seen where they came from, and the
+           whole move was over off-screen. Starting the count once the band
+           has properly entered, and finishing it as its top reaches the top
+           of the screen, spends the animation on the part of the scroll the
+           reader is actually looking at it through. */
+        el.style.setProperty("--fp",
+          easeOut(clamp((vh * 0.95 - r.top) / (r.height * 1.15))).toFixed(3));
+      });
+    }
+
     /* ── The closing glow gathers ─────────────────────────────────────
        Over the section's own approach rather than over the whole page, so
        it is the same on a long page and a short one. */
@@ -573,6 +610,76 @@ export function initThread() {
          costs a frame of compositing and nothing else. */
       const ground = id("ground");
       const glow = id("cursorGlow");
+
+      /* ── THE DOTS GET OUT OF THE WAY ────────────────────────────────
+         The owner, 2026-09-09: *"the dots that are in the background, can
+         you have those animate based off of where the mouse is — they
+         could avoid it or attract to it."* They avoid it. Repelling reads
+         as the pointer having presence; attracting reads as a bug in a
+         layout, because dots collapsing into a heap looks like something
+         failed to lay out.
+
+         SAME LATTICE, SAME DRIFT, SAME COLOUR as the CSS version this
+         replaces — 46px spacing, 92px of travel every 8s, and the identical
+         rgba — so switching between the two is invisible except for the
+         part that moves. Getting any of those three wrong would make the
+         canvas look like a different texture on machines that get it.
+
+         COST, MEASURED RATHER THAN HOPED: ~1,150 dots at 1920x1080. They
+         are drawn as ONE path with one fill, not 1,150 fills, and the loop
+         is capped at ~45fps — the drift is slow enough that nobody can see
+         the difference and it leaves the frame budget to the scroll, which
+         is the thing on this page that must never stutter. */
+      const field = id("dotfield");
+      if (field) {
+        const fx = field.getContext("2d", { alpha: true });
+        const SP = 46, R = 165, PUSH = 22, DOT = 1.2;
+        let W = 0, H = 0, dpr = 1, mx = -9e9, my = -9e9, fraf = 0, last = 0;
+        const size = () => {
+          dpr = Math.min(2, window.devicePixelRatio || 1);
+          W = ground.clientWidth; H = ground.clientHeight;
+          field.width = Math.round(W * dpr); field.height = Math.round(H * dpr);
+          fx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        };
+        size();
+        ground.classList.add("field");
+        on(window, "resize", size);
+        on(window, "pointermove", (e) => { mx = e.clientX; my = e.clientY; }, { passive: true });
+        /* The pointer leaving takes the dots home rather than freezing them
+           mid-shove, which otherwise leaves a dent in the lattice for as
+           long as the tab is open. */
+        on(document, "pointerleave", () => { mx = -9e9; my = -9e9; }, { passive: true });
+
+        const paint = (now) => {
+          if (dead) return;
+          fraf = requestAnimationFrame(paint);
+          if (now - last < 22) return;                 // ~45fps
+          last = now;
+          const d = ((now / 8000) % 1) * SP * 2;       // matches @keyframes ld-dots
+          fx.clearRect(0, 0, W, H);
+          fx.fillStyle = "rgba(226,234,238,.075)";
+          fx.beginPath();
+          for (let y = -SP * 2; y < H + SP * 2; y += SP) {
+            for (let x = -SP * 2; x < W + SP * 2; x += SP) {
+              let px = x + d, py = y + d;
+              const ax = px - mx, ay = py - my;
+              const q = ax * ax + ay * ay;
+              if (q < R * R) {
+                const len = Math.sqrt(q) || 1;
+                const f = 1 - len / R;
+                const k = PUSH * f * f;                // eased, so the edge of
+                px += (ax / len) * k;                  // the field is not a ring
+                py += (ay / len) * k;
+              }
+              fx.moveTo(px + DOT, py);
+              fx.arc(px, py, DOT, 0, 6.283185);
+            }
+          }
+          fx.fill();
+        };
+        fraf = requestAnimationFrame(paint);
+        cleanup.push(() => cancelAnimationFrame(fraf));
+      }
       let gx = window.innerWidth / 2, gy = window.innerHeight / 2;
       let tx = gx, ty = gy, graf = 0;
       cleanup.push(() => cancelAnimationFrame(graf));
