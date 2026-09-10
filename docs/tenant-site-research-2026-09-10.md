@@ -21,121 +21,126 @@ to ask. §3 is what to build.**
 
 ## 1 · Real detailers' websites
 
-### 1a · Method, stated plainly so the numbers can be read correctly
+**REVISED 2026-09-10 (same day): the first pass covered ten sites and he was
+right that it was not enough. This is fifty-two.** The direction of every
+finding held; three of the numbers moved enough to matter, and they are
+flagged. The raw per-site answers are
+`docs/data/detailer-sites-2026-09-10.json` — **read the figures from there, or
+recompute them; do not quote a number from prose.**
 
-**Two different exercises, and they are not the same evidence.**
+### 1a · Method
 
-**BREADTH — 37 named businesses** catalogued from four 2026 roundups
-([Zarla](https://www.zarla.com/guides/auto-detailing-website-examples),
-[CyberOptik](https://www.cyberoptik.net/blog/best-auto-detailing-websites-success-secrets/),
-[Mojo](https://mojo-agency.com/auto-detailing-website-designs/), plus search
-results). Those are somebody else's description of a site, and one of the
-sources counts its own **templates** among its "examples" — six of Zarla's
-fifteen are Zarla templates, not businesses. Templates were excluded from
-every count below.
+**66 sites opened. 52 answered a fixed 14-point checklist. 12 were dead,
+hijacked or broken.** (Two more refused a non-browser request and are almost
+certainly fine for a person; they are excluded from both counts.)
 
-**DEPTH — 10 sites opened and inventoried first-hand** against one fixed
-14-point checklist, so the answers are comparable rather than anecdotal:
-Hyer Quality Detail, Chicago Auto Pros, Elite Detailing 918, Detail Mavericks
-ATX, StayKlean by Weekendz, Gorilla Auto Detailing, JJ Mobile Detail, NY Foam
-Kings **(8 loaded)** — plus two that did not:
+Candidates came from five 2026 roundups — Zarla, CyberOptik, Mojo, SquareStash
+and Anytime Digital. **Templates were excluded**: one roundup counts six of its
+own templates among its fifteen "examples", which is exactly how a survey of
+what detailers build ends up describing what an agency sells.
 
-- **wowautospa.com** — a site a 2026 roundup calls one of the best now
-  **301-redirects to an unrelated parked domain.** The business is gone or the
-  domain lapsed.
-- **hamiltonsautodetailing.com** — **broken TLS certificate.** A browser shows
-  a full-page security warning before anybody sees the site.
+**Every percentage below is over the 52 that loaded.** A dead site cannot have
+a rain policy and counting it as missing one would flatter the finding.
 
-**That is 2 of 10 dead or broken, on a hand-picked "best of" list, inside one
-year of publication.** It is the strongest argument in this document for the
-platform hosting the site rather than the detailer, and it is worth saying to a
-detailer in exactly those terms.
+### 1b · The 12 that were not there
 
-### 1b · What is on them — 8 sites, one checklist
+**This is 18% of everything opened, and every candidate came off a "best of"
+list published in the last year.**
 
-| | Have it | Don't |
+| What happened | How many |
+|---|---|
+| Domain gone, 404, or parked | 6 |
+| Broken or mismatched security certificate | 4 |
+| **Domain taken over by an online-gambling site** | 1 |
+| **Live business page with casino spam injected through it** | 1 |
+
+Two are worth naming because they are not the same as neglect. **Texas Mobile
+Detail's address now serves an Indonesian gambling site** — the domain lapsed
+and somebody bought the traffic. **Detail Kings' real page is still up and has
+been compromised**, with betting links threaded through the copy, which the
+owner may not know. And **Royal Auto Detailing is parked with a For Sale sign
+on it.**
+
+**This is the strongest argument in this document for us hosting a detailer's
+site, and it should be said to a detailer in those words:** one in six of the
+sites held up as the best in this trade last year cannot be opened today.
+
+### 1c · What is on the 52
+
+| | Have it | |
 |---|---|---|
-| **Service area named in place names** | **8 / 8** | 0 |
-| Some way to book or enquire online | 7 / 8 | 1 |
-| Customer testimonials on the page | 6 / 8 | 2 |
-| A star rating or review COUNT shown | 2 / 8 | 6 |
-| FAQ | 4 / 8 | 4 |
-| Certifications named | 4 / 8 | 4 |
-| **Prices** | **2 / 8** (1 exact, 1 "starting at") | **6 hidden** |
-| **Genuine before-and-after photographs** | **2 / 8** | **6** |
-| An owner's story | 1 / 8 | 7 |
-| **Insurance stated** | **1 / 8** | **7** |
-| A specific guarantee | 1 / 8 | 7 |
-| **What they need on arrival** (water, power, driveway) | **2 / 8** | 6 |
-| **Cancellation, deposit or no-show policy** | **0 / 8** | **8** |
-| **Rain policy** | **0 / 8** | **8** |
-| Any language other than English | **0 / 8** | 8 |
+| Service area named in place names | **49 / 52** | 94% |
+| A real booking flow *(29 online, 13 form only, 10 phone only)* | 42 / 52 | 81% |
+| FAQ | 23 / 52 | 44% |
+| A star rating or review **count** | 22 / 52 | 42% |
+| Certifications named | 20 / 52 | 38% |
+| An owner's story | 19 / 52 | 37% |
+| A specific guarantee | 19 / 52 | 37% |
+| **Genuine before-and-after photographs** | **17 / 52** | **33%** |
+| **Prices shown at all** *(11 "from", 3 exact)* | **14 / 52** | **27%** |
+| What they need on arrival | 12 / 52 | 23% |
+| **Insurance stated** | **10 / 52** | **19%** |
+| **Cancellation, deposit or no-show policy** | **7 / 52** | **13%** |
+| **Rain policy** | **1 / 52** | **2%** |
 
-### 1c · The five findings that change what we build
+**Two composites, which say more than any single row:**
 
-**(1) THE MOST-RECOMMENDED THING IS THE MOST-MISSING THING.** Every one of the
-four roundups calls before-and-after photographs *"the single highest-impact
-content element on a detailing site."* **Six of eight sites do not have any.**
-They have finished-car photography, often stock. So the gap is not knowledge —
-detailers are told this constantly — it is that **nobody has made supplying
-them easy.** A form that asks *"can you supply before-and-afters?"* gets a yes
-and no photographs. The upload has to be its own screen, on a phone, resumable,
-and it should be the thing we chase.
+- **20 of 52 (38%) have NONE of the five** — no insurance, no guarantee, no
+  policy, no rain, no arrival requirements. Over a third of detailing websites
+  make no commitment and set no expectation about anything.
+- **3 of 52 (6%) do all three of the things every guide asks for** — real
+  before-and-afters, a review count, and a visible price. **Doing all three
+  puts a detailer in the top 6% of the trade.**
 
-**(2) PRICES ARE HIDDEN THREE TIMES MORE OFTEN THAN THEY ARE SHOWN — and the
-advice says the opposite.** Six of eight hide them; every roundup says
-transparent pricing converts better. Both can be true: the shops hiding prices
-are selling ceramic and correction work that genuinely cannot be quoted
-unseen. **This vindicates making it a QUESTION rather than a policy** — which
-is what the intake now does (A9) — and the three answers seen in the wild are
-exactly the three offered: all of them, a *from* price, or quote on request.
+### 1d · What moved from the ten-site pass, and what did not
 
-**(3) FOUR THINGS ARE MISSING FROM NEARLY EVERY SITE, AND EVERY ONE OF THEM IS
-A REASON A CUSTOMER HESITATES OR AN ARGUMENT HAPPENS IN A DRIVEWAY.** Nobody
-publishes a cancellation policy (0/8). Nobody publishes a rain policy (0/8).
-Almost nobody says they are insured (1/8) or what they need when they arrive
-(2/8). **These are free differentiators.** A detailer whose site answers all
-four looks more professional than 90% of the trade at a cost of four sentences,
-and our intake already asks for all four (F1, E3, A6, B4). **They were added on
-judgement; this survey is the evidence.**
+**Held:** before-and-afters missing from most sites; prices hidden far more
+often than shown; the service area near-universal; cancellation and rain
+policies essentially absent; nobody in a second language.
 
-**(4) THE SERVICE AREA IS THE ONLY UNIVERSAL.** 8/8, always as a list of place
-names, often twenty of them. It is what people search. Any template that treats
-the service area as a footnote is wrong for this trade.
+**Moved:**
 
-**(5) A REVIEW COUNT BEATS TESTIMONIALS AND ALMOST NOBODY DOES IT.** Six sites
-print testimonials; only two print a rating or a count. The roundups
-consistently single out the ones that do — *"1000+ 5-star Google reviews"*,
-*"150+ 5-star reviews"*, *"5.0 — trusted by 500+ customers"* — as the strongest
-trust device on the page. **We already store reviews, so this is a template
-decision, not a question.**
+- **Before-and-afters: 25% → 33%.** Still only a third, still the biggest
+  single gap, but not as catastrophic as ten sites suggested.
+- **Booking: 88% → 81% have some online path, and one in five is phone-only.**
+  The small operators the first pass under-sampled are the phone-only ones.
+- **Insurance 12% → 19%, guarantees 12% → 37%.** The first ten were unusually
+  silent. **A guarantee is common; saying you are insured is not** — 37%
+  against 19% — which is the more useful pair of numbers, because it means a
+  detailer volunteering insurance stands out more than one promising a redo.
 
-### 1d · What the good ones do that the others do not
+### 1e · The five findings that change what we build
 
-Worth having as a menu the detailer can point at, because these are the
-concrete, nameable things:
+**(1) THE MOST-RECOMMENDED THING IS THE MOST-MISSING THING.** Every roundup
+calls before-and-after photographs *"the single highest-impact content element
+on a detailing site."* **Two thirds of sites do not have any.** The gap is not
+knowledge — detailers are told this constantly — it is that **nobody has made
+supplying them easy.** A question in a form gets a yes and no photographs. The
+upload has to be its own screen, on a phone, resumable, and it is what we
+should chase.
 
-- **Vehicle-size price ladders** (Detail Mavericks: coupe $150, and up) — lets
-  the customer qualify themselves.
-- **A deposit to book** rather than payment in full (Sydney Detail Studio: 20%).
-- **Objection-handlers in the NAVIGATION**, not the footer — A-Plus Tint puts
-  *0% financing*, *free loaner* and *military discount* in the top bar.
-- **A dedicated page per marque or model** where it matters — three sites have
-  Tesla/EV sections; one has a Cybertruck specialist page.
-- **The result photographed at macro** — water beading on a coated panel, a
-  polished headlight — instead of a whole clean car.
-- **The van as the hero** (Detail Mavericks) — the branded vehicle is a
-  ready-made identity for a business with no shopfront.
-- **Membership / monthly plans** as their own page with *pause or cancel any
-  time* said out loud.
-- **A named tier above the top tier** — Hyer's *"Omakase"*, borrowed from fine
-  dining, with a $10k minimum.
-- **B2B split out entirely** — fleet pages ask fleet size and where the
-  vehicles park, and promise one monthly invoice.
-- **Personality where the trade has none** — Gorilla's *"We don't monkey
-  around"*. It is the only thing separating two otherwise identical sites.
+**(2) PRICES ARE HIDDEN ON THREE SITES IN FOUR, against advice that says the
+opposite.** Both can be true: the shops hiding prices sell ceramic and
+correction work that cannot honestly be quoted unseen. **This vindicates asking
+rather than ruling** — which is what the intake does (A9) — and the split in
+the wild is exactly the three answers offered: 11 "from", 3 exact, 38 hidden.
 
----
+**(3) FOUR THINGS ARE MISSING FROM ALMOST EVERY SITE AND EACH IS FREE.** A rain
+policy exists on **one site in fifty-two.** A cancellation policy on seven.
+Insurance on ten. Arrival requirements on twelve. **All four are already
+questions in the intake (E3, F1, A6, B4), all four went in on judgement, and
+this is the evidence.** A detailer who answers all four is doing something
+38% of the trade does none of.
+
+**(4) THE SERVICE AREA IS THE NEAREST THING TO A UNIVERSAL — 94%**, always as a
+list of place names. The three that omit it are among the least complete sites
+in the set. Any template treating it as a footnote is wrong for this trade.
+
+**(5) A REVIEW COUNT BEATS TESTIMONIALS AND UNDER HALF DO IT.** 42% print a
+rating or a count; the rest print unquantified testimonials or nothing. The
+roundups single out the counters — *"1000+ 5-star Google reviews"*, *"850+
+5-Star Reviews"* — as the strongest trust device on the page. **We already
+store reviews, so this is a template decision, not another question.**
 
 ## 2 · How to get the answers out of them
 
