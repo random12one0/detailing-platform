@@ -31,6 +31,22 @@ question below and changes the SHAPE.**
 owner). Everything structural about it is recorded here, because an artifact is
 not a durable home for a decision.
 
+**BUILT 2026-09-10 AND IT IS A SCREEN, NOT A DOCUMENT.** He refused the
+written version on sight — *"this artifact is not it. I'm not even gonna read
+through it until it's actually a page on our website built with our website's
+theming."* It is `app/src/screens/SiteIntake.jsx`, sixteen next-next steps
+inside the dashboard, opening by itself for a paying owner who has not answered
+it and reachable at **`/website`** for anybody else. The questions are
+`app/src/lib/siteIntake.js`; the answers are one jsonb row in `site_intake`
+(migration `20260910002000`). **Edit the questions THERE, not here** — this
+file is the reasoning and that file is what runs.
+
+**THE ONE THING NOT BUILT: the back office cannot read the answers yet.** The
+platform admin reads nothing through RLS by law (CLAUDE.md), so showing a
+detailer's brief at `/admin` needs a new action on the `platform-admin` edge
+function and a deploy. Until then the answers are readable only in the
+database. **That is the next piece of this item.**
+
 **1 · TWELVE QUESTIONS ARE PROMOTED TO THE FRONT AND ARE THE WHOLE BRIEF.**
 A detailer who gives up after ten minutes must still have handed over enough
 to build a site. In order: the exact name (1.1); how long and how you started
