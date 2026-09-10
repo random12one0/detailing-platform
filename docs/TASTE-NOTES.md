@@ -2022,3 +2022,34 @@ to explain it away. All three are playbook rules 102–105.
 
 **Final state: 202 text pairs measured in each colourway, all pass**, worst
 4.52:1 in graphite and 5.24:1 in paper against a 4.5 floor.
+
+## 11 · SITE 4'S DESIGN SHEET IS SIGNED OFF — 2026-09-09, *"I think it's good"*
+
+> *"Okay. I think it's good… I can be down to start building. Looks good."*
+
+**`docs/schemes/kinzie-styleguide.html`, published as an Artifact.** Two
+colourways (B graphite, C paper) on one skeleton, ten sections, six animations
+with replay buttons, and the scroll signature.
+
+### THE ONE THING HE ASKED FOR AND WE COULD NOT SUPPLY
+
+> *"What would elevate is if you could somehow find online two images that are
+> of the exact same angle and distance from the car, where you either have it go
+> from clean to dirty… but let me know if you can't find anything."*
+
+**WE CANNOT. Searched and LOOKED, rather than asserted.** The two closest
+candidates on Unsplash were shot **one minute apart** (Nylund) and **in the same
+second** (Painchaud) by the same photographers — and both change framing
+completely between frames: a door close-up against a wide rear three-quarter, a
+man washing against a side-on spray. **A matched pair only exists when somebody
+sets a tripod and shoots it deliberately, and detailers post those to Instagram
+rather than to a free stock library.**
+
+**HE OFFERED TO SOURCE THEM AND SHOULD.** The spec is playbook rule 106 and all
+six points matter: same camera position, height and distance; same focal length;
+same light; the car not moved between shots; landscape and at least 1600px wide;
+and **nothing in frame that moves** — the wipe reveals every difference, so a
+shifted bottle or an opened door reads as a glitch rather than as clean paint.
+
+**Until then the section says "Placeholder" in as many words** and the markup
+says why. Swapping a real pair in is two `src` values and deleting one CSS line.
