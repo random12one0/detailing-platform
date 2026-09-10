@@ -12,6 +12,7 @@ import Business from "./screens/Business.jsx";
 import GearMenu from "./components/GearMenu.jsx";
 import SetupForm from "./components/SetupForm.jsx";
 import SiteIntake from "./screens/SiteIntake.jsx";
+import { SCREENS } from "./screens/more/index.js";
 import Walkthrough, { TOURS } from "./components/Walkthrough.jsx";
 import { impersonation } from "./lib/impersonation.js";
 import { isPreviewTab, previewMode, previewWho, setPreviewMode } from "./lib/preview.js";
@@ -96,14 +97,22 @@ export default function App() {
     new URLSearchParams(window.location.search).get("settings")
     || (planChoice(window.location.search) ? "billing" : null),
   );
-  const [gear, setGear] = useState(() => deepLink.current === "billing");
+  // **EVERY SETTINGS SCREEN HAS AN ADDRESS NOW, and until 2026-09-10 only one
+  // did.** `?settings=<key>` was read and then thrown away for every value
+  // except `billing`, so twenty screens were reachable only by tapping through
+  // the gear — which is exactly why his own map page lists them under "what you
+  // have not looked at yet". A screen nobody can link to is a screen nobody
+  // reviews. The key is checked against the registry rather than trusted, so a
+  // typed or stale link opens the menu instead of a blank panel. */
+  const deepScreen = deepLink.current && SCREENS[deepLink.current] ? deepLink.current : null;
+  const [gear, setGear] = useState(() => deepLink.current === "billing" || !!deepScreen);
   // WHICH settings screen the gear should land on, when something sent the
   // detailer there rather than them pressing the gear. Today's past-due box is
   // the only sender today; `key` on GearMenu turns it into a fresh mount, so
   // the row opens without the menu having to accept a controlled `open` prop
   // it does not otherwise need.
   const [gearScreen, setGearScreen] = useState(() =>
-    deepLink.current === "billing" ? "billing" : null);
+    (deepLink.current === "billing" ? "billing" : deepScreen));
   // ROADMAP 2.20 STAGE 3 — THE SECOND DEEP LINK, AND IT LANDS ON BUSINESS
   // RATHER THAN ON THE GEAR, because "How you get paid" is a Business row.
   // Stripe sends a detailer back to `/settings/payments/connected` with the

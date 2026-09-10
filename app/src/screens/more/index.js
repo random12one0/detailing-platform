@@ -65,7 +65,7 @@ import SwitchBusiness from "./SwitchBusiness.jsx";
 
 export const SCREENS = {
   info: [BusinessInfo, "Business info"],
-  appearance: [Appearance, "Your colour"],
+  appearance: [Appearance, "Your color"],
   gallery: [Gallery, "Photo gallery"],
   reviews: [Reviews, "Reviews"],
   faq: [Faq, "Common questions"],
