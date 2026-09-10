@@ -740,3 +740,28 @@ reading it.**
   Mono, no `#0B0D0E`, no accent green, no section order.
 - Do not build from `andrewsdetail.com`. He raised it and withdrew it.
 - Do not write a fourth planning document. This is the plan.
+
+### From site 4 — the before/after pair, 2026-09-09
+106. **A BEFORE/AFTER WIPE NEEDS A MATCHED PAIR, AND STOCK LIBRARIES DO NOT
+    HAVE ONE.** Searched Unsplash properly and rendered the candidates to a
+    contact sheet: the two closest were shot **one minute apart** and **in the
+    same second** by the same photographers, and both change framing completely
+    between frames — a door close-up against a wide rear three-quarter, a man
+    washing against a side-on spray. **A true pair only exists when somebody
+    sets a tripod and shoots it on purpose**, and detailers post those to
+    Instagram, not to a free library. Ask the owner; he has said he will source
+    images rather than have the work limited.
+    **THE SPEC A USABLE PAIR MUST MEET**, and all six matter:
+    same camera position, same height, same distance; same focal length (no
+    zooming between shots); same light — same time of day, no flash on one and
+    not the other; the car in the SAME SPOT, not moved and re-parked; landscape,
+    at least 1600px wide; and **nothing in frame that moves between the two**
+    (a person, an open door, a bottle on the ground) — the wipe reveals the
+    difference, so anything that shifts reads as a glitch rather than as clean
+    paint.
+    **UNTIL ONE ARRIVES, SAY SO ON THE PAGE.** The placeholder here is one
+    photograph shown twice with the lower copy dulled by a CSS filter. That is
+    honest as a demonstration of the device and **dishonest as a claim about a
+    car**, so it carries the word "Placeholder" in the section and a comment in
+    the markup. Swapping in a real pair is two `src` values and deleting one
+    `filter` line.
