@@ -26,7 +26,27 @@ something and then describes it in prose has done half the job.
 | Any dashboard screen | `OUT=shots-<item> node scripts/shoot-dashboard.mjs --tab <tab>` or `--gear "<Row>"` / `--more "<Row>"`, then `SendUserFile` the PNGs |
 | The booking page's steps | `node scripts/sweep-booking-steps.mjs --shots=shots-<item>`, then send |
 | An email | `node scripts/render-emails.mjs`, then send the individual `email-preview/*.html` — **the single files, not `index.html`**, which is only an index of links to files he does not have |
-| A long report or a plan | An **Artifact** — it is a URL, so it opens on a phone |
+| A tenant's example website | Register it in `scripts/build-examples.mjs`, run `node scripts/build-examples.mjs --dev`, and it is at **`/ex<N>`** |
+| A long report or a plan | A file in the repo, and send him the path. **Not an artifact.** |
+
+## NO MORE ARTIFACTS — his instruction, 2026-09-09
+
+*"Did I not say to not do any more artifacts and just to publish to the
+`/ex5`… You don't need to make any more artifacts. Make sure future sessions
+don't make any more artifacts unless I specifically request it."*
+
+**SO A TENANT SITE GOES OUT AT `/ex<N>` AND NOWHERE ELSE.** `scripts/build-examples.mjs`
+is the whole mechanism: add a row to `MULTI`, run it with `--dev`, and the page
+is served at that path. `docs/tenant-sites/` stays the only copy in git.
+
+**AND THIS IS NOT ONLY ABOUT TIDINESS — an artifact is a SECOND COPY that goes
+stale the moment the page is edited**, which is exactly the failure
+`build-examples.mjs`'s own header was written to prevent. Two of his notes in
+that same message were about things already fixed in the repo copy and still
+wrong in the artifact he was looking at.
+
+**The `Artifact` tool is not banned outright — it is banned unprompted.** If he
+asks for one by name, make one.
 
 **A FULL-PAGE SHOT DOES NOT REACH THE PHONE — measured 2026-09-05.** `SendUserFile` returned 400 on a 392x15,965 PNG (1.9 MiB) AND on the same frame as a 0.6 MiB JPEG, then delivered four 392x844 crops of 40 KB each. The limit is the image's HEIGHT, not its bytes. So for him: viewport-sized crops down the page (a one-off Playwright script scrolling to 0 / 20 / 45 / 70% is enough), never the stitched full-page file the sweeps write.
 

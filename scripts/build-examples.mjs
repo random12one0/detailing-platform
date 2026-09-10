@@ -112,6 +112,13 @@ const MULTI = [
   // thing on the page that breaks its own corner language.
   ["ex4", "y-kinzie.html", "Kinzie Mobile Detailing",
    "bone paper or graphite · every seam a 4.2° diagonal · a real before/after wipe · one page", {}],
+  // SITE 5. HIS INSTRUCTION, 2026-09-09: *"not do any more artifacts and just
+  // publish to /ex5… make sure future sessions don't make any more artifacts
+  // unless I specifically request it."* So this row IS the delivery mechanism
+  // for a tenant site now — `npm run dev` serves it at /ex5 and a build puts
+  // it on the domain. Nothing about a tenant page goes out as an artifact.
+  ["ex5", "z-tampabay.html", "Tampa Bay Auto Detail",
+   "a photograph at poster scale · one loud red · the vehicle switchboard · weighted scroll · one page", {}],
 ];
 
 const PAGES = [

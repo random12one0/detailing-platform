@@ -1083,3 +1083,52 @@ anything interactive, which is most of what these pages are.
     card was absolute until 900px and stacked below it; between 900 and 1024 it
     overlapped, which is exactly where he was looking. **Sweep 1024 as well as
     320 / 392 / 768 / 1440 / 1920.**
+
+### From site 5 — his second review, 2026-09-09
+149. **NO ARTIFACTS. A TENANT SITE IS PUBLISHED AT `/ex<N>`.** His instruction:
+    *"You don't need to make any more artifacts. Make sure future sessions
+    don't make any more artifacts unless I specifically request it."* Register
+    the page in `scripts/build-examples.mjs` and run it with `--dev`. **The
+    deeper reason is the one that bit here: an artifact is a SECOND COPY**, and
+    two of the notes he gave in that message were about faults already fixed in
+    the repo file and still present in the artifact he was reading.
+150. **A CUTOUT CANNOT BE BUILT FROM TWO COPIES OF THE PHOTOGRAPH.** The first
+    attempt gave the tab its own `<img>` sized to the poster and offset by the
+    tab's position. It is exact arithmetic and it renders EMPTY, because
+    `object-fit: cover` crops the picture to the poster's box — there is no
+    image below its bottom edge to continue into. **The shape has to be one
+    box:** make the poster taller by the tab, let one image cover all of it,
+    and cut the silhouette with `clip-path: path()` written by script (a
+    rounded corner cannot survive `objectBoundingBox` fractions).
+151. **AN ANIMATION THAT ENDS ON A PROPERTY OWNS THAT PROPERTY FOR EVER.** This
+    is rule 143 again on a different property and it cost another round: the
+    hero's unmask ends on `clip-path: inset(...)` with `fill-mode: both`, so
+    the shape written by script was silently ignored. **Clip the PARENT and
+    animate the CHILD.** Whenever a script writes a property, grep the
+    keyframes for it first.
+152. **A SECTION IS TOO BIG TO BE A REVEAL UNIT.** *"There's no animations as
+    you scroll up and down… all the text and items and everything on the screen
+    kind of animating into the screen, there's just nothing that happens."* A
+    900px section fires the moment its top edge appears, so everything inside
+    it is already on screen by the time it is read — and the page looks static
+    while the code is technically working. **Mark the PARTS** — headings,
+    paragraphs, cards, tiles, list items — filter out any candidate that sits
+    inside another candidate, and stagger by index within the parent. Measured
+    after: 87 units and zero viewports with nothing moving.
+153. **`position: absolute` BLOCKIFIES AN `<a>`; `position: relative` DOES
+    NOT.** Switching the hero's card from absolute to relative on a phone left
+    it `display: inline`, so its background painted per LINE BOX and came out
+    in ragged fragments behind the words. Every contrast figure still passed.
+154. **A POSITIONED SIBLING PAINTS ABOVE STATIC CONTENT.** The same phone
+    breakpoint had first made that card `position: static`, which put it
+    UNDERNEATH the hero photograph — visible, ghosted, unreadable, and again
+    invisible to every check.
+155. **A SCRIM IS AIMED AT A LAYOUT, NOT AT A PAGE.** The hero's 66° corner-to-
+    corner gradient is right for a wide poster and wrong for a stacked one; the
+    eyebrow measured 3.53:1 at 320 against the bright red. The stacked
+    breakpoint gets a vertical scrim of its own.
+156. **DO NOT PAINT A PHOTOGRAPH WITH THE ACCENT.** He asked, plainly: *"did you
+    need this entire image red, or can you not just find an image of a car that
+    is red?"* A `mix-blend-mode: multiply` over a red fill turned a photograph
+    of a red car into a flat red panel — the picture stopped being a picture.
+    **Find the right photograph; do not tint the wrong one.**

@@ -176,3 +176,35 @@ Sources for §2's list of what the trade actually values:
 [Clientility 2026 review](https://www.clientility.com/blog/best-auto-detailing-software-for-car-detailers-in-2026),
 [autohustl comparison](https://autohustl.com/blog/best-auto-detailing-software/),
 [QuoteIQ field-service roundup](https://myquoteiq.com/top-10-auto-detailing-field-service-software-in-2026/)
+
+---
+
+## CORRECTION, 2026-09-09 — THREE OF THESE WERE ALREADY BUILT WHEN THE AUDIT
+## WAS WRITTEN, OR WERE BUILT SOON AFTER, AND THE LIST NEVER CAUGHT UP
+
+**The owner spotted it himself:** *"I'm pretty sure number two and number four
+are already built."* He was right about both, and about a third he did not
+name. Verified by reading the code, 2026-09-09, not by trusting this file:
+
+| § | Claim | Actually |
+|---|---|---|
+| **3.2** Ask for the review | "never built" | **BUILT.** `followupEmail()` in `_shared/emailTemplates.ts` carries the Google and Yelp links and is sent by `send-invoice/index.ts:168`, gated on `settings.email_customer_followup`. Fires on the completion path, with the invoice — not as a separate next-day message. |
+| **3.3** Free SMS path | "costed and recommended, never built" | **BUILT.** `BookingDetail.jsx:188` builds `sms:<phone>?body=<prefilled>` — and handles the iOS quirk where the separator is `&` rather than `?`. Wired to *On my way*, to every message template, and to a *Write my own* fallback. `Clients.jsx:240` does the bulk version. |
+| **3.4** Next job's address as a map link | "nearly built" | **BUILT.** `mapsUrlFor()` in `lib/platform.js:55`, surfaced as the *Navigate* button on `BookingCard` and `BookingDetail`. It even honours a per-user Apple-vs-Google preference. |
+
+**STILL GENUINELY UNBUILT, re-checked the same day:**
+
+- **Stripe Connect's two screens.** The edge functions are deployed and live
+  (`connect-account` v5, `pay-booking` v5) and **nothing in `app/src` calls
+  either of them** — grep for `connect-account` and `pay-booking` under
+  `app/src` returns nothing. The detailer has no way to connect an account
+  and the customer has no way to pay by card. `Billing.jsx` does use Stripe,
+  but that is the detailer paying US for the subscription, which is a
+  different thing and is easy to mistake for this one.
+- **The site gallery** (roadmap 9.2). No `site_examples` migration exists.
+
+**THE LESSON IS THE ONE THIS REPO KEEPS RELEARNING: a gap list rots exactly
+like a check count.** Three of five items here were wrong within days, and the
+list went on being quoted as fact — including by me, to the owner, on
+2026-09-09. **Read the code before repeating any line of this file.**
+

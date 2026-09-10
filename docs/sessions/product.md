@@ -89,11 +89,37 @@ at each. Ask him for his thoughts on that batch, act on them, then move on.
 - The seven-step setup form · the walkthrough · the four tab guides
 
 ### The back office at `/admin`
-- Sign in as `demo@demo.com` / `demo`. **Do not change that login** — he chose
-  it and a session that "improves" it locks him out.
+- Sign in as `demo@demo.com` / `demoadmin123`. **Changed 2026-09-09 at his
+  own ask** — he had forgotten it. He asked for `demo123`; the Supabase project
+  refuses anything under ten characters, so that was never available.
+  **Do not change it again without him asking** — a session that "improves" it
+  locks him out of his own back office.
 
 **Nineteen settings screens and fourteen first-run screens are why this is a
 whole session and not an afternoon.**
+
+---
+
+## 3a. THE WALK ALREADY HAPPENED — `docs/product-audit-2026-09-09.md`
+
+**He did the whole pass himself on 2026-09-09, in one long message, off
+`localhost:5173/map.html`.** Twenty-odd notes covering every public page, all
+seven booking steps, both booking modes, the Spanish path, the plans, the
+receipt, the first-run setup, the guides and the back office.
+
+**THAT FILE IS THE QUEUE. Read it before doing anything else in this session.**
+It is sorted into bugs, a copy pass, design work, features, and open questions,
+with his own words kept verbatim under each — because a paraphrase of *"it
+feels plain"* is worth nothing and the exact sentence is worth a lot.
+
+**HIS INSTRUCTION WITH IT, AND IT IS THE ONE THING NOT TO GET WRONG:** *"Don't
+try to fix everything at once because it's just not gonna go well. We're gonna
+start fixing one screen at a time."* Take ONE item, fix it, show him, move on.
+
+**The map that made it possible is `app/public/map.html`** — every page in the
+product as a link, with real IDs, and a box that repoints them all at any host.
+It is not linked from anywhere and the back-office password is deliberately not
+on it.
 
 ---
 
@@ -135,6 +161,16 @@ each step does with the room it already has.
 
 Everything below is a real, unbuilt piece of `app/src`. Do these between
 batches of his feedback, not instead of them.
+
+**THREE OF THE FIVE BELOW WERE ALREADY BUILT — corrected 2026-09-09 by
+reading the code, after the owner said *"I'm pretty sure number two and number
+four are already built."* He was right, and a third was too.** Rows 2, 3 and 4
+are DONE: the free SMS path (`BookingDetail.jsx:188`, prefilled `sms:` body,
+iOS separator quirk handled), the review ask (`followupEmail`, sent by
+`send-invoice`), and the map link (`mapsUrlFor`, the *Navigate* button, with an
+Apple/Google preference). The full working is in
+`docs/detailer-dashboard-audit-2026-09-06.md` § CORRECTION.
+**Only rows 1 and 5 are real.** Do not re-raise 2, 3 or 4 with him.
 
 | | What | Where it is written |
 |---|---|---|
