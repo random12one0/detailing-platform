@@ -177,7 +177,8 @@ h1{color:#fff;text-shadow:0 6px 34px rgba(0,0,0,.34)}
    objectBoundingBox fractions without distorting) removes everything either
    side of it. border-radius stays as the fallback if path() is unsupported. */
 .postershape{position:relative}
-.tab-lab{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);z-index:2;
+.tab-lab{position:absolute;left:var(--tabx,0px);width:var(--tabw,268px);bottom:20px;
+  z-index:2;text-align:center;
   color:var(--on-accent);font-family:"Azeret Mono",monospace;font-size:10px;
   letter-spacing:.16em;text-transform:uppercase;text-decoration:none;
   text-shadow:0 1px 8px rgba(0,0,0,.7);transition:bottom var(--t-hover)}
@@ -1244,6 +1245,10 @@ document.documentElement.classList.add("js");
       " H" + R + " A" + R + "," + R + " 0 0 1 0," + (body - R) +
       " V" + R + " A" + R + "," + R + " 0 0 1 " + R + ",0 Z";
     shell.style.clipPath = 'path("' + d + '")';
+    // the label is centred on the TAB, not on the poster, and without a
+    // transform - an entrance animation would own that property (rule 143)
+    poster.style.setProperty("--tabx", l + "px");
+    poster.style.setProperty("--tabw", tw + "px");
   }
   addEventListener("resize", shape, { passive: true });
   addEventListener("load", shape);

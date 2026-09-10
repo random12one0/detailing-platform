@@ -1151,3 +1151,18 @@ anything interactive, which is most of what these pages are.
     and the tab went back to touching the band below. **Measure the thing the
     edit was supposed to protect** — `numbers.top - poster.bottom` is one line
     and it caught it.
+160. **A ZOOMED SCREENSHOT PROVES ONE THING AND BLINDS YOU TO THE REST.** He
+    caught the tab's label sitting 48px right of the tab's centre **in a crop I
+    had sent him myself** — I had cropped in to check that the photograph
+    continued into the cutout, confirmed exactly that, and stopped looking.
+    **When a shot is taken to prove one thing,read the whole frame afterwards, or
+    measure the thing rather than looking at it.** The measurement here is one
+    line: the tab's centre against the label's centre, at every width.
+161. **RULE 143 HAS NOW COST THREE ROUNDS. MAKE IT A HABIT, NOT A WARNING:**
+    before writing `transform` on any element, grep the keyframes for
+    `transform`. An entrance with `fill-mode: both` ending on `transform: none`
+    owns that property for ever — it killed the tab's `translateX(-50%)`
+    exactly as it had killed the tab wrapper's. **The fix is to stop using
+    transform for POSITION at all:** the shape script already knew the tab's
+    left edge and width, so the label is placed with `left` and `width` and
+    centred with `text-align`, which no animation can touch.
