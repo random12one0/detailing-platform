@@ -6529,3 +6529,31 @@ in to Stripe, and two things:
 **And `sweep-widths.mjs` still only reaches the not-connected state**, because
 seeding a fake `acct_…` would put a Pay button on the demo booking page that
 fails at Stripe. The seed belongs with the real test account.
+
+## THE LANE FAILURE, AND FOUR ENFORCEMENT POINTS INSTEAD OF A FIFTH PARAGRAPH (2026-09-10)
+
+**The session that built roadmap 2.20 stage 3 was the WEBSITES session.** The
+owner: *"this agent should only be used to be making websites… the fact that
+the prompt for some reason made you do this other thing on the road map is
+wrong."*
+
+**FOUR CAUSES, AND ONLY ONE IS THE SESSION'S OWN FAULT.** (1) Two prompt
+systems disagreed and the one that gets used — `CLAUDE.md`'s hand-over template
+— had no lane field. (2) `CLAUDE.md`'s pointer at the lane table was
+conditional on *"if you are one of three sessions running at once"*, **which no
+session can evaluate about itself**, so it never fired. (3) `docs/sessions/websites.md`
+was the only builder brief that did not open by naming what it owns. (4) And
+the session read the table mid-run and reasoned past it — which is the one no
+document can fix, and why the rule now says REFUSE rather than consider.
+
+**WHAT IS IN PLACE NOW:** `CLAUDE.md` opens with **§ WHICH LANE IS THIS
+SESSION**; the hand-over template's first line is the lane and a prompt without
+one is declared invalid; all four briefs open with the same ownership-and-stop
+block; and **`scripts/lane-check.mjs`** lists every file touched outside a
+given lane and names whose it is — run it before every `git add`. A
+`SessionStart` hook prints the question in four lines. Full account and the two
+smaller decisions inside it: `DECISIONS.md` → *A websites session built a
+payments item*, and `docs/sessions/README.md` § THE INCIDENT.
+
+**THE CONNECT WORK WAS NOT REVERTED** — it is finished and verified, and the
+commits say which lanes they crossed.

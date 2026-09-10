@@ -14,5 +14,17 @@
       "Bash(node:*)",
       "Bash(jq:*)"
     ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/lane-check.mjs --banner"
+          }
+        ]
+      }
+    ]
   }
 }

@@ -1,9 +1,19 @@
 # Session C — the plumbing: database, functions, tests, deploys, docs
 
 **You own `supabase/**`, `tests/**`, `scripts/**` and `docs/**`** (except
-`docs/tenant-sites/` and `docs/TASTE-NOTES.md`, which session A owns). **You
-never write to `app/src`** — session B owns it and is running browser sweeps
-that your write would silently ruin. `docs/sessions/README.md` is the table.
+`docs/tenant-sites/`, `docs/schemes/`, `docs/TASTE-NOTES.md` and the rest of
+A's design files, and except `CLAUDE.md`, `docs/roadmap.md`,
+`docs/OUTSTANDING.md`, `docs/overnight-log.md` and `docs/sessions/`, which M
+owns). **You never write to `app/src`** — session B owns it and is running
+browser sweeps that your write would silently ruin.
+`docs/sessions/README.md` is the table, and `node scripts/lane-check.mjs C` is
+the command that checks you. **Run it before every `git add`.**
+
+**AND IF THE PROMPT NAMES WORK IN `app/src`, SAY SO AND STOP.** A roadmap item
+whose deliverable is a SCREEN is B's, however much of it lands in your folders.
+A session opened as A built one across both lanes on 2026-09-10 by reasoning
+past exactly this line. **The owner can override it and often will — if he
+does, say so in the commit message.**
 
 **Say in chat before you apply a migration or deploy a function.** The database
 is the one genuinely shared thing, and session B's green test runs go stale the

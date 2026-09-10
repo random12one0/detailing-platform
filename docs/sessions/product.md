@@ -3,7 +3,15 @@
 **You own `app/src/**` and you are the only session that may write there.** You
 are also the only session that runs the dev server. Do not touch
 `supabase/`, `tests/`, `scripts/` or `docs/tenant-sites/` —
-`docs/sessions/README.md` is the ownership table.
+`docs/sessions/README.md` is the ownership table, and
+`node scripts/lane-check.mjs B` is the command that checks you. **Run it before
+every `git add`.**
+
+**AND IF THE PROMPT NAMES WORK OUTSIDE `app/src`, SAY SO AND STOP** — not a
+smaller version of it, not just the part in your folder. A session opened as A
+built a whole roadmap item across your lane and C's on 2026-09-10 by reasoning
+past exactly this line; `docs/sessions/README.md` has the account. **The owner
+can override it and often will — if he does, say so in the commit message.**
 
 **Why this session exists, in his words, 2026-09-08:** *"I still need to
 analyse and go over all of the pages that we've recently created and make

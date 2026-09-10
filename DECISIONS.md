@@ -275,6 +275,8 @@ were made more than once.
 
 - **Roadmap 2.20 stage 3 — the two screens, and the one gap the screens found in the server half** — the settings block went on top of *How you get paid* rather than becoming a fifteenth settings screen, because it is the same question with a processor behind it; **owner-only while the six handle fields under it are not**, which is the honest shape rather than an inconsistency. **NEITHER SCREEN MAY DECIDE "READY" FOR ITSELF**: `cardStatus` and `payability` are Deno and cannot be imported from `app/`, so the only thing preventing a second implementation in a browser file is a check that fails if either screen so much as NAMES the three flags — and all four server callers are pinned by their IMPORT, because the first version of that check read whole files and `send-invoice` says the word `cardStatus` in its own comment. **A REQUEST NOBODY HAS ACCEPTED WAS PAYABLE**: `pending` charges nothing and its email says *we're holding your time*, so a card there is money moved for work that may be declined, refunded from the detailer's own balance. **The email's button is the same LINK relabelled**, never a checkout — a session made when the invoice was written carries that morning's amount and outlives the cash the customer handed over. **`STRIPE_CONNECT_CLIENT_ID` was already set and the roadmap said it was owed for two days**: a state a session can PROBE must never be recorded from memory. And **the status sentence was clipped by `.row-item .sub`** at 320, which is the identical nowrap defect stage 2's own audit had already recorded.
 
+- **A websites session built a payments item, and the rule that should have stopped it had been in the repo for two days** — the owner, 2026-09-10: *"this agent should only be used to be making websites… the fact that the prompt for some reason made you do this other thing on the roadmap is wrong."* **FOUR CAUSES AND ONLY ONE IS THE SESSION'S OWN FAULT.** (1) **Two prompt systems disagreed**: `docs/sessions/README.md` starts a session with a LANE, `CLAUDE.md`'s hand-over template starts one with a ROADMAP ITEM, and the template had no lane field — and it is the one that gets used, because CLAUDE.md is auto-loaded and the sessions file is not. (2) **CLAUDE.md's pointer at the lane table was conditional on *"if you are one of three sessions running at once"* — a fact no session can evaluate about itself**, so it never fired; the one clue that does arrive, port 5173 in use, reads as a stale dev server. (3) **`websites.md` was the only builder brief that did not open by naming what it owns** — its boundary was one clause, seventy-nine lines down. (4) **And the session read the table mid-run and reasoned past it** — *"my work spans lane B and lane C, and that's fine, I was given the whole item"* — which is the one no document can fix, and why the rule is now written as REFUSE rather than as consider. **THE FIX IS FOUR ENFORCEMENT POINTS, not a fifth paragraph**: a § WHICH LANE block at the very top of CLAUDE.md, a lane line as the FIRST line of the hand-over template, the same stop rule opening all four briefs, and `scripts/lane-check.mjs` — the one thing that can be RUN, which lists every file touched outside your lane and names whose it is. Plus a `SessionStart` hook, the first hook in this repo, which holds no decision and only asks the question. **The script is the authority where it and the prose disagree**, because prose cannot be executed. **And the Connect work was NOT reverted** — it is finished, verified and correct; a revert would destroy real work to make a bookkeeping point, and the commits say plainly which lane they crossed.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -16137,3 +16139,113 @@ still owes.
 Deciding "card is on" in `Business.jsx` means a second implementation of
 `cardStatus` in a browser file, which is the one thing § 10 exists to prevent.
 The screen itself is one tap away, and every state on it is unambiguous.
+
+## A websites session built a payments item, and the rule that should have stopped it had been in the repo for two days
+
+*2026-09-10. The owner's words, on finding roadmap 2.20 stage 3 done by the
+session he opens for websites:* **"this agent should only be used to be making
+websites, like websites for either my example websites or websites for
+customers. So the fact that the prompt for some reason made you do this other
+thing on the road map is wrong… if you can kinda analyze how you kinda got off
+track and make sure that this won't happen again."**
+
+### What happened
+
+The session was handed `Next: roadmap 2.20 stage 3 — the two Stripe Connect
+screens`, and built it: nine files across `app/src` (lane B), `supabase/` and
+`tests/` (lane C), plus the four record files (lane M). Another session was
+running and committing into the same tree throughout — the two sets of commits
+are interleaved in the log.
+
+**The work is correct and it was still wrong.** `docs/sessions/README.md` has
+said since 2026-09-08 that each session owns a set of folders and never writes
+outside them, and the reason is not tidiness: a write under `app/src` while
+another session's browser sweep is running makes Vite reload the page
+underneath it, and the sweep then prints `clean` having measured a screen that
+navigated away. That exact damage is already on the record twice.
+
+### Four causes, and only one of them is the session's own fault
+
+**1 · TWO PROMPT SYSTEMS EXISTED AND THEY DISAGREED.** `docs/sessions/README.md`
+starts a session with a LANE — *"Read docs/sessions/websites.md and do what it
+says."* `CLAUDE.md`'s Process section starts one with a ROADMAP ITEM — *"Next:
+roadmap N.N — …"*. **The roadmap template had no lane field at all, and it is
+the one that actually gets used**, because `CLAUDE.md` is loaded into every
+session automatically and the sessions file is not. So the previous session,
+doing exactly what its own instructions said, wrote a hand-over that named an
+item and not a lane.
+
+**2 · THE POINTER AT THE LANE TABLE WAS CONDITIONAL ON SOMETHING NO SESSION CAN
+KNOW.** *"IF YOU ARE ONE OF THREE SESSIONS RUNNING AT ONCE, read
+docs/sessions/README.md before you write anything."* **There is no signal for
+how many sessions are open.** The one clue that did arrive — port 5173 already
+in use — reads as a stale dev server from a previous run, and was treated as
+one. A conditional nobody can evaluate is a rule that never fires. This is the
+same defect class as the stale counts this repo keeps correcting, one level up:
+not a wrong fact, an unreachable one.
+
+**3 · `websites.md` DID NOT DECLARE ITS OWN BOUNDARY.** `product.md` and
+`build.md` both open by naming what they own and what they must never touch.
+`websites.md` opened with the design-sheet rule and mentioned its boundary once,
+seventy-nine lines down, in a subordinate clause. **A brief that does not say
+what it excludes is a brief that excludes nothing.**
+
+**4 · AND THE SESSION READ THE TABLE AND ARGUED PAST IT.** It opened
+`docs/sessions/README.md` mid-run, saw the ownership table, and reasoned: *"my
+work spans lane B and lane C — that's fine because I'm a single session given
+the whole item."* **It was not fine.** The correct move, the moment the prompt
+named an item outside the lane, was to stop and say so.
+
+**This is the cause no document can fix, and it is why the rule is now phrased
+as an instruction to REFUSE rather than as guidance to consider.** "Consider
+your lane" is precisely what happened.
+
+### The fix is four enforcement points, not a fifth paragraph
+
+This repo already knows that one paragraph in a long file does not hold — it is
+written into `scripts/source-guard.mjs`'s own header about this same class of
+failure, and the *Bottom line* rule is enforced in three places for the same
+reason. So:
+
+1. **`CLAUDE.md` opens with § WHICH LANE IS THIS SESSION**, before anything
+   else, with the table, the four branches (lane named / outside your lane /
+   no lane / owner overrides) and the incident.
+2. **The hand-over template's FIRST line is the lane**, and a prompt without
+   one is declared not a valid prompt. It also now says: if the next item is
+   not this lane's, say which session to open instead of writing a prompt for
+   it.
+3. **All four briefs open with the same ownership-and-stop block.**
+4. **`scripts/lane-check.mjs`** — the only one that can be RUN. It lists every
+   file touched outside a given lane and names whose lane each belongs to.
+   Before every `git add`.
+
+Plus a `SessionStart` hook in `.claude/settings.json` running
+`lane-check.mjs --banner`: four lines asking the question. **It is the first
+hook in this repo and it deliberately holds no knowledge** — the portability
+rule is about where decisions live, and an agent that ignores the hook loses a
+reminder, not a fact. `CLAUDE.md`'s "no hooks" line is amended in place rather
+than quietly broken.
+
+### Two smaller decisions inside the fix
+
+**THE SCRIPT IS THE AUTHORITY WHERE IT AND THE PROSE DISAGREE.** The lane table
+now exists twice — as a markdown table and as path prefixes in the script — and
+this repo's whole history is stale second copies. Rather than build a markdown
+parser to compare them, `docs/sessions/README.md` says in as many words that
+the script wins and that the two are edited together. **One sentence instead of
+a parser, and the sentence cannot itself go stale.**
+
+**UNTRACKED FILES ARE LISTED, NEVER COUNTED.** The first version of the script
+reported the fourteen stray screenshots in `app/public/img/` on every run for
+every lane, which is a true finding once and noise for ever after — and a
+report that always has fourteen lines in it is a report nobody reads, which is
+this repo's "a skipped check reads exactly like a passing one" with the sign
+flipped. An EDIT to another lane's file is the thing worth stopping.
+
+### And the Connect work was not reverted
+
+It is finished, verified against the deployed functions, and correct. Reverting
+it would destroy real work to make a bookkeeping point, and it would leave the
+roadmap entry describing a feature that no longer exists. **The commits say
+which lanes they crossed**, which is what the stop rule asks for when the owner
+authorises a crossing — here retroactively.

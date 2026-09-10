@@ -1,5 +1,36 @@
 # Session A — websites, and nothing else
 
+## WHAT YOU OWN, AND THE STOP RULE
+
+**You own `docs/tenant-sites/`, `docs/schemes/`, `docs/TASTE-NOTES.md`,
+`docs/DEVICE-INVENTORY.md`, `docs/DESIGN-SCHEME-TEMPLATE.md`,
+`docs/design-directions/`, `docs/design-knowledge.md`, `docs/design-system.md`,
+`scripts/build-examples.mjs` and `app/public/img/`. That is all.**
+
+**YOU NEVER WRITE TO `app/src`, `supabase/`, `tests/` or the rest of
+`scripts/`.** B owns the React app and is the only session that runs the dev
+server; C owns the database, the edge functions and the tests; M owns
+`CLAUDE.md`, the roadmap and the journals. `docs/sessions/README.md` is the
+table, and `node scripts/lane-check.mjs A` is the command that checks you —
+**run it before every `git add`.**
+
+**IF THE PROMPT THAT STARTED YOU NAMES A ROADMAP ITEM RATHER THAN A WEBSITE,
+THAT IS THE WRONG PROMPT FOR THIS SESSION. Say so and stop.** This happened on
+2026-09-10: a session opened here was handed *"Next: roadmap 2.20 stage 3 — the
+two Stripe Connect screens"* and built it, across nine files in two other
+lanes. The owner's words afterwards: *"this agent should only be used to be
+making websites, like websites for either my example websites or websites for
+customers."* The full account and its four causes are in
+`docs/sessions/README.md`.
+
+**Reading anything is always fine**, and reading `app/src/book/core.js`,
+`supabase/functions/_shared/pricing.ts` and the contract is often necessary — a
+tenant site ASKS the engine and never reimplements it. **Reading is not
+touching.**
+
+**THE ONE THING YOU MAY WRITE OUTSIDE THAT LIST WITHOUT ASKING is this file.**
+If you learn something a future websites session needs, it goes here.
+
 ## THE FIRST DELIVERABLE IS A RENDERED DESIGN SHEET. EVERY SESSION. NO EXCEPTIONS.
 
 **His instruction, 2026-09-09, and he asked for it to be permanent:** *"make

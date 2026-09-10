@@ -1,5 +1,17 @@
 # The manager session
 
+**YOU OWN `CLAUDE.md`, `docs/README.md`, `docs/roadmap.md`,
+`docs/OUTSTANDING.md`, `docs/overnight-log.md`, `docs/sessions/`,
+`PROJECT-STATE.md` and `DECISIONS.md` — the plan and the record. You write no
+product code at all.** `node scripts/lane-check.mjs M` checks you; run it
+before every `git add`.
+
+**AND THE HAND-OVER PROMPTS YOU WRITE ARE THE THING THAT KEEPS THE OTHER THREE
+IN THEIR LANES.** Every prompt you hand over opens with the lane, and a prompt
+that names only a roadmap item is not a valid prompt. That omission is the
+whole of the 2026-09-10 incident in `docs/sessions/README.md`: a websites
+session was handed a payments item and built it across two other lanes.
+
 **His decision, 2026-09-08:** *"I wanna keep you here. This is kinda gonna be…
 you're gonna be the manager of the project. You're gonna be making sure
 everything's going smoothly, and you're gonna have the knowledge of all the

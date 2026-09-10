@@ -2,6 +2,46 @@
 
 Read before working. These rules survive every `/clear`; chat instructions don't.
 
+## WHICH LANE IS THIS SESSION? ANSWER THAT BEFORE YOU WRITE A FILE.
+
+**The owner runs three or four Claude sessions in this one folder at the same
+time, each on its own part of the product, and each owning a set of folders it
+never writes outside.** `docs/sessions/README.md` is the table. In short:
+
+| | Session | Writes | Brief |
+|---|---|---|---|
+| **A** | websites | `docs/tenant-sites/`, `docs/schemes/`, the design docs, `scripts/build-examples.mjs`, `app/public/img/` | `docs/sessions/websites.md` |
+| **B** | product | `app/src/**` — and it is the only session that runs the dev server | `docs/sessions/product.md` |
+| **C** | build | `supabase/**`, `tests/**`, `scripts/**`, the rest of `docs/**` | `docs/sessions/build.md` |
+| **M** | manager | `CLAUDE.md`, the roadmap, `OUTSTANDING`, `PROJECT-STATE`, `DECISIONS`, `docs/sessions/` | `docs/sessions/manager.md` |
+
+**THE LANE TRAVELS IN THE PROMPT AND NOWHERE ELSE.** Nothing in this repo can
+work it out, and **inferring it from the task is circular** — that is how a
+roadmap item becomes a licence to write anywhere.
+
+- **The prompt names a lane** → read that brief and work only in those folders.
+- **The prompt names work OUTSIDE your lane** → **say which lane it belongs to
+  and STOP.** Not a smaller version of it, not "just the part in my folder".
+- **The prompt names no lane at all** → **ASK, before writing anything.**
+  Reading is always fine. `node scripts/lane-check.mjs` prints the four
+  options.
+- **The owner tells you to cross a lane** → do it, he is the manager, **and say
+  so in the commit message** or the next session reads a breach.
+
+**`node scripts/lane-check.mjs <lane>` BEFORE EVERY `git add`.** It lists every
+file you have touched outside your lane and names whose it is.
+
+**THIS BLOCK EXISTS BECAUSE THE RULE WAS ALREADY IN THE REPO AND THAT WAS NOT
+ENOUGH — 2026-09-10.** A session opened as **A (websites)** was handed the
+hand-over prompt *"Next: roadmap 2.20 stage 3 — the two Stripe Connect
+screens"*, built it correctly across nine files in `app/src`, `supabase/` and
+`tests/`, and only found the ownership table halfway through — then reasoned
+past it. Another session was committing into the same tree at the time. **The
+owner's words:** *"this agent should only be used to be making websites… the
+fact that the prompt for some reason made you do this other thing on the
+roadmap is wrong."* Four causes and the full account:
+`docs/sessions/README.md` § THE INCIDENT.
+
 ## THE LIVE DOMAIN IS NOT PUBLISHING — his instruction, 2026-09-10
 
 *"Please note to not go to detailingplatform.com/ex1, as we're not currently
@@ -769,7 +809,16 @@ undo it.
   `docs/roadmap.md`: the next unchecked item, and its row in that file's
   "Which skills each phase uses" table.
 
+  **THE FIRST LINE IS THE LANE, AND A PROMPT WITHOUT ONE IS NOT A VALID
+  PROMPT — 2026-09-10.** This template had no lane field for two days and the
+  cost was a websites session building a payments item across two other lanes
+  (`docs/sessions/README.md` § THE INCIDENT). **Hand over to the lane that owns
+  the next item's DELIVERABLE**, which for a screen is B and for a migration or
+  an edge function is C — never to whichever session happens to be free.
+
   ```
+  Lane <A|B|C>: read docs/sessions/<websites|product|build>.md first. You write
+  only in those folders — anything else, say so and stop.
   Next: roadmap <N.N> — <one line, plain words>.
   Read CLAUDE.md, then PROJECT-STATE.md and docs/roadmap.md.
   Skills: <from the roadmap table>. <"No design skills — not visual." or,
@@ -780,11 +829,16 @@ undo it.
   it down, and only say "Safe to clear." once nothing is left hanging.
   ```
 
-  Keep it five lines or fewer. It is a pointer at the files, not a summary
+  Keep it seven lines or fewer. It is a pointer at the files, not a summary
   of them — the files are what survive the clear. The last line is not
   boilerplate: the owner clears BETWEEN roadmap items, so a session that
   signs off with loose ends buries them — the next session starts on a new
   item and never picks them up.
+
+  **AND IF THE NEXT ITEM IS NOT THIS LANE'S, SAY THAT INSTEAD OF WRITING A
+  PROMPT FOR IT.** *"The next item, roadmap N.N, is B's — open a product
+  session with `Read docs/sessions/product.md and do what it says.`"* One
+  sentence, and it is the sentence that would have prevented the incident.
 
   **The prompt IS the sign-off. It only ever appears together with "Safe to
   clear."** Never hand over a next-session prompt and then say the session
@@ -813,6 +867,15 @@ undo it.
   the ONLY tool-specific file in the repo is `.claude/settings.json`
   (permissions), and all 20+ knowledge files are portable markdown. Keep
   it that way and the migration stays close to free. See DECISIONS.md.
+  **AMENDED 2026-09-10: that file now also carries ONE `SessionStart` hook,
+  and it holds no decision — it runs `node scripts/lane-check.mjs --banner`,
+  which prints four lines asking which lane the session is and pointing at
+  the markdown that answers it.** The rule above is about where KNOWLEDGE
+  lives, and none of it moved: the lane table lives in `scripts/lane-check.mjs`
+  and `docs/sessions/README.md`, both portable, and another agent that ignores
+  the hook entirely loses a reminder rather than a fact. It is there because
+  three documents saying the same thing was measurably not enough — see
+  § WHICH LANE at the top of this file.
 
 - **A TENANT'S OWN WEBSITE HAS A CONTRACT NOW, AND IT IS THE FIRST THING TO
   READ BEFORE ANY PHASE 3 WORK — `docs/tenant-site-contract.md`, roadmap 3.1,
@@ -1053,11 +1116,16 @@ undo it.
    REFERENCE, or HISTORICAL — and HISTORICAL means *do not act on it*. Reading
    it plus this file plus your one roadmap item is under 100 KB and is enough to
    start.
-   **AND IF YOU ARE ONE OF THREE SESSIONS RUNNING AT ONCE, READ
-   `docs/sessions/README.md` BEFORE YOU WRITE ANYTHING.** It is the folder
-   ownership table, and the reason it exists is that a write to `app/src` while
-   another session's browser sweep is running produces a GREEN run that measured
-   a screen which navigated away underneath it.
+   ~~**AND IF YOU ARE ONE OF THREE SESSIONS RUNNING AT ONCE, READ
+   `docs/sessions/README.md` BEFORE YOU WRITE ANYTHING.**~~ **THAT CONDITION IS
+   ONE NO SESSION CAN EVALUATE ABOUT ITSELF, SO IT NEVER FIRED — and on
+   2026-09-10 it cost exactly what it was written to prevent.** There is no
+   signal for *how many sessions are open*; the one clue that does arrive (port
+   5173 already in use) reads as a stale dev server. **READ
+   `docs/sessions/README.md` FULL STOP, BEFORE YOU WRITE ANYTHING.** It is the
+   folder ownership table, and the reason it exists is that a write to
+   `app/src` while another session's browser sweep is running produces a GREEN
+   run that measured a screen which navigated away underneath it.
 1. `PROJECT-STATE.md` — full state briefing. **§ 1–7 only**; everything after
    is an append-only journal, one section per session.
 2. `docs/HANDOFF.md` — architecture + open threads. **Its branch and deploy
