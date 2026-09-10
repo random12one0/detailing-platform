@@ -54,4 +54,4 @@ html = html
   .replace('var STILL = matchMedia', 'if (!document.documentElement.getAttribute("data-c"))\n  document.documentElement.setAttribute("data-c", "b");\nvar STILL = matchMedia');
 const out = process.argv[3] || `${page.replace(/\.html$/, "")}-artifact.html`;
 writeFileSync(out, html);
-console.log(`\nwrote .tmp-site4/kinzie-artifact.html  ${(html.length / 1024 / 1024).toFixed(2)} MB`);
+console.log(`\nwrote ${out}  ${(html.length / 1024 / 1024).toFixed(2)} MB`);

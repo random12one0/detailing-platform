@@ -984,3 +984,41 @@ anything interactive, which is most of what these pages are.
     `carolinamobilecarwash.com` is one 312px word. `.grid > *{min-width:0}`
     plus `overflow-wrap:anywhere` on headings. **Measure
     `scrollWidth - clientWidth` at every width; do not read the media query.**
+
+### From site 5 — the build, 2026-09-09. `docs/tenant-sites/z-gandy.html`
+132. **A DISPLAY FACE MUST NEVER BREAK MID-WORD, and the rule that broke it was
+    copied in from the design sheet.** `overflow-wrap:anywhere` is right on a
+    sheet full of file paths and domain names; on the site it split the poster
+    headline into **MOBI / LE** and **DETA / ILING** at 392. Put it on prose
+    only, and never on `h1,h2,h3,.disp`.
+133. **MAKING AN ABSOLUTE CHILD `static` INSIDE A FLEX PARENT DOES NOT STACK
+    IT — IT BECOMES A SIBLING COLUMN.** The phone breakpoint set the eyebrow
+    and the glass card to `position:static`, and because `.poster` is
+    `display:flex`, both turned into narrow columns beside the headline: the
+    card read **CER / AMI / C / COA / TING**. The parent's `display` has to
+    change too. Every check passed; only looking found it.
+134. **THE SAME ELEMENT OVER TWO DIFFERENT GROUNDS IS TWO MEASUREMENTS.** The
+    hero's translucent card sits over dark paint at 1440 and over BRIGHT RED at
+    392, because the photograph crops differently. It was fine at one width and
+    unreadable at the other. **Run the contrast pass at every width, not just
+    the widest.**
+135. **`b` AND `strong` DO NOT FOLLOW A BAND.** The light band overrode
+    `h2,h3,p,.cap` and not `b`, so *"Gift cards are available"* was near-white
+    on cream — invisible, and no check saw it. When a section inverts the
+    ground, enumerate EVERY inherited colour, not the ones you happened to use
+    in the heading.
+136. **THE CONTRAST INSTRUMENT LIED THREE MORE WAYS, all found in one hour and
+    all now fixed in `.tmp-site5/contrast.mjs`.** (a) **Clamping a sample row
+    into the viewport samples a different element's ground** — an element whose
+    centre is off-screen reported 1.78:1 for footer links that are really 9.7:1.
+    Require the CENTRE to be on screen and scroll in smaller steps. (b) **A
+    label parked at `text-indent:-9999px` is not visible text** and must be
+    excluded. (c) **A single sample row through the glyphs still carries
+    antialiased remnants of the text you painted out** — sample three rows (top
+    edge, middle, bottom edge) and take the median of nine. That last one was
+    the difference between "two failures" and zero, and the two it invented
+    were in a list whose other two items passed at 9.7:1: **when two identical
+    siblings disagree, it is the instrument.**
+137. **AN ELEMENT SITTING UNDER THE STICKY NAV IS OBSCURED, NOT LOW-CONTRAST.**
+    The sampler read the nav's red Book button as the ground for a form label.
+    Skip the nav's band in the sampler; do not "fix" the design.

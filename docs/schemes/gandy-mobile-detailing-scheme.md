@@ -333,3 +333,57 @@ carries both).
 (a 2012 4Runner, two Corvettes at a car show, a vintage Harley-Davidson, a
 golf cart at a retirement community). **Specific vehicles are what makes a
 review read as real.**
+
+## APPENDIX 2 — THE REST OF IT (his correction, 2026-09-09)
+
+*"Just make sure it isn't only just the price plan policy and FAQ. Make sure
+it's all of the details that they have — their warnings, kind of things that
+they advertise and whatnot… everything from where they serve to the stats that
+they have on their page. Basically, the entire website."*
+
+**THE CATALOGUE HAS THREE NAMED TIERS, and that is how a detailer thinks about
+their own menu.** Express Levels (wash, super clean, seats, carpets) ·
+Executive Levels (deluxe wax, deluxe interior, paint correction, super detail) ·
+Premium Add-ons (ceramic maintenance, ceramic coating, headlight restoration).
+**This is what makes "a full detail AND my windows done" two taps instead of a
+radio button** — one pick from a level, as many add-ons as you like.
+
+**THE STATS, read out of the counters rather than off the rendered page** (they
+animate from zero, so a text scrape reports `0`): **1,000+** happy clients,
+**20+** years in business, **100%** serving the Lowcountry, **100%** completed
+projects. Plus **82 reviews** and an "EXCELLENT" rating.
+
+**WHAT THEY ADVERTISE — five claims, each a two-line pair:** Premium quality /
+Elite Auto Care · Mobile Convenience / We Come to You · Certified experts /
+Trusted Professionals · Range of services / Full-Service Detailing · South
+Carolina's Best / Local. Reliable. Exceptional.
+
+**THE WARNINGS AND SMALL PRINT, which is the part no site in our set has ever
+shown:**
+- **Non-refundable deposit**, $25 and up by package, taken off the final bill.
+- **You are charged in full** if the vehicle cannot be detailed on arrival —
+  including nobody being there.
+- **Hazards must be declared before the appointment** — needles, drugs, fuel,
+  chemicals, or a recent COVID exposure. The customer is responsible for any
+  health or safety issue arising from their vehicle.
+- **Weather** — they call and reschedule for rain or excessive heat.
+- **No rush** — they will not shorten a job to fit; if the diagnosis changes,
+  the customer is told during the work.
+- Terms effective 29 September 2021; separate cancellation and privacy pages.
+
+**FLEET, the four benefits they sell on:** mobile (no transport), flexible
+scheduling (weekly / bi-weekly / monthly), customisable by fleet size, licensed
+and insured. Plus three reasons: professional image, protection against wear,
+vehicle longevity. And the **employee car day**.
+
+**THE FURNITURE:** business hours (Mon–Fri 10–6, Sat 10–3, Sun closed) shown in
+a bar at the very top of every page; phone and email everywhere; Facebook,
+Instagram, X and **Yelp**; gift cards; a **payments page that takes Venmo and
+Cash App** as well as a card, with a tip field; a customer login; a blog; and a
+footer that lists all fourteen towns again.
+
+**HOW THE STATS GO ON OUR PAGE WITHOUT BREAKING RULE 36.** That rule bans the
+three-evenly-spaced ratings/years/cars-done proof row. His own references put
+**numbers everywhere as decoration as much as information** (`TASTE-NOTES.md`
+§3), so the figures go in a **red band at display size** — four of them, in the
+page's own italic — not as three cards on a white ground.

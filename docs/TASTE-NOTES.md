@@ -2203,3 +2203,39 @@ edge against a 3:1 floor; white on the red 4.90:1); no horizontal overflow at
 continue, both easy to reverse:** site 5 gets **no footer wordmark** (6 of 28
 pages, all of them sites 1–4) and **no marquee band** (6 of 28, all sites 1–3),
 even though Carolina has one.
+
+## 15 · SITE 5 IS BUILT — the sheet was signed off and the brief widened (2026-09-09)
+
+**He approved the design sheet in the same breath as widening the content
+brief:** *"Just make sure it isn't only just the price plan policy and FAQ.
+Make sure it's all of the details that they have — their warnings, kind of
+things that they advertise and whatnot… everything from where they serve to the
+stats that they have on their page. Basically, the entire website. But… it
+always looks good so we could go ahead and get started making the website."*
+
+**SO "PORT THE FACTS" MEANS THE WHOLE SITE, NOT THE PRICE LIST.** The full
+capture is `docs/schemes/gandy-mobile-detailing-scheme.md` Appendix 2 and it
+adds, beyond the prices: the three named tiers (Express / Executive /
+Add-ons), the four stat counters read out of the markup because they animate
+from zero, the five two-line claims, the six warnings, the four fleet
+benefits, the hours bar, gift cards, the payment methods and the footer's
+repeat of the service area.
+
+**`docs/tenant-sites/z-gandy.html` is the page.** Gandy Mobile Detailing,
+Tampa Bay. Verified by looking and by measuring: **254 text elements sampled
+off the rendered pixels at 1440, 392 and 320 with zero below floor, worst
+4.79:1**; no horizontal overflow at 320/360/392/768/1440/1920; console clean at
+every width; the reduced-motion path leaves nothing invisible; all four
+in-page links land 78px down with the sticky nav 64px tall; all five suites
+pass (`tenant-sites` now 129 checks over 8 pages in 5 sites).
+
+**THE H1 CHECK EARNED ITS KEEP.** The first headline was *"Everything that
+drives"* and `tests/tenant-sites.test.mjs` failed it on the spot — it names no
+trade. It is *"Mobile detailing / Tampa Bay, Florida"* now, and the motto moved
+to the eyebrow where it belongs.
+
+**FOUR DEFECTS WERE FOUND ONLY BY LOOKING, and every check passed while they
+were live:** a headline broken into MOBI/LE on a phone; a hero card rendered
+one letter wide because `position:static` inside a flex parent makes a column,
+not a stack; *"Gift cards are available"* invisible in near-white on the cream
+band; and the same card legible at 1440 and 2:1 at 392. Playbook rules 132–137.

@@ -1,0 +1,1134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gandy Mobile Detailing — Tampa Bay, FL</title>
+<meta name="description" content="Mobile detailing across Tampa Bay. Cars, trucks, RVs, boats, golf carts, semis and fleets. We bring the water and the power to you.">
+
+<!-- SITE 5. Built from docs/schemes/gandy-styleguide.html, signed off 2026-09-09. -->
+<!-- The pair: Dribbble 27167430 (the look) x carolinamobilecarwash.com (the facts). -->
+<!-- Every token, corner, duration and rule below is the sheet's. Nothing new. -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@1,800;1,900&family=Epilogue:ital,wght@0,400;0,500;0,600;1,400&family=Azeret+Mono:wght@400;700&display=swap">
+
+<style>
+/* TOKENS - the design sheet's, unchanged */
+:root{
+  --ground:#0B0B0C; --ground-2:#141416;
+  --surface:rgba(255,255,255,.055); --surface-2:rgba(255,255,255,.10);
+  --ink:#F6F3F1; --ink-2:#BAB5B1; --ink-3:#948E8A;
+  --accent:#E10E1F;        /* a FILL. white on it 4.90:1 */
+  --accent-text:#FF6A63;   /* the same idea as TEXT. 7.02:1 on the ground */
+  --on-accent:#FFFFFF;
+  --band:#F2EFE9; --band-ink:#131314; --band-ink-2:#4A4744; --band-ink-3:#6B6764;
+  --rule:rgba(255,255,255,.16);   /* decorative hairline */
+  --edge:rgba(255,255,255,.42);   /* a control's edge. 4.06:1, floor is 3 */
+  --band-rule:rgba(19,19,20,.14); --band-edge:rgba(19,19,20,.44);
+  --hair:1px; --edgew:1.5px;
+  --r-panel:28px; --r-card:16px; --r-inset:10px; --r-pill:999px; --r-cell:0px;
+  --lean:-12deg;
+  --t-hover:180ms; --t-exit:180ms; --t-swap:180ms; --t-settle:380ms;
+  --t-reveal:460ms; --t-wipe:520ms; --t-unmask:620ms;
+  --ramp:cubic-bezier(.16,1,.3,1); --out:cubic-bezier(.4,.14,1,1);
+  --wrap:1140px; --nav:64px;
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.055'/%3E%3C/svg%3E");
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:auto}      /* the travel is scripted; `smooth` fights it */
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:"Epilogue",system-ui,sans-serif;font-size:16px;line-height:1.62;
+  -webkit-font-smoothing:antialiased;overflow-x:clip}
+img{max-width:100%;display:block}
+a{color:inherit}
+
+.lacquer{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(66% 46% at 8% 104%, rgba(225,14,31,.30), transparent 66%),
+    radial-gradient(48% 34% at 96% -6%, rgba(198,214,255,.10), transparent 70%),
+    linear-gradient(#0B0B0C 0%, #131315 54%, #0B0B0C 100%)}
+.lacquer::after{content:"";position:absolute;inset:0;background-image:var(--grain)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 24px}
+main{position:relative;z-index:1}
+
+h1,h2,h3,.disp{font-family:"Kanit",system-ui,sans-serif;font-style:italic;
+  font-weight:900;text-transform:uppercase;letter-spacing:-.012em;line-height:.92;margin:0;
+  overflow-wrap:normal}
+h1{font-size:clamp(46px,10.4vw,132px)}
+h2{font-size:clamp(30px,5.2vw,58px)}
+h3{font-size:21px}
+p{margin:12px 0 0;color:var(--ink-2)}
+.lead{font-size:18px;max-width:62ch}
+.cap{font-family:"Azeret Mono",ui-monospace,monospace;font-size:10px;
+  letter-spacing:.20em;text-transform:uppercase;color:var(--ink-3);display:block}
+.mono{font-family:"Azeret Mono",ui-monospace,monospace}
+b,strong{color:var(--ink)}
+section{padding:86px 0;position:relative}
+
+/* CONTROLS */
+.btn{display:inline-block;font-family:"Azeret Mono",monospace;font-weight:700;
+  font-size:11px;letter-spacing:.16em;text-transform:uppercase;border:0;cursor:pointer;
+  padding:15px 26px;border-radius:var(--r-pill);background:var(--accent);
+  color:var(--on-accent);text-decoration:none;
+  transition:transform var(--t-hover),filter var(--t-hover)}
+.btn:hover{filter:brightness(1.12)}
+.btn:active{transform:translateY(1px) scale(.985)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.btn.ghost{background:transparent;color:var(--ink);border:var(--edgew) solid var(--edge);
+  padding:13.5px 24.5px}
+.btn.ghost:hover{border-color:var(--ink);filter:none}
+.chip{display:inline-flex;gap:8px;align-items:center;font-family:"Azeret Mono",monospace;
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);
+  background:var(--surface);border:var(--hair) solid var(--rule);
+  border-radius:var(--r-pill);padding:8px 13px}
+.dot{width:6px;height:6px;border-radius:50%;background:#4ADE9B}
+.cell{font-family:"Azeret Mono",monospace;font-weight:700;font-size:15px;
+  background:var(--accent);color:var(--on-accent);border-radius:var(--r-cell);
+  padding:7px 11px;white-space:nowrap}
+
+/* HOURS BAR + NAV */
+.hoursbar{font-family:"Azeret Mono",monospace;font-size:10px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--ink-3);border-bottom:var(--hair) solid var(--rule)}
+.hoursbar .wrap{display:flex;justify-content:space-between;gap:14px;
+  padding-top:9px;padding-bottom:9px;flex-wrap:wrap}
+.hoursbar a{color:var(--ink-2);text-decoration:none}
+.hoursbar a:hover{color:var(--ink)}
+.nav{position:sticky;top:0;z-index:40;height:var(--nav);
+  background:rgba(11,11,12,.94);backdrop-filter:blur(11px);
+  border-bottom:var(--hair) solid var(--rule)}
+.nav .wrap{height:100%;display:flex;align-items:center;gap:20px}
+.mark{font-family:"Kanit";font-style:italic;font-weight:900;font-size:19px;
+  text-transform:uppercase;letter-spacing:-.02em;text-decoration:none;white-space:nowrap}
+.mark i{color:var(--accent-text);font-style:normal}
+.navlinks{display:flex;gap:20px;margin-left:auto}
+.navlinks a{font-family:"Azeret Mono",monospace;font-size:10px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--ink-2);text-decoration:none;
+  transition:color var(--t-hover)}
+.navlinks a:hover{color:var(--ink)}
+.nav .btn{margin-left:20px;padding:11px 18px}
+@media (max-width:900px){.navlinks{display:none}.nav .btn{margin-left:auto}}
+
+/* HERO */
+.hero{padding:22px 0 0}
+.poster{position:relative;border-radius:var(--r-panel);overflow:hidden;
+  min-height:min(78vh,640px);display:flex;align-items:flex-end;
+  background:var(--accent)}
+.poster > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  object-position:52% 46%;mix-blend-mode:multiply;opacity:.94}
+.poster::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(72deg,rgba(0,0,0,.62) 0%,rgba(0,0,0,.24) 42%,transparent 66%)}
+.poster-in{position:relative;z-index:1;padding:34px;width:100%}
+.eyebrow{position:absolute;top:30px;right:34px;text-align:right;z-index:1;
+  font-family:"Azeret Mono",monospace;font-size:10px;letter-spacing:.16em;
+  text-transform:uppercase;color:rgba(255,255,255,.92);line-height:1.7}
+h1{color:#fff;text-shadow:0 6px 34px rgba(0,0,0,.34)}
+.place{margin-top:16px;font-family:"Azeret Mono",monospace;font-size:11px;
+  letter-spacing:.15em;text-transform:uppercase;color:#fff;max-width:none}
+.wipe{display:inline-block;overflow:hidden;padding:0 .04em}
+.hero-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:26px}
+.hero-row .chip{background:rgba(0,0,0,.42);border-color:rgba(255,255,255,.30);
+  color:#fff}
+.rating{background:#fff;color:#111;border-radius:var(--r-card);padding:10px 14px;
+  display:flex;gap:10px;align-items:center}
+.rating b{font-family:"Azeret Mono",monospace;font-size:22px;color:#111;line-height:1}
+.rating i{font-style:normal;font-family:"Azeret Mono",monospace;font-size:9px;
+  letter-spacing:.13em;text-transform:uppercase;color:#5A5754;line-height:1.3;display:block}
+.glasscard{position:absolute;right:34px;bottom:34px;z-index:1;width:246px;
+  background:rgba(34,3,6,.72);border:var(--hair) solid rgba(255,255,255,.30);
+  border-radius:var(--r-card);padding:16px;backdrop-filter:blur(10px);color:#fff;
+  text-decoration:none;transition:transform var(--t-hover)}
+.glasscard:hover{transform:translateY(-3px)}
+.glasscard .cap{color:rgba(255,255,255,.86)}
+.glasscard .disp{font-size:25px;margin-top:6px}
+.glasscard em{font-style:normal;font-family:"Azeret Mono",monospace;font-size:11px;
+  display:block;margin-top:8px;color:rgba(255,255,255,.92)}
+@media (max-width:900px){
+  .poster{display:block;min-height:0}
+  .poster-in{padding:26px}
+  .eyebrow{position:static;text-align:left;padding:26px 26px 0;line-height:1.9}
+  .glasscard{position:static;width:auto;margin:0 26px 26px}}
+.tab{display:block;width:max-content;margin:0 auto;background:var(--accent);
+  color:var(--on-accent);text-decoration:none;padding:11px 22px 12px;
+  border-radius:0 0 var(--r-card) var(--r-card);
+  font-family:"Azeret Mono",monospace;font-size:10px;letter-spacing:.16em;
+  text-transform:uppercase;transition:padding var(--t-hover)}
+.tab:hover{padding-bottom:18px}
+.hero{padding-bottom:46px}
+
+/* THE NUMBERS BAND - not three cards on white; four figures, loud */
+.numbers{background:var(--accent);color:var(--on-accent);padding:44px 0}
+.numbers .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.numbers .disp{font-size:clamp(38px,6vw,72px);line-height:.86}
+.numbers .cap{color:rgba(255,255,255,.86);margin-top:8px}
+@media (max-width:760px){.numbers .grid{grid-template-columns:repeat(2,1fr);gap:26px}}
+
+/* THE SWITCHBOARD */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:30px}
+.tile{position:relative;border:0;padding:0;cursor:pointer;overflow:hidden;
+  border-radius:var(--r-card);background:var(--ground-2);aspect-ratio:4/3;
+  transition:box-shadow var(--t-hover)}
+.tile img{width:100%;height:100%;object-fit:cover;opacity:.52;
+  transition:opacity var(--t-hover),transform var(--t-hover)}
+.tile::after{content:"";position:absolute;inset:auto 0 0 0;height:58%;
+  pointer-events:none;background:linear-gradient(transparent,rgba(0,0,0,.88))}
+.tile .lab{position:absolute;z-index:1;left:12px;bottom:10px;font-family:"Kanit";
+  font-style:italic;font-weight:900;text-transform:uppercase;font-size:16px;
+  color:#fff;letter-spacing:-.01em;text-shadow:0 2px 10px rgba(0,0,0,.8)}
+.tile:hover img{opacity:.74;transform:scale(1.035)}
+.tile[aria-pressed="true"]{box-shadow:inset 0 0 0 2.5px var(--accent)}
+.tile[aria-pressed="true"] img{opacity:.9}
+.tile:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.tile.motto{background:var(--accent);display:grid;place-items:center}
+.tile.motto::after{display:none}
+.tile.motto .lab{position:static;text-align:center;font-size:19px;line-height:1;
+  padding:0 12px;text-shadow:none}
+.ladderwrap{margin-top:20px;background:var(--surface);
+  border:var(--hair) solid var(--rule);border-radius:var(--r-panel);padding:8px 26px 22px}
+.pricerow{display:flex;justify-content:space-between;align-items:baseline;gap:18px;
+  padding:16px 0;border-top:var(--hair) solid var(--rule)}
+.pricerow:first-of-type{border-top:0}
+.pricerow .nm{font-family:"Kanit";font-style:italic;font-weight:800;font-size:18px;
+  text-transform:uppercase;letter-spacing:-.006em}
+.pricerow .sub{display:block;font-family:"Epilogue";font-style:normal;font-weight:400;
+  font-size:14px;color:var(--ink-3);text-transform:none;letter-spacing:0;margin-top:3px}
+.laddhead{display:flex;justify-content:space-between;align-items:baseline;gap:14px;
+  padding:18px 0 4px;flex-wrap:wrap}
+.swap > *{animation:g-rise var(--t-swap) var(--ramp) both}
+.swap > *:nth-child(2){animation-delay:20ms}
+.swap > *:nth-child(3){animation-delay:40ms}
+.swap > *:nth-child(4){animation-delay:60ms}
+.swap > *:nth-child(5){animation-delay:80ms}
+.swap > *:nth-child(n+6){animation-delay:100ms}
+
+/* THE CHECKLIST + THE WORK PHOTO */
+.split{display:grid;grid-template-columns:minmax(0,1.06fr) minmax(0,.94fr);
+  gap:40px;align-items:start;margin-top:32px}
+@media (max-width:900px){.split{grid-template-columns:1fr;gap:26px}}
+.checks{list-style:none;margin:22px 0 0;padding:0}
+.checks li{display:flex;gap:13px;padding:11px 0;
+  border-top:var(--hair) solid var(--rule);color:var(--ink-2)}
+.checks li:first-child{border-top:0}
+.checks i{font-style:normal;font-family:"Azeret Mono",monospace;font-size:10px;
+  color:var(--accent-text);padding-top:4px}
+.shot{border-radius:var(--r-panel);overflow:hidden;position:relative}
+.shot img{width:100%;height:100%;object-fit:cover}
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:30px}
+@media (max-width:820px){.tiers{grid-template-columns:1fr}}
+.tier{background:var(--surface);border:var(--hair) solid var(--rule);
+  border-radius:var(--r-card);padding:20px}
+.tier h3{font-size:19px}
+
+/* THE GLOSS - one scroll number, borrowed from the reference's lit panel */
+.glosswrap{position:relative;border-radius:var(--r-panel);overflow:hidden;
+  border:var(--hair) solid var(--rule)}
+.glosswrap img{width:100%;height:100%;object-fit:cover;filter:saturate(.92)}
+.glossbar{position:absolute;top:-30%;bottom:-30%;width:34%;pointer-events:none;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.40),transparent);
+  transform:translateX(var(--gx,-60%)) rotate(var(--lean))}
+
+/* THE LIGHT BAND - the page changes ground */
+.band{background:var(--band);color:var(--band-ink)}
+.band h2,.band h3,.band .disp{color:var(--band-ink)}
+.band p{color:var(--band-ink-2)}
+.band b,.band strong{color:var(--band-ink)}
+.band a{color:var(--band-ink)}
+.band .cap{color:var(--band-ink-3)}
+.band .cell{background:var(--band-ink);color:var(--band)}
+.band .pricerow{border-color:var(--band-rule)}
+.band .pricerow .sub{color:var(--band-ink-3)}
+.plans{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:32px}
+@media (max-width:820px){.plans{grid-template-columns:1fr}}
+.plan{background:#fff;border:var(--hair) solid var(--band-rule);
+  border-radius:var(--r-panel);padding:26px}
+.plan .row{display:flex;justify-content:space-between;align-items:baseline;
+  padding:11px 0;border-top:var(--hair) solid var(--band-rule);gap:14px}
+.plan .row:first-of-type{border-top:0}
+.plan .row b{font-family:"Kanit";font-style:italic;font-weight:800;font-size:17px;
+  text-transform:uppercase;color:var(--band-ink)}
+
+/* FLEET */
+.four{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:30px}
+@media (max-width:900px){.four{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:520px){.four{grid-template-columns:1fr}}
+.fbox{background:var(--surface);border:var(--hair) solid var(--rule);
+  border-radius:var(--r-card);padding:20px}
+.fbox .cap{color:var(--accent-text)}
+.fbox h3{font-size:18px;margin-top:8px}
+
+/* AREA */
+.towns{display:flex;flex-wrap:wrap;gap:9px;margin-top:26px}
+.town{font-family:"Azeret Mono",monospace;font-size:11px;letter-spacing:.08em;
+  text-transform:uppercase;border:var(--hair) solid var(--rule);
+  border-radius:var(--r-pill);padding:9px 15px;color:var(--ink-2)}
+.town.home{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+
+/* REVIEWS */
+.revs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:30px}
+@media (max-width:900px){.revs{grid-template-columns:1fr}}
+.rev{background:var(--surface);border:var(--hair) solid var(--rule);
+  border-radius:var(--r-card);padding:20px}
+.rev .stars{color:var(--accent-text);font-family:"Azeret Mono",monospace;font-size:12px;
+  letter-spacing:.2em}
+.rev p{margin-top:10px}
+.rev .who{margin-top:14px;font-family:"Azeret Mono",monospace;font-size:10px;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+
+/* THE BOOKING WIDGET - ours, in this skin */
+.bookgrid{display:grid;grid-template-columns:minmax(0,.74fr) minmax(0,1.26fr);gap:42px;
+  align-items:start;margin-top:30px}
+@media (max-width:980px){.bookgrid{grid-template-columns:1fr;gap:26px}}
+.bk{background:var(--surface);border:var(--hair) solid var(--rule);
+  border-radius:var(--r-panel);padding:24px}
+.bk-prog{border-bottom:var(--hair) solid var(--rule);padding-bottom:16px}
+.bk-lab{margin:0;font-family:"Azeret Mono",monospace;font-size:11px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
+  display:flex;justify-content:space-between;gap:12px}
+.bk-lab b{color:var(--ink)}
+.bk-bar{display:flex;gap:5px;margin-top:11px}
+.bk-bar i{flex:1;height:4px;border-radius:var(--r-pill);background:var(--surface-2);
+  text-indent:-9999px;overflow:hidden}
+.bk-bar i.on{background:var(--accent)}
+.bk-body{padding-top:20px}
+.bk-step h3{margin-bottom:16px}
+.bk-step{display:none}
+.bk-step.on{display:block}
+.grp{margin-top:18px}
+.grp:first-of-type{margin-top:0}
+.grp-h{margin:0 0 10px;font-family:"Azeret Mono",monospace;font-size:10px;
+  letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3);
+  display:flex;justify-content:space-between;gap:10px}
+.opts{display:grid;gap:8px}
+.opts--row{grid-template-columns:repeat(4,1fr)}
+@media (max-width:640px){.opts--row{grid-template-columns:repeat(2,1fr)}}
+.opt{display:flex;gap:12px;align-items:center;cursor:pointer;
+  background:var(--ground-2);border:var(--edgew) solid var(--edge);
+  border-radius:var(--r-inset);padding:13px 15px;
+  transition:border-color var(--t-hover),background var(--t-hover)}
+.opt:hover{border-color:var(--ink)}
+.opt input{accent-color:var(--accent);width:17px;height:17px;flex:none}
+.opt:has(input:checked){border-color:var(--accent);background:rgba(225,14,31,.10)}
+.opt .ob{flex:1;min-width:0}
+.opt .ob b{display:block;font-size:15px}
+.opt .ob i{font-style:normal;font-size:13px;color:var(--ink-3)}
+.opt em{font-style:normal;font-family:"Azeret Mono",monospace;font-weight:700;
+  font-size:13px;white-space:nowrap}
+.opt--sm{justify-content:center;text-align:center;padding:12px 8px}
+.opt--sm .ob b{font-size:13px}
+.fld{display:block;margin-top:12px;font-family:"Azeret Mono",monospace;font-size:10px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.fld input,.fld select,.fld textarea{width:100%;margin-top:7px;
+  font-family:"Epilogue";font-size:15px;letter-spacing:0;text-transform:none;
+  color:var(--ink);background:var(--ground-2);
+  border:var(--edgew) solid var(--edge);border-radius:var(--r-inset);padding:12px 14px}
+.fld input:focus,.fld select:focus,.fld textarea:focus{outline:0;border-color:var(--accent-text)}
+.two{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media (max-width:600px){.two{grid-template-columns:1fr}}
+.cal{background:var(--ground-2);border:var(--hair) solid var(--rule);
+  border-radius:var(--r-inset);padding:14px;margin-top:14px}
+.cal-head{display:flex;justify-content:space-between;font-family:"Azeret Mono",monospace;
+  font-size:12px}
+.cal-dow,.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:9px}
+.cal-dow i{font-style:normal;text-align:center;font-family:"Azeret Mono",monospace;
+  font-size:9px;color:var(--ink-3)}
+.d{border:0;background:var(--surface);color:var(--ink);border-radius:var(--r-cell);
+  padding:9px 0;font-family:"Azeret Mono",monospace;font-size:12px;cursor:pointer;
+  transition:background var(--t-hover)}
+.d:hover{background:var(--surface-2)}
+.d.off{color:var(--ink-3);opacity:.4;cursor:not-allowed}
+.d.sel{background:var(--accent);color:var(--on-accent)}
+.slots{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.sl{border:var(--edgew) solid var(--edge);background:transparent;color:var(--ink);
+  border-radius:var(--r-pill);padding:10px 15px;font-family:"Azeret Mono",monospace;
+  font-size:11px;cursor:pointer;transition:border-color var(--t-hover)}
+.sl:hover{border-color:var(--ink)}
+.sl.sel{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.sl.off{opacity:.38;cursor:not-allowed}
+.bk-foot{display:flex;justify-content:space-between;align-items:center;gap:14px;
+  margin-top:22px;padding-top:18px;border-top:var(--hair) solid var(--rule);flex-wrap:wrap}
+.quote{font-family:"Azeret Mono",monospace;font-size:12px;color:var(--ink-3)}
+.quote b{font-size:19px;color:var(--ink);display:block}
+.summ{display:grid;gap:8px;margin-top:4px}
+.summ div{display:flex;justify-content:space-between;gap:14px;padding:9px 0;
+  border-top:var(--hair) solid var(--rule);font-size:14px;color:var(--ink-2)}
+.summ div:first-child{border-top:0}
+.summ span{color:var(--ink)}
+
+/* THE SMALL PRINT - the part no site in this set has ever shown */
+.print{display:grid;gap:10px;margin-top:28px}
+details.pr{background:var(--surface);border:var(--hair) solid var(--rule);
+  border-radius:var(--r-card);padding:16px 20px}
+details.pr summary{cursor:pointer;font-family:"Kanit";font-style:italic;font-weight:800;
+  text-transform:uppercase;font-size:17px;list-style:none;display:flex;
+  justify-content:space-between;gap:14px;align-items:center}
+details.pr summary::-webkit-details-marker{display:none}
+details.pr summary::after{content:"+";font-family:"Azeret Mono",monospace;
+  color:var(--accent-text);font-size:17px}
+details.pr[open] summary::after{content:"\2013"}
+details.pr p{max-width:74ch}
+
+/* FOOTER - no wordmark. It is on 6 of 28 pages and all 6 are sites 1-4. */
+footer{border-top:var(--hair) solid var(--rule);padding:52px 0 40px;position:relative;z-index:1}
+.fgrid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:34px}
+@media (max-width:820px){.fgrid{grid-template-columns:1fr;gap:26px}}
+footer h4{font-family:"Azeret Mono",monospace;font-size:10px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-3);margin:0 0 12px;font-weight:400}
+footer ul{list-style:none;margin:0;padding:0;color:var(--ink-2);font-size:14px}
+footer li{padding:3px 0}
+footer a{text-decoration:none;color:var(--ink-2);transition:color var(--t-hover)}
+footer a:hover{color:var(--ink)}
+.legal{margin-top:36px;padding-top:22px;border-top:var(--hair) solid var(--rule);
+  font-family:"Azeret Mono",monospace;font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-3);display:flex;gap:18px;flex-wrap:wrap;
+  justify-content:space-between}
+
+/* MOTION - the sheet's, and the hidden state is added by script */
+@keyframes g-unmask{from{clip-path:inset(42% 0 42% 0 round var(--r-panel))}
+  to{clip-path:inset(0 0 0 0 round var(--r-panel))}}
+@keyframes g-wipe{from{clip-path:polygon(0 0,0 0,-24% 100%,-24% 100%)}
+  to{clip-path:polygon(0 0,124% 0,100% 100%,-24% 100%)}}
+@keyframes g-settle{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes g-reveal{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:none}}
+@keyframes g-rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.js .poster{animation:g-unmask var(--t-unmask) var(--ramp) both}
+.js h1 .wipe{animation:g-wipe var(--t-wipe) var(--ramp) both;animation-delay:210ms}
+.js h1 .wipe:nth-of-type(2){animation-delay:300ms}
+.js .place{animation:g-settle var(--t-settle) var(--ramp) both;animation-delay:520ms}
+.js .settle > *{animation:g-settle var(--t-settle) var(--ramp) both;animation-delay:560ms}
+.js .settle > *:nth-child(2){animation-delay:600ms}
+.js .settle > *:nth-child(3){animation-delay:640ms}
+.js .settle > *:nth-child(4){animation-delay:680ms}
+.js .glasscard,.js .eyebrow,.js .tab{animation:g-settle var(--t-settle) var(--ramp) both;
+  animation-delay:720ms}
+.rv-hidden{opacity:0}
+.rv-in{animation:g-reveal var(--t-reveal) var(--ramp) both}
+
+/* THE ONE REDUCED-MOTION IMPLEMENTATION ON THIS PAGE */
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:1ms !important;animation-delay:0ms !important;
+    transition-duration:1ms !important}
+}
+
+/* THE PHONE IS A RE-LAYOUT, AND ROTATING IT CHANGES NOTHING */
+@media (max-width:820px){
+  .tiles{grid-template-columns:repeat(2,1fr)}
+  .revs,.tiers{grid-template-columns:1fr}
+  section{padding:62px 0}
+}
+@media (max-width:560px){
+  .wrap{padding:0 16px}
+  .ladderwrap{padding:6px 18px 18px}
+  .bk{padding:18px}
+}
+</style>
+</head>
+<body>
+<div class="lacquer"></div>
+
+<div class="hoursbar">
+  <div class="wrap">
+    <span>Mon&ndash;Fri 8am&ndash;6pm &nbsp;&middot;&nbsp; Sat 8am&ndash;3pm &nbsp;&middot;&nbsp; Sun closed</span>
+    <span><a href="tel:+18134027719">(813) 402&ndash;7719</a> &nbsp;&middot;&nbsp;
+      <a href="mailto:ray@gandydetailing.com">ray@gandydetailing.com</a></span>
+  </div>
+</div>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="mark" href="#top">Gandy<i>.</i></a>
+    <div class="navlinks">
+      <a href="#prices">Prices</a>
+      <a href="#detail">What you get</a>
+      <a href="#coating">Ceramic</a>
+      <a href="#plans">Plans</a>
+      <a href="#fleet">Fleet</a>
+      <a href="#area">Where we go</a>
+    </div>
+    <a class="btn" href="#book">Book a detail</a>
+  </div>
+</nav>
+
+<main id="top">
+
+<!-- HERO. The poster: it is the first screen and it never returns. -->
+<section class="hero">
+  <div class="wrap">
+    <div class="poster">
+      <img src="https://images.unsplash.com/photo-1770316937743-503c62f72534?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=1400&h=1000" alt="A red bonnet running into the headlight, freshly polished">
+      <p class="eyebrow">If it drives, we detail it<br>Cars &middot; trucks &middot; RVs &middot; boats &middot; carts &middot; semis</p>
+      <div class="poster-in">
+        <h1><span class="wipe">Mobile</span><br><span class="wipe">detailing</span></h1>
+        <p class="place">Tampa Bay, Florida &mdash; we bring the water and the power</p>
+        <div class="hero-row settle">
+          <a class="btn" href="#book">Book a detail</a>
+          <span class="chip"><i class="dot"></i>Booking next week</span>
+          <span class="chip">Licensed &amp; insured &middot; Florida</span>
+          <span class="rating"><b>4.9</b><i>from 82<br>reviews</i></span>
+        </div>
+      </div>
+      <a class="glasscard" href="#coating">
+        <span class="cap">Premium</span>
+        <span class="disp">Ceramic<br>coating</span>
+        <em>From $750 &middot; nine-hour cure</em>
+      </a>
+    </div>
+    <a class="tab" href="#prices">See the board &darr;</a>
+  </div>
+</section>
+
+<section class="numbers" data-rv>
+  <div class="wrap">
+    <div class="grid">
+      <div><span class="disp">1,200+</span><span class="cap">Vehicles detailed</span></div>
+      <div><span class="disp">9</span><span class="cap">Years on the road</span></div>
+      <div><span class="disp">14</span><span class="cap">Towns we cover</span></div>
+      <div><span class="disp">4.9</span><span class="cap">From 82 reviews</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- THE SWITCHBOARD. Segmented by what the vehicle IS. -->
+<section id="prices" data-rv>
+  <div class="wrap">
+    <span class="cap">The board</span>
+    <h2 style="margin-top:12px">If it drives, we detail it.</h2>
+    <p class="lead">Pick what you have. Prices are for a vehicle in normal
+      condition &mdash; heavy soiling is quoted before we start, never after.</p>
+
+    <div class="tiles" id="tiles">
+      <button class="tile" type="button" aria-pressed="true"><img alt="A red bonnet running into the headlight" src="https://images.unsplash.com/photo-1770316937743-503c62f72534?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=440&h=330"><span class="lab">Car &amp; SUV</span></button>
+      <button class="tile" type="button" aria-pressed="false"><img alt="A pickup truck at sunset" src="https://images.unsplash.com/photo-1649793395985-967862a3b73f?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=440&h=330"><span class="lab">Truck, van &amp; dually</span></button>
+      <button class="tile" type="button" aria-pressed="false"><img alt="A motorhome parked on a road" src="https://images.unsplash.com/photo-1596470693312-9a3686a0af0f?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=440&h=330"><span class="lab">RV &amp; camper</span></button>
+      <button class="tile" type="button" aria-pressed="false"><img alt="Two boats moored at a wooden pier" src="https://images.unsplash.com/photo-1760124057265-494a3e86a841?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=440&h=330"><span class="lab">Boat</span></button>
+      <button class="tile" type="button" aria-pressed="false"><img alt="A row of golf carts" src="https://images.unsplash.com/photo-1561251224-e393160cd769?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=440&h=330"><span class="lab">Golf cart</span></button>
+      <button class="tile" type="button" aria-pressed="false"><img alt="A semi truck and trailer on a highway" src="https://images.unsplash.com/photo-1592838064575-70ed626d3a0e?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=440&h=330"><span class="lab">Semi &amp; trailer</span></button>
+      <button class="tile" type="button" aria-pressed="false"><img alt="A blue work pickup" src="https://images.unsplash.com/photo-1551830820-330a71b99659?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=440&h=330"><span class="lab">Fleet</span></button>
+      <button class="tile motto" type="button" aria-pressed="false"><span class="lab">Anything else</span></button>
+    </div>
+
+    <div class="ladderwrap"><div id="ladder"></div></div>
+    <p class="cap" style="margin-top:16px">Every price is recomputed by the booking
+      system when you book &mdash; this board is what it costs, not a guess.</p>
+  </div>
+</section>
+
+<!-- WHAT IS IN EVERY DETAIL -->
+<section id="detail" data-rv>
+  <div class="wrap">
+    <div class="split">
+      <div>
+        <span class="cap">Every wash, every time</span>
+        <h2 style="margin-top:12px">The eight things<br>that always happen.</h2>
+        <p>Whatever you booked, this is the floor. It is the same list on a golf
+          cart and on a sleeper cab.</p>
+        <ul class="checks">
+          <li><i>01</i>Detailed foam bath, filtered water</li>
+          <li><i>02</i>Bugs and bird droppings lifted, not scrubbed off</li>
+          <li><i>03</i>Fuel cap area cleaned</li>
+          <li><i>04</i>Dried with microfibre towels, never air</li>
+          <li><i>05</i>Inner fender wells scrubbed and pressure washed</li>
+          <li><i>06</i>Rims and tyres cleaned and dressed</li>
+          <li><i>07</i>Glass inside and out</li>
+          <li><i>08</i>Ceramic spray sealant to finish</li>
+        </ul>
+      </div>
+      <div class="shot" style="min-height:420px">
+        <img src="https://images.unsplash.com/photo-1689182358896-2514cd65dfff?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=900&h=1000" alt="Washing a red car with foam in a garage">
+      </div>
+    </div>
+
+    <div class="tiers">
+      <div class="tier">
+        <span class="cap">Express</span>
+        <h3>Get it clean</h3>
+        <p>Wash, super clean, seats or carpets. Half a day at most, and the car
+          is usable the moment we leave.</p>
+        <p class="cap" style="margin-top:14px">$55 &ndash; $200</p>
+      </div>
+      <div class="tier">
+        <span class="cap">Executive</span>
+        <h3>Get it right</h3>
+        <p>Deluxe wax, deluxe interior, paint correction, the super detail.
+          A full day, sometimes two on a truck.</p>
+        <p class="cap" style="margin-top:14px">$195 &ndash; $450</p>
+      </div>
+      <div class="tier">
+        <span class="cap">Add-ons</span>
+        <h3>On top of either</h3>
+        <p>Ceramic coating and its maintenance, headlight restoration, engine
+          bay, pet hair, odour treatment.</p>
+        <p class="cap" style="margin-top:14px">$60 &ndash; $750</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CERAMIC. The gloss travels across it as you scroll. -->
+<section id="coating" data-rv>
+  <div class="wrap">
+    <div class="split">
+      <div class="glosswrap" id="gloss" style="min-height:400px">
+        <img src="https://images.unsplash.com/photo-1658244500543-47f32dc51dc2?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=80&w=900&h=1000" alt="A machine polisher working on black paint">
+        <div class="glossbar" id="gbar"></div>
+      </div>
+      <div>
+        <span class="cap">Premium add-on</span>
+        <h2 style="margin-top:12px">Ceramic coating.</h2>
+        <p class="lead">It cures over your clear coat into a surface nothing
+          sticks to &mdash; rain, salt off the bay, love bugs in May. The paint
+          gets deeper at the same time, which is the part people notice first.</p>
+        <ul class="checks">
+          <li><i>&mdash;</i>Exterior only, all panels, glass and wheels</li>
+          <li><i>&mdash;</i>Paint decontaminated and corrected first, or the
+            coating locks the swirls in</li>
+          <li><i>&mdash;</i>Nine hours to cure &mdash; the vehicle stays with you
+            and stays dry overnight</li>
+          <li><i>&mdash;</i>Maintenance wash at $195 keeps it performing</li>
+        </ul>
+        <div class="hero-row" style="margin-top:24px">
+          <span class="cell">From $750</span>
+          <a class="btn ghost" href="#book">Book a coating</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE LIGHT BAND. Black to white and back, which is what all five of his
+     references do and none of my five pages did. -->
+<section class="band" id="plans" data-rv>
+  <div class="wrap">
+    <span class="cap">On a schedule</span>
+    <h2 style="margin-top:12px">Once a month, same slot, no phone call.</h2>
+    <p class="lead">Twelve months, one service each calendar month. Sedans,
+      SUVs, vans and trucks only &mdash; RVs and semis are quoted by the foot.</p>
+    <div class="plans">
+      <div class="plan">
+        <span class="cap">Wash plan</span>
+        <h3 style="margin:8px 0 14px">The full eight-step wash, monthly</h3>
+        <div class="row"><b>Sedan</b><span class="cell">$95</span></div>
+        <div class="row"><b>SUV</b><span class="cell">$135</span></div>
+        <div class="row"><b>Van</b><span class="cell">$135</span></div>
+        <div class="row"><b>Dually &amp; trucks</b><span class="cell">$135</span></div>
+      </div>
+      <div class="plan">
+        <span class="cap">Maintenance plan</span>
+        <h3 style="margin:8px 0 14px">Between details, to hold the finish</h3>
+        <div class="row"><b>Sedan</b><span class="cell">$45</span></div>
+        <div class="row"><b>SUV</b><span class="cell">$55</span></div>
+        <div class="row"><b>Van</b><span class="cell">$55</span></div>
+        <div class="row"><b>Dually &amp; trucks</b><span class="cell">$55</span></div>
+      </div>
+    </div>
+    <p style="margin-top:22px"><b>Gift cards are available</b> for any service or
+      amount, and they do not expire.</p>
+  </div>
+</section>
+
+<!-- FLEET -->
+<section id="fleet" data-rv>
+  <div class="wrap">
+    <span class="cap">For businesses</span>
+    <h2 style="margin-top:12px">Your vans are your advertising.</h2>
+    <p class="lead">We come to your yard. Weekly, fortnightly or monthly,
+      priced per vehicle by how many you run. Invoicing on request.</p>
+    <div class="four">
+      <div class="fbox"><span class="cap">01</span><h3>We come to you</h3>
+        <p>No vehicle leaves the yard and no driver loses half a day.</p></div>
+      <div class="fbox"><span class="cap">02</span><h3>Your schedule</h3>
+        <p>Weekly, fortnightly or monthly, worked around your routes.</p></div>
+      <div class="fbox"><span class="cap">03</span><h3>Built to your fleet</h3>
+        <p>Three vans or thirty. Exterior only, or interiors and engine bays too.</p></div>
+      <div class="fbox"><span class="cap">04</span><h3>Employee car day</h3>
+        <p>We do the staff cars while they work. You cover all of it or part.</p></div>
+    </div>
+    <div class="hero-row" style="margin-top:26px">
+      <a class="btn" href="#book">Get a fleet quote</a>
+      <a class="btn ghost" href="tel:+18134027719">Call (813) 402&ndash;7719</a>
+    </div>
+  </div>
+</section>
+
+<!-- WHERE WE ROLL -->
+<section id="area" data-rv>
+  <div class="wrap">
+    <span class="cap">Service area</span>
+    <h2 style="margin-top:12px">Fourteen towns around the bay.</h2>
+    <p class="lead">Driveway, office car park, marina or storage yard. If your
+      town is not here, call &mdash; it is usually a yes.</p>
+    <div class="towns">
+      <span class="town home">Tampa &mdash; home base</span>
+      <span class="town">St. Petersburg</span><span class="town">Clearwater</span>
+      <span class="town">Brandon</span><span class="town">Riverview</span>
+      <span class="town">Wesley Chapel</span><span class="town">Lutz</span>
+      <span class="town">Carrollwood</span><span class="town">Westchase</span>
+      <span class="town">Apollo Beach</span><span class="town">Ruskin</span>
+      <span class="town">Palm Harbor</span><span class="town">Safety Harbor</span>
+      <span class="town">Temple Terrace</span>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS. Named, and each one names the vehicle, which is what makes a
+     review read as real. -->
+<section data-rv>
+  <div class="wrap">
+    <span class="cap">4.9 from 82 reviews</span>
+    <h2 style="margin-top:12px">What people say.</h2>
+    <div class="revs">
+      <div class="rev"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+        <p>&ldquo;I have used Ray for three years. He does our new Telluride and my
+          2011 Tacoma &mdash; the Tacoma is the proof. It looks better than the day
+          I bought it.&rdquo;</p>
+        <span class="who">B. Martin &middot; Carrollwood</span></div>
+      <div class="rev"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+        <p>&ldquo;They did our golf cart at the community. On time, easy to deal
+          with, and a cart is a pain to detail. Calling them again.&rdquo;</p>
+        <span class="who">E. Fernandez &middot; Apollo Beach</span></div>
+      <div class="rev"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+        <p>&ldquo;Two Corvettes done in a couple of hours before a show. Came to the
+          hotel car park. Would use them any time we are in town.&rdquo;</p>
+        <span class="who">A. Sloop &middot; Visiting from Ocala</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- BOOKING. Ours, in this site's language. Every figure and every open time
+     comes from the platform - this form ASKS, it never computes.
+       services and groups  get_public_business_profile
+       money                calculate-booking
+       open times           available-slots
+       submit               create-booking
+     The step sequence is app/src/book/core.js stepsFor(). -->
+<section id="book" data-rv>
+  <div class="wrap">
+    <div class="bookgrid">
+      <div>
+        <span class="cap">Booking</span>
+        <h2 style="margin-top:12px">Tell us what you have.</h2>
+        <p class="lead">You see the price before anything is committed. A $25
+          deposit holds the slot and comes off the bill.</p>
+        <p style="margin-top:18px"><b>The figure you are quoted is the figure
+          charged.</b> If we get there and the job is bigger than the photos
+          suggested, you are told before a hose comes off the van.</p>
+      </div>
+
+      <div class="bk">
+        <div class="bk-prog" data-from="core.js stepsFor(addOns)">
+          <p class="bk-lab"><b>Step <span data-n>1</span> of 7</b><span data-name>Services</span></p>
+          <div class="bk-bar" role="progressbar" aria-valuemin="1" aria-valuemax="7" aria-valuenow="1">
+            <i class="on">Services</i><i>Extras</i><i>Vehicle</i><i>Where</i><i>When</i><i>Details</i><i>Review</i>
+          </div>
+        </div>
+
+        <div class="bk-body">
+          <!-- 1 - SERVICES. Carolina's own three tiers map onto the core's
+               group rules: one pick per level, add-ons uncapped. That is what
+               makes "a full detail AND my windows done" two taps. -->
+          <div class="bk-step on" data-step="0">
+            <h3>What would you like done?</h3>
+            <div class="grp" data-from="get_public_business_profile.service_groups" data-cap="1">
+              <p class="grp-h">Express level <span>Choose one</span></p>
+              <div class="opts" data-from="get_public_business_profile.services">
+                <label class="opt"><input type="checkbox" name="svc" value="Exterior premium wash">
+                  <span class="ob"><b>Exterior premium wash</b><i>The eight steps, outside only &middot; 90 minutes</i></span>
+                  <em data-from="calculate-booking">$55</em></label>
+                <label class="opt"><input type="checkbox" name="svc" value="Express super clean">
+                  <span class="ob"><b>Express super clean</b><i>Wash plus a full interior &middot; three hours</i></span>
+                  <em data-from="calculate-booking">$110</em></label>
+                <label class="opt"><input type="checkbox" name="svc" value="Express seats">
+                  <span class="ob"><b>Express seats</b><i>Seats extracted, plus the wash &middot; four hours</i></span>
+                  <em data-from="calculate-booking">$200</em></label>
+              </div>
+            </div>
+            <div class="grp" data-from="get_public_business_profile.service_groups" data-cap="1">
+              <p class="grp-h">Executive level <span>Choose one</span></p>
+              <div class="opts" data-from="get_public_business_profile.services">
+                <label class="opt"><input type="checkbox" name="svc" value="Deluxe wax">
+                  <span class="ob"><b>Deluxe wax</b><i>Inside and out, machine buff wax &middot; six hours</i></span>
+                  <em data-from="calculate-booking">$195</em></label>
+                <label class="opt"><input type="checkbox" name="svc" value="Paint correction">
+                  <span class="ob"><b>Paint correction</b><i>Exterior only, one machine stage &middot; a day</i></span>
+                  <em data-from="calculate-booking">$395</em></label>
+                <label class="opt"><input type="checkbox" name="svc" value="Super detail">
+                  <span class="ob"><b>Super detail</b><i>Everything, inside and out &middot; a full day</i></span>
+                  <em data-from="calculate-booking">$390</em></label>
+              </div>
+            </div>
+            <div class="grp" data-from="get_public_business_profile.service_groups">
+              <p class="grp-h">Add-ons <span>As many as you like</span></p>
+              <div class="opts" data-from="get_public_business_profile.services">
+                <label class="opt"><input type="checkbox" name="svc" value="Ceramic coating">
+                  <span class="ob"><b>Ceramic coating</b><i>Nine hours, plus overnight to cure</i></span>
+                  <em data-from="calculate-booking">$750</em></label>
+                <label class="opt"><input type="checkbox" name="svc" value="Headlight restoration">
+                  <span class="ob"><b>Headlight restoration</b><i>Per pair, sanded and sealed</i></span>
+                  <em data-from="calculate-booking">$95</em></label>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2 - EXTRAS -->
+          <div class="bk-step" data-step="1">
+            <h3>Anything to add?</h3>
+            <div class="opts" data-from="get_public_business_profile.add_ons">
+              <label class="opt"><input type="checkbox" name="add" value="Pet hair removal">
+                <span class="ob"><b>Pet hair removal</b><i>Adds about 45 minutes</i></span>
+                <em data-from="calculate-booking">+$60</em></label>
+              <label class="opt"><input type="checkbox" name="add" value="Engine bay clean">
+                <span class="ob"><b>Engine bay clean</b><i>Degreased, rinsed and dressed</i></span>
+                <em data-from="calculate-booking">+$75</em></label>
+              <label class="opt"><input type="checkbox" name="add" value="Odor treatment">
+                <span class="ob"><b>Odor treatment</b><i>Ozone, overnight with the vehicle shut</i></span>
+                <em data-from="calculate-booking">+$110</em></label>
+            </div>
+          </div>
+
+          <!-- 3 - VEHICLE. Type, not size - the whole point of this site. -->
+          <div class="bk-step" data-step="2">
+            <h3>What are we working on?</h3>
+            <div class="opts opts--row" data-from="get_public_business_profile.vehicle_sizes">
+              <label class="opt opt--sm"><input type="radio" name="vt" checked><span class="ob"><b>Car &amp; SUV</b></span></label>
+              <label class="opt opt--sm"><input type="radio" name="vt"><span class="ob"><b>Truck &amp; van</b></span></label>
+              <label class="opt opt--sm"><input type="radio" name="vt"><span class="ob"><b>RV or boat</b></span></label>
+              <label class="opt opt--sm"><input type="radio" name="vt"><span class="ob"><b>Semi or cart</b></span></label>
+            </div>
+            <div class="two">
+              <label class="fld">Make and model
+                <input type="text" placeholder="2019 Tacoma"></label>
+              <label class="fld">Condition
+                <select data-from="core.js VEHICLE_CONDITIONS">
+                  <option>Normal use</option>
+                  <option>Heavily soiled</option>
+                  <option>Maintained, correction only</option>
+                </select></label>
+            </div>
+            <label class="fld">Length, if it is sold by the foot
+              <input type="text" placeholder="32 ft" inputmode="numeric"></label>
+          </div>
+
+          <!-- 4 - WHERE. Mobile only, so there is no mode question:
+               core.js offersBothModes(settings) is what decides that. -->
+          <div class="bk-step" data-step="3">
+            <h3>Where is it?</h3>
+            <label class="fld">Address
+              <input type="text" placeholder="Street and number" autocomplete="street-address"></label>
+            <div class="two">
+              <label class="fld">Town
+                <select data-from="get_public_business_profile.travel_zones">
+                  <option>Tampa</option><option>St. Petersburg</option><option>Clearwater</option>
+                  <option>Brandon</option><option>Riverview</option><option>Wesley Chapel</option>
+                  <option>Lutz</option><option>Carrollwood</option><option>Westchase</option>
+                  <option>Apollo Beach</option><option>Ruskin</option><option>Palm Harbor</option>
+                  <option>Safety Harbor</option><option>Temple Terrace</option>
+                </select></label>
+              <label class="fld">Where it will be standing
+                <select>
+                  <option>A driveway</option>
+                  <option>An office car park</option>
+                  <option>A marina or boat ramp</option>
+                  <option>A storage yard</option>
+                  <option>On the street</option>
+                </select></label>
+            </div>
+          </div>
+
+          <!-- 5 - WHEN -->
+          <div class="bk-step" data-step="4">
+            <h3>When suits you?</h3>
+            <div class="cal" data-from="available-slots">
+              <div class="cal-head"><b>September 2026</b><span class="mono">&#8249;&nbsp;&nbsp;&#8250;</span></div>
+              <div class="cal-dow"><i>M</i><i>T</i><i>W</i><i>T</i><i>F</i><i>S</i><i>S</i></div>
+              <div class="cal-grid">
+                <button class="d off" type="button">7</button><button class="d" type="button">8</button><button class="d" type="button">9</button>
+                <button class="d" type="button">10</button><button class="d" type="button">11</button><button class="d" type="button">12</button><button class="d off" type="button">13</button>
+                <button class="d" type="button">14</button><button class="d sel" type="button">15</button><button class="d" type="button">16</button>
+                <button class="d off" type="button">17</button><button class="d" type="button">18</button><button class="d" type="button">19</button><button class="d off" type="button">20</button>
+                <button class="d" type="button">21</button><button class="d" type="button">22</button><button class="d" type="button">23</button>
+                <button class="d" type="button">24</button><button class="d off" type="button">25</button><button class="d" type="button">26</button><button class="d off" type="button">27</button>
+              </div>
+            </div>
+            <div class="slots" data-from="available-slots">
+              <button class="sl" type="button">8:00 am</button>
+              <button class="sl sel" type="button">10:30 am</button>
+              <button class="sl" type="button">1:00 pm</button>
+              <button class="sl off" type="button">3:30 pm</button>
+            </div>
+          </div>
+
+          <!-- 6 - DETAILS -->
+          <div class="bk-step" data-step="5">
+            <h3>How do we reach you?</h3>
+            <div class="two">
+              <label class="fld">Name<input type="text" autocomplete="name"></label>
+              <label class="fld">Phone<input type="tel" autocomplete="tel"></label>
+            </div>
+            <label class="fld">Email<input type="email" autocomplete="email"></label>
+            <label class="fld">Anything we should know
+              <textarea rows="3" placeholder="Dog in the back seat, low garage, gate code"></textarea></label>
+            <p class="cap" style="margin-top:16px;line-height:1.7">Tell us now if there
+              is anything hazardous in the vehicle &mdash; needles, fuel, chemicals.
+              We will still do the job; we need to know first.</p>
+          </div>
+
+          <!-- 7 - REVIEW -->
+          <div class="bk-step" data-step="6">
+            <h3>Does this look right?</h3>
+            <div class="summ" data-from="calculate-booking">
+              <div>Express super clean<span>$110</span></div>
+              <div>Deluxe wax<span>$195</span></div>
+              <div>Engine bay clean<span>+$75</span></div>
+              <div>Tuesday 15 September, 10:30 am<span>Tampa</span></div>
+            </div>
+            <div class="bk-foot">
+              <span class="quote">Total, before the deposit<b data-from="calculate-booking">$380</b></span>
+              <button class="btn" type="button" data-from="create-booking">Confirm booking</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="bk-foot">
+          <span class="quote">Running total<b data-from="calculate-booking">$380</b></span>
+          <span><button class="btn ghost" type="button" data-back>Back</button>
+            <button class="btn" type="button" data-next>Next</button></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE SMALL PRINT. Every real detailer's site has this and no page in our
+     set has ever shown it. -->
+<section data-rv>
+  <div class="wrap">
+    <span class="cap">Before you book</span>
+    <h2 style="margin-top:12px">The bits people wish they had read.</h2>
+    <div class="print">
+      <details class="pr"><summary>The deposit</summary>
+        <p>$25 holds a slot and comes off the final bill. It is not refundable.
+          A slot cancelled late cannot be refilled, and somebody on the waiting
+          list loses their week too.</p></details>
+      <details class="pr"><summary>If we cannot do the job when we arrive</summary>
+        <p>You are charged the full amount of the booked service. That includes
+          nobody being there to let us in. Reschedule instead &mdash; a phone call
+          the day before costs you nothing.</p></details>
+      <details class="pr"><summary>Hazards in the vehicle</summary>
+        <p>Needles, fuel, solvents, loose chemicals, anything sharp: tell us
+          before the appointment, not when we open the door. We will still take
+          the job. You are responsible for anything we are not warned about.</p></details>
+      <details class="pr"><summary>Weather</summary>
+        <p>We call and move the booking for rain or for heat over about 95&deg;F.
+          Next open day, and the deposit follows the booking.</p></details>
+      <details class="pr"><summary>We do not rush a job</summary>
+        <p>If a detail needs six hours it gets six hours. If the vehicle turns
+          out to need more than we quoted, you are told during the work, not on
+          the invoice.</p></details>
+      <details class="pr"><summary>Water and power</summary>
+        <p>The van carries both. You do not need an outside tap, an outlet, or
+          to be home &mdash; just somewhere legal to park it.</p></details>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="fgrid">
+      <div>
+        <h4>Gandy Mobile Detailing</h4>
+        <p style="max-width:42ch;margin-top:0">Fully licensed and insured in the
+          state of Florida for the work we do on your vehicle.</p>
+        <p class="mono" style="font-size:13px;margin-top:14px">
+          <a href="tel:+18134027719">(813) 402&ndash;7719</a><br>
+          <a href="mailto:ray@gandydetailing.com">ray@gandydetailing.com</a></p>
+      </div>
+      <div>
+        <h4>Where we go</h4>
+        <ul>
+          <li>Tampa &middot; St. Petersburg</li><li>Clearwater &middot; Brandon</li>
+          <li>Riverview &middot; Wesley Chapel</li><li>Lutz &middot; Carrollwood</li>
+          <li>Westchase &middot; Apollo Beach</li><li>Ruskin &middot; Palm Harbor</li>
+          <li>Safety Harbor &middot; Temple Terrace</li><li>&amp; surrounding areas</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Hours</h4>
+        <ul>
+          <li>Monday &ndash; Friday &nbsp;8am &ndash; 6pm</li>
+          <li>Saturday &nbsp;8am &ndash; 3pm</li>
+          <li>Sunday &nbsp;Closed</li>
+        </ul>
+        <h4 style="margin-top:22px">More</h4>
+        <ul>
+          <li><a href="#prices">Prices</a></li>
+          <li><a href="#plans">Monthly plans &amp; gift cards</a></li>
+          <li><a href="#fleet">Fleet</a></li>
+          <li><a href="#book">Book a detail</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="legal">
+      <span>&copy; 2026 Gandy Mobile Detailing</span>
+      <span>Terms &middot; Cancellation policy &middot; Privacy</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+var STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
+document.documentElement.classList.add("js");
+
+/* THE LADDER. The tiles are already in the HTML; this only swaps the rows. */
+(function () {
+  var TYPES = [
+    { n: "Car &amp; SUV", rows: [
+      ["Exterior premium wash", "Foam bath, wheels, glass, dressed tyres.", "$55"],
+      ["Express super clean", "Wash plus a full interior vacuum and wipe-down.", "$110"],
+      ["Deluxe wax", "Inside and out, finished with a machine buff wax.", "$195"],
+      ["Super detail", "The full job. Seats, carpets, paint, trim.", "$390"]] },
+    { n: "Truck, van &amp; dually", rows: [
+      ["Exterior premium wash", "Sized for a crew cab, a long bed or a panel van.", "$75"],
+      ["Express super clean", "Wash plus interior, every row of seats.", "$135"],
+      ["Deluxe wax", "Machine buff wax over the whole body.", "$235"],
+      ["Super detail", "Everything, including the bed and the running boards.", "$450"]] },
+    { n: "RV &amp; camper", rows: [
+      ["Detail wash", "Exterior only. Sold by the foot, the way an RV is.", "$11/ft"],
+      ["Wash &amp; wax", "Protects the surface and keeps it road-ready.", "$35/ft"],
+      ["Wash, wax &amp; compound", "Adds oxidation removal for faded, chalky sides.", "$40/ft"],
+      ["Standard interior", "A full interior for a rig kept on a schedule.", "$18/ft"],
+      ["Deep interior", "For an RV back from heavy use or long storage.", "$25/ft"]] },
+    { n: "Boat", rows: [
+      ["Hull and deck wash", "Salt off, deck scrubbed, rails polished.", "$210"],
+      ["Wash, wax &amp; compound", "Gelcoat brought back and sealed.", "$400"]] },
+    { n: "Golf cart", rows: [
+      ["Full cart detail", "Inside and out. The hardest small job there is.", "$125"],
+      ["Seats and canopy", "Vinyl cleaned, conditioned and protected.", "$80"]] },
+    { n: "Semi &amp; trailer", rows: [
+      ["Trailer washout", "Clean, compliant and cargo-ready.", "$80"],
+      ["Day cab exterior", "Exterior only, tanks and wheels included.", "$175"],
+      ["Sleeper cab exterior", "The full rig, outside.", "$400"],
+      ["Interior and exterior", "For a driver who lives in it.", "$685"]] },
+    { n: "Fleet", rows: [
+      ["Fleet maintenance plan", "Per vehicle, per visit, weekly to monthly.", "quote"],
+      ["Employee car day", "We come to your yard and do the staff cars.", "quote"],
+      ["Headlight restoration", "Across the fleet, in one visit.", "$95"]] },
+    { n: "Anything else", rows: [
+      ["Motorcycles, ATVs, trailers, tractors", "If it drives, it gets the same eight steps.", "quote"],
+      ["Aircraft", "Yes, really. Ask and we will price it the same day.", "quote"]] }
+  ];
+  var tiles = document.getElementById("tiles");
+  var ladder = document.getElementById("ladder");
+  if (!tiles || !ladder) return;
+  var btns = [].slice.call(tiles.children);
+  btns.forEach(function (b, i) { b.addEventListener("click", function () { pick(i); }); });
+
+  function pick(i) {
+    btns.forEach(function (el, j) { el.setAttribute("aria-pressed", j === i ? "true" : "false"); });
+    var t = TYPES[i];
+    var html = '<div class="laddhead"><span class="cap">' + t.n + " &middot; " +
+      t.rows.length + ' services</span><span class="cap">Prices from</span></div>';
+    t.rows.forEach(function (r) {
+      html += '<div class="pricerow"><span class="nm">' + r[0] +
+        '<span class="sub">' + r[1] + "</span></span>" +
+        '<span class="cell">' + r[2] + "</span></div>";
+    });
+    ladder.innerHTML = html;
+    if (STILL) return;
+    ladder.classList.remove("swap");
+    void ladder.offsetWidth;
+    ladder.classList.add("swap");
+  }
+  pick(0);
+})();
+
+/* REVEALS. The hidden state is added HERE - a stylesheet that hides
+   everything plus a script that never runs is a blank page. */
+(function () {
+  if (STILL) return;
+  var els = [].slice.call(document.querySelectorAll("[data-rv]"));
+  els.forEach(function (el) { el.classList.add("rv-hidden"); });
+  var ticking = false;
+  function pass() {
+    ticking = false;
+    var h = innerHeight;
+    els.forEach(function (el) {
+      if (!el.classList.contains("rv-hidden")) return;
+      var r = el.getBoundingClientRect();
+      if (r.top < h * 0.94 && r.bottom > 0) {
+        el.classList.remove("rv-hidden");
+        el.classList.add("rv-in");
+      }
+    });
+  }
+  function tick() { if (!ticking) { ticking = true; requestAnimationFrame(pass); } }
+  addEventListener("scroll", tick, { passive: true });
+  addEventListener("resize", tick, { passive: true });
+  addEventListener("load", tick);
+  pass();
+})();
+
+/* THE GLOSS. One scroll progress number, and it runs backwards on the way up
+   because there is nothing else to run. */
+(function () {
+  var wrap = document.getElementById("gloss");
+  var bar = document.getElementById("gbar");
+  if (!wrap || !bar) return;
+  var ticking = false;
+  function pass() {
+    ticking = false;
+    var r = wrap.getBoundingClientRect();
+    var p = Math.max(0, Math.min(1, (innerHeight - r.top) / (innerHeight + r.height)));
+    bar.style.setProperty("--gx", (-60 + p * 280) + "%");
+  }
+  function tick() { if (!ticking) { ticking = true; requestAnimationFrame(pass); } }
+  addEventListener("scroll", tick, { passive: true });
+  addEventListener("resize", tick, { passive: true });
+  pass();
+})();
+
+/* IN-PAGE LINKS TRAVEL. The nav is sticky, so the offset is the nav's height
+   at the DESTINATION, not wherever the bar happens to be right now. */
+(function () {
+  var NAV = 64;
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    var id = a.getAttribute("href").slice(1);
+    var t = id ? document.getElementById(id) : document.body;
+    if (!t) return;
+    e.preventDefault();
+    var y = t.getBoundingClientRect().top + scrollY - (id === "top" ? 0 : NAV + 14);
+    scrollTo({ top: Math.max(0, y), behavior: STILL ? "auto" : "smooth" });
+  });
+})();
+
+/* THE BOOKING STEPS. Presentation only - every figure and every open time on
+   this form comes from the platform. */
+(function () {
+  var NAMES = ["Services", "Extras", "Vehicle", "Where", "When", "Details", "Review"];
+  var steps = [].slice.call(document.querySelectorAll(".bk-step"));
+  var segs = [].slice.call(document.querySelectorAll(".bk-bar i"));
+  var bar = document.querySelector(".bk-bar");
+  var n = document.querySelector("[data-n]");
+  var name = document.querySelector("[data-name]");
+  var at = 0;
+  function show(i) {
+    at = Math.max(0, Math.min(steps.length - 1, i));
+    steps.forEach(function (s, j) { s.classList.toggle("on", j === at); });
+    segs.forEach(function (s, j) { s.classList.toggle("on", j <= at); });
+    if (n) n.textContent = at + 1;
+    if (name) name.textContent = NAMES[at];
+    if (bar) bar.setAttribute("aria-valuenow", at + 1);
+  }
+  var next = document.querySelector("[data-next]");
+  var back = document.querySelector("[data-back]");
+  if (next) next.addEventListener("click", function () { show(at + 1); });
+  if (back) back.addEventListener("click", function () { show(at - 1); });
+  show(0);
+})();
+</script>
+</body>
+</html>
