@@ -536,6 +536,14 @@ h2 em{font-style:normal;color:var(--accent-text)}
 .bk-step.on{display:block}          /* display:none must be beaten by a class */
 .bk-step h3{font-size:20px;font-weight:600;margin:0 0 16px}
 
+.grp{margin-bottom:20px}
+.grp:last-child{margin-bottom:0}
+.grp-h{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;margin:0 0 10px;
+  font-family:"Bai Jamjuree";font-weight:600;font-size:15px;color:var(--ink)}
+.band.dark .grp-h{color:var(--band-ink)}
+.grp-h span{font-family:"Spline Sans Mono";font-weight:400;font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-3)}
+.band.dark .grp-h span{color:var(--band-ink-2)}
 .opts{display:grid;gap:8px}
 .opts--row{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media (max-width:520px){.opts--row{grid-template-columns:minmax(0,1fr)}}
@@ -946,7 +954,7 @@ h2 em{font-style:normal;color:var(--accent-text)}
             <h4>Window tinting</h4>
             <p>Cuts the heat coming through the side and rear glass, and blocks
                the UV that fades a dashboard top.</p>
-            <span class="turn">Two hours &middot; quoted by glass area</span>
+            <span class="turn" data-from="calculate-booking">From $320 &middot; two hours</span>
           </div>
         </article>
       </div>
@@ -1171,28 +1179,62 @@ h2 em{font-style:normal;color:var(--accent-text)}
 
       <div class="bk-body">
 
-        <!-- 1 - SERVICES -->
+        <!-- 1 - SERVICES. HIS NOTE, 2026-09-09: *"one problem with the
+             booking is that [combining] needs to be separated, like if
+             someone wanted to get a full detail and their windows tinted and
+             other combinations."*
+
+             He is right and the radio buttons were misreporting our own
+             product. `core.js` keeps `form.serviceIds` as an ARRAY and
+             `toggleService()` turns entries on and off, so a booking has
+             always been able to hold several services at once. What shapes
+             the choice is the DETAILER'S OWN CATEGORY, read by
+             `groupServices()`:
+               - `max_select` caps a category, and at the cap a new tap SWAPS
+                 the oldest out rather than refusing - a control that does
+                 nothing when pressed reads as broken.
+               - `is_exclusive` means a complete package that supersedes the
+                 parts: picking it clears everything, and picking anything
+                 else clears it.
+
+             Kinzie's two categories, and the reason each is set that way:
+               Detailing packages   max_select 1  - two full details on one
+                                                   car is not a thing to sell
+               Protection and glass no cap        - film, coating and tint go
+                                                   together all the time
+             So "a full detail and their windows tinted" is two taps, which is
+             exactly what he asked for. NEITHER RULE IS ENFORCEMENT: the real
+             one is in `create-booking`, because a restriction that only
+             exists on the page is one a stale tab walks straight past. -->
         <div class="bk-step on" data-step="0">
           <h3>What would you like done?</h3>
-          <div class="opts" data-from="get_public_business_profile.services">
-            <label class="opt"><input type="radio" name="svc" value="Full Enhancement Detail">
-              <span class="ob"><b>Full Enhancement Detail</b><i>Decontaminate, one machine pass, sealant, full interior &middot; one day</i></span>
-              <em data-from="calculate-booking"><span data-sz="cars">$995</span><span data-sz="mid" hidden>$1,195</span><span data-sz="over" hidden>$1,645</span></em></label>
-            <label class="opt"><input type="radio" name="svc" value="Full Maintenance Detail">
-              <span class="ob"><b>Full Maintenance Detail</b><i>Hand wash, interior reset, sealant topped up &middot; six hours</i></span>
-              <em data-from="calculate-booking"><span data-sz="cars">$620</span><span data-sz="mid" hidden>$845</span><span data-sz="over" hidden>$1,195</span></em></label>
-            <label class="opt"><input type="radio" name="svc" value="Paint protection film">
-              <span class="ob"><b>Paint protection film</b><i>XPEL on the panels that catch chips &middot; two days</i></span>
-              <em data-from="calculate-booking">Quoted</em></label>
-            <label class="opt"><input type="radio" name="svc" value="Ceramic coating">
-              <span class="ob"><b>Ceramic coating</b><i>One day, plus a night to cure</i></span>
-              <em data-from="calculate-booking">Quoted</em></label>
-            <label class="opt"><input type="radio" name="svc" value="Window tinting">
-              <span class="ob"><b>Window tinting</b><i>Side and rear glass &middot; two hours</i></span>
-              <em data-from="calculate-booking">Quoted</em></label>
-            <label class="opt"><input type="radio" name="svc" value="Restoration Detail">
-              <span class="ob"><b>Restoration Detail</b><i>Multi-stage correction &middot; five days or more</i></span>
-              <em data-from="calculate-booking">From $10,000</em></label>
+          <div class="grp" data-from="get_public_business_profile.service_groups" data-cap="1">
+            <p class="grp-h">Detailing packages <span>Choose one</span></p>
+            <div class="opts" data-from="get_public_business_profile.services">
+              <label class="opt"><input type="checkbox" name="svc" value="Full Enhancement Detail">
+                <span class="ob"><b>Full Enhancement Detail</b><i>Decontaminate, one machine pass, sealant, full interior &middot; one day</i></span>
+                <em data-from="calculate-booking"><span data-sz="cars">$995</span><span data-sz="mid" hidden>$1,195</span><span data-sz="over" hidden>$1,645</span></em></label>
+              <label class="opt"><input type="checkbox" name="svc" value="Full Maintenance Detail">
+                <span class="ob"><b>Full Maintenance Detail</b><i>Hand wash, interior reset, sealant topped up &middot; six hours</i></span>
+                <em data-from="calculate-booking"><span data-sz="cars">$620</span><span data-sz="mid" hidden>$845</span><span data-sz="over" hidden>$1,195</span></em></label>
+              <label class="opt"><input type="checkbox" name="svc" value="Restoration Detail">
+                <span class="ob"><b>Restoration Detail</b><i>Multi-stage correction &middot; five days or more</i></span>
+                <em data-from="calculate-booking">From $10,000</em></label>
+            </div>
+          </div>
+          <div class="grp" data-from="get_public_business_profile.service_groups">
+            <p class="grp-h">Protection and glass <span>Add as many as you like</span></p>
+            <div class="opts" data-from="get_public_business_profile.services">
+              <label class="opt"><input type="checkbox" name="svc" value="Window tinting">
+                <span class="ob"><b>Window tinting</b><i>Side and rear glass &middot; two hours</i></span>
+                <em data-from="calculate-booking"><span data-sz="cars">$320</span><span data-sz="mid" hidden>$390</span><span data-sz="over" hidden>$460</span></em></label>
+              <label class="opt"><input type="checkbox" name="svc" value="Paint protection film">
+                <span class="ob"><b>Paint protection film</b><i>XPEL on the panels that catch chips &middot; two days</i></span>
+                <em data-from="calculate-booking">Quoted</em></label>
+              <label class="opt"><input type="checkbox" name="svc" value="Ceramic coating">
+                <span class="ob"><b>Ceramic coating</b><i>One day, plus a night to cure</i></span>
+                <em data-from="calculate-booking">Quoted</em></label>
+            </div>
           </div>
         </div>
 
@@ -1296,10 +1338,10 @@ h2 em{font-style:normal;color:var(--accent-text)}
         <div class="bk-step" data-step="6">
           <h3>Everything right?</h3>
           <dl class="rev" data-from="calculate-booking">
-            <div><dt data-rev-svc>Full Enhancement Detail &middot; Cars</dt><dd data-rev-base>$995</dd></div>
+            <div data-rev-lines hidden></div>
             <div data-rev-adds hidden><dt>Extras</dt><dd data-rev-addsum>$0</dd></div>
             <div><dt>Travel &mdash; inside the ten neighborhoods</dt><dd>$0</dd></div>
-            <div class="tot"><dt>Total</dt><dd data-rev-total>$995</dd></div>
+            <div class="tot"><dt>Total</dt><dd data-rev-total>&mdash;</dd></div>
           </dl>
           <p class="revwhen">Tuesday 15 September, 9:30 am &middot; at your address</p>
           <button class="bk-confirm" type="button" data-from="create-booking">Confirm booking</button>
@@ -1649,9 +1691,12 @@ var STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   var ADD = { "Pet hair removal": 60, "Engine bay clean": 75,
               "Headlight restoration": 95, "Odour treatment": 110 };
+  // The priced ones. Anything a customer can choose that is NOT in here is
+  // quoted after a look, and the total says so instead of guessing.
   var BASE = {
     "Full Enhancement Detail": { cars: 995, mid: 1195, over: 1645 },
-    "Full Maintenance Detail": { cars: 620, mid: 845, over: 1195 }
+    "Full Maintenance Detail": { cars: 620, mid: 845, over: 1195 },
+    "Window tinting":          { cars: 320, mid: 390,  over: 460 }
   };
   var SIZE = { cars: "Cars", mid: "Midsize", over: "Over-size" };
   var money = function (n) { return "$" + n.toLocaleString("en-US"); };
@@ -1660,9 +1705,35 @@ var STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
     var el = bk.querySelector('.opt[data-sz] input:checked');
     return el ? el.closest("[data-sz]").dataset.sz : "cars";
   }
-  function service() {
-    var el = bk.querySelector('input[name="svc"]:checked');
-    return el ? el.value : null;
+  // A BOOKING HOLDS SEVERAL SERVICES. `core.js` keeps `form.serviceIds` as an
+  // array; this is the same list, keyed by name because the demo has no ids.
+  function services() {
+    return [].slice.call(bk.querySelectorAll('input[name="svc"]:checked'))
+             .map(function (c) { return c.value; });
+  }
+
+  // THE CATEGORY CAP, and it SWAPS rather than refusing - `toggleService()`
+  // drops the oldest so the one just tapped always survives, because a
+  // control that does nothing when pressed reads as broken. Tap order is
+  // tracked per group; the DOM only knows what is checked, not when.
+  var order = [];
+  function applyCap(changed) {
+    if (!changed || changed.name !== "svc") return;
+    var name = changed.value;
+    if (changed.checked) { if (order.indexOf(name) < 0) order.push(name); }
+    else order = order.filter(function (x) { return x !== name; });
+    var grp = changed.closest(".grp");
+    var cap = grp && grp.dataset.cap ? +grp.dataset.cap : 0;
+    if (!cap || !changed.checked) return;
+    var mine = [].slice.call(grp.querySelectorAll('input[name="svc"]:checked'));
+    var over = mine.length - cap;
+    if (over <= 0) return;
+    mine.sort(function (a, b) { return order.indexOf(a.value) - order.indexOf(b.value); })
+        .slice(0, over)
+        .forEach(function (el) {
+          el.checked = false;
+          order = order.filter(function (x) { return x !== el.value; });
+        });
   }
 
   // THE DEMO NEVER DOES ARITHMETIC A SERVER WOULD DO. On a real tenant site
@@ -1670,14 +1741,27 @@ var STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
   // the whole quote server-side whatever the browser sent — that is why a
   // bespoke form cannot mis-charge. This adds up stand-ins so the WIRING is
   // visible; the markup a live site posts is identical.
+  // THE DEMO NEVER DOES ARITHMETIC A SERVER WOULD DO - see paintMoney. This
+  // adds up stand-ins so the WIRING is visible. `quoted` is the count of
+  // chosen services with no published price, and the total says so out loud
+  // rather than pretending the number is complete.
   function quote() {
-    var svc = service(), sz = size();
+    var svcs = services(), sz = size();
     var adds = [].slice.call(bk.querySelectorAll('input[name="add"]:checked'))
                  .map(function (c) { return c.value; });
     var addSum = adds.reduce(function (t, k) { return t + (ADD[k] || 0); }, 0);
-    var base = svc && BASE[svc] ? BASE[svc][sz] : null;
-    return { svc: svc, sz: sz, adds: adds, addSum: addSum, base: base,
-             total: base === null ? null : base + addSum };
+    var lines = svcs.map(function (n) {
+      return { name: n, price: BASE[n] ? BASE[n][sz] : null };
+    });
+    var sum = lines.reduce(function (t, l) { return t + (l.price || 0); }, 0);
+    var quoted = lines.filter(function (l) { return l.price === null; }).length;
+    return { svcs: svcs, lines: lines, sz: sz, adds: adds, addSum: addSum,
+             quoted: quoted, sum: sum + addSum };
+  }
+  function totalText(q) {
+    if (!q.svcs.length) return "—";
+    if (q.quoted && !q.sum) return "Quoted after a look";
+    return money(q.sum) + (q.quoted ? " + quoted" : "");
   }
 
   function paintMoney() {
@@ -1690,12 +1774,16 @@ var STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
     });
     if (window.__kinziePaintSizes) window.__kinziePaintSizes(q.sz);
     var run = bk.querySelector("[data-run]");
-    if (run) run.textContent = !q.svc ? "—" : q.total === null ? "Quoted" : money(q.total);
-    var t = bk.querySelector("[data-rev-svc]");
-    if (t) t.textContent = (q.svc || "No service chosen") +
-      (q.base === null ? "" : " · " + SIZE[q.sz]);
-    var b = bk.querySelector("[data-rev-base]");
-    if (b) b.textContent = q.base === null ? "Quoted" : money(q.base);
+    if (run) run.textContent = totalText(q);
+    // one review line per chosen service, because there can be several
+    var lines = bk.querySelector("[data-rev-lines]");
+    if (lines) {
+      lines.hidden = !q.lines.length;
+      lines.innerHTML = q.lines.map(function (l) {
+        return "<dt>" + l.name + (l.price === null ? "" : " · " + SIZE[q.sz]) +
+               "</dt><dd>" + (l.price === null ? "Quoted" : money(l.price)) + "</dd>";
+      }).join("");
+    }
     var row = bk.querySelector("[data-rev-adds]");
     if (row) {
       row.hidden = !q.adds.length;
@@ -1703,12 +1791,15 @@ var STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
       row.querySelector("[data-rev-addsum]").textContent = money(q.addSum);
     }
     var tot = bk.querySelector("[data-rev-total]");
-    if (tot) tot.textContent = q.total === null ? "Quoted after a look" : money(q.total);
+    if (tot) tot.textContent = totalText(q);
   }
 
   function filled(i) {
     var pane = panes[i];
     if (!pane) return true;
+    // core.js: canAdvance("services") is `(form.serviceIds?.length ?? 0) > 0`
+    if (pane.querySelector('input[name="svc"]') &&
+        !pane.querySelector('input[name="svc"]:checked')) return false;
     var groups = {};
     [].forEach.call(pane.querySelectorAll('input[type="radio"]'), function (r) {
       groups[r.name] = groups[r.name] || r.checked;
@@ -1749,7 +1840,7 @@ var STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
   next.addEventListener("click", function () { if (filled(at)) show(at + 1); });
   back.addEventListener("click", function () { show(at - 1); });
   bk.addEventListener("input", function () { paintMoney(); gate(); });
-  bk.addEventListener("change", function () { paintMoney(); gate(); });
+  bk.addEventListener("change", function (e) { applyCap(e.target); paintMoney(); gate(); });
   // the calendar and the time list are single-choice groups of buttons
   bk.addEventListener("click", function (e) {
     var d = e.target.closest ? e.target.closest(".cal-grid .d, .slots .sl") : null;
