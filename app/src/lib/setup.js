@@ -23,18 +23,48 @@
 // CUSTOMER meets), minus the two a detailer cannot answer on their first
 // morning — Photo gallery needs photos, Reviews needs customers.
 //
-// THE ORDER IS §13a's ORDER — what you sell, then when you work, then who you
-// are — so a detailer who quits after two steps still has a bookable page.
+// REBUILT 2026-09-10 — SETUP IS A WALK THROUGH THE REAL SETTINGS SCREENS.
+//
+// His instruction, said three times in one message: *"everything in the admin
+// dashboard should be completely filled out just from that initial first-run
+// setup."* And he said how: *"you could just completely reuse basically every
+// single GUI that's already in the admin dashboard, but have it as a form
+// layout where you settle a stuff, then press continue, going to every single
+// page."*
+//
+// **THE FOURTH COLUMN IS A KEY INTO `screens/more/index.js`, and that is the
+// whole rebuild.** The seven bespoke editors this form used to carry are gone.
+// They were small copies of screens that already existed, which is why setup
+// asked for ONE open and close time for the whole week while the real Hours
+// screen has always done days properly — his complaint, and the kind of drift
+// a second copy guarantees. A step now renders the settings screen itself, so
+// there is one editor per thing in this product and setup cannot fall behind
+// it again.
+//
+// **THE ORDER IS STILL §13a's ORDER** — what you sell, then when you work, then
+// who you are — so a detailer who quits after two steps still has a bookable
+// page. What follows those is what a WEBSITE needs, which is why photos,
+// reviews and the FAQ are here at all: they were unreachable from setup, and a
+// detailer who never opened the gear never had them.
+//
+// **THE FOUR OLD KEYS THAT SURVIVE KEEP THEIR NAMES** — `hours`, `where`,
+// `promos`, `colour`. They are stored in `business_settings.setup.done` on
+// every business that has run setup, and renaming one silently un-does a step
+// somebody finished. `services` and `addons` merge into `catalog` because one
+// screen answers both; `contact` becomes `info` for the same reason.
 export const STEPS = [
-  ["services", "What do you charge for?", "Your services"],
-  ["addons", "Add-ons", "Add-ons"],
-  ["promos", "Running a discount?", "Promo code"],
-  ["hours", "When are you open?", "Your hours"],
-  ["where", "Where does the work happen?", "Where you work"],
-  ["contact", "How does a customer reach you?", "Your details"],
-  // A question like the other six. "Pick your colour." was an imperative in a
-  // set of questions, which reads as the one heading somebody forgot.
-  ["colour", "What color is yours?", "Your color"],
+  ["catalog", "What do you charge for?", "Services", "catalog"],
+  ["hours", "When are you open?", "Hours", "hours"],
+  ["where", "Where does the work happen?", "Where you work", "rules"],
+  ["info", "Who are you?", "Your details", "info"],
+  ["colour", "What color is yours?", "Your color", "appearance"],
+  ["gallery", "Photos of your work", "Photos", "gallery"],
+  ["reviews", "What people say about you", "Reviews", "reviews"],
+  ["faq", "Questions customers ask", "FAQ", "faq"],
+  ["payments", "How you get paid", "Getting paid", "payments"],
+  ["promos", "Running a discount?", "Promo code", "promos"],
+  ["plans", "Monthly plans", "Plans", "plans"],
+  ["templates", "Messages you send", "Messages", "templates"],
 ];
 
 // HOW MANY OF THE SEVEN ARE DONE — the one number, read in two places.
@@ -85,13 +115,15 @@ export const STEPS = [
 // and insulting.
 export function setupProgress({ business, branding, settings, counts }) {
   const marked = new Set(settings?.setup?.done ?? []);
+  // **THE NEW STEPS DERIVE NOTHING, and that is deliberate rather than lazy.**
+  // The note above is the reason: derivation cannot tell ANSWERED from BORN,
+  // and every one of the new steps has a seeded or empty-by-default state that
+  // would answer for somebody. An empty gallery is what a new business has AND
+  // what a detailer who has not got round to photos has. Only the three that
+  // cannot exist without somebody making them still derive.
   const has = {
-    services: (counts?.services ?? 0) > 0,
-    addons: (counts?.addOns ?? 0) > 0,
+    catalog: (counts?.services ?? 0) > 0,
     promos: (counts?.promos ?? 0) > 0,
-    hours: false,
-    where: false,
-    contact: false,
     colour: !!branding?.primary_color,
   };
   const done = new Set(STEPS.filter(([k]) => marked.has(k) || has[k]).map(([k]) => k));

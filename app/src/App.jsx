@@ -137,8 +137,18 @@ export default function App() {
   // without the shell around it; this is a place INSIDE the dashboard they are
   // already signed in to, which is the whole reason the form can skip every
   // question the product already knows the answer to.
-  const [firstRun, setFirstRun] = useState(
-    () => (new URLSearchParams(window.location.search).get("brief") === "1" ? "website" : null));
+  // TWO ADDRESSES THAT OPEN A FORM DIRECTLY. `?brief=1` is the website brief;
+  // `?setup=1` is first-run setup, which the master map has advertised since
+  // it was written and which was never actually wired — the link opened the
+  // dashboard and nothing else, so the one way to see that form was to be a
+  // business that had never seen it. A screen only reachable by being new is a
+  // screen nobody can review.
+  const [firstRun, setFirstRun] = useState(() => {
+    const q = new URLSearchParams(window.location.search);
+    if (q.get("brief") === "1") return "website";
+    if (q.get("setup") === "1") return "setup";
+    return null;
+  });
   // ROADMAP 2.24 — which TAB guide is on screen, separate from `firstRun`
   // because they are different lifetimes: the first run happens once ever,
   // and a tab guide happens once per tab and can arrive months later.
