@@ -6473,7 +6473,11 @@ out about the half that was already finished.
 nothing and its own email says *"we're holding your time"*, so a card taken
 there is money moved for work that may then be declined — refunded out of the
 detailer's own balance, for a decision the product let the customer make first.
-`payability` refuses it now, with cancelled still asked first.
+`payability` refuses it now, with cancelled still asked first — and it is
+**proven against the DEPLOYED function**, not just against the source: a real
+pending request on the demo answers `409 {"error":"not_accepted"}` with the
+customer's own sentence, *"This is still a request. You can pay once it has
+been accepted."*
 
 ### `STRIPE_CONNECT_CLIENT_ID` was already set
 
