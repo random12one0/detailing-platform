@@ -33,6 +33,12 @@ export function BusinessProvider({ children }) {
   // dashboard is served from: a detailer signs in at detailingplatform.com
   // whatever address their booking page answers on.
   const [siteOrigin, setSiteOrigin] = useState("");
+  // ROADMAP 9.3 — has this business answered the website brief? One row, read
+  // here with the other five rather than fetched by every screen that asks:
+  // App decides whether to open the form, the form itself resumes from it, and
+  // Business draws a row from it. Three lookups for one fact is three ways for
+  // two screens to disagree.
+  const [siteIntake, setSiteIntake] = useState(null);
   const [role, setRole] = useState(null);
   // ROLE IS STILL THE GATE; THESE TWO ARE ITS SHAPE (roadmap 2.13). `owner`
   // means everything and carries neither. Anyone else has the name their
@@ -71,6 +77,7 @@ export function BusinessProvider({ children }) {
   const clearTenant = () => {
     setBusiness(null);
     setMemberships([]);
+    setSiteIntake(null);
     setSettings(null);
     setBranding(null);
     setSubscription(null);
@@ -134,7 +141,7 @@ export function BusinessProvider({ children }) {
     // for anybody else this is `null` and every reader treats that as "nothing
     // to say", which is exactly right: a staff member is not the person whose
     // card it is.
-    const [bizRes, setRes, brandRes, subRes, domRes] = await Promise.all([
+    const [bizRes, setRes, brandRes, subRes, domRes, intakeRes] = await Promise.all([
       supabase.from("businesses").select("*").eq("id", membership.business_id).single(),
       supabase.from("business_settings").select("*").eq("business_id", membership.business_id).maybeSingle(),
       supabase.from("business_branding").select("*").eq("business_id", membership.business_id).maybeSingle(),
@@ -153,12 +160,17 @@ export function BusinessProvider({ children }) {
       supabase.from("business_domains").select("domain")
         .eq("business_id", membership.business_id)
         .not("verified_at", "is", null).order("created_at").limit(1),
+      // ROADMAP 9.3. Only the columns anybody outside the form needs — the
+      // answers themselves are a large jsonb and are read by the form alone.
+      supabase.from("site_intake").select("step, submitted_at, dismissed")
+        .eq("business_id", membership.business_id).maybeSingle(),
     ]);
     setBusiness(bizRes.data ?? null);
     setSettings(setRes.data ?? null);
     setBranding(brandRes.data ?? null);
     setSubscription(subRes.data ?? null);
     setSiteOrigin(domRes.data?.[0]?.domain ? `https://${domRes.data[0].domain}` : "");
+    setSiteIntake(intakeRes.data ?? null);
     loadedFor.current = session.user.id;
     setLoading(false);
   }, [session]);
@@ -194,6 +206,10 @@ export function BusinessProvider({ children }) {
     // Null for a staff member and for an owner who has never subscribed. Both
     // mean "draw nothing", which is why no reader has to tell them apart.
     subscription,
+    // ROADMAP 9.3. Null means nobody has opened the website brief, which is a
+    // different thing from an empty draft — so the form can be offered once
+    // and never again after it is sent or waved away.
+    siteIntake,
     role,
     label,
     permissions,

@@ -11,6 +11,7 @@ import Clients from "./screens/Clients.jsx";
 import Business from "./screens/Business.jsx";
 import GearMenu from "./components/GearMenu.jsx";
 import SetupForm from "./components/SetupForm.jsx";
+import SiteIntake from "./screens/SiteIntake.jsx";
 import Walkthrough, { TOURS } from "./components/Walkthrough.jsx";
 import { impersonation } from "./lib/impersonation.js";
 import { isPreviewTab, previewMode, previewWho, setPreviewMode } from "./lib/preview.js";
@@ -62,7 +63,8 @@ const markTourSeen = (name = "shell") => {
 const tourSeen = (name = "shell") => seenTours().includes(name);
 
 export default function App() {
-  const { session, business, settings, role, can, loading, signOut } = useBusiness();
+  const { session, business, settings, role, can, loading, signOut, reload,
+    subscription, siteIntake } = useBusiness();
 
   // The whole shell repaints when the language changes. Every screen calls
   // this for itself too — see the hook's header on why once at the root is
@@ -106,7 +108,13 @@ export default function App() {
   // owner kept them two on purpose). "setup" is the stepped form, "tour" is
   // the walkthrough; neither is a mode the shell has to know anything else
   // about, so one nullable string holds both.
-  const [firstRun, setFirstRun] = useState(null);
+  // ROADMAP 9.3 — `/website` is the address the owner sends a detailer, and it
+  // lands here with `?brief=1`. A route of its own would be the same screen
+  // without the shell around it; this is a place INSIDE the dashboard they are
+  // already signed in to, which is the whole reason the form can skip every
+  // question the product already knows the answer to.
+  const [firstRun, setFirstRun] = useState(
+    () => (new URLSearchParams(window.location.search).get("brief") === "1" ? "website" : null));
   // ROADMAP 2.24 — which TAB guide is on screen, separate from `firstRun`
   // because they are different lifetimes: the first run happens once ever,
   // and a tab guide happens once per tab and can arrive months later.
@@ -156,6 +164,15 @@ export default function App() {
   // did not ask for. Found by the sweep, which opens the form from that row
   // and was then unable to click anything: the tour's backdrop was over it.
   const autoOpened = useRef(false);
+  // WHO IS ASKED FOR A WEBSITE BRIEF: an owner who is PAYING, and only until
+  // they have sent it or waved it away. A detailer on no plan is not getting a
+  // site built, so asking them 79 questions would be a form with nothing at
+  // the end of it. `siteIntake` is null until somebody opens the form, which
+  // is why "never opened" and "opened and left" are different states.
+  const wantsBrief = role === "owner"
+    && ["active", "trialing", "past_due"].includes(subscription?.status)
+    && !siteIntake?.submitted_at && !siteIntake?.dismissed;
+
   useEffect(() => {
     if (!business || started.current) return;
     // WAIT FOR WHAT THE DECISION NEEDS, AND ONLY FOR THAT. An owner's branch
@@ -194,9 +211,17 @@ export default function App() {
       if (!settings.setup?.seen && !settings.setup?.dismissed) {
         autoOpened.current = true;
         setFirstRun("setup");
+      } else if (wantsBrief) {
+        // ROADMAP 9.3 — the owner, 2026-09-09: *"as soon as they sign up and
+        // pay… it shows this, that way I have all the information to get
+        // their website built."* AFTER the setup form, never instead of it:
+        // setup is what makes them bookable and this is what makes them a
+        // website, and the second is worth nothing without the first.
+        autoOpened.current = true;
+        setFirstRun("website");
       }
     } else if (!tourSeen()) setFirstRun("tour");
-  }, [business, settings, role]);
+  }, [business, settings, role, wantsBrief]);
 
   if (loading) {
     return (
@@ -311,7 +336,9 @@ export default function App() {
             for the same reason: it is a place you go, not a thing floating
             over the place you were. It outranks the gear because it is only
             ever on screen when the detailer put it there. */}
-        {firstRun === "setup"
+        {firstRun === "website"
+          ? <SiteIntake onClose={() => { setFirstRun(null); autoOpened.current = false; reload(); }} />
+          : firstRun === "setup"
           ? (
             <SetupForm onClose={() => {
               setFirstRun(autoOpened.current && !tourSeen() ? "tour" : null);

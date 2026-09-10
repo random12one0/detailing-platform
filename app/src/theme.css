@@ -3450,3 +3450,97 @@ button.warn-box:hover { border-color: var(--fog-2); }
   }
   @page { margin: 14mm; }
 }
+
+/* ══ THE WEBSITE BRIEF (screens/SiteIntake.jsx) ════════════════════════════
+   Roadmap 9.3. **Almost nothing is here on purpose.** The brief is the
+   first-run form's sibling and wears its chrome unchanged — `.setupform`,
+   `.settings-head`, `.progress-rule`, `.setupstep`, `.setupfoot`, `.card`,
+   `.thoughts`, `.field`, `.chip`. A second stepper is how one product comes
+   to look like two. Only the two things that form has no equivalent of are
+   below: a gallery of our own worked sites, and a question asked in pictures.
+   Every radius pairs its corner, per the pairing rule (composition 8a).     */
+
+.intake .qhead { display: flex; align-items: baseline; gap: 10px; justify-content: space-between; }
+.intake .qtext { margin: 0; font-size: 16px; font-weight: 620; line-height: 1.35; text-wrap: pretty; }
+.intake .whyline { margin: 8px 0 0; border-left: 2px solid var(--accent); padding-left: 10px; }
+.intake .plainlist { margin: 0; padding-left: 18px; color: var(--fog); }
+.intake .plainlist li { margin: 6px 0; }
+.intake .intakecount { display: block; text-align: center; margin-top: 14px; }
+
+/* THE GALLERY. Real routes on this domain (`/example1`… , written by
+   scripts/build-examples.mjs), opened in a NEW TAB — a detailer who navigates
+   away mid-form does not come back. */
+.intake .exgrid {
+  display: grid; gap: 10px; margin-top: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+}
+.intake .excard {
+  background: var(--ink-1); border: 1px solid var(--line);
+  border-radius: var(--r-panel); corner-shape: var(--corner);
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.intake .excard.on { border-color: var(--accent); }
+.intake .exbody { padding: 10px 12px 2px; display: grid; gap: 2px; }
+.intake .exbody b { font-size: 14px; }
+.intake .exbody .quiet { font-size: 12.5px; line-height: 1.35; }
+.intake .exfoot { padding: 10px 12px; display: flex; gap: 8px; align-items: center; justify-content: space-between; margin-top: auto; }
+.intake .exfoot .chip { display: inline-flex; align-items: center; gap: 5px; }
+
+/* THE EITHER/OR. Two options, never three — a non-designer cannot see a small
+   difference, and past three people pick at random
+   (docs/tenant-site-intake-research-2026-09-07.md). */
+.intake .pairgrid { display: grid; gap: 10px; margin-top: 10px; grid-template-columns: 1fr 1fr; }
+.intake .paircard {
+  background: none; border: 2px solid var(--line); color: inherit; font: inherit;
+  border-radius: var(--r-inset); corner-shape: var(--corner);
+  padding: 0; overflow: hidden; cursor: pointer; text-align: left;
+  transition: border-color var(--t-exit) var(--e-out);
+}
+.intake .paircard:hover { border-color: var(--line-2); }
+.intake .paircard.on { border-color: var(--accent); }
+.intake .paircard > span { display: block; padding: 8px 10px; font-size: 13px; font-weight: 600; }
+
+/* A LITTLE DRAWN PAGE, NOT A SCREENSHOT — six of them, out of four bars, so
+   the pair is guaranteed to look plainly unalike and nothing is downloaded. */
+.intake .mini { position: relative; height: 104px; overflow: hidden; }
+.intake .mini.dark { background: #0D0F11; }
+.intake .mini.light { background: #E9E7E0; }
+.intake .mini i { position: absolute; display: block; border-radius: 3px; }
+.intake .mini-ph { left: 10px; right: 10px; top: 10px; height: 46px; background: linear-gradient(135deg, #59636D, #2A3136); }
+.intake .mini .b1 { left: 10px; right: 46px; top: 66px; height: 7px; background: #E9E7E0; }
+.intake .mini .b2 { left: 10px; right: 86px; top: 79px; height: 5px; background: #E9E7E0; opacity: .5; }
+.intake .mini .ac  { left: 10px; right: 118px; top: 90px; height: 5px; background: var(--accent); }
+.intake .mini.light .b1, .intake .mini.light .b2 { background: #12161A; }
+.intake .mini-photo .mini-ph { left: 0; right: 0; top: 0; height: 78px; border-radius: 0; }
+.intake .mini-photo .b2, .intake .mini-photo .ac { display: none; }
+.intake .mini-photo .b1 { top: 86px; }
+.intake .mini-facts .mini-ph { left: 10px; width: 62px; top: 46px; height: 46px; right: auto; }
+.intake .mini-facts .b1 { top: 12px; height: 13px; right: 70px; }
+.intake .mini-facts .b2 { top: 32px; right: 30px; }
+.intake .mini-facts .ac { left: 80px; top: 46px; width: 46px; height: 18px; right: auto; background: var(--accent); }
+.intake .mini-move .mini-ph { right: -24px; }
+html:not(.lite) .intake .mini-move .mini-ph,
+html:not(.lite) .intake .mini-move .b1 { animation: intake-drift 3.2s ease-in-out infinite; }
+@keyframes intake-drift { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-12px); } }
+
+/* WHY-WE-ASK IS NOT ALLOWED TO SQUEEZE THE QUESTION. Beside a two-line
+   question at 392 it broke to "why / we / ask" in a 30px column — measured,
+   not guessed. Under the question is where it goes on a phone; the question
+   is what the eye needs first either way. */
+.intake .qhead .btn { white-space: nowrap; }
+@media (max-width: 560px) {
+  .intake .qhead { display: block; }
+  .intake .qhead .btn { margin-top: 4px; }
+}
+@media (max-width: 420px) {
+  .intake .pairgrid { grid-template-columns: 1fr; }
+  .intake .exgrid { grid-template-columns: 1fr; }
+}
+/* A bare input inside `.thoughts` has no `.field` label wrapping it — the
+   question above IS the label — so it takes the field's own metrics here
+   rather than growing a second input style. */
+.intake .intakeinput {
+  width: 100%; margin-top: 10px; background: var(--ink-0);
+  border: 1px solid var(--line); border-radius: var(--r-inset); corner-shape: var(--corner);
+  padding: 10px 12px; font: inherit; color: var(--ink-text, inherit); resize: vertical;
+}

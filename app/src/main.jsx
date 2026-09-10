@@ -19,6 +19,7 @@ import LegalPage from "./landing/LegalPage.jsx";
 import ResetPassword from "./screens/ResetPassword.jsx";
 import AdminPage from "./admin/AdminPage.jsx";
 import PreviewEntry from "./admin/PreviewEntry.jsx";
+import { Navigate } from "react-router-dom";
 
 // DEGRADATION — ONE code path, for the whole app (docs/design-system.md,
 // "Degradation"). `.lite` on <html> makes every animation render the end
@@ -133,6 +134,12 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             browser. The bare catch-all still lands here so any pre-move
             bookmark (e.g. /login, or the old / home-screen icon) keeps
             working instead of 404ing into marketing. */}
+        {/* ROADMAP 9.3 — the address the platform sends a detailer so they can
+            answer the website brief. It is the dashboard with one flag on it,
+            not a page of its own: they are signed in, we already know their
+            business, and that is exactly why the form can skip everything the
+            product already stores. */}
+        <Route path="/website" element={<Navigate to="/app?brief=1" replace />} />
         <Route path="/app/*" element={<Wrapped><App /></Wrapped>} />
         <Route path="/*" element={<Wrapped><App /></Wrapped>} />
       </Routes>
