@@ -27,7 +27,7 @@
 // are — so a detailer who quits after two steps still has a bookable page.
 export const STEPS = [
   ["services", "What do you charge for?", "Your services"],
-  ["addons", "Anything you can add to a job?", "Add-ons"],
+  ["addons", "Add-ons", "Add-ons"],
   ["promos", "Running a discount?", "Promo code"],
   ["hours", "When are you open?", "Your hours"],
   ["where", "Where does the work happen?", "Where you work"],

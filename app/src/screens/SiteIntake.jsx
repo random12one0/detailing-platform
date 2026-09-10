@@ -638,13 +638,22 @@ export default function SiteIntake({ onClose, preview = false }) {
   if (row?.submitted_at && i === STEPS.length - 1) {
     return (
       <div className="group setupform intake">
+        {/* THE SAME HEADER AS EVERY OTHER STEP. A bare `<span/>` in the left
+            slot collapsed, so the title slid left and sat against the close
+            button — his note: *"why is the X right next to Your website, not
+            all the way over to the side?"* A disabled Back holds the column
+            open, which is what the other twenty steps already do. */}
         <div className="settings-head">
-          <span />
+          <button className="btn icon ghost" aria-label={t("Back")} disabled>
+            <ChevronLeft strokeWidth={2} />
+          </button>
           <h1 className="display">{t("Your website")}</h1>
           <button className="x" aria-label={t("Close")} onClick={onClose}><X size={18} strokeWidth={2} /></button>
         </div>
         <div className="setupstep">
-          <h2 className="title">{t("Got it.")}</h2>
+          {/* "Got it." said nothing. What somebody needs at this point is what
+              happens next, and there is a real answer: we start building. */}
+          <h2 className="title">{t("Sent. We will start building.")}</h2>
           <p className="quiet">{t("{done} of {total} answered. Come back any time to change something.",
             { done: p.done, total: p.total })}</p>
           <div className="setupfoot">

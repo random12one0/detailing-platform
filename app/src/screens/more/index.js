@@ -68,7 +68,7 @@ export const SCREENS = {
   appearance: [Appearance, "Your color"],
   gallery: [Gallery, "Photo gallery"],
   reviews: [Reviews, "Reviews"],
-  faq: [Faq, "Common questions"],
+  faq: [Faq, "FAQ"],
   domain: [WebAddress, "Your web address"],
   campaigns: [Campaigns, "Campaign links"],
   catalog: [Catalog, "Services & add-ons"],

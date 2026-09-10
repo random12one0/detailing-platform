@@ -127,7 +127,7 @@ export default function Appearance() {
       </div>
 
       <label className="field">
-        <span>{t("Any other color")}</span>
+        <span>{t("Pick a custom color")}</span>
         <div className="row" style={{ gap: 10 }}>
           <input type="color" value={custom} onChange={(e) => setCustom(e.target.value)} style={{ maxWidth: 90 }} />
           <button className="btn inline" onClick={() => saveBrandColor(custom)}>{t("Use this color")}</button>

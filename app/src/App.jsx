@@ -413,7 +413,13 @@ export default function App() {
             className={!gear && firstRun !== "setup" && activeTab.key === x.key ? "active" : ""}
             onClick={() => {
               setTab(x.key); setGear(false); setIntent(null); setBizScreen(null);
-              if (firstRun === "setup") setFirstRun(null);
+              // **A TAB PRESS CLOSES WHATEVER IS OVER THE MAIN AREA.** This
+              // read `=== "setup"`, so the website brief stayed on top: the
+              // tab underneath changed and nothing on screen did, which is
+              // exactly his *"you click on them and it does nothing… it's a
+              // little broken."* The rail is not decoration while a form is
+              // open, it is the way out of it.
+              if (firstRun) setFirstRun(null);
               // ROADMAP 2.24 — the guide for a tab arrives the first time
               // this browser opens it, and only then.
               //
