@@ -19,6 +19,7 @@ import LegalPage from "./landing/LegalPage.jsx";
 import ResetPassword from "./screens/ResetPassword.jsx";
 import AdminPage from "./admin/AdminPage.jsx";
 import PreviewEntry from "./admin/PreviewEntry.jsx";
+import SiteIntake from "./screens/SiteIntake.jsx";
 import { Navigate } from "react-router-dom";
 
 // DEGRADATION — ONE code path, for the whole app (docs/design-system.md,
@@ -140,6 +141,16 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             business, and that is exactly why the form can skip everything the
             product already stores. */}
         <Route path="/website" element={<Navigate to="/app?brief=1" replace />} />
+        {/* LOOKING AT THE FORM WITHOUT BEING A DETAILER. The owner, 2026-09-10:
+            *"if I go to /website, it makes me want to sign up as a detailer or
+            as a business, and I don't wanna do that right now."* No session, no
+            reads, no writes — so it sits OUTSIDE BusinessProvider, which is
+            what makes it openable from a phone, a link or a cold browser. */}
+        <Route path="/website/preview" element={
+          <div className="app-shell"><div className="app-main">
+            <SiteIntake preview onClose={() => { window.location.href = "/"; }} />
+          </div></div>
+        } />
         <Route path="/app/*" element={<Wrapped><App /></Wrapped>} />
         <Route path="/*" element={<Wrapped><App /></Wrapped>} />
       </Routes>

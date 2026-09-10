@@ -112,10 +112,16 @@ function Question({ q, a, set }) {
   );
 }
 
-export default function SiteIntake({ onClose }) {
+// `preview` is the owner looking at the form without being a detailer.
+// He asked for it 2026-09-10: *"if I go to /website, it makes me want to sign
+// up as a detailer or as a business, and I don't wanna do that right now."*
+// It reads nothing, writes nothing and needs no session, so it renders outside
+// BusinessProvider — which is why every context read below tolerates its
+// absence rather than assuming a provider is above it.
+export default function SiteIntake({ onClose, preview = false }) {
   useAppLocale();
-  const { business, role } = useBusiness();
-  const [row, setRow] = useState(undefined);   // undefined = loading
+  const { business, role } = useBusiness() ?? {};
+  const [row, setRow] = useState(preview ? null : undefined);   // undefined = loading
   const [a, setA] = useState({});
   const [i, setI] = useState(0);
   const [dir, setDir] = useState(1);
@@ -126,7 +132,7 @@ export default function SiteIntake({ onClose }) {
   const owner = role === "owner";
 
   useEffect(() => {
-    if (!business?.id) return;
+    if (preview || !business?.id) return;
     let live = true;
     supabase.from("site_intake").select("*").eq("business_id", business.id).maybeSingle()
       .then(({ data }) => {
@@ -136,18 +142,18 @@ export default function SiteIntake({ onClose }) {
         setI(Math.min(data?.step ?? 0, STEPS.length - 1));
       });
     return () => { live = false; };
-  }, [business?.id]);
+  }, [business?.id, preview]);
 
   // ONE WRITER, DEBOUNCED. Every editor on every step goes through `set`, so
   // there is one upsert in this file rather than one per question — the same
   // reason the first-run form holds a single `draft` and commits it once.
   const push = useCallback(async (answers, step, extra) => {
-    if (!business?.id || !owner) return;
+    if (preview || !business?.id || !owner) return;
     const { error } = await supabase.from("site_intake")
       .upsert({ business_id: business.id, answers, step, updated_at: new Date().toISOString(), ...extra },
         { onConflict: "business_id" });
     setErr(error ? error.message : "");
-  }, [business?.id, owner]);
+  }, [business?.id, owner, preview]);
 
   const set = (id, value) => {
     const next = { ...a, [id]: value };
@@ -212,6 +218,11 @@ export default function SiteIntake({ onClose }) {
 
   return (
     <div className="group setupform intake">
+      {preview && (
+        <div className="impbar" role="status">
+          <span>{t("Preview. This is the form a detailer fills in — nothing here is saved.")}</span>
+        </div>
+      )}
       <div className="settings-head">
         <button className="btn icon ghost" aria-label={t("Back")} disabled={i === 0} onClick={() => go(i - 1)}>
           <ChevronLeft strokeWidth={2} />
@@ -300,7 +311,7 @@ export default function SiteIntake({ onClose }) {
 
         {(step.qs ?? []).map((q) => <Question key={q.id} q={q} a={a} set={set} />)}
 
-        {!owner && (
+        {!owner && !preview && (
           <p className="quiet">{t("Only the owner of this business can answer this, so nothing here will save.")}</p>
         )}
         {err && <div className="error-box">{err}</div>}
@@ -320,13 +331,17 @@ export default function SiteIntake({ onClose }) {
           between a detailer who has not got to it and one who does not want a
           website, and a flag in this browser answers neither. The form stays
           reachable at /website afterwards. */}
-      <button className="btn sm inline ghost setupquit" disabled={busy}
-        onClick={async () => { await push(a, i, { dismissed: true }); onClose(); }}>
-        {t("I do not want a website")}
-      </button>
+      {!preview && (
+        <button className="btn sm inline ghost setupquit" disabled={busy}
+          onClick={async () => { await push(a, i, { dismissed: true }); onClose(); }}>
+          {t("I do not want a website")}
+        </button>
+      )}
 
       <span className="label intakecount">
-        {t("{done} of {total} answered · saved automatically", { done: p.done, total: p.total })}
+        {preview
+          ? t("{done} of {total} answered · nothing is saved in a preview", { done: p.done, total: p.total })
+          : t("{done} of {total} answered · saved automatically", { done: p.done, total: p.total })}
       </span>
     </div>
   );
