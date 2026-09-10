@@ -6479,11 +6479,28 @@ pending request on the demo answers `409 {"error":"not_accepted"}` with the
 customer's own sentence, *"This is still a request. You can pay once it has
 been accepted."*
 
-### `STRIPE_CONNECT_CLIENT_ID` was already set
+### `STRIPE_CONNECT_CLIENT_ID` was set, AND IT WAS WRONG BY ONE CHARACTER
 
-Probed against the DEPLOYED function: `available: true`, and a real
-`client_id=ca_…` in the consent URL. **The roadmap said it was still owed and
-had done for two days.** `docs/OUTSTANDING.md` § 10 had it right.
+**CORRECTED 2026-09-10.** I probed the deployed function, read back a real
+`client_id=ca_…` and reported that the Connect button worked. It did not: the
+stored value carried a **`2`** where Stripe's own `application` field has a
+**`Z`**, so the consent screen would have failed on the first real detailer.
+
+**READING BACK A STORED VALUE PROVES IT IS SET. IT PROVES NOTHING ABOUT
+WHETHER IT IS RIGHT** — and the check that mattered was one API call I never
+made. His cloud coworker found it by hashing the candidates against the SHA256
+digest the Supabase Management API returns for each secret, which costs nothing
+and works for any secret in the project.
+
+**Fixed and verified three ways the same day:** the stored digest is that of
+the `Z` string, the running function emits it, and
+`STRIPE_CONNECT_WEBHOOK_SECRET` is set too. **The connected-accounts webhook
+endpoint also already exists** (`we_1UDY3WJeoZO7o6EerVO73I3G`) — nobody should
+be asked to create it, because a third endpoint double-delivers. What is left
+is its EVENT LIST: it is reported to carry neither
+`checkout.session.completed` nor `payment_intent.succeeded`, which are the two
+that record a card payment. `docs/OUTSTANDING.md` § 10b, with the rows that
+are reported rather than verified marked as such.
 
 ### Three defects only looking could find, and one check that guarded nothing
 

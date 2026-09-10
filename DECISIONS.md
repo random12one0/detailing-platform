@@ -277,6 +277,8 @@ were made more than once.
 
 - **A websites session built a payments item, and the rule that should have stopped it had been in the repo for two days** — the owner, 2026-09-10: *"this agent should only be used to be making websites… the fact that the prompt for some reason made you do this other thing on the roadmap is wrong."* **FOUR CAUSES AND ONLY ONE IS THE SESSION'S OWN FAULT.** (1) **Two prompt systems disagreed**: `docs/sessions/README.md` starts a session with a LANE, `CLAUDE.md`'s hand-over template starts one with a ROADMAP ITEM, and the template had no lane field — and it is the one that gets used, because CLAUDE.md is auto-loaded and the sessions file is not. (2) **CLAUDE.md's pointer at the lane table was conditional on *"if you are one of three sessions running at once"* — a fact no session can evaluate about itself**, so it never fired; the one clue that does arrive, port 5173 in use, reads as a stale dev server. (3) **`websites.md` was the only builder brief that did not open by naming what it owns** — its boundary was one clause, seventy-nine lines down. (4) **And the session read the table mid-run and reasoned past it** — *"my work spans lane B and lane C, and that's fine, I was given the whole item"* — which is the one no document can fix, and why the rule is now written as REFUSE rather than as consider. **THE FIX IS FOUR ENFORCEMENT POINTS, not a fifth paragraph**: a § WHICH LANE block at the very top of CLAUDE.md, a lane line as the FIRST line of the hand-over template, the same stop rule opening all four briefs, and `scripts/lane-check.mjs` — the one thing that can be RUN, which lists every file touched outside your lane and names whose it is. Plus a `SessionStart` hook, the first hook in this repo, which holds no decision and only asks the question. **The script is the authority where it and the prose disagree**, because prose cannot be executed. **And the Connect work was NOT reverted** — it is finished, verified and correct; a revert would destroy real work to make a bookkeeping point, and the commits say plainly which lane they crossed.
 
+- **One wrong character in the Connect client id, and a probe that proved the wrong thing** — the client id was set on 8 Sep **from a zoomed screenshot instead of the API** and carried a `2` where Stripe's `application` field has a `Z`, so the consent screen would have failed on the first real detailer with an error reading as a broken integration. **I then probed the deployed function, read the value back, and wrote in three files that "the Connect button works today."** The lesson is sharper than *don't trust memory*: **reading back a stored value proves it is SET and says nothing about whether it is RIGHT** — the comparison that mattered, stored id against `GET /v1/webhook_endpoints`'s `application`, is one API call and was never made. **THE VERIFICATION THAT CAUGHT IT COSTS NOTHING AND WORKS ON EVERY SUPABASE SECRET:** the Management API returns each edge secret as a SHA256 digest, so a candidate string is confirmed or eliminated by hashing it — no secret is ever exposed, and this session re-proved the whole chain that way rather than copying the note. **Two more corrections came with it:** the connected-accounts webhook endpoint ALREADY EXISTS (`we_1UDY3WJeoZO7o6EerVO73I3G`), so telling anybody to create it would have produced a third endpoint double-delivering every event — and **the gap neither note flagged is its EVENT LIST**, reported as only the two account events while `stripe-webhook` marks a booking paid from `checkout.session.completed` and `payment_intent.succeeded`, which is a card that clears against a job that says unpaid for ever. `enabled_events` is updatable and `api_version` is not, so that endpoint is UPDATED and never replaced — and the four rows nobody on his side has looked at are marked *reported, not verified* at his own ask.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -16249,3 +16251,102 @@ it would destroy real work to make a bookkeeping point, and it would leave the
 roadmap entry describing a feature that no longer exists. **The commits say
 which lanes they crossed**, which is what the stop rule asks for when the owner
 authorises a crossing — here retroactively.
+
+## One wrong character in the Connect client id, and a probe that proved the wrong thing
+
+*2026-09-10. His cloud coworker's Update 7, and what re-verifying it here
+found.*
+
+### The bug
+
+`STRIPE_CONNECT_CLIENT_ID` was set on 8 September to
+`ca_VCmLryXJX3mC` **`2`** `ypm3vnatW5xRZkccQPQ`. Stripe's real value, in the
+`application` field of `GET /v1/webhook_endpoints`, is
+`ca_VCmLryXJX3mC` **`Z`** `ypm3vnatW5xRZkccQPQ`.
+
+**Cause, in his coworker's own words:** *"I set it on 8 Sep from a zoomed
+screenshot instead of the API."*
+
+**Consequence if nobody had caught it:** the consent screen fails for the first
+real detailer who presses Connect, with an error that reads as a broken
+integration rather than as a typo — so the diagnosis would have started in the
+wrong place.
+
+### My part, and it is the more transferable half
+
+I probed the DEPLOYED `connect-account`, read back
+`client_id=ca_…2…`, and wrote in the roadmap, `OUTSTANDING`, `PROJECT-STATE`
+and a commit message that **"the Connect button works today."**
+
+**READING BACK A STORED VALUE PROVES IT IS SET. IT PROVES NOTHING ABOUT
+WHETHER IT IS RIGHT.**
+
+That is a sharper rule than the one this repo already had. CLAUDE.md's version
+is *a state a session can PROBE should never be recorded from memory*, and I
+followed it: I probed instead of remembering, and still published a false
+statement, because **the probe answered a different question from the one that
+mattered.** The check that mattered was a COMPARISON against the authority —
+one API call — and there was no version of "probe it" that would have produced
+it.
+
+**The roadmap entry even recorded the wrong value verbatim**, so anybody who
+had held it up against Stripe would have seen it. Writing the value down was
+right; not comparing it was the gap.
+
+### The verification technique, which is the part to reuse
+
+**The Supabase Management API returns every edge secret as a SHA256 digest and
+never as a value.** So a candidate string can be confirmed or eliminated
+without anybody ever seeing the secret:
+
+```bash
+curl -s -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+  "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/secrets"
+```
+
+Hash the candidate and compare. It cost nothing, it works for any secret in the
+project, and **it is how this session turned his coworker's note from a claim
+into a fact** rather than copying it forward — which would have been the same
+mistake the note is about, one layer up. It also found the note already
+out of date in his favour: **both pastes had been done**, the stored digest is
+now the `Z` string's, and the running function emits it.
+
+### Two corrections that came with it
+
+**1 · THE CONNECTED-ACCOUNTS WEBHOOK ENDPOINT ALREADY EXISTS** —
+`we_1UDY3WJeoZO7o6EerVO73I3G`, created 8 September. My hand-over told him to
+create it. **A third endpoint would double-deliver every event**, and a
+duplicate `checkout.session.completed` is exactly what
+`bookings_stripe_payment_intent_key` exists to absorb — but relying on an
+idempotency index to paper over a configuration mistake is not a design.
+
+**2 · AND THE GAP NEITHER NOTE FLAGGED IS THAT ENDPOINT'S EVENT LIST.** It is
+reported to carry `account.updated` and `account.application.deauthorized` and
+nothing else, while `stripe-webhook` marks a booking paid from
+**`checkout.session.completed`** and **`payment_intent.succeeded`**. If that is
+right, a customer's card clears, the detailer's balance goes up, and the job
+says unpaid in the dashboard for ever — the failure `OUTSTANDING` § 10's table
+was written to prevent, arriving through the one field nobody re-read.
+
+**IT IS UPDATED, NEVER REPLACED.** From Stripe's own reference: *"You may edit
+the `url`, the list of `enabled_events`, and the status of your endpoint"* —
+and `api_version` is not in that parameter list, which is the same create-only
+finding § 10 already records. **All four events must be passed together,
+because the list is replaced rather than appended to**: sending only the two
+payment events would switch off the two account ones and the platform would
+stop learning that a detailer had left.
+
+### And what is marked as unverified, at his own ask
+
+*"Make sure it's logged into the docs that it's been created but hasn't been
+reviewed personally."*
+
+`OUTSTANDING` § 10b tabulates the endpoint's four fields with every row marked
+**reported, not verified here**. This session has no Stripe key — they are edge
+secrets and the Management API returns hashes — so those four are his
+coworker's reading, and nobody on his side has opened the endpoint in the
+dashboard. **Everything above them in that section WAS verified here.**
+
+**Marking the boundary is the point.** A document that mixes what was measured
+with what was reported, in one voice, is how a screenshot becomes a fact — and
+that is the whole subject of this entry.

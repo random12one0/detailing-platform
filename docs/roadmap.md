@@ -3292,23 +3292,44 @@ is kept; the entire visual design restarts from scratch.
       payment through a real connected account**, and it is an OWNER job
       rather than a build one: it needs somebody to sign in to Stripe.
 
-      **AND THE FIRST OF THE TWO DASHBOARD JOBS WAS ALREADY DONE — MEASURED,
-      NOT ASSUMED.** `connect-account` was called as the demo owner against
-      the DEPLOYED function and answered `available: true` with a real
-      `client_id=ca_VCmLryXJX3mC2ypm3vnatW5xRZkccQPQ` in the consent URL, so
-      `STRIPE_CONNECT_CLIENT_ID` has been set since stage 3's server half went
-      out. **This entry said it was owed for two days.** The lesson is the one
-      this file keeps re-learning: a state a session can PROBE should never be
-      recorded from memory. **The Connect button therefore works today** and
-      sends a detailer to a real `connect.stripe.com` consent screen.
+      ~~**AND THE FIRST OF THE TWO DASHBOARD JOBS WAS ALREADY DONE — MEASURED,
+      NOT ASSUMED.** … **The Connect button therefore works today.**~~
+      **WRONG, AND WRONG IN THE MOST INSTRUCTIVE WAY — corrected 2026-09-10 by
+      his cloud coworker.** The client id WAS set, and it was set to a value
+      with **one wrong character**: `…X3mC` **2** `ypm…` where Stripe's own
+      `application` field says `…X3mC` **Z** `ypm…`. The consent screen would
+      have failed on the first real detailer's attempt, with an error that
+      reads as a broken integration.
 
-      **THE SECOND ONE IS STILL OWED AND IT IS THE ONE THAT MATTERS**: the
-      webhook endpoint has to be told to **listen to events on connected
-      accounts.** It is a separate tick in Stripe's own dashboard, and without
-      it `event.account` never arrives — so a customer's card would clear, the
-      detailer's balance would go up, and **every one of those bookings would
-      still say unpaid in the dashboard for ever.** Nobody can find that out
-      from this repo; it has to be looked at in Stripe.
+      **THE PROBE I RAN WAS NOT THE CHECK I THOUGHT IT WAS. Reading back a
+      stored value proves it is SET; it proves nothing about whether it is
+      RIGHT.** The comparison that mattered — the stored id against
+      `GET /v1/webhook_endpoints`'s `application` — is one API call and I never
+      made it. The sentence *"a state a session can PROBE should never be
+      recorded from memory"* is still true and was not enough on its own.
+
+      **IT IS FIXED NOW, AND THAT IS VERIFIED THREE WAYS (2026-09-10):** the
+      stored secret's SHA256 is that of the `Z` string, the running
+      `connect-account` emits `client_id=ca_VCmLryXJX3mCZypm3vnatW5xRZkccQPQ`,
+      and `STRIPE_CONNECT_WEBHOOK_SECRET` is set as well. **Connect OAuth is
+      correctly configured end to end.**
+
+      ~~**THE SECOND ONE IS STILL OWED**: the webhook endpoint has to be told
+      to listen to events on connected accounts.~~ **THE ENDPOINT EXISTS —
+      `we_1UDY3WJeoZO7o6EerVO73I3G`, created 8 September. DO NOT ASK ANYBODY TO
+      CREATE IT; A THIRD ENDPOINT WOULD DOUBLE-DELIVER EVERY EVENT.**
+
+      **WHAT IS ACTUALLY LEFT IS ITS EVENT LIST, and it is the whole feature.**
+      That endpoint is reported to carry only `account.updated` and
+      `account.application.deauthorized`, while `stripe-webhook` marks a
+      booking paid from **`checkout.session.completed`** and
+      **`payment_intent.succeeded`**. If that is right, a card clears, the
+      detailer's balance goes up, and **the booking says unpaid for ever** —
+      the exact failure this paragraph has always described, now with a cause.
+      **`enabled_events` IS updatable and `api_version` is not** (Stripe's own
+      reference), so the fix updates that endpoint and creates nothing.
+      `docs/OUTSTANDING.md` § 10b has the command and marks which rows are
+      reported rather than verified.
 
       **WHAT THE TWO SCREENS ARE, so the next session does not go looking for
       a fifteenth settings screen:**

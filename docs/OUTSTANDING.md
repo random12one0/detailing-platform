@@ -559,11 +559,14 @@ redirect URI.
 
 ### THE TWO SCREENS ARE BUILT — 2026-09-10, roadmap 2.20 stage 3
 
-**Re-verified against the DEPLOYED function rather than taken from this file:**
-`connect-account` answers `available: true` as the demo owner and hands back a
-consent URL carrying `client_id=ca_VCmLryXJX3mC2ypm3vnatW5xRZkccQPQ`. So the
-line above is right and **the roadmap entry that said the client id was still
-owed was wrong for two days.** Corrected there.
+~~**Re-verified against the DEPLOYED function:** `connect-account` answers
+`available: true` and hands back a consent URL carrying
+`client_id=ca_VCmLryXJX3mC2ypm3vnatW5xRZkccQPQ`. So the line above is right.~~
+**THE VALUE IN THAT SENTENCE IS THE TYPO — a `2` where Stripe has a `Z` — and
+it is left here unstruck as the evidence.** The probe was real and the
+conclusion drawn from it was false: reading a value back proves it is SET, not
+that it is RIGHT. § 10b has the whole account, the correct value, and the
+verification that settles it in one command.
 
 `/settings/payments/connected` is now a real route in `app/src/main.jsx`, which
 is what the redirect URI above has always needed — until today the callback
@@ -618,11 +621,120 @@ read of `connect-account`:
   somebody who stops to create a Stripe account mid-flow is not sent back to
   the start.
 
-**What is still on him, unchanged:** create the connected-accounts webhook
+~~**What is still on him, unchanged:** create the connected-accounts webhook
 endpoint from the table above (API version `2024-06-20`, NOT the default) and
-put its new signing secret in as `STRIPE_CONNECT_WEBHOOK_SECRET`. Without it a
-card would clear, the detailer's balance would go up, and **the booking would
-say unpaid in the dashboard for ever.**
+put its new signing secret in as `STRIPE_CONNECT_WEBHOOK_SECRET`.~~ **BOTH DONE.
+DO NOT ASK HIM TO CREATE THAT ENDPOINT — IT EXISTS, AND A THIRD ONE WOULD
+DOUBLE-DELIVER EVERY EVENT.** See § 10b immediately below.
+
+---
+
+## 10b. UPDATE 7 — THE CLIENT ID WAS WRONG BY ONE CHARACTER, AND IT IS FIXED
+
+**His cloud coworker's note, 2026-09-10, and he has since applied it. Every
+claim below marked VERIFIED was re-read from the API by this session rather
+than copied out of the note — because copying a note is the same mistake the
+note is about.**
+
+### THE BUG: one character, and it was in a value I had reported as working
+
+| | |
+|---|---|
+| Stored until 2026-09-10 | `ca_VCmLryXJX3mC` **`2`** `ypm3vnatW5xRZkccQPQ` |
+| Correct | `ca_VCmLryXJX3mC` **`Z`** `ypm3vnatW5xRZkccQPQ` |
+
+**Cause, in his coworker's own words:** *"I set it on 8 Sep from a zoomed
+screenshot instead of the API."* The source of truth was
+`GET /v1/webhook_endpoints` on `acct_1UCMm0JeoZO7o6Ee`, whose `application`
+field carries the real client id.
+
+**HOW IT WAS PROVEN, and this technique is worth keeping:** the Supabase
+Management API returns each edge secret as a **SHA256 digest**, never its
+value. So a candidate string can be confirmed or eliminated without anybody
+ever seeing the secret — hash it and compare. The digest recorded in the note,
+`204b2569b908d2af990d36decef5a0f9c2525d658bff3bf2dd9786c45fe31c24`, is
+**exactly** sha256 of the `2` string. **VERIFIED by this session**, which is
+how a diagnosis becomes a fact rather than a claim.
+
+```bash
+curl -s -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/secrets"
+```
+
+### WHAT IS TRUE NOW — VERIFIED 2026-09-10, THREE WAYS
+
+- **`STRIPE_CONNECT_CLIENT_ID` IS CORRECT.** Its stored digest is
+  `f2ada3a921a793eb61d371d49b1a4e11a5a5397de2a4736265c1e15763e635fd`, which is
+  sha256 of the **`Z`** string. The `2` value hashes to `204b2569…` and is
+  gone.
+- **`STRIPE_CONNECT_WEBHOOK_SECRET` IS SET**, digest
+  `c90d22f7505f69867bc0295f676ddaa73dc0f5a699acb1ae23616728fab9bd7a`. The
+  note lists this as outstanding; **it is not.** He did both pastes.
+- **AND THE RUNNING FUNCTION SERVES THE RIGHT ONE.** `connect-account` was
+  called as the demo owner and its consent URL carries
+  `client_id=ca_VCmLryXJX3mCZypm3vnatW5xRZkccQPQ`. **So Connect OAuth is
+  correctly configured end to end**, which is a different sentence from the one
+  this file carried two days ago.
+
+### THE ENDPOINT EXISTS — CREATED, AND NOT PERSONALLY REVIEWED BY HIM
+
+**`we_1UDY3WJeoZO7o6EerVO73I3G`**, created 8 September by his cloud coworker.
+
+| Field | Value | Status |
+|---|---|---|
+| `api_version` | `2024-06-20` | **reported, not verified here** |
+| `enabled_events` | `account.updated`, `account.application.deauthorized` | **reported, not verified here** |
+| `status` | `enabled` — the 3-day disable clock has not fired | **reported, not verified here** |
+| `url` | `…supabase.co/functions/v1/stripe-webhook` | **reported, not verified here** |
+
+**MARKED "REPORTED, NOT VERIFIED" ON PURPOSE, AT HIS ASK — *"make sure it's
+logged into the docs that it's been created but hasn't been reviewed
+personally."*** This session has no Stripe key (they are edge secrets, and the
+Management API returns hashes), so the four rows above are the coworker's
+reading and nobody on his side has looked at the endpoint in the dashboard.
+**Everything in the section above them WAS verified here; these four were
+not.** One command settles it:
+
+```bash
+stripe webhook_endpoints retrieve we_1UDY3WJeoZO7o6EerVO73I3G
+```
+
+### THE GAP THE NOTE DID NOT FLAG, AND IT IS THE WHOLE FEATURE
+
+**If `enabled_events` really is only those two, NO CARD PAYMENT IS EVER
+RECORDED.** `stripe-webhook`'s connected-account branch marks a booking paid
+from **`checkout.session.completed`** and **`payment_intent.succeeded`** — read
+out of the function, lines 198 and 607 — and neither is on the list the note
+reports. That is precisely the failure § 10's own table was written to prevent:
+the card clears, the detailer's balance goes up, and the job says unpaid for
+ever.
+
+**THE FIX IS TO UPDATE THAT ENDPOINT, NEVER TO CREATE A SECOND ONE.** Read from
+Stripe's API reference, 2026-09-10, not assumed: *"You may edit the `url`, the
+list of `enabled_events`, and the status of your endpoint."* `api_version` is
+**not** in that parameter list, which is the same create-only finding § 10
+already records — so the version stays `2024-06-20` and only the events move.
+
+```bash
+stripe webhook_endpoints update we_1UDY3WJeoZO7o6EerVO73I3G   -d "enabled_events[]=account.updated"   -d "enabled_events[]=account.application.deauthorized"   -d "enabled_events[]=checkout.session.completed"   -d "enabled_events[]=payment_intent.succeeded"
+```
+
+**All four have to be passed, because the list is REPLACED and not appended
+to** — sending only the two payment events would switch off the two account
+ones, and the platform would stop learning that a detailer had left or been
+restricted.
+
+### THE PROCESS LESSON, AND IT IS THE SECOND ONE OF THIS SHAPE TODAY
+
+**His coworker's own note:** *"an authoritative API was available and I used a
+screenshot. Any value readable from an API should never be transcribed from
+pixels."*
+
+**AND MINE IS THE OTHER HALF OF THE SAME FAILURE.** I probed the deployed
+function, read back `client_id=ca_…2…`, and wrote in three files that *"the
+Connect button works today"*. **A probe that reads a stored value proves the
+value is SET. It proves nothing about whether it is RIGHT.** The comparison
+that mattered — the stored id against Stripe's own `application` field — is the
+one I never made, and it is one API call. Recorded in `DECISIONS.md`.
 
 ### WHICH ACCOUNT THE KEY BELONGS TO — answered 2026-09-08, by evidence
 
