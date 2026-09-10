@@ -34,9 +34,12 @@ produced a confidently wrong answer this session before being caught.
 
 **GOOGLE SIGN-IN, THE LEGAL PAGES AND THE BACKUPS, 2026-09-08.** Google is
 **switched on** (`/auth/v1/settings` answers `google: true`), so the button is
-live on the sign-in screen; publishing the consent screen is blocked only by
-Branding's two empty fields, the privacy and terms URLs, **which already
-exist** — his paste, not a code task. `/privacy` now carries the three scopes
+live on the sign-in screen. ~~Publishing the consent screen is blocked only by
+Branding's two empty fields, the privacy and terms URLs.~~ **PUBLISHED —
+reported 2026-09-10: the status is "In production", External, 0 users against a
+100 cap, so sign-in works for ANY Google account rather than a test list.** The
+100 is a ceiling on an unverified app and Google review one (~17–22 Sep) is
+what lifts it. `/privacy` now carries the three scopes
 and the **Limited Use** sentence Google's reviewer looks for by name;
 `business.manage` is deliberately absent until the sync is actually built.
 **A live rendering bug was found and fixed**: `legal.js` has written emphasis
@@ -6497,10 +6500,26 @@ the `Z` string, the running function emits it, and
 `STRIPE_CONNECT_WEBHOOK_SECRET` is set too. **The connected-accounts webhook
 endpoint also already exists** (`we_1UDY3WJeoZO7o6EerVO73I3G`) — nobody should
 be asked to create it, because a third endpoint double-delivers. What is left
-is its EVENT LIST: it is reported to carry neither
-`checkout.session.completed` nor `payment_intent.succeeded`, which are the two
-that record a card payment. `docs/OUTSTANDING.md` § 10b, with the rows that
-are reported rather than verified marked as such.
+is its EVENT LIST.
+
+**UPDATE 8, THE SAME DAY: THE GAP WAS REAL AND IT IS CLOSED.** The endpoint
+carried neither payment event; both are on it now, the API version is
+unchanged, and **updating the event list does not rotate the signing secret**,
+so nothing needs re-pasting. **Every configuration item for stage 3 is closed;
+what is left is one real card payment.**
+
+**AND THE PAIR OF EVENTS IS SAFE — MEASURED, NOT ASSUMED, and the code lies
+about why.** Both fire for one payment. Writing the same intent twice to the
+same ROW is not a uniqueness conflict (measured), so the unique index does NOT
+make the second delivery a no-op the way migration `20260908001000`'s comment
+claims; **the `payment_status === "paid"` guard is the idempotency**, and the
+index guards the same payment reaching a DIFFERENT booking (a measured 23505).
+No doubled figure, no second email, and the reminder trigger ignores all three
+payment columns. **Migrations are append-only, so the correction lives in
+`tests/connect.test.mjs` § 11** — seven checks, baselined three ways, because
+that comment invites the next reader to delete the guard.
+`docs/OUTSTANDING.md` § 10a is the short list of what is genuinely left on the
+whole project, and § 10b is the full Connect account.
 
 ### Three defects only looking could find, and one check that guarded nothing
 

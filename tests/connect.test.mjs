@@ -634,7 +634,7 @@ console.log("\n§ 9 — an ownership change must be invisible to the app");
 }
 
 // ---------------------------------------------------------------------------
-console.log("\n\u00a7 10 \u2014 the two screens, which are the half no behavioural check sees");
+console.log("\n§ 10 — the two screens, which are the half no behavioural check sees");
 {
   const payments = read("app/src/screens/more/Payments.jsx");
   const manage = read("app/src/book/ManageBookingPage.jsx");
@@ -710,6 +710,91 @@ console.log("\n\u00a7 10 \u2014 the two screens, which are the half no behaviour
   const tpl = read("supabase/functions/_shared/emailTemplates.ts");
   check("and a PAID receipt never carries a pay button",
     /!paid && cardReady/.test(tpl), "the branch does not test `paid`");
+}
+
+// ---------------------------------------------------------------------------
+console.log("\n§ 11 — both payment events fire for ONE payment, and what makes that safe");
+{
+  const hook = read("supabase/functions/stripe-webhook/index.ts");
+
+  // WHY THIS SECTION EXISTS — his cloud coworker's Update 8, 2026-09-10.
+  // `checkout.session.completed` and `payment_intent.succeeded` are BOTH
+  // enabled on the connected-accounts endpoint, and both fire for one
+  // successful payment. He asked for the pair to be checked rather than
+  // assumed. It was, against the real database, and the answer is that the
+  // transition is idempotent — **but not for the reason the code says.**
+  //
+  // MEASURED 2026-09-10 on two demo bookings, then put back:
+  //   · same intent, SAME row, twice        → ok. NO unique violation.
+  //   · same intent, DIFFERENT row          → 23505, refused.
+  //
+  // So `bookings_stripe_payment_intent_key` does NOT make a repeat of the
+  // same payment a no-op, which is what migration 20260908001000's own
+  // comment claims. **The thing that does is the `payment_status === "paid"`
+  // guard**, and the migration cannot be edited to say so — migrations are
+  // append-only in this repo. So the fact lives here, next to the check that
+  // keeps the guard alive.
+  //
+  // THE TRAP THIS CLOSES: somebody reading that migration comment would
+  // reasonably delete the guard as redundant. Doing so returns two paid
+  // transitions per payment.
+  check("11a · the handler takes both payment events",
+    /type !== "checkout\.session\.completed" && type !== "payment_intent\.succeeded"/.test(hook));
+
+  // THE GUARD, AND IT IS THE IDEMPOTENCY. Named in a check so it cannot be
+  // removed silently. `waived` is in it for a different reason — a detailer
+  // who took cash and then got a card payment has a refund to make, not a
+  // status to flip — and both halves are load-bearing.
+  // § 6 ALREADY CHECKED THAT THIS GUARD EXISTS — "an already-settled booking
+  // is left alone" — and deleting it fails both. What § 11 adds is the
+  // POSITION, which nothing held, and the RECORD of why the guard rather than
+  // the index is the idempotency. Said out loud rather than quietly
+  // duplicated: a check that looks new and is not is how a suite grows without
+  // covering more.
+  check("11b · an already-settled booking returns BEFORE the write",
+    /if \(booking\.payment_status === "paid" \|\| booking\.payment_status === "waived"\) return;/
+      .test(hook),
+    "the guard that makes the second delivery a no-op is gone");
+
+  // AND IT HAS TO SIT AFTER THE READ AND BEFORE THE UPDATE. A guard moved
+  // above the read has nothing to read; one moved below the update is
+  // decoration.
+  const readAt = hook.indexOf('.select("id, business_id, payment_status, stripe_payment_intent")');
+  const guardAt = hook.indexOf('if (booking.payment_status === "paid"');
+  const writeAt = hook.indexOf('payment_status: "paid",');
+  check("11b-i · and it is between the read and the write",
+    readAt > 0 && guardAt > readAt && writeAt > guardAt,
+    `read ${readAt}, guard ${guardAt}, write ${writeAt}`);
+
+  // THE TWO EVENTS MUST COLLAPSE TO ONE INTENT ID, or the guard is the only
+  // thing standing between a payment and two rows claiming it. On the intent
+  // it is `object.id`; on a session it is `object.payment_intent`.
+  check("11c · both events resolve to the same payment-intent id",
+    /type === "payment_intent\.succeeded"\s*\?\s*String\(object\.id/.test(hook)
+      && /object\.payment_intent === "string"/.test(hook));
+
+  // A 23505 IS THIS HANDLER WORKING. Throwing would release the event claim
+  // and invite Stripe to retry for three days.
+  check("11d · a unique violation is swallowed, not thrown",
+    /error\.code !== "23505"/.test(hook));
+
+  // AND THE CONNECTED BRANCH SENDS NO EMAIL, which is the other half of his
+  // question — "possibly two confirmation emails". The only tenant send in
+  // this file is the PLATFORM billing branch. Counted rather than asserted,
+  // so a send added to the payment path fails this.
+  const sends = (hook.match(/sendTenantEmail\(/g) ?? []).length;
+  check("11e · exactly one email send in the whole webhook, and it is billing's",
+    sends === 1, `${sends} sends — a payment path that emails would double it`);
+
+  // NOR DOES A PAYMENT RE-ARM A REMINDER. `reset_reminder_markers_on_edit`
+  // fires BEFORE UPDATE on every booking row, and a payment write that
+  // matched it would clear the customer's reminder stamp and mail them again.
+  // It keys on time and on the fields the reminder email states; none of the
+  // three payment columns is in either list.
+  const trig = read("supabase/migrations/20260829000100_reminder_marker_reset.sql");
+  check("11f · the reminder trigger ignores the payment columns",
+    !/payment_status|paid_online_at|stripe_payment_intent/.test(trig),
+    "a payment would re-arm a reminder and email the customer twice");
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

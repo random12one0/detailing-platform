@@ -279,6 +279,8 @@ were made more than once.
 
 - **One wrong character in the Connect client id, and a probe that proved the wrong thing** — the client id was set on 8 Sep **from a zoomed screenshot instead of the API** and carried a `2` where Stripe's `application` field has a `Z`, so the consent screen would have failed on the first real detailer with an error reading as a broken integration. **I then probed the deployed function, read the value back, and wrote in three files that "the Connect button works today."** The lesson is sharper than *don't trust memory*: **reading back a stored value proves it is SET and says nothing about whether it is RIGHT** — the comparison that mattered, stored id against `GET /v1/webhook_endpoints`'s `application`, is one API call and was never made. **THE VERIFICATION THAT CAUGHT IT COSTS NOTHING AND WORKS ON EVERY SUPABASE SECRET:** the Management API returns each edge secret as a SHA256 digest, so a candidate string is confirmed or eliminated by hashing it — no secret is ever exposed, and this session re-proved the whole chain that way rather than copying the note. **Two more corrections came with it:** the connected-accounts webhook endpoint ALREADY EXISTS (`we_1UDY3WJeoZO7o6EerVO73I3G`), so telling anybody to create it would have produced a third endpoint double-delivering every event — and **the gap neither note flagged is its EVENT LIST**, reported as only the two account events while `stripe-webhook` marks a booking paid from `checkout.session.completed` and `payment_intent.succeeded`, which is a card that clears against a job that says unpaid for ever. `enabled_events` is updatable and `api_version` is not, so that endpoint is UPDATED and never replaced — and the four rows nobody on his side has looked at are marked *reported, not verified* at his own ask.
 
+- **Both payment events fire for one payment, and the migration comment about it is wrong** — `checkout.session.completed` and `payment_intent.succeeded` are both enabled on the connected-accounts endpoint (his coworker's Update 8, 2026-09-10, after the retrieve found the pair missing entirely). He asked for the interaction to be CHECKED rather than assumed, and it was, against the real database: **writing the same intent twice to the same ROW is not a uniqueness conflict and Postgres accepts both**, which is the opposite of what migration `20260908001000`'s comment claims about its own unique index. **The idempotency is the `payment_status === "paid"` guard**, three lines above the write; the index protects the case it CAN see, the same payment landing on a DIFFERENT booking (a measured 23505), which is the metadata-forgery path. Even in the pure race both writes are identical, the takings are one row's `final_amount` rather than a sum of events, the connected branch sends no email at all, and `reset_reminder_markers_on_edit` — which fires BEFORE UPDATE on every booking and would have re-mailed the customer — keys on none of the three payment columns. **MIGRATIONS ARE APPEND-ONLY, so the wrong comment cannot be corrected in place**: the fact lives in `tests/connect.test.mjs` § 11 instead, next to seven checks that keep the guard alive, because a comment claiming the index does this invites the next reader to delete the guard as redundant. Baselined three ways. **Also: updating `enabled_events` does NOT rotate the signing secret**, and Google's consent screen is "In production" rather than Testing.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -16350,3 +16352,100 @@ dashboard. **Everything above them in that section WAS verified here.**
 **Marking the boundary is the point.** A document that mixes what was measured
 with what was reported, in one voice, is how a screenshot becomes a fact — and
 that is the whole subject of this entry.
+
+## Both payment events fire for one payment, and the migration comment about it is wrong
+
+*2026-09-10, his cloud coworker's Update 8. The retrieve I asked for came back:
+the connected-accounts endpoint carried NEITHER payment event, so the gap
+flagged the day before was real and a card would have cleared against a job
+reading unpaid for ever. Both are on it now. This entry is about what he asked
+next.*
+
+### His question, which was the right one
+
+> *"`checkout.session.completed` and `payment_intent.succeeded` BOTH fire for
+> the same successful payment. If the handler marks a booking paid on each,
+> that is a double write — two paid transitions, possibly two confirmation
+> emails, possibly a doubled figure. You asked for both so I added both, but
+> the pair interacting is worth a check rather than an assumption."*
+
+### The answer, measured on the real database
+
+Two demo bookings, written and put back:
+
+| Tried | Result |
+|---|---|
+| Same intent, **same** row, twice | **ok. NO unique violation.** |
+| Same intent, a **different** row | **23505 — refused.** |
+
+**THAT IS THE OPPOSITE OF WHAT THE CODE CLAIMS ABOUT ITSELF.** Migration
+`20260908001000_connected_accounts.sql` says of its unique index on
+`stripe_payment_intent`: *"a unique index makes the second insert a no-op
+rather than a second payment in the takings."* **It does not.** Two writes of
+the same value to the same row are not a uniqueness conflict — uniqueness is
+across rows — so Postgres accepts both.
+
+**WHAT ACTUALLY MAKES THE TRANSITION IDEMPOTENT is the status guard**, three
+lines above the write: the first event flips the row to `paid`, the second
+reads it, sees `paid`, and returns before writing anything.
+
+**AND THE INDEX IS NOT USELESS — it guards the case it can see.** The same
+payment landing on a *different* booking is exactly the metadata-forgery path
+the account check also covers: a connected account is a stranger's own Stripe
+account, and whoever holds it can create a session carrying any `booking_id`
+and have Stripe deliver it here correctly signed. Two independent guards on one
+attack is right. The comment simply describes the wrong one.
+
+### Three more reasons the pair is safe, none of them the index
+
+**THE RACE IS HARMLESS.** If both events read `pending` before either writes,
+both write — and both write the same status and the same intent, because
+`payment_intent.succeeded`'s `object.id` and `checkout.session.completed`'s
+`object.payment_intent` are the same string. Only `paid_online_at` differs, by
+milliseconds.
+
+**THERE IS NO FIGURE TO DOUBLE.** The takings are one row's `final_amount`.
+Nothing in this product sums payment events.
+
+**AND THERE IS NO SECOND EMAIL — including the non-obvious one.** The
+connected-payment branch sends nothing; the only `sendTenantEmail` in the whole
+webhook is the platform-billing branch. The one worth checking rather than
+assuming is `reset_reminder_markers_on_edit`, which fires BEFORE UPDATE on
+**every** booking row: a payment write that matched it would clear the
+customer's reminder stamp and mail them a second time. It keys on the
+appointment time and on the fields the reminder email states, and **none of
+`payment_status`, `paid_online_at` or `stripe_payment_intent` is in either
+list.**
+
+### So the decision: the correction lives in the test, not the migration
+
+**Migrations are append-only in this repo** (CLAUDE.md, Ground rules), so the
+wrong comment cannot be edited and a corrective migration would be a migration
+that changes no schema. The alternatives were a note in a doc or a check in a
+suite, and the choice is not close: **the comment actively invites the next
+reader to delete the guard as redundant**, and a doc cannot stop that.
+
+`tests/connect.test.mjs` § 11 holds it — the guard's existence, its POSITION
+between the read and the write, the two events collapsing to one intent id, the
+23505 being swallowed rather than thrown, the email count in the file, and the
+reminder trigger's column list. **Baselined three ways: deleting the guard
+fails 3 checks, moving it above the read fails 1, adding an email to the
+payment path fails 1.**
+
+**One of those three was already half-covered** — § 6's *"an already-settled
+booking is left alone"* also fails when the guard goes. Said out loud in the
+test's own comment rather than quietly duplicated: what § 11 adds is the
+position, which nothing held, and the record of why.
+
+### Two smaller facts from the same update, both of them things not to worry about
+
+**UPDATING `enabled_events` DOES NOT ROTATE THE SIGNING SECRET.** The value
+already pasted as `STRIPE_CONNECT_WEBHOOK_SECRET` stays valid. That was the
+obvious thing to fear and it is not a thing — worth recording precisely because
+the instinct is to re-paste.
+
+**AND GOOGLE'S CONSENT SCREEN IS "In production", not Testing** — External, 0
+users against a 100 cap, so sign-in works for any Google account rather than a
+test list. Every note describing it as blocked on Branding is stale. The 100 is
+a ceiling on an unverified app and matters only as it approaches; Google review
+one (~17–22 Sep) is what lifts it.

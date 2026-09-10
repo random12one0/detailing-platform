@@ -38,7 +38,7 @@ https://claude.ai/code/artifact/e7683fbc-9436-48cb-ae47-c1868167205b
 
 | | What | Why only he can | Time |
 |---|---|---|---|
-| **1** | ~~**Turn on Google sign-in**~~ **SWITCHED ON — measured 2026-09-08, `/auth/v1/settings` answers `google: true`, so the button is LIVE on the sign-in screen.** What is left is not the toggle: Google's Audience page refuses *Publish app* AND saving a test user while Branding is incomplete, and **the only empty fields are the privacy policy and terms URLs**. Both pages are public and render on the live site. **He pastes `https://detailingplatform.com/privacy` and `https://detailingplatform.com/terms` into the Branding page.** Not a code task and not a bug — do not chase it as one. **~~2 min~~ DONE 2026-09-08 — he had his cloud coworker paste both.** What that session then reported is § 9 below, and reading it produced one real change and three false alarms. | done |
+| **1** | ~~**Turn on Google sign-in**~~ **DONE AND PUBLISHED. Reported 2026-09-10: the Google Auth Platform publishing status is "In production", External, 0 users against a 100 cap — so sign-in is live for ANY Google account, not just test users. Anything below or elsewhere describing it as Testing, or as blocked on Branding, is STALE.** The 100 is worth knowing about only as it approaches: it is a ceiling on an unverified app, and Google review one (~17–22 Sep) is what lifts it. Earlier, and still true as history: **measured 2026-09-08, `/auth/v1/settings` answers `google: true`, so the button is LIVE on the sign-in screen.** What is left is not the toggle: Google's Audience page refuses *Publish app* AND saving a test user while Branding is incomplete, and **the only empty fields are the privacy policy and terms URLs**. Both pages are public and render on the live site. **He pastes `https://detailingplatform.com/privacy` and `https://detailingplatform.com/terms` into the Branding page.** Not a code task and not a bug — do not chase it as one. **~~2 min~~ DONE 2026-09-08 — he had his cloud coworker paste both.** What that session then reported is § 9 below, and reading it produced one real change and three false alarms. | done |
 | **2** | ~~**Does a mailbox exist on `detailingplatform.com`?**~~ **ANSWERED 2026-09-08: YES — `andrew@` and `support@`, on iCloud Mail, and they existed before anybody asked.** The DNS is on **NS1**, not Cloudflare and not Netlify. The GBP application was filed from `andrewswashing@gmail.com` anyway, because that account holds the verified listing and the form has no contact-email field. | done |
 | **2b** | ~~**Read Resend's actual billing plan** — the counter may be measuring against a limit that does not exist.~~ **ANSWERED 2026-09-08, AND THE DOUBT WAS WRONG. The plan is FREE, confirmed on the billing page** — Transactional, 3,000/month at $0, no payment method on file. **Monthly 570 / 3,000 (19%, fine). DAILY 117 / 100 — ALREADY OVER, right now, and still delivering.** So the cap is REAL, Resend displays it, and **the back office's *"Emails: N of 100 today"* is correct. Do not remove or change that counter.** What it is is a SOFT limit at this level, not a hard block. **The upgrade decision is now weaker than it looked — see § 11.** | done |
 | **2c** | ~~**Two things in the Stripe dashboard** — the `ca_…` client id, and the webhook endpoint told to listen to events on CONNECTED accounts, a separate setting.~~ **BOTH HALVES WERE WRONG — corrected 2026-09-08 from the dashboard.** The client id **is already set** (`STRIPE_CONNECT_CLIENT_ID`, verified in Supabase edge secrets, 8 Sep) — so that half is DONE. And **there is no such setting**: a Stripe endpoint's *"Events from"* is **CREATE-ONLY**, immutable beside the payload style and the API version, so the existing endpoint is permanently scoped to *"Your account"* and cannot be pointed at connected accounts. **It takes a SECOND endpoint, which issues a NEW signing secret** — see § 10. | see § 10 |
@@ -629,6 +629,28 @@ DOUBLE-DELIVER EVERY EVENT.** See § 10b immediately below.
 
 ---
 
+## 10a. WHAT IS ACTUALLY LEFT ON THE WHOLE PROJECT — his coworker's list, 2026-09-10
+
+**Kept at the top of this run of sections because it is the shortest true
+answer to "what is outstanding", and every other section here is a story about
+something already done.**
+
+| | What | Whose | When |
+|---|---|---|---|
+| 1 | **A RESTORE TEST — overdue.** Nobody has verified the backups produce a real, restorable file. Roadmap 2.22 is still `[~]` for exactly this. | anybody's — it needs no dashboard | **now**; it is the only item here with no external gate |
+| 2 | **Netlify credits reset 13 Sep**, then the branch-vs-production decision | his | 13 Sep |
+| 3 | **Google review one**, then review two | Google's | ~17–22 Sep |
+| 4 | Resend Pro, Stripe live activation, the migration | **parked by his decision** | not now |
+| 5 | **One real card payment through a real connected account** — stage 3's last item | his | unblocked as of today |
+
+**ITEM 1 IS THE ONE THAT SHOULD MOVE FIRST, and it is not waiting on him.**
+Everything else on this list is a date or a decision; a backup nobody has
+restored is a backup nobody knows they have. It is also the only item whose
+failure is silent — a broken backup looks exactly like a working one until the
+day it is needed.
+
+---
+
 ## 10b. UPDATE 7 — THE CLIENT ID WAS WRONG BY ONE CHARACTER, AND IT IS FIXED
 
 **His cloud coworker's note, 2026-09-10, and he has since applied it. Every
@@ -722,6 +744,90 @@ stripe webhook_endpoints update we_1UDY3WJeoZO7o6EerVO73I3G   -d "enabled_events
 to** — sending only the two payment events would switch off the two account
 ones, and the platform would stop learning that a detailer had left or been
 restricted.
+
+### UPDATE 8 — THE EVENTS ARE ON, AND THE ENDPOINT IS COMPLETE
+
+**2026-09-10. The retrieve answered: the endpoint did NOT carry the two payment
+events.** § 10b's warning was right and the gap was real — a card would have
+cleared against a job that said unpaid for ever.
+
+`we_1UDY3WJeoZO7o6EerVO73I3G` now reads:
+
+| Field | Value |
+|---|---|
+| `enabled_events` | `account.updated`, `account.application.deauthorized`, **`checkout.session.completed`**, **`payment_intent.succeeded`** |
+| `api_version` | `2024-06-20` — unchanged, as expected: it is not an updatable parameter |
+| `status` | `enabled` — unchanged |
+
+**AND UPDATING `enabled_events` DOES NOT ROTATE THE SIGNING SECRET.** The value
+already pasted as `STRIPE_CONNECT_WEBHOOK_SECRET` stays valid — **no re-paste,
+and do not ask for one.** That was the obvious thing to worry about and it is
+not a thing.
+
+**SO EVERY CONFIGURATION ITEM FOR STAGE 3 IS NOW CLOSED.** Client id correct,
+connect webhook secret set, endpoint created with the right API version, all
+four events on. What is left of stage 3 is one real card payment, and nothing
+in a dashboard blocks it.
+
+### THE RISK IN UPDATE 8, AND IT IS ALREADY CLOSED — BUT NOT FOR THE REASON THE CODE SAYS
+
+**His question, and it is the right one to ask:** *"checkout.session.completed
+and payment_intent.succeeded BOTH fire for the same successful payment. If the
+handler marks a booking paid on each, that is a double write… Make the paid
+transition idempotent, or key it on one event and treat the other as
+informational."*
+
+**IT IS IDEMPOTENT. MEASURED AGAINST THE REAL DATABASE ON TWO DEMO BOOKINGS,
+AND PUT BACK:**
+
+| What was tried | What happened |
+|---|---|
+| Same intent, **same** row, written twice | **ok — NO unique violation** |
+| Same intent, a **different** row | **23505 — the index refuses it** |
+
+**THAT IS THE OPPOSITE OF WHAT MIGRATION `20260908001000`'s OWN COMMENT
+CLAIMS.** It says the unique index on `stripe_payment_intent` *"makes the
+second insert a no-op rather than a second payment in the takings."* **It does
+not** — two writes of the same value to the same row are not a uniqueness
+conflict, and Postgres accepts both.
+
+**WHAT ACTUALLY MAKES IT SAFE IS THE STATUS GUARD**, three lines above the
+write:
+
+```ts
+if (booking.payment_status === "paid" || booking.payment_status === "waived") return;
+```
+
+The first event flips the row to `paid`; the second reads it, sees `paid`, and
+returns before writing anything. **And the index is not useless — it protects
+the case it CAN see**: the same payment landing on a *different* booking, which
+is the metadata-forgery path the account check also guards.
+
+**EVEN IN THE PURE RACE the outcome is right.** If both events read `pending`
+before either writes, both write — and both write the *same* status and the
+*same* intent, because `payment_intent.succeeded`'s `object.id` and
+`checkout.session.completed`'s `object.payment_intent` are the same string.
+Only `paid_online_at` differs, by milliseconds. **The takings are one row's
+`final_amount`, never a sum of events, so there is no figure to double.**
+
+**AND THERE IS NO SECOND EMAIL, which was the other half of his question.** The
+connected-payment branch sends nothing at all — the only `sendTenantEmail` in
+the whole webhook is the platform-billing branch. **The non-obvious one:
+`reset_reminder_markers_on_edit` fires BEFORE UPDATE on every booking row**, and
+a payment write that matched it would clear the customer's reminder stamp and
+mail them a second time. It keys on the time and on the fields the reminder
+email states; **none of `payment_status`, `paid_online_at` or
+`stripe_payment_intent` is in either list.**
+
+**THE TRAP, AND IT IS WHY THIS IS NOW A CHECK RATHER THAN A PARAGRAPH.**
+Somebody reading that migration comment would reasonably delete the guard as
+redundant, and get two paid transitions per payment. **Migrations are
+append-only here, so the comment cannot be corrected in place** —
+`tests/connect.test.mjs` § 11 holds the fact instead, with checks on the
+guard's existence, its POSITION between the read and the write, the two events
+collapsing to one intent id, the 23505 being swallowed, the email count, and
+the reminder trigger. Baselined three ways: deleting the guard fails 3, moving
+it above the read fails 1, adding an email to the payment path fails 1.
 
 ### THE PROCESS LESSON, AND IT IS THE SECOND ONE OF THIS SHAPE TODAY
 

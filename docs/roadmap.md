@@ -3319,17 +3319,29 @@ is kept; the entire visual design restarts from scratch.
       `we_1UDY3WJeoZO7o6EerVO73I3G`, created 8 September. DO NOT ASK ANYBODY TO
       CREATE IT; A THIRD ENDPOINT WOULD DOUBLE-DELIVER EVERY EVENT.**
 
-      **WHAT IS ACTUALLY LEFT IS ITS EVENT LIST, and it is the whole feature.**
-      That endpoint is reported to carry only `account.updated` and
-      `account.application.deauthorized`, while `stripe-webhook` marks a
-      booking paid from **`checkout.session.completed`** and
-      **`payment_intent.succeeded`**. If that is right, a card clears, the
-      detailer's balance goes up, and **the booking says unpaid for ever** —
-      the exact failure this paragraph has always described, now with a cause.
-      **`enabled_events` IS updatable and `api_version` is not** (Stripe's own
-      reference), so the fix updates that endpoint and creates nothing.
-      `docs/OUTSTANDING.md` § 10b has the command and marks which rows are
-      reported rather than verified.
+      ~~**WHAT IS ACTUALLY LEFT IS ITS EVENT LIST.**~~ **THE GAP WAS REAL AND
+      IT IS CLOSED — 2026-09-10.** The endpoint did NOT carry
+      `checkout.session.completed` or `payment_intent.succeeded`; both are on
+      it now, `api_version` is still `2024-06-20`, and **updating the event
+      list does not rotate the signing secret**, so nothing needs re-pasting.
+      **EVERY CONFIGURATION ITEM FOR STAGE 3 IS CLOSED.** What is left is one
+      real card payment, and no dashboard blocks it.
+
+      **AND THE PAIR OF EVENTS IS SAFE, MEASURED RATHER THAN ASSUMED.** Both
+      fire for one payment. The transition is idempotent — but **the unique
+      index does NOT do it**, which is what migration `20260908001000`'s own
+      comment claims: writing the same intent twice to the same ROW is not a
+      uniqueness conflict and Postgres accepts both (measured). **The
+      `payment_status === "paid"` guard is the idempotency**, and the index
+      protects the case it can see — the same payment landing on a DIFFERENT
+      booking, which is a 23505 (also measured). Even in the pure race both
+      writes are identical, the takings are one row's `final_amount` rather
+      than a sum of events, the connected branch sends no email, and
+      `reset_reminder_markers_on_edit` keys on none of the three payment
+      columns. **Migrations are append-only, so the correction lives in
+      `tests/connect.test.mjs` § 11** — seven checks, baselined three ways,
+      because the migration comment invites somebody to delete the guard as
+      redundant. `docs/OUTSTANDING.md` § 10b is the full account.
 
       **WHAT THE TWO SCREENS ARE, so the next session does not go looking for
       a fifteenth settings screen:**
