@@ -2221,7 +2221,7 @@ from zero, the five two-line claims, the six warnings, the four fleet
 benefits, the hours bar, gift cards, the payment methods and the footer's
 repeat of the service area.
 
-**`docs/tenant-sites/z-gandy.html` is the page.** Gandy Mobile Detailing,
+**`docs/tenant-sites/z-tampabay.html` is the page.** Gandy Mobile Detailing,
 Tampa Bay. Verified by looking and by measuring: **254 text elements sampled
 off the rendered pixels at 1440, 392 and 320 with zero below floor, worst
 4.79:1**; no horizontal overflow at 320/360/392/768/1440/1920; console clean at
@@ -2239,3 +2239,85 @@ were live:** a headline broken into MOBI/LE on a phone; a hero card rendered
 one letter wide because `position:static` inside a flex parent makes a column,
 not a stack; *"Gift cards are available"* invisible in near-white on the cream
 band; and the same card legible at 1440 and 2:1 at 392. Playbook rules 132–137.
+
+## 16 · SITE 5, HIS REVIEW OF THE BUILT PAGE — 2026-09-09
+
+**He likes the design.** *"I do like the kind of design of it."* Everything
+below is a change to make, not a rebuild.
+
+### 16a · THE NAME WAS THE FIRST THING HE SAID, AND IT IS A RULE FOR EVERY SITE
+
+*"The name Gandy goes against the don't-use-a-startup-name thing. We're not
+inventing a new product… it should just be something straightforward."* His own
+examples, all real: **Andrews Auto Detail** (his), **Melee Mobile Detailing**,
+**Chicago Auto Pros**, **Carolina Mobile Carwash**.
+
+**THE PATTERN IS A PLACE OR A SURNAME, THEN THE TRADE, IN PLAIN WORDS.** No
+invented single word, no place-name-as-brand, no dot after it. The site is now
+**Tampa Bay Auto Detail**. *A tenant site is a small business's sign, not a
+product launch.*
+
+### 16b · COPY — HE NAMED SIX LINES AND THE FAULT IS THE SAME EVERY TIME
+
+*"A lot of this text is getting to that level of AI creativity that just isn't
+needed and isn't wanted for this. It should be more straightforward."*
+
+| He objected to | Why | Now |
+|---|---|---|
+| *"If it drives, we detail it"* as a heading | *"could be a little more simple"* | **What we clean, and what it costs** |
+| *"…quoted before we start, never after"* | *"it was so good until you said never after"* | the sentence stops at **before we start** |
+| *"The eight things that always happen"* | *"needs to be a simpler title"* | **What is in every wash** |
+| *"Once a month, same slot, no phone call"* | *"I don't like that either"* | **Monthly plans** |
+| *"Your vans are your advertising"* | *"AI creativity"* | **Fleet and business accounts** |
+| *"The bits people wish they had read"* | same family | **Before you book** |
+
+**THE TEST HE IS APPLYING: does the heading say the thing, or does it make you
+work out the thing?** *"Often times it's being look straightforward, not
+something you have to think about to understand."*
+
+### 16c · A PRICE WITHOUT ITS CONTENTS IS NOT A PRICE
+
+*"The only thing I don't like about this little area is that you don't see the
+details of what comes in everything… I actually need exactly what comes in each
+package."* One summary line is not enough. **Every service on the board now
+lists what is included, item by item.**
+
+### 16d · THE TAB MUST BE CUT OUT OF THE PHOTOGRAPH, NOT SAT UNDER IT
+
+*"On their page I like how there's a cutout that says explore more… ours is see
+the board but it's not just red, it's actually a cutout — the box that the
+image is in isn't just a regular rectangle, it's actually that cool shape that
+has the rectangle with a little tab sticking out of it, instead of just being
+something sticking out of it with a red background."*
+
+**So the hero panel's SHAPE includes the tab.** The photograph continues into
+it. Built by giving the tab its own copy of the image, sized to the poster and
+offset by the tab's position, so the crop is continuous rather than similar.
+
+### 16e · MOTION — THE BIGGEST ASK, AND IT IS ABOUT CONSTANCY
+
+- *"There's not really any animations as you scroll up and down except for that
+  singular one of the shine."*
+- **Reveals must replay in BOTH directions:** *"as you scroll up, that animation
+  should appear again, and you scroll down, it should also appear. So there
+  should be constant animations."*
+- *"There should be some more constant animations on the site, something that's
+  constantly moving or doing something. Right now it's more basic."*
+- **The gloss has hard edges:** *"if those could fade out completely to
+  transparency instead of being a hard edge, that'd be much better."*
+- **The FAQ snaps open** and must not.
+- **A weighted scroll:** *"it uses the one that we use for our landing page, or
+  you can make a new one."* Ported from `app/src/landing/thread.js` — WHEEL 1.22,
+  LERP 0.055, fine pointer only.
+
+### 16f · THE iPAD
+
+*"Viewing it on the iPad level, there's this premium ceramic coating thing
+that's kind of on top of something."* The hero's card was absolutely positioned
+until 900px and overlapped between 900 and 1024. It stacks below 1024 now.
+
+### 16g · WHAT HE DECIDED IS FINE
+
+The three-tier split (Express / Executive / Add-ons) sitting beside the vehicle
+board, with ceramic coating pulled out on its own: *"I guess it kinda makes
+sense. So I think it's fine."* **Do not redesign it.**

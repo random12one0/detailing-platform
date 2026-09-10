@@ -985,7 +985,7 @@ anything interactive, which is most of what these pages are.
     plus `overflow-wrap:anywhere` on headings. **Measure
     `scrollWidth - clientWidth` at every width; do not read the media query.**
 
-### From site 5 — the build, 2026-09-09. `docs/tenant-sites/z-gandy.html`
+### From site 5 — the build, 2026-09-09. `docs/tenant-sites/z-tampabay.html`
 132. **A DISPLAY FACE MUST NEVER BREAK MID-WORD, and the rule that broke it was
     copied in from the design sheet.** `overflow-wrap:anywhere` is right on a
     sheet full of file paths and domain names; on the site it split the poster
@@ -1022,3 +1022,64 @@ anything interactive, which is most of what these pages are.
 137. **AN ELEMENT SITTING UNDER THE STICKY NAV IS OBSCURED, NOT LOW-CONTRAST.**
     The sampler read the nav's red Book button as the ground for a form label.
     Skip the nav's band in the sampler; do not "fix" the design.
+
+### From site 5 — his review, 2026-09-09
+138. **A TENANT'S NAME IS A SIGN, NOT A BRAND.** *"The name Gandy goes against
+    the don't-use-a-startup-name thing… it should just be something
+    straightforward."* His own list of real ones: **Andrews Auto Detail**,
+    **Melee Mobile Detailing**, **Chicago Auto Pros**, **Carolina Mobile
+    Carwash**. **The pattern is a place or a surname, then the trade, in plain
+    words.** No invented single word, no place-as-brand, no full stop after it.
+    Site 5 is **Tampa Bay Auto Detail**. This is the never-defaults list one
+    level up: it applies to the NAME as well as the type and the copy.
+139. **A HEADING EITHER SAYS THE THING OR MAKES YOU WORK IT OUT.** He named six
+    lines in one pass and every one of them was the second kind — *"Once a
+    month, same slot, no phone call"*, *"Your vans are your advertising"*,
+    *"The eight things that always happen"*. His test: *"often times it's being
+    look straightforward, not something you have to think about to
+    understand."* **A heading is a label. The clever version of a label is a
+    riddle.** Rule 4's *"be literature"* has now been broken on three
+    consecutive sites; treat a section heading as a NOUN by default.
+140. **HE ALSO NAMED THE HALF-SENTENCE, AND THAT IS THE SHARPER LESSON.**
+    *"…quoted before we start, never after"* — *"it was so good until you said
+    never after."* The sentence was finished and then a rhythm was added.
+    **Read every sentence back and delete the clause that exists for the
+    cadence.**
+141. **A PRICE WITHOUT ITS CONTENTS IS NOT A PRICE.** *"You don't see the
+    details of what comes in everything… I actually need exactly what comes in
+    each package."* A one-line summary reads as marketing; the itemised list is
+    the thing a customer is actually buying. Every service on site 5 now lists
+    its contents.
+142. **A CUTOUT IS A SHAPE, NOT A BOX UNDERNEATH.** He compared our tab to the
+    reference's: *"it's not just red, it's actually a cutout — the box that the
+    image is in isn't just a regular rectangle, it's that cool shape with a
+    little tab sticking out."* Built by giving the tab **its own copy of the
+    photograph, sized to the poster and offset by the tab's position**, so the
+    two crops are the same crop. `--pw` / `--ph` / `--tx`, re-measured on
+    resize. A separate coloured box is what he was pointing at as wrong.
+143. **AN ENTRANCE THAT ANIMATES `transform` DESTROYS A DECLARED `transform`.**
+    `g-settle` ends on `transform: none` with `fill-mode: both`, which
+    permanently overrode the tab's `translateX(-50%)` and pushed it 107px past
+    the right edge — a real horizontal overflow at 320, 360 and 392. **Animate
+    a WRAPPER, never an element that is positioned by transform.**
+144. **REVEALS MUST REPLAY IN BOTH DIRECTIONS.** *"As you scroll up, that
+    animation should appear again, and you scroll down, it should also appear.
+    So there should be constant animations."* A one-shot reveal reads as a page
+    that has stopped. Re-arm on exit.
+145. **A DRIFTING FIXED GROUND NEEDS A CLIPPING PARENT — AND `overflow-x: clip`
+    ON THE BODY DOES NOT SAVE YOU.** Scaling the fixed layer itself widened the
+    document by 5px at 320. Put the animation on a child inside a
+    `position: fixed; overflow: hidden` box.
+146. **`<details>` CANNOT BE ANIMATED WITH A CSS TRANSITION** — the browser
+    reveals the content in the same frame it sets `open`, so there is no start
+    frame and the `0fr → 1fr` grid trick silently does nothing (measured:
+    64px → 64px). Drive the height from script and delay the close.
+147. **THE WEIGHTED SCROLL IS PORTABLE AND HE ASKS FOR IT BY NAME.**
+    *"It uses the one that we use for our landing page, or you can make a new
+    one."* `app/src/landing/thread.js` — WHEEL 1.22, LERP 0.055, fine pointer
+    only, `?smooth=0` to turn it off, and a `scroll` listener that resyncs so it
+    never fights an anchor travel. Twenty-five lines, no library.
+148. **THE iPAD IS A THIRD SHAPE AND THIS REPO KEEPS FORGETTING IT.** The hero
+    card was absolute until 900px and stacked below it; between 900 and 1024 it
+    overlapped, which is exactly where he was looking. **Sweep 1024 as well as
+    320 / 392 / 768 / 1440 / 1920.**
