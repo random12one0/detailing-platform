@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { guardWrite, isPreviewTab } from "./preview.js";
 
 const url = import.meta.env.VITE_SUPABASE_URL;
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -29,7 +30,32 @@ if (!configured) {
 export const supabaseUrl = url || "";
 export const supabaseAnonKey = anonKey || "";
 
+// A PREVIEW TAB HOLDS ITS OWN SESSION, IN ITS OWN DRAWER (lib/preview.js).
+// `sessionStorage` is scoped to one tab by the browser, and the key is
+// different besides, so the back office's session in the tab next door is
+// neither read nor written nor ended — which is the entire reason the owner
+// no longer has to be signed out to look at a detailer's dashboard. Closing
+// the tab is the exit; the browser throws the drawer away itself.
 export const supabase = createClient(
   url || "https://unconfigured.invalid",
   anonKey || "unconfigured-anon-key",
+  isPreviewTab
+    ? { auth: { storage: window.sessionStorage, storageKey: "dp.preview.auth" } }
+    : undefined,
 );
+
+// EVERY WRITE THE DASHBOARD MAKES THROUGH THE DATABASE COMES THROUGH HERE, so
+// the Looking switch is enforced once rather than at 71 call sites — and a
+// screen written next month is covered without knowing this exists. Wrapped
+// only in a preview tab, so a detailer's own client is the plain one.
+if (isPreviewTab) {
+  const plain = supabase.from.bind(supabase);
+  supabase.from = (table) => {
+    const b = plain(table);
+    for (const verb of ["insert", "update", "upsert", "delete"]) {
+      const fn = b[verb].bind(b);
+      b[verb] = (...args) => { guardWrite(); return fn(...args); };
+    }
+    return b;
+  };
+}

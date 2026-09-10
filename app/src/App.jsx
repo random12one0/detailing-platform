@@ -13,6 +13,7 @@ import GearMenu from "./components/GearMenu.jsx";
 import SetupForm from "./components/SetupForm.jsx";
 import Walkthrough, { TOURS } from "./components/Walkthrough.jsx";
 import { impersonation } from "./lib/impersonation.js";
+import { isPreviewTab, previewMode, previewWho, setPreviewMode } from "./lib/preview.js";
 import { planChoice } from "./lib/planChoice.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD scope (`dp.lang.app`), never the
 // booking page's. See `lib/appI18n.js` for why they are two keys.
@@ -61,7 +62,8 @@ const markTourSeen = (name = "shell") => {
 const tourSeen = (name = "shell") => seenTours().includes(name);
 
 export default function App() {
-  const { session, business, settings, role, can, loading, signOut } = useBusiness();
+  const { session, business, settings, role, can, loading, signOut } = useBusiness();
+
   // The whole shell repaints when the language changes. Every screen calls
   // this for itself too — see the hook's header on why once at the root is
   // the version that breaks silently.
@@ -121,6 +123,12 @@ export default function App() {
   // A counter, not a remount: remounting would replace the screen with a
   // spinner, which is the very thing §1a of the screen designs forbids.
   const [rev, setRev] = useState(0);
+  // A PREVIEW TAB SAYS SO, AND STARTS UNABLE TO CHANGE ANYTHING. This is the
+  // owner looking at a detailer's dashboard from a tab of his own, with his
+  // back office still signed in next door (lib/preview.js). Nothing is
+  // hidden — he asked for that explicitly — the writes simply refuse until
+  // he flips the switch, so a stray click cannot finalise somebody's payment.
+  const [mode, setMode] = useState(previewMode());
 
   // WHAT OPENS BY ITSELF, AND EXACTLY ONCE. Runs when the tenant lands, never
   // again in this session — a detailer who skips the form must not meet it
@@ -246,7 +254,23 @@ export default function App() {
           `lib/impersonation.js`. A detailer can never see it: nothing has
           written the note in their browser, and forging one would only make
           their own screen say something untrue. */}
-      {imp && (
+      {isPreviewTab && (
+        <div className="impbar" role="status">
+          <span>
+            {mode === "look"
+              ? `Looking at ${previewWho() || "their dashboard"}. Nothing here can be changed.`
+              : `WORKING in ${previewWho() || "their dashboard"}. Anything you change is theirs.`}
+          </span>
+          <button type="button" onClick={() => {
+            const next = mode === "look" ? "work" : "look";
+            setPreviewMode(next); setMode(next);
+          }}>{mode === "look" ? "Let me make changes" : "Back to looking"}</button>
+          {/* Closing the tab IS the exit — the session lives in this tab and
+              the browser throws it away. Nothing to sign out of. */}
+          <button type="button" onClick={() => window.close()}>Close</button>
+        </div>
+      )}
+      {!isPreviewTab && imp && (
         <div className="impbar" role="status">
           <span>{t("Platform view — signed in as {who}. Anything you change is theirs.", { who: imp.business || imp.as })}</span>
           {/* `signOut` drops the note itself — every sign-out does, not just

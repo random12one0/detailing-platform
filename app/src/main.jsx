@@ -18,6 +18,7 @@ import PricingPage from "./landing/PricingPage.jsx";
 import LegalPage from "./landing/LegalPage.jsx";
 import ResetPassword from "./screens/ResetPassword.jsx";
 import AdminPage from "./admin/AdminPage.jsx";
+import PreviewEntry from "./admin/PreviewEntry.jsx";
 
 // DEGRADATION — ONE code path, for the whole app (docs/design-system.md,
 // "Degradation"). `.lite` on <html> makes every animation render the end
@@ -120,6 +121,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             read by the edge function under the service role. A route guard in
             the browser is a suggestion. */}
         <Route path="/admin" element={<AdminPage />} />
+        {/* The back office opens this in a NEW TAB to look at a detailer's
+            dashboard. Outside BusinessProvider: there is no session in this
+            tab yet, and the whole point is that the one next door is left
+            alone. See admin/PreviewEntry.jsx and lib/preview.js. */}
+        <Route path="/preview" element={<PreviewEntry />} />
         <Route path="/invite/:token" element={<Wrapped><AcceptInvite /></Wrapped>} />
         <Route path="/job/:id" element={<Wrapped><JobPage /></Wrapped>} />
         {/* The dashboard lives under /app: one URL, five tabs via internal

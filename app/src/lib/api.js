@@ -7,6 +7,7 @@
 // go straight to the database through RLS — deliberately not over-engineered.
 
 import { supabase } from "./supabase.js";
+import { guardWrite } from "./preview.js";
 import { createBookingTransport, postFunction, slotsForType as coreSlotsForType } from "../book/core.js";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
@@ -27,7 +28,15 @@ export const bookingTransport = createBookingTransport({ supabaseUrl: SUPABASE_U
 // Everything else in this file is a detailer acting on their own business, so
 // it carries the session. The HTTP shape itself is the core's — one
 // implementation of "call an edge function", used by both.
+// THE SECOND OF THE TWO PLACES A WRITE CAN LEAVE THIS APP (the first is the
+// Supabase client itself, lib/supabase.js). In a preview tab still on
+// Looking, everything here is refused except the handful that only READ —
+// finalising a payment, sending a campaign and answering a request are
+// exactly the accidents the owner asked not to be able to have.
+const PREVIEW_READS = new Set(["get-booking-receipt"]);
+
 async function callFn(name, body) {
+  if (!PREVIEW_READS.has(name) && !(name === "platform-billing" && body?.action === "summary")) guardWrite();
   const { data: sessionData } = await supabase.auth.getSession();
   const jwt = sessionData?.session?.access_token;
   return postFunction(SUPABASE_URL, ANON_KEY, name, body, jwt);
