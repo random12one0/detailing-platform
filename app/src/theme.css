@@ -3695,3 +3695,7 @@ html:not(.lite) .intake .samp-move .samp-row:nth-child(3) { animation-delay: .5s
    twice. */
 .intake .webchip { margin: 10px 0 0; display: inline-flex; align-items: center; gap: 6px; }
 .intake .card.onweb { opacity: .78; }
+
+/* NO PREFERENCE. A real answer, not a skip: "I genuinely do not mind" says we
+   may choose, and it is different from a question nobody reached. */
+.intake .chip.nopref { margin-top: 10px; }

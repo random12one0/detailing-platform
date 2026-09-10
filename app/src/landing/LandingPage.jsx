@@ -608,7 +608,7 @@ export default function LandingPage() {
                         className="shot"
                         src="/img/tenant-site-hero.jpg"
                         width="840" height="270" loading="lazy" decoding="async"
-                        alt="A detailer working along the bonnet of a dark car"
+                        alt="A detailer working along the hood of a dark car"
                       />
                       <div className="sitehero-t">
                         <h3>Mobile detailing, Tacoma and south.</h3>

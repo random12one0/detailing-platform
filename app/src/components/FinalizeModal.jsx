@@ -19,7 +19,7 @@ import { useAppLocale } from "../hooks/useAppLocale.js";
 
 // The ways a detailer actually gets paid. "Other" keeps the free field
 // useful without making it the default path.
-const METHODS = ["Cash", "Card", "Zelle", "Venmo", "Cash App", "Cheque"];
+const METHODS = ["Cash", "Card", "Zelle", "Venmo", "Cash App", "Check"];
 
 const PAYMENT_LABELS = {
   paid: "paid",
@@ -143,7 +143,7 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
             </div>
             <label className="field"><span>{t("Anything to note")}</span>
               <input value={paymentNotes} onChange={(e) => setPaymentNotes(e.target.value)}
-                placeholder={t("Optional — cheque number, split payment…")} /></label>
+                placeholder={t("Optional — check number, split payment…")} /></label>
           </>
         )}
 

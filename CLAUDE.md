@@ -143,6 +143,40 @@ Do not skip a check because he cannot watch it, and do not ask him to run one.
 answerable in a sentence typed with one thumb. Give him the recommendation
 first and the reasoning after it, per the rule below.
 
+## AMERICAN ENGLISH, EVERYWHERE A PERSON READS IT — his instruction, 2026-09-10
+
+He found **"Cheque"** in the website intake form and asked what it was:
+*"Why is check spelled with a q-u-e? Is this an AI thing, or is it a British
+spelling? I'm confused."* It was British, and it had spread quietly.
+
+**SO: every user-facing string in this product is American English.** Colors,
+license, check, odor, tires, hood, parking lot, apartment. Not colour, licence,
+cheque, odour, tyres, bonnet, car park, flat. That covers the dashboard, the
+booking page, every email, the marketing pages and every example site under
+`docs/tenant-sites/` — anything a detailer or their customer can read.
+
+**AND IT BINDS ANYTHING GENERATED, not just what is typed.** His second
+sentence was the important one: *"make sure that any time any AI is doing
+anything on our website, that it's in English and not British."* Copy written
+by a session, a starter sentence offered in a form, an email body, a tenant
+site's words — all of it.
+
+**TWO THINGS ARE DELIBERATELY NOT CHANGED, and a session that "fixes" them
+breaks the product:**
+
+- **`"cancelled"` is the DATABASE'S OWN VALUE**, in five tables and a dozen
+  edge functions, and it is compared as a string throughout. It is data, not
+  spelling. Merriam-Webster lists both spellings as American anyway, and Stripe
+  sends `canceled` separately — `lib/adminInsight.js` already accepts both.
+- **`"colour"` is the setup step's KEY**, stored in `business_settings.setup.done`
+  on every business that has ever run first-run setup. Its two DISPLAY strings
+  are American now; renaming the key resets every detailer's setup progress.
+
+**AND CHANGING AN ENGLISH STRING MEANS CHANGING ITS SPANISH KEY IN THE SAME
+EDIT.** `app/src/lib/strings/appEs.js` is keyed on the English text, so a
+renamed string silently stops matching and shows English on a Spanish screen
+with no error anywhere. `node scripts/i18n-survey.mjs` is what finds it after.
+
 ## Talking to the owner
 
 The owner is not a coder. Explain things in plain language with everyday

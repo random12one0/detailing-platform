@@ -81,7 +81,7 @@ export default function Appearance() {
           and a heading repeated twelve pixels below itself is noise. */}
       <div className="tight">
         <p className="quiet">
-          {t("It marks the buttons and highlights on your booking page, on your website, and on this dashboard. If a colour is too faint to read, it is adjusted just enough to stay legible.")}
+          {t("It marks the buttons and highlights on your booking page, on your website, and on this dashboard. If a color is too faint to read, it is adjusted just enough to stay legible.")}
         </p>
       </div>
 
@@ -127,10 +127,10 @@ export default function Appearance() {
       </div>
 
       <label className="field">
-        <span>{t("Any other colour")}</span>
+        <span>{t("Any other color")}</span>
         <div className="row" style={{ gap: 10 }}>
           <input type="color" value={custom} onChange={(e) => setCustom(e.target.value)} style={{ maxWidth: 90 }} />
-          <button className="btn inline" onClick={() => saveBrandColor(custom)}>{t("Use this colour")}</button>
+          <button className="btn inline" onClick={() => saveBrandColor(custom)}>{t("Use this color")}</button>
         </div>
       </label>
 

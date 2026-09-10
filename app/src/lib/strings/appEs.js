@@ -269,7 +269,7 @@ export const appEs = {
   // the Business tab's rows, the gear's rows, and the settings header — so
   // translating the key is all three at once.
   "Business info": "Datos del negocio",
-  "Your colour": "Tu color",
+  "Your color": "Tu color",
   "Photo gallery": "Galería de fotos",
   "Reviews": "Reseñas",
   "Common questions": "Preguntas frecuentes",
@@ -622,7 +622,7 @@ export const appEs = {
   "Where you work": "Dónde trabajas",
   "How does a customer reach you?": "¿Cómo te contacta un cliente?",
   "Your details": "Tus datos",
-  "What colour is yours?": "¿Cuál es tu color?",
+  "What color is yours?": "¿Cuál es tu color?",
   "Step {n} of {total} · {name}": "Paso {n} de {total} · {name}",
   "Full detail": "Detallado completo",
   "Pet hair removal": "Quitar pelo de mascota",
@@ -674,7 +674,7 @@ export const appEs = {
   // The finalize sheet — how a job got paid, and what was added on site.
   "Cash": "Efectivo",
   "Card": "Tarjeta",
-  "Cheque": "Cheque",
+  "Check": "Cheque",
   "Upgrade": "Mejora",
   "Add-on": "Extra",
   "Custom charge": "Cargo personalizado",
@@ -1034,7 +1034,7 @@ export const appEs = {
   "Also send to": "Mandar también a",
   "Also signed in here": "También con sesión aquí",
   "Amount": "Cantidad",
-  "Any other colour": "Cualquier otro color",
+  "Any other color": "Cualquier otro color",
   "Anything else": "Algo más",
   "Anything to note": "Algo que anotar",
   "Anything to tell them": "Algo que decirles",
@@ -1203,7 +1203,7 @@ export const appEs = {
     "En tus propias palabras. Nada de aquí está escrito por nosotros.",
   "Invite someone": "Invitar a alguien",
   "Invite unavailable": "Invitación no disponible",
-  "It marks the buttons and highlights on your booking page, on your website, and on this dashboard. If a colour is too faint to read, it is adjusted just enough to stay legible.":
+  "It marks the buttons and highlights on your booking page, on your website, and on this dashboard. If a color is too faint to read, it is adjusted just enough to stay legible.":
     "Marca los botones y los resaltados en tu página de citas, en tu sitio web y en este panel. Si un color queda muy tenue para leerse, se ajusta lo justo para que se siga leyendo.",
   "Just the username — we add the @ or $ and make it a link they can tap. Anything else still shows, but they will have to type it in themselves.":
     "Solo el usuario — nosotros ponemos el @ o el $ y lo hacemos un enlace que puedan tocar. Cualquier otra cosa se sigue viendo, pero la van a tener que escribir ellos.",
@@ -1319,7 +1319,7 @@ export const appEs = {
   "Opening Stripe": "Abriendo Stripe",
   "Opens a sample.": "Abre una muestra.",
   "Opens": "Abre",
-  "Optional — cheque number, split payment…":
+  "Optional — check number, split payment…":
     "Opcional — número de cheque, pago dividido…",
   "Optional — they'll read this in the email":
     "Opcional — lo van a leer en el correo",
@@ -1481,7 +1481,7 @@ export const appEs = {
   "Up front is a prepaid block — a year, or a set number of visits, paid in one go.":
     "Por adelantado es un bloque prepagado — un año, o un número fijo de visitas, pagado de una vez.",
   "Update card": "Actualizar tarjeta",
-  "Use this colour": "Usar este color",
+  "Use this color": "Usar este color",
   "Used to greet you on the Today screen.":
     "Se usa para saludarte en la pantalla de Hoy.",
   "Usually a subdomain like": "Normalmente un subdominio como",

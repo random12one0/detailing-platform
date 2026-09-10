@@ -200,7 +200,7 @@ export const STEPS = [
         ["Outdoor tap", "Power socket", "A driveway", "Shade", "A parking space", "Nothing, I carry it all"], true),
       q("B2", "What should the site say about travel charges?", "text"),
       q("B5", "What should the site rule out?", "many",
-        ["Flat or condo car parks", "Public streets", "Multi-storey car parks", "None of these are a problem"], true),
+        ["Apartment or condo lots", "Public streets", "Parking garages", "None of these are a problem"], true),
       q("B6", "Any local rules the site should mention?", "long"),
       q("B8", "How soon should the site suggest you can come out?", "one",
         ["Same day", "A few days", "A week or two", "A month or more", "It swings"], true, { says: says("B8") }),
@@ -215,7 +215,7 @@ export const STEPS = [
       q("C3", "Which of these should the site give its own section?", "many",
         ["Ceramic coating", "Paint correction", "PPF", "None of these"], true),
       q("C5", "Anything unusual the site should list?", "many",
-        ["Boats", "Motorbikes", "RVs", "Engine bays", "Headlight restoration", "Pet hair", "Smoke odour"], true),
+        ["Boats", "Motorcycles", "RVs", "Engine bays", "Headlight restoration", "Pet hair", "Smoke odor"], true),
       q("C6", "Should the site offer a quote as well as a price?", "one", ["Yes", "No"], false, { says: says("C6") }),
       q("C4", "Should the site name the products you use?", "text"),
       q("C7", "How loud should your monthly plans be?", "one",
@@ -329,7 +329,15 @@ export const ALL = STEPS.flatMap((s) => [
 
 export const answered = (v) => {
   if (Array.isArray(v)) return v.length > 0;
-  if (v && typeof v === "object") return Object.keys(v).length > 0 && !!(v.verdict || v.chips?.length || v.note);
+  // **EVERY OBJECT-SHAPED ANSWER, not just the one this was written for.** It
+  // knew about a site reaction (`verdict`) and nothing else, so the photos
+  // question — whose answer is `{ have }` — counted as unanswered for ever.
+  // With `req` on it that made the step impossible to leave: Continue disabled,
+  // Skip hidden, and the only way out was closing the form. Found by walking
+  // it; no console error, and the control looked answered on screen.
+  if (v && typeof v === "object") {
+    return !!(v.verdict || v.have || v.url || v.note || v.chips?.length || v.files?.length);
+  }
   return !!(v && String(v).trim());
 };
 

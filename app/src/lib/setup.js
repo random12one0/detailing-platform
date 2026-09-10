@@ -34,7 +34,7 @@ export const STEPS = [
   ["contact", "How does a customer reach you?", "Your details"],
   // A question like the other six. "Pick your colour." was an imperative in a
   // set of questions, which reads as the one heading somebody forgot.
-  ["colour", "What colour is yours?", "Your colour"],
+  ["colour", "What color is yours?", "Your color"],
 ];
 
 // HOW MANY OF THE SEVEN ARE DONE — the one number, read in two places.

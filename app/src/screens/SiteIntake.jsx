@@ -270,6 +270,18 @@ function Question({ q, a, set }) {
                 } else set(q.id, on ? "" : o);
               });
             })}
+            {/* A MIDDLE ANSWER ON EVERY TWO-WAY QUESTION — his ask, 2026-09-10:
+                *"a lot of them are kind of black and white, I like this or I
+                don't like this, but there should be an option for I don't
+                really have an opinion."* It is added by the CONTROL rather
+                than typed into 73 rows, so a two-option question written next
+                year gets it without anybody remembering to.
+                **It is a real answer and not a skip.** "I genuinely do not
+                mind" is information — it says we may choose — and it is
+                different from a question nobody got to. */}
+            {q.type === "one" && q.options.length === 2
+              && chip("Either is fine", v === "Either is fine", () =>
+                set(q.id, v === "Either is fine" ? "" : "Either is fine"))}
             {/* OTHER, WHICH REPLACED THE NOTE BOX ON EVERY QUESTION. His
                 words: an option to *"write something else — another option or
                 an additional option"*. It is a chip like the rest, so it reads
@@ -466,13 +478,25 @@ function LookStep({ site, value, set }) {
             onClick={() => set({ ...v, verdict: v.verdict === "no" ? "" : "no", chips: [] })}>
             {t("Not for me")}
           </button>
+          {/* **REQUIRED AND NO OPINION ARE NOT A CONTRADICTION**, which is the
+              thing he spotted: *"some people might not have a preference, so
+              their website's kind of in the middle."* Forcing a like or a
+              dislike out of somebody who has neither produces a false answer,
+              and a false answer is worse than a blank because we act on it.
+              So this satisfies the requirement — they looked, and they told us
+              they do not mind. */}
+          <button type="button" className={`chip ${v.verdict === "meh" ? "active" : ""}`}
+            aria-pressed={v.verdict === "meh"}
+            onClick={() => set({ ...v, verdict: v.verdict === "meh" ? "" : "meh", chips: [] })}>
+            {t("No strong feeling")}
+          </button>
         </div>
 
         {/* THE WORDS ONLY APPEAR ONCE THEY HAVE PICKED A SIDE, and they are a
             DIFFERENT SET each way. A single list of adjectives cannot say
             whether "dark" was the reason they liked it or the reason they
             did not, and his ask was explicitly for both directions. */}
-        {v.verdict && (
+        {v.verdict && v.verdict !== "meh" && (
           <>
             <span className="label">{v.verdict === "yes" ? t("What did you like?") : t("What put you off?")}</span>
             <div className="row wrap" style={{ gap: 6, marginTop: 6 }}>
@@ -689,8 +713,15 @@ export default function SiteIntake({ onClose, preview = false }) {
             <div className="card"><div className="thoughts">
               <ul className="plainlist">
                 <li>{t("About fifteen minutes.")}</li>
-                <li>{t("Skip anything you want.")}</li>
-                <li>{t("It saves as you go.")}</li>
+                <li>{t("It saves as you go. Close it whenever you like and come back to the same place.")}</li>
+                {/* HE ASKED FOR THIS AND REFUSED THE OBVIOUS VERSION OF IT.
+                    *"I don't wanna have an option to say save later, but I
+                    think they should know that the website will not be made
+                    until they completely fill out the form."* So there is no
+                    Save-and-exit button — closing already saves — and the
+                    consequence is stated once, at the top, where somebody
+                    deciding whether to start can read it. */}
+                <li>{t("We start building once it is finished.")}</li>
               </ul>
             </div></div>
             {/* HIS IDEA, 2026-09-10, AND IT IS BETTER THAN THE ONE IT
@@ -733,6 +764,11 @@ export default function SiteIntake({ onClose, preview = false }) {
                 </button>
               ))}
             </div>
+            <button type="button" className={`chip nopref${a[id] === "either" ? " active" : ""}`}
+              aria-pressed={a[id] === "either"}
+              onClick={() => set(id, a[id] === "either" ? "" : "either")}>
+              {t("No preference")}
+            </button>
           </div></div>
         ))}
 
@@ -751,6 +787,12 @@ export default function SiteIntake({ onClose, preview = false }) {
           {step.kind === "look" || step.kind === "sites"
             ? need[0]
             : t("{n} still needed on this page.", { n: need.length })}
+        </p>
+      )}
+
+      {last && !row?.submitted_at && (
+        <p className="quiet" style={{ textAlign: "center" }}>
+          {t("Nothing gets built until you send this. You can still change anything afterwards.")}
         </p>
       )}
 
