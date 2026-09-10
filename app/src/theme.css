@@ -3699,3 +3699,8 @@ html:not(.lite) .intake .samp-move .samp-row:nth-child(3) { animation-delay: .5s
 /* NO PREFERENCE. A real answer, not a skip: "I genuinely do not mind" says we
    may choose, and it is different from a question nobody reached. */
 .intake .chip.nopref { margin-top: 10px; }
+
+/* FILLED IN FROM SETUP. Said out loud because a value we copied in and the
+   detailer never read is not something they told us — and this form's one rule
+   is that the site may claim nothing they did not establish. */
+.intake .fromdash { margin: 6px 0 0; font-size: 13px; color: var(--accent); }

@@ -235,6 +235,13 @@ function Question({ q, a, set }) {
         {t(q.question)}
         {q.req && <span className="req" title={t("Needed")}>*</span>}
       </h3>
+      {/* SAID OUT LOUD, because a value we copied in and they never read is
+          not something they told us — and this form's one rule is that the
+          site may claim nothing they did not establish. The note goes when
+          they touch it. */}
+      {a[`${q.id}::from`] && !a[`${q.id}::web`] && (
+        <p className="fromdash">{t("Filled in from your setup — change it if the site should say something else.")}</p>
+      )}
 
       {!onWeb && (<>
 
@@ -566,6 +573,60 @@ function SitesStep({ value, set }) {
   );
 }
 
+/* ── what the dashboard already knows ───────────────────────────────────── */
+// **THE BRIEF FILLS ITSELF IN FROM FIRST-RUN SETUP.** His instruction,
+// 2026-09-10: *"they do the first-run setup, and then they should do the
+// website brief after, and basically all of the information that they set up
+// there should be auto-filled inside of the website brief. And obviously they
+// could change stuff, because maybe they don't want to show some things."*
+//
+// **THREE RULES, and the second is the one that keeps this honest:**
+//
+//   1. **It only ever fills a BLANK.** Anything typed into the brief wins, for
+//      ever. A prefill that overwrites an answer is worse than no prefill,
+//      because the detailer watched it happen and cannot tell what was lost.
+//   2. **A prefilled answer is SHOWN as prefilled** and stays editable. The
+//      rule this whole form exists under is that nothing on the finished site
+//      may claim anything the detailer did not establish — and a value we
+//      copied in and they never looked at is not something they said. Marking
+//      it is the difference between a draft and a claim.
+//   3. **It is copied, not linked.** The brief is a record of what they told
+//      us on a date; if they change their phone number next month the site
+//      follows the database, not this. Which is the tenant-site contract's
+//      whole point: a number PRINTED is not a number STORED.
+//
+// Anything the dashboard cannot answer is left alone — most of the 73.
+const prefillFrom = ({ business, settings, branding }) => {
+  if (!business) return {};
+  const socials = ["instagram", "facebook", "tiktok", "youtube"]
+    .map((k) => branding?.[`social_${k}`])
+    .filter(Boolean);
+  const out = {
+    A1: business.name,
+    A2: branding?.about_copy,
+    A4: business.service_area,
+    G1: business.contact_phone,
+    G6: socials.length ? socials.join("\n") : null,
+    H7: branding?.tagline,
+    I1: business.site_url,
+    D5: Array.isArray(branding?.credentials) && branding.credentials.length
+      ? branding.credentials.map((c) => c.label ?? c).join(", ")
+      : null,
+    H5: branding?.primary_color ? [branding.primary_color] : null,
+    B3: settings?.dropoff_enabled && settings?.mobile_enabled ? "Both"
+      : settings?.dropoff_enabled ? "Yes"
+        : settings?.mobile_enabled ? "No, I go to them" : null,
+    G3: business.contact_email ? "Yes" : null,
+  };
+  const clean = {};
+  for (const [k, v] of Object.entries(out)) {
+    if (v === null || v === undefined || v === "") continue;
+    if (typeof v === "string" && !v.trim()) continue;
+    clean[k] = v;
+  }
+  return clean;
+};
+
 /* ── the screen ─────────────────────────────────────────────────────────── */
 export default function SiteIntake({ onClose, preview = false }) {
   useAppLocale();
@@ -580,6 +641,7 @@ export default function SiteIntake({ onClose, preview = false }) {
   const timer = useRef(null);
   const owner = role === "owner";
 
+  const ctx = useBusiness() ?? {};
   useEffect(() => {
     if (preview || !business?.id) return;
     let live = true;
@@ -587,10 +649,23 @@ export default function SiteIntake({ onClose, preview = false }) {
       .then(({ data }) => {
         if (!live) return;
         setRow(data ?? null);
-        setA(data?.answers ?? {});
+        // BLANKS ONLY. `saved` is on the right so anything they have typed —
+        // including a deliberate empty they cleared — wins over what we know.
+        const saved = data?.answers ?? {};
+        const from = prefillFrom(ctx);
+        const seeded = {};
+        for (const [k, v] of Object.entries(from)) {
+          if (saved[k] === undefined || saved[k] === "") {
+            seeded[k] = v;
+            seeded[`${k}::from`] = true;
+          }
+        }
+        setA({ ...seeded, ...saved, ...Object.fromEntries(
+          Object.entries(seeded).filter(([k]) => k.endsWith("::from"))) });
         setI(Math.min(data?.step ?? 0, STEPS.length - 1));
       });
     return () => { live = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [business?.id, preview]);
 
   // ONE WRITER, DEBOUNCED. Every editor on every step goes through `set`, so
@@ -605,7 +680,8 @@ export default function SiteIntake({ onClose, preview = false }) {
 
   const set = (id, value) => {
     setA((prev) => {
-      const next = { ...prev, [id]: value };
+      // Touching a prefilled answer makes it theirs, so the note goes.
+      const next = { ...prev, [id]: value, [`${id}::from`]: undefined };
       clearTimeout(timer.current);
       timer.current = setTimeout(() => push(next, i), 900);
       return next;
