@@ -52,20 +52,78 @@
 // every business that has run setup, and renaming one silently un-does a step
 // somebody finished. `services` and `addons` merge into `catalog` because one
 // screen answers both; `contact` becomes `info` for the same reason.
+// **THE FIFTH COLUMN IS WHAT THE STEP IS FOR — his review, 2026-09-10:
+// *"have some more explaining on what they are filling out."*** A step used to
+// be a question and then a settings screen, and the question is a HEADING: it
+// names the step and says nothing about what answering it changes. The
+// sentence does the other job — what this one setting decides, out in the
+// world, for a customer.
+//
+// **IT MUST NOT RESTATE THE HEADING** (his rule, 2026-09-01, on finding
+// *"Mobile — we go to them"* on a job record: *"no duh… it feels the need to
+// explain literally every single thing"*). The test each of these has to pass
+// is the same one: does it add a fact the heading does not already carry? So
+// none of them says "here you set your hours"; each says what happens if you
+// do, or what a customer sees afterwards.
+//
+// **AND THE PHOTO STEP IS GONE — the other half of the same note: *"remove the
+// image upload step."*** It was the one step a detailer cannot finish on their
+// first morning: it needs photographs of finished cars, which are on a phone
+// somewhere or do not exist yet. A step nobody can answer is a hole in the
+// progress rule that never fills, and the rule's whole purpose is to be an
+// instruction to come back. **The screen is not gone** — Photo gallery is
+// still on Business, and `SCREENS.gallery` still opens it; it is only no
+// longer asked for before a detailer has taken a single booking.
+//
+// `gallery` may still be in `business_settings.setup.done` on a business that
+// finished it before today. That is harmless: `setupProgress` counts what is
+// IN `STEPS`, so the extra key is ignored rather than counted, and the total
+// falls from twelve to eleven for everybody at the same moment.
 export const STEPS = [
   ["catalog", "What do you charge for?", "Services", "catalog"],
   ["hours", "When are you open?", "Hours", "hours"],
   ["where", "Where does the work happen?", "Where you work", "rules"],
   ["info", "Who are you?", "Your details", "info"],
   ["colour", "What color is yours?", "Your color", "appearance"],
-  ["gallery", "Photos of your work", "Photos", "gallery"],
   ["reviews", "What people say about you", "Reviews", "reviews"],
-  ["faq", "Questions customers ask", "Common questions", "faq"],
+  ["faq", "Questions customers ask", "FAQ", "faq"],
   ["payments", "How you get paid", "Getting paid", "payments"],
   ["promos", "Running a discount?", "Promo code", "promos"],
   ["plans", "Monthly plans", "Plans", "plans"],
   ["templates", "Messages you send", "Messages", "templates"],
 ];
+
+// WHY IT IS A MAP AND NOT A FIFTH COLUMN OF `STEPS`. A step is four strings —
+// key, question, short name, screen — and `tests/setup-progress.test.mjs` § 1
+// asserts exactly that shape, because the fourth column is what makes a step
+// render anything at all. A sentence is not part of that shape: it is copy,
+// and a step with no sentence is a step rather than a broken one. Keyed on the
+// step key, so the two lists cannot drift out of order the way two parallel
+// arrays would.
+export const WHY = {
+  catalog:
+    "Every service you add becomes a choice on your booking page, at the price you set here. Add-ons are the extras a customer can tick on top.",
+  hours:
+    "A customer can only pick a time inside these hours. Close a day here and nobody can book it.",
+  where:
+    "Mobile means you drive to them, drop-off means they come to you. You can offer both — this is the first thing your booking page asks a customer.",
+  info:
+    "Your name, your phone number and how to reach you. It sits at the top of your booking page and at the bottom of every email a customer gets.",
+  colour:
+    "One color, used on your booking page and through this dashboard. The one already on your van or your cards is usually the right answer.",
+  reviews:
+    "Type in what customers have already told you elsewhere. Nothing is imported and nothing is checked — these are yours to keep and to use.",
+  faq:
+    "The three or four you answer by text every week. Answering them here is what stops the texts.",
+  payments:
+    "Turn on the ways you actually take money. A customer sees them on their booking, so they know what to bring.",
+  promos:
+    "A code somebody types while booking to take money off. Skip this if you are not running one — you can add one any time.",
+  plans:
+    "A set price each month for a customer who wants you back on a rhythm. Leave it empty if you only do one-off jobs.",
+  templates:
+    "The texts you fire off from a job — on my way, running late, all done. Write them once here and it is one tap on the day.",
+};
 
 // HOW MANY OF THE SEVEN ARE DONE — the one number, read in two places.
 //

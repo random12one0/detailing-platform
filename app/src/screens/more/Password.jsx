@@ -32,13 +32,17 @@
 // fails at Supabase and nothing is written. There is no way to verify a
 // password client-side and nothing here tries to.
 //
-// It is deliberately NOT added to `/reset`. Somebody on that screen is locked
-// out by definition and proved themselves with an emailed link; asking for a
-// password they do not have is how a reset screen becomes a dead end.
+// ~~It is deliberately NOT added to `/reset`.~~ **HALF TRUE, AND THE HALF THAT
+// WAS FALSE WAS A HOLE — his review, 2026-09-10.** It is right about the person
+// who followed an emailed link: they are locked out by definition and asking
+// for a password they do not have is how a reset screen becomes a dead end. It
+// forgot the OTHER visitor to that route — anybody already ordinarily signed in
+// who simply types `/reset`, for whom it was this screen with the check taken
+// out. That route now tells the two apart; see its header.
 
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase.js";
-import { MIN_PASSWORD, PASSWORD_RULE } from "../../lib/password.js";
+import { MIN_PASSWORD, PASSWORD_RULE, reauthenticate } from "../../lib/password.js";
 import { PasswordInput } from "../../components/controls.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
@@ -69,30 +73,18 @@ export default function Password() {
     if (password !== again) { setMsg({ ok: false, text: "Those two do not match." }); return; }
     setBusy(true);
 
-    // THE CHECK IS A SIGN-IN, because there is no other way to verify a
-    // password: it is hashed at the server and nothing in a browser can test
-    // it. A wrong one fails here and `updateUser` is never reached.
+    // THE CHECK IS A SIGN-IN, and it lives in `lib/password.js` because
+    // `/reset` needs the identical thing — that helper's header carries the
+    // whole reasoning, including why a wrong password and a failed request get
+    // different sentences. It was written out inline here, which is exactly how
+    // the other screen came to be missing it (his review, 2026-09-10).
     //
     // Signing in as the SAME account replaces this session with an identical
     // one, which is why nothing else has to be told: `BusinessContext`'s auth
     // listener settles the new session for the same user and the screen does
     // not move.
-    const { error: wrong } = await supabase.auth.signInWithPassword({ email, password: current });
-    if (wrong) {
-      setBusy(false);
-      // **A WRONG PASSWORD AND A FAILED REQUEST ARE NOT THE SAME ANSWER.**
-      // Lumping them together tells somebody their password is wrong when the
-      // network dropped or the server rate-limited them, and they then change
-      // a password that was never the problem. Only the credential error gets
-      // the credential sentence; anything else says what actually happened.
-      //
-      // Not the raw text either: Supabase says "Invalid login credentials",
-      // which on a screen where the email is printed and cannot be edited
-      // reads as though the account itself is broken.
-      const bad = /invalid|credentials|password/i.test(wrong.message ?? "");
-      setMsg({ ok: false, text: bad ? "That is not your current password." : wrong.message });
-      return;
-    }
+    const wrong = await reauthenticate(email, current);
+    if (wrong) { setBusy(false); setMsg({ ok: false, text: wrong }); return; }
 
     const { error } = await supabase.auth.updateUser({ password });
     setBusy(false);

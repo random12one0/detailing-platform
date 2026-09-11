@@ -46,7 +46,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, X } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
-import { STEPS } from "../lib/setup.js";
+import { STEPS, WHY } from "../lib/setup.js";
 import { SCREENS } from "../screens/more/index.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
@@ -123,6 +123,7 @@ export default function SetupForm({ onClose }) {
   useEffect(() => { heading.current?.focus(); }, [i]);
 
   const [key, question, name, screen] = STEPS[i];
+  const why = WHY[key];
   const done = new Set(settings?.setup?.done ?? []);
   const Screen = SCREENS[screen]?.[0];
   const last = i === STEPS.length - 1;
@@ -157,7 +158,20 @@ export default function SetupForm({ onClose }) {
       </div>
 
       <div className={`setupstep ${dir > 0 ? "fwd" : "back"}`} key={key}>
-        <h2 className="title" ref={heading} tabIndex={-1}>{t(question)}</h2>
+        {/* WHAT ANSWERING IT CHANGES — his review, 2026-09-10: *"have some
+            more explaining on what they are filling out."* The heading is a
+            question and the settings screen underneath is a set of controls;
+            neither of them says why a detailer should care, and this line is
+            the only one on the step that does. `lib/setup.js`'s `WHY` holds
+            the sentences and the rule each of them has to pass.
+            `.tight` BECAUSE THE TWO ARE ONE THOUGHT. `.setupstep` is a flex
+            column at `--sp-4`, which is the gap between the question and the
+            SCREEN — put a sentence in that column and it floats halfway
+            between the two things it belongs to. */}
+        <div className="tight">
+          <h2 className="title" ref={heading} tabIndex={-1}>{t(question)}</h2>
+          {why && <p className="quiet">{t(why)}</p>}
+        </div>
         {/* A MISSING SCREEN IS A TYPO IN `lib/setup.js`, and it must not be a
             blank step that reads as a broken product. */}
         {Screen ? <Screen /> : <p className="quiet">{t("This part is not ready yet.")}</p>}

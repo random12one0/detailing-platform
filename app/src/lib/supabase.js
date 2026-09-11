@@ -36,6 +36,23 @@ export const supabaseAnonKey = anonKey || "";
 // neither read nor written nor ended — which is the entire reason the owner
 // no longer has to be signed out to look at a detailer's dashboard. Closing
 // the tab is the exit; the browser throws the drawer away itself.
+// DID THIS PAGE LOAD ARRIVE ON A RECOVERY LINK?
+//
+// It has to be answered HERE, above `createClient`, and that is the whole
+// reason this constant is in this file rather than on the screen that wants
+// it: `detectSessionInUrl` is on by default, so the client reads the recovery
+// token out of the hash, exchanges it and CLEARS THE ADDRESS BAR before React
+// mounts. A screen that looks later finds an empty hash every time.
+//
+// What it is for: `/reset` is reachable by anybody who is already ordinarily
+// signed in, and on an ordinary session it must ask for the current password
+// before changing it — the unlocked-laptop case. On a real recovery arrival it
+// must NOT, because somebody there is locked out by definition and proved
+// themselves with the emailed link. One boolean separates the two.
+export const arrivedOnRecoveryLink =
+  typeof window !== "undefined"
+  && /(^|[#&?])type=recovery([&]|$)/.test(window.location.hash + window.location.search);
+
 export const supabase = createClient(
   url || "https://unconfigured.invalid",
   anonKey || "unconfigured-anon-key",

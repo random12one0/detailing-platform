@@ -147,6 +147,55 @@ export default function Notifications() {
 
   return (
     <>
+      {/* HIS REVIEW, 2026-09-10: *"the turn on push notifications should be
+          its own big button, more visible."* It was the last row of "What you
+          get", a switch among four switches, which is the one shape that
+          makes it invisible: every other row there is a preference somebody
+          may or may not want, and this one is a PERMISSION the phone has to
+          be asked for once before any of them can reach it. So it is first,
+          it is alone, and it is the screen's only accent fill.
+          A BUTTON RATHER THAN A SWITCH, and that is the honest control: a
+          switch says the state is mine to set, and it is the browser's — the
+          tap opens a system prompt that can be refused.
+
+          THE SWITCH THAT DELIVERED NOTHING, REBUILT (roadmap 2.11 step 6
+          stage 6). It wrote `push_enabled` and there was no service worker
+          anywhere in the app, so no device was ever registered and nothing
+          was ever sent. It now registers THIS browser, and it draws itself
+          from that registration rather than from the saved boolean.
+          EACH REFUSAL GETS ITS OWN SENTENCE. "Off", "this browser cannot"
+          and "you denied it and only browser settings can undo that" look
+          identical on a control and are three different problems — the last
+          one especially, because tapping harder will never fix it. */}
+      <Group title={t("Push notifications")}
+        blurb={t("An alert on your phone the second a booking comes in, even with the dashboard closed.")}>
+        {device === "unsupported" ? (
+          <Setting label={t("Not available in this browser")} stacked
+            help={t("On an iPhone, add this dashboard to your home screen first — Safari only allows it there.")} />
+        ) : device === "blocked" ? (
+          <Setting label={t("Blocked for this site")} stacked
+            help={t("Turn notifications back on for this site in your browser settings, then come back here.")}>
+            <button className="btn" disabled>{t("Turn on push notifications")}</button>
+          </Setting>
+        ) : device === "on" ? (
+          <Setting label={t("On for this device")} stacked
+            help={t("Turn it on again on any other phone or computer you want the alerts on.")}>
+            <button className="btn ghost" disabled={pushBusy} onClick={() => togglePush(false)}>
+              {pushBusy ? t("Saving…") : t("Turn off on this device")}
+            </button>
+          </Setting>
+        ) : (
+          <Setting label={t("Off for this device")} stacked
+            help={t("Allowed once per device. Your browser will ask you first.")}>
+            <button className="btn primary" disabled={pushBusy || device === null}
+              onClick={() => togglePush(true)}>
+              {pushBusy ? t("Saving…") : t("Turn on push notifications")}
+            </button>
+          </Setting>
+        )}
+        {pushErr && <div className="error-box">{pushErr}</div>}
+      </Group>
+
       <Group title={t("What your customers get")}
         blurb={t("Turning one off stops the email, not the booking.")}>
         {CUSTOMER_EMAILS.map(([k, label, help]) => (
@@ -164,23 +213,33 @@ export default function Notifications() {
             THE SENTENCE UNDER IT IS NOT A RESTATEMENT OF THE BUTTON. It
             answers the two things a person hesitates over before pressing an
             unfamiliar Send: who receives it, and whether it books anything. */}
-        <div className="btnrow" style={{ marginTop: "var(--sp-3)" }}>
+        {/* `.setting.stacked` RATHER THAN A BARE `.btnrow`, and it is a repair
+            rather than a style choice. `.setting-card` is `padding: 0` on
+            purpose — every row carries its own — so a child that is not a row
+            is flush to the card's edges with nothing under it. At 1440 that put
+            this note's text ACROSS the card's bottom hairline, which is the
+            defect class `sweep-widths` cannot see (every check it owns asks
+            about an edge, and text on a border is inside every edge it should
+            be inside). `.setting.stacked` is the padding and the column, and
+            `.setting + .setting` draws the divider from the switch above for
+            free — no new CSS, and the same shape every other row here has. */}
+        <div className="setting stacked">
           <button className="btn" disabled={previewing} onClick={sendPreview}>
             {previewing ? t("Sending…") : t("Send me a sample")}
           </button>
+          {/* NO NEGATIVE MARGIN HERE, and that is the correction rather than
+              the original. The `calc(-1 * var(--sp-2))` pull-up this repo uses
+              to tuck a note under a FIELD is measured against a field's own
+              bottom margin; a `.btnrow` does not have one, so the same value
+              pulled this sentence straight THROUGH the button. Caught by
+              looking — every geometry check printed `clean`, because overlapping
+              text is not past an edge, not outside its parent and not two boxes
+              touching. */}
+          <p className="muted">
+            {t("A made-up booking, priced from your own services, sent to you and nobody else. Nothing is saved and no time is taken.")}
+          </p>
+          {preview && <div className={preview.ok ? "ok-box" : "error-box"}>{preview.text}</div>}
         </div>
-        {/* NO NEGATIVE MARGIN HERE, and that is the correction rather than
-            the original. The `calc(-1 * var(--sp-2))` pull-up this repo uses
-            to tuck a note under a FIELD is measured against a field's own
-            bottom margin; a `.btnrow` does not have one, so the same value
-            pulled this sentence straight THROUGH the button. Caught by
-            looking — every geometry check printed `clean`, because overlapping
-            text is not past an edge, not outside its parent and not two boxes
-            touching. */}
-        <p className="muted">
-          {t("A made-up booking, priced from your own services, sent to you and nobody else. Nothing is saved and no time is taken.")}
-        </p>
-        {preview && <div className={preview.ok ? "ok-box" : "error-box"}>{preview.text}</div>}
       </Group>
 
       <Group title={t("What you get")} blurb={t("Email you when…")}>
@@ -188,29 +247,6 @@ export default function Notifications() {
           <Switch key={k} label={t(label)} help={help ? t(help) : undefined}
             checked={form[k]} onChange={(v) => set(k, v)} />
         ))}
-        {/* THE SWITCH THAT DELIVERED NOTHING, REBUILT (roadmap 2.11 step 6
-            stage 6). It wrote `push_enabled` and there was no service worker
-            anywhere in the app, so no device was ever registered and nothing
-            was ever sent. It now registers THIS browser, and it draws itself
-            from that registration rather than from the saved boolean.
-            EACH REFUSAL GETS ITS OWN SENTENCE. "Off", "this browser cannot"
-            and "you denied it and only browser settings can undo that" look
-            identical on a switch and are three different problems — the last
-            one especially, because tapping harder will never fix it. */}
-        {device === "unsupported" ? (
-          <Setting label={t("Push notifications")}
-            help={t("On an iPhone, add this dashboard to your home screen first — Safari only allows it there.")}>
-            <span className="quiet">{t("Not available in this browser")}</span>
-          </Setting>
-        ) : (
-          <Switch label={t("Push notifications on this device")}
-            help={device === "blocked"
-              ? t("Blocked for this site. Turn notifications back on in your browser settings, then try again.")
-              : t("Allowed once per device, on the phone or computer you want the alerts on.")}
-            disabled={pushBusy || device === null || device === "blocked"}
-            checked={device === "on"} onChange={togglePush} />
-        )}
-        {pushErr && <div className="error-box">{pushErr}</div>}
       </Group>
 
       <Group title={t("Where your alerts go")}>

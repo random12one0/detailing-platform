@@ -51,6 +51,19 @@ export const appEs = {
   // `min` stays `min` and `hora` is not abbreviated: Spanish shortens minutes
   // the same way and does not shorten hours the same way, so following the
   // English abbreviation pattern exactly would produce something nobody says.
+  "A code somebody types while booking to take money off. Skip this if you are not running one — you can add one any time.":
+    "Un código que alguien escribe al reservar para descontar dinero. Sáltalo si no tienes ninguno — puedes agregar uno cuando quieras.",
+  "A customer can only pick a time inside these hours. Close a day here and nobody can book it.":
+    "Un cliente solo puede elegir una hora dentro de este horario. Cierra un día aquí y nadie podrá reservarlo.",
+  "A set price each month for a customer who wants you back on a rhythm. Leave it empty if you only do one-off jobs.":
+    "Un precio fijo cada mes para un cliente que quiere que vuelvas con regularidad. Déjalo vacío si solo haces trabajos sueltos.",
+  "Allowed once per device. Your browser will ask you first.": "Se permite una vez por dispositivo. Tu navegador te preguntará primero.",
+  "An alert on your phone the second a booking comes in, even with the dashboard closed.": "Un aviso en tu teléfono en cuanto entra una cita, incluso con el panel cerrado.",
+  "Blocked for this site": "Bloqueado para este sitio",
+  "Every service you add becomes a choice on your booking page, at the price you set here. Add-ons are the extras a customer can tick on top.":
+    "Cada servicio que agregues se convierte en una opción en tu página de reservas, al precio que pongas aquí. Los extras son lo que un cliente puede marcar además.",
+  "Mobile means you drive to them, drop-off means they come to you. You can offer both — this is the first thing your booking page asks a customer.":
+    "A domicilio significa que tú vas a ellos; en tu taller significa que ellos vienen a ti. Puedes ofrecer ambos — es lo primero que tu página de reservas le pregunta a un cliente.",
   "None": "Ninguno",
   "Never": "Nunca",
   "Any time": "Cualquier momento",
@@ -58,6 +71,25 @@ export const appEs = {
   "Less": "Menos",
   "More": "Más",
   "Custom value in {unit}": "Valor personalizado en {unit}",
+  "Off for this device": "Apagado en este dispositivo",
+  "On for this device": "Encendido en este dispositivo",
+  "One color, used on your booking page and through this dashboard. The one already on your van or your cards is usually the right answer.":
+    "Un color, usado en tu página de reservas y en todo este panel. El que ya está en tu camioneta o en tus tarjetas suele ser el correcto.",
+  "That is not your current password.": "Esa no es tu contraseña actual.",
+  "The texts you fire off from a job — on my way, running late, all done. Write them once here and it is one tap on the day.":
+    "Los mensajes que envías desde un trabajo — voy en camino, voy retrasado, ya terminé. Escríbelos una vez aquí y el día del trabajo es un solo toque.",
+  "The three or four you answer by text every week. Answering them here is what stops the texts.":
+    "Las tres o cuatro que respondes por mensaje cada semana. Responderlas aquí es lo que detiene los mensajes.",
+  "Turn it on again on any other phone or computer you want the alerts on.": "Actívalo de nuevo en cualquier otro teléfono o computadora donde quieras los avisos.",
+  "Turn notifications back on for this site in your browser settings, then come back here.": "Vuelve a activar las notificaciones para este sitio en la configuración de tu navegador y regresa aquí.",
+  "Turn off on this device": "Apagar en este dispositivo",
+  "Turn on push notifications": "Activar notificaciones push",
+  "Turn on the ways you actually take money. A customer sees them on their booking, so they know what to bring.":
+    "Activa las formas en que realmente cobras. Un cliente las ve en su reserva, así sabe qué llevar.",
+  "Type in what customers have already told you elsewhere. Nothing is imported and nothing is checked — these are yours to keep and to use.":
+    "Escribe lo que los clientes ya te han dicho en otro lado. No se importa ni se verifica nada — son tuyas para guardar y usar.",
+  "Your name, your phone number and how to reach you. It sits at the top of your booking page and at the bottom of every email a customer gets.":
+    "Tu nombre, tu teléfono y cómo contactarte. Aparece arriba en tu página de reservas y al final de cada correo que recibe un cliente.",
   "minutes": "minutos",
   "hours": "horas",
   "days": "días",
@@ -1244,6 +1276,7 @@ export const appEs = {
   "Move down": "Mover abajo",
   "Move up": "Mover arriba",
   "Name": "Nombre",
+  "Name it yourself": "Ponle tu propio nombre",
   "Navigate": "Navegar",
   "Never mind": "Mejor no",
   "Never sends before the first one.": "Nunca se manda antes que el primero.",
@@ -1346,7 +1379,6 @@ export const appEs = {
   "Private notes": "Notas privadas",
   "Private:": "Privado:",
   "Promo codes": "Códigos promocionales",
-  "Push notifications on this device": "Avisos push en este dispositivo",
   "Push notifications": "Avisos push",
   "Put on my website": "Poner en mi sitio web",
   "Quote sent for": "Cotización enviada por",
@@ -1509,6 +1541,7 @@ export const appEs = {
   "What is owed": "Qué se debe",
   "What kind": "De qué tipo",
   "What the customer sees": "Lo que ve el cliente",
+  "What was it?": "¿Qué fue?",
   "What they pay": "Lo que pagan",
   "What they said": "Lo que dijeron",
   "What to call it": "Cómo llamarlo",

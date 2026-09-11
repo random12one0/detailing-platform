@@ -307,7 +307,7 @@ export default function Business({ onSetup, initial = null }) {
       // questions and the section switched off is one press from a page that
       // shows none of them, and "6 questions" would tell them nothing is
       // wrong.
-      ["faq", "Common questions", HelpCircle,
+      ["faq", "FAQ", HelpCircle,
         settings ? describeFaq(settings) : "…"],
       // ROADMAP 3.3. Under "Your page" for the same reason everything else
       // here is: what it changes is the address a CUSTOMER meets, in their own

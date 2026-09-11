@@ -4,7 +4,19 @@
 // Tap 2 is a category chip. Tap 3 is Save. Description defaults to the
 // category name, and the date defaults to today — both editable behind a
 // "More" disclosure for the rare case, so the common case stays at three
-// taps. The five categories are fixed; there are no custom ones.
+// taps.
+//
+// THE SIXTH CATEGORY IS THE DETAILER'S OWN — his review, 2026-09-10: *"no way
+// to add a custom name."* This comment used to end "the five categories are
+// fixed; there are no custom ones", which was true and was the defect. The
+// column is free text with no constraint, and `moneyAdvanced.js` groups on
+// whatever string it finds, so a typed name needs no migration and shows up
+// in the breakdown and the accountant export on its own.
+//
+// IT IS BEHIND "Other" RATHER THAN A SIXTH CHIP, so the three-tap path is
+// untouched for everybody who does not want it — and an empty box still
+// saves as "other", because a field that BLOCKS Save would turn the fastest
+// category into the slowest one.
 
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase.js";
@@ -24,6 +36,7 @@ export default function ExpenseModal({ onClose, onSaved }) {
   const { business } = useBusiness();
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState(null);
+  const [customName, setCustomName] = useState("");
   const [showMore, setShowMore] = useState(false);
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(todayLocal(business.timezone));
@@ -33,6 +46,12 @@ export default function ExpenseModal({ onClose, onSaved }) {
 
   useEffect(() => { amountRef.current?.focus(); }, []);
 
+  // What actually gets stored. A typed name IS the category — that is what
+  // puts it in the ledger row, the "where it went" bars and the export
+  // without a second column anywhere.
+  const named = category === "other" ? customName.trim() : "";
+  const finalCategory = named || category;
+
   const save = async () => {
     if (!Number(amount) || !category) return;
     setBusy(true);
@@ -40,8 +59,8 @@ export default function ExpenseModal({ onClose, onSaved }) {
     const { error: err } = await supabase.from("expenses").insert({
       business_id: business.id,
       date,
-      category,
-      description: description.trim() || category,
+      category: finalCategory,
+      description: description.trim() || finalCategory,
       amount: Number(amount),
       payment_method: "unspecified",
     });
@@ -83,6 +102,17 @@ export default function ExpenseModal({ onClose, onSaved }) {
           ))}
         </div>
 
+        {category === "other" && (
+          <label className="field" style={{ marginTop: 12 }}>
+            <span>{t("What was it?")}</span>
+            <input
+              value={customName}
+              placeholder={t("Name it yourself")}
+              onChange={(e) => setCustomName(e.target.value)}
+            />
+          </label>
+        )}
+
         {!showMore ? (
           <button className="btn ghost" style={{ marginTop: 12 }} onClick={() => setShowMore(true)}>
             {t("Add a note or change the date")}
@@ -90,7 +120,7 @@ export default function ExpenseModal({ onClose, onSaved }) {
         ) : (
           <div style={{ marginTop: 12 }}>
             <label className="field"><span>{t("Note")}</span>
-              <input value={description} placeholder={category || "Description"}
+              <input value={description} placeholder={finalCategory || "Description"}
                 onChange={(e) => setDescription(e.target.value)} /></label>
             <label className="field"><span>{t("Date")}</span>
               <input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></label>

@@ -29,7 +29,7 @@
 // than the gear because what it changes is the address a CUSTOMER meets, in
 // their own confirmation email.
 //
-// SIXTEEN AS OF ROADMAP 3.2(b) — "Common questions" joined under "Your page",
+// SIXTEEN AS OF ROADMAP 3.2(b) — the FAQ screen joined under "Your page",
 // and it is the one this file has carried a note about since stage 6. The
 // storage landed then with no writer and no reader on purpose (the owner's
 // own split); what turned the wait into a GAP is contract §6b — a tenant site
@@ -69,11 +69,14 @@ export const SCREENS = {
   appearance: [Appearance, "Your color"],
   gallery: [Gallery, "Photo gallery"],
   reviews: [Reviews, "Reviews"],
-  // ONE NAME, AND IT IS THE ONE HE ASKED FOR: *"FAQ, common questions — I feel
-  // common questions should be able to FAQ."* The Business row has said
-  // "Common questions" since 3.2(b) and the screen it opened said "FAQ", so
-  // the same screen had two names and one of them was an initialism.
-  faq: [Faq, "Common questions"],
+  // ONE NAME, AND IT IS "FAQ" — his review, 2026-09-10: *"should be more
+  // obvious it's FAQ."* This line said "Common questions" for one day, which
+  // was the 2026-09-10 rename resolving the two-name problem in the WRONG
+  // direction: the walkthrough that morning had already recorded him asking
+  // for **"FAQ"** — *"it's more straightforward of what it's actually for"* —
+  // and a session unified on the plain words instead. Three places carry it
+  // and they have to agree: here, the Business row, and `lib/setup.js`.
+  faq: [Faq, "FAQ"],
   domain: [WebAddress, "Your web address"],
   campaigns: [Campaigns, "Where customers come from"],
   report: [ReportProblem, "Report a problem"],

@@ -524,8 +524,8 @@ export default function Money({ onGo }) {
               jobs or forty. */}
           {top && (
             <div className="paircells tight-rows">
-              <Cell label={t("Most booked")} value={top.name} />
-              <Cell label={t("Times booked")} value={`${top.count} · ${money(top.total)}`} />
+              <Cell label={t("Most booked")} value={top.name} wrap />
+              <Cell label={t("Times booked")} value={`${top.count} · ${money(top.total)}`} wrap />
             </div>
           )}
 
@@ -720,11 +720,30 @@ export default function Money({ onGo }) {
 // tone="good" is money the detailer earned, so it is the fixed house green and
 // NOT the tenant's accent — theme.css § THE ACCENT, the owner's rule of
 // 2026-08-30: "money green is all kind of cohesive."
-function Cell({ label, value, tone }) {
+// `wrap` IS A 320 FIX AND IT IS ABOUT WHAT THE VALUE *IS* — found by the width
+// sweep, 2026-09-11, at 360 and 320: *Times booked* was 26px past its own cell
+// at 360 and 66px past it at 320, and at 320 it dragged the whole Money screen
+// sideways.
+//
+// The cause is that this component puts `.num` on EVERY value, and `.num` is
+// `white-space: nowrap` — correct for one figure, which must never break in
+// half, and wrong for the two values here that are not one figure: *Most
+// booked* is a service NAME, and *Times booked* is a count AND a total with a
+// separator between them. A nowrap cell in a `1fr 1fr` grid cannot shrink, so
+// the TRACK grows instead and takes the page with it.
+//
+// So the two of them may wrap, and everything else still cannot. They keep
+// `.num` — the figures inside them are still tabular — and only the one
+// property that was wrong for them is changed.
+function Cell({ label, value, tone, wrap }) {
   return (
     <div>
       <span className="label">{label}</span>
-      <div className="strong num" style={{ marginTop: 4, color: tone === "good" ? "var(--ac)" : undefined }}>
+      <div className="strong num" style={{
+        marginTop: 4,
+        color: tone === "good" ? "var(--ac)" : undefined,
+        whiteSpace: wrap ? "normal" : undefined,
+      }}>
         {value}
       </div>
     </div>
