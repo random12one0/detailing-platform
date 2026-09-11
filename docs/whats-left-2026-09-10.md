@@ -10,18 +10,23 @@ directions. Anything not here is done.
 **The count: 6 bugs, 8 of his own notes, 9 unbuilt features, 15 things waiting
 on him, and 3 pieces of the endgame he described.**
 
+**UPDATED 2026-09-10, later the same day: FIVE OF THE SIX BUGS ARE FIXED and
+one new decision is waiting on him** — § 7, the four questions that block the
+advanced money view. The bug table below carries its own strikethroughs; the
+only one still open is the language buttons on a customer's booking page.
+
 ---
 
 ## 1 · Broken now — six things
 
 | | What | Where |
 |---|---|---|
-| 1 | **The pricing page's terms block is jammed against the screen edge.** His own bug, still there. | `app/src/landing/PricingPage.jsx:403` |
-| 2 | **The Today guide walks you onto the Business page.** | `app/src/components/Walkthrough.jsx` |
-| 3 | **"Show me around" stops after one step.** Probably the same cause as 2. | same file |
+| 1 | ~~The pricing page's terms block is jammed against the screen edge.~~ **FIXED** — and the page was rebuilt to his *"kind of bland"* note at the same time: a photograph, the figures on it, a light band, and the annual rung marked. | `app/src/landing/PricingPage.jsx` |
+| 2 | ~~The Today guide walks you onto the Business page.~~ **FIXED**, then rebuilt twice more at his ask — every tab has a 5-8 step guide, one presses a date open, and *Show me around* is now a 37-step tour of all five tabs plus the settings. | `app/src/components/Walkthrough.jsx` |
+| 3 | ~~"Show me around" stops after one step.~~ **FIXED.** It was three separate faults in the end, the last of them a card positioned before it existed — it flashed in the top-left corner and froze. | same file |
 | 4 | **The English/Spanish buttons are badly placed** on a customer's booking page. | `app/src/book/LanguagePicker.jsx` |
-| 5 | **The password screen never asks for your current password.** Anyone who walks up to an unlocked laptop can change it. | `app/src/screens/more/Password.jsx:47` |
-| 6 | **There is no "page not found".** A mistyped address shows a sign-in form, which reads as being logged out. | roadmap item P |
+| 5 | ~~The password screen never asks for your current password.~~ **FIXED**, and an eye toggle was added to every password field in the product. | `app/src/screens/more/Password.jsx` |
+| 6 | ~~There is no "page not found".~~ **FIXED** — `app/src/screens/NotFound.jsx`, deliberately outside the session provider. | roadmap item P |
 
 **1.2 of his audit — the setup progress counter — is fixed**, by the rebuild
 that deleted the screen it was wrong on. The audit doc still shows it open.
@@ -141,6 +146,70 @@ see how it goes."*
 **This is the real acceptance test and it should be last**, because it exercises
 signup → first-run setup → the brief → a brief file → a built site, and every
 one of those has to work before the run means anything.
+
+---
+
+## 7 · The two he asked about on 2026-09-10
+
+### 7a · "Have we built the advanced money thing yet?" — NO, and it is waiting on four answers from him
+
+Roadmap **8.9**. The research is done (`docs/money-view-research-2026-09-07.md`)
+and found the useful thing: **nothing on the missing list needs a database
+change.** Tips are already rows, expenses already carry a category, and every
+booking already has a duration — so the build is arithmetic over what the
+product already keeps, in the shape of `lib/adminInsight.js`.
+
+**What is missing against his own live dashboard:** net profit, tips in every
+form, hourly wage, expenses by category, revenue by month and its trend, new
+versus returning customers, top spender, most popular days. The platform
+already answers *quoted up front* and *added on site*, and Money already leads
+on net rather than revenue.
+
+**IT IS BLOCKED, AND THE BLOCK IS HIM, NOT THE WORK.** § 6 of the research file:
+
+| | The question, in plain words | Recommendation |
+|---|---|---|
+| **A** | Three of his six money figures are tip figures, and the only tip the product knows about is the one the DETAILER types in after the job. Ship those figures against that and label them honestly, or leave tips out until customers can add one themselves? | **Ship them labelled**, because "tips I wrote down" is still his real money. The one to leave out is *tip rate* — it reads as "how many customers tip" and means "how often I remembered to write one down". |
+| **B** | One sentence at the top, then ruled rows in three groups, no charts — or does he want the bars? | **Ruled rows.** He has said twice he does not want "plain boxes", and a chart under ten customers is noise. |
+| **C** | Expense categories: offer a list an accountant recognises, or leave it free text? | **Offer the list**, ignorable. It is the one accountant-facing thing worth doing here. |
+| **D** | Anything on his old screen he does NOT want carried over? | Cheaper to drop now than build twice. |
+
+A and B are the two that actually stop the build.
+
+### 7b · "The Yelp and Google link tracking" — MOSTLY BUILT, under another name, with three real gaps
+
+It was saved, and it is roadmap **4.2**: `app/src/screens/more/Campaigns.jsx`,
+reached from **Business → Campaign links**. What exists today:
+
+- **A custom link per source.** Give it a name, get `…/book/<you>?c=<name>`.
+  Put one on Yelp, one on Google, one on a flyer.
+- **Clicks and bookings, per link**, read back as two integers on the row.
+- **A discount that applies itself** when somebody arrives through the link,
+  which is the half he originally asked for on a QR code.
+- **The same-browser join he described.** `visitorIdFor()` in
+  `app/src/book/core.js` writes a random id into that browser's storage, so a
+  scan on Tuesday and a booking on Friday are one story rather than two. It is
+  not an identity — nothing is looked up by it, it goes to no third party, and
+  clearing site data is a complete opt-out.
+
+**THE THREE GAPS, and the first one is the one he actually described:**
+
+1. **Untagged visitors are NOT tracked at all.** `BookingPage.jsx:155` returns
+   early unless there is a `?c=` on the address — so "everyone automatically
+   gets tracked" is false today. The server side already accepts an organic
+   visit (`track-visit` writes `campaign_id: null`); it is the browser that
+   never calls it. **This is the smallest of the three and the biggest in
+   effect.**
+2. **`referrer` is recorded and nothing ever reads it.** The column is written
+   on every campaign visit, so "they came from google.com" is already in the
+   database with no screen behind it. Without gap 1 fixed it is nearly empty.
+3. **No conversion RATE and no repeat-visitor view.** Two integers per row was
+   a deliberate choice — *was the flyer worth it* is two numbers — but "40
+   clicks, 3 bookings, 7.5%" is the sentence he actually said, and unique
+   visitors versus visits is one query away once gap 1 lands.
+
+**And it is presented as flyers and QR codes**, not as Yelp and Google. A
+Yelp/Google pair offered by default on that screen is copy, not code.
 
 ---
 
