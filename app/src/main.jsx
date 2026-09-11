@@ -4,7 +4,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./theme.css";
 import { BusinessProvider } from "./context/BusinessContext.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
-import App from "./App.jsx";
+import App, { TAB_PATHS } from "./App.jsx";
 import JobPage from "./screens/JobPage.jsx";
 import AcceptInvite from "./screens/AcceptInvite.jsx";
 import BookingPage from "./book/BookingPage.jsx";
@@ -19,6 +19,7 @@ import LegalPage from "./landing/LegalPage.jsx";
 import ResetPassword from "./screens/ResetPassword.jsx";
 import AdminPage from "./admin/AdminPage.jsx";
 import PreviewEntry from "./admin/PreviewEntry.jsx";
+import NotFound from "./screens/NotFound.jsx";
 import SiteIntake from "./screens/SiteIntake.jsx";
 import { Navigate } from "react-router-dom";
 
@@ -168,8 +169,31 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Navigate replace
             to={`/app?settings=payments${window.location.search.replace(/^\?/, "&")}`} />
         } />
-        <Route path="/app/*" element={<Wrapped><App /></Wrapped>} />
-        <Route path="/*" element={<Wrapped><App /></Wrapped>} />
+        {/* THE DASHBOARD ANSWERS TO `/app` AND ITS FIVE TAB NAMES, AND TO
+            NOTHING ELSE. `/app/*` used to swallow every path beneath it, so
+            `/app/nonsense` drew the dashboard — the one address left in the
+            product that silently pretended to exist once the catch-all below
+            started telling the truth. The names come from `App.jsx` so a sixth
+            tab is not a 404. */}
+        <Route path="/app" element={<Wrapped><App /></Wrapped>} />
+        {TAB_PATHS.map((tab) => (
+          <Route key={tab} path={`/app/${tab}`} element={<Wrapped><App /></Wrapped>} />
+        ))}
+        {/* ROADMAP ITEM P — AND THE RULE IT REPLACES WAS THE BUG. `/*` used to
+            send every unrecognised address to the dashboard, whose first
+            question is who you are: so a mistyped booking link answered a
+            CUSTOMER with a sign-in form, and a stale link told a DETAILER they
+            had been logged out. Neither had.
+
+            **Nothing legitimate was using it.** The dashboard reads no part of
+            the URL — the tabs are state — and nothing in the product, the
+            emails or the scripts links to a bare path. Checked before removing
+            it, not assumed.
+
+            NOT WRAPPED, deliberately: whoever mistyped is usually a customer
+            with no session, and the provider would make the page that explains
+            the mistake wait on an auth round trip it can never satisfy. */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
       </ErrorBoundary>
     </BrowserRouter>

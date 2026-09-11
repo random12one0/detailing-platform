@@ -33,9 +33,21 @@ console.log("\ntest 1: the routes the emails point at exist");
 {
   check("router serves /book/:slug", routes.includes("/book/:slug"), routes.join(","));
   check("router serves /booking/:id", routes.includes("/booking/:id"), routes.join(","));
-  check("router still has a catch-all", routes.includes("/*"));
+  // **THE CATCH-ALL IS A 404 PAGE NOW, NOT THE DASHBOARD — roadmap item P,
+  // 2026-09-10.** It used to be `/*` → the dashboard, which meant an unknown
+  // address answered with a SIGN-IN FORM: a customer who mistyped a booking
+  // link was asked to make an account to see their own appointment, and a
+  // detailer following a stale link concluded they had been signed out. This
+  // asserted the old arrangement by name, so it is restated as what the rule
+  // was always FOR — every address resolves to something deliberate.
+  check("router still has a catch-all", routes.includes("*") || routes.includes("/*"));
   check("the landing page owns /", routes.includes("/"));
-  check("the dashboard lives at /app/*", routes.includes("/app/*"));
+  // `/app` plus its five tab names, rather than `/app/*` swallowing everything
+  // beneath it — or `/app/nonsense` is the one address left that pretends to
+  // exist. The names are exported from App.jsx so a sixth tab is not a 404.
+  check("the dashboard lives at /app and its tabs",
+    routes.includes("/app") && /TAB_PATHS\.map/.test(main),
+    routes.join(","));
 }
 
 console.log("\ntest 2: config.ts builds those exact paths");
@@ -141,10 +153,18 @@ console.log("\ntest 4: the public routes sit outside the owner's session context
   const unsubLine = main.split("\n").find((l) => l.includes('path="/unsubscribe/:customerId"')) ?? "";
   check("/unsubscribe/:customerId is not wrapped in the session provider",
     !!unsubLine && !/Wrapped|BusinessProvider/.test(unsubLine), unsubLine.trim());
-  const appLine = main.split("\n").find((l) => l.includes('path="/app/*"')) ?? "";
-  check("the dashboard at /app/* IS wrapped", /Wrapped|BusinessProvider/.test(appLine), appLine.trim());
-  const legacyLine = main.split("\n").find((l) => l.includes('path="/*"')) ?? "";
-  check("the legacy catch-all IS wrapped", /Wrapped|BusinessProvider/.test(legacyLine), legacyLine.trim());
+  const appLine = main.split("\n").find((l) => l.includes('path="/app"')) ?? "";
+  check("the dashboard at /app IS wrapped", /Wrapped|BusinessProvider/.test(appLine), appLine.trim());
+  const tabLine = main.split("\n").find((l) => l.includes("path={`/app/${tab}`}")) ?? "";
+  check("and so is every tab route", /Wrapped|BusinessProvider/.test(tabLine), tabLine.trim());
+  // **AND THE 404 IS DELIBERATELY *NOT* WRAPPED.** Somebody who mistyped an
+  // address is usually a customer with no session, and the provider would make
+  // the page that explains the mistake wait on an auth round trip it can never
+  // satisfy. `NotFound` asks Supabase for a session itself, which is one
+  // request it can survive failing.
+  const missLine = main.split("\n").find((l) => l.includes('path="*"')) ?? "";
+  check("the 404 page is NOT wrapped in the session provider",
+    !!missLine && !/Wrapped|BusinessProvider/.test(missLine), missLine.trim());
   // A customer landing on / is a visitor, not staff: no session round trip.
   const rootLine = main.split("\n").find((l) => l.includes('path="/"')) ?? "";
   check("the landing page is not wrapped in the session provider",

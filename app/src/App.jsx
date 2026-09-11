@@ -22,6 +22,15 @@ import { planChoice } from "./lib/planChoice.js";
 import { t } from "./lib/appI18n.js";
 import { useAppLocale } from "./hooks/useAppLocale.js";
 
+// THE FIVE NAMES THE DASHBOARD ANSWERS TO, exported for the router.
+//
+// **App itself reads NO part of the URL** — the tabs are state, so `/app/today`
+// and `/app/anything` render an identical screen. That was harmless until the
+// bare catch-all became a 404 page: without this list `/app/nonsense` would be
+// the one address left in the product that silently pretends to exist.
+// Derived from TABS rather than typed again, or a sixth tab would be a 404.
+export const TAB_PATHS = ["today", "calendar", "money", "clients", "business"];
+
 const TABS = [
   { key: "today", label: "Today", Icon: Sun, el: Today },
   { key: "calendar", label: "Calendar", Icon: CalendarDays, el: Calendar },

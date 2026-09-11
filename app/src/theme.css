@@ -3721,3 +3721,26 @@ html:not(.lite) .intake .samp-move .samp-row:nth-child(3) { animation-delay: .5s
 }
 .pweye:hover { color: var(--ink-text, inherit); }
 .pweye[aria-pressed="true"] { color: var(--accent); }
+
+/* ══ THAT PAGE DOES NOT EXIST (screens/NotFound.jsx) ════════════════════════
+   Roadmap item P. It has to read as an ANSWER rather than as a broken screen,
+   because what it replaced — a sign-in form — was being read as "you have been
+   logged out" by detailers and "you need an account" by customers. So: the
+   code small and quiet, the sentence large, and the way out as a real button
+   rather than a link somebody has to hunt for.                              */
+.nf {
+  min-height: 100dvh; display: grid; place-items: center;
+  padding: 24px; background: var(--ink-0);
+}
+.nf-in { max-width: 44ch; text-align: center; }
+.nf-code {
+  margin: 0; font-family: var(--mono, ui-monospace, monospace);
+  font-size: 13px; letter-spacing: .22em; color: var(--fog-2);
+}
+.nf h1 {
+  margin: 14px 0 0; font-size: clamp(26px, 5vw, 38px); line-height: 1.1;
+  letter-spacing: -.02em; text-wrap: balance;
+}
+.nf .quiet { margin: 12px 0 0; }
+.nf-go { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
+.nf-go .btn { text-decoration: none; flex: 0 1 auto; width: auto; }
