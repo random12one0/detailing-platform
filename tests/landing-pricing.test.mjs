@@ -717,5 +717,77 @@ console.log("\n9. no price is shown before it is known (roadmap 8.7, F-009)");
     /priced \? \{\} : \{ "data-loading": "1" \}/.test(pjsx));
 }
 
+
+/* ── 10 · nothing un-centres a `.wrap` ──────────────────────────────────── */
+// HIS BUG, AUDIT ITEM 1.1: the pricing page's "The terms, in full." section sat
+// hard against the left edge of the screen at every width. The cause was not a
+// padding mistake — it was a CLASS NAME COLLISION. `/terms` and `/privacy`
+// were built later and reused `.legal` for their own list, and that rule's
+// four-sided `margin: 26px 0 0` overwrote the `margin-inline: auto` that
+// `.wrap` uses to centre a block. Two unrelated features, one class name, and
+// the newer one silently un-centred the older one.
+//
+// **SO THIS CHECKS THE CLASS OF BUG, NOT THE INSTANCE.** Any element that
+// carries `wrap` gets its gutter from `.ld .wrap`, and any rule that sets a
+// `margin` SHORTHAND on a class that element also carries will destroy it —
+// because a shorthand writes all four sides and `0` is not `auto`. Pinning the
+// one selector that broke would let the next collision through.
+{
+  console.log("\nthe gutter: nothing un-centres a .wrap");
+  const { readFileSync } = await import("node:fs");
+
+  // every class that shares an element with `wrap` in either landing page
+  const withWrap = new Set();
+  for (const f of ["app/src/landing/PricingPage.jsx", "app/src/landing/LandingPage.jsx"]) {
+    const src = readFileSync(f, "utf8");
+    for (const m of src.matchAll(/className="([^"]*\bwrap\b[^"]*)"/g)) {
+      for (const c of m[1].split(/\s+/)) if (c && c !== "wrap") withWrap.add(c);
+    }
+  }
+
+  // and every rule in landing.css that writes a margin shorthand
+  const css = readFileSync("app/src/landing/landing.css", "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, "");
+  const guilty = [];
+  for (const m of css.matchAll(/([^{}]+)\{([^}]*)\}/g)) {
+    const body = m[2];
+    // `margin:` with a horizontal value that is not `auto` — `margin: 0 auto`
+    // is the centring idiom itself and is fine.
+    const decl = body.match(/(^|;)\s*margin\s*:\s*([^;]+)/);
+    if (!decl) continue;
+    const parts = decl[2].trim().split(/\s+/);
+    const horizontal = parts.length === 1 ? parts[0] : parts.length === 2 ? parts[1] : parts[3] ?? parts[1];
+    if (horizontal === "auto") continue;
+    // **ONLY THE ELEMENT ITSELF, NOT ITS CHILDREN.** `.ld .legal dd { margin: 0 }`
+    // sets a margin on a definition INSIDE the wrap, which is ordinary and
+    // correct; the bug is a rule whose SUBJECT is the wrapped element. So the
+    // class has to appear in the selector's LAST compound, per comma-separated
+    // selector. The first version of this check flagged two innocent child
+    // rules — a check that cries wolf is a check somebody switches off.
+    for (const sel of m[1].split(",")) {
+      const last = sel.trim().split(/\s+/).pop() ?? "";
+      for (const cls of withWrap) {
+        if (new RegExp(`\\.${cls}(?![\\w-])`).test(last)) {
+          guilty.push(`${sel.trim().slice(0, 60)} \u2192 margin: ${decl[2].trim()}`);
+        }
+      }
+    }
+  }
+
+  check("no rule sets a margin shorthand on a class that also carries `wrap`",
+    guilty.length === 0,
+    guilty.join("\n        ") || "");
+
+  // and the specific collision cannot come back by name
+  // Counted the same way: a rule whose SUBJECT is `.legal`, not one that
+  // styles something inside it.
+  const legalRules = [...css.matchAll(/([^{}]+)\{[^}]*\}/g)]
+    .flatMap((r) => r[1].split(","))
+    .filter((sel) => (sel.trim().split(/\s+/).pop() ?? "") === ".legal").length;
+  check("`.legal` is defined once, by the page that owns it",
+    legalRules === 1,
+    `${legalRules} rules define .ld .legal — the /terms list is .legallist`);
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

@@ -97,7 +97,7 @@ export default function LegalPage({ which }) {
               thing on a wrong assumption. */}
           <p className="legalnote" data-rv="">{NOT_YET_LAWYERED}</p>
 
-          <dl className="legal">
+          <dl className="legallist">
             {doc.sections.map(([what, words], i) => (
               // THE REVEAL IS ON A WRAPPER THAT IS ALWAYS MOUNTED. `thread.js`
               // collects its revealables with ONE `querySelectorAll` at mount

@@ -1705,8 +1705,21 @@
    same shape as the pricing page's rungs minus the figure column. It is
    NOT `.rung`: that is a three-column grid built around a right-aligned
    `nowrap` price, and reusing it here would mean carrying an empty third
-   column through every breakpoint of a page that has no numbers on it. */
-.ld .legal { margin: 26px 0 0; border-top: 1px solid var(--line-2); }
+   column through every breakpoint of a page that has no numbers on it.
+
+   **IT WAS CALLED `.legal` UNTIL 2026-09-10 AND THAT IS WHY THE PRICING
+   PAGE'S TERMS SAT AGAINST THE LEFT EDGE OF THE SCREEN.** His bug, audit
+   item 1.1. `/pricing`'s own terms section is `<section class="legal wrap">`
+   — and `.wrap` centres a block with `margin-inline: auto`, which THIS rule
+   overwrote with a four-sided `margin: 26px 0 0` simply by being later in the
+   file. Two unrelated features, one class name, and the newer one silently
+   un-centred the older one.
+
+   **The lesson is the naming, not the margin.** A class named after a SUBJECT
+   ("legal") will be reached for again by the next thing about that subject; a
+   class named after a THING ("legallist") will not. Renamed rather than
+   fought with specificity, because the collision would have come back. */
+.ld .legallist { margin: 26px 0 0; border-top: 1px solid var(--line-2); }
 .ld .legalrow {
   display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
   gap: clamp(10px, 3vw, 40px);
