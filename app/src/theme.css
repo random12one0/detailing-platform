@@ -3914,3 +3914,174 @@ html:not(.lite) .intake .samp-move .samp-row:nth-child(3) { animation-delay: .5s
    first. Same `.label` type, with room above it so it belongs to what follows
    rather than to what it is under. */
 .advsub { margin-top: var(--sp-4); display: block; }
+
+/* ---------------------------------------------------------------------------
+   NEW BOOKING — the by-hand sheet. His review, 2026-09-10: *"make sure they
+   can do everything they would want to, no limitations. Also make it look
+   nicer."*
+
+   The form grew from eleven fields to twenty-one, so the thing that makes it
+   readable is not decoration — it is that a person filling it in can see
+   where one question ends and the next begins. Six blocks, each separated by
+   a rule, which is cheaper than six cards and does not turn a form into a
+   stack of panels.
+
+   NO NEW TOKEN. Spacing, hairline and radius all come from the existing set;
+   a sheet that invents its own is the two-corner-languages failure the design
+   system forbids.
+   --------------------------------------------------------------------------- */
+.nb-block + .nb-block {
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--hairline);
+}
+/* The one sentence a block is allowed, and only where the controls under it
+   genuinely do not say it — the owner's copy rule. */
+.nb-hint { margin: calc(-1 * var(--sp-1)) 0 var(--sp-3); }
+.nb-group + .nb-group { margin-top: var(--sp-3); }
+.nb-grouplabel { margin: var(--sp-3) 0 var(--sp-2); }
+.nb-group:first-child > .nb-grouplabel { margin-top: 0; }
+
+/* A SEARCH RESULT IS A BUTTON, so it needs a button's reset and a button's
+   press state — `.sunken` alone renders one that looks tappable and gives no
+   feedback when tapped. */
+.nb-match {
+  width: 100%; text-align: left; cursor: pointer;
+  border: 1px solid var(--hairline); background: var(--surface-lit);
+  transition: background var(--t-hover) var(--e-out);
+}
+.nb-match:active { background: color-mix(in srgb, var(--bone) 4%, var(--surface-lit)); }
+
+/* THE BREAKDOWN. Every line is the server's own figure; the total is ruled
+   off because it is the only one the detailer reads out loud. */
+.nb-quote { display: flex; flex-direction: column; gap: var(--sp-2); }
+.nb-total {
+  margin-top: var(--sp-2); padding-top: var(--sp-2);
+  border-top: 1px solid var(--hairline);
+}
+
+/* ---------------------------------------------------------------------------
+   TRACKING LINKS — the per-row accordion. His review, 2026-09-11: *"it should
+   open underneath the actual name. Not like right now, if I click on it, it
+   opens beneath all of them, but if you have a lot, then it'll be so far
+   down."*
+
+   The panel is the tapped row's own next sibling inside `.rows-stack`, so it
+   is indented to the row's text rather than to the card, which is what makes
+   it read as belonging to that row and not to the list.
+   --------------------------------------------------------------------------- */
+.camp-open {
+  background: none; border: 0; color: inherit; font: inherit;
+  text-align: left; cursor: pointer; min-width: 0;
+}
+/* The arrow is the control's STATE, not decoration — shut points down, open
+   points up, so a row that can expand is legible before it is tapped. */
+.camp-chev {
+  color: var(--text-muted); flex-shrink: 0;
+  transition: transform var(--t-hover) var(--e-out);
+}
+.camp-chev.open { transform: rotate(180deg); }
+
+.camp-panel {
+  padding: var(--sp-3) 0 var(--sp-4);
+  display: flex; flex-direction: column; gap: var(--sp-3);
+}
+/* TWO ACROSS ON A PHONE, FOUR AT A DESK. Four figures at 392 would be 88px
+   each and the labels are three words long. */
+.camp-stats {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-3);
+}
+@media (min-width: 700px) and (min-height: 500px) {
+  /* THE HEIGHT GUARD IS NOT OPTIONAL — a sideways phone is 844px wide, and
+     his ruling is that rotating one must change nothing. */
+  .camp-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+.camp-stat { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.camp-n { font-size: 21px; font-weight: 600; line-height: 1.1; }
+.camp-l { font-size: 12px; color: var(--text-muted); }
+
+/* A DOMAIN THE DETAILER OWNS, PRINTED IN FULL. CSS will not break a hostname
+   at its dots, so at 320 `book.coastlineautodetailing.example` was 272px of
+   text in a 210px box and dragged the page sideways by 7px. `anywhere` rather
+   than `break-word` because the string has no spaces at all — there is no
+   better break point to prefer. Scoped here, never on `.label` itself, which
+   is short uppercase furniture everywhere else and should keep refusing. */
+.wa-host { overflow-wrap: anywhere; }
+
+/* THE WAY OUT OF AN EDITOR, AT THE TOP. His review, 2026-09-11: *"once I click
+   on a monthly plan to edit it, I can't close that tab. There's an x, but that
+   x closes the entire monthly plan tab."* The editor's only close was a Cancel
+   at the foot of a form taller than the screen, so the one close in view was
+   the host's — which shuts the whole settings screen and drops the edit.
+   Ruled off rather than boxed: it is the frame's header, not a row of the
+   form. */
+.ed-head {
+  align-items: center; gap: var(--sp-3);
+  padding-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--hairline);
+}
+.ed-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* A PLAN'S NAME IS WHAT YOU SCAN FOR, so it wraps rather than truncating.
+   `.rows.cols .row-item .c-who` sets `nowrap` + `text-overflow: ellipsis` at
+   (0,3,1), so a bare `.plan-nm` lost and the name clipped mid-word — the
+   guess that cost two passes. The repo's own idiom for "this list is a bit
+   different" is a modifier on the LIST (`.rows.cols.history`,
+   `.rows.cols.clients`), matched here rather than overridden, so nothing has
+   to win a specificity fight. */
+.rows.cols.planlist .row-item .c-who {
+  white-space: normal; overflow: visible; text-overflow: clip;
+  display: flex; align-items: flex-start; gap: 6px;
+}
+.rows.cols.planlist .row-item .c-who > svg {
+  color: var(--text-muted); flex-shrink: 0; margin-top: 3px;
+}
+
+/* `priceWords` returns a PHRASE, not a figure, so this cell is allowed to
+   take two lines. Scoped to the plan list: `.c-total` everywhere else holds a
+   single money value and should keep refusing to wrap. */
+.rows.cols.planlist .row-item .c-total { white-space: normal; text-align: right; }
+
+/* ---------------------------------------------------------------------------
+   MESSAGE TEMPLATES — the editor that never shows a brace. His review,
+   2026-09-11: *"all these double brackets and kind of coding-looking stuff."*
+
+   A contenteditable styled as the textarea it replaces, so nothing about the
+   field announces that it is unusual. The pills inside it are the only new
+   object.
+   --------------------------------------------------------------------------- */
+.tokedit {
+  display: block; width: 100%; min-height: 96px;
+  margin-top: 6px; padding: 10px 12px;
+  background: var(--surface-sunk); color: var(--text);
+  border: 1px solid var(--line); border-radius: var(--r-inset);
+  corner-shape: var(--corner);
+  font: inherit; line-height: 1.5;
+  white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.tokedit:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* A DETAIL, AS ONE OBJECT. Reads as a thing that will be replaced rather than
+   as words that were typed — which is the whole point, and why it takes the
+   accent's quiet fill rather than looking like more text. */
+.tok {
+  display: inline-block; vertical-align: baseline;
+  padding: 1px 7px; margin: 0 1px;
+  background: var(--accent-quiet); border: 1px solid var(--accent-line);
+  border-radius: 999px;
+  font-size: 13px; line-height: 1.45;
+  white-space: nowrap; user-select: none;
+}
+
+/* WHAT THE CUSTOMER ACTUALLY RECEIVES. A tinted bubble rather than a second
+   input, so the editor above it and this are visibly different surfaces —
+   and it is the ONLY surface that can show a detail glued to the word before
+   it, because a pill draws its own margin whether or not the text has a
+   space in it. */
+.msgpreview {
+  margin-top: 6px; padding: 10px 14px;
+  background: var(--accent-quiet); border: 1px solid var(--accent-line);
+  border-radius: var(--r-lg); border-bottom-left-radius: 4px;
+  font-size: var(--t-body); line-height: 1.45;
+  white-space: pre-wrap; word-break: break-word;
+}

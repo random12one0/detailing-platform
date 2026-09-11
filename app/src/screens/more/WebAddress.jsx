@@ -213,7 +213,16 @@ export default function WebAddress() {
               const sub = parts.length > 2 ? parts.slice(0, parts.length - 2).join(".") : null;
               return (
                 <div className="sunken" key={`dns-${r.id}`} style={{ marginTop: "var(--sp-3)" }}>
-                  <span className="label">{r.domain}</span>
+                  {/* A HOSTNAME IS ONE UNBREAKABLE WORD as far as CSS is
+                      concerned — it will not break at a dot — so at 320 this
+                      was 272px of text in a 210px box and it dragged the
+                      whole page sideways by 7px. Found by measuring, not by
+                      reading: no element's RECT was past the edge, because
+                      the overflow is inside the box rather than beyond it.
+                      Scoped to this span, never to `.label`, which is used
+                      for short uppercase labels all over the product and
+                      should keep refusing to break. */}
+                  <span className="label wa-host">{r.domain}</span>
                   {sub ? (
                     <>
                       <p className="body" style={{ marginTop: 6 }}>

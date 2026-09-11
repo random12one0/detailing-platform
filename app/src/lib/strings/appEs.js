@@ -309,7 +309,7 @@ export const appEs = {
   "Reviews": "Reseñas",
   "FAQ": "Preguntas frecuentes",
   "Your web address": "Tu dirección web",
-  "Where customers come from": "De dónde vienen tus clientes",
+  "Tracking links": "Enlaces de seguimiento",
   "Services & add-ons": "Servicios y extras",
   "Promo codes & sale": "Códigos y descuentos",
   "Monthly plans": "Planes mensuales",
@@ -1490,8 +1490,6 @@ export const appEs = {
     "Su horario queda apartado mientras deciden, y nada cambia en el trabajo hasta que acepten.",
   "Their words, not yours.": "Sus palabras, no las tuyas.",
   "Then": "Después",
-  "These are the texts you send from a job. Tap a detail to drop it in — it fills itself in from the booking when you send.":
-    "Estos son los mensajes que mandas desde un trabajo. Toca un dato para meterlo — se llena solo desde la cita cuando lo mandas.",
   "These go on a customer's booking confirmation, their reminder, and any invoice still owed. Never on a receipt for money already paid.":
     "Estos van en la confirmación de cita del cliente, en su recordatorio, y en cualquier factura pendiente. Nunca en un recibo de dinero ya pagado.",
   "They can change or cancel until": "Pueden cambiar o cancelar hasta",
@@ -1723,4 +1721,73 @@ export const appEs = {
   "Apply to {n} days": "Aplicar a {n} días",
   "Your subscription ends on {date}. Until then nothing changes.": "Tu suscripción termina el {date}. Hasta entonces no cambia nada.",
   "The {amount} early-exit fee has already been charged and is not refunded if you restart.": "El cargo de {amount} por salida anticipada ya se cobró y no se reembolsa si vuelves a empezar.",
+
+  // --- REVIEW 2026-09-11, ITEMS 7 AND 9 -------------------------------------
+  // The by-hand booking sheet grew from eleven fields to twenty-one, and
+  // Tracking links grew a per-row stats panel. Every string added in the same
+  // change as its Spanish, because this catalogue is keyed on the ENGLISH text
+  // and a missing key shows English on a Spanish screen with no error
+  // anywhere.
+
+  // Tracking links — the screen's own name and the four figures in the panel.
+  "opened": "lo abrieron",
+  "booked": "reservaron",
+  "booking rate": "tasa de reserva",
+  "earned": "ganado",
+  "Last opened {when}. Earned counts finished jobs only.": "Se abrió por última vez el {when}. Lo ganado cuenta solo los trabajos terminados.",
+  "Nobody has opened this link yet.": "Nadie ha abierto este enlace todavía.",
+  "Everyone who opens it gets {code}.": "Quien lo abre recibe {code}.",
+
+  // New booking, by hand.
+  "Search a customer who has booked before, or type in a new one.": "Busca un cliente que ya haya reservado, o escribe uno nuevo.",
+  "Use a different customer": "Usar otro cliente",
+  "Name or phone": "Nombre o teléfono",
+  "Search": "Buscar",
+  "Nobody by that name yet.": "Todavía no hay nadie con ese nombre.",
+  "On {plan}. The plan price is applied automatically.": "En {plan}. El precio del plan se aplica automáticamente.",
+  "a monthly plan": "un plan mensual",
+  "Email (optional)": "Correo (opcional)",
+  "Send their emails in": "Enviar sus correos en",
+  "Vehicle": "Vehículo",
+  "Make and model (optional)": "Marca y modelo (opcional)",
+  "How many cars": "Cuántos carros",
+  "Car {n} size": "Tamaño del carro {n}",
+  "Car {n} model": "Modelo del carro {n}",
+  "Condition": "Condición",
+  "Location": "Ubicación",
+  "Travel zone": "Zona de viaje",
+  "Water on site": "Agua en el lugar",
+  "Power on site": "Electricidad en el lugar",
+  "Pick a service and the open times appear.": "Elige un servicio y aparecen las horas libres.",
+  "Price and notes": "Precio y notas",
+  "Promo code (optional)": "Código de descuento (opcional)",
+  "Checking…": "Comprobando…",
+  "Applied.": "Aplicado.",
+  "That code cannot be used.": "Ese código no se puede usar.",
+  "Note from the customer (optional)": "Nota del cliente (opcional)",
+  "Private note": "Nota privada",
+  "Travel — {zone}": "Viaje — {zone}",
+  "Travel": "Viaje",
+  "Promo {code}": "Descuento {code}",
+  "Total": "Total",
+  "Booking…": "Reservando…",
+  // The plain-language pass, 2026-09-11 — his second rejection of the same
+  // blurb. Voice, not content: short declarative sentences, no em dash, no
+  // opening flourish. docs/sessions/product.md has the rule.
+  "Set up the plans you sell. This page tracks who is on each one and how many visits they still have coming. You collect payment yourself.": "Configura los planes que vendes. Esta página lleva la cuenta de quién está en cada uno y cuántas visitas le faltan. Tú cobras el pago por tu cuenta.",
+  "Make a separate booking link for a flyer, a QR code or a post. Anyone who uses it gets the discount applied automatically. This page shows how many bookings each link brought in.": "Crea un enlace de reserva aparte para un volante, un código QR o una publicación. A quien lo use se le aplica el descuento automáticamente. Esta página muestra cuántas reservas trajo cada enlace.",
+  "New plan": "Plan nuevo",
+  "Edit plan": "Editar plan",
+  // REVIEW ITEM 11, 2026-09-11 — the pill editor. Four new details a
+  // detailer can drop into a text, their chip labels, and the plain-English
+  // meaning each chip carries as its title.
+  "These are the texts you send from a job. Tap a detail to add it. Each one fills itself in from the booking when you send the message.": "Estos son los mensajes que envías desde un trabajo. Toca un dato para agregarlo. Cada uno se completa solo con la reserva cuando envías el mensaje.",
+  "What they booked": "Lo que reservó",
+  "Their car": "Su carro",
+  "Your phone": "Tu teléfono",
+  "Link to their booking": "Enlace a su reserva",
+  "what they booked": "lo que reservó",
+  "the car": "el carro",
+  "your phone number": "tu número de teléfono",
+  "a link to their booking": "un enlace a su reserva",
 };

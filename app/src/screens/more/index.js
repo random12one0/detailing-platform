@@ -78,7 +78,7 @@ export const SCREENS = {
   // and they have to agree: here, the Business row, and `lib/setup.js`.
   faq: [Faq, "FAQ"],
   domain: [WebAddress, "Your web address"],
-  campaigns: [Campaigns, "Where customers come from"],
+  campaigns: [Campaigns, "Tracking links"],
   report: [ReportProblem, "Report a problem"],
   catalog: [Catalog, "Services & add-ons"],
   promos: [Promos, "Promo codes & sale"],

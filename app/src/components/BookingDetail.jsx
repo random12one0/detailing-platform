@@ -71,7 +71,10 @@ export const jobRecordProps = (b) => ({
 
 export default function BookingDetail({ booking, onClose, onChanged }) {
   useAppLocale();
-  const { business } = useBusiness();
+  // `siteOrigin` is the detailer's OWN host where they have one — a text that
+  // links a customer back to detailingplatform.com when the detailer has a
+  // domain is the seam roadmap 3.3 exists to remove.
+  const { business, siteOrigin } = useBusiness();
   const [templates, setTemplates] = useState([]);
   const [pickingText, setPickingText] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -187,6 +190,10 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   const openTextPicker = () => setPickingText(true);
   const smsHref = (body) =>
     `sms:${booking.customer_phone}${/iPhone|iPad|Mac/.test(navigator.userAgent) ? "&" : "?"}body=${encodeURIComponent(body)}`;
+  // EVERY TOKEN THE TEMPLATE SCREEN OFFERS IS FILLED HERE, and that is a
+  // contract rather than a convenience: `PLACEHOLDERS` grew from six to ten
+  // on 2026-09-11, and a token this call site does not know about goes out in
+  // a real customer's text as a fallback word. Add them in the same change.
   const filled = (body) =>
     fillTemplate(body, {
       booking, business,
@@ -194,6 +201,11 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
       timeLabel: time12(booking.start_time),
       address: address || "",
       total: money(booking.final_amount ?? booking.total_price),
+      service: (booking.services ?? []).map((s) => s.name_at_booking).filter(Boolean).join(", "),
+      vehicle: booking.vehicle_model || "",
+      // The customer's OWN page for this booking — where they reschedule or
+      // cancel it.
+      bookingLink: `${siteOrigin || window.location.origin}/booking/${booking.id}`,
     });
 
   // THE MONEY, and this is Part B row 19. The record printed "Estimated

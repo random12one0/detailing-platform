@@ -328,7 +328,7 @@ export default function Business({ onSetup, initial = null }) {
       // more obvious as not a campaign."* Nothing about the feature changed;
       // the word was doing the damage. A detailer who wants to know whether
       // Yelp is worth it does not go looking for a row called Campaign links.
-      ["campaigns", "Where customers come from", QrCode,
+      ["campaigns", "Tracking links", QrCode,
         counts ? (counts.campaigns
           ? `${n(counts.campaigns, "{count} link", "{count} links")} · ${n(counts.campaignVisits, "{count} open", "{count} opens")}`
           : "Nothing tracked yet") : "…"],

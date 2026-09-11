@@ -422,10 +422,16 @@ function BookingFlow({ notFound = null }) {
     return (
       <div className="bk" style={brandVars}>
         <div className="bk-center">
-          <h1>{business?.name} isn’t taking bookings online yet</h1>
+          {/* TRANSLATED 2026-09-11. `tests/spanish.test.mjs` 4a had been red
+              on this block on a clean tree, and the heading beside it was
+              untranslated too without the check being able to see it — an
+              interpolated line reads to that check as a value rather than as
+              prose. A customer who reached this page in Spanish met three
+              English sentences on the one screen that exists to tell them
+              something has gone wrong. */}
+          <h1>{t("{business} isn’t taking bookings online yet", { business: business?.name ?? "" })}</h1>
           <p className="bk-muted">
-            They’re still setting this page up. Check back shortly — or get in touch with
-            them directly.
+            {t("They’re still setting this page up. Check back shortly — or get in touch with them directly.")}
           </p>
           {/* **`business.phone`, NOT `contact_phone` — and the email is not
               here at all.** The public profile renames it (`'phone',
@@ -606,7 +612,7 @@ function BookingFlow({ notFound = null }) {
             {quoteError}{" "}
             <button className="bk-btn inline" style={{ minHeight: 34, padding: "0 16px", marginTop: 8 }}
               onClick={fetchQuote}>
-              Try again
+              {t("Try again")}
             </button>
           </div>
         )}

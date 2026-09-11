@@ -216,3 +216,141 @@ names the file afterwards; that is the only reason anybody finds out.
 2. **A bottom-edge failure anywhere except the booking page.**
 
 `docs/verification.md` has the whole battery and every trap in it.
+
+---
+
+## THE COPY RULES HE HAS NOW STATED TWICE IN ONE DAY — 2026-09-11
+
+**Both came out of him reading a sentence aloud and disliking the SOUND of
+it, and both bind every screen this session touches.**
+
+### 1 · A TITLE IS NEVER A SENTENCE
+
+*"where customers come from… it just feels like an AI title… no title should
+be a sentence. Like 'how you get paid', that's a sentence. Figure out a way to
+explain it without being a sentence."*
+
+A row in a settings list, a section heading, a block label — all of them are
+NOUN PHRASES. **Tracking links**, not *Where customers come from*.
+**Location**, not *Where you are going*. **Services**, not *What they are
+having done*. If the label needs a verb to make sense, the verb belongs in the
+sentence underneath, not in the label.
+
+**HE NAMED "How you get paid" HIMSELF AND IT IS STILL THERE.** That is review
+item 16, the product-wide language pass, which stays unassigned until the
+per-screen work is done — a sweep landing while five screens are being
+rewritten conflicts with every one of them. **Do not sweep it early; do not
+let it be forgotten either.**
+
+### 2 · PROSE THAT READS LIKE AN INSTRUCTION, NOT LIKE WRITING
+
+**THIS ONE COST TWO ATTEMPTS AND THE SECOND REJECTION IS THE INSTRUCTIVE
+ONE.** The Monthly plans blurb was *"What you offer on a rhythm. You agree the
+price and the dates with the customer yourself — this remembers them and tells
+you who is owed a visit."* He read it aloud: *"that sentence is so obviously
+AI."*
+
+It was replaced with *"We never charge anyone — you take the money your own
+way. This keeps count of who is owed a visit."* **He rejected that too, for
+the same reason**: *"it sounds like AI… just to spin it in a way that doesn't
+sound like a poem or like it's trying to be creative in some way. Just sound
+like it's trying to be as straightforward and informative as possible. Anyone
+reading that could instantly understand what this is for."*
+
+**SO THE FAULT WAS NEVER THE CONTENT. IT WAS THE VOICE.** The second draft
+carried a different fact and the same devices, which is why it failed
+identically. A session that reads only the first rejection will do what this
+one did: rewrite one flourish into another flourish and believe it has
+finished.
+
+**What both drafts did that he is objecting to, named so it can be checked:**
+
+- an **em dash** holding two clauses in tension
+- a **rhetorical opener** — *"What you offer on a rhythm"*, *"We never charge
+  anyone"* — a phrase whose job is to sound good before it informs
+- **parallel structure** and balanced clauses
+- any sentence whose **shape** is doing work the facts should do
+
+**What to write instead:** short declarative sentences. One fact each. Full
+stops rather than dashes. Start with the verb or the subject, never with a
+flourish. It should read like the instruction on a form.
+
+The replacement that stands: *"Set up the plans you sell. This page tracks who
+is on each one and how many visits they still have coming. You collect payment
+yourself."*
+
+### 3 · AND RULE 2 DOES NOT REPEAL THE OLDER RULE ABOVE IT
+
+*Copy that explains what the label already said* is still banned (CLAUDE.md,
+his rule of 2026-09-01). Plain is not the same as more. The Members blurb on
+Monthly plans was deleted outright rather than rewritten, because it was the
+heading plus a restatement of the chip three lines below it. **Ask the two
+questions in order: does this sentence add a fact the control does not carry,
+and if it does, is it written like an instruction?**
+
+---
+
+## PARKED, AND IT IS NOT ONE LANE'S — a change-or-cancel fee, 2026-09-11
+
+**His ask, at the end of the day, as he was leaving:**
+
+> *"the detailer has, like, an option to add a penalty for the person to either
+> change their time or, like, cancel — because I feel like changing the time
+> just whenever you want with free will might get kind of annoying, and your
+> calendar is constantly switching around. So there should be some fee for
+> that."*
+
+**THE PROBLEM IS REAL AND HE HAS NAMED IT PRECISELY.** `/booking/:id` gives a
+customer *Change the time* and *Cancel this booking* with nothing between them
+and the calendar but the cancellation WINDOW. Inside the window it is free and
+unlimited; a customer can move a job four times and the detailer's week moves
+with it.
+
+**NOBODY SHOULD BUILD THIS IN ONE LANE, AND LANE B MUST NOT BUILD THE SCREEN
+FIRST.** It is three pieces and only one of them is B's:
+
+| | Piece | Lane |
+|---|---|---|
+| 1 | Columns on `business_settings` — the amount, the shape, the window, which action it applies to. A migration. | **C** |
+| 2 | `cancel-booking` and the reschedule path deciding and RECORDING the fee, plus a column on `bookings` to hold what was owed | **C** |
+| 3 | The settings screen to type it in, and the sentence a customer reads BEFORE they confirm | **B** |
+
+**BUILDING 3 WITHOUT 1 AND 2 IS THIS REPO'S OLDEST DEFECT WITH A NEW FACE.**
+`docs/tenant-site-contract.md` states it as *a number PRINTED is not a number
+CHARGED*. A fee a detailer can type into a settings screen and that no server
+records is worse than no feature: the detailer believes it is on, tells a
+customer so, and nothing anywhere backs them up.
+
+### THE DECISION HE HAS TO MAKE FIRST, because it changes all three pieces
+
+**THIS PRODUCT DOES NOT HOLD A CARD.** `pay-booking` sends a customer to
+Stripe Checkout on the DETAILER's own account, in a browser, with the customer
+present. There is no saved payment method and nothing that can charge somebody
+who is not sitting there. **So "charge them a fee" cannot mean what it means
+at a dentist.** Two honest readings:
+
+- **A stated fee the detailer collects.** The customer is told, before they
+  confirm, that changing this late costs $25; it is recorded on the booking and
+  appears on the job so the detailer can add it to the bill. Small, honest,
+  and it does the thing he actually described — it makes people think twice.
+- **A fee the product charges.** Needs a card kept on file at booking time,
+  off-session charging, Stripe Connect work, and a refund path. Weeks, not
+  days, and it changes what this product IS.
+
+**RECOMMENDATION: the first.** It answers his complaint — a number in front of
+somebody before they press the button is what stops the casual fourth
+reschedule — and it needs no card on file. The second can be built later
+without undoing it.
+
+### WHAT A B SESSION OWES WHEN C HAS LANDED 1 AND 2
+
+- A settings screen row under **Booking rules**, next to the cancellation
+  window it interacts with. Not a new screen.
+- The sentence on `/booking/:id`, shown **before** the confirm, never after —
+  a refusal after the tap is the thing `ManageBookingPage`'s own header says
+  this page exists to avoid.
+- Free-change allowances if he wants them ("first change is free") are a
+  COUNT, which means a column, which means C again.
+
+**DO NOT START PIECE 3 UNTIL 1 AND 2 EXIST.** Ask him, or ask the manager
+session to route it.
