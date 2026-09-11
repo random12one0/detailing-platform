@@ -299,7 +299,14 @@ console.log("\ntest 7: the AB 2863 disclosures are on the page");
   // only in a sales pitch is not a disclosure: AB 2863 wants it where a
   // customer reads the terms, and "somewhere on the page" is how a later
   // layout change quietly moves one out of the list without failing this.
-  const terms = pcopy.slice(pcopy.indexOf("<dl>"), pcopy.indexOf("</dl>"));
+  // **SCOPED BY THE SECTION, NOT BY "the first <dl> on the page".** It was the
+  // latter until 2026-09-10, which held only while the terms were the one
+  // definition list in the file — the pricing pass added a second for the
+  // figures over the hero photograph, and this check silently started reading
+  // THAT one and reporting nine missing disclosures. A locator that depends on
+  // being the only one of something is a locator with a countdown on it.
+  const legalAt = pcopy.indexOf('className="legal');
+  const terms = pcopy.slice(pcopy.indexOf("<dl>", legalAt), pcopy.indexOf("</dl>", legalAt));
   check("7a-0 · the disclosure list HAS subjects", terms.length > 1500,
     `terms list slice is ${terms.length} chars`);
   const lower = terms.toLowerCase();

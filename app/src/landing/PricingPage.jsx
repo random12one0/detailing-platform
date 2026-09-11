@@ -216,6 +216,60 @@ export default function PricingPage() {
             </p>
           )}
           </div>
+
+          {/* ── THE PHOTOGRAPH THIS PAGE DID NOT HAVE ──────────────────
+              His note, audit 3.1: *"I think it's a little plain. Even my mom
+              said, oh, it's kind of a little plain… maybe take inspiration
+              from some of the websites I sent you and how they have their
+              pricing laid out… maybe we get some images here."*
+
+              **Every one of the five sites he sent leads with a real car
+              photograph at scale** (docs/TASTE-NOTES.md § 3), and this page
+              had no image anywhere — three ruled ladders of text on one flat
+              ground, top to bottom. A BEFORE AND AFTER rather than a clean
+              car, because the page is about what a detailer gets for the
+              money and that photograph is the only one on this domain that
+              argues rather than decorates.
+
+              **AND THE FIGURES SIT ON IT.** His references put numbers
+              everywhere as decoration as much as information; ours were all
+              buried inside the ladders further down, so the first screen of a
+              PRICING page carried no price at all. These three are the whole
+              offer in one line, and every one of them comes from `p` — a
+              typed figure fails `landing-pricing` 6a. */}
+          <div className="pshot" data-rv="" style={{ "--i": 4 }}>
+            {/* **A BEFORE-AND-AFTER WAS THE FIRST CHOICE AND IT WAS WRONG
+                HERE.** That photograph is two frames stacked, and a wide band
+                crops straight through the seam — so it read as two pictures
+                badly joined rather than as one argument. It belongs where it
+                can be shown whole. This is one frame, and it survives being
+                cut to any width. Found by looking at it, which is the only
+                instrument that could have. */}
+            <img src="/img/tenant-site-hero.jpg" alt=""
+              loading="lazy" decoding="async" />
+            <dl className="pnums">
+              <div>
+                <dt>To build it</dt>
+                <dd className="mono">{fig(`$${p.setup}`)}<small>once</small></dd>
+              </div>
+              <div>
+                <dt>Then</dt>
+                <dd className="mono">{fig(`$${p.monthly}`)}<small>a month</small></dd>
+              </div>
+              {/* THE THIRD FIGURE WAS `$0` FOR COMMISSION AND THAT IS A
+                  TYPED PRICE, which `landing-pricing` 5b catches on purpose:
+                  the rule is that every figure on this page comes from the
+                  price table, and a literal is how one number on a page comes
+                  to disagree with the checkout. "No commission" keeps its
+                  sentence in the list below, where it is a claim rather than
+                  a figure. What belongs here is the saving, because it is the
+                  reason to read the ladder underneath. */}
+              <div>
+                <dt>Save on the year</dt>
+                <dd className="mono">{fig(`$${p.monthly * 12 - p.annual}`)}<small>a year</small></dd>
+              </div>
+            </dl>
+          </div>
         </section>
 
         {/* ══ 2 · THE WEBSITE PLAN ═══════════════════════════════════════
@@ -267,8 +321,34 @@ export default function PricingPage() {
               no "most popular" (we have no customers to be popular with),
               and nothing pre-selected. */}
           <ul className="ladder">
-            <li className="rung" data-rv="">
+            {/* **THE BEST ONE LOOKS LIKE THE BEST ONE.** His other note on
+                this page, audit 3.2: *"every single monthly plan kind of
+                looks very similar — there's no distinction besides the words
+                and how much it is, so it feels like a blob of text one after
+                another."* He wrote it about the booking page's plans and it
+                was just as true here: three identical ruled rows, and the one
+                that saves a detailer two months of fees looked exactly like
+                the one that costs the most.
+
+                It is marked and lifted rather than made into a card, because
+                a card here would be the three-up pricing block that is the
+                most-copied shape on the web (docs/design-knowledge.md §1) and
+                the other two would have to become cards to match. One row
+                carrying weight is the smaller change and the louder one.
+
+                **THE SAVING IS COMPUTED, NEVER TYPED.** `monthly × 12 − annual`
+                out of the same `p` every other figure comes from, so a price
+                change moves it and `landing-pricing` 6a cannot be cheated. */}
+            <li className="rung best" data-rv="">
+              {/* **INSIDE `.rungwhat`, NOT BESIDE IT.** `.rung` is a
+                  three-column grid — what it is, the figure, the button — so
+                  a fourth child took a column of its own, shunted the figure
+                  sideways and dropped the button onto a second line. The row
+                  was visibly broken and nothing failed: a grid does what you
+                  ask, and what I asked for was four columns. Caught by
+                  looking at the screenshot. */}
               <div className="rungwhat">
+                <span className="bestflag">Most take this</span>
                 <span className="rt">Pay for the year</span>
                 <span className="rw">
                   One payment for the year — {monthsFree} months free against
@@ -285,6 +365,7 @@ export default function PricingPage() {
                 {founding && <s className="was">${listP.annual}</s>}
                 <span className="mono fig">{fig(`$${p.annual}`)}</span>
                 <small>a year</small>
+                <span className="saves">{fig(`$${p.monthly * 12 - p.annual}`)} less than monthly</span>
               </div>
               <a className="cta gh" href={buy("annual-upfront")} data-glow="">
                 Choose this<span className="ar">→</span>
@@ -362,6 +443,19 @@ export default function PricingPage() {
             One bar. Deliberately lighter than the block above it — the
             weight difference is the honest one, and two matching blocks
             would be the section skeleton repeating (law 1). */}
+        {/* **THE GROUND CHANGES HERE.** Every reference he sent switches
+            ground between sections — black band to white band — and not one
+            page of ours did (docs/TASTE-NOTES.md § 3). This page ran one flat
+            dark from the first pixel to the last, which is most of why it read
+            as plain: nothing on it ever changed.
+
+            Plan two is the right place for the switch rather than a decorative
+            one, because it is genuinely a different offer, and the page's own
+            job is to keep the two plans from blurring into each other. It
+            borrows `.band` from the landing page rather than inventing a
+            second light surface — same two tokens, already measured by
+            `design-contrast`. */}
+        <div className="band pband">
         <section className="onlybar wrap" id="booking" aria-labelledby="boh">
           <div className="onlysay">
             <span className="lab" data-rv="">Plan two</span>
@@ -390,6 +484,8 @@ export default function PricingPage() {
             </a>
           </div>
         </section>
+
+        </div>
 
         {/* ══ 4 · BEFORE YOU PAY ═════════════════════════════════════════
             The AB 2863 disclosures. A definition list, at reading size, on

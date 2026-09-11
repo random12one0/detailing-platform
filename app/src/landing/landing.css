@@ -1774,3 +1774,113 @@
   .ld, .ld .wrap { background: #ffffff !important; color: #101010 !important; }
   .ld [data-rv] { opacity: 1 !important; transform: none !important; }
 }
+
+/* ═══ /pricing — the pass his audit item 3.1 asked for ═════════════════════
+   *"I think it's a little plain. Even my mom said, oh, it's kind of a little
+   plain… maybe take inspiration from some of the websites I sent you… maybe
+   we get some images here."*
+
+   Three things, and each one is something every reference he sent has and this
+   page had none of: a REAL PHOTOGRAPH at scale, NUMBERS AS DECORATION, and a
+   GROUND THAT CHANGES between sections (docs/TASTE-NOTES.md § 3).          */
+
+/* ── the photograph, and the offer written across it ─────────────────────── */
+.ld .pshot {
+  position: relative; margin-top: clamp(28px, 5vh, 52px);
+  border-radius: var(--ld-r-panel); corner-shape: var(--ld-corner);
+  overflow: hidden; isolation: isolate;
+}
+.ld .pshot img {
+  display: block; width: 100%; height: clamp(240px, 42vh, 420px);
+  object-fit: cover; object-position: 50% 38%;
+}
+/* THE SCRIM IS WHAT MAKES THE FIGURES LEGIBLE ON A PHOTOGRAPH WE DO NOT
+   CONTROL. A gradient behind text is a NEW GROUND and every ratio has to be
+   taken again against it (CLAUDE.md, the tenant-site finding) — this one ends
+   at .82 opaque under the numbers, which is where they are measured. */
+.ld .pshot::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to top, rgba(9,11,12,.92) 0%, rgba(9,11,12,.62) 34%, rgba(9,11,12,0) 68%);
+}
+.ld .pnums {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; margin: 0;
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: clamp(10px, 2vw, 28px); padding: clamp(16px, 3vw, 28px);
+}
+.ld .pnums > div { display: grid; gap: 2px; min-width: 0; }
+.ld .pnums dt {
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--bone-2);
+}
+.ld .pnums dd {
+  margin: 0; display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap;
+  font-size: clamp(24px, 4.4vw, 44px); line-height: 1;
+  letter-spacing: -.03em; color: var(--bone); font-variant-numeric: tabular-nums;
+}
+.ld .pnums dd small {
+  font-size: 12px; letter-spacing: 0; color: var(--bone-2); font-variant-numeric: normal;
+}
+
+/* ── the one that saves money stops looking like the two that do not ─────── */
+.ld .rung.best { position: relative; }
+.ld .rung.best::before {
+  content: ""; position: absolute; left: calc(var(--sp-3, 12px) * -1); top: 0; bottom: 0;
+  width: 2px; background: var(--ac);
+}
+.ld .bestflag {
+  display: inline-block; margin-bottom: 8px;
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ac);
+}
+.ld .saves {
+  display: block; margin-top: 6px; font-size: 12.5px; color: var(--ac);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── the ground changes for plan two ─────────────────────────────────────── */
+/* It borrows `.band` wholesale — same two tokens, already measured. What this
+   adds is only the spacing a mid-page band needs that the landing page's
+   edge-anchored one does not. */
+.ld .pband { margin-top: clamp(70px, 11vh, 140px); padding-top: clamp(50px, 8vh, 90px); }
+.ld .pband .lab { color: var(--paper-fog); }
+.ld .pband .fine { color: var(--paper-fog); }
+.ld .pband .lede { color: var(--paper-ink); }
+/* **THE GHOST BUTTON DISAPPEARED THE MOMENT THE GROUND CHANGED.** `.cta.gh` is
+   near-white text on a transparent ground with a pale inset ring — correct on
+   the dark page it was designed for, and invisible on paper. Nothing failed:
+   `design-contrast` measures TOKEN PAIRS, and this is a token meeting a ground
+   it was never paired with. It is the finding CLAUDE.md already records from
+   the tenant sites — a new ground means every ratio has to be taken again —
+   arriving on our own page.
+   #12161A on #EFEEE7 is 15.63:1, the same pair the band's body text uses. */
+.ld .pband .cta.gh {
+  color: var(--paper-ink);
+  box-shadow: inset 0 0 0 1px var(--paper-line);
+}
+.ld .pband .cta.gh:hover { box-shadow: inset 0 0 0 1px var(--paper-ink); }
+
+@media (max-width: 640px) {
+  /* **ON A PHONE THE FIGURES COME OFF THE PHOTOGRAPH.** Stacked three deep
+     they are taller than any crop worth showing, so they overflowed the image
+     and sat on the page below it — text over nothing, which is worse than
+     either choice made deliberately. Measured at 392, not reasoned about.
+     So: the photograph is a photograph, the figures are a row under it, and
+     the scrim that existed only to make them legible goes with them. */
+  .ld .pshot { overflow: visible; }
+  .ld .pshot img {
+    height: 220px;
+    border-radius: var(--ld-r-panel); corner-shape: var(--ld-corner);
+  }
+  .ld .pshot::after { display: none; }
+  .ld .pnums {
+    position: static; padding: 14px 0 0;
+    grid-template-columns: repeat(3, 1fr); gap: 10px;
+  }
+  .ld .pnums dt { font-size: 10px; letter-spacing: .1em; }
+  .ld .pnums dd { font-size: 21px; gap: 3px; }
+  .ld .pnums dd small { font-size: 11px; }
+}
+@media (max-width: 380px) {
+  /* At 320 three columns of a dollar figure is four characters each. */
+  .ld .pnums { grid-template-columns: 1fr 1fr; }
+}
