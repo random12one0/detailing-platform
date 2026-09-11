@@ -55,6 +55,7 @@ import { supabase } from "../../lib/supabase.js";
 import { api } from "../../lib/api.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { Switch } from "../../components/controls.jsx";
+import Sheet from "../../components/Sheet.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
@@ -115,6 +116,12 @@ export default function Payments() {
   });
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null); // {ok, text}
+  // THE SHEET, AND THE HALF-WRITTEN ROW THAT ONLY EXISTS INSIDE IT. Nothing
+  // reaches the list until both halves are filled in, which is what makes a
+  // saved method look like one the product shipped with rather than a form
+  // somebody abandoned.
+  const [adding, setAdding] = useState(false);
+  const [draft, setDraft] = useState({ label: "", handle: "" });
   // WHAT WAS TYPED BEFORE A SWITCH WAS TURNED OFF. Turning a method off has to
   // clear the handle — an old Venmo name left in the row would go on the next
   // customer's email — but losing it on a mis-tap means opening another app to
@@ -423,68 +430,94 @@ export default function Payments() {
         );
       })}
 
-      {/* ── HIS OWN, ADDED NOT SWITCHED ON ─────────────────────────────
-          The first build of this screen gave "Something else" a switch like
-          the five above it, and he was right that it is the wrong control: a
-          switch turns on a thing the product already knows about, and this is
-          the detailer TELLING us about one. There is nothing to turn on until
-          they have said what it is.
+      {/* ── HIS OWN, AND THEY LOOK LIKE THEY SHIPPED WITH THE PRODUCT ───
+          His second pass, 2026-09-11: *"when you press save it should go up to
+          the area where the other ones are, with the same styling — it says
+          the name, not in a text box... it should look like you didn't
+          actually add it, and it was already built into the website."*
 
-          So each one is a row with the same two parts every built-in method
-          has — a name and the thing a customer types — and there is a button
-          that makes another. Eight is the ceiling, in the database and here,
-          because the email prints one line each. */}
+          The first build got the DATA right and the FEELING wrong: two open
+          text boxes sitting in the page, so a saved method still looked like a
+          form somebody was in the middle of filling in. Three changes and none
+          of them touch what is stored:
+
+          **THE NAME IS TEXT, NOT A FIELD.** It is `.setting-label`, the same
+          element Venmo's name is, so a saved method is indistinguishable from
+          one this product has always known about. It cannot be edited
+          afterwards, which is the honest shape: the name is what the thing IS,
+          and changing "Apple Pay" to "Zelle" is not an edit, it is a different
+          method — remove it and add one.
+
+          **THE VALUE STAYS EDITABLE**, in the same `.field` every built-in
+          uses, because a handle is exactly the kind of thing that changes.
+
+          **AND ADDING ONE HAPPENS IN A SHEET.** *"Then it popped over with the
+          two."* Nothing is half-written into the list: the row appears
+          complete or not at all, which is what makes it read as built in. */}
       <div className="section-title">{t("Anything else you take")}</div>
-      <p className="muted" style={{ margin: "0 0 var(--sp-3)" }}>
-        {t("A check, Apple Pay, an account at the shop — whatever you want on the email. Paste a link and we make it tappable; anything else we print exactly as you type it.")}
-      </p>
 
-      {/* **A RULED GROUP, NOT A STACK OF CARDS.** `composition` fails any screen
-          that maps records onto `.card`, and it is right to: a card is for an
-          object you pick BETWEEN. These are repeated form groups, and a
-          hairline between them is both the house rule and closer to what he
-          asked for — *"when you add it it looks like the others"*, and the
-          others are a row with a field under it. */}
       {custom.map((row, n) => (
-        <div key={n} style={{ marginBottom: "var(--sp-4)" }}>
-          {n > 0 && <hr className="rule" />}
-          <div className="row between" style={{ alignItems: "center" }}>
-            <span className="label">{row.label.trim() || t("New way to be paid")}</span>
-            {/* REMOVE IS A WORD, NOT AN ICON. This is the only destructive
-                control on the screen and it removes something somebody typed;
-                an X on a form row is the same three pixels as the one that
-                clears a field. */}
+        <div key={`${row.label}-${n}`}>
+          <div className="setting">
+            <div className="setting-text">
+              <div className="setting-label">{row.label}</div>
+            </div>
+            {/* REMOVE IS A WORD, NOT AN ICON. It is the only destructive
+                control on this screen, and an X here is the same three pixels
+                as the one that clears a field. */}
             <button className="btn sm inline ghost"
               onClick={() => { setCustom(custom.filter((_, k) => k !== n)); setMsg(null); }}>
               {t("Remove")}
             </button>
           </div>
-          {/* **NOT PAIRED, AND THIS FILE ALREADY KNEW WHY.** The comment on the
-              built-in handles above records it: two `.grid2` fields at 392
-              leave 155px each, which holds `@andrews-detail` and clips
-              anything longer into a sideways scroll inside the box. Measured
-              again here on the first shot — "Apple Pay, or a che…". A payment
-              detail is the one kind of value where reading half of it is the
-              same as reading none, because the detailer is checking it
-              character by character against another app. */}
-          <div style={{ marginTop: "var(--sp-3)" }}>
-            <label className="field"><span>{t("What it is called")}</span>
-              <input value={row.label} maxLength={40}
-                placeholder={t("e.g. Apple Pay")}
-                onChange={(e) => { setCustom(custom.map((r, k) => (k === n ? { ...r, label: e.target.value } : r))); setMsg(null); }} /></label>
-            <label className="field"><span>{t("What they need")}</span>
-              <input value={row.handle} maxLength={120}
-                placeholder={t("A username, a number, or a link")}
-                onChange={(e) => { setCustom(custom.map((r, k) => (k === n ? { ...r, handle: e.target.value } : r))); setMsg(null); }} /></label>
-          </div>
+          <label className="field" style={{ marginBottom: "var(--sp-4)" }}>
+            <span>{t("What they need")}</span>
+            <input value={row.handle} maxLength={120}
+              placeholder={t("A username, a number, or a link")}
+              onChange={(e) => { setCustom(custom.map((r, k) => (k === n ? { ...r, handle: e.target.value } : r))); setMsg(null); }} />
+          </label>
         </div>
       ))}
 
       {custom.length < 8 && (
         <button className="btn ghost" style={{ marginBottom: "var(--sp-4)" }}
-          onClick={() => setCustom([...custom, { label: "", handle: "" }])}>
-          <Plus strokeWidth={2} /> {custom.length ? t("Add another") : t("Add a way to be paid")}
+          onClick={() => setAdding(true)}>
+          <Plus strokeWidth={2} /> {t("Add a way to be paid")}
         </button>
+      )}
+
+      {/* THE SHEET. `Sheet` is the product's one overlay and it brings the
+          entrance, the exit, the escape key and the focus trap with it —
+          which is why this is not a div with a background. */}
+      {adding && (
+        <Sheet onClose={() => setAdding(false)} title={t("Add a way to be paid")}>
+          <div className="group">
+            <label className="field"><span>{t("What it is called")}</span>
+              <input value={draft.label} maxLength={40} autoFocus
+                placeholder={t("e.g. Apple Pay")}
+                onChange={(e) => setDraft({ ...draft, label: e.target.value })} /></label>
+            <label className="field"><span>{t("What they need")}</span>
+              <input value={draft.handle} maxLength={120}
+                placeholder={t("A username, a number, or a link")}
+                onChange={(e) => setDraft({ ...draft, handle: e.target.value })} /></label>
+            <p className="muted">
+              {t("Paste a link and we make it tappable. Anything else we print exactly as you type it.")}
+            </p>
+            {/* BOTH HALVES OR NEITHER. A name with no handle is a blank line on
+                somebody's confirmation email, and the server drops it anyway —
+                refusing here means the screen and the email agree. */}
+            <button className="btn primary"
+              disabled={!draft.label.trim() || !draft.handle.trim()}
+              onClick={() => {
+                setCustom([...custom, { label: draft.label.trim(), handle: draft.handle.trim() }]);
+                setDraft({ label: "", handle: "" });
+                setAdding(false);
+                setMsg(null);
+              }}>
+              {t("Add it")}
+            </button>
+          </div>
+        </Sheet>
       )}
 
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
