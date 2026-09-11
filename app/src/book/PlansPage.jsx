@@ -28,7 +28,7 @@ import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, ChevronRight } from "lucide-react";
 import { api } from "../lib/api.js";
 import { money } from "../lib/format.js";
-import { cadenceWords, priceWords, termWords, visitWords } from "../lib/plans.js";
+import { cadenceWords, priceParts, termWords, visitWords } from "../lib/plans.js";
 import { t } from "../lib/i18n.js";
 import { useLocale } from "../hooks/useLocale.js";
 import LanguagePicker from "./LanguagePicker.jsx";
@@ -119,25 +119,76 @@ function PlansInner() {
           // ONE BUTTON PER PLAN IS STILL WHAT HE ASKED FOR: the row IS the
           // button. Nothing else on it is pressable, so there is no
           // interactive element nested inside an interactive one.
+          // ── REBUILT 2026-09-11, AND NOT BACK INTO CARDS ──────────────
+          // His review: *"it just feels like a ton of text kind of thrown up
+          // on the screen."* He is describing three lines per plan at the same
+          // weight, four times, with nothing but a hairline between them — and
+          // he is right.
+          //
+          // **THE ROW STAYS.** Everything the comment above says is still
+          // true: four full-width panels with nothing dominant is the tell
+          // `design-knowledge.md` §1 names, a button under each one repeats the
+          // name written 40px above it, and cards cost 190px against 96px,
+          // which put this page 311px past the bottom of a 1440x900 screen.
+          // Rebuilding that would be undoing a decision for a reason that is
+          // not the reason it was made.
+          //
+          // **WHAT WAS ACTUALLY WRONG IS THAT NOTHING ON THE ROW HAD ANY
+          // WEIGHT**, so here is where the weight went:
+          //   THE PRICE IS THE BIGGEST THING ON THE ROW, in the figure face.
+          //     It is what a person picks on, and it was the same size as
+          //     everything around it.
+          //   THE CADENCE BECAME CHIPS. "Every 2 weeks · 1 visit each time ·
+          //     1-year term" was one grey sentence of run-on facts; three
+          //     small bordered tokens are read at a glance instead of parsed.
+          //     This is the single biggest part of "a ton of text".
+          //   THE ROW HAS A GROUND. A hairline says "next item"; a surface
+          //     says "another one of these" — an object you choose between,
+          //     which is what these are.
+          //   AND TWO ACROSS AT A DESK. There was 60% of a 1440 screen empty
+          //     beside a narrow column, and using it makes the page SHORTER,
+          //     which is the old height objection answered rather than
+          //     ignored.
           <div className="bk-plans">
             {plans.map((p) => (
               <Link key={p.id} className="bk-plan-row" to={`/book/${slug}?plan=${p.id}`}>
-                <div>
-                  <div className="bk-plan-head">
-                    <h3>{p.name}</h3>
-                    {/* The figure is the thing plans are compared on, so it
-                        rides the name's own line and lines up down the right
-                        edge — the same move the service card makes. */}
-                    <span className="bk-plan-price">{priceWords(p.price_kind, p.price_amount, money, lang)}</span>
-                  </div>
-                  <div className="bk-muted bk-plan-meta">
-                    {cadenceWords(p, lang)}
-                    {p.cadence_unit ? ` · ${t("{visits} each time", { visits: visitWords(p, lang) })}` : ""}
-                    {termWords(p, lang) ? ` · ${termWords(p, lang)}` : ""}
+                <div className="bk-plan-body">
+                  <h3>{p.name}</h3>
+                  {/* EVERY FACT ITS OWN TOKEN. `.filter(Boolean)` because a
+                      plan with no cadence and no term is a bare discount, and
+                      an empty chip row is worse than none. */}
+                  <div className="bk-plan-chips">
+                    {[
+                      cadenceWords(p, lang),
+                      p.cadence_unit ? t("{visits} each time", { visits: visitWords(p, lang) }) : null,
+                      termWords(p, lang),
+                    ].filter(Boolean).map((chip) => (
+                      <span className="bk-plan-chip" key={chip}>{chip}</span>
+                    ))}
                   </div>
                   {p.description && <p className="bk-muted">{p.description}</p>}
                 </div>
-                <ChevronRight className="bk-plan-go" size={20} strokeWidth={2} aria-hidden="true" />
+                {/* **THE PRICE AND THE ACTION SHARE A LINE**, and that is
+                    height as much as meaning: on its own row the price cost
+                    every plan about 30px, which took a phone from 1,041px to
+                    1,339px — a page that had fitted, scrolling by 59% of the
+                    screen. Measured, then fixed. It also reads better: the
+                    number you are deciding on sits beside the thing that acts
+                    on it. */}
+                <span className="bk-plan-foot">
+                  <span className="bk-plan-price">
+                    {/* THE NUMBER IS THE FIGURE AND THE UNIT IS NOT. At title
+                        size "$120.00 a month" wrapped onto two lines and read
+                        as a broken card; the unit belongs underneath it, small,
+                        the way every price in this product is drawn. */}
+                    <span className="amt">{priceParts(p.price_kind, p.price_amount, money, lang).big}</span>
+                    <span className="per">{priceParts(p.price_kind, p.price_amount, money, lang).small}</span>
+                  </span>
+                  <span className="bk-plan-pick">
+                    <span className="label-text">{t("Choose this")}</span>
+                    <ChevronRight className="bk-plan-go" size={17} strokeWidth={2.5} aria-hidden="true" />
+                  </span>
+                </span>
               </Link>
             ))}
           </div>

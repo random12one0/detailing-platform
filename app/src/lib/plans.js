@@ -97,6 +97,25 @@ export function priceWords(kind, amount, money, lang = "en") {
   return es ? `${money(n)} al mes` : `${money(n)} a month`;
 }
 
+// **THE SAME PRICE, SPLIT INTO THE NUMBER AND ITS UNIT — 2026-09-11.**
+// `priceWords` returns one string, which is right everywhere a price is a
+// sentence and wrong where it is a FIGURE: on the plans page the amount is set
+// large so it can be compared at a glance, and at that size "$120.00 a month"
+// wraps onto two lines and reads as broken.
+//
+// Splitting it in the SCREEN would mean cutting the string on a space, which
+// is a guess in English and wrong in Spanish ("$120.00 al mes"). It is split
+// here, beside the words themselves, so both halves stay one translation's
+// business. `priceWords` is unchanged and is still what every sentence uses.
+export function priceParts(kind, amount, money, lang = "en") {
+  const n = Number(amount) || 0;
+  const es = lang === "es";
+  if (kind === "percent_off") return { big: `${n}%`, small: es ? "de descuento" : "off" };
+  if (kind === "per_visit") return { big: money(n), small: es ? "por visita" : "a visit" };
+  if (kind === "total") return { big: money(n), small: es ? "por adelantado" : "up front" };
+  return { big: money(n), small: es ? "al mes" : "a month" };
+}
+
 // The commitment, if there is one. Separate from the price on purpose: a
 // prepaid year is usually twelve months, but a prepaid block of ten visits
 // has no end date at all, and "paid up front" is a fact about the money while

@@ -74,6 +74,18 @@ export const es = {
   "Booking…": "Reservando…",
   "Confirm booking": "Confirmar la reserva",
   "See the plan": "Ver el plan",
+  // The step-1 door became a filled chip carrying the cheapest price
+  // (2026-09-11). "Plan"/"Plans" is the chip's own word; the price is
+  // built by `priceParts`, which already speaks both languages.
+  // NO "Plan" ENTRY: the word is identical in Spanish, and the catalogue check
+  // cannot tell a cognate from a lazy copy — so an entry that says nothing is an
+  // entry that fails the check for being right. `t()` returns an unknown string
+  // unchanged, which gives "Plan" either way.
+  "from {price}": "desde {price}",
+  "Plan from {price}": "Plan desde {price}",
+  "Plans from {price}": "Planes desde {price}",
+  // The plans page: one per row, and the words that say the row acts.
+  "Choose this": "Elegir este",
   "See the plans": "Ver los planes",
 
   // ── Step: services ─────────────────────────────────────────────────────

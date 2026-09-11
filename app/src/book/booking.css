@@ -846,34 +846,102 @@
    ending in a full-width button is the "five identical stacked sections" tell
    in `docs/design-knowledge.md` §1, and it cost 190px a plan against 96px.
    The ROW is the button — one tap, nothing nested inside it. */
-.bk-plans { border-top: 1px solid var(--bk-hairline); }
+/* ══════════════════════════════════════════ THE PLANS, REBUILT 2026-09-11
+   His review: *"it just feels like a ton of text kind of thrown up on the
+   screen."* Three lines per plan at the same weight, four times, separated by
+   a hairline — so the eye had nothing to land on and nothing said these were
+   things you CHOOSE BETWEEN rather than facts about a subject.
+
+   **STILL A ROW AND STILL NOT A CARD.** The component's own header records why
+   cards were tried and dropped, and none of those reasons has changed. What
+   changed is that the row now has a ground, a dominant figure and its facts
+   broken into tokens.
+
+   **AND TWO ACROSS ABOVE 760px, WHICH IS THE PART THAT PAYS FOR ITSELF.**
+   There was 60% of a 1440 screen empty beside a narrow column; four rows
+   become two lines of two, so the page gets SHORTER at the width where height
+   was the original objection to cards. On a phone it is one per line, which is
+   what it already was. */
+/* **EVERY NUMBER BELOW WAS MEASURED DOWN, NOT CHOSEN.** The first build of
+   this row took a 392 phone from 1,041px to 1,339px — a page that already
+   scrolled, scrolling by 59% of the screen — and took 1440 from fitting
+   exactly to 44px past the bottom. A redesign that answers "too much text" by
+   making the page half a screen longer has moved the problem, not solved it.
+   The row keeps its ground, its dominant figure and its chips; what went is
+   padding nobody was reading. */
+.bk-plans { display: grid; gap: var(--bk-sp-2); }
+@media (min-width: 760px) { .bk-plans { grid-template-columns: 1fr 1fr; } }
+
 .bk-plan-row {
-  display: flex; align-items: center; gap: var(--bk-sp-3);
-  padding: var(--bk-sp-4) 0;
-  border-bottom: 1px solid var(--bk-hairline);
+  display: flex; flex-direction: column; justify-content: space-between;
+  gap: 0;
+  padding: var(--bk-sp-3);
+  background: var(--bk-surface);
+  border-radius: var(--bk-r-panel);
+  corner-shape: var(--bk-corner);
+  box-shadow: inset 0 0 0 1px var(--bk-hairline);
   color: var(--bk-text); text-decoration: none;
-  transition: background var(--bk-t-hover) var(--bk-e);
+  transition: box-shadow var(--bk-t-hover) var(--bk-e),
+              background var(--bk-t-hover) var(--bk-e);
 }
-.bk-plan-row > div:first-child { flex: 1; min-width: 0; }
-/* The hover reaches past the column's own edge, so the row lights up as a row
-   rather than as a rectangle floating inside one. */
+/* THE WHOLE ROW IS THE BUTTON, so the hover is the whole row lifting — not a
+   rectangle inside it. The edge is what moves, because the edge is what says
+   "this is the one". */
 .bk-plan-row:hover {
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .035) 6%,
-              rgba(255, 255, 255, .035) 94%, transparent);
+  background: var(--bk-lit);
+  box-shadow: inset 0 0 0 1px var(--bk-border);
 }
-.bk-plan-head {
+.bk-plan-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.bk-plan-row h3 { margin: 0; }
+
+/* **THE BIGGEST THING ON THE ROW.** It was `--bk-t-strong` beside a heading of
+   the same size, which is two things competing and neither winning. A plan is
+   chosen on its price; the price is what the eye should hit first. */
+.bk-plan-price { display: flex; flex-direction: column; min-width: 0; }
+.bk-plan-price .amt {
+  font-family: var(--bk-f-num); font-size: var(--bk-t-title); font-weight: 500;
+  font-variant-numeric: tabular-nums; letter-spacing: -.03em;
+  color: var(--bk-text); line-height: 1.05; white-space: nowrap;
+}
+.bk-plan-price .per {
+  font-size: var(--bk-t-meta); color: var(--bk-text-muted); margin-top: 1px;
+  white-space: nowrap;
+}
+
+/* THE FACTS, AS TOKENS RATHER THAN A SENTENCE. "Every 2 weeks · 1 visit each
+   time · 1-year term" is three facts a reader has to cut apart themselves;
+   three chips are three facts already cut apart. This is the single biggest
+   part of "a ton of text". */
+.bk-plan-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+.bk-plan-chip {
+  font-size: var(--bk-t-meta); color: var(--bk-text-muted);
+  padding: 3px 8px; border-radius: var(--bk-r-pill);
+  box-shadow: inset 0 0 0 1px var(--bk-hairline);
+  white-space: nowrap;
+}
+.bk-plan-row p { margin-top: 7px; }
+
+/* THE FOOT SAYS THE ROW GOES SOMEWHERE, in words. The chevron alone was the
+   only affordance on the page and it is 20px of grey — his "I don't know if
+   you could find some ways to improve that" starts there. It is NOT a nested
+   button: it is drawn text inside the link, so there is still exactly one
+   pressable thing per plan. */
+.bk-plan-foot {
   display: flex; align-items: baseline; justify-content: space-between;
-  gap: var(--bk-sp-3);
+  gap: var(--bk-sp-3); margin-top: var(--bk-sp-3);
 }
-/* The figure is the thing plans are compared on, so it lines up down the right
-   edge exactly as a service's does — one glance, not a hunt. */
-.bk-plan-price {
-  font-family: var(--bk-f-num); font-size: var(--bk-t-strong); font-weight: 500;
-  font-variant-numeric: tabular-nums; letter-spacing: -.02em; white-space: nowrap;
-  color: var(--bk-text);
+/* A PHONE DROPS THE WORDS AND KEEPS THE ARROW. Four rows stack there, so the
+   two words cost 96px of one screen to say what the whole row already says by
+   being pressable. */
+@media (max-width: 540px) {
+  .bk-plan-pick .label-text { display: none; }
+  .bk-plan-foot { margin-top: var(--bk-sp-2); }
 }
-.bk-plan-meta { margin-top: 3px; }
-.bk-plan-row p { margin-top: 6px; }
+.bk-plan-pick {
+  display: inline-flex; align-items: center; gap: 5px; flex: none;
+  color: var(--bk-accent-text); font-size: var(--bk-t-meta);
+  font-variation-settings: "wdth" 96, "wght" 640;
+}
 /* The one mark that says the row goes somewhere. It travels on hover because
    the row is a door, and a door's affordance is direction. */
 .bk-plan-go {
@@ -881,22 +949,48 @@
   transition: transform var(--bk-t-hover) var(--bk-e), color var(--bk-t-hover) var(--bk-e);
 }
 .bk-plan-row:hover .bk-plan-go { transform: translateX(3px); color: var(--bk-accent-text); }
-/* A phone has no room for the price beside a two-word plan name AND a
-   chevron: measured at 320, "Bi-weekly maintenance" and "$120.00 a month"
-   need 300px between them. The head becomes two lines there. */
-@media (max-width: 420px) {
-  .bk-plan-head { display: block; }
-  .bk-plan-price { display: block; margin-top: 3px; }
-}
+/* **A STALE RULE FOR A LAYOUT THAT NO LONGER EXISTS, DELETED 2026-09-11 — and
+   it was actively breaking the phone.** It made `.bk-plan-head` (gone: the
+   price left that row) and `.bk-plan-price` `display: block` below 420px, and
+   `block` on a two-span price puts the spans INLINE — so a 392 phone read
+   "$120.00a month", with no space, in two different sizes.
+
+   The lesson is the one this file keeps learning: a media query written for a
+   structure survives the structure, and the width it fires at is the one place
+   nobody looks after a rebuild. Found by screenshotting 392, not by reading. */
 
 /* THE STEP-1 DOOR. It rides the row the rail and "Step 1 of 7" already share,
    so it spends none of W16's budget — the row's height is set by the label,
    which is 11px type in a 14px line box, and a 13px link fits inside it.
    `flex-shrink: 0` beside the rail's `flex: 1` means the rail gives up the
    width, which it can: it is a progress mark, not a measurement. */
+/* ── LOUDER, AND NOT ONE PIXEL TALLER — his review, 2026-09-11 ────────────
+   *"The button to view monthly plans should be a lot more visible and bigger,
+   because it's this small little text — probably the majority of people are
+   going to miss it."*
+
+   **HE IS RIGHT AND A BANNER IS STILL NOT THE ANSWER.** Measured the same
+   morning: step 1 at 1440x900 has TEN PIXELS of spare room. A strip under the
+   heading is about fifty, and CLAUDE.md's rule about that budget is not a
+   guideline — *every step's spare room is the DETAILER's, and a control of
+   ours may not spend it*. A plans door that pushes a tenant's fourth service
+   off the screen has traded one missed thing for another.
+
+   So it gets LOUD instead of BIG: a filled chip in the tenant's own accent
+   with an arrow on it, where there was underlined grey-blue text. The fill is
+   what the eye catches; the underline never was.
+
+   **AND IT COSTS NOTHING, BY THE TRICK THIS RULE ALREADY USED.** The padding
+   that makes the chip is cancelled by an equal negative margin — exactly how
+   the 34px touch target below was already paid for — so the line box is still
+   13px and step 1 still has its ten pixels. Verified by re-running
+   `sweep-booking-steps.mjs`, not by reasoning about it. */
 .bk-plans-door {
-  flex-shrink: 0; font-size: var(--bk-t-meta); color: var(--bk-accent-text);
-  text-decoration: underline; text-underline-offset: 3px; white-space: nowrap;
+  flex-shrink: 0; font-size: var(--bk-t-meta); white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--bk-accent); color: var(--bk-accent-ink);
+  font-variation-settings: "wdth" 96, "wght" 640;
+  border-radius: var(--bk-r-pill); text-decoration: none;
   /* THE LINE BOX IS PINNED TO THE ROW'S OWN HEIGHT, and this is measured
      rather than tidy: the row is 13px tall because `.bk-step-label` is 11px
      type, and dropping a 13px link into it at the inherited leading took step
@@ -906,7 +1000,19 @@
      The padding/margin pair is the touch target: 34px of tappable height that
      costs the layout nothing, because the negative margin gives it back. */
   line-height: 13px;
-  padding: 10px 0; margin: -10px 0;
+  padding: 10px 12px; margin: -10px 0;
+  transition: filter var(--bk-t-hover) var(--bk-e);
+}
+.bk-plans-door:hover { filter: brightness(1.08); }
+.bk-plans-door svg { width: 13px; height: 13px; flex: none; }
+/* AT 320 THE ROW IS RAIL + "STEP 1 OF 7" + THIS, and three things on one line
+   below 360 is how a rail ends up 8px wide. The words go and the chip keeps
+   its meaning: a price and an arrow is still an offer. */
+.bk-plans-door .narrow { display: none; }
+@media (max-width: 380px) {
+  .bk-plans-door .wide { display: none; }
+  .bk-plans-door .narrow { display: inline; }
+  .bk-plans-door { padding: 10px 10px; }
 }
 .bk-plans-door:hover { color: var(--bk-text); }
 

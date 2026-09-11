@@ -25,10 +25,13 @@ import { useLocale } from "../hooks/useLocale.js";
 import LanguagePicker from "./LanguagePicker.jsx";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { api } from "../lib/api.js";
 import { tenantHost } from "../lib/host.js";
 import { duration, money } from "../lib/format.js";
+// The door on step 1 names the cheapest plan, and the words for a price live
+// in one place for every screen that prints one.
+import { priceWords } from "../lib/plans.js";
 import { BookingBusinessProvider, useBookingBusiness } from "./BookingBusinessContext.jsx";
 import {
   bookable, bookingRequests, campaignFor, canAdvance as coreCanAdvance, closedUntil,
@@ -182,6 +185,17 @@ function BookingFlow({ notFound = null }) {
       if (code) setPromoState((p) => (p.applied ? p : { checking: false, error: "", applied: code }));
     }).catch(() => { /* a visit nobody counted is not a booking lost */ });
   }, [status, slug, campaignSlug, visitor]);
+
+  // THE CHEAPEST PLAN, FOR THE DOOR'S OWN LABEL — roadmap 8.9's sibling, his
+  // review of 2026-09-11. Only the MONTHLY kinds are comparable by number:
+  // "10% off" is not more or less than "$120 a month", and a percentage in a
+  // "from" is a claim nobody can check. So a business selling only a member
+  // discount gets the plain words back, which is the honest outcome.
+  const cheapestPlan = useMemo(() => {
+    const priced = (plans ?? []).filter((p) => p.price_kind !== "percent_off" && Number(p.price_amount) > 0);
+    if (!priced.length) return null;
+    return priced.reduce((a, b) => (Number(b.price_amount) < Number(a.price_amount) ? b : a));
+  }, [plans]);
 
   const selectedServices = useMemo(
     () => services.filter((s) => form.serviceIds.includes(s.id)),
@@ -498,10 +512,37 @@ function BookingFlow({ notFound = null }) {
                 spare room at 1440x900 is TEN PIXELS and that budget is the
                 detailer's catalogue, not ours. Step 1 only: somebody on step 5
                 has decided, and offering them a plan there is a way out of a
-                form they are most of the way through. */}
+                form they are most of the way through.
+
+                **AND IT CARRIES A PRICE NOW — his review, 2026-09-11.** *"It's
+                this small little text, probably the majority of people are
+                going to miss it."* A label is furniture; a price is an offer,
+                and it is the one word that makes somebody who books monthly
+                stop and read. The cheapest plan, because the number's job here
+                is to say "this is affordable", not to be exact — the page it
+                opens is where the four real prices are. */}
             {step === 0 && plans.length > 0 && !attachedPlan && (
               <Link className="bk-plans-door" to={`/book/${slug}/plans`}>
-                {plans.length === 1 ? t("See the plan") : t("See the plans")}
+                {/* **TWO WHOLE SENTENCES, NOT A WORD PLUS A PRICE.** The
+                    chip has to shorten below 380px, where the rail and "Step 1
+                    of 7" already share the line — and the obvious way, hiding
+                    a `<span>` holding the word "Plans", puts a bare "Plan" in
+                    the catalogue. That word is identical in Spanish, and the
+                    translation checks cannot both be satisfied by it: one
+                    demands an entry for every call site, the other rejects an
+                    entry that equals its source. A sentence has no such
+                    problem, and hiding one of two is the same amount of CSS. */}
+                {cheapestPlan ? (() => {
+                  const price = priceWords(cheapestPlan.price_kind, cheapestPlan.price_amount, money, getLocale());
+                  return (
+                    <>
+                      <span className="wide">{plans.length === 1
+                        ? t("Plan from {price}", { price }) : t("Plans from {price}", { price })}</span>
+                      <span className="narrow">{t("from {price}", { price })}</span>
+                    </>
+                  );
+                })() : (plans.length === 1 ? t("See the plan") : t("See the plans"))}
+                <ArrowRight strokeWidth={2.5} aria-hidden="true" />
               </Link>
             )}
           </div>
