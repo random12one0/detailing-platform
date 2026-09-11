@@ -287,3 +287,70 @@ Monthly plans was deleted outright rather than rewritten, because it was the
 heading plus a restatement of the chip three lines below it. **Ask the two
 questions in order: does this sentence add a fact the control does not carry,
 and if it does, is it written like an instruction?**
+
+---
+
+## PARKED, AND IT IS NOT ONE LANE'S — a change-or-cancel fee, 2026-09-11
+
+**His ask, at the end of the day, as he was leaving:**
+
+> *"the detailer has, like, an option to add a penalty for the person to either
+> change their time or, like, cancel — because I feel like changing the time
+> just whenever you want with free will might get kind of annoying, and your
+> calendar is constantly switching around. So there should be some fee for
+> that."*
+
+**THE PROBLEM IS REAL AND HE HAS NAMED IT PRECISELY.** `/booking/:id` gives a
+customer *Change the time* and *Cancel this booking* with nothing between them
+and the calendar but the cancellation WINDOW. Inside the window it is free and
+unlimited; a customer can move a job four times and the detailer's week moves
+with it.
+
+**NOBODY SHOULD BUILD THIS IN ONE LANE, AND LANE B MUST NOT BUILD THE SCREEN
+FIRST.** It is three pieces and only one of them is B's:
+
+| | Piece | Lane |
+|---|---|---|
+| 1 | Columns on `business_settings` — the amount, the shape, the window, which action it applies to. A migration. | **C** |
+| 2 | `cancel-booking` and the reschedule path deciding and RECORDING the fee, plus a column on `bookings` to hold what was owed | **C** |
+| 3 | The settings screen to type it in, and the sentence a customer reads BEFORE they confirm | **B** |
+
+**BUILDING 3 WITHOUT 1 AND 2 IS THIS REPO'S OLDEST DEFECT WITH A NEW FACE.**
+`docs/tenant-site-contract.md` states it as *a number PRINTED is not a number
+CHARGED*. A fee a detailer can type into a settings screen and that no server
+records is worse than no feature: the detailer believes it is on, tells a
+customer so, and nothing anywhere backs them up.
+
+### THE DECISION HE HAS TO MAKE FIRST, because it changes all three pieces
+
+**THIS PRODUCT DOES NOT HOLD A CARD.** `pay-booking` sends a customer to
+Stripe Checkout on the DETAILER's own account, in a browser, with the customer
+present. There is no saved payment method and nothing that can charge somebody
+who is not sitting there. **So "charge them a fee" cannot mean what it means
+at a dentist.** Two honest readings:
+
+- **A stated fee the detailer collects.** The customer is told, before they
+  confirm, that changing this late costs $25; it is recorded on the booking and
+  appears on the job so the detailer can add it to the bill. Small, honest,
+  and it does the thing he actually described — it makes people think twice.
+- **A fee the product charges.** Needs a card kept on file at booking time,
+  off-session charging, Stripe Connect work, and a refund path. Weeks, not
+  days, and it changes what this product IS.
+
+**RECOMMENDATION: the first.** It answers his complaint — a number in front of
+somebody before they press the button is what stops the casual fourth
+reschedule — and it needs no card on file. The second can be built later
+without undoing it.
+
+### WHAT A B SESSION OWES WHEN C HAS LANDED 1 AND 2
+
+- A settings screen row under **Booking rules**, next to the cancellation
+  window it interacts with. Not a new screen.
+- The sentence on `/booking/:id`, shown **before** the confirm, never after —
+  a refusal after the tap is the thing `ManageBookingPage`'s own header says
+  this page exists to avoid.
+- Free-change allowances if he wants them ("first change is free") are a
+  COUNT, which means a column, which means C again.
+
+**DO NOT START PIECE 3 UNTIL 1 AND 2 EXIST.** Ask him, or ask the manager
+session to route it.
