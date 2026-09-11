@@ -1957,6 +1957,21 @@ disagrees with the prose · something passed that you do not believe.
   MEMBERSHIP). Both files carry the list and the reasoning, so they move
   together.
 
+- **AND IT HAS A CENSUS: `node scripts/db-census.mjs` — new 2026-09-10,
+  read-only, every table and its exact row count.** It exists because roadmap
+  2.22's acceptance test is *"restore once and compare row counts"* and **there
+  was no way to take a row count**, so the test could not be run by anybody
+  holding every credential. `--ref=<other>` points it at a second project, and
+  the comparison is then a `diff` rather than a judgement. **Exact counts, not
+  `pg_class.reltuples`** — the estimate is `-1` on a table that has never been
+  analysed, and a freshly restored database has never been analysed, so on the
+  one database this tool exists to measure the fast answer is nonsense that
+  looks like a number. **`auth.users` is on the census and the rest of `auth`
+  is not**: a restore whose `customers` arrived but whose accounts did not is a
+  database nobody can log into, and every screen would read empty rather than
+  broken. First run: 46 tables, 596 rows on `kguqylyzgyzfktkfnhjb`. The drill
+  it serves is `docs/ops/backups.md` § 4.
+
 - **A REVIEW LINK IS A LINK, AND IT IS CONSTRAINED WHERE IT IS STORED —
   2026-09-07, the one real risk the audit found.**
   `business_settings.google_review_url` and `yelp_review_url` were plain `text`
