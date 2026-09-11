@@ -378,4 +378,11 @@ export const es = {
   "Yes, end {name}": "Sí, terminar {name}",
   "Keep it": "Conservarlo",
   "End this plan": "Terminar este plan",
+
+  // REVIEW 2026-09-11 — `spanish` 4a was red on a clean tree: the "not taking
+  // bookings yet" screen was three English sentences, on the one page whose
+  // whole job is to explain that something is wrong.
+  "{business} isn’t taking bookings online yet": "{business} todavía no acepta reservas en línea",
+  "They’re still setting this page up. Check back shortly — or get in touch with them directly.": "Todavía están configurando esta página. Vuelve pronto — o comunícate con ellos directamente.",
+  "Try again": "Intentar de nuevo",
 };
