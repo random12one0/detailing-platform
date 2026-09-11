@@ -103,6 +103,20 @@ export default function Appearance() {
         ))}
       </div>
 
+      {/* **WITH THE SWATCHES, NOT BELOW THE EXAMPLE — his note, 2026-09-10:**
+          *"The custom color should be there, not below the example."* It sat
+          under the preview, so the screen read choose · see · choose again:
+          the twelve presets and the thirteenth option were separated by the
+          one thing that is not a choice at all. All the ways to pick a colour
+          are together now, and the example below them is what they do. */}
+      <label className="field" style={{ marginTop: "var(--sp-3)" }}>
+        <span>{t("Pick a custom color")}</span>
+        <div className="row" style={{ gap: 10 }}>
+          <input type="color" value={custom} onChange={(e) => setCustom(e.target.value)} style={{ maxWidth: 90 }} />
+          <button className="btn inline" onClick={() => saveBrandColor(custom)}>{t("Use this color")}</button>
+        </div>
+      </label>
+
       {/* Not decoration: this is the only place on the screen where the
           choice has a visible effect, so it is what makes the choice
           make sense. Drawn on the booking page's own ground. */}
@@ -125,14 +139,6 @@ export default function Appearance() {
           </div>
         </div>
       </div>
-
-      <label className="field">
-        <span>{t("Pick a custom color")}</span>
-        <div className="row" style={{ gap: 10 }}>
-          <input type="color" value={custom} onChange={(e) => setCustom(e.target.value)} style={{ maxWidth: 90 }} />
-          <button className="btn inline" onClick={() => saveBrandColor(custom)}>{t("Use this color")}</button>
-        </div>
-      </label>
 
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
 
