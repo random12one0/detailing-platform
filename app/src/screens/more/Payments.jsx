@@ -50,7 +50,7 @@
 // be a cost they did not agree to. The switch is theirs and starts off.
 
 import { useCallback, useEffect, useState } from "react";
-import { Check } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { api } from "../../lib/api.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
@@ -93,6 +93,25 @@ export default function Payments() {
     pay_paypal: settings?.pay_paypal || "",
     pay_zelle: settings?.pay_zelle || "",
     pay_other: settings?.pay_other || "",
+  });
+  // **HIS OWN WAYS TO BE PAID, AS MANY AS HE NEEDS — his review, 2026-09-11.**
+  // *"The something else shouldn't be a switch, it's you actually adding a new
+  // one — and when you add it it looks like the others, with a title and then
+  // their link or username."*
+  //
+  // THE OLD SINGLE `pay_other` LINE BECOMES THE FIRST ROW OF THE LIST, and is
+  // cleared on the next save. A detailer who wrote "Apple Pay" into the old box
+  // sees it here as a proper row rather than losing it, and nothing has to
+  // migrate in SQL — the screen that owns the field does it the first time
+  // anybody opens it. `_shared/payments.ts` still reads the old column for
+  // every business that never does.
+  const [custom, setCustom] = useState(() => {
+    const list = Array.isArray(settings?.pay_custom) ? settings.pay_custom : [];
+    const rows = list
+      .map((r) => ({ label: String(r?.label ?? ""), handle: String(r?.handle ?? "") }))
+      .filter((r) => r.label || r.handle);
+    const legacy = String(settings?.pay_other ?? "").trim();
+    return legacy && !rows.length ? [{ label: t("Something else"), handle: legacy }] : rows;
   });
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null); // {ok, text}
@@ -221,7 +240,19 @@ export default function Payments() {
       pay_cashapp: nn(pay.pay_cashapp),
       pay_paypal: nn(pay.pay_paypal),
       pay_zelle: nn(pay.pay_zelle),
-      pay_other: nn(pay.pay_other),
+      // **THE OLD SINGLE LINE IS CLEARED THE MOMENT THE LIST TAKES OVER.**
+      // Leaving it would print the same method twice on a customer's email —
+      // once from the column and once from the array — which is the
+      // two-places problem arriving where a customer can see it.
+      pay_other: custom.length ? null : nn(pay.pay_other),
+      // A ROW NEEDS BOTH HALVES. One without the other is a half-filled form
+      // on somebody's confirmation email, and `payments.ts` drops it on the
+      // way out anyway; dropping it here means the screen and the email agree
+      // about what was saved.
+      pay_custom: custom
+        .map((r) => ({ label: String(r.label).trim().slice(0, 40), handle: String(r.handle).trim().slice(0, 120) }))
+        .filter((r) => r.label && r.handle)
+        .slice(0, 8),
     }).eq("business_id", business.id);
     setMsg(error ? { ok: false, text: error.message } : { ok: true, text: "Saved." });
     if (!error) reload();
@@ -392,24 +423,68 @@ export default function Payments() {
         );
       })}
 
-      {/* ANYTHING ELSE, and it is a switch for the same reason as the rest:
-          a detailer who takes a check has a way to be paid that this list does
-          not name, and an empty box does not tell them they can say so. */}
-      <Switch
-        label={t("Something else")}
-        help={!pay.pay_other ? t("A check, Apple Pay, an account at the shop — anything you want on the email.") : undefined}
-        checked={!!pay.pay_other}
-        onChange={(v) => {
-          if (v) { setPay({ ...pay, pay_other: drafts.pay_other || "" }); setOpen((o) => ({ ...o, pay_other: true })); }
-          else { setDrafts({ ...drafts, pay_other: pay.pay_other }); setPay({ ...pay, pay_other: "" }); }
-        }}
-      />
-      {(!!pay.pay_other || openFor.pay_other) && (
-        <label className="field" style={{ margin: "0 0 var(--sp-4)" }}>
-          <span>{t("What to tell them")}</span>
-          <input value={pay.pay_other} onChange={set("pay_other")}
-            autoFocus={openFor.pay_other && !pay.pay_other}
-            placeholder={t("e.g. Apple Pay, or a check made out to…")} maxLength={120} /></label>
+      {/* ── HIS OWN, ADDED NOT SWITCHED ON ─────────────────────────────
+          The first build of this screen gave "Something else" a switch like
+          the five above it, and he was right that it is the wrong control: a
+          switch turns on a thing the product already knows about, and this is
+          the detailer TELLING us about one. There is nothing to turn on until
+          they have said what it is.
+
+          So each one is a row with the same two parts every built-in method
+          has — a name and the thing a customer types — and there is a button
+          that makes another. Eight is the ceiling, in the database and here,
+          because the email prints one line each. */}
+      <div className="section-title">{t("Anything else you take")}</div>
+      <p className="muted" style={{ margin: "0 0 var(--sp-3)" }}>
+        {t("A check, Apple Pay, an account at the shop — whatever you want on the email. Paste a link and we make it tappable; anything else we print exactly as you type it.")}
+      </p>
+
+      {/* **A RULED GROUP, NOT A STACK OF CARDS.** `composition` fails any screen
+          that maps records onto `.card`, and it is right to: a card is for an
+          object you pick BETWEEN. These are repeated form groups, and a
+          hairline between them is both the house rule and closer to what he
+          asked for — *"when you add it it looks like the others"*, and the
+          others are a row with a field under it. */}
+      {custom.map((row, n) => (
+        <div key={n} style={{ marginBottom: "var(--sp-4)" }}>
+          {n > 0 && <hr className="rule" />}
+          <div className="row between" style={{ alignItems: "center" }}>
+            <span className="label">{row.label.trim() || t("New way to be paid")}</span>
+            {/* REMOVE IS A WORD, NOT AN ICON. This is the only destructive
+                control on the screen and it removes something somebody typed;
+                an X on a form row is the same three pixels as the one that
+                clears a field. */}
+            <button className="btn sm inline ghost"
+              onClick={() => { setCustom(custom.filter((_, k) => k !== n)); setMsg(null); }}>
+              {t("Remove")}
+            </button>
+          </div>
+          {/* **NOT PAIRED, AND THIS FILE ALREADY KNEW WHY.** The comment on the
+              built-in handles above records it: two `.grid2` fields at 392
+              leave 155px each, which holds `@andrews-detail` and clips
+              anything longer into a sideways scroll inside the box. Measured
+              again here on the first shot — "Apple Pay, or a che…". A payment
+              detail is the one kind of value where reading half of it is the
+              same as reading none, because the detailer is checking it
+              character by character against another app. */}
+          <div style={{ marginTop: "var(--sp-3)" }}>
+            <label className="field"><span>{t("What it is called")}</span>
+              <input value={row.label} maxLength={40}
+                placeholder={t("e.g. Apple Pay")}
+                onChange={(e) => { setCustom(custom.map((r, k) => (k === n ? { ...r, label: e.target.value } : r))); setMsg(null); }} /></label>
+            <label className="field"><span>{t("What they need")}</span>
+              <input value={row.handle} maxLength={120}
+                placeholder={t("A username, a number, or a link")}
+                onChange={(e) => { setCustom(custom.map((r, k) => (k === n ? { ...r, handle: e.target.value } : r))); setMsg(null); }} /></label>
+          </div>
+        </div>
+      ))}
+
+      {custom.length < 8 && (
+        <button className="btn ghost" style={{ marginBottom: "var(--sp-4)" }}
+          onClick={() => setCustom([...custom, { label: "", handle: "" }])}>
+          <Plus strokeWidth={2} /> {custom.length ? t("Add another") : t("Add a way to be paid")}
+        </button>
       )}
 
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}

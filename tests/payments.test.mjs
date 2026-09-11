@@ -420,5 +420,76 @@ console.log("\n7 · a review link is a link");
 }
 
 
+/* ── 8 · HIS OWN WAYS TO BE PAID ──────────────────────────────────────────
+   His review, 2026-09-11: *"the something else shouldn't be a switch, it's you
+   actually adding a new one — and when you add it it looks like the others,
+   with a title and then their link or username."*
+
+   `pay_custom` is a jsonb array, which means it is whatever was written to it.
+   Nothing below assumes otherwise: the checks are mostly about rubbish going
+   in and nothing coming out, because the one thing that must not happen is a
+   half-filled row landing on a customer's confirmation email. */
+console.log("\n8: the detailer's own methods");
+{
+  const of = (pay_custom, rest = {}) => paymentHandles({ pay_custom, ...rest });
+
+  const two = of([
+    { label: "Apple Pay", handle: "(562) 555-0142" },
+    { label: "Square", handle: "https://square.link/u/abc123" },
+  ]);
+  check("8a · both are offered", two.length === 2, JSON.stringify(two));
+  check("8a-ii · the detailer's own words are the label",
+    two[0].label === "Apple Pay" && two[1].label === "Square", JSON.stringify(two));
+
+  // THE LINK RULE IS THE ONE THAT ALREADY EXISTED, deliberately not widened:
+  // a pasted https link is the only thing we can be sure enough of to link,
+  // because we cannot know the URL shape of a service somebody just named.
+  check("8b · a pasted link is a link", two[1].href === "https://square.link/u/abc123");
+  check("8b-ii · and it is shown without its scheme", two[1].handle === "square.link/u/abc123");
+  check("8b-iii · a typed handle NEVER becomes a link",
+    of([{ label: "Cash App Business", handle: "ridgeline" }])[0].href === null,
+    "we do not know that service's URL shape, and a wrong payment link sends money to the wrong person");
+
+  // HALF A ROW IS NOT A ROW. Both of these reach a customer's email as a line
+  // with a blank in it, which is the one outcome worth a check of its own.
+  check("8c · a row with no name is dropped", of([{ handle: "abc" }]).length === 0);
+  check("8c-ii · a row with no handle is dropped", of([{ label: "Apple Pay" }]).length === 0);
+  check("8c-iii · whitespace is not a value",
+    of([{ label: "   ", handle: "   " }]).length === 0);
+
+  // THE COLUMN IS JSONB AND JSONB IS WHATEVER WAS WRITTEN TO IT.
+  check("8d · rubbish in the column does not throw", (() => {
+    for (const junk of [null, undefined, "not an array", 42, {}, [null], [42], [[]]]) {
+      try { paymentHandles({ pay_custom: junk }); } catch { return false; }
+    }
+    return true;
+  })());
+  check("8d-ii · and produces nothing",
+    of("not an array").length === 0 && of([null, 42]).length === 0);
+
+  check("8e · eight is the ceiling",
+    of(Array.from({ length: 20 }, (_, n) => ({ label: `M${n}`, handle: `h${n}` }))).length === 8,
+    "the email prints one line each");
+  check("8e-ii · a long label is cut rather than refused",
+    of([{ label: "x".repeat(200), handle: "abc" }])[0].label.length === 40);
+
+  // WHERE THEY SIT. The order is the answer to "what is easiest right now":
+  // the linkable ones lead, cash is last because it needs the detailer there.
+  const all = paymentHandles({
+    pay_venmo: "ridgeline", pay_cash: true,
+    pay_custom: [{ label: "Apple Pay", handle: "(562) 555-0142" }],
+  });
+  check("8f · his own sit after the built-ins and before cash",
+    all.map((h) => h.label).join(" · ") === "Venmo · Apple Pay · Cash",
+    all.map((h) => h.label).join(" · "));
+
+  // AND THE OLD SINGLE LINE STILL WORKS, for every business that has not
+  // opened the screen since. The screen clears it the first time it saves a
+  // list; until then it is the only record of what they typed.
+  check("8g · the superseded pay_other line is still read",
+    paymentHandles({ pay_other: "A check made out to Ridgeline" })
+      .some((h) => h.handle === "A check made out to Ridgeline"));
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

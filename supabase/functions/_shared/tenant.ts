@@ -100,6 +100,9 @@ export interface BusinessSettings {
   pay_zelle: string | null;
   pay_paypal: string | null;
   pay_other: string | null;
+  /** His review 2026-09-11 — the detailer's own ways to be paid. See the
+   *  migration for why it is a jsonb array rather than a table. */
+  pay_custom: { label?: string | null; handle?: string | null }[] | null;
 }
 
 // Missing settings row → every default the schema declares. Fetched fresh per
@@ -169,6 +172,11 @@ export async function getSettings(businessId: string): Promise<BusinessSettings>
     pay_zelle: null,
     pay_paypal: null,
     pay_other: null,
+    // AN EMPTY ARRAY, NOT NULL — the column is `not null default '[]'`, so a
+    // business with no settings row at all should read the same as one that
+    // has never added a custom method. A fallback that disagrees with the
+    // schema is a second definition of "no methods".
+    pay_custom: [],
     google_review_url: null,
     yelp_review_url: null,
     notification_emails: [],

@@ -52,6 +52,9 @@ export interface PaymentSettings {
   pay_zelle?: string | null;
   pay_paypal?: string | null;
   pay_other?: string | null;
+  /** His review, 2026-09-11 — as many of his own as he needs, each the same
+   *  shape as a built-in one. See the migration for why it is not a table. */
+  pay_custom?: { label?: string | null; handle?: string | null }[] | null;
 }
 
 export interface PaymentHandle {
@@ -111,6 +114,28 @@ function one(kind: string, label: string, raw: string | null | undefined, sigil 
   };
 }
 
+// A DETAILER'S OWN METHODS, SANITISED HERE RATHER THAN IN SQL — the migration
+// says why. The column is `jsonb` and jsonb is whatever was written to it, so
+// nothing below trusts its shape: an entry is kept only when it has BOTH a
+// name and something to type, because a row with one of those is a half-filled
+// form on somebody's confirmation email.
+//
+// THE LINK RULE IS THE ONE THAT ALREADY EXISTS and is deliberately not widened.
+// `one("custom", ...)` finds no template in `LINK`, so a bare username prints
+// exactly as typed and only a pasted `https:` URL becomes a link — which is
+// right, because we cannot know the URL shape of a service the detailer just
+// invented a name for. A wrong payment link sends money to the wrong person.
+const CUSTOM_MAX = 8;
+function customHandles(rows: PaymentSettings["pay_custom"]): PaymentHandle[] {
+  if (!Array.isArray(rows)) return [];
+  return rows.slice(0, CUSTOM_MAX).map((r) => {
+    const label = String(r?.label ?? "").trim().slice(0, 40);
+    if (!label) return null;
+    const built = one("custom", label, r?.handle);
+    return built;
+  }).filter(Boolean) as PaymentHandle[];
+}
+
 /**
  * THE ORDER IS THE ANSWER TO "WHAT IS EASIEST FOR ME RIGHT NOW", not
  * alphabetical and not the order of the form. The tap-to-pay ones come first
@@ -126,6 +151,12 @@ export function paymentHandles(s: PaymentSettings | null | undefined): PaymentHa
     one("paypal", "PayPal", s.pay_paypal),
     one("zelle", "Zelle", s.pay_zelle),
     one("other", "Other", s.pay_other),
+    // **HIS OWN, AFTER THE ONES THIS PRODUCT KNOWS AND BEFORE CASH.** The
+    // order's rule is unchanged: a customer can act on the linkable ones from
+    // inside the email, so those lead; cash is last because it needs the
+    // detailer standing there. A detailer's own method sits with the rest of
+    // the "open another app" group because that is what it almost always is.
+    ...customHandles(s.pay_custom),
     s.pay_cash ? { label: "Cash", handle: "On the day", href: null } : null,
   ].filter(Boolean) as PaymentHandle[];
 }
