@@ -23,6 +23,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase.js";
 import { MIN_PASSWORD, PASSWORD_RULE } from "../lib/password.js";
+import { PasswordInput } from "../components/controls.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
@@ -104,15 +105,15 @@ export default function ResetPassword() {
             </p>
             <label className="field">
               <span>{t("New password")}</span>
-              <input
-                type="password" value={password} minLength={MIN_PASSWORD} required
+              <PasswordInput
+                value={password} minLength={MIN_PASSWORD} required
                 autoComplete="new-password" autoFocus
                 onChange={(e) => setPassword(e.target.value)} />
             </label>
             <label className="field">
               <span>{t("Type it again")}</span>
-              <input
-                type="password" value={again} minLength={MIN_PASSWORD} required
+              <PasswordInput
+                value={again} minLength={MIN_PASSWORD} required
                 autoComplete="new-password"
                 onChange={(e) => setAgain(e.target.value)} />
             </label>

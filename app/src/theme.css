@@ -3704,3 +3704,20 @@ html:not(.lite) .intake .samp-move .samp-row:nth-child(3) { animation-delay: .5s
    detailer never read is not something they told us — and this form's one rule
    is that the site may claim nothing they did not establish. */
 .intake .fromdash { margin: 6px 0 0; font-size: 13px; color: var(--accent); }
+
+/* A PASSWORD BOX YOU CAN READ (components/controls.jsx). Six fields in this
+   product hid what you typed with no way to look, and every one of them is
+   somewhere a typo costs something real — a mismatch you cannot diagnose, or
+   being locked out of your own business by a fat thumb on a phone.
+   The eye sits INSIDE the box rather than beside it, so the field keeps its
+   width and the control cannot be mistaken for part of the next row. */
+.pwwrap { position: relative; display: block; }
+.pwwrap > input { width: 100%; padding-right: 44px; }
+.pweye {
+  position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+  display: grid; place-items: center; width: 34px; height: 34px;
+  background: none; border: 0; border-radius: var(--r-inset); corner-shape: var(--corner);
+  color: var(--fog); cursor: pointer;
+}
+.pweye:hover { color: var(--ink-text, inherit); }
+.pweye[aria-pressed="true"] { color: var(--accent); }

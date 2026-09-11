@@ -45,6 +45,7 @@
 // here rather than deleted, because a later session finding a chart and a
 // comment forbidding charts would have to guess which one won.
 
+import { Eye, EyeOff } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "../lib/supabase.js";
 import { money } from "../lib/format.js";
@@ -172,6 +173,7 @@ export default function AdminPage() {
 
   /* ── the door ────────────────────────────────────────────────────────── */
   const [form, setForm] = useState({ email: "", password: "" });
+  const [showPw, setShowPw] = useState(false);
   const [doorErr, setDoorErr] = useState("");
 
   const load = useCallback(async () => {
@@ -234,8 +236,21 @@ export default function AdminPage() {
               </label>
               <label className="pa-field">
                 <span className="pa-lab">Password</span>
-                <input type="password" autoComplete="current-password" required
-                       value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+                {/* ITS OWN EYE, NOT THE DASHBOARD'S. `controls.jsx`'s
+                    PasswordInput renders theme.css classes, and this file's
+                    standing law is that admin.css shares NO RULE with
+                    theme.css — only its tokens (roadmap 4.4). Borrowing the
+                    component would import the dependency the law exists to
+                    prevent, so this is eight lines instead. */}
+                <span className="pa-pw">
+                  <input type={showPw ? "text" : "password"} autoComplete="current-password" required
+                         value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+                  <button type="button" aria-pressed={showPw}
+                          aria-label={showPw ? "Hide password" : "Show password"}
+                          onClick={() => setShowPw((v) => !v)}>
+                    {showPw ? <EyeOff size={16} strokeWidth={2} /> : <Eye size={16} strokeWidth={2} />}
+                  </button>
+                </span>
               </label>
               {doorErr && <p className="pa-err">{doorErr}</p>}
               <div className="pa-acts">

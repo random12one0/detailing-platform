@@ -407,3 +407,16 @@
   .pa-card, .pa-tile, .pa-biz { box-shadow: inset 0 0 0 1px #bbb; background: none; }
   .pa-in > *, .pa-barr { animation: none !important; }
 }
+
+/* The sign-in field's own eye. admin.css shares no RULE with theme.css, only
+   its tokens, so this is eight lines rather than a borrowed component. */
+.pa-pw { position: relative; display: block; }
+.pa-pw > input { width: 100%; padding-right: 44px; }
+.pa-pw > button {
+  position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+  display: grid; place-items: center; width: 34px; height: 34px;
+  background: none; border: 0; border-radius: var(--r-inset);
+  color: var(--fog); cursor: pointer;
+}
+.pa-pw > button:hover { color: var(--paper); }
+.pa-pw > button[aria-pressed="true"] { color: var(--ac); }

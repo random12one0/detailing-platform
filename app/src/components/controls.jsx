@@ -4,7 +4,8 @@
 // do a conversion in their head. The storage units are unchanged — only what
 // you touch is different.
 
-import { Check, Minus, Plus } from "lucide-react";
+import { useState } from "react";
+import { Check, Eye, EyeOff, Minus, Plus } from "lucide-react";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
@@ -189,5 +190,38 @@ export function Group({ title, blurb, children }) {
       {blurb && <p className="quiet" style={{ marginBottom: 2 }}>{blurb}</p>}
       <div className="card setting-card">{children}</div>
     </section>
+  );
+}
+
+/* ── a password box you can read ────────────────────────────────────────── */
+// His note, 2026-09-10: *"There should be an option to view it, like a little
+// eyeball. Do the same in the other places where you input your password. I
+// feel like that's just a standard thing."* It is, and this product had it in
+// none of its six password fields.
+//
+// **IT IS NOT A CONVENIENCE, IT IS THE FIX FOR A LOCKOUT.** Every one of these
+// fields is somewhere a typo costs something real: the change-password screen
+// asks for a password twice and rejects a mismatch with no way to see which of
+// the two was wrong, and the sign-in screen locks somebody out of their own
+// business over a fat thumb on a phone. Being able to look is how a person
+// resolves that without a support call.
+//
+// **IT STARTS HIDDEN AND NEVER REMEMBERS.** Shoulder-surfing is the thing the
+// dots are for, and a control that stayed revealed across screens would quietly
+// turn the protection off for good on a shared van tablet.
+//
+// The button is `type="button"`: inside a `<label>` in a `<form>`, a bare
+// button submits, so the first press of an eye would have tried to sign in.
+export function PasswordInput({ value, onChange, ...rest }) {
+  const [shown, setShown] = useState(false);
+  return (
+    <span className="pwwrap">
+      <input {...rest} type={shown ? "text" : "password"} value={value} onChange={onChange} />
+      <button type="button" className="pweye" aria-pressed={shown}
+        aria-label={shown ? t("Hide password") : t("Show password")}
+        onClick={() => setShown((v) => !v)}>
+        {shown ? <EyeOff size={16} strokeWidth={2} /> : <Eye size={16} strokeWidth={2} />}
+      </button>
+    </span>
   );
 }
