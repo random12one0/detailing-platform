@@ -287,7 +287,13 @@ export default function Business({ onSetup, initial = null }) {
         blocked === "info" ? "No phone or email — customers can't reach you" : business.name],
       // A hex code as a summary reads like something a developer forgot to
       // finish. The colour itself says it in one glance.
-      ["appearance", "Your colour", Palette, "Used everywhere, including here",
+      // AMERICAN, LIKE EVERY OTHER STRING A PERSON READS (CLAUDE.md). This row
+      // said "Your colour" while the screen it opens says "Your color" — a
+      // British spelling AND two names for one screen, which is the exact
+      // thing his label note is about. The stored SETUP KEY is still `colour`
+      // and must stay that way: renaming it resets every detailer's setup
+      // progress. A key is not a word anybody reads.
+      ["appearance", "Your color", Palette, "Used everywhere, including here",
         branding?.primary_color ?? null],
       ["gallery", "Photo gallery", Images, counts ? n(counts.photos, "{count} photo", "{count} photos") : "…"],
       ["reviews", "Reviews", MessageSquareQuote,

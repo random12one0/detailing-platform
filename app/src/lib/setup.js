@@ -60,7 +60,7 @@ export const STEPS = [
   ["colour", "What color is yours?", "Your color", "appearance"],
   ["gallery", "Photos of your work", "Photos", "gallery"],
   ["reviews", "What people say about you", "Reviews", "reviews"],
-  ["faq", "Questions customers ask", "FAQ", "faq"],
+  ["faq", "Questions customers ask", "Common questions", "faq"],
   ["payments", "How you get paid", "Getting paid", "payments"],
   ["promos", "Running a discount?", "Promo code", "promos"],
   ["plans", "Monthly plans", "Plans", "plans"],

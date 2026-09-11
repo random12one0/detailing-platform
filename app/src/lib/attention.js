@@ -37,7 +37,7 @@ export function reasonsFor(r) {
   // MONEY FIRST — it is the only reason on this list with a deadline that is
   // not ours to move.
   if (r?.subscription?.status === "past_due") why.push("payment failed");
-  if (r?.subscription?.cancel_at_period_end) why.push("cancelling at the end of the term");
+  if (r?.subscription?.cancel_at_period_end) why.push("canceling at the end of the term");
 
   // A SUSPENDED BUSINESS IS NOT QUIET, IT IS SWITCHED OFF. Reporting "no
   // booking in 60 days" about an account we suspended ourselves is the list

@@ -69,7 +69,11 @@ export const SCREENS = {
   appearance: [Appearance, "Your color"],
   gallery: [Gallery, "Photo gallery"],
   reviews: [Reviews, "Reviews"],
-  faq: [Faq, "FAQ"],
+  // ONE NAME, AND IT IS THE ONE HE ASKED FOR: *"FAQ, common questions — I feel
+  // common questions should be able to FAQ."* The Business row has said
+  // "Common questions" since 3.2(b) and the screen it opened said "FAQ", so
+  // the same screen had two names and one of them was an initialism.
+  faq: [Faq, "Common questions"],
   domain: [WebAddress, "Your web address"],
   campaigns: [Campaigns, "Where customers come from"],
   report: [ReportProblem, "Report a problem"],

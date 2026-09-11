@@ -605,10 +605,10 @@ export const appEs = {
   "Violet": "Violeta",
   "Slate": "Pizarra",
   "Silver": "Plata",
-  "a colour": "un color",
+  "a color": "un color",
   "a near-white": "un casi blanco",
   "a near-black": "un casi negro",
-  "a grey": "un gris",
+  "a gray": "un gris",
 
   // The seven first-run questions, and the name each step goes by afterwards.
   "What do you charge for?": "¿Por qué cobras?",

@@ -280,12 +280,12 @@ const NEUTRAL_SAT = 0.1;
 // would call it, and it is the string the dashboard shows.
 export function hueFamily(hex) {
   let rgb;
-  try { rgb = hexToRgb(hex); } catch { return { family: "unknown", label: "a colour" }; }
+  try { rgb = hexToRgb(hex); } catch { return { family: "unknown", label: "a color" }; }
   const [h, s, l] = rgbToHsl(rgb);
   if (s < NEUTRAL_SAT) {
     if (l >= 0.85) return { family: "neutral", label: "a near-white" };
     if (l <= 0.12) return { family: "neutral", label: "a near-black" };
-    return { family: "neutral", label: "a grey" };
+    return { family: "neutral", label: "a gray" };
   }
   const deg = h * 360;
   const name = deg < 12 ? "red" : HUE_BANDS.find(([edge]) => deg < edge)[1];
@@ -309,9 +309,9 @@ export function describeAccent(hex, bg = DASHBOARD_ACCENT_BG) {
   const moved = correctAccent(hex, bg).toLowerCase() !== hex.toLowerCase();
   if (!moved) return `That reads as ${label}, and it is light enough to use exactly as you picked it.`;
   if (family === "neutral") {
-    return `That reads as ${label}. It is too close to the dark background to be seen, so it is lightened to a grey wherever it marks a button or a highlight.`;
+    return `That reads as ${label}. It is too close to the dark background to be seen, so it is lightened to a gray wherever it marks a button or a highlight.`;
   }
-  return `That reads as ${label}. It is dark enough to disappear against the background, so it is lightened until it stays readable — which is why it looks brighter than the colour you picked.`;
+  return `That reads as ${label}. It is dark enough to disappear against the background, so it is lightened until it stays readable — which is why it looks brighter than the color you picked.`;
 }
 
 // Text color for anything drawn ON the accent: black or white, whichever

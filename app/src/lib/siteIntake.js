@@ -219,7 +219,7 @@ export const STEPS = [
       q("C6", "Should the site offer a quote as well as a price?", "one", ["Yes", "No"], false, { says: says("C6") }),
       q("C4", "Should the site name the products you use?", "text"),
       q("C7", "How loud should your monthly plans be?", "one",
-        ["Front and centre", "Mentioned", "Quiet", "I don't offer them"], true),
+        ["Front and center", "Mentioned", "Quiet", "I don't offer them"], true),
       q("C8", "So the site does not over-promise: full-time, or alongside another job?", "one",
         ["Full-time", "Part-time", "Weekends"], true),
     ] },

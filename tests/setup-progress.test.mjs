@@ -193,5 +193,67 @@ check("a deep link outranks the first run", !!guard, "no early return on deepLin
 check("and it is read before either branch opens anything",
   !!guard && app.indexOf(guard[0]) < app.indexOf('setFirstRun("setup")'));
 
+/* ── ONE SCREEN, ONE NAME ─────────────────────────────────────────────────
+   **HIS NOTE, 2026-09-10: *"Every labelling should be clear, not doing this
+   kind of weird AI naming."*** Sweeping for that turned up something a reading
+   would never catch, because the two strings are in different files: a settings
+   screen is named THREE TIMES — on the Business or gear row that opens it, in
+   the `SCREENS` registry that titles it, and (for seven of them) in the setup
+   step that walks a detailer through it — and nothing had ever compared them.
+
+   Two were wrong. `appearance` said **"Your colour"** on the row and "Your
+   color" on the screen: one screen with two names, and a BRITISH spelling live
+   on his dashboard against a rule he had given in as many words. `faq` said
+   "Common questions" on the row and "FAQ" on the screen, which is his other
+   note about that screen exactly.
+
+   The rule is only "the same screen is called the same thing everywhere", and
+   it is cheap to keep. A screen whose row and title disagree is one a detailer
+   cannot find twice. */
+console.log("\nlabels: one screen, one name");
+{
+  const reg = {};
+  for (const m of read("app/src/screens/more/index.js").matchAll(/^\s{2}(\w+):\s*\[\w+,\s*"([^"]+)"\]/gm)) reg[m[1]] = m[2];
+  const rows = {};
+  for (const src of [read("app/src/screens/Business.jsx"), read("app/src/components/GearMenu.jsx")]) {
+    for (const m of src.matchAll(/\["(\w+)",\s*"([^"]+)",/g)) rows[m[1]] = m[2];
+  }
+  const clash = Object.keys(reg).filter((k) => rows[k] && rows[k] !== reg[k]);
+  check("every row is named the same as the screen it opens",
+    clash.length === 0,
+    clash.map((k) => `${k}: row "${rows[k]}" vs screen "${reg[k]}"`).join(" · "));
+
+  // **AND THE SETUP STEP IS DELIBERATELY NOT HELD TO THIS, which was measured
+  // rather than assumed.** The obvious third check — a step's title equals its
+  // screen's title — was written, run, and FAILED ON NINE STEPS, every one of
+  // them a deliberate shortening: "Services" for "Services & add-ons",
+  // "Hours" for "Hours & days off", "Plans" for "Monthly plans". A step title
+  // is a chip in a progress rail with a dozen of them across a phone, so it is
+  // short on purpose, and a check that fires on nine considered choices is a
+  // check somebody deletes.
+  //
+  // Two of the nine share no word with the screen they open — `rules` ("Where
+  // you work" → "Booking rules") and `info` ("Your details" → "Business
+  // info"). Both were read and both are right: the step is a QUESTION about
+  // one slice of a screen that holds more than that slice. Recorded here so
+  // the next session does not rediscover them and "fix" them.
+
+  // **AMERICAN ENGLISH, EVERYWHERE A PERSON READS IT** (CLAUDE.md). The two
+  // deliberate exceptions are DATA rather than words: `cancelled` is the
+  // database's own value in five tables, and `colour` is the stored setup KEY
+  // on every business that has ever run first-run setup — renaming it would
+  // reset their progress. Neither is a string anybody reads.
+  const british = /\b(colour|favourite|behaviour|centre|organis\w*|recognis\w*|customis\w*|licence|cheque|odour|tyres?|grey|cancelling|analyse|jewellery)\b/i;
+  const offenders = [];
+  for (const f of ["app/src/lib/theme.js", "app/src/lib/setup.js", "app/src/lib/attention.js",
+    "app/src/screens/Business.jsx", "app/src/screens/more/index.js"]) {
+    for (const m of read(f).matchAll(/"([^"\n]{2,120})"/g)) {
+      if (british.test(m[1]) && m[1] !== "colour") offenders.push(`${f.split("/").pop()}: "${m[1]}"`);
+    }
+  }
+  check("no British spelling in a string a person reads",
+    offenders.length === 0, offenders.slice(0, 6).join(" · "));
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
