@@ -164,6 +164,24 @@ one of those has to work before the run means anything.
 
 ---
 
+## 9 · TWO SUITES ARE RED AND NEITHER IS NEW — found 2026-09-10 overnight
+
+Every suite in the repo was run. Everything passes except two, and BOTH WERE
+ALREADY FAILING BEFORE the overnight work — verified by checking out the tree
+from before it and running them there, which gave the identical counts.
+
+| Suite | Red | What it is about |
+|---|---|---|
+| `platform-admin` | **46 of 159** | The back office at `/admin` — the sign-in page, what a signed-out visitor sees, what a non-admin gets. |
+| `password-reset` | **3 of 29** | The reset page and the settings screen refusing a short password, and the three sign-in selectors five scripts depend on. |
+
+**The password one smells like the 10-character rule** that went in on
+2026-09-10 — the checks may still be asserting eight. **The back-office one is
+46 checks and needs somebody to look**, not a guess. Neither is in the product
+a detailer touches, which is why neither is in § 1.
+
+---
+
 ## 8 · ONE ACCOUNT, BOTH DOORS — his instruction, 2026-09-10
 
 *"Once I create my account — I'm gonna start from scratch — I want the account
