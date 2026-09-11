@@ -477,7 +477,7 @@ export default function Money() {
           same period's numbers and must not resolve a beat after them. */}
       {anything && (
         <div>
-        <div className="sunken swap" data-tour="breakdown" key={`ctx-${kind}|${offset}`}>
+        <div className="sunken swap" key={`ctx-${kind}|${offset}`} data-tour="breakdown">
           <div className="paircells">
             <Cell label={t("Collected")} value={money(stats.inNow)} />
             <Cell label={t("Expenses")} value={money(stats.outNow)} />

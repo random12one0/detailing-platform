@@ -142,12 +142,12 @@ export const TOURS = {
     // **AND IT IS THE ONE STEP IN THE PRODUCT THAT PRESSES SOMETHING.** His
     // note is that the guide never said what a date DOES; the three steps
     // after this one are inside the day it opens.
+    ["mode", "Two ways to look at the same bookings: a month, or a list you can search."],
+    ["month", "Move through the months. Next month and last month are both here."],
+    ["calgrid", "Each dot is a job. A day with a line through it is blocked off."],
     ["cell", "A day with work on it. Open one and the day appears beside the month.", null, true],
     ["dayjobs", "Everything booked that day, in order — and a button to add another."],
     ["daystate", "Block the whole day off here, or change your hours for that one day."],
-    ["month", "Move through the months. Next month and last month are both here."],
-    ["calgrid", "Each dot is a job. A day with a line through it is blocked off."],
-    ["mode", "History is the same bookings as a list you can search."],
   ],
   money: [
     ["period", "Week, month, year — every figure on this screen follows this."],
@@ -163,16 +163,24 @@ export const TOURS = {
   clients: [
     ["csearch", "Everybody who has ever booked you. Search by name or phone."],
     ["sort", "Sort by who comes most, who spends most, or who has not been back."],
-    ["lapsedchip", "Show only the people who have not been in for three months."],
+    // THE FILTER IS PRESSED, for the same reason the calendar's day is: the
+    // button the next step is about does not exist until a list has been
+    // narrowed, so a guide that only TALKED about it was pointing at nothing
+    // and the step was dropped every time.
+    ["lapsedchip", "Show only the people who have not been in for three months.", null, true],
     ["compose", "Write to everybody on the list you are looking at, in one go."],
     ["client", "Open somebody to see every job they have booked and what they spent."],
   ],
   business: [
+    // IN THE ORDER THE ROWS SIT ON THE SCREEN — "Your page", then "What you
+    // sell", then "When you can be booked". Written in any other order the
+    // guide walks up and down the page, which is what it did when it was
+    // first built and what the screenshots caught.
     ["setup", "What is left to finish. Everything already done is live on your booking page."],
-    ["catalog", "What you charge for. Nothing can be booked until there is something in here."],
-    ["hours", "The days and times you work, and the days you are off."],
-    ["payments", "Cash, card, Venmo — how you want customers to pay you."],
     ["domain", "The web address customers use. It works before you own a domain of your own."],
+    ["catalog", "What you charge for. Nothing can be booked until there is something in here."],
+    ["payments", "Cash, card, Venmo — how you want customers to pay you."],
+    ["hours", "The days and times you work, and the days you are off."],
     ["link", "Send this link to a customer and they book themselves in."],
   ],
 };
@@ -194,6 +202,16 @@ const HALO = 8;    // how far the hole is drawn outside the element itself
 // screen that is still working.
 const SETTLED_FRAMES = 12;
 const GIVE_UP_MS = 1500;
+// THE PLAN IS ALLOWED LONGER THAN A STEP IS, and the two are different
+// questions. A step asks *is this one thing here* and 1.5s is generous. The
+// plan asks *what is on this whole screen*, and a screen is three or four
+// separate reads — Today's open slots for the next seven days is its own
+// round trip and lands well after the day itself. Measured at 1.5s: the step
+// about it was dropped from a screen that was ABOUT to have it, which is the
+// defect this whole pass is fixing, arriving a second time from the other
+// side. Nothing is shown while this runs but the dim, so it is a ceiling and
+// not a wait: a quiet screen settles in about 200ms.
+const PLAN_GIVE_UP_MS = 4000;
 
 // `tour` names which of the six lists to run. It defaults to the shell so
 // the gear's *Show me around* keeps meaning what it meant.
@@ -214,6 +232,10 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
   // than fewer long ones — which is the thing the count exists to say.
   const [plan, setPlan] = useState(null);
   const [place, setPlace] = useState(null);   // {top,left} for the card
+  // WHICH STEP IS ON SCREEN, readable from the mount-only planning loop above
+  // — which is allowed to lengthen the plan, but only ahead of this.
+  const iRef = useRef(0);
+  iRef.current = i;
   const card = useRef(null);
 
   const close = useCallback(() => {
@@ -224,21 +246,25 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
     setTimeout(() => onClose?.(), 180);   // --t-exit
   }, [onClose]);
 
+  // **THE TOUR PRESSES IT, AND THAT IS NOT A HOLE IN RULE 1.** Rule 1 says the
+  // LIT element is not clickable — a detailer must not be able to open New
+  // booking from underneath the dim, because there is no good answer for what
+  // the tour does next. Here the tour knows exactly what happens next: the
+  // step after this one is about the thing that just opened. It presses on the
+  // way OUT of the step rather than on the way in, so the hole is measured
+  // before the panel changes the layout under it.
+  //
+  // **AND IT PRESSES OUTSIDE THE STATE UPDATER.** It was inside `setI` first,
+  // which React runs DURING RENDER — so pressing the day called Calendar's own
+  // setState from inside Walkthrough's render and the console said so:
+  // *"Cannot update a component (Calendar) while rendering a different
+  // component (Walkthrough)"*. It worked, which is the dangerous part.
   const next = useCallback(() => {
-    setI((n) => {
-      const steps = plan ?? STEPS;
-      // **THE TOUR PRESSES IT, AND THAT IS NOT A HOLE IN RULE 1.** Rule 1 says
-      // the LIT element is not clickable — a detailer must not be able to open
-      // New booking from underneath the dim, because there is no good answer
-      // for what the tour does next. Here the tour knows exactly what happens
-      // next: the step after this one is about the thing that just opened.
-      // It presses on the way OUT of the step rather than on the way in, so
-      // the hole is measured before the panel changes the layout under it.
-      if (steps[n]?.[3]) document.querySelector(`[data-tour="${steps[n][0]}"]`)?.click();
-      if (n + 1 >= steps.length) { close(); return n; }
-      return n + 1;
-    });
-  }, [close, plan]);
+    const steps = plan ?? STEPS;
+    if (steps[i]?.[3]) document.querySelector(`[data-tour="${steps[i][0]}"]`)?.click();
+    if (i + 1 >= steps.length) { close(); return; }
+    setI(i + 1);
+  }, [close, plan, STEPS, i]);
 
   // The body is frozen for the whole tour, and this is Sheet.jsx's lock
   // rather than a second one. `overflow: hidden` stops a FINGER; it does not
@@ -268,6 +294,7 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
     let tries = 0;
     let steady = 0;
     let seen = -1;
+    let shown = null;
     const t0 = performance.now();
     const tick = () => {
       if (!on) return;
@@ -308,11 +335,38 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
       const waiting = !!document.querySelector(".spinner");
       if (waiting || kept.length !== seen) { seen = kept.length; steady = 0; }
       else steady += 1;
-      if (steady < SETTLED_FRAMES && performance.now() - t0 < GIVE_UP_MS) {
-        requestAnimationFrame(tick); return;
+      const settled = steady >= SETTLED_FRAMES;
+      const out_of_time = performance.now() - t0 > PLAN_GIVE_UP_MS;
+
+      // **AND THE PLAN KEEPS GROWING AFTER IT IS SHOWN.** A settle is a QUIET
+      // GAP, and a quiet gap is not the same thing as a finished screen:
+      // measured on Today, the day and its jobs go quiet for a fifth of a
+      // second while the count of free slots in the next seven days is still
+      // in flight, so the step about it was ruled out by a screen that was
+      // about to have it. Waiting long enough to be sure would put a second
+      // of blank dim in front of every guide, which is a worse thing to fix it
+      // with. So the first settle SHOWS the guide and the loop keeps looking
+      // until the cap: a step that turns up late is spliced in, and the count
+      // on the card goes up by one.
+      // **ONLY EVER AHEAD OF WHERE THEY ARE STANDING.** A plan is replaced
+      // only when every step up to and including the one on screen is the same
+      // step it already was — otherwise a late arrival could renumber the
+      // sentence somebody is reading.
+      if (settled || out_of_time) {
+        if (!shown) {
+          // The floor is judged at the CAP, never at the first quiet gap: a
+          // guide dropped for having one step is not coming back, and that is
+          // too final a decision to make off a fifth of a second.
+          if (kept.length >= MIN_STEPS || tour === "shell") { shown = kept; setPlan(kept); }
+          else if (out_of_time) { live.current.onEmpty?.(); return; }
+        } else if (kept.length > shown.length
+          && kept.slice(0, iRef.current + 1).every((st, n) => st === shown[n])) {
+          shown = kept;
+          setPlan(kept);
+        }
       }
-      if (tour !== "shell" && kept.length < MIN_STEPS) { live.current.onEmpty?.(); return; }
-      setPlan(kept);
+      if (!out_of_time) { requestAnimationFrame(tick); return; }
+      return;
     };
     tick();
     return () => { on = false; };

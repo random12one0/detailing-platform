@@ -399,7 +399,12 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
         : (
           /* Three bare figures on the ground. The fourth fact is not lost —
              Collected has no cell of its own, the money cell carries both. */
-          <div className="ledger">
+          /* THE SAME TOUR NAME AS THE DESK STRIP ABOVE, and the rule against
+             two elements answering one selector is not broken by it: these two
+             are `desk ? … : …`, so exactly one of them is ever in the document.
+             Without it the guide lost its figures step on every phone —
+             measured at 392, five steps against the desk's six. */
+          <div className="ledger" data-tour="figures">
             <div>
               <span className="figure">{todays.length}</span>
               <span className="lbl">{todays.length === 1 ? "job" : "jobs"}</span>
@@ -527,7 +532,12 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
               only object on that screen waiting on the detailer rather than on
               a car". */}
           {requests.length > 0 && (
-            <div className="tight">
+            /* Same name as the phone's block, same reason: `!wide` there and
+               `wide` here, so one document never holds both. The desk lost its
+               requests step until 2026-09-10 — the one object on the screen
+               waiting on the detailer rather than on a car, and the guide did
+               not mention it. */
+            <div className="tight" data-tour="requests">
               <h2 className="label">
                 {requests.length === 1
               ? t("Waiting on you")

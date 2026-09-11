@@ -233,7 +233,7 @@ for (const [w, h] of WIDTHS) {
   // opposite on purpose — meeting the guides unasked is what it is for.)
   await page.evaluate(() => {
     try {
-      localStorage.setItem("dp.tours", JSON.stringify(["shell", "today", "money", "clients", "business"]));
+      localStorage.setItem("dp.tours", JSON.stringify(["shell", "today", "calendar", "money", "clients", "business"]));
       localStorage.setItem("dp.tour", "1");
     } catch { /* private mode */ }
   });

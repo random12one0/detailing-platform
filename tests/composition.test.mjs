@@ -587,7 +587,11 @@ console.log("\ntest 8: the corner and the second column's motion (roadmap 2.17)"
     ["app/src/screens/Money.jsx", "the period's figures",
       '      <div>\n      <div className="swap" key={`${kind}|${offset}`}'],
     ["app/src/screens/Money.jsx", "the period's context block",
-      '        <div>\n        <div className="sunken swap" key={`ctx-${kind}|${offset}`}>'],
+      // Same trim as the line above it, and for the same reason arriving a
+      // second time: 2026-09-10 put `data-tour="breakdown"` on this element,
+      // and a needle that reaches the closing `>` is a needle that turns red
+      // for an attribute the rule does not care about.
+      '        <div>\n        <div className="sunken swap" key={`ctx-${kind}|${offset}`}'],
     ["app/src/screens/Clients.jsx", "the sorted list",
       '      <div>\n      <div className={`rows cols clients swap'],
     // ROADMAP 2.13. The wrapper here is the member's own card rather than a
