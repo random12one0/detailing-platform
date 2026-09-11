@@ -575,7 +575,22 @@ const svc = (id, extra = {}) => ({ id, name: id, price: 100, duration_minutes: 6
   check("the visit is recorded", /api\.trackVisit\(/.test(page));
   check("ONCE, latched in a ref", /visitLogged\.current/.test(page),
     "status and slug both settle after the profile lands; a visit counted twice is a scan that did not happen");
-  check("only when there IS a campaign", /!campaignSlug/.test(page));
+  // **THIS ASSERTED THE BUG.** Until 2026-09-10 the page returned early
+  // unless the address carried `?c=`, so a visitor who simply typed it in was
+  // never counted — and this check was the reason nobody noticed, because it
+  // pinned that early return in place as though it were the design. His own
+  // words on the day it changed: *"what I meant by tracking everyone is... a
+  // way to know where customers are coming from."*
+  //
+  // The rule that replaces it is the one that was always meant: a visit is
+  // recorded once, and the CAMPAIGN is optional. `track-visit` has accepted an
+  // untagged visit since the day it was written — its column comment says
+  // "NULL = organic visit" — and nothing had ever called it that way.
+  check("every visit is recorded, tagged or not",
+    !/\|\|\s*!campaignSlug/.test(page),
+    "an early return on a missing tag is the whole of \"nobody untagged is counted\"");
+  check("and the campaign is passed when there is one",
+    /slug:\s*campaignSlug/.test(page));
   check("A TYPED CODE IS NEVER OVERWRITTEN", /p\.applied \? p :/.test(page),
     "replacing a code somebody entered by hand with one they never saw is the version that loses trust");
   check("a failed visit cannot fail a booking", /\.catch\(\(\) =>/.test(page),
@@ -701,13 +716,23 @@ console.log("\n13. nothing is assumed at signup (roadmap 8.4)");
   // The first version tested the whole file for that string and passed with
   // the fallback restored to `"mobile"` — greenest exactly when the thing it
   // guards is gone, which is this repo's most repeated shape of vacuity.
-  const wAt = setupForm.indexOf("where: settings?.mobile_enabled");
-  const whereExpr = wAt < 0 ? "" : setupForm.slice(wAt, setupForm.indexOf("}));", wAt));
-  check("13c-iv · and the setup form's own question opens with no answer",
-    wAt > 0
-      && /mobile_enabled \? "mobile"/.test(whereExpr)
-      && /:\s*null,\s*$/.test(whereExpr.trimEnd()),
-    "it fell through to \"mobile\", which is an answer to the one question this item is about");
+  // **THE SETUP FORM NO LONGER HAS A QUESTION OF ITS OWN, AND THAT IS THE
+  // STRONGER ANSWER.** This used to read the form's `where:` expression and
+  // insist its fallback was `null` rather than `"mobile"` — a check written as
+  // a quotation of one implementation, which is exactly what
+  // `setup-progress.test.mjs`'s own header warns fails by construction on any
+  // rewrite. Setup was rebuilt on 2026-09-10 at the owner's instruction to
+  // WALK THE REAL SETTINGS SCREENS instead of carrying small copies of them,
+  // so that expression is gone and with it the whole class of "the form and
+  // the screen disagree about the default".
+  //
+  // What replaces it is the fact that makes the old check unnecessary: the
+  // form renders `SCREENS[...]`, so the question a detailer answers in setup
+  // IS `BookingRules`, which 13c-iii above already holds to `?? null`. A
+  // second copy of the question reappearing here is the regression to catch.
+  check("13c-iv · setup asks the REAL screen's question, not a copy of it",
+    /SCREENS\[/.test(setupForm) && !/mobile_enabled \? "mobile"/.test(setupForm),
+    "a copy of the where question in the setup form is a second place its default lives");
 
   // ── THE TWO EXPLANATIONS, WHICH ARE THE ONLY NEW BEHAVIOUR ────────────
   check("13d · `bookable` is exported from the core, for tenant sites too",

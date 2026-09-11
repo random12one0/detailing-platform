@@ -9,6 +9,7 @@
 //
 // Run: node tests/attention.test.mjs   (credential-free)
 
+import { STEPS } from "../app/src/lib/setup.js";
 import { needsALook, reasonsFor, QUIET_DAYS, SETUP_FLOOR, MAX_ROWS } from "../app/src/lib/attention.js";
 
 let passed = 0, failed = 0;
@@ -52,9 +53,12 @@ console.log("\n2. money");
     reasonsFor(one({ subscription: { status: "past_due" } })).some((w) => /payment failed/.test(w)));
   check("2b · so is a subscription set to end",
     reasonsFor(one({ subscription: { status: "active", cancel_at_period_end: true } }))
-      .some((w) => /cancelling/.test(w)));
+      // AMERICAN, since 2026-09-10 — the notice says "canceling at the end of
+      // the term". Both spellings are matched so this check is about the
+      // MEANING rather than about which side of the Atlantic wrote it.
+      .some((w) => /cancel(l?)ing/.test(w)));
   check("2c · a healthy subscription says nothing",
-    !reasonsFor(FINE).some((w) => /payment|cancelling/.test(w)));
+    !reasonsFor(FINE).some((w) => /payment|cancel(l?)ing/.test(w)));
 }
 
 // ─── 3. Quiet vs never — two different conversations ──────────────────────
@@ -98,13 +102,22 @@ console.log("\n4. setup");
       branding: {}, settings: {}, business: {},
     },
   });
+  // **NOT `of 7`.** Setup was rebuilt on 2026-09-10 to walk the real settings
+  // screens and grew from seven steps to twelve, so a check that quoted the
+  // old TOTAL went red about a number that is not the thing being tested. The
+  // rule is "it names the count", and the count is whatever `setup.js` says it
+  // is — which is the point of the sentence printing `setup.total` rather than
+  // a literal.
   check("4a · a business that stopped early is named, with the number",
-    reasonsFor(bare).some((w) => /setup stopped at \d+ of 7/.test(w)), reasonsFor(bare).join(", "));
+    reasonsFor(bare).some((w) => /setup stopped at \d+ of \d+/.test(w)), reasonsFor(bare).join(", "));
   check("4b · a finished-enough business is not nagged",
     !reasonsFor(FINE).some((w) => /setup stopped/.test(w)));
-  // NOT "less than seven": `where` is a step many detailers never press, and
-  // nagging a working business forever is how the whole list gets ignored.
-  check("4c · the floor is not the full seven", SETUP_FLOOR < 7, `${SETUP_FLOOR}`);
+  // NOT "every step": `where` is one many detailers never press, and nagging a
+  // working business forever is how the whole list gets ignored. Compared
+  // against the REAL step count rather than a literal, for the same reason 4a
+  // above stopped quoting seven.
+  check("4c · the floor is not every step", SETUP_FLOOR < STEPS.length,
+    `${SETUP_FLOOR} of ${STEPS.length}`);
 }
 
 // ─── 5. A site, by either route ───────────────────────────────────────────
