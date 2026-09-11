@@ -1,3 +1,24 @@
+# ###########################################################################
+# ##  DO NOT INSTALL THIS FILE. IT WAS NEVER BUILT AND A BETTER ONE RUNS.  ##
+# ###########################################################################
+#
+# The backup that actually exists is `.github/workflows/backup.yml` in the
+# PRIVATE repo `random12one0/detailing-platform-backups`. It has run green
+# every night since 2026-09-08. Read `docs/ops/backups.md` — not this file.
+#
+# This one encrypts with a SHARED PASSPHRASE held as a CI secret, so anything
+# that can read the secret can read every backup ever made. The built one
+# encrypts to an `age` PUBLIC key committed in the clear; the private half
+# exists only in Andrew's password manager and has never been in CI at all.
+# This one also uploads to an Actions ARTIFACT rather than a release asset,
+# which expires on its own schedule and cannot be pruned deliberately.
+#
+# Kept, not deleted, because the reasoning below is what that correction is
+# against. Installing it would leave him with two backup systems, the weaker
+# one overwriting the same database nightly, and no signal that it happened.
+#
+# ---------------------------------------------------------------------------
+#
 # A nightly copy of the whole database, kept for free.
 #
 # The owner asked for "the best way to have nightly backups for completely

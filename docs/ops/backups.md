@@ -1,241 +1,195 @@
-# Nightly backups — how to switch them on
+# Backups — what exists, and how to restore one
 
-> **⚠ THIS FILE DESCRIBES A DESIGN THAT WAS NOT BUILT. DO NOT FOLLOW IT.**
-> Corrected 2026-09-08 from `docs/coworker-report-2026-09-08.md` § 3.5, which
-> read the repository that actually exists.
->
-> **The plan below encrypts with a symmetric `BACKUP_PASSPHRASE`. What was
-> actually built uses an `age` KEYPAIR**, and the difference is the whole
-> security argument:
->
-> | | This file says | What exists |
-> |---|---|---|
-> | Encryption | one shared passphrase | `age` public/private keypair |
-> | What CI holds | the passphrase — **so CI can decrypt** | the PUBLIC key only, committed in the clear as `backup-key.pub` — **CI cannot decrypt** |
-> | If the repo or a secret leaks | every backup is readable | every backup is **unreadable**, because the private key never exists in CI at all |
-> | Where the dump lands | (unstated) | a **release asset**, never committed — git cannot forget a committed file, and these dumps are real customers' names, phones and addresses |
-> | Retention | 90 days | **30 days plus the 1st of each month** |
->
-> The private key is in Andrew's password manager and the encrypt/decrypt round
-> trip was tested end to end. **A session that follows the steps below rebuilds
-> the weaker design and leaves him with two backup repositories.**
->
-> **What is still TRUE and load-bearing in this file:** the session-pooler
-> warning in step 2 (GitHub runners are IPv4-only; the direct connection is
-> IPv6 and can never work, and it fails with an error that reads exactly like a
-> wrong password), the `workflow`-scope explanation, and *"a backup nobody has
-> restored is not a backup"*. **Everything about the passphrase is superseded.**
->
-> Kept rather than deleted because the reasoning is what the correction is
-> against — see CLAUDE.md's rule on superseded entries.
-
-2026-09-06. Ten minutes, once, and then it runs itself.
-
-**Why this file exists instead of the workflow just being committed:** GitHub
-refuses a push that creates or edits anything under `.github/workflows/` unless
-the token has the `workflow` scope, and this session's does not. **That is a
-good refusal** — a token that can rewrite what runs on every push is a token
-worth being careful with. So the file sits at
-[`docs/ops/backup.workflow.yml`](./backup.workflow.yml) and you move it into
-place once.
+**Rewritten 2026-09-10 by reading the backup repository itself and the three
+releases in it.** Everything below is measured, and the measurement is named
+beside it. The version of this file before today described a design that was
+never built; the last section says what it got wrong and why that matters.
 
 ---
 
-## What it does
+## 1 · What is running
 
-Every night at about 2 a.m. California time it takes a complete copy of the
-database, encrypts it, and keeps it for 90 days. It costs nothing: GitHub gives
-2,000 free Actions minutes a month on a private repository and this uses
-roughly one a night.
+**`random12one0/detailing-platform-backups` — PRIVATE, five files.** One
+GitHub Actions workflow takes a complete copy of the database every night,
+encrypts it so that GitHub itself cannot read it, and attaches it to a release.
 
-**Why it is needed at all:** Supabase's free plan has **no backups**. They
-start on the Pro plan. Until then, one bad `delete` is unrecoverable.
+| | |
+|---|---|
+| Schedule | `cron: '10 9 * * *'` — 09:10 UTC, 02:10 Pacific. Off the hour on purpose; GitHub silently delays runs booked at `:00` |
+| Actually fires at | **09:23–09:24 UTC**, three nights running — a real ~13-minute queue delay, not a fault |
+| Dump | `pg_dump --no-owner --no-privileges --format=custom`, run inside the `postgres:17` Docker image because the runner's client is older than the server |
+| Encryption | `age -R backup-key.pub` — a public key committed in the clear. **CI holds no private key and cannot decrypt its own output** |
+| Lands in | a **release asset**, never a commit. Git cannot forget a committed file, and these dumps are real customers' names, phones and home addresses |
+| Retention | every backup for 30 days, plus the 1st of each month for ever |
 
----
+**Measured 2026-09-10** — three green runs, and the file grows as the database
+does, which is what a live dump should look like:
 
-## Switching it on
-
-**1 · Move the file into place.**
-
-```bash
-mkdir -p .github/workflows && cp docs/ops/backup.workflow.yml .github/workflows/backup.yml
+```
+backup-2026-09-08   dump-2026-09-08.pgc.age   714,876 bytes
+backup-2026-09-09   dump-2026-09-09.pgc.age   727,918 bytes
+backup-2026-09-10   dump-2026-09-10.pgc.age   733,274 bytes
 ```
 
-Then commit and push it yourself, from a terminal signed in as you.
+The newest was downloaded and its first bytes read: `age-encryption.org/v1`
+followed by an `X25519` stanza, not `PGDMP`. **It is genuinely encrypted rather
+than a dump wearing the extension.**
 
-**2 · Get the database connection string.**
-
-Supabase dashboard → your project → **Project Settings** → **Database** →
-**Connection string** → **URI**.
-
-**Take the "Session pooler" one, not the direct one.** The direct address is
-IPv6-only and a GitHub runner has no IPv6 — it fails with a network error that
-reads exactly like a wrong password, which is an afternoon nobody needs.
-
-**3 · Invent a passphrase.** Anything long and random. **Put it in your
-password manager before you paste it anywhere**, because it is the only key to
-every backup this will ever make, and a backup you cannot decrypt is not a
-backup.
-
-**4 · Add both as repository secrets.**
-
-GitHub → the repo → **Settings** → **Secrets and variables** → **Actions** →
-**New repository secret**:
-
-| Name | Value |
-|---|---|
-| `SUPABASE_DB_URL` | the session-pooler URI from step 2 |
-| `BACKUP_PASSPHRASE` | the passphrase from step 3 |
-
-**5 · Run it once by hand.** Actions tab → *Nightly database backup* → **Run
-workflow**. It should finish green in about a minute with a file attached to
-the run.
+*(The roadmap records the 8 September asset as 714,366 bytes. The release says
+714,876. Small, but the roadmap figure is wrong — one for M to correct.)*
 
 ---
 
-## Why it is encrypted
+## 2 · The one number that says this has never been proven
 
-The dump contains **every customer of every detailer** — names, phone numbers,
-home addresses, email addresses. A GitHub artifact is private to people who can
-see the repository, which is the right audience today and is one mis-click from
-not being. Encrypted, the file is useless to anybody who gets it without also
-having the passphrase.
+**`download_count` on all three assets is `0`.** Nobody has ever fetched a
+backup, so nobody has ever decrypted one, so nobody has ever restored one.
 
----
-
-## How it fails, on purpose
-
-**A backup job that silently does nothing is worse than no backup job**,
-because the green tick gets read as "there is a backup". So it refuses to be
-quietly useless:
-
-- Missing secrets stop the run before anything else happens.
-- A dump under 20 KB is treated as a failure — a truncated or empty file is the
-  failure mode that looks most like success.
-- The dump must contain the `bookings` table, or the job errors. That catches
-  pointing at the wrong database, which otherwise produces a perfectly valid
-  backup of nothing you care about.
+**A backup nobody has restored is not a backup.** Roadmap 2.22 stays `[~]`
+until section 4 has been run once, and that is the right call.
 
 ---
 
-## Restoring
+## 3 · What is NOT in these backups
 
-Write these three steps somewhere that is **not this repository**, because the
-day you need them may be the day you cannot reach it.
-
-1. Download the artifact from the Actions run and unzip it.
-2. `gpg --batch --passphrase '<BACKUP_PASSPHRASE>' --decrypt backup-YYYY-MM-DD.sql.gpg > backup.sql`
-3. `psql "<connection string of a FRESH project>" -f backup.sql`
-
-**Restore into a fresh project, never over the live one.** A restore over a
-running database is how a bad night becomes an unrecoverable one, and the whole
-point of having this is that there is a way back.
-
-**A restore has never been rehearsed.** The workflow can be run on demand
-precisely so that the drill can happen on a calm day. **A backup nobody has
-ever restored is a backup nobody should count on** — this is worth an hour, once.
-
----
-
-# REVIEW OF THE BACKUP REPO HIS CLOUD SESSION BUILT — 2026-09-08
-
-He sent `detailingplatformbackups.zip` and said: *"the ZIP is something for the
-backups thing. I think there might be contacts in there, but you have to look up
-to get hub or something."* Five files, no secrets among them, reviewed in full:
-`.github/workflows/backup.yml`, `scripts/restore.sh`, `README.md`,
-`.gitignore`, `backup-key.pub`.
-
-**IT IS GOOD, AND FOUR OF ITS DECISIONS ARE BETTER THAN WHAT ROADMAP 2.22
-SPECIFIED.** Worth naming, because the temptation on reading someone else's
-work is to redo it:
-
-1. **The workflow holds only the PUBLIC age key.** CI can encrypt and cannot
-   decrypt, so a leaked repo, a leaked Actions secret or a compromised account
-   yields files nobody can read. The private key never exists in CI.
-2. **Backups are RELEASE ASSETS, not commits.** Git never forgets — a dump
-   committed to the tree is in history for ever, so "delete the old backups" is
-   not a thing you can do, and a repo made public by accident later would
-   publish every customer record ever backed up. Releases can be deleted.
-   **This is a strictly better answer than 2.22's, which said only "private and
-   encrypted".**
-3. **It refuses to publish a dump under 50 KB.** *An empty backup that reports
-   success* is the exact failure this repo keeps rediscovering under another
-   name — a skipped check reading like a passing one.
-4. **It uses `postgres:17` in Docker** because the runner's client is older than
-   the server, and passes the URL as an env var rather than an argument so it
-   never reaches the host's process list.
-
-The restore script is equally careful: it prints `pg_restore --list` and demands
-a typed `yes` before writing, and the README says plainly that until one restore
-has happened this is *"an untested pipeline, not a backup"* — which is 2.22's
-own acceptance test, independently arrived at.
-
-## THE ONE REAL GAP: THE PHOTOS ARE NOT IN THE DATABASE
-
-**`pg_dump` backs up Postgres. It does not back up Supabase Storage.**
-
-This product has two buckets and both hold things that cannot be regenerated:
+**`pg_dump` copies Postgres. It does not copy Supabase Storage.** Two buckets
+hold things that cannot be regenerated:
 
 - **`job-photos`** — private. Before-and-after photographs of customers' cars,
-  taken at their homes. **Evidence, in the sense CLAUDE.md already uses**: it is
-  why deleting one needs the `settings` permission while adding one does not.
+  taken at their homes. Evidence, in the sense the permission model already
+  uses: deleting one needs the `settings` permission, adding one does not.
 - **`business-media`** — public. Every detailer's logo and gallery.
 
-**A restore from these backups would produce a database full of rows pointing at
-files that no longer exist**, and the failure would present as a working
-dashboard with broken images everywhere — which reads as a display bug rather
-than as data loss.
+**A restore from these backups produces a database full of rows pointing at
+files that no longer exist**, and it presents as a working dashboard with
+broken images everywhere — which reads as a display bug, not as data loss. The
+fix is one more step in the same workflow that lists each bucket through the
+Storage API and encrypts the objects into the same release. Until it exists,
+this section is the scope statement, and **a backup whose scope is undocumented
+is one somebody will over-trust on the day it matters.**
 
-**Recommendation, and it is small:** one more step in the same workflow that
-lists each bucket through the Storage API and copies the objects, encrypted into
-the same release. It is the same shape as the dump step. **Until it exists, the
-README should say what is NOT covered** — a backup whose scope is undocumented
-is one somebody will over-trust on the day it matters.
+**The workflow also cannot tell you WHICH database it dumped.** It refuses a
+dump under 50 KB — the empty-backup-that-reports-success failure — but there is
+no assertion that `bookings` is in there, and the only way to look inside is the
+private key. So *"it backed up the wrong project"* is a failure mode currently
+invisible to everyone. Section 4 is what closes that too: the census below
+names the tables.
 
-## THE ONE THING THAT WILL PROBABLY BREAK ON FIRST RUN
+---
 
-The README says: *"Use a read-only database role if you make one. A backup job
-has no business being able to write."* **The instinct is right and the
-consequence is a failed backup.**
+## 4 · THE RESTORE DRILL
 
-`pg_dump` issues `SET row_security = off`. A role that is neither the table
-owner nor `BYPASSRLS` then hits *"query would be affected by row-level security
-policy for table …"* and the dump aborts. **Every table in this product has RLS
-on** — that is the whole tenant-isolation design, and `db-audit.mjs` fails the
-build if one does not.
+This is roadmap 2.22's acceptance test. **Half an hour, once, on a calm day.**
 
-**So: run it with the project's own `postgres` role first and confirm a real
-dump lands.** If a dedicated role is wanted later it needs `BYPASSRLS`
-explicitly, which is most of the privilege the read-only role was meant to
-avoid — so the honest trade is to keep `postgres` and keep the secret tight.
+### What it needs, and who has it
 
-**And the connection string must be the SESSION POOLER on 5432**, which the
-README already says. The reason, from roadmap 2.22: **GitHub runners are
-IPv4-only and a free project's direct connection resolves to IPv6**; the
-transaction pooler does not work with `pg_dump`.
+| | Where it is |
+|---|---|
+| The **age private key** | Andrew's password manager, and deliberately nowhere else. Not in CI, not in this repo, not on this machine — checked 2026-09-10 |
+| A **scratch database** | Not `practice-rail` and never the live business project. `pg_restore --clean --if-exists` **drops what is already there** |
+| `age` and `pg_restore` | **Neither is installed on this machine** (checked 2026-09-10; no `docker`, `psql` or `pg_dump` either) |
 
-## ONE SMALLER NOTE: GIVE IT ITS OWN HEALTHCHECK
+Both binaries are portable, no installer: `age` ships as a zip containing
+`age.exe` from FiloSottile/age's releases, and `pg_restore.exe` is in the
+PostgreSQL 17 Windows binaries zip. Git Bash runs the script as written.
 
-`HEALTHCHECK_URL` should be a **second** check on healthchecks.io, not the one
-`watch-jobs` already pings. They answer different questions — *is the scheduler
-alive* and *did last night's backup run* — and a single check means a healthy
-backup can silence a dead scheduler.
+### The steps
 
-## WHAT IS LEFT FOR HIM, IN ORDER
+**1 · Take the census of the source, BEFORE anything else.** This is the
+comparison the whole drill turns on, and it has to be taken from the database
+the backup came from:
 
-1. **Create the repo PRIVATE** — `detailing-platform-backups`. Push the four
-   files. The workflow only runs once it is at `.github/workflows/`.
-2. **Generate the age keypair** (`age-keygen -o age-key.txt`). **Check the
-   public key in that file matches `backup-key.pub`** —
-   `age1y6elkrdjp7j5v559224eujq3qvz5ufvtk0d6eqwxuf5p60tewfaqsg4xk2`. If it does
-   not, whoever generated it kept the private half and every backup would be
-   unreadable by him. **Regenerate both rather than assume.**
-3. **Store the private key in his password manager AND offline.** Nobody can
-   recover it. This is the one irreversible step on the page.
-4. **Set `SUPABASE_DB_URL`** to the session-pooler string, then run the workflow
-   by hand (`workflow_dispatch`) rather than waiting for 02:10.
-5. **Restore into a throwaway project and compare row counts.** Until that has
-   happened roadmap 2.22 stays `[~]`, and it should.
+```bash
+node scripts/db-census.mjs > census-source.txt
+```
 
-**NONE OF THIS IS MINE TO DO** — he said his cloud coworker is handling it, and
-the repo, the secret and the key are all on his accounts.
+On 2026-09-10 that was **46 tables, 596 rows**, with `bookings` at 52,
+`customers` at 40 and `auth.users` at 27.
+
+**2 · Put the private key in a file.** The restore script looks in
+`$HOME/.config/detailing-backup/age-key.txt`, or wherever `AGE_KEY_FILE`
+points. **Do not paste it into a chat, a commit or a CI secret** — the reason
+CI cannot decrypt these backups is that the key has never been anywhere a
+machine could read it unattended.
+
+**3 · Run the restore.** From a clone of the backups repo:
+
+```bash
+./scripts/restore.sh backup-2026-09-10 'postgresql://postgres:PW@HOST:5432/postgres'
+```
+
+It downloads the asset, decrypts it, prints `pg_restore --list` and waits for a
+typed `yes` before writing anything.
+
+**4 · Take the census of the restored copy and compare.** This is the step that
+turns "it seemed to work" into a result:
+
+```bash
+node scripts/db-census.mjs --ref=<scratch-project-ref> > census-restored.txt
+diff census-source.txt census-restored.txt
+```
+
+Only the `# census of …` header line should differ. **If the restore target is
+a plain Postgres rather than a Supabase project**, the census script cannot
+reach it — run the same question through `psql` instead:
+
+```sql
+select 'public.' || c.relname,
+       (xpath('/row/c/text()', query_to_xml(format('select count(*) as c from public.%I', c.relname), false, true, '')))[1]::text::bigint
+  from pg_class c join pg_namespace n on n.oid = c.relnamespace
+ where n.nspname = 'public' and c.relkind = 'r' order by 1;
+```
+
+**5 · Write the result into the roadmap and tick 2.22.** Counts matching is the
+pass. Counts differing is a finding and a much better day to have it.
+
+### One thing that must not be done to make this easier
+
+**Do not put the private key into GitHub Actions so the drill can run itself.**
+It is the single decision that makes these backups worth having: a leaked repo,
+a leaked Actions secret or a compromised account currently yields files nobody
+can read. A scheduled restore test would trade that away for convenience.
+
+---
+
+## 5 · The alarm that is not wired up
+
+The workflow's last step pings `HEALTHCHECK_URL` so an outage watcher knows the
+backup ran. **The secret is unset, so the step does nothing** — and it does
+nothing *silently*, because the guard is `if [ -n "$PING" ]` with no `else`.
+That is this repository's most-repeated defect in someone else's file: a skipped
+check that reads exactly like a passing one.
+
+Five minutes on healthchecks.io fixes it. **It must be a SECOND check, not the
+one `watch-jobs` already pings** — they answer different questions (*is the
+scheduler alive* / *did last night's backup run*), and sharing one means a
+healthy backup can silence a dead scheduler. Not the same thing as
+`platform_settings.healthcheck_url` either. See `docs/ops/monitoring.md`.
+
+---
+
+## 6 · What this file used to say, and why it was wrong
+
+It described a workflow encrypting with a **shared passphrase held as a CI
+secret** and uploading to an Actions **artifact**, and it walked through
+switching that on. None of it was ever built.
+
+The difference is the entire security argument: a passphrase in CI means
+anything that can read the secret can read every backup ever taken, and an
+artifact expires on a schedule nobody chose. What exists uses a keypair whose
+private half has never been on a machine, and release assets that can be pruned
+deliberately.
+
+**A session that followed the old steps would have built the weaker system
+beside the working one**, pointed at the same database, with nothing anywhere
+reporting that there were now two. The file is superseded rather than deleted
+because that reasoning is what the correction is against; the workflow it
+describes still sits at `docs/ops/backup.workflow.yml` and now opens with a
+banner saying not to install it. The fuller comparison is
+`docs/coworker-report-2026-09-08.md` § 3.5.
+
+**What was true in the old file and is still true:** the session-pooler warning
+(GitHub runners are IPv4-only, a free project's direct connection is IPv6, and
+it fails with an error that reads exactly like a wrong password), the reason the
+`workflow` token scope matters, and *"a backup nobody has restored is not a
+backup"*.
