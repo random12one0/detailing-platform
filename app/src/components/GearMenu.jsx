@@ -29,9 +29,7 @@
 // that column from a boolean into the permission's own name.
 
 import { useCallback, useEffect, useState } from "react";
-import {
-  Bell, Building2, ChevronRight, Compass, CreditCard, KeyRound, LogOut, MessageSquare, Shield, Smartphone, UserPlus, Users, X,
-} from "lucide-react";
+import { Bell, Building2, ChevronRight, Compass, CreditCard, KeyRound, LifeBuoy, LogOut, MessageSquare, Shield, Smartphone, UserPlus, Users, X } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import SettingsHost from "./SettingsHost.jsx";
@@ -185,6 +183,14 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
     // somebody else and told to change it.
     ["password", "Your password", KeyRound, "Change your sign-in password", null],
     ["preferences", "This device", Smartphone, describeDevice(), null],
+    // **HIS NOTE, 2026-09-10 — *"a way for a detailer to say 'there is nowhere
+    // to put this', sent to me. No code anywhere."*** Behind the gear by this
+    // screen's own admission test: it changes nothing a customer meets. Above
+    // the tour rather than below it, because somebody who is stuck reaches for
+    // this before they reach for a guided walk round the dashboard. Everybody
+    // gets it — staff included, who are the likeliest to hit something they
+    // have no permission to fix.
+    ["report", "Report a problem", LifeBuoy, "Something broken, confusing or missing", null],
     // A PICKER WITH ONE CHOICE ON IT IS A CONTROL THAT CANNOT CHANGE
     // ANYTHING. It is absent at one membership, which is every account in the
     // product today — the row appears the day somebody runs two businesses.

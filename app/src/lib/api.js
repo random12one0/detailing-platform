@@ -111,6 +111,24 @@ export const api = {
   deleteCustomer: (businessId, customerId) =>
     callFn("delete-customer", { business_id: businessId, customer_id: customerId }),
 
+  // A DETAILER TELLS US SOMETHING IS WRONG. Everything except the words is
+  // read on the server — who, which business, which role — so this carries
+  // only what the screen actually knows and the browser cannot lie about the
+  // rest. A failure here is a real failure and the screen says so, which is
+  // the opposite of every other email in this product: here the email IS the
+  // feature.
+  reportProblem: (businessId, message, screen) =>
+    callFn("report-problem", { business_id: businessId, message, screen }),
+
+  // A DETAILER TELLS US SOMETHING IS WRONG. Everything except the words is
+  // read on the server — who, which business, which role — so this carries
+  // only what the screen actually knows and the browser cannot lie about the
+  // rest. A failure here is a real failure and the screen says so, which is
+  // the opposite of every other email in this product: here the email IS the
+  // feature.
+  reportProblem: (businessId, message, screen) =>
+    callFn("report-problem", { business_id: businessId, message, screen }),
+
   // --- Public, customer-facing. No session; the unguessable booking UUID is
   // the credential, the same access model the receipt endpoint already used.
   validatePromo: (businessSlug, code, customerEmail, customerPhone) =>

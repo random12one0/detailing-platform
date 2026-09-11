@@ -48,6 +48,7 @@ import Reviews from "./Reviews.jsx";
 import Faq from "./Faq.jsx";
 import WebAddress from "./WebAddress.jsx";
 import Campaigns from "./Campaigns.jsx";
+import ReportProblem from "./ReportProblem.jsx";
 import Catalog from "./Catalog.jsx";
 import Promos from "./Promos.jsx";
 import Plans from "./Plans.jsx";
@@ -71,6 +72,7 @@ export const SCREENS = {
   faq: [Faq, "FAQ"],
   domain: [WebAddress, "Your web address"],
   campaigns: [Campaigns, "Where customers come from"],
+  report: [ReportProblem, "Report a problem"],
   catalog: [Catalog, "Services & add-ons"],
   promos: [Promos, "Promo codes & sale"],
   plans: [Plans, "Monthly plans"],
