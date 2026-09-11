@@ -4990,6 +4990,9 @@ is kept; the entire visual design restarts from scratch.
 
       **THE ORIGINAL ENTRY:**
 
+      - [x] 2.23 **BUILT 2026-09-06, and he signed it off 2026-09-10.** This nested
+        box is the duplicate of the ticked entry above; left in place, ticked, rather
+        than deleted, because a survey read it as outstanding work.
       - [ ] 2.23 **THE MAINTENANCE DEADLINE — a coating warranty that VOIDS, not a
       cadence. He handed the design to us on 2026-09-04 and it is still owed.**
 
@@ -8787,6 +8790,11 @@ is still the question list rather than a thing to rewrite.
       screens to manage it, and the customer-facing browse-and-favourite.
       **No typing on this screen at all.**
 
+- [x] 9.3 ~~**The intake itself**~~ **BUILT 2026-09-10** — `app/src/screens/SiteIntake.jsx`,
+      `app/src/lib/siteIntake.js`, `supabase/migrations/20260910002000_site_intake.sql`,
+      at `/website` and `/website/preview`, exported by `scripts/site-brief.mjs`, and
+      prefilled from first-run setup. **Screen one is still owed and it is 9.2** — the
+      gallery. Original wording below.
 - [ ] 9.3 **The intake itself — four screens, inside the dashboard.** Not a
       public page: they are signed in, we already know their business, the
       uploads have somewhere to go, and every question the database can answer
