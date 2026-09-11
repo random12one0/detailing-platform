@@ -10,10 +10,25 @@ directions. Anything not here is done.
 **The count: 6 bugs, 8 of his own notes, 9 unbuilt features, 15 things waiting
 on him, and 3 pieces of the endgame he described.**
 
-**UPDATED 2026-09-10, later the same day: FIVE OF THE SIX BUGS ARE FIXED and
-one new decision is waiting on him** — § 7, the four questions that block the
-advanced money view. The bug table below carries its own strikethroughs; the
-only one still open is the language buttons on a customer's booking page.
+**UPDATED AGAIN, 2026-09-10 overnight. ALL SIX BUGS ARE FIXED, and five of his
+eight walkthrough notes with them.** The bug table below carries its own
+strikethroughs. What landed after the first update:
+
+| | | |
+|---|---|---|
+| **The advanced money screen** | 8.9, built | *The full picture*, behind a button on Money. 22 figures in 6 groups, 4 of them drawn. Most popular packages on the everyday screen too. |
+| **Where customers came from** | 4.2, reframed | On the money screen, not called a campaign any more. **And untagged visitors are counted at last** — one early-return in the booking page was the whole of "everyone gets tracked". |
+| **Report a problem** | his note 6 | New gear row, its own edge function, deployed and exercised. Everything but the words is filled in server-side. |
+| **How you get paid** | his note 4 | A switch per method, its field under it. |
+| **The web address screen** | his note 7 | Says what to type, with the subdomain filled in, and refuses to walk an apex into a CNAME. |
+| **The custom colour** | his note 2 | Sits with the swatches now. |
+| **"Your own words"** | his note 3 | Says who reads it, where it lands, and that it goes out as typed. |
+| **The language switch** | bug 4 | Quiet, and at the page edge. |
+| **The tab guides** | 2.24, twice over | Every tab 5-8 steps; *Show me around* is one 37-step tour of all five tabs plus the settings. |
+
+**WHAT IS LEFT OF HIS EIGHT NOTES: three.** The label sweep (1), the examples
+index and its link from the landing page (5, which is the WEBSITES lane), and
+the builder's checklist form (8). Everything else in § 2 is done.
 
 ---
 
@@ -24,7 +39,7 @@ only one still open is the language buttons on a customer's booking page.
 | 1 | ~~The pricing page's terms block is jammed against the screen edge.~~ **FIXED** — and the page was rebuilt to his *"kind of bland"* note at the same time: a photograph, the figures on it, a light band, and the annual rung marked. | `app/src/landing/PricingPage.jsx` |
 | 2 | ~~The Today guide walks you onto the Business page.~~ **FIXED**, then rebuilt twice more at his ask — every tab has a 5-8 step guide, one presses a date open, and *Show me around* is now a 37-step tour of all five tabs plus the settings. | `app/src/components/Walkthrough.jsx` |
 | 3 | ~~"Show me around" stops after one step.~~ **FIXED.** It was three separate faults in the end, the last of them a card positioned before it existed — it flashed in the top-left corner and froze. | same file |
-| 4 | **The English/Spanish buttons are badly placed** on a customer's booking page. | `app/src/book/LanguagePicker.jsx` |
+| 4 | ~~The English/Spanish buttons are badly placed~~ **FIXED** — they were a solid accent fill, the loudest thing on the page, and at a desk they sat against the title in the middle of the bar. Quiet now, and at the page's own edge. | `app/src/book/booking.css` |
 | 5 | ~~The password screen never asks for your current password.~~ **FIXED**, and an eye toggle was added to every password field in the product. | `app/src/screens/more/Password.jsx` |
 | 6 | ~~There is no "page not found".~~ **FIXED** — `app/src/screens/NotFound.jsx`, deliberately outside the session provider. | roadmap item P |
 
