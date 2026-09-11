@@ -47,6 +47,10 @@ export default function Sheet({
   const [leaving, setLeaving] = useState(false);
   const drag = useRef(null);
   const panel = useRef(null);
+  // WHAT THE MOUNT-ONLY EFFECT BELOW READS INSTEAD OF DEPENDING ON. Reassigned
+  // every render, so the effect always closes over the CURRENT callback while
+  // never re-running because of it.
+  const live = useRef(null);
 
   const close = useCallback(() => {
     if (!dismissible) return;
@@ -77,12 +81,14 @@ export default function Sheet({
   // has a layout box, so the disclosure's hidden button counted as the last
   // focusable while the browser skipped it. Refusing to let focus settle
   // outside is both shorter and blind to that whole class of question.
+  live.current = { close };
+
   useEffect(() => {
     if (!open) return;
     const returnTo = document.activeElement;
     const back = { current: false };   // which way the last Tab went
     const onKey = (e) => {
-      if (e.key === "Escape") close();
+      if (e.key === "Escape") live.current?.close?.();
       if (e.key === "Tab") back.current = e.shiftKey;
     };
     const onFocusIn = (e) => {
@@ -114,7 +120,28 @@ export default function Sheet({
       // Back where you were — a sheet is put away, not navigated away from.
       if (returnTo instanceof HTMLElement && document.contains(returnTo)) returnTo.focus();
     };
-  }, [open, close]);
+    // **MOUNT-ONLY, AND THE CALLBACK IS READ THROUGH A REF — 2026-09-11.**
+    //
+    // This depended on `[open, close]`, and `close` is a `useCallback` around
+    // the caller's `onClose`. A caller that passes an INLINE ARROW — which is
+    // most of them — hands over a new identity on every render of its own, so
+    // any parent that re-renders while the sheet is open re-ran this whole
+    // effect: the cleanup put focus back on the button that opened the sheet,
+    // and the new run moved it to the panel.
+    //
+    // **HIS REPORT IS EXACTLY THAT:** *"I type any key on my keyboard, it
+    // types it and then instantly exits the text box."* Payments keeps the
+    // half-typed method in the state ABOVE the sheet, so every keystroke
+    // re-rendered the parent, made a new arrow, and yanked focus out of the
+    // field after one character. Nothing about the sheet looked wrong; the
+    // field simply would not hold the caret.
+    //
+    // `Walkthrough.jsx` hit this precisely once before and fixed it the same
+    // way, and its comment says the same thing in its own words: *"`onGo` and
+    // `onClose` are inline arrows, so they are a new identity on EVERY render,
+    // and in a dependency array that makes an effect re-run on every render."*
+    // That fix never made it one file over.
+  }, [open]);
 
   const onPointerDown = (e) => {
     drag.current = { startY: e.clientY, startHeight: height, moved: false };

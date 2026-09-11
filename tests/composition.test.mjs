@@ -557,8 +557,27 @@ console.log("\ntest 8: the corner and the second column's motion (roadmap 2.17)"
   // and DECISIONS, so it is re-derivable by a session reading only that half.
   // `backdrop-filter: blur()` is a different property and three surfaces use
   // it, which is why this looks for `filter:` not preceded by a hyphen.
+  // **NARROWED 2026-09-11, AND THE NARROWING IS ONE SELECTOR WIDE.** His
+  // report: *"it blurs everything but the tab switcher, which should just blur
+  // everything including the tab switcher."* The tab bar carries a
+  // `backdrop-filter` of its own and stays sharp under the sheet's overlay;
+  // removing that filter and lowering its z-index were both tried and both
+  // measured failing, so the honest fix is an element blur on the bar while a
+  // sheet is open.
+  //
+  // That is not the defect this check exists for and cannot become it: the
+  // rejected blur was on `.swap`, on content changing in place, with no
+  // overlay anywhere near it. So a rule SCOPED TO `.sheet-backdrop` may blur,
+  // and nothing else may — which keeps the guard blunt everywhere it matters
+  // while letting one overlay rule through. CLAUDE.md: *if a test and a real
+  // design decision collide, the system file gets updated first, never
+  // silently* — theme.css carries the same paragraph beside the rule.
+  const blurs = [...theme.matchAll(/([^{}]*)\{[^}]*?(?<!-)filter: blur[^}]*\}/g)]
+    .map((m) => m[1].trim().split("\n").pop().trim())
+    .filter((sel) => !sel.includes(".sheet-backdrop"));
   check("8e-ii · the rejected blur is gone and did not come back",
-    !/@keyframes swap-in/.test(theme) && !/(^|[^-])filter: blur/m.test(theme));
+    !/@keyframes swap-in/.test(theme) && blurs.length === 0,
+    blurs.length ? `blurred outside an overlay: ${blurs.join(" · ")}` : "");
   // 8e-iii REPLACED 2026-09-03, and the reason is worth more than the check.
   // The swap first lost the cascade to the screen's arrival
   // (`.app-main > .split > .col-1 > *` is (0,4,0), `.swap` is (0,1,0)), so

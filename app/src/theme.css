@@ -2548,6 +2548,35 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   animation: backdrop-in var(--t-hover) var(--e-out);
 }
 .sheet-backdrop.leaving { animation: backdrop-out var(--t-exit) var(--e-out) forwards; }
+/* **AND THE TAB SWITCHER IS BLURRED WITH EVERYTHING ELSE — his report,
+   2026-09-11: *"it blurs everything but the tab switcher, which it should just
+   blur everything including the tab switcher."***
+
+   TWO CHEAPER FIXES WERE TRIED FIRST AND BOTH WERE MEASURED FAILING, which is
+   why the expensive one is here. Dropping the bar's own `backdrop-filter` — on
+   the theory that its own backdrop root was excluding it — changed nothing;
+   nor did putting it under the overlay with `z-index: 1`. Screenshotted at
+   1440 both times: the rail stayed sharp under a blurred page.
+
+   **SO IT IS AN ELEMENT BLUR, WHICH THIS FILE BANS BY NAME — and the ban has
+   been narrowed rather than dodged.** `composition` 8e-ii exists for the
+   content-swap blur the owner asked for and then withdrew, and it was written
+   blunt on purpose because the narrow version has to guess at every spelling
+   of that defect. A tab bar dimmed under a modal is not that defect and cannot
+   become it, so the check now allows a blur on a rule scoped to
+   `.sheet-backdrop` and bans it everywhere else. CLAUDE.md's rule for exactly
+   this collision: *if a test and a real design decision collide, the system
+   file gets updated first, never silently.*
+
+   The dim and `pointer-events` ride with it: a blurred bar at full strength
+   still reads as the live thing on the screen, and a bar you can press under a
+   modal is a modal that is not one. */
+body:has(.sheet-backdrop:not(.leaving)) .tabbar {
+  filter: blur(3px);
+  opacity: .55;
+  transition: opacity var(--t-hover) var(--e-out), filter var(--t-hover) var(--e-out);
+  pointer-events: none;
+}
 @keyframes backdrop-in { from { opacity: 0; } }
 @keyframes backdrop-out { to { opacity: 0; } }
 

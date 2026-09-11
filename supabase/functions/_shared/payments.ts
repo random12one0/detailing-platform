@@ -54,7 +54,7 @@ export interface PaymentSettings {
   pay_other?: string | null;
   /** His review, 2026-09-11 — as many of his own as he needs, each the same
    *  shape as a built-in one. See the migration for why it is not a table. */
-  pay_custom?: { label?: string | null; handle?: string | null }[] | null;
+  pay_custom?: { label?: string | null; handle?: string | null; off?: boolean | null }[] | null;
 }
 
 export interface PaymentHandle {
@@ -129,6 +129,13 @@ const CUSTOM_MAX = 8;
 function customHandles(rows: PaymentSettings["pay_custom"]): PaymentHandle[] {
   if (!Array.isArray(rows)) return [];
   return rows.slice(0, CUSTOM_MAX).map((r) => {
+    // **SWITCHED OFF IS NOT DELETED.** A detailer who stops taking a method
+    // for the winter keeps the handle and turns it back on; nothing about that
+    // row should reach a customer while it is off. ABSENT MEANS ON, because
+    // every row saved before the switch existed has no flag at all — the
+    // default lives here and in the screen as the same sentence, not as two
+    // defaults that could drift.
+    if (r?.off === true) return null;
     const label = String(r?.label ?? "").trim().slice(0, 40);
     if (!label) return null;
     const built = one("custom", label, r?.handle);

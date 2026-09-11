@@ -486,6 +486,17 @@ console.log("\n8: the detailer's own methods");
   // AND THE OLD SINGLE LINE STILL WORKS, for every business that has not
   // opened the screen since. The screen clears it the first time it saves a
   // list; until then it is the only record of what they typed.
+  // **SWITCHED OFF IS NOT DELETED**, and absent means on — every row saved
+  // before the switch existed has no flag at all.
+  check("8f-ii · a method switched off reaches nobody",
+    of([{ label: "Apple Pay", handle: "x", off: true }]).length === 0);
+  check("8f-iii · and one saved before the switch existed is on",
+    of([{ label: "Apple Pay", handle: "x" }]).length === 1,
+    "absent must mean on, or every method a detailer already had goes quiet");
+  check("8f-iv · only `true` switches it off",
+    of([{ label: "A", handle: "x", off: false }]).length === 1
+      && of([{ label: "B", handle: "x", off: null }]).length === 1);
+
   check("8g · the superseded pay_other line is still read",
     paymentHandles({ pay_other: "A check made out to Ridgeline" })
       .some((h) => h.handle === "A check made out to Ridgeline"));

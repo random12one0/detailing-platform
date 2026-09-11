@@ -109,7 +109,7 @@ export default function Payments() {
   const [custom, setCustom] = useState(() => {
     const list = Array.isArray(settings?.pay_custom) ? settings.pay_custom : [];
     const rows = list
-      .map((r) => ({ label: String(r?.label ?? ""), handle: String(r?.handle ?? "") }))
+      .map((r) => ({ label: String(r?.label ?? ""), handle: String(r?.handle ?? ""), off: r?.off === true }))
       .filter((r) => r.label || r.handle);
     const legacy = String(settings?.pay_other ?? "").trim();
     return legacy && !rows.length ? [{ label: t("Something else"), handle: legacy }] : rows;
@@ -256,8 +256,16 @@ export default function Payments() {
       // on somebody's confirmation email, and `payments.ts` drops it on the
       // way out anyway; dropping it here means the screen and the email agree
       // about what was saved.
+      // `off` IS ONLY WRITTEN WHEN IT IS TRUE. A row that is on carries two
+      // fields rather than three, so every method saved before the switch
+      // existed still reads as on — absent means on, in the screen and in
+      // `payments.ts`, which is one rule rather than a default in two places.
       pay_custom: custom
-        .map((r) => ({ label: String(r.label).trim().slice(0, 40), handle: String(r.handle).trim().slice(0, 120) }))
+        .map((r) => ({
+          label: String(r.label).trim().slice(0, 40),
+          handle: String(r.handle).trim().slice(0, 120),
+          ...(r.off === true ? { off: true } : {}),
+        }))
         .filter((r) => r.label && r.handle)
         .slice(0, 8),
     }).eq("business_id", business.id);
@@ -456,28 +464,46 @@ export default function Payments() {
           complete or not at all, which is what makes it read as built in. */}
       <div className="section-title">{t("Anything else you take")}</div>
 
-      {custom.map((row, n) => (
-        <div key={`${row.label}-${n}`}>
-          <div className="setting">
-            <div className="setting-text">
-              <div className="setting-label">{row.label}</div>
+      {custom.map((row, n) => {
+        const on = row.off !== true;
+        return (
+          <div key={`${row.label}-${n}`}>
+            <div className="setting">
+              <div className="setting-text">
+                <div className="setting-label">{row.label}</div>
+              </div>
+              {/* **A SWITCH AND A REMOVE ARE TWO DIFFERENT ANSWERS — his note,
+                  2026-09-11: *"there should be a switch, like how I don't have,
+                  and the remove button."*** Off is *not this winter* — the
+                  handle stays and comes back on. Remove is *I do not take this
+                  any more*. Every built-in method has the first; this had only
+                  the second, so the only way to stop offering something was to
+                  throw away what you had typed.
+
+                  `bare` because the row already has its own label above — the
+                  full `Switch` would print the name a second time. */}
+              <div className="row" style={{ gap: 10, alignItems: "center" }}>
+                <button className="btn sm inline ghost"
+                  onClick={() => { setCustom(custom.filter((_, k) => k !== n)); setMsg(null); }}>
+                  {t("Remove")}
+                </button>
+                <Switch bare label={row.label} checked={on}
+                  onChange={(v) => { setCustom(custom.map((r, k) => (k === n ? { ...r, off: !v } : r))); setMsg(null); }} />
+              </div>
             </div>
-            {/* REMOVE IS A WORD, NOT AN ICON. It is the only destructive
-                control on this screen, and an X here is the same three pixels
-                as the one that clears a field. */}
-            <button className="btn sm inline ghost"
-              onClick={() => { setCustom(custom.filter((_, k) => k !== n)); setMsg(null); }}>
-              {t("Remove")}
-            </button>
+            {/* THE FIELD GOES WITH THE SWITCH, exactly as a built-in's does:
+                nothing to fill in for a method that is switched off. */}
+            {on && (
+              <label className="field" style={{ marginBottom: "var(--sp-4)" }}>
+                <span>{t("What they need")}</span>
+                <input value={row.handle} maxLength={120}
+                  placeholder={t("A username, a number, or a link")}
+                  onChange={(e) => { setCustom(custom.map((r, k) => (k === n ? { ...r, handle: e.target.value } : r))); setMsg(null); }} />
+              </label>
+            )}
           </div>
-          <label className="field" style={{ marginBottom: "var(--sp-4)" }}>
-            <span>{t("What they need")}</span>
-            <input value={row.handle} maxLength={120}
-              placeholder={t("A username, a number, or a link")}
-              onChange={(e) => { setCustom(custom.map((r, k) => (k === n ? { ...r, handle: e.target.value } : r))); setMsg(null); }} />
-          </label>
-        </div>
-      ))}
+        );
+      })}
 
       {custom.length < 8 && (
         <button className="btn ghost" style={{ marginBottom: "var(--sp-4)" }}
