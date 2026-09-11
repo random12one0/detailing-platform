@@ -61,6 +61,20 @@ export default function PlanMemberPage() {
         <div className="bk-center">
           <h1>{t("Plan not found")}</h1>
           <p className="bk-muted">{t("This link may be out of date. Ask your detailer to send it again.")}</p>
+        {/* **THE WAY BACK OUT OF A LANGUAGE — his review, 2026-09-11.**
+            *"It was in Spanish with no way to put it in English."*
+
+            Every working customer page carries the switch in its masthead;
+            this state carries no masthead at all, so it carried no switch. And
+            the language is remembered for the whole browser — a customer who
+            taps ES once on a booking page meets Spanish everywhere after it —
+            so the ONE page with no way out is the one that failed. Somebody
+            who cannot read the sentence explaining why their link is dead has
+            no second sentence to fall back on.
+
+            It is `.bk-center`'s own child rather than a masthead, because
+            there is nothing here for a masthead to sit above. */}
+        <div className="bk-lang-out"><LanguagePicker /></div>
         </div>
       </div>
     );

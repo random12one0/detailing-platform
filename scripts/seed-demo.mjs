@@ -1047,6 +1047,51 @@ if (process.argv.includes("--platform-admin")) {
       platformAdmin: adminCreds,
     }, null, 2)}\n`,
   );
+
+  // ── AND THE REVIEW PAGE'S OWN EXAMPLE LINKS ────────────────────────────
+  //
+  // **`app/public/map.html` CARRIES THREE REAL UUIDs** — a booking, a plan
+  // member and a customer — because the pages behind them cannot be reached
+  // any other way: a receipt, a membership and an opt-out are all addressed by
+  // the row they are about.
+  //
+  // **AND THE SUITES DESTROY THOSE ROWS AS THEY RUN.** `e2e-booking.mjs`
+  // finishes by CANCELLING and soft-deleting the booking it made;
+  // `forget-customer` anonymises a customer to the literal name "Deleted".
+  // Measured 2026-09-11: all three links on that page were stale, and the
+  // owner's own review of the product recorded two of them as *"wasn't able to
+  // view it"* and *"nothing showed when clicked on link"* — two product pages
+  // marked broken that were working perfectly, because the addresses pointed
+  // at rows that no longer existed.
+  //
+  // So the seed that CREATES those rows is what writes their ids into the
+  // page. Best-effort on purpose: a missing map file must never fail a seed.
+  try {
+    // A booking that is CONFIRMED and in the future, read back here rather
+    // than remembered from the insert above: the one this page wants is one
+    // that will still be there tomorrow, not whichever happened to be last.
+    const [mapBooking] = await get(
+      `/rest/v1/bookings?business_id=eq.${business.id}&status=eq.confirmed&deleted_at=is.null`
+      + "&select=id&order=start_at.desc&limit=1",
+    );
+    const bookingForMap = mapBooking?.id ?? null;
+    const { readFile, writeFile: write } = await import("node:fs/promises");
+    const mapPath = new URL("../app/public/map.html", import.meta.url);
+    let html = await readFile(mapPath, "utf8");
+    const live = [
+      [/\/booking\/[0-9a-f-]{36}/g, `/booking/${bookingForMap ?? ""}`],
+      [/\/job\/[0-9a-f-]{36}/g, `/job/${bookingForMap ?? ""}`],
+      [/\/plan\/[0-9a-f-]{36}/g, `/plan/${demoMember?.id ?? ""}`],
+      [/\/unsubscribe\/[0-9a-f-]{36}/g, `/unsubscribe/${cust("Marcus Webb")?.id ?? ""}`],
+    ];
+    let changed = 0;
+    for (const [re, to] of live) {
+      if (!to.endsWith("/")) { const before = html; html = html.replace(re, to); if (html !== before) changed++; }
+    }
+    if (changed) { await write(mapPath, html); console.log(`map.html: ${changed} example link${changed === 1 ? "" : "s"} refreshed`); }
+  } catch (e) {
+    console.log(`map.html: not refreshed (${e.message}) — harmless, the seed itself is fine`);
+  }
 }
 
 // ROADMAP 6.2 — "a reset script proven to restore exact state".

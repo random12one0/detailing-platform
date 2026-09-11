@@ -997,3 +997,10 @@
     transform: translateY(-50%); margin: 0;
   }
 }
+
+
+/* THE SWITCH ON A DEAD-LINK PAGE. `.bk-center` is a centred column with
+   nothing else in it, so the picker is simply the last thing in it rather
+   than furniture pinned to a corner that does not exist here. */
+.bk-lang-out { display: flex; justify-content: center; margin-top: var(--bk-sp-5); }
+.bk-lang-out .bk-lang { position: static; transform: none; margin: 0; }
