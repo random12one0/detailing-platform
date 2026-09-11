@@ -3978,3 +3978,37 @@ html:not(.lite) .intake .samp-move .samp-row:nth-child(3) { animation-delay: .5s
    better break point to prefer. Scoped here, never on `.label` itself, which
    is short uppercase furniture everywhere else and should keep refusing. */
 .wa-host { overflow-wrap: anywhere; }
+
+/* THE WAY OUT OF AN EDITOR, AT THE TOP. His review, 2026-09-11: *"once I click
+   on a monthly plan to edit it, I can't close that tab. There's an x, but that
+   x closes the entire monthly plan tab."* The editor's only close was a Cancel
+   at the foot of a form taller than the screen, so the one close in view was
+   the host's — which shuts the whole settings screen and drops the edit.
+   Ruled off rather than boxed: it is the frame's header, not a row of the
+   form. */
+.ed-head {
+  align-items: center; gap: var(--sp-3);
+  padding-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--hairline);
+}
+.ed-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* A PLAN'S NAME IS WHAT YOU SCAN FOR, so it wraps rather than truncating.
+   `.rows.cols .row-item .c-who` sets `nowrap` + `text-overflow: ellipsis` at
+   (0,3,1), so a bare `.plan-nm` lost and the name clipped mid-word — the
+   guess that cost two passes. The repo's own idiom for "this list is a bit
+   different" is a modifier on the LIST (`.rows.cols.history`,
+   `.rows.cols.clients`), matched here rather than overridden, so nothing has
+   to win a specificity fight. */
+.rows.cols.planlist .row-item .c-who {
+  white-space: normal; overflow: visible; text-overflow: clip;
+  display: flex; align-items: flex-start; gap: 6px;
+}
+.rows.cols.planlist .row-item .c-who > svg {
+  color: var(--text-muted); flex-shrink: 0; margin-top: 3px;
+}
+
+/* `priceWords` returns a PHRASE, not a figure, so this cell is allowed to
+   take two lines. Scoped to the plan list: `.c-total` everywhere else holds a
+   single money value and should keep refusing to wrap. */
+.rows.cols.planlist .row-item .c-total { white-space: normal; text-align: right; }

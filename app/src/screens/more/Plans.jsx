@@ -26,6 +26,7 @@
 // number nothing can check.
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Repeat, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { dateLong, money, todayLocal } from "../../lib/format.js";
@@ -137,6 +138,48 @@ export default function Plans() {
 
   useEffect(() => { load(); }, [load]);
 
+  // ESCAPE CLOSES THE EDITOR, NOT THE WHOLE SCREEN — his review, 2026-09-11:
+  // *"once I click on a monthly plan to, like, edit it or whatever, I can't
+  // close that tab. There's an x, but that x closes the entire monthly plan
+  // tab, like, the whole thing."*
+  //
+  // He is describing two missing things at once. The editor had no close
+  // control of its own at the TOP — only a Cancel at the bottom of a form
+  // that is taller than the screen — so the only close anywhere in view was
+  // `SettingsHost`'s X, which closes Monthly plans entirely and throws the
+  // edit away. And Escape did the same, for the same reason.
+  //
+  // CAPTURE PHASE, AND THAT IS THE WHOLE MECHANISM. `SettingsHost` listens on
+  // `window` in the bubble phase (its line 66). A capture listener on `window`
+  // runs BEFORE that, so stopping propagation here means the host never sees
+  // the key — one press closes one thing, which is the rule RecordHost's own
+  // header already states for the sheet-over-record case.
+  useEffect(() => {
+    if (!editPlan && !editMember) return undefined;
+    const onKey = (e) => {
+      if (e.key !== "Escape") return;
+      // A sheet on top owns the key before either of us.
+      if (document.querySelector(".sheet-backdrop")) return;
+      e.stopPropagation();
+      setEditPlan(null);
+      setEditMember(null);
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [editPlan, editMember]);
+
+  // The way out, at the top where the eye is, on both editors. `.ed-head` is
+  // the frame's own header rather than a row of the form — it stays put while
+  // the form under it scrolls.
+  const editorHead = (title, onClose) => (
+    <div className="row between ed-head">
+      <strong className="ed-title">{title}</strong>
+      <button className="btn sm inline icon ghost" aria-label={t("Close")} onClick={onClose}>
+        <X strokeWidth={2} />
+      </button>
+    </div>
+  );
+
   const plansById = useMemo(() => new Map(plans.map((p) => [p.id, p])), [plans]);
   const custById = useMemo(() => new Map(customers.map((c) => [c.id, c])), [customers]);
   const owed = useMemo(
@@ -234,6 +277,8 @@ export default function Plans() {
 
   const planEditor = (
     <div className="thoughts">
+      {editorHead(editPlan === "new" ? t("New plan") : (planForm.name || t("Edit plan")),
+        () => setEditPlan(null))}
       <label className="field"><span>{t("Name")}</span>
         <input value={planForm.name} maxLength={60} placeholder={t("Every-other-week wash")}
           onChange={(e) => setPlanForm({ ...planForm, name: e.target.value })} /></label>
@@ -334,16 +379,14 @@ export default function Plans() {
     const who = m ? custById.get(m.customer_id) : null;
     return (
       <div className="thoughts">
-        {/* WHO THIS IS ABOUT. The customer picker below only exists while
-            logging somebody NEW, so without this the editor for an existing
-            member is five controls about a person it never names — caught by
-            looking at it at 1920, not by any check in the repo. */}
-        {who && (
-          <div>
-            <strong>{who.name}</strong>
-            <div className="muted">{who.phone}</div>
-          </div>
-        )}
+        {/* WHO THIS IS ABOUT, AND THE WAY OUT, ON ONE LINE. The customer
+            picker below only exists while logging somebody NEW, so without
+            the name this editor is five controls about a person it never
+            names — caught by looking at it at 1920, not by any check in the
+            repo. The close beside it is his review of 2026-09-11: the only
+            close in view used to be the one that shuts the whole screen. */}
+        {editorHead(who?.name ?? t("Log a member"), () => setEditMember(null))}
+        {who?.phone && <div className="muted" style={{ marginTop: "calc(-1 * var(--sp-2))" }}>{who.phone}</div>}
         {/* A NATIVE DROP-DOWN, DELIBERATELY. The design system's rule is that
             three choices are a segmented control; a customer list is two
             hundred, and the platform's own picker is better than anything
@@ -447,7 +490,21 @@ export default function Plans() {
       <Tag key={p.id} className="row-item" style={{ opacity: p.is_active ? 1 : 0.5 }}
         onClick={maySetPlans ? () => { setPlanForm(planToForm(p)); setEditPlan(p.id); } : undefined}
         aria-label={`${p.name}, ${cadenceWords(p, lang)}, ${priceWords(p.price_kind, p.price_amount, money, lang)}, ${memberCount(p.id)} members`}>
-        <span className="c-who nm">{p.name}</span>
+        {/* AN OFFER, NOT A PERSON. The two lists on this screen share a row
+            grammar on purpose, which is what made them read alike — one mark
+            in the name cell is enough to tell them apart at a glance without
+            inventing a second kind of row. */}
+        {/* THE NAME WRAPS, IT DOES NOT TRUNCATE. At 392 "Bi-weekly
+            maintenance" came back as "Bi-weekly mainte…" because the price
+            column carries a whole phrase ("$120.00 a month") and takes the
+            room. A plan's name is the thing the detailer is looking for; an
+            ellipsis in the one cell you scan is worse than a second line.
+            `align-items: start` so the icon sits with the FIRST line rather
+            than centring itself against two. */}
+        <span className="c-who nm">
+          <Repeat size={14} strokeWidth={2} aria-hidden="true" />
+          <span>{p.name}</span>
+        </span>
         <span className="c-sub">
           <span className="c-date">{cadenceWords(p, lang)}</span>
           {/* A BARE NUMBER IN THE FIGURE COLUMN SAID NOTHING. It was the
@@ -468,7 +525,17 @@ export default function Plans() {
             {p.is_active ? "" : t(" · hidden")}
           </span>
         </span>
-        <span className="c-total figure sm">{priceWords(p.price_kind, p.price_amount, money, lang)}</span>
+        {/* THE PRICE CELL WRAPS, WHICH IS WHAT ACTUALLY FREED THE NAME.
+            `priceWords` returns a PHRASE — "$120.00 a month", "$1200.00 up
+            front" — not a figure, and in a nowrap monospace cell that phrase
+            took the row's width and squeezed "Bi-weekly maintenance" down to
+            "Bi-weekly mainte…". Letting the NAME wrap did nothing, because
+            the grid had already given the column away. Two short lines here
+            costs nothing; a clipped plan name costs the thing you were
+            looking for. */}
+        <span className="c-total figure sm">
+          {priceWords(p.price_kind, p.price_amount, money, lang)}
+        </span>
       </Tag>
     );
   };
@@ -511,9 +578,18 @@ export default function Plans() {
     <div>
       {error && <div className="error-box">{error}</div>}
 
+      {/* **HIS REVIEW, 2026-09-11, READ ALOUD AND THEN JUDGED:** *"your
+          plans, you offer on a rhythm, you agree the price and the dates with
+          the customer yourself, this just remembers them and tells who does
+          the date — that sentence is so obviously AI."* He was right, and the
+          fault was not the length. It explained the FEATURE in three clauses
+          when a detailer needs one fact before they touch anything here, and
+          that fact is the surprising one: **nobody's card gets charged.** A
+          plan in this product is a note of what was agreed, not a
+          subscription we run. Everything else the screen itself shows. */}
       <div className="section-title" style={{ marginTop: 0 }}>{t("Your plans")}</div>
       <p className="muted" style={{ marginBottom: 8 }}>
-        {t("What you offer on a rhythm. You agree the price and the dates with the customer yourself — this remembers them and tells you who is owed a visit.")}
+        {t("We never charge anyone — you take the money your own way. This keeps count of who is owed a visit.")}
       </p>
       {/* THE LIST AND THE EDITOR ARE ONE FRAME WITH ITS CONTENTS REPLACED,
           which is the owner's own third kind of motion: "the GUI kind of
@@ -527,20 +603,29 @@ export default function Plans() {
           ("it just looks like a page refresh"). The class carries the gap; the
           parts stay direct children. */}
       <div className="swap tight" key={editPlan ?? "plan-list"}>
+        {/* EACH SECTION IS ONE BOUNDED SURFACE — his review: *"you have your
+            plans kinda all stacked on top of each other"* and *"the add plan
+            or who's on the plan… they just kinda look so similar."* Both
+            lists used the same row grammar on the same flat ground with a
+            heading between them, so the screen read as one long stack rather
+            than as two answers to two questions. A card per SECTION, never
+            per row: `composition` test 1 bans the second (18 cards, 3,942px
+            tall) and this is the container, which is what the rest of the
+            settings screens already do. */}
         {editPlan ? <div className="card">{planEditor}</div> : (
-          <>
+          <div className="card thoughts">
             {loaded && plans.length === 0 && (
               <p className="body">
                 {t("No plans yet. Most detailers start with one — a wash every other week, or a monthly rate.")}
               </p>
             )}
-            {plans.length > 0 && <div className="rows cols">{plans.map(planRow)}</div>}
+            {plans.length > 0 && <div className="rows cols planlist">{plans.map(planRow)}</div>}
             {loaded && maySetPlans && (
               <button className="btn inline" onClick={() => { setPlanForm(BLANK_PLAN); setEditPlan("new"); }}>
                 {t("Add a plan")}
               </button>
             )}
-          </>
+          </div>
         )}
       </div>
 
@@ -570,15 +655,17 @@ export default function Plans() {
         </div>
       )}
 
+      {/* NO SENTENCE UNDER THIS ONE. It said "Who is on a plan, and who is
+          owed a visit nobody has booked yet" — which is the heading, plus a
+          restatement of the "Owed a visit · N" chip three lines below it.
+          That is the owner's own copy rule: does the sentence add a fact the
+          control does not already carry? */}
       <div className="section-title">{t("Members")}</div>
-      <p className="muted" style={{ marginBottom: 8 }}>
-        {t("Who is on a plan, and who is owed a visit nobody has booked yet.")}
-      </p>
       <div className="swap tight" key={editMember ?? (owedOnly ? "owed" : "member-list")}>
         {editMember ? (
           <div className="card">{memberEditor(members.find((m) => m.id === editMember) ?? null)}</div>
         ) : (
-          <>
+          <div className="card thoughts">
             {/* THE COUNT AND THE CHIP ARE ONE FACT, the Clients screen's own
                 shape. A control that cannot change anything is noise, so the
                 chip is absent when nobody is owed a visit. */}
@@ -610,7 +697,7 @@ export default function Plans() {
                 setEditMember("new");
               }}>{t("Log a member")}</button>
             )}
-          </>
+          </div>
         )}
       </div>
 
