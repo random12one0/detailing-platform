@@ -61,6 +61,28 @@ import { Switch } from "../../components/controls.jsx";
 import { t } from "../../lib/appI18n.js";
 import { useAppLocale } from "../../hooks/useAppLocale.js";
 
+// EVERY WAY TO BE PAID THAT NEEDS A HANDLE, in the order a detailer is most
+// likely to use them. The `help` under each is what the switch cannot say on
+// its own — and never a restatement of the name, which is the copy rule.
+//
+// ZELLE IS LAST AND ASKS FOR SOMETHING DIFFERENT: it is not an app with a page
+// of its own, it lives inside a bank's app and is reached by phone number or
+// email, so there is nothing to link to.
+const HANDLES = [
+  { key: "pay_venmo", name: "Venmo",
+    help: "Just the username — we add the @ and make it a link they can tap.",
+    placeholder: "your-handle" },
+  { key: "pay_cashapp", name: "Cash App",
+    help: "Just the tag — we add the $ and make it a link.",
+    placeholder: "yourhandle" },
+  { key: "pay_paypal", name: "PayPal",
+    help: "Your username, or paste your PayPal.Me link.",
+    placeholder: "your-handle, or a PayPal.Me link" },
+  { key: "pay_zelle", name: "Zelle",
+    help: "Zelle lives in your bank's app, so this is the phone number or email it is on.",
+    placeholder: "The phone number or email your Zelle is on" },
+];
+
 export default function Payments() {
   useAppLocale();
   const { business, settings, reload } = useBusiness();
@@ -74,6 +96,15 @@ export default function Payments() {
   });
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null); // {ok, text}
+  // WHAT WAS TYPED BEFORE A SWITCH WAS TURNED OFF. Turning a method off has to
+  // clear the handle — an old Venmo name left in the row would go on the next
+  // customer's email — but losing it on a mis-tap means opening another app to
+  // look it up. Kept for as long as the screen is open, and never saved.
+  const [drafts, setDrafts] = useState({});
+  // WHICH FIELD IS OPEN WITH NOTHING IN IT YET. A method is "on" when it has a
+  // handle, so the instant between switching on and typing the first character
+  // has no other record of itself.
+  const [openFor, setOpen] = useState({});
 
   const set = (k) => (e) => setPay({ ...pay, [k]: e.target.value });
 
@@ -307,6 +338,25 @@ export default function Payments() {
         {t("These go on a customer's booking confirmation, their reminder, and any invoice still owed. Never on a receipt for money already paid.")}
       </p>
 
+      {/* ── A SWITCH PER WAY TO BE PAID — his note, 2026-09-10 ────────────
+          *"There's only one option, do you take cash? Shouldn't there be an
+          option for them to add things? There should be a toggle for cash, for
+          Venmo, for Cash App, PayPal, Zelle."*
+
+          It was one switch and then four loose text boxes, so four of the five
+          ways a detailer gets paid had no on/off at all — they were on when
+          the box had something in it, which is a rule the screen never stated
+          and nobody would guess. Now every method is a row that reads the
+          same: a name, a switch, and the one thing it needs to know underneath
+          when it is on.
+
+          **A METHOD IS STILL "ON" WHEN IT HAS A HANDLE, because that is what
+          the database says and what every email reads.** No column was added
+          and no migration: the switch makes the existing rule visible instead
+          of leaving it implied. Turning one off clears the saved handle — but
+          `drafts` below keeps what was typed for as long as the screen is
+          open, so a mis-tap is one tap back rather than a handle to look up in
+          another app. */}
       <Switch
         label={t("Cash")}
         help={t("You take cash on the day.")}
@@ -314,45 +364,53 @@ export default function Payments() {
         onChange={(v) => setPay({ ...pay, pay_cash: v })}
       />
 
-      <div className="section-title">{t("Apps")}</div>
-      {/* THE SENTENCE GOVERNS ALL THREE FIELDS, SO IT SITS ABOVE THEM. It was
-          under PayPal on the first pass and read as a caption about PayPal —
-          the @ and the $ it names belong to the two fields above that one.
-          Same shape as `controls.jsx`'s `Group` blurb, which is the house
-          pattern for exactly this. */}
-      <p className="muted" style={{ margin: "0 0 var(--sp-3)" }}>
-        {t("Just the username — we add the @ or $ and make it a link they can tap. Anything else still shows, but they will have to type it in themselves.")}
-      </p>
-      {/* NOT PAIRED, AND THIS ONE WAS MEASURED. Two `.grid2` fields at 392
-          leave 155px each, which holds `@andrews-detail` and clips anything
-          longer into a horizontal scroll inside the box. Every other paired
-          field in this product holds a value you can recognise half of; a
-          payment handle is the one kind of value where reading half of it is
-          the same as reading none, because the detailer is checking it
-          character by character against another app. The row it saves is free
-          on a page that already scrolls. Same finding as Reviews.jsx: a pair
-          that does not survive 392 is not a pair. */}
-      <label className="field"><span>{"Venmo"}</span>
-        <input value={pay.pay_venmo} onChange={set("pay_venmo")}
-          placeholder="your-handle" maxLength={120} /></label>
-      <label className="field"><span>{"Cash App"}</span>
-        <input value={pay.pay_cashapp} onChange={set("pay_cashapp")}
-          placeholder={t("yourhandle")} maxLength={120} /></label>
-      <label className="field"><span>{"PayPal"}</span>
-        <input value={pay.pay_paypal} onChange={set("pay_paypal")}
-          placeholder={t("your-handle, or paste your PayPal.Me link")} maxLength={120} /></label>
+      {HANDLES.map(({ key, name, help, placeholder }) => {
+        const on = !!pay[key];
+        return (
+          <div key={key}>
+            <Switch
+              label={name}
+              help={on ? undefined : help}
+              checked={on}
+              onChange={(v) => {
+                if (v) { setPay({ ...pay, [key]: drafts[key] || "" }); setOpen((o) => ({ ...o, [key]: true })); }
+                else { setDrafts({ ...drafts, [key]: pay[key] }); setPay({ ...pay, [key]: "" }); }
+              }}
+            />
+            {/* THE FIELD ONLY EXISTS WHILE THE SWITCH IS ON, which is what
+                makes the switch mean something. `open` keeps it on screen for
+                the moment between switching on and typing the first
+                character, when the value is still empty. */}
+            {(on || openFor[key]) && (
+              <label className="field" style={{ margin: "0 0 var(--sp-4)" }}>
+                <span>{t("Your {name}", { name })}</span>
+                <input value={pay[key]} onChange={set(key)} autoFocus={openFor[key] && !on}
+                  placeholder={placeholder} maxLength={120} />
+              </label>
+            )}
+          </div>
+        );
+      })}
 
-      <div className="section-title">{t("Bank and anything else")}</div>
-      {/* ZELLE IS NOT AN APP WITH A PAGE. It lives inside a bank's own app and
-          is reached by phone number or email, so there is nothing to link to
-          and the field asks for a different thing from the three above it.
-          That is why it is under its own heading rather than in the pair. */}
-      <label className="field"><span>{"Zelle"}</span>
-        <input value={pay.pay_zelle} onChange={set("pay_zelle")}
-          placeholder={t("The phone number or email your Zelle is on")} maxLength={120} /></label>
-      <label className="field"><span>{t("Anything else")}</span>
-        <input value={pay.pay_other} onChange={set("pay_other")}
-          placeholder={t("e.g. Apple Pay, or a check")} maxLength={120} /></label>
+      {/* ANYTHING ELSE, and it is a switch for the same reason as the rest:
+          a detailer who takes a check has a way to be paid that this list does
+          not name, and an empty box does not tell them they can say so. */}
+      <Switch
+        label={t("Something else")}
+        help={!pay.pay_other ? t("A check, Apple Pay, an account at the shop — anything you want on the email.") : undefined}
+        checked={!!pay.pay_other}
+        onChange={(v) => {
+          if (v) { setPay({ ...pay, pay_other: drafts.pay_other || "" }); setOpen((o) => ({ ...o, pay_other: true })); }
+          else { setDrafts({ ...drafts, pay_other: pay.pay_other }); setPay({ ...pay, pay_other: "" }); }
+        }}
+      />
+      {(!!pay.pay_other || openFor.pay_other) && (
+        <label className="field" style={{ margin: "0 0 var(--sp-4)" }}>
+          <span>{t("What to tell them")}</span>
+          <input value={pay.pay_other} onChange={set("pay_other")}
+            autoFocus={openFor.pay_other && !pay.pay_other}
+            placeholder={t("e.g. Apple Pay, or a check made out to…")} maxLength={120} /></label>
+      )}
 
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
       <button className="btn primary" disabled={busy} onClick={save}>{busy ? "Saving" : "Save"}</button>
