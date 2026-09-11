@@ -11,12 +11,34 @@
 // row here that belongs to the PERSON rather than the business — the same
 // account may be a member of two — which is why the screen says whose it is.
 //
-// NO CURRENT-PASSWORD FIELD, and that is Supabase's design rather than an
+// ~~NO CURRENT-PASSWORD FIELD, and that is Supabase's design rather than an
 // omission: `updateUser` acts on the live session, and the session is the
-// proof. Asking again would be a field that checks nothing.
+// proof. Asking again would be a field that checks nothing.~~
+//
+// **WRONG, AND HE CAUGHT IT — 2026-09-10.** *"There should be a place for you
+// to input your existing password just to check, like most of them have.
+// Obviously we need that."*
+//
+// The old reasoning confused two different questions. **The session proves
+// this BROWSER was authenticated once. It does not prove the PERSON at the
+// keyboard is the account holder** — and the gap between those two is a
+// detailer's laptop left unlocked in a van, on a driveway, in a shop. Anybody
+// who walks up to it can take the account permanently, because changing the
+// password is the one action that locks the real owner out of their own
+// bookings and their own money.
+//
+// **SO IT IS RE-AUTHENTICATION, NOT A DECORATIVE FIELD.** The typed password
+// is checked by signing in with it before anything is changed: a wrong one
+// fails at Supabase and nothing is written. There is no way to verify a
+// password client-side and nothing here tries to.
+//
+// It is deliberately NOT added to `/reset`. Somebody on that screen is locked
+// out by definition and proved themselves with an emailed link; asking for a
+// password they do not have is how a reset screen becomes a dead end.
 
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase.js";
+import { MIN_PASSWORD, PASSWORD_RULE } from "../../lib/password.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
@@ -26,6 +48,7 @@ import { useAppLocale } from "../../hooks/useAppLocale.js";
 export default function Password() {
   useAppLocale();
   const [email, setEmail] = useState("");
+  const [current, setCurrent] = useState("");
   const [password, setPassword] = useState("");
   const [again, setAgain] = useState("");
   const [msg, setMsg] = useState(null);
@@ -44,9 +67,36 @@ export default function Password() {
     // lockout, and the screen that fixes a lockout is the one you cannot reach.
     if (password !== again) { setMsg({ ok: false, text: "Those two do not match." }); return; }
     setBusy(true);
+
+    // THE CHECK IS A SIGN-IN, because there is no other way to verify a
+    // password: it is hashed at the server and nothing in a browser can test
+    // it. A wrong one fails here and `updateUser` is never reached.
+    //
+    // Signing in as the SAME account replaces this session with an identical
+    // one, which is why nothing else has to be told: `BusinessContext`'s auth
+    // listener settles the new session for the same user and the screen does
+    // not move.
+    const { error: wrong } = await supabase.auth.signInWithPassword({ email, password: current });
+    if (wrong) {
+      setBusy(false);
+      // **A WRONG PASSWORD AND A FAILED REQUEST ARE NOT THE SAME ANSWER.**
+      // Lumping them together tells somebody their password is wrong when the
+      // network dropped or the server rate-limited them, and they then change
+      // a password that was never the problem. Only the credential error gets
+      // the credential sentence; anything else says what actually happened.
+      //
+      // Not the raw text either: Supabase says "Invalid login credentials",
+      // which on a screen where the email is printed and cannot be edited
+      // reads as though the account itself is broken.
+      const bad = /invalid|credentials|password/i.test(wrong.message ?? "");
+      setMsg({ ok: false, text: bad ? "That is not your current password." : wrong.message });
+      return;
+    }
+
     const { error } = await supabase.auth.updateUser({ password });
     setBusy(false);
     if (error) { setMsg({ ok: false, text: error.message }); return; }
+    setCurrent("");
     setPassword("");
     setAgain("");
     setMsg({ ok: true, text: "Changed. This device stays signed in." });
@@ -56,20 +106,25 @@ export default function Password() {
     <form className="group" onSubmit={save}>
       <p className="quiet">
         {email ? <>{t("The password for")} <strong>{email}</strong>.</> : t("Your sign-in password.")}
-        {" "}Eight characters or more.
+        {" "}{t(PASSWORD_RULE)}
       </p>
       <label className="field">
+        <span>{t("Current password")}</span>
+        <input type="password" value={current} required
+          autoComplete="current-password" onChange={(e) => setCurrent(e.target.value)} />
+      </label>
+      <label className="field">
         <span>{t("New password")}</span>
-        <input type="password" value={password} minLength={8} required
+        <input type="password" value={password} minLength={MIN_PASSWORD} required
           autoComplete="new-password" onChange={(e) => setPassword(e.target.value)} />
       </label>
       <label className="field">
         <span>{t("Type it again")}</span>
-        <input type="password" value={again} minLength={8} required
+        <input type="password" value={again} minLength={MIN_PASSWORD} required
           autoComplete="new-password" onChange={(e) => setAgain(e.target.value)} />
       </label>
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
-      <button className="btn primary" disabled={busy || !password}>
+      <button className="btn primary" disabled={busy || !current || !password}>
         {busy ? t("Saving…") : t("Change it")}
       </button>
     </form>

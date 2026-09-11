@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "../lib/supabase.js";
+import { MIN_PASSWORD } from "../lib/password.js";
 import { roleName } from "../lib/permissions.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
@@ -83,7 +84,7 @@ export default function AcceptInvite() {
         </p>
         <label className="field">
           <span>{t("Choose a password")}</span>
-          <input type="password" value={password} minLength={8} required autoComplete="new-password"
+          <input type="password" value={password} minLength={MIN_PASSWORD} required autoComplete="new-password"
             onChange={(e) => setPassword(e.target.value)} />
         </label>
         {error && <div className="error-box">{error}</div>}

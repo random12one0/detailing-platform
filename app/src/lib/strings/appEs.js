@@ -1149,6 +1149,8 @@ export const appEs = {
   "Each area below sets its own, so this one is not charged while you have areas.":
     "Cada zona de abajo pone la suya, así que esta no se cobra mientras tengas zonas.",
   "Edit": "Editar",
+  "Ten characters or more.": "Diez caracteres o más.",
+  "You will be signed in straight after.": "Iniciarás sesión inmediatamente después.",
   "Eight characters or more. You will be signed in straight after.":
     "Ocho caracteres o más. Vas a entrar justo después.",
   "Email invoice": "Mandar factura",
@@ -1245,6 +1247,7 @@ export const appEs = {
   "Navigate": "Navegar",
   "Never mind": "Mejor no",
   "Never sends before the first one.": "Nunca se manda antes que el primero.",
+  "Current password": "Contraseña actual",
   "New password": "Contraseña nueva",
   "Next charge": "Siguiente cargo",
   "No active services yet. Add them in the More tab under Services.":
