@@ -477,7 +477,7 @@ export default function Money() {
           same period's numbers and must not resolve a beat after them. */}
       {anything && (
         <div>
-        <div className="sunken swap" key={`ctx-${kind}|${offset}`}>
+        <div className="sunken swap" data-tour="breakdown" key={`ctx-${kind}|${offset}`}>
           <div className="paircells">
             <Cell label={t("Collected")} value={money(stats.inNow)} />
             <Cell label={t("Expenses")} value={money(stats.outNow)} />
@@ -525,7 +525,7 @@ export default function Money() {
           §1a is most explicit about. Nothing outstanding is good news and it
           does not need a container. */}
       {unpaid.length > 0 && (
-        <div className="tight">
+        <div className="tight" data-tour="unpaid">
           <span className="label">Waiting on payment · {money(unpaidTotal)}</span>
           {unpaid.map((b) => (
             <div className="card" key={b.id}>
@@ -556,7 +556,7 @@ export default function Money() {
         </div>
       )}
 
-      <div className="tight">
+      <div className="tight" data-tour="expenses">
         <div className="row between">
           <span className="label">Expenses · {period.label}</span>
           <button className="btn sm inline filled" onClick={() => setAdding(true)}>

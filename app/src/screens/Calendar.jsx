@@ -308,7 +308,7 @@ export default function Calendar({ refreshKey = 0 }) {
   ].filter(Boolean);
 
   const modeSwitch = (
-    <div className="row" style={{ gap: 6 }}>
+    <div className="row" data-tour="mode" style={{ gap: 6 }}>
       <button className={`chip ${mode === "month" ? "active" : ""}`}
         onClick={() => setMode("month")}>{t("Month")}</button>
       <button className={`chip ${mode === "list" ? "active" : ""}`}

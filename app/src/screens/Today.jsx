@@ -371,7 +371,7 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
              sunken block with a rule down it reads as one object with two
              readings, which is what it is. The desk has the 112px; the phone
              does not, which is the row below. */
-          <div className="sunken" style={{ display: "grid", gridTemplateColumns: "1fr 1px 1fr", gap: "var(--sp-4)" }}>
+          <div className="sunken" data-tour="figures" style={{ display: "grid", gridTemplateColumns: "1fr 1px 1fr", gap: "var(--sp-4)" }}>
             <div>
               <span className="label">{t("Jobs today")}</span>
               <div className="figure" style={{ marginTop: 8 }}>{todays.length}</div>
@@ -505,7 +505,7 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
           uses: below it a detailer can see the answer without being told, and
           a prompt about one person is noise wearing a number. */}
       {lapsedCount >= 3 && (
-        <button className="row-item" onClick={() => onGo?.("clients", "lapsed")}>
+        <button className="row-item" data-tour="lapsed" onClick={() => onGo?.("clients", "lapsed")}>
           <span className="txt">
             <span className="nm">{lapsedCount} haven't been in for 3 months</span>
             <span className="sub">{t("Write to them")}</span>
@@ -553,7 +553,7 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
             </div>
           )}
           {slots !== null && (
-            <div className="tight">
+            <div className="tight" data-tour="ahead">
               <h2 className="label">{t("The next 7 days")}</h2>
               <div className="facts">
                 <div><span>{t("Open slots")}</span><span className="v strong num">{slots}</span></div>

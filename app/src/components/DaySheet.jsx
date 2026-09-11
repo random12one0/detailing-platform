@@ -218,7 +218,12 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
     : t(active.length === 1 ? "{count} job" : "{count} jobs", { count: active.length });
   const body = (
         <div className="group">
-          <div className="tight day-jobs">
+          {/* ROADMAP 2.24 — HIS NOTE: *"it didn't touch at all on... if you
+              click on a date, what you get when you click on a date."* The
+              calendar guide OPENS a day and then points in here, which is the
+              only way a guide can explain a panel that does not exist until
+              somebody presses something. */}
+          <div className="tight day-jobs" data-tour="dayjobs">
             {active.length === 0
               ? <p className="quiet">{t("Nothing booked.")}</p>
               : (
@@ -264,7 +269,7 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
               draws for an owner always, and for a staff member only where
               there is a fact — per card, not per section. */}
           {showState && (
-            <div className={`tight day-state${state.loading ? " refreshing" : ""}`}
+            <div data-tour="daystate" className={`tight day-state${state.loading ? " refreshing" : ""}`}
               aria-busy={state.loading || undefined}>
               <span className="label">{t("This day")}</span>
 

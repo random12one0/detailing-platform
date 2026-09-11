@@ -280,7 +280,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
         </p>
       </div>
 
-      <input placeholder={t("Search name or phone…")} value={search}
+      <input data-tour="csearch" placeholder={t("Search name or phone…")} value={search}
         aria-label={t("Search customers")}
         onChange={(e) => setSearch(e.target.value)} />
 
@@ -306,7 +306,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
               halves of one fact and must move together. Written out rather
               than computed: "3 months" is what a person says, and 90/30 in a
               button is arithmetic nobody reading the screen asked for. */}
-          <button className={`chip${lapsed ? " active" : ""}`} aria-pressed={lapsed}
+          <button data-tour="lapsedchip" className={`chip${lapsed ? " active" : ""}`} aria-pressed={lapsed}
             onClick={() => setLapsed((v) => !v)}>
             {t("Not seen in 3 months")}
           </button>

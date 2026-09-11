@@ -147,6 +147,16 @@ const humanNotice = (mins) => {
   return t("{count} min notice", { count: mins });
 };
 
+// The settings rows the tour stops at. A tour name has to be unique across
+// the whole app (Walkthrough.jsx rule 2) and these are, so the row's own key
+// is the name.
+const TOUR_ROWS = {
+  catalog: "catalog",
+  hours: "hours",
+  payments: "payments",
+  domain: "domain",
+};
+
 export default function Business({ onSetup, initial = null }) {
   useAppLocale();
   const { business, settings, branding, role, siteOrigin, reload: reloadTenant } = useBusiness();
@@ -400,7 +410,13 @@ export default function Business({ onSetup, initial = null }) {
               // complained about.
               <button className={`nav-row${blocked === key ? " blocking" : ""}`} key={key}
                 data-settings-key={key}
-                data-tour={key === "catalog" ? "catalog" : undefined}
+                // ROADMAP 2.24, SECOND PASS — five rows, not one. His note:
+                // *"they need to be in-depth... analyze each tab, see what
+                // wouldn't be needing guidance, and just kinda have something
+                // for each thing on each tab."* The rows named here are the
+                // five a detailer cannot finish setting up without; the rest
+                // are a label and a live summary that read themselves back.
+                data-tour={TOUR_ROWS[key]}
                 aria-current={open === key ? "true" : undefined}
                 onClick={() => setOpen(key)}>
                 <span className="ico">

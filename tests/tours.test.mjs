@@ -103,10 +103,26 @@ const screens = [
   "app/src/components/BookingLink.jsx", "app/src/components/DaySheet.jsx",
 ].map((f) => { try { return readFileSync(f, "utf8"); } catch { return ""; } }).join("\n");
 
+// **AND THE MATCHER HAD TO BE TIGHTENED, because three of the four names added
+// on 2026-09-10 passed WITHOUT A TARGET ANYWHERE.** It accepted a bare
+// `? "hours"` from anywhere in any screen file, and `Business.jsx` happens to
+// carry `(counts.hoursRows ?? []).every(...) ? "hours"` — an unrelated ternary
+// working out which setting is blocking the booking page. Two of the three
+// would have shipped pointing at nothing. A quoted name now only counts when
+// it is INSIDE a `data-tour` expression.
 const targets = [...new Set([...tourBlock.matchAll(/\[\s*"([a-z]+)",\s*"/g)].map((m) => m[1]))];
-const missing = targets.filter((t) => !screens.includes(`data-tour="${t}"`)
-  && !screens.includes(`"${t}" : undefined`)
-  && !screens.includes(`? "${t}"`));
+// Business marks five of its twelve settings rows from one map rather than
+// five literal attributes — the rows are rendered by one `.map()`, so there is
+// no element to write an attribute on. The map's own entry is the declaration.
+const mapped = new RegExp(`data-tour=\\{TOUR_ROWS\\[key\\]\\}`).test(screens);
+// The rail's five buttons are one `.map()` too, keyed on the tab's own name —
+// which is what lets the shell tour point at "business" and at nothing else
+// called that anywhere in the app.
+const rail = screens.includes("data-tour={x.key}");
+const missing = targets.filter((t) =>
+  !new RegExp(`data-tour=(?:"${t}"|\\{[^}]*"${t}")`).test(screens)
+  && !(mapped && new RegExp(`\\n  ${t}: "${t}",`).test(screens))
+  && !(rail && TABS.includes(t)));
 check("every target a guide names is carried by a screen",
   missing.length === 0, `no data-tour for: ${missing.join(", ")}`);
 

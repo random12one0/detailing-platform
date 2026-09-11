@@ -89,6 +89,26 @@ import { useAppLocale } from "../hooks/useAppLocale.js";
 // month rather than replacing it) is a thing you learn by pressing a day.
 // A tab whose honest guide is one step does not get one, and padding this
 // list to make a fifth tour is exactly the weirdness he complained about.
+// ROADMAP 2.24, SECOND PASS — THE GUIDES WERE TOO SHORT TO BE GUIDES.
+// His note, 2026-09-10: *"the guides were very short and didn't touch at all
+// on... if you click on a date, what you get when you click on a date... they
+// need to be in-depth. Like, like, six probably, you know, things showing per
+// tab... analyze each tab, see what wouldn't be needing guidance, and just
+// kinda have something for each thing on each tab. And make sure the wording
+// is very straightforward."*
+//
+// **SO EVERY TAB IS FIVE TO SEVEN STEPS NOW, and the test for including one is
+// unchanged: does the sentence carry a fact the control does not already say?**
+// A row that reads its own label back is still left out — Business has twelve
+// settings rows and stops at five of them.
+//
+// **AND A STEP CAN OPEN SOMETHING.** A fourth element means *press this target
+// before moving on*, which is the only way a guide can explain a panel that
+// does not exist until somebody presses something. It is the answer to the
+// date half of his note: the calendar guide opens a day and then points inside
+// it. Nothing else in the product needs it, and a step that opens something
+// carries the steps after it through the plan's own presence check — see the
+// filter below.
 export const TOURS = {
   shell: [
     // THE FIRST STEP NAMES ITS TAB, and that is not decoration: the tour is
@@ -100,33 +120,34 @@ export const TOURS = {
     ["business", "Everything a customer sees is set here."],
     ["link", "Send this link to a customer.", "business"],
   ],
+  // THE ORDER IS THE ORDER THINGS SIT ON THE SCREEN, top to bottom, and then
+  // the second column. A guide that jumps around the page is a guide somebody
+  // has to keep re-finding their place in.
   today: [
+    ["day", "Today's date. Everything on this screen is about this one day."],
+    ["requests", "Somebody asked for a time. Nothing is booked until you answer."],
+    ["figures", "How many jobs you have today, and what they should bring in."],
     // "Open", not "Tap": at 1180 and above this is a mouse, and a sentence
     // that names the GESTURE is wrong on half the widths the product
     // supports.
-    ["job", "Open a job to see everything about it — the car, the price, the notes."],
-    // NO SEPARATE "rail" STEP, though the step list drafted one. `.dayrail`
-    // IS the thread and it already carries `job` — a second name on the same
-    // element would light the same thing twice, which is the "two names, one
-    // element" side of the rule this file already states the other way
-    // round. Corrected in `docs/tour-steps-2.24.md` too.
-    ["requests", "Somebody asked for a time. Nothing is confirmed until you answer."],
-    ["wrapup", "When a job is done, this is where the money gets written down."],
+    ["job", "Open a job to see the car, the price and the notes — and to take payment."],
+    ["wrapup", "A job you have finished. This is where the money gets written down."],
+    ["ahead", "How much of the next seven days is still free."],
+    ["lapsed", "People who have not been back in three months. One press writes to all of them."],
   ],
   calendar: [
-    // THE MONTH IS THE THING THIS SCREEN DOES THAT TODAY CANNOT — looking
-    // forward, and looking back. Three steps, and the middle one is the only
-    // one that needs a booking to exist, so an empty month gives two.
     // **THE STEP THAT NEEDS DATA GOES FIRST, ON PURPOSE.** The plan waits for
-    // the FIRST step's target before deciding anything and drops the rest if
-    // they are absent — so with `month` leading, which exists instantly, the
-    // plan was made before the month's bookings had loaded and the day step
-    // was dropped every time. Leading with the one that needs a booking makes
-    // the existing wait cover it. A month with genuinely no work still gives
-    // two steps, which is the floor.
-    ["cell", "Open a day to see its jobs, or to block the time off."],
-    ["month", "Move through the months. Next week and last month are both here."],
-    ["calgrid", "Dots are jobs. A day with a line through it is blocked off."],
+    // the FIRST step's target before deciding anything, so leading with the
+    // one that needs a booking makes that wait cover it.
+    // **AND IT IS THE ONE STEP IN THE PRODUCT THAT PRESSES SOMETHING.** His
+    // note is that the guide never said what a date DOES; the three steps
+    // after this one are inside the day it opens.
+    ["cell", "A day with work on it. Open one and the day appears beside the month.", null, true],
+    ["dayjobs", "Everything booked that day, in order — and a button to add another."],
+    ["daystate", "Block the whole day off here, or change your hours for that one day."],
+    ["month", "Move through the months. Next month and last month are both here."],
+    ["calgrid", "Each dot is a job. A day with a line through it is blocked off."],
+    ["mode", "History is the same bookings as a list you can search."],
   ],
   money: [
     ["period", "Week, month, year — every figure on this screen follows this."],
@@ -134,18 +155,25 @@ export const TOURS = {
     // word here a detailer can misread in their own favour, and the
     // consequence of misreading it is thinking they earned more than they did.
     ["net", "What is left after expenses, not what came in."],
-    ["export", "One file for your accountant, for whatever period you are looking at."],
+    ["breakdown", "The same period broken down — what you collected, what you spent, your average job."],
+    ["export", "One file for your accountant, covering whatever period you are looking at."],
+    ["unpaid", "Work you have finished and not been paid for. Mark one paid here."],
+    ["expenses", "Everything you spend. Write it down here and it comes off your net."],
   ],
   clients: [
-    ["client", "Open somebody to see everything they have ever booked."],
-    // AND THIS IS THE WHOLE FEATURE. The lapsed list is the thing this screen
-    // does that a notebook cannot, and nothing on the screen says so.
-    ["sort", "Sort by who has not been back — that is the list worth a text message."],
+    ["csearch", "Everybody who has ever booked you. Search by name or phone."],
+    ["sort", "Sort by who comes most, who spends most, or who has not been back."],
+    ["lapsedchip", "Show only the people who have not been in for three months."],
     ["compose", "Write to everybody on the list you are looking at, in one go."],
+    ["client", "Open somebody to see every job they have booked and what they spent."],
   ],
   business: [
-    ["setup", "Everything with a number beside it is something a customer can already see."],
-    ["catalog", "What you charge for, and what it costs. This is the one that decides whether the booking page works."],
+    ["setup", "What is left to finish. Everything already done is live on your booking page."],
+    ["catalog", "What you charge for. Nothing can be booked until there is something in here."],
+    ["hours", "The days and times you work, and the days you are off."],
+    ["payments", "Cash, card, Venmo — how you want customers to pay you."],
+    ["domain", "The web address customers use. It works before you own a domain of your own."],
+    ["link", "Send this link to a customer and they book themselves in."],
   ],
 };
 
@@ -198,7 +226,16 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
 
   const next = useCallback(() => {
     setI((n) => {
-      if (n + 1 >= (plan?.length ?? STEPS.length)) { close(); return n; }
+      const steps = plan ?? STEPS;
+      // **THE TOUR PRESSES IT, AND THAT IS NOT A HOLE IN RULE 1.** Rule 1 says
+      // the LIT element is not clickable — a detailer must not be able to open
+      // New booking from underneath the dim, because there is no good answer
+      // for what the tour does next. Here the tour knows exactly what happens
+      // next: the step after this one is about the thing that just opened.
+      // It presses on the way OUT of the step rather than on the way in, so
+      // the hole is measured before the panel changes the layout under it.
+      if (steps[n]?.[3]) document.querySelector(`[data-tour="${steps[n][0]}"]`)?.click();
+      if (n + 1 >= steps.length) { close(); return n; }
       return n + 1;
     });
   }, [close, plan]);
@@ -229,12 +266,25 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
     if (STEPS[0][2]) live.current.onGo?.(STEPS[0][2]);
     let on = true;
     let tries = 0;
+    let steady = 0;
+    let seen = -1;
+    const t0 = performance.now();
     const tick = () => {
       if (!on) return;
       const there = (name) => !!document.querySelector(`[data-tour="${name}"]`);
       // Nothing can be decided until the screen the tour starts on is drawn.
       if (!there(STEPS[0][0]) && ++tries <= 90) { requestAnimationFrame(tick); return; }
-      const kept = STEPS.filter(([k, , t]) => (t ? there(t) : there(k)));
+      // A STEP THAT OPENS SOMETHING CARRIES THE ONES AFTER IT. The calendar's
+      // day panel does not exist until a date is pressed, so its three steps
+      // would be dropped here for having no target — and with them the whole
+      // point of the guide. They are kept when the step that opens them is
+      // kept, and dropped with it when the month has no work on it at all.
+      let opened = false;
+      const kept = STEPS.filter(([k, , t, opens]) => {
+        const ok = opened || (t ? there(t) : there(k));
+        if (ok && opens) opened = true;
+        return ok;
+      });
       // DECISION 6 — A GUIDE OF ONE STEP IS NOT A GUIDE. On a dashboard with
       // nothing on it three of Today's targets are absent, and one lonely
       // caption over an empty screen is the weirdness this whole item is
@@ -244,6 +294,23 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
       //
       // The shell tour is exempt: it points at the rail and the link, which
       // every dashboard has.
+      // **AND THE COUNT IS TAKEN ONCE THE SCREEN HAS STOPPED ARRIVING.** This
+      // decided the whole plan on the first frame the FIRST target existed —
+      // and every screen in this product paints its figures, its lists and its
+      // settings rows a beat after that, from three separate reads. So a guide
+      // was planned against a half-drawn screen, most of its steps were ruled
+      // out for targets that appeared 200ms later, and a tab whose survivors
+      // fell below the floor showed NOTHING AT ALL. That is his report —
+      // *"when I went to money, clients, and business, nothing popped up"* —
+      // and it got worse the more steps a guide had, which is the direction
+      // this change moves in. Same two instruments the step measurer uses: a
+      // count that has stopped growing, and no spinner on the page.
+      const waiting = !!document.querySelector(".spinner");
+      if (waiting || kept.length !== seen) { seen = kept.length; steady = 0; }
+      else steady += 1;
+      if (steady < SETTLED_FRAMES && performance.now() - t0 < GIVE_UP_MS) {
+        requestAnimationFrame(tick); return;
+      }
       if (tour !== "shell" && kept.length < MIN_STEPS) { live.current.onEmpty?.(); return; }
       setPlan(kept);
     };
