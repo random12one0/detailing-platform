@@ -149,6 +149,29 @@ one of those has to work before the run means anything.
 
 ---
 
+## 8 · ONE ACCOUNT, BOTH DOORS — his instruction, 2026-09-10
+
+*"Once I create my account — I'm gonna start from scratch — I want the account
+to be able to access the admin dashboard, the back office thing. I don't want
+to have two accounts so I can cycle through them. I just want one account. But
+I'll make that account later."*
+
+**IT ALREADY WORKS THAT WAY AND NOTHING NEEDS BUILDING.** Being a platform
+admin is a row in `platform_admins` keyed on the user; owning a business is a
+row in `business_members`. They are separate facts about the same person, so
+one login can be both — signing in lands on HIS dashboard, which is right, and
+the back office is a door off it: the gear grows a row called *The website
+business* for an admin and shows it to nobody else.
+
+**WHAT HAS TO HAPPEN THE DAY HE MAKES IT, and it is one line of SQL:** insert
+his new user id into `platform_admins`, then delete the `demo@demo.com` row.
+That demo row is the master login today and it is a launch blocker in its own
+right — the password is `demo`, on the account that can read every detailer.
+Doing both in one edit is what keeps the back office reachable and stops it
+being reachable by anybody who guesses.
+
+---
+
 ## 7 · The two he asked about on 2026-09-10
 
 ### 7a · "Have we built the advanced money thing yet?" — NO, and it is waiting on four answers from him

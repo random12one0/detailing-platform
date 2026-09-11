@@ -35,8 +35,13 @@ Deno.serve(async (req) => {
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
-      if (!data) return json({ ok: true, campaign: null });
-      campaign = data;
+      // **AN UNKNOWN TAG IS STILL A VISIT — fixed 2026-09-10.** This returned
+      // here, BEFORE the insert, so a QR code on a flyer whose link had since
+      // been deleted or switched off made its visitors vanish from the count
+      // entirely. That is the worst case to lose: the detailer paid to print
+      // the thing. The visit is logged as an organic one, which is what it now
+      // is — the answer to the caller is unchanged, so no discount is applied.
+      campaign = data ?? null;
     }
 
     if (!skipLog) {
