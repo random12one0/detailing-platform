@@ -216,3 +216,74 @@ names the file afterwards; that is the only reason anybody finds out.
 2. **A bottom-edge failure anywhere except the booking page.**
 
 `docs/verification.md` has the whole battery and every trap in it.
+
+---
+
+## THE COPY RULES HE HAS NOW STATED TWICE IN ONE DAY — 2026-09-11
+
+**Both came out of him reading a sentence aloud and disliking the SOUND of
+it, and both bind every screen this session touches.**
+
+### 1 · A TITLE IS NEVER A SENTENCE
+
+*"where customers come from… it just feels like an AI title… no title should
+be a sentence. Like 'how you get paid', that's a sentence. Figure out a way to
+explain it without being a sentence."*
+
+A row in a settings list, a section heading, a block label — all of them are
+NOUN PHRASES. **Tracking links**, not *Where customers come from*.
+**Location**, not *Where you are going*. **Services**, not *What they are
+having done*. If the label needs a verb to make sense, the verb belongs in the
+sentence underneath, not in the label.
+
+**HE NAMED "How you get paid" HIMSELF AND IT IS STILL THERE.** That is review
+item 16, the product-wide language pass, which stays unassigned until the
+per-screen work is done — a sweep landing while five screens are being
+rewritten conflicts with every one of them. **Do not sweep it early; do not
+let it be forgotten either.**
+
+### 2 · PROSE THAT READS LIKE AN INSTRUCTION, NOT LIKE WRITING
+
+**THIS ONE COST TWO ATTEMPTS AND THE SECOND REJECTION IS THE INSTRUCTIVE
+ONE.** The Monthly plans blurb was *"What you offer on a rhythm. You agree the
+price and the dates with the customer yourself — this remembers them and tells
+you who is owed a visit."* He read it aloud: *"that sentence is so obviously
+AI."*
+
+It was replaced with *"We never charge anyone — you take the money your own
+way. This keeps count of who is owed a visit."* **He rejected that too, for
+the same reason**: *"it sounds like AI… just to spin it in a way that doesn't
+sound like a poem or like it's trying to be creative in some way. Just sound
+like it's trying to be as straightforward and informative as possible. Anyone
+reading that could instantly understand what this is for."*
+
+**SO THE FAULT WAS NEVER THE CONTENT. IT WAS THE VOICE.** The second draft
+carried a different fact and the same devices, which is why it failed
+identically. A session that reads only the first rejection will do what this
+one did: rewrite one flourish into another flourish and believe it has
+finished.
+
+**What both drafts did that he is objecting to, named so it can be checked:**
+
+- an **em dash** holding two clauses in tension
+- a **rhetorical opener** — *"What you offer on a rhythm"*, *"We never charge
+  anyone"* — a phrase whose job is to sound good before it informs
+- **parallel structure** and balanced clauses
+- any sentence whose **shape** is doing work the facts should do
+
+**What to write instead:** short declarative sentences. One fact each. Full
+stops rather than dashes. Start with the verb or the subject, never with a
+flourish. It should read like the instruction on a form.
+
+The replacement that stands: *"Set up the plans you sell. This page tracks who
+is on each one and how many visits they still have coming. You collect payment
+yourself."*
+
+### 3 · AND RULE 2 DOES NOT REPEAL THE OLDER RULE ABOVE IT
+
+*Copy that explains what the label already said* is still banned (CLAUDE.md,
+his rule of 2026-09-01). Plain is not the same as more. The Members blurb on
+Monthly plans was deleted outright rather than rewritten, because it was the
+heading plus a restatement of the chip three lines below it. **Ask the two
+questions in order: does this sentence add a fact the control does not carry,
+and if it does, is it written like an instruction?**

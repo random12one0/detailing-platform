@@ -191,7 +191,7 @@ export default function Campaigns() {
             opens it. "Campaign link" reads as tracking; the half that earns
             its place is that the discount is already on. */}
         <p className="quiet" style={{ marginTop: 0 }}>
-          {t("A booking link of its own for a flyer, a QR code or a post. Whoever opens it gets your discount applied already, and you can see how many came that way.")}
+          {t("Make a separate booking link for a flyer, a QR code or a post. Anyone who uses it gets the discount applied automatically. This page shows how many bookings each link brought in.")}
         </p>
 
         <label className="field"><span>{t("What is it for")}</span>
@@ -298,16 +298,16 @@ export default function Campaigns() {
                             is not a poor conversion rate, it is no data, and
                             the two look identical on a screen. */}
                         <span className="camp-n">{scans ? `${Math.round((booked / scans) * 100)}%` : "—"}</span>
-                        <span className="camp-l">{t("of them booked")}</span>
+                        <span className="camp-l">{t("booking rate")}</span>
                       </div>
                       <div className="camp-stat">
                         <span className="camp-n">{money(stats.earned[r.id] || 0)}</span>
-                        <span className="camp-l">{t("earned, jobs finished")}</span>
+                        <span className="camp-l">{t("earned")}</span>
                       </div>
                     </div>
                     <p className="quiet">
                       {stats.lastOpen[r.id]
-                        ? t("Last opened {when}.", {
+                        ? t("Last opened {when}. Earned counts finished jobs only.", {
                           when: dateLong(localDate(stats.lastOpen[r.id], business.timezone), getAppLocale()),
                         })
                         : t("Nobody has opened this link yet.")}

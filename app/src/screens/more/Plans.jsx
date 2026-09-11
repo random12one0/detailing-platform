@@ -589,7 +589,7 @@ export default function Plans() {
           subscription we run. Everything else the screen itself shows. */}
       <div className="section-title" style={{ marginTop: 0 }}>{t("Your plans")}</div>
       <p className="muted" style={{ marginBottom: 8 }}>
-        {t("We never charge anyone — you take the money your own way. This keeps count of who is owed a visit.")}
+        {t("Set up the plans you sell. This page tracks who is on each one and how many visits they still have coming. You collect payment yourself.")}
       </p>
       {/* THE LIST AND THE EDITOR ARE ONE FRAME WITH ITS CONTENTS REPLACED,
           which is the owner's own third kind of motion: "the GUI kind of

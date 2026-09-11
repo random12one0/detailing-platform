@@ -240,8 +240,8 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
   return (
     <Sheet onClose={onClose} title={t("New booking")}>
 
-      <Block title={t("Who it is for")}
-        hint={t("Search anyone who has booked before, or just type a new name.")}>
+      <Block title={t("Customer")}
+        hint={t("Search a customer who has booked before, or type in a new one.")}>
         {picked ? (
           <div className="row between sunken flush">
             <span className="row" style={{ gap: 8, minWidth: 0 }}>
@@ -279,7 +279,7 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
             that explains itself. */}
         {plan && (
           <div className="ok-box">
-            {t("On {plan} — the plan price is applied automatically.", { plan: plan.plans?.name ?? t("a monthly plan") })}
+            {t("On {plan}. The plan price is applied automatically.", { plan: plan.plans?.name ?? t("a monthly plan") })}
           </div>
         )}
 
@@ -301,7 +301,7 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
             options={[["en", "English"], ["es", "Español"]]} /></label>
       </Block>
 
-      <Block title={t("The vehicle")}>
+      <Block title={t("Vehicle")}>
         <div className="grid2">
           {/* Only a business that offers both is asked. */}
           {s.mobile_enabled && s.dropoff_enabled && (
@@ -364,7 +364,7 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
       </Block>
 
       {mobile && (
-        <Block title={t("Where you are going")}>
+        <Block title={t("Location")}>
           <label className="field"><span>{t("Address")}</span>
             <input value={form.customerAddress} onChange={(e) => set({ customerAddress: e.target.value })} /></label>
           {/* The travel charge was simply never applied to a booking made
@@ -399,7 +399,7 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
         </Block>
       )}
 
-      <Block title={t("What they are having done")}>
+      <Block title={t("Services")}>
         {/* GROUPED THE WAY THE CUSTOMER'S PAGE GROUPS THEM. A detailer with
             twenty services had them in one undifferentiated wrap of chips
             here and in their own categories on their own booking page. */}
