@@ -3885,3 +3885,48 @@ html:not(.lite) .intake .samp-move .samp-row:nth-child(3) { animation-delay: .5s
    first. Same `.label` type, with room above it so it belongs to what follows
    rather than to what it is under. */
 .advsub { margin-top: var(--sp-4); display: block; }
+
+/* ---------------------------------------------------------------------------
+   NEW BOOKING — the by-hand sheet. His review, 2026-09-10: *"make sure they
+   can do everything they would want to, no limitations. Also make it look
+   nicer."*
+
+   The form grew from eleven fields to twenty-one, so the thing that makes it
+   readable is not decoration — it is that a person filling it in can see
+   where one question ends and the next begins. Six blocks, each separated by
+   a rule, which is cheaper than six cards and does not turn a form into a
+   stack of panels.
+
+   NO NEW TOKEN. Spacing, hairline and radius all come from the existing set;
+   a sheet that invents its own is the two-corner-languages failure the design
+   system forbids.
+   --------------------------------------------------------------------------- */
+.nb-block + .nb-block {
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--hairline);
+}
+/* The one sentence a block is allowed, and only where the controls under it
+   genuinely do not say it — the owner's copy rule. */
+.nb-hint { margin: calc(-1 * var(--sp-1)) 0 var(--sp-3); }
+.nb-group + .nb-group { margin-top: var(--sp-3); }
+.nb-grouplabel { margin: var(--sp-3) 0 var(--sp-2); }
+.nb-group:first-child > .nb-grouplabel { margin-top: 0; }
+
+/* A SEARCH RESULT IS A BUTTON, so it needs a button's reset and a button's
+   press state — `.sunken` alone renders one that looks tappable and gives no
+   feedback when tapped. */
+.nb-match {
+  width: 100%; text-align: left; cursor: pointer;
+  border: 1px solid var(--hairline); background: var(--surface-lit);
+  transition: background var(--t-hover) var(--e-out);
+}
+.nb-match:active { background: color-mix(in srgb, var(--bone) 4%, var(--surface-lit)); }
+
+/* THE BREAKDOWN. Every line is the server's own figure; the total is ruled
+   off because it is the only one the detailer reads out loud. */
+.nb-quote { display: flex; flex-direction: column; gap: var(--sp-2); }
+.nb-total {
+  margin-top: var(--sp-2); padding-top: var(--sp-2);
+  border-top: 1px solid var(--hairline);
+}
