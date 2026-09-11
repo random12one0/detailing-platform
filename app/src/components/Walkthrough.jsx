@@ -113,6 +113,21 @@ export const TOURS = {
     ["requests", "Somebody asked for a time. Nothing is confirmed until you answer."],
     ["wrapup", "When a job is done, this is where the money gets written down."],
   ],
+  calendar: [
+    // THE MONTH IS THE THING THIS SCREEN DOES THAT TODAY CANNOT — looking
+    // forward, and looking back. Three steps, and the middle one is the only
+    // one that needs a booking to exist, so an empty month gives two.
+    // **THE STEP THAT NEEDS DATA GOES FIRST, ON PURPOSE.** The plan waits for
+    // the FIRST step's target before deciding anything and drops the rest if
+    // they are absent — so with `month` leading, which exists instantly, the
+    // plan was made before the month's bookings had loaded and the day step
+    // was dropped every time. Leading with the one that needs a booking makes
+    // the existing wait cover it. A month with genuinely no work still gives
+    // two steps, which is the floor.
+    ["cell", "Open a day to see its jobs, or to block the time off."],
+    ["month", "Move through the months. Next week and last month are both here."],
+    ["calgrid", "Dots are jobs. A day with a line through it is blocked off."],
+  ],
   money: [
     ["period", "Week, month, year — every figure on this screen follows this."],
     // THE ONE STEP ON THIS SCREEN THAT EARNS ITS PLACE. "Net" is the single

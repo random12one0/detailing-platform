@@ -162,6 +162,9 @@ export default function App() {
   // because they are different lifetimes: the first run happens once ever,
   // and a tab guide happens once per tab and can arrive months later.
   const [tabTour, setTabTour] = useState(null);
+  // Whether the guide on screen was ASKED FOR or arrived by itself. The two
+  // deserve different behaviour when there is nothing to point at.
+  const asked = useRef(false);
   const [tab, setTab] = useState(deepLink.current === "payments" ? "business" : "today");
   // WHAT A SCREEN WAS OPENED *FOR* — roadmap 2.19, and it is one string
   // because there is one case. Today's re-book prompt has to land on Clients
@@ -395,11 +398,28 @@ export default function App() {
           )
           : gear
             ? (
+              /* **IT RUNS THE GUIDE FOR THE TAB YOU ARE ON**, and that is
+                    his bug 1.3 rather than a preference: *"the today guide
+                    goes to the business page. The today guide should only do
+                    guides on the today page."* What he pressed was this, and
+                    it always ran the SHELL tour, whose last two steps are
+                    about the rail and the booking link and therefore live on
+                    Business. The shell tour is not wrong — it introduces the
+                    rail to somebody who has never seen it — it is just not
+                    what "show me around" means once you are standing
+                    somewhere.
+
+                    **AND IT MAKES EVERY TAB GUIDE REPLAYABLE**, which is his
+                    1.4: *"when I click on Calendar, Money, Clients and
+                    Business, I can't view the guides through all of them."*
+                    They fired once, automatically, the first time a browser
+                    opened each tab, and there was no second chance — so a
+                    detailer who tapped past one had lost it for good. */
               <GearMenu
                 key={gearScreen ?? "index"}
                 initial={gearScreen}
                 onClose={() => setGear(false)}
-                onTour={() => { setGear(false); setFirstRun("tour"); }}
+                onTour={() => { setGear(false); asked.current = true; setTabTour(activeTab.key); }}
               />
             )
             : (
@@ -495,7 +515,14 @@ export default function App() {
           // NOT MARKED SEEN when it leaves for want of steps — decision 6.
           // A detailer whose Today is empty today gets the guide the first
           // day there is a job on it.
-          onEmpty={() => setTabTour(null)}
+          // **A GUIDE STARTED BY HAND MUST NOT VANISH IN SILENCE.** Decision 6
+          // drops a guide with fewer than two targets, which is right when it
+          // arrived by itself and wrong when somebody pressed a button for it
+          // — that reads as a dead control, which is the shape of the bug he
+          // reported one screen over. So the automatic one still leaves
+          // quietly, and a requested one falls back to the tour of the rail,
+          // which every dashboard can always run.
+          onEmpty={() => { if (asked.current) { asked.current = false; setTabTour(null); setFirstRun("tour"); } else setTabTour(null); }}
           onClose={() => { markTourSeen(tabTour); setTabTour(null); }} />
       )}
     </div>

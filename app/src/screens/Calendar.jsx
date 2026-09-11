@@ -212,6 +212,16 @@ export default function Calendar({ refreshKey = 0 }) {
     return out;
   }, [cursor, y, m]);
 
+  // WHICH DAY THE GUIDE POINTS AT — the first in the month that has work on
+  // it, so the step lands on a square that shows something rather than on an
+  // empty one. Computed here rather than flagged during the map: marking "the
+  // first one" inside a render by mutating a variable is a side effect in
+  // render, and it survives into the next one.
+  const tourCell = useMemo(
+    () => cells.find((d) => d && (byDay[d] ?? []).some((b) => b.status !== "cancelled")) ?? null,
+    [cells, byDay],
+  );
+
   const moveMonth = (delta) => {
     const dt = new Date(y, m - 1 + delta, 1);
     setDay(null);
@@ -354,7 +364,12 @@ export default function Calendar({ refreshKey = 0 }) {
         {error && <div className="error-box">{error}</div>}
 
         <div className="tight">
-          <div className="row between">
+          {/* ROADMAP 2.24 — CALENDAR WAS THE ONE TAB WITH NO GUIDE AT ALL.
+              His report: *"when I click on Calendar, Money, Clients and
+              Business, I can't view the guides through all of them."* Three of
+              those four had one; this had nothing to point at, so the guide
+              was not short — it did not exist. */}
+          <div className="row between" data-tour="month">
             <button className="btn sm inline ghost" onClick={() => moveMonth(-1)} aria-label={t("Previous month")}>
               <ChevronLeft strokeWidth={2} />
             </button>
@@ -368,7 +383,14 @@ export default function Calendar({ refreshKey = 0 }) {
             <div className="cal-head">
               {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => <span key={i}>{d}</span>)}
             </div>
-            <div className={`cal-grid${writes ? " writes" : ""}`}>
+            {/* THE GUIDE'S SECOND TARGET IS THE GRID ITSELF, and it had to
+                move here: it was on the month total, which lives in the SIDE
+                COLUMN and is not on screen in month view at all — so the
+                calendar guide planned one step, fell below the two-step floor,
+                and quietly handed over to the tour of the rail. Two targets
+                that are always present, plus a day that only exists when there
+                is work on it. */}
+            <div className={`cal-grid${writes ? " writes" : ""}`} data-tour="calgrid">
               {cells.map((date, i) => {
                 if (date === null) return <div key={`x${i}`} />;
                 const jobs = (byDay[date] ?? []).filter((b) => b.status !== "cancelled");
@@ -376,6 +398,11 @@ export default function Calendar({ refreshKey = 0 }) {
                 const limited = marks.dropoff.has(date);
                 return (
                   <button key={date} type="button"
+                    // The FIRST cell that has work on it, so the guide points
+                    // at a day that shows something rather than at an empty
+                    // square. Absent on a month with no bookings, and the tour
+                    // drops a step whose target is not there.
+                    data-tour={date === tourCell ? "cell" : undefined}
                     className={`cal-cell${date === today ? " today" : ""}${day === date ? " selected" : ""}`}
                     aria-expanded={day === date}
                     aria-controls={day === date ? "day-panel" : undefined}
