@@ -129,9 +129,19 @@ node scripts/db-census.mjs --ref=<scratch-project-ref> > census-restored.txt
 diff census-source.txt census-restored.txt
 ```
 
-Only the `# census of …` header line should differ. **If the restore target is
-a plain Postgres rather than a Supabase project**, the census script cannot
-reach it — run the same question through `psql` instead:
+Only the `# census of …` header line should differ.
+
+**`--ref=` needs a token that can reach that project, and the one in `.env`
+cannot.** Measured 2026-09-10: pointed at the second existing project it
+answers `403 — Your account does not have the necessary privileges`. That is
+the right answer and worth keeping — **nothing in this repo can read the live
+business project** — but it means the scratch project needs its own access
+token in `SUPABASE_ACCESS_TOKEN` for step 4, which is a twenty-minute surprise
+on the day if nobody wrote it down.
+
+**If the restore target is a plain Postgres rather than a Supabase project**,
+the census script cannot reach it at all — run the same question through
+`psql` instead:
 
 ```sql
 select 'public.' || c.relname,
