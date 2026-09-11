@@ -242,6 +242,12 @@ function Question({ q, a, set }) {
       {a[`${q.id}::from`] && !a[`${q.id}::web`] && (
         <p className="fromdash">{t("Filled in from your setup — change it if the site should say something else.")}</p>
       )}
+      {/* A FACT THE QUESTION CANNOT CARRY WITHOUT GETTING LONG. Only two
+          questions have one, and both are about reviews: what happens to the
+          links, and where the quotes came from. `lede` already exists for a
+          whole STEP, and a step's note sits above seven questions that are
+          not all about the same thing. */}
+      {q.note && <p className="quiet">{t(q.note)}</p>}
 
       {!onWeb && (<>
 
@@ -596,7 +602,7 @@ function SitesStep({ value, set }) {
 //      whole point: a number PRINTED is not a number STORED.
 //
 // Anything the dashboard cannot answer is left alone — most of the 73.
-const prefillFrom = ({ business, settings, branding }) => {
+const prefillFrom = ({ business, settings, branding }, reviews) => {
   if (!business) return {};
   const socials = ["instagram", "facebook", "tiktok", "youtube"]
     .map((k) => branding?.[`social_${k}`])
@@ -638,6 +644,26 @@ const prefillFrom = ({ business, settings, branding }) => {
       settings?.pay_cashapp ? "Cash App" : null,
       settings?.pay_paypal ? "PayPal" : null,
     ].filter(Boolean),
+    // THE QUOTES THEY ALREADY TYPED (his ruling, 2026-09-11). The Reviews
+    // settings screen is where a detailer collects what a customer said, and
+    // D8 is where the site asks which of those to print — the same words, and
+    // nobody should have to enter them twice. Attributed the way the screen
+    // stores them; D4 is where they choose how a name appears on the site, so
+    // this deliberately does not decide that here.
+    //
+    // **NOT D3.** That question is now the LINKS to Google and Yelp, and a
+    // rating worked out from three typed testimonials is not the rating those
+    // sites show — putting one on a detailer's website would be a number they
+    // never claimed.
+    D8: Array.isArray(reviews) && reviews.length
+      ? reviews
+        // HIDDEN ONES STAY HIDDEN. `is_active` is how a detailer takes a
+        // testimonial off their page without deleting it, and carrying one
+        // into the brief would put it back on the site they hid it from.
+        .filter((r) => r.is_active !== false && (r.quote ?? "").trim())
+        .map((r) => (r.author ? `“${r.quote.trim()}” — ${r.author}` : `“${r.quote.trim()}”`))
+        .join("\n")
+      : null,
   };
   const clean = {};
   for (const [k, v] of Object.entries(out)) {
@@ -671,14 +697,27 @@ export default function SiteIntake({ onClose, preview = false }) {
   useEffect(() => {
     if (preview || !business?.id) return;
     let live = true;
-    supabase.from("site_intake").select("*").eq("business_id", business.id).maybeSingle()
-      .then(({ data }) => {
+    // THE REVIEWS THEY HAVE ALREADY TYPED, for D8. One narrow read, only
+    // while this form is open, and only the two columns a quote is made of —
+    // the same bargain the intake already strikes for the row above. They are
+    // not in `BusinessContext` because no other screen needs them.
+    Promise.all([
+      supabase.from("site_intake").select("*").eq("business_id", business.id).maybeSingle(),
+      // `testimonials`, NOT `reviews` — the Reviews SCREEN is named for what a
+      // detailer calls them and the table is named for what they are. Written
+      // as `reviews` first: PostgREST answered "could not find the table" and
+      // the prefill silently produced nothing, which on a form whose whole job
+      // is to arrive filled in looks exactly like having no reviews.
+      supabase.from("testimonials").select("author, quote, is_active")
+        .eq("business_id", business.id).order("sort_order", { ascending: true }),
+    ])
+      .then(([{ data }, quotes]) => {
         if (!live) return;
         setRow(data ?? null);
         // BLANKS ONLY. `saved` is on the right so anything they have typed —
         // including a deliberate empty they cleared — wins over what we know.
         const saved = data?.answers ?? {};
-        const from = prefillFrom(ctx);
+        const from = prefillFrom(ctx, quotes?.data);
         const seeded = {};
         for (const [k, v] of Object.entries(from)) {
           if (saved[k] === undefined || saved[k] === "") {

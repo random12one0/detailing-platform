@@ -4036,6 +4036,13 @@ html:not(.lite) .intake .samp-move .samp-row:nth-child(3) { animation-delay: .5s
 .rows.cols.planlist .row-item .c-who > svg {
   color: var(--text-muted); flex-shrink: 0; margin-top: 3px;
 }
+/* AND THE NAME BESIDE IT HAS TO BE ALLOWED TO SHRINK. Making `.c-who` a flex
+   row put the name in a flex CHILD, and a flex child is `min-width: auto` —
+   it refuses to go below its own longest word, so the cell grew instead. At
+   320 "Bi-weekly maintenance" ran 25px past its own row. `min-width: 0` lets
+   the line wrap at the space; `overflow-wrap` is for the plan somebody names
+   in one long word, which is the same rule `.member-id` already carries. */
+.rows.cols.planlist .row-item .c-who > span { min-width: 0; overflow-wrap: anywhere; }
 
 /* `priceWords` returns a PHRASE, not a figure, so this cell is allowed to
    take two lines. Scoped to the plan list: `.c-total` everywhere else holds a

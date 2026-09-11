@@ -182,7 +182,10 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
   // inside the service prices is the same double count on the screen.
   const cents = (n) => Math.round(Number(n || 0) * 100);
   const adjustments = Array.isArray(booking.price_adjustments) ? booking.price_adjustments : [];
-  const parts = cents(booking.subtotal)
+  // Everything that ADDS. `price_at_booking` sometimes already contains the
+  // vehicle-size uplift and sometimes does not, so the size is tried both ways
+  // below rather than assumed.
+  const additions = cents(booking.subtotal)
     ? [
       ...(booking.services ?? []).map((sv) => cents(sv.price_at_booking)),
       ...(booking.add_ons ?? []).map((a) => cents(a.add_on?.price)),
@@ -190,11 +193,47 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
       ...adjustments.map((a) => cents(a.amount)),
     ].reduce((a, b) => a + b, 0)
     : null;
-  const want = cents(booking.subtotal);
-  const sizeIsSeparate = parts !== null && parts + cents(booking.vehicle_size_fee) === want;
-  // The site discount is taken off the subtotal the engine surfaces, so it is
-  // already inside `booking.subtotal` and is not one of the lines above.
-  const itemised = parts !== null && (sizeIsSeparate || parts === want);
+  // Everything already drawn as a line that SUBTRACTS.
+  const shown = cents(booking.monthly_plan_discount) + cents(booking.promo_discount);
+  const sub = cents(booking.subtotal);
+
+  // **WHY THE PARTS COULD NEVER MATCH — measured 2026-09-11, and the answer
+  // was not a broken booking.** `_shared/pricing.ts` line 344 spells the order
+  // out: services + size + add-ons + travel + surcharges → SITE-WIDE SALE % →
+  // promo → ROUND TO `price_rounding_nearest`. Two of those five steps had no
+  // line on this receipt, and both of them come off the total.
+  //
+  // On the booking he was looking at: $255 + $110 + $45 + $25 travel = $435,
+  // a "New customer 10% off" site sale took $44, and the business rounds to
+  // the nearest $10, which took another $1. Stored subtotal $391, stored total
+  // $390. **The old check compared the pre-discount lines against the
+  // post-discount subtotal, so any business running a sale had every receipt
+  // fall back to names with no prices** — which is exactly what he reported:
+  // the simple booking itemised and the complicated one did not.
+  //
+  // So the discount and the rounding are lines now, and the check is that
+  // every line together reaches the total exactly.
+  //
+  // THE SIZE IS RESOLVED BY TAKING THE SMALLER RESIDUAL, not by guessing.
+  // Both readings can look plausible once a discount is allowed to absorb the
+  // difference — counting the size twice would just inflate the discount by
+  // $30 — so whichever reading leaves LESS unexplained is the true one, and an
+  // exact zero always wins.
+  const residualFor = (n) => (n === null ? null : n - shown - sub);
+  const flat = residualFor(additions);
+  const withSize = residualFor(additions === null ? null : additions + cents(booking.vehicle_size_fee));
+  const sizeIsSeparate = withSize !== null && withSize >= 0
+    && (flat === null || flat < 0 || withSize < flat);
+  const gross = additions === null ? null
+    : additions + (sizeIsSeparate ? cents(booking.vehicle_size_fee) : 0);
+  const siteDiscount = residualFor(gross);
+  // Rounding is the last step the engine takes, and it is the difference
+  // between the subtotal it settled on and what it actually charges.
+  const rounding = sub - cents(booking.total_price);
+  // A NEGATIVE RESIDUAL IS STILL UNEXPLAINED AND STILL DEGRADES. Money missing
+  // from the parts means a figure this page cannot see, and inventing a line
+  // to cover it is the one thing a receipt must never do.
+  const itemised = siteDiscount !== null && siteDiscount >= 0;
 
   const loc = intlLocale();
   const dateLabel = new Date(`${booking.booking_date}T12:00:00`).toLocaleDateString(loc, {
@@ -411,6 +450,18 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
                 <span className="bk-price">{money(adj.amount)}</span>
               </div>
             ))}
+            {/* THE SITE-WIDE SALE, WHICH HAD NO LINE AT ALL. It is not stored
+                on the booking — only the already-discounted subtotal is — so
+                it is what the parts exceed the subtotal by. Drawn only when
+                that number is positive, and `Discount` is the same neutral
+                word the promo line falls back to, because the row cannot say
+                which sale it was. */}
+            {itemised && siteDiscount > 0 && (
+              <div className="line dim">
+                <span>{t("Discount")}</span>
+                <span className="bk-price">-{money(siteDiscount / 100)}</span>
+              </div>
+            )}
             {booking.monthly_plan_discount > 0 && (
               <div className="line dim">
                 <span>{t("Your plan")}</span>
@@ -423,6 +474,20 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
                   ? t("Promo {code}", { code: booking.applied_promo_code })
                   : t("Discount")}</span>
                 <span className="bk-price">-{money(booking.promo_discount)}</span>
+              </div>
+            )}
+            {/* THE LAST STEP THE ENGINE TAKES. Every detailer can set a
+                rounding in Booking rules, and this business rounds to the
+                nearest $10 — so the subtotal was $391 and the charge is $390.
+                Without this line the receipt is out by that dollar and there
+                is nothing on the page that explains it. Signed, because
+                rounding can go either way. */}
+            {itemised && rounding !== 0 && (
+              <div className="line dim">
+                <span>{t("Rounded")}</span>
+                <span className="bk-price">
+                  {rounding > 0 ? "-" : "+"}{money(Math.abs(rounding) / 100)}
+                </span>
               </div>
             )}
             <div className="line total">

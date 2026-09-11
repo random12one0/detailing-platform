@@ -391,6 +391,11 @@ export const es = {
   // own labels need Spanish. The rest ("Travel", "Promo {code}", "Vehicle
   // size", the four conditions) were already here from StepReview.
   "Discount": "Descuento",
+  // The engine rounds the charge to whatever the detailer set in Booking
+  // rules, so the subtotal and the amount charged can differ by a few dollars.
+  // Without a line for it the receipt is out by that much and nothing on the
+  // page says why (2026-09-11).
+  "Rounded": "Redondeado",
   // NOT "Total": that word is identical in both languages, and the two
   // Spanish checks cannot both be satisfied by such a string — 1b wants an
   // entry for every call site, 2a rejects an entry that equals its English.

@@ -229,7 +229,33 @@ export const STEPS = [
       q("D1", "Will the photos on the site be yours?", "one", ["All mine", "Mostly mine", "Some are stock"], true),
       q("D2", "A wrapped van or signed truck the site could show?", "one",
         ["Yes", "No", "Not yet"], true),
-      q("D3", "What rating and how many reviews should the site show?", "text"),
+      // **REVIEWS, HIS RULING OF 2026-09-11.** D3 used to ask the detailer to
+      // TYPE a rating and a count — *"usually… they would get actual stats"* —
+      // which is a number about their business that they have to look up and
+      // that goes stale the week after. He wants the source instead: *"ask for
+      // links to their Yelp or Google and say that the amount of reviews from
+      // there will be combined and added up."* So D3 is the links, and the
+      // note under it is the promise about what happens to them.
+      //
+      // **AND THE QUOTES ARE A SEPARATE QUESTION, which nothing asked** —
+      // *"if they gave specific quotes, we could still put that inside of the
+      // survey, because obviously some people like to have specific quotes
+      // shown on their website."* D8 is that, and it arrives filled in with
+      // whatever they typed into the Reviews settings screen, marked as
+      // prefilled and still editable, so the two places do not have to be
+      // filled in twice.
+      //
+      // D3'S WORDING CHANGED AND ITS KEY DID NOT. The key is what a stored
+      // answer is filed under, so renaming it would orphan every answer;
+      // rewording is safe today because no detailer has filled this in yet,
+      // and it would not be safe later. `docs/tenant-site-intake-form.md`
+      // mirrors these questions and is lane C's to update.
+      q("D3", "Links to where people already review you", "long", null, false, {
+        note: "Google, Yelp, Facebook, anywhere else. Paste one per line. The counts from all of them get added together on your site.",
+      }),
+      q("D8", "Any reviews you want quoted word for word?", "long", null, false, {
+        note: "One per line. These are the ones your site shows as quotes.",
+      }),
       q("D4", "How should the site credit a review?", "one",
         ["First name and initial", "First name only", "Anonymous", "Don't use them"], true, { says: says("D4") }),
       q("D5", "Certifications the site should show?", "long"),

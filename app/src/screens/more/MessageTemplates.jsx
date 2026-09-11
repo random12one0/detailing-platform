@@ -321,6 +321,11 @@ const caretAt = (x, y) => {
   return null;
 };
 
+// Punctuation that hugs the word before it. A space in front of one of these
+// is the tell that something used to be there — `Hi , this is` — and it was
+// the last thing left of his note after the double space was dealt with.
+const HUGS = /^[,.!?;:)\]}'"’”…]/;
+
 // ONE SPACE EITHER SIDE OF A PILL, AND NEVER TWO. The same rule `insert()`
 // applies when a chip is tapped, pulled out so a dropped pill obeys it too —
 // otherwise dragging a detail next to a word glues them together in the
@@ -335,10 +340,57 @@ const spaceAround = (pill) => {
   else if (before.nodeType === 3) {
     if (before.nodeValue && !/\s$/.test(before.nodeValue)) before.nodeValue += " ";
   } else parent.insertBefore(document.createTextNode(" "), pill);
+  // AND NOT IN FRONT OF PUNCTUATION. Dropping a detail immediately before a
+  // comma should read `⟦Their name⟧, this is`, not `⟦Their name⟧ , this is`.
   if (!after) parent.appendChild(document.createTextNode(" "));
   else if (after.nodeType === 3) {
-    if (!/^\s/.test(after.nodeValue ?? "")) after.nodeValue = ` ${after.nodeValue ?? ""}`;
+    const v = after.nodeValue ?? "";
+    if (!/^\s/.test(v) && !HUGS.test(v)) after.nodeValue = ` ${v}`;
   } else parent.insertBefore(document.createTextNode(" "), after);
+};
+
+// THE NEAREST GAP BETWEEN WORDS. A caret offset is per character; a detail
+// belongs between words, so an offset in the middle of one moves to whichever
+// end of that word is closer to where the finger actually is.
+// A "gap" is the start, the end, or either side of a run of whitespace.
+const wordGap = (text, offset) => {
+  if (!text) return 0;
+  const at = Math.max(0, Math.min(offset, text.length));
+  const gap = (i) => i === 0 || i === text.length || /\s/.test(text[i - 1]) || /\s/.test(text[i]);
+  if (gap(at)) return at;
+  let left = at;
+  let right = at;
+  while (left > 0 && !gap(left)) left -= 1;
+  while (right < text.length && !gap(right)) right += 1;
+  return at - left <= right - at ? left : right;
+};
+
+// CLOSE THE HOLE THE PILL LEFT — his note, 2026-09-11: *"whenever I drag it
+// and then move it away, it adds, like, a space where it was, which is kinda
+// weird."* He is describing arithmetic rather than a glitch: a pill sits with
+// one space on each side, so taking it out leaves both of them touching and
+// the sentence gains a gap it never had.
+//
+// Called with the two nodes the pill was BETWEEN, captured before it moved.
+// Only spaces and tabs are touched, never a newline: a line break is a `<br>`
+// here, but a text node can still hold one and eating it would reflow the
+// message.
+const closeGap = (before, after) => {
+  const sp = /[^\S\n]+/;
+  if (before?.nodeType === 3 && after?.nodeType === 3 && before.nextSibling === after) {
+    const left = (before.nodeValue ?? "").replace(new RegExp(sp.source + "$"), "");
+    const right = (after.nodeValue ?? "").replace(new RegExp("^" + sp.source), "");
+    const glue = !left || !right || HUGS.test(right) ? "" : " ";
+    before.nodeValue = left + glue + right;
+    after.remove();
+    return;
+  }
+  // The pill was at one end, so there is one orphaned space rather than two.
+  if (!before && after?.nodeType === 3) {
+    after.nodeValue = (after.nodeValue ?? "").replace(new RegExp("^" + sp.source), "");
+  } else if (!after && before?.nodeType === 3) {
+    before.nodeValue = (before.nodeValue ?? "").replace(new RegExp(sp.source + "$"), "");
+  }
 };
 
 // A drag leaves split and empty text nodes behind it. Left alone they are
@@ -451,15 +503,32 @@ function TokenEditor({ editorRef, value, onChange }) {
         if (ref !== pill) other.parentNode.insertBefore(pill, ref);
         return;
       }
+      // WHERE THE PILL CAME FROM, so the gap it leaves can be closed after it
+      // has gone. Captured before the move, because moving a node makes these
+      // two siblings of each other and there is no way back to them after.
+      const cameAfter = pill.previousSibling;
+      const cameBefore = pill.nextSibling;
+
       if (at.node.nodeType === 3) {
         const r = document.createRange();
-        r.setStart(at.node, Math.min(at.offset, at.node.nodeValue?.length ?? 0));
+        // **SNAPPED TO A GAP BETWEEN WORDS — his note, 2026-09-11: *"it's a
+        // little glitchy and kind of hard… make it automatically snap to
+        // where there's actually spaces in between words and not have it so
+        // you can drag it in in the middle of a word."*** The caret the
+        // browser hands back is per CHARACTER, so a pill followed the pointer
+        // letter by letter and landed inside "shortly" as readily as beside
+        // it. A detail is a word, and a word goes between words.
+        r.setStart(at.node, wordGap(at.node.nodeValue ?? "", at.offset));
         r.collapse(true);
         r.insertNode(pill);
       } else {
         const ref = at.node.childNodes[at.offset] ?? null;
         if (ref !== pill) at.node.insertBefore(pill, ref);
       }
+      closeGap(cameAfter, cameBefore);
+      // Repeated inserts split one text node into many; merging them back
+      // keeps the next snap working on whole words rather than on fragments.
+      el.normalize();
     };
 
     const done = (ev) => {
