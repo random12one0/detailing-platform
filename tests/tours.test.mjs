@@ -63,12 +63,34 @@ check("the shell guide is still allowed to move",
   tourBlock.includes('"business"]'),
   "the shell tour introduces the rail; moving is the whole point of it");
 
-/* ── 3 · Show me around runs where you are standing ─────────────────────── */
+/* ── 3 · Show me around runs the whole dashboard ────────────────────────── */
 console.log("\n3: Show me around");
 
-check("it starts the guide for the active tab",
-  /setTabTour\(activeTab\.key\)/.test(app),
-  'it set firstRun="tour" until 2026-09-10, which always ran the shell tour');
+// **IT RAN THE GUIDE FOR THE TAB YOU WERE STANDING ON FOR ONE DAY, and this
+// check asserted exactly that.** His ruling the next morning: *"I want it so
+// when you press the settings, it restarts the tour from the beginning, from
+// the today page... It should do it for every single tab."* Yesterday's
+// version was right about the wandering (bug 1.3, the shell tour walking off
+// to Business) and wrong about the scope: one press is a tour of the PRODUCT.
+check("it starts the whole-dashboard tour, wherever it was pressed",
+  /setTabTour\("everything"\)/.test(app),
+  'it ran setTabTour(activeTab.key) until 2026-09-10, so four tabs out of five '
+  + "were never reached from the gear at all");
+
+// AND THAT TOUR IS EVERY TAB, IN THE RAIL'S ORDER. A block list that has
+// drifted out of order makes "next" mean something different halfway down.
+const grand = (walk.match(/export const GRAND = \[([^\]]*)\]/) ?? [])[1] ?? "";
+const order = [...grand.matchAll(/"([a-z]+)"/g)].map((m) => m[1]);
+check("the whole-dashboard tour is all five tabs in rail order",
+  order.join(",") === TABS.join(","), `it is: ${order.join(", ") || "missing"}`);
+check("and every block it names has a guide to run",
+  order.every((k) => tourBlock.includes(`\n  ${k}: [`)),
+  `no guide for: ${order.filter((k) => !tourBlock.includes(`\n  ${k}: [`)).join(", ")}`);
+// The blocks are what move tabs, so the component has to be given the way to
+// do it — without `onGo` the tour runs Today's guide five times over.
+check("the tour is handed the way to change tab",
+  /tour=\{tabTour\}[\s\S]{0,700}?onGo=\{/.test(app),
+  "a block change calls onGo, and a tab guide's own steps never do");
 
 // **REPLAYABLE IS THE OTHER HALF OF 1.4.** The guides fired once, the first
 // time a browser opened each tab, and never again — so a detailer who tapped

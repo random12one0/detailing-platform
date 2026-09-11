@@ -13,7 +13,7 @@ import GearMenu from "./components/GearMenu.jsx";
 import SetupForm from "./components/SetupForm.jsx";
 import SiteIntake from "./screens/SiteIntake.jsx";
 import { SCREENS } from "./screens/more/index.js";
-import Walkthrough, { TOURS } from "./components/Walkthrough.jsx";
+import Walkthrough, { TOURS, GRAND } from "./components/Walkthrough.jsx";
 import { impersonation } from "./lib/impersonation.js";
 import { isPreviewTab, previewMode, previewWho, setPreviewMode } from "./lib/preview.js";
 import { planChoice } from "./lib/planChoice.js";
@@ -419,7 +419,20 @@ export default function App() {
                 key={gearScreen ?? "index"}
                 initial={gearScreen}
                 onClose={() => setGear(false)}
-                onTour={() => { setGear(false); asked.current = true; setTabTour(activeTab.key); }}
+                // **THE WHOLE DASHBOARD, FROM TODAY, WHATEVER TAB YOU PRESSED
+                // IT ON — his ruling, 2026-09-10.** It ran the guide for the
+                // tab you were standing on, which was yesterday's fix for it
+                // wandering off to Business. Right about the wandering, wrong
+                // about the scope: *"I want it so when you press the settings,
+                // it restarts the tour from the beginning, from the today
+                // page... It should do it for every single tab."* The tabs a
+                // detailer cannot see are not in it — `Walkthrough` drops a
+                // block whose screen has nothing to point at.
+                //
+                // A `{/* */}` COMMENT BETWEEN ATTRIBUTES IS A SYNTAX ERROR —
+                // second time this session. Inside an opening tag the comment
+                // form is `//`; the braces one only works between children.
+                onTour={() => { setGear(false); asked.current = true; setTabTour("everything"); }}
               />
             )
             : (
@@ -512,6 +525,10 @@ export default function App() {
           guide is already on the screen it is about. */}
       {!firstRun && tabTour && (
         <Walkthrough key={tabTour} tour={tabTour}
+          // **THE WHOLE-DASHBOARD TOUR MOVES TABS AND THEREFORE NEEDS THIS.**
+          // A single tab's guide never calls it — its steps carry no
+          // destination — so one prop covers both without a condition.
+          onGo={(dest) => { setTab(dest); setGear(false); }}
           // NOT MARKED SEEN when it leaves for want of steps — decision 6.
           // A detailer whose Today is empty today gets the guide the first
           // day there is a job on it.
@@ -523,7 +540,16 @@ export default function App() {
           // quietly, and a requested one falls back to the tour of the rail,
           // which every dashboard can always run.
           onEmpty={() => { if (asked.current) { asked.current = false; setTabTour(null); setFirstRun("tour"); } else setTabTour(null); }}
-          onClose={() => { markTourSeen(tabTour); setTabTour(null); }} />
+          // FINISHING THE TOUR OF EVERYTHING MARKS EVERYTHING SEEN, including
+          // when it is skipped — otherwise a detailer who has just been shown
+          // all five tabs gets each one's guide ambushing them again as they
+          // walk the rail, and somebody who pressed Skip gets it five more
+          // times. The gear is still the way back in.
+          onClose={() => {
+            if (tabTour === "everything") [...GRAND, "shell"].forEach(markTourSeen);
+            else markTourSeen(tabTour);
+            setTabTour(null);
+          }} />
       )}
     </div>
   );

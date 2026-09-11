@@ -125,6 +125,11 @@ export const TOURS = {
   // has to keep re-finding their place in.
   today: [
     ["day", "Today's date. Everything on this screen is about this one day."],
+    // FROM THE SHELL TOUR, which "Show me around" no longer runs — it runs
+    // every tab instead, and this was the one fact in the shell list that no
+    // tab guide carried. It is in the masthead at every width, so it is here
+    // rather than on the tab it is least surprising on.
+    ["new", "A job you booked over the phone goes in here."],
     ["requests", "Somebody asked for a time. Nothing is booked until you answer."],
     ["figures", "How many jobs you have today, and what they should bring in."],
     // "Open", not "Tap": at 1180 and above this is a mouse, and a sentence
@@ -185,6 +190,37 @@ export const TOURS = {
   ],
 };
 
+// **"SHOW ME AROUND" IS THE WHOLE DASHBOARD NOW, IN THIS ORDER — his ruling,
+// 2026-09-10, and it overturns the one made the day before.**
+//
+// *"I want it so when you press the settings, it restarts the tour from the
+// beginning, from the today page. So even if you're on the money, clients,
+// calendar, business, and you press the button that says show me around, have
+// it do the show me around for the today page. Then once you click next... it
+// does it again... It should do it for every single tab."*
+//
+// Yesterday it ran the guide for the tab you were STANDING ON, which was the
+// fix for his complaint that it wandered off to Business. That was right about
+// the wandering and wrong about the scope: what he wants from one press is a
+// tour of the product, not of the screen. **So a tour is a list of BLOCKS
+// rather than a list of steps** — one block per tab, each block the tab's own
+// guide, and the blocks are what move between tabs. The step lists above did
+// not change and still may not move a tab: *the guide for a tab stays on its
+// tab* is still true, and it has to be, because those same lists are what
+// arrives on its own the first time a browser opens each tab.
+//
+// The order is the rail's order, top to bottom, so "next" always means "the
+// next one down".
+export const GRAND = ["today", "calendar", "money", "clients", "business"];
+// The tab's own name on the card, so somebody five minutes in knows which
+// part of the tour they are in. These are the rail's labels and are already
+// in the Spanish catalogue — `t()` on a string it has never seen returns it
+// unchanged, so a sixth tab would print in English rather than break.
+const TAB_NAMES = {
+  today: "Today", calendar: "Calendar", money: "Money",
+  clients: "Clients", business: "Business",
+};
+
 // A GUIDE OF ONE STEP IS NOT A GUIDE (decision 6). On a brand-new dashboard
 // three of Today's four targets do not exist and two of Clients' three do
 // not, so those two tabs stay quiet until there is something to point at —
@@ -217,7 +253,12 @@ const PLAN_GIVE_UP_MS = 4000;
 // the gear's *Show me around* keeps meaning what it meant.
 export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) {
   useAppLocale();
-  const STEPS = TOURS[tour] ?? TOURS.shell;
+  // `everything` is the whole dashboard, one tab after another. Every other
+  // name is a single block and behaves exactly as it did.
+  const BLOCKS = tour === "everything" ? GRAND : [tour];
+  const [b, setB] = useState(0);
+  const block = BLOCKS[Math.min(b, BLOCKS.length - 1)];
+  const STEPS = TOURS[block] ?? TOURS.shell;
   const [i, setI] = useState(0);
   const [box, setBox] = useState(null);
   const [leaving, setLeaving] = useState(false);
@@ -236,6 +277,8 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
   // — which is allowed to lengthen the plan, but only ahead of this.
   const iRef = useRef(0);
   iRef.current = i;
+  // Whether this tour has ever had a plan. See the render guard at the bottom.
+  const started = useRef(false);
   const card = useRef(null);
 
   const close = useCallback(() => {
@@ -259,12 +302,34 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
   // setState from inside Walkthrough's render and the console said so:
   // *"Cannot update a component (Calendar) while rendering a different
   // component (Walkthrough)"*. It worked, which is the dangerous part.
+  // EVERYTHING A BLOCK CHANGE HAS TO FORGET, in one place. The hole and the
+  // card's position belong to a step on a screen that is about to be replaced,
+  // and a stale hole left on screen while the next tab loads is the tour
+  // pointing at a place that no longer exists.
+  const goBlock = useCallback((n) => {
+    setB(n); setI(0); setPlan(null); setPlace(null);
+    // **THE HOLE CLOSES TO A POINT RATHER THAN DISAPPEARING, and that is the
+    // whole of what keeps the tour on screen between two tabs.** The dim is
+    // not a layer of its own — it is the spotlight's own 9999px shadow — so
+    // `setBox(null)` takes the darkness away with the hole and leaves an
+    // invisible sheet that swallows clicks. Measured: pressing Next on the
+    // last step of Today made the entire overlay vanish for a second and a
+    // half while Calendar loaded, which reads as the tour having ended.
+    // A zero-sized box is a full-screen dim, and `.spotlight` already
+    // transitions its four numbers — so the light closes here and opens on
+    // the next tab's first target, which is the one move that says "same
+    // tour, new screen".
+    setBox({ top: window.innerHeight / 2, left: window.innerWidth / 2, width: 0, height: 0 });
+  }, []);
+
   const next = useCallback(() => {
     const steps = plan ?? STEPS;
     if (steps[i]?.[3]) document.querySelector(`[data-tour="${steps[i][0]}"]`)?.click();
-    if (i + 1 >= steps.length) { close(); return; }
-    setI(i + 1);
-  }, [close, plan, STEPS, i]);
+    if (i + 1 < steps.length) { setI(i + 1); return; }
+    // The end of a tab is the start of the next one, not the end of the tour.
+    if (b + 1 < BLOCKS.length) { goBlock(b + 1); return; }
+    close();
+  }, [close, plan, STEPS, i, b, BLOCKS.length, goBlock]);
 
   // The body is frozen for the whole tour, and this is Sheet.jsx's lock
   // rather than a second one. `overflow: hidden` stops a FINGER; it does not
@@ -289,7 +354,13 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
     // it is about — it was started BY arriving there — and calling `onGo`
     // with an undefined tab would send the shell somewhere it did not ask
     // to go.
-    if (STEPS[0][2]) live.current.onGo?.(STEPS[0][2]);
+    // **THE BLOCK IS WHAT MOVES TABS.** A tab guide's own steps never carry a
+    // destination — that is the rule his 1.3 bug produced and it still holds —
+    // so on the whole-dashboard tour the move happens here, once per block,
+    // before anything is counted. A single-tab guide keeps the old behaviour:
+    // only the shell tour's first step names a tab.
+    if (BLOCKS.length > 1) live.current.onGo?.(block);
+    else if (STEPS[0][2]) live.current.onGo?.(STEPS[0][2]);
     let on = true;
     let tries = 0;
     let steady = 0;
@@ -358,6 +429,14 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
           // guide dropped for having one step is not coming back, and that is
           // too final a decision to make off a fifth of a second.
           if (kept.length >= MIN_STEPS || tour === "shell") { shown = kept; setPlan(kept); }
+          // **A TAB WITH NOTHING TO POINT AT IS SKIPPED, NOT THE END OF THE
+          // TOUR.** A brand-new dashboard has no clients and no money, and
+          // decision 6 is right that one lonely caption over an empty Clients
+          // screen is worse than nothing — but on the whole-dashboard tour
+          // that must not stop the run before Business, which is the tab a new
+          // detailer most needs. So an empty block hands on, and only a tour
+          // where EVERY block came up empty tells the caller it found nothing.
+          else if (out_of_time && b + 1 < BLOCKS.length) { goBlock(b + 1); return; }
           else if (out_of_time) { live.current.onEmpty?.(); return; }
         } else if (kept.length > shown.length
           && kept.slice(0, iRef.current + 1).every((st, n) => st === shown[n])) {
@@ -370,7 +449,9 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
     };
     tick();
     return () => { on = false; };
-  }, []);
+    // PER BLOCK, not once per tour. Each tab is planned against its own screen
+    // when the tour arrives on it, which is the only moment its targets exist.
+  }, [b]);
 
   // THE CALLBACKS GO IN A REF, AND THAT IS NOT TIDINESS — it is the fix for
   // two separate defects, both observed rather than reasoned about.
@@ -555,9 +636,13 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
     // MEASURES A REF MUST DEPEND ON WHATEVER DECIDES THE REF EXISTS.
   }, [box, plan]);
 
-  // Nothing is drawn until the plan is known — a dim with no hole in it, for
-  // the frame or two it takes, is the tour looking broken on the way in.
-  if (!plan) return null;
+  // Nothing is drawn until the FIRST plan is known — a dim with no hole in it,
+  // for the frame or two it takes, is the tour looking broken on the way in.
+  // **AFTER THAT IT NEVER GOES AWAY AGAIN**, because on the whole-dashboard
+  // tour there is no plan for a moment every time it changes tab, and leaving
+  // is not what is happening then.
+  if (plan) started.current = true;
+  if (!plan && !started.current) return null;
 
   return (
     <div className={`tourblock${leaving ? " leaving" : ""}`}
@@ -567,6 +652,7 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
           top: box.top, left: box.left, width: box.width, height: box.height,
         }} />
       )}
+      {plan && (
       <div ref={card} className="tourcard" tabIndex={-1}
         // AND NOTHING MOVES UNTIL IT IS SOMEWHERE. A CSS animation beats an
         // inline style, so `.tourcard`'s own arrival ran the unplaced card up
@@ -579,7 +665,14 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
         {/* The count is the "more steps rather than fewer" constraint made
             visible — it is what tells someone the tour is seven short things
             rather than an unknown number of long ones. */}
-        <span className="label">{t("{n} of {total}", { n: i + 1, total: (plan ?? STEPS).length })}</span>
+        {/* WHICH TAB, then how far through it. On the whole-dashboard tour a
+            bare "3 of 6" five screens in says nothing about where you are, and
+            the tab has just changed underneath the reader. A single-tab guide
+            is unchanged — there is only one tab it could mean. */}
+        <span className="label">
+          {BLOCKS.length > 1 ? `${t(TAB_NAMES[block] ?? block)} · ` : ""}
+          {t("{n} of {total}", { n: i + 1, total: (plan ?? STEPS).length })}
+        </span>
         {/* THE LIVE REGION IS THE WRAPPER, NOT THE SENTENCE, and the two are
             not interchangeable: a screen reader announces content INSERTED
             into a region it is already watching, and `key` below replaces the
@@ -600,10 +693,15 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
                 which reads as the tour breaking. Harmless while every
                 dashboard had all seven; per-tab guides make a short plan
                 the ordinary case. */}
-            {i + 1 === (plan ?? STEPS).length ? t("Done") : t("Next")}
+            {/* THE LAST STEP OF THE LAST TAB. It said Done at the end of every
+                block once the tour ran five of them, which promises the end
+                four times over. */}
+            {i + 1 === (plan ?? STEPS).length && b + 1 === BLOCKS.length
+              ? t("Done") : t("Next")}
           </button>
         </div>
       </div>
+      )}
     </div>
   );
 }
