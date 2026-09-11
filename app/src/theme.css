@@ -4071,6 +4071,22 @@ html:not(.lite) .intake .samp-move .samp-row:nth-child(3) { animation-delay: .5s
   border-radius: 999px;
   font-size: 13px; line-height: 1.45;
   white-space: nowrap; user-select: none;
+  /* HIS ASK, 2026-09-11: *"make it so that when it's inside of the text chat,
+     you could drag it to wherever you want."* `grab` is the only thing on the
+     screen that says a pill is a thing you can pick up, and it costs nothing.
+     `touch-action: none` is what makes the same gesture work with a thumb:
+     without it the browser claims the drag as a page scroll before the first
+     `pointermove` arrives, so this would be a desk-only feature on a product
+     whose detailers are in a driveway. It applies to the pill alone, so the
+     rest of the box still scrolls normally. */
+  cursor: grab; touch-action: none;
+}
+/* Picked up. Lifted rather than faded, because the pill is still the thing
+   being placed — it moves through the sentence in real time as the finger
+   goes, and dimming the one element you are watching is the wrong signal. */
+.tok.dragging {
+  cursor: grabbing;
+  background: var(--accent); border-color: var(--accent); color: var(--accent-ink);
 }
 
 /* WHAT THE CUSTOMER ACTUALLY RECEIVES. A tinted bubble rather than a second

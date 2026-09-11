@@ -1455,7 +1455,8 @@ export const appEs = {
   "Taken off every car after the first, because you unpack once. It never changes the price.":
     "Se le quita a cada carro después del primero, porque desempacas una sola vez. Nunca cambia el precio.",
   "Taking you to your dashboard…": "Llevándote a tu panel…",
-  "Tap to add a detail": "Toca para agregar un dato",
+  "Tap to add a detail. Drag one to move it.":
+    "Toca para agregar un dato. Arrastra uno para moverlo.",
   "Technical detail": "Detalle técnico",
   "Tell us the address and we do it — it takes a couple of minutes and it cannot be done from here.":
     "Dinos la dirección y nosotros lo hacemos — toma un par de minutos y no se puede hacer desde aquí.",

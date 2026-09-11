@@ -215,7 +215,12 @@ function TemplateCard({ row, business, onSave }) {
           <span className="label">{t("What you write")}</span>
           <TokenEditor editorRef={ref} value={body} onChange={setBody} />
           <div className="row between" style={{ marginTop: 4 }}>
-            <span className="quiet">{t("Tap to add a detail")}</span>
+            {/* TWO FACTS, ONE SENTENCE EACH, and the second is the only way
+                anybody finds out the drag exists — a pill looks like a word,
+                and nothing about it says it can be picked up. His rule for the
+                wording, given twice on 2026-09-11: straightforward and
+                informative, no flourish. */}
+            <span className="quiet">{t("Tap to add a detail. Drag one to move it.")}</span>
             <span className="quiet num">{preview.length} characters</span>
           </div>
           {/* wrap: these six are a palette you pick from, not a range you
@@ -300,6 +305,51 @@ const PLAIN = {
 // `seeded` holds the value this editor last wrote out, so an echo of our own
 // keystroke coming back as a prop is not mistaken for somebody pressing
 // Reset.
+// WHERE IN THE TEXT A POINT IS. Two spellings of the same thing: Firefox and
+// Safari have `caretPositionFromPoint`, Chrome had `caretRangeFromPoint` first.
+// Neither is in every engine, so a browser with neither simply cannot drag —
+// which is why nothing else on this screen depends on it.
+const caretAt = (x, y) => {
+  if (document.caretPositionFromPoint) {
+    const p = document.caretPositionFromPoint(x, y);
+    return p ? { node: p.offsetNode, offset: p.offset } : null;
+  }
+  if (document.caretRangeFromPoint) {
+    const r = document.caretRangeFromPoint(x, y);
+    return r ? { node: r.startContainer, offset: r.startOffset } : null;
+  }
+  return null;
+};
+
+// ONE SPACE EITHER SIDE OF A PILL, AND NEVER TWO. The same rule `insert()`
+// applies when a chip is tapped, pulled out so a dropped pill obeys it too —
+// otherwise dragging a detail next to a word glues them together in the
+// message that actually sends, and the editor would not show it because it
+// draws a margin around every pill regardless.
+const spaceAround = (pill) => {
+  const parent = pill.parentNode;
+  if (!parent) return;
+  const before = pill.previousSibling;
+  const after = pill.nextSibling;
+  if (!before) { /* start of the line — nothing owed */ }
+  else if (before.nodeType === 3) {
+    if (before.nodeValue && !/\s$/.test(before.nodeValue)) before.nodeValue += " ";
+  } else parent.insertBefore(document.createTextNode(" "), pill);
+  if (!after) parent.appendChild(document.createTextNode(" "));
+  else if (after.nodeType === 3) {
+    if (!/^\s/.test(after.nodeValue ?? "")) after.nodeValue = ` ${after.nodeValue ?? ""}`;
+  } else parent.insertBefore(document.createTextNode(" "), after);
+};
+
+// A drag leaves split and empty text nodes behind it. Left alone they are
+// invisible in the editor and turn into stray double spaces in the message.
+const tidy = (el) => {
+  for (const n of [...el.childNodes]) {
+    if (n.nodeType === 3 && n.nodeValue === "") n.remove();
+  }
+  el.normalize();
+};
+
 function TokenEditor({ editorRef, value, onChange }) {
   const seeded = useRef(null);
 
@@ -327,6 +377,108 @@ function TokenEditor({ editorRef, value, onChange }) {
     onChange(next);
   };
 
+  // ── DRAG A DETAIL TO WHERE YOU WANT IT ──────────────────────────────────
+  //
+  // **His ask, 2026-09-11:** *"make it so that when it's inside of the text
+  // chat, you could drag it to wherever you want."*
+  //
+  // **POINTER EVENTS, NOT HTML5 DRAG-AND-DROP, and that is the whole design
+  // decision.** `draggable="true"` plus `dragstart`/`drop` is four fewer
+  // lines and does nothing at all on a touch screen — the browser never fires
+  // a drag for a finger. This product's detailers are holding a phone in a
+  // driveway, so a desk-only gesture is a feature most of them do not have.
+  // One pointer API covers mouse, finger and stylus.
+  //
+  // **THE PILL MOVES AS YOU GO — there is no floating ghost.** The element
+  // itself is re-parented on every move, so the sentence rearranges under the
+  // finger and what you see during the drag is what you get when you let go.
+  // A ghost would need its own copy, its own position and its own drop
+  // indicator, and all three can disagree with where the pill actually lands.
+  //
+  // **A DOM NODE EXISTS IN ONE PLACE**, so `insertNode` MOVES the pill rather
+  // than copying it. There is no remove step, and therefore no window in
+  // which the drag can lose the detail it is carrying.
+  const onPointerDown = (e) => {
+    const el = editorRef.current;
+    const pill = e.target?.closest?.(".tok");
+    if (!el || !pill || !el.contains(pill)) return;
+    if (e.button !== undefined && e.button > 0) return;   // right-click is not a drag
+    let moved = false;
+    const start = { x: e.clientX, y: e.clientY };
+
+    // **THE LISTENERS GO ON `window`, NOT ON THE PILL, AND POINTER CAPTURE IS
+    // NOT USED — measured, 2026-09-11, not assumed.** The obvious version
+    // called `pill.setPointerCapture()` and listened on the pill. It moved the
+    // pill correctly and then never committed: dragging RE-PARENTS the pill,
+    // re-parenting takes it out of the document for an instant, and that
+    // releases the capture — so `pointerup` was delivered to whatever the
+    // cursor happened to be over and the handler that reads the editor back
+    // into state never ran.
+    //
+    // The tell was not the pill, which visibly moved. It was `Save` never
+    // appearing and the live preview never changing: the DOM had the new
+    // sentence and the state still had the old one, which is a half-applied
+    // edit that looks finished. A screenshot would have called it working.
+    const move = (ev) => {
+      if (ev.pointerId !== e.pointerId) return;
+      // A SLOP THRESHOLD, or a tap to place the caret becomes a one-pixel
+      // drag and the pill jumps. Four pixels is under the tremor of a thumb
+      // resting and over nothing anybody means.
+      if (!moved) {
+        if (Math.abs(ev.clientX - start.x) + Math.abs(ev.clientY - start.y) < 4) return;
+        moved = true;
+        pill.classList.add("dragging");
+      }
+      ev.preventDefault();
+      const at = caretAt(ev.clientX, ev.clientY);
+      if (!at || !el.contains(at.node) || pill.contains(at.node) || at.node === pill) return;
+      // **A PILL MUST NEVER LAND INSIDE ANOTHER PILL.** `caretAt` answers with
+      // a position in whatever text is under the pointer, and a pill's label
+      // is text — so dragging across "Their name" returned an offset INSIDE
+      // it and the dragged pill was inserted between two of its letters. Seen
+      // in a mid-drag screenshot as `T⟦Your business⟧heir name`, which
+      // `fromEditorDom` would then have flattened into a nonsense token.
+      //
+      // The right answer is also the one a person expects: a pointer over
+      // another pill means before it or after it, decided by which half of it
+      // the pointer is past.
+      const host = at.node.nodeType === 1 ? at.node : at.node.parentNode;
+      const other = host?.closest?.(".tok");
+      if (other && other !== pill) {
+        const r = other.getBoundingClientRect();
+        const after = ev.clientX > r.left + r.width / 2;
+        const ref = after ? other.nextSibling : other;
+        if (ref !== pill) other.parentNode.insertBefore(pill, ref);
+        return;
+      }
+      if (at.node.nodeType === 3) {
+        const r = document.createRange();
+        r.setStart(at.node, Math.min(at.offset, at.node.nodeValue?.length ?? 0));
+        r.collapse(true);
+        r.insertNode(pill);
+      } else {
+        const ref = at.node.childNodes[at.offset] ?? null;
+        if (ref !== pill) at.node.insertBefore(pill, ref);
+      }
+    };
+
+    const done = (ev) => {
+      if (ev && ev.pointerId !== undefined && ev.pointerId !== e.pointerId) return;
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", done);
+      window.removeEventListener("pointercancel", done);
+      if (!moved) return;                 // a tap, not a drag — nothing changed
+      pill.classList.remove("dragging");
+      spaceAround(pill);
+      tidy(el);
+      read();
+    };
+
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", done);
+    window.addEventListener("pointercancel", done);
+  };
+
   return (
     <div
       ref={editorRef}
@@ -336,6 +488,7 @@ function TokenEditor({ editorRef, value, onChange }) {
       role="textbox"
       aria-multiline="true"
       aria-label={t("What you write")}
+      onPointerDown={onPointerDown}
       onInput={read}
       // A LINE BREAK, NEVER A PARAGRAPH. Left alone, Chrome wraps each new
       // line in a DIV and Firefox in a P, and `fromEditorDom` then has to

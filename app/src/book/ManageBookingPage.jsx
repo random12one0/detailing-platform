@@ -163,20 +163,38 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
   // ROUNDED TO THE CENT BEFORE COMPARING — these are numerics coming back
   // through JSON, and `235.00000000000003 !== 235` would silently switch
   // every receipt in the product to the short form.
+  // **AND THE SIZE FEE IS COUNTED TWICE ON SOME BOOKINGS, WHICH IS WHY THIS
+  // ASKS THE QUESTION TWICE — measured 2026-09-11 on two real bookings, both
+  // made through the booking page, neither of which itemised.**
+  //
+  // `booking_services.price_at_booking` is a snapshot, and it does not always
+  // mean the same thing: on one booking it was the base price with the size
+  // uplift ALREADY IN IT (a $240 service stored as $255), and on another it
+  // was the bare base with `vehicle_size_fee` sitting beside it. Adding the
+  // fee to the first kind double-counts it, so a perfectly consistent booking
+  // failed this check and fell back to names with no prices — the feature
+  // switched itself off on the ordinary case.
+  //
+  // So both readings are tried. Itemisation is still only drawn when the
+  // lines PROVABLY equal the stored subtotal; what changed is that there are
+  // two ways for them to prove it. `sizeIsSeparate` then decides whether the
+  // size gets a line of its own, because drawing one when it is already
+  // inside the service prices is the same double count on the screen.
   const cents = (n) => Math.round(Number(n || 0) * 100);
   const adjustments = Array.isArray(booking.price_adjustments) ? booking.price_adjustments : [];
-  const lineSum = cents(booking.subtotal)
+  const parts = cents(booking.subtotal)
     ? [
       ...(booking.services ?? []).map((sv) => cents(sv.price_at_booking)),
       ...(booking.add_ons ?? []).map((a) => cents(a.add_on?.price)),
-      cents(booking.vehicle_size_fee),
       cents(booking.travel_fee),
       ...adjustments.map((a) => cents(a.amount)),
     ].reduce((a, b) => a + b, 0)
     : null;
+  const want = cents(booking.subtotal);
+  const sizeIsSeparate = parts !== null && parts + cents(booking.vehicle_size_fee) === want;
   // The site discount is taken off the subtotal the engine surfaces, so it is
   // already inside `booking.subtotal` and is not one of the lines above.
-  const itemised = lineSum !== null && lineSum === cents(booking.subtotal);
+  const itemised = parts !== null && (sizeIsSeparate || parts === want);
 
   const loc = intlLocale();
   const dateLabel = new Date(`${booking.booking_date}T12:00:00`).toLocaleDateString(loc, {
@@ -343,19 +361,34 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
               what a past job was sold for — so a page that re-derived any of
               them would be showing a number nobody was charged. */}
           <div className="bk-receipt" style={{ marginTop: 12 }}>
+            {/* **THE PRICES GO WITH THE REST OF THE ITEMISATION, AND UNTIL
+                2026-09-11 THEY DID NOT.** The guard above suppressed the size,
+                travel and adjustment lines when the figures did not reconcile,
+                and left these two printing their prices — so the degrade path
+                removed exactly the lines that EXPLAIN the gap and kept the
+                ones that CREATE it.
+                Measured on a booking made through the real booking page: three
+                priced lines reading $255.00, $110.00 and $45.00 above a total
+                of $390.00. Adding those up is the first thing a person does
+                with a receipt, and they get $410.
+                The comment above always said the intent — *"show the services
+                and the total and nothing in between"* — and "the services"
+                means WHICH ONES, not what each cost. Names are still the
+                detail he asked for in review item 15; a price that is not part
+                of the total is not detail, it is a contradiction. */}
             {(booking.services ?? []).map((sv, i) => (
               <div className="line" key={`s${sv.service_id ?? i}`}>
                 <span>{sv.name_at_booking}</span>
-                <span className="bk-price">{money(sv.price_at_booking)}</span>
+                {itemised && <span className="bk-price">{money(sv.price_at_booking)}</span>}
               </div>
             ))}
             {(booking.add_ons ?? []).map((a, i) => (
               <div className="line" key={`a${a.add_on_id ?? i}`}>
                 <span>{a.add_on?.name ?? t("Add-on")}</span>
-                <span className="bk-price">{money(a.add_on?.price ?? 0)}</span>
+                {itemised && <span className="bk-price">{money(a.add_on?.price ?? 0)}</span>}
               </div>
             ))}
-            {itemised && booking.vehicle_size_fee > 0 && (
+            {itemised && sizeIsSeparate && booking.vehicle_size_fee > 0 && (
               <div className="line dim">
                 <span>{t("Vehicle size")}</span>
                 <span className="bk-price">{money(booking.vehicle_size_fee)}</span>
