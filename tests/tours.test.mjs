@@ -165,5 +165,32 @@ const missing = targets.filter((t) =>
 check("every target a guide names is carried by a screen",
   missing.length === 0, `no data-tour for: ${missing.join(", ")}`);
 
+/* ── 5 · every script that walks the product knows every guide ─────────── */
+console.log("\n5: the scripts that drive the dashboard");
+
+// **THIS IS THE FOURTH TIME A GUIDE HAS BROKEN A BROWSER SCRIPT, AND THE FIRST
+// TIME ANYTHING CHECKS FOR IT.** CLAUDE.md records the first three and the
+// rule that came out of them — *every script that walks the product marks the
+// guides seen, in the change that builds the guide* — and a rule written in
+// prose did not survive the next guide either: `calendar` shipped on
+// 2026-09-10 and `sweep-widths.mjs` still listed five names, so the width
+// sweep sat there until it timed out against `.tourblock`, which eats every
+// pointer event by design.
+//
+// The failure is the expensive kind: the script does not say "a guide is in my
+// way", it says `TimeoutError` forty lines deep in a Playwright log.
+const DRIVERS = ["scripts/sweep-widths.mjs", "scripts/shoot-dashboard.mjs", "scripts/two-detailers.mjs"];
+const every = ["shell", ...TABS];
+for (const f of DRIVERS) {
+  let src = "";
+  try { src = readFileSync(f, "utf8"); } catch { /* a script may be removed */ }
+  if (!src || !src.includes("dp.tours")) continue;
+  const missing = every.filter((name) => !new RegExp(`"${name}"`).test(
+    (src.match(/dp\.tours[^\n]*\n?[^\n]*/g) ?? []).join(" "),
+  ));
+  check(`${f.split("/").pop()} silences every guide`,
+    missing.length === 0, `it does not list: ${missing.join(", ")}`);
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

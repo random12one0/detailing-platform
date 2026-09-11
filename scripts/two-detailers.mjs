@@ -163,7 +163,7 @@ const signIn = async (ctx, email) => {
   // click after the first — CLAUDE.md records three scripts broken by exactly
   // this. Seed them as seen: this run measures data, not first impressions.
   await page.evaluate(() => {
-    localStorage.setItem("dp.tours", JSON.stringify(["shell", "today", "money", "clients", "business"]));
+    localStorage.setItem("dp.tours", JSON.stringify(["shell", "today", "calendar", "money", "clients", "business"]));
     localStorage.setItem("dp.tour", "1");
   });
   await page.goto(`${BASE}/app`, { waitUntil: "domcontentloaded" });

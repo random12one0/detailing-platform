@@ -716,7 +716,7 @@ for (const w of SIZES) {
   const lang = process.env.LANG_APP === "es" ? "es" : "en";
   await page.evaluate((lang) => {
     try {
-      localStorage.setItem("dp.tours", JSON.stringify(["shell", "today", "money", "clients", "business"]));
+      localStorage.setItem("dp.tours", JSON.stringify(["shell", "today", "calendar", "money", "clients", "business"]));
       localStorage.setItem("dp.tour", "1");
       localStorage.setItem("dp.lang.app", lang);
     } catch { /* private mode */ }
@@ -1550,11 +1550,29 @@ for (const w of SIZES) {
     // The guides were marked seen at sign-in so they could not interrupt the
     // fifty measurements above; this is where they are given back.
     await page.evaluate(() => { try { localStorage.removeItem("dp.tours"); } catch { /* private mode */ } });
-    for (const [tab, name] of [["Today", "today"], ["Money", "money"], ["Clients", "clients"], ["Business", "business"]]) {
+    // CALENDAR JOINED THE LIST ON 2026-09-10, the day it got a guide at all.
+    for (const [tab, name] of [["Today", "today"], ["Calendar", "calendar"],
+      ["Money", "money"], ["Clients", "clients"], ["Business", "business"]]) {
       // BY ATTRIBUTE, NOT BY NAME. The pair already carries the `data-tour`
       // value as its second element, so there was never a reason to look this
       // button up by a word that translates. The five rail buttons above have
       // been addressed this way since 8.17; this loop was missed.
+      // **NOTHING IS CLICKABLE WHILE A GUIDE IS UP**, so every iteration of
+      // this loop starts by making sure there is not one — including the
+      // first, because the tab press that BEGAN this section can start a
+      // guide of its own on the 900ms timer. Measured 2026-09-10: the sweep
+      // died on the very first click here, before any of the presses below
+      // had run, with `.tourblock` already eating the event.
+      if (await page.locator(".tourblock").count()) {
+        await page.keyboard.press("Escape");
+        await settle(page, 400);
+      }
+      // **AND CLOSING A GUIDE MARKS IT SEEN**, which is right for a detailer
+      // and wrong for a measurement: the escape above, or the previous tab's
+      // own Done, writes that name into `dp.tours` and the next guide never
+      // arrives. Cleared per tab, so each one is met by a profile that has
+      // never seen it — which is the state this block exists to measure.
+      await page.evaluate(() => { try { localStorage.removeItem("dp.tours"); } catch { /* private mode */ } });
       const btn = page.locator(`.tabbar button[data-tour="${name}"]`).first();
       if (!(await btn.count())) {
         // This sweep signs in as the OWNER, who has all four, so a missing tab
@@ -1577,11 +1595,26 @@ for (const w of SIZES) {
       }
       const steps = await page.locator(".tourcard .label").first().innerText().catch(() => "?");
       console.log(`${("guide · " + name).padEnd(24)} ${steps.replace(/\s+/g, " ")}`);
-      for (let k = 1; k <= 5; k++) {
+      // **FIVE PRESSES WAS A NUMBER, NOT A CONDITION, AND IT BROKE THE WHOLE
+      // SWEEP ON 2026-09-10.** The guides were two and three steps when this
+      // was written; they are five to eight now, so five presses left the
+      // tour OPEN — and `.tourblock` eats every pointer event by design, so
+      // the next tab click in this loop timed out forty lines deep in a
+      // Playwright log with no line in it saying "a guide is in the way".
+      // Twelve is a bound rather than an expectation, and Escape is what
+      // actually guarantees the next iteration can click.
+      for (let k = 1; k <= 12; k++) {
         if (!(await page.locator(".tourcard").count())) break;
         await say(`guide · ${name} ${k}`);
         await page.locator(".tourcard button.primary").click();
         await settle(page, 900);
+      }
+      // BELT AND BRACES, and the belt is the part that matters: a guide left
+      // open is not a finding about this tab, it is a failure of every
+      // measurement after it.
+      if (await page.locator(".tourcard").count()) {
+        await page.keyboard.press("Escape");
+        await settle(page, 400);
       }
     }
   }
