@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0B0D0E">
-<title>Every page · Detailing Platform</title>
+<title>Review every page · Detailing Platform</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -100,197 +100,673 @@ a.row .d{display:block;color:var(--fog);font-size:12.5px;margin-top:3px}
 .note b{color:var(--bone-2)}
 footer{padding:40px 0 70px;color:var(--fog-2);font-size:12.5px}
 </style>
+<style>
+/* ══════════════════════════════════════════════════════════════════════
+   THE REVIEW LAYER — his ask, 2026-09-10: *"a link I could just click on
+   to go through each page and review it, and then check it off or not."*
+
+   The map was already every address on one screen; what it could not do
+   was REMEMBER what he had looked at. Two buttons a row — a tick for
+   "fine" and a cross for "not fine", which opens a box for why — kept in
+   this browser's own storage, and one button that turns the whole thing
+   into text he can paste back to me.
+
+   A CROSS IS NOT A TICK'S OPPOSITE, it is the second half of the same
+   answer: both mean "reviewed", which is why the progress count takes
+   either. A page he has looked at and disliked is not a page still
+   waiting to be looked at.
+   ═══════════════════════════════════════════════════════════════════ */
+/* ONE COLUMN, OVERRIDING THE MAP'S OWN GRID. The old page laid its links out
+   as cards in two and three columns, which is right for a directory and wrong
+   for a checklist: a checklist is read DOWN, and the two buttons plus a note
+   box do not fit a 300px card — measured, it squeezed every name onto four
+   lines and scrolled the page sideways. */
+.grid{display:block !important;grid-template-columns:none !important;
+  border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:14px}
+section{margin-top:38px}
+section h2{margin:6px 0 0;font-size:22px}
+.bar{position:sticky;top:0;z-index:20;background:rgba(11,13,14,.92);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.barin{display:flex;align-items:center;justify-content:space-between;
+  gap:16px;padding:14px 0;flex-wrap:wrap}
+.prog{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:13px;
+  color:var(--fog);margin-left:10px}
+.acts{display:flex;gap:8px}
+.btn{font:inherit;font-size:14px;font-weight:600;color:var(--ink-0);
+  background:var(--ac);border:0;border-radius:999px;padding:9px 16px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--bone);box-shadow:inset 0 0 0 1px var(--line-2)}
+.lead{margin:22px 0 6px}
+main.wrap{padding-bottom:80px}
+.row{display:grid;grid-template-columns:34px 34px minmax(0,1fr) auto;
+  gap:10px;align-items:start;padding:12px 12px;border-top:1px solid var(--line);
+  cursor:default}
+.row:first-child{border-top:0}
+.row .txt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.row .n{font-weight:600;color:var(--bone);text-decoration:none}
+.row a.n:hover{color:var(--ac);text-decoration:underline}
+.row .n.dim{color:var(--bone-2)}
+.row .d{color:var(--fog);font-size:14px;line-height:1.35}
+.row .u{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;
+  color:var(--fog-2);white-space:nowrap;align-self:center}
+.tick,.cross{width:30px;height:30px;border-radius:9px;border:0;cursor:pointer;
+  background:var(--ink-2);box-shadow:inset 0 0 0 1px var(--line-2);
+  color:var(--fog-2);font-size:15px;line-height:1;display:grid;place-items:center}
+.tick:hover{color:var(--ac)}
+.cross:hover{color:#FF6B6B}
+.row.is-ok .tick{background:var(--ac);color:var(--ink-0);box-shadow:none}
+.row.is-bad .cross{background:#FF6B6B;color:var(--ink-0);box-shadow:none}
+.row.is-ok{opacity:.55}
+.row.is-bad{background:rgba(255,107,107,.06)}
+.note{grid-column:3 / -1;width:100%;margin-top:6px;font:inherit;font-size:14px;
+  color:var(--bone);background:var(--ink-1);border:0;border-radius:10px;
+  padding:9px 12px;box-shadow:inset 0 0 0 1px var(--line-2)}
+.note:focus{outline:none;box-shadow:inset 0 0 0 1px var(--ac)}
+@media (max-width:560px){
+  .row{grid-template-columns:34px 34px minmax(0,1fr)}
+  .row .u{grid-column:3;align-self:start}
+}
+</style>
 </head>
 <body>
-<div class="wrap">
 
-<header>
-  <span class="lab">Detailing Platform · every page</span>
-  <h1 style="margin-top:16px">The map.</h1>
-  <p>Every screen in the product, as a link. Nothing here is linked from the
-     site itself — it is a way in for looking at things, not a page a customer
-     could ever reach.</p>
-
-  <div class="host">
-    <label for="h">Point these at:</label>
-    <input id="h" value="" spellcheck="false" autocomplete="off">
-    <button id="go" type="button">Use this address</button>
+<div class="bar">
+  <div class="wrap barin">
+    <div>
+      <strong>Review every page</strong>
+      <span class="prog" id="prog">0 of 63</span>
+    </div>
+    <div class="acts">
+      <button class="btn" id="copy" type="button">Copy my notes</button>
+      <button class="btn ghost" id="clear" type="button">Start again</button>
+    </div>
   </div>
-  <p class="note" style="margin-top:10px">Defaults to whatever host this page
-    is served from. Paste a different one — a deploy preview, the live site —
-    and every link below repoints instantly.</p>
-
-  <div class="keys">
-    <div class="key"><b>The demo detailer</b>
-      <span class="mono">demo@detailplatform.com</span>
-      <span class="mono">demo123</span>
-      <span>Everything under /app and /job</span></div>
-    <div class="key"><b>A staff member</b>
-      <span class="mono">demo-staff@detailplatform.com</span>
-      <span class="mono">staff123</span>
-      <span>The same screens, fewer permissions</span></div>
-    <!-- THE PLATFORM ADMIN PASSWORD IS DELIBERATELY NOT HERE.
-         `demo@demo.com` is the only row in `platform_admins`, and that one
-         account reads EVERY detailer on the platform. CLAUDE.md calls it a
-         launch blocker in as many words: it is safe only while every business
-         in the database is a fixture. This file is plain HTML in `public/`,
-         so the moment the site is deployed anywhere — a branch preview
-         included — anything written here is on the open web.
-         The email is fine (it identifies the door, not the key); the password
-         stays out of the repo's servable files. -->
-    <div class="key"><b>The back office</b>
-      <span class="mono">demo@demo.com</span>
-      <span class="mono" style="color:var(--fog-2)">password not published here</span>
-      <span>/admin only — reads every business on the platform</span></div>
-  </div>
-</header>
-
-<section>
-  <span class="lab">Public · what a customer or a prospect meets</span>
-  <h2 style="margin-top:8px">No login needed</h2>
-    <a class="row" href="/website/preview"><span class="n">The website brief, as a preview</span><span class="d">The form a detailer fills in so we can build their site. No sign-in, nothing saved &mdash; for looking at.</span><span class="u">/website/preview</span></a>
-  <div class="grid" data-links>
-    <a class="row" href="/"><span class="n">Landing page</span><span class="d">The marketing page — the one we have been rebuilding</span><span class="u">/</span></a>
-    <a class="row" href="/pricing"><span class="n">Pricing</span><span class="d">Three ways to pay, and the legal disclosures</span><span class="u">/pricing</span></a>
-    <a class="row" href="/terms"><span class="n">Terms</span><span class="d"></span><span class="u">/terms</span></a>
-    <a class="row" href="/privacy"><span class="n">Privacy</span><span class="d"></span><span class="u">/privacy</span></a>
-    <a class="row" href="/map.html"><span class="n">This page</span><span class="d">So you can find your way back</span><span class="u">/map.html</span></a>
-  </div>
-</section>
-
-<section>
-  <span class="lab">Booking · what a customer actually walks through</span>
-  <h2 style="margin-top:8px">Seven steps, two different modes</h2>
-  <div class="grid" data-links>
-    <a class="row" href="/book/demo-detail"><span class="n">Booking — request mode</span><span class="d">Coastline Auto Detailing. The customer asks; the detailer confirms</span><span class="u">/book/demo-detail</span></a>
-    <a class="row" href="/book/demo-riverside"><span class="n">Booking — reserve mode</span><span class="d">Riverside Mobile Detail. The slot is taken there and then</span><span class="u">/book/demo-riverside</span></a>
-    <a class="row" href="/book/demo-detail?lang=es"><span class="n">Booking in Spanish</span><span class="d">The same flow, the other language</span><span class="u">/book/demo-detail?lang=es</span></a>
-    <a class="row" href="/book/demo-detail/plans"><span class="n">Monthly plans</span><span class="d">What a customer sees if the detailer sells plans</span><span class="u">/book/demo-detail/plans</span></a>
-    <a class="row" href="/booking/274a6e89-88b3-4e08-8062-22dbb348e7e9"><span class="n">A customer's own booking</span><span class="d">The receipt — move it, cancel it, see what was charged</span><span class="u">/booking/274a…</span></a>
-    <a class="row" href="/plan/e8b205a0-c404-4a83-9460-44cad04fac44"><span class="n">A plan member's page</span><span class="d">Somebody on a monthly plan, managing it</span><span class="u">/plan/e8b2…</span></a>
-    <a class="row" href="/unsubscribe/8c32c105-47c8-408b-884b-e4099d582b93"><span class="n">Unsubscribe</span><span class="d">The bottom-of-the-email opt-out</span><span class="u">/unsubscribe/8c32…</span></a>
-  </div>
-  <p class="note"><b>Both booking modes matter.</b> A tenant offering only one of
-    mobile and drop-off takes a different path through step 4, which is where a
-    white-screen crash lived unnoticed for five days once.</p>
-</section>
-
-<section>
-  <span class="lab">The dashboard · what the detailer runs the day from</span>
-  <h2 style="margin-top:8px">Sign in as the demo detailer first<span class="tag owner">owner login</span></h2>
-  <div class="grid" data-links>
-    <a class="row" href="/app"><span class="n">Sign in</span><span class="d">demo@detailplatform.com / demo123</span><span class="u">/app</span></a>
-    <a class="row" href="/app/today"><span class="n">Today</span><span class="d">The day's jobs, the ledger, the request queue</span><span class="u">/app/today</span></a>
-    <a class="row" href="/app/calendar"><span class="n">Calendar</span><span class="d">Month grid, the day panel, history</span><span class="u">/app/calendar</span></a>
-    <a class="row" href="/app/money"><span class="n">Money</span><span class="d">Three period kinds, unpaid jobs, expenses</span><span class="u">/app/money</span></a>
-    <a class="row" href="/app/clients"><span class="n">Clients</span><span class="d">Every customer, and who is due a nudge</span><span class="u">/app/clients</span></a>
-    <a class="row" href="/app/more"><span class="n">Business</span><span class="d">The door to thirteen settings screens</span><span class="u">/app/more</span></a>
-  </div>
-  <p class="note"><b>The other six settings screens are behind the gear</b> in
-    the header — Preferences, Team, Password, Switch business, Your subscription,
-    Show me around. There is no direct address for them; open the gear.</p>
-</section>
-
-
-<section>
-  <span class="lab">The rest of the routes · easy to forget these exist</span>
-  <h2 style="margin-top:8px">Real addresses that were missing from the first version</h2>
-  <div class="grid" data-links>
-    <a class="row" href="/job/274a6e89-88b3-4e08-8062-22dbb348e7e9"><span class="n">One job, on its own page</span><span class="d">What a detailer opens from a reminder email<span class="tag owner">owner login</span></span><span class="u">/job/274a…</span></a>
-    <a class="row" href="/reset"><span class="n">Reset a password</span><span class="d">Where the "I forgot my password" email lands</span><span class="u">/reset</span></a>
-    <a class="row" href="/app?setup=1"><span class="n">The seven-step setup</span><span class="d">What a brand-new detailer meets first<span class="tag owner">owner login</span></span><span class="u">/app (first run)</span></a>
-  </div>
-  <p class="note"><b>Accepting an invite</b> lives at <span class="mono">/invite/&lt;token&gt;</span> and
-    cannot be linked here — the token is generated per invite and dies when it is used.
-    Send yourself one from <span class="mono">Business &rsaquo; Team</span> to see that screen.</p>
-</section>
-
-<section>
-  <span class="lab">Screens with no address of their own</span>
-  <h2 style="margin-top:8px">These exist, and no link can reach them</h2>
-  <p class="note" style="margin-top:12px"><b>This is the half of the product a
-    map cannot cover</b>, and it is bigger than the half that it can. Nothing
-    below has a URL — each opens from inside the dashboard. Listed so you know
-    what you have not looked at yet.</p>
-  <div class="grid" style="margin-top:16px">
-    <div class="row" style="cursor:default"><span class="n">Thirteen settings screens</span><span class="d">Catalog · Hours · Booking rules · Business info · Appearance · Promos · Message templates · Notifications · Gallery · Reviews · Monthly plans · How you get paid · Common questions · Your web address · Maintenance deadlines</span><span class="u">from /app/more</span></div>
-    <div class="row" style="cursor:default"><span class="n">Six more behind the gear</span><span class="d">Preferences · Team · Password · Switch business · Your subscription · Show me around</span><span class="u">the gear, top right</span></div>
-    <div class="row" style="cursor:default"><span class="n">The four tab guides</span><span class="d">Arrive the first time you open each tab. Clear them from Show me around</span><span class="u">gear &rsaquo; Show me around</span></div>
-    <div class="row" style="cursor:default"><span class="n">The job record</span><span class="d">Tap any job on Today or in the calendar. Two states — before and after payment</span><span class="u">Today &rsaquo; a job</span></div>
-    <div class="row" style="cursor:default"><span class="n">The request queue and quote sheet</span><span class="d">Only visible when a request is waiting</span><span class="u">Today, request mode</span></div>
-    <div class="row" style="cursor:default"><span class="n">The day panel</span><span class="d">Tap a day in the calendar</span><span class="u">Calendar &rsaquo; a day</span></div>
-    <div class="row" style="cursor:default"><span class="n">Take a payment</span><span class="d">The finalize sheet, from an unpaid job</span><span class="u">a job &rsaquo; Take payment</span></div>
-    <div class="row" style="cursor:default"><span class="n">Add a booking by hand</span><span class="d">The + in the header</span><span class="u">+ &rsaquo; New booking</span></div>
-    <div class="row" style="cursor:default"><span class="n">Add an expense</span><span class="d">From Money</span><span class="u">Money &rsaquo; Add expense</span></div>
-    <div class="row" style="cursor:default"><span class="n">Write to several customers</span><span class="d">The campaign sheet, from Clients</span><span class="u">Clients &rsaquo; Write to them</span></div>
-    <div class="row" style="cursor:default"><span class="n">Job photos</span><span class="d">Before and after, on a job</span><span class="u">a job &rsaquo; Photos</span></div>
-    <div class="row" style="cursor:default"><span class="n">Parked accounts</span><span class="d">Two logins on one business</span><span class="u">gear &rsaquo; Switch business</span></div>
-  </div>
-</section>
-
-<section>
-  <span class="lab">The back office · ours, not a detailer's</span>
-  <h2 style="margin-top:8px">Every business on the platform<span class="tag admin">admin login</span></h2>
-  <div class="grid" data-links>
-    <a class="row" href="/admin"><span class="n">Platform admin</span><span class="d">A non-admin gets a 404, not a refusal — so it looks like nothing is there</span><span class="u">/admin</span></a>
-  </div>
-</section>
-
-<section>
-  <span class="lab">Example detailer sites · what a client's own site looks like</span>
-  <h2 style="margin-top:8px">The three current ones</h2>
-  <div class="grid" data-links>
-    <a class="row" href="/ex1/index.html"><span class="n">Prime Mobile Detailing</span><span class="d">North Seattle · three pages</span><span class="u">/ex1</span></a>
-    <a class="row" href="/ex1/prices.html"><span class="n">Prime — prices</span><span class="d"></span><span class="u">/ex1/prices.html</span></a>
-    <a class="row" href="/ex1/work.html"><span class="n">Prime — work</span><span class="d"></span><span class="u">/ex1/work.html</span></a>
-    <a class="row" href="/ex2/index.html"><span class="n">Delgado Mobile Detailing</span><span class="d">Phoenix · paint correction and ceramic</span><span class="u">/ex2</span></a>
-    <a class="row" href="/ex3/index.html"><span class="n">Ballantyne Mobile Detailing</span><span class="d">Charlotte · two pages</span><span class="u">/ex3</span></a>
-    <a class="row" href="/ex3/prices.html"><span class="n">Ballantyne — prices</span><span class="d"></span><span class="u">/ex3/prices.html</span></a>
-  </div>
-  <p class="note">The older <span class="mono">/example1</span>–<span class="mono">/example10</span>
-    are still served and still work; they are earlier drafts and are not listed here.</p>
-</section>
-
-<footer>
-  Not linked from anywhere on the site · <span class="mono">app/public/map.html</span>
-</footer>
-
 </div>
 
+<main class="wrap">
+  <p class="note lead"><b>Green tick</b> = looked at it, it is fine. <b>Red cross</b> = something
+  is wrong, and a box opens for you to say what. Every link opens in a new tab so you keep
+  your place, and your ticks are remembered on this browser. When you are done, press
+  <b>Copy my notes</b> and paste it to me.</p>
+
+<section>
+  <span class="lab">No sign-in needed</span>
+  <h2>Start here</h2>
+  <div class="grid">
+    <div class="row" data-key="/">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/" target="_blank" rel="noopener">Landing page</a><span class="d">The marketing page</span></span>
+      <span class="u">/</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/pricing">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/pricing" target="_blank" rel="noopener">Pricing</a><span class="d">Three ways to pay, and the legal small print</span></span>
+      <span class="u">/pricing</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/website/preview">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/website/preview" target="_blank" rel="noopener">The website brief</a><span class="d">The form a detailer fills in so we can build their site</span></span>
+      <span class="u">/website/preview</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/terms">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/terms" target="_blank" rel="noopener">Terms</a><span class="d"></span></span>
+      <span class="u">/terms</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/privacy">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/privacy" target="_blank" rel="noopener">Privacy</a><span class="d"></span></span>
+      <span class="u">/privacy</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/nothing-here">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/nothing-here" target="_blank" rel="noopener">Page not found</a><span class="d">NEW — what a mistyped address shows</span></span>
+      <span class="u">/nothing-here</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+  </div>
+</section>
+<section>
+  <span class="lab">The booking flow, seven steps</span>
+  <h2>What a customer sees</h2>
+  <div class="grid">
+    <div class="row" data-key="/book/demo-detail">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/book/demo-detail" target="_blank" rel="noopener">Booking — request mode</a><span class="d">They ask, you confirm. NEW: the language buttons moved</span></span>
+      <span class="u">/book/demo-detail</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/book/demo-riverside">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/book/demo-riverside" target="_blank" rel="noopener">Booking — reserve mode</a><span class="d">The slot is taken there and then</span></span>
+      <span class="u">/book/demo-riverside</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/book/demo-detail?lang=es">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/book/demo-detail?lang=es" target="_blank" rel="noopener">Booking in Spanish</a><span class="d">The same flow, the other language</span></span>
+      <span class="u">/book/demo-detail?lang=es</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/book/demo-detail/plans">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/book/demo-detail/plans" target="_blank" rel="noopener">Monthly plans</a><span class="d">What a customer sees if you sell plans</span></span>
+      <span class="u">/book/demo-detail/plans</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/booking/274a6e89-88b3-4e08-8062-22dbb348e7e9">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/booking/274a6e89-88b3-4e08-8062-22dbb348e7e9" target="_blank" rel="noopener">A customer's own booking</a><span class="d">The receipt — move it, cancel it, see what was charged</span></span>
+      <span class="u">/booking/274a6e89-88b3-4e08-8062-22dbb348e7e9</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/plan/e8b205a0-c404-4a83-9460-44cad04fac44">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/plan/e8b205a0-c404-4a83-9460-44cad04fac44" target="_blank" rel="noopener">A plan member's page</a><span class="d">Somebody managing their membership</span></span>
+      <span class="u">/plan/e8b205a0-c404-4a83-9460-44cad04fac44</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/unsubscribe/8c32c105-47c8-408b-884b-e4099d582b93">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/unsubscribe/8c32c105-47c8-408b-884b-e4099d582b93" target="_blank" rel="noopener">Unsubscribe</a><span class="d">The bottom-of-the-email opt-out</span></span>
+      <span class="u">/unsubscribe/8c32c105-47c8-408b-884b-e4099d582b93</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+  </div>
+</section>
+<section>
+  <span class="lab">Sign in first · demo@detailplatform.com / demo123</span>
+  <h2>Your dashboard</h2>
+  <div class="grid">
+    <div class="row" data-key="/app">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app" target="_blank" rel="noopener">Sign in</a><span class="d">The door</span></span>
+      <span class="u">/app</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app/today">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app/today" target="_blank" rel="noopener">Today</a><span class="d">The day's jobs, the figures, anything waiting on you</span></span>
+      <span class="u">/app/today</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app/calendar">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app/calendar" target="_blank" rel="noopener">Calendar</a><span class="d">The month, and the day panel when you open a date</span></span>
+      <span class="u">/app/calendar</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app/money">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app/money" target="_blank" rel="noopener">Money</a><span class="d">NEW: most booked, and the button to the full picture</span></span>
+      <span class="u">/app/money</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app/clients">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app/clients" target="_blank" rel="noopener">Clients</a><span class="d">Everybody who has booked you</span></span>
+      <span class="u">/app/clients</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app/business">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app/business" target="_blank" rel="noopener">Business</a><span class="d">The door to every setting a customer meets</span></span>
+      <span class="u">/app/business</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app?setup=1">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app?setup=1" target="_blank" rel="noopener">First-run setup</a><span class="d">The twelve steps a brand-new detailer meets</span></span>
+      <span class="u">/app?setup=1</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/website">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/website" target="_blank" rel="noopener">The website brief, for real</a><span class="d">Saved as you type, and it becomes my brief file</span></span>
+      <span class="u">/website</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/job/274a6e89-88b3-4e08-8062-22dbb348e7e9">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/job/274a6e89-88b3-4e08-8062-22dbb348e7e9" target="_blank" rel="noopener">One job, on its own page</a><span class="d">What a reminder email opens</span></span>
+      <span class="u">/job/274a6e89-88b3-4e08-8062-22dbb348e7e9</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/reset">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/reset" target="_blank" rel="noopener">Reset a password</a><span class="d">Where the forgot-password email lands</span></span>
+      <span class="u">/reset</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+  </div>
+</section>
+<section>
+  <span class="lab">Each one now has its own address</span>
+  <h2>Every settings screen</h2>
+  <div class="grid">
+    <div class="row" data-key="/app?settings=info">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app?settings=info" target="_blank" rel="noopener">Business info</a><span class="d">Name, phone, address, the social links</span></span>
+      <span class="u">/app?settings=info</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app?settings=appearance">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app?settings=appearance" target="_blank" rel="noopener">Your color</a><span class="d">The one accent, and what it does to the booking page</span></span>
+      <span class="u">/app?settings=appearance</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app?settings=gallery">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app?settings=gallery" target="_blank" rel="noopener">Photo gallery</a><span class="d">Before-and-afters a customer sees</span></span>
+      <span class="u">/app?settings=gallery</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app?settings=reviews">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app?settings=reviews" target="_blank" rel="noopener">Reviews</a><span class="d">What people said, and where they go to leave one</span></span>
+      <span class="u">/app?settings=reviews</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app?settings=faq">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app?settings=faq" target="_blank" rel="noopener">Common questions</a><span class="d">The FAQ on the booking page</span></span>
+      <span class="u">/app?settings=faq</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app?settings=domain">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app?settings=domain" target="_blank" rel="noopener">Your web address</a><span class="d">Your own domain — now with the DNS instructions</span></span>
+      <span class="u">/app?settings=domain</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app?settings=campaigns">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app?settings=campaigns" target="_blank" rel="noopener">Where customers come from</a><span class="d">Was “Campaign links”. Your tracking links</span></span>
+      <span class="u">/app?settings=campaigns</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app?settings=report">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app?settings=report" target="_blank" rel="noopener">Report a problem</a><span class="d">NEW — it emails me, with everything filled in</span></span>
+      <span class="u">/app?settings=report</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app?settings=catalog">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app?settings=catalog" target="_blank" rel="noopener">Services &amp; add-ons</a><span class="d">What you charge for. Nothing books without this</span></span>
+      <span class="u">/app?settings=catalog</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app?settings=promos">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app?settings=promos" target="_blank" rel="noopener">Promo codes &amp; sale</a><span class="d">Discounts, and a site-wide sale</span></span>
+      <span class="u">/app?settings=promos</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app?settings=plans">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app?settings=plans" target="_blank" rel="noopener">Monthly plans</a><span class="d">Memberships, and who is on one</span></span>
+      <span class="u">/app?settings=plans</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app?settings=maintenance">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app?settings=maintenance" target="_blank" rel="noopener">Maintenance deadlines</a><span class="d">Work that is owed by a date</span></span>
+      <span class="u">/app?settings=maintenance</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app?settings=payments">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app?settings=payments" target="_blank" rel="noopener">How you get paid</a><span class="d">REBUILT — a switch per method</span></span>
+      <span class="u">/app?settings=payments</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app?settings=hours">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app?settings=hours" target="_blank" rel="noopener">Hours &amp; days off</a><span class="d">Open and close per day, and days off</span></span>
+      <span class="u">/app?settings=hours</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app?settings=rules">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app?settings=rules" target="_blank" rel="noopener">Booking rules</a><span class="d">Mobile or drop-off, notice, travel</span></span>
+      <span class="u">/app?settings=rules</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app?settings=notifications">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app?settings=notifications" target="_blank" rel="noopener">Notifications</a><span class="d">Every automatic email, and your own words on them</span></span>
+      <span class="u">/app?settings=notifications</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app?settings=templates">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app?settings=templates" target="_blank" rel="noopener">Message templates</a><span class="d">The texts you send from a job</span></span>
+      <span class="u">/app?settings=templates</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app?settings=team">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app?settings=team" target="_blank" rel="noopener">Team</a><span class="d">Who else can sign in, and what they may touch</span></span>
+      <span class="u">/app?settings=team</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app?settings=billing">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app?settings=billing" target="_blank" rel="noopener">Your subscription</a><span class="d">What you pay us</span></span>
+      <span class="u">/app?settings=billing</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app?settings=password">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app?settings=password" target="_blank" rel="noopener">Your password</a><span class="d">Now asks for the current one, with an eye toggle</span></span>
+      <span class="u">/app?settings=password</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/app?settings=preferences">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/app?settings=preferences" target="_blank" rel="noopener">This device</a><span class="d">Language, maps, calendar file</span></span>
+      <span class="u">/app?settings=preferences</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+  </div>
+</section>
+<section>
+  <span class="lab">Ours, not a detailer's · demo@demo.com / demo</span>
+  <h2>The back office</h2>
+  <div class="grid">
+    <div class="row" data-key="/admin">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/admin" target="_blank" rel="noopener">Platform admin</a><span class="d">Every business, what they pay, and the prices</span></span>
+      <span class="u">/admin</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+  </div>
+</section>
+<section>
+  <span class="lab">What a detailer's own site could look like</span>
+  <h2>Example websites</h2>
+  <div class="grid">
+    <div class="row" data-key="/ex1/index.html">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/ex1/index.html" target="_blank" rel="noopener">Prime Mobile Detailing</a><span class="d">North Seattle · three pages</span></span>
+      <span class="u">/ex1/index.html</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/ex1/prices.html">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/ex1/prices.html" target="_blank" rel="noopener">Prime — prices</a><span class="d"></span></span>
+      <span class="u">/ex1/prices.html</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/ex1/work.html">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/ex1/work.html" target="_blank" rel="noopener">Prime — work</a><span class="d"></span></span>
+      <span class="u">/ex1/work.html</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/ex2/index.html">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/ex2/index.html" target="_blank" rel="noopener">Delgado Mobile Detailing</a><span class="d">Phoenix · paint correction and ceramic</span></span>
+      <span class="u">/ex2/index.html</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/ex3/index.html">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/ex3/index.html" target="_blank" rel="noopener">Ballantyne Mobile Detailing</a><span class="d">Charlotte · two pages</span></span>
+      <span class="u">/ex3/index.html</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/ex3/prices.html">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/ex3/prices.html" target="_blank" rel="noopener">Ballantyne — prices</a><span class="d"></span></span>
+      <span class="u">/ex3/prices.html</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/ex4/index.html">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/ex4/index.html" target="_blank" rel="noopener">Kinzie Mobile Detailing</a><span class="d"></span></span>
+      <span class="u">/ex4/index.html</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="/ex5/index.html">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><a class="n" href="/ex5/index.html" target="_blank" rel="noopener">Tampa Bay Auto Detail</a><span class="d"></span></span>
+      <span class="u">/ex5/index.html</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+  </div>
+</section>
+<section>
+  <span class="lab">Open these from inside the dashboard</span>
+  <h2>No address of their own</h2>
+  <div class="grid">
+    <div class="row" data-key="x:The full picture">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><span class="n dim">The full picture</span><span class="d">Money → the button at the bottom. The advanced money screen, and the tracker</span></span>
+      <span class="u">inside the app</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="x:Show me around">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><span class="n dim">Show me around</span><span class="d">The gear → one 37-step tour of all five tabs and the settings</span></span>
+      <span class="u">inside the app</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="x:A job record">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><span class="n dim">A job record</span><span class="d">Today or the calendar → tap a job. Two states, before and after payment</span></span>
+      <span class="u">inside the app</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="x:The day panel">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><span class="n dim">The day panel</span><span class="d">Calendar → tap a date</span></span>
+      <span class="u">inside the app</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="x:Take a payment">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><span class="n dim">Take a payment</span><span class="d">An unpaid job → Take payment</span></span>
+      <span class="u">inside the app</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="x:Add a booking by hand">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><span class="n dim">Add a booking by hand</span><span class="d">The + in the header</span></span>
+      <span class="u">inside the app</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="x:Add an expense">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><span class="n dim">Add an expense</span><span class="d">Money → Add</span></span>
+      <span class="u">inside the app</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="x:Log a bulk job">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><span class="n dim">Log a bulk job</span><span class="d">Money → the dealership job</span></span>
+      <span class="u">inside the app</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="x:Write to several customers">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><span class="n dim">Write to several customers</span><span class="d">Clients → narrow the list → Email these</span></span>
+      <span class="u">inside the app</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+    <div class="row" data-key="x:Job photos">
+      <button class="tick" type="button" aria-label="Reviewed and fine">&#10003;</button>
+      <button class="cross" type="button" aria-label="Needs work">&#10005;</button>
+      <span class="txt"><span class="n dim">Job photos</span><span class="d">A job → Photos</span></span>
+      <span class="u">inside the app</span>
+      <input class="note" type="text" placeholder="What is wrong with it?" hidden>
+    </div>
+  </div>
+</section>
+</main>
+
 <script>
-/* Repoint every link at whatever host is typed. The hrefs in the markup are
-   root-relative, so they already work wherever this file is served — this is
-   only for reading the page in one place and driving another, which is the
-   whole reason it exists on a phone that cannot reach a laptop's localhost. */
 (function () {
-  "use strict";
-  var input = document.getElementById("h");
-  var rows = [].slice.call(document.querySelectorAll("[data-links] a.row"));
-  var paths = rows.map(function (a) { return a.getAttribute("href"); });
+  var KEY = "dp.review.v1";
+  var state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { state = {}; }
 
-  input.value = location.origin;
+  var rows = [].slice.call(document.querySelectorAll(".row[data-key]"));
+  var prog = document.getElementById("prog");
 
-  function apply(base) {
-    var clean = String(base || "").trim().replace(/\/+$/, "");
-    if (clean && !/^https?:\/\//i.test(clean)) clean = "http://" + clean;
-    rows.forEach(function (a, i) {
-      a.href = clean ? clean + paths[i] : paths[i];
-      /* A different host means a different tab — you are pointing this page
-         at something else, so it should not navigate away from itself. */
-      if (clean && clean !== location.origin) { a.target = "_blank"; a.rel = "noopener"; }
-      else { a.removeAttribute("target"); a.removeAttribute("rel"); }
-    });
-    try { localStorage.setItem("map.base", clean); } catch (e) {}
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+  function paint(row) {
+    var k = row.getAttribute("data-key");
+    var s = state[k] || {};
+    row.classList.toggle("is-ok", s.mark === "ok");
+    row.classList.toggle("is-bad", s.mark === "bad");
+    var note = row.querySelector(".note");
+    note.hidden = s.mark !== "bad";
+    if (note.value !== (s.note || "")) note.value = s.note || "";
+  }
+  function count() {
+    var done = rows.filter(function (r) {
+      var s = state[r.getAttribute("data-key")] || {};
+      return s.mark === "ok" || s.mark === "bad";
+    }).length;
+    var bad = rows.filter(function (r) {
+      return (state[r.getAttribute("data-key")] || {}).mark === "bad";
+    }).length;
+    prog.textContent = done + " of " + rows.length + (bad ? " · " + bad + " to fix" : "");
   }
 
-  try {
-    var saved = localStorage.getItem("map.base");
-    if (saved) { input.value = saved; apply(saved); }
-  } catch (e) {}
+  rows.forEach(function (row) {
+    var k = row.getAttribute("data-key");
+    row.querySelector(".tick").addEventListener("click", function () {
+      var s = state[k] || (state[k] = {});
+      s.mark = s.mark === "ok" ? null : "ok";
+      save(); paint(row); count();
+    });
+    row.querySelector(".cross").addEventListener("click", function () {
+      var s = state[k] || (state[k] = {});
+      s.mark = s.mark === "bad" ? null : "bad";
+      save(); paint(row); count();
+      if (s.mark === "bad") row.querySelector(".note").focus();
+    });
+    row.querySelector(".note").addEventListener("input", function (e) {
+      var s = state[k] || (state[k] = {});
+      s.note = e.target.value;
+      save();
+    });
+    paint(row);
+  });
+  count();
 
-  document.getElementById("go").addEventListener("click", function () { apply(input.value); });
-  input.addEventListener("keydown", function (e) { if (e.key === "Enter") apply(input.value); });
-})();
+  document.getElementById("copy").addEventListener("click", function () {
+    var lines = [];
+    var bad = [], notLooked = [];
+    rows.forEach(function (row) {
+      var k = row.getAttribute("data-key");
+      var s = state[k] || {};
+      var name = (row.querySelector(".n") || {}).textContent || k;
+      var where = (row.querySelector(".u") || {}).textContent || "";
+      if (s.mark === "bad") bad.push("- " + name + " (" + where + ")" + (s.note ? " — " + s.note : ""));
+      else if (s.mark !== "ok") notLooked.push("- " + name + " (" + where + ")");
+    });
+    lines.push("REVIEW — " + prog.textContent);
+    if (bad.length) { lines.push("", "NEEDS WORK (" + bad.length + "):"); lines.push.apply(lines, bad); }
+    if (notLooked.length) {
+      lines.push("", "NOT LOOKED AT YET (" + notLooked.length + "):");
+      lines.push.apply(lines, notLooked);
+    }
+    if (!bad.length && !notLooked.length) lines.push("", "Everything looked at, nothing wrong.");
+    var text = lines.join("\n");
+    var btn = document.getElementById("copy");
+    function done(ok) { btn.textContent = ok ? "Copied" : "Press Ctrl+C"; setTimeout(function () { btn.textContent = "Copy my notes"; }, 2200); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }, function () { fallback(text, done); });
+    } else { fallback(text, done); }
+    function fallback(t, cb) {
+      var ta = document.createElement("textarea");
+      ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      var ok = false;
+      try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+      document.body.removeChild(ta); cb(ok);
+    }
+  });
+
+  document.getElementById("clear").addEventListener("click", function () {
+    if (!confirm("Clear every tick and note?")) return;
+    state = {}; save(); rows.forEach(paint); count();
+  });
+}());
 </script>
+
 </body>
 </html>
