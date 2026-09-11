@@ -125,6 +125,12 @@ footer{padding:40px 0 70px;color:var(--fog-2);font-size:12.5px}
   border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:14px}
 section{margin-top:38px}
 section h2{margin:6px 0 0;font-size:22px}
+/* **`[hidden]` LOSES TO A CLASS, WHICH IS WHY NOTHING HID.** The browser's own
+   rule is `[hidden]{display:none}` at specificity (0,0,1), and `.row{display:grid}`
+   is (0,1,0) — so setting `row.hidden = true` changed the attribute, changed
+   nothing on screen, and the filter looked like it silently did not run.
+   Measured: 63 rows visible after ticking five. */
+[hidden]{display:none !important}
 .bar{position:sticky;top:0;z-index:20;background:rgba(11,13,14,.92);
   backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .barin{display:flex;align-items:center;justify-content:space-between;
@@ -176,6 +182,7 @@ main.wrap{padding-bottom:80px}
       <span class="prog" id="prog">0 of 63</span>
     </div>
     <div class="acts">
+      <button class="btn ghost" id="showall" type="button" aria-pressed="false">Show all 63</button>
       <button class="btn" id="copy" type="button">Copy my notes</button>
       <button class="btn ghost" id="clear" type="button">Start again</button>
     </div>
@@ -183,7 +190,8 @@ main.wrap{padding-bottom:80px}
 </div>
 
 <main class="wrap">
-  <p class="note lead"><b>Green tick</b> = looked at it, it is fine. <b>Red cross</b> = something
+  <p class="note lead"><b>This list hides what you have ticked off</b> — press
+  <b>Show all</b> to see everything again. <b>Green tick</b> = looked at it, it is fine. <b>Red cross</b> = something
   is wrong, and a box opens for you to say what. Every link opens in a new tab so you keep
   your place, and your ticks are remembered on this browser. When you are done, press
   <b>Copy my notes</b> and paste it to me.</p>
@@ -710,7 +718,7 @@ main.wrap{padding-bottom:80px}
     row.querySelector(".tick").addEventListener("click", function () {
       var s = state[k] || (state[k] = {});
       s.mark = s.mark === "ok" ? null : "ok";
-      save(); paint(row); count();
+      save(); paint(row); count(); filter();
     });
     row.querySelector(".cross").addEventListener("click", function () {
       var s = state[k] || (state[k] = {});
@@ -726,6 +734,40 @@ main.wrap{padding-bottom:80px}
     paint(row);
   });
   count();
+
+  // ── WHAT IS LEFT, WHICH IS WHAT HE ASKED THE LIST TO BE ────────────────
+  //
+  // *"Can you remove all the stuff that I already checked off?"* Hidden rather
+  // than deleted, and hidden in the BROWSER rather than out of the file: the
+  // ticks are his, they live in this browser's own storage, and a page that
+  // deleted rows would be guessing which ones he meant — and would be wrong
+  // for anybody else opening it.
+  //
+  // **A CROSS IS NOT HIDDEN.** Only the green ticks go. A page he looked at and
+  // disliked is still work; a page he looked at and liked is finished, and
+  // finished work is exactly what a to-do list should stop showing him.
+  //
+  // **AND A SECTION WITH NOTHING LEFT IN IT GOES TOO**, heading and all,
+  // otherwise "Every settings screen" stays on the page as a title over a gap.
+  var showAll = false;
+  function filter() {
+    rows.forEach(function (row) {
+      var s = state[row.getAttribute("data-key")] || {};
+      row.hidden = !showAll && s.mark === "ok";
+    });
+    [].slice.call(document.querySelectorAll("section")).forEach(function (sec) {
+      var live = [].slice.call(sec.querySelectorAll(".row[data-key]"))
+        .filter(function (r) { return !r.hidden; }).length;
+      sec.hidden = !showAll && live === 0;
+    });
+    var btn = document.getElementById("showall");
+    btn.textContent = showAll ? "Hide the done ones" : "Show all " + rows.length;
+    btn.setAttribute("aria-pressed", showAll ? "true" : "false");
+  }
+  document.getElementById("showall").addEventListener("click", function () {
+    showAll = !showAll;
+    filter();
+  });
 
   document.getElementById("copy").addEventListener("click", function () {
     var lines = [];
@@ -761,9 +803,11 @@ main.wrap{padding-bottom:80px}
     }
   });
 
+  filter();
+
   document.getElementById("clear").addEventListener("click", function () {
     if (!confirm("Clear every tick and note?")) return;
-    state = {}; save(); rows.forEach(paint); count();
+    state = {}; save(); rows.forEach(paint); count(); filter();
   });
 }());
 </script>
