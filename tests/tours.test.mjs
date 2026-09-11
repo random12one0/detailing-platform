@@ -81,8 +81,18 @@ check("it starts the whole-dashboard tour, wherever it was pressed",
 // drifted out of order makes "next" mean something different halfway down.
 const grand = (walk.match(/export const GRAND = \[([^\]]*)\]/) ?? [])[1] ?? "";
 const order = [...grand.matchAll(/"([a-z]+)"/g)].map((m) => m[1]);
-check("the whole-dashboard tour is all five tabs in rail order",
-  order.join(",") === TABS.join(","), `it is: ${order.join(", ") || "missing"}`);
+// **FIVE TABS IN RAIL ORDER, THEN THE GEAR.** His ask, 2026-09-10: *"we should
+// have a guide on the settings after the business thing... it goes to the
+// settings panel, like, it highlights the settings, and it says, here's where
+// you can view the settings."* The gear is last and is NOT a tab — the block's
+// own first step presses it open — so it must never be handed to the rail's
+// navigation, which knows five names and would be asked for a sixth.
+check("the whole-dashboard tour is the five tabs in rail order, then the gear",
+  order.join(",") === [...TABS, "settings"].join(","),
+  `it is: ${order.join(", ") || "missing"}`);
+check("and the gear block is not treated as a sixth tab",
+  /TAB_BLOCK\.has\(block\)/.test(walk) && !/TAB_BLOCK = new Set\([^)]*settings/.test(walk),
+  'calling the rail\'s onGo with "settings" asks for a tab that does not exist');
 check("and every block it names has a guide to run",
   order.every((k) => tourBlock.includes(`\n  ${k}: [`)),
   `no guide for: ${order.filter((k) => !tourBlock.includes(`\n  ${k}: [`)).join(", ")}`);
@@ -123,6 +133,9 @@ const screens = [
   // file itself — the booking link is its own component, and leaving it out of
   // this list made a real target look missing.
   "app/src/components/BookingLink.jsx", "app/src/components/DaySheet.jsx",
+  // The sixth block of the whole-dashboard tour is the gear, which is not a
+  // tab and whose rows live here.
+  "app/src/components/GearMenu.jsx",
 ].map((f) => { try { return readFileSync(f, "utf8"); } catch { return ""; } }).join("\n");
 
 // **AND THE MATCHER HAD TO BE TIGHTENED, because three of the four names added
@@ -143,7 +156,11 @@ const mapped = new RegExp(`data-tour=\\{TOUR_ROWS\\[key\\]\\}`).test(screens);
 const rail = screens.includes("data-tour={x.key}");
 const missing = targets.filter((t) =>
   !new RegExp(`data-tour=(?:"${t}"|\\{[^}]*"${t}")`).test(screens)
-  && !(mapped && new RegExp(`\\n  ${t}: "${t}",`).test(screens))
+  // The row's KEY need not be the tour's name for it — the gear's tour row
+  // is keyed "tour" and named "tourrow", because "tour" is the one word in
+  // this app that would mean two different things. The VALUE is what is
+  // matched, so the declaration is what has to exist.
+  && !(mapped && new RegExp(`: "${t}",`).test(screens))
   && !(rail && TABS.includes(t)));
 check("every target a guide names is carried by a screen",
   missing.length === 0, `no data-tour for: ${missing.join(", ")}`);

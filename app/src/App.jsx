@@ -372,7 +372,9 @@ export default function App() {
           </button>
           {/* The plumbing. It is pressed to go in and pressed again to come
               back out, which is why it is aria-pressed rather than a link. */}
-          <button className={`btn icon ghost${gear ? " on" : ""}`} aria-label="Settings"
+          {/* data-tour — the whole-dashboard tour's last block presses this
+              to open the settings and then points at what is inside. */}
+          <button data-tour="gear" className={`btn icon ghost${gear ? " on" : ""}`} aria-label="Settings"
             aria-pressed={gear} onClick={() => { setGearScreen(null); setGear((g) => !g); }}>
             <Settings strokeWidth={2} />
           </button>

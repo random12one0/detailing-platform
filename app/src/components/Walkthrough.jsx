@@ -176,6 +176,35 @@ export const TOURS = {
     ["compose", "Write to everybody on the list you are looking at, in one go."],
     ["client", "Open somebody to see every job they have booked and what they spent."],
   ],
+  // **THE SIXTH BLOCK IS NOT A TAB — his ask, 2026-09-10:** *"we should have a
+  // guide on the settings after the business thing... it goes to the settings
+  // panel, like, it highlights the settings, and it says, here's where you can
+  // view the settings and then... guides around the settings."*
+  //
+  // It is last because it is the only part of the dashboard that is not about
+  // the business at all — it is about the PERSON and the device. The gear is
+  // pressed by the tour rather than described, for the same reason the
+  // calendar opens a day: nothing behind it exists until it is open.
+  //
+  // **AND IT STOPS AT THE DOORS.** He asked the question himself and answered
+  // it: *"should we have guides within the GUIs of each thing, or should we
+  // let them figure it out? I feel like they could figure it out."* Agreed and
+  // recorded here, because it is the rule that decides the next twenty of
+  // these: A GUIDE NAMES THE PLACES; IT DOES NOT WALK THROUGH A FORM. Every
+  // screen behind these rows is a labelled form with one job, and a tour of
+  // one is the product explaining what the control already says — the copy
+  // rule in CLAUDE.md with an overlay on top.
+  settings: [
+    ["gear", "Your own settings live behind here — not the business's, yours.", null, true],
+    ["notifications", "Which emails go out on their own, to you and to your customers."],
+    ["billing", "What you pay for this, and when the next one goes out."],
+    ["password", "Change the password you sign in with."],
+    ["preferences", "What this phone or computer remembers, and the language you read."],
+    // THE LAST STEP OF THE LAST BLOCK IS THE WAY BACK IN. The tour never
+    // returns on its own (§13b rule 6), so the final thing it says is where
+    // the door is.
+    ["tourrow", "And this is where you start this tour again, any time."],
+  ],
   business: [
     // IN THE ORDER THE ROWS SIT ON THE SCREEN — "Your page", then "What you
     // sell", then "When you can be booked". Written in any other order the
@@ -211,14 +240,19 @@ export const TOURS = {
 //
 // The order is the rail's order, top to bottom, so "next" always means "the
 // next one down".
-export const GRAND = ["today", "calendar", "money", "clients", "business"];
+export const GRAND = ["today", "calendar", "money", "clients", "business", "settings"];
+// WHICH BLOCKS ARE TABS. The settings block is not one — it is reached by
+// pressing the gear, which the block's own first step does — so calling the
+// rail's `onGo` with "settings" would ask for a sixth tab that does not
+// exist. Everything here is a key the rail actually renders.
+const TAB_BLOCK = new Set(["today", "calendar", "money", "clients", "business"]);
 // The tab's own name on the card, so somebody five minutes in knows which
 // part of the tour they are in. These are the rail's labels and are already
 // in the Spanish catalogue — `t()` on a string it has never seen returns it
 // unchanged, so a sixth tab would print in English rather than break.
 const TAB_NAMES = {
   today: "Today", calendar: "Calendar", money: "Money",
-  clients: "Clients", business: "Business",
+  clients: "Clients", business: "Business", settings: "Settings",
 };
 
 // A GUIDE OF ONE STEP IS NOT A GUIDE (decision 6). On a brand-new dashboard
@@ -359,8 +393,8 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
     // so on the whole-dashboard tour the move happens here, once per block,
     // before anything is counted. A single-tab guide keeps the old behaviour:
     // only the shell tour's first step names a tab.
-    if (BLOCKS.length > 1) live.current.onGo?.(block);
-    else if (STEPS[0][2]) live.current.onGo?.(STEPS[0][2]);
+    if (BLOCKS.length > 1 && TAB_BLOCK.has(block)) live.current.onGo?.(block);
+    else if (BLOCKS.length === 1 && STEPS[0][2]) live.current.onGo?.(STEPS[0][2]);
     let on = true;
     let tries = 0;
     let steady = 0;

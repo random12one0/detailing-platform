@@ -82,6 +82,17 @@ function billingNow(sub) {
     { amount, date: next });
 }
 
+// See the `settings` block in Walkthrough.jsx. Rows not listed here are not
+// guided, on purpose: a guide names the places and does not walk through a
+// form.
+const TOUR_ROWS = {
+  notifications: "notifications",
+  billing: "billing",
+  password: "password",
+  preferences: "preferences",
+  tour: "tourrow",
+};
+
 export default function GearMenu({ onClose, onTour, initial = null }) {
   useAppLocale();
   const {
@@ -312,6 +323,11 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
       <div className="card setting-card">
         {ROWS.map(([key, name, Icon, now, , blocking]) => (
           <button className={`nav-row${blocking ? " blocking" : ""}`} key={key} data-settings-key={key}
+            // The five rows the tour stops at, named by the row's own key —
+            // `tourrow` for the tour's own door, because "tour" would be the
+            // one name in the app that means two different things. A tour name
+            // must be unique across the whole product (Walkthrough.jsx rule 2).
+            data-tour={TOUR_ROWS[key]}
             aria-current={open === key ? "true" : undefined}
             onClick={() => {
               // A FULL NAVIGATION, not a settings screen. The back office is
