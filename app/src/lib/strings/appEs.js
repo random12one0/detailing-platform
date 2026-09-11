@@ -274,7 +274,7 @@ export const appEs = {
   "Reviews": "Reseñas",
   "FAQ": "Preguntas frecuentes",
   "Your web address": "Tu dirección web",
-  "Where customers come from": "De dónde vienen tus clientes",
+  "Tracking links": "Enlaces de seguimiento",
   "Services & add-ons": "Servicios y extras",
   "Promo codes & sale": "Códigos y descuentos",
   "Monthly plans": "Planes mensuales",
@@ -1689,4 +1689,56 @@ export const appEs = {
   "Apply to {n} days": "Aplicar a {n} días",
   "Your subscription ends on {date}. Until then nothing changes.": "Tu suscripción termina el {date}. Hasta entonces no cambia nada.",
   "The {amount} early-exit fee has already been charged and is not refunded if you restart.": "El cargo de {amount} por salida anticipada ya se cobró y no se reembolsa si vuelves a empezar.",
+
+  // --- REVIEW 2026-09-11, ITEMS 7 AND 9 -------------------------------------
+  // The by-hand booking sheet grew from eleven fields to twenty-one, and
+  // Tracking links grew a per-row stats panel. Every string added in the same
+  // change as its Spanish, because this catalogue is keyed on the ENGLISH text
+  // and a missing key shows English on a Spanish screen with no error
+  // anywhere.
+
+  // Tracking links — the screen's own name and the four figures in the panel.
+  "opened": "lo abrieron",
+  "booked": "reservaron",
+  "of them booked": "de esos reservaron",
+  "earned, jobs finished": "ganado, trabajos terminados",
+  "Last opened {when}.": "Se abrió por última vez el {when}.",
+  "Nobody has opened this link yet.": "Nadie ha abierto este enlace todavía.",
+  "Everyone who opens it gets {code}.": "Quien lo abre recibe {code}.",
+
+  // New booking, by hand.
+  "Who it is for": "Para quién es",
+  "Search anyone who has booked before, or just type a new name.": "Busca a alguien que ya haya reservado, o escribe un nombre nuevo.",
+  "Use a different customer": "Usar otro cliente",
+  "Name or phone": "Nombre o teléfono",
+  "Search": "Buscar",
+  "Nobody by that name yet.": "Todavía no hay nadie con ese nombre.",
+  "On {plan} — the plan price is applied automatically.": "En {plan} — el precio del plan se aplica automáticamente.",
+  "a monthly plan": "un plan mensual",
+  "Email (optional)": "Correo (opcional)",
+  "Send their emails in": "Enviar sus correos en",
+  "The vehicle": "El vehículo",
+  "Make and model (optional)": "Marca y modelo (opcional)",
+  "How many cars": "Cuántos carros",
+  "Car {n} size": "Tamaño del carro {n}",
+  "Car {n} model": "Modelo del carro {n}",
+  "Condition": "Condición",
+  "Where you are going": "A dónde vas",
+  "Travel zone": "Zona de viaje",
+  "Water on site": "Agua en el lugar",
+  "Power on site": "Electricidad en el lugar",
+  "What they are having done": "Qué le van a hacer",
+  "Pick a service and the open times appear.": "Elige un servicio y aparecen las horas libres.",
+  "Price and notes": "Precio y notas",
+  "Promo code (optional)": "Código de descuento (opcional)",
+  "Checking…": "Comprobando…",
+  "Applied.": "Aplicado.",
+  "That code cannot be used.": "Ese código no se puede usar.",
+  "Note from the customer (optional)": "Nota del cliente (opcional)",
+  "Private note": "Nota privada",
+  "Travel — {zone}": "Viaje — {zone}",
+  "Travel": "Viaje",
+  "Promo {code}": "Descuento {code}",
+  "Total": "Total",
+  "Booking…": "Reservando…",
 };

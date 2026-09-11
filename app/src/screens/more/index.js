@@ -75,7 +75,7 @@ export const SCREENS = {
   // the same screen had two names and one of them was an initialism.
   faq: [Faq, "Common questions"],
   domain: [WebAddress, "Your web address"],
-  campaigns: [Campaigns, "Where customers come from"],
+  campaigns: [Campaigns, "Tracking links"],
   report: [ReportProblem, "Report a problem"],
   catalog: [Catalog, "Services & add-ons"],
   promos: [Promos, "Promo codes & sale"],

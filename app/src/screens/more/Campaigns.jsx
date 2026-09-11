@@ -1,4 +1,23 @@
-// Campaign links — the eighteenth settings screen. Roadmap 4.2.
+// Tracking links — the eighteenth settings screen. Roadmap 4.2.
+//
+// **THE SCREEN IS CALLED "TRACKING LINKS" AS OF 2026-09-11, AND IT IS THE
+// THIRD NAME IT HAS HAD.** His review: *"where customers come from… it just
+// feels like an AI title… no title should be a sentence. Figure out what the
+// proper name for that is."* The reasoning is cumulative rather than
+// circular: **Campaign links** was wrong because a detailer does not think in
+// campaigns (his correction, 2026-09-10 — *"the campaign is less of, like, a
+// campaign… I want it to be more like a way to know where customers are
+// coming from"*); **Where customers come from** was right about the meaning
+// and wrong about the form, because it is a SENTENCE doing a title's job.
+// **Tracking links** is the trade's own plain name for the object — a link
+// that counts who used it — and it is a noun phrase, which is what a row in a
+// settings list is.
+//
+// HIS POINT WAS BROADER THAN THIS SCREEN AND IS DELIBERATELY NOT SWEPT HERE:
+// *"a lot of these titles are sentences… like 'how you get paid', that's a
+// sentence."* That is review item 16, the product-wide language pass, which
+// stays unassigned until the per-screen work is done — a sweep landing while
+// five screens are being rewritten is a merge conflict in every one of them.
 //
 // A working feature the rebuild lost. On the old site this was live end to
 // end: `App.js:54` called `trackVisit()` on every page load, `lib/campaign.js`
@@ -18,20 +37,45 @@
 // customers every trend line is noise, and the question a detailer actually
 // has is "was the flyer worth it", which is two integers.
 //
+// **AND THE REST OF THE NUMBERS OPEN UNDER THE ROW THEY BELONG TO — his
+// review, 2026-09-11.** *"I click on the golf course flyer… and then it gives
+// me stats about it, like the conversion rate and how many people have seen.
+// All the stats that you'd want from a tracking link… And I think it should
+// open underneath the actual name. Not like right now, if I click on it, it
+// opens beneath all of them, but if you have a lot, then it'll be so far
+// down."*
+//
+// That was a real defect and not a preference: the panel rendered AFTER the
+// whole list, so with eight flyers the thing you opened appeared eight rows
+// below the thing you tapped, with nothing tying the two together. It is an
+// accordion now — the panel is the tapped row's own next sibling.
+//
+// THE NO-CHART RULE ABOVE IS NOT CONTRADICTED BY THIS. The row keeps its two
+// integers; the panel adds the four a tracking link is actually judged on and
+// still draws no trend line, for the same reason as before.
+//
+// **THE TWO DENOMINATORS ARE DIFFERENT ON PURPOSE AND BOTH ARE LABELLED.**
+// *Booked* counts every live booking that came through the link, because that
+// is what the link did. *Earned* counts COMPLETED jobs only, because money
+// that has not been earned yet is not money — Money and the client record
+// both draw the line in that same place, and a fourth definition of revenue
+// is how two screens start disagreeing about the same flyer.
+//
 // THE PROMO CODE IS A CODE THEY ALREADY HAVE, chosen from Promo codes rather
 // than typed here. A campaign that invented its own would be a second place
 // discounts are defined, and the one that is not on the Promo codes screen is
 // the one nobody remembers to turn off.
 
-import { useCallback, useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { Fragment, useCallback, useEffect, useState } from "react";
+import { ChevronDown, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
+import { dateLong, localDate, money } from "../../lib/format.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import BookingLink from "../../components/BookingLink.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
-import { t } from "../../lib/appI18n.js";
+import { getAppLocale, t } from "../../lib/appI18n.js";
 import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 // The same shape the database's own check constraint allows
@@ -47,7 +91,7 @@ export default function Campaigns() {
   const { business, siteOrigin } = useBusiness();
   const [rows, setRows] = useState([]);
   const [codes, setCodes] = useState([]);
-  const [stats, setStats] = useState({ visits: {}, bookings: {} });
+  const [stats, setStats] = useState({ visits: {}, bookings: {}, lastOpen: {}, earned: {} });
   const [form, setForm] = useState(BLANK);
   const [slugTouched, setSlugTouched] = useState(false);
   const [busy, setBusy] = useState(true);
@@ -67,8 +111,9 @@ export default function Campaigns() {
       // has a handful of campaigns. A view or an RPC would be the right answer
       // at a thousand, and this screen would be the wrong place to find that
       // out — the row count is what tells us, not a guess now.
-      supabase.from("campaign_visits").select("campaign_id").eq("business_id", business.id),
-      supabase.from("bookings").select("campaign_id").eq("business_id", business.id)
+      supabase.from("campaign_visits").select("campaign_id, created_at").eq("business_id", business.id),
+      supabase.from("bookings").select("campaign_id, status, total_price, final_amount")
+        .eq("business_id", business.id)
         .not("campaign_id", "is", null).neq("status", "cancelled").is("deleted_at", null),
     ]);
     setError(c.error ? (c.error.message || "Could not load your campaign links.") : "");
@@ -78,7 +123,22 @@ export default function Campaigns() {
       if (r.campaign_id) a[r.campaign_id] = (a[r.campaign_id] || 0) + 1;
       return a;
     }, {});
-    setStats({ visits: tally(v.data), bookings: tally(b.data) });
+    // WHEN IT WAS LAST USED is the number that tells a detailer a flyer has
+    // gone quiet, which none of the totals can: forty scans is the same
+    // forty whether the last one was yesterday or in March.
+    const lastOpen = (v.data ?? []).reduce((a, r) => {
+      if (!r.campaign_id) return a;
+      if (!a[r.campaign_id] || r.created_at > a[r.campaign_id]) a[r.campaign_id] = r.created_at;
+      return a;
+    }, {});
+    // COMPLETED ONLY, and `final_amount` beats `total_price` because the
+    // first is what was actually charged after the job changed on the day.
+    const earned = (b.data ?? []).reduce((a, r) => {
+      if (!r.campaign_id || r.status !== "completed") return a;
+      a[r.campaign_id] = (a[r.campaign_id] || 0) + Number(r.final_amount ?? r.total_price ?? 0);
+      return a;
+    }, {});
+    setStats({ visits: tally(v.data), bookings: tally(b.data), lastOpen, earned });
     setBusy(false);
   }, [business.id]);
 
@@ -180,44 +240,93 @@ export default function Campaigns() {
           {rows.map((r) => {
             const scans = stats.visits[r.id] || 0;
             const booked = stats.bookings[r.id] || 0;
+            const isOpen = open === r.id;
             return (
-              <div className="row-item" key={r.id}
-                style={{ cursor: "default", opacity: r.is_active ? 1 : 0.5 }}>
-                <button className="txt"
-                  style={{ background: "none", border: 0, color: "inherit", font: "inherit", textAlign: "left", cursor: "pointer" }}
-                  onClick={() => setOpen(open === r.id ? null : r.id)}>
-                  <span className="nm">{r.name}</span>
-                  {/* THE TWO NUMBERS, IN WORDS. "40 / 3" is a ratio somebody
-                      has to decode; the detailer's question is whether the
-                      flyer worked. A campaign nobody has scanned says so
-                      rather than printing two zeros. */}
-                  <span className="sub">
-                    {scans === 0
-                      ? "Nobody has opened it yet"
-                      : `${scans} opened it · ${booked} booked`}
-                    {r.promo_code ? ` · ${r.promo_code}` : ""}
-                  </span>
-                </button>
-                <button className="btn sm inline ghost" onClick={() => toggle(r)}>
-                  {r.is_active ? "Turn off" : "Turn on"}
-                </button>
-                <button className="btn sm inline icon ghost" aria-label={`Delete ${r.name}`}
-                  onClick={() => remove(r)}><X strokeWidth={2} /></button>
-              </div>
+              // A FRAGMENT, SO `.row-item` STAYS A DIRECT CHILD of the stack.
+              // Wrapping the pair in a div instead would put the panel inside
+              // the row and break every `.rows-stack > .row-item` rule that
+              // draws the separators.
+              <Fragment key={r.id}>
+                <div className="row-item"
+                  style={{ cursor: "default", opacity: r.is_active ? 1 : 0.5 }}>
+                  <button className="txt camp-open" aria-expanded={isOpen}
+                    onClick={() => setOpen(isOpen ? null : r.id)}>
+                    {/* THE ARROW HE ASKED FOR, and it is the control's own
+                        state rather than decoration: it points down when the
+                        panel is shut and up when it is open, so a row that
+                        can expand is distinguishable from one that cannot at
+                        a glance. */}
+                    <span className="nm row" style={{ gap: 6, minWidth: 0 }}>
+                      <ChevronDown size={15} strokeWidth={2} aria-hidden="true"
+                        className={`camp-chev${isOpen ? " open" : ""}`} />
+                      <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{r.name}</span>
+                    </span>
+                    {/* THE TWO NUMBERS, IN WORDS. "40 / 3" is a ratio somebody
+                        has to decode; the detailer's question is whether the
+                        flyer worked. A campaign nobody has scanned says so
+                        rather than printing two zeros. */}
+                    <span className="sub">
+                      {scans === 0
+                        ? t("Nobody has opened it yet")
+                        : `${scans} opened it · ${booked} booked`}
+                      {r.promo_code ? ` · ${r.promo_code}` : ""}
+                    </span>
+                  </button>
+                  <button className="btn sm inline ghost" onClick={() => toggle(r)}>
+                    {r.is_active ? t("Turn off") : t("Turn on")}
+                  </button>
+                  <button className="btn sm inline icon ghost" aria-label={`Delete ${r.name}`}
+                    onClick={() => remove(r)}><X strokeWidth={2} /></button>
+                </div>
+                {isOpen && (
+                  <div className="camp-panel">
+                    {/* FOUR FIGURES, AND THE RATE IS THE ONE HE NAMED. It is
+                        computed here rather than stored because it is two
+                        counts divided — a stored rate is a third number that
+                        can disagree with the two it came from. */}
+                    <div className="camp-stats">
+                      <div className="camp-stat">
+                        <span className="camp-n">{scans}</span>
+                        <span className="camp-l">{t("opened")}</span>
+                      </div>
+                      <div className="camp-stat">
+                        <span className="camp-n">{booked}</span>
+                        <span className="camp-l">{t("booked")}</span>
+                      </div>
+                      <div className="camp-stat">
+                        {/* NO RATE WITHOUT A DENOMINATOR. "0%" off zero opens
+                            is not a poor conversion rate, it is no data, and
+                            the two look identical on a screen. */}
+                        <span className="camp-n">{scans ? `${Math.round((booked / scans) * 100)}%` : "—"}</span>
+                        <span className="camp-l">{t("of them booked")}</span>
+                      </div>
+                      <div className="camp-stat">
+                        <span className="camp-n">{money(stats.earned[r.id] || 0)}</span>
+                        <span className="camp-l">{t("earned, jobs finished")}</span>
+                      </div>
+                    </div>
+                    <p className="quiet">
+                      {stats.lastOpen[r.id]
+                        ? t("Last opened {when}.", {
+                          when: dateLong(localDate(stats.lastOpen[r.id], business.timezone), getAppLocale()),
+                        })
+                        : t("Nobody has opened this link yet.")}
+                      {r.promo_code ? ` ${t("Everyone who opens it gets {code}.", { code: r.promo_code })}` : ""}
+                    </p>
+                    {/* THE LINK ITSELF, AND ITS QR CODE, FROM THE COMPONENT
+                        THAT ALREADY OWNS BOTH. A second way to draw a booking
+                        link is a second thing to keep in step with the
+                        detailer's own domain — `BookingLink` already knows
+                        about that, and a QR is the whole point of this
+                        feature. */}
+                    <BookingLink slug={business.slug} origin={siteOrigin}
+                      path={`?c=${r.slug}`} />
+                  </div>
+                )}
+              </Fragment>
             );
           })}
         </div>
-
-        {/* THE LINK ITSELF, AND ITS QR CODE, FROM THE COMPONENT THAT ALREADY
-            OWNS BOTH. A second way to draw a booking link is a second thing to
-            keep in step with the detailer's own domain — `BookingLink` already
-            knows about that, and a QR is the whole point of this feature. */}
-        {open && rows.some((r) => r.id === open) && (
-          <div style={{ marginTop: "var(--sp-4)" }}>
-            <BookingLink slug={business.slug} origin={siteOrigin}
-              path={`?c=${rows.find((r) => r.id === open).slug}`} />
-          </div>
-        )}
       </div>
     </div>
   );
