@@ -179,8 +179,76 @@ export default function WebAddress() {
                   not know this presses Check, sees it fail, and concludes the
                   feature is broken. */}
               <li><strong>{t("We switch it on at our end.")}</strong> {t("Tell us the address and we do it — it takes a couple of minutes and it cannot be done from here.")}</li>
-              <li>You point the address at us with your domain company (a CNAME record). Then press <strong>{t("Check it")}</strong>.</li>
+              <li>
+                {t("You point the address at us, where you bought it. Then press")} <strong>{t("Check it")}</strong>.
+              </li>
             </ol>
+
+            {/* ── WHAT TO ACTUALLY TYPE — his note, 2026-09-10 ──────────────
+                *"Your web address. Pretty simple also. But I don't really get
+                how this works. Should we just have direction on how to do the
+                DNS stuff?"*
+
+                Step 3 said "a CNAME record" and stopped, which is the name of
+                the thing rather than instructions for it: no record name, no
+                value, nothing to copy, and no clue where any of it is typed.
+
+                **THE ONE FIELD PEOPLE GET WRONG IS `Name`, AND IT IS THE ONE
+                THIS SCREEN CAN FILL IN FOR THEM.** Every domain company asks
+                for the SUBDOMAIN there — `book` — and the whole address is
+                what a person naturally types, which produces
+                `book.yourdetailing.com.yourdetailing.com` and a check that
+                fails for a reason nobody can see. It is computed from the
+                address they already typed, so it is right by construction.
+
+                **AND AN APEX CANNOT TAKE A CNAME AT ALL.** `yourdetailing.com`
+                with no subdomain needs an ALIAS or ANAME record, which not
+                every domain company sells — so that case says so in its own
+                words rather than handing over an instruction that will be
+                refused. The runbook (`docs/custom-domains.md`) has always said
+                a subdomain is the ordinary answer; this is the screen saying
+                it at the moment it matters. */}
+            {rows.filter((r) => !r.verified_at).map((r) => {
+              const parts = String(r.domain || "").split(".");
+              const sub = parts.length > 2 ? parts.slice(0, parts.length - 2).join(".") : null;
+              return (
+                <div className="sunken" key={`dns-${r.id}`} style={{ marginTop: "var(--sp-3)" }}>
+                  <span className="label">{r.domain}</span>
+                  {sub ? (
+                    <>
+                      <p className="body" style={{ marginTop: 6 }}>
+                        {t("At the company you bought the address from — GoDaddy, Namecheap, Squarespace, Cloudflare, whoever it was — find DNS records and add one:")}
+                      </p>
+                      <div className="facts" style={{ marginTop: 8 }}>
+                        <div><span>{t("Type")}</span><span className="v strong num">CNAME</span></div>
+                        <div>
+                          <span>{t("Name")}</span>
+                          <span className="v strong num">{sub}</span>
+                        </div>
+                        <div>
+                          <span>{t("Value")}</span>
+                          <span className="v strong">{t("the one we send you")}</span>
+                        </div>
+                      </div>
+                      <p className="quiet" style={{ marginTop: 8 }}>
+                        {t("Name is just")} <strong>{sub}</strong>{t(", not the whole address — the company adds the rest. If it asks for a TTL, leave it alone.")}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="body" style={{ marginTop: 6 }}>
+                      {t("This is a bare domain with no subdomain in front of it, and most domain companies will not point one of those at another site. Ask them for an ALIAS or ANAME record, or add a subdomain address instead — book.{domain} — which always works.", { domain: r.domain })}
+                    </p>
+                  )}
+                  {/* THE HONEST SENTENCE ABOUT WAITING, because the commonest
+                      outcome of pressing Check within a minute is failure, and
+                      a detailer who reads that as "wrong" starts changing
+                      things that were right. */}
+                  <p className="quiet" style={{ marginTop: 8 }}>
+                    {t("It can take a few minutes or a few hours to spread. A check that fails is almost always \"not yet\" rather than \"wrong\" — press it again later.")}
+                  </p>
+                </div>
+              );
+            })}
           </>
         )}
       </div>
