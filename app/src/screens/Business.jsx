@@ -316,7 +316,13 @@ export default function Business({ onSetup, initial = null }) {
       // question a detailer has — did the flyer bring anybody — so it counts
       // LIVE links, never rows: a campaign turned off is not a campaign
       // running.
-      ["campaigns", "Campaign links", QrCode,
+      // **NOT "CAMPAIGN LINKS" ANY MORE — his correction, 2026-09-10.** *"The
+      // campaign is less of, like, a campaign... I want it to be more like a
+      // way to know where customers are coming from. So I think that should be
+      // more obvious as not a campaign."* Nothing about the feature changed;
+      // the word was doing the damage. A detailer who wants to know whether
+      // Yelp is worth it does not go looking for a row called Campaign links.
+      ["campaigns", "Where customers come from", QrCode,
         counts ? (counts.campaigns
           ? `${n(counts.campaigns, "{count} link", "{count} links")} · ${n(counts.campaignVisits, "{count} open", "{count} opens")}`
           : "Nothing tracked yet") : "…"],

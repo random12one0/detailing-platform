@@ -287,3 +287,127 @@ export function advancedMoney({
 }
 
 export default advancedMoney;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WHERE YOUR CUSTOMERS CAME FROM — his correction, 2026-09-10.
+//
+// *"The campaign is less of, like, a campaign. I want it to be more like... a
+// way to know where customers are coming from... I think it'd be cool to be
+// able to track, like, oh, this person looked from Yelp, this person looked
+// from Google, this person just searched up my website and it came up."*
+//
+// **SO THE FEATURE IS NOT A CAMPAIGN AND IS NOT ABOUT DISCOUNTS.** The tables
+// under it were built for flyers and QR codes (roadmap 4.2) and they answer
+// this question perfectly well; what was wrong was the framing, the home and
+// one missing line in the browser. This function is the answer in two halves,
+// and the halves are different on purpose:
+//
+//   YOUR LINKS      a link you put on Yelp, on Google, on a flyer. Because the
+//                   address carries the link's name, a visit through it can be
+//                   joined to the BOOKING that follows — so these rows carry
+//                   people, bookings, a rate and money.
+//   EVERYONE ELSE   somebody who typed your address in, or followed a search
+//                   result. The browser reports where they came FROM, so these
+//                   rows say google.com or yelp.com — but nothing ties that
+//                   visit to a booking, so they carry people and nothing else.
+//
+// **THAT ASYMMETRY IS THE WHOLE ARGUMENT FOR MAKING LINKS**, and printing the
+// two halves side by side is what makes it obvious without a sentence of
+// salesmanship.
+//
+// Visits arrive with a `date` already derived, for the same reason every other
+// screen derives one: `created_at` is UTC and the period is a local date, and
+// this file may not know a timezone.
+
+// The handful of places a detailer's customers actually come from, spelled the
+// way a person says them. Anything else keeps its own hostname, which is more
+// useful than "Other" — a detailer who sees `alignable.com` learns something.
+const KNOWN_SOURCE = [
+  [/(^|\.)google\./, "Google"],
+  [/(^|\.)yelp\./, "Yelp"],
+  [/(^|\.)facebook\.|(^|\.)fb\.com/, "Facebook"],
+  [/(^|\.)instagram\./, "Instagram"],
+  [/(^|\.)nextdoor\./, "Nextdoor"],
+  [/(^|\.)tiktok\./, "TikTok"],
+  [/(^|\.)bing\./, "Bing"],
+  [/(^|\.)duckduckgo\./, "DuckDuckGo"],
+  [/(^|\.)youtube\./, "YouTube"],
+  [/(^|\.)reddit\./, "Reddit"],
+  [/(^|\.)thumbtack\./, "Thumbtack"],
+  [/(^|\.)angi\.|(^|\.)angieslist\./, "Angi"],
+];
+
+export function sourceName(referrer) {
+  const raw = String(referrer || "").trim();
+  // NO REFERRER IS NOT "UNKNOWN" — it is the commonest good case: somebody
+  // typed the address, used a bookmark, or followed a link out of a text
+  // message. Calling it unknown reads as a fault in the tracking.
+  if (!raw) return "Typed in or a bookmark";
+  let host = "";
+  try { host = new URL(raw).hostname.toLowerCase().replace(/^www\./, ""); } catch { host = ""; }
+  if (!host) return "Typed in or a bookmark";
+  const known = KNOWN_SOURCE.find(([re]) => re.test(host));
+  return known ? known[1] : host;
+}
+
+/**
+ * @param campaigns rows with id, name, slug, is_active
+ * @param visits    rows with campaign_id, visitor_id, referrer and a derived
+ *                  local `date`
+ * @param bookings  the period's bookings, with campaign_id and an amount
+ * @param period    {start, end}
+ */
+export function whereFrom({ campaigns = [], visits = [], bookings = [], period } = {}) {
+  const seen = visits.filter((v) => inRange(v.date, period));
+  // A PERSON, NOT A PAGE LOAD. Somebody who opens the booking page three times
+  // deciding on a package is one person thinking about it, and counting those
+  // as three would make every conversion rate on this screen a third of the
+  // truth. `visitor_id` is the id in that browser's own storage.
+  const peopleIn = (rows) => new Set(rows.map((v) => v.visitor_id).filter(Boolean)).size;
+
+  const live = bookings.filter((b) => b.status !== "cancelled");
+  const paidOf = (b) => num(b.final_amount ?? b.total_price);
+
+  const links = campaigns.map((c) => {
+    const mine = seen.filter((v) => v.campaign_id === c.id);
+    const booked = live.filter((b) => b.campaign_id === c.id);
+    const people = peopleIn(mine);
+    return {
+      id: c.id, name: c.name, slug: c.slug, active: c.is_active !== false,
+      people, visits: mine.length,
+      bookings: booked.length,
+      revenue: booked.reduce((s, b) => s + paidOf(b), 0),
+      // **THE RATE IS BOOKINGS OVER PEOPLE, AND IT CAN EXCEED 100%.** A regular
+      // who books twice off one visit is two bookings and one person, which is
+      // a good month rather than a bug — so it is not clamped, and the screen
+      // shows the two numbers it is made of beside it.
+      rate: people > 0 ? booked.length / people : 0,
+    };
+  }).sort((a, b) => b.bookings - a.bookings || b.people - a.people);
+
+  const untagged = seen.filter((v) => !v.campaign_id);
+  const others = Object.values(
+    untagged.reduce((a, v) => {
+      const name = sourceName(v.referrer);
+      const row = a[name] || { source: name, people: new Set(), visits: 0 };
+      if (v.visitor_id) row.people.add(v.visitor_id);
+      row.visits += 1;
+      a[name] = row;
+      return a;
+    }, {}),
+  ).map((r) => ({ source: r.source, people: r.people.size, visits: r.visits }))
+    .sort((a, b) => b.people - a.people || b.visits - a.visits);
+
+  return {
+    links,
+    others,
+    people: peopleIn(seen),
+    visits: seen.length,
+    // BOOKINGS THAT CAME THROUGH A LINK, against every booking in the period —
+    // the one figure that says how much of this picture is actually being
+    // measured. On a dashboard with no links at all it is 0 of 12, which is
+    // the honest reading and the reason to make one.
+    bookedThroughLink: live.filter((b) => b.campaign_id).length,
+    bookedAtAll: live.length,
+  };
+}

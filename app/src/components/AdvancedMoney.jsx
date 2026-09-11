@@ -48,7 +48,7 @@ import { useBusiness } from "../context/BusinessContext.jsx";
 // on every row. The page still drew, which is how it survived a first look:
 // an uncaught error in a `.then` leaves React holding the last good render.
 import { localDate, money } from "../lib/format.js";
-import { advancedMoney } from "../lib/moneyAdvanced.js";
+import { advancedMoney, whereFrom } from "../lib/moneyAdvanced.js";
 import { t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 
@@ -91,7 +91,9 @@ function Meter({ name, value, share, tone, cap }) {
   );
 }
 
-export default function AdvancedMoney({ bookings, expenses, lineItems, period, previous, onClose }) {
+export default function AdvancedMoney({
+  bookings, expenses, lineItems, period, previous, onClose, onManageLinks,
+}) {
   useAppLocale();
   const { business } = useBusiness();
   // **WHO HAD BOOKED BEFORE THIS PERIOD, which nothing else on Money needs.**
@@ -101,6 +103,10 @@ export default function AdvancedMoney({ bookings, expenses, lineItems, period, p
   // this screen is open, and only two columns of it.
   const [history, setHistory] = useState(null);
   const [historyFailed, setHistoryFailed] = useState(false);
+  // WHERE THEY CAME FROM. Two reads, only while this screen is open, and both
+  // narrow: the links themselves, and every visit in the period. A visit row
+  // is four short columns and a detailer's traffic is measured in hundreds.
+  const [sources, setSources] = useState(null);
   useEffect(() => {
     let on = true;
     // **`booking_date` IS NOT A COLUMN — it is derived in the browser.** The
@@ -128,6 +134,31 @@ export default function AdvancedMoney({ bookings, expenses, lineItems, period, p
     return () => { on = false; };
   }, [business.id, business.timezone, period.start]);
 
+  useEffect(() => {
+    let on = true;
+    Promise.all([
+      supabase.from("campaigns").select("id, name, slug, is_active")
+        .eq("business_id", business.id).order("created_at", { ascending: false }),
+      // `created_at` IS UTC AND THE PERIOD IS A LOCAL DATE, so the window is
+      // asked for a day wide either side and the local date decides — the same
+      // two-step cut the history read above makes, for the same reason.
+      supabase.from("campaign_visits").select("campaign_id, visitor_id, referrer, created_at")
+        .eq("business_id", business.id)
+        .gte("created_at", `${period.start}T00:00:00`)
+        .lte("created_at", `${period.end}T23:59:59`),
+    ]).then(([c, v]) => {
+      if (!on) return;
+      if (c.error || v.error) { setSources({ failed: true }); return; }
+      setSources({
+        campaigns: c.data ?? [],
+        visits: (v.data ?? []).map((r) => ({
+          ...r, date: localDate(r.created_at, business.timezone),
+        })),
+      });
+    });
+    return () => { on = false; };
+  }, [business.id, business.timezone, period.start, period.end]);
+
   const m = advancedMoney({ bookings, expenses, lineItems, period, previous, history });
 
   // THE SENTENCE AT THE TOP ANSWERS THE QUESTION HE ACTUALLY HAS, and it has
@@ -141,6 +172,9 @@ export default function AdvancedMoney({ bookings, expenses, lineItems, period, p
         { in: money(m.collected), out: money(m.spent), down: money(Math.abs(m.net)) });
 
   const busiest = m.week.reduce((a, d) => Math.max(a, d.jobs), 0);
+  const w = sources && !sources.failed
+    ? whereFrom({ campaigns: sources.campaigns, visits: sources.visits, bookings, period })
+    : null;
 
   return (
     <div className="advanced">
@@ -303,6 +337,95 @@ export default function AdvancedMoney({ bookings, expenses, lineItems, period, p
         )}
       </div>
 
+
+      {/* ── WHERE THEY CAME FROM ──────────────────────────────────────── */}
+      {/* **HIS CORRECTION, 2026-09-10, AND IT IS ABOUT FRAMING AS MUCH AS
+          PLACE:** *"The campaign is less of, like, a campaign. I want it to be
+          more like a way to know where customers are coming from... maybe in
+          the money dashboard there's a way to set it up."* It lives here, on
+          the screen about how the business is doing, and the settings screen
+          stays as the place to add and edit the links themselves.
+
+          TWO HALVES, AND THE ASYMMETRY IS THE ARGUMENT. A link carries its own
+          name in the address, so a visit through it can be joined to the
+          booking that followed — those rows have people, bookings and money.
+          Everyone else is known only by where their browser says they came
+          from, so those rows have people and nothing else. Printing them
+          together is what makes the case for a link without a word of it. */}
+      <div className="tight">
+        <span className="label">{t("Where they came from")}</span>
+        {!sources ? (
+          <p className="quiet">{t("Counting…")}</p>
+        ) : sources.failed ? (
+          <p className="body">{t("Could not read your visits.")}</p>
+        ) : (
+          <>
+            {w.links.length === 0 && w.others.length === 0 ? (
+              <p className="body">
+                {t("Nobody has opened your booking page in this period.")}
+              </p>
+            ) : (
+              <div className="sunken">
+                {/* THE ONE FIGURE THAT SAYS HOW MUCH OF THIS IS MEASURED. On a
+                    dashboard with no links it reads "0 of 12", which is the
+                    honest answer and the whole reason to make one. */}
+                <Row label={t("Booked through one of your links")}
+                  value={`${w.bookedThroughLink} ${t("of")} ${w.bookedAtAll}`}
+                  note={t("the rest found you some other way")} />
+                <Row label={t("People who looked")} value={String(w.people)}
+                  note={n(w.visits, "{count} page open", "{count} page opens")} />
+              </div>
+            )}
+
+            {w.links.length > 0 && (
+              <>
+                <span className="label advsub">{t("Your links")}</span>
+                <div className="sunken">
+                  {w.links.map((l) => (
+                    <div className="advrow" key={l.id}>
+                      <span className="advrow-k">
+                        {l.name}
+                        <span className="quiet advrow-n">
+                          {l.people === 0
+                            ? t("nobody has used this link yet")
+                            : t("{people} looked · {book} booked · {rate}", {
+                              people: n(l.people, "{count} person", "{count} people"),
+                              book: l.bookings, rate: pct(l.rate) })}
+                        </span>
+                      </span>
+                      <span className="advrow-v num">{money(l.revenue)}</span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {w.others.length > 0 && (
+              <>
+                <span className="label advsub">{t("Everyone else")}</span>
+                <div className="sunken">
+                  {w.others.map((o) => (
+                    <Row key={o.source} label={t(o.source)}
+                      value={n(o.people, "{count} person", "{count} people")} />
+                  ))}
+                  <hr className="rule" />
+                  {/* THE SENTENCE THAT EARNS THE FEATURE, and it is a fact
+                      rather than a pitch: without a link of its own, a visit
+                      cannot be tied to the booking that came after it. */}
+                  <p className="quiet" style={{ marginTop: 8 }}>
+                    {t("These are counted automatically. Give a place its own link and their bookings get counted too.")}
+                  </p>
+                </div>
+              </>
+            )}
+
+            <button className="btn sm" style={{ alignSelf: "flex-start" }}
+              onClick={() => onManageLinks?.()}>
+              {t("Add or edit your links")}
+            </button>
+          </>
+        )}
+      </div>
       {/* ── WHO ───────────────────────────────────────────────────────── */}
       <div className="tight">
         <span className="label">{t("Who came")}</span>

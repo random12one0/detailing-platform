@@ -152,7 +152,22 @@ function BookingFlow({ notFound = null }) {
   // happen.
   const visitLogged = useRef(false);
   useEffect(() => {
-    if (status !== "ready" || !slug || !campaignSlug || visitLogged.current) return;
+    // **EVERY VISIT, NOT ONLY A TAGGED ONE — his correction, 2026-09-10.**
+    // *"What I meant by tracking everyone is that... I want it to be more like
+    // a way to know where customers are coming from."*
+    //
+    // This read `|| !campaignSlug` and returned, so a visitor who simply typed
+    // the address in was never counted at all — and the one thing he asked for
+    // by name, *"the website should also track people"*, was the only thing
+    // this did not do. The server has accepted an untagged visit since the day
+    // it was written (`track-visit` writes `campaign_id: null` and the column's
+    // own comment says "NULL = organic visit"); nothing had ever called it that
+    // way. One clause.
+    //
+    // **AND `referrer` WAS ALREADY BEING SENT AND NEVER READ.** With this line
+    // changed it becomes the whole of the "everyone else" half of the money
+    // screen's new block: Google, Yelp, or typed in.
+    if (status !== "ready" || !slug || visitLogged.current) return;
     visitLogged.current = true;
     api.trackVisit(slug, {
       visitor_id: visitor,

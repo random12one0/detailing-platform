@@ -274,7 +274,7 @@ export const appEs = {
   "Reviews": "Reseñas",
   "FAQ": "Preguntas frecuentes",
   "Your web address": "Tu dirección web",
-  "Campaign links": "Enlaces de campaña",
+  "Where customers come from": "De dónde vienen tus clientes",
   "Services & add-ons": "Servicios y extras",
   "Promo codes & sale": "Códigos y descuentos",
   "Monthly plans": "Planes mensuales",

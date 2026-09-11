@@ -119,7 +119,7 @@ const UP = 60, DOWN = 40;
 // the screen.
 const EXPENSE_CAP = 12;
 
-export default function Money() {
+export default function Money({ onGo }) {
   useAppLocale();
   const { business } = useBusiness();
   const today = todayLocal(business.timezone);
@@ -695,7 +695,8 @@ export default function Money() {
         {(error || extrasError) && <div className="error-box">{error || extrasError}</div>}
         {periodControl}
         <AdvancedMoney bookings={bookings} expenses={expenses} lineItems={lineItems}
-          period={period} previous={previous} onClose={() => setAdvanced(false)} />
+          period={period} previous={previous} onClose={() => setAdvanced(false)}
+          onManageLinks={() => onGo?.("campaigns")} />
         {modals}
       </div>
     );

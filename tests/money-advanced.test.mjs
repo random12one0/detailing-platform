@@ -10,7 +10,7 @@
 //
 // Credential-free, no browser, no dev server.
 
-import { advancedMoney } from "../app/src/lib/moneyAdvanced.js";
+import { advancedMoney, sourceName, whereFrom } from "../app/src/lib/moneyAdvanced.js";
 
 let passed = 0, failed = 0;
 const check = (name, cond, detail = "") => {
@@ -231,6 +231,81 @@ console.log("\n8: called wrong");
 let threw = null;
 try { advancedMoney(); } catch (e) { threw = e; }
 check("no arguments does not throw", threw === null, String(threw));
+
+
+/* ── 9 · where the customers came from ───────────────────────────── */
+console.log("\n9: where they came from");
+
+// **HIS CORRECTION: THIS IS NOT A CAMPAIGN FEATURE.** *"I want it to be more
+// like a way to know where customers are coming from."* Two halves, and the
+// asymmetry between them is the point: a link can be joined to the booking
+// that followed it, a bare referrer cannot.
+const campaigns = [
+  { id: "c-yelp", name: "Yelp", slug: "yelp", is_active: true },
+  { id: "c-google", name: "Google", slug: "google", is_active: true },
+  { id: "c-flyer", name: "Golf club flyer", slug: "golf", is_active: true },
+];
+// Sep 3: two people through the Yelp link, one of them looking twice.
+// Sep 4: one person through the Google link.
+// Sep 5: three untagged — two off a Google search, one typed in.
+// Aug 30: a Yelp visit OUTSIDE the period, which must not count.
+const visits = [
+  { campaign_id: "c-yelp", visitor_id: "v1", referrer: "", date: "2026-09-03" },
+  { campaign_id: "c-yelp", visitor_id: "v1", referrer: "", date: "2026-09-03" },
+  { campaign_id: "c-yelp", visitor_id: "v2", referrer: "", date: "2026-09-03" },
+  { campaign_id: "c-google", visitor_id: "v3", referrer: "", date: "2026-09-04" },
+  { campaign_id: null, visitor_id: "v4", referrer: "https://www.google.com/search?q=detail", date: "2026-09-05" },
+  { campaign_id: null, visitor_id: "v5", referrer: "https://google.co.uk/", date: "2026-09-05" },
+  { campaign_id: null, visitor_id: "v6", referrer: "", date: "2026-09-05" },
+  { campaign_id: "c-yelp", visitor_id: "v9", referrer: "", date: "2026-08-30" },
+];
+const booked = [
+  { id: "k1", campaign_id: "c-yelp", status: "completed", final_amount: 200 },
+  { id: "k2", campaign_id: "c-yelp", status: "confirmed", final_amount: 100 },
+  { id: "k3", campaign_id: null, status: "completed", final_amount: 50 },
+  // A CANCELLED BOOKING THROUGH THE LINK. It must not count as a conversion —
+  // a link that produced a cancellation did not produce a customer.
+  { id: "k4", campaign_id: "c-google", status: "cancelled", final_amount: 999 },
+];
+const w = whereFrom({ campaigns, visits, bookings: booked, period });
+
+const yelp = w.links.find((l) => l.slug === "yelp");
+eq("the Yelp link's people", yelp.people, 2);
+eq("and its page loads", yelp.visits, 3);
+check("somebody who looked twice is one person", yelp.people === 2 && yelp.visits === 3);
+eq("its bookings", yelp.bookings, 2);
+eq("its money", yelp.revenue, 300);
+eq("its rate", yelp.rate, 1);
+check("a visit before the period does not count", yelp.visits === 3, `got ${yelp.visits}`);
+
+const goog = w.links.find((l) => l.slug === "google");
+eq("a cancelled booking is not a conversion", goog.bookings, 0);
+check("the busiest link is first", w.links[0].slug === "yelp", w.links.map((l) => l.slug).join(","));
+check("a link with nothing on it still appears",
+  !!w.links.find((l) => l.slug === "golf"),
+  "a detailer has to see the one that is NOT working");
+
+// THE OTHER HALF: no link, so the browser's own referrer is all there is.
+check("two Google domains are one source",
+  w.others.find((o) => o.source === "Google")?.people === 2, JSON.stringify(w.others));
+check("no referrer is not called unknown",
+  !!w.others.find((o) => o.source === "Typed in or a bookmark"), JSON.stringify(w.others));
+check("an unrecognised site keeps its own name",
+  sourceName("https://www.alignable.com/x") === "alignable.com",
+  sourceName("https://www.alignable.com/x"));
+check("rubbish in a referrer does not throw",
+  sourceName("not a url") === "Typed in or a bookmark" && sourceName(null) === "Typed in or a bookmark");
+
+eq("people in total", w.people, 6);
+// **THE FIGURE THAT SAYS HOW MUCH OF THIS IS MEASURED AT ALL.** Two of the
+// three live bookings came through a link; on a dashboard with no links it is
+// 0 of n, which is the honest reading and the reason to make one.
+eq("booked through a link", w.bookedThroughLink, 2);
+eq("booked at all", w.bookedAtAll, 3);
+
+check("called with nothing does not throw", (() => {
+  try { whereFrom(); return true; } catch { return false; }
+})());
 
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

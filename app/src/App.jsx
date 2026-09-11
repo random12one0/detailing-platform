@@ -449,6 +449,12 @@ export default function App() {
                   // past-due box is what sends it, and a box that names the
                   // fix has to be able to reach it.
                   if (dest === "billing") { setGearScreen("billing"); setGear(true); return; }
+                  // ROADMAP 8.9 — and the same shape one destination over. The
+                  // money screen's "where they came from" block is a REPORT;
+                  // the links it reports on are added and edited on Business.
+                  // Business reads `initial` at mount and this arrives from
+                  // another tab, so it mounts fresh with the screen open.
+                  if (dest === "campaigns") { setBizScreen("campaigns"); setTab("business"); setGear(false); return; }
                   setTab(dest); setIntent(why); setGear(false);
                 }} />
             )}

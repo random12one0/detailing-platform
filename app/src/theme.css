@@ -3850,3 +3850,9 @@ html:not(.lite) .intake .samp-move .samp-row:nth-child(3) { animation-delay: .5s
   .advmeter { grid-template-columns: minmax(0, 1fr) 56px auto; gap: var(--sp-2); }
   .advlede { font-size: 19px; }
 }
+
+/* A SUB-HEADING INSIDE A GROUP. "Where they came from" has two halves with a
+   list each, and without this the second list reads as a continuation of the
+   first. Same `.label` type, with room above it so it belongs to what follows
+   rather than to what it is under. */
+.advsub { margin-top: var(--sp-4); display: block; }

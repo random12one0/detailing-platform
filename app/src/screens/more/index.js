@@ -70,7 +70,7 @@ export const SCREENS = {
   reviews: [Reviews, "Reviews"],
   faq: [Faq, "FAQ"],
   domain: [WebAddress, "Your web address"],
-  campaigns: [Campaigns, "Campaign links"],
+  campaigns: [Campaigns, "Where customers come from"],
   catalog: [Catalog, "Services & add-ons"],
   promos: [Promos, "Promo codes & sale"],
   plans: [Plans, "Monthly plans"],
