@@ -4012,3 +4012,47 @@ html:not(.lite) .intake .samp-move .samp-row:nth-child(3) { animation-delay: .5s
    take two lines. Scoped to the plan list: `.c-total` everywhere else holds a
    single money value and should keep refusing to wrap. */
 .rows.cols.planlist .row-item .c-total { white-space: normal; text-align: right; }
+
+/* ---------------------------------------------------------------------------
+   MESSAGE TEMPLATES — the editor that never shows a brace. His review,
+   2026-09-11: *"all these double brackets and kind of coding-looking stuff."*
+
+   A contenteditable styled as the textarea it replaces, so nothing about the
+   field announces that it is unusual. The pills inside it are the only new
+   object.
+   --------------------------------------------------------------------------- */
+.tokedit {
+  display: block; width: 100%; min-height: 96px;
+  margin-top: 6px; padding: 10px 12px;
+  background: var(--surface-sunk); color: var(--text);
+  border: 1px solid var(--line); border-radius: var(--r-inset);
+  corner-shape: var(--corner);
+  font: inherit; line-height: 1.5;
+  white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.tokedit:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* A DETAIL, AS ONE OBJECT. Reads as a thing that will be replaced rather than
+   as words that were typed — which is the whole point, and why it takes the
+   accent's quiet fill rather than looking like more text. */
+.tok {
+  display: inline-block; vertical-align: baseline;
+  padding: 1px 7px; margin: 0 1px;
+  background: var(--accent-quiet); border: 1px solid var(--accent-line);
+  border-radius: 999px;
+  font-size: 13px; line-height: 1.45;
+  white-space: nowrap; user-select: none;
+}
+
+/* WHAT THE CUSTOMER ACTUALLY RECEIVES. A tinted bubble rather than a second
+   input, so the editor above it and this are visibly different surfaces —
+   and it is the ONLY surface that can show a detail glued to the word before
+   it, because a pill draws its own margin whether or not the text has a
+   space in it. */
+.msgpreview {
+  margin-top: 6px; padding: 10px 14px;
+  background: var(--accent-quiet); border: 1px solid var(--accent-line);
+  border-radius: var(--r-lg); border-bottom-left-radius: 4px;
+  font-size: var(--t-body); line-height: 1.45;
+  white-space: pre-wrap; word-break: break-word;
+}

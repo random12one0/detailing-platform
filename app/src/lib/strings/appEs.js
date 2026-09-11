@@ -1456,8 +1456,6 @@ export const appEs = {
     "Su horario queda apartado mientras deciden, y nada cambia en el trabajo hasta que acepten.",
   "Their words, not yours.": "Sus palabras, no las tuyas.",
   "Then": "Después",
-  "These are the texts you send from a job. Tap a detail to drop it in — it fills itself in from the booking when you send.":
-    "Estos son los mensajes que mandas desde un trabajo. Toca un dato para meterlo — se llena solo desde la cita cuando lo mandas.",
   "These go on a customer's booking confirmation, their reminder, and any invoice still owed. Never on a receipt for money already paid.":
     "Estos van en la confirmación de cita del cliente, en su recordatorio, y en cualquier factura pendiente. Nunca en un recibo de dinero ya pagado.",
   "They can change or cancel until": "Pueden cambiar o cancelar hasta",
@@ -1746,4 +1744,16 @@ export const appEs = {
   "Make a separate booking link for a flyer, a QR code or a post. Anyone who uses it gets the discount applied automatically. This page shows how many bookings each link brought in.": "Crea un enlace de reserva aparte para un volante, un código QR o una publicación. A quien lo use se le aplica el descuento automáticamente. Esta página muestra cuántas reservas trajo cada enlace.",
   "New plan": "Plan nuevo",
   "Edit plan": "Editar plan",
+  // REVIEW ITEM 11, 2026-09-11 — the pill editor. Four new details a
+  // detailer can drop into a text, their chip labels, and the plain-English
+  // meaning each chip carries as its title.
+  "These are the texts you send from a job. Tap a detail to add it. Each one fills itself in from the booking when you send the message.": "Estos son los mensajes que envías desde un trabajo. Toca un dato para agregarlo. Cada uno se completa solo con la reserva cuando envías el mensaje.",
+  "What they booked": "Lo que reservó",
+  "Their car": "Su carro",
+  "Your phone": "Tu teléfono",
+  "Link to their booking": "Enlace a su reserva",
+  "what they booked": "lo que reservó",
+  "the car": "el carro",
+  "your phone number": "tu número de teléfono",
+  "a link to their booking": "un enlace a su reserva",
 };
