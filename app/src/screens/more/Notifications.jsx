@@ -269,8 +269,15 @@ export default function Notifications() {
           name and states their date, vehicle and address, so a second
           "Hi {name}" is the owner's own never-default. Nothing to typo,
           nothing to validate. */}
+      {/* **HIS NOTE, 2026-09-10: *"I feel like it's not explained enough on
+          what it actually does."*** The old sentence — "Add a line to any
+          email, everything else stays as designed" — answered what the CONTROL
+          does and left the customer out of it entirely. What a detailer needs
+          to know before typing is WHO reads it, WHERE it lands, and that it
+          goes out as typed. Three facts, one sentence each, and none of them
+          restates a label. */}
       <Group title={t("Your own words")}
-        blurb={t("Add a line to any email. Everything else stays as designed.")}>
+        blurb={t("Your own sentence at the bottom of one of these emails, in a panel of its own under everything we write. The customer reads it exactly as you type it — a gate code, where to park, that you will text when you are on the way. Leave one blank and that email goes out as it always did.")}>
         {MESSAGE_KINDS.map((k) => {
           const body = messages[k.key] ?? "";
           const open = openKind === k.key;

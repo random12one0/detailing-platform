@@ -840,8 +840,8 @@ export const appEs = {
   "Send me a sample": "Mándame una muestra",
   "Only affects nudges to you, not your customers.":
     "Solo afecta los avisos para ti, no para tus clientes.",
-  "Add a line to any email. Everything else stays as designed.":
-    "Agrega una línea a cualquier correo. Todo lo demás se queda como está.",
+  "Your own sentence at the bottom of one of these emails, in a panel of its own under everything we write. The customer reads it exactly as you type it — a gate code, where to park, that you will text when you are on the way. Leave one blank and that email goes out as it always did.":
+    "Tu propia frase al final de uno de estos correos, en su propio recuadro debajo de todo lo que escribimos nosotros. El cliente la lee tal cual la escribes: un código de entrada, dónde estacionar, que le vas a escribir cuando vayas en camino. Deja uno en blanco y ese correo sale como siempre.",
   "Edit your line": "Editar tu línea",
   "Add a line": "Agregar una línea",
   "Save notifications": "Guardar avisos",
