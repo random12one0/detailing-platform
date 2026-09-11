@@ -426,6 +426,16 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
   // Money tab) has to be skipped rather than waited on. Twelve frames is the
   // whole of that distinction: about 200ms, self-limiting, no timer.
   useEffect(() => {
+    // **NOTHING IS MEASURED, AND NOTHING IS SKIPPED, UNTIL THE PLAN EXISTS.**
+    // This ran from the moment the tour mounted, against the FULL step list,
+    // while the plan was still waiting for the screen to finish loading — so
+    // on a slow screen it gave up on step one and advanced past it, and the
+    // guide drew its first frame already showing step two. Seen on Business at
+    // 392, where the settings counts land later than the rail does: the plan
+    // had six steps and the card opened on "2 of 6". The skip below is the
+    // safety net for a target that WAS there when the plan was made; it is not
+    // a way to make decisions before there is a plan.
+    if (!plan) return undefined;
     if (tab) live.current.onGo?.(tab);
     let on = true;
     let tries = 0;
@@ -463,7 +473,11 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
     };
     tick();
     return () => { on = false; };
-  }, [key, tab]);
+    // The boolean rather than the plan itself: the plan can still GROW for a
+    // few seconds
+    // after it is first shown, and re-running this on every growth would
+    // re-scroll the step somebody is already reading.
+  }, [key, tab, !!plan]);
 
   // Recompute on resize only (§1c rule 4) — nothing else moves while the body
   // is frozen.
@@ -521,7 +535,25 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
         : window.innerHeight - h - PAD;
     const left = Math.min(Math.max(PAD, box.left), Math.max(PAD, window.innerWidth - w - PAD));
     setPlace({ top, left });
-  }, [box]);
+    // **`plan` IS A DEPENDENCY BECAUSE THE CARD IS NOT IN THE DOCUMENT UNTIL
+    // THE PLAN IS.** This read `[box]` alone, and the two things it needs
+    // arrive in whichever order the network feels like: the hole is found in a
+    // frame or two, the plan waits for the screen to stop loading. When the
+    // hole won the race this effect ran with `card.current` still null, took
+    // the early return above — and never ran again, because `box` never
+    // changed after that. The card then rendered unplaced, at the top left
+    // corner of the screen, and the tour stopped there.
+    //
+    // **THAT IS THE FAULT HE REPORTED 2026-09-10** — *"instantly glitched out
+    // first step, like, popped up in the very top left corner, flashed, and
+    // then nothing else happened"* — and the flash is the other half of it,
+    // handled on the element itself below: a CSS animation outranks an inline
+    // style, so `arrive` ran the unplaced card from transparent to opaque and
+    // back to the inline `opacity: 0` it was holding all along.
+    //
+    // The rule underneath is worth more than the line: AN EFFECT THAT
+    // MEASURES A REF MUST DEPEND ON WHATEVER DECIDES THE REF EXISTS.
+  }, [box, plan]);
 
   // Nothing is drawn until the plan is known — a dim with no hole in it, for
   // the frame or two it takes, is the tour looking broken on the way in.
@@ -536,7 +568,14 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
         }} />
       )}
       <div ref={card} className="tourcard" tabIndex={-1}
-        style={place ? { top: place.top, left: place.left } : { opacity: 0 }}>
+        // AND NOTHING MOVES UNTIL IT IS SOMEWHERE. A CSS animation beats an
+        // inline style, so `.tourcard`'s own arrival ran the unplaced card up
+        // to full opacity in the corner and then dropped it back to this
+        // `opacity: 0` — a flash, with no error anywhere. Killing the
+        // animation while it is unplaced is what makes the inline opacity
+        // mean what it says; the moment a place arrives the declaration goes
+        // and the arrival plays, in the right spot.
+        style={place ? { top: place.top, left: place.left } : { opacity: 0, animation: "none" }}>
         {/* The count is the "more steps rather than fewer" constraint made
             visible — it is what tells someone the tour is seven short things
             rather than an unknown number of long ones. */}
