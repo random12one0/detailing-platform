@@ -961,3 +961,39 @@
    a 392 screen — W16 broken by a control of ours spending the detailer's
    budget. Two-letter chips fit beside the business name at 320, so there is
    nothing to wrap. */
+
+/* ── THE LANGUAGE SWITCH, MOVED AND QUIETENED — his note, 2026-09-10 ──────
+   *"The English/Spanish buttons are badly placed."* Two faults, and the
+   second is the one that made it look wrong.
+
+   **IT WAS THE LOUDEST THING ON THE PAGE.** `.bk-chip.selected` is a solid
+   accent fill, which is right for a chosen TIME or a chosen DAY — those are
+   the customer's answers — and wrong for a control that is not part of the
+   booking at all. A bright filled pill beside the business name reads as the
+   page's main action, and the page's main action is choosing a service.
+   So the switch keeps the chip's 44px hit area (the accessibility floor this
+   repo does not trade) and loses the fill: the chosen language is the one at
+   full strength inside a visible ring, the other is muted behind a hairline.
+
+   **AND AT A DESK IT SAT AGAINST THE TITLE, IN THE MIDDLE OF THE BAR.** The
+   masthead's inner row is a centred column, so `margin-left: auto` pushed the
+   chips to the COLUMN's right edge — 420px of empty header to their right at
+   1440. Page chrome belongs at the page's edge, so above the point where the
+   column stops filling the bar it is pinned there instead. Below that the
+   header IS the column and the flow position is already correct. */
+.bk-lang .bk-chip.selected {
+  background: var(--bk-surface);
+  color: var(--bk-text);
+  box-shadow: inset 0 0 0 1px var(--bk-border);
+}
+.bk-lang .bk-chip:not(.selected) { color: var(--bk-text-muted); }
+.bk-lang .bk-chip { padding: 0 var(--bk-sp-3); }
+
+@media (min-width: 900px) {
+  /* `.bk-header` is already `position: relative` (see the z-index rule near
+     the top), so this needs nothing added to the parent. */
+  .bk-lang {
+    position: absolute; right: var(--bk-sp-4); top: 50%;
+    transform: translateY(-50%); margin: 0;
+  }
+}
