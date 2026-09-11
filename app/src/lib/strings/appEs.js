@@ -51,19 +51,18 @@ export const appEs = {
   // `min` stays `min` and `hora` is not abbreviated: Spanish shortens minutes
   // the same way and does not shorten hours the same way, so following the
   // English abbreviation pattern exactly would produce something nobody says.
-  "A code somebody types while booking to take money off. Skip this if you are not running one — you can add one any time.":
-    "Un código que alguien escribe al reservar para descontar dinero. Sáltalo si no tienes ninguno — puedes agregar uno cuando quieras.",
-  "A customer can only pick a time inside these hours. Close a day here and nobody can book it.":
-    "Un cliente solo puede elegir una hora dentro de este horario. Cierra un día aquí y nadie podrá reservarlo.",
-  "A set price each month for a customer who wants you back on a rhythm. Leave it empty if you only do one-off jobs.":
-    "Un precio fijo cada mes para un cliente que quiere que vuelvas con regularidad. Déjalo vacío si solo haces trabajos sueltos.",
+  "A plan is a set price each month for a customer who books you regularly. Create them here. Leave this empty if you only do one-off jobs.":
+    "Un plan es un precio fijo cada mes para un cliente que te reserva con regularidad. Créalos aquí. Deja esto vacío si solo haces trabajos sueltos.",
+  "A promo code is a word a customer types when booking to get money off. Skip this if you do not have one. You can add one later.":
+    "Un código promocional es una palabra que un cliente escribe al reservar para obtener un descuento. Sáltalo si no tienes uno. Puedes agregarlo después.",
   "Allowed once per device. Your browser will ask you first.": "Se permite una vez por dispositivo. Tu navegador te preguntará primero.",
-  "An alert on your phone the second a booking comes in, even with the dashboard closed.": "Un aviso en tu teléfono en cuanto entra una cita, incluso con el panel cerrado.",
   "Blocked for this site": "Bloqueado para este sitio",
-  "Every service you add becomes a choice on your booking page, at the price you set here. Add-ons are the extras a customer can tick on top.":
-    "Cada servicio que agregues se convierte en una opción en tu página de reservas, al precio que pongas aquí. Los extras son lo que un cliente puede marcar además.",
-  "Mobile means you drive to them, drop-off means they come to you. You can offer both — this is the first thing your booking page asks a customer.":
-    "A domicilio significa que tú vas a ellos; en tu taller significa que ellos vienen a ti. Puedes ofrecer ambos — es lo primero que tu página de reservas le pregunta a un cliente.",
+  "Customers can only pick times inside these hours. If you close a day here, nobody can book it.":
+    "Los clientes solo pueden elegir horas dentro de este horario. Si cierras un día aquí, nadie puede reservarlo.",
+  "Get an alert on your phone when a booking comes in. It works when the dashboard is closed.":
+    "Recibe un aviso en tu teléfono cuando entre una cita. Funciona aunque el panel esté cerrado.",
+  "Mobile means you drive to the customer. Drop-off means they come to you. You can offer both. This is the first question your booking page asks.":
+    "A domicilio significa que tú vas al cliente. En tu taller significa que el cliente viene a ti. Puedes ofrecer ambos. Esta es la primera pregunta de tu página de reservas.",
   "None": "Ninguno",
   "Never": "Nunca",
   "Any time": "Cualquier momento",
@@ -73,23 +72,27 @@ export const appEs = {
   "Custom value in {unit}": "Valor personalizado en {unit}",
   "Off for this device": "Apagado en este dispositivo",
   "On for this device": "Encendido en este dispositivo",
-  "One color, used on your booking page and through this dashboard. The one already on your van or your cards is usually the right answer.":
-    "Un color, usado en tu página de reservas y en todo este panel. El que ya está en tu camioneta o en tus tarjetas suele ser el correcto.",
+  "Pick one color. It is used on your booking page and in this dashboard. Most detailers use the color already on their van or their cards.":
+    "Elige un color. Se usa en tu página de reservas y en este panel. La mayoría usa el color que ya está en su camioneta o en sus tarjetas.",
   "That is not your current password.": "Esa no es tu contraseña actual.",
-  "The texts you fire off from a job — on my way, running late, all done. Write them once here and it is one tap on the day.":
-    "Los mensajes que envías desde un trabajo — voy en camino, voy retrasado, ya terminé. Escríbelos una vez aquí y el día del trabajo es un solo toque.",
-  "The three or four you answer by text every week. Answering them here is what stops the texts.":
-    "Las tres o cuatro que respondes por mensaje cada semana. Responderlas aquí es lo que detiene los mensajes.",
+  "The questions customers ask you most often. Answer them here and you get fewer texts asking the same thing.":
+    "Las preguntas que más te hacen los clientes. Respóndelas aquí y recibirás menos mensajes preguntando lo mismo.",
+  "The services you add here show on your booking page at the price you set. Add-ons are extras a customer can add to a service.":
+    "Los servicios que agregues aquí aparecen en tu página de reservas al precio que pongas. Los extras son adicionales que un cliente puede sumar a un servicio.",
+  "These are the texts you send from a job, like on my way or all done. Write them once here. On the day it takes one tap.":
+    "Estos son los mensajes que envías desde un trabajo, como voy en camino o ya terminé. Escríbelos una vez aquí. El día del trabajo es un solo toque.",
   "Turn it on again on any other phone or computer you want the alerts on.": "Actívalo de nuevo en cualquier otro teléfono o computadora donde quieras los avisos.",
   "Turn notifications back on for this site in your browser settings, then come back here.": "Vuelve a activar las notificaciones para este sitio en la configuración de tu navegador y regresa aquí.",
   "Turn off on this device": "Apagar en este dispositivo",
   "Turn on push notifications": "Activar notificaciones push",
-  "Turn on the ways you actually take money. A customer sees them on their booking, so they know what to bring.":
-    "Activa las formas en que realmente cobras. Un cliente las ve en su reserva, así sabe qué llevar.",
-  "Type in what customers have already told you elsewhere. Nothing is imported and nothing is checked — these are yours to keep and to use.":
-    "Escribe lo que los clientes ya te han dicho en otro lado. No se importa ni se verifica nada — son tuyas para guardar y usar.",
-  "Your name, your phone number and how to reach you. It sits at the top of your booking page and at the bottom of every email a customer gets.":
-    "Tu nombre, tu teléfono y cómo contactarte. Aparece arriba en tu página de reservas y al final de cada correo que recibe un cliente.",
+  "Turn on the ways you take money. A customer sees these on their booking so they know what to bring.":
+    "Activa las formas en que cobras. Un cliente las ve en su reserva para saber qué llevar.",
+  "Type in reviews customers have already given you somewhere else. Nothing is imported automatically. You decide which ones to show.":
+    "Escribe las reseñas que los clientes ya te dieron en otro lugar. No se importa nada automáticamente. Tú decides cuáles mostrar.",
+  "Your business name, phone number and email address. This shows at the top of your booking page and at the bottom of every email a customer gets.":
+    "El nombre de tu negocio, tu teléfono y tu correo. Esto aparece arriba en tu página de reservas y al final de cada correo que recibe un cliente.",
+  "e.g. car wash membership":
+    "ej. membresía de lavado de autos",
   "minutes": "minutos",
   "hours": "horas",
   "days": "días",
@@ -1276,7 +1279,6 @@ export const appEs = {
   "Move down": "Mover abajo",
   "Move up": "Mover arriba",
   "Name": "Nombre",
-  "Name it yourself": "Ponle tu propio nombre",
   "Navigate": "Navegar",
   "Never mind": "Mejor no",
   "Never sends before the first one.": "Nunca se manda antes que el primero.",
@@ -1541,7 +1543,6 @@ export const appEs = {
   "What is owed": "Qué se debe",
   "What kind": "De qué tipo",
   "What the customer sees": "Lo que ve el cliente",
-  "What was it?": "¿Qué fue?",
   "What they pay": "Lo que pagan",
   "What they said": "Lo que dijeron",
   "What to call it": "Cómo llamarlo",

@@ -168,7 +168,7 @@ export default function Notifications() {
           identical on a control and are three different problems — the last
           one especially, because tapping harder will never fix it. */}
       <Group title={t("Push notifications")}
-        blurb={t("An alert on your phone the second a booking comes in, even with the dashboard closed.")}>
+        blurb={t("Get an alert on your phone when a booking comes in. It works when the dashboard is closed.")}>
         {device === "unsupported" ? (
           <Setting label={t("Not available in this browser")} stacked
             help={t("On an iPhone, add this dashboard to your home screen first — Safari only allows it there.")} />

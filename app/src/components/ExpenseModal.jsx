@@ -104,10 +104,10 @@ export default function ExpenseModal({ onClose, onSaved }) {
 
         {category === "other" && (
           <label className="field" style={{ marginTop: 12 }}>
-            <span>{t("What was it?")}</span>
+            <span>{t("Name")}</span>
             <input
               value={customName}
-              placeholder={t("Name it yourself")}
+              placeholder={t("e.g. car wash membership")}
               onChange={(e) => setCustomName(e.target.value)}
             />
           </label>

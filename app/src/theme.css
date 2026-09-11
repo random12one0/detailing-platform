@@ -3830,10 +3830,34 @@ html:not(.lite) .intake .samp-move .samp-row:nth-child(3) { animation-delay: .5s
 
 /* A NAMED PROPORTION: label, bar, figure. The bar is decoration — the figure
    beside it is the content, and the bar is aria-hidden in the markup. */
+/* TWO ROWS ON A PHONE, THREE COLUMNS AT A DESK — and the phone shape is the
+   BASE rather than an override, because that is the only arrangement that
+   also survives his portrait rule (a sideways phone is 844px wide and 390px
+   tall, so the desk query below is guarded on height and a rotation changes
+   nothing).
+   MEASURED AT 392 ON 2026-09-11, on Money → The full picture: the name column
+   was 49px and the text inside it 100px, so "Where it went" read `Prod…`
+   `Equi…` `Suppli…` and "What sells" read `F…` and `E…` — one letter of a
+   service name. Three side-by-side cells cannot be made to fit: `.advmeter-v`
+   is `auto` and `white-space: nowrap` so the figure takes what it needs, the
+   bar track resolved to its full 190px max, and `minmax(0, 1fr)` on the name
+   means the name is the one thing in the row allowed to disappear.
+   The name is the information and the bar is not, so the name gets the line.
+   It was the `@media (max-width: 360px)` block that used to do this by
+   squeezing the BAR to 56px, which is why 360 and 320 looked right and the
+   width he actually holds did not. */
 .advmeter {
-  display: grid; grid-template-columns: minmax(0, 1fr) minmax(72px, 190px) auto;
-  align-items: center; gap: var(--sp-3); padding: 9px 2px;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center; row-gap: 6px; column-gap: var(--sp-3); padding: 9px 2px;
   border-top: 1px solid var(--hairline);
+}
+.advmeter-k { grid-column: 1 / -1; }
+@media (min-width: 700px) and (min-height: 500px) {
+  .advmeter {
+    grid-template-columns: minmax(0, 1fr) minmax(72px, 190px) auto;
+    gap: var(--sp-3);
+  }
+  .advmeter-k { grid-column: auto; }
 }
 /* An expense category is whatever the detailer typed, and they type in lower
    case. The stored value is left exactly as it was — this is a display rule,
@@ -3841,7 +3865,13 @@ html:not(.lite) .intake .samp-move .samp-row:nth-child(3) { animation-delay: .5s
    categories that do not add up. */
 .advmeter.cap .advmeter-k { text-transform: capitalize; }
 .advmeter:first-child { border-top: 0; }
-.advmeter-k { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* IT ONLY ELLIPSISES WHEN IT IS SHARING A LINE. On its own row it wraps, which
+   is the whole point of giving it one: a detailer's service name is as long as
+   they typed it. */
+.advmeter-k { white-space: normal; }
+@media (min-width: 700px) and (min-height: 500px) {
+  .advmeter-k { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
 /* THE TRACK HAS TO BE VISIBLE OR THE BAR IS NOT A BAR. It was `--sunken`,
    which is the colour of the card these sit inside — so every fill read as a
    loose pill floating in the middle of the row with nothing to measure it
@@ -3876,7 +3906,6 @@ html:not(.lite) .intake .samp-move .samp-row:nth-child(3) { animation-delay: .5s
 /* THE 320 FLOOR. The meter's middle column is the first thing to go: at that
    width the name and the figure are the information and the bar is not. */
 @media (max-width: 360px) {
-  .advmeter { grid-template-columns: minmax(0, 1fr) 56px auto; gap: var(--sp-2); }
   .advlede { font-size: 19px; }
 }
 

@@ -100,29 +100,47 @@ export const STEPS = [
 // and a step with no sentence is a step rather than a broken one. Keyed on the
 // step key, so the two lists cannot drift out of order the way two parallel
 // arrays would.
+// **HOW THESE ARE WRITTEN, AND IT IS A RULE HE GAVE TWICE ON 2026-09-11.** He
+// read a settings blurb aloud and called it obviously AI. It was rewritten,
+// and he rejected the rewrite for the same reason: *"it sounds like AI… just
+// to spin it in a way that doesn't sound like a poem or like it's trying to be
+// creative in some way. Just sound like it's trying to be as straightforward
+// and informative as possible. Anyone reading that could instantly understand
+// what this is for."*
+//
+// **SO THE FAULT IS THE VOICE, NOT THE CONTENT, and replacing one flourish
+// with a different flourish does not fix it.** What both of his rejected
+// drafts had, and what none of these may have: an em dash holding two clauses
+// in tension, a rhetorical opener, parallel structure, and a sentence whose
+// SHAPE is doing work. Short declarative sentences, one fact each, in the
+// order somebody needs them. It should read like an instruction.
+//
+// The first version of this block was written before he said it and had five
+// em dashes and a "on a rhythm" in it. Every one of these was rewritten the
+// same day, which is why the rule is quoted here rather than linked.
 export const WHY = {
   catalog:
-    "Every service you add becomes a choice on your booking page, at the price you set here. Add-ons are the extras a customer can tick on top.",
+    "The services you add here show on your booking page at the price you set. Add-ons are extras a customer can add to a service.",
   hours:
-    "A customer can only pick a time inside these hours. Close a day here and nobody can book it.",
+    "Customers can only pick times inside these hours. If you close a day here, nobody can book it.",
   where:
-    "Mobile means you drive to them, drop-off means they come to you. You can offer both — this is the first thing your booking page asks a customer.",
+    "Mobile means you drive to the customer. Drop-off means they come to you. You can offer both. This is the first question your booking page asks.",
   info:
-    "Your name, your phone number and how to reach you. It sits at the top of your booking page and at the bottom of every email a customer gets.",
+    "Your business name, phone number and email address. This shows at the top of your booking page and at the bottom of every email a customer gets.",
   colour:
-    "One color, used on your booking page and through this dashboard. The one already on your van or your cards is usually the right answer.",
+    "Pick one color. It is used on your booking page and in this dashboard. Most detailers use the color already on their van or their cards.",
   reviews:
-    "Type in what customers have already told you elsewhere. Nothing is imported and nothing is checked — these are yours to keep and to use.",
+    "Type in reviews customers have already given you somewhere else. Nothing is imported automatically. You decide which ones to show.",
   faq:
-    "The three or four you answer by text every week. Answering them here is what stops the texts.",
+    "The questions customers ask you most often. Answer them here and you get fewer texts asking the same thing.",
   payments:
-    "Turn on the ways you actually take money. A customer sees them on their booking, so they know what to bring.",
+    "Turn on the ways you take money. A customer sees these on their booking so they know what to bring.",
   promos:
-    "A code somebody types while booking to take money off. Skip this if you are not running one — you can add one any time.",
+    "A promo code is a word a customer types when booking to get money off. Skip this if you do not have one. You can add one later.",
   plans:
-    "A set price each month for a customer who wants you back on a rhythm. Leave it empty if you only do one-off jobs.",
+    "A plan is a set price each month for a customer who books you regularly. Create them here. Leave this empty if you only do one-off jobs.",
   templates:
-    "The texts you fire off from a job — on my way, running late, all done. Write them once here and it is one tap on the day.",
+    "These are the texts you send from a job, like on my way or all done. Write them once here. On the day it takes one tap.",
 };
 
 // HOW MANY OF THE SEVEN ARE DONE — the one number, read in two places.
