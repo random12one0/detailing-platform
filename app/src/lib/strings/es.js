@@ -385,4 +385,19 @@ export const es = {
   "{business} isn’t taking bookings online yet": "{business} todavía no acepta reservas en línea",
   "They’re still setting this page up. Check back shortly — or get in touch with them directly.": "Todavía están configurando esta página. Vuelve pronto — o comunícate con ellos directamente.",
   "Try again": "Intentar de nuevo",
+
+  // REVIEW ITEM 15, 2026-09-11 — the customer's own booking page now itemises
+  // everything they ordered instead of printing one total, so the receipt's
+  // own labels need Spanish. The rest ("Travel", "Promo {code}", "Vehicle
+  // size", the four conditions) were already here from StepReview.
+  "Discount": "Descuento",
+  // NOT "Total": that word is identical in both languages, and the two
+  // Spanish checks cannot both be satisfied by such a string — 1b wants an
+  // entry for every call site, 2a rejects an entry that equals its English.
+  // "Final total" resolves it and says more: the figure after the job
+  // changed on the day, as against the estimate above it.
+  "Final total": "Total final",
+  "Name": "Nombre",
+  "Your note": "Tu nota",
+  "Add-on": "Extra",
 };

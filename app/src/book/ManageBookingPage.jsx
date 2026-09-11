@@ -21,6 +21,17 @@ import { money, time12 } from "../lib/format.js";
 import { BookingBusinessProvider, useBookingBusiness } from "./BookingBusinessContext.jsx";
 import "./booking.css";
 
+// The four `vehicle_condition` values, in words a customer wrote rather than
+// the key the column stores. Kept here rather than imported from the
+// dashboard's copy: this is the CUSTOMER surface and its strings live in
+// `es.js`, not `appEs.js`.
+const CONDITION_WORDS = {
+  light: "Light",
+  moderate: "Moderate",
+  heavy: "Heavy",
+  extreme: "Extreme",
+};
+
 export default function ManageBookingPage() {
   useLocale();
   const { id } = useParams();
@@ -130,6 +141,42 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
   const noteCarriesContact = Boolean(receiptBusiness?.phone || receiptBusiness?.email);
 
   const services = (booking.services ?? []).map((s) => s.name_at_booking).filter(Boolean);
+  // THE CAR, IN ONE LINE. Size, model and condition were on the booking and
+  // on no screen the customer could reach — the multi-vehicle block printed
+  // them, so a customer with ONE car saw less than a customer with two.
+  const vehicleLine = [
+    booking.vehicle_model,
+    booking.vehicle_size_label,
+    CONDITION_WORDS[booking.vehicle_condition],
+  ].filter(Boolean).join(" · ");
+  // `final_amount` is what was actually charged after the job changed on the
+  // day; until it exists the figure is still an estimate and must say so.
+  const isFinal = booking.final_amount != null;
+
+  // WHETHER THE ITEMISATION IS SAFE TO DRAW.
+  //
+  // Every figure on a booking is snapshotted independently, so a row written
+  // by anything other than `create-booking` can hold a surcharge the total
+  // does not contain. Add the lines up; if they do not reach the stored
+  // subtotal, show the services and the total and nothing in between.
+  //
+  // ROUNDED TO THE CENT BEFORE COMPARING — these are numerics coming back
+  // through JSON, and `235.00000000000003 !== 235` would silently switch
+  // every receipt in the product to the short form.
+  const cents = (n) => Math.round(Number(n || 0) * 100);
+  const adjustments = Array.isArray(booking.price_adjustments) ? booking.price_adjustments : [];
+  const lineSum = cents(booking.subtotal)
+    ? [
+      ...(booking.services ?? []).map((sv) => cents(sv.price_at_booking)),
+      ...(booking.add_ons ?? []).map((a) => cents(a.add_on?.price)),
+      cents(booking.vehicle_size_fee),
+      cents(booking.travel_fee),
+      ...adjustments.map((a) => cents(a.amount)),
+    ].reduce((a, b) => a + b, 0)
+    : null;
+  // The site discount is taken off the subtotal the engine surfaces, so it is
+  // already inside `booking.subtotal` and is not one of the lines above.
+  const itemised = lineSum !== null && lineSum === cents(booking.subtotal);
 
   const loc = intlLocale();
   const dateLabel = new Date(`${booking.booking_date}T12:00:00`).toLocaleDateString(loc, {
@@ -253,9 +300,6 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
           </div>
           <h3 style={{ textDecoration: isCancelled ? "line-through" : "none" }}>{dateLabel}</h3>
           <p className="bk-muted">{time12(booking.start_time)} – {time12(booking.end_time)}</p>
-          {services.length > 0 && (
-            <p className="bk-body" style={{ marginTop: 8 }}>{services.join(" · ")}</p>
-          )}
           {/* ROADMAP 8.10 — the other cars on THIS visit. Their money is
               already itemised below as its own line, so this is what they
               ARE: the customer checking that the truck they typed in is on
@@ -280,9 +324,113 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
                 ? t("Drop-off at {address}", { address: business.dropoff_address })
                 : t("Drop-off"))}
           </p>
-          <div className="bk-row between" style={{ marginTop: 10 }}>
-            <span>{t("Estimated total")}</span>
-            <strong className="bk-price">{money(booking.final_amount ?? booking.total_price)}</strong>
+          {/* **EVERYTHING THEY ORDERED — his review, 2026-09-11.** *"It looked
+              like there was three lines and it barely had any information…
+              that preview screen of what you ordered at the last step, that
+              should have information of everything they ordered, the address,
+              basically all the details."*
+
+              This is `StepReview`'s receipt, in `StepReview`'s own classes,
+              on a SAVED booking instead of a live quote. Same shape on
+              purpose: the page a customer confirms on and the page they come
+              back to a week later should not itemise the same job two
+              different ways.
+
+              EVERY FIGURE IS SNAPSHOTTED ON THE BOOKING and none is
+              recomputed here. `price_at_booking`, `vehicle_size_fee`,
+              `travel_fee` and the labels inside `price_adjustments` are all
+              stored precisely so a detailer who raises a price cannot rewrite
+              what a past job was sold for — so a page that re-derived any of
+              them would be showing a number nobody was charged. */}
+          <div className="bk-receipt" style={{ marginTop: 12 }}>
+            {(booking.services ?? []).map((sv, i) => (
+              <div className="line" key={`s${sv.service_id ?? i}`}>
+                <span>{sv.name_at_booking}</span>
+                <span className="bk-price">{money(sv.price_at_booking)}</span>
+              </div>
+            ))}
+            {(booking.add_ons ?? []).map((a, i) => (
+              <div className="line" key={`a${a.add_on_id ?? i}`}>
+                <span>{a.add_on?.name ?? t("Add-on")}</span>
+                <span className="bk-price">{money(a.add_on?.price ?? 0)}</span>
+              </div>
+            ))}
+            {itemised && booking.vehicle_size_fee > 0 && (
+              <div className="line dim">
+                <span>{t("Vehicle size")}</span>
+                <span className="bk-price">{money(booking.vehicle_size_fee)}</span>
+              </div>
+            )}
+            {itemised && booking.travel_fee > 0 && (
+              <div className="line dim">
+                <span>{booking.travel_zone
+                  ? t("Travel — {zone}", { zone: booking.travel_zone })
+                  : t("Travel")}</span>
+                <span className="bk-price">{money(booking.travel_fee)}</span>
+              </div>
+            )}
+            {/* The detailer's own word for each surcharge, snapshotted with
+                the amount, so a renamed or deleted rule cannot turn last
+                month's receipt into a blank line. */}
+            {(itemised ? adjustments : []).map((adj, i) => (
+              <div className="line dim" key={`x${i}`}>
+                <span>{adj.label}</span>
+                <span className="bk-price">{money(adj.amount)}</span>
+              </div>
+            ))}
+            {booking.monthly_plan_discount > 0 && (
+              <div className="line dim">
+                <span>{t("Your plan")}</span>
+                <span className="bk-price">-{money(booking.monthly_plan_discount)}</span>
+              </div>
+            )}
+            {booking.promo_discount > 0 && (
+              <div className="line dim">
+                <span>{booking.applied_promo_code
+                  ? t("Promo {code}", { code: booking.applied_promo_code })
+                  : t("Discount")}</span>
+                <span className="bk-price">-{money(booking.promo_discount)}</span>
+              </div>
+            )}
+            <div className="line total">
+              <strong>{isFinal ? t("Final total") : t("Estimated total")}</strong>
+              <strong className="bk-price" style={{ fontSize: "1.3rem" }}>
+                {money(booking.final_amount ?? booking.total_price)}
+              </strong>
+            </div>
+          </div>
+
+          {/* WHAT THEY TYPED IN, SO THEY CAN CHECK IT. A customer who spots
+              their own phone number wrong on this page fixes it with one
+              call; one who cannot see it finds out when nobody arrives.
+              `.filter(Boolean)` throughout — an empty line reads as a missing
+              detail rather than as a detail they did not give. */}
+          <div className="bk-receipt" style={{ marginTop: 12 }}>
+            <div className="line dim">
+              <span>{t("Name")}</span><span>{booking.customer_name}</span>
+            </div>
+            {booking.customer_phone && (
+              <div className="line dim">
+                <span>{t("Phone")}</span><span>{booking.customer_phone}</span>
+              </div>
+            )}
+            {booking.customer_email && (
+              <div className="line dim">
+                <span>{t("Email")}</span>
+                <span style={{ overflowWrap: "anywhere" }}>{booking.customer_email}</span>
+              </div>
+            )}
+            {vehicleLine && (
+              <div className="line dim">
+                <span>{t("Vehicle")}</span><span>{vehicleLine}</span>
+              </div>
+            )}
+            {booking.customer_notes && (
+              <div className="line dim">
+                <span>{t("Your note")}</span>
+                <span style={{ textAlign: "right" }}>{booking.customer_notes}</span>
+              </div>
+            )}
           </div>
           {isRequest && !isCancelled && (
             <p className="bk-muted" style={{ marginTop: 8 }}>
