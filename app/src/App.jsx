@@ -158,6 +158,14 @@ export default function App() {
     if (q.get("setup") === "1") return "setup";
     return null;
   });
+  // WHETHER THE ADDRESS ASKED FOR ONE OF THEM. A ref rather than reading the
+  // URL again in the effect below, because `SiteIntake` and `SetupForm` both
+  // clear the query as they close and the effect would then stop believing it
+  // was ever asked. Read once, at the same moment `firstRun` is.
+  const fromUrl = useRef(
+    new URLSearchParams(window.location.search).get("setup") === "1"
+    || new URLSearchParams(window.location.search).get("brief") === "1",
+  );
   // ROADMAP 2.24 — which TAB guide is on screen, separate from `firstRun`
   // because they are different lifetimes: the first run happens once ever,
   // and a tab guide happens once per tab and can arrive months later.
@@ -251,6 +259,24 @@ export default function App() {
     // returning Stripe consent, then the tour on top of that, leaves the
     // detailer on Today with a spent code and no connection.
     if (deepLink.current) return;
+    // **AND `?setup=1` OUTRANKS IT FOR THE SAME REASON — 2026-09-11.** The
+    // param is read into `firstRun`'s initial state above, and then this
+    // effect ran and overwrote it: on a business that has already SEEN setup
+    // the first branch is false, `wantsBrief` is true, and the website brief
+    // opened instead. So the one address on the master map for reviewing the
+    // first-run form silently showed a different form, and it did it only on a
+    // business that had seen setup — which is every business anybody would use
+    // to review it.
+    //
+    // That is the exact defect the param was added to fix. Its own comment
+    // twenty lines up says *"a screen only reachable by being new is a screen
+    // nobody can review"*, and this effect had quietly put it back.
+    //
+    // Found by trying to open it, 2026-09-11. Nothing reported anything: the
+    // brief wears the setup form's chrome (`.setupform`, `.setupfoot`, the
+    // progress rule), so the wrong screen looks like the right one until you
+    // read the buttons on it.
+    if (fromUrl.current) return;
     if (role === "owner") {
       // ROADMAP 7.3's FINAL PASS, finding 2, fixed 2026-09-06 — but in
       // `SetupForm`, not here. `setup.seen` used to be written when the form

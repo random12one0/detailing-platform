@@ -617,11 +617,37 @@ const prefillFrom = ({ business, settings, branding }) => {
       : settings?.dropoff_enabled ? "Yes"
         : settings?.mobile_enabled ? "No, I go to them" : null,
     G3: business.contact_email ? "Yes" : null,
+    // HOW YOU GET PAID IS A SETUP STEP AND THE BRIEF ASKED IT AGAIN — his
+    // question, 2026-09-11: *"everything that was said in the setup form gets
+    // filled into the website form."* F3's options and the Payments screen's
+    // built-ins are the same five words, so a detailer who filled that step in
+    // was re-ticking their own answer. Every one is `settings`, already in
+    // hand, so this costs no read.
+    //
+    // **CARD IS DELIBERATELY NOT HERE.** Whether card payments are live is not
+    // a settings column — it is an answer from the `platform-billing`
+    // endpoint about a Stripe account — and this function is given `settings`,
+    // `branding` and `business` and nothing else. Guessing it from the absence
+    // of a column would tick a box on their website about a way to pay that
+    // does not work yet, which is the one failure this whole form exists to
+    // prevent.
+    F3: [
+      settings?.pay_cash ? "Cash" : null,
+      settings?.pay_venmo ? "Venmo" : null,
+      settings?.pay_zelle ? "Zelle" : null,
+      settings?.pay_cashapp ? "Cash App" : null,
+      settings?.pay_paypal ? "PayPal" : null,
+    ].filter(Boolean),
   };
   const clean = {};
   for (const [k, v] of Object.entries(out)) {
     if (v === null || v === undefined || v === "") continue;
     if (typeof v === "string" && !v.trim()) continue;
+    // AN EMPTY LIST IS NOT AN ANSWER. `F3` is built by filtering five settings,
+    // so a detailer who has set up no way to be paid produces `[]` — and
+    // seeding that would mark the question "from your setup" while showing
+    // nothing ticked, which reads as *we asked and the answer was none*.
+    if (Array.isArray(v) && v.length === 0) continue;
     clean[k] = v;
   }
   return clean;
