@@ -43,11 +43,17 @@ const eq = (name, got, want) => check(`${name} = ${want}`, near(got, want), `got
 const period = { start: "2026-09-01", end: "2026-09-30" };
 const previous = { start: "2026-08-01", end: "2026-08-31" };
 
+// **THE WINDOW, NOT A DURATION COLUMN.** There is no `duration_minutes` on
+// `bookings` — the 8.8 research said there was, the first build believed it,
+// and the wage came out as "—" on a dashboard with four finished jobs. These
+// fixtures carry `start_at`/`end_at` the way the table really does.
 const job = (id, date, name, phone, amount, minutes, payment, service) => ({
   id, booking_date: date, status: "completed",
   customer_name: name, customer_phone: phone,
   final_amount: amount, total_price: amount,
-  duration_minutes: minutes, payment_status: payment,
+  start_at: `${date}T09:00:00.000Z`,
+  end_at: new Date(Date.parse(`${date}T09:00:00.000Z`) + minutes * 60000).toISOString(),
+  payment_status: payment,
   services: [{ name_at_booking: service, price_at_booking: amount }],
 });
 
@@ -118,15 +124,26 @@ eq("hours", m.hours, 4);
 eq("hourly", m.hourly, 100);
 eq("jobs with no duration", m.hoursMissing, 0);
 
-// A JOB WITH NO DURATION MUST NOT DRAG THE WAGE DOWN. It contributes no hours
-// and no denominator; the screen says how many it could not count.
+// A JOB WITH NO WINDOW MUST NOT DRAG THE WAGE DOWN. It contributes no hours
+// and no denominator; the screen says how many it could not count. A zero
+// window cannot exist in the database (the CHECK forbids it) but a row that
+// arrived from somewhere else can be missing the fields entirely.
+const untimed = { ...job("b5", "2026-09-22", "Sam", "555-0004", 100, 30, "paid", "Express Wash") };
+delete untimed.start_at; delete untimed.end_at;
 const noTime = advancedMoney({
-  bookings: [...bookings, job("b5", "2026-09-22", "Sam", "555-0004", 100, 0, "paid", "Express Wash")],
-  expenses, lineItems, period, previous,
+  bookings: [...bookings, untimed], expenses, lineItems, period, previous,
 });
 eq("an untimed job adds no hours", noTime.hours, 4);
 eq("and is reported as uncounted", noTime.hoursMissing, 1);
 check("but its money still counts", noTime.collected === 600, `got ${noTime.collected}`);
+
+// A caller that HAS worked out a duration is believed over the window.
+const stated = advancedMoney({
+  bookings: [{ ...job("b6", "2026-09-23", "Ann", "555-0005", 120, 60, "paid", "Express Wash"),
+    duration_minutes: 120 }],
+  expenses: [], lineItems: [], period, previous,
+});
+eq("an explicit duration wins over the window", stated.hours, 2);
 
 /* ── 4 · who paid ─────────────────────────────────────────────────────────── */
 console.log("\n4: who paid");

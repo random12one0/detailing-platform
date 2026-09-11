@@ -132,13 +132,26 @@ export function advancedMoney({
   const net = collected - outNow;
   const prevNet = prevCollected - outPrev;
 
-  // HOURS ARE THE BOOKED DURATION, which is the only honest number available:
-  // nobody clocks in. A booking with no duration contributes no hours, so the
-  // wage is computed over the jobs that have one — and `hoursKnown` is
-  // reported beside it so a screen can say when it is a partial answer rather
-  // than printing a wage nobody can account for.
-  const timed = jobs.filter((b) => num(b.duration_minutes) > 0);
-  const minutes = sum(timed, (b) => num(b.duration_minutes));
+  // HOURS ARE THE BOOKED WINDOW, which is the only honest number available:
+  // nobody clocks in.
+  //
+  // **AND IT IS `end_at − start_at`, NOT `duration_minutes`.** The 8.8 research
+  // said every booking carried a duration and it does not — there is no such
+  // column, and the first build of this file produced a wage of "—" on a
+  // dashboard with four finished jobs on it. `start_at` and `end_at` are both
+  // `not null` with a CHECK that the end is after the start, so the window is
+  // always there and is the better source anyway: it is the time the detailer
+  // actually blocked out. A caller that has computed a duration of its own can
+  // still pass one.
+  const minutesOf = (b) => {
+    const given = num(b.duration_minutes);
+    if (given > 0) return given;
+    if (!b.start_at || !b.end_at) return 0;
+    const ms = new Date(b.end_at).getTime() - new Date(b.start_at).getTime();
+    return Number.isFinite(ms) && ms > 0 ? ms / 60000 : 0;
+  };
+  const timed = jobs.filter((b) => minutesOf(b) > 0);
+  const minutes = sum(timed, minutesOf);
   const hours = minutes / 60;
 
   // ── who paid, and who has not ─────────────────────────────────────────────

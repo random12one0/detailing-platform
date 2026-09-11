@@ -3744,3 +3744,109 @@ html:not(.lite) .intake .samp-move .samp-row:nth-child(3) { animation-delay: .5s
 .nf .quiet { margin: 12px 0 0; }
 .nf-go { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
 .nf-go .btn { text-decoration: none; flex: 0 1 auto; width: auto; }
+
+/* ═══════════════════════════════════════════ THE FULL PICTURE (roadmap 8.9)
+   The advanced money screen. His ask: *"add it in a nice way, not just text.
+   If there's a nice way to add it visually, then do it. If it just has to be
+   a number with a title, then that's fine."*
+
+   **SO THIS BLOCK DRAWS FOUR THINGS AND RULES EIGHTEEN**, and every drawn one
+   is a PROPORTION rather than a trend — a shape a person reads in one look.
+   Money's signed bars are still the only chart in the product (law 1's
+   register); a meter is not a chart, it is a number with a length.
+
+   NOTHING HERE ANIMATES. The screen it lives on already arrives with the
+   staggered `arrive`, and a second entrance on a child is two animations
+   running the same 420ms (CLAUDE.md § ANYTHING THAT OPENS). That is also why
+   this block carries no `prefers-reduced-motion` rule of its own — there is
+   nothing to reduce, and a second implementation of that media query is what
+   `composition` test 9 fails on. */
+.advanced { display: flex; flex-direction: column; gap: var(--sp-6); }
+.advback { align-self: flex-start; }
+
+/* THE SENTENCE. Set in the figure face because it is the screen's headline
+   answer, but at body scale — a 40px sentence is a banner, and this is a
+   thing to read rather than a thing to glance at. */
+.advlede {
+  font-family: var(--font-figure); font-size: 21px; line-height: 1.35;
+  color: var(--text); margin: 0 0 var(--sp-3);
+  letter-spacing: -0.01em; text-wrap: balance;
+}
+
+/* KEPT AGAINST SPENT. One bar, two segments, sized by `flex` so the two
+   numbers themselves set the proportion and no arithmetic happens in CSS. */
+.advsplit {
+  display: flex; height: 10px; border-radius: 999px; overflow: hidden;
+  background: var(--sunken); gap: 2px;
+}
+.advsplit .kept { background: var(--ac); }
+.advsplit .gone { background: var(--line-2); }
+.advsplit-k {
+  display: flex; justify-content: space-between; gap: var(--sp-3);
+  margin-top: 6px; font-size: 13px;
+}
+
+/* A RULED ROW. The same shape `.facts` uses, with room for a second line of
+   explanation under the label — which most rows do not have, because a note
+   that repeats the label is the thing his copy rule forbids. */
+.advrow {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--sp-4); padding: 10px 2px;
+  border-top: 1px solid var(--hairline);
+}
+.advrow:first-child, .rule + .advrow { border-top: 0; }
+.advrow-k { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.advrow-n { font-size: 12px; line-height: 1.3; }
+.advrow-v { text-align: right; white-space: nowrap; font-weight: 500; }
+
+/* A NAMED PROPORTION: label, bar, figure. The bar is decoration — the figure
+   beside it is the content, and the bar is aria-hidden in the markup. */
+.advmeter {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(72px, 190px) auto;
+  align-items: center; gap: var(--sp-3); padding: 9px 2px;
+  border-top: 1px solid var(--hairline);
+}
+/* An expense category is whatever the detailer typed, and they type in lower
+   case. The stored value is left exactly as it was — this is a display rule,
+   because rewriting somebody else's word is how "gas" and "Gas" become two
+   categories that do not add up. */
+.advmeter.cap .advmeter-k { text-transform: capitalize; }
+.advmeter:first-child { border-top: 0; }
+.advmeter-k { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* THE TRACK HAS TO BE VISIBLE OR THE BAR IS NOT A BAR. It was `--sunken`,
+   which is the colour of the card these sit inside — so every fill read as a
+   loose pill floating in the middle of the row with nothing to measure it
+   against. `--line-2` is the same hairline family the rules above use. */
+.advmeter-bar {
+  height: 8px; border-radius: 999px; background: var(--line-2);
+  overflow: hidden; display: block;
+}
+.advmeter-bar > span { display: block; height: 100%; border-radius: 999px; }
+.advmeter-v { white-space: nowrap; font-size: 13px; }
+
+/* SEVEN COLUMNS. Not a trend — a fixed comparison, which is the distinction
+   the component's own header draws. A day with no work still draws its track,
+   so the shape of the week is legible rather than a row of gaps. */
+.advweek { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; align-items: end; }
+.advweek > span { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.advweek-bar {
+  width: 100%; height: 64px; border-radius: var(--r-inset);
+  corner-shape: var(--corner);
+  /* Same fix as the meter track: `--sunken` is the colour of the card these
+     sit in, so a day with no work drew nothing at all and the week read as
+     two blocks floating in space rather than as seven days, five of them
+     empty. The empty track IS the information here. */
+  background: var(--line-2); display: flex; align-items: flex-end; overflow: hidden;
+}
+.advweek-bar > span {
+  width: 100%; background: var(--ac); border-radius: var(--r-inset);
+  corner-shape: var(--corner);
+}
+.advweek-d { font-size: 12px; color: var(--text-muted); }
+
+/* THE 320 FLOOR. The meter's middle column is the first thing to go: at that
+   width the name and the figure are the information and the bar is not. */
+@media (max-width: 360px) {
+  .advmeter { grid-template-columns: minmax(0, 1fr) 56px auto; gap: var(--sp-2); }
+  .advlede { font-size: 19px; }
+}

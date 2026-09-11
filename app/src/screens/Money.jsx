@@ -54,6 +54,11 @@ import BulkJobModal from "../components/BulkJobModal.jsx";
 import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
 import { Segmented } from "../components/controls.jsx";
 import RecordHost from "../components/RecordHost.jsx";
+import AdvancedMoney from "../components/AdvancedMoney.jsx";
+// ROADMAP 8.9 — the same arithmetic the advanced screen runs, used here for
+// exactly one cell. His own late ask: *"I think you really should add, like,
+// our most popular packages... even just on the regular money page."*
+import { advancedMoney } from "../lib/moneyAdvanced.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
@@ -187,6 +192,11 @@ export default function Money() {
   const [selected, setSelected] = useState(null);
   const [markingPaid, setMarkingPaid] = useState(null);
   const [sent, setSent] = useState("");
+  // THE FULL PICTURE, BEHIND A BUTTON — his word for it, twice, and the
+  // everyday screen stays four figures because of it. It is a MODE of this
+  // screen rather than a route: same rows, same period control above it, and
+  // closing it puts the detailer back exactly where they were.
+  const [advanced, setAdvanced] = useState(false);
 
   const loadExtras = useCallback(async () => {
     const [e, li, up] = await Promise.all([
@@ -275,6 +285,17 @@ export default function Money() {
     };
   }, [bookings, expenses, lineItems, period, previous, buckets]);
 
+  // ONE FIGURE OUT OF THE ADVANCED SET, ON THE EVERYDAY SCREEN. Which package
+  // sells most is the only one of those figures that changes what a detailer
+  // does TOMORROW, which is why it earns a place beside four that describe
+  // today. The whole set is one call and the rest is discarded — cheaper than
+  // a second, subtly different tally of the same rows, which is how two
+  // screens start disagreeing about the same fact.
+  const top = useMemo(
+    () => advancedMoney({ bookings, expenses, lineItems, period, previous }).packages[0] ?? null,
+    [bookings, expenses, lineItems, period, previous],
+  );
+
   const markPaid = async (b) => {
     setMarkingPaid(b.id);
     try {
@@ -342,6 +363,51 @@ export default function Money() {
     setSent(`Saved as ${name}`);
   };
 
+  // THE PERIOD CONTROL IS LIFTED OUT OF THE SCREEN'S BODY — roadmap 8.9.
+  // **The advanced view renders it too, and rendering it TWICE from two
+  // copies is how one of them quietly stops matching the other.** It is the
+  // one control that decides every figure on this tab, in both modes, so it
+  // has exactly one definition.
+  const periodControl = (
+        <div className="moneyhead" data-tour="period">
+          <Segmented label={t("Time range")} value={kind} options={PERIOD_KINDS}
+            onChange={(k) => { setKind(k); setOffset(0); }} />
+          {/* Lifetime does not step: there is only one of it. */}
+          <div className="moneyhead-when">
+            {kind === "all" ? null : (
+              <button className="btn ghost icon" aria-label={t("Previous period")}
+                onClick={() => setOffset(offset - 1)}>
+                <ChevronLeft size={18} strokeWidth={2} />
+              </button>
+            )}
+            <span className="strong">{period.label}</span>
+            {kind === "all" ? null : (
+              <button className="btn ghost icon" aria-label={t("Next period")}
+                disabled={offset >= 0}
+                onClick={() => setOffset(offset + 1)}>
+                <ChevronRight size={18} strokeWidth={2} />
+              </button>
+            )}
+            {/* "EXPORT FOR MY ACCOUNTANT" WAS THE WHOLE ROW AND THREE WORDS TOO
+                LONG — the owner, 2026-09-02: "they may go by a different name.
+                Maybe they're not even exporting for the accountant… it's weird
+                to have a button that says exclusively export for my accountant.
+                And it takes up an entire line, which, screen space is valuable."
+                The label is what the button DOES; who the file is for is the
+                detailer's business. It rides the period line, which had room to
+                spare at every width, and it says which period it takes to
+                anyone listening to the screen rather than looking at it. */}
+            {exportable && (
+              <button className="btn sm inline export" data-tour="export" onClick={sendToAccountant}
+                aria-label={`Export ${period.label}`}>
+                <Download strokeWidth={2} /> {t("Export")}
+              </button>
+            )}
+          </div>
+          {sent && <span className="quiet sent" aria-live="polite">{sent}</span>}
+        </div>
+  );
+
   // ─── WHAT DID I MAKE ────────────────────────────────────────────────────
   const left = (
     <>
@@ -355,43 +421,7 @@ export default function Money() {
           what every dashboard that does this does. Changing the length keeps
           you on the current one rather than trying to map "three months ago"
           onto weeks. */}
-      <div className="moneyhead" data-tour="period">
-        <Segmented label={t("Time range")} value={kind} options={PERIOD_KINDS}
-          onChange={(k) => { setKind(k); setOffset(0); }} />
-        {/* Lifetime does not step: there is only one of it. */}
-        <div className="moneyhead-when">
-          {kind === "all" ? null : (
-            <button className="btn ghost icon" aria-label={t("Previous period")}
-              onClick={() => setOffset(offset - 1)}>
-              <ChevronLeft size={18} strokeWidth={2} />
-            </button>
-          )}
-          <span className="strong">{period.label}</span>
-          {kind === "all" ? null : (
-            <button className="btn ghost icon" aria-label={t("Next period")}
-              disabled={offset >= 0}
-              onClick={() => setOffset(offset + 1)}>
-              <ChevronRight size={18} strokeWidth={2} />
-            </button>
-          )}
-          {/* "EXPORT FOR MY ACCOUNTANT" WAS THE WHOLE ROW AND THREE WORDS TOO
-              LONG — the owner, 2026-09-02: "they may go by a different name.
-              Maybe they're not even exporting for the accountant… it's weird
-              to have a button that says exclusively export for my accountant.
-              And it takes up an entire line, which, screen space is valuable."
-              The label is what the button DOES; who the file is for is the
-              detailer's business. It rides the period line, which had room to
-              spare at every width, and it says which period it takes to
-              anyone listening to the screen rather than looking at it. */}
-          {exportable && (
-            <button className="btn sm inline export" data-tour="export" onClick={sendToAccountant}
-              aria-label={`Export ${period.label}`}>
-              <Download strokeWidth={2} /> {t("Export")}
-            </button>
-          )}
-        </div>
-        {sent && <span className="quiet sent" aria-live="polite">{sent}</span>}
-      </div>
+      {periodControl}
 
       {/* CHANGING THE PERIOD IS A SWAP — the owner, 2026-09-03: "when I switch
           between year, month, six months, year, lifetime, it kinda does that
@@ -488,6 +518,17 @@ export default function Money() {
           <hr className="rule" />
 
           {/* The split the old screen had and this one didn't. */}
+          {/* ROADMAP 8.9 — *"most popular packages"*, his own addition, on the
+              everyday screen as well as the advanced one. The count rides with
+              it because "Express Wash" alone does not say whether that is four
+              jobs or forty. */}
+          {top && (
+            <div className="paircells tight-rows">
+              <Cell label={t("Most booked")} value={top.name} />
+              <Cell label={t("Times booked")} value={`${top.count} · ${money(top.total)}`} />
+            </div>
+          )}
+
           <div className="paircells tight-rows">
             <Cell label={t("Quoted up front")} value={money(stats.quoted)} />
             <Cell label={t("Added on site")}
@@ -514,6 +555,13 @@ export default function Money() {
         </div>
         </div>
       )}
+
+      {/* BEHIND A BUTTON — his word for it, twice. The everyday screen
+          answers *how am I doing*; this answers *how am I really doing*,
+          and putting the second one on the first screen is how four figures
+          become eighteen for somebody who only wanted the four. */}
+      <button className="btn ghost" style={{ marginTop: 4 }}
+        onClick={() => setAdvanced(true)}>{t("The full picture")}</button>
     </>
   );
 
@@ -633,6 +681,25 @@ export default function Money() {
       )}
     </>
   );
+
+  // THE FULL PICTURE TAKES THE WHOLE AREA, at every width. It is eighteen
+  // figures in six groups — a second column beside that is a second thing to
+  // read at the same time, and the one on the right would be the unpaid list,
+  // which this screen answers properly two groups down. One `.group` under
+  // `.app-main` also means it arrives with the screen's own stagger and needs
+  // no entrance of its own (CLAUDE.md § ANYTHING THAT OPENS).
+  if (advanced) {
+    return (
+      <div className={`group${refreshing ? " refreshing" : ""}`} aria-busy={refreshing || undefined}>
+        <h1 className="display">{t("Money")}</h1>
+        {(error || extrasError) && <div className="error-box">{error || extrasError}</div>}
+        {periodControl}
+        <AdvancedMoney bookings={bookings} expenses={expenses} lineItems={lineItems}
+          period={period} previous={previous} onClose={() => setAdvanced(false)} />
+        {modals}
+      </div>
+    );
+  }
 
   return wide ? (
     <div className={`split money${refreshing ? " refreshing" : ""}`} aria-busy={refreshing || undefined}>
