@@ -1337,6 +1337,60 @@ report.
 **Never remove a field because software filled it in.** Prefill it and let the
 person correct it.
 
+**THE KIT IS `app/src/components/controls.jsx` AND YOU REACH FOR IT BEFORE YOU
+WRITE A COMPONENT.** `Setting`, `Switch`, `Segmented`, `DurationChoice`,
+`Stepper`, `MoneyField`, `HourChoice`, `Group`, `PasswordInput`, and **`Folded`**
+— a settings row that states its current value and opens onto the settings it
+has put away, for the ones with a default nobody changes. `Folded` is the
+Business tab's own `.nav-row` used as the `<summary>` of the native `<details>`
+behind `.disclose`: two of this product's patterns meeting, not a third idea.
+**Its summary must state the CURRENT SETTING in words** — a row that says only
+"Reminders" has hidden something, where "Reminders · one the day before, one
+three hours out" has answered it. A caller that cannot write that sentence
+leaves its settings open instead. If none of the kit fits, ask before building.
+
+## FOUR WAYS A BROWSER MEASUREMENT LIES — every one has already produced a false reading, 2026-09-12
+
+**All four were found in one day, three of them by an outside reviewer whose
+tooling was sound.** A measurement is evidence only if you know what it counts.
+
+**(a) A CLOSED `<details>` KEEPS ITS CHILDREN LAID OUT.** Chromium hides them
+with `content-visibility: hidden`, which leaves elements measurable and
+unpainted rather than removing them, so `querySelectorAll` and `getClientRects`
+both report twelve buttons on a screen showing one row. **Count with
+`el.checkVisibility({ checkVisibilityCSS: true, contentVisibilityAuto: true })`,
+or measure the CONTAINER'S own `offsetHeight`** — never the child count. Cost:
+a finished item reported as unfinished.
+
+**(b) `innerText` INCLUDES `<option>` TEXT.** Every `<select>` in this product
+therefore reads as a long inline list of values to any text extractor. That is
+where *"twenty-four hours rendered as chips"* and *"the timezone list dumps
+hundreds of cities"* both came from; both controls were ordinary closed
+drop-downs. **If a description implies something is RENDERED and you measure a
+`<select>`, the description is wrong, not the code — say so and stop.**
+
+**(c) `pushState` DOES NOT RE-RENDER THE ROUTER'S HOST.** A sweep that
+navigates that way measures ONE screen N times and comes back entirely green —
+22 settings screens with byte-identical numbers. **Click the row.** This is the
+repo's oldest failure wearing new clothes: a skipped check reads exactly like a
+passing one.
+
+**(d) A BACKGROUND TAB PAUSES CSS ANIMATIONS.** Every `section.tight` arrives
+through the `arrive` keyframe, so in a tab that is not fronted they sit at
+`opacity: 0` for ever. Two consequences: a visibility check including
+`opacityProperty` calls the whole screen invisible, and **a screenshot of a
+backgrounded tab shows an empty-looking page** — the probable cause of one
+withdrawn "the left half of the screen is empty" finding. **Front the tab
+before measuring opacity or taking a screenshot**, and where you cannot, use
+`checkVisibility` WITHOUT `opacityProperty`.
+
+**AND THE RULE THEY SHARE, WHICH IS THE ONE TO REMEMBER:** a green result from
+an instrument nobody has checked is worth less than no result, because it stops
+the search. `scripts/sweep-widths.mjs:605` printed *clean* over 38 real
+findings; `tests/spanish.test.mjs` passed 58 while half a screen rendered
+English; the `pushState` sweep passed 22 screens it never visited. **Break the
+instrument on purpose before you believe it.**
+
 **THE VOICE IS PLAIN AND DIRECT, AND THIS RULE IS FIRM.** All text stays in the
 voice the product already has. No startup register: nothing "seamless",
 "effortless", "powerful", "supercharged", "take it to the next level", "we've
