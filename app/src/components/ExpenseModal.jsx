@@ -31,6 +31,37 @@ import { useAppLocale } from "../hooks/useAppLocale.js";
 
 const CATEGORIES = ["product", "gas", "equipment", "supplies", "other"];
 
+// **THE CAPITAL LETTER IS IN THE STRING, NOT IN A STYLESHEET — Claude Cowork's
+// ruling, 2026-09-12.** `text-transform: capitalize` used to do this, on the
+// advanced screen and on these chips, and his two reasons are why it is gone
+// rather than adjusted:
+//
+// **1 · CSS CANNOT TELL WHOSE WORDS IT IS TRANSFORMING.** Choosing *other*
+// stores whatever the detailer typed AS the category, so the same rule that
+// capitalised our five tokens also rewrote his "microfiber towels (bulk)" into
+// "Microfiber Towels (Bulk)". The distinction this product draws everywhere
+// else — our copy is ours, his is his — is one the instrument is incapable of
+// making. So it is the wrong instrument, not a wrong setting.
+//
+// **2 · CAPITALISATION IS NOT UNIVERSAL.** Spanish does not capitalise common
+// nouns, so forcing "Producto" and "Gasolina" was wrong the moment the toggle
+// existed, and no CSS rule can know that either.
+//
+// **THE FOURTH AXIS THEREFORE HOLDS IN CSS AS WELL AS IN COPY** (CLAUDE.md).
+// A token not in this map is the detailer's own word: it misses the map, misses
+// the catalogue, and renders exactly as he typed it.
+export const CATEGORY_WORDS = {
+  product: "Product",
+  gas: "Gas",
+  equipment: "Equipment",
+  supplies: "Supplies",
+  // "Otro" keeps its capital in Spanish and the other four do not, which is
+  // the rule rather than an exception to it: his reason was common nouns, and
+  // this one is a determiner standing alone as a label. It also shares the
+  // catalogue entry the website form already uses.
+  other: "Other",
+};
+
 export default function ExpenseModal({ onClose, onSaved }) {
   useAppLocale();
   const { business } = useBusiness();
@@ -94,10 +125,10 @@ export default function ExpenseModal({ onClose, onSaved }) {
             <button
               key={c}
               className={`chip ${category === c ? "active" : ""}`}
-              style={{ minHeight: 44, textTransform: "capitalize" }}
+              style={{ minHeight: 44 }}
               onClick={() => setCategory(c)}
             >
-              {t(c)}
+              {t(CATEGORY_WORDS[c] ?? c)}
             </button>
           ))}
         </div>

@@ -52,7 +52,7 @@ import { accountantCsv, accountantFilename } from "../lib/accountant-export.js";
 // number rather than one per screen.
 import { RATE_FLOOR } from "../lib/moneyAdvanced.js";
 import { api } from "../lib/api.js";
-import ExpenseModal from "../components/ExpenseModal.jsx";
+import ExpenseModal, { CATEGORY_WORDS } from "../components/ExpenseModal.jsx";
 import BulkJobModal from "../components/BulkJobModal.jsx";
 import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
 import { Segmented } from "../components/controls.jsx";
@@ -678,7 +678,7 @@ export default function Money({ onGo }) {
                   <div>
                     <div className="body">{e.description}</div>
                     <div className="quiet" style={{ marginTop: 2 }}>
-                      {new Date(`${e.date}T12:00:00`).toLocaleDateString(appIntlLocale(), { month: "short", day: "numeric" })} · {t(e.category)}
+                      {new Date(`${e.date}T12:00:00`).toLocaleDateString(appIntlLocale(), { month: "short", day: "numeric" })} · {t(CATEGORY_WORDS[e.category] ?? e.category)}
                     </div>
                   </div>
                   <div className="body num">{money(e.amount)}</div>

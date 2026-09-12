@@ -734,11 +734,13 @@ export const appEs = {
   // whatever he typed as the category. `t()` returns a string it has never
   // seen unchanged, so his typing passes through untranslated, which is the
   // rule — our copy is ours, his is his.
-  "product": "producto",
-  "gas": "gasolina",
-  "equipment": "equipo",
-  "supplies": "insumos",
-  "other": "otro",
+  // The four expense categories. LOWERCASE IN SPANISH, because Spanish does
+  // not capitalise common nouns — the capital in the English is in the string
+  // now, and `text-transform` is gone. See `ExpenseModal.jsx`.
+  "Product": "producto",
+  "Gas": "gasolina",
+  "Equipment": "equipo",
+  "Supplies": "insumos",
   // ── WHAT A BROWSER WALK IN SPANISH FOUND, 2026-09-12 ─────────────────────
   // Every one of these rendered in English with the toggle set to Spanish,
   // and every one is invisible to `i18n-coverage.mjs`: a bare literal, or a

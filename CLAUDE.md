@@ -1652,6 +1652,35 @@ column holding somebody's own words stops there** — service names and
 descriptions, plan descriptions, FAQ answers, reviews, message templates once
 edited, anything typed into a settings field.
 
+**AND A STYLESHEET CAN EDIT A USER'S WORDS TOO — Claude Cowork's ruling,
+2026-09-12. The axis holds in CSS, not only in copy.** `.advmeter.cap` carried
+`text-transform: capitalize` so the four expense categories would read *Product,
+Gas, Equipment, Supplies*. Choosing *other* on the expense form stores whatever
+the detailer TYPED as the category, so the same rule rewrote his "microfiber
+towels (bulk)" into "Microfiber Towels (Bulk)". **The comment above that rule
+had admitted the problem for months** — *"an expense category is whatever the
+detailer typed… this is a display rule"* — which is the tell that somebody knew
+and reached for a stylesheet anyway.
+
+**HIS TWO REASONS, AND THE SECOND IS THE ONE THAT GENERALISES:**
+
+- **`text-transform` cannot tell whose words it is transforming.** The
+  distinction this whole section is about is one the instrument is incapable of
+  making, so it is **the wrong instrument, not a wrong setting.** No value of
+  `text-transform` fixes it.
+- **CAPITALISATION IS NOT UNIVERSAL.** Spanish does not capitalise common nouns,
+  so *"Producto"* and *"Gasolina"* were wrong the moment the language toggle
+  existed, and a CSS rule cannot know that either. **A rule that decides casing
+  decides it for every language at once.**
+
+**SO THE CAPITAL GOES IN THE STRING.** `ExpenseModal.jsx`'s `CATEGORY_WORDS`
+maps the stored token to the English word, `appEs.js` carries the Spanish in the
+case Spanish wants, and a token in neither is the detailer's own — it misses the
+map, misses the catalogue, and renders exactly as he typed it. **The general
+form: any display-layer transform of text — case, truncation, an added suffix,
+a forced ellipsis — is a rule about words, so ask whose words can reach it
+before you write it.**
+
 **THE ONE THING THAT DOES FOLLOW: THE SEED IS OURS.** `scripts/seed-demo.mjs`
 is what every demo, every screenshot and every sales conversation shows, so it
 models the writing we would want even in fields we do not govern. Fix the seed

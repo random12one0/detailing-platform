@@ -3965,11 +3965,12 @@ html:not(.lite) .intake .samp-move .samp-row:nth-child(3) { animation-delay: .5s
   }
   .advmeter-k { grid-column: auto; }
 }
-/* An expense category is whatever the detailer typed, and they type in lower
-   case. The stored value is left exactly as it was — this is a display rule,
-   because rewriting somebody else's word is how "gas" and "Gas" become two
-   categories that do not add up. */
-.advmeter.cap .advmeter-k { text-transform: capitalize; }
+/* THERE IS NO `text-transform` HERE ANY MORE. It used to capitalise the
+   expense category, and the comment that stood here admitted the problem it
+   could not solve: an expense category is whatever the detailer typed. CSS
+   cannot tell his word from one of ours, and Spanish does not capitalise common
+   nouns either, so the capital lives in the string — `ExpenseModal.jsx`'s
+   `CATEGORY_WORDS`. Claude Cowork's ruling, 2026-09-12. */
 .advmeter:first-child { border-top: 0; }
 /* IT ONLY ELLIPSISES WHEN IT IS SHARING A LINE. On its own row it wraps, which
    is the whole point of giving it one: a detailer's service name is as long as
