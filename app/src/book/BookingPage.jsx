@@ -345,7 +345,7 @@ function BookingFlow({ notFound = null }) {
           if (i === 0) throw e;
           setSubmitError(
             `Your first car is booked. The time for the ${NTH[i] ?? `car ${i + 1}`} `
-            + `was taken while you were filling this in — please book it separately. (${e.message})`,
+            + `was taken while you were filling this in. Please book it separately. (${e.message})`,
           );
           setSubmitting(false);
           return;

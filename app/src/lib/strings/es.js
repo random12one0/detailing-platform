@@ -399,6 +399,11 @@ export const es = {
   // everything they ordered instead of printing one total, so the receipt's
   // own labels need Spanish. The rest ("Travel", "Promo {code}", "Vehicle
   // size", the four conditions) were already here from StepReview.
+  "That address needs something after the dot, like .com.":
+    "Esa dirección necesita algo después del punto, como .com.",
+  "That address has two @ symbols.": "Esa dirección tiene dos símbolos @.",
+  "That address will not work. Check it over.":
+    "Esa dirección no va a funcionar. Revísala.",
   "That address is missing an @. We cannot send your confirmation to it.":
     "Esa dirección no tiene @. No podemos enviarte tu confirmación ahí.",
   "Rounded down to the nearest dollar.": "Redondeado hacia abajo al dólar más cercano.",

@@ -374,7 +374,7 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
               the booking they are looking at. */}
           {(booking.vehicles ?? []).length > 0 && (
             <p className="bk-muted" style={{ marginTop: 6 }}>
-              {`${t("{n} vehicles", { n: (booking.vehicles ?? []).length + 1 })} — `}
+              {`${t("{n} vehicles", { n: (booking.vehicles ?? []).length + 1 })} · `}
               {[
                 [booking.vehicle_model, booking.vehicle_size_label].filter(Boolean).join(" "),
                 ...[...(booking.vehicles ?? [])]
@@ -576,7 +576,7 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
                     weekday: "short", month: "long", day: "numeric",
                   })} · {time12(g.start_time)}
                   <span className="bk-muted">
-                    {` — ${[g.vehicle_model, g.vehicle_size_label].filter(Boolean).join(" ") || t("Vehicle")}`}
+                    {` · ${[g.vehicle_model, g.vehicle_size_label].filter(Boolean).join(" ") || t("Vehicle")}`}
                   </span>
                 </span>
                 <span className="bk-price">{money(g.total_price)}</span>

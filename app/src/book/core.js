@@ -602,6 +602,29 @@ export const monthHasNothing = (days) =>
 // address eventually; this one only refuses what cannot work.
 export const looksLikeEmail = (v) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(v ?? "").trim());
 
+// **AND WHICH WAY IT IS WRONG, BECAUSE ONE SENTENCE FOR THREE FAULTS SENDS
+// PEOPLE TO THE WRONG PLACE — 2026-09-12.** The step said *"That address is
+// missing an @"* for every refusal, so `andrew@gmail` and `andrew@@gmail.com`
+// were both told to add a symbol already on the screen, on the last step
+// before booking. **Correct rejection, wrong reason — and a wrong reason is
+// worse than none, because it is actionable in the wrong direction.**
+//
+// Exported beside the test itself so a tenant's own form gets the naming and
+// not only the refusal: the wording is the page's, the DIAGNOSIS is a rule.
+// Order matters — count the `@` first, because "two @ symbols" is true of a
+// string that also has no dot after the last one.
+export function emailFault(v) {
+  const t = String(v ?? "").trim();
+  if (!t) return null;                                   // nothing typed is not a fault
+  if (looksLikeEmail(t)) return null;
+  const at = (t.match(/@/g) ?? []).length;
+  if (at === 0) return "missing-at";
+  if (at > 1) return "two-ats";
+  const after = t.slice(t.lastIndexOf("@") + 1);
+  if (!after.includes(".") || /\.$/.test(t)) return "missing-dot";
+  return "unusable";                                     // spaces, or an empty side
+}
+
 export function canAdvance(stepName, { form, settings, quote, quoting }) {
   const s = normalizeSettings(settings);
   switch (stepName) {

@@ -141,7 +141,15 @@ export default function StepLocation({ form, setForm, modeLimit }) {
                 onChange={(e) => setForm((f) => ({ ...f, travelZone: e.target.value }))}>
                 {settings.travel_zones.map((z) => (
                   <option key={z.key} value={z.key}>
-                    {z.name}{Number(z.fee) > 0 ? ` — +${money(z.fee)}` : ""}
+                    {/* **THE DASH A LITERAL SWEEP CANNOT SEE — 2026-09-12.**
+                        A travel area's NAME is joined to its FEE here, at
+                        render time, so the dash lives in a template and not in
+                        a `t("…")` string. Sixty-five were swept out of the
+                        literals and this one survived, which is why CLAUDE.md
+                        now says to sweep the JOINS as well. By the ruling it
+                        is a label separator, so it takes the middle dot the
+                        product already uses everywhere. */}
+                    {z.name}{Number(z.fee) > 0 ? ` · +${money(z.fee)}` : ""}
                   </option>
                 ))}
               </select>
