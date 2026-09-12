@@ -173,7 +173,32 @@ export default function App() {
   // Whether the guide on screen was ASKED FOR or arrived by itself. The two
   // deserve different behaviour when there is nothing to point at.
   const asked = useRef(false);
-  const [tab, setTab] = useState(deepLink.current === "payments" ? "business" : "today");
+  // **`/app/money` OPENED TODAY, AND SO DID THE OTHER FOUR — measured
+  // 2026-09-11 with all five loaded one at a time.**
+  //
+  // `TAB_PATHS` and the five routes in `main.jsx` have existed since the
+  // catch-all became a 404 page, and this file's own note above says why they
+  // were added: *"without this list `/app/nonsense` would be the one address
+  // left in the product that silently pretends to exist."* They were built to
+  // stop a 404 and nothing ever read them back — so every one of those five
+  // addresses resolved, rendered, and showed Today.
+  //
+  // Nothing could report it. The route works, a real screen draws, there is no
+  // console error and no geometry break; the only tell is that the heading
+  // names a different tab from the address, which is the same shape as
+  // `?setup=1` opening the website brief. **A link that resolves to the wrong
+  // screen is worse than one that 404s**, because the person who followed it
+  // believes they are looking at what they asked for — and these are the
+  // addresses on his own `/map.html`.
+  //
+  // A DEEP LINK INTO SETTINGS STILL WINS, because `?settings=payments` names a
+  // screen and the path only names a tab; the more specific of the two is the
+  // one somebody typed on purpose.
+  const [tab, setTab] = useState(() => {
+    if (deepLink.current === "payments") return "business";
+    const fromPath = window.location.pathname.replace(/^\/app\/?/, "").split("/")[0];
+    return TAB_PATHS.includes(fromPath) ? fromPath : "today";
+  });
   // WHAT A SCREEN WAS OPENED *FOR* — roadmap 2.19, and it is one string
   // because there is one case. Today's re-book prompt has to land on Clients
   // with the "not seen in 3 months" filter already on: sending somebody to a

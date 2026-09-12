@@ -4068,6 +4068,60 @@ html:not(.lite) .intake .samp-move .samp-row:nth-child(3) { animation-delay: .5s
 }
 .tokedit:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
+/* ── THE FULL PICTURE'S TILES ───────────────────────────────────────────────
+   **HIS REVIEW, 2026-09-11:** *"with everything in rows, it takes up a ton of
+   space… everything's just a simple number in a row… I'm bored of just kind of
+   looking through and having to read at every what the title is and what the
+   number means."*
+
+   TWO ACROSS ON A PHONE AND FOUR AT A DESK, and the count is `auto-fit` rather
+   than a breakpoint: a panel with two tiles and a panel with four both want to
+   fill their row, and a fixed column count gives one of them a hole. 132px is
+   the narrowest a money figure and its name read at — below that the 320 floor
+   collapses it to one column on its own.
+
+   THE FIGURE IS THE THING YOU LAND ON. It is set at the row's old label size
+   and the LABEL is set at the row's old value size — the swap is the whole
+   point, because in a row the eye met the name first and had to carry it to
+   the number. */
+.advkpis {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: var(--sp-4) var(--sp-3);
+}
+/* A PAIR DOES NOT SPREAD ACROSS A DESK. Two tiles in a 1140px panel were 570px
+   apart with nothing between them, which reads as a layout that lost something
+   rather than as two related figures. Capped, so a pair sits together and a
+   four still fills the row. */
+.advkpis.two  { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); max-width: 620px; }
+/* THREE MUST STAY THREE AT 392, or the last tile orphans onto a row of its own
+   and reads as something that fell off. 92px fits three plus the gaps in the
+   328px a panel has on a phone; the labels wrap to two lines there, which is
+   what a label is allowed to do and a figure is not. */
+.advkpis.three { grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); }
+@media (max-width: 360px) {
+  /* THE 320 FLOOR. A money figure with two decimals is ~110px at this size, so
+     two columns leave nothing for the name under it. */
+  .advkpis, .advkpis.two, .advkpis.three { grid-template-columns: 1fr; gap: var(--sp-3); }
+}
+.advkpi { min-width: 0; }
+.advkpi-v {
+  font-size: var(--t-strong); font-weight: 600; line-height: 1.15;
+  letter-spacing: -0.02em; overflow-wrap: anywhere;
+}
+.advkpi-l {
+  font-family: var(--f-body);
+  font-variation-settings: "wdth" var(--wdth-lab), "wght" 620;
+  font-size: var(--t-label); letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text-muted);
+  margin-top: 3px;
+}
+.advkpi .delta { margin-top: 5px; display: inline-flex; }
+.advkpi-n { font-size: var(--t-meta); color: var(--text-muted); margin-top: 3px; line-height: 1.4; }
+
+/* WHAT THE BLOCK IS FOR, in one sentence, above the box rather than inside it
+   — it belongs to the heading, not to the first figure. */
+.advsays { font-size: var(--t-meta); color: var(--text-muted); line-height: 1.45; margin-bottom: 2px; }
+
 /* A DETAIL, AS ONE OBJECT. Reads as a thing that will be replaced rather than
    as words that were typed — which is the whole point, and why it takes the
    accent's quiet fill rather than looking like more text. */
@@ -4108,3 +4162,20 @@ html:not(.lite) .intake .samp-move .samp-row:nth-child(3) { animation-delay: .5s
   font-size: var(--t-body); line-height: 1.45;
   white-space: pre-wrap; word-break: break-word;
 }
+
+/* A DOOR TO ANOTHER SCREEN, WITH ITS REASON ON IT. Money's link to Tracking
+   links (2026-09-11): a `.btn.ghost` gives it the row's tap target and the
+   quiet weight, and this only adds the two-line label and the chevron. It is
+   NOT a `.nav-row` — those live inside a settings card and this one stands on
+   its own under a stack of figures. */
+.btn.linkdoor {
+  justify-content: flex-start; gap: var(--sp-3); text-align: left;
+  padding: var(--sp-4); height: auto; min-height: var(--tap); margin-top: var(--sp-3);
+}
+.btn.linkdoor > span { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.btn.linkdoor b { font-size: var(--t-body); font-weight: 600; }
+.btn.linkdoor small {
+  font-size: var(--t-meta); color: var(--text-muted); font-weight: 400;
+  line-height: 1.4; white-space: normal;
+}
+.btn.linkdoor .linkdoor-go { color: var(--text-muted); flex-shrink: 0; }

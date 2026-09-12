@@ -40,7 +40,7 @@
 // booking_line_items, and TIPS.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Download, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, Link2 as LinkIcon, Plus } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { useBookings, withLocal, BOOKING_SELECT } from "../hooks/useBookings.js";
@@ -562,6 +562,28 @@ export default function Money({ onGo }) {
           become eighteen for somebody who only wanted the four. */}
       <button className="btn ghost" style={{ marginTop: 4 }}
         onClick={() => setAdvanced(true)}>{t("The full picture")}</button>
+
+      {/* ── WHERE YOUR MONEY COMES FROM ────────────────────────────────
+          **HIS CALL, 2026-09-11, reversing his own earlier one:** *"the
+          through-your-links thing… should be a different tab or more
+          accessible, because right now it's kind of in the middle of all this
+          stuff… it should all be one GUI, and it should be outside of the
+          advanced pricing. I think that was the wrong call by me."*
+          So it is a door on the everyday screen instead of a block buried
+          eight sections into the advanced one. **A door, not a summary** —
+          Tracking links already prints opens, bookings, conversion and money
+          earned per link, and a second copy of those numbers here is how two
+          screens come to disagree.
+          The sentence is what the feature IS, because "Tracking links" names
+          the control and says nothing about why a detailer would want one. */}
+      <button className="btn ghost linkdoor" onClick={() => onGo?.("campaigns")}>
+        <LinkIcon strokeWidth={2} />
+        <span>
+          <b>{t("Where your money comes from")}</b>
+          <small>{t("Make a link for a flyer or a post, then see what it brought in.")}</small>
+        </span>
+        <ChevronRight strokeWidth={2} className="linkdoor-go" />
+      </button>
     </>
   );
 
@@ -696,7 +718,7 @@ export default function Money({ onGo }) {
         {periodControl}
         <AdvancedMoney bookings={bookings} expenses={expenses} lineItems={lineItems}
           period={period} previous={previous} onClose={() => setAdvanced(false)}
-          onManageLinks={() => onGo?.("campaigns")} />
+          />
         {modals}
       </div>
     );

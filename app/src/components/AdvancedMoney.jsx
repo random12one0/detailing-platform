@@ -48,7 +48,7 @@ import { useBusiness } from "../context/BusinessContext.jsx";
 // on every row. The page still drew, which is how it survived a first look:
 // an uncaught error in a `.then` leaves React holding the last good render.
 import { localDate, money } from "../lib/format.js";
-import { advancedMoney, whereFrom } from "../lib/moneyAdvanced.js";
+import { advancedMoney } from "../lib/moneyAdvanced.js";
 import { t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 
@@ -78,6 +78,57 @@ function Row({ label, value, note }) {
 // A named proportion. The bar is `aria-hidden` and the figure beside it is
 // the real content — a screen reader gets "Supplies, $60, 60%" and never a
 // div whose width is the information (law 1's accessibility floor).
+// **A TILE, NOT A ROW — his review of 2026-09-11, and it is the whole shape of
+// this screen now.** *"With everything in rows, it takes up a ton of space,
+// which I think was probably even a worse decision than even the boxes. But
+// everything's just a simple number in a row… even myself, I'm bored of just
+// kind of looking through and having to read at every what the title is and
+// what the number means."*
+//
+// A `label ......... value` row spends a whole line on one number and gives
+// the eye nothing to land on, so twenty of them is a page of homework. A tile
+// puts the FIGURE first at a size you can read across a van, its name under
+// it, and the change against last period beside it — three facts in the space
+// a row spent on one, and the important one is the one that is big.
+function Kpi({ label, value, now, prev, note, tone }) {
+  const diff = prev !== undefined && prev !== null && prev !== 0 && now !== undefined
+    ? (now - prev) / Math.abs(prev) : null;
+  // A CHANGE UNDER HALF A PERCENT IS NOISE and printing it as an arrow makes a
+  // flat period look like a moving one.
+  const move = diff !== null && Math.abs(diff) >= 0.005 ? diff : null;
+  return (
+    <div className="advkpi">
+      <div className="advkpi-v num" style={{ color: tone === "bad" ? "var(--bad)" : undefined }}>
+        {value}
+      </div>
+      <div className="advkpi-l">{label}</div>
+      {move !== null && (
+        <span className={`delta ${move > 0 ? "up" : "down"}`}>
+          {move > 0 ? "▲" : "▼"} {Math.round(Math.abs(move) * 100)}%
+        </span>
+      )}
+      {note && <p className="advkpi-n">{note}</p>}
+    </div>
+  );
+}
+
+// **AND EVERY BLOCK SAYS WHAT IT IS FOR.** The other half of his note: *"it's
+// kinda just hard to understand what this is actually showing you… it needs to
+// be visually a whole ton better at explaining what is actually here."* A
+// heading names a block; one plain sentence says what question it answers, and
+// that sentence is the difference between a figure somebody reads and a figure
+// somebody uses. One per block, never one per number — that would be the
+// clutter his 2026-09-01 rule is about.
+function Panel({ title, says, children }) {
+  return (
+    <div className="tight">
+      <span className="label">{title}</span>
+      {says && <p className="advsays">{says}</p>}
+      <div className="sunken">{children}</div>
+    </div>
+  );
+}
+
 function Meter({ name, value, share, tone, cap }) {
   return (
     <div className={`advmeter${cap ? " cap" : ""}`}>
@@ -92,7 +143,7 @@ function Meter({ name, value, share, tone, cap }) {
 }
 
 export default function AdvancedMoney({
-  bookings, expenses, lineItems, period, previous, onClose, onManageLinks,
+  bookings, expenses, lineItems, period, previous, onClose,
 }) {
   useAppLocale();
   const { business } = useBusiness();
@@ -106,7 +157,6 @@ export default function AdvancedMoney({
   // WHERE THEY CAME FROM. Two reads, only while this screen is open, and both
   // narrow: the links themselves, and every visit in the period. A visit row
   // is four short columns and a detailer's traffic is measured in hundreds.
-  const [sources, setSources] = useState(null);
   useEffect(() => {
     let on = true;
     // **`booking_date` IS NOT A COLUMN — it is derived in the browser.** The
@@ -134,30 +184,11 @@ export default function AdvancedMoney({
     return () => { on = false; };
   }, [business.id, business.timezone, period.start]);
 
-  useEffect(() => {
-    let on = true;
-    Promise.all([
-      supabase.from("campaigns").select("id, name, slug, is_active")
-        .eq("business_id", business.id).order("created_at", { ascending: false }),
-      // `created_at` IS UTC AND THE PERIOD IS A LOCAL DATE, so the window is
-      // asked for a day wide either side and the local date decides — the same
-      // two-step cut the history read above makes, for the same reason.
-      supabase.from("campaign_visits").select("campaign_id, visitor_id, referrer, created_at")
-        .eq("business_id", business.id)
-        .gte("created_at", `${period.start}T00:00:00`)
-        .lte("created_at", `${period.end}T23:59:59`),
-    ]).then(([c, v]) => {
-      if (!on) return;
-      if (c.error || v.error) { setSources({ failed: true }); return; }
-      setSources({
-        campaigns: c.data ?? [],
-        visits: (v.data ?? []).map((r) => ({
-          ...r, date: localDate(r.created_at, business.timezone),
-        })),
-      });
-    });
-    return () => { on = false; };
-  }, [business.id, business.timezone, period.start, period.end]);
+  // THE CAMPAIGN AND VISIT READS ARE GONE WITH THE BLOCK THEY FED (2026-09-11).
+  // Two queries on every open of this screen, for a summary that now lives on
+  // Tracking links — the page is one round trip lighter for it. `whereFrom` in
+  // `lib/moneyAdvanced.js` is still exported and still tested; it is that
+  // screen's arithmetic now, not this one's.
 
   const m = advancedMoney({ bookings, expenses, lineItems, period, previous, history });
 
@@ -172,9 +203,6 @@ export default function AdvancedMoney({
         { in: money(m.collected), out: money(m.spent), down: money(Math.abs(m.net)) });
 
   const busiest = m.week.reduce((a, d) => Math.max(a, d.jobs), 0);
-  const w = sources && !sources.failed
-    ? whereFrom({ campaigns: sources.campaigns, visits: sources.visits, bookings, period })
-    : null;
 
   return (
     <div className="advanced">
@@ -200,74 +228,105 @@ export default function AdvancedMoney({
       </div>
 
       {/* ── WHAT IT WAS WORTH ─────────────────────────────────────────── */}
-      <div className="tight">
-        <span className="label">{t("What it was worth")}</span>
-        <div className="sunken">
-          {/* HIS FAVOURITE FIGURE, AND IT IS THE ONLY ONE SET LARGE — *"this is
-              my favourite because I like to see kind of how much I make an
-              hour."* Hours are the BOOKED duration; nobody clocks in, and the
-              row says so when some jobs have no time on them rather than
-              printing a wage nobody can account for. */}
-          <span className="label">{t("Per hour, after expenses")}</span>
-          <div className="figure lead" style={{ marginTop: 4 }}>
-            {m.hours > 0 ? money(m.hourly) : "—"}
-          </div>
-          <p className="quiet" style={{ marginTop: 4 }}>
-            {m.hours > 0
-              ? t("{net} over {hours} hours booked", { net: money(m.net), hours: hrs(m.hours) })
-              : t("No job in this period has a length on it.")}
-            {m.hoursMissing > 0
-              ? ` · ${n(m.hoursMissing, "{count} job had no length and is not counted",
-                "{count} jobs had no length and are not counted")}`
-              : ""}
-          </p>
-          <hr className="rule" />
-          <Row label={t("Net")} value={money(m.net)} />
-          <Row label={t("Margin")} value={m.collected > 0 ? pct(m.margin) : "—"}
-            note={t("what you keep of every dollar")} />
-          <Row label={t("In the bank")} value={money(m.collectedPaid)} />
-          {/* STILL OWED IS THE ONE FIGURE HERE THAT IS A TO-DO RATHER THAN A
-              RESULT, so it is marked when it is not zero and silent when it is
-              — `--bad` is the product's fixed red and never the tenant's
-              accent (law 11b). */}
-          <Row label={t("Still owed")}
-            value={<span style={{ color: m.owed > 0 ? "var(--bad)" : undefined }}>{money(m.owed)}</span>}
+      {/* ONE HERO AND FOUR TILES, WHERE THERE WERE SIX ROWS. The hero is his
+          favourite figure and the only one set large — *"this is my favourite
+          because I like to see kind of how much I make an hour."* Hours are
+          the BOOKED duration; nobody clocks in, and it says so when some jobs
+          have no time on them rather than printing a wage nobody can account
+          for.
+          The four under it are what that hour is made of, and each carries its
+          own change against the same period one step back — which is the fact
+          a row could never fit and the one that tells a detailer whether to do
+          anything. */}
+      <Panel title={t("What it was worth")}
+        says={t("What you actually kept after everything you spent.")}>
+        <span className="label">{t("Per hour, after expenses")}</span>
+        <div className="figure lead" style={{ marginTop: 4 }}>
+          {m.hours > 0 ? money(m.hourly) : "—"}
+        </div>
+        <p className="quiet" style={{ marginTop: 4 }}>
+          {m.hours > 0
+            ? t("{net} over {hours} hours booked", { net: money(m.net), hours: hrs(m.hours) })
+            : t("No job in this period has a length on it.")}
+          {m.hoursMissing > 0
+            ? ` · ${n(m.hoursMissing, "{count} job had no length and is not counted",
+              "{count} jobs had no length and are not counted")}`
+            : ""}
+        </p>
+        <hr className="rule" />
+        <div className="advkpis">
+          <Kpi label={t("Net")} value={money(m.net)} now={m.net} prev={m.prevNet} />
+          <Kpi label={t("Margin")} value={m.collected > 0 ? pct(m.margin) : "—"}
+            note={t("kept of every dollar")} />
+          <Kpi label={t("Jobs done")} value={String(m.jobs)} now={m.jobs} prev={m.prevJobs} />
+          <Kpi label={t("Average job")} value={money(m.avgTicket)}
+            now={m.avgTicket} prev={m.prevAvgTicket} />
+        </div>
+      </Panel>
+
+      {/* ── STILL TO COLLECT ──────────────────────────────────────────── */}
+      {/* TWO FIGURES THAT ONLY MEAN ANYTHING TOGETHER, so they share a box —
+          his own instruction: *"maybe even things that are related could be in
+          one box."* Banked against owed is one question, not two numbers.
+          `--bad` is the product's fixed red and never the tenant's accent
+          (law 11b), and it is only spent when there is something to chase. */}
+      <Panel title={t("Still to collect")}
+        says={m.owed > 0
+          ? t("Work you have finished and not been paid for yet.")
+          : t("Everything finished in this period has been paid for.")}>
+        <div className="advkpis two">
+          <Kpi label={t("In the bank")} value={money(m.collectedPaid)} />
+          <Kpi label={t("Still owed")} value={money(m.owed)}
+            tone={m.owed > 0 ? "bad" : undefined}
             note={m.owed > 0 ? t("work finished, not paid for") : null} />
         </div>
-      </div>
+      </Panel>
 
       {/* ── WHAT CAME IN ──────────────────────────────────────────────── */}
-      <div className="tight">
-        <span className="label">{t("What came in")}</span>
-        <div className="sunken">
-          <Row label={t("Jobs done")} value={String(m.jobs)} />
-          <Row label={t("Average job")} value={money(m.avgTicket)} />
-          <hr className="rule" />
-          <Row label={t("Quoted up front")} value={money(m.quoted)} />
-          <Row label={t("Sold at the job")} value={money(m.onSite)} />
-          {/* **THE RATE, NOT ONLY THE MONEY — and this figure is not on his own
-              dashboard.** "$340 of upsells" is an outcome; "on 9 of 12 jobs" is
-              a habit, and a habit is the thing a detailer can decide to
-              change. */}
-          <Row label={t("How often you sell something extra")}
-            value={m.jobs > 0 ? pct(m.upsellRate) : "—"}
-            note={m.upsoldJobs > 0
-              ? t("{count} of {total} · {avg} each", {
-                count: m.upsoldJobs, total: n(m.jobs, "{count} job", "{count} jobs"),
-                avg: money(m.avgUpsell) })
+      {/* **QUOTED AGAINST SOLD ON SITE IS A PROPORTION, SO IT IS DRAWN AS
+          ONE.** Two money rows made a detailer do the division in their head
+          to answer the only question worth asking — how much of this month
+          came from selling once you were already there. A bar answers it
+          without any arithmetic, and the sentence under it is the HABIT
+          rather than the outcome: "$340 of upsells" is a result, "on 9 of 12
+          jobs" is something you can decide to do more of.
+          Tips keep their own line because they are money somebody CHOSE to
+          give, which is a different fact from a price, and the note says they
+          are only the ones written down at the job. */}
+      <Panel title={t("What came in")}
+        says={t("Where the money came from — what you quoted, and what you sold once you were there.")}>
+        <div className="advkpis two">
+          <Kpi label={t("Collected")} value={money(m.collected)}
+            now={m.collected} prev={m.prevCollected} />
+          <Kpi label={t("Sold at the job")} value={money(m.onSite)}
+            note={m.jobs > 0
+              ? t("on {count} of {total}", {
+                count: m.upsoldJobs, total: n(m.jobs, "{count} job", "{count} jobs") })
               : null} />
-          <hr className="rule" />
-          {/* TIPS ARE THE ONES THE DETAILER WROTE DOWN, and the note says so.
-              His own answer when asked: *"I always track my tips... it takes
-              the same amount of effort to add it as a tip and add it as just a
-              regular thing."* True of him; the note is for everyone else. */}
-          <Row label={t("Tips")} value={money(m.tipTotal)}
-            note={t("the ones you wrote down when finishing a job")} />
-          <Row label={t("Average tip")} value={m.tippedJobs > 0 ? money(m.avgTip) : "—"} />
-          <Row label={t("Jobs with a tip on them")}
-            value={m.jobs > 0 ? `${m.tippedJobs} ${t("of")} ${m.jobs}` : "—"} />
         </div>
-      </div>
+        {m.collected > 0 && (m.quoted > 0 || m.onSite > 0) && (
+          <>
+            <div className="advsplit" style={{ marginTop: "var(--sp-3)" }} aria-hidden="true">
+              <span className="kept" style={{ flex: Math.max(0, m.quoted) }} />
+              <span className="gone" style={{ flex: Math.max(0, m.onSite) }} />
+            </div>
+            <div className="advsplit-k quiet">
+              <span>{t("Quoted up front")} · {money(m.quoted)}</span>
+              <span>{t("Sold at the job")} · {money(m.onSite)}</span>
+            </div>
+          </>
+        )}
+        <hr className="rule" />
+        <div className="advkpis three">
+          <Kpi label={t("Sells an extra")} value={m.jobs > 0 ? pct(m.upsellRate) : "—"}
+            note={m.upsoldJobs > 0 ? t("{avg} each", { avg: money(m.avgUpsell) }) : null} />
+          <Kpi label={t("Tips")} value={money(m.tipTotal)}
+            note={t("only the ones you wrote down")} />
+          <Kpi label={t("Left a tip")}
+            value={m.jobs > 0 ? `${m.tippedJobs}/${m.jobs}` : "—"}
+            note={m.tippedJobs > 0 ? t("{avg} each", { avg: money(m.avgTip) }) : null} />
+        </div>
+      </Panel>
 
       {/* ── WHERE IT WENT ─────────────────────────────────────────────── */}
       <div className="tight">
@@ -327,128 +386,71 @@ export default function AdvancedMoney({
               ))}
             </div>
             <hr className="rule" />
-            <Row label={t("Busiest day")}
-              value={m.busiestDay ? t(m.busiestDay.name) : "—"}
-              note={m.busiestDay ? n(m.busiestDay.jobs, "{count} job", "{count} jobs") : null} />
-            <Row label={t("Best-paying day")}
-              value={m.bestDay ? t(m.bestDay.name) : "—"}
-              note={m.bestDay ? money(m.bestDay.total) : null} />
+            <div className="advkpis two">
+              <Kpi label={t("Busiest day")} value={m.busiestDay ? t(m.busiestDay.name) : "—"}
+                note={m.busiestDay ? n(m.busiestDay.jobs, "{count} job", "{count} jobs") : null} />
+              <Kpi label={t("Best-paying day")} value={m.bestDay ? t(m.bestDay.name) : "—"}
+                note={m.bestDay ? money(m.bestDay.total) : null} />
+            </div>
           </div>
         )}
       </div>
 
 
-      {/* ── WHERE THEY CAME FROM ──────────────────────────────────────── */}
-      {/* **HIS CORRECTION, 2026-09-10, AND IT IS ABOUT FRAMING AS MUCH AS
-          PLACE:** *"The campaign is less of, like, a campaign. I want it to be
-          more like a way to know where customers are coming from... maybe in
-          the money dashboard there's a way to set it up."* It lives here, on
-          the screen about how the business is doing, and the settings screen
-          stays as the place to add and edit the links themselves.
-
-          TWO HALVES, AND THE ASYMMETRY IS THE ARGUMENT. A link carries its own
-          name in the address, so a visit through it can be joined to the
-          booking that followed — those rows have people, bookings and money.
-          Everyone else is known only by where their browser says they came
-          from, so those rows have people and nothing else. Printing them
-          together is what makes the case for a link without a word of it. */}
-      <div className="tight">
-        <span className="label">{t("Where they came from")}</span>
-        {!sources ? (
-          <p className="quiet">{t("Counting…")}</p>
-        ) : sources.failed ? (
-          <p className="body">{t("Could not read your visits.")}</p>
-        ) : (
+      {/* ── WHERE THEY CAME FROM — GONE FROM THIS SCREEN, HIS CALL ─────── */}
+      {/* **2026-09-11, and he reversed his own earlier decision to put it
+          here:** *"the through-your-links thing, I think that should be a
+          different tab or more accessible, because right now it's kind of in
+          the middle of all this stuff… I think it should all be one GUI, and I
+          think it should be outside of the advanced pricing. I think that was
+          the wrong call by me."*
+          He is right, and the reason is sharper than placement: this screen
+          answers "how did the business do", and a link is something you SET UP
+          and then check. Two jobs, one page, and the setting-up half was
+          stranded eight blocks down where nobody would look for it.
+          **The whole feature lives on Tracking links** (`?settings=campaigns`),
+          which already has per-link opens, bookings, conversion and money
+          earned — everything the summary here was a thin copy of. Money links
+          to it rather than restating it, because a second copy of a number is
+          how two screens come to disagree. */}
+      {/* ── WHO ───────────────────────────────────────────────────────── */}
+      {/* NEW AGAINST RETURNING IS THE POINT OF THIS BLOCK, so it is a bar and
+          not four rows. Four counts that add up to each other are the exact
+          shape he was bored of reading; the proportion is the thing a detailer
+          can act on, and the two counts are printed under it for anyone who
+          wants them. */}
+      <Panel title={t("Who came")}
+        says={t("Whether this period was new faces or people coming back.")}>
+        {historyFailed && (
+          <p className="quiet" style={{ marginBottom: 8 }}>
+            {t("Could not check who had been before, so everyone below counts as new.")}
+          </p>
+        )}
+        <div className="advkpis two">
+          <Kpi label={t("People")} value={String(m.people)}
+            note={t("somebody who came twice is one person")} />
+          <Kpi label={t("Came back")} value={m.people > 0 ? pct(m.returnRate) : "—"} />
+        </div>
+        {m.people > 0 && (
           <>
-            {w.links.length === 0 && w.others.length === 0 ? (
-              <p className="body">
-                {t("Nobody has opened your booking page in this period.")}
-              </p>
-            ) : (
-              <div className="sunken">
-                {/* THE ONE FIGURE THAT SAYS HOW MUCH OF THIS IS MEASURED. On a
-                    dashboard with no links it reads "0 of 12", which is the
-                    honest answer and the whole reason to make one. */}
-                <Row label={t("Booked through one of your links")}
-                  value={`${w.bookedThroughLink} ${t("of")} ${w.bookedAtAll}`}
-                  note={t("the rest found you some other way")} />
-                <Row label={t("People who looked")} value={String(w.people)}
-                  note={n(w.visits, "{count} page open", "{count} page opens")} />
-              </div>
-            )}
-
-            {w.links.length > 0 && (
-              <>
-                <span className="label advsub">{t("Your links")}</span>
-                <div className="sunken">
-                  {w.links.map((l) => (
-                    <div className="advrow" key={l.id}>
-                      <span className="advrow-k">
-                        {l.name}
-                        <span className="quiet advrow-n">
-                          {l.people === 0
-                            ? t("nobody has used this link yet")
-                            : t("{people} looked · {book} booked · {rate}", {
-                              people: n(l.people, "{count} person", "{count} people"),
-                              book: l.bookings, rate: pct(l.rate) })}
-                        </span>
-                      </span>
-                      <span className="advrow-v num">{money(l.revenue)}</span>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-
-            {w.others.length > 0 && (
-              <>
-                <span className="label advsub">{t("Everyone else")}</span>
-                <div className="sunken">
-                  {w.others.map((o) => (
-                    <Row key={o.source} label={t(o.source)}
-                      value={n(o.people, "{count} person", "{count} people")} />
-                  ))}
-                  <hr className="rule" />
-                  {/* THE SENTENCE THAT EARNS THE FEATURE, and it is a fact
-                      rather than a pitch: without a link of its own, a visit
-                      cannot be tied to the booking that came after it. */}
-                  <p className="quiet" style={{ marginTop: 8 }}>
-                    {t("These are counted automatically. Give a place its own link and their bookings get counted too.")}
-                  </p>
-                </div>
-              </>
-            )}
-
-            <button className="btn sm" style={{ alignSelf: "flex-start" }}
-              onClick={() => onManageLinks?.()}>
-              {t("Add or edit your links")}
-            </button>
+            <div className="advsplit" style={{ marginTop: "var(--sp-3)" }} aria-hidden="true">
+              <span className="gone" style={{ flex: Math.max(0, m.newCustomers) }} />
+              <span className="kept" style={{ flex: Math.max(0, m.returningCustomers) }} />
+            </div>
+            <div className="advsplit-k quiet">
+              <span>{t("First time")} · {m.newCustomers}</span>
+              <span>{t("Been before")} · {m.returningCustomers}</span>
+            </div>
           </>
         )}
-      </div>
-      {/* ── WHO ───────────────────────────────────────────────────────── */}
-      <div className="tight">
-        <span className="label">{t("Who came")}</span>
-        <div className="sunken">
-          {historyFailed && (
-            <p className="quiet" style={{ marginBottom: 8 }}>
-              {t("Could not check who had been before, so everyone below counts as new.")}
-            </p>
-          )}
-          <Row label={t("People")} value={String(m.people)}
-            note={t("not jobs — somebody who came twice is one person")} />
-          <Row label={t("First time")} value={String(m.newCustomers)} />
-          <Row label={t("Been before")} value={String(m.returningCustomers)} />
-          <Row label={t("Came back")} value={m.people > 0 ? pct(m.returnRate) : "—"} />
-          {m.topSpender && (
-            <>
-              <hr className="rule" />
-              <Row label={t("Spent the most")} value={money(m.topSpender.total)}
-                note={`${m.topSpender.name} · ${n(m.topSpender.jobs, "{count} job", "{count} jobs")}`} />
-            </>
-          )}
-        </div>
-      </div>
+        {m.topSpender && (
+          <>
+            <hr className="rule" />
+            <Row label={t("Spent the most")} value={money(m.topSpender.total)}
+              note={`${m.topSpender.name} · ${n(m.topSpender.jobs, "{count} job", "{count} jobs")}`} />
+          </>
+        )}
+      </Panel>
     </div>
   );
 }
