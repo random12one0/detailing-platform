@@ -8773,7 +8773,20 @@ is still the question list rather than a thing to rewrite.
       Baseline** — about 83%, because Firefox does not ship them on by
       default — so they need `@supports` with the static page as the fallback.
 
-- [ ] 9.1 **OWNER: the gallery.** **The only thing blocking the rest**, and
+- [~] 9.1 **OWNER: the gallery.** ~~**The only thing blocking the rest**~~
+      **HE DELIVERED IT AND IT IS NO LONGER BLOCKING — corrected 2026-09-11.**
+      He sent **twenty-one links with a verdict on nearly every one** on
+      2026-09-08, which is past the "ten to twenty is plenty" bar this item
+      set for itself. All of it is `docs/TASTE-NOTES.md` BATCH 2, and every
+      site was then opened, measured, screenshotted at two widths and written
+      up. **`OUTSTANDING.md` § 1 row 3 has said "done for now" since
+      2026-09-08 and this line still said he was the blocker.**
+      **What keeps it `[~]` rather than `[x]` is only the STORAGE half** —
+      there is still no `site_examples` table, so the list lives in a markdown
+      file rather than somewhere he can edit without a developer. That is 9.2,
+      and 9.2 is unblocked.
+      *(Original wording kept below, because the "not in this repo" reasoning
+      still binds.)*
       nobody else can do it: it is his taste, which is the entire point of
       `docs/TASTE-NOTES.md`. **What is needed per entry is small — a link and
       one line on what he likes about it.** Ten to twenty is plenty; the form
