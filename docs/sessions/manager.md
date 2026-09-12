@@ -124,59 +124,60 @@ B's, said to lane B. Routing it through the manager just adds a hop.
 
 ## 6. Standing state — update this, do not append to it
 
-*Last written 2026-09-08.*
+*Last written 2026-09-11 by a truth pass. The version before it had grown by
+appending for three days and contradicted itself in two places — it said the
+deauthorize event was both subscribed and not subscribed, four lines apart.
+**Rewrite this section; never add to the bottom of it.**
 
-**Live site:** frozen on 6 Sep. **1,965 credits burned over 131 production
-deploys against a 1,000/month plan — twice the sustainable rate, so it RECURS
-every cycle unless the cadence changes (§ 17).** Credits reset **13 Sep**, and
-**the git integration is CONNECTED** — the skipped builds are named
-`main@<sha>` — so **on 14 Sep every push to `main` publishes again and
-CLAUDE.md's "a push is not a publish" flips back with nobody editing it.**
-**NO FREE ROUTE — the direct-upload idea is dead**: a production deploy is 15
-credits whether or not it builds (131 x 15 = 1,965 exactly). Wait for the 13th,
-or he buys credits. **But BRANCH deploys cost ZERO**, so a work branch takes
-the loop off the meter and gives him a free preview URL that opens on a phone.
-**Branch:** work is on `main`. `claude/superbase-access-anj1h7` is 94 behind and
-dead — do not use it.
+**Live site:** frozen on the 6 Sep bundle, **246 commits behind.** Netlify
+credits: 1,965 used against 1,000/month at 15 per production deploy, so every
+push since has been skipped. Credits were due to reset **13 Sep**.
+**DO NOT TRUST THAT DATE — CLAUDE.md § Ground rules now carries the two
+commands that measure it.** Branch deploys cost **zero**; production deploys
+cost 15; there is no free direct-upload route.
+
+**Branch:** `main`. The old `claude/superbase-access-anj1h7` is dead.
+**A work branch with `main` reserved for publishing was recommended 2026-09-08
+and has NOT been adopted — it is the one open decision with a deadline.**
+
+**RED, both already recorded in `whats-left-2026-09-10.md` § 9:**
+`platform-admin` **113/46** and `password-reset` **26/3**. Neither is new;
+that session proved it by re-running them on the tree from before its own work.
+`CHECKPOINT.md` characterises the admin one. **Lane C.**
+
+**His review:** 62 of 63 pages walked, 17 marked, **15 done and HE ticked each**.
+**Open: 13 (Money, the full picture — waiting on him) and 16 (product-wide
+language sweep — needs one session with the other stopped).**
+
+**Waiting on him:** `OUTSTANDING.md` § 1. § 12 is answered — *"we are gonna
+wait"*, so nothing legal happens before December and nothing is in a parent's
+name. The live asks are the work-branch decision and
+**`STRIPE_CONNECT_WEBHOOK_SECRET`**, which is the last thing Connect needs.
+
+**Stripe Connect:** client id set; second endpoint `we_1UDY3WJeoZO7o6EerVO73I3G`
+exists at API version `2024-06-20` with **both** events subscribed
+(`account.updated`, `account.application.deauthorized`). **Both screens are
+built** — `screens/more/Payments.jsx` and `book/ManageBookingPage.jsx`, verified
+2026-09-11. **What is left: the signing secret, and ONE REAL CARD PAYMENT
+nobody has watched.**
+
 **Waiting on Google:** GBP case 6-3052000042070, filed 8 Sep, 7-10 business
-days, watched at `andrewswashing@gmail.com`. **Review ONE does not read the
-privacy policy** (four form fields, a legitimacy check); review TWO does, and
-cannot start until one returns. **Credits reset 13 Sep, before that. So the
-timing gap closes itself — DO NOT buy credits**, and nothing else user-facing
-needs to ship in five days (zero detailers, not going public yet).
-**Waiting on him:** `OUTSTANDING.md` § 1. **§ 12 IS ANSWERED — 2026-09-08, *"we
-are gonna wait."*** No parent on the Stripe account, no parent's bank account,
-no ownership transfer. Everything legal happens the week of 2 December in his
-own name, exactly as `setup-steps` STEP 0 always said. **The one decision still
-open is the WORK BRANCH (§ 17), and it has a deadline: on 14 Sep pushes start
-publishing again.**
-**Resend:** cap is REAL and account-wide, 100/day. The 117 on 8 Sep was
-**entirely our own test traffic** — real customer email is ~2/day, so the
-"upgrade when a detailer gets close" deferral STANDS. **Do not push the $20.**
-The real issue is that his LIVE BUSINESS shares the account, so a build session
-spends its allowance — the fix is a second FREE account, § 16.
-**Backups:** healthcheck created (6h grace), he is pasting the URL into GitHub.
-**The restore test is still the one that matters and has never been done.**
-**Google Branding:** DONE — both URLs pasted 2026-09-08.
-**Privacy policy:** now covers Google sign-in AND Business Profile
-(`OUTSTANDING.md` § 9). **NONE of it is live** — the live page is still the
-6 Sep bundle. **Deploy before submitting Google application two**, or the
-reviewer reads the stale page.
-**Stripe Connect:** client id set and correct. Both events subscribed
-(`account.updated` + `account.application.deauthorized`). **The only thing left
-is Andrew pasting `STRIPE_CONNECT_WEBHOOK_SECRET`** — deliveries are 0/0 so the
-3-day disable clock is not running. **The second endpoint EXISTS**
-(`we_1UDY3WJeoZO7o6EerVO73I3G`, connected accounts, API version `2024-06-20` —
-the trap was avoided). Two things left, § 13: the signing secret is not set
-yet (**and Stripe disables an endpoint that fails for ~3 days, so this is a
-deadline once deliveries start**), and `account.application.deauthorized` is
-not subscribed **while its handler is already built and tested** — one
-checkbox.
-**Google:** Branding cleared the blocker, *Publish app* is now enabled. Test
-users still will not save — unexplained, and moot if he publishes, which needs
-no review on the three basic scopes.
-**Example pages:** a real bug found and fixed 2026-09-08 — `/example1` served
-the app shell and `/example1/` served the page. § 15. **Live verification is
-still owed after the deploy**, because `_redirects` is Netlify's file and
-nothing here can exercise it.
-**Lanes running:** websites (A), product (B). Build (C) not started.
+days, watched at `andrewswashing@gmail.com`. Review ONE does not read the
+privacy policy; review TWO does and cannot start until one returns. **Do not
+buy credits on Google grounds.**
+
+**Resend:** 100/day, account-wide, shared with his LIVE BUSINESS. The overrun
+was our own test traffic; real customer email is ~2/day, so the deferral
+stands. **Do not push the $20, and do not open a second account — it breaches
+their AUP.**
+
+**Backups:** healthcheck created, 6h grace. **No backup has ever been
+restored.** Still the one item where being wrong is unrecoverable.
+
+**Websites:** the diagnosis changed 2026-09-09 —
+`tenant-sites-diagnosis-2026-09-09.md`. **Thinness, not slop.**
+`DEVICE-INVENTORY.md` is the twenty-one devices; a page ships with ten.
+
+**Lanes:** websites (A) and product (B) have both run. **Build (C) has never
+run and now has the most work waiting** — two red suites, seven faults in
+`review-2026-09-10.md`, the deploy, and the backup restore.

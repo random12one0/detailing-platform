@@ -182,10 +182,17 @@ Apple/Google preference). The full working is in
 
 | | What | Where it is written |
 |---|---|---|
-| **1** | **Stripe Connect stage 3 — the TWO SCREENS.** The server half is built, deployed and probed. What is missing is the detailer's *connect your account* screen and the customer's *pay by card* control. | `OUTSTANDING.md` § 3.3 · roadmap 2.20 |
-| **2** | **The free SMS path** — a button that opens the detailer's own messaging app with the text already written. No provider, no cost, no carrier registration. Costed and recommended, never built. | `detailer-dashboard-audit-2026-09-06.md` § 3.3 |
-| **3** | **The review ask** — a message the day a job is marked complete. The event already fires. | same, § 3.2 |
-| **4** | **The next job's address as a map link.** | same, § 3.4 |
+| ~~**1**~~ | ~~**Stripe Connect stage 3 — the TWO SCREENS.**~~ **BUILT — verified 2026-09-11.** `screens/more/Payments.jsx` and `book/ManageBookingPage.jsx`, both wired to the server's own answer rather than deciding locally. **What is left is NOT a screen:** one real card payment has never been watched, and `STRIPE_CONNECT_WEBHOOK_SECRET` is still unset. Neither is lane B's. | `OUTSTANDING.md` § 3.3 and § 13 |
+| ~~**2**~~ | ~~**The free SMS path.**~~ **BUILT.** `BookingCard.jsx:109` and `BookingDetail.jsx` — a real `<a href="sms:">` with the text prefilled, deliberately not a click handler, because a programmatic jump from an async continuation is what iOS blocks. `Clients.jsx` does the bulk version. |
+| ~~**3**~~ | ~~**The review ask.**~~ **BUILT.** `followupEmail()` carries the Google and Yelp links and `send-invoice/index.ts:186` sends it, gated on `settings.email_customer_followup`. It rides the completion path with the invoice rather than as a next-day message. |
+| ~~**4**~~ | ~~**The next job's address as a map link.**~~ **BUILT.** The *Navigate* button on the job record, `BookingDetail.jsx:287`. |
+
+> **ALL THREE WERE ALREADY MARKED BUILT IN `detailer-dashboard-audit-2026-09-06.md`
+> § 3 AND THIS TABLE STILL LISTED THEM AS WORK — corrected 2026-09-11 by opening
+> the files.** The audit's own note explains how it happened and it is worth
+> keeping: *"the detailer audit RECOMMENDS those things, and a recommendation was
+> read as a status."* **A doc that proposes something and a doc that reports
+> something look identical three weeks later.**
 | **5** | **Roadmap 9.2 — the gallery**, now unblocked by his 21 links. A `site_examples` table, back-office management, customer browse-and-favourite. **The example sites themselves must NOT go in this public repo.** | roadmap 9.1/9.2 |
 
 ---

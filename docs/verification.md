@@ -13,6 +13,43 @@ disagrees with the prose · something passed that you do not believe.
 
 ---
 
+## EVERY CHECK COUNT BELOW IS A HINT. THE SCRIPT'S OWN FIGURE IS THE ANSWER.
+
+**There are seventeen hardcoded counts in this file and they rot faster than
+anything else in the repo.** Eight stale ones were found in CLAUDE.md before
+the split; fifteen were wrong in a single 2026-09-08 re-measure. **Four more
+went stale within three days of the split** — measured 2026-09-11:
+
+| suite | this file says | actually |
+|---|---|---|
+| `payments` | 66 | **83** |
+| `landing-pricing` | — | **109** |
+| `route-contract` | — | **33** |
+| `connect` | — | **126** |
+| `platform-admin` | 157 | **113 passed, 46 FAILED** |
+
+**`platform-admin` is RED as of 2026-09-11 and no document says so.** See
+`docs/CHECKPOINT.md`.
+
+**Never quote a number from this file. Run the battery and read what it
+prints:**
+
+```
+set -a; . ./.env; set +a
+for f in tests/*.test.mjs; do printf "%-34s " "$f"; node "$f" | tail -1; done
+```
+
+**Without the `set -a` line eleven suites print *"Missing SUPABASE_URL"*, and a
+session reads that as a broken environment rather than as a suite that did not
+run.**
+
+The counts are LEFT IN PLACE rather than deleted, because most of them carry
+their own history (*"189 — 97 when it was written and grown in roadmap 2.12"*)
+and that history is why several checks exist at all. **Read them as provenance,
+never as status.**
+
+---
+
 ## Verification
 
 - **THE CHECKS ARE 2.6x FASTER AS OF 2026-09-02, AND HOW YOU RUN THEM MATTERS

@@ -5,6 +5,22 @@ there's... I feel like I've kinda given you a lot of things and interrupted you
 a lot to make sure that we're keeping track of everything that we still have to
 do... and write it all on docs properly."*
 
+> ## FOUR FILES NOW CLAIM TO BE "WHAT IS LEFT". READ THIS FIRST — 2026-09-11.
+>
+> **This file's own warning below came true about this file.** There are now
+> four status docs and two of them each say they are the single list:
+>
+> | File | What it OWNS from 2026-09-11 |
+> |---|---|
+> | **`whats-left-2026-09-10.md`** | **THE PRODUCT BUILD QUEUE.** Bugs, his walkthrough notes, unbuilt features, the red suites. Its own header says *"this is the single list, anything not here is done"* — **true of the product, and only of the product.** |
+> | **THIS FILE** | **EVERYTHING OUTSIDE THE CODE**, and the record of corrections. Netlify, Stripe, Resend, Google, backups, the legal week, and § 9–18, which are the nine things another session got wrong and how each was settled. |
+> | **`CHECKPOINT.md`** | **Where we are TODAY, in one page.** Overwritten, never appended. Read it first and trust nothing in it older than two days. |
+> | **`status-2026-09-10.md`** | **SUPERSEDED** for remaining work, by its successor's own statement. Its § 3 — what he has never personally reviewed — is still its own thing. |
+>
+> **`docs/roadmap.md` outranks all four.** A view that starts disagreeing with
+> it is worse than no view — which is what the paragraph immediately below has
+> said since the day this file was written.
+
 **THIS FILE IS A VIEW, NEVER A SECOND SOURCE OF TRUTH.** `docs/roadmap.md` is
 the plan and every line here points at an item in it. It exists because that
 file is 8,600 lines and the answer to *"what is left"* is currently spread
@@ -174,8 +190,16 @@ scratch project or 2.22 stays `[~]`.
    any point in the last week. `_shared/connect.ts`, `connect-account`,
    `pay-booking`, the webhook's `event.account` branch and
    `connected_accounts` — 83 credential-free checks, fifteen breaks, migration
-   applied, four functions deployed, endpoints probed live. **What is left: the
-   two SCREENS, one real card payment, and § 1 row 2c.**
+   applied, four functions deployed, endpoints probed live. ~~**What is left:
+   the two SCREENS, one real card payment, and § 1 row 2c.**~~
+   **THE TWO SCREENS ARE BUILT — measured 2026-09-11.**
+   `app/src/screens/more/Payments.jsx` is the detailer's half (it calls
+   `connect-account`, reads `cardStatus`, and its own header explains why it
+   does not reimplement the four states) and `app/src/book/ManageBookingPage.jsx`
+   is the customer's (it takes `card` from the server rather than deciding
+   locally). `tests/connect.test.mjs` is **126 checks** now, up from 83.
+   **What is genuinely left: ONE REAL CARD PAYMENT, and the signing secret in
+   § 13.** Nobody has yet watched a customer's card move money to a detailer.
 
 4. **Roadmap 8.17 Spanish, stage 2b — the last unfinished verification.**
    Paused by him on 2026-09-07 so the artifact could be built; that artifact

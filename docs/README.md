@@ -23,12 +23,25 @@ file how you measured it.**
 
 ## Start here — the four that decide what you do
 
+> **UPDATED 2026-09-11 by a truth pass.** Twenty-five docs had appeared since
+> this map was written and none were on it, including three of the four status
+> files. **The read order below is now five files, not four**, and the status
+> files are scoped against each other so that two of them no longer both claim
+> to be "the single list".
+
 | File | Tier | What it is |
 |---|---|---|
 | `../CLAUDE.md` | **LIVE** | Session rules. Loaded automatically into every session. **Keep it under ~70 KB** — it was 232 KB until 2026-09-08 and cost ~42,000 tokens of context before any work was read. |
 | `roadmap.md` | **LIVE** | **The plan.** 8,797 lines, phases 0–9. `grep -nE "^- \[( \|~)\] " docs/roadmap.md` is the whole answer to *what is left*. Nothing gets built that is not an item here. |
 | `OUTSTANDING.md` | **LIVE** | The one-page VIEW of what is left, split into *on him* / *mine* / *blocked*. A view, never a second source of truth — move it in the roadmap first. |
+| `CHECKPOINT.md` | **LIVE — read it FIRST** | Where we are today, one page, overwritten never appended. **Trust nothing in it dated more than two days ago** — the version before 2026-09-11 claimed the live site matched the local build and had been false for five days and 246 commits. |
+| `whats-left-2026-09-10.md` | **LIVE** | **The single list FOR THE PRODUCT** — bugs, his walkthrough notes, unbuilt features, the two red suites (§ 9). |
+| `review-2026-09-10.md` | **LIVE** | **His own words on all 63 pages.** 15 of 17 done and HE ticked each; 13 and 16 open. Its § FOUND WHILE DOING THE ABOVE carries seven `scripts/`+`tests/` faults that only a build session may fix. |
 | `coworker-report-2026-09-08.md` | **LIVE** | What was measured in the real dashboards (Google, Stripe, Netlify, Supabase, Resend, DNS). **§ 3 lists nine things this repo believed that are wrong.** Where it contradicts another file, it wins. |
+| `tenant-sites-diagnosis-2026-09-09.md` | **LIVE** | **Why the websites fail, corrected.** The failure is THINNESS, not slop — his own reframe. Supersedes the photograph-only reading. |
+| `DEVICE-INVENTORY.md` | **LIVE** | The twenty-one devices a tenant site can carry, each from a site he picked, each with **when NOT to** use it. A page ships with ten or more. |
+| `status-2026-09-10.md` | **SUPERSEDED for remaining work** | Its successor says so. **§ 3 — what he has never personally reviewed — is still its own thing.** |
+| `whats-left`/`OUTSTANDING`/`CHECKPOINT`/`status` | — | **Four status docs. They are scoped against each other in `OUTSTANDING.md`'s header. Read that boundary before adding a fifth.** |
 
 ## Running a session
 
@@ -99,11 +112,21 @@ file how you measured it.**
 
 ## If you are new, read exactly this
 
-1. `../CLAUDE.md` — all of it. It is 66 KB now.
-2. **This file.**
-3. `roadmap.md` — only the item you are doing.
-4. `OUTSTANDING.md` § 1 and § 3.
-5. `coworker-report-2026-09-08.md` § 3.
+1. **`CHECKPOINT.md`** — one page, and it tells you what is red today.
+2. `../CLAUDE.md` — all of it. It is ~67 KB.
+3. **This file.**
+4. `roadmap.md` — only the item you are doing.
+5. `whats-left-2026-09-10.md` if you are building product;
+   `OUTSTANDING.md` § 1 if you are touching anything outside the code.
+
+## The docs not listed above
+
+**Twenty-five files are not in this map and that is a known gap, not an
+oversight to fix blindly.** Most are HISTORICAL by the tiers above — the seven
+`dashboard-*-2026-08-31.md` design records, the tenant-site research rounds,
+`platform-admin-2026-09-04.md`. **The live ones that matter are all in the
+tables above.** If you find yourself relying on a file that is not listed here,
+that is a signal to check its date before its contents.
 
 That is under 100 KB and it is enough to start. Everything else is looked up
 when a specific question arises, and this map is how you find which file has

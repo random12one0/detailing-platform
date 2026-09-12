@@ -1,225 +1,151 @@
-# Checkpoint — 2026-09-06
+# Checkpoint — 2026-09-11
 
 **The one living "where are we" file.** Overwritten at each checkpoint, never
 appended to. It is a POINTER: `docs/roadmap.md` is the plan, `PROJECT-STATE.md`
-is the technical state, `docs/overnight-log.md` is the plain-language account
-and holds every open question. Nothing here restates them.
+is the technical state, `docs/overnight-log.md` holds every open question.
+Nothing here restates them.
+
+**EVERY NUMBER BELOW WAS MEASURED ON 2026-09-11, NOT COPIED.** The version this
+replaced was written on 2026-09-06 and its headline — *"the bundle hash on
+detailingplatform.com matches the local build byte for byte, so the live site is
+running everything below"* — **had been false for five days and 246 commits.**
+That sentence is why this file is dangerous when it is stale: it is the one doc
+titled *where are we*, and it was answering with September the 6th.
 
 ---
 
 ## Where we are
 
-**43 of 54 roadmap items ticked. The platform is LIVE.**
+**69 roadmap items ticked, 15 open, 5 part-done. 44 test suites. 33 edge
+functions, all current. 72 migrations.**
 
-`main` was fast-forwarded 164 commits and pushed on 2026-09-06. Netlify built
-it; **the bundle hash on https://detailingplatform.com matches the local build
-byte for byte**, so the live site is running everything below.
+### THE LIVE SITE IS 246 COMMITS BEHIND AND HAS BEEN FROZEN SINCE 6 SEPTEMBER
+
+```
+live   detailingplatform.com   assets/index-nOASGAhD.js   (deploy c47cfae, 6 Sep)
+local  npm run build --prefix app                          a different hash
+```
+
+**Netlify build credits — 1,965 used against a 1,000/month plan, at 15 credits
+per production deploy.** Every push since has been recorded and **skipped.**
+`docs/OUTSTANDING.md` § 17 has the arithmetic.
+
+**THE CREDITS RESET ON 13 SEPTEMBER — TWO DAYS FROM THIS CHECKPOINT** — and
+`CLAUDE.md` § Ground rules changes meaning on the 14th as a result. **Do not
+read that paragraph without checking the date you are reading it on.**
 
 - **detailingplatform.com** — the platform (site `detailplatform-admin-test`)
 - **andrewsdetail.com** — the OWNER'S LIVE BUSINESS, site `andrewsauto`.
   **Nothing in this repo deploys there. Do not touch it.**
 
-### What is verified, as of this checkpoint
+### Branch
 
-31 test suites green · booking run 82/82 · width sweep clean at 1920 / 1440 /
-392 / 360 / 320 · 25 emails rendered · all 28 edge functions current with the
-repo (`node scripts/check-deployed.mjs`).
+**Work is on `main`.** `claude/superbase-access-anj1h7` is dead (94+ behind,
+nothing unique). `claude/determined-satoshi-936e89` and `claude/product-b2` are
+the two product sessions' branches, merged.
 
-**BOTH OF THOSE LAST TWO WERE UNTRUE WITHIN THE HOUR, AND THAT IS THE POINT OF
-WRITING IT DOWN — corrected 2026-09-07 by roadmap 8.2's own verification.**
-The width sweep was **red on every dashboard screen at 392**: the dot lattice
-shipped the same night with `inset: -8%` on an unclipped fixed layer, 35px past
-the viewport and 6px of sideways drag on a phone. And **four edge functions
-were stale**, all four changed by the testing-loop commit — so three of the six
-*blocks-launch* fixes that lap found were committed, pushed to `main`, and not
-actually running. **Neither was a new mistake; both were a check not re-run
-after the change that broke it.** A checkpoint states what was true when it was
-written, so **re-run the gate rather than reading this line**.
+**A work branch with `main` reserved for publishing was recommended on
+2026-09-08 and has NOT been adopted.** It is the open decision that has a
+deadline: branch deploys cost **zero** credits and production deploys cost 15,
+so on 14 September the current cadence starts consuming the new allowance
+immediately. `OUTSTANDING.md` § 17.
 
 ---
 
-## What is next — in roadmap order
+## What he reviewed, and what is left
 
-### Buildable without the owner
+**He walked 62 of 63 pages on 2026-09-10 and marked 17 things. FIFTEEN are done
+and HE ticked each one** — not a session, him, screen by screen.
 
-**Nothing substantial.** This is the fact that shapes the next session, and it
-is why the last stretch drifted (see below). The remaining eleven items are
-either owner-blocked or owner-decisions.
+**TWO are open**, and neither is code waiting on a decision:
 
-The honest list of work that does NOT need him:
+| | | |
+|---|---|---|
+| **13** | Money → the full picture | *"the advanced view needs some work"* — **the only note that names no fault.** He said he would go over it himself and come back. Waiting on him. |
+| **16** | Language, product-wide | *"some language needs fixing. Not only here but the entire website."* **Not started deliberately** — it touches every file in `app/src`, so it needs ONE session with the other stopped. |
 
-1. **The free SMS path** (`docs/detailer-dashboard-audit-2026-09-06.md` §3.3) —
-   a button that opens the detailer's own messaging app with the text written.
-   No provider, no cost, no carrier registration. Costed and recommended; not
-   built.
-2. **The review ask** (§3.2) — a message the day a job is marked complete.
-   Nearly free; the event already fires.
-3. **The next job's address as a map link** (§3.4).
-
-### Blocked on the owner, with what each needs
-
-| Item | What unblocks it |
-|---|---|
-| **5.1 migration** | `LEGACY_SUPABASE_URL` + `LEGACY_SERVICE_KEY` in `.env`. The mapping is verified against the real schema; only the run is missing. |
-| **Job photos → Cloudflare R2** | Four values in `.env` (account id, bucket, key id, secret). Until then the share is 10 MB each, which is too small to use. |
-| **2.20 stage 3** | Stripe Connect switched on. The payment rule is DECIDED (three modes, per detailer, default pay-after). |
-| **2.22 backups** | Two GitHub secrets. Written and documented — `docs/ops/backups.md`. |
-| **2.25 sign-up screen / 6.1 demo site** | His taste. Question 0 — two or three detailer sites whose look he likes. |
-| **7.2 Sentry** | A DSN. |
-| **7.4, 5.2, 5.3** | Marked OWNER, or wait on 5.1. |
-| **4.2's last two** | Wait on 2.20 stage 3. |
-
-**Every question is written up in `docs/overnight-log.md`** under "Questions
-parked for the owner", with a recommendation attached to each.
+`docs/review-2026-09-10.md` is the record, in his own words.
 
 ---
 
-## The testing loop — ONE LAP RUN, 2026-09-06
+## RED RIGHT NOW — TWO suites, and both were already written down
 
-`docs/testing/LOOP.md` is the protocol, `docs/testing/FINDINGS.md` the
-catalogue, and **`docs/testing/REPORT.md` is the thing to read** — its first
-section is what needs the owner and nothing else can move without him.
+**`platform-admin` 113/46 red and `password-reset` 26/3 red**, both re-measured
+2026-09-11.
 
-**Six passes: D1 (a brand-new detailer), O2 (the back office), A1-A5 (the
-adversary), C7 (a customer on a bad connection), the code's own failure paths,
-and §5 — two detailers signed in at once, in two browsers, which §5 calls
-mandatory every lap and which had never been done.**
+> **THE MANAGER'S FIRST DRAFT OF THIS SECTION SAID *"nothing reported it and no
+> doc mentions it"* AND THAT WAS FALSE.** Both are in
+> `docs/whats-left-2026-09-10.md` § 9, found overnight on 2026-09-10, with the
+> identical `platform-admin` count — and that session did the harder thing
+> this one had not: it checked out the tree from BEFORE its own work and re-ran
+> them there, proving neither was newly broken.
+> **A truth pass that declares a finding before reading every status doc is
+> doing the thing it exists to stop**, and it happened here on the first
+> attempt. Left standing rather than quietly deleted.
 
-**Thirty-three findings, nineteen fixed in the pass that found them, six of
-them blocks-launch.** Five of those six were invisible from every screen in
-the product AND from every check in this repo, which is the pattern §0 of
-LOOP.md predicts:
+**What IS new below is the characterisation, not the discovery.**
+`password-reset`'s three: *the reset page refuses a short one*, *the settings
+screen refuses a short one*, *the three selectors five scripts sign in through
+still exist*. § 9 guesses the first two are the 10-character rule that landed on
+2026-09-10 with the checks still asserting eight — **that guess is untested and
+the third failure is the dangerous one**, because five browser scripts sign in
+through those selectors.
 
-- Pressing **Continue** on the setup form's hours step **destroyed a
-  detailer's real hours** — the editor opened on a hardcoded Mon-Fri 9-5 and
-  wrote it over the top (F-001).
-- **Continue marked a question answered with nothing on screen**, so seven
-  taps reported *7 of 7 done* on a business that had answered one. The *"2 of
-  7"* defect the owner found, inverted (F-002).
-- A detailer who **chose a paid plan never saw the payment screen**, and no
-  screen has a word for "never subscribed" (F-003).
-- **A dropped reply made a real booking look failed**, and the retry told the
-  customer a stranger had taken their slot (F-022).
-- **Our own daily email cap marked real customers as bounced, permanently** —
-  a 429 was being read as "this address is wrong" (F-025).
-- **A failed membership insert locked somebody out of their own business for
-  ever**, with no screen able to show it and no button able to undo it
-  (F-026).
+**`platform-admin` is the one screen where a bug exposes every tenant**, so it
+cannot sit. What it is NOT is a straightforward regression — sampled, the
+failures are a mix of two things:
 
-Plus the back office, which **could not tell a test business from a real
-detailer**: the headline read *"Detailers 15"* on a platform with none, and
-*Needs a look* was eight rows of fixtures (F-014).
+- **Checks pointing at source that MOVED.** `AdminPage.jsx` went from 1,436
+  lines to 813 and gained `PreviewEntry.jsx`, in two deliberate, well-documented
+  commits (`45eaf85` replaced sign-in-as-them with a per-tab preview;
+  `d155197` added the password eyes).
+- **Checks enforcing rules the OWNER has since reversed.** `check("no chart")`
+  fails because a six-month chart was deliberately built in roadmap 8.2 at his
+  request — the file's own comment says so and keeps the old prohibition
+  beside it on purpose.
 
-**Two new scripts, both committed and reproducible:**
-`scripts/adversary-probe.mjs` (50 checks — nothing leaks to a stranger) and
-`scripts/two-detailers.mjs` (25 checks — nothing of one detailer ever reaches
-the other, in two live browsers). The second exists because
-`seed-two-tenants.mjs` makes two businesses and **no logins**, so §5's own
-first instruction was not possible with the fixture §5 names (F-031).
-
-**`docs/testing/REPORT.md` §5 is the brainstorm** the owner asked for: fifty
-ideas, each citing the finding or the moment that motivated it, costs named.
-
-## The back office was rebuilt — pass 007, 2026-09-06
-
-The owner, after reading the loop's first report: *"I wasn't very happy with
-my admin dashboard of all the detailers and stuff… I want everything to feel
-very professional and I want the layout to be nice and easy to navigate with
-like animations and what not."* Plus, explicitly: *"you can overrule some
-decisions I made if you think another way is generally better."*
-
-Pass 002 fixed what that screen SAID. Pass 007 is what it IS, and it follows
-`docs/platform-admin-audit-2026-09-06.md` §6 — a shape that had been written
-and never built.
-
-- **Two columns at a desk.** It was ONE 900px column at every width, so on his
-  own 1920px monitor it was a ribbon with two thirds of the screen empty, and
-  that is the same fact that put the open business below the whole list.
-- **Two levels on a phone.** The open business replaces the list instead of
-  sitting under it, so the back control means something.
-- **The payload's Tier 1 is finally drawn.** Six months of finished work as a
-  chart, the trend against last month, takings, average job, cancel rate,
-  requests waiting, the subscription in words, **whether their page can
-  actually be booked**, and what HE still owes them. No new endpoint, no new
-  query, no migration — `app/src/lib/adminInsight.js` is arithmetic over data
-  the screen was already receiving and discarding.
-- **Motion**, in the product's own three kinds and three durations.
-
-**`admin.css` used to argue against all of this in writing** — *"deliberately
-plain… there is no animation here on purpose"* — and the reasoning is worth
-keeping because it is the trap every internal tool falls into: it treats
-motion as INTRODUCTION, so a screen with an audience of one needs none.
-Motion's other job is saying where a thing came from, and that gets harder as
-a screen gets denser. A reversed prose decision leaves nothing behind that can
-fail, so `tests/platform-admin.test.mjs` § 12 (18 checks, 8 baselined) exists
-to stop the next session restoring it because the comment sounded reasonable.
-
-**`scripts/shoot-admin.mjs` is new and it is why this went unlooked-at for so
-long**: nothing in the repo could photograph `/admin` — the dashboard shooter
-signs in as a DETAILER and `--url` shoots a PUBLIC page, so the back office
-fell between the two.
-
-**And one correction the loop owes him: its first report named four ideas as
-unbuilt that are built** — texting from the detailer's own phone, the map
-link, "on my way", and the water/power answer on the job card. The cause is
-worth stating: the detailer audit RECOMMENDS those things, and a
-recommendation was read as a status. `docs/ideas.md` marks them `[!]`.
-
-**The ideas list lives in `docs/ideas.md`** — fifty of them with a tickbox
-each, and it is the single home; `docs/testing/REPORT.md` §5 points at it.
-
-## The process failure this checkpoint exists to correct
-
-**2026-09-06: the session drifted from the roadmap into reacting to whatever
-the last message said.** Job photos, the back office rebuild, R2, an intake
-form, a screenshot gallery — all real work, most of it good, **none of it from
-the roadmap**, and it happened because the roadmap's unblocked surface had run
-out and nothing said so out loud.
-
-Two specific costs:
-
-- **A screenshot gallery was started when the answer was a URL.** The overnight
-  guardrail "never push to main" had been carried past the night it was written
-  for, and **pushing to main IS the deploy** — so the way to show him the whole
-  product was one push, not sixty JPEGs.
-- The width sweep was run four times because source was edited while it ran —
-  a rule written in CLAUDE.md and broken twice in one morning.
-
-**The rule for the next session:** when the roadmap has nothing unblocked left,
-**say so and stop**, rather than inventing adjacent work. New work that is not
-on the roadmap goes ON the roadmap first, or it is not tracked and nobody can
-see what it cost.
+**Somebody has to sort which is which, one failure at a time.** A suite this
+red gets ignored wholesale, and the one real regression hiding in 46 stale
+checks is exactly what this repo's own rules warn about. **Lane C.**
 
 ---
 
-## Standing facts a new session gets wrong
+## Also red or unverified, from the two product sessions
 
-- **THE PLATFORM IS NOT PUBLISHED. It is in development and testing, and every
-  business in the database is a fixture.** The owner, 2026-09-06:
-  > *"I'm not gonna be publishing till, like, December for three months… that's
-  > why everything in my database is just tests and fake detailers."*
+`docs/review-2026-09-10.md` § FOUND WHILE DOING THE ABOVE carries six faults in
+`scripts/` and `tests/` that **lane B was not allowed to fix.** They must reach
+a build session. The worst of them:
 
-  **He will say when that changes.** Until he does:
-  - **There are no real detailers and no real customer data on the platform
-    project.** A tenant you find there is a seed, a test-suite fixture or a
-    demo. The back office marks them; `businesses.is_demo` is the column.
-  - **A live defect harms nobody today.** That is not licence to ship one — it
-    is the reason several findings are *scheduled* rather than emergencies.
-    The email cap (P-13), the founding spots (P-09) and the seeded admin
-    account (P-12) are all in that group, and **each has a trigger condition he
-    named** rather than a date.
-  - **It does not weaken any check.** The gate runs the same; the difference is
-    only in how urgent a finding is, never in whether it is recorded or fixed.
-  - The owner's **live business** (`andrewsdetail.com`, Supabase project
-    `adtlnvihwrcqcasqcjwd`) is a separate thing entirely and remains read-only.
-- **`main` is the deploy.** Push to it and detailingplatform.com rebuilds.
-  There is no separate publish step.
-- **The overnight guardrails were for one night** (2026-09-05/06) and are spent.
-  The permanent ones: never write to the live business Supabase project, never
-  deploy to `andrewsauto`, and do not rebuild the three pages in
-  `docs/tenant-sites/` or use them as a taste reference.
-- **Edge functions drift silently.** `check-deployed.mjs` after any change to
-  `supabase/functions/`, and re-run the env-backed suites AFTER deploying —
-  before that, they were green against the old copy.
-- **Never edit anything under `app/src` while `sweep-widths.mjs` is running.**
-  It throws its own results away, correctly, and the run is five minutes.
+- **`sweep-widths.mjs:605` — `found += await say(...)` where `say` returns
+  undefined, so `found` is NaN from the first width and the run prints
+  *"clean"* whatever it saw.** One run printed 38 real geometry findings above
+  that line. **Every "clean" that script has reported since is worth nothing.**
+- `tests/spanish.test.mjs` reads its subject as TEXT, so it passed 58/0 on a
+  catalogue that did not parse at all.
+- `seed-demo.mjs` writes `vehicle_size_fee` without adding it to the totals, so
+  seeded bookings do not reconcile.
+
+---
+
+## What is next
+
+**Nothing substantial is blocked on him except the two review items above and
+the branch decision.** The unblocked work, in order:
+
+1. **Lane C: the 46 red checks**, then the six faults above.
+2. **Lane C: the deploy**, the moment credits reset on the 13th.
+3. **Lane A: the websites.** The diagnosis changed on 2026-09-09 —
+   `docs/tenant-sites-diagnosis-2026-09-09.md`. The failure is **thinness, not
+   slop**, and `docs/DEVICE-INVENTORY.md` is the list of what to add.
+4. **Lane B: review item 16**, the language sweep, with the other product
+   session stopped.
+5. Roadmap 2.22 — **restore a backup once.** Still never done.
+
+---
+
+## The rule this file exists under
+
+**A checkpoint states what was true when it was written.** The version before
+this one said so in its own text and was still believed for five days.
+**Re-run the gate rather than reading this line** — and if the date at the top
+is more than a couple of days old, measure before you quote it.

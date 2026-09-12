@@ -243,17 +243,47 @@ explaining it; if they still have to ask "so should I?", it failed.
   It was true when it was written on 2026-08-30 and stopped being true quietly,
   which is exactly what this rule warned about happening to something else.
   **SO A PUSH IS NOT A PUBLISH AND THE TWO NUMBERS ARE DIFFERENT NUMBERS.**
-  **AND THAT IS TRUE ONLY UNTIL 2026-09-13 — READ THIS BEFORE ACTING ON THE
-  PARAGRAPH ABOVE.** Measured in the Netlify dashboard 2026-09-08: the git
+
+  ### STOP. DO NOT BELIEVE EITHER HALF OF THIS RULE — MEASURE IT.
+
+  **This paragraph was written on 2026-09-08 with an expiry date in it, and a
+  rule with a date in it is a rule that is wrong the day after.** It said *"on
+  14 September every push is a publish again"* — which was a PREDICTION about a
+  billing period, not a measurement, and it was already the second time this
+  same rule had flipped without anybody editing it.
+
+  **So the rule is now a COMMAND instead of a claim. Run this before you assume
+  anything about deploying:**
+
+  ```
+  curl -s https://detailingplatform.com/ | grep -oE 'assets/index-[A-Za-z0-9_-]+\.js'
+  npm run build --prefix app && ls app/dist/assets/*.js
+  ```
+
+  **Same hash: a push publishes, and the credit budget is live — read
+  `docs/OUTSTANDING.md` § 17 before pushing, because the cadence that caused
+  the outage will cause it again. Different hash: publishing is blocked, and
+  § 17 says whether it is credits or something new.**
+
+  **`curl` cannot answer it any other way** — `_redirects` sends every unmatched
+  path to `index.html`, so every URL on that domain returns 200 including ones
+  that do not exist. **The bundle hash is the only honest answer.**
+
+  ---
+
+  **What was true on 2026-09-08, kept because the reasoning is what makes the
+  command above the right one:** Measured in the Netlify dashboard 2026-09-08: the git
   integration is **connected and working.** The skipped builds are recorded
   against `main@7cd5864`, `main@df0628c` and `main@HEAD` — **Netlify only names
   a deploy after a commit if it received the git event and created a deploy for
   it.** A disconnected repo produces no deploy record at all. So *"a push is
   not a publish"* is not a fact about the wiring; it is a fact about the
   **billing period**, which ends **13 September**.
-  **ON 14 SEPTEMBER EVERY PUSH TO `main` IS A PUBLISH AGAIN, and this rule will
-  flip back with nobody editing it** — the exact failure the sentence above
-  describes happening to its own predecessor, now scheduled.
+  ~~**ON 14 SEPTEMBER EVERY PUSH TO `main` IS A PUBLISH AGAIN.**~~ **A
+  PREDICTION, NOT A MEASUREMENT — run the two commands above instead.** The
+  billing period read *14 Aug – 13 Sep* on the dashboard on 2026-09-08; whether
+  it reset on time, whether the plan changed, and whether anybody topped up are
+  all things only the live site can tell you.
   **AND PUBLISHING FREELY IS WHAT CAUSED THIS: 1,965 credits burned across 131
   production deploys against a 1,000/month plan, at ~15 credits each.** That is
   twice the sustainable rate, so a fortnight of the current cadence exhausts

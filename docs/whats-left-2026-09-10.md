@@ -3,9 +3,17 @@
 2026-09-10, at his ask: *"What's left to be built, to be changed, to be fixed,
 and to be reviewed?"*
 
-**This is the single list.** It supersedes the remaining-work sections of
-`docs/status-2026-09-10.md`, which was a day old and already wrong in both
-directions. Anything not here is done.
+**This is the single list FOR THE PRODUCT.** It supersedes the remaining-work
+sections of `docs/status-2026-09-10.md`, which was a day old and already wrong
+in both directions. Anything about the code that is not here is done.
+
+> **SCOPED 2026-09-11, because "the single list" was true of two files at
+> once.** `docs/OUTSTANDING.md` says the same sentence about itself. Neither
+> was wrong; they cover different halves and neither said so. **This file owns
+> the product: bugs, his walkthrough notes, unbuilt features, the red suites.
+> `OUTSTANDING.md` owns everything outside the code** — Netlify, Stripe,
+> Resend, Google, backups, the legal week — **and the record of what other
+> sessions got wrong.** `docs/roadmap.md` outranks both.
 
 **The count: 6 bugs, 8 of his own notes, 9 unbuilt features, 15 things waiting
 on him, and 3 pieces of the endgame he described.**

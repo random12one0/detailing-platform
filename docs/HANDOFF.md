@@ -1,5 +1,21 @@
 # Handoff — running this project from your own machine
 
+> ## THREE LINES IN THIS FILE ARE STALE — checked 2026-09-11
+>
+> The architecture, the environment variables and the "how this project has been
+> worked" section are all still correct and are why this file is kept. **These
+> are not:**
+>
+> - **`git checkout claude/superbase-access-anj1h7`** (below, twice) — that
+>   branch is **dead**: 94+ commits behind with nothing unique on it. **The
+>   working branch is `main`.**
+> - **"`main` is what Netlify deploys — a push to it is a production
+>   release"** — **do not act on this either way.** `CLAUDE.md` § Ground rules
+>   now carries a COMMAND for checking, because the answer changed twice in one
+>   week and a date-stamped rule was wrong the day after it was written.
+> - **"everything ever written is on GitHub"** — there are unpushed commits on
+>   this machine most days. Run `git rev-list --count origin/main..HEAD`.
+
 Written when the work moved out of a cloud sandbox and onto a local machine.
 Two parts: **the context prompt** to paste into a fresh Claude Code session,
 and **the setup**, which is shorter than you'd expect.
