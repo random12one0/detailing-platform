@@ -304,3 +304,29 @@ Claude Cowork decides what becomes work.
   that finds it dirty will reasonably conclude another session is mid-edit in
   lane A. It is generated output living in a hand-edited folder. Either commit
   it with the seed or gitignore it; noticed, not decided.
+
+- 2026-09-12 — **THE UNSUBSCRIBE PAGE SAYS "This link has expired" AND NOTHING
+  EXPIRES.** The customer UUID is the credential and it has no lifetime; that
+  heading fires whenever `api.unsubscribeLookup` REJECTS, which is a 404 for a
+  customer id that does not resolve (a deleted row, or a re-seed) **and equally
+  a network failure**. So somebody on a bad connection is told their link is
+  dead when it is fine, and told to reply to the email instead. Same family as
+  booking step 6's bad-email sentence: **the rejection is correct and the reason
+  is wrong, which sends the person looking in the wrong place.** Lane B, copy
+  only. Found while answering whether the detailer is knowable on that branch.
+- 2026-09-12 — **`SwitchBusiness` ("Switch business") is unreachable on the demo
+  business and therefore unreachable to every sweep, shooter and walk this repo
+  has.** `screens/more/index.js` offers it only when the account has more than
+  one membership, and `demo@detailplatform.com` has one. It is a real screen
+  with no coverage of any kind. Either seed a second membership for the demo
+  owner or write down that it is deliberately unwalked.
+- 2026-09-12 — **A PROBE FOR THE EXHAUSTION TEST WAS BUILT, MEASURED THREE
+  DIFFERENT WRONG ANSWERS, AND WAS THROWN AWAY ON COWORK'S RULING.** It read
+  zero rows for Hours, one row for Reviews, and walked the Business index while
+  reporting it as the gear — each time looking exactly like a correct result.
+  His reason is the one to keep: **the exhaustion test is written as a test
+  rather than a quota because a count can be satisfied without fixing
+  anything** — twelve identical rows split into two blocks of six passes any
+  threshold and changes nothing. Nothing of it is in the repo;
+  `docs/exhaustion-walk-2026-09-12.md` is the route list he asked for instead.
+
