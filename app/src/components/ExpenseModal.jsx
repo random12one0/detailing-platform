@@ -97,7 +97,7 @@ export default function ExpenseModal({ onClose, onSaved }) {
               style={{ minHeight: 44, textTransform: "capitalize" }}
               onClick={() => setCategory(c)}
             >
-              {c}
+              {t(c)}
             </button>
           ))}
         </div>

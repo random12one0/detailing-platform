@@ -62,8 +62,8 @@ export function periodAt(kind, today, offset = 0, loc = "en-US") {
     return {
       start: ymd(start), end: ymd(end),
       label: sameMonth
-        ? `${shortMonth(start.getFullYear(), start.getMonth())} ${start.getDate()}–${end.getDate()}`
-        : `${shortMonth(start.getFullYear(), start.getMonth())} ${start.getDate()} – ${shortMonth(end.getFullYear(), end.getMonth())} ${end.getDate()}`,
+        ? `${shortMonth(start.getFullYear(), start.getMonth(), loc)} ${start.getDate()}–${end.getDate()}`
+        : `${shortMonth(start.getFullYear(), start.getMonth(), loc)} ${start.getDate()} – ${shortMonth(end.getFullYear(), end.getMonth(), loc)} ${end.getDate()}`,
       tick: String(start.getDate()),
     };
   }
@@ -85,8 +85,8 @@ export function periodAt(kind, today, offset = 0, loc = "en-US") {
     return {
       start: ymd(startM),
       end: ymd(new Date(endM.getFullYear(), endM.getMonth(), lastOfMonth(endM.getFullYear(), endM.getMonth()))),
-      label: `${shortMonth(startM.getFullYear(), startM.getMonth())} ${startM.getFullYear()} – ${shortMonth(endM.getFullYear(), endM.getMonth())} ${endM.getFullYear()}`,
-      tick: `${shortMonth(startM.getFullYear(), startM.getMonth())} ${String(startM.getFullYear()).slice(2)}`,
+      label: `${shortMonth(startM.getFullYear(), startM.getMonth(), loc)} ${startM.getFullYear()} – ${shortMonth(endM.getFullYear(), endM.getMonth(), loc)} ${endM.getFullYear()}`,
+      tick: `${shortMonth(startM.getFullYear(), startM.getMonth(), loc)} ${String(startM.getFullYear()).slice(2)}`,
     };
   }
 
@@ -109,19 +109,19 @@ export function periodAt(kind, today, offset = 0, loc = "en-US") {
 
 // The chart's buckets: the N periods ending at the selected one, oldest
 // first. Clicking one steps to it, which is what the month bars already did.
-export function bucketsFor(kind, today, offset) {
+export function bucketsFor(kind, today, offset, loc) {
   const n = CHART_BUCKETS[kind] ?? 6;
   // Lifetime charts by YEAR: every other kind charts itself, but "the last
   // six lifetimes" is not a thing. Its bars carry no offset because there is
   // nowhere for a lifetime to step to.
   if (kind === "all") {
     return Array.from({ length: n }, (_, i) => ({
-      ...periodAt("year", today, i - (n - 1)), offset: null,
+      ...periodAt("year", today, i - (n - 1), loc), offset: null,
     }));
   }
   return Array.from({ length: n }, (_, i) => {
     const o = offset - (n - 1 - i);
-    return { ...periodAt(kind, today, o), offset: o };
+    return { ...periodAt(kind, today, o, loc), offset: o };
   });
 }
 

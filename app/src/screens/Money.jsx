@@ -170,7 +170,7 @@ export default function Money({ onGo }) {
   // locale rather than reading it — see that file's header.
   const period = periodAt(kind, today, offset, appIntlLocale());
   const previous = periodAt(kind, today, offset - 1, appIntlLocale());
-  const buckets = useMemo(() => bucketsFor(kind, today, offset), [kind, today, offset]);
+  const buckets = useMemo(() => bucketsFor(kind, today, offset, appIntlLocale()), [kind, today, offset]);
   // Enough range to cover the chart AND the comparison, which is one bucket
   // further back than the leftmost bar when the chart is only one wide.
   // ponytail: Lifetime pulls ten years of bookings into the phone in one go.
@@ -383,7 +383,7 @@ export default function Money({ onGo }) {
                 <ChevronLeft size={18} strokeWidth={2} />
               </button>
             )}
-            <span className="strong">{period.label}</span>
+            <span className="strong">{t(period.label)}</span>
             {kind === "all" ? null : (
               <button className="btn ghost icon" aria-label={t("Next period")}
                 disabled={offset >= 0}
@@ -402,7 +402,7 @@ export default function Money({ onGo }) {
                 anyone listening to the screen rather than looking at it. */}
             {exportable && (
               <button className="btn sm inline export" data-tour="export" onClick={sendToAccountant}
-                aria-label={`Export ${period.label}`}>
+                aria-label={`${t("Export")} ${t(period.label)}`}>
                 <Download strokeWidth={2} /> {t("Export")}
               </button>
             )}
@@ -678,7 +678,7 @@ export default function Money({ onGo }) {
                   <div>
                     <div className="body">{e.description}</div>
                     <div className="quiet" style={{ marginTop: 2 }}>
-                      {new Date(`${e.date}T12:00:00`).toLocaleDateString(appIntlLocale(), { month: "short", day: "numeric" })} · {e.category}
+                      {new Date(`${e.date}T12:00:00`).toLocaleDateString(appIntlLocale(), { month: "short", day: "numeric" })} · {t(e.category)}
                     </div>
                   </div>
                   <div className="body num">{money(e.amount)}</div>

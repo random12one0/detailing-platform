@@ -234,16 +234,29 @@ Claude Cowork decides what becomes work.
   screen and flagging anything that matches a list of English function words.
   Nothing like that exists. Coverage reads 100% and 0 missing, and it is telling
   the truth about the question it asks.
-- 2026-09-12 — Three English leaks measured in the browser on a Spanish
-  dashboard and NOT fixed, because each is a different kind of decision.
-  (a) **Money's bar chart labels its months Apr, May, Jun, Jul, Aug, Sep** while
-  the period heading above reads "septiembre de 2026" — the column labels are
-  built somewhere that does not pass the locale. (b) **Expense rows print the
-  raw category** — `product`, `gas`, `supplies`, `equipment` — which are ours
-  rather than the detailer's, so they can be translated, but the same four words
-  are offered by the expense form and both places have to agree. (c) The demo's
-  `Microfibre towels (bulk)` row is the already-recorded stale seed, not a code
-  fault.
+- 2026-09-12 — ~~Three English leaks measured on a Spanish dashboard and not
+  fixed.~~ **(a) AND (b) ARE FIXED — Claude Cowork confirmed both, and his
+  reasoning on (b) is the part worth keeping.** The four expense categories
+  render lowercase in the Money list and title-cased under A DÓNDE SE FUE, and
+  *that inconsistency is what proves they are ours*: a stylesheet is casing them,
+  and nobody cases a detailer's own typing. `.advmeter.cap` is the stylesheet.
+  So the stored lowercase token is translated, the casing is untouched, and both
+  screens read the way they read in English. (a) was `bucketsFor()` calling
+  `periodAt()` without the locale it already accepted, plus three of
+  `shortMonth`'s five callers dropping the argument — so a week's own label and
+  every six-month label were English too, not just the chart. All five period
+  kinds verified in both languages. (c) The demo's `Microfibre towels (bulk)`
+  row is the already-recorded stale seed, not a code fault.
+- 2026-09-12 — NOT FIXED, and noticed while translating the expense categories:
+  **`.advmeter.cap` title-cases whatever is in the category, including a name
+  the detailer typed himself.** Choosing *other* on the expense form stores his
+  own words as the category, so "microfiber towels (bulk)" renders as "Microfiber
+  Towels (Bulk)" on the advanced screen. It is CSS editing his voice, which is
+  the line CLAUDE.md draws — and it predates today. The translation does not
+  make it worse: `t()` passes an unseen string through unchanged, so his words
+  reach the stylesheet exactly as before. Two honest fixes, and neither is mine
+  to pick: case only the five known tokens, or drop the `cap` and put the capital
+  letters in the data.
 - 2026-09-12 — `lib/format.js`'s `dateLong()` returns **"Invalid Date"** for any
   full ISO timestamp: it does `String(s).split("-").map(Number)`, so
   `2027-03-12T12:00:00Z` yields `[2027, 3, NaN]`. Four `Billing.jsx` call sites

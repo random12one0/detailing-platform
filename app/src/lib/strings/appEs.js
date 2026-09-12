@@ -719,6 +719,26 @@ export const appEs = {
   "Tip": "Propina",
   "Discount": "Descuento",
   "Paid": "Pagado",
+  // ── THE FOUR EXPENSE CATEGORIES — 2026-09-12 ─────────────────────────────
+  // **THE PRODUCT CASES THESE FOR DISPLAY, WHICH IS WHAT PROVES THEY ARE
+  // OURS.** The reviewer's own reasoning: the same four render lowercase in
+  // the Money list and title-cased under A DÓNDE SE FUE, so a stylesheet is
+  // deciding how they look. A detailer's own typing would not be cased by
+  // anybody. `ExpenseModal.jsx` holds the list and it is a fixed five.
+  //
+  // **LOWERCASE KEYS, BECAUSE THE STORED VALUE IS LOWERCASE.** The capital
+  // letters on the advanced screen come from `.advmeter.cap`, not from the
+  // data, so translating the stored token is the only place this belongs.
+  //
+  // AND "other" IS A DOOR TO THE DETAILER'S OWN WORDS: choosing it stores
+  // whatever he typed as the category. `t()` returns a string it has never
+  // seen unchanged, so his typing passes through untranslated, which is the
+  // rule — our copy is ours, his is his.
+  "product": "producto",
+  "gas": "gasolina",
+  "equipment": "equipo",
+  "supplies": "insumos",
+  "other": "otro",
   // ── WHAT A BROWSER WALK IN SPANISH FOUND, 2026-09-12 ─────────────────────
   // Every one of these rendered in English with the toggle set to Spanish,
   // and every one is invisible to `i18n-coverage.mjs`: a bare literal, or a
