@@ -1500,7 +1500,17 @@ a { color: var(--accent-text); text-decoration: none; }
 .btn.ghost { border-color: transparent; background: transparent; }
 .btn.ghost:hover:not(:disabled) { background: var(--surface); border-color: transparent; }
 .btn.inline { width: auto; }
-.btn.sm { min-height: 38px; font-size: var(--t-meta); padding: 0 var(--sp-4); }
+/* **38 PAINTED, 44 REACHABLE — 2026-09-12.** PRODUCT.md's 38px exception is
+   about what `.btn.sm` LOOKS like: 28 call sites and a label ceiling measured
+   at that height, and raising the box would move all of them. The exception was
+   never about what a thumb can reach. So the box is untouched and an
+   absolutely positioned `::after` — the `.x` pattern, proven here — takes the
+   pointer to 44. Measured in the website brief at 392: "Open it", "Add a
+   website" and "Say it instead" were all 38 painted and 38 reachable.
+   Vertical only, for the reason on `.chip`: these sit in rows with small gaps
+   and a sideways box would steal a neighbour's press. */
+.btn.sm { min-height: 38px; font-size: var(--t-meta); padding: 0 var(--sp-4); position: relative; }
+.btn.sm::after { content: ""; position: absolute; inset: -4px 0; }
 /* Square, for a button whose whole label is its icon — the reorder arrows in
    Catalog (W10). A pill with a chevron in it and .btn's 26px side padding is
    64px wide for a 17px mark, and three of those plus a worded button do not
@@ -1542,6 +1552,26 @@ a { color: var(--accent-text); text-decoration: none; }
   font-size: var(--t-meta); font-weight: 500; cursor: pointer; font-family: var(--f-body);
   transition: background var(--t-hover) var(--e-out), color var(--t-hover) var(--e-out), border-color var(--t-hover) var(--e-out);
 }
+/* **THE MARK STAYS 36, THE TARGET REACHES 44 — 2026-09-12, his ruling.**
+   `.chip` is the control a detailer taps their way through the 21-step website
+   brief with, on a phone: "I like it", "Not for me", "No strong feeling", every
+   option of every question, and the EN/ES language picker that is the only way
+   out of the wrong language. Measured with a stepping hit-area probe at 392:
+   36x36 painted and 36 reachable, against a 44 floor.
+   **GROWING THE CHIP WAS THE WRONG ANSWER** — it is a pill and 44 makes it a
+   lozenge, and it would move every settings screen in the product. This is the
+   `.x` close-button pattern that is already proven here: an absolutely
+   positioned `::after` takes no part in layout, so the paint does not move and
+   the pointer reaches 8px further.
+   **VERTICAL ONLY, BECAUSE WIDTH IS NOT THE PROBLEM.** The narrowest chip
+   measured in the brief is 59px wide. Growing sideways too would overlap
+   horizontal neighbours across a 6px gap and trade a small target for a WRONG
+   one, which is the failure CLAUDE.md trap (n) names.
+   **AND THE GAP HAD TO OPEN WITH IT.** 36 + 6 does not tile a 44 target: the
+   probe read 31px of reachable height on chips with a wrapped neighbour above
+   or below, because the two boxes met. 8px makes the pitch exactly 44. */
+.chip { position: relative; margin-block: 2px; }
+.chip::after { content: ""; position: absolute; inset: -5px 0; }
 .chip svg { flex-shrink: 0; width: 1.15em; height: 1.15em; }
 .chip:hover:not(:disabled):not(.active) { border-color: var(--line-2); color: var(--text); }
 /* SELECTION IS TINTED; A FILL IS AN ACTION OR A FACT. The rule for the whole
@@ -3829,6 +3859,17 @@ html:not(.lite) .intake .samp-move .samp-row:nth-child(3) { animation-delay: .5s
   border: 2px dashed var(--line-2); border-radius: 6px;
   display: grid; place-items: center; transition: all var(--t-exit) var(--e-out);
 }
+/* **31px PAINTED, AND THE MARK IS THE DESIGN — 2026-09-12.** These three are
+   zones drawn on a little picture of the page ("Top of every page", "Under the
+   headline", "Footer only"), so their height is the DIAGRAM's proportions and
+   growing the box would stop it being a diagram. Same answer as `.chip` and
+   `.x`: an absolutely positioned `::after` takes no part in layout and carries
+   the pointer to 47.
+   **NOBODY HAD THESE.** Two reviewers measured this form and both stopped at a
+   step they could not get past; they only surfaced when the sweep walked all
+   21 steps, and they had no `::after` at all. A class-level fix to `.chip` and
+   `.btn.sm` would never have reached them. */
+.intake .placespot::after { content: ""; position: absolute; inset: -8px 0; }
 .intake .placespot span { font-size: 12px; font-weight: 600; opacity: .75; }
 .intake .placespot:hover { border-color: var(--accent); }
 .intake .placespot.on {

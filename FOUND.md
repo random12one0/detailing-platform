@@ -624,3 +624,16 @@ conversation they were found in.**
   individually because it is one link at the bottom of a scrolling wizard and
   costs nothing the exception protects. **The class itself was deliberately
   left alone.**
+
+- 2026-09-12 — **ONE CONTROL IN THE WEBSITE BRIEF IS STILL UNDER THE 44 FLOOR
+  AND I COULD NOT ESTABLISH WHY.** Step 18 (Contact), `.placespot` "Footer
+  only": 280x31 painted, **43px reachable** after the `::after` fix took it up
+  from 31. Its two siblings on the same screen reach 47. The probe reports
+  `above=BUTTON.placespot below=BUTTON.placespot` at ±5px, which says another
+  spot's target is adjacent — but `SPOTS` places the three zones 55px apart on a
+  240px diagram, so that should be impossible. **Most likely the step renders
+  TWO `PlacePicker` diagrams and this spot sits near the seam between them; not
+  confirmed.** Reported rather than guessed at: 43 is better than 31 and it is
+  not 44, and saying "fixed" would be the thing this repo punishes. The other
+  175 controls across all 21 steps clear the floor.
+

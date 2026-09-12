@@ -1226,6 +1226,27 @@ undo it.
   agent has handed over everything; a session that summarises it has forked
   it.**
 
+## THE BAR IS `docs/BAR.md`, AND IT IS THE STANDARD THE WORK IS SCORED AGAINST
+
+**Written into the repo 2026-09-12.** It had lived in the reviewer's own output
+folder for a whole run, which meant the standard every commit was being judged
+by was invisible to this repo, invisible to a fresh session, and would have died
+at the next `/clear`. **The same failure that produced `ROADMAP.md`.** Read it
+before saying anything is finished; its closing line is the one that bites —
+*if the work is done and any of these is false, the answer is not 100%,
+regardless of how much was built.*
+
+**THE TAP FLOOR IS 44px OF REAL HIT AREA, AND IT MOVED TODAY.** Three floors
+were live in this repo at once — 32 in the reviewer's protocol, **46** in
+`PRODUCT.md` § quality floor, and a `theme.css` note reasoning that 36 clears
+it — which is how a 30px control ships with a green check beside it. **44
+governs now**, it is a FLOOR and not a target, and a mark may stay visually
+smaller only where an `::after` negative inset carries the hit area to 44.
+`docs/BAR.md` has the pattern, the two ways it goes wrong, and who decided it.
+
+**AND A BOUNDING RECT CANNOT MEASURE IT** — that is trap (n) above, and it cost
+both sides of this pair a finding each on 2026-09-12.
+
 ## Context (read these, in this order, when new)
 
 0. **`docs/README.md` — THE MAP, and it is the one to read first (2026-09-08).**

@@ -92,7 +92,7 @@ correction that matters most; the ordering within it has since moved."
 
 ## Accessibility & Inclusion
 
-Design-system quality floor: text ≥ 4.5:1 on its actual surface in both themes (measured by tests), non-text edges ≥ 3:1, visible 2px accent focus ring, `prefers-reduced-motion` collapses all animation, tap targets ≥ 46px, responsive 320→1440.
+Design-system quality floor: text ≥ 4.5:1 on its actual surface in both themes (measured by tests), non-text edges ≥ 3:1, visible 2px accent focus ring, `prefers-reduced-motion` collapses all animation, tap targets: **REAL HIT AREA ≥ 44px** (`docs/BAR.md`, 2026-09-12 — this line said 46px and was one of three different floors live at once; 44 governs, a mark may stay smaller where an `::after` negative inset carries the target), responsive 320→1440.
 
 **The tap-target figure has one deliberate exception and it is not drift**
 (checked 2026-09-01, roadmap 2.11 step 6 stage 2): `--tap` is 46px and every
