@@ -77,6 +77,41 @@ it.
    `checkbox "Block this day"`. His method is CLAUDE.md trap (l). The two
    follow-ups are in `FOUND.md` and neither is this wave's work.
 
+4a. **NOTHING HERE CATCHES A MISSING IMPORT, AND THAT IS THE BIGGEST HOLE IN
+   THE INSTRUMENTS.** Cowork's ask, 2026-09-12, after the previous session
+   forgot an import twice: *"a missing import fails only at runtime, so the
+   suites pass and the page dies."* It is numbered 4a rather than 13 because
+   he ranked it **worth more than most of what is left on this list** — a
+   check that catches a whole CLASS of dead page beats another screen's polish.
+
+   **WHY EVERY EXISTING CHECK IS BLIND TO IT.** `npm run build` succeeds: an
+   undefined identifier is legal JavaScript until it is evaluated, so Rollup
+   bundles `<Folded …/>` with no `Folded` in scope and says nothing. The ten
+   credential-free suites read source as TEXT. There is no React test runner
+   here. The only instrument that has ever caught one is a person opening the
+   page — which is CLAUDE.md trap (k) in its purest form: **every check we own
+   asserts how something is WRITTEN, and this is a fault in what it DOES.**
+
+   **WHAT WOULD CLOSE IT, cheapest first, and do not reach for ESLint by
+   reflex** — it is a new dependency, a config file and a plugin chain for one
+   rule, and this repo has no linter at all today.
+
+   - **A ~60-line script over the AST.** For each `app/src/**/*.{js,jsx}`,
+     collect what the module declares (imports, `const`/`let`/`function`/
+     `class`, parameters, catch bindings) and report every identifier
+     referenced that is neither declared nor on a small browser-globals
+     allowlist. `esbuild` is ALREADY a dependency and parses JSX; `acorn` is
+     not installed but ships inside `rollup`, which is. **Baseline it by
+     deleting one import and watching it name the file.**
+   - ESLint with `no-undef` only, if the script turns out to fight JSX scoping.
+     Correct, and three dependencies heavier.
+
+   **THE ACCEPTANCE TEST IS ONE SENTENCE: delete the `Folded` import from a
+   screen that uses it, and the check must name that file.** A check that
+   passes on a deliberately broken import is this repo's oldest failure — a
+   skipped check reading exactly like a passing one — and there are at least
+   six shipped examples of it. Lane C.
+
 5. ~~**The copy pass that the call-site sweeps never reached.**~~ **DONE
    2026-09-12.** Every live single em dash in `lib/`, `scripts/` and the
    dashboard is sorted: 13 middle dots, four colons, three commas, one

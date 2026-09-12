@@ -42,11 +42,11 @@ Claude Cowork decides what becomes work.
   questions the booking page asks the customer. Pre-existing mis-grouping that
   folding made worse — it used to be visible and is now under a heading that
   does not describe it.
-- 2026-09-12 — "Microfibre towels (bulk)" is on screen but the CODE is already
-  correct: `scripts/seed-demo.mjs:784` reads "Microfiber", fixed in `73ad5b0`
-  last night. What the reviewer is looking at is a row seeded into the demo
-  database BEFORE that fix. **Nothing to change in the repo — the demo data
-  needs re-seeding**, which is lane C and a data operation, not an edit.
+- ~~2026-09-12 — "Microfibre towels (bulk)" is on screen but the CODE is already
+  correct.~~ **CLOSED 2026-09-12 by re-seeding.** `node scripts/seed-demo.mjs`
+  ran against the platform project; the demo's expense rows now read
+  "Microfiber" (measured: one `fiber`, zero `fibre` across the whole table).
+  Nothing in the repo changed, because nothing in the repo was wrong.
 - 2026-09-12 — **SPANISH COVERAGE, MEASURED: 86%.** 1,206 `t()` call sites with
   a literal across the dashboard, 1,036 distinct strings, **141 with no
   `appEs.js` entry** — while `tests/spanish.test.mjs` passes 58/0. Worst:
@@ -61,14 +61,13 @@ Claude Cowork decides what becomes work.
   of the word in `app/src` overall — the other 63 are code comments and are not
   user-facing. Awaiting the reviewer's word before changing any; the Gallery
   one was named explicitly and is done.
-- 2026-09-12 — The demo's SAVED message-template rows still carry the old SMS
-  body with an em dash sentence joint: *"quick check before {{date}} — will I
-  have access to water…"*. `app/src/lib/templates.js:166` is fixed and so is
-  its Spanish key, but a business that has already saved its templates keeps
-  the stored text, which is what the editor shows. **Same shape as
-  "Microfibre": the code is right and the row is stale.** Needs a re-seed (lane
-  C) or a one-off update; a migration that rewrites detailers' own saved copy
-  would be worse, since by then the words are theirs.
+- ~~2026-09-12 — The demo's SAVED message-template rows still carry the old SMS
+  body with an em dash sentence joint.~~ **CLOSED 2026-09-12 by the same
+  re-seed.** The demo's `business_settings` row now carries **zero** em dashes
+  of any kind and no saved copy of that SMS body at all, so the editor falls
+  back to `lib/templates.js`, which is correct. The reasoning that was right
+  and stays right: a migration rewriting a detailer's own saved copy would be
+  worse than a stale row, because by then the words are theirs.
 - 2026-09-12 — **THE EM DASH RULE HAS A THIRD CATEGORY IT DOES NOT NAME.** 76
   user-facing strings carry a single em dash and 8 carry a pair. The singles
   are NOT all sentence joints: many are LABEL SEPARATORS — `Travel — {zone}`,
@@ -291,3 +290,17 @@ Claude Cowork decides what becomes work.
   Spanish and step 1 reads *"Let's build your website."* It is the largest single
   remaining piece of the same blind spot, it is a lot of copy, and it is not a
   wave tail — it needs its own item.
+
+- 2026-09-12 — **"Insurance instalment" is in `scripts/seed-demo.mjs:792` and
+  it is British.** American is *installment*. CLAUDE.md § American English and
+  § "THE ONE THING THAT DOES FOLLOW: THE SEED IS OURS" both bind it — the seed
+  is what every demo, screenshot and sales conversation shows, so it models the
+  writing we would want even in fields a detailer would normally own. One word,
+  one line, lane C. Found while verifying the Microfiber re-seed; not fixed,
+  because it was not on the list.
+- 2026-09-12 — **`scripts/seed-demo.mjs` REWRITES `app/public/map.html` as a
+  side effect** ("map.html: 4 example links refreshed"). That is why the file
+  shows as modified in `git status` on a tree nobody has edited, and a session
+  that finds it dirty will reasonably conclude another session is mid-edit in
+  lane A. It is generated output living in a hand-edited folder. Either commit
+  it with the seed or gitignore it; noticed, not decided.
