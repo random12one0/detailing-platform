@@ -14,12 +14,21 @@ import { Mail, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { api } from "../../lib/api.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
-import { DurationChoice, Group, HourChoice, Setting, Switch } from "../../components/controls.jsx";
+import { DurationChoice, Folded, Group, HourChoice, Setting, Switch } from "../../components/controls.jsx";
+// The folded row states the hour the way the control inside it does.
+import { duration } from "../../lib/format.js";
 import { disablePush, enablePush, pushState } from "../../lib/push.js";
 import { cleanMessages, MESSAGE_KINDS, MESSAGE_MAX } from "../../lib/emailMessages.js";
 // "1 other emails" — same plural helper Business, Clients and AdvancedMoney
 // each keep a copy of.
 const n = (v, one, many) => t(v === 1 ? one : many, { count: v });
+// The same 12-hour label `HourChoice` shows, so the row and the control it
+// opens can never disagree about what time the summary goes out.
+const hourWords = (h) => {
+  const n24 = Math.min(23, Math.max(0, Number(h) ?? 7));
+  const ampm = n24 < 12 ? "AM" : "PM";
+  return `${n24 % 12 === 0 ? 12 : n24 % 12}:00 ${ampm}`;
+};
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
@@ -283,6 +292,16 @@ export default function Notifications() {
       </Group>
 
       <Group title={t("Timing")} blurb={t("Only affects nudges to you, not your customers.")}>
+        {/* **THREE SETTINGS NOBODY CHANGES TWICE, FOLDED — 2026-09-12.** Each
+            has a sensible default and each is about when a nudge reaches YOU,
+            which is the least urgent thing on this screen. The row states all
+            three, so nothing is hidden — only put away. */}
+        <Folded name={t("When these reach you")}
+          now={[
+            t("nudge {mins}", { mins: duration(form.owner_nudge_lead_minutes) }),
+            t("payment reminder after {mins}", { mins: duration(form.finalize_nudge_delay_minutes) }),
+            t("summary at {time}", { time: hourWords(form.daily_digest_hour) }),
+          ].join(" · ")}>
         <Setting label={t("Nudge you before a job starts")} stacked>
           <DurationChoice value={form.owner_nudge_lead_minutes} presets={OWNER_NUDGE}
             onChange={(v) => set("owner_nudge_lead_minutes", v)} unit="minutes" customMax={720} />
@@ -295,6 +314,7 @@ export default function Notifications() {
         <Setting label={t("Morning summary")} help={t("Your day's jobs, sent once each morning.")}>
           <HourChoice value={form.daily_digest_hour} onChange={(v) => set("daily_digest_hour", v)} />
         </Setting>
+        </Folded>
       </Group>
 
       {/* ROADMAP 2.18 — THE DETAILER'S OWN WORDS.

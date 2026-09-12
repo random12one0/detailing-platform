@@ -24,7 +24,7 @@ import { api } from "../../lib/api.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { addDays, money, todayLocal } from "../../lib/format.js";
 import Sheet from "../../components/Sheet.jsx";
-import { DurationChoice, Group, MoneyField, Segmented, Setting, Stepper, Switch } from "../../components/controls.jsx";
+import { DurationChoice, Folded, Group, MoneyField, Segmented, Setting, Stepper, Switch } from "../../components/controls.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
@@ -112,6 +112,23 @@ const WARN = {
     t("That cap is unusual — double-check it's what you want."),
   cancellation_window_hours: (v) => v > 168 &&
     t("Anything inside {days} days needs a phone call to change.", { days: Math.round(v / 24) }),
+};
+
+// **THE SENTENCE A FOLDED ROW SAYS.** `Folded` hides settings, so its summary
+// has to ANSWER what it hid — "Reminders" alone would be a row that made a
+// detailer open it to find out. Every one of these reads the live form, so the
+// row restates itself the moment something inside it changes.
+const lead = (mins) => {
+  const m = Math.max(0, Number(mins) || 0);
+  if (m % 1440 === 0 && m >= 1440) {
+    const d = m / 1440;
+    return t(d === 1 ? "the day before" : "{count} days before", { count: d });
+  }
+  if (m % 60 === 0 && m >= 60) {
+    const h = m / 60;
+    return t(h === 1 ? "an hour before" : "{count} hours before", { count: h });
+  }
+  return t("{count} minutes before", { count: m });
 };
 
 export default function BookingRules() {
@@ -519,28 +536,64 @@ export default function BookingRules() {
             onChange={(v) => set("min_advance_minutes", v)} unit="minutes" customMax={20160} />
         </Setting>
 
-        <Setting label={t("How far ahead they can book")}
-          stacked>
-          <DurationChoice value={form.max_advance_days} presets={WINDOW}
-            onChange={(v) => set("max_advance_days", v)} unit="days" customMax={1095} />
-        </Setting>
+        {/* **THE THREE WITH DEFAULTS NOBODY CHANGES, FOLDED — 2026-09-12.**
+            The gap between jobs and the notice you need are above this and
+            stay open, because those two genuinely differ per business. How far
+            ahead, how the picker is spaced and the daily cap are set once at
+            most. The row says all three, so folding them hides no answer. */}
+        <Folded name={t("How far ahead, and how many")}
+          now={[
+            // `null` IS A REAL VALUE HERE — it means no ceiling, and it is
+            // what the demo business has. The first draft of this row printed
+            // "null days ahead", which is the failure a summary row makes
+            // worst: it is the only thing on screen about a setting it has
+            // hidden. Found by reading the rendered row, not the code.
+            form.max_advance_days
+              ? t("{count} days ahead", { count: form.max_advance_days })
+              : t("no limit on how far ahead"),
+            form.slot_interval_minutes === 60 ? t("on the hour")
+              : t("every {count} min", { count: form.slot_interval_minutes }),
+            form.max_bookings_per_day
+              ? t("up to {count} a day", { count: form.max_bookings_per_day })
+              : t("no daily limit"),
+          ].join(" · ")}>
+          <Setting label={t("How far ahead they can book")}
+            stacked>
+            <DurationChoice value={form.max_advance_days} presets={WINDOW}
+              onChange={(v) => set("max_advance_days", v)} unit="days" customMax={1095} />
+          </Setting>
 
-        <Setting label={t("Start times you offer")}
-          help={t("On the hour only, or every fifteen minutes — how the time picker is spaced.")}
-          stacked>
-          <DurationChoice value={form.slot_interval_minutes} presets={SLOT}
-            onChange={(v) => set("slot_interval_minutes", v)} unit="minutes"
-            allowCustom={false} />
-        </Setting>
+          <Setting label={t("Start times you offer")}
+            help={t("On the hour only, or every fifteen minutes — how the time picker is spaced.")}
+            stacked>
+            <DurationChoice value={form.slot_interval_minutes} presets={SLOT}
+              onChange={(v) => set("slot_interval_minutes", v)} unit="minutes"
+              allowCustom={false} />
+          </Setting>
 
-        <Setting label={t("Most jobs in a day")}
-          help={t("Once you hit this, the rest of that day stops being offered.")}>
-          <Stepper value={form.max_bookings_per_day} min={1} max={30} suffix="jobs"
-            unlimitedLabel="No limit" onChange={(v) => set("max_bookings_per_day", v)} />
-        </Setting>
+          <Setting label={t("Most jobs in a day")}
+            help={t("Once you hit this, the rest of that day stops being offered.")}>
+            <Stepper value={form.max_bookings_per_day} min={1} max={30} suffix="jobs"
+              unlimitedLabel="No limit" onChange={(v) => set("max_bookings_per_day", v)} />
+          </Setting>
+        </Folded>
       </Group>
 
       <Group title={t("Changes and reminders")}>
+        {/* **THE WHOLE GROUP FOLDS — 2026-09-12.** Not one of these is on the
+            keep-open list: a cancellation window and a reminder schedule are
+            set once and left. The row states the schedule in words, which is
+            the fact a detailer actually wants from this group, so opening it
+            is a choice rather than a search. */}
+        <Folded name={t("Reminders and cancellations")}
+          now={[
+            form.customer_reminder_2_enabled
+              ? t("{first}, then {second}", {
+                first: lead(form.customer_reminder_lead_minutes),
+                second: lead(form.customer_reminder_2_lead_minutes) })
+              : t("one reminder, {when}", { when: lead(form.customer_reminder_lead_minutes) }),
+            t("changes up to {hours}h before", { hours: form.cancellation_window_hours }),
+          ].join(" · ")}>
         <Setting label={t("They can change or cancel until")}
           help={t("Closer than this and they have to call you.")}
           stacked>
@@ -596,6 +649,7 @@ export default function BookingRules() {
           help={t("Sent the evening before instead.")}
           checked={form.evening_before_enabled}
           onChange={(v) => set("evening_before_enabled", v)} />
+        </Folded>
       </Group>
 
       {/* ROADMAP 2.8c — SURCHARGES. The research found the trade's own booking

@@ -1835,6 +1835,30 @@ export const appEs = {
   "the last 30 days or booked ahead": "los últimos 30 días o lo que viene",
   "the last 90 days or booked ahead": "los últimos 90 días o lo que viene",
   "the last year or booked ahead": "el último año o lo que viene",
+  // The one Money sentence that was never wrapped. FOUND.md, 2026-09-12.
+  "{percent}% of what you collected was sold at the job.":
+    "{percent}% de lo que cobraste se vendió en el trabajo.",
+  // The folded settings rows say what they have put away.
+  "How far ahead, and how many": "Con cuánta anticipación, y cuántos",
+  "Reminders and cancellations": "Recordatorios y cancelaciones",
+  "When these reach you": "Cuándo te llegan",
+  "{count} days ahead": "{count} días de anticipación",
+  "no limit on how far ahead": "sin límite de anticipación",
+  "on the hour": "en punto",
+  "every {count} min": "cada {count} min",
+  "up to {count} a day": "hasta {count} al día",
+  "no daily limit": "sin límite diario",
+  "the day before": "el día anterior",
+  "{count} days before": "{count} días antes",
+  "an hour before": "una hora antes",
+  "{count} hours before": "{count} horas antes",
+  "{count} minutes before": "{count} minutos antes",
+  "{first}, then {second}": "{first}, luego {second}",
+  "one reminder, {when}": "un recordatorio, {when}",
+  "changes up to {hours}h before": "cambios hasta {hours}h antes",
+  "nudge {mins}": "aviso {mins}",
+  "payment reminder after {mins}": "recordatorio de pago tras {mins}",
+  "summary at {time}": "resumen a las {time}",
   // Wave B, 2026-09-12: the two disclosures.
   "Social and review links": "Enlaces de redes y reseñas",
   "{count} other email you can add a line to":

@@ -1353,6 +1353,24 @@ a { color: var(--accent-text); text-decoration: none; }
 .nav-row[aria-current="true"] { background: var(--surface-lit); }
 .nav-row[aria-current="true"] .name { color: var(--accent-text); }
 
+/* **A FOLDED SETTINGS ROW.** The Business tab's `.nav-row` as the `<summary>`
+   of a native `<details>` — see `controls.jsx`'s `Folded` for why this is two
+   existing patterns meeting rather than a new control. The row keeps its own
+   hairline rule, so a folded row sits in a group of settings without
+   announcing that it is a different KIND of thing. */
+.foldrow > summary { list-style: none; }
+.foldrow > summary::-webkit-details-marker { display: none; }
+/* The chevron turns to point at what it has opened. `--t-hover` rather than a
+   reveal duration: this is a control answering a press, not a screen arriving.
+   NO `@media (prefers-reduced-motion)` HERE — `composition` 9b fails on a
+   second implementation of that rule in this file, and it is right to: the
+   product degrades through `.lite`, which is live and outranks the media
+   query, and a local copy is how two answers to one question start. */
+.foldrow > summary .chev { transition: transform var(--t-hover) var(--e-out); }
+.foldrow[open] > summary .chev { transform: rotate(90deg); }
+/* Indented under the row that opened it, so the settings inside read as that
+   row's contents and not as the next group. */
+.foldrow-body { padding: 0 var(--sp-2) var(--sp-3) var(--sp-4); }
 /* A ROW WHOSE ANSWER BLOCKS A BOOKING. At most one on the screen, ordered
    hours → services → business info (§1b item 4) — three red rows is a screen
    with no priority on it, and the point of the order is that a brand-new

@@ -5,7 +5,7 @@
 // you touch is different.
 
 import { useState } from "react";
-import { Check, Eye, EyeOff, Minus, Plus } from "lucide-react";
+import { Check, Eye, EyeOff, Minus, Plus, ChevronRight } from "lucide-react";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
@@ -178,6 +178,44 @@ export function HourChoice({ value, onChange }) {
     <select value={value ?? 7} onChange={(e) => onChange(Number(e.target.value))} style={{ maxWidth: 150 }}>
       {hours.map((h) => <option key={h} value={h}>{label(h)}</option>)}
     </select>
+  );
+}
+
+// **SETTINGS THAT HAVE A DEFAULT NOBODY CHANGES — 2026-09-12.**
+//
+// Booking rules stood nineteen `Setting` rows open at once and Notifications
+// twenty-four. More grouping was not the answer: Booking rules already had
+// five groups. **The answer is that most of these have a default a detailer
+// will never touch, so they should not all be standing open** — and the
+// product already solved this exact problem on the Business tab, where a row
+// reads *"Hours & days off · Tue-Sat · 8:00 AM - 6:00 PM"* and opens onto the
+// screen behind it.
+//
+// **SO THIS IS THAT ROW, NOT A NEW ONE.** `.nav-row` is the Business tab's own
+// markup — icon slot, name, live summary, chevron — wrapped in the native
+// `<details>` the product already uses for `.disclose`. Two existing patterns
+// meeting, which is why it takes no script and no ARIA of its own: a
+// `<summary>` is already a button that announces its own expanded state.
+//
+// **THE SUMMARY MUST STATE THE CURRENT SETTING IN WORDS.** A row that says
+// only "Reminders" has hidden something; a row that says "Reminders · one the
+// day before, one three hours out" has ANSWERED it, and opening is then a
+// choice rather than a search. A caller that cannot write that sentence should
+// leave its settings open instead.
+export function Folded({ name, now, children }) {
+  return (
+    <details className="foldrow">
+      <summary className="nav-row">
+        <span className="txt">
+          <span className="name">{name}</span>
+          <span className="now">{now}</span>
+        </span>
+        <span className="chev" aria-hidden="true">
+          <ChevronRight size={18} strokeWidth={2} />
+        </span>
+      </summary>
+      <div className="foldrow-body">{children}</div>
+    </details>
   );
 }
 

@@ -568,7 +568,12 @@ export default function Money({ onGo }) {
           </div>
           {stats.jobsNow >= RATE_FLOOR && stats.inNow > 0 && stats.onSite > 0 && (
             <p className="quiet" style={{ marginTop: 8 }}>
-              {Math.round((stats.onSite / stats.inNow) * 100)}% of what you collected was sold at the job.
+              {/* **IT WAS A BARE LITERAL — FOUND.md, 2026-09-12.** The only
+                  sentence on this screen that never went through `t()`, so it
+                  sat in English on a Spanish dashboard while everything around
+                  it translated. Nothing else about it changes. */}
+              {t("{percent}% of what you collected was sold at the job.",
+                { percent: Math.round((stats.onSite / stats.inNow) * 100) })}
             </p>
           )}
 
