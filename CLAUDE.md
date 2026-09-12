@@ -1543,6 +1543,26 @@ unguarded plural, twelve `Add a line` rows that were one collapsed row, two
 `.bk-cal` elements read as one, and now a dash that exists only after two
 values meet. **Measure the render; then go and find what produced it.**
 
+**AND THE FOURTH AXIS IS NOT A SHAPE AT ALL — IT IS WHOSE WORDS THEY ARE.**
+The customer plans page carries *"Two visits a month — one full exterior, one
+interior refresh."* By the three shapes above that is a sentence joint and a
+colon fixes it. **It is not our sentence.** It is `plans.description`, which a
+detailer writes about his own business, and the block beside it holds his
+"Exterior wash, wheels and glass every other week, plus a quick interior
+wipe-down."
+
+**PRODUCT COPY FOLLOWS THESE RULES. CONTENT A DETAILER AUTHORS DOES NOT.**
+Policing it would be us editing his voice inside his own product, and the
+never-defaults are about what WE write. **So a sweep that reaches a database
+column holding somebody's own words stops there** — service names and
+descriptions, plan descriptions, FAQ answers, reviews, message templates once
+edited, anything typed into a settings field.
+
+**THE ONE THING THAT DOES FOLLOW: THE SEED IS OURS.** `scripts/seed-demo.mjs`
+is what every demo, every screenshot and every sales conversation shows, so it
+models the writing we would want even in fields we do not govern. Fix the seed
+string; leave the rule alone.
+
 **A COUNT OF DASHES CANNOT TELL THESE APART, so this is done by hand.** A
 single dash is not automatically a joint: 65 user-facing strings carried one
 and roughly a third were labels. Classify, then apply.

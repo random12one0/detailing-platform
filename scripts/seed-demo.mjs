@@ -481,7 +481,13 @@ const planRows = await post("/rest/v1/plans", [
   },
   {
     business_id: business.id, name: "Monthly two-visit", sort_order: 1,
-    description: "Two visits a month — one full exterior, one interior refresh.",
+    // **THE SEED IS COPY WE OWN EVEN THOUGH THE FIELD IS NOT — 2026-09-12.**
+    // A plan's description belongs to the detailer and our copy rules do not
+    // reach it (CLAUDE.md, "whose words are they"). But this string is what
+    // every demo, every screenshot and every sales conversation shows, so it
+    // should MODEL the writing we would want rather than carry the sentence
+    // joint we spent the day removing from our own.
+    description: "Two visits a month: one full exterior, one interior refresh.",
     cadence_count: 1, cadence_unit: "month", visits_per_period: 2,
     price_kind: "monthly", price_amount: 200, term_months: null,
   },
