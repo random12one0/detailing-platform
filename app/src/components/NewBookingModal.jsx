@@ -36,7 +36,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Check, Search, X } from "lucide-react";
 import { api, slotsForType } from "../lib/api.js";
 import { supabase } from "../lib/supabase.js";
-import { money, time12, todayLocal } from "../lib/format.js";
+import { money, phone, time12, todayLocal } from "../lib/format.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import Sheet from "./Sheet.jsx";
 import { Segmented } from "./controls.jsx";
@@ -247,7 +247,7 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
             <span className="row" style={{ gap: 8, minWidth: 0 }}>
               <Check size={15} strokeWidth={2} style={{ color: "var(--accent)", flexShrink: 0 }} />
               <span className="body" style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
-                {picked.name}{picked.phone ? ` · ${picked.phone}` : ""}
+                {picked.name}{picked.phone ? ` · ${phone(picked.phone)}` : ""}
               </span>
             </span>
             <button className="btn sm inline ghost" aria-label={t("Use a different customer")}
@@ -265,7 +265,7 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
             {matches?.map((c) => (
               <button key={c.id} className="row between sunken flush nb-match" onClick={() => pick(c)}>
                 <span className="body">{c.name}</span>
-                <span className="quiet">{c.phone}</span>
+                <span className="quiet">{phone(c.phone)}</span>
               </button>
             ))}
             {matches?.length === 0 && <p className="quiet">{t("Nobody by that name yet.")}</p>}

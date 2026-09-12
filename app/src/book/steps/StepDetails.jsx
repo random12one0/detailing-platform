@@ -1,6 +1,7 @@
 // Step 5 — who we're detailing for.
 
 import { looksLikeEmail } from "../core.js";
+import { phoneAsTyped } from "../../lib/format.js";
 import { t } from "../../lib/i18n.js";
 import { useLocale } from "../../hooks/useLocale.js";
 
@@ -26,7 +27,7 @@ export default function StepDetails({ form, setForm }) {
         <label className="bk-field">
           <span>{t("Phone")}</span>
           <input type="tel" inputMode="tel" autoComplete="tel" value={form.customerPhone}
-            onChange={(e) => setForm((f) => ({ ...f, customerPhone: e.target.value }))} />
+            onChange={(e) => setForm((f) => ({ ...f, customerPhone: phoneAsTyped(e.target.value) }))} />
         </label>
         <label className="bk-field">
           <span>{t("Email")}</span>

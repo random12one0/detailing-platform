@@ -27,7 +27,7 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, ChevronRight } from "lucide-react";
 import { api } from "../lib/api.js";
-import { money } from "../lib/format.js";
+import { money, phone } from "../lib/format.js";
 import { cadenceWords, priceParts, termWords, visitWords } from "../lib/plans.js";
 import { t } from "../lib/i18n.js";
 import { useLocale } from "../hooks/useLocale.js";
@@ -109,7 +109,7 @@ function PlansInner() {
         {plans.length === 0 ? (
           <div className="bk-note">
             {t("{name} isn’t running any plans at the moment.", { name: business.name })}
-            {business.phone ? ` ${t("Call {phone} if you’d like a regular slot.", { phone: business.phone })}` : ""}
+            {business.phone ? ` ${t("Call {phone} if you’d like a regular slot.", { phone: phone(business.phone) })}` : ""}
           </div>
         ) : (
           // A COLLECTION OF RECORDS IS A RULED LIST, NEVER A STACK OF CARDS —

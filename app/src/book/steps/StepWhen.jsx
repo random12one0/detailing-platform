@@ -22,7 +22,7 @@ import { useLocale } from "../../hooks/useLocale.js";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { api } from "../../lib/api.js";
-import { time12 } from "../../lib/format.js";
+import { phone, time12 } from "../../lib/format.js";
 import {
   businessToday, dayIsOpen, dayRefusesMode, monthGrid, monthHasNothing,
   monthRange, shiftMonth, slotsForType,
@@ -227,7 +227,7 @@ export default function StepWhen({ form, setForm, durationMinutes, durations }) 
         <div className="bk-note" style={{ marginTop: 12 }}>
           {business.phone
             ? t("No open times this month. Try the next month, or call {phone}.",
-              { phone: business.phone })
+              { phone: phone(business.phone) })
             : t("No open times this month. Try the next month.")}
         </div>
       )}

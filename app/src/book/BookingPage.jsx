@@ -28,7 +28,7 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { api } from "../lib/api.js";
 import { tenantHost } from "../lib/host.js";
-import { duration, money } from "../lib/format.js";
+import { duration, money, phone } from "../lib/format.js";
 // The door on step 1 names the cheapest plan, and the words for a price live
 // in one place for every screen that prints one.
 import { priceWords } from "../lib/plans.js";
@@ -244,6 +244,26 @@ function BookingFlow({ notFound = null }) {
 
   useEffect(() => { fetchQuote(); }, [fetchQuote]);
 
+  // WHY THE CODE WAS REFUSED, IN THE CUSTOMER'S WORDS RATHER THAN THE
+  // SERVER'S — 2026-09-12, from an outside review of the booking page.
+  //
+  // The refusal branch was always here and always rendered; what it rendered
+  // was `validate-promo-code`'s own sentence, *"Invalid or expired promo
+  // code"*. Three things wrong with that. It is written for whoever reads a
+  // log. It reaches a Spanish page in English, because `t()` can only
+  // translate a string this codebase wrote. And it answers two different
+  // questions at once — a code that does not exist and a code that has
+  // expired are not the same news for somebody holding a flyer.
+  //
+  // **THE STATUS IS WHAT IS MATCHED, NOT THE SENTENCE** (`core.js`'s
+  // `postFunction` carries it). 403 is the one refusal the server can be
+  // specific about: the code is real, and this person has had it already.
+  const promoMessage = (e) => {
+    if (e?.status === 403) return t("You’ve used that code already — it’s one per customer.");
+    if (e?.status === 404) return t("That code isn’t one of ours.");
+    return t("We couldn’t check that code just now. Try again in a moment.");
+  };
+
   const applyPromo = async () => {
     const code = form.promoCode.trim();
     if (!code) return;
@@ -252,7 +272,7 @@ function BookingFlow({ notFound = null }) {
       await api.validatePromo(slug, code, form.customerEmail, form.customerPhone);
       setPromoState({ checking: false, error: "", applied: code });
     } catch (e) {
-      setPromoState({ checking: false, error: e.message || t("That code isn't valid."), applied: null });
+      setPromoState({ checking: false, error: promoMessage(e), applied: null });
     }
   };
 
@@ -420,7 +440,7 @@ function BookingFlow({ notFound = null }) {
           )}
           {business?.phone && (
             <p className="bk-muted" style={{ marginTop: 10 }}>
-              <a href={`tel:${business.phone}`}>{business.phone}</a>
+              <a href={`tel:${business.phone}`}>{phone(business.phone)}</a>
             </p>
           )}
         </div>
@@ -453,7 +473,7 @@ function BookingFlow({ notFound = null }) {
               feature and can never fire, found by opening the page rather
               than by any check. */}
           {business?.phone && (
-            <p className="bk-muted"><a href={`tel:${business.phone}`}>{business.phone}</a></p>
+            <p className="bk-muted"><a href={`tel:${business.phone}`}>{phone(business.phone)}</a></p>
           )}
         </div>
       </div>

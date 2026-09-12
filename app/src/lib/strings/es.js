@@ -232,7 +232,14 @@ export const es = {
     "No pudimos calcular un precio para esa selección.",
   "We couldn't work out a price just now.":
     "No pudimos calcular el precio en este momento.",
-  "That code isn't valid.": "Ese código no es válido.",
+  // The promo refusals. Three keys where there was one, because the page can
+  // now say WHICH refusal it is — see BookingPage's `promoMessage`. The old
+  // "That code isn't valid." is gone with its only caller.
+  "That code isn’t one of ours.": "Ese código no es nuestro.",
+  "You’ve used that code already — it’s one per customer.":
+    "Ya usaste ese código: es uno por cliente.",
+  "We couldn’t check that code just now. Try again in a moment.":
+    "No pudimos verificar ese código en este momento. Inténtalo de nuevo en un momento.",
   "We couldn't confirm the price. Please go back a step and try again.":
     "No pudimos confirmar el precio. Regresa un paso e inténtalo de nuevo.",
   "We couldn't complete that booking.": "No pudimos completar esa reserva.",

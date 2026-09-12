@@ -23,7 +23,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { CalendarClock, X } from "lucide-react";
 import { api } from "../lib/api.js";
-import { dateLong, money } from "../lib/format.js";
+import { dateLong, money, phone } from "../lib/format.js";
 import { cadenceWords, ledgerFor, priceWords, statusWords, termWords, visitWords } from "../lib/plans.js";
 import { t } from "../lib/i18n.js";
 import { useLocale } from "../hooks/useLocale.js";
@@ -235,7 +235,7 @@ function PlanInner({ data, onChanged }) {
                     <X size={20} strokeWidth={2} /> {t("End this plan")}
                   </button>
                   {business.phone && (
-                    <a className="bk-btn ghost" href={`tel:${business.phone}`}>{business.phone}</a>
+                    <a className="bk-btn ghost" href={`tel:${business.phone}`}>{phone(business.phone)}</a>
                   )}
                 </>
               )}

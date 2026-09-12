@@ -7,7 +7,7 @@
 
 import { getLocale, intlLocale, t } from "../../lib/i18n.js";
 import { useLocale } from "../../hooks/useLocale.js";
-import { duration, money, time12 } from "../../lib/format.js";
+import { duration, money, phone, time12 } from "../../lib/format.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 
 export default function StepReview({ form, setForm, quote, services, addOns, promoState, onApplyPromo }) {
@@ -143,7 +143,7 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
         {[form.customerName, vehicleLine].filter(Boolean).join(" · ")}
       </p>
       <p className="bk-muted" style={{ marginTop: 2 }}>
-        {[form.customerPhone, form.customerEmail].filter(Boolean).join(" · ")}
+        {[phone(form.customerPhone), form.customerEmail].filter(Boolean).join(" · ")}
       </p>
 
       {/* The money is a receipt — ruled rows, mono figures, a dashed rule

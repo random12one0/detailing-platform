@@ -56,6 +56,7 @@ import { planAndTerm, planChoice } from "../../lib/planChoice.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
+import { phone } from "../../lib/format.js";
 import { appIntlLocale, t } from "../../lib/appI18n.js";
 import { useAppLocale } from "../../hooks/useAppLocale.js";
 
@@ -353,7 +354,7 @@ export default function Billing() {
     return (
       <p className="quiet" style={{ marginTop: "var(--sp-5)" }}>
         Something not right with a charge?{" "}
-        {c.phone && <>{t("Call or text")} <span className="num">{c.phone}</span>. </>}
+        {c.phone && <>{t("Call or text")} <span className="num">{phone(c.phone)}</span>. </>}
         {c.email && <>{t("Or email")} <a href={`mailto:${c.email}`}>{c.email}</a>.</>}
       </p>
     );

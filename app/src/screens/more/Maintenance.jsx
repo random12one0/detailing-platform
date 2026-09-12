@@ -28,6 +28,7 @@ import { nextDue, saySoon, stateOf } from "../../lib/maintenance.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
+import { phone } from "../../lib/format.js";
 import { t } from "../../lib/appI18n.js";
 import { useAppLocale } from "../../hooks/useAppLocale.js";
 
@@ -131,7 +132,7 @@ export default function Maintenance() {
             onChange={(e) => setForm({ ...form, customer_id: e.target.value })}>
             <option value="">{t("Choose a customer…")}</option>
             {customers.map((c) => (
-              <option key={c.id} value={c.id}>{c.name} · {c.phone}</option>
+              <option key={c.id} value={c.id}>{c.name} · {phone(c.phone)}</option>
             ))}
           </select>
         </label>

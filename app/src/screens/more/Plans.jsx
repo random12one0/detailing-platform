@@ -29,7 +29,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Repeat, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
-import { dateLong, money, todayLocal } from "../../lib/format.js";
+import { dateLong, money, phone, todayLocal } from "../../lib/format.js";
 import {
   cadenceWords, ledgerFor, priceWords, statusWords, termWords, visitWords, visitsOwed,
 } from "../../lib/plans.js";
@@ -386,7 +386,7 @@ export default function Plans() {
             repo. The close beside it is his review of 2026-09-11: the only
             close in view used to be the one that shuts the whole screen. */}
         {editorHead(who?.name ?? t("Log a member"), () => setEditMember(null))}
-        {who?.phone && <div className="muted" style={{ marginTop: "calc(-1 * var(--sp-2))" }}>{who.phone}</div>}
+        {who?.phone && <div className="muted" style={{ marginTop: "calc(-1 * var(--sp-2))" }}>{phone(who.phone)}</div>}
         {/* A NATIVE DROP-DOWN, DELIBERATELY. The design system's rule is that
             three choices are a segmented control; a customer list is two
             hundred, and the platform's own picker is better than anything
@@ -395,7 +395,7 @@ export default function Plans() {
           <label className="field"><span>{t("Customer")}</span>
             <select value={f.customer_id} onChange={(e) => setMemberForm({ ...f, customer_id: e.target.value })}>
               <option value="">{t("Choose someone…")}</option>
-              {customers.map((c) => <option key={c.id} value={c.id}>{c.name} · {c.phone}</option>)}
+              {customers.map((c) => <option key={c.id} value={c.id}>{c.name} · {phone(c.phone)}</option>)}
             </select></label>
         )}
         <label className="field"><span>{t("Plan")}</span>

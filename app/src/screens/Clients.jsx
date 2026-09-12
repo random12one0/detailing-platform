@@ -48,7 +48,7 @@ import { api } from "../lib/api.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import BookingLink from "../components/BookingLink.jsx";
 import { withLocal, BOOKING_SELECT } from "../hooks/useBookings.js";
-import { dateLong, money, todayLocal } from "../lib/format.js";
+import { dateLong, money, phone, todayLocal } from "../lib/format.js";
 // THE ARITHMETIC IS IN ITS OWN FILE so `tests/client-list.test.mjs` can import
 // it with no browser — the same reason `accountant-export.js` is separate from
 // Money. Three of the four decide something a person acts on: what the screen
@@ -419,11 +419,11 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
           // `querySelector` takes whichever comes first in the document.
           <button key={c.id} className="row-item" data-tour={rowIndex === 0 ? "client" : undefined}
             onClick={() => openCustomer(c)}
-            aria-label={`${c.name}, ${t("last visit {when}", { when: agoWords(last, today, t).toLowerCase() })}, ${owner ? money(spend) : t("{count} visits", { count: visits })}, ${c.phone}`}>
+            aria-label={`${c.name}, ${t("last visit {when}", { when: agoWords(last, today, t).toLowerCase() })}, ${owner ? money(spend) : t("{count} visits", { count: visits })}, ${phone(c.phone)}`}>
             <span className="c-who nm">{c.name}</span>
             <span className="c-sub">
               <span className="c-date">{agoWords(last, today, t)}</span>
-              <span className="c-what">{c.phone}</span>
+              <span className="c-what">{phone(c.phone)}</span>
             </span>
             {/* Lifetime spend is owner-only; staff get the count, which is
                 what they need and is the same slot (step 4 §8). */}
@@ -451,7 +451,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
           the only screen with no panel on it and a right-hand card would end
           that, so the rows sit directly on the ground at both widths. */}
       {open && !selected && (
-        <RecordHost bare onClose={() => setOpen(null)} title={open.name} subtitle={open.phone}>
+        <RecordHost bare onClose={() => setOpen(null)} title={open.name} subtitle={phone(open.phone)}>
           <div className="group">
             {/* IT LEADS WITH THE NUMBERS — F8, 2 of 2: both documented
                 products lead a client with a figure. Today's bare-figure

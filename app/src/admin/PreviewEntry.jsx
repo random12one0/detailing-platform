@@ -65,7 +65,24 @@ export default function PreviewEntry() {
       leavePreview();
       setError("nothing");
     }, 5_000);
-    return () => { window.removeEventListener("hashchange", go); clearTimeout(giveUp); };
+    // **AND LEAVING EARLY UNDOES IT TOO — 2026-09-12.** The timeout above is
+    // the only thing that un-poisons a tab that reached this path without a
+    // token, and this cleanup CANCELS it. So somebody who typed `/preview`,
+    // waited two seconds and clicked away took the flag with them: five
+    // seconds later nothing fired, and every page in the product showed the
+    // sign-in screen over a perfectly valid session. The escape was closing
+    // the tab, which is the exact bug the timeout was added to end.
+    //
+    // The flag cannot simply be set later instead. `lib/preview.js` reads the
+    // path at module load, BEFORE the Supabase client exists, because that is
+    // what puts the preview session in this tab's own drawer rather than
+    // replacing the back office's. So it is set early on purpose and the
+    // discipline has to be that every way out of this page clears it again.
+    return () => {
+      window.removeEventListener("hashchange", go);
+      clearTimeout(giveUp);
+      if (!used.current) leavePreview();
+    };
   }, [nav]);
 
   return (

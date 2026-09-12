@@ -52,7 +52,17 @@ export async function postFunction(supabaseUrl, anonKey, name, body, jwt) {
     body: JSON.stringify(body),
   });
   const data = await res.json().catch(() => null);
-  if (!res.ok) throw new Error(data?.error || `Request failed (${res.status})`);
+  if (!res.ok) {
+    // **THE STATUS TRAVELS WITH THE ERROR — 2026-09-12.** Without it a caller
+    // that wants to say something different for "we have never heard of that
+    // code" and "that code is real and you have already used it" has only the
+    // server's own English sentence to match on, and a reworded sentence would
+    // then silently fall through to the generic branch. A number does not get
+    // reworded.
+    const err = new Error(data?.error || `Request failed (${res.status})`);
+    err.status = res.status;
+    throw err;
+  }
   return data;
 }
 

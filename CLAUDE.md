@@ -1329,11 +1329,24 @@ good — the "Your web address" screen, the FAQ answers, "Nothing is saved and n
 time is taken". Match that and do not invent a new voice. If a sentence sounds
 like a landing page, cut it.
 
-**OPEN, AND WITH ANDREW AS OF 2026-09-12 — DO NOT RESOLVE IT IN A SESSION.**
-The exhaustion test above and design-system law 1 are two answers to one
-question. Law 1 says *one continuous ground, and every section a different
+**RESOLVED 2026-09-12, by the reviewer under Andrew's delegation that morning
+— and it is a SPLIT, decided by whether the screen is being built or already
+exists.** The exhaustion test above and design-system law 1 were two answers to
+one question. Law 1 says *one continuous ground, and every section a different
 skeleton over it — two sections that share a skeleton is the failure*, and
-`tests/composition.test.mjs` enforces it. That is close to the rigid wording
-Andrew withdrew on 2026-09-12, in stronger form and with a test behind it.
-Which of the two governs a screen is his call and it has been put to him.
-Until he answers, **law 1 and its test stand** — existing law wins.
+`tests/composition.test.mjs` enforces it.
+
+- **Anything built or rebuilt from here: law 1 stands, unchanged, test and
+  all.** It is not weakened, and the exhaustion test does not excuse a new
+  screen from it.
+- **A screen that already exists and already shares skeletons: the exhaustion
+  test governs.** We do not tear a working screen apart to satisfy law 1.
+- **If the composition test complains about an untouched old screen, that goes
+  in `FOUND.md`** — it does not become a reason to rebuild the screen around
+  it.
+
+The reasoning: law 1 is about what a page is composed OF and answers best while
+a page is being composed; the exhaustion test is about what a finished page
+COSTS to read. Applied to new work they agree. Applied backwards to shipped
+work, law 1 turns into a demand to rewrite screens nobody has complained about,
+which is the opposite of why the exhaustion test was written.

@@ -22,7 +22,7 @@ import { api, icsUrl } from "../lib/api.js";
 import { calendarUrlFor, loadPrefs, saveContact } from "../lib/platform.js";
 import { supabase } from "../lib/supabase.js";
 import { fillTemplate } from "../lib/templates.js";
-import { dateLong, mapsUrl, money, time12 } from "../lib/format.js";
+import { dateLong, mapsUrl, money, phoneAsTyped, time12 } from "../lib/format.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import JobPhotos from "./JobPhotos.jsx";
 import FinalizeModal from "./FinalizeModal.jsx";
@@ -537,7 +537,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
             <label className="field"><span>{t("Name")}</span>
               <input value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} /></label>
             <label className="field"><span>{t("Phone")}</span>
-              <input value={form.customer_phone} onChange={(e) => setForm({ ...form, customer_phone: e.target.value })} /></label>
+              <input value={form.customer_phone} onChange={(e) => setForm({ ...form, customer_phone: phoneAsTyped(e.target.value) })} /></label>
             <label className="field"><span>{t("Email")}</span>
               <input value={form.customer_email} onChange={(e) => setForm({ ...form, customer_email: e.target.value })} /></label>
             <label className="field"><span>{t("Address")}</span>

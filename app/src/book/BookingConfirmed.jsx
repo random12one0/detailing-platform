@@ -5,7 +5,7 @@ import { intlLocale, t } from "../lib/i18n.js";
 import { useLocale } from "../hooks/useLocale.js";
 import { Check, Clock } from "lucide-react";
 import { icsUrl } from "../lib/api.js";
-import { money, time12 } from "../lib/format.js";
+import { money, phone, time12 } from "../lib/format.js";
 import { useBookingBusiness } from "./BookingBusinessContext.jsx";
 
 export default function BookingConfirmed({ booking, form }) {
@@ -83,7 +83,7 @@ export default function BookingConfirmed({ booking, form }) {
         {business.phone && (
           <p className="bk-muted" style={{ marginTop: 18, textAlign: "center" }}>
             {t("Questions? Call")}{" "}
-            <a href={`tel:${business.phone}`} style={{ color: "var(--bk-accent-text)" }}>{business.phone}</a>
+            <a href={`tel:${business.phone}`} style={{ color: "var(--bk-accent-text)" }}>{phone(business.phone)}</a>
           </p>
         )}
       </div>

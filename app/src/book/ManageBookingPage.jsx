@@ -17,7 +17,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { CalendarClock, Check, CreditCard, Phone, X } from "lucide-react";
 import { api, icsUrl, slotsForType } from "../lib/api.js";
-import { money, time12 } from "../lib/format.js";
+import { money, phone, time12 } from "../lib/format.js";
 import { BookingBusinessProvider, useBookingBusiness } from "./BookingBusinessContext.jsx";
 import "./booking.css";
 
@@ -524,7 +524,7 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
             </div>
             {booking.customer_phone && (
               <div className="line dim">
-                <span>{t("Phone")}</span><span>{booking.customer_phone}</span>
+                <span>{t("Phone")}</span><span>{phone(booking.customer_phone)}</span>
               </div>
             )}
             {booking.customer_email && (
@@ -740,7 +740,7 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
                   <div className="bk-row" style={{ marginTop: 8, gap: 12, flexWrap: "wrap" }}>
                     {receiptBusiness.phone && (
                       <a className="bk-btn inline" href={`tel:${receiptBusiness.phone.replace(/[^+\d]/g, "")}`}>
-                        {receiptBusiness.phone}
+                        {phone(receiptBusiness.phone)}
                       </a>
                     )}
                     {receiptBusiness.email && (
@@ -788,7 +788,7 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
                 </button>
                 {business.phone && (
                   <a className="bk-btn ghost" href={`tel:${business.phone}`}>
-                    <Phone size={18} strokeWidth={2} /> {t("Call")} {business.phone}
+                    <Phone size={18} strokeWidth={2} /> {t("Call")} {phone(business.phone)}
                   </a>
                 )}
               </div>

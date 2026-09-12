@@ -40,6 +40,44 @@ export const money = (n) => {
   return `${v < 0 ? "-" : ""}${Number.isInteger(abs) ? WHOLE.format(abs) : CENTS.format(abs)}`;
 };
 
+// ONE PHONE SHAPE, `(562) 555-0180` — the third formatter this module was
+// always supposed to have, added 2026-09-12 after an outside review found the
+// SAME screen printing `5625550142` and `562-555-0180` nine lines apart. A
+// phone number is stored as whatever somebody typed, so without one formatter
+// every screen shows the typing rather than the number.
+//
+// **A NUMBER THIS DOES NOT RECOGNISE IS RETURNED UNTOUCHED.** Ten digits, or
+// eleven starting with the US country code, are the only shapes it rewrites.
+// A `+44` number run through a US mask comes out with digits missing, which is
+// worse than the inconsistency this fixes — and a customer whose number will
+// not go in is a booking nobody gets.
+export const phone = (v) => {
+  const raw = String(v ?? "").trim();
+  const digits = raw.replace(/\D/g, "");
+  const n = digits.length === 11 && digits.startsWith("1") ? digits.slice(1) : digits;
+  if (n.length !== 10) return raw;
+  return `(${n.slice(0, 3)}) ${n.slice(3, 6)}-${n.slice(6)}`;
+};
+
+// THE SAME SHAPE WHILE IT IS STILL BEING TYPED, which is a different job:
+// `phone()` must not touch a number it cannot parse, and a half-typed one is
+// exactly that. Rebuilt from the digits on every keystroke, so backspace works
+// without the mask putting a character back.
+//
+// **NOTHING IS BRACKETED UNTIL THERE ARE FOUR DIGITS.** With `(562)` on the
+// third keystroke, backspace deletes the `)`, the mask restores it, and the
+// caret sticks. At three digits the value is bare `562`, so there is nothing
+// to fight over.
+export const phoneAsTyped = (v) => {
+  const raw = String(v ?? "");
+  // Somebody typing an international number is left alone from the `+` on.
+  if (/^\s*\+(?!1)/.test(raw)) return raw;
+  const d = raw.replace(/\D/g, "").replace(/^1(?=\d)/, "").slice(0, 10);
+  if (d.length < 4) return d;
+  if (d.length < 7) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
+  return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
+};
+
 export const time12 = (hhmm) => {
   if (!hhmm) return "";
   const [h, m] = String(hhmm).slice(0, 5).split(":").map(Number);

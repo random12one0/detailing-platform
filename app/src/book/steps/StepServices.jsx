@@ -25,7 +25,7 @@ import { getLocale, t } from "../../lib/i18n.js";
 import { useLocale } from "../../hooks/useLocale.js";
 import { useState } from "react";
 import { Eye } from "lucide-react";
-import { duration, money } from "../../lib/format.js";
+import { duration, money, phone } from "../../lib/format.js";
 import { groupServices } from "../core.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 
@@ -43,7 +43,7 @@ export default function StepServices({ selected, onToggle }) {
     return (
       <div className="bk-note">
         {t("{business} hasn’t listed any services online yet.", { business: business.name })}
-        {business.phone ? ` ${t("Please call {phone} to book.", { phone: business.phone })}` : ""}
+        {business.phone ? ` ${t("Please call {phone} to book.", { phone: phone(business.phone) })}` : ""}
       </div>
     );
   }
