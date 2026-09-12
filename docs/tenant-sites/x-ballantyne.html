@@ -223,10 +223,17 @@ a{color:inherit}
              max-width var(--t-mid) var(--ease), backdrop-filter var(--t-mid) var(--ease);
   max-width:100%;margin-inline:auto}
 .hdr.stuck{padding:12px 0}
-.brand{font-family:"Schibsted Grotesk";font-weight:700;font-size:18px;
+/* THE WORDMARK IS A LINK HOME and it was a 108x30 target carrying an 8.5px
+   second line — the only sub-11px string on this page. The type does not grow;
+   it gets a 44px box inside a nav that is already taller than that, so nothing
+   moves. The second line goes to 11px, which is the floor, and loses a little
+   tracking so it stays inside the width of the word above it. */
+.brand{display:inline-flex;flex-direction:column;justify-content:center;
+  min-height:44px;
+  font-family:"Schibsted Grotesk";font-weight:700;font-size:18px;
   letter-spacing:-.02em;text-decoration:none;line-height:1;white-space:nowrap}
-.brand span{display:block;font-family:"Instrument Sans";font-weight:500;font-size:8.5px;
-  letter-spacing:.22em;text-transform:uppercase;color:var(--ink-3);margin-top:3px}
+.brand span{display:block;font-family:"Instrument Sans";font-weight:500;font-size:11px;
+  letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3);margin-top:3px}
 .hdr nav{display:flex;gap:6px;margin-left:auto;margin-right:6px}
 .hdr nav a{padding:9px 13px;border-radius:var(--r-pill);text-decoration:none;
   font-size:13.5px;font-weight:500;color:var(--ink-2);
@@ -495,12 +502,18 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
 .fcols h4{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);
   margin:0 0 10px;font-weight:600;font-family:"Instrument Sans"}
 .fcols a,.fcols span{display:block;font-size:14px;color:var(--ink-2);text-decoration:none;padding:3px 0}
+/* A FOOTER LINK IS STILL A LINK. Five services and "See the list" were 28px
+   tall at phone width — the `padding:3px 0` above is right for the `span`s in
+   this grid, which are read, and wrong for the `a`s, which are pressed. The
+   type does not change; only the box does. 40px rather than 44 so the contact
+   pair below stays the tallest thing in this footer, which is the hierarchy
+   the pass is for. */
+.fcols a{display:flex;align-items:center;min-height:40px;padding:0}
 .fcols a:hover{color:var(--ink)}
 /* THE CONTACT COLUMN IS NOT A NAV COLUMN. Its two entries were carrying the
    23px-tall rule every other footer link uses, which is right for "Ceramic
    coating" and wrong for the number somebody is trying to press. */
-.fcols .contact a{display:inline-flex;align-items:center;min-height:44px;padding:0;
-  color:var(--ink)}
+.fcols .contact a{min-height:44px;color:var(--ink)}
 .fcols .contact a:first-of-type{font-size:19px;font-weight:600}
 .fcols .contact a:hover{text-decoration:underline}
 .fcols .contact a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}

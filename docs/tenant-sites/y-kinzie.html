@@ -125,7 +125,20 @@ html[data-c="c"]{
 
 /* ═══ 2 · THE PAGE ═══════════════════════════════════════════════════════ */
 *{box-sizing:border-box}
-html{scroll-behavior:auto}   /* never `smooth`: it fights the weighted scroll */
+/* `overflow-x:clip` HAS TO BE ON `html` AS WELL AS ON `body`, AND THIS IS THE
+   REPORTED SIDEWAYS SCROLL. `overflow:hidden` on body propagates to the
+   viewport; `overflow:clip` does NOT. So the clip two lines below was clipping
+   the body box and nothing else, and the full-bleed sections built with
+   `calc(50% - 50vw)` -- `.band`, `.foot` -- came out 1440px wide in a 1425px
+   layout viewport, because `100vw` INCLUDES the classic scrollbar and the
+   layout viewport does not. Measured at 1440: scrollWidth 1433 against
+   clientWidth 1425, eight pixels, on `.band`, `.band.dark` and `.foot`.
+   It is invisible anywhere the scrollbar is an overlay, which is why a sweep
+   in a preview pane reads clean at 320, 377 and 392 and a real browser does
+   not. w-delgado already carries `html,body{overflow-x:clip}` with a note
+   saying `hidden` kills sticky; this page had only half of it. */
+html{scroll-behavior:auto;   /* never `smooth`: it fights the weighted scroll */
+  overflow-x:clip}
 body{margin:0;background:var(--ground);color:var(--ink);
   font-family:"Familjen Grotesk",system-ui,sans-serif;font-weight:400;
   font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;
@@ -199,11 +212,16 @@ h2 em{font-style:normal;color:var(--accent-text)}
   opacity:0;transform:translateY(-100%);pointer-events:none;
   transition:opacity var(--t-arrive) var(--ramp),transform var(--t-arrive) var(--ramp)}
 .nav.on{opacity:1;transform:none;pointer-events:auto}
-.mark{font-family:"Bai Jamjuree";font-weight:700;font-size:17px;letter-spacing:-.02em;
+/* the wordmark is a link home and was a 158x25 target; type unchanged, and the
+   nav is taller than 44 so nothing moves */
+.mark{display:inline-flex;align-items:center;min-height:44px;
+  font-family:"Bai Jamjuree";font-weight:700;font-size:17px;letter-spacing:-.02em;
   text-decoration:none;white-space:nowrap}
 .mark i{font-style:normal;color:var(--accent-text)}
 .navlinks{display:flex;gap:20px;align-items:center}
-.navlinks a{font-size:14px;text-decoration:none;color:var(--ink-2);
+/* the desk nav's links were under the floor inside a nav with room to spare */
+.navlinks a{display:inline-flex;align-items:center;min-height:36px;
+  font-size:14px;text-decoration:none;color:var(--ink-2);
   transition:color var(--t-hover) var(--ease-out)}
 .navlinks a:hover{color:var(--ink)}
 @media (max-width:900px){.navlinks{display:none}}
@@ -216,9 +234,16 @@ h2 em{font-style:normal;color:var(--accent-text)}
 /* the right-edge position dots, Chicago's own */
 .dots{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:19;
   display:grid;gap:11px}
-.dots a{width:7px;height:7px;border-radius:50%;display:block;
+/* THE DOT STAYS 7px AND THE TARGET DOES NOT. A pseudo-element takes no part in
+   layout, so the rail's rhythm is untouched; the box stops 1px short of the
+   11px gap so two dots can never overlap and take each other's taps. 31x17
+   rather than 32 square: the pitch is 18px and squaring it would mean
+   restyling a rail nobody complained about, on a desktop-only, fully redundant
+   second navigation. */
+.dots a{position:relative;width:7px;height:7px;border-radius:50%;display:block;
   background:color-mix(in srgb,var(--ink) 26%,transparent);
   transition:background var(--t-hover) var(--ease-out),transform var(--t-hover) var(--ease-out)}
+.dots a::after{content:"";position:absolute;inset:-5px -12px}
 .dots a[aria-current="true"]{background:var(--accent-text);transform:scale(1.5)}
 @media (max-width:900px){.dots{display:none}}
 
@@ -267,7 +292,7 @@ h2 em{font-style:normal;color:var(--accent-text)}
 .trust div{background:rgba(14,17,22,.56);backdrop-filter:blur(14px);padding:16px 18px;min-width:0}
 .trust b{display:block;font-family:"Bai Jamjuree";font-weight:700;
   font-size:clamp(22px,3.2vw,32px);line-height:1;letter-spacing:-.02em;color:#F7F6F1}
-.trust span{display:block;font-family:"Spline Sans Mono";font-size:10px;letter-spacing:.12em;
+.trust span{display:block;font-family:"Spline Sans Mono";font-size:11px;letter-spacing:.12em;
   text-transform:uppercase;color:#CBD1DA;margin-top:7px}
 
 /* C1 · the availability pill, and it is the ONLY pill on this page */
@@ -309,12 +334,12 @@ h2 em{font-style:normal;color:var(--accent-text)}
 .pk > p{font-size:14.5px;margin:0 0 18px;color:var(--ink-2)}
 .pk p.pk-price{font-family:"Bai Jamjuree";font-weight:700;font-size:clamp(34px,3.6vw,44px);
   line-height:1;letter-spacing:-.03em;color:var(--ink);margin:0 0 6px !important}
-.pk p.pk-price em{display:block;font-style:normal;font-family:"Spline Sans Mono";font-size:10px;
+.pk p.pk-price em{display:block;font-style:normal;font-family:"Spline Sans Mono";font-size:11px;
   font-weight:400;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:5px}
 .pk p.pk-price span[hidden]{display:none}
-.pk p.pk-turn{font-family:"Spline Sans Mono";font-size:10.5px;letter-spacing:.1em;
+.pk p.pk-turn{font-family:"Spline Sans Mono";font-size:11px;letter-spacing:.1em;
   text-transform:uppercase;color:var(--ink-3);margin:0 0 20px !important}
-.pk h4{font-family:"Spline Sans Mono";font-weight:400;font-size:10.5px;letter-spacing:.14em;
+.pk h4{font-family:"Spline Sans Mono";font-weight:400;font-size:11px;letter-spacing:.14em;
   text-transform:uppercase;color:var(--ink-3);margin:0 0 9px;
   padding-top:14px;border-top:var(--hair) solid var(--rule)}
 .pk .ticks{margin-bottom:14px}
@@ -354,7 +379,7 @@ h2 em{font-style:normal;color:var(--accent-text)}
   box-shadow:inset 0 0 0 var(--hair) color-mix(in srgb,var(--accent) 52%,transparent)}
 .badge svg{width:22px;height:22px;stroke:var(--accent-text);fill:none;stroke-width:1.7;
   stroke-linecap:round;stroke-linejoin:round}
-.turn{display:block;font-family:"Spline Sans Mono";font-size:10.5px;letter-spacing:.12em;
+.turn{display:block;font-family:"Spline Sans Mono";font-size:11px;letter-spacing:.12em;
   text-transform:uppercase;color:var(--ink-3)}
 
 /* inside a flipped band every one of the above takes the band's ink */
@@ -423,14 +448,14 @@ h2 em{font-style:normal;color:var(--accent-text)}
   stroke-linecap:round;stroke-linejoin:round}
 .hint{position:absolute;left:50%;top:calc(50% + 42px);z-index:4;
   transform:translateX(-50%);pointer-events:none;white-space:nowrap;
-  font-family:"Spline Sans Mono";font-size:10.5px;letter-spacing:.14em;
+  font-family:"Spline Sans Mono";font-size:11px;letter-spacing:.14em;
   text-transform:uppercase;padding:7px 11px;border-radius:var(--r-edge);
   background:rgba(12,15,20,.72);color:#fff;backdrop-filter:blur(8px);
   transition:opacity 260ms var(--ease-out)}
 .panelbox.touched .hint{opacity:0}
 /* the two words sit ON the panel, one either side, and each fades only as
    the blade passes IT. THE TEXT NEVER MOVES — that was the complaint. */
-.side{position:absolute;bottom:14px;font-family:"Spline Sans Mono";font-size:10.5px;
+.side{position:absolute;bottom:14px;font-family:"Spline Sans Mono";font-size:11px;
   letter-spacing:.14em;text-transform:uppercase;padding:9px 13px;
   border-radius:var(--r-edge);background:rgba(12,15,20,.66);color:#fff;
   backdrop-filter:blur(8px)}
@@ -443,7 +468,7 @@ h2 em{font-style:normal;color:var(--accent-text)}
 @media (max-width:900px){.panelbox{aspect-ratio:16/10}}
 @media (max-width:560px){
   .grip{width:40px;height:40px;margin:-20px 0 0 -20px}
-  .side{font-size:9.5px;padding:7px 10px}
+  .side{font-size:11px;padding:7px 10px}
   .side.r{top:12px;bottom:auto}      /* both at the bottom is 300px of label in 260px */
 }
 /* the dock is 74px of the screen the pin thinks it has, so the pinned panel
@@ -468,7 +493,7 @@ h2 em{font-style:normal;color:var(--accent-text)}
   transition:transform 620ms var(--ramp)}
 .shotcard:hover img{transform:scale(1.045)}
 .shotcard figcaption{position:absolute;left:10px;bottom:10px;right:10px;
-  font-family:"Spline Sans Mono";font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  font-family:"Spline Sans Mono";font-size:11px;letter-spacing:.1em;text-transform:uppercase;
   color:#fff;background:rgba(12,15,20,.62);backdrop-filter:blur(8px);
   padding:7px 10px;border-radius:var(--r-edge)}
 
@@ -486,7 +511,7 @@ h2 em{font-style:normal;color:var(--accent-text)}
   background:var(--band);color:var(--band-ink);border-radius:var(--r-edge);
   padding:18px 20px;box-shadow:var(--shadow)}
 .plx .over b{font-family:"Bai Jamjuree";font-weight:700;font-size:18px}
-.plx .over span{display:block;font-family:"Spline Sans Mono";font-size:10px;
+.plx .over span{display:block;font-family:"Spline Sans Mono";font-size:11px;
   letter-spacing:.1em;text-transform:uppercase;margin-top:6px;color:var(--band-ink-2)}
 
 /* ═══ 12 · FAQ ═══════════════════════════════════════════════════════════ */
@@ -528,13 +553,17 @@ h2 em{font-style:normal;color:var(--accent-text)}
 
 .bk-prog{padding:20px 24px 0}
 .bk-lab{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;margin:0 0 12px;
-  font-family:"Spline Sans Mono";font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  font-family:"Spline Sans Mono";font-size:11px;letter-spacing:.14em;text-transform:uppercase;
   color:var(--ink-3)}
 .bk-lab b{font-weight:500;color:var(--accent-text)}
 .band.dark .bk-lab{color:var(--band-ink-2)}
 .band.dark .bk-lab b{color:#7FA5FF}
 .bk-bar{display:flex;gap:4px}
-.bk-bar i{flex:1;height:3px;border-radius:2px;font-size:0;
+/* `font-size:0` hid seven step names from EVERYONE: they sat inside
+   `role="progressbar"`, a leaf role whose contents assistive technology
+   ignores, and the step name is already announced beside the bar. The names
+   are gone rather than visually hidden. */
+.bk-bar i{flex:1;height:3px;border-radius:2px;
   background:color-mix(in srgb,var(--ink) 14%,transparent);
   transition:background var(--t-hover) var(--ease-out)}
 .band.dark .bk-bar i{background:rgba(242,241,234,.18)}
@@ -551,7 +580,7 @@ h2 em{font-style:normal;color:var(--accent-text)}
 .grp-h{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;margin:0 0 10px;
   font-family:"Bai Jamjuree";font-weight:600;font-size:15px;color:var(--ink)}
 .band.dark .grp-h{color:var(--band-ink)}
-.grp-h span{font-family:"Spline Sans Mono";font-weight:400;font-size:10px;letter-spacing:.14em;
+.grp-h span{font-family:"Spline Sans Mono";font-weight:400;font-size:11px;letter-spacing:.14em;
   text-transform:uppercase;color:var(--ink-3)}
 .band.dark .grp-h span{color:var(--band-ink-2)}
 .opts{display:grid;gap:8px}
@@ -579,7 +608,7 @@ h2 em{font-style:normal;color:var(--accent-text)}
 .two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
 @media (max-width:520px){.two{grid-template-columns:minmax(0,1fr)}}
 .fld{display:block;min-width:0;margin-top:12px;
-  font-family:"Spline Sans Mono";font-size:10.5px;letter-spacing:.14em;
+  font-family:"Spline Sans Mono";font-size:11px;letter-spacing:.14em;
   text-transform:uppercase;color:var(--ink-3)}
 .two .fld{margin-top:0}
 .band.dark .fld{color:var(--band-ink-2)}
@@ -601,7 +630,7 @@ h2 em{font-style:normal;color:var(--accent-text)}
   font-family:"Bai Jamjuree";font-weight:600;font-size:15px}
 .cal-nav{color:var(--ink-3);letter-spacing:.1em}
 .cal-dow,.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
-.cal-dow i{font-style:normal;text-align:center;font-family:"Spline Sans Mono";font-size:10px;
+.cal-dow i{font-style:normal;text-align:center;font-family:"Spline Sans Mono";font-size:11px;
   color:var(--ink-3);padding-bottom:4px}
 .cal-grid .d{font:500 13.5px/1 "Familjen Grotesk";padding:11px 0;cursor:pointer;border:0;
   border-radius:var(--r-edge);background:transparent;color:var(--ink);
@@ -629,7 +658,7 @@ h2 em{font-style:normal;color:var(--accent-text)}
 .rev .tot{border-bottom:0;padding-top:16px}
 .rev .tot dt{font-family:"Bai Jamjuree";font-weight:700;font-size:17px}
 .rev .tot dd{font-size:26px;font-weight:700;letter-spacing:-.02em}
-.revwhen{font-family:"Spline Sans Mono";font-size:10.5px;letter-spacing:.12em;
+.revwhen{font-family:"Spline Sans Mono";font-size:11px;letter-spacing:.12em;
   text-transform:uppercase;color:var(--ink-3);margin:14px 0 18px}
 .bk-confirm{width:100%;font:600 15px/1 "Familjen Grotesk";padding:17px;cursor:pointer;border:0;
   border-radius:var(--r-edge);background:var(--accent);color:var(--on-accent)}
@@ -640,7 +669,7 @@ h2 em{font-style:normal;color:var(--accent-text)}
   padding:18px 24px;margin-top:14px;border-top:var(--hair) solid var(--rule)}
 .band.dark .bk-foot{border-top-color:rgba(242,241,234,.17)}
 .bk-run{display:flex;gap:10px;align-items:baseline;margin:0}
-.bk-run span{font-family:"Spline Sans Mono";font-size:10.5px;letter-spacing:.14em;
+.bk-run span{font-family:"Spline Sans Mono";font-size:11px;letter-spacing:.14em;
   text-transform:uppercase;color:var(--ink-3)}
 .bk-run b{font-family:"Bai Jamjuree";font-weight:700;font-size:22px;letter-spacing:-.02em;
   color:var(--ink)}
@@ -678,6 +707,7 @@ h2 em{font-style:normal;color:var(--accent-text)}
 .foot h4{font-size:13px;font-weight:600;margin-bottom:12px;color:#F2F1EA}
 .foot ul{margin:0;padding:0;list-style:none;display:grid;gap:8px}
 .foot li,.foot a{font-size:14px;color:#B6BCC6;text-decoration:none}
+.foot li a{display:flex;align-items:center;min-height:40px}
 .foot a:hover{color:#F2F1EA}
 /* THE PHONE NUMBER IS THE CONVERSION ON A DETAILING SITE, and until 2026-09-12
    this page had no `tel:` and no `mailto:` anywhere in it — the number was
@@ -696,7 +726,7 @@ h2 em{font-style:normal;color:var(--accent-text)}
   color:#F2F1EA;margin-left:-.04em;transform:translateY(.09em)}
 .footrule{display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between;
   padding:20px 0 82px;margin-top:8px;border-top:1px solid rgba(242,241,234,.16);
-  font-family:"Spline Sans Mono";font-size:10.5px;letter-spacing:.1em;
+  font-family:"Spline Sans Mono";font-size:11px;letter-spacing:.1em;
   text-transform:uppercase;color:#9AA2AE}
 
 /* ═══ 15 · F1 · the phone dock ═══════════════════════════════════════════ */
@@ -714,7 +744,7 @@ h2 em{font-style:normal;color:var(--accent-text)}
 .paint{position:fixed;right:14px;bottom:14px;z-index:23;display:flex;gap:6px;padding:6px;
   border-radius:var(--r-edge);background:var(--ground);
   box-shadow:inset 0 0 0 var(--hair) var(--edge)}
-.paint button{font:500 12px/1 "Familjen Grotesk";padding:9px 13px;cursor:pointer;border:0;
+.paint button{font:500 12px/1 "Familjen Grotesk";padding:11px 13px;min-height:34px;cursor:pointer;border:0;
   border-radius:var(--r-edge);background:transparent;color:var(--ink-2)}
 .paint button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
 @media (max-width:767px){.paint{bottom:80px}}
@@ -1271,8 +1301,8 @@ h2 em{font-style:normal;color:var(--accent-text)}
         <p class="bk-lab"><b>Step <span data-n>1</span> of <span data-t>7</span></b>
            <span data-name>Services</span></p>
         <div class="bk-bar" role="progressbar" aria-valuemin="1" aria-valuemax="7" aria-valuenow="1">
-          <i data-seg>Services</i><i data-seg>Extras</i><i data-seg>Vehicle</i>
-          <i data-seg>Where</i><i data-seg>When</i><i data-seg>Details</i><i data-seg>Review</i>
+          <i data-seg></i><i data-seg></i><i data-seg></i>
+          <i data-seg></i><i data-seg></i><i data-seg></i><i data-seg></i>
         </div>
       </div>
 

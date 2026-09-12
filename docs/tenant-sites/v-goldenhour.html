@@ -193,11 +193,16 @@ html.pt-in body{animation:pt-in 320ms var(--e) both}
 }
 /* NAME = a plain word + the trade, and the trade is IN the mark
    (design-knowledge § COPY AND NAMING, rule 1). */
+/* 9px until 2026-09-12 — the one string on this page under the 11px floor.
+   The tracking comes down with the size so the trade still sits inside the
+   width of the word above it. */
 .mark i{
-  font:600 9px/1 var(--body);font-style:normal;
-  letter-spacing:.16em;color:var(--ink-2);
+  font:600 11px/1 var(--body);font-style:normal;
+  letter-spacing:.11em;color:var(--ink-2);
 }
-.navlinks{display:flex;gap:24px}
+/* the desk nav's links were 22px tall inside a nav with room to spare */
+.navlinks{display:flex;gap:24px;align-items:center}
+.navlinks a{display:inline-flex;align-items:center;min-height:36px}
 .nav a{color:var(--ink-2);text-decoration:none;font-size:14px;font-weight:500}
 .nav a:hover{color:var(--ink)}
 .nav a.navbook{
@@ -488,9 +493,13 @@ section{position:relative;z-index:1}
   border-radius:var(--r-inset);background:rgba(255,255,255,.42);
   padding:16px 18px;
 }
+/* THE PADDING WAS ON `details` AND THE PRESS IS ON `summary`, so the card
+   looked like a 306x55 control and behaved like a 306x23 one. The card keeps
+   its padding; the summary gets its own height. */
 .faq summary{
   cursor:pointer;font-weight:600;font-size:15px;list-style:none;
   display:flex;justify-content:space-between;gap:14px;align-items:center;
+  min-height:40px;
 }
 .faq summary::-webkit-details-marker{display:none}
 .faq summary::after{
@@ -687,13 +696,16 @@ section{position:relative;z-index:1}
   text-transform:uppercase;color:var(--paper-3);font-weight:600}
 .footcol p,.footcol a{margin:0 0 7px;display:block;color:var(--paper-2);
   font-size:14px;text-decoration:none}
+/* a `p` in this column is read and an `a` is pressed; they were sharing one
+   22px-tall rule. The 7px margin goes because the 40px box replaces it. */
+.footcol a{display:flex;align-items:center;min-height:40px;margin:0}
 .footcol a:hover{color:var(--paper)}
 /* 153x24 measured 2026-09-12: the type was never the problem, the BOX was —
    a 24px-tall target on the one control that turns a reader into a customer.
    Nothing about how it looks changes; it gets a 44px box to be pressed in. */
 .footphone{font:800 22px/1.1 var(--display)!important;color:var(--paper)!important;
   font-variation-settings:"wdth" 88;letter-spacing:-.02em;
-  display:inline-flex!important;align-items:center;min-height:44px}
+  display:flex!important;width:fit-content;align-items:center;min-height:44px}
 .footphone:focus-visible{outline:3px solid var(--amber);outline-offset:3px}
 .open{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--paper-2)}
 .open i{width:7px;height:7px;border-radius:50%;background:var(--live-on-dark)}
@@ -814,8 +826,14 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
   letter-spacing:-.02em;color:var(--paper)}
 .bk-bar{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px}
 .bk-bar i{
+  /* `font-size:0` was here to hide seven step names. It hid them from
+     everyone: the names sat inside `role="progressbar"`, which is a LEAF
+     role, so assistive technology ignored its contents too — the text was
+     read by nobody and the step name is already announced by `.bk-lab`
+     above ("Step 1 of 7 · Services"). The names are gone rather than
+     visually hidden, and the segments are decoration now. */
   height:4px;border-radius:999px;background:rgba(255,255,255,.15);
-  font-size:0;overflow:hidden;transition:background 300ms var(--e);
+  transition:background 300ms var(--e);
 }
 .bk-bar i.done{background:rgba(255,168,64,.45)}
 .bk-bar i.now{background:var(--amber)}
@@ -1189,8 +1207,8 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
         <p class="bk-lab"><b>Step <span data-n>1</span> of <span data-t>7</span></b>
            <span data-name>Services</span></p>
         <div class="bk-bar" role="progressbar" aria-valuemin="1" aria-valuemax="7" aria-valuenow="1">
-          <i data-seg>Services</i><i data-seg>Extras</i><i data-seg>Vehicle</i>
-          <i data-seg>Location</i><i data-seg>When</i><i data-seg>Details</i><i data-seg>Review</i>
+          <i data-seg></i><i data-seg></i><i data-seg></i>
+          <i data-seg></i><i data-seg></i><i data-seg></i><i data-seg></i>
         </div>
       </div>
 
