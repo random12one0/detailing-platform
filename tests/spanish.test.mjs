@@ -86,7 +86,34 @@ for (const p of files) {
 }
 
 // The four the extractor cannot follow. See the header.
-const DYNAMIC = ["Light", "Moderate", "Heavy", "Extreme"];
+// KEYS TRANSLATED THROUGH A VARIABLE, WHICH NO EXTRACTOR CAN FOLLOW. The four
+// vehicle CONDITIONS were already here; the six vehicle SIZES joined them on
+// 2026-09-12, and the story is worth keeping because it is how they were
+// missed for so long.
+//
+// A review found `Small / Coupe, sedan, hatchback` in English inside an
+// otherwise fully Spanish step 3, and asked how a passing Spanish suite could
+// contain them. The answer is check 1b's own shape: it demands a Spanish entry
+// for every `t()` CALL SITE, and these were never a call site. They were
+// rendered as `{s.label}` — data, not a translated string — so a check that
+// walks the translator's callers could not see them at all.
+//
+// **A STRING THAT NEVER REACHES `t()` IS INVISIBLE TO EVERY CHECK IN THIS
+// FILE.** That is the transferable lesson, and it is why the fix was to wrap
+// them rather than to add a special case: wrapping is what puts a string under
+// the ratchet in the first place.
+//
+// They are BOTH platform constants and tenant copy — `DEFAULT_VEHICLE_SIZES`
+// is ours and `business_settings.vehicle_sizes` is the detailer's, and every
+// business is seeded with a stored copy of ours. `t()` resolves that without
+// having to tell them apart: our labels have entries and get Spanish, and a
+// detailer who renamed "Medium" to "Crossover" has no entry and keeps their
+// own word.
+const DYNAMIC = [
+  "Light", "Moderate", "Heavy", "Extreme",
+  "Small", "Medium", "Large",
+  "Coupe, sedan, hatchback", "Small SUV, crossover, wagon", "Truck, large SUV, van",
+];
 
 const holes = (s) => (String(s).match(/\{[a-zA-Z]+\}/g) ?? []).sort().join(",");
 

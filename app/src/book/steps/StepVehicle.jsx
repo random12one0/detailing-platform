@@ -95,7 +95,7 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
     const extra = sizeExtra(s.key);
     return (
       <option key={s.key} value={s.key}>
-        {s.label}{extra > 0 ? ` · +${money(extra)}` : ""}
+        {t(s.label)}{extra > 0 ? ` · +${money(extra)}` : ""}
       </option>
     );
   });
@@ -221,8 +221,34 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
                     >
                       <div className="bk-row between">
                         <div>
-                          <h3>{s.label}</h3>
-                          {s.examples && <p className="bk-muted">{s.examples}</p>}
+                          {/* **THROUGH `t()`, AND THE FALL-THROUGH IS THE
+                              WHOLE DESIGN — 2026-09-12.** A review found
+                              `Small / Coupe, sedan, hatchback` sitting in
+                              English inside an otherwise fully Spanish step 3,
+                              next to an already-translated `Incluido`.
+                              These are BOTH platform constants and tenant
+                              copy, which is why it is not a simple bug:
+                              `DEFAULT_VEHICLE_SIZES` in `core.js` is ours, and
+                              `business_settings.vehicle_sizes` is the
+                              detailer's — and every business is seeded with a
+                              stored copy of ours, so in practice the string on
+                              screen is tenant data that happens to be our
+                              words.
+                              `t()` resolves it correctly without having to
+                              tell them apart: our default labels have
+                              catalogue entries and get Spanish, and a detailer
+                              who renamed "Medium" to "Crossover" has no entry,
+                              so `t()` returns their word untouched. Translating
+                              somebody's own word would be the worse bug.
+                              **AND THIS IS WHY THE SPANISH SUITE PASSED WITH
+                              THEM IN ENGLISH:** check 1b demands an entry for
+                              every `t()` CALL SITE, and these were never a
+                              call site — a string that never reaches the
+                              translator is invisible to a check that walks the
+                              translator's callers. Wrapping them is what puts
+                              them under the ratchet. */}
+                          <h3>{t(s.label)}</h3>
+                          {s.examples && <p className="bk-muted">{t(s.examples)}</p>}
                         </div>
                         <span className="bk-price">{extra > 0 ? `+${money(extra)}` : t("Included")}</span>
                       </div>

@@ -68,6 +68,25 @@ export function makeLocale(key, catalogues, detectFromBrowser) {
   };
 
   function detect() {
+    // **`?lang=es` IS READ FIRST, AND IT USED TO BE IGNORED ENTIRELY —
+    // measured 2026-09-12 on a clean load with `dp.lang` cleared.**
+    // `/book/demo-detail?lang=es` rendered in English and `dp.lang` stayed
+    // null. `map.html` advertises that exact address as "Booking in Spanish",
+    // so the link in the review map was dead — but the real cost is a detailer
+    // texting a Spanish-speaking customer a `?lang=es` link that arrives in
+    // English, which is the one case nobody would ever catch by clicking
+    // around their own dashboard.
+    //
+    // IT OUTRANKS THE SAVED CHOICE, because somebody who follows a link
+    // carrying a language is making a choice NOW, and it is written through to
+    // storage so the rest of the flow and every later page agree with the
+    // first one. A value that is not a language we speak is ignored rather
+    // than stored, so `?lang=fr` leaves a Spanish reader in Spanish.
+    try {
+      const asked = new URLSearchParams(globalThis.location?.search ?? "").get("lang");
+      const want = String(asked || "").toLowerCase().split("-")[0];
+      if (want && LOCALES.includes(want)) { write(want); return want; }
+    } catch { /* no location, or a URL the parser refuses */ }
     const saved = read();
     if (saved && LOCALES.includes(saved)) return saved;
     if (!detectFromBrowser) return "en";
@@ -83,7 +102,25 @@ export function makeLocale(key, catalogues, detectFromBrowser) {
     return "en";
   }
 
+  // **`<html lang>` FOLLOWS THE LOCALE — 2026-09-12, measured: `dp.lang` was
+  // `es`, the body was Spanish, and the attribute said `en`.**
+  //
+  // It is not decoration. A screen reader picks its VOICE off this attribute,
+  // so a page in that state is read aloud as Spanish words with English
+  // phonemes — unintelligible to the one person who most needs it read aloud.
+  // Browsers also use it for hyphenation and for offering to translate.
+  //
+  // Set here rather than in a component, because this is the one place that
+  // knows the answer and the one place it can never drift from: every entry
+  // point goes through `detect()` at module load and `setLocale()` after.
+  // Guarded because the store is imported by Node in the test suite.
+  const stamp = (v) => {
+    try { if (globalThis.document) globalThis.document.documentElement.lang = v; }
+    catch { /* no document */ }
+  };
+
   let locale = detect();
+  stamp(locale);
   const listeners = new Set();
 
   const getLocale = () => locale;
@@ -92,6 +129,7 @@ export function makeLocale(key, catalogues, detectFromBrowser) {
     if (!LOCALES.includes(next) || next === locale) return;
     locale = next;
     write(next);
+    stamp(next);
     // THE WHOLE PAGE RE-RENDERS RATHER THAN RELOADING. A reload is two lines
     // shorter and would throw away a half-filled booking form, which is the
     // one thing that page exists not to do — and on the dashboard it would

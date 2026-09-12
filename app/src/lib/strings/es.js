@@ -45,8 +45,11 @@
 
 export const es = {
   // ── The four `t(label)` keys the extractor cannot see ───────────────────
+  "Coupe, sedan, hatchback": "Coupé, sedán, hatchback",
   "Email preferences": "Preferencias de correo",
+  "Large": "Grande",
   "Light": "Ligera",
+  "Medium": "Mediano",
   "Moderate": "Moderada",
   "Heavy": "Fuerte",
   "Extreme": "Extrema",
@@ -56,6 +59,8 @@ export const es = {
   "No, keep them": "No, quiero seguir recibiéndolos",
   "Nothing changed. You can close this page.":
     "No cambió nada. Puedes cerrar esta página.",
+  "Small": "Pequeño",
+  "Small SUV, crossover, wagon": "SUV pequeña, crossover, camioneta",
   "Step {n} of {total}": "Paso {n} de {total}",
   "Pick your services": "Elige tus servicios",
   "Add-ons": "Extras",
@@ -63,6 +68,7 @@ export const es = {
   "Pick a place": "Elige el lugar",
   "This link may be out of date. Reply to the email you got instead. It reaches the business directly.":
     "Puede que este enlace esté vencido. Responde al correo que recibiste. Le llega directamente al negocio.",
+  "Truck, large SUV, van": "Camioneta, SUV grande, van",
   "Try again in a moment. If it still doesn't work, reply to the email you got instead. It reaches the business directly.":
     "Inténtalo de nuevo en un momento. Si sigue sin funcionar, responde al correo que recibiste. Le llega directamente al negocio.",
   "We couldn't open this link":
