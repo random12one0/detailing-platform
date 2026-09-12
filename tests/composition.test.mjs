@@ -143,6 +143,30 @@ const ALLOWED = new Map([
 }
 
 // ─────────────────────────────────────────────────────────────────────────
+console.log("\ntest 1b: a bare switch carries its own name");
+// **A `bare` SWITCH HAS NO VISIBLE TEXT, so `aria-label` is its ONLY name** —
+// without one it announces as "switch, on" and nothing else. One shipped that
+// way (a custom payment method the detailer had not titled), and the INSTANCE
+// was fixed before the CLASS was, which is this repo's most repeated shape:
+// "Text these 1" fixed while "Email these 1" sat an inch away.
+// `controls.jsx` logs in development; this is what stops it reaching a commit.
+{
+  const offenders = [];
+  for (const file of files) {
+    const src = await readFile(file, "utf8");
+    const code = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+    for (const m of code.matchAll(/<Switch\b[\s\S]{0,500}?\/>/g)) {
+      if (!/\bbare\b/.test(m[0])) continue;
+      if (!/\blabel=/.test(m[0])) offenders.push(`${file} — a <Switch bare> with no label`);
+    }
+  }
+  check("1b · every bare switch passes a label",
+    offenders.length === 0,
+    offenders.join("\n        ")
+      + "\n        `bare` puts the name on aria-label and nowhere else.");
+}
+
+// ─────────────────────────────────────────────────────────────────────────
 console.log("\ntest 2: a choice of two to four uses Segmented, not a dropdown");
 {
   const offenders = [];

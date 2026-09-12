@@ -50,7 +50,23 @@ const datesFrom = (start, end) => {
 // The three cards each open one editor, and it is the card that opens it (W1).
 // The controls that live INSIDE a card must not also fire the card, or the
 // switch would toggle the block and immediately reopen the form under it.
-const own = (fn) => (e) => { e.stopPropagation(); fn(); };
+// **IT ASSUMED AN EVENT AND ONE CALLER HANDS IT A BOOLEAN — found 2026-09-12,
+// and the "Block this day" switch had been DEAD.**
+//
+// Two of the three callers are `onClick`, which is handed a DOM event and
+// needs the `stopPropagation` — the row behind the control opens the editor,
+// so without it a press would toggle and open at once. The third is the
+// switch's `onChange`, and `Switch` calls `onChange(e.target.checked)`, so
+// `own` received `true`/`false` and threw `e.stopPropagation is not a
+// function` before the handler ran.
+//
+// **NOTHING REPORTED IT.** The throw is caught by React's own boundary, the
+// switch snaps back to where it was, and the screen looks like a control that
+// simply did not take. Blocking a day and un-blocking one were both impossible
+// from that switch, and the only way to see it was to press it and read the
+// console. Optional-call, so an event still gets its stopPropagation and a
+// boolean stops being fatal.
+const own = (fn) => (e) => { e?.stopPropagation?.(); fn(); };
 // One place the two restrictions are worded, so the summary line, the save
 // button and the customer-facing note cannot drift apart.
 const MODES = {
@@ -299,9 +315,34 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
                       bare
                       checked={!!state.blockout}
                       disabled={busy}
-                      onChange={own(() => (state.blockout
-                        ? clearBlockout()
-                        : setEditing(editing === "blockout" ? null : "blockout")))}
+                      // **RE-OPENING A CLOSED DAY ASKS NOW — 2026-09-12.** It
+                      // was one of three destructive actions with no
+                      // confirmation, and the only one whose consequence lands
+                      // on somebody else: switching it off silently makes the
+                      // detailer bookable on a day he deliberately closed, and
+                      // he finds out when a customer takes the slot. The other
+                      // two — a day's custom hours and a drop-off period — are
+                      // settings he can retype, so they stay silent.
+                      //
+                      // **IT ASKS WITH WHAT HE TYPED, NOT WITH "ARE YOU
+                      // SURE".** The reason is already on the screen beside
+                      // the switch, so the question can name it and state the
+                      // consequence, which is the job page's pattern rather
+                      // than a generic prompt. Blocking is NOT confirmed — it
+                      // is the cautious direction and it opens an editor
+                      // anyway.
+                      onChange={own(() => {
+                        if (!state.blockout) {
+                          setEditing(editing === "blockout" ? null : "blockout");
+                          return;
+                        }
+                        const why = state.blockout.event_name;
+                        const ask = why
+                          ? t("This day is closed for {reason}. Re-open it and customers can book.", { reason: why })
+                          : t("This day is closed. Re-open it and customers can book.");
+                        if (!confirm(ask)) return;
+                        clearBlockout();
+                      })}
                       label={t("Block this day")}
                     />
                   )}

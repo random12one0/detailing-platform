@@ -34,9 +34,32 @@ export function Switch({ checked, onChange, label, help, bare = false, disabled 
   // heading and description (the day sheet). Without it the component
   // renders a second label beside the one already there.
   if (bare) {
+    // **A BARE SWITCH WITH NO LABEL IS A CONTROL THAT ANNOUNCES ITSELF AS
+    // "switch, on" AND NOTHING ELSE — 2026-09-12.** `bare` exists so a row
+    // that already carries its own heading does not print the name twice, and
+    // the cost of that is the name living entirely on `aria-label`. One caller
+    // passed a value that could be empty and shipped a nameless toggle.
+    // **The FIX BELONGS HERE, not at the call site that was caught.** The
+    // instance was fixed first and the same construction was sitting two
+    // screens away, which is the "Text these 1" / "Email these 1" shape this
+    // repo keeps meeting. `tests/composition` now fails any `<Switch bare`
+    // with no `label`, so the class cannot come back silently.
+    if (!label && typeof console !== "undefined") {
+      console.error("Switch: `bare` needs a `label` — it is the control's only accessible name.");
+    }
+    // **AND IT WAS ON THE WRONG ELEMENT — corrected 2026-09-12.** `aria-label`
+    // sat on the `<label>`, which names the LABEL and not the control inside
+    // it. A `<label>` normally names its input through its TEXT — and a bare
+    // switch has none, by definition — so the input had no accessible name at
+    // all and announced as "switch, on".
+    // **Two people measured this and both were right**: reading `label.switch`
+    // found the attribute, reading `input[type=checkbox]` found nothing,
+    // because they are different elements. **The INPUT is the control**, so
+    // that is where the name goes.
     return (
-      <label className={`switch${checked ? " on" : ""}`} aria-label={label}>
+      <label className={`switch${checked ? " on" : ""}`}>
         <input type="checkbox" checked={!!checked} disabled={disabled}
+          aria-label={label || undefined}
           onChange={(e) => onChange(e.target.checked)} />
         <span className="knob" />
       </label>
