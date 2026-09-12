@@ -635,11 +635,26 @@ if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
 {
   const { coverage } = await import("../scripts/i18n-coverage.mjs");
   const { distinct, missing } = await coverage();
-  // **THE RATCHET IS AT ZERO — closed 2026-09-12, 139 → 0.** It stays a
-  // ratchet rather than becoming an equality check, because the two read the
-  // same at zero and only one of them keeps telling the truth if somebody
-  // legitimately adds a screen faster than its Spanish.
-  const CEILING = 0;
+  // ~~**THE RATCHET IS AT ZERO — closed 2026-09-12, 139 → 0.**~~ **THE ZERO
+  // WAS TRUE OF WHAT THE INSTRUMENT COULD SEE AND FALSE OF THE PRODUCT, AND
+  // IT WAS REOPENED THE SAME DAY AT 257.** Nothing regressed and nothing was
+  // un-translated: `i18n-coverage.mjs` gained a second pass over the data
+  // tables, and 257 user-facing strings that had never been counted became
+  // visible at once. 238 of them are the website brief's own questions.
+  //
+  // **THE ZERO IS WHY THIS HAPPENED.** A ratchet that reads zero says
+  // *finished*, and a screen rendering "Let's build your website." in English
+  // between two Spanish sentences said otherwise — on a dashboard whose
+  // coverage number was 100%. The number was measuring `t("literal")` call
+  // sites, and `SiteIntake.jsx` renders `t(q.question)`.
+  //
+  // **SO THIS IS DEBT RECORDED, NOT A PASS.** The ceiling exists to stop the
+  // count going UP while everything reports green, which is exactly how it
+  // reached 141 the first time. It may only ever fall. Whether the website
+  // brief's 238 questions get translated is a decision about that feature and
+  // not something this check should force; what it must never do again is
+  // report zero over strings it cannot see.
+  const CEILING = 257;
   check(`9a · dashboard strings with no Spanish entry (${missing.size} of ${distinct})`,
     missing.size <= CEILING,
     [...missing.keys()].slice(0, 8).map((k) => JSON.stringify(k)).join("\n        "));

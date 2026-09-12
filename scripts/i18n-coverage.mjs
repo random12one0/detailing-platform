@@ -33,6 +33,47 @@ import { pathToFileURL } from "node:url";
 // job; `landing/` has no language picker at all.
 const DIRS = ["app/src/screens", "app/src/components", "app/src/admin"];
 
+// **THE DATA TABLES, ADDED 2026-09-12 BECAUSE THE LIMIT ABOVE COST A REAL
+// SCREEN.** This ratchet printed `missing an appEs entry: 0` and `coverage:
+// 100%` while the website brief rendered *"Let's build your website."* in
+// English between two Spanish sentences on a Spanish dashboard. Twenty-five
+// prose values in `lib/siteIntake.js` had no translation and not one of them
+// was visible, because `SiteIntake.jsx` renders `t(q.question)` and
+// `t(step.title)` — `t()` with a VARIABLE every time.
+//
+// **A CHECK THAT REPORTS 100% OVER TWENTY-FIVE GAPS IS WORSE THAN NO CHECK**,
+// which is this repo's oldest failure and the reason the limit was written
+// down rather than fixed. Writing it down was not enough.
+//
+// These modules hold user-facing prose as plain object and array values —
+// `FOUND.md` named the list before this existed. They are IMPORTED and walked
+// rather than parsed, so the array shape in `lib/setup.js` is covered as well
+// as the keyed shape in `lib/siteIntake.js`.
+const DATA_FILES = [
+  "app/src/lib/siteIntake.js", "app/src/lib/setup.js", "app/src/lib/templates.js",
+  "app/src/lib/emailMessages.js", "app/src/lib/push.js", "app/src/lib/photo-rules.js",
+  "app/src/lib/adminInsight.js", "app/src/lib/password.js",
+];
+
+// A string is PROSE unless it looks like an identifier. Rejecting is the safe
+// direction: a false positive puts a storage key in the missing list and sends
+// somebody to translate `catalog`, which is how a check gets switched off.
+// Rejected: lowercase identifiers (`catalog`, `hello`, `drop_off`), hex
+// colours, anything with no letter in it, and single characters.
+const isProse = (v) => typeof v === "string" && v.length > 1
+  && /[A-Za-z]{2}/.test(v)
+  && !/^[a-z][a-z0-9_.:-]*$/.test(v)
+  && !/^#[0-9a-f]{3,8}$/i.test(v)
+  && !/^[A-Z][A-Z0-9_]*$/.test(v);          // SCREAMING_CASE is a constant
+
+function proseIn(node, out, depth = 0) {
+  if (depth > 6 || node == null) return out;
+  if (typeof node === "string") { if (isProse(node)) out.add(node); return out; }
+  if (Array.isArray(node)) { for (const v of node) proseIn(v, out, depth + 1); return out; }
+  if (typeof node === "object") { for (const v of Object.values(node)) proseIn(v, out, depth + 1); }
+  return out;
+}
+
 async function walk(dir) {
   const out = [];
   for (const e of await readdir(dir, { withFileTypes: true })) {
@@ -63,11 +104,34 @@ export async function coverage() {
       }
     }
   }
-  return { calls, distinct: seen.size, missing };
+  // SECOND PASS — the data tables. Counted into the same map so one number
+  // answers the question, and attributed to their own file so `--list` says
+  // where to go. A module that will not import is REPORTED rather than
+  // skipped: a skipped check reads exactly like a passing one.
+  let dataValues = 0;
+  for (const f of DATA_FILES) {
+    let mod;
+    try { mod = await import(pathToFileURL(resolve(f)).href); }
+    catch (e) {
+      const note = `[could not import ${f}: ${e.message}]`;
+      missing.set(note, new Set([f]));
+      continue;
+    }
+    for (const v of proseIn(mod, new Set())) {
+      dataValues++;
+      seen.add(v);
+      if (!keys.has(v)) {
+        if (!missing.has(v)) missing.set(v, new Set());
+        missing.get(v).add(f);
+      }
+    }
+  }
+
+  return { calls, distinct: seen.size, missing, dataValues };
 }
 
 if (process.argv[1] && process.argv[1].endsWith("i18n-coverage.mjs")) {
-  const { calls, distinct, missing } = await coverage();
+  const { calls, distinct, missing, dataValues } = await coverage();
   // **FLOOR, NOT ROUND.** With one string missing out of 1,045 this printed
   // `100%` beside `missing an appEs entry: 1`, which is the one number on the
   // screen a reader would act on. Measured 2026-09-12 while baselining the
@@ -75,6 +139,7 @@ if (process.argv[1] && process.argv[1].endsWith("i18n-coverage.mjs")) {
   // not, and a report that rounds up cannot say "finished" and mean it.
   const pct = Math.floor(((distinct - missing.size) / distinct) * 100);
   console.log(`t() call sites with a literal: ${calls}`);
+  console.log(`prose in the data tables:      ${dataValues}`);
   console.log(`distinct strings:              ${distinct}`);
   console.log(`missing an appEs entry:        ${missing.size}`);
   console.log(`coverage:                      ${pct}%`);

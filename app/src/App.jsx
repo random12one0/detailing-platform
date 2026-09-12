@@ -459,9 +459,26 @@ export default function App() {
             for the same reason: it is a place you go, not a thing floating
             over the place you were. It outranks the gear because it is only
             ever on screen when the detailer put it there. */}
-        {firstRun === "website"
+        {/* **`&& !gear` ON BOTH ARMS — 2026-09-12, and it is a DEAD CONTROL
+            rather than a preference.** The header gear stayed visible, 46x46
+            and unobstructed while either of these was up, its `onClick` set
+            `gear` to true, and this ternary rendered the wizard anyway: the
+            button did nothing, twice, measured by clicking it through the
+            accessibility tree on two routes.
+            **WHAT IT COSTS IS THE ONLY WAY OUT OF THE WRONG LANGUAGE.**
+            `AppLanguagePicker` lives on the gear's first screen, deliberately
+            — *somebody who needs a language switch cannot read the menu that
+            leads to it* — so a detailer whose dashboard is in a language they
+            do not read, who is parked in the 21-step brief, had no route back
+            inside the product at all.
+            **AND THE WIZARD ALREADY PROMISES THIS IS SAFE**, in its own words:
+            *"It saves as you go. Close it whenever you like and come back to
+            the same place."* `firstRun` is untouched, so closing the gear
+            returns to the step they were on. The note below still holds for
+            the TAB BAR, which is what it was written about. */}
+        {firstRun === "website" && !gear
           ? <SiteIntake onClose={() => { setFirstRun(null); autoOpened.current = false; reload(); }} />
-          : firstRun === "setup"
+          : firstRun === "setup" && !gear
           ? (
             <SetupForm onClose={() => {
               setFirstRun(autoOpened.current && !tourSeen() ? "tour" : null);
