@@ -1874,6 +1874,11 @@ export const appEs = {
     "Los {count} trabajos quedan como entradas anónimas, así que tus ingresos y tu exportación contable no cambian.",
   "Six short tours, up to {count} steps. Stop any time.":
     "Seis recorridos cortos, hasta {count} pasos. Para cuando quieras.",
+  // Re-opening a blocked day asks with the reason the detailer typed.
+  "This day is closed for {reason}. Re-open it and customers can book.":
+    "Este día está cerrado por {reason}. Si lo reabres, los clientes podrán reservar.",
+  "This day is closed. Re-open it and customers can book.":
+    "Este día está cerrado. Si lo reabres, los clientes podrán reservar.",
   "In your own words": "En tus propias palabras",
   "Change it": "Cámbiala",
   // /reset's signed-in branch is the CHANGE-password form and says so now.
