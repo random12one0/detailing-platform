@@ -522,7 +522,14 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                 detailer nearly always means, so deleting hides behind it
                 and says what it does that cancelling doesn't. */}
             <details className="disclose">
-              <summary>{t("Remove this from my records too")}</summary>
+              {/* **PHRASED AS THE SUBJECT, NOT AS A COMMAND — 2026-09-12.** It
+                  read "Remove this from my records too", which looks like a
+                  button that DOES the thing rather than a fold that reveals
+                  it. Somebody expecting it to act presses it, finds a drawer,
+                  and presses whatever is inside — past the sentence that is
+                  the entire point of the fold. The button inside should be
+                  the only thing on this block that reads like an action. */}
+              <summary>{t("Removing it from your records")}</summary>
               <p className="quiet" style={{ margin: "0 0 10px" }}>
                 {t("Cancelling frees the slot and keeps the job in your history. Removing takes it out of your records and your totals as well. It cannot be undone.")}
               </p>

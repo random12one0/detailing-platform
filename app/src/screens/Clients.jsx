@@ -577,39 +577,36 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
             {role === "owner" && (
               <div className="tight">
                 <hr className="rule" />
+                {/* **THE JOB PAGE ALREADY SOLVED THIS AND THIS SCREEN BROKE
+                    ITS ANSWER — 2026-09-12.** A job's delete sits behind a
+                    `details.disclose`, explains what it does that CANCELLING
+                    does not, says "It cannot be undone" in those words, and
+                    is `.btn.danger` — the one colour this theme reserves for
+                    harm. Ten feet away this control was a plain `--bone`
+                    button on an ordinary surface with no heading, no fold and
+                    no explanation until you pressed it.
+                    **Copied rather than designed**, which is the anti-drift
+                    rule working: the reference is this product's own best
+                    screen and it already existed. The two-state React went
+                    with it — native `<details>` is the speed bump, and closing
+                    the fold IS "keep them", so the second button is gone. */}
+                <h3 className="section-title">{t("Removing them from your records")}</h3>
                 {forgetError && <div className="error-box">{forgetError}</div>}
-                {!forgetting ? (
-                  <button className="btn sm" onClick={() => { setForgetError(""); setForgetting(open); }}>
-                    Delete {open.name.split(" ")[0]}’s information
+                <details className="disclose">
+                  <summary>{t("Deleting their information")}</summary>
+                  <p className="quiet" style={{ margin: "0 0 10px" }}>
+                    {t("Their name, number, address and any notes come off every job, and their photos are deleted. This cannot be undone.")}
+                  </p>
+                  <p className="muted" style={{ margin: "0 0 10px" }}>
+                    {n(history?.length ?? 0,
+                      "The {count} job stays as an anonymous entry, so your takings and your accountant export do not change.",
+                      "The {count} jobs stay as anonymous entries, so your takings and your accountant export do not change.")}
+                  </p>
+                  <button className="btn danger" disabled={forgetting === "going"}
+                    onClick={() => { setForgetError(""); setForgetting("going"); forget(open); }}>
+                    {forgetting === "going" ? t("Deleting…") : t("Delete for good")}
                   </button>
-                ) : (
-                  <div className="card tight">
-                    <p>
-                      {t("Their name, number, address and any notes come off every job, and their photos are deleted. This cannot be undone.")}
-                    </p>
-                    <p className="muted">
-                      The {history?.length ?? 0} job{(history?.length ?? 0) === 1 ? "" : "s"} stay
-                      as anonymous entries, so your takings and your accountant
-                      export don’t change.
-                    </p>
-                    <div className="row" style={{ gap: 8, marginTop: 10 }}>
-                      <button className="btn danger" disabled={forgetting === "going"}
-                        onClick={() => forget(open)}>
-                        {/* "Delete for good" WRAPPED ONTO TWO LINES AT 392 —
-                            looked at, not reasoned about. It is one word now,
-                            and that is the better copy anyway: the sentence
-                            directly above already says the consequence and
-                            already says it cannot be undone, so the button
-                            repeating it is exactly the explaining-what-the-
-                            label-already-said the owner objected to. "Delete"
-                            beside "Keep them" is an unambiguous pair. */}
-                        {forgetting === "going" ? t("Deleting…") : t("Delete")}
-                      </button>
-                      <button className="btn ghost" disabled={forgetting === "going"}
-                        onClick={() => setForgetting(null)}>{t("Keep them")}</button>
-                    </div>
-                  </div>
-                )}
+                </details>
               </div>
             )}
           </div>

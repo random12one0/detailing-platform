@@ -1401,7 +1401,7 @@ export const appEs = {
   "Reminder": "Recordatorio",
   "Remove from records": "Quitar de los registros",
   "Remove from the team": "Quitar del equipo",
-  "Remove this from my records too": "Quitar esto de mis registros también",
+  "Removing it from your records": "Quitar esto de mis registros también",
   "Repeats on a schedule": "Se repite en un horario",
   "Replies come to your own inbox, not to us.":
     "Las respuestas llegan a tu propio correo, no a nosotros.",
@@ -1865,6 +1865,13 @@ export const appEs = {
   "Choose a photo to hide it from your site.":
     "Elige una foto para ocultarla de tu sitio.",
   "Show this payment method": "Mostrar este método de pago",
+  "Removing them from your records": "Quitarlos de tus registros",
+  "Deleting their information": "Eliminar su información",
+  "Delete for good": "Eliminar definitivamente",
+  "The {count} job stays as an anonymous entry, so your takings and your accountant export do not change.":
+    "El {count} trabajo queda como una entrada anónima, así que tus ingresos y tu exportación contable no cambian.",
+  "The {count} jobs stay as anonymous entries, so your takings and your accountant export do not change.":
+    "Los {count} trabajos quedan como entradas anónimas, así que tus ingresos y tu exportación contable no cambian.",
   "In your own words": "En tus propias palabras",
   "Change it": "Cámbiala",
   // /reset's signed-in branch is the CHANGE-password form and says so now.

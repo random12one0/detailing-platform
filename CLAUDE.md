@@ -1251,7 +1251,28 @@ screen a detailer or a customer sees.
 
 **The reference for any design decision is this product's own best screens, not
 outside best practice.** Those are the seven-step booking flow, the writing on
-the "Your web address" settings screen, and the job page layout. When unsure,
+the "Your web address" settings screen, and the job page layout.
+
+**AND THE JOB PAGE IS THE REFERENCE FOR A DESTRUCTIVE ACTION — measured
+2026-09-12, and it satisfies the whole criterion in one place.** Delete sits
+behind a `details.disclose` so the dangerous thing takes a deliberate press to
+reach; the copy says what it does that the REVERSIBLE thing beside it does not
+(*"Cancelling frees the slot and keeps the job in your history. Removing takes
+it out of your records and your totals as well. It cannot be undone."*); and
+the button is `.btn.danger`, the one colour this theme reserves for harm.
+**The distinction is deliberate rather than accidental:** "Didn't show up" and
+"Cancel the job" sit beside it at the same size and do NOT take `--bad`,
+because they are outcomes a detailer can live with rather than deletions. **So
+`--bad` means "this destroys something" in this product, consistently.**
+**Copy it rather than designing a second answer** — the client record had a
+plain `--bone` button with no heading, no fold and no explanation ten feet
+away, and the fix was to port this pattern word for word.
+Two things this pattern gets wrong and a copy should not: **phrase the summary
+as the SUBJECT, not a command** (*"Removing it from your records"*, not
+*"Remove this…"*, which reads as a button that acts and invites a press past
+the sentence that is the point of the fold), and **give it a heading that
+describes the ACTION** — the job page's sits under "Change the time or
+details", which is about editing. When unsure,
 copy the best screen that already exists here rather than importing a pattern
 from somewhere else.
 
