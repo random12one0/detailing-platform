@@ -48,6 +48,9 @@ import { useWide } from "../hooks/useWide.js";
 import { money, todayLocal } from "../lib/format.js";
 import { PERIOD_KINDS, bucketsFor, inPeriod, periodAt } from "../lib/periods.js";
 import { accountantCsv, accountantFilename } from "../lib/accountant-export.js";
+// The floor both money screens obey. See moneyAdvanced.js for why it is one
+// number rather than one per screen.
+import { RATE_FLOOR } from "../lib/moneyAdvanced.js";
 import { api } from "../lib/api.js";
 import ExpenseModal from "../components/ExpenseModal.jsx";
 import BulkJobModal from "../components/BulkJobModal.jsx";
@@ -540,12 +543,22 @@ export default function Money({ onGo }) {
               everyday screen as well as the advanced one. The count rides with
               it because "Express Wash" alone does not say whether that is four
               jobs or forty. */}
-          {top && (
+          {/* **AND THE FLOOR REACHES THIS SCREEN TOO — 2026-09-12.** The
+              first pass put it only on the advanced screen, and this summary
+              went on printing *MOST BOOKED · Full Interior Detail · TIMES
+              BOOKED · 1* at two finished jobs: a superlative over a
+              denominator of one, which is the exact figure the floor exists
+              to stop. The four cells above are COUNTED and stay — *Jobs done
+              2* is a fact. Only the ranking goes, and it says why rather than
+              vanishing, or the block simply looks broken in a first month. */}
+          {top && (stats.jobsNow >= RATE_FLOOR ? (
             <div className="paircells tight-rows">
               <Cell label={t("Most booked")} value={top.name} wrap />
               <Cell label={t("Times booked")} value={`${top.count} · ${money(top.total)}`} wrap />
             </div>
-          )}
+          ) : (
+            <p className="quiet">{t("Too few finished jobs to name a most-booked service.")}</p>
+          ))}
 
           <div className="paircells tight-rows">
             <Cell label={t("Quoted up front")} value={money(stats.quoted)} />
@@ -553,7 +566,7 @@ export default function Money({ onGo }) {
               value={`${stats.onSite >= 0 ? "+" : "−"}${money(Math.abs(stats.onSite))}`}
               tone={stats.onSite > 0 ? "good" : undefined} />
           </div>
-          {stats.inNow > 0 && stats.onSite > 0 && (
+          {stats.jobsNow >= RATE_FLOOR && stats.inNow > 0 && stats.onSite > 0 && (
             <p className="quiet" style={{ marginTop: 8 }}>
               {Math.round((stats.onSite / stats.inNow) * 100)}% of what you collected was sold at the job.
             </p>

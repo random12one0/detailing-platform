@@ -68,6 +68,11 @@ import { Segmented } from "../components/controls.jsx";
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
 import { appIntlLocale, t } from "../lib/appI18n.js";
+// "1 jobs" is the oldest bug in this product, and it came back twice on this
+// screen under two different verbs. Same shape Business.jsx and
+// AdvancedMoney.jsx already use — a third copy of three lines rather than a
+// refactor of two working files; lift it into appI18n if a fourth appears.
+const n = (v, one, many) => t(v === 1 ? one : many, { count: v });
 import { useAppLocale } from "../hooks/useAppLocale.js";
 
 // Manual, and three of them (decision 3). Three choices is a segmented
@@ -332,13 +337,18 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
         <div className="row" style={{ justifyContent: "flex-end", gap: 8 }}>
           {can("marketing") && emailable > 0 && (
             <button className="btn sm inline" data-tour="compose" onClick={() => setWriting(rows.map((r) => r.c))}>
-              {t("Email these {n}", { n: emailable })}
+              {/* **THE SAME FAULT UNDER A DIFFERENT VERB — 2026-09-12.**
+                  "Text these 1" was fixed and this said "Email these 1" an
+                  hour later. They are not one string with two labels: this
+                  one counts `emailable` and the other counts `rows`, so a
+                  list of four with one email address breaks THIS one while
+                  the other reads correctly. Both go through the plural
+                  helper now instead of each carrying its own branch. */}
+              {n(emailable, "Email this one", "Email these {count}")}
             </button>
           )}
           <a className="btn sm inline" href={smsHref}>
-            {/* "Text these 1" — the filter can narrow to a single client and
-                the plural does not survive it. 2026-09-12. */}
-            {rows.length === 1 ? t("Text this one") : t("Text these {n}", { n: rows.length })}
+            {n(rows.length, "Text this one", "Text these {count}")}
           </a>
         </div>
       )}
@@ -423,7 +433,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
           // `querySelector` takes whichever comes first in the document.
           <button key={c.id} className="row-item" data-tour={rowIndex === 0 ? "client" : undefined}
             onClick={() => openCustomer(c)}
-            aria-label={`${c.name}, ${t("last visit {when}", { when: agoWords(last, today, t).toLowerCase() })}, ${owner ? money(spend) : t("{count} visits", { count: visits })}, ${phone(c.phone)}`}>
+            aria-label={`${c.name}, ${t("last visit {when}", { when: agoWords(last, today, t).toLowerCase() })}, ${owner ? money(spend) : n(visits, "{count} visit", "{count} visits")}, ${phone(c.phone)}`}>
             <span className="c-who nm">{c.name}</span>
             <span className="c-sub">
               <span className="c-date">{agoWords(last, today, t)}</span>

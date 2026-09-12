@@ -77,6 +77,19 @@ const dayOf = (dateStr) => new Date(`${dateStr}T12:00:00`).getDay();
  *                   customer is "returning" if they booked before this period
  *                   began, which cannot be answered from the period alone.
  */
+// **HOW MANY FINISHED JOBS A RATE NEEDS UNDER IT — 2026-09-12.**
+//
+// Below this, every rate, percentage and superlative on both money screens is
+// withheld and the figures that are simply counted are shown instead. A
+// *most booked* service with a count of one is not a most-booked service, and
+// a return rate over two people is not a rate.
+//
+// **ONE NUMBER, HERE, BECAUSE TWO SCREENS ENFORCE IT.** The advanced screen
+// hides whole panels and Money hides one pair of cells; if each kept its own
+// copy of the threshold they would drift, and a detailer would meet a screen
+// that had decided it had enough jobs beside one that had decided it had not.
+export const RATE_FLOOR = 8;
+
 export function advancedMoney({
   bookings = [], expenses = [], lineItems = [], period, previous = null, history = null,
 } = {}) {

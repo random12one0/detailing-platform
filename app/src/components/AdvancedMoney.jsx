@@ -48,7 +48,7 @@ import { useBusiness } from "../context/BusinessContext.jsx";
 // on every row. The page still drew, which is how it survived a first look:
 // an uncaught error in a `.then` leaves React holding the last good render.
 import { localDate, money } from "../lib/format.js";
-import { advancedMoney } from "../lib/moneyAdvanced.js";
+import { advancedMoney, RATE_FLOOR } from "../lib/moneyAdvanced.js";
 import { t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 
@@ -251,7 +251,7 @@ export default function AdvancedMoney({
   // the customer-entered tip does not exist yet. This floor makes the half
   // that DOES exist read honestly. It is not the missing half and must not
   // grow into it.
-  const THIN = 8;
+  const THIN = RATE_FLOOR;
   const thin = m.jobs < THIN;
 
   return (

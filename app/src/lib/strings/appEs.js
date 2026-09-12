@@ -1698,6 +1698,7 @@ export const appEs = {
   "{count} year ago": "hace {count} año",
   "{count} years ago": "hace {count} años",
   "last visit {when}": "última visita {when}",
+  "{count} visit": "{count} visita",
   "{count} visits": "{count} visitas",
   "{count} of {total} done": "{count} de {total} hechos",
   "Pending": "Pendiente",
@@ -1711,8 +1712,11 @@ export const appEs = {
   // is invisible in English by construction. `scripts/i18n-fragments.mjs`
   // finds it now.
   "{done} done · {left} to go": "{done} hechos · faltan {left}",
-  "Email these {n}": "Enviar correo a estos {n}",
-  "Text these {n}": "Enviar mensaje a estos {n}",
+  // The four bulk-action labels: `{n}` became `{count}` when both buttons
+  // moved onto the plural helper, and each gained its singular. 2026-09-12.
+  "Email this one": "Enviar correo a este",
+  "Email these {count}": "Enviar correo a estos {count}",
+  "Text these {count}": "Enviar mensaje a estos {count}",
   "Showing the {n} most recent — search for anyone older.": "Mostrando los {n} más recientes — busca a alguien de antes.",
   "You have {n} booked job coming up. Moving from {from} to {to} does not move any appointment — it still happens at the same moment — but the times shown will change.": "Tienes {n} cita agendada. Cambiar de {from} a {to} no mueve ninguna cita — sigue ocurriendo en el mismo momento — pero las horas que se muestran cambiarán.",
   "You have {n} booked jobs coming up. Moving from {from} to {to} does not move any appointment — each one still happens at the same moment — but the times shown will change.": "Tienes {n} citas agendadas. Cambiar de {from} a {to} no mueve ninguna cita — cada una sigue ocurriendo en el mismo momento — pero las horas que se muestran cambiarán.",
@@ -1807,6 +1811,8 @@ export const appEs = {
   // The data floor. Under eight finished jobs every rate on the advanced
   // money screen is replaced by this one panel.
   "Too few jobs to read rates": "Muy pocos trabajos para calcular tasas",
+  "Too few finished jobs to name a most-booked service.":
+    "Muy pocos trabajos terminados para nombrar el servicio más reservado.",
   "Rates, percentages and best-of-the-week need more finished jobs behind them than this period has. These four are counted, not worked out, so they are the ones worth reading.":
     "Las tasas, los porcentajes y el mejor día necesitan más trabajos terminados de los que tiene este periodo. Estos cuatro se cuentan, no se calculan, así que son los que vale la pena leer.",
   "{count} more finished job and the rest of this screen fills in.":
