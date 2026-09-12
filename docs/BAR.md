@@ -74,9 +74,42 @@ so the paint does not move and the pointer reaches further.
    with a neighbour above or below measured **31px** of reachable height while
    their isolated siblings measured 43.
 2. **A BOUNDING RECT CANNOT SEE ANY OF THIS.** `getBoundingClientRect` reports
-   the mark, not the reach. The instrument is `elementFromPoint`, stepping
-   outward ONE PIXEL AT A TIME from the element's own edges — not from a rounded
-   centre, which loses a pixel on a fractional rect and reported 43 on a 44px
-   target — and an ancestor under the pointer is NOT a hit, or the card behind
-   every control makes it look enormous. Baseline the probe on a synthetic
-   20x20 control every run before believing a number from it.
+   the mark, not the reach. See the instrument section below — it took four
+   rebuilds and produced a wrong number each time.
+
+3. **A CLIPPING ANCESTOR CUTS THE `::after` AND THE STYLESHEET STILL READS
+   CORRECT.** `.chiprow` carries `overflow-x: auto` for horizontal scrolling,
+   and CSS has no way to scroll one axis and overflow the other — a non-visible
+   overflow on EITHER axis makes the other a clipping box. The row was 42px
+   tall, so every chip in it answered across exactly 42px while
+   `getComputedStyle` reported `inset: -5px`. **It was the EN/ES language
+   picker**, the one control a detailer reaches for when the dashboard is in a
+   language they cannot read. Fixed with vertical padding on the row, not a
+   negative margin: a negative margin pulls the next row up under the chips'
+   own `::after` and hands it three pixels of somebody else's presses.
+
+4. **A BORDER SILENTLY EATS THE EXTENSION.** `inset` on an absolutely
+   positioned child resolves against the containing block's **padding box**, so
+   a 2px border means `inset: -8px` reaches only 6px past the visible edge.
+   `.placespot` measured 43.19 against a rule that says 47. `.chip` and
+   `.btn.sm` have 1px borders and land on exactly **44.00** — passing, and
+   worth knowing that they have no margin left.
+
+## THE INSTRUMENT, and it lied four times before it told the truth
+
+Every one of these produced a confident wrong number first:
+
+- **Binary-search the boundary, sub-pixel.** Integer stepping reports 43 on a
+  target that is 44. Both reviewers nearly filed four correct buttons as short.
+- **Measure from the element's own EDGES**, not from a rounded centre — a
+  fractional rect loses a pixel.
+- **An ancestor under the pointer is NOT a hit.** `e.contains(el)` in the
+  predicate makes every control look enormous, because the card behind it
+  contains it. Only `e === el || el.contains(e)`.
+- **`scrollIntoView` first.** `elementFromPoint` returns null outside the
+  viewport, so the last row of every screen reads short — and fixing this alone
+  raised one step's control count from 4 to 19, meaning earlier sweeps were
+  under-counting what they measured.
+- **CALIBRATE EVERY RUN AND SUBTRACT THE BIAS.** A synthetic 20x20 div in the
+  same document reads **20.98**, so the instrument over-reads by 0.98px.
+  A number reported without that removed is the instrument, not the control.

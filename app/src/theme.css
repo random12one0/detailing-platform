@@ -1598,7 +1598,23 @@ a { color: var(--accent-text); text-decoration: none; }
 .chip.active:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 20%, transparent); }
 .chip:disabled { opacity: 0.4; cursor: default; }
 .chiprow {
-  display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px;
+  display: flex; gap: 6px; overflow-x: auto;
+  /* **`overflow-x: auto` CLIPS THE `::after` — 2026-09-12, and this is the one
+     that nearly shipped.** A non-visible overflow on EITHER axis makes the
+     other axis a clipping box too; CSS has no way to scroll horizontally and
+     overflow vertically. So this row was 42px tall and cut every chip's 46px
+     hit area back to exactly 42, whatever the inset said.
+     **IT WAS THE EN/ES LANGUAGE PICKER**, which is the single control a
+     detailer reaches for when the dashboard is in a language they cannot read —
+     the one that had to work, failing the floor by two pixels, while the CSS
+     rule that was supposed to fix it read correct.
+     **ONLY A CALIBRATED PROBE COULD SEE IT.** `getComputedStyle` says
+     `inset: -5px`; the chip still only answers across 42px.
+     Vertical padding rather than a negative margin: a negative margin would
+     pull the following settings row up under the chips' own `::after` and hand
+     it three pixels of somebody else's presses, which trades a small target for
+     a wrong one. Eight pixels of row height is the cheaper price. */
+  padding-block: 5px;
   scrollbar-width: none;
 }
 .chiprow::-webkit-scrollbar { display: none; }
@@ -3869,7 +3885,16 @@ html:not(.lite) .intake .samp-move .samp-row:nth-child(3) { animation-delay: .5s
    step they could not get past; they only surfaced when the sweep walked all
    21 steps, and they had no `::after` at all. A class-level fix to `.chip` and
    `.btn.sm` would never have reached them. */
-.intake .placespot::after { content: ""; position: absolute; inset: -8px 0; }
+/* **-10px FOR 47px OF REACH ON A 31px BOX, AND THE EXTRA 4px IS THE BORDER.**
+   `inset` on an absolutely positioned child resolves against its containing
+   block's PADDING box, and `.placespot` carries a 2px dashed border — so
+   `inset: -8px` reached only 8 - 2 = 6px past the visible edge and measured
+   43.19, not 47. **A BORDER SILENTLY EATS THE EXTENSION**, and no amount of
+   reading the rule shows it: the number in the stylesheet and the number a
+   thumb gets are different numbers whenever the element has a border.
+   (`.chip` and `.btn.sm` land on exactly 44.0 for the same reason — 1px
+   borders — which passes, and is why they are left alone.) */
+.intake .placespot::after { content: ""; position: absolute; inset: -10px 0; }
 .intake .placespot span { font-size: 12px; font-weight: 600; opacity: .75; }
 .intake .placespot:hover { border-color: var(--accent); }
 .intake .placespot.on {

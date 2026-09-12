@@ -625,8 +625,17 @@ conversation they were found in.**
   costs nothing the exception protects. **The class itself was deliberately
   left alone.**
 
-- 2026-09-12 — **ONE CONTROL IN THE WEBSITE BRIEF IS STILL UNDER THE 44 FLOOR
-  AND I COULD NOT ESTABLISH WHY.** Step 18 (Contact), `.placespot` "Footer
+- ~~2026-09-12 — **ONE CONTROL IN THE WEBSITE BRIEF IS STILL UNDER THE 44 FLOOR
+  AND I COULD NOT ESTABLISH WHY.**~~ **CLOSED, AND THE ENTRY WAS WRONG ABOUT ITS
+  OWN FACTS.** There was no odd one out: with a sub-pixel probe calibrated
+  against a synthetic 20x20 (which reads 20.98, so the instrument over-reads by
+  0.98px), ALL THREE placespots read 43.19 identically — the "43 versus 47"
+  split was the uncalibrated integer probe, not the product. The cause is that
+  `inset` on an absolutely positioned child resolves against the PADDING box, so
+  the 2px dashed border ate 2px of extension per side. `inset: -10px` now, and
+  all three clear. **Kept rather than deleted, because the wrong reading is the
+  lesson: an instrument nobody has calibrated invents a pattern and then you go
+  looking for a cause for it.** The original text: Step 18 (Contact), `.placespot` "Footer
   only": 280x31 painted, **43px reachable** after the `::after` fix took it up
   from 31. Its two siblings on the same screen reach 47. The probe reports
   `above=BUTTON.placespot below=BUTTON.placespot` at ±5px, which says another
@@ -636,4 +645,15 @@ conversation they were found in.**
   confirmed.** Reported rather than guessed at: 43 is better than 31 and it is
   not 44, and saying "fixed" would be the thing this repo punishes. The other
   175 controls across all 21 steps clear the floor.
+
+- 2026-09-12 — **THE SUPPORT EMAIL IN THE GEAR IS 183x14 AND DOES NOT CLEAR THE
+  44 FLOOR.** `GearMenu.jsx:248` renders `support@detailingplatform.com` as an
+  inline `mailto:` inside a sentence. **Deliberately NOT grown**, and this is a
+  judgement for Cowork rather than an oversight: an inline link in running prose
+  cannot take a 44px target without its hit area covering the lines of text
+  above and below it, and the `::after` pattern is written for a MARK that is
+  deliberately small — a dot, a swatch, a 31px zone — not for a word inside a
+  paragraph. The same address renders the same way on the landing page
+  (`LandingPage.jsx:1219`). Either it becomes a real row, or the bar records an
+  inline-prose exception. Reported with the measurement so the decision is his.
 
