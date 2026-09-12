@@ -96,7 +96,14 @@ function PlansInner() {
 
       <div className="bk-wrap">
         <div className="bk-step-head">
-          <h2>{plans.length ? t("Regulars get looked after") : t("No plans just now")}</h2>
+          {/* **"Regulars get looked after" is gone — an outside review,
+              2026-09-11, and it trips his rule twice.** It is a sentence
+              where a title belongs, and it is the one line in the product
+              trying to be charming — on the page that asks somebody for $120
+              a month, which is the worst place in the product to be cute.
+              `Monthly plans` is what the thing is called everywhere else in
+              this product, including the settings screen that creates them. */}
+          <h2>{plans.length ? t("Monthly plans") : t("No plans just now")}</h2>
         </div>
 
         {plans.length === 0 ? (

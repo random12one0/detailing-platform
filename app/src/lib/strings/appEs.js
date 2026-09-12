@@ -1067,7 +1067,7 @@ export const appEs = {
     "Se agrega al total del cliente cuando lo escoge.",
   "Adding a job to your calendar": "Agregar un trabajo a tu calendario",
   "Address": "Dirección",
-  "After a job is marked complete, if you haven't finalised it yet.":
+  "After a job is marked complete, if you haven't finalized it yet.":
     "Después de marcar un trabajo como terminado, si aún no lo has finalizado.",
   "Agreed on the phone, first Tuesday of the month.":
     "Acordado por teléfono, el primer martes del mes.",
@@ -1258,7 +1258,7 @@ export const appEs = {
   "Leave both blank to be closed.": "Deja las dos en blanco para estar cerrado.",
   "Leave off to charge it all day on those days.":
     "Déjalo apagado para cobrarlo todo el día esos días.",
-  "Licences, certifications, warranties. They go on your website — that part is still being built.":
+  "Licenses, certifications, warranties. They go on your website. That part is still being built.":
     "Licencias, certificaciones, garantías. Van en tu sitio web — esa parte todavía se está construyendo.",
   "Light, moderate, heavy or extreme. Never changes the price.":
     "Ligero, moderado, pesado o extremo. Nunca cambia el precio.",

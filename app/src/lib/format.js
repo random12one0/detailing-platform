@@ -82,7 +82,10 @@ export const duration = (mins, lang = "en") => {
   }
   if (!h) return `${m} min`;
   if (!m) return `${h} hr${h > 1 ? "s" : ""}`;
-  return `${h} hr ${m} min`;
+  // `2 hr 30 min` was the odd one out — an outside review, 2026-09-11. The
+  // line above already pluralises a bare hour, so two-and-a-half hours read as
+  // "2 hr 30 min" beside "2 hrs". Same rule on both branches.
+  return `${h} hr${h > 1 ? "s" : ""} ${m} min`;
 };
 
 // ROADMAP 8.17 STAGE 1B — the language is an ARGUMENT and this must never

@@ -285,7 +285,7 @@ export default function Notifications() {
             onChange={(v) => set("owner_nudge_lead_minutes", v)} unit="minutes" customMax={720} />
         </Setting>
         <Setting label={t("Remind you to record payment")} stacked
-          help={t("After a job is marked complete, if you haven't finalised it yet.")}>
+          help={t("After a job is marked complete, if you haven't finalized it yet.")}>
           <DurationChoice value={form.finalize_nudge_delay_minutes} presets={FINALIZE}
             onChange={(v) => set("finalize_nudge_delay_minutes", v)} unit="minutes" customMax={1440} />
         </Setting>

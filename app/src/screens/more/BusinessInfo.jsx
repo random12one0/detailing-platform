@@ -264,7 +264,7 @@ export default function BusinessInfo() {
           looking for them has been misled by a missing clause. */}
       <div className="section-title">{t("What customers should know")}</div>
       <p className="muted" style={{ marginTop: "calc(-1 * var(--sp-2))" }}>
-        {t("Licences, certifications, warranties. They go on your website — that part is still being built.")}
+        {t("Licenses, certifications, warranties. They go on your website. That part is still being built.")}
       </p>
       {creds.map((c, i) => (
         <div className="grid2" key={i}>

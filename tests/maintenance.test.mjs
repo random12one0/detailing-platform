@@ -88,8 +88,21 @@ console.log("\n3. met is derived");
     app.isMet(D({ days: -5, last_done_on: day(-1) }), TODAY),
     "done late is still done, and the row must stop shouting");
   // The proof is the other half of a warranty claim, so a met row says WHEN.
-  check("a met row shows the date it was done",
-    app.saySoon(D({ days: 20, last_done_on: day(-5) }), TODAY) === `Done ${day(-5)}`);
+  // **THE DATE IS READ BY A PERSON, NOT BY A LOG — corrected 2026-09-11.**
+  // This asserted the raw `2026-07-13`, which is what an outside review found
+  // on the screen: every other date in the product reads `Friday, September
+  // 11` or `Wed, Sep 16`. The check now pins that it CONTAINS the date in
+  // words rather than pinning one exact format, because the format is a
+  // presentation choice and the fact that a met row says WHEN is not.
+  {
+    const said = app.saySoon(D({ days: 20, last_done_on: day(-5) }), TODAY);
+    const readable = new Date(`${day(-5)}T12:00:00`)
+      .toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    check("a met row shows the date it was done, in words",
+      said === `Done ${readable}`, `${said} — expected Done ${readable}`);
+    check("...and never the raw ISO date", !said.includes(day(-5)),
+      "an ISO date is for a log, not for a screen a detailer reads between jobs");
+  }
 }
 
 // ─── 4. The escalation ────────────────────────────────────────────────────

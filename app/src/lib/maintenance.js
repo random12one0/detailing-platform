@@ -114,7 +114,20 @@ export function nextDue(d, doneOn) {
 export function saySoon(d, today = new Date()) {
   const state = stateOf(d, today);
   if (state === "cancelled") return "No longer applies";
-  if (state === "met") return `Done ${d.last_done_on}`;
+  // **NOT THE RAW ISO DATE — an outside review, 2026-09-11.** This printed
+  // `Done 2026-07-13` on a screen a detailer reads between jobs, where every
+  // other date in the product reads `Friday, September 11` or `Wed, Sep 16`.
+  // An ISO date is for a log.
+  // Noon, not midnight: a bare `2026-07-13` is parsed as UTC and prints as the
+  // day before for anybody west of Greenwich, which is every detailer this
+  // product has.
+  if (state === "met") {
+    const on = d.last_done_on
+      ? new Date(`${d.last_done_on}T12:00:00`).toLocaleDateString("en-US",
+        { month: "short", day: "numeric", year: "numeric" })
+      : null;
+    return on ? `Done ${on}` : "Done";
+  }
   const n = daysUntil(d.due_on, today);
   if (state === "missed") return n === -1 ? "Missed yesterday" : `Missed ${-n} days ago`;
   if (n === 0) return "Due today";

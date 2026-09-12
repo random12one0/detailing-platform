@@ -21,7 +21,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
-import { money } from "../../lib/format.js";
+import { duration, money } from "../../lib/format.js";
 import Sheet from "../../components/Sheet.jsx";
 import { Segmented, Setting, Switch } from "../../components/controls.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
@@ -409,7 +409,12 @@ export default function Catalog() {
                 <div className="muted">
                   {/* The category is the heading above this row now, so
                       repeating it here is the label explaining itself. */}
-                  {s.price_is_from ? "from " : ""}{money(s.price)} · {s.duration_minutes} min
+                  {/* **THE DETAILER SEES WHAT THE CUSTOMER SEES — an outside
+                      review, 2026-09-11.** This read `300 min` while the
+                      booking page read `about 5 hrs` off the same field. Two
+                      units for one number, and the person SETTING it was
+                      shown the one that takes a moment to convert. */}
+                  {s.price_is_from ? "from " : ""}{money(s.price)} · {duration(s.duration_minutes)}
                 </div>
               </div>
               <Reorder kind="service" index={i} above={k === 0 ? null : rows[k - 1].i} />
@@ -437,7 +442,7 @@ export default function Catalog() {
           <div className="tappable" style={{ flex: 1, minWidth: 0, cursor: "pointer" }}
             onClick={() => setEditing({ kind: "addon", id: a.id, form: { name: a.name, description: a.description || "", price: String(a.price), duration_minutes: String(a.duration_minutes), is_active: a.is_active } })}>
             <strong>{a.name}</strong>
-            <div className="muted">{money(a.price)}{a.duration_minutes ? ` · +${a.duration_minutes} min` : ""}</div>
+            <div className="muted">{money(a.price)}{a.duration_minutes ? ` · +${duration(a.duration_minutes)}` : ""}</div>
           </div>
           <Reorder kind="addon" index={i} above={i === 0 ? null : i - 1} />
         </div>

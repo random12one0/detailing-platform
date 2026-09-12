@@ -160,7 +160,7 @@ export default function StepLocation({ form, setForm, modeLimit }) {
             need={settings.water_requirement}
             checked={form.hasWater}
             onChange={(v) => setForm((f) => ({ ...f, hasWater: v }))}
-            label={t("I can provide access to a water tap")}
+            label={t("I can provide an outdoor faucet")}
             required={t("Without it we can't do this job at your address.")}
             // The "either way" line is the same sentence for both resources,
             // so it is printed under the FIRST one that is merely asked about

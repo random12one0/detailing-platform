@@ -169,7 +169,7 @@ function PlanInner({ data, onChanged }) {
             <div className="bk-step-label" style={{ marginBottom: 6 }}>{t("Visits waiting for you")}</div>
             <div className="bk-owed">{owed}</div>
             <p className="bk-muted" style={{ marginTop: 8 }}>
-              {t("Book whenever suits — these don’t expire while your plan is running.")}
+              {t("Book any time. These don’t expire while your plan is running.")}
             </p>
           </div>
         )}

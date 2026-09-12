@@ -200,7 +200,7 @@ await post("/rest/v1/business_settings", [{
   // enough to wrap at 320 with all three still on the line.
   faq_enabled: true,
   faqs: [
-    { q: "Do you need my water?", a: "No — the van carries its own water and power. If you have a tap we'll happily use it, but nothing depends on it." },
+    { q: "Do you need my water?", a: "No. The van carries its own water and power. If you have an outdoor faucet we'll happily use it, but nothing depends on it." },
     { q: "How long does a full detail take?", a: "Three to five hours for most cars. We'll tell you the number when you book, and we don't leave until it's done." },
     { q: "What if it rains?", a: "We'll call you the morning of and move it, no charge. Rescheduling is one tap on the link in your confirmation email." },
     { q: "Do I need to be there the whole time?", a: "No. Leave the keys and go — most customers are at work. We'll text you when we're finished." },
@@ -338,9 +338,9 @@ const services = await post("/rest/v1/services", [
   },
   {
     business_id: business.id, name: "Interior Refresh", price: 95, duration_minutes: 90,
-    description: "A tidy-up for a car that is used every day.",
+    description: "A quick clean for a car you drive every day.",
     price_is_from: false,
-    features: ["Vacuum throughout, including the boot", "Dashboard, console and door cards wiped", "Interior glass", "Mats cleaned and dressed"],
+    features: ["Vacuum throughout, including the trunk", "Dashboard, console and door panels wiped", "Interior glass", "Mats cleaned and dressed"],
     group_id: grp("Interior").id, group_label: "Interior", sort_order: 3,
   },
   {
@@ -781,7 +781,7 @@ await post("/rest/v1/plan_visits", [{
 const EXPENSES = [
   [0, "product", "Ceramic coating kit", 189],
   [-2, "gas", "Van fuel", 78],
-  [-5, "supplies", "Microfibre towels (bulk)", 46],
+  [-5, "supplies", "Microfiber towels (bulk)", 46],
   [-9, "equipment", "Pressure washer service", 120],
   [-14, "product", "Interior shampoo restock", 92],
   [-21, "gas", "Van fuel", 84],

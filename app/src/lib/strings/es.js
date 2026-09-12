@@ -52,6 +52,7 @@ export const es = {
   "Extreme": "Extrema",
 
   // ── The flow: headings, the rail, the price bar, the buttons ────────────
+  "Monthly plans": "Planes mensuales",
   "No, keep them": "No, quiero seguir recibiéndolos",
   "Nothing changed. You can close this page.":
     "No cambió nada. Puedes cerrar esta página.",
@@ -148,7 +149,7 @@ export const es = {
   "Which area are you in?": "¿En qué zona estás?",
   "Where should we come?": "¿A dónde vamos?",
   "Street address, city": "Calle y número, ciudad",
-  "I can provide access to a water tap": "Puedo dar acceso a una llave de agua",
+  "I can provide an outdoor faucet": "Puedo dar acceso a una llave de agua",
   "Without it we can't do this job at your address.":
     "Sin eso no podemos hacer este trabajo en tu dirección.",
   "I can provide access to a power outlet": "Puedo dar acceso a un tomacorriente",
@@ -336,7 +337,6 @@ export const es = {
   "Plans": "Planes",
   // "Regulars get looked after" is an idiom, not a sentence to carry across
   // word for word: what it MEANS is that coming back regularly is rewarded.
-  "Regulars get looked after": "Cuidamos a los clientes de siempre",
   "No plans just now": "Por ahora no hay planes",
   "{name} isn’t running any plans at the moment.":
     "{name} no tiene planes disponibles en este momento.",
@@ -363,7 +363,7 @@ export const es = {
   "We couldn’t end that just now.": "No pudimos terminarlo en este momento.",
   "Your plan": "Tu plan",
   "Visits waiting for you": "Visitas que te esperan",
-  "Book whenever suits — these don’t expire while your plan is running.":
+  "Book any time. These don’t expire while your plan is running.":
     "Reserva cuando te acomode — no vencen mientras tu plan siga activo.",
   "You paid": "Pagaste",
   "You pay": "Pagas",
