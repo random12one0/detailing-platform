@@ -198,7 +198,18 @@ export default function ResetPassword() {
             {error && <div className="error-box">{error}</div>}
             <button className="btn primary"
               disabled={busy || !password || (state === "signedin" && !current)}>
-              {busy ? t("Saving…") : t("Save it and sign me in")}
+              {/* **THE CARD'S SENTENCE CHANGED AND THE BUTTON DID NOT — caught
+                  2026-09-12, hours after the sentence was fixed.** The copy
+                  above says "You will stay signed in" to somebody already
+                  signed in, and the button underneath still promised to sign
+                  them in — **and the button is the last thing read before
+                  pressing.** Exactly the "Text these 1" / "Email these 1"
+                  shape from this morning: a fix that landed on the prose and
+                  left the control.
+                  "Change it" is the product's own word for this — Settings →
+                  Your password already uses it. */}
+              {busy ? t("Saving…")
+                : state === "signedin" ? t("Change it") : t("Save it and sign me in")}
             </button>
           </form>
         )}

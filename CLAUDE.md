@@ -1446,6 +1446,24 @@ old enough that nobody remembers starting it. **The owner may have been looking
 at last night's CSS on localhost all day** without either side being able to
 name why.
 
+**(h) A CHECK THAT NAMES A SPELLING IS COUPLED TO THE SPELLING, NOT THE
+BEHAVIOUR.** Three of the four `password-reset` failures were this and every
+one failed on a product that was correct: `minLength={8}` against a rule that
+became TEN; `type="password"` against a field that moved into `PasswordInput`
+while the runtime selector still worked; and `padding-left: 120px` against a
+rule renamed to `padding-inline` — **that last one was mine, introduced this
+morning by a rename, and the break said nothing about the rename.** Assert the
+shared constant, the component, or the behaviour. **And count, do not merely
+match:** two of today's rewritten checks passed with one of two subjects
+broken.
+
+**(i) WHEN COPY ON A CARD CHANGES, RE-READ THE WHOLE CARD — THE BUTTON IS
+COPY TOO.** `/reset`'s sentence was corrected to "You will stay signed in" and
+the button under it still said "Save it and sign me in" for hours. Same shape
+as "Text these 1" being fixed while "Email these 1" sat an inch away. **The
+button is the last thing read before pressing**, so it is the worst place to
+leave a stale promise.
+
 **AND THE RULE THEY SHARE, WHICH IS THE ONE TO REMEMBER:** a green result from
 an instrument nobody has checked is worth less than no result, because it stops
 the search. `scripts/sweep-widths.mjs:605` printed *clean* over 38 real

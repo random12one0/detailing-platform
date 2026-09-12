@@ -101,7 +101,21 @@ console.log("\n3. the failure this screen exists to fix");
     check(`3a · ${what} asks for it twice`,
       (src.match(/autoComplete="new-password"/g) ?? []).length === 2
         && /password !== again/.test(src));
-    check(`3b · ${what} refuses a short one`, /minLength=\{8\}/.test(src));
+    // **IT ASSERTED `minLength={8}` AND THE RULE BECAME TEN — fixed
+    // 2026-09-12.** Both screens were correct and both checks failed, every
+    // run, for a day. **A check that hard-codes the value it is guarding is a
+    // second copy of that value**, and the second copy is the one that rots:
+    // the product moved to `MIN_PASSWORD` and the test kept the old literal.
+    // It now asserts the SHARED CONSTANT is what is used, so the rule can
+    // change again without touching this line.
+    // COUNTED, NOT MERELY PRESENT — the first rewrite of this check passed with
+    // ONE of the two fields reverted to a literal, because both screens ask
+    // for the password twice and one match satisfied it. Same trap as the
+    // calendar guard earlier today, and 3a above already counts for the same
+    // reason.
+    check(`3b · ${what} refuses a short one`,
+      (src.match(/minLength=\{MIN_PASSWORD\}/g) ?? []).length === 2,
+      "BOTH length fields must take lib/password.js's MIN_PASSWORD, not a literal");
   }
   // A dead link is the ORDINARY case — a recovery link works once and lasts an
   // hour, and mail scanners follow links — so it gets a state of its own
@@ -129,8 +143,19 @@ console.log("\n4. the way in (roadmap 2.25)");
 {
   const css = readFileSync("app/src/theme.css", "utf8");
 
+  // **IT GREPPED FOR `type="password"` AND THE FIELD MOVED INTO A COMPONENT —
+  // fixed 2026-09-12.** `PasswordInput` renders the password input now, so the
+  // literal is gone from this file while **the runtime selector still works**
+  // — verified by signing in through `input[type=email]` and
+  // `input[type=password]` on 2026-09-12. The check was asserting a fact about
+  // a FILE and calling it a fact about BEHAVIOUR, so it failed on a product
+  // that signs people in perfectly well.
+  // What the scripts actually need is an email input, a password input and a
+  // submit inside the form. `PasswordInput` IS the password input, so naming
+  // it is naming the thing rather than its old spelling.
   check("4a · the three selectors five scripts sign in through still exist",
-    /type="email"/.test(auth) && /type="password"/.test(auth)
+    /type="email"/.test(auth)
+      && (/type="password"/.test(auth) || /<PasswordInput/.test(auth))
       && /className="btn primary"/.test(auth),
     "renaming one of these times out every browser script in the repo");
   // AND THE SUBMIT IS STILL INSIDE THE FORM. `form button.btn.primary` is a

@@ -101,19 +101,14 @@ it.
   request). **Somebody has to sort which is which, one failure at a time** —
   a suite this red gets ignored wholesale, and the one real regression hiding
   in 46 stale checks is the reason that matters. Lane C.
-- ~~**`password-reset`, 3 failing.**~~ **EXPLAINED 2026-09-12 — 4 failing, and
-  every one is a STALE CHECK reading source that moved. No defect.**
-  · `3b` twice asserts `minLength={8}`; the rule became TEN characters on
-    2026-09-10 and the check was never moved. The guess in
-    `whats-left-2026-09-10.md` § 9 was right, now confirmed by reading it.
-  · `4a` asserts the literal strings `type="email"`, `type="password"` and
-    `className="btn primary"` appear in `App.jsx`'s source. The password input
-    moved into the shared `PasswordInput` component, so the literal is gone
-    from that file **while the runtime selector still works** — verified by
-    signing in through `input[type=email]` and `input[type=password]` on
-    2026-09-12. `form button.btn.primary` was not separately re-checked.
-  · `4b-iii` is a `theme.css` assertion about the rail's padding.
-  **Fixing the checks is lane C. Nothing in the product is broken.**
+- ~~**`password-reset`.**~~ **GREEN 2026-09-12 — 29 passed, 0 failed.** All
+  three were WRONG TESTS, not wrong code, and a permanently red suite trains
+  everybody to stop reading it. They assert behaviour now: `MIN_PASSWORD` is
+  used in BOTH length fields rather than a hard-coded 8; the sign-in form has
+  an email input, a password input **or** `PasswordInput`, and a submit inside
+  the form. Both rewrites were baselined by breaking their subject.
+  **A fourth failure was mine**, introduced that morning by renaming
+  `padding-left` to `padding-inline` — fixed and baselined too.
 
 ---
 
