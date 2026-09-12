@@ -202,3 +202,24 @@ Claude Cowork decides what becomes work.
   demo seed and sit nine rows apart on one Clients list. On the screen whose
   job is telling people apart, that reads as a deduplication bug. One-line seed
   fix, lane C.
+- 2026-09-12 — **THE UNBLOCK CONFIRMATION IS A NATIVE `window.confirm`, AND THE
+  MECHANISM IS THE ODD ONE OUT RATHER THAN THE SENTENCE.** Andrew fired it and
+  read it back exactly: *"This day is closed for Equipment servicing. Re-open
+  it and customers can book."* The words are right; what is wrong is that it
+  looks like the BROWSER instead of like the product, while the job page — this
+  repo's stated reference for a destructive or consequential action — uses an
+  in-page `details.disclose` with a heading, the consequence in prose and a
+  `Delete` / `Keep them` pair. **His ruling: move it to the job page's shape
+  the NEXT time somebody is in `DaySheet.jsx`, not as its own errand.** Note
+  that `clearBlockout` is already on this file's ungated-destructive list, so
+  the two are one piece of work: the re-open path asks with a browser dialog
+  and the clear path does not ask at all.
+- 2026-09-12 — NOT A BUG, recorded because it was asked and the answer is easy
+  to get wrong: **both unblock confirm strings DO go through `t()` and both
+  have real Spanish.** `DaySheet.jsx:341-342` calls `t("This day is closed for
+  {reason}. Re-open it and customers can book.")` and its no-reason twin;
+  `appEs.js:1878` and `:1880` carry *"Este día está cerrado por {reason}. Si lo
+  reabres, los clientes podrán reservar."* It read as English only because the
+  session was in English. **`{reason}` stays in whatever the detailer typed**,
+  which is correct under the fourth axis — a detailer's own words are not ours
+  to translate.

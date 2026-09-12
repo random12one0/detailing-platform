@@ -1523,6 +1523,28 @@ has no React test runner — say so IN the check, assert the shared constant or
 the component rather than the spelling, and **count rather than match**. A pass
 over the suites for the others is owed; `ROADMAP.md` carries it.
 
+**(l) A SCRIPTED CLICK IS NOT A GESTURE, AND `window.confirm` BLOCKS THE
+SCRIPT THAT WOULD READ IT. Andrew's method, 2026-09-12 — it is the answer to
+"I cannot make this control fire", which cost this repo most of a session.**
+Two separate problems wearing one symptom, and each needs its own half:
+
+  1. **Click by the ACCESSIBILITY-TREE REFERENCE, not `el.click()`.** A
+     synthetic `.click()` on a checkbox React controls can leave `onChange`
+     unfired, and `focus()` no-ops entirely in a browser pane whose document is
+     not focused — so click, keypress and focus all silently do nothing and the
+     control looks dead. Driving it by its tree reference delivers a real
+     gesture and React sees it.
+  2. **STUB `window.confirm` BEFORE THE CLICK — return `false` and record the
+     argument.** A native confirm halts the page, so a script that clicks and
+     then looks has nothing to look at, and returning `false` means the test
+     costs nothing: the control stays as it was and no data moves.
+
+**It is also the only way to assert the WORDS of a native confirm**, which is
+otherwise unreadable from a script and is therefore the easiest string in a
+product to leave untranslated. **Verified working:** the blockout switch fired,
+`confirm` recorded the exact sentence, cancelling left the checkbox checked and
+the seeded blockout intact.
+
 **AND THE RULE THEY SHARE, WHICH IS THE ONE TO REMEMBER:** a green result from
 an instrument nobody has checked is worth less than no result, because it stops
 the search. `scripts/sweep-widths.mjs:605` printed *clean* over 38 real

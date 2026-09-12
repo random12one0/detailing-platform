@@ -64,8 +64,18 @@ it.
      are invisible to everyone else **by accident rather than by design**, so
      the mechanism is a visually-hidden class, not zero type.
 
-   ex4 is the only one that breaks the hardest floor in the bar (sideways
-   scroll) and is the one to start with after the contact pass.
+   **ORDER OF WORK, HIS RULING 2026-09-12: ex4's MISSING contact goes FIRST,
+   ahead of every target size on all five sites.** *"A number you cannot tap is
+   not a small target, it is not a control."* So: give ex4 a real `tel:` and a
+   real `mailto:` before touching a single font-size anywhere. Then the rest of
+   the contact pass across the other four, then ex4's sideways scroll at 377px
+   (the only hard-floor break in the set), then the service rows, then the rest.
+
+   **AND THE BLOCKOUT THREAD IS CLOSED — do not re-open it.** Andrew fired the
+   switch himself: `confirm` received the exact sentence, cancelling left the
+   day blocked and nothing was destroyed, and the accessibility tree reads
+   `checkbox "Block this day"`. His method is CLAUDE.md trap (l). The two
+   follow-ups are in `FOUND.md` and neither is this wave's work.
 
 5. **The copy pass that the call-site sweeps never reached — 91 strings.**
    User-facing English in this product does NOT only live in `t()` calls in
