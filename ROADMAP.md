@@ -77,7 +77,17 @@ it.
    `checkbox "Block this day"`. His method is CLAUDE.md trap (l). The two
    follow-ups are in `FOUND.md` and neither is this wave's work.
 
-5. **The copy pass that the call-site sweeps never reached — 91 strings.**
+5. ~~**The copy pass that the call-site sweeps never reached.**~~ **DONE
+   2026-09-12.** Every live single em dash in `lib/`, `scripts/` and the
+   dashboard is sorted: 13 middle dots, four colons, three commas, one
+   semicolon, the rest full stops. Six parenthetical pairs stand. The joins are
+   swept too — the step-1 vehicle fee was the step-4 travel fee's unfixed
+   sibling. British spellings gone from the seed (tyres, Odour). **AND THE
+   SWEEP HAD LEFT THE SPANISH HALF OF EVERY STRING IT FIXED: 68 catalogue
+   values still carried the dash their English key had dropped.** What is
+   deliberately left is in `FOUND.md` — the guided tour's remaining copy, the
+   landing page, one attribution dash.
+   ~~Old text, kept so the measurement is not lost:~~
    User-facing English in this product does NOT only live in `t()` calls in
    components: `lib/siteIntake.js`, `lib/templates.js`, `lib/emailMessages.js`,
    `lib/setup.js`, `lib/push.js`, `lib/photo-rules.js`, `lib/adminInsight.js`
@@ -86,10 +96,18 @@ it.
    calls — so the sweep that reported "zero" was true and incomplete. Same
    blind spot produced the sixth "tap" and the Microfibre seed string. Classify
    by the four axes and move each Spanish key with its English.
-6. **Spanish: 139 to zero.** `scripts/i18n-coverage.mjs` counts it and
-   `tests/spanish.test.mjs` § 9 holds the ceiling. **Step the ceiling down as
-   you go.** Worst first: `SiteIntake.jsx` 58, `AdvancedMoney.jsx` 47,
-   `Payments.jsx` 10, `WebAddress.jsx` 7, `ReportProblem.jsx` 6, `Money.jsx` 5.
+6. ~~**Spanish: 139 to zero.**~~ **DONE 2026-09-12 — and the count was the
+   floor rather than the total.** 139 translated, coverage 100%, the § 9 ceiling
+   stepped 139 → 0, and § 9 gained the three shape checks that had only ever
+   read `es.js` (placeholders, `usted`, empty) — 63 passed, 0 failed, all four
+   new checks baselined by breaking their subject. **Then a browser walk with
+   the toggle on Spanish found 34 more the count could not see**: the entire
+   36-step guided tour, drawn with `t(sentence)` from a data table. Plus
+   Payments' handle table, Billing's five invoice words, Money's two bare
+   labels, the gear's `aria-label`, and eleven `dateLong()` calls printing
+   English weekdays beside Spanish ones. **THE REMAINING GAP IS A CLASS, NOT A
+   COUNT: a `t()` whose argument is a variable is invisible to every instrument
+   here.** `FOUND.md` names it and says what the honest instrument would be.
 7. **Mileage.**
 8. **Route awareness.**
 9. **Weather, from open-meteo.**
@@ -130,6 +148,16 @@ it.
   "not applying" with the served file and then `app/dist/assets/*.css`.
   CLAUDE.md trap (g) has the sequence. **If the owner says "the site is not
   working" and localhost looks wrong, ask how long that tab has been open.**
+
+- **A SWEEP OF ENGLISH STRINGS LEAVES THE SPANISH HALF OF EVERY ONE IT FIXES.**
+  Wave F reported zero single em dashes and was measuring only the keys; 68
+  catalogue values still read `— `. The instrument is one line — compare the
+  dash count of every key against its value — and it belongs beside any copy
+  sweep from here. Run it whenever product punctuation changes.
+- **AND A `t()` WHOSE ARGUMENT IS A VARIABLE IS INVISIBLE TO EVERY CHECK HERE.**
+  Coverage counts `t("literal")` and says so about itself. Four data tables
+  rendering in English were found by walking the dashboard in Spanish in a real
+  browser, which is the only instrument that can see them. `FOUND.md` has it.
 
 - **Sweep the suites for checks coupled to a SPELLING rather than a behaviour.**
   Three were found and fixed on 2026-09-12 — a renamed CSS property, a

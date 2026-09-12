@@ -223,3 +223,39 @@ Claude Cowork decides what becomes work.
   session was in English. **`{reason}` stays in whatever the detailer typed**,
   which is correct under the fourth axis — a detailer's own words are not ours
   to translate.
+- 2026-09-12 — **A `t()` WHOSE ARGUMENT IS A VARIABLE IS INVISIBLE TO EVERY
+  INSTRUMENT IN THIS REPO, and that is now the whole remaining Spanish gap.**
+  `scripts/i18n-coverage.mjs` says so in its own header — it reads a literal
+  first argument and nothing else. Four were found by hand today and fixed
+  (Payments' handle table, Billing's invoice words, the 36-step guided tour,
+  Plans' one help string), which means the class is real and unmeasured rather
+  than exhausted. The honest instrument is not a wider grep: it is a scripted
+  walk of the dashboard with the toggle on Spanish, reading `innerText` per
+  screen and flagging anything that matches a list of English function words.
+  Nothing like that exists. Coverage reads 100% and 0 missing, and it is telling
+  the truth about the question it asks.
+- 2026-09-12 — Three English leaks measured in the browser on a Spanish
+  dashboard and NOT fixed, because each is a different kind of decision.
+  (a) **Money's bar chart labels its months Apr, May, Jun, Jul, Aug, Sep** while
+  the period heading above reads "septiembre de 2026" — the column labels are
+  built somewhere that does not pass the locale. (b) **Expense rows print the
+  raw category** — `product`, `gas`, `supplies`, `equipment` — which are ours
+  rather than the detailer's, so they can be translated, but the same four words
+  are offered by the expense form and both places have to agree. (c) The demo's
+  `Microfibre towels (bulk)` row is the already-recorded stale seed, not a code
+  fault.
+- 2026-09-12 — `lib/format.js`'s `dateLong()` returns **"Invalid Date"** for any
+  full ISO timestamp: it does `String(s).split("-").map(Number)`, so
+  `2027-03-12T12:00:00Z` yields `[2027, 3, NaN]`. Four `Billing.jsx` call sites
+  pass exactly that, and **the screen is fine anyway** because that file
+  shadows the import with a local `dateLong` of its own. So the bug is armed and
+  not firing. Worth a guard in the shared function, or worth deleting the
+  shadow; not worth guessing which without the reviewer.
+- 2026-09-12 — Em dashes measured and deliberately LEFT, outside the lib/scripts
+  scope Claude Cowork set: **five in the guided tour's remaining copy**, which
+  this file records as not to be touched (the five that were sentence joints did
+  change punctuation, no words); **eleven on the landing page and in
+  `landing/legal.js`**, which was signed off hours earlier; and one attribution
+  dash in a customer's own quoted review, which is correct typography and is
+  their words either way. Also left on purpose: `"—"` as the no-value glyph in a
+  KPI, and one `console.log` in `seed-demo.mjs`.
