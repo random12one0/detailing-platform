@@ -49,8 +49,8 @@ import { useBusiness } from "../context/BusinessContext.jsx";
 // an uncaught error in a `.then` leaves React holding the last good render.
 import { localDate, money } from "../lib/format.js";
 import { advancedMoney, RATE_FLOOR } from "../lib/moneyAdvanced.js";
-import { CATEGORY_WORDS } from "./ExpenseModal.jsx";
-import { t } from "../lib/appI18n.js";
+import { categoryWord } from "./ExpenseModal.jsx";
+import { getAppLocale, t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 
 const pct = (v) => `${Math.round(v * 100)}%`;
@@ -410,7 +410,7 @@ export default function AdvancedMoney({
         ) : (
           <div className="sunken">
             {m.byCategory.map((c) => (
-              <Meter key={c.name} name={t(CATEGORY_WORDS[c.name] ?? c.name)} value={money(c.amount)} share={c.share} tone="bad" />
+              <Meter key={c.name} name={categoryWord(c.name, getAppLocale())} value={money(c.amount)} share={c.share} tone="bad" />
             ))}
             <hr className="rule" />
             <Row label={t("Everything out")} value={money(m.spent)} />

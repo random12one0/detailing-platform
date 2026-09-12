@@ -272,3 +272,22 @@ Claude Cowork decides what becomes work.
   dash in a customer's own quoted review, which is correct typography and is
   their words either way. Also left on purpose: `"—"` as the no-value glyph in a
   KPI, and one `console.log` in `seed-demo.mjs`.
+- 2026-09-12 — **THE FIVE EXPENSE-CATEGORY WORDS LIVE OUTSIDE `appEs.js`**, in a
+  two-language token table in `ExpenseModal.jsx`, and an audit of the catalogue
+  will not see them. It is the lesser of two evils and the reason is a real
+  collision: the catalogue is keyed on the English string, so the expense chip
+  and the website intake form's *Other* chip would share one entry and they need
+  different casing — the intake chip stands beside *Not on the site at all* and
+  *Either is fine*, where a lowercase `otro` would be the odd one out, which is
+  the same fault as `Otro` being the odd one out among four lowercase nouns.
+  `plans.js`'s `priceWords` is the same shape for the same reason and is the
+  precedent. Worth revisiting only if the catalogue ever gains a way to scope a
+  key.
+- 2026-09-12 — **THE WEBSITE INTAKE FORM'S QUESTION BANK IS STILL ENGLISH IN
+  SPANISH — 21 steps of it.** The 58 strings fixed today were `SiteIntake.jsx`'s
+  own chrome; the QUESTIONS, their ledes and their presets are plain object
+  values in `lib/siteIntake.js` and never reach `t()` at all. Measured in the
+  browser at `/website/preview` with the toggle on Spanish: the page furniture is
+  Spanish and step 1 reads *"Let's build your website."* It is the largest single
+  remaining piece of the same blind spot, it is a lot of copy, and it is not a
+  wave tail — it needs its own item.

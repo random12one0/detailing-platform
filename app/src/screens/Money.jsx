@@ -52,7 +52,7 @@ import { accountantCsv, accountantFilename } from "../lib/accountant-export.js";
 // number rather than one per screen.
 import { RATE_FLOOR } from "../lib/moneyAdvanced.js";
 import { api } from "../lib/api.js";
-import ExpenseModal, { CATEGORY_WORDS } from "../components/ExpenseModal.jsx";
+import ExpenseModal, { categoryWord } from "../components/ExpenseModal.jsx";
 import BulkJobModal from "../components/BulkJobModal.jsx";
 import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
 import { Segmented } from "../components/controls.jsx";
@@ -65,7 +65,7 @@ import { advancedMoney } from "../lib/moneyAdvanced.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
-import { appIntlLocale, t } from "../lib/appI18n.js";
+import { appIntlLocale, getAppLocale, t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 
 // What to call a period in a sentence.
@@ -678,7 +678,7 @@ export default function Money({ onGo }) {
                   <div>
                     <div className="body">{e.description}</div>
                     <div className="quiet" style={{ marginTop: 2 }}>
-                      {new Date(`${e.date}T12:00:00`).toLocaleDateString(appIntlLocale(), { month: "short", day: "numeric" })} · {t(CATEGORY_WORDS[e.category] ?? e.category)}
+                      {new Date(`${e.date}T12:00:00`).toLocaleDateString(appIntlLocale(), { month: "short", day: "numeric" })} · {categoryWord(e.category, getAppLocale())}
                     </div>
                   </div>
                   <div className="body num">{money(e.amount)}</div>

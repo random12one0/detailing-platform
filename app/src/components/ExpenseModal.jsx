@@ -26,7 +26,7 @@ import Sheet from "./Sheet.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
-import { t } from "../lib/appI18n.js";
+import { getAppLocale, t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 
 const CATEGORIES = ["product", "gas", "equipment", "supplies", "other"];
@@ -51,16 +51,28 @@ const CATEGORIES = ["product", "gas", "equipment", "supplies", "other"];
 // A token not in this map is the detailer's own word: it misses the map, misses
 // the catalogue, and renders exactly as he typed it.
 export const CATEGORY_WORDS = {
-  product: "Product",
-  gas: "Gas",
-  equipment: "Equipment",
-  supplies: "Supplies",
-  // "Otro" keeps its capital in Spanish and the other four do not, which is
-  // the rule rather than an exception to it: his reason was common nouns, and
-  // this one is a determiner standing alone as a label. It also shares the
-  // catalogue entry the website form already uses.
-  other: "Other",
+  product: { en: "Product", es: "producto" },
+  gas: { en: "Gas", es: "gasolina" },
+  equipment: { en: "Equipment", es: "equipo" },
+  supplies: { en: "Supplies", es: "insumos" },
+  other: { en: "Other", es: "otro" },
 };
+
+// **BOTH LANGUAGES LIVE HERE RATHER THAN IN `appEs.js`, AND THAT IS THE
+// COLLISION TALKING.** The catalogue is keyed on the English string, so the
+// expense chip and the website form's *Other* chip would have to share one
+// entry — and they need different casing: the intake chip stands beside
+// *Not on the site at all* and *Either is fine*, where a lowercase `otro`
+// would be the odd one out, which is the same fault as `Otro` being the odd
+// one out here. One key cannot hold two casings.
+//
+// `plans.js`'s `priceWords` is the same shape for the same reason and is the
+// precedent: a fixed token set whose English is not a sentence gets a table,
+// and the table takes `lang` and defaults to English.
+//
+// **THE COST, SAID OUT LOUD: these five Spanish words are not in `appEs.js`,
+// so an audit of that file will not see them.** `FOUND.md` records it.
+export const categoryWord = (c, lang) => CATEGORY_WORDS[c]?.[lang === "es" ? "es" : "en"] ?? c;
 
 export default function ExpenseModal({ onClose, onSaved }) {
   useAppLocale();
@@ -128,7 +140,7 @@ export default function ExpenseModal({ onClose, onSaved }) {
               style={{ minHeight: 44 }}
               onClick={() => setCategory(c)}
             >
-              {t(CATEGORY_WORDS[c] ?? c)}
+              {categoryWord(c, getAppLocale())}
             </button>
           ))}
         </div>
