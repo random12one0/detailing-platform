@@ -259,6 +259,15 @@ const TAB_NAMES = {
 // three of Today's four targets do not exist and two of Clients' three do
 // not, so those two tabs stay quiet until there is something to point at —
 // which is right: there is nothing there to explain.
+// **HOW MUCH SOMEBODY IS SIGNING UP FOR — 2026-09-12.** The gear row called
+// this "The guided tour of this dashboard", singular, and each card counts
+// inside its own block ("1 of 7", then "1 of 6"), so a detailer starting it had
+// no idea how far it ran. It is six tours and about three dozen steps.
+// **COMPUTED, NOT TYPED.** A written count is the fifth stale number this repo
+// would be carrying, and this one moves whenever a step is added. The figure a
+// person actually meets can still be lower — a step whose target is missing is
+// dropped from the plan — so the row says "about".
+export const GRAND_STEPS = GRAND.reduce((n, k) => n + (TOURS[k]?.length ?? 0), 0);
 export const MIN_STEPS = 2;
 
 const PAD = 16;    // the card's clearance from the edge of the screen
@@ -559,15 +568,30 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
       if (!on) return;
       const el = document.querySelector(`[data-tour="${key}"]`);
       if (el) {
-        el.scrollIntoView({ block: "center", behavior: "auto" });
+        // **CENTRING A TARGET TALLER THAN THE VIEWPORT PUTS BOTH ENDS OFF
+        // SCREEN — 2026-09-12.** At 1280x800, Today step 3 of 7 spotlighted a
+        // target spanning y −206 to +1005: it began above the window and ended
+        // 205px below it, so the thing being pointed at could not be seen. It
+        // was fine at 900 tall, which is why nobody met it — 800 is an
+        // ordinary laptop. Align its TOP instead, and the step points at
+        // something.
+        const tall = el.getBoundingClientRect().height > window.innerHeight;
+        el.scrollIntoView({ block: tall ? "start" : "center", behavior: "auto" });
         // One more frame so the rect is read AFTER the scroll has landed.
         requestAnimationFrame(() => {
           if (!on) return;
           const r = el.getBoundingClientRect();
-          setBox({
-            top: r.top - HALO, left: r.left - HALO,
-            width: r.width + HALO * 2, height: r.height + HALO * 2,
-          });
+          // **AND THE HALO IS CLAMPED.** Calendar step 5 of 6 put the
+          // spotlight's right edge exactly 8px past the window at BOTH 1280
+          // and 1440 — the same 8px at two widths is a fixed outset that was
+          // never bounded, not a layout that overflowed. Clamping here also
+          // keeps a tall target's hole inside the window rather than letting
+          // it hang off both ends.
+          const left = Math.max(0, r.left - HALO);
+          const top = Math.max(0, r.top - HALO);
+          const right = Math.min(window.innerWidth, r.right + HALO);
+          const bottom = Math.min(window.innerHeight, r.bottom + HALO);
+          setBox({ top, left, width: Math.max(0, right - left), height: Math.max(0, bottom - top) });
         });
         return;
       }
@@ -719,7 +743,13 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
             perfectly still reads as a glitch rather than as a change. */}
         <div aria-live="polite"><p className="body tourline" key={i}>{t(sentence)}</p></div>
         <div className="btnrow">
-          <button className="btn sm inline ghost" onClick={close}>{t("Skip the tour")}</button>
+          {/* **NOTHING IS LEFT TO SKIP ON THE LAST STEP**, where this sat
+              beside "Done" and did exactly the same thing. Two controls, one
+              outcome, and one of them named after an escape that no longer
+              exists. 2026-09-12. */}
+          {!(i + 1 === (plan ?? STEPS).length && b + 1 === BLOCKS.length) && (
+            <button className="btn sm inline ghost" onClick={close}>{t("Skip the tour")}</button>
+          )}
           <button className="btn sm inline primary" onClick={next}>
             {/* THE PLAN'S LENGTH, NOT THE LIST'S. A step whose target is
                 absent is dropped from the plan, so on a dashboard missing

@@ -1872,6 +1872,8 @@ export const appEs = {
     "El {count} trabajo queda como una entrada anónima, así que tus ingresos y tu exportación contable no cambian.",
   "The {count} jobs stay as anonymous entries, so your takings and your accountant export do not change.":
     "Los {count} trabajos quedan como entradas anónimas, así que tus ingresos y tu exportación contable no cambian.",
+  "Six short tours, about {count} steps. Stop any time.":
+    "Seis recorridos cortos, unos {count} pasos. Para cuando quieras.",
   "In your own words": "En tus propias palabras",
   "Change it": "Cámbiala",
   // /reset's signed-in branch is the CHANGE-password form and says so now.
