@@ -203,7 +203,7 @@ await post("/rest/v1/business_settings", [{
     { q: "Do you need my water?", a: "No. The van carries its own water and power. If you have an outdoor faucet we'll happily use it, but nothing depends on it." },
     { q: "How long does a full detail take?", a: "Three to five hours for most cars. We'll tell you the number when you book, and we don't leave until it's done." },
     { q: "What if it rains?", a: "We'll call you the morning of and move it, no charge. Rescheduling is one tap on the link in your confirmation email." },
-    { q: "Do I need to be there the whole time?", a: "No. Leave the keys and go — most customers are at work. We'll text you when we're finished." },
+    { q: "Do I need to be there the whole time?", a: "No. Leave the keys and go. Most customers are at work. We'll text you when we're finished." },
     { q: "Can you get the dog hair out of the back of a wagon that has never once been vacuumed?", a: "Usually, yes. Pick Heavy or Extreme when you book so we bring the right tools, and we'll tell you honestly if anything won't come out." },
   ],
   // FIRST RUN, PINNED (roadmap 2.11 step 6, stage 7). `seen` so the setup
@@ -317,9 +317,9 @@ const grp = (name) => groups.find((g) => g.name === name);
 const services = await post("/rest/v1/services", [
   {
     business_id: business.id, name: "Express Wash", price: 65, duration_minutes: 60,
-    description: "Our quickest outside clean — in and out in an hour.",
+    description: "Our quickest outside clean. In and out in an hour.",
     price_is_from: false,
-    features: ["Two-bucket hand wash", "Wheels, arches and tyres", "Bug and tar removal", "Hand dry and tyre dressing"],
+    features: ["Two-bucket hand wash", "Wheels, arches and tires", "Bug and tar removal", "Hand dry and tire dressing"],
     group_id: grp("Exterior").id, group_label: "Exterior", sort_order: 0,
   },
   {
@@ -347,7 +347,7 @@ const services = await post("/rest/v1/services", [
     business_id: business.id, name: "Interior Deep Clean", price: 150, duration_minutes: 150,
     description: "For carpets and seats that need more than a vacuum.",
     price_is_from: true,
-    features: ["Everything in the Interior Refresh", "Carpets and cloth seats shampooed", "Steam clean on vents and seams", "Leather cleaned and conditioned", "Odour treatment"],
+    features: ["Everything in the Interior Refresh", "Carpets and cloth seats shampooed", "Steam clean on vents and seams", "Leather cleaned and conditioned", "Odor treatment"],
     group_id: grp("Interior").id, group_label: "Interior", sort_order: 4,
   },
   {
@@ -694,7 +694,7 @@ const PLAN = [
   // nothing seeds is a status nobody ever looks at.
   { day: day5, time: "10:00", who: "Dana Ruiz", service: "Interior Deep Clean", size: "medium", status: "pending" },
   { day: day6, time: "08:30", who: "Marcus Webb", service: "Ceramic Coating", size: "large", status: "pending",
-    quote: { amount: 780, note: "The paint needs a correction pass before the coating goes on — that's the extra." } },
+    quote: { amount: 780, note: "The paint needs a correction pass before the coating goes on. That's the extra." } },
 ];
 
 let made = 0;
@@ -780,7 +780,7 @@ await post("/rest/v1/rpc/accrue_plan_visits", {});
 await post("/rest/v1/plan_visits", [{
   business_id: business.id,
   member_id: (await get(`/rest/v1/plan_members?business_id=eq.${business.id}&customer_id=eq.${cust("Elena Marsh").id}&select=id`))[0].id,
-  kind: "adjusted", delta: -1, due_on: localDate(-14), note: "Skipped — away that week",
+  kind: "adjusted", delta: -1, due_on: localDate(-14), note: "Skipped · away that week",
 }]);
 
 // Expenses across the same months, using the five fixed categories.
@@ -844,7 +844,7 @@ await post("/rest/v1/maintenance_deadlines", [
     business_id: business.id, customer_id: cust("Elena Marsh")?.id,
     // A LONG LABEL ON PURPOSE, the same trick the FAQ seed uses: the row has
     // a two-line name beside two icon buttons, and 320 is where that breaks.
-    label: "System X five-year warranty — yearly professional service",
+    label: "System X five-year warranty · yearly professional service",
     vehicle: "2019 Civic", due_on: deadlineDay(24), repeat_months: 12, reminded_stage: 1, last_done_on: null,
   },
   {
@@ -930,7 +930,7 @@ if (subArg !== "none") {
     consent_text:
       "I understand I am paying $499 once for the build and $40 every month after that, starting today. "
       + "It renews by itself until I cancel, and I can cancel any time from my own billing page. "
-      + "I am committing to 12 months. If I cancel before that, I pay 50% of the months still to run — "
+      + "I am committing to 12 months. If I cancel before that, I pay 50% of the months still to run: "
       + "for example $120.00 with 6 months left.",
     stripe_customer_id: "cus_demo_seed",
     stripe_subscription_id: "sub_demo_seed",
@@ -1024,7 +1024,7 @@ if (process.argv.includes("--platform-admin")) {
   });
   await del(`/rest/v1/platform_admins?user_id=eq.${existing.id}`);
   await post("/rest/v1/platform_admins", [{
-    user_id: existing.id, email, note: "Seeded for verification — delete before launch.",
+    user_id: existing.id, email, note: "Seeded for verification. Delete before launch.",
   }]);
   adminCreds = { email, password };
   console.log(`  Platform admin seeded: ${email}`);

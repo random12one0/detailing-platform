@@ -69,7 +69,7 @@ export default function Promos() {
   return (
     <>
       <Group title={t("Site-wide sale")}
-        blurb="Comes off every booking automatically — no code for the customer to enter.">
+        blurb="Comes off every booking automatically. No code for the customer to enter.">
         <Switch label={t("Sale is running")} checked={sale.active}
           help={sale.active
             ? `Every booking is ${sale.percent || 0}% cheaper right now.`

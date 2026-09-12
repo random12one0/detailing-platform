@@ -344,7 +344,7 @@ export default function Money({ onGo }) {
     const file = new File([csv], name, { type: "text/csv" });
     if (navigator.canShare?.({ files: [file] })) {
       try {
-        await navigator.share({ files: [file], title: `${business.name} — ${period.label}` });
+        await navigator.share({ files: [file], title: `${business.name} · ${period.label}` });
         setSent("");
         return;
       } catch (err) {

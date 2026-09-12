@@ -124,7 +124,7 @@ export default function JobPhotos({ booking }) {
                     {mine.map((p) => (
                       <button key={p.id} className="photo-thumb" onClick={() => setOpen(p)}>
                         {urls[p.path]
-                          ? <img src={urls[p.path]} alt={`${word} — ${booking.customer_name}`} loading="lazy" />
+                          ? <img src={urls[p.path]} alt={`${word} · ${booking.customer_name}`} loading="lazy" />
                           : <span className="quiet">…</span>}
                       </button>
                     ))}

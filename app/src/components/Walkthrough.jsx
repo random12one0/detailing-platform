@@ -155,7 +155,7 @@ export const TOURS = {
     ["daystate", "Block the whole day off here, or change your hours for that one day."],
   ],
   money: [
-    ["period", "Week, month, year — every figure on this screen follows this."],
+    ["period", "Week, month, year: every figure on this screen follows this."],
     // THE ONE STEP ON THIS SCREEN THAT EARNS ITS PLACE. "Net" is the single
     // word here a detailer can misread in their own favour, and the
     // consequence of misreading it is thinking they earned more than they did.

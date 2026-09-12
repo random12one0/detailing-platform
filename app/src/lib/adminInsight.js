@@ -193,7 +193,7 @@ export function billingState(sub) {
   if (!sub) return { tone: "warn", label: "No subscription", detail: "They are on the product for nothing." };
   const s = String(sub.status ?? "");
   if (sub.suspended_at) return { tone: "bad", label: "Suspended", detail: "Their booking page is offline." };
-  if (s === "past_due") return { tone: "bad", label: "Payment failed", detail: "Retrying — page still up." };
+  if (s === "past_due") return { tone: "bad", label: "Payment failed", detail: "Retrying. Page still up." };
   if (s === "canceled" || s === "cancelled") return { tone: "bad", label: "Cancelled", detail: "Nothing further will be charged." };
   if (sub.cancel_at_period_end) return { tone: "warn", label: "Leaving", detail: "Cancels at the end of this period." };
   if (s === "trialing") return { tone: "warn", label: "On trial", detail: "Not paying yet." };

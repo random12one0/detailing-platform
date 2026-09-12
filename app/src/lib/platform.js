@@ -71,7 +71,7 @@ export function calendarUrlFor(booking, icsHref, calendar = loadPrefs().calendar
   if (calendar !== "google") return icsHref;
   const params = new URLSearchParams({
     action: "TEMPLATE",
-    text: `${booking.customer_name || "Booking"}${booking.service_name ? ` — ${booking.service_name}` : ""}`,
+    text: `${booking.customer_name || "Booking"}${booking.service_name ? ` · ${booking.service_name}` : ""}`,
     dates: `${stampUTC(booking.start_at)}/${stampUTC(booking.end_at)}`,
     details: [booking.customer_phone, booking.customer_notes].filter(Boolean).join("\n"),
     location: booking.customer_address || "",

@@ -76,7 +76,7 @@ const SAYS = {
     "Same day": "Often same-day.",
     "A few days": "Usually a few days' wait.",
     "A week or two": "Booking a week or two ahead.",
-    "A month or more": "Booking well ahead — plan for a month.",
+    "A month or more": "Booking well ahead. Plan for a month.",
   },
   E2: {
     "I redo it": "Not happy? We come back and redo it.",
@@ -115,7 +115,7 @@ const STARTERS = {
   ],
   E1: [
     "We're fully insured. Anything we damage, we put right at our cost.",
-    "Tell us straight away and we'll sort it — repair, replace or refund.",
+    "Tell us straight away and we'll sort it: repair, replace or refund.",
   ],
   E3: [
     "We work through light rain. Heavy rain and we move you to the next dry slot, free.",
@@ -125,7 +125,7 @@ const STARTERS = {
   E4: [
     "If it needs more work than described we'll show you before we start and agree a price.",
     "We'll ring you with a revised quote before touching it.",
-    "Heavy pet hair, smoke or sand adds time — we tell you on arrival, never after.",
+    "Heavy pet hair, smoke or sand adds time. We tell you on arrival, never after.",
   ],
   F1: [
     "Cancel more than 24 hours ahead and there's no charge.",
@@ -152,11 +152,11 @@ export const STEPS = [
 
   { key: "others", name: "Other sites", kind: "sites",
     title: "Any other sites you want to show us?",
-    lede: "Paste anything — detailing or not. Say what you like or hate about each one." },
+    lede: "Paste anything, detailing or not. Say what you like or hate about each one." },
 
   { key: "you", name: "You", title: "You",
     qs: [
-      q("A1", "The name as it should appear on the site — punctuation and all", "text", null, false, { req: true }),
+      q("A1", "The name as it should appear on the site, punctuation and all", "text", null, false, { req: true }),
       q("A2", "For the About page: how you started, and how long you have been at it", "long"),
       q("A5", "Your face and name on the site?", "one",
         ["Face and name", "Name only", "Neither"], true),
@@ -204,7 +204,7 @@ export const STEPS = [
       q("B6", "Any local rules the site should mention?", "long"),
       q("B8", "How soon should the site suggest you can come out?", "one",
         ["Same day", "A few days", "A week or two", "A month or more", "It swings"], true, { says: says("B8") }),
-      q("B7", "Should the site have a section for businesses — dealerships, fleets, offices?", "one",
+      q("B7", "Should the site have a section for businesses: dealerships, fleets, offices?", "one",
         ["Yes", "No", "I'd like to"], true),
     ] },
 
@@ -264,7 +264,7 @@ export const STEPS = [
     ] },
 
   { key: "awkward", name: "Policies", title: "The awkward ones",
-    lede: "These go on the site as your policy. One site in fifty-two has a rain policy — it is free to be the one that does.",
+    lede: "These go on the site as your policy. One site in fifty-two has a rain policy. It is free to be the one that does.",
     qs: [
       q("E1", "What should the site say happens if something gets damaged?", "long", null, false, { starters: starters("E1") }),
       q("E2", "What should the site promise if someone is not happy?", "one",
@@ -299,7 +299,7 @@ export const STEPS = [
         ["Within the hour", "Same day", "Within a day", "When I can"], true, { says: says("G5") }),
       q("G3", "Should the site show your email?", "one", ["Yes", "No"], true),
       q("G7", "Should the site have a contact form as well as booking?", "one", ["Yes", "No"], true),
-      q("G6", "Which socials should the site link — and which should it leave off?", "long"),
+      q("G6", "Which socials should the site link, and which should it leave off?", "long"),
       q("G8", "Should the site be in Spanish too?", "one",
         ["No", "Whole site", "Booking part only"], true),
     ] },
@@ -308,7 +308,7 @@ export const STEPS = [
     qs: [
       q("I1", "Do you own a web address for it? Which registrar, and have you got the login?", "text"),
       q("I2", "If not, what should the address be?", "text"),
-      q("I3", "Is there a site now — what is wrong with it, and who controls it?", "long"),
+      q("I3", "Is there a site now? What is wrong with it, and who controls it?", "long"),
       q("I7", "Have you got a logo for it?", "one",
         ["A vector file (.ai .svg .eps)", "A PNG or JPG", "A photo of one", "No logo"], true),
       q("I4", "Is there a business email on that address?", "one", ["Yes", "No", "Don't know"], true),

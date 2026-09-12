@@ -281,8 +281,8 @@ export default function Catalog() {
     const inUse = services.filter((s) => s.group_id === editing.id).length;
     if (inUse && !confirm(
       t(inUse === 1
-        ? "{count} service is in this category. Deleting it keeps them — they just stop being grouped. Continue?"
-        : "{count} services are in this category. Deleting it keeps them — they just stop being grouped. Continue?",
+        ? "{count} service is in this category. Deleting it keeps them. They just stop being grouped. Continue?"
+        : "{count} services are in this category. Deleting it keeps them. They just stop being grouped. Continue?",
       { count: inUse }))) return;
     const { error } = await supabase.from("service_groups").delete()
       .eq("id", editing.id).eq("business_id", business.id);

@@ -292,7 +292,7 @@ export default function Plans() {
           than a "none" option in the interval, because the two questions
           underneath it disappear with it. */}
       <Switch label={t("Repeats on a schedule")} checked={planForm.repeats}
-        help={planForm.repeats ? undefined : "A member rate with no set visits — they book when they like."}
+        help={planForm.repeats ? undefined : t("A member rate with no set visits. They book when they like.")}
         onChange={(v) => setPlanForm({ ...planForm, repeats: v })} />
       {planForm.repeats && (
         <>

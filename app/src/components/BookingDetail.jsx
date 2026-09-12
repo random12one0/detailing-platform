@@ -235,7 +235,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
     ? Number(booking.quoted_amount) : null;
   const respond = (action) =>
     act(() => api.respondToBooking(business.id, booking.id, action),
-      action === "accept" ? "Accepted — they've been emailed." : "Declined — they've been emailed.");
+      action === "accept" ? "Accepted. They've been emailed." : "Declined. They've been emailed.");
 
   return (
     <>

@@ -340,8 +340,8 @@ export const appEs = {
   "Used everywhere, including here": "Se usa en todos lados, incluso aquí",
   "Nothing from a customer yet": "Nada de un cliente todavía",
   "Nothing tracked yet": "Nada rastreado todavía",
-  "Nothing to sell — your booking page is empty":
-    "Nada que vender — tu página de citas está vacía",
+  "Nothing to sell · your booking page is empty":
+    "Nada que vender · tu página de citas está vacía",
   "Not offering one": "No ofreces ninguno",
   "Nothing has a deadline": "Nada tiene fecha límite",
   "No days set · nobody can book": "Sin días abiertos · nadie puede agendar",
@@ -446,8 +446,8 @@ export const appEs = {
     "Con gusto te esperamos. Te contactamos el día anterior.",
   "Request declined": "Solicitud rechazada",
   "When you can't take one.": "Cuando no puedes tomarla.",
-  "If you can be flexible on the day, message us — we often have cancellations.":
-    "Si puedes ser flexible con el día, escríbenos — seguido tenemos cancelaciones.",
+  "If you can be flexible on the day, message us. We often have cancellations.":
+    "Si puedes ser flexible con el día, escríbenos. Seguido tenemos cancelaciones.",
   "Appointment reminder": "Recordatorio de cita",
   "Before the job. Timing is set in Booking rules.":
     "Antes del trabajo. El tiempo se ajusta en Reglas de citas.",
@@ -457,26 +457,26 @@ export const appEs = {
     "Vamos a necesitar una llave de agua y un tomacorriente. Si eso es problema, avísanos y llevamos los nuestros.",
   "Second reminder": "Segundo recordatorio",
   "Only if you've switched the second one on.": "Solo si activaste el segundo.",
-  "See you shortly — we're on schedule.": "Nos vemos pronto — vamos a tiempo.",
+  "See you shortly. We're on schedule.": "Nos vemos pronto. Vamos a tiempo.",
   "Rescheduled": "Reagendada",
   "When a booking moves.": "Cuando una cita se mueve.",
   "Sorry for the change. Everything else about the job stays the same.":
     "Perdón por el cambio. Todo lo demás del trabajo sigue igual.",
   "When a booking is called off.": "Cuando se cancela una cita.",
-  "No hard feelings — book again any time and we'll fit you in.":
-    "Sin problema — agenda otra vez cuando quieras y te acomodamos.",
+  "No hard feelings. Book again any time and we'll fit you in.":
+    "Sin problema. Agenda otra vez cuando quieras y te acomodamos.",
   "Receipt": "Recibo",
   "After the job is paid.": "Después de que se paga el trabajo.",
   "Thanks for your business. Keep this for your records.":
     "Gracias por tu preferencia. Guarda esto para tus registros.",
   "Invoice": "Factura",
   "When there's still something owed.": "Cuando todavía se debe algo.",
-  "Payment can be cash, card or Zelle — whatever is easiest.":
-    "El pago puede ser en efectivo, tarjeta o Zelle — lo que te sea más fácil.",
+  "Payment can be cash, card or Zelle, whichever is easiest.":
+    "El pago puede ser en efectivo, tarjeta o Zelle, lo que te sea más fácil.",
   "Thank-you and review request": "Agradecimiento y reseña",
   "After you record payment.": "Después de que registras el pago.",
-  "If anything isn't right, tell us first — we'd rather fix it than read about it.":
-    "Si algo no está bien, dinos primero — preferimos arreglarlo a leerlo después.",
+  "If anything isn't right, tell us first. We'd rather fix it than read about it.":
+    "Si algo no está bien, dinos primero. Preferimos arreglarlo a leerlo después.",
   "Reviews genuinely help a small business like ours. It takes about a minute.":
     "Las reseñas de verdad ayudan a un negocio pequeño como el nuestro. Toma como un minuto.",
   // ── THE REST OF THE DASHBOARD ────────────────────────────────────────────
@@ -609,10 +609,10 @@ export const appEs = {
   "Category deleted.": "Categoría eliminada.",
   "Vehicle sizes saved.": "Tamaños de vehículo guardados.",
   "Saved.": "Guardado.",
-  "{count} service is in this category. Deleting it keeps them — they just stop being grouped. Continue?":
-    "{count} servicio está en esta categoría. Al eliminarla se quedan — solo dejan de estar agrupados. ¿Continuar?",
-  "{count} services are in this category. Deleting it keeps them — they just stop being grouped. Continue?":
-    "{count} servicios están en esta categoría. Al eliminarla se quedan — solo dejan de estar agrupados. ¿Continuar?",
+  "{count} service is in this category. Deleting it keeps them. They just stop being grouped. Continue?":
+    "{count} servicio está en esta categoría. Al eliminarla se quedan. Solo dejan de estar agrupados. ¿Continuar?",
+  "{count} services are in this category. Deleting it keeps them. They just stop being grouped. Continue?":
+    "{count} servicios están en esta categoría. Al eliminarla se quedan. Solo dejan de estar agrupados. ¿Continuar?",
   "This is your base size. Every price you set is the price for this one.":
     "Este es tu tamaño base. Cada precio que pongas es el precio para este.",
   "You set what this size adds, per service, in each service's own screen.":
@@ -687,22 +687,18 @@ export const appEs = {
   "Everything a customer sees is set here.":
     "Todo lo que ve un cliente se ajusta aquí.",
   "Send this link to a customer.": "Manda este enlace a un cliente.",
-  "Open a job to see everything about it — the car, the price, the notes.":
-    "Abre un trabajo para ver todo — el carro, el precio, las notas.",
   "Somebody asked for a time. Nothing is confirmed until you answer.":
     "Alguien pidió una hora. Nada queda confirmado hasta que respondas.",
   "When a job is done, this is where the money gets written down.":
     "Cuando se termina un trabajo, aquí es donde se anota el dinero.",
-  "Week, month, year — every figure on this screen follows this.":
-    "Semana, mes, año — cada cifra de esta pantalla sigue esto.",
+  "Week, month, year: every figure on this screen follows this.":
+    "Semana, mes, año: cada cifra de esta pantalla sigue esto.",
   "What is left after expenses, not what came in.":
     "Lo que queda después de gastos, no lo que entró.",
   "One file for your accountant, for whatever period you are looking at.":
     "Un archivo para tu contador, del periodo que estés viendo.",
   "Open somebody to see everything they have ever booked.":
     "Abre a alguien para ver todo lo que ha agendado.",
-  "Sort by who has not been back — that is the list worth a text message.":
-    "Ordena por quién no ha regresado — esa es la lista que vale un mensaje.",
   "Write to everybody on the list you are looking at, in one go.":
     "Escríbeles a todos los de la lista que estás viendo, de una vez.",
   "Everything with a number beside it is something a customer can already see.":
@@ -723,6 +719,17 @@ export const appEs = {
   "Tip": "Propina",
   "Discount": "Descuento",
   "Paid": "Pagado",
+  // **FIVE INVOICE WORDS `t()` COULD NOT BE SEEN HOLDING.** `Billing.jsx` calls
+  // `t(INVOICE_WORDS[inv.status])`, so the argument is a variable and the
+  // coverage script says so about itself: it reads a literal first argument
+  // and nothing else. Two of the five carried a label-separator em dash.
+  "Not paid yet": "Sin pagar todavía",
+  "Cancelled · nothing owed": "Cancelada · no se debe nada",
+  "Written off · nothing owed": "Cancelada por incobrable · no se debe nada",
+  "Not sent yet": "Sin enviar todavía",
+  "Not paid": "Sin pagar",
+  "A member rate with no set visits. They book when they like.":
+    "Una tarifa de socio sin visitas fijas. Reservan cuando quieren.",
   "Part paid": "Pagado en parte",
   "Not yet": "Todavía no",
   "Waived": "Perdonado",
@@ -744,8 +751,8 @@ export const appEs = {
   "{from}–{to} just for this day": "{from}–{to} solo por este día",
   "Your normal hours for this weekday": "Tu horario normal para este día",
   "Mobile and drop-off both bookable": "Se puede agendar a domicilio y en taller",
-  "Drop-offs only — no mobile jobs": "Solo en el taller — nada a domicilio",
-  "Mobile only — no drop-offs": "Solo a domicilio — nada en el taller",
+  "Drop-offs only · no mobile jobs": "Solo en el taller · nada a domicilio",
+  "Mobile only · no drop-offs": "Solo a domicilio · nada en el taller",
   "Drop-offs only": "Solo en el taller",
   "Drop-offs": "En el taller",
   "Mobile jobs": "Trabajos a domicilio",
@@ -835,17 +842,17 @@ export const appEs = {
   // — it is what `findBadTokens` validates and what `fillTemplate` replaces, so
   // a dropped or renamed one is a customer's name that never appears.
   "On my way": "Voy en camino",
-  "Hi {{customer_name}}, this is {{business_name}} — I'm on my way and should be with you shortly.":
-    "Hola {{customer_name}}, habla {{business_name}} — voy en camino y llego contigo en un rato.",
+  "Hi {{customer_name}}, this is {{business_name}}. I'm on my way and should be with you shortly.":
+    "Hola {{customer_name}}, habla {{business_name}}. Voy en camino y llego contigo en un rato.",
   "Running late": "Voy retrasado",
-  "Hi {{customer_name}}, running about 15 minutes behind on my way to you. Sorry for the wait — see you at {{address}} shortly.":
-    "Hola {{customer_name}}, voy unos 15 minutos retrasado camino a ti. Perdón por la espera — nos vemos en {{address}} en un rato.",
+  "Hi {{customer_name}}, running about 15 minutes behind on my way to you. Sorry for the wait. See you at {{address}} shortly.":
+    "Hola {{customer_name}}, voy unos 15 minutos retrasado camino a ti. Perdón por la espera. Nos vemos en {{address}} en un rato.",
   "Confirm tomorrow": "Confirmar mañana",
   "Hi {{customer_name}}, confirming your detail on {{date}} at {{time}}. Reply here if anything's changed.":
     "Hola {{customer_name}}, confirmo tu detallado el {{date}} a las {{time}}. Responde aquí si algo cambió.",
   "Job finished": "Trabajo terminado",
-  "All finished, {{customer_name}} — thanks for choosing {{business_name}}. Total is {{total}}.":
-    "Todo listo, {{customer_name}} — gracias por elegir a {{business_name}}. El total es {{total}}.",
+  "All finished, {{customer_name}}. Thanks for choosing {{business_name}}. Total is {{total}}.":
+    "Todo listo, {{customer_name}}. Gracias por elegir a {{business_name}}. El total es {{total}}.",
   "Ask about access": "Preguntar por el acceso",
   "Hi {{customer_name}}, quick check before {{date}}. Will I have access to water and an outlet at {{address}}?":
     "Hola {{customer_name}}, una pregunta antes del {{date}}. ¿Voy a tener agua y un tomacorriente en {{address}}?",
@@ -896,8 +903,8 @@ export const appEs = {
     "Este navegador no puede mostrar avisos push.",
   "Your browser blocked notifications for this site.":
     "Tu navegador bloqueó los avisos para este sitio.",
-  "Push isn't set up on this account yet — email still works.":
-    "Los avisos push aún no están configurados en esta cuenta — el correo sí funciona.",
+  "Push isn't set up on this account yet. Email still works.":
+    "Los avisos push aún no están configurados en esta cuenta. El correo sí funciona.",
   "Turn on": "Activar",
   "Turn off": "Desactivar",
   "Notification": "Aviso",
@@ -921,8 +928,8 @@ export const appEs = {
   // Promo codes and the site sale.
   "Code added.": "Código agregado.",
   "Sale settings saved.": "Ajustes del descuento guardados.",
-  "Comes off every booking automatically — no code for the customer to enter.":
-    "Se descuenta de cada cita automáticamente — el cliente no escribe ningún código.",
+  "Comes off every booking automatically. No code for the customer to enter.":
+    "Se descuenta de cada cita automáticamente. El cliente no escribe ningún código.",
   "Activate": "Activar",
   "Deactivate": "Desactivar",
   "· once per customer": "· una vez por cliente",
@@ -938,8 +945,8 @@ export const appEs = {
   "Send a quote": "Mandar cotización",
   "Send a new quote": "Mandar una cotización nueva",
   "Yes, send it": "Sí, mándala",
-  "Accepted — they've been emailed.": "Aceptada — ya se les mandó correo.",
-  "Declined — they've been emailed.": "Rechazada — ya se les mandó correo.",
+  "Accepted. They've been emailed.": "Aceptada. Ya se les mandó correo.",
+  "Declined. They've been emailed.": "Rechazada. Ya se les mandó correo.",
   "Reminder sent to customer.": "Recordatorio enviado al cliente.",
   "Invoice + thank-you sent.": "Factura y agradecimiento enviados.",
   "They asked for": "Pidieron",
@@ -956,10 +963,8 @@ export const appEs = {
   "Delete this photo? A before-photo is what settles an argument about a scratch.":
     "¿Eliminar esta foto? Una foto de antes es lo que resuelve un pleito por un rayón.",
   "Remove this photo from the gallery?": "¿Quitar esta foto de la galería?",
-  "Photo uploaded — press Save to keep it.":
-    "Foto subida — presiona Guardar para conservarla.",
-  "Photo storage is full — remove some to add more.":
-    "El almacenamiento de fotos está lleno — quita algunas para agregar más.",
+  "Photo uploaded. Press Save to keep it.":
+    "Foto subida. Presiona Guardar para conservarla.",
   "Photo storage is full. Remove some photos to add more.":
     "El almacenamiento de fotos está lleno. Quita algunas fotos para agregar más.",
 
@@ -980,8 +985,8 @@ export const appEs = {
   // The web address screen.
   "Check it": "Revisar",
   "Change it": "Cambiarla",
-  "Not answering yet — the three steps below":
-    "Aún no responde — los tres pasos de abajo",
+  "Not answering yet · the three steps below":
+    "Aún no responde · los tres pasos de abajo",
   "That address isn't answering yet.": "Esa dirección aún no responde.",
   "Could not load your addresses.": "No se pudieron cargar tus direcciones.",
   "You are here": "Estás aquí",
@@ -998,11 +1003,11 @@ export const appEs = {
   "It's been a few months since we last took care of your car.":
     "Ya pasaron unos meses desde la última vez que cuidamos tu carro.",
   "Time to get it looking right again?": "¿Ya toca dejarlo bien otra vez?",
-  "If you'd like it back to how it looked when you drove it away, booking takes about a minute —":
-    "Si lo quieres como se veía cuando te lo llevaste, agendar toma como un minuto —",
-  "just use the button below and pick a time that suits you.":
-    "usa el botón de abajo y escoge la hora que te acomode.",
-  "— text those ones instead.": "— a esos mándales un mensaje.",
+  "If you'd like it back to how it looked when you drove it away, booking takes about a minute.":
+    "Si lo quieres como se veía cuando te lo llevaste, agendar toma como un minuto.",
+  "Just use the button below and pick a time that suits you.":
+    "Usa el botón de abajo y escoge la hora que te acomode.",
+  ". Text those ones instead.": ". A esos mándales un mensaje.",
 
   // Money's periods, the subscription rungs, and the rest.
   "Week": "Semana",
@@ -1020,8 +1025,8 @@ export const appEs = {
     "¿Atorado en algo? Una persona responde, el mismo día hábil.",
   "so every new booking is locked as soon as it's made.":
     "así cada cita nueva queda apartada en cuanto se hace.",
-  "No phone or email — customers can't reach you":
-    "Sin teléfono ni correo — los clientes no te pueden contactar",
+  "No phone or email · customers can't reach you":
+    "Sin teléfono ni correo · los clientes no te pueden contactar",
   "What it is": "Qué es",
   // ── EVERYTHING THE CODEMOD WRAPPED ───────────────────────────────────────
   // The 501 keys `--untranslated` found. They were wrapped in one pass and
@@ -1248,8 +1253,23 @@ export const appEs = {
   "Invite unavailable": "Invitación no disponible",
   "It marks the buttons and highlights on your booking page, on your website, and on this dashboard. If a color is too faint to read, it is adjusted just enough to stay legible.":
     "Marca los botones y los resaltados en tu página de citas, en tu sitio web y en este panel. Si un color queda muy tenue para leerse, se ajusta lo justo para que se siga leyendo.",
-  "Just the username — we add the @ or $ and make it a link they can tap. Anything else still shows, but they will have to type it in themselves.":
-    "Solo el usuario — nosotros ponemos el @ o el $ y lo hacemos un enlace que puedan tocar. Cualquier otra cosa se sigue viendo, pero la van a tener que escribir ellos.",
+  // **A DATA TABLE THE TOGGLE COULD NOT REACH.** `Payments.jsx` holds the help
+  // and the placeholder for every payment handle as plain object values and
+  // rendered them unwrapped, so no `t()` sweep and no coverage count could see
+  // them. The brand names stay English on purpose: Venmo is Venmo.
+  "Just the username. We add the @ and make it a link they can open.":
+    "Solo el usuario. Nosotros ponemos el @ y lo hacemos un enlace que puedan abrir.",
+  "Just the tag. We add the $ and make it a link.":
+    "Solo la etiqueta. Nosotros ponemos el $ y lo hacemos un enlace.",
+  "Your username, or paste your PayPal.Me link.":
+    "Tu usuario, o pega tu enlace de PayPal.Me.",
+  "Zelle lives in your bank's app, so this is the phone number or email it is on.":
+    "Zelle vive en la app de tu banco, así que aquí va el número de teléfono o el correo donde lo tienes.",
+  "your-handle": "tu-usuario",
+  "yourhandle": "tuetiqueta",
+  "your-handle, or a PayPal.Me link": "tu-usuario, o un enlace de PayPal.Me",
+  "The phone number or email your Zelle is on":
+    "El número de teléfono o el correo donde tienes Zelle",
   "Keep my subscription": "Quedarme con mi suscripción",
   "Label": "Etiqueta",
   "Language": "Idioma",
@@ -1555,8 +1575,6 @@ export const appEs = {
   "What was included": "Qué incluía",
   "What you call this role": "Cómo le llamas a este rol",
   "What you get": "Lo que recibes",
-  "What you offer on a rhythm. You agree the price and the dates with the customer yourself — this remembers them and tells you who is owed a visit.":
-    "Lo que ofreces con una periodicidad. El precio y las fechas los acuerdas tú con el cliente — esto los recuerda y te dice a quién le debes una visita.",
   "What you offer": "Lo que ofreces",
   "What you pay us": "Lo que nos pagas",
   "What you want to say": "Lo que quieres decir",

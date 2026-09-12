@@ -382,7 +382,7 @@ function TabNow({ state, totals, rows, alerts, attention, onOpen }) {
           <div>
             <span className="pa-lab">Earning most this month</span>
             {busiest.length === 0
-              ? <p className="pa-none">No real detailers yet — everything on the platform is a demo or a test fixture.</p>
+              ? <p className="pa-none">No real detailers yet. Everything on the platform is a demo or a test fixture.</p>
               : (
                 <div className="pa-rows" style={{ marginTop: 6 }}>
                   {busiest.map((r) => (
@@ -689,7 +689,7 @@ function TabMoney({ state, totals, rows }) {
         <div className="pa-h">
           <h2>What we charge</h2>
           <span className="pa-sub">
-            {p?.current ? "Set here, overriding the built-in table" : "The built-in table — nothing is overridden"}
+            {p?.current ? "Set here, overriding the built-in table" : "The built-in table · nothing is overridden"}
           </span>
         </div>
         <div className="pa-card">
@@ -724,9 +724,9 @@ function TabMoney({ state, totals, rows }) {
         <div className="pa-h"><h2>Not here yet</h2></div>
         <div className="pa-card">
           <div className="pa-rows">
-            <Row k="What it costs to run — Supabase, Netlify, Resend, the domain" v="needs a place to record them" />
+            <Row k="What it costs to run · Supabase, Netlify, Resend, the domain" v="needs a place to record them" />
             <Row k="Profit" v="needs the line above" />
-            <Row k="Stripe — payouts, failed charges, disputes" v="needs Stripe connected" />
+            <Row k="Stripe · payouts, failed charges, disputes" v="needs Stripe connected" />
           </div>
         </div>
       </section>
@@ -800,10 +800,10 @@ function TabPipes({ state, alerts }) {
         <div className="pa-h"><h2>Not wired up yet</h2></div>
         <div className="pa-card">
           <div className="pa-rows">
-            <Row k="Stripe — is it taking money, and did anything fail" v="needs connecting" />
-            <Row k="Netlify — builds, credits, bandwidth" v="connected, not read yet" />
-            <Row k="Resend — every message, with delivered or bounced" v="confirmed possible" />
-            <Row k="Supabase — database, logins, storage" v="needs wiring" />
+            <Row k="Stripe · is it taking money, and did anything fail" v="needs connecting" />
+            <Row k="Netlify · builds, credits, bandwidth" v="connected, not read yet" />
+            <Row k="Resend · every message, with delivered or bounced" v="confirmed possible" />
+            <Row k="Supabase · database, logins, storage" v="needs wiring" />
             <Row k="Was it down on Tuesday?" v="nothing keeps a history yet" />
           </div>
         </div>

@@ -311,7 +311,7 @@ export function describeAccent(hex, bg = DASHBOARD_ACCENT_BG) {
   if (family === "neutral") {
     return `That reads as ${label}. It is too close to the dark background to be seen, so it is lightened to a gray wherever it marks a button or a highlight.`;
   }
-  return `That reads as ${label}. It is dark enough to disappear against the background, so it is lightened until it stays readable — which is why it looks brighter than the color you picked.`;
+  return `That reads as ${label}. It is dark enough to disappear against the background, so it is lightened until it stays readable. That is why it looks brighter than the color you picked.`;
 }
 
 // Text color for anything drawn ON the accent: black or white, whichever

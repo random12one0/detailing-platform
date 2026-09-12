@@ -84,8 +84,8 @@ const titleCase = (s) =>
 const INVOICE_WORDS = {
   paid: "Paid",
   open: "Not paid yet",
-  void: "Cancelled — nothing owed",
-  uncollectible: "Written off — nothing owed",
+  void: "Cancelled · nothing owed",
+  uncollectible: "Written off · nothing owed",
   draft: "Not sent yet",
 };
 

@@ -62,7 +62,7 @@ export async function enablePush(businessId) {
 
   // 2. The key, BEFORE the prompt (see the note at the top of this file).
   const { public_key: key } = await api.pushPublicKey(businessId);
-  if (!key) throw new Error("Push isn't set up on this account yet — email still works.");
+  if (!key) throw new Error("Push isn't set up on this account yet. Email still works.");
 
   // 3. Now ask. `requestPermission` resolves with the answer whether or not
   //    the browser actually showed anything (an already-granted site never

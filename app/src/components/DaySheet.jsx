@@ -70,8 +70,8 @@ const own = (fn) => (e) => { e?.stopPropagation?.(); fn(); };
 // One place the two restrictions are worded, so the summary line, the save
 // button and the customer-facing note cannot drift apart.
 const MODES = {
-  dropoff: { said: "Drop-offs only — no mobile jobs", only: "Drop-offs only" },
-  mobile: { said: "Mobile only — no drop-offs", only: "Mobile only" },
+  dropoff: { said: "Drop-offs only · no mobile jobs", only: "Drop-offs only" },
+  mobile: { said: "Mobile only · no drop-offs", only: "Mobile only" },
 };
 // "· through Fri 5 Sep", and nothing at all for a single day.
 const spanNote = (start, end) => (end && end > start

@@ -139,13 +139,13 @@ export const DEFAULT_TEMPLATES = [
     key: "on_my_way",
     label: "On my way",
     sort_order: 0,
-    body: "Hi {{customer_name}}, this is {{business_name}} — I'm on my way and should be with you shortly.",
+    body: "Hi {{customer_name}}, this is {{business_name}}. I'm on my way and should be with you shortly.",
   },
   {
     key: "running_late",
     label: "Running late",
     sort_order: 1,
-    body: "Hi {{customer_name}}, running about 15 minutes behind on my way to you. Sorry for the wait — see you at {{address}} shortly.",
+    body: "Hi {{customer_name}}, running about 15 minutes behind on my way to you. Sorry for the wait. See you at {{address}} shortly.",
   },
   {
     key: "confirm_tomorrow",
@@ -157,7 +157,7 @@ export const DEFAULT_TEMPLATES = [
     key: "job_done",
     label: "Job finished",
     sort_order: 3,
-    body: "All finished, {{customer_name}} — thanks for choosing {{business_name}}. Total is {{total}}.",
+    body: "All finished, {{customer_name}}. Thanks for choosing {{business_name}}. Total is {{total}}.",
   },
   {
     key: "arrival_access",

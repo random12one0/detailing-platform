@@ -41,8 +41,8 @@ import { useAppLocale } from "../hooks/useAppLocale.js";
 // its own, which is the part a detailer writing to fourteen people cannot do.
 const DRAFT_SUBJECT = "Time to get it looking right again?";
 const DRAFT_MESSAGE = "It's been a few months since we last took care of your car. "
-  + "If you'd like it back to how it looked when you drove it away, booking takes about a minute — "
-  + "just use the button below and pick a time that suits you.";
+  + "If you'd like it back to how it looked when you drove it away, booking takes about a minute. "
+  + "Just use the button below and pick a time that suits you.";
 
 export default function CampaignModal({ people, onClose, onSent }) {
   useAppLocale();
@@ -176,7 +176,7 @@ export default function CampaignModal({ people, onClose, onSent }) {
             // because it usually is a typo and the detailer can correct it.
             bounced > 0 ? `${bounced} ${bounced === 1 ? "address" : "addresses"} bounced last time` : null,
           ].filter(Boolean).join(" · ")}
-          {noEmail > 0 || bounced > 0 ? " — text those ones instead." : "."}
+          {noEmail > 0 || bounced > 0 ? ". Text those ones instead." : "."}
         </p>
       )}
 

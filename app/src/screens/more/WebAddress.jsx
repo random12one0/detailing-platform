@@ -150,7 +150,7 @@ export default function WebAddress() {
               <span className="txt">
                 <span className="nm">{r.domain}</span>
                 <span className="sub">
-                  {r.verified_at ? "Live" : "Not answering yet — the three steps below"}
+                  {r.verified_at ? "Live" : "Not answering yet · the three steps below"}
                 </span>
               </span>
               {r.verified_at

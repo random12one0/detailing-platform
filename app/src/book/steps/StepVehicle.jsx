@@ -95,7 +95,7 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
     const extra = sizeExtra(s.key);
     return (
       <option key={s.key} value={s.key}>
-        {s.label}{extra > 0 ? ` — +${money(extra)}` : ""}
+        {s.label}{extra > 0 ? ` · +${money(extra)}` : ""}
       </option>
     );
   });

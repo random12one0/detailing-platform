@@ -284,7 +284,7 @@ export default function Business({ onSetup, initial = null }) {
   const GROUPS = [
     ["Your page", [
       ["info", "Business info", Store,
-        blocked === "info" ? "No phone or email — customers can't reach you" : business.name],
+        blocked === "info" ? "No phone or email · customers can't reach you" : business.name],
       // A hex code as a summary reads like something a developer forgot to
       // finish. The colour itself says it in one glance.
       // AMERICAN, LIKE EVERY OTHER STRING A PERSON READS (CLAUDE.md). This row
@@ -335,7 +335,7 @@ export default function Business({ onSetup, initial = null }) {
     ]],
     ["What you sell", [
       ["catalog", "Services & add-ons", Wrench,
-        blocked === "catalog" ? "Nothing to sell — your booking page is empty"
+        blocked === "catalog" ? "Nothing to sell · your booking page is empty"
           : counts ? `${n(counts.services, "{count} service", "{count} services")} · ${n(counts.addOns, "{count} add-on", "{count} add-ons")}` : "…"],
       // A PLAN IS AN OFFER WITH A PRICE, which is exactly the admission test
       // this screen applies to the catalog — and step 3 puts the plans on the

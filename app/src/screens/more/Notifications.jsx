@@ -149,7 +149,7 @@ export default function Notifications() {
       const r = await api.previewEmails(business.id);
       setPreview({
         ok: true,
-        text: `Sent to ${(r.to || []).join(", ")} — two emails: the one your customer gets, and the one you get.`,
+        text: `Sent to ${(r.to || []).join(", ")} · two emails: the one your customer gets, and the one you get.`,
       });
     } catch (e) {
       setPreview({ ok: false, text: e.message });

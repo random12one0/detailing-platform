@@ -74,7 +74,7 @@ const HANDLES = [
     help: "Just the username. We add the @ and make it a link they can open.",
     placeholder: "your-handle" },
   { key: "pay_cashapp", name: "Cash App",
-    help: "Just the tag — we add the $ and make it a link.",
+    help: "Just the tag. We add the $ and make it a link.",
     placeholder: "yourhandle" },
   { key: "pay_paypal", name: "PayPal",
     help: "Your username, or paste your PayPal.Me link.",
@@ -416,7 +416,7 @@ export default function Payments() {
           <div key={key}>
             <Switch
               label={name}
-              help={on ? undefined : help}
+              help={on ? undefined : t(help)}
               checked={on}
               onChange={(v) => {
                 if (v) { setPay({ ...pay, [key]: drafts[key] || "" }); setOpen((o) => ({ ...o, [key]: true })); }
@@ -431,7 +431,7 @@ export default function Payments() {
               <label className="field" style={{ margin: "0 0 var(--sp-4)" }}>
                 <span>{t("Your {name}", { name })}</span>
                 <input value={pay[key]} onChange={set(key)} autoFocus={openFor[key] && !on}
-                  placeholder={placeholder} maxLength={120} />
+                  placeholder={t(placeholder)} maxLength={120} />
               </label>
             )}
           </div>

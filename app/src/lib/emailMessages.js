@@ -66,7 +66,7 @@ export const MESSAGE_KINDS = [
     key: "declined",
     label: "Request declined",
     when: "When you can't take one.",
-    presets: ["If you can be flexible on the day, message us — we often have cancellations."],
+    presets: ["If you can be flexible on the day, message us. We often have cancellations."],
   },
   {
     key: "reminder",
@@ -81,7 +81,7 @@ export const MESSAGE_KINDS = [
     key: "reminder_2",
     label: "Second reminder",
     when: "Only if you've switched the second one on.",
-    presets: ["See you shortly — we're on schedule."],
+    presets: ["See you shortly. We're on schedule."],
   },
   {
     key: "rescheduled",
@@ -93,7 +93,7 @@ export const MESSAGE_KINDS = [
     key: "cancelled",
     label: "Cancelled",
     when: "When a booking is called off.",
-    presets: ["No hard feelings — book again any time and we'll fit you in."],
+    presets: ["No hard feelings. Book again any time and we'll fit you in."],
   },
   {
     key: "receipt",
@@ -105,14 +105,14 @@ export const MESSAGE_KINDS = [
     key: "invoice",
     label: "Invoice",
     when: "When there's still something owed.",
-    presets: ["Payment can be cash, card or Zelle — whatever is easiest."],
+    presets: ["Payment can be cash, card or Zelle, whichever is easiest."],
   },
   {
     key: "followup",
     label: "Thank-you and review request",
     when: "After the job is paid.",
     presets: [
-      "If anything isn't right, tell us first — we'd rather fix it than read about it.",
+      "If anything isn't right, tell us first. We'd rather fix it than read about it.",
       "Reviews genuinely help a small business like ours. It takes about a minute.",
     ],
   },

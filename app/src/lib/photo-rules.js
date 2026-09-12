@@ -67,7 +67,7 @@ export function budgetState(b) {
 // (screen designs §1a), and "you have used 3% of your photos" is noise.
 export function budgetWords(b) {
   const { state, share } = budgetState(b);
-  if (state === "full") return "Photo storage is full — remove some to add more.";
+  if (state === "full") return "Photo storage is full. Remove some photos to add more.";
   if (state === "near") return `Photo storage is ${Math.round(share * 100)}% full.`;
   return null;
 }
