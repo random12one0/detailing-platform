@@ -1370,6 +1370,22 @@ place it is meant to be.** Nothing was changed on the strength of it. Written
 down so the finding is not acted on later by somebody who only meets the
 report.
 
+**A DECORATIVE CONTROL THAT IS DELIBERATELY SMALL KEEPS ITS SIZE AND GROWS ITS
+TARGET. THE MARK AND THE TARGET ARE TWO DIFFERENT THINGS — 2026-09-12.** A 7px
+scroll-rail dot, a carousel pip, a colour swatch: the painted thing is the
+design and it is right, and shrinking the design to satisfy a floor is the
+wrong answer. Pad the ANCHOR with an absolutely positioned `::after`, which
+takes no part in layout, until the hit area reaches 32.
+
+**Two ways this goes wrong, and both were live on `y-kinzie`.** If the PITCH is
+under 32 the boxes overlap and each control steals its neighbour's presses, so
+the GAP has to open until the targets tile exactly — padding alone makes
+neighbours fight. And a `transform:scale()` marking the CURRENT item **scales
+its pseudo-element with it**: put the scale on the paint, never on the anchor,
+or the item you are already on grows a 48px box and eats 8px of the ones beside
+it. Read (n) above for how to measure any of this, because none of it shows up
+in a bounding rect.
+
 **Never remove a field because software filled it in.** Prefill it and let the
 person correct it.
 
@@ -1544,6 +1560,39 @@ otherwise unreadable from a script and is therefore the easiest string in a
 product to leave untranslated. **Verified working:** the blockout switch fired,
 `confirm` recorded the exact sentence, cancelling left the checkbox checked and
 the seeded blockout intact.
+
+**(m) A FULL-BLEED `vw` TRICK OVERFLOWS WHERE THE SCROLLBAR AND THE LAYOUT
+VIEWPORT DISAGREE MOST, WHICH IS NOT WHERE IT GETS REPORTED — 2026-09-12.**
+`100vw` INCLUDES a classic scrollbar and the layout viewport does not, so
+`margin:0 calc(50% - 50vw)` bleeds by half the scrollbar width. **An OVERLAY
+scrollbar makes that bleed exactly zero**, so a preview pane reads clean while
+a real browser scrolls sideways — `y-kinzie` swept clean at 320, 377 and 392,
+at eleven scroll positions each, with a per-element right-edge scan, and was
+eight pixels over at 1440 (scrollWidth 1433, clientWidth 1425).
+
+**AND `body{overflow-x:clip}` IS NOT A GUARD.** `overflow:hidden` propagates
+from body to the viewport; **`overflow:clip` does not.** It clips the body box
+and nothing else, so the page still scrolls. It has to be on `html` —
+`w-delgado` carries `html,body{overflow-x:clip}` and was the one site of five
+without the fault. **Fixing the narrow case can leave the wide one standing:
+check both widths, in a browser with a real scrollbar.**
+
+**(n) A HIT AREA IS NOT A BOUNDING RECT, SO A RECT-BASED TARGET AUDIT
+UNDER-REPORTS AND WILL FAIL CORRECT WORK — the reviewer's own trap, written
+down by him, 2026-09-12.** A pseudo-element with a negative `inset`, or padding
+on an inline child, extends what a POINTER can reach **without changing what
+`getBoundingClientRect` reports.** `y-kinzie`'s dot rail still reads 7x7 by
+rect and every anchor is a 32x32 target.
+
+**THE INSTRUMENT IS `elementFromPoint`, PROBED AT THE OFFSETS YOU CLAIM TO
+COVER** — centre, and ±4, ±10, ±15 — asserting that each probe returns the
+control itself.
+
+**AND FOR A ROW OF CONTROLS YOU MUST ALSO CHECK THE PITCH, because two 32px
+targets 18px apart do not both exist.** They overlap and steal each other's
+presses, which trades a small target for a WRONG one. Measure the tops and
+assert the spacing: the fixed rail reads 351, 383, 415, 447, 479, 511, 543 —
+exactly 32 — and zero overlapping pairs.
 
 **AND THE RULE THEY SHARE, WHICH IS THE ONE TO REMEMBER:** a green result from
 an instrument nobody has checked is worth less than no result, because it stops
