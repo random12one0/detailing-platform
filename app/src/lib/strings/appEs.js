@@ -2119,4 +2119,69 @@ export const appEs = {
     "{done} de {total} respondidas · en una vista previa nada se guarda",
   "{done} of {total} answered · saved automatically":
     "{done} de {total} respondidas · se guarda automáticamente",
+  // ── THE GUIDED TOUR, ALL 36 STEPS — 2026-09-12 ───────────────────────────
+  // **THE TOUR RENDERED IN ENGLISH ON A SPANISH DASHBOARD AND NOTHING COULD
+  // SEE IT.** `Walkthrough.jsx` holds every step as `["target", "sentence"]`
+  // in a `TOURS` table and draws it with `t(sentence)` — a variable, so the
+  // coverage script is blind to it by its own stated limit, and `t()` returns
+  // an unknown string unchanged. 34 of the 43 entries had no entry here.
+  // It is the FIRST thing a new detailer meets, which makes it the worst
+  // place in the product for the toggle to quietly do nothing.
+  // The words are not touched. This repo records the tour copy as the best
+  // writing in the product; translating it is not editing it.
+  "Today's date. Everything on this screen is about this one day.": "La fecha de hoy. Todo en esta pantalla es de este día.",
+  "A job you booked over the phone goes in here.": "Un trabajo que agendaste por teléfono va aquí.",
+  "Somebody asked for a time. Nothing is booked until you answer.":
+    "Alguien pidió una hora. Nada queda agendado hasta que respondas.",
+  "How many jobs you have today, and what they should bring in.": "Cuántos trabajos tienes hoy, y cuánto deberían dejarte.",
+  "Open a job to see the car, the price and the notes, and to take payment.":
+    "Abre un trabajo para ver el carro, el precio y las notas, y para cobrar.",
+  "A job you have finished. This is where the money gets written down.":
+    "Un trabajo que ya terminaste. Aquí es donde se anota el dinero.",
+  "How much of the next seven days is still free.": "Cuánto de los próximos siete días sigue libre.",
+  "People who have not been back in three months. One press writes to all of them.":
+    "Gente que no ha regresado en tres meses. Un toque les escribe a todos.",
+  "Two ways to look at the same bookings: a month, or a list you can search.":
+    "Dos formas de ver las mismas citas: un mes, o una lista que puedes buscar.",
+  "Move through the months. Next month and last month are both here.":
+    "Muévete por los meses. El mes que viene y el pasado están aquí.",
+  "Each dot is a job. A day with a line through it is blocked off.": "Cada punto es un trabajo. Un día tachado está cerrado.",
+  "A day with work on it. Open one and the day appears beside the month.":
+    "Un día con trabajo. Abre uno y el día aparece junto al mes.",
+  "Everything booked that day, in order, and a button to add another.":
+    "Todo lo agendado ese día, en orden, y un botón para agregar otro.",
+  "Block the whole day off here, or change your hours for that one day.":
+    "Cierra el día completo aquí, o cambia tu horario solo para ese día.",
+  "The same period broken down: what you collected, what you spent, your average job.":
+    "El mismo periodo desglosado: lo que cobraste, lo que gastaste, tu trabajo promedio.",
+  "One file for your accountant, covering whatever period you are looking at.":
+    "Un archivo para tu contador, del periodo que estés viendo.",
+  "Work you have finished and not been paid for. Mark one paid here.":
+    "Trabajo que terminaste y que no te han pagado. Marca uno como pagado aquí.",
+  "Everything you spend. Write it down here and it comes off your net.":
+    "Todo lo que gastas. Anótalo aquí y se resta de tu neto.",
+  "Everybody who has ever booked you. Search by name or phone.":
+    "Todos los que te han agendado alguna vez. Busca por nombre o teléfono.",
+  "Sort by who comes most, who spends most, or who has not been back.":
+    "Ordena por quién viene más, quién gasta más, o quién no ha regresado.",
+  "Show only the people who have not been in for three months.": "Muestra solo a la gente que no ha venido en tres meses.",
+  "Open somebody to see every job they have booked and what they spent.":
+    "Abre a alguien para ver cada trabajo que ha agendado y cuánto gastó.",
+  "Your own settings live behind here: not the business's, yours.":
+    "Tus propios ajustes están aquí detrás: no los del negocio, los tuyos.",
+  "Which emails go out on their own, to you and to your customers.": "Qué correos salen solos, a ti y a tus clientes.",
+  "What you pay for this, and when the next one goes out.": "Lo que pagas por esto, y cuándo sale el siguiente.",
+  "Change the password you sign in with.": "Cambia la contraseña con la que entras.",
+  "What this phone or computer remembers, and the language you read.":
+    "Lo que recuerda este teléfono o computadora, y el idioma en que lees.",
+  "And this is where you start this tour again, any time.": "Y aquí es donde empiezas este recorrido otra vez, cuando quieras.",
+  "What is left to finish. Everything already done is live on your booking page.":
+    "Lo que falta terminar. Todo lo ya hecho está activo en tu página de citas.",
+  "The web address customers use. It works before you own a domain of your own.":
+    "La dirección web que usan los clientes. Funciona antes de que tengas un dominio propio.",
+  "What you charge for. Nothing can be booked until there is something in here.":
+    "Lo que cobras. No se puede agendar nada hasta que haya algo aquí.",
+  "Cash, card, Venmo: how you want customers to pay you.": "Efectivo, tarjeta, Venmo: cómo quieres que te paguen los clientes.",
+  "The days and times you work, and the days you are off.": "Los días y las horas que trabajas, y los días que descansas.",
+  "Send this link to a customer and they book themselves in.": "Manda este enlace a un cliente y se agenda solo.",
 };

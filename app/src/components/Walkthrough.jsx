@@ -135,7 +135,7 @@ export const TOURS = {
     // "Open", not "Tap": at 1180 and above this is a mouse, and a sentence
     // that names the GESTURE is wrong on half the widths the product
     // supports.
-    ["job", "Open a job to see the car, the price and the notes — and to take payment."],
+    ["job", "Open a job to see the car, the price and the notes, and to take payment."],
     ["wrapup", "A job you have finished. This is where the money gets written down."],
     ["ahead", "How much of the next seven days is still free."],
     ["lapsed", "People who have not been back in three months. One press writes to all of them."],
@@ -151,7 +151,7 @@ export const TOURS = {
     ["month", "Move through the months. Next month and last month are both here."],
     ["calgrid", "Each dot is a job. A day with a line through it is blocked off."],
     ["cell", "A day with work on it. Open one and the day appears beside the month.", null, true],
-    ["dayjobs", "Everything booked that day, in order — and a button to add another."],
+    ["dayjobs", "Everything booked that day, in order, and a button to add another."],
     ["daystate", "Block the whole day off here, or change your hours for that one day."],
   ],
   money: [
@@ -160,7 +160,7 @@ export const TOURS = {
     // word here a detailer can misread in their own favour, and the
     // consequence of misreading it is thinking they earned more than they did.
     ["net", "What is left after expenses, not what came in."],
-    ["breakdown", "The same period broken down — what you collected, what you spent, your average job."],
+    ["breakdown", "The same period broken down: what you collected, what you spent, your average job."],
     ["export", "One file for your accountant, covering whatever period you are looking at."],
     ["unpaid", "Work you have finished and not been paid for. Mark one paid here."],
     ["expenses", "Everything you spend. Write it down here and it comes off your net."],
@@ -195,7 +195,7 @@ export const TOURS = {
   // one is the product explaining what the control already says — the copy
   // rule in CLAUDE.md with an overlay on top.
   settings: [
-    ["gear", "Your own settings live behind here — not the business's, yours.", null, true],
+    ["gear", "Your own settings live behind here: not the business's, yours.", null, true],
     ["notifications", "Which emails go out on their own, to you and to your customers."],
     ["billing", "What you pay for this, and when the next one goes out."],
     ["password", "Change the password you sign in with."],
@@ -213,7 +213,7 @@ export const TOURS = {
     ["setup", "What is left to finish. Everything already done is live on your booking page."],
     ["domain", "The web address customers use. It works before you own a domain of your own."],
     ["catalog", "What you charge for. Nothing can be booked until there is something in here."],
-    ["payments", "Cash, card, Venmo — how you want customers to pay you."],
+    ["payments", "Cash, card, Venmo: how you want customers to pay you."],
     ["hours", "The days and times you work, and the days you are off."],
     ["link", "Send this link to a customer and they book themselves in."],
   ],
