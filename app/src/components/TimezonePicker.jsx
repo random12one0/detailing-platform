@@ -88,9 +88,17 @@ export default function TimezonePicker({ value, onChange }) {
         size={query ? Math.min(8, Math.max(3, matches.length)) : undefined}
         style={query ? { minHeight: 0, height: "auto", padding: 0 } : undefined}
       >
+        {/* A LABEL SEPARATOR, SO THE MIDDLE DOT — the em dash ruling,
+            2026-09-12. "New York · GMT-4" joins a name to its value; it is not
+            a sentence joint and not a parenthetical pair.
+            **AND IT IS THE THIRD JOIN A LITERAL SWEEP COULD NEVER HAVE
+            FOUND**, after booking step 4's travel fee and step 1's vehicle
+            fee: the dash sits between two JSX expressions, so it exists only
+            after the two values meet, and no translated literal contains it. Grep the
+            joins, not only the strings. */}
         {matches.map((z) => (
           <option key={z} value={z} style={{ padding: "10px 12px" }}>
-            {pretty(z)} — {offsetLabel(z)}
+            {pretty(z)} · {offsetLabel(z)}
           </option>
         ))}
         {matches.length === 0 && <option disabled>{t("No matching timezone")}</option>}

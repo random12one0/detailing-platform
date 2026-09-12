@@ -157,8 +157,12 @@ export default function CreateBusiness({ onDone }) {
         <label className="field">
           <span>{t("Timezone")}</span>
           <select value={timezone} onChange={(e) => setTimezone(e.target.value)}>
+            {/* Label separator, so the middle dot — same ruling and same join
+                as TimezonePicker.jsx. This is the SIBLING that makes it a
+                pattern: two timezone pickers, two dashes built at render time,
+                and a sweep of translated literals finds neither. */}
             {zoneList.map((z) => (
-              <option key={z} value={z}>{zoneLabel(z)} — {z}</option>
+              <option key={z} value={z}>{zoneLabel(z)} · {z}</option>
             ))}
           </select>
           <span className="quiet" style={{ marginTop: 4, display: "block" }}>

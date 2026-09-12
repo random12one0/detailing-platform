@@ -103,9 +103,20 @@ export default function UnsubscribePage() {
     return (
       <div className="bk" style={brandVars}>
         <div className="bk-center">
-          <h1>{t("This link has expired")}</h1>
+          {/* **IT USED TO SAY "This link has expired" AND NOTHING EXPIRES —
+              corrected 2026-09-12.** The customer UUID is the credential and
+              it has no lifetime. This branch is the `.catch()`, so it fires on
+              a 404 for an id that resolves to no customer AND EQUALLY ON A
+              NETWORK FAILURE — which means somebody on a bad connection was
+              told their link was dead and sent away for good.
+              **Same fault as booking step 6's bad-email sentence: the refusal
+              is correct and the REASON is wrong, which sends the person
+              looking in the wrong place.** So it says what happened and no
+              more, and it now offers the transient case a real action before
+              the permanent one. The way back is unchanged. */}
+          <h1>{t("We couldn't open this link")}</h1>
           <p className="bk-muted">
-            {t("Reply to the email you got instead. It reaches the business directly.")}
+            {t("Try again in a moment. If it still doesn't work, reply to the email you got instead. It reaches the business directly.")}
           </p>
         </div>
       </div>

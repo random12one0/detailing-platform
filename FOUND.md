@@ -305,8 +305,16 @@ Claude Cowork decides what becomes work.
   lane A. It is generated output living in a hand-edited folder. Either commit
   it with the seed or gitignore it; noticed, not decided.
 
-- 2026-09-12 — **THE UNSUBSCRIBE PAGE SAYS "This link has expired" AND NOTHING
-  EXPIRES.** The customer UUID is the credential and it has no lifetime; that
+- ~~2026-09-12 — **THE UNSUBSCRIBE PAGE SAYS "This link has expired" AND NOTHING
+  EXPIRES.**~~ **FIXED 2026-09-12 the same day, on Cowork's ruling: fix the
+  SENTENCE, not the mechanism.** It reads *"We couldn't open this link"* over
+  *"Try again in a moment. If it still doesn't work, reply to the email you got
+  instead. It reaches the business directly."* — which says what happened and
+  no more, and gives the transient cause a real action before the permanent
+  one. The way back is unchanged. Spanish moved in the same edit. His reason:
+  *"a page that tells somebody their link is dead when it is not sends them
+  away for good, and the person seeing it is already having a bad time."* The
+  original text: The customer UUID is the credential and it has no lifetime; that
   heading fires whenever `api.unsubscribeLookup` REJECTS, which is a 404 for a
   customer id that does not resolve (a deleted row, or a re-seed) **and equally
   a network failure**. So somebody on a bad connection is told their link is
@@ -329,4 +337,22 @@ Claude Cowork decides what becomes work.
   anything** — twelve identical rows split into two blocks of six passes any
   threshold and changes nothing. Nothing of it is in the repo;
   `docs/exhaustion-walk-2026-09-12.md` is the route list he asked for instead.
+
+- 2026-09-12 — **`scripts/i18n-coverage.mjs` COUNTS A `t("…")` THAT IS INSIDE A
+  COMMENT**, and `tests/spanish.test.mjs` § 9a fails on it. Proven by accident:
+  a comment written this session quoting `t("…")` as an EXAMPLE put a fake
+  untranslated dashboard string into the count, and the suite went 63/0 to
+  62/1 with no product change at all. The same blind spot would count any
+  commented-out call site. It is the exact disease CLAUDE.md trap (k) names —
+  **a check that greps source text asserts how something is WRITTEN** — and it
+  fails in the direction that wastes a session rather than the one that hides a
+  bug, so it is low priority but real. Lane C. Worked around by rewording the
+  comment, which is not a fix.
+- 2026-09-12 — **NOT A BUG, recorded so the next reviewer does not report it:
+  the Business index shows an ellipsis in place of every summary line for about
+  six seconds after it opens, then all fifteen fill in.** Cowork measured it,
+  nearly filed it as a regression, and withdrew it himself. It is an honest
+  loading state. **A measurement taken inside that window is a measurement of
+  the loading state**, which is a sibling of trap (f): wait for the rows to
+  settle before reading anything on that screen.
 
