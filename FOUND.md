@@ -164,3 +164,41 @@ Claude Cowork decides what becomes work.
   smaller than the thing it labels is suspect, and on a marketing page it is
   probably the part doing the selling. All three are fixed; the rule is here so
   the fourth is caught by looking for the shape.
+- 2026-09-12 — **THE CLIENT RECORD'S "Delete X's information" IS A DISCLOSER,
+  NOT THE DESTRUCTIVE ACTION — so half that finding resolves and half stands.**
+  Pressing it destroys nothing: it reveals an in-page confirmation carrying the
+  consequence ("Their name, number, address and any notes come off every job,
+  and their photos are deleted. This cannot be undone."), what SURVIVES ("the N
+  jobs stay as anonymous entries, so your takings and your accountant export
+  don't change"), and a `Delete` / `Keep them` pair. **The real destructive
+  control is `.btn.danger`, which is `--bad`** (`theme.css:1499`). So `--bone`
+  on the opener is arguably right — it is a "show me the options" button — and
+  **the product does ask before acting here, better than a native dialog would.**
+  **WHAT STANDS: the block has no heading.** An `<hr>` and a button, no `.lab`.
+  The criterion's first half genuinely fails for that control.
+- 2026-09-12 — **DESTRUCTIVE ACTION AUDIT, from code: 16 found, 13 gated, 3
+  not.** Gated: delete booking, delete job photo, delete tracking link, remove
+  service, remove vehicle size, delete FAQ, remove gallery photo, disconnect
+  Stripe, delete review, remove team member, stop using a domain, the platform
+  admin's `confirmText` pattern, and the client erase above. `PlanMemberPage`
+  and `ManageBookingPage` use custom modals rather than `confirm()` on purpose,
+  because a native dialog cannot name the plan.
+  **UNGATED — all three in `DaySheet.jsx`:** `clearHours`, `clearBlockout`,
+  `clearDropoff`. Each deletes one row that a detailer typed and can retype in
+  seconds, which is probably why. **`clearBlockout` is the one worth a
+  decision:** removing a blockout RE-OPENS a day the detailer had closed, so
+  the consequence lands on a customer booking a day they are away, not on the
+  detailer noticing a missing row. Reviewer's and Andrew's call.
+- 2026-09-12 — **A CLIENT RECORD SAYS "0 visits" AND THEN LISTS A FUTURE JOB
+  UNDER "HISTORY".** Zero-state figures are correct — `0 visits`, `$0
+  lifetime`, `Last visit · No completed visits yet`, a written empty state — so
+  the data floor generalised past Money. But the same card lists `Wed, Sep 16 ·
+  Express Wash · $135` under HISTORY, which is in the future. **The numbers are
+  right and the heading is lying**, and the contradiction makes the correct "0
+  visits" read as a bug. The product already owns the vocabulary — Today has
+  STILL TO DO and WAITING ON YOU — so split the section or rename it and mark
+  the upcoming row, rather than inventing a word.
+- 2026-09-12 — Marcus Webb and Andrew Dietrich share `(562) 555-0142` in the
+  demo seed and sit nine rows apart on one Clients list. On the screen whose
+  job is telling people apart, that reads as a deduplication bug. One-line seed
+  fix, lane C.
