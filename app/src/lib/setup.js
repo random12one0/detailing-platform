@@ -140,7 +140,7 @@ export const WHY = {
   plans:
     "A plan is a set price each month for a customer who books you regularly. Create them here. Leave this empty if you only do one-off jobs.",
   templates:
-    "These are the texts you send from a job, like on my way or all done. Write them once here. On the day it takes one tap.",
+    "These are the texts you send from a job, like on my way or all done. Write them once here. On the day, you just choose one.",
 };
 
 // HOW MANY OF THE SEVEN ARE DONE — the one number, read in two places.

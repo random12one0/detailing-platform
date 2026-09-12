@@ -204,7 +204,7 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
     // The row says how long it is. See Walkthrough's GRAND_STEPS for why the
     // number is computed and why it says "about".
     ["tour", "Show me around", Compass,
-      t("Six short tours, about {count} steps. Stop any time.", { count: GRAND_STEPS }), null],
+      t("Six short tours, up to {count} steps. Stop any time.", { count: GRAND_STEPS }), null],
     ...(memberships.length > 1
       ? [["switch", "Switch business", Building2, `${memberships.length} businesses`, null]]
       : []),

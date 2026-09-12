@@ -40,6 +40,15 @@ it.
    it as a sample. No horizontal scroll at either width, and the 27 overflowing
    elements are `.motes` and `.marq` decoration inside clipping parents.
    **Lane A owns `docs/tenant-sites/`.**
+4. **The copy pass that the call-site sweeps never reached — 91 strings.**
+   User-facing English in this product does NOT only live in `t()` calls in
+   components: `lib/siteIntake.js`, `lib/templates.js`, `lib/emailMessages.js`,
+   `lib/setup.js`, `lib/push.js`, `lib/photo-rules.js`, `lib/adminInsight.js`
+   and `scripts/seed-demo.mjs` all hold prose in plain data tables.
+   **91 em dashes measured there on 2026-09-12**, against zero left in `t()`
+   calls — so the sweep that reported "zero" was true and incomplete. Same
+   blind spot produced the sixth "tap" and the Microfibre seed string. Classify
+   by the four axes and move each Spanish key with its English.
 4. **Spanish: 139 to zero.** `scripts/i18n-coverage.mjs` counts it and
    `tests/spanish.test.mjs` § 9 holds the ceiling. **Step the ceiling down as
    you go.** Worst first: `SiteIntake.jsx` 58, `AdvancedMoney.jsx` 47,

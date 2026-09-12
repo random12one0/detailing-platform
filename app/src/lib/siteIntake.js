@@ -197,7 +197,7 @@ export const STEPS = [
     qs: [
       q("B3", "Does the site need an address people can drive to?", "one", ["Yes", "No, I go to them", "Both"], true),
       q("B4", "What should the site tell people to have ready?", "many",
-        ["Outdoor tap", "Power socket", "A driveway", "Shade", "A parking space", "Nothing, I carry it all"], true),
+        ["Outdoor faucet", "Power socket", "A driveway", "Shade", "A parking space", "Nothing, I carry it all"], true),
       q("B2", "What should the site say about travel charges?", "text"),
       q("B5", "What should the site rule out?", "many",
         ["Apartment or condo lots", "Public streets", "Parking garages", "None of these are a problem"], true),

@@ -1530,6 +1530,14 @@ after a sweep found that the rule as first written named only two.**
   PM"*, *"1 link · 45 opens"*, *"Full Interior Detail · Mobile"* — so the answer
   was already in the codebase rather than needing to be invented.
 
+**AND SWEEP THE DATA FILES, NOT ONLY THE CALL SITES.** A sweep for `t("…tap")`
+across `app/src/**/*.jsx` found five strings and missed a sixth: `lib/setup.js`
+holds its copy as **plain object values** that something else passes through
+`t()` later, so the word is in a `.js` data table and not in a `t(` call. Same
+family as the join above — **the sweep looked for the CALL and the content was
+somewhere else.** `lib/setup.js`, `lib/templates.js`, `lib/password.js` and the
+two string catalogues all carry user-facing prose this way.
+
 **AND SWEEP THE JOINS, NOT ONLY THE STRINGS.** One dash survived a sweep that
 took 65 others: `Beyond 15 miles — +$40` on booking step 4, where a travel
 area's NAME is joined to its FEE at render time. The dash is in a template

@@ -84,7 +84,7 @@ export const appEs = {
     "Las preguntas que más te hacen los clientes. Respóndelas aquí y recibirás menos mensajes preguntando lo mismo.",
   "The services you add here show on your booking page at the price you set. Add-ons are extras a customer can add to a service.":
     "Los servicios que agregues aquí aparecen en tu página de reservas al precio que pongas. Los extras son adicionales que un cliente puede sumar a un servicio.",
-  "These are the texts you send from a job, like on my way or all done. Write them once here. On the day it takes one tap.":
+  "These are the texts you send from a job, like on my way or all done. Write them once here. On the day, you just choose one.":
     "Estos son los mensajes que envías desde un trabajo, como voy en camino o ya terminé. Escríbelos una vez aquí. El día del trabajo es un solo toque.",
   "Turn it on again on any other phone or computer you want the alerts on.": "Actívalo de nuevo en cualquier otro teléfono o computadora donde quieras los avisos.",
   "Turn notifications back on for this site in your browser settings, then come back here.": "Vuelve a activar las notificaciones para este sitio en la configuración de tu navegador y regresa aquí.",
@@ -453,7 +453,7 @@ export const appEs = {
     "Antes del trabajo. El tiempo se ajusta en Reglas de citas.",
   "Please leave the car unlocked and move it out of the garage if you can.":
     "Por favor deja el carro abierto y sácalo del garaje si puedes.",
-  "We'll need access to a tap and an outlet. If that's a problem, let us know and we'll bring our own.":
+  "We'll need access to a faucet and an outlet. If that's a problem, let us know and we'll bring our own.":
     "Vamos a necesitar una llave de agua y un tomacorriente. Si eso es problema, avísanos y llevamos los nuestros.",
   "Second reminder": "Segundo recordatorio",
   "Only if you've switched the second one on.": "Solo si activaste el segundo.",
@@ -1872,8 +1872,8 @@ export const appEs = {
     "El {count} trabajo queda como una entrada anónima, así que tus ingresos y tu exportación contable no cambian.",
   "The {count} jobs stay as anonymous entries, so your takings and your accountant export do not change.":
     "Los {count} trabajos quedan como entradas anónimas, así que tus ingresos y tu exportación contable no cambian.",
-  "Six short tours, about {count} steps. Stop any time.":
-    "Seis recorridos cortos, unos {count} pasos. Para cuando quieras.",
+  "Six short tours, up to {count} steps. Stop any time.":
+    "Seis recorridos cortos, hasta {count} pasos. Para cuando quieras.",
   "In your own words": "En tus propias palabras",
   "Change it": "Cámbiala",
   // /reset's signed-in branch is the CHANGE-password form and says so now.

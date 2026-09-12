@@ -74,7 +74,7 @@ export const MESSAGE_KINDS = [
     when: "Before the job. Timing is set in Booking rules.",
     presets: [
       "Please leave the car unlocked and move it out of the garage if you can.",
-      "We'll need access to a tap and an outlet. If that's a problem, let us know and we'll bring our own.",
+      "We'll need access to a faucet and an outlet. If that's a problem, let us know and we'll bring our own.",
     ],
   },
   {

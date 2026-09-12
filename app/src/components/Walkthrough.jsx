@@ -265,8 +265,14 @@ const TAB_NAMES = {
 // no idea how far it ran. It is six tours and about three dozen steps.
 // **COMPUTED, NOT TYPED.** A written count is the fifth stale number this repo
 // would be carrying, and this one moves whenever a step is added. The figure a
-// person actually meets can still be lower — a step whose target is missing is
-// dropped from the plan — so the row says "about".
+// person actually meets IS usually lower — a step whose target is missing is
+// dropped from the plan — so the row says "UP TO", which is exact rather than
+// hedged. **Measured 2026-09-12: the six blocks define 37 and a walk of the
+// demo delivered 34**, because Today's `requests`, `wrapup`, `lapsed` and
+// `ahead` only render when there is a pending request, a finished job,
+// somebody overdue, and the width to show the next-seven-days panel. A
+// hand-typed number to make the two agree would be the fifth stale count in
+// this repo; the word is what carries the difference.
 export const GRAND_STEPS = GRAND.reduce((n, k) => n + (TOURS[k]?.length ?? 0), 0);
 export const MIN_STEPS = 2;
 

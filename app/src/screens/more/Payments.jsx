@@ -71,7 +71,7 @@ import { useAppLocale } from "../../hooks/useAppLocale.js";
 // email, so there is nothing to link to.
 const HANDLES = [
   { key: "pay_venmo", name: "Venmo",
-    help: "Just the username — we add the @ and make it a link they can tap.",
+    help: "Just the username. We add the @ and make it a link they can open.",
     placeholder: "your-handle" },
   { key: "pay_cashapp", name: "Cash App",
     help: "Just the tag — we add the $ and make it a link.",
