@@ -1404,6 +1404,35 @@ steps into the booking flow measures a tree that was rebuilt beneath it —
 report against a flow that works end to end.** So: **verify against a COMMITTED
 state with the builder idle.** While a wave is in flight, read and plan.
 
+**(g) THE DEV SERVER IS NOT EVIDENCE. THE BUNDLE IS.** On 2026-09-12 the Vite
+dev server on 5173 had been running since the previous night and was serving a
+**stale CSS transform**: three edits to one file, one live in the browser and
+two not, with the file on disk and the file Vite served BOTH carrying all
+three. Two hours of "my rule is not applying" followed, and it was never the
+rule.
+
+**THIS ONE IS INVISIBLE AND IT INVALIDATES WORK SILENTLY** — nothing errors,
+the page renders, and a measurement taken against it looks exactly like a
+measurement. Worse, it cannot be told from outside WHICH stylesheet was stale,
+so every CSS measurement taken against that server is suspect until re-checked.
+
+**THE SEQUENCE, WHEN A CSS CHANGE MEASURES AS NOT-APPLIED.** Suspect the server
+BEFORE the rule:
+
+  1. `fetch('/src/…/file.css?direct')` — what the server is actually serving.
+  2. `npm run build --prefix app`, then grep `app/dist/assets/*.css` — what a
+     visitor actually gets. **This is the authority.**
+  3. Only if both carry the change and the live document still disagrees is it
+     a specificity or cascade problem worth chasing.
+  4. Restart the dev server and re-measure. **Lane B owns the dev server**, so
+     lane B restarts it.
+
+**AND RESTART IT AT THE START OF A SESSION THAT WILL MEASURE CSS**, rather than
+inheriting one somebody left running. A server old enough to be stale is also
+old enough that nobody remembers starting it. **The owner may have been looking
+at last night's CSS on localhost all day** without either side being able to
+name why.
+
 **AND THE RULE THEY SHARE, WHICH IS THE ONE TO REMEMBER:** a green result from
 an instrument nobody has checked is worth less than no result, because it stops
 the search. `scripts/sweep-widths.mjs:605` printed *clean* over 38 real
@@ -1425,6 +1454,19 @@ after a sweep found that the rule as first written named only two.**
   more cars"*. **The product already owns this** — *"Tue-Sat · 8:00 AM - 6:00
   PM"*, *"1 link · 45 opens"*, *"Full Interior Detail · Mobile"* — so the answer
   was already in the codebase rather than needing to be invented.
+
+**AND SWEEP THE JOINS, NOT ONLY THE STRINGS.** One dash survived a sweep that
+took 65 others: `Beyond 15 miles — +$40` on booking step 4, where a travel
+area's NAME is joined to its FEE at render time. The dash is in a template
+literal, not in a `t("…")` string, so a literal sweep returns zero and the next
+person believes it. Grep for an em dash inside template literals and array
+joins as well.
+
+**THE GENERAL MISTAKE, WHICH WORE FOUR COSTUMES IN ONE DAY:** treating a
+RENDERED RESULT as if it were the thing that produced it. *"1 visits"* from an
+unguarded plural, twelve `Add a line` rows that were one collapsed row, two
+`.bk-cal` elements read as one, and now a dash that exists only after two
+values meet. **Measure the render; then go and find what produced it.**
 
 **A COUNT OF DASHES CANNOT TELL THESE APART, so this is done by hand.** A
 single dash is not automatically a joint: 65 user-facing strings carried one

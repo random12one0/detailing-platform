@@ -80,7 +80,6 @@ export function initThread() {
     const lft = id("lft");
     const rgt = id("rgt");
     const divider = id("divider");
-    const cost = id("cost");
     const dashLab = id("dashLab");
     const dashQ = id("dashQ");
     const tCount = id("tCount");
@@ -301,7 +300,6 @@ export function initThread() {
       lft.style.setProperty("--c", c);
       rgt.style.setProperty("--c", c);
       divider.style.setProperty("--c", c);
-      cost.style.setProperty("--c", c);
 
       /* Each bubble's own window. Staggered, so the four land one after the
          other rather than all at once — and the bubble leaving and the row

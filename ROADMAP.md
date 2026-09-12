@@ -24,11 +24,9 @@ it.
    four as `Folded` rows reading *"Ask about access · Not changed yet"*. Plus
    the 28px checkbox row wherever the dashboard renders one (Promo codes, setup
    step 9), and the unnamed switch on *How you get paid*.
-3. **The platform landing page, three items.** 42 figcaptions at 9px against an
-   11px floor; the corner labels at 8.5px including `0% · ALWAYS` under
-   `// COMMISSION`, which is the strongest line this product has, set smaller
-   than anything else on the page; and the masthead wordmark at 130x17 on every
-   platform page, which is the go-home target on a phone.
+3. ~~**The platform landing page.**~~ **DONE 2026-09-12** — it grew to five
+   items and then six. The three show-me CTAs, the developer annotation, the
+   four header targets, the 42 figcaptions, the corner labels at both widths.
 4. **Spanish: 139 to zero.** `scripts/i18n-coverage.mjs` counts it and
    `tests/spanish.test.mjs` § 9 holds the ceiling. **Step the ceiling down as
    you go.** Worst first: `SiteIntake.jsx` 58, `AdvancedMoney.jsx` 47,
@@ -42,6 +40,22 @@ it.
 
 ---
 
+## Standing checks — run these when the thing they guard changes
+
+- **EVERY CALL TO ACTION ON EVERY MARKETING PAGE LANDS WHERE ITS OWN WORDS
+  PROMISE.** Three of ten large CTAs on the landing page said *"See how booking
+  works"*, *"See it with your name on it"* and *"Look inside the dashboard"*
+  and all three went to `/pricing`. **Nothing errored, which is why it
+  survived** — a dead link looks like a mistake and this looked like a
+  decision. It rots quietly every time somebody adds a button, so check the
+  destinations whenever the marketing copy changes.
+- **THE DEV SERVER IS NOT EVIDENCE; THE BUNDLE IS.** A Vite server left running
+  overnight served a stale CSS transform on 2026-09-12 and cost hours. Restart
+  it at the start of any session that will measure CSS, and settle a
+  "not applying" with the served file and then `app/dist/assets/*.css`.
+  CLAUDE.md trap (g) has the sequence. **If the owner says "the site is not
+  working" and localhost looks wrong, ask how long that tab has been open.**
+
 ## Not ours to decide — waiting on Andrew
 
 - **The unsubscribe page's accent.** The reviewer's diagnosis is right and one
@@ -51,7 +65,14 @@ it.
   away and dressing that in the detailer's branding uses their colour to make
   something harder. **Andrew's to settle**, and it needs an edge-function
   change either way (`unsubscribe-lookup` returns a name and nothing else).
-- **The five example sites and four guided tours that nobody has walked.**
+- **"Look inside the dashboard" has nowhere to go.** `/app` renders `<Auth />`
+  without a session (`App.jsx:354`) and `/preview` is the back office's own
+  door, so wiring it there swaps one broken promise for another. **There is no
+  public dashboard demo.** Building one, or changing those words, is a product
+  decision. The other two show-me CTAs are wired and working.
+- **The five example sites that nobody has walked.** The six guided tours WERE
+  walked end to end on 2026-09-12 — 36 steps, four findings in `FOUND.md`, one
+  of them a real bug at 1280x800.
 
 ---
 

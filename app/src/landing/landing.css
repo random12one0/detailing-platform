@@ -338,7 +338,15 @@
   -webkit-mask-composite: xor; mask-composite: exclude;
 }
 .ld .nav .mk { font-variation-settings: "wdth" 76, "wght" 700; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; margin-right: auto; white-space: nowrap; }
-.ld .nav .lk { font-size: 14px; color: var(--fog); transition: color var(--t-hover) linear; white-space: nowrap; }
+/* **ALL FOUR HEADER TARGETS WERE UNDER THE FLOOR — 2026-09-12.** The wordmark
+   150x18, "What you get" 81x21, "Pricing" 43x21, "Sign in" 42x21 at 1440, and
+   the wordmark 130x17 at 392 on every platform page including pricing, because
+   this header is shared. **"Sign in" is the one that matters** — it is the only
+   thing on the page a returning detailer wants, and it was a 21px target.
+   The TEXT does not move: the hit area grows around it, so nothing about the
+   pill's look changes. */
+.ld .nav .lk { font-size: 14px; color: var(--fog); transition: color var(--t-hover) linear; white-space: nowrap; display: inline-flex; align-items: center; min-height: 44px; }
+.ld .nav .mk { display: inline-flex; align-items: center; min-height: 44px; }
 .ld .nav .lk:hover { color: var(--bone); }
 .ld .nav .cta { white-space: nowrap; flex: none; }
 @media (max-width: 620px) { .ld .nav .lk.hide-s { display: none; } .ld .nav { gap: 12px; padding-left: 16px; } }
@@ -722,7 +730,6 @@
 .ld .divider i { position: absolute; left: -1px; top: 0; width: 3px; height: calc(var(--p,0) * 100%); background: linear-gradient(180deg, rgba(56,224,139,0), var(--ac)); border-radius: 3px; opacity: .6; }
 /* This label is the pin's honesty: it tells you what the section is about
    to charge you. If .thread-wrap's height changes, change this. */
-.ld .cost { position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--fog-2); white-space: nowrap; opacity: calc(1 - (var(--c,0) * 2.4)); }
 
 /* ── THE MOVE HAPPENS IN ONE PLACE ON A PHONE ────────────────────────
    Stacked, the first message sat 540px above the row it becomes — most of
@@ -744,7 +751,7 @@
    against the STAGE's own height, which is svh and does not move). */
 @media (max-width: 820px) {
   .ld .stage .cols { grid-template-columns: 1fr; gap: 14px; align-content: center; }
-  .ld .divider, .ld .cost { display: none; }
+  .ld .divider { display: none; }
   .ld .thread { gap: 7px; }
   .ld .bub { font-size: 13.5px; padding: 9px 13px; max-width: 82%; }
   .ld .side.lft { display: none; }
@@ -1059,10 +1066,18 @@
    they would land on the headline. Decoration that has to fight for space
    is not decoration. */
 .ld .end .corners { position: absolute; inset: 0; pointer-events: none; }
+/* **"0% · ALWAYS" WAS 8.5px IN A CORNER — 2026-09-12.** These measured 8.5 to
+   10px depending on width, against an 11px floor, and one of them is the
+   strongest sentence this product can say to a detailer: no commission, ever.
+   That is a commercial problem before it is an accessibility one — the claim
+   that most distinguishes this product from every competitor was the smallest
+   text on the page.
+   11px is the floor and the label keeps its role: still monospace, still an
+   uppercase corner mark, still quiet against the headline it sits beside. */
 .ld .end .corner {
   position: absolute;
   font-family: "JetBrains Mono", ui-monospace, monospace;
-  font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
+  font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
   line-height: 1.9; color: var(--fog);
 }
 .ld .end .corner b { color: var(--ac); font-weight: 400; }
@@ -1073,12 +1088,15 @@
 /* THE CORNERS SURVIVE A PHONE NOW, rather than being switched off. Hiding
    them was the lazy read of "there are no spare corners at this width" —
    there are, the TEXT was simply too wide for two of them to share a line.
-   8.5px with the tracking pulled in and a 46% cap on each fits all four
-   inside 392 with room to spare, and the section's own padding (126px top,
-   101px bottom at that width) already keeps them clear of the headline and
-   the buttons. Measured, not assumed. */
+   **AND 8.5px IS BELOW THE FLOOR — corrected 2026-09-12.** The reasoning above
+   is right that the corners should survive a phone and wrong about the price:
+   the text was shrunk until it fit rather than being allowed to wrap. 11px
+   with the same 46% cap wraps the longest of the four onto a second line,
+   which `line-height: 1.75` already has room for, and keeps "0% · ALWAYS"
+   readable — it is the strongest claim this product makes and it was the
+   smallest text on the page. */
 @media (max-width: 900px) {
-  .ld .end .corner { font-size: 8.5px; letter-spacing: .1em; line-height: 1.75; max-width: 46%; }
+  .ld .end .corner { font-size: 11px; letter-spacing: .1em; line-height: 1.75; max-width: 46%; }
   .ld .end .corner.tl, .ld .end .corner.tr { top: 16px; }
   .ld .end .corner.bl, .ld .end .corner.br { bottom: 16px; }
 }
@@ -1205,7 +1223,9 @@
 .ld .wt figcaption {
   position: absolute; left: 0; right: 0; bottom: 0; padding: 20px 11px 8px;
   font-family: "JetBrains Mono", ui-monospace, monospace;
-  font-size: 9px; letter-spacing: .14em; text-transform: uppercase;
+  /* 9px against an 11px floor — 2026-09-12. These are real captions naming a
+     real screenshot, not text inside a mock, so the floor applies. */
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
   color: var(--bone); opacity: 0;
   background: linear-gradient(180deg, rgba(11,13,14,0), rgba(11,13,14,.9));
   transition: opacity var(--t-hover) linear;
@@ -1446,7 +1466,7 @@
 .lite .ld .job { opacity: 1 !important; transform: none !important; }
 .lite .ld .thread-wrap { height: auto; }
 .lite .ld .stage { position: static; height: auto; padding: clamp(60px,9vh,110px) 0; overflow: visible; }
-.lite .ld .divider, .lite .ld .cost { display: none; }
+.lite .ld .divider { display: none; }
 .lite .ld .float, .lite .ld .widget-hold { transform: none !important; }
 .lite .ld .vsrow { --rp: 1; }
 .lite .ld .end::before { transform: translateX(-50%); opacity: 1; }

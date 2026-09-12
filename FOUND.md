@@ -77,3 +77,56 @@ Claude Cowork decides what becomes work.
   punctuation reads as well. Eleven true joints in the booking flow are fixed;
   the label separators are deliberately untouched. **Which way the remaining
   dashboard singles go is a copy decision, not a sweep.**
+- 2026-09-12 — **BOOKING STEP 6 REJECTS A BAD EMAIL CORRECTLY AND GIVES THE
+  WRONG REASON.** One sentence covers three faults: *"That address is missing
+  an @. We cannot send your confirmation to it."* Measured — `andrew gmail.com`
+  (correct), `andrew@gmail` (an @ is right there), `andrew@@gmail.com` (two of
+  them) all get it. **A customer who typed their real address and missed the
+  `.com` is told to add a symbol they can already see**, on the last step
+  before they book, so they cannot act on it. Wrong reason is worse than no
+  reason: it sends them looking in the wrong place. Three cases, three
+  sentences, in that screen's voice — no `@` keeps the current line; nothing
+  usable after the dot gets *"That address needs something after the dot, like
+  .com."*; more than one `@` gets *"That address has two @ symbols."* Named the
+  way "Too few finished jobs to name a most-booked service" names it. Lane B,
+  next booking wave — not folded into the landing work.
+- 2026-09-12 — **ONE EM DASH SURVIVED THE SWEEP AND IT SHOWS WHAT THE SWEEP
+  CANNOT SEE.** Booking step 4 renders `Beyond 15 miles — +$40`. Steps 1, 2, 3,
+  5 and 6 are clean, so the literal sweep worked. **This dash is not in a
+  string** — a travel area's name is joined to its fee at render time, so it
+  lives in a template, and no sweep of `t("…")` literals will ever find it. By
+  the ruling it is a label separator: `Beyond 15 miles · +$40`.
+- 2026-09-12 — NOT A BUG, recorded so nobody "fixes" it: the booking flow's
+  hidden `website` input is roadmap 2.21's honeypot. And the customer-side
+  phone formatter is confirmed working live — typing `5623101075` renders
+  `(562) 310-1075` in the field.
+- 2026-09-12 — DELIBERATELY NOT CHANGED: the booking page's field labels stay
+  uppercase eyebrows (`YOUR NAME`, `PHONE`, `EMAIL`), which is the opposite of
+  the Wave B dashboard fix. The `bk-` namespace is its own surface with its own
+  vocabulary, the booking flow is CLAUDE.md's reference screen, and it measured
+  clean. Applying the dashboard rule there would be generalising a fix past the
+  evidence.
+- 2026-09-12 — **THE GUIDED TOURS, WALKED END TO END for the first time** (36
+  steps: Today 7, Calendar 6, Money 6, Clients 5, Business 6, Settings 6).
+  **The copy is the best writing in the product and is not to be touched.** Four
+  findings, one of them a bug:
+  1. **36 steps is a lot to start blind.** The Settings row says "The guided
+     tour of this dashboard", singular, and each card counts inside its own
+     section ("1 of 7", then "1 of 6"), so nobody knows how much is left. Say
+     the total up front, or carry an overall count. Honest version of the row:
+     *"Six short tours, about 36 steps. Stop any time."*
+  2. **BUG, height-dependent.** At 1280x800, Today step 3 of 7 spotlights a
+     target spanning y −206 to +1005 — it begins above the viewport and ends
+     205px below it, so the thing being pointed at cannot be seen. Fine at 900
+     tall. The tour must scroll the target into view, and when a target is
+     taller than the viewport align its TOP rather than centring it. The only
+     failure of its kind in 36 steps.
+  3. Calendar step 5 of 6: the spotlight's right edge sits 8px past the
+     viewport, and it is exactly 8px at both 1280 and 1440 — a fixed outset
+     that is not clamped, not a layout problem. Clamp it to the viewport.
+  4. On the final step the ghost button still reads "Skip the tour" beside
+     "Done". Nothing is left to skip and both do the same thing.
+  **AND THE PART WORTH SAYING: it is well built underneath.** `.tourblock`
+  carries `role="dialog"`, `aria-modal="true"` and an `aria-label`; the copy
+  sits in an `aria-live="polite"` region so each step is read out; the card is
+  fixed so it never scrolls away; both buttons are 147x38.
