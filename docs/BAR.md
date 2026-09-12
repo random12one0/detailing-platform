@@ -95,6 +95,71 @@ so the paint does not move and the pointer reaches further.
    `.btn.sm` have 1px borders and land on exactly **44.00** — passing, and
    worth knowing that they have no margin left.
 
+## THE ONE EXEMPTION: a link inside a sentence of running prose
+
+**Claude Cowork's ruling, 2026-09-12, and it is CONDITIONAL rather than free.**
+
+> A link sitting inside a sentence of running prose is exempt from the 44 floor
+> — **but only where the same destination is ALSO reachable from a full-size
+> target on the same screen.**
+
+**WHY THE EXEMPTION EXISTS.** Stretching a mid-sentence link to 44px makes its
+hit area cover the lines of text above and below it, turning the whole paragraph
+into a mis-tap zone. That is worse than the thing the floor is trying to prevent.
+**A floor that makes the page harder to use is being applied wrongly.**
+
+**WHY THE CONDITION EXISTS, and it is the more important half.** Without it the
+exemption is a loophole in which a 14px link is the ONLY route to something. The
+condition is what keeps it an exemption about TYPOGRAPHY rather than about
+reach: the destination is always available at full size, and the inline link is
+a convenience on top of that.
+
+**"THE SAME DESTINATION" MEANS THE SAME DESTINATION, NOT A NEARBY ONE.** A
+full-size row that opens a screen which then contains the link is a DIFFERENT
+destination and does not satisfy the condition. That distinction was not
+hypothetical: the gear's support address was an inline `mailto:` at 183x14, and
+the only other support route on that screen was the "Report a problem" row at
+354x62 — full-size, and a different destination. **The condition failed, so the
+exemption did not apply**, and the address came out of the sentence onto its own
+line as a `.btn.sm` link, which is what `ReportProblem` already did one screen
+over.
+
+**NOTHING IN THE PRODUCT CLAIMS THIS EXEMPTION TODAY** — measured 2026-09-12,
+detailer side. It is written down for the case that arises, not to cover
+anything shipped. **A session that finds itself reaching for it should first
+check whether the sibling screen has already solved the same problem with a
+full-size control**, because that is what happened the only time it came up.
+(The marketing pages carry the same address inline; they are outside this bar,
+which is scoped to the detailer side, and that is a gap rather than an
+exemption.)
+
+## THE CALIBRATION PROCEDURE — REQUIRED, NOT ADVICE
+
+**Between two reviewers in a single run, a coarse probe produced FOUR false
+findings and ONE false clear.** The next session will make the same mistakes
+unprompted unless this is a procedure. **A tap-target number produced without
+every step below is not evidence and must not be reported.**
+
+1. **Put a synthetic 20x20 element in the SAME document, measure it with the
+   same probe, and SUBTRACT THE BIAS from every number.** It reads **20.98** in
+   this product, so the instrument over-reads by 0.98px. A raw 43 is a 42; a raw
+   44.98 is a 44.
+2. **Binary-search the boundary, sub-pixel.** Integer stepping reports 43 on a
+   target that is 44 — that alone nearly condemned four correct buttons.
+3. **Search from the element's OWN EDGES**, never from a rounded centre: a
+   fractional rect loses a pixel.
+4. **`scrollIntoView({ block: "center" })` before probing.** `elementFromPoint`
+   returns null outside the viewport, so the last row of every screen reads
+   short. Fixing this alone raised one step's control count from 4 to 19 — the
+   earlier sweeps were under-counting what they even looked at.
+5. **An ancestor under the pointer is NOT a hit.** `e.contains(el)` in the
+   predicate makes every control look enormous, because the card behind it
+   contains it. Only `e === el || el.contains(e)`.
+
+**AND READ THE COMPUTED VALUE, NEVER THE RULE.** `getComputedStyle` reported
+`inset: -5px` on chips that answered across exactly 42px, because a scrolling
+ancestor was cropping them. The stylesheet and the thumb are different numbers.
+
 ## THE INSTRUMENT, and it lied four times before it told the truth
 
 Every one of these produced a confident wrong number first:

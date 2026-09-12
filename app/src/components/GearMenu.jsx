@@ -243,10 +243,27 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
               inbox. It is in the ACCOUNT block rather than a row of its own
               because it is not a screen — a row that opens a page to show one
               mailto is a row that wastes the tap it cost. */}
-          <p className="quiet" style={{ margin: "2px 0 10px" }}>
-            {t(SUPPORT_SHORT)}{" "}
-            <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
-          </p>
+          {/* **THE ADDRESS CAME OUT OF THE SENTENCE — 2026-09-12.** As an
+              inline `mailto:` it measured 183x14 of real hit area against a 44
+              floor, and it was the ONE control on this screen that failed.
+              **The inline-prose exemption in `docs/BAR.md` does not cover it**,
+              and that was measured rather than assumed: the exemption holds only
+              where the SAME destination is also reachable from a full-size
+              target on the SAME screen, and the only other support route here is
+              the "Report a problem" row (354x62), which is a different
+              destination — it opens a screen.
+              **AND IT DID NOT NEED TO BECOME A ROW.** The note below argues
+              correctly that a row opening a page to show one mailto wastes the
+              tap it cost; that argument is about NAVIGATION and says nothing
+              about size. `ReportProblem` already draws this exact thing as a
+              `.btnrow` of `.btn.sm` links, which reach 44 through the `::after`
+              pattern — so this is the pattern that already exists one screen
+              over, not a third idea. The sentence keeps its job and the address
+              becomes something a thumb can hit. */}
+          <p className="quiet" style={{ margin: "2px 0 6px" }}>{t(SUPPORT_SHORT)}</p>
+          <div className="btnrow" style={{ margin: "0 0 10px" }}>
+            <a className="btn sm inline" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
+          </div>
           {/* ── ROADMAP 8.18 — TWO LOGINS AT ONCE ────────────────────────
               *"Maybe there's an account switcher — like how on Chrome you
               could log into multiple Google accounts and switch between

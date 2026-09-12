@@ -646,8 +646,17 @@ conversation they were found in.**
   not 44, and saying "fixed" would be the thing this repo punishes. The other
   175 controls across all 21 steps clear the floor.
 
-- 2026-09-12 — **THE SUPPORT EMAIL IN THE GEAR IS 183x14 AND DOES NOT CLEAR THE
-  44 FLOOR.** `GearMenu.jsx:248` renders `support@detailingplatform.com` as an
+- ~~2026-09-12 — **THE SUPPORT EMAIL IN THE GEAR IS 183x14 AND DOES NOT CLEAR
+  THE 44 FLOOR.**~~ **FIXED, AND THE EXEMPTION DID NOT COVER IT.** Cowork wrote
+  the inline-prose exemption CONDITIONAL — it holds only where the same
+  destination is also reachable from a full-size target on the SAME screen — and
+  on the gear index the only other support route is the "Report a problem" row,
+  which opens a screen and is therefore a different destination. So the address
+  came out of the sentence onto its own line as a `.btn.sm`, the pattern
+  `ReportProblem` already used. 318x38, reaching 44; that screen now reads 0 of
+  21 under the floor. **The landing page still renders the same address inline
+  and is a gap rather than an exemption** — it sits outside `docs/BAR.md`, which
+  is scoped to the detailer side. The original note: `GearMenu.jsx:248` renders `support@detailingplatform.com` as an
   inline `mailto:` inside a sentence. **Deliberately NOT grown**, and this is a
   judgement for Cowork rather than an oversight: an inline link in running prose
   cannot take a 44px target without its hit area covering the lines of text
