@@ -68,7 +68,12 @@ export async function coverage() {
 
 if (process.argv[1] && process.argv[1].endsWith("i18n-coverage.mjs")) {
   const { calls, distinct, missing } = await coverage();
-  const pct = Math.round(((distinct - missing.size) / distinct) * 100);
+  // **FLOOR, NOT ROUND.** With one string missing out of 1,045 this printed
+  // `100%` beside `missing an appEs entry: 1`, which is the one number on the
+  // screen a reader would act on. Measured 2026-09-12 while baselining the
+  // ratchet at zero. A 99% that is honest is worth more than a 100% that is
+  // not, and a report that rounds up cannot say "finished" and mean it.
+  const pct = Math.floor(((distinct - missing.size) / distinct) * 100);
   console.log(`t() call sites with a literal: ${calls}`);
   console.log(`distinct strings:              ${distinct}`);
   console.log(`missing an appEs entry:        ${missing.size}`);

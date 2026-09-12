@@ -127,7 +127,7 @@ export const es = {
   "e.g. 2019 Honda Civic": "por ejemplo, Honda Civic 2019",
   "How dirty is the inside?": "¿Qué tan sucio está por dentro?",
   "It doesn’t change your price. It tells us what to bring.":
-    "No cambia tu precio — nos dice qué llevar.",
+    "No cambia tu precio. Nos dice qué llevar.",
 
   // ── Step: mobile or drop-off, and where ────────────────────────────────
   "We come to you": "Vamos a ti",
@@ -137,15 +137,15 @@ export const es = {
   "Drop it off": "Déjalo con nosotros",
   "Bring your vehicle to {address}.": "Trae tu vehículo a {address}.",
   "Bring your vehicle to us. We’ll confirm the address.":
-    "Trae tu vehículo con nosotros — te confirmamos la dirección.",
+    "Trae tu vehículo con nosotros. Te confirmamos la dirección.",
   "{service} has to be done at our place.": "{service} se hace en nuestro local.",
   "{service} is only done at your address.": "{service} solo se hace en tu dirección.",
   "{business} comes to you, serving {area}.":
-    "{business} va a ti — damos servicio en {area}.",
+    "{business} va a ti. Damos servicio en {area}.",
   "{business} comes to you.": "{business} va a ti.",
   "Drop your vehicle at {address}.": "Deja tu vehículo en {address}.",
   "Drop-off only. We’ll confirm the address with you.":
-    "Solo entrega en nuestro local — te confirmamos la dirección.",
+    "Solo entrega en nuestro local. Te confirmamos la dirección.",
   "Which area are you in?": "¿En qué zona estás?",
   "Where should we come?": "¿A dónde vamos?",
   "Street address, city": "Calle y número, ciudad",
@@ -154,7 +154,7 @@ export const es = {
     "Sin eso no podemos hacer este trabajo en tu dirección.",
   "I can provide access to a power outlet": "Puedo dar acceso a un tomacorriente",
   "Let us know either way. It just changes what we bring.":
-    "Dinos de cualquier forma — solo cambia lo que llevamos.",
+    "Dinos de cualquier forma. Solo cambia lo que llevamos.",
 
   // ── Step: when ─────────────────────────────────────────────────────────
   "Could not load available times.": "No pudimos cargar los horarios disponibles.",
@@ -169,9 +169,9 @@ export const es = {
   "No open times this month. Try the next month, or call {phone}.":
     "No hay horarios este mes. Prueba el mes siguiente o llama al {phone}.",
   "{business} is taking drop-offs only that day. Go back a step to change how it’s done, or pick another day.":
-    "Ese día {business} solo recibe vehículos en su local — regresa un paso para cambiar cómo se hace, o elige otro día.",
+    "Ese día {business} solo recibe vehículos en su local. Regresa un paso para cambiar cómo se hace, o elige otro día.",
   "{business} is coming to customers that day rather than taking drop-offs. Go back a step, or pick another day.":
-    "Ese día {business} va a donde están los clientes en vez de recibir vehículos — regresa un paso o elige otro día.",
+    "Ese día {business} va a donde están los clientes en vez de recibir vehículos. Regresa un paso o elige otro día.",
 
   // ── Step: who we're detailing for ──────────────────────────────────────
   "Your name": "Tu nombre",
@@ -186,15 +186,15 @@ export const es = {
   // ── Step: review, and the receipt ──────────────────────────────────────
   "Your appointments": "Tus citas",
   "When": "Cuándo",
-  "We come to you · {address}": "Vamos a ti — {address}",
+  "We come to you · {address}": "Vamos a ti · {address}",
   "Drop-off": "Entrega en el local",
-  "Drop-off · {address}": "Entrega en el local — {address}",
+  "Drop-off · {address}": "Entrega en el local · {address}",
   "Travel": "Traslado",
-  "Travel · {zone}": "Traslado — {zone}",
+  "Travel · {zone}": "Traslado · {zone}",
   "{percent}% off": "{percent}% de descuento",
   "Promo {code}": "Código {code}",
   "Some of this is priced from. We’ll confirm once we’ve seen the vehicle, and we’ll ask before doing anything extra.":
-    "Parte de esto es un precio desde — lo confirmamos cuando veamos el vehículo, y te preguntamos antes de hacer algo extra.",
+    "Parte de esto es un precio desde. Lo confirmamos cuando veamos el vehículo, y te preguntamos antes de hacer algo extra.",
   "An estimate. If the vehicle needs more work, we’ll ask before doing anything extra.":
     "Es un estimado. Si el vehículo necesita más trabajo, te preguntamos antes de hacer algo extra.",
   "Promo code": "Código de descuento",
@@ -216,7 +216,7 @@ export const es = {
   "Your appointment": "Tu cita",
   "We’ll come to {address}": "Vamos a {address}",
   "Drop off at {address}": "Entrega en {address}",
-  "Drop-off · we’ll confirm the address": "Entrega en el local — te confirmamos la dirección",
+  "Drop-off · we’ll confirm the address": "Entrega en el local · te confirmamos la dirección",
   "Add to my calendar": "Agregar a mi calendario",
   "View, change or cancel this request": "Ver, cambiar o cancelar esta solicitud",
   "View, change or cancel this booking": "Ver, cambiar o cancelar esta reserva",
@@ -261,8 +261,8 @@ export const es = {
   "Drop-off at {address}": "Entrega en {address}",
   "This time is held for you while {business} looks at it.":
     "Te guardamos esta hora mientras {business} la revisa.",
-  "Also booked · 1 more car": "También reservado — 1 carro más",
-  "Also booked · {n} more cars": "También reservado — {n} carros más",
+  "Also booked · 1 more car": "También reservado · 1 carro más",
+  "Also booked · {n} more cars": "También reservado · {n} carros más",
   "Vehicle": "Vehículo",
   "Each one can be changed or cancelled on its own.":
     "Cada una se puede cambiar o cancelar por separado.",
@@ -311,12 +311,12 @@ export const es = {
     "No pudimos iniciar el pago. Inténtalo de nuevo.",
   "Paid": "Pagado",
   "Thank you. Your card payment went through and your receipt is on its way by email.":
-    "Gracias — tu pago con tarjeta se realizó. Tu recibo va en camino por correo.",
+    "Gracias. Tu pago con tarjeta se realizó. Tu recibo va en camino por correo.",
 
   // ── The opt-out, reached from an email ─────────────────────────────────
   "This link has expired": "Este enlace ya venció",
   "Reply to the email you got instead. It reaches the business directly.":
-    "Responde al correo que recibiste — le llega directo al negocio.",
+    "Responde al correo que recibiste. Le llega directo al negocio.",
   "Done": "Listo",
   "{business} won't email you about coming back again. If you book with them, you'll still get the confirmation and reminder for that booking.":
     "{business} ya no te va a escribir para invitarte a volver. Si reservas con ellos, igual recibes la confirmación y el recordatorio de esa reserva.",
@@ -371,7 +371,7 @@ export const es = {
   "Your plan": "Tu plan",
   "Visits waiting for you": "Visitas que te esperan",
   "Book any time. These don’t expire while your plan is running.":
-    "Reserva cuando te acomode — no vencen mientras tu plan siga activo.",
+    "Reserva cuando te acomode. No vencen mientras tu plan siga activo.",
   "You paid": "Pagaste",
   "You pay": "Pagas",
   "Member since": "Miembro desde",
@@ -392,7 +392,7 @@ export const es = {
   // bookings yet" screen was three English sentences, on the one page whose
   // whole job is to explain that something is wrong.
   "{business} isn’t taking bookings online yet": "{business} todavía no acepta reservas en línea",
-  "They’re still setting this page up. Check back shortly, or get in touch with them directly.": "Todavía están configurando esta página. Vuelve pronto — o comunícate con ellos directamente.",
+  "They’re still setting this page up. Check back shortly, or get in touch with them directly.": "Todavía están configurando esta página. Vuelve pronto, o comunícate con ellos directamente.",
   "Try again": "Intentar de nuevo",
 
   // REVIEW ITEM 15, 2026-09-11 — the customer's own booking page now itemises
