@@ -85,6 +85,22 @@ export default function UnsubscribePage() {
     return () => { live = false; };
   }, [customerId]);
 
+  // **THE BROWSER TAB SAYS WHOSE PAGE THIS IS — 2026-09-12.** It read
+  // "Detailing Platform" while `/booking` and `/plan` both carry the business
+  // name, and this page had just been given that business's masthead and its
+  // accent colour on his own ruling. A tab naming the platform on a page a
+  // customer reached from a detailer's email is the same fault the missing
+  // masthead was: the one page a customer meets by clicking a link in an email
+  // is the one that would not say who sent it.
+  //
+  // Done here rather than in `BookingBusinessContext`, which is what titles
+  // the other two: this page has no slug to give that provider — the
+  // unsubscribe lookup answers with a NAME and nothing else — so it is the
+  // only customer page that has to do it for itself.
+  useEffect(() => {
+    if (state.name) document.title = state.name;
+  }, [state.name]);
+
   // Null until the lookup answers, and null for a detailer who never picked a
   // colour — brandVarsFor falls back to the house accent, which is byte for
   // byte what booking.css already declares, so the loading and expired screens
@@ -183,9 +199,9 @@ export default function UnsubscribePage() {
             sentences, one with the name in it and one without. */}
         <p className="bk-muted">
           {state.first
-            ? t("{name}, this stops {business} emailing you about coming back. Anything to do with a booking you make — the confirmation, the reminder, the receipt — still reaches you.",
+            ? t("{name}, this stops {business} emailing you about coming back. Anything to do with a booking you make still reaches you: the confirmation, the reminder, the receipt.",
               { name: state.first, business: state.name })
-            : t("This stops {business} emailing you about coming back. Anything to do with a booking you make — the confirmation, the reminder, the receipt — still reaches you.",
+            : t("This stops {business} emailing you about coming back. Anything to do with a booking you make still reaches you: the confirmation, the reminder, the receipt.",
               { business: state.name })}
         </p>
         {error && <div className="bk-error">{error}</div>}

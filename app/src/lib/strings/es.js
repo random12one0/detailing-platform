@@ -329,9 +329,9 @@ export const es = {
   "Done": "Listo",
   "{business} won't email you about coming back again. If you book with them, you'll still get the confirmation and reminder for that booking.":
     "{business} ya no te va a escribir para invitarte a volver. Si reservas con ellos, igual recibes la confirmación y el recordatorio de esa reserva.",
-  "{name}, this stops {business} emailing you about coming back. Anything to do with a booking you make — the confirmation, the reminder, the receipt — still reaches you.":
+  "{name}, this stops {business} emailing you about coming back. Anything to do with a booking you make still reaches you: the confirmation, the reminder, the receipt.":
     "{name}, esto hace que {business} deje de escribirte para invitarte a volver. Todo lo relacionado con una reserva que hagas — la confirmación, el recordatorio, el recibo — te sigue llegando.",
-  "This stops {business} emailing you about coming back. Anything to do with a booking you make — the confirmation, the reminder, the receipt — still reaches you.":
+  "This stops {business} emailing you about coming back. Anything to do with a booking you make still reaches you: the confirmation, the reminder, the receipt.":
     "Esto hace que {business} deje de escribirte para invitarte a volver. Todo lo relacionado con una reserva que hagas — la confirmación, el recordatorio, el recibo — te sigue llegando.",
   "One moment…": "Un momento…",
   "Yes, stop them": "Sí, deténlos",

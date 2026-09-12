@@ -66,6 +66,26 @@ export function makeLocale(key, catalogues, detectFromBrowser) {
   const write = (v) => {
     try { localStorage.setItem(key, v); } catch { /* private window; the choice just does not persist */ }
   };
+  // **A LINK'S LANGUAGE LASTS THE VISIT; ONLY THE PICKER LASTS THE DEVICE —
+  // his ruling and mine, 2026-09-12, after the first version wrote `?lang=es`
+  // straight into `localStorage`.** A detailer texts a Spanish link, the
+  // customer opens it on the household computer, and every later person to
+  // book on that machine gets Spanish with nothing on screen explaining why.
+  // Following a link is not choosing a language for the device; pressing ES
+  // is.
+  //
+  // **IT NEEDS A STORE AT ALL BECAUSE THE VISIT SURVIVES A FULL PAGE LOAD.**
+  // `ManageBookingPage.jsx:336` hands the browser to `checkout.stripe.com` and
+  // Stripe returns to `?paid=1` with no `lang` on it, so a locale held only in
+  // module memory would drop back to English mid-payment. `sessionStorage` is
+  // exactly that scope: it survives the redirect and the reload, and it dies
+  // with the tab.
+  const readVisit = () => {
+    try { return sessionStorage.getItem(key); } catch { return null; }
+  };
+  const writeVisit = (v) => {
+    try { sessionStorage.setItem(key, v); } catch { /* no session storage; the link's language lasts one page */ }
+  };
 
   function detect() {
     // **`?lang=es` IS READ FIRST, AND IT USED TO BE IGNORED ENTIRELY —
@@ -78,15 +98,36 @@ export function makeLocale(key, catalogues, detectFromBrowser) {
     // around their own dashboard.
     //
     // IT OUTRANKS THE SAVED CHOICE, because somebody who follows a link
-    // carrying a language is making a choice NOW, and it is written through to
-    // storage so the rest of the flow and every later page agree with the
-    // first one. A value that is not a language we speak is ignored rather
-    // than stored, so `?lang=fr` leaves a Spanish reader in Spanish.
-    try {
-      const asked = new URLSearchParams(globalThis.location?.search ?? "").get("lang");
-      const want = String(asked || "").toLowerCase().split("-")[0];
-      if (want && LOCALES.includes(want)) { write(want); return want; }
-    } catch { /* no location, or a URL the parser refuses */ }
+    // carrying a language is making a choice NOW — but only for THIS VISIT,
+    // per the note on `writeVisit` above. A value that is not a language we
+    // speak is ignored rather than stored, so `?lang=fr` leaves a Spanish
+    // reader in Spanish.
+    //
+    // **AND ONLY THE CUSTOMER SCOPE MAY READ IT. THE FIRST VERSION DID NOT
+    // GATE THIS AND IT BROKE THIS FILE'S OWN FIRST LAW — measured 2026-09-12,
+    // his review.** Every scope runs `detect()` at module load, so a `?lang=es`
+    // on a booking link set BOTH `dp.lang` AND `dp.lang.app`: one visit to a
+    // customer's Spanish link turned the detailer's whole back office Spanish,
+    // and it kept it that way after the customer key was cleared. That is
+    // exactly the failure the header of this file was written to prevent —
+    // *"a detailer previews their own booking page… pressing ES there would
+    // turn their whole dashboard Spanish on the way back"* — arriving through
+    // a URL instead of through the picker.
+    //
+    // **`?lang=` IS A LINK PARAMETER AND A LINK IS A CUSTOMER THING.** A
+    // detailer chooses their language in their own settings; nothing they
+    // click hands the dashboard scope a URL. `detectFromBrowser` is already
+    // the "this scope belongs to a stranger who arrived cold from a link"
+    // flag, so it is the same question and not a second one.
+    if (detectFromBrowser) {
+      try {
+        const asked = new URLSearchParams(globalThis.location?.search ?? "").get("lang");
+        const want = String(asked || "").toLowerCase().split("-")[0];
+        if (want && LOCALES.includes(want)) { writeVisit(want); return want; }
+      } catch { /* no location, or a URL the parser refuses */ }
+    }
+    const visit = readVisit();
+    if (visit && LOCALES.includes(visit)) return visit;
     const saved = read();
     if (saved && LOCALES.includes(saved)) return saved;
     if (!detectFromBrowser) return "en";
@@ -128,7 +169,11 @@ export function makeLocale(key, catalogues, detectFromBrowser) {
   function setLocale(next) {
     if (!LOCALES.includes(next) || next === locale) return;
     locale = next;
+    // BOTH, and the visit one is not optional: it is read FIRST, so a picker
+    // that wrote only the durable key would be overruled on the next page by
+    // the `?lang=` value the person just pressed a button to change.
     write(next);
+    writeVisit(next);
     stamp(next);
     // THE WHOLE PAGE RE-RENDERS RATHER THAN RELOADING. A reload is two lines
     // shorter and would throw away a half-filled booking form, which is the

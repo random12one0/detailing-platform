@@ -37,10 +37,38 @@ import { t } from "../../lib/i18n.js";
 import { useLocale } from "../../hooks/useLocale.js";
 import { money } from "../../lib/format.js";
 import {
+  DEFAULT_VEHICLE_SIZES,
   maxVehicles, setVehicleCount, VEHICLE_CONDITIONS, vehicleCount,
   vehicleSizeExtra, vehicleSizesMatter,
 } from "../core.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
+
+// **ONLY OUR OWN WORDING IS TRANSLATED. A DETAILER'S IS NEVER TOUCHED, AND
+// "IT HAS NO ENTRY" WAS NOT ENOUGH — measured 2026-09-12 on a scratch tenant.**
+//
+// Wrapping the tiers in `t()` earlier today made the platform's Small/Medium/
+// Large translate, which is right, and quietly made a DETAILER'S OWN LABEL
+// translate too whenever their word happened to be a key we hold. A detailer
+// who renames the middle tier "Heavy" — heavy-duty vehicles — had it rendered
+// to a Spanish customer as **"Fuerte"**, which is our word for how DIRTY a car
+// is, from a different scale entirely. The comment below this used to say
+// their word passes through because it has no entry; the collision case is
+// exactly when it does.
+//
+// So the question is not "do we have a translation" but "is this OUR SENTENCE
+// TO TRANSLATE" — and the only honest test of that is whether it still matches
+// what the platform shipped for that tier. Rename anything, in any language,
+// and it goes out exactly as typed. `DEFAULT_VEHICLE_SIZES` is the same
+// constant `core.js` falls back to when a business has no list at all, so the
+// two can never disagree about what "ours" means.
+//
+// **THE GENERAL RULE, WHICH IS THE PART WORTH REMEMBERING: `t()` TAKES
+// PLATFORM COPY, NEVER A ROW OUT OF A TENANT'S TABLE.** Anywhere the two are
+// mixed in one field, the ownership has to be re-established before the
+// lookup, not assumed from a missing entry.
+const PLATFORM_SIZE = Object.fromEntries(DEFAULT_VEHICLE_SIZES.map((s) => [s.key, s]));
+const sizeText = (s, field) =>
+  (s[field] && s[field] === PLATFORM_SIZE[s.key]?.[field] ? t(s[field]) : s[field]);
 
 // Past this many sizes the cards become a drop-down. MEASURED, not chosen,
 // and RE-MEASURED after W27 landed on this same step — which is the whole
@@ -95,7 +123,7 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
     const extra = sizeExtra(s.key);
     return (
       <option key={s.key} value={s.key}>
-        {t(s.label)}{extra > 0 ? ` · +${money(extra)}` : ""}
+        {sizeText(s, "label")}{extra > 0 ? ` · +${money(extra)}` : ""}
       </option>
     );
   });
@@ -234,21 +262,22 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
                               stored copy of ours, so in practice the string on
                               screen is tenant data that happens to be our
                               words.
-                              `t()` resolves it correctly without having to
-                              tell them apart: our default labels have
-                              catalogue entries and get Spanish, and a detailer
-                              who renamed "Medium" to "Crossover" has no entry,
-                              so `t()` returns their word untouched. Translating
-                              somebody's own word would be the worse bug.
+                              **THIS SAID `t()` RESOLVED IT WITHOUT HAVING TO
+                              TELL THEM APART, BECAUSE A RENAMED TIER HAS NO
+                              CATALOGUE ENTRY. THAT WAS WRONG BY A DAY** — it
+                              is true right up until the detailer's own word IS
+                              one of our keys, and then their word is silently
+                              replaced. `sizeText` at the top of this file is
+                              the correction and carries the measurement.
                               **AND THIS IS WHY THE SPANISH SUITE PASSED WITH
                               THEM IN ENGLISH:** check 1b demands an entry for
-                              every `t()` CALL SITE, and these were never a
-                              call site — a string that never reaches the
-                              translator is invisible to a check that walks the
-                              translator's callers. Wrapping them is what puts
-                              them under the ratchet. */}
-                          <h3>{t(s.label)}</h3>
-                          {s.examples && <p className="bk-muted">{t(s.examples)}</p>}
+                              every `t()` CALL SITE, and a lookup on a variable
+                              is not one — so these strings were invisible to
+                              it before AND after the wrapping. What covers
+                              them is `spanish` § 1g, which walks
+                              `DEFAULT_VEHICLE_SIZES` itself. */}
+                          <h3>{sizeText(s, "label")}</h3>
+                          {s.examples && <p className="bk-muted">{sizeText(s, "examples")}</p>}
                         </div>
                         <span className="bk-price">{extra > 0 ? `+${money(extra)}` : t("Included")}</span>
                       </div>

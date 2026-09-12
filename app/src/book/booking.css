@@ -997,10 +997,13 @@
      1 from 10px of spare room to 7px. Three pixels of the TENANT'S budget for
      a link is not a trade worth making — the whole reason this control is on
      this row is that the row was already drawn.
-     The padding/margin pair is the touch target: 34px of tappable height that
-     costs the layout nothing, because the negative margin gives it back. */
+     The padding/margin pair is the touch target, and it is the PRODUCT'S OWN
+     46px now rather than 34 — his review measured this chip at 146x33 on a
+     320px screen, 2026-09-12, and PRODUCT.md's floor is `--tap: 46px` with one
+     recorded exception that is not this control. It still costs the layout
+     nothing, because the negative margin gives every added pixel back. */
   line-height: 13px;
-  padding: 10px 12px; margin: -10px 0;
+  padding: 16.5px 12px; margin: -16.5px 0;
   transition: filter var(--bk-t-hover) var(--bk-e);
 }
 .bk-plans-door:hover { filter: brightness(1.08); }
@@ -1012,7 +1015,7 @@
 @media (max-width: 380px) {
   .bk-plans-door .wide { display: none; }
   .bk-plans-door .narrow { display: inline; }
-  .bk-plans-door { padding: 10px 10px; }
+  .bk-plans-door { padding: 16.5px 10px; }
 }
 .bk-plans-door:hover { color: var(--bk-text); }
 

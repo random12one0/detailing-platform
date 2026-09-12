@@ -668,5 +668,89 @@ if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
   check("9e · no dashboard entry is empty", pairs.every(([, v]) => String(v).trim() !== ""));
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// § 10 — THE TWO LANGUAGE SCOPES, AND WHOSE WORDS MAY BE TRANSLATED AT ALL
+//
+// **BOTH OF THESE ARE HERE BECAUSE THIS SUITE WAS GREEN THROUGH TWO REAL BUGS
+// ON 2026-09-12, AND NEITHER WAS A MISSING TRANSLATION.** Every check above
+// asks whether a Spanish string EXISTS and whether it is well formed. Neither
+// question can see a Spanish string that is CORRECT and shown to the wrong
+// person, which is what both faults were.
+//
+//   · A customer's `?lang=es` booking link set the DASHBOARD's language too,
+//     because `detect()` runs once per scope and read the URL in both. An
+//     English detailer's back office came up Spanish after one visit to their
+//     own booking page, and the 404 — dashboard scope — read Spanish to an
+//     English visitor with nothing in the URL and `dp.lang` unset.
+//   · A detailer who renames a vehicle tier to a word that happens to be one
+//     of our keys had their word silently replaced: "Heavy" went out to a
+//     Spanish customer as "Fuerte", our word for how dirty a car is.
+//
+// The shared lesson, and why the two sit together: **translation is a question
+// about WHOSE SENTENCE IT IS, and every check before this one assumed the
+// answer.**
+{
+  console.log("\n10. the two scopes, and whose words get translated");
+
+  // 10a-d run the real store against a stubbed browser. `localeStore.js` has
+  // no imports, so Node can load it, and these stubs are the whole environment
+  // it touches.
+  const store = new Map();
+  const session = new Map();
+  const fake = (m) => ({
+    getItem: (k) => (m.has(k) ? m.get(k) : null),
+    setItem: (k, v) => m.set(k, String(v)),
+    removeItem: (k) => m.delete(k),
+  });
+  globalThis.localStorage = fake(store);
+  globalThis.sessionStorage = fake(session);
+  globalThis.location = { search: "?lang=es" };
+  // Node 24 defines `navigator` as a getter-only global, so it is redefined
+  // rather than assigned. It matters: without it the store reads the real
+  // Node navigator and the browser-detection branch is not the one under test.
+  Object.defineProperty(globalThis, "navigator", {
+    value: { languages: ["en-US"], language: "en-US" }, configurable: true,
+  });
+
+  const { makeLocale } = await import("../app/src/lib/localeStore.js");
+  const customer = makeLocale("dp.lang", { en: null, es: { Hello: "Hola" } }, true);
+  const dashboard = makeLocale("dp.lang.app", { en: null, es: { Hello: "Hola" } }, false);
+
+  check("10a · a ?lang= link sets the customer's language", customer.getLocale() === "es",
+    `got ${customer.getLocale()}`);
+  check("10b · and NEVER the detailer's dashboard", dashboard.getLocale() === "en",
+    `got ${dashboard.getLocale()} — a customer's link has moved the back office`);
+  check("10c · a link's language lasts the visit, not the device",
+    store.get("dp.lang") === undefined && session.get("dp.lang") === "es",
+    `localStorage=${store.get("dp.lang")} sessionStorage=${session.get("dp.lang")}`);
+  customer.setLocale("en");
+  customer.setLocale("es");
+  check("10d · but pressing the picker does persist", store.get("dp.lang") === "es",
+    `localStorage=${store.get("dp.lang")}`);
+
+  delete globalThis.localStorage; delete globalThis.sessionStorage;
+  delete globalThis.location;
+
+  // 10e-f — THE PLATFORM'S OWN TIER WORDING IS THE ONLY TIER WORDING WE
+  // TRANSLATE, so it is the only tier wording that needs an entry. Walking the
+  // constant rather than the call sites is the point: `t(s.label)` is a lookup
+  // on a VARIABLE, and check 1b reads literal call sites and cannot see it.
+  const core = readFileSync(path.join(BOOK, "core.js"), "utf8");
+  const defaults = [...core.matchAll(/\{ key: "(\w+)", label: "([^"]+)", examples: "([^"]+)" \}/g)];
+  check("10e · the check has subjects — the default tiers were found", defaults.length === 3,
+    `${defaults.length} found`);
+  const noTier = defaults.flatMap((m) => [m[2], m[3]]).filter((w) => !es[w]);
+  check("10f · every default tier word has Spanish", noTier.length === 0, noTier.join(" · "));
+
+  // 10g — AND A RENAMED TIER IS NEVER LOOKED UP. A text check, because the
+  // guard is a two-line helper not worth exporting; what it pins is the RULE,
+  // that tenant-owned text does not reach `t()`.
+  const veh = readFileSync(path.join(BOOK, "steps/StepVehicle.jsx"), "utf8");
+  const raw = [...veh.matchAll(/\bt\(s\.(label|examples)\)/g)].map((m) => m[0]);
+  check("10g · a detailer's own tier wording never reaches the translator",
+    raw.length === 0,
+    `${raw.join(" · ")} — use sizeText(), which translates only wording that still matches the platform default`);
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

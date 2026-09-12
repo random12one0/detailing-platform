@@ -2682,6 +2682,19 @@ body:has(.sheet-backdrop:not(.leaving)) .tabbar {
 }
 /* The sheet's close button. Standalone rather than scoped to a header — an
    earlier scoped selector left it falling back to the browser default. */
+/* **THE CIRCLE IS 36px AND THE TARGET IS 46 — 2026-09-12.** His review
+   measured this at 36x36 on the website wizard at 392px, under the product's
+   own `--tap` floor. The drawn circle does not grow: it sits in a header
+   beside a 46px Back control and a heading, and a 46px circle there is a
+   second heavy control on a row that has one. The hit box grows instead,
+   which is what a target size actually is — the same trade the booking page's
+   plans chip makes with a negative margin. Nothing tappable is within five
+   pixels on any side; the heading is the only neighbour. */
+.x { position: relative; }
+.x::after {
+  content: ""; position: absolute; top: 50%; left: 50%;
+  width: var(--tap); height: var(--tap); transform: translate(-50%, -50%);
+}
 .x {
   min-height: 36px; width: 36px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
@@ -3458,7 +3471,13 @@ button.warn-box:hover { border-color: var(--fog-2); }
 /* The step body must not stretch into the space `margin-top: auto` is
    claiming — it is content, not a filler. */
 .setupstep { flex: 0 0 auto; }
-.setupquit { align-self: flex-start; color: var(--text-muted); }
+/* IT TAKES `--tap`, NOT `.btn.sm`'s 38 — 2026-09-12, his review measured it at
+   172x38. PRODUCT.md's 38px exception is about `.btn.sm` as a CLASS, its 28
+   call sites and the pinned rows whose label ceiling was measured at that
+   height; this is one quit link at the bottom of a scrolling wizard, so the
+   eight pixels cost nothing the exception was written to protect. The class
+   itself is untouched — reopening that is his call, not a side effect. */
+.setupquit { align-self: flex-start; color: var(--text-muted); min-height: var(--tap); }
 
 /* THE SPOTLIGHT — the only overlay in the product that is not a sheet, and
    one element rather than a mask (component inventory §1c). A 9999px spread

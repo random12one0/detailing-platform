@@ -56,6 +56,9 @@ import {
 } from "../lib/adminInsight.js";
 import { useLeaving } from "../hooks/useLeaving.js";
 import { signOutEverything } from "../lib/signout.js";
+// The refusal below IS the product's 404, not a copy of it — see the comment
+// on the `denied` branch for why this one import crosses the admin.css line.
+import NotFound from "../screens/NotFound.jsx";
 import "./admin.css";
 
 /* ── the one way this screen talks to the server ────────────────────────── */
@@ -263,16 +266,27 @@ export default function AdminPage() {
     );
   }
 
-  if (status === "denied") {
-    return (
-      <div className="pa">
-        <div className="pa-door"><div className="pa-door-in">
-          <h1>Page not found</h1>
-          <p className="pa-sub">There is nothing at this address.</p>
-        </div></div>
-      </div>
-    );
-  }
+  // **THE REFUSAL IS THE PRODUCT'S OWN 404 COMPONENT, NOT A SECOND ONE THAT
+  // LOOKS LIKE IT — 2026-09-12, after his review found two different 404s.**
+  //
+  // The rule above and in CLAUDE.md is that a non-admin gets 404 and never
+  // 403, because a 403 tells a curious detailer this page exists. **Two 404s
+  // that do not match leak the same fact more quietly**: this one had no links
+  // out and its own wording, so anybody who had seen a real missing page could
+  // tell that `/admin` answers differently — which is the one bit they were
+  // not supposed to learn. Rendering the same component makes them identical
+  // by construction rather than by two files agreeing to stay in step, and it
+  // is also the fix for his other complaint, that this variant was a dead end
+  // with nowhere to go next.
+  //
+  // **AND IT IS THE ONE PLACE `admin.css`'s "no shared rule with `theme.css`"
+  // LAW GIVES WAY, on purpose.** The law exists so the back office cannot be
+  // restyled by a dashboard change; here the requirement is the opposite — a
+  // screen that must be indistinguishable from a dashboard-side page. The
+  // password field a few lines up still declines to borrow `controls.jsx`,
+  // because that is admin furniture and this is a denial that must not look
+  // like admin furniture at all.
+  if (status === "denied") return <NotFound />;
 
   const rows = state?.rows ?? [];
   const totals = state?.totals ?? {};
