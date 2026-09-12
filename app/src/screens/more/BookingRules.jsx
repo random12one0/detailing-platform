@@ -455,6 +455,20 @@ export default function BookingRules() {
           </>
         )}
 
+        {/* **MOVED HERE FROM "CHANGES AND REMINDERS" — 2026-09-12.** It is a
+            question the BOOKING PAGE asks the customer and records the answer,
+            which is exactly what the two settings above it are, and it is not
+            a reminder or a cancellation in any sense. Mis-grouped before
+            anything was folded; folding made it worse, because a visible row
+            in the wrong section is a row you can still find and a folded one
+            under a heading that does not describe it is not.
+            **OUTSIDE the mobile-only block above on purpose** — the question
+            is asked whoever brings the car and wherever the work happens. */}
+        <Switch label={t("Ask how dirty the vehicle is")}
+          help={t("Light, moderate, heavy or extreme. Never changes the price.")}
+          checked={form.ask_vehicle_condition}
+          onChange={(v) => set("ask_vehicle_condition", v)} />
+
         {/* ROADMAP 8.10 — MORE THAN ONE CAR IN ONE BOOKING. The owner:
             *"have that in a setting: how many cars can someone book in one
             booking."* It sits in *What you offer* rather than in *When you
@@ -639,11 +653,6 @@ export default function BookingRules() {
               onChange={(v) => set("request_nudge_hours", v)} unit="hours" customMax={168} />
           </Setting>
         )}
-
-        <Switch label={t("Ask how dirty the vehicle is")}
-          help={t("Light, moderate, heavy or extreme. Never changes the price.")}
-          checked={form.ask_vehicle_condition}
-          onChange={(v) => set("ask_vehicle_condition", v)} />
 
         <Switch label={t("Remind the night before for early jobs")}
           help={t("Sent the evening before instead.")}

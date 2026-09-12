@@ -82,7 +82,13 @@ export default function Gallery() {
           </div>
         ))}
       </div>
-      {images.length === 0 && <p className="muted" style={{ marginTop: 8 }}>No photos yet. Tap a photo to hide/show it on your site.</p>}
+      {/* **IT TOLD YOU TO TAP A PHOTO WHEN THERE WERE NONE — 2026-09-12.** One
+          sentence was doing two jobs: saying the shelf is empty, and
+          explaining a gesture that only exists once something is on it. Split,
+          so each is true when it is shown. */}
+      {images.length === 0
+        ? <p className="muted" style={{ marginTop: 8 }}>{t("No photos yet.")}</p>
+        : <p className="muted" style={{ marginTop: 8 }}>{t("Choose a photo to hide it from your site.")}</p>}
     </div>
   );
 }

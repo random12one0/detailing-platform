@@ -66,7 +66,7 @@ export default function ReportProblem() {
   return (
     <div className="group">
       <p className="body" style={{ marginTop: 0 }}>
-        {t("Anything at all — something broken, something confusing, something missing, or a thing you want the dashboard to do. It goes straight to one person.")}
+        {t("Anything at all: something broken, something confusing, something missing, or a thing you want the dashboard to do. It goes straight to one person.")}
       </p>
 
       <label className="field">

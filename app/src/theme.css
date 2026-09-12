@@ -2797,10 +2797,17 @@ body:has(.sheet-backdrop:not(.leaving)) .tabbar {
   background: var(--surface-sunken); border: 1px solid var(--hairline);
   border-radius: var(--r-pill);
 }
+/* **36px, BECAUSE 8px OF PADDING ON 13px TEXT IS A 30px TARGET — 2026-09-12.**
+   Every option of every segmented control in the product was 30px tall against
+   a 32px floor, and there are eleven of them on Booking rules alone. One rule
+   rather than eleven, the same shape the field-label fix took.
+   **36 RATHER THAN 32.** It clears the floor and still sits under the 38px and
+   42px of the buttons around it, so the hierarchy the control lives in is
+   unchanged — a segment that matched a primary button would read as one. */
 .segmented button {
   border: 0; background: transparent; color: var(--text-muted);
   font-family: var(--f-body); font-size: var(--t-meta); font-weight: 600;
-  padding: 8px 14px; border-radius: var(--r-pill); cursor: pointer; white-space: nowrap;
+  min-height: 36px; padding: 8px 14px; border-radius: var(--r-pill); cursor: pointer; white-space: nowrap;
   transition: background var(--t-hover) var(--e-out), color var(--t-hover) var(--e-out);
 }
 .segmented button:hover:not(.on) { color: var(--text); }

@@ -1384,6 +1384,16 @@ withdrawn "the left half of the screen is empty" finding. **Front the tab
 before measuring opacity or taking a screenshot**, and where you cannot, use
 `checkVisibility` WITHOUT `opacityProperty`.
 
+**(e) A CLASS CAN BE ON BOTH A HEADER ROW AND ITS GRID, SO `querySelector`
+RETURNS THE WRONG ONE.** The booking calendar renders TWO `.bk-cal` elements —
+the weekday header (7 `.bk-dow`) and the day grid (32 cells). Reading the first
+and finding seven children produced *"zero day cells, a customer cannot book"*
+about a flow that works end to end. **Query ALL of them and assert the count
+you expect; if the count surprises you, THAT is the finding, not the
+contents.** And a disabled *Continue* is not corroboration — it is the correct
+state when nothing has been chosen yet. Two wrong readings pointing the same
+way feel like confirmation and are not.
+
 **AND THE RULE THEY SHARE, WHICH IS THE ONE TO REMEMBER:** a green result from
 an instrument nobody has checked is worth less than no result, because it stops
 the search. `scripts/sweep-widths.mjs:605` printed *clean* over 38 real

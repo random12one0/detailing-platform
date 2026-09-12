@@ -42,5 +42,22 @@ Claude Cowork decides what becomes work.
   questions the booking page asks the customer. Pre-existing mis-grouping that
   folding made worse — it used to be visible and is now under a heading that
   does not describe it.
-- 2026-09-12 — "Microfibre towels (bulk)" in the demo expense seed is British
-  spelling and is on screen. `scripts/seed-demo.mjs`, lane C.
+- 2026-09-12 — "Microfibre towels (bulk)" is on screen but the CODE is already
+  correct: `scripts/seed-demo.mjs:784` reads "Microfiber", fixed in `73ad5b0`
+  last night. What the reviewer is looking at is a row seeded into the demo
+  database BEFORE that fix. **Nothing to change in the repo — the demo data
+  needs re-seeding**, which is lane C and a data operation, not an edit.
+- 2026-09-12 — **SPANISH COVERAGE, MEASURED: 86%.** 1,206 `t()` call sites with
+  a literal across the dashboard, 1,036 distinct strings, **141 with no
+  `appEs.js` entry** — while `tests/spanish.test.mjs` passes 58/0. Worst:
+  `SiteIntake.jsx` 58 missing, `AdvancedMoney.jsx` 47, `Payments.jsx` 10,
+  `WebAddress.jsx` 7, `ReportProblem.jsx` 6, `Money.jsx` 5. Two more were mine
+  and are now added. **The other 139 are a dedicated item, not a wave tail.**
+  The audit script is a throwaway; the check it performs is the one the suite
+  does not.
+- 2026-09-12 — Five user-facing strings say "tap" on screens a detailer uses on
+  a laptop: `Hours.jsx` (one-off changes), `MessageTemplates.jsx` (x2),
+  `Payments.jsx` ("tappable"), `SiteIntake.jsx` ("tap to stop"). 68 occurrences
+  of the word in `app/src` overall — the other 63 are code comments and are not
+  user-facing. Awaiting the reviewer's word before changing any; the Gallery
+  one was named explicitly and is done.

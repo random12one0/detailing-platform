@@ -1859,6 +1859,11 @@ export const appEs = {
   "nudge {mins}": "aviso {mins}",
   "payment reminder after {mins}": "recordatorio de pago tras {mins}",
   "summary at {time}": "resumen a las {time}",
+  // The gallery's empty shelf, split from the sentence that told you to tap a
+  // photo when there were none. 2026-09-12.
+  "No photos yet.": "Todavía no hay fotos.",
+  "Choose a photo to hide it from your site.":
+    "Elige una foto para ocultarla de tu sitio.",
   // Wave B, 2026-09-12: the two disclosures.
   "Social and review links": "Enlaces de redes y reseñas",
   "{count} other email you can add a line to":

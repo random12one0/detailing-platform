@@ -34,6 +34,7 @@ import { PRESET_COLORS, brandVarsFor, describeAccent, CUSTOMER_BG, HOUSE_ACCENT 
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
+import { money } from "../../lib/format.js";
 import { t } from "../../lib/appI18n.js";
 import { useAppLocale } from "../../hooks/useAppLocale.js";
 
@@ -125,7 +126,7 @@ export default function Appearance() {
         <div className="sunken" style={{ background: CUSTOMER_BG }}>
           <div className="row between" style={{ gap: 12 }}>
             <span className="num" style={{ color: v["--bk-accent-text"], fontSize: "var(--t-strong)" }}>
-              $180.00
+              {money(180)}
             </span>
             <span
               className="btn inline sm"
