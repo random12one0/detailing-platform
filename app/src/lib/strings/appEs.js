@@ -61,6 +61,8 @@ export const appEs = {
     "Los clientes solo pueden elegir horas dentro de este horario. Si cierras un día aquí, nadie puede reservarlo.",
   "Get an alert on your phone when a booking comes in. It works when the dashboard is closed.":
     "Recibe un aviso en tu teléfono cuando entre una cita. Funciona aunque el panel esté cerrado.",
+  "Make a separate booking link for a flyer, a QR code or a post. Anyone who uses it gets the discount applied automatically. Each link tracks how many people opened it and how many of them booked.":
+    "Crea un enlace de reservas aparte para un volante, un código QR o una publicación. Quien lo use recibe el descuento automáticamente. Cada enlace registra cuántas personas lo abrieron y cuántas de ellas reservaron.",
   "Mobile means you drive to the customer. Drop-off means they come to you. You can offer both. This is the first question your booking page asks.":
     "A domicilio significa que tú vas al cliente. En tu taller significa que el cliente viene a ti. Puedes ofrecer ambos. Esta es la primera pregunta de tu página de reservas.",
   "None": "Ninguno",
@@ -142,6 +144,8 @@ export const appEs = {
   "Morning": "Buenos días",
   "Afternoon": "Buenas tardes",
   "Evening": "Buenas noches",
+  "{n} booked": "{n} reservaron",
+  "{n} opened": "{n} lo abrieron",
   "{when}, {name}": "{when}, {name}",
   "nothing booked": "nada agendado",
   "{left} of {total} still to do": "{left} de {total} por hacer",
@@ -1776,7 +1780,6 @@ export const appEs = {
   // blurb. Voice, not content: short declarative sentences, no em dash, no
   // opening flourish. docs/sessions/product.md has the rule.
   "Set up the plans you sell. This page tracks who is on each one and how many visits they still have coming. You collect payment yourself.": "Configura los planes que vendes. Esta página lleva la cuenta de quién está en cada uno y cuántas visitas le faltan. Tú cobras el pago por tu cuenta.",
-  "Make a separate booking link for a flyer, a QR code or a post. Anyone who uses it gets the discount applied automatically. This page shows how many bookings each link brought in.": "Crea un enlace de reserva aparte para un volante, un código QR o una publicación. A quien lo use se le aplica el descuento automáticamente. Esta página muestra cuántas reservas trajo cada enlace.",
   "New plan": "Plan nuevo",
   "Edit plan": "Editar plan",
   // REVIEW ITEM 11, 2026-09-11 — the pill editor. Four new details a

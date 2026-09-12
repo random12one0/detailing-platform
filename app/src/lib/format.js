@@ -5,9 +5,39 @@ import { businessToday } from "../book/core.js";
 // (W6), and it reads as a corrupted figure rather than a loss. Nothing was
 // wrong with the arithmetic; the minus was just inside the amount instead of
 // in front of it. Every caller gets the fix because there is one formatter.
+// **A COMMA ABOVE 999, AND CENTS ONLY WHEN THERE ARE CENTS — 2026-09-11, from
+// an outside review that found both faults in the same figure.**
+//
+// `$1200.00` was on the public plans page under the largest type on the card,
+// and `$5000.00` on the Calendar's history summary. Those are the biggest
+// numbers in the product and the ones a person most needs to read at a glance:
+// `$1,200` is read, `$1200.00` is parsed. The same report counted the trailing
+// `.00` on every whole-dollar price in the product — a service list reading
+// `$95.00 / $150.00 / $220.00` looks like an invoice from a software company
+// rather than a price list from a detailer.
+//
+// **CENTS APPEAR WHENEVER THEY EXIST**, so nothing is ever hidden: $58.50 is
+// still $58.50, and only $95.00 becomes $95. That is the whole rule, and it is
+// why this is safe to apply everywhere at once rather than screen by screen.
+//
+// One formatter, so a screen cannot invent a second answer. `Intl` rather than
+// a hand-rolled regex because it groups correctly at every magnitude.
+const WHOLE = new Intl.NumberFormat("en-US", {
+  style: "currency", currency: "USD", minimumFractionDigits: 0, maximumFractionDigits: 0,
+});
+const CENTS = new Intl.NumberFormat("en-US", {
+  style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2,
+});
+// THE SIGN GOES BEFORE THE SYMBOL. "$-189.00" was what a net-negative week
+// printed the first time roadmap 2.7 gave the Money screen a week to look at
+// (W6), and it reads as a corrupted figure rather than a loss. Nothing was
+// wrong with the arithmetic; the minus was just inside the amount instead of
+// in front of it. `Intl` puts it in the same wrong place, so the sign is still
+// taken off the number and printed in front by hand.
 export const money = (n) => {
   const v = Math.round(Number(n || 0) * 100) / 100;
-  return `${v < 0 ? "-" : ""}$${Math.abs(v).toFixed(2)}`;
+  const abs = Math.abs(v);
+  return `${v < 0 ? "-" : ""}${Number.isInteger(abs) ? WHOLE.format(abs) : CENTS.format(abs)}`;
 };
 
 export const time12 = (hhmm) => {

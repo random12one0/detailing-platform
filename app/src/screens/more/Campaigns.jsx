@@ -191,7 +191,13 @@ export default function Campaigns() {
             opens it. "Campaign link" reads as tracking; the half that earns
             its place is that the discount is already on. */}
         <p className="quiet" style={{ marginTop: 0 }}>
-          {t("Make a separate booking link for a flyer, a QR code or a post. Anyone who uses it gets the discount applied automatically. This page shows how many bookings each link brought in.")}
+          {/* **THE SENTENCE PROMISED A NUMBER THE ROWS DID NOT SHOW — an
+              outside review, 2026-09-11.** It said *"how many bookings each
+              link brought in"* over rows reading `Nobody has opened it yet`.
+              Opens and bookings are two different numbers and the copy named
+              the one it was not printing.
+              The row shows both now, so the sentence can be true. */}
+          {t("Make a separate booking link for a flyer, a QR code or a post. Anyone who uses it gets the discount applied automatically. Each link tracks how many people opened it and how many of them booked.")}
         </p>
 
         <label className="field"><span>{t("What is it for")}</span>
@@ -266,9 +272,21 @@ export default function Campaigns() {
                         flyer worked. A campaign nobody has scanned says so
                         rather than printing two zeros. */}
                     <span className="sub">
+                      {/* BOTH NUMBERS, ALWAYS, once anybody has opened it.
+                          The detailer's question is whether the flyer WORKED,
+                          and opens alone cannot answer it — twenty opens and
+                          no bookings is a different result from twenty opens
+                          and three, and the old row could not tell them
+                          apart. Money earned rides with them where there is
+                          any, because that is the number the flyer was
+                          printed for. */}
                       {scans === 0
                         ? t("Nobody has opened it yet")
-                        : `${scans} opened it · ${booked} booked`}
+                        : [
+                          t("{n} opened", { n: scans }),
+                          t("{n} booked", { n: booked }),
+                          stats.earned[r.id] ? money(stats.earned[r.id]) : null,
+                        ].filter(Boolean).join(" · ")}
                       {r.promo_code ? ` · ${r.promo_code}` : ""}
                     </span>
                   </button>

@@ -199,6 +199,25 @@ export default function App() {
     const fromPath = window.location.pathname.replace(/^\/app\/?/, "").split("/")[0];
     return TAB_PATHS.includes(fromPath) ? fromPath : "today";
   });
+
+  // **PRESSING A TAB PUTS ITS ADDRESS IN THE BAR — an outside review,
+  // 2026-09-11.** The five routes have existed since the catch-all became a
+  // 404 page and the rail never used them: a detailer could not bookmark
+  // Money, could not send anybody a link to Clients, and Back threw them out
+  // of the app entirely rather than moving between tabs.
+  //
+  // `replaceState`, NOT a router push. A tab is where you ARE, not somewhere
+  // you went — stacking five history entries for five presses would make Back
+  // walk backwards through the rail instead of leaving the app, which is its
+  // own kind of trap. Bookmarking and sharing both work off the address the
+  // bar shows, and that is what was missing.
+  const goTab = (key) => {
+    setTab(key);
+    try {
+      if (TAB_PATHS.includes(key)) window.history.replaceState(null, "", `/app/${key}`);
+    } catch { /* an embedded webview may refuse; the tab still changes */ }
+  };
+
   // WHAT A SCREEN WAS OPENED *FOR* — roadmap 2.19, and it is one string
   // because there is one case. Today's re-book prompt has to land on Clients
   // with the "not seen in 3 months" filter already on: sending somebody to a
@@ -523,7 +542,7 @@ export default function App() {
           <button key={x.key} data-tour={x.key}
             className={!gear && firstRun !== "setup" && activeTab.key === x.key ? "active" : ""}
             onClick={() => {
-              setTab(x.key); setGear(false); setIntent(null); setBizScreen(null);
+              goTab(x.key); setGear(false); setIntent(null); setBizScreen(null);
               // **A TAB PRESS CLOSES WHATEVER IS OVER THE MAIN AREA.** This
               // read `=== "setup"`, so the website brief stayed on top: the
               // tab underneath changed and nothing on screen did, which is
