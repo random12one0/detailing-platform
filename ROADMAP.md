@@ -166,13 +166,27 @@ it.
 
 ## Not ours to decide — waiting on Andrew
 
-- **The unsubscribe page's accent.** The reviewer's diagnosis is right and one
-  bug, not two: the page never loads the business context, so it has no
-  masthead colour. But `UnsubscribePage.jsx`'s header records the OPPOSITE as a
-  deliberate decision — platform colours, because this is the customer stepping
-  away and dressing that in the detailer's branding uses their colour to make
-  something harder. **Andrew's to settle**, and it needs an edge-function
-  change either way (`unsubscribe-lookup` returns a name and nothing else).
+- ~~**The unsubscribe page's accent.**~~ **SETTLED AND BUILT 2026-09-12 —
+  Andrew's rule, in his words: THE COLOUR FOLLOWS WHOSE RELATIONSHIP IS
+  ENDING.** A customer unsubscribing from a detailer's emails gets that
+  detailer's colour, because the relationship being ended is with the detailer
+  and the page belongs to them. Both halves shipped: `unsubscribe`'s `get`
+  action now returns `primary_color` from `business_branding`, and
+  `UnsubscribePage.jsx` runs it through `brandVarsFor` — the same legibility
+  correction the booking page uses — onto all four of its `.bk` roots.
+  Measured live: Riverside's stored `#dc2626` paints the button, and the TEXT
+  accent is lifted to `#e04040` to clear 4.5:1, which is the "Your color"
+  screen's promise doing its job on the one preset that fails it. A business
+  with no branding row returns `null` and falls back to house green, which is
+  byte for byte what `booking.css` already declares.
+
+  **THE OTHER ARM IS A RULE, NOT CODE, AND THIS IS WHERE IT LIVES.** A DETAILER
+  unsubscribing from something of OURS gets platform green, `--ac #38E08B`.
+  **There is no detailer-facing unsubscribe page in this product today** —
+  `owner-push-unsubscribe` is a push-subscription delete inside the dashboard
+  and has no page at all — so the branch was deliberately NOT written. A branch
+  with one live arm and one arm nobody can reach is a branch that rots
+  untested. **Whoever builds that page reads this line and paints it green.**
 - ~~"Look inside the dashboard" has nowhere to go.~~ **SETTLED 2026-09-12 by
   changing the WORDS, not the destination** — the rule is in CLAUDE.md now.
   There is no signed-out dashboard to look inside and building one to justify a

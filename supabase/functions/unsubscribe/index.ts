@@ -36,6 +36,11 @@ import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+// PostgREST returns a one-to-one embed as an object and a one-to-many as an
+// array, and which one it decides `business_branding` is depends on it seeing
+// the primary key. Both shapes are handled rather than guessed at.
+type Brand = { primary_color?: string | null };
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
 
@@ -61,18 +66,41 @@ Deno.serve(async (req) => {
     // business this is. Nothing but the name comes back out.
     const { data: customer } = await supabase
       .from("customers")
-      .select("id, name, unsubscribed_at, businesses(name)")
+      .select("id, name, unsubscribed_at, businesses(name, business_branding(primary_color))")
       .eq("id", id)
       .maybeSingle();
     if (!customer) return json({ error: "Not found" }, 404);
 
-    const business = (customer.businesses ?? {}) as { name?: string };
+    const business = (customer.businesses ?? {}) as {
+      name?: string;
+      business_branding?: Brand | Brand[] | null;
+    };
 
     if (action === "get") {
+      // THE COLOUR GOES OUT WITH THE NAME, and the page paints itself in it.
+      // ANDREW'S RULE, 2026-09-12: the accent follows WHOSE RELATIONSHIP IS
+      // ENDING. A customer leaving a detailer's list is ending something with
+      // that detailer, and the page belongs to them, so it wears their colour.
+      // A detailer unsubscribing from something of OURS would get platform
+      // green — there is no such page today, and ROADMAP.md carries the rule
+      // rather than this file carrying a branch with one live arm.
+      //
+      // A leaked link still discloses no more than the email it arrived in,
+      // which already carried this business's colour: `_shared/email.ts` reads
+      // the same row to paint every message it sends.
+      const brand = Array.isArray(business.business_branding)
+        ? business.business_branding[0]
+        : business.business_branding;
       return json({
         business_name: business.name ?? "this business",
         first_name: String(customer.name || "").trim().split(" ")[0] || null,
         unsubscribed: !!customer.unsubscribed_at,
+        // null means "no colour chosen", and the page falls back to the house
+        // accent. It must NOT be corrected here: `lib/theme.js` is the one
+        // place a brand hex becomes a legible triple, and a second copy of
+        // that arithmetic in Deno is the two-numbers failure this repo keeps
+        // writing down.
+        primary_color: brand?.primary_color ?? null,
       });
     }
 

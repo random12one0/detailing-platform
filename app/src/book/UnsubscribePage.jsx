@@ -18,10 +18,28 @@
 // `/booking/:id` started and `/plan/:memberId` continued. No account, no
 // token, nothing to expire.
 //
-// IT IS IN THE PLATFORM'S COLOURS, NOT THE DETAILER'S, and deliberately: this
-// page is the customer stepping away from that business, and dressing it in
-// their branding to do it would be the one moment in the product where the
-// tenant's colour is used to make something harder.
+// ~~IT IS IN THE PLATFORM'S COLOURS, NOT THE DETAILER'S~~ — REVERSED BY ANDREW,
+// 2026-09-12, and the reversal is the load-bearing part. The old reasoning is
+// kept below because it is the argument somebody will make again.
+//
+// **THE ACCENT FOLLOWS WHOSE RELATIONSHIP IS ENDING.** A customer unsubscribing
+// from a detailer's emails is ending something with THAT DETAILER, and the page
+// belongs to them, so it wears their colour — the same colour the email that
+// brought the customer here was painted in. A detailer unsubscribing from
+// something of OURS gets platform green. There is no such page today, so only
+// the customer arm is built; ROADMAP.md carries the other as the rule to
+// follow rather than this file carrying a branch with one dead half.
+//
+// The colour is run through `brandVarsFor`, which is the same legibility
+// correction the booking page uses — a detailer can pick something too faint to
+// read on this ground, and the "Your color" screen already promises it will be
+// adjusted just enough to stay legible. Correcting it in a second place, or not
+// at all, is how that promise stops being true on one page.
+//
+// The argument it replaces, kept so it is not re-made: *this page is the
+// customer stepping away from that business, and dressing it in their branding
+// to do it would be the one moment in the product where the tenant's colour is
+// used to make something harder.*
 
 import { t } from "../lib/i18n.js";
 import { useLocale } from "../hooks/useLocale.js";
@@ -29,13 +47,14 @@ import LanguagePicker from "./LanguagePicker.jsx";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { api } from "../lib/api.js";
+import { brandVarsFor } from "../lib/theme.js";
 import "./booking.css";
 
 export default function UnsubscribePage() {
   useLocale();
   const { customerId } = useParams();
   // "loading" | "ready" | "done" | "not_found"
-  const [state, setState] = useState({ status: "loading", name: "", first: null });
+  const [state, setState] = useState({ status: "loading", name: "", first: null, color: null });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   // "No, keep them" changes nothing on the server on purpose — there is
@@ -52,10 +71,17 @@ export default function UnsubscribePage() {
         status: r.unsubscribed ? "done" : "ready",
         name: r.business_name,
         first: r.first_name,
+        color: r.primary_color || null,
       }))
-      .catch(() => live && setState({ status: "not_found", name: "", first: null }));
+      .catch(() => live && setState({ status: "not_found", name: "", first: null, color: null }));
     return () => { live = false; };
   }, [customerId]);
+
+  // Null until the lookup answers, and null for a detailer who never picked a
+  // colour — brandVarsFor falls back to the house accent, which is byte for
+  // byte what booking.css already declares, so the loading and expired screens
+  // do not change at all.
+  const brandVars = brandVarsFor(state.color);
 
   const stop = async () => {
     setBusy(true);
@@ -70,12 +96,12 @@ export default function UnsubscribePage() {
   };
 
   if (state.status === "loading") {
-    return <div className="bk"><div className="bk-center"><div className="bk-spinner" /></div></div>;
+    return <div className="bk" style={brandVars}><div className="bk-center"><div className="bk-spinner" /></div></div>;
   }
 
   if (state.status === "not_found") {
     return (
-      <div className="bk">
+      <div className="bk" style={brandVars}>
         <div className="bk-center">
           <h1>{t("This link has expired")}</h1>
           <p className="bk-muted">
@@ -88,7 +114,7 @@ export default function UnsubscribePage() {
 
   if (state.status === "done") {
     return (
-      <div className="bk">
+      <div className="bk" style={brandVars}>
         <div className="bk-center">
           <h1>{t("Done")}</h1>
           {/* THE ONE THING SOMEBODY WOULD OTHERWISE GET WRONG. An opt-out here
@@ -106,7 +132,7 @@ export default function UnsubscribePage() {
   }
 
   return (
-    <div className="bk">
+    <div className="bk" style={brandVars}>
       {/* **THE BUSINESS'S NAME AT THE TOP — an outside review, 2026-09-11.**
           Every other customer-facing page in this product says whose it is;
           this one was bare, and the browser tab read "Detailing Platform", a
