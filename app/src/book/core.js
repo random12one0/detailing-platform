@@ -827,9 +827,37 @@ export function recallCustomer(slug, storage) {
 }
 
 // Call this only once the booking has ACTUALLY landed — a device that
-// remembers an abandoned form is remembering somebody who left. Pass the plan
-// id the SERVER resolved (`quote.plan_id`), never the one the page asked with,
-// so a retired plan is not carried forward.
+// remembers an abandoned form is remembering somebody who left.
+//
+// **THE PLAN IS NOT REMEMBERED, AND IT USED TO BE — found by a review of the
+// live product, 2026-09-11, and it was the worst thing in that report.**
+//
+// This wrote `planId` into `bk.customer`, and `BookingPage.jsx` read it back
+// as `params.get("plan") || known?.planId`. So pressing **Choose this** on the
+// public plans page once put a plan id in the browser's own storage, and from
+// then on EVERY booking from that browser was priced at the plan rate — on a
+// clean `/book/:slug` with no plan in the address at all. Proved by deleting
+// that one key and watching a $65 service go back to $65.
+//
+// Nobody had to mean any harm. A customer who opens a plan out of curiosity,
+// backs out, and books an ordinary wash a month later is silently discounted
+// for as long as that browser lasts.
+//
+// **THE SERVER WAS NOT FOOLED, and that is worth writing down so nobody
+// "fixes" it twice.** `create-booking` sets `planSignup` when no active
+// `plan_members` row exists and forces the booking to `pending` whatever the
+// business's booking mode is, so it lands on the request rail for the detailer
+// to accept. The money was never taken behind their back. What was wrong is
+// upstream of that: the customer was shown, and the detailer was asked to
+// approve, a price keyed off a value in somebody's browser.
+//
+// A PLAN NOW APPLIES TO THE BOOKING IT WAS CHOSEN FOR AND NO OTHER. The
+// entitlement belongs on the server — an active `plan_members` row — and the
+// page already has the right door for a real member: *"ALREADY ON A PLAN?
+// We'll email your plan link rather than showing it here."*
+//
+// The other three fields stay. A name, an email and a phone number are this
+// person's own details typed into this form; a plan id is a price.
 export function rememberCustomer(slug, form, planId, storage) {
   try {
     const store = storage ?? globalThis.localStorage;
@@ -838,7 +866,6 @@ export function rememberCustomer(slug, form, planId, storage) {
       name: form.customerName.trim(),
       email: form.customerEmail.trim(),
       phone: form.customerPhone.trim(),
-      planId: planId || null,
     }));
   } catch { /* a device that will not remember is not an error */ }
 }

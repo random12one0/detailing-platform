@@ -101,10 +101,20 @@ function BookingFlow({ notFound = null }) {
   // value is what makes a booking two days after the scan still count.
   const [visitor] = useState(() => visitorIdFor());
   const [campaignSlug] = useState(() => campaignFor(globalThis.location?.search));
-  // The plan this booking is against, if any. The URL wins — that is somebody
-  // who just pressed a plan button, or came in from their own plan link — and
-  // the remembered device is the fallback that needs no typing.
-  const planId = params.get("plan") || known?.planId || "";
+  // The plan this booking is against, if any. **THE ADDRESS IS THE ONLY
+  // SOURCE, and the remembered device is no longer a fallback — 2026-09-11.**
+  //
+  // This read `params.get("plan") || known?.planId`, and `rememberCustomer`
+  // wrote that id into `bk.customer` after every booking. One press of
+  // **Choose this** on the public plans page therefore priced every later
+  // booking from that browser at the plan rate, on a clean URL with no plan in
+  // it. `core.js`'s `rememberCustomer` carries the full account; the short
+  // version is that a price must never come out of the customer's own storage.
+  //
+  // A real member is not affected: they arrive on their emailed plan link,
+  // which carries the plan in the address, and the server checks their
+  // membership either way.
+  const planId = params.get("plan") || "";
 
   const [step, setStep] = useState(0);
   // The shape AND the three tenant defaults are the core's. Pre-filled from
