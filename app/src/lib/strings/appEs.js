@@ -2250,4 +2250,300 @@ export const appEs = {
   "Things that hold a launch up": "Cosas que retrasan un lanzamiento",
   "Growth": "Crecimiento",
   "Where the work comes from": "De dónde viene el trabajo",
+
+  // ── The website brief's questions and options (`lib/siteIntake.js`) ───
+  // Every one of these is rendered as `t(q.question)` or `t(o)` — `t()` with a
+  // VARIABLE — so none of them was ever counted until `i18n-coverage.mjs`
+  // learned to walk the data tables. The example businesses' own NAMES are
+  // deliberately absent: they are somebody's name, not our copy.
+  "The name as it should appear on the site, punctuation and all":
+    "El nombre tal como debe aparecer en el sitio, con puntuación y todo",
+  "For the About page: how you started, and how long you have been at it":
+    "Para la página Acerca de: cómo empezaste y cuánto tiempo llevas en esto",
+  "Your face and name on the site?": "¿Tu cara y tu nombre en el sitio?",
+  "Face and name": "Cara y nombre",
+  "Name only": "Solo el nombre",
+  "Neither": "Ninguno",
+  "What should the site say makes you different from the detailer three towns over?":
+    "¿Qué debe decir el sitio que te hace diferente del detallador de tres pueblos más allá?",
+  "Which towns should the site say you cover?": "¿Qué ciudades debe decir el sitio que cubres?",
+  "What should someone be able to do on the first screen?":
+    "¿Qué debe poder hacer alguien en la primera pantalla?",
+  "Book": "Reservar",
+  "Ring you": "Llamarte",
+  "Get a quote": "Pedir una cotización",
+  "See prices": "Ver precios",
+  "See your work": "Ver tu trabajo",
+  "Can the site say you are insured?": "¿Puede el sitio decir que tienes seguro?",
+  "Yes": "Sí",
+  "In progress": "En trámite",
+  "What guarantee should the site make?": "¿Qué garantía debe dar el sitio?",
+  "If you're not happy with any part of it, we come back and redo it free.":
+    "Si no quedas contento con alguna parte, volvemos y lo hacemos de nuevo gratis.",
+  "Every job is checked before we leave. Anything missed, we're back within 7 days.":
+    "Revisamos cada trabajo antes de irnos. Si se nos pasa algo, volvemos en 7 días.",
+  "Coatings carry a written warranty. Everything else is covered by our redo promise.":
+    "Los recubrimientos llevan garantía por escrito. Todo lo demás queda cubierto por nuestra promesa de repetirlo.",
+  "Anything the site must never say?": "¿Algo que el sitio nunca debe decir?",
+  "Photos of your work, for the site": "Fotos de tu trabajo, para el sitio",
+  "Should prices be on the site?": "¿Los precios deben estar en el sitio?",
+  "Yes, all of them": "Sí, todos",
+  "A “from” price": "Un precio «desde»",
+  "No, quote on request": "No, cotización a pedido",
+  "Should the site read serious and premium, or friendly and local?":
+    "¿El sitio debe sonar serio y premium, o cercano y local?",
+  "Serious and premium": "Serio y premium",
+  "Friendly and local": "Cercano y local",
+  "Somewhere between": "Algo intermedio",
+  "Colors for the site": "Colores para el sitio",
+  "Any wording the site has to use word for word?":
+    "¿Hay texto que el sitio deba usar palabra por palabra?",
+  "Does the site need an address people can drive to?":
+    "¿El sitio necesita una dirección a la que la gente pueda llegar en carro?",
+  "No, I go to them": "No, yo voy a ellos",
+  "What should the site tell people to have ready?":
+    "¿Qué debe pedir el sitio que la gente tenga listo?",
+  "Outdoor faucet": "Llave de agua afuera",
+  "Power socket": "Toma de corriente",
+  "A driveway": "Una entrada de carros",
+  "Shade": "Sombra",
+  "A parking space": "Un espacio de estacionamiento",
+  "Nothing, I carry it all": "Nada, yo lo llevo todo",
+  "What should the site say about travel charges?":
+    "¿Qué debe decir el sitio sobre los cargos por traslado?",
+  "What should the site rule out?": "¿Qué debe descartar el sitio?",
+  "Apartment or condo lots": "Estacionamientos de apartamentos o condominios",
+  "Public streets": "Calles públicas",
+  "Parking garages": "Estacionamientos techados",
+  "None of these are a problem": "Ninguno de estos es problema",
+  "Any local rules the site should mention?": "¿Alguna regla local que el sitio deba mencionar?",
+  "How soon should the site suggest you can come out?":
+    "¿Qué tan pronto debe sugerir el sitio que puedes ir?",
+  "Same day": "El mismo día",
+  "A few days": "En unos días",
+  "A week or two": "En una o dos semanas",
+  "A month or more": "Un mes o más",
+  "It swings": "Varía mucho",
+  "Should the site have a section for businesses: dealerships, fleets, offices?":
+    "¿El sitio debe tener una sección para empresas: concesionarios, flotas, oficinas?",
+  "No": "No",
+  "I'd like to": "Me gustaría",
+  "Which job should the site push hardest?": "¿Qué trabajo debe promover más el sitio?",
+  "Which job should the site quietly steer people away from?":
+    "¿De qué trabajo debe alejar el sitio a la gente, sin decirlo de frente?",
+  "Which of these should the site give its own section?":
+    "¿A cuál de estos debe darle el sitio su propia sección?",
+  "Ceramic coating": "Recubrimiento cerámico",
+  "Paint correction": "Corrección de pintura",
+  "None of these": "Ninguno de estos",
+  "Anything unusual the site should list?": "¿Algo fuera de lo común que el sitio deba listar?",
+  "Boats": "Botes",
+  "Motorcycles": "Motocicletas",
+  "RVs": "Casas rodantes",
+  "Engine bays": "Compartimentos del motor",
+  "Headlight restoration": "Restauración de faros",
+  "Pet hair": "Pelo de mascota",
+  "Smoke odor": "Olor a humo",
+  "Should the site offer a quote as well as a price?":
+    "¿El sitio debe ofrecer una cotización además de un precio?",
+  "Should the site name the products you use?": "¿El sitio debe nombrar los productos que usas?",
+  "How loud should your monthly plans be?": "¿Qué tanto deben destacar tus planes mensuales?",
+  "Front and center": "Bien al frente",
+  "Mentioned": "Mencionados",
+  "Quiet": "Discretos",
+  "I don't offer them": "No los ofrezco",
+  "So the site does not over-promise: full-time, or alongside another job?":
+    "Para que el sitio no prometa de más: ¿tiempo completo, o junto a otro trabajo?",
+  "Full-time": "Tiempo completo",
+  "Part-time": "Medio tiempo",
+  "Will the photos on the site be yours?": "¿Las fotos del sitio serán tuyas?",
+  "All mine": "Todas mías",
+  "Mostly mine": "Casi todas mías",
+  "Some are stock": "Algunas son de banco de imágenes",
+  "A wrapped van or signed truck the site could show?":
+    "¿Una camioneta rotulada o un camión con tu logo que el sitio pueda mostrar?",
+  "Links to where people already review you": "Enlaces a donde la gente ya te reseña",
+  "Any reviews you want quoted word for word?":
+    "¿Alguna reseña que quieras citar palabra por palabra?",
+  "How should the site credit a review?": "¿Cómo debe acreditar el sitio una reseña?",
+  "First name and initial": "Nombre y inicial del apellido",
+  "First name only": "Solo el nombre",
+  "Anonymous": "Anónimo",
+  "Don't use them": "No las uses",
+  "Certifications the site should show?": "¿Certificaciones que el sitio deba mostrar?",
+  "Video for the site?": "¿Video para el sitio?",
+  "Yes, plenty": "Sí, bastante",
+  "A bit": "Un poco",
+  "Any press or local mentions the site should carry?":
+    "¿Alguna nota de prensa o mención local que el sitio deba incluir?",
+  "What should the site say happens if something gets damaged?":
+    "¿Qué debe decir el sitio que pasa si algo se daña?",
+  "We're fully insured. Anything we damage, we put right at our cost.":
+    "Tenemos seguro completo. Lo que dañemos, lo arreglamos por nuestra cuenta.",
+  "Tell us straight away and we'll sort it: repair, replace or refund.":
+    "Avísanos de inmediato y lo resolvemos: reparación, reemplazo o reembolso.",
+  "What should the site promise if someone is not happy?":
+    "¿Qué debe prometer el sitio si alguien no queda contento?",
+  "I redo it": "Lo hago de nuevo",
+  "Partial refund": "Reembolso parcial",
+  "Full refund": "Reembolso completo",
+  "Case by case": "Caso por caso",
+  "What should the site say about rain?": "¿Qué debe decir el sitio sobre la lluvia?",
+  "We work through light rain. Heavy rain and we move you to the next dry slot, free.":
+    "Trabajamos con lluvia ligera. Si llueve fuerte, te pasamos al siguiente horario seco, sin costo.",
+  "We'll ring the morning of if the weather looks bad and rebook you at no charge.":
+    "Te llamamos esa mañana si el clima se ve mal y te reprogramamos sin cargo.",
+  "Interior work goes ahead whatever the weather. Exterior we reschedule.":
+    "El trabajo de interiores sigue con cualquier clima. El de exteriores lo reprogramamos.",
+  "What should the site say if a car is much worse than described?":
+    "¿Qué debe decir el sitio si un carro está mucho peor de lo descrito?",
+  "If it needs more work than described we'll show you before we start and agree a price.":
+    "Si necesita más trabajo del descrito, te lo mostramos antes de empezar y acordamos un precio.",
+  "We'll ring you with a revised quote before touching it.":
+    "Te llamamos con una cotización ajustada antes de tocarlo.",
+  "Heavy pet hair, smoke or sand adds time. We tell you on arrival, never after.":
+    "Mucho pelo de mascota, humo o arena toma más tiempo. Te avisamos al llegar, nunca después.",
+  "Which of these should the site say you will work on?":
+    "¿Sobre cuáles de estos debe decir el sitio que trabajas?",
+  "Brand-new": "Nuevos de agencia",
+  "Leases": "Carros arrendados",
+  "Wraps": "Vinilos",
+  "Matte paint": "Pintura mate",
+  "Minimum charge, if the site should show one": "Cargo mínimo, si el sitio debe mostrar uno",
+  "A license or permit number the site has to display?":
+    "¿Un número de licencia o permiso que el sitio deba mostrar?",
+  "What should the site say your cancellation policy is?":
+    "¿Qué debe decir el sitio que es tu política de cancelación?",
+  "Cancel more than 24 hours ahead and there's no charge.":
+    "Si cancelas con más de 24 horas de anticipación, no hay cargo.",
+  "48 hours' notice please. Less than that and the deposit is kept.":
+    "Avisa con 48 horas de anticipación. Con menos, se retiene el depósito.",
+  "Just let us know as early as you can and we'll move you.":
+    "Solo avísanos lo antes que puedas y te cambiamos la cita.",
+  "And what it says about a no-show": "Y qué dice sobre no presentarse",
+  "A no-show is charged in full.": "Si no te presentas, se cobra completo.",
+  "We wait 15 minutes, then it counts as a cancellation.":
+    "Esperamos 15 minutos y después cuenta como cancelación.",
+  "First one's free. After that we ask for a deposit.":
+    "La primera vez no se cobra. Después pedimos un depósito.",
+  "Which ways to pay should the site list?": "¿Qué formas de pago debe listar el sitio?",
+  "Venmo": "Venmo",
+  "Zelle": "Zelle",
+  "Cash App": "Cash App",
+  "PayPal": "PayPal",
+  "Which discounts should the site advertise?": "¿Qué descuentos debe anunciar el sitio?",
+  "Military": "Militares",
+  "First responder": "Personal de emergencias",
+  "Senior": "Adultos mayores",
+  "Student": "Estudiantes",
+  "Repeat customer": "Clientes que repiten",
+  "Should the site sell gift cards?": "¿El sitio debe vender tarjetas de regalo?",
+  "At Christmas": "En Navidad",
+  "Which number should the site use?": "¿Qué número debe usar el sitio?",
+  "Where on the page should the number go?": "¿En qué parte de la página debe ir el número?",
+  "Should the site invite text messages?": "¿El sitio debe invitar a mandar mensajes de texto?",
+  "Only after booking": "Solo después de reservar",
+  "What should the site promise about how fast you reply?":
+    "¿Qué debe prometer el sitio sobre qué tan rápido respondes?",
+  "Within the hour": "Dentro de la hora",
+  "Within a day": "Dentro del día",
+  "When I can": "Cuando pueda",
+  "Should the site show your email?": "¿El sitio debe mostrar tu correo?",
+  "Should the site have a contact form as well as booking?":
+    "¿El sitio debe tener un formulario de contacto además de la reserva?",
+  "Which socials should the site link, and which should it leave off?":
+    "¿Qué redes debe enlazar el sitio y cuáles debe dejar fuera?",
+  "Should the site be in Spanish too?": "¿El sitio también debe estar en español?",
+  "Whole site": "Todo el sitio",
+  "Booking part only": "Solo la parte de reservas",
+  "Do you own a web address for it? Which registrar, and have you got the login?":
+    "¿Ya tienes una dirección web? ¿Con qué proveedor, y tienes el acceso?",
+  "If not, what should the address be?": "Si no, ¿cuál debería ser la dirección?",
+  "Is there a site now? What is wrong with it, and who controls it?":
+    "¿Hay un sitio ahora? ¿Qué tiene de malo y quién lo controla?",
+  "Have you got a logo for it?": "¿Tienes un logo para el sitio?",
+  "A vector file (.ai .svg .eps)": "Un archivo vectorial (.ai .svg .eps)",
+  "A PNG or JPG": "Un PNG o JPG",
+  "A photo of one": "Una foto de uno",
+  "No logo": "Sin logo",
+  "Is there a business email on that address?": "¿Hay un correo de la empresa en esa dirección?",
+  "Don't know": "No sé",
+  "Is your Google Business Profile claimed and verified?":
+    "¿Tu Perfil de Empresa de Google está reclamado y verificado?",
+  "Anything already written the site could use? Flyer text, an Instagram bio.":
+    "¿Algo ya escrito que el sitio pueda usar? Texto de un volante, una biografía de Instagram.",
+  "Anyone else who has to approve the site?": "¿Alguien más tiene que aprobar el sitio?",
+  "Where do people find you today?": "¿Dónde te encuentra la gente hoy?",
+  "Word of mouth": "De boca en boca",
+  "Instagram": "Instagram",
+  "Google": "Google",
+  "Facebook": "Facebook",
+  "A sign on the van": "Un rótulo en la camioneta",
+  "Ads": "Anuncios",
+  "What should the site bring you more of?": "¿De qué debe traerte más el sitio?",
+  "Any season the site should push?": "¿Alguna temporada que el sitio deba promover?",
+  "Will you send ads to the site?": "¿Vas a mandar anuncios al sitio?",
+  "I've tried": "Lo he intentado",
+  "Should the site ask people to sign up for offers and reminders?":
+    "¿El sitio debe pedirle a la gente que se suscriba para recibir ofertas y recordatorios?",
+  "Maybe later": "Quizá después",
+  "Must have on the site": "Indispensable en el sitio",
+  "Must not have": "Que no debe tener",
+  "Anything about your business the site should say that we did not ask?":
+    "¿Algo de tu negocio que el sitio deba decir y que no te preguntamos?",
+  "Anything on this form you weren't sure how to answer?":
+    "¿Algo de este formulario que no supiste cómo responder?",
+  "Too busy": "Muy cargado",
+  "Too plain": "Muy simple",
+  "Too dark": "Muy oscuro",
+  "Too much movement": "Demasiado movimiento",
+  "Not enough movement": "Poco movimiento",
+  "Hard to read": "Difícil de leer",
+  "Too much text": "Demasiado texto",
+  "Couldn't find the price": "No encontré el precio",
+  "Not my kind of business": "No es el estilo de mi negocio",
+  "Movement, or still?": "¿Con movimiento o quieto?",
+  "Moves as you scroll": "Se mueve al desplazar",
+  "Sits still": "Se queda quieto",
+  "Photos big, or facts big?": "¿Fotos grandes o datos grandes?",
+  "The car fills the screen": "El carro llena la pantalla",
+  "Words and numbers lead": "Mandan las palabras y los números",
+  "Dark, or light?": "¿Oscuro o claro?",
+  "Dark": "Oscuro",
+  "Light": "Claro",
+  "A big photo up top. Three pages.": "Una foto grande arriba. Tres páginas.",
+  "Dark, with the work drawn out step by step.": "Oscuro, con el trabajo explicado paso a paso.",
+  "The whole price list on the page. Three colors to pick from.":
+    "Toda la lista de precios en la página. Tres colores para elegir.",
+  "Light and papery. A real before-and-after slider.":
+    "Claro y con textura de papel. Un control real de antes y después.",
+  "One huge photo and one loud red.": "Una foto enorme y un rojo fuerte.",
+  "The whole look": "El aspecto general",
+  "The colors": "Los colores",
+  "The photos": "Las fotos",
+  "The layout": "La distribución",
+  "The wording": "El texto",
+  "How it moves": "Cómo se mueve",
+  "Easy to read": "Fácil de leer",
+  "Looks expensive": "Se ve caro",
+  "Feels local": "Se siente local",
+  "Straight to the point": "Directo al grano",
+  "Site 1": "Sitio 1",
+  "Site 2": "Sitio 2",
+  "Site 3": "Sitio 3",
+  "Site 4": "Sitio 4",
+  "Site 5": "Sitio 5",
+  "Paste anything, detailing or not. Say what you like or hate about each one.":
+    "Pega lo que sea, de detallado o no. Di qué te gusta o qué odias de cada uno.",
+  "Leave one blank and the site says nothing about it.":
+    "Deja uno en blanco y el sitio no dice nada al respecto.",
+  "These go on the site as your policy. One site in fifty-two has a rain policy. It is free to be the one that does.":
+    "Esto va en el sitio como tu política. Un sitio de cada cincuenta y dos tiene política de lluvia. No cuesta nada ser ese.",
+  "Who are you?": "¿Quién eres?",
+  "What people say about you": "Lo que dice la gente de ti",
+  "Questions customers ask": "Preguntas que hacen los clientes",
+  "Getting paid": "Cobrar",
+  "Plans": "Planes",
+  "Messages you send": "Mensajes que envías",
+  "Messages": "Mensajes",
 };

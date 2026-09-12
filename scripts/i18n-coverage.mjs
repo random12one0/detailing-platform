@@ -64,7 +64,21 @@ const isProse = (v) => typeof v === "string" && v.length > 1
   && /[A-Za-z]{2}/.test(v)
   && !/^[a-z][a-z0-9_.:-]*$/.test(v)
   && !/^#[0-9a-f]{3,8}$/i.test(v)
-  && !/^[A-Z][A-Z0-9_]*$/.test(v);          // SCREAMING_CASE is a constant
+  && !/^[A-Z][A-Z0-9_]*$/.test(v)           // SCREAMING_CASE is a constant
+  && !/^\//.test(v)                         // a route, not a sentence: "/ex1"
+  && !/^\{\{[a-z_]+\}\}$/i.test(v)          // a template placeholder, NEVER translated
+  && !NOT_OURS.has(v);
+
+// **WHOSE WORDS ARE THEY — CLAUDE.md's fourth axis, and the one thing no
+// pattern can decide.** `EXAMPLES` in `lib/siteIntake.js` is a positional array
+// of `[path, businessName, blurb, kind]`, so there is no key to filter on: the
+// blurb IS ours and gets translated, and the name beside it is a real business
+// and must not be. Listing the five is honest about that; inventing a
+// proper-noun detector would be the clever answer that gets one wrong.
+const NOT_OURS = new Set([
+  "Prime Mobile Detailing", "Delgado Mobile Detailing", "Ballantyne Mobile Detailing",
+  "Kinzie Mobile Detailing", "Tampa Bay Auto Detail",
+]);
 
 function proseIn(node, out, depth = 0) {
   if (depth > 6 || node == null) return out;
@@ -109,12 +123,18 @@ export async function coverage() {
   // where to go. A module that will not import is REPORTED rather than
   // skipped: a skipped check reads exactly like a passing one.
   let dataValues = 0;
+  const unscannable = [];
   for (const f of DATA_FILES) {
     let mod;
     try { mod = await import(pathToFileURL(resolve(f)).href); }
     catch (e) {
-      const note = `[could not import ${f}: ${e.message}]`;
-      missing.set(note, new Set([f]));
+      // REPORTED, NEVER SILENTLY DROPPED — a skipped check reads exactly like a
+      // passing one. It is counted separately from `missing` so a file this
+      // process cannot open does not masquerade as an untranslated string, and
+      // the caller prints the line either way. `lib/push.js` is the live case:
+      // it reads `import.meta.env` at module load, which Node has no value for,
+      // so its prose is genuinely uncovered and saying so is the whole point.
+      unscannable.push(`${f} — ${e.message}`);
       continue;
     }
     for (const v of proseIn(mod, new Set())) {
@@ -127,11 +147,11 @@ export async function coverage() {
     }
   }
 
-  return { calls, distinct: seen.size, missing, dataValues };
+  return { calls, distinct: seen.size, missing, dataValues, unscannable };
 }
 
 if (process.argv[1] && process.argv[1].endsWith("i18n-coverage.mjs")) {
-  const { calls, distinct, missing, dataValues } = await coverage();
+  const { calls, distinct, missing, dataValues, unscannable } = await coverage();
   // **FLOOR, NOT ROUND.** With one string missing out of 1,045 this printed
   // `100%` beside `missing an appEs entry: 1`, which is the one number on the
   // screen a reader would act on. Measured 2026-09-12 while baselining the
@@ -143,6 +163,8 @@ if (process.argv[1] && process.argv[1].endsWith("i18n-coverage.mjs")) {
   console.log(`distinct strings:              ${distinct}`);
   console.log(`missing an appEs entry:        ${missing.size}`);
   console.log(`coverage:                      ${pct}%`);
+  // LOUD, because a file nobody can scan is a hole and not a pass.
+  for (const u of unscannable) console.log(`NOT SCANNED (its prose is uncovered): ${u}`);
 
   const byFile = new Map();
   for (const [, fs] of missing) for (const f of fs) byFile.set(f, (byFile.get(f) ?? 0) + 1);

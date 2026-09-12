@@ -648,13 +648,35 @@ if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
   // coverage number was 100%. The number was measuring `t("literal")` call
   // sites, and `SiteIntake.jsx` renders `t(q.question)`.
   //
-  // **SO THIS IS DEBT RECORDED, NOT A PASS.** The ceiling exists to stop the
-  // count going UP while everything reports green, which is exactly how it
-  // reached 141 the first time. It may only ever fall. Whether the website
-  // brief's 238 questions get translated is a decision about that feature and
-  // not something this check should force; what it must never do again is
-  // report zero over strings it cannot see.
-  const CEILING = 257;
+  // **AND IT WENT BACK TO ZERO THE SAME DAY — 257 → 235 → 0 — BUT IT IS NOT
+  // THE SAME ZERO.** The three steps are worth keeping apart, because two of
+  // them are honest and one of them would not have been:
+  //
+  //   257 → 235   the new pass's FALSE POSITIVES removed. Routes ("/ex1"),
+  //               `{{placeholder}}` tokens, and the five example businesses'
+  //               own names, which are somebody's name and not our copy.
+  //               Narrowing an instrument is only honest when what it stops
+  //               counting was never the thing; each exclusion is one line in
+  //               `i18n-coverage.mjs` with the reason beside it.
+  //   235 → 0     the strings were TRANSLATED. 228 of them the website brief's
+  //               questions and options.
+  //
+  // **THE DIFFERENCE FROM THIS MORNING'S ZERO IS THE ONLY THING THAT MATTERS
+  // HERE.** That one was measured over `t("literal")` call sites alone and was
+  // true of the instrument while a screen rendered English between two Spanish
+  // sentences. This one is measured over those call sites AND 360 prose values
+  // in the data tables the product renders with `t(variable)`.
+  //
+  // It stays a ratchet rather than an equality check: the two read the same at
+  // zero and only one of them keeps telling the truth when somebody adds a
+  // screen faster than its Spanish.
+  //
+  // **TWO FILES ARE STILL UNCOVERED AND THE SCRIPT SAYS SO ON EVERY RUN.**
+  // `lib/push.js` and `lib/password.js` read `import.meta.env` at module load,
+  // which Node has no value for, so they cannot be imported and walked. They
+  // are printed as NOT SCANNED rather than skipped, because a skipped check
+  // reads exactly like a passing one — this file's oldest lesson.
+  const CEILING = 0;
   check(`9a · dashboard strings with no Spanish entry (${missing.size} of ${distinct})`,
     missing.size <= CEILING,
     [...missing.keys()].slice(0, 8).map((k) => JSON.stringify(k)).join("\n        "));
