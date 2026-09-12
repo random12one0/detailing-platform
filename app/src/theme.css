@@ -2771,9 +2771,31 @@ body:has(.sheet-backdrop:not(.leaving)) .tabbar {
 .setting.stacked .setting-control { display: block; }
 
 /* Switch — the whole row is the target. */
+/* **A CHECKBOX ROW IS THE TAP TARGET, AND ITS HEIGHT WAS WHATEVER ITS TEXT
+   MADE — 2026-09-12.** The 22px box is not the target; the label around it is,
+   and a row with a help line under it cleared 44 while the same row without one
+   came out at 28. Measured on Promo codes ("Sale is running" 714x64 passes,
+   "One use per customer" 678x28 fails), on setup step 9, and on booking step 4
+   before that.
+   **SIZED ON THE SHAPE, NOT ON THE ROWS THAT FAILED** — the next question added
+   anywhere in the dashboard will have no help line either. `:has()` is already
+   this stylesheet's idiom (`.app-shell:has(.impbar)`, `.split.clients:not(:has
+   (> .col-2))`).
+   NO `align-items` HERE: the billing consent row top-aligns its box against a
+   three-line sentence on purpose, and centring it would move that. */
+label.row:has(> input[type="checkbox"]) { min-height: 44px; }
 .switch-row { cursor: pointer; align-items: center; }
 .switch { position: relative; width: 46px; height: 28px; flex-shrink: 0; display: block; }
-.switch input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+/* **A 46x28 TRACK IS A 28px TARGET, AND THE FLOOR IS 44 — 2026-09-12.** The
+   track cannot simply grow: `.knob` is `inset: 0`, so it IS the visual switch
+   and a taller box is a fatter switch. **The INPUT is what gets pressed**, so
+   it reaches 8px past the track top and bottom — 28 + 16 = 44 — and the switch
+   looks identical. Every bare switch in the product gains it, not the one row
+   that was measured. */
+.switch input {
+  position: absolute; opacity: 0; width: 100%; margin: 0; cursor: pointer;
+  top: -8px; height: calc(100% + 16px);
+}
 .switch .knob {
   position: absolute; inset: 0; border-radius: var(--r-pill);
   background: var(--surface-sunken); border: 1px solid var(--line-2);

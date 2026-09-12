@@ -34,6 +34,7 @@ import {
 // The one date formatter. A hand-typed sample date is how "3 September" got
 // onto the one screen whose whole job is to look like the real thing.
 import { dateLong } from "../../lib/format.js";
+import { Folded } from "../../components/controls.jsx";
 import { t } from "../../lib/appI18n.js";
 import { useAppLocale } from "../../hooks/useAppLocale.js";
 
@@ -125,16 +126,41 @@ export default function MessageTemplates() {
         </p>
       </div>
 
-      {rows.map((row) => (
-        <TemplateCard key={row.id} row={row} business={business} onSave={saveOne} />
-      ))}
+      {/* **FIVE IDENTICAL 467px CARDS WERE 2,980px AND 62 BUTTONS — on the
+          LAST screen of onboarding, where a detailer decides whether this
+          product respects their time. Measured, 2026-09-12.** Every card
+          carried the same ten-chip palette, the same "Choose a detail to add
+          it" sentence, the same "WHAT DANA GETS" heading and the same "Not
+          changed yet" status. One distinct row of content across five rows.
+
+          **THE STATUS LINE WAS ALREADY THE SUMMARY.** Each card knew whether
+          it had been touched, so a folded row has its value ready to state
+          without inventing one: *"Ask about access · Not changed yet"*.
+
+          **INDEPENDENT, NOT ONE-AT-A-TIME, AND THAT IS A DELIBERATE
+          DEPARTURE.** The review asked for one open at a time; every other
+          `Folded` in this product — Booking rules, Notifications, Business
+          info — opens independently, and exclusivity exists nowhere in it.
+          Adding it here would be a new behaviour on one screen, which is the
+          opposite of using the product's own vocabulary. All five start
+          closed, so the wall is gone either way. */}
+      {rows.map((row) => {
+        const base = DEFAULT_TEMPLATES.find((d) => d.key === row.key);
+        const untouched = base ? row.body.trim() === base.body.trim() : false;
+        return (
+          <Folded key={row.id} name={row.label}
+            now={untouched ? t("Not changed yet") : t("In your own words")}>
+            <TemplateCard row={row} business={business} onSave={saveOne} inFold />
+          </Folded>
+        );
+      })}
 
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
     </div>
   );
 }
 
-function TemplateCard({ row, business, onSave }) {
+function TemplateCard({ row, business, onSave, inFold = false }) {
   const [body, setBody] = useState(row.body);
   const [saving, setSaving] = useState(false);
   const ref = useRef(null);
@@ -212,7 +238,9 @@ function TemplateCard({ row, business, onSave }) {
       <div className="thoughts">
         <div className="row top between">
           <div>
-            <div className="strong">{row.label}</div>
+            {/* The folded row above already names it; repeating it here is the
+                duplication this screen was criticised for. */}
+            {!inFold && <div className="strong">{row.label}</div>}
             <div className="row" style={{ gap: 6, marginTop: 4 }}>
               <span className="tag">
                 <MessageSquare size={11} strokeWidth={2} style={{ marginRight: 4 }} />

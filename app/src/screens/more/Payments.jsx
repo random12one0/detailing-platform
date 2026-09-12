@@ -487,7 +487,12 @@ export default function Payments() {
                   onClick={() => { setCustom(custom.filter((_, k) => k !== n)); setMsg(null); }}>
                   {t("Remove")}
                 </button>
-                <Switch bare label={row.label} checked={on}
+                {/* **A NAMELESS SWITCH — 2026-09-12.** `bare` puts the label on
+                    `aria-label`, and a custom method the detailer has not named
+                    yet has an empty one, so a screen reader read "switch, on"
+                    and nothing else. The fallback names what the control does
+                    rather than repeating a name that is not there. */}
+                <Switch bare label={row.label || t("Show this payment method")} checked={on}
                   onChange={(v) => { setCustom(custom.map((r, k) => (k === n ? { ...r, off: !v } : r))); setMsg(null); }} />
               </div>
             </div>

@@ -1864,6 +1864,8 @@ export const appEs = {
   "No photos yet.": "Todavía no hay fotos.",
   "Choose a photo to hide it from your site.":
     "Elige una foto para ocultarla de tu sitio.",
+  "Show this payment method": "Mostrar este método de pago",
+  "In your own words": "En tus propias palabras",
   "Change it": "Cámbiala",
   // /reset's signed-in branch is the CHANGE-password form and says so now.
   "Change your password": "Cambia tu contraseña",
