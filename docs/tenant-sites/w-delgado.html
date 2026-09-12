@@ -468,6 +468,13 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
 .ft-grid{display:grid;grid-template-columns:1fr;gap:22px}
 .ft a{text-decoration:none;color:var(--fg2);transition:color var(--t-hov) var(--e-hov)}
 .ft a:hover{color:var(--fg)}
+/* THE NUMBER IS THE CONVERSION and it was a 17px-tall line of footer text set
+   the same size as "Book online" under it. It keeps its place in the column;
+   it stops being the smallest pressable thing on the page. */
+.ft-contact{display:flex;flex-direction:column;align-items:flex-start;margin:4px 0 0}
+.ft-contact a{display:inline-flex;align-items:center;min-height:44px}
+.ft-contact .num{font-size:19px;font-weight:600;color:var(--fg)}
+.ft-contact a:focus-visible{outline:3px solid var(--hot);outline-offset:3px}
 .hours{margin:8px 0 0;padding:0;list-style:none;font-size:14px;color:var(--fg2)}
 .hours li{display:flex;justify-content:space-between;max-width:250px;padding:3px 0}
 .open{color:var(--ok);font-weight:600}
@@ -1167,8 +1174,8 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
       </div>
       <div>
         <p class="m m--q">Get hold of us</p>
-        <p style="margin:8px 0 0">
-          <a href="tel:+14805550142" data-from="businesses.contact_phone">(480) 555-0142</a><br>
+        <p class="ft-contact">
+          <a class="num" href="tel:+14805550142" data-from="businesses.contact_phone">(480) 555-0142</a>
           <a href="#book">Book online</a>
         </p>
       </div>

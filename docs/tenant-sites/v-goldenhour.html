@@ -688,8 +688,13 @@ section{position:relative;z-index:1}
 .footcol p,.footcol a{margin:0 0 7px;display:block;color:var(--paper-2);
   font-size:14px;text-decoration:none}
 .footcol a:hover{color:var(--paper)}
+/* 153x24 measured 2026-09-12: the type was never the problem, the BOX was —
+   a 24px-tall target on the one control that turns a reader into a customer.
+   Nothing about how it looks changes; it gets a 44px box to be pressed in. */
 .footphone{font:800 22px/1.1 var(--display)!important;color:var(--paper)!important;
-  font-variation-settings:"wdth" 88;letter-spacing:-.02em}
+  font-variation-settings:"wdth" 88;letter-spacing:-.02em;
+  display:inline-flex!important;align-items:center;min-height:44px}
+.footphone:focus-visible{outline:3px solid var(--amber);outline-offset:3px}
 .open{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--paper-2)}
 .open i{width:7px;height:7px;border-radius:50%;background:var(--live-on-dark)}
 .wordmark{

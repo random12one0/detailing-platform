@@ -102,12 +102,46 @@ section{padding:86px 0;position:relative}
   padding:7px 11px;white-space:nowrap}
 
 /* HOURS BAR + NAV */
-.hoursbar{font-family:"Azeret Mono",monospace;font-size:10px;letter-spacing:.13em;
+/* `position:relative;z-index:1` IS LOAD-BEARING AND WAS MISSING UNTIL
+   2026-09-12. `.lacquer` is this page's ground: `position:fixed; inset:0;
+   z-index:0` with an OPAQUE `background:var(--ground)`. A positioned element
+   at z-index 0 paints above every static, non-positioned box in the flow, so
+   the whole strip — the hours, the phone number and the email — was painted
+   UNDER the ground and had never been visible on any screen. Every other block
+   on this page opts above it (`footer`, `.nav`, the sections); this one was
+   simply never given the opt-in, and nothing errored. It measured fine in the
+   DOM the whole time, which is why it survived: a geometry sweep reads a box
+   that is laid out, not a box that is SEEN. */
+.hoursbar{position:relative;z-index:1;
+  font-family:"Azeret Mono",monospace;font-size:10px;letter-spacing:.13em;
   text-transform:uppercase;color:var(--ink-3);border-bottom:var(--hair) solid var(--rule)}
-.hoursbar .wrap{display:flex;justify-content:space-between;gap:14px;
-  padding-top:9px;padding-bottom:9px;flex-wrap:wrap}
-.hoursbar a{color:var(--ink-2);text-decoration:none}
-.hoursbar a:hover{color:var(--ink)}
+.hoursbar .wrap{display:flex;justify-content:space-between;gap:4px 14px;
+  padding-top:2px;padding-bottom:2px;flex-wrap:wrap;align-items:center}
+/* THE HOURS ARE A LABEL AND THE NUMBER IS A CONTROL, and until 2026-09-12 this
+   strip set both at 10px — so the one thing on it anybody presses was the
+   smallest thing on it, in an 11px-tall target. The hours keep the eyebrow
+   size because they are read, not pressed. The two links get 13px, full ink
+   and a 40px box: it is the utility strip's own height that gives way, not the
+   target. */
+.hoursbar a{display:inline-flex;align-items:center;min-height:40px;
+  font-size:13px;letter-spacing:.04em;text-transform:none;
+  color:var(--ink);text-decoration:none}
+.hoursbar a:hover{color:var(--ink);text-decoration:underline}
+.hoursbar a:focus-visible{outline:3px solid var(--accent-text);outline-offset:2px}
+/* NO SEPARATOR GLYPH BETWEEN THESE TWO. The `&middot;` this strip uses
+   everywhere else is a text node, and once the links became 44px boxes it
+   wrapped onto a line of its own at 392 — a lone dot under a phone number.
+   An 18px gap says the same thing and cannot strand. */
+.hoursbar .contact{display:flex;align-items:center;flex-wrap:wrap;gap:0 18px}
+/* ON A PHONE THE STRIP KEEPS THE CONTROLS AND DROPS THE LABEL. Three stacked
+   rows is 105px of a 844px screen spent before the nav, and the hours are on
+   this page twice — the footer carries the full week. What is left is one 44px
+   row with the number first, which is the right first thing on a detailer's
+   page anyway. */
+@media (max-width:600px){
+  .hoursbar .wrap > span:not(.contact){display:none}
+  .hoursbar .contact{gap:0 16px}
+}
 .nav{position:sticky;top:0;z-index:40;height:var(--nav);
   background:rgba(11,11,12,.94);backdrop-filter:blur(11px);
   border-bottom:var(--hair) solid var(--rule)}
@@ -440,6 +474,13 @@ footer ul{list-style:none;margin:0;padding:0;color:var(--ink-2);font-size:14px}
 footer li{padding:3px 0}
 footer a{text-decoration:none;color:var(--ink-2);transition:color var(--t-hover)}
 footer a:hover{color:var(--ink)}
+/* the same pair as the hours bar, and for the same reason — 13px stacked on a
+   `<br>` gave a 16px-tall target to the two things a customer presses */
+.fcontact{display:flex;flex-direction:column;align-items:flex-start;
+  margin-top:8px;font-size:14px}
+.fcontact a{display:inline-flex;align-items:center;min-height:44px;color:var(--ink)}
+.fcontact a:hover{text-decoration:underline}
+.fcontact a:focus-visible{outline:3px solid var(--accent-text);outline-offset:2px}
 .legal{margin-top:36px;padding-top:22px;border-top:var(--hair) solid var(--rule);
   font-family:"Azeret Mono",monospace;font-size:10px;letter-spacing:.1em;
   text-transform:uppercase;color:var(--ink-3);display:flex;gap:18px;flex-wrap:wrap;
@@ -492,8 +533,7 @@ footer a:hover{color:var(--ink)}
 <div class="hoursbar">
   <div class="wrap">
     <span>Mon&ndash;Fri 8am&ndash;6pm &nbsp;&middot;&nbsp; Sat 8am&ndash;3pm &nbsp;&middot;&nbsp; Sun closed</span>
-    <span><a href="tel:+18134027719">(813) 402&ndash;7719</a> &nbsp;&middot;&nbsp;
-      <a href="mailto:info@tampabayautodetail.com">info@tampabayautodetail.com</a></span>
+    <span class="contact"><a href="tel:+18134027719" data-from="businesses.contact_phone">(813) 402-7719</a><a href="mailto:info@tampabayautodetail.com" data-from="businesses.contact_email">info@tampabayautodetail.com</a></span>
   </div>
 </div>
 
@@ -711,7 +751,7 @@ footer a:hover{color:var(--ink)}
     </div>
     <div class="hero-row" style="margin-top:26px">
       <a class="btn" href="#book">Get a fleet quote</a>
-      <a class="btn ghost" href="tel:+18134027719">Call (813) 402&ndash;7719</a>
+      <a class="btn ghost" href="tel:+18134027719">Call (813) 402-7719</a>
     </div>
   </div>
 </section>
@@ -1006,9 +1046,9 @@ footer a:hover{color:var(--ink)}
         <h4>Tampa Bay Auto Detail</h4>
         <p style="max-width:42ch;margin-top:0">Fully licensed and insured in the
           state of Florida for the work we do on your vehicle.</p>
-        <p class="mono" style="font-size:13px;margin-top:14px">
-          <a href="tel:+18134027719">(813) 402&ndash;7719</a><br>
-          <a href="mailto:info@tampabayautodetail.com">info@tampabayautodetail.com</a></p>
+        <p class="mono fcontact">
+          <a href="tel:+18134027719" data-from="businesses.contact_phone">(813) 402-7719</a>
+          <a href="mailto:info@tampabayautodetail.com" data-from="businesses.contact_email">info@tampabayautodetail.com</a></p>
       </div>
       <div>
         <h4>Where we go</h4>

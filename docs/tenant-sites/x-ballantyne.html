@@ -496,6 +496,14 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
   margin:0 0 10px;font-weight:600;font-family:"Instrument Sans"}
 .fcols a,.fcols span{display:block;font-size:14px;color:var(--ink-2);text-decoration:none;padding:3px 0}
 .fcols a:hover{color:var(--ink)}
+/* THE CONTACT COLUMN IS NOT A NAV COLUMN. Its two entries were carrying the
+   23px-tall rule every other footer link uses, which is right for "Ceramic
+   coating" and wrong for the number somebody is trying to press. */
+.fcols .contact a{display:inline-flex;align-items:center;min-height:44px;padding:0;
+  color:var(--ink)}
+.fcols .contact a:first-of-type{font-size:19px;font-weight:600}
+.fcols .contact a:hover{text-decoration:underline}
+.fcols .contact a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 .open{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink);
   margin-top:6px;font-weight:600}
 /* THE WORDMARK ENDS THE PAGE, IT DOES NOT SIT ON THE FINE PRINT.
@@ -873,9 +881,9 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
         <span>Sunday &middot; closed</span>
         <span class="open"><i class="dot"></i> Open now &middot; closes 18:00</span>
       </div>
-      <div><h4>Contact</h4>
-        <a href="tel:+17045550142">(704) 555-0142</a>
-        <a href="mailto:book@ballantynedetail.com">book@ballantynedetail.com</a>
+      <div class="contact"><h4>Contact</h4>
+        <a href="tel:+17045550142" data-from="businesses.contact_phone">(704) 555-0142</a>
+        <a href="mailto:book@ballantynedetail.com" data-from="businesses.contact_email">book@ballantynedetail.com</a>
         <span>Mobile only &mdash; no shop to visit</span>
       </div>
       <div><h4>Area</h4>

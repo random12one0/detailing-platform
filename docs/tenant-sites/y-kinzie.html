@@ -133,7 +133,16 @@ body{margin:0;background:var(--ground);color:var(--ink);
 
 /* A1 · the ground is never a flat fill: lattice on the slant, a warm light
    from the top left, and one grain layer. */
-.sky{position:fixed;inset:0;z-index:0;pointer-events:none;background:var(--sky)}
+/* `overflow:hidden` IS NOT DECORATION HERE. `.sky::before` carries
+   `inset:-20%`, so the grain layer is 452px wide inside a 377px box and bleeds
+   75px past the right edge — and `.sky` is `position:fixed`, whose containing
+   block is the VIEWPORT, so `body{overflow-x:clip}` below does not reach it.
+   This page's own sibling z-tampabay clips its identical ground layer; this
+   one never did. CLAUDE.md's recorded rule: a drifting layer needs
+   `overflow:hidden`, and whether anybody finds out depends on the SIGN of one
+   number. */
+.sky{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  background:var(--sky)}
 .sky:after{content:"";position:absolute;inset:0;
   background-image:radial-gradient(var(--lattice) 1.1px, transparent 1.1px);
   background-size:15px 15px;
@@ -670,6 +679,17 @@ h2 em{font-style:normal;color:var(--accent-text)}
 .foot ul{margin:0;padding:0;list-style:none;display:grid;gap:8px}
 .foot li,.foot a{font-size:14px;color:#B6BCC6;text-decoration:none}
 .foot a:hover{color:#F2F1EA}
+/* THE PHONE NUMBER IS THE CONVERSION ON A DETAILING SITE, and until 2026-09-12
+   this page had no `tel:` and no `mailto:` anywhere in it — the number was
+   plain text in this list, so there was nothing to press. Section 15's comment
+   ("the phone number still lives in the footer, where somebody looking for it
+   looks") was only true of where it SAT, not of what it DID. These two are
+   therefore the one pair of real controls in this footer: 44px tall, at 16px,
+   at full footer ink rather than the 14px grey of a nav link. */
+.footcontact a{display:inline-flex;align-items:center;min-height:44px;
+  font-size:16px;color:#F2F1EA}
+.footcontact a:hover{color:#fff;text-decoration:underline}
+.footcontact a:focus-visible{outline:3px solid #7FA5FF;outline-offset:3px}
 .footmark{overflow:hidden;margin-top:clamp(26px,4vw,44px);line-height:.8}
 .footmark span{display:block;font-family:"Bai Jamjuree";font-weight:700;
   font-size:clamp(66px,20vw,290px);letter-spacing:-.05em;white-space:nowrap;
@@ -1451,9 +1471,9 @@ h2 em{font-style:normal;color:var(--accent-text)}
     <div class="footgrid">
       <div>
         <h4>Kinzie Mobile Detailing</h4>
-        <ul>
-          <li>(312) 555 0148</li>
-          <li>book@kinziedetail.com</li>
+        <ul class="footcontact">
+          <li><a href="tel:+13125550148" data-from="businesses.contact_phone">(312) 555-0148</a></li>
+          <li><a href="mailto:book@kinziedetail.com" data-from="businesses.contact_email">book@kinziedetail.com</a></li>
           <li>Ravenswood, Chicago</li>
         </ul>
       </div>
