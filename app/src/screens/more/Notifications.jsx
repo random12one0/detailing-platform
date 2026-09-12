@@ -17,6 +17,9 @@ import { useBusiness } from "../../context/BusinessContext.jsx";
 import { DurationChoice, Group, HourChoice, Setting, Switch } from "../../components/controls.jsx";
 import { disablePush, enablePush, pushState } from "../../lib/push.js";
 import { cleanMessages, MESSAGE_KINDS, MESSAGE_MAX } from "../../lib/emailMessages.js";
+// "1 other emails" — same plural helper Business, Clients and AdvancedMoney
+// each keep a copy of.
+const n = (v, one, many) => t(v === 1 ? one : many, { count: v });
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
@@ -314,7 +317,18 @@ export default function Notifications() {
           restates a label. */}
       <Group title={t("Your own words")}
         blurb={t("Your own sentence at the bottom of one of these emails, in a panel of its own under everything we write. The customer reads it exactly as you type it — a gate code, where to park, that you will text when you are on the way. Leave one blank and that email goes out as it always did.")}>
-        {MESSAGE_KINDS.map((k) => {
+        {/* **TWELVE IDENTICAL ROWS, ELEVEN OF THEM EMPTY — 2026-09-12.**
+            Every one of these rendered the same *Add a line* button under the
+            same two lines of text, so the block was twelve repetitions of one
+            shape and a detailer had to read all of them to find the one they
+            had written. The ones with a line in them are the content; the rest
+            are a menu, and a menu belongs behind one control.
+            `.disclose` is the product's own disclosure (native `<details>`,
+            § Composition) and is already used elsewhere — nothing new here.
+            **THE SPLIT IS RE-READ ON EVERY RENDER ON PURPOSE**, so a line you
+            have just written moves up out of the drawer the moment you save
+            it, rather than sitting in "the ones you have not used". */}
+        {MESSAGE_KINDS.filter((k) => (messages[k.key] ?? "") || openKind === k.key).map((k) => {
           const body = messages[k.key] ?? "";
           const open = openKind === k.key;
           return (
@@ -363,6 +377,25 @@ export default function Notifications() {
             </Setting>
           );
         })}
+        {/* The rest: named, counted, and one press away. An empty drawer is
+            not rendered at all — a detailer who has written all twelve should
+            not meet a control that opens onto nothing. */}
+        {MESSAGE_KINDS.some((k) => !(messages[k.key] ?? "") && openKind !== k.key) && (
+          <details className="disclose">
+            <summary>
+              {n(MESSAGE_KINDS.filter((k) => !(messages[k.key] ?? "") && openKind !== k.key).length,
+                "{count} other email you can add a line to",
+                "{count} other emails you can add a line to")}
+            </summary>
+            {MESSAGE_KINDS.filter((k) => !(messages[k.key] ?? "") && openKind !== k.key).map((k) => (
+              <Setting key={k.key} label={t(k.label)} help={t(k.when)} stacked>
+                <button className="btn sm inline ghost" onClick={() => setOpenKind(k.key)}>
+                  {t("Add a line")}
+                </button>
+              </Setting>
+            ))}
+          </details>
+        )}
       </Group>
 
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}

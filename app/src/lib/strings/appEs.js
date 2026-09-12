@@ -1835,6 +1835,12 @@ export const appEs = {
   "the last 30 days or booked ahead": "los últimos 30 días o lo que viene",
   "the last 90 days or booked ahead": "los últimos 90 días o lo que viene",
   "the last year or booked ahead": "el último año o lo que viene",
+  // Wave B, 2026-09-12: the two disclosures.
+  "Social and review links": "Enlaces de redes y reseñas",
+  "{count} other email you can add a line to":
+    "{count} correo más al que puedes agregarle una línea",
+  "{count} other emails you can add a line to":
+    "{count} correos más a los que puedes agregarles una línea",
   // One filtered client is still one.
   "Text this one": "Mandar mensaje a este",
 };

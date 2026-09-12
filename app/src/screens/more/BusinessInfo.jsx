@@ -4,6 +4,8 @@
 
 import { useState } from "react";
 import { X } from "lucide-react";
+// The one phone shape, applied where a phone number is typed.
+import { phone, phoneAsTyped } from "../../lib/format.js";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { uploadBusinessPhoto } from "../../lib/upload.js";
@@ -22,7 +24,10 @@ export default function BusinessInfo() {
   const [biz, setBiz] = useState({
     name: business.name,
     contact_email: business.contact_email || "",
-    contact_phone: business.contact_phone || "",
+    // Shown in the one shape the whole product uses, not in whatever shape it
+    // happened to be typed in years ago. `phone()` returns anything it cannot
+    // parse untouched, so a number it does not recognise is not mangled.
+    contact_phone: phone(business.contact_phone || ""),
     dropoff_address: business.dropoff_address || "",
     mailing_address: business.mailing_address || "",
     service_area: business.service_area || "",
@@ -202,6 +207,14 @@ export default function BusinessInfo() {
     setBusy(false);
   };
 
+  // Whether the links section starts open. Read ONCE per mount: computing it
+  // from the live values would collapse the section the moment somebody
+  // cleared the last one while editing.
+  const [hasLinks] = useState(() => Boolean(
+    brand.social_instagram || brand.social_facebook || brand.social_tiktok
+    || brand.social_youtube || reviews.google_review_url || reviews.yelp_review_url,
+  ));
+
   return (
     <div className="card">
       <label className="field"><span>{t("Business name")}</span>
@@ -209,8 +222,8 @@ export default function BusinessInfo() {
       <div className="grid2">
         <label className="field"><span>Contact email (gets notifications)</span>
           <input value={biz.contact_email} onChange={(e) => setBiz({ ...biz, contact_email: e.target.value })} /></label>
-        <label className="field"><span>{t("Phone")}</span>
-          <input value={biz.contact_phone} onChange={(e) => setBiz({ ...biz, contact_phone: e.target.value })} /></label>
+        <label className="field w-phone"><span>{t("Phone")}</span>
+          <input value={biz.contact_phone} onChange={(e) => setBiz({ ...biz, contact_phone: phoneAsTyped(e.target.value) })} /></label>
       </div>
       <label className="field"><span>{t("Drop-off address")}</span>
         <input value={biz.dropoff_address} onChange={(e) => setBiz({ ...biz, dropoff_address: e.target.value })} /></label>
@@ -231,7 +244,7 @@ export default function BusinessInfo() {
         {/* ROADMAP 3.2(b). Four digits, and the save drops anything else
             rather than arguing with it — the column's own check constraint is
             the half that holds. */}
-        <label className="field"><span>{t("Detailing since")}</span>
+        <label className="field w-year"><span>{t("Detailing since")}</span>
           <input value={biz.established_year} inputMode="numeric" maxLength={4} placeholder="e.g. 2016"
             onChange={(e) => setBiz({ ...biz, established_year: e.target.value })} /></label>
       </div>
@@ -292,30 +305,45 @@ export default function BusinessInfo() {
         </button>
       </div>
 
-      <div className="section-title">{t("Links")}</div>
       {/* FOUR SOCIAL FIELDS, NOT ONE. The columns for Facebook, TikTok and
           YouTube have been on `business_branding` since the first tenant
           migration and no screen ever offered them (inventory row 92), so a
           detailer whose customers are all on TikTok had nowhere to say so.
-          Paired, because a phone stacks them at 320 anyway. */}
-      <div className="grid2">
-        <label className="field"><span>{"Instagram"}</span>
-          <input value={brand.social_instagram} onChange={(e) => setBrand({ ...brand, social_instagram: e.target.value })} /></label>
-        <label className="field"><span>{"Facebook"}</span>
-          <input value={brand.social_facebook} onChange={(e) => setBrand({ ...brand, social_facebook: e.target.value })} /></label>
-      </div>
-      <div className="grid2">
-        <label className="field"><span>{"TikTok"}</span>
-          <input value={brand.social_tiktok} onChange={(e) => setBrand({ ...brand, social_tiktok: e.target.value })} /></label>
-        <label className="field"><span>{"YouTube"}</span>
-          <input value={brand.social_youtube} onChange={(e) => setBrand({ ...brand, social_youtube: e.target.value })} /></label>
-      </div>
-      <div className="grid2">
-        <label className="field"><span>{t("Google review link")}</span>
-          <input value={reviews.google_review_url} onChange={(e) => setReviews({ ...reviews, google_review_url: e.target.value })} /></label>
-        <label className="field"><span>{t("Yelp review link")}</span>
-          <input value={reviews.yelp_review_url} onChange={(e) => setReviews({ ...reviews, yelp_review_url: e.target.value })} /></label>
-      </div>
+          Paired, because a phone stacks them at 320 anyway.
+
+          **SIX OPTIONAL FIELDS ARE ONE DISCLOSURE — 2026-09-12.** Every one of
+          them is optional and most detailers fill in none or one, so as six
+          open boxes they were a third of this screen's height spent on the
+          least likely answer. `.disclose` is the product's own pattern for
+          exactly this (native `<details>`/`<summary>`, no script, no ARIA to
+          get wrong) and it is already used elsewhere in the dashboard, so
+          nothing new is invented here.
+          **IT OPENS ITSELF WHEN ANY OF THEM IS FILLED IN.** A detailer who has
+          typed a link must never have to remember it is behind a control to
+          find it again — a collapsed section hiding a value the person set is
+          the same defect as a missing field. `open` is computed once at the
+          first render, so it does not snap shut while somebody is typing. */}
+      <details className="disclose" open={hasLinks}>
+        <summary>{t("Social and review links")}</summary>
+        <div className="grid2">
+          <label className="field"><span>{"Instagram"}</span>
+            <input value={brand.social_instagram} onChange={(e) => setBrand({ ...brand, social_instagram: e.target.value })} /></label>
+          <label className="field"><span>{"Facebook"}</span>
+            <input value={brand.social_facebook} onChange={(e) => setBrand({ ...brand, social_facebook: e.target.value })} /></label>
+        </div>
+        <div className="grid2">
+          <label className="field"><span>{"TikTok"}</span>
+            <input value={brand.social_tiktok} onChange={(e) => setBrand({ ...brand, social_tiktok: e.target.value })} /></label>
+          <label className="field"><span>{"YouTube"}</span>
+            <input value={brand.social_youtube} onChange={(e) => setBrand({ ...brand, social_youtube: e.target.value })} /></label>
+        </div>
+        <div className="grid2">
+          <label className="field"><span>{t("Google review link")}</span>
+            <input value={reviews.google_review_url} onChange={(e) => setReviews({ ...reviews, google_review_url: e.target.value })} /></label>
+          <label className="field"><span>{t("Yelp review link")}</span>
+            <input value={reviews.yelp_review_url} onChange={(e) => setReviews({ ...reviews, yelp_review_url: e.target.value })} /></label>
+        </div>
+      </details>
 
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
       <button className="btn primary" disabled={busy} onClick={save}>{busy ? "Saving" : "Save"}</button>

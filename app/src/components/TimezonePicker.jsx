@@ -72,11 +72,21 @@ export default function TimezonePicker({ value, onChange }) {
         onChange={(e) => setQuery(e.target.value)}
         style={{ marginBottom: 8 }}
       />
+      {/* **IT WAS AN ALWAYS-OPEN EIGHT-ROW LIST BOX — 2026-09-12.** `size={8}`
+          on a `<select>` is a permanently expanded list, so a setting almost
+          nobody touches after the first run was spending ~300px in the middle
+          of setup step 4 — the screen the review named as the wall. A timezone
+          is chosen once.
+          **IT OPENS WHEN THERE IS A SEARCH TO ANSWER AND IS A PLAIN DROP-DOWN
+          OTHERWISE.** Nothing is removed: the search still filters, and typing
+          in it expands the results underneath. Closed, it is the native
+          control with the current zone in it, which is also where the
+          keyboard's own type-ahead already worked. */}
       <select
         value={zones.includes(value) ? value : ""}
         onChange={(e) => onChange(e.target.value)}
-        size={Math.min(8, Math.max(3, matches.length))}
-        style={{ minHeight: 0, height: "auto", padding: 0 }}
+        size={query ? Math.min(8, Math.max(3, matches.length)) : undefined}
+        style={query ? { minHeight: 0, height: "auto", padding: 0 } : undefined}
       >
         {matches.map((z) => (
           <option key={z} value={z} style={{ padding: "10px 12px" }}>

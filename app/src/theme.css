@@ -1606,12 +1606,38 @@ a { color: var(--accent-text); text-decoration: none; }
 
 /* ----------------------------------------------------------------- FORM */
 label.field { display: block; }
+/* **A FIELD LABEL IS NOT A SECTION EYEBROW — 2026-09-12.**
+
+   This was `.lab` in every particular: 11px, `.22em`, uppercase, wdth 72,
+   wght 620. So EVERY field label in the dashboard was an eyebrow, and setup
+   step 4 — twenty fields — was twenty of them down one screen. An eyebrow
+   that appears above every field has stopped marking where a section begins;
+   it has become the field label, at which point the screen shouts twenty
+   times and nothing is emphasised.
+   **IT NOW MATCHES `.setting-label`, WHICH IS THIS PRODUCT'S OWN ANSWER TO
+   "NAME A CONTROL".** The kit's `Setting` has always rendered its label in
+   sentence case at body size, so the dashboard already had the right pattern
+   and half its forms were using a different one. Matching it removes a whole
+   vocabulary rather than adding one, which is why this is not a restyle:
+   `.lab` and `.section-title` are untouched and are still the eyebrow.
+   The label TEXT was already sentence case in every file — the shouting was
+   `text-transform`, so no string changed. */
 label.field > span {
-  display: block; font-family: var(--f-body);
-  font-variation-settings: "wdth" var(--wdth-lab), "wght" 620;
-  font-size: var(--t-label); letter-spacing: 0.22em;
-  text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;
+  display: block; font-size: var(--t-body); font-weight: 600;
+  line-height: 1.3; margin-bottom: 6px;
 }
+
+/* ------------------------------------------------- A FIELD'S OWN WIDTH
+   **SIZE A FIELD TO WHAT GOES IN IT.** A four-digit year in a box as wide as
+   a street address tells somebody the box wants more than it wants, and a
+   column of twenty identical full-width boxes is the wall setup step 4 was.
+   The number is the CONTENT's width; the padding and border are added on so
+   the box fits the characters rather than the characters fitting the box.
+   `max-width`, never `width`, so a narrow phone still shrinks them — at 320
+   the container is smaller than every value here and nothing changes. */
+label.field.w-year > input { max-width: calc(6ch + 3.4rem); }
+label.field.w-price > input { max-width: calc(8ch + 3.4rem); }
+label.field.w-phone > input { max-width: calc(16ch + 3.4rem); }
 .fields { display: flex; flex-direction: column; gap: var(--sp-4); }
 input, select, textarea {
   width: 100%; min-height: var(--tap); padding: 11px 14px;
