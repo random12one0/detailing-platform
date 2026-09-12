@@ -356,7 +356,11 @@
 /* THE BURGER IS ABSENT UNTIL THE LINKS GO, which is the only rule that
    matters here: two ways to reach the same three links on one screen is a
    nav that answers its own question twice. */
-.ld .nav .burger { display: none; }
+/* 32x32 was exactly AT the floor rather than above it, and everything it opens
+   is 49px — on a phone this is the ONLY route to Sign in, so it is the
+   highest-traffic small target on the marketing side. 44, with the rest of the
+   product. 2026-09-12. */
+.ld .nav .burger { display: none; min-width: 44px; min-height: 44px; }
 .ld .navmenu { display: none; }
 
 @media (max-width: 470px) {

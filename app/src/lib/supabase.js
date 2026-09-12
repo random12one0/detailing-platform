@@ -49,9 +49,45 @@ export const supabaseAnonKey = anonKey || "";
 // before changing it — the unlocked-laptop case. On a real recovery arrival it
 // must NOT, because somebody there is locked out by definition and proved
 // themselves with the emailed link. One boolean separates the two.
-export const arrivedOnRecoveryLink =
-  typeof window !== "undefined"
-  && /(^|[#&?])type=recovery([&]|$)/.test(window.location.hash + window.location.search);
+// **AND IT IS LATCHED FOR THE TAB, BECAUSE THE HASH DOES NOT SURVIVE —
+// 2026-09-12.** This was a bare read of the URL, evaluated ONCE when this
+// module first loads in a document. Two ways that gave the wrong answer, and
+// the second one locks somebody out:
+//
+//   · A client-side navigation to `/reset#…type=recovery` does not
+//     re-evaluate a module constant, so the hash is in the address bar and the
+//     flag is already `false`. **That is what an outside review measured twice
+//     and read as "the session is winning". The session never wins —
+//     `land()` reads only this flag — the constant was simply stale.**
+//   · **THE ONE THAT MATTERS: `detectSessionInUrl` CLEARS THE HASH** once it
+//     has exchanged the token. So a person who follows a real recovery link,
+//     lands correctly, and then REFRESHES the page gets a new document with no
+//     hash, a live session from the exchange, and the signed-in branch — which
+//     asks for the current password they just told us they do not have.
+//     Refreshing a page is ordinary; this was a real lockout.
+//
+// So the arrival is remembered for the life of the TAB. `sessionStorage`, not
+// `localStorage`: it must not follow them into tomorrow or into another tab,
+// and `ResetPassword` clears it the moment the password is saved, so the tab
+// does not stay in recovery mode after the thing it was for is done.
+const RECOVERY_KEY = "dp.recovery";
+function recoveryArrival() {
+  if (typeof window === "undefined") return false;
+  const inUrl = /(^|[#&?])type=recovery([&]|$)/.test(window.location.hash + window.location.search);
+  try {
+    if (inUrl) window.sessionStorage.setItem(RECOVERY_KEY, "1");
+    return inUrl || window.sessionStorage.getItem(RECOVERY_KEY) === "1";
+  } catch {
+    return inUrl;   // private mode: the URL is all we have, which is the old behaviour
+  }
+}
+export const arrivedOnRecoveryLink = recoveryArrival();
+
+// Called once the new password is saved. Without it the tab would keep
+// skipping the current-password check for as long as it stayed open.
+export function clearRecoveryArrival() {
+  try { window.sessionStorage.removeItem(RECOVERY_KEY); } catch { /* private mode never set it */ }
+}
 
 export const supabase = createClient(
   url || "https://unconfigured.invalid",

@@ -674,8 +674,14 @@ console.log("\ntest 11: a phone can reach the nav");
 
   // The burger must not exist while the links do — two ways to the same
   // three links on one screen is a nav answering its own question twice.
+  // **THE PROPERTY, NOT THE WHOLE LINE — corrected 2026-09-12.** This matched
+  // the literal `.ld .nav .burger { display: none; }`, so adding a tap-target
+  // floor to that same rule failed it on a product that was correct. **Second
+  // time in one day a check coupled to a SPELLING broke on a rename** — see
+  // CLAUDE.md trap (h), which was written that morning after the first. It
+  // asserts that the base rule hides the burger, however else it is written.
   check("11e · the button only exists once the links are gone",
-    /\.ld \.nav \.burger \{ display: none; \}/.test(css)
+    /\.ld \.nav \.burger \{[^}]*display: none[^}]*\}/.test(css)
       && /max-width: 470px[\s\S]{0,900}\.burger \{[\s\S]{0,40}display: flex/.test(css));
 }
 

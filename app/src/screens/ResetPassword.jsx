@@ -44,7 +44,7 @@
 // inputs touching. Same classes, no new CSS.
 
 import { useEffect, useState } from "react";
-import { arrivedOnRecoveryLink, supabase } from "../lib/supabase.js";
+import { arrivedOnRecoveryLink, clearRecoveryArrival, supabase } from "../lib/supabase.js";
 import { MIN_PASSWORD, PASSWORD_RULE, reauthenticate } from "../lib/password.js";
 import { PasswordInput } from "../components/controls.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
@@ -100,6 +100,10 @@ export default function ResetPassword() {
     const { error: err } = await supabase.auth.updateUser({ password });
     setBusy(false);
     if (err) { setError(err.message); return; }
+    // The tab stops being a recovery tab the moment the thing it was for is
+    // done — otherwise it would keep skipping the current-password check for
+    // as long as it stayed open.
+    clearRecoveryArrival();
     setState("done");
     // Signed in already — the recovery session is a real one — so there is
     // nothing to type again.
