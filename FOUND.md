@@ -356,3 +356,89 @@ Claude Cowork decides what becomes work.
   the loading state**, which is a sibling of trap (f): wait for the rows to
   settle before reading anything on that screen.
 
+## COLD REVIEW, 2026-09-12 — the detailer's dashboard
+
+A fresh agent with no knowledge of this session's work, forbidden `FOUND.md` and
+`ROADMAP.md`, read-only, walked five tabs, fifteen Business rows, seven gear
+rows, eleven setup steps, a job record and a client record at 1440x900 and
+392x844. **It found nothing crashed, nothing blank, no dead control, no sideways
+scroll at either width, and no tap target under 32x32.** Everything below was
+then re-verified HERE by reading the source, so none of it rests on the agent's
+word.
+
+- **MONEY CALLS UNPAID WORK "COLLECTED", AND THE SAME SCREEN CONTRADICTS IT.**
+  `Money.jsx:533` prints `t("Collected")` over `stats.inNow`, and `:246-248` is
+  `jobsIn = done.filter(inPeriod)` then `revenueIn = sum(final_amount ??
+  total_price)` — **filtered on `status`, never on `payment_status`.** So
+  September reads **COLLECTED $410** with **WAITING ON PAYMENT · $175** in the
+  same frame, and "The full picture" spells it out: $235 IN THE BANK, $175 STILL
+  OWED. `lib/moneyAdvanced.js:175` already computes the split correctly.
+  **Today's screen says "Nothing collected yet" about the same two jobs**, so
+  two screens disagree about one number. The net-for-the-month figure is built
+  on it. Probably a LABEL fix — "Earned" or "Billed" — rather than a maths one,
+  because the figure is the right figure for a different question.
+- **THE TRACKING-LINK ROW COUNTS ORDINARY BOOKING TRAFFIC AS FLYER OPENS, AND
+  THE TWO HALVES OF ITS OWN SENTENCE USE DIFFERENT FILTERS.** `Business.jsx:200`
+  counts `campaign_visits` by `business_id` **with no `campaign_id` filter**,
+  while `:198` counts campaigns with `.eq("is_active", true)`.
+  `track-visit/index.ts:48` deliberately inserts organic booking-page visits
+  with `campaign_id: null` — a deliberate and well-reasoned choice that this
+  reader never accounted for. Result on the demo: the row said "1 link · 1 open"
+  and climbed to 4 during one session while BOTH link cards still read "Nobody
+  has opened it yet". **This is the number that says whether a flyer the
+  detailer paid to print worked.**
+- **A FIVE-JOB DAY DRAWS THREE DOTS ON THE PHONE AND SAYS NOTHING ABOUT THE
+  OTHER TWO.** `Calendar.jsx:431` is `jobs.slice(0, 3)` in the DOT branch with
+  no overflow marker. The desk branch caps at three too — and `:450` adds
+  `+{jobs.length - 3} more`, with a comment explaining exactly why an overflow
+  is needed. **The phone grid is dots-only, the phone is the detailer's own
+  device, and the calendar tour says "Each dot is a job."** The cell's own
+  `aria-label` says "5 jobs" over three dots, so the element disagrees with
+  itself. **Counting three on a five-job day is how a detailer says yes to a
+  sixth.**
+- **THE CALENDAR WEEKDAY HEADER IS A HARD-CODED ENGLISH ARRAY.**
+  `Calendar.jsx:392` is `["S","M","T","W","T","F","S"]` — no `t()`, no locale.
+  Spanish is D L M M J V S, so a Spanish reader sees "M" in the Monday column
+  and reads *martes*: **the columns are mislabelled, not merely untranslated.**
+  Same class as the em dash joins — the Spanish wave swept eleven `dateLong()`
+  CALLS and this is a literal array, which no call-site sweep can see.
+- **Spanish, about twenty more instances, and two of them are already
+  translated and never shown.** `BookingLink.jsx:301` renders `{footnote}` raw
+  while the label a line above is `{t(label)}`, and `appEs.js:1013` HAS the
+  Spanish; `Plans.jsx:652` passes `footnote={t(...)}` and does render Spanish,
+  which is the proof it is the wrapper. `Preferences.jsx:54` and `:90` pass a
+  bare `blurb=` where `:42` uses `t()`. Then bare JSX text: `Today.jsx:438`,
+  `Today.jsx:422/430` (the phone ledger reads "5 jobs / 2 hechos / $455
+  expected" — only the middle label is wrapped), `JobRow.jsx:60`,
+  `Business.jsx:365` (sibling branches of the same ternary DO use `t()`),
+  `Calendar.jsx:253`, `GearMenu.jsx:49`, and `Billing.jsx:428`, which renders
+  **"Every one of these also includes the one-time $999 $499 construcción."** —
+  an English sentence with one Spanish word in it.
+- **`<html lang>` stays "en" when the dashboard is Spanish.** Low cost, one line.
+- **"Getting there" is mistranslated.** `appEs.js:1259` gives "Ya casi", which
+  means *almost done*. It titles the map-app picker; it wants "Cómo llegar".
+- **Accepting a request silently charges `total_price` and discards the quote,
+  and the card does not say which number Accept will use.** The card shows $680
+  large beside a pill reading "Quoted $780"; `respond-to-booking/index.ts:75`
+  confirms at `total_price` and nulls `quoted_amount`. The behaviour is
+  deliberate and documented — **the copy gap is not.** It is money.
+- **The smallest text in the product is a struck-through "$999" at 10.14px** on
+  Your subscription. Everything else on that screen is 11px or more.
+- **Six of the eleven setup step titles are questions**, which SCREEN RULES
+  bans as headings. Nothing is broken; recorded because the rule is explicit and
+  because the same six titles are load-bearing elsewhere.
+
+**THREE INSTRUMENT WARNINGS FROM THE SAME WALK, all worth keeping.** A
+coordinate click is silently dropped in this browser pane and the agent nearly
+filed a working filter chip as a dead control — clicking the same element by its
+accessibility-tree reference worked first time, which is CLAUDE.md trap (l) live
+in this setup. Screenshots in the pane lag one capture after a click or a
+scroll, so never call a region blank from one image. And a target probe that
+reports EVERY control as failing has found an overlay, not twenty defects — it
+was the tour scrim at desk width and the sticky header plus fixed tab bar at
+phone width; the agent validated its own probe by re-running it at a 60px
+threshold and a 32px one before believing either.
+
+**And the demo database is SHARED AND LIVE**: `campaign_visits` grew from one
+row to four during the walk, from somebody else's visits.
+
