@@ -1464,6 +1464,29 @@ as "Text these 1" being fixed while "Email these 1" sat an inch away. **The
 button is the last thing read before pressing**, so it is the worst place to
 leave a stale promise.
 
+**(j) REPORT THE REPRODUCTION SEPARATELY FROM THE EXPLANATION, AND DO NOT
+WITHDRAW THE REPRODUCTION WHEN THE EXPLANATION DIES.** On 2026-09-12 a reviewer
+twice reported `/reset` as broken and twice gave the wrong cause — first "the
+flow is uncompletable", then "the session beats the recovery hash". Both
+explanations were false. **Both reproductions were exact**, and the thing
+underneath them was a lockout neither side had thought of: `detectSessionInUrl`
+clears the hash after exchanging the token, so **pressing reload** on the
+recovery page yields a session with no hash and drops the person onto the
+change-password form, asking for the password they just said they had lost.
+**A wrong diagnosis attached to a real observation is still a real
+observation.** Keep the steps; let the cause be wrong.
+
+**(k) A CHECK THAT GREPS SOURCE TEXT ASSERTS HOW SOMETHING IS WRITTEN. ONLY A
+CHECK THAT READS A COMPUTED VALUE OR A RENDERED RESULT ASSERTS WHAT IT DOES.**
+Three in one day, all failing on a product that was correct: `padding-left:
+120px` renamed to `padding-inline`; `minLength={8}` against a rule that became
+`MIN_PASSWORD`; and `.ld .nav .burger { display: none; }` breaking because a
+tap-target floor was added to that same rule. **Three is a pattern, not three
+accidents.** Where a source check is the only instrument available — this repo
+has no React test runner — say so IN the check, assert the shared constant or
+the component rather than the spelling, and **count rather than match**. A pass
+over the suites for the others is owed; `ROADMAP.md` carries it.
+
 **AND THE RULE THEY SHARE, WHICH IS THE ONE TO REMEMBER:** a green result from
 an instrument nobody has checked is worth less than no result, because it stops
 the search. `scripts/sweep-widths.mjs:605` printed *clean* over 38 real

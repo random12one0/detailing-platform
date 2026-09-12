@@ -69,6 +69,11 @@ it.
   CLAUDE.md trap (g) has the sequence. **If the owner says "the site is not
   working" and localhost looks wrong, ask how long that tab has been open.**
 
+- **Sweep the suites for checks coupled to a SPELLING rather than a behaviour.**
+  Three were found and fixed on 2026-09-12 — a renamed CSS property, a
+  hard-coded `minLength`, and a literal CSS rule that gained a declaration —
+  and every one failed on a correct product. CLAUDE.md trap (k). Not started.
+
 ## Not ours to decide — waiting on Andrew
 
 - **The unsubscribe page's accent.** The reviewer's diagnosis is right and one
