@@ -38,7 +38,7 @@ import BookingLink from "../../components/BookingLink.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
-import { t } from "../../lib/appI18n.js";
+import { getAppLocale, t } from "../../lib/appI18n.js";
 import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 // FOUR SHAPES, WHICH IS THIS CONTROL'S CEILING (controls.jsx: "two to four
@@ -548,7 +548,7 @@ export default function Plans() {
     // owed and unbooked outranks a date, because it is the thing to act on.
     const when = m.status !== "active" ? statusWords(m.status, lang)
       : l.owed > 0 ? t(l.owed === 1 ? "{count} visit owed" : "{count} visits owed", { count: l.owed })
-        : l.nextDue ? t("Next due {date}", { date: dateLong(l.nextDue) })
+        : l.nextDue ? t("Next due {date}", { date: dateLong(l.nextDue, getAppLocale()) })
           : t("No set schedule");
     const Tag = mayWrite ? "button" : "div";
     return (

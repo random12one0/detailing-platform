@@ -67,7 +67,7 @@ import { Segmented } from "../components/controls.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
-import { appIntlLocale, t } from "../lib/appI18n.js";
+import { appIntlLocale, getAppLocale, t } from "../lib/appI18n.js";
 // "1 jobs" is the oldest bug in this product, and it came back twice on this
 // screen under two different verbs. Same shape Business.jsx and
 // AdvancedMoney.jsx already use — a third copy of three lines rather than a
@@ -486,7 +486,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
             <div className="facts">
               <div>
                 <span className="quiet">{t("Last visit")}</span>
-                <span className="v">{facts.last ? dateLong(facts.last) : t("No completed visits yet")}</span>
+                <span className="v">{facts.last ? dateLong(facts.last, getAppLocale()) : t("No completed visits yet")}</span>
               </div>
               {planBy.get(open.id) && (
                 <div>

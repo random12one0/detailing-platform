@@ -54,7 +54,7 @@ import DaySheet from "../components/DaySheet.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
-import { appIntlLocale, t } from "../lib/appI18n.js";
+import { appIntlLocale, getAppLocale, t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 
 const pad = (n) => String(n).padStart(2, "0");
@@ -420,7 +420,7 @@ export default function Calendar({ refreshKey = 0 }) {
                     // named here too: form carries them for an eye, and this
                     // is the same fact for everyone else.
                     aria-label={[
-                      dateLong(date),
+                      dateLong(date, getAppLocale()),
                       jobs.length ? `${jobs.length} job${jobs.length === 1 ? "" : "s"}` : null,
                       blocked ? "blocked" : null,
                       limited ? marks.dropoffLabel[date] : null,
@@ -624,7 +624,7 @@ export default function Calendar({ refreshKey = 0 }) {
                   const amount = money(b.final_amount ?? b.total_price);
                   return (
                     <button key={b.id} className="row-item" onClick={() => setSelected(b)}
-                      aria-label={`${b.customer_name}, ${dateLong(b.booking_date)}, ${what}, ${STATUS_SAID[b.status] ?? b.status}, ${amount}`}>
+                      aria-label={`${b.customer_name}, ${dateLong(b.booking_date, getAppLocale())}, ${what}, ${STATUS_SAID[b.status] ?? b.status}, ${amount}`}>
                       <span className={`c-mark dot ${b.status}`} aria-hidden="true" />
                       <span className="c-who nm">{b.customer_name}</span>
                       <span className="c-sub">

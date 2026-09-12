@@ -35,7 +35,7 @@ import {
 // onto the one screen whose whole job is to look like the real thing.
 import { dateLong } from "../../lib/format.js";
 import { Folded } from "../../components/controls.jsx";
-import { t } from "../../lib/appI18n.js";
+import { getAppLocale, t } from "../../lib/appI18n.js";
 import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 // What the preview stands in for. Concrete enough to read as a real message.
@@ -58,7 +58,7 @@ import { useAppLocale } from "../../hooks/useAppLocale.js";
 // type — but it is now the SAME PLACE as the rest of the product.
 const SAMPLE = {
   booking: { customer_name: "Dana Ortiz" },
-  dateLabel: dateLong("2026-09-17"),
+  dateLabel: dateLong("2026-09-17", getAppLocale()),
   timeLabel: "10:00 AM",
   address: "1420 Pine Ave, Long Beach, CA",
   total: "$285",

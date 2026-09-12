@@ -719,6 +719,18 @@ export const appEs = {
   "Tip": "Propina",
   "Discount": "Descuento",
   "Paid": "Pagado",
+  // ── WHAT A BROWSER WALK IN SPANISH FOUND, 2026-09-12 ─────────────────────
+  // Every one of these rendered in English with the toggle set to Spanish,
+  // and every one is invisible to `i18n-coverage.mjs`: a bare literal, or a
+  // `t()` whose argument is a variable. Only looking found them.
+  "Report a problem": "Reportar un problema",
+  "Something broken, confusing or missing": "Algo roto, confuso o que falta",
+  "a month": "al mes",
+  "a year": "al año",
+  "Something not right with a charge?": "¿Algo no está bien con un cargo?",
+  "Waiting on payment": "Esperando el pago",
+  "{n} have not been in for 3 months": "{n} no han venido en 3 meses",
+  "1 has not been in for 3 months": "1 no ha venido en 3 meses",
   // **FIVE INVOICE WORDS `t()` COULD NOT BE SEEN HOLDING.** `Billing.jsx` calls
   // `t(INVOICE_WORDS[inv.status])`, so the argument is a variable and the
   // coverage script says so about itself: it reads a literal first argument

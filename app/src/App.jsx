@@ -444,7 +444,7 @@ export default function App() {
               back out, which is why it is aria-pressed rather than a link. */}
           {/* data-tour — the whole-dashboard tour's last block presses this
               to open the settings and then points at what is inside. */}
-          <button data-tour="gear" className={`btn icon ghost${gear ? " on" : ""}`} aria-label="Settings"
+          <button data-tour="gear" className={`btn icon ghost${gear ? " on" : ""}`} aria-label={t("Settings")}
             aria-pressed={gear} onClick={() => { setGearScreen(null); setGear((g) => !g); }}>
             <Settings strokeWidth={2} />
           </button>

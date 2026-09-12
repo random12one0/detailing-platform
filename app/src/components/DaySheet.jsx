@@ -34,7 +34,7 @@ import { Segmented, Switch } from "./controls.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
-import { appIntlLocale, t } from "../lib/appI18n.js";
+import { appIntlLocale, getAppLocale, t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 
 const hhmm = (v) => (v ? v.slice(0, 5) : "");
@@ -530,10 +530,10 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
   if (inline) {
     return (
       <section className="daypanel" id="day-panel" ref={panel} tabIndex={-1}
-        aria-label={dateLong(date)}>
+        aria-label={dateLong(date, getAppLocale())}>
         <div className="row between" style={{ alignItems: "flex-start", gap: "var(--sp-3)" }}>
           <div style={{ minWidth: 0 }}>
-            <h2>{dateLong(date)}</h2>
+            <h2>{dateLong(date, getAppLocale())}</h2>
             <p className="quiet" style={{ marginTop: 2 }}>{subtitle}</p>
           </div>
           <button className="x" aria-label={t("Close the day")} onClick={onClose}>
@@ -546,7 +546,7 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
   }
 
   return (
-    <Sheet onClose={onClose} title={dateLong(date)} subtitle={subtitle}>
+    <Sheet onClose={onClose} title={dateLong(date, getAppLocale())} subtitle={subtitle}>
       {body}
     </Sheet>
   );

@@ -524,7 +524,9 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
       {lapsedCount >= 3 && (
         <button className="row-item" data-tour="lapsed" onClick={() => onGo?.("clients", "lapsed")}>
           <span className="txt">
-            <span className="nm">{lapsedCount} haven't been in for 3 months</span>
+            <span className="nm">{lapsedCount === 1
+              ? t("1 has not been in for 3 months")
+              : t("{n} have not been in for 3 months", { n: lapsedCount })}</span>
             <span className="sub">{t("Write to them")}</span>
           </span>
           <ChevronRight size={18} strokeWidth={2} />

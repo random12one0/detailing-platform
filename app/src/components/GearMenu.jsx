@@ -244,7 +244,7 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
               because it is not a screen — a row that opens a page to show one
               mailto is a row that wastes the tap it cost. */}
           <p className="quiet" style={{ margin: "2px 0 10px" }}>
-            {SUPPORT_SHORT}{" "}
+            {t(SUPPORT_SHORT)}{" "}
             <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
           </p>
           {/* ── ROADMAP 8.18 — TWO LOGINS AT ONCE ────────────────────────

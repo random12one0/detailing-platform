@@ -31,7 +31,7 @@ import Sheet from "./Sheet.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
-import { t } from "../lib/appI18n.js";
+import { getAppLocale, t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 
 // One vocabulary for the values a person reads, so the same booking does
@@ -66,7 +66,7 @@ const CONDITION_LABELS = {
 // composing this string is six chances for the same job to be titled two ways.
 export const jobRecordProps = (b) => ({
   title: b.customer_name,
-  subtitle: `${dateLong(b.booking_date)} · ${time12(b.start_time)} – ${time12(b.end_time)}`,
+  subtitle: `${dateLong(b.booking_date, getAppLocale())} · ${time12(b.start_time)} – ${time12(b.end_time)}`,
 });
 
 export default function BookingDetail({ booking, onClose, onChanged }) {
@@ -197,7 +197,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   const filled = (body) =>
     fillTemplate(body, {
       booking, business,
-      dateLabel: dateLong(booking.booking_date),
+      dateLabel: dateLong(booking.booking_date, getAppLocale()),
       timeLabel: time12(booking.start_time),
       address: address || "",
       total: money(booking.final_amount ?? booking.total_price),

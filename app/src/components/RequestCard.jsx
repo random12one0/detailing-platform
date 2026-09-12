@@ -25,7 +25,7 @@ import { dateLong, money, time12 } from "../lib/format.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
-import { t } from "../lib/appI18n.js";
+import { getAppLocale, t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 
 export default function RequestCard({
@@ -55,7 +55,7 @@ export default function RequestCard({
                   today's; this one is the only object on the screen that can
                   be for any day, so leaving the date off would read as today. */}
               <div className="quiet" style={{ marginTop: 2 }}>
-                {dateLong(booking.booking_date)} · {time12(booking.start_time)} – {time12(booking.end_time)}
+                {dateLong(booking.booking_date, getAppLocale())} · {time12(booking.start_time)} – {time12(booking.end_time)}
               </div>
             </div>
             <div className="strong num" style={{ whiteSpace: "nowrap" }}>

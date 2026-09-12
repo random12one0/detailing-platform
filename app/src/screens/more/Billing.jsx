@@ -353,7 +353,7 @@ export default function Billing() {
     if (!c || (!c.phone && !c.email)) return null;
     return (
       <p className="quiet" style={{ marginTop: "var(--sp-5)" }}>
-        Something not right with a charge?{" "}
+        {t("Something not right with a charge?")}{" "}
         {c.phone && <>{t("Call or text")} <span className="num">{phone(c.phone)}</span>. </>}
         {c.email && <>{t("Or email")} <a href={`mailto:${c.email}`}>{c.email}</a>.</>}
       </p>
@@ -503,7 +503,7 @@ export default function Billing() {
                   </span>
                 </span>
                 <span className="figure sm">
-                  {usd(data.quotes.booking.recurring_cents)} a month
+                  {usd(data.quotes.booking.recurring_cents)} {t("a month")}
                 </span>
               </button>
             </div>

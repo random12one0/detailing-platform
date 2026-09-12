@@ -632,7 +632,7 @@ export default function Money({ onGo }) {
           does not need a container. */}
       {unpaid.length > 0 && (
         <div className="tight" data-tour="unpaid">
-          <span className="label">Waiting on payment · {money(unpaidTotal)}</span>
+          <span className="label">{t("Waiting on payment")} · {money(unpaidTotal)}</span>
           {unpaid.map((b) => (
             <div className="card" key={b.id}>
               {/* No status stripe. Every row here is waiting on payment, so a
@@ -664,7 +664,7 @@ export default function Money({ onGo }) {
 
       <div className="tight" data-tour="expenses">
         <div className="row between">
-          <span className="label">Expenses · {period.label}</span>
+          <span className="label">{t("Expenses")} · {period.label}</span>
           <button className="btn sm inline filled" onClick={() => setAdding(true)}>
             <Plus strokeWidth={2} /> {t("Add")}
           </button>
