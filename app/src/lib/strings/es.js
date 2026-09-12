@@ -61,6 +61,12 @@ export const es = {
   "Add-ons": "Extras",
   "Tell us about the vehicle": "Cuéntanos del vehículo",
   "Pick a place": "Elige el lugar",
+  "This link may be out of date. Reply to the email you got instead. It reaches the business directly.":
+    "Puede que este enlace esté vencido. Responde al correo que recibiste. Le llega directamente al negocio.",
+  "Try again in a moment. If it still doesn't work, reply to the email you got instead. It reaches the business directly.":
+    "Inténtalo de nuevo en un momento. Si sigue sin funcionar, responde al correo que recibiste. Le llega directamente al negocio.",
+  "We couldn't open this link":
+    "No pudimos abrir este enlace",
   "Your address": "Tu dirección",
   "Drop-off details": "Datos de la entrega",
   "Pick a time": "Elige una hora",
@@ -314,9 +320,6 @@ export const es = {
     "Gracias. Tu pago con tarjeta se realizó. Tu recibo va en camino por correo.",
 
   // ── The opt-out, reached from an email ─────────────────────────────────
-  "We couldn't open this link": "No pudimos abrir este enlace",
-  "Try again in a moment. If it still doesn't work, reply to the email you got instead. It reaches the business directly.":
-    "Inténtalo de nuevo en un momento. Si sigue sin funcionar, responde al correo que recibiste. Le llega directo al negocio.",
   "Done": "Listo",
   "{business} won't email you about coming back again. If you book with them, you'll still get the confirmation and reminder for that booking.":
     "{business} ya no te va a escribir para invitarte a volver. Si reservas con ellos, igual recibes la confirmación y el recordatorio de esa reserva.",

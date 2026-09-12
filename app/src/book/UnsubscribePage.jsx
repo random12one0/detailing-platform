@@ -73,7 +73,15 @@ export default function UnsubscribePage() {
         first: r.first_name,
         color: r.primary_color || null,
       }))
-      .catch(() => live && setState({ status: "not_found", name: "", first: null, color: null }));
+      // **A HARD 404 AND A DROPPED CONNECTION ARE DIFFERENT ANSWERS —
+      // 2026-09-12.** Both landed here and both were told *"try again in a
+      // moment"*, which for an id that resolves to no customer is advice that
+      // can never come true. `postFunction` attaches `err.status`: a number
+      // means the server answered, and no number means it never did.
+      .catch((e) => live && setState({
+        status: e?.status === 404 ? "gone" : "unreachable",
+        name: "", first: null, color: null,
+      }));
     return () => { live = false; };
   }, [customerId]);
 
@@ -99,7 +107,7 @@ export default function UnsubscribePage() {
     return <div className="bk" style={brandVars}><div className="bk-center"><div className="bk-spinner" /></div></div>;
   }
 
-  if (state.status === "not_found") {
+  if (state.status === "gone" || state.status === "unreachable") {
     return (
       <div className="bk" style={brandVars}>
         <div className="bk-center">
@@ -116,7 +124,12 @@ export default function UnsubscribePage() {
               the permanent one. The way back is unchanged. */}
           <h1>{t("We couldn't open this link")}</h1>
           <p className="bk-muted">
-            {t("Try again in a moment. If it still doesn't work, reply to the email you got instead. It reaches the business directly.")}
+            {state.status === "gone"
+              // The same sentence the booking receipt and the plan page use for
+              // their own dead links. Three customer-facing pages fail the same
+              // way and said three different things; this is the one they share.
+              ? t("This link may be out of date. Reply to the email you got instead. It reaches the business directly.")
+              : t("Try again in a moment. If it still doesn't work, reply to the email you got instead. It reaches the business directly.")}
           </p>
         </div>
       </div>

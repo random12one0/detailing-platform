@@ -303,11 +303,11 @@ export default function PricingPage() {
           </div>
 
           <ul className="incl" data-rv="" style={{ "--i": 2 }}>
-            <li>A site built for you — not a template you fill in at midnight</li>
+            <li>A site built for you, not a template you fill in at midnight</li>
             <li>The booking page, the calendar, reminders, receipts and invoices</li>
             <li>Unlimited services, bookings, photos and staff logins</li>
             <li>Changes whenever you ask, for as long as you are on it</li>
-            <li>No commission — a booked-out month costs the same as a slow one</li>
+            <li>No commission. A booked-out month costs the same as a slow one</li>
           </ul>
 
           <span className="lab laddercap" data-rv="">Then pick how you pay</span>
@@ -351,7 +351,7 @@ export default function PricingPage() {
                 <span className="bestflag">Most take this</span>
                 <span className="rt">Pay for the year</span>
                 <span className="rw">
-                  One payment for the year — {monthsFree} months free against
+                  One payment for the year. {monthsFree} months free against
                   paying monthly. No term and no exit fee: the year is already
                   paid for.
                 </span>
@@ -464,7 +464,7 @@ export default function PricingPage() {
             </h2>
             <p className="lede" data-rv="" style={{ "--i": 1 }}>
               Just the booking page, at a link that is yours. Keep the website
-              you have — or run from your bio until you want one.
+              you have, or run from your bio until you want one.
             </p>
             <p className="fine" data-rv="" style={{ "--i": 2 }}>
               Same booking engine, same dashboard, same reminders. What you do
@@ -516,7 +516,7 @@ export default function PricingPage() {
               <dt>What you will be charged</dt>
               <dd>
                 ${p.annual} a year, ${p.monthly} a month, or ${p.monthToMonth} a
-                month — whichever one you chose above — plus sales tax in the
+                month, whichever one you chose above, plus sales tax in the
                 states that charge it. The price does not change on renewal.
               </dd>
             </div>
@@ -568,7 +568,7 @@ export default function PricingPage() {
               <dt>When you leave</dt>
               <dd>
                 Cancelling stops the next charge. Your customers, their numbers
-                and your photos are yours — you export them and go. The domain
+                and your photos are yours. You export them and go. The domain
                 is in your name and leaves with you.
               </dd>
             </div>

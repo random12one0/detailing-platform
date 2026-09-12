@@ -50,15 +50,15 @@ export const TERMS = {
   lede: "The whole agreement in the words it was decided in. Every figure comes from the pricing page, which is the one that counts.",
   sections: [
     ["What this is",
-     "A booking system for a detailing business, and — on the website plan — the website in front of it. You run your own business on it: your prices, your hours, your customers. We host it."],
+     "A booking system for a detailing business, and on the website plan the website in front of it. You run your own business on it: your prices, your hours, your customers. We host it."],
     ["What you pay",
      "Whatever the pricing page said on the day you signed up, and that price stays yours for as long as the account stays open. It cannot be changed underneath you: the figures are copied onto your subscription the day you agree to them and are never read again."],
     ["The twelve-month plan",
      "Only the annual-paid-monthly plan carries a commitment. Leaving it early costs half of the months still to run, charged that day. The other two plans have no term and no exit fee. The exact numbers, and a worked example, are on the pricing page before you are ever asked for a card."],
     ["Renewals",
-     "Every plan renews by itself at the price you signed up at, until you cancel. Cancelling is one button in your own settings, one confirmation, and the fee — if there is one — is printed before you press it. It is never behind an email to us."],
+     "Every plan renews by itself at the price you signed up at, until you cancel. Cancelling is one button in your own settings, one confirmation, and the fee, if there is one, is printed before you press it. It is never behind an email to us."],
     ["If a payment fails",
-     "We email you each time a payment is retried, for two weeks. If it still has not gone through, your booking page goes offline until it is paid. Nothing is deleted — your customers, your bookings and your settings are all exactly where you left them, and paying puts the page back."],
+     "We email you each time a payment is retried, for two weeks. If it still has not gone through, your booking page goes offline until it is paid. Nothing is deleted. Your customers, your bookings and your settings are all exactly where you left them, and paying puts the page back."],
     ["Your customers' money",
      "We are not part of it. What your customers pay you is between you and them; we take nothing from it and hold none of it."],
     ["Your data is yours",
@@ -74,9 +74,9 @@ export const PRIVACY = {
   lede: "There is no advertising in this product and nothing here is sold. This page is the list of everywhere your information actually goes.",
   sections: [
     ["What we hold about you",
-     "Your name, your business, your email address and phone number, and everything you set up — services, prices, opening hours, the wording of your emails. If you subscribe, the plan you chose and the invoices you have paid."],
+     "Your name, your business, your email address and phone number, and everything you set up: services, prices, opening hours, the wording of your emails. If you subscribe, the plan you chose and the invoices you have paid."],
     ["What we hold about your customers",
-     "Whatever they type into your booking page: name, phone, email, the address you are going to, the vehicle, and anything they write in the notes. It is their information and it is yours to look after — we hold it for you and we do not use it for anything else."],
+     "Whatever they type into your booking page: name, phone, email, the address you are going to, the vehicle, and anything they write in the notes. It is their information and it is yours to look after. We hold it for you and we do not use it for anything else."],
     // **THE DISCLOSURE THE OWNER ASKED FOR, 2026-09-06.** He wants his back
     // office to show him everything about a detailer and their clients, and
     // his own condition was that it be said out loud: *"it could be disclosed
@@ -92,7 +92,7 @@ export const PRIVACY = {
     //
     // It says WHO, WHAT and WHAT NOT, because a disclosure that only admits
     // access invites the worst reading of it.
-    ["Who else can see it — us",
+    ["Who else can see it: us",
      "We can. Running the platform means we hold the keys to the database it lives in, so the person who runs this service can see what is in your account: your bookings, your figures, and your customers' details. We look when we are fixing something, when you ask us for help, and to keep an eye on whether your booking page is working. **Nothing here is ever sold, rented or handed to an advertiser, and no customer list is used to sell anything to anybody.** If that is not a trade you want, this is the paragraph to read twice before you sign up."],
     ["Card details",
      "We never see them. The card fields on the payment screen belong to Stripe and are served by Stripe; the number goes from the browser to them and never touches this product, this server or any log we keep."],
@@ -140,10 +140,10 @@ export const PRIVACY = {
     ["Your Google Business Profile",
      "**This is not switched on yet. It is written here so you know what will happen when it is, and because Google asks to see it before they will allow it at all.** We have asked Google for permission to connect a detailer's own Business Profile to their dashboard, so that the opening hours and the photos you keep here stay the same as the ones people see on Google. If you choose to connect yours, we read and write **your hours and your photos and nothing else.** We do not touch your reviews, your messages, your posts, or anything else on the listing, and we do not touch any other Google service. Nothing is connected unless you connect it yourself from a button in your own dashboard, and you can disconnect it from that same button. The Limited Use rules above cover this too: none of it is used for advertising, none of it is sold, and no person here reads it unless you ask us to, unless security requires it, or unless the law does. You can also take our access away entirely at https://myaccount.google.com/permissions"],
     ["Marketing email",
-     "The only email a customer can be sent that they did not ask for is one a detailer writes and sends from their own Clients list. Every one of those carries a postal address and a working opt-out, and the opt-out takes two steps — a page, then a button — so a link scanner cannot unsubscribe somebody who never meant to."],
+     "The only email a customer can be sent that they did not ask for is one a detailer writes and sends from their own Clients list. Every one of those carries a postal address and a working opt-out, and the opt-out takes two steps, a page and then a button, so a link scanner cannot unsubscribe somebody who never meant to."],
     ["How long",
      "For as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted."],
     ["Asking for a copy, or a deletion",
-     "Email the address below. If you are a customer of a detailer rather than a detailer, ask them — it is their list, and they can do both from their own dashboard."],
+     "Email the address below. If you are a customer of a detailer rather than a detailer, ask them. It is their list, and they can do both from their own dashboard."],
   ],
 };

@@ -125,7 +125,7 @@ export function initThread() {
       r.innerHTML =
         '<div class="l1"><div><span class="nm"></span><div class="sv"></div></div><span class="amt"></span></div>' +
         (i === 0 ? '<div class="acts"><span>Navigate</span><span>Call</span><span>Text</span><span>Mark complete</span></div>' : "");
-      r.querySelector(".nm").textContent = j.at + " — " + j.who;
+      r.querySelector(".nm").textContent = j.at + " · " + j.who;
       r.querySelector(".sv").textContent = j.svc;
       r.querySelector(".amt").textContent = usd(j.amt);
       jobsEl.appendChild(r);

@@ -121,7 +121,7 @@ export default function LandingPage() {
       tab: "Your website",
       lab: "For detailers",
       h: ["They look you up", "before they call."],
-      p: "What they find is either a Facebook page from four years ago, or your own site — your work, your prices, your name in the address bar.",
+      p: "What they find is either a Facebook page from four years ago, or your own site. Your work, your prices, your name in the address bar.",
       // **THE WORDS CHANGED, NOT THE DESTINATION — 2026-09-12.** This said "See
       // it with your name on it" and `/examples` shows five OTHER businesses:
       // Prime, Delgado, Ballantyne, Kinzie, Tampa Bay. The destination is the
@@ -782,7 +782,7 @@ export default function LandingPage() {
             <p className="lede" data-rv="" style={{ "--i": 2 }}>
               Yours will be too. A site designed around the work you actually
               do, the booking page living inside it, and the screen you run
-              the week from — not a template with your name dropped into it.
+              the week from. Not a template with your name dropped into it.
             </p>
           </div>
         </section>
@@ -817,7 +817,7 @@ export default function LandingPage() {
               <h3>The calendar refuses double bookings</h3>
               <p>
                 Your hours, your drive time, your notice period. It won't sell a
-                slot you can't work — so nobody has to be told at 9pm that
+                slot you can't work, so nobody has to be told at 9pm that
                 Saturday's gone.
               </p>
             </div>
@@ -881,7 +881,7 @@ export default function LandingPage() {
               <p className="lede" data-rv="" style={{ "--i": 2 }}>
                 Between two cars, in somebody&apos;s driveway, at a red light.
                 Mark a job done, take the money for it, move tomorrow&apos;s
-                booking — without going home first.
+                booking, without going home first.
               </p>
               <div className="figlist" data-rv="" style={{ "--i": 3 }}>
                 <div className="figrow"><span>Take a card payment</span><span className="mono">on the driveway</span></div>
@@ -897,7 +897,7 @@ export default function LandingPage() {
                   the one you are meant to read past. */}
               <div className="figcard back" data-parallax="10">
                 <span className="lab ac">Booked · 9:41pm</span>
-                <div className="figcard-t">Sunday, 10:30 — Interior Reset</div>
+                <div className="figcard-t">Sunday, 10:30 · Interior Reset</div>
               </div>
 
               <div className="figwin">
@@ -911,7 +911,7 @@ export default function LandingPage() {
               {/* His right, behind him — the balancing card. */}
               <div className="figcard back next" data-parallax="12">
                 <span className="lab">Tomorrow</span>
-                <div className="figcard-t">8:00 — Express Wash · $65</div>
+                <div className="figcard-t">8:00 · Express Wash · $65</div>
               </div>
 
               <div className="figcard front pay" data-parallax="-16">
@@ -963,7 +963,7 @@ export default function LandingPage() {
               </div>
               <div className="vsrow mine" role="row">
                 <span className="nm" role="cell">This</span>
-                <span className="gt" role="cell">The site, the booking and the screen you run both from — one thing, and you change it yourself.</span>
+                <span className="gt" role="cell">The site, the booking and the screen you run both from. One thing, and you change it yourself.</span>
               </div>
             </div>
           </div>
@@ -1010,7 +1010,7 @@ export default function LandingPage() {
               <p>
                 A site built for you under your own name, and the dashboard that
                 runs it. Not a template you fill in yourself at midnight, and
-                not the thousands an agency charges — then charges again every
+                not the thousands an agency charges and then charges again every
                 time a price changes.
               </p>
               {founding && (
@@ -1062,7 +1062,7 @@ export default function LandingPage() {
               <div className="then mono">no setup fee</div>
               <p>
                 Just the booking page, at a link that's yours. Keep the website
-                you have — or run from your bio until you want one.
+                you have, or run from your bio until you want one.
               </p>
               <div className="pfoot">
                 <a className="cta gh block" href="/pricing#booking" data-glow="">Start with booking</a>
@@ -1076,8 +1076,8 @@ export default function LandingPage() {
               the lead card ("we build it for you") from contradicting
               section 4. */}
           <ul className="terms">
-            <li data-rv=""><span className="k">01</span><span>No setup wizard and no migration — you are bookable the same day, and the site is built out with you from there</span></li>
-            <li data-rv="" style={{ "--i": 1 }}><span className="k">02</span><span>No commission — a fully booked month costs the same as a slow one</span></li>
+            <li data-rv=""><span className="k">01</span><span>No setup wizard and no migration. You are bookable the same day, and the site is built out with you from there</span></li>
+            <li data-rv="" style={{ "--i": 1 }}><span className="k">02</span><span>No commission. A fully booked month costs the same as a slow one</span></li>
             <li data-rv="" style={{ "--i": 2 }}><span className="k">03</span><span>Your customers and their numbers are yours, always</span></li>
             <li data-rv="" style={{ "--i": 3 }}><span className="k">04</span><span>Unlimited services, bookings and photos</span></li>
             <li data-rv="" style={{ "--i": 4 }}><span className="k">05</span><span>Cancel any time; your data leaves with you</span></li>
@@ -1102,7 +1102,7 @@ export default function LandingPage() {
             </details>
             <details data-rv="" style={{ "--i": 1 }} open>
               <summary>I have a website, it's just old. Can you use it?</summary>
-              <p>No, and you don't want me to. You get a new one — same business, same name, built for a phone. Send me the old one and I'll pull the photos and wording worth keeping.</p>
+              <p>No, and you don't want me to. You get a new one. Same business, same name, built for a phone. Send me the old one and I'll pull the photos and wording worth keeping.</p>
             </details>
             <details data-rv="" style={{ "--i": 2 }}>
               <summary>Who owns the domain?</summary>
