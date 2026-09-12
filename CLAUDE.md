@@ -1243,3 +1243,97 @@ undo it.
    wrote down, because it looks like diligence.
 4. `docs/ux-audit.md` — the dashboard audit and its status
 5. `docs/design-knowledge.md` — design/process research transfer
+
+## SCREEN RULES — Andrew, 2026-09-12
+
+From a review of about 35 screens at desk and phone width. They apply to every
+screen a detailer or a customer sees.
+
+**The reference for any design decision is this product's own best screens, not
+outside best practice.** Those are the seven-step booking flow, the writing on
+the "Your web address" settings screen, and the job page layout. When unsure,
+copy the best screen that already exists here rather than importing a pattern
+from somewhere else.
+
+**Make setup look like booking.** The booking flow asks a customer about ten
+questions. Setup asks a detailer about forty. That is the problem to solve.
+
+**THE TEST — AND IT IS A TEST, NOT A QUOTA. Before finishing any screen, ask
+whether a detailer would find this page exhausting.** If the answer is yes, the
+fix is to present some of it differently — chips, cards, a bar, a grouped pair,
+a live preview, bullets — using the components this product already has. Not to
+hit a number of anything.
+
+**THE FAULT IS MONOTONY, NOT SIMILARITY.** Screens can look alike, and often
+should. The advanced money screen is the example: nearly every block is the
+same shape, a label on the left and a number on the right, all the way down the
+page. Same format forty times is what made it feel like work. The one block on
+that page that breaks the pattern, "WHERE IT WENT" with its bars, is the one
+that reads fastest. That is the counter-example that proves the point.
+
+**A rule would be worse than the test here, because a rule can be satisfied
+without fixing the problem.** Splitting twelve identical rows into two blocks of
+six meets a quota and changes nothing about how the page reads.
+
+**Two to five choices is a segmented control, never a native `<select>`.** This
+is `docs/design-system.md` § Composition, it is existing law, and it is cited
+here rather than restated in weaker words. A draft of this section said *prefer
+chips or cards for four or fewer* and that was wrong twice: it softened an
+absolute rule into a preference, and it stopped at four where the law goes to
+five. **The rule is about the `<select>`, not about the count** — a fifth
+mutually exclusive choice does not become a drop-down, it wraps. Use
+`Segmented` from `components/controls.jsx`.
+**The searchable-list exemption already exists in code, so nothing about
+behaviour changes.** `tests/composition.test.mjs` test 2 skips any `<select>`
+whose options come from `.map()`, on the stated grounds that a mapped list is a
+searchable list and not a two-way choice. The US timezone picker is that case.
+
+**Size every field to its content.** A year is 6ch, a phone 16ch, an address
+full width. Two short fields share a row.
+
+**`.lab` IS A SECTION EYEBROW, SO ONE PER SECTION — NOT ONE PER FIELD.** The
+11px uppercase label is already the `.lab` role in `docs/design-system.md`
+§ Type and it is already correct; there was never anything to fix about caps
+themselves. The defect is quantity. **Setup step 4 uses twenty of them on one
+screen, which is twenty eyebrows** — an eyebrow that appears above every field
+has stopped marking where a section begins and has become the field label, at
+which point the screen is shouting twenty times and nothing is emphasized.
+A draft of this section said *sentence case labels, caps only for an eyebrow*,
+which named the wrong culprit.
+
+**One currency formatter, one date formatter, one phone formatter, used
+everywhere.** Two of the three exist: `app/src/lib/format.js` is the single
+module and holds `money`, `time12`, `duration`, `dateLong`, `localDate` and
+`localTime`. **There is no phone formatter anywhere in `app/src`** — measured
+2026-09-12. That one is unbuilt rather than violated, and it goes in
+`lib/format.js` beside the others in Wave 0.
+
+**THE GREEN IS CORRECT AND IT IS NOT A FINDING.** `--ac: #38E08B` in
+`app/src/theme.css` is the accent token the whole product is built on, and
+`docs/design-system.md` § The one sharp accent is where it is defined. An
+outside review of 2026-09-11 called it off-palette on the sign-in and
+unsubscribe buttons; **that reading was backwards — those buttons are the one
+place it is meant to be.** Nothing was changed on the strength of it. Written
+down so the finding is not acted on later by somebody who only meets the
+report.
+
+**Never remove a field because software filled it in.** Prefill it and let the
+person correct it.
+
+**THE VOICE IS PLAIN AND DIRECT, AND THIS RULE IS FIRM.** All text stays in the
+voice the product already has. No startup register: nothing "seamless",
+"effortless", "powerful", "supercharged", "take it to the next level", "we've
+got you covered". No exclamation marks. No rhetorical openers. Short
+declarative sentences, one fact each. The writing already in this product is
+good — the "Your web address" screen, the FAQ answers, "Nothing is saved and no
+time is taken". Match that and do not invent a new voice. If a sentence sounds
+like a landing page, cut it.
+
+**OPEN, AND WITH ANDREW AS OF 2026-09-12 — DO NOT RESOLVE IT IN A SESSION.**
+The exhaustion test above and design-system law 1 are two answers to one
+question. Law 1 says *one continuous ground, and every section a different
+skeleton over it — two sections that share a skeleton is the failure*, and
+`tests/composition.test.mjs` enforces it. That is close to the rigid wording
+Andrew withdrew on 2026-09-12, in stronger form and with a test behind it.
+Which of the two governs a screen is his call and it has been put to him.
+Until he answers, **law 1 and its test stand** — existing law wins.
