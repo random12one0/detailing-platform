@@ -27,20 +27,47 @@ it.
 3. ~~**The platform landing page.**~~ **DONE 2026-09-12** — it grew to five
    items and then six. The three show-me CTAs, the developer annotation, the
    four header targets, the 42 figcaptions, the corner labels at both widths.
-4. **The five example sites, floors only.** They are load-bearing now — the
-   landing page's front door sends real traffic to `/examples`. **The aesthetic
-   variety is the whole point and is not in scope; the floors are not
-   aesthetics.** Sampled on `ex1` Prime at 392: six link targets under the
-   floor (the phone number 153x24; "Express Wash", "Full Detail", "Ceramic
-   Package", "Recent work", "Get a price" at 112x22 or 80x22) and eight
-   sub-11px elements including "MOBILE DETAILING" at 9px. **Five labels are
-   `font-size: 0`** — Services, Extras, Vehicle, Location, When, the booking
-   steps; if they are dots with names for a screen reader then the mechanism is
-   a visually-hidden class, not zero type. One site measured of five, so treat
-   it as a sample. No horizontal scroll at either width, and the 27 overflowing
-   elements are `.motes` and `.marq` decoration inside clipping parents.
-   **Lane A owns `docs/tenant-sites/`.**
-4. **The copy pass that the call-site sweeps never reached — 91 strings.**
+4. **The five example sites, floors only — MEASURED BY THE REVIEWER 2026-09-12,
+   all five at phone width.** The sampled guess this line used to carry is
+   replaced by real numbers. **Aesthetic variety is explicitly out of scope;
+   the floors are not aesthetics.** Lane A owns `docs/tenant-sites/`, and
+   Andrew has authorised the crossing — say so in the commit.
+
+   | | horizontal scroll | under 11px | targets under the floor |
+   |---|---|---|---|
+   | ex1 `v-goldenhour` Prime | none | 8, down to 9px | 6 at 22-24px |
+   | ex2 `w-delgado` | none | 15, all 10.5px section labels | 1 at 78x19 |
+   | ex3 `x-ballantyne` | none | 1 at 8.5px | 12, incl. 5 service rows 337x28, wordmark 108x30 |
+   | ex4 `y-kinzie` | **YES, at 377px** | 22, down to 9.5px | 10 at 17px tall |
+   | ex5 `z-tampabay` | none | 10 | 9 |
+
+   **DO THE CONTACT DETAILS FIRST ON ALL FIVE, then the service rows, then the
+   rest. Do not sweep for a pixel value** — his instruction, and the reason is
+   the same disease as the landing page: **on a detailing website the phone
+   number IS the conversion, and on these sites it is the smallest thing on the
+   page.** ex5 renders its number at 10px inside an 11px-tall target and its
+   email at 211x11; ex1's number is 153x24.
+
+   **AND ex4 IS WORSE THAN THE TABLE SAYS — measured here 2026-09-12, not by
+   him: it has ZERO `tel:` and ZERO `mailto:` links.** Its only phone number is
+   plain text in a footer list item, `(312) 555 0148`, spaces and all. So the
+   worst site for tap targets does not have a tap target to fail — there is
+   nothing to press. That is a bigger miss than any figure in the row above it.
+
+   **Two named extras:**
+   - **ex5 writes its number with EN DASHES** — `(813) 402&ndash;7719`, in four
+     places — which is wrong typographically and can defeat click-to-call
+     parsing. Hyphens. (The `href` is already `tel:+18134027719` and correct;
+     it is the visible text that is wrong.)
+   - **ex1's five `font-size: 0` labels** — Services, Extras, Vehicle,
+     Location, When, the booking steps. They read fine to a screen reader and
+     are invisible to everyone else **by accident rather than by design**, so
+     the mechanism is a visually-hidden class, not zero type.
+
+   ex4 is the only one that breaks the hardest floor in the bar (sideways
+   scroll) and is the one to start with after the contact pass.
+
+5. **The copy pass that the call-site sweeps never reached — 91 strings.**
    User-facing English in this product does NOT only live in `t()` calls in
    components: `lib/siteIntake.js`, `lib/templates.js`, `lib/emailMessages.js`,
    `lib/setup.js`, `lib/push.js`, `lib/photo-rules.js`, `lib/adminInsight.js`
@@ -49,18 +76,34 @@ it.
    calls — so the sweep that reported "zero" was true and incomplete. Same
    blind spot produced the sixth "tap" and the Microfibre seed string. Classify
    by the four axes and move each Spanish key with its English.
-4. **Spanish: 139 to zero.** `scripts/i18n-coverage.mjs` counts it and
+6. **Spanish: 139 to zero.** `scripts/i18n-coverage.mjs` counts it and
    `tests/spanish.test.mjs` § 9 holds the ceiling. **Step the ceiling down as
    you go.** Worst first: `SiteIntake.jsx` 58, `AdvancedMoney.jsx` 47,
    `Payments.jsx` 10, `WebAddress.jsx` 7, `ReportProblem.jsx` 6, `Money.jsx` 5.
-5. **Mileage.**
-6. **Route awareness.**
-7. **Weather, from open-meteo.**
-8. **Deposits.**
-9. **Making photos do work.**
-10. **Quote from scratch.**
+7. **Mileage.**
+8. **Route awareness.**
+9. **Weather, from open-meteo.**
+10. **Deposits.**
+11. **Making photos do work.**
+12. **Quote from scratch.**
 
 ---
+
+## Settled at the compaction, 2026-09-12 — both were mid-flight and both are answered
+
+- **The bare-switch check IS committed and IS baselined.** `composition` test
+  **1b** landed in `ad584c0` and the suite reads **95 passed, 0 failed** on
+  `3803b47`. Baselined the only honest way: Team's `<Switch bare>` had its
+  `label` stripped, 1b failed and named the file, the label went back.
+- **THE UNBLOCK CONFIRMATION STILL WILL NOT FIRE FROM A SCRIPT, AND THAT IS
+  WHERE IT IS BEING LEFT — his instruction.** Both fixes are in the served
+  file and a real click no longer throws, but nothing automation can deliver
+  reaches `onChange`: the input will not take focus in a browser pane whose
+  document is not focused, so click, keypress and `focus()` all no-op. **Andrew
+  will exercise it in a real browser the way he launched the guided tour.**
+  Do not spend another session chasing it. What IS verified: `aria-label` is on
+  the `input[type=checkbox]`, measuring 46x44, on a fresh load; and `own()` no
+  longer throws `TypeError` on the boolean `Switch` passes it.
 
 ## Standing checks — run these when the thing they guard changes
 

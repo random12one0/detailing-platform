@@ -898,6 +898,21 @@ undo it.
   If a decision is pending, the session is not over. Keep working on
   everything that does not depend on it.
 
+  **AND A COMPACTION IS THE FAILURE THE CLEAR RULE EXISTS TO PREVENT — his
+  ruling, 2026-09-12, after this session auto-compacted mid-wave.** *"A
+  compaction is a lossy summary chosen by the runtime; a clear is you
+  re-reading the files we deliberately wrote so nothing is lost."* The two are
+  not the same event wearing different names: a clear starts from `CLAUDE.md`,
+  `ROADMAP.md` and `FOUND.md`, which somebody chose the contents of; a
+  compaction starts from whatever a summariser thought was important, and the
+  spec that was mid-flight is exactly the kind of thing it drops.
+  **SO: CLEAR AT THE END OF EVERY WAVE, and his test for whether a wave was too
+  big is the sharp part — *"if a wave is long enough to compact, it is long
+  enough to have been two waves."*** A window that fills is not bad luck, it is
+  a scoping mistake that has already happened. **Anything agreed in
+  conversation goes into `CLAUDE.md`, `ROADMAP.md`, `FOUND.md` or a commit
+  BEFORE the clear** — if it is not in one of those, it is not safe.
+
   **Context size is advisory, not a trigger.** `node scripts/context-check.mjs`
   reads the live transcript and prints real usage; quality is reported to
   degrade somewhere past ~300k. Treat that as a reason to be economical and
