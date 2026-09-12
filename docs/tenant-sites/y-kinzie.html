@@ -232,19 +232,36 @@ h2 em{font-style:normal;color:var(--accent-text)}
 }
 
 /* the right-edge position dots, Chicago's own */
+/* THE DOT IS THE MARK AND THE ANCHOR IS THE TARGET, AND THEY DO NOT HAVE TO BE
+   THE SAME SIZE. The painted dot stays 7px — it is the design and it is right.
+   What changes is the PITCH: the gap goes 11px -> 25px so that 7 + 25 = 32,
+   and the `::after` at `inset:-12.5px` gives every anchor a 32x32 hit area
+   that tiles exactly against its neighbours. No overlap, so no dot can steal
+   the one above it; no shortfall, so there is no dead strip between them.
+
+   The gap had to move. A pseudo-element alone cannot fix this: at the old
+   18px pitch a 32px box overlaps its neighbour by 14px, which trades a small
+   target for a wrong one. Padding the anchor while shrinking the dot would
+   have been the other wrong answer.
+
+   Measured 7x7 and 11x11 at 1440 before this (the current dot is `scale(1.5)`).
+   The rail is 115px tall -> 199px; it is desktop-only (`max-width:900px` hides
+   it) and it is the one place on these five sites where the floors and the
+   design genuinely collide rather than one of them being wrong. */
 .dots{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:19;
-  display:grid;gap:11px}
-/* THE DOT STAYS 7px AND THE TARGET DOES NOT. A pseudo-element takes no part in
-   layout, so the rail's rhythm is untouched; the box stops 1px short of the
-   11px gap so two dots can never overlap and take each other's taps. 31x17
-   rather than 32 square: the pitch is 18px and squaring it would mean
-   restyling a rail nobody complained about, on a desktop-only, fully redundant
-   second navigation. */
-.dots a{position:relative;width:7px;height:7px;border-radius:50%;display:block;
+  display:grid;gap:25px}
+.dots a{position:relative;width:7px;height:7px;display:block}
+/* THE PAINT MOVED OFF THE ANCHOR, and this is the half that is easy to miss.
+   `transform:scale(1.5)` on the current dot scales its `::after` too, so the
+   hit area of the dot you are ON came out 48px and took 8px off each
+   neighbour — a bigger target that mis-routes the press beside it. The scale
+   now applies to the painted dot alone. Measured after: every anchor 32x32,
+   zero overlap, current dot included. */
+.dots a::before{content:"";position:absolute;inset:0;border-radius:50%;
   background:color-mix(in srgb,var(--ink) 26%,transparent);
   transition:background var(--t-hover) var(--ease-out),transform var(--t-hover) var(--ease-out)}
-.dots a::after{content:"";position:absolute;inset:-5px -12px}
-.dots a[aria-current="true"]{background:var(--accent-text);transform:scale(1.5)}
+.dots a::after{content:"";position:absolute;inset:-12.5px}
+.dots a[aria-current="true"]::before{background:var(--accent-text);transform:scale(1.5)}
 @media (max-width:900px){.dots{display:none}}
 
 /* ═══ 4 · HERO ═══════════════════════════════════════════════════════════ */
