@@ -114,7 +114,16 @@ export default function ResetPassword() {
       <div className="authwrap">
         <div className="authmark">
           <span className="label">{t("Detailing Platform")}</span>
-          <b>{state === "dead" ? t("That link has expired") : t("Choose a new password")}</b>
+          {/* **THREE STATES, THREE HEADINGS — 2026-09-12.** "Choose a new
+              password" was shown to a signed-in person too, over a form that
+              asks for their CURRENT one, which reads as a reset page that
+              cannot be completed. It is not: it is the change-password form,
+              and it now says so. An outside review reached exactly that wrong
+              conclusion from the rendered page, which is the evidence that the
+              face was wrong rather than the flow. */}
+          <b>{state === "dead" ? t("That link has expired")
+            : state === "signedin" ? t("Change your password")
+              : t("Choose a new password")}</b>
         </div>
 
         {/* THE FORM *IS* THE CARD, exactly as `Auth.jsx` builds it, and that
@@ -154,7 +163,13 @@ export default function ResetPassword() {
               {state === "signedin" && email
                 ? <>{t("The password for")} <strong>{email}</strong>. </>
                 : null}
-              {t(PASSWORD_RULE)} {t("You will be signed in straight after.")}
+              {t(PASSWORD_RULE)}{" "}
+              {/* THE PROMISE IS ONLY TRUE ON THE WAY IN. Somebody already
+                  signed in is not about to be signed in, and telling them so
+                  is the reset page's sentence on the wrong screen. */}
+              {state === "signedin"
+                ? t("You will stay signed in.")
+                : t("You will be signed in straight after.")}
             </p>
             <div className="fields">
               {state === "signedin" && (

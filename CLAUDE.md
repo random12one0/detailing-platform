@@ -1337,6 +1337,19 @@ report.
 **Never remove a field because software filled it in.** Prefill it and let the
 person correct it.
 
+**WHEN A BUTTON'S WORDS AND THE PRODUCT'S SURFACES DISAGREE, CHANGE THE
+WORDS — 2026-09-12.** Three landing-page CTAs promised a demo and delivered a
+price list. Two were fixed by pointing them at what they named. The third,
+*"Look inside the dashboard"*, had **nowhere to point**: `/app` renders
+`<Auth />` without a session and `/preview` is correctly guarded as the back
+office's door, so there is no signed-out dashboard in this product at all.
+**Building one to justify a button is the tail wagging the dog.** It says "See
+what the dashboard does" now and points at the section that already shows it.
+And the quieter half of the same rule: *"See it with your name on it"* pointed
+at `/examples`, which is the right destination and shows five OTHER businesses,
+so the words were wrong there too. **A promise a surface cannot keep is a
+copy bug, not a missing feature.**
+
 **THE KIT IS `app/src/components/controls.jsx` AND YOU REACH FOR IT BEFORE YOU
 WRITE A COMPONENT.** `Setting`, `Switch`, `Segmented`, `DurationChoice`,
 `Stepper`, `MoneyField`, `HourChoice`, `Group`, `PasswordInput`, and **`Folded`**

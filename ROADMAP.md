@@ -27,6 +27,19 @@ it.
 3. ~~**The platform landing page.**~~ **DONE 2026-09-12** — it grew to five
    items and then six. The three show-me CTAs, the developer annotation, the
    four header targets, the 42 figcaptions, the corner labels at both widths.
+4. **The five example sites, floors only.** They are load-bearing now — the
+   landing page's front door sends real traffic to `/examples`. **The aesthetic
+   variety is the whole point and is not in scope; the floors are not
+   aesthetics.** Sampled on `ex1` Prime at 392: six link targets under the
+   floor (the phone number 153x24; "Express Wash", "Full Detail", "Ceramic
+   Package", "Recent work", "Get a price" at 112x22 or 80x22) and eight
+   sub-11px elements including "MOBILE DETAILING" at 9px. **Five labels are
+   `font-size: 0`** — Services, Extras, Vehicle, Location, When, the booking
+   steps; if they are dots with names for a screen reader then the mechanism is
+   a visually-hidden class, not zero type. One site measured of five, so treat
+   it as a sample. No horizontal scroll at either width, and the 27 overflowing
+   elements are `.motes` and `.marq` decoration inside clipping parents.
+   **Lane A owns `docs/tenant-sites/`.**
 4. **Spanish: 139 to zero.** `scripts/i18n-coverage.mjs` counts it and
    `tests/spanish.test.mjs` § 9 holds the ceiling. **Step the ceiling down as
    you go.** Worst first: `SiteIntake.jsx` 58, `AdvancedMoney.jsx` 47,
@@ -65,11 +78,14 @@ it.
   away and dressing that in the detailer's branding uses their colour to make
   something harder. **Andrew's to settle**, and it needs an edge-function
   change either way (`unsubscribe-lookup` returns a name and nothing else).
-- **"Look inside the dashboard" has nowhere to go.** `/app` renders `<Auth />`
-  without a session (`App.jsx:354`) and `/preview` is the back office's own
-  door, so wiring it there swaps one broken promise for another. **There is no
-  public dashboard demo.** Building one, or changing those words, is a product
-  decision. The other two show-me CTAs are wired and working.
+- ~~"Look inside the dashboard" has nowhere to go.~~ **SETTLED 2026-09-12 by
+  changing the WORDS, not the destination** — the rule is in CLAUDE.md now.
+  There is no signed-out dashboard to look inside and building one to justify a
+  button would be the tail wagging the dog. It reads "See what the dashboard
+  does" and points at the landing page's own pinned dashboard section.
+  **Logged as a TASTE CALL for Andrew's stamp, not a verified fix**, along with
+  "See five sites built with it", which keeps `/examples` and stops promising
+  the visitor their own name on a page showing five other businesses.
 - **The five example sites that nobody has walked.** The six guided tours WERE
   walked end to end on 2026-09-12 — 36 steps, four findings in `FOUND.md`, one
   of them a real bug at 1280x800.
@@ -85,9 +101,19 @@ it.
   request). **Somebody has to sort which is which, one failure at a time** —
   a suite this red gets ignored wholesale, and the one real regression hiding
   in 46 stale checks is the reason that matters. Lane C.
-- **`password-reset`, 3 failing.** Two are probably the 10-character rule
-  landing while the checks still assert eight. **The third is the dangerous
-  one:** the three selectors five browser scripts sign in through. Lane C.
+- ~~**`password-reset`, 3 failing.**~~ **EXPLAINED 2026-09-12 — 4 failing, and
+  every one is a STALE CHECK reading source that moved. No defect.**
+  · `3b` twice asserts `minLength={8}`; the rule became TEN characters on
+    2026-09-10 and the check was never moved. The guess in
+    `whats-left-2026-09-10.md` § 9 was right, now confirmed by reading it.
+  · `4a` asserts the literal strings `type="email"`, `type="password"` and
+    `className="btn primary"` appear in `App.jsx`'s source. The password input
+    moved into the shared `PasswordInput` component, so the literal is gone
+    from that file **while the runtime selector still works** — verified by
+    signing in through `input[type=email]` and `input[type=password]` on
+    2026-09-12. `form button.btn.primary` was not separately re-checked.
+  · `4b-iii` is a `theme.css` assertion about the rail's padding.
+  **Fixing the checks is lane C. Nothing in the product is broken.**
 
 ---
 

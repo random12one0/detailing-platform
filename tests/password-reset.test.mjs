@@ -158,7 +158,14 @@ console.log("\n4. the way in (roadmap 2.25)");
   // more than one of those, the first being about `.emptyscreen` four hundred
   // lines earlier. It was reading a block that could never contain the thing
   // it was asserting about, so it passed with the padding genuinely leaked.
-  const railLine = css.split(/\r?\n/).find((l) => /padding-left:\s*120px/.test(l)) ?? "";
+  // **AND NOT THE PROPERTY EITHER — corrected 2026-09-12.** This matched the
+  // literal `padding-left: 120px`, and the rail became `padding-inline` when
+  // the content column was centred. The guarded behaviour never changed —
+  // `.authpage` is still not in that rule — but the check could no longer see
+  // the rule at all, so `railLine` was `""` and it failed on a product that
+  // was correct. **A check that names a PROPERTY breaks when somebody writes
+  // the same rule a shorter way.** Either spelling now.
+  const railLine = css.split(/\r?\n/).find((l) => /padding-(left|inline):\s*120px/.test(l)) ?? "";
   check("4b-iii · but not the rail's padding",
     railLine.includes(".app-shell") && !railLine.includes("authpage"),
     `the rail rule reads: ${railLine.trim() || "not found"}`);

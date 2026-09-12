@@ -1511,7 +1511,10 @@
    gutter it floats in. The hero's clamp is the landing page's and is far
    too tall for a page whose whole job is to be read. */
 .ld .phead { padding: clamp(104px,14vh,150px) 0 clamp(26px,4vh,44px); }
+/* 108x20 at 392 — under the floor, and it is the way back on a phone. The text
+   does not move; the hit area grows around it. */
 .ld .backlink {
+  display: inline-flex; align-items: center; min-height: 44px;
   display: inline-flex; align-items: center; gap: 8px;
   font-size: 13px; color: var(--fog-2);
   transition: color var(--t-hover) linear;
@@ -1774,7 +1777,16 @@
    that reads as a mistake. */
 .ld .foot { row-gap: 10px; }
 .ld .footsup { flex-basis: 100%; color: var(--fog-2); line-height: 1.6; }
-.ld .footsup a { color: var(--fog); border-bottom: 1px solid var(--line-2); }
+/* **THE FOOTER'S THREE LINKS WERE 15px TALL — 2026-09-12, and they were not in
+   any report.** Support, Terms and Privacy sit INSIDE a sentence, so a 32px
+   block around each would break the line apart — the same problem the Report a
+   problem screen had, and the same answer: pad the hit area without moving the
+   text. `inline-block` with vertical padding grows the box and leaves the
+   baseline where it is; the underline stays on the words. */
+.ld .footsup a {
+  color: var(--fog); border-bottom: 1px solid var(--line-2);
+  display: inline-block; padding-block: 9px;
+}
 .ld .footsup a:hover { color: var(--bone-2); }
 /* The address in the note is the one thing on these pages a reader is meant
    to ACT on, so it is drawn like the footer's rather than inheriting the
@@ -1896,7 +1908,16 @@
     position: static; padding: 14px 0 0;
     grid-template-columns: repeat(3, 1fr); gap: 10px;
   }
-  .ld .pnums dt { font-size: 10px; letter-spacing: .1em; }
+  /* **THE LABEL CARRIED THE MEANING AND THE NUMBER GOT THE SIZE — 2026-09-12.**
+     At 392 these read 10px over 21px figures, so a detailer saw $499, $40 and
+     $80 and had to work out which was the one-off build fee and which was the
+     monthly. **That distinction is the single thing somebody needs before they
+     commit**, and it was the smallest text on the page that sells.
+     Third instance of the same habit on the marketing side, after the 9px
+     figcaptions and the 8.5px "0% · ALWAYS": a label attached to a number or
+     an image, set smaller than the thing it labels. Sweep for the
+     RELATIONSHIP, not the value. */
+  .ld .pnums dt { font-size: 12px; letter-spacing: .1em; }
   .ld .pnums dd { font-size: 21px; gap: 3px; }
   .ld .pnums dd small { font-size: 11px; }
 }

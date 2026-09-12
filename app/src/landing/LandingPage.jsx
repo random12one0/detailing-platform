@@ -122,13 +122,17 @@ export default function LandingPage() {
       lab: "For detailers",
       h: ["They look you up", "before they call."],
       p: "What they find is either a Facebook page from four years ago, or your own site — your work, your prices, your name in the address bar.",
-      cta: "See it with your name on it",
+      // **THE WORDS CHANGED, NOT THE DESTINATION — 2026-09-12.** This said "See
+      // it with your name on it" and `/examples` shows five OTHER businesses:
+      // Prime, Delgado, Ballantyne, Kinzie, Tampa Bay. The destination is the
+      // best one available and the page's own sentence frames it correctly
+      // — *"Nobody is meant to choose between them — they are the range"* — so
+      // it was the promise that was wrong, not the link.
+      cta: "See five sites built with it",
       // **A CTA GOES WHERE ITS OWN WORDS PROMISE — 2026-09-12.** All three of
       // these pointed at `/pricing`, so a detailer told he would be shown a
       // site was shown a price list. Nothing errored, which is why it survived:
       // a dead link looks like a mistake, and this looked like a decision.
-      // `/examples` is the built index of the five example detailer sites —
-      // somebody's own name in the address bar, which is what this pane says.
       href: "/examples",
     },
     {
@@ -146,17 +150,21 @@ export default function LandingPage() {
       lab: "And the room behind it",
       h: ["The whole day,", "in your pocket."],
       p: "Who is booked, what you are owed, what you spent. Change a price at a red light and your site changes with it.",
-      cta: "Look inside the dashboard",
+      // **AND THIS ONE HAD NOWHERE TO GO AT ALL.** `/app` renders `<Auth />`
+      // without a session (`App.jsx:354`) and `/preview` is correctly guarded
+      // as the back office's own door, so there is no signed-out dashboard to
+      // look inside. **Building one to justify a button would be the tail
+      // wagging the dog**, so the button now says what the page can actually
+      // deliver and points at the section that delivers it: the pinned
+      // dashboard demo under "Stop booking jobs in your DMs".
+      cta: "See what the dashboard does",
       // **THE ONLY ONE OF THE THREE WITH NOWHERE TO GO, AND IT IS NOT WIRED
       // ON PURPOSE.** `/app` renders `<Auth />` when there is no session
       // (`App.jsx:354`), so pointing this there swaps one broken promise for
       // another: a visitor told to look inside the dashboard would meet a
       // sign-in form. `/preview` is the back office's own door and answers a
       // bare visit with "this page is opened from the back office".
-      // **There is no public dashboard demo to link to.** Building one, or
-      // changing these words, is a product decision rather than a wiring fix,
-      // so it is in ROADMAP.md and this stays where it was.
-      href: "/pricing",
+      href: "#thr",
     },
   ];
   /* THE WALL'S TILES, AS DATA. The headline counts them, so the number on

@@ -90,7 +90,7 @@ const OUT = path.join(ROOT, "app", DEV ? "public" : "dist");
 // works the same way `/ex1` does.
 const MULTI = [
   ["ex1", "v-goldenhour.html", "Prime Mobile Detailing",
-   "photograph as the ground · sticky header + dock · three pages",
+   "Three pages, led by one big photograph · a menu that follows you down · for a detailer with work worth showing",
    { "v-goldenhour-work.html": "work.html", "v-goldenhour-prices.html": "prices.html" }],
   // SITE 2 IS ONE PAGE, AND THE PAGE COUNT IS PART OF THE VARIETY — his own
   // instruction (TASTE-NOTES batch 3, item 7). It sits in MULTI rather than
@@ -98,14 +98,14 @@ const MULTI = [
   // they get a named slug he can send to somebody; PAGES is the numbered set
   // of ten from 2026-09-07. `extras` is empty, which the rewrite handles.
   ["ex2", "w-delgado.html", "Delgado Mobile Detailing",
-   "dark made of light · the process drawn as wiring · one page", {}],
+   "One page, dark · walks a customer through what happens, step by step · for work that needs explaining before it sells", {}],
   // SITE 3 CARRIES THREE COLOURWAYS ON ONE SKELETON — his ask, 2026-09-09:
   // *"they all look good so lets do all 3 cuz its easy to just switch
   // colors."* `?c=a` petrol night, `?c=b` painted teal (the default), `?c=c`
   // cool daylight, and the page hands the choice on to its own links so it
   // survives a click through to the prices page.
   ["ex3", "x-ballantyne.html", "Ballantyne Mobile Detailing",
-   "three colourways · fora's corner language · the whole price ladder · two pages",
+   "Two pages, in three colors you can switch between · every price on the page · for a detailer who would rather quote up front than be asked",
    { "x-ballantyne-prices.html": "prices.html" }],
   // SITE 4 SHIPS ITS OWN PAINT SWITCHER, so it does NOT get the injected one
   // ex3 has. His pick from the design sheet was *"B and C are the best do
@@ -114,14 +114,14 @@ const MULTI = [
   // availability chip, so a rounded pill dropped on top would be the one
   // thing on the page that breaks its own corner language.
   ["ex4", "y-kinzie.html", "Kinzie Mobile Detailing",
-   "bone paper or graphite · every seam a 4.2° diagonal · a real before/after wipe · one page", {}],
+   "One page, light or dark · a before-and-after slider a customer can drag · for paint correction and detailing where the result is the argument", {}],
   // SITE 5. HIS INSTRUCTION, 2026-09-09: *"not do any more artifacts and just
   // publish to /ex5… make sure future sessions don't make any more artifacts
   // unless I specifically request it."* So this row IS the delivery mechanism
   // for a tenant site now — `npm run dev` serves it at /ex5 and a build puts
   // it on the domain. Nothing about a tenant page goes out as an artifact.
   ["ex5", "z-tampabay.html", "Tampa Bay Auto Detail",
-   "a photograph at poster scale · one loud red · the vehicle switchboard · weighted scroll · one page", {}],
+   "One page, loud · pick your vehicle and the prices change · for a busy shop that wants a customer booked in under a minute", {}],
 ];
 
 // ───────────────────────────────────────────────────────────────────────────

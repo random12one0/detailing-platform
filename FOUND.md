@@ -130,3 +130,37 @@ Claude Cowork decides what becomes work.
   carries `role="dialog"`, `aria-modal="true"` and an `aria-label`; the copy
   sits in an `aria-live="polite"` region so each step is read out; the card is
   fixed so it never scrolls away; both buttons are 147x38.
+- 2026-09-12 — **`/reset` IS NOT BROKEN, AND THE REPORT WAS SOUND — it was the
+  branch that was invisible from outside.** Reported as uncompletable: the page
+  says "Choose a new password" and asks for the CURRENT one, which somebody who
+  has forgotten it cannot supply. **The screen has two states and the field is
+  gated on one of them.** `lib/supabase.js` computes `arrivedOnRecoveryLink`
+  ABOVE `createClient`, because `detectSessionInUrl` exchanges the token and
+  clears the address bar before React mounts — a screen that looks later finds
+  an empty hash every time.
+  · **Signed in, typing `/reset`** → `state = "signedin"` → the current-password
+    field IS shown and `reauthenticate()` runs. Deliberate: the unlocked-laptop
+    case. **This is what was measured**, because that browser held the demo
+    session all day.
+  · **Arriving on a real recovery link** → `state = "recovery"` → **the field is
+    not rendered and re-authentication is skipped.**
+  **PROVEN IN THE BROWSER, not read off the code.** With
+  `#access_token=…&type=recovery` the fields are `New password`, `Type it
+  again` and nothing else; signed in they are `Current password`, `New
+  password`, `Type it again`.
+  **AND `?token=abc123` COULD NEVER HAVE CHANGED IT:** a Supabase recovery link
+  carries `type=recovery` in the HASH, and the test is
+  `/(^|[#&?])type=recovery([&]|$)/` against `hash + search`. A query parameter
+  of another name correctly matches nothing. **The `navigate` tool also strips
+  fragments**, which cost one false negative here before the hash was set
+  in-page instead — worth knowing for any future hash test.
+- 2026-09-12 — **A PATTERN, THREE FOR THREE ON THE MARKETING SIDE, and it is a
+  habit rather than three accidents.** Every sub-11px string found there is a
+  LABEL attached to a number or an image, and in each case **the label carried
+  the meaning and the thing it labelled got the size**: the 9px wall
+  figcaptions, the 8.5px `0% · ALWAYS` under `// COMMISSION`, and the 10px
+  `TO BUILD IT` / `THEN` / `SAVE ON THE YEAR` over 21px figures on `/pricing`.
+  **Sweep for the RELATIONSHIP, not the value:** any label whose font-size is
+  smaller than the thing it labels is suspect, and on a marketing page it is
+  probably the part doing the selling. All three are fixed; the rule is here so
+  the fourth is caught by looking for the shape.

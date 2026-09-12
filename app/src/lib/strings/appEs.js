@@ -1864,6 +1864,9 @@ export const appEs = {
   "No photos yet.": "Todavía no hay fotos.",
   "Choose a photo to hide it from your site.":
     "Elige una foto para ocultarla de tu sitio.",
+  // /reset's signed-in branch is the CHANGE-password form and says so now.
+  "Change your password": "Cambia tu contraseña",
+  "You will stay signed in.": "Seguirás con la sesión iniciada.",
   // Wave B, 2026-09-12: the two disclosures.
   "Social and review links": "Enlaces de redes y reseñas",
   "{count} other email you can add a line to":
