@@ -608,14 +608,37 @@ if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
 {
   const { coverage } = await import("../scripts/i18n-coverage.mjs");
   const { distinct, missing } = await coverage();
-  // Measured 2026-09-12. Lower this when you fix some; never raise it.
-  const CEILING = 139;
+  // **THE RATCHET IS AT ZERO — closed 2026-09-12, 139 → 0.** It stays a
+  // ratchet rather than becoming an equality check, because the two read the
+  // same at zero and only one of them keeps telling the truth if somebody
+  // legitimately adds a screen faster than its Spanish.
+  const CEILING = 0;
   check(`9a · dashboard strings with no Spanish entry (${missing.size} of ${distinct})`,
     missing.size <= CEILING,
     [...missing.keys()].slice(0, 8).map((k) => JSON.stringify(k)).join("\n        "));
   if (missing.size < CEILING) {
     console.log(`  note  the ceiling is ${CEILING} and the count is ${missing.size} — lower it.`);
   }
+
+  // **AND THE SHAPE CHECKS IN § 2 ONLY EVER READ `es.js`.** The booking
+  // catalogue has been checked for dropped placeholders, `usted` and
+  // copied-across entries since the day it was written; `appEs.js` — now the
+  // larger of the two at 1,547 keys — has never been checked for any of them,
+  // and a count of MISSING entries cannot see a WRONG one. Same family as the
+  // ratchet itself: the number was green because nobody had asked the
+  // question.
+  const { appEs } = await import("../app/src/lib/strings/appEs.js");
+  const pairs = Object.entries(appEs);
+  check("9b · the check has subjects — the dashboard catalogue was read", pairs.length > 1000,
+    `${pairs.length} keys`);
+  const lost = pairs.filter(([k, v]) => holes(k) !== holes(v));
+  check("9c · no placeholder is dropped or invented on a dashboard string",
+    lost.length === 0,
+    lost.slice(0, 3).map(([k, v]) => `${holes(k) || "none"} → ${holes(v) || "none"} in ${JSON.stringify(k.slice(0, 40))}`).join(" · "));
+  const formal = pairs.filter(([, v]) => /\busted\b/i.test(v));
+  check("9d · the dashboard register does not drift into usted", formal.length === 0,
+    formal.slice(0, 3).map(([k]) => JSON.stringify(k.slice(0, 40))).join(" · "));
+  check("9e · no dashboard entry is empty", pairs.every(([, v]) => String(v).trim() !== ""));
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

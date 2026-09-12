@@ -1892,4 +1892,213 @@ export const appEs = {
     "{count} correos más a los que puedes agregarles una línea",
   // One filtered client is still one.
   "Text this one": "Mandar mensaje a este",
+  // ── WAVE: THE 139 THAT THE TOGGLE NEVER DELIVERED — 2026-09-12 ───────────
+  // `scripts/i18n-coverage.mjs` found 139 `t()` call sites on the detailer's
+  // own screens with no entry here at all. `t()` returns an unknown string
+  // unchanged, so every one of them rendered in English on a Spanish dashboard
+  // with nothing anywhere reporting it. Grouped by the screen a detailer meets
+  // them on, worst first.
+
+  // ── THE ADVANCED MONEY SCREEN ────────────────────────────────────────────
+  // The longest single screen in the product and the one most made of labels.
+  // `Kept` and `Spent` name the two halves of one bar, so they are amounts
+  // rather than verbs: "Te quedó" and "Gastado".
+  "Nothing came in this period.": "No entró nada en este periodo.",
+  "You brought in {in} and kept {net} of it.": "Ingresaste {in} y te quedaste con {net}.",
+  "You brought in {in} and spent {out}, so you are {down} down.":
+    "Ingresaste {in} y gastaste {out}, así que estás {down} abajo.",
+  "Back to Money": "Volver a Dinero",
+  "Kept": "Te quedó",
+  "Spent": "Gastado",
+  "Net": "Neto",
+  "What it was worth": "Lo que valió",
+  "What you actually kept after everything you spent.":
+    "Lo que de verdad te quedó después de todo lo que gastaste.",
+  "Per hour, after expenses": "Por hora, después de gastos",
+  "{net} over {hours} hours booked": "{net} en {hours} horas reservadas",
+  "No job in this period has a length on it.":
+    "Ningún trabajo de este periodo tiene una duración anotada.",
+  "Margin": "Margen",
+  "kept of every dollar": "te queda de cada dólar",
+  "Average job": "Trabajo promedio",
+  "Still to collect": "Por cobrar",
+  "Work you have finished and not been paid for yet.":
+    "Trabajo que ya terminaste y que todavía no te han pagado.",
+  "Everything finished in this period has been paid for.":
+    "Todo lo que terminaste en este periodo ya está pagado.",
+  "In the bank": "En el banco",
+  "Still owed": "Te deben",
+  "work finished, not paid for": "trabajo terminado, sin pagar",
+  "What came in": "Lo que entró",
+  "Where the money came from: what you quoted, and what you sold once you were there.":
+    "De dónde vino el dinero: lo que cotizaste y lo que vendiste ya estando ahí.",
+  "Sold at the job": "Vendido en el trabajo",
+  "on {count} of {total}": "en {count} de {total}",
+  "Sells an extra": "Vende un extra",
+  "{avg} each": "{avg} cada uno",
+  "only the ones you wrote down": "solo las que anotaste",
+  "Left a tip": "Dejó propina",
+  "Where it went": "A dónde se fue",
+  "Nothing written down as an expense in this period.":
+    "No anotaste ningún gasto en este periodo.",
+  "Everything out": "Todo lo que salió",
+  "What sells": "Lo que se vende",
+  "No finished job in this period has a service on it.":
+    "Ningún trabajo terminado de este periodo tiene un servicio anotado.",
+  "Your week": "Tu semana",
+  "No finished jobs in this period.": "No hay trabajos terminados en este periodo.",
+  "Busiest day": "Día más ocupado",
+  "Best-paying day": "Día que paga mejor",
+  "Who came": "Quién vino",
+  "Whether this period was new faces or people coming back.":
+    "Si este periodo fue de caras nuevas o de gente que vuelve.",
+  "Could not check who had been before, so everyone below counts as new.":
+    "No se pudo revisar quién ya había venido, así que todos los de abajo cuentan como nuevos.",
+  "People": "Personas",
+  "somebody who came twice is one person": "alguien que vino dos veces es una persona",
+  "Came back": "Volvieron",
+  "First time": "Primera vez",
+  "Been before": "Ya habían venido",
+  "Spent the most": "Quien más gastó",
+
+  // ── THE MONEY SCREEN'S OWN FIVE ──────────────────────────────────────────
+  "Most booked": "Más reservado",
+  "Times booked": "Veces reservado",
+  "The full picture": "El panorama completo",
+  "Where your money comes from": "De dónde viene tu dinero",
+  "Make a link for a flyer or a post, then see what it brought in.":
+    "Crea un enlace para un volante o una publicación y mira cuánto trajo.",
+
+  // ── HOW YOU GET PAID ─────────────────────────────────────────────────────
+  "Something else": "Otra cosa",
+  "Your {name}": "Tu {name}",
+  "Anything else you take": "Cualquier otra forma que aceptes",
+  "What they need": "Lo que necesitan",
+  "A username, a number, or a link": "Un usuario, un número o un enlace",
+  "Add a way to be paid": "Agregar una forma de cobro",
+  "What it is called": "Cómo se llama",
+  "e.g. Apple Pay": "p. ej. Apple Pay",
+  "Paste a link and your customer can open it directly. Anything else we print exactly as you type it.":
+    "Pega un enlace y tu cliente puede abrirlo directo. Cualquier otra cosa la mostramos tal como la escribas.",
+  "Add it": "Agregarlo",
+
+  // ── YOUR WEB ADDRESS ─────────────────────────────────────────────────────
+  // Three of these are FRAGMENTS, because the screen puts a bold word or the
+  // detailer's own subdomain in the middle of a sentence. Each one survives in
+  // order: Spanish puts the pressed button and the record's name in the same
+  // place English does, which is the only reason the split is safe here.
+  // `Name` stays `Name` — it is the field's label in the domain company's own
+  // interface, and translating it sends somebody looking for a field that is
+  // not there.
+  "You point the address at us, where you bought it. Then press":
+    "Apuntas la dirección hacia nosotros, donde la compraste. Luego presiona",
+  "At the company you bought the address from — GoDaddy, Namecheap, Squarespace, Cloudflare, whoever it was — find DNS records and add one:":
+    "En la compañía donde compraste la dirección — GoDaddy, Namecheap, Squarespace, Cloudflare, la que haya sido — busca los registros DNS y agrega uno:",
+  "the one we send you": "el que te enviamos",
+  "Name is just": "Name es solo",
+  ", not the whole address. The company adds the rest, and if it asks for a TTL, leave it alone.":
+    ", no la dirección completa. La compañía agrega el resto, y si te pide un TTL, déjalo como está.",
+  "This is a bare domain with no subdomain in front of it, and most domain companies will not point one of those at another site. Ask them for an ALIAS or ANAME record, or add a subdomain address instead — book.{domain} — which always works.":
+    "Este es un dominio pelado, sin subdominio delante, y la mayoría de las compañías de dominios no apuntan uno de esos a otro sitio. Pídeles un registro ALIAS o ANAME, o agrega una dirección con subdominio — book.{domain} — que siempre funciona.",
+  "It can take a few minutes or a few hours to spread. A check that fails is almost always \"not yet\" rather than \"wrong\", so press it again later.":
+    "Puede tardar unos minutos o unas horas en propagarse. Una revisión que falla casi siempre quiere decir \"todavía no\" y no \"está mal\", así que vuelve a presionarla más tarde.",
+
+  // ── TELL ME WHAT IS WRONG ────────────────────────────────────────────────
+  "Sent. You will get an answer the same working day.":
+    "Enviado. Recibirás una respuesta el mismo día hábil.",
+  "That did not send. Email {address} instead. Your words are still in the box.":
+    "Eso no se envió. Escribe a {address} en su lugar. Tus palabras siguen en la caja.",
+  "Anything at all: something broken, something confusing, something missing, or a thing you want the dashboard to do. It goes straight to one person.":
+    "Lo que sea: algo roto, algo confuso, algo que falta, o algo que quieres que el panel haga. Le llega directo a una persona.",
+  "The more you tell me the faster I can fix it. If something went wrong, what you were doing when it did is the most useful part.":
+    "Cuanto más me cuentes, más rápido lo puedo arreglar. Si algo salió mal, lo más útil es qué estabas haciendo cuando pasó.",
+  "{n} characters left": "Quedan {n} caracteres",
+  "Send it": "Enviarlo",
+
+  // ── A PAGE THAT IS NOT THERE ─────────────────────────────────────────────
+  "That page does not exist.": "Esa página no existe.",
+  "The address may have a typo in it, or the link you followed is out of date.":
+    "La dirección puede tener un error de escritura, o el enlace que seguiste ya no sirve.",
+  "Go to the home page": "Ir a la página principal",
+  "Your dashboard": "Tu panel",
+
+  // ── THE KIT, AND ONE SETUP FALLBACK ──────────────────────────────────────
+  // `PasswordInput`'s toggle is the accessible name of a button with no words
+  // in it, so it is the only thing a screen reader has to go on.
+  "Hide password": "Ocultar contraseña",
+  "Show password": "Mostrar contraseña",
+  "This part is not ready yet.": "Esta parte todavía no está lista.",
+
+  // ── THE WEBSITE INTAKE FORM ──────────────────────────────────────────────
+  // The longest form in the product, and the one a detailer meets before they
+  // have a site at all. `Color {n}` is identical in both languages and stays
+  // that way.
+  "Stop": "Detener",
+  "Say it instead": "Dilo en voz alta",
+  "Listening… stop when you are done": "Escuchando… detén cuando termines",
+  "Start from one of these, then change it": "Empieza con una de estas y luego cámbiala",
+  "Not on the site at all": "Que no aparezca en el sitio",
+  "Other": "Otro",
+  "Needed": "Obligatorio",
+  "Filled in from your setup. Change it if the site should say something else.":
+    "Tomado de tu configuración. Cámbialo si el sitio debe decir otra cosa.",
+  "Type it here": "Escríbelo aquí",
+  "On your site:": "En tu sitio:",
+  "It is on my website": "Está en mi sitio web",
+  "Color {n}": "Color {n}",
+  "Hex code": "Código hex",
+  "Another color": "Otro color",
+  "Add a color": "Agregar un color",
+  "Uploading…": "Subiendo…",
+  "Choose photos": "Elegir fotos",
+  "{n} added": "{n} agregadas",
+  "Sign in to upload for real": "Inicia sesión para subirlas de verdad",
+  "A site we built. Open it, scroll it, click around. Then say what you liked and what you did not.":
+    "Un sitio que construimos. Ábrelo, desplázalo, haz clic por ahí. Después dinos qué te gustó y qué no.",
+  "Open it": "Ábrelo",
+  "I like it": "Me gusta",
+  "Not for me": "No es para mí",
+  "No strong feeling": "Me da igual",
+  "What did you like?": "¿Qué te gustó?",
+  "What put you off?": "¿Qué no te gustó?",
+  "Anything specific · a feature, a section, the way something works":
+    "Algo en concreto · una función, una sección, la forma en que algo funciona",
+  "Anything specific": "Algo en concreto",
+  "Your thoughts": "Lo que piensas",
+  "Web address": "Dirección web",
+  "I don't": "No tengo",
+  "What's wrong with it?": "¿Qué tiene de malo?",
+  "What do you like about it?": "¿Qué te gusta de él?",
+  "Another one": "Otro más",
+  "Add a website": "Agregar un sitio web",
+  "Your website": "Tu sitio web",
+  "Sent. We will start building.": "Enviado. Vamos a empezar a construir.",
+  "{done} of {total} answered. Come back any time to change something.":
+    "{done} de {total} respondidas. Vuelve cuando quieras para cambiar algo.",
+  "Go back through it": "Repasarlo de nuevo",
+  "Say whether you like it.": "Dinos si te gusta.",
+  "Add at least one website.": "Agrega al menos un sitio web.",
+  "Preview. This is the form a detailer fills in, and nothing here is saved.":
+    "Vista previa. Este es el formulario que llena un detailer, y aquí nada se guarda.",
+  "About fifteen minutes.": "Unos quince minutos.",
+  "It saves as you go. Close it whenever you like and come back to the same place.":
+    "Se guarda mientras avanzas. Ciérralo cuando quieras y vuelve al mismo punto.",
+  "We start building once it is finished.": "Empezamos a construir cuando lo termines.",
+  "Got a website already?": "¿Ya tienes un sitio web?",
+  "Your current website": "Tu sitio web actual",
+  "Then skip any question it already answers. We will take that from your site.":
+    "Entonces sáltate las preguntas que ya responde. Eso lo tomamos de tu sitio.",
+  "No preference": "Sin preferencia",
+  "Only the owner can answer this, so nothing here will save.":
+    "Solo el dueño puede responder esto, así que aquí nada se guarda.",
+  "{n} still needed on this page.": "Faltan {n} en esta página.",
+  "Nothing gets built until you send this. You can still change anything afterwards.":
+    "No se construye nada hasta que envíes esto. Después puedes cambiar lo que quieras.",
+  "Finish later": "Terminar después",
+  "Skip": "Saltar",
+  "I do not want a website": "No quiero un sitio web",
+  "{done} of {total} answered · nothing is saved in a preview":
+    "{done} de {total} respondidas · en una vista previa nada se guarda",
+  "{done} of {total} answered · saved automatically":
+    "{done} de {total} respondidas · se guarda automáticamente",
 };
