@@ -239,7 +239,7 @@ export default function Campaigns() {
 
         {/* AN EMPTY SCREEN IS ONE SENTENCE, IN THE DETAILER'S TERMS. */}
         {!busy && rows.length === 0 && !error && (
-          <p className="body">{t("Nothing here yet — every booking you get is counted as somebody who just found you.")}</p>
+          <p className="body">{t("Nothing here yet. Every booking you get is counted as somebody who just found you.")}</p>
         )}
 
         <div className={`rows rows-stack${busy ? " refreshing" : ""}`} aria-busy={busy || undefined}>

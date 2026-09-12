@@ -425,7 +425,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                   and only one of them is what the job costs. */}
               {quotedAmount !== null && (
                 <p className="body">
-                  {t("Quote sent for")} <strong className="num">{money(quotedAmount)}</strong> {t("— not charged until they accept it.")}
+                  {t("Quote sent for")} <strong className="num">{money(quotedAmount)}</strong> {t("· not charged until they accept it.")}
                 </p>
               )}
               {/* Written by Finalize payment and, until now, printed nowhere. */}
@@ -564,7 +564,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
           <Sheet onClose={() => setPickingText(false)} title={t("Send a text")} peek={48}>
             <div className="tight">
               {templates.length === 0 && (
-                <p className="quiet">{t("No templates yet — the gear, then Message templates.")}</p>
+                <p className="quiet">{t("No templates yet · the gear, then Message templates.")}</p>
               )}
               {templates.map((tpl) => (
                 <a key={tpl.id} className="card tappable" href={smsHref(filled(tpl.body))}

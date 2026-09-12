@@ -119,7 +119,7 @@ export default function Faq() {
             nowhere in this product: the booking page's steps are on a measured
             height budget and a block of questions cannot go on one. */}
         <p className="quiet" style={{ marginTop: 0 }}>
-          {t("The questions customers actually ask you. They go on your website — that part is still being built.")}
+          {t("The questions customers actually ask you. They go on your website. That part is still being built.")}
         </p>
 
         {/* The help line is not a restatement of the label: it answers the
@@ -156,7 +156,7 @@ export default function Faq() {
         {/* AN EMPTY SCREEN IS ONE SENTENCE, NAMED IN THE CUSTOMER'S TERMS
             (§11's state rule) — never "No records." */}
         {rows.length === 0 && !error && (
-          <p className="body">{t("Nothing here yet — your website has no questions section.")}</p>
+          <p className="body">{t("Nothing here yet. Your website has no questions section.")}</p>
         )}
 
         <div className={`rows rows-stack${busy ? " refreshing" : ""}`} aria-busy={busy || undefined}>

@@ -225,7 +225,7 @@ export default function AdvancedMoney({
     ? t("Nothing came in this period.")
     : m.net >= 0
       ? t("You brought in {in} and kept {net} of it.", { in: money(m.collected), net: money(m.net) })
-      : t("You brought in {in} and spent {out} — that is {down} down.",
+      : t("You brought in {in} and spent {out}, so you are {down} down.",
         { in: money(m.collected), out: money(m.spent), down: money(Math.abs(m.net)) });
 
   const busiest = m.week.reduce((a, d) => Math.max(a, d.jobs), 0);
@@ -365,7 +365,7 @@ export default function AdvancedMoney({
           give, which is a different fact from a price, and the note says they
           are only the ones written down at the job. */}
       <Panel title={t("What came in")}
-        says={t("Where the money came from — what you quoted, and what you sold once you were there.")}>
+        says={t("Where the money came from: what you quoted, and what you sold once you were there.")}>
         <div className="advkpis two">
           <Kpi label={t("Collected")} value={money(m.collected)}
             now={m.collected} prev={m.prevCollected} />

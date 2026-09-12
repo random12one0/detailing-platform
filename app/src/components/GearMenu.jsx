@@ -63,9 +63,9 @@ function billingNow(sub) {
   // Null for a staff member (who never sees this row) and for an owner with no
   // subscription (who is the whole product today).
   if (!sub) return t("Not set up yet");
-  if (sub.status === "suspended") return t("Unpaid — your page is offline");
+  if (sub.status === "suspended") return t("Unpaid · your page is offline");
   if (sub.status === "past_due") return t("A payment did not go through");
-  if (sub.cancel_at_period_end) return t("Ending — no further charges");
+  if (sub.cancel_at_period_end) return t("Ending · no further charges");
   if (sub.status !== "active") return t("Not set up yet");
   const next = sub.current_period_end
     ? new Date(sub.current_period_end).toLocaleDateString(appIntlLocale(), { month: "short", day: "numeric" })

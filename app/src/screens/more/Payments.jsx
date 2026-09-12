@@ -289,14 +289,14 @@ export default function Payments() {
               they hold up today is deciding about 2.9% + 30c, and it is not a
               number this product should make them go and look up. */}
           <p className="quiet" style={{ marginTop: 0 }}>
-            {t("Your customers pay by card from their booking page, and the money goes straight to your own Stripe account — we never hold it. Stripe takes 2.9% + 30¢ of each payment.")}
+            {t("Your customers pay by card from their booking page, and the money goes straight to your own Stripe account. We never hold it. Stripe takes 2.9% + 30¢ of each payment.")}
           </p>
 
           {!card.available ? (
             /* THE PLATFORM'S OWN SWITCH IS OFF. Saying so is the alternative
                to a button that answers 503 - the detailer has done nothing
                wrong and there is nothing here for them to fix. */
-            <p className="body">{t("Card payments are not switched on yet. Nothing for you to do — we will tell you when they are.")}</p>
+            <p className="body">{t("Card payments are not switched on yet. Nothing for you to do; we will tell you when they are.")}</p>
           ) : !card.connected ? (
             <>
               <p className="muted" style={{ margin: "0 0 var(--sp-3)" }}>{t("You will need a Stripe account. If you do not have one, Stripe makes it during this.")}</p>

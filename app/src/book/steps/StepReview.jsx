@@ -112,10 +112,10 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
         <p className="bk-muted" style={{ marginTop: 6 }}>
           {form.serviceType === "mobile"
             ? (form.customerAddress
-              ? t("We come to you — {address}", { address: form.customerAddress })
+              ? t("We come to you · {address}", { address: form.customerAddress })
               : t("We come to you"))
             : (business.dropoff_address
-              ? t("Drop-off — {address}", { address: business.dropoff_address })
+              ? t("Drop-off · {address}", { address: business.dropoff_address })
               : t("Drop-off"))}
         </p>
       </div>
@@ -187,7 +187,7 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
             {/* The AREA is the detailer's own word for a place and stays as
                 they typed it; only the label around it moves. */}
             <span>{quote.travel_zone
-              ? t("Travel — {zone}", { zone: quote.travel_zone })
+              ? t("Travel · {zone}", { zone: quote.travel_zone })
               : t("Travel")}</span>
             <span className="bk-price">{money(quote.travel_fee)}</span>
           </div>

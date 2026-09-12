@@ -225,7 +225,7 @@ export default function BookingLink({
             <TriangleAlert size={18} strokeWidth={2} />
             <span>
               <strong>{t("This link can’t take a booking yet.")}</strong> Answer{" "}
-              <em>{t("where you work")}</em> {t("in your setup — until then anyone who opens it is told you are still setting up.")}
+              <em>{t("where you work")}</em> {t("in your setup. Until then anyone who opens it is told you are still setting up.")}
             </span>
           </div>
         )}

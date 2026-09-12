@@ -65,7 +65,7 @@ export default function BookingConfirmed({ booking, form }) {
               ? t("We’ll come to {address}", { address: form.customerAddress })
               : business.dropoff_address
                 ? t("Drop off at {address}", { address: business.dropoff_address })
-                : t("Drop-off — we’ll confirm the address")}
+                : t("Drop-off · we’ll confirm the address")}
           </p>
           <div className="bk-row between" style={{ marginTop: 10 }}>
             <span>{t("Estimated total")}</span>

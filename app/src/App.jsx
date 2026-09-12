@@ -418,7 +418,7 @@ export default function App() {
       )}
       {!isPreviewTab && imp && (
         <div className="impbar" role="status">
-          <span>{t("Platform view — signed in as {who}. Anything you change is theirs.", { who: imp.business || imp.as })}</span>
+          <span>{t("Platform view · signed in as {who}. Anything you change is theirs.", { who: imp.business || imp.as })}</span>
           {/* `signOut` drops the note itself — every sign-out does, not just
               this one, because the ordinary gear sign-out is the exit
               somebody takes when they have forgotten they are impersonating.

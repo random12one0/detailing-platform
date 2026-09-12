@@ -141,7 +141,7 @@ export default function WebAddress() {
         {error && <div className="error-box">{error}</div>}
 
         {!busy && rows.length === 0 && (
-          <p className="body">{t("Nothing here yet — you are on detailingplatform.com.")}</p>
+          <p className="body">{t("Nothing here yet · you are on detailingplatform.com.")}</p>
         )}
 
         <div className={`rows rows-stack${busy ? " refreshing" : ""}`} aria-busy={busy || undefined}>
@@ -178,7 +178,7 @@ export default function WebAddress() {
               {/* SAYING OUT LOUD THAT ONE STEP IS OURS. A detailer who does
                   not know this presses Check, sees it fail, and concludes the
                   feature is broken. */}
-              <li><strong>{t("We switch it on at our end.")}</strong> {t("Tell us the address and we do it — it takes a couple of minutes and it cannot be done from here.")}</li>
+              <li><strong>{t("We switch it on at our end.")}</strong> {t("Tell us the address and we do it. It takes a couple of minutes and it cannot be done from here.")}</li>
               <li>
                 {t("You point the address at us, where you bought it. Then press")} <strong>{t("Check it")}</strong>.
               </li>
@@ -240,7 +240,7 @@ export default function WebAddress() {
                         </div>
                       </div>
                       <p className="quiet" style={{ marginTop: 8 }}>
-                        {t("Name is just")} <strong>{sub}</strong>{t(", not the whole address — the company adds the rest. If it asks for a TTL, leave it alone.")}
+                        {t("Name is just")} <strong>{sub}</strong>{t(", not the whole address. The company adds the rest, and if it asks for a TTL, leave it alone.")}
                       </p>
                     </>
                   ) : (
@@ -253,7 +253,7 @@ export default function WebAddress() {
                       a detailer who reads that as "wrong" starts changing
                       things that were right. */}
                   <p className="quiet" style={{ marginTop: 8 }}>
-                    {t("It can take a few minutes or a few hours to spread. A check that fails is almost always \"not yet\" rather than \"wrong\" — press it again later.")}
+                    {t("It can take a few minutes or a few hours to spread. A check that fails is almost always \"not yet\" rather than \"wrong\", so press it again later.")}
                   </p>
                 </div>
               );

@@ -186,11 +186,11 @@ export const es = {
   // ── Step: review, and the receipt ──────────────────────────────────────
   "Your appointments": "Tus citas",
   "When": "Cuándo",
-  "We come to you — {address}": "Vamos a ti — {address}",
+  "We come to you · {address}": "Vamos a ti — {address}",
   "Drop-off": "Entrega en el local",
-  "Drop-off — {address}": "Entrega en el local — {address}",
+  "Drop-off · {address}": "Entrega en el local — {address}",
   "Travel": "Traslado",
-  "Travel — {zone}": "Traslado — {zone}",
+  "Travel · {zone}": "Traslado — {zone}",
   "{percent}% off": "{percent}% de descuento",
   "Promo {code}": "Código {code}",
   "Some of this is priced from. We’ll confirm once we’ve seen the vehicle, and we’ll ask before doing anything extra.":
@@ -216,7 +216,7 @@ export const es = {
   "Your appointment": "Tu cita",
   "We’ll come to {address}": "Vamos a {address}",
   "Drop off at {address}": "Entrega en {address}",
-  "Drop-off — we’ll confirm the address": "Entrega en el local — te confirmamos la dirección",
+  "Drop-off · we’ll confirm the address": "Entrega en el local — te confirmamos la dirección",
   "Add to my calendar": "Agregar a mi calendario",
   "View, change or cancel this request": "Ver, cambiar o cancelar esta solicitud",
   "View, change or cancel this booking": "Ver, cambiar o cancelar esta reserva",
@@ -261,8 +261,8 @@ export const es = {
   "Drop-off at {address}": "Entrega en {address}",
   "This time is held for you while {business} looks at it.":
     "Te guardamos esta hora mientras {business} la revisa.",
-  "Also booked — 1 more car": "También reservado — 1 carro más",
-  "Also booked — {n} more cars": "También reservado — {n} carros más",
+  "Also booked · 1 more car": "También reservado — 1 carro más",
+  "Also booked · {n} more cars": "También reservado — {n} carros más",
   "Vehicle": "Vehículo",
   "Each one can be changed or cancelled on its own.":
     "Cada una se puede cambiar o cancelar por separado.",
@@ -315,7 +315,7 @@ export const es = {
 
   // ── The opt-out, reached from an email ─────────────────────────────────
   "This link has expired": "Este enlace ya venció",
-  "Reply to the email you got instead — it reaches the business directly.":
+  "Reply to the email you got instead. It reaches the business directly.":
     "Responde al correo que recibiste — le llega directo al negocio.",
   "Done": "Listo",
   "{business} won't email you about coming back again. If you book with them, you'll still get the confirmation and reminder for that booking.":

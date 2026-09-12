@@ -240,7 +240,7 @@ function Question({ q, a, set }) {
           site may claim nothing they did not establish. The note goes when
           they touch it. */}
       {a[`${q.id}::from`] && !a[`${q.id}::web`] && (
-        <p className="fromdash">{t("Filled in from your setup — change it if the site should say something else.")}</p>
+        <p className="fromdash">{t("Filled in from your setup. Change it if the site should say something else.")}</p>
       )}
       {/* A FACT THE QUESTION CANNOT CARRY WITHOUT GETTING LONG. Only two
           questions have one, and both are about reviews: what happens to the
@@ -525,7 +525,7 @@ function LookStep({ site, value, set }) {
             </div>
             <textarea rows={2} className="intakeinput"
               placeholder={v.verdict === "yes"
-                ? t("Anything specific — a feature, a section, the way something works")
+                ? t("Anything specific · a feature, a section, the way something works")
                 : t("Anything specific")}
               aria-label={t("Your thoughts")}
               value={v.note ?? ""} onChange={(e) => set({ ...v, note: e.target.value })} />
@@ -840,7 +840,7 @@ export default function SiteIntake({ onClose, preview = false }) {
     <div className="group setupform intake">
       {preview && (
         <div className="impbar" role="status">
-          <span>{t("Preview. This is the form a detailer fills in — nothing here is saved.")}</span>
+          <span>{t("Preview. This is the form a detailer fills in, and nothing here is saved.")}</span>
         </div>
       )}
       <div className="settings-head">

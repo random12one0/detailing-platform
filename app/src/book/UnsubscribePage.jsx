@@ -79,7 +79,7 @@ export default function UnsubscribePage() {
         <div className="bk-center">
           <h1>{t("This link has expired")}</h1>
           <p className="bk-muted">
-            {t("Reply to the email you got instead — it reaches the business directly.")}
+            {t("Reply to the email you got instead. It reaches the business directly.")}
           </p>
         </div>
       </div>

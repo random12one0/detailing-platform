@@ -57,7 +57,7 @@ export default function ReportProblem() {
     } catch (e) {
       setMsg({
         ok: false,
-        text: t("That did not send. Email {address} instead — your words are still in the box.",
+        text: t("That did not send. Email {address} instead. Your words are still in the box.",
           { address: SUPPORT_EMAIL }),
       });
     } finally {

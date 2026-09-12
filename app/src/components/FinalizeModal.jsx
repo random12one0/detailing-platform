@@ -143,7 +143,7 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
             </div>
             <label className="field"><span>{t("Anything to note")}</span>
               <input value={paymentNotes} onChange={(e) => setPaymentNotes(e.target.value)}
-                placeholder={t("Optional — check number, split payment…")} /></label>
+                placeholder={t("Optional · check number, split payment…")} /></label>
           </>
         )}
 

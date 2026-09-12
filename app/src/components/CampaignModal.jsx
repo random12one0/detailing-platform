@@ -131,7 +131,7 @@ export default function CampaignModal({ people, onClose, onSent }) {
           typing the message would be the worst possible moment to learn it. */}
       {!address && (
         <div className="error-box">
-          {t("Add your mailing address under Business info first. An email like this has to carry one at the bottom — that is the law, not our rule.")}
+          {t("Add your mailing address under Business info first. An email like this has to carry one at the bottom. That is the law, not our rule.")}
         </div>
       )}
 

@@ -124,7 +124,7 @@ export default function Maintenance() {
             monthly plans they already have, and the difference — a date with a
             consequence rather than a rhythm — is the whole feature. */}
         <p className="quiet" style={{ marginTop: 0 }}>
-          {t("For work that has a deadline rather than a rhythm — a coating warranty that voids if the yearly inspection is missed. Your customer gets a reminder at 60, 30 and 14 days, and again the day before.")}
+          {t("For work that has a deadline rather than a rhythm: a coating warranty that voids if the yearly inspection is missed. Your customer gets a reminder at 60, 30 and 14 days, and again the day before.")}
         </p>
 
         <label className="field"><span>{t("Whose car")}</span>
@@ -165,7 +165,7 @@ export default function Maintenance() {
         {error && <div className="error-box">{error}</div>}
 
         {rows !== null && rows.length === 0 && !error && (
-          <p className="body">{t("Nothing has a deadline yet — this is for coatings and warranties.")}</p>
+          <p className="body">{t("Nothing has a deadline yet. This is for coatings and warranties.")}</p>
         )}
 
         {/* `rows` AND NOT `rows-stack`. The stacking variant exists for the

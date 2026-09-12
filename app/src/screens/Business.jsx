@@ -79,7 +79,7 @@ const time12 = (hm) => {
 // weekdays become a range, and identical hours are stated once.
 function describeHours(rows) {
   const open = (rows ?? []).filter((r) => r.open_time).sort((a, b) => a.weekday - b.weekday);
-  if (open.length === 0) return t("No days set — nobody can book");
+  if (open.length === 0) return t("No days set · nobody can book");
   const same = open.every((r) => r.open_time === open[0].open_time && r.close_time === open[0].close_time);
   const days = open.map((r) => r.weekday);
   const consecutive = days.every((d, i) => i === 0 || d === days[i - 1] + 1);

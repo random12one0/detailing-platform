@@ -183,7 +183,7 @@ export default function Notifications() {
         blurb={t("Get an alert on your phone when a booking comes in. It works when the dashboard is closed.")}>
         {device === "unsupported" ? (
           <Setting label={t("Not available in this browser")} stacked
-            help={t("On an iPhone, add this dashboard to your home screen first — Safari only allows it there.")} />
+            help={t("On an iPhone, add this dashboard to your home screen first. Safari only allows it there.")} />
         ) : device === "blocked" ? (
           <Setting label={t("Blocked for this site")} stacked
             help={t("Turn notifications back on for this site in your browser settings, then come back here.")}>
@@ -336,7 +336,7 @@ export default function Notifications() {
           goes out as typed. Three facts, one sentence each, and none of them
           restates a label. */}
       <Group title={t("Your own words")}
-        blurb={t("Your own sentence at the bottom of one of these emails, in a panel of its own under everything we write. The customer reads it exactly as you type it — a gate code, where to park, that you will text when you are on the way. Leave one blank and that email goes out as it always did.")}>
+        blurb={t("Your own sentence at the bottom of one of these emails, in a panel of its own under everything we write. The customer reads it exactly as you type it: a gate code, where to park, that you will text when you are on the way. Leave one blank and that email goes out as it always did.")}>
         {/* **TWELVE IDENTICAL ROWS, ELEVEN OF THEM EMPTY — 2026-09-12.**
             Every one of these rendered the same *Add a line* button under the
             same two lines of text, so the block was twelve repetitions of one

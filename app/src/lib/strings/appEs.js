@@ -137,7 +137,7 @@ export const appEs = {
   "Business": "Negocio",
   "New booking": "Nueva cita",
   "Leave": "Salir",
-  "Platform view — signed in as {who}. Anything you change is theirs.":
+  "Platform view · signed in as {who}. Anything you change is theirs.":
     "Vista de plataforma — sesión iniciada como {who}. Todo lo que cambies es de ellos.",
 
   // ── TODAY ────────────────────────────────────────────────────────────────
@@ -168,7 +168,7 @@ export const appEs = {
   "Fix this": "Arreglar esto",
   "Finish setting up": "Termina de configurar",
   "Your services come first": "Tus servicios van primero",
-  "Nobody can book yet — your page has no services on it.":
+  "Nobody can book yet. Your page has no services on it.":
     "Nadie puede agendar todavía — tu página no tiene servicios.",
   "Your booking link is how a day gets filled.":
     "Tu enlace de citas es lo que llena el día.",
@@ -282,7 +282,7 @@ export const appEs = {
   "Search name or phone…": "Busca por nombre o teléfono…",
   "Not seen in 3 months": "Sin venir en 3 meses",
   "Everyone has been in within three months.": "Todos han venido en los últimos tres meses.",
-  "No customers yet — they appear on their own when bookings come in.":
+  "No customers yet. They appear on their own when bookings come in.":
     "Aún no hay clientes — aparecen solos cuando entran las citas.",
   "Last visit": "Última visita",
   "No completed visits yet": "Aún no hay visitas terminadas",
@@ -294,7 +294,7 @@ export const appEs = {
   "Nothing booked yet.": "Nada agendado todavía.",
   "Call": "Llamar",
   "Send this to the next person who asks.": "Manda esto a la próxima persona que pregunte.",
-  "This address bounced — the last email to it was refused. Check it with them, or call instead.":
+  "This address bounced. The last email to it was refused, so check it with them or call instead.":
     "Este correo rebotó — el último mensaje fue rechazado. Confírmalo con ellos, o mejor llama.",
   // Forgetting a customer. The consequence is spelled out because it cannot be
   // undone, and *"Eliminar"* beside *"Mejor no"* is an unambiguous pair.
@@ -344,7 +344,7 @@ export const appEs = {
     "Nada que vender — tu página de citas está vacía",
   "Not offering one": "No ofreces ninguno",
   "Nothing has a deadline": "Nada tiene fecha límite",
-  "No days set — nobody can book": "Sin días abiertos — nadie puede agendar",
+  "No days set · nobody can book": "Sin días abiertos — nadie puede agendar",
   "Nothing on your emails yet": "Nada en tus correos todavía",
   "Nothing on your website yet": "Nada en tu sitio todavía",
   "Nothing offered": "No ofreces nada",
@@ -405,9 +405,9 @@ export const appEs = {
   "Maps": "Mapas",
   "{count} of 5 emails on": "{count} de 5 correos activos",
   "Not set up yet": "Aún sin configurar",
-  "Unpaid — your page is offline": "Sin pagar — tu página está fuera de línea",
+  "Unpaid · your page is offline": "Sin pagar — tu página está fuera de línea",
   "A payment did not go through": "Un pago no se completó",
-  "Ending — no further charges": "Terminando — no habrá más cargos",
+  "Ending · no further charges": "Terminando — no habrá más cargos",
   "{amount} a month": "{amount} al mes",
   "{amount} a year": "{amount} al año",
   "{amount} a month · next {date}": "{amount} al mes · siguiente {date}",
@@ -559,7 +559,7 @@ export const appEs = {
   "A percentage of the job's price before any discount.":
     "Un porcentaje del precio del trabajo antes de cualquier descuento.",
   "A flat amount added to the job.": "Una cantidad fija agregada al trabajo.",
-  "You carry your own — the customer is never asked about {what}.":
+  "You carry your own, so the customer is never asked about {what}.":
     "Tú llevas el tuyo — nunca se le pregunta al cliente por {what}.",
   "The booking page asks about {what} and records the answer, so you know what to load.":
     "La página de citas pregunta por {what} y guarda la respuesta, para que sepas qué cargar.",
@@ -573,11 +573,11 @@ export const appEs = {
     "Nadie podrá agendar con menos de {days} días.",
   "Customers can only book a few days ahead.":
     "Los clientes solo pueden agendar con pocos días de anticipación.",
-  "Very fine slot grid — the time picker will be crowded.":
+  "Very fine slot grid · the time picker will be crowded.":
     "Intervalos muy chicos — el selector de hora se va a ver saturado.",
-  "Very coarse slot grid — few start times will be offered.":
+  "Very coarse slot grid · few start times will be offered.":
     "Intervalos muy grandes — se van a ofrecer pocas horas de inicio.",
-  "That cap is unusual — double-check it's what you want.":
+  "That cap is unusual. Double-check it's what you want.":
     "Ese tope es poco común — revisa que sea lo que quieres.",
   "Anything inside {days} days needs a phone call to change.":
     "Cualquier cosa dentro de {days} días necesita una llamada para cambiarse.",
@@ -600,7 +600,7 @@ export const appEs = {
   "Either": "Cualquiera",
   "Base price": "Precio base",
   "Costs extra": "Cuesta extra",
-  "Booked on its own — nothing else can be added":
+  "Booked on its own · nothing else can be added":
     "Se agenda solo — no se le puede agregar nada más",
   "Customers pick one": "Los clientes escogen uno",
   "Customers pick any number": "Los clientes escogen los que quieran",
@@ -613,11 +613,11 @@ export const appEs = {
     "{count} servicio está en esta categoría. Al eliminarla se quedan — solo dejan de estar agrupados. ¿Continuar?",
   "{count} services are in this category. Deleting it keeps them — they just stop being grouped. Continue?":
     "{count} servicios están en esta categoría. Al eliminarla se quedan — solo dejan de estar agrupados. ¿Continuar?",
-  "This is your base size — every price you set is the price for this one.":
+  "This is your base size. Every price you set is the price for this one.":
     "Este es tu tamaño base — cada precio que pongas es el precio para este.",
   "You set what this size adds, per service, in each service's own screen.":
     "Lo que este tamaño agrega lo pones, por servicio, en la pantalla de cada servicio.",
-  "Choosing anything in here clears everything else — for a complete package that already includes your other services.":
+  "Choosing anything in here clears everything else. Use it for a complete package that already includes your other services.":
     "Escoger algo de aquí borra todo lo demás — para un paquete completo que ya incluye tus otros servicios.",
   "Customers can combine these with services from your other categories.":
     "Los clientes pueden combinar estos con servicios de tus otras categorías.",
@@ -627,7 +627,7 @@ export const appEs = {
   "What's included (one per line)": "Qué incluye (uno por línea)",
   "Hand wash and dry\nClay bar decontamination\nMachine polish\nSix-month sealant":
     "Lavado y secado a mano\nDescontaminación con barra de arcilla\nPulido a máquina\nSellador de seis meses",
-  "Wherever you work — the customer chooses.":
+  "Wherever you work · the customer chooses.":
     "Donde sea que trabajes — el cliente escoge.",
   "Drop-off only. A customer who picks this can't choose mobile.":
     "Solo en el taller. Un cliente que escoja esto no puede escoger a domicilio.",
@@ -882,7 +882,7 @@ export const appEs = {
   "Send me a sample": "Mándame una muestra",
   "Only affects nudges to you, not your customers.":
     "Solo afecta los avisos para ti, no para tus clientes.",
-  "Your own sentence at the bottom of one of these emails, in a panel of its own under everything we write. The customer reads it exactly as you type it — a gate code, where to park, that you will text when you are on the way. Leave one blank and that email goes out as it always did.":
+  "Your own sentence at the bottom of one of these emails, in a panel of its own under everything we write. The customer reads it exactly as you type it: a gate code, where to park, that you will text when you are on the way. Leave one blank and that email goes out as it always did.":
     "Tu propia frase al final de uno de estos correos, en su propio recuadro debajo de todo lo que escribimos nosotros. El cliente la lee tal cual la escribes: un código de entrada, dónde estacionar, que le vas a escribir cuando vayas en camino. Deja uno en blanco y ese correo sale como siempre.",
   "Edit your line": "Editar tu línea",
   "Add a line": "Agregar una línea",
@@ -1058,7 +1058,7 @@ export const appEs = {
   "Add item": "Agregar concepto",
   "Add photos": "Agregar fotos",
   "Add this address": "Agregar esta dirección",
-  "Add your mailing address under Business info first. An email like this has to carry one at the bottom — that is the law, not our rule.":
+  "Add your mailing address under Business info first. An email like this has to carry one at the bottom. That is the law, not our rule.":
     "Primero agrega tu dirección postal en Datos del negocio. Un correo así tiene que llevarla abajo — es la ley, no una regla nuestra.",
   "Add-ons": "Extras",
   "Added to every mobile booking, and included in the price the customer is quoted. Leave blank for none.":
@@ -1086,7 +1086,7 @@ export const appEs = {
   "Apps": "Aplicaciones",
   "Area name": "Nombre de la zona",
   "Ask how dirty the vehicle is": "Preguntar qué tan sucio está el vehículo",
-  "Back on the 14th — call for anything urgent":
+  "Back on the 14th · call for anything urgent":
     "Regreso el 14 — llama si es urgente",
   "Back to normal": "Volver a lo normal",
   "Back to sign in": "Volver a entrar",
@@ -1111,7 +1111,7 @@ export const appEs = {
   "Cancelling": "Cancelando",
   "Card details": "Datos de la tarjeta",
   "Card payments": "Pagos con tarjeta",
-  "Card payments are not switched on yet. Nothing for you to do — we will tell you when they are.":
+  "Card payments are not switched on yet. Nothing for you to do; we will tell you when they are.":
     "Los pagos con tarjeta todavía no están activos. No tienes que hacer nada — te avisamos cuando lo estén.",
   "Card payments are not switched on yet. Nothing here will charge you.":
     "Los pagos con tarjeta aún no están activos. Nada de aquí te va a cobrar.",
@@ -1185,7 +1185,7 @@ export const appEs = {
   "Discount type": "Tipo de descuento",
   "Dismiss": "Descartar",
   "Don't remind me again": "No me lo recuerdes otra vez",
-  "Done — you are signed in.": "Listo — ya entraste.",
+  "Done · you are signed in.": "Listo — ya entraste.",
   "Drop-off address": "Dirección del taller",
   "Due by": "Vence el",
   "Each area below sets its own, so this one is not charged while you have areas.":
@@ -1210,7 +1210,7 @@ export const appEs = {
   "First name and last initial": "Nombre e inicial del apellido",
   "For the pair that works: one the day before, one a couple of hours out.":
     "Para la pareja que funciona: uno el día antes, otro un par de horas antes.",
-  "For work that has a deadline rather than a rhythm — a coating warranty that voids if the yearly inspection is missed. Your customer gets a reminder at 60, 30 and 14 days, and again the day before.":
+  "For work that has a deadline rather than a rhythm: a coating warranty that voids if the yearly inspection is missed. Your customer gets a reminder at 60, 30 and 14 days, and again the day before.":
     "Para trabajos con fecha límite en vez de ritmo — una garantía de recubrimiento que se pierde si no se hace la revisión anual. Tu cliente recibe un recordatorio a los 60, 30 y 14 días, y otra vez el día antes.",
   "Founding price": "Precio de fundador",
   "From your business info. Always receives.":
@@ -1279,7 +1279,7 @@ export const appEs = {
   "Miles driven:": "Millas manejadas:",
   "Minimum term": "Plazo mínimo",
   "Missed": "Se pasó",
-  "More than one is a bundle — two washes a month, say.":
+  "More than one is a bundle: two washes a month, say.":
     "Más de uno es un paquete — dos lavados al mes, por ejemplo.",
   "Morning summary": "Resumen de la mañana",
   "Most jobs in a day": "Máximo de trabajos al día",
@@ -1300,13 +1300,13 @@ export const appEs = {
   "No discount": "Sin descuento",
   "No matching timezone": "No hay zona horaria que coincida",
   "No open slots that day.": "No hay horarios libres ese día.",
-  "No plans yet. Most detailers start with one — a wash every other week, or a monthly rate.":
+  "No plans yet. Most detailers start with one: a wash every other week, or a monthly rate.":
     "Aún no hay planes. La mayoría de los detailers empiezan con uno — un lavado cada dos semanas, o una tarifa mensual.",
-  "No reviews yet — your website has nothing from a customer on it.":
+  "No reviews yet. Your website has nothing from a customer on it.":
     "Aún no hay reseñas — tu sitio web no tiene nada de un cliente.",
-  "No services yet — customers can't book until you add one.":
+  "No services yet. Customers can't book until you add one.":
     "Aún no hay servicios — los clientes no pueden agendar hasta que agregues uno.",
-  "No templates yet — the gear, then Message templates.":
+  "No templates yet · the gear, then Message templates.":
     "Aún no hay mensajes guardados — el engrane, y luego Mensajes guardados.",
   "No term": "Sin plazo",
   "Nobody else.": "Nadie más.",
@@ -1318,13 +1318,13 @@ export const appEs = {
   "Not in a category": "Sin categoría",
   "Note": "Nota",
   "Nothing booked.": "Nada agendado.",
-  "Nothing has a deadline yet — this is for coatings and warranties.":
+  "Nothing has a deadline yet. This is for coatings and warranties.":
     "Aún nada tiene fecha límite — esto es para recubrimientos y garantías.",
-  "Nothing here yet — every booking you get is counted as somebody who just found you.":
+  "Nothing here yet. Every booking you get is counted as somebody who just found you.":
     "Aún no hay nada — cada cita que recibes se cuenta como alguien que acaba de encontrarte.",
-  "Nothing here yet — you are on detailingplatform.com.":
+  "Nothing here yet · you are on detailingplatform.com.":
     "Aún no hay nada — estás en detailingplatform.com.",
-  "Nothing here yet — your website has no questions section.":
+  "Nothing here yet. Your website has no questions section.":
     "Aún no hay nada — tu sitio web no tiene sección de preguntas.",
   "Nothing in this one yet.": "Aún no hay nada en este.",
   "Nothing to send yet.": "Aún no hay nada que mandar.",
@@ -1334,15 +1334,15 @@ export const appEs = {
   "Off keeps what you have written, and just hides the section.":
     "Apagado conserva lo que escribiste, solo esconde la sección.",
   "Offered on your booking page": "Se ofrece en tu página de citas",
-  "On an iPhone, add this dashboard to your home screen first — Safari only allows it there.":
+  "On an iPhone, add this dashboard to your home screen first. Safari only allows it there.":
     "En un iPhone, primero agrega este panel a tu pantalla de inicio — Safari solo lo permite ahí.",
-  "On the hour only, or every fifteen minutes — how the time picker is spaced.":
+  "On the hour only, or every fifteen minutes. This is how the time picker is spaced.":
     "Solo en punto, o cada quince minutos — cómo se espacia el selector de hora.",
   "On your booking page": "En tu página de citas",
   "On your website": "En tu sitio web",
   "Once you hit this, the rest of that day stops being offered.":
     "En cuanto llegues a esto, el resto de ese día deja de ofrecerse.",
-  "One line under the heading on your booking page. Leave it blank unless it earns its space — that screen is tight on a phone.":
+  "One line under the heading on your booking page. Leave it blank unless it earns its space, because that screen is tight on a phone.":
     "Una línea debajo del título en tu página de citas. Déjala en blanco si no vale el espacio — esa pantalla va apretada en un teléfono.",
   "One moment": "Un momento",
   "One size, so one price.": "Un solo tamaño, así que un solo precio.",
@@ -1350,7 +1350,7 @@ export const appEs = {
   "One-off changes — a day off, different hours for a single date, or a drop-off-only stretch — are set on the Calendar by choosing that date.":
     "Los cambios de una vez — un día libre, otro horario para una sola fecha, o un tramo solo de taller — se ponen tocando esa fecha en el Calendario.",
   "None on file": "Ninguna registrada",
-  "Nothing to commit to — you choose again next year.":
+  "Nothing to commit to. You choose again next year.":
     "Sin compromiso — vuelves a escoger el año que viene.",
   "Nothing to pay to leave.": "No pagas nada por irte.",
   "Only between certain hours": "Solo entre ciertas horas",
@@ -1363,16 +1363,16 @@ export const appEs = {
   "Opening Stripe": "Abriendo Stripe",
   "Opens a sample.": "Abre una muestra.",
   "Opens": "Abre",
-  "Optional — check number, split payment…":
+  "Optional · check number, split payment…":
     "Opcional — número de cheque, pago dividido…",
-  "Optional — they'll read this in the email":
+  "Optional · they'll read this in the email":
     "Opcional — lo van a leer en el correo",
   "Optional": "Opcional",
   "Or email": "O correo",
   "Or just the booking page": "O solo la página de citas",
   "Other ways to pay you": "Otras formas de pagarte",
   "Password": "Contraseña",
-  "Pausing stops the visits counting up. Coming back starts again from today — the paused ones are not owed.":
+  "Pausing stops the visits counting up. Coming back starts again from today, and the paused ones are not owed.":
     "Pausar detiene la cuenta de visitas. Al regresar empieza otra vez desde hoy — las pausadas no se deben.",
   "Pay {amount}": "Pagar {amount}",
   "Payments": "Pagos",
@@ -1443,7 +1443,7 @@ export const appEs = {
   "Site-wide sale": "Descuento en todo el sitio",
   "Skip a visit": "Saltar una visita",
   "Skip the tour": "Saltar el recorrido",
-  "Something on this screen broke. Nothing you were doing was lost — your bookings and settings are safe.":
+  "Something on this screen broke. Nothing you were doing was lost, and your bookings and settings are safe.":
     "Algo de esta pantalla falló. No se perdió nada de lo que estabas haciendo — tus citas y tus ajustes están a salvo.",
   "Staff": "Personal",
   "Stars": "Estrellas",
@@ -1465,7 +1465,7 @@ export const appEs = {
   "Choose a detail to add it. Drag one to move it.":
     "Toca para agregar un dato. Arrastra uno para moverlo.",
   "Technical detail": "Detalle técnico",
-  "Tell us the address and we do it — it takes a couple of minutes and it cannot be done from here.":
+  "Tell us the address and we do it. It takes a couple of minutes and it cannot be done from here.":
     "Dinos la dirección y nosotros lo hacemos — toma un par de minutos y no se puede hacer desde aquí.",
   "Test": "Prueba",
   "Text message": "Mensaje de texto",
@@ -1473,10 +1473,10 @@ export const appEs = {
   "That card was refused.": "Esa tarjeta fue rechazada.",
   "That didn't load": "Eso no cargó",
   "The bit on the end of the link": "La parte del final del enlace",
-  "The card fields above are Stripe's own — your number is sent straight to them and never reaches us.":
+  "The card fields above are Stripe's own. Your number is sent straight to them and never reaches us.":
     "Los campos de la tarjeta de arriba son de Stripe — tu número se les manda directo a ellos y nunca llega a nosotros.",
   "The job": "El trabajo",
-  "The last subscription ended after the payments stopped going through. Picking a plan below turns the page back on straight away — nothing was deleted and nothing is owed from before.":
+  "The last subscription ended after the payments stopped going through. Picking a plan below turns the page back on straight away, and nothing was deleted or is owed from before.":
     "La suscripción anterior terminó después de que los pagos dejaron de pasar. Escoger un plan abajo enciende la página de inmediato — no se borró nada y no se debe nada de antes.",
   "The money": "El dinero",
   "The month you have not paid for is still owed. Cancelling stops us trying the card for anything after it.":
@@ -1485,7 +1485,7 @@ export const appEs = {
   "The phone number or email your Zelle is on":
     "El teléfono o correo donde tienes tu Zelle",
   "The question": "La pregunta",
-  "The questions customers actually ask you. They go on your website — that part is still being built.":
+  "The questions customers actually ask you. They go on your website. That part is still being built.":
     "Las preguntas que los clientes de verdad te hacen. Van en tu sitio web — esa parte todavía se está construyendo.",
   "The soonest a customer can book from right now.":
     "Lo más pronto que un cliente puede agendar desde ahorita.",
@@ -1520,7 +1520,7 @@ export const appEs = {
   "Undo": "Deshacer",
   "Unpaid since": "Sin pagar desde",
   "Until": "Hasta",
-  "Up front is a prepaid block — a year, or a set number of visits, paid in one go.":
+  "Up front is a prepaid block: a year, or a set number of visits, paid in one go.":
     "Por adelantado es un bloque prepagado — un año, o un número fijo de visitas, pagado de una vez.",
   "Update card": "Actualizar tarjeta",
   "Use this color": "Usar este color",
@@ -1541,7 +1541,7 @@ export const appEs = {
   "Weeks, months or years": "Semanas, meses o años",
   "What Dana gets": "Lo que recibe Dana",
   "What a booking means": "Qué significa una cita",
-  "What customers have said about your work. They go on your website — that part is still being built, so collect them now and they will be there when it lands.":
+  "What customers have said about your work. They go on your website. That part is still being built, so collect them now and they will be there when it lands.":
     "Lo que los clientes han dicho de tu trabajo. Van en tu sitio web — esa parte todavía se está construyendo, así que júntalas desde ahora y van a estar ahí cuando salga.",
   "What customers should know": "Lo que los clientes deben saber",
   "What has to happen": "Qué tiene que pasar",
@@ -1590,7 +1590,7 @@ export const appEs = {
     "Vas a necesitar una cuenta de Stripe. Si no tienes una, Stripe la crea en este mismo paso.",
   "Your address": "Tu dirección",
   "Your booking page is offline.": "Tu página de citas está fuera de línea.",
-  "Your customers pay by card from their booking page, and the money goes straight to your own Stripe account — we never hold it. Stripe takes 2.9% + 30¢ of each payment.":
+  "Your customers pay by card from their booking page, and the money goes straight to your own Stripe account. We never hold it. Stripe takes 2.9% + 30¢ of each payment.":
     "Tus clientes pagan con tarjeta desde su página de cita, y el dinero va directo a tu propia cuenta de Stripe — nosotros nunca lo tenemos. Stripe se queda con 2.9% + 30¢ de cada pago.",
   "Your day's jobs, sent once each morning.":
     "Los trabajos de tu día, una vez cada mañana.",
@@ -1631,7 +1631,7 @@ export const appEs = {
   "e.g. book.yourdetailing.com": "ej. reserva.tudetallado.com",
   "iPhone opens it in Contacts; Android saves the file first.":
     "El iPhone lo abre en Contactos; Android guarda el archivo primero.",
-  "in your setup — until then anyone who opens it is told you are still setting up.":
+  "in your setup. Until then anyone who opens it is told you are still setting up.":
     "en tu configuración — hasta entonces, a quien lo abra se le dice que sigues configurando.",
   "logo": "logo",
   "name@example.com": "nombre@ejemplo.com",
@@ -1650,7 +1650,7 @@ export const appEs = {
   "{months} months. Leaving early costs {percent}% of what is left.":
     "{months} meses. Salirte antes cuesta {percent}% de lo que queda.",
   "· charged": "· cobrado",
-  "— not charged until they accept it.": "— no se cobra hasta que la acepten.",
+  "· not charged until they accept it.": "— no se cobra hasta que la acepten.",
   // The three default vehicle sizes and their examples. These are OFFERED as
   // a starting point and become the detailer's own words the moment they are
   // saved, so they arrive in the language the detailer is reading and are
@@ -1717,7 +1717,7 @@ export const appEs = {
   "Email this one": "Enviar correo a este",
   "Email these {count}": "Enviar correo a estos {count}",
   "Text these {count}": "Enviar mensaje a estos {count}",
-  "Showing the {n} most recent — search for anyone older.": "Mostrando los {n} más recientes — busca a alguien de antes.",
+  "Showing the {n} most recent. Search for anyone older.": "Mostrando los {n} más recientes — busca a alguien de antes.",
   "You have {n} booked job coming up. Moving from {from} to {to} does not move any appointment — it still happens at the same moment — but the times shown will change.": "Tienes {n} cita agendada. Cambiar de {from} a {to} no mueve ninguna cita — sigue ocurriendo en el mismo momento — pero las horas que se muestran cambiarán.",
   "You have {n} booked jobs coming up. Moving from {from} to {to} does not move any appointment — each one still happens at the same moment — but the times shown will change.": "Tienes {n} citas agendadas. Cambiar de {from} a {to} no mueve ninguna cita — cada una sigue ocurriendo en el mismo momento — pero las horas que se muestran cambiarán.",
   "Bring your own water and power": "Trae tu propia agua y electricidad",
@@ -1778,7 +1778,7 @@ export const appEs = {
   "That code cannot be used.": "Ese código no se puede usar.",
   "Note from the customer (optional)": "Nota del cliente (opcional)",
   "Private note": "Nota privada",
-  "Travel — {zone}": "Viaje — {zone}",
+  "Travel · {zone}": "Viaje — {zone}",
   "Travel": "Viaje",
   "Promo {code}": "Descuento {code}",
   "Total": "Total",

@@ -353,7 +353,7 @@ export default function Catalog() {
   ].filter(({ group, rows }) => group || rows.length);
 
   const groupRule = (g) => (g.is_exclusive
-    ? t("Booked on its own — nothing else can be added")
+    ? t("Booked on its own · nothing else can be added")
     : g.max_select === 1 ? t("Customers pick one") : t("Customers pick any number"));
 
   return (
@@ -430,7 +430,7 @@ export default function Catalog() {
         </div>
       ))}
 
-      {services.length === 0 && <p className="muted">{t("No services yet — customers can't book until you add one.")}</p>}
+      {services.length === 0 && <p className="muted">{t("No services yet. Customers can't book until you add one.")}</p>}
 
       <div className="row between" style={{ marginTop: "var(--sp-5)" }}>
         <h3>{t("Add-ons")}</h3>
@@ -502,7 +502,7 @@ export default function Catalog() {
                   onChange={(e) => set({ examples: e.target.value })} /></label>
               <p className="muted">
                 {editing.index === 0
-                  ? t("This is your base size — every price you set is the price for this one.")
+                  ? t("This is your base size. Every price you set is the price for this one.")
                   : t("You set what this size adds, per service, in each service's own screen.")}
               </p>
               <button className="btn primary" onClick={saveSize}>{t("Save")}</button>
@@ -516,7 +516,7 @@ export default function Catalog() {
                 <input value={editing.form.description} placeholder={t("e.g. Everything inside the car")}
                   onChange={(e) => set({ description: e.target.value })} /></label>
               <p className="muted" style={{ marginTop: 6, marginBottom: "var(--sp-4)" }}>
-                {t("One line under the heading on your booking page. Leave it blank unless it earns its space — that screen is tight on a phone.")}
+                {t("One line under the heading on your booking page. Leave it blank unless it earns its space, because that screen is tight on a phone.")}
               </p>
 
               <Setting label={t("How many can they choose?")}
@@ -535,7 +535,7 @@ export default function Catalog() {
                   menu: $1,645 booked for work a $625 package included. */}
               <Switch label={t("Booked on its own")}
                 help={editing.form.is_exclusive
-                  ? t("Choosing anything in here clears everything else — for a complete package that already includes your other services.")
+                  ? t("Choosing anything in here clears everything else. Use it for a complete package that already includes your other services.")
                   : t("Customers can combine these with services from your other categories.")}
                 checked={editing.form.is_exclusive}
                 onChange={(v) => set({ is_exclusive: v })} />
@@ -597,7 +597,7 @@ export default function Catalog() {
                       only be offered midweek. */}
                   <Setting label={t("Where this one can be done")}
                     help={editing.form.where === "either"
-                      ? t("Wherever you work — the customer chooses.")
+                      ? t("Wherever you work · the customer chooses.")
                       : editing.form.where === "dropoff"
                         ? t("Drop-off only. A customer who picks this can't choose mobile.")
                         : t("Mobile only. A customer who picks this can't choose drop-off.")}

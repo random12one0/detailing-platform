@@ -73,7 +73,7 @@ export default function QuoteModal({ booking, onClose, onSent }) {
 
       <label className="field"><span>{t("Why, in a sentence")}</span>
         <textarea value={note} onChange={(e) => setNote(e.target.value)}
-          placeholder={t("Optional — they'll read this in the email")} /></label>
+          placeholder={t("Optional · they'll read this in the email")} /></label>
 
       <p className="muted" style={{ marginBottom: 8 }}>
         {t("Their time stays held while they decide, and nothing changes on the job until they accept.")}

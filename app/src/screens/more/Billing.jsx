@@ -120,7 +120,7 @@ const dateLong = (iso) =>
 // on this screen does: they are the numbers that will be CHARGED.
 const RUNGS = [
   ["annual-upfront", "Pay for the year",
-    () => t("Nothing to commit to — you choose again next year.")],
+    () => t("Nothing to commit to. You choose again next year.")],
   ["annual-monthly", "Pay monthly, for a year",
     (q) => t("{months} months. Leaving early costs {percent}% of what is left.",
       { months: q.term_months, percent: Math.round(q.exit_fee_share * 100) })],
@@ -399,7 +399,7 @@ export default function Billing() {
           <div className="error-box" data-billing-dunning="down">
             <TriangleAlert strokeWidth={2} />
             <span>
-              <strong>{t("Your booking page is offline.")}</strong> {t("The last subscription ended after the payments stopped going through. Picking a plan below turns the page back on straight away — nothing was deleted and nothing is owed from before.")}
+              <strong>{t("Your booking page is offline.")}</strong> {t("The last subscription ended after the payments stopped going through. Picking a plan below turns the page back on straight away, and nothing was deleted or is owed from before.")}
             </span>
           </div>
         )}
@@ -716,7 +716,7 @@ export default function Billing() {
                 screen where a reader is deciding whether to trust us. */}
             {pay && (
               <p className="muted" style={{ marginTop: "var(--sp-2)" }}>
-                {t("The card fields above are Stripe's own — your number is sent straight to them and never reaches us.")}
+                {t("The card fields above are Stripe's own. Your number is sent straight to them and never reaches us.")}
               </p>
             )}
           </div>

@@ -447,7 +447,7 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
             {itemised && booking.travel_fee > 0 && (
               <div className="line dim">
                 <span>{booking.travel_zone
-                  ? t("Travel — {zone}", { zone: booking.travel_zone })
+                  ? t("Travel · {zone}", { zone: booking.travel_zone })
                   : t("Travel")}</span>
                 <span className="bk-price">{money(booking.travel_fee)}</span>
               </div>
@@ -565,8 +565,8 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
           <div className="bk-card" style={{ marginTop: 14 }}>
             <div className="bk-step-label">
               {group.length === 1
-                ? t("Also booked — 1 more car")
-                : t("Also booked — {n} more cars", { n: group.length })}
+                ? t("Also booked · 1 more car")
+                : t("Also booked · {n} more cars", { n: group.length })}
             </div>
             {group.map((g) => (
               <a className="bk-row between" key={g.id} href={`/booking/${g.id}`}

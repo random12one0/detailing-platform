@@ -507,7 +507,7 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
             )}
             {quote.travel_fee > 0 && (
               <div className="row between">
-                <span>{quote.travel_zone ? t("Travel — {zone}", { zone: quote.travel_zone }) : t("Travel")}</span>
+                <span>{quote.travel_zone ? t("Travel · {zone}", { zone: quote.travel_zone }) : t("Travel")}</span>
                 <span>{money(quote.travel_fee)}</span>
               </div>
             )}

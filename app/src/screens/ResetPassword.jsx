@@ -141,7 +141,7 @@ export default function ResetPassword() {
 
             {state === "done" && (
               <>
-                <p className="quiet lede">{t("Done — you are signed in.")}</p>
+                <p className="quiet lede">{t("Done · you are signed in.")}</p>
                 <div className="ok-box">{t("Taking you to your dashboard…")}</div>
               </>
             )}

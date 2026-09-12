@@ -314,7 +314,7 @@ export default function Plans() {
             </div>
           </Setting>
           <Setting label={t("Visits each time")}
-            help={t("More than one is a bundle — two washes a month, say.")}>
+            help={t("More than one is a bundle: two washes a month, say.")}>
             <Stepper value={planForm.visits_per_period} min={1} max={10}
               onChange={(v) => setPlanForm({ ...planForm, visits_per_period: v })} />
           </Setting>
@@ -325,7 +325,7 @@ export default function Plans() {
           businesses — a monthly amount, a per-visit amount, and a member rate
           expressed as a percentage. */}
       <Setting stacked label={t("How it's priced")}
-        help={t("Up front is a prepaid block — a year, or a set number of visits, paid in one go.")}>
+        help={t("Up front is a prepaid block: a year, or a set number of visits, paid in one go.")}>
         {/* `planprice` is a HOOK FOR ONE CSS RULE and carries no styling of
             its own: four labels beside a money field is the widest segmented
             control in the product and it ran 28px past this row at 392 —
@@ -417,7 +417,7 @@ export default function Plans() {
 
         {m && (
           <Setting stacked label={t("Status")}
-            help={t("Pausing stops the visits counting up. Coming back starts again from today — the paused ones are not owed.")}>
+            help={t("Pausing stops the visits counting up. Coming back starts again from today, and the paused ones are not owed.")}>
             <Segmented label={t("Status")} value={f.status} options={STATUSES}
               onChange={(v) => setMemberForm({ ...f, status: v })} />
           </Setting>
@@ -616,7 +616,7 @@ export default function Plans() {
           <div className="card thoughts">
             {loaded && plans.length === 0 && (
               <p className="body">
-                {t("No plans yet. Most detailers start with one — a wash every other week, or a monthly rate.")}
+                {t("No plans yet. Most detailers start with one: a wash every other week, or a monthly rate.")}
               </p>
             )}
             {plans.length > 0 && <div className="rows cols planlist">{plans.map(planRow)}</div>}

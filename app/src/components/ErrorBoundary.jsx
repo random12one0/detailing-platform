@@ -51,7 +51,7 @@ export default class ErrorBoundary extends Component {
         <div className="card" style={{ width: "100%", maxWidth: 420 }}>
           <h1 style={{ marginBottom: 4 }}>{t("That didn't load")}</h1>
           <p className="quiet" style={{ marginBottom: 16 }}>
-            {t("Something on this screen broke. Nothing you were doing was lost — your bookings and settings are safe.")}
+            {t("Something on this screen broke. Nothing you were doing was lost, and your bookings and settings are safe.")}
           </p>
 
           <button className="btn primary" onClick={() => this.setState({ error: null })}>

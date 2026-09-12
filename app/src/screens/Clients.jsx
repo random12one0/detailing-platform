@@ -389,7 +389,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
           tabs. */}
       {customers.length === 0 && !busy && !error && (
         <div className="tight emptyscreen">
-          <p className="body">{t("No customers yet — they appear on their own when bookings come in.")}</p>
+          <p className="body">{t("No customers yet. They appear on their own when bookings come in.")}</p>
           {sellable === 0 && (
             <div className="card setting-card">
               <button className="nav-row" onClick={() => onSetup?.()}>
@@ -450,7 +450,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
       {/* A SILENT TRUNCATION READS AS A COMPLETE LIST, and the search is the
           way past it — which is a fact the list does not carry. */}
       {capped && (
-        <p className="quiet">{t("Showing the {n} most recent — search for anyone older.", { n: ROW_CAP })}</p>
+        <p className="quiet">{t("Showing the {n} most recent. Search for anyone older.", { n: ROW_CAP })}</p>
       )}
     </>
   );
@@ -523,7 +523,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
                   tenant (law 11b): this is meaning, not identity. */}
               {open.email && open.email_failed_at && (
                 <p className="muted" style={{ margin: 0, color: "var(--bad)" }}>
-                  {t("This address bounced — the last email to it was refused. Check it with them, or call instead.")}
+                  {t("This address bounced. The last email to it was refused, so check it with them or call instead.")}
                 </p>
               )}
             </div>

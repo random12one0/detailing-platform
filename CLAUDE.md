@@ -1411,6 +1411,25 @@ findings; `tests/spanish.test.mjs` passed 58 while half a screen rendered
 English; the `pushState` sweep passed 22 screens it never visited. **Break the
 instrument on purpose before you believe it.**
 
+**THE EM DASH HAS THREE SHAPES AND THREE TREATMENTS — settled 2026-09-12,
+after a sweep found that the rule as first written named only two.**
+
+- **A SENTENCE JOINT DIES.** *"You brought in $300 and spent $433 — that is $133
+  down."* The dash is standing in for a full stop or a comma, so use one.
+- **A PARENTHETICAL PAIR STAYS.** *"One-off changes — a day off, different hours
+  for a single date, or a drop-off-only stretch — are set on the Calendar."*
+  Two dashes around an aside is correct English and some of the best writing in
+  this product. Leave it alone.
+- **A LABEL SEPARATOR BECOMES THE MIDDLE DOT.** *"Travel — {zone}"* becomes
+  *"Travel · {zone}"*; *"Also booked — 2 more cars"* becomes *"Also booked · 2
+  more cars"*. **The product already owns this** — *"Tue-Sat · 8:00 AM - 6:00
+  PM"*, *"1 link · 45 opens"*, *"Full Interior Detail · Mobile"* — so the answer
+  was already in the codebase rather than needing to be invented.
+
+**A COUNT OF DASHES CANNOT TELL THESE APART, so this is done by hand.** A
+single dash is not automatically a joint: 65 user-facing strings carried one
+and roughly a third were labels. Classify, then apply.
+
 **THE VOICE IS PLAIN AND DIRECT, AND THIS RULE IS FIRM.** All text stays in the
 voice the product already has. No startup register: nothing "seamless",
 "effortless", "powerful", "supercharged", "take it to the next level", "we've

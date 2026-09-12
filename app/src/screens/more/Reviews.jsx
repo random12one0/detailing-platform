@@ -113,7 +113,7 @@ export default function Reviews() {
             one sentence. The copy rule bans a sentence that repeats the
             label; this one carries a fact nothing else on the screen does. */}
         <p className="quiet" style={{ marginTop: 0 }}>
-          {t("What customers have said about your work. They go on your website — that part is still being built, so collect them now and they will be there when it lands.")}
+          {t("What customers have said about your work. They go on your website. That part is still being built, so collect them now and they will be there when it lands.")}
         </p>
 
         <label className="field"><span>{t("Who said it")}</span>
@@ -155,7 +155,7 @@ export default function Reviews() {
         {/* AN EMPTY SCREEN IS ONE SENTENCE, NAMED IN THE CUSTOMER'S TERMS
             (§11's state rule) — never "No records." */}
         {!busy && !error && rows.length === 0 && (
-          <p className="body">{t("No reviews yet — your website has nothing from a customer on it.")}</p>
+          <p className="body">{t("No reviews yet. Your website has nothing from a customer on it.")}</p>
         )}
 
         <div className={`rows${busy ? " refreshing" : ""}`} aria-busy={busy || undefined}>

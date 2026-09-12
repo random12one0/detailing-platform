@@ -93,7 +93,7 @@ const ruleSentence = (r) => {
 // W22. Three states, phrased as the detailer would say them out loud.
 const RESOURCE = [["not_needed", "I bring it"], ["ask", "Just ask"], ["required", "Must have"]];
 const HELP = {
-  not_needed: (what) => t("You carry your own — the customer is never asked about {what}.", { what: t(what) }),
+  not_needed: (what) => t("You carry your own, so the customer is never asked about {what}.", { what: t(what) }),
   ask: (what) => t("The booking page asks about {what} and records the answer, so you know what to load.", { what: t(what) }),
   required: (what) => t("The booking page asks about {what}, and a customer who can't provide it is blocked from booking.", { what: t(what) }),
 };
@@ -106,10 +106,10 @@ const WARN = {
     t("Nobody will be able to book sooner than {days} days out.", { days: Math.round(v / 1440 * 10) / 10 }),
   max_advance_days: (v) => v != null && v < 7 &&
     t("Customers can only book a few days ahead."),
-  slot_interval_minutes: (v) => (v < 15 && t("Very fine slot grid — the time picker will be crowded."))
-    || (v > 120 && t("Very coarse slot grid — few start times will be offered.")),
+  slot_interval_minutes: (v) => (v < 15 && t("Very fine slot grid · the time picker will be crowded."))
+    || (v > 120 && t("Very coarse slot grid · few start times will be offered.")),
   max_bookings_per_day: (v) => v != null && v > 20 &&
-    t("That cap is unusual — double-check it's what you want."),
+    t("That cap is unusual. Double-check it's what you want."),
   cancellation_window_hours: (v) => v > 168 &&
     t("Anything inside {days} days needs a phone call to change.", { days: Math.round(v / 24) }),
 };
@@ -531,7 +531,7 @@ export default function BookingRules() {
         {form.closed_until && (
           <Setting label={t("Anything to tell them")} stacked>
             <input value={form.closed_note} maxLength={200}
-              placeholder={t("Back on the 14th — call for anything urgent")}
+              placeholder={t("Back on the 14th · call for anything urgent")}
               onChange={(e) => set("closed_note", e.target.value)} />
           </Setting>
         )}
@@ -578,7 +578,7 @@ export default function BookingRules() {
           </Setting>
 
           <Setting label={t("Start times you offer")}
-            help={t("On the hour only, or every fifteen minutes — how the time picker is spaced.")}
+            help={t("On the hour only, or every fifteen minutes. This is how the time picker is spaced.")}
             stacked>
             <DurationChoice value={form.slot_interval_minutes} presets={SLOT}
               onChange={(v) => set("slot_interval_minutes", v)} unit="minutes"

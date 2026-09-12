@@ -469,7 +469,7 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
             // to happen first, and the link comes back by itself the moment
             // there is a service to sell.
             <>
-              <p className="body">{t("Nobody can book yet — your page has no services on it.")}</p>
+              <p className="body">{t("Nobody can book yet. Your page has no services on it.")}</p>
               <div className="card setting-card">
                 <button className="nav-row" onClick={() => onSetup?.()}>
                   <span className="ico"><ListChecks size={19} strokeWidth={2} /></span>
