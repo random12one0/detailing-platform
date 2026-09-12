@@ -1394,6 +1394,16 @@ contents.** And a disabled *Continue* is not corroboration — it is the correct
 state when nothing has been chosen yet. Two wrong readings pointing the same
 way feel like confirmation and are not.
 
+**(f) A MEASUREMENT TAKEN WHILE SOMEBODY IS BUILDING IS WORTH NOTHING, AND
+WORSE THAN NOTHING ONCE IT BECOMES A FINDING.** CLAUDE.md § Verification
+already says do not EDIT `app/src` while a browser script runs; the other half
+was missing and cost both sides of this pair an hour on 2026-09-12. A Vite hot
+reload remounts components under a walk in progress, so a script that is four
+steps into the booking flow measures a tree that was rebuilt beneath it —
+**this is the most likely cause of the "zero day cells, a customer cannot book"
+report against a flow that works end to end.** So: **verify against a COMMITTED
+state with the builder idle.** While a wave is in flight, read and plan.
+
 **AND THE RULE THEY SHARE, WHICH IS THE ONE TO REMEMBER:** a green result from
 an instrument nobody has checked is worth less than no result, because it stops
 the search. `scripts/sweep-widths.mjs:605` printed *clean* over 38 real
