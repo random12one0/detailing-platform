@@ -61,3 +61,19 @@ Claude Cowork decides what becomes work.
   of the word in `app/src` overall — the other 63 are code comments and are not
   user-facing. Awaiting the reviewer's word before changing any; the Gallery
   one was named explicitly and is done.
+- 2026-09-12 — The demo's SAVED message-template rows still carry the old SMS
+  body with an em dash sentence joint: *"quick check before {{date}} — will I
+  have access to water…"*. `app/src/lib/templates.js:166` is fixed and so is
+  its Spanish key, but a business that has already saved its templates keeps
+  the stored text, which is what the editor shows. **Same shape as
+  "Microfibre": the code is right and the row is stale.** Needs a re-seed (lane
+  C) or a one-off update; a migration that rewrites detailers' own saved copy
+  would be worse, since by then the words are theirs.
+- 2026-09-12 — **THE EM DASH RULE HAS A THIRD CATEGORY IT DOES NOT NAME.** 76
+  user-facing strings carry a single em dash and 8 carry a pair. The singles
+  are NOT all sentence joints: many are LABEL SEPARATORS — `Travel — {zone}`,
+  `Drop-off — {address}`, `Also booked — {n} more cars`, `Platform view —
+  signed in as {who}` — where the dash joins a label to its value and no other
+  punctuation reads as well. Eleven true joints in the booking flow are fixed;
+  the label separators are deliberately untouched. **Which way the remaining
+  dashboard singles go is a copy decision, not a sweep.**

@@ -126,7 +126,7 @@ export const es = {
   "What are you bringing? (optional)": "¿Qué vehículo traes? (opcional)",
   "e.g. 2019 Honda Civic": "por ejemplo, Honda Civic 2019",
   "How dirty is the inside?": "¿Qué tan sucio está por dentro?",
-  "It doesn’t change your price — it tells us what to bring.":
+  "It doesn’t change your price. It tells us what to bring.":
     "No cambia tu precio — nos dice qué llevar.",
 
   // ── Step: mobile or drop-off, and where ────────────────────────────────
@@ -136,15 +136,15 @@ export const es = {
   "We bring everything to your home or work.": "Llevamos todo a tu casa o trabajo.",
   "Drop it off": "Déjalo con nosotros",
   "Bring your vehicle to {address}.": "Trae tu vehículo a {address}.",
-  "Bring your vehicle to us — we’ll confirm the address.":
+  "Bring your vehicle to us. We’ll confirm the address.":
     "Trae tu vehículo con nosotros — te confirmamos la dirección.",
   "{service} has to be done at our place.": "{service} se hace en nuestro local.",
   "{service} is only done at your address.": "{service} solo se hace en tu dirección.",
-  "{business} comes to you — serving {area}.":
+  "{business} comes to you, serving {area}.":
     "{business} va a ti — damos servicio en {area}.",
   "{business} comes to you.": "{business} va a ti.",
   "Drop your vehicle at {address}.": "Deja tu vehículo en {address}.",
-  "Drop-off only — we’ll confirm the address with you.":
+  "Drop-off only. We’ll confirm the address with you.":
     "Solo entrega en nuestro local — te confirmamos la dirección.",
   "Which area are you in?": "¿En qué zona estás?",
   "Where should we come?": "¿A dónde vamos?",
@@ -153,7 +153,7 @@ export const es = {
   "Without it we can't do this job at your address.":
     "Sin eso no podemos hacer este trabajo en tu dirección.",
   "I can provide access to a power outlet": "Puedo dar acceso a un tomacorriente",
-  "Let us know either way — it just changes what we bring.":
+  "Let us know either way. It just changes what we bring.":
     "Dinos de cualquier forma — solo cambia lo que llevamos.",
 
   // ── Step: when ─────────────────────────────────────────────────────────
@@ -168,9 +168,9 @@ export const es = {
     "No hay horarios este mes. Prueba el mes siguiente.",
   "No open times this month. Try the next month, or call {phone}.":
     "No hay horarios este mes. Prueba el mes siguiente o llama al {phone}.",
-  "{business} is taking drop-offs only that day — go back a step to change how it’s done, or pick another day.":
+  "{business} is taking drop-offs only that day. Go back a step to change how it’s done, or pick another day.":
     "Ese día {business} solo recibe vehículos en su local — regresa un paso para cambiar cómo se hace, o elige otro día.",
-  "{business} is coming to customers that day rather than taking drop-offs — go back a step, or pick another day.":
+  "{business} is coming to customers that day rather than taking drop-offs. Go back a step, or pick another day.":
     "Ese día {business} va a donde están los clientes en vez de recibir vehículos — regresa un paso o elige otro día.",
 
   // ── Step: who we're detailing for ──────────────────────────────────────
@@ -193,7 +193,7 @@ export const es = {
   "Travel — {zone}": "Traslado — {zone}",
   "{percent}% off": "{percent}% de descuento",
   "Promo {code}": "Código {code}",
-  "Some of this is priced from — we’ll confirm once we’ve seen the vehicle, and we’ll ask before doing anything extra.":
+  "Some of this is priced from. We’ll confirm once we’ve seen the vehicle, and we’ll ask before doing anything extra.":
     "Parte de esto es un precio desde — lo confirmamos cuando veamos el vehículo, y te preguntamos antes de hacer algo extra.",
   "An estimate. If the vehicle needs more work, we’ll ask before doing anything extra.":
     "Es un estimado. Si el vehículo necesita más trabajo, te preguntamos antes de hacer algo extra.",
@@ -236,7 +236,7 @@ export const es = {
   // now say WHICH refusal it is — see BookingPage's `promoMessage`. The old
   // "That code isn't valid." is gone with its only caller.
   "That code isn’t one of ours.": "Ese código no es nuestro.",
-  "You’ve used that code already — it’s one per customer.":
+  "You’ve used that code already. It’s one per customer.":
     "Ya usaste ese código: es uno por cliente.",
   "We couldn’t check that code just now. Try again in a moment.":
     "No pudimos verificar ese código en este momento. Inténtalo de nuevo en un momento.",
@@ -310,7 +310,7 @@ export const es = {
   "We could not start the payment. Please try again.":
     "No pudimos iniciar el pago. Inténtalo de nuevo.",
   "Paid": "Pagado",
-  "Thank you — your card payment went through. Your receipt is on its way by email.":
+  "Thank you. Your card payment went through and your receipt is on its way by email.":
     "Gracias — tu pago con tarjeta se realizó. Tu recibo va en camino por correo.",
 
   // ── The opt-out, reached from an email ─────────────────────────────────
@@ -392,7 +392,7 @@ export const es = {
   // bookings yet" screen was three English sentences, on the one page whose
   // whole job is to explain that something is wrong.
   "{business} isn’t taking bookings online yet": "{business} todavía no acepta reservas en línea",
-  "They’re still setting this page up. Check back shortly — or get in touch with them directly.": "Todavía están configurando esta página. Vuelve pronto — o comunícate con ellos directamente.",
+  "They’re still setting this page up. Check back shortly, or get in touch with them directly.": "Todavía están configurando esta página. Vuelve pronto — o comunícate con ellos directamente.",
   "Try again": "Intentar de nuevo",
 
   // REVIEW ITEM 15, 2026-09-11 — the customer's own booking page now itemises

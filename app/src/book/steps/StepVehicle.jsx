@@ -275,7 +275,7 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
             ))}
           </div>
           <p className="bk-muted" style={{ marginTop: 6 }}>
-            {t("It doesn’t change your price — it tells us what to bring.")}
+            {t("It doesn’t change your price. It tells us what to bring.")}
           </p>
         </div>
       )}

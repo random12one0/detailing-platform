@@ -847,7 +847,7 @@ export const appEs = {
   "All finished, {{customer_name}} — thanks for choosing {{business_name}}. Total is {{total}}.":
     "Todo listo, {{customer_name}} — gracias por elegir a {{business_name}}. El total es {{total}}.",
   "Ask about access": "Preguntar por el acceso",
-  "Hi {{customer_name}}, quick check before {{date}} — will I have access to water and an outlet at {{address}}?":
+  "Hi {{customer_name}}, quick check before {{date}}. Will I have access to water and an outlet at {{address}}?":
     "Hola {{customer_name}}, una pregunta antes del {{date}} — ¿voy a tener agua y un tomacorriente en {{address}}?",
   "There is an empty {{ }} with nothing in it.": "Hay un {{ }} vacío, sin nada adentro.",
   "“{token}” isn’t one of the details we can fill in.":

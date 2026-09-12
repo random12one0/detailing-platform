@@ -163,7 +163,7 @@ export const DEFAULT_TEMPLATES = [
     key: "arrival_access",
     label: "Ask about access",
     sort_order: 4,
-    body: "Hi {{customer_name}}, quick check before {{date}} — will I have access to water and an outlet at {{address}}?",
+    body: "Hi {{customer_name}}, quick check before {{date}}. Will I have access to water and an outlet at {{address}}?",
   },
 ];
 

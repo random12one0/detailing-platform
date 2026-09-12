@@ -275,9 +275,9 @@ export default function StepWhen({ form, setForm, durationMinutes, durations }) 
           {wrongMode && (
             <div className="bk-note">
               {form.serviceType === "mobile"
-                ? t("{business} is taking drop-offs only that day — go back a step to change how it’s done, or pick another day.",
+                ? t("{business} is taking drop-offs only that day. Go back a step to change how it’s done, or pick another day.",
                   { business: business.name })
-                : t("{business} is coming to customers that day rather than taking drop-offs — go back a step, or pick another day.",
+                : t("{business} is coming to customers that day rather than taking drop-offs. Go back a step, or pick another day.",
                   { business: business.name })}
             </div>
           )}

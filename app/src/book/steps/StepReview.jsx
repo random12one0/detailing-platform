@@ -256,7 +256,7 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
               one, because two paragraphs saying the same thing is worse than
               one saying the sharper version. */}
           {services.some((s) => s.price_is_from)
-            ? t("Some of this is priced from — we’ll confirm once we’ve seen the vehicle, and we’ll ask before doing anything extra.")
+            ? t("Some of this is priced from. We’ll confirm once we’ve seen the vehicle, and we’ll ask before doing anything extra.")
             : t("An estimate. If the vehicle needs more work, we’ll ask before doing anything extra.")}
         </p>
       </div>

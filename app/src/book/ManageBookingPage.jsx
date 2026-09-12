@@ -630,7 +630,7 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
           <div className="bk-card" style={{ marginTop: 14 }}>
             <div className="bk-step-label">{t("Paid")}</div>
             <p className="bk-body" style={{ marginTop: 6 }}>
-              {t("Thank you — your card payment went through. Your receipt is on its way by email.")}
+              {t("Thank you. Your card payment went through and your receipt is on its way by email.")}
             </p>
           </div>
         ) : card?.ready && !isCancelled ? (

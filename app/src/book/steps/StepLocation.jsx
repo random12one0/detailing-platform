@@ -96,7 +96,7 @@ export default function StepLocation({ form, setForm, modeLimit }) {
             <p className="bk-muted">
               {business.dropoff_address
                 ? t("Bring your vehicle to {address}.", { address: business.dropoff_address })
-                : t("Bring your vehicle to us — we’ll confirm the address.")}
+                : t("Bring your vehicle to us. We’ll confirm the address.")}
             </p>
           </div>
         </>
@@ -114,12 +114,12 @@ export default function StepLocation({ form, setForm, modeLimit }) {
           )}
           {isMobile
             ? (business.service_area
-              ? t("{business} comes to you — serving {area}.",
+              ? t("{business} comes to you, serving {area}.",
                 { business: business.name, area: business.service_area })
               : t("{business} comes to you.", { business: business.name }))
             : business.dropoff_address
               ? t("Drop your vehicle at {address}.", { address: business.dropoff_address })
-              : t("Drop-off only — we’ll confirm the address with you.")}
+              : t("Drop-off only. We’ll confirm the address with you.")}
         </div>
       )}
 
@@ -186,7 +186,7 @@ export default function StepLocation({ form, setForm, modeLimit }) {
 // evaluated once at import, so it would be frozen in whatever language the tab
 // opened in and would not change when somebody switches. That is invisible in
 // English and invisible to anybody who does not read the other language.
-const askHelp = () => t("Let us know either way — it just changes what we bring.");
+const askHelp = () => t("Let us know either way. It just changes what we bring.");
 
 // One resource, one question. 'not_needed' draws nothing at all — a question
 // whose answer changes nothing is a question that should not be asked.

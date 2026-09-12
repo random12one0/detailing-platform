@@ -6,7 +6,7 @@
 // *"all these double brackets and kind of coding-looking stuff"* — the BOX
 // stopped showing braces too: each detail is an atomic pill, one character to
 // the caret, deleted whole by one Backspace. Beside it is a live preview
-// filled with real sample data, so the date reads as "Thursday, 3 September"
+// filled with real sample data, so the date reads as "Thursday, September 17"
 // while you are still writing. The editor and the preview are visibly
 // different surfaces, and the preview is the one that looks like a message.
 //
@@ -31,6 +31,9 @@ import {
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
+// The one date formatter. A hand-typed sample date is how "3 September" got
+// onto the one screen whose whole job is to look like the real thing.
+import { dateLong } from "../../lib/format.js";
 import { t } from "../../lib/appI18n.js";
 import { useAppLocale } from "../../hooks/useAppLocale.js";
 
@@ -38,11 +41,25 @@ import { useAppLocale } from "../../hooks/useAppLocale.js";
 // EVERY TOKEN NEEDS A SAMPLE OR THE PREVIEW LIES. A detail with nothing
 // standing in for it previews as a gap, which reads as "this one does not
 // work" — the opposite of what the preview is for.
+// **THREE THINGS THE PREVIEW GOT WRONG, ALL VISIBLE TO A DETAILER DECIDING
+// WHETHER TO TRUST THIS — 2026-09-12.**
+//
+//   THE DATE  read "Thursday, 3 September". Every other date in the product
+//             reads "Saturday, September 12" or "Sep 11", because they go
+//             through `lib/format.js`. A hand-typed sample is not a format,
+//             which is exactly how day-before-month got in.
+//   THE TOWN  "1420 Larimer St" is Denver, while the same demo's Marcus Webb
+//             lives at "1420 Pine Ave, Long Beach, CA" — same street number,
+//             different city. A demo that contradicts itself on screen is a
+//             demo somebody stops believing.
+//
+// The sample is still hand-written, because a preview must be stable while you
+// type — but it is now the SAME PLACE as the rest of the product.
 const SAMPLE = {
   booking: { customer_name: "Dana Ortiz" },
-  dateLabel: "Thursday, 3 September",
+  dateLabel: dateLong("2026-09-17"),
   timeLabel: "10:00 AM",
-  address: "1420 Larimer St",
+  address: "1420 Pine Ave, Long Beach, CA",
   total: "$285",
   service: "Interior Deep Clean",
   vehicle: "Tacoma",

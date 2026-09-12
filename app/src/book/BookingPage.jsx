@@ -259,7 +259,7 @@ function BookingFlow({ notFound = null }) {
   // `postFunction` carries it). 403 is the one refusal the server can be
   // specific about: the code is real, and this person has had it already.
   const promoMessage = (e) => {
-    if (e?.status === 403) return t("You’ve used that code already — it’s one per customer.");
+    if (e?.status === 403) return t("You’ve used that code already. It’s one per customer.");
     if (e?.status === 404) return t("That code isn’t one of ours.");
     return t("We couldn’t check that code just now. Try again in a moment.");
   };
@@ -461,7 +461,7 @@ function BookingFlow({ notFound = null }) {
               something has gone wrong. */}
           <h1>{t("{business} isn’t taking bookings online yet", { business: business?.name ?? "" })}</h1>
           <p className="bk-muted">
-            {t("They’re still setting this page up. Check back shortly — or get in touch with them directly.")}
+            {t("They’re still setting this page up. Check back shortly, or get in touch with them directly.")}
           </p>
           {/* **`business.phone`, NOT `contact_phone` — and the email is not
               here at all.** The public profile renames it (`'phone',
