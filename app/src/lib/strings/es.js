@@ -64,7 +64,7 @@ export const es = {
   "Where are you?": "¿Dónde estás?",
   "Drop-off details": "Datos de la entrega",
   "Pick a time": "Elige una hora",
-  "How do we reach you?": "¿Cómo te contactamos?",
+  "Your details": "Tus datos",
   "Check everything over": "Revisa todo",
   "Let’s set up your {plan}": "Vamos a configurar tu {plan}",
   "Welcome back, {name}": "Qué gusto verte de nuevo, {name}",

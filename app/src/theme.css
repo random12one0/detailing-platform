@@ -1030,7 +1030,28 @@ a { color: var(--accent-text); text-decoration: none; }
    asks for the navigation to change SHAPE at a desk; it does not ask for a
    second visual world, which bucket 1 forbids. */
 @media (min-width: 1024px) {
-  .app-shell { padding-left: 120px; }
+  /* **SYMMETRIC, AND THAT IS THE WHOLE OF THE CENTRING FIX — 2026-09-12.**
+     This was `padding-left` alone. `.app-main` centres itself inside the
+     shell's CONTENT box, so a one-sided inset does not reserve the rail's
+     space — it shifts the entire column right by half of it, at every width.
+     Measured at 1910 before the change: the column sat 425px from the left
+     edge with 305px on the right, a 120px difference that reads as
+     off-centre because it is.
+
+     **IT ALSO STRANDED THE RAIL, which looked like a second bug and was the
+     same one.** `.tabbar` below is `position: fixed`, so its `50%` is the
+     VIEWPORT's middle, and it is positioned against a `--wrap` column centred
+     in the viewport — which is what the column stopped being the moment a
+     one-sided pad was added. The rail was landing 166px left of the content
+     edge instead of the 34px its own arithmetic asks for, which is the empty
+     gutter the review saw. Mirroring the inset puts the column where the rail
+     already expected it: gap 34px at 1440 and at 1910, 24px at 1024.
+
+     WHAT IT COSTS, SAID PLAINLY: between 1024 and 1180 the content column is
+     120px narrower than it was, because the right inset is now reserved too.
+     It is still 784px against the 728px maximum this dashboard's primary
+     column ever uses, so nothing is squeezed — and `--wrap` is untouched. */
+  .app-shell { padding-inline: 120px; }
   /* The pill is off the bottom edge, so the 96px it was being cleared by is
      no longer owed to anything. */
   .app-main { max-width: var(--wrap); padding-bottom: var(--sp-6); }

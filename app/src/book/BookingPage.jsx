@@ -738,7 +738,10 @@ function headingFor(stepName, bothModes, settings, serviceType, recognition) {
     case "Location": return bothModes ? t("Where should we do it?")
       : serviceType === "mobile" ? t("Where are you?") : t("Drop-off details");
     case "When": return t("Pick a time");
-    case "Details": return t("How do we reach you?");
+    // A NOUN PHRASE, NOT A QUESTION — 2026-09-12. Every step's title is
+    // rendered by THIS function and not by the step file, which is why a sweep
+    // of `steps/` reported this one as already fixed when it was not.
+    case "Details": return t("Your details");
     default: return t("Check everything over");
   }
 }
