@@ -442,3 +442,133 @@ threshold and a 32px one before believing either.
 **And the demo database is SHARED AND LIVE**: `campaign_visits` grew from one
 row to four during the walk, from somebody else's visits.
 
+
+## A SECOND SESSION IS WRITING INTO THIS TREE RIGHT NOW — 2026-09-12, 15:00
+
+**This is the incident `docs/sessions/README.md` exists to prevent, caught in
+the act rather than afterwards, and it is recorded because the DETECTION is the
+transferable part.**
+
+At 15:00:46 these files were modified and uncommitted, and **none of the changes
+were mine**: `app/src/book/UnsubscribePage.jsx`, `app/src/landing/LandingPage.jsx`,
+`app/src/landing/PricingPage.jsx`, `app/src/landing/legal.js`,
+`app/src/landing/thread.js`, `app/src/lib/strings/es.js`.
+
+**HOW IT SURFACED, because none of the obvious signals fired.** No lock, no
+warning, no merge conflict — `git status` looked like my own working tree. What
+gave it away was an edit of mine failing to apply to text I had written myself
+an hour earlier: `UnsubscribePage.jsx` already carried a 404-versus-unreachable
+split, with a comment dated today, that I did not write. **Somebody else had
+independently fixed the same defect, better than my first attempt, while I was
+reviewing it.** Then a second read of `es.js` forty seconds after a first one
+came back different again.
+
+**WHAT WAS LOST: my uncommitted `es.js` edit, overwritten by their write.**
+Nothing committed was harmed and nothing of theirs was harmed — the destructive
+recovery I reached for (`git checkout --`) was refused by the permission layer,
+which was correct, and the right move was to stop rather than to merge somebody
+else's file while they still had it open.
+
+**THE TREE IS CURRENTLY INCONSISTENT AND IT IS THEIRS TO FINISH.**
+`UnsubscribePage.jsx` calls `t()` on three strings — "We couldn't open this
+link", "This link may be out of date. Reply to the email you got instead. It
+reaches the business directly.", and "Try again in a moment. If it still doesn't
+work, reply to the email you got instead. It reaches the business directly." —
+and **`es.js` now has an entry for none of them**, so that page renders English
+on a Spanish screen with no error anywhere. **Do not fix it from a third
+session.** Whoever holds those files adds the keys.
+
+**THREE RULES THIS EARNS, and the first is new.**
+
+1. **AN EDIT THAT FAILS TO MATCH TEXT YOU WROTE YOURSELF IS A COLLISION SIGNAL,
+   not a quoting problem.** It reads exactly like a mangled apostrophe or a bad
+   heredoc, which is what it was blamed on for two attempts.
+2. **`git status` IS THE CHECK, AND IT IS FREE.** Run it before the first write
+   of a session and again before each commit. A modified file you did not touch
+   is the only early warning available.
+3. **A MEASUREMENT OF A FILE SOMEBODY ELSE HAS OPEN IS WORTH NOTHING** —
+   CLAUDE.md trap (f) applied to a person instead of to a hot reload. Both cold
+   reviews walked the landing and pricing pages during this window, so **every
+   finding of theirs against `LandingPage.jsx` or `PricingPage.jsx` has to be
+   re-taken** once that session commits.
+
+## COLD REVIEW, 2026-09-12 — the customer's side
+
+Second fresh agent, same conditions: no knowledge of this session, denied
+`FOUND.md` and `ROADMAP.md`, read-only, nothing submitted. It walked `/`,
+`/pricing`, `/examples`, `/terms`, `/privacy`, both tenants' booking flows end
+to end including a two-vehicle path, and all three opt-out ids, at 1440x900 and
+392x844 in both languages.
+
+**It found no crash, no dead control, no step that cannot be finished, no price
+that disagrees with itself anywhere, and no sideways scroll at either width.**
+It arithmetic-checked the whole quote chain ($140+$95+$40+$60+$40 = $375,
+itemised to $375 on step 7) and `/pricing` against the landing page, and they
+agree. `/book/demo-riverside` is the mobile-only configuration that used to
+white-screen `StepLocation`, and it renders correctly.
+
+**Verified here by reading the source:**
+
+- **A DISABLED *Continue* WITH NO REASON, ON BOOKING STEPS 4 AND 6, AND THE
+  MECHANISM IS THAT THE HINT SLOT IS OCCUPIED BY THE PRICE.**
+  `BookingPage.jsx:692` renders "Choose a service to start" **only in the `else`
+  of `quote ? … : …`** — so the moment a quote exists the slot shows the total,
+  and every later step's disabled button is silent. Step 1 is not doing
+  something the others forgot; it is the only step that can. **A phone customer
+  taps a dead button and leaves**, and this is the likeliest single thing on
+  this list to cost a real booking.
+- **THE SERVER BUILDS A PRICE LINE WITH AN EM DASH, AND THE SAME TEMPLATE USES
+  A MIDDLE DOT SIX CHARACTERS LATER.** `_shared/pricing.ts:449` is
+  `` `${ORDINALS[i+1]} vehicle — ${v.label}` + (v.model ? ` · ${v.model}` : "") ``
+  — so a two-vehicle quote reads "2nd vehicle — Small · Ford F-150", both
+  separators in one string. Line **283** has the same shape for plan discounts
+  (`` `${plan.name} — ${what}` ``) and was not seen rendered. **Neither is in a
+  `t()` literal and neither is translated**, so they are English on a Spanish
+  review — the fourth and fifth instances of the join class after the two
+  timezone pickers and the two booking fees.
+- **"unos 1 h".** `es.js` maps `"about {time}"` to `"unos {time}"` — one
+  masculine-plural template for every duration, so the singular cases are
+  ungrammatical on the first screen a Spanish-speaking customer reads. The
+  plural cases are fine.
+
+**Measured by the agent, NOT re-verified here, and two of them sit in files the
+other session currently has open:**
+
+- **Two contrast failures on `/pricing`**, both on the cheaper plan's price in
+  the light band: "a month" at **2.41:1** and "no build fee · no term" at
+  **3.25:1**, against a 4.5 floor. Its guess is dark-theme muted greys used
+  inside a light section. **`PricingPage.jsx` is uncommitted in another
+  session's hands as of 15:00 — re-take this before acting on it.**
+- **Two tap targets under 32px at 392** on `/`: "See them all" at 79x22 and
+  "Or just the booking page" at 184x23, both `.softlink`, no padding and no
+  pseudo-element. Both sit beside large buttons going to the same place.
+  **`LandingPage.jsx` is likewise uncommitted elsewhere.**
+- Booking step 4's travel-area control is a native `<select>` with exactly two
+  options, which SCREEN RULES forbids — and `composition` test 2 cannot catch it
+  because the options come from `.map()` and the mapped-list exemption applies.
+  It is also price-bearing: the second option adds $40.
+- The running total holds a stale price for ~730ms after a vehicle-count change
+  with no spinner, no `aria-busy` and no dimming. Low impact at that speed;
+  longer on a real phone connection.
+- Minor: `<html lang>` stays "en" in Spanish on the booking flow AND the opt-out
+  page; an error already on screen does not re-translate when the language is
+  switched; "That address needs something after the dot, like .com." is shown
+  for `tester@example`, which has no dot at all; `.bk-error` carries no
+  `role="alert"`, so a validation failure is announced to nobody;
+  `document.title` on the opt-out page is "Detailing Platform" rather than the
+  business, unlike every booking page.
+
+**AND ITS WITHDRAWAL IS THE MOST USEFUL THING IN THE REPORT.** It had written up
+the booking page's "What's included" disclosure as a dead control — pressing it
+set `aria-expanded="true"` and added `.on` while the panel stayed at
+`height: 0`. It then chased that as a stale dev server. **Both conclusions were
+its own instruments.** The pane was HIDDEN, which froze the transition at
+`currentTime: 0` (trap (d), costing it two false findings before it noticed),
+and its CSSOM walker was broken because **a `CSSStyleRule` in modern Chrome has
+a truthy but EMPTY `cssRules` for CSS nesting**, so a recursive walk treats every
+rule as a container and collects zero selectors. Forcing
+`getAnimations().forEach(a => a.finish())` opens the panel to 130.2px. **The
+control works.** It also nearly filed an empty decorative `<span class="dots">`
+as a clipped control rail. It baselined its own tap-target probe against a 20x20
+control, a 40x40 control and a 7x7 button with an `inset: -13px` pseudo-element
+before trusting a single number from it.
