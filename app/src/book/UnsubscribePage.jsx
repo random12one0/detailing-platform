@@ -38,6 +38,9 @@ export default function UnsubscribePage() {
   const [state, setState] = useState({ status: "loading", name: "", first: null });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  // "No, keep them" changes nothing on the server on purpose — there is
+  // nothing to undo. It says so and stops asking.
+  const [kept, setKept] = useState(false);
 
   useEffect(() => {
     let live = true;
@@ -104,9 +107,25 @@ export default function UnsubscribePage() {
 
   return (
     <div className="bk">
+      {/* **THE BUSINESS'S NAME AT THE TOP — an outside review, 2026-09-11.**
+          Every other customer-facing page in this product says whose it is;
+          this one was bare, and the browser tab read "Detailing Platform", a
+          name the customer has never heard of. So the ONE page a customer only
+          ever reaches by clicking a link in an email — the exact shape of a
+          phishing attempt — was the only one that would not say who sent it.
+          It also gives the language chips a header to live in: at 390px they
+          were right-aligned on top of the heading with no gap, because there
+          was no bar to hold them. */}
+      <header className="bk-header">
+        <div className="inner">
+          <div>
+            <h1>{state.name}</h1>
+            <div className="tagline">{t("Email preferences")}</div>
+          </div>
+          <LanguagePicker />
+        </div>
+      </header>
       <div className="bk-center">
-        <LanguagePicker />
-        <h1>{t("Stop these emails?")}</h1>
         {/* **THE GREETING IS INSIDE THE SENTENCE, NOT GLUED TO ITS FRONT.**
             English can prepend "Maria, this…"; Spanish wants the name
             somewhere the English never puts it, and a translation that cannot
@@ -120,11 +139,28 @@ export default function UnsubscribePage() {
               { business: state.name })}
         </p>
         {error && <div className="bk-error">{error}</div>}
+        {/* **A SECOND BUTTON, BECAUSE MOST PEOPLE WHO SEE THIS PAGE GOT HERE
+            BY ACCIDENT.** There was one control and it was the irreversible
+            one: tap the footer link by mistake and the only thing you can do
+            is confirm. "No, keep them" costs nothing and it is the answer most
+            of them want.
+            IT IS A LINK BACK TO THE BUSINESS where there is one to go to, so
+            leaving is not a dead end either. */}
         <div className="bk-actions" style={{ marginTop: 24 }}>
           <button className="bk-btn primary" disabled={busy} onClick={stop}>
             {busy ? t("One moment…") : t("Yes, stop them")}
           </button>
+          <button className="bk-btn" disabled={busy || kept} onClick={() => setKept(true)}>
+            {t("No, keep them")}
+          </button>
         </div>
+        {kept && <p className="bk-muted" style={{ marginTop: 12 }}>{t("Nothing changed. You can close this page.")}</p>}
+        {/* NO PHONE NUMBER AND NO LINK BACK TO THE BUSINESS, and it is not an
+            oversight: `unsubscribe-lookup` returns the business NAME and the
+            customer's first name and nothing else. Adding the slug and the
+            phone is an edge-function change, which is lane C's — noted rather
+            than half-built, because a link to `/book/undefined` would be worse
+            than no link. */}
       </div>
     </div>
   );

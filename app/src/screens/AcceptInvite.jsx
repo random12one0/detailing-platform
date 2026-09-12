@@ -67,10 +67,26 @@ export default function AcceptInvite() {
   if (info === undefined) return <div className="center"><div className="spinner" /></div>;
   if (info.error) {
     return (
-      <div className="center" style={{ padding: 16 }}>
-        <div className="card" style={{ maxWidth: 380 }}>
+      // **A DEAD END WITH A DOOR — an outside review, 2026-09-11.** This was
+      // a 234px card floating on black with a title that wrapped mid-phrase
+      // (`Invite` / `unavailable`) and nothing after the sentence: no way to
+      // sign in, nobody to ask, nothing to press. It is the FIRST thing a new
+      // hire ever sees of this product.
+      //
+      // The pattern already exists one screen over — the bounced-email notice
+      // on a client record ends *"Check it with them, or call instead."* A
+      // sentence that says what to do next is the whole difference.
+      //
+      // `minHeight` and the wider card are the other half: 380px is what the
+      // form below uses, and at 234px the two words would not sit on one line.
+      <div className="center" style={{ minHeight: "100dvh", padding: 16 }}>
+        <div className="card" style={{ width: "100%", maxWidth: 380 }}>
           <h1 style={{ marginBottom: 8 }}>{t("Invite unavailable")}</h1>
           <p className="muted">{info.error}</p>
+          <p className="muted" style={{ marginTop: 8 }}>
+            {t("Ask whoever invited you to send a new link.")}
+          </p>
+          <a className="btn" href="/app" style={{ marginTop: 16 }}>{t("Go to sign in")}</a>
         </div>
       </div>
     );

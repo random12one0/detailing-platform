@@ -56,11 +56,14 @@ export const appEs = {
   "A promo code is a word a customer types when booking to get money off. Skip this if you do not have one. You can add one later.":
     "Un código promocional es una palabra que un cliente escribe al reservar para obtener un descuento. Sáltalo si no tienes uno. Puedes agregarlo después.",
   "Allowed once per device. Your browser will ask you first.": "Se permite una vez por dispositivo. Tu navegador te preguntará primero.",
+  "Ask whoever invited you to send a new link.":
+    "Pídele a quien te invitó que te envíe un enlace nuevo.",
   "Blocked for this site": "Bloqueado para este sitio",
   "Customers can only pick times inside these hours. If you close a day here, nobody can book it.":
     "Los clientes solo pueden elegir horas dentro de este horario. Si cierras un día aquí, nadie puede reservarlo.",
   "Get an alert on your phone when a booking comes in. It works when the dashboard is closed.":
     "Recibe un aviso en tu teléfono cuando entre una cita. Funciona aunque el panel esté cerrado.",
+  "Go to sign in": "Ir a iniciar sesión",
   "Make a separate booking link for a flyer, a QR code or a post. Anyone who uses it gets the discount applied automatically. Each link tracks how many people opened it and how many of them booked.":
     "Crea un enlace de reservas aparte para un volante, un código QR o una publicación. Quien lo use recibe el descuento automáticamente. Cada enlace registra cuántas personas lo abrieron y cuántas de ellas reservaron.",
   "Mobile means you drive to the customer. Drop-off means they come to you. You can offer both. This is the first question your booking page asks.":

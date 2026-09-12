@@ -45,12 +45,16 @@
 
 export const es = {
   // ── The four `t(label)` keys the extractor cannot see ───────────────────
+  "Email preferences": "Preferencias de correo",
   "Light": "Ligera",
   "Moderate": "Moderada",
   "Heavy": "Fuerte",
   "Extreme": "Extrema",
 
   // ── The flow: headings, the rail, the price bar, the buttons ────────────
+  "No, keep them": "No, quiero seguir recibiéndolos",
+  "Nothing changed. You can close this page.":
+    "No cambió nada. Puedes cerrar esta página.",
   "Step {n} of {total}": "Paso {n} de {total}",
   "What can we do for you?": "¿Qué podemos hacer por ti?",
   "Anything to add?": "¿Quieres agregar algo?",
@@ -308,7 +312,6 @@ export const es = {
   "Done": "Listo",
   "{business} won't email you about coming back again. If you book with them, you'll still get the confirmation and reminder for that booking.":
     "{business} ya no te va a escribir para invitarte a volver. Si reservas con ellos, igual recibes la confirmación y el recordatorio de esa reserva.",
-  "Stop these emails?": "¿Detener estos correos?",
   "{name}, this stops {business} emailing you about coming back. Anything to do with a booking you make — the confirmation, the reminder, the receipt — still reaches you.":
     "{name}, esto hace que {business} deje de escribirte para invitarte a volver. Todo lo relacionado con una reserva que hagas — la confirmación, el recordatorio, el recibo — te sigue llegando.",
   "This stops {business} emailing you about coming back. Anything to do with a booking you make — the confirmation, the reminder, the receipt — still reaches you.":
