@@ -583,6 +583,15 @@ export const monthHasNothing = (days) =>
 // customer filling in four more steps before being told no; the half that
 // HOLDS is `_shared/slotValidation.ts`, on the server. Same for everything
 // else here.
+// Does this look like an email address at all? Exported because the Details
+// step wants to say WHICH field is wrong, and a site built on something else
+// needs the same test rather than its own.
+//
+// The crudest possible check on purpose: something, an @, something, a dot,
+// something, and no spaces. Every stricter rule anybody writes rejects a real
+// address eventually; this one only refuses what cannot work.
+export const looksLikeEmail = (v) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(v ?? "").trim());
+
 export function canAdvance(stepName, { form, settings, quote, quoting }) {
   const s = normalizeSettings(settings);
   switch (stepName) {
@@ -608,7 +617,23 @@ export function canAdvance(stepName, { form, settings, quote, quoting }) {
       }
       return !!form.bookingDate && !!form.startTime;
     case "Details":
-      return !!(form.customerName?.trim() && form.customerPhone?.trim() && form.customerEmail?.trim());
+      // **THE EMAIL HAS TO LOOK LIKE ONE — an outside review, 2026-09-11.**
+      // `notanemail` walked straight through this step, was accepted by the
+      // server, and the confirmation page then told the customer *"We'll email
+      // notanemail as soon as it's accepted."* No confirmation, no reminder,
+      // no receipt, no way to cancel — and the client record pre-fills it into
+      // their NEXT booking, so one typo is permanent.
+      //
+      // The field is `type="email"` but carries no `required`, so the
+      // browser's own validation never fires either.
+      //
+      // DELIBERATELY THE CRUDEST POSSIBLE TEST: something, an @, something, a
+      // dot, something. Anything cleverer rejects addresses that are real —
+      // and the product already handles the hard case properly, by showing
+      // *"This address bounced"* on the client record. This only stops the
+      // ones that cannot possibly work.
+      return !!(form.customerName?.trim() && form.customerPhone?.trim()
+        && looksLikeEmail(form.customerEmail));
     default:
       return true;
   }

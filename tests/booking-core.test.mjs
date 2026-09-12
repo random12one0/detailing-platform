@@ -443,8 +443,17 @@ const svc = (id, extra = {}) => ({ id, name: id, price: 100, duration_minutes: 6
     customerName: " Marcus ", customerEmail: " m@e.com ", customerPhone: " 555 ",
   }, "plan-1", fake);
   const got = recallCustomer("acme", fake);
-  check("three fields and a plan come back",
-    got.name === "Marcus" && got.email === "m@e.com" && got.phone === "555" && got.planId === "plan-1");
+  // **THREE FIELDS AND NO PLAN — corrected 2026-09-11, and this line used to
+  // pin the defect it should have caught.** It asserted `got.planId === "plan-1"`,
+  // which required the plan to be carried into the next booking from that
+  // browser; an outside review found that one press of "Choose this" therefore
+  // priced every later booking at the plan rate on a clean URL. The very next
+  // check already says the principle out loud — a name may carry over, a PLAN
+  // may not — it had simply scoped it per business and never per booking.
+  check("three fields come back",
+    got.name === "Marcus" && got.email === "m@e.com" && got.phone === "555");
+  check("AND THE PLAN DOES NOT", got.planId === undefined,
+    "a price must never come out of the customer's own storage");
   check("A DIFFERENT BUSINESS GETS NOTHING", recallCustomer("other", fake) === null,
     "one device, many detailers — a name is fine to carry over, a PLAN is not");
   check("the key is stable", store.has(REMEMBER_KEY));

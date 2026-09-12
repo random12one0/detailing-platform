@@ -42,6 +42,26 @@ export function setPreviewMode(mode) {
   try { sessionStorage.setItem(MODE, mode === "work" ? "work" : "look"); } catch { /* private mode */ }
 }
 
+// **THE WAY OUT OF A PREVIEW TAB THAT NEVER BECAME ONE — 2026-09-11.**
+//
+// An outside review typed `/preview` while signed in as an ordinary detailer.
+// The flag above was set by merely REACHING the path, no token ever arrived,
+// and from that moment every page in the app showed the sign-in screen — with
+// a perfectly valid session still sitting in `localStorage`. The detailer is
+// not signed out; the app has decided they are. The only escape is closing the
+// tab, because that is what clears `sessionStorage`, and nobody knows that.
+//
+// So the door has a handle on the inside now. Clearing all three keys and
+// doing a REAL navigation is what un-poisons the tab: `isPreviewTab` is read
+// once at module load, so nothing that stays on this page can undo it.
+export function leavePreview() {
+  try {
+    sessionStorage.removeItem(FLAG);
+    sessionStorage.removeItem(MODE);
+    sessionStorage.removeItem("dp.preview.who");
+  } catch { /* private mode never set them */ }
+}
+
 export const LOOKING_ONLY = "Looking only. Flip the switch at the top to Working if you meant to change this.";
 
 // Throws in a preview tab that is still on Looking; does nothing anywhere

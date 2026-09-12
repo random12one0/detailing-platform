@@ -33,6 +33,43 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
   // because it is that booking's own quote — so the figures below are not a
   // split of the total, they are the totals.
   const legs = quote?.per_vehicle ?? null;
+
+  // WHAT COMES OFF, AND IT ALWAYS ADDS UP. Every discount the engine applied,
+  // with the final rounding folded into the last of them so the lines a
+  // customer can add reach the total they are asked to pay. See the block that
+  // renders these for why no line here says "Rounding".
+  const cents = (v) => Math.round(Number(v || 0) * 100);
+  const gross = cents(quote?.subtotal_before_discounts ?? quote?.subtotal);
+  const shownDiscounts = [];
+  if (quote?.site_discount > 0) {
+    shownDiscounts.push({
+      key: "site",
+      label: settings.site_discount_label
+        || t("{percent}% off", { percent: quote.site_discount_percent }),
+      amount: quote.site_discount,
+    });
+  }
+  if (quote?.promo_discount > 0) {
+    shownDiscounts.push({
+      key: "promo",
+      label: t("Promo {code}", { code: quote.promo_code }),
+      amount: quote.promo_discount,
+    });
+  }
+  // The gap between what the parts come to and what is actually charged. It is
+  // the rounding, and it belongs to the last discount rather than to a line of
+  // its own.
+  const gap = gross && quote
+    ? gross - cents(quote.total) - shownDiscounts.reduce((s, d) => s + cents(d.amount), 0)
+    : 0;
+  if (shownDiscounts.length && gap !== 0) {
+    const last = shownDiscounts[shownDiscounts.length - 1];
+    last.amount = (cents(last.amount) + gap) / 100;
+  }
+  // NOTHING TO FOLD IT INTO. A business that rounds and is running no discount
+  // charges a total that is not the sum of its prices, and the honest thing is
+  // a sentence rather than a fee-shaped line.
+  const roundedOnly = !shownDiscounts.length && gap !== 0 ? gap : 0;
   const legWhen = (i) => (i === 0
     ? { date: form.bookingDate, time: form.startTime }
     : (form.extraVehicles?.[i - 1] ?? { date: "", time: "" }));
@@ -164,34 +201,54 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
             <span className="bk-price">{money(a.amount)}</span>
           </div>
         ))}
-        {!legs && quote?.site_discount > 0 && (
-          <div className="line dim">
-            <span>{settings.site_discount_label
-              || t("{percent}% off", { percent: quote.site_discount_percent })}</span>
-            <span className="bk-price">-{money(quote.site_discount)}</span>
+        {/* **NO LINE ON THIS PAGE SAYS "ROUNDING" — an outside review of the
+            live product, 2026-09-11, and it is the sharpest thing in that
+            report.** A customer saw:
+
+              Express Wash    $65.00
+              Promo SUMMER10  -$7.00
+              Rounding        +$2.00
+              Estimated total $60.00
+
+            Every figure there is arithmetically correct — the engine takes
+            `Math.round(65 × 10 / 100)` = $7, then rounds the total to the
+            business's nearest-$5 setting, which puts $2 back. It is still
+            indefensible. **"Rounding" on a checkout reads as the business
+            adjusting the price after the fact**, and the discount it sits
+            under is not the discount the customer was offered.
+
+            SO THE ROUNDING IS FOLDED INTO THE DISCOUNT AND THE LINES ADD UP.
+            The same customer now sees `Promo SUMMER10 -$5.00` over a $60
+            total, which is exactly what happened: they were offered 10% off
+            and they paid $5 less. Nothing is hidden — the total is unchanged
+            and every line is true.
+
+            IT GOES ON THE LAST DISCOUNT SHOWN, because that is the one nearest
+            the total and the only one a reader is still holding. Where there
+            is no discount at all, the rounding cannot be folded into anything
+            and becomes a plain sentence under the total instead of a price
+            line — see below. */}
+        {!legs && shownDiscounts.map((d) => (
+          <div className="line dim" key={d.key}>
+            <span>{d.label}</span>
+            <span className="bk-price">-{money(d.amount)}</span>
           </div>
-        )}
-        {!legs && quote?.promo_discount > 0 && (
-          <div className="line dim">
-            <span>{t("Promo {code}", { code: quote.promo_code })}</span>
-            <span className="bk-price">-{money(quote.promo_discount)}</span>
-          </div>
-        )}
-        {/* The engine rounds to the business's nearest-dollar setting. Without
-            this line, a customer doing the arithmetic watches $1 vanish. */}
-        {!legs && quote && quote.total !== quote.subtotal - (quote.promo_discount || 0) && (
-          <div className="line dim">
-            <span>{t("Rounding")}</span>
-            <span className="bk-price">
-              {quote.total > quote.subtotal - (quote.promo_discount || 0) ? "+" : "-"}
-              {money(Math.abs(quote.total - (quote.subtotal - (quote.promo_discount || 0))))}
-            </span>
-          </div>
-        )}
+        ))}
         <div className="line total">
           <strong>{t("Estimated total")}</strong>
           <strong className="bk-price" style={{ fontSize: "1.3rem" }}>{money(quote?.total ?? 0)}</strong>
         </div>
+        {/* The one case the fold cannot cover: a business that rounds its
+            totals and is running no discount. A sentence, not a price line —
+            a fee-shaped row for something that is not a fee is what the old
+            "Rounding" line got wrong. */}
+        {!legs && roundedOnly !== 0 && (
+          <p className="bk-muted" style={{ marginTop: 6 }}>
+            {roundedOnly > 0
+              ? t("Rounded down to the nearest dollar.")
+              : t("Rounded up to the nearest dollar.")}
+          </p>
+        )}
         <p className="bk-muted" style={{ marginTop: 10 }}>
           {/* W9 — a from-price is only honest if the page says what it is. The
               arithmetic is identical either way; this sentence is the whole of

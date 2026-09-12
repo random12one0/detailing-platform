@@ -188,7 +188,6 @@ export const es = {
   "Travel — {zone}": "Traslado — {zone}",
   "{percent}% off": "{percent}% de descuento",
   "Promo {code}": "Código {code}",
-  "Rounding": "Redondeo",
   "Some of this is priced from — we’ll confirm once we’ve seen the vehicle, and we’ll ask before doing anything extra.":
     "Parte de esto es un precio desde — lo confirmamos cuando veamos el vehículo, y te preguntamos antes de hacer algo extra.",
   "An estimate. If the vehicle needs more work, we’ll ask before doing anything extra.":
@@ -390,17 +389,15 @@ export const es = {
   // everything they ordered instead of printing one total, so the receipt's
   // own labels need Spanish. The rest ("Travel", "Promo {code}", "Vehicle
   // size", the four conditions) were already here from StepReview.
+  "That address is missing an @. We cannot send your confirmation to it.":
+    "Esa dirección no tiene @. No podemos enviarte tu confirmación ahí.",
+  "Rounded down to the nearest dollar.": "Redondeado hacia abajo al dólar más cercano.",
+  "Rounded up to the nearest dollar.": "Redondeado hacia arriba al dólar más cercano.",
   "Discount": "Descuento",
   // The engine rounds the charge to whatever the detailer set in Booking
   // rules, so the subtotal and the amount charged can differ by a few dollars.
   // Without a line for it the receipt is out by that much and nothing on the
   // page says why (2026-09-11).
-  "Rounded": "Redondeado",
-  // NOT "Total": that word is identical in both languages, and the two
-  // Spanish checks cannot both be satisfied by such a string — 1b wants an
-  // entry for every call site, 2a rejects an entry that equals its English.
-  // "Final total" resolves it and says more: the figure after the job
-  // changed on the day, as against the estimate above it.
   "Final total": "Total final",
   "Name": "Nombre",
   "Your note": "Tu nota",

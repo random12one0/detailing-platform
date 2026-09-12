@@ -16,7 +16,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase.js";
-import { setPreviewMode } from "../lib/preview.js";
+import { leavePreview, setPreviewMode } from "../lib/preview.js";
 
 export default function PreviewEntry() {
   const [error, setError] = useState("");
@@ -48,9 +48,23 @@ export default function PreviewEntry() {
     };
     go();
     window.addEventListener("hashchange", go);
+    // **FIVE SECONDS, AND IT UNDOES THE FLAG — 2026-09-11.**
+    //
+    // This waited 25 seconds and then only changed the words. An outside
+    // review typed this address while signed in as an ordinary detailer,
+    // waited twelve seconds, gave up, and found every page in the product
+    // showing the sign-in screen: reaching `/preview` marks the TAB as a
+    // preview (`lib/preview.js`), and the flag outlives the page on purpose.
+    // Their session was still there. The app had decided it was not.
+    //
+    // Nobody types this address deliberately. It is opened, already filled in,
+    // by the back office — so a bare address with no token is always a mistake
+    // and should be undone quickly rather than sat on for half a minute.
     const giveUp = setTimeout(() => {
-      if (!used.current) setError("Nothing arrived. Open this from the back office rather than by typing the address.");
-    }, 25_000);
+      if (used.current) return;
+      leavePreview();
+      setError("nothing");
+    }, 5_000);
     return () => { window.removeEventListener("hashchange", go); clearTimeout(giveUp); };
   }, [nav]);
 
@@ -60,9 +74,24 @@ export default function PreviewEntry() {
       background: "var(--ink-0, #0B0D0E)", color: "var(--paper, #F4F5F3)",
       font: "500 15px/1.5 system-ui, sans-serif", textAlign: "center",
     }}>
-      <p style={{ maxWidth: 420, margin: 0 }}>
-        {error || "Opening their dashboard…"}
-      </p>
+      {/* A DEAD END NEEDS A DOOR. The old version printed one sentence on
+          black with no spinner, no nav and no way back, so somebody who
+          reached this by accident had nothing to press. */}
+      <div style={{ maxWidth: 420 }}>
+        <p style={{ margin: 0 }}>
+          {error === "nothing"
+            ? "This page is opened from the back office, not by typing the address."
+            : error || "Opening their dashboard…"}
+        </p>
+        {error && (
+          // A REAL NAVIGATION, NOT A ROUTER PUSH. `isPreviewTab` is read once
+          // at module load, so only a fresh document clears it — `nav("/app")`
+          // would leave the tab still believing it is a preview.
+          <a href="/app" style={{ display: "inline-block", marginTop: 16, color: "inherit" }}>
+            Back to your dashboard
+          </a>
+        )}
+      </div>
     </div>
   );
 }

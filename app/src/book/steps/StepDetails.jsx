@@ -1,10 +1,20 @@
 // Step 5 — who we're detailing for.
 
+import { looksLikeEmail } from "../core.js";
 import { t } from "../../lib/i18n.js";
 import { useLocale } from "../../hooks/useLocale.js";
 
 export default function StepDetails({ form, setForm }) {
   useLocale();
+  // SAY WHICH FIELD IS WRONG, AND ONLY ONCE THEY HAVE TYPED SOMETHING. An
+  // outside review, 2026-09-11: `notanemail` walked through this step, and the
+  // confirmation page then promised to email it. The gate is in `core.js` so
+  // every tenant site gets it; this is the sentence that tells a person why
+  // Continue will not move.
+  //
+  // NOT WHILE THE BOX IS EMPTY. An error under a field nobody has reached yet
+  // is the form telling somebody off for not having done it.
+  const badEmail = form.customerEmail?.trim() && !looksLikeEmail(form.customerEmail);
   return (
     <>
       <label className="bk-field">
@@ -21,11 +31,14 @@ export default function StepDetails({ form, setForm }) {
         <label className="bk-field">
           <span>{t("Email")}</span>
           <input type="email" inputMode="email" autoComplete="email" value={form.customerEmail}
+            aria-invalid={badEmail || undefined}
             onChange={(e) => setForm((f) => ({ ...f, customerEmail: e.target.value }))} />
         </label>
       </div>
-      <p className="bk-muted" style={{ marginTop: -4, marginBottom: 14 }}>
-        {t("We’ll send your confirmation here, with a link to change or cancel.")}
+      <p className={badEmail ? "bk-error" : "bk-muted"} style={{ marginTop: -4, marginBottom: 14 }}>
+        {badEmail
+          ? t("That address is missing an @. We cannot send your confirmation to it.")
+          : t("We’ll send your confirmation here, with a link to change or cancel.")}
       </p>
       <label className="bk-field">
         <span>{t("Anything we should know? (optional)")}</span>
