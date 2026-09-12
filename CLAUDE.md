@@ -56,6 +56,12 @@ that curls the domain and reads a 200 has learned nothing, and one that reads
 the app shell and concludes the example pages are broken has learned something
 false. **Verified 2026-09-09: `/ex4` serves the app shell, and the free branch
 preview never built either.**
+**STILL TRUE ON 2026-09-11 — live is the 6 Sep bundle, 246 commits behind.**
+**AND IT IS A STATE, NOT A FACT: re-measure it rather than believing this
+heading.** Credits were due to reset on 13 September; § Ground rules carries
+the two commands that settle it. **The day this stops being true, this whole
+section becomes the wrong instruction** — which is what happened to its
+predecessor twice.
 
 **THE EXAMPLE SITES ARE A LOCALHOST THING:**
 
@@ -171,7 +177,11 @@ finished site may claim anything the brief did not establish.
 **TWO PIECES OF THIS WORKFLOW ARE STILL MISSING and neither is code he can
 see:** nothing emails him when a form is submitted, and the back office cannot
 show him a brief — that needs a new `platform-admin` action and a deploy.
-`docs/status-2026-09-10.md` is the standing list.
+~~`docs/status-2026-09-10.md` is the standing list.~~ **SUPERSEDED — that file
+says so about itself. `docs/whats-left-2026-09-10.md` is the product queue and
+`docs/CHECKPOINT.md` is where-we-are-today.** Corrected 2026-09-11; four files
+were claiming to be the list and `OUTSTANDING.md`'s header now scopes them
+against each other.
 
 ## AMERICAN ENGLISH, EVERYWHERE A PERSON READS IT — his instruction, 2026-09-10
 
