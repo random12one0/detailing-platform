@@ -779,6 +779,44 @@ console.log("\n13. nothing is assumed at signup (roadmap 8.4)");
   // every booking suite fails for a reason nothing points at.
   check("13f · the demo answers the question explicitly",
     /mobile_enabled: true, dropoff_enabled: true,/.test(seed));
+
+  // ── 14 · A CALENDAR MUST NEVER BE DRAWN BEFORE IT HAS AN ANSWER ────────
+  // **WHY THIS IS A SOURCE CHECK AND NOT A MOUNT.** There is no React test
+  // runner in this repo — every suite here is plain node — so this asserts the
+  // two guards exist in the file rather than rendering the step. Said out loud
+  // because a check that cannot fail the way the bug happens is worth less
+  // than it looks, and this one would not catch a guard that was present and
+  // wrong.
+  //
+  // **WHAT IT IS GUARDING, MEASURED 2026-09-12.** Instrumenting `fetch` before
+  // a fast walk to step 5 recorded TWO identical availability requests one
+  // millisecond apart, with nothing cancelling or ignoring either. Responses
+  // are not guaranteed to land in order, so a slower FIRST answer could
+  // overwrite a faster SECOND one and leave the calendar showing availability
+  // for a selection the customer had already changed — an offered slot the
+  // submit gate then refuses, on the one page that takes money.
+  //
+  // And the other half: `days` starts `null` meaning "no answer yet", where
+  // `{}` means "answered, nothing open". If the grid is ever drawn on the
+  // first, a customer meets thirty closed cells — a business that looks shut.
+  {
+    const when = read("app/src/book/steps/StepWhen.jsx");
+    // **COUNTED, NOT MERELY PRESENT — the first version of this check passed
+    // with one of the three guards deleted.** There are three writes after the
+    // await (days, error, loading) and every one of them has to be gated, so
+    // the check asserts the COUNT. A check that survives the deletion of the
+    // thing it guards is the disease this file keeps finding elsewhere.
+    const guards = (when.match(/run !== runRef\.current/g) ?? []).length;
+    check("14a · a stale availability answer cannot overwrite a newer one",
+      /runRef/.test(when) && guards >= 3,
+      `every write after the await must be gated — found ${guards} of 3`);
+    check("14b · the day grid is gated on an ANSWER, not only on a flag",
+      /!loading && days !== null &&/.test(when),
+      "a month drawn from `days === null` is a calendar saying the business is shut");
+    check("14c · a failed load leaves no calendar behind it",
+      !/catch[\s\S]{0,200}setDays\(\{\}\)/.test(when),
+      "setDays({}) after a failure prints thirty closed cells over an error");
+  }
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

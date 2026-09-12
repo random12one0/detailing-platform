@@ -26,6 +26,8 @@ import { useState } from "react";
 import { api } from "../../lib/api.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { SUPPORT_EMAIL, SUPPORT_PHONE, SUPPORT_SHORT } from "../../lib/support.js";
+// The one phone shape, on the number a detailer calls when nothing else works.
+import { phone } from "../../lib/format.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's.
 import { t } from "../../lib/appI18n.js";
@@ -92,12 +94,21 @@ export default function ReportProblem() {
 
       <hr className="rule" />
       {/* THE WAY THROUGH WHEN THIS SCREEN IS THE BROKEN THING. */}
-      <p className="quiet">
-        {t(SUPPORT_SHORT)}{" "}
-        <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
-        {" · "}
-        <a href={`tel:${SUPPORT_PHONE.replace(/[^\d+]/g, "")}`}>{SUPPORT_PHONE}</a>
-      </p>
+      {/* **TWO CHIPS, NOT TWO WORDS IN A SENTENCE — 2026-09-12.** They were
+          inline anchors 183x14 and 90x14. A 32px block around a word inside a
+          paragraph is the wrong fix — it pushes the line apart — so they come
+          OUT of the sentence and become what they always were: the two ways to
+          reach a person, on the screen somebody opens when this product is the
+          thing that is broken. `.btn.inline` is the product's own vocabulary
+          and carries the tap floor already, so reaching a human now looks like
+          an action rather than like prose. */}
+      <p className="quiet">{t(SUPPORT_SHORT)}</p>
+      <div className="btnrow" style={{ marginTop: "var(--sp-2)" }}>
+        <a className="btn sm inline" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
+        <a className="btn sm inline" href={`tel:${SUPPORT_PHONE.replace(/[^\d+]/g, "")}`}>
+          {phone(SUPPORT_PHONE)}
+        </a>
+      </div>
     </div>
   );
 }

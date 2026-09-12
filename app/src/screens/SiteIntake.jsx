@@ -121,7 +121,7 @@ function Dictate({ value, onText }) {
   return (
     <button type="button" className={`btn sm dictate${on ? " on" : ""}`} onClick={toggle}
       aria-pressed={on} aria-label={on ? t("Stop") : t("Say it instead")}>
-      <Mic size={14} strokeWidth={2} /> {on ? t("Listening… tap to stop") : t("Say it instead")}
+      <Mic size={14} strokeWidth={2} /> {on ? t("Listening… stop when you are done") : t("Say it instead")}
     </button>
   );
 }

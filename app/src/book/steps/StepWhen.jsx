@@ -19,7 +19,7 @@
 
 import { intlLocale, t } from "../../lib/i18n.js";
 import { useLocale } from "../../hooks/useLocale.js";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { api } from "../../lib/api.js";
 import { phone, time12 } from "../../lib/format.js";
@@ -94,8 +94,27 @@ export default function StepWhen({ form, setForm, durationMinutes, durations }) 
   // Never ask for days in the past — the clamp is the core's.
   const { start: rangeStart, end: monthEnd } = monthRange(month, today);
 
+  // **A STALE ANSWER MUST NOT OVERWRITE A FRESH ONE — 2026-09-12.**
+  //
+  // Measured, not reasoned: instrumenting `fetch` before a fast walk to this
+  // step recorded **TWO identical availability requests one millisecond
+  // apart**, and nothing here cancelled or ignored either. They happened to
+  // return the same thing, so nothing showed — but the shape is the dangerous
+  // one, because this function reloads whenever `askFor` or the chosen
+  // services change and the responses are not guaranteed to land in order. A
+  // slower FIRST response resolving after a faster SECOND one writes the older
+  // month over the newer one, and the screen then shows availability for a
+  // selection the customer has already changed. **On the one page that takes
+  // money, that is an offered slot the submit gate will refuse.**
+  //
+  // The counter is per-call and the check is on the way out: only the most
+  // recent call may write. `useEffect`'s cleanup cannot do this job alone —
+  // it would stop a stale render, not a stale WRITE from a promise already in
+  // flight.
+  const runRef = useRef(0);
   const load = useCallback(async () => {
     if (!askFor) return;
+    const run = ++runRef.current;
     setLoading(true);
     setError("");
     try {
@@ -109,11 +128,19 @@ export default function StepWhen({ form, setForm, durationMinutes, durations }) 
         // will offer a day the submit-time gate refuses.
         service_ids: serviceIds,
       });
+      if (run !== runRef.current) return;   // a newer request has overtaken this one
       setDays(r.days ?? {});
     } catch (e) {
+      if (run !== runRef.current) return;
       setError(e.message || t("Could not load available times."));
-      setDays({});
+      // **NOT `{}` — `null` MEANS "WE NEVER GOT AN ANSWER".** `{}` means "the
+      // server answered and no day is open", and the two must not print the
+      // same thing: a month drawn entirely closed is a business that looks
+      // shut. The grid below is gated on `days` existing, so a failure shows
+      // the error and no calendar rather than a calendar that is a lie.
+      setDays(null);
     }
+    if (run !== runRef.current) return;
     setLoading(false);
   }, [slug, rangeStart, monthEnd, askFor, serviceKey]);
 
@@ -189,7 +216,12 @@ export default function StepWhen({ form, setForm, durationMinutes, durations }) 
 
         {loading && <div className="bk-center" style={{ minHeight: 160 }}><div className="bk-spinner" /></div>}
 
-        {!loading && (
+        {/* **`days !== null` IS THE OTHER HALF OF THE GUARD.** `loading` alone
+            was enough only because it starts `true` and the early return above
+            leaves it true; any future edit that clears it without an answer
+            would paint 30 closed cells, which is a calendar saying the
+            business is shut. Gate on the ANSWER, not on the flag. */}
+        {!loading && days !== null && (
         <div className="bk-cal">
           {cells.map((date, i) => {
             if (!date) return <div key={`e${i}`} className="cell empty" />;

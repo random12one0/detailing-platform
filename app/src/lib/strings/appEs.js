@@ -1347,7 +1347,7 @@ export const appEs = {
   "One moment": "Un momento",
   "One size, so one price.": "Un solo tamaño, así que un solo precio.",
   "One use per customer": "Un uso por cliente",
-  "One-off changes — a day off, different hours for a single date, or a drop-off-only stretch — are set by tapping that date on the Calendar.":
+  "One-off changes — a day off, different hours for a single date, or a drop-off-only stretch — are set on the Calendar by choosing that date.":
     "Los cambios de una vez — un día libre, otro horario para una sola fecha, o un tramo solo de taller — se ponen tocando esa fecha en el Calendario.",
   "None on file": "Ninguna registrada",
   "Nothing to commit to — you choose again next year.":
@@ -1462,7 +1462,7 @@ export const appEs = {
   "Taken off every car after the first, because you unpack once. It never changes the price.":
     "Se le quita a cada carro después del primero, porque desempacas una sola vez. Nunca cambia el precio.",
   "Taking you to your dashboard…": "Llevándote a tu panel…",
-  "Tap to add a detail. Drag one to move it.":
+  "Choose a detail to add it. Drag one to move it.":
     "Toca para agregar un dato. Arrastra uno para moverlo.",
   "Technical detail": "Detalle técnico",
   "Tell us the address and we do it — it takes a couple of minutes and it cannot be done from here.":
@@ -1792,7 +1792,7 @@ export const appEs = {
   // REVIEW ITEM 11, 2026-09-11 — the pill editor. Four new details a
   // detailer can drop into a text, their chip labels, and the plain-English
   // meaning each chip carries as its title.
-  "These are the texts you send from a job. Tap a detail to add it. Each one fills itself in from the booking when you send the message.": "Estos son los mensajes que envías desde un trabajo. Toca un dato para agregarlo. Cada uno se completa solo con la reserva cuando envías el mensaje.",
+  "These are the texts you send from a job. Choose a detail to add it. Each one fills itself in from the booking when you send the message.": "Estos son los mensajes que envías desde un trabajo. Toca un dato para agregarlo. Cada uno se completa solo con la reserva cuando envías el mensaje.",
   "What they booked": "Lo que reservó",
   "Their car": "Su carro",
   "Your phone": "Tu teléfono",

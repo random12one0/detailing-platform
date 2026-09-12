@@ -234,7 +234,7 @@ export default function Hours() {
       <div className="row" style={{ gap: 8, alignItems: "flex-start" }}>
         <CalendarDays size={17} strokeWidth={2} style={{ flexShrink: 0, color: "var(--text-muted)", marginTop: 2 }} />
         <p className="quiet">
-          {t("One-off changes — a day off, different hours for a single date, or a drop-off-only stretch — are set by tapping that date on the Calendar.")}
+          {t("One-off changes — a day off, different hours for a single date, or a drop-off-only stretch — are set on the Calendar by choosing that date.")}
         </p>
       </div>
     </div>

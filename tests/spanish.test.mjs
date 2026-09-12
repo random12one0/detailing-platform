@@ -586,5 +586,37 @@ if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────
+// § 9 · DOES THE TOGGLE ACTUALLY DELIVER — the question this file never asked
+// ─────────────────────────────────────────────────────────────────────────
+// **THIS SUITE PASSED 58/0 WHILE 141 DASHBOARD STRINGS RENDERED IN ENGLISH ON
+// A SPANISH SCREEN.** Everything above checks the SHAPE of the catalogue —
+// that translations exist for the keys it knows about, that placeholders
+// survive, that nobody wrote `usted`. None of it asks whether the screen a
+// detailer is looking at is actually in Spanish, so a string with no entry at
+// all was invisible here: `t()` returns an unknown string unchanged, which is
+// the right runtime behaviour and the reason the gap is silent.
+//
+// **A RATCHET, NOT A TARGET.** The count may only go down. Fixing the rest is
+// its own piece of work and this check does not pretend otherwise; what it
+// stops is the number going UP while everything reports green, which is how it
+// reached 141 in the first place.
+//
+// **A toggle that leaves strings in English is worse than no toggle**, because
+// a detailer trusts it in front of a Spanish-speaking customer and is handed
+// half a screen of English.
+{
+  const { coverage } = await import("../scripts/i18n-coverage.mjs");
+  const { distinct, missing } = await coverage();
+  // Measured 2026-09-12. Lower this when you fix some; never raise it.
+  const CEILING = 139;
+  check(`9a · dashboard strings with no Spanish entry (${missing.size} of ${distinct})`,
+    missing.size <= CEILING,
+    [...missing.keys()].slice(0, 8).map((k) => JSON.stringify(k)).join("\n        "));
+  if (missing.size < CEILING) {
+    console.log(`  note  the ceiling is ${CEILING} and the count is ${missing.size} — lower it.`);
+  }
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

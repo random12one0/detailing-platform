@@ -104,7 +104,7 @@ export default function MessageTemplates() {
       <div className="tight">
         <h2>{t("Your messages")}</h2>
         <p className="quiet">
-          {t("These are the texts you send from a job. Tap a detail to add it. Each one fills itself in from the booking when you send the message.")}
+          {t("These are the texts you send from a job. Choose a detail to add it. Each one fills itself in from the booking when you send the message.")}
         </p>
       </div>
 
@@ -220,7 +220,7 @@ function TemplateCard({ row, business, onSave }) {
                 and nothing about it says it can be picked up. His rule for the
                 wording, given twice on 2026-09-11: straightforward and
                 informative, no flourish. */}
-            <span className="quiet">{t("Tap to add a detail. Drag one to move it.")}</span>
+            <span className="quiet">{t("Choose a detail to add it. Drag one to move it.")}</span>
             <span className="quiet num">{preview.length} characters</span>
           </div>
           {/* wrap: these six are a palette you pick from, not a range you

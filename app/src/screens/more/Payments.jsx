@@ -527,7 +527,7 @@ export default function Payments() {
                 placeholder={t("A username, a number, or a link")}
                 onChange={(e) => setDraft({ ...draft, handle: e.target.value })} /></label>
             <p className="muted">
-              {t("Paste a link and we make it tappable. Anything else we print exactly as you type it.")}
+              {t("Paste a link and your customer can open it directly. Anything else we print exactly as you type it.")}
             </p>
             {/* BOTH HALVES OR NEITHER. A name with no handle is a blank line on
                 somebody's confirmation email, and the server drops it anyway —

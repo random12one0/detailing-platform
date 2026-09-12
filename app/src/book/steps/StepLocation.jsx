@@ -194,7 +194,16 @@ function Resource({ need, checked, onChange, label, required, optional }) {
   if (need === "not_needed") return null;
   const help = need === "required" ? required : optional;
   return (
-    <label className="bk-row" style={{ gap: 10, alignItems: "flex-start", marginTop: 4 }}>
+    // **44px WHETHER OR NOT THERE IS A SECOND LINE — 2026-09-12.** The row is
+    // the tap target (the 22px box inside it is not), and its height was
+    // whatever its text happened to make: the faucet row cleared 44 only
+    // because it carries a help line, and the power row, which has none, came
+    // out at 28 — under the floor, on a phone, on the page that takes the
+    // money. Sizing the ROW rather than fixing the one that failed, because
+    // the next question added here will have no help line either.
+    <label className="bk-row" style={{
+      gap: 10, alignItems: "center", marginTop: 4, minHeight: 44, paddingBlock: 2,
+    }}>
       <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
       <span>
         {label}
