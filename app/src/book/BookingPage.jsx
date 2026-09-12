@@ -729,14 +729,14 @@ function headingFor(stepName, bothModes, settings, serviceType, recognition) {
       // asked.
       if (recognition?.kind === "plan") return t("Let’s set up your {plan}", { plan: recognition.text });
       if (recognition?.kind === "name") return t("Welcome back, {name}", { name: recognition.text });
-      return t("What can we do for you?");
-    case "Extras": return t("Anything to add?");
+      return t("Pick your services");
+    case "Extras": return t("Add-ons");
     case "Vehicle": return t("Tell us about the vehicle");
     // Not `settings.mobile_enabled` any more: roadmap 2.8c lets a SERVICE
     // narrow the mode, and by the time this renders form.serviceType is
     // already the only one left. Ask the question that matches it.
-    case "Location": return bothModes ? t("Where should we do it?")
-      : serviceType === "mobile" ? t("Where are you?") : t("Drop-off details");
+    case "Location": return bothModes ? t("Pick a place")
+      : serviceType === "mobile" ? t("Your address") : t("Drop-off details");
     case "When": return t("Pick a time");
     // A NOUN PHRASE, NOT A QUESTION — 2026-09-12. Every step's title is
     // rendered by THIS function and not by the step file, which is why a sweep

@@ -493,6 +493,24 @@ export default function Money({ onGo }) {
                 }} />
             ))}
           </div>
+          {/* **A CHART WITH NO NUMBER ON IT — 2026-09-12.** Six bars, month
+              names underneath, and nothing anywhere saying how big any of them
+              is: the chart could be ranked and not read. Every bar already
+              carries its own value in `aria-label`, so a listener had the
+              figure and a reader did not.
+              ONE LINE RATHER THAN SIX FIGURES. Six money amounts under six
+              month names is ~360px of content in the 330px a phone has, and
+              `.barlabels` is already the tightest row on this screen. The
+              tallest bar plus where zero is turns the drawing into a scale,
+              which is what was actually missing.
+              THE ZERO RULE ITSELF ALREADY EXISTS — `.bars::after`, moved to
+              60% by `.bars.signed`. This names it; it does not draw a second
+              one. */}
+          <p className="quiet barscale">
+            {signed
+              ? t("Tallest bar {peak}. The line across is zero.", { peak: money(peak) })
+              : t("Tallest bar {peak}.", { peak: money(peak) })}
+          </p>
           <div className="barlabels">
             {stats.chart.map((c) => (
               <span key={c.key} className={c.key === period.start ? "on" : undefined}>{c.label}</span>
@@ -786,10 +804,27 @@ function Delta({ now, prev, kind, hide }) {
     return <p className="quiet" style={{ marginTop: 6 }}>{t(SAME_AS_LAST[kind])}</p>;
   }
   const up = diff > 0;
-  const pct = Math.round(Math.abs(diff / prev) * 100);
+  // **A PERCENTAGE ACROSS A SIGN FLIP IS ARITHMETIC WITH NO MEANING —
+  // 2026-09-12.** A month that went from +$728 to -$131 printed `▼118%`: one
+  // hundred and eighteen per cent of WHAT, when the two numbers are on
+  // opposite sides of zero? `Math.abs(diff / prev)` is a real number and it
+  // answers a question nobody asked. The distance is the honest fact, and it
+  // is the one a detailer can act on — `down $859`.
+  //
+  // Only this case changes. Two figures on the same side of zero still take a
+  // percentage, because there the ratio means what it looks like.
+  //
+  // AdvancedMoney carries the same rule in its own `changeWords`, and
+  // deliberately not shared: that one renders a badge inside a tile and this
+  // one a row with a sentence beside it, so the only thing they would share is
+  // the three lines below. If a third screen needs it, lift it then.
+  const flipped = (now < 0) !== (prev < 0);
+  const said = flipped
+    ? t(up ? "up {amount}" : "down {amount}", { amount: money(Math.abs(diff)) })
+    : `${up ? "▲" : "▼"} ${Math.round(Math.abs(diff / prev) * 100)}%`;
   return (
     <div className="row" style={{ gap: 8, marginTop: 6 }}>
-      <span className={`delta ${up ? "up" : "down"}`}>{up ? "▲" : "▼"} {pct}%</span>
+      <span className={`delta ${up ? "up" : "down"}`}>{said}</span>
       <span className="quiet">{t(VS_LAST[kind], { amount: money(prev) })}</span>
     </div>
   );

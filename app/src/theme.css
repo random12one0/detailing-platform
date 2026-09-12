@@ -2144,6 +2144,9 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
    Up used to be --accent-text, which meant a red-branded detailer got a red
    ▲ beside a red ▼ and the two rows of the Money screen said the same thing
    in the same colour. */
+/* The chart's scale, in words, under the bars. See Money.jsx for why this is
+   one line rather than a figure under each of six months. */
+.barscale { font-size: var(--t-meta); margin-top: 6px; }
 .delta { font-size: var(--t-meta); font-weight: 600; font-family: var(--f-num); }
 .delta.up { color: var(--ac); }
 .delta.down { color: var(--bad); }
@@ -2870,6 +2873,15 @@ body:has(.sheet-backdrop:not(.leaving)) .tabbar {
   display: block; font-size: var(--t-meta); color: var(--text-muted); margin-top: 3px;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
+/* **AN ALARM IS NOT A COUNT — 2026-09-12.** `Maintenance deadlines · 1 missed`
+   was drawn in exactly the grey of `Photo gallery · 0 photos`, so the one row
+   on this screen that is asking for something read as the one row that is
+   reporting nothing. Weight AND colour, because colour alone is the WCAG 1.4.1
+   problem the calendar marks were rewritten to remove. `--bad` is the
+   product's fixed red and never the tenant's accent (law 11b): a deadline
+   somebody missed is meaning, not identity. Only the SUMMARY changes — a row
+   whose name shouted would still be shouting once the deadline was met. */
+.nav-row.alarm .now { color: var(--bad); font-weight: 600; }
 .nav-row .chev { flex-shrink: 0; color: var(--text-muted); display: flex; }
 /* The brand colour, shown as itself, in the icon slot. */
 .nav-row .swatch {
@@ -3923,6 +3935,14 @@ html:not(.lite) .intake .samp-move .samp-row:nth-child(3) { animation-delay: .5s
   corner-shape: var(--corner);
 }
 .advweek-d { font-size: 12px; color: var(--text-muted); }
+/* THE COUNT OVER THE BAR. A chart with no number on it and no axis can be
+   ranked and not read — 2026-09-12. An empty day prints nothing rather than a
+   0, because seven zeros is the wall of zeros this screen was criticised for;
+   the empty column already says it. `min-height` keeps the seven bar tops on
+   one line whether or not a column has a figure over it. */
+.advweek-n {
+  font-size: var(--t-meta); color: var(--text-muted); line-height: 1; min-height: 1em;
+}
 
 /* THE 320 FLOOR. The meter's middle column is the first thing to go: at that
    width the name and the figure are the information and the bar is not. */

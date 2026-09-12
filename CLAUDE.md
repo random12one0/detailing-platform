@@ -1291,6 +1291,23 @@ searchable list and not a two-way choice. The US timezone picker is that case.
 **Size every field to its content.** A year is 6ch, a phone 16ch, an address
 full width. Two short fields share a row.
 
+**A TITLE IS NOT A QUESTION AND NOT A FULL DECLARATIVE SENTENCE. A SHORT
+IMPERATIVE THAT NAMES THE ACTION IS CORRECT.** *"Pick a time"* and *"Check
+everything over"* are right and stay exactly as they are. What is banned is a
+question put to the reader as a heading, and a clever or rhetorical line.
+
+**THE FIRST VERSION OF THIS RULE SAID "a noun phrase, not a sentence and not a
+question" AND IT WOULD HAVE REWRITTEN BOTH OF THE TITLES ITS OWN AUTHOR HAD
+JUST APPROVED.** That is the tell that a rule is wrong rather than the work
+being wrong, and it is worth keeping the correction visible: a rule whose
+examples fail it will be applied literally by the next session, which will then
+"fix" screens nobody complained about.
+
+**AND EVERY BOOKING STEP'S TITLE COMES FROM ONE FUNCTION IN
+`app/src/book/BookingPage.jsx`, NOT FROM THE STEP FILE.** A sweep of
+`book/steps/` finds no headings at all and reports the flow clean. That is a
+real audit that returned a false pass on 2026-09-12.
+
 **`.lab` IS A SECTION EYEBROW, SO ONE PER SECTION — NOT ONE PER FIELD.** The
 11px uppercase label is already the `.lab` role in `docs/design-system.md`
 § Type and it is already correct; there was never anything to fix about caps

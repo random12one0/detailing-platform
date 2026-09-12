@@ -68,11 +68,19 @@ const STATUSES = [
 // incomplete. `STATUS_SAID` below is built from BOTH so a pending job that
 // predates a mode change is still named correctly wherever it is printed.
 const WAITING = ["pending", "Waiting"];
+// **THESE NAMED A CLOSED WINDOW AND THE LIST HAS NO END — 2026-09-12.**
+// `listFrom` is a START date only (`addDays(today, -Number(range))`), so the
+// list runs from there to whenever the furthest booking is — and it is sorted
+// newest first, which puts NEXT WEEK'S jobs at the top of something labelled
+// *Last 90 days*. The data is right: a detailer wants to see what is coming.
+// The label was the lie, so the label is what changed.
 const RANGES = [
-  ["30", "Last 30 days"], ["90", "Last 90 days"], ["365", "Last year"], ["all", "Everything"],
+  ["30", "Last 30 days & ahead"], ["90", "Last 90 days & ahead"],
+  ["365", "Last year & ahead"], ["all", "Everything"],
 ];
 const RANGE_SAID = {
-  30: "the last 30 days", 90: "the last 90 days", 365: "the last year", all: "your history",
+  30: "the last 30 days or booked ahead", 90: "the last 90 days or booked ahead",
+  365: "the last year or booked ahead", all: "your history",
 };
 const STATUS_SAID = Object.fromEntries([...STATUSES, WAITING]);
 const DEFAULT_RANGE = "90";
@@ -621,6 +629,20 @@ export default function Calendar({ refreshKey = 0 }) {
                       <span className="c-who nm">{b.customer_name}</span>
                       <span className="c-sub">
                         <span className="c-date">{shortDate(b.booking_date)}</span>
+                        {/* **A STRUCK-THROUGH ROW HAD NOTHING TO DECODE IT —
+                            2026-09-12.** The month's legend explains the marks
+                            on the MONTH, and it lists only the ones actually
+                            drawn there, so a cancelled job in the history list
+                            below could be struck out with the legend above it
+                            explaining *Blocked* and nothing else. The row says
+                            it in a word now. Only for a job that did not
+                            happen: printing "Completed" on the other ninety
+                            per cent is the explains-what-the-label-already-
+                            said rule, which this product has its own note
+                            about. */}
+                        {(b.status === "cancelled" || b.status === "no_show") && (
+                          <span className="c-what">{t(STATUS_SAID[b.status] ?? b.status)}</span>
+                        )}
                         <span className="c-what">{what}</span>
                       </span>
                       <span className="c-total figure sm">{amount}</span>

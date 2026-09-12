@@ -365,7 +365,15 @@ export default function Business({ onSetup, initial = null }) {
               ? `${counts.deadlinesMissed} missed`
               : t("{deadlines} coming up", {
                 deadlines: n(counts.deadlinesSoon, "{count} deadline", "{count} deadlines") })) : "…",
-        counts ? counts.deadlinesMissed > 0 : false],
+        // **THE FIFTH SLOT IS THE COLOUR SWATCH AND THIS WAS PUTTING A BOOLEAN
+        // IN IT — found 2026-09-12.** `true` reached `brandVarsFor()`, so a
+        // business with a missed deadline lost the row's clock icon and grew a
+        // swatch of whatever that returns, while the shout this comment
+        // promises never happened: `1 missed` was drawn in the same grey as
+        // `0 photos`. The alarm is its own sixth argument now, and it paints
+        // the SUMMARY rather than the icon — an alarm belongs on the words
+        // that carry the news.
+        null, counts ? counts.deadlinesMissed > 0 : false],
       // ROADMAP 2.20 STAGE 1. Under "What you sell" rather than "Your page"
       // because it is about the money on the job, and LAST in the group for
       // the same reason cash is last in the email's own list: it is what
@@ -414,13 +422,13 @@ export default function Business({ onSetup, initial = null }) {
         <div className="tight" key={title}>
           <span className="label">{t(title)}</span>
           <div className="card setting-card">
-            {rows.map(([key, name, Icon, now, swatch]) => (
+            {rows.map(([key, name, Icon, now, swatch, alarm]) => (
               // ROADMAP 2.24 — one row on this screen is worth a tour step,
               // and it is the one that decides whether the booking page works
               // at all. Every other row is a label and a live summary, and a
               // tour that read them back is exactly the weirdness he
               // complained about.
-              <button className={`nav-row${blocked === key ? " blocking" : ""}`} key={key}
+              <button className={`nav-row${blocked === key ? " blocking" : ""}${alarm ? " alarm" : ""}`} key={key}
                 data-settings-key={key}
                 // ROADMAP 2.24, SECOND PASS — five rows, not one. His note:
                 // *"they need to be in-depth... analyze each tab, see what

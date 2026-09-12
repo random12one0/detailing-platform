@@ -12,3 +12,8 @@ Claude Cowork decides what becomes work.
   prints **"clean"** whatever it measured. One run printed 38 real geometry
   findings above that line. Every "clean" that script has reported is worth
   nothing, and it is this repo's own width tool. Lane C. Logged, not fixed.
+- 2026-09-12 — MINOR. Opening a settings screen from the GEAR shows two close
+  buttons side by side: the gear panel's own and the settings screen's. Both
+  work and neither is wrong on its own; there is just no reason for a reader to
+  meet two. Measured at 1910 on `gear → Notifications`. Not the stacking fault
+  originally reported against this route — that was withdrawn after measurement.

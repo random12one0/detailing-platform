@@ -160,7 +160,19 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
     api.availableSlots(business.slug, {
       start_date: today, end_date: addDays(today, 6), duration_minutes: 120,
     })
-      .then((r) => live && setSlots(Object.values(r.days || {}).reduce((s, d) => s + (d.slots?.length || 0), 0)))
+      // **"OPEN SLOTS · 14" IS A NUMBER WITH NO SECOND NUMBER — 2026-09-12.**
+      // Fourteen is good or bad depending on how many of the seven days are
+      // open at all, and the answer was already in this response and thrown
+      // away. No extra request: the same payload, counted twice.
+      .then((r) => {
+        if (!live) return;
+        const days = Object.values(r.days || {});
+        setSlots({
+          open: days.reduce((s, d) => s + (d.slots?.length || 0), 0),
+          withRoom: days.filter((d) => (d.slots?.length || 0) > 0).length,
+          days: days.length,
+        });
+      })
       .catch(() => live && setSlots(null));
     return () => { live = false; };
   }, [wide, business, today]);
@@ -566,7 +578,14 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
             <div className="tight" data-tour="ahead">
               <h2 className="label">{t("The next 7 days")}</h2>
               <div className="facts">
-                <div><span>{t("Open slots")}</span><span className="v strong num">{slots}</span></div>
+                <div><span>{t("Open slots")}</span><span className="v strong num">{slots.open}</span></div>
+                {/* The denominator. A day with nothing free is the fact a bare
+                    count hides: fourteen openings spread over six days and
+                    fourteen crammed into two are different weeks. */}
+                <div>
+                  <span>{t("Days with room")}</span>
+                  <span className="v num">{t("{open} of {total}", { open: slots.withRoom, total: slots.days })}</span>
+                </div>
               </div>
             </div>
           )}

@@ -90,23 +90,49 @@ function Row({ label, value, note }) {
 // puts the FIGURE first at a size you can read across a van, its name under
 // it, and the change against last period beside it — three facts in the space
 // a row spent on one, and the important one is the one that is big.
-function Kpi({ label, value, now, prev, note, tone }) {
-  const diff = prev !== undefined && prev !== null && prev !== 0 && now !== undefined
-    ? (now - prev) / Math.abs(prev) : null;
+// **A PERCENTAGE NEEDS A DENOMINATOR THAT CAN CARRY IT — 2026-09-12.**
+//
+// This divided by the previous period whatever that period was, and printed
+// the result as an arrow and a number. Two ways that produced a figure nobody
+// could use, both found in a real month:
+//
+//   `▼118%`  — net went from positive to negative. A percentage across a sign
+//              flip is arithmetic with no meaning: 118% of WHAT, when the two
+//              numbers are on opposite sides of zero? The honest fact is the
+//              distance, `down $859`.
+//   `▼33%`   — three jobs became two. True, and it dresses one job in the
+//              language of a trend. `down from 3` is the same fact and cannot
+//              be misread as a rate.
+//
+// So a COUNT never takes a percentage, and money falls back to the distance
+// whenever the base cannot carry a ratio. Everything else is unchanged.
+function changeWords({ now, prev, unit }) {
+  if (prev === undefined || prev === null || now === undefined || now === null) return null;
+  if (now === prev) return null;
+  const up = now > prev;
+  if (unit === "count") {
+    return { up, text: t(up ? "up from {n}" : "down from {n}", { n: prev }) };
+  }
+  // No base, or the two numbers are on opposite sides of zero.
+  if (prev === 0 || (now < 0) !== (prev < 0)) {
+    return { up, text: t(up ? "up {amount}" : "down {amount}", { amount: money(Math.abs(now - prev)) }) };
+  }
+  const diff = (now - prev) / Math.abs(prev);
   // A CHANGE UNDER HALF A PERCENT IS NOISE and printing it as an arrow makes a
   // flat period look like a moving one.
-  const move = diff !== null && Math.abs(diff) >= 0.005 ? diff : null;
+  if (Math.abs(diff) < 0.005) return null;
+  return { up, text: `${up ? "▲" : "▼"} ${Math.round(Math.abs(diff) * 100)}%` };
+}
+
+function Kpi({ label, value, now, prev, note, tone, unit }) {
+  const change = changeWords({ now, prev, unit });
   return (
     <div className="advkpi">
       <div className="advkpi-v num" style={{ color: tone === "bad" ? "var(--bad)" : undefined }}>
         {value}
       </div>
       <div className="advkpi-l">{label}</div>
-      {move !== null && (
-        <span className={`delta ${move > 0 ? "up" : "down"}`}>
-          {move > 0 ? "▲" : "▼"} {Math.round(Math.abs(move) * 100)}%
-        </span>
-      )}
+      {change && <span className={`delta ${change.up ? "up" : "down"}`}>{change.text}</span>}
       {note && <p className="advkpi-n">{note}</p>}
     </div>
   );
@@ -204,6 +230,30 @@ export default function AdvancedMoney({
 
   const busiest = m.week.reduce((a, d) => Math.max(a, d.jobs), 0);
 
+  // **A RATE NEEDS JOBS UNDER IT, AND A FIRST MONTH DOES NOT HAVE THEM —
+  // 2026-09-12, from an outside review of a real two-job period.**
+  //
+  // What this screen printed at two jobs, every line of it arithmetically
+  // correct: *MOST BOOKED · 1*, *-$31.29 per hour* over 4.3 hours,
+  // *100% CAME BACK* from two people, *BUSIEST DAY Wednesday, 1 job*, and a
+  // wall of zeros. **That is what every detailer's first month looks like**,
+  // so it is not an edge case to tolerate — it is the first thing a new
+  // customer sees, and it reads as a broken screen or, worse, as a business
+  // failing.
+  //
+  // A superlative over one job is not a superlative. A percentage over two
+  // people is not a rate. Eight is the floor: below it every rate, percentage
+  // and best-of is replaced by ONE panel that says so and keeps the four
+  // figures that are simply counted rather than derived.
+  //
+  // **WHAT IS DELIBERATELY NOT DONE HERE:** roadmap 8.9 leaves this screen
+  // half-built on purpose — three of its six money figures are tip figures and
+  // the customer-entered tip does not exist yet. This floor makes the half
+  // that DOES exist read honestly. It is not the missing half and must not
+  // grow into it.
+  const THIN = 8;
+  const thin = m.jobs < THIN;
+
   return (
     <div className="advanced">
       <button className="btn sm inline ghost advback" onClick={onClose}>
@@ -227,6 +277,24 @@ export default function AdvancedMoney({
         )}
       </div>
 
+      {/* ── TOO FEW JOBS TO READ RATES ────────────────────────────────── */}
+      {thin && (
+        <Panel title={t("Too few jobs to read rates")}
+          says={t("Rates, percentages and best-of-the-week need more finished jobs behind them than this period has. These four are counted, not worked out, so they are the ones worth reading.")}>
+          <div className="advkpis">
+            <Kpi label={t("Collected")} value={money(m.collected)} />
+            <Kpi label={t("Spent")} value={money(m.spent)} />
+            <Kpi label={t("Net")} value={money(m.net)} tone={m.net < 0 ? "bad" : undefined} />
+            <Kpi label={t("Jobs done")} value={String(m.jobs)} />
+          </div>
+          <p className="advkpi-n" style={{ marginTop: "var(--sp-3)" }}>
+            {n(THIN - m.jobs, "{count} more finished job and the rest of this screen fills in.",
+              "{count} more finished jobs and the rest of this screen fills in.")}
+          </p>
+        </Panel>
+      )}
+
+      {!thin && (<>
       {/* ── WHAT IT WAS WORTH ─────────────────────────────────────────── */}
       {/* ONE HERO AND FOUR TILES, WHERE THERE WERE SIX ROWS. The hero is his
           favourite figure and the only one set large — *"this is my favourite
@@ -258,11 +326,13 @@ export default function AdvancedMoney({
           <Kpi label={t("Net")} value={money(m.net)} now={m.net} prev={m.prevNet} />
           <Kpi label={t("Margin")} value={m.collected > 0 ? pct(m.margin) : "—"}
             note={t("kept of every dollar")} />
-          <Kpi label={t("Jobs done")} value={String(m.jobs)} now={m.jobs} prev={m.prevJobs} />
+          <Kpi label={t("Jobs done")} value={String(m.jobs)} now={m.jobs} prev={m.prevJobs} unit="count" />
           <Kpi label={t("Average job")} value={money(m.avgTicket)}
             now={m.avgTicket} prev={m.prevAvgTicket} />
         </div>
       </Panel>
+
+      </>)}
 
       {/* ── STILL TO COLLECT ──────────────────────────────────────────── */}
       {/* TWO FIGURES THAT ONLY MEAN ANYTHING TOGETHER, so they share a box —
@@ -282,6 +352,7 @@ export default function AdvancedMoney({
         </div>
       </Panel>
 
+      {!thin && (<>
       {/* ── WHAT CAME IN ──────────────────────────────────────────────── */}
       {/* **QUOTED AGAINST SOLD ON SITE IS A PROPORTION, SO IT IS DRAWN AS
           ONE.** Two money rows made a detailer do the division in their head
@@ -328,6 +399,8 @@ export default function AdvancedMoney({
         </div>
       </Panel>
 
+      </>)}
+
       {/* ── WHERE IT WENT ─────────────────────────────────────────────── */}
       <div className="tight">
         <span className="label">{t("Where it went")}</span>
@@ -344,6 +417,7 @@ export default function AdvancedMoney({
         )}
       </div>
 
+      {!thin && (<>
       {/* ── WHAT SELLS ────────────────────────────────────────────────── */}
       {/* **HIS OWN LATE ADDITION AND HE ASKED TWICE THAT IT NOT BE LOST** —
           *"definitely don't forget that, like, most popular packages."* It is
@@ -378,6 +452,14 @@ export default function AdvancedMoney({
             <div className="advweek" aria-hidden="true">
               {m.week.map((d) => (
                 <span key={d.name}>
+                  {/* **THE COUNT, NOT ONLY THE HEIGHT — 2026-09-12.** Seven
+                      bars with no number on them and no axis is a shape you
+                      can rank but not read: "Wednesday is tallest" was the
+                      only fact available, and at one job against zero that is
+                      a superlative dressed up as a chart. The figure is the
+                      content and the bar is the drawing, which is the rule
+                      this screen's own `Meter` already follows. */}
+                  <span className="advweek-n num">{d.jobs || ""}</span>
                   <span className="advweek-bar">
                     <span style={{ height: `${Math.round((d.jobs / busiest) * 100)}%` }} />
                   </span>
@@ -396,6 +478,8 @@ export default function AdvancedMoney({
         )}
       </div>
 
+
+      </>)}
 
       {/* ── WHERE THEY CAME FROM — GONE FROM THIS SCREEN, HIS CALL ─────── */}
       {/* **2026-09-11, and he reversed his own earlier decision to put it
@@ -419,6 +503,7 @@ export default function AdvancedMoney({
           shape he was bored of reading; the proportion is the thing a detailer
           can act on, and the two counts are printed under it for anyone who
           wants them. */}
+      {!thin && (
       <Panel title={t("Who came")}
         says={t("Whether this period was new faces or people coming back.")}>
         {historyFailed && (
@@ -451,6 +536,7 @@ export default function AdvancedMoney({
           </>
         )}
       </Panel>
+      )}
     </div>
   );
 }

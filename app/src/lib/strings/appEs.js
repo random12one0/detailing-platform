@@ -1797,4 +1797,38 @@ export const appEs = {
   "the car": "el carro",
   "your phone number": "tu número de teléfono",
   "a link to their booking": "un enlace a su reserva",
+  // ── Wave D, 2026-09-12: honest figures ──────────────────────────────────
+  // A change against last period, in words, wherever a percentage would be
+  // arithmetic with no meaning — see AdvancedMoney's `changeWords`.
+  "up from {n}": "sube desde {n}",
+  "down from {n}": "baja desde {n}",
+  "up {amount}": "sube {amount}",
+  "down {amount}": "baja {amount}",
+  // The data floor. Under eight finished jobs every rate on the advanced
+  // money screen is replaced by this one panel.
+  "Too few jobs to read rates": "Muy pocos trabajos para calcular tasas",
+  "Rates, percentages and best-of-the-week need more finished jobs behind them than this period has. These four are counted, not worked out, so they are the ones worth reading.":
+    "Las tasas, los porcentajes y el mejor día necesitan más trabajos terminados de los que tiene este periodo. Estos cuatro se cuentan, no se calculan, así que son los que vale la pena leer.",
+  "{count} more finished job and the rest of this screen fills in.":
+    "{count} trabajo terminado más y el resto de esta pantalla se completa.",
+  "{count} more finished jobs and the rest of this screen fills in.":
+    "{count} trabajos terminados más y el resto de esta pantalla se completa.",
+  // The month chart's scale.
+  "Tallest bar {peak}.": "La barra más alta es {peak}.",
+  "Tallest bar {peak}. The line across is zero.":
+    "La barra más alta es {peak}. La línea horizontal es cero.",
+  // Today's open slots, with the denominator that makes the count mean
+  // something.
+  "Days with room": "Días con espacio",
+  "{open} of {total}": "{open} de {total}",
+  // The history window runs from a start date with no end, so its chips no
+  // longer claim to be only the past.
+  "Last 30 days & ahead": "Últimos 30 días y lo que viene",
+  "Last 90 days & ahead": "Últimos 90 días y lo que viene",
+  "Last year & ahead": "Último año y lo que viene",
+  "the last 30 days or booked ahead": "los últimos 30 días o lo que viene",
+  "the last 90 days or booked ahead": "los últimos 90 días o lo que viene",
+  "the last year or booked ahead": "el último año o lo que viene",
+  // One filtered client is still one.
+  "Text this one": "Mandar mensaje a este",
 };

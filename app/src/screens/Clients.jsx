@@ -335,7 +335,11 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
               {t("Email these {n}", { n: emailable })}
             </button>
           )}
-          <a className="btn sm inline" href={smsHref}>{t("Text these {n}", { n: rows.length })}</a>
+          <a className="btn sm inline" href={smsHref}>
+            {/* "Text these 1" — the filter can narrow to a single client and
+                the plural does not survive it. 2026-09-12. */}
+            {rows.length === 1 ? t("Text this one") : t("Text these {n}", { n: rows.length })}
+          </a>
         </div>
       )}
 
