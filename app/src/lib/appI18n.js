@@ -58,6 +58,10 @@ const scope = makeLocale(KEY, { en: null, es: appEs }, false);
 export const getAppLocale = scope.getLocale;
 export const setAppLocale = scope.setLocale;
 export const subscribeApp = scope.subscribe;
+/** `<html lang>` for the dashboard. `useAppLocale` calls it; see the note on
+ *  `stampLang` in `localeStore.js` for why the SURFACE decides and not the
+ *  store. */
+export const stampAppLang = scope.stampLang;
 
 /** What `Intl` should be given for a DASHBOARD date. `es-US`, never `es-ES`:
  *  it keeps `$1,234.50`, the 12-hour clock and month-before-day.

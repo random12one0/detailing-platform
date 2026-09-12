@@ -80,10 +80,34 @@ export function makeLocale(key, catalogues, detectFromBrowser) {
   // module memory would drop back to English mid-payment. `sessionStorage` is
   // exactly that scope: it survives the redirect and the reload, and it dies
   // with the tab.
+  // **THE VISIT LAYER IS A CUSTOMER THING AND HAS TO BE GATED THE SAME WAY
+  // `?lang=` IS — measured 2026-09-12, and it is the other half of the same
+  // bug.** `readVisit()` is consulted BEFORE `read()` below, so a `dp.lang.app`
+  // left in `sessionStorage` OUTRANKS the detailer's saved choice — and it is
+  // invisible to `localStorage`, invisible to `document.cookie`, and survives
+  // every reload of that tab. The state it produces is the one a reviewer
+  // measured and could not explain: `dp.lang.app === "en"` in storage, no
+  // language cookie, and a dashboard rendering Spanish, with nothing on screen
+  // to change and nothing in the product to press. Setting the durable key by
+  // hand and reloading does nothing, because the durable key is never reached.
+  //
+  // The layer exists for exactly two reasons and BOTH are the customer's: a
+  // `?lang=` link, which only this scope may read, and the Stripe round trip in
+  // `ManageBookingPage`. The dashboard has neither — nothing a detailer clicks
+  // hands their scope a URL, and there is no redirect out and back. So the flag
+  // that already decides whether `?lang=` may be read decides whether a visit
+  // exists at all. One question, not two.
+  //
+  // **AND THIS HEALS EVERY BROWSER ALREADY STRANDED, WITH NO MIGRATION.** The
+  // stale value is not deleted; it simply stops being consulted — the one
+  // repair that also works for a tab nobody thinks to clear, which is every
+  // tab, because nobody knows this key exists.
   const readVisit = () => {
+    if (!detectFromBrowser) return null;
     try { return sessionStorage.getItem(key); } catch { return null; }
   };
   const writeVisit = (v) => {
+    if (!detectFromBrowser) return;
     try { sessionStorage.setItem(key, v); } catch { /* no session storage; the link's language lasts one page */ }
   };
 
@@ -160,8 +184,24 @@ export function makeLocale(key, catalogues, detectFromBrowser) {
     catch { /* no document */ }
   };
 
+  // **IT USED TO STAMP HERE AND THAT IS WHY THE ATTRIBUTE WAS WRONG —
+  // measured 2026-09-12: `dp.lang.app` was `es`, the dashboard rendered
+  // Spanish, and `<html lang>` read `en`.**
+  //
+  // There is ONE `<html>` element and there are TWO scopes, and both of them
+  // ran this line at module load. Whichever module the bundler happened to
+  // evaluate last won, so the attribute described whichever surface the reader
+  // was NOT looking at. It is not a race and it is not intermittent; it is a
+  // question with no answer at module load, because at module load nothing
+  // knows which surface is about to mount.
+  //
+  // So the scope no longer guesses: it hands `stampLang` out and the MOUNTED
+  // surface calls it, through the hook it already has. `useLocale` is only
+  // ever called from a booking page and `useAppLocale` only from the
+  // dashboard, and `main.jsx` routes them apart, so exactly one answers at a
+  // time. `setLocale` still stamps directly, because a picker press is
+  // unambiguous about whose scope it is.
   let locale = detect();
-  stamp(locale);
   const listeners = new Set();
 
   const getLocale = () => locale;
@@ -209,5 +249,10 @@ export function makeLocale(key, catalogues, detectFromBrowser) {
     return out;
   }
 
-  return { getLocale, setLocale, subscribe, intlLocale, t };
+  /** Write this scope's locale onto `<html lang>`. The MOUNTED surface calls
+   *  it — see the note above `let locale`. Idempotent, so a hook may call it on
+   *  every render without touching the DOM more than once. */
+  const stampLang = () => stamp(locale);
+
+  return { getLocale, setLocale, subscribe, intlLocale, t, stampLang };
 }

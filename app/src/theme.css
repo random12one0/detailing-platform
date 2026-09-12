@@ -3477,7 +3477,15 @@ button.warn-box:hover { border-color: var(--fog-2); }
    height; this is one quit link at the bottom of a scrolling wizard, so the
    eight pixels cost nothing the exception was written to protect. The class
    itself is untouched — reopening that is his call, not a side effect. */
-.setupquit { align-self: flex-start; color: var(--text-muted); min-height: var(--tap); }
+/* **`.btn.sm.setupquit`, NOT `.setupquit` — the rule above was written, was
+   correct, and never applied. Measured 2026-09-12: computed `min-height` was
+   38px with `--tap` at 46px and the button 169x38 on screen.** `.btn.sm` is
+   (0,2,0) and a bare `.setupquit` is (0,1,0), so the class it exists to
+   override outranks it. **A grep of this file finds `min-height: var(--tap)`
+   on the right selector and reports the fix present** — CLAUDE.md trap (k),
+   in CSS: only a computed value can tell you a rule won. No `!important`;
+   naming both classes says what is being overridden and stays readable. */
+.btn.sm.setupquit { align-self: flex-start; color: var(--text-muted); min-height: var(--tap); }
 
 /* THE SPOTLIGHT — the only overlay in the product that is not a sheet, and
    one element rather than a mask (component inventory §1c). A 9999px spread

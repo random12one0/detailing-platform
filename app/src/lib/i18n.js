@@ -65,6 +65,10 @@ const scope = makeLocale(KEY, { en: null, es }, true);
 export const getLocale = scope.getLocale;
 export const setLocale = scope.setLocale;
 export const subscribe = scope.subscribe;
+/** `<html lang>` for the customer's surface. `useLocale` calls it; see the
+ *  note on `stampLang` in `localeStore.js` for why the SURFACE decides and not
+ *  the store. */
+export const stampLang = scope.stampLang;
 /** What `Intl` should be given. See the `es-US` note in the header. */
 export const intlLocale = scope.intlLocale;
 /**

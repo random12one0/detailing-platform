@@ -2216,4 +2216,38 @@ export const appEs = {
   "Cash, card, Venmo: how you want customers to pay you.": "Efectivo, tarjeta, Venmo: cómo quieres que te paguen los clientes.",
   "The days and times you work, and the days you are off.": "Los días y las horas que trabajas, y los días que descansas.",
   "Send this link to a customer and they book themselves in.": "Manda este enlace a un cliente y se agenda solo.",
+
+  // ── The website brief (`lib/siteIntake.js`) ───────────────────────────
+  // **THESE ARE DATA-TABLE VALUES, NOT `t("literal")` CALL SITES**, which is
+  // exactly why the coverage ratchet read zero while this screen rendered an
+  // English sentence between two Spanish ones. `SiteIntake.jsx` calls
+  // `t(q.question)` and `t(step.title)`; a scanner that counts literals cannot
+  // see a variable. Same class as `lib/setup.js` and `lib/templates.js`.
+  "Let's build your website.": "Vamos a crear tu sitio web.",
+  "Other sites": "Otros sitios",
+  "Any other sites you want to show us?": "¿Hay otros sitios que quieras mostrarnos?",
+  "You": "Tú",
+  "Your work": "Tu trabajo",
+  "What you do, and where": "Qué haces y dónde",
+  "Promises": "Promesas",
+  "What the site can promise": "Lo que el sitio puede prometer",
+  "Photos and prices": "Fotos y precios",
+  "Look": "Estilo",
+  "How it should look": "Cómo se debe ver",
+  "Where": "Dónde",
+  "The jobs": "Los trabajos",
+  "The work itself": "El trabajo en sí",
+  "Proof": "Pruebas",
+  "Google, Yelp, Facebook, anywhere else. Paste one per line. The counts from all of them get added together on your site.":
+    "Google, Yelp, Facebook o donde sea. Pega uno por línea. Los totales de todos se suman en tu sitio.",
+  "One per line. These are the ones your site shows as quotes.":
+    "Uno por línea. Estos son los que tu sitio muestra como citas.",
+  "Policies": "Políticas",
+  "The awkward ones": "Las incómodas",
+  "Contact": "Contacto",
+  "How people reach you": "Cómo te contactan",
+  "Launch": "Lanzamiento",
+  "Things that hold a launch up": "Cosas que retrasan un lanzamiento",
+  "Growth": "Crecimiento",
+  "Where the work comes from": "De dónde viene el trabajo",
 };

@@ -12,9 +12,16 @@
 // working the first time somebody memoises a step, silently, in the language
 // nobody here can read. One line per component is the cheap version of never
 // finding that out.
-import { useSyncExternalStore } from "react";
-import { getLocale, subscribe } from "../lib/i18n.js";
+//
+// **AND IT IS WHAT STAMPS `<html lang>` — 2026-09-12.** The store used to do
+// that at module load, where it cannot know which of the two surfaces is about
+// to mount; both scopes ran it and the last module evaluated won. The hook is
+// the right place because only a booking page ever calls this one.
+import { useEffect, useSyncExternalStore } from "react";
+import { getLocale, stampLang, subscribe } from "../lib/i18n.js";
 
 export function useLocale() {
-  return useSyncExternalStore(subscribe, getLocale, () => "en");
+  const locale = useSyncExternalStore(subscribe, getLocale, () => "en");
+  useEffect(stampLang, [locale]);
+  return locale;
 }

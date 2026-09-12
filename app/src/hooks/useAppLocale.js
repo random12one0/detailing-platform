@@ -10,9 +10,16 @@
 // root. Calling it at the root works today because the whole tree re-renders,
 // and it stops working the first time somebody memoises a screen — silently,
 // in the language nobody here can read.
-import { useSyncExternalStore } from "react";
-import { getAppLocale, subscribeApp } from "../lib/appI18n.js";
+//
+// **AND IT IS WHAT STAMPS `<html lang>` FOR THE DASHBOARD — 2026-09-12.** Its
+// twin carries the same line and the same reason: the store cannot answer that
+// question at module load, because at module load nothing knows which surface
+// is about to mount. Only a dashboard component calls this one.
+import { useEffect, useSyncExternalStore } from "react";
+import { getAppLocale, stampAppLang, subscribeApp } from "../lib/appI18n.js";
 
 export function useAppLocale() {
-  return useSyncExternalStore(subscribeApp, getAppLocale, () => "en");
+  const locale = useSyncExternalStore(subscribeApp, getAppLocale, () => "en");
+  useEffect(stampAppLang, [locale]);
+  return locale;
 }
