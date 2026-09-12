@@ -572,3 +572,55 @@ control works.** It also nearly filed an empty decorative `<span class="dots">`
 as a clipped control rail. It baselined its own tap-target probe against a 20x20
 control, a 40x40 control and a 7x7 button with an `inset: -13px` pseudo-element
 before trusting a single number from it.
+
+---
+
+## Handed over by the DP Website session as it stood down, 2026-09-12
+
+**Andrew asked for DP Cowork to be the one building session. These are the
+things that session now owns, written here because they will not survive the
+conversation they were found in.**
+
+- 2026-09-12 — **THE ALREADY-LEAKED LANGUAGE VALUE IS A SEPARATE BUG FROM THE
+  LEAK, AND STOPPING THE LEAK DID NOT HEAL IT.** `3b9f058` stopped `?lang=es`
+  from ever setting the dashboard's scope again. It could not remove the value
+  it had already written: a browser that visited a Spanish booking link before
+  that commit still holds `dp.lang.app=es` in `localStorage`, so the whole
+  dashboard renders Spanish for an English detailer. **Measured by the reviewer
+  after the fix landed**, with `dp.lang=en` sitting beside it.
+  **AND THERE IS NO WAY OUT FROM THE SCREEN.** `LanguagePicker` renders on the
+  booking surfaces only; the dashboard has no EN/ES control anywhere, so a
+  detailer in this state cannot change it back without clearing site data.
+  Three separate things to decide: whether to migrate the stale value once on
+  load, whether the dashboard gets a language control, and whether it belongs
+  in settings or the header.
+- 2026-09-12 — **`<html lang>` SAYS "en" ON THAT SPANISH DASHBOARD, AND THE
+  CAUSE IS TWO SCOPES WRITING ONE ATTRIBUTE.** Read from the code rather than
+  measured: `localeStore.js`'s `stamp()` runs inside `makeLocale`, so **every**
+  scope stamps `document.documentElement.lang` at module load, and `setLocale`
+  stamps again. `i18n.js` (customer, `dp.lang`) and `appI18n.js` (dashboard,
+  `dp.lang.app`) therefore fight over one attribute and the last import wins,
+  whichever scope's words are actually on screen. The attribute is a claim
+  about the DOCUMENT and the product has two languages live in one document —
+  so this needs a decision about which scope owns it per route, not a bigger
+  `stamp()`.
+- 2026-09-12 — **`/app/today` mixes languages mid-column**: *"Let's build your
+  website."* renders English between two Spanish lines. The coverage ratchet
+  reports `0 of 1051` missing, so this string is not reaching it — same class
+  as the two already in this file (a sentence held as a plain value in a data
+  table such as `lib/setup.js`, or a literal never wrapped in `t()`). **The
+  ratchet walks `t()` call sites, so a string that never becomes one is
+  invisible to it**, which is the exact hole `tests/spanish.test.mjs` § 10e-f
+  was added to close for the vehicle tiers and which nothing closes generally.
+- 2026-09-12 — **PARKED, NOT A BUG, NEEDS A NATIVE SPEAKER:** the Spanish
+  duration reads *"unos 1 h 15 min"*. The reviewer flagged it at low confidence
+  and explicitly asked that it not be changed on his say-so.
+- 2026-09-12 — **PARKED, HIS TASTE CALL:** the eleven sentence-titles, and the
+  green house buttons (already declined once — his prior decision stands).
+- 2026-09-12 — **`.btn.sm`'s 38px tap target is a RECORDED exception**
+  (`PRODUCT.md` § Accessibility: 28 call sites, the job card's Navigate · Call ·
+  Text row, the label ceiling measured at that height, *"Reopen it with the
+  owner, not in passing"*). The wizard's quit link was raised to `--tap`
+  individually because it is one link at the bottom of a scrolling wizard and
+  costs nothing the exception protects. **The class itself was deliberately
+  left alone.**

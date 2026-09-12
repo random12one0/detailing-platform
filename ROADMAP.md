@@ -272,3 +272,81 @@ this repo has been wrong at least once.
 **`scripts/sweep-widths.mjs:605` still prints "clean" whatever it measures**
 (`found += await say(...)` where `say` returns undefined). Do not trust it
 until that is fixed. Lane C, in `FOUND.md`.
+
+---
+
+## HANDOFF — the DP Website session stood down here, 2026-09-12
+
+**Andrew asked for DP Cowork to be the single building session. Everything
+below is written down because it was agreed in a conversation this session does
+not survive.** Last commit: `3b9f058`. Run range for the accounting:
+`f8a1b2e^..3b9f058`, 76 commits, 118 files, +8,202 / -1,701.
+
+### What was verified, and how
+
+Not "should work" — each of these was measured after the change.
+
+- **A customer's `?lang=` link no longer touches the detailer's language.**
+  Reproduced first as a five-step browser walk (clear both stores → visit
+  `/book/demo-detail?lang=es` → visit `/nothing-here`), which rendered the 404
+  in Spanish to an English visitor; re-ran identically after the fix and it
+  renders English while the booking page stays Spanish.
+- **A detailer's renamed vehicle tier is never translated.** Measured on a
+  throwaway tenant `lang-scratch`, cloned from the demo's rows and **deleted
+  afterwards** — never the demo seed. English: `Compact runabout / Heavy /
+  Large`. Spanish: `Compact runabout / Heavy / Grande`. Examples likewise —
+  the detailer's *"Anything with a tow bar"* passes through, the untouched
+  *"Truck, large SUV, van"* becomes *"Camioneta, SUV grande, van"*. **Zero
+  empty labels in either language.** A service deliberately named **"Travel"**
+  — which IS a catalogue key (`Traslado`) — stayed "Travel" in Spanish, because
+  service names never reach `t()` at all.
+- **Suites at handover:** spanish 70, composition 95, landing-pricing 109,
+  route-contract 33, booking-core 210, setup-progress 32, design-contrast all
+  pairs, `npm run build --prefix app` clean.
+
+### The decision Andrew's reviewer asked for, made explicitly
+
+**`?lang=` SETS THE LANGUAGE FOR THE VISIT, NOT FOR THE DEVICE. Only pressing
+EN/ES persists.** A detailer texts a Spanish link, the customer opens it on the
+household computer, and the next person to book on that machine must not get
+Spanish with no idea why. Following a link is not choosing a language for a
+device; pressing a button is.
+
+**AND IT NEEDS A PER-VISIT STORE RATHER THAN NOTHING AT ALL, WHICH IS THE PART
+THAT IS EASY TO UNDO BY ACCIDENT.** `ManageBookingPage.jsx:336` hands the
+browser to `checkout.stripe.com`, and Stripe returns to `?paid=1` with no
+`lang` on it. A locale held only in module memory would therefore drop a
+Spanish customer into English **mid-payment**. `sessionStorage` is exactly the
+right scope: it survives the redirect and the reload, and it dies with the tab.
+**Do not "simplify" this to no storage.**
+
+### The new checks, and what they are for
+
+`tests/spanish.test.mjs` § 10 — a lane C crossing, on Andrew's instruction
+*"whatever check would have caught this, add it"*, named in `3b9f058`.
+
+- **10a-d** run the real `localeStore` against a stubbed browser (it has no
+  imports, so Node can load it). They fail if a `?lang=` link moves the
+  dashboard scope, if a link's language persists to `localStorage`, or if the
+  picker's choice stops persisting.
+- **10e-g** walk `DEFAULT_VEHICLE_SIZES` itself and fail if a default tier word
+  has no Spanish, or if `StepVehicle` passes a tenant's own text to `t()`.
+- **Both baselined by reintroducing the bug** — 68 passed, 2 failed — then back
+  to 70 / 0. Every check above them asks whether a Spanish string EXISTS;
+  **none could see a Spanish string that is correct and shown to the wrong
+  person**, which is what both of the day's faults were.
+
+### What was deliberately NOT done, and why
+
+- **The already-leaked `dp.lang.app=es` is not healed**, the dashboard has no
+  EN/ES control, `<html lang>` is fought over by two scopes, and `/app/today`
+  mixes languages. All four are in `FOUND.md` under this date with the
+  mechanism for each. They are separate bugs from the leak and need decisions,
+  not a patch.
+- **`.btn.sm`'s 38px exception was left standing** — `PRODUCT.md` records it
+  across 28 call sites and says to reopen it with the owner rather than in
+  passing. Only the one wizard link was raised.
+- **The Spanish `"unos 1 h 15 min"`** was flagged and not changed: the reviewer
+  asked for a native speaker and said explicitly not to act on his say-so.
+- **`app/public/img/`'s twelve untracked files are lane A's** and were left
+  untouched, as `lane-check` reports them.
