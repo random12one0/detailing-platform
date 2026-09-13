@@ -91,6 +91,22 @@ const shortName = (n) => {
   const parts = String(n ?? "").trim().split(/\s+/).filter(Boolean);
   return parts.length > 1 ? `${parts[0]} ${parts[1][0]}.` : (parts[0] ?? "");
 };
+// THE SEVEN LETTERS OVER THE MONTH. Intl for every language, because a typed
+// array is English forever and nothing in this repo would ever notice.
+// 1 Jan 2023 was a Sunday, which is where this grid's week starts.
+//
+// **AND ONE OVERRIDE, BECAUSE CLDR'S SPANISH `narrow` IS AMBIGUOUS AND WAS
+// MEASURED RATHER THAN ASSUMED.** The first version of this shipped bare Intl
+// with a comment claiming it gave `D L M X J V S`; read back out of the
+// browser it gives `D L M M J V S` — martes and miércoles both narrow to M,
+// so two adjacent columns carried the same letter on a screen whose whole job
+// is being readable at a glance. Spanish calendars use X for miércoles for
+// exactly that reason. English is untouched and provably so: `narrow` is
+// already S M T W T F S.
+const DOW_OVERRIDE = { es: ["D", "L", "M", "X", "J", "V", "S"] };
+const dowLetters = () => DOW_OVERRIDE[getAppLocale()]
+  ?? Array.from({ length: 7 }, (_, i) => new Date(2023, 0, i + 1)
+    .toLocaleDateString(appIntlLocale(), { weekday: "narrow" }));
 const shortDate = (d) => new Date(`${d}T12:00:00`)
   .toLocaleDateString(appIntlLocale(), { weekday: "short", month: "short", day: "numeric" });
 const monthName = (ym) => {
@@ -126,9 +142,27 @@ export default function Calendar({ refreshKey = 0 }) {
   // is open, which is the trade he named: shrink the calendar, stop
   // scrolling. Nothing about a phone changes.
   const veryWide = useWide(1640);
+  // THE SCREEN ARRIVES WITH TODAY OPEN, AND IT IS THE ANSWER TO 250px OF
+  // NOTHING. Measured at 392x844 before this change: the month, its legend and
+  // the tab bar left the bottom 250px of the phone empty, and a detailer
+  // standing between jobs got a field of 7px marks and no words at all — the
+  // "not enough content to fill the viewport" failure the design system names,
+  // on the screen with the most to say. The day panel already exists, already
+  // opens inline under the grid, and already prints the day's jobs with their
+  // times; nothing new is built here, it is opened.
+  //
+  // EXCEPT BETWEEN 1180 AND 1639, WHERE OPENING IT WOULD COST THE MONTH ITS
+  // WORDS. `writes` is `wide && (!day || veryWide)`, so at 1440 a day open on
+  // arrival would trade `9:00 AM Tom O.` in every cell for a row of marks —
+  // strictly worse than the empty second column it fills. At 1640 and up the
+  // month keeps its words with the day beside it, so it opens there too, which
+  // is what Andrew's own 1920 monitor gets.
+  const opensWithDay = !wide || veryWide;
   const [mode, setMode] = useState("month");
   const [cursor, setCursor] = useState(today.slice(0, 7));
-  const [day, setDay] = useState(null);          // the selected date, or null
+  // Today, not null — see `opensWithDay` above. `cursor` starts on today's
+  // month, so the selected cell is always on screen at mount.
+  const [day, setDay] = useState(() => (opensWithDay ? today : null));
   const [selected, setSelected] = useState(null); // the open job record
   const [creating, setCreating] = useState(null); // null | date string
 
@@ -250,7 +284,13 @@ export default function Calendar({ refreshKey = 0 }) {
     const rows = [
       ["dot confirmed", "Booked", () => jobs.some((b) => b.status === "confirmed" || b.status === "pending")],
       ["dot completed", "Done", () => jobs.some((b) => b.status === "completed")],
-      ["dot no_show", "No-show", () => jobs.some((b) => b.status === "no_show")],
+      // "No show", NOT "No-show". The hyphen was a key of its own, so the
+      // legend printed English on a Spanish month while the history row an
+      // inch below it printed «No se presentó» — same fact, two spellings,
+      // one of them translated. `STATUS_SAID` already says "No show" and
+      // appEs.js already carries it, so the fix is to stop inventing a
+      // second key rather than to add one.
+      ["dot no_show", "No show", () => jobs.some((b) => b.status === "no_show")],
       ["dot block", "Blocked", () => marks.blocked.size > 0],
       ["ring", "One type only", () => marks.dropoff.size > 0],
     ];
@@ -324,6 +364,21 @@ export default function Calendar({ refreshKey = 0 }) {
     </div>
   );
 
+  // THE WAY BACK. Four presses of `‹` was the only route home from December,
+  // and on a working screen opened one-handed between jobs that is the wrong
+  // shape of gesture entirely. It appears only when you are somewhere else —
+  // a control that is always there and always inert on the month you are
+  // nearly always on is a control that teaches you to stop reading the row —
+  // and it restores the arrival state rather than merely the month, so
+  // pressing it puts you back exactly where the screen started.
+  const onThisMonth = cursor === today.slice(0, 7);
+  const backToToday = !onThisMonth && (
+    <button className="chip" onClick={() => {
+      setCursor(today.slice(0, 7));
+      setDay(opensWithDay ? today : null);
+    }}>{t("Today")}</button>
+  );
+
   // `.chiprow WRAP`, at both widths, and it was measured rather than assumed.
   // The bare `.chiprow` is a sideways scroller with `scrollbar-width: none`,
   // and the sweep — the first run that ever opened this filter bar — found
@@ -367,7 +422,7 @@ export default function Calendar({ refreshKey = 0 }) {
   if (mode === "month") {
     const month = (
       <>
-        {modeSwitch}
+        <div className="row between">{modeSwitch}{backToToday}</div>
         {/* Above the grid, and the last good month stays drawn. */}
         {error && <div className="error-box">{error}</div>}
 
@@ -388,8 +443,15 @@ export default function Calendar({ refreshKey = 0 }) {
           </div>
 
           <div>
+            {/* **THE WEEKDAY INITIALS WERE SEVEN ENGLISH LETTERS, AND A
+                SPANISH MONTH WAS HEADED `S M T W T F S` — found 2026-09-13 by
+                looking at the screen rather than by any check in this repo.**
+                Nothing greps for it: they were a bare array of one-character
+                literals with no `t()` anywhere near them, so the Spanish sweep
+                had nothing to miss. `dowLetters()` answers it for every
+                language at once, and English is byte-identical. */}
             <div className="cal-head">
-              {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => <span key={i}>{d}</span>)}
+              {dowLetters().map((d, i) => <span key={i}>{d}</span>)}
             </div>
             {/* THE GUIDE'S SECOND TARGET IS THE GRID ITSELF, and it had to
                 move here: it was on the month total, which lives in the SIDE
@@ -411,7 +473,12 @@ export default function Calendar({ refreshKey = 0 }) {
                     // square. Absent on a month with no bookings, and the tour
                     // drops a step whose target is not there.
                     data-tour={date === tourCell ? "cell" : undefined}
-                    className={`cal-cell${date === today ? " today" : ""}${day === date ? " selected" : ""}`}
+                    // `past` steps the NUMERAL back and leaves every mark at
+                    // full strength (theme.css § THE MONTH THAT HAS GONE). A
+                    // month where the days behind you read the same as the
+                    // days ahead is a month you have to read date by date to
+                    // find what is left of it.
+                    className={`cal-cell${date === today ? " today" : ""}${date < today ? " past" : ""}${day === date ? " selected" : ""}`}
                     aria-expanded={day === date}
                     aria-controls={day === date ? "day-panel" : undefined}
                     // "1 job", not "1 jobs" (Part B row 7) — and the date is
@@ -419,11 +486,26 @@ export default function Calendar({ refreshKey = 0 }) {
                     // what a bare "2026-09-02" gets you. The two day marks are
                     // named here too: form carries them for an eye, and this
                     // is the same fact for everyone else.
+                    // **THREE FRAGMENTS OF THIS SENTENCE WERE ENGLISH ON A
+                    // SPANISH DASHBOARD — read back out of the browser
+                    // 2026-09-13: «martes, 1 de septiembre», but «1 job»,
+                    // «blocked» and «Drop-off only».** The date was translated
+                    // and the three facts after it were not, so a Spanish
+                    // detailer using a screen reader heard half a sentence in
+                    // each language, thirty times a month. Every key already
+                    // existed — `{count} job` is DaySheet's own, and
+                    // `Blocked out` / `Mobile only` / `Drop-off only` are the
+                    // titles two lines below here, which WERE wrapped. The
+                    // comment above about `t()` being applied "where the label
+                    // is DRAWN" was true of the tooltips and forgot that an
+                    // aria-label is drawn too.
                     aria-label={[
                       dateLong(date, getAppLocale()),
-                      jobs.length ? `${jobs.length} job${jobs.length === 1 ? "" : "s"}` : null,
-                      blocked ? "blocked" : null,
-                      limited ? marks.dropoffLabel[date] : null,
+                      jobs.length
+                        ? t(jobs.length === 1 ? "{count} job" : "{count} jobs", { count: jobs.length })
+                        : null,
+                      blocked ? t("Blocked out") : null,
+                      limited ? t(marks.dropoffLabel[date] ?? "One type only") : null,
                     ].filter(Boolean).join(", ")}
                     onClick={(e) => openDay(date, e.currentTarget)}>
                     <span className="n">{Number(date.slice(8))}</span>

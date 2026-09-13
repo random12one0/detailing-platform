@@ -1096,6 +1096,36 @@ a { color: var(--accent-text); text-decoration: none; }
     width: 72px;
     flex-direction: column; justify-content: center;
     gap: var(--sp-1);
+    /* It moves WITH the content when the calendar widens the column, and in
+       the same 180ms .app-main's max-width takes, or the two read as two
+       gestures. See the rule below. */
+    transition: left var(--t-exit) var(--e-out);
+  }
+  /* **AND THE ONE PLACE THE COLUMN IS NOT `--wrap` WIDE, THE RAIL HAD TO BE
+     TOLD — measured at 1920 on 2026-09-13, and the rail was sitting ON TOP OF
+     the month.** The arithmetic above pins the rail 34px left of a `--wrap`
+     column centred in the viewport, which is true on every screen in this
+     product except one: Calendar lifts `.app-main` to 1720px while the day
+     panel is open, so the content's left edge walks LEFT past a rail that
+     stayed where 1180 put it. At 1920 the rail read left 264 / right 336
+     against a grid starting at 138 — four columns of the month underneath it,
+     with days 7, 14, 21 and 28 unreachable.
+
+     IT IS OLDER THAN THE DAY OPENING ON ARRIVAL and it is not caused by it:
+     any click on any date at any width above 1440 did this. What changed is
+     that it is now the state the screen ARRIVES in on a 1920 monitor, which
+     is the one Andrew sits at, so it stopped being reachable-if-you-try and
+     became the first thing on screen.
+
+     SAME EXPRESSION, THE OTHER WIDTH. `1720px` is `.app-main`'s lifted
+     max-width and the 106px is unchanged, so the rail keeps the same
+     relationship to the same edge. Above 1440 the max() floor takes over and
+     the answer is a flat 24px; at and below 1440 it was already 24px, so
+     nothing there moves by a pixel. `body:has()` rather than a descendant of
+     .app-main because .tabbar is fixed and lives outside it — the same shape
+     as the sheet-backdrop rule further down this sheet. */
+  body:has(.split.calday > .col-2:not(.leaving)) .tabbar {
+    left: max(24px, calc(50% - 1720px / 2 - 106px));
   }
   .tabbar button { flex: 0 0 auto; padding: var(--sp-2) 0; }
 }
@@ -2109,6 +2139,29 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   font-size: var(--t-meta); color: var(--text); position: relative;
   transition: background var(--t-hover) var(--e-out), border-color var(--t-hover) var(--e-out);
 }
+/* **THE 44px FLOOR IS ARITHMETICALLY UNREACHABLE HERE, AND SAYING SO IS THE
+   HONEST ANSWER — measured at 320 on 2026-09-13.** A month is seven columns.
+   320px less the page's 36px of padding is 284px, so a day gets 40.6px even
+   with the gutters closed to nothing; with the 5px gap it is 36.3. No padding,
+   no `::after` and no layout can put 44px of width into a seventh of 284, and
+   a design that met the floor would not be a month grid.
+
+   WHAT CAN BE FIXED IS THE DEAD GUTTER, AND IT IS THE WHOLE 5px BETWEEN EVERY
+   PAIR OF DAYS. The cells were 36.3px targets on a 41.3px pitch, so a thumb
+   landing between two dates hit NOTHING and the press was simply lost — which
+   outdoors, one-handed, is worse than a small target, because a small target
+   at least tells you you missed. The mark stays exactly the size it is drawn
+   and the ANCHOR grows to the pitch: 2.5px on every side is precisely half
+   the gap, so the targets TILE — no gutter, and no overlap either, which is
+   the failure the other direction (a neighbour stealing your press).
+
+   Measured after, at 320 / 392 / 1440: reach 41.3x61 at 320 against a 41.3x61
+   pitch, and zero overlapping pairs at every width. START-HERE § 3's pattern,
+   and its warning that a bounding rect cannot see any of this — the rect still
+   reads 36.3x56. */
+.cal-cell::after {
+  content: ""; position: absolute; inset: -2.5px; border-radius: inherit;
+}
 .cal-cell:hover { border-color: var(--line-2); }
 .cal-cell:active { background: var(--surface-lit); }
 .cal-cell.other { opacity: 0.3; }
@@ -2120,6 +2173,14 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   font-family: var(--f-num); font-weight: 500; font-variant-numeric: tabular-nums;
 }
 .cal-cell.today .n { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+/* THE MONTH THAT HAS GONE. Only the NUMERAL steps back; every mark on a past
+   day keeps its full strength, because a finished job is the thing a detailer
+   comes back to the calendar to check and the day is still a tap that opens.
+   What is left of the month is then what the eye lands on first, which is the
+   whole reason this screen is opened standing outside between jobs.
+   #939CA1 on #171B1E is 6.20:1 — computed with the calculator, after the fact,
+   which is this repo's own rule about contrast comments. */
+.cal-cell.past .n { color: var(--text-muted); }
 /* DEAD, and left alone on purpose. Nothing renders `cal-cell selected` —
    Calendar.jsx sets only `today`, and tapping a day opens the day sheet
    instead of marking the cell. Checked in roadmap 2.6 while sweeping the
@@ -2127,7 +2188,17 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
    speculative code, so none was added here. Whoever gives the calendar a
    selected day owes it one, and the law is in .chip.active's note. */
 .cal-cell.selected { border-color: var(--accent); background: var(--accent-quiet); }
-.cal-cell .marks { margin-top: auto; display: flex; align-items: center; gap: 3px; min-height: 7px; }
+/* IT WRAPS, AND THAT IS AN OVERFLOW GUARD RATHER THAN A LAYOUT PREFERENCE.
+   Measured at 320: the cell is 36.3px wide with 32.3px of content box, and a
+   day carrying three jobs plus a blockout plus a one-type-only period draws
+   five marks at 47px — 15px over the edge of a cell that cannot grow, because
+   the grid is `repeat(7, 1fr)`. No day in the demo seed carries all three at
+   once, which is why every sweep so far has read clean over it. Wrapping costs
+   a 2px taller row in that one case and nothing at all in every other. */
+.cal-cell .marks {
+  margin-top: auto; display: flex; align-items: center; justify-content: center;
+  flex-wrap: wrap; gap: 3px; min-height: 7px; max-width: 100%;
+}
 /* Once there is room, the grid takes it. At 768 and 1440 a 56px cell left a
    third of the screen empty under the month — the "not enough content to
    fill the viewport" failure docs/design-system.md § Verification names, and
@@ -2192,17 +2263,20 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   .writes .cal-cell .jobs .no_show { color: var(--text-muted); text-decoration: line-through; }
   .writes .cal-cell .jobs .more { color: var(--text-muted); }
 }
-/* The legend under the month. An even split on a phone, where four entries
-   across 356px is the only shape that does not orphan one; at a desk they
-   collapse to their own widths and sit together on the left, because a row of
-   three marks spread evenly across 836px reads as a distributed toolbar
-   rather than as a key to the grid above it. */
+/* The legend under the month. ONE SHAPE AT EVERY WIDTH NOW, and it is the
+   desk's, because the phone's grid did not do what its own comment claimed.
+   That comment said an even split was "the only shape that does not orphan
+   one" of four entries across 356px — but `minmax(104px, 1fr)` with a 12px gap
+   resolves to THREE columns at 356, so the fourth entry sat alone on a second
+   row, and the legend spent 60px of a phone saying four short words. Measured
+   on the demo's own September: Booked, Done, No-show, Blocked.
+   Packed to their own widths they are 244px plus three 28px gaps, which is one
+   row at 392 and a natural wrap at 320 with no empty column beside it. The
+   desk's reason for packing was always the better one anyway: marks spread
+   evenly across 836px read as a toolbar, not as a key to the grid above. */
 .cal-legend {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
-  gap: var(--sp-3); padding-top: var(--sp-2); border-top: 1px solid var(--hairline);
-}
-@media (min-width: 1180px) {
-  .cal-legend { display: flex; flex-wrap: wrap; gap: var(--sp-5); }
+  display: flex; flex-wrap: wrap; gap: var(--sp-3) var(--sp-5);
+  padding-top: var(--sp-2); border-top: 1px solid var(--hairline);
 }
 
 /* THE SELECTED DAY, which was dead CSS until this stage revived it — the cell

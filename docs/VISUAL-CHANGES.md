@@ -201,3 +201,83 @@ still one flick away and no longer in front of the work. Five things that were
 coming out in English on the Spanish dashboard now read Spanish.
 
 **Visual: yes.** · changed in the commit this file ships with
+
+---
+
+## 10 · Calendar — the month
+
+**Open:** `localhost:5173/app`, then tap **Calendar** at the bottom.
+
+**WAS:** On a phone the month ended about two thirds of the way down the
+screen and the rest was empty — nothing at all under it. Every date looked the
+same whether it had gone or was still to come, so you had to read the numbers
+to work out what was left of the month. The little key underneath took two
+lines to explain four marks. And if you flicked forward to look at October or
+November, the only way back to today was to press the arrow once for every
+month you had moved.
+
+**NOW:** Today's jobs are already open underneath the month when you arrive,
+with the times, the names and what each one is worth, and today's square is
+ringed to show which day you are looking at. Dates that have already passed
+are printed softer, so what is still to come is what your eye lands on. The
+key is one line. And the moment you move off this month a small **Today**
+button appears at the top; pressing it brings you straight back with today's
+jobs open again. At a desk nothing about the month changes — it still writes
+every job out in the squares — and on a very wide screen the day now opens
+beside the month instead of leaving that space blank.
+
+**Visual: yes.** · changed in the commit this file ships with
+
+---
+
+## 11 · Calendar in Spanish
+
+**Open:** `localhost:5173/app` in Spanish, then tap **Calendario**.
+
+**WAS:** The seven letters across the top of the month were the English ones —
+a Spanish month was headed S M T W T F S. The word for a day nobody turned up
+on was still in English in the key underneath.
+
+**NOW:** The letters read D L M X J V S, which is how a Spanish calendar
+writes them, and the key reads Spanish all the way across. Three things the
+screen says out loud for anyone using a screen reader — how many jobs a day
+has, that a day is blocked, and that a day takes only one kind of work — were
+also still English and now are not. Nothing changes in English.
+
+**Visual: yes.**
+
+---
+
+## 12 · Presses that used to land in the gap between two dates
+
+**Open:** n/a
+
+**WAS:** On a narrow phone each date in the month was a small square with a
+few pixels of nothing between it and the next one. A thumb that landed in
+between hit neither date and nothing happened at all.
+
+**NOW:** The squares look exactly the same, but the area your thumb can land
+on now runs right up to the next one, so there is no gap left to miss into. On
+the narrowest phones a seven-day month cannot give each date a full-size
+target — that is arithmetic, not a choice — but no press is thrown away.
+
+**Visual: no** — nothing on the screen changed. Recorded so it is not
+re-reported as an unfixed small-target problem.
+
+---
+
+## 13 · The side menu was sitting on top of the month
+
+**Open:** `localhost:5173/app` → Calendar, on a screen wider than about 1500
+pixels, with a day open.
+
+**WAS:** On a wide monitor, opening a day made the calendar spread out to use
+the extra room — and the little Today/Calendar/Money strip down the left-hand
+side stayed where it was, ending up on top of four columns of the month. Four
+dates a week could not be clicked at all.
+
+**NOW:** The strip moves out of the way with the rest of the page. It is older
+than anything in this batch — any click on any date on a wide screen did it —
+but it now shows up the moment the screen opens, so it is fixed.
+
+**Visual: yes** — only if you have a monitor wider than about 1500 pixels.
