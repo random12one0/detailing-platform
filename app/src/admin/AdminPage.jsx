@@ -161,6 +161,38 @@ function Tile({ n, t, warn }) {
   );
 }
 
+/* ── what the platform charges, flattened and given its units ─────────────
+   The table is two levels deep and mixes three kinds of number, so neither
+   `String(v)` nor `money(v)` is right for all of it. THE KEY CARRIES THE UNIT
+   — nothing else in the value knows whether 12 is dollars, months or a share.
+   Anything unrecognised falls through as a plain number rather than being
+   dressed as money, because a wrong unit reads as a real price. */
+const WORDS = {
+  website: "Website + booking", bookingOnly: "Booking only", founding: "Founding offer",
+  term: "Contract", annual: "Paid yearly", monthly: "A month", setup: "To set up",
+  monthToMonth: "Month to month", months: "Length", exitFeeShare: "Exit fee",
+};
+const say = (k) => WORDS[k] ?? k;
+const priceValue = (key, v) => {
+  if (typeof v !== "number") return String(v);
+  if (key === "months") return `${v} months`;
+  if (key === "exitFeeShare") return `${Math.round(v * 100)}% of what is left`;
+  return money(v);
+};
+function priceRows(table) {
+  const out = [];
+  for (const [k, v] of Object.entries(table ?? {})) {
+    if (v && typeof v === "object") {
+      for (const [k2, v2] of Object.entries(v)) {
+        out.push({ label: `${say(k)} · ${say(k2)}`, value: priceValue(k2, v2) });
+      }
+    } else {
+      out.push({ label: say(k), value: priceValue(k, v) });
+    }
+  }
+  return out;
+}
+
 const Row = ({ k, v }) => (
   <div className="pa-row"><span className="pa-k">{k}</span><span className="pa-v">{v}</span></div>
 );
@@ -821,9 +853,19 @@ function TabMoney({ state, totals, rows }) {
           </span>
         </div>
         <div className="pa-card">
+          {/* **IT PRINTED `[object Object]` FOUR TIMES — fixed 2026-09-13.**
+              The price table is NESTED — `website: { setup, monthly }`,
+              `term: { months, exitFeeShare }` — and this mapped the top level
+              and called `String(v)` on the group. So the one screen that shows
+              what the platform charges could not show a single number.
+              **AND `money()` ON EVERYTHING WOULD HAVE BEEN THE SECOND BUG.**
+              `term.months` is a count and `term.exitFeeShare` is a fraction;
+              rendering either as dollars is a wrong number rather than a
+              missing one, which is worse. The unit comes from the KEY, because
+              the key is the only thing that knows it. */}
           <div className="pa-rows">
-            {Object.entries((p?.current ?? p?.built_in) ?? {}).slice(0, 12).map(([k, v]) => (
-              <Row key={k} k={k} v={typeof v === "number" ? money(v) : String(v)} />
+            {priceRows(p?.current ?? p?.built_in).map(({ label, value }) => (
+              <Row key={label} k={label} v={value} />
             ))}
           </div>
         </div>
