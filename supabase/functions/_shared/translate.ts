@@ -23,11 +23,16 @@
 // `:fx`, which is a fact about the tier rather than about the secret.
 //
 // ── WHAT THIS FILE REFUSES TO DO ────────────────────────────────────────────
-// It never returns the source text as a translation. A cache row holding the
-// English as its Spanish is indistinguishable from a success and would never be
-// retried — the eighth costume, in a table. A string this file cannot translate
-// comes back as `null` and NO ROW IS WRITTEN, which is exactly what makes the
-// customer see the detailer's English.
+// It never INVENTS a translation. A string no provider answered for comes back
+// as `null` and NO ROW IS WRITTEN, which is exactly what makes the customer see
+// the detailer's English.
+//
+// It does, deliberately, keep an answer that is identical to the source — see
+// `usable`. Discarding those was the first design and it was wrong in a way only
+// a real run showed: three words on the demo business are the same in Spanish,
+// and throwing them away left them re-sent on every save and reported as
+// permanently "showing in English". The broken-provider case that rule was
+// guarding is caught by `allEchoed` instead, which asks about the BATCH.
 //
 // It never throws. A save must not fail because DeepL is down. But a swallowed
 // error is how an instrument goes quiet, so every attempt is reported back in
@@ -65,14 +70,44 @@ const secret = (name: string): string | undefined => {
   return v && String(v).trim() ? String(v).trim() : undefined;
 };
 
-/** A provider's answer is a translation only if it has words in it and is not
- *  simply the English handed back. Both cases become `null` — no row. */
+/** A provider's answer is a translation if it has words in it. Blank is not an
+ *  answer and becomes `null` — no row.
+ *
+ *  AN ANSWER IDENTICAL TO THE SOURCE IS KEPT, AND THAT IS A CORRECTION MADE
+ *  AFTER RUNNING THIS FOR REAL — 2026-09-13. The first version threw those away
+ *  on the grounds that a provider echoing its input is a failure mode. Proving
+ *  the feature on the demo business showed what that costs: "Exterior",
+ *  "Interior" and "Long Beach" are the same word in Spanish, so they were
+ *  discarded, never stored, re-sent on every save, and counted as PENDING for
+ *  ever — a dashboard telling a detailer *"3 phrases are showing in English"*
+ *  about three phrases that were already right. An instrument lying in the
+ *  other direction, which is still lying.
+ *
+ *  The real failure mode is caught where it actually lives: a provider handing
+ *  back EVERY text in a batch. See `allEchoed` below. One echo in forty is a
+ *  word that does not change; forty in forty is a broken API. */
 const usable = (out: unknown, source: string): string | null => {
   const s = typeof out === "string" ? out.trim() : "";
-  if (!s) return null;
-  if (s === source.trim()) return null;
-  return s;
+  return s || null;
 };
+
+/** A batch where every single answer is its own input.
+ *
+ *  EIGHT, AND THE THRESHOLD WAS THREE UNTIL IT DID REAL DAMAGE ON ITS FIRST
+ *  LIVE RUN — 2026-09-13. The last chunk of any sweep is small: the demo
+ *  business's tail batch was exactly `["Exterior", "Interior", "Long Beach"]`,
+ *  all three of which DeepL correctly returned UNCHANGED because they are the
+ *  same in Spanish. At a threshold of three that read as a broken provider, so
+ *  the batch fell through to Google — which translated the place name, and
+ *  **"Long Beach" went into the table as "Playa Larga"**. A guard against a
+ *  provider echoing everything cost a correct answer and produced a wrong one.
+ *
+ *  So the threshold is the point where all-identical stops being plausible for a
+ *  detailer's prose. Eight strings that are every one of them unchanged is a
+ *  broken API; three is a short tail chunk. **A guard this cheap must never be
+ *  able to overrule a provider that answered correctly.** */
+const allEchoed = (out: (string | null)[], src: string[]): boolean =>
+  src.length >= 8 && out.every((o, i) => o !== null && o === src[i].trim());
 
 // ---------------------------------------------------------------------------
 // DeepL
@@ -121,7 +156,9 @@ const deepl = async (texts: string[]): Promise<ProviderResult> => {
   // service's Spanish under another's name.
   if (!list || list.length !== texts.length) return { ok: false, reason: "bad_response" };
 
-  return { ok: true, texts: list.map((t: { text?: unknown }, i: number) => usable(t?.text, texts[i])) };
+  const out = list.map((t: { text?: unknown }, i: number) => usable(t?.text, texts[i]));
+  if (allEchoed(out, texts)) return { ok: false, reason: "bad_response" };
+  return { ok: true, texts: out };
 };
 
 // ---------------------------------------------------------------------------
@@ -153,12 +190,11 @@ const google = async (texts: string[]): Promise<ProviderResult> => {
   const list = body?.data && Array.isArray(body.data.translations) ? body.data.translations : null;
   if (!list || list.length !== texts.length) return { ok: false, reason: "bad_response" };
 
-  return {
-    ok: true,
-    texts: list.map((t: { translatedText?: unknown }, i: number) =>
-      usable(unescapeEntities(t?.translatedText), texts[i])
-    ),
-  };
+  const out = list.map((t: { translatedText?: unknown }, i: number) =>
+    usable(unescapeEntities(t?.translatedText), texts[i])
+  );
+  if (allEchoed(out, texts)) return { ok: false, reason: "bad_response" };
+  return { ok: true, texts: out };
 };
 
 /** GOOGLE HTML-ESCAPES ITS OUTPUT EVEN WITH `format: "text"`. An apostrophe

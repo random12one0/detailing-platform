@@ -132,11 +132,38 @@ const status = (code) => () => new Response("{}", { status: code });
   restore();
 }
 {
-  // THE ONE THAT WOULD POISON THE CACHE. A provider handing back the English is
-  // not a translation; a row holding it would look like a success for ever.
+  // ONE echo is a word that is the same in Spanish. "Exterior", "Interior" and
+  // "Long Beach" are the three on the demo business, and the first version of
+  // this feature discarded them — so they were re-sent on every save and
+  // reported as permanently "showing in English". Keeping them is the fix.
+  stub({
+    deepl: (texts) =>
+      new Response(JSON.stringify({ translations: texts.map((t) => ({ text: t === "Exterior" ? t : `ES(${t})` })) }), { status: 200 }),
+  });
+  const r = await translateBatch(["Exterior", "Wash & Wax", "Clay bar"]);
+  ok("1g · an answer identical to the source is KEPT, so an unchanged word stops costing money",
+    r.texts[0] === "Exterior" && r.texts[1] === "ES(Wash & Wax)", JSON.stringify(r.texts));
+  restore();
+}
+{
+  // EVERY answer echoed is a broken provider, and that IS caught — at the batch
+  // level, which is the only place the two cases can be told apart.
+  stub({
+    deepl: (texts) => new Response(JSON.stringify({ translations: texts.map((t) => ({ text: t })) }), { status: 200 }),
+    google: googleOk,
+  });
+  const r = await translateBatch(["one", "two", "three", "four", "five", "six", "seven", "eight"]);
+  ok("1g-iii · a batch where EVERY answer is its own input is bad_response and falls through",
+    r.by === "google" && r.tried[0].reason === "bad_response", JSON.stringify(r.tried));
+  restore();
+}
+{
+  // Below three, an all-echo batch cannot be told from short identical words, so
+  // the guard must NOT fire and strand a working provider.
   stub({ deepl: (texts) => new Response(JSON.stringify({ translations: texts.map((t) => ({ text: t })) }), { status: 200 }) });
-  const r = await translateBatch(["Express Wash"]);
-  ok("1g · a provider echoing the source yields null, not a row", r.texts[0] === null, JSON.stringify(r));
+  const r = await translateBatch(["Exterior", "Interior", "Long Beach"]);
+  ok("1g-iv · a short tail batch of unchanged words does NOT trip the guard — the live run that cost 'Long Beach'",
+    r.by === "deepl" && r.texts[0] === "Exterior" && r.texts[2] === "Long Beach", JSON.stringify(r));
   restore();
 }
 {
@@ -258,7 +285,30 @@ if (!TOKEN || !REF) {
     ok("3g · edited English gets a NEW row, and the old human edit does not leak onto it",
       map2?.[SRC + " (edited)"] === "Máquina nueva" && map2?.[SRC] === "Lo que escribió una persona");
 
-    await sql(`delete from translations where business_id = ${lit(B)}::uuid and source_text in (${lit(SRC)}, ${lit(SRC + " (edited)")})`);
+    // ── 3i · A STANDING AUDIT, NOT A CLEANUP, AND IT EARNED ITSELF THE HOUR IT
+    // WAS WRITTEN. 3b and 3b-ii both passed while the live table held
+    // "Coastline Auto Detailing" -> "Detallado Automotriz Costero" and
+    // "demo-detail" -> "demo-detalle": those rows were written minutes earlier
+    // by 3b itself, during a deliberate baselining run with the trigger dropped,
+    // and nothing deleted them. `get_business_translations` was serving a
+    // translated business NAME to any Spanish customer — the exact thing Andrew
+    // forbade — under two green checks.
+    //
+    // So a check that the guard REFUSES is not the same check as a check that
+    // the table is CLEAN. This is the second one, it covers every business
+    // rather than the demo, and it catches rows written before the trigger
+    // existed, written while it was dropped, or written by any future path.
+    const residue = await sql(`
+      select t.source_text
+      from translations t
+      join businesses b on b.id = t.business_id
+      where lower(btrim(t.source_text)) in (lower(btrim(b.name)), lower(btrim(b.slug)))
+      limit 5`);
+    ok("3i · NO row anywhere in the table is a translation of a business name or slug",
+      Array.isArray(residue.body) && residue.body.length === 0,
+      JSON.stringify(residue.body));
+
+    await sql(`delete from translations where business_id = ${lit(B)}::uuid and source_text in (${lit(SRC)}, ${lit(SRC + " (edited)")}, ${lit(biz.name)}, 'demo-detail')`);
     const gone = (await sql(`select count(*)::int as n from translations where business_id = ${lit(B)}::uuid and source_text = ${lit(SRC)}`)).body?.[0]?.n;
     ok("3h · the suite cleaned up after itself", gone === 0, String(gone));
   }

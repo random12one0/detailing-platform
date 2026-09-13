@@ -108,9 +108,11 @@ Deno.serve(async (req) => {
 
       for (let k = 0; k < chunk.length; k++) {
         const out = r.texts[k];
-        // NO ROW when there is no translation. That absence is what makes the
-        // customer read the detailer's English — not a catch block, not a
-        // placeholder, and never the source text stored as its own translation.
+        // NO ROW when no provider answered. That absence is what makes the
+        // customer read the detailer's English — not a catch block and not a
+        // placeholder. An answer that happens to equal the English IS stored:
+        // `_shared/translate.ts` § `usable` has why, and it is the difference
+        // between three correct words and three permanent false alarms.
         if (!out) continue;
         const put = await supabase.rpc("translation_put", {
           p_business: business.id,
