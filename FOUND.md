@@ -1011,3 +1011,46 @@ minutes on `pg_cron`, and pings `platform_settings.healthcheck_url`;
 `platform-admin/index.ts:396` still sends `watch: { outside: … }` to the client.
 **Only the screen stopped drawing it.** Had the switch been dead too it would
 have gone to the front of the queue.
+
+## THE BACK OFFICE WAS SCHEDULED TO DIE ON ANDREW'S FIRST REAL SIGNUP — 2026-09-13
+
+**Not caused by this evening's work, and worse than "six missing buttons".**
+
+`platform-admin/index.ts` line 422 read `monthAgo` in the `list` action's TOTALS
+block. `monthAgo` is declared inside the per-business `.map()` forty lines
+earlier. **A plain scope error — a `ReferenceError` every time it evaluates.**
+
+**IT LANDED ON 2026-09-06, six days ago**, in a commit titled *"docs: job
+photos, the SMS numbers, and two traps worth recording"*. Proven by
+`git log -S` on the line itself; the commit that restored `create` touched only
+`AdminPage.jsx` and is not involved.
+
+**WHY NOBODY EVER SAW IT.** The line sits inside
+`real.filter((r) => … >= monthAgo)`, and `real` is `rows.filter(r => !r.is_demo)`
+— **the businesses that are not demo fixtures.** Every business on the platform
+was a fixture, so `real` was empty, so the callback never ran, so the error never
+had a chance to throw. **`Array.prototype.filter` does not evaluate its callback
+on an empty array**, and that is the whole of why a six-day-old crash was
+invisible.
+
+**THE FIRST GENUINELY REAL BUSINESS DETONATES IT**, and takes the entire back
+office with it — `list` feeds all four tabs, so Now, Detailers, Money and
+Plumbing all render the error boundary and nothing else. **That is exactly what
+`create` exists to produce.** The failure was scheduled for the first detailer
+Andrew ever signed up in person, on the screen he would be standing in front of
+while doing it.
+
+It surfaced here because restoring `create` produced the platform's first
+non-demo row.
+
+**WHAT NO CHECK IN THIS REPO WOULD HAVE CAUGHT IT.**
+`tests/platform-admin.test.mjs:541` greps for the per-business `monthAgo`
+declaration and its use — **the correct pair, forty lines above the broken
+one** — and passes. Nothing asserts the totals block, and a source grep cannot
+see a scope. **A latent crash behind an empty array is invisible to every
+instrument here**; the only thing that finds it is a real row and a loaded page.
+
+**AND LOOKING AT THE PAGE IMMEDIATELY FOUND A SECOND DEFECT.** The Money tab
+prints `[object Object]` four times under *"What we charge"*, where the price
+table's four groups should be. It is folded into the `prices` item, which is the
+next of the seven.

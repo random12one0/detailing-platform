@@ -419,7 +419,26 @@ Deno.serve(async (req) => {
           // Signed up this calendar month — churn needs a cancelled-at
           // history nothing records yet, and a half of a pair is worse than
           // neither: "3 joined" beside nothing reads as "and none left".
-          new_month: real.filter((r) => Date.parse(r.created_at) >= monthAgo).length,
+          // **THIS LINE THREW A ReferenceError FOR SIX DAYS AND NOBODY COULD
+          // SEE IT — fixed 2026-09-13.** `monthAgo` is declared inside the
+          // per-business `.map()` above, not here, so reading it in the totals
+          // block is a plain scope error. It landed on 2026-09-06.
+          //
+          // **IT WAS INVISIBLE BECAUSE `real` WAS ALWAYS EMPTY.** `real` is the
+          // rows that are not demo fixtures, and every business on the platform
+          // was a fixture — so `.filter()` never ran its callback and the error
+          // never had a chance to throw. **The first genuinely real business
+          // would have killed the whole back office**, every tab at once, since
+          // `list` feeds all four. That is precisely what `create` exists to
+          // produce, so the failure was scheduled for Andrew's first signup.
+          //
+          // UTC rather than a business's own zone, because this is a count
+          // across everybody and there is no platform timezone to ask. A signup
+          // in the last hours of a month in a western zone lands in the next
+          // month's count; that is a known edge on a vanity figure, and
+          // inventing a platform-timezone constant to fix it would be a new
+          // thing to maintain for a rounding error.
+          new_month: real.filter((r) => Date.parse(r.created_at) >= monthWindow("")[0]).length,
         },
       });
     }

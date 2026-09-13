@@ -133,6 +133,39 @@ full-size control**, because that is what happened the only time it came up.
 which is scoped to the detailer side, and that is a gap rather than an
 exemption.)
 
+## A FIX TO A SCREEN IS NOT DONE UNTIL SOMEBODY HAS LOADED THAT SCREEN AND READ IT
+
+**Cowork's rule, 2026-09-13, and it is the third variety of one disease in a
+single evening.**
+
+> **A passing path through a broken screen is not a working screen.**
+
+The three, in order, and they are the same mistake wearing different clothes:
+
+| | what was trusted instead of looking |
+|---|---|
+| the i18n ratchet | a number that reported 100% without reading a page |
+| `platform-admin`'s red suite | a plausible sentence explaining the red away |
+| `create` | a mechanism proved end to end, on a screen nobody opened |
+
+**HOW THE THIRD ONE PLAYED OUT.** `create` was built, submitted through the real
+form, and verified: a business row, an invite row, a `business_settings` row and
+seven `business_hours` rows. **All of that was true.** And the back office was
+throwing a `ReferenceError` on every one of its four tabs at the same moment,
+because the proof went through the FUNCTION and never loaded the PAGE.
+
+**AND LOOKING IS NOT A FORMALITY — it found a second defect immediately.** The
+first honest look at all four tabs turned up `[object Object]` printed four
+times on the Money tab where the price table should be. No check in this repo
+was ever going to say that, and no amount of testing the mechanism would have
+either.
+
+### What counts as having looked
+
+Open the screen in a browser, **read every tab or state the change can reach**,
+and read the console. Not a screenshot of one state; not the component rendering
+in isolation; not "the request returned 200".
+
 ## A RED SUITE IS EVIDENCE UNTIL IT IS DISPROVED, AND THE DISPROOF IS ALSO EVIDENCE
 
 **Two rules, both earned on 2026-09-12 by the same incident.**
