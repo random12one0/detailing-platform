@@ -297,3 +297,40 @@ Both in `FOUND.md` § THE DEFINER SWEEP, neither blocking:
 - **The live business project `adtlnvihwrcqcasqcjwd` has never been checked for
   either the 504 rate or the definer grants.** Standing ruling: Andrew's
   decision, with him present, and **no session goes looking for credentials.**
+
+---
+
+## HANDOVERS OWED AFTER ITEM 4 — written down 2026-09-13 because none of them is this lane's to do
+
+**Three files needed an edit that lane C is not allowed to make, and one screen
+belongs to lane B.** Recorded here rather than said in a message, because a
+thread that lives only in a conversation dies at the clear.
+
+### LANE M — three lines in files only M writes
+
+1. **`ROADMAP.md` item 9 still reads *"Weather, from open-meteo."*** It is
+   superseded and **following it is a licence breach** — open-meteo's free tier
+   is non-commercial. Item 4 of this queue already says so; the numbered list
+   does not. **This is the dangerous one.**
+2. **`ROADMAP.md` § 5 · THE NATIONAL WEATHER SERVICE WORK is done** and says only
+   *"Andrew's order: after the doorbell, before Geoapify."* Point it at
+   `docs/weather.md`. **Geoapify (§ 6) is now the next of the three.**
+3. **`docs/README.md` needs one row**, which lane C wrote and then reverted when
+   `lane-check.mjs` named the file as M's:
+   `| `weather.md` | **LIVE** | The NWS seam — api.weather.gov, the required User-Agent, the one-module rule, the three honest failures, and why no screen draws it yet. Built 2026-09-13. |`
+
+### LANE B — the screen, and it is small
+
+`docs/weather.md` § THE SCREEN is the whole brief. The endpoint is live and
+proved (`POST /functions/v1/forecast`, member-gated, 16/16 in
+`scripts/probe-forecast.mjs`). Three notes decide whether it is right:
+`navigator.geolocation` supplies the point and no geocoder is needed;
+**`outside_coverage` and `unavailable` are two different sentences** and only one
+of them offers a retry; and **`precipChance` can be `null`, which is not 0.**
+
+### AND ONE THING EVERY LANE SHOULD KNOW
+
+**All 36 edge functions were redeployed at 05:59 UTC** — `_shared/emailTemplates.ts`
+is imported by most of them, so a partial deploy would have left
+`check-deployed` reporting thirty stale. **Any green browser run taken before
+that time is against different server code.**
