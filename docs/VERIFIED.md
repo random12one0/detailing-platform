@@ -640,6 +640,36 @@ checks to RETIRE rather than findings — see the handover in
 its `read()` with `() => ""` and count what stays green. Eighteen hollow checks
 cost one edit to find.
 
+## 1h · THE BOOKING LOOP, END TO END — lane C, 2026-09-13, at `36dd489`
+
+**`scripts/e2e-booking.mjs`: 84 passed, 0 failed, 6 skipped**, both tenants,
+exit 0, on a quiet tree with `app/src` committed and untouched. It had been red
+for two days.
+
+| what was proven | at | invalidated by a change to |
+|---|---|---|
+| A customer picks a service, a day and a time, submits, and the row matches the screen — name, status, instant, and **the price charged equals the price printed** | 2026-09-13, `36dd489` | `app/src/book/**`, `app/src/lib/format.js`, `supabase/functions/create-booking/**`, `supabase/functions/_shared/pricing.ts` |
+| A request holds its slot, Accept turns it into a job, and the job is findable in the calendar's history | 2026-09-13, `36dd489` | `app/src/screens/**`, `app/src/components/RequestCard.jsx`, `supabase/functions/respond-to-booking/**` |
+| Reschedule and cancel from the receipt page, with the old slot freed and the new one taken, asked of `available-slots` itself | 2026-09-13, `36dd489` | `app/src/book/**`, `supabase/functions/available-slots/**`, `supabase/functions/reschedule-booking/**` |
+| Zero console errors anywhere in the loop, both tenants | 2026-09-13, `36dd489` | `app/src/**` |
+
+**WHAT WAS *NOT* PROVEN, AND THE RUN SAYS SO ITSELF:** the six skipped checks
+are the provider leg. Today's TENANT email allowance was spent before the run
+(`send-email` answered 429 `daily_cap`), so *"did the email reach Resend"* is
+unanswerable rather than answered. **Re-run after 00:00 UTC to close it.**
+
+**AND ALL FIFTEEN FAILURES WERE THE CHECK, NOT THE PRODUCT** — three stale
+assertions with three root causes, every one of them a deliberate product change
+nobody updated the check for, plus the email six.
+`docs/e2e-booking-triage-2026-09-13.md` sorts them one by one.
+
+**THE HOLLOW PASS FOUND IN THE SAME PASS, BECAUSE THE GREENS WERE AUDITED TOO:**
+`slotsOn()` ended `?? []`, so a dead `available-slots` became an empty list and
+**both double-booking guards went green.** Proven by pointing the script at a
+non-existent function: before, ONE failure; after, three, each naming the 404.
+
+---
+
 ---
 
 ## HOW THIS FILE EARNS ITS KEEP

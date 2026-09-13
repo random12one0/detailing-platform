@@ -62,6 +62,14 @@ import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import { reportSourceMoved, watchSource } from "./source-guard.mjs";
 import { realMail } from "../tests/_mail.mjs";
+// THE PRODUCT'S OWN FORMATTER, IMPORTED RATHER THAN COPIED — 2026-09-13. This
+// script printed `$105.00` at a price bar reading `$105` and called two equal
+// numbers unequal for a day. `lib/format.js` has said CENTS ONLY WHEN THERE
+// ARE CENTS since 2026-09-11 and the page renders `money(quote.total)`, so a
+// `toFixed(2)` here was a SECOND copy of a formatting rule, which is the copy
+// that goes stale. A read of lane B's file, not a write: if it ever stops
+// importing in Node the script dies loudly, which is the correct outcome.
+import { money } from "../app/src/lib/format.js";
 
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
@@ -104,11 +112,16 @@ const TENANTS = [
   { slug: "demo-riverside", dashboard: null },
 ].filter((t) => !ONLY || t.slug === ONLY);
 
-let pass = 0, fail = 0;
+let pass = 0, fail = 0, skip = 0;
 const ok = (name, cond, detail = "") => {
   if (cond) { pass++; console.log(`  ok    ${name}`); }
   else { fail++; console.error(`  FAIL  ${name}${detail ? ` — ${detail}` : ""}`); }
 };
+// A SKIPPED CHECK READS EXACTLY LIKE A PASSING ONE — this repo's most repeated
+// failure, and the reason the count is carried into the summary line rather
+// than being a `console.log` somebody scrolls past. `n` is how many checks did
+// not get asked, so `passed + failed + skipped` is still the size of the suite.
+const skipped = (n, why) => { skip += n; console.log(`  skip  ${n} check(s) — ${why}`); };
 const step = (s) => console.log(`\n── ${s} ${"─".repeat(Math.max(0, 58 - s.length))}`);
 
 // --- the database, as the service role -------------------------------------
@@ -247,13 +260,13 @@ try {
   for (const tenant of TENANTS) await loop(tenant);
 } catch (e) {
   await browser.close();
-  console.error(`\n${pass} passed, ${fail} failed — then the run threw:\n${e?.message ?? e}`);
+  console.error(`\n${pass} passed, ${fail} failed${skip ? `, ${skip} skipped` : ""} — then the run threw:\n${e?.message ?? e}`);
   await reportSourceMoved(changedSince, false);
   process.exit(1);
 }
 await browser.close();
 
-console.log(`\n${pass} passed, ${fail} failed`);
+console.log(`\n${pass} passed, ${fail} failed${skip ? `, ${skip} skipped` : ""}`);
 // Unconditional: see sweep-widths.mjs and source-guard.mjs's header. A pass
 // that reloaded mid-run is the case worth shouting about, not the quiet one.
 await reportSourceMoved(changedSince, !fail);
@@ -378,9 +391,23 @@ async function loop({ slug, dashboard }) {
           await settle(page, 1600);
         }
         const cell = page.locator(".bk-cal .cell", { hasText: new RegExp(`^${want.getDate()}$`) }).first();
+        // WAIT FOR THE GRID: `count()` DOES NOT AUTO-WAIT AND `getAttribute()`
+        // DOES. That mismatch is the whole of the "tenth failure" FOUND.md
+        // recorded twice at `1cf5f98`, and it is the check rather than the
+        // calendar — the failure detail printed `cell   `, an OPEN cell with
+        // no `closed` in its class, because `getAttribute()` waited and found
+        // the very cell `count()` had just missed a moment earlier.
+        // `StepWhen.jsx` paints no grid at all until `available-slots` answers
+        // (`!loading && days !== null`, and gating on the ANSWER is correct),
+        // so a slow answer means zero cells at the instant `count()` is asked.
+        // A `settle()` long enough this morning is too short on a slower one:
+        // it passed on both tenants at 13:44 and failed on the second at
+        // 13:57, same commit, same date, same tree.
+        const appeared = await until(async () => await cell.count() > 0, 20000);
         ok(`${DATE} is open on the customer's calendar`,
-          await cell.count() > 0 && !/closed/.test((await cell.getAttribute("class")) ?? ""),
-          await cell.getAttribute("class").catch(() => "no cell"));
+          appeared && !/closed/.test((await cell.getAttribute("class")) ?? ""),
+          appeared ? await cell.getAttribute("class")
+            : "no cell after 20s — available-slots never painted a grid");
         await cell.click();
         await page.locator(".bk-slots .bk-chip").first().waitFor({ state: "attached", timeout: 10000 });
         await settle(page, 900);
@@ -399,15 +426,48 @@ async function loop({ slug, dashboard }) {
           await page.locator(".bk-card.selectable:not(.selected)").first().click();
           await settle(page, 900);
         }
+        // FILL BY THE BROWSER'S OWN AUTOFILL TOKEN, NEVER BY THE HEADING —
+        // 2026-09-13, and this one line was FIVE of the nine failures.
+        // The details step asked "How can we reach you?" until 2026-09-12,
+        // when it deliberately became "Your details"; the `/reach you/` test
+        // that used to live here then typed the ADDRESS into the name box.
+        // The customer was therefore called "140 Market Street, Long Beach,
+        // CA", so `with the name the customer typed` went red on both
+        // tenants AND the dashboard leg, which searches for NAME, could not
+        // find the request card, never pressed Accept, and reported the
+        // booking as still pending and missing from the calendar's history.
+        // Four checks failing about the dashboard, and the dashboard was fine.
+        // `autocomplete` is what a field DOES; a heading is how it is
+        // written (CLAUDE.md trap (h)).
+        let sawNameBox = false;
         for (const [sel, value] of [
           [".bk-field input[type=tel]", PHONE],
           [".bk-field input[type=email]", CUSTOMER_EMAIL],
+          [".bk-field input[autocomplete=name]", NAME],
+          [".bk-field input[autocomplete=street-address]", "140 Market Street, Long Beach, CA"],
         ]) {
-          if (await page.locator(sel).count()) await page.locator(sel).fill(value);
+          if (!(await page.locator(sel).count())) continue;
+          if (sel.includes("autocomplete=name")) sawNameBox = true;
+          await page.locator(sel).first().fill(value);
         }
-        const text = page.locator(".bk-field input:not([type=tel]):not([type=email])").first();
+        // The step that asks for a name is the only one that can be told
+        // apart by a token, so it is the only one that gets an assertion. It
+        // is here rather than at the end because a name box that has moved or
+        // lost its token has to be LOUD: the four downstream failures above
+        // all named the dashboard and none of them named this.
+        if (/details/i.test(head) || sawNameBox) {
+          ok("the form has a name box the browser can autofill", sawNameBox,
+            "no .bk-field input[autocomplete=name] on the step headed " + head);
+        }
+        // Anything left that is free text and still empty — the vehicle box,
+        // a drop-off note — takes the address, so a step this script has never
+        // met still clears its blockers. It is no longer how the NAME is set.
+        const text = page.locator(
+          ".bk-field input:not([type=tel]):not([type=email])"
+          + ":not([autocomplete=name]):not([autocomplete=street-address])",
+        ).first();
         if (await text.count() && !(await text.inputValue())) {
-          await text.fill(/reach you/i.test(head) ? NAME : "140 Market Street, Long Beach, CA");
+          await text.fill("140 Market Street, Long Beach, CA");
         }
         await settle(page, 500);
       }
@@ -423,7 +483,12 @@ async function loop({ slug, dashboard }) {
     }
 
     const bar = (await page.locator(".bk-bar .total strong").innerText()).trim();
-    ok("the review step prints a total", /^\$\d[\d,]*\.\d\d$/.test(bar), bar);
+    // Cents are OPTIONAL, and deliberately so — `lib/format.js`, 2026-09-11.
+    // This demanded `.\d\d` until 2026-09-13 and went red on `$105`, which is
+    // trap (h): a check coupled to a SPELLING breaks the day the product
+    // changes that spelling on purpose. The comma group is still required
+    // above 999, because that half of the same decision is still a rule.
+    ok("the review step prints a total", /^\$\d{1,3}(,\d{3})*(\.\d\d)?$/.test(bar), bar);
 
     // THE PRESS NOTHING IN THIS REPO HAD EVER DONE.
     const label = await page.locator(".bk-bar button.bk-btn.primary").innerText();
@@ -481,7 +546,7 @@ async function loop({ slug, dashboard }) {
     // The one that has already been wrong once in this product's life: a
     // number PRINTED is not a number CHARGED.
     ok("charged what the price bar printed",
-      `$${Number(row?.total_price).toFixed(2)}` === bar, `bar ${bar}, row ${row?.total_price}`);
+      money(row?.total_price) === bar, `bar ${bar}, row ${row?.total_price}`);
 
     // -----------------------------------------------------------------------
     step("3. both emails leave the building");
@@ -503,15 +568,41 @@ async function loop({ slug, dashboard }) {
         const said = ((await logs("function_logs", t0)) ?? []).map((r) => r.event_message).join("\n");
         const sends = edge.filter((r) => /\/send-email/.test(r.event_message));
         ok("the relay was called twice — one customer, one owner", sends.length >= 2, `${sends.length} call(s)`);
-        // A non-2xx from Resend makes send-email answer non-200 and log
-        // "Resend API error", so these two together are the whole of the
-        // question "did it leave the building".
-        ok("and answered 200 every time", sends.every((r) => / 200 /.test(r.event_message)),
-          sends.map((r) => r.event_message).join(" | "));
-        ok("the provider took it", !/Resend API error|relay failed|relay error/i.test(said),
-          (said.match(/(?:Resend API error|relay (?:failed|error)).*/i) ?? [""])[0]);
+        // THE DAY'S TENANT ALLOWANCE CAN BE SPENT BEFORE THIS RUNS, AND THAT
+        // IS THE BUDGET WORKING — `docs/email-budget.md`. Tenant mail stops at
+        // `email_daily_cap - email_platform_reserve`, `send-email` answers 429
+        // with `"reason":"daily_cap"`, and every question below then has no
+        // answer the day can give: the provider was never called, so "did it
+        // take it" is unanswerable rather than answered no.
+        //
+        // **AND TWO OF THE THREE RED LINES IT PRODUCED WERE WRONG ABOUT WHY.**
+        // "the relay skipped it instead — see send-email's
+        // undeliverable-domain guard" named the wrong guard entirely:
+        // `delivered@resend.dev` is not a reserved domain, it was refused a  // mail-sink: prose about the address declared at the top of this file
+        // budget. A failure with a false diagnosis attached is how a suite
+        // teaches people to scroll past it, which is the disease this whole
+        // file is being repaired for.
+        //
+        // The gate is OUR OWN function log carrying the literal reason, so a
+        // provider failure of any other kind still goes red.
+        const capped = /"reason"\s*:\s*"daily_cap"/.test(said);
+        if (capped) {
+          skipped(2, "the provider leg — today's TENANT email allowance is spent "
+            + "(send-email answered 429 daily_cap). docs/email-budget.md's reserve, working as "
+            + "designed; the platform's own alerts are still reserved. The day rolls at 00:00 UTC.");
+        } else {
+          // A non-2xx from Resend makes send-email answer non-200 and log
+          // "Resend API error", so these two together are the whole of the
+          // question "did it leave the building".
+          ok("and answered 200 every time", sends.every((r) => / 200 /.test(r.event_message)),
+            sends.map((r) => r.event_message).join(" | "));
+          ok("the provider took it", !/Resend API error|relay failed|relay error/i.test(said),
+            (said.match(/(?:Resend API error|relay (?:failed|error)).*/i) ?? [""])[0]);
+        }
         for (const [who, to] of [["customer", CUSTOMER_EMAIL], ["owner", ownerTo]]) {
-          if (undeliverable(to)) {
+          if (capped && !undeliverable(to)) {
+            skipped(1, `whether the ${who}'s email (${to}) reached the provider — same spent allowance`);
+          } else if (undeliverable(to)) {
             // A reserved domain is skipped before the provider, and the relay
             // says so with the recipient and the subject — which is how this
             // can name WHO each email was for without a mailbox to look in.
@@ -531,12 +622,34 @@ async function loop({ slug, dashboard }) {
     // -----------------------------------------------------------------------
     step("4. the slot is held against the next customer");
     // -----------------------------------------------------------------------
+    // AN EMPTY ANSWER IS NOT A NEGATIVE ANSWER — the hollow pass in this file,
+    // found 2026-09-13 while auditing the greens rather than the reds.
+    //
+    // `?? []` turned every failure of `available-slots` into an empty list,
+    // and TWO of this script's most important checks read a MISSING time as
+    // proof of something: *"08:00 is no longer offered"* and *"09:00 is
+    // taken"* are the double-booking guard, and both went GREEN on a list
+    // that came back empty because the call died. The one check that reads a
+    // PRESENT time — *"the cancelled time is offered again"* — was safe all
+    // along, which is why this survived: half the leg really was testing.
+    //
+    // AND IT IS NOT THEORETICAL. Lane C queue item 2 is Andrew hitting this
+    // exact endpoint answering 200 with no days at all, three months running,
+    // on a live tenant. Roughly 1.1% of this project's REST calls come back
+    // 504 (`FOUND.md` § THE "GATEWAY TIMEOUT" IS OUR OWN CATCH BLOCK), so an
+    // empty list here is a thing that happens rather than a thing to imagine.
+    //
+    // So the read is asserted where it is made, once, instead of being read
+    // as three green ticks downstream.
     const slotsOn = async (date) => {
       const r = await fn("available-slots", {
         business_slug: slug, booking_date: date,
         duration_minutes: service.duration_minutes, service_ids: [service.id],
       });
-      return r.data?.slots ?? [];
+      const list = Array.isArray(r.data?.slots) ? r.data.slots : null;
+      ok(`available-slots answered for ${date}`, list !== null,
+        `HTTP ${r.status} — ${JSON.stringify(r.data ?? "").slice(0, 160)}`);
+      return list ?? [];
     };
     let free = await slotsOn(DATE);
     // ROADMAP 2.12's load-bearing fact, established by NOT writing something:

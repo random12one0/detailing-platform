@@ -153,6 +153,12 @@ DOES.** Assert the shared constant, the component, or a computed value.
 - **The live domain is not publishing** (Netlify credits). `detailingplatform.com`
   answers 200 for every URL because of `_redirects`, so it is evidence of
   nothing — the bundle hash is the only honest answer.
+- **The Netlify site is UNLINKED from the GitHub repo ON PURPOSE — Andrew
+  unlinked it himself, 2026-09-13.** Publishing is manual and his alone, and a
+  push spends no credits building. **It is not a fault, do not "fix" it, do not
+  reconnect it and do not advise him to.** Deploys go out by hand through the
+  connector, which uploads the build straight to Netlify and works *because* the
+  repo is unlinked.
 - **No direction-generating design skill** runs against this product; appliers
   and auditors only. **There is one ground — the light theme is dead.**
 - **Open-Meteo is banned**: its free tier is non-commercial and this is a

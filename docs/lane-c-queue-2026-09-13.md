@@ -601,3 +601,52 @@ the owner-account guard and the email-cap figures on the screen.
   bug — and the material is in the triage file ready to be lifted. **Lane M's
   call.**
 - Everything in the three earlier OWED sections above is unchanged.
+
+---
+
+## WAVE OF 2026-09-13 — `scripts/e2e-booking.mjs`, RED FOR TWO DAYS, NOW GREEN
+
+**Full account: `docs/e2e-booking-triage-2026-09-13.md`.** In one paragraph:
+**65 passed / 15 failed** at `36dd489` on a quiet tree, and **not one failure
+was a product defect.** Ten were stale checks with three root causes, all three
+being deliberate product changes nobody updated the check for; six were the
+day's tenant email allowance being spent, which is the reserve working.
+
+- **The money four** — `lib/format.js` has printed `$105` rather than `$105.00`
+  since 2026-09-11; the check demanded the cents. It now imports the product's
+  own `money()` instead of keeping a second copy of the rule.
+- **The name five** — the details step's heading became "Your details" on
+  2026-09-12 and the script keyed its name-vs-address decision on the old
+  wording, so the customer was called "140 Market Street, Long Beach, CA". That
+  ONE line took out four more checks, and **all four named the detailer's
+  dashboard, which was never at fault.** It fills by `autocomplete` token now,
+  and a new check goes red if the name box is not found.
+- **The tenth** — `FOUND.md` guessed trap (e) then trap (f); it is **neither**.
+  `count()` does not auto-wait and `getAttribute()` does, so on a slow
+  `available-slots` the check reads zero cells and then prints the class of the
+  perfectly good cell it just missed. Intermittent, caught passing and failing
+  on the same commit an hour apart. Fixed by waiting for the grid.
+- **The email six** — `send-email` answered 429 `daily_cap`. Two of the three
+  red lines carried a FALSE diagnosis, naming the undeliverable-domain guard
+  for mail that was refused a budget. They **skip loudly** now, and the summary
+  line carries a skipped count so a skip can never read as a pass.
+
+### AND THE GREENS WERE AUDITED TOO — one hollow pass, and it was the big one
+
+`slotsOn()` ended `?? []`, so **every failure of `available-slots` became an
+empty list**, and the two checks that read a MISSING time as proof — *"08:00 is
+no longer offered"* and *"09:00 is taken"*, which together are the
+double-booking guard — went green on a call that died. **Item 2 of this very
+file is Andrew watching that endpoint answer 200 with no days at all.** The read
+is asserted where it is made now.
+
+## OWED, AND NOT LANE C's TO DECIDE
+
+- **THE EMAILS PRINT `$150.00` WHERE THE PAGE PRINTED `$150`.** Captured live in
+  this run's own subject line. `supabase/functions/_shared/emailKit.ts:154` is a
+  **second money formatter** that never got the 2026-09-11 decision, which said
+  it was *"safe to apply everywhere at once"*. It is lane C's folder but it is
+  its own item: nineteen edge functions import `money`, and it needs a deploy,
+  `check-deployed.mjs`, and the email fixtures re-rendered. **Not folded into
+  this commit, on purpose.**
+- Everything in the four earlier OWED sections above is unchanged.
