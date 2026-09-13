@@ -47,7 +47,7 @@
 // cannot reach a state reports clean on it.
 //
 // IT MAKES REAL BOOKINGS AND THEN DELETES THEM. The customer address is
-// Resend's own `delivered@resend.dev` simulator — the same address roadmap 0.3
+// Resend's own `delivered@resend.dev` simulator — the same address roadmap 0.3  // mail-sink: prose about the declared real send below
 // used to prove the reminder sweep — so the customer email is genuinely
 // accepted by the provider at no cost to the sending reputation the live
 // business shares. The owner alert goes to each tenant's contact address,
@@ -61,6 +61,7 @@
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import { reportSourceMoved, watchSource } from "./source-guard.mjs";
+import { realMail } from "../tests/_mail.mjs";
 
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
@@ -85,8 +86,13 @@ const ONLY = process.argv.find((a) => a.startsWith("--slug="))?.slice(7);
 // Resend's delivery simulator. Reputation-free and, unlike a reserved domain,
 // it goes all the way to the provider — which is the difference between "the
 // relay was called" and "the email left the building".
+// **THIS IS THE ONE SCRIPT IN THE REPO THAT SPENDS REAL MAIL ON PURPOSE, AND
+// IT NOW SAYS SO EVERY RUN.** `realMail` prints the address and the reason;
+// `--to=` still overrides it, and `--to=e2e@fixture.test` runs the whole pass
+// for free with the provider leg deliberately unproven.
 const CUSTOMER_EMAIL = process.argv.find((a) => a.startsWith("--to="))?.slice(5)
-  ?? "delivered@resend.dev";
+  ?? realMail("delivered@resend.dev",
+    "the whole point of this pass is that the email leaves the building; --to=e2e@fixture.test runs it free");
 // Far enough out to clear both tenants' cancellation windows (24h and 48h)
 // with room. A booking inside the window is refused by the server AND the
 // receipt page does not draw the buttons, so the last two legs would report a
@@ -94,7 +100,7 @@ const CUSTOMER_EMAIL = process.argv.find((a) => a.startsWith("--to="))?.slice(5)
 const MIN_LEAD_DAYS = 3;
 
 const TENANTS = [
-  { slug: "demo-detail", dashboard: { email: "demo@detailplatform.com", password: "demo123" } },
+  { slug: "demo-detail", dashboard: { email: "demo@detailplatform.com", password: "demo123" } },  // mail-sink: a dashboard login, never a recipient
   { slug: "demo-riverside", dashboard: null },
 ].filter((t) => !ONLY || t.slug === ONLY);
 

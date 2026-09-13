@@ -397,14 +397,14 @@ console.log("test 9: email addressing routes per business, never cross-tenant");
     accent: "#38E08B", accentFill: "#38E08B", accentInk: "#0b1220",
     googleReviewUrl: null, yelpReviewUrl: null,
   });
-  const aAddr = m.buildAddressing(brandOf(A), "bookings@detailplatform.com");
-  const bAddr = m.buildAddressing(brandOf(B), "bookings@detailplatform.com");
+  const aAddr = m.buildAddressing(brandOf(A), "bookings@detailplatform.com");  // mail-sink: an argument to buildAddressing, never a recipient
+  const bAddr = m.buildAddressing(brandOf(B), "bookings@detailplatform.com");  // mail-sink: an argument to buildAddressing, never a recipient
   check("A mail replies to A's owner", aAddr.replyTo === "owner-a@engine.test" && aAddr.ownerTo === "owner-a@engine.test");
   check("B mail replies to B's owner", bAddr.replyTo === "owner-b@engine.test");
   check("display names carry each brand", aAddr.from.includes("Engine Test Detailing A") && bAddr.from.includes("Engine Test Detailing B"));
 
   const data = {
-    id: "x", customerName: "C", customerPhone: "5", customerEmail: "c@x.com", customerAddress: null,
+    id: "x", customerName: "C", customerPhone: "5", customerEmail: "c@x.com", customerAddress: null,  // mail-sink: a pure-function fixture, never a recipient
     dateStr: D1, startTime: "10:00", endTime: "12:00", serviceType: "dropoff", vehicleSize: "small",
     vehicleModel: null, customerNotes: null, serviceNames: ["S"], addOnNames: [], subtotal: 1,
     siteDiscount: 0, siteDiscountPercent: 0, promoCode: null, promoDiscount: 0, total: 1,

@@ -698,7 +698,7 @@ for (const w of SIZES) {
     // whole script exists to disbelieve.** So the page is walked in a
     // throwaway signed-out context of its own, per width, and this block —
     // which is genuinely signed out — is where that happens.
-    await page.fill("input[type=email]", "demo@detailplatform.com");
+    await page.fill("input[type=email]", "demo@detailplatform.com");  // mail-sink: a dashboard login, never a recipient
     // Must match scripts/seed-demo.mjs, same as shoot-dashboard.mjs.
     await page.fill("input[type=password]", "demo123");
     await page.click("form button.btn.primary");

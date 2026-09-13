@@ -30,6 +30,7 @@
 //   node tests/promo-checkout.test.mjs        (§ 1 and § 2 are credential-free)
 
 import "./_env.mjs";           // root .env -> process.env, before anything reads it
+import { sink } from "./_mail.mjs";  // fixture recipients never cost real mail
 import { readFileSync } from "node:fs";
 import {
   applyPromo,
@@ -403,7 +404,11 @@ if (!URL_ || !SERVICE || !ANON) {
   const SLUG = `promo-fixture-${tag}`;
   const CODE = `P${tag.toUpperCase()}`;
   const OWNER = {
-    email: `promo-${tag}@detailplatform.com`,
+    // The fixture business's `contact_email` too (below), so every owner
+     // alert this suite provokes lands on the sink. The login half costs
+     // nothing either way: `mailer_autoconfirm` is on and no custom SMTP is
+     // configured, so a signup sends no mail at all.
+    email: sink(`promo-${tag}`),
     password: `Aa1!${Math.random().toString(36).slice(2)}`,
   };
   let userId = null;

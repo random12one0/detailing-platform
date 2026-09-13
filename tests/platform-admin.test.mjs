@@ -902,7 +902,7 @@ console.log("\n13. the back office's own door (roadmap 8.2)");
 
   // ── THE ONE THAT WOULD HAVE BEEN A REAL HOLE ─────────────────────────
   // Found 2026-09-07 while doing the rest of this item: two scripts carried a
-  // FIXED password for `shoot-admin@detailplatform.com`, created it on the
+  // FIXED password for `shoot-admin@detailplatform.com`, created it on the  // mail-sink: prose about a login; autoconfirm is on so a signup sends nothing
   // live platform project, added it to `platform_admins` and left it there —
   // in a PUBLIC repository. CLAUDE.md already had the sentence and it had only
   // ever been applied to the demo detailer: *"making demo@… an admin would put

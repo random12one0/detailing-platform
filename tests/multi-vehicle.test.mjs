@@ -27,6 +27,7 @@
 //       passing one.)
 
 import { readFileSync, readdirSync, existsSync } from "node:fs";
+import { sink } from "./_mail.mjs";  // fixture recipients never cost real mail
 import {
   computeQuote, extraVehicleMinutes, resolveVehicles, vehicleMinutes, vehicleSizeFee,
 } from "../supabase/functions/_shared/pricing.ts";
@@ -439,7 +440,7 @@ console.log("6. the deployed functions");
         } else {
           const b = await fn("create-booking", {
             customer_name: "Multi-vehicle test", customer_phone: "5550000810",
-            customer_email: "delivered@resend.dev", customer_address: "1 Test Way",
+            customer_email: sink("multi-vehicle"), customer_address: "1 Test Way",
             service_type: "mobile", vehicle_size: small, vehicle_model: "Civic",
             extra_vehicles: [{ size: big, model: "F-150" }],
             service_ids: [svc.id], add_ons: [],
@@ -487,7 +488,7 @@ console.log("6. the deployed functions");
           } else {
             const person = {
               customer_name: "Split test", customer_phone: "5550000811",
-              customer_email: "delivered@resend.dev", service_type: "mobile",
+              customer_email: sink("multi-vehicle-split"), service_type: "mobile",
               service_ids: [svc.id], add_ons: [],
             };
             const a = await fn("create-booking", {

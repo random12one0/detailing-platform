@@ -53,8 +53,8 @@ console.log("1. what the park actually does");
   };
   const A = await import("../app/src/lib/accounts.js");
 
-  const one = { user: { id: "u1", email: "a@x.com" }, access_token: "at1", refresh_token: "rt1" };
-  const two = { user: { id: "u2", email: "b@x.com" }, access_token: "at2", refresh_token: "rt2" };
+  const one = { user: { id: "u1", email: "a@x.com" }, access_token: "at1", refresh_token: "rt1" };  // mail-sink: a fake session object, never a recipient
+  const two = { user: { id: "u2", email: "b@x.com" }, access_token: "at2", refresh_token: "rt2" };  // mail-sink: a fake session object, never a recipient
 
   check("1a · an empty park lists nothing", A.listAccounts().length === 0);
   A.parkCurrent(one, "biz-1");

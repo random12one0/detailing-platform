@@ -35,6 +35,7 @@
 //   node tests/dead-mans-switch.test.mjs      (§ 1 and § 3 are credential-free)
 
 import "./_env.mjs";           // root .env -> process.env, before anything reads it
+import { sink, realMail } from "./_mail.mjs";
 import { readFileSync } from "node:fs";
 
 const URL_ = process.env.SUPABASE_URL;
@@ -269,7 +270,9 @@ if (!URL_ || !SERVICE) {
   const spentRow = (await rest(`platform_email_days?day=eq.${today}&select=sent`)
     .then((r) => r.json()))[0];
   const spent = (spentRow?.sent ?? 0) >= (settingsBefore?.email_daily_cap ?? 100);
-  const ALERT_TO = spent ? "watcher@example.com" : "delivered@resend.dev";
+  const ALERT_TO = spent
+    ? sink("watchdog")
+    : realMail("delivered@resend.dev", "§ 2 proves the watchdog's PROVIDER leg, not just the relay");
   if (spent) {
     console.log(`  NOT MEASURED  the provider leg — ${spentRow?.sent} emails sent today against a`
       + ` cap of ${settingsBefore?.email_daily_cap}. The relay is exercised, Resend is not.`);

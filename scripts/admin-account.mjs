@@ -12,7 +12,7 @@
 // still a password in a public file.
 //
 // CLAUDE.md already had the rule and it was only ever applied to the demo:
-// *"Making `demo@detailplatform.com` an admin would put every detailer's data
+// *"Making `demo@detailplatform.com` an admin would put every detailer's data  // mail-sink: prose
 // behind `demo123`."* A screenshot script is the same sentence with a longer
 // password.
 //
@@ -34,7 +34,7 @@
 // account"* it read as a permissions problem rather than a length one.
 const rnd = () => `A1!${crypto.randomUUID()}`;
 
-export async function makeAdmin(URL_, KEY, email = "shoot-admin@detailplatform.com") {
+export async function makeAdmin(URL_, KEY, email = "shoot-admin@detailplatform.com") {  // mail-sink: a login; autoconfirm is on and no custom SMTP, so no mail
   const H = { apikey: KEY, Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" };
   const password = rnd();
   const made = await fetch(`${URL_}/auth/v1/admin/users`, {

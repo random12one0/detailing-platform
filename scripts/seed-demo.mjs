@@ -28,8 +28,8 @@ const TZ = "America/Los_Angeles";
 // guesses one can do is scribble on fake data.
 // **Change these before there is a single real customer.** See DECISIONS.md,
 // "A guessable demo login, on purpose and temporarily".
-const OWNER = { email: "demo@detailplatform.com", password: "demo123" };
-const STAFF = { email: "demo-staff@detailplatform.com", password: "staff123" };
+const OWNER = { email: "demo@detailplatform.com", password: "demo123" };  // mail-sink: a login; autoconfirm is on and no custom SMTP, so no mail
+const STAFF = { email: "demo-staff@detailplatform.com", password: "staff123" };  // mail-sink: a login; autoconfirm is on and no custom SMTP, so no mail
 
 const H = {
   apikey: SERVICE, Authorization: `Bearer ${SERVICE}`,
@@ -997,7 +997,7 @@ await post("/rest/v1/blockout_dates", [{
 // The back office can see EVERY tenant, so the account that reaches it is the
 // most valuable credential in the product — and the demo login is deliberately
 // guessable and sits on the live site (DECISIONS.md, "A guessable demo login,
-// on purpose and temporarily"). **Making `demo@detailplatform.com` an admin
+// on purpose and temporarily"). **Making `demo@detailplatform.com` an admin  // mail-sink: prose
 // would put every detailer's data behind `demo123`.** So this is a separate
 // account, off by default, with a RANDOM password that exists only in the
 // gitignored refs file beside the ids the sweeps already read from it.
@@ -1012,7 +1012,7 @@ await post("/rest/v1/blockout_dates", [{
 // seven fixes nobody has independently checked.
 //
 // **THIS REVERSES A DECISION THIS FILE USED TO CARRY**, and the old reasoning is
-// three paragraphs below: *"Making `demo@detailplatform.com` an admin would put
+// three paragraphs below: *"Making `demo@detailplatform.com` an admin would put  // mail-sink: prose
 // every detailer's data behind `demo123`."* That was right and it is still right
 // ABOUT A REAL DATABASE. It is his call to make for a database whose every
 // business is a fixture, and the guard below is what keeps the two apart.
@@ -1053,7 +1053,7 @@ const LIVE_BUSINESS_REF = "adtlnvihwrcqcasqcjwd";   // never, under any flag
 let adminCreds = null;
 if (process.argv.includes("--platform-admin")) {
   const password = `a${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}A1!`;
-  const email = "demo-admin@detailplatform.com";
+  const email = "demo-admin@detailplatform.com";  // mail-sink: a login; autoconfirm is on and no custom SMTP, so no mail
   await fetch(`${URL_}/auth/v1/admin/users`, {
     method: "POST", headers: H,
     body: JSON.stringify({ email, password, email_confirm: true }),

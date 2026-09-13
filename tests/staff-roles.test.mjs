@@ -6,6 +6,7 @@
 //   node tests/staff-roles.test.mjs
 
 import "./_env.mjs";           // root .env -> process.env, before anything reads it
+import { sink } from "./_mail.mjs";  // fixture recipients never cost real mail
 
 const URL_ = process.env.SUPABASE_URL;
 const SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -378,7 +379,7 @@ console.log("test 14: answering a booking request is a tick");
 {
   const pending = (await svc.post("/rest/v1/bookings", [{
     business_id: biz.id, customer_name: "Asker", customer_phone: "555-9100",
-    customer_email: "delivered@resend.dev",
+    customer_email: sink("staff-roles"),
     start_at: "2026-11-05T18:00:00Z", end_at: "2026-11-05T20:00:00Z",
     service_type: "mobile", status: "pending",
     total_price: 100, subtotal: 100, final_amount: 100,

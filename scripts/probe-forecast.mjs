@@ -86,12 +86,12 @@ console.log("\n3 · the deployed `forecast` function");
     const auth = await fetch(`${URL_}/auth/v1/token?grant_type=password`, {
       method: "POST",
       headers: { "Content-Type": "application/json", apikey: ANON },
-      body: JSON.stringify({ email: "demo@detailplatform.com", password: "demo123" }),
+      body: JSON.stringify({ email: "demo@detailplatform.com", password: "demo123" }),  // mail-sink: a dashboard login, never a recipient
     }).then((r) => r.json()).catch(() => ({}));
 
     if (!auth.access_token) {
       skipped += 1;
-      console.log("  SKIPPED — could not sign in as demo@detailplatform.com; the signed-in");
+      console.log("  SKIPPED — could not sign in as demo@detailplatform.com; the signed-in");  // mail-sink: prose in a SKIPPED line
       console.log("            half of this probe did not run.");
     } else {
       const good = await call({ lat: LAT, lon: LON }, auth.access_token);

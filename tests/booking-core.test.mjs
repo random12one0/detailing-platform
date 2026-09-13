@@ -366,7 +366,7 @@ const svc = (id, extra = {}) => ({ id, name: id, price: 100, duration_minutes: 6
     ...initialForm({ vehicle_sizes: [{ key: "compact" }] }, null),
     serviceIds: ["s1"], addOns: ["a1"], serviceType: "mobile", travelZone: "far",
     bookingDate: "2026-09-20", startTime: "09:00",
-    customerName: " Marcus ", customerPhone: " 555 ", customerEmail: " m@e.com ",
+    customerName: " Marcus ", customerPhone: " 555 ", customerEmail: " m@e.com ",  // mail-sink: a pure-function fixture; core.js sends nothing
     customerAddress: " 1 Main St ", vehicleModel: " Civic ", vehicleCondition: "heavy",
     customerNotes: "  ", hasWater: true, hasPower: false,
   };
@@ -440,7 +440,7 @@ const svc = (id, extra = {}) => ({ id, name: id, price: 100, duration_minutes: 6
 
   check("an empty device remembers nobody", recallCustomer("acme", fake) === null);
   rememberCustomer("acme", {
-    customerName: " Marcus ", customerEmail: " m@e.com ", customerPhone: " 555 ",
+    customerName: " Marcus ", customerEmail: " m@e.com ", customerPhone: " 555 ",  // mail-sink: a pure-function fixture; core.js sends nothing
   }, "plan-1", fake);
   const got = recallCustomer("acme", fake);
   // **THREE FIELDS AND NO PLAN — corrected 2026-09-11, and this line used to
@@ -451,7 +451,7 @@ const svc = (id, extra = {}) => ({ id, name: id, price: 100, duration_minutes: 6
   // check already says the principle out loud — a name may carry over, a PLAN
   // may not — it had simply scoped it per business and never per booking.
   check("three fields come back",
-    got.name === "Marcus" && got.email === "m@e.com" && got.phone === "555");
+    got.name === "Marcus" && got.email === "m@e.com" && got.phone === "555");  // mail-sink: a pure-function fixture; core.js sends nothing
   check("AND THE PLAN DOES NOT", got.planId === undefined,
     "a price must never come out of the customer's own storage");
   check("A DIFFERENT BUSINESS GETS NOTHING", recallCustomer("other", fake) === null,

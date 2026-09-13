@@ -24,7 +24,7 @@
 //
 // ONE RESEND CONSTRAINT THAT WILL BITE, and it is documented in DECISIONS.md
 // ("Phase 0 — 0.2 email"): the platform and the live business share one Resend
-// account, whose verified sender is `bookings@email.detailingplatform.com`.
+// account, whose verified sender is `bookings@email.detailingplatform.com`.  // mail-sink: prose about the From: header, not a recipient
 // Sending is fine, but **these sends accumulate against the same reputation as
 // Andrew's Auto Detail's real customer mail.** Send a handful to check a
 // rendering; do not loop.

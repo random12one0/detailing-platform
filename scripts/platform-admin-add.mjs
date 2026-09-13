@@ -1,6 +1,6 @@
 // ROADMAP 8.2 — GIVE A REAL PERSON THE KEY TO THE BACK OFFICE.
 //
-//   node --env-file=.env scripts/platform-admin-add.mjs andrew@detailingplatform.com
+//   node --env-file=.env scripts/platform-admin-add.mjs andrew@detailingplatform.com  // mail-sink: prose in the usage line
 //   node --env-file=.env scripts/platform-admin-add.mjs <email> --no-email
 //
 // **THE BACK OFFICE HAS NO WAY TO ADD AN ADMIN AND DELIBERATELY NEVER WILL.**

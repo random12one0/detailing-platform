@@ -206,7 +206,7 @@ for (const [w, h] of WIDTHS) {
   // Sign in through the real form, so the form itself is exercised too.
   await page.waitForSelector("input[type=email], .tabbar", { timeout: 20000 });
   if (await page.locator("input[type=email]").count()) {
-    await page.fill("input[type=email]", "demo@detailplatform.com");
+    await page.fill("input[type=email]", "demo@detailplatform.com");  // mail-sink: a dashboard login, never a recipient
     // Must match scripts/seed-demo.mjs. It did NOT for a while: the demo
     // login was simplified to demo123 in commit 1f3f945 and this line kept
     // the old password, so this script — the one thing that opens the

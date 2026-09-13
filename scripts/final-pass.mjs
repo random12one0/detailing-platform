@@ -26,6 +26,7 @@
 
 import { readFileSync, mkdirSync } from "node:fs";
 import { createRequire } from "node:module";
+import { sink } from "../tests/_mail.mjs";  // fixture recipients never cost real mail
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
 for (const line of readFileSync(new URL("../.env", import.meta.url), "utf8").split(/\r?\n/)) {
@@ -51,8 +52,8 @@ const api = async (path, init = {}) => {
 };
 
 const SLUG = "final-pass-fixture";
-const OWNER = { email: "final-owner@detailplatform.com", password: `Aa1!${Math.random().toString(36).slice(2)}` };
-const STAFF = { email: "final-staff@detailplatform.com", password: `Aa1!${Math.random().toString(36).slice(2)}` };
+const OWNER = { email: sink("final-owner"), password: `Aa1!${Math.random().toString(36).slice(2)}` };
+const STAFF = { email: sink("final-staff"), password: `Aa1!${Math.random().toString(36).slice(2)}` };
 
 // ── the fixture ────────────────────────────────────────────────────────────
 async function userFor({ email, password }) {
