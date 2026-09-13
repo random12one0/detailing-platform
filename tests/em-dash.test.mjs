@@ -131,10 +131,15 @@ const files = walk(ROOT);
 const findings = [];
 let allowed = 0;
 
+let codeLines = 0;
+let quoted = 0;
+
 for (const file of files) {
   const state = { block: false, log: 0 };
   readFileSync(file, "utf8").split("\n").forEach((line, i) => {
     const l = code(line, state);
+    if (l.trim()) codeLines++;
+    if (/["'`]/.test(l)) quoted++;
     if (!/\u2014|&mdash;/.test(l)) return;
     const key = `${file}:${line.trim()}`;
     if (ALLOW.has(key)) { allowed++; return; }
@@ -148,6 +153,25 @@ console.log(`em-dash: ${allowed} sanctioned parenthetical pair(s) in ALLOW`);
 
 if (files.length < 50) {
   console.error(`FAIL: only ${files.length} files walked — the scanner is not reaching the tree`);
+  process.exit(1);
+}
+
+// COUNTING FILES IS NOT COUNTING CONTENT - 2026-09-13.
+//
+// This is a FINDER: zero findings is its pass. So it passes over an EMPTY
+// corpus, and the file count above cannot tell an empty file from a full one.
+// Measured: with all 67 files truncated to zero bytes it still printed
+// "scanned 67 files" and "0 findings - PASS". A finder that has read nothing
+// reports exactly what a clean tree reports.
+//
+// So the subject counted is the LINES it actually looked at, and the quoted
+// ones in particular, because an em dash in user-facing text can only live
+// inside a string.
+console.log(`em-dash: ${codeLines} code line(s), ${quoted} carrying a quote`);
+if (codeLines < 5000 || quoted < 1000) {
+  console.error(
+    `FAIL: only ${codeLines} code lines and ${quoted} quoted - the files were walked but not READ.`);
+  console.error("      A finder passes over an empty corpus; this is the guard against that.");
   process.exit(1);
 }
 

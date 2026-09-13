@@ -97,6 +97,13 @@ console.log("test 3: catalogue — 2 services vs 7, no overlap at all");
   check("B lists exactly 7 services", b.services?.length === 7, String(b.services?.length));
   const aNames = new Set(a.services.map((s) => s.name));
   const bNames = new Set(b.services.map((s) => s.name));
+  // THE ANCHOR. Every check in this block is a NEGATIVE -- no shared name, no
+  // shared id, no group label on A -- and a negative over an empty list is
+  // `true`. A tenant that returned zero services (a bad slug, a failed profile
+  // read, a seed that did not run) proved perfect isolation. 2026-09-13.
+  check("both tenants returned services, so the isolation checks have subjects",
+    a.services.length > 0 && b.services.length > 0,
+    `A ${a.services.length} · B ${b.services.length}`);
   const shared = [...aNames].filter((n) => bNames.has(n));
   check("no service name appears on both", shared.length === 0, shared.join(", "));
   const aIds = new Set(a.services.map((s) => s.id));

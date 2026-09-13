@@ -682,6 +682,16 @@ console.log("test 16: a service carries its own availability");
     start_date: tue, end_date: thu, service_ids: [garage.id],
   });
   const days = slots.data?.days ?? {};
+  // THE ANCHOR, AND WITHOUT IT BOTH CHECKS BELOW WERE INCAPABLE OF FAILING --
+  // 2026-09-13. `?? {}` turns a dead or erroring `available-slots` into an
+  // empty object, and **`.every()` over an empty collection is `true`**. So a
+  // completely broken availability service made the display half of the
+  // double-validation pattern go GREEN, which is the same shape as
+  // `e2e-booking`'s `slotsOn() ?? []` and is the more expensive one: this pair
+  // is what proves a greyed-out day agrees with a refused booking.
+  check("available-slots answered at all, so the two checks below have subjects",
+    slots.status === 200 && Object.keys(days).length === 3,
+    `${slots.status} · ${Object.keys(days).length} day(s) for ${tue}..${thu}`);
   check("available-slots closes the days the service is not offered on",
     Object.entries(days).every(([d, v]) => [2, 3].includes(new Date(`${d}T12:00:00`).getDay()) || !v.open),
     JSON.stringify(Object.keys(days).map((d) => `${d}:${days[d].open}`)));

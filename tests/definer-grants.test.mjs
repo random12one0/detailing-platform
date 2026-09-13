@@ -241,4 +241,24 @@ if (!TOKEN || !REF) {
 }
 
 console.log(`\n${passed} passed, ${failed} failed, ${skipped} skipped`);
+
+// A SUITE THAT RAN NOTHING MUST NOT EXIT 0 - 2026-09-13.
+//
+// Every SKIP above prints "this check proved NOTHING", which is honest to a
+// person reading the output. It was not honest to anything reading the EXIT
+// CODE: with no `SUPABASE_ACCESS_TOKEN` this file asserted zero things about
+// who can execute a `security definer` function and exited 0, which is
+// indistinguishable from a clean bill. That is this repo's oldest recorded
+// failure - a skipped check reading exactly like a passing one - in the one
+// suite whose subject is who can reach a detailer's data.
+//
+// Deliberately narrower than "exit 1 on any skip": a partial run still proved
+// something. Only a run that measured NOTHING is a failure.
+if (!failed && passed === 0) {
+  console.error("");
+  console.error("FAIL  this run measured NOTHING - every check was skipped for want of credentials.");
+  console.error("      Run: set -a; . ./.env; set +a   -- then run this again.");
+  console.error("      Exiting 1 so a green exit code cannot be mistaken for a clean bill.");
+  process.exit(1);
+}
 process.exit(failed ? 1 : 0);

@@ -141,6 +141,13 @@ console.log("1. the catalogue and the call sites agree");
 // ─── 2. What a bad translation looks like from the outside ────────────────
 console.log("2. the failures a person who cannot read it would never see");
 {
+  // THE ANCHOR THIS SECTION HAD GONE WITHOUT, and § 9 below already had one
+  // ("9b - the check has subjects"). Every check here filters
+  // `Object.entries(es)` and asserts the result is empty, so an es catalogue
+  // that failed to load -- or that somebody emptied -- passed all five.
+  // 2026-09-13.
+  check("2a-0 - the check has subjects, the booking catalogue was read",
+    Object.keys(es).length > 100, `${Object.keys(es).length} keys`);
   const same = Object.entries(es).filter(([k, v]) => k === v);
   // A handful of words are genuinely identical in both languages. Naming them
   // is cheaper than a rule, and the list is short enough to read.
