@@ -392,7 +392,14 @@ export function brandVarsFor(brandHex) {
 // booking page passes them separately and its constants say why. Getting the
 // ground wrong is the exact bug this file exists to prevent, so neither is
 // allowed to be implicit.
-function accentTriple(brandHex, bg, textBg = bg) {
+// EXPORTED 2026-09-13 for the website brief's live preview, which paints a
+// drawn page on a ground that is neither the dashboard's nor the booking
+// page's — the detailer picks dark or light in the brief itself, so the
+// ground is an argument there and no existing wrapper can supply it. It is
+// exported rather than copied for the reason the comment above already gives:
+// the ink guard is the detail that goes wrong when somebody reimplements it,
+// and law 11 says this file is the only one allowed to compute colour.
+export function accentTriple(brandHex, bg, textBg = bg) {
   const accent = correctAccent(brandHex, bg);      // a FILL — 3:1
   let ink = inkFor(accent);                        // what is drawn ON that fill
   if (contrastRatio(accent, ink) < MIN_INK_CONTRAST) {

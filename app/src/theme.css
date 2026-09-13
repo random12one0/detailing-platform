@@ -3947,11 +3947,22 @@ button.warn-box:hover { border-color: var(--fog-2); }
    written on an invoice from the sign shop. Both write the same value. */
 .intake .colours { display: grid; gap: 8px; margin-top: 10px; justify-items: start; }
 .intake .colourrow { display: flex; gap: 8px; align-items: center; width: 100%; }
+/* **BOTH CONTROLS IN THIS ROW WERE UNDER THE 44px FLOOR AND NEITHER WAS
+   NOTICED — found 2026-09-13 while sweeping the brief, and they pre-date that
+   work.** The swatch was 42x40 painted. The remove button was worse and worse
+   in a way a single measurement hides: `.btn.icon` carries no `flex: none`, so
+   it was whatever the row had left over — **38.6px wide at 1440 and 32.4px at
+   392**, which is a control that gets smaller the more it is needed. A
+   replaced element takes no `::after`, so the swatch grows rather than
+   reaching; the button only needed to stop shrinking. Scoped to this row, not
+   to `.btn.icon` as a class — PRODUCT.md's standing note about reopening a
+   shared exception with the owner rather than in passing. */
 .intake .colourrow input[type=color] {
-  flex: none; width: 42px; height: 40px; padding: 2px; cursor: pointer;
+  flex: none; width: var(--tap); height: var(--tap); padding: 2px; cursor: pointer;
   background: var(--ink-0); border: 1px solid var(--line);
   border-radius: var(--r-inset); corner-shape: var(--corner);
 }
+.intake .colourrow .btn.icon { flex: none; min-width: var(--tap); min-height: var(--tap); }
 .intake .colourrow .intakeinput { margin-top: 0; }
 
 /* THE UPLOAD. Two thirds of real detailers' sites have no before-and-after
@@ -4058,6 +4069,162 @@ html:not(.lite) .intake .samp-move .samp-hero h4 { animation: samp-rise 7s ease-
 html:not(.lite) .intake .samp-move .samp-row { animation: samp-rise 7s ease-in-out infinite; }
 html:not(.lite) .intake .samp-move .samp-row:nth-child(2) { animation-delay: .25s; }
 html:not(.lite) .intake .samp-move .samp-row:nth-child(3) { animation-delay: .5s; }
+
+/* ══ THE PAGE THEY ARE BUILDING, WHILE THEY ARE STILL ANSWERING ════════════
+   2026-09-13. The brief already had one question per screen, a progress rule,
+   its own answer count, drawn previews of five real sites and a skip on every
+   optional step — it was the best-structured long form in the product and it
+   still read as a questionnaire, because **the thing being made was never on
+   screen.** This is that one idea and not twenty-one redesigns.
+
+   IT IS THE `.samp` PAGE THAT WAS ALREADY HERE, fed from the answers. A
+   second preview component is how one product comes to have two answers for
+   what a website looks like.
+
+   THE PANEL IS A `.disclose`, WHICH THE PRODUCT ALREADY OWNS — native
+   <details>, a 44px summary, the same +/- it uses everywhere else. Open by
+   default, because a preview nobody opens is not a preview; foldable,
+   because a phone is 844px tall and the questions are underneath it.        */
+/* THE WRAPPER EXISTS SO THE PREVIEW CAN BE A SIBLING OF THE WHOLE FORM RATHER
+   THAN A ROW INSIDE IT, and it repeats `.group`'s own layout exactly so
+   nothing moves at any width below the desk breakpoint. `flex: 1` is what
+   keeps `.setupfoot { margin-top: auto }` pinning Continue to the bottom —
+   that rule needs a tall flex parent and the wrapper is now that parent. */
+.intake .intakebody {
+  display: flex; flex-direction: column; gap: var(--sp-5); flex: 1; min-width: 0;
+}
+/* **IT IS NOT STICKY BELOW 1000px, AND THAT IS A DECISION RATHER THAN AN
+   OVERSIGHT.** A phone is 844px tall and this panel is about 290 of it; pinned
+   there permanently it would take a third of the screen away from the
+   questions for the whole twenty-one steps. What makes that acceptable is that
+   `go()` already does `window.scrollTo(0, 0)` on every Continue, so the
+   detailer lands looking at the page with whatever they just answered drawn
+   into it — the preview is the first thing on every one of the fourteen
+   question steps. Two things would have to be solved before making it stick:
+   the app's `.topbar` is sticky at `top: 0` and the preview route's `.impbar`
+   is too, at a height that wraps; and a pinned strip this tall wants to be a
+   collapsed one, which is a different component. Recorded so the next session
+   can weigh it rather than rediscover it. */
+.intake .livesite { margin-top: 0; }
+.intake .livebody {
+  background: var(--ink-1); border: 1px solid var(--line);
+  border-radius: var(--r-panel); corner-shape: var(--corner);
+  padding: 10px; display: grid; gap: 10px;
+}
+/* A FIXED HEIGHT RATHER THAN AN ASPECT RATIO. The column this sits in is a
+   different width at every breakpoint, and a ratio turns a wide column into a
+   tall picture — at 1440 a 4:3 page would be 309px of a panel whose job is to
+   sit beside the questions rather than to push them down. */
+.intake .livepage {
+  height: 182px; overflow: hidden;
+  border-radius: var(--r-inset); corner-shape: var(--corner);
+}
+.intake .livesays { margin: 0; padding-left: 16px; color: var(--fog); font-size: var(--t-meta); }
+.intake .livesays li { margin: 3px 0; }
+.intake p.livesays { padding-left: 0; margin: 0; }
+
+/* THE TYPE IS BIGGER HERE THAN IN THE CHOICE CARDS, and that is the whole
+   difference between a thumbnail and a preview. The paircards are two options
+   compared side by side at 232px; this one is read. */
+.intake .livepage .samp { font-size: 11px; }
+.intake .livepage .samp-bar b { font-size: 12px; }
+.intake .livepage .samp-bar span,
+.intake .livepage .samp-quote,
+.intake .livepage .samp-foot,
+.intake .livepage .samp-tel { font-size: 11px; }
+/* TWO LINES, CLAMPED. The headline is anchored to the BOTTOM of the hero and
+   grows upward, so a third line does not overflow — it is clipped off the TOP
+   by the hero's own `overflow: hidden` and the detailer reads a headline with
+   its first line missing. Seen at 320 with a thirty-character service area;
+   invisible at 392 and above, which is the whole argument for sweeping the
+   narrow widths rather than reasoning about them. */
+.intake .livepage .samp-hero h4 {
+  font-size: 15px; line-height: 1.12;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+}
+.intake .livepage .samp-facts .samp-row { font-size: 11px; }
+
+/* THE LIVE GROUND WINS OVER THE VARIANT GROUNDS, AND ONLY ONCE THE DETAILER
+   HAS ANSWERED DARK-OR-LIGHT. `.samp-facts` paints its own light ground; an
+   unanswered question follows that rather than fighting it, so this override
+   is absent until H3 is answered. It sits after those rules deliberately:
+   same specificity, later wins. */
+.intake .livepage.grounded .samp { background: var(--sbg); color: var(--stx); }
+.intake .livepage.grounded .samp-bar { border-bottom-color: var(--sline); }
+.intake .livepage.grounded .samp-row { border-bottom-color: var(--sline); }
+.intake .livepage.grounded .samp-facts .samp-hero h4 { color: inherit; }
+
+/* THE DETAILER'S OWN COLOUR, CORRECTED IN `lib/theme.js` AGAINST THE GROUND
+   ABOVE — the fill at 3:1 and the ink on it at 4.5:1, by the same function
+   the booking page and the dashboard use. Unanswered, both fall back to
+   exactly what the fixed sample already paints. */
+.intake .samp-live .samp-cta { background: var(--sac, var(--accent)); color: var(--sink, #06120C); }
+
+.intake .samp-tel { font-style: normal; opacity: .72; flex: none; }
+.intake .samp-tel.on-hero {
+  position: absolute; left: 9px; top: 8px; opacity: 1;
+  background: rgba(0,0,0,.58); color: #fff; padding: 2px 7px; border-radius: 99px;
+}
+.intake .samp-quote { padding: 0 9px 6px; font-style: italic; opacity: .82; flex: none; }
+.intake .samp-foot { padding: 0 9px 8px; opacity: .62; flex: none; }
+
+/* IT JUST CHANGED. One entrance shape at the product's smallest scale - the
+   same translate-and-fade `arrive` uses, transform and opacity only.
+   **ONLY ON THE PIECES A CHIP CHANGES.** A name or a phone number is typed,
+   and re-running this per keystroke would strobe under the detailer's own
+   thumb; watching your own typing appear needs no animation to announce it.
+   `.samp-move`'s headline is deliberately not a subject: its own infinite
+   rise restarts on the same remount and a second `animation` on one element
+   replaces the first rather than joining it. */
+@keyframes samp-pop { from { opacity: 0; transform: translate3d(0, 5px, 0); } }
+html:not(.lite) .intake .samp-live .samp-cta,
+html:not(.lite) .intake .samp-live .samp-body { animation: samp-pop var(--t-reveal) var(--e-out); }
+
+/* **THE LOOPED RISE IS RIGHT IN A CHOICE CARD AND WRONG HERE, AND THAT WAS
+   FOUND BY LOOKING RATHER THAN REASONED.** `samp-rise` holds the headline and
+   the price rows at `opacity: 0` for the first eighth and the last twelfth of
+   its seven-second loop — unmissable as the difference between two options
+   somebody glances at, and unacceptable on the panel showing a detailer their
+   own business name, which would blink out of existence every seven seconds.
+   A screenshot of the Look step caught it with the headline and the first
+   price row both absent.
+   **THE PAN STAYS.** The photograph moving is what "moves as you scroll"
+   looks like, and it hides nothing while it does it — so the answer is still
+   represented honestly and no word is ever invisible. */
+html:not(.lite) .intake .samp-live.samp-move .samp-hero h4,
+html:not(.lite) .intake .samp-live.samp-move .samp-row { animation: none; }
+
+/* AT A DESK IT IS A COLUMN BESIDE THE QUESTIONS, NOT A BAND ABOVE THEM - the
+   form is 560px in a 1440px window, so the room was already there and empty.
+   `:has` scopes the whole two-column layout to the steps that HAVE a preview:
+   the seven that do not keep the centred single column they have today, and a
+   left-aligned form in an off-centre box would be worse than the gutter.
+   `dense` is what lets the questions backfill the column beside a preview
+   that appears earlier in the source. Sticky travels inside its own grid
+   area, which is as tall as the questions are. */
+/* 1000, NOT 1080 — `docs/BAR.md` added 1024 to the standard widths precisely
+   because a laptop with browser chrome and a tablet in landscape live in the
+   hole between 768 and 1440, and that is where a detailer filling this in at a
+   desk actually is. Above 1000 the two columns simply share what there is:
+   both are `minmax(0, …)`, so at a 1024px window they come out about 556 and
+   376 rather than refusing to lay out. */
+@media (min-width: 1000px) {
+  /* 640 + 28 + 432 = 1100, which leaves 23.6% of a 1440px window as gutter
+     and clears `docs/BAR.md`'s 25% floor. At 560 — the width the form keeps
+     on every other step — it was 30%, and at 560 with no preview at all it is
+     61%, which is what this step used to be. The question column is the half
+     that grew: a 432px preview is already wider than the page it draws. */
+  .setupform.intake:has(> .livesite) {
+    max-width: 1100px; display: grid; grid-auto-flow: dense; align-items: start;
+    grid-template-columns: minmax(0, 640px) minmax(0, 432px);
+    column-gap: var(--sp-5); justify-content: center;
+  }
+  .intake:has(> .livesite) > .impbar,
+  .intake:has(> .livesite) > .settings-head { grid-column: 1 / -1; }
+  .intake:has(> .livesite) > .livesite { grid-column: 2; position: sticky; top: var(--sp-4); }
+  .intake:has(> .livesite) > .intakebody { grid-column: 1; }
+  .intake .livepage { height: 236px; }
+}
 
 @media (max-width: 560px) {
   .intake .qhead { display: block; }

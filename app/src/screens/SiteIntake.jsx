@@ -28,7 +28,8 @@ import { ChevronLeft, ExternalLink, X, Check, Plus, Trash2, Mic, Globe } from "l
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { addPhoto } from "../lib/photos.js";
-import { DISLIKED, EITHER, LIKED, STEPS, answered, intakeProgress } from "../lib/siteIntake.js";
+import { ALL, DISLIKED, EITHER, LIKED, STEPS, answered, intakeProgress } from "../lib/siteIntake.js";
+import { accentTriple } from "../lib/theme.js";
 import { t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 
@@ -58,20 +59,65 @@ import { useAppLocale } from "../hooks/useAppLocale.js";
 // this does not get a second one.
 const SAMPLE_PHOTO = "/img/tenant-site-hero.jpg";
 
-function Mini({ kind }) {
+// THE FIXED SAMPLE, WHICH IS STILL THE DEFAULT AND MUST STAY BYTE FOR BYTE
+// WHAT IT WAS. The either/or cards compare two designs, and the rule above is
+// that the only thing which may differ between two options is the thing being
+// asked about — so they pass no `page` and get this.
+const SAMPLE = {
+  mark: "PRIME",
+  nav: ["Work", "Prices"],
+  head: ["Mobile detailing", "across North Seattle"],
+  rows: [["Full detail", "$235"], ["Express wash", "$65"], ["Ceramic coating", "$1,200"]],
+  cta: "Book",
+};
+
+// **THE PAGE IS NOT TRANSLATED AND THAT IS DELIBERATE, not an oversight the
+// next Spanish sweep should close.** It has read this way since the sample was
+// built, and there are two reasons to keep it that way now that it is drawing
+// somebody's real answers:
+//
+//   1. **THE SITE'S LANGUAGE IS A QUESTION ON THIS VERY FORM.** G8 asks
+//      whether the site should be in Spanish too. Drawing the preview in the
+//      DASHBOARD's language would answer G8 for them, in a picture, before
+//      they reach it.
+//   2. **Every word left in it is a stand-in for something the DETAILER will
+//      write** — a headline, a service name, a call to action — and the words
+//      that are already theirs (the name, the towns, the button) come through
+//      untouched, which is CLAUDE.md's fourth axis.
+//
+// Recorded in `FOUND.md` rather than decided silently: a Spanish-speaking
+// detailer does see an English drawing beside a Spanish form, and whether
+// that is right is Andrew's call, not a sweep's.
+function Mini({ kind, page = SAMPLE, live = false, vars }) {
+  const cls = String(kind).trim().split(/\s+/).map((k) => `samp-${k}`).join(" ");
   return (
-    <div className={`samp samp-${kind}`} aria-hidden="true">
-      <div className="samp-bar"><b>PRIME</b><span>Work</span><span>Prices</span></div>
+    <div className={`samp ${cls}${live ? " samp-live" : ""}`} aria-hidden="true" style={vars}>
+      {/* **NO `key` ON ANYTHING SOMEBODY TYPES.** A `key` is what re-runs the
+          pop, and the name, the headline, the number and the quotation all
+          come out of text boxes — re-mounting them per keystroke would strobe
+          under the detailer's own thumb. Watching your own typing appear
+          needs nothing to announce it. Only the two pieces a CHIP changes
+          carry one. */}
+      <div className="samp-bar">
+        <b>{page.mark}</b>
+        {page.nav.map((n) => <span key={n}>{n}</span>)}
+        {page.telAt === "top" && <i className="samp-tel">{page.tel}</i>}
+      </div>
       <div className="samp-hero">
         <img src={SAMPLE_PHOTO} alt="" />
-        <h4>Mobile detailing<br />across North Seattle</h4>
+        <h4>{page.head[0]}{page.head[1] ? <><br />{page.head[1]}</> : null}</h4>
+        {page.telAt === "hero" && <i className="samp-tel on-hero">{page.tel}</i>}
       </div>
-      <div className="samp-body">
-        <div className="samp-row"><span>Full detail</span><b>$235</b></div>
-        <div className="samp-row"><span>Express wash</span><b>$65</b></div>
-        <div className="samp-row"><span>Ceramic coating</span><b>$1,200</b></div>
-      </div>
-      <div className="samp-cta">Book</div>
+      {page.rows.length > 0 && (
+        <div className="samp-body" key={page.rows.map((r) => r.join()).join("|")}>
+          {page.rows.map(([label, price]) => (
+            <div className="samp-row" key={label}><span>{label}</span>{price ? <b>{price}</b> : null}</div>
+          ))}
+        </div>
+      )}
+      {page.quote && <div className="samp-quote">{page.quote}</div>}
+      <div className="samp-cta" key={page.cta}>{page.cta}</div>
+      {page.foot && <div className="samp-foot">{page.foot}</div>}
     </div>
   );
 }
@@ -679,6 +725,160 @@ const prefillFrom = ({ business, settings, branding }, reviews) => {
   return clean;
 };
 
+/* ── the site, drawn from the answers, while they are still answering ───── */
+// **THE ONE THING WRONG WITH THIS FORM WAS THAT IT NEVER SHOWED THE THING
+// BEING MADE.** Twenty-one steps of answering and the website was not on
+// screen at any point — so it read as a questionnaire about a site rather
+// than as a site being built. That is one idea, not twenty-one redesigns.
+//
+// **IT REUSES `Mini`, WHICH WAS ALREADY A REAL LITTLE PAGE**, rather than
+// drawing a second one. A second preview component is how one product comes
+// to have two answers for what a website looks like — the same reasoning the
+// stepper's own header note gives for wearing the setup form's chrome.
+//
+// **THREE RULES, AND THE FIRST IS THE ONE THAT KEEPS IT HONEST:**
+//
+//   1. **IT NEVER SHOWS AN ANSWER NOBODY GAVE.** Every element is either
+//      their answer or a plain neutral stand-in, and nothing is inferred —
+//      a liked colour on somebody else's example site does not become their
+//      accent, because they would not recognise it as something they said.
+//      This is the same rule the finished site is built under.
+//   2. **A CHANGE HAS TO BE VISIBLE THE MOMENT IT LANDS**, or the page is a
+//      decoration rather than a preview. Each live piece carries its own
+//      value as its React `key`, so answering re-mounts exactly that piece
+//      and the CSS pop fires on it and nowhere else.
+//   3. **THE COLOUR IS COMPUTED IN `lib/theme.js` AND NOWHERE ELSE**
+//      (design-system law 11). The ground here is a thing the detailer picks
+//      in this very form, so it is passed in rather than assumed — a brand
+//      colour corrected against the wrong ground is the exact bug that file
+//      exists to prevent.
+const CTA_FOR = {
+  Book: "Book", "Ring you": "Call us", "Get a quote": "Get a quote",
+  "See prices": "See prices", "See your work": "See the work",
+};
+const NAV_FOR = {
+  "Ceramic coating": "Coatings", "Paint correction": "Correction", PPF: "PPF",
+};
+const DARK_GROUND = "#0E1012", LIGHT_GROUND = "#EFEDE7";
+const DARK_INK = "#F2F1EC", LIGHT_INK = "#14171A";
+
+// ONE LINE OUT OF A BOX SOMEBODY MAY HAVE WRITTEN A PARAGRAPH IN. A headline
+// is a headline whatever they typed, and a preview that grows to fit an essay
+// stops being a picture of a page.
+const oneLine = (v, n) => {
+  const s = String(v ?? "").trim().split("\n")[0].trim();
+  return s.length > n ? `${s.slice(0, n - 1).trimEnd()}…` : s;
+};
+
+function siteFrom(a, business) {
+  const pick = (id) => (typeof a[id] === "string" ? a[id].trim() : a[id]);
+  const many = (id) => (Array.isArray(a[id]) ? a[id] : []);
+
+  // The ground first: everything else is corrected against it. `facts` paints
+  // its own light ground in the stylesheet, so an unanswered dark/light
+  // question follows that variant rather than fighting it.
+  const lead = pick("H2") === "photo" ? "photo" : pick("H2") === "facts" ? "facts" : "";
+  const ground = pick("H3") === "light" ? "light" : pick("H3") === "dark" ? "dark" : "";
+  const light = ground === "light" || (!ground && lead === "facts");
+  const groundHex = light ? LIGHT_GROUND : DARK_GROUND;
+
+  const hex = (many("H5").find((c) => HEX.test(c)) ?? "").trim();
+  const tri = hex ? accentTriple(hex.startsWith("#") ? hex : `#${hex}`, groundHex) : null;
+
+  const vars = {};
+  if (ground) {
+    vars["--sbg"] = groundHex;
+    vars["--stx"] = light ? LIGHT_INK : DARK_INK;
+    vars["--sline"] = light ? "rgba(0,0,0,.12)" : "rgba(255,255,255,.1)";
+  }
+  if (tri) { vars["--sac"] = tri.accent; vars["--sink"] = tri.ink; }
+
+  // The nav. Three at most: the bar is 9px type in a card, and a fourth word
+  // pushes the wordmark off its own page.
+  const prices = pick("A9");
+  const nav = ["Work"];
+  if (prices !== "No, quote on request") nav.push("Prices");
+  for (const s of many("C3")) if (NAV_FOR[s] && !nav.includes(NAV_FOR[s])) nav.push(NAV_FOR[s]);
+  if (pick("D3") || pick("D8")) nav.push("Reviews");
+  if (pick("B7") === "Yes") nav.push("Business");
+  if (pick("G7") === "Yes") nav.push("Contact");
+
+  const towns = oneLine(pick("A4"), 34);
+  const words = oneLine(pick("H7"), 38);
+
+  const rows = prices === "No, quote on request"
+    ? [["Full detail", ""], ["Express wash", ""], ["Ceramic coating", ""]]
+    : prices === "A “from” price"
+      ? [["Full detail", "from $235"]]
+      : SAMPLE.rows;
+
+  const tel = oneLine(pick("G1"), 18);
+  const spot = pick("G2");
+  const telAt = tel && (spot === "top" || spot === "hero" || spot === "foot") ? spot : "";
+
+  const foot = [
+    telAt === "foot" ? tel : "",
+    many("F3").filter((p) => p !== "Other").slice(0, 4).join(" · "),
+  ].filter(Boolean).join(" · ");
+
+  return {
+    kind: [ground, lead, pick("H1") === "move" ? "move" : ""].filter(Boolean).join(" ") || "still",
+    grounded: !!ground,
+    vars,
+    page: {
+      // 26, MEASURED RATHER THAN PICKED. The demo tenant is "Coastline Auto
+      // Detailing" — 24 characters — and a 22-character cap printed
+      // "COASTLINE AUTO DETAIL…" on the one business anybody verifies against,
+      // which is a detailer meeting their own name truncated on the first
+      // screen of the form. 26 fits it at 320 with the nav beside it.
+      mark: oneLine(pick("A1") || business?.name || "Your name", 26).toUpperCase(),
+      nav: nav.slice(0, 3),
+      head: words ? [words, ""] : ["Mobile detailing", towns ? `across ${towns}` : "in your area"],
+      rows,
+      cta: CTA_FOR[pick("A8")] ?? "Book",
+      quote: oneLine(pick("D8"), 62),
+      tel, telAt, foot,
+    },
+  };
+}
+
+// WHAT THE SITE WILL SAY OUT LOUD, in the same words the question already
+// promised under itself. `SAYS` lives in `lib/siteIntake.js` and the question
+// carries the lookup, so this is the existing sentence read back rather than
+// a second set of copy that could drift from it.
+const promisesIn = (a) => {
+  const out = [];
+  for (const q of ALL) {
+    const v = a[q.id];
+    if (q.says && v && !Array.isArray(v)) { const s = q.says(v); if (s) out.push(t(s)); }
+  }
+  const guarantee = oneLine(a.A7, 58);
+  if (guarantee) out.push(guarantee);
+  return out;
+};
+
+function LiveSite({ a, business }) {
+  const { kind, grounded, vars, page } = useMemo(() => siteFrom(a, business), [a, business]);
+  const says = useMemo(() => promisesIn(a), [a]);
+  return (
+    <details className="disclose livesite" open>
+      <summary>{t("Your site so far")}</summary>
+      <div className="livebody">
+        <div className={`livepage${grounded ? " grounded" : ""}`}>
+          <Mini kind={kind} page={page} live vars={vars} />
+        </div>
+        {says.length > 0 ? (
+          <ul className="livesays">
+            {says.slice(0, 5).map((s) => <li key={s}>{s}</li>)}
+          </ul>
+        ) : (
+          <p className="quiet livesays">{t("Every answer changes this page.")}</p>
+        )}
+      </div>
+    </details>
+  );
+}
+
 /* ── the screen ─────────────────────────────────────────────────────────── */
 export default function SiteIntake({ onClose, preview = false }) {
   useAppLocale();
@@ -851,6 +1051,16 @@ export default function SiteIntake({ onClose, preview = false }) {
         <button className="x" aria-label={t("Close")} onClick={onClose}><X size={18} strokeWidth={2} /></button>
       </div>
 
+      {/* **ON THE STEPS WHOSE ANSWERS BECOME THE PAGE, AND NOWHERE ELSE.**
+          The first seven steps are already showing a website at full size —
+          the five worked examples and the box for other people's — so a
+          second, smaller page beside them would be competing with the thing
+          the step is asking about. From "You" onward the answers are what
+          the site is made of, which is exactly where it earns its place.
+          `step.qs` is that set and needs no list to go stale. */}
+      {step.qs && <LiveSite a={a} business={business} />}
+
+      <div className="intakebody">
       <div className="tight">
         <div className="progress-rule" aria-hidden="true">
           {STEPS.map((s, n) => <span key={s.key} className={n < i ? "on" : ""} />)}
@@ -978,6 +1188,7 @@ export default function SiteIntake({ onClose, preview = false }) {
           ? t("{done} of {total} answered · nothing is saved in a preview", { done: p.done, total: p.total })
           : t("{done} of {total} answered · saved automatically", { done: p.done, total: p.total })}
       </span>
+      </div>
     </div>
   );
 }

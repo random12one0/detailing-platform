@@ -431,6 +431,36 @@ visually himself.** Do not change those screens further unless he asks. Fixing a
 defect somebody reports is not "changing them further"; redesigning, reordering
 or improving them is.
 
+### THE FROZEN BACK OFFICE'S DEFECT LIST — RECORD ONLY, DO NOT FIX
+
+**This list exists so the freeze does not also freeze the KNOWING.** Anything
+measured on those screens while they are frozen is written here and nowhere
+else: no commit touches them until Andrew has looked. Append to it; do not act
+on it.
+
+**2026-09-13 · ANDREW MEASURED THE BACK OFFICE AT 390px HIMSELF.** His numbers,
+recorded verbatim rather than re-derived:
+
+- **`.pa-chip`, the filter chips on the Detailers tab, genuinely fail the 44px
+  tap floor** — a **29.4px** box with rows **35.4px** apart. **No `::after` and
+  no margin**, so there is nothing carrying the hit area past the paint and
+  nothing opening the pitch either. Both halves of `docs/BAR.md`'s sanctioned
+  exception are absent, which is what makes this a real failure rather than a
+  mark that is deliberately small: 29.4 is what a thumb gets.
+- **Sign out is 17.4px.**
+- **Sign up a detailer, Open a detailer and the mailto link are all 34.1px.**
+
+**AND THE CLEAN HALF, WHICH IS PART OF THE RECORD AND NOT A CONSOLATION:**
+**zero overlapping pairs and no horizontal overflow on any of the five
+back-office tabs at 390.** A defect list with only defects in it invites the
+next session to assume everything unmeasured is broken too.
+
+**THE PITCH IS WHY THE CHIP NUMBER IS WORSE THAN IT LOOKS.** 29.4px boxes on a
+35.4px pitch means the fix cannot be padding alone — `docs/BAR.md` § "the pitch
+has to open with the target" is the case: two 44px targets 35.4px apart overlap
+and steal each other's presses, which trades a small target for a wrong one.
+Whoever unfreezes this opens the row gap as well.
+
 ## Next, in order
 
 1. ~~Wave F — the em dash sweep, all three categories.~~ **DONE 2026-09-12.**

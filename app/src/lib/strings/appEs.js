@@ -2239,6 +2239,16 @@ export const appEs = {
   "The days and times you work, and the days you are off.": "Los días y las horas que trabajas, y los días que descansas.",
   "Send this link to a customer and they book themselves in.": "Manda este enlace a un cliente y se agenda solo.",
 
+  // ── The website brief's live preview (`screens/SiteIntake.jsx`) ────────
+  // The panel's own two strings. **The drawn page inside it is deliberately
+  // not translated and must not be added here**: every word in it stands in
+  // for something the DETAILER will write on their own site — a headline, a
+  // service name, a call to action — and the fourth axis is that we do not
+  // rewrite somebody else's words. It has read that way since the sample was
+  // built.
+  "Your site so far": "Tu sitio hasta ahora",
+  "Every answer changes this page.": "Cada respuesta cambia esta página.",
+
   // ── The website brief (`lib/siteIntake.js`) ───────────────────────────
   // **THESE ARE DATA-TABLE VALUES, NOT `t("literal")` CALL SITES**, which is
   // exactly why the coverage ratchet read zero while this screen rendered an

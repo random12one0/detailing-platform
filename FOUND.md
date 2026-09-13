@@ -591,6 +591,37 @@ present, and no session goes looking for credentials.
   the loading state**, which is a sibling of trap (f): wait for the rows to
   settle before reading anything on that screen.
 
+- 2026-09-13 — **`scripts/overlap-probe.mjs`'s `clipBox` STARTS AT
+  `el.parentElement`, SO AN ELEMENT'S OWN `overflow: hidden` IS NOT COUNTED.**
+  Found while sweeping the website brief at 320: the live preview's headline was
+  reported 6px on top of the first price row. **It is not.** The `h4` carries
+  `-webkit-line-clamp: 2` with `overflow: hidden`, its own box ends at y 311.8
+  and the price row's box begins at y 325.8 — **fourteen pixels of clearance** —
+  while the `Range` over its text node still reports a FOURTH line box at
+  311.8-327.8, the clipped one, which is what the probe intersected.
+  **Proved by a method that shares nothing with a rect:** `elementFromPoint` at
+  the row's own coordinates returns the row's `span`, not the headline. Nothing
+  of the headline is painted there.
+  The limit is one line to state and it is the same family as the two
+  `docs/BAR.md` already records for that file (`clip-path`, and a block
+  wrapper's rect) — **it can only produce a FALSE POSITIVE, never a false
+  pass**, so it is a note rather than a bug. Lane C owns the file.
+- 2026-09-13 — **THE DRAWN SAMPLE PAGE IN THE WEBSITE BRIEF IS ENGLISH ON A
+  SPANISH DASHBOARD, AND IT IS DELIBERATE — but it is Andrew's call, not a
+  sweep's.** Measured at 1440 with `dp.lang.app=es`: the panel's chrome reads
+  *"Tu sitio hasta ahora"* and *"Cada respuesta cambia esta página."* while the
+  page inside it reads *Mobile detailing / Full detail / Book*. That has been
+  true of `Mini` since the either/or cards were built; the live preview only
+  makes it bigger and puts real answers beside it.
+  **THE ARGUMENT FOR LEAVING IT IS G8.** That question asks whether the site
+  should be in Spanish too — so drawing the preview in the DASHBOARD's language
+  answers G8 for the detailer, in a picture, before they reach it. The words
+  that are already theirs (the business name, the towns, the button) pass
+  through untouched either way.
+  **Recorded rather than fixed**, and recorded rather than left silent, because
+  the next Spanish sweep will otherwise "close" it and no check in this repo
+  can see the difference between this and a real leak.
+
 ## COLD REVIEW, 2026-09-12 — the detailer's dashboard
 
 A fresh agent with no knowledge of this session's work, forbidden `FOUND.md` and
