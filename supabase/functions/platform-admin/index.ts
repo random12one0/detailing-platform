@@ -363,7 +363,7 @@ Deno.serve(async (req) => {
       // way and never has to decide what a missing row means.
       const today = new Date().toISOString().slice(0, 10);
       const { data: mail } = await supabase.from("platform_email_days")
-        .select("sent, failed, claimed").eq("day", today).maybeSingle();
+        .select("sent, failed, claimed, refused, refused_platform").eq("day", today).maybeSingle();
 
       // The detailers, as opposed to everything else in the table — testing
       // loop F-014. Seeded demos and the fixtures the database-backed suites
@@ -390,6 +390,12 @@ Deno.serve(async (req) => {
           // the slice only the platform's own alerts may reach, so the screen
           // can say "tenant mail stops at 80" rather than implying 100.
           claimed: mail?.claimed ?? 0,
+          // **THE NUMBER THAT SAYS THE CAP ACTUALLY BIT.** Not in `failed`,
+          // which belongs to the provider - these never reached it. And
+          // `refused_platform` above zero is the emergency: the reserve itself
+          // is exhausted, so a signup notice is being lost right now.
+          refused: mail?.refused ?? 0,
+          refused_platform: mail?.refused_platform ?? 0,
           reserve: ps?.email_platform_reserve ?? 0,
           cap: ps?.email_daily_cap ?? 100,
           owner_email: ps?.owner_email ?? null,

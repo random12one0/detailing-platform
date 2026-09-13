@@ -202,15 +202,24 @@ Deno.serve(async (req) => {
       console.error("could not claim the send against today's budget - sending anyway:", e);
     }
     if (!claimAllowed) {
-      // **LOUD, AND COUNTED AS A FAILURE.** The whole defect he named is a
-      // silent one, so this refusal goes in the log with the word `to` in it
-      // and into the day's `failed` count, where the Plumbing tab draws it and
-      // the day visibly runs over. `markAddress` is deliberately NOT called:
-      // 429 has never been the customer's fault, and this is our own 429.
+      // **LOUD, AND COUNTED IN ITS OWN COLUMN.** The whole defect he named is a
+      // silent one, so this goes in the log with the recipient in it and into
+      // `platform_email_days.refused`, which `claim_email_send` increments on
+      // the way out.
+      //
+      // **IT IS DELIBERATELY NOT `note(false)`.** `failed` means the PROVIDER
+      // rejected it, and this never reached the provider. It also could not
+      // survive a sweep: a refused reminder is no longer marked as sent, so it
+      // retries every fifteen minutes, and ten of those over an evening would
+      // have added three hundred to the one number Andrew reads to decide
+      // whether to upgrade the plan. Migration 20260913040000 has the
+      // arithmetic.
+      //
+      // `markAddress` is not called either: 429 has never been the customer's
+      // fault, and this is our own 429.
       console.error("DAILY EMAIL BUDGET SPENT - refused before the provider:", {
         to, subject, platform: fromPlatform,
       });
-      await note(false);
       return json({
         error: "Failed to send email",
         reason: "daily_cap",

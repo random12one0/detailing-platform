@@ -72,7 +72,8 @@ cap 100, reserve 20
 |---|---|
 | `platform_settings.email_platform_reserve` | **20**, and it is a setting rather than a constant, for the same reason the cap is: the answer to a warning is to change the fact, never to dismiss it |
 | `platform_email_days.claimed` | the BUDGET ledger, moved before the provider is called |
-| `claim_email_send(p_platform)` | one `plpgsql` call, atomic, returns whether this send may go |
+| `claim_email_send(p_platform)` | one `plpgsql` call, atomic, returns whether this send may go, and records a refusal on the way out |
+| `platform_email_days.refused` / `.refused_platform` | how many we turned away ourselves, and how many of those were the platform's own alerts |
 
 **`sender_name` IS ALREADY THE DISCRIMINATOR AND NO NEW FLAG WAS NEEDED.**
 `send-email` has carried `fromPlatform` since roadmap 2.20. The three things
@@ -89,10 +90,31 @@ detailer or a test fixture can reach sets it.**
 2. **A REFUSED CLAIM COSTS NOTHING.** It never reached the provider, so charging
    it would make tomorrow's arithmetic wrong as well as today's, and would
    ratchet the number up every time a suite retried.
-3. **A REFUSAL IS LOUD AND COUNTED.** `console.error` with the recipient, and
-   `note_email_send(false)` so the Plumbing tab shows the day visibly running
-   over. The defect he named is a silent one; a refusal nobody can see is the
-   same defect.
+3. **A REFUSAL IS LOUD AND COUNTED — IN ITS OWN COLUMN, NOT IN `failed`.**
+   `console.error` with the recipient, and `platform_email_days.refused`.
+
+   **THE FIRST VERSION PUT IT IN `failed` AND THAT WAS A DEFECT CAUGHT BEFORE IT
+   SHIPPED.** `failed` means the provider rejected it, and a budget refusal
+   never reached the provider. Worse, it could not survive a sweep: the reminder
+   fix landed the same night makes a refused send leave its marker unwritten, so
+   it retries **every fifteen minutes**. Ten reminders due after the cap, over
+   the eight hours before the day rolls at midnight UTC, is
+   `10 x 4 x 8 = 320` added to the one number Andrew reads to decide whether to
+   upgrade the plan — on the busiest day, which is the only day he would look.
+
+   **AND `refused_platform` IS THE SEPARATE NUMBER BECAUSE IT IS A SEPARATE
+   EMERGENCY.** Above zero it means the reserve itself is exhausted and he is
+   missing signup notices right now. One combined figure cannot tell *the suites
+   are loud today* from *the one email that must arrive did not*.
+
+   The four columns now say four different things:
+
+   | | |
+   |---|---|
+   | `sent` | the provider accepted it |
+   | `failed` | the provider rejected it |
+   | `refused` | it never reached the provider, because the day was spent |
+   | `claimed` | what has been spent against the provider's limit |
 4. **A REFUSAL NEVER BLAMES THE CUSTOMER.** `markAddress` is not called.
    Testing loop F-025 already cost this product that mistake once — real
    customers stamped `email_failed_at` permanently because of our own 429,
@@ -112,8 +134,49 @@ have allowed another 80 tenant emails on top — 174 attempts against a cap of
 number of attempts that reached the provider. **A gate that is off for its first
 seventeen hours is the failure it was built to prevent.**
 
-**As of 07:13 UTC today, `claimed` is 94.** Tenant mail is already refused; six
-of the platform's twenty remain.
+**As of 07:45 UTC today, `claimed` is 99 of 100** — 87 sent + 12 failed, every
+one of which reached Resend. **Tenant mail is refused from here until the day
+rolls over at midnight UTC**, and one send of the platform's own reserve
+remains. Without the reserve the hundredth would have gone to whatever asked
+next; with it, the hundredth is Andrew's.
+
+---
+
+## PROVED LIVE, THROUGH THE DEPLOYED RELAY
+
+Not a unit test of the claim: two real calls to `send-email`, on a real domain
+so the reserved-domain exit could not answer for it.
+
+**TENANT MAIL, at `claimed` 99 against a tenant budget of 80:**
+
+```
+429  { "reason": "daily_cap", "retryable": true,
+       "details": "Tenant mail has spent its share of today's allowance.
+                   The platform's own alerts are still reserved." }
+
+claimed  99 -> 99      (the claim was given back)
+failed   12 -> 12      (the provider was never asked)
+refused   0 -> 1
+refused_platform  0 -> 0
+```
+
+**PLATFORM MAIL.** To prove this branch without an email leaving the building,
+the cap was lowered to 99 for one call, which puts the platform over its own
+limit too:
+
+```
+429  { "reason": "daily_cap", "retryable": true,
+       "details": "The provider's whole daily allowance is spent,
+                   including the platform's reserve." }
+
+refused           1 -> 2
+refused_platform  0 -> 1
+```
+
+**A DIFFERENT SENTENCE AND A DIFFERENT COUNTER**, so the `fromPlatform`
+discriminator is wired all the way through the deployed function and not only
+through the SQL. Cap restored to 100; both probe refusals cleared from the row,
+because they were mine and not the product's.
 
 ---
 
@@ -144,12 +207,13 @@ signup notice with it.**
 and the real row (restored in a `finally`), `§ 2` asserting the ORDER of the
 claim in `send-email` rather than any spelling.
 
-**Baselined by three deliberate breaks:**
+**26 checks. Baselined by four deliberate breaks:**
 
 | break | what went red |
 |---|---|
 | the claim ignores the reserve | 1b, 1c, 1d |
 | a refused claim keeps the count | 1c, 1d |
+| a refusal is not recorded at all | 1f (two) |
 | the claim moved after the provider call | 11 of 22 |
 
 **And § 1a is the baseline inside the check**: an always-false claim would pass

@@ -75,7 +75,7 @@ if (!SB_URL || !KEY) {
       skip("every live check", "no platform_settings row in this project");
     } else {
       restoreSettings = { ...ps };
-      const day = (await rest(`platform_email_days?day=eq.${today}&select=claimed,sent,failed`)).body?.[0];
+      const day = (await rest(`platform_email_days?day=eq.${today}&select=claimed,sent,failed,refused,refused_platform`)).body?.[0];
       // **RESTORED WHATEVER HAPPENS, and that matters more here than in most
       // fixtures: this is the row the Plumbing tab draws and the number the
       // provider's limit is measured against. A suite that leaves it wrong has
@@ -140,6 +140,25 @@ if (!SB_URL || !KEY) {
       await setClaimed(4);
       check("1e with no reserve, tenant mail reaches the full cap", (await claim(false)) === true);
       check("1e and stops there", (await claim(false)) === false);
+
+      // ── 1f · A REFUSAL IS COUNTED, IN ITS OWN COLUMN ────────────────────
+      // Not counting it at all would make a day where real mail was turned
+      // away look exactly like a quiet day - the silent failure this whole
+      // item is about, reintroduced one level down.
+      const readCol = async (c) => (await rest(`platform_email_days?day=eq.${today}&select=${c}`)).body?.[0]?.[c] ?? null;
+      await rest("platform_settings?id=eq.true", { method: "PATCH", body: JSON.stringify({ email_platform_reserve: 2 }) });
+      await setClaimed(5);
+      const r0 = await readCol("refused"), rp0 = await readCol("refused_platform");
+      await claim(false);
+      check("1f a tenant refusal is counted in `refused`", (await readCol("refused")) === r0 + 1);
+      check("1f and not as a platform refusal", (await readCol("refused_platform")) === rp0);
+      await claim(true);
+      check("1f a PLATFORM refusal is counted in both", (await readCol("refused")) === r0 + 2 && (await readCol("refused_platform")) === rp0 + 1,
+        "refused_platform above zero is the emergency - the reserve itself is exhausted");
+      const f0 = await readCol("failed");
+      await claim(false);
+      check("1f and no refusal touches `failed`", (await readCol("failed")) === f0,
+        "failed belongs to the provider; a sweep retrying every 15 minutes would otherwise pour hundreds into it");
     }
   } finally {
     if (restoreSettings) await rest("platform_settings?id=eq.true", { method: "PATCH", body: JSON.stringify(restoreSettings) });
@@ -193,8 +212,13 @@ console.log("\n2. send-email claims after the free exits and before the provider
   const refusal = code.slice(cAt, rAt);
   check("2e a refusal is logged with the recipient", /console\.error\([^)]*BUDGET[\s\S]{0,200}to,/.test(refusal),
     "the defect Andrew named is a silent one - a refusal nobody can see is the same defect");
-  check("2f a refusal is counted as a failure", /await note\(false\)/.test(refusal),
-    "an uncounted refusal leaves the Plumbing tab showing a day that looks fine");
+  // **NOT `note(false)`, AND THAT IS THE ASSERTION.** `failed` means the
+  // provider rejected it; a budget refusal never reached the provider. It also
+  // could not survive a sweep - a refused reminder retries every fifteen
+  // minutes, and that would have poured hundreds into the one number Andrew
+  // reads. The refusal is counted by `claim_email_send` in its own column.
+  check("2f a refusal is NOT counted as a provider failure", !/note\(false\)/.test(refusal),
+    "failed belongs to the provider - a refusal that never reached it must not land there");
   check("2y the refusal block was actually sliced", cAt > 0 && rAt > cAt && refusal.length > 200,
     `slice length ${rAt - cAt} - every check below is measuring nothing`);
   check("2g a refusal does not stamp the customer", !/markAddress\(/.test(refusal),
