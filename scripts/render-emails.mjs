@@ -330,6 +330,40 @@ const ROT = [["undefined", /undefined/], ["NaN", /NaN/], ["[object Object]", /\[
 
 await mkdir(OUT, { recursive: true });
 let bad = 0;
+
+// **EVERY TEMPLATE THE PRODUCT EXPORTS HAS TO BE IN `EMAILS`, AND UNTIL
+// 2026-09-13 NOTHING SAID SO.** That list is hand-maintained. A seventeenth
+// template added to `_shared/emailTemplates.ts` and not added here would never
+// be rendered, never be looked at, and this script would still print its count
+// and `0 problems` — a clean bill over an email nobody has ever seen. This
+// repo’s most repeated failure shape: a list somebody has to remember to
+// update, going stale in silence.
+//
+// **MEASURED when this was added: 16 exported, 16 rendered, 0 missing.** It
+// closes a future gap rather than a present one, which is the only moment such
+// a gap is cheap to close.
+//
+// **IT READS THE MODULE AND THE CLOSURES, NOT THE SOURCE TEXT.** `T` is already
+// imported as a namespace, so the left-hand side is what the module actually
+// EXPORTS; the right-hand side is the source of the render functions in `EMAILS`
+// itself, so a name mentioned only in a comment elsewhere cannot satisfy it.
+// Trap (k): assert the behaviour, not the spelling. `platform-admin` § 14e-ii
+// already asserts ONE template by name, which is a list of one.
+{
+  const exported = Object.keys(T).filter((k) => /Email$/.test(k) && typeof T[k] === "function");
+  const rendered = EMAILS.map(([, , render]) => render.toString()).join(" ");
+  const missing = exported.filter((k) => !rendered.includes(`T.${k}(`));
+  if (!exported.length) {
+    console.error("  FAIL  the templates module exported no *Email function at all — this check read nothing");
+    bad++;
+  } else if (missing.length) {
+    console.error(`  FAIL  ${missing.length} template(s) exported but never rendered: ${missing.join(", ")}`);
+    bad++;
+  } else {
+    console.log(`  ok    all ${exported.length} exported templates are rendered below`);
+  }
+}
+
 const cards = [];
 
 for (const [file, label, render] of EMAILS) {
