@@ -1115,10 +1115,25 @@ undo it.
   else refusing to suspend a non-paying business over a log write is the wrong
   trade, and here *"it did not get written"* is not an answer to give a
   detailer who asks.
-  **THE MASTER LOGIN IS `demo@demo.com` / `demo` AS OF 2026-09-07, AND IT IS
-  THE ONLY ROW IN `platform_admins` — the owner's own instruction, roadmap
-  8.2:** *"clear all logons, have my login for like the master login be email
-  is demo@demo.com and password is demo."* Everything below about the seeded
+  **THE MASTER LOGIN IS `demo@demo.com` AND IT IS THE ONLY ROW IN
+  `platform_admins` — the owner's own instruction, roadmap 8.2:** *"clear all
+  logons, have my login for like the master login be email is demo@demo.com and
+  password is demo."*
+  ~~**`demo` IS THE PASSWORD.**~~ **STALE SINCE 2026-09-09 AND MEASURED WRONG ON
+  2026-09-13.** He asked for `demo`; **the project rejects anything under ten
+  characters**, so it was set to **`demoadmin123`** on 2026-09-09 at his ask —
+  and that is written in the `platform_admins` row's own `note` column, which
+  is the only copy that was ever true. This line said `demo` for four days.
+  **Verified by signing in through the auth API: the four-character value is
+  rejected, the twelve-character one returns a session.** A session that reads
+  the stale line and tries it concludes the back office is broken.
+  **AND IT IS NOT IN THE SEED, WHICH IS THE REAL GAP.** `seed-demo.mjs` does
+  NOT create this account; `--platform-admin` creates a DIFFERENT one
+  (`demo-admin@detailplatform.com`) with a random password written to the
+  gitignored `scripts/demo-refs.json`. So **a fresh clone plus a re-seed has no
+  way into `/admin` at all** — the only door is an account somebody made by
+  hand, on one database. Anybody verifying back-office work on a clean
+  environment cannot get in. Everything below about the seeded
   admin still describes the MECHANISM and is why it is safe to have one, but
   the account it names is gone: `demo-admin@detailplatform.com` and
   `shoot-admin@detailplatform.com` are deleted, and his two own addresses were

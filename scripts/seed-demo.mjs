@@ -1006,6 +1006,50 @@ await post("/rest/v1/blockout_dates", [{
 // all-seeing account every time somebody re-seeds the demo is a credential
 // nobody remembers exists. `--platform-admin` is a decision each time, and
 // the note on the row says to delete it before launch.
+// ROADMAP 4.4 — **THE DEMO OWNER IS A PLATFORM ADMIN IN THE DEMO DATABASE.**
+// Andrew's decision, 2026-09-13, so the back office can be verified by somebody
+// who is not the person who built it. Seven fixes only the builder can see are
+// seven fixes nobody has independently checked.
+//
+// **THIS REVERSES A DECISION THIS FILE USED TO CARRY**, and the old reasoning is
+// three paragraphs below: *"Making `demo@detailplatform.com` an admin would put
+// every detailer's data behind `demo123`."* That was right and it is still right
+// ABOUT A REAL DATABASE. It is his call to make for a database whose every
+// business is a fixture, and the guard below is what keeps the two apart.
+//
+// **NOTHING IN THE PRODUCT CHANGED, WHICH IS THE WHOLE POINT.** No bypass, no
+// dev flag, no `if (localhost)`, no second code path. The authorization check is
+// untouched and still the only thing that decides: this account simply IS a
+// platform admin in this database, so the ordinary check passes for it honestly.
+// **A check with a testing exception in it is a check that is one day true in
+// production for a reason nobody predicted.**
+//
+// **AND IT CAN NEVER REACH REAL DATA.** `seed-demo.mjs` takes its target from
+// `SUPABASE_URL`, so it CAN be pointed anywhere — including the owner's live
+// business project — and everything above this line would happily run there.
+// This grant refuses unless the target is the platform's own project, by ref.
+const PLATFORM_REF = "kguqylyzgyzfktkfnhjb";
+const LIVE_BUSINESS_REF = "adtlnvihwrcqcasqcjwd";   // never, under any flag
+{
+  const target = String(URL_ || "");
+  if (target.includes(LIVE_BUSINESS_REF)) {
+    throw new Error("refusing to grant platform-admin on the live business project");
+  }
+  if (!target.includes(PLATFORM_REF)) {
+    console.log("  Platform admin NOT granted: this is not the platform project.");
+  } else {
+    // Idempotent, and keyed on the user id rather than the address.
+    await del(`/rest/v1/platform_admins?user_id=eq.${ownerId}`);
+    await post("/rest/v1/platform_admins", [{
+      user_id: ownerId, email: OWNER.email,
+      note: "DEMO ONLY. The demo detailer is also a platform admin so the back "
+        + "office can be verified independently (Andrew, 2026-09-13). Deliberate, "
+        + "not an accident. Delete before launch.",
+    }]);
+    console.log(`  Platform admin granted to the demo owner: ${OWNER.email}`);
+  }
+}
+
 let adminCreds = null;
 if (process.argv.includes("--platform-admin")) {
   const password = `a${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}A1!`;
