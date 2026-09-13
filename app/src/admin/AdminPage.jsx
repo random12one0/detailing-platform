@@ -50,7 +50,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "../lib/supabase.js";
 import { money } from "../lib/format.js";
 import { setupProgress } from "../lib/setup.js";
-import { needsALook } from "../lib/attention.js";
+import { needsALook, reasonsFor, QUIET_DAYS, SETUP_FLOOR } from "../lib/attention.js";
 import {
   billingState, bookability, daysSince, monthlySeries, owedByUs, trend, workload,
 } from "../lib/adminInsight.js";
@@ -102,9 +102,10 @@ const shortAgo = (iso) => {
 };
 
 const TABS = [
-  ["now", "Now"],
-  ["who", "Detailers"],
+  ["now", "Today"],
+  ["growth", "Growth"],
   ["money", "Money"],
+  ["who", "Detailers"],
   ["pipes", "Plumbing"],
 ];
 
@@ -169,6 +170,7 @@ function Tile({ n, t, warn }) {
    dressed as money, because a wrong unit reads as a real price. */
 const WORDS = {
   website: "Website + booking", bookingOnly: "Booking only", founding: "Founding offer",
+  standard: "Standard price", unknown: "No plan recorded",
   term: "Contract", annual: "Paid yearly", monthly: "A month", setup: "To set up",
   monthToMonth: "Month to month", months: "Length", exitFeeShare: "Exit fee",
 };
@@ -379,9 +381,10 @@ export default function AdminPage() {
             was rebuilt to stop doing. */}
         {state && (
           <div className="pa-in" key={tab}>
-            {tab === "now"   && <TabNow    state={state} totals={totals} rows={rows} alerts={alerts} attention={attention} onOpen={setTab} />}
-            {tab === "who"   && <TabWho    rows={rows} totals={totals} reload={load} />}
-            {tab === "money" && <TabMoney  state={state} totals={totals} rows={rows} reload={load} />}
+            {tab === "now"    && <TabNow    state={state} totals={totals} rows={rows} alerts={alerts} attention={attention} onOpen={setTab} />}
+            {tab === "growth" && <TabGrowth rows={rows} totals={totals} onOpen={setTab} />}
+            {tab === "who"    && <TabWho    rows={rows} totals={totals} reload={load} />}
+            {tab === "money"  && <TabMoney  state={state} totals={totals} rows={rows} reload={load} />}
             {tab === "pipes" && <TabPipes  state={state} alerts={alerts} />}
           </div>
         )}
@@ -613,14 +616,226 @@ function TabNow({ state, totals, rows, alerts, attention, onOpen }) {
   );
 }
 
-/* ══ TAB 2 · DETAILERS ═════════════════════════════════════════════════════ */
+/* ══ TAB 2 · GROWTH ════════════════════════════════════════════════════════
+   BUILT 2026-09-13, to Today's shape and under Today's rules — every row has to
+   survive *"and what would Andrew DO about this?"*, and every sentence is an
+   OBSERVATION with a date or a count in it rather than a prediction.
+
+   ── WHY THERE IS NO CHART ON THIS SCREEN ──────────────────────────────────
+   A signups-per-month chart was the obvious thing to build here and it was cut.
+   With one real detailer every trend line is noise, and a chart is a number
+   waiting to be interpreted by somebody who already knows what good looks like.
+   Andrew does not yet. The day there are twenty detailers this is the first
+   thing to add back, and `Chart` is already in this file for it.
+
+   ── EACH LINE IS COUNTED ON ITS OWN, NOT AS A FUNNEL — and that is the
+   important decision on this screen ────────────────────────────────────────
+   The obvious build filters each stage out of the one above it, so a detailer
+   who stalled at setup never appears in any later row. **But these five facts
+   are independent in real life**: a detailer can be booking steadily with setup
+   half-finished, and a funnel would file him under "stuck at setup" and stop
+   counting him. That is a false alarm about a working business, which is the
+   one thing that gets a list like this ignored.
+
+   So each row asks its own question of everybody, and the screen says so in as
+   many words. **A detailer can appear on two rows. That is correct** — it means
+   two different things are true about them. */
+const STUCK = [
+  ["setup",
+   (r) => setupProgress(r.setup_inputs).count >= SETUP_FLOOR,
+   (n) => `${plural(n, "detailer has", "detailers have")} not got through setup`,
+   `Fewer than ${SETUP_FLOOR} of the steps are done. Ring them and finish it on the phone — every one of these signed up and then stopped.`],
+  ["open",
+   (r) => bookability(r.setup_inputs).ok,
+   (n) => `${plural(n, "booking page", "booking pages")} cannot take a booking`,
+   "Nothing to sell, no open days, or the account is suspended. A customer who tries gets nowhere, and neither of you finds out. This is the most expensive thing on the page."],
+  ["first",
+   (r) => (r.bookings_total ?? 0) > 0,
+   (n) => `${plural(n, "detailer has", "detailers have")} never taken a booking`,
+   "The page works and nobody has used it. Ask how they are telling their own customers about it."],
+  // **A DETAILER WHO NEVER BOOKED IS NOT QUIET, AND THIS ROW SAID HE WAS —
+  // caught by loading the screen and reading it, 2026-09-13.** With no
+  // bookings `days_since_booking` is null, so the plain test made every new
+  // signup "has not booked in 21 days" and told Andrew *"they were taking work
+  // and stopped"* about somebody who had never started. The row above already
+  // owns that person and says the true thing about them. **Two rows on one
+  // screen contradicting each other about one detailer is worse than either
+  // row being missing** — and `lib/attention.js` has kept these two facts
+  // apart since the day it was written, for exactly this reason.
+  ["quiet",
+   (r) => (r.bookings_total ?? 0) === 0 || (r.days_since_booking ?? 9999) < QUIET_DAYS,
+   (n) => `${plural(n, "detailer has", "detailers have")} not booked in ${QUIET_DAYS} days`,
+   "They were taking work and stopped. Ring them before they decide to cancel."],
+  ["site",
+   (r) => Boolean(r.site_url || r.domain),
+   (n) => `${plural(n, "detailer has", "detailers have")} no website`,
+   "That one is ours rather than theirs. Build it, or tell them when it is coming."],
+];
+
+function TabGrowth({ rows, totals, onOpen }) {
+  // REAL DETAILERS ONLY, the same rule every tile on this screen already
+  // follows. A fixture trips four of the five rows below by construction, so
+  // counting them would make this screen permanently alarming and useless.
+  const live = useMemo(() => rows.filter((r) => !r.is_demo), [rows]);
+
+  const stuck = useMemo(() => STUCK.map(([key, ok, headline, todo]) => {
+    const failing = live.filter((r) => !ok(r));
+    return { key, todo, failing, headline: headline(failing.length) };
+  }).filter((s) => s.failing.length > 0), [live]);
+
+  const booking = live.filter((r) => (r.bookings_total ?? 0) > 0).length;
+  const onFounding = live.filter((r) => r.plan_tier === "founding").length;
+
+  return (
+    <>
+      <section className="pa-sec pa-today" style={{ "--i": 0 }}>
+        <p className="pa-lede">
+          {live.length === 0
+            ? "Nobody has signed up yet."
+            : `${plural(live.length, "detailer", "detailers")}, ${booking} of them taking bookings.`}
+        </p>
+        <p className="pa-sub">
+          {live.length === 0
+            ? "When the first detailer signs up, this page tells you exactly where they got to and where they stopped."
+            : `${plural(totals.new_month ?? 0, "joined", "joined")} this month.`}
+        </p>
+      </section>
+
+      {/* 1 · WHERE PEOPLE ARE STUCK. The whole screen, really — everything else
+             here is context for these rows. */}
+      <section className="pa-sec" style={{ "--i": 1 }}>
+        <div className="pa-h"><h2>Where people are stuck</h2></div>
+        {stuck.length === 0
+          ? (
+            <div className="pa-card">
+              <p className="pa-none">
+                {live.length === 0
+                  ? "Nothing to be stuck on yet. This fills in with names the moment somebody signs up and stops part-way."
+                  : "Nobody is stuck. Everyone has finished setup, has a page that takes bookings, has taken one, and has booked recently."}
+              </p>
+            </div>
+          )
+          : (
+            <div className="pa-card">
+              <div className="pa-rows">
+                {stuck.map((s) => (
+                  <div className="pa-do" key={s.key}>
+                    <div className="pa-do-t">
+                      <strong>{s.headline}</strong>
+                      <span className="pa-ev">{s.failing.map((r) => r.name).join(" · ")}</span>
+                    </div>
+                    <p className="pa-act">{s.todo}</p>
+                  </div>
+                ))}
+              </div>
+              {/* SAYING HOW IT IS COUNTED IS PART OF THE ROW. Without this
+                  sentence a name on two lines looks like a bug in the screen
+                  rather than two true things about one detailer. */}
+              <p className="pa-sub pa-act">
+                Each line is asked of everybody separately, so the same name can appear twice. That
+                means two different things are true about them, not that it has been counted twice.
+              </p>
+            </div>
+          )}
+      </section>
+
+      {/* 2 · THE FOUNDING OFFER. A number he can actually spend: it is the
+             thing to say on a sales call and it runs out. */}
+      <section className="pa-sec" style={{ "--i": 2 }}>
+        <div className="pa-h"><h2>The founding offer</h2></div>
+        <div className="pa-card">
+          <div className="pa-do">
+            {/* **THIS LINE PRINTED "0 detailers are on the platform" DIRECTLY
+                UNDER A LEDE SAYING THERE WAS ONE.** It was an expression that
+                subtracted the spots left from the total and then printed the
+                total anyway — arithmetic nobody could have read as a sentence,
+                which is the tell. It counts the founding tier now, which is a
+                fact the payload actually carries. Found by loading the screen
+                and reading it; no check in this repo would have seen it. */}
+            <div className="pa-do-t">
+              <strong>{plural(totals.founding_left ?? 0, "spot", "spots")} left</strong>
+              <span className="pa-ev">
+                {plural(onFounding, "detailer is", "detailers are")} on the founding price
+              </span>
+            </div>
+            <p className="pa-act">
+              {(totals.founding_left ?? 0) === 0
+                ? "They are gone. Anybody signing up now pays the standard price."
+                : "This is the sentence that closes a sale — it is real scarcity rather than a tactic, because the count comes from the database and goes down when somebody takes one."}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 3 · WHAT THIS SCREEN CANNOT TELL HIM. A growth page that silently
+             omits churn reads as "nobody has left", which is a claim rather
+             than an omission. */}
+      <section className="pa-sec" style={{ "--i": 3 }}>
+        <div className="pa-h"><h2>Not here yet</h2></div>
+        <div className="pa-card">
+          <div className="pa-rows">
+            <Row k="How many left, and when" v="nothing records a cancellation date yet" />
+            <Row k="Where a signup came from" v="nothing records it" />
+            <Row k="How long setup takes on average" v="needs a timestamp per step" />
+          </div>
+          <p className="pa-sub pa-act">
+            These are missing rather than zero. Until the first one exists this screen can say who is
+            here and who is stuck, and cannot say who has gone.
+          </p>
+        </div>
+      </section>
+
+      {live.length > 0 && (
+        <section className="pa-sec" style={{ "--i": 4 }}>
+          <button className="pa-btn pa-go" type="button" onClick={() => onOpen("who")}>
+            Open a detailer
+          </button>
+        </section>
+      )}
+    </>
+  );
+}
+
+/* ══ TAB 4 · DETAILERS ═════════════════════════════════════════════════════ */
+// **THREE OF THESE SIX ASKED THE WRONG QUESTION AND NOTHING SAID SO — fixed
+// 2026-09-13, while rebuilding this screen.**
+//
+// `setupProgress` takes `{ business, branding, settings, counts }` and the row
+// carries those under `setup_inputs`, so `setupProgress(r)` destructured four
+// undefineds and returned `{ done: Set(0), count: 0, total: 11 }` for EVERY
+// business on the platform. The chip then compared `Set < 11`, which is `NaN <
+// 11`, which is `false` — so "Setup unfinished" counted **zero** on a platform
+// where nobody had finished setup. A filter that is always empty looks exactly
+// like a filter with nothing to show.
+//
+// **AND THE SAME MISTAKE PRINTED `[object Set] of 11` IN THE PANEL**, because
+// the result was read as `.done` (a Set of step keys) where the number is
+// `.count`. Two spellings of one answer, one of them wrong, in two places.
+//
+// `billingState(...)?.pastDue` was the third: that function returns
+// `{ tone, label, detail }` and has never had a `pastDue` field, so "Past due"
+// was `undefined` for everybody and counted zero too.
+//
+// **THE RULE UNDERNEATH: A FILTER THAT MATCHES NOBODY IS INDISTINGUISHABLE FROM
+// A HEALTHY PLATFORM.** None of the three threw, none logged, and the screen
+// rendered perfectly. They were found by reading the code, not by any check.
+const setupOf = (r) => setupProgress(r.setup_inputs);
 const FILTERS = [
   ["all", "Everyone", () => true],
-  ["due", "Past due", (r) => billingState(r.subscription)?.pastDue],
-  ["setup", "Setup unfinished", (r) => setupProgress(r).done < setupProgress(r).total],
+  // FOURTEEN OF THE FIFTEEN ROWS ARE FIXTURES TODAY, so "everyone" is mostly
+  // noise and the one real detailer sits in the middle of it. This is a chip
+  // rather than the default, because a list that silently hides rows is the
+  // omission this repo refuses everywhere else — he chooses to narrow it.
+  ["real", "Real detailers", (r) => !r.is_demo],
+  ["due", "Past due", (r) => billingState(r.subscription).tone === "bad"],
+  ["setup", "Setup unfinished", (r) => setupOf(r).count < setupOf(r).total],
   ["never", "No bookings ever", (r) => !r.last_booking_at],
-  ["quiet", "Quiet 30 days", (r) => (daysSince(r.last_booking_at) ?? 999) > 30],
-  ["nosite", "No website yet", (r) => !r.site_url],
+  // QUIET_DAYS, NOT 30. `lib/attention.js` decides what "gone quiet" means and
+  // Today already prints its answer; a chip with its own threshold is a second
+  // number about the same thing, and the support call starts with an argument
+  // about which screen is right.
+  ["quiet", `Quiet ${QUIET_DAYS} days`, (r) => (daysSince(r.last_booking_at) ?? 9999) >= QUIET_DAYS],
+  ["nosite", "No website yet", (r) => !r.site_url && !r.domain],
 ];
 
 // REGISTERING A BUSINESS SIGNED UP IN PERSON — restored 2026-09-13.
@@ -783,22 +998,46 @@ function TabWho({ rows, totals, reload }) {
           : (
             <div className="pa-list">
               {shown.map((r) => {
-                const sp = setupProgress(r);
+                const sp = setupOf(r);
                 const bill = billingState(r.subscription);
+                /* THE ROW SAYS WHAT IS TRUE ABOUT THEM, NOT THREE NUMBERS —
+                   2026-09-13, Andrew's rule that guidance is written as the row
+                   itself. The sentence comes from `lib/attention.js`, the same
+                   file that decides who appears on Today, so this list and that
+                   one can never describe the same detailer differently. A row
+                   with no reasons gets the positive fact instead of a blank,
+                   because "nothing is wrong" is an answer and an empty line is
+                   not. */
+                const why = r.is_demo ? [] : reasonsFor(r);
+                /* **THE FIRST VERSION PRINTED ONE IDENTICAL SENTENCE FOURTEEN
+                   TIMES** — "A seeded fixture. Left out of every count on this
+                   screen." — which buried the single real detailer in the
+                   middle of it and is Andrew's monotony fault exactly. The
+                   fixture rule is stated ONCE, under the list, and every row
+                   here says the one thing that is actually different about
+                   it. The DEMO flag beside the name already marks which is
+                   which. */
+                const line = why.length
+                  ? why.join(" · ")
+                  : `${r.bookings_total ?? 0 ? "Booking" : "No bookings"} · last one ${ago(r.last_booking_at).toLowerCase()}`;
                 return (
                   <button key={r.id} className="pa-biz" type="button" onClick={() => setOpen(r)}>
                     <span className="pa-biz-n">
                       {r.name}
                       {r.is_demo && <span className="pa-flag">demo</span>}
                       {r.status === "paused" && <span className="pa-flag pa-off">suspended</span>}
-                      {bill?.pastDue && <span className="pa-flag pa-off">past due</span>}
-                      {sp.done >= sp.total && <span className="pa-flag pa-on">set up</span>}
+                      {bill.tone === "bad" && !r.is_demo && <span className="pa-flag pa-off">{bill.label.toLowerCase()}</span>}
+                      {sp.count >= sp.total && <span className="pa-flag pa-on">set up</span>}
                     </span>
-                    <span className="pa-biz-m">{r.owner_email ?? "no owner account"} · {ago(r.last_booking_at)}</span>
+                    <span className="pa-biz-m">{line}</span>
                     <span className="pa-biz-f">
-                      <span><b>{r.jobs_month}</b> jobs</span>
-                      <span><b>{money(r.revenue_month)}</b></span>
-                      <span><b>{r.customers}</b> customers</span>
+                      {/* `plural`, NOT a bare count. "1 customers" is the
+                          unguarded-plural bug CLAUDE.md already names once
+                          ("1 visits"), and it was live on three rows here. */}
+                      <span><b>{r.jobs_month}</b> {r.jobs_month === 1 ? "job" : "jobs"} this month</span>
+                      <span><b>{money(r.revenue_month)}</b> taken</span>
+                      <span><b>{r.customers}</b> {r.customers === 1 ? "customer" : "customers"}</span>
+                      <span>setup <b>{sp.count}</b> of {sp.total}</span>
                     </span>
                   </button>
                 );
@@ -806,7 +1045,7 @@ function TabWho({ rows, totals, reload }) {
             </div>
           )}
         <p className="pa-sub" style={{ marginTop: 12 }}>
-          Showing {shown.length} of {rows.length}. {totals.demo ? `${totals.demo} demo or test row${totals.demo === 1 ? "" : "s"} are left out of every figure above.` : ""}
+          Showing {shown.length} of {rows.length}. {totals.demo ? `${totals.demo} demo or test row${totals.demo === 1 ? " is" : "s are"} in this list and left out of every count elsewhere.` : ""}
         </p>
       </section>
 
@@ -825,8 +1064,18 @@ function Business({ row, detail, onClose, reload }) {
   // way out was reloading the page.
   const [leaving, close] = useLeaving(onClose);
   const [busy, setBusy] = useState("");
-  const sp = setupProgress(row);
+  const sp = setupOf(row);
   const bill = billingState(row.subscription);
+  // **`bookability(row)` WAS ALWAYS WRONG AND THE ROW WAS ALWAYS BLANK.** It
+  // takes `{ business, counts, settings }`, which the payload carries under
+  // `setup_inputs`; passed the whole row it destructured undefineds and
+  // reported "no active services, no open days" about every business alive.
+  // Then the screen read `.label`, which this function has never returned, so
+  // the `?? "—"` fallback hid the wrong answer behind a dash. **A defect that
+  // renders as an em dash is a defect nobody reports.**
+  const book = bookability(row.setup_inputs ?? {});
+  const why = row.is_demo ? [] : reasonsFor(row);
+  const todo = actionFor(why);
   const series = detail?.bookings ? monthlySeries(detail.bookings, 6, new Date(), row.timezone) : null;
 
   // ESCAPE CLOSES IT TOO. A panel that covers the page and cannot be left is
@@ -857,6 +1106,16 @@ function Business({ row, detail, onClose, reload }) {
             <p className="pa-sub">{row.owner_email ?? "no owner account yet"}</p>
           </div>
 
+          {/* WHAT IS TRUE ABOUT THEM, AND WHAT TO DO — the same sentence Today
+              shows, from the same file, so the two screens cannot describe one
+              detailer differently. */}
+          {(why.length > 0 || todo) && (
+            <div className="pa-do" style={{ "--i": 1, marginTop: 12 }}>
+              <div className="pa-do-t"><span className="pa-ev">{why.join(" · ")}</span></div>
+              {todo && <p className="pa-act">{todo}</p>}
+            </div>
+          )}
+
           {series && (
             <div style={{ "--i": 1, marginTop: 16 }}>
               <span className="pa-lab">Their last six months</span>
@@ -872,9 +1131,12 @@ function Business({ row, detail, onClose, reload }) {
               <Row k="Customers" v={row.customers} />
               <Row k="Last booking" v={ago(row.last_booking_at)} />
               <Row k="Requests waiting" v={row.requests_waiting ?? 0} />
-              <Row k="Setup" v={`${sp.done} of ${sp.total}`} />
-              <Row k="Subscription" v={bill?.label ?? "none"} />
-              <Row k="Their page" v={bookability(row)?.label ?? "—"} />
+              <Row k="Setup" v={`${sp.count} of ${sp.total}`} />
+              <Row k="Subscription" v={bill.label} />
+              <Row k="Their page"
+                   v={book.ok
+                     ? (book.mode === "request" ? "Takes requests, you answer" : "Taking bookings")
+                     : book.reasons.join(", ")} />
               <Row k="Website" v={row.site_url ? (row.domain_verified ? "verified" : "not verified") : "none yet"} />
             </div>
           </div>
@@ -949,35 +1211,108 @@ function TabMoney({ state, totals, rows }) {
     return Object.entries(t);
   }, [rows]);
 
+  /* MONEY THAT IS ABOUT TO STOP ARRIVING, with the reason and the action —
+     2026-09-13, rebuilt to Today's shape. The old screen led with three tiles,
+     which told him what the numbers WERE and nothing about what to do, and a
+     tile is exactly the thing Today's rule cuts: a figure waiting to be
+     interpreted by somebody who already knows what good looks like.
+
+     EACH ROW IS AN OBSERVATION WITH A CAUSE, never a forecast. "Their card was
+     declined" is checkable; "at risk of churning" is a guess he would act on by
+     ringing a real person. */
+  const atRisk = useMemo(() => {
+    const out = [];
+    for (const r of rows) {
+      if (r.is_demo) continue;
+      const b = billingState(r.subscription);
+      if (b.tone === "good") continue;
+      const cents = r.subscription?.recurring_cents ?? 0;
+      out.push({ id: r.id, name: r.name, label: b.label, detail: b.detail, cents, email: r.owner_email });
+    }
+    return out.sort((a, b) => b.cents - a.cents);
+  }, [rows]);
+  const riskCents = atRisk.reduce((a, r) => a + r.cents, 0);
+
   const p = state?.prices;
   return (
     <>
-      {/* THE DISTINCTION THAT THE OLD SCREEN GOT WRONG by putting both figures
-          in one row in one style: what the platform EARNS and what flows
-          THROUGH it are different numbers by two orders of magnitude, and only
-          one of them is income. */}
-      <section className="pa-tiles" style={{ "--i": 0 }}>
-        <Tile n={money((totals.mrr_cents ?? 0) / 100)} t="Ours, every month" />
-        <Tile n={money(totals.revenue_month ?? 0)} t="Detailers' takings this month" />
-        <Tile n={totals.founding_left ?? 0} t="Founding spots left" />
+      {/* THE DISTINCTION THE OLD SCREEN GOT WRONG by putting both figures in
+          one row in one style: what the platform EARNS and what flows THROUGH
+          it are different numbers by two orders of magnitude, and only one of
+          them is income. It is a sentence now rather than two tiles, because
+          the sentence is the part that says which is which. */}
+      <section className="pa-sec pa-today" style={{ "--i": 0 }}>
+        <p className="pa-lede">
+          {(totals.mrr_cents ?? 0) === 0
+            ? "Nothing is coming in yet."
+            : `${money((totals.mrr_cents ?? 0) / 100)} a month is ours.`}
+        </p>
+        <p className="pa-sub">
+          {money(totals.revenue_month ?? 0)} went through the platform this month. That is the
+          detailers&apos; money, not ours — it is the proof the product works rather than income.
+        </p>
       </section>
 
+      {/* 1 · WHAT IS ABOUT TO STOP. Above the earnings breakdown, because a
+             breakdown is a report and this is a list of phone calls. */}
       <section className="pa-sec" style={{ "--i": 1 }}>
+        <div className="pa-h"><h2>Money at risk</h2></div>
+        {atRisk.length === 0
+          ? (
+            <div className="pa-card">
+              <p className="pa-none">
+                {totals.businesses
+                  ? "Every detailer is paying and nothing has failed."
+                  : "Nobody is paying yet, so there is nothing to lose. This fills in when a card fails, somebody gives notice, or a detailer is on the product for nothing."}
+              </p>
+            </div>
+          )
+          : (
+            <div className="pa-card">
+              <div className="pa-rows">
+                {atRisk.map((r) => (
+                  <div className="pa-do" key={r.id}>
+                    <div className="pa-do-t">
+                      <strong>{r.name}</strong>
+                      <span className="pa-ev">
+                        {r.label}{r.cents ? ` · ${money(r.cents / 100)} a month` : " · paying nothing"}
+                      </span>
+                    </div>
+                    {r.detail && <p className="pa-act">{r.detail}</p>}
+                    {r.email && <a className="pa-btn" href={`mailto:${r.email}`}>{r.email}</a>}
+                  </div>
+                ))}
+              </div>
+              <p className="pa-sub pa-act">
+                {riskCents
+                  ? `${money(riskCents / 100)} a month sits on these ${plural(atRisk.length, "account", "accounts")}. A card that failed is retried automatically; the rest need a phone call.`
+                  : "None of these is paying anything today, so nothing stops if they leave. They are here because a subscription that never started is a sale that was never finished."}
+              </p>
+            </div>
+          )}
+      </section>
+
+      <section className="pa-sec" style={{ "--i": 2 }}>
         <div className="pa-h"><h2>What we earn, by plan</h2></div>
         <div className="pa-card">
           {byTier.length === 0
             ? <p className="pa-none">Nobody is paying yet.</p>
             : (
               <div className="pa-rows">
+                {/* `say()` RATHER THAN THE RAW COLUMN. `plan_tier` holds
+                    `founding` and `standard`, which are database tokens; the
+                    price table two sections down already has English for them
+                    and printing one screen in two vocabularies is how a
+                    support call starts with a question about wording. */}
                 {byTier.map(([k, v]) => (
-                  <Row key={k} k={`${k} · ${v.n} detailer${v.n === 1 ? "" : "s"}`} v={`${money(v.cents / 100)}/mo`} />
+                  <Row key={k} k={`${say(k)} · ${plural(v.n, "detailer", "detailers")}`} v={`${money(v.cents / 100)} a month`} />
                 ))}
               </div>
             )}
         </div>
       </section>
 
-      <section className="pa-sec" style={{ "--i": 2 }}>
+      <section className="pa-sec" style={{ "--i": 3 }}>
         <div className="pa-h">
           <h2>What we charge</h2>
           <span className="pa-sub">
@@ -1003,7 +1338,7 @@ function TabMoney({ state, totals, rows }) {
         </div>
       </section>
 
-      <section className="pa-sec" style={{ "--i": 3 }}>
+      <section className="pa-sec" style={{ "--i": 4 }}>
         <div className="pa-h"><h2>Promo codes</h2></div>
         <div className="pa-card">
           {(state?.promos ?? []).length === 0
@@ -1022,7 +1357,7 @@ function TabMoney({ state, totals, rows }) {
       {/* SAYING WHAT IS MISSING IS PART OF THE SCREEN. A money page that
           silently omits costs reads as "you have no costs", which is worse
           than an empty panel that names what it is waiting for. */}
-      <section className="pa-sec" style={{ "--i": 4 }}>
+      <section className="pa-sec" style={{ "--i": 5 }}>
         <div className="pa-h"><h2>Not here yet</h2></div>
         <div className="pa-card">
           <div className="pa-rows">
@@ -1030,13 +1365,17 @@ function TabMoney({ state, totals, rows }) {
             <Row k="Profit" v="needs the line above" />
             <Row k="Stripe · payouts, failed charges, disputes" v="needs Stripe connected" />
           </div>
+          <p className="pa-sub pa-act">
+            These are missing rather than zero. Until the costs line exists, the figure at the top of
+            this screen is revenue and not profit, and nothing here can tell you the difference.
+          </p>
         </div>
       </section>
     </>
   );
 }
 
-/* ══ TAB 4 · PLUMBING ══════════════════════════════════════════════════════ */
+/* ══ TAB 5 · PLUMBING ══════════════════════════════════════════════════════ */
 function TabPipes({ state, alerts }) {
   const store = state?.photo_store;
   const mail = state?.email;

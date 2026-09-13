@@ -319,7 +319,22 @@
 .pa-x:hover { color: var(--bone); }
 
 .pa-acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+/* **`inline-flex`, AND IT IS A BUG FIX RATHER THAN A PREFERENCE — 2026-09-13.**
+   This rule set no `display` at all, so a `<button>` picked up `inline-block`
+   and an `<a>` picked up plain `inline`. **Vertical padding on an inline
+   element does not affect the line box**: it paints outside the flow, and
+   `margin-top` is ignored outright. So an `<a class="pa-btn">` in normal flow
+   sat ON TOP of the sentence above it — measured at minus five pixels on
+   Today's detailer card, where the instruction ended at y 340.3 and the chip
+   began at y 335.3.
+   **Andrew found it by glancing at a screenshot.** Two of us had loaded that
+   page and read it, and both checked that the words were right without ever
+   checking that they did not overlap each other.
+   Fixed on the base rule rather than on the one instance, because every future
+   `<a class="pa-btn">` outside a flex row has the same bug waiting. Inside a
+   flex row this changes nothing — flex items are blockified already. */
 .pa-btn {
+  display: inline-flex; align-items: center; justify-content: center;
   background: rgba(255,255,255,.04); border: 0;
   box-shadow: inset 0 0 0 1px var(--line-2);
   border-radius: var(--r-pill); padding: 8px 14px;
