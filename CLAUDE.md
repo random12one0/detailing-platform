@@ -1116,22 +1116,24 @@ undo it.
   trade, and here *"it did not get written"* is not an answer to give a
   detailer who asks.
   **THE MASTER LOGIN IS `demo@demo.com` AND IT IS THE ONLY ROW IN
-  `platform_admins` — the owner's own instruction, roadmap 8.2:** *"clear all
-  logons, have my login for like the master login be email is demo@demo.com and
-  password is demo."*
-  ~~**`demo` IS THE PASSWORD.**~~ **STALE SINCE 2026-09-09 AND MEASURED WRONG ON
-  2026-09-13.** He asked for `demo`; **the project rejects anything under ten
-  characters**, so it was changed on 2026-09-09 at his ask.
-  **THE VALUE IS DELIBERATELY NOT WRITTEN HERE — Cowork's rule, 2026-09-13.**
-  `CLAUDE.md` is read aloud to every future session, and a credential in a file
-  like that leaks eventually. It lives in the `platform_admins` row's own
-  `note` column and nowhere else; read it with the service key, or ask Andrew.
-  This line said `demo` for four days, which is its own lesson: a credential
-  copied into prose goes stale and the copy nobody maintains is the one people
-  read.
-  **Verified by signing in through the auth API: the four-character value is
-  rejected, the twelve-character one returns a session.** A session that reads
-  the stale line and tries it concludes the back office is broken.
+  `platform_admins` — the owner's own instruction, roadmap 8.2**, where he
+  asked for every other login to be cleared and named this address as his.
+  **NO PASSWORD IS WRITTEN IN THIS FILE, AND NONE MAY BE — Cowork's rule,
+  2026-09-13, and it is the whole reason this block was rewritten.** His words:
+  *"A credential recorded in a file that gets read aloud to every future
+  session is a credential that leaks eventually. If the file needs to say
+  anything, it should say where the password lives and who can get it, not what
+  it is."*
+  **WHERE IT LIVES:** the `platform_admins` row's own `note` column, readable
+  with the service key, and Andrew himself. Nowhere else, and not here.
+  **AND THE RULE HAS ALREADY EARNED ITSELF TWICE OVER.** The value written in
+  this file was wrong for four days — he asked for a short one, the project
+  rejects anything under ten characters, and it was changed on 2026-09-09
+  without this line moving. **A credential copied into prose goes stale, and
+  the copy nobody maintains is the one people read**: a session that tried it
+  would have concluded the back office was broken. Verified by signing in
+  through the auth API on 2026-09-13 — the old value is rejected, the current
+  one returns a session.
   **AND IT IS NOT IN THE SEED, WHICH IS THE REAL GAP.** `seed-demo.mjs` does
   NOT create this account; `--platform-admin` creates a DIFFERENT one
   (`demo-admin@detailplatform.com`) with a random password written to the
