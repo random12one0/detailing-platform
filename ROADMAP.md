@@ -61,6 +61,63 @@ from the list below.**
    wrong rather than imperfect."* Service and plan names ARE translated, and they
    are what the first-run review puts in front of the detailer.
 
+## WHAT WE NEVER TRANSLATE, AND WHY — two rules, one reason. Andrew, 2026-09-13.
+
+**These are rules about WHOSE WORDS THEY ARE, not about quality.** A bad
+translation of our own copy is a bug to fix. A translation of either of the
+things below is wrong even when it is fluent, which is why neither is a setting,
+a threshold or a review step — both are refusals.
+
+### 1 · WE DO NOT TRANSLATE WHAT A BUSINESS IS CALLED
+
+*"'Coastline Auto Detailing' is that person's name, it is on their van and their
+invoices, and a Spanish version of it is simply wrong rather than imperfect.
+Treat it as a proper noun in the same class as a person's name."*
+
+The business name and anything derived from it — a page title, an email subject
+line, a masthead, a browser tab title, the from-name on an email — stay exactly
+as typed in every language, and so do the other things that are names rather
+than descriptions: the slug, a custom domain, a promo code, a payment handle.
+**Enforced by the `translations_never_a_name` trigger**, because the dangerous
+case is not the obvious field but a sentence built by joining a name to
+translated words — the pattern that hid strings from three sweeps on 2026-09-12.
+
+Service names, add-on names and plan names ARE translated, and they are what the
+first-run review puts in front of the detailer.
+
+### 2 · WE DO NOT TRANSLATE WHAT A REAL PERSON SAID
+
+**Customer reviews and testimonials stay in the language they were written in.**
+`testimonials[].quote`, `testimonials[].author` and `testimonials[].source`
+are on the SKIP list in `supabase/functions/_shared/translatable.ts`, with this
+reason written beside them.
+
+**Andrew's ruling, 2026-09-13:** *"A review is a named person's actual words, and
+machine-translating it puts sentences in their mouth that they never said.
+Record it as a rule with that reason, alongside the business-name rule: we do not
+translate what a real person said, any more than we translate what a business is
+called."*
+
+**AND THE ASYMMETRY IS THE WHOLE ARGUMENT, so do not "improve" this later.** A
+service description translated badly is the detailer's own problem and the
+first-run review is the remedy — he can read it and correct it, because they are
+his words. **A review translated badly is attributed BY NAME to somebody who
+cannot see it, cannot correct it and never agreed to it**, and no review screen
+makes that right. There is no version of a review-translation feature that fixes
+the objection, because the objection is not about accuracy.
+
+A Spanish customer therefore reads English reviews on an otherwise Spanish page.
+That is the correct outcome and it is what every honest site does: the
+alternative is a fabricated quotation.
+
+**THE GENERAL FORM, which is the part that transfers to the next feature:** this
+product already draws a line at whose words a sweep may touch —
+`CLAUDE.md` § THE EM DASH, *"a sweep that reaches a database column holding
+somebody's own words stops there"*, and Cowork's `text-transform` ruling, *"the
+distinction is one the instrument is incapable of making, so it is the wrong
+instrument."* Translation is the same line drawn one step further out: **ours to
+rewrite, the detailer's to offer to rewrite, a third party's to leave alone.**
+
 ## ALL THREE API KEYS EXIST — Andrew, 2026-09-13. DO NOT ASK HIM FOR THEM.
 
 **`DEEPL_API_KEY`, `GOOGLE_TRANSLATE_API_KEY` and `GEOAPIFY_API_KEY` are all
