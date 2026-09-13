@@ -102,7 +102,11 @@ console.log("2. the extra car is a labelled line, and it is inside the surcharge
     two.sizeAdd === 0, String(two.sizeAdd));
   check("2c · the second car is its own named line",
     two.adjustmentLines.length === 1
-      && /2nd vehicle — Large · F-150/.test(two.adjustmentLines[0].label)
+      // THE SEPARATOR IS A MIDDLE DOT, and this line asserted an em dash for a
+      // day after `pricing.ts` was corrected on 2026-09-12 — the check was
+      // coupled to the SPELLING, which is trap (k). It now reads the shape the
+      // generator actually builds: ordinal, separator, size, separator, model.
+      && /^2nd vehicle · Large · F-150$/.test(two.adjustmentLines[0].label)
       && two.adjustmentLines[0].amount === 120,
     JSON.stringify(two.adjustmentLines));
   check("2d · and the itemisation still adds up to the charged total",

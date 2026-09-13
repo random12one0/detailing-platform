@@ -1939,3 +1939,182 @@ that said nothing about the product.
 checks that failed first. A suite without subject counts would have reported
 *"no customer template binds the language"* and sent somebody hunting in the
 wrong file. **Count subjects every run.**
+
+**SUPERSEDED BELOW — § THE EM DASH SWEEP IS DONE, AND IT WAS 106 RATHER THAN
+19. All of them are fixed and `tests/em-dash.test.mjs` is the standing check.**
+
+---
+
+## THE EM DASH SWEEP IS DONE, AND IT WAS 106 RATHER THAN 19 — 2026-09-13
+
+**The section above recorded twenty and fixed one. The real number, once the
+instrument stopped looking only at `t("…")` literals, was 106.** All of them are
+gone and `tests/em-dash.test.mjs` is the standing check.
+
+**WHY THE FIRST COUNT WAS LOW, AND IT IS THE SAME MISTAKE TWICE IN ONE FILE.**
+A grep for a dash inside a TRANSLATED STRING cannot see a dash in a template
+literal that only exists once two values meet (`${customer_name} — ${dateStr}`,
+twenty of those), a dash in a plain `error:` string that is never translated
+(fifteen), or **the HTML entity `&mdash;`, which is the identical defect in
+another costume** (two, one of them inside a paragraph of prose).
+
+**AND SIX OF THE FIRST HUNDRED FINDINGS WERE NOT COPY AT ALL.** A
+`console.error(...)` whose arguments run over four lines is four lines of LOG
+text, and a scanner that skips only the line carrying the word `console` reads
+the other three as product prose. The check tracks the open call's paren depth.
+
+**THE CLASSIFICATION IS THE WORK AND A COUNT CANNOT DO IT** — `CLAUDE.md`
+§ THE EM DASH HAS THREE SHAPES. Of the 106: label separators took the middle dot
+(`Receipt · {amount} · {brand}`, `2nd vehicle · Large`, every push-notification
+body), sentence joints took a full stop (`Nothing to pay now. This is for when
+the work is done.`), and three took a colon where the dash was introducing a
+list. **Not one was a parenthetical pair**, so the check's ALLOW set holds a
+single entry and it is not copy either: `emailKit.ts`'s HTML-to-plaintext
+decoder has to name `&mdash;` in order to turn it back into a character.
+
+**EVERY ENGLISH RENAME MOVED ITS SPANISH KEY IN THE SAME EDIT** — 32 lines of
+`_shared/strings/es.ts`. That file is keyed on the English text, so a rename
+without it renders English on a Spanish screen with no error anywhere.
+
+### AND IT TURNED UP A DIVERGENCE NOBODY WAS WATCHING: THE RENDERER'S FIXTURES
+
+`scripts/render-emails.mjs` is what Andrew is shown when he asks what an email
+looks like. **Four of its fixtures were hand-typed copies of strings the product
+GENERATES, and they had drifted:**
+
+| the fixture said | the product actually emits |
+|---|---|
+| `2nd vehicle — Large · 2021 Ford F-150` | `2nd vehicle · Large · …` (`pricing.ts:457`) |
+| `Bi-weekly maintenance — included` | `{plan.name} · included` (`pricing.ts:286`) |
+| `Nothing has been paid yet — you will get…` | the same sentence in `create-business/index.ts:132` |
+| the campaign draft with a dash in it | `CampaignModal.jsx`'s default, which has a full stop |
+
+**So the preview was showing a version of the email nobody sends**, and two of
+the four had been corrected in the product on 2026-09-12 while their copies sat
+in the renderer unread. **A fixture that RESTATES a generated string is a second
+copy with nobody maintaining it.** They are corrected; the real fix, when
+somebody has a reason to touch that file, is to call the generator.
+
+**PROVED BY LOOKING, NOT ONLY BY THE CHECK:** `node scripts/render-emails.mjs`
+renders 29 emails, English and Spanish, and a grep for an em dash across
+`email-preview/*` now returns nothing at all.
+
+---
+
+## THE WATCHDOG CRIED WOLF AND NEVER SAID ALL-CLEAR — found by Andrew, caused by two lines, 2026-09-13
+
+**His report:** Resend shows *"The reminder sweep has stopped running"* at 11:22
+UTC on 12 September and **no "is running again" after it**, while the back
+office's Plumbing tab shows the job finishing inside its threshold. **His
+reason for caring, which is the part to keep:** *"a watchdog that only ever
+cries wolf is one Andrew learns to ignore, which makes it worse than none."*
+
+### THE ALARM WAS TRUE. THE SILENCE AFTERWARDS WAS THE BUG.
+
+The project's own edge logs settle both halves:
+
+```
+2026-09-12T08:00:54Z  rpc/note_heartbeat      204   <- the sweep's LAST stamp
+   ... 18 hours, with send-owner-reminders BOOTING every 15 minutes ...
+2026-09-13T01:53:52Z  rpc/note_heartbeat      204   <- and its first one back
+```
+
+So the sweep really was dead for eighteen hours while being invoked on time —
+it was dying before it reached the stamp. **The 11:22 email was correct.**
+
+### THE CAUSE OF THE MISSING ALL-CLEAR, TO THE MILLISECOND
+
+```
+2026-09-13T02:07:00.819Z  rpc/claim_job_alerts   200   <- claims "recovered"
+2026-09-13T02:07:00.914Z  platform_settings      504   <- and then this
+```
+
+`watch-jobs` **claimed the change set and then read the address to send it to.**
+The claim had already set `alerted_at` back to NULL. The settings read timed
+out, `ps` was `undefined`, `ps?.owner_email` was falsy, and the function fell
+into its *"there is no owner_email to tell"* branch — **which logged a line and
+threw away the only notice of that recovery that would ever exist.** At 02:22
+there was nothing left to claim. The identical pair had already failed at
+01:52:02, fifteen minutes earlier.
+
+**IT IS THE HOUSE RATE, NOT A COINCIDENCE.** § THE "GATEWAY TIMEOUT" IS OUR OWN
+CATCH BLOCK measured ~1.1% of every REST call in this project returning 504, and
+a function's chance of dying is its NUMBER OF REST CALLS. Two calls every
+fifteen minutes is ~2,900 a month, so this lost a claim roughly **thirty times a
+month — and it did it to STOPPAGES exactly as readily as to recoveries.** The
+alarm that matters most was being dropped by the same line.
+
+### THREE THINGS WERE WRONG AND ALL THREE ARE FIXED
+
+1. **THE ORDER.** The address is read FIRST now, and a failed read claims
+   nothing and pings nothing, returning `503 settings_unreadable`. A 504 costs
+   one skipped tick instead of one lost alarm.
+2. **THE ERROR WAS DISCARDED.** `.maybeSingle()` returns "no row" and "the read
+   failed" through the same `data: null`, so *an unconfigured product and a
+   timed-out gateway were one value.* The seventh costume of an instrument
+   reporting on a question it never got to ask.
+3. **THE UNDO ONLY WORKED ONE WAY.** `release_job_alerts` re-armed stoppages
+   only, on the written grounds that *"a lost recovery notice is good news he
+   can also read on the screen."* **Andrew has rejected that trade.** It is
+   replaced by `restore_job_alerts(p_stale, p_recovered)` — null re-arms a
+   stoppage, `now()` re-arms a recovery — and the old half-undo is dropped
+   rather than left beside it.
+
+**THE OLD TEST WAS ENFORCING THE BUG.** `dead-mans-switch` § 1d-ii read *"and it
+re-arms the STOPPAGES, not the recoveries"* and passed every run while a real
+all-clear was being dropped. **A check can be green and wrong about what it
+wants.**
+
+**BASELINED, AND THE LIVE LEG DISCRIMINATES.** A deliberately broken build that
+re-armed only stoppages was deployed: § 2i-iv (*an unsendable RECOVERY is
+re-armed*) went red while § 2i-ii (the stoppage half) stayed green, and the
+source-order check § 1j went red when the claim was moved back in front. 50/50
+with the correct build deployed.
+
+---
+
+## THE WATCHDOG'S BLIND SPOT — a job whose heartbeat ROW is gone is watched by nothing, 2026-09-13
+
+`watch-jobs` compares ROWS: no row, no comparison, no alert. Its own
+`ponytail:` comment says so and names the compensating control — *"the back
+office's named list is what draws 'have never reported' if one ever goes."*
+
+**THAT NAMED LIST NO LONGER EXISTS.** The back office was rebuilt around a
+`TabPipes` panel that maps `state.heartbeats`, so a job with no row renders
+nothing at all. `AdminPage.jsx`'s `const JOBS = [...]`, `jobKeys` and
+`if (!beat) return true;` are all gone. Nothing in the product now knows which
+scheduled jobs are SUPPOSED to exist.
+
+**Nothing deletes a heartbeat row today** (`note_heartbeat` upserts, the seed
+migration creates them), so this is a missing guard rather than a live outage —
+which is exactly why it will be discovered the hard way. The fix is one
+expected-job list, and the honest place for it is `watch-jobs` itself rather
+than a screen, because the watcher is the half that TELLS.
+
+**`tests/dead-mans-switch.test.mjs` § 3 prints `NOT GUARDED` on every run**
+rather than failing, because the screen is lane B's and a check that fails every
+run about somebody else's file is one people learn to skip — the same disease as
+the alarm it guards.
+
+---
+
+## EIGHT BACK-OFFICE ACTIONS HAVE NO DOOR — 2026-09-13
+
+`supabase/functions/platform-admin/index.ts` answers fifteen actions.
+`app/src/admin/AdminPage.jsx` calls **six**: `list`, `whoami`, `create`, `get`,
+`suspend`/`restore`, `impersonate`.
+
+**With no caller anywhere in `app/src`:** `prices`, `promo_new`, `promo_off`,
+`note`, `site`, `export`, `tier`, `resend_invite`.
+
+Found because `tests/platform-billing.test.mjs`'s *"and clearing it back to the
+files is a real button"* went red — it asserts
+`action: "prices", prices: null` in `AdminPage.jsx`, and the rebuilt screen has
+no price editor at all. **That check is RIGHT and has been left failing on
+purpose**, because making it pass would hide a missing screen.
+
+**This matters more than a dead endpoint usually does:** `CLAUDE.md` describes
+the price editor's behaviour in detail (*"the editor WARNS and never refuses"*),
+and `ROADMAP.md` records a question to Andrew about whether it should refuse.
+**A feature the documentation discusses and the product cannot reach.** Lane B
+owns the screens; whether all eight are wanted is Andrew's call.

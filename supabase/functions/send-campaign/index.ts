@@ -89,8 +89,8 @@ Deno.serve(async (req) => {
     const mailingAddress = String(business.mailing_address ?? "").trim();
     if (!mailingAddress) {
       return json({
-        error: "Add your business's mailing address under Business info first —"
-          + " the law requires it at the bottom of an email like this.",
+        error: "Add your business's mailing address under Business info first."
+          + " The law requires it at the bottom of an email like this.",
       }, 400);
     }
 

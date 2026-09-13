@@ -57,7 +57,7 @@ export async function createBusinessRow(db: Db, input: NewBusinessInput): Promis
   // backstop for direct inserts; a business quietly running on the wrong
   // clock books every job at the wrong time, and nothing about that is
   // visible until a customer turns up three hours early.
-  if (!timezone) return { error: "Choose a timezone — every booking time depends on it.", status: 400 };
+  if (!timezone) return { error: "Choose a timezone. Every booking time depends on it.", status: 400 };
   try {
     new Intl.DateTimeFormat("en-US", { timeZone: timezone });
   } catch {

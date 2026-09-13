@@ -62,11 +62,11 @@ export const es: Record<string, string> = {
   "Other": "Otro",
   "Cash": "Efectivo",
   "On the day": "El día del servicio",
-  "Nothing to pay now — this is for when the work is done.":
-    "No hay nada que pagar ahora — esto es para cuando el trabajo esté hecho.",
+  "Nothing to pay now. This is for when the work is done.":
+    "No hay nada que pagar ahora. Esto es para cuando el trabajo esté hecho.",
   "For when the work is done.": "Para cuando el trabajo esté hecho.",
-  "Keep this email — the link above is how you change or cancel without ringing anyone. To book again any time: {url}":
-    "Guarda este correo — el enlace de arriba es como cambias o cancelas sin llamar a nadie. Para reservar otra vez cuando quieras: {url}",
+  "Keep this email. The link above is how you change or cancel without ringing anyone. To book again any time: {url}":
+    "Guarda este correo. El enlace de arriba es como cambias o cancelas sin llamar a nadie. Para reservar otra vez cuando quieras: {url}",
   // `reconcile`'s two labels: the line it draws when an itemised column does
   // not reach its own total.
   "Discount applied": "Descuento aplicado",
@@ -81,9 +81,9 @@ export const es: Record<string, string> = {
   // waiting for a reply on it.
   "Automated message": "Mensaje automático",
   "You booked with us before": "Ya reservaste con nosotros antes",
-  "{prefix} — reply to reach us.": "{prefix} — responde para comunicarte con nosotros.",
-  "{prefix} — call or text {phone} to reach a person.":
-    "{prefix} — llama o manda un mensaje al {phone} para hablar con una persona.",
+  "{prefix} · reply to reach us.": "{prefix} · responde para comunicarte con nosotros.",
+  "{prefix} · call or text {phone} to reach a person.":
+    "{prefix} · llama o manda un mensaje al {phone} para hablar con una persona.",
   "Stop getting emails like this": "Dejar de recibir correos como este",
 
   // ── 1 · The confirmation, and the request that is not one yet ──────────
@@ -93,8 +93,8 @@ export const es: Record<string, string> = {
   "We're holding your time": "Te estamos guardando el horario",
   "Thanks, {first}. Here's everything for your appointment.":
     "Gracias, {first}. Aquí está todo sobre tu cita.",
-  "Thanks, {first} — we've got your request and nobody else can take this time while we look at it. You'll hear from us shortly.":
-    "Gracias, {first} — ya tenemos tu solicitud y nadie más puede tomar este horario mientras la revisamos. Te avisamos pronto.",
+  "Thanks, {first}. We've got your request and nobody else can take this time while we look at it. You'll hear from us shortly.":
+    "Gracias, {first}. Ya tenemos tu solicitud y nadie más puede tomar este horario mientras la revisamos. Te avisamos pronto.",
   "What we're doing": "Lo que vamos a hacer",
   "Estimated total": "Total estimado",
   "An estimate. If the vehicle's condition needs more time than expected we'll tell you before we start, never after.":
@@ -104,8 +104,8 @@ export const es: Record<string, string> = {
   "Nothing is charged now. We'll email you the moment we've accepted.":
     "No se cobra nada ahora. Te escribimos en cuanto la aceptemos.",
   "Your notes": "Tus notas",
-  "Booking confirmed — {date}": "Reserva confirmada — {date}",
-  "Request received — {date}": "Solicitud recibida — {date}",
+  "Booking confirmed · {date}": "Reserva confirmada · {date}",
+  "Request received · {date}": "Solicitud recibida · {date}",
   "We're holding your time while we look at it.":
     "Te estamos guardando el horario mientras la revisamos.",
   "{date} at {time}.": "{date} a las {time}.",
@@ -122,16 +122,16 @@ export const es: Record<string, string> = {
   "See it and say yes": "Verlo y aceptar",
   "Request accepted": "Solicitud aceptada",
   "You're booked in": "Ya quedaste apartado",
-  "Good news — we've accepted your request for {when}. It's in the diary.":
-    "Buenas noticias — aceptamos tu solicitud para el {when}. Ya está en la agenda.",
+  "Good news. We've accepted your request for {when}. It's in the diary.":
+    "Buenas noticias. Aceptamos tu solicitud para el {when}. Ya está en la agenda.",
   "View or change your booking": "Ver o cambiar tu reserva",
   "Request declined": "Solicitud rechazada",
   "We can't make that one": "Ese horario no lo podemos tomar",
-  "We're sorry — we can't take {when}, so we've let that time go.":
-    "Lo sentimos — no podemos tomar el {when}, así que liberamos ese horario.",
-  "If another day works, we'd still love to see you — {link}.":
-    "Si te sirve otro día, nos encantaría atenderte — {link}.",
-  "You're booked in — {date}": "Ya quedaste apartado — {date}",
+  "We're sorry. We can't take {when}, so we've let that time go.":
+    "Lo sentimos. No podemos tomar el {when}, así que liberamos ese horario.",
+  "If another day works, we'd still love to see you: {link}.":
+    "Si te sirve otro día, nos encantaría atenderte: {link}.",
+  "You're booked in · {date}": "Ya quedaste apartado · {date}",
   "About your request for {date}": "Sobre tu solicitud para el {date}",
   "Your price: {amount} for {date}": "Tu precio: {amount} para el {date}",
 
@@ -140,8 +140,8 @@ export const es: Record<string, string> = {
   "Invoice": "Factura",
   "Paid in full": "Pagado por completo",
   "Amount due": "Monto a pagar",
-  "Thanks, {first} — here's your receipt for the work on {date}.":
-    "Gracias, {first} — aquí está tu recibo por el trabajo del {date}.",
+  "Thanks, {first}. Here's your receipt for the work on {date}.":
+    "Gracias, {first}. Aquí está tu recibo por el trabajo del {date}.",
   "Hi {first}, here's the invoice for the work on {date}.":
     "Hola {first}, aquí está la factura por el trabajo del {date}.",
   "Reference": "Referencia",
@@ -157,9 +157,9 @@ export const es: Record<string, string> = {
   "View this online": "Verlo en línea",
   "Keep this for your records. Reply to this email if anything looks wrong.":
     "Guárdalo para tus registros. Responde a este correo si algo no cuadra.",
-  "Receipt — {amount} — {brand}": "Recibo — {amount} — {brand}",
-  "Invoice — {amount} due — {brand}": "Factura — {amount} a pagar — {brand}",
-  "Paid in full — {amount}.": "Pagado por completo — {amount}.",
+  "Receipt · {amount} · {brand}": "Recibo · {amount} · {brand}",
+  "Invoice · {amount} due · {brand}": "Factura · {amount} a pagar · {brand}",
+  "Paid in full · {amount}.": "Pagado por completo · {amount}.",
   "{amount} due.": "{amount} a pagar.",
 
   // ── 5 · The thank-you ──────────────────────────────────────────────────
@@ -189,8 +189,8 @@ export const es: Record<string, string> = {
   "Your booking is cancelled": "Tu reserva quedó cancelada",
   "Hi {first}, your booking with {brand} for {date} at {time} has been cancelled.":
     "Hola {first}, tu reserva con {brand} para el {date} a las {time} quedó cancelada.",
-  "We'd love to see you another time — you can book again at {link}.":
-    "Nos encantaría atenderte en otra ocasión — puedes reservar otra vez en {link}.",
+  "We'd love to see you another time. You can book again at {link}.":
+    "Nos encantaría atenderte en otra ocasión. Puedes reservar otra vez en {link}.",
   "Your booking has been cancelled": "Tu reserva fue cancelada",
   "Cancelled: {date}": "Cancelada: {date}",
 
@@ -205,15 +205,15 @@ export const es: Record<string, string> = {
   // ── 11 · The plan link ─────────────────────────────────────────────────
   "Your plan": "Tu plan",
   "Here's your link": "Aquí está tu enlace",
-  "Hi {first} — you're on {plan} with {brand}.":
-    "Hola {first} — estás en {plan} con {brand}.",
+  "Hi {first}. You're on {plan} with {brand}.":
+    "Hola {first}. Estás en {plan} con {brand}.",
   "The button below opens your plan: what you're on, when your next visit is due, and how to book it.":
     "El botón de abajo abre tu plan: en cuál estás, cuándo toca tu próxima visita y cómo reservarla.",
   "Open your plan": "Abrir mi plan",
-  "Keep this email — that link is the only way back to your plan. To book any time: {url}":
-    "Guarda este correo — ese enlace es la única forma de volver a tu plan. Para reservar cuando quieras: {url}",
+  "Keep this email. That link is the only way back to your plan. To book any time: {url}":
+    "Guarda este correo. Ese enlace es la única forma de volver a tu plan. Para reservar cuando quieras: {url}",
   "Your plan with {brand}": "Tu plan con {brand}",
-  "{plan} — your link is inside.": "{plan} — tu enlace va adentro.",
+  "{plan} · your link is inside.": "{plan} · tu enlace va adentro.",
 
   // ── 13 · The one the detailer types themselves ─────────────────────────
   // ONLY THE CHROME. The subject, the headline and the body are the
@@ -228,8 +228,8 @@ export const es: Record<string, string> = {
   "{days} days left": "Quedan {days} días",
   "Due {date}": "Vence el {date}",
   "{label} on your {vehicle}": "{label} de tu {vehicle}",
-  "Hi {first} — your {what} is due by {date}.":
-    "Hola {first} — tu {what} vence el {date}.",
+  "Hi {first}. Your {what} is due by {date}.":
+    "Hola {first}. Tu {what} vence el {date}.",
   "Book it below and we'll take care of it.":
     "Resérvalo abajo y nosotros nos encargamos.",
   "Book it in": "Reservarlo",

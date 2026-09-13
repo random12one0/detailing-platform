@@ -530,7 +530,7 @@ Deno.serve(async (req) => {
         const SENTINEL = {} as unknown as PriceTable;
         const parsed = pricesFrom(body.prices, SENTINEL);
         if (parsed === SENTINEL) {
-          return json({ error: "Those prices do not add up — every figure must be a number, and only the setup fee may be zero." }, 400);
+          return json({ error: "Those prices do not add up. Every figure must be a number, and only the setup fee may be zero." }, 400);
         }
         value = parsed;
       }
@@ -577,7 +577,7 @@ Deno.serve(async (req) => {
       const offSetup = body.off_setup !== false;
       const offRecurring = body.off_recurring === true;
       if (!offSetup && !offRecurring) {
-        return json({ error: "Pick what it comes off — the build, the monthly, or both." }, 400);
+        return json({ error: "Pick what it comes off: the build, the monthly, or both." }, 400);
       }
       const row = {
         code,

@@ -107,6 +107,40 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
 
   try {
+    // -----------------------------------------------------------------------
+    // THE ADDRESS IS READ *BEFORE* THE CLAIM, AND THAT ORDER IS THE WHOLE BUG.
+    // -----------------------------------------------------------------------
+    // Claiming first and reading second lost a real notice on 2026-09-13:
+    //
+    //     02:07:00.819  rpc/claim_job_alerts   200   <- claimed "recovered"
+    //     02:07:00.914  platform_settings      504   <- and then this
+    //
+    // The claim had already cleared `alerted_at`, the undefined `ps` failed
+    // `ps?.owner_email`, and the only "it is running again" this outage would
+    // ever produce went into a `console.warn`. Andrew saw a stoppage email
+    // with no all-clear after it. **`FOUND.md` measured ~1.1% of every REST
+    // call in this project returning 504**, so at two calls a tick this loses
+    // roughly thirty claims a month — stoppages exactly as readily.
+    //
+    // Read first, and a 504 costs one skipped tick instead of one lost alarm:
+    // nothing has been consumed, and the next run sees the same change.
+    //
+    // **AND THE `error` IS READ, NOT ONLY THE DATA.** `.maybeSingle()` returns
+    // "no row" and "the read failed" through the same `data: null`, so an
+    // unconfigured product and a timed-out gateway were one value. Saying "no
+    // owner_email" about a read that never landed is the instrument reporting
+    // on a question it could not ask.
+    const { data: ps, error: psErr } = await supabase.from("platform_settings")
+      .select("owner_email, healthcheck_url").limit(1).maybeSingle();
+    if (psErr) {
+      // NO CLAIM AND NO PING. The ping means "this watcher ran and is
+      // healthy", and a run that could not find out who to tell is not that —
+      // letting it through would make the outside monitor green for a watcher
+      // doing nothing, which is the failure this whole item exists to remove.
+      console.error("watch-jobs: could not read platform_settings, claiming nothing:", psErr.message);
+      return json({ success: false, skipped: "settings_unreadable" }, 503);
+    }
+
     // ONE STATEMENT DECIDES AND MARKS. See the migration: two runs overlapping
     // cannot both report the same stoppage, and a job that has been down for a
     // week is not in this list because he has already been told.
@@ -120,9 +154,6 @@ Deno.serve(async (req) => {
     const { data, error } = await supabase.rpc("claim_job_alerts");
     if (error) throw new Error(error.message);
     const changes = (data ?? []) as Change[];
-
-    const { data: ps } = await supabase.from("platform_settings")
-      .select("owner_email, healthcheck_url").limit(1).maybeSingle();
 
     let sent = false;
     if (changes.length > 0 && ps?.owner_email) {
@@ -142,7 +173,7 @@ Deno.serve(async (req) => {
       const intro = stopped.length > 0
         // WHAT IT MEANS FOR HIM, not what it means for the database. He is not
         // a coder and "a cron job is stale" is not an actionable sentence.
-        ? "Something that is supposed to run on a schedule has not finished when it should have. While it is down, the work it does silently does not happen — reminders do not go out, or plan visits are not credited. Nothing is lost; it catches up once it is running again."
+        ? "Something that is supposed to run on a schedule has not finished when it should have. While it is down, the work it does silently does not happen: reminders do not go out, or plan visits are not credited. Nothing is lost; it catches up once it is running again."
         : "The job below is finishing on schedule again. Anything it was due to do while it was down has been picked up on its next run.";
 
       const mail = platformAlertEmail(platformBrand(PLATFORM_URL), {
@@ -171,14 +202,25 @@ Deno.serve(async (req) => {
         senderName: PLATFORM_NAME,
       });
 
-      // A CLAIM THAT WAS NEVER SENT IS AN ALARM THAT NEVER RINGS. Put the
-      // stoppages back so the next run tries again; a lost recovery notice is
-      // good news he can also read on the screen.
-      if (!sent && stopped.length > 0) {
+      // A CLAIM THAT WAS NEVER SENT IS AN ALARM THAT NEVER RINGS, AND THAT IS
+      // AS TRUE OF THE ALL-CLEAR AS OF THE ALARM — corrected 2026-09-13.
+      //
+      // This used to re-arm only the stoppages, on the stated grounds that a
+      // lost recovery is good news he can also read on the screen. **Andrew
+      // has rejected that trade in as many words:** a stoppage with no
+      // all-clear after it is not a smaller failure than a missed stoppage, it
+      // is the one that teaches him to stop opening the emails — and then the
+      // next real alarm goes unread too. The relay can still refuse after a
+      // good claim (a Resend 429 on the daily cap is a non-2xx and
+      // `sendTenantEmail` answers false), so both halves go back.
+      if (!sent) {
         try {
-          await supabase.rpc("release_job_alerts", { p_jobs: stopped.map((c) => c.job) });
+          await supabase.rpc("restore_job_alerts", {
+            p_stale: stopped.map((c) => c.job),
+            p_recovered: back.map((c) => c.job),
+          });
         } catch (e) {
-          console.error("could not re-arm the stopped jobs:", e);
+          console.error("could not re-arm the claimed jobs:", e);
         }
       }
     } else if (changes.length > 0) {

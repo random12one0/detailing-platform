@@ -49,7 +49,7 @@ Deno.serve(async (req) => {
     const descriptionLines = [
       serviceNames.length ? `Service: ${serviceNames.join(", ")}` : "",
       booking.vehicle_model ? `Vehicle: ${booking.vehicle_model}` : "",
-      audience === "owner" ? `Customer: ${booking.customer_name} — ${booking.customer_phone}` : "",
+      audience === "owner" ? `Customer: ${booking.customer_name} · ${booking.customer_phone}` : "",
       audience === "owner" && booking.customer_notes ? `Notes: ${booking.customer_notes}` : "",
       audience === "customer" && business.contact_phone ? `Questions? ${business.contact_phone}` : "",
     ].filter(Boolean);
@@ -60,8 +60,8 @@ Deno.serve(async (req) => {
       start: new Date(booking.start_at),
       end: new Date(booking.end_at),
       summary: audience === "owner"
-        ? `${booking.customer_name} — ${serviceNames.join(", ") || "Detail"}`
-        : `${business.name} — ${serviceNames.join(", ") || "Detail"}`,
+        ? `${booking.customer_name} · ${serviceNames.join(", ") || "Detail"}`
+        : `${business.name} · ${serviceNames.join(", ") || "Detail"}`,
       description: descriptionLines.join("\n"),
       location,
       organizerName: business.name,

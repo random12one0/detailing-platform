@@ -129,7 +129,7 @@ Deno.serve(async (req) => {
         const mail = platformAlertEmail(brand, {
           kind: "New detailer",
           headline: `${business.name} just signed up`,
-          intro: "Somebody created an account and a business. Nothing has been paid yet — you will get a second email when they subscribe.",
+          intro: "Somebody created an account and a business. Nothing has been paid yet. You will get a second email when they subscribe.",
           facts: [
             ["Business", business.name],
             ["Booking page", `${site}/book/${business.slug}`],

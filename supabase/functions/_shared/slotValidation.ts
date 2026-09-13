@@ -92,7 +92,7 @@ export async function validateSlot(opts: {
       return {
         ok: false,
         status: 409,
-        error: `${svc.name} can't be done at your address — it has to be dropped off. `
+        error: `${svc.name} can't be done at your address. It has to be dropped off. `
           + "Please choose drop-off, or a different service.",
       };
     }
@@ -157,7 +157,7 @@ export async function validateSlot(opts: {
     return {
       ok: false,
       status: 409,
-      error: `That time is too soon — bookings need at least ${hours} hours' notice. Please choose a later time.`,
+      error: `That time is too soon. Bookings need at least ${hours} hours' notice. Please choose a later time.`,
     };
   }
 
@@ -222,14 +222,14 @@ export async function validateSlot(opts: {
     return {
       ok: false,
       status: 409,
-      error: "That day is drop-off only — we can't come to you. Please choose drop-off, or another day.",
+      error: "That day is drop-off only. We can't come to you. Please choose drop-off, or another day.",
     };
   }
   if (serviceType === "dropoff" && restricts("mobile")) {
     return {
       ok: false,
       status: 409,
-      error: "That day is mobile only — we come to you rather than taking drop-offs. Please choose mobile, or another day.",
+      error: "That day is mobile only. We come to you rather than taking drop-offs. Please choose mobile, or another day.",
     };
   }
 
@@ -323,7 +323,7 @@ export async function validateSlot(opts: {
     return {
       ok: false,
       status: 409,
-      error: "That time is too close to another booking — please choose a different time.",
+      error: "That time is too close to another booking. Please choose a different time.",
     };
   }
 

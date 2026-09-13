@@ -112,7 +112,7 @@ async function sendOwnerReminder(b: BookingRow) {
   }
   if (settings.push_enabled) await sendOwnerPush(business.id, {
     title: "Upcoming job reminder",
-    body: `${b.customer_name} — ${formatTime12hr(data.startTime)}`,
+    body: `${b.customer_name} · ${formatTime12hr(data.startTime)}`,
     url: `/admin/job/${b.id}`,
     tag: `booking-${b.id}`,
   }).catch((e) => console.error("push failed", e));
@@ -215,7 +215,7 @@ Deno.serve(async (req) => {
         const business = await biz(b.business_id);
         await sendOwnerPush(business.id, {
           title: "Starting soon",
-          body: `${b.customer_name} — ${formatTime12hr(timeStrIn(business.timezone, new Date(b.start_at)))}`,
+          body: `${b.customer_name} · ${formatTime12hr(timeStrIn(business.timezone, new Date(b.start_at)))}`,
           url: `/admin/job/${b.id}`,
           tag: `booking-${b.id}`,
         });
@@ -230,7 +230,7 @@ Deno.serve(async (req) => {
         const business = await biz(b.business_id);
         await sendOwnerPush(business.id, {
           title: "Wrapping up soon",
-          body: `${b.customer_name} — finalize the payment when you're done`,
+          body: `${b.customer_name} · finalize the payment when you're done`,
           url: `/admin/job/${b.id}`,
           tag: `booking-${b.id}`,
         });
@@ -245,7 +245,7 @@ Deno.serve(async (req) => {
         const business = await biz(b.business_id);
         await sendOwnerPush(business.id, {
           title: "Finalize payment",
-          body: `${b.customer_name} — job ended, payment not finalized yet`,
+          body: `${b.customer_name} · job ended, payment not finalized yet`,
           url: `/admin/job/${b.id}`,
           tag: `booking-${b.id}`,
         });
@@ -273,7 +273,7 @@ Deno.serve(async (req) => {
         const waited = Math.round((Date.now() - new Date(b.created_at).getTime()) / 3600_000);
         await sendOwnerPush(business.id, {
           title: "Still waiting on you",
-          body: `${b.customer_name} asked for ${when} — ${waited}h ago, no answer yet`,
+          body: `${b.customer_name} asked for ${when} · ${waited}h ago, no answer yet`,
           url: `/admin/job/${b.id}`,
           tag: `booking-${b.id}`,
         });

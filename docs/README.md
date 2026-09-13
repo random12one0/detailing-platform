@@ -58,6 +58,7 @@ file how you measured it.**
 
 | File | Tier | What it is |
 |---|---|---|
+| `weather.md` | **LIVE** | The NWS seam — api.weather.gov, the required User-Agent, the one-module rule, the three honest failures, and why no screen draws it yet. Built 2026-09-13. |
 | `verification.md` | **LIVE** | The whole battery, every trap in it, and a lot of PRODUCT facts filed here by accident. Split out of CLAUDE.md 2026-09-08. Grep it before concluding a behaviour is undocumented. |
 | `standing-work.md` | **LIVE** | What to do when the roadmap has nothing unblocked. The `/loop` queue, the owner's standing permissions, the stop rule. |
 | `sessions/` | **LIVE** | The three parallel session briefs — websites, product, build. One line each to start. |

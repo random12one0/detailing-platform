@@ -85,7 +85,7 @@ Deno.serve(async (req) => {
       // exception roadmap 2.20 stage 2 defined for billing mail.
       to: SUPPORT_TO,
       senderName: "Detailing Platform",
-      subject: `Problem report — ${business?.name ?? businessId}`,
+      subject: `Problem report · ${business?.name ?? businessId}`,
       html: `<h2 style="margin:0 0 12px">Problem report</h2>
 <table cellpadding="4" style="border-collapse:collapse;font:14px system-ui">
 ${rows.map(([k, v]) => `<tr><td style="opacity:.6">${esc(k)}</td><td><b>${esc(v)}</b></td></tr>`).join("\n")}

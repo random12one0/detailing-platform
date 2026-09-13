@@ -203,7 +203,11 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
   // THE WORKED EXAMPLE IS THE PART PEOPLE MISREAD. "Half of what's left" reads
   // to most people as half the whole thing, which is why /pricing prints an
   // example and why the tick does too.
-  check("carries a worked example of the fee", /for example \$120/.test(term), term);
+  // CASE- AND COMMA-TOLERANT ON PURPOSE. It asserts that a worked example of
+  // the figure is THERE, not that the sentence happens to begin mid-clause;
+  // the em-dash sweep of 2026-09-13 turned "— for example $120" into
+  // "For example, $120" and this check failed on writing that was correct.
+  check("carries a worked example of the fee", /for example,? \$120/i.test(term), term);
 
   const noTerm = consentSentence(planFor("website", "monthly", false));
   check("month-to-month names its own price", noTerm.includes("$75"), noTerm);

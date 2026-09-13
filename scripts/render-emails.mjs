@@ -140,7 +140,7 @@ const booking = {
   hasPower: false,
   vehicleSize: "Mid-size SUV",
   vehicleModel: "2021 Subaru Outback",
-  customerNotes: "Dog hair in the back seats — there's a tap on the side of the house.",
+  customerNotes: "Dog hair in the back seats. There's a tap on the side of the house.",
   serviceNames: ["Full Interior + Exterior Detail"],
   addOnNames: ["Pet hair removal", "Engine bay clean"],
   travelFee: 25,
@@ -162,14 +162,14 @@ const booking = {
 // the case where it breaks.
 //   services + add-ons        360
 //   + travel 25 + surcharge 20 = 405
-//   − plan "Bi-weekly maintenance — included"  60 = 345  (subtotalBase)
+//   − plan "Bi-weekly maintenance · included"  60 = 345  (subtotalBase)
 //   − 5% site sale  20         = 325  (bookings.subtotal, post-sale)
 //   − promo FALL10  40         = 285  (total_price)
 const planBooking = {
   ...booking,
   adjustments: [
     { label: "Heavy soiling surcharge", amount: 20 },
-    { label: "Bi-weekly maintenance — included", amount: -60 },
+    { label: "Bi-weekly maintenance · included", amount: -60 },
   ],
   subtotal: 325,
   total: 285,
@@ -191,8 +191,8 @@ const carloadBooking = {
     { size: "Small", model: null },
   ],
   adjustments: [
-    { label: "2nd vehicle — Large · 2021 Ford F-150", amount: 120 },
-    { label: "3rd vehicle — Small", amount: 120 },
+    { label: "2nd vehicle · Large · 2021 Ford F-150", amount: 120 },
+    { label: "3rd vehicle · Small", amount: 120 },
   ],
   subtotal: 480,
   total: 480,
@@ -284,7 +284,7 @@ const EMAILS = [
   ["customer-campaign", "Customer · the detailer reaching out", () => T.campaignEmail(brand, {
     customerName: "Dana Ortiz",
     subject: "Time to get it looking right again?",
-    message: "It's been a few months since we last took care of your car.\n\nIf you'd like it back to how it looked when you drove it away, booking takes about a minute — just use the button below and pick a time that suits you.",
+    message: "It's been a few months since we last took care of your car.\n\nIf you'd like it back to how it looked when you drove it away, booking takes about a minute. Just use the button below and pick a time that suits you.",
     bookUrl: brand.siteUrl,
     unsubscribeUrl: "https://detailingplatform.com/unsubscribe/9c1f2b64-0000-4000-8000-000000000002",
     mailingAddress: "PO Box 214, Lakewood CA 90713",
@@ -314,7 +314,7 @@ const EMAILS = [
     {
       kind: "New detailer",
       headline: "Ridgeline Auto Detail just signed up",
-      intro: "Somebody created an account and a business. Nothing has been paid yet — you will get a second email when they subscribe.",
+      intro: "Somebody created an account and a business. Nothing has been paid yet. You will get a second email when they subscribe.",
       facts: [
         ["Business", "Ridgeline Auto Detail"],
         ["Booking page", `${PLATFORM}/book/ridgeline`],
@@ -468,7 +468,7 @@ for (const [file, label, render] of EMAILS) {
 }
 
 await writeFile(`${OUT}/index.html`, `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
-<title>Emails — ${ACCENT}</title><style>
+<title>Emails · ${ACCENT}</title><style>
 body{font:15px/1.6 system-ui,sans-serif;background:#0B0D0E;color:#F2F1EC;max-width:760px;margin:40px auto;padding:0 20px}
 h1{font-size:20px}ul{list-style:none;padding:0}li{padding:12px 0;border-bottom:1px solid #272D31}
 a{color:${brand.accentDark};font-weight:600}.t{font-weight:400;font-size:12px;color:#7B858A;margin-left:8px}

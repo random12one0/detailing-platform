@@ -150,7 +150,7 @@ Deno.serve(async (req) => {
       if (settings.push_enabled) {
         await sendOwnerPush(business.id, {
           title: "Quote accepted",
-          body: `${booking.customer_name} — ${emailData.dateStr} at ${emailData.startTime} ($${quoted.toFixed(2)})`,
+          body: `${booking.customer_name} · ${emailData.dateStr} at ${emailData.startTime} ($${quoted.toFixed(2)})`,
           url: `/admin/job/${booking.id}`,
           tag: `booking-${booking.id}`,
         });

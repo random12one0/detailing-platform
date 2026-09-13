@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
       }
       if (used) {
         return json(
-          { success: false, error: "You've already used this code — it's limited to one use per customer." },
+          { success: false, error: "You've already used this code. It's limited to one use per customer." },
           403,
         );
       }

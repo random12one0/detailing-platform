@@ -203,7 +203,7 @@ Deno.serve(async (req) => {
     try {
       if (settings.push_enabled) await sendOwnerPush(business.id, {
         title: "Payment finalized",
-        body: `${booking.customer_name} — $${totalPaid.toFixed(2)} (invoice + thank-you sent)`,
+        body: `${booking.customer_name} · $${totalPaid.toFixed(2)} (invoice + thank-you sent)`,
         url: `/admin/job/${booking.id}`,
         tag: `booking-${booking.id}`,
       });

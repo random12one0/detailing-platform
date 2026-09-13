@@ -157,7 +157,7 @@ Deno.serve(async (req) => {
     try {
       await sendOwnerPush(member.businessId, {
         title: "Booking updated",
-        body: `${data.customer_name}${body.status ? ` — status: ${body.status}` : ""}`,
+        body: `${data.customer_name}${body.status ? ` · status: ${body.status}` : ""}`,
         url: `/admin/job/${data.id}`,
         tag: `booking-${data.id}`,
       });

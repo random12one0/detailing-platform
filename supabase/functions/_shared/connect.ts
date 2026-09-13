@@ -271,7 +271,7 @@ export function payability(input: PayabilityInput): Payability {
   // customer's card is not a thing to do — the detailer sorts it out directly.
   const status = input.booking?.payment_status;
   if (status === "paid" || status === "waived") {
-    return no("already_paid", "This is already paid — there is nothing to do.");
+    return no("already_paid", "This is already paid. There is nothing to do.");
   }
   if (status === "partial") {
     return no("already_paid", "Part of this has been paid already. Please settle the rest with your detailer.");
@@ -302,7 +302,7 @@ export function payability(input: PayabilityInput): Payability {
  */
 export function checkoutLineName(businessName: string | null | undefined, when: string | null | undefined): string {
   const who = (businessName || "Detailing").trim();
-  return when ? `${who} — ${when}` : who;
+  return when ? `${who} · ${when}` : who;
 }
 
 /**

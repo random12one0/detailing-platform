@@ -328,7 +328,7 @@ function keepLink(bookUrl: string, lang?: unknown): string {
   // concatenation — so the catalogue and the call site would disagree about
   // what the key even is. Found by the check that compares them.
   return fineBlock(T(lang)(
-    "Keep this email — the link above is how you change or cancel without ringing anyone. To book again any time: {url}",
+    "Keep this email. The link above is how you change or cancel without ringing anyone. To book again any time: {url}",
     { url: bookUrl },
   ));
 }
@@ -459,7 +459,7 @@ export function customerConfirmationEmail(
     labBlock(isRequest ? tt("Request received") : tt("Booking confirmed")),
     headlineBlock(isRequest ? tt("We're holding your time") : tt("You're all set")),
     proseBlock(isRequest
-      ? tt("Thanks, {first} — we've got your request and nobody else can take this time while we look at it. You'll hear from us shortly.",
+      ? tt("Thanks, {first}. We've got your request and nobody else can take this time while we look at it. You'll hear from us shortly.",
         { first: esc(firstName(b.customerName)) })
       : tt("Thanks, {first}. Here's everything for your appointment.",
         { first: esc(firstName(b.customerName)) })),
@@ -474,7 +474,7 @@ export function customerConfirmationEmail(
     // telling somebody how to pay for a job nobody has accepted is the same
     // mistake as printing payment methods on a receipt, one step earlier.
     // The accepted-request email carries them instead.
-    isRequest ? "" : paymentBlock(brand, tt("Nothing to pay now — this is for when the work is done."), b.lang),
+    isRequest ? "" : paymentBlock(brand, tt("Nothing to pay now. This is for when the work is done."), b.lang),
     ownWords(brand, isRequest ? "request_received" : "confirmation"),
     buttonBlock(brand, isRequest ? tt("View or change your request") : tt("View your booking"), b.receiptUrl),
     keepLink(brand.siteUrl, b.lang),
@@ -484,8 +484,8 @@ export function customerConfirmationEmail(
 
   return mail(
     isRequest
-      ? tt("Request received — {date}", { date: dateLong })
-      : tt("Booking confirmed — {date}", { date: dateLong }),
+      ? tt("Request received · {date}", { date: dateLong })
+      : tt("Booking confirmed · {date}", { date: dateLong }),
     shell(brand, blocks, isRequest
       ? tt("We're holding your time while we look at it.")
       : tt("{date} at {time}.", { date: dateLong, time: formatTime12hr(b.startTime) }),
@@ -546,8 +546,8 @@ export function ownerNewBookingEmail(
 
   return mail(
     isRequest
-      ? `Request — ${b.customerName} — ${dateLong} (${money(Number(b.total))})`
-      : `New booking — ${b.customerName} — ${dateLong} (${money(Number(b.total))})`,
+      ? `Request · ${b.customerName} · ${dateLong} (${money(Number(b.total))})`
+      : `New booking · ${b.customerName} · ${dateLong} (${money(Number(b.total))})`,
     shell(brand, blocks, `${b.customerName} · ${dateLong} · ${money(Number(b.total))}`),
   );
 }
@@ -589,7 +589,7 @@ export function requestDecisionEmail(
     ? [
       labBlock(tt("Request accepted")),
       headlineBlock(tt("You're booked in")),
-      proseBlock(tt("Good news — we've accepted your request for {when}. It's in the diary.", { when }).replace("—", "&mdash;")),
+      proseBlock(tt("Good news. We've accepted your request for {when}. It's in the diary.", { when })),
       markBlock(brand, [dateLong, `${formatTime12hr(b.startTime)} &ndash; ${formatTime12hr(b.endTime)}`]),
       factsBlock(jobFacts(brand, b, b.lang)),
       // ---------------------------------------------------------------------
@@ -628,7 +628,7 @@ export function requestDecisionEmail(
       // that says the job is happening. Leaving it out because the roadmap's
       // sentence says "the confirmation" would give every request-mode
       // business no payment handles on the only email that confirms anything.
-      paymentBlock(brand, tt("Nothing to pay now — this is for when the work is done."), b.lang),
+      paymentBlock(brand, tt("Nothing to pay now. This is for when the work is done."), b.lang),
       ownWords(brand, "accepted"),
       buttonBlock(brand, tt("View or change your booking"), opts.manageUrl),
       keepLink(brand.siteUrl, b.lang),
@@ -636,15 +636,15 @@ export function requestDecisionEmail(
     : [
       labBlock(tt("Request declined")),
       headlineBlock(tt("We can't make that one")),
-      proseBlock(tt("We're sorry — we can't take {when}, so we've let that time go.", { when }).replace("—", "&mdash;")),
-      proseBlock(tt("If another day works, we'd still love to see you — {link}.", {
+      proseBlock(tt("We're sorry. We can't take {when}, so we've let that time go.", { when })),
+      proseBlock(tt("If another day works, we'd still love to see you: {link}.", {
         link: `<a href="${brand.siteUrl}" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(host)}</a>`,
-      }).replace("—", "&mdash;")),
+      })),
       ownWords(brand, "declined"),
     ].filter(Boolean);
 
   const subject = kind === "accepted"
-    ? tt("You're booked in — {date}", { date: dateLong })
+    ? tt("You're booked in · {date}", { date: dateLong })
     : kind === "declined"
     ? tt("About your request for {date}", { date: dateLong })
     : tt("Your price: {amount} for {date}",
@@ -704,8 +704,8 @@ export function invoiceEmail(
     labBlock(paid ? tt("Receipt") : tt("Invoice")),
     headlineBlock(paid ? tt("Paid in full") : tt("Amount due")),
     proseBlock(paid
-      ? tt("Thanks, {first} — here's your receipt for the work on {date}.",
-        { first: esc(firstName(b.customerName)), date: esc(dateLong) }).replace("—", "&mdash;")
+      ? tt("Thanks, {first}. Here's your receipt for the work on {date}.",
+        { first: esc(firstName(b.customerName)), date: esc(dateLong) })
       : tt("Hi {first}, here's the invoice for the work on {date}.",
         { first: esc(firstName(b.customerName)), date: esc(dateLong) })),
     factsBlock([
@@ -762,12 +762,12 @@ export function invoiceEmail(
 
   return mail(
     paid
-      ? tt("Receipt — {amount} — {brand}",
+      ? tt("Receipt · {amount} · {brand}",
         { amount: money(Number(totals.totalPaid)), brand: brand.brandName })
-      : tt("Invoice — {amount} due — {brand}",
+      : tt("Invoice · {amount} due · {brand}",
         { amount: money(Number(totals.totalPaid)), brand: brand.brandName }),
     shell(brand, blocks, paid
-      ? tt("Paid in full — {amount}.", { amount: money(Number(totals.totalPaid)) })
+      ? tt("Paid in full · {amount}.", { amount: money(Number(totals.totalPaid)) })
       : tt("{amount} due.", { amount: money(Number(totals.totalPaid)) }),
       { lang: b.lang }),
   );
@@ -876,14 +876,14 @@ export function cancellationEmail(brand: TenantBrand, b: BookingEmailData, forOw
         date: `<strong class="c-ink" style="color:${G.ink};">${esc(dateLong)}</strong>`,
         time: `<strong class="c-ink" style="color:${G.ink};">${formatTime12hr(b.startTime)}</strong>`,
       })),
-      proseBlock(tt("We'd love to see you another time — you can book again at {link}.", {
+      proseBlock(tt("We'd love to see you another time. You can book again at {link}.", {
         link: `<a href="${brand.siteUrl}" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(host)}</a>`,
-      }).replace("—", "&mdash;")),
+      })),
       ownWords(brand, "cancelled"),
     ].filter(Boolean);
   return mail(
     forOwner
-      ? `Cancelled — ${b.customerName} — ${dateLong}`
+      ? `Cancelled · ${b.customerName} · ${dateLong}`
       : tt("Your booking has been cancelled"),
     shell(brand, blocks, tt("Cancelled: {date}", { date: dateLong }), { lang }),
   );
@@ -924,7 +924,7 @@ export function rescheduleEmail(
   ].filter(Boolean);
   return mail(
     forOwner
-      ? `Rescheduled — ${b.customerName} — now ${dateLong}`
+      ? `Rescheduled · ${b.customerName} · now ${dateLong}`
       : tt("Your booking has been rescheduled"),
     shell(brand, blocks, tt("Rescheduled to {date}", { date: dateLong }), { lang }),
   );
@@ -942,7 +942,7 @@ export function staleRequestEmail(brand: TenantBrand, b: BookingEmailData, hours
   const blocks = [
     labBlock("Still waiting on you", "bad"),
     headlineBlock(b.customerName),
-    proseBlock(`asked for <strong class="c-ink" style="color:${G.ink};">${esc(dateLong)}</strong> at <strong class="c-ink" style="color:${G.ink};">${formatTime12hr(b.startTime)}</strong> &mdash; ${hoursWaited} hour${hoursWaited === 1 ? "" : "s"} ago, and it is still waiting for an answer.`),
+    proseBlock(`asked for <strong class="c-ink" style="color:${G.ink};">${esc(dateLong)}</strong> at <strong class="c-ink" style="color:${G.ink};">${formatTime12hr(b.startTime)}</strong>. That was ${hoursWaited} hour${hoursWaited === 1 ? "" : "s"} ago, and it is still waiting for an answer.`),
     proseBlock("That time is held for them until you accept or decline it, so nobody else can book it either.", 16),
     factsBlock([
       ["Phone", esc(b.customerPhone)],
@@ -953,7 +953,7 @@ export function staleRequestEmail(brand: TenantBrand, b: BookingEmailData, hours
     buttonBlock(brand, "Answer this request", b.receiptUrl),
   ];
   return mail(
-    `Still waiting: ${b.customerName} — ${dateLong}`,
+    `Still waiting: ${b.customerName} · ${dateLong}`,
     shell(brand, blocks, `${b.customerName} asked for ${dateLong} and has not heard back.`),
   );
 }
@@ -1012,19 +1012,19 @@ export function planLinkEmail(
   const blocks = [
     labBlock(tt("Your plan")),
     headlineBlock(tt("Here's your link")),
-    proseBlock(tt("Hi {first} — you're on {plan} with {brand}.", {
+    proseBlock(tt("Hi {first}. You're on {plan} with {brand}.", {
       first: esc(firstName(opts.customerName)),
       plan: `<strong class="c-ink" style="color:${G.ink};">${esc(opts.planName)}</strong>`,
       brand: esc(brand.brandName),
-    }).replace("—", "&mdash;")),
+    })),
     proseBlock(tt("The button below opens your plan: what you're on, when your next visit is due, and how to book it."), 16),
     buttonBlock(brand, tt("Open your plan"), opts.planUrl),
-    fineBlock(tt("Keep this email — that link is the only way back to your plan. To book any time: {url}",
-      { url: opts.bookUrl }).replace("—", "&mdash;")),
+    fineBlock(tt("Keep this email. That link is the only way back to your plan. To book any time: {url}",
+      { url: opts.bookUrl })),
   ];
   return mail(
     tt("Your plan with {brand}", { brand: brand.brandName }),
-    shell(brand, blocks, tt("{plan} — your link is inside.", { plan: opts.planName }), { lang }),
+    shell(brand, blocks, tt("{plan} · your link is inside.", { plan: opts.planName }), { lang }),
   );
 }
 
@@ -1046,7 +1046,7 @@ export function planCancelledEmail(
   const blocks = [
     labBlock("Plan ended", "bad"),
     headlineBlock(opts.customerName),
-    proseBlock(`ended their <strong class="c-ink" style="color:${G.ink};">${esc(opts.planName)}</strong> from their own plan page. Nothing else has changed &mdash; any booking already in the diary is still there.`),
+    proseBlock(`ended their <strong class="c-ink" style="color:${G.ink};">${esc(opts.planName)}</strong> from their own plan page. Nothing else has changed. Any booking already in the diary is still there.`),
     factsBlock([
       ["Plan", esc(opts.planName)],
       ["Member since", formatDateLong(String(opts.startedOn).slice(0, 10))],
@@ -1249,7 +1249,7 @@ export function billingEmail(brand: TenantBrand, b: BillingEmailData): Mail {
     // stranded. A detailer's first question when their page goes dark is what
     // happens to the people already booked in.
     down
-      ? fineBlock("Customers who have already booked can still see, change and cancel their appointments — only new bookings have stopped.")
+      ? fineBlock("Customers who have already booked can still see, change and cancel their appointments. Only new bookings have stopped.")
       : "",
   ].filter(Boolean);
 
@@ -1260,7 +1260,7 @@ export function billingEmail(brand: TenantBrand, b: BillingEmailData): Mail {
     shell(brand, blocks, down
       // The preheader made the same promise the button used to, and it is the
       // first thing shown in an inbox. See the button's note above.
-      ? "Nothing has been deleted — open your billing page to bring it back."
+      ? "Nothing has been deleted. Open your billing page to bring it back."
       : "We'll try again over the next two weeks."),
   );
 }
@@ -1313,11 +1313,11 @@ export function maintenanceDueEmail(brand: TenantBrand, m: MaintenanceEmailData,
   const blocks = [
     labBlock(tt("Maintenance due")),
     headlineBlock(lead),
-    proseBlock(tt("Hi {first} — your {what} is due by {date}.", {
+    proseBlock(tt("Hi {first}. Your {what} is due by {date}.", {
       first: esc(firstName(m.customerName)),
       what: `<strong class="c-ink" style="color:${G.ink};">${what}</strong>`,
       date: `<strong class="c-ink" style="color:${G.ink};">${esc(m.dueOn)}</strong>`,
-    }).replace("—", "&mdash;")),
+    })),
     proseBlock(tt("Book it below and we'll take care of it."), 16),
     buttonBlock(brand, tt("Book it in"), m.bookUrl),
     fineBlock(tt("If you have already had this done elsewhere, let us know and we will mark it off.")),

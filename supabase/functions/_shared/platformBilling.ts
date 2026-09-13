@@ -200,7 +200,7 @@ export function planLabel(s: Snapshot): string {
   const kind = s.term === "annual-upfront" ? "annual"
     : s.term === "annual-monthly" ? "annual, paid monthly"
     : "month to month";
-  return `Website and booking system — ${kind}`;
+  return `Website and booking system · ${kind}`;
 }
 
 /**
@@ -245,7 +245,7 @@ export function linesFor(s: Snapshot): Line[] {
 }
 
 /** The words on the build fee's own invoice row, in ONE place. */
-export const BUILD_FEE_LINE = "Website build — one-off";
+export const BUILD_FEE_LINE = "Website build · one-off";
 
 /** What leaves the bank on day one. The tie-out test's subject. */
 export const firstChargeCents = (s: Snapshot) => s.setup_cents + s.recurring_cents;
@@ -376,7 +376,7 @@ function discountOf(p: Promo, s: Snapshot): PromoResult {
     snapshot,
     off_setup_cents: offSetup,
     off_recurring_cents: offRecurring,
-    label: bits.length ? `${p.code} — ${bits.join(" and ")}` : p.code,
+    label: bits.length ? `${p.code} · ${bits.join(" and ")}` : p.code,
   };
 }
 
@@ -422,8 +422,8 @@ export function consentSentence(s: Snapshot): string {
   if (s.term_months > 0) {
     parts.push(
       `I am committing to ${s.term_months} months. If I cancel before that, I pay ` +
-      `${Math.round(s.exit_fee_share * 100)}% of the months still to run — ` +
-      `for example ${money(exitFeeCentsFor(s.recurring_cents, s.term_months / 2, s.exit_fee_share))} ` +
+      `${Math.round(s.exit_fee_share * 100)}% of the months still to run. ` +
+      `For example, ${money(exitFeeCentsFor(s.recurring_cents, s.term_months / 2, s.exit_fee_share))} ` +
       `with ${s.term_months / 2} months left.`,
     );
   }
@@ -566,7 +566,7 @@ export function dunningState(sub: DunningRow | null): DunningState {
       level: "down",
       headline: "Your booking page is offline",
       detail:
-        "We could not take payment. Nothing has been deleted — your jobs, "
+        "We could not take payment. Nothing has been deleted. Your jobs, "
         + "customers and settings are all still here, and the page comes back "
         + "the moment a payment goes through.",
     };

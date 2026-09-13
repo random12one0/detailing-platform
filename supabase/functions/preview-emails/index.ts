@@ -55,7 +55,7 @@ const SAMPLE = {
   phone: "555-0100",
   email: "sample@example.com",
   address: "12 Example Street",
-  notes: "This is a sample booking — nothing has been saved.",
+  notes: "This is a sample booking. Nothing has been saved.",
 };
 
 Deno.serve(async (req) => {

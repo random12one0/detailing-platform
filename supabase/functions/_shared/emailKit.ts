@@ -469,10 +469,10 @@ function reachUs(
 ): string {
   const tt = T(lang);
   const prefix = legal ? tt("You booked with us before") : tt("Automated message");
-  if (brand.contactEmail) return tt("{prefix} — reply to reach us.", { prefix }).replace("—", "&mdash;");
+  if (brand.contactEmail) return tt("{prefix} · reply to reach us.", { prefix });
   if (brand.contactPhone) {
-    return tt("{prefix} — call or text {phone} to reach a person.",
-      { prefix, phone: esc(brand.contactPhone) }).replace("—", "&mdash;");
+    return tt("{prefix} · call or text {phone} to reach a person.",
+      { prefix, phone: esc(brand.contactPhone) });
   }
   return `${prefix}.`;
 }

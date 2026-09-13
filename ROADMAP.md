@@ -239,9 +239,9 @@ re-deriving it:**
   `stop_hook_active` guard first, `last_assistant_message` never sent, every path
   exits 0, and no `unref()` / `process.exit()`.
 
-## 5 · THE NATIONAL WEATHER SERVICE WORK
+## 5 · ~~THE NATIONAL WEATHER SERVICE WORK~~ — DONE 2026-09-13
 
-Andrew's order, 2026-09-13: **after the doorbell, before Geoapify.**
+Built, deployed and proved. **`docs/weather.md` is the reference.** Geoapify (§ 6) is now next.
 
 ## 6 · GEOAPIFY — DO NOT START IT UNTIL TRANSLATION AND THE DOORBELL ARE DONE
 
@@ -604,7 +604,7 @@ Whoever unfreezes this opens the row gap as well.
    here.** `FOUND.md` names it and says what the honest instrument would be.
 7. **Mileage.**
 8. **Route awareness.**
-9. **Weather, from open-meteo.**
+9. **Weather.** ~~from open-meteo~~ **DONE 2026-09-13 via `api.weather.gov` — see `docs/weather.md`. OPEN-METEO IS BANNED (its free tier is non-commercial); following the old line is a licence breach.**
 10. **Deposits.**
 11. **Making photos do work.**
 12. **Quote from scratch.**

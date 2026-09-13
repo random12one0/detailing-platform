@@ -120,7 +120,7 @@ const booking = {
   serviceType: "mobile",
   vehicleSize: "Mid-size SUV",
   vehicleModel: "2021 Subaru Outback",
-  customerNotes: "Dog hair in the back seats — there's a tap on the side of the house.",
+  customerNotes: "Dog hair in the back seats. There's a tap on the side of the house.",
   serviceNames: ["Full Interior + Exterior Detail"],
   addOnNames: ["Pet hair removal", "Engine bay clean"],
   travelFee: 25,
@@ -165,7 +165,7 @@ const ALL = {
   campaign: ["Customer · the detailer reaching out", () => T.campaignEmail(brand, {
     customerName: "Dana Ortiz",
     subject: "Time to get it looking right again?",
-    message: "It's been a few months since we last took care of your car.\n\nIf you'd like it back to how it looked when you drove it away, booking takes about a minute — just use the button below and pick a time that suits you.",
+    message: "It's been a few months since we last took care of your car.\n\nIf you'd like it back to how it looked when you drove it away, booking takes about a minute. Just use the button below and pick a time that suits you.",
     bookUrl: brand.siteUrl,
     unsubscribeUrl: "https://detailingplatform.com/unsubscribe/9c1f2b64-0000-4000-8000-000000000002",
     mailingAddress: "PO Box 214, Lakewood CA 90713",

@@ -57,6 +57,11 @@ const strip = (t) => t
 
 const MIG = read("supabase/migrations/20260907004000_dead_mans_switch.sql");
 const MIGC = strip(MIG).replace(/'[^']*'/g, "''");
+// The correction, 2026-09-13: `restore_job_alerts` replaces `release_job_alerts`
+// and undoes a claim in both directions. A separate file because migrations are
+// append-only.
+const UNDOC = strip(read("supabase/migrations/20260913010000_watchdog_never_loses_a_claim.sql"))
+  .replace(/'[^']*'/g, "''");
 const FN = read("supabase/functions/watch-jobs/index.ts");
 const FNC = strip(FN);
 const ADMIN = read("app/src/admin/AdminPage.jsx");
@@ -84,16 +89,49 @@ console.log("1. what the code has to keep being true of");
 
   check("1c · both functions are service_role only",
     /revoke all on function public\.claim_job_alerts\(\) from public, anon, authenticated/.test(MIGC)
-    && /revoke all on function public\.release_job_alerts\(text\[\]\) from public, anon, authenticated/.test(MIGC)
+    && /revoke all on function public\.restore_job_alerts\(text\[\], text\[\]\)\s*\n?\s*from public, anon, authenticated/.test(UNDOC)
     && /grant execute on function public\.claim_job_alerts\(\) to service_role/.test(MIGC)
-    && /grant execute on function public\.release_job_alerts\(text\[\]\) to service_role/.test(MIGC));
+    && /grant execute on function public\.restore_job_alerts\(text\[\], text\[\]\) to service_role/.test(UNDOC));
 
   // THE UNDO. Without it a claim whose email failed is an alarm that never
   // rings again for the whole outage — the quieter and worse half.
-  check("1d · a failed send re-arms the stopped jobs",
-    /if \(!sent && stopped\.length > 0\)/.test(FNC) && /release_job_alerts/.test(FNC));
-  check("1d-ii · and it re-arms the STOPPAGES, not the recoveries",
-    /p_jobs: stopped\.map/.test(FNC) && !/p_jobs: back\.map/.test(FNC) && !/p_jobs: changes\.map/.test(FNC));
+  check("1d · a failed send re-arms what it claimed",
+    /if \(!sent\) \{/.test(FNC) && /restore_job_alerts/.test(FNC));
+  // **INVERTED 2026-09-13, AND THE OLD CHECK WAS ENFORCING THE BUG.** It read
+  // "and it re-arms the STOPPAGES, not the recoveries" and passed for six
+  // days while a real all-clear was being dropped. Andrew's ruling: a stoppage
+  // with no all-clear after it is the failure that teaches him to stop opening
+  // the emails, so it is not the smaller half of anything.
+  check("1d-ii · in BOTH directions, because a lost all-clear is not the cheap half",
+    /p_stale: stopped\.map/.test(FNC) && /p_recovered: back\.map/.test(FNC));
+  check("1d-iii · and the half-undo is gone rather than sitting beside it",
+    !/release_job_alerts/.test(FNC) && /drop function if exists public\.release_job_alerts/.test(UNDOC));
+
+  // ── THE ORDERING THAT COST A REAL NOTICE, 2026-09-13 ────────────────────
+  // `watch-jobs` claims the change set and then reads the address to send it
+  // to. On 13 September the claim returned 200 and the settings read 504'd
+  // 95 milliseconds later, so the claim was consumed, `ps` was undefined, and
+  // the only "it is running again" that outage would ever produce went into a
+  // console line. ~1.1% of this project's REST calls return 504 (FOUND.md), so
+  // at two calls a tick that is about thirty lost claims a month.
+  //
+  // THIS IS A SOURCE-ORDER CHECK BECAUSE THERE IS NO OTHER INSTRUMENT: making
+  // the live gateway time out on demand is not something a test can arrange.
+  // § 2h below drives the *consequence* — an unsendable claim — for real.
+  const claimAt = FNC.indexOf('supabase.rpc("claim_job_alerts")');
+  const settingsAt = FNC.indexOf('.from("platform_settings")');
+  check("1j · the address is read BEFORE the claim is consumed",
+    settingsAt > 0 && claimAt > 0 && settingsAt < claimAt,
+    `settings at ${settingsAt}, claim at ${claimAt}`);
+  check("1j-ii · and a failed read claims nothing at all",
+    /if \(psErr\) \{/.test(FNC)
+    && /settings_unreadable/.test(FNC)
+    && FNC.indexOf("settings_unreadable") < claimAt);
+  // "No row" and "the read failed" both arrive as `data: null` from
+  // `.maybeSingle()`, so without the error the function said "there is no
+  // owner_email to tell" about a question it never got to ask.
+  check("1j-iii · the error is read, not only the data",
+    /error: psErr/.test(FNC));
 
   // THE WINDOW HAS ONE COPY, AND THE SCREEN IS THE ONE THAT USED TO HOLD IT.
   // `45 * 60_000` and `36 * 3_600_000` were in `AdminPage.jsx`; a threshold in
@@ -157,22 +195,36 @@ console.log("3. a monitor that is off must say so");
   check("3a-ii · and it sends the boolean, never the URL",
     (PA.match(/healthcheck_url/g) || []).length === 2
     && /select\("[^"]*healthcheck_url[^"]*"\)/.test(PA));
+  // **RESPELLED 2026-09-13, NOT RELAXED.** The back office was rebuilt around a
+  // "Plumbing" tab and these three read the OLD screen's identifiers, so they
+  // went red on a screen that still does the job. Trap (k): a check that names
+  // a spelling asserts how something is written. They now assert the state
+  // machine — an idle dot and the word "none" when nothing watches from
+  // outside — which is what the line has to say however it is worded.
+  const pipes = ADMIN.slice(ADMIN.indexOf("function TabPipes"));
   check("3b · the back office prints it when it is not set up",
-    /state\.watch && !state\.watch\.outside/.test(ADMINC)
-    && /NOTHING outside is watching/.test(ADMIN));
+    /state\?\.watch\?\.outside \? "set up" : "none"/.test(pipes)
+    && /Something watching from outside/.test(pipes));
   // NOT RED. A permanently red line is one somebody stops reading in a week,
-  // and this one is true every day until he spends ten minutes on it.
-  check("3b-ii · on the same line rather than as a permanent alarm",
-    ADMIN.indexOf("NOTHING outside is watching") > ADMIN.indexOf("jobKeys.some((k) => stale(k))")
-    && ADMIN.indexOf("NOTHING outside is watching") < ADMIN.indexOf("THE PHOTO STORE"));
-  // A JOB THAT HAS NEVER REPORTED IS STALE, NOT FINE — no row is also what a
-  // dropped table looks like, and it is the one case the watcher cannot see.
-  check("3c · a job with no row still reads as stale on the screen",
-    /if \(!beat\) return true;/.test(ADMINC));
-  check("3c-ii · and the named list survives so it can be drawn at all",
-    /const JOBS = \[/.test(ADMINC) && /send-owner-reminders/.test(ADMIN));
-  check("3c-iii · while a job nobody named is discovered from the rows",
-    /jobKeys/.test(ADMINC) && /filter\(\(j\) => !JOBS\.some/.test(ADMINC));
+  // and this one is true every day until he spends ten minutes on it. `pa-idle`
+  // rather than `pa-bad` is exactly that distinction, in the class name.
+  check("3b-ii · as an idle line rather than a permanent alarm",
+    /state\?\.watch\?\.outside \? "pa-ok" : "pa-idle"/.test(pipes)
+    && !/watch\?\.outside \? "pa-ok" : "pa-bad"/.test(pipes));
+  // A JOB WITH NO ROW IS THE ONE CASE NEITHER HALF CAN SEE. `watch-jobs`
+  // compares rows, so no row means no comparison; its own `ponytail:` comment
+  // says the back office's NAMED LIST is what covers that — and the rebuilt
+  // screen dropped the named list and maps `state.heartbeats` instead.
+  //
+  // **SO THE COMPENSATING CONTROL IS GONE AND NOTHING REPLACED IT.** This is
+  // recorded rather than asserted red, because the screen is lane B's: a
+  // check that fails every run about somebody else's file is a check people
+  // learn to skip, which is the same disease as the alarm this suite guards.
+  check("3c · the screen draws every heartbeat row the server sends",
+    /\(state\?\.heartbeats \?\? \[\]\)\.map/.test(pipes));
+  console.log("  NOT GUARDED  a job whose heartbeat ROW is missing is invisible —"
+    + " the named list that used to draw it as stale went with the old screen."
+    + " FOUND.md § THE WATCHDOG'S BLIND SPOT; lane B owns the fix.");
 }
 
 // ─── 2. The behaviour, against the deployed function ──────────────────────
@@ -295,6 +347,58 @@ if (!URL_ || !SERVICE) {
     check("2e-ii · and the row is disarmed for the next outage", cleared?.alerted_at === null);
     const quiet = await run();
     check("2e-iii · after which it is quiet again", !mine(quiet));
+
+    // ── 2i · A CLAIM THE EMAIL COULD NOT CARRY MUST COME BACK ──────────────
+    // The bug Andrew found on 2026-09-13 was a claim consumed with nothing
+    // sent: "the reminder sweep has stopped running" with no "is running
+    // again" ever after it. The cause was a 504 on the settings read, which a
+    // test cannot arrange — so this drives the same CONSEQUENCE through the
+    // one lever it can pull, an address the relay refuses. `sendTenantEmail`
+    // answers false either way, and the question is what the row looks like
+    // afterwards.
+    //
+    // **BOTH DIRECTIONS, AND THE SECOND IS THE ONE THAT WAS BROKEN.** The old
+    // undo re-armed stoppages only, so an all-clear that failed to send was
+    // gone for good. Not a reserved domain: `send-email` answers 200
+    // `skipped: undeliverable_domain` for those, which is a SUCCESS and would
+    // measure nothing.
+    await setSettings({ owner_email: "watchdog-refused-on-purpose" });
+
+    await rest(`job_heartbeats?job=eq.${JOB}`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        ran_at: new Date(Date.now() - 3_600_000).toISOString(),
+        alerted_at: null,
+      }),
+    });
+    const lostStop = await run();
+    check("2i · an unsendable STOPPAGE is claimed but not reported sent",
+      mine(lostStop)?.went === "stale" && lostStop.emailed === false,
+      JSON.stringify(lostStop).slice(0, 200));
+    check("2i-ii · and the row is re-armed so the next run tries again",
+      (await rowFor(JOB))?.alerted_at === null);
+
+    await rest(`job_heartbeats?job=eq.${JOB}`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        ran_at: new Date().toISOString(),
+        alerted_at: new Date(Date.now() - 3_600_000).toISOString(),
+      }),
+    });
+    const lostBack = await run();
+    check("2i-iii · an unsendable RECOVERY is claimed but not reported sent",
+      mine(lostBack)?.went === "recovered" && lostBack.emailed === false,
+      JSON.stringify(lostBack).slice(0, 200));
+    // THE WHOLE POINT. Before 2026-09-13 this read null and the all-clear was
+    // lost silently — the exact thing he saw in Resend.
+    check("2i-iv · and IT TOO is re-armed, which is what was lost",
+      (await rowFor(JOB))?.alerted_at !== null);
+
+    await setSettings({ owner_email: ALERT_TO });
+    await rest(`job_heartbeats?job=eq.${JOB}`, {
+      method: "PATCH",
+      body: JSON.stringify({ ran_at: new Date().toISOString(), alerted_at: null }),
+    });
 
     // THE OUTSIDE PING. Two of its three properties are ours and provable
     // here; the third needs his healthchecks.io URL and PRINTS rather than

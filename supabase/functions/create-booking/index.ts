@@ -140,7 +140,7 @@ Deno.serve(async (req) => {
         // Measured on a real menu: $1,645 of work a $625 package contained.
         if (g.is_exclusive && services.some((s) => s.group_id === g.id) && services.length > 1) {
           return json({
-            error: `${g.name} is booked on its own — it already includes the rest. `
+            error: `${g.name} is booked on its own. It already includes the rest. `
               + "Please remove the other services, or choose something else.",
           }, 409);
         }
@@ -672,7 +672,7 @@ Deno.serve(async (req) => {
     try {
       if (settings.push_enabled) await sendOwnerPush(business.id, {
         title: isRequest ? "Booking request" : "New booking",
-        body: `${booking.customer_name} — ${emailData.dateStr} at ${emailData.startTime} ($${Number(quote.total).toFixed(2)})`,
+        body: `${booking.customer_name} · ${emailData.dateStr} at ${emailData.startTime} ($${Number(quote.total).toFixed(2)})`,
         url: `/admin/job/${booking.id}`,
         tag: `booking-${booking.id}`,
       });
