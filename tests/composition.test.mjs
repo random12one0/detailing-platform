@@ -56,6 +56,33 @@ for (const root of roots) {
 
 console.log(`scanning ${files.length} components + the reference page`);
 
+// THE SUBJECT COUNT, AND IT IS BYTES RATHER THAN FILES - 2026-09-13.
+//
+// Forty-one of this suite's ninety-five checks are pure NEGATIVES: "no screen
+// maps records onto .card", "no hand-written <select>", "no never-default font
+// is the first family anywhere", "no second reduced-motion implementation".
+// **A negative over an empty file is true.** Measured by truncating every file
+// under `app/src`, `supabase` and `docs/design-directions` to zero bytes and
+// running this suite: 41 checks stayed green over nothing, including all eight
+// of the squircle pairings and all three reduced-motion rules.
+//
+// A file COUNT cannot catch it -- `files.length` was still 60-odd with every
+// one of them empty, which is the same defect `geoapify`'s own "the check has
+// subjects" had. So the floor is on what was READ, and on the stylesheets by
+// name, because most of the 41 are CSS rules and not one of the .jsx files
+// carries them.
+{
+  const sheets = ["app/src/theme.css", "app/src/book/booking.css", "app/src/landing/landing.css"];
+  const sizes = await Promise.all(sheets.map(async (f) => [f, (await readFile(f, "utf8")).length]));
+  const jsxBytes = (await Promise.all(files.map((f) => readFile(f, "utf8")))).reduce((n, t) => n + t.length, 0);
+  check("0 - the check has subjects: the components were READ, not just listed",
+    files.length > 40 && jsxBytes > 300000, `${files.length} files, ${jsxBytes} bytes`);
+  check("0 - and all three stylesheets and the reference page carry content",
+    sizes.every(([, n]) => n > 10000) && ref.length > 20000 && docFlat.length > 20000,
+    sizes.map(([f, n]) => `${f.split("/").pop()} ${n}B`).join(", ")
+      + ` · reference ${ref.length}B · doc ${docFlat.length}B`);
+}
+
 // ─────────────────────────────────────────────────────────────────────────
 console.log("\ntest 1: collections are lists, not stacks of cards");
 

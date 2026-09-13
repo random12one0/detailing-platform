@@ -50,8 +50,15 @@ const env = Object.fromEntries(
 const TOKEN = process.env.SUPABASE_ACCESS_TOKEN || env.SUPABASE_ACCESS_TOKEN;
 const REF = process.env.SUPABASE_PROJECT_REF || env.SUPABASE_PROJECT_REF;
 if (!TOKEN || !REF) {
-  console.log("SKIPPED — needs SUPABASE_ACCESS_TOKEN and SUPABASE_PROJECT_REF");
-  process.exit(0);
+  // EXIT 1, NOT 0 - 2026-09-13. This printed SKIPPED and exited 0, so a run
+  // with no credentials was indistinguishable from a clean schema audit to
+  // anything reading the exit code. Same shape as tests/definer-grants, found
+  // in the same sweep. CLAUDE.md sends a session here after every migration;
+  // a green exit that audited nothing is the most expensive answer it can give.
+  console.error("SKIPPED — needs SUPABASE_ACCESS_TOKEN and SUPABASE_PROJECT_REF.");
+  console.error("        Nothing was audited. Run: set -a; . ./.env; set +a");
+  console.error("        Exiting 1 so this cannot be mistaken for a clean audit.");
+  process.exit(1);
 }
 
 async function q(sql) {

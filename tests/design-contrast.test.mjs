@@ -174,6 +174,7 @@ const Ld = {
   ac: gl("ac"), acDeep: gl("ac-deep"),
   paper: gl("paper"), paperInk: gl("paper-ink"), paperFog: gl("paper-fog"),
 };
+let checked = 0, drift = 0;
 // ANTI-DRIFT. composition.test.mjs pins the reference page against the
 // document; this pins the shipped stylesheet against both, so a colour
 // cannot quietly become a slightly different colour on the way into the app.
@@ -183,13 +184,23 @@ for (const [name, want] of Object.entries({
   "ac": T.ac, "ac-deep": T.acDeep,
   "paper": T.paper, "paper-ink": T.paperInk, "paper-fog": T.paperFog,
 })) {
+  checked++;
   const got = gl(name);
   if (!want || !got || got.toUpperCase() !== want.toUpperCase()) {
-    bad++;
+    bad++; drift++;
     console.log(`FAIL         landing.css --${name} is ${got}, the system says ${want}`);
   }
 }
-console.log("ok           landing.css tokens match the system's values");
+// THE "ok" WAS UNCONDITIONAL -- 2026-09-13. It printed under its own thirteen
+// FAIL lines, which is the worst shape a report can take: a green line that
+// stops the search sitting directly beneath the findings. It also printed over
+// an EMPTY landing.css, where `gl()` returns undefined for all thirteen.
+if (drift || checked !== 13) {
+  bad++;
+  console.log(`FAIL         landing.css tokens: ${drift} drifted, ${checked} of 13 compared`);
+} else {
+  console.log("ok           landing.css tokens match the system's values (13 compared)");
+}
 // The dark ground and the two surfaces on it.
 row("bone / ink-0 (the ground)", Ld.bone, Ld.ink0);
 row("bone / ink-1 (the last word)", Ld.bone, Ld.ink1);
