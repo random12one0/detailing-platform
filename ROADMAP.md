@@ -152,6 +152,100 @@ it.
 
 ---
 
+---
+
+## PHASE: MAKE THE EDITING SCREENS FEEL LIKE A PRODUCT
+
+**Andrew's words, 2026-09-12:** the editing screens feel like *a thousand text
+boxes* rather than something integrated into the product. He wants them
+**visually good and pleasant to use, the way a well-made app feels, not a form.**
+
+**WHY THIS COMES AFTER THE CURRENT WORK AND NOT BEFORE.** A beautiful screen
+with a wrong price on it is worse than a plain screen with a right one. A
+detailer who loses a booking to a stale number does not care how the page
+looked, and a defect shipped inside a redesign is twice as hard to find because
+nobody knows whether the look or the logic moved it. Correctness first, then
+this — and this is not optional afterwards.
+
+**AND IT IS THE HONEST WEAK SPOT OF THE RUN THAT PRECEDED IT.** Everything from
+2026-09-11 to 2026-09-12 was correctness: spelling, tap targets, translation,
+stale instruments. **None of it made anything nicer to look at.** That is a real
+gap and not a matter of taste; a detailer meets these screens on their first
+morning and decides then whether this product is serious.
+
+### How to write each screen's item, and it is not "pick a widget"
+
+**Say what the screen should FEEL like and what a detailer should be able to SEE
+at a glance. The widget is the builder's call.** An item that names a component
+has decided the answer before anyone has looked at the problem — and this repo
+already has a kit (`components/controls.jsx`) whose whole point is that the
+answer is usually already in it.
+
+**THE EXHAUSTION TEST STILL GOVERNS AND SO DOES LAW 1** — new or rebuilt work
+takes design-system law 1 in full (`CLAUDE.md` § SCREEN RULES). This phase does
+not license a new visual language; it licenses using the one that exists
+properly.
+
+### The screens, worst first
+
+**1 · SERVICES AND ADD-ONS.** *Agreed, and it is the worst one.* It is the
+screen a detailer spends the most time in and the one their whole business
+hangs off, and it is a stack of inputs.
+**It should feel like looking at your own menu** — a detailer should see the
+shape of what they sell without reading: which categories exist, what each costs
+and how long it takes, what is an add-on rather than a service, and which one is
+the base price. **Today the price ladder and the vehicle tiers are two unrelated
+lists on one page, and the relationship between them — the tier multiplies the
+service — is the single most important fact on the screen and is nowhere on it.**
+
+**2 · VEHICLE SIZES.** *Agreed, with a correction: it is not a separate screen.*
+It lives inside Services and add-ons, so fixing it separately would produce two
+designs on one page. **Treat it as part of item 1.**
+**It should show what a customer will actually pick between** — the same cards,
+in the same order, with the same words, because that IS what the booking page
+draws. A detailer setting up tiers is designing a screen they never see.
+Note: the count is not fixed at three — a detailer can add, remove and reorder —
+so whatever this becomes has to hold two tiers and six.
+
+**3 · THE 21-STEP WEBSITE QUESTIONNAIRE.** *Agreed that it is the longest thing
+any detailer will ever do here. I would argue it is NOT a form march and that
+the diagnosis matters.* It already has: one question per screen, a progress
+rule, its own answer-count, drawn previews of real example sites, and a skip on
+every optional step. **It is the best-structured long form in the product.**
+**What is actually wrong is that it never shows the detailer what they are
+BUILDING.** Twenty-one steps of answering, and the thing being made is not on
+screen at any point. It should feel like watching your website appear, not like
+filling in a questionnaire about one. **That is one idea, not twenty-one screen
+redesigns** — and it is cheaper than rebuilding the form.
+
+**4 · BUSINESS INFO.** *Agreed on importance, disagree on the reason.* It is
+eight labelled fields and an honest line about the mailing address and the law —
+a reviewer walked it and found nothing wrong with it. **It is not a bad screen;
+it is a FIRST screen, which is a different job.** A new detailer meets it before
+they trust the product.
+**It should feel like being set up, not like being processed** — the difference
+between a form and somebody helping you. The cheapest real win: **show what a
+customer sees as it is typed.** Every field on it ends up on a booking page or
+in an email, and none of them says so.
+
+**5 · ONE I WOULD ADD, and it is a bigger miss than Business info.** **The
+customer-facing booking page is the only screen in this product a detailer is
+JUDGED on**, and a detailer cannot see it while setting it up. Every screen
+above is a form whose output is that page, and the product never shows the two
+together. **A live preview of the booking page, beside the settings that change
+it, would do more for "feels like a product" than restyling any single form** —
+and it makes items 1, 2 and 4 land harder because each becomes visibly
+connected to something.
+
+### What finishing this phase means
+
+The exhaustion test passes on every screen above; the detailer can see the
+result of what they are editing without leaving the screen; and Andrew looks at
+it and does not say *a thousand text boxes*. **That last one is the only
+acceptance test that matters and it is a person, not a check** — the same shape
+as the tenant-site work, where five pages passed every automated floor in this
+repo and he still said they looked AI.
+
 ## Settled at the compaction, 2026-09-12 — both were mid-flight and both are answered
 
 - **The bare-switch check IS committed and IS baselined.** `composition` test
