@@ -65,7 +65,7 @@ const rpc = (fn, body = {}) => rest(`rpc/${fn}`, { method: "POST", body: JSON.st
 // switched on in turn. Nothing is emailed: the RPC is a `select`.
 //
 // **THE FIXTURE DEFEATS THE EVENING-BEFORE RULE ON PURPOSE.** That rule fires
-// only for jobs starting at or before `evening_before_latest_start` (10:00 by
+// only for jobs starting at or before `evening_before_latest_start` (12:00 by
 // default), and it sends at a wall-clock time the previous evening. A fixture
 // caught by it would be due or not due depending on what time of day the suite
 // happened to run. So the booking starts LATE in the business's own day, which

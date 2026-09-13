@@ -170,7 +170,7 @@ export async function getSettings(businessId: string): Promise<BusinessSettings>
     travel_zones: [],
     customer_reminder_lead_minutes: 120,
     evening_before_enabled: true,
-    evening_before_latest_start: "10:00:00",
+    evening_before_latest_start: "12:00:00",
     evening_before_send_time: "19:00:00",
     owner_nudge_lead_minutes: 30,
     wrapup_nudge_lead_minutes: 20,

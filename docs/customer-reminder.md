@@ -98,17 +98,24 @@ The sweep is the one caller for which a silent failure is the defect.
 
 ---
 
-## THE TIMING, WHICH ANDREW ASKED ME TO DECIDE AND SAY WHY
+## THE TIMING — ANDREW DECIDED IT, 2026-09-13, AND THE THRESHOLD MOVED TO NOON
 
-**I KEPT WHAT WAS ALREADY THERE, AND THAT IS THE DECISION RATHER THAN A
-DEFERRAL.** It is right, it is a detailer's to change, and churning it would
-have replaced a considered default with a fresh guess.
+**The evening-before threshold was 10:00 and it is 12:00 now.** Migration
+`20260913050000_the_evening_before_threshold_moves_to_noon.sql` moves the column
+default and moves every row still sitting on the old default; the TypeScript
+fallback in `_shared/tenant.ts` moved with it, because a business with no
+settings row must not answer a different question from one that has one.
+
+His reason, and it is the one the old text below had already written down:
+**a customer has to move the car and find an outdoor tap, and an email two hours
+out is too late to act on.** A 10:30 job was reminded at 08:30 that morning,
+after most people have left the house.
 
 ### WHAT IT IS
 
 | | |
 |---|---|
-| **A job starting at or before 10:00 local** | reminded **at 19:00 the evening before** |
+| **A job starting at or before 12:00 local** | reminded **at 19:00 the evening before** |
 | **Every other job** | reminded **2 hours before it starts** |
 | **A second reminder** | off by default; 2 hours out when switched on |
 
@@ -134,13 +141,17 @@ six-product sweep offers three, **and a third costs deliverability for every
 OTHER email** — sender reputation is shared, and the receipt landing in junk is
 worse than a missed appointment.
 
-### WHAT I WOULD CHANGE IF ANYTHING, AND WHY I HAVE NOT
+### WHAT MOVING IT COSTS, AND WHAT IT DOES NOT
 
-**`evening_before_latest_start` is 10:00, so a 10:30 job gets its only reminder
-at 08:30 that morning** — after most people have left the house. A later
-threshold (12:00) would catch it. **It is a one-word change to a default and it
-is a product decision about somebody else's trade, so it is his**, and it is
-recorded here rather than made quietly.
+**An afternoon job is unaffected.** Only jobs starting between 10:00 and 12:00
+change branch, and what they gain is a reminder at 19:00 the night before
+instead of one 2 hours out that morning.
+
+**NOTHING IN THE APP EXPOSES THIS FIELD.** `BookingRules.jsx` offers the on/off
+switch and no threshold, so every 10:00 in the table was the shipped default
+rather than a detailer's choice — which is why the migration is allowed to move
+existing rows. A row set to any other time is left alone. If the field ever
+gains a control, that update clause must not be copied forward.
 
 ---
 
