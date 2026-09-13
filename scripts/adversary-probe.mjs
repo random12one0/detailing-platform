@@ -75,6 +75,24 @@ console.log("\nA3: a stranger with no session");
   // account in order to cancel an appointment, or to leave a mailing list,
   // which is the opposite of what the law and the product both want. What
   // they owe instead is A4 below, and the throttle in `spam-filter`.
+  // **SAME ANCHOR AS A3b BELOW AND FOR THE SAME REASON.** Every check in this
+  // loop passes on a 401, and a DEAD key is refused by everything - so a probe
+  // whose own credential had rotted would report the whole gate perfect.
+  //
+  // **AND THE OBVIOUS CONTROL IS THE WRONG ONE, MEASURED.** Calling a PUBLIC
+  // edge function was tried first: `available-slots` has `verify_jwt` off, so it
+  // answers the same whatever key is sent and the control stayed GREEN with
+  // `SUPABASE_ANON_KEY=GARBAGE`. It proved the function was up and nothing about
+  // the key. **The claim here is that this probe is an ORDINARY ANONYMOUS
+  // VISITOR and not a stranger holding nonsense**, and only PostgREST can settle
+  // that: it validates the key itself, answering 200 `[]` for a live key against
+  // an RLS-protected table and 401 *"Invalid API key"* for a dead one.
+  const keyLive = await rest("businesses?select=id&limit=1");
+  check("the stranger's key is a REAL anon key, so the refusals below are the GATE",
+    keyLive.status === 200,
+    `PostgREST answered ${keyLive.status} to the anon key - this probe is not an `
+    + `anonymous visitor, it is a caller holding nonsense, and everything below `
+    + `refuses that for the wrong reason. ${keyLive.text.slice(0, 120)}`);
   for (const name of GATED) {
     const r = await fn(name, { action: "list" });
     check(`${name} refuses an anonymous caller`, r.status === 401 || r.status === 403 || r.status === 404,
@@ -102,14 +120,30 @@ console.log("\nA3b: the tables, with the key a browser already has");
     "services", "promo_codes", "expenses", "plan_members", "platform_subscriptions",
     "platform_invoices", "platform_admins", "platform_admin_events", "job_photos",
   ];
+  // **THE ANCHOR, AND IT IS THE WHOLE REASON THESE FOURTEEN MEAN ANYTHING -
+  // 2026-09-13.** Every one of them passes on a 401, which is correct when RLS
+  // refuses and is ALSO what a broken key returns. Measured by running the whole
+  // probe with `SUPABASE_ANON_KEY=…GARBAGE…`: **all fourteen stayed green**, and
+  // only three checks in two LATER sections went red. The suite was anchored, by
+  // accident and fifty lines away; a reader looking at this loop had nothing.
+  //
+  // A live key against an RLS-protected table answers **200 with `[]`** - the
+  // defence working - and a dead one answers 401 with *"Invalid API key"*. So the
+  // anchor is that at least one table got through to the policy at all.
+  let reached = 0;
   for (const t of TABLES) {
     const r = await rest(`${t}?select=*&limit=2`);
     let rows = null;
     try { rows = JSON.parse(r.text); } catch { /* an error body */ }
     const empty = Array.isArray(rows) ? rows.length === 0 : false;
+    if (r.status === 200) reached++;
     check(`${t} returns nothing to a stranger`, r.status === 401 || r.status === 403 || empty,
       `${r.status} ${r.text}`);
   }
+  check("the stranger's key actually works, so the fourteen above are RLS and not a 401",
+    reached > 0,
+    `every table answered 401/403 - that is what a DEAD anon key looks like, and `
+    + `it is indistinguishable from perfect security. ${TABLES.length} tables, 0 reached a policy.`);
 }
 
 // ── A4 · a customer edits a booking id in a URL ────────────────────────────

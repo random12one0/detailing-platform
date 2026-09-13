@@ -13,7 +13,7 @@ Written at `63509d5`, lane C. **Every figure here is counted, not estimated.**
 ## THE ANSWER, IN ONE LINE
 
 **Fifty-eight of fifty-eight suites in `tests/` have now been blind-tested, and
-so have nine of the thirty-three scripts that assert anything. The twelve that
+so have ten of the thirty-three scripts that assert anything. The twelve that
 drive a browser are untested BY THE INSTRUMENT AS WELL AS BY THE AUDIT, because
 `blind-run` cannot start a dev server and lane B owns the one that exists.**
 
@@ -66,10 +66,11 @@ thing each sweep guards and confirms it goes red. **It cannot be done while
 
 ---
 
-## 3 · THREE SCRIPTS THAT RUN WITHOUT A BROWSER AND WERE STILL NEVER AUDITED
+## 3 · THREE SCRIPTS THAT RUN WITHOUT A BROWSER AND WERE NEVER AUDITED — all three closed
 
 Found by cross-referencing every script carrying an assertion against the audit
-document's own text. Two were run today; one still has not been.
+document's own text. **All three were run and read this session, and the last
+one turned out to be the most blind instrument in the repo.**
 
 - **`accent-sweep.mjs` — 16 assertions, and it reads NO PRODUCT FILE.** Every
   hex it checks is a constant in the script. It is arithmetic against pinned
@@ -80,12 +81,24 @@ document's own text. Two were run today; one still has not been.
   false positives.
 - **`probe-forecast.mjs` — 23 assertions, and its live half had never run.**
   Closed today; see § 4.
-- **`adversary-probe.mjs` — 12 assertions, no browser, needs credentials.** The
-  audit checked only that it exits 1 without them. **Its checks have never been
-  broken on purpose.** It is the only thing in the repo that attacks the
-  deployed functions as a hostile caller, so it is the highest-value item on
-  this list that does NOT need lane B to stand down. **It is the next one to
-  do.**
+- **`adversary-probe.mjs` — 50 checks. DONE, and it was blind — closed the same
+  session.** The audit had only checked that it exits 1 without credentials.
+  **Broken on purpose by giving the probe a garbage anon key: 47 of 50 stayed
+  green**, including all fourteen *"X returns nothing to a stranger"* and every
+  *"X refuses an anonymous caller"*. Every one of those passes on a **401**,
+  which is what RLS refusing looks like AND what a dead key looks like — **a
+  probe whose own credential had rotted would have reported the whole security
+  model perfect.** Three positive controls fifty lines away in later sections
+  were the only thing holding it, so the suite was anchored by accident and a
+  reader looking at either loop had nothing.
+  **Each loop carries its own anchor now, and the FIRST ATTEMPT AT ONE WAS
+  WRONG in a way worth keeping:** calling a public edge function
+  (`available-slots`) stayed green with the garbage key, because `verify_jwt` is
+  off there and it answers the same whatever is sent. It proved the function was
+  up and nothing about the key. **Only PostgREST validates the key itself** —
+  200 `[]` live, 401 *"Invalid API key"* dead — so that is the control in both
+  places. 50 → 52 checks, and both anchors go red on the garbage key naming
+  their own cause.
 
 ---
 
@@ -151,5 +164,5 @@ does it DO something, or does it ASSERT something? An asserter loads the file.
 | scripts carrying assertions | 33 |
 | scripts run and read this session | 9 |
 | scripts that need a browser and a still tree | **12 — the gap** |
-| scripts with assertions, no browser, never baselined | **1** (`adversary-probe`) |
+| scripts with assertions, no browser, never baselined | **0** — `adversary-probe` was the last, and it was blind: 47 of its 50 checks stayed green on a garbage key |
 | suites whose subject the blanking could not reach | 2, both recorded, both anchored another way |
