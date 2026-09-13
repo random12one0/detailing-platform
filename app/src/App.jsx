@@ -13,7 +13,8 @@ import GearMenu from "./components/GearMenu.jsx";
 import SetupForm from "./components/SetupForm.jsx";
 import SiteIntake from "./screens/SiteIntake.jsx";
 import { SCREENS } from "./screens/more/index.js";
-import Walkthrough, { TOURS, GRAND } from "./components/Walkthrough.jsx";
+import Walkthrough, { TOURS } from "./components/Walkthrough.jsx";
+import { supabase } from "./lib/supabase.js";
 import { impersonation } from "./lib/impersonation.js";
 import { isPreviewTab, previewMode, previewWho, setPreviewMode } from "./lib/preview.js";
 import { planChoice } from "./lib/planChoice.js";
@@ -43,34 +44,48 @@ const TABS = [
   { key: "business", label: "Business", Icon: Store, el: Business },
 ];
 
-// WHETHER THIS DEVICE HAS BEEN SHOWN AROUND. localStorage rather than the
-// database, and for the same reason BusinessContext keeps the preferred
-// business there: it is a fact about this browser, not about the account. A
-// second device gets the tour once, which is right — it is a tour of a
-// SCREEN, and that screen is a different shape on a phone and at a desk.
-// ROADMAP 2.24 — ONE KEY HOLDING A LIST OF NAMES, not five keys.
+// WHETHER THIS PERSON HAS BEEN SHOWN AROUND — ONE FACT, NOT SIX.
 //
-// Five would be five things to clear, and a detailer who wanted the guides
-// again would have to know all five names. One means *Show me around* can
-// offer "start again" and mean it. The old single key is still read on the
-// way in, so a browser that has already seen the shell tour is not shown it
-// twice the day this ships.
+// **Andrew, 2026-09-13: *"it keeps giving me the tour even though I've already
+// said skip."* This block is why.** It used to hold a LIST of guide names, and
+// `markTourSeen` wrote the name of the guide that was on screen and nothing
+// else. There are six guides — the shell and the five tabs — so pressing Skip
+// once silenced one of them and left five armed, each arriving 900ms after the
+// first press of its tab. Measured: `tests/tours.test.mjs` § 6c.
+//
+// **A DISMISSAL IS ONE FACT ABOUT A PERSON: they are done being shown around.**
+// No list, no merge, no way for skip and finish to record different things.
+// *Show me around* is not gated on it (`tours.test.mjs` § 3), so the gear is
+// always the way back in, which is what makes "final" safe.
+//
+// BOTH OLD KEYS ARE STILL READ, so a browser that has already been shown
+// around is not shown around again the day this ships. Only the flag is
+// written from here on.
+//
+// **AND IT IS ALSO WRITTEN FOR THE PERSON** — `user_tours`, one row, read on
+// sign-in below. This stays as the fast path: it is synchronous, so no guide
+// flashes while a round trip is in the air.
 const TOUR_KEY = "dp.tour";
 const TOURS_KEY = "dp.tours";
 const seenTours = () => {
   try {
-    const raw = JSON.parse(localStorage.getItem(TOURS_KEY) || "[]");
-    const list = Array.isArray(raw) ? raw : [];
-    return localStorage.getItem(TOUR_KEY) ? [...new Set([...list, "shell"])] : list;
-  } catch { return []; }
+    const list = localStorage.getItem(TOURS_KEY);
+    return Boolean(localStorage.getItem(TOUR_KEY) || (list && list !== "[]"));
+  } catch { return false; }
 };
-const markTourSeen = (name = "shell") => {
-  try {
-    localStorage.setItem(TOURS_KEY, JSON.stringify([...new Set([...seenTours(), name])]));
-    if (name === "shell") localStorage.setItem(TOUR_KEY, "1");
-  } catch { /* private mode */ }
+const markTourSeen = () => {
+  try { localStorage.setItem(TOUR_KEY, "1"); } catch { /* private mode */ }
 };
-const tourSeen = (name = "shell") => seenTours().includes(name);
+const tourSeen = () => seenTours();
+
+// THE PERSON'S OWN ROW. Fire and forget: the device flag above has already
+// recorded the dismissal, so a failed insert must not block it — the next
+// dismissal tries again. A duplicate comes back as an error rather than a
+// throw, and is exactly as harmless as it sounds: the row already says it.
+const noteToursDismissed = (userId) => {
+  if (!userId) return;
+  supabase.from("user_tours").insert({ user_id: userId }).then(() => {}, () => {});
+};
 
 export default function App() {
   const { session, business, settings, role, can, loading, signOut, reload,
@@ -173,6 +188,14 @@ export default function App() {
   // Whether the guide on screen was ASKED FOR or arrived by itself. The two
   // deserve different behaviour when there is nothing to point at.
   const asked = useRef(false);
+  // The handle for the 900ms timer that arms a tab's guide, so pressing a
+  // second tab inside that window cancels the first rather than opening it
+  // over the wrong screen.
+  const tourTimer = useRef(null);
+  // ONE DOOR FOR EVERY DISMISSAL. Skip and finish, shell guide or tab guide,
+  // all record the same single fact — on this device instantly, and on the
+  // account in the background.
+  const dismissTours = () => { markTourSeen(); noteToursDismissed(session?.user?.id); };
   // **`/app/money` OPENED TODAY, AND SO DID THE OTHER FOUR — measured
   // 2026-09-11 with all five loaded one at a time.**
   //
@@ -343,6 +366,30 @@ export default function App() {
       }
     } else if (!tourSeen()) setFirstRun("tour");
   }, [business, settings, role, wantsBrief]);
+
+  // A DISMISSAL ON THE LAPTOP COUNTS ON THE PHONE — `user_tours`, one row per
+  // person, roadmap/2026-09-13. The device flag is the fast path and this is
+  // what outranks it: `localhost:5173` and the live domain are two separate
+  // localStorages, a private window is a third, and a skip in any of them used
+  // to be worth nothing in the others.
+  //
+  // ONLY WHEN THE DEVICE DOES NOT ALREADY KNOW — a device that has been shown
+  // around asks nothing, so this is one query on a new device and never again.
+  // A guide that is already on screen when the answer arrives is closed, which
+  // is the honest outcome: he has said skip, just not on this browser.
+  useEffect(() => {
+    const uid = session?.user?.id;
+    if (!uid || tourSeen()) return;
+    let live = true;
+    supabase.from("user_tours").select("user_id").eq("user_id", uid).maybeSingle()
+      .then(({ data }) => {
+        if (!live || !data) return;
+        markTourSeen();
+        setFirstRun((cur) => (cur === "tour" ? null : cur));
+        setTabTour(null);
+      }, () => { /* offline, or the table is not there yet — the guide runs */ });
+    return () => { live = false; };
+  }, [session?.user?.id]);
 
   if (loading) {
     return (
@@ -599,8 +646,16 @@ export default function App() {
               // `firstRun` is the one that has to be checked from before,
               // because a guide arriving the instant the setup form is
               // dismissed is the two-overlays problem this guard exists for.
-              if (!firstRun && TOURS[x.key] && !tourSeen(x.key)) {
-                setTimeout(() => setTabTour((cur) => cur ?? x.key), 900);
+              // AND THE PREVIOUS TAB'S TIMER IS CANCELLED FIRST — his *"not
+              // every time"*. Nothing used to clear it, and the setter is
+              // `(cur) => cur ?? x.key`, so pressing a second tab inside the
+              // 900ms window opened the FIRST tab's guide over the screen he
+              // had already left, where it planned against absent targets and
+              // left through `onEmpty` recording nothing — and threw the
+              // second one away unrecorded too. Both returned next visit.
+              clearTimeout(tourTimer.current);
+              if (!firstRun && TOURS[x.key] && !tourSeen()) {
+                tourTimer.current = setTimeout(() => setTabTour((cur) => cur ?? x.key), 900);
               }
             }}>
             <x.Icon size={21} strokeWidth={1.75} />
@@ -619,7 +674,7 @@ export default function App() {
       {firstRun === "tour" && (
         <Walkthrough
           onGo={(dest) => { setTab(dest); setGear(false); }}
-          onClose={() => { markTourSeen("shell"); setFirstRun(null); }} />
+          onClose={() => { dismissTours(); setFirstRun(null); }} />
       )}
       {/* ROADMAP 2.24 — a tab's own guide. `key` so switching tabs while one
           is up remounts rather than re-plans, and `onGo` is absent: a tab
@@ -646,11 +701,7 @@ export default function App() {
           // all five tabs gets each one's guide ambushing them again as they
           // walk the rail, and somebody who pressed Skip gets it five more
           // times. The gear is still the way back in.
-          onClose={() => {
-            if (tabTour === "everything") [...GRAND, "shell"].forEach(markTourSeen);
-            else markTourSeen(tabTour);
-            setTabTour(null);
-          }} />
+          onClose={() => { dismissTours(); setTabTour(null); }} />
       )}
     </div>
   );

@@ -478,3 +478,23 @@ full picture", a line saying what is behind it, and an arrow on the right. The
 two doors on that screen now match.
 
 **Visual: yes.**
+
+---
+
+## 25 · The tour that kept coming back
+
+**Open:** `localhost:5173/app` → press any tab you have not opened before, wait
+a second, and press **Skip the tour**. Then press the other tabs.
+
+**WAS:** There were six separate guides, one behind each tab, and pressing Skip
+only silenced the one in front of you — so saying "skip" once still left five
+more waiting to ambush you, one per tab. Worse, saying skip on the laptop was
+worth nothing on the phone, because the product only remembered it in that one
+browser.
+
+**NOW:** One Skip is the end of it. Whichever guide you dismiss, and whether you
+skip it or reach the last step, the product writes down that you are done — on
+your account, not just on that browser — so it stays quiet on your phone too.
+The gear menu's "Show me around" still runs the whole tour whenever you want it.
+
+**Visual: yes.**
