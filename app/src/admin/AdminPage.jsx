@@ -343,8 +343,18 @@ export default function AdminPage() {
     }
   }
   const mail = state?.email;
+  // **"PLATFORM" AND THE SECOND SENTENCE ARE BOTH LOAD-BEARING, AND THE
+  // SECOND ONE WAS LOST IN THE REBUILD — restored 2026-09-13.** `sent` comes
+  // from `platform_email_days`, a table in THIS project, so it counts what the
+  // PLATFORM sent. The cap is Resend's daily allowance, which is ACCOUNT-WIDE
+  // and shared with andrewsdetail.com — Andrew's own live business, real
+  // customers, same Resend account. Numerator and denominator are therefore
+  // different populations, so this line UNDER-reports, which is the unsafe
+  // direction: 470 platform against 57 business over 30 days means a busy
+  // Saturday reads comfortable while the account is at its limit. Without the
+  // second sentence the figure reads as the whole truth.
   if (mail && mail.cap && mail.sent >= mail.cap * 0.8) {
-    alerts.push(`Platform emails: ${mail.sent} of ${mail.cap} today`);
+    alerts.push(`Platform emails: ${mail.sent} of ${mail.cap} today — the cap is shared with andrewsdetail.com, so the real figure may be higher`);
   }
   if (mail && mail.failed > 0) alerts.push(`${mail.failed} email${mail.failed === 1 ? "" : "s"} failed to send today`);
   const store = state?.photo_store;
