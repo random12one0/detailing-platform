@@ -203,6 +203,7 @@ quality, so neither is a setting, a threshold or a review step.
 | When your work is | Open |
 |---|---|
 | about to re-measure anything | **`docs/VERIFIED.md` FIRST** — a row there means do not measure it again |
+| about to trust a check | `docs/check-audit-2026-09-13.md`, then `docs/check-coverage-gaps-2026-09-13.md` — what the instruments can and cannot see |
 | spending Andrew's usage | `docs/ECONOMY.md` |
 | a screen, a control, or a check | `docs/BAR.md` |
 | picking up the next task | `ROADMAP.md` § Next, in order |

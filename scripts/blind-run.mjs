@@ -46,7 +46,14 @@ const argv = process.argv.slice(2);
 const KEEP = argv.includes("--keep");
 const only = argv.filter((a) => !a.startsWith("--"));
 
-const BLANK_ROOTS = ["app/src", "app/public", "supabase", "docs/design-directions", "scripts"];
+// **`docs/tenant-sites` WAS MISSING AND IT COST A WHOLE SUITE - 2026-09-13.**
+// `tenant-sites.test.mjs` is 129 checks over five hand-built pages and its
+// subject lives nowhere else in this list, so the first pass reported it as
+// *0 green, exits 0* - which reads as "nothing to see" and actually meant
+// "this suite was never blinded at all". Same shape as the `session-ping`
+// and `mail-sink` false positives recorded above: an artefact of where the
+// blanking STOPPED, not a property of the suite.
+const BLANK_ROOTS = ["app/src", "app/public", "supabase", "docs/design-directions", "scripts", "docs/tenant-sites"];
 // `scripts/lib` holds pure modules that suites IMPORT rather than read as
 // subjects. Blanking them turns a real finding into an import crash.
 const KEEP_DIRS = new Set([path.normalize("scripts/lib")]);

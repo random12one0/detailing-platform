@@ -261,6 +261,18 @@ green line means *this check cannot prove it looked at anything* — usually a
 correct negative missing an anchor, not a wrong assertion. The fix is a subject
 count in bytes, not a rewrite.
 
+**WHAT THIS AUDIT DID NOT REACH IS NOW ON PAPER RATHER THAN IN THIS
+PARAGRAPH: `docs/check-coverage-gaps-2026-09-13.md`** names the twelve
+browser-driven scripts one by one, the three non-browser scripts that were
+never audited at all, and the four things blanking cannot see by
+construction. **It also closed a hole in THIS instrument:**
+`docs/tenant-sites` was in none of the blanked roots, so
+`tenant-sites.test.mjs` - 129 checks - reported as *0 green, exits 0* and had
+never been blinded at all. Added; the run now carries zero exit-0 flags.
+
+**AND THE BATTERY WAS THEN RUN: `docs/VERIFIED.md` § 1j.** Six suites red,
+four were the check and are fixed, two are lane B's.
+
 **And the rule the whole audit reduces to, which is already in `docs/BAR.md` and
 earned itself nine more times today:** *a green result from an instrument nobody
 has checked is worth less than no result, because it stops the search.*

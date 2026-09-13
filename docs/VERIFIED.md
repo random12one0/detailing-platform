@@ -832,6 +832,79 @@ and `$0` spent. The screen is counting them correctly (never-been-in is inside
 the chip's own filter, by `client-list.js`'s design) but the demo reads worse
 than the product is. Lane C's seed/cleanup.
 
+
+## 1j · THE WHOLE BATTERY, RUN AGAINST HONEST INSTRUMENTS — lane C, 2026-09-13, at `63509d5`
+
+**This is the audit's payoff run.** `docs/check-audit-2026-09-13.md` made 69
+checks across ten suites capable of failing; this is what they said. **All 58
+suites in `tests/`, sequentially, with `.env` loaded.**
+
+| what was proven | figure | at | invalidated by a change to |
+|---|---|---|---|
+| **The battery is green except for two suites that are red about `app/src`** | 52 of 58 suites exit 0; the other 6 were run down one by one | `63509d5` | `tests/**`, `supabase/**`, `app/src/**` |
+| **`blind-run` reports zero suites that still exit 0 with their subject blanked** | 58 suites, 369 files blanked, **0** exit-0 flags (was 1) | `63509d5` | `tests/**`, `scripts/blind-run.mjs` |
+| The 80 individual green lines that survive blanking are negatives whose SUITE goes red on its anchor — the designed state, not a hole | 80 across 11 suites | `63509d5` | `tests/**` |
+
+```bash
+git diff --name-only 63509d5..HEAD -- tests scripts/blind-run.mjs
+```
+
+### THE FOUR THAT WERE THE CHECK, AND ARE FIXED AND BASELINED
+
+| suite | was | is | what it actually was |
+|---|---|---|---|
+| `customer-reminder` | 14 / 1 / 1 | **36 / 0 / 0** | both fixtures pinned at `now + 30min` against an exclusion constraint over a SEEDED calendar, so it measured nothing **depending on the hour it ran**. `freeSlot()` walks to the first free hour; the leads are derived from where it landed |
+| `availability-honesty` | 26 | **31** | never imported `tests/_env.mjs` — one of the eleven that file was written for, missed. § 4's five live checks against `available-slots` had never run |
+| `connect` · `plans` | 125 / 1 · 72 / 1 | **126 / 0 · 73 / 0** | both pinned a label containing an EM DASH that the label-separator rule replaced with the middle dot. Trap (k) |
+| `spam-filter` | 32 / 1 | **36 / 0** | *"every window is 3600"* against a deliberate 86,400 daily Geoapify budget. The property is that a whole UTC day aligns with the provider's reset, because `rate_take` buckets on `floor(epoch / window) * window` |
+
+**Every one baselined by breaking the real thing** — 9 deliberate mutations,
+9 reds, tree restored each time.
+
+### AND TWO SCRIPTS
+
+- **`probe-forecast` 11 / 1 skipped → 16 / 0.** `weather.test.mjs` § 13 SKIPS
+  saying the status mapping is *"proved live by scripts/probe-forecast.mjs
+  instead"* — **and the delegate skipped too and exited 0.** Two honest skip
+  lines adding up to a capability nobody had ever checked. Baselined against
+  `forecast-DEAD`: 4 red.
+- **`db-audit` 2 findings → clean.** `session_pings` and `translation_usage` are
+  RLS-forced with no policies and `revoke all from anon, authenticated` — the
+  same three lines as the eight already allowlisted, so a policy would be the
+  thing that WEAKENED them. Allowlisted with the reason; baselined by removing
+  one, which brings it back.
+
+### THE TWO STILL RED, AND NEITHER IS LANE C'S
+
+`docs/lane-b-handover-2026-09-13.md` carries both in full.
+
+- **`platform-billing` 335 / 1** — the back office can no longer clear a price
+  override back to the built-in files. The server half is intact; the button is
+  gone from the rebuilt `AdminPage.jsx`. **Measured: `platform_settings.prices`
+  is `null` today, so nothing is stuck** — the loss is a capability, not a live
+  fault.
+- **`platform-admin` 130 / 30** — **unchanged and already triaged** in
+  `docs/platform-admin-triage-2026-09-13.md` § 4. Was 49, then 43, now 30. All
+  thirty name a capability the rebuilt screen does not have; three of them are
+  checks against a design Andrew replaced and should be DELETED rather than
+  satisfied.
+
+### WHAT IS STILL OWED, AND WHY IT WAS NOT DONE TONIGHT
+
+**`scripts/e2e-booking.mjs`'s six provider-email legs, from § 1h.** Two
+conditions had to hold and neither did at 22:04 UTC:
+
+- **The day had not rolled.** `platform_email_days` for 2026-09-13 reads
+  `claimed 100, sent 88, failed 12, refused 45` against a cap of 100. Spent.
+- **Lane B's tree was not still.** `app/src/App.jsx`, `app/src/book/booking.css`
+  and `app/src/theme.css` were all uncommitted, and `App.jsx` appeared DURING
+  this session. Trap (f): a measurement taken while somebody is building is
+  worth nothing, and `e2e-booking` drives lane B's own dev server.
+
+**So it stays owed, and it needs both: after 00:00 UTC, on a committed tree,
+with lane B idle.** `docs/check-coverage-gaps-2026-09-13.md` § 2 has the other
+eleven browser scripts in the same position.
+
 ---
 
 ## HOW THIS FILE EARNS ITS KEEP
