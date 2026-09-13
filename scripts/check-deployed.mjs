@@ -24,6 +24,8 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { sharedFor } from "./lib/sharedDeps.mjs";
+
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const FUNCTIONS = path.join(ROOT, "supabase", "functions");
 
@@ -65,31 +67,6 @@ function lastCommit(paths) {
   const out = execFileSync("git", ["log", "-1", "--format=%ct", "--", ...paths],
     { cwd: ROOT, encoding: "utf8" }).trim();
   return out ? Number(out) * 1000 : 0;
-}
-
-// Which _shared modules end up inside this function's bundle. One level is
-// enough only if _shared modules do not import each other, so this follows
-// them: a stale `brandColor.js` reached through `email.ts` is exactly the
-// kind of thing that would otherwise be missed.
-async function sharedFor(fn, seen = new Set()) {
-  const dir = path.join(FUNCTIONS, fn);
-  const stack = [];
-  for (const f of await readdir(dir, { recursive: true, withFileTypes: true })) {
-    if (f.isFile()) stack.push(path.join(f.parentPath ?? f.path, f.name));
-  }
-  while (stack.length) {
-    const file = stack.pop();
-    let src;
-    try { src = await readFile(file, "utf8"); } catch { continue; }
-    for (const m of src.matchAll(/["'](?:\.\.\/)+_shared\/([\w./-]+)["']/g)) {
-      const rel = `supabase/functions/_shared/${m[1]}`;
-      if (seen.has(rel)) continue;
-      seen.add(rel);
-      const abs = path.join(ROOT, rel);
-      if (existsSync(abs)) stack.push(abs);
-    }
-  }
-  return [...seen];
 }
 
 const res = await fetch(
