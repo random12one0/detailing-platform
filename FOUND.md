@@ -5,6 +5,39 @@ Claude Cowork decides what becomes work.
 
 ---
 
+## `check-deployed` CALLED AN EDITED `create-booking` CURRENT — lane C, 2026-09-13
+
+**The one tool that answers "is what is RUNNING what is in the repo?" could not
+see an edit nobody had committed.** It compares the last COMMIT time touching a
+function’s paths against the deploy time. An uncommitted edit moves neither
+number, so it reads as `current`.
+
+**MEASURED:** `// PROBE` appended to `supabase/functions/create-booking/index.ts`,
+nothing deployed and nothing committed. The script printed
+**`create-booking  current`** and **`all 37 functions are current`**, exit 0.
+That is the function that takes the money and carries the double-booking
+constraint, reported as matching a running copy it no longer matched.
+
+**THE BLIND SPOT IS THE STATE EVERY WORKING SESSION IS IN**, which is what makes
+it expensive: mid-wave, a function is edited and not yet committed, and the tool
+answers the one question it exists for with a confident wrong yes.
+
+**AND A SECOND HOLE IN THE SAME FUNCTION:** `lastCommit` returns `0` when no
+commit matches the paths, and `0 > deployTime` is false, so a path resolver that
+returned nothing would also have read as `current` — a clean bill from a
+comparison that compared nothing.
+
+**FIXED.** A function with uncommitted changes is **DIRTY**, never `current`, and
+one whose paths match no commit is **NO SOURCE**. Both print, both are named in
+the summary, and both exit 1. Neither is "stale" — the running copy may well be
+right; it is UNPROVABLE, and that is a third answer rather than a softer version
+of one of the other two. Baselined three ways: a clean tree still says `all 37
+functions are current` at exit 0; the probe on `create-booking` names it alone;
+and a probe on `_shared/pricing.ts` correctly names all six importers.
+
+**THE VERIFIED.md DEPLOY ROWS STILL STAND** — every one was taken on a clean
+`supabase/` tree, which is the case the tool always answered correctly.
+
 ## SEVEN GREEN CHECKS GUARD A MECHANISM NOTHING CAN INVOKE — lane C, 2026-09-13
 
 **`beginImpersonation` is exported by `app/src/lib/impersonation.js` and CALLED

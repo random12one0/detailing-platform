@@ -69,6 +69,31 @@ function lastCommit(paths) {
   return out ? Number(out) * 1000 : 0;
 }
 
+// **AND THE WORKING TREE, BECAUSE GIT LOG CANNOT SEE AN EDIT NOBODY HAS
+// COMMITTED — 2026-09-13, and this was the tool’s own blind spot.**
+//
+// MEASURED: `// PROBE` appended to `create-booking/index.ts`, nothing deployed
+// and nothing committed, and this script printed **`create-booking  current`**
+// and **`all 37 functions are current`**. The function that takes the money and
+// holds the double-booking constraint was reported as matching a running copy it
+// no longer matched.
+//
+// **THE BLIND SPOT IS EXACTLY THE STATE EVERY WORKING SESSION IS IN.** The
+// comparison is commit-time against deploy-time, so an edit that has not reached
+// a commit moves NEITHER number. The header above explains why mtimes were
+// rejected and that reasoning still holds — what was missing is that the tool
+// never SAID what it could not see, which is this repo’s oldest failure: a
+// skipped check reading exactly like a passing one.
+//
+// So a function with uncommitted changes is **DIRTY**, never `current`. It is
+// not "stale" — the running copy may well be right — it is UNPROVABLE, and that
+// is a third answer rather than a softer version of one of the other two.
+function dirtyPaths(paths) {
+  const out = execFileSync("git", ["status", "--porcelain", "--", ...paths],
+    { cwd: ROOT, encoding: "utf8" }).trim();
+  return out ? out.split(/\r?\n/).map((l) => l.slice(3).replace(/^"|"$/g, "")) : [];
+}
+
 const res = await fetch(
   `https://api.supabase.com/v1/projects/${SUPABASE_PROJECT_REF}/functions`,
   { headers: { Authorization: `Bearer ${SUPABASE_ACCESS_TOKEN}` } });
@@ -84,6 +109,8 @@ const local = (await readdir(FUNCTIONS, { withFileTypes: true }))
   .sort();
 
 const stale = [];
+const dirty = [];
+const unproven = [];
 const missing = [];
 const rows = [];
 
@@ -93,11 +120,18 @@ for (const fn of local) {
   const paths = [`supabase/functions/${fn}`, ...(await sharedFor(fn))];
   const changed = lastCommit(paths);
   const live = new Date(d.updated_at).getTime();
+  const dirt = dirtyPaths(paths);
   const old = changed > live;
-  if (old) stale.push(fn);
+  // **NO COMMIT TOUCHES THESE PATHS AT ALL.** `lastCommit` returns 0, and 0 is
+  // never greater than a deploy time, so the old code called that `current` — a
+  // resolver that returned the wrong paths would have read as a clean bill.
+  const unknown = changed === 0;
+  if (dirt.length) dirty.push(fn);
+  else if (unknown) unproven.push(fn);
+  else if (old) stale.push(fn);
   rows.push([
     fn,
-    old ? "STALE" : "current",
+    dirt.length ? "DIRTY" : unknown ? "NO SOURCE" : old ? "STALE" : "current",
     `v${d.version}`,
     `deployed ${new Date(live).toISOString().slice(0, 16).replace("T", " ")}` +
       (old ? `, source ${new Date(changed).toISOString().slice(0, 16).replace("T", " ")}` : ""),
@@ -117,5 +151,22 @@ if (orphans.length) console.log(`\ndeployed but not in this repo: ${orphans.join
 console.log();
 if (missing.length) console.log(`NEVER DEPLOYED: ${missing.join(", ")}`);
 if (stale.length) console.log(`STALE (source is newer than what is running): ${stale.join(", ")}`);
-if (!missing.length && !stale.length) console.log(`all ${local.length} functions are current`);
-process.exit(missing.length || stale.length ? 1 : 0);
+// **PRINTED, NOT SWALLOWED.** These two are the answers the tool used to give as
+// `current`, and saying them out loud is the whole repair.
+if (dirty.length) {
+  console.log(`DIRTY (uncommitted changes — whether the running copy matches CANNOT`
+    + ` be decided from git): ${dirty.join(", ")}`);
+  console.log("  commit or stash them, then run this again.");
+}
+if (unproven.length) {
+  console.log(`NO SOURCE COMMIT found for: ${unproven.join(", ")} — the paths this`
+    + ` script resolved match no commit, so nothing was compared.`);
+}
+const unclear = dirty.length + unproven.length;
+if (!missing.length && !stale.length && !unclear) {
+  console.log(`all ${local.length} functions are current`);
+} else if (!missing.length && !stale.length) {
+  console.log(`${local.length - unclear} of ${local.length} functions are current;`
+    + ` ${unclear} could not be decided.`);
+}
+process.exit(missing.length || stale.length || unclear ? 1 : 0);
