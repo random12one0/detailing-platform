@@ -408,3 +408,46 @@ against the element's clipping ancestors before calling it a defect.
 19.7px at that type size — so the probe is conservative there (it clips to the
 mask box and ignores the 19.7px the clip-path would allow). It cannot produce a
 false pass, only a slightly early exclusion.
+
+## TWO INSTRUMENTS AGREEING IS WORTH NOTHING UNLESS THEY MEASURE DIFFERENTLY — 2026-09-13
+
+**This is the subtlest thing found in a night that found a lot, and it is
+Cowork's own correction of Cowork.**
+
+He ran an independent overlap check against the landing page at 1009 and found
+the `.vs` heading sitting on the comparison rows — 6px on `.nm`, 3px on `.gt`.
+The builder's probe had reported the same pair. **Two instruments, two sessions,
+one conclusion.** He called it corroboration and told Andrew so.
+
+**IT WAS ONE MISTAKE COUNTED TWICE.** Both tools measured
+`getBoundingClientRect()`. `.ld .mask > span` is `display: block`, so its rect is
+the whole 493px column while its glyphs stop at 328px. Measured against the text
+node's own line boxes there is **63px of clearance**. Nothing was ever wrong with
+that section.
+
+**THE TELL WAS IN THE NUMBERS AND BOTH OF US READ PAST IT.** 6px and 3px on two
+elements of the same row differ by exactly the amount two baseline-aligned
+elements at different font sizes differ. **A consistent, explainable difference
+between two readings of the same defect is a signature of the measuring
+method, not of the defect.**
+
+**SO THE RULE: agreement is evidence only when the two instruments share no
+method.** Ask what each one actually measures before treating a match as
+confirmation:
+
+- **Same method, second run → not a second opinion.** Two rect-based probes, two
+  greps for the same spelling, two sessions reading the same file. This is one
+  observation with more confidence attached to it, which is strictly worse than
+  one observation.
+- **Different method → real corroboration.** A rect against ink. A source grep
+  against a computed value. A count against a screenshot. A measurement against
+  a person looking at it.
+
+**AND IT COMPOSES BADLY WITH THE RULE ABOVE IT.** *Break the instrument on
+purpose before you believe it* catches a tool that cannot fail. It does NOT
+catch two tools that fail the same way — both will break correctly on the
+baseline and both will still be wrong on the real page. **Baselining proves a
+tool can see; only a different method proves what it saw was there.**
+
+**THE PRACTICAL TEST, WHEN TWO CHECKS AGREE:** state in one sentence what each
+one physically measured. If the sentence is the same, you have one result.
