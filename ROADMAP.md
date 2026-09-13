@@ -24,10 +24,27 @@ from the list below.**
    numbers, and every real defect named.** Proof, not a plausible story —
    `CLAUDE.md` trap (h) and (k) are the two ways these go wrong, and tonight
    found three filters that asserted something the code had never returned.
-2. **The Gateway Timeout logged in `FOUND.md`.** One unexplained 500 from
-   Supabase's own edge gateway on the first cron tick after the pg_net timeout
-   was raised to 30s; the same call by hand returned 200 in 5.3s a minute later.
-   One occurrence, never explained.
+2. ~~**The Gateway Timeout logged in `FOUND.md`.**~~ **EXPLAINED AND REPAIRED
+   2026-09-13 (`5743291`, `75031a7`). NOT one occurrence and NOT the platform's
+   500 — it is OUR catch block reporting a 504 from PostgREST, which answers
+   ~1.1% of this project's REST calls that way and had for at least a day.**
+   `FOUND.md` § THE "GATEWAY TIMEOUT" IS OUR OWN CATCH BLOCK is the proof and
+   the list of what it is not. `_shared/retryRead.ts` retries 5xx on READS
+   ONLY, three attempts; `tests/gateway-retry.test.mjs` runs the real function,
+   15 checks, baselined by five deliberate breaks.
+   **TWO THREADS STILL OPEN AND NEITHER IS OPTIONAL:**
+   - **NOT DEPLOYED.** The fix changes nothing until
+     `node scripts/deploy-functions.mjs send-owner-reminders` runs **and then
+     `node scripts/check-deployed.mjs`** — what is RUNNING drifts from the repo
+     silently. Until then the sweep is still failing every tick. There is also
+     no Deno on this machine, so the function has been PARSE-checked and never
+     type-checked; the deploy's own bundler is the first real compiler it meets.
+   - **THE LIVE BUSINESS PROJECT HAS NEVER BEEN CHECKED.** `adtlnvihwrcqcasqcjwd`
+     takes real customers' money. The token in `.env` reaches only
+     `kguqylyzgyzfktkfnhjb`, so nobody knows whether the same 1.1% failure is
+     happening there. **Cowork's ruling 2026-09-13: this is Andrew's decision
+     and the check happens with him present — a session must NOT go looking for
+     credentials that would let it in.**
 3. **Translate-on-save.** Designed, not built. **Both secrets are already live
    in the Supabase secret store for `kguqylyzgyzfktkfnhjb`:**
    `DEEPL_API_KEY` and `GOOGLE_TRANSLATE_API_KEY`. DeepL first (lifetime 1M
@@ -37,6 +54,137 @@ from the list below.**
    `Deno.env.get()` inside the edge function. Andrew created and pasted both
    himself and neither has passed through a session. **A schema sketch is owed
    before any migration.**
+
+## TWO NEW ITEMS FROM ANDREW — 2026-09-13, CAPTURED NOT STARTED
+
+**His instruction with them: do not build either tonight. They are picked up in
+order.**
+
+### A · THE EMAILS, REVIEWED END TO END — nobody has ever done this
+
+**His questions, and they are the right ones:** are they set up correctly and in
+the right format, can a detailer customise them, do they actually look good, do
+they carry the right information, are there enough of them, **and are there
+emails we should be sending that we are not.**
+
+**THAT LAST ONE IS THE INTERESTING HALF AND IT IS A PRODUCT QUESTION, NOT A BUG
+HUNT.** So the deliverable is two lists:
+
+1. **Every email the system sends today, with a judgement on each.**
+2. **A proposed list of the ones that are MISSING.**
+
+**START FROM "NOBODY HAS EVER READ THESE", NOT FROM "THEY ARE PROBABLY FINE" —
+and tonight is the reason.** The reminder sweep was silently dead for at least
+eighteen hours and nobody noticed, **which means nobody was reading its output
+either.** An email nobody has read is exactly the kind of thing this run keeps
+finding: it looks fine because nothing reports that it is not.
+
+`node scripts/render-emails.mjs` writes `email-preview/*.html`, and CLAUDE.md's
+rule stands — send Andrew the INDIVIDUAL files, never `index.html`, which is
+only a page of links to files he does not have.
+
+### B · THE VEHICLE PICKER
+
+**Specified in full under § FREE THIRD-PARTY SERVICES → 2 · VEHICLE DATA**, and
+it is NOT a list to scroll: a type-ahead that accepts partial and messy input,
+never requires a year, never rejects free text, and still resolves a size tier.
+His test sentence is written there and it is the acceptance criterion.
+
+## FREE THIRD-PARTY SERVICES — SPECIFIED 2026-09-13, READY TO BUILD
+
+**Andrew asked what free outside services would improve the product. This is
+the research, captured so the next session builds rather than repeats it.**
+Every rejection below is recorded WITH ITS REASON, because the rejected options
+are the ones that look cheapest and will otherwise be swapped back in by
+somebody who only sees the price.
+
+### 1 · WEATHER — the US National Weather Service, `api.weather.gov`
+
+**No key, no account, no signup, and commercial use is explicitly permitted.**
+US-only, which is all this product needs.
+
+- **It REQUIRES a `User-Agent` header identifying the application.** A request
+  without one is refused. This is not optional politeness.
+- **Their own docs warn that a key may be introduced later.** So the base URL
+  and the User-Agent go behind **ONE small module** — not scattered `fetch`
+  calls. The day a key arrives, that is a one-file change or a week of grep.
+
+**DO NOT USE OPEN-METEO, AND THIS IS WHY.** It is the obvious choice, it is
+better documented, and it looks free. **Its free tier is NON-COMMERCIAL ONLY
+and this is a commercial product.** Anybody reaching for it later is reaching
+for a licence breach, so the reason is recorded here rather than the decision
+alone.
+
+### 2 · VEHICLE DATA — NHTSA vPIC, and NOT for VINs
+
+**ANDREW'S CONSTRAINT, IN HIS OWN WORDS, AND IT DECIDES THE WHOLE DESIGN:**
+*almost nobody knows their VIN, and a customer booking on a phone will not walk
+out to the dashboard to find one.*
+
+**SO DO NOT BUILD VIN ENTRY FOR CUSTOMERS.** Not as an option, not as an
+"advanced" field. The API supports it and that is not a reason to ask for it.
+
+**The NHTSA vPIC API is still worth using, for a different job.** Free, no
+registration, no daily limit. Use it to supply the **year, make and model
+LISTS** so a customer **chooses from real vehicle data instead of typing free
+text** — which also makes the size tier reliable, because a picked model can be
+mapped and a typed one cannot.
+
+**AND THE PICKER IS A TYPE-AHEAD THAT ACCEPTS MESS — Andrew, 2026-09-13, from
+his own customers rather than from a guess. THIS IS THE DESIGN, not a
+refinement of it.**
+
+**IT MUST NOT BE A LONG LIST ANYBODY SCROLLS.** It narrows as they type, so
+`tund` finds Tundra.
+
+**AND WHAT HE HAS ACTUALLY SEEN IS THE SHARPER HALF: people type "Toyota", or
+just "Outback", with no year at all, and sometimes nothing useful.** So:
+
+- **a model name ALONE must get somewhere** — "Outback" with no make and no year
+  is a real answer, not an incomplete form;
+- **the year is NOT required;**
+- **free text is still accepted when nothing matches** — an unrecognised vehicle
+  must never block the booking;
+- **whatever they give must still resolve to a size tier**, so the price is
+  right.
+
+**THE TEST THE FINISHED THING HAS TO PASS, IN HIS WORDS:** *a booking form that
+refuses to continue because somebody does not know their trim level is worse
+than a slightly imprecise vehicle record.* **Design it so the ideal path is fast
+and the messy path still works.**
+
+**vPIC SUPPLIES THE LISTS AND IS NOT A VALIDATOR. IT MUST NEVER BE USED TO
+REJECT WHAT A CUSTOMER TYPED.** That is the one way this feature turns into a
+booking the customer abandons, and it is the exact shape of mistake that makes
+an API feel like an improvement while costing jobs.
+
+**LICENSE PLATE LOOKUP — WHICH IS WHAT PEOPLE ACTUALLY KNOW — WAS CONSIDERED
+AND IS OUT.** It is not available free anywhere: it needs a paid commercial
+service or state DMV access. Recorded so the next session does not spend an
+evening discovering the same thing.
+
+### 3 · ROUTING, DRIVE TIME AND ADDRESS AUTOCOMPLETE — Geoapify
+
+**One key covers all three**, which is why it beats stitching three services
+together: geocoding, address autocomplete and route matrix. **3,000 credits a
+day free, five requests a second.**
+
+**TWO CONDITIONS, RECORDED HONESTLY BECAUSE ONE OF THEM IS A PRODUCT DECISION:**
+
+- The free tier is **"limited commercial use"** — their words, not a summary.
+- It **REQUIRES VISIBLE ATTRIBUTION**: a *"Powered by Geoapify"* line on the
+  page. **Andrew should SEE that before it ships rather than discover it**, and
+  on a tenant's own website a third party's name in the footer is his call and
+  nobody else's.
+
+**OpenRouteService is the alternative.** Its limits could NOT be verified from
+its own pages, and **no numbers are written here that were not checked.** If it
+is ever needed, that verification is the first task.
+
+**WHY ADDRESS AUTOCOMPLETE MATTERS MORE THAN IT SOUNDS:** a mobile detailer
+driving to a mistyped address is a lost job and a bad review. It is not a
+convenience feature on this product; it is the difference between a booking
+that happens and one that costs money to fail.
 
 **AND THE BACK OFFICE IS FROZEN UNTIL ANDREW LOOKS AT IT — his instruction via
 Cowork, 2026-09-13.** Today, Growth, Money, Detailers and Plumbing are built and
