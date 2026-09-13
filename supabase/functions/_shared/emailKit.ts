@@ -248,7 +248,33 @@ export function markBlock(brand: Brand, lines: string[]): string {
  * A ruled list of facts — label left, value right. NOT a card: "a collection of
  * records is a ruled list" is a composition law with its own test.
  */
-export function factsBlock(rows: [string, string][]): string {
+// A ROW WITH NO VALUE IS DROPPED, NOT PRINTED — 2026-09-13.
+//
+// **Andrew found "Where" with an empty value in every booking email he read,
+// across two different tenants: a mobile booking confirmation that never says
+// where.** `jobAddress` returns `""` for a mobile job with no customer address
+// and for a drop-off job at a business that has not set its unit address, and
+// this function printed the label, its hairline and a blank right-hand column
+// anyway.
+//
+// **FIXED HERE RATHER THAN AT THE THREE `jobFacts` CALL SITES, because every row
+// in every email comes through this one function** — the payment block, the
+// invoice facts, the cancellation facts. A guard in `jobFacts` would have fixed
+// the row he happened to read and left its siblings able to do the same thing,
+// which is the shape CLAUDE.md warns about: a file that names two instances of a
+// pattern invites a session to fix two and stop.
+//
+// **A LABEL WITH NOTHING BESIDE IT IS WORSE THAN NO LABEL**, because it reads as
+// a value that failed to load rather than as a fact nobody has. Where the answer
+// matters the next row carries it anyway — "We come to you · Yes" and "Drop-off ·
+// At our unit" both sit in `jobFacts` directly under "Where".
+//
+// **AND IT IS `.trim()`, NOT A TRUTHINESS TEST.** A single space is a non-empty
+// string that draws exactly the same empty row, and a space is what a
+// half-filled address field leaves behind.
+export function factsBlock(allRows: [string, string][]): string {
+  const rows = allRows.filter(([, v]) => String(v ?? "").trim() !== "");
+  if (!rows.length) return "";
   const body = rows.map(([k, v], i) => `<tr>
       <td class="c-fog2" style="padding:${i === 0 ? 0 : 11}px 12px 11px 0; font-family:${WORDS}; font-size:13px; line-height:1.5; color:${L.fog2}; vertical-align:top; white-space:nowrap;">${esc(k)}</td>
       <td class="c-ink" style="padding:${i === 0 ? 0 : 11}px 0 11px 0; font-family:${WORDS}; font-size:15px; line-height:1.5; color:${L.ink}; vertical-align:top; text-align:right;">${v}</td>

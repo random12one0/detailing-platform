@@ -267,4 +267,124 @@ for (const [name, hex] of [...PRESET_COLORS.map((c) => [c.name, c.hex]), ...EXTR
   }
 }
 
+
+// ---------------------------------------------------------------------------
+// § 5 · THE DETAILER'S MAIL GETS THE SAME SIX VALUES OURS DOES — 2026-09-13
+// ---------------------------------------------------------------------------
+// **Andrew read the real delivered mail out of Resend and found every detailer
+// email emitting the literal word `undefined` as a colour**, in the dark-mode
+// rules for `.c-accent`, `.bg-accent`, `.c-accent-ink` and
+// `[data-ogsc] .c-accent`, while the identical PLATFORM email carried real
+// values. `_shared/email.ts`'s `buildBrand` computed the DARK triple only, put
+// it in the LIGHT fields, and left the three dark fields absent — and
+// `darkStyle()` interpolates them straight into a stylesheet.
+//
+// **`scripts/render-emails.mjs` HAS CHECKED FOR THE WORD `undefined` SINCE IT
+// WAS WRITTEN, AND IT PASSED EVERY TIME.** Its `ROT` list is literally
+// `[["undefined", /undefined/], …]`. It never fired because the previewer builds
+// its fixture with `brandFrom` — the correct path — while production used
+// `buildBrand`. **The instrument bypassed the code under test, so the guard that
+// would have caught this was in the repo, green, for as long as the bug was.**
+//
+// That is the lesson and it is why these checks are here rather than there: the
+// email preview is not a preview of what is sent unless it is built the way
+// what is sent is built. Both go through `brandFrom` now.
+{
+  const { brandFrom, factsBlock, shell } = await import("../supabase/functions/_shared/emailKit.ts");
+  const base = { brandName: "Coastline Auto Detailing", contactPhone: null, siteUrl: "https://x.test", logoUrl: null };
+  const SIX = ["accent", "accentFill", "accentInk", "accentDark", "accentFillDark", "accentInkDark"];
+
+  // --- 5a · six values, for a branded tenant and an unbranded one -----------
+  for (const [label, hex] of [["a branded tenant", "#DC2626"], ["an unbranded tenant", null]]) {
+    const b = brandFrom(base, hex);
+    for (const k of SIX) {
+      check(`5a · ${label}: ${k} is a real hex`, /^#[0-9a-f]{6}$/i.test(String(b[k])), String(b[k]));
+    }
+  }
+
+  // --- 5b · AN UNBRANDED DETAILER DOES NOT SEND IN OUR GREEN ---------------
+  // His instruction. `email.ts` used to hand `#38E08B` — the platform accent —
+  // to a detailer who had never picked a colour, and because that value already
+  // clears 4.5:1 against the dark panel it was corrected against, it came back
+  // untouched and was printed raw as a footer link on `#EFEEE7` paper. The
+  // fallback is now the grounds' own ink, so the mail is SET IN INK and belongs
+  // to nobody.
+  {
+    const b = brandFrom(base, null);
+    for (const k of SIX) {
+      check(`5b · unbranded: ${k} is not the platform green`,
+        String(b[k]).toLowerCase() !== "#38e08b", `${k} = ${b[k]}`);
+    }
+    // And it is legible by construction on both grounds, which is the whole
+    // reason a neutral is an acceptable answer rather than a cop-out.
+    check("5b · the unbranded accent clears 4.5:1 as words on paper",
+      contrastRatio(b.accent, PAPER) >= 4.5 - 1e-9,
+      `${b.accent} on ${PAPER} = ${contrastRatio(b.accent, PAPER).toFixed(2)}`);
+    check("5b · and its button ink clears 4.5:1 on its own fill",
+      contrastRatio(b.accentInk, b.accentFill) >= 4.5 - 1e-9,
+      `${b.accentInk} on ${b.accentFill} = ${contrastRatio(b.accentInk, b.accentFill).toFixed(2)}`);
+  }
+
+  // --- 5c · A RENDERED SHELL CARRIES NO `undefined` ANYWHERE ---------------
+  // The symptom, asserted on the rendered output rather than on the fields.
+  for (const hex of ["#DC2626", "#38E08B", null]) {
+    const html = shell(brandFrom(base, hex), ["<tr><td>x</td></tr>"], "preheader");
+    check(`5c · shell(${hex ?? "no colour"}) renders no "undefined"`, !/undefined/.test(html));
+    check(`5c · shell(${hex ?? "no colour"}) renders no "NaN"`, !/NaN/.test(html));
+  }
+
+  // --- 5d · AND THE CHECK CAN FAIL — baselined inline, not by hand ---------
+  // A brand carrying only the three LIGHT fields is exactly what `buildBrand`
+  // returned, so this reproduces the shipped bug and proves 5c is load-bearing.
+  // CLAUDE.md: break the instrument on purpose before you believe it.
+  {
+    const threeOnly = { ...base, accent: "#12161A", accentFill: "#12161A", accentInk: "#fefefe" };
+    check("5d · the pre-fix brand shape DOES render \"undefined\"",
+      /undefined/.test(shell(threeOnly, ["<tr><td>x</td></tr>"], "p")));
+  }
+
+  // --- 5e · A FACT ROW WITH NO VALUE IS DROPPED ----------------------------
+  // **Andrew found "Where" with an empty value in every booking email he read,
+  // across two tenants: a mobile booking confirmation that never says where.**
+  // `jobAddress` returns "" for a mobile job with no customer address and for a
+  // drop-off job at a business with no unit address set. Fixed in `factsBlock`,
+  // which every row of every email comes through — a guard in `jobFacts` would
+  // have fixed the one row he read and left its siblings able to do it again.
+  {
+    const both = factsBlock([["Where", "140 Market Street"], ["Vehicle", "Sedan"]]);
+    check("5e · a filled row is printed", /Where/.test(both) && /140 Market Street/.test(both));
+    const one = factsBlock([["Where", ""], ["Vehicle", "Sedan"]]);
+    check("5e · an empty value drops its label too", !/Where/.test(one), one.slice(0, 200));
+    check("5e · and its neighbour survives", /Vehicle/.test(one) && /Sedan/.test(one));
+    // `.trim()`, not truthiness: a single space draws the identical empty row,
+    // and a space is what a half-filled address field leaves behind.
+    check("5e · whitespace counts as empty", !/Where/.test(factsBlock([["Where", "   "], ["Vehicle", "Sedan"]])));
+    check("5e · null and undefined do not render the string", (() => {
+      const h = factsBlock([["Where", null], ["When", undefined], ["Vehicle", "Sedan"]]);
+      return !/undefined/.test(h) && !/null/.test(h) && /Sedan/.test(h);
+    })());
+    check("5e · all rows empty renders nothing at all", factsBlock([["Where", ""]]) === "");
+    // The row that was left standing is still worth printing when it has a
+    // value, so the fix must not have quietly removed the block.
+    check("5e · a single filled row still renders", /Sedan/.test(factsBlock([["Vehicle", "Sedan"]])));
+  }
+
+  // --- 5f · ONE DERIVATION, AND THIS HALF IS A SOURCE CHECK ----------------
+  // Said plainly rather than dressed up: `_shared/email.ts` reaches
+  // `npm:@supabase/supabase-js` through `db.ts`, so Node cannot load it and
+  // `buildBrand` cannot be called here. What is asserted is the SHARED FUNCTION
+  // and the ABSENCE of a second derivation — not a spelling — because CLAUDE.md
+  // trap (k) is that a source check asserts how something is written.
+  {
+    const src = await readFile(new URL("../supabase/functions/_shared/email.ts", import.meta.url), "utf8");
+    const code = src.split("\n").filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l)).join("\n");
+    check("5f · email.ts derives its colours through brandFrom", /brandFrom\(/.test(code));
+    check("5f · and holds no second derivation of its own",
+      !/emailDarkBrandColors|emailBrandColors/.test(code),
+      "a direct call to either is the divergence that produced this bug");
+    check("5f · and hard-codes no platform hex as a tenant fallback",
+      !/#38E08B/i.test(code), "the unbranded fallback is no colour at all, not ours");
+  }
+}
+
 console.log(process.exitCode ? `\n${n} checks, some FAILED` : `\nemail-brand: ${n} checks pass`);

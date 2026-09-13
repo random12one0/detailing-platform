@@ -9,43 +9,104 @@ import type { Business } from "./tenant.ts";
 import type { BusinessSettings } from "./tenant.ts";
 import type { TenantBrand } from "./emailTemplates.ts";
 import { paymentHandles } from "./payments.ts";
-import { emailDarkBrandColors } from "./brandColor.js";
+import { brandFrom } from "./emailKit.ts";
+import { readFailed, retryRead } from "./retryRead.ts";
 
-// What an unbranded business sends with. The house accent, because the email
-// ground is now the product's own near-black and a slate hex on it is not a
-// brand, it is a smudge. A tenant has ONE accent (law 11) and the email
-// derives all three of its values from that single hex.
-const DEFAULT_BRAND = "#38E08B";
-
+// ---------------------------------------------------------------------------
+// THE TENANT'S COLOUR NOW GOES THROUGH THE SAME DERIVATION AS OURS — 2026-09-13
+// ---------------------------------------------------------------------------
+// **Andrew read the real delivered mail out of Resend and found every detailer
+// email emitting the literal word `undefined` as a colour** — for `.c-accent`,
+// `.bg-accent`, `.c-accent-ink` and `[data-ogsc] .c-accent` — while the
+// identical PLATFORM email carried `#38e08b` and `#0b1220`. Reading code would
+// not have found it; reading the delivered email did.
+//
+// **THE CAUSE WAS THAT THIS FUNCTION COMPUTED ONE TRIPLE WHERE SIX ARE
+// NEEDED.** `TenantBrand` is `Brand & {...}` and `Brand` declares six colour
+// fields — three for the light email every client shows by default, three for
+// the dark override Apple Mail swaps in. This called `emailDarkBrandColors`
+// only, put the dark values in the LIGHT fields, and left `accentDark`,
+// `accentFillDark` and `accentInkDark` absent. `darkStyle()` interpolates them
+// straight into a stylesheet, so absent became the word `undefined`.
+//
+// **AND IT IS A TYPE ERROR THAT SHIPPED.** An object literal missing three
+// required fields of its declared return type does not compile — but there is no
+// Deno on this machine and the deploy bundler does not type-check, so the
+// compiler that would have caught this in a second has never run on it. That is
+// worth more than the bug itself: no type error anywhere in `supabase/` is
+// currently being caught by anything.
+//
+// **AND `scripts/render-emails.mjs` HAS CHECKED FOR THE WORD `undefined` SINCE
+// IT WAS WRITTEN.** Its rot list is literally `["undefined", /undefined/]` and it
+// passed every run, because the previewer builds its fixture with `brandFrom` —
+// the correct path — while production used this one. **The instrument bypassed
+// the code under test, so the guard that would have caught this sat in the repo,
+// green, for as long as the bug existed.** The email preview is not a preview of
+// what is sent unless it is built the way what is sent is built.
+//
+// **THE WORSE HALF WAS THE SAME CAUSE.** The dark values are corrected against
+// the `#171B1E` panel and were being printed inline on the `#EFEEE7` PAPER — a
+// different ground, with the opposite direction of correction — so a colour that
+// was legible where it was computed was arbitrary where it was used.
+// `brandColor.js`'s own header says getting that direction backwards is "how the
+// same defect has arrived four times". This was the fifth.
+//
+// `brandFrom` already does all six correctly and is what `platformBrand.ts`
+// uses. One derivation, one place; the two paths differing WAS the bug.
+//
+// ---------------------------------------------------------------------------
+// AND AN UNBRANDED DETAILER NO LONGER SENDS IN OUR GREEN — his instruction
+// ---------------------------------------------------------------------------
+// This file used to hold a `DEFAULT_BRAND` of `#38E08B` — the PLATFORM accent —
+// and hand it to a detailer who had never picked a colour. He named both faults:
+//
+//   1. **It made the detailer's mail look like ours.** `ROADMAP.md` § Not ours
+//      to decide already settles the principle — THE COLOUR FOLLOWS WHOSE
+//      RELATIONSHIP IS ENDING — and an email from a detailer to their own
+//      customer is the detailer's.
+//   2. **It was used RAW as a footer link colour on the `#EFEEE7` paper**,
+//      because that green already clears 4.5:1 against the dark panel it was
+//      corrected against and so came back untouched. On paper it is ~1.5:1 —
+//      unreadable.
+//
+// **THE FALLBACK IS NO COLOUR AT ALL, AND THAT IS A DECISION RATHER THAN AN
+// OMISSION.** Passing null lets `brandColor.js` reach for each ground's own ink
+// — `#12161A` on paper, `--bone` in dark — which its header describes as making
+// an uncorrectable accent "read as ordinary type rather than as a smudge". So an
+// unbranded detailer's email is SET IN INK: a dark button with a light label on
+// paper, a bone button with a dark label in dark mode. It is legible by
+// construction on both grounds, it looks deliberate, and it belongs to nobody.
+// The day a detailer picks a colour, their mail gets it.
 export async function buildBrand(business: Business, settings: BusinessSettings): Promise<TenantBrand> {
-  const { data: branding } = await supabase
-    .from("business_branding")
-    .select("primary_color, logo_url")
-    .eq("business_id", business.id)
-    .maybeSingle();
-  // ONE COLOUR IN, THREE OUT, EACH CORRECTED AGAINST THE GROUND IT LANDS ON.
-  // Roadmap 2.18 moved the email onto the product's own near-black, so these
-  // are the DARK values now: the accent as words and as a fill on `--ink-2`
-  // (the lightest surface either can land on), plus the measured ink that goes
-  // on the fill. `secondary_color` is still not read — "Your colour" writes
-  // the same hex to both columns. brandColor.js carries the whole reasoning.
-  const c = emailDarkBrandColors(branding?.primary_color || DEFAULT_BRAND);
+  const { data: branding, error } = await retryRead("buildBrand:branding", () =>
+    supabase
+      .from("business_branding")
+      .select("primary_color, logo_url")
+      .eq("business_id", business.id)
+      .maybeSingle());
+  // A FAILED READ IS NOT AN UNBRANDED BUSINESS. Swallowing it here would send a
+  // branded detailer's mail in the neutral ink with no logo and nothing to say
+  // it happened — FOUND.md § 85 READS DISCARDED THEIR ERROR is the class.
+  if (error) throw readFailed("business_branding", error);
+  // ONE COLOUR IN, SIX OUT: three corrected against the light paper and three
+  // against the dark panel. `secondary_color` is still not read — "Your colour"
+  // writes the same hex to both columns. `brandColor.js` carries the arithmetic
+  // and `tests/email-brand.test.mjs` pins it against `lib/theme.js`.
   return {
-    brandName: business.name,
+    ...brandFrom({
+      brandName: business.name,
+      contactPhone: business.contact_phone,
+      // ROADMAP 3.3 — the tenant's OWN origin where one is verified, and
+      // PLATFORM_URL for everybody else. This is the choke point every email's
+      // brand passes through, so a detailer on their own domain gets their own
+      // domain in the masthead link of all sixteen templates at once.
+      siteUrl: businessSiteUrl(await siteFor(supabase, business.id), business.slug),
+      // FIRST TIME IN THE PRODUCT'S LIFE THAT AN EMAIL CARRIES THE LOGO. The
+      // column has existed since the first migration and is already drawn on
+      // three customer-facing pages; `buildBrand` had simply never read it.
+      logoUrl: branding?.logo_url || null,
+    }, branding?.primary_color || null),
     contactEmail: business.contact_email,
-    contactPhone: business.contact_phone,
-    // ROADMAP 3.3 — the tenant's OWN origin where one is verified, and
-    // PLATFORM_URL for everybody else. This is the choke point every email's
-    // brand passes through, so a detailer on their own domain gets their own
-    // domain in the masthead link of all sixteen templates at once.
-    siteUrl: businessSiteUrl(await siteFor(supabase, business.id), business.slug),
-    // FIRST TIME IN THE PRODUCT'S LIFE THAT AN EMAIL CARRIES THE LOGO. The
-    // column has existed since the first migration and is already drawn on
-    // three customer-facing pages; `buildBrand` had simply never read it.
-    logoUrl: branding?.logo_url || null,
-    accent: c.text,
-    accentFill: c.fill,
-    accentInk: c.fillInk,
     dropoffAddress: business.dropoff_address,
     googleReviewUrl: settings.google_review_url,
     yelpReviewUrl: settings.yelp_review_url,
