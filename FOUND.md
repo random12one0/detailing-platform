@@ -5,6 +5,102 @@ Claude Cowork decides what becomes work.
 
 ---
 
+## 85 READS DISCARDED THEIR ERROR. 81 STILL DO, AND ONE COST A CUSTOMER A BOOKING — 2026-09-13
+
+**Four were fixed tonight because Andrew hit one of them. The other 81 are the
+same bug and are recorded here rather than swept**, because each one needs its
+own answer to *what is the honest thing to say when we could not find out*, and
+81 of those in one night is how a fix becomes a second outage. **The count is
+measured, not estimated** — the `grep` below prints it, and the figure in this
+heading is what it printed at `1cf5f98`.
+
+### THE SHAPE, AND IT IS THE SEVENTH COSTUME AGAIN
+
+```ts
+const { data } = await supabase.from("x").select("*").eq(…).maybeSingle();
+if (data) return data;
+return DEFAULTS;                    // ← also what a 504 gets
+```
+
+**`const { data } = …` with the `error` destructured away.** ~1.1% of this
+project's PostgREST calls answer 504 (§ THE "GATEWAY TIMEOUT" IS OUR OWN CATCH
+BLOCK), so about one call in ninety gets `data === null` **with a reason nobody
+read**, and the code cannot tell that from *the row is not there*. It then does
+whatever it does for a missing row, cheerfully, with a 200.
+
+### THE ONE THAT WAS FIXED, AS THE WORKED EXAMPLE
+
+`_shared/tenant.ts` → `getSettings`. A 504 fell through to the no-settings-row
+defaults, which say **`mobile_enabled: null` and `dropoff_enabled: null`** —
+correct for a business nobody has set up. In `available-slots` those two make
+`isDropoff && isMobile` true for **every slot in the grid**, and that branch
+`continue`s. The answer is `200`, `success: true`, a full month of open days and
+**not one bookable time**, which is indistinguishable from a fully booked
+detailer. Andrew got three of those in a row on `demo-detail` and then could not
+reproduce it in eight tries — a 1.1% failure arriving in its usual burst of three
+to six inside one second.
+
+Fixed in `1cf5f98`: three outcomes instead of two — a row, no row, and
+`readFailed()` meaning *we could not find out*, which `available-slots` answers
+**503 with `retryable: true`**. `tests/availability-honesty.test.mjs`, 31 checks,
+baselined by six deliberate breaks.
+
+### THE TWO THAT MATTER MOST OF WHAT IS LEFT
+
+- **`_shared/slotValidation.ts:302` — the conflict read.** `const { data: nearby } = await q;`
+  A failed read gives `nearby` null, which reads as **no conflicting bookings**,
+  which means the submit-time gate stops gating. **The exclusion constraint in the
+  database is what stops a double booking from actually landing**, so this is
+  caught — but it is caught as a raw constraint violation at the last moment
+  instead of as a clean refusal, and lines 182/212/239/255 of the same file fail
+  the other way and refuse a legitimate booking. **This file is the submit-time
+  half of the double-validation pattern; a validator that cannot tell "no
+  conflicts" from "could not look" is not validating.**
+- **`_shared/tenant.ts:287` — `requireMember`.** `const { data: rows } = await q;`
+  A failed read returns null and every admin function turns that into a 401, so a
+  detailer is spuriously told they are not a member of their own business.
+  **Deliberately not fixed tonight:** making it throw turns every one of ~20
+  admin functions' 401 into a 500 at once, and each needs reading first. It is
+  **allowlisted by name in `tests/availability-honesty.test.mjs` § 2**, so fixing
+  it makes that check fail and this entry gets deleted with it.
+
+### THE OTHER 79, BY FILE
+
+`platform-admin` 12, `platform-billing` 10, `create-booking` 7,
+`stripe-webhook` 6, `send-owner-reminders` 6, `_shared/slotValidation.ts` 5,
+`plan-link` 3, `_shared/email.ts` 3, then 2 each in `get-booking-receipt`,
+`invite-user`, `pay-booking`, `preview-emails`, `validate-promo-code` and
+`_shared/pricing.ts`, and one each in `accept-invite`, `accept-quote`,
+`booking-ics`, `cancel-booking`, `connect-account`, `create-business`,
+`reschedule-booking`, `respond-to-booking`, `send-email`, `send-invoice`,
+`track-visit`, `unsubscribe`, `update-booking`, `watch-jobs`,
+`_shared/newBusiness.ts`, `_shared/tenantSite.ts` and the one allowlisted
+`_shared/tenant.ts`.
+
+**`send-owner-reminders:373` is the one to look at first if you want to see how
+easily this hides:** it reads `const { data: businesses } = await retryRead(…)`.
+The retry is there, so it looks done — and the error it retried three times for
+is still thrown away.
+
+```bash
+grep -rn 'const {[^}]*\bdata\b[^}]*}' supabase/functions/ | grep -v '\berror\b'
+```
+
+### THE RULE, AND IT IS NOT "CHECK YOUR ERRORS"
+
+**A read has three outcomes and most of this codebase has two.** The missing one
+is *we could not find out*, and the damage is never the missing row — it is
+whatever the code does for a missing row, done confidently. `getSettings`'s
+defaults were not wrong; they were **the right answer to a question nobody had
+asked.**
+
+**So the question at every one of these 81 sites is the same and it is not
+technical: what is the honest thing to tell the person on the other end?** For a
+calendar it is *"couldn't load times, try again"*. For a price it is refusing to
+quote. For a membership check it is not *"you are not a member"*.
+
+---
+
 ## READ THIS FIRST: SEVEN ENTRIES BELOW ARE ONE BUG — Cowork's ruling, 2026-09-12
 
 **This file is a list, and a list is the wrong shape for what this run found.**
