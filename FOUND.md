@@ -1163,3 +1163,30 @@ the duration. **Same facts, opposite next actions.**
   **What to check first:** whether it recurs on later ticks, and whether it
   correlates with a cold start or with a large backlog, since the sweep is
   slowest exactly when it has most to do.
+
+## THE LANDING PAGE PUTS A CARD ON TOP OF A PARAGRAPH AT 1024px — 2026-09-13
+
+**Found by the new overlap check on its first retro-run, and it is exactly the
+defect Andrew caught by eye on Today.** The "Your back office fits in one hand"
+section (`section.figband`): `.figcard.front.pay` is `position: absolute`,
+`z-index: 3`, transparent background, and it sits **65px into the first line and
+18px into the second line of the paragraph beneath it**.
+
+**MEASURED AS INK, NOT AS BOXES.** The paragraph's own line boxes, taken with a
+`Range`, run to x 535.2 and x 488.6; the card's left edge is x 470.2 and it
+spans y −2918.6 to −2852.6, which covers both lines. So these are real glyphs
+under a real card, not a wrapper's slack.
+
+**IT IS WIDTH-DEPENDENT AND THE STANDARD WIDTHS MISS IT.** At **1440** the hits
+are gone. At **1024** — a common laptop, and between this product's 768 and 1440
+checkpoints — it is 65px. A sweep at 1920/1440/768/392 would have reported the
+page clean, which is its own lesson about a fixed list of widths.
+
+**AT 1440 TWO 2px TOUCHES REMAIN** on the pricing block (`$499` against
+`then $40 /month`, `$35` against `no setup fee`). Two pixels is at the probe's
+slop threshold and is most likely line-box slack rather than anything a reader
+sees. **Recorded, not claimed.** They need eyes before they are called defects.
+
+**NOT FIXED, because it is a landing-page layout decision rather than a typo**
+and the section is one Andrew has looked at. The fix is either a wider gutter on
+`.figcopy` or moving the card off the text column at that width.
