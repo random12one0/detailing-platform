@@ -37,7 +37,7 @@ import { t } from "../../lib/i18n.js";
 import { useLocale } from "../../hooks/useLocale.js";
 import { money } from "../../lib/format.js";
 import {
-  DEFAULT_VEHICLE_SIZES,
+  isPlatformSizeText,
   maxVehicles, setVehicleCount, VEHICLE_CONDITIONS, vehicleCount,
   vehicleSizeExtra, vehicleSizesMatter,
 } from "../core.js";
@@ -66,9 +66,10 @@ import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 // PLATFORM COPY, NEVER A ROW OUT OF A TENANT'S TABLE.** Anywhere the two are
 // mixed in one field, the ownership has to be re-established before the
 // lookup, not assumed from a missing entry.
-const PLATFORM_SIZE = Object.fromEntries(DEFAULT_VEHICLE_SIZES.map((s) => [s.key, s]));
-const sizeText = (s, field) =>
-  (s[field] && s[field] === PLATFORM_SIZE[s.key]?.[field] ? t(s[field]) : s[field]);
+// The rule lives in `core.js` so the tier EDITOR answers it the same way — a
+// second copy is how the customer's page and the detailer's page start
+// disagreeing about whose words they are.
+const sizeText = (s, field) => (isPlatformSizeText(s, field) ? t(s[field]) : s[field]);
 
 // Past this many sizes the cards become a drop-down. MEASURED, not chosen,
 // and RE-MEASURED after W27 landed on this same step — which is the whole

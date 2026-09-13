@@ -150,6 +150,26 @@ export const DEFAULT_VEHICLE_SIZES = [
   { key: "large", label: "Large", examples: "Truck, large SUV, van" },
 ];
 
+// **IS THIS TIER'S TEXT OURS OR THE DETAILER'S — asked in ONE place, 2026-09-12.**
+//
+// The booking page and the tier editor both have to answer it, and they were
+// about to answer it twice. A second copy is how the customer's page and the
+// detailer's page start disagreeing about whose words they are.
+//
+// It is a STRING COMPARISON and that is a known limit, written down rather than
+// hidden: a detailer who deliberately types "Small" is indistinguishable from
+// one who never touched ours, and their word gets translated. Closing that
+// needs an `edited` flag stamped on save, which is additive and can follow
+// without undoing this. `FOUND.md` has the whole argument.
+//
+// Pure, no `t()`, no imports — a tenant site calls it to decide whether to run
+// its own translation over a label.
+export function isPlatformSizeText(size, field) {
+  if (!size || !size[field]) return false;
+  const def = DEFAULT_VEHICLE_SIZES.find((d) => d.key === size.key);
+  return !!def && size[field] === def[field];
+}
+
 export function normalizeSettings(raw) {
   const settings = raw ?? {};
   const askWaterElectric = settings.ask_water_electric ?? true;

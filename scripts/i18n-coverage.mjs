@@ -88,6 +88,34 @@ function proseIn(node, out, depth = 0) {
   return out;
 }
 
+// **A TRANSLATED-STRING EXAMPLE INSIDE A COMMENT IS NOT A CALL SITE —
+// 2026-09-12, and it bit three times in one day.** Each time a comment
+// EXPLAINING this scanner quoted one as an example, the scanner counted the
+// example and reported a phantom untranslated string. Twice the workaround was
+// to reword the comment, which is not a fix.
+//
+// FULL-LINE COMMENTS ONLY — a line whose first non-space character opens a
+// comment. That cannot corrupt a line of code, which a general stripper can: a
+// naive to-end-of-line rule eats the tail of any line holding a URL, and
+// dropping a real call site is the dangerous direction for a coverage number.
+// Every instance that has actually bitten was a doc comment, so this covers
+// them all at no risk of under-reporting.
+// A block is only ever OPENED by a line that STARTS with the opener — `{/*` in
+// JSX, `/*` elsewhere — so a regex or a string holding those two characters
+// mid-line can never begin one. Closed by any line containing the terminator.
+const stripCommentLines = (src) => {
+  let inBlock = false;
+  return src.split("\n").map((l) => {
+    const trimmed = l.trimStart();
+    if (inBlock) { if (l.includes("*/")) inBlock = false; return ""; }
+    if (trimmed.startsWith("{/*") || trimmed.startsWith("/*")) {
+      if (!l.includes("*/")) inBlock = true;
+      return "";
+    }
+    return /^\s*(\/\/|\*)/.test(l) ? "" : l;
+  }).join("\n");
+};
+
 async function walk(dir) {
   const out = [];
   for (const e of await readdir(dir, { withFileTypes: true })) {
@@ -107,7 +135,7 @@ export async function coverage() {
   const seen = new Set();
   let calls = 0;
   for (const f of files) {
-    const src = await readFile(f, "utf8");
+    const src = stripCommentLines(await readFile(f, "utf8"));
     for (const m of src.matchAll(/\bt\(\s*(["'])((?:(?!\1)[^\\]|\\.)*)\1/g)) {
       const raw = m[2].replace(/\\"/g, '"').replace(/\\'/g, "'").replace(/\\n/g, "\n");
       calls++;

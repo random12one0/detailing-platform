@@ -1016,7 +1016,6 @@ export const appEs = {
 
   // The web address screen.
   "Check it": "Revisar",
-  "Change it": "Cambiarla",
   "Not answering yet · the three steps below":
     "Aún no responde · los tres pasos de abajo",
   "That address isn't answering yet.": "Esa dirección aún no responde.",
@@ -1298,10 +1297,7 @@ export const appEs = {
   "Zelle lives in your bank's app, so this is the phone number or email it is on.":
     "Zelle vive en la app de tu banco, así que aquí va el número de teléfono o el correo donde lo tienes.",
   "your-handle": "tu-usuario",
-  "yourhandle": "tuetiqueta",
   "your-handle, or a PayPal.Me link": "tu-usuario, o un enlace de PayPal.Me",
-  "The phone number or email your Zelle is on":
-    "El número de teléfono o el correo donde tienes Zelle",
   "Keep my subscription": "Quedarme con mi suscripción",
   "Label": "Etiqueta",
   "Language": "Idioma",
@@ -2229,6 +2225,12 @@ export const appEs = {
   // the literal grep sees a variable, and the data-table walk only reaches
   // `lib/`. Found by walking the brief in Spanish, not by any check.
   "Top of every page": "Arriba en todas las páginas",
+  // Catalog's bare JSX text — invisible to the ratchet, English on a Spanish
+  // screen until a Spanish walk found it, 2026-09-12.
+  "Service": "Servicio",
+  "from": "desde",
+  "The first one is your base price; each of the others can add money and time, per service.":
+    "El primero es tu precio base; cada uno de los demás puede sumar dinero y tiempo, por servicio.",
   "Under the headline": "Debajo del título",
   "Footer only": "Solo en el pie de página",
   "Other sites": "Otros sitios",

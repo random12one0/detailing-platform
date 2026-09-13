@@ -27,17 +27,22 @@ import { Segmented, Setting, Switch } from "../../components/controls.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
-import { t } from "../../lib/appI18n.js";
+import { DEFAULT_VEHICLE_SIZES, isPlatformSizeText } from "../../book/core.js";
+import { getAppLocale, t } from "../../lib/appI18n.js";
 import { useAppLocale } from "../../hooks/useAppLocale.js";
 
-// Today's three, and the fallback for a business whose settings row predates
-// the column. Defined once here and once in the migration's DEFAULT; they say
-// the same thing because they are the same list.
-const DEFAULT_SIZES = [
-  { key: "small", label: "Small", examples: "Coupe, sedan, hatchback" },
-  { key: "medium", label: "Medium", examples: "Small SUV, crossover, wagon" },
-  { key: "large", label: "Large", examples: "Truck, large SUV, van" },
-];
+// **THE LIST COMES FROM `core.js` NOW — it was a verbatim second copy here,
+// 2026-09-12.** `isPlatformSizeText` compares a saved label against the CORE's
+// list to decide whose words it is, so a local copy that drifted by one word
+// would make this screen seed a value the booking page then treats as the
+// detailer's own. Two copies of the same three strings, one of them load-
+// bearing for a translation decision.
+const DEFAULT_SIZES = DEFAULT_VEHICLE_SIZES;
+
+// The tier text as a PERSON should read it — ours in their language, theirs
+// untouched. Identical to the booking page's rule because it IS the booking
+// page's rule; `core.js` owns it.
+const sizeText = (z, field) => (isPlatformSizeText(z, field) ? t(z[field]) : z[field]);
 // Measured against the running booking page at 392x844 AND 1440x900: with
 // four sizes the vehicle step has 39px and 23px of room, with five it is 40px
 // and 66px over. StepVehicle switches to a drop-down past this rather than
@@ -95,11 +100,26 @@ export default function Catalog() {
 
   useEffect(() => {
     const v = settings?.vehicle_sizes;
-    // A default is a starting point OFFERED to a human — so it arrives in
-    // their language. Anything already saved is their own words and is drawn
-    // untouched. Same rule as the seeded SMS templates.
-    setSizes(Array.isArray(v) && v.length ? v
-      : DEFAULT_SIZES.map((d) => ({ ...d, label: t(d.label), examples: t(d.examples) })));
+    // **THE DEFAULT IS SEEDED IN ENGLISH AND SHOWN IN THEIR LANGUAGE —
+    // corrected 2026-09-12, and it was losing a detailer their bookings.**
+    //
+    // It used to seed `t(d.label)`, the DETAILER's language, straight into the
+    // value. `saveSizes` then writes the WHOLE array, so a Spanish-speaking
+    // detailer who touched ANY tier — renamed one, removed one, even added a
+    // fourth — froze `Pequeño / Mediano / Grande` as their own words. Those
+    // never translate back, because they no longer match the platform's, so
+    // every ENGLISH-speaking customer that detailer ever got saw Spanish size
+    // names. Undiagnosable from outside, and Long Beach and Lakewood make a
+    // Spanish-speaking detailer a likely customer rather than an edge case.
+    //
+    // The stored value is now the platform's own English. `sizeText` renders it
+    // in the reader's language on this screen exactly as the booking page does,
+    // so a Spanish detailer still READS Spanish — nothing about their
+    // experience changes. What changed is what gets written down.
+    //
+    // **Their own words are still theirs**: type anything and it stops matching
+    // the default, and nothing translates it ever again.
+    setSizes(Array.isArray(v) && v.length ? v : DEFAULT_SIZES);
   }, [settings]);
 
   const load = useCallback(async () => {
@@ -318,7 +338,19 @@ export default function Catalog() {
     if (editing.index == null) {
       next.push({ key: slugKey(label, sizes.map((s) => s.key)), label, examples: f.examples.trim() });
     } else {
-      next[editing.index] = { ...next[editing.index], label, examples: f.examples.trim() };
+      // **OPENING A TIER AND PRESSING SAVE MUST CHANGE NOTHING.** The box is
+      // filled with what the detailer READS — translated, if the text is still
+      // ours — so a Spanish detailer who opens "Pequeño" and saves without
+      // typing would otherwise store "Pequeño" as their own word and bring back
+      // the exact bug this screen was just fixed for. Unchanged means unchanged:
+      // if what came back equals what was shown, the stored value is kept.
+      const cur = next[editing.index];
+      const untouched = (field, typed) => typed === (sizeText(cur, field) || "");
+      next[editing.index] = {
+        ...cur,
+        label: untouched("label", label) ? cur.label : label,
+        examples: untouched("examples", f.examples.trim()) ? cur.examples : f.examples.trim(),
+      };
     }
     setEditing(null);
     await saveSizes(next);
@@ -326,7 +358,7 @@ export default function Catalog() {
   const removeSize = (i) => {
     if (sizes.length <= 1) return;
     if (!confirm(t("Remove \"{name}\"? Bookings already taken keep the size they were booked at.",
-      { name: sizes[i].label }))) return;
+      { name: sizeText(sizes[i], "label") }))) return;
     saveSizes(sizes.filter((_, n) => n !== i));
   };
   const moveSize = (i, d) => {
@@ -375,8 +407,8 @@ export default function Catalog() {
       <div className="row wrap between">
         <h3>{t("Services")}</h3>
         <div className="row wrap" style={{ gap: 6 }}>
-          <button className="btn inline" onClick={() => setEditing({ kind: "group", form: { ...EMPTY_GROUP } })}>+ Category</button>
-          <button className="btn inline" onClick={() => openService(null)}>+ Service</button>
+          <button className="btn inline" onClick={() => setEditing({ kind: "group", form: { ...EMPTY_GROUP } })}>+ {t("Category")}</button>
+          <button className="btn inline" onClick={() => openService(null)}>+ {t("Service")}</button>
         </div>
       </div>
 
@@ -414,7 +446,7 @@ export default function Catalog() {
                       booking page read `about 5 hrs` off the same field. Two
                       units for one number, and the person SETTING it was
                       shown the one that takes a moment to convert. */}
-                  {s.price_is_from ? "from " : ""}{money(s.price)} · {duration(s.duration_minutes)}
+                  {s.price_is_from ? `${t("from")} ` : ""}{money(s.price)} · {duration(s.duration_minutes, getAppLocale())}
                 </div>
               </div>
               <Reorder kind="service" index={i} above={k === 0 ? null : rows[k - 1].i} />
@@ -434,7 +466,7 @@ export default function Catalog() {
 
       <div className="row between" style={{ marginTop: "var(--sp-5)" }}>
         <h3>{t("Add-ons")}</h3>
-        <button className="btn inline" onClick={() => setEditing({ kind: "addon", form: { ...EMPTY_ADDON } })}>+ Add</button>
+        <button className="btn inline" onClick={() => setEditing({ kind: "addon", form: { ...EMPTY_ADDON } })}>+ {t("Add")}</button>
       </div>
       <div className="tight">
       {addOns.map((a, i) => (
@@ -442,7 +474,7 @@ export default function Catalog() {
           <div className="tappable" style={{ flex: 1, minWidth: 0, cursor: "pointer" }}
             onClick={() => setEditing({ kind: "addon", id: a.id, form: { name: a.name, description: a.description || "", price: String(a.price), duration_minutes: String(a.duration_minutes), is_active: a.is_active } })}>
             <strong>{a.name}</strong>
-            <div className="muted">{money(a.price)}{a.duration_minutes ? ` · +${duration(a.duration_minutes)}` : ""}</div>
+            <div className="muted">{money(a.price)}{a.duration_minutes ? ` · +${duration(a.duration_minutes, getAppLocale())}` : ""}</div>
           </div>
           <Reorder kind="addon" index={i} above={i === 0 ? null : i - 1} />
         </div>
@@ -455,25 +487,29 @@ export default function Catalog() {
           three lines further down the same sheet. */}
       <div className="row between" style={{ marginTop: "var(--sp-5)" }}>
         <h3>{t("Vehicle sizes")}</h3>
-        <button className="btn inline" onClick={() => setEditing({ kind: "size", form: { label: "", examples: "" } })}>+ Add</button>
+        <button className="btn inline" onClick={() => setEditing({ kind: "size", form: { label: "", examples: "" } })}>+ {t("Add")}</button>
       </div>
       <p className="muted" style={{ marginBottom: "var(--sp-3)" }}>
-        The first one is your base price; each of the others can add money and
-        time, per service.
+        {/* **BARE JSX TEXT IS INVISIBLE TO EVERY CHECK HERE — 2026-09-12.**
+            `i18n-coverage` counts `t("literal")`; a sentence written straight
+            into the markup is not a call at all, so this line sat in English on
+            a Spanish dashboard while the ratchet read 100%. Same class as the
+            `t(variable)` hole, one step further out. */}
+        {t("The first one is your base price; each of the others can add money and time, per service.")}
       </p>
       <div className="tight">
         {sizes.map((s, i) => (
           <div className="card row between" key={s.key}>
             <div className="tappable" style={{ flex: 1, minWidth: 0, cursor: "pointer" }}
-              onClick={() => setEditing({ kind: "size", index: i, form: { label: s.label, examples: s.examples || "" } })}>
-              <strong>{s.label}</strong>
-              <div className="muted">{i === 0 ? t("Base price") : s.examples || t("Costs extra")}</div>
+              onClick={() => setEditing({ kind: "size", index: i, form: { label: sizeText(s, "label"), examples: sizeText(s, "examples") || "" } })}>
+              <strong>{sizeText(s, "label")}</strong>
+              <div className="muted">{i === 0 ? t("Base price") : sizeText(s, "examples") || t("Costs extra")}</div>
             </div>
             <button className="btn sm inline icon" aria-label={t("Move up")} disabled={i === 0}
               onClick={() => moveSize(i, -1)}><ChevronUp strokeWidth={2} /></button>
             <button className="btn sm inline icon" aria-label={t("Move down")} disabled={i === sizes.length - 1}
               onClick={() => moveSize(i, 1)}><ChevronDown strokeWidth={2} /></button>
-            <button className="btn sm inline icon" aria-label={t("Remove {name}", { name: s.label })} disabled={sizes.length <= 1}
+            <button className="btn sm inline icon" aria-label={t("Remove {name}", { name: sizeText(s, "label") })} disabled={sizes.length <= 1}
               onClick={() => removeSize(i)}><X strokeWidth={2} /></button>
           </div>
         ))}

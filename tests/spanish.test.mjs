@@ -632,6 +632,34 @@ if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
 // **A toggle that leaves strings in English is worse than no toggle**, because
 // a detailer trusts it in front of a Spanish-speaking customer and is handed
 // half a screen of English.
+// **A DUPLICATE KEY IS SILENT, AND ONE OF THEM IS A TRANSLATION NOBODY WILL
+// EVER SEE — 2026-09-12.** `appEs` is a JS object literal, so a repeated key is
+// not an error: the LAST one wins and the earlier is dead. Five were found in
+// `appEs.js` by accident, while a baseline attempt failed to fail — and two of
+// the five DISAGREED (`"Change it"` was both "Cambiarla" and "Cámbiala";
+// `"yourhandle"` was both "tuetiqueta" and "tuusuario"), so somebody's Spanish
+// had been silently discarded. With 1,862 keys nobody finds this by reading.
+//
+// It reads the FILE rather than the imported object, because by the time the
+// object exists the duplicate is already gone — which is exactly why it hid.
+{
+  const { readFile } = await import("node:fs/promises");
+  const KEY = /^\s*("(?:[^"\\]|\\.)*")\s*:/;
+  for (const f of ["app/src/lib/strings/appEs.js", "app/src/lib/strings/es.js"]) {
+    const seen = new Map(); const dup = [];
+    let line = 0;
+    for (const raw of (await readFile(f, "utf8")).split(/\r?\n/)) {
+      line++;
+      const m = KEY.exec(raw);
+      if (!m) continue;
+      if (seen.has(m[1])) dup.push(`${m[1]} at lines ${seen.get(m[1])} and ${line}`);
+      else seen.set(m[1], line);
+    }
+    check(`9f · no duplicate keys in ${f.split("/").pop()} (${seen.size} keys)`,
+      dup.length === 0, dup.slice(0, 6).join(" · "));
+  }
+}
+
 {
   const { coverage } = await import("../scripts/i18n-coverage.mjs");
   const { distinct, missing } = await coverage();
