@@ -498,3 +498,23 @@ your account, not just on that browser — so it stays quiet on your phone too.
 The gear menu's "Show me around" still runs the whole tour whenever you want it.
 
 **Visual: yes.**
+
+---
+
+## 26 · The back office — changing what we charge
+
+**Open:** `localhost:5173/admin` (your own master login, not the demo
+detailer) → the **Money** tab → the **What we charge** box.
+
+**WAS:** The box listed the eleven prices and that was all you could do with
+them — look. The ability to set your own prices was still in the product, but
+the only way to reach it was to send the command by hand, so in practice the
+figures were fixed wherever they happened to be.
+
+**NOW:** There is a **Change these prices** button under the list. It turns each
+figure into a box you can type in, with what that figure will read as shown
+beside it — so a contract length says "12 months" and the exit fee says "50% of
+what is left" as you type, and a wrong number looks wrong immediately. Save
+sends the whole table, and a second button puts it back to the built-in prices.
+
+**Visual: yes.**

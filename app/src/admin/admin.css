@@ -255,6 +255,28 @@
 .pa-row:last-child { border-bottom: 0; }
 .pa-row .pa-v { font-family: var(--f-num); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .pa-row .pa-k { color: var(--fog); min-width: 0; }
+/* A PRICE ROW BEING EDITED. The reading sits beside the box rather than under
+   it, because the two are one fact — what you typed and what it means — and a
+   line break between them makes the row look like two.
+   **THE BOX IS 44px TALL, WHICH IS THE FLOOR AND NOT A TARGET** (docs/BAR.md).
+   Fourteen of these stack up, and a 36px box that "looks fine" is the exact
+   thing that floor was written after. */
+.pa-edit { display: flex; align-items: center; gap: 10px; }
+.pa-said {
+  color: var(--fog); font-size: 12px; white-space: nowrap;
+  font-family: var(--f-num); font-variant-numeric: tabular-nums;
+}
+/* 7ch: the widest figure in this table is four digits, and a full-width box for
+   `999` is a field that has stopped saying what belongs in it. */
+.pa-edit input {
+  width: 7ch; min-height: 44px; text-align: right;
+  background: var(--ink-1); color: var(--bone);
+  border: 0; box-shadow: inset 0 0 0 1px var(--line); border-radius: var(--r-inset);
+  corner-shape: var(--corner); padding: 6px 10px;
+  font: inherit; font-size: 14px;
+  font-family: var(--f-num); font-variant-numeric: tabular-nums;
+}
+.pa-edit input:focus { outline: 2px solid var(--ac); outline-offset: 1px; }
 
 /* ── the detailer list ────────────────────────────────────────────────── */
 .pa-find {

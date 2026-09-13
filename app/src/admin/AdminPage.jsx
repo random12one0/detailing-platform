@@ -181,15 +181,20 @@ const priceValue = (key, v) => {
   if (key === "exitFeeShare") return `${Math.round(v * 100)}% of what is left`;
   return money(v);
 };
+// **ONE WALK, AND THE EDITOR USES IT TOO.** A hand-written list of fields
+// beside this would be a second place that has to learn about a new price, and
+// the one that forgets is the one that silently drops a figure out of the table
+// the day somebody saves. So a row carries where it came from (`path`) and what
+// is actually stored (`raw`) as well as what it reads as.
 function priceRows(table) {
   const out = [];
   for (const [k, v] of Object.entries(table ?? {})) {
     if (v && typeof v === "object") {
       for (const [k2, v2] of Object.entries(v)) {
-        out.push({ label: `${say(k)} · ${say(k2)}`, value: priceValue(k2, v2) });
+        out.push({ path: [k, k2], raw: v2, label: `${say(k)} · ${say(k2)}`, value: priceValue(k2, v2) });
       }
     } else {
-      out.push({ label: say(k), value: priceValue(k, v) });
+      out.push({ path: [k], raw: v, label: say(k), value: priceValue(k, v) });
     }
   }
   return out;
@@ -1203,7 +1208,7 @@ function Business({ row, detail, onClose, reload }) {
 }
 
 /* ══ TAB 3 · MONEY ═════════════════════════════════════════════════════════ */
-function TabMoney({ state, totals, rows }) {
+function TabMoney({ state, totals, rows, reload }) {
   const byTier = useMemo(() => {
     const t = {};
     for (const r of rows) {
@@ -1240,6 +1245,46 @@ function TabMoney({ state, totals, rows }) {
   const riskCents = atRisk.reduce((a, r) => a + r.cents, 0);
 
   const p = state?.prices;
+  // THE DRAFT IS A FLAT MAP OF `"website.setup" -> "999"`, and the values stay
+  // STRINGS while they are being typed — a number state cannot hold "" or "0."
+  // and fights the person halfway through a figure. `null` means the editor is
+  // shut.
+  const [draft, setDraft] = useState(null);
+  const [priceErr, setPriceErr] = useState("");
+  const [saving, setSaving] = useState(false);
+  const open = () => {
+    setPriceErr("");
+    setDraft(Object.fromEntries(
+      priceRows(p?.current ?? p?.built_in).map((r) => [r.path.join("."), String(r.raw)]),
+    ));
+  };
+  // **NOTHING IS VALIDATED HERE, ON PURPOSE.** `platform-admin` runs the table
+  // through `pricesFrom` — the same function the checkout charges from — so a
+  // second opinion on this screen is exactly how the two answers drift apart.
+  // The server's sentence is what gets shown.
+  const send = async (body) => {
+    setSaving(true); setPriceErr("");
+    try { await call(body); setDraft(null); await reload?.(); }
+    catch (e) { setPriceErr(e.message); }
+    setSaving(false);
+  };
+  const save = () => {
+    const table = {};
+    for (const [k, v] of Object.entries(draft)) {
+      const [a, b] = k.split(".");
+      if (b === undefined) table[a] = Number(v);
+      else { table[a] = table[a] ?? {}; table[a][b] = Number(v); }
+    }
+    return send({ action: "prices", prices: table });
+  };
+  // `null` IS THE WHOLE POINT OF THIS BUTTON. It does not write the built-in
+  // figures into the row — that would be a third copy of the same numbers,
+  // silently stale the next time the files change. It empties the row, and
+  // empty means *read the files*.
+  const clearPrices = () => {
+    if (!window.confirm("Go back to the built-in prices? Whatever is set here is forgotten.")) return;
+    return send({ action: "prices", prices: null });
+  };
   return (
     <>
       {/* THE DISTINCTION THE OLD SCREEN GOT WRONG by putting both figures in
@@ -1336,11 +1381,70 @@ function TabMoney({ state, totals, rows }) {
               rendering either as dollars is a wrong number rather than a
               missing one, which is worse. The unit comes from the KEY, because
               the key is the only thing that knows it. */}
-          <div className="pa-rows">
-            {priceRows(p?.current ?? p?.built_in).map(({ label, value }) => (
-              <Row key={label} k={label} v={value} />
-            ))}
-          </div>
+          {/* **THE EDITOR CAME BACK — roadmap 4.4 stage 4, lost in a rebuild
+              and restored 2026-09-13.** `platform-admin` has carried the
+              `prices` action the whole time; what went missing was the only
+              thing that could reach it, so the one table that decides what a
+              detailer's card is charged was editable through the API and
+              nowhere else. `platform_settings.prices` was `null` throughout, so
+              nothing was stuck — but an override set by any route at all could
+              not have been cleared from this screen, and `null` meaning *fall
+              back to the files WHOLE* is the safety valve. */}
+          {draft
+            ? (
+              <>
+                <div className="pa-rows">
+                  {priceRows(p?.current ?? p?.built_in).map(({ path, label }) => {
+                    const key = path.join(".");
+                    return (
+                      <div className="pa-row" key={key}>
+                        <span className="pa-k">{label}</span>
+                        <span className="pa-edit">
+                          {/* WHAT IT WILL READ AS, BESIDE WHAT IS TYPED. The
+                              table is not all money: `Length` is a count of
+                              months and `Exit fee` is a FRACTION, so 0.5 means
+                              half. Converting either on the way in and out
+                              would put a unit conversion in the screen, which
+                              is the shape of bug this repo already paid for
+                              with promo codes. Showing the reading instead
+                              costs nothing and cannot drift: a typed 50 says
+                              "5000% of what is left" out loud. */}
+                          <span className="pa-said">{priceValue(path[path.length - 1], Number(draft[key]))}</span>
+                          <input type="text" inputMode="decimal" value={draft[key]} aria-label={label}
+                                 onChange={(e) => setDraft({ ...draft, [key]: e.target.value })} />
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+                {priceErr && <p className="pa-err">{priceErr}</p>}
+                <div className="pa-acts">
+                  <button className="pa-btn pa-go" type="button" disabled={saving}
+                          onClick={save}>{saving ? "Saving…" : "Save these prices"}</button>
+                  <button className="pa-btn" type="button" disabled={saving}
+                          onClick={() => { setDraft(null); setPriceErr(""); }}>Cancel</button>
+                  {/* ONLY WHEN THERE IS SOMETHING TO CLEAR. With no override
+                      this button would claim to undo a thing that never
+                      happened. */}
+                  {p?.current && (
+                    <button className="pa-btn pa-danger" type="button" disabled={saving}
+                            onClick={clearPrices}>Go back to the built-in prices</button>
+                  )}
+                </div>
+              </>
+            )
+            : (
+              <>
+                <div className="pa-rows">
+                  {priceRows(p?.current ?? p?.built_in).map(({ label, value }) => (
+                    <Row key={label} k={label} v={value} />
+                  ))}
+                </div>
+                <div className="pa-acts">
+                  <button className="pa-btn" type="button" onClick={open}>Change these prices</button>
+                </div>
+              </>
+            )}
         </div>
       </section>
 
