@@ -459,6 +459,119 @@ const FILTERS = [
   ["nosite", "No website yet", (r) => !r.site_url],
 ];
 
+// REGISTERING A BUSINESS SIGNED UP IN PERSON — restored 2026-09-13.
+//
+// **THE SERVER HAS ANSWERED `create` ALL ALONG AND NOTHING COULD REACH IT.**
+// The back-office rewrite in `45eaf85` cut this screen from 1,436 lines to 798
+// and six of the edge function's twelve actions lost their only caller. This is
+// the first of the six back, and it is the one a person misses first: a detailer
+// standing at his counter could not be signed up at all.
+//
+// **AN INVITE, NOT A MEMBERSHIP** — the server's own reasoning, unchanged here:
+// the person being signed up may have no account yet, and `business_users`
+// references `auth.users`, so there is nobody to point a row at.
+//
+// **AND THE LINK IS SHOWN, NOT JUST EMAILED.** `create` returns it either way,
+// deliberately, because he is standing next to them: if the email is slow or the
+// address was mistyped, reading the link off his own screen is the entire point
+// of doing this in person. So it is displayed and selectable rather than
+// announced as sent.
+function NewBusiness({ reload }) {
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({
+    name: "", slug: "", timezone: "America/Los_Angeles", owner_email: "", contact_phone: "",
+  });
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const [made, setMade] = useState(null);
+
+  // The slug follows the name until somebody types their own, which is the
+  // same rule the tenant settings screen uses. A slug typed by hand is never
+  // overwritten by a later edit to the name.
+  const [slugTouched, setSlugTouched] = useState(false);
+  const slugify = (v) => v.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const setName = (v) => setForm((f) => ({ ...f, name: v, slug: slugTouched ? f.slug : slugify(v) }));
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setBusy(true); setErr(""); setMade(null);
+    try {
+      const out = await call({ action: "create", ...form });
+      setMade(out);
+      setForm({ name: "", slug: "", timezone: form.timezone, owner_email: "", contact_phone: "" });
+      setSlugTouched(false);
+      reload();
+    } catch (e2) { setErr(e2.message || "That did not work."); }
+    setBusy(false);
+  };
+
+  if (!open) {
+    return (
+      <section style={{ "--i": 0 }}>
+        <button className="pa-btn pa-go" type="button" onClick={() => setOpen(true)}>
+          Sign up a detailer
+        </button>
+      </section>
+    );
+  }
+
+  return (
+    <section style={{ "--i": 0 }}>
+      <form onSubmit={submit}>
+        <h2>Sign up a detailer</h2>
+        <p className="pa-sub">
+          Creates the business and emails an invite to the owner. The link is
+          shown here too, so you can read it to them.
+        </p>
+        <input className="pa-find" placeholder="Business name" required
+               value={form.name} onChange={(e) => setName(e.target.value)} />
+        <input className="pa-find" placeholder="Booking link (letters, numbers, hyphens)" required
+               value={form.slug}
+               onChange={(e) => { setSlugTouched(true); setForm((f) => ({ ...f, slug: slugify(e.target.value) })); }} />
+        <input className="pa-find" placeholder="Their email, for the invite" type="email" required
+               value={form.owner_email}
+               onChange={(e) => setForm((f) => ({ ...f, owner_email: e.target.value }))} />
+        <input className="pa-find" placeholder="Their phone (optional)"
+               value={form.contact_phone}
+               onChange={(e) => setForm((f) => ({ ...f, contact_phone: e.target.value }))} />
+        <input className="pa-find" placeholder="Timezone" required
+               value={form.timezone}
+               onChange={(e) => setForm((f) => ({ ...f, timezone: e.target.value }))} />
+        <div className="pa-acts">
+          <button className="pa-btn pa-go" type="submit" disabled={busy}>
+            {busy ? "Creating..." : "Create and invite"}
+          </button>
+          <button className="pa-btn" type="button" disabled={busy} onClick={() => { setOpen(false); setErr(""); }}>
+            Cancel
+          </button>
+        </div>
+        {err && <p className="pa-err">{err}</p>}
+      </form>
+
+      {made?.business && (
+        <div className="pa-card">
+          <h3>{made.business.name} is set up</h3>
+          {made.invite
+            ? (
+              <>
+                <p className="pa-sub">
+                  {made.invite.emailed
+                    ? `Invite emailed to ${made.invite.email}. If it does not arrive, read them this link:`
+                    : `The invite email did not send. Read them this link instead:`}
+                </p>
+                {/* SELECTABLE, NOT A BUTTON. He may be reading it aloud, texting
+                    it, or writing it down — all three want the text itself. */}
+                <input className="pa-find" readOnly value={made.invite.link}
+                       onFocus={(e) => e.target.select()} />
+              </>
+            )
+            : <p className="pa-sub">No invite was created; add an owner from their row.</p>}
+        </div>
+      )}
+    </section>
+  );
+}
+
 function TabWho({ rows, totals, reload }) {
   const [find, setFind] = useState("");
   const [filter, setFilter] = useState("all");
@@ -486,7 +599,8 @@ function TabWho({ rows, totals, reload }) {
 
   return (
     <>
-      <section style={{ "--i": 0 }}>
+      <NewBusiness reload={reload} />
+      <section style={{ "--i": 1 }}>
         <input className="pa-find" placeholder="Search a name, a link or an email"
                value={find} onChange={(e) => setFind(e.target.value)} />
         <div className="pa-chips">
