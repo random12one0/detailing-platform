@@ -133,6 +133,27 @@ const services = (await svc.post("/rest/v1/services", bizzes.map((b) =>
 const svcOf = (biz) => services.find((s) => s.business_id === biz.id).id;
 
 // ---------------------------------------------------------------------------
+// **A TIME THAT IS ABSENT FROM A LIST THAT DOES NOT EXIST IS NOT A DEFENCE —
+// 2026-09-13.** Two checks below asked !r.data?.slots?.includes("14:00"). When
+// slots is undefined — the call 504ed, the day came back closed, the endpoint
+// errored — ?.includes yields undefined and !undefined is **true**, so the
+// double-booking guard reports the slot is held when nothing was read at all.
+// FOUND.md records roughly **1.1% of this project REST calls answering 504**,
+// so it is a live possibility rather than a thought experiment.
+//
+// **IT IS THE SAME DEFECT e2e-booking slotsOn() ?? [] HAD, in a second suite,
+// guarding the same thing.** Each of these IS followed by a positive check a
+// few lines down — "offered again after cancelling" — but that is a DIFFERENT
+// call, so a transient failure on the first one alone still passes.
+//
+// So the absence is asserted together with the list being real, at the call.
+const withoutTime = (r, time) => Array.isArray(r.data?.slots)
+  && r.data.slots.length > 0
+  && !r.data.slots.includes(time);
+const slotsDetail = (r) => (Array.isArray(r.data?.slots)
+  ? r.data.slots.length + " slots: " + JSON.stringify(r.data.slots)
+  : "NO SLOT LIST AT ALL — nothing was compared. " + JSON.stringify(r.data).slice(0, 140));
+
 console.log("\ntest 1: a cancelled booking releases its slot");
 {
   const day = daysOut(30);
@@ -144,7 +165,7 @@ console.log("\ntest 1: a cancelled booking releases its slot");
   check("booking created at 14:00", made.status === 200, JSON.stringify(made.data).slice(0, 150));
 
   const before = await fn("available-slots", { business_slug: "tz-ny", booking_date: day, duration_minutes: 120 });
-  check("14:00 no longer offered while booked", !before.data?.slots?.includes("14:00"), JSON.stringify(before.data?.slots));
+  check("14:00 no longer offered while booked", withoutTime(before, "14:00"), slotsDetail(before));
 
   const cancelled = await fn("cancel-booking", { booking_id: made.data.booking.id });
   check("cancelled", cancelled.status === 200, JSON.stringify(cancelled.data));
@@ -171,7 +192,7 @@ console.log("\ntest 2: a soft-deleted booking releases its slot");
     service_ids: [svcOf(NY)], booking_date: day, start_time: "14:00",
   });
   const blocked = await fn("available-slots", { business_slug: "tz-ny", booking_date: day, duration_minutes: 120 });
-  check("14:00 blocked while live", !blocked.data?.slots?.includes("14:00"));
+  check("14:00 blocked while live", withoutTime(blocked, "14:00"), slotsDetail(blocked));
 
   const del = await fn("update-booking", { business_id: NY.id, booking_id: made.data.booking.id, soft_delete: true }, owner.jwt);
   check("soft deleted", del.status === 200, JSON.stringify(del.data).slice(0, 120));

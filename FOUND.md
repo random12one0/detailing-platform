@@ -5,6 +5,37 @@ Claude Cowork decides what becomes work.
 
 ---
 
+## THE DOUBLE-BOOKING GUARD WAS HOLLOW IN A SECOND SUITE — lane C, 2026-09-13
+
+**`tests/timezone-and-slots.test.mjs` asked `!r.data?.slots?.includes("14:00")`
+twice.** When `slots` is undefined — the call 504’d, the day came back closed,
+the endpoint errored — `?.includes` yields `undefined`, and `!undefined` is
+**true**. The guard reports the slot is held when nothing was read at all.
+
+**IT IS THE SAME DEFECT `e2e-booking`’s `slotsOn() ?? []` HAD, found the same
+day, guarding the same thing in a different file.** Two suites, one shape. The
+lesson is that fixing the instance is not fixing the pattern — **grep the shape
+across every suite when one of these turns up.**
+
+**BOTH WERE FOLLOWED BY A POSITIVE A FEW LINES DOWN** — *"14:00 is offered again
+after cancelling"* — which is why this survived: half the leg really was
+testing. But that positive is a DIFFERENT call, so a transient failure on the
+first one alone still passed. `FOUND.md` puts roughly **1.1% of this project’s
+REST calls at 504**, so it is a live possibility rather than a thought
+experiment.
+
+**DEMONSTRATED RATHER THAN ARGUED, same endpoint, same run:**
+
+| assertions | result |
+|---|---|
+| the old `!r.data?.slots?.includes(...)` | **34 passed, 0 failed** — both guards green |
+| the new `withoutTime(r, ...)` | **32 passed, 2 failed**, each naming the endpoint |
+
+The break was pointing the two reads at `available-slotsBROKEN`, so the answer
+was `{"code":"NOT_FOUND"}`. The repaired detail prints **"NO SLOT LIST AT ALL —
+nothing was compared"**, which is the difference between naming the endpoint and
+naming nothing.
+
 ## FOR LANE B — BOOKING STEP 4 IS 10px TALLER THAN A PHONE, AT 392 ONLY
 
 **Re-measured 2026-09-13 at `91face9`, against a BUILT bundle** (`vite build` in
