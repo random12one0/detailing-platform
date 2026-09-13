@@ -116,4 +116,18 @@ export const LIMITS = {
   // project's function invocations. Generous on purpose: it is not trying to
   // catch anybody, only to stop a bill.
   publicCeiling: { windowSeconds: 3600, limit: 600 },
+  // ADDRESS AUTOCOMPLETE, AND THESE TWO ARE A BUDGET RATHER THAN A SPAM RULE
+  // — ROADMAP.md § 6, 2026-09-13. Geoapify's free plan is 3,000 credits a DAY
+  // shared by every tenant, and one keystroke is one credit.
+  //
+  // Sixty an hour from one address is a person typing several addresses badly;
+  // it is not a script, and a debounced field (400ms, four characters) spends
+  // about six on a real street.
+  addressPerIp: { windowSeconds: 3600, limit: 60 },
+  // **THE ONE THAT PROTECTS EVERYBODY ELSE, AND IT IS KEYED ON A CONSTANT.**
+  // 2,400 leaves 600 of the day's credits in hand, because the failure this
+  // guards is not a bill — it is every other detailer's customers losing
+  // address help until midnight on one caller's loop. A ceiling that spends the
+  // whole allowance is not a ceiling.
+  addressPerDay: { windowSeconds: 86400, limit: 2400 },
 } as const;

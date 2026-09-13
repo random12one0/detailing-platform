@@ -26,6 +26,10 @@ const PUBLIC_FUNCTIONS = new Set([
   // because the whole point is that WATCHING it needs no key; it stores one
   // label and a timestamp and no message text ever reaches it.
   "session-ping",
+  // A CUSTOMER TYPING AN ADDRESS HAS NO ACCOUNT AND NEVER WILL, so there is
+  // no token this could require. The key stays server-side and the price of
+  // being public is paid in rate limits — ROADMAP.md § 6.
+  "address-suggest",
   "available-slots",
   "calculate-booking",
   "create-booking",
