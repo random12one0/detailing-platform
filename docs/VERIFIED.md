@@ -207,7 +207,7 @@ after the change, so none of it regressed the screens already signed off.
 at every width and 41.9 in Spanish at 320, because a longer title squeezed a flex
 row. **An English-only tap-target run cannot see it.**
 
-## 3d · PROVEN CLEAN — the vehicle type-ahead, lane B, 2026-09-13
+## 3d · PROVEN CLEAN — the vehicle type-ahead, lane B, 2026-09-13 at `da4f8d1`
 
 **Step 3's "What are you bringing?" was a bare text box — measured live by
 Andrew: no list, no autocomplete, nothing on "Outback", "toyot" or "f150".** It
@@ -232,7 +232,7 @@ Invalidated by a change to: `app/src/book/core.js`, `app/src/book/VehicleField.j
 `app/src/book/booking.css`.
 
 ```bash
-git diff --name-only <this commit>..HEAD -- app/src/book/core.js app/src/book/VehicleField.jsx app/src/book/vehicles.json app/src/book/steps/StepVehicle.jsx app/src/book/booking.css
+git diff --name-only da4f8d1..HEAD -- app/src/book/core.js app/src/book/VehicleField.jsx app/src/book/vehicles.json app/src/book/steps/StepVehicle.jsx app/src/book/booking.css
 ```
 
 ### THE TWO THINGS FOUND BY LOOKING, WHICH NOTHING IN THIS REPO WOULD HAVE CAUGHT
