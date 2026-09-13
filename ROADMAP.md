@@ -283,7 +283,7 @@ not do that."*
   answers, including a domain-restricted key, and he wants to make that call
   deliberately.
 
-## EVERY EDGE FUNCTION EXCEPT ONE IS RUNNING WITHOUT THE 504 RETRY — measured 2026-09-13
+## ~~EVERY EDGE FUNCTION EXCEPT ONE IS RUNNING WITHOUT THE 504 RETRY~~ — CLOSED 2026-09-13
 
 `node scripts/check-deployed.mjs` reports **34 of 35 STALE**, every one against
 commit `75031a7` at 03:35 UTC. That commit put `retryRead` into
@@ -292,6 +292,18 @@ item 2 describes is wider than `send-owner-reminders`: nothing carrying the 504
 retry is live except `translate-content`. **The checker is right and this is not
 an artifact** — it resolves each function's real imports transitively rather than
 stamping the whole `_shared` folder.
+
+**ALL 35 ARE CURRENT NOW.** `node scripts/deploy-functions.mjs` then
+`node scripts/check-deployed.mjs` at `184db36`: *"all 35 functions are current"*,
+every one deployed 05:37 UTC. **So `send-owner-reminders` is running the retry at
+last** — which was item 2's open thread in the list above and the reason
+customers' reminder emails had stopped going out on schedule.
+
+**AND THE RETRY IS NOT THE WHOLE FIX. `FOUND.md` § 85 READS DISCARDED THEIR ERROR
+is the other half**: retrying a read shortens the odds, and 81 call sites still
+throw away the error when it fails anyway. `send-owner-reminders:373` is the
+clearest example — `const { data: businesses } = await retryRead(…)`, the retry
+present and its error discarded.
 
 ## TWO NEW ITEMS FROM ANDREW — 2026-09-13, CAPTURED NOT STARTED
 

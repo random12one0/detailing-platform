@@ -35,7 +35,7 @@ confirmed writing into this tree during item 1** (`appEs.js`, `theme.js`,
 
 ---
 
-## 2 · `available-slots` CAN ANSWER 200 WITH `{"success":true,"days":{}}`
+## 2 · ~~`available-slots` CAN ANSWER 200 WITH AN EMPTY CALENDAR~~ — DONE 2026-09-13
 
 **An empty success. He hit this live tonight on `demo-detail` and it is the
 defect with a customer on the other end of it.**
@@ -101,7 +101,7 @@ was at 11 of 24, i.e. a structural limit rather than a flaky network.
 
 ---
 
-## 3 · THREE EMAIL DEFECTS, ALL IN THE SHARED TEMPLATE LAYER
+## 3 · ~~THREE EMAIL DEFECTS~~ — ALL THREE DONE 2026-09-13. THE QUESTION IS ANSWERED BELOW.
 
 **All three found by reading real delivered mail out of Resend**, not by reading
 code. `node scripts/render-emails.mjs` writes `email-preview/*.html`; **send him
@@ -175,7 +175,62 @@ output either.** These three defects are evidence for that, not exceptions to it
 
 ---
 
+## 3b · THE QUESTION HE PUT TO MY JUDGEMENT, ANSWERED — 2026-09-13
+
+> The request-accepted email (**"You're booked in"**) carries no services and no
+> price, while "Booking confirmed" carries the full table and total.
+
+**MY ANSWER: THE MONEY BELONGS ON IT, AND THIS IS THE STRONGEST CASE FOR IT IN
+THE PRODUCT. It is NOT built, because it needs a database read that email does
+not currently make** — see the cost below, which is the only reason it is parked
+rather than done.
+
+**THE ARGUMENT.** In request mode the customer's FIRST email says *"we're holding
+your time"* and explicitly charges nothing. **"You're booked in" is therefore the
+only email that ever tells them the job is happening**, and it is the moment the
+money stops being a hypothetical: `respond-to-booking` writes `total_price` and
+**nulls `quoted_amount`** in the same update. `FOUND.md` already records that the
+detailer's own Accept card does not say which number Accept will use. **So right
+now nobody — not the detailer pressing the button, not the customer receiving the
+email — is shown the figure at the moment it becomes binding.** That is a money
+path with no statement of the amount on it, which is exactly what
+`CLAUDE.md`'s *a number PRINTED is not a number CHARGED* is about.
+
+The template already knows this argument, incidentally: the same branch carries
+the payment handles, with a comment saying *"THIS IS THE CONFIRMATION FOR HALF
+THE TENANTS… leaving it out would give every request-mode business no payment
+handles on the only email that confirms anything."* **The identical reasoning
+applies to the total, and it was applied to the handles and not the money.**
+
+**THE COST, WHICH IS WHY IT IS PARKED AND NOT SKIPPED.**
+`respond-to-booking/index.ts:127` hard-codes `serviceNames: []` and
+`addOnNames: []`, so dropping a `moneyBlock` in today prints a total with no
+lines under it. The fix is small and already has two worked examples:
+`accept-quote` and `send-invoice` both select
+`services:booking_services(name_at_booking)` and map it. So: widen that select,
+map the names, and reuse the confirmation email's exact three lines —
+`labBlock("What we're doing")`, `moneyBlock(brand, quoteLines(b, b.lang), { label: "Estimated total", amount: Number(b.total) })`,
+and the estimate caveat. **Reuse those three verbatim rather than writing new
+wording**, or the product grows a second voice for the same fact.
+
+**ONE THING TO GET RIGHT:** for a booking accepted through `accept-quote` the
+binding number is the quoted amount, which that function has already moved into
+`total_price` — so reading `b.total` is correct for both paths and no branch on
+`kind` is needed.
+
+**WHAT I AM NOT DOING WITHOUT HIM:** changing the word *"Estimated"*. A detailer
+who has looked at a request and accepted it may be making a firmer promise than
+an estimate, and that is his call about what his product promises, not mine.
+
+---
+
 ## 4 · NWS WEATHER — `api.weather.gov`
+
+**NOT STARTED — 2026-09-13. The session that did items 2 and 3 ran out of
+context at this boundary and stopped rather than starting it badly.** Nothing
+below has been touched and nothing has been half-built; the specification in
+`ROADMAP.md` § FREE THIRD-PARTY SERVICES → 1 · WEATHER is still the whole brief.
+**It is the next thing.**
 
 **Specified in full in `ROADMAP.md` § FREE THIRD-PARTY SERVICES → 1 · WEATHER.
 Andrew's order: after the doorbell, before Geoapify.** The doorbell is done.

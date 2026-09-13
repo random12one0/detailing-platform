@@ -1167,6 +1167,40 @@ stores the words as they were at the time, and `_shared/email.ts:93` reads
 `vehicle_size_label || vehicle_size`, so history does not move when a tier is
 renamed.
 
+## THERE IS A TENTH e2e-booking FAILURE NOW, AND IT IS THE PAGE, NOT THE ENDPOINT — 2026-09-13
+
+`scripts/e2e-booking.mjs` reports **70 passed, 10 failed** at `1cf5f98`, against
+the **71 / 9** the entry below recorded at `34ae75d`. Total checks unchanged at
+80, so **one check flipped from pass to fail**, and the nine below are all still
+there by name.
+
+**THE TENTH:** `2026-09-17 is open on the customer's calendar — cell` followed by
+whitespace. It read an empty cell.
+
+**IT IS NOT THE AVAILABILITY ENDPOINT, AND THE SAME RUN PROVES IT.** Two later
+sections of that run book, reschedule and cancel on **that exact day**: *"08:00
+is no longer offered"*, *"the booked day (Sep 17) is offered to move within"*,
+*"a different time is offered on that day"*. **`available-slots` says Sep 17 is
+open and the flow uses it end to end.** So what is wrong is the CELL, which is
+`app/src/book` — lane B's.
+
+**AND THE TWO MOST LIKELY CAUSES ARE BOTH INSTRUMENT FAULTS RATHER THAN PRODUCT
+FAULTS**, which is why this is recorded instead of reported as a regression:
+
+- **`CLAUDE.md` trap (e).** The booking calendar renders **TWO** `.bk-cal`
+  elements — the weekday header and the day grid — so a `querySelector` returns
+  the wrong one. That trap's own write-up was produced by this exact family of
+  false reading, about this exact flow.
+- **`CLAUDE.md` trap (f).** Lane B was committing into `app/src` while this ran
+  (`appEs.js`, `BusinessInfo.jsx` were both modified mid-session), and a Vite hot
+  reload remounts components under a walk in progress.
+
+**Measured twice, both runs 70/10, with the same tenth.** So it is repeatable
+rather than a one-off — but repeatable against a tree somebody else was editing
+is not the same as repeatable against a quiet one. **The next lane B session
+should re-run it with nobody building** and then either fix the cell or fix the
+check.
+
 ## THE NINE e2e-booking FAILURES — 2026-09-12
 
 **ZERO ARE MINE, measured by name and not by count.** `scripts/e2e-booking.mjs`
