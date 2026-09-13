@@ -49,6 +49,7 @@ import {
 } from "../supabase/functions/_shared/platformBilling.ts";
 import { flatten, verifyWebhook } from "../supabase/functions/_shared/stripe.ts";
 import { billingEmail } from "../supabase/functions/_shared/emailTemplates.ts";
+import { money } from "../supabase/functions/_shared/emailKit.ts";
 import {
   platformBrand, PLATFORM_NAME, SUPPORT_EMAIL, SUPPORT_PHONE,
 } from "../supabase/functions/_shared/platformBrand.ts";
@@ -641,7 +642,12 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
   const late = billingEmail(brand, { kind: "failed", businessName: B, billingUrl: url, amount: 60, reason: "Insufficient funds." });
   const down = billingEmail(brand, { kind: "suspended", businessName: B, billingUrl: url, amount: 60, reason: null });
 
-  check("the failed email names the amount", late.html.includes("$60.00"), late.subject);
+  // ASSERT THE SHARED FORMATTER, NOT A SPELLING — this read `"$60.00"` until
+  // 2026-09-13 and went red the day `emailKit.money` was brought into line with
+  // `app/src/lib/format.js` (cents only when there are cents), on an email that
+  // was correct. CLAUDE.md trap (k). `tests/money-format.test.mjs` is what pins
+  // the two formatters together; this only asserts the amount is named.
+  check("the failed email names the amount", late.html.includes(money(60)), `${money(60)} — ${late.subject}`);
   check("the failed email promises two weeks of retries", /two weeks/i.test(late.html));
   check("the failed email says nothing gets deleted", /deleted/i.test(late.html));
   check("the failed email passes on the bank's own words",

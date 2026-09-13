@@ -32,6 +32,7 @@ import { businessById, getSettings } from "../_shared/tenant.ts";
 import { buildBrand, extraVehiclesFor, ownerRecipients, sendTenantEmail } from "../_shared/email.ts";
 import { customerConfirmationEmail, ownerNewBookingEmail } from "../_shared/emailTemplates.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
+import { money } from "../_shared/emailKit.ts";
 import { receiptUrl } from "../_shared/config.ts";
 import { siteFor } from "../_shared/tenantSite.ts";
 import { dateStrIn, timeStrIn } from "../_shared/tz.ts";
@@ -150,7 +151,7 @@ Deno.serve(async (req) => {
       if (settings.push_enabled) {
         await sendOwnerPush(business.id, {
           title: "Quote accepted",
-          body: `${booking.customer_name} · ${emailData.dateStr} at ${emailData.startTime} ($${quoted.toFixed(2)})`,
+          body: `${booking.customer_name} · ${emailData.dateStr} at ${emailData.startTime} (${money(quoted)})`,
           url: `/admin/job/${booking.id}`,
           tag: `booking-${booking.id}`,
         });

@@ -151,7 +151,37 @@ const PAD = "padding:0 32px;";
 export const esc = (s: unknown) =>
   String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-export const money = (n: number) => `$${(Math.round(Number(n) * 100) / 100).toFixed(2)}`;
+// ONE SPELLING OF A PRICE, AND THIS FILE IS THE SECOND COPY OF IT.
+//
+// `app/src/lib/format.js` is the source of truth. Email cannot import it — an
+// edge function is a separate Deno bundle and the Supabase CLI will not follow
+// an import out of `supabase/` — so the rule is repeated here, deliberately,
+// exactly as `_shared/brandColor.js` repeats the colour arithmetic for the same
+// wall. `tests/money-format.test.mjs` imports BOTH and asserts they agree on a
+// table of values, so drift is a failing test rather than a surprise in
+// somebody's inbox.
+//
+// WHAT IT FIXES, 2026-09-13. This function was `toFixed(2)`, so an email said
+// **$150.00** for a job whose booking page said **$150**, and **$1200.00**
+// where the page said **$1,200**. Two spellings of one price, one on the screen
+// and one in the inbox, is the kind of small wrongness that makes a business
+// look careless.
+//
+// THE RULE, IDENTICAL TO `format.js`: comma-grouped; **cents only when there
+// are cents**, so nothing is ever hidden ($58.50 stays $58.50, only $95.00
+// becomes $95); and **the sign goes before the symbol**, because `Intl` writes
+// `-$189.00` and a minus inside the amount reads as a corrupted figure.
+const WHOLE = new Intl.NumberFormat("en-US", {
+  style: "currency", currency: "USD", minimumFractionDigits: 0, maximumFractionDigits: 0,
+});
+const CENTS = new Intl.NumberFormat("en-US", {
+  style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2,
+});
+export const money = (n: number) => {
+  const v = Math.round(Number(n || 0) * 100) / 100;
+  const abs = Math.abs(v);
+  return `${v < 0 ? "-" : ""}${Number.isInteger(abs) ? WHOLE.format(abs) : CENTS.format(abs)}`;
+};
 
 export const formatTime12hr = (time24: string): string => {
   const [h, m] = String(time24).split(":").map(Number);

@@ -32,6 +32,7 @@ import {
 import { validateSlot } from "../_shared/slotValidation.ts";
 import { ipOf, LIMITS, looksAutomated, withinLimits } from "../_shared/rateLimit.ts";
 import { buildBrand, ownerRecipients, sendTenantEmail } from "../_shared/email.ts";
+import { money } from "../_shared/emailKit.ts";
 import { customerConfirmationEmail, ownerNewBookingEmail } from "../_shared/emailTemplates.ts";
 import { receiptUrl } from "../_shared/config.ts";
 import { siteFor } from "../_shared/tenantSite.ts";
@@ -672,7 +673,7 @@ Deno.serve(async (req) => {
     try {
       if (settings.push_enabled) await sendOwnerPush(business.id, {
         title: isRequest ? "Booking request" : "New booking",
-        body: `${booking.customer_name} · ${emailData.dateStr} at ${emailData.startTime} ($${Number(quote.total).toFixed(2)})`,
+        body: `${booking.customer_name} · ${emailData.dateStr} at ${emailData.startTime} (${money(Number(quote.total))})`,
         url: `/admin/job/${booking.id}`,
         tag: `booking-${booking.id}`,
       });

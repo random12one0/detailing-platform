@@ -370,7 +370,16 @@ for (const [file, label, render] of EMAILS) {
   for (const [name, html, total] of cases) {
     const txt = htmlToText(html);
     // Every "$n" in the money block, in order. The last one is the total.
-    const figs = [...txt.matchAll(/(-|−)?\$([\d,]+\.\d{2})/g)]
+    //
+    // THE CENTS ARE OPTIONAL — 2026-09-13. This pattern required `.dd` and was
+    // written when `emailKit.money` was `toFixed(2)`. The moment that formatter
+    // was brought into line with `app/src/lib/format.js` (cents only when there
+    // are cents) every whole-dollar figure stopped matching, all three columns
+    // read as EMPTY, and the tie-out reported "no money column" — a check
+    // coupled to a SPELLING rather than to the behaviour it guards, which is
+    // CLAUDE.md trap (k). The behaviour is that the lines add up to the total,
+    // and that is what stays asserted.
+    const figs = [...txt.matchAll(/(-|−)?\$([\d,]+(?:\.\d{2})?)/g)]
       .map((m) => (m[1] ? -1 : 1) * parseFloat(m[2].replace(/,/g, "")));
     if (figs.length < 2) {
       console.error(`  FAIL  ${name}: no money column found in the rendered output`);

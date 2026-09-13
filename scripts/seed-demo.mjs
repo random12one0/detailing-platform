@@ -931,7 +931,7 @@ if (subArg !== "none") {
       "I understand I am paying $499 once for the build and $40 every month after that, starting today. "
       + "It renews by itself until I cancel, and I can cancel any time from my own billing page. "
       + "I am committing to 12 months. If I cancel before that, I pay 50% of the months still to run: "
-      + "for example $120.00 with 6 months left.",
+      + "for example $120 with 6 months left.",
     stripe_customer_id: "cus_demo_seed",
     stripe_subscription_id: "sub_demo_seed",
     status: suspended ? "suspended" : late ? "past_due" : "active",
