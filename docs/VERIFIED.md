@@ -776,6 +776,64 @@ git diff --name-only 6717887..HEAD -- tests scripts/check-deployed.mjs scripts/l
 
 ---
 
+## 3h · PROVEN CLEAN — the Clients tab, lane B, 2026-09-13
+
+**Andrew's brief: this is the screen a detailer opens to answer who is worth
+ringing.** It now states two of those answers as figures at the top of the page,
+and each figure is the control that shows the people behind it.
+
+| what was proven | number |
+|---|---|
+| Tap targets, phone 392 | **30 controls counted**, **0 under 44**, **0 overlapping pairs**, sideways scroll **0** |
+| Tap targets, 320 | same 30 · 0 under 44 · 0 overlapping · 0 sideways |
+| Tap targets, 320 with the quiet list showing | **24 counted** · 0 under 44 · 0 overlapping · 0 sideways |
+| Tap targets, 1440 | 24 counted · 0 under 44 · 0 overlapping · 0 sideways |
+| Spanish, 392 | 30 counted · 0 under 44 · 0 overlapping · 0 sideways · `sin venir`, `Tom Okafor es quien más gasta` — **the NAME untranslated**, which is the rule |
+| The strip answers correctly | `8` matches the chip's own filtered count (`8 of 16` in the masthead after the press); `$795 Tom Okafor` is his two completed jobs, 700 + 95 |
+| Both cells act | pressing the count sets the chip AND the *Longest away* sort and raises *Email these 5 / Text these 8*; pressing the amount clears the chip and sets *Most spent* |
+| A record open at the desk | masthead at y=81, strip at y=175, search at y=282 inside the narrowed 651px column — nothing above the list moves when a client opens |
+| The suites | `composition` **97/0**, `route-contract` **34/0**, `spanish` **73/0**, `design-contrast` all pairs, `npm run build` clean and the bundle carries `gone quiet` / `ledger answers` / `spends most` |
+
+**THE INSTRUMENT WAS PROVEN AND THEN IMMEDIATELY POISONED BY ITS OWN PROOF.**
+A 20x20 button was injected to check the probe could see an under-44 target. It
+could. But the same fixture was `position: fixed; z-index: 99999` over the page,
+and the run that followed it reported the sort control at **40x72 reach** — a
+false finding on a control that measures **45** high once the fixture is out of
+the document. **Clear the baseline fixture before the real run**, and treat a
+first finding on a control nobody touched as a suspect rather than a result.
+
+**AND `overlapHairline` IS 16 AND IS NOT AN OVERLAP.** Adjacent rows in a ruled
+list share a sub-pixel boundary, so probing at `±0.5` scores 1px of contact
+between every consecutive pair. The number that matters is overlap beyond 2px,
+which is **0** at every width. Both figures are printed so nobody has to
+re-derive which one was being reported.
+
+Invalidated by a change to: `app/src/screens/Clients.jsx`,
+`app/src/lib/client-list.js`, `app/src/theme.css`.
+
+```bash
+git diff --name-only HEAD -- app/src/screens/Clients.jsx app/src/lib/client-list.js app/src/theme.css
+```
+
+**WHAT IS NOT PROVEN, AND IT IS THE THIRD QUESTION IN THE BRIEF.** *"Who is
+new"* has no honest answer in this database and so was deliberately not built:
+`customers.created_at` is the moment the seed ran for every seeded customer, so
+a "new this month" cell reads **13 of 13**; and "first completed visit in the
+last 30 days" is **nobody**, because the earliest completed job for every
+customer is 45 days back or more. Either way the cell would be all-or-nothing on
+the only database anything can sign into — the same blindness the five lapsed
+customers were seeded to end. **A seeded customer created recently with no
+completed job is lane C's change**, and only then is the cell worth building.
+
+**AND THE DEMO'S OWN `8` IS PART TEST RESIDUE.** Three of the eight — *Smoke
+AHG4L*, *Smoke ACJZK* and one whose NAME is `140 Market Street, Long Beach, CA`
+— are leftovers from end-to-end booking runs, with `Never` as their last visit
+and `$0` spent. The screen is counting them correctly (never-been-in is inside
+the chip's own filter, by `client-list.js`'s design) but the demo reads worse
+than the product is. Lane C's seed/cleanup.
+
+---
+
 ## HOW THIS FILE EARNS ITS KEEP
 
 Andrew paid for every number above once. **The cost of this file is one `git

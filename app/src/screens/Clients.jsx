@@ -199,6 +199,38 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
     [customers, totals, sort, lapsed, today],
   );
 
+  // THE ANSWER, RATHER THAN THE LIST YOU WORK THE ANSWER OUT OF.
+  //
+  // Andrew's brief for this screen: *this is the screen a detailer opens to
+  // answer who is worth ringing — who has not been back in a while, who spends
+  // the most.* Until now it answered neither on arrival. The default sort is
+  // last-visit-newest-first, so the people who have GONE QUIET are at the
+  // bottom of the list, below the fold and below up to two hundred rows —
+  // the screen's own reason to exist was the hardest thing on it to see. And
+  // "who spends the most" took a press on the sort and then a read of row 1.
+  //
+  // So the two answers are stated in figures at the top, and each figure is
+  // the control that shows you the people behind it. Same `.ledger` strip
+  // Today and the client record already use — nothing invented.
+  //
+  // TWO CELLS AND NOT THREE. "Who is new" is the third question in the brief
+  // and it is deliberately not here: `customers.created_at` is when the ROW
+  // appeared, which for every customer in the demo is the moment of the seed,
+  // and "first completed visit in the last 30 days" is nobody. Either way the
+  // cell reads all-or-nothing on the only database anything can sign in to,
+  // which is the exact failure the five lapsed customers were seeded to end.
+  // See docs/VISUAL-CHANGES.md and FOUND.md.
+  const answers = useMemo(() => {
+    const quiet = arrange(customers, totals, { sort: "away", lapsed: true, today });
+    // `spend > 0` because "spends most" over a business whose customers have
+    // all spent nothing names somebody for no reason.
+    const top = arrange(customers, totals, { sort: "spent", lapsed: false, today })[0];
+    // LIFETIME SPEND IS OWNER-ONLY, here as everywhere else on this screen
+    // (the row's third cell and the record's second figure both gate on it).
+    // A staff member gets one cell, which `.ledger.one` already draws.
+    return { quiet: quiet.length, top: owner && top && top.spend > 0 ? top : null };
+  }, [customers, totals, today, owner]);
+
   const openCustomer = async (c) => {
     setOpen(c);
     setNotes(c.notes || "");
@@ -284,6 +316,36 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
                   : t("{count} people", { count: customers.length })}
         </p>
       </div>
+
+      {/* See `answers` above for why this is here and why it is two cells.
+          It is drawn from `customers`, not from `rows`, so searching or
+          filtering does not change the answer underneath — the strip is a
+          fact about the business and the list below it is a view. */}
+      {customers.length > 0 && (
+        <div className={`ledger answers ${answers.top ? "two" : "one"}`}>
+          {answers.quiet > 0 ? (
+            <button aria-pressed={lapsed}
+              aria-label={t("Show the {count} who have gone quiet", { count: answers.quiet })}
+              onClick={() => { setLapsed(true); setSort("away"); }}>
+              <span className="figure">{answers.quiet}</span>
+              <span className="lbl">{t("gone quiet")}</span>
+            </button>
+          ) : (
+            <div>
+              <span className="figure">0</span>
+              <span className="lbl">{t("gone quiet")}</span>
+            </div>
+          )}
+          {answers.top && (
+            <button aria-pressed={sort === "spent" && !lapsed}
+              aria-label={t("Sort by most spent")}
+              onClick={() => { setLapsed(false); setSort("spent"); }}>
+              <span className="figure">{money(answers.top.spend)}</span>
+              <span className="lbl">{t("{name} spends most", { name: answers.top.c.name })}</span>
+            </button>
+          )}
+        </div>
+      )}
 
       <input data-tour="csearch" placeholder={t("Search name or phone…")} value={search}
         aria-label={t("Search customers")}

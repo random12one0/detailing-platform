@@ -513,8 +513,33 @@ a { color: var(--accent-text); text-decoration: none; }
    of the width empty and reads as a missing cell. */
 .ledger.two { grid-template-columns: 1fr 1fr; }
 .ledger.one { grid-template-columns: 1fr; }
-.ledger > div { padding: var(--sp-3) var(--sp-2); min-width: 0; }
-.ledger > div + div { border-left: 1px solid var(--hairline); }
+.ledger > div, .ledger > button { padding: var(--sp-3) var(--sp-2); min-width: 0; }
+/* `> * + *` RATHER THAN `> div + div` BECAUSE A CELL CAN NOW BE A BUTTON.
+   Clients' answer strip (below) is the same strip with the two cells wired to
+   the sort and the chip underneath, so the answer IS the control — a detailer
+   reads "5 gone quiet" and presses the same words to see who. Every existing
+   ledger holds only divs, so this matches exactly what it matched before. */
+.ledger > * + * { border-left: 1px solid var(--hairline); }
+/* A CELL THAT IS A BUTTON LOOKS EXACTLY LIKE A CELL THAT IS NOT. The strip is
+   bare figures on the ground (no panel, law 1's register for this screen), so
+   a button here paints nothing of its own — the press is felt in the list
+   below, not in a box around the number. */
+.ledger > button {
+  background: none; border: 0; border-radius: 0; text-align: left;
+  font: inherit; color: inherit; cursor: pointer; display: block;
+  -webkit-tap-highlight-color: transparent;
+}
+.ledger > button:hover .lbl { color: var(--text); }
+/* THE CHIP BELOW AND THIS CELL ARE ONE STATE WEARING TWO CONTROLS, so the cell
+   says so. `--ac` is the accent and a selected filter is exactly what it is
+   for; it is not `--bad`, which in this product means "this destroys
+   something" (CLAUDE.md § SCREEN RULES). */
+.ledger > button[aria-pressed="true"] .figure { color: var(--ac); }
+/* AND THIS STRIP'S LABEL IS ALLOWED TO WRAP, because it carries a NAME and a
+   name is not a fixed width. Everywhere else `.lbl` is one of our own words
+   ("visits", "lifetime") and clipping it is safe; here "Grace Lindqvist
+   spends most" would ellipsis to "Grace Li…" at 392 and answer nothing. */
+.ledger.answers .lbl { white-space: normal; }
 /* Smaller than --t-figure, and the reason is a width: a monospaced glyph is
    ~0.57em after this face's letter-spacing, so a third of a 392px row is
    104px of usable space and a 26px figure runs out of it at six characters.
@@ -3818,7 +3843,7 @@ button.warn-box:hover { border-color: var(--fog-2); }
      stay paired and the figure takes the row under them — which is this
      floor's own idiom (a pair becomes a stack) rather than a new one. */
   .ledger { grid-template-columns: 1fr 1fr; }
-  .ledger > div:nth-child(3) {
+  .ledger > :nth-child(3) {
     grid-column: 1 / -1; border-left: 0;
     border-top: 1px solid var(--hairline);
   }
@@ -3826,8 +3851,14 @@ button.warn-box:hover { border-color: var(--fog-2); }
      stacked rows of stacked cells is 147px — taller than the 112px panel this
      replaced, which would make the phone form a loss at the one width that
      can least afford it. Beside, it is ~99px. */
-  .ledger > div { display: flex; align-items: baseline; gap: 6px; }
+  .ledger > div, .ledger > button { display: flex; align-items: baseline; gap: 6px; }
   .ledger .lbl { margin-top: 0; }
+  /* EXCEPT THE ANSWER STRIP, which stays stacked here. The beside-rule above
+     exists to buy Today's first job 48px of height; this strip is the answer
+     a detailer came to Clients for, and beside a $1,455 figure a wrapped name
+     gets 48px of a 144px cell. Height is the cheaper thing to spend. */
+  .ledger.answers > div, .ledger.answers > button { display: block; }
+  .ledger.answers .lbl { margin-top: 5px; }
 
   /* Same rule one level up: a setting whose control is a field keeps 96px for
      its sentence and prints it five words at a time. Label and help above,

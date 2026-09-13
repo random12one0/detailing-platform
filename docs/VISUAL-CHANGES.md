@@ -349,3 +349,25 @@ most-booked service.
 **NOW:** There is a small gap under it and it reads as its own sentence.
 
 **Visual: yes.**
+
+---
+
+## 18 · Clients — who is worth ringing, without scrolling for it
+
+**Open:** `localhost:5173/app` → Clients.
+
+**WAS:** The page opened on a search box and a list of everybody, most
+recently seen first. The people who had stopped coming — the whole reason a
+detailer opens this screen — were therefore at the very bottom, under
+everyone who had just been in, and you only found them by pressing a button
+and scrolling. Who spends the most with you took another press and then a
+read of the top row.
+
+**NOW:** Two answers sit above everything else the moment the page opens: how
+many people have gone quiet, and who spends the most with you and how much.
+Each one is also a button — press the count and the list becomes exactly those
+people, with "Text these 8" sitting beside it ready to go; press the amount
+and the list reorders by who spends the most. A member of staff who is not
+allowed to see money sees only the first of the two.
+
+**Visual: yes.**

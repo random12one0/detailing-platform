@@ -315,6 +315,13 @@ export const appEs = {
   "Search customers": "Buscar clientes",
   "Search name or phone…": "Busca por nombre o teléfono…",
   "Not seen in 3 months": "Sin venir en 3 meses",
+  // THE ANSWER STRIP. "gone quiet" is lower case on purpose — it is a `.lbl`
+  // under a figure, the same register as "visits" and "lifetime", and Spanish
+  // does not capitalise a common noun phrase either.
+  "gone quiet": "sin venir",
+  "Show the {count} who have gone quiet": "Ver los {count} que no han vuelto",
+  "Sort by most spent": "Ordenar por más gastado",
+  "{name} spends most": "{name} es quien más gasta",
   "Everyone has been in within three months.": "Todos han venido en los últimos tres meses.",
   "No customers yet. They appear on their own when bookings come in.":
     "Aún no hay clientes. Aparecen solos cuando entran las citas.",
