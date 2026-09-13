@@ -314,3 +314,42 @@ Every one of these produced a confident wrong number first:
 - **CALIBRATE EVERY RUN AND SUBTRACT THE BIAS.** A synthetic 20x20 div in the
   same document reads **20.98**, so the instrument over-reads by 0.98px.
   A number reported without that removed is the instrument, not the control.
+
+## READING A SCREEN TELLS YOU WHAT IT SAYS, NOT WHERE ANYTHING IS — 2026-09-13
+
+**Andrew found a five-pixel overlap by glancing at a screenshot, after two of us
+had loaded that screen and read it.** Both of us checked that the words were
+right. Neither checked that they did not sit on top of each other. An email chip
+overlapped the sentence above it by 5.0px — `.pa-act` bottom 340.3, `.pa-btn`
+top 335.3.
+
+**The cause was a button style that never said how it should be laid out.**
+`.pa-btn` set padding, background and radius and no `display`, so a `<button>`
+took `inline-block` and an `<a>` took plain `inline` — where vertical padding
+paints OUTSIDE the line box and `margin-top` is ignored entirely. Fixed on the
+base rule (`display: inline-flex`), not on the instance, because every future
+`.pa-btn` on an anchor had the same defect waiting.
+
+**SO THE RULE: A SCREEN IS NOT CHECKED UNTIL AN OVERLAP CHECK HAS RUN ON IT.**
+That is in addition to loading it and reading it, which this file already
+requires and which did not catch this.
+
+`scripts/overlap-probe.mjs` is the instrument. It takes every visible leaf
+element that carries its OWN text, compares bounding rectangles pairwise, and
+reports any pair that intersects. Four decisions in it are load-bearing:
+
+- **Leaf elements only, and containment is skipped.** A parent always contains
+  its children, so a naive pairwise pass reports the whole document.
+- **Own text only.** An element whose text all comes from a child is reporting
+  its child's words, which makes every wrapper overlap its own content.
+- **Scoped to the app root.** The first run found the real defect plus one false
+  positive from a browser extension's chat widget. A check with a permanent
+  known-failure teaches people to ignore it.
+- **One pixel of slop.** Sub-pixel layout puts adjacent boxes a fraction into
+  each other constantly; a zero threshold is the same as no check at all.
+- **`fixed` and `sticky` are excluded.** A header that travels over the content
+  it scrolls past is the design, not a defect.
+
+**BASELINED, per the rule above it.** With
+`.pa-do .pa-btn{margin-top:-15px}` injected it reports the pair by name and by
+7px; with the injection removed it reports zero over the same 32 elements.
