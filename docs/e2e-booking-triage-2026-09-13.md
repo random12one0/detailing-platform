@@ -125,6 +125,34 @@ red. Baselined: the gate is true on that exact log line and false on
 
 **To exercise the provider leg, run it after 00:00 UTC**, when the day rolls.
 
+### STILL OWED AT 23:12 UTC ON 2026-09-13 — lane C, and it is owed for TWO reasons
+
+**(1) The day had not rolled.** The run made at 15:xx local printed the same
+`84 passed, 0 failed, 6 skipped`; the cap was still in place.
+
+**(2) `app/src` WAS DIRTY THE WHOLE SESSION.** Five files uncommitted at the
+last check — `App.jsx`, `components/SetupForm.jsx`, `components/Walkthrough.jsx`,
+`lib/strings/appEs.js`, `screens/Business.jsx` — with lane B committing twice
+during the evening. **The six legs were NOT run against a moving tree**, on
+purpose; trap (f).
+
+**WHAT TO DO NEXT, AND IT NEEDS NEITHER OF THOSE CONDITIONS ANY MORE.** The
+`BASE` work done today means lane C can build its own bundle and serve it,
+so the only remaining condition is the clock:
+
+```bash
+git worktree add --detach <tmp>/wt HEAD
+cmd /c mklink /J <tmp>/wt/app/node_modules  <repo>/app/node_modules
+set -a; . ./app/.env.local; set +a; (cd <tmp>/wt/app && npx vite build)
+(cd <tmp>/wt/app && npx vite preview --port 4173 --strictPort --host 127.0.0.1) &
+set -a; . ./.env; set +a
+BASE=http://127.0.0.1:4173 node scripts/e2e-booking.mjs
+```
+
+**The pass condition is `90 passed, 0 failed, 0 skipped`** — the six become
+real, or they name a provider failure that is not `daily_cap` and go red.
+`docs/blind-browser-2026-09-13.md` § 1 is the recipe in full.
+
 ## 4 · THE TENTH IS A RACE INSIDE THE CHECK, AND IT WAS NEITHER OF THE TWO GUESSES
 
 `FOUND.md` § THERE IS A TENTH e2e-booking FAILURE recorded

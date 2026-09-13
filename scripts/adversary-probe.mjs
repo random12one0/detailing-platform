@@ -32,11 +32,22 @@ const check = (name, cond, detail = "") => {
 const anonHeaders = { apikey: ANON, Authorization: `Bearer ${ANON}`, "Content-Type": "application/json" };
 const svcHeaders = SERVICE ? { apikey: SERVICE, Authorization: `Bearer ${SERVICE}` } : null;
 
+// **`text` IS TRUNCATED FOR DISPLAY AND `full` IS NOT, AND THE DIFFERENCE WAS A
+// SECURITY CHECK THAT COULD NOT FAIL - 2026-09-13, lane C.** Every refusal this
+// probe reads is short, so slicing at 600 was right for them and quietly wrong
+// for the one answer that is LONG: a real booking receipt. `JSON.parse` on 600
+// characters of a truncated payload throws, the `catch` left `body` null, and
+// the leak check below ran `JSON.stringify({})` - a blob that mentions no
+// customer because it mentions nothing. **"and carries no other customer's
+// name or number" has been green over an empty object for its whole life.**
+// Found by adding one positive control beside it: assert the answer contains
+// the booking's own id. It failed on the first run, printing `{}`.
 const fn = async (name, body = {}) => {
   const r = await fetch(`${URL_}/functions/v1/${name}`, {
     method: "POST", headers: anonHeaders, body: JSON.stringify(body),
   });
-  return { status: r.status, text: (await r.text()).slice(0, 600) };
+  const full = await r.text();
+  return { status: r.status, text: full.slice(0, 600), full };
 };
 const rest = async (path) => {
   const r = await fetch(`${URL_}/rest/v1/${path}`, { headers: anonHeaders });
@@ -169,8 +180,15 @@ console.log("\nA4: guessing at somebody else's booking");
     if (Array.isArray(rows) && rows[0]) {
       const real = await fn("get-booking-receipt", { id: rows[0].id });
       check("a real booking id returns that booking", real.status === 200, `${real.status}`);
-      let body = null; try { body = JSON.parse(real.text); } catch { /* */ }
+      let body = null; try { body = JSON.parse(real.full); } catch { /* */ }
       const blob = JSON.stringify(body ?? {});
+      // **THE ANCHOR FOR THE LEAK CHECK BELOW, AND IT IS NOT THE 200 ABOVE.**
+      // A 200 carrying `{}` satisfies the status line and then satisfies the
+      // leak line too, because an empty blob mentions nobody - the shape
+      // `docs/blind-browser-2026-09-13.md` catalogues four more of. Asserting
+      // the booking's own id is in the answer means the leak check is reading
+      // a real receipt or going red, never neither.
+      check("and that answer is really this booking", blob.includes(rows[0].id), blob.slice(0, 200));
       check("and carries no other customer's name or number",
         !/"customers"\s*:/.test(blob) && (blob.match(/customer_email/g) ?? []).length <= 1,
         blob.slice(0, 300));

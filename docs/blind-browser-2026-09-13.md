@@ -283,6 +283,79 @@ still gets the full warning, because there the fault is real.
 
 ---
 
+## 9b · THE SAME QUESTION ASKED MECHANICALLY — `scripts/dead-selectors.mjs`
+
+**`admin-contrast` died because five class names were renamed out of `app/src`
+and nothing noticed.** That is a question a script can ask of the whole repo, so
+now one does:
+
+```bash
+node scripts/dead-selectors.mjs          # credential-free, no browser
+node scripts/dead-selectors.mjs --prove  # invents a class nobody has, must report it
+```
+
+It pulls every class token out of every quoted SELECTOR string in the fifteen
+scripts that load Playwright, and looks each one up in the 3.67 MB of
+`app/src` + `app/public`. **15 scripts, 64 tokens, and it exits 1 on anything
+the product no longer has.**
+
+**IT FOUND FIVE MORE, ALL IN `shoot-admin.mjs`:**
+
+| selector | what it gates |
+|---|---|
+| `.pa-bar-r .pa-btn` | the *What we charge* button. Zero matches, so the **prices screen and the promo codes are never photographed, at any width** |
+| `.pa-panel .pa-grid` | the wait for that panel's content |
+| `.pa-checks` | the promo-code strip below the fold |
+| `.pa-rail` | a scroll-to-top before a shot |
+| `.pa-h1` | the impersonation banner. `textContent()` on a locator matching nothing throws, is caught as `""`, and `/signed in as/` fails — so that branch reports **`SAYS "" - the 404 with no way back`** and increments `bad`. A false FAILURE this time, not a false pass |
+
+**AND SHOOT-ADMIN IS HONEST ABOUT IT, WHICH IS THE ONE GOOD PART.** Each of
+those guards prints `NOT MEASURED - no "What we charge" button` rather than
+skipping in silence — the repo's own rule #1, kept. The coverage is still gone;
+it is just gone out loud.
+
+**THE SELECTORS ARE NOT CORRECTED HERE, DELIBERATELY.** `app/src/admin/AdminPage.jsx`
+is dirty in lane B's tree as this is written, and picking new class names off a
+file somebody is editing is the mistake trap (f) is about. `.pa-barr` and
+`.pa-h` both exist and are NOT the answers: the first is an SVG `<rect>` in a
+bar chart and the second is a heading wrapper. **Whoever fixes them reads the
+committed file and then runs `dead-selectors` again.**
+
+**WHAT IT CANNOT SEE, and the case is in this repo already:** a class that
+exists in `app/src` but is on none of the screens the script visits. `.pa-lab`
+is exactly that — present in six places, rendered on the sign-in card and inside
+a detailer's record, and on **none** of the back office's five resting tabs.
+Only a browser answers that, by counting subjects.
+
+---
+
+## 9c · AND ONE MORE, IN THE SECURITY PROBE, FOUND BY ASKING THE SAME QUESTION AGAIN
+
+**`scripts/adversary-probe.mjs`'s *"and carries no other customer's name or
+number"* has been green over an empty object for its whole life.**
+
+Its helper truncates every response to 600 characters, which is right for the
+refusals — they are short — **and quietly wrong for the one answer that is
+long: a real booking receipt.** `JSON.parse` on 600 characters of a cut-off
+payload throws, the `catch` left `body` null, and the check ran
+`JSON.stringify({})`. **A blob that mentions no customer because it mentions
+nothing.**
+
+**THE NEIGHBOUR THAT WAS SUPPOSED TO ANCHOR IT DID NOT.** *"a real booking id
+returns that booking"* asserts only `status === 200`, and a 200 whose body
+cannot be parsed satisfies it perfectly.
+
+**IT WAS FOUND BY ADDING ONE POSITIVE CONTROL** — assert the answer contains the
+booking's own id — **which failed on its first run and printed `{}`.** With the
+full text kept alongside the truncated one, all three go green and the leak
+check reads a real receipt: **53 passed, 0 failed.**
+
+**THE TRANSFERABLE PART:** a helper that shortens a response FOR DISPLAY, used
+by a check that PARSES it, is a blind spot that no amount of reading the check
+will reveal. The check is correct. The data never arrived.
+
+---
+
 ## 10 · WHAT IS STILL NOT PROVEN
 
 - **The `pushState` failure is out of reach of this instrument.** Blanking

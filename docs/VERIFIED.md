@@ -667,6 +667,19 @@ the sign-in form**, not by an anchor anybody wrote — a blank page has no
 `input[type=email]`. This instrument answers *"can it be green over nothing"*.
 It does not answer *"can it be green over the WRONG screen"*, which is trap (c).
 
+**TWO MORE OF THE SAME SHAPE, FOUND BY ASKING THE QUESTION MECHANICALLY:**
+
+| what was proven | number | invalidated by a change to |
+|---|---|---|
+| **`scripts/dead-selectors.mjs` exists** — every class token in every quoted selector in the Playwright scripts, looked up in `app/src`+`app/public`; `--prove` invents one and must report it | 15 scripts, **64 tokens**, 3.67 MB of product read; **5 dead, all in `shoot-admin.mjs`** — `.pa-bar-r`, `.pa-panel .pa-grid`, `.pa-checks`, `.pa-rail`, `.pa-h1`, so its prices and promo-code shots never happen | scripts/*.mjs, app/src/**, app/public/** |
+| **`adversary-probe`'s receipt leak check had never read a receipt** — its helper slices every body to 600 chars for display, `JSON.parse` threw on the truncated payload, and the check ran over `{}` | the new positive control failed on its first run printing `{}`; with the full body kept, **53 passed, 0 failed** | scripts/adversary-probe.mjs, supabase/functions/get-booking-receipt/** |
+| **`sweep-widths` green baseline after both fixes** | **306 surface(s) measured, 66,234 element(s) probed, 10 problems, ZERO "rendered nothing"** — 301 before, the five extra being `book · step 1` at five widths | app/src/**, scripts/sweep-widths.mjs |
+
+**THE SIX PROVIDER EMAIL LEGS ARE STILL OWED**, for two reasons and neither is
+an instrument: the UTC day had not rolled at 23:12, and `app/src` carried five
+uncommitted files all evening. `docs/e2e-booking-triage-2026-09-13.md` has the
+exact commands and the pass condition (`90 passed, 0 failed, 0 skipped`).
+
 **AND IT FOUND ONE PRODUCT DEFECT, LANE B'S:** booking step 4, *"Pick a place"*,
 is **10px over the screen at 392x844** — W16 not met — measured against the
 frozen bundle so no in-flight edit can explain it. Every other step fits at

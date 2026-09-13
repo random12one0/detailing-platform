@@ -24,10 +24,27 @@ Every one is fixed and every fix is baselined below.
 
 ---
 
-## 1 · THE TWO INSTRUMENTS
+## 1 · THE INSTRUMENTS — FOUR NOW
 
-Neither reads code looking for smells. Both make the thing being guarded
-*actually broken* and ask what stays green.
+Neither of the first two reads code looking for smells. Both make the thing
+being guarded *actually broken* and ask what stays green.
+
+**TWO MORE LANDED LATER THE SAME DAY**, both lane C, both credential-free
+except where noted — `docs/blind-browser-2026-09-13.md` is their account:
+
+- **The blind BUNDLE.** `blind-run.mjs` reaches `tests/` only, so the twelve
+  scripts that drive a browser were outside every instrument in this repo. Two
+  `git worktree`s at `HEAD`, `vite build` in each, `app/src` and `app/public`
+  blanked to zero bytes in the second, and `vite preview` on **4173** and
+  **4174**. Every browser script then runs against the product and against the
+  same product with nothing in it, on lane C's own schedule and immune to lane
+  B editing. **Three of the twelve were green over nothing.**
+- **`scripts/dead-selectors.mjs`.** Every class token in every quoted selector
+  string in the fifteen Playwright scripts, looked up in `app/src` +
+  `app/public`. **A `querySelector` that matches nothing is silent**, which is
+  precisely how `admin-contrast` came to print *"clear of the floor"* over zero
+  pixels. 15 scripts, 64 tokens; `--prove` invents a class nobody has and
+  asserts the script reports it. It found five more in `shoot-admin.mjs`.
 
 ### (a) `scripts/blind-run.mjs` — blank the subject, count the greens
 
