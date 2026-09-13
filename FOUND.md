@@ -66,6 +66,49 @@ you, it is a candidate.**
 
 ---
 
+- 2026-09-13 — **THE EIGHTH COSTUME, AND IT IS MINE: `revoke all on function
+  … from anon, authenticated` TAKES NOTHING AWAY.** `create function` grants
+  EXECUTE to PUBLIC, and revoking from `anon` does not remove a grant made to
+  PUBLIC. Probed with the anon key minutes after applying the migration:
+  `translation_spend` answered **200**, and `translation_put` — a
+  `security definer` WRITER — reached its own hash check, which is proof of
+  execute. The line was present, named the right roles, ran without error and
+  protected nothing. Fixed for this feature in `20260913003000`; the check that
+  catches it asks the live database rather than grepping the migration for the
+  word `revoke` (`tests/translations.test.mjs` § 6).
+  **THE PARKED PART IS THE WIDER ONE: every `security definer` function in this
+  repo deserves the same three-line probe.** Nine migrations spell it
+  `from public, anon, authenticated` and the convention is right; what nobody
+  has measured is whether any of the rest missed `public` the way I did. Lane C.
+  Not swept, because a pass over forty functions is its own item and two of them
+  may be deliberately public.
+- 2026-09-13 — **A CHECK THAT THE GUARD REFUSES IS NOT A CHECK THAT THE TABLE IS
+  CLEAN.** Baselining the never-a-name trigger by dropping it let the suite's own
+  probe write `"Coastline Auto Detailing" -> "Detallado Automotriz Costero"` and
+  `"demo-detail" -> "demo-detalle"`, and nothing deleted them. For about an hour
+  `get_business_translations` served a translated business NAME to any Spanish
+  visitor — the exact thing Andrew had just forbidden — while the two checks about
+  it were green, because they assert the refusal and not the contents. Deleted;
+  § 3i is now a standing audit over every business. **The general form: a
+  deliberate break can leave residue that outlives the break, so a suite that
+  writes forbidden rows to prove they are refused must also assert that none
+  exist.**
+- 2026-09-13 — **A GUARD THAT CAN OVERRULE A CORRECT ANSWER WILL.** A batch-level
+  "every answer echoed = broken provider" check fired at three echoes, and the
+  tail chunk of the first real translation sweep was exactly
+  `["Exterior", "Interior", "Long Beach"]` — three words DeepL correctly returned
+  unchanged. The batch was discarded as a broken provider, fell through to Google,
+  and **"Long Beach" was stored as "Playa Larga"**. Threshold raised to eight and
+  the rows rewritten. Logged because the shape recurs: a cheap heuristic guarding
+  an unlikely failure was given authority over a likely correct one.
+- 2026-09-13 — **34 OF 35 EDGE FUNCTIONS ARE RUNNING WITHOUT THE 504 RETRY.**
+  `check-deployed` reports them all STALE against `75031a7`, which put
+  `retryRead` into `_shared/db.ts` — imported by almost everything. The
+  roadmap's open thread names only `send-owner-reminders`; the real answer is
+  that nothing carrying the retry is live except `translate-content`. The
+  checker is right and resolves imports transitively, so this is not an artifact.
+  Lane C. Not deployed, because a 34-function deploy is not this item.
+
 - 2026-09-12 — The "DP Website" session (lane B, app/src) wrote outside its lane
   twice tonight: `tests/booking-core.test.mjs` in `619a569`, and
   `tests/maintenance.test.mjs` plus `scripts/seed-demo.mjs` in `73ad5b0`. Both

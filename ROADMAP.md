@@ -45,15 +45,151 @@ from the list below.**
      happening there. **Cowork's ruling 2026-09-13: this is Andrew's decision
      and the check happens with him present — a session must NOT go looking for
      credentials that would let it in.**
-3. **Translate-on-save.** Designed, not built. **Both secrets are already live
-   in the Supabase secret store for `kguqylyzgyzfktkfnhjb`:**
-   `DEEPL_API_KEY` and `GOOGLE_TRANSLATE_API_KEY`. DeepL first (lifetime 1M
-   characters), Google as the fallback (500k/month, recurring), automatic and
-   invisible handover, the provider behind a seam from the start.
-   **NEITHER KEY MAY APPEAR ANYWHERE UNDER `app/`** — read only through
-   `Deno.env.get()` inside the edge function. Andrew created and pasted both
-   himself and neither has passed through a session. **A schema sketch is owed
-   before any migration.**
+3. ~~**Translate-on-save.**~~ **BUILT, DEPLOYED AND PROVED 2026-09-13**
+   (`1014830`, `b700bad`). 81 of 81 strings on the demo business, 2,759 of
+   DeepL's million characters, `up_to_date: true`; a second run made zero calls
+   and spent zero characters. `tests/translations.test.mjs` — 67 checks, 0
+   skipped, baselined by nine deliberate breaks.
+   **The dashboard gauge and the first-run review are LANE B and are specified in
+   `docs/handover-translate-lane-b.md`** — that file is the deliverable, not a
+   suggestion.
+   **THE RULE THAT CAME OUT OF IT, and Andrew's words: WE TRANSLATE WHAT A
+   BUSINESS SAYS, NEVER WHAT IT IS CALLED.** The business name, its slug, a
+   custom domain and a promo code are refused by a database trigger, not by a
+   list somebody maintains — *"'Coastline Auto Detailing' is that person's name,
+   it is on their van and their invoices, and a Spanish version of it is simply
+   wrong rather than imperfect."* Service and plan names ARE translated, and they
+   are what the first-run review puts in front of the detailer.
+
+## ALL THREE API KEYS EXIST — Andrew, 2026-09-13. DO NOT ASK HIM FOR THEM.
+
+**`DEEPL_API_KEY`, `GOOGLE_TRANSLATE_API_KEY` and `GEOAPIFY_API_KEY` are all
+live in the Supabase secret store for `kguqylyzgyzfktkfnhjb`.** He created and
+pasted every one himself and none has passed through a session.
+
+**THE SAME THREE RULES BIND ALL OF THEM:** never echo, never log, never in any
+file under `app/`. They are read only through `Deno.env.get()` inside an edge
+function. `tests/translations.test.mjs` § 7 is the check for the first two, and
+the Geoapify one joins it when that work starts.
+
+**This block exists so that no future session spends a turn asking him for a key
+he has already provided.**
+
+## 4 · THE DOORBELL MUST SAY WHICH SESSION STOPPED — BLOCKING, 2026-09-13
+
+**Andrew's words:** *"There are two sessions running again… the Stop hook posts a
+FIXED label, so when the bell rings I cannot tell which of you stopped. That
+makes the signal close to useless with more than one session: I either interrupt
+the wrong one or go and look at the screen anyway, which is the polling the
+doorbell was built to replace."*
+
+**It jumps the queue on his instruction — *"two sessions running blind is worse
+than one session running slowly."*** Lane C.
+
+**WHAT IS THERE TODAY.** `supabase/functions/session-ping/index.ts` keys
+`session_pings` on `label`, and `scripts/session-ping.mjs` posts one constant
+(`dp-builder`), so the second session to stop OVERWRITES the first. One row, one
+timestamp, no way to tell who.
+
+**WHAT HE ASKED FOR, precisely:**
+
+- **Post `session_id` rather than a constant.** The Stop hook already receives it
+  on stdin and `scripts/session-ping.mjs` already parses that JSON for
+  `stop_hook_active` — so the id is free and needs no new plumbing.
+- **The GET returns the most recent stop PER SESSION**, not one global latest.
+  *"I need to see that lane C stopped at one time and lane B at another, not a
+  single timestamp that overwrites whichever finished last."*
+- **A human-readable label alongside the id if there is a clean way to carry
+  one**, otherwise the id alone and he keeps the mapping himself.
+- **IT IS AN INSTRUMENT FROM `FOUND.md`, SO IT FAILS LOUDLY.** It must never
+  quietly return a stale timestamp when it cannot tell, and *"it should be
+  obvious to me when a session has never pinged at all versus stopped long
+  ago."*
+- **DO NOT BREAK THE BLUNT BELL WHILE IMPROVING IT.** *"I would rather have the
+  current blunt bell than no bell."* Keep it working throughout, and **tell him
+  the new URL shape when it is done.**
+
+**THE DESIGN WORKED OUT BEFORE THE CONTEXT BOUNDARY — build this rather than
+re-deriving it:**
+
+- **Identity becomes `session_id`; `label` stays as a nullable extra.**
+  Migration: add the column, backfill `session_id = label`, swap the primary key
+  onto it. The legacy `dp-builder` row is deleted only AFTER the new hook is
+  proven to be posting, which is what keeps the old signal alive across the
+  change.
+- **Identity = `session_id` when the body has one, else `label`.** That one line
+  is what keeps the existing hook working unchanged during the cutover.
+- **THE LABEL IS STICKY, and that is the clean way to carry a readable name.** An
+  upsert whose payload omits `label` does not update that column, so a session
+  names itself ONCE and every automatic ping afterwards keeps the name. A session
+  can discover its own id the way `scripts/context-check.mjs` already does — the
+  newest transcript under `~/.claude/projects/<slug>/` — so naming needs nothing
+  from Andrew.
+- **The GET answers `{ sessions: [{session_id, label, at, ago_seconds}], count,
+  latest }`.** `latest` is kept deliberately so the blunt bell's reader still
+  finds something. **`count: 0` with a 200 means nobody has ever pinged; a 502
+  means we cannot tell — and those two must never be the same response.** A read
+  error returns 502 with `sessions: null`, never an empty array.
+- **`scripts/session-ping.mjs` posts `{session_id}` and adds `label` only when
+  `SESSION_PING_LABEL` is explicitly set**, so the default is an honest id rather
+  than the same name on every session.
+- Its existing properties are load-bearing and must survive the edit: the
+  `stop_hook_active` guard first, `last_assistant_message` never sent, every path
+  exits 0, and no `unref()` / `process.exit()`.
+
+## 5 · THE NATIONAL WEATHER SERVICE WORK
+
+Andrew's order, 2026-09-13: **after the doorbell, before Geoapify.**
+
+## 6 · GEOAPIFY — DO NOT START IT UNTIL TRANSLATION AND THE DOORBELL ARE DONE
+
+**His instruction, 2026-09-13:** *"We now have three features half-built if you
+count the ones Andrew is waiting on, and one finished feature is worth more than
+three in progress."*
+
+### THE ATTRIBUTION IS SETTLED. BUILD EXACTLY THIS AND STOP TREATING IT AS OPEN.
+
+He read Geoapify's terms himself and chose the STRICT reading over the convenient
+one: attribution is mandatory on the free plan, and their terms do not say where
+it goes or how prominent it must be.
+
+- **One line in the FOOTER of the DETAILER'S public website**, small, greyed,
+  deliberately not prominent.
+- The words, exactly: **"Address and map data © OpenStreetMap contributors, via
+  Geoapify"**, with **both names linked**.
+- **ON THE DETAILER'S SITE, NOT ON ANDREW'S OWN PLATFORM PAGES — he corrected
+  this explicitly and asked for it written down rather than remembered.**
+- **ONE COMPONENT, ONE PLACE.** It must be movable or removable in a single edit
+  if he pays or switches provider. **Do not scatter it.**
+- **THE OPENSTREETMAP HALF FOLLOWS THE DATA, NOT THE PROVIDER.** It is a separate
+  obligation, so switching away from Geoapify does not necessarily escape it.
+
+### AND THE KEY MUST NOT REACH THE BROWSER
+
+*"Address autocomplete fires on every keystroke, so the naive implementation puts
+the key in the browser, where anyone can read it and spend his 3,000 a day. Do
+not do that."*
+
+- **Route autocomplete through an edge function**, the same posture as
+  translation, so the key never leaves the server.
+- **DEBOUNCE IT.** *"Every keystroke is a credit, and 3,000 a day sounds like
+  plenty until one booking form burns forty of them spelling out one street."*
+- **LATENCY IS A DESIGN CONSTRAINT, NOT SOMETHING TO DISCOVER LATER.** A
+  suggestion that arrives after the customer has finished typing is worse than
+  none. **If the round trip turns out too slow to be usable, COME BACK AND TELL
+  HIM** rather than quietly putting the key in the client — there are other
+  answers, including a domain-restricted key, and he wants to make that call
+  deliberately.
+
+## EVERY EDGE FUNCTION EXCEPT ONE IS RUNNING WITHOUT THE 504 RETRY — measured 2026-09-13
+
+`node scripts/check-deployed.mjs` reports **34 of 35 STALE**, every one against
+commit `75031a7` at 03:35 UTC. That commit put `retryRead` into
+`_shared/db.ts`, which **almost every function imports** — so the undeployed fix
+item 2 describes is wider than `send-owner-reminders`: nothing carrying the 504
+retry is live except `translate-content`. **The checker is right and this is not
+an artifact** — it resolves each function's real imports transitively rather than
+stamping the whole `_shared` folder.
 
 ## TWO NEW ITEMS FROM ANDREW — 2026-09-13, CAPTURED NOT STARTED
 
