@@ -36,10 +36,37 @@ const check = (name, cond, detail = "") => {
 // whose text reads "never in get_public_business_profile, never selected"
 // mentions both names in one literal, so a comment-only strip left the
 // documentation of a rule looking exactly like a violation of it.
+// COMMENTS OUT, NOTHING ELSE. Read the paragraph below before adding to this.
 const strip = (s) => s
   .replace(/\/\*[\s\S]*?\*\//g, "")
   .replace(/^\s*(\/\/|--).*$/gm, "")
-  .replace(/'(?:''|[^'])*'/g, "''");
+;
+
+// THE SQL FORM KEEPS THE SECOND HALF, and it was added after this file failed
+// on its OWN migration: a `comment on column ... is '...'` whose text reads
+// "never in get_public_business_profile, never selected" mentions both names
+// in one literal, so a comment-only strip left the documentation of a rule
+// looking exactly like a violation of it.
+//
+// **AND THAT RULE IS FOR SQL ONLY - FOUND 2026-09-13, AND IT - FOUND 2026-09-13, AND IT
+// HAD BEEN SILENTLY DELETING MOST OF EVERY OTHER FILE THIS SUITE READS.**
+//
+// `strip` used to end with that rule, which blanks a SQL string literal and
+// its doubled-quote escape. Pointed at a migration it is right. Pointed at
+// JSX, TypeScript or CSS it pairs an apostrophe in ordinary prose - owner's,
+// detailer's, don't - with the next apostrophe ANYWHERE in the file and
+// deletes everything between them, code included.
+//
+// Measured before the fix: AdminPage.jsx 73,108 characters -> 41,651 (57%
+// survived), admin.css 62%, platform-admin/index.ts 49%, emailTemplates.ts
+// **25%**. Check 14e asserted a function signature that is present on line
+// 1213 of emailTemplates.ts and was reading a file that no longer had it.
+//
+// **THIS IS THE PROVE-YOUR-INSTRUMENT RULE AT THE SCALE OF A WHOLE SUITE.**
+// Every stripped check in this file was asserting against a mangled file, so
+// a red one said nothing about the product. Migrations keep the old
+// behaviour under its own name.
+const stripSql = (s) => strip(s).replace(/'(?:''|[^'])*'/g, "''");
 const read = (p) => readFileSync(p, "utf8");
 
 const MIGRATIONS = readdirSync("supabase/migrations").filter((f) => f.endsWith(".sql"));
@@ -52,7 +79,7 @@ console.log("\n1. row-level security still says 'one business, always'");
 {
   let offenders = [];
   for (const f of MIGRATIONS) {
-    const sql = strip(read(`supabase/migrations/${f}`));
+    const sql = stripSql(read(`supabase/migrations/${f}`));
     // A policy body that mentions the admin check at all. There is exactly one
     // legitimate place for `is_platform_admin()` — its own definition — and it
     // is a `create function`, not a `create policy`.
@@ -69,7 +96,7 @@ console.log("\n1. row-level security still says 'one business, always'");
   // and no policy, `authenticated` can neither read nor write them by any
   // query — so a detailer cannot discover who the admins are, cannot make
   // themselves one, and cannot forge or delete an audit row.
-  const s = strip(mig);
+  const s = stripSql(mig);
   for (const t of ["platform_admins", "platform_admin_events"]) {
     check(`${t} has RLS forced`, new RegExp(`alter table public\\.${t}\\s+force\\s+row level security`, "i").test(s));
     check(`${t} has NO policy, which is the strongest statement available`,
@@ -107,18 +134,31 @@ console.log("\n2. the gate is a table, not a claim and not an env var");
   // found* to a signed-out owner and the back office has no door at all,
   // which is what he hit on the live site.
   check("2b-i · a signed-out visitor is offered a login, not an error",
-    /status: "anon"/.test(page) && /getSession\(\)[\s\S]{0,200}status: "anon"/.test(page),
+    // **RE-POINTED 2026-09-13, NOT RELAXED.** The back office was rebuilt
+    // (a3e35d5, aff33a0, 28e7ae3) and its status moved from a `state` object
+    // to a `useState` local, so `status: "anon"` stopped being how the screen
+    // spells it while the branch itself never moved. Trap (k): a check that
+    // names a spelling is coupled to the spelling, not the behaviour.
+    /setStatus\("anon"\)/.test(page) && /getSession\(\)[\s\S]{0,400}setStatus\("anon"\)/.test(page),
     "a 401 drew \"Something went wrong\" and left the owner with no way in");
   // **SCOPED TO THE BRANCH, NOT MEASURED IN CHARACTERS.** This was
   // `"denied"[\s\S]{0,400}Page not found` and roadmap 8.2 pushed the two 500
   // apart by adding the impersonation case between them — a check that went
   // red on a change that did exactly what it guards. A proximity window is a
   // check whose colour depends on how much prose sits inside the branch.
-  const denied = page.slice(page.indexOf('state.status === "denied"'),
-    page.indexOf('state.status === "error"'));
-  check("2b-ii · and a signed-in non-admin still gets Page not found",
-    denied.includes("Page not found"),
+  // **AND THE WORDS MOVED INTO A COMPONENT, WHICH IS BETTER AND WHICH THE
+  // CHECK BELOW NOW ASSERTS.** The rebuilt screen renders `<NotFound />` - the
+  // product's ONE 404 page, the same one the router serves for any unknown
+  // address - rather than repeating the sentence inline. So it reads the
+  // branch for that component and then reads the component itself. Asserting
+  // the shared component instead of the string is the whole of trap (k).
+  check("2b-ii · and a signed-in non-admin still gets the product's 404 page",
+    /if \(status === "denied"\) return <NotFound \/>/.test(page)
+      && /import NotFound from "\.\.\/screens\/NotFound\.jsx"/.test(page),
     "the two refusals answer different questions and must not collapse");
+  check("2b-ii-b - and that page really is the not-found page",
+    /export default function NotFound/.test(read("app/src/screens/NotFound.jsx")),
+    "without this, the check above passes on a component named NotFound that says anything at all");
   // ONE MESSAGE FOR BOTH HALVES. Saying which of the email or the password
   // was wrong is address enumeration with a friendly face — the same rule
   // the password-reset screen follows.
@@ -127,13 +167,19 @@ console.log("\n2. the gate is a table, not a claim and not an env var");
   // account to open their dashboard as"* — a sentence about a BUSINESS with
   // no owner row, nowhere near a sign-in form. A rule about what one form
   // says has to be read against that form.
-  const gate = page.slice(page.indexOf('state.status === "anon"'),
-    page.indexOf('state.status === "denied"'));
+  // **SCOPED TO `doorErr`, NOT TO THE STATUS BRANCH - RE-POINTED 2026-09-13.**
+  // The rebuilt screen SETS the sign-in error at line 254 and RENDERS the anon
+  // branch at 260, so a slice between the two status branches no longer
+  // contains the sentence it is about and the check went red on copy that is
+  // exactly right. `doorErr` is the sign-in door's own error state and it
+  // brackets both halves.
+  const gate = page.slice(page.indexOf("const [doorErr"),
+    page.indexOf('status === "denied"'));
   check("2b-iii · a failed sign-in does not say WHICH half was wrong",
     /That email and password do not match/.test(gate)
       && !/(no account|unknown email|wrong password)/i.test(gate));
 
-  check("and the SCREEN says the same thing", /Page not found/.test(page),
+  check("and the SCREEN says the same thing", /<NotFound \/>/.test(page),
     "two different answers from the server and the page is the server's answer leaking");
 }
 
@@ -216,9 +262,9 @@ console.log("\n6. the platform's notes are not the detailer's to read");
   // AND STRIPPED HERE TOO: the platform-admin migration mentions BOTH names in
   // one comment — "never in get_public_business_profile" — which made it its
   // own counter-example.
-  const profile = MIGRATIONS.filter((f) => strip(read(`supabase/migrations/${f}`)).includes("get_public_business_profile"));
+  const profile = MIGRATIONS.filter((f) => stripSql(read(`supabase/migrations/${f}`)).includes("get_public_business_profile"));
   check("it is in no version of the public profile",
-    profile.every((f) => !strip(read(`supabase/migrations/${f}`)).includes("admin_notes_platform")),
+    profile.every((f) => !stripSql(read(`supabase/migrations/${f}`)).includes("admin_notes_platform")),
     profile.join(", "));
 }
 
@@ -315,7 +361,7 @@ console.log("\n7. and the things the spec refused");
 // edit, or a date its subject can type, is not a record.
 console.log("\n8. their site");
 {
-  const site = strip(read("supabase/migrations/20260906002000_site_columns.sql"));
+  const site = stripSql(read("supabase/migrations/20260906002000_site_columns.sql"));
   const f = strip(fn);
   const p = strip(page);
 
@@ -367,7 +413,7 @@ console.log("\n8. their site");
 // without warning.
 console.log("\n9. taking their data with them");
 {
-  const mig = strip(read("supabase/migrations/20260906005000_export_business.sql"));
+  const mig = stripSql(read("supabase/migrations/20260906005000_export_business.sql"));
   const f = strip(fn);
   const p = strip(page);
 
@@ -815,8 +861,8 @@ console.log("\n13. the back office's own door (roadmap 8.2)");
   // The reason this page answers *Page not found* rather than *you are not an
   // admin* is that naming the gate sends a curious detailer looking for the
   // row. 8.2 added ONE exception and it must stay one.
-  check("13c · a signed-in non-admin still gets Page not found",
-    /Page not found/.test(p13));
+  check("13c · a signed-in non-admin still gets the product's 404 page",
+    /<NotFound \/>/.test(p13));
   check("13c-ii · and the only thing that changes it is this browser's own note",
     /const imp = impersonation\(state\.me\)/.test(p13));
 
@@ -1037,8 +1083,17 @@ console.log("\n14. the email safety net (roadmap 8.6)");
     /const note = async \(ok: boolean\) => \{[\s\S]{0,200}try \{[\s\S]{0,160}catch/.test(send));
 
   // ── THE OWNER SEES IT, AND IT WARNS BEFORE THE LIMIT ──────────────────
+  // **THE WINDOW WAS THE BUG, NOT THE CODE - RE-POINTED 2026-09-13.** The
+  // payload's `email: {` and its `cap:` line are seventeen lines apart in
+  // `platform-admin/index.ts` and the check allowed two hundred characters
+  // between them, so it went red on a function that sends exactly what it is
+  // asked to. This file's own note at 2b-ii already says why: a proximity
+  // window is a check whose colour depends on how much prose sits inside the
+  // branch. Both halves are asserted, neither is measured in characters.
   check("14c · the back office is handed today's count and the cap",
-    /email: \{[\s\S]{0,200}cap: ps\?\.email_daily_cap \?\? 100/.test(admin));
+    /email: \{/.test(admin)
+      && /cap: ps\?\.email_daily_cap \?\? 100/.test(admin)
+      && /sent: /.test(admin.slice(admin.indexOf("email: {"), admin.indexOf("email: {") + 900)));
   check("14c-ii · and the screen prints it beside the other silent limits",
     /Platform emails: \$\{state\.email\.sent\} of \$\{state\.email\.cap\} today/.test(page));
   // **"PLATFORM" IS LOAD-BEARING AND IS NOT A TIDIER LABEL — 2026-09-08,
