@@ -156,6 +156,27 @@ does it DO something, or does it ASSERT something? An asserter loads the file.
 
 ---
 
+## 5b · ONE ASSUMPTION WRITTEN INTO A CHECK TODAY, AND IT IS UNPROVEN
+
+`tests/spam-filter.test.mjs` now asserts that `addressPerDay`'s window is
+**exactly 86,400 seconds**, on the stated grounds that `rate_take` buckets on
+`floor(epoch / window) * window` — so a whole-day bucket starts at **UTC
+midnight** and cannot straddle Geoapify's own daily reset.
+
+**THE SQL HALF IS MEASURED AND THE PROVIDER HALF IS NOT.** Nothing in this repo
+records when Geoapify's 3,000-credit day actually rolls. If it rolls at some
+other hour, one caller could take the 2,400 ceiling either side of our boundary
+and spend **4,800 inside one provider day**, which is 1,800 over the allowance —
+and the failure is not a bill, it is every other detailer's customers losing
+address help until the provider resets.
+
+**It is narrow — it needs a deliberate adversary, and `addressPerIp` caps them
+at 60 an hour, so one IP cannot get near 2,400 in a day anyway.** Recorded
+rather than fixed because the fix depends on a fact about a third party that
+nobody here has looked up. **Look it up before raising that limit.**
+
+---
+
 ## 6 · THE SCORE
 
 | | |
