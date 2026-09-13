@@ -74,6 +74,23 @@ invalidation rule is widest: `_shared/**` is imported by almost every function, 
 a single edit there makes all 35 stale at once. That is not the checker being
 blunt — it resolves imports transitively.
 
+## 1c · PROVEN TONIGHT — lane C, 2026-09-13, the weather seam and the accepted email
+
+| what was proven | number | invalidated by a change to |
+|---|---|---|
+| **The NWS refuses a request with no `User-Agent`** | `curl -H "User-Agent:" /points/33.7701,-118.1937` → **403**; with one → 200 | nothing in this repo — it is a fact about `api.weather.gov`, re-measure only if they change their policy |
+| **The NWS redirects a point finer than 4 decimals** | `/points/33.770123,-118.193765` → **301** → `/points/33.7701,-118.1938` | same |
+| The weather module's failure ladder: User-Agent on every call, 4-place rounding, `outside_coverage` ≠ `unavailable`, no `ok:true` with zero periods, a null chance of rain stays null, one file names the host, open-meteo.com called from nowhere | `weather` **49 passed, 0 failed, 1 skipped**, baselined by **6** deliberate breaks (6 red runs) | `supabase/functions/_shared/weather.ts`, `_shared/retryRead.ts` |
+| The live NWS still sends the shape we map, and the deployed endpoint answers | `probe-forecast` **16 passed, 0 failed, 0 skipped** — Long Beach 14 periods, London `outside_coverage`, 999/999 `bad_point`, no session **404**, a member **200**, a bad point **400** | `supabase/functions/forecast/**`, `_shared/weather.ts` — and the NWS's own response shape, which nothing here controls |
+| **All 36 edge functions are running the repo's code** (35 + the new `forecast`) | `check-deployed.mjs`: *"all 36 functions are current"*, deployed 05:59 UTC | **any** file under `supabase/functions/**` |
+| *"You're booked in"* carries the price table, the words **Estimated total** and the estimate caveat, with the service lines under it | `render-emails.mjs` 29 emails, `customer-accepted.txt` shows the full ladder to **$345.00** | `_shared/emailTemplates.ts`, `respond-to-booking/index.ts` |
+| The suites still hold after both changes | `spanish` **72/0**, `translations` **69/0/0**, `email-brand` **226**, `composition` **95/0**, `booking-core` **210/0**, `gateway-retry` **15/0**, `landing-pricing` **109/0**, `route-contract` **33/0**, `definer-grants` **11/0/0** | their own subjects |
+
+**THE ONE ROW THAT IS NOT ABOUT US** is the NWS's response shape. Nothing in
+this repo can make it stale and nothing in this repo will notice when it
+changes — `scripts/probe-forecast.mjs` is the only instrument that can, and it
+only runs when somebody runs it.
+
 ## 2 · LOOKS BROKEN BUT PASSES — NEVER RE-REPORT ANY OF THESE FIVE
 
 **Andrew reported all five as faults and withdrew each one after measuring
@@ -94,19 +111,54 @@ in it:** a measurement that says a control is too small is a measurement of the
 PAINT. Probe with `elementFromPoint` at centre and ±4, ±10, ±15 before writing
 anything down.
 
-## 3 · STILL OPEN — lane B's, not measured away
+## 3 · CLOSED — lane B fixed all three, 2026-09-13 at `7aacb02`
 
-Real, under 44, and nothing here has been fixed. **Lane B owns `app/src/**`**, so
-a lane C or lane A session records these and does not touch them.
+**These were the three open under-44 targets. They are fixed and re-measured, so
+this section is now a record rather than a queue.** Kept, not deleted, because a
+row is never deleted and because the SHAPE of the fix is the reusable part.
 
-| where | what | measured |
-|---|---|---|
-| Clients tab | 3 sort chips | **36px** |
-| Money tab | 5 range chips | **36px** |
-| Money tab | 2 payment rows | **43.6px** |
+| where | what it was | what it is now | fixed at |
+|---|---|---|---|
+| Clients tab | 3 sort chips, **36px** | 36 painted / **45 reachable** | `7aacb02` |
+| Money tab | 5 range chips, **36px** | 36 painted / **45 reachable** (47.2 / 56 at 320, where the labels wrap) | `7aacb02` |
+| Money tab | 2 payment rows, **43.6px** | **46 / 47** | `7aacb02` |
 
-Invalidated by: `app/src/screens/Clients.jsx`, `app/src/screens/Money.jsx`,
-`app/src/components/AdvancedMoney.jsx`, `app/src/theme.css`.
+**IT WAS ONE RULE AND ONE MISSING MINIMUM, NOT EIGHT CALL SITES.**
+`.segmented button` carried `min-height: 36px`, written when the floor was 32, so
+EVERY segmented control in the product was 8px short and not only the two tabs
+that got measured. The paint stays 36 — it sits deliberately under the 38px and
+42px buttons beside it — and takes `.chip`'s `::after` pattern, vertical inset
+only, because segments sit shoulder to shoulder and a sideways inset would have
+each one stealing its neighbour's presses. Money's payment rows were a bare
+`<div role="button">` with no class and no height; the rule is
+`.card > [role="button"] { min-height: var(--tap) }`, keyed on the ATTRIBUTE, so
+a fourth call site written the same way is covered the day it is written.
+
+**Proven at 392 / 320 / 1440:** zero overlapping target pairs, no sideways
+scroll, nothing under 44. The probe was baselined in the same run on an injected
+20px box (read 20), a 60px box (read 60) and a 20px box with
+`::after { inset: -12px 0 }` (rect 20, reach 44).
+
+Invalidated by a change to: `app/src/theme.css`, `app/src/screens/Clients.jsx`,
+`app/src/screens/Money.jsx`, `app/src/components/AdvancedMoney.jsx`.
+
+```bash
+git diff --name-only 7aacb02..HEAD -- app/src/theme.css app/src/screens/Clients.jsx app/src/screens/Money.jsx app/src/components/AdvancedMoney.jsx
+```
+
+## 3b · PROVEN CLEAN — the rebuilt editing screens, lane B
+
+**Andrew's campaign: pick the worst detailer editing screen by COUNTING plain
+text boxes against structured controls, not by taste, and rebuild it.** Each row
+is a screen that has been through that and been re-measured after.
+
+| screen | was | now | proven | at |
+|---|---|---|---|---|
+| **Business info** (`more/BusinessInfo.jsx`) | 19 text inputs, 0 structured controls — the only dashboard screen with none | four `Group`s, credentials as a `.menu-row` list you open, two picture tiles, year 6ch / phone 16ch | 36 controls at 392 and at 320, 51 at 1440, none under 44, no sideways scroll, console clean, same 36/0 in Spanish | 2026-09-13, `78ec4af` |
+| **Website questionnaire** (`screens/SiteIntake.jsx`) | — | draws the site while you answer it | — | 2026-09-13, `b70836c` |
+
+Invalidated by a change to that screen's own file, or to `app/src/theme.css`,
+`app/src/components/controls.jsx`.
 
 ## 4 · FROZEN — recorded, deliberately not fixed
 

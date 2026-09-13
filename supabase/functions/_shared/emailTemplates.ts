@@ -367,7 +367,21 @@ function quoteLines(b: BookingEmailData, lang?: unknown): MoneyLine[] {
 
   if (travel > 0) {
     lines.push({
-      label: b.travelZone ? tt("Travel — {zone}", { zone: b.travelZone }) : tt("Travel"),
+      // **THE MIDDLE DOT, NOT AN EM DASH — 2026-09-13.** CLAUDE.md § THE EM
+      // DASH HAS THREE SHAPES names this exact string as its worked example of
+      // a LABEL SEPARATOR, and it had never been changed: the 2026-09-12 sweep
+      // that reported "zero single em dashes left in any user-facing string"
+      // did not reach the `supabase/functions` tree at all. FOUND.md § THE EM
+      // DASH SWEEP STOPPED AT THE EDGE OF THE EMAILS has the other eighteen.
+      // (And it must not write that path as a glob: a star-slash inside a LINE
+      // comment opens a BLOCK comment as far as `strip()` in
+      // `tests/spanish.test.mjs` is concerned, which then eats 43 KB of this
+      // file and fails five checks that say nothing about the product. Its
+      // subject-count guards caught it, which is what they are for.)
+      // The Spanish key in `_shared/strings/es.ts` moved in the same edit — it
+      // is keyed on the English text, so a rename that misses it shows English
+      // on a Spanish email with no error anywhere.
+      label: b.travelZone ? tt("Travel · {zone}", { zone: b.travelZone }) : tt("Travel"),
       amount: travel,
     });
   }
@@ -578,6 +592,36 @@ export function requestDecisionEmail(
       proseBlock(tt("Good news — we've accepted your request for {when}. It's in the diary.", { when }).replace("—", "&mdash;")),
       markBlock(brand, [dateLong, `${formatTime12hr(b.startTime)} &ndash; ${formatTime12hr(b.endTime)}`]),
       factsBlock(jobFacts(brand, b, b.lang)),
+      // ---------------------------------------------------------------------
+      // THE MONEY, ADDED 2026-09-13 — Andrew's decision, not a session's.
+      // ---------------------------------------------------------------------
+      // **"You're booked in" is the ONLY email a request-mode customer ever
+      // gets that says the job is happening.** Their first one says "we're
+      // holding your time" and explicitly charges nothing, and
+      // `respond-to-booking` writes `total_price` and nulls `quoted_amount` in
+      // the same update — so until this block existed, nobody was shown the
+      // figure at the moment it became binding. Neither the detailer pressing
+      // Accept (`FOUND.md`: the card does not say which number Accept will
+      // use) nor the customer reading this. That is a money path with no
+      // statement of the amount on it, which is what CLAUDE.md's *a number
+      // PRINTED is not a number CHARGED* is about.
+      //
+      // **THESE ARE THE CONFIRMATION EMAIL'S OWN FOUR LINES, VERBATIM**, and
+      // copying rather than rewording is the point: the two emails describe the
+      // same number and a second set of words for one fact is a second voice.
+      //
+      // **THE WORD "ESTIMATED" STAYS, AND HE DECIDED THAT TOO.** For detailing
+      // the price genuinely can move once the vehicle is in front of them, so
+      // calling it settled here would be a promise he cannot keep — and the two
+      // emails must not describe one number two different ways.
+      //
+      // `b.total` is right for BOTH ways a booking arrives here: accepting
+      // leaves `total_price` alone, and `accept-quote` has already moved the
+      // quoted amount into it. No branch on `kind` is needed or wanted.
+      ruleBlock(34),
+      labBlock(tt("What we're doing")),
+      moneyBlock(brand, quoteLines(b, b.lang), { label: tt("Estimated total"), amount: Number(b.total) }),
+      fineBlock(tt("An estimate. If the vehicle's condition needs more time than expected we'll tell you before we start, never after.")),
       // ROADMAP 2.20 STAGE 1, AND THIS IS THE CONFIRMATION FOR HALF THE
       // TENANTS. In request mode the customer's first email says "we're
       // holding your time" and explicitly charges nothing; THIS is the one

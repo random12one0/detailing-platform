@@ -175,15 +175,34 @@ output either.** These three defects are evidence for that, not exceptions to it
 
 ---
 
-## 3b · THE QUESTION HE PUT TO MY JUDGEMENT, ANSWERED — 2026-09-13
+## 3b · ~~THE QUESTION HE PUT TO MY JUDGEMENT~~ — ANSWERED, AND BUILT 2026-09-13
 
 > The request-accepted email (**"You're booked in"**) carries no services and no
 > price, while "Booking confirmed" carries the full table and total.
 
-**MY ANSWER: THE MONEY BELONGS ON IT, AND THIS IS THE STRONGEST CASE FOR IT IN
-THE PRODUCT. It is NOT built, because it needs a database read that email does
-not currently make** — see the cost below, which is the only reason it is parked
-rather than done.
+**ANDREW CONFIRMED THE ANSWER AND IT IS BUILT — 2026-09-13.** The price table,
+the label *"Estimated total"* and the estimate caveat are on *"You're booked
+in"*, copied verbatim from the confirmation email's own four lines.
+**His reason for keeping the word "Estimated", in his terms: for detailing the
+price genuinely can move once they see the vehicle's condition, so calling it
+settled would be a promise he cannot keep — and the two emails must not describe
+the same number two different ways.** That closes the one thing the answer below
+said it would not decide without him.
+
+`respond-to-booking` now selects `services:booking_services(name_at_booking)`
+and the add-ons the way `accept-quote` and `send-invoice` already did, so the
+total has its lines under it. Deployed and rendered: `email-preview/
+customer-accepted.txt` carries the full ladder and the $345.00 total.
+
+**AND IT TURNED UP A SEPARATE DEFECT IN THE SAME BLOCK.** The travel line read
+`Travel — Outer ring`, which is the exact string `CLAUDE.md` uses as its worked
+example of an em dash that must become a middle dot — nineteen hours after the
+Wave F sweep reported zero left. **The sweep never reached
+`supabase/functions`; nineteen more are there.** Fixed the one, recorded the
+rest: `FOUND.md` § THE EM DASH SWEEP STOPPED AT THE EDGE OF THE EMAILS.
+
+**The original argument, kept because the reasoning is what makes the answer
+right:**
 
 **THE ARGUMENT.** In request mode the customer's FIRST email says *"we're holding
 your time"* and explicitly charges nothing. **"You're booked in" is therefore the
@@ -224,13 +243,25 @@ an estimate, and that is his call about what his product promises, not mine.
 
 ---
 
-## 4 · NWS WEATHER — `api.weather.gov`
+## 4 · ~~NWS WEATHER — `api.weather.gov`~~ — DONE 2026-09-13
 
-**NOT STARTED — 2026-09-13. The session that did items 2 and 3 ran out of
-context at this boundary and stopped rather than starting it badly.** Nothing
-below has been touched and nothing has been half-built; the specification in
-`ROADMAP.md` § FREE THIRD-PARTY SERVICES → 1 · WEATHER is still the whole brief.
-**It is the next thing.**
+**BUILT, DEPLOYED AND PROVED LIVE — 2026-09-13. `docs/weather.md` is the
+reference; this entry is now only the pointer.**
+
+`_shared/weather.ts` is the one module (nothing else in the repo names the host,
+and `tests/weather.test.mjs` § 12 fails if that stops being true).
+`supabase/functions/forecast` is the member-gated endpoint. 49 stubbed checks,
+baselined by six deliberate breaks; 16 live checks through
+`scripts/probe-forecast.mjs`, including the deployed function.
+
+**TWO THINGS TO CARRY FORWARD.**
+
+1. **NOTHING IN THIS PRODUCT STORES A LATITUDE** — measured, zero matches across
+   every migration — and the NWS has no geocoder. That is NOT a blocker: the
+   endpoint takes a POINT and `navigator.geolocation` supplies one with no
+   service and no attribution. Geoapify stays § 6 and stays unstarted.
+2. **THE SCREEN IS LANE B'S AND IS NOT BUILT.** `docs/weather.md` § THE SCREEN
+   is the handover, and its three notes are the ones that matter.
 
 **Specified in full in `ROADMAP.md` § FREE THIRD-PARTY SERVICES → 1 · WEATHER.
 Andrew's order: after the doorbell, before Geoapify.** The doorbell is done.

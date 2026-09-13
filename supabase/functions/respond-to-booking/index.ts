@@ -53,9 +53,14 @@ Deno.serve(async (req) => {
 
     // Scoped to the caller's own business — a UUID from another tenant 404s,
     // exactly like a nonexistent one.
+    // **THE SERVICE AND ADD-ON NAMES COME BACK WITH THE BOOKING — 2026-09-13.**
+    // They were not read here until the accepted email grew its price table,
+    // and without them `moneyBlock` prints a total with no lines under it. The
+    // embed is `accept-quote`'s and `send-invoice`'s, character for character,
+    // because three spellings of one join is how they start to disagree.
     const { data: booking } = await supabase
       .from("bookings")
-      .select("*")
+      .select("*, services:booking_services(name_at_booking), add_ons:booking_add_ons(add_on:add_ons(name))")
       .eq("id", body.booking_id)
       .eq("business_id", member.businessId)
       .is("deleted_at", null)
@@ -124,8 +129,12 @@ Deno.serve(async (req) => {
       extraVehicles: await extraVehiclesFor(booking.id),
       vehicleModel: booking.vehicle_model,
       customerNotes: booking.customer_notes,
-      serviceNames: [],
-      addOnNames: [],
+      // Was `[]` on both until 2026-09-13, which is why the accepted email
+      // could not carry a price table at all.
+      serviceNames: (booking.services ?? []).map((s: { name_at_booking: string }) => s.name_at_booking),
+      addOnNames: (booking.add_ons ?? [])
+        .map((a: { add_on?: { name?: string } }) => a?.add_on?.name)
+        .filter(Boolean) as string[],
       travelFee: Number(booking.travel_fee) || 0,
       travelZone: booking.travel_zone,
       adjustments: booking.price_adjustments ?? [],

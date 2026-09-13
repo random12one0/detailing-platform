@@ -1887,3 +1887,55 @@ check to pass as written would break `composition`.
   *"Something watching from outside"* / `set up` / `none`. The entry above says
   it went with `45eaf85`; it has since returned in different words, so
   `dead-mans-switch`'s five failures need the same pass this one just had.
+
+---
+
+## THE EM DASH SWEEP STOPPED AT THE EDGE OF THE EMAILS — measured 2026-09-13
+
+**`ROADMAP.md` § Next records Wave F as *"DONE 2026-09-12. Zero single em dashes
+left in any user-facing string."* That is true of `app/src` and false of every
+email this product sends.**
+
+**THE MEASUREMENT:**
+
+```bash
+grep -rhoE '(tt|t)\("[^"]*—[^"]*"' supabase/functions/ | wc -l   # 20
+grep -c '—' supabase/functions/_shared/strings/es.ts             # 37
+```
+
+**Twenty English strings** carrying a single em dash in
+`_shared/emailTemplates.ts` and `_shared/emailKit.ts`, and **thirty-seven lines
+of the Spanish catalogue** carrying one. The Wave F pass swept `app/src` and the
+email layer is a different tree.
+
+**ONE OF THE TWENTY IS THE WORKED EXAMPLE CLAUDE.md USES FOR THE RULE.**
+`CLAUDE.md` § THE EM DASH HAS THREE SHAPES says, in as many words, *"Travel —
+{zone}" becomes "Travel · {zone}"*. That string was still
+`tt("Travel — {zone}")` in `emailTemplates.ts:370` at `1ae8d03`, nineteen hours
+after the sweep reported zero. **It is fixed now** — English and its Spanish key
+in the same edit — because the price table added to *"You're booked in"* put it
+onto an email it had not been on before, so it was inside this change's blast
+radius. **The other nineteen are not touched.**
+
+**WHY THEY ARE NOT SWEPT HERE.** `CLAUDE.md`'s own rule: *a count of dashes
+cannot tell these apart, so this is done by hand.* Of the twenty, several are
+clearly sentence joints (*"Good news — we've accepted your request"*), several
+are label separators (*"Receipt — {amount} — {brand}"*), and at least one is a
+parenthetical pair that should stand. **Classifying twenty strings and their
+thirty-seven Spanish partners is its own item**, and each English rename has to
+move its `es.ts` key in the same edit or the email silently renders English on a
+Spanish screen with no error anywhere.
+
+**AND A TRAP THAT COST TWENTY MINUTES, BECAUSE IT WILL COST THEM AGAIN.**
+Writing `supabase/functions/**` inside a `//` comment in a file that
+`tests/spanish.test.mjs` reads puts a **star followed by a slash** in the text.
+`strip()` in that test removes `/* ... */` blocks BEFORE it removes line
+comments, so a path glob opens a block comment that runs to the next `*/` — it
+ate **43 KB of `emailTemplates.ts`** and turned five checks red with failures
+that said nothing about the product.
+
+**THE INSTRUMENT CAUGHT IT, WHICH IS THE POINT.** § 6f and § 6g are
+*"the check has subjects — every named template was found"*, and they were the
+checks that failed first. A suite without subject counts would have reported
+*"no customer template binds the language"* and sent somebody hunting in the
+wrong file. **Count subjects every run.**

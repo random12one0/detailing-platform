@@ -72,7 +72,7 @@ export const es: Record<string, string> = {
   "Discount applied": "Descuento aplicado",
   "Adjustment": "Ajuste",
   "Travel": "Traslado",
-  "Travel — {zone}": "Traslado — {zone}",
+  "Travel · {zone}": "Traslado · {zone}",
   "{percent}% sale": "{percent}% de oferta",
   "Sale": "Oferta",
   "Promo {code}": "Promoción {code}",
