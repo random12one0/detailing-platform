@@ -138,18 +138,37 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
   // which is true of it, and needs no fourth run.
   const still = todays.filter((b) => b.status !== "completed");
 
-  // THE ONE LIT THING (§1b, and docs/dashboard-skeletons.md §6). Roadmap 2.12
-  // added the top of that list: a booking waiting to be ACCEPTED outranks both
-  // of the others, because unrecorded money is money you already hold and a
-  // request has a customer at the other end who does not know if they are
-  // booked. AT MOST ONE object is lit, so when a request is on the screen the
-  // rail has no card at all — `lit` is null and every job draws as a row.
+  // THE ONE LIT THING (§1b, and docs/dashboard-skeletons.md §6).
+  //
+  // **A WAITING REQUEST NO LONGER BLANKS IT — Andrew's brief, 2026-09-13:
+  // *"the one thing that needs them now should be unmistakable."*** Roadmap
+  // 2.12 made `lit` null whenever a request existed, on the reasoning that at
+  // most one object on the screen may be lit. The consequence was measured at
+  // 392 on a five-job day with two requests waiting: every job on the rail drew
+  // as an identical line, so the job happening at 8:00 AM looked exactly like
+  // the one at 5:00 PM, and the screen a detailer opens in a driveway had no
+  // answer to *what am I on*. A request is not today; the day always keeps its
+  // one lit job.
+  //
+  // THE TWO LIT OBJECTS ARE DIFFERENT KINDS AND THE SCREEN KEEPS THEM APART,
+  // which is what makes two accent fills legal here. RequestCard's own note
+  // records the rule it is reading — *at most one accent fill* — and the case
+  // it was written for was two Accepts SIDE BY SIDE in one list. These two are
+  // never side by side: on a phone the queue is a screen below the rail, and at
+  // a desk it is the other column. Each region has exactly one filled action.
   const nowIso = new Date().toISOString();
-  const lit = requests.length > 0
-    ? null
-    : needsPay[0]
-      ?? still.find((b) => b.end_at > nowIso && b.status === "confirmed")
-      ?? null;
+  const lit = needsPay[0]
+    ?? still.find((b) => b.end_at > nowIso && b.status === "confirmed")
+    ?? null;
+  // **THE WORDS, AND THEY CANNOT LIE, WHICH IS WHY THIS IS READ OFF THE
+  // BOOKING'S OWN CLOCK RATHER THAN OFF ITS POSITION IN A LIST.** D3 (see the
+  // header) deleted a "NEXT UP" label that printed over a job finished at
+  // 4:15 PM, because it described a POSITION. These two describe the job:
+  // started and not ended is `now`, not started yet is `next`. A job in the
+  // Needs-payment run takes neither — its run label already says what it is.
+  const litLive = lit && lit.status === "confirmed"
+    ? (lit.start_at <= nowIso ? "now" : "next")
+    : null;
 
   // Open slots in the next 7 days — a figure about the near future, which had
   // been stranded on the Booking rules settings sheet. Only asked for at the
@@ -262,6 +281,14 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
   const longDate = new Date(`${today}T12:00:00`).toLocaleDateString(appIntlLocale(), {
     weekday: "long", month: "long", day: "numeric",
   });
+  // THE QUEUE'S ROWS TAKE THE SHORT ONE. `.row-item .sub` is nowrap with an
+  // ellipsis, and `dateLong` ("Sunday, September 27") plus a time plus a
+  // service name is 42 characters before the service starts — measured at 392,
+  // "Ceramic Coating" truncated to "Ceramic C…". The card above keeps the long
+  // form, where there is a line to itself for it.
+  const shortDate = (d) => new Date(`${d}T12:00:00`).toLocaleDateString(appIntlLocale(), {
+    weekday: "short", month: "short", day: "numeric",
+  });
 
   // A run draws its label and then its jobs — the LIT one as the card, every
   // other as a line. At most one card is on the screen.
@@ -272,13 +299,68 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
   // nothing. Same for the second column's two.
   const runRows = (list, node) => list.map((b) => (b.id === lit?.id
     ? (
-      <BookingCard key={b.id} booking={b} isNext rail={node}
+      <BookingCard key={b.id} booking={b} isNext rail={node} live={litLive}
         onClick={() => setSelected(b)}
         onMarkComplete={busyId === b.id ? undefined : markComplete}
         onFinalize={setFinalizing} />
     )
     : <JobRow key={b.id} booking={b} node={node} onClick={() => setSelected(b)} />
   ));
+
+  // THE REQUEST QUEUE — ONE CARD AND THEN A RULED LIST, at every width.
+  //
+  // **This is the ceiling roadmap 2.12 wrote down for itself and it turned out
+  // to be TWO rather than twelve.** Its own note said *"a detailer sitting on
+  // twelve unanswered requests would get twelve cards, and the answer then is a
+  // ruled list with the first one open — not a smaller card."* Measured at 392
+  // on the demo's own seed: two cards are 620px, so a screen named Today opened
+  // on 620px of OTHER WEEKS — September 25 and September 27 — with today's
+  // money and today's first job both below the fold.
+  //
+  // A ruled list is also what `docs/design-system.md` § Composition says a
+  // collection of records is; a card is *"for an object you pick between or act
+  // on one at a time"*, which is exactly the first one and exactly not the rest.
+  // The row opens the record, where Accept and Decline live in its own bar.
+  const requestQueue = (
+    <div className="tight" data-tour="requests">
+      <h2 className="label">
+        {requests.length === 1
+          ? t("Waiting on you")
+          : t("Waiting on you · {count}", { count: requests.length })}
+      </h2>
+      {/* **THE FIRST CARD IS LIT ONLY WHEN THE DAY HAS NOTHING LIT** — and
+          that is the whole of the one-accent-fill rule, written as one
+          expression rather than as a prop each component has to be told about.
+          Measured at 1440 with both lit: "Mark complete" and "Accept" are two
+          filled accent buttons 200px apart at the same height, in view
+          together, which is precisely the pair RequestCard's own note was
+          written against. When there is work on the rail the day owns the
+          fill; on an empty day, or once every job is settled, `lit` is null
+          and the request is the one thing left that needs answering. */}
+      <RequestCard booking={requests[0]} lit={lit === null}
+        busy={busyId === requests[0]?.id} leaving={leavingId === requests[0]?.id}
+        onAccept={acceptRequest} onDecline={declineRequest}
+        onQuote={setQuoting} onClick={() => setSelected(requests[0])} />
+      {requests.slice(1).map((b) => (
+        <button className="row-item" key={b.id} onClick={() => setSelected(b)}>
+          <span className="txt">
+            <span className="nm">{b.customer_name}</span>
+            {/* THE DATE LEADS, for the reason RequestCard prints one at all:
+                this is the only object on Today that can be for any day, and a
+                row without it reads as today. `.sub` is nowrap with an
+                ellipsis, so what leads is what survives truncation. */}
+            <span className="sub">
+              {[shortDate(b.booking_date), time12(b.start_time),
+                ...(b.services ?? []).map((s) => s.name_at_booking).filter(Boolean)]
+                .join(" · ")}
+            </span>
+          </span>
+          <span className="figure sm">{money(b.total_price)}</span>
+          <ChevronRight size={18} strokeWidth={2} />
+        </button>
+      ))}
+    </div>
+  );
 
   // ONLY the first paint of a session may show a spinner (§1a). Every read
   // after it leaves the screen where it is and dims what is changing.
@@ -356,24 +438,6 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
       )}
 
       {reqError && <div className="error-box">{reqError}</div>}
-      {/* data-tour — roadmap 2.24. The requests block only exists in request
-          mode with something waiting, which is exactly the conditional the
-          tour's plan step is built to drop. */}
-      {!wide && requests.length > 0 && (
-        <div className="tight" data-tour="requests">
-          <h2 className="label">
-            {requests.length === 1
-              ? t("Waiting on you")
-              : t("Waiting on you · {count}", { count: requests.length })}
-          </h2>
-          {requests.map((b, i) => (
-            <RequestCard key={b.id} booking={b} lit={i === 0}
-              busy={busyId === b.id} leaving={leavingId === b.id}
-              onAccept={acceptRequest} onDecline={declineRequest}
-              onQuote={setQuoting} onClick={() => setSelected(b)} />
-          ))}
-        </div>
-      )}
 
       {/* A strip of zeroes states nothing, so an empty day has no ledger. */}
       {!empty && (desk
@@ -409,25 +473,43 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
           </div>
         )
         : (
-          /* Three bare figures on the ground. The fourth fact is not lost —
-             Collected has no cell of its own, the money cell carries both. */
-          /* THE SAME TOUR NAME AS THE DESK STRIP ABOVE, and the rule against
+          /* TWO MONEY CELLS, AND EACH ONE ALWAYS MEANS THE SAME THING —
+             rebuilt 2026-09-13 against Andrew's *"money … readable at a glance"*
+             and *"nothing should need a second look to understand."*
+
+             IT WAS THREE CELLS AND TWO OF THEM FAILED HIM. `5 / jobs` and
+             `0 / done` are the masthead's own "5 of 5 still to do" said twice
+             more, one line below it. And the third cell CHANGED MEANING during
+             the day — `money(collected > 0 ? collected : expected)` under a
+             label that flipped between "expected" and "of $455" — so the one
+             figure on the screen a detailer scans for meant *what today is
+             worth* in the morning and *what today has paid* by the afternoon,
+             with nothing to tell the two apart but the label under it.
+
+             Expected and Collected are now two fixed cells that never swap,
+             which is also what the desk strip has always said. `.ledger.two`
+             already exists (the client record's own pair) and the extra width
+             is what makes a six-figure money value legible in daylight.
+
+             AND THE THREE ENGLISH STRINGS ARE GONE. `"job"/"jobs"`, `"expected"`
+             and `` `of ${money(expected)}` `` were raw literals in JSX text —
+             the exact shape the comment on the desk strip above warns about,
+             one branch away from it, printing English on a Spanish phone with
+             both i18n checks clean.
+
+             THE SAME TOUR NAME AS THE DESK STRIP ABOVE, and the rule against
              two elements answering one selector is not broken by it: these two
              are `desk ? … : …`, so exactly one of them is ever in the document.
              Without it the guide lost its figures step on every phone —
              measured at 392, five steps against the desk's six. */
-          <div className="ledger" data-tour="figures">
+          <div className="ledger two" data-tour="figures">
             <div>
-              <span className="figure">{todays.length}</span>
-              <span className="lbl">{todays.length === 1 ? "job" : "jobs"}</span>
+              <span className="figure">{money(expected)}</span>
+              <span className="lbl">{t("expected")}</span>
             </div>
             <div>
-              <span className="figure">{done}</span>
-              <span className="lbl">{t("done")}</span>
-            </div>
-            <div>
-              <span className="figure">{money(collected > 0 ? collected : expected)}</span>
-              <span className="lbl">{collected > 0 ? `of ${money(expected)}` : "expected"}</span>
+              <span className="figure">{money(collected)}</span>
+              <span className="lbl">{t("collected")}</span>
             </div>
           </div>
         ))}
@@ -435,7 +517,9 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
       {!empty && (
         <div className="dayrail" data-tour="job">
           {needsPay.length > 0 && (
-            <h2 className="label">Needs payment · {needsPay.length}</h2>
+            <h2 className="label">
+              {t("Needs payment · {count}", { count: needsPay.length })}
+            </h2>
           )}
           {runRows(needsPay, "landed")}
           {still.length > 0 && <h2 className="label">{t("Still to do")}</h2>}
@@ -452,6 +536,31 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
           ))}
         </div>
       )}
+
+      {/* THE QUEUE COMES AFTER THE DAY ON A PHONE, AND IT USED TO COME FIRST —
+          changed 2026-09-13 against Andrew's brief for this screen: *"a working
+          screen a detailer opens between jobs… the one thing that needs them
+          now should be unmistakable, money and the day's shape should be
+          readable at a glance."*
+
+          `docs/dashboard-screen-designs-2026-08-31.md` §2 put requests second
+          in the phone's order, under the masthead and over the ledger. Measured
+          at 392 on the demo's own seed, that meant the first 620px of a screen
+          named Today were two cards about SEPTEMBER 25 AND SEPTEMBER 27, with
+          today's money, today's rail and the job starting in an hour all below
+          the fold.
+
+          THE TWO WAITS ARE NOT THE SAME LENGTH, which is what settles it. The
+          day's next job needs answering within the hour; `usePendingRequests`
+          returns a request for ANY future date, and these two were a fortnight
+          out. A request answered one flick down the screen is answered in time;
+          a job found one flick down is found late.
+
+          IT IS NOT BURIED EITHER: the queue keeps its own eyebrow, and at a
+          desk it is unchanged — first in the second column, beside the day
+          rather than below it, which is the arrangement a phone has no room
+          for. */}
+      {!wide && requests.length > 0 && requestQueue}
 
       {/* A detailer with no bookings needs the thing that GETS them, not a
           button for typing one in by hand. One sentence and one way forward,
@@ -545,26 +654,16 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
               before there was anything to put in it, "because a request is the
               only object on that screen waiting on the detailer rather than on
               a car". */}
-          {requests.length > 0 && (
-            /* Same name as the phone's block, same reason: `!wide` there and
-               `wide` here, so one document never holds both. The desk lost its
-               requests step until 2026-09-10 — the one object on the screen
-               waiting on the detailer rather than on a car, and the guide did
-               not mention it. */
-            <div className="tight" data-tour="requests">
-              <h2 className="label">
-                {requests.length === 1
-              ? t("Waiting on you")
-              : t("Waiting on you · {count}", { count: requests.length })}
-              </h2>
-              {requests.map((b, i) => (
-                <RequestCard key={b.id} booking={b} lit={i === 0}
-                  busy={busyId === b.id} leaving={leavingId === b.id}
-                  onAccept={acceptRequest} onDecline={declineRequest}
-                  onQuote={setQuoting} onClick={() => setSelected(b)} />
-              ))}
-            </div>
-          )}
+          {/* Same element as the phone's, same reason: `!wide` there and
+              `wide` here, so one document never holds both. The desk lost its
+              requests step until 2026-09-10 — the one object on the screen
+              waiting on the detailer rather than on a car, and the guide did
+              not mention it.
+              IT WAS TWO COPIES OF THE SAME JSX UNTIL 2026-09-13, which is how
+              the desk's copy and the phone's copy drift — this file's own
+              header records that failure happening to JobRow. One
+              `requestQueue`, rendered in one of two places. */}
+          {requests.length > 0 && requestQueue}
           {tomorrows.length > 0 && (
             <div className="tight">
               <h2 className="label">{t("Tomorrow")}</h2>

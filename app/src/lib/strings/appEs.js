@@ -170,7 +170,21 @@ export const appEs = {
   "Expected": "Esperado",
   "{amount} collected": "{amount} cobrado",
   "Nothing collected yet": "Aún no has cobrado nada",
+  // The phone's two money cells. Lower case on purpose — they sit under a
+  // figure as `.lbl`, not as a section eyebrow, and Spanish does not
+  // capitalise a common noun mid-phrase any more than this English does.
+  "expected": "esperado",
+  "collected": "cobrado",
   "Still to do": "Por hacer",
+  // The day's three run labels. "Needs payment · N" was raw JSX text until
+  // 2026-09-13 and printed English on a Spanish dashboard with both i18n
+  // checks clean, which is the failure the desk ledger's own comment warns
+  // about one screen away.
+  "Needs payment · {count}": "Falta cobrar · {count}",
+  // The lit job's state, and the only two it has. Read off the booking's own
+  // clock, never off its position in a list.
+  "Happening now": "Ahora mismo",
+  "Up next": "Sigue",
   "done": "hechos",
   "Done": "Terminados",
   "Tomorrow": "Mañana",

@@ -27,19 +27,23 @@ const STATUS_LABEL = {
 // used the shared helper, so the same job navigated differently depending on
 // which button you pressed. One helper, which honours Preferences → Maps.
 
+// `live` is the lit job's own state on Today — "now" for a job that has
+// started and not ended, "next" for one still ahead, null everywhere else. It
+// REPLACES the status pill rather than sitting beside it: a job you are
+// standing in front of gains nothing from being told it is Confirmed, and two
+// pills about the same thing is the second look Andrew's 2026-09-13 brief
+// rules out. Today computes it off the booking's own clock — see the note
+// there about why a label read off a POSITION lies.
+const LIVE_LABEL = { now: "Happening now", next: "Up next" };
+
 export default function BookingCard({
-  booking, onClick, showDate = false, isNext = false,
+  booking, onClick, isNext = false, live = null,
   onMarkComplete, onFinalize, dense = false, rail = "",
 }) {
   useAppLocale();
   const services = (booking.services ?? []).map((s) => s.name_at_booking).filter(Boolean);
   const isMobile = booking.service_type === "mobile";
   const amount = booking.final_amount ?? booking.total_price;
-  const dayLabel = showDate
-    ? new Date(`${booking.booking_date}T12:00:00`).toLocaleDateString(appIntlLocale(), {
-      weekday: "short", month: "short", day: "numeric",
-    })
-    : null;
 
   // The action buttons sit OUTSIDE the tappable info region so a thumb
   // aiming for Call never opens the detail sheet instead.
@@ -65,7 +69,6 @@ export default function BookingCard({
                 {booking.customer_name}
               </div>
               <div className="quiet" style={{ marginTop: 2 }}>
-                {dayLabel ? `${dayLabel} · ` : ""}
                 {time12(booking.start_time)} – {time12(booking.end_time)}
               </div>
             </div>
@@ -74,8 +77,9 @@ export default function BookingCard({
 
           <div className="row wrap" style={{ gap: 6 }}>
             <span className="tag">{t(isMobile ? "Mobile" : "Drop-off")}</span>
-            <span className={`pill ${booking.status}`}>
-              {t(STATUS_LABEL[booking.status] ?? booking.status)}
+            {/* THE LIVE STATE OUTRANKS THE STATUS, and never joins it. */}
+            <span className={`pill ${live ? `live ${live}` : booking.status}`}>
+              {t(live ? LIVE_LABEL[live] : (STATUS_LABEL[booking.status] ?? booking.status))}
             </span>
             {booking.payment_status === "paid" && <span className="pill paid">{t("Paid")}</span>}
           </div>

@@ -174,3 +174,30 @@ languages, and so do customer reviews, because those are a named person's own
 words. Nothing changes for anyone reading the page in English.
 
 **Visual: yes.** · changed in the commit this file ships with
+
+---
+
+## 9 · Today — the screen you open every morning
+
+**Open:** `localhost:5173/app` (it is the screen you land on after signing in).
+
+**WAS:** The day's jobs were five identical lines, so the one you were about to
+drive to looked exactly like the one at five o'clock, and nothing on the screen
+said which. Above them sat two big cards for jobs people had requested for
+dates two weeks away — on a phone those two cards filled the whole first screen,
+so today's money and today's first job were both below the fold. The money strip
+underneath had three boxes and two of them repeated the line above it word for
+word, while the third quietly changed its mind during the day: in the morning it
+showed what the day was worth and by the afternoon it showed what had been paid,
+with only a small word underneath to tell you which one you were looking at.
+
+**NOW:** Your money is the first thing under the date — two numbers that always
+mean the same thing, what today is worth and what has come in. Then the job that
+matters right now stands out as a card with the words **Happening now** on it in
+your own color, or **Up next** if it has not started, while the rest of the day
+stays a quiet list. The requests for other weeks moved below your day and now
+show one card to answer plus a one-line row for each of the others, so they are
+still one flick away and no longer in front of the work. Five things that were
+coming out in English on the Spanish dashboard now read Spanish.
+
+**Visual: yes.** · changed in the commit this file ships with

@@ -1933,6 +1933,29 @@ button.menu-name { display: flex; flex-direction: column; justify-content: cente
    the outline below as the second, colour-blind-safe difference. */
 .pill.paid { border-color: color-mix(in srgb, var(--ac) 45%, transparent); background: color-mix(in srgb, var(--ac) 11%, transparent); color: var(--ac); }
 .pill.confirmed { border-color: var(--line-2); color: var(--text-2); }
+/* **THE LIT JOB'S LIVE STATE — Andrew's brief, 2026-09-13: *"the one thing
+   that needs them now should be unmistakable."*** Two values and no others,
+   and they REPLACE the status pill rather than sitting beside it (see
+   BookingCard).
+
+   SOLID FOR THE JOB THAT IS HAPPENING, HOLLOW FOR THE ONE AHEAD — the same
+   fill-versus-outline vocabulary `.pill.completed` and `.pill.paid` already
+   use one rule up, so no new visual idea is introduced. It is the loudest
+   small object on Today on purpose: this screen is read outdoors, in daylight,
+   at arm's length, and the whole point of it is that a glance answers
+   *what am I on*.
+
+   A PILL IS A STATE, NOT AN ACTION, so this does not spend the screen's one
+   accent FILL — that belongs to a button, and `BookingCard`'s `filled` prop is
+   what hands it to the request queue's Accept when a request is on the screen.
+   `--accent-ink` is the token `.btn.primary` already reads for text on the
+   tenant's own colour, so an extreme accent is covered by the same pairing
+   `accent-sweep.mjs` walks rather than by a second answer. */
+.pill.live.now {
+  border-color: var(--accent); background: var(--accent); color: var(--accent-ink);
+  font-variation-settings: "wdth" 84, "wght" 700;
+}
+.pill.live.next { border-color: var(--accent-line); color: var(--accent-text); }
 .pill.cancelled, .pill.no_show { border-color: color-mix(in srgb, var(--bad) 48%, transparent); background: none; color: var(--bad); }
 .pill.pending, .pill.partial { border-color: var(--line-2); color: var(--text-muted); }
 .pill.waived { border-color: var(--hairline); color: var(--text-muted); }
