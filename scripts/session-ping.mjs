@@ -97,10 +97,21 @@ const titleOf = (file) => {
       try { o = JSON.parse(line); } catch { continue; }
       if (o.customTitle) return String(o.customTitle);
       if (o.agentName) return String(o.agentName);
-      // The header block is the first few lines; once real turns start there
-      // is no title and no reason to keep reading.
-      if (o.type === "user" || o.type === "assistant") break;
     }
+    // **THE SCAN DOES NOT STOP AT THE FIRST TURN, AND THAT IS DELIBERATE.** It
+    // used to, on the reasoning that the title block is the header. Measured
+    // 2026-09-13 against the two panes actually running: one had its title on
+    // line 1 and the other had no title line at all — so the header assumption
+    // held for the session that was easy to look at and was untested for the
+    // one that was not. Dropping the early exit costs nothing inside an 8 KB
+    // read and covers a pane renamed after it started.
+    //
+    // **KNOWN LIMIT, WRITTEN DOWN RATHER THAN LEFT TO BE REDISCOVERED:** a pane
+    // renamed long after it started writes its title past the first 8 KB, and
+    // this will not see it. The id is still correct; only the readable name is
+    // missing, and `SESSION_PING_LABEL` always works. Reading the whole
+    // transcript to chase it would mean reading the conversation, which is the
+    // one thing this script is written not to touch.
   } catch { /* no title, no problem */ } finally {
     if (fd !== undefined) try { closeSync(fd); } catch { /* nothing */ }
   }

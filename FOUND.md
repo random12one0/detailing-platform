@@ -66,6 +66,25 @@ you, it is a candidate.**
 
 ---
 
+- 2026-09-13 — **THE NINTH COSTUME, AND IT IS MINE TOO: A CHECK THAT ITS OWN
+  SUBJECT'S COMMENTS COULD SATISFY.** `tests/session-ping.test.mjs` § 11 read
+  `supabase/functions/session-ping/index.ts` and asserted `/\b502\b/` and
+  `/sessions:\s*null/` — the two halves of *a read error is not an empty list*.
+  Baselining it, I broke exactly that: the function was made to answer
+  `200 { sessions: [] }` on a read failure, which is the seventh costume in its
+  purest form. **The suite came back 43 passed, 0 failed.** The function's own
+  HEADER documents both strings in prose, so the grep matched the documentation
+  and never looked at the code. Fixed by stripping `//` lines before the match
+  (§ 10 already did this and § 11 did not), and re-baselined: the same break now
+  fails two checks by name. **Nothing was wrong with the product at any point —
+  the whole cost would have been a check nobody could ever have made fail.**
+  **THE GENERAL FORM: a source-reading check whose subject is a well-commented
+  file is asserting the comments unless it is made not to.** Same family as
+  `scripts/i18n-coverage.mjs` counting a `t("…")` inside a comment, and the more
+  this repo writes rules into headers the more of these there will be. **Every
+  existing source-grep check in `tests/` deserves the same one-line question:
+  would its own subject's comments satisfy it?** Not swept — it is its own item.
+  Lane C.
 - 2026-09-13 — **THE EIGHTH COSTUME, AND IT IS MINE: `revoke all on function
   … from anon, authenticated` TAKES NOTHING AWAY.** `create function` grants
   EXECUTE to PUBLIC, and revoking from `anon` does not remove a grant made to

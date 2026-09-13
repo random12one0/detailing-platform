@@ -72,6 +72,16 @@ writeFileSync(TRANSCRIPT, [
 ].join("\n"));
 const untitled = path.join(dir, "11111111-2222-3333-4444-555555555555.jsonl");
 writeFileSync(untitled, JSON.stringify({ type: "mode", mode: "normal" }) + "\n");
+// A pane renamed AFTER it started: the title line sits below a real turn.
+// Measured 2026-09-13 — one of the two live panes had no title on line 1, so
+// "the header is the first few lines" was an assumption and not a fact.
+const renamed = path.join(dir, "99999999-8888-7777-6666-555555555555.jsonl");
+writeFileSync(renamed, [
+  JSON.stringify({ type: "mode", mode: "normal" }),
+  JSON.stringify({ type: "user", message: { role: "user", content: "confidential work" } }),
+  JSON.stringify({ type: "custom-title", customTitle: "DP Website" }),
+  "",
+].join("\n"));
 
 // --- 1 · IT POSTS THE SESSION'S OWN ID, NOT A CONSTANT ----------------------
 // The whole item. Two different sessions must produce two different keys.
@@ -102,6 +112,13 @@ writeFileSync(untitled, JSON.stringify({ type: "mode", mode: "normal" }) + "\n")
   await ring({ session_id: "no-title-here", transcript_path: untitled });
   ok("2d · a pane with no title sends NO label rather than a made-up one",
     body().label === undefined, JSON.stringify(body()));
+
+  reset();
+  await ring({ session_id: "renamed-later", transcript_path: renamed });
+  ok("2e · a title written BELOW the first turn is still found",
+    body().label === "DP Website", JSON.stringify(body()));
+  ok("2f · and the turn it sat under did not travel with it",
+    !posts[0].raw.includes("confidential work"), posts[0].raw);
 }
 
 // --- 3 · IT FAILS LOUDLY WHEN THE DOORBELL ANSWERS BADLY --------------------
@@ -197,8 +214,19 @@ for (const status of [400, 500, 502]) {
 // `count: 0` means nobody has ever pinged; a read failure means we cannot tell.
 // Source-read because there is no Deno on this machine — SAID OUT LOUD rather
 // than left to look like a behaviour check.
+//
+// **THE COMMENTS ARE STRIPPED FIRST, AND THAT IS NOT TIDINESS.** Baselining
+// this suite, the break that answers `200 { sessions: [] }` on a read error —
+// the seventh costume, exactly — came back GREEN, because the function's own
+// header documents `502` and `sessions: null` in prose and the grep matched the
+// documentation instead of the code. A check that a file's comments can satisfy
+// is a check the code can fail. Same family as `i18n-coverage` counting a
+// `t("…")` inside a comment.
 {
-  const fn = readFileSync("supabase/functions/session-ping/index.ts", "utf8");
+  const raw = readFileSync("supabase/functions/session-ping/index.ts", "utf8");
+  const fn = raw.split("\n").filter((l) => !l.trim().startsWith("//")).join("\n");
+  ok("11 · the comment strip left something to read", fn.length > 1000 && fn.length < raw.length,
+    `${fn.length} of ${raw.length} bytes`);
   ok("11a · a read error answers 502", /\b502\b/.test(fn));
   ok("11b · and with sessions: null, never an empty array", /sessions:\s*null/.test(fn));
   ok("11c · the GET is keyed per session", /select\("session_id, label, at"\)/.test(fn));

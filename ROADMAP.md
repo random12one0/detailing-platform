@@ -132,7 +132,52 @@ the Geoapify one joins it when that work starts.
 **This block exists so that no future session spends a turn asking him for a key
 he has already provided.**
 
-## 4 · THE DOORBELL MUST SAY WHICH SESSION STOPPED — BLOCKING, 2026-09-13
+## 4 · ~~THE DOORBELL MUST SAY WHICH SESSION STOPPED~~ — BUILT AND PROVED 2026-09-13
+
+**`20df707` plus the follow-up commit. The spec below is kept as the record of
+what he asked for; everything in it is built.**
+
+### THE NEW URL SHAPE — the thing he asked to be told
+
+Same address, nothing to change in a bookmark:
+
+    curl -s https://kguqylyzgyzfktkfnhjb.supabase.co/functions/v1/session-ping
+
+    { "sessions": [ { "session_id": "...", "label": "DP Cowork",
+                      "at": "...", "ago_seconds": 12 } ],
+      "count": 1, "latest": { ... },
+      "label": "...", "at": "...", "ago_seconds": 12 }
+
+- **`sessions` is one row per session, newest first.** Lane C and lane B each
+  keep their own timestamp and neither overwrites the other.
+- **`latest` and the three top-level fields are the OLD answer, unchanged**, so
+  the blunt bell's existing reader finds something exactly where it left it.
+- **`200 count:0` means nobody has ever pinged. `502 sessions:null` means we
+  cannot tell.** Those two are never the same response.
+- **The readable name is the PANE TITLE he already typed.** Claude Code writes
+  it into the transcript and the hook reads it from there, so he is asked for
+  nothing. A pane he has never renamed shows its id instead — renaming it is the
+  whole fix, and `SESSION_PING_LABEL` still overrides. The label is STICKY: a
+  ping without one keeps the last name rather than erasing it.
+- **The hook goes RED when it cannot ring** — stderr and exit 1, never exit 2
+  (which would block the session from stopping). It refuses to post at all when
+  it cannot say who it is, rather than falling back to a shared name.
+
+**PROVED LIVE**, function v3, `check-deployed` reads `current`. Two sessions
+post two rows with their own timestamps; a label-less ping keeps its name; an
+empty body is 400; the legacy `{label:"dp-builder"}` path still returns ok;
+DELETE is 405. **And the real Stop hook was caught doing it**: lane B's live
+pane posted its own session id, `3a543795-…`, from a genuine end-of-turn event
+rather than a synthetic payload. `tests/session-ping.test.mjs` — **46 checks, 0
+skipped**, baselined by eleven deliberate breaks, one of which the suite MISSED
+first time (`FOUND.md`, the ninth costume).
+
+**ONE THREAD LEFT AND IT IS THIRTY SECONDS OF WORK.** The legacy `dp-builder`
+row is still in the table on purpose, keeping the old signal alive across the
+cutover. Delete it now that real session ids are appearing:
+`delete from public.session_pings where session_id = 'dp-builder';`
+
+---
 
 **Andrew's words:** *"There are two sessions running again… the Stop hook posts a
 FIXED label, so when the bell rings I cannot tell which of you stopped. That
