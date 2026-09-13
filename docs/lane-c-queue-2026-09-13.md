@@ -491,3 +491,27 @@ it; it is M's.
 | `customer-reminder.md` | **LIVE** | Why the customer appointment reminder had sent zero emails in 56 bookings, the three faults, and the timing decision. 2026-09-13. |
 | `email-budget.md`      | **LIVE** | The daily email allowance, the platform's reserved slice, and what the test suites actually spend. 2026-09-13. |
 ```
+
+
+---
+
+## WAVE OF 2026-09-13, LATE - THREE ITEMS, AND WHAT IS LEFT OF THEM
+
+**Done and committed:** the evening-before reminder threshold moved to noon
+(dc426cb); the fake mail transport is now the default for every suite (3a9c8cb)
+with a guard that fails on any undeclared charged address; dead-mans-switch
+counts what the gate counts (18d0ee0-ish, see log); platform-admin went from
+111/49 to 118/43 (5351d00) after its strip() was found deleting 43-75% of every
+non-SQL file it reads.
+
+**STILL OWED, AND MOST OF IT IS NOT LANE C.**
+
+- **Lane C, next wave:** the nine stale-spelling checks in group A of
+  docs/platform-admin-triage-2026-09-13.md. Each is a re-point, and each needs
+  baselining against a mutated copy of the screen IN MEMORY - never by editing
+  app/src, which is lane B.
+- **Lane B:** everything in group B of that file. Several name a capability with
+  no trace in the rebuilt back office; three of them are FOUND.md's watchdog
+  blind spot wearing a different hat.
+- **Everything in the two OWED sections above this one is unchanged** and none of
+  it is lane C. Re-read before assuming otherwise.
