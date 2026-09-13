@@ -55,15 +55,23 @@ export const appEs = {
     "Un plan es un precio fijo cada mes para un cliente que te reserva con regularidad. Créalos aquí. Deja esto vacío si solo haces trabajos sueltos.",
   "A promo code is a word a customer types when booking to get money off. Skip this if you do not have one. You can add one later.":
     "Un código promocional es una palabra que un cliente escribe al reservar para obtener un descuento. Sáltalo si no tienes uno. Puedes agregarlo después.",
+  "About you": "Sobre ti",
   "Allowed once per device. Your browser will ask you first.": "Se permite una vez por dispositivo. Tu navegador te preguntará primero.",
   "Ask whoever invited you to send a new link.":
     "Pídele a quien te invitó que te envíe un enlace nuevo.",
   "Blocked for this site": "Bloqueado para este sitio",
+  "Choose a file": "Elegir un archivo",
+  "Contact email": "Correo de contacto",
+  "Cover photo": "Foto de portada",
+  "Currently {zone} ({offset})": "Actualmente {zone} ({offset})",
   "Customers can only pick times inside these hours. If you close a day here, nobody can book it.":
     "Los clientes solo pueden elegir horas dentro de este horario. Si cierras un día aquí, nadie puede reservarlo.",
+  "Every time on your booking page means this zone.": "Cada hora de tu página de reservas está en esta zona.",
   "Get an alert on your phone when a booking comes in. It works when the dashboard is closed.":
     "Recibe un aviso en tu teléfono cuando entre una cita. Funciona aunque el panel esté cerrado.",
   "Go to sign in": "Ir a iniciar sesión",
+  "How customers reach you": "Cómo te contactan los clientes",
+  "Logo and cover photo": "Logo y foto de portada",
   "Make a separate booking link for a flyer, a QR code or a post. Anyone who uses it gets the discount applied automatically. Each link tracks how many people opened it and how many of them booked.":
     "Crea un enlace de reservas aparte para un volante, un código QR o una publicación. Quien lo use recibe el descuento automáticamente. Cada enlace registra cuántas personas lo abrieron y cuántas de ellas reservaron.",
   "Mobile means you drive to the customer. Drop-off means they come to you. You can offer both. This is the first question your booking page asks.":
@@ -75,10 +83,15 @@ export const appEs = {
   "Less": "Menos",
   "More": "Más",
   "Custom value in {unit}": "Valor personalizado en {unit}",
+  "Not filled in": "Sin completar",
   "Off for this device": "Apagado en este dispositivo",
   "On for this device": "Encendido en este dispositivo",
+  "Only you see these": "Solo tú ves esto",
   "Pick one color. It is used on your booking page and in this dashboard. Most detailers use the color already on their van or their cards.":
     "Elige un color. Se usa en tu página de reservas y en este panel. La mayoría usa el color que ya está en su camioneta o en sus tarjetas.",
+  "Printed at the bottom of marketing email you send. The law asks for it.": "Se imprime al pie del correo de marketing que envías. La ley lo exige.",
+  "Service area": "Zona de servicio",
+  "Shown on your site.": "Se muestra en tu sitio.",
   "That is not your current password.": "Esa no es tu contraseña actual.",
   "The questions customers ask you most often. Answer them here and you get fewer texts asking the same thing.":
     "Las preguntas que más te hacen los clientes. Respóndelas aquí y recibirás menos mensajes preguntando lo mismo.",
@@ -94,6 +107,7 @@ export const appEs = {
     "Activa las formas en que cobras. Un cliente las ve en su reserva para saber qué llevar.",
   "Type in reviews customers have already given you somewhere else. Nothing is imported automatically. You decide which ones to show.":
     "Escribe las reseñas que los clientes ya te dieron en otro lugar. No se importa nada automáticamente. Tú decides cuáles mostrar.",
+  "Where we email you about new bookings.": "Adonde te escribimos sobre reservas nuevas.",
   "Your business name, phone number and email address. This shows at the top of your booking page and at the bottom of every email a customer gets.":
     "El nombre de tu negocio, tu teléfono y tu correo. Esto aparece arriba en tu página de reservas y al final de cada correo que recibe un cliente.",
   "e.g. car wash membership":

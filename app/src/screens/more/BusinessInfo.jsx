@@ -3,12 +3,13 @@
 // hero are REAL file uploads to Supabase Storage (no more pasting URLs).
 
 import { useState } from "react";
-import { X } from "lucide-react";
+import { ImagePlus, X } from "lucide-react";
 // The one phone shape, applied where a phone number is typed.
 import { phone, phoneAsTyped } from "../../lib/format.js";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { uploadBusinessPhoto } from "../../lib/upload.js";
+import { Group, Setting } from "../../components/controls.jsx";
 import TimezonePicker from "../../components/TimezonePicker.jsx";
 import TimezoneChangeGuard from "../../components/TimezoneChangeGuard.jsx";
 import { localTime } from "../../lib/format.js";
@@ -215,95 +216,172 @@ export default function BusinessInfo() {
     || brand.social_youtube || reviews.google_review_url || reviews.yelp_review_url,
   ));
 
+  // WHICH CREDENTIAL IS OPEN, AND AT MOST ONE. See the note on the list
+  // below: every other one is a read-only row, so there is never more than
+  // one pair of empty boxes on this screen.
+  const [editing, setEditing] = useState(null);
+  const setCred = (i, patch) =>
+    setCreds(creds.map((x, j) => (j === i ? { ...x, ...patch } : x)));
+  const dropCred = (i) => {
+    setCreds(creds.filter((_, j) => j !== i));
+    setEditing(null);
+  };
+
   return (
-    <div className="card">
-      <label className="field"><span>{t("Business name")}</span>
-        <input value={biz.name} onChange={(e) => setBiz({ ...biz, name: e.target.value })} /></label>
-      <div className="grid2">
-        <label className="field"><span>Contact email (gets notifications)</span>
-          <input value={biz.contact_email} onChange={(e) => setBiz({ ...biz, contact_email: e.target.value })} /></label>
-        <label className="field w-phone"><span>{t("Phone")}</span>
-          <input value={biz.contact_phone} onChange={(e) => setBiz({ ...biz, contact_phone: phoneAsTyped(e.target.value) })} /></label>
-      </div>
-      <label className="field"><span>{t("Drop-off address")}</span>
-        <input value={biz.dropoff_address} onChange={(e) => setBiz({ ...biz, dropoff_address: e.target.value })} /></label>
-      {/* ROADMAP 2.19. NOT the drop-off address, and not decoration: a
-          marketing email has to carry a postal address by law, and
-          `send-campaign` refuses to send without one. A mobile detailer has no
-          unit, so this is often a PO box — which is why it cannot borrow the
-          field above it. It is printed on nothing else. */}
-      <label className="field"><span>{t("Mailing address")}</span>
-        <input value={biz.mailing_address} onChange={(e) => setBiz({ ...biz, mailing_address: e.target.value })}
-          placeholder={t("e.g. PO Box 214, Lakewood CA 90713")} /></label>
-      <p className="muted" style={{ marginTop: "calc(-1 * var(--sp-2))" }}>
-        {t("Only ever printed at the bottom of an email you send your old customers. The law asks for it.")}
-      </p>
-      <div className="grid2">
-        <label className="field"><span>Service area (shown on your site)</span>
-          <input value={biz.service_area} onChange={(e) => setBiz({ ...biz, service_area: e.target.value })} placeholder={t("e.g. Lakewood, California")} /></label>
+    <>
+      {/* **THIS SCREEN WAS NINETEEN TEXT BOXES AND NOTHING ELSE — rebuilt
+          2026-09-13, on Andrew's note that the editing screens feel like a
+          thousand text boxes.** It was the only screen in the dashboard with
+          no structured control of any kind: no `Group`, no `Setting`, no
+          list, one flat `.card` with thirteen visible inputs down it and six
+          more behind a fold. `BookingRules` has 24 structured controls and
+          `Notifications` has five; this one had zero.
+          **THE FAULT WAS MONOTONY, NOT LENGTH** (CLAUDE.md § SCREEN RULES),
+          so no field is dropped and nothing is hidden that was not hidden
+          before. What changed is that the page now has four shapes in it
+          rather than one: settings rows, a pair of picture tiles, a list you
+          open, and a fold.
+          **AND THE GROUPS ARE NOT DECORATION — THEY ARE THE FOUR SENTENCES
+          THIS SCREEN USED TO SPEND ON EXPLAINING ITSELF.** It said "(gets
+          notifications)", "(shown on your site)", "Only ever printed at the
+          bottom of an email you send your old customers" and a paragraph
+          about the website, and every one of those was answering the same
+          question: who reads this value. A heading answers it once for a
+          whole block, which is the relationship made structural instead of
+          described. */}
+
+      <Group title={t("Your business")}>
+        <Setting stacked label={t("Business name")}>
+          <input value={biz.name} onChange={(e) => setBiz({ ...biz, name: e.target.value })} />
+        </Setting>
+        <Setting stacked label={t("Tagline")}>
+          <input value={brand.tagline} onChange={(e) => setBrand({ ...brand, tagline: e.target.value })} />
+        </Setting>
+        <Setting stacked label={t("About you")}>
+          <textarea value={brand.about_copy} onChange={(e) => setBrand({ ...brand, about_copy: e.target.value })} />
+        </Setting>
+        <Setting stacked label={t("Service area")} help={t("Shown on your site.")}>
+          <input value={biz.service_area} onChange={(e) => setBiz({ ...biz, service_area: e.target.value })}
+            placeholder={t("e.g. Lakewood, California")} />
+        </Setting>
         {/* ROADMAP 3.2(b). Four digits, and the save drops anything else
             rather than arguing with it — the column's own check constraint is
-            the half that holds. */}
-        <label className="field w-year"><span>{t("Detailing since")}</span>
-          <input value={biz.established_year} inputMode="numeric" maxLength={4} placeholder="e.g. 2016"
-            onChange={(e) => setBiz({ ...biz, established_year: e.target.value })} /></label>
-      </div>
-      <label className="field">
-        <span>{t("Timezone")}</span>
+            the half that holds.
+            SIZED TO ITS CONTENT, which is the other half of the anti-monotony
+            answer and is CLAUDE.md's own rule: a year is 6ch. A four-digit
+            number in a full-width box is part of what made every row on this
+            screen the same shape.
+            **AND IT IS NOT `stacked`, WHICH IS THE POINT.** A 6ch box does not
+            need a line of its own, so this row is the label on the left and
+            the control on the right — the shape every settings row in the
+            product already has. Four stacked rows and then a short inline one
+            is a different rhythm; four stacked rows and a fifth stacked row
+            holding a small box is the same rhythm with a gap in it.
+            **THE WRAPPER IS A `<label>` AND NOT A `<span>`.** The sizing rule
+            is `label.field.w-year > input`, so a span looked correct in the
+            file and rendered full width — caught at 1440 by looking, where
+            "2019" sat in a 690px box. The same mistake was under Phone. */}
+        <Setting label={t("Detailing since")}>
+          <label className="field w-year">
+            <input value={biz.established_year} inputMode="numeric" maxLength={4} placeholder="e.g. 2016"
+              onChange={(e) => setBiz({ ...biz, established_year: e.target.value })} />
+          </label>
+        </Setting>
+        {/* **A BARE `<input type="file">` IS THE ONE CONTROL IN THIS PRODUCT
+            WITH NO DESIGN AT ALL** — the operating system draws it, it ignores
+            every token in the stylesheet, and there were two of them side by
+            side here with a 48px thumbnail floating above each. The product
+            already answers this twice (`Gallery`, `SiteIntake`): a `<label>`
+            wrapping a hidden input, so the picker is whatever we draw. The
+            tile IS the preview, so the floating thumbnail is gone with it. */}
+        <Setting stacked label={t("Logo and cover photo")}>
+          <div className="grid2">
+            <PhotoTile name={t("Logo")} url={brand.logo_url} fit="contain" busy={busy}
+              onPick={(e) => upload(e, "logo_url", "branding")} />
+            <PhotoTile name={t("Cover photo")} url={brand.hero_image_url} fit="cover" busy={busy}
+              onPick={(e) => upload(e, "hero_image_url", "branding")} />
+          </div>
+        </Setting>
+      </Group>
+
+      <Group title={t("How customers reach you")}>
+        <Setting label={t("Phone")}>
+          <label className="field w-phone">
+            <input value={biz.contact_phone}
+              onChange={(e) => setBiz({ ...biz, contact_phone: phoneAsTyped(e.target.value) })} />
+          </label>
+        </Setting>
+        <Setting stacked label={t("Drop-off address")}>
+          <input value={biz.dropoff_address} onChange={(e) => setBiz({ ...biz, dropoff_address: e.target.value })} />
+        </Setting>
         {/* Every booking time, reminder and calendar date is computed in this
             zone. Picked from the real IANA list — never typed free-hand. */}
-        <TimezonePicker value={biz.timezone} onChange={(tz) => setBiz({ ...biz, timezone: tz })} />
-      </label>
-
-      <div className="section-title">{t("Branding")}</div>
-      <label className="field"><span>{t("Tagline")}</span>
-        <input value={brand.tagline} onChange={(e) => setBrand({ ...brand, tagline: e.target.value })} /></label>
-      <label className="field"><span>About / owner bio</span>
-        <textarea value={brand.about_copy} onChange={(e) => setBrand({ ...brand, about_copy: e.target.value })} /></label>
-
-      <div className="grid2">
-        <label className="field"><span>{t("Logo")}</span>
-          {brand.logo_url && <img src={brand.logo_url} alt={t("logo")} style={{ height: 48, marginBottom: 6, borderRadius: 8 }} />}
-          <input type="file" accept="image/*" onChange={(e) => upload(e, "logo_url", "branding")} /></label>
-        <label className="field"><span>Hero photo</span>
-          {brand.hero_image_url && <img src={brand.hero_image_url} alt="hero" style={{ height: 48, marginBottom: 6, borderRadius: 8, objectFit: "cover" }} />}
-          <input type="file" accept="image/*" onChange={(e) => upload(e, "hero_image_url", "branding")} /></label>
-      </div>
+        <Setting stacked label={t("Timezone")}
+          help={t("Every time on your booking page means this zone.")}>
+          <TimezonePicker value={biz.timezone} onChange={(tz) => setBiz({ ...biz, timezone: tz })} />
+        </Setting>
+      </Group>
 
       {/* ROADMAP 3.2(b), contract §6h. THE DESTINATION IS THE NON-OBVIOUS
           FACT, so it keeps its sentence — the same call Reviews made. These
           appear nowhere in this product: they are for the website, which is
           still being built, and a detailer who types in three badges and goes
-          looking for them has been misled by a missing clause. */}
-      <div className="section-title">{t("What customers should know")}</div>
-      <p className="muted" style={{ marginTop: "calc(-1 * var(--sp-2))" }}>
-        {t("Licenses, certifications, warranties. They go on your website. That part is still being built.")}
-      </p>
-      {creds.map((c, i) => (
-        <div className="grid2" key={i}>
-          <label className="field"><span>{i === 0 ? "What it is" : ""}</span>
-            <input value={c.label} placeholder={t("e.g. Licensed & insured")}
-              onChange={(e) => setCreds(creds.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))} /></label>
-          {/* NOT "A line about it (optional)". Measured at 392: the pair's
-              columns are about 150px, that label wraps to two lines and the
-              LEFT one does not — so the first row's two inputs sat a line
-              apart while every row under it lined up. The word was carrying
-              nothing the empty field does not already say. */}
-          <label className="field"><span>{i === 0 ? "A line about it" : ""}</span>
-            <span className="row" style={{ display: "flex", gap: "var(--sp-2)", alignItems: "center" }}>
-              <input value={c.detail} placeholder={t("e.g. Fully covered on your property")}
-                onChange={(e) => setCreds(creds.map((x, j) => (j === i ? { ...x, detail: e.target.value } : x)))} />
-              <button className="btn sm inline icon ghost" aria-label={`Remove ${c.label || "this line"}`}
-                onClick={() => setCreds(creds.filter((_, j) => j !== i))}><X strokeWidth={2} /></button>
-            </span>
-          </label>
+          looking for them has been misled by a missing clause.
+          **THEY ARE A LIST YOU OPEN, NOT A GRID OF BOXES — 2026-09-13.** Three
+          credentials used to be six text inputs stacked in three rows, which
+          on a phone is a third of this screen spent on the least-filled part
+          of it. This is `Catalog`'s own shape, the screen Andrew named as the
+          reference: read-only rows you tap to open, `.menu-row` for both, and
+          an Add that appends one and opens it. At most one pair of boxes is on
+          screen at a time, and a detailer with two badges reads two lines of
+          their own words instead of four empty fields. */}
+      <Group title={t("What customers should know")}
+        blurb={t("Licenses, certifications, warranties. They go on your website. That part is still being built.")}>
+        <div className="setting stacked">
+          <div className="credlist">
+            {creds.map((c, i) => (editing === i ? (
+              <div className="menu-row credrow open" key={i}>
+                <div className="grid2">
+                  <label className="field"><span>{t("What it is")}</span>
+                    <input autoFocus value={c.label} placeholder={t("e.g. Licensed & insured")}
+                      onChange={(e) => setCred(i, { label: e.target.value })} /></label>
+                  {/* NOT "A line about it (optional)". Measured at 392: the
+                      pair's columns are about 150px, that label wraps to two
+                      lines and the LEFT one does not — so the first row's two
+                      inputs sat a line apart while every row under it lined
+                      up. The word was carrying nothing the empty field does
+                      not already say. */}
+                  <label className="field"><span>{t("A line about it")}</span>
+                    <input value={c.detail} placeholder={t("e.g. Fully covered on your property")}
+                      onChange={(e) => setCred(i, { detail: e.target.value })} /></label>
+                </div>
+                <div className="credtools">
+                  <button className="btn sm inline" onClick={() => setEditing(null)}>{t("Done")}</button>
+                  <button className="btn sm inline icon ghost" onClick={() => dropCred(i)}
+                    aria-label={`${t("Remove")} ${c.label || t("this line")}`}><X strokeWidth={2} /></button>
+                </div>
+              </div>
+            ) : (
+              <div className="menu-row credrow" key={i}>
+                <button className="menu-name" onClick={() => setEditing(i)}>
+                  <span className="n">{c.label.trim() || t("Not filled in")}</span>
+                  {c.detail.trim() ? <span className="m">{c.detail}</span> : null}
+                </button>
+                <button className="btn sm inline icon ghost" onClick={() => dropCred(i)}
+                  aria-label={`${t("Remove")} ${c.label || t("this line")}`}><X strokeWidth={2} /></button>
+              </div>
+            )))}
+          </div>
+          {/* A ROW WITH AN EMPTY LABEL IS DROPPED BY `persist`, so an Add that
+              is pressed and then abandoned costs nothing and needs no guard. */}
+          <div className="btnrow">
+            <button className="btn" onClick={() => {
+              setCreds([...creds, { label: "", detail: "" }]);
+              setEditing(creds.length);
+            }}>{t("Add a line")}</button>
+          </div>
         </div>
-      ))}
-      <div className="btnrow">
-        <button className="btn" onClick={() => setCreds([...creds, { label: "", detail: "" }])}>
-          {t("Add a line")}
-        </button>
-      </div>
+      </Group>
 
       {/* FOUR SOCIAL FIELDS, NOT ONE. The columns for Facebook, TikTok and
           YouTube have been on `business_branding` since the first tenant
@@ -316,15 +394,33 @@ export default function BusinessInfo() {
           open boxes they were a third of this screen's height spent on the
           least likely answer. `.disclose` is the product's own pattern for
           exactly this (native `<details>`/`<summary>`, no script, no ARIA to
-          get wrong) and it is already used elsewhere in the dashboard, so
-          nothing new is invented here.
+          get wrong).
           **IT OPENS ITSELF WHEN ANY OF THEM IS FILLED IN.** A detailer who has
           typed a link must never have to remember it is behind a control to
           find it again — a collapsed section hiding a value the person set is
           the same defect as a missing field. `open` is computed once at the
           first render, so it does not snap shut while somebody is typing. */}
-      <details className="disclose" open={hasLinks}>
+      {/* **IT NEEDS A CARD OF ITS OWN NOW, AND IT DID NOT BEFORE — 2026-09-13.**
+          This fold used to sit inside the one big card every other field was
+          in, so it was housed by accident. With the screen split into four
+          groups it was the only thing left standing on the bare ground, six
+          labelled boxes floating between two cards. Found by looking at a 392
+          crop, not by any check here.
+          A PLAIN `.card` RATHER THAN A `Group`: `Group` draws a `.label`
+          eyebrow above a `.setting-card`, and the summary already IS this
+          block's heading — an eyebrow over it would say the same thing twice,
+          which is the one-eyebrow-per-section rule in CLAUDE.md. */}
+      <section className="tight" style={{ marginBottom: "var(--sp-5)" }}>
+        <div className="card">
+      <details className="disclose" open={hasLinks} style={{ marginTop: 0 }}>
         <summary>{t("Social and review links")}</summary>
+        {/* `.fields` IS THE GAP. Three `.grid2` rows stacked directly on each
+            other put "TikTok" hard against the Instagram box above it —
+            `label.field` carries no bottom margin, and theme.css already says
+            every other form in the product wraps them in `.fields` for exactly
+            this. It was true before this rebuild too; putting the fold in a
+            card is what made it visible. */}
+        <div className="fields">
         <div className="grid2">
           <label className="field"><span>{"Instagram"}</span>
             <input value={brand.social_instagram} onChange={(e) => setBrand({ ...brand, social_instagram: e.target.value })} /></label>
@@ -343,10 +439,33 @@ export default function BusinessInfo() {
           <label className="field"><span>{t("Yelp review link")}</span>
             <input value={reviews.yelp_review_url} onChange={(e) => setReviews({ ...reviews, yelp_review_url: e.target.value })} /></label>
         </div>
+        </div>
       </details>
+        </div>
+      </section>
+
+      {/* THE TWO VALUES NOBODY BROWSING YOUR SITE EVER SEES. Both used to
+          carry their own explanation inline, because with one flat card there
+          was nothing else that could say who they were for. */}
+      <Group title={t("Only you see these")}>
+        <Setting stacked label={t("Contact email")}
+          help={t("Where we email you about new bookings.")}>
+          <input value={biz.contact_email} onChange={(e) => setBiz({ ...biz, contact_email: e.target.value })} />
+        </Setting>
+        {/* ROADMAP 2.19. NOT the drop-off address, and not decoration: a
+            marketing email has to carry a postal address by law, and
+            `send-campaign` refuses to send without one. A mobile detailer has
+            no unit, so this is often a PO box — which is why it cannot borrow
+            the drop-off address. It is printed on nothing else. */}
+        <Setting stacked label={t("Mailing address")}
+          help={t("Printed at the bottom of marketing email you send. The law asks for it.")}>
+          <input value={biz.mailing_address} onChange={(e) => setBiz({ ...biz, mailing_address: e.target.value })}
+            placeholder={t("e.g. PO Box 214, Lakewood CA 90713")} />
+        </Setting>
+      </Group>
 
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
-      <button className="btn primary" disabled={busy} onClick={save}>{busy ? "Saving" : "Save"}</button>
+      <button className="btn primary" disabled={busy} onClick={save}>{busy ? t("Saving") : t("Save")}</button>
 
       {tzGuard && (
         <TimezoneChangeGuard
@@ -355,6 +474,28 @@ export default function BusinessInfo() {
           onConfirm={persist}
         />
       )}
-    </div>
+    </>
+  );
+}
+
+// THE TILE IS THE PREVIEW AND THE PICKER, which is why it is a `<label>` — the
+// whole thing is the target, so there is no second control to size and no way
+// to press the wrong half. `fit` is the only real difference between the two
+// callers: a logo is a shape on a ground and must not be cropped, a cover
+// photo is a scene and must fill.
+function PhotoTile({ name, url, fit, busy, onPick }) {
+  return (
+    <label className={`phototile${url ? " has" : ""}`}>
+      <span className="phototile-shot">
+        {url
+          ? <img src={url} alt="" style={{ objectFit: fit }} />
+          : <ImagePlus strokeWidth={1.5} aria-hidden="true" />}
+      </span>
+      <span className="phototile-txt">
+        <span className="n">{name}</span>
+        <span className="m">{url ? t("Change") : t("Choose a file")}</span>
+      </span>
+      <input type="file" accept="image/*" hidden disabled={busy} onChange={onPick} />
+    </label>
   );
 }

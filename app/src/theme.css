@@ -2349,6 +2349,50 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .gallery-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-inset); corner-shape: var(--corner); }
 
+/* THE PICTURE PICKER — 2026-09-13, the Business info rebuild. A bare
+   `<input type="file">` is the one control in this product the operating
+   system draws: it ignores every token in this file, it cannot be sized, and
+   Business info had two of them side by side with a floating 48px thumbnail
+   above each. The markup is `Gallery`'s and `SiteIntake`'s — a `<label>`
+   around a hidden input — so nothing new is invented; what is new is that the
+   tile IS the preview, which is why the thumbnail could go.
+   `:focus-within` rather than `:focus`: the focusable thing is the hidden
+   input, so the ring has to be drawn by its label or a keyboard user is
+   tabbing through an invisible control. */
+.phototile {
+  display: flex; flex-direction: column; cursor: pointer;
+  border: 1px solid var(--hairline); border-radius: var(--r-inset);
+  corner-shape: var(--corner); overflow: hidden;
+  background: var(--surface-sunken);
+  transition: border-color var(--t-hover) var(--e-out);
+}
+.phototile:hover { border-color: var(--line-2); }
+.phototile:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.phototile-shot {
+  display: grid; place-items: center; aspect-ratio: 16 / 10;
+  color: var(--text-muted);
+}
+/* `object-fit` is set per caller and not here: a logo is a shape on a ground
+   and must not be cropped, a cover photo is a scene and must fill. */
+.phototile-shot img { width: 100%; height: 100%; display: block; }
+.phototile-shot svg { width: 26px; height: 26px; }
+.phototile-txt {
+  display: flex; flex-direction: column; gap: 1px;
+  padding: var(--sp-2) var(--sp-3);
+  border-top: 1px solid var(--hairline); background: var(--surface);
+}
+.phototile-txt .n { font-size: var(--t-meta); font-weight: 600; color: var(--text); }
+.phototile-txt .m { font-size: var(--t-meta); color: var(--text-muted); }
+
+/* CREDENTIALS ARE A LIST YOU OPEN. The row is `.menu-row`, which is
+   `Catalog`'s own shape and already carries the hover, the corner and the
+   `.menu-name` type — only the two things below differ, because an open row
+   holds a pair of fields where a service row holds a price ladder. */
+.credlist { display: flex; flex-direction: column; gap: 6px; }
+.credrow.open { flex-wrap: wrap; align-items: flex-end; }
+.credrow.open > .grid2 { flex: 1 1 180px; min-width: 0; }
+.credtools { display: flex; gap: 6px; align-items: center; margin-left: auto; }
+
 .center { display: flex; align-items: center; justify-content: center; min-height: 40vh; flex-direction: column; gap: var(--sp-3); }
 .spinner {
   width: 26px; height: 26px; border: 2px solid var(--hairline);

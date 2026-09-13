@@ -63,7 +63,7 @@ export default function TimezonePicker({ value, onChange }) {
   return (
     <div>
       <div className="muted" style={{ marginBottom: 6 }}>
-        Currently {pretty(value)} ({offsetLabel(value)})
+        {t("Currently {zone} ({offset})", { zone: pretty(value), offset: offsetLabel(value) })}
       </div>
       <input
         type="search"
