@@ -1722,6 +1722,39 @@ presses, which trades a small target for a WRONG one. Measure the tops and
 assert the spacing: the fixed rail reads 351, 383, 415, 447, 479, 511, 543 —
 exactly 32 — and zero overlapping pairs.
 
+**(o) A HIDDEN BROWSER PANE DOES NOT RUN `requestAnimationFrame`, SO ANYTHING
+THAT PLANS IN A rAF LOOP DRAWS NOTHING AND READS AS DEAD — 2026-09-13, and it
+cost a session an hour.** The pane does not have to be closed; it only has to be
+hidden behind another. Chromium throttles rAF in a non-visible surface to zero
+callbacks, so a component that measures, lays out or paints inside
+`requestAnimationFrame` never gets its first frame.
+
+**WHAT MAKES THIS ONE WORSE THAN (d) IS THAT EVERY INSTRUMENT SAYS THE PAGE IS
+FINE.** `document.visibilityState` still reads **`visible`** — it describes the
+TAB, not whether the compositor is producing frames — nothing throws, no console
+error appears, `readyState` is `complete`, the DOM is fully built, and
+`getBoundingClientRect` returns real boxes for everything the rAF pass never got
+to. A screenshot of it is a page with a hole in it, and the hole looks exactly
+like a broken feature.
+
+**IT IS THE SIBLING OF (d), NOT A DUPLICATE.** (d) is CSS animations pausing, so
+elements sit at `opacity: 0` and a visibility check calls the screen invisible.
+This is JavaScript scheduling stopping, so elements are never written at all —
+and unlike (d) it cannot be worked around by dropping `opacityProperty` from
+`checkVisibility`, because there is nothing in the tree to check.
+
+**SO FORCE A PAINT BEFORE BELIEVING A SCREEN IS BROKEN.** Front the tab
+(`tabs_select`, or `computer{action:"screenshot"}` on the fronted pane), then
+re-measure. Where the surface cannot be fronted, wait on the thing itself rather
+than on a frame — `until(() => el.count() > 0, 20000)`, which is the same fix
+e2e-booking’s calendar race took. **A `settle()` of N milliseconds is not a
+substitute: in a hidden pane no number of milliseconds produces a frame.**
+
+**AND THE GENERAL FORM, WHICH IS THE PART THAT TRANSFERS:** when a screen reads
+as dead and nothing anywhere reports an error, suspect the HARNESS before the
+product — same reflex as (g), where the dev server was stale and two hours went
+on a CSS rule that was always correct.
+
 **AND THE RULE THEY SHARE, WHICH IS THE ONE TO REMEMBER:** a green result from
 an instrument nobody has checked is worth less than no result, because it stops
 the search. `scripts/sweep-widths.mjs:605` printed *clean* over 38 real

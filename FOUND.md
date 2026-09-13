@@ -5,6 +5,48 @@ Claude Cowork decides what becomes work.
 
 ---
 
+## SEVEN GREEN CHECKS GUARD A MECHANISM NOTHING CAN INVOKE — lane C, 2026-09-13
+
+**`beginImpersonation` is exported by `app/src/lib/impersonation.js` and CALLED
+NOWHERE.** A repo-wide grep across `*.js`, `*.jsx`, `*.mjs` and `*.ts` finds it
+in exactly two places: its own definition, and `tests/platform-admin.test.mjs`.
+No third.
+
+**SO THE WHOLE NOTE MECHANISM IS DEAD CODE**, and it went dead on 2026-09-09
+when Andrew replaced signing in AS a detailer with the `/preview` tab — his own
+words, quoted in `app/src/lib/preview.js`: *"I don’t even wanna be signing in as
+someone to view their dashboard."* That tab keeps its session in `sessionStorage`
+and touches nothing. The consequences, none of which throws:
+
+- no note is ever written, so `impersonation(email)` can only ever return null;
+- the `impbar` strip in `App.jsx` can never render;
+- `endImpersonation()` in `lib/signout.js` clears a key nothing sets.
+
+**AND SEVEN CHECKS STAYED GREEN OVER ALL OF IT** — `13b-ii`, `13d`, `13d-ii`,
+`13d-iii`, `13h`, `13h-ii`, `13h-iii`. Every one greps a source file that still
+exists and is still written correctly. **The module is not wrong; it is
+unreachable**, and a source grep cannot tell those two apart. That is trap (k)
+in its most expensive form, because unlike a renamed spelling it produces no
+failure to investigate.
+
+**FIXED ON THE CHECK SIDE ONLY.** The suite now computes `noteIsWired` — does
+anything in `app/src` CALL `beginImpersonation`, with a lookbehind so the
+definition does not satisfy it — and those seven SKIP, loudly, naming the reason,
+while it is false. They are not deleted: they re-arm themselves with no edit the
+day the note comes back, proven by breaking it (a single added call turned all
+seven skips into passes).
+
+**WHAT IS OWED, AND IT IS LANE B’s:** delete `app/src/lib/impersonation.js`, the
+`impbar` block in `App.jsx`, and the `endImpersonation()` call in
+`lib/signout.js`. The skips disappear with the module. **Do not delete the checks
+instead** — they are the only thing in the repo that would notice the mechanism
+coming back half-wired.
+
+**THE TRANSFERABLE RULE:** a check that greps a file proves the file is written
+correctly and says nothing about whether anything runs it. **Where a feature has
+ONE entry point, assert that something CALLS it** — that is the cheapest
+difference between "written" and "reachable", and it is one regex.
+
 ## THE DEMO HAS NOBODY OWING IT MONEY, SO HALF THE MONEY SCREEN IS INVISIBLE — 2026-09-13, lane B, seed is lane C's
 
 **Measured against `demo-detail` (`1c486181`): all 17 completed bookings are

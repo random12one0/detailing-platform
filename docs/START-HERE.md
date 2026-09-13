@@ -128,7 +128,8 @@ not evidence — the bundle is** (`npm run build --prefix app`, then grep
 **A check that greps source text asserts how something is WRITTEN, not what it
 DOES.** Assert the shared constant, the component, or a computed value.
 
-→ `CLAUDE.md` § FOUR WAYS A BROWSER MEASUREMENT LIES (it is thirteen now) and
+→ `CLAUDE.md` § FOUR WAYS A BROWSER MEASUREMENT LIES — **fifteen of them as of
+2026-09-13; the heading has said FOUR since the day it had four** — and
 `docs/BAR.md` § EVERY CHECKING TOOL IS BASELINED.
 
 ## 5 · WHAT IS FROZEN — do not reopen, do not "improve"

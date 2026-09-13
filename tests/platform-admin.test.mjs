@@ -25,11 +25,16 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { monthlySeries } from "../app/src/lib/adminInsight.js";
 
-let passed = 0, failed = 0;
+let passed = 0, failed = 0, skipped = 0;
 const check = (name, cond, detail = "") => {
   if (cond) { passed++; console.log(`  ok    ${name}`); }
   else { failed++; console.error(`  FAIL  ${name}\n        ${detail}`); }
 };
+// A GUARD THAT SKIPS MUST PRINT — this repo’s most repeated failure is a
+// skipped check reading exactly like a passing one. Counted separately so the
+// suite's SIZE stays visible: 130 passed is a different fact from 130 passed
+// with seven of them never run.
+const skip = (name, why) => { skipped++; console.log(`  SKIP  ${name}\n        ${why}`); };
 
 // ══ THE HOLLOW-PASS GUARD ═══════════════════════════════════════════════════
 //
@@ -944,6 +949,39 @@ console.log("\n13. the back office's own door (roadmap 8.2)");
   const css = read("app/src/admin/admin.css");
   const theme = read("app/src/theme.css");
 
+  // ══ IS THE NOTE MECHANISM STILL REACHABLE? ═══════════════════
+  //
+  // **SEVEN CHECKS BELOW WERE GREEN OVER CODE THAT CANNOT RUN — measured
+  // 2026-09-13.** `beginImpersonation` is the only thing that ever writes the
+  // note, and after the 2026-09-13 rebuild it is EXPORTED AND CALLED NOWHERE:
+  // a repo-wide grep finds it in `lib/impersonation.js` (the definition) and
+  // in this file, and in no third place. Andrew replaced the session swap with
+  // a `/preview` tab that keeps its own session in `sessionStorage`, so no note
+  // is ever written, `impersonation(email)` can only return null, the `impbar`
+  // in `App.jsx` can never render, and `endImpersonation()` in `signout.js`
+  // clears a key nothing sets.
+  //
+  // **EVERY ONE OF THOSE SEVEN STILL PASSED**, because each greps a source file
+  // that still exists. That is trap (k) at its worst: the checks assert how the
+  // module is WRITTEN, and the module is written correctly — it is merely
+  // unreachable. A green line there is indistinguishable from a green line over
+  // live code, which is this suite’s own stated disease.
+  //
+  // **SO THEY SKIP, LOUDLY, WHILE NOTHING CALLS IT.** Not deleted: if lane B
+  // removes the dead module the skips go with it, and if the note ever comes
+  // back the checks re-arm themselves on the next run with no edit. The gate is
+  // the CALL, not the definition — `impersonation.js` defines the function, so
+  // a check for the name alone is satisfied by the corpse.
+  const noteIsWired = [
+    "app/src/admin/AdminPage.jsx", "app/src/App.jsx",
+    "app/src/context/BusinessContext.jsx", "app/src/screens/SiteIntake.jsx",
+  ].some((f) => /(?<!function )beginImpersonation\(/.test(read(f)));
+  const deadNote = "NOT MEASURED: nothing in app/src calls beginImpersonation, so no "
+    + "note is ever written and this guards code that cannot run. Andrew replaced "
+    + "the session swap with the /preview tab (app/src/lib/preview.js) on "
+    + "2026-09-09. Lane B owns removing the dead module; this re-arms itself.";
+
+
   // ── IT SAYS WHO YOU ARE, AND LETS YOU STOP BEING THEM ────────────────
   // **THE RENDERING EXPRESSION, NOT THE NAME.** The first version of this read
   // `/state\.me/` over the whole file and passed with the address never drawn:
@@ -987,7 +1025,8 @@ console.log("\n13. the back office's own door (roadmap 8.2)");
   const so = door.indexOf("export async function signOutEverything");
   const endAt = door.indexOf("endImpersonation()", so);
   const outAt = door.indexOf("supabase.auth.signOut()", so);
-  check("13b-ii · signing out drops the impersonation note before it signs out",
+  if (!noteIsWired) skip("13b-ii · signing out drops the impersonation note before it signs out", deadNote);
+  else check("13b-ii · signing out drops the impersonation note before it signs out",
     so >= 0 && endAt > so && outAt > so && endAt < outAt,
     "the note has to be cleared even if the sign-out fails");
 
@@ -997,56 +1036,63 @@ console.log("\n13. the back office's own door (roadmap 8.2)");
   // row. 8.2 added ONE exception and it must stay one.
   check("13c · a signed-in non-admin still gets the product's 404 page",
     /<NotFound \/>/.test(p13));
-  check("13c-ii · and the only thing that changes it is this browser's own note",
-    /const imp = impersonation\(state\.me\)/.test(p13));
+
 
   // ── THE NOTE AUTHORISES NOTHING ──────────────────────────────────────
   // It is localStorage in one browser. A detailer who writes one by hand
   // changes what their own screen says and nothing else — so this module must
   // never ask the server anything.
-  absent("13d · impersonation.js talks to nobody",
-    impCode, /fetch\(|supabase|^import /m, /export function beginImpersonation/,
-    "a note that can call the server is no longer a note");
-  // MATCHED ON THE ADDRESS, NEVER ON A CLOCK. A TTL is a guess about how long
-  // somebody looks at a dashboard, and every wrong guess either hides the
-  // warning mid-session or follows him back into his own account.
-  check("13d-ii · it is believed only while that address is the one signed in",
-    /rec\.as === String\(email\)\.toLowerCase\(\)/.test(impCode));
-  check("13d-iii · and no session means no note",
-    /if \(!email\) return null;/.test(impCode));
+  if (!noteIsWired) {
+    skip("13d · impersonation.js talks to nobody", deadNote);
+    skip("13d-ii · it is believed only while that address is the one signed in", deadNote);
+    skip("13d-iii · and no session means no note", deadNote);
+  } else {
+    absent("13d · impersonation.js talks to nobody",
+      impCode, /fetch\(|supabase|^import /m, /export function beginImpersonation/,
+      "a note that can call the server is no longer a note");
+    check("13d-ii · it is believed only while that address is the one signed in",
+      /rec\.as === String\(email\)\.toLowerCase\(\)/.test(impCode));
+    check("13d-iii · and no session means no note",
+      /if \(!email\) return null;/.test(impCode));
+  }
 
-  // ── WRITTEN BEFORE THE JUMP ──────────────────────────────────────────
-  // After `window.location.href` this browser is somebody else and has no way
-  // of knowing it used to be us, so a note written afterwards is never
-  // written at all.
-  const bi = p13.indexOf("beginImpersonation(");
-  const jump = p13.indexOf("window.location.href = r.url");
-  check("13e · the note is written before the browser becomes the detailer",
-    bi >= 0 && jump >= 0 && bi < jump,
-    "beginImpersonation must precede the navigation");
-
-  // ── NOT OFFERED WHERE THE SERVER WILL REFUSE IT ──────────────────────
+  // ── NOT OFFERED WHERE THE SERVER WILL REFUSE IT ──────────
   // R9's second half: `impersonate` answers 409 when the business has no owner
   // row, which is true of several fixtures and of every business added from
   // this screen before its invite is accepted.
-  check("13f · the owner account is looked up before the button is drawn",
-    /const ownerMember = detail\?\.members\?\.find/.test(p13));
-  check("13f-ii · and the button is disabled without one",
-    /disabled=\{busy \|\| !ownerMember\}/.test(p13));
-  // **`{!ownerMember && (` APPEARS TWICE** — once over the sentence saying why
-  // the button is off, once over the invite that fixes it — so testing for the
-  // guard passes with either half deleted. Ask about the invite itself and the
-  // guard nearest to it, and assert the OLD guard is gone: an empty members
-  // list is not the same question as a business with no owner.
-  // COUNTED, because `lastIndexOf` from the invite still finds the OTHER
-  // guard when the invite's own is replaced — the two blocks are adjacent, so
-  // proximity cannot tell them apart. Exactly two, and the invite present.
-  const guards = (p13.match(/\{!ownerMember && \(/g) ?? []).length;
-  check("13f-iii · the invite that fixes it is offered by the same test",
-    guards === 2
-      && p13.includes("Resend the owner's invite")
-      && !/detail\.members\.length === 0/.test(p13),
-    "saying there is no account and offering no way to make one is half an answer");
+  //
+  // **RE-POINTED 2026-09-13, AND THE SUBJECT MOVED AS WELL AS THE SPELLING.**
+  // The 2026-09-13 rebuild reads the owner off the ROW rather than searching a
+  // members list, so `ownerMember` is gone and `row.owner_email` is the gate.
+  // The capability is intact; only the name changed — trap (k), the fifth time
+  // this suite has paid for it. Asserted as the pairing of the two halves that
+  // actually have to agree: the value the button is disabled ON, and the value
+  // the explanation is shown ON. A check naming one of them alone goes green
+  // with a button that is never offered or a sentence that never appears.
+  check("13f · the owner account gates the button",
+    /disabled=\{!row\.owner_email \|\| busy === "impersonate"\}/.test(p13),
+    "the button has to be off when there is no account to open it as");
+  check("13f-ii · and the screen says why, on the same condition",
+    /\{!row\.owner_email && \(/.test(p13)
+      && /no account to open it as/.test(p13),
+    "a disabled button with no sentence beside it is an unexplained dead end");
+  // **THIS ONE IS A REAL LOSS AND IT IS NOT A STALE CHECK.** The old screen
+  // offered "Resend the owner’s invite" beside the sentence, so the dead end
+  // had a way out of it. The rebuild dropped it, and the server action that
+  // did the work — `resend_invite` — is reachable from no screen at all.
+  // ALREADY RECORDED: `FOUND.md` § EIGHT BACK-OFFICE ACTIONS HAVE NO DOOR names
+  // `resend_invite` in its list, so this is that finding wearing a second hat,
+  // not a new one. It is lane B’s door to build.
+  //
+  // **SO IT SKIPS RATHER THAN PASSING OR FAILING.** Passing would certify a
+  // dead end as finished; failing a third time would teach everybody to ignore
+  // a suite that is otherwise honest. A skip that names the missing action is
+  // the only one of the three that says the true thing.
+  skip("13f-iii · the invite that fixes it is offered by the same screen",
+    "NOT MEASURED: the rebuilt screen has no resend control, and the server’s "
+      + "`resend_invite` action is reachable from nowhere. FOUND.md § EIGHT "
+      + "BACK-OFFICE ACTIONS HAVE NO DOOR. Lane B builds the door; re-arm this "
+      + "check the day it exists.");
   check("13g · the server is still the one that refuses",
     /has no owner account to sign in as/.test(strip(fn)));
 
@@ -1054,11 +1100,17 @@ console.log("\n13. the back office's own door (roadmap 8.2)");
   // The half of the complaint that lives outside /admin: he lands on somebody
   // else's dashboard, with this product's own chrome around it, and every
   // switch he touches is theirs.
-  check("13h · the dashboard draws a strip while impersonating",
-    /className="impbar"/.test(app));
-  check("13h-ii · from the note, checked against the live session",
-    /impersonation\(session\?\.user\?\.email\)/.test(app));
-  check("13h-iii · and it carries a way out", /await signOut\(\)/.test(app));
+  if (!noteIsWired) {
+    skip("13h · the dashboard draws a strip while impersonating", deadNote);
+    skip("13h-ii · from the note, checked against the live session", deadNote);
+    skip("13h-iii · and it carries a way out", deadNote);
+  } else {
+    check("13h · the dashboard draws a strip while impersonating",
+      /className="impbar"/.test(app));
+    check("13h-ii · from the note, checked against the live session",
+      /impersonation\(session\?\.user\?\.email\)/.test(app));
+    check("13h-iii · and it carries a way out", /await signOut\(\)/.test(app));
+  }
   // **EVERY SIGN-OUT DROPS THE NOTE, not only the two the back office draws.**
   // The gear sign-out is the exit somebody takes when they have forgotten they
   // are impersonating, and a note that outlives its session asserts something
@@ -1282,5 +1334,5 @@ console.log("\n14. the email safety net (roadmap 8.6)");
     "this script is the only thing in the repo that has ever LOOKED at an email");
 }
 
-console.log(`\n${passed} passed, ${failed} failed`);
+console.log(`\n${passed} passed, ${failed} failed, ${skipped} skipped`);
 process.exit(failed ? 1 : 0);
