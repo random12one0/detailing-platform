@@ -590,6 +590,27 @@ Each of these was investigated to a conclusion. **Do not re-investigate.**
 
 ---
 
+
+## 1f - PROVEN TONIGHT - lane C, 2026-09-13, at 5351d00
+
+| what was proven | number | invalidated by a change to |
+|---|---|---|
+| **The evening-before reminder threshold is noon**, in the schema default and on every row that held the old one | column_default 12:00:00; **15 of 15 rows** read 12:00:00, read back from the live database | supabase/migrations/**, _shared/tenant.ts |
+| **A fixture recipient on a reserved domain costs nothing, and a deliverable one is charged** - proved live through the DEPLOYED relay | sink-probe@fixture.test -> success/undeliverable_domain, claimed 99->99, refused 5->5. real-probe@detailplatform.com -> 429 daily_cap, refused 5->6 | supabase/functions/send-email/index.ts |
+| **No suite or script can spend real mail without declaring it** | mail-sink **13 passed, 0 failed**, over 101 files and 161 address occurrences - 134 free, 27 declared, 0 undeclared. Baselined by **5** deliberate breaks, every one red | tests/**, scripts/**, supabase/functions/send-email/index.ts |
+| **Auth accounts are not spenders**, which looks like they would be | mailer_autoconfirm = true and smtp_host = null on kguqylyzgyzfktkfnhjb, read from the Management API | that project's auth config - nothing in this repo |
+| The suites that were converted still pass | multi-vehicle **63/0**, staff-roles **64/0**, promo-checkout **102/0**, booking-core **237/0**, booking-engine **104/0**, two-logins **56/0**, email-budget **26/0/0** | their own subjects |
+| **dead-mans-switch counts what the gate counts** | 48/2 before the fix and **50/0** after, same day, same tree. It now prints *the provider leg NOT MEASURED - 100 of 100 claimed today (88 of them sent)* | tests/dead-mans-switch.test.mjs, the two email-budget migrations |
+| **All 37 edge functions are running the repo shared tenant default** - the _shared/tenant.ts change made 30 of them stale at once and all 30 were redeployed | check-deployed.mjs: *all 37 functions are current* | **any** file under supabase/functions/** |
+| The platform-admin suite moved off a broken instrument | **111/49 -> 118/43**. strip() had been deleting 43-75% of every non-SQL file the suite reads. Four re-pointed checks baselined against four mutated copies of the screen in memory | tests/platform-admin.test.mjs, app/src/admin/** |
+
+**THE FIGURE THAT IS STILL DELIBERATELY NOT A CLEAN BILL:** platform-admin is
+**43 failed**, and docs/platform-admin-triage-2026-09-13.md says which are stale
+spellings for lane C and which name a capability the rebuild may have dropped,
+which are lane B's.
+
+---
+
 ## HOW THIS FILE EARNS ITS KEEP
 
 Andrew paid for every number above once. **The cost of this file is one `git
