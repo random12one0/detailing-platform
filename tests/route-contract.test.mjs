@@ -27,6 +27,16 @@ const main = await readFile("app/src/main.jsx", "utf8");
 
 // What the router actually serves.
 const routes = [...main.matchAll(/<Route\s+path="([^"]+)"/g)].map((m) => m[1]);
+
+// THE SUBJECT COUNT. The checks that follow are NEGATIVES, and a negative
+// over an EMPTY file is true. Measured 2026-09-13 by truncating every
+// product source file to zero bytes: 3 of this suite's checks stayed
+// green over nothing. Asserting the bytes is what stops a read that
+// silently returned an empty string from reading as a clean bill.
+check("0 · the two sources were actually read, and routes were found",
+  config.length > 2000 && main.length > 2000 && routes.length > 10,
+  `config ${config.length}B, main ${main.length}B, ${routes.length} routes`);
+
 console.log("routes served:", routes.join(", "));
 
 console.log("\ntest 1: the routes the emails point at exist");

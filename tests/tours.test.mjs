@@ -35,6 +35,15 @@ const check = (name, cond, detail = "") => {
 const walk = read("app/src/components/Walkthrough.jsx");
 const app = read("app/src/App.jsx");
 
+// THE SUBJECT COUNT. The checks that follow are NEGATIVES, and a negative
+// over an EMPTY file is true. Measured 2026-09-13 by truncating every
+// product source file to zero bytes: 2 of this suite's checks stayed
+// green over nothing. Asserting the bytes is what stops a read that
+// silently returned an empty string from reading as a clean bill.
+check("0  the two sources were actually read",
+  walk.length > 2000 && app.length > 1000, `walk ${walk.length}B, app ${app.length}B`);
+
+
 // the five tab keys the rail actually renders
 const TABS = ["today", "calendar", "money", "clients", "business"];
 const tourBlock = walk.slice(walk.indexOf("export const TOURS"), walk.indexOf("export const MIN_STEPS"));

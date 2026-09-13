@@ -66,6 +66,16 @@ const UNDOC = strip(read("supabase/migrations/20260913010000_watchdog_never_lose
 const FN = read("supabase/functions/watch-jobs/index.ts");
 const FNC = strip(FN);
 const ADMIN = read("app/src/admin/AdminPage.jsx");
+
+// THE SUBJECT COUNT. The checks that follow are NEGATIVES, and a negative
+// over an EMPTY file is true. Measured 2026-09-13 by truncating every
+// product source file to zero bytes: 3 of this suite's checks stayed
+// green over nothing. Asserting the bytes is what stops a read that
+// silently returned an empty string from reading as a clean bill.
+check("0 · the three sources were actually read",
+  MIG.length > 1000 && FN.length > 2000 && ADMIN.length > 2000,
+  `mig ${MIG.length}B, fn ${FN.length}B, admin ${ADMIN.length}B`);
+
 const ADMINC = strip(ADMIN);
 const PA = strip(read("supabase/functions/platform-admin/index.ts"));
 const SEND = strip(read("supabase/functions/send-email/index.ts"));

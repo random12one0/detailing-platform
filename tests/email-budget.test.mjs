@@ -173,6 +173,13 @@ if (!SB_URL || !KEY) {
 console.log("\n2. send-email claims after the free exits and before the provider");
 {
   const src = readFileSync(new URL("../supabase/functions/send-email/index.ts", import.meta.url), "utf8");
+  // THE SUBJECT COUNT. Every check under this line is a NEGATIVE, and a
+  // negative over an EMPTY file is true. Measured 2026-09-13 by truncating
+  // every product source file to zero bytes: 2 of them stayed green over
+  // nothing. Asserting the bytes is what stops a read that silently returned
+  // an empty string from reading as a clean bill.
+  check("2a-0 the relay source was actually read", src.length > 4000, `${src.length} bytes`);
+
 
   const at = (needle) => src.indexOf(needle);
   const claimAt = at("claim_email_send");

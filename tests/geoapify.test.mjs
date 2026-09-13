@@ -58,7 +58,13 @@ const DEPLOY = read("scripts/deploy-functions.mjs");
 console.log("1. the seam is one file, so switching provider is one file");
 {
   const fns = walk(join(root, "supabase/functions"), [".ts", ".js"]);
-  check("1a · the check has subjects", fns.length > 50, `${fns.length} files walked`);
+  // COUNTING FILES IS NOT COUNTING CONTENT - 2026-09-13. This counter read
+  // `fns.length > 50` and passed over 67 files truncated to zero bytes, which
+  // took 1b, 1c and 1d green with it. A subject counter that can be satisfied
+  // by a directory listing is the same blindness one level up.
+  const fnBytes = fns.reduce((n, f) => n + readFileSync(f, "utf8").length, 0);
+  check("1a · the check has subjects", fns.length > 50 && fnBytes > 200000,
+    `${fns.length} files walked, ${fnBytes} bytes read`);
 
   const namesHost = fns.filter((f) => /api\.geoapify\.com/.test(readFileSync(f, "utf8")));
   check("1b · only _shared/geoapify.ts names the host",
@@ -81,8 +87,20 @@ console.log("1. the seam is one file, so switching provider is one file");
 console.log("2. the key never reaches a browser");
 {
   const appFiles = walk(join(root, "app"), [".js", ".jsx", ".ts", ".tsx", ".html", ".json", ".css"]);
-  check("2a · the check has subjects", appFiles.length > 50, `${appFiles.length} files walked`);
+  // Same fix as 1a, and this one guards a SECRET: 2b is "nothing under app/
+  // mentions the key or the host", and a blanked `app/` passed it.
+  const appBytes = appFiles.reduce((n, f) => n + readFileSync(f, "utf8").length, 0);
+  check("2a · the check has subjects", appFiles.length > 50 && appBytes > 200000,
+    `${appFiles.length} files walked, ${appBytes} bytes read`);
   const leaked = appFiles.filter((f) => /GEOAPIFY|geoapify\.com/i.test(readFileSync(f, "utf8")));
+  // A POSITIVE CONTROL FOR THE MATCHER ITSELF - 2026-09-13. 2b is a negative
+  // over a tree where zero is the right answer, so nothing about a green 2b
+  // proves the pattern can match anything at all. The same regex is run over
+  // the ONE file that is supposed to name the provider; if it cannot find it
+  // there, a silent 2b means nothing.
+  check("2a-ii · and the pattern it scans with can actually match",
+    /GEOAPIFY|geoapify\.com/i.test(MOD),
+    "_shared/geoapify.ts names the provider; a regex that misses it makes 2b meaningless");
   // NOT "no literal key": a regex for the key's SHAPE would pass the day
   // somebody interpolates it. The name and the host are what a client-side
   // implementation cannot avoid mentioning.
