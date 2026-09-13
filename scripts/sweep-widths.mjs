@@ -496,20 +496,37 @@ for (const w of SIZES) {
   // exist. It printed "the gear   clean" and then reported the twelve rows
   // beneath it as NO SUCH ROW, which reads like a renamed control rather than
   // a crash. The boundary's own heading is the cheapest possible tell.
-  const say = async (label) => {
+  // **TWO BUGS LIVED IN FOUR CALL SITES HERE AND THEY HID EACH OTHER —
+  // 2026-09-12.**
+  //
+  // (1) `say` INCREMENTS `found` ITSELF and returns nothing, so four call sites
+  //     written as `await say(...)` added `undefined` — making `found`
+  //     NaN from the first sign-in screen onward. `NaN` is falsy, so the verdict
+  //     printed "clean" and `process.exit(found ? 1 : 0)` exited 0. **This tool
+  //     reported success no matter what it measured**, and one run printed 38
+  //     real geometry findings above that word.
+  // (2) Those same four calls passed a SECOND ARGUMENT, a different page, and
+  //     `say` never had a second parameter. It measured the outer `page` every
+  //     time, so the four screens behind the sign-in form were never measured at
+  //     all — including on runs that did report problems.
+  //
+  // The second is why the first survived: the four calls that broke the counter
+  // were also the four that measured nothing, so no finding ever came out of
+  // them to contradict the word "clean".
+  const say = async (label, target = page) => {
     if (ONLY && !label.toLowerCase().includes(ONLY.toLowerCase())) return;
-    const broken = await page.evaluate(() => /That didn't load/.test(document.body.innerText));
+    const broken = await target.evaluate(() => /That didn't load/.test(document.body.innerText));
     if (broken) {
       // textContent, not innerText: the reason lives inside a CLOSED <details>,
       // which innerText correctly reports as invisible — and an empty reason
       // beside the word CRASHED is the least useful half of this message.
-      const why = await page.evaluate(() =>
+      const why = await target.evaluate(() =>
         (document.querySelector("details")?.textContent ?? "").replace("Technical detail", "").trim());
       console.log(`${label.padEnd(24)} CRASHED — the error boundary is on screen: ${why}`);
       found++;
       return;
     }
-    const rows = await page.evaluate(CHECK);
+    const rows = await target.evaluate(CHECK);
     found += rows.length;
     console.log(`${label.padEnd(24)} ${rows.length ? "\n  " + rows.join("\n  ") : "clean"}`);
   };
@@ -602,12 +619,12 @@ for (const w of SIZES) {
       await p2.goto(`${BASE}/app${LITE}`, { waitUntil: "domcontentloaded" });
       await p2.waitForSelector("input[type=email]", { timeout: 20000 });
       await settle(p2);
-      found += await say("the way in", p2);
+      await say("the way in", p2);
       const make = p2.locator("form button.btn").filter({ hasText: NAMED_TEXT("Create an account") });
       if (await make.count()) {
         await make.click();
         await settle(p2);
-        found += await say("the way in · new account", p2);
+        await say("the way in · new account", p2);
       } else {
         console.log(`${"the way in · new account".padEnd(24)} NOT MEASURED — no "Create an account" button`);
         found++;
@@ -618,7 +635,7 @@ for (const w of SIZES) {
       if (await reset.count()) {
         await reset.click();
         await settle(p2);
-        found += await say("the way in · reset", p2);
+        await say("the way in · reset", p2);
       } else {
         console.log(`${"the way in · reset".padEnd(24)} NOT MEASURED — no "I forgot my password" button`);
         found++;
@@ -648,7 +665,7 @@ for (const w of SIZES) {
       await p2.waitForSelector("input[type=email]", { timeout: 20000 });
       await settle(p2);
       if (await p2.locator("[data-parked-accounts]").count()) {
-        found += await say("the way in · parked", p2);
+        await say("the way in · parked", p2);
       } else {
         // A GUARD THAT SKIPS MUST PRINT. Six measurements vanishing is
         // byte-identical to six measurements passing.
@@ -1633,6 +1650,16 @@ await browser.close();
 }
 if (TIMING) {
   console.log(`waited ${(settled / 1000).toFixed(1)}s where the old fixed sleeps would have waited ${(slept / 1000).toFixed(1)}s`);
+}
+// **THE COUNTER IS CHECKED BEFORE IT IS BELIEVED — 2026-09-12.** `found` was
+// NaN for months and every reader of this script took the word that came out
+// the other side. A verdict computed from a number nobody validated IS the
+// failure, so the number is validated: a non-finite count is loud and exits 2,
+// which is neither "clean" nor "problems" and cannot be mistaken for either.
+if (!Number.isFinite(found)) {
+  console.error(`\nINSTRUMENT BROKEN: the problem counter is ${found}, not a number. `
+    + `Nothing this run printed can be trusted — a non-finite count reads as "clean".`);
+  process.exit(2);
 }
 console.log(found
   ? `\n${found} problem${found === 1 ? "" : "s"} — see above`

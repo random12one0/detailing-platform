@@ -834,3 +834,46 @@ disease as the i18n ratchet**: nine red tests everybody has learned to scroll
 past are nine tests nobody reads, and the one real regression hiding among them
 would never be seen. Somebody has to sort which is which, one at a time, and
 record the verdict beside each.
+
+## FIVE RED SUITES NOBODY HAD NAMED — 2026-09-12
+
+Found by running all 44 test files in one pass while auditing the instruments.
+`platform-admin` was known (ROADMAP said 46; it is **48**). **The other four
+were not.**
+
+| suite | failing |
+|---|---|
+| `platform-admin` | 48 |
+| `dead-mans-switch` | 5 |
+| `multi-vehicle` | 1 |
+| `plans` | 1 |
+| `platform-billing` | 1 |
+
+**56 failing checks, on top of `e2e-booking`'s nine.** None is triaged here.
+
+**AND THE SHAPE IS THE SAME AS EVERYTHING ELSE TODAY.** A suite that is quietly
+red is a suite nobody reads, and the one real regression hiding in 48 stale
+checks is the reason it matters. `platform-admin` has been red since at least
+2026-09-11 with a note saying somebody has to sort which is which, one failure
+at a time, and nobody has.
+
+**Two of the four new ones are single failures**, which is the cheapest possible
+triage and the most likely to be a stale assertion — and also the easiest to
+have been introduced by today's work, so they should be checked against their
+parent commits by NAME before anyone assumes.
+
+## THE INSTRUMENT AUDIT — 2026-09-12
+
+**8 tools audited, 8 caught their break, 0 failed the baseline.** composition,
+design-contrast, route-contract, booking-core, setup-progress, tours, spanish,
+landing-pricing. With `sweep-widths.mjs` that is **9 examined, 1 confirmed
+blind** — and that one is fixed.
+
+**THE AUDIT'S OWN FALSE POSITIVES ARE THE FINDING WORTH KEEPING.** Three of the
+first eight attempts reported MISSED and **all three were the break landing
+outside what the tool asserts**: a CSS edit fed to a check that reads JSX, a
+route renamed that `route-contract` never names, an `export /*x*/` that changes
+nothing. A fourth was a regex that hit a year in a comment instead of a price.
+**Four wrong accusations out of twelve attempts** — so an audit needs the same
+discipline it is auditing for: read what the tool asserts, and confirm the break
+is inside that contract, before believing a miss.

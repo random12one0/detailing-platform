@@ -133,6 +133,58 @@ full-size control**, because that is what happened the only time it came up.
 which is scoped to the detailer side, and that is a gap rather than an
 exemption.)
 
+## EVERY CHECKING TOOL IS BASELINED BEFORE ITS PASS IS BELIEVED
+
+**Claude Cowork's rule, 2026-09-12, and it is the headline of the whole run.**
+
+> A tool that has never been shown to fail has not been shown to work.
+
+**Feed it a case it is KNOWN to reject. If it stays green, its green means
+nothing.** The synthetic 20x20 element used for tap targets is this rule in its
+smallest form — a control of known size, measured every run, so the instrument
+proves itself before it reports on anything else.
+
+**THIS IS NOT HYPOTHETICAL AND IT IS NOT ONE BUG. It is a habit in how tools get
+written here, and three separate instruments in this repo have reported success
+regardless of reality:**
+
+| | what it said | what was true |
+|---|---|---|
+| `spanish.test.mjs` / the i18n ratchet | 100% coverage, 0 missing | 257 strings had no Spanish, 238 of them one screen's |
+| `sweep-widths.mjs` | `clean`, and exit 0 | the counter was `NaN`; one run printed 38 real findings above the word |
+| the `pushState` settings sweep | 22 screens green | it measured one screen 22 times |
+
+**That is more dangerous than any single defect any of them missed, because it
+is how a broken product passes review.** A wrong answer gets argued with; a
+confident right-looking answer ends the conversation.
+
+### The audit that follows from it
+
+**Run periodically, and after writing any new check.** Results, 2026-09-12:
+**8 tools audited, 8 caught their break, 0 failed the baseline** — plus
+`sweep-widths.mjs`, already known broken and fixed in the same pass, making
+**9 examined and 1 confirmed blind**.
+
+**AND THE AUDIT HAS THE SAME DISEASE AS THE TOOLS, WHICH IS THE PART TO
+REMEMBER.** Three of the first eight break attempts came back "MISSED" and
+**every one was the break landing outside what that tool actually asserts** — a
+CSS edit fed to a check that reads JSX, a route renamed that the route contract
+never names, an `export /*x*/` that changes nothing. **A break the tool was
+never asked to catch proves nothing about the tool**, and reporting it as a miss
+is exactly the error the audit exists to hunt, pointed the other way.
+
+**So: before calling a tool blind, read what it asserts and confirm the break is
+inside that contract.** Three would have been filed as broken tools otherwise,
+and somebody would have spent a day fixing four things that were never wrong.
+
+### And a counter that decides a verdict is validated before it is used
+
+`sweep-widths.mjs` now refuses to print a verdict at all when its problem count
+is not a finite number — it says the instrument is broken and exits 2, which is
+neither "clean" nor "problems" and cannot be mistaken for either. **A verdict
+computed from a number nobody checked is the entire failure**, and `NaN` is
+falsy, so the broken state is indistinguishable from the good one at a glance.
+
 ## THE CALIBRATION PROCEDURE — REQUIRED, NOT ADVICE
 
 **Between two reviewers in a single run, a coarse probe produced FOUR false
