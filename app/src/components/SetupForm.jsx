@@ -54,10 +54,18 @@ import { SCREENS } from "../screens/more/index.js";
 import { t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 
-export default function SetupForm({ onClose }) {
+// `start` IS THE STEP TO OPEN ON, and it exists because Business's "Finish
+// setting up" row now names the next unfinished step (Andrew, 2026-09-13).
+// A row that says *Next: Where you work* and then opens on *What do you charge
+// for?* is a control lying about itself. Every other caller passes nothing and
+// gets step one, exactly as before.
+export default function SetupForm({ onClose, start = 0 }) {
   useAppLocale();
   const { business, settings, reload: reloadTenant } = useBusiness();
-  const [i, setI] = useState(0);
+  // Read once, at mount. It is a STARTING point and not a controlled value —
+  // re-seeding it while somebody is walking the form would drag them back to
+  // the step they came in on every time the tenant reloads.
+  const [i, setI] = useState(() => Math.min(Math.max(0, start), STEPS.length - 1));
   // Which way the last move went, so the step that arrives comes from the
   // side it was travelling from rather than always from the right.
   const [dir, setDir] = useState(1);

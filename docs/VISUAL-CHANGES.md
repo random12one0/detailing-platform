@@ -518,3 +518,34 @@ what is left" as you type, and a wrong number looks wrong immediately. Save
 sends the whole table, and a second button puts it back to the built-in prices.
 
 **Visual: yes.**
+
+---
+
+## 27 · Business — your link, what to do next, and what everything is filed under
+
+**Open:** `localhost:5173/app` → **Business** at the bottom.
+
+**WAS:** The page opened on the title, then a reminder box, and your booking
+link — the one thing on this screen you actually send to customers — was the
+third thing down. The reminder said "Finish setting up · 3 of 11 done" and
+nothing else: it did not say which of the eight was next, and pressing it
+dropped you at question one of eleven whatever you had already answered, so you
+tapped "I'll do this later" two or three times to get to the one you needed.
+Underneath, everything you can change sat in three lists, and the first of them
+held seven unrelated things — your name and phone, your color, your photos, your
+reviews, your questions, your web address, and a count of who clicked your
+flyer — all under one heading.
+
+**NOW:** Your booking link is the first thing on the page, with Copy, Open and
+the QR code, and Share above them on a phone. The reminder sits under it and
+names the next thing to do — "Next: Hours" — with "3 of 11 done" as the smaller
+line, and pressing it opens setup at that question rather than at the first one.
+Everything below is filed under four headings that say what you are trying to
+do: what customers see, what you charge for, when you can be booked, and where
+customers come from. Two rows moved as part of that — your web address now sits
+beside your tracking links, because those are the only two rows that change or
+measure the link at the top of the page, and maintenance deadlines moved next to
+your hours, because a deadline is a customer who should be on your calendar and
+is not.
+
+**Visual: yes.**

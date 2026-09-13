@@ -374,10 +374,18 @@ export const appEs = {
   "Switch business": "Cambiar de negocio",
 
   // ── THE BUSINESS TAB ─────────────────────────────────────────────────────
-  // Its four group headings and the live summary under every row.
+  // Its group headings and the live summary under every row.
+  // REGROUPED 2026-09-13 — four jobs rather than three categories. The two
+  // retired headings stay keyed: nothing renders them today, but a key nobody
+  // asks for costs nothing and a MISSING one shows English with no error.
+  "What customers see": "Lo que ven los clientes",
+  "What you charge for": "Lo que cobras",
+  "Where customers come from": "De dónde vienen los clientes",
   "Your page": "Tu página",
   "What you sell": "Lo que vendes",
   "When you can be booked": "Cuándo te pueden agendar",
+  // The "Finish setting up" row names the next unfinished step.
+  "Next: {name}": "Siguiente: {name}",
   "Used everywhere, including here": "Se usa en todos lados, incluso aquí",
   "Nothing from a customer yet": "Nada de un cliente todavía",
   "Nothing tracked yet": "Nada rastreado todavía",
@@ -2304,8 +2312,8 @@ export const appEs = {
   "What this phone or computer remembers, and the language you read.":
     "Lo que recuerda este teléfono o computadora, y el idioma en que lees.",
   "And this is where you start this tour again, any time.": "Y aquí es donde empiezas este recorrido otra vez, cuando quieras.",
-  "What is left to finish. Everything already done is live on your booking page.":
-    "Lo que falta terminar. Todo lo ya hecho está activo en tu página de citas.",
+  "What is left to finish, and which one to do next. Everything already done is live on your booking page.":
+    "Lo que falta terminar, y cuál sigue. Todo lo ya hecho está activo en tu página de citas.",
   "The web address customers use. It works before you own a domain of your own.":
     "La dirección web que usan los clientes. Funciona antes de que tengas un dominio propio.",
   "What you charge for. Nothing can be booked until there is something in here.":

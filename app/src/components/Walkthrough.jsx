@@ -209,16 +209,22 @@ export const TOURS = {
     ["tourrow", "And this is where you start this tour again, any time."],
   ],
   business: [
-    // IN THE ORDER THE ROWS SIT ON THE SCREEN — "Your page", then "What you
-    // sell", then "When you can be booked". Written in any other order the
-    // guide walks up and down the page, which is what it did when it was
+    // IN THE ORDER THE ROWS SIT ON THE SCREEN — the link, then what is left to
+    // finish, then "What customers see", "What you charge for", "When you can
+    // be booked" and "Where customers come from". Written in any other order
+    // the guide walks up and down the page, which is what it did when it was
     // first built and what the screenshots caught.
-    ["setup", "What is left to finish. Everything already done is live on your booking page."],
-    ["domain", "The web address customers use. It works before you own a domain of your own."],
+    //
+    // **RE-ORDERED 2026-09-13 WITH THE SCREEN.** The link moved to the top of
+    // Business and the groups were rebuilt into four jobs, so this list was
+    // walking backwards up a page it used to walk down — the link step was
+    // last and its target is now the first thing on the screen.
+    ["link", "Send this link to a customer and they book themselves in."],
+    ["setup", "What is left to finish, and which one to do next. Everything already done is live on your booking page."],
     ["catalog", "What you charge for. Nothing can be booked until there is something in here."],
     ["payments", "Cash, card, Venmo: how you want customers to pay you."],
     ["hours", "The days and times you work, and the days you are off."],
-    ["link", "Send this link to a customer and they book themselves in."],
+    ["domain", "The web address customers use. It works before you own a domain of your own."],
   ],
 };
 

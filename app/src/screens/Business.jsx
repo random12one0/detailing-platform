@@ -54,7 +54,7 @@ import { useBusiness } from "../context/BusinessContext.jsx";
 import { useWide } from "../hooks/useWide.js";
 import SettingsHost from "../components/SettingsHost.jsx";
 import BookingLink from "../components/BookingLink.jsx";
-import { setupProgress } from "../lib/setup.js";
+import { STEPS, setupProgress } from "../lib/setup.js";
 import { stateOf } from "../lib/maintenance.js";
 import { brandVarsFor } from "../lib/theme.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
@@ -280,9 +280,41 @@ export default function Business({ onSetup, initial = null }) {
   //      number. Nothing in `setup.js` is wrong; it is being asked the
   //      question through a narrower window.
   const setupOpen = role === "owner" && setup && setup.count < setup.total && !settings?.setup?.dismissed;
+  // THE FIRST STEP NOBODY HAS FINISHED, by the form's own order. `STEPS` is
+  // §13a's order — what you sell, then when you work, then who you are — so
+  // "next" is the next one a detailer should do and not merely the next one in
+  // a list. It is `null` only when every step is done, which is the one case
+  // `setupOpen` is already false for; both guards are on the render anyway,
+  // because a row reading "Next: undefined" is worse than no row.
+  const nextAt = setup ? STEPS.findIndex(([k]) => !setup.done.has(k)) : -1;
+  const next = nextAt > -1 ? { index: nextAt, name: STEPS[nextAt][2] } : null;
 
+  // **FOUR HEADINGS NOW, AND THEY ARE FOUR JOBS RATHER THAN FOUR CATEGORIES —
+  // Andrew, 2026-09-13:** *"the settings below should group by what a person is
+  // trying to do rather than by what the code calls them."*
+  //
+  // The three that were here were not code names, which is why this took a
+  // second reading to see. **The fault was INSIDE them.** "Your page" held
+  // seven unrelated things — who you are, what colour you paint it, your
+  // photos, your reviews, your questions, your web address, and a REPORT on
+  // where your customers came from — so the heading had stopped predicting
+  // what was under it. And "What you sell" held two rows that are not offers:
+  // how the money reaches you, and a date a customer is due back.
+  //
+  // TWO ROWS MOVED AND EACH ONE MOVED FOR ITS OWN REASON:
+  //   MAINTENANCE  out of "What you sell" and into "When you can be booked".
+  //                A deadline is a customer who should be on the calendar and
+  //                is not, which is a booking question and not a price list.
+  //   THE ADDRESS  out of "Your page" and into "Where customers come from",
+  //                beside Tracking links. Those two are the only rows on this
+  //                screen that change or measure THE LINK AT THE TOP, which is
+  //                now the first thing on the page — so the group sits where a
+  //                detailer looks after reading it.
+  //
+  // "How you get paid" stays with the money and is still LAST in its group,
+  // for the reason its own comment already gives.
   const GROUPS = [
-    ["Your page", [
+    ["What customers see", [
       ["info", "Business info", Store,
         blocked === "info" ? "No phone or email · customers can't reach you" : business.name],
       // A hex code as a summary reads like something a developer forgot to
@@ -309,31 +341,8 @@ export default function Business({ onSetup, initial = null }) {
       // wrong.
       ["faq", "FAQ", HelpCircle,
         settings ? describeFaq(settings) : "…"],
-      // ROADMAP 3.3. Under "Your page" for the same reason everything else
-      // here is: what it changes is the address a CUSTOMER meets, in their own
-      // confirmation email. THE SUMMARY IS THE ADDRESS ITSELF where there is
-      // one, and the platform path where there is not — never "0 domains",
-      // which tells a detailer nothing about what their customers see.
-      ["domain", "Your web address", Globe,
-        counts ? (counts.domain ?? `detailingplatform.com/book/${business.slug}`) : "…"],
-      // ROADMAP 4.2 — a feature the rebuild LOST, not a new one. Under "Your
-      // page" because what it changes is what a CUSTOMER meets: a link of
-      // their own with the discount already applied. The summary is the one
-      // question a detailer has — did the flyer bring anybody — so it counts
-      // LIVE links, never rows: a campaign turned off is not a campaign
-      // running.
-      // **NOT "CAMPAIGN LINKS" ANY MORE — his correction, 2026-09-10.** *"The
-      // campaign is less of, like, a campaign... I want it to be more like a
-      // way to know where customers are coming from. So I think that should be
-      // more obvious as not a campaign."* Nothing about the feature changed;
-      // the word was doing the damage. A detailer who wants to know whether
-      // Yelp is worth it does not go looking for a row called Campaign links.
-      ["campaigns", "Tracking links", QrCode,
-        counts ? (counts.campaigns
-          ? `${n(counts.campaigns, "{count} link", "{count} links")} · ${n(counts.campaignVisits, "{count} open", "{count} opens")}`
-          : "Nothing tracked yet") : "…"],
     ]],
-    ["What you sell", [
+    ["What you charge for", [
       ["catalog", "Services & add-ons", Wrench,
         blocked === "catalog" ? "Nothing to sell · your booking page is empty"
           : counts ? `${n(counts.services, "{count} service", "{count} services")} · ${n(counts.addOns, "{count} add-on", "{count} add-ons")}` : "…"],
@@ -347,11 +356,27 @@ export default function Business({ onSetup, initial = null }) {
           : t("{members} on {plans}", {
             members: n(counts.planMembers, "{count} member", "{count} members"),
             plans: n(counts.plans, "{count} plan", "{count} plans") })) : "…"],
-      // ROADMAP 2.23. Under "What you sell" beside plans, because it is the
-      // same kind of object from the customer's side — work that is owed —
-      // and because the difference between them is exactly what the two rows
-      // sitting together makes obvious: a plan is a rhythm, this is a date
-      // with a consequence.
+      ["promos", "Promo codes & sale", Tag,
+        counts ? (settings?.site_discount_active
+          ? t("Site sale on · {codes}", { codes: n(counts.promos, "{count} code", "{count} codes") })
+          : n(counts.promos, "{count} active code", "{count} active codes")) : "…"],
+      // ROADMAP 2.20 STAGE 1. Under "What you charge for" because it is about
+      // the money on the job, and LAST in the group for
+      // the same reason cash is last in the email's own list: it is what
+      // happens once everything above it has been agreed.
+      ["payments", "How you get paid", Wallet, settings ? describePayment(settings) : "…"],
+    ]],
+    ["When you can be booked", [
+      ["hours", "Hours & days off", CalendarClock, counts ? counts.hours : "…"],
+      // ClipboardList, not Store: Store is Business info's icon and two rows
+      // on one screen wearing the same mark is the mark saying nothing.
+      ["rules", "Booking rules", ClipboardList,
+        settings ? `${mode} · ${humanNotice(settings.min_advance_minutes)}` : "…"],
+      // ROADMAP 2.23. Under "When you can be booked" as of 2026-09-13, and it
+      // moved out from beside plans. A plan is a rhythm and this is a date
+      // with a consequence — but the consequence is that somebody should be
+      // ON THE CALENDAR and is not, which is a booking question rather than
+      // a price list one.
       //
       // IT IS THE ONE ROW HERE THAT CAN SHOUT WITHOUT BLOCKING A BOOKING, and
       // that is deliberate: a missed warranty costs a CUSTOMER something,
@@ -374,22 +399,32 @@ export default function Business({ onSetup, initial = null }) {
         // the SUMMARY rather than the icon — an alarm belongs on the words
         // that carry the news.
         null, counts ? counts.deadlinesMissed > 0 : false],
-      // ROADMAP 2.20 STAGE 1. Under "What you sell" rather than "Your page"
-      // because it is about the money on the job, and LAST in the group for
-      // the same reason cash is last in the email's own list: it is what
-      // happens once everything above it has been agreed.
-      ["payments", "How you get paid", Wallet, settings ? describePayment(settings) : "…"],
-      ["promos", "Promo codes & sale", Tag,
-        counts ? (settings?.site_discount_active
-          ? t("Site sale on · {codes}", { codes: n(counts.promos, "{count} code", "{count} codes") })
-          : n(counts.promos, "{count} active code", "{count} active codes")) : "…"],
     ]],
-    ["When you can be booked", [
-      ["hours", "Hours & days off", CalendarClock, counts ? counts.hours : "…"],
-      // ClipboardList, not Store: Store is Business info's icon and two rows
-      // on one screen wearing the same mark is the mark saying nothing.
-      ["rules", "Booking rules", ClipboardList,
-        settings ? `${mode} · ${humanNotice(settings.min_advance_minutes)}` : "…"],
+    ["Where customers come from", [
+      // ROADMAP 3.3. Under "Where customers come from" as of 2026-09-13: what it
+      // changes is the address a CUSTOMER meets, in their own confirmation email
+      // and on the card — which is the link printed at the top of this screen. THE SUMMARY IS THE ADDRESS ITSELF where there is
+      // one, and the platform path where there is not — never "0 domains",
+      // which tells a detailer nothing about what their customers see.
+      ["domain", "Your web address", Globe,
+        counts ? (counts.domain ?? `detailingplatform.com/book/${business.slug}`) : "…"],
+      // ROADMAP 4.2 — a feature the rebuild LOST, not a new one. Under "Where
+      // customers come from" beside the address, because both rows are about
+      // the LINK at the top of this screen: this one is a version of it with
+      // the discount already applied, and a count of who used it. The summary is the one
+      // question a detailer has — did the flyer bring anybody — so it counts
+      // LIVE links, never rows: a campaign turned off is not a campaign
+      // running.
+      // **NOT "CAMPAIGN LINKS" ANY MORE — his correction, 2026-09-10.** *"The
+      // campaign is less of, like, a campaign... I want it to be more like a
+      // way to know where customers are coming from. So I think that should be
+      // more obvious as not a campaign."* Nothing about the feature changed;
+      // the word was doing the damage. A detailer who wants to know whether
+      // Yelp is worth it does not go looking for a row called Campaign links.
+      ["campaigns", "Tracking links", QrCode,
+        counts ? (counts.campaigns
+          ? `${n(counts.campaigns, "{count} link", "{count} links")} · ${n(counts.campaignVisits, "{count} open", "{count} opens")}`
+          : "Nothing tracked yet") : "…"],
     ]],
   ];
 
@@ -400,23 +435,56 @@ export default function Business({ onSetup, initial = null }) {
         <p className="quiet" style={{ marginTop: 2 }}>{business.name}</p>
       </div>
 
-      {setupOpen && (
-        <div className="card setting-card" data-tour="setup">
-          <button className="nav-row" onClick={() => onSetup?.()}>
-            <span className="ico"><ListChecks size={19} strokeWidth={2} /></span>
-            <span className="txt">
-              <span className="name">{t("Finish setting up")}</span>
-              <span className="now">{t("{count} of {total} done", { count: setup.count, total: setup.total })}</span>
-            </span>
-            <span className="chev"><ChevronRight size={18} strokeWidth={2} /></span>
-          </button>
-        </div>
-      )}
-
       {/* FIRST ON A PHONE, AND ONLY ON A PHONE. At a desk it is the second
           column's resting content, so rendering it here as well would print
-          the most-shared thing the business owns twice on one screen. */}
+          the most-shared thing the business owns twice on one screen.
+
+          **IT IS ABOVE THE SETUP ROW NOW — Andrew, 2026-09-13:** *"this is the
+          screen a detailer sends to customers from — their booking link lives
+          here — so the link and its Share should be the first thing the eye
+          lands on."* Stage 6 put the nag above it on purpose and costed the
+          decision at about 70px, reasoning that the nag is temporary and the
+          link is permanent. **That reasoning is right about the two things and
+          backwards about which one wins:** a permanent thing somebody opens
+          this tab TO USE outranks a temporary thing they are being reminded
+          about, and the nag is one flick down rather than gone. */}
       {!wide && <BookingLink slug={business.slug} origin={siteOrigin} />}
+
+      {/* WHAT IS LEFT, AND WHICH ONE IS NEXT — his second note on this screen,
+          2026-09-13: *"'Finish setting up · 3 of 11 done' should make the next
+          unfinished step obvious rather than hiding it behind a chevron."*
+
+          Two things were hidden and only one of them was the chevron. The row
+          named no step, so *3 of 11* left a detailer to work out which eight
+          were outstanding; and pressing it opened `SetupForm` at STEP ONE
+          whatever was already done, so the answer was three or four presses of
+          *I'll do this later* away even once they had guessed.
+
+          **SO THE NEXT STEP IS THE ROW'S NAME**, in the same 16px the settings
+          rows use, and the count drops to the summary line underneath it —
+          which is the shape every other row on this screen already has: the
+          thing, then where it stands. `.name` wraps and `.now` is one clamped
+          line, so the long half is in the half that can take it.
+
+          **AND IT OPENS ON THAT STEP.** `STEPS` is the same array the form
+          walks and `setup.done` is the same set the count is taken from, so
+          the name on this row and the heading of the step it lands on cannot
+          disagree — one list, read twice. */}
+      {setupOpen && next && (
+        <div className="tight" data-tour="setup">
+          <span className="label">{t("Finish setting up")}</span>
+          <div className="card setting-card">
+            <button className="nav-row" onClick={() => onSetup?.(next.index)}>
+              <span className="ico"><ListChecks size={19} strokeWidth={2} /></span>
+              <span className="txt">
+                <span className="name">{t("Next: {name}", { name: t(next.name) })}</span>
+                <span className="now">{t("{count} of {total} done", { count: setup.count, total: setup.total })}</span>
+              </span>
+              <span className="chev"><ChevronRight size={18} strokeWidth={2} /></span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {GROUPS.map(([title, rows]) => (
         <div className="tight" key={title}>

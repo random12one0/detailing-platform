@@ -173,6 +173,11 @@ export default function App() {
     if (q.get("setup") === "1") return "setup";
     return null;
   });
+  // WHICH STEP `SetupForm` OPENS ON. Business's "Finish setting up" row names
+  // the next unfinished step and sends its index; every other door — the
+  // first-run auto-open, `?setup=1`, Today's and Clients' own rows — passes
+  // nothing and gets step one, which is what they all did before.
+  const [setupAt, setSetupAt] = useState(0);
   // WHETHER THE ADDRESS ASKED FOR ONE OF THEM. A ref rather than reading the
   // URL again in the effect below, because `SiteIntake` and `SetupForm` both
   // clear the query as they close and the effect would then stop believing it
@@ -527,7 +532,7 @@ export default function App() {
           ? <SiteIntake onClose={() => { setFirstRun(null); autoOpened.current = false; reload(); }} />
           : firstRun === "setup" && !gear
           ? (
-            <SetupForm onClose={() => {
+            <SetupForm start={setupAt} onClose={() => {
               setFirstRun(autoOpened.current && !tourSeen() ? "tour" : null);
               autoOpened.current = false;
             }} />
@@ -572,7 +577,7 @@ export default function App() {
               />
             )
             : (
-              <Active refreshKey={rev} onSetup={() => setFirstRun("setup")} intent={intent}
+              <Active refreshKey={rev} onSetup={(at = 0) => { setSetupAt(at); setFirstRun("setup"); }} intent={intent}
                 // Only `Business` reads it; the other tabs ignore a prop they
                 // were not given a use for, which is cheaper than a second
                 // render path in this switch for one destination.
