@@ -1127,3 +1127,39 @@ did NOT time out — it waited, and returned **500 `{"error":"Gateway Timeout"}`
 from Supabase's own edge gateway, which is a different limit from pg_net's. The
 same call by hand a minute later returned 200 in 5.3 seconds. One occurrence,
 not yet explained, and recorded here rather than assumed benign.
+
+## "INTERMITTENT" AND "COULD NEVER HAVE WORKED" LEAD A READER SOMEWHERE DIFFERENT
+
+**Cowork's framing, 2026-09-13, and it is the sentence to keep.** A ten-second
+job against a five-second limit **cannot succeed**. There was never a good
+period — only an unmeasured one.
+
+The proof is the contrast inside one six-hour window:
+
+- `send-owner-reminders` — **0 successes out of 24.** Not one.
+- `watch-jobs` — 11 out of 24, because it is the faster of the two and lands
+  either side of the same line.
+
+**If both had been flaky, both would have been mixed.** One job at zero while
+its neighbour is at half is the signature of a STRUCTURAL limit rather than a
+flaky network, and it is the only reason anyone can say which this was.
+
+**WHY THE WORDING MATTERS MORE THAN THE DIAGNOSIS.** *"It was failing
+intermittently"* invites a future reader to wait and see whether it recurs, to
+add a retry, to treat green runs as evidence of health. *"It could never have
+worked"* tells them the green runs were the job having nothing to do, that a
+retry would have failed identically, and that the fix has to change the limit or
+the duration. **Same facts, opposite next actions.**
+
+- 2026-09-13 — **OPEN: one unexplained `500 {"error":"Gateway Timeout"}` after
+  the cron timeout fix.** At **02:00:00 UTC**, the first `send-owner-reminders`
+  tick after `timeout_milliseconds` was raised to 30,000 did NOT time out at
+  pg_net — it waited and received a 500 from **Supabase's own edge gateway**,
+  which is a different limit from pg_net's and is not something raising
+  `timeout_milliseconds` can affect. **The same call by hand at 02:04 returned
+  200 in 5,292 ms** with the cron's exact headers, and sent one owner reminder.
+  One occurrence. **Not closed, not explained, and deliberately not chased**
+  while the Today screen is being built — recorded here so it survives that.
+  **What to check first:** whether it recurs on later ticks, and whether it
+  correlates with a cold start or with a large backlog, since the sweep is
+  slowest exactly when it has most to do.
