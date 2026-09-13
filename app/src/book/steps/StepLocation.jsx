@@ -60,7 +60,17 @@ export default function StepLocation({ form, setForm, modeLimit, blocks = [] }) 
           phone by 6px once the travel areas landed on it. Same cut, same
           reason, as step 1’s intro in roadmap 2.8b. */}
       {both ? (
-        <>
+        // **THE TWO MODE CARDS ARE ONE CHOICE, AND THIS STEP NEVER SAID SO —
+        // 2026-09-13.** `.bk-step` is `display: contents`, so every child here
+        // is a direct child of `.bk-wrap` and takes its 26px SECTION gap. W18
+        // wrapped services, sizes and extras in `.bk-choices` for exactly that
+        // reason — "the titles are really close to it, but everything else is
+        // spread out, so it kinda looks uneven" — and these two were missed,
+        // because they are written inline rather than mapped from a list.
+        // Eight pixels between them instead of twenty-six, which is also the
+        // ten this step ran over a 392x844 phone by, and the same fix rather
+        // than a second one.
+        <div className="bk-choices">
           <div
             role="button" tabIndex={0}
             className={`bk-card selectable ${isMobile ? "selected" : ""}`}
@@ -108,7 +118,7 @@ export default function StepLocation({ form, setForm, modeLimit, blocks = [] }) 
                 : t("Bring your vehicle to us. We’ll confirm the address.")}
             </p>
           </div>
-        </>
+        </div>
       ) : (
         <div className="bk-note">
           {/* When it is the SERVICE that decided, say which one. A choice that

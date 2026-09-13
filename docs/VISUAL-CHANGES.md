@@ -549,3 +549,62 @@ your hours, because a deadline is a customer who should be on your calendar and
 is not.
 
 **Visual: yes.**
+
+---
+
+## 28 · Booking step 4, "Pick a place", on a phone
+
+**Open:** `localhost:5173/book/demo-detail` → pick any service → Continue →
+Continue → Continue. That is step 4 of 7.
+
+**WAS:** On a phone the page ran ten pixels off the bottom of the screen, so the
+last question was cut and you had to scroll a step that is meant to fit. The two
+choices at the top — "We come to you" and "Drop it off" — were spaced as far
+apart as two separate sections of the page, even though they are one question
+with two answers.
+
+**NOW:** The two choices sit close together, the way the service list and the
+car sizes already do everywhere else in the booking flow, and the whole step now
+fits on a phone with room to spare. Nothing was removed and no wording changed.
+
+**Visual: yes.**
+
+---
+
+## 29 · The back office, at `/admin` — three things it could not do
+
+**Open:** `localhost:5173/admin`, then open any detailer. **Only Andrew can see
+this one** — the sign-in needs the platform admin account.
+
+**WAS:** Three things the server had been able to do for a week had no button
+anywhere. You could not take a copy of a detailer's own data, which is what our
+own terms promise them on request. A business with nobody signed up as its owner
+said so and offered no way to fix it, so the only route was opening the database
+by hand. And the photo storage line said a percentage and nothing else, so there
+was no way to see that more space had been promised to detailers than actually
+exists.
+
+**NOW:** An open detailer has "Download everything they own", which saves a file
+of their customers, bookings and prices, and "Send an owner invite", which emails
+somebody a link that makes them the owner — and shows you the link to send by
+hand if the email does not go out. The photo storage line reads as real amounts
+rather than a percentage, says how much has been promised to each detailer, and
+says out loud when more has been promised than exists.
+
+**Visual: yes.**
+
+---
+
+## 30 · Every button and box in the back office got bigger to press
+
+**Open:** `localhost:5173/admin` — the sign-in page shows it without an account.
+
+**WAS:** Every button in the back office was about thirty pixels tall and the
+text boxes about thirty-nine, which is under the size a thumb can reliably hit.
+The eye that shows your password was thirty-four pixels square.
+
+**NOW:** All of them are forty-four, which is the size this product uses
+everywhere else. The eye looks exactly the same size as before; only the area
+around it that responds to a press got bigger.
+
+**Visual: yes.**

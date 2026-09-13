@@ -48,7 +48,8 @@
 import { Eye, EyeOff } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "../lib/supabase.js";
-import { money } from "../lib/format.js";
+import { dateLong, localDate, money } from "../lib/format.js";
+import { mb } from "../lib/photo-rules.js";
 import { setupProgress } from "../lib/setup.js";
 import { needsALook, reasonsFor, QUIET_DAYS, SETUP_FLOOR } from "../lib/attention.js";
 import {
@@ -365,7 +366,22 @@ export default function AdminPage() {
   // sound.** A warning that cannot fire is worse than none: it holds the space
   // a real one would have used and quietly says everything is fine.
   if (store && store.total_bytes && store.used_bytes >= store.total_bytes * 0.8) {
-    alerts.push("Photo storage is nearly full");
+    // **THE ALARM CARRIED NO NUMBER**, which made it a feeling rather than a
+    // fact: "nearly full" is the same sentence at 81% and at 99%, and the one
+    // decision behind it — connect R2 today, or next month — is the difference
+    // between those two.
+    alerts.push(`Photo storage is nearly full: ${mb(store.used_bytes)} of ${mb(store.total_bytes)} used`);
+  }
+  // **PROMISED, NOT USED, AND IT IS THE ONE THAT GOES WRONG FIRST.** Every
+  // detailer is told they have a hundredth of the store; past a hundred
+  // detailers those shares add up to more than exists, and the store can be 4%
+  // used and 140% promised on the same morning. The migration that computes
+  // `committed_bytes` says in as many words that it exists so the back office
+  // can say this out loud rather than discovering it as a failed upload in
+  // somebody's driveway.
+  if (store && store.total_bytes && store.committed_bytes > store.total_bytes) {
+    alerts.push(
+      `Photo storage is over-promised: ${mb(store.committed_bytes)} handed out against ${mb(store.total_bytes)} that exists`);
   }
   if (totals.suspended) alerts.push(`${totals.suspended} detailer${totals.suspended === 1 ? " is" : "s are"} suspended`);
 
@@ -1085,6 +1101,12 @@ function Business({ row, detail, onClose, reload }) {
   // way out was reloading the page.
   const [leaving, close] = useLeaving(onClose);
   const [busy, setBusy] = useState("");
+  // THE INVITE FORM IS PUT AWAY UNTIL IT IS WANTED. Prefilled with whatever
+  // address we already hold, and editable, because the address on file is
+  // often the one that bounced.
+  const [inviting, setInviting] = useState(false);
+  const [inviteTo, setInviteTo] = useState(row.owner_email ?? "");
+  const [invite, setInvite] = useState(null);
   const sp = setupOf(row);
   const bill = billingState(row.subscription);
   // **`bookability(row)` WAS ALWAYS WRONG AND THE ROW WAS ALWAYS BLANK.** It
@@ -1095,6 +1117,17 @@ function Business({ row, detail, onClose, reload }) {
   // the `?? "—"` fallback hid the wrong answer behind a dash. **A defect that
   // renders as an em dash is a defect nobody reports.**
   const book = bookability(row.setup_inputs ?? {});
+  // **`row.owner_email` IS NOT "THEY HAVE AN OWNER ACCOUNT".** The server
+  // builds it as `owner?.email ?? contact_email`, so a business somebody typed
+  // a contact address for reads as having an owner it does not have — and the
+  // button that needs one was enabled for it, right up to the server's 409.
+  // `detail.members` is the account list itself, which is the question.
+  // **AND `null` IS A THIRD ANSWER, NOT A FALSY SECOND ONE.** The detail
+  // arrives a moment after the drawer opens and may not arrive at all. Folding
+  // "we do not know yet" into "there is no owner" would disable the button and
+  // print a sentence claiming a fact we have not read — so unknown leaves both
+  // alone and lets the server answer, which it does in one sentence.
+  const hasOwner = detail?.members ? detail.members.some((m) => m.role === "owner") : null;
   const why = row.is_demo ? [] : reasonsFor(row);
   const todo = actionFor(why);
   const series = detail?.bookings ? monthlySeries(detail.bookings, 6, new Date(), row.timezone) : null;
@@ -1189,7 +1222,7 @@ function Business({ row, detail, onClose, reload }) {
                 given us one, and closed again if the call fails.
                 Impersonation is still logged server-side before the token is
                 made, and a failed log still stops it. */}
-            <button className="pa-btn" type="button" disabled={!row.owner_email || busy === "impersonate"}
+            <button className="pa-btn" type="button" disabled={hasOwner === false || busy === "impersonate"}
                     onClick={async () => {
                       const tab = window.open("/preview", "_blank");
                       if (!tab) { window.alert("Your browser blocked the new tab. Allow pop-ups for this site, then try again."); return; }
@@ -1205,11 +1238,94 @@ function Business({ row, detail, onClose, reload }) {
                     }}>
               Look at their dashboard
             </button>
+            {/* EVERYTHING THEY OWN, AS ONE FILE — the door onto `export`,
+                which has done the work since roadmap 4.4 and was reachable
+                from no screen at all. `/terms` promises a detailer a copy of
+                their own data on request, and this is the only thing in the
+                product that can produce one; it is also the answer to a
+                deletion request, which arrives without warning.
+
+                HANDED OVER, NEVER DRAWN. It is every customer and every price
+                of one business, so a screen that prints it is a screen left
+                open on a desk. The server logs the size rather than the
+                contents for the same reason. */}
+            <button className="pa-btn" type="button" disabled={busy === "export"}
+                    onClick={async () => {
+                      setBusy("export");
+                      try {
+                        const out = await call({ action: "export", business_id: row.id });
+                        const url = URL.createObjectURL(
+                          new Blob([JSON.stringify(out.export, null, 2)], { type: "application/json" }));
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = `${row.slug}-${localDate(new Date().toISOString())}.json`;
+                        a.click();
+                        // Revoked, or the whole export stays in memory until
+                        // the tab is closed — and this tab stays open all day.
+                        URL.revokeObjectURL(url);
+                      } catch (e) { window.alert(e.message); }
+                      setBusy("");
+                    }}>
+              {busy === "export" ? "Gathering it up…" : "Download everything they own"}
+            </button>
+            <button className="pa-btn" type="button" onClick={() => setInviting((v) => !v)}>
+              {inviting ? "Never mind" : "Send an owner invite"}
+            </button>
           </div>
-          {!row.owner_email && (
+
+          {/* THE WAY OUT OF THE DEAD END ABOVE. The screen used to state the
+              problem and offer nothing: no owner account, so no dashboard to
+              look at, and the action that fixes it — `resend_invite` — was
+              reachable from nowhere. Any live invite to the same address is
+              superseded rather than duplicated, which the server does. */}
+          {hasOwner === false && (
             <p className="pa-sub" style={{ "--i": 4, marginTop: 8 }}>
               Nobody has accepted the owner invite yet, so there is no account to open it as.
             </p>
+          )}
+          {inviting && (
+            <div className="pa-card" style={{ "--i": 4, marginTop: 10 }}>
+              <label className="pa-field">
+                <span className="pa-lab">Their email address</span>
+                <input type="email" value={inviteTo} autoComplete="off"
+                       onChange={(e) => setInviteTo(e.target.value)} />
+              </label>
+              <p className="pa-sub" style={{ marginTop: 8 }}>
+                They get a link that signs them in and makes them the owner of {row.name}.
+                Any invite already out to that address stops working.
+              </p>
+              <button className="pa-btn pa-go" type="button" style={{ marginTop: 10 }}
+                      disabled={!inviteTo.includes("@") || busy === "resend_invite"}
+                      onClick={async () => {
+                        setBusy("resend_invite");
+                        setInvite(null);
+                        try {
+                          const out = await call({
+                            action: "resend_invite", business_id: row.id,
+                            email: inviteTo.trim(), role: "owner",
+                          });
+                          setInvite(out.invite);
+                        } catch (e) { window.alert(e.message); }
+                        setBusy("");
+                      }}>
+                {busy === "resend_invite" ? "Sending…" : "Send it"}
+              </button>
+              {invite && (
+                <p className="pa-sub" style={{ marginTop: 10 }}>
+                  {invite.emailed
+                    ? `Sent to ${invite.email}. The link works until ${dateLong(localDate(invite.expires_at))}.`
+                    : "The email did not go out. Send them this link yourself:"}
+                  {/* THE LINK IS SHOWN WHEN THE EMAIL FAILED AND ONLY THEN. A
+                      one-time sign-in link on screen every time is a link that
+                      ends up in a screenshot; when the relay is down it is the
+                      only thing standing between a detailer and their own
+                      account. */}
+                  {!invite.emailed && (
+                    <><br /><code style={{ wordBreak: "break-all" }}>{invite.link}</code></>
+                  )}
+                </p>
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -1503,6 +1619,7 @@ function TabPipes({ state, alerts }) {
   // different RPC's column and made this meter read 0% at every fill level.
   const usedPct = store?.total_bytes ? Math.min(100, Math.round((store.used_bytes / store.total_bytes) * 100)) : 0;
   const mailPct = mail?.cap ? Math.min(100, Math.round((mail.sent / mail.cap) * 100)) : 0;
+  const overPromised = !!(store?.total_bytes && store.committed_bytes > store.total_bytes);
 
   return (
     <>
@@ -1552,9 +1669,23 @@ function TabPipes({ state, alerts }) {
           </div>
           <div className="pa-svc-r">
             <span className="pa-svc-n">Photo storage</span>
-            <span className="pa-v" style={{ fontSize: 12 }}>{usedPct}%</span>
-            <span className="pa-svc-d">Shared across every detailer.</span>
-            <div className={`pa-meter${usedPct >= 80 ? " pa-warn" : ""}`}><i style={{ width: `${usedPct}%` }} /></div>
+            <span className="pa-v" style={{ fontSize: 12 }}>
+              {mb(store?.used_bytes ?? 0)} of {mb(store?.total_bytes ?? 0)}
+            </span>
+            {/* **THE PROMISED TOTAL IS PRINTED ONLY WHEN IT IS OVER THE
+                CEILING** — F-017's rule, and it is not tidiness. Under the
+                ceiling that figure is exactly share x detailers and is a second
+                rounding of arithmetic already on the line, which is how the old
+                screen came to print "10 MB each for 15 detailers · 154 MB
+                promised" and contradict itself. Over the ceiling it is the only
+                number on this screen that predicts the morning an upload
+                fails. */}
+            <span className="pa-svc-d">
+              {store?.businesses ?? 0} {store?.businesses === 1 ? "detailer" : "detailers"},
+              {" "}{mb(store?.share_bytes ?? 0)} promised to each.
+              {overPromised && ` PROMISED ${mb(store.committed_bytes)}, which is more than exists.`}
+            </span>
+            <div className={`pa-meter${usedPct >= 80 || overPromised ? " pa-warn" : ""}`}><i style={{ width: `${usedPct}%` }} /></div>
           </div>
         </div>
       </section>
