@@ -1054,3 +1054,76 @@ instrument here**; the only thing that finds it is a real row and a loaded page.
 prints `[object Object]` four times under *"What we charge"*, where the price
 table's four groups should be. It is folded into the `prices` item, which is the
 next of the seven.
+
+## THE WATCHDOG WAS FAILING IN THE WAY IT EXISTS TO DETECT — 2026-09-13
+
+**This belongs beside the lying instruments, because it is the same disease in
+its purest form.** The three earlier ones reported success regardless of
+reality. This one is worse in kind: **the component whose entire job is to
+notice silent failure was itself silently failing.**
+
+`watch-jobs` is called by `pg_cron` through `net.http_post`, with no
+`timeout_milliseconds` — so pg_net's default five seconds applied to it too.
+Measured over the six hours `net._http_response` retains:
+
+| | timed out | succeeded |
+|---|---|---|
+| `send-owner-reminders` (`:00 :15 :30 :45`) | **24** | **0** |
+| `watch-jobs` (`:07 :22 :37 :52`) | 13 | 11 |
+
+**The reminder sweep did not fail intermittently. It failed every single time.**
+And the watchdog sat on the boundary, succeeding about half the time — which is
+the worst possible place for a watchdog to sit, because it still reports often
+enough to look alive.
+
+**HAD THE WATCHDOG DRIFTED A SECOND SLOWER, NOTHING WOULD HAVE BEEN WATCHING AND
+NOTHING WOULD HAVE SAID SO.** Both jobs now carry an explicit 30-second timeout.
+
+## HOW LONG THE REMINDER SWEEP HAD BEEN FAILING — measured, and the limit stated
+
+**Confirmed: from 2026-09-12 08:00 to 2026-09-13 01:53, about eighteen hours.**
+`job_heartbeats.ran_at` is the last time it FINISHED, and it held 08:00 until a
+manual run moved it.
+
+**I CANNOT SEE FURTHER BACK AND WILL NOT ESTIMATE.** `net._http_response` is
+pruned by pg_net and holds roughly six hours — 48 rows, oldest 2026-09-12 20:00.
+The heartbeat is a single upserted row with no history. **So eighteen hours is a
+floor, not a total**, and the honest answer to *"was that just when somebody last
+looked"* is that the evidence runs out before the failure does.
+
+**WHY IT EVER SUCCEEDED, WHICH IS THE CRUEL PART.** The sweep's duration scales
+with how much there is to do. Called with the cron's exact headers it returns
+**200 in 5,292 ms** — a few hundred milliseconds over the limit. So it succeeds
+when there is nothing to send and fails whenever there is something to send.
+**A job that works whenever it has no work is indistinguishable from a job that
+works**, and that is why eighteen hours passed with a green cron history:
+`cron.job_run_details` showed an unbroken run of `succeeded`, because
+`net.http_post` succeeds at QUEUEING regardless of what happens next.
+
+## DID A CUSTOMER MISS AN EMAIL — no, and here is the mechanism
+
+**The queue DRAINS. It does not discard — with one exception.**
+`get_bookings_due_for_reminder` selects on `..._sent_at is null` AND
+`b.start_at > now()`. So a reminder that came due during an outage is still sent
+when the sweep next runs, arriving late.
+
+**The exception is the whole risk: a reminder is LOST, permanently, if the
+appointment itself starts during the outage**, because `start_at > now()`
+excludes it for ever after. Nothing retries it and nothing reports it.
+
+**MEASURED FOR THIS OUTAGE: nobody real was affected.** Every booking whose
+start time fell inside the window belongs to a business with `is_demo = true`
+(Coastline Auto Detailing, Phase1 Detailing A — seeded fixtures). The only
+`is_demo = false` row on the platform is the test business created an hour
+earlier while restoring `create`, and it has no bookings. **18 future bookings
+had unsent reminders; those drain late rather than being lost.**
+
+**So there is nobody to apologise to.** The mechanism, however, is real: the same
+eighteen hours with one real detailer and one morning appointment would have
+silently cost that customer their reminder, with no record that it had happened.
+
+**STILL UNDER OBSERVATION.** The first cron tick after the timeout was raised
+did NOT time out — it waited, and returned **500 `{"error":"Gateway Timeout"}`**
+from Supabase's own edge gateway, which is a different limit from pg_net's. The
+same call by hand a minute later returned 200 in 5.3 seconds. One occurrence,
+not yet explained, and recorded here rather than assumed benign.
