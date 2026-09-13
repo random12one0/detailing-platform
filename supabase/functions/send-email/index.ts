@@ -164,6 +164,63 @@ Deno.serve(async (req) => {
       catch (e) { console.error("could not count the send:", e); }
     };
 
+    // ── THE DAY'S BUDGET, CLAIMED BEFORE THE PROVIDER IS CALLED ─────────────
+    //
+    // **Andrew, 2026-09-13:** *"If a heavy test run can exhaust the daily
+    // allowance then a real signup notice silently does not arrive. Make it
+    // impossible."* It was true — 2026-09-07 attempted 240 emails against a cap
+    // of 100, and 2026-09-08 attempted 117 — so the platform's own alerts now
+    // have a slice of the day nothing else can spend. Migration
+    // 20260913030000 carries the arithmetic and the reasoning.
+    //
+    // **PLACED HERE AND NOWHERE EARLIER, ON PURPOSE.** Above this line are the
+    // two ways a send costs the provider nothing: a reserved domain and a
+    // missing key. Claiming before those would have every fixture in the repo
+    // spending a budget it never touches, which is the opposite of the point.
+    //
+    // **`fromPlatform` IS THE DISCRIMINATOR AND IT ALREADY EXISTED.** The three
+    // things that set it — billing mail, the dead man's switch, and
+    // `create-business`'s signup alert — are exactly the mail he must receive,
+    // and nothing a detailer or a test fixture can reach sets it.
+    //
+    // **BEST-EFFORT IN ONE DIRECTION ONLY.** If the claim itself errors we send
+    // anyway: a counter must never be the reason a booking's confirmation does
+    // not go out, and the provider's own 429 is still the backstop. A refusal
+    // is different from a failure to ask.
+    // **AND `rpc` DOES NOT THROW ON A DATABASE ERROR — it returns `{ error }`.**
+    // Reading only `data` would turn a 504 from PostgREST into `null`, which is
+    // not `false`, which is "allowed" — the right answer by luck rather than by
+    // decision, and the exact shape of the discarded-error class this repo keeps
+    // finding. So the error is read, said out loud, and then deliberately
+    // ignored.
+    let claimAllowed = true;
+    try {
+      const { data, error } = await supabase.rpc("claim_email_send", { p_platform: fromPlatform });
+      if (error) console.error("could not claim the send against today's budget - sending anyway:", error);
+      else claimAllowed = data !== false;
+    } catch (e) {
+      console.error("could not claim the send against today's budget - sending anyway:", e);
+    }
+    if (!claimAllowed) {
+      // **LOUD, AND COUNTED AS A FAILURE.** The whole defect he named is a
+      // silent one, so this refusal goes in the log with the word `to` in it
+      // and into the day's `failed` count, where the Plumbing tab draws it and
+      // the day visibly runs over. `markAddress` is deliberately NOT called:
+      // 429 has never been the customer's fault, and this is our own 429.
+      console.error("DAILY EMAIL BUDGET SPENT - refused before the provider:", {
+        to, subject, platform: fromPlatform,
+      });
+      await note(false);
+      return json({
+        error: "Failed to send email",
+        reason: "daily_cap",
+        retryable: true,
+        details: fromPlatform
+          ? "The provider's whole daily allowance is spent, including the platform's reserve."
+          : "Tenant mail has spent its share of today's allowance. The platform's own alerts are still reserved.",
+      }, 429);
+    }
+
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },

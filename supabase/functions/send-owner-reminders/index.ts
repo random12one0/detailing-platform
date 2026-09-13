@@ -77,6 +77,32 @@ async function emailDataFor(business: Business, b: BookingRow) {
   };
 }
 
+// ---------------------------------------------------------------------------
+// A REFUSED SEND IS A FAILURE AND MUST REACH THE CALLER'S `catch` — 2026-09-13
+// ---------------------------------------------------------------------------
+// **This one line is why the customer appointment reminder had sent ZERO emails
+// across all 56 bookings the product has ever had.** `sendTenantEmail` returns
+// `false` and does not throw — *"best-effort by design: an email failure must
+// never fail a booking"*, which is correct on the booking path and exactly
+// wrong here. Every caller in this file ignored the boolean, so a refused send
+// fell through to `mark()`, the booking was stamped *reminded*, and the RPC can
+// never return it again.
+//
+// **AND IT WAS INVISIBLE IN EVERY INSTRUMENT.** `results` said `sent: true`, the
+// heartbeat summary counted it as sent, and the Plumbing tab drew it as sent.
+// The reporting machinery for a failed reminder already existed and was simply
+// never reached.
+//
+// **THROWING IS THE WHOLE FIX** because the `catch` around each loop already
+// does the right three things: records `sent: false` with the error, leaves the
+// marker alone so the next sweep tries again, and puts `*_failed` in the
+// heartbeat summary. It is deliberately NOT a change to `sendTenantEmail`
+// itself, which is called from thirty places where a booking must survive a
+// dead relay.
+function mustSend(ok: boolean, what: string) {
+  if (!ok) throw new Error(`the email relay refused the ${what} — not marking it as sent`);
+}
+
 async function sendCustomerReminder(b: BookingRow, second = false) {
   const business = await biz(b.business_id);
   const settings = await getSettings(business.id);
@@ -84,11 +110,22 @@ async function sendCustomerReminder(b: BookingRow, second = false) {
   // `email_customer_reminder` is "does this business remind its customers at
   // all"; turning it off must silence both, or a detailer who switched
   // reminders off keeps getting the second one.
-  if (!settings.email_customer_reminder) return;
-  if (second && !settings.customer_reminder_2_enabled) return;
+  //
+  // **BOTH OF THESE ARE NOW ALSO IN THE RPC'S `where` CLAUSE** (migration
+  // 20260913020000) and that is not redundancy for its own sake: a guard here
+  // could only ever return early, and returning early still reached `mark()`.
+  // A row that is not selected cannot be stamped. This stays as the second
+  // half of a belt and braces on a money path, and as the guard for the
+  // manual re-send below, which does not go through the RPC at all.
+  if (!settings.email_customer_reminder) return false;
+  if (second && !settings.customer_reminder_2_enabled) return false;
   const brand = await buildBrand(business, settings);
   const msg = customerReminderEmail(brand, await emailDataFor(business, b), second);
-  await sendTenantEmail({ businessId: business.id, to: b.customer_email, subject: msg.subject, html: msg.html, text: msg.text });
+  mustSend(
+    await sendTenantEmail({ businessId: business.id, to: b.customer_email, subject: msg.subject, html: msg.html, text: msg.text }),
+    second ? "second customer reminder" : "customer reminder",
+  );
+  return true;
 }
 
 async function sendOwnerReminder(b: BookingRow) {
@@ -101,13 +138,16 @@ async function sendOwnerReminder(b: BookingRow) {
   const msg = ownerNewBookingEmail(brand, data);
   if (settings.email_owner_reminder) {
     for (const to of ownerRecipients(business, settings)) {
-      await sendTenantEmail({
-        businessId: business.id,
-        to,
-        subject: `Upcoming job - ${data.customerName} - ${data.dateStr} at ${formatTime12hr(data.startTime)}`,
-        html: msg.html,
-        text: msg.text,
-      });
+      mustSend(
+        await sendTenantEmail({
+          businessId: business.id,
+          to,
+          subject: `Upcoming job - ${data.customerName} - ${data.dateStr} at ${formatTime12hr(data.startTime)}`,
+          html: msg.html,
+          text: msg.text,
+        }),
+        "owner reminder",
+      );
     }
   }
   if (settings.push_enabled) await sendOwnerPush(business.id, {
@@ -192,9 +232,15 @@ Deno.serve(async (req) => {
         results.push({ id: b.id, kind: "owner_reminder", sent: false, error: String(e) });
       }
     }
+    // A SKIP IS NOT A SEND, SO IT DOES NOT GET THE MARKER EITHER. The RPC now
+    // refuses to return a switched-off business at all, so this branch should
+    // be unreachable from the sweep — it is here because a marker written for a
+    // reminder nobody sent is the fault that made this whole item necessary,
+    // and "unreachable" is a claim about today's query.
     for (const b of customerDue.data || []) {
       try {
-        await sendCustomerReminder(b);
+        const sent = await sendCustomerReminder(b);
+        if (!sent) { results.push({ id: b.id, kind: "customer_reminder", sent: false, error: "reminders are switched off for this business" }); continue; }
         await mark(b.id, "customer_reminder_sent_at");
         results.push({ id: b.id, kind: "customer_reminder", sent: true });
       } catch (e) {
@@ -203,7 +249,8 @@ Deno.serve(async (req) => {
     }
     for (const b of secondDue.data || []) {
       try {
-        await sendCustomerReminder(b, true);
+        const sent = await sendCustomerReminder(b, true);
+        if (!sent) { results.push({ id: b.id, kind: "customer_reminder_2", sent: false, error: "reminders are switched off for this business" }); continue; }
         await mark(b.id, "customer_reminder_2_sent_at");
         results.push({ id: b.id, kind: "customer_reminder_2", sent: true });
       } catch (e) {
@@ -280,7 +327,10 @@ Deno.serve(async (req) => {
         const brand = await buildBrand(business, settings);
         const msg = staleRequestEmail(brand, await emailDataFor(business, b), waited);
         for (const to of ownerRecipients(business, settings)) {
-          await sendTenantEmail({ businessId: business.id, to, subject: msg.subject, html: msg.html, text: msg.text });
+          mustSend(
+            await sendTenantEmail({ businessId: business.id, to, subject: msg.subject, html: msg.html, text: msg.text }),
+            "stale request nudge",
+          );
         }
         await mark(b.id, "owner_request_nudge_sent_at");
         results.push({ id: b.id, kind: "request_nudge", sent: true });
@@ -349,14 +399,24 @@ Deno.serve(async (req) => {
             daysLeft: STAGES[stage],
             bookUrl: businessSiteUrl(site, business.slug),
           }, lang);
-          await sendTenantEmail({
-            businessId: business.id, to: customer.email,
-            subject: msg.subject, html: msg.html, text: msg.text,
-          });
-          // STAMPED AFTER THE SEND AND ONLY ON SUCCESS — `sendTenantEmail`
-          // throws on a hard failure, so a bounced relay leaves the stage
-          // where it was and the next sweep tries again. The alternative is a
-          // warranty lost because one email failed at four in the morning.
+          mustSend(
+            await sendTenantEmail({
+              businessId: business.id, to: customer.email,
+              subject: msg.subject, html: msg.html, text: msg.text,
+            }),
+            "maintenance reminder",
+          );
+          // STAMPED AFTER THE SEND AND ONLY ON SUCCESS, so a bounced relay
+          // leaves the stage where it was and the next sweep tries again. The
+          // alternative is a warranty lost because one email failed at four in
+          // the morning.
+          //
+          // **THIS COMMENT USED TO SAY `sendTenantEmail` THROWS ON A HARD
+          // FAILURE. IT NEVER HAS.** It returns `false` and this call site
+          // ignored it, so the stage was advanced on a send that failed and the
+          // customer was never told about a deadline they had paid for. Same
+          // fault, same file, same day as the customer reminder above; `mustSend`
+          // is what makes the sentence true rather than aspirational.
           await supabase.from("maintenance_deadlines")
             .update({ reminded_stage: stage + 1 }).eq("id", d.id);
           results.push({ id: d.id, kind: "maintenance", sent: true });

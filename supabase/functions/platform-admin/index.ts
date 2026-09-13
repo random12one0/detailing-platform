@@ -313,7 +313,7 @@ Deno.serve(async (req) => {
       // whose origin is invisible — and so *back to the built-in prices* has
       // something to show before it is pressed.
       const { data: ps } = await supabase.from("platform_settings")
-        .select("prices, updated_at, email_daily_cap, owner_email, healthcheck_url").limit(1).maybeSingle();
+        .select("prices, updated_at, email_daily_cap, email_platform_reserve, owner_email, healthcheck_url").limit(1).maybeSingle();
 
       // ITEM D — WHETHER THE SCHEDULED JOBS ARE STILL RUNNING. A failure of
       // either is completely silent: no screen changes and nobody is told,
@@ -363,7 +363,7 @@ Deno.serve(async (req) => {
       // way and never has to decide what a missing row means.
       const today = new Date().toISOString().slice(0, 10);
       const { data: mail } = await supabase.from("platform_email_days")
-        .select("sent, failed").eq("day", today).maybeSingle();
+        .select("sent, failed, claimed").eq("day", today).maybeSingle();
 
       // The detailers, as opposed to everything else in the table — testing
       // loop F-014. Seeded demos and the fixtures the database-backed suites
@@ -383,6 +383,14 @@ Deno.serve(async (req) => {
         email: {
           sent: mail?.sent ?? 0,
           failed: mail?.failed ?? 0,
+          // THE BUDGET LEDGER, ADDED 2026-09-13. `sent + failed` are outcomes
+          // and can only be counted after the provider answers; `claimed` is
+          // what has been spent against the provider's daily limit and is what
+          // the two numbers below are actually measured against. `reserve` is
+          // the slice only the platform's own alerts may reach, so the screen
+          // can say "tenant mail stops at 80" rather than implying 100.
+          claimed: mail?.claimed ?? 0,
+          reserve: ps?.email_platform_reserve ?? 0,
           cap: ps?.email_daily_cap ?? 100,
           owner_email: ps?.owner_email ?? null,
         },
