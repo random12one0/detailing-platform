@@ -13,7 +13,7 @@
 //   * one morning digest per business per local day at daily_digest_hour
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { supabase } from "../_shared/db.ts";
+import { retryRead, supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { businessById, getSettings, requireMember, type Business } from "../_shared/tenant.ts";
 import {
@@ -158,20 +158,26 @@ Deno.serve(async (req) => {
     const mark = (id: string, col: string) =>
       supabase.from("bookings").update({ [col]: new Date().toISOString() }).eq("id", id);
 
+    // THIS `Promise.all` IS WHERE THE SWEEP DIED — 2026-09-13. Seven calls
+    // leave together, PostgREST answers ~1.1% of them 504 in bursts of three
+    // to six, and the `throw` below is all-or-nothing, so ONE bad answer out
+    // of seven aborted the entire run. Measured: 0 of 5 scheduled ticks
+    // survived. All seven are read-only `get_*` functions, which is the only
+    // reason they may be retried at all — see `retryRead` in _shared/db.ts.
     const [ownerDue, customerDue, nudgeDue, wrapupDue, finalizeDue, requestDue, secondDue] = await Promise.all([
-      supabase.rpc("get_bookings_due_for_reminder", { target: "owner" }),
-      supabase.rpc("get_bookings_due_for_reminder", { target: "customer" }),
-      supabase.rpc("get_bookings_due_for_nudge"),
-      supabase.rpc("get_bookings_due_for_wrapup_nudge"),
-      supabase.rpc("get_bookings_due_for_finalize_nudge"),
+      retryRead("due:owner", () => supabase.rpc("get_bookings_due_for_reminder", { target: "owner" })),
+      retryRead("due:customer", () => supabase.rpc("get_bookings_due_for_reminder", { target: "customer" })),
+      retryRead("due:nudge", () => supabase.rpc("get_bookings_due_for_nudge")),
+      retryRead("due:wrapup", () => supabase.rpc("get_bookings_due_for_wrapup_nudge")),
+      retryRead("due:finalize", () => supabase.rpc("get_bookings_due_for_finalize_nudge")),
       // ROADMAP 2.12 FOLLOW-UP, approved by the owner 2026-09-03.
-      supabase.rpc("get_requests_due_for_nudge"),
+      retryRead("due:request", () => supabase.rpc("get_requests_due_for_nudge")),
       // ROADMAP 2.18. Its own RPC rather than a `target` on the first one:
       // that function carries the EVENING-BEFORE rule, and a second reminder
       // must not inherit it or a business with both settings on gets two
       // evening-before sends racing on one marker. The RPC also refuses to run
       // before the first reminder has gone.
-      supabase.rpc("get_bookings_due_for_second_reminder"),
+      retryRead("due:second", () => supabase.rpc("get_bookings_due_for_second_reminder")),
     ]);
     for (const r of [ownerDue, customerDue, nudgeDue, wrapupDue, finalizeDue, requestDue, secondDue]) {
       if (r.error) throw r.error;
@@ -362,10 +368,13 @@ Deno.serve(async (req) => {
 
     // --- Morning digest: per business, once per local day, after that
     // business's own daily_digest_hour. ------------------------------------
-    const { data: businesses } = await supabase
-      .from("businesses")
-      .select("id, slug, name, status, timezone, contact_email, contact_phone, dropoff_address, service_area")
-      .eq("status", "active");
+    // A read, and the digest reaches NOBODY if it comes back 504 — the loop
+    // below simply iterates an empty array and the sweep reports success.
+    const { data: businesses } = await retryRead("digest:businesses", () =>
+      supabase
+        .from("businesses")
+        .select("id, slug, name, status, timezone, contact_email, contact_phone, dropoff_address, service_area")
+        .eq("status", "active"));
     for (const business of (businesses || []) as Business[]) {
       try {
         const settings = await getSettings(business.id);

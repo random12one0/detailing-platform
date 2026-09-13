@@ -21,3 +21,10 @@ export const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 // scoped by business_id; the tenant helpers in tenant.ts are the only
 // approved way to obtain that id.
 export const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+
+// The gateway-504 retry lives in its own import-free file so a Node test can
+// load and RUN it; see its header. Re-exported here because every caller
+// already imports from db.ts and a second import path is a second thing to
+// remember.
+export { retryRead } from "./retryRead.ts";
+export type { ReadResult } from "./retryRead.ts";
