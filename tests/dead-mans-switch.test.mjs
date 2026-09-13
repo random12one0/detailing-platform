@@ -251,7 +251,7 @@ if (!URL_ || !SERVICE) {
   // chose for exactly this — so the send is genuinely exercised against the
   // provider and reaches nobody. Restored in the `finally` below whatever
   // happens, because leaving it would silence every real alert afterwards.
-  const settingsBefore = (await rest("platform_settings?select=owner_email,healthcheck_url,email_daily_cap")
+  const settingsBefore = (await rest("platform_settings?select=owner_email,healthcheck_url,email_daily_cap,email_platform_reserve")
     .then((r) => r.json()))[0];
 
   // **UNLESS THE DAY'S EMAILS ARE GONE, IN WHICH CASE THE SIMULATOR CANNOT BE
@@ -266,16 +266,29 @@ if (!URL_ || !SERVICE) {
   // undeliverable, which answers 200 without touching the provider. The path
   // is exercised end to end; what is NOT measured is the provider leg, and
   // that PRINTS rather than passing quietly.
+  // **IT READS `claimed`, NOT `sent`, AND THAT CORRECTION COST TWO RED CHECKS
+  // ON 2026-09-13.** The guard used to compare `sent` against the cap, but the
+  // thing that refuses a send is `claim_email_send`, and that counts
+  // `claimed` - which includes every FAILED and every refused attempt. With
+  // sent 87 and claimed 100 against a cap of 100 this guard said "there is
+  // room", took the provider branch, and reported four failures about a
+  // feature that was working. **A guard that models a gate must count what the
+  // gate counts.**
+  //
+  // The watchdog's alert is PLATFORM mail (roadmap 8.12 - no business behind
+  // it), so its budget is the whole cap rather than `cap - reserve`. The
+  // arithmetic below is `claim_email_send`'s own, for a platform send.
   const today = new Date().toISOString().slice(0, 10);
-  const spentRow = (await rest(`platform_email_days?day=eq.${today}&select=sent`)
+  const spentRow = (await rest(`platform_email_days?day=eq.${today}&select=sent,claimed`)
     .then((r) => r.json()))[0];
-  const spent = (spentRow?.sent ?? 0) >= (settingsBefore?.email_daily_cap ?? 100);
+  const cap = settingsBefore?.email_daily_cap ?? 100;
+  const spent = (spentRow?.claimed ?? 0) + 1 > cap;
   const ALERT_TO = spent
     ? sink("watchdog")
     : realMail("delivered@resend.dev", "§ 2 proves the watchdog's PROVIDER leg, not just the relay");
   if (spent) {
-    console.log(`  NOT MEASURED  the provider leg — ${spentRow?.sent} emails sent today against a`
-      + ` cap of ${settingsBefore?.email_daily_cap}. The relay is exercised, Resend is not.`);
+    console.log(`  NOT MEASURED  the provider leg — ${spentRow?.claimed} of ${cap} claimed today`
+      + ` (${spentRow?.sent} of them sent). The relay is exercised, Resend is not.`);
   }
   const setSettings = (patch) =>
     rest("platform_settings?id=eq.true", { method: "PATCH", body: JSON.stringify(patch) });
