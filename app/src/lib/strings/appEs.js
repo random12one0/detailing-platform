@@ -2110,6 +2110,8 @@ export const appEs = {
   "Most booked": "Más reservado",
   "Times booked": "Veces reservado",
   "The full picture": "El panorama completo",
+  "Where the money went, what each service earns, and what is still owed.":
+    "Adónde se fue el dinero, cuánto genera cada servicio y qué falta por cobrar.",
   "Where your money comes from": "De dónde viene tu dinero",
   "Make a link for a flyer or a post, then see what it brought in.":
     "Crea un enlace para un volante o una publicación y mira cuánto trajo.",

@@ -546,6 +546,12 @@ export default function App() {
                 }} />
             )}
       </main>
+      {/* The ground under the pill. `theme.css` § THE GROUND UNDER THE TAB
+          BAR carries the whole reasoning; in one line, the bar is glass and
+          without this the page's own words were legible through it. An
+          element rather than a pseudo because it has to span the full width
+          with `left: 0; right: 0`, and the bar does not. */}
+      <div className="tabscrim" aria-hidden="true" />
       <nav className="tabbar">
         {visibleTabs.map((x) => (
           /* A TAB IS ONLY LIT WHEN IT IS WHAT YOU ARE LOOKING AT. With the

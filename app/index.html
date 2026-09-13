@@ -9,6 +9,34 @@
     <meta name="theme-color" content="#0B0D0E" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
+    <!-- **THERE WAS NO MANIFEST AT ALL UNTIL 2026-09-13**, and the two meta
+         tags above were the whole of "this is an app". They are the legacy
+         iOS path: they make a home-screen launch open without browser chrome
+         and they say NOTHING about which addresses belong to the app. Without
+         a `scope`, iOS decides for itself from whichever page happened to be
+         open when somebody pressed Add to Home Screen — and a URL it decides
+         is outside shows the address bar and a back button, which is Andrew's
+         fourth complaint: "every tab press breaks out of the app".
+
+         `scope: "/"` covers every address this product serves, so nothing the
+         app can reach is outside it. `start_url: "/app"` is the dashboard
+         rather than the marketing page, because somebody who installs this is
+         a detailer opening their own tool.
+
+         THE TAB RAIL ITSELF WAS ALREADY INNOCENT and stays as it is:
+         `App.jsx`'s `goTab` uses `history.replaceState`, which changes the
+         address WITHOUT navigating, so a tab press is not a page load in any
+         browser. Andrew's reading of the cause was reasonable and is not what
+         the code does — the missing scope is the candidate that fits.
+         **AND ONLY HIS OWN PHONE CAN SETTLE IT**: there is no iOS in this
+         container and a simulator launched from a home-screen icon is the one
+         thing a headless Chromium cannot be.
+
+         `apple-touch-icon` is NOT declared and that is deliberate: iOS wants a
+         PNG there, this platform has no logo by design, and inventing one in a
+         session is a brand decision nobody asked for. The manifest's SVG is
+         the mark this page already ships as its favicon. -->
+    <link rel="manifest" href="/manifest.webmanifest" />
     <!-- Declared so the browser stops requesting /favicon.ico and 404ing on
          every page load. Inline SVG rather than a file: this is a
          white-label platform, so there is no logo to ship — the tenant's own

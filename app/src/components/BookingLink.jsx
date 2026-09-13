@@ -112,6 +112,20 @@ export default function BookingLink({
   const url = `${origin || window.location.origin}/book/${slug}${path}`;
   // What a person reads on a card or types into a phone — no scheme noise.
   const pretty = url.replace(/^https?:\/\//, "");
+  // AND WHERE IT IS ALLOWED TO BREAK. On a 15 Pro Max this rendered as
+  // "detailingplatform.com/book/demo-deta" with "il" alone on the next line —
+  // a mid-word break, in the one string on this screen a detailer copies and
+  // sends to customers, so it reads as broken rather than as wrapped.
+  //
+  // The cause was `word-break: break-all` in theme.css, which breaks anywhere
+  // at all because a URL offers no break opportunity of its own. Splitting it
+  // at the host gives the line a break we CHOSE, so it wraps as
+  // "detailingplatform.com" / "/book/demo-detail". `<wbr>` rather than a
+  // newline or a zero-width space: it is a break opportunity and contributes
+  // no character, so selecting the line still copies a working address.
+  const slash = pretty.indexOf("/");
+  const prettyHost = slash > -1 ? pretty.slice(0, slash) : pretty;
+  const prettyPath = slash > -1 ? pretty.slice(slash) : "";
 
   const copy = async () => {
     try {
@@ -231,7 +245,7 @@ export default function BookingLink({
         )}
         {/* The address itself, selectable, in the figure face — it is a
             value to be read and checked, not a sentence. */}
-        <div className="booking-link">{pretty}</div>
+        <div className="booking-link">{prettyHost}<wbr />{prettyPath}</div>
         {/* Three across does not fit a phone — owner walkthrough W14, "the
             Open button stretches off screen". It only appeared on his machine
             because Chrome on Windows HAS navigator.share, so he had three

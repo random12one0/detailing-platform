@@ -40,7 +40,7 @@
 // booking_line_items, and TIPS.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Download, Link2 as LinkIcon, Plus } from "lucide-react";
+import { BarChart3, ChevronLeft, ChevronRight, Download, Link2 as LinkIcon, Plus } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { useBookings, withLocal, BOOKING_SELECT } from "../hooks/useBookings.js";
@@ -635,8 +635,27 @@ export default function Money({ onGo }) {
           answers *how am I doing*; this answers *how am I really doing*,
           and putting the second one on the first screen is how four figures
           become eighteen for somebody who only wanted the four. */}
-      <button className="btn ghost" style={{ marginTop: 4 }}
-        onClick={() => setAdvanced(true)}>{t("The full picture")}</button>
+      {/* **IT READ AS A HEADING, NOT AS A DOOR — a 15 Pro Max, 2026-09-13.**
+          `.btn.ghost` paints no border and no ground, so this was four
+          centred words floating in 72px of air with a real door directly
+          under them, and it was reported as "a heading above a large empty
+          gap, either something failed to render or the spacing is wrong".
+          Nothing had failed to render.
+          THE REFERENCE WAS ONE ELEMENT AWAY. "Where your money comes from"
+          is the same kind of thing — a door onto another screen — and it
+          already says what is behind it, in this product's own vocabulary.
+          SCREEN RULES: copy the best screen that already exists here rather
+          than designing a second answer. The sentence is what is BEHIND the
+          door, because "The full picture" names the control and says nothing
+          about why a detailer would open it. */}
+      <button className="btn ghost linkdoor" onClick={() => setAdvanced(true)}>
+        <BarChart3 strokeWidth={2} />
+        <span>
+          <b>{t("The full picture")}</b>
+          <small>{t("Where the money went, what each service earns, and what is still owed.")}</small>
+        </span>
+        <ChevronRight strokeWidth={2} className="linkdoor-go" />
+      </button>
 
       {/* ── WHERE YOUR MONEY COMES FROM ────────────────────────────────
           **HIS CALL, 2026-09-11, reversing his own earlier one:** *"the

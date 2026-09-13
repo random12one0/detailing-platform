@@ -35,6 +35,17 @@
      pointer listener and both are fine-pointer-only; this is the most
      phone-first surface in the product. The hover lift stays. */
 
+/* The phone's own edges, named so a check can set them — theme.css
+   § THE PHONE'S OWN EDGES is the whole reasoning and this is the same pair.
+   Defined here too because a booking page loads this stylesheet and not that
+   one, and on :root rather than on `.bk` with every other token: a token on a
+   CLASS cannot be overridden from outside the page, and being settable from
+   outside is the entire point of naming these two. */
+:root {
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+
 .bk {
   /* ── The ground ────────────────────────────────────────────────── */
   --bk-bg: #0B0D0E;            /* --ink-0  — must match BOOKING_BG in lib/theme.js */
@@ -235,7 +246,7 @@
 /* ------------------------------------------------------------ LAYOUT */
 .bk-wrap {
   max-width: calc(var(--bk-col) + 2 * var(--bk-sp-4)); margin: 0 auto;
-  padding: var(--bk-sp-5) var(--bk-sp-4) calc(104px + env(safe-area-inset-bottom));
+  padding: var(--bk-sp-5) var(--bk-sp-4) calc(104px + var(--safe-b));
   display: flex; flex-direction: column; gap: var(--bk-sp-5);
 }
 .bk-step-head { display: flex; flex-direction: column; gap: var(--bk-sp-3); }
@@ -317,7 +328,7 @@
    top third of a 1920 screen empty. */
 .bk-header {
   border-bottom: 1px solid var(--bk-hairline);
-  padding: calc(var(--bk-sp-4) + env(safe-area-inset-top)) var(--bk-sp-4) var(--bk-sp-4);
+  padding: calc(var(--bk-sp-4) + var(--safe-t)) var(--bk-sp-4) var(--bk-sp-4);
 }
 .bk-header .inner {
   max-width: var(--bk-col); margin: 0 auto;
@@ -803,7 +814,7 @@
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
   background: var(--bk-bg);
   border-top: 1px solid var(--bk-hairline);
-  padding: var(--bk-sp-3) var(--bk-sp-4) calc(var(--bk-sp-3) + env(safe-area-inset-bottom));
+  padding: var(--bk-sp-3) var(--bk-sp-4) calc(var(--bk-sp-3) + var(--safe-b));
 }
 .bk-bar .inner {
   max-width: var(--bk-col); margin: 0 auto;

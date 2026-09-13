@@ -371,3 +371,110 @@ and the list reorders by who spends the most. A member of staff who is not
 allowed to see money sees only the first of the two.
 
 **Visual: yes.**
+
+---
+
+## 19 · The bar at the bottom of the phone, and the page underneath it
+
+**Open:** `localhost:5173/app` on a phone, then **Clients** or **Business**, and
+scroll until a row reaches the bottom of the screen.
+
+**WAS:** The bar with Today, Calendar, Money, Clients and Business floats over
+the page, and it is made of frosted glass — so a customer's whole row, their
+name, what they spent and their phone number, stayed readable straight through
+it. The page just carried on behind the glass, which made the bottom of every
+screen look cut off rather than finished.
+
+**NOW:** The page fades into the background before it reaches the bar, so the
+bar sits on clean ground and nothing shows through it. The bar itself looks
+exactly the same.
+
+**Visual: yes.**
+
+---
+
+## 20 · The bottom bar on an iPhone, in Safari
+
+**Open:** `localhost:5173/app` on a phone. **This one really needs your own
+phone**, because a computer has no Safari address bar to slide away.
+
+**WAS:** The bar was pinned to the bottom of the page rather than to the bottom
+of what you can actually see. Safari's address bar slides away as you scroll
+down and comes back as you scroll up, and the bar jumped about 34 pixels each
+time it did — and while the address bar was showing, part of the tab bar was
+behind it.
+
+**NOW:** The bar is pinned to the bottom of what you can see, so it stays put
+whichever way the address bar is and never goes behind it. Nothing changes on a
+computer, or when the app is opened from the home screen.
+
+**Visual: yes** — and it is the one on this list that can only be checked on
+your own phone.
+
+---
+
+## 21 · Presses that landed in the gap around the tab buttons
+
+**Open:** n/a
+
+**WAS:** The bar has five pixels of padding around the row of buttons and two
+between them. A thumb landing in that edge hit the bar itself, which does
+nothing, so about one press in ten near an edge was thrown away.
+
+**NOW:** Every part of the bar belongs to the button nearest it. The buttons
+look exactly the same; only the invisible area your thumb can land on grew.
+
+**Visual: no** — nothing on the screen changed.
+
+---
+
+## 22 · Adding the dashboard to your home screen
+
+**Open:** n/a — it is what happens when you add the site to your iPhone home
+screen and open it from there.
+
+**WAS:** There was no file telling the phone what belongs to the app. iOS then
+guesses from whichever page you were on when you pressed Add to Home Screen,
+and anything it decides is outside the app opens with an address bar and a back
+button on top — which is what you saw every time you pressed a tab.
+
+**NOW:** There is one, and it says the whole site is the app, that it opens on
+your dashboard, and that it opens without browser furniture.
+
+**Visual: no** — nothing on any screen changed, and **it needs you to delete the
+old home-screen icon and add it again** before the phone reads the new file.
+
+---
+
+## 23 · Your booking address, broken across two lines mid-word
+
+**Open:** `localhost:5173/app` → **Business**, at the top under **Your booking
+page**.
+
+**WAS:** On a narrow phone the address broke wherever it ran out of room:
+"detailingplatform.com/book/demo-deta" on one line and "il" alone on the next.
+It is the one thing on that screen you copy and send to customers, so it read as
+broken.
+
+**NOW:** If it has to go onto two lines it breaks after the ".com", so it reads
+as an address on two lines rather than a word snapped in half. Copy still copies
+the whole thing on one line.
+
+**Visual: yes.**
+
+---
+
+## 24 · Money — "The full picture" floating in an empty gap
+
+**Open:** `localhost:5173/app` → **Money**, and scroll to just under the box of
+four figures.
+
+**WAS:** "The full picture" was four words on their own in the middle of a lot
+of empty space, with no outline and nothing around them, so it read as a heading
+over a gap where something had failed to load. It was a button all along.
+
+**NOW:** It is a row like the one under it — a small chart mark, the words "The
+full picture", a line saying what is behind it, and an arrow on the right. The
+two doors on that screen now match.
+
+**Visual: yes.**

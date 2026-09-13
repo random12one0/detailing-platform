@@ -1,0 +1,15 @@
+{
+  "name": "Detailing Platform",
+  "short_name": "Detailing",
+  "description": "A custom website for one detailing business, and the dashboard that runs it.",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#0B0D0E",
+  "background_color": "#0B0D0E",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

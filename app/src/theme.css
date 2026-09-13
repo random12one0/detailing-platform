@@ -313,6 +313,32 @@
   --ease: var(--e-out);
 
   --tap: 46px;
+
+  /* ------------------------------------------------ THE PHONE'S OWN EDGES
+     `env(safe-area-inset-*)` is the notch at the top and the home indicator
+     at the bottom. It is ALSO the one number in this stylesheet that no
+     check in this repo could ever read: a headless browser reports 0 for
+     every inset, there is no way to set one from the outside, and Andrew's
+     iPhone 15 Pro Max reports 59px and 34px. So every rule that spent an
+     inset was measured at zero and signed off, and "cut off on a real
+     phone" was invisible to every green run — 2026-09-13.
+
+     NAMING THEM MAKES THEM MEASURABLE. Every rule below reads the token, and
+     `scripts/sweep-phone-viewport.mjs` sets the token to a real handset's
+     figures before it measures. Nothing about the product changes on a
+     device: the fallback IS `env()`.
+
+     DO NOT go back to writing the env() function at a call site.
+     A rule that names the function directly is a rule the sweep cannot see,
+     which is exactly the hole this pair was cut to close. */
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+
+  /* How much room the bottom of a phone screen owes the floating tab bar: the
+     bar's own box, the gap under it, and the home indicator below that. Read
+     by `.app-main`'s bottom padding AND by the scrim that covers the same
+     strip, because they are the same strip. */
+  --tabclear: calc(96px + var(--safe-b));
 }
 
 * { box-sizing: border-box; }
@@ -935,8 +961,46 @@ a { color: var(--accent-text); text-decoration: none; }
 }
 
 .app-main {
-  flex: 1; padding: var(--sp-4) var(--sp-4) calc(96px + env(safe-area-inset-bottom));
+  flex: 1; padding: var(--sp-4) var(--sp-4) var(--tabclear);
   max-width: 760px; margin: 0 auto; width: 100%;
+}
+
+/* ------------------------------------------- THE GROUND UNDER THE TAB BAR
+   ANDREW'S IPHONE, AND A 15 PRO MAX SIMULATOR, 2026-09-13: a whole customer
+   row on Clients — name, amount, phone number — read clearly THROUGH the tab
+   bar, and Business did the same. The bar is 82% of the sunken ground with a
+   blur behind it, which is the approved glass pill; over a page that scrolls
+   underneath it, "glass" means "you can read the words".
+
+   It is the first of his four complaints and it is the cause of the look he
+   called "cut off": the last thing on the screen is a row half-dissolved
+   behind a translucent strip, which reads as a page that ran out rather than
+   as a page with a bar on it.
+
+   THE FIX IS TO PUT THE GROUND BACK BETWEEN THE TWO, not to make the pill
+   opaque. An opaque pill is a bar welded across the bottom, which is the one
+   thing `.tabbar`'s own note says this component exists to avoid. A scrim
+   means the glass is glass over the GROUND, which is what it was drawn to be.
+
+   `left: 0; right: 0` AND NEVER `100vw` — CLAUDE.md § (m): `100vw` includes a
+   classic scrollbar and the layout viewport does not, so the vw version of
+   this bleeds sideways on exactly the machine nobody tests on.
+
+   ONE NUMBER, `--tabclear`, SHARED WITH `.app-main`'s BOTTOM PADDING. The
+   space the page reserves and the space the ground covers are the same space;
+   two numbers is how one of them drifts. */
+.tabscrim {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 39;
+  /* TALLER THAN THE CLEARANCE, AND SOLID PAST THE BAR'S TOP EDGE. At the
+     first attempt the gradient started fading level with the pill, so an
+     expense row's words were still faintly readable along its top edge —
+     the same fault in a 29px strip. The ground now runs solid to about 8px
+     above the bar and then fades over 60px, which is far enough that the
+     dissolve reads as the page ending rather than as a band. */
+  height: calc(var(--tabclear) + 40px);
+  pointer-events: none;
+  background: linear-gradient(to top,
+    var(--ink-0) 0, var(--ink-0) calc(100% - 60px), transparent 100%);
 }
 
 /* The tab bar is a floating pill, not a bar welded to the bottom edge — the
@@ -946,7 +1010,31 @@ a { color: var(--accent-text); text-decoration: none; }
 .tabbar {
   position: fixed; z-index: 40;
   left: 50%; transform: translateX(-50%);
-  bottom: calc(12px + env(safe-area-inset-bottom));
+  /* TWO DECLARATIONS, AND THE SECOND IS THE FIX. Andrew, on his own phone:
+     "it's constantly kind of moving up and down, and it feels glitchy. One
+     time, it was even the tab switcher was hidden underneath the actual
+     address search bar."
+
+     Both halves of that are one fact. A `position: fixed` element is placed
+     against the LAYOUT viewport, whose bottom edge on iOS sits BEHIND Safari's
+     address bar while the bar is expanded — so the pill is genuinely under it.
+     And `env(safe-area-inset-bottom)` is 34px while the chrome is retracted
+     and 0px while it is expanded, because the expanded address bar occupies
+     the home-indicator strip itself. So the one number this rule was built on
+     flips by 34px mid-flick, in the wrong direction: the pill drops as the
+     chrome comes up.
+
+     `100%` on a fixed element is the LAYOUT viewport's height; `100dvh` is
+     what a person can currently SEE. Their difference is exactly the height of
+     whatever browser chrome is showing, so adding it pushes the pill clear of
+     the chrome and holds it against the VISIBLE bottom in both states. On a
+     desk, and in a home-screen install where there is no chrome at all, the
+     difference is zero and nothing moves by a pixel.
+
+     THE FIRST LINE IS A REAL FALLBACK, NOT A LEFTOVER: a browser without
+     `dvh` drops the whole `calc()` as invalid and keeps it. */
+  bottom: calc(12px + var(--safe-b));
+  bottom: calc(100% - 100dvh + 12px + var(--safe-b));
   width: min(calc(100% - 24px), 460px);
   display: flex; justify-content: space-around; gap: 2px;
   padding: 5px;
@@ -984,7 +1072,27 @@ a { color: var(--accent-text); text-decoration: none; }
   cursor: pointer; border-radius: calc(var(--r-nav) - 5px);
   corner-shape: var(--corner);
   transition: color var(--t-hover) var(--e-out), background var(--t-hover) var(--e-out);
+  position: relative;
 }
+/* THE BAR TAKES A PRESS ANYWHERE ON ITSELF, NOT ONLY ON A BUTTON. The bar
+   carries 5px of padding and 2px between buttons, and a press landing in that
+   ring hit the `<nav>` — which has no handler, so it did nothing at all.
+   Andrew asked for exactly this: "check whether the bar actually captures the
+   press across its full height, not just on the icons."
+
+   THE MARK AND THE TARGET ARE TWO DIFFERENT THINGS (`docs/START-HERE.md` § 3)
+   — the painted button keeps its size and radius, and an absolutely
+   positioned `::after` at a negative inset carries the reachable area out to
+   the bar's own edges. It takes no part in layout, so nothing moves.
+
+   The 2px gap is split one pixel each way, so neighbouring targets TILE
+   rather than overlap: two targets fighting over the same pixel trades a
+   small press for a wrong one, which is worse. */
+.tabbar button::after {
+  content: ""; position: absolute; inset: -5px -1px;
+}
+.tabbar button:first-child::after { left: -5px; }
+.tabbar button:last-child::after { right: -5px; }
 .tabbar button svg { flex-shrink: 0; }
 .tabbar button.active {
   color: var(--accent-text);
@@ -1011,7 +1119,7 @@ a { color: var(--accent-text); text-decoration: none; }
   position: sticky; top: 0; z-index: 31;
   display: flex; align-items: center; justify-content: space-between;
   gap: var(--sp-3); flex-wrap: wrap;
-  padding: calc(var(--sp-2) + env(safe-area-inset-top)) var(--sp-4) var(--sp-2);
+  padding: calc(var(--sp-2) + var(--safe-t)) var(--sp-4) var(--sp-2);
   background: color-mix(in srgb, var(--bad) 20%, var(--ink-0));
   border-bottom: 1px solid color-mix(in srgb, var(--bad) 45%, transparent);
   font-size: var(--t-meta); color: var(--text);
@@ -1035,7 +1143,7 @@ a { color: var(--accent-text); text-decoration: none; }
   /* sp-2, not sp-3: the header carries a 44px control now (the one doorway
      to a new booking), and at sp-3 it would have grown 22px on the screen
      roadmap 2.11's phone pass exists to shorten. 61px total, --topbar-h. */
-  padding: calc(var(--sp-2) + env(safe-area-inset-top)) var(--sp-4) var(--sp-2);
+  padding: calc(var(--sp-2) + var(--safe-t)) var(--sp-4) var(--sp-2);
   display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2);
 }
 .topbar .brand {
@@ -1092,8 +1200,10 @@ a { color: var(--accent-text); text-decoration: none; }
      column ever uses, so nothing is squeezed — and `--wrap` is untouched. */
   .app-shell { padding-inline: 120px; }
   /* The pill is off the bottom edge, so the 96px it was being cleared by is
-     no longer owed to anything. */
+     no longer owed to anything — and neither is the ground that covered the
+     same strip. */
   .app-main { max-width: var(--wrap); padding-bottom: var(--sp-6); }
+  .tabscrim { display: none; }
   .tabbar {
     /* **THE RAIL FOLLOWS THE CONTENT, NOT THE SCREEN EDGE — measured
        2026-09-06, and it is a 1920-only defect.** `.app-main` is centred
@@ -3219,7 +3329,7 @@ body:has(.sheet-backdrop:not(.leaving)) .tabbar {
 }
 .sheet-foot {
   flex-shrink: 0; border-top: 1px solid var(--hairline);
-  padding: var(--sp-3) var(--sp-4) calc(var(--sp-3) + env(safe-area-inset-bottom));
+  padding: var(--sp-3) var(--sp-4) calc(var(--sp-3) + var(--safe-b));
   background: var(--surface);
 }
 
@@ -3547,7 +3657,7 @@ label.row:has(> input[type="checkbox"]) { min-height: 44px; }
   align-items: center; justify-content: center;
   /* The safe-area insets matter here more than anywhere: this is the one
      screen somebody meets on a phone before the app shell exists. */
-  padding: var(--sp-5) var(--sp-4) calc(var(--sp-5) + env(safe-area-inset-bottom));
+  padding: var(--sp-5) var(--sp-4) calc(var(--sp-5) + var(--safe-b));
 }
 .authwrap { width: 100%; max-width: 400px; }
 /* The mark sits ABOVE the card rather than inside it, so the card stays one
@@ -3593,7 +3703,12 @@ label.row:has(> input[type="checkbox"]) { min-height: 44px; }
    face and made selectable rather than being prose. */
 .booking-link {
   font-family: var(--f-num); font-size: var(--t-meta);
-  color: var(--text); word-break: break-all; user-select: all;
+  /* `break-all` UNTIL 2026-09-13, and it broke the address mid-word on a real
+     phone: "detailingplatform.com/book/demo-deta" over "il". `anywhere` takes
+     the offered break first — `BookingLink.jsx` puts a `<wbr>` after the host
+     — and only breaks mid-token when a slug is genuinely too long for the
+     box, which is a last resort rather than the first thing it tries. */
+  color: var(--text); word-break: normal; overflow-wrap: anywhere; user-select: all;
   background: var(--surface-sunken); border: 1px solid var(--hairline);
   border-radius: var(--r-inset); padding: 13px 15px; line-height: 1.5;
   corner-shape: var(--corner);
