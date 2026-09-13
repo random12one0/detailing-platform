@@ -5,6 +5,45 @@ Claude Cowork decides what becomes work.
 
 ---
 
+## FOR LANE B — BOOKING STEP 4 IS 10px TALLER THAN A PHONE, AT 392 ONLY
+
+**Re-measured 2026-09-13 at `91face9`, against a BUILT bundle** (`vite build` in
+a detached worktree, served by `vite preview` on 127.0.0.1:4175), not the dev
+server — trap (g). Instrument: `scripts/sweep-booking-steps.mjs` with `BASE`.
+
+| viewport | step 4 of 7, "Pick a place" |
+|---|---|
+| 1920x1080 | fits, 136px spare |
+| 1440x900 | fits, **13px spare** |
+| 768x1024 | fits, 169px spare |
+| **392x844** | **over by 10px** (1% of the screen) |
+
+**THE THREE TALLEST THINGS ON IT, as the sweep printed them:**
+
+```
+  90px  div.bk-card.selectable.selected  «We come to youWe bring»
+  73px  div.bk-field                     «Where should we come?F»
+  71px  div.bk-card.selectable           «Drop it offBring your »
+```
+
+**It is a HEIGHT overflow, not sideways scroll** — the step is taller than the
+viewport, so W16 ("a step fits without scrolling") is not met. It is the only
+one of the eleven booking steps that misses, at the only width that misses; the
+other ten fit at all four widths. **10px is one line of padding**, and the
+selected card being 19px taller than its unselected twin is where the budget
+goes.
+
+**AND 1440 IS 13px FROM THE SAME FAULT**, so a change that adds a line anywhere
+on this step breaks the desk width too.
+
+**THIS IS LANE B’s** — `app/src/book/steps/` and `app/src/book/booking.css`. Lane
+C measured it and is not touching it.
+
+**TWO OTHER LINES IN THE SAME RUN THAT ARE NOT THIS FINDING:** the plans page
+scrolls 312px and "your plan" scrolls 17px at 392. The sweep reports those as
+`scrolls` rather than `over` — a different category, and W16 is about steps. Do
+not fold them in without deciding whether a plans page is allowed to scroll.
+
 ## THE PUBLIC-PROFILE LEAK CHECK READ 37% OF THE PAYLOAD — lane C, 2026-09-13
 
 **`scripts/adversary-probe.mjs` § A3c asks whether the endpoint every stranger
