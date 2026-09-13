@@ -22,6 +22,10 @@ if (!SUPABASE_ACCESS_TOKEN || !SUPABASE_PROJECT_REF) {
 // Functions the public site calls without a user session. Everything else
 // requires a valid JWT at the gateway (and checks membership internally).
 const PUBLIC_FUNCTIONS = new Set([
+  // A doorbell that tells a watcher when a session stopped typing. Public
+  // because the whole point is that WATCHING it needs no key; it stores one
+  // label and a timestamp and no message text ever reaches it.
+  "session-ping",
   "available-slots",
   "calculate-booking",
   "create-booking",

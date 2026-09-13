@@ -968,3 +968,46 @@ audit wrongly accused a working tool, and the reverse error is live here.
 ran four suites, none of them the one named after the screen it replaced, and
 six capabilities left the product without a word. The suite said so immediately
 and for three days it was read as noise.
+
+## IT WENT UNNOTICED FOR THREE DAYS BECAUSE THE RED WAS RATIONALISED — 2026-09-12
+
+**The transferable lesson, and it is not about the back office.**
+
+`platform-admin.test.mjs` went red the moment `45eaf85` rewrote the screen it
+guards. It was not ignored — it was **explained**, in this file's own words on
+2026-09-11: *"a mix of checks pointing at source that MOVED… and checks
+enforcing rules the owner has since REVERSED."*
+
+**Half of that sentence was true and it was the wrong half.** Some checks WERE
+stale — `"no chart"` really does enforce a rule Andrew reversed. But the source
+had not moved: roughly 500 lines were **deleted**, and six of the back office's
+twelve capabilities went with them. The explanation was plausible, it was
+written down, and once written down nobody looked again.
+
+**THIS IS THE SAME FAILURE AS A TOOL THAT ALWAYS PRINTS "clean", WITH A HUMAN
+STORY IN PLACE OF A BROKEN EXIT CODE.** Both take a red signal and hand back a
+green one. The human version is the more dangerous of the two:
+
+- a broken counter is a bug somebody can find by reading the code;
+- a plausible sentence in `FOUND.md` is something the next person **cites**.
+
+**It is also harder to catch, because the story was written by someone who had
+actually looked** — it came from sampling the failures, which is more diligence
+than most red suites get. Sampling three of forty-eight and generalising is how
+a correct observation becomes a wrong conclusion.
+
+**WHAT WOULD HAVE CAUGHT IT, and it took about four minutes:** grepping the six
+server actions against `app/src`. `create`, `export`, `note`, `prices`, `site`,
+`tier` — **zero references each.** No judgement required, no sampling, no story.
+
+**THE RULE IS IN `docs/BAR.md`:** a commit that rewrites a file runs the suite
+named after that file, and a red suite may never be explained away without
+evidence — the explanation has to be proved the way the stale ones here were
+proved, by showing what the product does now.
+
+**AND THE SWITCH ITSELF IS ALIVE — confirmed before treating its display as the
+lowest of the seven.** `watch-jobs` is deployed (v19), runs every fifteen
+minutes on `pg_cron`, and pings `platform_settings.healthcheck_url`;
+`platform-admin/index.ts:396` still sends `watch: { outside: … }` to the client.
+**Only the screen stopped drawing it.** Had the switch been dead too it would
+have gone to the front of the queue.

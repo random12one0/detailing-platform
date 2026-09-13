@@ -133,6 +133,57 @@ full-size control**, because that is what happened the only time it came up.
 which is scoped to the detailer side, and that is a gap rather than an
 exemption.)
 
+## A RED SUITE IS EVIDENCE UNTIL IT IS DISPROVED, AND THE DISPROOF IS ALSO EVIDENCE
+
+**Two rules, both earned on 2026-09-12 by the same incident.**
+
+> **A commit that rewrites or replaces a file runs the suite named after that
+> file.**
+>
+> **A red suite may never be explained away without evidence. The explanation
+> has to be PROVED — shown, not reasoned.**
+
+**WHAT IT COST.** `45eaf85` rewrote `app/src/admin/AdminPage.jsx` from 1,436
+lines to 798. Its commit message lists the checks it ran — composition,
+design-contrast, landing-pricing, route-contract — and **not
+`platform-admin.test.mjs`, the suite named after the screen it was replacing.**
+That suite went red immediately and was dismissed three days later with a
+plausible sentence: *"a mix of checks pointing at source that MOVED."*
+
+**The sentence was wrong.** The source had not moved. **Six of the back office's
+twelve server capabilities had become unreachable** — `create`, `export`,
+`note`, `prices`, `site`, `tier` — and the dead man's switch had lost its
+warning display. The suite had been saying so, correctly, for three days, in
+the owner's own back office, on a screen that touches money.
+
+**THIS IS THE SAME DISEASE AS A TOOL THAT ALWAYS SAYS CLEAN — with a human
+story where the broken exit code would be.** A rationalisation and a NaN counter
+produce the same outcome: a red signal converted into a green one by something
+nobody checked. **The human version is more dangerous, because it sounds
+reasonable and it is written down in a file the next person trusts.**
+
+### What "proved" means here
+
+When a check fails and you believe the product is right, **show what the product
+does now and why that is correct.** Three worked examples from the same pass:
+
+- *"no chart"* — a chart exists (9 references) **and**
+  `docs/back-office-plan-2026-09-09.md` records Andrew asking for one in as many
+  words. Rule reversed by its owner. **Stale, proved.**
+- *2b-i* — the check greps `status: "anon"`; the code says `setStatus("anon")`
+  and renders a Sign in form at `AdminPage.jsx:226`. **Behaviour intact, spelling
+  moved. Stale, proved.**
+- *`multi-vehicle` 2c* — asserts an em dash that a deliberate change replaced.
+  **Proved by running the suite with the PARENT commit's file in the working
+  tree: green there, red here.** A count matching is a coincidence; a name
+  matching is evidence.
+
+**AND THE REVERSE ERROR IS LIVE.** A test that looks stale may be the only thing
+still guarding something real. Four of twelve break attempts in the instrument
+audit wrongly accused a working tool. **If a split cannot be proved, report the
+part that can and say the rest is unclassified — a fabricated number is worse
+than an incomplete one.**
+
 ## EVERY CHECKING TOOL IS BASELINED BEFORE ITS PASS IS BELIEVED
 
 **Claude Cowork's rule, 2026-09-12, and it is the headline of the whole run.**
