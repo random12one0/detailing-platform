@@ -905,6 +905,35 @@ conditions had to hold and neither did at 22:04 UTC:
 with lane B idle.** `docs/check-coverage-gaps-2026-09-13.md` § 2 has the other
 eleven browser scripts in the same position.
 
+## 1k · THE PER-PERSON TOUR STORE, PROVEN LIVE — lane C, 2026-09-13, at `877391d`
+
+**`public.user_tours` was applied to `kguqylyzgyzfktkfnhjb` and its row security
+was proven with a REAL session** (`demo@detailplatform.com`), not read off the
+migration. Every refusal below was confirmed by reading the row back afterwards,
+because **a PATCH and a DELETE that RLS refuses both answer `204`** — the same
+status a successful one gives — so the status code proves nothing on its own.
+
+| probe | result |
+|---|---|
+| select own rows, empty table | `200 []` |
+| insert own row | `201`, row returned |
+| insert ANOTHER user's row | `403 42501` — new row violates row-level security |
+| update own row (no update policy) | `204`, and `dismissed_at` **unchanged** on read-back |
+| delete own row (no delete policy) | `204`, and the row **still there** on read-back |
+| `anon` select | `401 42501` |
+
+**The verification row was deleted afterwards with the service key and the table
+was left empty** — `select` returns `[]`.
+
+| proven | at | invalidated by a change to |
+|---|---|---|
+| the six probes above | 2026-09-13, `877391d` | `supabase/migrations/*user_tours*`, any later migration touching `public.user_tours` |
+
+**NOTHING READS OR WRITES THIS TABLE YET.** It is the store half of the tour
+replay fix; the wiring is lane B's — `docs/tour-replay-2026-09-13.md` § 5.
+
+---
+
 ---
 
 ## HOW THIS FILE EARNS ITS KEEP
