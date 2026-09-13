@@ -36,7 +36,22 @@ was `{"code":"NOT_FOUND"}`. The repaired detail prints **"NO SLOT LIST AT ALL �
 nothing was compared"**, which is the difference between naming the endpoint and
 naming nothing.
 
-## FOR LANE B — BOOKING STEP 4 IS 10px TALLER THAN A PHONE, AT 392 ONLY
+## ~~FOR LANE B — BOOKING STEP 4 IS 10px TALLER THAN A PHONE~~ — FIXED SAME DAY
+
+**CLOSED by lane B in `cfe29b3`, hours after it was handed over.** The two mode
+cards were written inline rather than mapped, so they missed the `.bk-choices`
+wrapper W18 gave services, sizes and extras. `.bk-step` is `display: contents`,
+so each card was taking the 26px SECTION gap instead of the 8px inside a choice
+group. Wrapping them recovered 18px, which covers the 10px this ran over by —
+**one fix for two faults rather than a second one**, and lane B found the
+uneven-spacing half that the overflow figure alone would not have shown.
+
+**KEPT, NOT DELETED, because the measurement is the reusable part:** the figure
+below is what a handover needs to contain — the width, the number, the widths
+that PASSED, and the three tallest elements — and it is what let lane B find a
+cause rather than trim a padding.
+
+**THE ORIGINAL, AS MEASURED:**
 
 **Re-measured 2026-09-13 at `91face9`, against a BUILT bundle** (`vite build` in
 a detached worktree, served by `vite preview` on 127.0.0.1:4175), not the dev
