@@ -1375,6 +1375,32 @@ export const appEs = {
   "Nothing here yet. Your website has no questions section.":
     "Aún no hay nada. Tu sitio web no tiene sección de preguntas.",
   "Nothing in this one yet.": "Aún no hay nada en este.",
+
+  // ── Services & add-ons, rebuilt as a price table 2026-09-13 ──────────────
+  // The screen is a grid now: services down, the detailer's own vehicle sizes
+  // across, the real price in every cell. These are its words.
+  "What a customer pays": "Lo que paga un cliente",
+  "Hidden": "Oculto",
+  "These are the columns above. The first one is your base price; each of the others adds money and time, per service.":
+    "Estas son las columnas de arriba. La primera es tu precio base; cada una de las demás suma dinero y tiempo, por servicio.",
+  "Adds on top": "Suma al precio base",
+  "No examples yet": "Sin ejemplos todavía",
+  "Move earlier": "Mover antes",
+  "Move later": "Mover después",
+  "Past {n} sizes your booking page shows them as a drop-down instead of boxes, because {m} boxes do not fit on one screen. Everything still works; it just looks like a list.":
+    "Con más de {n} tamaños tu página de reservas los muestra en una lista desplegable en vez de cajas, porque {m} cajas no caben en una pantalla. Todo sigue funcionando; solo se ve como una lista.",
+  "Examples (optional)": "Ejemplos (opcional)",
+  "Description (optional)": "Descripción (opcional)",
+  "Price ($)": "Precio ($)",
+  "Time it adds (min)": "Tiempo que añade (min)",
+  "Category (optional)": "Categoría (opcional)",
+  "Every vehicle": "Todos los vehículos",
+  "Your base price": "Tu precio base",
+  "What {name} pays": "Lo que paga {name}",
+  "How long {name} takes": "Cuánto tarda {name}",
+  "A bigger vehicle also takes longer": "Un vehículo más grande también tarda más",
+  "You have one vehicle size, so one price. Add sizes on this screen to charge more for bigger vehicles.":
+    "Tienes un solo tamaño de vehículo, así que un solo precio. Añade tamaños en esta pantalla para cobrar más por vehículos más grandes.",
   "Nothing to send yet.": "Aún no hay nada que mandar.",
   "Nothing": "Nada",
   "Nudge you before a job starts": "Avisarte antes de que empiece un trabajo",

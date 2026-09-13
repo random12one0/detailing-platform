@@ -17,8 +17,8 @@
 // The research and the owner's answers behind all four:
 // docs/detailer-research-2026-08-31.md.
 
-import { useCallback, useEffect, useState } from "react";
-import { ChevronDown, ChevronUp, X } from "lucide-react";
+import { Fragment, useCallback, useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight, ChevronUp, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { duration, money } from "../../lib/format.js";
@@ -412,55 +412,107 @@ export default function Catalog() {
         </div>
       </div>
 
-      {sections.map(({ group, gi, rows }) => (
-        <div className="tight" key={group ? group.id : "loose"} style={{ marginTop: "var(--sp-3)" }}>
-          {group ? (
-            /* NOT `between`. A heading with no box around it spans the whole
-               column, so `between` threw the category’s own arrow 700px away
-               from the words it moves — the “not enough content to fill it”
-               shape inside a row, which is exactly what stage 5 had to fix on
-               a Clients row. The control sits beside what it acts on. A
-               SERVICE’s arrow stays at the right because that row IS a card
-               and the card’s edge is what it aligns to. */
-            <div className="row" style={{ gap: 4 }}>
-              <button className="cat-head"
-                onClick={() => setEditing({ kind: "group", id: group.id, form: { name: group.name, max_select: group.max_select === 1 ? "1" : "any", is_exclusive: !!group.is_exclusive, description: group.description || "" } })}>
-                <span className="label">{group.name}</span>
-                <span className="muted">{groupRule(group)}</span>
-              </button>
-              {gi > 0 && <Reorder kind="group" index={gi} above={gi - 1} />}
-            </div>
-          ) : groups.length > 0 && (
-            <span className="label">{t("Not in a category")}</span>
-          )}
+      {/* ═══ THE MENU ═══════════════════════════════════════════════════════
+          **THIS WAS A LIST OF SERVICES AND, 300px FURTHER DOWN, AN UNRELATED
+          LIST OF VEHICLE SIZES.** The fact that binds them — a size is a
+          MULTIPLIER on every service, which is how this trade actually prices
+          — was on the screen nowhere, and a detailer who wanted to know what a
+          truck pays for a full detail had to open the service and read a field
+          called "Large +$".
 
-          {rows.map(({ s, i }, k) => (
-            <div className="card row between" key={s.id} style={{ opacity: s.is_active ? 1 : 0.5 }}>
-              <div className="tappable" onClick={() => openService(s)} style={{ flex: 1, minWidth: 0, cursor: "pointer" }}>
-                <strong>{s.name}</strong>
-                <div className="muted">
-                  {/* The category is the heading above this row now, so
-                      repeating it here is the label explaining itself. */}
-                  {/* **THE DETAILER SEES WHAT THE CUSTOMER SEES — an outside
-                      review, 2026-09-11.** This read `300 min` while the
-                      booking page read `about 5 hrs` off the same field. Two
-                      units for one number, and the person SETTING it was
-                      shown the one that takes a moment to convert. */}
-                  {s.price_is_from ? `${t("from")} ` : ""}{money(s.price)} · {duration(s.duration_minutes, getAppLocale())}
+          So the two lists are one table: the detailer's services down, the
+          detailer's own sizes across, and **the real number a customer pays**
+          in every cell. Nothing here is a new fact — every figure is
+          `price + vehicle_size_adjustments[key].price`, the same arithmetic
+          `core.js` does for the booking page. It had simply never been shown.
+
+          The category stays the band it already was; grouping was the part of
+          this screen that was RIGHT, and it is what makes the table read as a
+          menu rather than as a spreadsheet. */}
+      <div className="menu" style={{ "--cols": sizes.length }}>
+        {sizes.length > 1 && (
+          <div className="menu-head">
+            <span className="menu-name label">{t("What a customer pays")}</span>
+            <div className="menu-ladder">
+              {sizes.map((z) => (
+                <div className="menu-cell head" key={z.key}>
+                  <span className="v" title={sizeText(z, "label")}>{sizeText(z, "label")}</span>
                 </div>
-              </div>
-              <Reorder kind="service" index={i} above={k === 0 ? null : rows[k - 1].i} />
+              ))}
             </div>
-          ))}
+            <span className="reorder-gap" aria-hidden="true" />
+          </div>
+        )}
 
-          {/* An empty CATEGORY is drawn, unlike an empty section elsewhere:
-              it is a thing the detailer made and can open, and hiding it
-              would make a category they created disappear. */}
-          {group && rows.length === 0 && (
-            <p className="muted">{t("Nothing in this one yet.")}</p>
-          )}
-        </div>
-      ))}
+        {sections.map(({ group, gi, rows }) => (
+          <Fragment key={group ? group.id : "loose"}>
+            {group ? (
+              <div className="menu-band">
+                {/* Not `between`: a heading with no box around it spans the
+                    whole column, so `between` throws the category's own arrow
+                    700px from the words it moves. The control sits beside what
+                    it acts on. */}
+                <button className="cat-head"
+                  onClick={() => setEditing({ kind: "group", id: group.id, form: { name: group.name, max_select: group.max_select === 1 ? "1" : "any", is_exclusive: !!group.is_exclusive, description: group.description || "" } })}>
+                  <span className="label">{group.name}</span>
+                  <span className="muted">{groupRule(group)}</span>
+                </button>
+                {gi > 0 && <Reorder kind="group" index={gi} above={gi - 1} />}
+              </div>
+            ) : groups.length > 0 && (
+              <div className="menu-band"><span className="label">{t("Not in a category")}</span></div>
+            )}
+
+            {rows.map(({ s, i }, k) => (
+              <div className={`menu-row${s.is_active ? "" : " off"}`} key={s.id}>
+                <button className="menu-name" onClick={() => openService(s)}>
+                  <span className="n">{s.name}</span>
+                  {/* **THE DETAILER SEES WHAT THE CUSTOMER SEES** — an outside
+                      review, 2026-09-11. This row read `300 min` while the
+                      booking page read `about 5 hrs` off the same field. */}
+                  <span className="m">
+                    {duration(s.duration_minutes, getAppLocale())}
+                    {s.is_active ? "" : ` · ${t("Hidden")}`}
+                  </span>
+                </button>
+                <div className="menu-ladder">
+                  {sizes.map((z, zi) => {
+                    const addP = zi === 0 ? 0 : Number(s.vehicle_size_adjustments?.[z.key]?.price) || 0;
+                    const addM = zi === 0 ? 0 : Number(s.vehicle_size_adjustments?.[z.key]?.duration_minutes) || 0;
+                    return (
+                      <div className={`menu-cell${zi === 0 ? " base" : ""}`} key={z.key}>
+                        {/* "from" ONCE, ON THE BASE. It is a claim about the
+                            SERVICE — that the quote is a starting point — not
+                            about each size, and printing it in all three cells
+                            read as three separate hedges. */}
+                        <span className="v">
+                          {s.price_is_from && zi === 0 ? `${t("from")} ` : ""}{money(Number(s.price) + addP)}
+                        </span>
+                        {/* The column heading names the size at desk width and
+                            is hidden on a phone, where the ladder wraps under
+                            the name and a heading would label the wrong thing.
+                            So the cell carries both and the stylesheet picks. */}
+                        <span className="u sz">{sizeText(z, "label")}</span>
+                        {addM !== 0 && (
+                          <span className="u tm">+{duration(addM, getAppLocale())}</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                <Reorder kind="service" index={i} above={k === 0 ? null : rows[k - 1].i} />
+              </div>
+            ))}
+
+            {/* An empty CATEGORY is drawn, unlike an empty section elsewhere:
+                it is a thing the detailer made and can open, and hiding it
+                would make a category they created disappear. */}
+            {group && rows.length === 0 && (
+              <p className="muted" style={{ padding: "0 var(--sp-3)" }}>{t("Nothing in this one yet.")}</p>
+            )}
+          </Fragment>
+        ))}
+      </div>
 
       {services.length === 0 && <p className="muted">{t("No services yet. Customers can't book until you add one.")}</p>}
 
@@ -481,11 +533,21 @@ export default function Catalog() {
       ))}
       </div>
 
-      {/* VEHICLE SIZES ARE THE DETAILER'S OWN LIST NOW (W9, his answer). They
-          live in this screen rather than in Booking rules because they are the
-          axis every service is priced along, and the per-service numbers are
-          three lines further down the same sheet. */}
-      <div className="row between" style={{ marginTop: "var(--sp-5)" }}>
+      {/* ═══ THE COLUMNS ════════════════════════════════════════════════════
+          **THE VEHICLE SIZES ARE NOT A THIRD LIST ON THIS PAGE. THEY ARE THE
+          AXIS OF THE TABLE ABOVE**, and drawing them as another stack of rows
+          is what made the two halves of this screen look unrelated when one
+          multiplies the other.
+
+          So they are drawn ACROSS, in the order and with the words they carry
+          as column headings, which is also the roadmap's own point about them:
+          *a detailer setting up tiers is designing a screen they never see.*
+          These are the boxes the customer will pick between.
+
+          Law 1 gets a real answer rather than a contrived one here: services
+          are a table, add-ons are a ruled list, and the sizes are a row of
+          columns. Three sections, three skeletons, one ground. */}
+      <div className="row wrap between" style={{ marginTop: "var(--sp-5)" }}>
         <h3>{t("Vehicle sizes")}</h3>
         <button className="btn inline" onClick={() => setEditing({ kind: "size", form: { label: "", examples: "" } })}>+ {t("Add")}</button>
       </div>
@@ -493,32 +555,37 @@ export default function Catalog() {
         {/* **BARE JSX TEXT IS INVISIBLE TO EVERY CHECK HERE — 2026-09-12.**
             `i18n-coverage` counts `t("literal")`; a sentence written straight
             into the markup is not a call at all, so this line sat in English on
-            a Spanish dashboard while the ratchet read 100%. Same class as the
-            `t(variable)` hole, one step further out. */}
-        {t("The first one is your base price; each of the others can add money and time, per service.")}
+            a Spanish dashboard while the ratchet read 100%. */}
+        {t("These are the columns above. The first one is your base price; each of the others adds money and time, per service.")}
       </p>
-      <div className="tight">
+      <div className="sizecols">
         {sizes.map((s, i) => (
-          <div className="card row between" key={s.key}>
-            <div className="tappable" style={{ flex: 1, minWidth: 0, cursor: "pointer" }}
+          <div className={`sizecol${i === 0 ? " base" : ""}`} key={s.key}>
+            <button className="sizecol-open"
               onClick={() => setEditing({ kind: "size", index: i, form: { label: sizeText(s, "label"), examples: sizeText(s, "examples") || "" } })}>
-              <strong>{sizeText(s, "label")}</strong>
-              <div className="muted">{i === 0 ? t("Base price") : sizeText(s, "examples") || t("Costs extra")}</div>
+              <span className="label">{i === 0 ? t("Base price") : t("Adds on top")}</span>
+              <span className="n">{sizeText(s, "label")}</span>
+              <span className="m">{sizeText(s, "examples") || t("No examples yet")}</span>
+            </button>
+            {/* EARLIER AND LATER, NOT UP AND DOWN. These read left to right at
+                a desk and wrap into a grid that still reads left to right on a
+                phone, so the arrow matches the axis it moves along — the rule
+                CLAUDE.md sets for motion, applied to a control. */}
+            <div className="sizecol-move">
+              <button className="btn sm inline icon" aria-label={t("Move earlier")} disabled={i === 0}
+                onClick={() => moveSize(i, -1)}><ChevronLeft strokeWidth={2} /></button>
+              <button className="btn sm inline icon" aria-label={t("Move later")} disabled={i === sizes.length - 1}
+                onClick={() => moveSize(i, 1)}><ChevronRight strokeWidth={2} /></button>
+              <button className="btn sm inline icon" aria-label={t("Remove {name}", { name: sizeText(s, "label") })} disabled={sizes.length <= 1}
+                onClick={() => removeSize(i)}><X strokeWidth={2} /></button>
             </div>
-            <button className="btn sm inline icon" aria-label={t("Move up")} disabled={i === 0}
-              onClick={() => moveSize(i, -1)}><ChevronUp strokeWidth={2} /></button>
-            <button className="btn sm inline icon" aria-label={t("Move down")} disabled={i === sizes.length - 1}
-              onClick={() => moveSize(i, 1)}><ChevronDown strokeWidth={2} /></button>
-            <button className="btn sm inline icon" aria-label={t("Remove {name}", { name: sizeText(s, "label") })} disabled={sizes.length <= 1}
-              onClick={() => removeSize(i)}><X strokeWidth={2} /></button>
           </div>
         ))}
       </div>
       {sizes.length > SIZE_CARD_CEILING && (
         <p className="muted" style={{ marginTop: "var(--sp-2)" }}>
-          Past {SIZE_CARD_CEILING} sizes your booking page shows them as a drop-down
-          instead of boxes — {SIZE_CARD_CEILING + 1} boxes do not fit on one screen.
-          Everything still works; it just looks like a list.
+          {t("Past {n} sizes your booking page shows them as a drop-down instead of boxes, because {m} boxes do not fit on one screen. Everything still works; it just looks like a list.",
+            { n: SIZE_CARD_CEILING, m: SIZE_CARD_CEILING + 1 })}
         </p>
       )}
 
@@ -533,7 +600,7 @@ export default function Catalog() {
               <label className="field"><span>{t("Name")}</span>
                 <input value={editing.form.label} placeholder={t("e.g. Pickup truck")}
                   onChange={(e) => set({ label: e.target.value })} /></label>
-              <label className="field"><span>Examples (optional)</span>
+              <label className="field"><span>{t("Examples (optional)")}</span>
                 <input value={editing.form.examples} placeholder={t("e.g. F-150, Silverado, Ram")}
                   onChange={(e) => set({ examples: e.target.value })} /></label>
               <p className="muted">
@@ -548,7 +615,7 @@ export default function Catalog() {
               <label className="field"><span>{t("Name")}</span>
                 <input value={editing.form.name} placeholder={t("e.g. Interior")}
                   onChange={(e) => set({ name: e.target.value })} /></label>
-              <label className="field"><span>Description (optional)</span>
+              <label className="field"><span>{t("Description (optional)")}</span>
                 <input value={editing.form.description} placeholder={t("e.g. Everything inside the car")}
                   onChange={(e) => set({ description: e.target.value })} /></label>
               <p className="muted" style={{ marginTop: 6, marginBottom: "var(--sp-4)" }}>
@@ -588,14 +655,21 @@ export default function Catalog() {
                 <input value={editing.form.name} onChange={(e) => set({ name: e.target.value })} /></label>
               <label className="field"><span>{t("Description")}</span>
                 <textarea value={editing.form.description} onChange={(e) => set({ description: e.target.value })} /></label>
-              <div className="grid2">
-                <label className="field"><span>Price ($)</span>
-                  <input type="number" inputMode="decimal" value={editing.form.price}
-                    onChange={(e) => set({ price: e.target.value })} /></label>
-                <label className="field"><span>Duration (min)</span>
-                  <input type="number" inputMode="numeric" value={editing.form.duration_minutes}
-                    onChange={(e) => set({ duration_minutes: e.target.value })} /></label>
-              </div>
+              {/* AN ADD-ON HAS NO SIZE AXIS — it costs what it costs on any
+                  vehicle — so it keeps the plain pair. A SERVICE gets the
+                  ladder, which carries its base price as its first row. */}
+              {editing.kind === "addon" ? (
+                <div className="grid2">
+                  <label className="field"><span>{t("Price ($)")}</span>
+                    <input type="number" inputMode="decimal" value={editing.form.price}
+                      onChange={(e) => set({ price: e.target.value })} /></label>
+                  <label className="field"><span>{t("Time it adds (min)")}</span>
+                    <input type="number" inputMode="numeric" value={editing.form.duration_minutes}
+                      onChange={(e) => set({ duration_minutes: e.target.value })} /></label>
+                </div>
+              ) : (
+                <PriceLadder sizes={sizes} form={editing.form} set={set} />
+              )}
 
               {editing.kind === "service" && (
                 <>
@@ -621,7 +695,7 @@ export default function Catalog() {
                     {t("Customers see these behind the eye on your booking page, so the list can be as long as it needs to be.")}
                   </p>
 
-                  <label className="field"><span>Category (optional)</span>
+                  <label className="field"><span>{t("Category (optional)")}</span>
                     <select value={editing.form.group_id} onChange={(e) => set({ group_id: e.target.value })}>
                       <option value="">{t("No category")}</option>
                       {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
@@ -666,16 +740,6 @@ export default function Catalog() {
                     </div>
                   </Setting>
 
-                  <div className="section-title">Bigger vehicles (added on top)</div>
-                  {sizes.length < 2 ? (
-                    <p className="muted">{t("One size, so one price.")}</p>
-                  ) : (
-                    <div className="grid2">
-                      {sizes.slice(1).map((sz) => (
-                        <SizeAdj key={sz.key} size={sz} form={editing.form} set={set} />
-                      ))}
-                    </div>
-                  )}
                 </>
               )}
 
@@ -700,19 +764,108 @@ export default function Catalog() {
   );
 }
 
-// One size's two numbers. Built from the tenant's own list, so a detailer with
-// twelve classes gets twelve pairs and one with a flat price gets none.
-function SizeAdj({ size, form, set }) {
-  const cur = form.adj?.[size.key] || {};
-  const patch = (k, v) => set({ adj: { ...form.adj, [size.key]: { ...cur, [k]: v } } });
+// ═══ THE PRICE LADDER — the base and every vehicle size as ONE object ══════
+//
+// **THIS REPLACED FOURTEEN FIELDS WITH FIVE, AND THAT IS THE SMALLER HALF OF
+// IT.** A service with four sizes used to open a sheet with `Price ($)` and
+// `Duration (min)` near the top and, 200px below under a heading called
+// "Bigger vehicles (added on top)", eight more inputs: `Medium +$`,
+// `Medium +min`, `Large +$`, `Large +min`, and so on. Andrew's phrase for this
+// screen was *a thousand text boxes* and on this sheet it was close to literal.
+//
+// **THE BIGGER HALF IS THAT IT ASKED FOR THE WRONG NUMBER.** A detailer knows
+// a truck full detail is $180. The product asked for `+$60` and printed $180
+// nowhere — not in the editor, not in the list, not anywhere on the screen.
+// So this takes the price a customer actually pays and stores `total - base`,
+// which means `services.vehicle_size_adjustments` keeps exactly the shape it
+// has always had and `core.js`, `create-booking`, `booking-core` and every
+// deployed function are untouched by this.
+//
+// **AND THE TIME COLUMN IS HIDDEN UNTIL IT IS USED.** Most detailers charge
+// more for a bigger vehicle and block out the same slot, so a second column of
+// inputs that are all zero is half the remaining fields earning nothing. It
+// opens by itself for a service that already varies its time, so nothing a
+// detailer has set can hide from them.
+//
+// AN EMPTY CELL MEANS "same as the base" rather than "$0", which is what a
+// blank actually means to somebody filling in a price ladder — and it leaves
+// `0` free to mean zero, for anyone who wants a size to cost nothing.
+function PriceLadder({ sizes, form, set }) {
+  const base = Number(form.price) || 0;
+  const baseMin = Number(form.duration_minutes) || 0;
+  const extras = sizes.slice(1);
+  const [timed, setTimed] = useState(() =>
+    extras.some((z) => (Number(form.adj?.[z.key]?.duration_minutes) || 0) !== 0));
+
+  const cellFor = (z) => form.adj?.[z.key] || {};
+  const setCell = (z, k, v) =>
+    set({ adj: { ...form.adj, [z.key]: { ...cellFor(z), [k]: v } } });
+
+  const rowClass = `sizeladder-row${timed ? " timed" : ""}`;
   return (
     <>
-      <label className="field"><span>{size.label} +$</span>
-        <input type="number" inputMode="decimal" value={cur.price ?? 0}
-          onChange={(e) => patch("price", e.target.value)} /></label>
-      <label className="field"><span>{size.label} +min</span>
-        <input type="number" inputMode="numeric" value={cur.duration_minutes ?? 0}
-          onChange={(e) => patch("duration_minutes", e.target.value)} /></label>
+      <div className="section-title">{t("What a customer pays")}</div>
+      <div className="sizeladder">
+        <div className={`${rowClass} sizeladder-head`}>
+          <span>{sizes.length > 1 ? t("Vehicle") : t("Every vehicle")}</span>
+          <span>{t("Price")}</span>
+          {timed && <span>{t("Minutes")}</span>}
+        </div>
+
+        {/* THE BASE IS A ROW OF THE LADDER, not a field 200px above it. It is
+            the number every other row is built from, so putting it anywhere
+            else is what made them look like two unrelated settings. */}
+        <div className={rowClass}>
+          <span className="who">
+            <span className="n">{sizes.length ? sizeText(sizes[0], "label") : t("Base price")}</span>
+            <span className="m">{t("Your base price")}</span>
+          </span>
+          <input type="number" inputMode="decimal" aria-label={t("Base price")}
+            value={form.price} onChange={(e) => set({ price: e.target.value })} />
+          {timed && (
+            <input type="number" inputMode="numeric" className="t" aria-label={t("Minutes")}
+              value={form.duration_minutes} onChange={(e) => set({ duration_minutes: e.target.value })} />
+          )}
+        </div>
+
+        {extras.map((z) => {
+          const cur = cellFor(z);
+          const addP = Number(cur.price) || 0;
+          const addM = Number(cur.duration_minutes) || 0;
+          return (
+            <div className={rowClass} key={z.key}>
+              <span className="who">
+                <span className="n">{sizeText(z, "label")}</span>
+                {sizeText(z, "examples") && <span className="m">{sizeText(z, "examples")}</span>}
+              </span>
+              <input type="number" inputMode="decimal"
+                aria-label={t("What {name} pays", { name: sizeText(z, "label") })}
+                value={cur.price === undefined || cur.price === "" ? "" : String(base + addP)}
+                placeholder={String(base)}
+                onChange={(e) => setCell(z, "price", e.target.value === "" ? "" : Number(e.target.value) - base)} />
+              {timed && (
+                <input type="number" inputMode="numeric" className="t"
+                  aria-label={t("How long {name} takes", { name: sizeText(z, "label") })}
+                  value={cur.duration_minutes === undefined || cur.duration_minutes === "" ? "" : String(baseMin + addM)}
+                  placeholder={String(baseMin)}
+                  onChange={(e) => setCell(z, "duration_minutes", e.target.value === "" ? "" : Number(e.target.value) - baseMin)} />
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {extras.length > 0 && !timed && (
+        <button className="btn sm inline" style={{ marginTop: "var(--sp-2)" }}
+          onClick={() => setTimed(true)}>
+          + {t("A bigger vehicle also takes longer")}
+        </button>
+      )}
+      {sizes.length < 2 && (
+        <p className="muted" style={{ marginTop: "var(--sp-2)" }}>
+          {t("You have one vehicle size, so one price. Add sizes on this screen to charge more for bigger vehicles.")}
+        </p>
+      )}
     </>
   );
 }

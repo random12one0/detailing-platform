@@ -1453,6 +1453,249 @@ a { color: var(--accent-text); text-decoration: none; }
    row below disagree about where their right edge is, which reads as the
    list being ragged rather than as one row having one fewer control. */
 .reorder-gap { display: block; width: var(--tap); flex-shrink: 0; }
+/* ═══ THE MENU — Services & add-ons as a price table, 2026-09-13 ═══════════
+   **ANDREW: the editing screens feel like "a thousand text boxes".** On this
+   screen the count was literal — a service with four vehicle sizes opened a
+   sheet holding eighteen inputs, eight of them asking for a PRICE DIFFERENCE
+   with the actual price shown nowhere.
+
+   **AND THE ROADMAP NAMED THE REAL FAULT BEFORE ANYONE DREW ANYTHING:** the
+   price ladder and the vehicle tiers were two unrelated lists on one page,
+   and *the tier multiplies the service* — the single most important fact
+   about a detailer's pricing — appeared on the screen not at all. A sentence
+   explaining it would have been the third list. **So the relationship is the
+   STRUCTURE instead: services down, the detailer's own sizes across, and the
+   real number a customer pays in every cell.**
+
+   ── WHY IT IS A GRID AND NOT A TABLE ELEMENT ──────────────────────────────
+   A `<table>` cannot reflow to a phone without either scrolling sideways or
+   being rebuilt as a second markup tree, and a second tree is two designs
+   that drift. One tree: every row carries a `.menu-ladder`, every ladder is
+   the same `repeat(var(--cols), …)` grid, so the columns line up down the
+   page for free — and at 560 the ladder simply stops sitting beside the name
+   and wraps under it. Nothing is hidden and nothing scrolls sideways.
+
+   `--cols` is set inline from the tenant's own size count, because it is data
+   and not design: two sizes and six both have to work (§ W9). */
+.menu { display: flex; flex-direction: column; gap: var(--sp-1); }
+
+/* The column headings ARE the vehicle sizes, which is the other half of the
+   argument: a detailer editing tiers is designing a screen they never see, so
+   the tiers are drawn here as the axis they actually are rather than as a
+   third list further down the page. */
+.menu-head {
+  display: flex; align-items: flex-end; gap: var(--sp-3);
+  /* THE +1 IS THE ROW'S BORDER. A heading row has no border and a service row
+     has 1px of one, so their content boxes started a pixel apart and every
+     column heading sat exactly 1.00px right of the column it labels — measured
+     with a rect probe, invisible to the eye and wrong in a table. Chasing it
+     in the TEXT (letter-spacing's trailing track) was the first guess and it
+     was the wrong object: the probe reads cells, not glyphs. */
+  padding: 0 calc(var(--sp-3) + 1px) var(--sp-2);
+}
+
+.menu-row {
+  display: flex; align-items: center; gap: var(--sp-3);
+  background: var(--surface); border: 1px solid var(--hairline);
+  border-radius: var(--r-inset); corner-shape: var(--corner);
+  padding: var(--sp-2) var(--sp-3);
+  transition: background var(--t-hover) var(--e-out), border-color var(--t-hover) var(--e-out);
+}
+.menu-row.off { opacity: .5; }
+.menu-row:hover { border-color: var(--line-2); }
+
+/* The name side. `min-width: 0` is what stops a long service name from
+   pushing the prices off the row instead of ellipsing — the failure this
+   product has already fixed twice elsewhere. */
+/* It is a <button> in a row and a <span> in the heading, so the reset lives
+   on the class rather than on the element. */
+.menu-name {
+  flex: 1 1 auto; min-width: 0; text-align: left;
+  background: none; border: 0; padding: 0; margin: 0;
+  color: inherit; font: inherit; cursor: pointer;
+}
+span.menu-name { cursor: default; }
+/* A row is taller than 44 at a desk and exactly 42 on a phone, where the name
+   is its own line — measured, and the reason this is on the button and not on
+   the row. */
+button.menu-name { display: flex; flex-direction: column; justify-content: center; min-height: var(--tap); }
+.menu-row:hover .menu-name .n { color: var(--accent-text); }
+.menu-name .n {
+  display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-variation-settings: "wght" 560;
+}
+.menu-name .m { display: block; color: var(--text-muted); font-size: var(--t-meta); }
+
+/* THE LADDER. One grid definition, used by the heading row and by every
+   service row, so the columns align without a table and without JS. */
+/* **THE TRACK WIDTH IS FIXED, AND THAT IS NOT A STYLE CHOICE — the first
+   version got this wrong and a screenshot is what caught it.** With
+   `minmax(72px, auto)` every row is its OWN grid container sizing its OWN
+   tracks to its OWN content, so a service reading "from $650" made its
+   columns wider than the service above it and the table did not line up in
+   any column. It read as a table and behaved as six unrelated rows.
+   A fixed track plus a width computed from the same `--cols` makes every
+   ladder on the page identical by construction, which is the only way
+   separate grid containers can agree. 112px is measured: "from $650" is the
+   widest thing a cell holds. */
+.menu-ladder {
+  flex: 0 0 auto;
+  display: grid; grid-template-columns: repeat(var(--cols, 1), 1fr);
+  width: calc(var(--cols, 1) * 112px + (var(--cols, 1) - 1) * var(--sp-1));
+  gap: var(--sp-1);
+}
+.menu-cell {
+  display: flex; flex-direction: column; align-items: flex-end; justify-content: center;
+  gap: 1px; min-height: var(--tap); padding: 2px var(--sp-2);
+  border-radius: var(--r-inset); corner-shape: var(--corner);
+}
+.menu-cell .v {
+  font-family: var(--f-num); font-variant-numeric: tabular-nums;
+  font-size: var(--t-body); letter-spacing: -.01em;
+}
+.menu-cell .u { font-size: var(--t-label); color: var(--text-muted); font-variant-numeric: tabular-nums; }
+/* The size name and the added time are the SAME slot at two widths: the column
+   heading names the size at a desk, and is hidden on a phone where the ladder
+   wraps under the service name and a heading two rows up would be labelling
+   the wrong thing. Both are rendered and the stylesheet picks one, because the
+   alternative is a second markup tree. */
+.menu-cell .u.sz { display: none; }
+/* THE BASE COLUMN IS THE ONE NUMBER THE OTHERS ARE BUILT FROM, so it is the
+   one that is lit. Not the accent — the accent on this product means "the
+   thing that has landed", and a base price has not landed, it is a fact. */
+.menu-cell.base { background: var(--surface-sunken); }
+.menu-cell.base .v { color: var(--text); }
+.menu-cell:not(.base) .v { color: var(--text-2); }
+/* A column heading is the size's own name, in the label voice, right-aligned
+   over the numbers it governs so the eye runs straight down. */
+.menu-cell.head { min-height: 0; align-items: flex-end; padding-bottom: 0; }
+.menu-cell.head .v {
+  font-family: var(--f-body); font-size: var(--t-label); letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text-muted);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
+}
+
+/* A CATEGORY IS A BAND ACROSS THE TABLE, not a card around it — the same
+   argument `.cat-head` already makes one screen over, at table scale. */
+.menu-band {
+  display: flex; align-items: center; gap: var(--sp-2);
+  margin-top: var(--sp-3); padding: 0 var(--sp-3);
+}
+.menu-band:first-child { margin-top: 0; }
+
+/* ── THE PHONE, AND 560 IS MEASURED RATHER THAN ROUND ──────────────────────
+   Below this the name and a four-wide ladder stop fitting on one line and the
+   name starts ellipsing to nothing. The ladder wraps under the name and goes
+   full width, which is the same answer § THE 320 FLOOR gives everywhere else:
+   the pair drops rather than either half shrinking. */
+@media (max-width: 560px) {
+  .menu-row { flex-wrap: wrap; row-gap: var(--sp-2); }
+  /* The NAME and the reorder arrow stay on one line and the ladder takes the
+     next one whole. Wrapping the name to 100% instead pushed the arrow onto a
+     third line of its own, where it sat under the prices belonging to nothing
+     — visible immediately in a screenshot and invisible to every check. */
+  .menu-name { flex: 1 1 auto; }
+  .menu-ladder { flex: 1 1 100%; width: auto; grid-template-columns: repeat(var(--cols, 1), minmax(0, 1fr)); }
+  .menu-cell { align-items: center; }
+  /* The heading row cannot stay on its own line above a wrapped ladder — it
+     would sit over the NAME and label nothing. Every row carries its own size
+     words inside the cell at this width instead. */
+  .menu-head { display: none; }
+  .menu-cell .u { font-size: 10px; }
+  .menu-cell .u.tm { display: none; }
+  .menu-cell .u.sz { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+}
+/* Under 361 a six-size ladder is six columns of 40px and unreadable. It wraps
+   to as many rows as it needs, which is § THE 320 FLOOR's own answer for a
+   segmented control and is the same shape of problem. */
+@media (max-width: 360px) {
+  .menu-ladder { width: auto; grid-template-columns: repeat(auto-fit, minmax(78px, 1fr)); }
+}
+
+/* ═══ THE LADDER, EDITABLE — inside the service sheet ══════════════════════
+   **IT ASKS FOR THE NUMBER THE DETAILER KNOWS.** The old editor asked for
+   "+$60" and never printed the $180 anywhere; a detailer thinks in what a
+   truck costs, not in what a truck costs MORE. So every field here takes the
+   real price and the DELTA is what gets stored — `total - base` — which means
+   the database shape, `core.js`, `create-booking` and every existing test are
+   untouched by this screen becoming readable.
+
+   And the base sits in the same object as the sizes rather than 200px up the
+   sheet under its own label, because they are one ladder and were only ever
+   drawn as two things. */
+/* ═══ THE SIZES, DRAWN AS THE COLUMNS THEY ARE ════════════════════════════
+   A row of columns rather than a stack of rows, because these ARE the columns
+   of the table above them and a vertical list of them said the opposite. It
+   stays multi-column all the way to 320 (two of 140px) so that "move earlier"
+   and "move later" keep meaning left and right — a wrapped grid still reads
+   in the same direction. */
+.sizecols {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--sp-2);
+}
+.sizecol {
+  display: flex; flex-direction: column; gap: var(--sp-2);
+  background: var(--surface); border: 1px solid var(--hairline);
+  border-radius: var(--r-panel); corner-shape: var(--corner);
+  padding: var(--sp-3);
+}
+/* The base size is the one every other number is measured from, so it is the
+   one drawn on the sunken surface — the same distinction the base CELL makes
+   in the table above, said the same way twice on purpose. */
+.sizecol.base { background: var(--surface-sunken); border-color: var(--line-2); }
+.sizecol-open {
+  display: flex; flex-direction: column; gap: 2px; min-width: 0; min-height: var(--tap);
+  background: none; border: 0; padding: 0; margin: 0; text-align: left;
+  color: inherit; font: inherit; cursor: pointer;
+}
+.sizecol-open .n {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-variation-settings: "wght" 560;
+}
+.sizecol-open .m { color: var(--text-muted); font-size: var(--t-meta); }
+.sizecol-open:hover .n { color: var(--accent-text); }
+.sizecol-move { display: flex; gap: var(--sp-1); margin-top: auto; }
+/* **44 WIDE, NOT 38 — measured with the calibrated probe, not assumed.**
+   `.btn.sm.icon` is `width: 38px` and its `::after` extends the HEIGHT only,
+   so it answers across 38x44: passing vertically and eight pixels short the
+   other way. PRODUCT.md's recorded 38px exception is about `.btn.sm` as a
+   CLASS across 28 call sites and says to reopen it with Andrew rather than in
+   passing — so the class is untouched and the three controls on THIS screen
+   are widened where they are used. Same reasoning as the wizard's quit link.
+   The reorder arrow on a menu row is the same control and gets the same. */
+.sizecol-move .btn.sm.icon,
+.menu-row .btn.sm.icon,
+.menu-band .btn.sm.icon { width: var(--tap); }
+
+.sizeladder { display: flex; flex-direction: column; gap: var(--sp-1); }
+.sizeladder-row {
+  display: grid; grid-template-columns: 1fr 104px; gap: var(--sp-2);
+  align-items: center;
+}
+.sizeladder-row.timed { grid-template-columns: 1fr 104px 96px; }
+.sizeladder-row .who { min-width: 0; }
+.sizeladder-row .who .n {
+  display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.sizeladder-row .who .m { display: block; font-size: var(--t-label); color: var(--text-muted); }
+.sizeladder-head { color: var(--text-muted); font-size: var(--t-label); letter-spacing: .08em; text-transform: uppercase; }
+.sizeladder-head > span + span { text-align: right; }
+/* A money field the same height as the row it sits in. This only removes the
+   label stack `.field` would put above it, because the label is the size's
+   own name on the left. */
+.sizeladder-row input {
+  width: 100%; min-height: var(--tap); text-align: right;
+  font-family: var(--f-num); font-variant-numeric: tabular-nums;
+}
+/* 320 IS THE NARROWEST SUPPORTED WIDTH AND THE TIMED ROW IS THREE COLUMNS.
+   Dropping to two would wrap the minutes box under the price while the header
+   above it still said three things, so the columns narrow instead and the
+   vehicle name takes what is left. */
+@media (max-width: 380px) {
+  .sizeladder-row { grid-template-columns: 1fr 96px; }
+  .sizeladder-row.timed { grid-template-columns: 1fr 84px 76px; }
+}
+
 /* A panel inside a panel takes the surface ABOVE its own — the same three
    levels the sheet already sets up, so a settings card does not read as an
    outline once it is in a column instead of a sheet. */
