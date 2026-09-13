@@ -2224,6 +2224,13 @@ export const appEs = {
   // `t(q.question)` and `t(step.title)`; a scanner that counts literals cannot
   // see a variable. Same class as `lib/setup.js` and `lib/templates.js`.
   "Let's build your website.": "Vamos a crear tu sitio web.",
+  // `SPOTS` in `screens/SiteIntake.jsx` — a data table inside a COMPONENT file,
+  // drawn with `t(label)`. Invisible to BOTH passes of the coverage scanner:
+  // the literal grep sees a variable, and the data-table walk only reaches
+  // `lib/`. Found by walking the brief in Spanish, not by any check.
+  "Top of every page": "Arriba en todas las páginas",
+  "Under the headline": "Debajo del título",
+  "Footer only": "Solo en el pie de página",
   "Other sites": "Otros sitios",
   "Any other sites you want to show us?": "¿Hay otros sitios que quieras mostrarnos?",
   "You": "Tú",

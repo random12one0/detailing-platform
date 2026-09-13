@@ -147,11 +147,32 @@ export async function coverage() {
     }
   }
 
-  return { calls, distinct: seen.size, missing, dataValues, unscannable };
+  // **THE HOLE THAT IS LEFT, AS A NUMBER RATHER THAN A SILENCE — 2026-09-12.**
+  // The data-table pass covers `lib/`. It does NOT cover a table declared
+  // inside a COMPONENT file, because a `.jsx` cannot be imported here — and
+  // that is not hypothetical: `SPOTS` in `screens/SiteIntake.jsx` is three page
+  // positions rendered as `t(label)`, and all three were English on a Spanish
+  // dashboard while this script reported 0 missing. **Found by walking the
+  // screen in Spanish; no check could see it.**
+  //
+  // So every `t(` whose first argument is not a string literal is counted and
+  // its file named. It cannot say whether those strings are translated — only
+  // that they exist and are unchecked. **A coverage figure printed without this
+  // number beside it is a claim about the instrument, not the product.**
+  const VARIABLE_CALL = /\bt\(\s*(?![")'`])[A-Za-z_$][\w$.[\]?]*\s*[,)]/g;
+  const blindByFile = new Map();
+  let blind = 0;
+  for (const f of files) {
+    const src = await readFile(f, "utf8");
+    const n = [...src.matchAll(VARIABLE_CALL)].length;
+    if (n) { blind += n; blindByFile.set(f.replace(/\\/g, "/"), n); }
+  }
+
+  return { calls, distinct: seen.size, missing, dataValues, unscannable, blind, blindByFile };
 }
 
 if (process.argv[1] && process.argv[1].endsWith("i18n-coverage.mjs")) {
-  const { calls, distinct, missing, dataValues, unscannable } = await coverage();
+  const { calls, distinct, missing, dataValues, unscannable, blind, blindByFile } = await coverage();
   // **FLOOR, NOT ROUND.** With one string missing out of 1,045 this printed
   // `100%` beside `missing an appEs entry: 1`, which is the one number on the
   // screen a reader would act on. Measured 2026-09-12 while baselining the
@@ -165,6 +186,11 @@ if (process.argv[1] && process.argv[1].endsWith("i18n-coverage.mjs")) {
   console.log(`coverage:                      ${pct}%`);
   // LOUD, because a file nobody can scan is a hole and not a pass.
   for (const u of unscannable) console.log(`NOT SCANNED (its prose is uncovered): ${u}`);
+  // LOUD AND UNCONDITIONAL. A zero above means nothing without this beside it.
+  console.log(`UNCHECKABLE t(variable) call sites:  ${blind}  (their strings may or may not be translated)`);
+  if (process.argv.includes("--blind")) {
+    for (const [f, n] of [...blindByFile].sort((a, b) => b[1] - a[1])) console.log(`    ${String(n).padStart(4)}  ${f}`);
+  }
 
   const byFile = new Map();
   for (const [, fs] of missing) for (const f of fs) byFile.set(f, (byFile.get(f) ?? 0) + 1);
