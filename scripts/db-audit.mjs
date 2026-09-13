@@ -94,6 +94,12 @@ const NO_POLICY_BY_DESIGN = new Set([
   "job_heartbeats",         // whether the scheduled jobs are alive
   "rate_hits",              // the spam throttle's own counters
   "stripe_events",          // the webhook idempotency lock
+  // Both added 2026-09-13 after this audit reported them as unexpected. Each
+  // carries the same three lines as the eight above - `enable`, `force`, and
+  // `revoke all from anon, authenticated` - so a browser cannot reach either
+  // one at all and a policy would be the thing that WEAKENED it.
+  "session_pings",          // whether a Claude session is still alive
+  "translation_usage",      // the three providers' remaining character allowances
 ]);
 
 // **THE FOREIGN KEYS DELIBERATELY LEFT UNINDEXED**, with the reason, so this

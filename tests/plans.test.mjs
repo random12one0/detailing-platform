@@ -281,10 +281,21 @@ console.log("test 6: what a plan does to a price");
   check("no plan is no line", planLineFor(null, 200, 300) === null);
   check("a zero percentage draws no line rather than a $0 row a customer has to ask about",
     planLineFor(plan("percent_off", 0), 200, 300) === null);
+  // **SAME COUPLING, SAME DAY, SAME CAUSE AS `connect`'s checkout line.** These
+  // three pinned the whole label including an EM DASH; `planLineFor` now joins
+  // with the middle dot, which is CLAUDE.md's own ruling for a label separator,
+  // so all three went red about a product that was correct. Trap (k).
+  //
+  // The claim is that the receipt line says WHICH plan and WHAT it did, so both
+  // halves are asserted and the joint is only asserted NOT to be the dash.
+  const planLabel = (kind, v) => planLineFor(plan(kind, v), 200, 300).label;
+  const namesBoth = (label, what) =>
+    label.startsWith("Bi-weekly") && label.endsWith(what) && !label.includes("—");
   check("the line names the plan AND what it did",
-    planLineFor(plan("percent_off", 10), 200, 300).label === "Bi-weekly — 10% off"
-    && planLineFor(plan("per_visit", 90), 200, 300).label === "Bi-weekly — plan rate"
-    && planLineFor(plan("monthly", 120), 200, 300).label === "Bi-weekly — included");
+    namesBoth(planLabel("percent_off", 10), "10% off")
+    && namesBoth(planLabel("per_visit", 90), "plan rate")
+    && namesBoth(planLabel("monthly", 120), "included"),
+    `got ${JSON.stringify([planLabel("percent_off", 10), planLabel("per_visit", 90), planLabel("monthly", 120)])}`);
 
   // --- AND IT HAS TO REACH THE TOTAL. Everything above is arithmetic; this is
   // the tie-out, and it is also why the plan rides `price_adjustments` rather

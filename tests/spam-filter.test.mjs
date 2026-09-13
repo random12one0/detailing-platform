@@ -198,9 +198,31 @@ console.log("\n5. the numbers a real customer never reaches");
   check("a shop tablet can take a morning's walk-ins", LIMITS.bookingPerIp.limit >= 20);
   check("asking twice for a plan link that went to spam is fine", LIMITS.planLinkPerEmail.limit >= 3);
   // The fixed window lets a caller burst across a boundary and get up to twice
-  // the limit — assumed in the numbers rather than papered over.
-  check("every window is an hour, so the doubling is bounded",
-    Object.values(LIMITS).every((l) => l.windowSeconds === 3600));
+  // the limit - assumed in the numbers rather than papered over.
+  //
+  // **THIS CHECK SAID "EVERY WINDOW IS AN HOUR" AND WENT RED ON 2026-09-13
+  // BECAUSE A SECOND KIND OF WINDOW WAS ADDED ON PURPOSE.** `addressPerDay` is
+  // Geoapify's 3,000-credit-a-day budget (ROADMAP § 6), not a spam rule, and a
+  // one-hour window cannot express a daily allowance. The product is right; the
+  // claim was written when there was only one shape of limit.
+  //
+  // What actually has to hold is the REASONING, which is different for the two:
+  // an hourly bucket's boundary doubling is bounded by the hour, and the daily
+  // one is safe only because `rate_take` buckets on
+  // `floor(epoch / window) * window` - so a window of exactly 86,400 starts at
+  // UTC midnight and cannot straddle the provider's own daily reset.
+  check("the limits table has subjects to check", Object.keys(LIMITS).length >= 5,
+    `${Object.keys(LIMITS).length} limits - a .every() over an empty table is true`);
+  const daily = Object.entries(LIMITS).filter(([, l]) => l.windowSeconds !== 3600);
+  check("every spam window is an hour, so the doubling is bounded",
+    Object.entries(LIMITS).filter(([k]) => !k.endsWith("PerDay")).every(([, l]) => l.windowSeconds === 3600),
+    JSON.stringify(Object.entries(LIMITS).filter(([k, l]) => !k.endsWith("PerDay") && l.windowSeconds !== 3600)));
+  check("and the only exception is a whole UTC day, which is what makes it align",
+    daily.every(([k, l]) => k.endsWith("PerDay") && l.windowSeconds === 86400),
+    JSON.stringify(daily));
+  // 2,400 of 3,000 leaves 600 in hand even if a caller takes the whole ceiling.
+  check("the daily budget leaves the provider's allowance headroom",
+    daily.every(([, l]) => l.limit <= 2500), JSON.stringify(daily));
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

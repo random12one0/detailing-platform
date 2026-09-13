@@ -48,6 +48,17 @@
 // tree so the revert is `git checkout --`. The breaks are in this file's commit
 // message.
 
+// **THIS SUITE WAS ONE OF THE ELEVEN `_env.mjs` WAS WRITTEN FOR AND WAS
+// MISSED - found 2026-09-13 by reading the whole battery's SKIP lines.**
+// `SUPABASE_ANON_KEY` has been in the root `.env` all along; nothing put it
+// into `process.env`, so § 4 printed *"no SUPABASE_URL / SUPABASE_ANON_KEY"*
+// and the suite exited 0. The live half of the availability honesty check -
+// the one that proves a greyed-out day agrees with a refused booking - had
+// never run. A skipped check reads exactly like a passing one.
+// It must be FIRST, before any module that reads `process.env` at its own
+// top level.
+import "./_env.mjs";
+
 import { readFileSync } from "node:fs";
 import { isReadFailure, readFailed } from "../supabase/functions/_shared/retryRead.ts";
 

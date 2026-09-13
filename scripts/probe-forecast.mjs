@@ -14,6 +14,15 @@
 // skipped check reading exactly like a passing one, so the second half says out
 // loud when it did not run and why.
 
+// **THE ONE LIVE SECTION OF THIS SCRIPT HAD NEVER RUN - found 2026-09-13.**
+// `tests/weather.test.mjs` SKIPS its § 13 saying the status mapping is
+// *"proved live by scripts/probe-forecast.mjs instead"*, and this script then
+// skipped its own live section for want of `SUPABASE_ANON_KEY` and exited 0.
+// Two honest skip lines in a row add up to a capability nobody has ever
+// checked. The key has been in the root `.env` all along; the suites load it
+// through `tests/_env.mjs` and this script did not.
+import "../tests/_env.mjs";
+
 import { forecast } from "../supabase/functions/_shared/weather.ts";
 
 let pass = 0, fail = 0, skipped = 0;

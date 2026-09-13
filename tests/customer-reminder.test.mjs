@@ -57,6 +57,49 @@ const rest = async (p, opts = {}) => {
 const rpc = (fn, body = {}) => rest(`rpc/${fn}`, { method: "POST", body: JSON.stringify(body) });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// A FIXTURE BOOKING HAS TO GO IN A GAP, AND THE DEMO CALENDAR IS NOT EMPTY
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// **FOUND 2026-09-13 BY THE ANCHOR THIS SUITE HAD JUST GROWN.** Both fixtures
+// were placed at a hard-coded `now + 30 minutes`, and `bookings_no_overlap` is
+// an exclusion constraint over `(business_id, [start_at, end_at])`. The seeded
+// demo calendar carries jobs through the day, so whether the insert succeeded
+// depended on **what hour the suite happened to run**: at 21:38 UTC the slot
+// landed inside the seeded 21:45-23:15 job and Postgres refused it with 23P01.
+//
+// Before the anchor that was a SKIP line nobody read; after it, § 4 failed
+// loudly and named the conflicting range, which is the whole point of the
+// anchor. **The suite was never measuring anything in the afternoon.**
+//
+// So the placement is measured rather than assumed: walk forward in 15-minute
+// steps from `fromMs` and take the first range this business has nothing in.
+// `limitSteps` is a ceiling, not a schedule - a calendar with no gap at all in
+// the search window is a fixture problem the caller must report, never a
+// silent fallback onto a colliding slot.
+//
+// **AND THE LEAD IS DERIVED FROM WHERE THE BOOKING LANDED, NEVER PINNED.**
+// Due-ness is `now >= start_at - lead`, so a fixture that drifts two hours
+// later needs a lead two hours longer to stay due. A pinned 120 was the other
+// half of the same assumption.
+const SLOT_MS = 3600_000;
+async function freeSlot(business, fromMs, { limitSteps = 96, back = false } = {}) {
+  for (let i = 0; i < limitSteps; i++) {
+    const start = new Date(fromMs + (back ? -1 : 1) * i * 15 * 60_000);
+    const end = new Date(start.getTime() + SLOT_MS);
+    // `[]` on both sides, matching the constraint's own tstzrange bounds: a
+    // half-open comparison here would hand back a slot that touches its
+    // neighbour's edge and the insert would still be refused.
+    const clash = await rest(`bookings?business_id=eq.${business}&select=id`
+      + `&status=neq.cancelled&deleted_at=is.null`
+      + `&start_at=lte.${end.toISOString()}&end_at=gte.${start.toISOString()}`);
+    if (Array.isArray(clash.body) && clash.body.length === 0) return { start, end };
+  }
+  return null;
+}
+/** Minutes from now until `start`, rounded up - the floor any lead must clear. */
+const minutesUntil = (start) => Math.ceil((start.getTime() - Date.now()) / 60_000);
+
+// ═══════════════════════════════════════════════════════════════════════════
 // 1 · THE DUE-NESS QUERY, RUN FOR REAL
 // ═══════════════════════════════════════════════════════════════════════════
 //
@@ -114,11 +157,19 @@ if (!SB_URL || !KEY) {
     // Evening-before is switched OFF for the fixture so that branch is not in
     // question - it sends at a wall-clock time the previous evening and would
     // make the result depend on what hour the suite happened to run.
-    const start = new Date(Date.now() + 30 * 60_000);
-    const end = new Date(start.getTime() + 3600_000);
+    const slot = await freeSlot(bizId, Date.now() + 30 * 60_000);
+    if (!slot) {
+      skip("every live check", "no free hour on the demo calendar in the next 24h - the fixture cannot be placed");
+    }
+    const start = slot?.start ?? new Date(Date.now() + 30 * 60_000);
+    const end = slot?.end ?? new Date(start.getTime() + 3600_000);
+    // 90 minutes PAST the send time wherever the slot landed, which is what
+    // 1a's own name claims. Pinning 120 only said that while the slot was 30
+    // minutes out.
+    const LEAD = minutesUntil(start) + 90;
     await rest(`business_settings?business_id=eq.${bizId}`, {
       method: "PATCH",
-      body: JSON.stringify({ evening_before_enabled: false, customer_reminder_lead_minutes: 120, email_customer_reminder: true }),
+      body: JSON.stringify({ evening_before_enabled: false, customer_reminder_lead_minutes: LEAD, email_customer_reminder: true }),
     });
 
     const bRes = await rest("bookings", {
@@ -192,13 +243,15 @@ if (!SB_URL || !KEY) {
       // With the first marker set (above) and the second switch on, it is due.
       // Its RPC must ALSO respect the parent switch - its body was copied from
       // the first one and had never asked.
-      await patchSettings({ customer_reminder_2_enabled: true, customer_reminder_2_lead_minutes: 480 });
+      // Derived for the same reason as LEAD above: 480 was only long enough
+      // while the fixture sat 30 minutes out.
+      await patchSettings({ customer_reminder_2_enabled: true, customer_reminder_2_lead_minutes: minutesUntil(start) + 60 });
       const second = async () => {
         const r = await rpc("get_bookings_due_for_second_reminder");
         return Array.isArray(r.body) && r.body.some((b) => b.id === bookingId);
       };
       check("1e the second reminder is due once the first has gone", await second(),
-        "the fixture is 30 minutes out with an 8h second lead and the first marker set - it should be due");
+        "the fixture's second lead clears its own distance and the first marker is set - it should be due");
       await patchSettings({ email_customer_reminder: false });
       check("1e the PARENT switch silences the second reminder too", !(await second()),
         "email_customer_reminder off must silence both, not just the first");
@@ -219,9 +272,19 @@ if (!SB_URL || !KEY) {
       check("1f and confirmed returns it", await isDue());
 
       // ── 1g · A JOB IN THE PAST ───────────────────────────────────────────
-      const past = new Date(Date.now() - 3600_000);
-      await patchBooking({ start_at: past.toISOString(), end_at: new Date(past.getTime() + 3600_000).toISOString() });
-      check("1g a job that has already started is not reminded", !(await isDue()));
+      // The same gap problem backwards: the seeded calendar is busiest around
+      // now, so a pinned `now - 1h` can be refused by the same constraint - and
+      // a PATCH that 23P01s leaves the booking in the future, where the check
+      // below would be measuring the wrong thing while still passing.
+      const past = await freeSlot(bizId, Date.now() - 3600_000, { back: true });
+      if (!past) {
+        skip("1g a job that has already started is not reminded", "no free hour in the last 24h to move the fixture into");
+      } else {
+        const moved = await patchBooking({ start_at: past.start.toISOString(), end_at: past.end.toISOString() });
+        check("1g the fixture could be moved into the past at all", moved.status < 300,
+          `without the move the check below reads a FUTURE booking: ${JSON.stringify(moved.body).slice(0, 160)}`);
+        check("1g a job that has already started is not reminded", !(await isDue()));
+      }
     }
   }
 }
@@ -351,10 +414,13 @@ console.log("\n4. the deployed sweep actually reminds a due customer");
         body: JSON.stringify({ business_id: bizId, name: "Sweep Fixture", phone: "562-555-0001", email: "sweep-fixture@example.com" }),
       });
       cust2 = c.body?.[0]?.id ?? null;
-      const start = new Date(Date.now() + 30 * 60_000);
+      const slot2 = await freeSlot(bizId, Date.now() + 30 * 60_000);
+      check("4y there is a free hour to put the sweep fixture in",
+        Boolean(slot2), "the demo calendar has no gap in the next 24h");
+      const start = slot2?.start ?? new Date(Date.now() + 30 * 60_000);
       await rest(`business_settings?business_id=eq.${bizId}`, {
         method: "PATCH",
-        body: JSON.stringify({ evening_before_enabled: false, customer_reminder_lead_minutes: 120, email_customer_reminder: true }),
+        body: JSON.stringify({ evening_before_enabled: false, customer_reminder_lead_minutes: minutesUntil(start) + 90, email_customer_reminder: true }),
       });
       const b = await rest("bookings", {
         method: "POST", headers: { Prefer: "return=representation" },
@@ -363,7 +429,7 @@ console.log("\n4. the deployed sweep actually reminds a due customer");
           customer_name: "Sweep Fixture", customer_phone: "562-555-0001",
           customer_email: "sweep-fixture@example.com",
           customer_address: "2 Fixture Way, Long Beach, CA",
-          start_at: start.toISOString(), end_at: new Date(start.getTime() + 3600_000).toISOString(),
+          start_at: start.toISOString(), end_at: (slot2?.end ?? new Date(start.getTime() + 3600_000)).toISOString(),
           service_type: "mobile", vehicle_size: "small",
           subtotal: 65, total_price: 65, status: "confirmed", lang: "es",
           // Already reminded on the OWNER side, so the sweep has exactly one

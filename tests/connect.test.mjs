@@ -376,8 +376,19 @@ console.log("\n§ 5 — the source, because no behavioural check can see any of 
   check("and reads no database", !/supabase\s*\./.test(shared));
 
   // -- 5g. THE CUSTOMER'S PAGE NAMES THE DETAILER ---------------------------
+  // **THIS CHECK WAS COUPLED TO A SEPARATOR AND WENT RED ON A PRODUCT THAT WAS
+  // RIGHT - 2026-09-13.** It pinned the whole string with an EM DASH in it. The
+  // em-dash pass then applied CLAUDE.md's own rule - a LABEL separator becomes
+  // the middle dot - to `checkoutLineName`, and this line failed about a
+  // spelling rather than a behaviour. Trap (k).
+  //
+  // What actually matters is that the customer's card statement names the
+  // DETAILER and the day, so that is what is asserted: both parts present, and
+  // the joint is not the dash the rule forbids here.
+  const line = checkoutLineName("Ridgeline Auto Detail", "Sep 12");
   check("the checkout line names the business",
-    checkoutLineName("Ridgeline Auto Detail", "Sep 12") === "Ridgeline Auto Detail — Sep 12");
+    line.includes("Ridgeline Auto Detail") && line.includes("Sep 12") && !line.includes("—"),
+    `got ${JSON.stringify(line)}`);
   check("and works with no date", checkoutLineName("Ridgeline Auto Detail", null) === "Ridgeline Auto Detail");
   check("and never says detailingplatform",
     !/detailingplatform/i.test(checkoutLineName("Ridgeline Auto Detail", "Sep 12")));
