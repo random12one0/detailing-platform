@@ -727,6 +727,55 @@ that name `$300`. A real unpaid row is lane C's seed change.
 
 ---
 
+## 1i · PROVEN TONIGHT — lane C, 2026-09-13, at `6717887` and after
+
+**THE WHOLE SECTION IS ABOUT WHETHER THE CHECKS CAN SEE, NOT ABOUT THE
+PRODUCT.** Read `docs/check-audit-2026-09-13.md` first — it carries the
+reasoning; this is the ledger.
+
+| what was proven | number | invalidated by a change to |
+|---|---|---|
+| **Sixty-nine checks across ten suites could not fail**, and every one is now anchored and baselined | 59 green over a blanked subject + 10 vacuous over live data; **24 deliberate breaks, every one red** | `tests/**`, `scripts/blind-run.mjs` |
+| **`booking-engine`'s double-booking DISPLAY pair went green with `available-slots` completely dead** | before: **105 passed, 0 failed** against `available-slots-DEAD`; after: 1 failure naming `404 · 0 day(s)` | `tests/booking-engine.test.mjs`, `supabase/functions/available-slots/**` |
+| `booking-page-isolation`'s three cross-tenant negatives had no service count — zero services proved perfect isolation | **63/0** with the anchor in | `tests/booking-page-isolation.test.mjs` |
+| **`definer-grants` asserted nothing and exited 0 without credentials** | now **11 passed / exit 0** with them, **exit 1 and a named reason** without | `tests/definer-grants.test.mjs` |
+| **`geoapify`'s own two "the check has subjects" counters passed over 67 zero-byte files**, taking the key-leak check 2b with them | both read BYTES now (>200,000); 2b gained a positive control; **23/0** | `tests/geoapify.test.mjs` |
+| `spanish` § 2's five checks filtered `Object.entries(es)` with no count, where § 9 already had one | **73/0**; red when the catalogue is swapped for `{}` | `tests/spanish.test.mjs` |
+| **`design-contrast` printed `ok  landing.css tokens match` UNCONDITIONALLY, under its own thirteen FAIL lines** | now `13 drifted, 13 of 13 compared` red / `(13 compared)` green | `tests/design-contrast.test.mjs`, `app/src/landing/landing.css` |
+| `composition` 41 of 95, `route-contract` 3, `dead-mans-switch` 3, `customer-reminder` 2, `email-budget` 2, `tours` 2 — all pure negatives over files that could be empty | anchored in BYTES; live: 97/0, 34/0, 51/0, 27/0, 19/0 | those suites' own subjects |
+| **`em-dash` is a FINDER, so it passed over 67 zero-byte files** | counts content now: **8,467 code lines, 2,833 quoted**; red at 0 | `tests/em-dash.test.mjs` |
+| **`check-deployed.mjs` was blind to 28 sibling imports inside `_shared`** | it said **3 stale**; the truth was **17**. `deploy-freshness` 14/0, four breaks | `scripts/lib/sharedDeps.mjs`, `scripts/check-deployed.mjs` |
+| `_shared` has no import cycle | **29 modules, 0 cycles**; red when `retryRead.ts` is given `import "./db.ts"` | `supabase/functions/_shared/**` |
+| **`scripts/db-audit.mjs` printed SKIPPED and exited 0** | exits 1 now; verified both ways | `scripts/db-audit.mjs` |
+| **The email and the booking page print the same price** | `money-format` **50 checks over 36 values, 0 skipped**, baselined by **7** breaks; `render-emails` 29 emails 0 problems, the accepted ladder $360 / $25 / $20 / $20 / $40 / **$345** | `supabase/functions/_shared/emailKit.ts`, `app/src/lib/format.js`, `_shared/platformBilling.ts` |
+| **All 37 edge functions are running the repo's code** after the 17 stale ones were redeployed | `check-deployed.mjs`: *"all 37 functions are current"*, 21:08 UTC | **any** file under `supabase/functions/**` |
+| Nothing else broke | `composition` 97/0, `design-contrast` all pairs, `landing-pricing` 109/0, `route-contract` 34/0, `email-brand` 226, `em-dash` 0 findings, `booking-core` 237/0, `spanish` 73/0, `tours` 19/0, `deploy-freshness` 14/0, `platform-billing` 335/1 (the known missing price editor), `booking-engine` 105/0, `booking-page-isolation` 63/0, `dead-mans-switch` 51/0, `email-budget` 27/0, `geoapify` 23/0 | their own subjects |
+
+**TWO FINDINGS WITHDRAWN AFTER MEASURING PROPERLY — NEVER RE-REPORT THEM.**
+The first blanking pass left `scripts/` intact and accused **`session-ping` of
+38 hollow checks and `mail-sink` of 6**. Both are **clean**: with `scripts/`
+blanked too, `session-ping` crashes outright, and `mail-sink`'s survivors are
+its own pure classification logic plus its own subject counter, *"4a it read
+the whole of tests/ and scripts/"*. Its subject is `tests/`, which cannot be
+blanked without deleting the suite.
+
+**AND THREE FIGURES THAT ARE DELIBERATELY NOT ROWS:**
+`customer-reminder` is **14 passed, 1 failed** — *"4z the sweep fixture was
+created"* — because the demo tenant's slot an hour out is already taken and the
+exclusion constraint refuses the fixture. **Measured with these changes
+stashed: 13/1, the same failure.** Not ours, and the suite refusing to read
+green when it could not measure is it behaving correctly.
+`platform-admin` is still **130/30**, every one reading `app/src/admin/**`.
+**The six provider checks in `e2e-booking` are still unanswered** — today's
+tenant allowance was 100 of 100 claimed at 21:28 UTC, so *"did the mail reach
+Resend"* cannot be asked until 00:00 UTC.
+
+```bash
+git diff --name-only 6717887..HEAD -- tests scripts/check-deployed.mjs scripts/lib scripts/db-audit.mjs
+```
+
+---
+
 ## HOW THIS FILE EARNS ITS KEEP
 
 Andrew paid for every number above once. **The cost of this file is one `git
