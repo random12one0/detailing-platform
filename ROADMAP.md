@@ -14,6 +14,37 @@ it.
 
 ---
 
+## Next, in order — SET BY COWORK AT THE 2026-09-13 BOUNDARY, do these first
+
+**This order is his, not a guess, and it replaces whatever a session infers
+from the list below.**
+
+1. **The 45 unclassified `platform-admin` check failures.** Classify each BY
+   NAME into *real defect* or *stale assertion*. **Deliverable: the split as two
+   numbers, and every real defect named.** Proof, not a plausible story —
+   `CLAUDE.md` trap (h) and (k) are the two ways these go wrong, and tonight
+   found three filters that asserted something the code had never returned.
+2. **The Gateway Timeout logged in `FOUND.md`.** One unexplained 500 from
+   Supabase's own edge gateway on the first cron tick after the pg_net timeout
+   was raised to 30s; the same call by hand returned 200 in 5.3s a minute later.
+   One occurrence, never explained.
+3. **Translate-on-save.** Designed, not built. **Both secrets are already live
+   in the Supabase secret store for `kguqylyzgyzfktkfnhjb`:**
+   `DEEPL_API_KEY` and `GOOGLE_TRANSLATE_API_KEY`. DeepL first (lifetime 1M
+   characters), Google as the fallback (500k/month, recurring), automatic and
+   invisible handover, the provider behind a seam from the start.
+   **NEITHER KEY MAY APPEAR ANYWHERE UNDER `app/`** — read only through
+   `Deno.env.get()` inside the edge function. Andrew created and pasted both
+   himself and neither has passed through a session. **A schema sketch is owed
+   before any migration.**
+
+**AND THE BACK OFFICE IS FROZEN UNTIL ANDREW LOOKS AT IT — his instruction via
+Cowork, 2026-09-13.** Today, Growth, Money, Detailers and Plumbing are built and
+verified; **he asked for the whole dashboard finished first and to review it
+visually himself.** Do not change those screens further unless he asks. Fixing a
+defect somebody reports is not "changing them further"; redesigning, reordering
+or improving them is.
+
 ## Next, in order
 
 1. ~~Wave F — the em dash sweep, all three categories.~~ **DONE 2026-09-12.**
