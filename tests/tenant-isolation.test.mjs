@@ -179,11 +179,20 @@ await svc.post("/rest/v1/services", [
   { business_id: A.id, name: "Full Detail A", price: 150, duration_minutes: 120 },
   { business_id: B.id, name: "Secret B Special", price: 999, duration_minutes: 60 },
 ]);
+// **A GETS ITS OWN ROW IN ALL THREE, AND THAT IS THE POINT OF THIS BLOCK —
+// added 2026-09-13 after test 5 was measured as hollow.** Until today the
+// fixture made B-only rows here, so test 5 asked "does A see any B rows?" of a
+// tenant that owned NOTHING in bookings, customers or expenses. MEASURED: A’s
+// own count was **0, 0 and 0** on a fully green run, so those three checks had
+// never once compared a row — a policy denying A everything passed identically
+// to a correct one. The rule this repo already has: COUNT SUBJECTS EVERY RUN.
 await svc.post("/rest/v1/expenses", [
+  { business_id: A.id, date: "2026-08-01", category: "supplies", description: "A towels", amount: 17, payment_method: "cash" },
   { business_id: B.id, date: "2026-08-01", category: "supplies", description: "B towels", amount: 42, payment_method: "cash" },
 ]);
 const custRes = await svc.post("/rest/v1/customers", [
   { business_id: B.id, name: "B Customer", phone: "555-0100" },
+  { business_id: A.id, name: "A Customer", phone: "555-0200" },
 ]);
 const bookingBRes = await svc.post("/rest/v1/bookings", [
   {
@@ -197,6 +206,23 @@ const bookingBRes = await svc.post("/rest/v1/bookings", [
   },
 ]);
 const bookingB = bookingBRes.data?.[0];
+// A’s own booking, on A’s own calendar, far from every slot the later tests
+// reserve. It exists so test 5 has something of A’s to FIND, not to be booked.
+const bookingARes = await svc.post("/rest/v1/bookings", [
+  {
+    business_id: A.id,
+    customer_id: custRes.data?.find((c) => c.business_id === A.id)?.id,
+    customer_name: "A Customer",
+    customer_phone: "555-0200",
+    start_at: "2026-09-21T18:00:00Z",
+    end_at: "2026-09-21T20:00:00Z",
+    service_type: "mobile",
+  },
+]);
+if (!bookingARes.data?.[0]) {
+  console.error("A booking fixture failed:", bookingARes.status, JSON.stringify(bookingARes.data));
+  process.exit(1);
+}
 if (!bookingB) {
   console.error("B booking fixture failed:", bookingBRes.status, JSON.stringify(bookingBRes.data));
   process.exit(1);
@@ -243,11 +269,31 @@ console.log("test 4: special hours on the same calendar date");
 // 5-7: authenticated cross-tenant isolation
 // ---------------------------------------------------------------------------
 
-console.log("test 5: authenticated as A, zero B rows anywhere");
+console.log("test 5: authenticated as A, A's own rows and no B rows");
+// **BOTH HALVES, BECAUSE ONE HALF CANNOT FAIL FOR THE RIGHT REASON — 2026-09-13.**
+// This loop used to assert only `leaked.length === 0`. An empty list satisfies
+// that, so a policy that denies A EVERYTHING, a JWT scoped to nothing, or a
+// fixture that made no A rows all passed exactly like a correct policy.
+//
+// **AND IT WAS NOT HYPOTHETICAL.** Measured on a green 40/0 run: A owned **0**
+// bookings, **0** customers and **0** expenses, so three of these five checks
+// — one of them the CUSTOMER table — had never compared a single row in the
+// life of this suite. Baselined by narrowing every read to a UUID that matches
+// nothing: before, all five stayed green; after, all five go red.
+//
+// The fixture now gives A a row in each, so `own > 0` is a real assertion and
+// the pair says the thing the suite is actually for: A sees exactly its own.
 for (const table of ["bookings", "customers", "expenses", "promo_codes", "business_settings"]) {
   const r = await rest("GET", `/rest/v1/${table}?select=business_id`, { key: ANON, jwt: userA.jwt });
-  const leaked = (r.data ?? []).filter((row) => row.business_id !== A.id);
-  check(`${table}: only A rows`, r.status === 200 && leaked.length === 0, JSON.stringify(r.data));
+  const rows = r.data ?? [];
+  const leaked = rows.filter((row) => row.business_id !== A.id);
+  const own = rows.filter((row) => row.business_id === A.id);
+  check(`${table}: A sees its own rows (${own.length})`,
+    r.status === 200 && own.length > 0,
+    `status ${r.status}, ${own.length} own rows — a count of zero means this check 
+     compared nothing, not that isolation held`);
+  check(`${table}: and no B rows`,
+    r.status === 200 && leaked.length === 0, JSON.stringify(rows));
 }
 
 console.log("test 6: A cannot update or delete B rows by UUID");
