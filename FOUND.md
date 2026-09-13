@@ -727,3 +727,110 @@ findings, a `pushState` sweep passing 22 screens it never visited, and this.
   Not investigated here — it was not this session's item, and absorbing it into
   an unrelated commit would have hidden it.
 
+
+## VEHICLE SIZE TIERS — WHAT THE CODE DOES, 2026-09-12
+
+**Answered from the code at Cowork's ask, because the first-run wizard sits over
+the Business screen on the seed tenant. This is what it DOES, not what it should
+do.**
+
+**1 · THE FEATURE EXISTS AND THE COUNT IS NOT FIXED.** `business_settings.vehicle_sizes`
+is a JSON ARRAY. `core.js:174` uses it whenever it is a non-empty array and only
+falls back to `DEFAULT_VEHICLE_SIZES` (three: Small / Medium / Large) when it is
+absent or empty. A detailer can **add, remove, rename and reorder** tiers.
+Minimum one — `removeSize` returns early and the X button is `disabled` at
+`sizes.length <= 1`. **No maximum is enforced anywhere.** The booking page
+already expects more than three: `StepVehicle`'s `SIZE_CARD_CEILING = 4` draws
+cards up to four and a drop-down from five, with the measurement in its comment.
+So Sedan/SUV/Van/Truck and a five-tier ladder are both supported today.
+
+**2 · WHERE.** `screens/more/Catalog.jsx` — the **"Services & add-ons"** row on
+the Business tab, or **setup step 1**, *"What do you charge for?"* (the setup
+step renders the same screen). Add pushes a new entry with a slug key from
+`slugKey(label, takenKeys)`; edit changes `label` and `examples` and KEEPS the
+existing key; remove filters it out; `moveSize` reorders. Two tiers may not
+share a name — checked case-insensitively, because two identical cards is a
+broken-looking page.
+
+**3 · WHAT A SPANISH CUSTOMER SEES.** One line decides it, `StepVehicle.jsx:70`:
+
+```js
+const PLATFORM_SIZE = Object.fromEntries(DEFAULT_VEHICLE_SIZES.map((s) => [s.key, s]));
+const sizeText = (s, field) =>
+  (s[field] && s[field] === PLATFORM_SIZE[s.key]?.[field] ? t(s[field]) : s[field]);
+```
+
+- **Shipped default, untouched** — key `small`, label `Small` matches the
+  platform's → `t("Small")` → **Spanish**. Intended.
+- **Renamed to "Lifted truck"** — editing keeps the key `small`, and
+  `"Lifted truck" !== "Small"` → **English, untranslated**. Intended: they are
+  the detailer's words.
+- **A fifth tier added** — `slugKey` mints a new key, `PLATFORM_SIZE[newKey]` is
+  `undefined`, the comparison is false → **untranslated**. Intended.
+- **A detailer types `Small` as their OWN word** — matches the platform string →
+  **TRANSLATED, without them asking.** This is the defect. It applies field by
+  field, so a custom `examples` beside a coincidental `label` translates one and
+  not the other.
+
+**4 · IT IS A STRING COMPARISON, NOT A FLAG. There is no `edited` or `custom`
+field anywhere in `vehicle_sizes`** — grepped. So a detailer who deliberately
+types `Small` is **indistinguishable** from one who never touched it, and their
+word is translated for them. Cowork's reading is correct.
+
+**THE PROPOSED FIX, NOT BUILT — Andrew's product decision.** An `edited: true`
+flag written the first time a detailer saves that tier, with `sizeText`
+translating only when the flag is absent. It settles the question permanently
+because it records the ACT rather than inferring it from the text. **The
+migration is the part that needs deciding**: existing rows have no flag, so
+either a missing flag keeps today's behaviour (string comparison, the bug
+survives for rows already saved) or a one-off backfill stamps `edited` on every
+tier whose text already differs from the platform default — which is the same
+comparison, run once, at a moment when it is still the best evidence available.
+
+**AND A SECOND-ORDER EFFECT NOBODY HAS RAISED, found in the same read.**
+`Catalog.jsx:101` seeds the editor from `DEFAULT_SIZES.map(d => ({ ...d,
+label: t(d.label), examples: t(d.examples) }))` — **in the DETAILER's language.**
+So a detailer whose dashboard is Spanish, who opens that screen and saves,
+freezes `Pequeño / Mediano / Grande` as their own words. Those then never
+translate back, and an **English-speaking customer of that detailer sees Spanish
+tier names.** The comment above it says this is deliberate — *a default is a
+starting point offered to a human, so it arrives in their language* — and it is
+consistent with the fourth axis, but the consequence is worth Andrew seeing
+rather than discovering.
+
+**Not affected either way: a booking already taken.** `bookings.vehicle_size_label`
+stores the words as they were at the time, and `_shared/email.ts:93` reads
+`vehicle_size_label || vehicle_size`, so history does not move when a tier is
+renamed.
+
+## THE NINE e2e-booking FAILURES — 2026-09-12
+
+**ZERO ARE MINE, measured by name and not by count.** `scripts/e2e-booking.mjs`
+reports **71 passed, 9 failed** on `34ae75d` and the **identical nine** on its
+parent `edb350c`, with the pre-change code checked into the working tree so the
+dev server actually served it. A `diff` of the sorted failure lists is empty.
+
+The nine, as they print:
+
+- `the review step prints a total — $105`
+- `the review step prints a total — $150`
+- `with the name the customer typed — 140 Market Street, Long Beach, CA` (twice)
+- `charged what the price bar printed — bar $105, row 105`
+- `charged what the price bar printed — bar $150, row 150`
+- `the request is waiting on Today`
+- `the job is findable in the calendar's history`
+- `it is still a live booking — pending`
+
+**TWO OF THEM PRINT EQUAL VALUES AND STILL FAIL** — *bar $105, row 105* and
+*bar $150, row 150*. A comparison reporting two equal-looking numbers as unequal
+is comparing a formatted string to a number, or a currency symbol to none.
+**That is the signature of a stale test, not a product defect**, and it is the
+same shape as the three `password-reset` failures that all turned out to be
+wrong tests.
+
+**NOT INVESTIGATED HERE, DELIBERATELY.** It was not this session's item and
+folding it into an unrelated commit would have hidden it. **But it is the same
+disease as the i18n ratchet**: nine red tests everybody has learned to scroll
+past are nine tests nobody reads, and the one real regression hiding among them
+would never be seen. Somebody has to sort which is which, one at a time, and
+record the verdict beside each.
