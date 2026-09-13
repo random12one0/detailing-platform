@@ -1227,3 +1227,121 @@ a visible browser pane to settle and it is the first thing to check next.**
 
 **ALSO SEEN, NOT ACTED ON:** the detailer dashboard renders `PLAN · MEMBER RATE`
 in English on a Spanish screen.
+
+## THE 45 UNCLASSIFIED `platform-admin` FAILURES, CLASSIFIED — 2026-09-12
+
+**ROADMAP item 1. Diagnosis only; nothing fixed, and the back office is frozen.**
+
+**THE SPLIT IS 5 REAL DEFECTS AND 43 STALE ASSERTIONS**, out of the suite's 48
+failures — the three already classified above (`no chart`, `2b-i`, and the pair
+in other suites) are re-counted here so the number is the whole suite rather
+than a remainder.
+
+`node tests/platform-admin.test.mjs` reads **111 passed, 48 failed** on `34934b1`.
+
+**WHY SO MANY ARE STALE, AND IT IS ONE CAUSE RATHER THAN FORTY-THREE.** The
+screen was rebuilt into five tabs (Today, Growth, Detailers, Money, Plumbing) on
+2026-09-13. The suite was written against the previous single-page layout —
+a `.pa-strip` of seven figures, a `.pa-split` two-column list, a `state.status`
+object, a `.pa-tag`, a browser-session impersonation. **Every one of those
+spellings is gone and every guarantee behind them still holds**, which is
+CLAUDE.md trap (k) at scale: the checks assert how the screen was WRITTEN.
+
+### THE FIVE REAL DEFECTS
+
+1. **`9h` · `export` is unreachable, so a detailer's data cannot be handed
+   over.** `app/src/admin/AdminPage.jsx` contains no `action: "export"` and no
+   `URL.createObjectURL` / `a.download`. The server action, its RPC and its
+   service-role revoke are all intact. **The client reaches SEVEN of twelve
+   actions** — `list`, `whoami`, `create`, `get`, `restore`, `suspend`,
+   `impersonate`. **Unreachable: `export`, `note`, `prices`, `site`, `tier`.**
+   *(This corrects the entry above: it is FIVE now, not six — `create` was
+   restored at `AdminPage.jsx:878`.)*
+
+2. **`11j` · THE PHOTO STORAGE METER IS PERMANENTLY 0% AND ITS ALERT CAN NEVER
+   FIRE. A live latent bug, not a missing feature.** `photo_store_state()`
+   returns `used_bytes, total_bytes, committed_bytes, businesses, share_bytes,
+   photos` (`20260906011000_photo_share.sql:81`). `AdminPage.jsx:346` and
+   `:1382` both read **`store.cap_bytes`, which that row does not have** —
+   `cap_bytes` belongs to the per-BUSINESS `photo_budget` RPC, a different
+   function. Run against a store that is 90% full, the meter prints `0%`, the
+   *"Photo storage is nearly full"* alert evaluates `false`, and a 500 MB
+   over-commitment is printed nowhere. **Same shape as the `monthAgo` scope
+   error: plausible code, no error anywhere, and only a real number reveals it.**
+
+   **CONFIRMED AGAINST THE RUNNING DATABASE, by a second method that shares
+   nothing with reading the migration:** `POST /rest/v1/rpc/photo_store_state`
+   on `kguqylyzgyzfktkfnhjb` returns
+   `{used_bytes, total_bytes, committed_bytes, businesses, share_bytes, photos}`
+   — **no `cap_bytes`.** The deployed function and the repo agree, and the
+   screen reads a key neither of them has.
+
+3. **`11i` · F-016 IS BACK ON THE DETAILER ROW.** `AdminPage.jsx:1037` prints
+   `N jobs this month`, and `jobs_month` counts **completed** jobs only
+   (`platform-admin/index.ts:237-243`). The line above it, `:1022`, reads
+   `Booking · last one today`. A row saying *0 jobs this month* beside *last
+   booking today* is the exact pair F-016 fixed by adding the word **finished**,
+   and the word is gone.
+
+4. **`13f-iii` · a business with no owner is a dead end.** The impersonate
+   button is correctly disabled (`:1171`) and correctly explains itself
+   (`:1190`, *"Nobody has accepted the owner invite yet…"*), and **nothing
+   offers to resend the invite.** There is no `Resend` anywhere in the file; the
+   only invite lives inside the Create flow. The check's own sentence is the
+   finding: *saying there is no account and offering no way to make one is half
+   an answer.*
+
+5. **`14c-ii-c` · the email cap warning lost the caveat that made it honest.**
+   `sent` comes from `platform_email_days` (platform only); `cap` is Resend's
+   **account-wide** daily allowance, shared with andrewsdetail.com. The
+   sentence saying so is gone — `andrewsdetail` appears nowhere in `app/src`
+   except a landing-page mockup. So the line under-reports, which is the unsafe
+   direction, with nothing on screen to say it might.
+
+### THE 43 STALE ONES, BY NAME AND BY CAUSE
+
+| cause | checks |
+|---|---|
+| `state.status` object → `status` useState; the `"error"` branch became `err` | `2b-i`, `2b-ii`, `2b-iii` |
+| AdminPage delegates to the shared `<NotFound />` ("That page does not exist.") instead of holding the words | `and the SCREEN says the same thing`, `13c` |
+| impersonation replaced by a look-only `/preview` TAB — its own banner at `App.jsx:403`, no session swap, warning removed on purpose | `the button warns before it acts`, `13c-ii`, `13e` |
+| the owner asked for the chart; it exists at `:137` | `no chart` |
+| the `.pa-strip` of seven figures was replaced by the tab bar | `the check has a strip to count`, `seven figures across the top`, `and exactly one of them is the lead`, `and the two new ones are about the product` |
+| no confirmation MESSAGES exist any more; feedback is the row flipping Suspend↔Restore | `9i` |
+| `jobKeys`→`state.heartbeats.map`, `pa-quiet`→`pa-ok`, `!beat`→`m === null`, `beat.`→`h.`, `minutes ago`→`min ago` | `10g`, `10h`, `10h-ii`, `10i` |
+| `pa-tag`→`pa-flag`; the demo headline became *"Showing X of Y. N demo or test rows…"* | `11f`, `11g` |
+| `b?.timezone`→`row.timezone` in the same `monthlySeries` call | `11h-iv` |
+| the open business is a modal `role="dialog"` with a scrim, so there is nothing to scroll to | `11k`, `11l` |
+| the door names itself in `.pa-lab` and the `<h1>` is *Sign in* | `11m` |
+| `.pa-split` / `.pa-rail` / `.pa-back` / `.pa-rest` all replaced by tabs + modal | `12a`, `12c`, `12d`, `12e`, `12f` |
+| `key={b.id}`→`key={row.id}`; `useLeaving(onClose)`; `.pa-col.leaving`→`.pa-col.pa-leaving` | `12j`, `12k` |
+| `.lite .pa-in, .lite .pa-col` → a four-selector list; `pa-bars`→`pa-chart`; `.now.has`→`.pa-now.pa-has` | `12n`, `12o`, `12q` |
+| `state.me`→`email`, still rendered in `.pa-who`; `sess.session.user`→`s.user`; the local `signOutNow` wrapper went so the page calls the one shared door | `13a`, `13a-ii`, `13b` |
+| `detail.members.find`→`row.owner_email` | `13f`, `13f-ii` |
+| the cap line moved into `alerts` and the Plumbing row; the 0.8 gate is at `:342` and `pa-warn` | `14c-ii`, `14c-iii` |
+| threshold mis-calibrated: wants ≥3 stagger delays, there are 2 | `12h-ii` |
+| **the check is WRONG, not merely stale** | `12m` |
+
+**`12m` DEMANDS A DESIGN-SYSTEM VIOLATION.** It asserts exactly one
+`@media (prefers-reduced-motion)` block in `admin.css`. There are **zero**, and
+zero is correct — `main.jsx:46-48` sets `.lite` for both `?lite=1` and the media
+query, and `admin.css`'s own § 4 says *"No `@media (prefers-reduced-motion)`
+block may appear in this file"*, which `composition` § 9 enforces. Fixing this
+check to pass as written would break `composition`.
+
+### THREE THINGS THIS PASS FOUND THAT ARE NOT AMONG THE 45
+
+- **`beginImpersonation` HAS ZERO CALLERS.** It is exported from
+  `lib/impersonation.js` and nothing in `app/src` calls it, so the note is never
+  written and `App.jsx:419`'s impersonation strip can never draw. **Checks
+  `13d`, `13d-ii`, `13d-iii`, `13h`, `13h-ii`, `13h-iii`, `13h-iv` are GREEN and
+  guarding dead code** — the mirror image of a red suite nobody reads, and
+  harder to see. The replacement banner (`App.jsx:403`) is real and does work.
+- **The Plumbing tab has no expected-job list.** It maps whatever rows
+  `job_heartbeats` holds, so a cron whose row is missing or dropped is silently
+  absent rather than red. The old `jobKeys` merged a named list with the
+  reported ones; nothing does now.
+- **The dead man's switch display is BACK** — `AdminPage.jsx:1406`, a dot plus
+  *"Something watching from outside"* / `set up` / `none`. The entry above says
+  it went with `45eaf85`; it has since returned in different words, so
+  `dead-mans-switch`'s five failures need the same pass this one just had.
