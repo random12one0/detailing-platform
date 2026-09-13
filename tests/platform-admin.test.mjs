@@ -587,6 +587,40 @@ console.log("\n11. demos are marked and never counted");
   check("11j · the promised total is printed only when it is over the ceiling",
     /committed_bytes > state\.photo_store\.total_bytes\s*&& ` · PROMISED/.test(p));
 
+  // **AND EVERY FIELD IT READS OFF THAT ROW IS A COLUMN THE RPC RETURNS.**
+  //
+  // The screen read `store.cap_bytes` for six days. `cap_bytes` is real — it
+  // is a column of `photo_budget()`, the PER-BUSINESS function — and it is not
+  // a column of `photo_store_state()`, the platform-wide one whose row lands
+  // on `state.photo_store`. So the expression was `undefined`, the meter
+  // printed **0% at every fill level**, and the "nearly full" alert was false
+  // however full the store was. **Nothing threw and nothing logged.** It is the
+  // same shape as the `monthAgo` scope error: plausible code that only a real
+  // number can contradict.
+  //
+  // SO THIS ASSERTS THE JOIN, NOT THE SPELLING. Hard-coding `total_bytes` here
+  // would go red the day somebody renames the column correctly, and would say
+  // nothing about the next wrong field — CLAUDE.md trap (k). The column list is
+  // READ OUT OF THE MIGRATION, so the check follows a rename and still fails on
+  // a field that was never there.
+  {
+    const share = read("supabase/migrations/20260906011000_photo_share.sql");
+    // The right one of the file's two `returns table` blocks.
+    const decl = share.slice(share.indexOf("function public.photo_store_state()"));
+    const cols = (decl.slice(decl.indexOf("returns table ("), decl.indexOf(")", decl.indexOf("returns table (")))
+      .match(/(\w+)\s+(?:bigint|int|integer|numeric|text|boolean)/g) ?? [])
+      .map((m) => m.split(/\s+/)[0]);
+    // `const store = state?.photo_store` is the only binding; everything after
+    // it reads `store.x` or `store?.x`.
+    const reads = [...page.matchAll(/(?<![\w.])store\??\.(\w+)/g)].map((m) => m[1]);
+    const unknown = [...new Set(reads)].filter((f) => !cols.includes(f));
+    check("11j-ii · every photo_store field the screen reads is one the RPC returns",
+      cols.length >= 5 && reads.length > 0 && unknown.length === 0,
+      cols.length < 5 ? "the column list was not parsed — this check proved nothing"
+        : reads.length === 0 ? "no store.* reads found — this check proved nothing"
+        : `not returned by photo_store_state(): ${unknown.join(", ")} · it returns ${cols.join(", ")}`);
+  }
+
   // ─── clicking a detailer goes to the detailer (F-015) ───────────────────
   // The panel renders below the whole list, so pressing a name looked like it
   // did nothing at fifteen tenants and will be a hundred rows down at a

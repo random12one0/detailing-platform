@@ -343,7 +343,13 @@ export default function AdminPage() {
   }
   if (mail && mail.failed > 0) alerts.push(`${mail.failed} email${mail.failed === 1 ? "" : "s"} failed to send today`);
   const store = state?.photo_store;
-  if (store && store.cap_bytes && store.used_bytes >= store.cap_bytes * 0.8) {
+  // `total_bytes`, NOT `cap_bytes`. `photo_store_state()` — the PLATFORM-wide
+  // row — returns used/total/committed; `cap_bytes` belongs to `photo_budget`,
+  // the per-BUSINESS one. Reading the wrong name made this `undefined`, so the
+  // condition was false at every fill level and **this alarm could never
+  // sound.** A warning that cannot fire is worse than none: it holds the space
+  // a real one would have used and quietly says everything is fine.
+  if (store && store.total_bytes && store.used_bytes >= store.total_bytes * 0.8) {
     alerts.push("Photo storage is nearly full");
   }
   if (totals.suspended) alerts.push(`${totals.suspended} detailer${totals.suspended === 1 ? " is" : "s are"} suspended`);
@@ -1379,7 +1385,9 @@ function TabMoney({ state, totals, rows }) {
 function TabPipes({ state, alerts }) {
   const store = state?.photo_store;
   const mail = state?.email;
-  const usedPct = store?.cap_bytes ? Math.min(100, Math.round((store.used_bytes / store.cap_bytes) * 100)) : 0;
+  // `total_bytes` — see the note beside the alert above; `cap_bytes` is a
+  // different RPC's column and made this meter read 0% at every fill level.
+  const usedPct = store?.total_bytes ? Math.min(100, Math.round((store.used_bytes / store.total_bytes) * 100)) : 0;
   const mailPct = mail?.cap ? Math.min(100, Math.round((mail.sent / mail.cap) * 100)) : 0;
 
   return (
