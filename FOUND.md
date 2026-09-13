@@ -5,6 +5,47 @@ Claude Cowork decides what becomes work.
 
 ---
 
+## THE PUBLIC-PROFILE LEAK CHECK READ 37% OF THE PAYLOAD — lane C, 2026-09-13
+
+**`scripts/adversary-probe.mjs` § A3c asks whether the endpoint every stranger
+can call hands out a customer’s email address, a customer’s phone number, the
+platform’s private note, a payment handle or the detailer’s alert list. It read
+`(await r.text()).slice(0, 4000)`.**
+
+**MEASURED: the demo profile is 10,781 characters, so 6,781 — 62.9% — had never
+been examined.** And the unread region is not arbitrary. These 43 keys exist
+ONLY past character 4,000: `pay_venmo`, `pay_zelle`, `pay_paypal`, `pay_cashapp`,
+`pay_cash`, `pay_other`, `settings`, `testimonials`, `author`, `quote`,
+`travel_zones`, `google_review_url`, `yelp_review_url` and thirty more.
+
+**SO THE CHECK HUNTING FOR A LEAKED PAYMENT HANDLE WAS READING THE ONLY PART OF
+THE PAYLOAD WITH NO PAYMENT FIELDS IN IT.** Every `pay_*` key sits at roughly
+character 5,000, permanently outside its reach.
+
+**AND IT IS THE SECOND TIME THIS EXACT BUG HAS BEEN FOUND IN THIS ONE FILE.** The
+`slice(0, 600)` above `fn()` was fixed earlier the same day, for a booking
+receipt; this one survived that fix by thirty lines. **A truncation added for
+DISPLAY becomes a truncation of the EXAMINATION the moment somebody asserts on
+the variable.** Keep the full body and slice only where it is printed.
+
+**A SECOND HOLE BESIDE IT: FIVE NEGATIVES AND NO POSITIVE.** An unknown slug
+answers 200 with the body `null` — four characters, containing none of the five
+strings — so all five went green over an answer carrying no profile at all.
+Proven by pointing it at `no-such-slug-xyz`: `4 chars, slug (none)`, five greens.
+
+**FIXED AND BASELINED DECISIVELY.** `rest()` now returns `full` as `fn()` already
+did, every leak assertion reads `full`, and a parsed positive control requires
+`business.slug === "demo-detail"` before any absence is claimed. The proof: a
+sixth probe key, `pay_venmo`, goes **red** under the repaired read and **green**
+the instant the 4,000-character slice is put back — same key, same payload, same
+run. **There is no actual leak**: all five pass over the whole 10,781 characters
+now, which is the first time that has ever been true.
+
+**AND ONE MISTAKE WORTH KEEPING VISIBLE:** the positive control’s first version
+asserted the SPELLING `"slug":"demo-detail"` and failed on a correct payload,
+because PostgREST emits `"slug": "demo-detail"` with a space. Trap (h), committed
+inside the check written to close a trap. It parses and reads the value now.
+
 ## `check-deployed` CALLED AN EDITED `create-booking` CURRENT — lane C, 2026-09-13
 
 **The one tool that answers "is what is RUNNING what is in the repo?" could not

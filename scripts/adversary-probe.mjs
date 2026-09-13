@@ -49,9 +49,13 @@ const fn = async (name, body = {}) => {
   const full = await r.text();
   return { status: r.status, text: full.slice(0, 600), full };
 };
+// **`full` HERE TOO, FOR THE SAME REASON `fn` GREW ONE.** Every content
+// assertion reads `full`; `text` is for printing. A truncated body is a body
+// that was not examined, and the examination is the whole job.
 const rest = async (path) => {
   const r = await fetch(`${URL_}/rest/v1/${path}`, { headers: anonHeaders });
-  return { status: r.status, text: (await r.text()).slice(0, 600) };
+  const full = await r.text();
+  return { status: r.status, text: full.slice(0, 600), full };
 };
 
 // WHAT A REFUSAL MAY NOT CONTAIN. A stack frame, a file path, a SQL
@@ -108,7 +112,7 @@ console.log("\nA3: a stranger with no session");
     const r = await fn(name, { action: "list" });
     check(`${name} refuses an anonymous caller`, r.status === 401 || r.status === 403 || r.status === 404,
       `${r.status} ${r.text}`);
-    const l = leaks(r.text);
+    const l = leaks(r.full ?? r.text);
     check(`${name}'s refusal says nothing else`, l.length === 0, l.join(", ") + " — " + r.text);
   }
 
@@ -145,7 +149,7 @@ console.log("\nA3b: the tables, with the key a browser already has");
   for (const t of TABLES) {
     const r = await rest(`${t}?select=*&limit=2`);
     let rows = null;
-    try { rows = JSON.parse(r.text); } catch { /* an error body */ }
+    try { rows = JSON.parse(r.full); } catch { /* an error body */ }
     const empty = Array.isArray(rows) ? rows.length === 0 : false;
     if (r.status === 200) reached++;
     check(`${t} returns nothing to a stranger`, r.status === 401 || r.status === 403 || empty,
@@ -169,7 +173,7 @@ console.log("\nA4: guessing at somebody else's booking");
   const r = await fn("get-booking-receipt", { id: bogus });
   check("a made-up booking id is refused", r.status === 404 || r.status === 400 || /not found/i.test(r.text),
     `${r.status} ${r.text}`);
-  check("and the refusal does not describe the row", leaks(r.text).length === 0, r.text);
+  check("and the refusal does not describe the row", leaks(r.full ?? r.text).length === 0, r.text);
 
   // A REAL id belonging to somebody else is the same request with a
   // different uuid, and it MUST come back — that is the feature. What must
@@ -207,8 +211,33 @@ console.log("\nA3c: what the public profile hands out");
   const r = await fetch(`${URL_}/rest/v1/rpc/get_public_business_profile`, {
     method: "POST", headers: anonHeaders, body: JSON.stringify({ p_slug: "demo-detail" }),
   });
-  const text = (await r.text()).slice(0, 4000);
+  // **THE WHOLE BODY, NOT THE FIRST 4,000 CHARACTERS — 2026-09-13, and this is
+  // the SECOND time this exact bug has been found in this file.** The slice
+  // above `fn` was fixed the same day for a booking receipt; this one survived
+  // it by thirty lines.
+  //
+  // MEASURED: the demo profile is **10,781 characters**, so `slice(0, 4000)` left
+  // **6,781 — 62.9% — unread**. The five checks below look for a customer’s email
+  // address and phone number in a payload a stranger can fetch, and two thirds of
+  // it had never been looked at. Services, hours, branding and the FAQ come
+  // first; reviews and everything after them fell off the end.
+  const full = await r.text();
+  const text = full;
   check("the public profile answers a stranger", r.status === 200, `${r.status}`);
+  // **AND A POSITIVE CONTROL, BECAUSE FIVE NEGATIVES SHARE ONE FAILURE MODE.**
+  // An unknown slug answers **200 with the body `null`** — proven by
+  // `tenant-isolation` test 8 — and the word "null" contains none of the five
+  // strings below, so all five would go green over an answer that carried no
+  // profile at all. This asserts the probe got the demo business’s own profile
+  // before anything is claimed about what is missing from it.
+  // **PARSED, NOT GREPPED.** The first version of this control asserted the
+  // spelling `"slug":"demo-detail"` and failed on a payload that was correct -
+  // PostgREST emits `"slug": "demo-detail"`, with a space. Trap (h), committed
+  // inside the check written to close a trap. Read the VALUE.
+  let profile = null; try { profile = JSON.parse(full); } catch { /* not JSON */ }
+  check("and it is the demo business own profile, so the five below read a real payload",
+    profile?.business?.slug === "demo-detail" && full.length > 1000,
+    `${full.length} chars, slug ${profile?.business?.slug ?? "(none)"}`);
   // IT IS A PUBLIC PAGE, so a name, a price and an address are meant to be
   // here. What must never be: anybody's customer, anybody's booking, an
   // email that is not the business's own, or a platform column.
