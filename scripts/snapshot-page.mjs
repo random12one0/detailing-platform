@@ -33,7 +33,7 @@ import { createRequire } from "node:module";
 import { mkdirSync, writeFileSync } from "node:fs";
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
-const BASE = "http://localhost:5173";
+const BASE = process.env.BASE || "http://localhost:5173";
 const argOf = (f, d = null) => {
   const hit = process.argv.find((a) => a.startsWith(`--${f}=`));
   return hit ? hit.slice(f.length + 3) : d;
@@ -149,3 +149,24 @@ const name = `${cleaned.replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "") || 
 writeFileSync(`${OUT}/${name}`, out, "utf8");
 console.log(`${OUT}/${name}  (${(out.length / 1024).toFixed(0)} KB, ${WIDTH}px)`);
 if (problems.length) console.log(`page errors: ${problems.join(" | ")}`);
+
+// **A SNAPSHOT OF NOTHING USED TO EXIT 0 - measured 2026-09-13, lane C.** Run
+// against a production bundle whose `app/src` and `app/public` were blanked to
+// zero bytes, this printed `snapshots/pricing-1440.html  (0 KB, 1440px)` and
+// exited 0. Same line shape as the good run, same exit code, and the only
+// difference was a number a reader had to notice - so anything calling this in
+// a chain could not tell a frozen page from a frozen blank.
+//
+// The floor is deliberately a hair above zero rather than a size: any real
+// page here is over a hundred kilobytes, and picking a kilobyte threshold
+// would be a magic number that goes stale the first time a small page is
+// added. Empty is empty.
+// **AND THE TEST IS THE TEXT, NOT THE BYTES.** The first version of this
+// guard measured the markup and passed: the blank build still emits
+// `<div id="root"></div>`, which is 22 non-space characters of nothing at all.
+// Every page this tool is pointed at has words on it; a blank one has none.
+const captured = body.replace(/<[^>]*>/g, "").replace(/\s+/g, "").length;
+if (!captured) {
+  console.log(`NOTHING WAS CAPTURED from ${BASE}${PATH} - the page rendered no text. That is a broken run, not a snapshot.`);
+  process.exit(1);
+}

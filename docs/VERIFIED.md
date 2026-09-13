@@ -640,6 +640,40 @@ checks to RETIRE rather than findings — see the handover in
 its `read()` with `() => ""` and count what stays green. Eighteen hollow checks
 cost one edit to find.
 
+## 1i · THE TWELVE BROWSER-DRIVEN SCRIPTS, BLIND-TESTED — lane C, 2026-09-13, at `873d7a1`
+
+**The last unknown in `docs/check-audit-2026-09-13.md` is closed.** Full account:
+`docs/blind-browser-2026-09-13.md`.
+
+**How, and it needs no dev server from anybody:** `git worktree` at `HEAD`,
+`npx vite build`, `npx vite preview --port 4173` — and a second worktree with
+`app/src` and `app/public` blanked to zero bytes, built and served on **4174**.
+Both at once. A check green on both is green over nothing. **Lane B committed
+twice and saved four files while this ran and disturbed nothing**, because a
+worktree at a commit cannot be edited.
+
+| what was proven | number | invalidated by a change to |
+|---|---|---|
+| **8 of 12 go red on a page that renders nothing** — `e2e-booking`, `two-detailers`, `spanish-dom`, `final-pass`, `sweep-booking-steps`, `shoot-dashboard`, `shoot-admin`, `shoot-manage` | all exit 1 | the script itself |
+| **`sweep-widths` was blind: 5 × `clean` over an empty page** — `book · step 1`, `landing`, `pricing`, `terms`, `privacy` | now 5 × `NOT MEASURED`; the run prints `N surface(s) measured, N element(s) probed` | scripts/sweep-widths.mjs |
+| **`admin-contrast` was blind AGAINST THE LIVE PRODUCT**: all five selectors renamed out of `app/src`, 0 pixels sampled, sentinel `99:1` printed as *"clear of the floor"* | rebuilt — **13 pixels measured, worst 5.16:1**, over the sign-in card and all five tabs | scripts/admin-contrast.mjs, app/src/admin/** |
+| **`snapshot-page` wrote a 0 KB file and exited 0** | now exits 1 on zero captured text | scripts/snapshot-page.mjs |
+| **`sweep-booking-steps` threw on a page that was perfect** and killed every subject below it | `.bk-actions` added; the unsubscribe page and the multi-vehicle section are measured again | scripts/sweep-booking-steps.mjs, app/src/book/UnsubscribePage.jsx |
+| **`settle()` did not know the booking flow's spinner** — `.bk-spinner`, seven components — so `book · step 1` measured 3 elements and 0 text at every width, forever | `.spinner, .bk-spinner, [data-loading]` in all three copies; `book · step 1` now measures 168 elements | scripts/sweep-widths.mjs, scripts/shoot-dashboard.mjs, scripts/shoot-admin.mjs, app/src/book/** |
+| **`source-guard` discredited a run it could not have affected** — *"the failures are very likely this rather than a defect"* over a frozen bundle | gated on `BASE`; prints **THIS RUN STANDS** off the dev server | scripts/source-guard.mjs |
+
+**THE CAVEAT IS PART OF THE RESULT: seven of the eight that passed were saved by
+the sign-in form**, not by an anchor anybody wrote — a blank page has no
+`input[type=email]`. This instrument answers *"can it be green over nothing"*.
+It does not answer *"can it be green over the WRONG screen"*, which is trap (c).
+
+**AND IT FOUND ONE PRODUCT DEFECT, LANE B'S:** booking step 4, *"Pick a place"*,
+is **10px over the screen at 392x844** — W16 not met — measured against the
+frozen bundle so no in-flight edit can explain it. Every other step fits at
+every width.
+
+---
+
 ## 1h · THE BOOKING LOOP, END TO END — lane C, 2026-09-13, at `36dd489`
 
 **`scripts/e2e-booking.mjs`: 84 passed, 0 failed, 6 skipped**, both tenants,

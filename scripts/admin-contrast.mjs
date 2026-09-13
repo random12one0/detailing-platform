@@ -2,24 +2,46 @@
 //
 // `tests/design-contrast.test.mjs` and `scripts/accent-sweep.mjs` both measure
 // TOKEN PAIRS — a colour against the ground token it is supposed to sit on.
-// Neither can see what a LIT CORNER does, because the light is a gradient over
-// the token and the token is what they read.
-//
-// That matters here for one specific reason. `theme.css` caps the dashboard's
-// two lights at 7% / 5.5%, and its own note shows the arithmetic: Money's dim
-// and losing bars measure 3.02:1 against the lit corner on a pure-white
-// accent, so the margin over the 3:1 non-text floor is 0.02 and it is spent.
-// **The back office copied that cap and should not have** — there is no tenant
-// accent on this screen and no Money chart, so the elements that set the limit
-// do not exist here. Raising the light is safe, but "is safe" is a claim, and
-// a claim about contrast is worth exactly as much as the measurement behind it.
-//
-// So this samples the REAL rendered pixels at the brightest point of the
-// ground, behind the glass, and computes the ratio the way the standard does.
+// Neither can see what a GRADIENT does, because the gradient is painted over
+// the token and the token is what they read. That is the gap this fills, and
+// `docs/BAR.md` states it as a rule: a gradient behind text is a NEW GROUND
+// and every ratio has to be taken again.
 //
 //   node --env-file=.env scripts/admin-contrast.mjs
+//   BASE=http://127.0.0.1:4173 node scripts/admin-contrast.mjs
 //
-// Needs the dev server and a platform-admin login (it reuses the shooter's).
+// Needs a server — the dev server, or a built bundle served on `BASE` — and a
+// platform-admin login (it makes and drops its own).
+//
+// ── THIS SCRIPT WAS BLIND AND PRINTED `clear of the floor` FOR IT ────────────
+//
+// Measured 2026-09-13, lane C, against the production bundle at `873d7a1`.
+// All five selectors it sampled — `.pa-lead .pa-lab`, `.pa-fig .pa-lab`,
+// `.pa-health .pa-quiet`, `.pa-sub` and `.pa-lab2` — contributed ZERO spots.
+// `git grep` finds `pa-lead`, `pa-fig`, `pa-health`, `pa-lab2` and `pa-ground`
+// nowhere in `app/src` at all. It sampled no pixels, printed no rows, kept its
+// sentinel `worst = { label: "", r: 99 }` and exited 0 under the line
+// `worst:  at 99.00:1`.
+//
+// **99:1 IS NOT A CONTRAST RATIO — 21:1 is the most two colours can reach — so
+// the summary line was itself the tell, and nobody had read it.**
+//
+// **AND THE LIT GROUND IT WAS WRITTEN FOR IS GONE.** The original header was
+// about pausing drifting lights at their brightest frame. `admin.css` paints a
+// flat `background: var(--ink-0)`; there is no `.pa-ground` and no `b` inside
+// one, so the `addStyleTag` that paused them matched nothing either. What is
+// left worth measuring is `.pa-card`'s `linear-gradient(180deg, --ink-2,
+// --ink-1)` under the two quiet roles, `.pa-lab` and `.pa-sub`.
+//
+// **THREE ANCHORS, because it failed by finding nothing rather than by getting
+// a sum wrong.** A selector matching nothing anywhere is red; zero pixels
+// sampled is red; and the subject count per screen is printed on every run,
+// pass or fail.
+//
+// **AND IT WALKS THE SIGN-IN CARD AS WELL AS THE FIVE TABS**, because the
+// first version of anchor 1 exited 1 against a healthy product: `.pa-lab`
+// renders on the sign-in card and inside a detailer's record, and the five
+// resting tabs carry zero of it. Right failure, wrong scope.
 
 import { createRequire } from "node:module";
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
@@ -28,7 +50,6 @@ import { dropAdmin, makeAdmin } from "./admin-account.mjs";
 const BASE = process.env.BASE || "http://localhost:5173";
 const URL_ = process.env.SUPABASE_URL, KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!URL_ || !KEY) { console.error("Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY"); process.exit(1); }
-const H = { apikey: KEY, Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" };
 // Made for this run, removed at the end of it — roadmap 8.2. The fixed
 // password that used to be on this line was a published credential for the
 // account that can read every tenant; `scripts/admin-account.mjs` has the
@@ -51,23 +72,13 @@ const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 1920, height: 1080 } });
 const page = await ctx.newPage();
 await page.goto(`${BASE}/admin`, { waitUntil: "domcontentloaded" });
-await page.fill("input[type=email]", EMAIL);
-await page.fill("input[type=password]", PW);
-await page.click("form button.pa-btn");
-await page.waitForTimeout(3000);
-
-// **THE ANIMATION IS PAUSED AT THE BRIGHTEST FRAME.** The lights drift, so a
-// screenshot catches whatever moment it lands on — and the worst case for
-// contrast is the moment the light is closest to the text, not the average.
-await page.addStyleTag({ content: ".pa-ground b { animation-delay: -24s !important; animation-play-state: paused !important; }" });
-await page.waitForTimeout(400);
+await page.waitForTimeout(900);
 
 // **THE BROWSER DECODES ITS OWN SCREENSHOT.** Reading pixels needs a PNG
 // decoder, and this repo has four dependencies; adding a fifth to check a
 // colour would be the wrong trade. The page already has one — canvas — so the
 // shot goes back in as a data URL and `getImageData` reads it there.
-const shotB64 = (await page.screenshot()).toString("base64");
-const sample = async (points) => page.evaluate(async ({ b64, pts }) => {
+const sample = async (b64, points) => page.evaluate(async ({ b64, pts }) => {
   const img = new Image();
   await new Promise((ok, no) => { img.onload = ok; img.onerror = no; img.src = "data:image/png;base64," + b64; });
   const c = document.createElement("canvas");
@@ -79,52 +90,104 @@ const sample = async (points) => page.evaluate(async ({ b64, pts }) => {
     const d = ctx2.getImageData(p.x, p.y, 1, 1).data;
     return [d[0], d[1], d[2]];
   });
-}, { b64: shotB64, pts: points });
+}, { b64, pts: points });
 
 // Where the quiet text actually is, and what is behind it. Sampling the
 // BACKGROUND beside a run of text rather than the glyphs themselves: an
 // antialiased glyph edge is a blend of both and would flatter the result.
-const spots = await page.evaluate(() => {
-  const out = [];
-  const pick = (sel, label) => {
-    const el = document.querySelector(sel);
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    out.push({ label, color: getComputedStyle(el).color, x: Math.round(r.right + 6), y: Math.round(r.top + r.height / 2) });
-  };
-  pick(".pa-lead .pa-lab", "the lead's label");
-  pick(".pa-fig .pa-lab", "a figure's label");
-  pick(".pa-health .pa-quiet", "the platform health line");
-  pick(".pa-sub", "a detailer's sub-line");
-  pick(".pa-lab2", "a section label");
-  return out;
-});
-
+const QUIET = [".pa-lab", ".pa-sub"];
+const counts = Object.fromEntries(QUIET.map((q) => [q, 0]));
 const rgb = (css) => css.match(/\d+/g).slice(0, 3).map(Number);
-let worst = { label: "", r: 99 };
-console.log("\nthe quietest text on the screen, against the pixels actually behind it");
-console.log("(the lights paused at their brightest frame, 1920x1080)\n");
-const grounds = await sample(spots.map((s) => ({ x: s.x, y: s.y })));
-spots.forEach((sp, i) => {
-  const bg = grounds[i];
-  if (!bg) return;
-  const r = ratio(rgb(sp.color), bg);
-  if (r < worst.r) worst = { label: sp.label, r };
-  console.log(`  ${sp.label.padEnd(30)} ${r.toFixed(2)}:1   text ${sp.color}  ground rgb(${bg.join(",")})`);
-});
+const FLOOR = 4.5;
+let worst = null, measured = 0, offscreen = 0;
+
+async function screen(name) {
+  const b64 = (await page.screenshot()).toString("base64");
+  const found = await page.evaluate((sels) => {
+    const out = [], c = {};
+    for (const sel of sels) {
+      const all = [...document.querySelectorAll(sel)];
+      c[sel] = all.length;
+      for (const el of all) {
+        // Only what is on screen: `page.screenshot()` without `fullPage` is the
+        // viewport, so a spot below the fold samples out of bounds — and the
+        // old code dropped an out-of-bounds sample in silence.
+        const r = el.getBoundingClientRect();
+        if (!r.width || !r.height) continue;
+        if (r.top < 0 || r.bottom > innerHeight) continue;
+        const x = Math.round(r.right + 6), y = Math.round(r.top + r.height / 2);
+        if (x >= innerWidth) continue;
+        out.push({ sel, label: (el.textContent || "").trim().slice(0, 22), color: getComputedStyle(el).color, x, y });
+      }
+    }
+    return { out, c };
+  }, QUIET);
+  for (const q of QUIET) counts[q] += found.c[q];
+  const grounds = await sample(b64, found.out.map((s) => ({ x: s.x, y: s.y })));
+  found.out.forEach((sp, k) => {
+    const bg = grounds[k];
+    if (!bg) { offscreen++; return; }
+    measured++;
+    const r = ratio(rgb(sp.color), bg);
+    if (!worst || r < worst.r) worst = { label: `${name} · ${sp.sel} · ${sp.label}`, r };
+    if (r < FLOOR) console.log(`  BELOW  ${name.padEnd(10)} ${sp.sel.padEnd(8)} ${sp.label.padEnd(24)} ${r.toFixed(2)}:1   text ${sp.color}  ground rgb(${bg.join(",")})`);
+  });
+  console.log(`  ${name.padEnd(10)} ${QUIET.map((q) => `${q}=${found.c[q]}`).join(" ")}  →  ${found.out.length} on screen`);
+}
+
+console.log("\nthe quietest text in the back office, against the pixels actually behind it");
+console.log("(the sign-in card and every tab, at rest, 1920x1080)\n");
+
+await screen("Sign in");
+
+await page.fill("input[type=email]", EMAIL);
+await page.fill("input[type=password]", PW);
+await page.click("form button.pa-btn");
+await page.waitForTimeout(3000);
+
+const TABS = await page.$$eval(".pa-tab", (els) => els.map((e) => (e.textContent || "").trim()));
+if (!TABS.length) {
+  console.error("NO TABS — `.pa-tab` matched nothing, so the sign-in never went through.");
+  await browser.close(); await dropAdmin(URL_, KEY, acct.id);
+  process.exit(1);
+}
+for (const [i, name] of TABS.entries()) {
+  if (i) { await page.click(`.pa-tab >> nth=${i}`); await page.waitForTimeout(1400); }
+  await screen(name);
+}
+
 await browser.close();
-// BEFORE THE EXIT BELOW, NOT AFTER IT — this script ends with a `process.exit`
-// on a failure, and a teardown written under it would run on a pass and never
-// on a fail, leaving the all-seeing account behind on exactly the runs
-// somebody is going to re-run several times.
+// BEFORE THE EXITS BELOW, NOT AFTER THEM — this script ends with a
+// `process.exit` on a failure, and a teardown written under it would run on a
+// pass and never on a fail, leaving the all-seeing account behind on exactly
+// the runs somebody is going to re-run several times.
 // ponytail: no try/finally around the browser section, so a THROW above this
 // line leaves the admin row standing until somebody runs this or shoot-admin
 // again — both re-create and re-drop it. Wrap the whole script if that ever
 // stops being true, which it will the day something else reads that row.
 await dropAdmin(URL_, KEY, acct.id);
 
-const FLOOR = 4.5;
-console.log(`\nworst: ${worst.label} at ${worst.r.toFixed(2)}:1 against a ${FLOOR}:1 floor`);
+// **ANCHOR 1 — A SELECTOR THAT MATCHES NOTHING ANYWHERE IS THE FAILURE, NOT A
+// QUIET PASS.** This is exactly how the script went blind: five selector
+// families were renamed in `app/src` and nothing here noticed.
+const dead = QUIET.filter((q) => !counts[q]);
+if (dead.length) {
+  console.log(`\nNO SUBJECTS for ${dead.join(", ")} on any screen — the back office renamed them; fix the list, do not delete the check.`);
+  process.exit(1);
+}
+// **ANCHOR 2 — A PIXEL THAT WAS NEVER READ IS NOT A PASS.** The old code did
+// `if (!bg) return;` and said nothing, so a screenshot that came back the
+// wrong size would have emptied the whole run in silence.
+if (offscreen) console.log(`\n${offscreen} spot(s) fell outside the screenshot and were not measured.`);
+if (!measured) {
+  console.log("\nZERO PIXELS SAMPLED — the screenshot and the layout disagree. That is a broken instrument, not a pass.");
+  process.exit(1);
+}
+
+// **ANCHOR 3 — THE COUNT IS PRINTED WHETHER IT PASSES OR FAILS**, and there is
+// no sentinel left to survive an empty run: `worst` starts null and is only
+// ever set from a pixel that was actually read.
+console.log(`\n${measured} measured · ${QUIET.map((q) => `${q}=${counts[q]}`).join(" ")} · worst: ${worst.label} at ${worst.r.toFixed(2)}:1 against a ${FLOOR}:1 floor`);
 if (worst.r < FLOOR) {
   console.log("BELOW THE FLOOR — the ground is too bright for the text on it.");
   process.exit(1);

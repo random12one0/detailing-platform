@@ -17,6 +17,28 @@ so have ten of the thirty-three scripts that assert anything. The twelve that
 drive a browser are untested BY THE INSTRUMENT AS WELL AS BY THE AUDIT, because
 `blind-run` cannot start a dev server and lane B owns the one that exists.**
 
+> ## ⚠ § 2 IS CLOSED — `docs/blind-browser-2026-09-13.md`, later the same day
+>
+> **The blocker was never "we have no instrument". It was "lane B owns port
+> 5173", which is a resource, and a resource can be duplicated.** Lane C built
+> the production bundle from its own `git worktree` at `873d7a1` and served it
+> on 4173, then blanked `app/src` and `app/public` in a second worktree, rebuilt,
+> and served THAT on 4174. All twelve then ran against both, on lane C's
+> schedule, against a subject lane B could not disturb.
+>
+> **THREE OF THE TWELVE COULD NOT FAIL.** `sweep-widths` printed `clean` five
+> times over an empty page; `admin-contrast` printed *"clear of the floor"*
+> while sampling **zero pixels against the REAL product** — all five of its
+> selectors had been renamed out of `app/src` and its sentinel `99:1` is not a
+> ratio any two colours can reach; `snapshot-page` wrote a 0 KB file and exited
+> 0. A fourth, `sweep-booking-steps`, threw on a page that was perfect and
+> **silently dropped every subject below it.** All four fixed and baselined.
+>
+> **AND THE CAVEAT IS PART OF THE RESULT: seven of the eight that passed were
+> saved by the sign-in form**, not by an anchor anybody wrote. A blank page has
+> no `input[type=email]`. The three that were caught are the three that reach a
+> public page first.
+
 ---
 
 ## 1 · WHAT **IS** COVERED, SO THE GAP IS THE REMAINDER AND NOT A GUESS
@@ -184,6 +206,6 @@ nobody here has looked up. **Look it up before raising that limit.**
 | suites in `tests/` | 58 — **all blind-tested** |
 | scripts carrying assertions | 33 |
 | scripts run and read this session | 9 |
-| scripts that need a browser and a still tree | **12 — the gap** |
+| scripts that need a browser and a still tree | **12 — CLOSED 2026-09-13**, `docs/blind-browser-2026-09-13.md`: 3 were blind, 1 lost its subjects, 8 can fail |
 | scripts with assertions, no browser, never baselined | **0** — `adversary-probe` was the last, and it was blind: 47 of its 50 checks stayed green on a garbage key |
 | suites whose subject the blanking could not reach | 2, both recorded, both anchored another way |

@@ -50,7 +50,7 @@ const SIZES = (args.length ? args : ["1920x1080", "1440x900", "768x1024", "392x8
   const [width, height] = s.split("x").map(Number);
   return { width, height };
 });
-const BASE = "http://localhost:5173";
+const BASE = process.env.BASE || "http://localhost:5173";
 const SLUG = "demo-detail";
 const SHOTS = process.argv.find((a) => a.startsWith("--shots="))?.slice(8) ?? "";
 // CLAUDE.md § Design: every width is checked in the normal path AND ?lite=1.
@@ -341,10 +341,24 @@ for (const size of SIZES) {
     }
     await p.goto(url, { waitUntil: "domcontentloaded" });
     // Every landing state these four URLs can reach: a card (a step, the
-    // member page), a ruled plan row, the empty-plans note, or the not-found
-    // panel. A missing one here reads as a hang, which is how the member
-    // page's first-render crash presented.
-    await p.waitForSelector(".bk-card, .bk-plan-row, .bk-note, .bk-center h1", { timeout: 30000 });
+    // member page), a ruled plan row, the empty-plans note, the not-found
+    // panel, or the unsubscribe page's own buttons. A missing one here reads
+    // as a hang, which is how the member page's first-render crash presented.
+    //
+    // **`.bk-actions` WAS MISSING AND IT KILLED THE REST OF THE RUN - measured
+    // 2026-09-13, lane C, against the production bundle at `873d7a1`.** The
+    // opt-out page renders `.bk-center` with an `h2`, not an `h1`, so none of
+    // the four matched, this threw at 30s, and **every subject below it - the
+    // multi-vehicle section and everything after - was never measured.** The
+    // page itself was perfect. A check that dies partway prints an exit code
+    // and nothing that says which subjects it never reached.
+    //
+    // **AND `.bk-center` ALONE IS THE WRONG FIX**, which is why it is not the
+    // one taken: `UnsubscribePage.jsx:123` renders `.bk-center > .bk-spinner`
+    // while it is still loading, so waiting on the container would go green on
+    // exactly the hang this selector exists to catch. `.bk-actions` is the
+    // settled state and only the settled state.
+    await p.waitForSelector(".bk-card, .bk-plan-row, .bk-note, .bk-center h1, .bk-actions", { timeout: 30000 });
     await settle(p, 1600);
     const old = page;
     // `say` measures whatever `page` points at, so point it here for one call

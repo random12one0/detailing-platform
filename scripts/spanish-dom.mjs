@@ -42,7 +42,7 @@ import { watchSource, reportSourceMoved } from "./source-guard.mjs";
 // Playwright lives in `app/node_modules`, and every browser script in this
 // repo reaches it the same way — there is no dependency at the repo root.
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
-const BASE = "http://localhost:5173";
+const BASE = process.env.BASE || "http://localhost:5173";
 const EMAIL = "demo@detailplatform.com";  // mail-sink: a dashboard login, never a recipient
 const PASSWORD = "demo123";
 

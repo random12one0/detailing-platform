@@ -119,7 +119,7 @@ const widthMs = [];
 const FULL_WIDTHS = new Set([1920, 320]);
 // True while this width should walk the long tail as well as the core.
 let deep = true;
-const BASE = "http://localhost:5173";
+const BASE = process.env.BASE || "http://localhost:5173";
 // The verification heights, not the phone's. 1080 is his monitor; 900 is the
 // laptop and the shortest screen this product is checked against.
 //
@@ -348,7 +348,17 @@ const settle = async (page, cap = 2000) => {
       // shoot-dashboard.mjs sent the owner a photograph of a loading line
       // because of exactly this (2026-09-05). The attribute costs no pixels
       // and every browser script in this repo waits for it now.
-      if (document.querySelector(".spinner, [data-loading]")) { last = now; continue; }
+      // **`.bk-spinner` WAS MISSING AND THE BOOKING PAGE IS THE ONE THAT USES
+      // IT - measured 2026-09-13, lane C.** The customer-facing flow spells its
+      // loading mark `bk-spinner` in seven places (`BookingPage`, `StepWhen`,
+      // `PlansPage`, `PlanMemberPage`, `ManageBookingPage`, `UnsubscribePage`),
+      // and a CSS-animated spinner mutates NOTHING, so the DOM went quiet in
+      // 130ms and this returned on a page holding three elements and no text.
+      // `sweep-widths` then printed `book . step 1  clean` at all five widths,
+      // for every run this repo has ever done. The comment above is about
+      // exactly this failure and the fix it chose never reached the booking
+      // flow.
+      if (document.querySelector(".spinner, .bk-spinner, [data-loading]")) { last = now; continue; }
         const busy = document.getAnimations().some((a) => {
           if (a.playState !== "running") return false;
           const t = a.effect && a.effect.getComputedTiming && a.effect.getComputedTiming();
@@ -466,6 +476,11 @@ let signedIn = null;
 
 const browser = await chromium.launch();
 let found = 0;
+// **THE RUN'S OWN SUBJECT COUNT.** `docs/START-HERE.md` s 4: count subjects
+// every run rather than merely matching. `found` counts PROBLEMS, so on a good
+// day it is zero and says nothing at all about whether anything was looked at.
+// These two say how much there was to look at.
+let probed = 0, surfaces = 0;
 let narrow = 0;   // desktop widths whose content column is still phone-sized
 
 for (const w of SIZES) {
@@ -526,6 +541,29 @@ for (const w of SIZES) {
       found++;
       return;
     }
+    // **(3) `clean` OVER A BLANK PAGE - measured 2026-09-13, lane C.** This
+    //     script was run against a production bundle built from a tree whose
+    //     `app/src` and `app/public` were blanked to zero bytes: an empty
+    //     `#root`, no stylesheet, nothing on screen. It printed
+    //     `book . step 1  clean`, `landing  clean`, `pricing  clean`,
+    //     `terms  clean` and `privacy  clean` - FIVE green verdicts over
+    //     nothing - before the sign-in wait finally threw. `CHECK` is a
+    //     FINDER, so no elements means no findings means the word `clean`,
+    //     and the only lines that told the truth were the three named
+    //     sub-checks that count their own rungs and rows.
+    //
+    //     So `say` counts its own subject now. A surface with no elements and
+    //     no text in it was not measured, and saying so costs one line.
+    const seen = await target.evaluate(() => {
+      const r = document.getElementById("root") || document.body;
+      return { els: r.querySelectorAll("*").length, text: (r.innerText || "").trim().length, peek: r.innerHTML.slice(0, 120).replace(/\s+/g, " ") };
+    });
+    if (!seen.els || !seen.text) {
+      console.log(`${label.padEnd(24)} NOT MEASURED - the page rendered nothing (${seen.els} elements, ${seen.text} characters) :: ${seen.peek || "(empty)"}`);
+      found++;
+      return;
+    }
+    probed += seen.els; surfaces++;
     const rows = await target.evaluate(CHECK);
     found += rows.length;
     console.log(`${label.padEnd(24)} ${rows.length ? "\n  " + rows.join("\n  ") : "clean"}`);
@@ -1675,5 +1713,10 @@ if (narrow && !DESKTOP_SPEC_BUILT) {
 // state that never opened has no geometry to be wrong, so it reads as a pass:
 // the baseline run reloaded, lost two states and still printed `clean`.
 // A false clean is worse than a failure, because nothing makes anybody look.
+console.log(`\n${surfaces} surface(s) measured, ${probed} element(s) probed`);
+// **AND ZERO SURFACES IS A BROKEN INSTRUMENT, NOT A CLEAN RUN.** A run that
+// measured nothing has to say so louder than a run that measured everything
+// and found nothing.
+if (!surfaces) { console.log("NOTHING WAS MEASURED - that is a broken run, not a pass."); found++; }
 await reportSourceMoved(changedSince, !found);
 process.exit(found ? 1 : 0);

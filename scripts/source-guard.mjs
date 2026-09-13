@@ -135,6 +135,24 @@ export function watchSource() {
  * somebody look. A false `clean` is this repo's oldest and most expensive
  * failure mode wearing a green tick.
  */
+// **A FROZEN BUILD CANNOT HOT-RELOAD, AND SAYING IT MIGHT HAVE IS WORSE THAN
+// SAYING NOTHING - measured 2026-09-13, lane C.** `sweep-booking-steps` was run
+// against a production bundle built from a separate git worktree and served on
+// its own port. Lane B saved `components/Walkthrough.jsx` while it ran, and
+// this printed *"the failures are very likely this rather than a defect"* over
+// a real finding: booking step 4 is 10px over the screen at 392x844. **A
+// bundle is bytes on disk; no edit in `app/src` reaches it.**
+//
+// So the warning is gated on WHAT WAS UNDER TEST. `BASE` pointing anywhere but
+// the dev server means the subject was frozen, and the edit is then a fact
+// worth printing and nothing more. The dev server is still the default and
+// still gets the full warning, because that is where the fault is real.
+//
+// The general shape, which is this file's own subject: **a guard that names a
+// cause it cannot verify spends its credibility, and the run it discredits is
+// the one that found something.**
+const DEV_SERVER = !process.env.BASE || /^https?:\/\/(localhost|127\.0\.0\.1):5173\/?$/.test(process.env.BASE);
+
 export async function reportSourceMoved(changedSince, clean = false) {
   const hits = await changedSince();
 
@@ -153,6 +171,18 @@ export async function reportSourceMoved(changedSince, clean = false) {
 
   if (!hits.length) return false;
   const shown = hits.slice(0, 6).join(", ");
+  if (!DEV_SERVER) {
+    console.error(`
+  · ${hits.length} file(s) under app/src changed during this run — ${shown}`
+      + `${hits.length > 6 ? ` (+${hits.length - 6} more)` : ""}.
+`
+      + `    THIS RUN STANDS: BASE=${process.env.BASE} is not the dev server, so the
+`
+      + `    subject was a frozen build and no edit could reach it. Re-build if you
+`
+      + `    want those changes measured.`);
+    return false;
+  }
   console.error(
     `\n  ⚠ A SOURCE FILE CHANGED WHILE THIS RUN WAS IN FLIGHT.\n`
     + (clean

@@ -36,7 +36,7 @@ const changedSince = watchSource();
 import { mkdirSync } from "node:fs";
 
 const OUT = process.env.OUT || "shots";
-const BASE = "http://localhost:5173";
+const BASE = process.env.BASE || "http://localhost:5173";
 const LITE = process.argv.includes("--lite");
 const WIDTHS = [[1920, 1080], [1440, 900], [768, 1024], [392, 844]];
 const argOf = (f) => { const i = process.argv.indexOf(f); return i > -1 ? process.argv[i + 1] : null; };
@@ -122,7 +122,17 @@ const settle = (page, cap = 2000) => page.evaluate(async (cap) => {
       // shoot-dashboard.mjs sent the owner a photograph of a loading line
       // because of exactly this (2026-09-05). The attribute costs no pixels
       // and every browser script in this repo waits for it now.
-      if (document.querySelector(".spinner, [data-loading]")) { last = now; continue; }
+      // **`.bk-spinner` WAS MISSING AND THE BOOKING PAGE IS THE ONE THAT USES
+      // IT - measured 2026-09-13, lane C.** The customer-facing flow spells its
+      // loading mark `bk-spinner` in seven places (`BookingPage`, `StepWhen`,
+      // `PlansPage`, `PlanMemberPage`, `ManageBookingPage`, `UnsubscribePage`),
+      // and a CSS-animated spinner mutates NOTHING, so the DOM went quiet in
+      // 130ms and this returned on a page holding three elements and no text.
+      // `sweep-widths` then printed `book . step 1  clean` at all five widths,
+      // for every run this repo has ever done. The comment above is about
+      // exactly this failure and the fix it chose never reached the booking
+      // flow.
+      if (document.querySelector(".spinner, .bk-spinner, [data-loading]")) { last = now; continue; }
       const busy = document.getAnimations().some((a) => {
         if (a.playState !== "running") return false;
         const t = a.effect && a.effect.getComputedTiming && a.effect.getComputedTiming();

@@ -87,7 +87,7 @@ if (!URL_ || !SERVICE || !ANON) {
   process.exit(1);
 }
 
-const BASE = "http://localhost:5173";
+const BASE = process.env.BASE || "http://localhost:5173";
 const KEEP = process.argv.includes("--keep");
 const HEADED = process.argv.includes("--headed");
 const ONLY = process.argv.find((a) => a.startsWith("--slug="))?.slice(7);

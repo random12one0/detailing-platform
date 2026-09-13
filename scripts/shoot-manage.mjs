@@ -23,7 +23,7 @@ import { mkdirSync } from "node:fs";
 
 const OUT = process.env.OUT || "shots";
 const TAG = process.env.TAG || "manage";
-const BASE = "http://localhost:5173";
+const BASE = process.env.BASE || "http://localhost:5173";
 const LITE = process.argv.includes("--lite");
 const RESCHEDULE = process.argv.includes("--reschedule");
 const CONFIRM = process.argv.includes("--confirm");

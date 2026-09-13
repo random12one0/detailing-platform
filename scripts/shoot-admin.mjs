@@ -60,7 +60,17 @@ const settle = async (page, cap = 9000) => {
   while (Date.now() < until) {
     await page.waitForTimeout(120);
     const busy = await page.evaluate(() =>
-      !!document.querySelector(".spinner, [data-loading]")
+      // **`.bk-spinner` WAS MISSING AND THE BOOKING PAGE IS THE ONE THAT USES
+      // IT - measured 2026-09-13, lane C.** The customer-facing flow spells its
+      // loading mark `bk-spinner` in seven places (`BookingPage`, `StepWhen`,
+      // `PlansPage`, `PlanMemberPage`, `ManageBookingPage`, `UnsubscribePage`),
+      // and a CSS-animated spinner mutates NOTHING, so the DOM went quiet in
+      // 130ms and this returned on a page holding three elements and no text.
+      // `sweep-widths` then printed `book . step 1  clean` at all five widths,
+      // for every run this repo has ever done. The comment above is about
+      // exactly this failure and the fix it chose never reached the booking
+      // flow.
+      !!document.querySelector(".spinner, .bk-spinner, [data-loading]")
       || document.getAnimations().some((a) => a.playState === "running"
         && a.effect?.getTiming?.().iterations !== Infinity));
     if (!busy) return;

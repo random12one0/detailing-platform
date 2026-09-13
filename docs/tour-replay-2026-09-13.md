@@ -7,6 +7,11 @@ time, but it keeps giving me the tour even though I've already said skip."*
 **Lane: the fault is entirely in `app/src`. Lane C wrote the diagnosis, the
 failing check and the migration; lane B writes the patch.**
 
+**AND THE SHAPE OF THE PATCH IS SETTLED — § 5 IS AN INSTRUCTION, NOT A
+PROPOSAL.** Andrew decided it on 2026-09-13: one dismissal silences all six
+guides, and *Show me around* in the gear menu is the way back in. Nothing in
+§ 5 is an owner decision waiting to be taken.
+
 ---
 
 ## 1 · WHERE THE FACT THAT HE HAS SEEN IT LIVES
@@ -138,6 +143,22 @@ green against a copy of `App.jsx` whose `markTourSeen` writes every name.
 before finishing, so the standing battery is unaffected.
 
 ## 5 · THE PATCH — lane B, `app/src/App.jsx`
+
+### THIS IS DECIDED. IT IS NOT A RECOMMENDATION AND THERE IS NOTHING HERE TO CHOOSE.
+
+**Andrew ruled on it on 2026-09-13, in the prompt that opened the lane C session
+that wrote this line: *"DECIDED, and yes: one dismissal silences all six tours,
+with the gear menu's 'Show me around' as the way back in."*** He had already
+said what the complaint was — he skipped the guide and five more were still
+queued behind the tabs — so the scope of the fix is the scope of the
+complaint, and the way back in is the gear.
+
+**LANE B: BUILD (a), (b) AND (c) BELOW AS WRITTEN.** Do not open a question
+about whether six flags should stay six, do not ask whether the server row is
+wanted, and do not hand any of it back as an owner decision. **The only things
+still open are the two named under WHAT MUST NOT CHANGE at the end of this
+section**, and both are instructions to leave something alone.
+
 
 **(a) One dismissal, not six.** Skip or finish, any guide, records that this
 person is done. `markTourSeen` stops taking a name; `tourSeen()` stops taking
