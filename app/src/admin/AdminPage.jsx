@@ -391,92 +391,224 @@ export default function AdminPage() {
 }
 
 /* ══ TAB 1 · NOW ═══════════════════════════════════════════════════════════ */
+/* ══ TAB 1 · TODAY ═════════════════════════════════════════════════════════
+   REBUILT 2026-09-13. Andrew has never used this screen — he built it, shrugged
+   and assumed he would work it out later — so THE FIRST VERSION HE SEES TEACHES
+   HIM WHAT THE BACK OFFICE IS FOR. That is the whole design constraint.
+
+   ── THE RULE EVERY ROW HAS TO PASS ───────────────────────────────────────
+   **"And what would Andrew DO about this?"** If a row has no answer it does not
+   belong here however interesting the number is. That is why this screen has
+   almost no tiles: a tile is a number waiting to be interpreted by somebody who
+   already knows what good looks like, and he does not yet.
+
+   ── OBSERVATION, NEVER PREDICTION — Cowork's refinement, and it is a wording
+   rule because both produce the same row ─────────────────────────────────────
+   *"Has not taken a booking in 34 days"* is a fact, checkable, and the thing to
+   act on. *"Is likely to churn"* is a guess wearing a fact's clothes, and it
+   would have Andrew ring a real person to say the software thinks they are
+   leaving. **Say what happened and when. Let him draw the conclusion.**
+
+   The test each sentence here had to pass: *could you show Andrew the number
+   that produced this, and would he agree it says what you claim?* Anything that
+   failed it was cut rather than softened.
+
+   ── AND IT HAS TO BE HONEST WHEN IT IS EMPTY ────────────────────────────────
+   The state he will almost certainly open it in first is "nothing is wrong and
+   there are no detailers yet". A screen that looks broken or blank then teaches
+   him it is useless. So every empty state says what it WILL say, which is how
+   an empty screen still explains the job. */
+
+const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+
+/* The action for each reason `attention.js` can give. The reason is the
+   OBSERVATION and lives in `lib/attention.js`; the sentence telling him what to
+   do about it is this screen's, because it is advice and not a measurement. */
+const WHAT_TO_DO = [
+  [/payment failed/, "Their card was declined. Chase it before the month ends or the account lapses."],
+  [/canceling/, "They have asked to stop at the end of the term. Ring them and ask what went wrong."],
+  [/never taken a booking/, "They signed up and never got going. Ring them and walk them through setup."],
+  [/no booking in/, "They were taking work and stopped. Ring them before they decide to cancel."],
+  [/setup stopped at/, "They stalled part-way through setup. Finish it with them on the phone."],
+  [/no website/, "Nothing for their customers to find. Offer to build it."],
+];
+const actionFor = (why = []) => {
+  for (const [re, say] of WHAT_TO_DO) if (why.some((w) => re.test(w))) return say;
+  return null;
+};
+
+/* WHAT TO LOOK AT, IN ORDER — the rhythm he asked for. Deliberately not a
+   calendar: a weekday checklist is read once and ignored, and it is wrong the
+   moment something is actually on fire. This reorders itself around what is
+   true right now, so it is a queue rather than a ritual. */
+function weeklyRhythm({ fires, needCall, waiting, live }) {
+  const out = [];
+  if (fires) out.push("Something is broken — fix that before anything else on this page.");
+  if (waiting) out.push("A customer is waiting on a detailer to answer them. That is somebody's booking.");
+  if (needCall) {
+    out.push(needCall === 1
+      ? "Ring the detailer below. A phone call at this size is the whole job."
+      : `Ring the ${needCall} detailers below. A phone call at this size is the whole job.`);
+  }
+  if (!live) {
+    out.push("No real detailers yet, so nothing here is about the business.");
+    out.push("When the first one signs up, this page starts telling you who is stuck and who has gone quiet.");
+  } else {
+    out.push("Check Growth for anybody stuck between signing up and taking their first booking.");
+    out.push("Check Money for anything past due.");
+  }
+  return out;
+}
+
 function TabNow({ state, totals, rows, alerts, attention, onOpen }) {
-  /* NO PLATFORM-WIDE CHART, AND THIS IS THE SECOND TIME THAT SENTENCE HAS
-     BEEN WRITTEN HERE — the first version of this rebuild drew one by summing
-     a `months` array off each row. **There is no such field.** The `list`
-     payload carries this month's figures per business and no history at all
-     (a six-month series only exists inside `get`, one business at a time), so
-     the chart rendered "No finished jobs yet" for ever and looked like an
-     empty platform rather than a missing field.
-     It was caught by loading the screen and reading it, which is the only
-     thing that would have caught it: the code was valid, the build was clean,
-     and `rows[0].months` is simply `undefined`.
-     A platform-wide trend needs one new field on the server — until then this
-     says what it actually knows. */
+  /* NO PLATFORM-WIDE CHART, AND THIS IS THE SECOND TIME THAT SENTENCE HAS BEEN
+     WRITTEN HERE — an earlier rebuild drew one by summing a `months` array off
+     each row. **There is no such field.** The `list` payload carries this
+     month's figures per business and no history at all, so the chart said "No
+     finished jobs yet" for ever and looked like an empty platform rather than a
+     missing field. It was caught by loading the screen and reading it, which is
+     the only thing that could have caught it: the code was valid, the build was
+     clean, and `rows[0].months` is simply `undefined`. */
   const live = rows.filter((r) => !r.is_demo);
-  const busiest = [...live].sort((a, b) => b.revenue_month - a.revenue_month).slice(0, 5);
+  const waiting = live.reduce((a, r) => a + (r.requests_waiting ?? 0), 0);
+  const withWaiting = live.filter((r) => (r.requests_waiting ?? 0) > 0);
+  const fires = alerts.length;
+  const needCall = attention.length;
+  const nothing = !fires && !needCall && !waiting;
 
   return (
     <>
-      {alerts.length > 0 && (
-        <div className="pa-alert" style={{ "--i": 0 }}>
-          <span className="pa-lab">Needs attention</span>
-          <ul>{alerts.map((a) => <li key={a}>{a}</li>)}</ul>
-        </div>
-      )}
-
-      <section className="pa-card" style={{ "--i": 1 }}>
-        <div className="pa-hero">
-          <div>
-            <span className="pa-lab">A month, recurring</span>
-            <div className="pa-big">{money((totals.mrr_cents ?? 0) / 100)}</div>
-            <p className="pa-sub" style={{ marginTop: 6 }}>
-              What the platform earns. Not what flows through it.
-            </p>
-          </div>
-          <div>
-            <span className="pa-lab">Earning most this month</span>
-            {busiest.length === 0
-              ? <p className="pa-none">No real detailers yet. Everything on the platform is a demo or a test fixture.</p>
-              : (
-                <div className="pa-rows" style={{ marginTop: 6 }}>
-                  {busiest.map((r) => (
-                    <Row key={r.id} k={r.name} v={`${money(r.revenue_month)} · ${r.jobs_month} jobs`} />
-                  ))}
-                </div>
-              )}
-          </div>
-        </div>
-      </section>
-
-      <section className="pa-sec" style={{ "--i": 2 }}>
-        <div className="pa-tiles">
-          <Tile n={totals.businesses ?? 0} t="Detailers" />
-          <Tile n={totals.active ?? 0} t="Paying" />
-          <Tile n={totals.suspended ?? 0} t="Suspended" warn={Boolean(totals.suspended)} />
-          <Tile n={totals.new_month ?? 0} t="Joined this month" />
-          <Tile n={totals.founding_left ?? 0} t="Founding spots left" />
-        </div>
-      </section>
-
-      <section className="pa-sec" style={{ "--i": 3 }}>
-        <div className="pa-h"><h2>Across every detailer, this month</h2></div>
-        <div className="pa-tiles">
-          <Tile n={totals.jobs_month ?? 0} t="Jobs finished" />
-          <Tile n={money(totals.revenue_month ?? 0)} t="Taken by detailers" />
-          <Tile n={totals.customers ?? 0} t="Customers served" />
-        </div>
-        <p className="pa-sub" style={{ marginTop: 10 }}>
-          Their money, not ours — the proof the product works.
+      {/* THE LEAD SENTENCE. He should know whether to keep reading before he
+          reads anything else, and "nothing needs you" is a real answer rather
+          than an empty screen. */}
+      <section className="pa-sec pa-today" style={{ "--i": 0 }}>
+        <p className="pa-lede">
+          {nothing
+            ? "Nothing needs you right now."
+            : (() => {
+              const n = fires + needCall + (waiting ? 1 : 0);
+              return n === 1 ? "One thing needs you." : `${n} things need you.`;
+            })()}
+        </p>
+        <p className="pa-sub">
+          {live.length === 0
+            ? "There are no real detailers on the platform yet — everything below is about the software itself."
+            : `${plural(live.length, "detailer", "detailers")} on the platform.`}
         </p>
       </section>
 
-      {attention.length > 0 && (
-        <section className="pa-sec" style={{ "--i": 4 }}>
-          <div className="pa-h">
-            <h2>Worth a look</h2>
-            <button className="pa-out" type="button" onClick={() => onOpen("who")}>See everyone</button>
-          </div>
-          <div className="pa-card">
+      {/* 1 · BROKEN. Above everything, because a stopped job is silent and the
+             other sections are about people who can wait an hour. */}
+      {fires > 0 && (
+        <section className="pa-sec" style={{ "--i": 1 }}>
+          <div className="pa-h"><h2>Something is broken</h2></div>
+          <div className="pa-card pa-fire">
             <div className="pa-rows">
-              {attention.map((a) => (
-                <Row key={a.id} k={a.name} v={a.reasons?.join(" · ") ?? ""} />
-              ))}
+              {alerts.map((a) => <div className="pa-do" key={a}><span className="pa-ev">{a}</span></div>)}
             </div>
+            <p className="pa-sub pa-act">
+              These are the platform's own jobs, not a detailer's problem. Open Plumbing to see
+              when each last finished.
+            </p>
           </div>
         </section>
       )}
+
+      {/* 2 · A CUSTOMER IS WAITING. Ahead of detailer health because there is a
+             real person at the other end of it with a booking in the balance. */}
+      {waiting > 0 && (
+        <section className="pa-sec" style={{ "--i": 2 }}>
+          <div className="pa-h"><h2>Customers waiting on an answer</h2></div>
+          <div className="pa-card">
+            <div className="pa-rows">
+              {withWaiting.map((r) => (
+                <Row key={r.id} k={r.name}
+                     v={`${plural(r.requests_waiting, "request", "requests")} unanswered`} />
+              ))}
+            </div>
+            <p className="pa-sub pa-act">
+              Each one is a customer who asked for a time and has not heard back. If a detailer
+              is not answering, that is the one thing worth interrupting them for.
+            </p>
+          </div>
+        </section>
+      )}
+
+      {/* 3 · WHO TO RING. The reasons come from `lib/attention.js` and are facts
+             with dates in them; the advice beneath each is this screen's. */}
+      <section className="pa-sec" style={{ "--i": 3 }}>
+        <div className="pa-h">
+          <h2>Detailers who need a call</h2>
+          {live.length > 0 && (
+            <button className="pa-out" type="button" onClick={() => onOpen("who")}>See everyone</button>
+          )}
+        </div>
+        {needCall === 0
+          ? (
+            <div className="pa-card">
+              <p className="pa-none">
+                {live.length === 0
+                  ? "Nobody yet. When a detailer signs up and stalls — no bookings, setup unfinished, a card that failed — they appear here with the reason and what to do about it."
+                  : "Everybody is taking bookings and nobody is past due."}
+              </p>
+            </div>
+          )
+          : (
+            <div className="pa-card">
+              <div className="pa-rows">
+                {attention.map((a) => {
+                  /* `why`, NOT `reasons` — the previous version of this screen
+                     read `a.reasons`, which `needsALook` has never returned, so
+                     every row here rendered a name beside an empty string. Found
+                     by reading the code while rebuilding, not by any check. */
+                  const why = a.why ?? [];
+                  const todo = actionFor(why);
+                  return (
+                    <div className="pa-do" key={a.id}>
+                      <div className="pa-do-t">
+                        <strong>{a.name}</strong>
+                        <span className="pa-ev">{why.join(" · ")}</span>
+                      </div>
+                      {todo && <p className="pa-act">{todo}</p>}
+                      {a.owner_email && (
+                        <a className="pa-btn" href={`mailto:${a.owner_email}`}>{a.owner_email}</a>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+      </section>
+
+      {/* 4 · THE RHYTHM. What to look at and in what order, reordered around
+             what is actually true rather than printed as a fixed checklist. */}
+      <section className="pa-sec" style={{ "--i": 4 }}>
+        <div className="pa-h"><h2>What to look at, in order</h2></div>
+        <div className="pa-card">
+          <ol className="pa-steps">
+            {weeklyRhythm({ fires, needCall, waiting, live: live.length }).map((s) => <li key={s}>{s}</li>)}
+          </ol>
+        </div>
+      </section>
+
+      {/* 5 · THE NUMBERS, LAST AND FEW. Kept because he asked to see money, cut
+             to the ones that mean something on their own. Anything needing a
+             trend to read belongs on Growth, which has the history. */}
+      <section className="pa-sec" style={{ "--i": 5 }}>
+        <div className="pa-h"><h2>Where the business stands</h2></div>
+        <div className="pa-tiles">
+          <Tile n={money((totals.mrr_cents ?? 0) / 100)} t="A month, recurring" />
+          <Tile n={totals.businesses ?? 0} t="Detailers" />
+          <Tile n={totals.new_month ?? 0} t="Joined this month" />
+          <Tile n={totals.suspended ?? 0} t="Suspended" warn={Boolean(totals.suspended)} />
+          <Tile n={totals.founding_left ?? 0} t="Founding spots left" />
+        </div>
+        <p className="pa-sub" style={{ marginTop: 10 }}>
+          Recurring is what the platform earns. {money(totals.revenue_month ?? 0)} went through it
+          this month — that is the detailers' money, not ours, and it is the proof the product works.
+        </p>
+      </section>
     </>
   );
 }
