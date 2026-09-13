@@ -1121,9 +1121,14 @@ undo it.
   password is demo."*
   ~~**`demo` IS THE PASSWORD.**~~ **STALE SINCE 2026-09-09 AND MEASURED WRONG ON
   2026-09-13.** He asked for `demo`; **the project rejects anything under ten
-  characters**, so it was set to **`demoadmin123`** on 2026-09-09 at his ask —
-  and that is written in the `platform_admins` row's own `note` column, which
-  is the only copy that was ever true. This line said `demo` for four days.
+  characters**, so it was changed on 2026-09-09 at his ask.
+  **THE VALUE IS DELIBERATELY NOT WRITTEN HERE — Cowork's rule, 2026-09-13.**
+  `CLAUDE.md` is read aloud to every future session, and a credential in a file
+  like that leaks eventually. It lives in the `platform_admins` row's own
+  `note` column and nowhere else; read it with the service key, or ask Andrew.
+  This line said `demo` for four days, which is its own lesson: a credential
+  copied into prose goes stale and the copy nobody maintains is the one people
+  read.
   **Verified by signing in through the auth API: the four-character value is
   rejected, the twelve-character one returns a session.** A session that reads
   the stale line and tries it concludes the back office is broken.

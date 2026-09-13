@@ -97,7 +97,7 @@ at each. Ask him for his thoughts on that batch, act on them, then move on.
 - The seven-step setup form · the walkthrough · the four tab guides
 
 ### The back office at `/admin`
-- Sign in as `demo@demo.com` / `demoadmin123`. **Changed 2026-09-09 at his
+- Sign in as `demo@demo.com` — the password is NOT written in this repo — it lives in the `platform_admins` row's own `note` column, readable with the service key. **Changed 2026-09-09 at his
   own ask** — he had forgotten it. He asked for `demo123`; the Supabase project
   refuses anything under ten characters, so that was never available.
   **Do not change it again without him asking** — a session that "improves" it

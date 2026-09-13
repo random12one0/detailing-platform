@@ -233,11 +233,11 @@ tracing the links before designing anything.**
 > simple login, like, we could use the same email and just have the password be
 > like demo123 or admin123 for now."*
 
-**Done 2026-09-09. `demo@demo.com` / `demoadmin123`.**
+**Done 2026-09-09. `demo@demo.com`** — the password is NOT written in this repo — it lives in the `platform_admins` row's own `note` column, readable with the service key.
 
 **Not `demo123`, and the reason matters:** the Supabase project rejects any
 password under ten characters (`weak_password`, 422). `demo123` and `admin123`
-are both refused by the server, so neither was ever available. `demoadmin123`
+are both refused by the server, so neither was ever available. What was set
 is the nearest memorable thing that the project will accept. Verified by
 signing in through the real token endpoint, not merely by setting it.
 
