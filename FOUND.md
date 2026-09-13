@@ -1220,18 +1220,151 @@ worked"* tells them the green runs were the job having nothing to do, that a
 retry would have failed identically, and that the fix has to change the limit or
 the duration. **Same facts, opposite next actions.**
 
-- 2026-09-13 — **OPEN: one unexplained `500 {"error":"Gateway Timeout"}` after
-  the cron timeout fix.** At **02:00:00 UTC**, the first `send-owner-reminders`
+- ~~2026-09-13 — **OPEN: one unexplained `500 {"error":"Gateway Timeout"}` after
+  the cron timeout fix.**~~ **EXPLAINED AND PROVEN 2026-09-13. IT WAS NOT ONE
+  OCCURRENCE, IT WAS NOT TRANSIENT, AND THE 500 IS OURS.** The entry below is
+  kept because its three wrong claims are each instructive. Full account:
+  § THE "GATEWAY TIMEOUT" IS OUR OWN CATCH BLOCK.
+  At **02:00:00 UTC**, the first `send-owner-reminders`
   tick after `timeout_milliseconds` was raised to 30,000 did NOT time out at
-  pg_net — it waited and received a 500 from **Supabase's own edge gateway**,
+  pg_net — it waited and received a 500 from ~~**Supabase's own edge gateway**~~
+  **OUR OWN FUNCTION**,
   which is a different limit from pg_net's and is not something raising
-  `timeout_milliseconds` can affect. **The same call by hand at 02:04 returned
-  200 in 5,292 ms** with the cron's exact headers, and sent one owner reminder.
-  One occurrence. **Not closed, not explained, and deliberately not chased**
+  `timeout_milliseconds` can affect. **The same call by hand at ~~02:04~~
+  02:01:23 returned
+  200 in ~~5,292~~ 5,162 ms** with the cron's exact headers, and sent one owner reminder.
+  ~~One occurrence.~~ **Thirty REST 504s in ninety minutes.** ~~Not closed, not explained, and deliberately not chased~~
   while the Today screen is being built — recorded here so it survives that.
   **What to check first:** whether it recurs on later ticks, and whether it
   correlates with a cold start or with a large backlog, since the sweep is
-  slowest exactly when it has most to do.
+  slowest exactly when it has most to do. **It recurs on EVERY later tick, and
+  it correlates with neither — it correlates with HOW MANY REST CALLS THE
+  FUNCTION MAKES.**
+
+## THE "GATEWAY TIMEOUT" IS OUR OWN CATCH BLOCK — proven 2026-09-13
+
+**The eighth costume, and it was wearing the seventh's clothes.** The entry
+above recorded a 500 from *"Supabase's own edge gateway"*, one occurrence, not
+chased. Every part of that is wrong, and the sentence that made it wrong is the
+kind § READ THIS FIRST warns about: **a plausible reading of a body of text,
+written down as a finding, cited afterwards as a fact.**
+
+### WHAT IT ACTUALLY IS
+
+`supabase/functions/_shared/http.ts` builds every response this product's edge
+functions return, and all three of the functions involved end the same way:
+
+```ts
+} catch (err) {
+  return json({ error: (err as Error).message }, 500);
+}
+```
+
+So `{"error":"Gateway Timeout"}` is **`(err as Error).message`**, and
+*"Gateway Timeout"* is the HTTP status text of **504**. The function caught a
+504 from its OWN outbound call and dutifully reported it as a 500.
+
+**PROVED BY THE RESPONSE HEADERS, WHICH pg_net STORES.** `net._http_response`
+keeps `headers`, and the 500s carry
+`access-control-allow-headers: Content-Type, Authorization, apikey, x-client-info`
+— **byte for byte the `CORS_HEADERS` constant in our own `_shared/http.ts`.**
+A platform gateway error cannot emit our custom header list. `sb-error-code` on
+the same response reads `EDGE_FUNCTION_ERROR`, which means *the function
+returned an error status*, not *the platform timed it out*.
+
+**AND THE 504 IS IN THE LOGS, ONE SECOND EARLIER, EVERY TIME.** `edge_logs`
+records the API gateway, and every function 500 pairs with a `504` on
+`/rest/v1/`:
+
+| function 500 | the REST 504 behind it |
+|---|---|
+| 02:30:09 `send-owner-reminders` | 02:30:01 — three due-ness RPCs at once |
+| 02:36:05 `session-ping` | 02:36:00 — `session_pings`, a one-row select |
+| 02:37:05 `watch-jobs` | 02:37:00 — `claim_job_alerts` |
+| 02:45:07 `send-owner-reminders` | 02:45:01 — **six** RPCs at once |
+| 03:00:08 `send-owner-reminders` | 03:00:00 — two RPCs |
+| 03:15:07 `send-owner-reminders` | 03:15:01 — four RPCs |
+| 03:22:00 `watch-jobs` | 03:22:00 — `claim_job_alerts` |
+
+### THE RATE, AND THE REASON ONE JOB DIES AND ANOTHER DOES NOT
+
+**1.1% of every REST call this project makes returns 504 — 30 out of 2,645
+between 02:00 and 03:30.** Sampled hour by hour on 2026-09-12 it was **14 to 22
+an hour, every hour, whatever the traffic**: 16 of 755, 18 of 616, 22 of 533,
+18 of 4,323, 22 of 82, 22 of 34, 14 of 35. **A full day before the timeout fix
+existed.** It was invisible because pg_net gave up at five seconds first.
+
+**So a function's chance of dying is its NUMBER OF REST CALLS**, and that is
+the whole of why the three behave differently:
+
+| | REST calls | cron ticks survived |
+|---|---|---|
+| `send-owner-reminders` | 12 statically, more in its loops | **0 of 5** |
+| `watch-jobs` | 3 | 3 of 5 |
+| `session-ping` | 1 | ~99% |
+
+**AND `if (r.error) throw r.error` MAKES THE SWEEP ALL-OR-NOTHING.** Seven RPCs
+go out in one `Promise.all`; one 504 among them aborts the entire run, so no
+heartbeat is written and the dead man's switch fires. The 504s arrive in
+**bursts of three to six inside a single second**, which is exactly that
+`Promise.all` landing.
+
+### WHAT IT IS NOT — each one measured, not reasoned
+
+- **Not slow queries.** `pg_stat_statements`: the slowest statement this
+  database has EVER run is **3,449 ms**. Nothing is near a timeout.
+- **Not connections.** 18 of 60 in use, 1 active, 0 idle-in-transaction.
+- **Not locks.** Zero waiting on a lock.
+- **Not the edge runtime's wall clock or CPU.** Every `function_logs` shutdown
+  in the window — 261 of them — reads `reason: EarlyDrop`. Not one kill.
+- **Not duration.** `session-ping` normally answers in 250 ms; when it fails it
+  fails at 5.2 s. A one-row select cannot be too slow.
+- **Not pg_net.** `session-ping` is called by a script, not by cron, and it
+  fails the same way.
+- **Not the caller.** The same call by hand returns 200. That is the 98.9%,
+  not a difference in path.
+
+**SO IT IS UPSTREAM OF POSTGRES AND INSIDE SUPABASE'S OWN API LAYER**, on a
+nano instance (`shared_buffers` 224 MB, `max_connections` 60). **That is the
+limit of what this evidence can establish** — the gateway's internals are not
+visible from here, and nothing below this line should be read as knowing why
+Supabase drops roughly one REST call in ninety.
+
+### WHAT IS NOT KNOWN, WRITTEN DOWN SO NOBODY CITES SILENCE AS AN ANSWER
+
+- **Whether the live business project `adtlnvihwrcqcasqcjwd` has the same
+  fault.** The `SUPABASE_ACCESS_TOKEN` in `.env` reaches exactly one project,
+  `kguqylyzgyzfktkfnhjb`. **That project takes real customers' money and this
+  session cannot see it.** Nobody has checked. It is not safe to assume either
+  way.
+- **How far back it goes.** The analytics API throttled after nine hourly
+  samples. Every hour sampled had it. The evidence runs out before the failure
+  does — the same sentence this file already had to write about the eighteen
+  hours, for the same reason.
+- **Why the gateway 504s.** Unknown, and not knowable from this side.
+
+### THE INSTRUMENTS WERE BROKEN ON PURPOSE FIRST
+
+**Two claims here rest on one log query, so it was made to fail before it was
+believed.** Run over 03:17–03:21 — a stretch with a hand-run 200 and 120 clean
+probe calls in it — it reports **78 requests, zero 504s**. Run over
+02:44–02:46 it reports **19 requests, six 504s, 31.6%**. It discriminates; it is
+not painting every window red.
+
+**AND THE CORRELATION IS ONE-WAY, WHICH IS ITSELF THE CHECK.** A 504 does not
+always kill a function: at **03:07:01** `platform_settings` returned 504 and
+`watch-jobs` still answered **200** at 03:07:06, because that call's error was
+not on a fatal path. If every 504 produced a 500 the pairing would be an
+artifact of counting. It does not, so it is not.
+
+**AND A SECOND INSTRUMENT, DELIBERATELY NOT SHARING THE FIRST'S METHOD, PROVED
+NOTHING — SAID HERE RATHER THAN DRESSED UP AS AGREEMENT.** 120 calls to
+`session-ping` from outside, one every three seconds, returned **120 × 200 and
+zero failures.** At a 1.1% rate the chance of a clean run of 120 is **26%**, so
+that result is consistent with the finding and also consistent with the finding
+being wrong. **It is too small a sample to be evidence either way**, which is
+`docs/BAR.md`'s rule about agreement read from the other end: a second
+instrument that cannot resolve the effect is not a second opinion.
 
 ## THE LANDING PAGE PUTS A CARD ON TOP OF A PARAGRAPH AT 1024px — 2026-09-13
 
