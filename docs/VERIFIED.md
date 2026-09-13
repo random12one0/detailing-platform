@@ -91,6 +91,30 @@ this repo can make it stale and nothing in this repo will notice when it
 changes — `scripts/probe-forecast.mjs` is the only instrument that can, and it
 only runs when somebody runs it.
 
+## 1d · PROVEN TONIGHT — lane C, 2026-09-13, at `926e002`
+
+| what was proven | number | invalidated by a change to |
+|---|---|---|
+| **Zero em dashes in any user-facing string the edge layer emits**, both spellings, English and Spanish | `em-dash` 0 findings over 65 files, 1 sanctioned entry, baselined by 4 breaks | **any** file under `supabase/functions/**` |
+| 29 emails render with no em dash anywhere in the output | `render-emails.mjs` 0 problems; a grep of `email-preview/*` returns nothing | `_shared/email*.ts`, `_shared/strings/es.ts`, `scripts/render-emails.mjs` |
+| **The watchdog re-arms a claim it could not send, in BOTH directions** | `dead-mans-switch` 50/50, 0 failed; § 2i-iv proved against the live deployed function | `supabase/functions/watch-jobs/**`, `supabase/migrations/20260913010000_*.sql` |
+| The reminder sweep's 18-hour outage on 12 Sept and its recovery at 01:53 on 13 Sept | read out of the project's own `function_logs` — `note_heartbeat` 204 at 08:00:54, then nothing until 01:53:52 | nothing; it is history, not a state |
+| **The Geoapify key is in no file under `app/`**, and the attribution sentence exists exactly once in the repo | `geoapify` 18/18 credential-free, baselined by 3 breaks | `supabase/functions/_shared/geoapify.ts`, anything under `app/`, `docs/tenant-sites/` |
+| The live `address-suggest` endpoint returns real streets with usable points, refuses a short query for free, and throttles | `geoapify` § 4, 6/6 when the per-IP limit has room | `supabase/functions/address-suggest/**`, `_shared/geoapify.ts`, `_shared/rateLimit.ts` |
+| **Address autocomplete is too slow for typeahead** — provider leg 1.3–2.3s, tail past 6s on an ambiguous query | ten warm calls: 2117 1963 2103 3127 2541 2096 3076 3171 2498 2104 ms; baseline without the provider call 760–960ms | nothing in this repo — it is a property of Geoapify and of the hop. **Re-measure only if the provider or the region changes.** |
+| All 37 edge functions are running the repo's code | `check-deployed.mjs`: *"all 37 functions are current"* | **any** file under `supabase/functions/**` |
+
+**THE LATENCY ROW IS THE ONE TO READ BEFORE RE-MEASURING ANYTHING HERE.** It is
+not a defect waiting to be fixed in this tree and it is not stale because time
+has passed — it is the measurement Andrew asked for in order to make a decision,
+and that decision is open. `docs/address-autocomplete.md` § THE LATENCY carries
+it with the three options.
+
+**AND ONE FIGURE THAT IS DELIBERATELY NOT A ROW:** `tests/platform-billing.test.mjs`
+is **335 passed, 1 failed** and the failure is correct — the back office has no
+price editor. See `FOUND.md` § EIGHT BACK-OFFICE ACTIONS HAVE NO DOOR. A row
+here would read as a clean bill.
+
 ## 2 · LOOKS BROKEN BUT PASSES — NEVER RE-REPORT ANY OF THESE FIVE
 
 **Andrew reported all five as faults and withdrew each one after measuring

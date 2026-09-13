@@ -334,3 +334,86 @@ of them offers a retry; and **`precipChance` can be `null`, which is not 0.**
 is imported by most of them, so a partial deploy would have left
 `check-deployed` reporting thirty stale. **Any green browser run taken before
 that time is against different server code.**
+
+---
+
+# THE SECOND LANE C SESSION — 2026-09-13, `eaa3df3` and `926e002`
+
+**All three of Andrew's items are delivered. ONE DECISION IS OPEN and it is
+his.** The three one-line handover edits below were done first, on his explicit
+authorisation for this session only.
+
+## DONE — the three handover edits lane M owns
+
+All three applied, and the commit message says he authorised it:
+
+1. **`ROADMAP.md` item 9** no longer reads *"Weather, from open-meteo."* It is
+   struck through and says open-meteo is BANNED because its free tier is
+   non-commercial. **That line was a licence breach sitting in writing.**
+2. **`ROADMAP.md` § 5** is struck through as done and points at `docs/weather.md`.
+3. **`docs/README.md`** has the `weather.md` row.
+
+## DONE — 1 · THE EM DASHES, AND IT WAS 106 RATHER THAN 19
+
+`tests/em-dash.test.mjs` is the standing check, baselined by four breaks.
+English and every Spanish key moved together. The full account, including why
+the first count was low and the renderer-fixture divergence it turned up:
+`FOUND.md` § THE EM DASH SWEEP IS DONE.
+
+## DONE — 2 · THE WATCHDOG THAT NEVER SAID ALL-CLEAR
+
+**Root cause found in the project's own edge logs, to the millisecond:**
+`watch-jobs` claimed the change set and THEN read the address to send it to, and
+the settings read 504'd 95ms after the claim. Three fixes — the order, the
+discarded error, and an undo that only worked one way. `FOUND.md` § THE WATCHDOG
+CRIED WOLF AND NEVER SAID ALL-CLEAR.
+
+**The alarm itself was TRUE**: the sweep's heartbeat stopped at 08:00:54 on
+12 Sept and did not return until 01:53:52 on 13 Sept, eighteen hours, while the
+function booted every fifteen minutes.
+
+## DONE — 3 · GEOAPIFY, THE LANE C HALF. **AND A DECISION IS OPEN.**
+
+Built, deployed, proved: `_shared/geoapify.ts`, `address-suggest`,
+`tests/geoapify.test.mjs`, and `docs/address-autocomplete.md` as the lane B
+handover. The key is server-side only and the attribution exists once.
+
+**HE ASKED TO BE TOLD IF THE ROUND TRIP WAS TOO SLOW, AND IT IS.** Ten warm
+calls: 2.0–3.2 seconds, with a tail past six on an ambiguous query. Typeahead
+wants 300ms. **Nothing was done about it, on purpose** — his instruction was to
+come back and tell him rather than quietly put the key in the client.
+`docs/address-autocomplete.md` § THE LATENCY has the numbers and three options.
+
+---
+
+## STILL OWED, AND NONE OF IT IS LANE C'S
+
+### LANE M — `ROADMAP.md` § 6 is now half-built and does not say so
+
+It still reads *"DO NOT START IT UNTIL TRANSLATION AND THE DOORBELL ARE DONE"*,
+which is spent. **Lane C did not touch it** — the authorisation was for three
+specific lines and nothing else. It needs to say: the server half is built and
+deployed, the screen is lane B's, `docs/address-autocomplete.md` is the
+handover, and **the latency decision is with Andrew.**
+
+### LANE B — two screens, both with their brief already written
+
+1. **The weather screen.** `docs/weather.md` § THE SCREEN. Unchanged from the
+   last session's handover.
+2. **The booking address field.** `docs/address-autocomplete.md` is the whole
+   brief. **Do not start it until Andrew has answered the latency question** —
+   the answer decides whether it is live typeahead or a *Find* button.
+
+### AND TWO THINGS FOUND IN PASSING, BOTH LANE B's
+
+- **The back office has no price editor.** `platform-admin` answers fifteen
+  actions and the screen calls six; `prices`, `promo_new`, `promo_off`, `note`,
+  `site`, `export`, `tier` and `resend_invite` have no caller anywhere in
+  `app/src`. `tests/platform-billing.test.mjs` is **335 passed, 1 failed** and
+  **the failure is correct** — it has been left red on purpose rather than
+  edited to pass, because making it pass would hide a missing screen.
+  `FOUND.md` § EIGHT BACK-OFFICE ACTIONS HAVE NO DOOR.
+- **The rebuilt Plumbing tab dropped the named job list**, so a scheduled job
+  whose heartbeat ROW went missing is now watched by nothing — and `watch-jobs`'
+  own comment relies on that list as its compensating control.
+  `FOUND.md` § THE WATCHDOG'S BLIND SPOT.
