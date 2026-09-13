@@ -670,6 +670,61 @@ non-existent function: before, ONE failure; after, three, each naming the 404.
 
 ---
 
+## 3f · PROVEN CLEAN — the Money tab, lane B, 2026-09-13
+
+**Andrew's brief: this is the screen a detailer opens to answer one question —
+am I making money, and is anyone late paying me.** What changed and what was
+measured after it.
+
+| what was proven | number |
+|---|---|
+| Tap targets, phone | **29 controls counted** at 392, **0 under 44**, **0 overlapping pairs**, sideways scroll **0** |
+| Tap targets, 320 | same 29 · 0 under 44 · 0 overlapping · 0 sideways |
+| Tap targets, 1440 | same 29 · 0 under 44 · 0 overlapping · 0 sideways |
+| Spanish, 392 | same 29 · 0 under 44 · 0 overlapping · 0 sideways · `LO QUE ENTRÓ`, `ESPERANDO EL PAGO · $300` |
+| 1920, his own monitor | sideways **0**, page fits in 1080 with no empty-viewport gap |
+| Both questions in the first screenful, phone | net figure at **268px**, *Waiting on payment · $300* at **558px**, first name and amount under it — all above the 760px the tab bar leaves |
+| Hierarchy | lead figure **34px**, cell values **17px**, labels **11px** |
+| A period switch is still ONE beat | `getAnimations()` 120ms after the press: every part on `arrive` at **180ms**, `.bars` carrying `replacing`, **no second `bar-rise`** |
+| The Calendar `dowLetters` console errors | **stale buffer, not live** — proven by opening Calendar, which renders its weekday row |
+| The suites | `composition` **95/0**, `landing-pricing` **109/0**, `route-contract` **33/0**, `spanish` **73/0**, `design-contrast` all pairs, `npm run build` clean and the bundle carries `Brought in` / `Lo que entró` |
+
+**THE INSTRUMENT WAS WRONG TWICE AND BOTH FAULTS WOULD HAVE BEEN BELIEVED.**
+This is the whole of § 4 of `docs/START-HERE.md` happening in one sitting.
+
+1. **Probing at whole pixels `±d` read every box 2px short** — 20→18, 60→58,
+   44→42. The last pixel inside the box is never hit. Probe at `±(d − 0.5)`.
+   Caught because all three baselines were off by the SAME 2, which is a
+   signature and not a coincidence.
+2. **Counting an ANCESTOR hit as a hit inflated every reach across the gaps
+   between siblings.** `e.contains(el)` was in the predicate beside
+   `el.contains(e)`; a point in `.segmented`'s own padding returned the parent
+   and was scored as a hit, so 36px segments read **72 × 66** and the sweep
+   invented **17 overlapping pairs** on a control the ledger had already proven
+   clean. A pseudo-element hit-tests as its originating element, so
+   `el.contains(e)` alone is right. **`e.contains(el)` is never a hit.**
+
+**AND A THIRD, WHICH IS THE ONE MOST LIKELY TO BE REPEATED: `elementFromPoint`
+IS VIEWPORT-ONLY.** Every control below the fold read reach **0** and would have
+been reported as under-44 — six of them, including two that are 46. Scroll each
+element into view and wait a frame before probing.
+
+Invalidated by a change to: `app/src/screens/Money.jsx`,
+`app/src/components/AdvancedMoney.jsx`, `app/src/theme.css`,
+`app/src/components/Walkthrough.jsx`.
+
+```bash
+git diff --name-only HEAD -- app/src/screens/Money.jsx app/src/components/AdvancedMoney.jsx app/src/theme.css app/src/components/Walkthrough.jsx
+```
+
+**WHAT IS NOT PROVEN:** the unpaid list was measured against a temporary
+in-component fixture of two rows, because **the demo database has no unpaid
+completed job at all** — see `FOUND.md`, 2026-09-13. The fixture was removed
+before the final run and every number above was taken without it except the four
+that name `$300`. A real unpaid row is lane C's seed change.
+
+---
+
 ---
 
 ## HOW THIS FILE EARNS ITS KEEP

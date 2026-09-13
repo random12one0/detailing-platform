@@ -281,3 +281,71 @@ than anything in this batch — any click on any date on a wide screen did it �
 but it now shows up the moment the screen opens, so it is fixed.
 
 **Visual: yes** — only if you have a monitor wider than about 1500 pixels.
+
+---
+
+## 14 · Money — the money you are still waiting for
+
+**Open:** `localhost:5173/app` → Money, on a phone-sized window. You only see
+this block when somebody has finished work they have not paid you for.
+
+**WAS:** The list of people who owe you money was near the bottom of the page.
+You had to scroll past the chart, the four figures, the most-booked service,
+the tips and two buttons before you found out whether anyone was late paying
+you.
+
+**NOW:** It sits right under the chart, so the total and the first name are
+both on screen the moment the page opens. On a wide monitor nothing moves —
+it was already in the right-hand column, in plain sight.
+
+**Visual: yes.**
+
+---
+
+## 15 · Money — the figure that said you had been paid when you had not
+
+**Open:** `localhost:5173/app` → Money, and again under "The full picture".
+
+**WAS:** The first figure in the grey box was headed "Collected", and it added
+up every job you had finished whether the customer had paid or not. So the
+page could say you had collected $410 with "Waiting on payment · $175" an inch
+below it, and the Today screen would say you had collected nothing from the
+same two jobs.
+
+**NOW:** It says "Brought in", which is what it has always counted — the work
+you did, paid for or not. The amount has not changed. What has actually landed
+in your bank is the "Waiting on payment" list's job, and "The full picture"
+still spells it out as in the bank and still owed.
+
+**Visual: yes.**
+
+---
+
+## 16 · Money — two orange buttons that were shouting
+
+**Open:** `localhost:5173/app` → Money, with somebody owing you money.
+
+**WAS:** Each person who owed you money had a full-width orange "Mark paid"
+button under their name. Once that list moved up the page, two or three of
+them were the loudest thing on a screen whose whole job is one big number.
+
+**NOW:** Mark paid is a small outlined button. It is still one tap and still
+in the same place; it just stops competing with the figure at the top.
+
+**Visual: yes.**
+
+---
+
+## 17 · Money — a sentence that had glued itself to the wrong heading
+
+**Open:** `localhost:5173/app` → Money, in a month with only a job or two in
+it.
+
+**WAS:** "Too few finished jobs to name a most-booked service." sat hard
+against the words "QUOTED UP FRONT" directly beneath it, so it read as an
+explanation of that figure rather than as the line standing in for the
+most-booked service.
+
+**NOW:** There is a small gap under it and it reads as its own sentence.
+
+**Visual: yes.**

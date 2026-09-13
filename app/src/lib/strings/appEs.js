@@ -275,7 +275,13 @@ export const appEs = {
   "Time range": "Periodo",
   "Previous period": "Periodo anterior",
   "Next period": "Periodo siguiente",
-  "Collected": "Cobrado",
+  // **"Cobrado" MEANS MONEY RECEIVED AND THAT FIGURE IS NOT THAT** — it counts
+  // every job finished in the period, paid for or not (FOUND.md 2026-09-12).
+  // Both screens say "Brought in" from 2026-09-13, and the Spanish takes the
+  // words the advanced screen's own panel title already uses. The "Collected"
+  // key went with the last call site; `"Charged": "Cobrado"` further down is a
+  // different word for a different thing and is untouched.
+  "Brought in": "Lo que entró",
   "Expenses": "Gastos",
   "Avg job": "Trabajo prom.",
   "Jobs done": "Trabajos hechos",
@@ -1966,8 +1972,10 @@ export const appEs = {
   "the last 90 days or booked ahead": "los últimos 90 días o lo que viene",
   "the last year or booked ahead": "el último año o lo que viene",
   // The one Money sentence that was never wrapped. FOUND.md, 2026-09-12.
-  "{percent}% of what you collected was sold at the job.":
-    "{percent}% de lo que cobraste se vendió en el trabajo.",
+  // Reworded 2026-09-13 with the cell above it: "cobraste" is money RECEIVED
+  // and this figure counts work done, paid for or not.
+  "{percent}% of what you brought in was sold at the job.":
+    "{percent}% de lo que entró se vendió en el trabajo.",
   // The folded settings rows say what they have put away.
   "How far ahead, and how many": "Con cuánta anticipación, y cuántos",
   "Reminders and cancellations": "Recordatorios y cancelaciones",
@@ -2264,8 +2272,8 @@ export const appEs = {
     "Todo lo agendado ese día, en orden, y un botón para agregar otro.",
   "Block the whole day off here, or change your hours for that one day.":
     "Cierra el día completo aquí, o cambia tu horario solo para ese día.",
-  "The same period broken down: what you collected, what you spent, your average job.":
-    "El mismo periodo desglosado: lo que cobraste, lo que gastaste, tu trabajo promedio.",
+  "The same period broken down: what you brought in, what you spent, your average job.":
+    "El mismo periodo desglosado: lo que entró, lo que gastaste, tu trabajo promedio.",
   "One file for your accountant, covering whatever period you are looking at.":
     "Un archivo para tu contador, del periodo que estés viendo.",
   "Work you have finished and not been paid for. Mark one paid here.":

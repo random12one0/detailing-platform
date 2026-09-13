@@ -283,7 +283,7 @@ export default function AdvancedMoney({
         <Panel title={t("Too few jobs to read rates")}
           says={t("Rates, percentages and best-of-the-week need more finished jobs behind them than this period has. These four are counted, not worked out, so they are the ones worth reading.")}>
           <div className="advkpis">
-            <Kpi label={t("Collected")} value={money(m.collected)} />
+            <Kpi label={t("Brought in")} value={money(m.collected)} />
             <Kpi label={t("Spent")} value={money(m.spent)} />
             <Kpi label={t("Net")} value={money(m.net)} tone={m.net < 0 ? "bad" : undefined} />
             <Kpi label={t("Jobs done")} value={String(m.jobs)} />
@@ -368,7 +368,7 @@ export default function AdvancedMoney({
       <Panel title={t("What came in")}
         says={t("Where the money came from: what you quoted, and what you sold once you were there.")}>
         <div className="advkpis two">
-          <Kpi label={t("Collected")} value={money(m.collected)}
+          <Kpi label={t("Brought in")} value={money(m.collected)}
             now={m.collected} prev={m.prevCollected} />
           <Kpi label={t("Sold at the job")} value={money(m.onSite)}
             note={m.jobs > 0

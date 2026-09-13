@@ -160,9 +160,12 @@ export const TOURS = {
     // word here a detailer can misread in their own favour, and the
     // consequence of misreading it is thinking they earned more than they did.
     ["net", "What is left after expenses, not what came in."],
-    ["breakdown", "The same period broken down: what you collected, what you spent, your average job."],
-    ["export", "One file for your accountant, covering whatever period you are looking at."],
+    // UNPAID MOVED UP ON 2026-09-13, to sit where it now sits on a phone. The
+    // steps are walked in this order and each one is scrolled to, so a list
+    // that disagreed with the page sent the reader back up and down again.
     ["unpaid", "Work you have finished and not been paid for. Mark one paid here."],
+    ["breakdown", "The same period broken down: what you brought in, what you spent, your average job."],
+    ["export", "One file for your accountant, covering whatever period you are looking at."],
     ["expenses", "Everything you spend. Write it down here and it comes off your net."],
   ],
   clients: [

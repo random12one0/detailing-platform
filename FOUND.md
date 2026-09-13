@@ -5,6 +5,44 @@ Claude Cowork decides what becomes work.
 
 ---
 
+## THE DEMO HAS NOBODY OWING IT MONEY, SO HALF THE MONEY SCREEN IS INVISIBLE — 2026-09-13, lane B, seed is lane C's
+
+**Measured against `demo-detail` (`1c486181`): all 17 completed bookings are
+`payment_status: "paid"`, and `scripts/seed-demo.mjs` is why — its one
+`payment_status` line is `p.paid ? "paid" : "pending"` and every row in both job
+tables carries a `paid:` amount.** So `Waiting on payment` never draws in the
+demo, on any screen, at any width.
+
+**IT IS NOT A MONEY-SCREEN FAULT AND IT IS NOT COSMETIC.** It is the half of
+that screen that answers *is anyone late paying me*, and nobody reviewing it —
+no screenshot, no sweep, no sales demo, no walkthrough step — has ever seen it.
+FOUND.md's own 2026-09-12 entry quotes the demo reading `WAITING ON PAYMENT ·
+$175`, so this state is newer than that and arrived silently with a re-seed.
+
+**It also takes two walkthrough steps down with it**: the money tour's `unpaid`
+step points at an element that does not exist in the demo, and `Mark paid` has
+no subject to fire on.
+
+**The fix is one or two rows in `scripts/seed-demo.mjs` with no `paid:`** — one
+inside the current month and one outside it, because the unpaid list is
+deliberately NOT period-filtered and a single in-period row cannot show that.
+**Lane C's file; not touched.** Lane B measured this screen with a temporary
+in-component fixture and removed it before the final run.
+
+## A BORDERLESS `.btn.ghost` READS AS A CAPTION, NOT A BUTTON — 2026-09-13
+
+`.btn.ghost` is `border-color: transparent; background: transparent`, so on
+Money *"The full picture"* and *"Log a bulk job"* are centred text floating in a
+28px-gap stack with nothing saying they can be pressed. **The spacing is not the
+bug — measured, it is the `.group` gap plus a 4px and a 12px margin, the same as
+everything else on the screen.** The `.linkdoor` directly between them is also
+`.btn.ghost` and reads correctly, because its own class gives it a card.
+
+**37 call sites across `app/src`, so this is a token-level decision and not a
+Money change.** Not fixed.
+
+---
+
 ## `tests/platform-admin.test.mjs` IS 111 PASSED, **49 FAILED**, AND NONE OF IT IS THE SERVER — 2026-09-13
 
 **Measured twice tonight, once with lane C's changes in the tree and once with

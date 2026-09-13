@@ -412,7 +412,15 @@ export default function Money({ onGo }) {
   );
 
   // ─── WHAT DID I MAKE ────────────────────────────────────────────────────
-  const left = (
+  //
+  // **FOUR FRAGMENTS RATHER THAN TWO, BECAUSE THE PHONE'S ORDER IS NOT THE
+  // DESK'S — 2026-09-13.** At a desk the two columns are read side by side, so
+  // *who owes me* is already in view beside the net figure. On a phone
+  // `{left}{right}` put the unpaid list BELOW the chart, the whole breakdown,
+  // the most-booked rows and two doors — roughly 900px down, which is the
+  // second of this screen's two questions answered last. The pieces are named
+  // so the two orders can differ without either one being a copy of the other.
+  const lead = (
     <>
       <h1 className="display">{t("Money")}</h1>
 
@@ -523,6 +531,12 @@ export default function Money({ onGo }) {
       </div>
       </div>
 
+    </>
+  );
+
+  // ─── THE SAME PERIOD, BROKEN DOWN ───────────────────────────────────────
+  const context = (
+    <>
       {/* Context, not content: one sunken block instead of eight cards.
           Same swap and the same key as the figures above — this block is the
           same period's numbers and must not resolve a beat after them. */}
@@ -530,7 +544,23 @@ export default function Money({ onGo }) {
         <div>
         <div className="sunken swap" key={`ctx-${kind}|${offset}`} data-tour="breakdown">
           <div className="paircells">
-            <Cell label={t("Collected")} value={money(stats.inNow)} />
+            {/* **IT SAID "COLLECTED" AND THE SAME FRAME CONTRADICTED IT —
+                FOUND.md, 2026-09-12, fixed 2026-09-13.** `revenueIn` filters
+                on `status`, never on `payment_status`, so this cell counted
+                work that has been DONE, paid for or not: September read
+                COLLECTED $410 with WAITING ON PAYMENT · $175 an inch below it,
+                and Today's screen said "Nothing collected yet" about the same
+                two jobs. Three screens, one number, two claims.
+                **THE FIGURE IS RIGHT AND THE WORD WAS WRONG.** Net is
+                `brought in − expenses` and has to stay that way — the tour
+                step above it says "what is left after expenses, not what came
+                in", and a cash-basis net would disagree with the chart, the
+                comparison and the accountant file, all of which count the work
+                you did in the period. So the label becomes what the advanced
+                screen's own lede has always called this number: *you brought
+                in {in} and spent {out}*. What has actually LANDED is the
+                unpaid block's question, and it is answered there by name. */}
+            <Cell label={t("Brought in")} value={money(stats.inNow)} />
             <Cell label={t("Expenses")} value={money(stats.outNow)} />
             <Cell label={t("Avg job")} value={money(stats.avgJob)} />
             <Cell label={t("Jobs done")} value={String(stats.jobsNow)} />
@@ -560,7 +590,16 @@ export default function Money({ onGo }) {
             <p className="quiet">{t("Too few finished jobs to name a most-booked service.")}</p>
           ))}
 
-          <div className="paircells tight-rows">
+          {/* **THE PAIR ABOVE THIS ONE WAS TOUCHING IT — 2026-09-13.**
+              `.sunken` gives its children no gap and `.paircells` only spaces
+              its own grid rows, so two adjacent pairs sat 8px apart INSIDE
+              each grid and 0px between them. In the too-few-jobs case that put
+              *"Too few finished jobs to name a most-booked service."* hard
+              against QUOTED UP FRONT, where it read as that pair's caption
+              rather than as the sentence replacing the pair above. 10px is the
+              `tight-rows` row gap plus a hair, so the block still reads as one
+              group. */}
+          <div className="paircells tight-rows" style={{ marginTop: 10 }}>
             <Cell label={t("Quoted up front")} value={money(stats.quoted)} />
             <Cell label={t("Added on site")}
               value={`${stats.onSite >= 0 ? "+" : "−"}${money(Math.abs(stats.onSite))}`}
@@ -572,7 +611,7 @@ export default function Money({ onGo }) {
                   sentence on this screen that never went through `t()`, so it
                   sat in English on a Spanish dashboard while everything around
                   it translated. Nothing else about it changes. */}
-              {t("{percent}% of what you collected was sold at the job.",
+              {t("{percent}% of what you brought in was sold at the job.",
                 { percent: Math.round((stats.onSite / stats.inNow) * 100) })}
             </p>
           )}
@@ -623,8 +662,8 @@ export default function Money({ onGo }) {
     </>
   );
 
-  // ─── WHO OWES ME, AND WHAT WENT OUT ─────────────────────────────────────
-  const right = (
+  // ─── WHO OWES ME ────────────────────────────────────────────────────────
+  const owedBlock = (
     <>
       {/* A SECTION WITH NOTHING IN IT IS NOT DRAWN — no dashed box saying
           "Nothing outstanding", which was Part B row 11 and is the one thing
@@ -654,7 +693,18 @@ export default function Money({ onGo }) {
                 </div>
               </div>
               <hr className="rule" />
-              <button className="btn primary" disabled={markingPaid === b.id} onClick={() => markPaid(b)}>
+              {/* **IT WAS `.btn.primary` AND THAT BROKE ITS OWN RULE ONCE THIS
+                  BLOCK MOVED — 2026-09-13.** theme.css calls primary *"one
+                  accent, spent on the single action that moves the screen
+                  forward"*, and a LIST hands out one per row: two unpaid jobs
+                  drew two full-width accent bars, three drew three. Below the
+                  fold that was merely against the rule; directly under the net
+                  figure it made them the loudest thing on a screen whose whole
+                  job is that one figure being unmistakable.
+                  Small and outlined, so the row still reads as a thing you can
+                  act on and the accent goes back to being rare. `.btn.sm` is
+                  38 painted and 44 reachable through its own `::after`. */}
+              <button className="btn sm inline" disabled={markingPaid === b.id} onClick={() => markPaid(b)}>
                 {markingPaid === b.id ? t("Marking paid…") : t("Mark paid")}
               </button>
             </div>
@@ -662,6 +712,12 @@ export default function Money({ onGo }) {
         </div>
       )}
 
+    </>
+  );
+
+  // ─── WHAT WENT OUT ──────────────────────────────────────────────────────
+  const outgoings = (
+    <>
       <div className="tight" data-tour="expenses">
         <div className="row between">
           <span className="label">{t("Expenses")} · {period.label}</span>
@@ -762,14 +818,19 @@ export default function Money({ onGo }) {
 
   return wide ? (
     <div className={`split money${refreshing ? " refreshing" : ""}`} aria-busy={refreshing || undefined}>
-      <div className="group col-1">{left}</div>
-      {!selected && <div className="group col-2">{right}</div>}
+      <div className="group col-1">{lead}{context}</div>
+      {!selected && <div className="group col-2">{owedBlock}{outgoings}</div>}
       {modals}
     </div>
   ) : (
+    // WHO OWES ME COMES SECOND ON A PHONE, straight after the net figure and
+    // the chart. It is the other half of the one question this screen exists
+    // to answer, and it is the half that has something to DO about it.
     <div className={`group${refreshing ? " refreshing" : ""}`} aria-busy={refreshing || undefined}>
-      {left}
-      {right}
+      {lead}
+      {owedBlock}
+      {context}
+      {outgoings}
       {modals}
     </div>
   );
