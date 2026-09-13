@@ -31,6 +31,30 @@ went stale within three days of the split** — measured 2026-09-11:
 **`platform-admin` is RED as of 2026-09-11 and no document says so.** See
 `docs/CHECKPOINT.md`.
 
+## BEFORE YOU BELIEVE ANY OF IT: CAN THE CHECK SEE? — 2026-09-13
+
+```bash
+node scripts/blind-run.mjs
+```
+
+**Two worktrees off HEAD; in one, every product source file is truncated to
+zero bytes; every suite runs in both. A check that is still green has read
+nothing.** It found **69 checks across ten suites that could not fail**, two
+whole suites that could report success having read nothing, one script that
+exited 0 having measured nothing, and one instrument blind to 28 imports.
+`docs/check-audit-2026-09-13.md` is the report;
+`docs/VERIFIED.md` § 1i is the ledger.
+
+**Read the survivor NAMES, not the number.** A green line usually means a
+correct NEGATIVE missing a subject count, not a wrong assertion — and a suite
+whose subject is `tests/` itself cannot be blanked, which produced two false
+findings before the instrument was trusted.
+
+**TWO SUITES WERE ADDED THE SAME DAY AND BOTH ARE CREDENTIAL-FREE:**
+`money-format` pins `_shared/emailKit.ts`'s money formatter against
+`app/src/lib/format.js` across the Deno wall, and `deploy-freshness` baselines
+the walk that decides which functions `check-deployed.mjs` calls stale.
+
 **Never quote a number from this file. Run the battery and read what it
 prints:**
 
