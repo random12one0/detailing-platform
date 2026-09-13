@@ -1,5 +1,62 @@
 // Promo codes + the site-wide sale. Codes are unique per business — two
 // different detailers can both run "SUMMER10".
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// REBUILT 2026-09-13 — THE CODE COMPOSER WAS FOUR NAKED BOXES AND A CHECKBOX
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// Picked by counting, the way Business info was: the SALE half of this screen
+// was already the product's own vocabulary — `Group`, `Switch`, `Setting`,
+// `DurationChoice` — and the CODES half, eight lines below it, was `Code`,
+// `Value`, `Usage limit (blank = unlimited)` and a raw `<input
+// type="checkbox">`. One screen speaking two languages, with the better one
+// sitting directly above the worse one for comparison.
+//
+// **THE FAULT WAS NOT THE NUMBER OF BOXES. IT WAS THAT EVERY RELATIONSHIP ON
+// THIS SCREEN WAS DESCRIBED SOMEWHERE ELSE OR NOWHERE.**
+//
+//   - `Value` meant dollars or percent depending on `Type`, a control two
+//     boxes away, and said so NOWHERE. A detailer typing 20 got 20% off or
+//     $20 off and the screen never told them which. **The control IS the unit
+//     now:** `% off` draws the same `DurationChoice` the sale above uses,
+//     `$ off` draws `MoneyField`, which has the dollar sign inside the box.
+//   - `Usage limit (blank = unlimited)` put the rule in brackets in the label,
+//     which is the exact shape Business info was rebuilt out of. An empty box
+//     meaning unlimited is a fact nothing on screen carries. It is a
+//     `Segmented` now: *No limit* or *A set number*, and the number only
+//     exists once you have said you want one.
+//   - **THE CONSEQUENCE IS A SENTENCE, not arithmetic the detailer does.**
+//     The sale's switch has always said "Every booking is 15% cheaper right
+//     now"; the code composer said nothing at all. It now says what a customer
+//     typing this code actually pays, in that code's own words.
+//
+// **BOTH LIMITS ARE BEHIND A `Folded` ROW, because both have a default nobody
+// changes** — no limit, reusable — and `Folded`'s own rule is that the summary
+// must state the current setting in words. It does: *"No limit · reusable by
+// the same customer"*. The common case is three rows now, not five.
+//
+// **THE EXISTING CODES ARE A `.menu-row` LIST AND NOT CARDS INSIDE A CARD.**
+// They were `.card row between` nested in the composer's own `.card`, so the
+// screen had a card containing cards. `.menu-row` is Catalog's shape and
+// Business info's, and `span.menu-name` exists precisely for a row whose name
+// is not a button — these are read and toggled, never edited.
+//
+// LAW 1, HONESTLY: two settings groups and one ruled list of rows. Business
+// info shipped four `Group`s the night before, so a settings screen being made
+// of settings groups is the product's answer rather than a shortcut — the
+// variety is in the CONTROLS inside them, and in the list being a list.
+//
+// FIVE STRINGS ON THIS SCREEN RENDERED IN ENGLISH ON A SPANISH DASHBOARD and
+// four of them already had Spanish sitting in `appEs.js`, waiting for a `t()`
+// that was never added: "Code added.", "Sale settings saved.", the sale blurb,
+// "Activate"/"Deactivate" and "· once per customer". The fifth, the sale's own
+// "Every booking is N% cheaper right now", had no key at all. Same family as
+// the bare JSX text Catalog's header warns about: `i18n-coverage` counts
+// `t("literal")`, so a string outside a call is invisible to it.
+//
+// ONE BUG, AND IT IS OLD: `addCode` cleared `code` and `value` OUTSIDE the
+// error branch, so a duplicate code — the single most likely failure on this
+// form — printed the error and wiped what had just been typed.
 
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase.js";
@@ -8,12 +65,22 @@ import { money } from "../../lib/format.js";
 // Segmented was USED at the type picker and never imported — the Promos
 // screen crashed the whole app the moment it rendered. Found by roadmap
 // 2.3's settings sweep; pre-existing, not caused by the restyle.
-import { DurationChoice, Group, Segmented, Setting, Switch } from "../../components/controls.jsx";
+import { DurationChoice, Folded, Group, MoneyField, Segmented, Setting, Switch } from "../../components/controls.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
 import { t } from "../../lib/appI18n.js";
 import { useAppLocale } from "../../hooks/useAppLocale.js";
+
+// The sale's own ladder, reused rather than re-chosen. A discount a detailer
+// offers is the same set of round numbers whether it is site-wide or behind a
+// code, and two different preset lists on one screen would be the product
+// disagreeing with itself within twelve inches.
+const OFF_PRESETS = [[5, "5%"], [10, "10%"], [15, "15%"], [20, "20%"], [25, "25%"]];
+// What a flyer actually says. `Custom` covers everything else, so this is a
+// shortcut and never a ceiling — which is the one thing the old
+// `<input type="number">` could not be, having no shortcut at all.
+const USE_PRESETS = [[10, "10"], [25, "25"], [50, "50"], [100, "100"]];
 
 export default function Promos() {
   useAppLocale();
@@ -45,7 +112,11 @@ export default function Promos() {
       usage_limit: form.usage_limit === "" ? null : Number(form.usage_limit),
       once_per_customer: form.once_per_customer,
     });
-    setMsg(error ? { ok: false, text: error.message } : { ok: true, text: "Code added." });
+    // **THE RESET USED TO RUN WHETHER OR NOT THE INSERT WORKED**, so the one
+    // failure this form actually produces — a code that already exists — threw
+    // away what had just been typed along with the error about it.
+    if (error) { setMsg({ ok: false, text: error.message }); return; }
+    setMsg({ ok: true, text: t("Code added.") });
     setForm({ ...form, code: "", value: "" });
     load();
   };
@@ -62,17 +133,53 @@ export default function Promos() {
       site_discount_percent: Number(sale.percent) || 0,
       site_discount_label: sale.label.trim() || null,
     }).eq("business_id", business.id);
-    setMsg(error ? { ok: false, text: error.message } : { ok: true, text: "Sale settings saved." });
+    setMsg(error ? { ok: false, text: error.message } : { ok: true, text: t("Sale settings saved.") });
     if (!error) reload();
   };
+
+  // WHAT A CUSTOMER GETS, IN WORDS. One key per shape rather than English
+  // glued around a number — Spanish puts the preposition somewhere else, which
+  // is `appEs.js`'s own rule at the top of that file.
+  const offWords = (type, value) =>
+    type === "percentage"
+      ? t("{n}% off", { n: Number(value) || 0 })
+      : t("{amount} off", { amount: money(Number(value) || 0) });
+
+  // The composer's live consequence. The code is the DETAILER'S OWN WORD and
+  // is interpolated untouched — never translated.
+  const consequence = () => {
+    // NOT "Pick how much comes off" — that repeated the label above it and told
+    // a detailer nothing the control does not already say, which is the copy
+    // rule Andrew set in 2026-09-01. The empty state carries the one fact the
+    // two segments do not: what the choice between them actually decides.
+    if (!Number(form.value)) return t("A percentage scales with the size of the job. A dollar amount is the same on every job.");
+    if (!form.code.trim()) return t("A customer who types the code gets {off}.", { off: offWords(form.type, form.value) });
+    return t("A customer who types {code} gets {off}.", { code: form.code.trim(), off: offWords(form.type, form.value) });
+  };
+
+  // `Folded`'s summary has to STATE the current setting, or the row has hidden
+  // something instead of putting it away.
+  // **AND IT HAS TO FIT. `.nav-row .now` CLAMPS TO ONE LINE**, so at 320 in
+  // Spanish "Sin límite · el mismo cliente lo puede volver a usar" came back as
+  // "Sin límite · el mismo cliente lo pued…" — a summary that has hidden half
+  // of what it exists to say. So the DEFAULT half is dropped: "reusable by the
+  // same customer" is what every code is unless somebody says otherwise, and a
+  // clause that is true of everything carries nothing. Only the exception is
+  // worth the width.
+  const limitWords = [
+    form.usage_limit === "" ? t("No limit") : t("{n} uses in total", { n: Number(form.usage_limit) }),
+    form.once_per_customer ? t("once per customer") : null,
+  ].filter(Boolean).join(" · ");
+
+  const live = codes.filter((c) => c.is_active).length;
 
   return (
     <>
       <Group title={t("Site-wide sale")}
-        blurb="Comes off every booking automatically. No code for the customer to enter.">
+        blurb={t("Comes off every booking automatically. No code for the customer to enter.")}>
         <Switch label={t("Sale is running")} checked={sale.active}
           help={sale.active
-            ? `Every booking is ${sale.percent || 0}% cheaper right now.`
+            ? t("Every booking is {n}% cheaper right now.", { n: Number(sale.percent) || 0 })
             : undefined}
           onChange={(v) => setSale({ ...sale, active: v })} />
         {sale.active && (
@@ -80,7 +187,7 @@ export default function Promos() {
             <Setting label={t("How much off")} stacked
               help={t("Applied before any promo code the customer enters.")}>
               <DurationChoice value={Number(sale.percent) || 0} unit="percent" customMax={90}
-                presets={[[5, "5%"], [10, "10%"], [15, "15%"], [20, "20%"], [25, "25%"]]}
+                presets={OFF_PRESETS}
                 onChange={(v) => setSale({ ...sale, percent: v })} />
             </Setting>
             <Setting label={t("What to call it")} stacked
@@ -93,55 +200,112 @@ export default function Promos() {
       </Group>
       <button className="btn" onClick={saveSale} style={{ marginBottom: "var(--sp-5)" }}>{t("Save sale")}</button>
 
-      <div className="card">
-      {/* .thoughts, because every child of this card was a bare sibling with
-          no gap: the two field rows, the checkbox, the button and every
-          existing code sat directly on top of each other. Owner walkthrough
-          W11, "boxes touching each other". Flow containers, not per-element
-          margins — theme.css § SPACE. */}
-      <div className="thoughts">
-      <div className="section-title" style={{ marginTop: 0, marginBottom: 0 }}>{t("Promo codes")}</div>
-      <div className="grid2">
-        <label className="field"><span>{t("Code")}</span>
-          <input value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} placeholder={t("SUMMER10")} /></label>
-        <label className="field"><span>{t("Type")}</span>
-          <Segmented value={form.type}
-            onChange={(v) => setForm({ ...form, type: v })}
-            options={[["percentage", "% off"], ["amount", "$ off"]]} /></label>
-      </div>
-      <div className="grid2">
-        <label className="field"><span>{t("Value")}</span>
-          <input type="number" inputMode="decimal" value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })} /></label>
-        <label className="field"><span>Usage limit (blank = unlimited)</span>
-          <input type="number" inputMode="numeric" value={form.usage_limit} onChange={(e) => setForm({ ...form, usage_limit: e.target.value })} /></label>
-      </div>
-      {/* NOT label.field — that rule is `display: block` and it beat the
-          .row next to it, so the box sat on its own line above an uppercase
-          field label instead of beside a sentence. A checkbox and its caption
-          are a row. */}
-      <label className="row" style={{ gap: 10, cursor: "pointer" }}>
-        <input type="checkbox" checked={form.once_per_customer} onChange={(e) => setForm({ ...form, once_per_customer: e.target.checked })} />
-        <span className="body">{t("One use per customer")}</span>
-      </label>
-      <button className="btn" onClick={addCode}>{t("Add code")}</button>
+      <Group title={t("Promo codes")}
+        blurb={t("A word the customer types when booking. The sale above comes off first.")}>
+        {/* SIZED TO ITS CONTENT (CLAUDE.md § SCREEN RULES). A promo code is a
+            short word, and a short word in a 690px box at 1440 is part of what
+            made every row on this screen the same shape. The wrapper is a
+            `<label>` and not a `<span>`, because the sizing rule is
+            `label.field.w-code > input` — the same trap that rendered Business
+            info's year and phone full width.
+            UPPERCASED AS YOU TYPE, because `addCode` uppercases it on the way
+            to the database anyway. Showing "summer10" and storing "SUMMER10"
+            is the product quietly disagreeing with what it just showed. */}
+        <Setting label={t("Code")}>
+          <label className="field w-code">
+            <input value={form.code} placeholder="SUMMER10"
+              onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} />
+          </label>
+        </Setting>
 
-      {codes.map((c) => (
-        <div className="card row between" key={c.id} style={{ opacity: c.is_active ? 1 : 0.5 }}>
-          <div>
-            <strong>{c.code}</strong>
-            <div className="muted">
-              {c.type === "percentage" ? `${c.value}% off` : `${money(c.value)} off`} · used {c.times_used}
-              {c.usage_limit ? `/${c.usage_limit}` : ""}
-              {c.once_per_customer ? " · once per customer" : ""}
-            </div>
+        {/* **THE UNIT IS THE CONTROL, NOT A LABEL TO REMEMBER.** These were two
+            separate boxes — a segmented `% off / $ off` and a bare number — and
+            nothing joined them, so the number meant something different
+            depending on a control above it that the screen never mentioned
+            again. A percentage gets the sale's own ladder; an amount gets the
+            field with the dollar sign inside it. */}
+        <Setting label={t("How much off")} stacked help={consequence()}>
+          <div className="tight">
+            <Segmented value={form.type} label={t("Type of discount")}
+              onChange={(v) => setForm({ ...form, type: v })}
+              options={[["percentage", "% off"], ["amount", "$ off"]]} />
+            {form.type === "percentage" ? (
+              <DurationChoice value={form.value === "" ? "" : Number(form.value)} unit="percent" customMax={90}
+                presets={OFF_PRESETS}
+                onChange={(v) => setForm({ ...form, value: String(v) })} />
+            ) : (
+              <MoneyField value={form.value} onChange={(v) => setForm({ ...form, value: v })} />
+            )}
           </div>
-          <button className="btn ghost inline" onClick={() => toggleCode(c)}>{c.is_active ? "Deactivate" : "Activate"}</button>
+        </Setting>
+
+        {/* TWO SETTINGS WITH A DEFAULT NOBODY CHANGES — no limit, reusable — so
+            they are put away rather than hidden, and the row says what they
+            currently are. */}
+        <Folded name={t("Limits")} now={limitWords}>
+          <Setting label={t("How many times it can be used")} stacked>
+            <div className="tight">
+              <Segmented value={form.usage_limit === "" ? "any" : "some"}
+                label={t("How many times it can be used")}
+                onChange={(v) => setForm({ ...form, usage_limit: v === "any" ? "" : "10" })}
+                options={[["any", "No limit"], ["some", "A set number"]]} />
+              {form.usage_limit !== "" && (
+                <DurationChoice value={Number(form.usage_limit)} unit="uses" customMax={100000}
+                  presets={USE_PRESETS}
+                  onChange={(v) => setForm({ ...form, usage_limit: String(v) })} />
+              )}
+            </div>
+          </Setting>
+          {/* A `Switch`, not a raw `<input type="checkbox">`. The one on this
+              screen sat fifty lines under a `Switch` doing the same job for the
+              sale, which is two answers to one question on one screen. */}
+          <Switch label={t("One use per customer")}
+            help={form.once_per_customer
+              ? t("Each customer can use it once, however many uses are left.")
+              : undefined}
+            checked={form.once_per_customer}
+            onChange={(v) => setForm({ ...form, once_per_customer: v })} />
+        </Folded>
+      </Group>
+
+      <button className="btn" onClick={addCode}
+        disabled={!form.code.trim() || !Number(form.value)}
+        style={{ marginBottom: "var(--sp-5)" }}>{t("Add code")}</button>
+
+      {/* THE LIST IS A DIFFERENT SHAPE FROM THE TWO GROUPS ABOVE IT (law 1),
+          and it is the shape Catalog and Business info already use. The count
+          is in the heading because "how many of these are live" is the one
+          question this list answers that no single row can. */}
+      {codes.length > 0 && (
+        <div className="tight">
+          <span className="label">{t("Your codes · {n} live", { n: live })}</span>
+          <div className="credlist">
+            {codes.map((c) => (
+              <div className={`menu-row${c.is_active ? "" : " off"}`} key={c.id}>
+                <span className="menu-name">
+                  {/* A promo code is USER DATA with no spaces in it — the case
+                      `.member-id` was written for. `.n` ellipses rather than
+                      overflowing, which is the same answer. */}
+                  <span className="n">{c.code}</span>
+                  <span className="m">
+                    {offWords(c.type, c.value)}
+                    {" · "}
+                    {c.usage_limit
+                      ? t("{used} of {limit} used", { used: c.times_used, limit: c.usage_limit })
+                      : t("used {n} times", { n: c.times_used })}
+                    {c.once_per_customer ? ` · ${t("once per customer")}` : ""}
+                  </span>
+                </span>
+                <button className="btn sm inline ghost" onClick={() => toggleCode(c)}>
+                  {c.is_active ? t("Deactivate") : t("Activate")}
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
-      ))}
+      )}
 
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
-      </div>
-    </div>
     </>
   );
 }

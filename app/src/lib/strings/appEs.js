@@ -980,6 +980,36 @@ export const appEs = {
   "Deactivate": "Desactivar",
   "· once per customer": "· una vez por cliente",
 
+  // ROADMAP — THE PROMO COMPOSER REBUILD, 2026-09-13. Five of the keys above
+  // this block already existed and the screen rendered English anyway, because
+  // the JSX passed bare strings. These are the new ones the rebuilt controls
+  // ask for.
+  "A word the customer types when booking. The sale above comes off first.":
+    "Una palabra que el cliente escribe al reservar. El descuento de arriba se aplica primero.",
+  "Every booking is {n}% cheaper right now.":
+    "Ahora mismo cada cita cuesta {n}% menos.",
+  "Type of discount": "Tipo de descuento",
+  "A set number": "Un número fijo",
+  "How many times it can be used": "Cuántas veces se puede usar",
+  "Limits": "Límites",
+  "uses": "usos",
+  "{n} uses in total": "{n} usos en total",
+  "once per customer": "una vez por cliente",
+  "reusable by the same customer": "el mismo cliente lo puede volver a usar",
+  "Each customer can use it once, however many uses are left.":
+    "Cada cliente lo puede usar una vez, sin importar cuántos usos queden.",
+  "A percentage scales with the size of the job. A dollar amount is the same on every job.":
+    "Un porcentaje sube o baja con el tamaño del trabajo. Una cantidad en dólares es la misma en todos.",
+  "A customer who types the code gets {off}.":
+    "Un cliente que escribe el código recibe {off}.",
+  "A customer who types {code} gets {off}.":
+    "Un cliente que escribe {code} recibe {off}.",
+  "{n}% off": "{n}% de descuento",
+  "{amount} off": "{amount} de descuento",
+  "{used} of {limit} used": "{used} de {limit} usados",
+  "used {n} times": "usado {n} veces",
+  "Your codes · {n} live": "Tus códigos · {n} activos",
+
   // The job record and the booking sheet.
   "Create booking": "Crear cita",
   "Save job": "Guardar trabajo",

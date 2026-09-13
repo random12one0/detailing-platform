@@ -156,9 +156,51 @@ is a screen that has been through that and been re-measured after.
 |---|---|---|---|---|
 | **Business info** (`more/BusinessInfo.jsx`) | 19 text inputs, 0 structured controls — the only dashboard screen with none | four `Group`s, credentials as a `.menu-row` list you open, two picture tiles, year 6ch / phone 16ch | 36 controls at 392 and at 320, 51 at 1440, none under 44, no sideways scroll, console clean, same 36/0 in Spanish | 2026-09-13, `78ec4af` |
 | **Website questionnaire** (`screens/SiteIntake.jsx`) | — | draws the site while you answer it | — | 2026-09-13, `b70836c` |
+| **Promo codes & sale** (`more/Promos.jsx`) | the sale half used `Group`/`Switch`/`Setting`/`DurationChoice`; the CODES half was four naked boxes, a raw `<input type="checkbox">` and `Usage limit (blank = unlimited)` | the unit IS the control (`DurationChoice` for %, `MoneyField` for $), limits behind a `Folded` row that states them, the code list a `.menu-row` list | 14–16 controls at 392, 14–16 at 320, 13–15 at 1440 · **0 under 44** · 0 overlapping pairs · no sideways scroll · fold shut AND open · **the same in Spanish** | 2026-09-13 |
 
 Invalidated by a change to that screen's own file, or to `app/src/theme.css`,
 `app/src/components/controls.jsx`.
+
+**AND FOUR SHARED RULES IN `theme.css` MOVED WITH IT, each one covering every
+call site rather than the screen that happened to be measured** — the shape the
+`.segmented button` fix at `7aacb02` established:
+
+| rule | was | now | what it covers |
+|---|---|---|---|
+| `.choice` | 38px painted, **38 reachable** | `margin-block: 1px` + `::after { inset: -4px 0 }` → **46**, pitch 46, tiles exactly | every `DurationChoice` ladder in the product |
+| `.credlist` | `gap: 6px` | `gap: 8px` | promo list and Business info's credentials |
+| `.row-item .btn.sm.icon` | **38 wide**, 45 tall | `width: var(--tap)` | Booking rules, Maintenance, Reviews, FAQ |
+| `.stepper button` | 42x42 | `var(--tap)` — it cannot take an `::after`, `.stepper` is `overflow: hidden` | every Stepper |
+| `.warn-box/.error-box .actions button` | `min-height: 38px`, written against the OLD floor | `var(--tap)` | the alert that says the booking page is offline |
+| `.settings-head > .btn.icon` | **41.9px at 320 in Spanish** — `width` is a flex BASIS, not a floor | `flex-shrink: 0` | the Back control on every settings screen |
+
+**Booking rules was measured before and after and it is the proof:** 8 controls
+under 44 at 392 before, **0 after**, with nothing edited in that screen's own
+file. Business info and Services & add-ons re-measured clean at all three widths
+after the change, so none of it regressed the screens already signed off.
+
+**THE SPANISH ONE IS THE ONE TO REMEMBER:** the back control read 44 in English
+at every width and 41.9 in Spanish at 320, because a longer title squeezed a flex
+row. **An English-only tap-target run cannot see it.**
+
+## 3c · FOUND AND NOT FIXED — lane B, 2026-09-13
+
+**Measured with the baselined probe while checking that the shared-rule changes
+above had not broken anything else. Real, and deliberately left** — they are on
+screens this session did not open, and chasing them would have made a one-screen
+change into a five-screen one.
+
+| where | what | measured |
+|---|---|---|
+| Getting paid → the Zelle handle | an `<input>` inside `label.field` reaches **141x43** of a 693x46 box at 1440 | 2026-09-13 |
+| Monthly plans | **the probe found 1 control at 320 and 0 at 1440** and still printed "0 under 44". That screen has NOT been measured — do not read it as clean | 2026-09-13 |
+
+Invalidated by: `app/src/screens/more/Payments.jsx`, `app/src/screens/more/Plans.jsx`,
+`app/src/theme.css`.
+
+**The second row is the more useful one, and it is about the instrument rather
+than the product:** a green line over zero subjects reads exactly like a pass.
+Count subjects every run.
 
 ## 4 · FROZEN — recorded, deliberately not fixed
 

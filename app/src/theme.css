@@ -1353,7 +1353,13 @@ a { color: var(--accent-text); text-decoration: none; }
 /* The back control is a 44px target pulled tight to the left edge of the
    content column, so the title starts where every other screen's masthead
    starts rather than 44px in. */
-.settings-head > .btn.icon { margin-left: calc(var(--sp-2) * -1); }
+/* **AND IT DOES NOT SHRINK — found at 320 IN SPANISH, 2026-09-13.** `.btn.icon`
+   is `width: var(--tap)`, which in a flex row is a BASIS and not a floor: at
+   320 the longer Spanish titles ("Códigos y descuentos") squeezed the back
+   control to **41.9px**, two under the floor, on EVERY settings screen. It read
+   44 in English at every width, which is why nothing had caught it — the
+   English run is the one that gets taken. */
+.settings-head > .btn.icon { margin-left: calc(var(--sp-2) * -1); flex-shrink: 0; }
 
 /* The gear's account block is the end of its PAGE and the resting content of
    its COLUMN — never both at once, or Sign out is on the screen twice. */
@@ -1677,8 +1683,14 @@ button.menu-name { display: flex; flex-direction: column; justify-content: cente
    passing — so the class is untouched and the three controls on THIS screen
    are widened where they are used. Same reasoning as the wizard's quit link.
    The reorder arrow on a menu row is the same control and gets the same. */
+/* **`.row-item` JOINED THE LIST 2026-09-13**, found while checking that the
+   `.choice` change had not broken anything else: the same 38x38 icon button
+   sits at the end of every `.row-item` in Booking rules, Maintenance, Reviews
+   and the FAQ, reading 38 wide and 45 tall — passing vertically and six pixels
+   short the other way, which is precisely what this rule was written for. */
 .sizecol-move .btn.sm.icon,
 .menu-row .btn.sm.icon,
+.row-item .btn.sm.icon,
 .menu-band .btn.sm.icon { width: var(--tap); }
 
 .sizeladder { display: flex; flex-direction: column; gap: var(--sp-1); }
@@ -1959,6 +1971,10 @@ label.field > span {
 label.field.w-year > input { max-width: calc(6ch + 3.4rem); }
 label.field.w-price > input { max-width: calc(8ch + 3.4rem); }
 label.field.w-phone > input { max-width: calc(16ch + 3.4rem); }
+/* A promo code is a short word somebody types onto a flyer. 12ch holds
+   SUMMER2026 with room and stops the shortest value on the screen sitting in
+   the widest box on it. */
+label.field.w-code > input { max-width: calc(12ch + 3.4rem); }
 .fields { display: flex; flex-direction: column; gap: var(--sp-4); }
 input, select, textarea {
   width: 100%; min-height: var(--tap); padding: 11px 14px;
@@ -2018,7 +2034,14 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
      product already accepts (PRODUCT.md records that exception and why), and
      nothing here was near it. The two buttons on Booking rules share this rule
      and had the same problem. */
-  min-height: 38px; padding: 0 10px; border-radius: var(--r-inset);
+  /* **AND 38 IS NOT THE FLOOR ANY MORE — 2026-09-13.** The note above is right
+     about everything except the number: it was written when `.btn.sm`'s 38 was
+     what this product accepted, and `docs/BAR.md` moved the floor to 44. This
+     one grows its BOX rather than taking the `::after` the small buttons take,
+     because it is the only way out of an alarm that says the booking page is
+     offline — the one control on the screen where a missed press costs a
+     booking — and the box has room. */
+  min-height: var(--tap); padding: 0 10px; border-radius: var(--r-inset);
   corner-shape: var(--corner);
 }
 .warn-box .actions button:hover { background: var(--accent-quiet); }
@@ -2388,7 +2411,15 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
    `Catalog`'s own shape and already carries the hover, the corner and the
    `.menu-name` type — only the two things below differ, because an open row
    holds a pair of fields where a service row holds a price ladder. */
-.credlist { display: flex; flex-direction: column; gap: 6px; }
+/* **8px, AND IT IS THE TAP FLOOR TALKING, NOT SPACING — 2026-09-13.** A row in
+   this list ends in a `.btn.sm`, whose `::after` makes a 38px button a 46px
+   target. At a 6px gap the pitch is 44, so each button's box ran 2px into its
+   neighbour's and the probe read **34px of reachable height** on a control
+   that measures 45 standing alone — two rows stealing each other's presses,
+   which is trap (n): a small target traded for a WRONG one. 38 + 8 = 46 tiles
+   the box exactly. Found on the promo list and it was already true of Business
+   info's credentials, which is the other caller. */
+.credlist { display: flex; flex-direction: column; gap: 8px; }
 .credrow.open { flex-wrap: wrap; align-items: flex-end; }
 .credrow.open > .grid2 { flex: 1 1 180px; min-width: 0; }
 .credtools { display: flex; gap: 6px; align-items: center; margin-left: auto; }
@@ -3234,6 +3265,28 @@ label.row:has(> input[type="checkbox"]) { min-height: 44px; }
   cursor: pointer; white-space: nowrap;
   transition: background var(--t-hover) var(--e-out), color var(--t-hover) var(--e-out), border-color var(--t-hover) var(--e-out);
 }
+/* **38 PAINTED, 44 REACHABLE — the FOURTH instance of this pattern, 2026-09-13.**
+   `.chip`, `.btn.sm` and `.segmented button` already carry it; `DurationChoice`
+   was the one control kind in the kit that did not, so every preset ladder in
+   the product — the site sale, Notifications' three nudges, Booking rules, Plans
+   and now the promo composer — was 38px against a 44px floor. ONE RULE, not
+   thirty call sites, which is why it was worth finding.
+   THE PAINT STAYS 38 for the reason the note above gives it: a preset chip sits
+   deliberately under the 42px buttons beside it, and growing it would make the
+   ladder the tallest thing on a settings row.
+   **-4px AND A 1px MARGIN, AND THE PAIR IS THE POINT — `.chip`'s own answer,
+   third time it has been needed.** -3px on a 6px gap makes the box exactly 44
+   on paper and the probe read **43**: a preset chip lands on a fractional y,
+   and half a pixel at each end costs one. A floor that is only met when the
+   layout happens to land on a whole pixel is not met. So the box is 46 and the
+   gap opens to match: `margin-block: 1px` makes the pitch 38 + 1 + 1 + 6 = 46,
+   which the 46px box tiles EXACTLY — each one reaches its neighbour's edge and
+   stops. Without the margin the two wrapped rows would overlap by 2px and
+   steal each other's presses, which is trap (n): a small target traded for a
+   WRONG one. Vertical only, because these sit shoulder to shoulder across that
+   same 6px sideways. */
+.choice { position: relative; margin-block: 1px; }
+.choice::after { content: ""; position: absolute; inset: -4px 0; }
 .choice:hover:not(.on) { border-color: var(--line-2); color: var(--text); }
 .choice:active { transform: scale(0.97); }
 .choice.on {
@@ -3278,8 +3331,13 @@ label.row:has(> input[type="checkbox"]) { min-height: 44px; }
   border: 1px solid var(--hairline); border-radius: var(--r-pill);
   background: var(--surface); overflow: hidden;
 }
+/* **44, NOT 42 — measured 2026-09-13.** The floor moved from 32 and this was
+   written against the old one. It cannot take the `::after` every other small
+   control here takes, because `.stepper` is `overflow: hidden` and would clip
+   it, so the box itself grows: the control goes from 44 to 46 tall overall,
+   which is the same height as the `.btn` beside it. */
 .stepper button {
-  width: 42px; height: 42px; border: 0; background: transparent;
+  width: var(--tap); height: var(--tap); border: 0; background: transparent;
   color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center;
   transition: background var(--t-hover) var(--e-out);
 }
