@@ -539,6 +539,164 @@ export const VEHICLE_CONDITIONS = [
 ];
 
 // ---------------------------------------------------------------------------
+// What are you bringing? — matching free text against real cars.
+//
+// **THE FIELD IS OPTIONAL FREE TEXT AND IT STAYS THAT WAY.** Everything below
+// only ever OFFERS. Nothing here can reject an answer, correct one, or block
+// the step: *"if nothing matches, keep exactly what they typed and let them
+// continue"* — a picker that refuses an answer is worse than the text box it
+// replaced, because the customer who drives something we have never heard of
+// is the one who most needs to tell us about it.
+//
+// **AND IT MUST NEVER TOUCH THE PRICE TIER.** The index is built from NHTSA
+// vPIC, which tags a Camry as `car` in some model years and `mpv` in others,
+// and a Forester likewise — so a size derived from it would quote some
+// customers the wrong number. The tier is the detailer's own list and the
+// customer's own answer to the question above this field. `scripts/build-
+// vehicle-index.mjs` throws vPIC's type away after using it to filter out
+// motorcycles.
+//
+// THE INDEX IS PASSED IN, never imported: this module may not import anything
+// (see the header), and a tenant site that wants its own list — a fleet
+// detailer with forty numbered vans — passes that instead.
+// ---------------------------------------------------------------------------
+
+// Everything that is not a letter or a digit goes, which is what makes
+// "F-150", "F150" and "f 150" one string. It is also why a make's own spacing
+// never has to be guessed at: "Land Rover" and "landrover" squash the same.
+const squashVehicle = (s) => String(s ?? "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+
+// Levenshtein, bailing out the moment the lengths cannot possibly be within
+// `max`. Two typos is the tolerance Andrew asked for, and it is the reason
+// this is a real distance and not a "same first three letters" heuristic:
+// "toyot" is a missing letter and "teh" is a transposition, and only a
+// distance sees both. Called at most a few thousand times, on strings under
+// twenty characters, and ONLY when the exact passes found nothing.
+function editDistance(a, b, max) {
+  if (Math.abs(a.length - b.length) > max) return max + 1;
+  let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    const row = [i];
+    let best = i;
+    for (let j = 1; j <= b.length; j++) {
+      row[j] = Math.min(
+        prev[j] + 1,
+        row[j - 1] + 1,
+        prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1),
+      );
+      if (row[j] < best) best = row[j];
+    }
+    if (best > max) return max + 1;
+    prev = row;
+  }
+  return prev[b.length];
+}
+
+// A four-digit run that could be a model year, anywhere in the string. It is
+// pulled out BEFORE matching and put back at the FRONT of every suggestion, so
+// "civic 2019" and "2019 civic" both offer "2019 Honda Civic" — which also
+// quietly teaches the order without an error message.
+//
+// The window is 1950 to 2049 rather than "up to this year". A customer booking
+// in December for a car that is already badged next year is right and we are
+// wrong, and a hard ceiling on the current year would argue with them about
+// it. The lower bound exists only so that a phone number or a price typed into
+// this field is not read as a year.
+const VEHICLE_YEAR = /\b(19[5-9]\d|20[0-4]\d)\b/;
+
+export function matchVehicle(query, index, limit = 5) {
+  const raw = String(query ?? "").trim();
+  if (!raw || !index) return [];
+
+  const year = (raw.match(VEHICLE_YEAR) ?? [""])[0];
+  const rest = squashVehicle(raw.replace(VEHICLE_YEAR, " "));
+  // A year on its own is not something to guess a car from. Two letters is
+  // where a suggestion starts being about what they typed rather than about
+  // the alphabet — "a" would offer Acura's whole catalogue.
+  if (rest.length < 2) return [];
+
+  const makes = Object.keys(index);
+  const out = [];
+  const full = () => out.length >= limit;
+  const push = (make, model) => {
+    const s = [year, make, model].filter(Boolean).join(" ");
+    if (!out.includes(s)) out.push(s);
+  };
+  const all = (make) => { for (const m of index[make]) { if (full()) return; push(make, m); } };
+
+  // The passes are ordered by how sure they are, and each one runs to
+  // completion before the next starts. That ordering IS the ranking: there is
+  // no score, because a score would need tuning and a customer cannot see it.
+
+  // 1. A whole make, then whatever is left of it. "toyota" offers Toyota's
+  //    list; "toyotacam" offers the Camry. This is the only pass that can
+  //    split the string, and it splits it at a make it actually knows.
+  for (const make of makes) {
+    if (full()) break;
+    const m = squashVehicle(make);
+    if (!rest.startsWith(m)) continue;
+    const tail = rest.slice(m.length);
+    if (!tail) { all(make); continue; }
+    for (const model of index[make]) {
+      if (full()) break;
+      if (squashVehicle(model).startsWith(tail)) push(make, model);
+    }
+  }
+
+  // 2. Half a make. "toyo", "merc", "lex".
+  for (const make of makes) {
+    if (full()) break;
+    if (squashVehicle(make).startsWith(rest)) all(make);
+  }
+
+  // 3. A model with no make at all, which is the case Andrew named: *"they
+  //    just put Outback"*. Also the whole reason "f150" works — the model
+  //    squashes to the same string the customer typed.
+  for (const make of makes) {
+    for (const model of index[make]) {
+      if (full()) break;
+      if (squashVehicle(model).startsWith(rest)) push(make, model);
+    }
+    if (full()) break;
+  }
+
+  // 4. A model remembered from the middle. "runner" finds the 4Runner,
+  //    "sprinter" the Sprinter, "type r" the Civic Type R.
+  for (const make of makes) {
+    for (const model of index[make]) {
+      if (full()) break;
+      if (squashVehicle(model).includes(rest)) push(make, model);
+    }
+    if (full()) break;
+  }
+
+  // 5. TWO TYPOS, and only once every exact pass has come back empty —
+  //    otherwise "civic" would drag "Civic Type R"'s neighbours in ahead of
+  //    the car somebody actually typed.
+  //
+  //    Three comparisons per car, which is what lets one pass cover a typo in
+  //    either half: "toyot" is two from "toyota", and "toyot camry" squashes
+  //    to "toyotcamry" which is one from "toyotacamry". Nothing here tries to
+  //    find WHERE the typo was.
+  if (out.length === 0) {
+    for (const make of makes) {
+      if (full()) break;
+      if (editDistance(rest, squashVehicle(make), 2) <= 2) { all(make); continue; }
+      for (const model of index[make]) {
+        if (full()) break;
+        if (editDistance(rest, squashVehicle(model), 2) <= 2
+          || editDistance(rest, squashVehicle(make + model), 2) <= 2) push(make, model);
+      }
+    }
+  }
+
+  // The thing they have already got is not a suggestion. Without this the row
+  // of offers stays on screen after one is taken, and the customer is invited
+  // to press the answer they are already looking at.
+  return out.filter((s) => squashVehicle(s) !== squashVehicle(raw));
+}
+
+// ---------------------------------------------------------------------------
 // When — the calendar.
 // ---------------------------------------------------------------------------
 

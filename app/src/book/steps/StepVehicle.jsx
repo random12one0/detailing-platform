@@ -42,6 +42,7 @@ import {
   vehicleSizeExtra, vehicleSizesMatter,
 } from "../core.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
+import VehicleField from "../VehicleField.jsx";
 
 // **ONLY OUR OWN WORDING IS TRANSLATED. A DETAILER'S IS NEVER TOUCHED, AND
 // "IT HAS NO ENTRY" WAS NOT ENOUGH — measured 2026-09-12 on a scratch tenant.**
@@ -214,11 +215,11 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
                   off mid-word in it — measured, not guessed. The one-car
                   version below keeps the fuller example, which is what makes
                   the field obviously optional. */}
-              <input
-                aria-label={t("Vehicle {n}, what it is", { n: i + 1 })}
+              <VehicleField
+                ariaLabel={t("Vehicle {n}, what it is", { n: i + 1 })}
                 value={at(i).model ?? ""}
                 placeholder={t("Make and model")}
-                onChange={(e) => edit(i, { model: e.target.value })}
+                onChange={(v) => edit(i, { model: v })}
               />
             </div>
           </div>
@@ -291,14 +292,21 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
             <p className="bk-muted">{t("One price for every vehicle.")}</p>
           )}
 
-          <label className="bk-field">
+          {/* A <div>, not a <label>, since roadmap 8.21. A label forwards every
+              click inside it to its control, and the suggestion list is now
+              inside it — so a tap on "Subaru Outback" would re-focus the input
+              and fight the press that was choosing it. The field carries its
+              own aria-label instead, which is a stronger association than
+              the wrapping ever was. */}
+          <div className="bk-field">
             <span>{t("What are you bringing? (optional)")}</span>
-            <input
+            <VehicleField
+              ariaLabel={t("What are you bringing? (optional)")}
               value={form.vehicleModel}
               placeholder={t("e.g. 2019 Honda Civic")}
-              onChange={(e) => setForm((f) => ({ ...f, vehicleModel: e.target.value }))}
+              onChange={(v) => setForm((f) => ({ ...f, vehicleModel: v }))}
             />
-          </label>
+          </div>
         </>
       )}
 

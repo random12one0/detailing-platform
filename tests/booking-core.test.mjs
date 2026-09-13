@@ -17,7 +17,7 @@
 //   node tests/booking-core.test.mjs
 
 import {
-  DEFAULT_VEHICLE_SIZES, REMEMBER_KEY, VEHICLE_CONDITIONS, bookingRequest,
+  DEFAULT_VEHICLE_SIZES, matchVehicle, REMEMBER_KEY, VEHICLE_CONDITIONS, bookingRequest,
   campaignFor, canAdvance, dayIsOpen, dayRefusesMode, faqFor, groupServices, initialForm,
   modeLimitFor, monthGrid, monthHasNothing, monthRange, normalizeProfile,
   normalizeSettings, offersBothModes, paymentMethods, quoteKey, quoteRequest,
@@ -817,6 +817,97 @@ console.log("\n13. nothing is assumed at signup (roadmap 8.4)");
       !/catch[\s\S]{0,200}setDays\(\{\}\)/.test(when),
       "setDays({}) after a failure prints thirty closed cells over an error");
   }
+}
+
+
+// ─── 17. THE VEHICLE TYPE-AHEAD — roadmap 8.21 ────────────────────────────
+// Step 3 was a bare text box: no list, no autocomplete, and nothing happened
+// on "Outback", "toyot" or "f150". `matchVehicle` is the rule that changed
+// that, and it lives here rather than in the component for the usual reason —
+// the next tenant site draws its own field and must not re-derive the matching
+// from a screenshot.
+//
+// **THE TWO PROPERTIES THAT ARE NOT NEGOTIABLE AND ARE CHECKED FIRST:** an
+// unrecognised car is returned untouched and unblocked, and nothing here ever
+// reaches the price tier. Everything after them is convenience.
+{
+  const VEHICLES = JSON.parse(read("app/src/book/vehicles.json"));
+  const makes = Object.keys(VEHICLES);
+  const modelCount = Object.values(VEHICLES).reduce((n, l) => n + l.length, 0);
+
+  // COUNT THE SUBJECTS BEFORE BELIEVING ANY GREEN LINE BELOW. A matcher run
+  // against an empty index answers [] to everything and every "nothing
+  // matches" check below would pass on it.
+  check(`17a · the index carries real cars — ${makes.length} makes, ${modelCount} models`,
+    makes.length >= 40 && modelCount >= 900,
+    `${makes.length} makes / ${modelCount} models — rebuild with scripts/build-vehicle-index.mjs`);
+  check("17b · the motorcycle filter held — Honda is cars, not 362 entries",
+    (VEHICLES.Honda?.length ?? 0) > 5 && VEHICLES.Honda.length < 60,
+    `Honda has ${VEHICLES.Honda?.length} entries; unfiltered vPIC returns 362`);
+
+  // Andrew's own named cases, which is why they are spelled out one by one
+  // rather than looped: *"a lot of people just type in Toyota or Lexus or they
+  // just put Outback"*, plus the spacing and the two-typo tolerance.
+  const first = (q) => matchVehicle(q, VEHICLES)[0] ?? null;
+  const cases = [
+    ["Outback", "Subaru Outback", "a model with no make at all"],
+    ["f150", "Ford F-150", "no spacing and no hyphen"],
+    ["F-150", "Ford F-150", "the hyphen the customer did type"],
+    ["f 150", "Ford F-150", "a space instead of the hyphen"],
+    ["crv", "Honda CR-V", "the hyphen dropped mid-name"],
+    ["toyot", "Toyota 4Runner", "one letter short of a make"],
+    ["Escallade", "Cadillac Escalade", "a doubled letter"],
+    ["Xterrra", "Nissan Xterra", "two doubled letters — the edit-distance ceiling"],
+    ["civic 2019", "2019 Honda Civic", "a year at the END moves to the front"],
+    ["2019 honda civ", "2019 Honda Civic", "a year at the front, make and half a model"],
+    ["runner", "Toyota 4Runner", "remembered from the middle of the name"],
+  ];
+  for (const [q, want, why] of cases) {
+    check(`17c · "${q}" offers ${want} — ${why}`, first(q) === want, `got ${JSON.stringify(first(q))}`);
+  }
+  check("17d · a make on its own offers that make's models",
+    matchVehicle("Lexus", VEHICLES).length === 5
+      && matchVehicle("Lexus", VEHICLES).every((s) => s.startsWith("Lexus ")),
+    JSON.stringify(matchVehicle("Lexus", VEHICLES)));
+
+  // THE CONTRACT. A picker that refuses an answer is worse than the text box
+  // it replaced, so every one of these returns nothing to show and NOTHING
+  // that could stop the customer.
+  for (const q of ["", "   ", "a", "2019", "my green truck", "Zaporozhets 965", "the white one"]) {
+    const got = matchVehicle(q, VEHICLES);
+    check(`17e · ${JSON.stringify(q)} offers nothing and blocks nothing`,
+      Array.isArray(got) && got.length === 0, JSON.stringify(got));
+  }
+  check("17f · a car it already has exactly is not offered back",
+    matchVehicle("Subaru Outback", VEHICLES).length === 0,
+    "a suggestion identical to the box invites the customer to press their own answer");
+  check("17g · a missing index is silence, never a throw",
+    matchVehicle("Outback", null).length === 0 && matchVehicle("Outback", {}).length === 0,
+    "a site that forgets to pass a list gets a plain text field, not a white screen");
+
+  // **NOT A STYLE RULE. vPIC TAGS A CAMRY `car` IN SOME YEARS AND `mpv` IN
+  // OTHERS, AND A FORESTER TOO**, so a tier read off that type quotes some
+  // customers the wrong price — the same class of mistake as a tier editor
+  // seeding itself in the detailer's own language. The type is used to drop
+  // motorcycles and then thrown away: it must not reach the shipped index, the
+  // matcher, or the field.
+  check("17h · no vehicle type survives into the index",
+    !/"(vehicletype|VehicleType|bodyClass)"/i.test(read("app/src/book/vehicles.json")),
+    "the index is make → models and nothing else");
+  {
+    const field = read("app/src/book/VehicleField.jsx");
+    const touches = /vehicleSize|setVehicleSize|vehicle_sizes|sizeExtra|pick\(/.test(field);
+    check("17i · the field cannot reach the size tier",
+      !touches, "matching a model must never set what the customer is charged");
+    check("17j · it offers, and it is not a <select>",
+      !/<select/.test(field) && /combobox/.test(field),
+      "the field is optional free text and stays that way");
+  }
+  // The suggestion list is a popup, so it is one of the few places in this
+  // product where a control can be built with no floor at all.
+  check("17k · every suggestion is a 44px target",
+    /\.bk-typeahead-list button\s*\{[^}]*min-height:\s*44px/.test(read("app/src/book/booking.css")),
+    "full-width rows, so the paint is the target and the pitch cannot overlap");
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

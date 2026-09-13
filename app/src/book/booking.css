@@ -673,6 +673,73 @@
 }
 .bk :focus-visible { outline: 2px solid var(--bk-accent); outline-offset: 3px; }
 
+/* THE VEHICLE TYPE-AHEAD — app/src/book/VehicleField.jsx.
+
+   IT FLOATS, AND THAT IS THE MEASUREMENT RATHER THAN THE TASTE. Step 3 has
+   39px of spare room at 392 and 23px at 1440 (StepVehicle.jsx carries the
+   table), so an in-flow list of five would push the step 200px past the fold
+   for every business — and it would do it mid-word, moving the block under the
+   customer's thumb on every keystroke.
+
+   IT OPENS AND DOES NOT ANIMATE OUT, DELIBERATELY. A 140ms rise says the list
+   came from the field; a 140ms fade on the way out would sit between the tap
+   and the car it was tapped for, which is the exact thing the owner's motion
+   rule forbids ("never a gate between a tap and the thing tapped for"). The
+   `.lite` block at the foot of this file already turns the entrance off for
+   reduced motion — one degradation path, no second implementation. */
+/* **THE BLOCK HOLDING AN OPEN LIST HAS TO OUTRANK THE ONE UNDER IT, AND THE
+   REASON IS NOT OBVIOUS FROM EITHER RULE — measured 2026-09-13, found by
+   looking rather than by any check in this repo.**
+
+   Every `.bk-step > *` carries the arrival animation `bk-rise`, which animates
+   a transform. An element with a transform is a STACKING CONTEXT — and it
+   stays one after the animation finishes, because `both` fill leaves
+   `transform: matrix(1, 0, 0, 1, 0, 0)` on it. An identity matrix, painting
+   nothing, and still a sealed box.
+
+   So the list's own `z-index: 10` could only ever rank it against its
+   siblings INSIDE that box. Against the next block down the page it lost on
+   document order, every time. What it looked like: "How dirty is the inside?"
+   printed straight through the suggestions, and `elementFromPoint` at the
+   middle of the list returned that heading's `<span>` — the customer's thumb
+   would have hit the label and not the car.
+
+   `z-index` needs a position, hence the `relative`. Scoped with `:has()` to
+   the one block that currently has a list open, so no other field's paint
+   order moves. */
+.bk-field:has(.bk-typeahead-list) { position: relative; z-index: 5; }
+.bk-typeahead { position: relative; }
+.bk-typeahead-list {
+  position: absolute; top: calc(100% + 5px); left: 0; right: 0; z-index: 10;
+  margin: 0; padding: 5px; list-style: none;
+  max-height: 268px; overflow-y: auto;
+  background: var(--bk-surface);
+  border-radius: var(--bk-r-inset);
+  corner-shape: var(--bk-corner);
+  box-shadow: inset 0 0 0 1px var(--bk-border), 0 14px 30px rgba(0, 0, 0, .5);
+  animation: bk-typeahead-in var(--bk-t-hover) var(--bk-e) both;
+}
+@keyframes bk-typeahead-in {
+  from { opacity: 0; transform: translate3d(0, -5px, 0); }
+}
+/* Full width, so there is no pitch to get wrong: every option's 44px box
+   tiles exactly against the one above it and no two can steal each other's
+   presses. The floor is the real hit area and here the paint IS the target. */
+.bk-typeahead-list button {
+  display: flex; align-items: center; width: 100%; min-height: 44px;
+  padding: 0 11px; text-align: left;
+  background: transparent; border: 0; color: var(--bk-text);
+  border-radius: calc(var(--bk-r-inset) - 3px);
+  corner-shape: var(--bk-corner);
+  font-family: var(--bk-f-body); font-size: var(--bk-t-body); cursor: pointer;
+  transition: background var(--bk-t-hover) var(--bk-e);
+}
+/* One highlight for the mouse and the arrow keys both, because they are the
+   same state and two would let the page show two "next" rows at once. */
+.bk-typeahead-list button:hover,
+.bk-typeahead-list button.active { background: var(--bk-hairline); }
+
+
 .bk-error {
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bk-danger) 55%, transparent);
   background: color-mix(in srgb, var(--bk-danger) 9%, transparent);

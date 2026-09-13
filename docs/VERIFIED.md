@@ -207,6 +207,64 @@ after the change, so none of it regressed the screens already signed off.
 at every width and 41.9 in Spanish at 320, because a longer title squeezed a flex
 row. **An English-only tap-target run cannot see it.**
 
+## 3d · PROVEN CLEAN — the vehicle type-ahead, lane B, 2026-09-13
+
+**Step 3's "What are you bringing?" was a bare text box — measured live by
+Andrew: no list, no autocomplete, nothing on "Outback", "toyot" or "f150".** It
+offers real cars now, from a 1,103-model index built out of NHTSA vPIC and
+shipped in the bundle.
+
+| what was proven | number |
+|---|---|
+| The index is real cars, not vPIC's raw dump | **45 makes, 1,103 models**, 10.6 KB raw / **4.6 KB gzipped**. Honda is **22** entries; unfiltered vPIC returns **362** |
+| The page never waits on another server | the index is in `app/dist/assets/index-*.js`; **zero references to vpic or nhtsa** anywhere under `app/src` or `app/dist` |
+| Every one of Andrew's named cases answers | `Outback`→Subaru Outback · `toyot`→Toyota · `f150`/`F-150`/`f 150`→Ford F-150 · `crv`→Honda CR-V · `Escallade`→Cadillac Escalade · `Xterrra`→Nissan Xterra · `civic 2019`→2019 Honda Civic · `runner`→Toyota 4Runner |
+| An unknown car is kept exactly and blocks nothing | `my green truck`, `mi camioneta verde`, `Zaporozhets 965`, `the white one` → no list, field unchanged, **Continue enabled** |
+| It cannot reach the price tier | choosing "Subaru Outback" left the size on **Small**, untouched. vPIC's own vehicle type is thrown away by the builder and never ships |
+| Tap targets and pitch | **44px** options at 320 / 392 / 1440, tops 527/571/615 at 320 — **pitch exactly 44, zero overlapping pairs**. `elementFromPoint` at centre and ±4, ±10, ±15 returns the option itself at every width |
+| No sideways scroll | **0** at 320, 392, 1440 |
+| Spanish | label, placeholder and `aria-label` all Spanish from existing keys; matching identical; **car names stay as manufactured**, which is § 6's rule about what a thing is CALLED |
+| The step costs no height | 3/7 reads **fits 117px spare at 392**, **111px at 1440**, and **over 15px at 320 — the identical figure with the change reverted to HEAD**, so the 320 overflow is pre-existing and not this work |
+| The suites | `booking-core` **237/0** (was 210 — section 17 is 27 new checks, **baselined by six deliberate breaks**, every one red), `composition` 95/0, `landing-pricing` 109/0, `route-contract` 33/0, `spanish` 72/0, `design-contrast` all pairs |
+
+Invalidated by a change to: `app/src/book/core.js`, `app/src/book/VehicleField.jsx`,
+`app/src/book/vehicles.json`, `app/src/book/steps/StepVehicle.jsx`,
+`app/src/book/booking.css`.
+
+```bash
+git diff --name-only <this commit>..HEAD -- app/src/book/core.js app/src/book/VehicleField.jsx app/src/book/vehicles.json app/src/book/steps/StepVehicle.jsx app/src/book/booking.css
+```
+
+### THE TWO THINGS FOUND BY LOOKING, WHICH NOTHING IN THIS REPO WOULD HAVE CAUGHT
+
+**(1) A STACKING CONTEXT NOBODY DECLARED. The list drew UNDER the block below
+it, and the customer's thumb would have hit a heading instead of their car.**
+Every `.bk-step > *` carries the arrival animation `bk-rise`, which animates a
+transform — and `both` fill leaves `transform: matrix(1, 0, 0, 1, 0, 0)` on the
+element for ever after. **An identity matrix, painting nothing, and still a
+sealed stacking context**, so the list's own `z-index: 10` could only rank it
+against its siblings inside that box and lost to the next block on document
+order. Caught by `elementFromPoint` at the middle of the list returning
+`SPAN.` — the "How dirty is the inside?" eyebrow. The fix is
+`.bk-field:has(.bk-typeahead-list) { position: relative; z-index: 5 }`.
+**The transferable part: a fill-mode `both` arrival animation turns every
+element it touches into a permanent stacking context, so ANY overlay placed
+inside one is already losing.** That is true of the whole booking page and of
+every dashboard screen with `arrive` on it.
+
+**(2) A NEW COSTUME FOR TRAP (d), AND IT CALLED CORRECT WORK BROKEN.** In
+`?lite=1` the list measured `opacity: 0` and `transform: translateY(-5px)` — the
+animation's own start frame — which reads exactly like a popup that never
+appears for a reduced-motion visitor. **It was the instrument.** A *hidden
+browser pane* never produces frames, `requestAnimationFrame` never fires, and a
+CSS animation therefore sits at time zero for ever. **The signature is
+`playState: "running"` with `currentTime: 0`**, and `document.hidden` is
+`false` the whole time, so the documented "background tab" test does not catch
+it. A screenshot forces a paint and settled it: the list is fully visible.
+**So: before believing any opacity or animation reading, assert
+`getAnimations()[0].currentTime > 0` — or take the screenshot and look.**
+
+
 ## 3c · FOUND AND NOT FIXED — lane B, 2026-09-13
 
 **Measured with the baselined probe while checking that the shared-rule changes
