@@ -421,6 +421,20 @@ a { color: var(--accent-text); text-decoration: none; }
   border-radius: var(--r-panel); padding: var(--sp-4);
   corner-shape: var(--corner);
 }
+/* A CARD WHOSE BODY IS THE BUTTON OWES THE TAP FLOOR, AND THREE OF THEM HAD NO
+   CLASS TO HANG IT ON — 2026-09-13. `BookingCard`, `RequestCard` and Money's
+   "Waiting on payment" row are the same eight lines of JSX three times: a bare
+   `<div role="button" tabIndex={0}>` wrapping a card's contents, height decided
+   entirely by whatever text landed in it. Money's measured **43.6px** on a
+   two-line row, four tenths under the floor, and nothing in any of the three
+   files says a height anywhere.
+   The selector is the attribute rather than a new class because the attribute
+   is what makes it a control — a fourth call site written the same way is
+   covered the day it is written, and one written WITHOUT `role="button"` is a
+   keyboard bug this rule should not be papering over.
+   `> ` matters: it is the card's own body, not any nested control. Booking's
+   own cards are `.bk-card` in booking.css and are untouched by this. */
+.card > [role="button"] { min-height: var(--tap); }
 /* THE ONE YOU ARE ON. Raised to the highest surface, with a soft accent
    bloom UNDER it rather than a bar on it — "an accent bar on a rounded card"
    is a named never-default and the old .lit was exactly that, a 3px accent
@@ -3132,8 +3146,31 @@ label.row:has(> input[type="checkbox"]) { min-height: 44px; }
   border: 0; background: transparent; color: var(--text-muted);
   font-family: var(--f-body); font-size: var(--t-meta); font-weight: 600;
   min-height: 36px; padding: 8px 14px; border-radius: var(--r-pill); cursor: pointer; white-space: nowrap;
+  position: relative;
   transition: background var(--t-hover) var(--e-out), color var(--t-hover) var(--e-out);
 }
+/* **THE SEGMENT STAYS 36, THE TARGET REACHES 44 — 2026-09-13.** The floor moved
+   from 32 to 44 (docs/BAR.md) and the note above, written against 32, left every
+   segment in the product 8px short: the Clients sort (Recent / Most spent /
+   Longest away) and the Money range (Week … Lifetime) both measured 36 at 392.
+   ONE RULE, NOT EIGHT CALL SITES — every segmented control in the product is
+   this selector, which is why the 36 was here in the first place.
+   **GROWING THE PAINT WAS THE WRONG ANSWER, for the reason the note above
+   already gives:** 36 sits deliberately under the 38px and 42px buttons around
+   it, and a 44px segment would be the TALLEST control on the screen — taller
+   than the primary button — which inverts the hierarchy it lives in. So this is
+   `.chip`'s and `.btn.sm`'s pattern, third instance: an absolutely positioned
+   `::after` takes no part in layout, the paint does not move, the pointer
+   reaches 4px further each way. 36 + 8 = 44.
+   **VERTICAL ONLY, AND HERE THAT IS NOT A PREFERENCE BUT THE ONLY OPTION.**
+   Segments sit shoulder to shoulder across a 3px gap; a horizontal inset would
+   have each one stealing its neighbour's presses, which is trap (n) — a small
+   target traded for a WRONG one.
+   **AND IT DOES NOT ESCAPE THE CONTROL.** `.segmented` is 3px of padding plus a
+   1px border, so -4px lands exactly on the container's outer edge: nothing
+   above or below the control loses a pixel, and the pitch question the chip row
+   had does not arise, because a segmented control is one row. */
+.segmented button::after { content: ""; position: absolute; inset: -4px 0; }
 .segmented button:hover:not(.on) { color: var(--text); }
 /* W24. Selection here is a LIFT rather than a tint — the chosen segment is
    raised onto --surface-lit — so its hover lifts further. Same law, expressed
