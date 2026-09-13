@@ -217,6 +217,57 @@ EDIT.** `app/src/lib/strings/appEs.js` is keyed on the English text, so a
 renamed string silently stops matching and shows English on a Spanish screen
 with no error anywhere. `node scripts/i18n-survey.mjs` is what finds it after.
 
+## TWO STANDING RULES ABOUT CONTEXT — Andrew, 2026-09-13
+
+**These are in this file rather than in a conversation, which is the entire
+point of them.** A rule that lives in a chat dies at the next clear, and the
+clear is what the rule is about.
+
+### 1. EVERY MESSAGE ENDS WITH YOUR CONTEXT STATE
+
+One line, every time, no exceptions: **how much context you have used, how much
+is left, and whether you are near compacting.** `node scripts/context-check.mjs`
+reads the live transcript and prints the real figure.
+
+**His reason, in his words:** *"Right now I only find out you are in trouble
+when the pane says 'compacting' and by then the decision has already been made
+for us."* A session that reports this every message lets him choose the moment;
+a session that does not hands the choice to a meter.
+
+### 2. CLEAR AT SECTION BOUNDARIES, NOT WHEN THE METER FORCES IT
+
+**When you finish a discrete piece of work and the next thing is unrelated —
+back office done, now translation; design done, now the failing checks — that is
+a clearing point. Say so and stop.** You cannot clear yourself, so the protocol
+is: you name the boundary, give the context number, and he clears and restarts
+you pointed at the repo.
+
+**THE NUANCE IS HIS AND IT IS NOT OPTIONAL — do not apply this mechanically.**
+If the next piece is genuinely continuous with what you just did AND your context
+is comfortable, carry on, and SAY that you are carrying on and why. **The test is
+whether the next task needs what is in your head, not whether a counter crossed
+a line.**
+
+### THE REASON, WHICH IS WHY THE RULE SURVIVES BEING INCONVENIENT
+
+**A future session that reads these two rules without this paragraph will drop
+them the first time they feel like friction.** So:
+
+**An auto-compaction is a lossy summary chosen by a machine, under pressure, at
+whatever arbitrary moment the meter ran out.** Nobody picks what it keeps, and
+the thing most likely to be dropped is the spec that was mid-flight.
+
+**A clear at a boundary loses nothing, because everything that matters is
+already on disk** — `CLAUDE.md`, `ROADMAP.md`, `FOUND.md` and `docs/BAR.md`.
+**That is what those files are FOR.** The rules, the findings and the bar are
+written down precisely so that starting cold costs nothing.
+
+**AND THIS WAS PROVEN ON THE NIGHT IT WAS WRITTEN.** The session compacted
+mid-build and it cost nothing — the lane rules, the screen rules, the bar and
+every parked finding were all in files. The compaction was survivable *because*
+of the discipline, which is an argument for the discipline and not for
+compacting.
+
 ## Talking to the owner
 
 The owner is not a coder. Explain things in plain language with everyday
