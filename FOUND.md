@@ -3,6 +3,69 @@
 One line per thing noticed and not fixed. Noticing is not permission to fix.
 Claude Cowork decides what becomes work.
 
+---
+
+## READ THIS FIRST: SEVEN ENTRIES BELOW ARE ONE BUG — Cowork's ruling, 2026-09-12
+
+**This file is a list, and a list is the wrong shape for what this run found.**
+Read as seven separate entries they are seven unrelated bugs and nobody looks
+for the eighth. Read together they are **one defect wearing seven costumes**, and
+it is the defining finding of 2026-09-11 to 2026-09-13.
+
+### THE SHAPE
+
+**A thing whose only job is to tell you when something is wrong, telling you
+everything is fine.**
+
+Every instance is an instrument, not a feature. Every one was *green*. Not one
+of them errored, logged, or looked broken from the outside — and that is not
+incidental, it is the mechanism: **the failure mode of a monitor is silence, and
+silence is also what success looks like.**
+
+**AND EACH ONE IS WORSE THAN HAVING NOTHING THERE**, which is the part that
+makes it worth a section of its own. An empty space invites somebody to build a
+check. A green check occupies that space, answers the question, and stops the
+search. **The cost is not the missed defect; it is the looking that never
+happened.**
+
+### THE SEVEN, IN THE ORDER THEY WERE FOUND
+
+| | the instrument | what it said | what was true |
+|---|---|---|---|
+| 1 | `scripts/i18n-coverage.mjs` — **the ratchet** | 1,051 strings, **100% coverage** | 257 strings it could not see; a Spanish dashboard rendering English. § THE RATCHET'S BLIND SPOT |
+| 2 | `scripts/sweep-widths.mjs` — **the width sweep** | **"clean"** | `found += await say(...)` where `say` returns nothing, so the total was `NaN` from the first width. One run printed 38 real findings above the word *clean*. Bullet 2 below |
+| 3 | `tests/platform-admin.test.mjs` — **the red suite** | red, and *explained* in this file's own words as "checks pointing at source that MOVED" | The source had not moved: ~500 lines were **deleted** and six capabilities went with them. Three days. § IT WENT UNNOTICED FOR THREE DAYS |
+| 4 | `watch-jobs` — **the watchdog** | reported in about half the time, which reads as alive | It was failing the same way as the thing it watched — pg_net's 5s default. § THE WATCHDOG WAS FAILING IN THE WAY IT EXISTS TO DETECT |
+| 5 | **two independent measurements agreeing** | the same defect from two tools, which felt like confirmation | Both used a Range rect, which is a line box and not glyphs. Agreement between instruments that share a method is one result, not two. `docs/BAR.md` |
+| 6 | `AdminPage.jsx` — **the storage alarm** | meter 0%, *"nearly full"* never shown | It read `store.cap_bytes`; the RPC returns `total_bytes`. False at every fill level. § THE 45 UNCLASSIFIED |
+| 7 | **seven GREEN checks in `platform-admin`** | passing | `beginImpersonation` has zero callers, so `13d`, `13d-ii`, `13d-iii` and `13h`…`13h-iv` guard dead code. § THE 45 UNCLASSIFIED |
+
+**Numbers 3 and 5 are the two that generalise beyond code.** 3 is the human
+version — a *plausible sentence* doing the job a broken exit code does, and it is
+the more dangerous of the two, because the next person **cites** it. 5 is the one
+that survives having good tooling: both instruments were sound, and they were
+still one instrument.
+
+### SO THE RULE, AND IT IS NOT "TEST MORE"
+
+**BREAK THE INSTRUMENT ON PURPOSE BEFORE YOU BELIEVE IT.** This repo has shipped
+at least six checks that tested nothing, and every one of them was found by
+somebody deliberately breaking what it guards and watching whether it noticed.
+A guard that cannot be made to fail is not a guard.
+
+**AND A CHECK THAT CANNOT RUN MUST SAY SO OUT LOUD**, in the same breath as its
+verdict. `11j-ii` prints *"the column list was not parsed — this check proved
+nothing"* rather than passing, which is the one design decision that stops an
+eighth costume.
+
+**WHERE TO LOOK FOR THE EIGHTH.** Anything that reports a number nobody has ever
+seen be wrong: a coverage figure, a percentage, a count of findings, a green
+suite nobody reads, a dot that is always the good colour, a threshold that has
+never been crossed. **If you cannot remember the last time it disagreed with
+you, it is a candidate.**
+
+---
+
 - 2026-09-12 — The "DP Website" session (lane B, app/src) wrote outside its lane
   twice tonight: `tests/booking-core.test.mjs` in `619a569`, and
   `tests/maintenance.test.mjs` plus `scripts/seed-demo.mjs` in `73ad5b0`. Both
@@ -668,6 +731,8 @@ conversation they were found in.**
 
 ## THE RATCHET'S BLIND SPOT, IN PLAIN WORDS — 2026-09-12
 
+*One of the seven costumes — see § READ THIS FIRST at the top of this file.*
+
 **Cowork asked for this in FOUND.md rather than only in a conversation, because
 it is the finding that says every coverage number this project produced before
 today was an undercount.** It is written for somebody who was not here.
@@ -971,6 +1036,8 @@ and for three days it was read as noise.
 
 ## IT WENT UNNOTICED FOR THREE DAYS BECAUSE THE RED WAS RATIONALISED — 2026-09-12
 
+*One of the seven costumes — see § READ THIS FIRST at the top of this file.*
+
 **The transferable lesson, and it is not about the back office.**
 
 `platform-admin.test.mjs` went red the moment `45eaf85` rewrote the screen it
@@ -1056,6 +1123,8 @@ table's four groups should be. It is folded into the `prices` item, which is the
 next of the seven.
 
 ## THE WATCHDOG WAS FAILING IN THE WAY IT EXISTS TO DETECT — 2026-09-13
+
+*One of the seven costumes — see § READ THIS FIRST at the top of this file.*
 
 **This belongs beside the lying instruments, because it is the same disease in
 its purest form.** The three earlier ones reported success regardless of
@@ -1230,14 +1299,19 @@ in English on a Spanish screen.
 
 ## THE 45 UNCLASSIFIED `platform-admin` FAILURES, CLASSIFIED — 2026-09-12
 
-**ROADMAP item 1. Diagnosis only; nothing fixed, and the back office is frozen.**
+*One of the seven costumes — see § READ THIS FIRST at the top of this file.*
+
+**ROADMAP item 1. Diagnosis. One of the five was fixed afterwards — the storage
+gauge, `28e7ae3`, on a freeze Cowork lifted for that item alone. The other four
+stand untouched until Andrew has looked at these screens.**
 
 **THE SPLIT IS 5 REAL DEFECTS AND 43 STALE ASSERTIONS**, out of the suite's 48
 failures — the three already classified above (`no chart`, `2b-i`, and the pair
 in other suites) are re-counted here so the number is the whole suite rather
 than a remainder.
 
-`node tests/platform-admin.test.mjs` reads **111 passed, 48 failed** on `34934b1`.
+`node tests/platform-admin.test.mjs` read **111 passed, 48 failed** on `34934b1`;
+**112 / 48 on `28e7ae3`**, which added `11j-ii` and fixed the gauge.
 
 **WHY SO MANY ARE STALE, AND IT IS ONE CAUSE RATHER THAN FORTY-THREE.** The
 screen was rebuilt into five tabs (Today, Growth, Detailers, Money, Plumbing) on
@@ -1258,8 +1332,10 @@ CLAUDE.md trap (k) at scale: the checks assert how the screen was WRITTEN.
    *(This corrects the entry above: it is FIVE now, not six — `create` was
    restored at `AdminPage.jsx:878`.)*
 
-2. **`11j` · THE PHOTO STORAGE METER IS PERMANENTLY 0% AND ITS ALERT CAN NEVER
-   FIRE. A live latent bug, not a missing feature.** `photo_store_state()`
+2. **`11j` · THE PHOTO STORAGE METER WAS PERMANENTLY 0% AND ITS ALERT COULD
+   NEVER FIRE. — FIXED `28e7ae3`, freeze lifted for this one item by Cowork.**
+   *The over-commitment half of `11j` is NOT fixed and `11j` stays red: printing
+   it would add a visible element, which the freeze still covers.* `photo_store_state()`
    returns `used_bytes, total_bytes, committed_bytes, businesses, share_bytes,
    photos` (`20260906011000_photo_share.sql:81`). `AdminPage.jsx:346` and
    `:1382` both read **`store.cap_bytes`, which that row does not have** —
