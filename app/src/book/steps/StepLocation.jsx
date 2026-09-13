@@ -28,6 +28,7 @@ import { t } from "../../lib/i18n.js";
 import { useLocale } from "../../hooks/useLocale.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 import { money } from "../../lib/format.js";
+import AddressField from "../AddressField.jsx";
 
 // `modeLimit` IS A PROP AND WAS NOT TAKEN — the booking page threw
 // `ReferenceError: modeLimit is not defined` for every business offering only
@@ -45,7 +46,9 @@ import { money } from "../../lib/format.js";
 // print was unreachable in every configuration that did not crash.
 export default function StepLocation({ form, setForm, modeLimit, blocks = [] }) {
   useLocale();
-  const { settings, business } = useBookingBusiness();
+  // THE RESOLVED SLUG, from the context and never from the URL: on a
+  // detailer's own domain there is no slug in the address bar at all.
+  const { settings, business, slug } = useBookingBusiness();
   const both = settings.mobile_enabled && settings.dropoff_enabled && !modeLimit;
   const isMobile = form.serviceType === "mobile";
 
@@ -155,14 +158,27 @@ export default function StepLocation({ form, setForm, modeLimit, blocks = [] }) 
               </select>
             </label>
           )}
-          <label className="bk-field" style={{ marginTop: 14 }}>
+          {/* ROADMAP 6 — A FIND BUTTON, NOT A TYPE-AHEAD. The lookup takes two
+              to three seconds and the fast alternative puts our provider key in
+              a public page, so the customer types the address and presses Find
+              once. **It is an accelerator and never a gate**: the box keeps
+              whatever they typed whatever the lookup says, and the only thing
+              `core.js` § blockers asks about this step is whether the box has
+              something in it.
+              A `<div>` rather than a `<label>` now, because the field contains
+              a BUTTON as well as the input and a label that wraps a button
+              makes pressing the button focus the input instead. The input
+              carries its own `aria-label`. */}
+          <div className="bk-field" style={{ marginTop: 14 }}>
             <span>{t("Where should we come?")}</span>
-            <input
+            <AddressField
+              slug={slug}
+              label={t("Where should we come?")}
               value={form.customerAddress}
               placeholder={t("Street address, city")}
-              onChange={(e) => setForm((f) => ({ ...f, customerAddress: e.target.value }))}
+              onChange={(v) => setForm((f) => ({ ...f, customerAddress: v }))}
             />
-          </label>
+          </div>
           {/* **THE ADDRESS WAS THE SILENT ONE — 2026-09-12.** Continue greys out
               on this step and nothing said why: the footer's hint slot carries
               the price once a quote exists, so step 1 is the only step that can

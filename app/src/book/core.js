@@ -61,6 +61,12 @@ export async function postFunction(supabaseUrl, anonKey, name, body, jwt) {
     // reworded.
     const err = new Error(data?.error || `Request failed (${res.status})`);
     err.status = res.status;
+    // AND SO DOES THE BODY. Several endpoints answer a refusal with a shaped
+    // object rather than only a sentence — `address-suggest` sends
+    // `{ ok: false, reason, retryable }` — and throwing that away leaves a
+    // caller with nothing but the English to match on, which is the same trap
+    // the status was added to avoid.
+    err.body = data ?? null;
     throw err;
   }
   return data;
@@ -125,6 +131,20 @@ export function createBookingTransport({ supabaseUrl, anonKey }) {
     // has to remember off a sign is a code nobody uses.
     // Best-effort, always: a booking must never depend on an analytics call.
     trackVisit: (slug, payload) => call("track-visit", { business_slug: slug, ...payload }),
+    // ROADMAP 6 — THE ADDRESS LOOKUP, WHICH IS THE ONE CALL THAT IS PURELY AN
+    // ACCELERATOR. Everything else in this transport is load-bearing; this one
+    // failing costs a customer nothing, because the box beside it is an
+    // ordinary text input that works with the network off.
+    // **`q` AND NOTHING ELSE, AND `website` IS THE TRAP — found by looking,
+    // 2026-09-13.** `website` is the HONEYPOT field `_shared/rateLimit.ts`
+    // reads: any non-empty value means a bot, and the endpoint answers
+    // `ok: true` with an EMPTY LIST, deliberately indistinguishable from a real
+    // "no such street" so a script cannot tune against it. Sending the tenant
+    // slug in it therefore made every lookup come back with nothing, and the
+    // screen said "No matches" over a street that exists. Nothing errored and
+    // nothing logged. `business_id` is accepted and ignored; it is not sent
+    // either, because a field with no use is a field somebody fills in wrongly.
+    addressSuggest: (slug, q) => call("address-suggest", { q }),
     validatePromo: (slug, code, customerEmail, customerPhone) =>
       call("validate-promo-code", {
         business_slug: slug, code,
@@ -694,6 +714,64 @@ export function matchVehicle(query, index, limit = 5) {
   // of offers stays on screen after one is taken, and the customer is invited
   // to press the answer they are already looking at.
   return out.filter((s) => squashVehicle(s) !== squashVehicle(raw));
+}
+
+// ---------------------------------------------------------------------------
+// Where — looking the address up.
+//
+// **IT IS A BUTTON THE CUSTOMER PRESSES ONCE, NOT SUGGESTIONS AS THEY TYPE.**
+// Andrew, 2026-09-13, and it is closed: the round trip measures 2 to 3 seconds
+// warm and over six on an ambiguous street, against the ~300ms typing
+// suggestions need, and the only way to get fast is putting our provider key
+// in the browser on a public page, which we are not doing. That second half is
+// a rule about where the key lives, so it holds however fast anything gets.
+// `docs/address-autocomplete.md` carries the measurement.
+//
+// **AND THE FIELD IS NEVER A GATE.** No answer, an empty answer, a failed
+// answer, a throttled answer, or a customer who never presses the button at
+// all: in every one of those the box keeps exactly what they typed and
+// Continue stays enabled. `blockers()` above asks only whether the address box
+// has anything in it, and it must keep asking only that. A detailer's customer
+// knows their own gate code, their unit number, and the fact that their street
+// is not in anybody's database.
+// ---------------------------------------------------------------------------
+
+// The server refuses a shorter query for free. A request never made is cheaper
+// still, so the button is simply not pressable until there is something worth
+// asking about.
+export const ADDRESS_MIN = 4;
+export const addressQuery = (v) => String(v ?? "").trim();
+export const canLookUpAddress = (v) => addressQuery(v).length >= ADDRESS_MIN;
+
+// `ok: true` WITH AN EMPTY ARRAY IS A REAL ANSWER — the provider replied and
+// knows no such place. A page that cannot tell "no such street" from "we could
+// not ask" shows the customer the wrong sentence, which is the live defect
+// `available-slots` already cost this product once.
+export function readAddressAnswer(answer) {
+  const rows = (Array.isArray(answer?.suggestions) ? answer.suggestions : [])
+    .filter((r) => r && typeof r.label === "string" && r.label.trim())
+    .slice(0, 5);
+  return {
+    rows,
+    // No rows means no map data on the screen, so there is nothing to credit
+    // and a footer line over an empty box is noise. The endpoint's own checks
+    // take the same view: it sends no attribution beside a failure.
+    attribution: rows.length ? (answer?.attribution ?? null) : null,
+    note: rows.length ? null : "none",
+  };
+}
+
+// **THE STATUS DECIDES, NEVER THE WORDS.** `reason` is for logs and for
+// people; matching on it would be CLAUDE.md trap (k), where a check asserts
+// how something is spelled rather than what it does.
+//
+// 429 is the ONLY failure the customer can do anything about, and it clears on
+// its own, so it is the only one that earns a sentence. Everything else is
+// ours: a missing secret and a provider outage are not a customer's problem
+// and must never be dressed up as something for them to fix. A network failure
+// arrives with no status at all and is silent for the same reason.
+export function addressFault(err) {
+  return err?.status === 429 ? "busy" : null;
 }
 
 // ---------------------------------------------------------------------------

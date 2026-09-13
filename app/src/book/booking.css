@@ -687,28 +687,65 @@
    rule forbids ("never a gate between a tap and the thing tapped for"). The
    `.lite` block at the foot of this file already turns the entrance off for
    reduced motion — one degradation path, no second implementation. */
-/* **THE BLOCK HOLDING AN OPEN LIST HAS TO OUTRANK THE ONE UNDER IT, AND THE
-   REASON IS NOT OBVIOUS FROM EITHER RULE — measured 2026-09-13, found by
-   looking rather than by any check in this repo.**
+/* **THE ESCAPE HATCH THAT USED TO BE HERE IS GONE, BECAUSE THE CAUSE WAS FIXED
+   AT ITS ONE SHARED RULE — 2026-09-13.**
 
-   Every `.bk-step > *` carries the arrival animation `bk-rise`, which animates
-   a transform. An element with a transform is a STACKING CONTEXT — and it
-   stays one after the animation finishes, because `both` fill leaves
-   `transform: matrix(1, 0, 0, 1, 0, 0)` on it. An identity matrix, painting
-   nothing, and still a sealed box.
+   It read `.bk-field:has(.bk-typeahead-list) { position: relative; z-index: 5 }`
+   and it worked. It was still a call-site patch for a page-wide fault: every
+   `.bk-step > *` carried `bk-rise` with `both` fill, which leaves
+   `transform: matrix(1, 0, 0, 1, 0, 0)` on the element for ever — an identity
+   matrix, painting nothing, and still a sealed stacking context. So the list's
+   own `z-index: 10` could only rank it against its siblings INSIDE that box,
+   and it lost to the next block on document order. The next overlay anybody
+   put inside a step would have lost the same way, silently.
 
-   So the list's own `z-index: 10` could only ever rank it against its
-   siblings INSIDE that box. Against the next block down the page it lost on
-   document order, every time. What it looked like: "How dirty is the inside?"
-   printed straight through the suggestions, and `elementFromPoint` at the
-   middle of the list returned that heading's `<span>` — the customer's thumb
-   would have hit the label and not the car.
-
-   `z-index` needs a position, hence the `relative`. Scoped with `:has()` to
-   the one block that currently has a list open, so no other field's paint
-   order moves. */
-.bk-field:has(.bk-typeahead-list) { position: relative; z-index: 5; }
+   The fill mode is `backwards` now (see § the step entrance, below), so no
+   step block is a stacking context once it has arrived, and an overlay inside
+   one ranks against the page like any other. Nothing here needs a z-index. */
 .bk-typeahead { position: relative; }
+
+/* ── THE ADDRESS FIELD: a text box and a Find button on one row ────────────
+   ROADMAP 6. The lookup is a press, never a keystroke, so the control has to
+   be a real button sitting beside the input rather than an affordance inside
+   it.
+
+   **THE INPUT TAKES `min-width: 0`, AND THAT IS NOT TIDINESS.** A flex item's
+   default `min-width: auto` is its CONTENT width, so an input with a long
+   placeholder refuses to shrink and pushes the button off the right edge at
+   320. **And the button takes `flex-shrink: 0` for the mirror-image reason
+   docs/VERIFIED.md § 3b already records once: `width` is a flex BASIS, not a
+   floor, so a longer word squeezes the control under the 44px tap floor.**
+   "Buscar" is longer than "Find", so this is not hypothetical — it is the same
+   Spanish-only failure the Back control had at 320, which an English-only run
+   cannot see. */
+.bk-addr { display: flex; align-items: stretch; gap: var(--bk-sp-2); }
+.bk-addr input { min-width: 0; flex: 1; }
+.bk-find {
+  flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 48px; min-width: 44px; padding: 0 var(--bk-sp-4);
+  border: 0; background: var(--bk-surface); color: var(--bk-text);
+  box-shadow: inset 0 0 0 1px var(--bk-hairline);
+  border-radius: var(--bk-r-inset);
+  corner-shape: var(--bk-corner);
+  font-family: var(--bk-f-body); font-size: var(--bk-t-body);
+  font-variation-settings: "wdth" 96, "wght" 520;
+  cursor: pointer;
+  transition: box-shadow var(--bk-t-hover) var(--bk-e);
+}
+.bk-find:hover:not(:disabled) { box-shadow: inset 0 0 0 1px var(--bk-border); }
+.bk-find:disabled { opacity: .38; cursor: default; }
+
+/* The sentence under the field, and the credit under that. Both are quiet on
+   purpose: neither is something the customer has to act on, and the whole
+   point of the fallback is that a lookup which found nothing changes nothing. */
+.bk-addr-note { margin: var(--bk-sp-2) 0 0; }
+.bk-addr-credit {
+  margin: var(--bk-sp-2) 0 0;
+  font-family: var(--bk-f-body); font-size: var(--bk-t-label);
+  color: var(--bk-muted); line-height: 1.5;
+}
+.bk-addr-credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 .bk-typeahead-list {
   position: absolute; top: calc(100% + 5px); left: 0; right: 0; z-index: 10;
   margin: 0; padding: 5px; list-style: none;
@@ -806,11 +843,30 @@
    children as direct flex items of .bk-wrap, so the wrapper changes the
    motion and nothing about the layout.
 
-   `both` means the end state is what applies at the 0.01ms duration
-   prefers-reduced-motion forces below — nothing on this page is ever hidden
-   behind an animation (docs/design-system.md, Degradation). */
+   **THE FILL MODE IS `backwards` AND THAT IS LOAD-BEARING, NOT A TIDY-UP —
+   2026-09-13.** It was `both` for the reason above: at the 0.01ms duration
+   `.lite` forces, the fill is what makes the end state apply, so nothing on
+   this page is ever hidden behind an animation (docs/design-system.md,
+   Degradation). `backwards` keeps every bit of that — these keyframes have a
+   `from` and no `to`, so the implicit end state IS the base style, which is
+   what the element reverts to the instant the animation finishes. The visible
+   result is identical at both durations.
+
+   What changes is the ONE thing `both` did that nobody wanted: a forwards
+   fill leaves `transform: matrix(1, 0, 0, 1, 0, 0)` on the element for ever,
+   and an identity transform is still a STACKING CONTEXT. Every block on every
+   step was a sealed box, so any overlay inside one — a type-ahead list, a
+   menu, a tooltip, a popover — could only ever rank against its own siblings
+   and lost to the next block on document order. That shipped once: the
+   vehicle suggestions drew under "How dirty is the inside?" and a thumb aimed
+   at a car would have landed on the heading.
+
+   **SO: DO NOT PUT THIS BACK TO `both` OR `forwards`.** If a step ever needs
+   a fill that persists, the overlay inside it needs its own z-index and this
+   whole fault comes back for the next person. `backwards` is the fix, at the
+   one rule every block shares. */
 .bk-step { display: contents; }
-.bk-step > *, .bk-step-head > * { animation: bk-rise var(--bk-t-reveal) var(--bk-e) both; }
+.bk-step > *, .bk-step-head > * { animation: bk-rise var(--bk-t-reveal) var(--bk-e) backwards; }
 .bk-step > *:nth-child(2), .bk-step-head > *:nth-child(2) { animation-delay: 60ms; }
 .bk-step > *:nth-child(3), .bk-step-head > *:nth-child(3) { animation-delay: 120ms; }
 .bk-step > *:nth-child(4) { animation-delay: 180ms; }

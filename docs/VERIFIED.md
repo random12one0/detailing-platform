@@ -295,6 +295,164 @@ it. A screenshot forces a paint and settled it: the list is fully visible.
 `getAnimations()[0].currentTime > 0` — or take the screenshot and look.**
 
 
+## 3e · THE STACKING RULE, AND THE SWEEP THAT PROVED IT — lane B, 2026-09-13
+
+### THE RULE, WHICH IS WORTH MORE THAN THE THREE FILES IT CHANGED
+
+**AN ARRIVAL ANIMATION WITH A FORWARDS FILL TURNS EVERY ELEMENT IT TOUCHES INTO
+A PERMANENT STACKING CONTEXT, SO ANY OVERLAY PLACED INSIDE ONE IS ALREADY
+LOSING.**
+
+`animation: … both` (or `forwards`) leaves the end frame's computed value on the
+element for ever. When the keyframes animate a transform, that value is
+`matrix(1, 0, 0, 1, 0, 0)` — **an identity matrix, painting nothing, and still a
+sealed box.** An overlay inside it can only rank against its own siblings;
+against the next block down the page it loses on document order, every time.
+
+**THE FIX IS ONE WORD AT THE SHARED RULE, NEVER A `z-index` AT THE CALL SITE.**
+An entrance keyframe set with a `from` and no `to` ends at the element's base
+style, so `backwards` renders identically and leaves no transform behind. It
+also keeps the `.lite` behaviour intact, which is the reason `both` was there:
+at the 0.01ms duration reduced motion forces, the element still shows its end
+state, because its end state IS the base style.
+
+- **An ENTRANCE takes `backwards`.** Always.
+- **An EXIT keeps `forwards` / `both`.** Without it the thing being removed
+  snaps back to visible for the last frames before React unmounts it.
+- **A `position: fixed` overlay inside a transformed ancestor is worse than a
+  paint-order bug** — it stops being positioned against the viewport at all.
+
+### WHAT WAS CHANGED
+
+| file | rule | was | now |
+|---|---|---|---|
+| `app/src/book/booking.css` | `.bk-step > *, .bk-step-head > *` | `bk-rise … both` | `bk-rise … backwards` |
+| `app/src/book/booking.css` | the `:has(.bk-typeahead-list)` z-index hatch added at `da4f8d1` | a call-site patch | **deleted** — the cause is gone, so it was dead weight |
+| `app/src/admin/admin.css` | `.pa-in > *`, `.pa-col`, `.pa-swap > *` | `… both` | `… backwards` |
+| `app/src/admin/admin.css` | `.pa-col.pa-leaving`, `.pa-bar-rise` | `both` | **unchanged** — an exit needs its fill, and the bar holds no overlay |
+
+**In the bundle, not only the dev server:** `app/dist/assets/*.css` carries
+`bk-rise … backwards`, `pa-arrive … backwards`, `pa-col-in … backwards`,
+`pa-swap-in … backwards`, and **zero** copies of the deleted `:has()` rule.
+
+### THE SWEEP, WITH ITS SUBJECT COUNTS
+
+Every element whose COMPUTED style seals a stacking context (transform,
+translate, rotate, scale, filter, backdrop-filter, perspective, opacity < 1,
+isolation, mix-blend-mode, contain, will-change, content-visibility, a z-index
+on a positioned element, fixed/sticky), then every visible **pressable** overlay
+living inside one, hit-tested with `elementFromPoint` on a **5-column grid**
+rather than by rectangle.
+
+| surface | subjects | hit probes | findings |
+|---|---|---|---|
+| Landing page, 5 scroll stops @392 | 62 visible overlays, **2 pressable, 0 inside a seal** | — | 0 |
+| Dashboard, 5 tabs @392, 5 scroll stops each | 25 | 375 | 0 |
+| **Dashboard, 15 settings screens @392**, each at 3 scroll positions, folds shut AND open | **164** | **2,460** | 0 |
+| Dashboard, 5 tabs @1440, record opened where one exists | 40 | 1,960 | 0 |
+| Booking, steps 1–7 @392, type-ahead opened | 14 | 320 | 0 |
+| Booking, steps 1–5 @1440, type-ahead opened | 13 | 270 | 0 |
+| Booking, address list open @392 / @320 / @1440 / `?lite=1` | 3 per run | 65–80 per run | 0 |
+
+**THE BACK OFFICE WAS NOT SWEPT IN A BROWSER AND THAT IS A GAP, NOT A PASS.**
+`/admin` needs `demo@demo.com`, whose password is deliberately in no file, and
+the seeded admin accounts are deleted. Its stylesheet was fixed at the same
+shared rule and the bundle confirms the change; **nobody has hit-tested those
+screens.**
+
+### THE INSTRUMENT WAS BROKEN ON PURPOSE FOUR TIMES BEFORE IT WAS BELIEVED
+
+**And it was genuinely blind twice, which is the whole argument for doing this.**
+
+1. **It reported the synthetic trap as clean** — the fixture was appended below
+   the fold, every probe point fell outside the viewport and was skipped, and a
+   subject with **zero** probes read exactly like a subject that passed. Fixed
+   by counting skipped probes and never letting an all-skipped subject pass.
+2. **It missed the REAL recorded bug** with the `:has()` patch disabled, because
+   centre-and-four-corners walks straight past an overlap covering only the
+   MIDDLE BAND of an overlay — which is the shape of this bug, since the block
+   below starts part-way down the list. Fixed by sampling a grid. It then
+   reported **25 of 60 points stolen** by the block below.
+3. It reported 60 findings on the landing page that were grain layers, corner
+   marks and glows. A decorative overlay is *meant* to sit behind the page;
+   subjects are now pressable overlays only.
+4. It reported an `opacity: 0` checkbox inside a `<label>` as lost behind its
+   own switch knob. That is a styled control, not a trapped overlay.
+
+**AND ONE MORE COSTUME FOR THE FROZEN-ANIMATION TRAP, at 1440 in `?lite=1`:**
+the probe reported the address list lost, with `.bk-field` reading
+`transform: matrix(1,0,0,1,0,20)` and `opacity: 0` — the `bk-rise` START frame.
+A hidden browser pane produces no frames, so `currentTime` sits at 0 for ever.
+**Taking a screenshot forces a paint**; re-measured immediately after, the field
+read `transform: none`, the list `opacity: 1`, and the findings were zero.
+**So: force a paint before believing any run of this probe.**
+
+Invalidated by a change to: `app/src/book/booking.css`, `app/src/admin/admin.css`,
+`app/src/theme.css`, `app/src/landing/landing.css`.
+
+## 3f · THE ADDRESS FIND BUTTON — lane B, 2026-09-13
+
+**Built to `docs/address-autocomplete.md` § THE FIND BUTTON. It is a press,
+never a type-ahead, and the decision behind that is closed.**
+
+| what was proven | number |
+|---|---|
+| Under the four-character floor the button is not pressable and **the server is never asked** | typed `12` → Find disabled, **0** requests, Continue still enabled |
+| A real street comes back and fills the box | `350 Fifth Ave New York` → **4** rows; picking one put *"350 5th Avenue, New York, NY 10001, United States of America"* in the field |
+| An address nobody has heard of changes nothing | `Zzqx Nowhere Lane 99999` → *"No matches. We will use the address as you typed it."*, box unchanged, no list, **Continue enabled** |
+| Pressing Find again on an unchanged box spends no second credit | calls before 1, calls after **1** |
+| A customer who never presses it at all is not stopped | `my place behind the blue gate` → Continue enabled |
+| **429 is the only failure that earns a sentence** | *"Too many lookups right now. Try again in a moment, or just carry on."*, text kept, Continue enabled |
+| `not_configured`, `unavailable` and a dead network say **nothing** | note `null` in all three, text kept, Continue enabled |
+| **A slow answer for a string the customer has already edited is dropped** | stub 2.5s + edit mid-flight → list not shown, the stale label appears nowhere in the document |
+| Tap targets and pitch | options **44px**, tops 567/611/655/699 — **pitch exactly 44, zero overlapping pairs**, `elementFromPoint` at centre and ±4, ±10, ±15 returns the option at every width. Find button **48px** |
+| No sideways scroll | **0** at 320, 392, 1440 |
+| Spanish, at 320 | label, placeholder, `aria-label`, *Buscar*, *Buscando…*, *Direcciones que encontramos* and both fallback sentences all Spanish. **Buscar measures 79x48** — the longer word does not squeeze the control, because `.bk-find` carries `flex-shrink: 0` |
+| `?lite=1` at 1440 | 4 rows, 44px each, credit rendered, 0 findings after a forced paint |
+| Console | clean on a fresh load, apart from the two pre-existing React Router v7 future-flag warnings |
+| The suites | `geoapify` **22/0**, `booking-core` **237/0**, `spanish` **72/0**, `composition` **95/0**, `landing-pricing` **109/0**, `route-contract` **33/0**, `design-contrast` all pairs |
+
+### THE ONE THAT WAS ONLY FOUND BY LOOKING, AND IT FAILED SILENTLY
+
+**`website` IS THE HONEYPOT, NOT A TENANT FIELD.** The contract reads
+`POST { q, business_id?, website? }`, and the first build sent the tenant slug in
+`website`. `_shared/rateLimit.ts` § looksAutomated treats any non-empty `website`
+as a bot and the endpoint answers **`ok: true` with an EMPTY LIST**, deliberately
+indistinguishable from a real *"no such street"* so a script cannot tune against
+it. So every lookup came back with nothing and the screen said *"No matches"*
+over a street that exists. **Nothing errored, nothing logged, and no check in
+this repo could have caught it.** The call now sends `{ q }` and nothing else.
+
+### WHAT IS OWED, AND IT IS LANE C'S
+
+**There is no runnable regression check for any of the table above.** The rules
+live in `app/src/book/core.js` as `ADDRESS_MIN`, `canLookUpAddress`,
+`readAddressAnswer` and `addressFault`, so they belong in
+`tests/booking-core.test.mjs` as a § 18 — **the four-character floor, an empty
+`suggestions` array being a real answer rather than a failure, 429 being the only
+status that produces a sentence, and `website` never appearing in the request
+body.** Everything in the table was measured by hand and is un-guarded until
+then.
+
+### THE ATTRIBUTION, AND THE DEVIATION ANDREW MAY WANT TO REVERSE
+
+The credit renders from the server's own `attribution` payload, so the sentence
+exists exactly once in the repo and `geoapify` § 3c still passes. **Nothing
+under `app/` names the provider or its host** — § 2b of that suite forbids it,
+and the component finds each link's word inside the server's sentence by
+comparing letters rather than by naming anything.
+
+**IT SITS UNDER THE ADDRESS FIELD, NOT IN A PAGE FOOTER.** ROADMAP § 6 says
+footer; **the booking page has no footer**, and building one to hold a credit
+line is the tail wagging the dog. It shows once a lookup has succeeded, and it is
+one component in one place, removable in a single edit. **Andrew's call if he
+wants it elsewhere.**
+
+Invalidated by a change to: `app/src/book/AddressField.jsx`,
+`app/src/book/core.js`, `app/src/book/steps/StepLocation.jsx`,
+`app/src/book/booking.css`, `app/src/lib/api.js`, `app/src/lib/strings/es.js`,
+`supabase/functions/_shared/geoapify.ts`, `supabase/functions/address-suggest/**`.
+
 ## 3c · FOUND AND NOT FIXED — lane B, 2026-09-13
 
 **Measured with the baselined probe while checking that the shared-rule changes
@@ -337,8 +495,10 @@ Each of these was investigated to a conclusion. **Do not re-investigate.**
 
 - **`app/public/map.html` owes no attribution.** It is the **page-review index**,
   not a map. The name is the whole reason it reads as one.
-- **Geoapify is not wired in anywhere yet**, so nothing in this product is
-  missing its credit today. The attribution requirement is real and lands the day
+- ~~**Geoapify is not wired in anywhere yet**~~ **NO LONGER TRUE — the booking
+  page's address field calls it as of 2026-09-13 and it carries the credit. See
+  § 3f.** The rest of this entry is kept because its reasoning is what § 3f
+  built on: the attribution requirement is real and lands the day
   that work starts — `ROADMAP.md` § 6, already settled, build exactly that.
 - **The Detailers tab's 15 unfinished setups are test rows.** Growth counts **1
   real detailer**, which is the honest figure. A session that reads "15 businesses

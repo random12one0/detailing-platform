@@ -67,6 +67,10 @@ export const api = {
   // anything, so nothing may depend on the answer.
   trackVisit: (businessSlug, payload) => bookingTransport.trackVisit(businessSlug, payload),
   calculateBooking: (businessSlug, payload) => bookingTransport.calculateBooking(businessSlug, payload),
+  // ROADMAP 6 — the address lookup. Public, and the one call in this file that
+  // is purely an accelerator: the box beside it is an ordinary text input that
+  // works with the network off, so nothing may ever depend on this answering.
+  addressSuggest: (businessSlug, q) => bookingTransport.addressSuggest(businessSlug, q),
   createBusiness: (payload) => callFn("create-business", payload),
   sendInvoice: (businessId, bookingId) => callFn("send-invoice", { business_id: businessId, booking_id: bookingId }),
   sendReminder: (businessId, bookingId, target) =>

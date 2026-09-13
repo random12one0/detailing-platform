@@ -178,6 +178,19 @@ export const es = {
   "Which area are you in?": "¿En qué zona estás?",
   "Where should we come?": "¿A dónde vamos?",
   "Street address, city": "Calle y número, ciudad",
+  // ROADMAP 6 — the address lookup. It is a button the customer presses once,
+  // so "Find" is an instruction and not a label for a list.
+  "Find": "Buscar",
+  "Looking…": "Buscando…",
+  "Addresses we found": "Direcciones que encontramos",
+  // THE FALLBACK, IN BOTH LANGUAGES: nothing found changes nothing. The
+  // sentence has to say that the address they typed is being kept, or a
+  // customer reads an empty list as a refusal and starts editing a street
+  // name that was right the first time.
+  "No matches. We will use the address as you typed it.":
+    "No encontramos nada. Usamos la dirección como la escribiste.",
+  "Too many lookups right now. Try again in a moment, or just carry on.":
+    "Demasiadas búsquedas ahora mismo. Prueba en un momento o simplemente sigue.",
   "I can provide an outdoor faucet": "Puedo dar acceso a una llave de agua",
   "Without it we can't do this job at your address.":
     "Sin eso no podemos hacer este trabajo en tu dirección.",
