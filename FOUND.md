@@ -877,3 +877,94 @@ nothing. A fourth was a regex that hit a year in a comment instead of a price.
 **Four wrong accusations out of twelve attempts** — so an audit needs the same
 discipline it is auditing for: read what the tool asserts, and confirm the break
 is inside that contract, before believing a miss.
+
+## THE 56 RED CHECKS, TRIAGED — 2026-09-12
+
+**Diagnosis only. Nothing fixed.**
+
+### The headline: the back office lost six of its twelve capabilities
+
+`supabase/functions/platform-admin/index.ts` answers **twelve** actions:
+`create, export, get, impersonate, list, note, prices, restore, site, suspend,
+tier, whoami`.
+
+**`app/src` can reach six.** Grepped for each across the whole client:
+
+| action | what it does | reachable from the client |
+|---|---|---|
+| `create` | register a business signed up in person | **0 references** |
+| `export` | hand over the data as a file | **0** |
+| `note` | write an admin note against a business | **0** |
+| `prices` | edit or clear the platform price table | **0** |
+| `site` | set `businesses.site_url` | **0** |
+| `tier` | set a business's plan tier | **0** |
+
+The server code, its RLS posture and its tests are all intact. **There is simply
+no way to reach them.** Every one was reachable before `45eaf85`.
+
+**WHERE IT HAPPENED, AND WHY NOBODY SAW IT.** `45eaf85` — *"The back office lets
+go of a detailer, and looks without becoming them"* — rewrote `AdminPage.jsx`
+from **1,436 lines to 798**. Its own commit message lists the checks it ran:
+*composition 94, design-contrast, landing-pricing 107, route-contract 31.*
+**It did not run `platform-admin.test.mjs`, the suite that guards the file it
+was rewriting.** That suite has been red ever since and was read as *"checks
+pointing at source that MOVED"*. It was not source that moved. Roughly 500 lines
+were deleted and 114 went to `PreviewEntry.jsx`.
+
+**And the dead man's switch went with it.** `"NOTHING outside is watching"` was
+in the old file once and is in the new one **zero** times; the staleness display
+went from six references to two. That is `dead-mans-switch`'s five failures.
+
+### The split
+
+| | count | |
+|---|---|---|
+| **REAL DEFECT** | **7 capabilities** | six unreachable actions + the dead-man's-switch display |
+| **STALE — proven** | **4 checks** | named below, each with what the product does now |
+| **NOT YET CLASSIFIED** | the remainder of `platform-admin`'s 48 | needs one pass per check; not guessed at |
+
+**THE REAL DEFECTS, NAMED:**
+
+1. **`prices`** — the platform price table cannot be edited or cleared from the
+   back office. `platform-billing`'s single failure is this.
+2. **`create`** — a business signed up in person cannot be registered.
+3. **`tier`** — a business's plan tier cannot be set.
+4. **`site`** — `businesses.site_url` cannot be set.
+5. **`note`** — no admin note can be written against a business.
+6. **`export`** — the data cannot be handed over as a file.
+7. **The dead man's switch has no display** — the back office no longer prints
+   *"NOTHING outside is watching"*, and a job that has never reported no longer
+   reads as stale on screen. Five of `dead-mans-switch`'s checks are this.
+
+**THE STALE ONES, PROVEN RATHER THAN ASSUMED:**
+
+- **`multi-vehicle` 2c and `plans` "the line names the plan AND what it did"** —
+  **these two are MINE, introduced today.** They assert the em dash literally
+  (`/2nd vehicle — Large · F-150/`, `"Bi-weekly — 10% off"`) and I changed those
+  joins to the middle dot in `_shared/pricing.ts` without updating them.
+  **Proven at name level: both suites are GREEN on `34ae75d^` and RED on `HEAD`**,
+  measured with the parent's `pricing.ts` in the working tree. The product is
+  correct by the em dash ruling; the tests encode the old spelling.
+- **`platform-admin` "no chart"** — asserts no chart exists. **A chart exists (9
+  references) and Andrew asked for one**: `docs/back-office-plan-2026-09-09.md`
+  says *"charts draw themselves… He has asked for this explicitly on this
+  screen."* The check enforces a rule its own owner reversed.
+- **`platform-admin` 2b-i** — asserts `/status: "anon"/`. The code now says
+  `setStatus("anon")` and renders a Sign in form at `AdminPage.jsx:226`.
+  **The behaviour is intact; only the spelling moved.** CLAUDE.md trap (k).
+
+**WHAT IS DELIBERATELY NOT CLAIMED.** The remaining `platform-admin` failures —
+the `12x` layout and motion block, the `11x` list block, the `14c` limit
+warnings — are **not classified**. Each needs its assertion read against what
+the screen does now, and a plausible story is not a check. Two of the three
+sampled turned out stale and one turned out real, so the ratio cannot be
+guessed from the sample. **A test that looks stale may be the only thing still
+guarding something real** — four of twelve break attempts in the instrument
+audit wrongly accused a working tool, and the reverse error is live here.
+
+### The rule this earns
+
+**A commit that rewrites a file runs the suite that guards that file.** `45eaf85`
+ran four suites, none of them the one named after the screen it replaced, and
+six capabilities left the product without a word. The suite said so immediately
+and for three days it was read as noise.
