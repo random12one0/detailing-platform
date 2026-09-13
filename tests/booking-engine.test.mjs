@@ -307,13 +307,23 @@ console.log("test 6: buffer independence through the live engine");
   check("A: slot just after booking now offered (11:30)", aAfter.data?.slots?.includes("11:30"), JSON.stringify(aAfter.data?.slots));
 
   const bAfter = await fn("available-slots", { business_slug: "engine-b", booking_date: D2, duration_minutes: 60 });
+  // **BOTH OF THESE NEEDED A REAL LIST AND NEITHER ASKED FOR ONE — 2026-09-13.**
+  // If both reads fail, `JSON.stringify(undefined)` is the string "undefined" on
+  // each side and the equality holds, so "unchanged" is satisfied by two dead
+  // calls. And `!undefined?.includes(...)` is `true`, so the buffer guard passes
+  // over nothing. Third and fourth instances of the shape found in e2e-booking
+  // and timezone-and-slots the same day, both guarding a double booking.
+  const bBeforeSlots = bBefore.data?.slots, bAfterSlots = bAfter.data?.slots;
   check(
-    "B's availability unchanged by A's buffer change",
-    JSON.stringify(bBefore.data?.slots) === JSON.stringify(bAfter.data?.slots),
-    `${JSON.stringify(bBefore.data?.slots)} vs ${JSON.stringify(bAfter.data?.slots)}`,
+    "B availability unchanged by A buffer change",
+    Array.isArray(bBeforeSlots) && Array.isArray(bAfterSlots)
+      && JSON.stringify(bBeforeSlots) === JSON.stringify(bAfterSlots),
+    `${JSON.stringify(bBeforeSlots)} vs ${JSON.stringify(bAfterSlots)} — a missing list on BOTH sides used to compare equal`,
   );
   // B booked 13:00-15:00 EST with buffer 60 → 14:00 blocked for B.
-  check("B: buffered slot still hidden (14:00)", !bAfter.data?.slots?.includes("14:00"), JSON.stringify(bAfter.data?.slots));
+  check("B: buffered slot still hidden (14:00)",
+    Array.isArray(bAfterSlots) && bAfterSlots.length > 0 && !bAfterSlots.includes("14:00"),
+    Array.isArray(bAfterSlots) ? JSON.stringify(bAfterSlots) : "NO SLOT LIST AT ALL — nothing was compared");
 
   await rest("PATCH", `/rest/v1/business_settings?business_id=eq.${A.id}`, { key: ANON, jwt: userA.jwt, body: { buffer_minutes: 60 } });
 }

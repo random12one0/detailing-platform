@@ -356,10 +356,24 @@ if (!URL_ || !ANON) {
     // this fails rather than the feature quietly not translating it.
     ok("4f · the live payload has ZERO unclassified strings", c.unknown.length === 0, c.unknown.join(", "));
     ok("4f-ii · and it found real prose to translate", c.texts.length > 20, String(c.texts.length));
-    ok("4f-iii · the business's own name is not among them", !c.texts.includes(payload.business?.name),
-      payload.business?.name);
-    ok("4f-iv · nor is a payment handle", !c.texts.includes(payload.settings?.pay_venmo));
-    ok("4f-v · nor a customer's quoted review", !c.texts.includes(payload.testimonials?.[0]?.quote));
+    // **EACH OF THESE THREE NEEDS ITS SUBJECT TO EXIST — 2026-09-13.**
+    // `[].includes(undefined)` is `false`, so `!` makes it `true`: if the demo
+    // ever stops setting a Venmo handle, or the seed ships no testimonials, the
+    // check passes over a value that is not there. These are the
+    // never-translate-a-name guards (START-HERE § 6), which is exactly the kind
+    // of rule that must not be able to pass vacuously.
+    //
+    // MEASURED when this was added: name "Coastline Auto Detailing", venmo
+    // "@andrews-detail", 2 testimonials. All three real, so this closes a future
+    // gap rather than a present one.
+    const notAmong = (value) => typeof value === "string" && value.length > 0
+      && !c.texts.includes(value);
+    ok("4f-iii · the business own name is not among them", notAmong(payload.business?.name),
+      `name: ${JSON.stringify(payload.business?.name)}`);
+    ok("4f-iv · nor is a payment handle", notAmong(payload.settings?.pay_venmo),
+      `pay_venmo: ${JSON.stringify(payload.settings?.pay_venmo)} — absent means nothing was compared`);
+    ok("4f-v · nor a customer quoted review", notAmong(payload.testimonials?.[0]?.quote),
+      `${payload.testimonials?.length ?? 0} testimonials — zero means nothing was compared`);
 
     // ── AND ONE BUSINESS IS NOT "THE REAL PAYLOAD" ─────────────────────────
     // 4f above reads `demo-detail`, which is the richest fixture in the
