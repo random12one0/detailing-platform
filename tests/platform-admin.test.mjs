@@ -1069,30 +1069,39 @@ console.log("\n13. the back office's own door (roadmap 8.2)");
   // actually have to agree: the value the button is disabled ON, and the value
   // the explanation is shown ON. A check naming one of them alone goes green
   // with a button that is never offered or a sentence that never appears.
+  // **RE-POINTED A SECOND TIME THE SAME DAY, AND THE PRODUCT GOT BETTER BOTH
+  // TIMES.** This was `ownerMember` from a members search, then `row.owner_email`,
+  // and is now `hasOwner`. The move was not cosmetic: the server builds
+  // `owner_email` as `owner?.email ?? contact_email`, so a business somebody
+  // typed a contact address for read as HAVING an owner it did not have, and
+  // the button was enabled right up to the server’s 409. Trap (k) twice in one
+  // day on one check — so this asserts the THREE-STATE, which is the property
+  // that actually has to hold and is far harder to reword by accident.
   check("13f · the owner account gates the button",
-    /disabled=\{!row\.owner_email \|\| busy === "impersonate"\}/.test(p13),
+    /disabled=\{hasOwner === false \|\| busy === "impersonate"\}/.test(p13),
     "the button has to be off when there is no account to open it as");
+  // **`null` IS A THIRD ANSWER AND MUST NOT BE FOLDED INTO `false`.** The detail
+  // arrives after the drawer opens and may not arrive at all; treating "we have
+  // not read it yet" as "there is no owner" disables the button and prints a
+  // sentence claiming a fact nobody has read. Asserted on the derivation, so a
+  // rewrite back to a two-state boolean fails here.
+  check("13f-i · and not knowing yet is a third answer, not a no",
+    /const hasOwner = detail\?\.members \? detail\.members\.some\(\(m\) => m\.role === "owner"\) : null;/.test(p13),
+    "hasOwner has to be true | false | null, never a plain boolean");
   check("13f-ii · and the screen says why, on the same condition",
-    /\{!row\.owner_email && \(/.test(p13)
+    /\{hasOwner === false && \(/.test(p13)
       && /no account to open it as/.test(p13),
     "a disabled button with no sentence beside it is an unexplained dead end");
-  // **THIS ONE IS A REAL LOSS AND IT IS NOT A STALE CHECK.** The old screen
-  // offered "Resend the owner’s invite" beside the sentence, so the dead end
-  // had a way out of it. The rebuild dropped it, and the server action that
-  // did the work — `resend_invite` — is reachable from no screen at all.
-  // ALREADY RECORDED: `FOUND.md` § EIGHT BACK-OFFICE ACTIONS HAVE NO DOOR names
-  // `resend_invite` in its list, so this is that finding wearing a second hat,
-  // not a new one. It is lane B’s door to build.
-  //
-  // **SO IT SKIPS RATHER THAN PASSING OR FAILING.** Passing would certify a
-  // dead end as finished; failing a third time would teach everybody to ignore
-  // a suite that is otherwise honest. A skip that names the missing action is
-  // the only one of the three that says the true thing.
-  skip("13f-iii · the invite that fixes it is offered by the same screen",
-    "NOT MEASURED: the rebuilt screen has no resend control, and the server’s "
-      + "`resend_invite` action is reachable from nowhere. FOUND.md § EIGHT "
-      + "BACK-OFFICE ACTIONS HAVE NO DOOR. Lane B builds the door; re-arm this "
-      + "check the day it exists.");
+  // **RE-ARMED 2026-09-13.** This skipped earlier today because the rebuilt
+  // screen stated the dead end and offered no way out, and the server action
+  // that fixes it reached no screen — `FOUND.md` § EIGHT BACK-OFFICE ACTIONS HAVE
+  // NO DOOR. Lane B built the door in `cfe29b3`, so the check is a check again
+  // rather than a skip. **A skip is a debt, and this is what paying it looks
+  // like:** the assertion comes back with no edit to the reason it was parked.
+  check("13f-iii · the invite that fixes it is offered by the same screen",
+    /action: "resend_invite", business_id: row\.id/.test(p13)
+      && /setInviting\(\(v\) => !v\)/.test(p13),
+    "saying there is no account and offering no way to make one is half an answer");
   check("13g · the server is still the one that refuses",
     /has no owner account to sign in as/.test(strip(fn)));
 
