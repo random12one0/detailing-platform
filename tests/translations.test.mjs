@@ -360,6 +360,54 @@ if (!URL_ || !ANON) {
       payload.business?.name);
     ok("4f-iv · nor is a payment handle", !c.texts.includes(payload.settings?.pay_venmo));
     ok("4f-v · nor a customer's quoted review", !c.texts.includes(payload.testimonials?.[0]?.quote));
+
+    // ── AND ONE BUSINESS IS NOT "THE REAL PAYLOAD" ─────────────────────────
+    // 4f above reads `demo-detail`, which is the richest fixture in the
+    // project. A field only a DIFFERENT tenant populates — `closures[].name`,
+    // `travel_zones[].name`, `branding.credentials[]` — is classified by a list
+    // nothing exercises, and a path added to the RPC that the demo leaves null
+    // is invisible to a one-business check. That is this repo's most repeated
+    // failure at the scale of a sample: `docs/BAR.md`, *sampling three of
+    // forty-eight and generalising is how a correct observation becomes a wrong
+    // conclusion.*
+    //
+    // So: every business, named individually. A count would hide which one.
+    const SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!SERVICE) {
+      skip("4g · zero unclassified strings on EVERY business, not just the demo",
+        "no SUPABASE_SERVICE_ROLE_KEY, so the business list could not be read — this check proved NOTHING");
+    } else {
+      const list = await fetch(`${URL_}/rest/v1/businesses?select=slug&order=slug`, {
+        headers: { apikey: SERVICE, Authorization: `Bearer ${SERVICE}` },
+      });
+      const slugs = await list.json().catch(() => null);
+      if (!Array.isArray(slugs) || slugs.length === 0) {
+        skip("4g · zero unclassified strings on EVERY business, not just the demo",
+          `the business list returned ${list.status} — this check proved NOTHING`);
+      } else {
+        const bad = [];
+        let reached = 0;
+        for (const { slug } of slugs) {
+          const p = await fetch(`${URL_}/rest/v1/rpc/get_public_business_profile`, {
+            method: "POST",
+            headers: { apikey: ANON, Authorization: `Bearer ${ANON}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ p_slug: slug }),
+          });
+          const doc = await p.json().catch(() => null);
+          // A slug that does not publish is not a pass and not a failure — it
+          // is a business this check did not reach, and the count below says so.
+          if (!p.ok || !doc) continue;
+          reached++;
+          const u = classify(doc).unknown;
+          if (u.length) bad.push(`${slug}: ${u.join(" ")}`);
+        }
+        ok(`4g · zero unclassified strings across all ${reached} published businesses`,
+          bad.length === 0, bad.join(" | "));
+        // The reach is asserted, or a run that read nothing passes silently.
+        ok("4g-ii · and it actually read more than the demo",
+          reached > 1, `${reached} of ${slugs.length} businesses published a profile`);
+      }
+    }
   }
 }
 

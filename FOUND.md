@@ -66,6 +66,97 @@ you, it is a candidate.**
 
 ---
 
+## THE DEFINER SWEEP — 2026-09-13, and it found a cross-tenant PII read
+
+**The eighth costume's parked half, run. 38 `security definer` functions in
+`public`; FIVE were reachable by somebody who should not reach them.** Every
+claim here was PROVED by calling the function over HTTP — with the anon key, and
+with a real `demo@detailplatform.com` session — not read off a migration.
+`supabase/migrations/20260913005000_definer_execute_swept.sql` closed all five;
+`tests/definer-grants.test.mjs` is the standing check, **baselined against the
+live broken state before the fix was applied**, which named all five.
+
+### THE ONE THAT MATTERS: every customer's details, to anyone with the anon key
+
+`get_bookings_due_for_second_reminder()` returns **`setof public.bookings`** from
+`select b.*` with **no tenant filter**, and it had **no grant or revoke line of
+any kind.** Anon got **200**.
+
+**AND A DEFINER FUNCTION OWNED BY `postgres` HAS NO RLS AT ALL — measured, not
+assumed: `postgres` carries `rolbypassrls = true`.** So `force row level
+security` on `bookings`, which IS set, does not apply inside it. Name, email,
+phone and address of every upcoming booking on every business, to whoever holds
+EXECUTE — **and the anon key ships in the browser bundle.**
+
+**IT RETURNED `[]` WHEN PROBED, WHICH IS THE WHOLE REASON NOBODY SAW IT.** Zero
+of fifteen businesses have `customer_reminder_2_enabled`, so the select matches
+nothing. **Identical in shape to the `monthAgo` scope error: a fault sitting
+behind an empty set.** The first detailer to switch on a second reminder opens
+it.
+
+**ITS SIBLING, WRITTEN SIX DAYS EARLIER, CARRIES THE EXACT REVOKE IT WAS
+MISSING.** `get_bookings_due_for_reminder(text)` is `revoke … from public, anon,
+authenticated` + `grant … to service_role`; all six siblings are locked. **The
+body was copied and the grants were not**, which is the transferable part: a new
+function modelled on an old one inherits its SQL and not its privileges.
+
+### THE OTHER FOUR
+
+| | what was open | proof |
+|---|---|---|
+| `note_heartbeat(text,jsonb)` | **any signed-in detailer could forge the dead man's switch's own heartbeat** | a real detailer session got **204** and a junk row appeared in `job_heartbeats` (deleted immediately) |
+| `job_photo_budget(uuid)` | anon read any business's storage numbers | **200** to anon for an arbitrary business id |
+| `photo_total_bytes()` | anon read the platform-wide photo total | **200** to anon |
+| `link_booking_to_plan()` | a trigger function open to all | PUBLIC+anon+auth in `proacl` |
+
+`note_heartbeat` is the seventh costume with a hand on the lever: an instrument
+whose only job is to say when a cron has stopped, writable by its own audience.
+Its migration revoked from `public, anon` and **not** from `authenticated`.
+
+### THE ROOT CAUSE IS A DEFAULT PRIVILEGE, SO IT WILL RECUR
+
+`pg_default_acl` carries **`alter default privileges in schema public grant
+execute on functions to anon, authenticated`**, from BOTH `postgres` and
+`supabase_admin`. **A new function is born with THREE grants** — PUBLIC from
+`create function`, plus `anon` and `authenticated` from the default — so a
+migration that revokes one or two of the three reads as if it closed the door.
+
+**THE DEFAULT PRIVILEGE WAS DELIBERATELY NOT REMOVED.** It governs every future
+function in a schema Supabase's own tooling writes into, and changing it would
+trade a visible fault for an invisible one. `definer-grants` § 2a **fails if it
+ever disappears**, because then every three-role revoke in this repo is about a
+database that no longer exists.
+
+**THE INVARIANT NOW ENFORCED: no definer function carries a PUBLIC grant.** Ten
+did; six of those keep exactly the reach they had, by naming `anon` and
+`authenticated` instead. Verified after applying: all eight public reads still
+answer 200 with real data to the anon key, the five closed ones answer 42501 to
+both anon and a detailer, and the dashboard's photo meter still works.
+
+### TWO THINGS LEFT OPEN, NEITHER FIXED, BOTH ALLOWLISTED WITH THE REASON
+
+- **`job_photo_budget(uuid)` STILL DOES NOT CHECK MEMBERSHIP.** It is
+  authenticated-only now, so the internet is out, but **a detailer can still
+  read another business's storage usage and cap** by passing that business's id.
+  Narrower than an open internet read; needs a decision about which permission
+  gates it (`has_business_permission` with what name?), so it was not guessed at.
+  Lane C.
+- **`accrue_plan_visits()` IS GRANTED TO `authenticated` EXPLICITLY**, in
+  `20260904002000_plans.sql`, so it is a decision rather than an oversight and
+  was left alone. It is a platform-wide writer any detailer can fire. The harm is
+  bounded — idempotent via `on conflict do nothing` and capped at `current_date`,
+  so firing it early only grants what was already due — but **nothing explains
+  why `authenticated` needs it at all**, and the seed calls it with the service
+  key. Worth one sentence from somebody who knows.
+
+### AND THE LIVE BUSINESS PROJECT HAS NOT BEEN CHECKED FOR THIS
+
+`adtlnvihwrcqcasqcjwd` takes real customers' money and the token in `.env`
+reaches only `kguqylyzgyzfktkfnhjb`. **The same default privilege is a Supabase
+default, so it is probably there too** — but that is a guess and it is written
+here as one. Same standing ruling as the 504: Andrew's decision, with him
+present, and no session goes looking for credentials.
+
 - 2026-09-13 — **THE NINTH COSTUME, AND IT IS MINE TOO: A CHECK THAT ITS OWN
   SUBJECT'S COMMENTS COULD SATISFY.** `tests/session-ping.test.mjs` § 11 read
   `supabase/functions/session-ping/index.ts` and asserted `/\b502\b/` and
@@ -95,12 +186,12 @@ you, it is a candidate.**
   protected nothing. Fixed for this feature in `20260913003000`; the check that
   catches it asks the live database rather than grepping the migration for the
   word `revoke` (`tests/translations.test.mjs` § 6).
-  **THE PARKED PART IS THE WIDER ONE: every `security definer` function in this
-  repo deserves the same three-line probe.** Nine migrations spell it
+  ~~**THE PARKED PART IS THE WIDER ONE: every `security definer` function in this
+  repo deserves the same three-line probe.**~~ **SWEPT 2026-09-13 — 38 functions,
+  FIVE were open, and one of them was the worst privilege defect this project has
+  had. See § THE DEFINER SWEEP below.** Nine migrations spell it
   `from public, anon, authenticated` and the convention is right; what nobody
-  has measured is whether any of the rest missed `public` the way I did. Lane C.
-  Not swept, because a pass over forty functions is its own item and two of them
-  may be deliberately public.
+  had measured is whether any of the rest missed `public` the way I did.
 - 2026-09-13 — **A CHECK THAT THE GUARD REFUSES IS NOT A CHECK THAT THE TABLE IS
   CLEAN.** Baselining the never-a-name trigger by dropping it let the suite's own
   probe write `"Coastline Auto Detailing" -> "Detallado Automotriz Costero"` and
