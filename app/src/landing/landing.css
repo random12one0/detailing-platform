@@ -1315,6 +1315,28 @@
   width: 54%; align-self: end;
   padding-bottom: clamp(56px,8vh,96px);
 }
+/* THE PARAGRAPH STOPS BEFORE THE CARDS — 2026-09-13, and it is the rule three
+   comments below this one finally being enforced rather than merely stated.
+   **`.figcard.pay` sat 65px into the first line and 18px into the second, at
+   1024.** That card is a 96%-opaque panel with a shadow, so those words were
+   not "passing behind him" — they were gone.
+
+   **THE OVERRUN IS CONSTANT AND THE COLLISION IS A COINCIDENCE, which is why
+   this had to be fixed at every width rather than at 1024.** The copy column
+   runs past the card's left edge by the same ~14% of its own width at every
+   size measured — 82.4% needed at 1024, 82.9% at 1180, 83.1% at 1440. What
+   changes is only whether the card's `top: 47%` happens to land on a LINE:
+   1024 and 1180 collide, 1440 misses by luck. A band-limited media query would
+   have fixed the two widths somebody measured and left the mechanism in place.
+
+   **AND IT IMPROVES THE WIDE CASE RATHER THAN COSTING IT.** At 1440 the line
+   was running to 98.5% of a 637px column — about 78 characters, well past a
+   comfortable measure. 80% brings it to roughly 64.
+
+   The FIGURE and the RULES still share the column; that is the design. Only
+   the sentences are kept clear, which is exactly what the note below asks for. */
+.ld .figcopy .lede { max-width: 80%; }
+@media (max-width: 900px) { .ld .figcopy .lede { max-width: none; } }
 /* THE RULES ARE WHAT GOES BEHIND HIM, NOT THE WORDS. The first attempt
    overlapped the headline and ate the "ce" off "office" — which broke the
    rule written three comments above this one: a sentence you cannot finish

@@ -353,3 +353,58 @@ reports any pair that intersects. Four decisions in it are load-bearing:
 **BASELINED, per the rule above it.** With
 `.pa-do .pa-btn{margin-top:-15px}` injected it reports the pair by name and by
 7px; with the injection removed it reports zero over the same 32 elements.
+
+## 1024 IS A STANDARD WIDTH NOW — added 2026-09-13, and the reason matters
+
+**The standard widths were 1920 / 1440 / 768 / 392, and they have a hole exactly
+where a detailer sitting at a desk actually is.** A laptop is 1280 or 1366 with
+browser chrome; a tablet in landscape is 1024; a half-screen window on a 1920
+monitor is 960. **None of that is covered by a set that jumps from 1440 to 768.**
+
+**This was not theoretical.** The landing page's `.figband` puts a 96%-opaque
+card 65px into the first line and 18px into the second line of the paragraph
+beneath it. It reproduces at **1024** and at **1180**. It does NOT reproduce at
+1440, 1920, 768 or 392 — so **every sweep this project has ever run reported
+that page clean**, including the ones signed off the same evening.
+
+**AND THE MECHANISM IS WORSE THAN THE INSTANCE.** The copy column runs past the
+card's left edge by the same fraction of its own width at every size measured —
+82.4% needed at 1024, 82.9% at 1180, 83.1% at 1440. The overrun is CONSTANT.
+What varies is only whether the card's `top: 47%` happens to land on a line of
+text. **1440 is not clean, it is lucky.** A fix band-limited to the widths
+somebody measured would have left the mechanism in place to reappear the next
+time a paragraph gained a word.
+
+**SO THE WIDTHS ARE 1920 / 1440 / 1024 / 768 / 392**, and 320 stays the narrowest
+supported one that `sweep-widths.mjs` covers by default.
+
+**AND THE TRANSFERABLE RULE IS ABOUT FIXED LISTS, NOT ABOUT 1024.** A width that
+is not on the list is a width nothing is ever measured at, and adding one number
+does not fix that — it moves the hole. **When a defect is found at any width,
+ask whether the MECHANISM is width-dependent or whether the width merely
+revealed it**, and fix the mechanism.
+
+## MEASURE IN `?lite=1` WHEN THE BROWSER PANE IS HIDDEN — 2026-09-13
+
+`.lite` forces `--rp: 1` on the comparison rows and drops the mask transform, so
+**it is the settled reading state, reachable deterministically without waiting
+for an animation that a hidden pane will never run.** It is already a required
+verification path in `CLAUDE.md`; it is also the only honest way to measure
+layout from a pane the renderer considers hidden.
+
+**AND A RECT THAT OVERLAPS IS NOT INK THAT OVERLAPS.** Measured on the landing
+page's `.vs` heading: the mask's inner span carries `translate3d(0,110%,0)` until
+its reveal fires, so its bounding rect sits **4.8px into the row below** while
+`overflow: hidden` clips every pixel of it away. Two instruments reading rects
+rather than ink will agree with each other and both be wrong — `.nm` reads 6px
+and `.gt` reads 3px purely because they are baseline-aligned at different sizes.
+**Agreement between two instruments that share a blind spot is not
+corroboration.** Confirm against `Range.getClientRects()` on the text node and
+against the element's clipping ancestors before calling it a defect.
+
+**KNOWN LIMIT, WRITTEN DOWN RATHER THAN LEFT TO BE REDISCOVERED:**
+`scripts/overlap-probe.mjs` intersects `overflow` boxes and does NOT account for
+`clip-path`. `.ld .mask` carries `clip-path: inset(-.3em 0)`, which OUTSETS by
+19.7px at that type size — so the probe is conservative there (it clips to the
+mask box and ignores the 19.7px the clip-path would allow). It cannot produce a
+false pass, only a slightly early exclusion.

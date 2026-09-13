@@ -91,21 +91,54 @@ export const OVERLAP_PROBE = `(rootSelector, opts) => {
     return false;
   };
 
-  // The element's rect, cut down by every ancestor that clips — bug (4).
-  // \`overflow\` on either axis makes a clipping box on BOTH, which is the same
-  // fact that cropped a tap target's ::after at 42px earlier in this project.
-  const clipped = (el) => {
-    const r = el.getBoundingClientRect();
-    let box = { top: r.top, left: r.left, right: r.right, bottom: r.bottom };
+  // Every clipping ancestor's box, intersected — bug (4). \`overflow\` on either
+  // axis makes a clipping box on BOTH, the same fact that cropped a tap
+  // target's ::after at 42px earlier in this project.
+  const clipBox = (el) => {
+    let b = null;
     for (let n = el.parentElement; n && n !== document.documentElement; n = n.parentElement) {
       const cs = getComputedStyle(n);
       if (cs.overflowX === "visible" && cs.overflowY === "visible") continue;
       const p = n.getBoundingClientRect();
-      box = { top: Math.max(box.top, p.top), left: Math.max(box.left, p.left),
-              right: Math.min(box.right, p.right), bottom: Math.min(box.bottom, p.bottom) };
-      if (box.right - box.left < 1 || box.bottom - box.top < 1) return null;
+      b = b ? { top: Math.max(b.top, p.top), left: Math.max(b.left, p.left),
+                right: Math.min(b.right, p.right), bottom: Math.min(b.bottom, p.bottom) }
+            : { top: p.top, left: p.left, right: p.right, bottom: p.bottom };
     }
-    return box;
+    return b;
+  };
+
+  // **WHERE THE TEXT IS, NOT WHERE ITS BOX IS — bug (5), and it is the one that
+  // produced every false positive this probe has ever reported.** A block-level
+  // wrapper's rect is the whole column: \`.ld .mask > span\` is \`display: block\`,
+  // so the headline "Your back office" reported a rect 493px wide when its
+  // glyphs stop at 328px, and it "overlapped" a card 130px to its right.
+  //
+  // **TWO INSTRUMENTS READING RECTS WILL AGREE WITH EACH OTHER AND BOTH BE
+  // WRONG.** Cowork's independent run and mine both flagged the \`.vs\` heading
+  // over the comparison rows — 6px on \`.nm\` and 3px on \`.gt\`, which looks like
+  // corroboration and is actually one shared blind spot, the two figures
+  // differing only because those two are baseline-aligned at different sizes.
+  // Measured as ink, there is 63px of clearance. **Agreement between
+  // instruments that share a blind spot is not corroboration.**
+  const inkRect = (el) => {
+    let box = null;
+    for (const n of el.childNodes) {
+      if (n.nodeType !== 3 || !n.textContent.trim()) continue;
+      const rg = document.createRange();
+      rg.selectNodeContents(n);
+      for (const r of rg.getClientRects()) {
+        if (r.width < 1 || r.height < 1) continue;
+        box = box ? { top: Math.min(box.top, r.top), left: Math.min(box.left, r.left),
+                      right: Math.max(box.right, r.right), bottom: Math.max(box.bottom, r.bottom) }
+                  : { top: r.top, left: r.left, right: r.right, bottom: r.bottom };
+      }
+    }
+    if (!box) return null;
+    const c = clipBox(el);
+    if (!c) return box;
+    const o = { top: Math.max(box.top, c.top), left: Math.max(box.left, c.left),
+                right: Math.min(box.right, c.right), bottom: Math.min(box.bottom, c.bottom) };
+    return (o.right - o.left < 1 || o.bottom - o.top < 1) ? null : o;
   };
 
   const ownText = (el) => [...el.childNodes]
@@ -115,12 +148,10 @@ export const OVERLAP_PROBE = `(rootSelector, opts) => {
   const items = [];
   for (const el of root.querySelectorAll("*")) {
     if (!vis(el)) continue;
-    const text = ownText(el);
-    if (!text) continue;
     if (floats(el)) continue;
-    const r = clipped(el);
+    const r = inkRect(el);
     if (!r) continue;
-    items.push({ el, r, text: text.slice(0, 44), tag: el.tagName.toLowerCase(),
+    items.push({ el, r, text: ownText(el).slice(0, 44), tag: el.tagName.toLowerCase(),
       cls: (typeof el.className === "string" ? el.className : "").trim().slice(0, 26) });
   }
 
@@ -131,7 +162,16 @@ export const OVERLAP_PROBE = `(rootSelector, opts) => {
       if (a.el.contains(b.el) || b.el.contains(a.el)) continue;
       const dx = Math.min(a.r.right, b.r.right) - Math.max(a.r.left, b.r.left);
       const dy = Math.min(a.r.bottom, b.r.bottom) - Math.max(a.r.top, b.r.top);
-      if (dx > 1 && dy > 1) {
+      // **FOUR PIXELS, NOT ONE — and the reason is that a Range rect is a LINE
+      // BOX rather than literal glyphs.** It carries the font's full ascent and
+      // descent whether or not the characters use them: "$277" at 52px reports
+      // a 69px-tall rect, and digits have neither an ascender above cap height
+      // nor any descender at all. So a label sitting directly above a big
+      // figure reads as 2-3px of overlap while nothing visible touches.
+      // Measured instances left standing at 1-3px: the landing page's pricing
+      // block (2px) and the dashboard's "Neto de este mes" over "$277" (2.5px).
+      // **Andrew's ruling, and it is right: do not chase 2px on a line box.**
+      if (dx > 4 && dy > 4) {
         hits.push({
           by: Math.round(Math.min(dx, dy)),
           a: a.tag + (a.cls ? "." + a.cls : "") + ' "' + a.text + '"',

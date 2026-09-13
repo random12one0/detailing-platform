@@ -1190,3 +1190,40 @@ sees. **Recorded, not claimed.** They need eyes before they are called defects.
 **NOT FIXED, because it is a landing-page layout decision rather than a typo**
 and the section is one Andrew has looked at. The fix is either a wider gutter on
 `.figcopy` or moving the card off the text column at that width.
+
+## THE 1024 PASS — 2026-09-13, and what it actually found
+
+**One real defect, fixed.** `app/src/landing/landing.css` `.figband`: the copy
+column ran past `.figcard.pay`'s left edge, putting a 96%-opaque panel 65px into
+the first line and 18px into the second. **The overrun is constant at every
+width** — 82.4% of the column needed at 1024, 82.9% at 1180, 83.1% at 1440 — and
+only the card's `top: 47%` decides whether it lands on a line. **1440 was never
+clean, it was lucky.** Fixed with a measure cap on `.figcopy .lede`, which also
+brings a 78-character line at 1440 down to about 64.
+
+**EVERYTHING ELSE FLAGGED AT 1024 WAS THE INSTRUMENT, and that is the finding
+worth keeping.** Three separate rect-vs-ink artefacts, all now fixed in
+`scripts/overlap-probe.mjs`:
+
+- **A block wrapper's rect is the whole column.** `.ld .mask > span` is
+  `display: block`, so "Your back office" reported a 493px rect where its glyphs
+  stop at 328px. **This is what produced Cowork's independent `.vs` finding and
+  mine.** Two instruments agreed because they shared one blind spot; the two
+  figures differed (6px on `.nm`, 3px on `.gt`) only because those elements are
+  baseline-aligned at different sizes. Measured as ink: **63px of clearance.**
+- **A Range rect is a line box, not glyphs.** `$277` at 52px reports a 69px-tall
+  rect; digits use neither the ascender above cap height nor any descender. The
+  threshold is 4px now, which leaves the landing page's 2px pricing touches and
+  the dashboard's 2.5px "Neto de este mes" standing as metrics rather than ink.
+- **`?lite=1` stacks tab states.** The hero's "Nothing yet" empty state and its
+  populated job list are alternate states of one panel; in lite both pass
+  `checkVisibility` and the probe reported 16 overlaps between them.
+
+**OPEN, AND NOT CHASED TONIGHT: is that lite stacking a real reduced-motion
+defect?** In the normal path only the empty state is visible (`checkVisibility`
+false on the job rows). In `?lite=1` both are. If that holds in a real browser,
+anybody with reduced motion sees two hero states on top of each other. **It needs
+a visible browser pane to settle and it is the first thing to check next.**
+
+**ALSO SEEN, NOT ACTED ON:** the detailer dashboard renders `PLAN · MEMBER RATE`
+in English on a Spanish screen.
