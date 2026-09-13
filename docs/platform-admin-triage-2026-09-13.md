@@ -4,9 +4,15 @@
 everyone to ignore it, which is the same disease as the watchdog that only cried
 wolf."*
 
-**WHERE IT STANDS: 111 passed / 49 failed → 118 passed / 43 failed.** Seven
-closed in this pass, every one of them the CHECK being wrong about a product that
-was right.
+**WHERE IT STANDS: 111 / 49 → 118 / 43 → 130 passed / 30 failed.** Seven closed
+in the first pass, twelve more and one deletion in the second. Every single one
+was the CHECK being wrong about a product that was right.
+
+**READ § THE SECOND TRIAGE PASS AT THE BOTTOM BEFORE ANYTHING HERE — it closes
+group A, probes group C, and carries the number that matters: eighteen of the
+118 green lines were green against nothing at all.** It also settles group B's
+largest item (impersonation is not gone; it moved to a `/preview` tab at
+Andrew's own ask), so do not hand that over as a lost capability.
 
 ## THE CAUSE, AND IT IS ONE EVENT RATHER THAN ROT
 
@@ -113,3 +119,180 @@ component, a shared constant or a computed value. Where the grep is the only
 instrument available — this repo has no React test runner — assert the COMPONENT
 rather than the class name, the STATE SETTER rather than the state shape, and
 never a proximity window.
+
+---
+
+# THE SECOND TRIAGE PASS — 2026-09-13, lane C
+
+**WHERE IT STANDS NOW: 118 passed / 43 failed → 130 passed / 30 failed.** Twelve
+closed, one deleted, and **eighteen of the checks that were already green have
+been found to be green against nothing at all.** That last number is the one
+that mattered tonight, and it is § 3.
+
+## 1 · GROUP A IS CLOSED — twelve re-points, every one the check
+
+Nine rows, twelve check ids. All baselined against **mutated copies of the
+screen held in memory** — `app/src` was never written, lane B owns it — and each
+went red on exactly the mutation it guards and on no other. Twenty-six mutations
+in all.
+
+| check | the old spelling | what is there now, and what the check asserts instead |
+|---|---|---|
+| `10h-ii` | `beat.stale_after_seconds` | the loop variable is `h`. Asserts the COLUMN, not whose local holds it |
+| `11h-iv` | `monthlySeries(..., b?.timezone)` | `row.timezone`. Asserts that a timezone off the business row is the fourth argument, whatever the row is called |
+| `12h-ii` | `>= 3` calc'd stagger delays | there are two staggered containers. **Now counts the subjects and asserts every one conforms** — a magic threshold failed a correct file |
+| `12j` | `key={b.id}` | `key={row.id}` |
+| `12k` | `useLeaving(() => setOpen(null))`, `.pa-col.leaving` | `useLeaving(onClose)`, `.pa-col.pa-leaving`. **Asserts the IMPORT PATH** — a local re-implementation is the failure it guards — not the callback's name |
+| `12m` | exactly ONE `@media (prefers-reduced-motion)` | **the correct answer is now ZERO.** `main.jsx` toggles `.lite` for the media query AND `?lite=1`, which is what makes them one mechanism. A block in `admin.css` would be the fork `?lite=1` cannot reach |
+| `12n` | `.lite .pa-in, .lite .pa-col` | a four-selector group. Asserts `?lite=1` ORs with the media query in `main.jsx` and that `.lite` is what kills the animation |
+| `12o` | `<svg className="pa-bars"` | `pa-chart`. Asserts an `<svg>` with a COMPUTED `viewBox` and names no class at all |
+| `12q` | `.pa-barr.now.has` | `.pa-barr.pa-now.pa-has`. **And a new second half: no rule may light the current month WITHOUT requiring work in it** |
+| `13a` | `{state.me}` | a `useState` local. Reads whatever identifier `pa-who` renders, then requires something to SET it — drawn versus merely stored, which is the warning already sitting above that check |
+| `13a-ii` | `sess.session.user?.email` | **the CHAIN, not the call.** `auth.getSession()` appears twice in this file, so "getSession is somewhere" is satisfied by the other one. The first mutation of this one stayed green, which is why it is written this way |
+| `13b` | a local `function signOutNow` | the button is wired straight to `signOutEverything` from `lib/signout.js`. Asserts the import — roadmap 8.18's one door — and the handler being it |
+
+**THE ONE WORTH REMEMBERING:** `12m`'s number flipped from one to zero. A count
+inside a check is a claim about an architecture, and when the architecture moves
+the count is wrong in a direction nobody looks for.
+
+## 2 · `no chart` IS DELETED, AND IT COULD NEVER HAVE PASSED
+
+It asserted that `AdminPage.jsx` contains no chart — *"fewer than ten customers
+means every trend line is noise"* — while `11h`, `11h-iv`, `12o`, `12q` and
+`12r` **in the same file** assert that a six-month bar chart is drawn on that
+same page, with the detailer's own months and an unlit empty month. Both cannot
+hold. The chart was specified and built after that line was written.
+
+**A check that contradicts five of its own neighbours is a finding about the
+suite, not about the product** — and a permanently red check is what teaches
+people to stop reading the output, which is the disease this whole triage is
+about.
+
+## 3 · THE HOLLOW PASSES — **EIGHTEEN OF THE 118, AND THE NUMBER IS MEASURED**
+
+**The question:** `strip` had been deleting 43-75% of every non-SQL file this
+suite reads, so its PASSES were as meaningless as its failures. How many of the
+118 were passing only because the text they wanted had been eaten, or was never
+in what survived?
+
+**THE INSTRUMENT.** Every `read()` in the suite replaced by `() => ""` —
+`readdirSync` left real, so a check that COUNTS subjects still sees them while
+the CONTENT is gone — and the suite re-run. A check still green there is green
+whatever the file says.
+
+| | |
+|---|---|
+| green against empty files, before | **20** |
+| of those, failing in the real run anyway (`no chart`) | 1 |
+| of those, a BEHAVIOURAL check that reads no source (`11h-v` runs `monthlySeries`) — correctly green | 1 |
+| **hollow: of the 118, green whatever the file said** | **18** |
+| green against empty files, after | **1** — `11h-v`, the behavioural one |
+
+**AND FIVE MORE CHECKS DID NOT EXIST AT ALL** on gutted input: the `13k` and
+`13l-ii` loops are driven by file contents, so they produced zero checks rather
+than false ones. Both are guarded by their own `the check has subjects`
+companions, and both companions correctly went red. **That pattern works and is
+the one to copy.**
+
+### THE SEVENTEEN ABSENCE CLAIMS, AND WHY AN ANCHOR WAS THE ONLY FIX
+
+Sixteen were pure `!/x/.test(file)`. **A negative assertion is satisfied by an
+empty file**, so each now names an ANCHOR — something that must be present for
+the absence to mean anything — through one helper, `absent()`. A missing anchor
+is reported as a missing subject, which is a FAILURE and never a silent pass.
+
+`no role claim is trusted` · `no environment variable is the gate` ·
+`no second permission system for admins` · `no refunds or card handling` ·
+`NOT ONE supabase.from() ON THE ADMIN SCREEN` ·
+`NO DETAILER-FACING FILE READS admin_notes_platform` ·
+`NO POLICY MENTIONS THE ADMIN CHECK` · `platform_admins has NO policy` ·
+`platform_admin_events has NO policy` ·
+`it is in no version of the public profile` ·
+`the site action never writes business_domains` · `12h` · `12l` · `12p` ·
+`13d` · `11n`.
+
+**AND NO AGGREGATE GUARD CAN REPLACE IT — measured, and this is the part that
+generalises.** The obvious fix is to fail when `strip` removes too much of a
+file. It cannot work here: **the FIXED, comments-only strip legitimately removes
+83% of `signout.js`, 78% of `impersonation.js` and 73% of `App.jsx`**, because
+this repo comments that heavily. No survival ratio separates *that was all
+comments* from *that was the comments and the code*. **The reason the `strip`
+bug survived weeks is that in this codebase a massive deletion looks completely
+normal.**
+
+### TWO SUBJECT COUNTERS WERE COUNTING THE WRONG THING
+
+Both existed to prove their loop had looked at something, and both counted
+something that exists no matter what is inside the files — so **neither could
+ever have detected the mangling they were there to catch.**
+
+| check | counted | now counts |
+|---|---|---|
+| `...and the migrations were actually read` | migration FILES (`> 20`) | `create policy` STATEMENTS found (`> 40`; there are 71) |
+| `...and the walk actually looked at something` | DIRECTORY ENTRIES under `app/src` (`> 5`) | files with text in them after `strip` (`> 80`; there are 131) |
+
+And `it is in no version of the public profile` ran `[].every()` over a list it
+never checked was non-empty — true for an empty list, so it passed while
+inspecting nothing.
+
+### `11n` HAD THE `indexOf` TRAP, WHICH THIS SUITE ALREADY NAMES
+
+It sliced from `indexOf('status === "denied"')` with no presence check.
+`indexOf` returns **-1** when the anchor is gone and `slice(-1, 399)` is **the
+last character of the file**, so a renamed status would have made the check read
+one character and pass. § 3 of the suite already carries the paragraph about
+`indexOf(a) < indexOf(b)` passing loudest when `a` has been deleted; this was
+the same trap in a second costume four hundred lines away.
+
+### BASELINED BOTH WAYS
+
+- **The anchor half:** the gutted run. All eighteen report NO SUBJECT.
+- **The negative half:** fourteen violations injected one at a time into
+  in-memory copies — a `refunds.create`, an `app_metadata` read, a
+  `supabase.from` on the screen, a `create policy` on `platform_admins`, a
+  `250ms` duration, a `setTimeout(..., 180)`, a `height: 100%`, a `fetch(` in
+  `impersonation.js`, a reason string in the denied branch. **Every one went
+  red.** Wrapping a negative could otherwise have left it reporting only a
+  missing subject for ever.
+- One failed injection attempt is worth keeping: `// admin_notes_platform` as a
+  COMMENT left the leak-hunt green, and it was **right** to — `strip` removes
+  comments first. Re-injected as code, it went red.
+
+## 4 · GROUP C IS PROBED, AND IT IS GROUP B — all of it is lane B's
+
+| check | probe | verdict |
+|---|---|---|
+| `the check has a strip to count` | `pa-strip` x0 | the Growth strip header is gone |
+| `seven figures across the top` | `pa-num` x0 | same |
+| `and exactly one of them is the lead` | `pa-lead` x0 | same |
+| `and the two new ones are about the product` | `jobs finished this month` x0, `through the platform` x0 | same |
+| `the button warns before it acts` | `confirm(` x1, `written down` x0 | **NOT a loss — a deliberate change, and Andrew's own words are in the file** |
+
+**THE LAST ROW SETTLES GROUP B'S BIGGEST ITEM.** The first pass said of
+`13c-ii` and `13e` — impersonation — *"if this really is gone it is the largest
+of the group."* **It is not gone.** `AdminPage.jsx:1165` quotes him asking to
+*"view their dashboard... just from me"*, and impersonation now opens a
+`/preview` tab holding its own session in its own drawer (`lib/preview.js`,
+`admin/PreviewEntry.jsx`), with the comment **"No warning, because there is
+nothing left to warn about."** The server half is untouched: the action still
+logs before it acts and a failed log still stops it.
+
+`lib/impersonation.js` is still live and imported by `App.jsx`,
+`BusinessContext.jsx` and `signout.js`, so the `13d` and `13h` families still
+guard something real. What changed is that the BACK OFFICE no longer writes the
+note.
+
+**So `13c-ii`, `13e` and `the button warns before it acts` are checks against a
+design Andrew replaced, not evidence of a dropped capability** — which is a
+different handover for lane B: three checks to retire, not a feature to restore.
+
+## 5 · THE RULE, SHARPER THAN THE FIRST PASS PUT IT
+
+The first pass ended with *a source-text check against a screen another lane
+owns has a half-life*. That is true and it is not the expensive half.
+
+**THE EXPENSIVE HALF: A CHECK THAT CAN PASS WITHOUT READING ANYTHING WILL
+EVENTUALLY BE THE ONLY THING STANDING BETWEEN A REGRESSION AND PRODUCTION.**
+Eighteen of this suite's 118 green lines were that, and the way to find out was
+to **take the files away and see who noticed**. Do that to any suite before
+trusting a number it prints — it costs one `read()` replaced by `() => ""`.

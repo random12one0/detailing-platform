@@ -31,6 +31,32 @@ const check = (name, cond, detail = "") => {
   else { failed++; console.error(`  FAIL  ${name}\n        ${detail}`); }
 };
 
+// ══ THE HOLLOW-PASS GUARD ═══════════════════════════════════════════════════
+//
+// **A NEGATIVE ASSERTION IS SATISFIED BY AN EMPTY FILE**, and until 2026-09-13
+// every one in this suite was. MEASURED: every `read()` in this file replaced by
+// `() => ""` and the suite re-run — **20 checks stayed green against nothing at
+// all**, seventeen of them pure absence claims. That is the same disease as the
+// `strip` bug in the same night, one level up: the bug was a mangled file, and
+// what let it live for weeks was a suite that could not tell a mangled file from
+// a clean one.
+//
+// **AND NO AGGREGATE GUARD CAN REPLACE THIS.** The obvious fix — fail if `strip`
+// removes more than some share of a file — was measured and abandoned: the FIXED,
+// comments-only strip legitimately removes **83% of `signout.js`, 78% of
+// `impersonation.js` and 73% of `App.jsx`**, because this repo comments that
+// heavily. No survival ratio can separate "that was all comments" from "that was
+// the comments and the code", so the subject has to be named per check.
+//
+// So a negative assertion states an ANCHOR: something that MUST be present for
+// the absence to mean anything. A missing anchor is reported as a missing
+// subject, which is a failure — never a silent pass.
+const absent = (name, hay, re, anchor, detail = "") =>
+  anchor.test(hay)
+    ? check(name, !re.test(hay), detail)
+    : check(name, false,
+        `NO SUBJECT: ${anchor} is not in what was read, so the absence of ${re} proves nothing`);
+
 // Comments AND single-quoted SQL strings. The second half was added after
 // this file failed on its OWN migration: a `comment on column ... is '…'`
 // whose text reads "never in get_public_business_profile, never selected"
@@ -77,20 +103,27 @@ const mig = read("supabase/migrations/20260906001000_platform_admin.sql");
 // ─── 1. NO POLICY ANYWHERE GRANTS CROSS-TENANT READ ───────────────────────
 console.log("\n1. row-level security still says 'one business, always'");
 {
-  let offenders = [];
+  let offenders = [], policies = 0;
   for (const f of MIGRATIONS) {
     const sql = stripSql(read(`supabase/migrations/${f}`));
     // A policy body that mentions the admin check at all. There is exactly one
     // legitimate place for `is_platform_admin()` — its own definition — and it
     // is a `create function`, not a `create policy`.
     for (const m of sql.matchAll(/create\s+policy[\s\S]*?;/gi)) {
+      policies++;
       if (/is_platform_admin|platform_admins/i.test(m[0])) offenders.push(`${f}: ${m[0].slice(0, 90)}`);
     }
   }
-  check("NO POLICY MENTIONS THE ADMIN CHECK", offenders.length === 0,
-    offenders.join("\n        ") || "");
-  check("...and the migrations were actually read", MIGRATIONS.length > 20,
-    `${MIGRATIONS.length} migration files — if this is small, the loop above proved nothing`);
+  check("NO POLICY MENTIONS THE ADMIN CHECK", offenders.length === 0 && policies > 40,
+    offenders.join("\n        ") || `only ${policies} policy statements found — the loop had nothing to inspect`);
+  // **COUNT THE STATEMENTS, NOT THE FILES — CORRECTED 2026-09-13.** This counted
+  // migration FILES, which exist whatever is inside them, so it stayed green
+  // through the night `strip` was deleting half of every file it touched. The
+  // subject of the check above is a `create policy` statement, so that is what
+  // has to be counted.
+  check("...and the migrations were actually read",
+    MIGRATIONS.length > 20 && policies > 40,
+    `${MIGRATIONS.length} migration files, ${policies} create-policy statements — either being small means the loop above proved nothing`);
 
   // The admin tables themselves must have NO policies at all. With RLS forced
   // and no policy, `authenticated` can neither read nor write them by any
@@ -99,8 +132,9 @@ console.log("\n1. row-level security still says 'one business, always'");
   const s = stripSql(mig);
   for (const t of ["platform_admins", "platform_admin_events"]) {
     check(`${t} has RLS forced`, new RegExp(`alter table public\\.${t}\\s+force\\s+row level security`, "i").test(s));
-    check(`${t} has NO policy, which is the strongest statement available`,
-      !new RegExp(`create policy[^;]*on public\\.${t}`, "i").test(s));
+    absent(`${t} has NO policy, which is the strongest statement available`,
+      s, new RegExp(`create policy[^;]*on public\\.${t}`, "i"),
+      new RegExp(`create table if not exists public\\.${t}`, "i"));
   }
   check("is_platform_admin is not executable by a browser",
     /revoke all on function public\.is_platform_admin\(\) from public, anon, authenticated/.test(s));
@@ -119,9 +153,11 @@ console.log("\n2. the gate is a table, not a claim and not an env var");
   // is a business membership and has nothing to do with authorisation.
   // A matcher that cannot tell those apart fails on correct code, and a
   // check that fails on correct code teaches people to edit the check.
-  check("no role claim is trusted", !/app_metadata|user_metadata|user\.role|jwt\.role/.test(f),
+  absent("no role claim is trusted", f, /app_metadata|user_metadata|user\.role|jwt\.role/,
+    /supabase\.auth\.getUser\(token\)/,
     "a claim is signed by GoTrue and can be stale for an hour after it is revoked");
-  check("no environment variable is the gate", !/Deno\.env\.get\("ADMIN|ADMIN_EMAIL|IS_ADMIN/.test(f),
+  absent("no environment variable is the gate", f, /Deno\.env\.get\("ADMIN|ADMIN_EMAIL|IS_ADMIN/,
+    /from\("platform_admins"\)/,
     "an env var is invisible to every query and cannot be audited");
   check("a non-admin gets 404, not 403",
     /if \(!admin\) return json\(\{ error: "Not found" \}, 404\)/.test(f),
@@ -220,7 +256,8 @@ console.log("\n4. the audit covers more than the one action 4.4 asked for");
 console.log("\n5. the back office reads nothing through RLS");
 {
   const p = strip(page);
-  check("NOT ONE supabase.from() ON THE ADMIN SCREEN", !/supabase\.from\(/.test(p),
+  absent("NOT ONE supabase.from() ON THE ADMIN SCREEN", p, /supabase\.from\(/,
+    /supabase\.auth\.getSession\(\)/,
     "every byte comes through the edge function, which is what makes the absent policies safe");
   check("only the session is read from the client", /supabase\.auth\.getSession\(\)/.test(p));
   // COMMENTS STRIPPED FIRST, and this is the THIRD time in one night that a
@@ -243,29 +280,40 @@ console.log("\n6. the platform's notes are not the detailer's to read");
   // `businesses`' own policy is `for all` to members, so a detailer's
   // `select *` WOULD return this column. Nothing in the app selects it, and
   // that is what keeps *"call back, seems unhappy"* away from its subject.
-  let leaks = [];
+  let leaks = [], seen = 0;
   const walk = (dir) => {
     for (const e of readdirSync(dir, { withFileTypes: true })) {
       const full = `${dir}/${e.name}`;
       if (e.isDirectory()) { walk(full); continue; }
       if (!/\.(jsx?|mjs)$/.test(e.name)) continue;
       if (full.includes("/admin/")) continue;      // the back office may
-      if (strip(read(full)).includes("admin_notes_platform")) leaks.push(full);
+      const body = strip(read(full));
+      if (body.trim()) seen++;
+      if (body.includes("admin_notes_platform")) leaks.push(full);
     }
   };
   walk("app/src");
-  check("NO DETAILER-FACING FILE READS admin_notes_platform", leaks.length === 0, leaks.join(", "));
+  check("NO DETAILER-FACING FILE READS admin_notes_platform",
+    leaks.length === 0 && seen > 80, leaks.join(", ") || `only ${seen} files had any content`);
+  // **COUNT WHAT WAS READ, NOT WHAT WAS LISTED — CORRECTED 2026-09-13.** This
+  // read `readdirSync("app/src").length > 5`, which counts DIRECTORY ENTRIES.
+  // Those exist whatever the files contain, so gutting every file left this
+  // guard green and the leak-hunt above green with it. The subject is a file
+  // with text in it.
   check("...and the walk actually looked at something",
-    readdirSync("app/src").length > 5, "an empty walk finds no leaks either");
+    seen > 80, `${seen} non-empty files walked — an empty walk finds no leaks either`);
   // The public profile is the other way it could escape — it is a
   // `security definer` function, so it bypasses RLS entirely.
   // AND STRIPPED HERE TOO: the platform-admin migration mentions BOTH names in
   // one comment — "never in get_public_business_profile" — which made it its
   // own counter-example.
   const profile = MIGRATIONS.filter((f) => stripSql(read(`supabase/migrations/${f}`)).includes("get_public_business_profile"));
+  // AND `profile` HAS TO HAVE FOUND SOMETHING: `[].every()` is true, so an
+  // empty list of versions passes this while proving nothing at all.
   check("it is in no version of the public profile",
-    profile.every((f) => !stripSql(read(`supabase/migrations/${f}`)).includes("admin_notes_platform")),
-    profile.join(", "));
+    profile.length >= 1
+      && profile.every((f) => !stripSql(read(`supabase/migrations/${f}`)).includes("admin_notes_platform")),
+    profile.join(", ") || "no migration defines get_public_business_profile — nothing was inspected");
 }
 
 // ─── 7. What the spec said not to build ───────────────────────────────────
@@ -295,12 +343,24 @@ console.log("\n7. and the things the spec refused");
     return gate >= 0 && who >= 0 && gate < who;
   })(), "an answer given before the gate is an answer given to anybody");
 
-  check("no chart", !/chart|Chart|recharts|<svg[\s\S]*polyline/.test(p),
-    "fewer than ten customers means every trend line is noise — the spec says so in as many words");
-  check("no second permission system for admins", !/admin_role|adminPermissions/.test(strip(fn)),
+  // **`no chart` IS DELETED, 2026-09-13, AND IT IS THE ONE CHECK IN THIS FILE
+  // THAT COULD NEVER BE SATISFIED.** It asserted that `AdminPage.jsx` contains
+  // no chart — *"fewer than ten customers means every trend line is noise"* —
+  // while checks `11h`, `11h-iv`, `12o`, `12q` and `12r` in this same file all
+  // assert that a SIX-MONTH BAR CHART is drawn on that same page, with the
+  // detailer's own months and an unlit empty month. Both cannot hold. The
+  // spec moved: the chart was specified and built after this line was written,
+  // and nobody came back for it, so it sat red as one of the 49.
+  //
+  // **A check that contradicts five of its own neighbours is not a finding
+  // about the product, it is a finding about the suite** — and leaving it in
+  // costs more than the coverage it never had, because a permanently red check
+  // is what teaches people to stop reading the output.
+  absent("no second permission system for admins", strip(fn), /admin_role|adminPermissions/,
+    /from\("platform_admins"\)/,
     "there is one admin; a lattice for a table with one row is what 2.13 refused for 'team'");
-  check("no refunds or card handling — Stripe's dashboard is better at those",
-    !/refund|dispute|card_number/i.test(strip(fn)),
+  absent("no refunds or card handling — Stripe's dashboard is better at those",
+    strip(fn), /refund|dispute|card_number/i, /action === "/,
     "show the state, link out for the action");
   // **THE FOUR-FIGURE RULE WAS RETIRED BY THE OWNER ON 2026-09-06** and this
   // check now guards the new limit instead of the old one. His instruction:
@@ -348,9 +408,15 @@ console.log("\n7. and the things the spec refused");
     /jobs finished this month/.test(p) && /through the platform/.test(p),
     "the other four all answer 'how is my company doing'; these answer 'is it carrying work'");
 
-  // NO CHART STILL HOLDS. More figures is not more decoration, and the
-  // original reasoning is untouched by the owner's change: below ten
-  // customers every trend line is noise.
+  // **"NO CHART STILL HOLDS" USED TO BE HERE AND IT DOES NOT HOLD — 2026-09-13.**
+  // The reasoning was *below ten customers every trend line is noise*, and it
+  // was written about the platform-wide STRIP. A six-month per-business bar
+  // chart was specified and built afterwards, and `11h`, `11h-iv`, `12o`, `12q`
+  // and `12r` all guard it. The `no chart` check that sat here asserted the
+  // opposite of five of its own neighbours and has been deleted.
+  //
+  // A comment restating a retired check is the next session's evidence that the
+  // check was right, so it goes when the check goes.
 }
 
 // ─── 8. Stage 3: the site columns ─────────────────────────────────────────
@@ -385,8 +451,8 @@ console.log("\n8. their site");
   // `business_domains.domain` means a hostname that RESOLVES TO THIS APP; a
   // detailer's website may live anywhere. Writing one into that table points a
   // customer's own receipt at a 404.
-  check("the site action never writes `business_domains`",
-    !/action === "site"[\s\S]{0,900}business_domains/.test(f),
+  absent("the site action never writes `business_domains`",
+    f, /action === "site"[\s\S]{0,900}business_domains/, /action === "site"/,
     "a host that does not serve this app in that table sends a customer's own booking to a 404");
 
   // The trap § 4 already holds for the setup filter, in a second place: a
@@ -521,8 +587,11 @@ console.log("\n10. the jobs that nobody watches");
   // AND THE WINDOW IS THE ROW'S. Roadmap 8.12 moved it out of this screen
   // because the emailer needed the same number, and two copies of a threshold
   // is how a screen says a job is fine while the alarm is going off.
+  // RE-POINTED 2026-09-13: the loop variable was renamed `beat` -> `h` in the
+  // rebuild. The rule is that the number comes off the ROW, so the assertion
+  // is the column, not whose local holds it.
   check("10h-ii · and the staleness window comes from the row, not this file",
-    /beat\.stale_after_seconds/.test(p) && !/45 \* 60_?000/.test(p));
+    /\.stale_after_seconds/.test(p) && !/45 \* 60_?000/.test(p));
   // `ago()` bottoms out at "today", which says nothing about a job that runs
   // every fifteen minutes — "Reminders LAST RAN today" is what the first
   // version printed.
@@ -603,7 +672,10 @@ console.log("\n11. demos are marked and never counted");
   check("11h-iv · the chart's months are the detailer's, not the reader's",
     /const monthKey = \(iso, tz\)/.test(insight)
       && /timeZone: tz \|\| undefined/.test(insight)
-      && /monthlySeries\(detail\.bookings, 6, new Date\(\), b\?\.timezone\)/.test(page));
+      // THE FOURTH ARGUMENT IS THE POINT, not the name of the row holding it:
+      // the rebuild renamed `b` -> `row`. What must hold is that a timezone
+      // off the BUSINESS is passed at all.
+      && /monthlySeries\(detail[\w?.]*\.bookings, 6, new Date\(\), \w+[?.]*\.timezone\)/.test(page));
   // **AND IT IS ASSERTED AS BEHAVIOUR, not only as source.** Every check above
   // reads the file; this one runs the function on the one instant where the
   // two clocks must disagree — 20:00 on 31 August in Los Angeles is 03:00 on
@@ -690,10 +762,17 @@ console.log("\n11. demos are marked and never counted");
     /The back office<\/h1>/.test(p));
   // And still never says WHY a signed-in stranger was refused — the 404 rule
   // this file has held since stage 1.
-  check("11n · and still tells a signed-in non-admin nothing",
-    !/not an admin|permission|platform_admins/i.test(strip(page).slice(
-      strip(page).indexOf('status === "denied"'),
-      strip(page).indexOf('status === "denied"') + 400)));
+  // **THE SLICE HAD TO BE GUARDED.** `indexOf` returns -1 when the anchor is
+  // gone, and `slice(-1, 399)` is the LAST CHARACTER of the file — so a
+  // renamed status made this check read one character and pass. Same shape as
+  // the `indexOf(a) < indexOf(b)` trap § 3 already names.
+  {
+    const p11 = strip(page);
+    const at = p11.indexOf('status === "denied"');
+    check("11n · and still tells a signed-in non-admin nothing",
+      at >= 0 && !/not an admin|permission|platform_admins/i.test(p11.slice(at, at + 400)),
+      at < 0 ? 'NO SUBJECT: there is no `status === "denied"` branch to read' : "");
+  }
 }
 
 // ─── 12. THE LAYOUT AND THE MOTION ────────────────────────────────────────
@@ -719,6 +798,9 @@ console.log("\n12. the layout, and the motion the owner asked for");
 {
   const p = strip(page);
   const css = strip(read("app/src/admin/admin.css"));
+  // main.jsx, because the degradation switch moved OUT of this stylesheet and
+  // into one live listener there — see 12m.
+  const main = read("app/src/main.jsx");
 
   // ── LAYOUT ───────────────────────────────────────────────────────────
   // TWO COLUMNS AT A DESK. One 900px column at 1920 is a narrow ribbon with
@@ -761,13 +843,23 @@ console.log("\n12. the layout, and the motion the owner asked for");
   // token is renamed. The rule is that no duration exists OUTSIDE a `var()`,
   // so strip the var() calls and there should be no ms left at all.
   const noVars = css.replace(/var\([^()]*\)/g, "TOKEN");
-  check("12h · every duration is a token, never a number typed here",
-    !/animation(-duration)?:[^;]*\d+ms/.test(noVars),
+  absent("12h · every duration is a token, never a number typed here",
+    noVars, /animation(-duration)?:[^;]*\d+ms/, /animation: pa-/,
     (noVars.match(/animation[^;]*\d+ms/g) ?? []).join(" | "));
   // A STAGGER STEP is a per-screen decision, unlike a duration: the design
   // system fixes three durations and deliberately fixes no step.
-  check("12h-ii · and the stagger steps are the only bare numbers",
-    (css.match(/animation-delay: calc\(var\([^)]*\) \* \d+ms\)/g) ?? []).length >= 3);
+  // RE-POINTED 2026-09-13. This read `>= 3` and the rebuilt screen has two
+  // staggered containers, so a correct file failed a magic threshold. **COUNT
+  // THE SUBJECTS, THEN ASSERT EVERY ONE CONFORMS** — that is the property the
+  // rule is actually about, and it cannot be satisfied by a file with no
+  // staggers in it at all.
+  {
+    const all = css.match(/animation-delay:[^;]*/g) ?? [];
+    const step = css.match(/animation-delay: calc\(var\([^)]*\) \* \d+ms\)/g) ?? [];
+    check("12h-ii · and the stagger steps are the only bare numbers",
+      all.length >= 2 && step.length === all.length,
+      `${all.length} animation-delay declarations, ${step.length} of them a calc'd step: ${all.join(" | ")}`);
+  }
 
   // **THE SWAP CARRIES NO ANIMATION OF ITS OWN.** A whole block changing
   // opacity at once is what a page reload looks like, and it is the exact
@@ -775,32 +867,55 @@ console.log("\n12. the layout, and the motion the owner asked for");
   check("12i · a swap animates its parts, never the frame",
     /\.pa-swap > \* \{ animation:/.test(css) && !/^\.pa-swap \{[^}]*animation/m.test(css));
   check("12j · and the frame is re-keyed so the swap actually runs",
-    /className="pa-swap" key=\{b\.id\}/.test(p));
+    /className="pa-swap" key=\{\w+\.id\}/.test(p));
 
   // AN EXIT IS A DELAYED UNMOUNT and the duration lives in one place.
+  // RE-POINTED 2026-09-13: the callback is `onClose` now and the class is
+  // namespaced `pa-leaving`. **THE SHARED HOOK IS THE RULE**, so this asserts
+  // the IMPORT PATH — a local re-implementation is the failure it guards — and
+  // that the exit animation exists, not what the callback happens to be called.
   check("12k · closing animates out through the shared hook",
-    /useLeaving\(\(\) => setOpen\(null\)\)/.test(p) && /\.pa-col\.leaving \{ animation: pa-col-out/.test(css));
-  check("12l · and no second copy of the exit duration",
-    !/setTimeout\([^)]*18\d\)/.test(p));
+    /from "\.\.\/hooks\/useLeaving\.js"/.test(p) && /useLeaving\(\w+\)/.test(p)
+      && /\.pa-col\.pa-leaving \{ animation: pa-col-out/.test(css));
+  absent("12l · and no second copy of the exit duration",
+    p, /setTimeout\([^)]*18\d\)/, /useLeaving\(/);
 
   // ONE DEGRADATION IMPLEMENTATION PER SURFACE — the design system forbids a
   // second `prefers-reduced-motion` block, and `.lite` is the same switch by
   // another name.
+  // **RE-POINTED 2026-09-13, AND THE NUMBER FLIPPED FROM ONE TO ZERO.** This
+  // read `=== 1` and the correct answer is now NONE: the switch is one live
+  // listener in `main.jsx` that toggles `.lite` on <html> for BOTH the media
+  // query and `?lite=1`, which is what makes them one mechanism instead of
+  // two. A `@media (prefers-reduced-motion)` block in this stylesheet would be
+  // the fork `?lite=1` cannot reach — the same rule `composition` § 9 holds
+  // product-wide, and admin.css's own comment says so.
   check("12m · reduced motion is handled once",
-    (css.match(/@media \(prefers-reduced-motion/g) ?? []).length === 1);
+    (css.match(/@media \(prefers-reduced-motion/g) ?? []).length === 0
+      && /matchMedia\?\.\("\(prefers-reduced-motion: reduce\)"\)/.test(main)
+      && /classList\.toggle\("lite"/.test(main),
+    "the one mechanism is main.jsx toggling .lite; a block in admin.css is a second one");
   check("12n · and ?lite=1 rides the same rule",
-    /\.lite \.pa-in, \.lite \.pa-col/.test(css));
+    /get\("lite"\) === "1"/.test(main) && /forced \|\| !!mq\?\.matches/.test(main)
+      && /\.lite \.pa-col,?\n?[\s\S]{0,80}?animation: none !important/.test(css),
+    "the query has to OR with the media query, and .lite has to be what kills the animation");
 
   // ── THE CHART ────────────────────────────────────────────────────────
   // It is an <svg> because CSS percentage heights could not hold it: twice,
   // every bar collapsed to its 2px floor and the row overflowed its own label
   // by 18px, because a percentage height needs a DEFINITE parent height.
+  // RE-POINTED: the class is `pa-chart` now. The rule is an SVG with a
+  // COMPUTED viewBox, so neither half names a class any more.
   check("12o · the six-month chart is drawn with explicit coordinates",
-    /<svg className="pa-bars"/.test(p) && /viewBox=\{/.test(p));
-  check("12p · and no percentage height is left inside it",
-    !/pa-bar[^r][\s\S]{0,200}?height: 100%/.test(css));
+    /<svg[^>]*viewBox=\{/.test(p));
+  absent("12p · and no percentage height is left inside it",
+    css, /pa-bar[^r][\s\S]{0,200}?height: 100%/, /\.pa-barr/);
   // A MONTH WITH NO WORK IS NEVER THE LIT ONE, even when it is this month.
-  check("12q · an empty month is not lit", /\.pa-barr\.now\.has \{ fill:/.test(css));
+  // RE-POINTED: the marker classes are namespaced `pa-now` / `pa-has` now. The
+  // second half is the one that matters and is new — a rule lighting the
+  // current month WITHOUT requiring work in it is the defect itself.
+  check("12q · an empty month is not lit",
+    /\.pa-barr\.pa-now\.pa-has \{ fill:/.test(css) && !/\.pa-barr\.pa-now \{ fill:/.test(css));
   // AND THE EMPTY MONTHS ARE DRAWN AT ALL — the spine comes from the clock,
   // not from the data, which is what keeps a gap visible.
   check("12r · the spine is built from the calendar, not from the bookings",
@@ -835,18 +950,37 @@ console.log("\n13. the back office's own door (roadmap 8.2)");
   // `state.me` is also where it is PUT on the state, two hundred lines up. A
   // check on a variable's name is greenest when the only thing using it is the
   // line that sets it.
-  check("13a · the bar prints the signed-in address",
-    /\{state\.me && \(/.test(p13) && /\{state\.me\}/.test(p13) && /className="pa-who"/.test(p13));
-  check("13a-ii · and the address is the session's own, not a guess",
-    /sess\.session\.user\?\.email/.test(p13));
+  // RE-POINTED 2026-09-13. `state.me` became a `useState` local, so the old
+  // spelling is gone; the WARNING above still stands and is now enforced
+  // structurally rather than by naming a variable. Read whatever identifier
+  // `pa-who` actually renders, then require something to SET it — which is the
+  // difference between an address drawn and an address merely stored.
+  {
+    const who = p13.match(/className="pa-who">\{(\w+)\}/);
+    check("13a · the bar prints the signed-in address",
+      !!who && p13.includes("set" + who[1][0].toUpperCase() + who[1].slice(1) + "("),
+      who ? `pa-who renders {${who[1]}} and nothing sets it` : "pa-who renders no identifier at all");
+    // **THE CHAIN, NOT THE CALL.** `auth.getSession()` appears twice in this
+    // file, so "getSession is somewhere" is satisfied by the other one. What
+    // has to hold is that the address came OUT of a session object.
+    const from = p13.match(/set\w+\((\w+)\.user\?\.email/);
+    check("13a-ii · and the address is the session's own, not a guess",
+      !!from && new RegExp("const " + from[1] + " = " + String.raw`\w+\?\.session`).test(p13)
+        && /auth\.getSession\(\)/.test(p13));
+  }
   // **RE-POINTED, NOT RELAXED — ROADMAP 8.18 GAVE THE PRODUCT ONE DOOR.**
   // This used to read the back office's own `supabase.auth.signOut()`; there
   // were three such exits and they each had to remember to drop the note, end
   // the parked accounts and then sign out, which is how the third one quietly
   // stops doing the third. `app/src/lib/signout.js` is the only
   // `auth.signOut(` in `app/src` now, so the assertion follows it there.
+  // RE-POINTED 2026-09-13: there is no local wrapper any more — the button is
+  // wired straight to the one door. That is strictly better, so the check
+  // follows it: the IMPORT (a local re-implementation is the failure) and the
+  // handler actually being that function.
   check("13b · there is a sign out",
-    /function signOutNow/.test(p13) && /signOutEverything\(\)/.test(p13));
+    /import \{ signOutEverything \} from "\.\.\/lib\/signout\.js"/.test(p13)
+      && /onClick=\{signOutEverything\}/.test(p13));
   // THE NOTE GOES FIRST. If the sign-out throws, a surviving note tells the
   // next person on this browser they are impersonating somebody they are not.
   const door = strip(read("app/src/lib/signout.js"));
@@ -870,8 +1004,8 @@ console.log("\n13. the back office's own door (roadmap 8.2)");
   // It is localStorage in one browser. A detailer who writes one by hand
   // changes what their own screen says and nothing else — so this module must
   // never ask the server anything.
-  check("13d · impersonation.js talks to nobody",
-    !/fetch\(|supabase|^import /m.test(impCode),
+  absent("13d · impersonation.js talks to nobody",
+    impCode, /fetch\(|supabase|^import /m, /export function beginImpersonation/,
     "a note that can call the server is no longer a note");
   // MATCHED ON THE ADDRESS, NEVER ON A CLOCK. A TTL is a guess about how long
   // somebody looks at a dashboard, and every wrong guess either hides the

@@ -611,6 +611,37 @@ which are lane B's.
 
 ---
 
+---
+
+## 1g · PROVEN TONIGHT — lane C, 2026-09-13, at `c7992ed`
+
+**THE WHOLE SECTION IS ABOUT ONE SUITE'S HONESTY, NOT ABOUT THE PRODUCT.** Read
+`docs/platform-admin-triage-2026-09-13.md` § THE SECOND TRIAGE PASS first — it
+carries the reasoning; this is the ledger.
+
+| what was proven | number | invalidated by a change to |
+|---|---|---|
+| **The nine group-A checks are re-pointed, and every one was the check** | **118/43 → 130/30.** Twelve check ids across nine capabilities. Baselined against **26 deliberate mutations of in-memory copies** of `AdminPage.jsx`, `admin.css`, `main.jsx` and `adminInsight.js`; every assertion green on the real file and red on exactly the mutation it guards | `tests/platform-admin.test.mjs`, `app/src/admin/**`, `app/src/main.jsx`, `app/src/lib/adminInsight.js` |
+| **EIGHTEEN of the 118 green lines were green against nothing at all** | every `read()` replaced by `() => ""`: **20 green**, minus `no chart` (failing anyway) and `11h-v` (behavioural, reads no source) = **18 hollow**. After the fix: **1**, and it is `11h-v` | `tests/platform-admin.test.mjs` |
+| **Every anchored negative still catches its violation** | 14 violations injected one at a time into in-memory copies — a `refunds.create`, an `app_metadata` read, a `supabase.from` on the screen, a `create policy` on `platform_admins`, a `250ms` duration, a `setTimeout(…, 180)`, a `height: 100%`, a `fetch(` in `impersonation.js`, a reason string in the denied branch. **14 of 14 red** | `tests/platform-admin.test.mjs` |
+| **A `strip`-survival guard is IMPOSSIBLE in this repo** — measured, so nobody proposes it again | the FIXED comments-only strip removes **83% of `signout.js`, 78% of `impersonation.js`, 73% of `App.jsx`, 51% of `platform-admin/index.ts`**. Legitimate comment density, not damage. Worst survival **17.5%** | nothing — it is a fact about this codebase's comment style |
+| **Two subject counters were counting things that exist whatever the files contain** | `migrations were actually read` counted FILES (`>20`) and now counts `create policy` statements (**71**); `the walk actually looked at something` counted DIRECTORY ENTRIES (`>5`) and now counts non-empty stripped files (**131**) | `tests/platform-admin.test.mjs`, `supabase/migrations/**`, `app/src/**` |
+| **Group C of the triage is not lane C's — it is group B** | `pa-strip` ×0, `pa-num` ×0, `pa-lead` ×0, `jobs finished this month` ×0, `through the platform` ×0 in the rebuilt `AdminPage.jsx` | `app/src/admin/AdminPage.jsx` |
+| **Impersonation was NOT dropped — group B's largest item is a design Andrew replaced** | `confirm(` ×1, `written down` ×0; `lib/preview.js` and `admin/PreviewEntry.jsx` exist and are imported; `lib/impersonation.js` still imported by `App.jsx`, `BusinessContext.jsx`, `signout.js`. The server still logs before it acts | `app/src/admin/**`, `app/src/lib/preview.js`, `app/src/lib/impersonation.js` |
+| The four mandatory credential-free suites still pass with all of this in the tree | `composition`, `design-contrast`, `landing-pricing`, `route-contract` — all PASS | their own subjects |
+
+**THE FIGURE THAT IS STILL DELIBERATELY NOT A CLEAN BILL:** platform-admin is
+**30 failed**, and every one of the thirty reads `app/src/admin/**`, which is
+lane B's. Three of them (`13c-ii`, `13e`, `the button warns before it acts`) are
+checks to RETIRE rather than findings — see the handover in
+`docs/lane-c-queue-2026-09-13.md`.
+
+**AND THE ONE-LINE INSTRUMENT WORTH REUSING ON ANY SUITE IN THIS REPO:** replace
+its `read()` with `() => ""` and count what stays green. Eighteen hollow checks
+cost one edit to find.
+
+---
+
 ## HOW THIS FILE EARNS ITS KEEP
 
 Andrew paid for every number above once. **The cost of this file is one `git

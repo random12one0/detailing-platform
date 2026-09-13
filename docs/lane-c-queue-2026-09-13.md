@@ -515,3 +515,89 @@ non-SQL file it reads.
   blind spot wearing a different hat.
 - **Everything in the two OWED sections above this one is unchanged** and none of
   it is lane C. Re-read before assuming otherwise.
+
+---
+
+# THE WAVE OF 2026-09-13, LATE — `tests/platform-admin.test.mjs`, FINISHED
+
+**All three items in the prompt are delivered. Nothing is blocked on Andrew.**
+Full account: `docs/platform-admin-triage-2026-09-13.md` § THE SECOND TRIAGE
+PASS. Ledger rows: `docs/VERIFIED.md` § 3.
+
+## DONE — 1 · THE NINE GROUP-A CHECKS (twelve ids)
+
+**118 passed / 43 failed → 130 passed / 30 failed.** Every one was the check
+naming a spelling the rebuild changed. Baselined against **mutated copies of the
+screen held in memory**, 26 mutations, each red on exactly what it guards.
+`app/src` was never written.
+
+Two are worth knowing about beyond the re-point:
+
+- **`12m`'s count flipped from ONE to ZERO.** The degradation switch moved out of
+  `admin.css` into one live listener in `main.jsx` that toggles `.lite` for both
+  the media query and `?lite=1`. A `@media (prefers-reduced-motion)` block in
+  that stylesheet is now the defect, not the requirement.
+- **`12h-ii` was a magic threshold** (`>= 3` staggers) failing a correct file
+  with two. It counts its subjects and asserts every one conforms now.
+
+## DONE — 2 · THE HOLLOW-PASS AUDIT. **EIGHTEEN OF THE 118.**
+
+Gutted every `read()` to `() => ""` and re-ran: **20 checks stayed green against
+nothing.** One of those was failing in the real run anyway (`no chart`) and one
+is a behavioural check that reads no source at all and is correctly green
+(`11h-v`, which runs `monthlySeries`). **So eighteen of the 118 were hollow.**
+It is **1 now**, and that one is `11h-v`.
+
+Sixteen were bare absence claims; they name an ANCHOR through a new `absent()`
+helper, so a missing subject is a FAILURE. Two were subject counters counting the
+wrong thing — migration FILES and DIRECTORY ENTRIES, both of which exist whatever
+is inside them, **so neither could ever have detected the `strip` damage they
+were there to catch.** One (`11n`) had the `indexOf`/`-1` slice trap this suite
+already documents four hundred lines away.
+
+**AND THE AGGREGATE GUARD WAS TRIED AND ABANDONED, WHICH IS THE TRANSFERABLE
+PART.** Failing when `strip` removes too much of a file cannot work here: the
+FIXED strip legitimately removes **83% of `signout.js`, 78% of
+`impersonation.js`, 73% of `App.jsx`**. In this codebase a massive deletion looks
+completely normal, which is exactly why the bug lived for weeks.
+
+**`no chart` was DELETED.** It asserted `AdminPage.jsx` has no chart while five
+checks in the same file assert a six-month bar chart is drawn on that page. It
+could never have passed.
+
+## DONE — 3 · NOTHING ELSE IN THIS FILE WAS LANE C's
+
+Re-read, item by item. Every remaining OWED line belongs to lane M or lane B and
+is unchanged. Group C of the triage was un-probed and has now been probed,
+because leaving it would have left the handover wrong.
+
+## HANDOVER TO LANE B — and the biggest item is NOT what the first pass thought
+
+`docs/platform-admin-triage-2026-09-13.md` § 4 has the probes. The correction:
+
+**IMPERSONATION IS NOT GONE, AND IT WAS ANDREW WHO CHANGED IT.**
+`AdminPage.jsx:1165` quotes him — *"view their dashboard... just from me"* — and
+it now opens a `/preview` tab holding its own session in its own drawer
+(`lib/preview.js`, `admin/PreviewEntry.jsx`), with the comment **"No warning,
+because there is nothing left to warn about."** The server half never changed:
+the action still logs before it acts and a failed log still stops it.
+
+**So `13c-ii`, `13e` and `the button warns before it acts` are three checks to
+RETIRE, not a feature to restore.** Lane C did not retire them, because deciding
+that a product change is deliberate is one thing and editing a check whose
+subject is another lane's live screen is another — and these three are the ones
+where getting it wrong deletes the guard on a cross-tenant door.
+
+**The genuine group-B losses stand**: the Growth strip (`pa-strip`, `pa-num`,
+`pa-lead` all zero), the named job list in Plumbing (already `FOUND.md` § THE
+WATCHDOG'S BLIND SPOT), the export-as-a-file, `keepMsg`, the two-column split,
+the owner-account guard and the email-cap figures on the screen.
+
+## OWED, AND NOT LANE C's
+
+- **`FOUND.md` is at the repo root and `lane-check.mjs` calls it "lane nobody"**,
+  so nothing was written there tonight. The hollow-pass finding deserves an entry
+  — it is the second time in one day that this suite's own instrument was the
+  bug — and the material is in the triage file ready to be lifted. **Lane M's
+  call.**
+- Everything in the three earlier OWED sections above is unchanged.
