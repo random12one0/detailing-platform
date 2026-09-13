@@ -111,7 +111,24 @@ export const es = {
   "complete on its own": "completo por sí solo",
   "choose one": "elige uno",
   "from": "desde",
-  "about {time}": "unos {time}",
+  // **"unos 1 h" — a masculine PLURAL against a singular, on the first screen a
+  // Spanish-speaking customer reads.** Corrected 2026-09-12.
+  // **AGREEMENT IS NOT AVAILABLE HERE AND THAT IS THE POINT.** `t()` receives
+  // `{time}` already formatted by `format.js` — "1 h", "45 min", "2 h 30 min" —
+  // so it cannot see a NUMBER to agree with, and no wording built on "unos" /
+  // "una" can be right for every value. `aprox.` agrees with nothing, is what a
+  // Spanish-language schedule actually prints, and needs no caller to change.
+  "about {time}": "aprox. {time}",
+
+  // Why Continue will not move, said next to the missing field rather than in
+  // a tooltip — 2026-09-12.
+  "Add your name to continue.": "Agrega tu nombre para continuar.",
+  "Add your phone number to continue.": "Agrega tu teléfono para continuar.",
+  "Add your name and phone number to continue.": "Agrega tu nombre y tu teléfono para continuar.",
+  "Add the address to continue.": "Agrega la dirección para continuar.",
+  "Pick a day to continue.": "Elige un día para continuar.",
+  "Pick a time to continue.": "Elige una hora para continuar.",
+  "Every vehicle needs its own day and time.": "Cada vehículo necesita su propio día y hora.",
   "What's included in {service}": "Qué incluye {service}",
   "{business} hasn’t listed any services online yet.":
     "{business} todavía no tiene servicios publicados en línea.",

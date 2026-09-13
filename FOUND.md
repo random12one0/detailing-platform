@@ -666,3 +666,64 @@ conversation they were found in.**
   (`LandingPage.jsx:1219`). Either it becomes a real row, or the bar records an
   inline-prose exception. Reported with the measurement so the decision is his.
 
+## THE RATCHET'S BLIND SPOT, IN PLAIN WORDS — 2026-09-12
+
+**Cowork asked for this in FOUND.md rather than only in a conversation, because
+it is the finding that says every coverage number this project produced before
+today was an undercount.** It is written for somebody who was not here.
+
+**WHAT THE NUMBER USED TO MEAN.** `scripts/i18n-coverage.mjs` found every place
+the code asks for a translation by writing the English out in full —
+`t("Save")` — and checked each one had a Spanish entry. On 2026-09-12 it
+reported **1,051 distinct strings, 0 missing, 100% coverage.**
+
+**WHAT IT COULD NOT SEE.** Some screens do not write the English out. They keep
+their words in a list and hand a variable to the same function: `t(q.question)`,
+`t(step.title)`. **To the scanner that is a call with no string in it, so it was
+not counted as anything** — neither as covered nor as missing. It simply was not
+there.
+
+**WHAT THAT COST, in one sentence.** The website brief rendered *"Let's build
+your website."* in English between two Spanish sentences on a Spanish dashboard,
+while the check that is supposed to catch exactly that said 100%.
+
+**THE SIZE OF IT: 257 strings**, 238 of them the brief's own questions and the
+options under them — more than a fifth again on top of a number that called
+itself complete. None of it was a regression. None of it had ever been counted.
+
+**AND THE LIMIT WAS ALREADY WRITTEN DOWN.** The scanner's own header said, in
+as many words, that `t(label)` with a variable was invisible to it. **Writing a
+limit down is not the same as closing it**, and a number that says 100% beside a
+documented blind spot will be read as 100% by everyone who comes after.
+
+**WHAT IT DOES NOW.** It still reads the call sites, and it also IMPORTS the
+eight modules that keep prose in data tables and walks their values, so a list
+of questions is counted whether the code spells its strings out or not. A string
+is treated as prose unless it looks like an identifier, and rejecting is the
+safe direction — a false positive sends somebody to translate a storage key,
+which is how a check gets switched off.
+
+**TWO FILES STILL CANNOT BE SCANNED AND IT SAYS SO ON EVERY RUN.**
+`lib/push.js` and `lib/password.js` read `import.meta.env` at module load, which
+Node has no value for. They print as **NOT SCANNED** rather than being skipped,
+because a skipped check reads exactly like a passing one.
+
+**THE RULE TO CARRY FORWARD: a coverage number is only ever a number about the
+INSTRUMENT.** Before quoting one, ask what shape of code it cannot see. This
+repo has now had four instruments report a confident wrong number — the Spanish
+suite passing 58 over 141 gaps, `sweep-widths.mjs` printing "clean" over 38
+findings, a `pushState` sweep passing 22 screens it never visited, and this.
+
+- 2026-09-12 — **`scripts/e2e-booking.mjs` IS 71 PASSED, 9 FAILED, AND IT IS NOT
+  NEW.** Measured both ways: the same 9 fail on `HEAD` with all working changes
+  stashed, so it predates today's booking work. The failures cluster on one
+  path — *"the review step prints a total"*, *"with the name the customer
+  typed"* (an address), *"charged what the price bar printed"*, *"the request is
+  waiting on Today"*, *"findable in the calendar's history"*, *"it is still a
+  live booking — pending"* — twice over, which reads as two scenarios failing
+  the same way rather than nine separate defects. **Nobody has flagged this**,
+  and a suite that is quietly red is one everybody stops reading; that is the
+  same disease as `password-reset` being red for days over three wrong tests.
+  Not investigated here — it was not this session's item, and absorbing it into
+  an unrelated commit would have hidden it.
+

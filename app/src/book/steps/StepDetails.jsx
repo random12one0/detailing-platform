@@ -5,7 +5,7 @@ import { phoneAsTyped } from "../../lib/format.js";
 import { t } from "../../lib/i18n.js";
 import { useLocale } from "../../hooks/useLocale.js";
 
-export default function StepDetails({ form, setForm }) {
+export default function StepDetails({ form, setForm, blocks = [] }) {
   useLocale();
   // SAY WHICH FIELD IS WRONG, AND ONLY ONCE THEY HAVE TYPED SOMETHING. An
   // outside review, 2026-09-11: `notanemail` walked through this step, and the
@@ -23,6 +23,9 @@ export default function StepDetails({ form, setForm }) {
   // tenant's own form gets it too; only the wording is this page's.
   const fault = emailFault(form.customerEmail);
   const badEmail = !!fault;
+  // The core decides WHAT is missing; this file decides how to say it.
+  const needName = blocks.includes("no-name");
+  const needPhone = blocks.includes("no-phone");
   return (
     <>
       <label className="bk-field">
@@ -50,7 +53,22 @@ export default function StepDetails({ form, setForm }) {
             invisible to every extractor in this repo, which is the exact
             blind spot that hid a "tap" in `lib/setup.js` and an em dash in a
             template. A literal `t("…")` is what the sweeps can see. */}
-        {!badEmail
+        {/* **AND A MISSING NAME OR PHONE SAYS SO HERE TOO — 2026-09-12.**
+            Continue greys out on this step and used to explain nothing: the
+            footer's hint slot shows the price once a quote exists, so step 1 is
+            the only step that can ever use it. **Not a tooltip** — hover is no
+            use on a phone, which is where this flow is used — so it goes in the
+            line that is already under these fields, always visible, rather than
+            as a second line that would stack under the first.
+            Top-down order, matching the form: an empty field before a
+            mistyped one. */}
+        {needName || needPhone
+          ? (needName && needPhone
+            ? t("Add your name and phone number to continue.")
+            : needName
+              ? t("Add your name to continue.")
+              : t("Add your phone number to continue."))
+          : !badEmail
           ? t("We’ll send your confirmation here, with a link to change or cancel.")
           : fault === "missing-at"
             ? t("That address is missing an @. We cannot send your confirmation to it.")

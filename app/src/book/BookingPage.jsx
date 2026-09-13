@@ -34,7 +34,8 @@ import { duration, money, phone } from "../lib/format.js";
 import { priceWords } from "../lib/plans.js";
 import { BookingBusinessProvider, useBookingBusiness } from "./BookingBusinessContext.jsx";
 import {
-  bookable, bookingRequests, campaignFor, canAdvance as coreCanAdvance, closedUntil,
+  blockers as coreBlockers,
+  bookable, bookingRequests, campaignFor, closedUntil,
   groupedWith, initialForm,
   modeLimitFor, offersBothModes, quoteKey as coreQuoteKey, quoteRequest,
   recallCustomer, rememberCustomer, stepsFor, toggleService as coreToggleService,
@@ -289,7 +290,13 @@ function BookingFlow({ notFound = null }) {
 
   // --- Step gating ---------------------------------------------------------
   const bothModes = offersBothModes(settings, modeLimit);
-  const canAdvance = coreCanAdvance(STEPS[step], { form, settings, quote, quoting });
+  // **THE REASON, NOT JUST THE REFUSAL — 2026-09-12.** `blockers()` is what
+  // `canAdvance` is now built from, so the button and the explanation cannot
+  // drift: the same call answers both. It is handed to the step so the sentence
+  // can sit NEXT TO THE MISSING FIELD rather than in the footer — a tooltip
+  // would be no use on a phone, which is where this flow is used.
+  const stepBlocks = coreBlockers(STEPS[step], { form, settings, quote, quoting });
+  const canAdvance = stepBlocks.length === 0;
 
   // W25 and roadmap 2.8c's exclusive category — both are `core.js`'s
   // `toggleService`, with the reasoning. This page only decides that a tap
@@ -613,7 +620,7 @@ function BookingFlow({ notFound = null }) {
           <StepVehicle form={form} setForm={setForm} selectedServices={selectedServices} />
         )}
         {stepName === "Location" && (
-          <StepLocation form={form} setForm={setForm} modeLimit={modeLimit} />
+          <StepLocation form={form} setForm={setForm} modeLimit={modeLimit} blocks={stepBlocks} />
         )}
         {stepName === "When" && (
           <StepWhen
@@ -623,9 +630,10 @@ function BookingFlow({ notFound = null }) {
             // truck and a hatchback do not need the same window. Absent on an
             // ordinary booking, and the step falls back to the whole job.
             durations={(quote?.per_vehicle ?? []).map((v) => v.durationMinutes)}
+            blocks={stepBlocks}
           />
         )}
-        {stepName === "Details" && <StepDetails form={form} setForm={setForm} />}
+        {stepName === "Details" && <StepDetails form={form} setForm={setForm} blocks={stepBlocks} />}
         {stepName === "Review" && (
           <StepReview
             form={form} setForm={setForm} quote={quote}

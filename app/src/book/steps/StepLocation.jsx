@@ -43,7 +43,7 @@ import { money } from "../../lib/format.js";
 // only one got the heading for a narrowed step and the two choice cards
 // anyway — and the "which service decided" message this file was written to
 // print was unreachable in every configuration that did not crash.
-export default function StepLocation({ form, setForm, modeLimit }) {
+export default function StepLocation({ form, setForm, modeLimit, blocks = [] }) {
   useLocale();
   const { settings, business } = useBookingBusiness();
   const both = settings.mobile_enabled && settings.dropoff_enabled && !modeLimit;
@@ -163,6 +163,21 @@ export default function StepLocation({ form, setForm, modeLimit }) {
               onChange={(e) => setForm((f) => ({ ...f, customerAddress: e.target.value }))}
             />
           </label>
+          {/* **THE ADDRESS WAS THE SILENT ONE — 2026-09-12.** Continue greys out
+              on this step and nothing said why: the footer's hint slot carries
+              the price once a quote exists, so step 1 is the only step that can
+              use it. **Not a tooltip** — hover is no use on a phone, which is
+              where this flow is used — so the reason sits under the field it is
+              about, visible without any interaction.
+              **THE OTHER TWO THINGS THAT BLOCK THIS STEP ALREADY EXPLAIN
+              THEMSELVES**: a required faucet or outlet prints *"Without it we
+              can't do this job at your address."* under its own switch. This
+              line is only the gap, not a second system. */}
+          {blocks.includes("no-address") && (
+            <p className="bk-muted" style={{ marginTop: -4, marginBottom: 0 }}>
+              {t("Add the address to continue.")}
+            </p>
+          )}
 
           <Resource
             need={settings.water_requirement}

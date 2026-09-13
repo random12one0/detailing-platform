@@ -52,7 +52,7 @@ const dow = (locale) => {
 const shortDay = (d, locale) =>
   new Date(`${d}T12:00:00`).toLocaleDateString(locale, { month: "short", day: "numeric" });
 
-export default function StepWhen({ form, setForm, durationMinutes, durations }) {
+export default function StepWhen({ form, setForm, durationMinutes, durations, blocks = [] }) {
   useLocale();
   const loc = intlLocale();
   const { slug, business } = useBookingBusiness();
@@ -294,6 +294,24 @@ export default function StepWhen({ form, setForm, durationMinutes, durations }) 
           </div>
           {daySlots.length === 0 && !wrongMode && <p className="bk-muted">{t("Nothing open that day.")}</p>}
         </>
+      )}
+      {/* **THE THIRD SILENT STEP, AND NOBODY HAD REPORTED IT — 2026-09-12.**
+          The review named steps 4 and 6; this one has the same defect for the
+          same reason, because the footer's hint slot carries the price once a
+          quote exists. Found by walking the flow rather than by fixing what was
+          reported — the two named steps were instances of a class, not the
+          whole of it.
+          **A DAY BEFORE A TIME**, because that is the order the screen works
+          in: naming both at once would tell somebody who has just picked a day
+          that they still need one. */}
+      {blocks.includes("no-date") && (
+        <p className="bk-muted" style={{ marginTop: 10 }}>{t("Pick a day to continue.")}</p>
+      )}
+      {blocks.includes("no-time") && (
+        <p className="bk-muted" style={{ marginTop: 10 }}>{t("Pick a time to continue.")}</p>
+      )}
+      {blocks.includes("no-extra-slot") && (
+        <p className="bk-muted" style={{ marginTop: 10 }}>{t("Every vehicle needs its own day and time.")}</p>
       )}
     </>
   );

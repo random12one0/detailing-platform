@@ -625,51 +625,70 @@ export function emailFault(v) {
   return "unusable";                                     // spaces, or an empty side
 }
 
-export function canAdvance(stepName, { form, settings, quote, quoting }) {
+// WHY A STEP WILL NOT LET YOU PAST, as a list of field codes — 2026-09-12.
+//
+// **A DISABLED BUTTON THAT SAYS NOTHING IS THE LIKELIEST THING IN THIS FLOW TO
+// COST A REAL BOOKING.** A cold review found it on steps 4 and 6: Continue
+// greys out and nothing on the screen says what is missing. Step 1 appeared to
+// do it correctly — it shows "Choose a service to start" — but that is not a
+// step doing better, it is the only step that CAN: the line lives in the
+// footer's price slot (`BookingPage.jsx`, `quote ? … : …`), so the moment a
+// quote exists the slot shows the total and every later step's refusal is
+// silent.
+//
+// **AND THE FIX IS NOT A TOOLTIP — Cowork's ruling.** A disabled control that
+// explains itself only on hover is no use on a phone, which is where this flow
+// is actually used. The reason has to be visible without any interaction, next
+// to the thing that is missing.
+//
+// **THE DIAGNOSIS IS THE CORE'S AND THE WORDING IS THE PAGE'S**, which is the
+// same split `emailFault` already uses: a tenant's own form gets the rules for
+// free and writes its own sentences. Codes, never sentences — this file has no
+// `t()` and never will.
+export function blockers(stepName, { form, settings, quote, quoting }) {
   const s = normalizeSettings(settings);
+  const out = [];
   switch (stepName) {
     case "Services":
-      return (form.serviceIds?.length ?? 0) > 0 && !!quote && !quoting;
+      if (!(form.serviceIds?.length ?? 0)) out.push("no-service");
+      else if (quoting) out.push("pricing");
+      else if (!quote) out.push("no-quote");
+      break;
     case "Vehicle":
-      return !!quote && !quoting;
+      if (quoting) out.push("pricing");
+      else if (!quote) out.push("no-quote");
+      break;
     case "Location":
       if (form.serviceType === "mobile") {
-        if (!form.customerAddress?.trim()) return false;
-        if (s.water_requirement === "required" && !form.hasWater) return false;
-        if (s.power_requirement === "required" && !form.hasPower) return false;
+        if (!form.customerAddress?.trim()) out.push("no-address");
+        if (s.water_requirement === "required" && !form.hasWater) out.push("no-water");
+        if (s.power_requirement === "required" && !form.hasPower) out.push("no-power");
       }
-      return true;
+      break;
     case "When":
-      // ROADMAP 8.10 — on a split booking EVERY car needs its own day and
-      // time, not just the first. Without this the customer walks past step
-      // 5 having scheduled one car and the submit refuses the rest, which is
-      // the worst place in the flow to find out.
-      if (form.splitDays && (form.extraVehicles ?? []).length) {
-        return !!form.bookingDate && !!form.startTime
-          && form.extraVehicles.every((v) => !!v.date && !!v.time);
-      }
-      return !!form.bookingDate && !!form.startTime;
+      if (!form.bookingDate) out.push("no-date");
+      else if (!form.startTime) out.push("no-time");
+      else if (form.splitDays && (form.extraVehicles ?? []).length
+        && !form.extraVehicles.every((v) => !!v.date && !!v.time)) out.push("no-extra-slot");
+      break;
     case "Details":
-      // **THE EMAIL HAS TO LOOK LIKE ONE — an outside review, 2026-09-11.**
-      // `notanemail` walked straight through this step, was accepted by the
-      // server, and the confirmation page then told the customer *"We'll email
-      // notanemail as soon as it's accepted."* No confirmation, no reminder,
-      // no receipt, no way to cancel — and the client record pre-fills it into
-      // their NEXT booking, so one typo is permanent.
-      //
-      // The field is `type="email"` but carries no `required`, so the
-      // browser's own validation never fires either.
-      //
-      // DELIBERATELY THE CRUDEST POSSIBLE TEST: something, an @, something, a
-      // dot, something. Anything cleverer rejects addresses that are real —
-      // and the product already handles the hard case properly, by showing
-      // *"This address bounced"* on the client record. This only stops the
-      // ones that cannot possibly work.
-      return !!(form.customerName?.trim() && form.customerPhone?.trim()
-        && looksLikeEmail(form.customerEmail));
+      if (!form.customerName?.trim()) out.push("no-name");
+      if (!form.customerPhone?.trim()) out.push("no-phone");
+      if (!looksLikeEmail(form.customerEmail)) {
+        out.push(form.customerEmail?.trim() ? "bad-email" : "no-email");
+      }
+      break;
     default:
-      return true;
+      break;
   }
+  return out;
+}
+
+// **ONE SOURCE OF TRUTH.** `canAdvance` used to carry the rules itself; two
+// functions answering the same question is how the button and the explanation
+// drift apart, and the drift is invisible because the button still works.
+export function canAdvance(stepName, ctx) {
+  return blockers(stepName, ctx).length === 0;
 }
 
 // ---------------------------------------------------------------------------

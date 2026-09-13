@@ -280,7 +280,10 @@ export function planLineFor(
   // receipt is a question the customer has to ask somebody.
   off = Math.min(Math.max(0, off), Math.max(0, jobCost));
   if (off <= 0) return null;
-  return { label: `${plan.name} — ${what}`, amount: -off };
+  // Same join, same ruling: a plan's NAME against what it covers is a label
+  // and its value, not a sentence. Found by grepping template literals rather
+  // than strings, alongside the vehicle line below.
+  return { label: `${plan.name} · ${what}`, amount: -off };
 }
 
 export interface QuoteInput {
@@ -446,7 +449,12 @@ export function computeQuote(inp: QuoteInput): Quote {
   // answer belongs to the appointment. Narrow it to per-car if a detailer
   // complains, not before.
   const extraLines = extras.map((v, i) => ({
-    label: `${ORDINALS[i + 1] ?? `#${i + 2}`} vehicle — ${v.label}`
+    // **A LABEL SEPARATOR, SO THE MIDDLE DOT — and this template used BOTH,
+    // six characters apart: "2nd vehicle — Small · Ford F-150".** The em dash
+    // ruling, 2026-09-12. It was never in a `t()` literal — the dash sits
+    // between two values and exists only after they meet — so no sweep of
+    // translated strings could ever find it. Grep the JOINS, not the strings.
+    label: `${ORDINALS[i + 1] ?? `#${i + 2}`} vehicle · ${v.label}`
       + (v.model ? ` · ${v.model}` : ""),
     amount: basePrice + vehicleSizeFee(inp.services, v.key),
   }));
