@@ -201,5 +201,101 @@ for (const f of DRIVERS) {
     missing.length === 0, `it does not list: ${missing.join(", ")}`);
 }
 
+/* ── 6 · dismissing a guide is FINAL — his bug, 2026-09-13 ─────────────── */
+console.log("\n6: what happens when he presses Skip");
+
+// **NINETEEN CHECKS ABOVE THIS ONE WERE GREEN WHILE THE GUIDES REPLAYED.**
+// Andrew, using the product: *"I keep having this glitch that keeps showing me
+// the tour of every single page. Like, every time I go back to it — or not
+// every time, but it keeps giving me the tour even though I've already said
+// skip."*
+//
+// Sections 1-5 check the SHAPE of the guides — which tabs have one, where
+// their steps point, that no guide wanders off its own screen. Not one of them
+// asks the only question he cares about: **after a dismissal, does it stay
+// dismissed.** That is the gap, and it is the exact shape this repo keeps
+// finding: a green result from an instrument that was never pointed at the
+// failure.
+//
+// THIS SECTION RUNS THE PRODUCT'S OWN BOOKKEEPING rather than grepping for
+// it — trap (k), a check that names a spelling is coupled to the spelling.
+// `seenTours` / `markTourSeen` / `tourSeen` in App.jsx use nothing but
+// `localStorage`, so they lift out and execute against a fake one.
+
+// RAW, not `read()` — `strip()` deletes `{ /* … */ }` whole, which is exactly
+// what `catch { /* private mode */ }` looks like, and the lifted block then
+// does not parse. Comments are harmless inside a block that is EXECUTED.
+const appRaw = readFileSync("app/src/App.jsx", "utf8");
+const bookBlock = appRaw.slice(appRaw.indexOf('const TOUR_KEY = "dp.tour"'),
+  appRaw.indexOf("export default function App"));
+check("6a · the tour bookkeeping was found and lifted out of App.jsx",
+  bookBlock.length > 200 && bookBlock.includes("markTourSeen"),
+  `${bookBlock.length} bytes — if this fails every check below it is vacuous`);
+
+let book = null;
+if (bookBlock.length > 200) {
+  const store = new Map();
+  const fake = {
+    getItem: (k) => (store.has(k) ? store.get(k) : null),
+    setItem: (k, v) => store.set(k, String(v)),
+    removeItem: (k) => store.delete(k),
+  };
+  book = new Function("localStorage",
+    `${bookBlock}\nreturn { seenTours, markTourSeen, tourSeen, store: localStorage };`)(fake);
+}
+
+// THE INSTRUMENT IS BROKEN ON PURPOSE FIRST. A harness that silently returned
+// a `tourSeen` which is always false would make 6c below pass over a product
+// that never records anything at all.
+check("6b · the harness can tell seen from unseen",
+  !!book && book.tourSeen("today") === false
+    && (book.markTourSeen("today"), book.tourSeen("today") === true),
+  "the extracted functions do not behave like a record at all");
+
+// **ONE DISMISSAL, NOT SIX.** His words are *"I've already said skip"* — one
+// press — and there are SIX guides: the shell and the five tabs. Skip writes
+// the name of the guide on screen and nothing else, so the other five still
+// arrive, one per tab, 900ms after the first press of each. Measured by
+// running the block above: after skipping the first-run shell guide, five more
+// guides are still armed.
+const EVERY = ["shell", ...TABS];
+let armed = [];
+if (book) {
+  const m = new Map();
+  const b2 = new Function("localStorage",
+    `${bookBlock}\nreturn { markTourSeen, tourSeen };`)({
+      getItem: (k) => (m.has(k) ? m.get(k) : null),
+      setItem: (k, v) => m.set(k, String(v)),
+    });
+  b2.markTourSeen("shell");                       // he presses Skip, once
+  armed = EVERY.filter((n) => !b2.tourSeen(n));   // what still ambushes him
+}
+check("6c · one dismissal silences every guide, not just the one on screen",
+  book && armed.length === 0,
+  `after one Skip, ${armed.length} guides are still armed: ${armed.join(", ")}`);
+
+// **AND THE RECORD IS ON THE DEVICE, SO IT IS NEVER TRUE ON THE NEXT ONE.**
+// App.jsx says so deliberately — *"a fact about this browser, not about the
+// account"* — and that choice is what makes a skip on the laptop mean nothing
+// on the phone, nothing in a private window, and nothing on a second origin.
+// His ask is that it be final for the PERSON. `20260913060000_tours_are_per_person.sql`
+// creates the store; this fails until something reads and writes it.
+check("6d · the dismissal is recorded for the person, not only for the browser",
+  /user_tours|tours_dismissed/.test(app),
+  "App.jsx records a dismissal only in localStorage");
+
+// **A QUEUED GUIDE IS CANCELLED WHEN THE TAB CHANGES.** The tab press arms a
+// 900ms timer and nothing ever clears it, and the setter behind it is
+// `(cur) => cur ?? x.key` — so pressing a second tab inside that window throws
+// the second guide away WITHOUT recording it, and it returns on the next
+// visit. That is the intermittent half of his report: *"not every time"*.
+// Source-level because there is no React test runner here — assert the handle
+// is kept, which is the smallest thing that cannot be true by accident.
+const armWindow = app.slice(app.indexOf("if (!firstRun && TOURS[x.key]"),
+  app.indexOf("if (!firstRun && TOURS[x.key]") + 400);
+check("6e · the timer that arms a tab guide can be cancelled",
+  armWindow.length > 100 && /clearTimeout|\w+\.current\s*=\s*setTimeout/.test(armWindow),
+  "setTimeout(...) is armed with no handle — a second tab press discards the first guide unrecorded");
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
