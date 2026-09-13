@@ -2,6 +2,40 @@
 
 Read before working. These rules survive every `/clear`; chat instructions don't.
 
+## READ `docs/START-HERE.md` FIRST. OPEN A LONG FILE ONLY WHEN YOUR WORK TOUCHES ITS SUBJECT. — Andrew, 2026-09-13
+
+**MEASURED AT `130ae94`: `CLAUDE.md` (19,166 words) + `ROADMAP.md` (8,123) +
+`FOUND.md` (17,602) + `docs/BAR.md` (4,240) is 49,131 words — about 95% of a
+fresh session's clear threshold, spent before it reads a line of code, and paid
+again at EVERY clear.** It was the single largest waste of his usage in this run.
+
+**`docs/START-HERE.md` is 1,730 words and carries only what changes what a
+session DOES** — the lanes, the clearing protocol, the 44px tap floor and its
+`::after` exception, prove-your-instrument, what is frozen, and what is settled
+about translation — each with a one-line pointer to the long file for when the
+work actually touches that subject.
+
+**NOTHING HERE IS DELETED OR DEMOTED. This file is still the law.** What changed
+is WHEN you open it: read the section that governs the thing in front of you,
+not the file. Every other long document keeps its own job — `ROADMAP.md` is what
+comes next, `FOUND.md` is what is parked, `docs/BAR.md` is the standard, and
+`docs/README.md` is the map of all 4.3 MB.
+
+**TWO NEW FILES, AND BOTH ARE CHEAPER THAN THE THING THEY REPLACE:**
+
+- **`docs/VERIFIED.md` — the checked-off ledger. Read it BEFORE you measure
+  anything.** A row is un-proven by a CHANGE, never by age: it records what was
+  proven, when, at which commit, and which paths would invalidate it. Run
+  `git diff --name-only <row commit>..HEAD -- <row paths>` and **empty output
+  means do not re-measure.** Its § 2 is five findings Andrew reported and then
+  withdrew after measuring properly — **never re-report those five.**
+- **`docs/ECONOMY.md` — nine rules for spending his usage.** Check the ledger
+  before the product; write a finding down once and point at it; read the
+  smallest thing that answers the question; clear at a finished section because
+  an auto-compaction costs a whole extra pass; two sessions is the cap; do not
+  verify what the change could not have touched; prove the instrument once per
+  session and count subjects every run; give the answer, not the journey.
+
 ## WHICH LANE IS THIS SESSION? ANSWER THAT BEFORE YOU WRITE A FILE.
 
 **The owner runs three or four Claude sessions in this one folder at the same

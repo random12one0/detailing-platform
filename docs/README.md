@@ -23,6 +23,17 @@ file how you measured it.**
 
 ## Start here — the four that decide what you do
 
+> **UPDATED 2026-09-13, and this map is no longer the first thing to read.**
+> **`START-HERE.md` is**, at Andrew's instruction, because the four files a
+> session was being told to read first measure **49,131 words** together — about
+> 95% of a clear threshold, spent before any work, and paid again at every clear.
+>
+> | File | Tier | What it is |
+> |---|---|---|
+> | `START-HERE.md` | **LIVE — READ IT FIRST** | 1,730 words carrying only what changes what a session DOES: the lanes, the clearing protocol, the 44px tap floor and its `::after` exception, prove-your-instrument, what is frozen, what is settled about translation. One-line pointers to the long files for when the work touches them. |
+> | `VERIFIED.md` | **LIVE — read BEFORE measuring anything** | The checked-off ledger. A row is un-proven by a CHANGE, never by age: `git diff --name-only <row commit>..HEAD -- <row paths>`, and empty output means do not re-measure. Its § 2 is five findings Andrew reported and withdrew — never re-report those. |
+> | `ECONOMY.md` | **LIVE** | Nine rules for spending his usage. Check the ledger before the product; write a finding once; read the smallest thing that answers the question; clear at a section, never at the ceiling. |
+
 > **UPDATED 2026-09-11 by a truth pass.** Twenty-five docs had appeared since
 > this map was written and none were on it, including three of the four status
 > files. **The read order below is now five files, not four**, and the status
