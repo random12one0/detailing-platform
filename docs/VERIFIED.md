@@ -613,7 +613,7 @@ which are lane B's.
 
 ---
 
-## 1g · PROVEN TONIGHT — lane C, 2026-09-13, at `c7992ed`
+## 1g · PROVEN TONIGHT — lane C, 2026-09-13, at `a3d8ed0`
 
 **THE WHOLE SECTION IS ABOUT ONE SUITE'S HONESTY, NOT ABOUT THE PRODUCT.** Read
 `docs/platform-admin-triage-2026-09-13.md` § THE SECOND TRIAGE PASS first — it
