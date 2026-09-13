@@ -5,6 +5,72 @@ Claude Cowork decides what becomes work.
 
 ---
 
+## `tests/platform-admin.test.mjs` IS 111 PASSED, **49 FAILED**, AND NONE OF IT IS THE SERVER — 2026-09-13
+
+**Measured twice tonight, once with lane C's changes in the tree and once with
+them stashed. The number is identical both times, so it is not ours.** Recorded
+rather than fixed because every failing check reads `app/src/admin/**`, which is
+**lane B's**, and lane B has been rebuilding those screens all night.
+
+A sample of what is red:
+
+```
+2b-i   a signed-out visitor is offered a login, not an error
+2b-ii  and a signed-in non-admin still gets Page not found
+       the button warns before it acts
+       seven figures across the top, and never more than eight
+9h     the screen hands over a file rather than drawing it
+9i     a confirmation survives the refresh that follows it
+```
+
+**THE DANGEROUS ONES ARE 2b-i AND 2b-ii**, because they are the 404-not-403
+rule that migration `20260906001000` went out of its way to build — *a 403 tells
+a curious detailer the endpoint exists*. **The SERVER half is proved and
+passing**; these two read the screen. A screen that now answers differently is a
+real question and not a stylistic one.
+
+**DO NOT EDIT THE CHECKS TO MAKE THEM PASS.** The repo already has one
+deliberately-red check for exactly this reason (`platform-billing`, § EIGHT
+BACK-OFFICE ACTIONS HAVE NO DOOR) and the reasoning is the same: making it pass
+would hide a screen that changed.
+
+```bash
+node tests/platform-admin.test.mjs          # 111 / 49 at 92ef895
+```
+
+---
+
+## THE TEST SUITES SPEND REAL EMAIL, AND THE RESERVE ONLY STOPS HALF OF IT — 2026-09-13
+
+**The half Andrew asked about is closed**: a test run can no longer take the
+signup notice with it (`docs/email-budget.md`). **The half that is not closed is
+the bill and the sender reputation**, and it needs a decision rather than an
+edit, so it is here.
+
+Against a cap of **100 a day**: 2026-09-07 attempted **240**, 2026-09-08
+attempted **117**, and 2026-09-13 was at **94 by 06:55 UTC**. There are no
+detailers on this product, so all of it is ours.
+
+**Two things are doing it and both are deliberate today:**
+
+- **`delivered@resend.dev`** — Resend's own delivery simulator, in
+  `scripts/e2e-booking.mjs`, `tests/multi-vehicle.test.mjs`,
+  `tests/staff-roles.test.mjs`, `tests/dead-mans-switch.test.mjs`. **Whether
+  Resend charges the simulator against the plan was NOT measured and must not be
+  assumed either way.**
+- **The demo business's contact address is `@detailplatform.com`**, a real
+  domain, so **every owner alert any credentialed suite triggers is a real
+  send** at about five emails a booking.
+
+**THE OBVIOUS FIX IS THE WRONG ONE ON ITS OWN.** Moving those addresses onto a
+reserved domain would make most of a suite run free — and would also stop
+`e2e-booking` proving that mail actually leaves the building, which is the one
+thing it exists for. **The shape of the answer is probably one address that
+stays live and everything else reserved**, and that is a call about what we want
+proved, not a rename.
+
+---
+
 ## 85 READS DISCARDED THEIR ERROR. 81 STILL DO, AND ONE COST A CUSTOMER A BOOKING — 2026-09-13
 
 **Four were fixed tonight because Andrew hit one of them. The other 81 are the

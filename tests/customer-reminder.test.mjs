@@ -308,6 +308,91 @@ console.log("\n3. the reminder carries the date, the time and a way to change it
     "two templates for one fact is how the product grows two voices");
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// 4 · THE WHOLE SWEEP, THROUGH THE DEPLOYED FUNCTION
+// ════════════════════════════════════════════════════════════════════════════
+//
+// **§ 1 PROVED THE QUERY AND § 2 PROVED THE SHAPE OF THE CALLER. NEITHER PROVES
+// THAT AN EMAIL COMES OUT.** That gap is the whole reason this item existed: a
+// feature every part of which read correctly, and which had produced nothing in
+// its life. So this section calls the REAL deployed sweep and reads what it
+// says it did.
+//
+// **IT COSTS NO EMAIL ALLOWANCE, AND THAT IS NOT A COMPROMISE.** The fixture
+// address is on `example.com`, which `send-email` refuses before it ever
+// reaches the provider, returning `{ success: true, skipped:
+// "undeliverable_domain" }`. Everything up to that point is the real thing -
+// the due-ness query, the brand build, the template render, the relay call, the
+// return value being read, and the marker being written. What is NOT proved
+// here is Resend accepting the message, which `scripts/e2e-booking.mjs` is for.
+//
+// **AND THE MARKER IS THE ASSERTION, not the HTTP status.** The sweep answers
+// 200 whatever happens inside it - that was true on every one of the eighteen
+// hours it was dead - so the thing to read is whether the booking came back
+// stamped.
+console.log("\n4. the deployed sweep actually reminds a due customer");
+{
+  if (!SB_URL || !KEY) {
+    skip("the live sweep", "no credentials");
+  } else if (!bizId) {
+    skip("the live sweep", "no demo-detail business");
+  } else {
+    let id2 = null, cust2 = null;
+    try {
+      const c = await rest("customers", {
+        method: "POST", headers: { Prefer: "return=representation" },
+        body: JSON.stringify({ business_id: bizId, name: "Sweep Fixture", phone: "562-555-0001", email: "sweep-fixture@example.com" }),
+      });
+      cust2 = c.body?.[0]?.id ?? null;
+      const start = new Date(Date.now() + 30 * 60_000);
+      await rest(`business_settings?business_id=eq.${bizId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ evening_before_enabled: false, customer_reminder_lead_minutes: 120, email_customer_reminder: true }),
+      });
+      const b = await rest("bookings", {
+        method: "POST", headers: { Prefer: "return=representation" },
+        body: JSON.stringify({
+          business_id: bizId, customer_id: cust2,
+          customer_name: "Sweep Fixture", customer_phone: "562-555-0001",
+          customer_email: "sweep-fixture@example.com",
+          customer_address: "2 Fixture Way, Long Beach, CA",
+          start_at: start.toISOString(), end_at: new Date(start.getTime() + 3600_000).toISOString(),
+          service_type: "mobile", vehicle_size: "small",
+          subtotal: 65, total_price: 65, status: "confirmed", lang: "es",
+          // Already reminded on the OWNER side, so the sweep has exactly one
+          // thing to do about this booking and the assertion below is clean.
+          owner_reminder_sent_at: new Date().toISOString(),
+        }),
+      });
+      id2 = b.body?.[0]?.id ?? null;
+      check("4z the sweep fixture was created", Boolean(id2),
+        `nothing below measures anything without it: ${JSON.stringify(b.body).slice(0, 200)}`);
+
+      if (id2) {
+        const r = await fetch(`${SB_URL}/functions/v1/send-owner-reminders`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" },
+          body: "{}",
+        });
+        const out = await r.json().catch(() => ({}));
+        check("4a the sweep ran", r.status === 200, `${r.status} ${JSON.stringify(out).slice(0, 200)}`);
+        check("4b it reports sending one customer reminder",
+          (out?.summary?.customer_reminder_sent ?? 0) >= 1,
+          `summary: ${JSON.stringify(out?.summary)}`);
+        const after = (await rest(`bookings?id=eq.${id2}&select=customer_reminder_sent_at`)).body?.[0];
+        check("4c and the booking is stamped", Boolean(after?.customer_reminder_sent_at),
+          "the marker is the only durable evidence the reminder happened");
+        check("4d nothing else failed in the same sweep",
+          !Object.keys(out?.summary ?? {}).some((k) => k.endsWith("_failed")),
+          `summary: ${JSON.stringify(out?.summary)}`);
+      }
+    } finally {
+      if (id2) await rest(`bookings?id=eq.${id2}`, { method: "DELETE" });
+      if (cust2) await rest(`customers?id=eq.${cust2}`, { method: "DELETE" });
+    }
+  }
+}
+
 // ── clean up, whatever happened above ──────────────────────────────────────
 if (SB_URL && KEY) {
   if (bookingId) await rest(`bookings?id=eq.${bookingId}`, { method: "DELETE" });

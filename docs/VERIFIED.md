@@ -115,6 +115,33 @@ is **335 passed, 1 failed** and the failure is correct — the back office has n
 price editor. See `FOUND.md` § EIGHT BACK-OFFICE ACTIONS HAVE NO DOOR. A row
 here would read as a clean bill.
 
+## 1e · PROVEN TONIGHT — lane C, 2026-09-13, at `92ef895` and after
+
+| what was proven | number | invalidated by a change to |
+|---|---|---|
+| **The customer appointment reminder actually fires**, through the REAL deployed sweep, on a Spanish booking: 200, `customer_reminder_sent: 1`, and the booking comes back stamped | `customer-reminder` **33 passed, 0 failed, 0 skipped**, baselined by **5** deliberate breaks including one that was deployed | `supabase/functions/send-owner-reminders/**`, `supabase/migrations/20260913020000_*.sql`, `_shared/emailTemplates.ts` |
+| A refused relay leaves the booking UNSTAMPED and reports `customer_reminder_failed` | proved by break 5, which deployed a `mustSend` that always throws: 4b, 4c and 4d all went red and the marker stayed null | the same paths |
+| The due-ness query excludes a switched-off business and all three ways a customer is unreachable, and still returns a genuinely due booking | `customer-reminder` § 1, 17 checks against the live RPC | `supabase/migrations/**`, the two `get_bookings_due_for_*reminder` functions |
+| **`customer_reminder_sent_at` had NEVER been non-null on any booking** | 0 of 56, read from the live database at 06:55 UTC | nothing — it is history. The count is what made the item real |
+| **Tenant mail stops at `cap - reserve` and platform mail reaches the full cap** | `email-budget` **22 passed, 0 failed, 0 skipped**, baselined by **3** deliberate breaks | `supabase/migrations/20260913030000_*.sql`, `supabase/functions/send-email/index.ts` |
+| The day's real numbers, against a cap of 100 | 09-07 **240** attempts, 09-08 **117**, 09-13 **94 by 06:55** | nothing — history, and the reason the reserve exists |
+| **All 37 edge functions are running the repo's code** | `check-deployed.mjs`: *"all 37 functions are current"* | **any** file under `supabase/functions/**` |
+| Nothing else broke | `composition` 95/0, `route-contract` 33/0, `landing-pricing` 109/0, `design-contrast` all pairs, `em-dash` 0 findings over 67 files, `booking-core` 237/0, `dead-mans-switch` 50/0, `maintenance` 38/0, `ics-and-notifications` 32/0, `request-mode` 51/0, `campaign` 16/0, `spanish` 72/0, `translations` 69/0/0 | their own subjects |
+
+**SEVEN FUNCTIONS WERE FOUND RUNNING PRE-GEOAPIFY CODE** and it was a clean
+pattern rather than an accident: **every importer of `_shared/rateLimit.ts`
+except `address-suggest` itself.** That file changed when the Geoapify limits
+were added and only the new function was redeployed. `create-booking`,
+`pay-booking`, `plan-link`, `platform-billing`, `stripe-webhook` and
+`unsubscribe` were all stale. **The lesson is the one the deploy row in § 1b
+already states and it earned itself within a day: a `_shared` edit makes every
+importer stale at once, and `check-deployed.mjs` is the only thing that says so.**
+
+**AND ONE FIGURE THAT IS DELIBERATELY NOT A ROW:** `tests/platform-admin.test.mjs`
+is **111 passed, 49 failed**, measured with lane C's changes in the tree AND
+with them stashed — identical, so it is not ours. Every failing check reads
+`app/src/admin/**`. See `FOUND.md`. A row here would read as a clean bill.
+
 ## 2 · LOOKS BROKEN BUT PASSES — NEVER RE-REPORT ANY OF THESE FIVE
 
 **Andrew reported all five as faults and withdrew each one after measuring

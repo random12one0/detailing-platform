@@ -417,3 +417,77 @@ handover, and **the latency decision is with Andrew.**
   whose heartbeat ROW went missing is now watched by nothing — and `watch-jobs`'
   own comment relies on that list as its compensating control.
   `FOUND.md` § THE WATCHDOG'S BLIND SPOT.
+
+---
+
+# THE THIRD LANE C SESSION — 2026-09-13, `92ef895`
+
+**All three of Andrew's items are delivered and the handover edit he asked for
+first is done. Nothing is blocked on him.**
+
+## DONE FIRST — the lane B handover now specifies the Find button
+
+`docs/address-autocomplete.md`. The latency question is CLOSED, in his words —
+*"a Find button the customer presses once after typing, not suggestions as they
+type"* — and § THE FIND BUTTON is the spec. **The sentence he asked for in as
+many words is in the file twice, in the header and in its own heading: if the
+address does not resolve, the customer still continues with whatever they
+typed.** The old debounce section is struck through rather than deleted, with
+the two of its four rules that survive marked STILL LAW.
+
+## DONE — 1 · THE CUSTOMER REMINDER, WHICH WAS BUILT AND HAD NEVER RUN
+
+**`customer_reminder_sent_at` was non-null on 0 of the 56 bookings this product
+has ever had.** His 125-message sample was not a sample that happened to miss
+one; there was nothing to find.
+
+Three faults on one line of the sweep, the root one being that
+**`sendTenantEmail` returns `false` and does not throw**, so a refused send fell
+through to `mark()` and the booking was stamped *reminded* for ever. The same
+false sentence — *"sendTenantEmail throws on a hard failure"* — sat in the
+maintenance block, so a **warranty deadline** was advanced on a send that
+failed.
+
+Full account, the timing decision he asked me to make, and the one thing about
+it I would change but did not: **`docs/customer-reminder.md`.**
+
+## DONE — 2 · THE SPANISH TRAVEL ZONE. ANSWERED, NOT BUILT.
+
+**We do NOT generate "Beyond 15 miles" from a radius**, so it is not our copy
+and needs no Spanish key. It is `settings.travel_zones[].name`, free text a
+detailer types; the demo's copy was typed by us in `scripts/seed-demo.mjs:226`.
+It is already classified translatable and **DeepL has already stored *"Más allá
+de las 15 millas"***. It renders in English because **nothing in `app/` has ever
+called `get_business_translations`** — no tenant prose is translated on any
+page. `docs/handover-translate-lane-b.md` § 8 is the answer and the three-line
+fix, and it notes that *"Long Beach"* reads correctly today **by luck**.
+
+## DONE — 3 · THE EMAIL CAP
+
+**True, and it had already happened twice in a week**: 240 attempts on 09-07,
+117 on 09-08, 94 by 06:55 today, against a cap of 100. A reserve of 20 is now
+claimed atomically before the provider is called, and only mail the platform
+sends in its own name can reach it. `docs/email-budget.md`.
+
+**What it does NOT fix is the bill** — the suites still spend up to 80 a day.
+That needs a decision rather than an edit and is in `FOUND.md`.
+
+## FOUND IN PASSING, NOT FIXED
+
+- **Seven edge functions were running pre-Geoapify code**: every importer of
+  `_shared/rateLimit.ts` except `address-suggest`. Redeployed; all 37 current.
+- **`tests/platform-admin.test.mjs` is 111 passed, 49 failed**, identical with
+  lane C's changes stashed, and every failing check reads `app/src/admin/**`.
+  **Lane B's.** `FOUND.md`.
+- The two Andrew named — **no price editor** and **the Plumbing tab's dropped
+  job list** — were already in `FOUND.md` and were left exactly as they are.
+
+## STILL OWED BY LANE M — one line, and it is the same one as last time
+
+`docs/README.md` needs rows for the files written tonight. Lane C did not touch
+it; it is M's.
+
+```
+| `customer-reminder.md` | **LIVE** | Why the customer appointment reminder had sent zero emails in 56 bookings, the three faults, and the timing decision. 2026-09-13. |
+| `email-budget.md`      | **LIVE** | The daily email allowance, the platform's reserved slice, and what the test suites actually spend. 2026-09-13. |
+```

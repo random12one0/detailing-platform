@@ -100,7 +100,7 @@ async function emailDataFor(business: Business, b: BookingRow) {
 // itself, which is called from thirty places where a booking must survive a
 // dead relay.
 function mustSend(ok: boolean, what: string) {
-  if (!ok) throw new Error(`the email relay refused the ${what} — not marking it as sent`);
+  if (!ok) throw new Error(`the email relay refused the ${what}. Not marking it as sent.`);
 }
 
 async function sendCustomerReminder(b: BookingRow, second = false) {

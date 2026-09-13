@@ -178,3 +178,82 @@ change, not as a follow-up** — load the booking page at `?lang=es` and at `?la
 and assert the business name is byte-identical in both. Note `CLAUDE.md` trap
 (c): `pushState` does not re-render the router's host, so navigate properly or
 the check passes 22 screens it never visited.
+
+---
+
+## 8 · "Beyond 15 miles" ON THE SPANISH PAGE — Andrew's question, answered 2026-09-13
+
+**HIS QUESTION:** *"On the booking page step 4 the travel zone reads 'Beyond 15
+miles' in English on the Spanish page, while the other zone is a place name and
+correctly is not translated. Find out whether we generate that phrase from a
+radius the detailer set; if we generate the words, they are our copy and need
+Spanish."*
+
+### **NO. WE DO NOT GENERATE IT. IT IS NOT OUR COPY AND IT NEEDS NO SPANISH KEY.**
+
+**It is `settings.travel_zones[].name` — free text a detailer types**, beside a
+fee they choose. There is no radius anywhere in this product: nothing stores a
+latitude, and `StepLocation.jsx`'s own comment says so in as many words —
+*"NOT geocoded distance, we have no way to measure one, it is the detailer's own
+areas in their own words."*
+
+**The demo's copy of it was typed by us**, in `scripts/seed-demo.mjs:226`:
+
+```js
+{ key: "beyond-15", name: "Beyond 15 miles", fee: 40 },
+```
+
+**So the string he was looking at is a seeded fixture, not product copy**, and
+the seed is ours to write well (CLAUDE.md § THE EM DASH, *"the seed is ours"*) —
+but it is still travelling down the tenant-content path, not the product-copy
+path.
+
+### AND IT IS ALREADY CLASSIFIED, ALREADY TRANSLATED, AND ALREADY IN THE DATABASE
+
+`settings.travel_zones[].name` is in `_shared/translatable.ts`'s **TRANSLATE**
+set. DeepL has already done it and the row is sitting there:
+
+| business | source_text | machine_text | by | at |
+|---|---|---|---|---|
+| `demo-detail` | `Beyond 15 miles` | **`Más allá de las 15 millas`** | deepl | 2026-09-13 04:07 |
+
+### SO WHY IS IT ENGLISH ON THE PAGE? BECAUSE NOTHING IN `app/` HAS EVER CALLED `get_business_translations`
+
+**Measured: zero callers across the whole of `app/`.** The `tx()` function § 6
+asks for does not exist yet, so **no tenant prose is translated on any page** —
+not the travel zones, not service names, not add-on names, not plan names, not
+the FAQ answers, not the tagline.
+
+**The travel zone is not a special case. It is simply the one he happened to
+notice**, because it sits next to a place name that looks correctly untranslated.
+
+### THE PLACE NAME LOOKS RIGHT BY LUCK, AND THAT IS WORTH KNOWING BEFORE YOU WIRE `tx()`
+
+*"Long Beach"* is in the same field, classified the same way, and goes through
+the same translator. **It reads correctly today because nothing is translated at
+all.** Once `tx()` is wired it will render whatever DeepL returned for it.
+
+**That is not a reason to stop** — § 6 of the translation rules is clear that
+service, add-on and plan names ARE translated, and a travel area is the same
+class of thing. It is a reason to **look at the tenant catalogue in the first-run
+review (§ 3) before it goes live**, because a proper noun a machine decided to
+translate is exactly what that review is for.
+
+### WHAT LANE B ACTUALLY HAS TO DO ABOUT IT
+
+**Nothing specific.** Wire `tx()` per § 6 and the travel zone is fixed along
+with eleven other fields. Concretely, in `app/src/book/steps/`:
+
+| file | today | with `tx()` |
+|---|---|---|
+| `StepLocation.jsx` | `{z.name}{fee}` | `{tx(z.name)}{fee}` |
+| `StepReview.jsx` | `t("Travel · {zone}", { zone: quote.travel_zone })` | the zone through `tx`, the label through `t` |
+| `StepServices.jsx`, `StepExtras.jsx`, `StepReview.jsx` | `{s.name}`, `{a.name}` | the same |
+
+**Note the two different functions in one string on `StepReview`** — *"Travel"*
+is ours and takes `t()`, the zone is the detailer's and takes `tx()`. That is § 6's
+rule made concrete, and mixing them is the failure it warns about.
+
+**DO NOT add a Spanish key for "Beyond 15 miles" to `appEs.js`.** It would be a
+product-copy translation of a database value, it would only ever match the demo,
+and it would shadow whatever a real detailer typed.
