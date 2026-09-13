@@ -88,7 +88,7 @@ function BookingFlow({ notFound = null }) {
   // `hooks/useLocale.js` for why one call at the root is not enough.
   useLocale();
   const ctx = useBookingBusiness();
-  const { status, business, branding, settings, services, serviceGroups, addOns, plans, brandVars, slug } = ctx;
+  const { status, business, branding, settings, services, serviceGroups, addOns, plans, brandVars, slug, tx } = ctx;
   const STEPS = useMemo(() => stepsFor(addOns), [addOns]);
   const [params] = useSearchParams();
 
@@ -512,7 +512,7 @@ function BookingFlow({ notFound = null }) {
   const recognition = known?.name
     ? { kind: "name", text: known.name.trim().split(" ")[0] }
     : attachedPlan
-      ? { kind: "plan", text: attachedPlan.name }
+      ? { kind: "plan", text: tx(attachedPlan.name) }
       : null;
 
   return (
@@ -522,7 +522,11 @@ function BookingFlow({ notFound = null }) {
           {branding?.logo_url && <img src={branding.logo_url} alt="" />}
           <div>
             <h1>{business.name}</h1>
-            {branding?.tagline && <div className="tagline brand">{branding.tagline}</div>}
+            {/* THE NAME IS NEVER TRANSLATED AND THE TAGLINE ALWAYS IS, one
+                line apart. We translate what a business SAYS, never what it is
+                CALLED — and the database refuses a row for the name, so this
+                is a rule about call sites rather than about the data. */}
+            {branding?.tagline && <div className="tagline brand">{tx(branding.tagline)}</div>}
           </div>
           {/* ROADMAP 8.17 — IN THE MASTHEAD, WHICH IS THE ONE PLACE ON THIS
               PAGE THAT COSTS A STEP NOTHING. Every step's spare room is the

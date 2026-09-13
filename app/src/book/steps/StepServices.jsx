@@ -30,7 +30,7 @@ import { groupServices } from "../core.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 
 export default function StepServices({ selected, onToggle }) {
-  const { services, serviceGroups, business } = useBookingBusiness();
+  const { services, serviceGroups, business, tx } = useBookingBusiness();
   useLocale();
   // Which cards are showing their full details. Plain state rather than
   // <details>: the eye has to sit ON the name row to cost zero height, and
@@ -85,7 +85,10 @@ export default function StepServices({ selected, onToggle }) {
           {showHeadings && g.name && (
             <>
               <div className="bk-step-label bk-group">
-                {g.name}
+                {/* The detailer's own category name, so `tx()` and never
+                    `t()`. See BookingBusinessContext for why the two tables
+                    must not meet. */}
+                {tx(g.name)}
                 {/* The rule is stated ON the category, before the customer picks
                     — not enforced silently afterwards. W25 exists because the
                     owner ticked two services and found it confusing; a swap he
@@ -99,7 +102,7 @@ export default function StepServices({ selected, onToggle }) {
               {/* Optional, and empty for every tenant who has not written one:
                   a line here is 19px off a step whose budget is already the
                   detailer's to spend. */}
-              {g.blurb && <p className="bk-muted bk-group-blurb">{g.blurb}</p>}
+              {g.blurb && <p className="bk-muted bk-group-blurb">{tx(g.blurb)}</p>}
             </>
           )}
           {g.items.map((s) => {
@@ -122,7 +125,7 @@ export default function StepServices({ selected, onToggle }) {
                       it folds a whole line out of every card, which is 19px x
                       however many services the business lists (W16). */}
                   <button type="button" className="bk-pick" aria-pressed={isOn} onClick={() => onToggle(s.id)}>
-                    <span className="bk-h3">{s.name}</span>
+                    <span className="bk-h3">{tx(s.name)}</span>
                     <span className="bk-svc-money">
                       {/* W9 — "from $220". The number is the same number; what
                           changes is what it claims to be. Every real detailer
@@ -141,7 +144,7 @@ export default function StepServices({ selected, onToggle }) {
                       className={`bk-peek ${shown ? "on" : ""}`}
                       aria-expanded={shown}
                       aria-controls={`svc-more-${s.id}`}
-                      aria-label={t("What's included in {service}", { service: s.name })}
+                      aria-label={t("What's included in {service}", { service: tx(s.name) })}
                       onClick={() => peek(s.id)}
                     >
                       <Eye size={18} strokeWidth={2} />
@@ -158,10 +161,10 @@ export default function StepServices({ selected, onToggle }) {
                   <div id={`svc-more-${s.id}`} className={`bk-svc-more ${shown ? "on" : ""}`}>
                     <div>
                       <div className="bk-svc-body">
-                        {s.description && <p className="bk-muted">{s.description}</p>}
+                        {s.description && <p className="bk-muted">{tx(s.description)}</p>}
                         {features.length > 0 && (
                           <ul className="bk-svc-list">
-                            {features.map((f, i) => <li key={i}>{String(f)}</li>)}
+                            {features.map((f, i) => <li key={i}>{tx(String(f))}</li>)}
                           </ul>
                         )}
                       </div>

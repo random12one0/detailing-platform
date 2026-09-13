@@ -48,7 +48,7 @@ export default function StepLocation({ form, setForm, modeLimit, blocks = [] }) 
   useLocale();
   // THE RESOLVED SLUG, from the context and never from the URL: on a
   // detailer's own domain there is no slug in the address bar at all.
-  const { settings, business, slug } = useBookingBusiness();
+  const { settings, business, slug, tx } = useBookingBusiness();
   const both = settings.mobile_enabled && settings.dropoff_enabled && !modeLimit;
   const isMobile = form.serviceType === "mobile";
 
@@ -77,15 +77,21 @@ export default function StepLocation({ form, setForm, modeLimit, blocks = [] }) 
                 <span className="bk-price">+{money(settings.travel_fee)}</span>
               )}
             </div>
-            {/* THE DETAILER'S OWN SERVICE AREA IS NOT TRANSLATED and cannot
-                be — it is a place name they typed. So it is a PLACEHOLDER
-                inside one sentence rather than two sentences glued together:
-                Spanish puts the preposition somewhere English does not, and a
-                translation that cannot move the area is a translation that
-                reads as a machine's. */}
+            {/* THE AREA IS A PLACEHOLDER INSIDE ONE SENTENCE rather than two
+                sentences glued together: Spanish puts the preposition
+                somewhere English does not, and a translation that cannot move
+                the area is a translation that reads as a machine's.
+                **THE COMMENT HERE USED TO SAY THE AREA "IS NOT TRANSLATED AND
+                CANNOT BE", AND THAT STOPPED BEING TRUE.**
+                `business.service_area` is in `_shared/translatable.ts`'s
+                TRANSLATE set — it is what the business SAYS about where it
+                works, not what it is CALLED — so the sentence takes `t()` and
+                the area inside it takes `tx()`. A proper noun a machine
+                decided to translate is what the first-run review exists to
+                catch, not a reason to leave the field English. */}
             <p className="bk-muted">
               {business.service_area
-                ? t("We bring everything to your home or work in {area}.", { area: business.service_area })
+                ? t("We bring everything to your home or work in {area}.", { area: tx(business.service_area) })
                 : t("We bring everything to your home or work.")}
             </p>
           </div>
@@ -117,8 +123,10 @@ export default function StepLocation({ form, setForm, modeLimit, blocks = [] }) 
           )}
           {isMobile
             ? (business.service_area
+              // The NAME is never translated and the AREA is — the two
+              // functions in one call, which is the rule made concrete.
               ? t("{business} comes to you, serving {area}.",
-                { business: business.name, area: business.service_area })
+                { business: business.name, area: tx(business.service_area) })
               : t("{business} comes to you.", { business: business.name }))
             : business.dropoff_address
               ? t("Drop your vehicle at {address}.", { address: business.dropoff_address })
@@ -152,7 +160,7 @@ export default function StepLocation({ form, setForm, modeLimit, blocks = [] }) 
                         now says to sweep the JOINS as well. By the ruling it
                         is a label separator, so it takes the middle dot the
                         product already uses everywhere. */}
-                    {z.name}{Number(z.fee) > 0 ? ` · +${money(z.fee)}` : ""}
+                    {tx(z.name)}{Number(z.fee) > 0 ? ` · +${money(z.fee)}` : ""}
                   </option>
                 ))}
               </select>

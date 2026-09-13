@@ -11,6 +11,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { bookingTransport } from "../lib/api.js";
 import { normalizeProfile } from "./core.js";
 import { brandVarsFor } from "../lib/theme.js";
+import { useLocale } from "../hooks/useLocale.js";
 
 const Ctx = createContext(null);
 export const useBookingBusiness = () => useContext(Ctx);
@@ -67,6 +68,61 @@ export function BookingBusinessProvider({ slug, host, children }) {
     if (name) document.title = name;
   }, [profile]);
 
+  // ---------------------------------------------------------------------------
+  // `tx()` — THE DETAILER'S OWN WORDS, IN THE CUSTOMER'S LANGUAGE.
+  // ---------------------------------------------------------------------------
+  // **`t()` is OUR copy and `tx()` is THEIRS, and the two tables must never
+  // meet.** `t()` reads the product catalogue in `lib/strings/es.js`; this
+  // reads one business's own rows. Merging them would silently rewrite a
+  // detailer's words — a service they named "Travel" would pick up the
+  // product catalogue's "Traslado" — which is the failure
+  // `docs/handover-translate-lane-b.md` § 6 is written against.
+  //
+  // **IT LIVES ON THIS CONTEXT RATHER THAN BEING A MODULE FUNCTION LIKE `t()`,
+  // because unlike `t()` the answer depends on WHICH BUSINESS.** Every place
+  // in this product that renders a detailer's prose already calls
+  // `useBookingBusiness()` — that is what makes it the cheap home and not a
+  // second store with its own subscription.
+  //
+  // **A STRING WITH NO ROW IS RETURNED UNCHANGED, AND THAT IS THE WHOLE
+  // FALLBACK.** There is no error path and no "untranslated" state: a failed
+  // fetch, an exhausted provider, a field nobody has translated yet and a
+  // business with no Spanish at all ALL land on the detailer's English, by
+  // construction rather than by something somebody has to remember.
+  //
+  // **ENGLISH FETCHES NOTHING.** `en` is the key the rows are stored under, so
+  // there is nothing to look up and no round trip for the great majority of
+  // customers.
+  //
+  // **NEVER PASS `business.name` THROUGH THIS.** We translate what a business
+  // SAYS, never what it is CALLED — the database refuses such a row outright
+  // (the `translations_never_a_name` trigger), so the map could not contain
+  // one, but the rule is about call sites and not about the data.
+  const locale = useLocale();
+  const resolvedSlug = profile?.business?.slug ?? slug ?? null;
+  const [tenantText, setTenantText] = useState(null);
+  useEffect(() => {
+    setTenantText(null);
+    if (locale === "en" || !resolvedSlug) return undefined;
+    let cancelled = false;
+    bookingTransport.translations(resolvedSlug, locale).then(
+      (table) => { if (!cancelled) setTenantText(table); },
+      // Silent on purpose. The customer sees the detailer's English, which is
+      // the specified outcome, and a booking page must not carry an error
+      // about a language it could not fetch.
+      () => {},
+    );
+    return () => { cancelled = true; };
+  }, [resolvedSlug, locale]);
+
+  const tx = useMemo(() => {
+    const table = tenantText;
+    return (text) => {
+      if (typeof text !== "string" || !text) return text;
+      return (table && table[text]) || text;
+    };
+  }, [tenantText]);
+
   // Derived brand tokens — ONE policy, owned by lib/theme.js.
   const brandVars = useMemo(
     () => brandVarsFor(profile?.branding?.primary_color),
@@ -90,10 +146,11 @@ export function BookingBusinessProvider({ slug, host, children }) {
     // The RESOLVED slug wins. On the host path there is no slug in the URL at
     // all, and every write below — the quote, the availability call, the
     // submit — is addressed by slug.
-    slug: profile?.business?.slug ?? slug ?? null,
+    slug: resolvedSlug,
     ...normalizeProfile(profile),
     brandVars,
-  }), [state, profile, slug, brandVars]);
+    tx,
+  }), [state, profile, resolvedSlug, brandVars, tx]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

@@ -114,6 +114,35 @@ export function createBookingTransport({ supabaseUrl, anonKey }) {
       if (!res.ok) throw new Error(data?.message || `Request failed (${res.status})`);
       return data ?? null;
     },
+    // ROADMAP 8.17 / TRANSLATE-ON-SAVE — THE TENANT'S OWN WORDS IN ANOTHER
+    // LANGUAGE. `{ english: spanish }`, which is exactly the shape
+    // `localeStore.js`'s `t()` already looks things up in, so a string with no
+    // row IS the English fallback: no error path, no "untranslated" state, and
+    // nothing to remember when both providers are exhausted.
+    //
+    // **IT IS A SEPARATE TABLE FROM THE PRODUCT CATALOGUE AND MUST STAY ONE.**
+    // Merging them would silently rewrite a detailer's words: a service named
+    // "Travel" would pick up the product catalogue's "Traslado". See
+    // `docs/handover-translate-lane-b.md` § 6.
+    //
+    // It lives here rather than in the app because a tenant site drawing its
+    // own booking form needs the same answer and must not re-derive the RPC
+    // name from a screenshot.
+    async translations(slug, lang) {
+      const res = await fetch(`${supabaseUrl}/rest/v1/rpc/get_business_translations`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          apikey: anonKey,
+          Authorization: `Bearer ${anonKey}`,
+        },
+        body: JSON.stringify({ p_slug: slug, p_lang: lang }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(data?.message || `Request failed (${res.status})`);
+      return data && typeof data === "object" ? data : {};
+    },
     // THE ONLY PLACE A PRICE EVER COMES FROM. A site that adds up service
     // prices itself has forked the pricing engine, which is the one thing
     // docs/tenant-site-contract.md forbids outright.

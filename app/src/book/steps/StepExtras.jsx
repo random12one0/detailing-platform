@@ -18,7 +18,7 @@ import { money } from "../../lib/format.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 
 export default function StepExtras({ selected, onToggle }) {
-  const { addOns } = useBookingBusiness();
+  const { addOns, tx } = useBookingBusiness();
   useLocale();
 
   return (
@@ -40,10 +40,10 @@ export default function StepExtras({ selected, onToggle }) {
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onToggle(a.id); } }}
           >
             <div className="bk-row between">
-              <h3>{a.name}</h3>
+              <h3>{tx(a.name)}</h3>
               <span className="bk-price">+{money(a.price)}</span>
             </div>
-            {a.description && <p className="bk-muted" style={{ marginTop: 4 }}>{a.description}</p>}
+            {a.description && <p className="bk-muted" style={{ marginTop: 4 }}>{tx(a.description)}</p>}
           </div>
         );
       })}

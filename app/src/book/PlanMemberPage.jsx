@@ -91,7 +91,7 @@ export default function PlanMemberPage() {
 
 function PlanInner({ data, onChanged }) {
   const lang = useLocale();
-  const { status: brandStatus, business, branding, brandVars, slug } = useBookingBusiness();
+  const { status: brandStatus, business, branding, brandVars, slug, tx } = useBookingBusiness();
   const { member, plan, visits, used: usedBookings, customer_name: customerName } = data;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -150,13 +150,13 @@ function PlanInner({ data, onChanged }) {
             the same composition the review step uses for the appointment. */}
         <div className={`bk-card${ended ? "" : " selected"}`}>
           <div className="bk-step-label">{statusWords(ended ? "ended" : member.status, lang)}</div>
-          <h3 style={{ marginTop: 4 }}>{plan.name}</h3>
+          <h3 style={{ marginTop: 4 }}>{tx(plan.name)}</h3>
           <p className="bk-muted" style={{ marginTop: 4 }}>
             {cadenceWords(plan, lang)}
             {plan.cadence_unit ? ` · ${t("{visits} each time", { visits: visitWords(plan, lang) })}` : ""}
             {termWords(plan, lang) ? ` · ${termWords(plan, lang)}` : ""}
           </p>
-          {plan.description && <p className="bk-muted" style={{ marginTop: 10 }}>{plan.description}</p>}
+          {plan.description && <p className="bk-muted" style={{ marginTop: 10 }}>{tx(plan.description)}</p>}
         </div>
 
         {/* OWED IS THE NUMBER THIS PAGE EXISTS FOR. The research found it is
@@ -223,7 +223,7 @@ function PlanInner({ data, onChanged }) {
               {confirmEnd ? (
                 <>
                   <button className="bk-btn danger" disabled={busy} onClick={endPlan}>
-                    {busy ? t("Ending…") : t("Yes, end {name}", { name: plan.name })}
+                    {busy ? t("Ending…") : t("Yes, end {name}", { name: tx(plan.name) })}
                   </button>
                   <button className="bk-btn ghost" disabled={busy} onClick={() => setConfirmEnd(false)}>
                     {t("Keep it")}

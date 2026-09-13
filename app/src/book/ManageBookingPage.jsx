@@ -99,7 +99,7 @@ export default function ManageBookingPage() {
 // reading the window off the context business silently yielded 0, which made
 // the whole closed-window branch dead code. It is read from the receipt.
 function ManageInner({ booking, receiptBusiness, group = [], card = null, onChanged }) {
-  const { business, branding, brandVars, slug, status } = useBookingBusiness();
+  const { business, branding, brandVars, slug, status, tx } = useBookingBusiness();
   const [mode, setMode] = useState(null); // null | "reschedule" | "cancelled"
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -428,13 +428,18 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
                 of the total is not detail, it is a contradiction. */}
             {(booking.services ?? []).map((sv, i) => (
               <div className="line" key={`s${sv.service_id ?? i}`}>
-                <span>{sv.name_at_booking}</span>
+                {/* THE SNAPSHOT, LOOKED UP LIKE ANY OTHER TENANT STRING.
+                    `name_at_booking` is the service's name as it stood on the
+                    day, so a service since renamed has no row and renders
+                    exactly what was booked — which is the right answer either
+                    way round. */}
+                <span>{tx(sv.name_at_booking)}</span>
                 {itemised && <span className="bk-price">{money(sv.price_at_booking)}</span>}
               </div>
             ))}
             {(booking.add_ons ?? []).map((a, i) => (
               <div className="line" key={`a${a.add_on_id ?? i}`}>
-                <span>{a.add_on?.name ?? t("Add-on")}</span>
+                <span>{a.add_on?.name ? tx(a.add_on.name) : t("Add-on")}</span>
                 {itemised && <span className="bk-price">{money(a.add_on?.price ?? 0)}</span>}
               </div>
             ))}

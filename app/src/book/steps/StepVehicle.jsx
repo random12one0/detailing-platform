@@ -70,7 +70,20 @@ import VehicleField from "../VehicleField.jsx";
 // The rule lives in `core.js` so the tier EDITOR answers it the same way — a
 // second copy is how the customer's page and the detailer's page start
 // disagreeing about whose words they are.
-const sizeText = (s, field) => (isPlatformSizeText(s, field) ? t(s[field]) : s[field]);
+//
+// **AND BOTH HALVES ARE TRANSLATED NOW, BY DIFFERENT FUNCTIONS.** Ours goes
+// through `t()` and the product catalogue; THEIRS goes through `tx()` and
+// their own rows, which until this change was the branch that did nothing at
+// all. The detailer who renamed the middle tier "Heavy" still never gets
+// "Fuerte" — `tx()` can only ever return what DeepL made of *their* word, or
+// their word unchanged.
+//
+// **EXPORTED, BECAUSE STEP 5 PRINTS THE SAME LABEL** and was reading `.label`
+// raw: a platform tier came out "Small" in English on an otherwise Spanish
+// review page. One rule, two call sites, rather than a second shell that
+// answers the ownership question slightly differently.
+export const sizeText = (s, field, tx) =>
+  (isPlatformSizeText(s, field) ? t(s[field]) : tx(s[field]));
 
 // Past this many sizes the cards become a drop-down. MEASURED, not chosen,
 // and RE-MEASURED after W27 landed on this same step — which is the whole
@@ -92,7 +105,7 @@ const SIZE_CARD_CEILING = 4;
 
 export default function StepVehicle({ form, setForm, selectedServices }) {
   useLocale();
-  const { settings } = useBookingBusiness();
+  const { settings, tx } = useBookingBusiness();
   const sizes = settings.vehicle_sizes;
 
   // The size arithmetic, the four-way condition scale and the vehicle count
@@ -125,7 +138,7 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
     const extra = sizeExtra(s.key);
     return (
       <option key={s.key} value={s.key}>
-        {sizeText(s, "label")}{extra > 0 ? ` · +${money(extra)}` : ""}
+        {sizeText(s, "label", tx)}{extra > 0 ? ` · +${money(extra)}` : ""}
       </option>
     );
   });
@@ -278,8 +291,8 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
                               it before AND after the wrapping. What covers
                               them is `spanish` § 1g, which walks
                               `DEFAULT_VEHICLE_SIZES` itself. */}
-                          <h3>{sizeText(s, "label")}</h3>
-                          {s.examples && <p className="bk-muted">{sizeText(s, "examples")}</p>}
+                          <h3>{sizeText(s, "label", tx)}</h3>
+                          {s.examples && <p className="bk-muted">{sizeText(s, "examples", tx)}</p>}
                         </div>
                         <span className="bk-price">{extra > 0 ? `+${money(extra)}` : t("Included")}</span>
                       </div>

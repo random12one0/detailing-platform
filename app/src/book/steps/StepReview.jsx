@@ -9,11 +9,12 @@ import { getLocale, intlLocale, t } from "../../lib/i18n.js";
 import { useLocale } from "../../hooks/useLocale.js";
 import { duration, money, phone, time12 } from "../../lib/format.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
+import { sizeText } from "./StepVehicle.jsx";
 
 export default function StepReview({ form, setForm, quote, services, addOns, promoState, onApplyPromo }) {
   useLocale();
   const loc = intlLocale();
-  const { business, settings } = useBookingBusiness();
+  const { business, settings, tx } = useBookingBusiness();
   const dateLabel = form.bookingDate
     ? new Date(`${form.bookingDate}T12:00:00`).toLocaleDateString(loc, {
       weekday: "long", month: "long", day: "numeric",
@@ -23,8 +24,13 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
   // The vehicle, in the customer's own words where they gave any. The size
   // label comes from the tenant's own list, so a detailer who renamed
   // "Medium" to "Crossover" sees their word here too.
-  const sizeLabel = (settings?.vehicle_sizes ?? [])
-    .find((s) => s.key === form.vehicleSize)?.label ?? "";
+  // **THROUGH STEP 3'S OWN RULE, NOT `.label` RAW.** This read the stored
+  // string straight out and printed it, so a platform tier came out "Small" in
+  // English on an otherwise Spanish page and a detailer's own word was never
+  // translated at all. `sizeText` answers the ownership question once: ours
+  // takes `t()`, theirs takes `tx()`.
+  const sizeRow = (settings?.vehicle_sizes ?? []).find((s) => s.key === form.vehicleSize);
+  const sizeLabel = sizeRow ? sizeText(sizeRow, "label", tx) : "";
   const vehicleLine = [form.vehicleModel?.trim(), sizeLabel].filter(Boolean).join(" · ");
 
   // ROADMAP 8.10 — CARS ON DIFFERENT DAYS ARE SEPARATE APPOINTMENTS, so the
@@ -44,8 +50,11 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
   if (quote?.site_discount > 0) {
     shownDiscounts.push({
       key: "site",
+      // The detailer's own name for their sale where they wrote one — `tx()`;
+      // our fallback sentence where they did not — `t()`.
       label: settings.site_discount_label
-        || t("{percent}% off", { percent: quote.site_discount_percent }),
+        ? tx(settings.site_discount_label)
+        : t("{percent}% off", { percent: quote.site_discount_percent }),
       amount: quote.site_discount,
     });
   }
@@ -158,7 +167,7 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
             booking it belongs to. */}
         {!legs && services.map((s) => (
           <div className="line" key={s.id}>
-            <span>{s.name}</span>
+            <span>{tx(s.name)}</span>
             <span className="bk-price">
               {s.price_is_from && <span className="bk-from">{t("from")} </span>}
               {money(s.price)}
@@ -167,7 +176,7 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
         ))}
         {!legs && addOns.map((a) => (
           <div className="line" key={a.id}>
-            <span>{a.name}</span>
+            <span>{tx(a.name)}</span>
             <span className="bk-price">{money(a.price)}</span>
           </div>
         ))}
@@ -184,10 +193,14 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
             picked where they picked one. */}
         {!legs && quote?.travel_fee > 0 && (
           <div className="line dim">
-            {/* The AREA is the detailer's own word for a place and stays as
-                they typed it; only the label around it moves. */}
+            {/* TWO FUNCTIONS IN ONE STRING, AND THAT IS THE RULE RATHER THAN
+                an oversight: "Travel" is OUR word and takes `t()`, the area is
+                the DETAILER'S and takes `tx()`. The comment here used to say
+                the area "stays as they typed it" — it is in the TRANSLATE set
+                and DeepL has already done it, so what it really needed was the
+                other lookup. */}
             <span>{quote.travel_zone
-              ? t("Travel · {zone}", { zone: quote.travel_zone })
+              ? t("Travel · {zone}", { zone: tx(quote.travel_zone) })
               : t("Travel")}</span>
             <span className="bk-price">{money(quote.travel_fee)}</span>
           </div>

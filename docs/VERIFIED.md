@@ -472,6 +472,83 @@ Invalidated by: `app/src/screens/more/Payments.jsx`, `app/src/screens/more/Plans
 than the product:** a green line over zero subjects reads exactly like a pass.
 Count subjects every run.
 
+## 3g · THE DETAILER'S OWN WORDS, IN SPANISH — lane B, 2026-09-13
+
+**What was proven:** `tx()` is wired through every customer surface and the
+tenant catalogue actually reaches the page. Measured on the demo tenant
+(`demo-detail`, 81 of 81 strings already translated by DeepL) against a
+committed tree with nothing else running.
+
+| | |
+|---|---|
+| proven | the whole seven-step flow renders the detailer's own prose in Spanish; the business name is byte-identical in both languages |
+| at | 2026-09-13, this commit |
+| invalidated by a change to | `app/src/book/**`, `supabase/functions/_shared/translatable.ts`, `supabase/migrations/*translations*` |
+
+### THE NUMBERS
+
+- **Step 1** — six service names and two group headings in Spanish
+  (`Lavado rápido`, `Recubrimiento cerámico`, `EXTERIOR · elige uno`), the
+  feature bullets too.
+- **Step 2** — three add-on names (`Eliminación de pelos de mascotas`).
+- **Step 4** — the service-area sentence (`Long Beach y South Bay`) and **both
+  travel areas**: `Long Beach` unchanged, **`Más allá de las 15 millas`**, which
+  is Andrew's own question of 2026-09-13 answered on the page.
+- **Step 7** — **`Traslado · Más allá de las 15 millas`**, which is the
+  two-functions-in-one-string rule working: *Travel* is ours and took `t()`, the
+  area is the detailer's and took `tx()`. Plus the service, the add-on and the
+  vehicle tier (`Pequeño`).
+- **The masthead** — tagline translated, **name not**: `Coastline Auto
+  Detailing` in both.
+
+### THE CHECK § 7 OF THE HANDOVER ASKED FOR, RUN BY HAND
+
+Two REAL document loads (iframes, a full mount each — **not** `pushState`, which
+is trap (c)): `?lang=en` and `?lang=es`. The business name and the tab title are
+**byte-identical** across the pair; all six service names and the tagline
+**differ**. So the reader distinguishes, and the name survives.
+
+**THE FILE FOR IT IS LANE C'S AND IS NOT WRITTEN.** `tests/` is not lane B's to
+write in. The assertion C needs is exactly the paragraph above.
+
+### WHAT THE INSTRUMENTS WERE BROKEN ON FIRST
+
+- **The overflow scan** was run with a deliberately injected 2000px box: it
+  reported `sideways: true` and 11 offending elements, and `0` with the box
+  removed. It counts and it is not blind.
+- **The language comparison** was proven to distinguish by separating six
+  service names and a tagline across the two loads. **It was NOT baselined
+  against a deliberately translated business name**, because the database
+  refuses to store one — `tests/translations.test.mjs` § 3b and § 3i are that
+  half and they are already green.
+
+### WIDTHS, LANGUAGES AND PATHS
+
+**320 / 392 / 768 / 1024 / 1440**, Spanish, on step 1, step 4 and step 7 (the
+longest strings in the flow): `scrollWidth === clientWidth` at every width, zero
+elements past the right edge. Console clean on a fresh tab — the only entries
+are the two pre-existing React Router future-flag warnings. `?lite=1` renders
+the same Spanish with no overflow and its four animations collapsed to 10ms,
+which is the intended degradation.
+
+### ENGLISH COSTS NOTHING, MEASURED RATHER THAN ASSUMED
+
+Counted off the page's own resource timeline: **`?lang=en` makes ZERO calls to
+`get_business_translations`**; `?lang=es` makes the same number as the profile
+call (two each in dev — React StrictMode double-mounts, which is why the profile
+count is two as well; one each in production).
+
+### ONE THING SEEN ONCE AND NOT REPRODUCED — recorded, not diagnosed
+
+On one brand-new tab's first load the page stayed English with a single
+recorded RPC entry, while every later load and every reload came back Spanish
+with two. **A failed fetch is silently English for the rest of the visit**,
+which is the SPECIFIED fallback (handover § 6) and is safe — but "English
+because one request blipped" and "English because nothing is translated" look
+identical on screen. **No retry was added**: the cause is unproven and an
+unbaselined guard is worse than none. Trap (j) — the reproduction is kept and
+the cause is left open.
+
 ## 4 · FROZEN — recorded, deliberately not fixed
 
 **These are real and they are not being repaired.** Recording them is the

@@ -51,7 +51,7 @@ function PlansInner() {
   // if one appeared and now fails if this page carries hard-coded English
   // instead — the promise and the delivery moved together.
   const lang = useLocale();
-  const { status, business, branding, brandVars, plans, slug } = useBookingBusiness();
+  const { status, business, branding, brandVars, plans, slug, tx } = useBookingBusiness();
   const [email, setEmail] = useState("");
   const [lookup, setLookup] = useState({ sending: false, sent: false });
 
@@ -160,7 +160,7 @@ function PlansInner() {
             {plans.map((p) => (
               <Link key={p.id} className="bk-plan-row" to={`/book/${slug}?plan=${p.id}`}>
                 <div className="bk-plan-body">
-                  <h3>{p.name}</h3>
+                  <h3>{tx(p.name)}</h3>
                   {/* EVERY FACT ITS OWN TOKEN. `.filter(Boolean)` because a
                       plan with no cadence and no term is a bare discount, and
                       an empty chip row is worse than none. */}
@@ -173,7 +173,7 @@ function PlansInner() {
                       <span className="bk-plan-chip" key={chip}>{chip}</span>
                     ))}
                   </div>
-                  {p.description && <p className="bk-muted">{p.description}</p>}
+                  {p.description && <p className="bk-muted">{tx(p.description)}</p>}
                 </div>
                 {/* **THE PRICE AND THE ACTION SHARE A LINE**, and that is
                     height as much as meaning: on its own row the price cost
