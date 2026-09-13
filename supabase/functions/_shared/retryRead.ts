@@ -73,3 +73,44 @@ export async function retryRead<T extends ReadResult>(
   }
   return last;
 }
+
+// ---------------------------------------------------------------------------
+// A READ THAT FAILED IS NOT A READ THAT FOUND NOTHING — 2026-09-13
+// ---------------------------------------------------------------------------
+// **`retryRead` shortens the odds; it cannot make them zero, and this is what
+// the caller does with the one in a thousand that still fails.** The bug it
+// exists to stop is `const { data } = await supabase…` — the error destructured
+// away, `data` null, and the function carrying on as though the row simply did
+// not exist. That is the seventh costume in `FOUND.md`: an instrument reporting
+// fine when it cannot tell.
+//
+// **IT COST A CUSTOMER A BOOKING.** `getSettings` swallowed its error, fell
+// back to the no-settings-row defaults, and those defaults say
+// `mobile_enabled: null` and `dropoff_enabled: null` — correct for a business
+// nobody has set up, and in `available-slots` they make `isDropoff && isMobile`
+// true for EVERY slot, which skips every one. The answer is `200`,
+// `success: true`, a full month of days and **not one bookable time**, and
+// nothing on the page can tell that from a detailer who is fully booked.
+//
+// **SO THE THREE OUTCOMES OF A READ ARE THREE, NOT TWO:** a row, no row, and
+// *we could not find out*. `code === "read_failed"` is the third one, and a
+// caller that turns it into a 503 has told the truth; one that returns an empty
+// success has not. Same shape as the `up_to_date: true | false | null` contract
+// Andrew already approved for the translation gauge.
+export function readFailed(what: string, error: unknown): Error {
+  const msg = (error as { message?: string } | null)?.message ?? String(error);
+  const e = new Error(`could not read ${what}: ${msg}`);
+  // The CODE is what callers branch on, never the sentence — a message gets
+  // reworded and a check that matches one is coupled to the spelling
+  // (CLAUDE.md trap (k)). `available-slots` reads this and answers 503.
+  (e as Error & { code?: string }).code = "read_failed";
+  return e;
+}
+
+// True for anything `readFailed` made, and false for a programmer's TypeError.
+// The distinction decides whether the customer is told "try again" or the
+// failure is ours, so it lives here beside the thrower rather than being
+// re-derived at each catch block.
+export function isReadFailure(err: unknown): boolean {
+  return (err as { code?: string } | null)?.code === "read_failed";
+}

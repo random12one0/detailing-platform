@@ -20,6 +20,7 @@
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
+import { isReadFailure, readFailed, retryRead } from "../_shared/retryRead.ts";
 import { CORS_HEADERS, json, preflight } from "../_shared/http.ts";
 import { businessBySlug, getSettings } from "../_shared/tenant.ts";
 import { dateStrIn, localDateTimeToInstant, weekdayOf } from "../_shared/tz.ts";
@@ -87,12 +88,22 @@ Deno.serve(async (req) => {
     let svcAllowsMobile = true;
     let svcAllowsDropoff = true;
     if (serviceIds.length) {
-      const { data: svcs } = await supabase
-        .from("services")
-        .select("allows_mobile, allows_dropoff, available_weekdays")
-        .eq("business_id", business.id)
-        .eq("is_active", true)
-        .in("id", serviceIds);
+      // A FAILED READ HERE WIDENS THE CALENDAR INSTEAD OF NARROWING IT, which
+      // is the quieter half of the same 2026-09-13 bug. The error used to be
+      // destructured away: `svcs` came back null, `svcs ?? []` iterated
+      // nothing, and every service-level restriction — which weekdays it is
+      // offered on, whether it can be done at the customer's address —
+      // silently did not apply. The customer is then offered a day
+      // `validateSlot` refuses at submit, which is the failure that costs them
+      // the booking after they have filled in six steps.
+      const { data: svcs, error: svcErr } = await retryRead("services", () =>
+        supabase
+          .from("services")
+          .select("allows_mobile, allows_dropoff, available_weekdays")
+          .eq("business_id", business.id)
+          .eq("is_active", true)
+          .in("id", serviceIds));
+      if (svcErr) throw readFailed("services", svcErr);
       for (const sv of svcs ?? []) {
         if (sv.allows_mobile === false) svcAllowsMobile = false;
         if (sv.allows_dropoff === false) svcAllowsDropoff = false;
@@ -127,6 +138,15 @@ Deno.serve(async (req) => {
         guard++;
       }
     }
+    // AN EMPTY RANGE IS A 400, NOT A CRASH AND NOT AN EMPTY SUCCESS. Reversed
+    // dates, or a date that is not a date, leave this list empty — and the next
+    // line reads `days[0]`, so it used to end in a TypeError and a 500 with a
+    // message about `split`. **The one answer it must never become is
+    // `{ success: true, days: {} }`**, which is the shape this whole item is
+    // about: a cheerful empty that the page cannot tell from "nothing is free".
+    if (!days.length) {
+      return json({ success: false, error: "start_date must not be after end_date" }, 400);
+    }
 
     // Batch-fetch everything for the range, scoped to this business. Bookings
     // are stored as absolute instants; pad the window a day each side and
@@ -160,8 +180,18 @@ Deno.serve(async (req) => {
       ? body.exclude_booking_id
       : null;
 
+    // FIVE READS IN ONE `Promise.all`, EACH RETRIED — 2026-09-13. These five
+    // already checked their errors and threw, so they were honest; they were
+    // just five more chances to die. ~1.1% of this project's PostgREST calls
+    // answer 504 and they arrive in bursts of three to six inside one second,
+    // which is what a `Promise.all` landing looks like — so this is the single
+    // most exposed call site in the booking engine, and it is on the path a
+    // customer uses to pick a day.
     const [bookingsRes, blockoutsRes, dropoffRes, overridesRes, hoursRes] = await Promise.all([
-      (() => {
+      // EVERY CLOSURE BUILDS ITS QUERY FRESH, because a retry has to make a new
+      // request: a PostgREST builder is a one-shot thenable and awaiting the
+      // same one twice is not a second attempt.
+      retryRead("slots:bookings", () => {
         let q = supabase
           .from("bookings")
           .select("start_at, end_at")
@@ -182,32 +212,46 @@ Deno.serve(async (req) => {
           .lte("start_at", rangeEndUtc.toISOString());
         if (excludeId) q = q.neq("id", excludeId);
         return q;
-      })(),
-      supabase
-        .from("blockout_dates")
-        .select("all_day, start_time, end_time, start_date, end_date")
-        .eq("business_id", business.id)
-        .lte("start_date", endDate)
-        .gte("end_date", startDate),
-      supabase
-        .from("dropoff_only_periods")
-        .select("start_date, end_date, start_time, end_time, mode")
-        .eq("business_id", business.id)
-        .lte("start_date", endDate)
-        .gte("end_date", startDate),
-      supabase
-        .from("booking_hours_overrides")
-        .select("date, open_time, close_time")
-        .eq("business_id", business.id)
-        .gte("date", startDate)
-        .lte("date", endDate),
-      supabase
-        .from("business_hours")
-        .select("weekday, open_time, close_time")
-        .eq("business_id", business.id),
+      }),
+      retryRead("slots:blockouts", () =>
+        supabase
+          .from("blockout_dates")
+          .select("all_day, start_time, end_time, start_date, end_date")
+          .eq("business_id", business.id)
+          .lte("start_date", endDate)
+          .gte("end_date", startDate)),
+      retryRead("slots:dropoff_periods", () =>
+        supabase
+          .from("dropoff_only_periods")
+          .select("start_date, end_date, start_time, end_time, mode")
+          .eq("business_id", business.id)
+          .lte("start_date", endDate)
+          .gte("end_date", startDate)),
+      retryRead("slots:hours_overrides", () =>
+        supabase
+          .from("booking_hours_overrides")
+          .select("date, open_time, close_time")
+          .eq("business_id", business.id)
+          .gte("date", startDate)
+          .lte("date", endDate)),
+      retryRead("slots:business_hours", () =>
+        supabase
+          .from("business_hours")
+          .select("weekday, open_time, close_time")
+          .eq("business_id", business.id)),
     ]);
-    for (const r of [bookingsRes, blockoutsRes, dropoffRes, overridesRes, hoursRes]) {
-      if (r.error) throw r.error;
+    // NAME THE TABLE THAT FAILED. `throw r.error` threw a PostgREST object with
+    // no indication of which of the five it came from, so the edge log said
+    // "Gateway Timeout" and nothing else — which is how this took a night to
+    // find. `readFailed` also marks it retryable, and the catch block turns
+    // that into a 503 rather than a 500.
+    const named: [string, { error: unknown }][] = [
+      ["bookings", bookingsRes], ["blockout_dates", blockoutsRes],
+      ["dropoff_only_periods", dropoffRes], ["booking_hours_overrides", overridesRes],
+      ["business_hours", hoursRes],
+    ];
+    for (const [table, r] of named) {
+      if (r.error) throw readFailed(table, r.error);
     }
 
     // Bucket bookings by business-local date, as local "HH:MM" windows.
@@ -395,10 +439,29 @@ Deno.serve(async (req) => {
     }
     return json({ success: true, days: dayResults });
   } catch (err) {
-    return new Response(JSON.stringify({ success: false, error: (err as Error).message }), {
-      status: 500,
-      headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
-    });
+    // **A NON-ANSWER IS A 503 AND SAYS SO IN A FIELD, NOT IN A SENTENCE —
+    // 2026-09-13.** The page has to be able to say *"couldn't load times, try
+    // again"* instead of drawing an empty month, and it cannot do that from a
+    // 500 whose only distinguishing mark is an English string that gets
+    // reworded (CLAUDE.md trap (k)). `retryable` is the field to branch on; the
+    // status is the same fact for anything that only reads the status.
+    //
+    // 500 is kept for everything else on purpose. A programmer's TypeError is
+    // not something the customer can fix by pressing the button again, and
+    // telling them to retry for ever would be its own kind of dishonesty.
+    const retryable = isReadFailure(err);
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: (err as Error).message,
+        code: retryable ? "unavailable" : "error",
+        retryable,
+      }),
+      {
+        status: retryable ? 503 : 500,
+        headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+      },
+    );
   }
 });
 

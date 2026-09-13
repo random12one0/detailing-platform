@@ -8,6 +8,7 @@
 //                request body.
 
 import { supabase } from "./db.ts";
+import { readFailed, retryRead } from "./retryRead.ts";
 
 export interface Business {
   id: string;
@@ -116,12 +117,34 @@ export interface BusinessSettings {
 // everything, which is the assumption the migration removed, surviving in the
 // one place nobody would look for it. Null here also makes the fallback agree
 // with what an inserted row now holds.
+//
+// **AND IT THROWS WHEN THE READ FAILED, RATHER THAN RETURNING THE DEFAULTS —
+// 2026-09-13, and this is the fix for an empty calendar a customer could not
+// book from.** The line below used to read `const { data } = await …`, with the
+// error destructured away. ~1.1% of this project's PostgREST calls answer 504
+// (`FOUND.md` § THE "GATEWAY TIMEOUT" IS OUR OWN CATCH BLOCK), and when this
+// was one of them `data` came back null, this function could not tell that from
+// a business with no settings row, and it returned the defaults.
+//
+// **THE DEFAULTS ARE THE RIGHT ANSWER TO THE WRONG QUESTION.** They say
+// `mobile_enabled: null` and `dropoff_enabled: null`, because a business nobody
+// has set up offers neither — and in `available-slots` that makes
+// `isDropoff && isMobile` true for every slot in the grid, which skips every
+// one. The endpoint then answers 200, `success: true`, a full month of open
+// days and **zero bookable times**, which is indistinguishable from a fully
+// booked detailer. Andrew hit it live on `demo-detail`: three month requests in
+// a row with nothing selectable, then the same request fine minutes later.
+//
+// So: a row → the row. No row and no error → the defaults, which is what this
+// fallback was always for. **An error → throw**, and the caller says so.
 export async function getSettings(businessId: string): Promise<BusinessSettings> {
-  const { data } = await supabase
-    .from("business_settings")
-    .select("*")
-    .eq("business_id", businessId)
-    .maybeSingle();
+  const { data, error } = await retryRead("getSettings", () =>
+    supabase
+      .from("business_settings")
+      .select("*")
+      .eq("business_id", businessId)
+      .maybeSingle());
+  if (error) throw readFailed("business_settings", error);
   if (data) return data as BusinessSettings;
   return {
     business_id: businessId,
@@ -194,23 +217,34 @@ export async function getSettings(businessId: string): Promise<BusinessSettings>
 // before a detailer is back; `status` is untouched, because that column is
 // billing's suspension and one column with two meanings would let a detailer
 // reopen a page the platform had darkened for non-payment.
+//
+// **NULL MEANS THERE IS NO SUCH BUSINESS. IT MUST NOT ALSO MEAN WE COULD NOT
+// FIND OUT — 2026-09-13.** Both of these swallowed their error too, and every
+// public endpoint turns a null into `404 unknown_business`. A 504 on this one
+// read therefore told a customer that the detailer whose page they were
+// standing on does not exist. **A 503 saying "try again" is true; a 404 is a
+// lie**, and it is the lie that makes people give up rather than reload.
 export async function businessBySlug(slug: unknown): Promise<Business | null> {
   if (typeof slug !== "string" || !slug.trim()) return null;
-  const { data } = await supabase
-    .from("businesses")
-    .select("id, slug, name, status, timezone, contact_email, contact_phone, dropoff_address, service_area, mailing_address, closed_until, closed_note")
-    .eq("slug", slug.trim().toLowerCase())
-    .eq("status", "active")
-    .maybeSingle();
+  const { data, error } = await retryRead("businessBySlug", () =>
+    supabase
+      .from("businesses")
+      .select("id, slug, name, status, timezone, contact_email, contact_phone, dropoff_address, service_area, mailing_address, closed_until, closed_note")
+      .eq("slug", (slug as string).trim().toLowerCase())
+      .eq("status", "active")
+      .maybeSingle());
+  if (error) throw readFailed("businesses", error);
   return (data as Business) ?? null;
 }
 
 export async function businessById(id: string): Promise<Business | null> {
-  const { data } = await supabase
-    .from("businesses")
-    .select("id, slug, name, status, timezone, contact_email, contact_phone, dropoff_address, service_area, mailing_address, closed_until, closed_note")
-    .eq("id", id)
-    .maybeSingle();
+  const { data, error } = await retryRead("businessById", () =>
+    supabase
+      .from("businesses")
+      .select("id, slug, name, status, timezone, contact_email, contact_phone, dropoff_address, service_area, mailing_address, closed_until, closed_note")
+      .eq("id", id)
+      .maybeSingle());
+  if (error) throw readFailed("businesses", error);
   return (data as Business) ?? null;
 }
 
