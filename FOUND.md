@@ -66,6 +66,25 @@ you, it is a candidate.**
 
 ---
 
+- 2026-09-13 — **THE TENTH COSTUME: `scripts/context-check.mjs` REPORTED ANOTHER
+  SESSION'S CONTEXT AS MINE, WITH A VERDICT ATTACHED.** It takes the most
+  recently written transcript anywhere under `~/.claude/projects/` and its own
+  header called that *"the session you are sitting in"*. With two sessions open
+  that is whichever one wrote last. Measured: it printed
+  `be7ec060… 352,141 tokens (117%) CLEAR NOW` to a session whose id is
+  `5efe326c…` and whose real figure was **314,527**. Both were over the
+  threshold, so the verdict happened to be right and the number was somebody
+  else's — **the most dangerous shape, because nothing looks wrong.**
+  **ANDREW'S STANDING RULE 1 RUNS ON THIS NUMBER** (*every message ends with your
+  context state*), and § WHICH LANE says three or four sessions in one folder is
+  the normal case, so the race is the rule rather than the edge. Fixed: it takes
+  a session id (`node scripts/context-check.mjs <id>`), says whether it was TOLD
+  or GUESSED, and when guessing **names every other transcript written in the
+  last two minutes.** Baselined by running all three paths; the warning fired on
+  the very next guess, naming the other session 3s apart. **A session knows its
+  own id — it is the folder under the scratchpad path in its own environment —
+  so there is no reason to guess.**
+
 ## THE DEFINER SWEEP — 2026-09-13, and it found a cross-tenant PII read
 
 **The eighth costume's parked half, run. 38 `security definer` functions in
