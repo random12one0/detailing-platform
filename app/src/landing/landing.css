@@ -1255,15 +1255,31 @@
 /* THE POOL HAS TO BE DARK ENOUGH TO READ ON, and the first attempt was
    not: at .82 in the middle the tiles behind the headline were still
    legible through it, which makes both harder to read than either alone.
-   Wider, deeper, and reaching further left so the eyebrow is inside it —
-   that label sat on a tile edge and was the least readable thing on the
-   page. */
+
+   ── AND IT WAS CUT OFF TOP AND BOTTOM — Andrew, 2026-09-13 ─────────────
+   His words: *"the top and bottom are just, like, hard cuts."* He is right,
+   and the cause is arithmetic rather than taste. **A radial-gradient's two
+   percentages are its radii measured against the BOX's width and height, and
+   the distance from the centre to an edge is only 50% of that box.** The old
+   figures were `74%` vertically with the last stop at `88%`, so the gradient
+   was still at roughly 62% opacity when it ran out of element — 50/74 of the
+   way along — and an element boundary with paint on it is a straight line. It
+   was doing the same on the right at about 30% opacity, just less visibly.
+
+   **SO EVERY RADIUS NOW REACHES ZERO INSIDE ITS OWN BOX**, which is the whole
+   fix and the rule to keep: the vertical radius is 50% (the exact distance to
+   the top and bottom edges) and the horizontal is 34%, matching the 34% the
+   centre sits at, so the gradient lands on transparent precisely at the left
+   edge and well before the right one. Feathered on all four sides, with no
+   painted edge anywhere for the eye to catch. */
 .ld .wallcopy::before {
   content: ""; position: absolute; z-index: -1;
-  inset: -26% -12% -30% -40%;
-  background: radial-gradient(66% 74% at 30% 50%,
-              rgba(11,13,14,.985), rgba(11,13,14,.94) 42%,
-              rgba(11,13,14,.62) 68%, rgba(11,13,14,0) 88%);
+  /* Tall and offset left, because the copy is left-aligned and the pool is
+     about the WORDS rather than about the column they sit in. */
+  inset: -75% -6% -80% -34%;
+  background: radial-gradient(34% 50% at 34% 50%,
+              rgba(11,13,14,.985), rgba(11,13,14,.93) 38%,
+              rgba(11,13,14,.58) 66%, rgba(11,13,14,0) 100%);
 }
 .ld .wallcopy .disp { font-size: clamp(30px,4.6vw,58px); }
 .ld .wallcopy .lede { margin-top: 20px; max-width: 40ch; }
@@ -1272,9 +1288,12 @@
   .ld .wrow.r1 { --rh: 150px; }
   .ld .wrow.r2 { --rh: 188px; }
   .ld .wrow.r3 { --rh: 132px; }
-  /* The scrim has to cover the whole width once the copy does. */
-  .ld .wallcopy::before { inset: -12% -40% -16% -40%;
-    background: radial-gradient(84% 58% at 50% 50%, rgba(11,13,14,.97), rgba(11,13,14,.86) 52%, rgba(11,13,14,.34) 92%); }
+  /* The scrim has to cover the whole width once the copy does — and it had
+     the same cut top and bottom, worse: `58%` vertical with the last stop at
+     `92%` left it at about 34% opacity on both edges. Same fix, centred. */
+  .ld .wallcopy::before { inset: -55% -30% -60% -30%;
+    background: radial-gradient(50% 50% at 50% 50%, rgba(11,13,14,.97),
+                rgba(11,13,14,.88) 46%, rgba(11,13,14,.42) 74%, rgba(11,13,14,0) 100%); }
 }
 @media (max-width: 560px) {
   .ld .wrow.r1 { --rh: 124px; }
@@ -1284,8 +1303,19 @@
      them on a phone. The rows are what the section is; the height follows
      them rather than the viewport. */
   .ld .wall { min-height: 0; padding: clamp(56px,8vh,90px) 0 clamp(44px,6vh,72px); }
-  .ld .wallrows { position: relative; inset: auto; margin: 0 calc(-1 * var(--gut)); }
-  .ld .wallcopy { margin-top: clamp(-190px, -22vh, -140px); }
+  /* ── THE COPY SITS ON THE MIDDLE ROW, AT EVERY WIDTH — Andrew, 2026-09-13.
+     The rows come out of `absolute` here so they can set the section's height,
+     and the copy was then pulled back over them by a negative margin. **A
+     negative margin cannot centre anything**: it was a figure tuned at one
+     width, and at 392 it left the headline and the whole lede hanging below
+     the last row over bare ground, with ~240px of empty black under that.
+
+     Both children share ONE grid cell instead, and the copy centres itself in
+     it. That is the same relationship the desktop layout already has — where
+     the rows are absolute over a centred grid — so the two widths now agree by
+     construction rather than by a number somebody re-tunes. */
+  .ld .wallrows { position: relative; inset: auto; margin: 0 calc(-1 * var(--gut)); grid-area: 1 / 1; }
+  .ld .wallcopy { grid-area: 1 / 1; align-self: center; margin-top: 0; }
 }
 
 /* ═══ 4b. THE FIGURE — the cut-out, built into the band ═══════════════

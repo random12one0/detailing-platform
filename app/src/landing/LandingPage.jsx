@@ -167,24 +167,39 @@ export default function LandingPage() {
       href: "#thr",
     },
   ];
-  /* THE WALL'S TILES, AS DATA. The headline counts them, so the number on
-     the page cannot drift from the number of pictures under it — this repo
-     has had four different stale counts written into prose, and a marketing
-     claim is a worse place for the fifth than a comment is.
-     EIGHTEEN, EACH USED ONCE. Nine was the first set and every row repeated
-     the same handful, which is the duplication the owner saw straight away.
-     All from ex1/ex2/ex3 — the older `example*` mock-ups are out, including
-     the orange one that kept catching the eye. */
+  /* THE WALL'S TILES, AS DATA. The headline no longer counts them, which is
+     why there is no number to go stale — this repo has had five stale counts
+     written into prose and a marketing claim is a worse place for a sixth.
+
+     TWENTY-FOUR AS OF 2026-09-13, EACH USED ONCE. Examples 4 and 5 exist and
+     build now, and Andrew asked for them in: *"Examples 4 and 5 now exist and
+     build. Add them."*
+
+     **AND THEIR SHOTS ARE FROM DIFFERENT PARTS OF EACH PAGE, WHICH WAS HIS
+     ACTUAL POINT** — *"take them from DIFFERENT parts of each site's page…
+     so the strip does not look like five copies of the same hero."* One hero
+     apiece and then the sections that are least like a hero: ex4's timeline
+     and its work gallery, ex5's eight-step wash list and its service-area
+     chips. Chosen by rendering a six-frame contact sheet of each page and
+     LOOKING at it, which is the rule `CLAUDE.md` records after a Bugatti in
+     another firm's branding got as far as a finished hero.
+
+     THE FIVE HEROES ARE ONE PER ROW AND NEVER ADJACENT, for the same reason:
+     five site headers in a row is the duplication he saw in the first version
+     of this wall from ten feet away. */
   const WALL = [
     [["site-ex1-home", "A detailer's site"], ["book-5-time", "Picking a time"],
-     ["dash-today", "Today"], ["site-ex2-mid", "Services and prices"],
-     ["book-2-extras", "Adding extras"], ["dash-clients", "Their customers"]],
-    [["site-ex2-home", "A detailer's site"], ["book-1-service", "Choosing a service"],
-     ["dash-calendar", "The month"], ["site-ex3-prices", "Their prices"],
-     ["book-6-contact", "Their details"], ["site-ex1-work", "Their work"]],
-    [["site-ex3-home", "A detailer's site"], ["book-7-review", "Before they confirm"],
-     ["dash-money", "The money"], ["site-ex1-prices", "Their prices"],
-     ["book-3-vehicle", "Their vehicle"], ["book-4-where", "Where to go"]],
+     ["site-ex4-visit", "How a visit runs"], ["dash-today", "Today"],
+     ["site-ex2-mid", "Services and prices"], ["book-2-extras", "Adding extras"],
+     ["site-ex5-area", "Where they go"], ["dash-clients", "Their customers"]],
+    [["site-ex4-home", "A detailer's site"], ["book-1-service", "Choosing a service"],
+     ["site-ex5-wash", "What's in a wash"], ["dash-calendar", "The month"],
+     ["site-ex3-prices", "Their prices"], ["book-6-contact", "Their details"],
+     ["site-ex2-home", "A detailer's site"], ["site-ex1-work", "Their work"]],
+    [["site-ex5-home", "A detailer's site"], ["book-7-review", "Before they confirm"],
+     ["site-ex4-work", "Their work"], ["dash-money", "The money"],
+     ["site-ex1-prices", "Their prices"], ["book-3-vehicle", "Their vehicle"],
+     ["site-ex3-home", "A detailer's site"], ["book-4-where", "Where to go"]],
   ];
   const WALL_SPEED = ["46s", "58s", "40s"];
 
