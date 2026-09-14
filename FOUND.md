@@ -5,6 +5,54 @@ Claude Cowork decides what becomes work.
 
 ---
 
+## THE SECOND RUN WENT 89/1, AND THE ONE FAILURE IS THE SAME QUESTION — 2026-09-14
+
+**A free re-run** (`--to=e2e@fixture.test`, same frozen build on 4175) **completed
+BOTH tenants: 89 passed, 1 failed, 0 skipped.** The 00:00 run’s nine cascading
+failures did not reproduce — the booking succeeded this time — so that refusal is
+**intermittent**, which makes it more worth chasing rather than less.
+
+**THE ONE FAILURE:**
+
+```
+  FAIL  the cancelled time 09:00 is offered again — 08:00 14:00 15:00
+```
+
+**MEASURED, on the demo tenant, 2026-09-17:** a **confirmed booking for "Sam
+Delgado" holding 10:00–15:30** local (`America/Los_Angeles`), and
+`buffer_minutes: 45`. That legitimately removes 09:00 for any service running
+past 09:15, and it is consistent with the offered list — 08:00 present, the
+whole 09:00–13:00 band gone, 14:00 and 15:00 back.
+
+**SO THE PRODUCT LOOKS RIGHT AND THE QUESTION IS SHARPER THAN "IS THE SLOT
+RELEASED?": the run BOOKED 09:00 a few minutes earlier in the same pass.** If
+09:00 is correctly unavailable now, it was correctly unavailable then, and
+something offered it anyway. **That is the same disagreement as the 00:00
+refusal, seen from the other side** — and both are the failure
+`docs/tenant-site-contract.md` names: *a form can only OFFER a slot the server
+then refuses.*
+
+**THE THREE THINGS A FRESH SESSION SHOULD DO, IN ORDER:**
+
+1. **Print what the run chose and what `available-slots` listed at each step.**
+   One line each, before booking and before the cancel check. That separates
+   "the page offered it" from "the script clicked it" in a single run.
+2. **Check whether the reschedule in section 6 moves the booking**, because if
+   it does, the cancel check is asking about a time the booking no longer
+   occupies — a stale expectation rather than a product fault, and the cheapest
+   of the three answers.
+3. **Only then** compare `available-slots` and `validateSlot` on the buffer.
+
+**AND `Sam Delgado` IS A SEED NAME, NOT TEST RESIDUE** — `w-delgado` is one of
+the tenant sites — so this is `seed-demo.mjs`’s own booking, not a leftover. The
+8 accumulated future bookings recorded above are still real and still unswept,
+but they are not the cause of THIS one.
+
+**THE NULL-NAVIGATION GUARD IS IN AND DID NOT FIRE THIS RUN**, because the
+booking succeeded. It is still correct — the 00:00 run is the proof of what it
+prevents — but say plainly: **it has been run without being exercised.** The
+next refused booking is its first real test.
+
 ## THE SIX EMAIL LEGS ARE PROVEN — AND THE RUN FOUND SOMETHING NEW. 2026-09-14
 
 **JOB DONE FIRST: the provider legs are real.** Run started at **00:00:08 UTC**,

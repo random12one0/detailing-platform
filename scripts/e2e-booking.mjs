@@ -706,6 +706,20 @@ async function loop({ slug, dashboard }) {
     // -----------------------------------------------------------------------
     step(`${dashboard ? 6 : 5}. the customer moves it from the receipt page`);
     // -----------------------------------------------------------------------
+    // **A NULL PATH IS A SKIP, NOT A NAVIGATION — 2026-09-14.** When the booking
+    // is refused, `receiptPath` is null and this did
+    // `page.goto("http://127.0.0.1:4175" + null)`, which Playwright rejects as an
+    // invalid URL and THROWS. On the 00:00 run that ended the whole pass at
+    // 19 passed / 10 failed with the SECOND TENANT never attempted — one refused
+    // booking cost every subject below it, and the summary said nothing about
+    // which ones were never reached. Trap (c)’s family: a check that dies partway
+    // prints an exit code and no account of what it skipped.
+    //
+    // It costs one leg now instead of a tenant, and it SAYS so.
+    if (!receiptPath) {
+      skipped(13, "the receipt page and the cancel — no receipt path, because the booking "
+        + "above was refused or never created, so both sections had nothing to act on");
+    } else {
     await page.goto(`${BASE}${receiptPath}`, { waitUntil: "domcontentloaded" });
     await page.waitForSelector(".bk-card, .bk-center h2", { timeout: 30000 });
     await settle(page, 1800);
@@ -859,6 +873,10 @@ async function loop({ slug, dashboard }) {
       ok(`the cancelled time ${TIME} is offered again`, free.includes(TIME), free.join(" "));
     }
 
+    }  // end: there was a receipt path
+
+    // **OUTSIDE THE GUARD ON PURPOSE.** A refused booking is exactly when a
+    // console error is most worth knowing about, so this one still runs.
     ok("no console errors anywhere in the loop", consoleErrors.length === 0,
       consoleErrors.slice(0, 3).join(" | "));
   } finally {
