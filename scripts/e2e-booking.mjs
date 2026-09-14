@@ -526,6 +526,11 @@ async function loop({ slug, dashboard }) {
           [".bk-field input[type=email]", CUSTOMER_EMAIL],
           [".bk-field input[autocomplete=name]", NAME],
           [".bk-field input[autocomplete=street-address]", "140 Market Street, Long Beach, CA"],
+          // The vehicle year, added roadmap 2026-09-14 — required, an estimate
+          // is fine. Keyed on `inputmode=numeric`, a real DOM attribute, never
+          // on the step's heading (CLAUDE.md trap (h)); it would otherwise be
+          // caught by the free-text fallback below and filled with an address.
+          [".bk-field input[inputmode=numeric]", "2019"],
         ]) {
           if (!(await page.locator(sel).count())) continue;
           if (sel.includes("autocomplete=name")) sawNameBox = true;
