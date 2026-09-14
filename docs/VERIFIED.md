@@ -428,7 +428,7 @@ this repo could have caught it.** The call now sends `{ q }` and nothing else.
 **There is no runnable regression check for any of the table above.** The rules
 live in `app/src/book/core.js` as `ADDRESS_MIN`, `canLookUpAddress`,
 `readAddressAnswer` and `addressFault`, so they belong in
-`tests/booking-core.test.mjs` as a § 18 — **the four-character floor, an empty
+`tests/booking-core.test.mjs` as a **§ 19 — § 18 was taken by the vehicle-to-tier matcher on 2026-09-13, see § 1h** — **the four-character floor, an empty
 `suggestions` array being a real answer rather than a failure, 429 being the only
 status that produces a sentence, and `website` never appearing in the request
 body.** Everything in the table was measured by hand and is un-guarded until
