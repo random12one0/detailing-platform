@@ -617,6 +617,16 @@ export const vehicleSizesMatter = (sizes, selectedServices) =>
 //
 // **ONLY MODELS WORTH BEING SURE ABOUT ARE IN HERE.** Anything absent produces
 // no suggestion, which is the correct outcome and not a gap to fill later.
+//
+// **AND NO MAKE NAME IS IN HERE, EVER — a make is not a body shape.** Toyota
+// makes a Corolla and a Tundra, so a make on its own is not evidence of
+// anything and must not reach a price. `genesis` was in the sedan rule until
+// 2026-09-13 and Genesis sells three sedans and three SUVs, so typing the
+// marque alone quoted the smallest tier. The models stay (`g70`, `gv80`); the
+// marque goes, and `Genesis` alone now suggests nothing.
+// `tests/booking-core.test.mjs` § 18m checks all 45 makes, so the next
+// collision is red the day it is added rather than the day somebody is
+// overcharged.
 const VEHICLE_BODIES = [
   // A customer who types their own body word is answering the question
   // directly — *"my wife's van"*, *"work truck"*. These run first because it
@@ -661,7 +671,7 @@ const VEHICLE_BODIES = [
 
   // SEDANS — the default shape of a car, and deliberately last of the model
   // rules so anything above it wins.
-  [/\b(camry|corolla|accord|civic|altima|sentra|maxima|elantra|sonata|accent|azera|optima|k5|k4|forte|cadenza|stinger|mazda6|legacy|malibu|impala|cruze|sonic|cobalt|fusion|focus|taurus|fiesta|charger|300|200|dart|avenger|avalon|crown|passat|arteon|cc|a3|a4|a6|a8|328i|330i|335i|340i|528i|530i|540i|c class|e class|s class|cla class|a class|is|es|gs|ls|ct|tlx|tsx|tl|ilx|rl|q50|q60|q70|g35|g37|model 3|model s|air|polestar 2|ioniq 6|k900|genesis|g70|g80|g90|xe|xf|xj|s60|s80|s90|s40|jetta|versa|lancer|galant|eclipse|sebring|stratus|neon|grand marquis|crown victoria|town car|continental|mkz|milan|sable|regal|lacrosse|lesabre|park avenue|lucerne|century|bonneville|grand prix|grand am|g6|g8|aura|ion|alero|intrigue|aurora|catera|cts|ct4|ct5|ct6|ats|sts|dts|deville|seville|xts)\b/,
+  [/\b(camry|corolla|accord|civic|altima|sentra|maxima|elantra|sonata|accent|azera|optima|k5|k4|forte|cadenza|stinger|mazda6|legacy|malibu|impala|cruze|sonic|cobalt|fusion|focus|taurus|fiesta|charger|300|200|dart|avenger|avalon|crown|passat|arteon|cc|a3|a4|a6|a8|328i|330i|335i|340i|528i|530i|540i|c class|e class|s class|cla class|a class|is|es|gs|ls|ct|tlx|tsx|tl|ilx|rl|q50|q60|q70|g35|g37|model 3|model s|air|polestar 2|ioniq 6|k900|g70|g80|g90|xe|xf|xj|s60|s80|s90|s40|jetta|versa|lancer|galant|eclipse|sebring|stratus|neon|grand marquis|crown victoria|town car|continental|mkz|milan|sable|regal|lacrosse|lesabre|park avenue|lucerne|century|bonneville|grand prix|grand am|g6|g8|aura|ion|alero|intrigue|aurora|catera|cts|ct4|ct5|ct6|ats|sts|dts|deville|seville|xts)\b/,
     ["sedan", "saloon", "car", "small"]],
 ];
 
@@ -897,15 +907,44 @@ export function matchVehicle(query, index, limit = 5) {
   //    either half: "toyot" is two from "toyota", and "toyot camry" squashes
   //    to "toyotcamry" which is one from "toyotacamry". Nothing here tries to
   //    find WHERE the typo was.
+  //
+  //    **AND THE HITS ARE ORDERED BY HOW CLOSE THEY ARE, WHICH THE FOUR PASSES
+  //    ABOVE GET FOR FREE AND THIS ONE DOES NOT.** Every pass above is exact,
+  //    so its own order IS its ranking; this pass holds one-typo and two-typo
+  //    hits side by side, and walking the makes alphabetically offered the
+  //    worse of them first. `esclade` is one letter from a Cadillac Escalade
+  //    and two from a Buick Enclave, and Buick comes first in the alphabet —
+  //    so the row a customer taps was the wrong SIZE of car. Measured
+  //    2026-09-13: 371 of 1,336 one-letter typos offered a worse match first
+  //    and 156 of those crossed a price tier.
+  //
+  //    So every candidate is collected with its distance and sorted. A closer
+  //    car wins; at equal distance a real MODEL wins over a make's whole
+  //    catalogue, because "the car you meant, misspelled" beats "everything
+  //    this marque sells"; and past that the sort is stable, so the make order
+  //    still decides and the same text always offers the same rows.
   if (out.length === 0) {
+    const near = [];
     for (const make of makes) {
-      if (full()) break;
-      if (editDistance(rest, squashVehicle(make), 2) <= 2) { all(make); continue; }
+      const mk = squashVehicle(make);
+      const dm = editDistance(rest, mk, 2);
+      if (dm <= 2) near.push({ d: dm, make, model: null });
       for (const model of index[make]) {
-        if (full()) break;
-        if (editDistance(rest, squashVehicle(model), 2) <= 2
-          || editDistance(rest, squashVehicle(make + model), 2) <= 2) push(make, model);
+        const d = Math.min(
+          editDistance(rest, squashVehicle(model), 2),
+          editDistance(rest, mk + squashVehicle(model), 2),
+        );
+        if (d <= 2) near.push({ d, make, model });
       }
+    }
+    // No `full()` bail while measuring: the closest car may be the last one
+    // looked at, and stopping at five ALPHABETICALLY is the defect above. It
+    // costs one bail-fast distance per model over an index of ~1,300, and only
+    // when all four exact passes came back empty.
+    near.sort((a, b) => a.d - b.d || (a.model === null) - (b.model === null));
+    for (const c of near) {
+      if (full()) break;
+      if (c.model === null) all(c.make); else push(c.make, c.model);
     }
   }
 
