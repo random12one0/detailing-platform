@@ -989,3 +989,22 @@ Andrew paid for every number above once. **The cost of this file is one `git
 diff --name-only`; the cost of not having it is a full re-measure of five widths
 across fifteen screens, plus the five withdrawn findings in § 2 being reported a
 second time.** That is the arithmetic — see `docs/ECONOMY.md`.
+
+## 1f · PROVEN TONIGHT — lane C, 2026-09-13/14, at `e6f27fd`
+
+| what was proven | number | invalidated by a change to |
+|---|---|---|
+| **The six provider email legs are REAL, not skipped** — the day rolled and the provider was actually called | `e2e-booking` at **00:00:08 UTC**: *the provider took it*, *the customer email reached delivered@resend.dev*, *the owner email skipped as undeliverable* | `supabase/functions/send-email/**`, `_shared/email*.ts`, the email-budget migrations |
+| **`e2e-booking` completes both tenants** | **89 passed, 1 failed, 0 skipped** — free run, frozen build on 4175 | `scripts/e2e-booking.mjs`, `app/src/book/**`, `supabase/functions/create-booking/**` |
+| Seven `platform-admin` checks guarded an unreachable mechanism; they skip now and re-arm themselves | one added `beginImpersonation` call turned all seven skips into passes | `app/src/lib/impersonation.js`, `app/src/App.jsx`, `app/src/admin/AdminPage.jsx` |
+| `tenant-isolation` compares real rows in all five tables, **customers included** | **45 passed, 0 failed** — was 40, and three of the five tables had **zero** A-rows | `tests/tenant-isolation.test.mjs` and the RLS policies it reads |
+| `check-deployed` names an uncommitted function **DIRTY** rather than current | clean tree `all 37 functions are current`, exit 0; a probe on `create-booking` names it alone; a probe on `_shared/pricing.ts` names all six importers | `scripts/check-deployed.mjs`, `scripts/lib/sharedDeps.mjs` |
+| `adversary-probe` reads the **whole** 10,781-character public profile, behind a parsed positive control | **54 passed, 0 failed**; `pay_venmo` red on the full read and green the instant the 4,000 slice returns | `scripts/adversary-probe.mjs`, `get_public_business_profile` |
+| Five double-booking and never-translate guards require their subject to exist | `timezone-and-slots` 34/0, `booking-engine` 105/0, `translations` 69/0/0 — each baselined red | those three files, `available-slots`, the translation classifier |
+| `render-emails` fails if a template is exported and never rendered | *all 16 exported templates are rendered*; deleting both rows gives 27 emails, 1 problem, exit 1 | `_shared/emailTemplates.ts`, `scripts/render-emails.mjs` |
+| The credential-free battery, after every change above | `composition` 97, `landing-pricing` 109, `route-contract` 34, `booking-core` 237, `gateway-retry` 15, `definer-grants` 11, `em-dash` 0 findings, `design-contrast` all pairs | `app/src/**` |
+
+**THE ROW NOT TO MISREAD IS THE SECOND.** *89 passed, 1 failed* is **not a clean
+bill** — `FOUND.md` § THE SECOND RUN WENT 89/1 carries the open question, and the
+00:00 run of the same script went **19/10 and then threw**. **The refusal is
+intermittent**, so a single green run is not evidence that it is gone.
