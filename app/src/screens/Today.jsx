@@ -136,7 +136,14 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
   const missingKeys = missingSteps.map(([k]) => k);
   const collapsedFor = settings?.setup?.todayCollapsedFor ?? [];
   const somethingNew = missingKeys.some((k) => !collapsedFor.includes(k));
-  const collapsed = !!settings?.setup?.todayCollapsed && !somethingNew;
+  // **A REAL BLOCKER CANNOT BE COLLAPSED AWAY — Andrew's correction,
+  // 2026-09-14.** "Your page isn't fully set up" behind a Hide is fine for
+  // nine cosmetic leftovers; it is not fine for "customers can't book you",
+  // which has to be the thing a detailer sees without pressing anything.
+  // So the fold itself is unavailable while `stopsBooking` is non-empty,
+  // whatever was last saved — collapsing only ever hides the cosmetic list.
+  const collapsed = stopsBooking.length === 0 && !!settings?.setup?.todayCollapsed && !somethingNew;
+  const canCollapse = stopsBooking.length === 0;
   const toggleCollapsed = useCallback(async (next) => {
     const now = settings?.setup ?? {};
     await supabase.from("business_settings").upsert(
@@ -602,11 +609,13 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div className="row between" style={{ alignItems: "flex-start", gap: 8 }}>
                 <strong>{t("Your page isn't fully set up")}</strong>
-                <button onClick={() => toggleCollapsed(true)} style={{
-                  background: "none", border: 0, color: "var(--accent-text)",
-                  fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap",
-                  font: "inherit", fontSize: "var(--t-meta)",
-                }}>{t("Hide")}</button>
+                {canCollapse && (
+                  <button onClick={() => toggleCollapsed(true)} style={{
+                    background: "none", border: 0, color: "var(--accent-text)",
+                    fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap",
+                    font: "inherit", fontSize: "var(--t-meta)",
+                  }}>{t("Hide")}</button>
+                )}
               </div>
               {/* LEAD WITH WHAT ACTUALLY STOPS A BOOKING OR A PAYMENT — never
                   more than the three real ones. Everything else is real but
