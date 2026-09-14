@@ -31,7 +31,7 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
   // takes `t()`, theirs takes `tx()`.
   const sizeRow = (settings?.vehicle_sizes ?? []).find((s) => s.key === form.vehicleSize);
   const sizeLabel = sizeRow ? sizeText(sizeRow, "label", tx) : "";
-  const vehicleLine = [form.vehicleModel?.trim(), sizeLabel].filter(Boolean).join(" · ");
+  const vehicleLine = [form.vehicleYear?.trim(), form.vehicleModel?.trim(), sizeLabel].filter(Boolean).join(" · ");
 
   // ROADMAP 8.10 — CARS ON DIFFERENT DAYS ARE SEPARATE APPOINTMENTS, so the
   // card at the top of this step becomes a list of them. The server sends one

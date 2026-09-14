@@ -640,7 +640,7 @@ function BookingFlow({ notFound = null }) {
           />
         )}
         {stepName === "Vehicle" && (
-          <StepVehicle form={form} setForm={setForm} selectedServices={selectedServices} />
+          <StepVehicle form={form} setForm={setForm} selectedServices={selectedServices} blocks={stepBlocks} />
         )}
         {stepName === "Location" && (
           <StepLocation form={form} setForm={setForm} modeLimit={modeLimit} blocks={stepBlocks} />

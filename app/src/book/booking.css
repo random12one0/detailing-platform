@@ -227,6 +227,17 @@
    roadmap 2.4 while checking whether "almost any colour works" held on the
    customer's side. Buttons keep `text-decoration: none` from `.bk-btn`. */
 .bk-muted a, .bk-body a { text-decoration: underline; text-underline-offset: 3px; }
+/* A button that reads like the link beside it — it changes state on this
+   page rather than navigating, so it stays a <button>, styled to match. */
+.bk-linklike {
+  background: none; border: 0; padding: 0; margin: 0; cursor: pointer;
+  font: inherit; color: inherit; text-decoration: underline; text-underline-offset: 3px;
+  position: relative;
+}
+/* THE 44px FLOOR, ON A MARK THAT STAYS TEXT-SIZED — the negative-inset
+   pattern `.btn.sm` already uses. The paint is deliberately small; the tap
+   target is not the paint. */
+.bk-linklike::after { content: ""; position: absolute; inset: -12px -6px; }
 .bk-muted a.bk-btn, .bk-body a.bk-btn { text-decoration: none; }
 /* The eyebrow: 11px, wide-tracked, narrow-cut. Same shape everywhere it
    appears, which is what makes it read as one voice. */
@@ -682,6 +693,9 @@
 .bk-chips { display: flex; flex-wrap: wrap; gap: 7px; }
 
 .bk-field { display: block; }
+/* A year is four digits — sized to what it holds, not the full row a name or
+   an address needs. */
+.bk-field.bk-year input { max-width: 110px; }
 .bk-field > span {
   display: block; font-family: var(--bk-f-body);
   font-variation-settings: "wdth" 72, "wght" 620;

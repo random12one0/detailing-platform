@@ -33,7 +33,7 @@
 // every business until a detailer says otherwise, and at 1 this file renders
 // exactly what it rendered before the item.
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { t } from "../../lib/i18n.js";
 import { useLocale } from "../../hooks/useLocale.js";
 import { money } from "../../lib/format.js";
@@ -104,10 +104,18 @@ export const sizeText = (s, field, tx) =>
 const SIZE_CARD_CEILING = 4;
 
 
-export default function StepVehicle({ form, setForm, selectedServices }) {
+export default function StepVehicle({ form, setForm, selectedServices, blocks = [] }) {
   useLocale();
   const { settings, tx } = useBookingBusiness();
   const sizes = settings.vehicle_sizes;
+  const needYear = blocks.includes("no-year");
+  // **THE QUESTION COMES OUT WHEN THE ANSWER ALREADY CAME FROM WHAT THEY
+  // TYPED — Andrew's ask, 2026-09-14.** A confident match against the
+  // detailer's own checklist (`core.js` § suggestVehicleSize) means there is
+  // nothing to ask; the computed size is shown instead, with a way to open
+  // the picker back up if it is wrong. Never silent — the sentence below the
+  // vehicle field is what makes it not silent.
+  const [manualOverride, setManualOverride] = useState(false);
 
   // The size arithmetic, the four-way condition scale and the vehicle count
   // are `core.js`'s — they decide what reaches `bookings`. The CEILING above
@@ -264,7 +272,7 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
       ) : (
         <>
           {sizesMatter ? (
-            asList ? (
+            suggestedSize && !manualOverride ? null : asList ? (
               <label className="bk-field">
                 <span>{t("Vehicle size")}</span>
                 <select value={form.vehicleSize} onChange={(e) => pick(e.target.value)}>
@@ -340,7 +348,7 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
             <VehicleField
               ariaLabel={t("What are you bringing? (optional)")}
               value={form.vehicleModel}
-              placeholder={t("e.g. 2019 Honda Civic")}
+              placeholder={t("e.g. Honda Civic")}
               onChange={(v) => setForm((f) => ({ ...f, vehicleModel: v }))}
             />
             {/* THE "WHY", AND IT SITS UNDER THE BOX THAT CAUSED IT RATHER THAN
@@ -357,20 +365,45 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
                 word, so it is true on a business whose sizes are called
                 anything at all.
 
-                NO "change it if that is wrong" AFTER IT. The card is outlined,
-                tappable and two blocks up; the sentence would be telling
-                somebody a control does what it visibly does. */}
-            {suggestedSize && (
+                **AND NOW IT CARRIES THE "CHANGE IT" LINK — 2026-09-14.** The
+                card used to be right there, two blocks up, outlined and
+                tappable, so a link here would have told somebody a control does
+                what it visibly does. Andrew's own design removed that card
+                the moment a match is confident, so the only way back to it is
+                this sentence: never silent, and never a dead end. */}
+            {suggestedSize && !manualOverride && (
               <p className="bk-muted bk-suggested" role="status">
                 {t("{vehicle} · set to {size}", {
                   vehicle: suggested.matched,
                   size: sizeText(suggestedSize, "label", tx),
-                })}
+                })}{" "}
+                <button type="button" className="bk-linklike" onClick={() => setManualOverride(true)}>
+                  {t("Not right?")}
+                </button>
               </p>
             )}
           </div>
         </>
       )}
+
+      {/* ROADMAP — THE YEAR, Andrew's ask 2026-09-14. Required, but an
+          ESTIMATE is fine: the wording says so up front so nobody stalls
+          hunting down the exact number. It is for the detailer to judge
+          condition against, never wired to price — `bookingRequest` sends it
+          straight through and `_shared/pricing.ts` never reads it. */}
+      <label className="bk-field bk-year">
+        <span>{t("Year")}</span>
+        <input
+          inputMode="numeric"
+          maxLength={4}
+          value={form.vehicleYear}
+          placeholder={t("e.g. 2019")}
+          onChange={(e) => setForm((f) => ({ ...f, vehicleYear: e.target.value.replace(/[^0-9]/g, "").slice(0, 4) }))}
+        />
+      </label>
+      <p className={needYear ? "bk-error" : "bk-muted"} style={{ marginTop: -8 }}>
+        {needYear ? t("Add a year to continue. An estimate is fine.") : t("An estimate is fine — it does not have to be exact.")}
+      </p>
 
       {/* W27. One row of four, which is the whole reason it is chips and not
           cards: it is a fact about the car, not a thing being bought, and this
