@@ -5,6 +5,71 @@ Claude Cowork decides what becomes work.
 
 ---
 
+## THE SIX EMAIL LEGS ARE PROVEN — AND THE RUN FOUND SOMETHING NEW. 2026-09-14
+
+**JOB DONE FIRST: the provider legs are real.** Run started at **00:00:08 UTC**,
+the moment the day rolled, against a frozen build on `BASE=http://127.0.0.1:4175`.
+
+```
+  ok    the provider took it
+  ok    the customer email reached the provider (delivered@resend.dev)
+  ok    the owner email was addressed to demo@example.com, and skipped as undeliverable
+```
+
+**Those three had SKIPPED on every run since the cap was added.** They are
+passes now, not skips — the day’s allowance had reset and the provider was
+called for real. `docs/e2e-booking-triage-2026-09-13.md` § 3 is closed.
+
+**AND THE RIG DID ITS JOB, which is worth recording.** The run printed:
+*"3 file(s) under app/src changed during this run — `lib/strings/es.js`,
+`book/BookingPage.jsx`, `book/steps/StepWhen.jsx`. THIS RUN STANDS: BASE is not
+the dev server, so the subject was a frozen build and no edit could reach it."*
+**Lane B edited the booking flow mid-run and the measurement was unaffected.**
+That is trap (f) retired rather than dodged.
+
+---
+
+## AND THE NEW THING, WHICH IS NOT THE EMAIL ITEM AND NEEDS A FRESH SESSION
+
+**THE FIRST TENANT’S BOOKING WAS REFUSED BY THE SERVER AFTER THE PAGE OFFERED
+THE SLOT.**
+
+```
+  FAIL  the booking was not refused — That time is too close to another
+        booking. Please choose a different time.
+```
+
+**THAT IS THE EXACT DANGER `docs/tenant-site-contract.md` NAMES**: a form can
+never mis-charge or double-book, *"it can only OFFER a slot the server then
+refuses, which costs a customer their booking and is the harder failure to
+see."* Here it is, on OUR OWN booking page rather than a bespoke one.
+
+**TWO CANDIDATE CAUSES AND THIS SESSION MEASURED NEITHER:**
+
+1. **`available-slots` and `create-booking` disagree about the buffer.** The
+   real defect, and the expensive one. `available-slots` would be offering a
+   time the exclusion constraint and `validateSlot` then reject.
+2. **The script clicks a cell without reading availability**, so it chose a
+   time nothing ever offered. A test artifact, and the cheap answer.
+
+**WHAT IS KNOWN:** the demo tenant carries **8 future bookings** accumulated
+from earlier runs — 14 Sep 00:00, 15 Sep 16:00 and 21:00, 17 Sep 17:00, 20 Sep
+18:00, 23 Sep 20:30, 25 Sep 17:00, 27 Sep 15:30. A 2-hour service plus a buffer
+near any of those collides. **Nothing clears them between runs**, so the demo
+calendar gets denser every day and this will recur and worsen.
+
+**HOW TO TELL THE TWO APART IN ONE STEP:** make the script PRINT the day and
+time it chose and whether `available-slots` listed it, then compare. If it was
+listed, it is cause 1 and it is a product defect on the path a customer uses.
+
+**AND A ROBUSTNESS BUG IT EXPOSED, WHICH IS LANE C’s AND IS CHEAP.** The refusal
+left `receiptUrl` null, and the script then did `page.goto(BASE + null)` —
+`http://127.0.0.1:4175null` — and **threw**, ending the run at 19 passed / 10
+failed instead of completing both tenants. A check that dies partway prints an
+exit code and nothing that says which subjects it never reached, which is trap
+(c)’s family. **Guard the navigation and skip loudly** so one refused booking
+costs one leg rather than the second tenant entirely.
+
 ## THE DOUBLE-BOOKING GUARD WAS HOLLOW IN A SECOND SUITE — lane C, 2026-09-13
 
 **`tests/timezone-and-slots.test.mjs` asked `!r.data?.slots?.includes("14:00")`
