@@ -10,6 +10,7 @@
 //
 // Input: { business_slug, customer_name, customer_phone, customer_email?,
 //          customer_address?, service_type, vehicle_size, vehicle_model?,
+//          vehicle_year? (4 digits, an estimate, never priced),
 //          service_ids[], add_ons[], booking_date, start_time,
 //          has_water_electric?, has_water?, has_power?, vehicle_condition?,
 //          customer_notes?, applied_promo_code?,
@@ -424,6 +425,12 @@ Deno.serve(async (req) => {
         travel_zone: travel.zone,
         price_adjustments: quote.adjustmentLines.length ? quote.adjustmentLines : null,
         vehicle_model: body.vehicle_model?.trim() || null,
+        // An estimate the customer typed, for the detailer to judge condition
+        // by — never arithmetic, same posture as vehicle_model. Digits only,
+        // capped at 4: anything else is not a year and is dropped rather than
+        // stored as one.
+        vehicle_year: /^[0-9]{4}$/.test(String(body.vehicle_year ?? "").trim())
+          ? String(body.vehicle_year).trim() : null,
         // W27 — information, never arithmetic. The trade prices condition
         // after inspection, so this must not reach computeQuote.
         vehicle_condition: ["light", "moderate", "heavy", "extreme"]

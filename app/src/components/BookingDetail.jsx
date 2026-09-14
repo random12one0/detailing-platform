@@ -373,6 +373,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
               )}
               <p className="muted">
                 {sizeLabel(booking)}
+                {booking.vehicle_year ? ` · ${booking.vehicle_year}` : ""}
                 {booking.vehicle_model ? ` · ${booking.vehicle_model}` : ""}
                 {CONDITION_LABELS[booking.vehicle_condition]
                   ? ` · ${CONDITION_LABELS[booking.vehicle_condition]}` : ""}
