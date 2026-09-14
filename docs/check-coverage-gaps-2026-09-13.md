@@ -209,3 +209,71 @@ nobody here has looked up. **Look it up before raising that limit.**
 | scripts that need a browser and a still tree | **12 — CLOSED 2026-09-13**, `docs/blind-browser-2026-09-13.md`: 3 were blind, 1 lost its subjects, 8 can fail |
 | scripts with assertions, no browser, never baselined | **0** — `adversary-probe` was the last, and it was blind: 47 of its 50 checks stayed green on a garbage key |
 | suites whose subject the blanking could not reach | 2, both recorded, both anchored another way |
+
+---
+
+## THE STANDING QUESTION, ONE MORE ROUND — lane C, 2026-09-13, at `691d55a`
+
+*What else here reports success in a way that cannot distinguish working from
+broken?* Two answers this pass, one large and one bounded.
+
+### 1 · NOTHING IN `tests/` ASSERTS THE 44px TAP FLOOR. ANYWHERE.
+
+**Measured: `grep -rn '44' tests/composition.test.mjs` returns nothing, and
+`admin.css` is read by exactly one suite (`platform-admin`), which never looks at
+a height.** The floor is the first thing `docs/START-HERE.md` § 3 puts in front
+of a session, `docs/BAR.md` has a whole section on it, and **the entire 58-suite
+battery is green with a 30px close button shipped.**
+
+`.pa-x` — the only way out of the back office's open-detailer drawer that a thumb
+can find — is `width: 30px; height: 30px` at `admin.css:348`, and **there is no
+`::after` anywhere in `admin.css` except the tab underline**, so nothing is
+carrying it to 44. `.pa-chip` computes to about 29. Both are in
+`docs/lane-b-handover-2026-09-13.md` § 2d.
+
+**THIS IS THE PURE FORM OF THE QUESTION.** The battery does not say the floor is
+met. It says nothing about the floor, and a session reading "58 suites green"
+cannot tell those two apart. **The reason it has never been caught is that the
+floor is a COMPUTED value and every suite in `tests/` reads source text** —
+`elementFromPoint` needs a browser, and the twelve browser-driven scripts are the
+ones § 2 of this file already records as unrun.
+
+**What would close it, and it is not a browser:** a source-level check that every
+interactive selector in a stylesheet either sets `min-height: var(--tap)` / 44 or
+declares a `::after` inset, failing on any that does neither. **It would be a
+proxy and it must say so** — it cannot see padding on an inline child, and it
+would have to be baselined against a control that passes by `::after` (the `.chip`
+pattern) as well as one that fails. Owed; not built tonight.
+
+### 2 · THE UNGUARDED PLURAL IS A CLASS, AND IT IS BOUNDED — swept, not assumed
+
+Triggered by finding `"1 hours ago"` in the back office. **Two sweeps over
+`app/src`, one for `${...} words` in template literals and one for `{...} words`
+in JSX.**
+
+**Result: the three in `AdminPage.jsx` are the only ones where the number lands
+on 1 in ordinary use.** Everything else the sweep surfaced is guarded and was
+checked by opening it:
+
+| where | why it is safe |
+|---|---|
+| `BookingDetail.jsx:356` | inside `length > 0`, so the printed value is at least 2 |
+| `GearMenu.jsx:209` | inside `memberships.length > 1` |
+| `Business.jsx` `humanNotice()` | an explicit `d === 1 ? ... : ...` on both units |
+| `AdvancedMoney.jsx:322` | uses the `n()` plural helper |
+| `PricingPage.jsx:211` | `total` is the founding-spot count, never 1 |
+
+**Two genuine but minor ones stay open and are NOT worth a screen edit on their
+own** — `ManageBookingPage.jsx:737` reads *"1 hours before your appointment"*
+when a detailer sets a one-hour change window, and `AdvancedMoney.jsx:318` reads
+*"1 hours booked"*. Both are `t()` strings, so **both need their Spanish key
+changed in the same edit**. Lane B, next time either file is open for another
+reason — `docs/START-HERE.md` § 5 says a named fault is the bar, and these two
+are named.
+
+**THE INSTRUMENT'S OWN LIMIT, said out loud:** the sweep matches a number
+followed by a lower-case word ending in `s`. It cannot see a plural built by
+joining two values, and it cannot see one inside `lib/setup.js` or
+`lib/templates.js`, which hold user-facing prose as plain object values — the
+same blind spot the em-dash sweep hit on 2026-09-12. **A clean sweep here means
+"clean in the shape I looked at", not "clean".**
