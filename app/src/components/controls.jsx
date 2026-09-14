@@ -4,7 +4,7 @@
 // do a conversion in their head. The storage units are unchanged — only what
 // you touch is different.
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Check, Eye, EyeOff, Minus, Plus, ChevronRight } from "lucide-react";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
@@ -149,13 +149,69 @@ export function DurationChoice({ value, onChange, presets, unit = "minutes", all
   );
 }
 
-// A small whole number you nudge rather than type — and an explicit "no
-// limit", because an empty box meaning unlimited is a guess the user has to
-// make. `null` is the unlimited value in the database.
+// A small whole number you NUDGE OR TYPE — and an explicit "no limit", because
+// an empty box meaning unlimited is a guess the user has to make. `null` is the
+// unlimited value in the database.
+//
+// ---------------------------------------------------------------------------
+// **IT WAS A `<span>` UNTIL 2026-09-13, AND THAT COST ANDREW A SETTING HE
+// BELIEVED HE HAD CHANGED.**
+// ---------------------------------------------------------------------------
+// His report: *"I clicked the number, typed 70, pressed Save weather warnings,
+// got 'Saved.', and the value was still 80. The typing went nowhere and the old
+// value saved silently."*
+//
+// **THE CONTROL LOOKED LIKE A FIELD, SO PEOPLE TYPED INTO IT** — a number in a
+// bordered box between two buttons is a text field to everybody who has ever
+// used one. Nothing rejected the typing and nothing reported it; the keystrokes
+// simply had nowhere to go, and the save that followed wrote the old value and
+// said "Saved." That is the worst shape a defect can take: the product told him
+// it had done what he asked.
+//
+// **AND THE NUDGE ALONE WAS NEVER ENOUGH ANYWAY.** 95° down to 70° is
+// twenty-five presses. A control whose only affordance is one degree at a time
+// is a control nobody uses to make a real change.
+//
+// THE FIX IS HERE RATHER THAN ON THE WEATHER SCREEN, because all seven callers
+// have the same shape and the same defect — the two booking rules, the plan's
+// visits, and Weather's four. A fix at the call site would have left six.
+//
+// ---------------------------------------------------------------------------
+// WHAT "TYPEABLE" HAD TO MEAN, and each of these is a way it goes wrong
+// ---------------------------------------------------------------------------
+//   · **A DRAFT WHILE FOCUSED.** Committing per keystroke makes "70" pass
+//     through "7", which clamps to `min` and eats the digit — the field fights
+//     the typist. So the text is local until it is committed.
+//   · **COMMIT ON BLUR AND ON ENTER, both.** Enter alone loses the value of
+//     somebody who types and then taps Save, which is exactly what Andrew did.
+//   · **CLAMP, AND REVERT NONSENSE RATHER THAN STORING IT.** "abc" and an empty
+//     box go back to the last good value; 400 becomes `max`. Nothing outside
+//     the range reaches the database.
+//   · **ESCAPE ABANDONS**, which is what a field that commits on blur owes you.
 export function Stepper({ value, onChange, min = 1, max = 99, suffix, unlimitedLabel }) {
   useAppLocale();
   const unlimited = value === null || value === undefined || value === "";
   const n = unlimited ? min : Number(value);
+  // `null` while not being typed into, so the input shows the CURRENT value —
+  // including one the +/- buttons just changed underneath it.
+  const [draft, setDraft] = useState(null);
+  // **ESCAPE HAS TO SUPPRESS THE BLUR THAT FOLLOWS IT, and a piece of state
+  // cannot do it.** Escape blurs the field, blur commits, and the commit reads
+  // the DOM value — which is still the abandoned text, because React has not
+  // re-rendered yet. The first version of this control therefore saved exactly
+  // what Escape was pressed to throw away. A ref is read synchronously inside
+  // the blur handler; `setDraft(null)` is not.
+  const abandoned = useRef(false);
+
+  const commit = (text) => {
+    setDraft(null);
+    const parsed = Number(String(text).trim());
+    // Not `isNaN` alone: `Number("")` is 0, which would silently store zero for
+    // an emptied box rather than leaving the setting as it was.
+    if (String(text).trim() === "" || !Number.isFinite(parsed)) return;
+    onChange(Math.min(max, Math.max(min, Math.round(parsed))));
+  };
+
   return (
     <div className="stepper-wrap">
       {unlimitedLabel && (
@@ -168,7 +224,44 @@ export function Stepper({ value, onChange, min = 1, max = 99, suffix, unlimitedL
         <div className="stepper">
           <button type="button" aria-label={t("Less")} disabled={n <= min}
             onClick={() => onChange(Math.max(min, n - 1))}><Minus size={16} strokeWidth={2.5} /></button>
-          <span className="num">{n}{suffix ? ` ${t(suffix)}` : ""}</span>
+          {/* THE SUFFIX IS ITS OWN ELEMENT so the field holds the NUMBER and
+              nothing else — selecting all and typing replaces "80", not
+              "80 °". `type="text"` with a numeric inputMode rather than
+              `type="number"`: a number input in Chromium silently discards a
+              value it considers invalid mid-edit, which is a quieter version of
+              the same bug, and it puts spinners inside a control that already
+              has two. */}
+          <input
+            className="num" type="text" inputMode="numeric" value={draft ?? String(n)}
+            aria-label={t("Value")}
+            size={String(max).length + 1}
+            onChange={(e) => setDraft(e.target.value.replace(/[^0-9]/g, ""))}
+            onFocus={(e) => e.target.select()}
+            onBlur={(e) => {
+              if (abandoned.current) { abandoned.current = false; return; }
+              commit(e.target.value);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") { e.preventDefault(); e.currentTarget.blur(); }
+              // **ESCAPE ONLY BELONGS TO THIS FIELD WHILE SOMETHING IS BEING
+              // TYPED INTO IT.** The settings panel this control lives in
+              // closes on Escape, and that is correct — but a person who has
+              // typed a wrong number and presses Escape means "undo that",
+              // not "throw the whole screen away". So it is swallowed while
+              // there is a draft and passed through when there is not, which
+              // leaves the panel's own behaviour exactly as it was.
+              if (e.key === "Escape" && draft !== null) {
+                e.stopPropagation();
+                abandoned.current = true;
+                setDraft(null);
+                e.currentTarget.blur();
+              }
+              // The arrow keys are what a person expects of a spinner, and the
+              // buttons beside this do exactly the same thing.
+              if (e.key === "ArrowUp") { e.preventDefault(); setDraft(null); onChange(Math.min(max, n + 1)); }
+              if (e.key === "ArrowDown") { e.preventDefault(); setDraft(null); onChange(Math.max(min, n - 1)); }
+            }} />
+          {suffix ? <span className="suffix" aria-hidden="true">{t(suffix)}</span> : null}
           <button type="button" aria-label={t("More")} disabled={n >= max}
             onClick={() => onChange(Math.min(max, n + 1))}><Plus size={16} strokeWidth={2.5} /></button>
         </div>
