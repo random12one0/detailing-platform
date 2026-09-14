@@ -355,7 +355,7 @@ export default function Billing() {
       <p className="quiet" style={{ marginTop: "var(--sp-5)" }}>
         {t("Something not right with a charge?")}{" "}
         {c.phone && <>{t("Call or text")} <span className="num">{phone(c.phone)}</span>. </>}
-        {c.email && <>{t("Or email")} <a href={`mailto:${c.email}`}>{c.email}</a>.</>}
+        {c.email && <>{t("Or email")} <a className="inlink" href={`mailto:${c.email}`}>{c.email}</a>.</>}
       </p>
     );
   }

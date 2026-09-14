@@ -83,10 +83,16 @@
   font-size: 12px; color: var(--fog); letter-spacing: 0; text-transform: none;
   overflow-wrap: anywhere; min-width: 0;
 }
+/* 17px painted, 44px reachable. Two of these: "Sign out" in the top bar and
+   "See everyone" on Today. Both are lone text buttons with nothing within 14px
+   above or below, and the bar must not grow (the body's top padding is a fixed
+   offset — see the note below), so the `::after` is the only answer here.
+   Vertical only: both are wider than 44 already. */
 .pa-out {
-  background: none; border: 0; padding: 0; cursor: pointer;
+  background: none; border: 0; padding: 0; cursor: pointer; position: relative;
   color: var(--ac); font: inherit; font-size: 12px; white-space: nowrap;
 }
+.pa-out::after { content: ""; position: absolute; inset: -14px 0; }
 .pa-out:hover { text-decoration: underline; }
 
 /* THE BAR MUST NOT GROW, because the body's top padding is a fixed offset

@@ -420,6 +420,27 @@ h2 {
 h3 { font-size: var(--t-strong); font-weight: 600; }
 p { margin: 0; }
 a { color: var(--accent-text); text-decoration: none; }
+/* **A LINK INSIDE A SENTENCE, WITH A HIT AREA — 2026-09-13.** A bare `<a>` in a
+   paragraph is as tall as its own text: the support address on Your
+   subscription measured **14px** of reach, the smallest control in the product.
+   A block around it would break the line apart, so this is the landing footer's
+   proven answer (`landing.css` § `.footsup a`) brought over: `inline-block`
+   with vertical padding grows the box and leaves the baseline where it is, and
+   an absolutely positioned `::after` carries the last of the height and the
+   width without taking part in layout. Reach for this, not a `.btn`, when the
+   link has to stay inside the writing.
+   **THE INSET IS 3px AND NOT 2px BECAUSE A PROBE COUNTS WHOLE PIXELS.** A 39px
+   line box grown by 2 a side measures 42 of reach, not 43 — the fractional
+   edges round inward. Written down because the arithmetic looks right and the
+   measurement is what decides. */
+/* **NAMED `.inlink` AND NOT `.lk` BECAUSE `landing.css` ALREADY OWNS `.lk`.**
+   `theme.css` is global and `composition` test 1 fails on any bare class the
+   other two sheets use — it caught this one minutes after it was written. */
+.inlink {
+  display: inline-block; padding-block: 9px; position: relative;
+  border-bottom: 1px solid var(--line-2);
+}
+.inlink::after { content: ""; position: absolute; inset: -3px -4px; }
 /* A FIGURE NEVER BREAKS ACROSS TWO LINES. Everything wearing `.num` is one
    thing a person reads as a unit — a price, a count, a phone number — and at
    392 the support number wrapped after "(562)", which turns one number into

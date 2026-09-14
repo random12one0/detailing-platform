@@ -862,3 +862,26 @@ other's taps.
 
 **Visual: yes** — the only thing to look at is the extra breathing room between
 rows of filter buttons.
+
+---
+
+## 44 · Eight more things that were too small to press
+
+**Open:** the front page `localhost:5173/` and `localhost:5173/pricing`, then
+`localhost:5173/app` → gear → Your subscription, then `localhost:5173/admin`.
+
+**WAS:** The first sweep that has ever measured this walked 278 screens at four
+widths in both languages and found sixteen controls a thumb could miss. The
+worst was the support email address on Your subscription, which was fourteen
+pixels tall. The others: Terms, Privacy and the support address in the front
+page's footer; the two quiet "See them all" links; the Sign up button in the
+top bar on a phone; the word "Sign in" in the top bar; and "Sign out" and "See
+everyone" in the back office.
+
+**NOW:** All sixteen are 44 pixels to press. **Nothing moved and nothing changed
+size** except the Sign up button in the phone top bar, which went from 38 pixels
+tall to 44 — the bar around it does not grow, because the menu button beside it
+was already 44.
+
+**Visual: yes** — the one thing to look at is the Sign up button in the top bar
+on a phone.

@@ -345,7 +345,11 @@
    thing on the page a returning detailer wants, and it was a 21px target.
    The TEXT does not move: the hit area grows around it, so nothing about the
    pill's look changes. */
-.ld .nav .lk { font-size: 14px; color: var(--fog); transition: color var(--t-hover) linear; white-space: nowrap; display: inline-flex; align-items: center; min-height: 44px; }
+/* `min-height` was here for the floor and WIDTH was never checked: "Sign in" is
+   the shortest word in the bar and measured 42px across. The nav's gap is 20px,
+   so one pixel a side is free. */
+.ld .nav .lk { font-size: 14px; color: var(--fog); transition: color var(--t-hover) linear; white-space: nowrap; display: inline-flex; align-items: center; min-height: 44px; position: relative; }
+.ld .nav .lk::after { content: ""; position: absolute; inset: 0 -1px; }
 .ld .nav .mk { display: inline-flex; align-items: center; min-height: 44px; }
 .ld .nav .lk:hover { color: var(--bone); }
 .ld .nav .cta { white-space: nowrap; flex: none; }
@@ -367,7 +371,12 @@
   .ld .nav .lk { display: none; }
   .ld .nav .mk { font-size: 11px; letter-spacing: .16em; }
   .ld .nav { padding: 9px 9px 9px 15px; }
-  .ld .nav .cta.sm { padding: 9px 15px; font-size: 13px; }
+  /* 38px tall, and the ONLY control in this bar below the floor once `.lk` is
+     hidden here. `.ld .cta` sets `overflow: hidden` and already spends its
+     `::after` on the hover glow, so no pseudo-element can carry the hit area —
+     the box itself has to reach 44. The bar does not grow: the burger beside it
+     is already 44. */
+  .ld .nav .cta.sm { padding: 9px 15px; font-size: 13px; min-height: 44px; }
 
   /* 32px square: at or above the product's tap floor, and narrower than
      any word would be. Two bars rather than three — at this size the third
@@ -1107,7 +1116,12 @@
 .ld .end .disp { font-size: clamp(32px,5.4vw,70px); }
 .ld .end .lede { margin-inline: auto; margin-top: 22px; color: var(--bone-2); }
 .ld .end .ctas { display: flex; flex-wrap: wrap; gap: 18px 26px; justify-content: center; align-items: center; margin-top: clamp(30px,5vh,44px); }
-.ld .softlink { color: var(--fog); font-size: 15px; display: inline-flex; align-items: center; gap: 8px; transition: color var(--t-hover) linear; }
+/* 22px painted, 44px reachable. These two are the quiet way out of a section —
+   "See them all", "Or just the booking page" — and they sit alone in their own
+   block, so the target can grow the full 11px a side without meeting anything.
+   Vertical only: both are wide already. */
+.ld .softlink { color: var(--fog); font-size: 15px; display: inline-flex; align-items: center; gap: 8px; transition: color var(--t-hover) linear; position: relative; }
+.ld .softlink::after { content: ""; position: absolute; inset: -11px 0; }
 .ld .softlink:hover { color: var(--bone); }
 .ld .softlink .ar { transition: transform var(--t-hover) var(--e-out); }
 .ld .softlink:hover .ar { transform: translateX(3px); }
@@ -1809,10 +1823,19 @@
    problem screen had, and the same answer: pad the hit area without moving the
    text. `inline-block` with vertical padding grows the box and leaves the
    baseline where it is; the underline stays on the words. */
+/* **AND THE FLOOR MOVED FROM 32 TO 44 ON 2026-09-13**, which is what the note
+   above was written against. 9px of padding takes the box to 40 tall and leaves
+   "Terms" 36 wide — both short. The padding stays where it is, because growing
+   it further pushes the sentence's own lines apart; an absolutely positioned
+   `::after` adds the last 4px of height and 4px a side of width and takes no
+   part in layout, so the words do not move. Measured after: the separator
+   between Terms and Privacy is wider than the 8px the two targets grew into, so
+   no pair overlaps. */
 .ld .footsup a {
   color: var(--fog); border-bottom: 1px solid var(--line-2);
-  display: inline-block; padding-block: 9px;
+  display: inline-block; padding-block: 9px; position: relative;
 }
+.ld .footsup a::after { content: ""; position: absolute; inset: -3px -4px; }
 .ld .footsup a:hover { color: var(--bone-2); }
 /* The address in the note is the one thing on these pages a reader is meant
    to ACT on, so it is drawn like the footer's rather than inheriting the
