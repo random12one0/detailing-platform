@@ -31,7 +31,13 @@
 //
 //   node scripts/spanish-dom.mjs            # every dashboard screen
 //   node scripts/spanish-dom.mjs --keep     # leave the browser open
-//   BASE=http://127.0.0.1:4173 node scripts/spanish-dom.mjs
+//   node scripts/spanish-dom.mjs --prove    # the instrument breaking itself
+//
+// Against a frozen build (lane C's rig), point BOTH at the SAME tree:
+//
+//   BASE=http://127.0.0.1:4173 \
+//   CATALOGUE=<that tree>/app/src/lib/strings/appEs.js \
+//   node scripts/spanish-dom.mjs
 //
 // Needs a server and the demo login, like every other browser script. **Lane C
 // serves its own bundle on 4173 and never touches 5173** — `docs/START-HERE.md`
@@ -47,8 +53,8 @@
 // **(1) THE CATALOGUE WAS REGEX-PARSED AND LOST A FIFTH OF ITSELF.** The old
 // loader matched `"key": "value",` on ONE line. A long English sentence wraps,
 // so its value sits on the next line, the value came back empty, and the key
-// was then filtered out of `TELLS` for having no Spanish. **392 of 1,961 keys
-// — 20% of the catalogue — were strings this check could not have detected in
+// was then filtered out of `TELLS` for having no Spanish. **415 of 1,973 keys
+// — 21% of the catalogue — were strings this check could not have detected in
 // English if they had been painted across the screen.** `appEs.js` has no
 // imports of its own, so Node can `import()` it: the parser is deleted and the
 // object is the object. **A second reader of a file is a second chance to read
@@ -105,7 +111,7 @@
 import { createRequire } from "node:module";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { watchSource, reportSourceMoved } from "./source-guard.mjs";
 
 // Playwright lives in `app/node_modules`, and every browser script in this
@@ -118,8 +124,22 @@ const ROOT = fileURLToPath(new URL("../", import.meta.url));
 
 // THE CATALOGUE, IMPORTED RATHER THAN PARSED. See blindness (1) in the header:
 // the regex that used to live here silently dropped every key whose Spanish was
-// on the following line — 392 of them.
-const { appEs: catalogue } = await import("../app/src/lib/strings/appEs.js");
+// on the following line — 415 of them.
+//
+// **AND IT MUST COME FROM THE SAME TREE AS THE BUNDLE BEING SERVED — 2026-09-13,
+// found by the count MOVING on a frozen subject.** Two runs against one
+// unchanged build reported 46 findings and then 35. Nothing about the page had
+// changed; lane B had added Spanish entries to the repo's `appEs.js` between
+// them, and this script reads the repo while `BASE` serves a worktree. **A
+// finding is then neither the build's nor the catalogue's**, and the number
+// drifts with somebody else's unrelated work.
+//
+// `CATALOGUE=<path>` points it at the tree that was actually built. The path is
+// printed on every run, because a silent default is how the two came apart.
+const CATALOGUE = process.env.CATALOGUE
+  ? pathToFileURL(path.resolve(process.env.CATALOGUE)).href
+  : new URL("../app/src/lib/strings/appEs.js", import.meta.url).href;
+const { appEs: catalogue } = await import(CATALOGUE);
 
 // **A KEY WHOSE SPANISH IS THE SAME WORD PROVES NOTHING.** `Zelle`, `Plan`,
 // `Logo`, `15 min` are identical in both, so seeing them on a Spanish page is
@@ -465,7 +485,9 @@ try {
   }
 
   // ─── THE SUBJECT COUNTS, PRINTED WHETHER OR NOT ANYTHING WAS FOUND ───────
-  console.log(`\n  catalogue: ${Object.keys(catalogue).length} keys · ${TELLS.size} exact tells · ${PATTERNS.length} interpolated patterns`);
+  console.log(`\n  catalogue read from: ${CATALOGUE.replace(/^file:\/\/\//, "")}`);
+  console.log(`  serving: ${BASE} — these MUST be the same tree, or a finding is neither one's`);
+  console.log(`  ${Object.keys(catalogue).length} keys · ${TELLS.size} exact tells · ${PATTERNS.length} interpolated patterns`);
   console.log(`  press pass: ${totalPressed} destructive controls pressed, ${totalRaised} dialogs raised, ${blockedWrites} writes blocked at the network`);
 
   const reached = new Set(dialogsSeen.map((d) => d.screen));
@@ -489,6 +511,16 @@ try {
     console.log("  FAIL  press pass · not one dialog was raised — the pass reached nothing, so its silence is not evidence");
   }
   if (reached.size) console.log(`  screens that raised one: ${[...reached].join(", ")}`);
+  // ponytail: the press pass proves the dialogs it RAISED and says nothing
+  // about the rest. Nothing in the DOM names the file a dialog came from, so
+  // this cannot be a per-file tick — it is a floor, and the floor has to be
+  // printed or a partial run reads as a complete one. Raising the floor means
+  // reaching the controls behind a record (a booking's Delete, a day sheet's
+  // block, a job photo's remove), which needs a row opened first; that is the
+  // next rung, not a missing feature. `tests/spanish.test.mjs` § 11 covers all
+  // eleven files from the source in the meantime.
+  console.log(`  FLOOR: ${reached.size} of ${DIALOG_FILES.length} dialog-raising files were reached by a press.`);
+  console.log("  The rest are unproven AT RUNTIME — spanish.test.mjs § 11 covers all of them from the source.");
 } finally {
   if (!process.argv.includes("--keep")) await browser.close();
 }

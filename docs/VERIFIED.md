@@ -1267,7 +1267,7 @@ both halves were broken on purpose before being believed.**
 | proven | by | invalidated by a change to |
 |---|---|---|
 | **Every native dialog a detailer can reach puts its words through `t()`** — 20 call sites found, 13 outside `admin/` | `spanish` **76/0**, § 11, baselined FOUR ways | `app/src/screens/**`, `app/src/components/**`, `app/src/book/**`, `app/src/hooks/**` |
-| **A native dialog's words can be read at runtime and classified** | `spanish-dom.mjs` captured **16 dialogs on 5 screens**, 8 English / 3 Spanish / 5 unclassifiable, at `c089ad3` | `app/src/**`, `scripts/spanish-dom.mjs` |
+| **A native dialog's words can be read at runtime and classified** | `spanish-dom.mjs` captured **16 dialogs on 5 screens** at `c089ad3` — **0 English / 3 Spanish / 13 unclassifiable**, with the catalogue and the bundle from the SAME tree | `app/src/**`, `scripts/spanish-dom.mjs` |
 | **The gear opens** — and 8 settings screens are measured for the first time | the row set changes after the press; anchor red when the locator is pointed at `data-tour="new"` | `app/src/screens/**`, `app/src/components/AppShell*` |
 | **The catalogue is read whole** — 1,961 keys by `import()`, not 1,546 by regex | `catalogue: 1973 keys · 1723 exact tells · 115 interpolated patterns`, printed every run | `app/src/lib/strings/appEs.js` |
 | **The press pass cannot write** | `594 writes blocked at the network`, printed every run | `scripts/spanish-dom.mjs` |
@@ -1294,7 +1294,28 @@ A character budget is a guess about how long code is.
 |---|---|
 | `--prove` (the dashboard left in ENGLISH) | **RED — 38 screens `NOT MEASURED`**, and the flag inverts its own exit code so a clean run there is a failure |
 | the gear locator pointed at `data-tour="new"` | **RED — "pressing it did not change the settings list (14 rows, all of them the Business tab's) — it never opened"** |
-| a `t()` unwrapped on `Catalog.jsx`'s size-removal confirm, rebuilt | **the three captured dialogs flipped `es` → `EN`** — the planted press-only string Andrew asked for |
+| a `t()` unwrapped on `Catalog.jsx`'s size-removal confirm, rebuilt | **0 English → 3 English** — the planted press-only string Andrew asked for, and the only change in the whole run |
+
+### AND THE NUMBER MOVED ON A FROZEN SUBJECT, WHICH IS ITS OWN FINDING
+
+**Two runs against ONE unchanged build reported 46 findings and then 35, and an
+earlier run reported 8 English dialogs where the correct answer is 0.** Nothing
+about the page had changed. **The script reads `appEs.js` from the REPO while
+`BASE` serves a build from a worktree**, and lane B was adding Spanish entries
+to the repo's catalogue all evening — so an English string in the old bundle
+started matching a key that only existed in the new catalogue.
+
+**A finding is then neither the build's nor the catalogue's**, and the count
+drifts with somebody else's unrelated work. `CATALOGUE=<path>` points the script
+at the tree that was actually built, and **both the catalogue path and `BASE`
+are printed on every run**, because a silent default is how the two came apart.
+
+**THE 8 WAS A LUCKY ACCIDENT AND IT IS CORRECTED ABOVE.** Under matched trees a
+dialog that was never wrapped in `t()` has no key and classifies `?`, not `EN`
+— which is the documented split and not a weakness: § 11 catches those, from the
+source, where the difference between our untranslated string and the detailer's
+own words is visible. **A number that flatters the instrument is exactly the
+number to distrust.**
 
 ### WHAT NEITHER HALF CAN DO, SAID OUT LOUD
 
