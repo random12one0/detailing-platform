@@ -116,6 +116,7 @@ export default function StepVehicle({ form, setForm, selectedServices, blocks = 
   // the picker back up if it is wrong. Never silent — the sentence below the
   // vehicle field is what makes it not silent.
   const [manualOverride, setManualOverride] = useState(false);
+  const [yearTouched, setYearTouched] = useState(false);
 
   // The size arithmetic, the four-way condition scale and the vehicle count
   // are `core.js`'s — they decide what reaches `bookings`. The CEILING above
@@ -371,13 +372,22 @@ export default function StepVehicle({ form, setForm, selectedServices, blocks = 
                 what it visibly does. Andrew's own design removed that card
                 the moment a match is confident, so the only way back to it is
                 this sentence: never silent, and never a dead end. */}
+            {/* **NOT A HINT — A STATEMENT ABOUT THEIR PRICE, 2026-09-14.**
+                Andrew's own rule is that a wrong guess quoting the wrong price
+                is worse than not guessing at all, which only holds if the
+                customer actually notices this line: it just added money to
+                their total without them choosing anything. `bk-muted`'s dim,
+                small hint-text styling buried it. This is `.bk-price-fact` —
+                normal body size and the page's full-contrast text color —
+                and it stays a quiet FACT rather than a banner or an alert:
+                no background, no border, no icon. Just legible. */}
             {suggestedSize && !manualOverride && (
-              <p className="bk-muted bk-suggested" role="status">
+              <p className="bk-price-fact" role="status">
                 {t("{vehicle} · set to {size}", {
                   vehicle: suggested.matched,
                   size: sizeText(suggestedSize, "label", tx),
                 })}{" "}
-                <button type="button" className="bk-linklike" onClick={() => setManualOverride(true)}>
+                <button type="button" className="bk-linklike bk-price-fact-change" onClick={() => setManualOverride(true)}>
                   {t("Not right?")}
                 </button>
               </p>
@@ -390,7 +400,16 @@ export default function StepVehicle({ form, setForm, selectedServices, blocks = 
           ESTIMATE is fine: the wording says so up front so nobody stalls
           hunting down the exact number. It is for the detailer to judge
           condition against, never wired to price — `bookingRequest` sends it
-          straight through and `_shared/pricing.ts` never reads it. */}
+          straight through and `_shared/pricing.ts` never reads it.
+
+          **AND IT DOES NOT SCOLD ON ARRIVAL — Andrew's correction, 2026-09-14.**
+          `needYear` is true the instant this step renders with nothing typed,
+          because the field starts empty; showing the red box from the first
+          frame told a customer off for something they had not had a chance to
+          do yet. A native `disabled` Continue button fires no click event at
+          all — there is nothing to hook a "they tried" moment onto — so the
+          signal used here is `yearTouched`: they have visited the field and
+          left it. Neutral guidance until then, the same red box after. */}
       <label className="bk-field bk-year">
         <span>{t("Year")}</span>
         <input
@@ -399,10 +418,13 @@ export default function StepVehicle({ form, setForm, selectedServices, blocks = 
           value={form.vehicleYear}
           placeholder={t("e.g. 2019")}
           onChange={(e) => setForm((f) => ({ ...f, vehicleYear: e.target.value.replace(/[^0-9]/g, "").slice(0, 4) }))}
+          onBlur={() => setYearTouched(true)}
         />
       </label>
-      <p className={needYear ? "bk-error" : "bk-muted"} style={{ marginTop: -8 }}>
-        {needYear ? t("Add a year to continue. An estimate is fine.") : t("An estimate is fine — it does not have to be exact.")}
+      <p className={needYear && yearTouched ? "bk-error" : "bk-muted"} style={{ marginTop: -8 }}>
+        {needYear && yearTouched
+          ? t("Add a year to continue. An estimate is fine.")
+          : t("An estimate is fine — it does not have to be exact.")}
       </p>
 
       {/* W27. One row of four, which is the whole reason it is chips and not

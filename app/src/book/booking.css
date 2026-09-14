@@ -287,6 +287,13 @@
    spare room at 392 and this line is ~22px of it, spent only on the bookings
    where a car was actually recognised. */
 .bk-suggested { margin-top: 6px; }
+/* A quiet FACT, not a hint — see StepVehicle.jsx. Normal size, full-contrast
+   text, no background or border: still one line among others, just legible
+   as the sentence that just changed the customer's price. */
+.bk-price-fact {
+  margin-top: 6px; font-size: var(--bk-t-body); color: var(--bk-text); line-height: 1.45;
+}
+.bk-price-fact-change { font-weight: 600; }
 /* Only where a heading is starting a new group — the first one is already
    under the step's own heading and needs nothing.
    NOT `.group`, which is what this was called for ten minutes: theme.css
