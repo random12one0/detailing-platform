@@ -5,6 +5,65 @@ Claude Cowork decides what becomes work.
 
 ---
 
+## THE GEAR WAS NEVER OPENED IN SPANISH — eight settings screens, never once checked, lane C, 2026-09-13
+
+**`scripts/spanish-dom.mjs` reached the gear by `button[aria-label*="ettings"]`.
+The label reads `Ajustes` in Spanish, so the selector matched nothing, a
+`.catch(() => {})` swallowed the miss, and the script carried on measuring the
+BUSINESS TAB a second time under the heading `the gear`.** The Business tab
+carries `[data-settings-key]` rows of its own, so there was always a list to
+walk and it always looked like a settings sweep.
+
+**EIGHT SCREENS HAD NEVER BEEN READ IN SPANISH BY ANY INSTRUMENT IN THIS
+REPO:** notifications, templates, team, billing, password, preferences, report,
+tour. **FIXED** — the control is addressed by `data-tour="gear"`, which is not
+prose, and an anchor asserts the row set CHANGED after the press. Baselined by
+pointing the locator at `data-tour="new"`: *"pressing it did not change the
+settings list (14 rows, all of them the Business tab's) — it never opened."*
+
+**IT IS TRAP (c) IN A NEW COAT** — a navigation that does not navigate, and
+every screen behind it reported fine. What exposed it was counting subjects:
+the English run walked 8 rows and the Spanish run walked 14, **and the two
+lists are disjoint.** A list of screens that changes with the language is not a
+list of screens.
+
+**AND THE GENERAL FORM IS THE PART TO KEEP: A SELECTOR WRITTEN IN PROSE IS A
+SELECTOR THAT STOPS WORKING IN THE OTHER LANGUAGE**, which is precisely the
+language the check exists to measure. Address a control by `data-tour`, `id` or
+role — never by a word a translator can legitimately change.
+
+---
+
+## WHAT THE SPANISH DASHBOARD STILL SHOWS IN ENGLISH — for lane B, measured at `c089ad3`
+
+**Measured against a frozen production build of `c089ad3`, not the dev server.**
+Lane B has been editing these files all day, so **some of this is already
+fixed** — re-run after committing rather than working from this list:
+
+```
+BASE=http://127.0.0.1:4173 node scripts/spanish-dom.mjs
+```
+
+**26 distinct English strings on 12 screens.** The ones that are plainly ours:
+
+| screen | string |
+|---|---|
+| `gear · preferences` | `Used by "Add to calendar" on a booking.` · `Used by "Add to contacts" on a job.` |
+| `gear · hours` | `All days` · `Weekdays` · `Weekends` |
+| `gear · rules` | `The customer picks one on your booking page and its fee is added.` · `Going away? Pick the day you're back…` · `Short notice` · `+$20.00 when booked within 24 hours` · `You take bookings 2 hours ahead but close changes 24 hours ahead…` |
+| `gear · maintenance` | `Which car (optional)` · `Then every (months)` · `No longer applies` |
+| `gear · domain` | `Your booking page is detailingplatform.com/book/demo-detail…` · `Not answering yet · the three steps below` · `Check it` |
+| `Business`, `gear · faq`, `gear · promos` | `Add question` · `Add review` · `Save` · `Hide` · `Show` · `Put this in your bio, on your cards and in your texts…` |
+
+**THREE OF THE 26 ARE PROBABLY NOT FINDINGS AND LANE B SHOULD TRIAGE THEM, NOT
+THIS SCRIPT:** `Headlight restoration` and `Pet hair removal` are seeded SERVICE
+names (translatable in principle, but they are that detailer's own rows now),
+and **`SUMMER10` is a promo code, which § 6 says is a NAME and must never be
+translated.** Nothing in the DOM says where a string came from, so the script
+reports them and a person decides — the same shape as `db-audit`'s allowlists.
+
+---
+
 ## THE GENESIS COLLISION — a MAKE that quotes itself a tier, lane C, 2026-09-13
 
 **A customer who types `Genesis` and nothing else is quoted the SMALL tier, and

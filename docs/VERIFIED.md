@@ -1256,3 +1256,80 @@ git diff --name-only HEAD -- app/src/book/core.js app/src/book/vehicles.json app
 | `scripts/stop-my-servers.mjs` **refuses 5173 by name and kills nothing at all**, including the allowed port in the same command | `4173 5173` → one REFUSED line naming lane B, exit **1**, and the live listener on 4173 **still up afterwards** | `scripts/stop-my-servers.mjs` |
 | It really can see and stop its own | a throwaway listener on 4173 was found by pid (66284), stopped, and read back idle | the same file |
 | It counts, rather than merely matching | prints `stopped N, M of K already idle` — a run over zero ports cannot read as a pass | the same file |
+
+---
+
+## 1j · PROVEN TONIGHT — lane C, 2026-09-13: TEXT THAT ONLY EXISTS AFTER AN ACTION
+
+**The blind class is measurable now, both from the source and in a browser, and
+both halves were broken on purpose before being believed.**
+
+| proven | by | invalidated by a change to |
+|---|---|---|
+| **Every native dialog a detailer can reach puts its words through `t()`** — 20 call sites found, 13 outside `admin/` | `spanish` **76/0**, § 11, baselined FOUR ways | `app/src/screens/**`, `app/src/components/**`, `app/src/book/**`, `app/src/hooks/**` |
+| **A native dialog's words can be read at runtime and classified** | `spanish-dom.mjs` captured **16 dialogs on 5 screens**, 8 English / 3 Spanish / 5 unclassifiable, at `c089ad3` | `app/src/**`, `scripts/spanish-dom.mjs` |
+| **The gear opens** — and 8 settings screens are measured for the first time | the row set changes after the press; anchor red when the locator is pointed at `data-tour="new"` | `app/src/screens/**`, `app/src/components/AppShell*` |
+| **The catalogue is read whole** — 1,961 keys by `import()`, not 1,546 by regex | `catalogue: 1973 keys · 1723 exact tells · 115 interpolated patterns`, printed every run | `app/src/lib/strings/appEs.js` |
+| **The press pass cannot write** | `594 writes blocked at the network`, printed every run | `scripts/spanish-dom.mjs` |
+
+### THE FOUR BASELINES ON `spanish.test.mjs` § 11
+
+| break | result |
+|---|---|
+| the tree as it stood at `c089ad3` | **RED — 7 untranslated dialogs**, six of them the ones Andrew reported and a SEVENTH nobody had named (`Faq.jsx`) |
+| every dialog wrapped in `t()` | green — and § 9a then went red on the new key with no Spanish, which is the two checks composing |
+| `DaySheet.jsx`'s `const ask` rewritten to glue English round a value | **RED** |
+| every `confirm`/`alert`/`prompt` renamed away | **11a RED — 0 found**, the subject anchor |
+
+**AND THE THIRD BASELINE CAUGHT A BUG IN THE CHECK ITSELF.** The first version
+resolved a bare-identifier argument by reading the next **400 characters**, and
+that window ran past the end of the statement into an unrelated
+`label={t("Block this day")}` eleven lines below — **green over a real break.**
+The window is the STATEMENT now, ended by the first `;` at bracket depth zero.
+A character budget is a guess about how long code is.
+
+### THE TWO BASELINES ON `spanish-dom.mjs`
+
+| break | result |
+|---|---|
+| `--prove` (the dashboard left in ENGLISH) | **RED — 38 screens `NOT MEASURED`**, and the flag inverts its own exit code so a clean run there is a failure |
+| the gear locator pointed at `data-tour="new"` | **RED — "pressing it did not change the settings list (14 rows, all of them the Business tab's) — it never opened"** |
+| a `t()` unwrapped on `Catalog.jsx`'s size-removal confirm, rebuilt | **the three captured dialogs flipped `es` → `EN`** — the planted press-only string Andrew asked for |
+
+### WHAT NEITHER HALF CAN DO, SAID OUT LOUD
+
+**A key-based detector cannot see a string that never reached `t()`, because
+there is no key to match.** `Faq.jsx` raised `Delete "Do you need my water?"?`
+— plain English to a Spanish detailer — and the runtime pass classified it `?`,
+not `EN`. **That is why there are two halves and why neither is sufficient:**
+§ 11 reads the source, where the difference between *our* untranslated string
+and *the detailer's own words* is visible; `spanish-dom` reads the screen, where
+it is not. A `?` is reported and counted and does not fail.
+
+### THE REAL NUMBER — how big the never-checked class was
+
+**Counted, not estimated, at `c089ad3`.**
+
+| | |
+|---|---|
+| keys in the detailer's catalogue (`appEs.js`) | **1,973** |
+| **lost to the old regex parser** — the value wrapped onto the next line, so the key came back with no Spanish and was filtered out of the tells | **415** |
+| **keys carrying a `{placeholder}`** — exact matching could never see one, because what reaches the screen is the sentence with a name in it | **225** |
+| **UNION: keys no runtime check in this repo could detect in English** | **586 — 30% of the catalogue** |
+| native dialog call sites, all invisible to all four i18n instruments | **20** (13 a detailer reaches, 7 in `admin/`, English on purpose) |
+| **settings screens never opened in Spanish by anything** | **8** — carrying 258 Spanish strings between them |
+
+**WHAT A DETAILER ACTUALLY SEES OUT OF THAT.** The 13 dialogs are all
+destructive warnings — *delete this booking, delete this review, remove this
+person, disconnect Stripe, stop using this domain* — so the class is small and
+sits at the highest-consequence moment in the product. The 8 unopened screens
+are Team, Password, Billing, Notifications, Templates, Preferences, Report and
+Tour. **A customer sees none of it**: every one of these is behind the
+detailer's sign-in, and the customer's own surface (`book/`) has its own
+catalogue and its own § 4 check.
+
+**THE 30% FIGURE IS THE ONE TO REMEMBER, BECAUSE NOTHING ABOUT IT LOOKED
+BROKEN.** Every run printed `ok` per screen and `clean` at the end. The parser
+did not throw, the walker did not skip, and no count was printed that anybody
+could have compared against the catalogue's own size. **The instrument was
+measuring 70% of its subject and reporting on 100% of it.**

@@ -824,5 +824,123 @@ if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     `${raw.join(" · ")} — use sizeText(), which translates only wording that still matches the platform default`);
 }
 
+// § 11 · TEXT THAT ONLY EXISTS AFTER AN ACTION — the blind class, 2026-09-13
+// ─────────────────────────────────────────────────────────────────────────
+// **SIX "ARE YOU SURE?" WARNINGS RENDERED IN ENGLISH TO A SPANISH DETAILER AND
+// NOT ONE OF THE FOUR i18n INSTRUMENTS COULD SEE THEM.** Not because any of
+// them is badly written — because a native dialog's words NEVER ENTER THE DOM:
+//
+//   · `i18n-coverage.mjs` counts `t("literal")` and checks it against the
+//     catalogue. A bare `confirm("Delete this booking?")` reaches no `t(`, so
+//     there is nothing to count — the ratchet read 100%.
+//   · `spanish-dom.mjs` walks visible text nodes. `window.confirm` paints in
+//     browser chrome, outside `document`, so a tree walker over `document.body`
+//     is looking in the wrong window.
+//   · `i18n-fragments.mjs` hunts JSX text between `{}` holes. A dialog has no
+//     JSX.
+//   · `i18n-survey.mjs` DID list them — and it exits 0 whatever it finds, by
+//     design, because it is a heuristic for ordering work. **A report that
+//     cannot fail is not a check**, which is this repo's oldest lesson wearing
+//     its newest costume.
+//
+// So this is the rule with teeth: **every native dialog a DETAILER can reach
+// puts its words through `t()`.** Wrapping is what puts a string under § 9's
+// ratchet in the first place — the same argument the DYNAMIC list above makes
+// about `{s.label}` — so this check and that one compose: § 11 says the string
+// reaches the translator, § 9 says the translator has an answer.
+//
+// **`admin/` IS EXCLUDED AND THAT IS A POLICY, NOT AN OVERSIGHT.** The back
+// office is Andrew's own and stays English (`i18n-survey.mjs` names the same
+// three exclusions for the same reasons). It is named here so a fifth
+// directory appearing is a finding rather than a silent skip.
+//
+// **THE ONE-HOP LIMIT, SAID OUT LOUD.** `confirm(ask)` where `ask` was built
+// two lines up is correct code and this resolves exactly one `const` hop to
+// see it. A string assembled across a function boundary is invisible — the
+// same blind spot `i18n-coverage.mjs` records about `t(variable)`, and worth
+// stating rather than pretending the sweep is total.
+console.log("11. text that only exists after an action");
+{
+  const UI = ["app/src/screens", "app/src/components", "app/src/book", "app/src/hooks"];
+  // A CALL, NEVER A DECLARATION. `more/Billing.jsx` defines `async function
+  // confirm()` of its own, and counting it would have this check demanding a
+  // translation for a function name.
+  const DIALOG = /(?<![.\w])(?:window\.)?(confirm|alert|prompt)\s*\(/g;
+  const DECL = /(?:function|const|let|var)\s*$|(?:async\s+)?function\s+$/;
+
+  /** The balanced argument list of a call whose `(` is at `open`. */
+  const argsAt = (src, open) => {
+    let depth = 0;
+    for (let i = open; i < src.length; i++) {
+      if (src[i] === "(") depth++;
+      else if (src[i] === ")" && --depth === 0) return src.slice(open + 1, i);
+    }
+    return "";
+  };
+
+  const sites = [];
+  for (const dir of UI) {
+    for (const p of walk(path.join(ROOT, dir))) {
+      const src = strip(readFileSync(p, "utf8"));
+      const where = path.relative(ROOT, p).split(path.sep).join("/");
+      for (const m of src.matchAll(DIALOG)) {
+        if (DECL.test(src.slice(Math.max(0, m.index - 24), m.index))) continue;
+        const open = m.index + m[0].length - 1;
+        const arg = argsAt(src, open).trim();
+        const line = src.slice(0, m.index).split("\n").length;
+        sites.push({ where, line, fn: m[1], arg, src });
+      }
+    }
+  }
+
+  check("11a · the check has subjects — native dialogs were found", sites.length >= 10,
+    `${sites.length} found across ${UI.length} directories`);
+
+  // ONE HOP: a bare identifier is resolved to its `const` in the same file.
+  //
+  // **THE FIRST VERSION READ THE NEXT 400 CHARACTERS AND WENT GREEN OVER A
+  // REAL BREAK.** `DaySheet.jsx` was rewritten to build its sentence by gluing
+  // English round a value — `"This day is closed for " + why` — and the window
+  // ran past the end of the statement into a `label={t("Block this day")}`
+  // eleven lines below, which has nothing to do with the variable. Plausible
+  // code, unchanged verdict, and only a deliberate break could see it.
+  //
+  // So the window is the STATEMENT, ended by the first `;` at bracket depth
+  // zero. A character budget is a guess about how long code is; a depth scan
+  // is a fact about where it stops.
+  const statementAt = (src, at) => {
+    let depth = 0, q = "";
+    for (let i = at; i < src.length; i++) {
+      const c = src[i];
+      if (q) { if (c === "\\") i++; else if (c === q) q = ""; continue; }
+      if (c === '"' || c === "'" || c === "`") { q = c; continue; }
+      if ("([{".includes(c)) depth++;
+      else if (")]}".includes(c)) depth--;
+      else if (c === ";" && depth === 0) return src.slice(at, i);
+    }
+    return src.slice(at);
+  };
+  const translated = (s) => {
+    if (/\bt\s*\(/.test(s.arg)) return true;
+    const id = s.arg.match(/^([A-Za-z_$][\w$]*)$/)?.[1];
+    if (!id) return false;
+    const at = s.src.search(new RegExp(`\\b(?:const|let|var)\\s+${id}\\s*=`));
+    return at >= 0 && /\bt\s*\(/.test(statementAt(s.src, at));
+  };
+
+  const english = sites.filter((s) => !translated(s));
+  check("11b · every dialog a detailer can reach puts its words through t()",
+    english.length === 0,
+    english.map((s) => `${s.where}:${s.line} ${s.fn}(${s.arg.slice(0, 46)})`).join("  ·  "));
+
+  // **THE EXCLUSION IS PRINTED, BECAUSE A SKIPPED CHECK READS EXACTLY LIKE A
+  // PASSING ONE.** These are English on purpose; the number appearing in the
+  // log is what stops the policy drifting into an accident.
+  const admin = walk(path.join(ROOT, "app/src/admin"))
+    .flatMap((p) => [...strip(readFileSync(p, "utf8")).matchAll(DIALOG)]).length;
+  check(`11c · skipped on purpose — ${admin} dialogs in admin/, which stays English`,
+    admin > 0, "no dialogs found in admin/ — has the back office moved?");
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
