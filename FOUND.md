@@ -5,6 +5,85 @@ Claude Cowork decides what becomes work.
 
 ---
 
+## THE GENESIS COLLISION — a MAKE that quotes itself a tier, lane C, 2026-09-13
+
+**A customer who types `Genesis` and nothing else is quoted the SMALL tier, and
+Genesis is half sedans and half SUVs.** `app/src/book/core.js` is lane B's, so
+this is recorded rather than fixed.
+
+**WHAT IT IS.** `VEHICLE_BODIES`'s sedan rule lists `genesis` as a MODEL — which
+it was, the Hyundai Genesis sedan, before the marque was spun out. It is now a
+MAKE with six models in `vehicles.json`: `G70 G80 G90 GV60 GV70 GV80`. Three
+sedans and three SUVs. So `suggestVehicleSize("Genesis", …)` returns
+`{ key: "small", matched: "Genesis" }` and `suggestVehicleSize("Genesis GV80", …)`
+returns `large` — **the same make, two tiers apart, decided by whether the
+customer bothered to finish typing.**
+
+**IT IS THE ONLY ONE.** Every one of the other 44 makes in the index returns
+null on its own, which is the correct behaviour and the reason this stands out:
+Toyota makes a Corolla and a Tundra, so a make is not evidence of anything.
+`tests/booking-core.test.mjs` § 18m walks all 45 makes and pins the count at
+exactly one, named, so a SECOND collision goes red the day somebody adds a model
+whose word is also a make.
+
+**THE FIX IS ONE WORD AND IT IS LANE B'S:** `genesis` comes out of the sedan
+rule's alternation. Nothing else needs to change — `G70`/`G80`/`G90` are already
+in it, so a Genesis sedan typed properly still lands in the small tier, and the
+GV models already match the SUV rules.
+
+**AND THE GENERAL FORM IS WORTH MORE THAN THE ONE NAME:** the body table is a
+list of MODELS and the index is a list of MAKES, and nothing checks that the two
+vocabularies stay disjoint. A model name that is also a make name is a wrong
+price with nobody's tap behind it.
+
+---
+
+## THE TYPO RANKING — the type-ahead offers a car it is LESS sure about, first, lane C, 2026-09-13
+
+**`esclade` is one letter from Escalade and two from Enclave, and Buick Enclave
+is the row a customer's thumb lands on.** Escalade is the big tier and Enclave
+the middle one, so the price moves without anybody choosing anything.
+`app/src/book/core.js`, so lane B's.
+
+**THE CAUSE, AND IT IS A HOLE IN A DESIGN THAT IS OTHERWISE RIGHT.**
+`matchVehicle`'s own comment says *"the passes are ordered by how sure they are…
+that ordering IS the ranking: there is no score, because a score would need
+tuning and a customer cannot see it."* That is true of passes 1 to 4. **Pass 5 —
+the typo pass — holds one-typo and two-typo hits in the SAME pass** and pushes
+them in index order, which is alphabetical by make. So a distance-2 hit under
+`Buick` is offered ahead of a distance-1 hit under `Cadillac`, every time.
+
+**MEASURED, not reasoned about.** 1,336 synthetic one-letter typos built off
+every model in the index (a doubled letter and a dropped letter for each):
+
+| | |
+|---|---|
+| typos where the FIRST offer is a worse match than the real car | **371 of 1,336** |
+| of those, where the wrong car is in a DIFFERENT price tier | **156** |
+
+Two of them are pinned by name in `tests/booking-core.test.mjs` § 18kk, which
+prints both on every run:
+
+```
+NOTE  "esclade" offers Buick Enclave (medium) before the closer car, which is large
+NOTE  "escaape" offers Cadillac Escalade (large) before the closer car, which is medium
+```
+
+**THE FIX IS TO SORT PASS 5 BY DISTANCE BEFORE PUSHING** — it is the one pass
+where a score already exists, because `editDistance` is being computed anyway
+and then thrown away. Nothing about passes 1 to 4 changes, so the comment's
+argument against scoring survives intact: the score is used to order WITHIN the
+least-certain pass, not to rank the passes against each other.
+
+**WHY IT IS NOT A COSMETIC RANKING COMPLAINT:** § 18j/§ 18k of that suite prove
+the chain that makes this expensive — `suggestVehicleSize` deliberately has no
+fuzzy matching, so a typo suggests no tier at all, and the tier is read off
+WHATEVER THE CUSTOMER PICKED FROM THE LIST. A wrong first row is therefore a
+wrong price, and the customer cannot tell: `Buick Enclave` is a real car with a
+real name and no signal that the matcher was guessing.
+
+---
+
 ## THE INTERMITTENT REFUSAL IS A STALENESS RACE, NOT AN ENGINE DISAGREEMENT — MEASURED AND REPRODUCED, lane C, 2026-09-13
 
 **THE ANSWER TO THE SECTION BELOW.** It is cause 2's cousin rather than either

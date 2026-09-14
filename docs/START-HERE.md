@@ -46,6 +46,40 @@ work it out, and inferring it from the task is circular.
 
 **`node scripts/lane-check.mjs <lane>` BEFORE EVERY `git add`.**
 
+### A PORT IS A LANE'S PROPERTY TOO — Andrew, 2026-09-13, after lane C killed 5173
+
+**LANE B OWNS 5173 AND NOBODY ELSE MAY STOP ANYTHING LISTENING ON IT.** Lane C
+was tidying up after one of its own browser runs, reached for the process on
+5173, and took down the dev server a product session was working against. **The
+session did not notice for some time, and every measurement it took in that
+window is worth nothing** — which is trap (f) and trap (g) arriving together,
+caused by another session rather than by time.
+
+**IT WAS NEVER NECESSARY, AND THAT IS THE PART THAT MAKES IT A RULE RATHER THAN
+AN ACCIDENT.** Lane C has its own rig precisely so it never has to touch lane
+B's: two `git worktree`s off `HEAD`, `vite build`, and `vite preview` on **4173
+(the product) and 4174 (the same product with nothing in it)**. Lane C's ports
+are **4173 and 4174**. That rig is better than the dev server, not merely
+separate — a worktree at a commit cannot be edited underneath a run, so trap (f)
+stops applying at all. `docs/blind-browser-2026-09-13.md` § 1 is how it is
+stood up.
+
+**SO THE RULE IS ABSOLUTE AND IT IS NOT ABOUT INTENT:**
+
+- **Never kill, restart or `taskkill` a process on a port your lane does not
+  own.** Not to clean up, not because it looks stale, not because a run of yours
+  is holding it, and not because 5173 refused to bind.
+- **`node scripts/stop-my-servers.mjs` is the only way lane C stops a server**,
+  and it is incapable of touching 5173 — the allowlist is in the file and 5173
+  is refused BY NAME with lane B's name on it. Do not add a `--force`, do not
+  pass a port past it by hand, and do not reach for `taskkill` when it refuses.
+- **A port already in use is a SIGNAL, not an obstacle.** `5173 is taken` means
+  a product session is live. Use your own port. `4173 is taken` means a run of
+  yours did not shut down — that one is yours to stop.
+- **If a server genuinely must die and it is not yours, say so and stop.** One
+  sentence naming the lane, exactly like every other cross-lane thing.
+
+
 → Long version and the incident that caused this: `CLAUDE.md` § WHICH LANE,
 `docs/sessions/README.md`.
 

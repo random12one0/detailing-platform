@@ -22,7 +22,8 @@ import {
   modeLimitFor, monthGrid, monthHasNothing, monthRange, normalizeProfile,
   normalizeSettings, offersBothModes, paymentMethods, quoteKey, quoteRequest,
   recallCustomer, rememberCustomer, shiftMonth, slotsForType, stepsFor,
-  toggleService, visitorIdFor,
+  suggestVehicleSize, toggleService, vehicleBodyWords, vehicleSizeExtra,
+  vehicleSizesMatter, visitorIdFor,
 } from "../app/src/book/core.js";
 import { readFileSync, readdirSync } from "node:fs";
 const read = (p) => readFileSync(p, "utf8");
@@ -908,6 +909,260 @@ console.log("\n13. nothing is assumed at signup (roadmap 8.4)");
   check("17k · every suggestion is a 44px target",
     /\.bk-typeahead-list button\s*\{[^}]*min-height:\s*44px/.test(read("app/src/book/booking.css")),
     "full-width rows, so the paint is the target and the pitch cannot overlap");
+}
+
+
+
+// ─── 18. THE VEHICLE A CUSTOMER TYPES, AND THE TIER IT IS QUOTED AT ───────
+// **THIS SECTION DECIDES WHAT SOMEBODY IS CHARGED, so it is the one place in
+// this file where a green line is not good enough on its own** — every check
+// below was baselined by breaking `suggestVehicleSize` and watching it fail by
+// name. `docs/VERIFIED.md` records which breaks and what went red.
+//
+// Andrew's rule, and everything here is a restatement of it: **A WRONG GUESS
+// QUOTES SOMEBODY THE WRONG PRICE, WHICH IS WORSE THAN NOT GUESSING.** So the
+// abstentions below are not gaps to be closed later. They are the feature.
+//
+// **AND NOTHING HERE MAY ASSUME THREE TIERS, OUR KEYS, OR OUR ORDER** — his own
+// worry, in his words: *"detailers have custom tiers, one may have three sizes
+// and another five, each with their own upcharges."* Every case runs against a
+// two-tier, a three-tier and a five-tier detailer, no two of whom share a key.
+{
+  // Three real-shaped detailers. **Not one fixture with a length** — the point
+  // is that the tier KEYS, LABELS and WORDS all differ, because the matcher
+  // reads the detailer's own text and nothing else.
+  const THREE = DEFAULT_VEHICLE_SIZES;
+  const TWO = [
+    { key: "std", label: "Standard", examples: "Car, sedan, coupe, hatchback" },
+    { key: "big", label: "Oversize", examples: "Truck, SUV, van, minivan" },
+  ];
+  const FIVE = [
+    { key: "t1", label: "Compact", examples: "Coupe, hatchback" },
+    { key: "t2", label: "Sedan", examples: "Sedan, wagon" },
+    { key: "t3", label: "Crossover", examples: "Small SUV, crossover" },
+    { key: "t4", label: "Large SUV", examples: "3 row SUV, full size SUV" },
+    { key: "t5", label: "Truck and van", examples: "Pickup, van, minivan" },
+  ];
+  const suggest = (q, sizes) => suggestVehicleSize(q, sizes)?.key ?? null;
+
+  // COUNT THE SUBJECTS BEFORE BELIEVING ANY LINE BELOW. A body table that had
+  // been emptied would answer null to everything, and every abstention check in
+  // this section would pass over it — which is exactly the shape of the six
+  // hollow checks this repo has already shipped.
+  {
+    const table = read("app/src/book/core.js").match(/const VEHICLE_BODIES = \[[\s\S]*?\n\];/)?.[0] ?? "";
+    const rules = (table.match(/^ {2}\[\//gm) ?? []).length;
+    check(`18a · the body table is populated — ${rules} rules`, rules >= 12,
+      "an empty table makes every 'suggests nothing' check below pass over nothing");
+    const answered = ["Suburban", "Camry", "RAV4", "Sienna", "F-150", "Mustang", "Golf"]
+      .filter((q) => suggest(q, THREE));
+    check(`18b · and it actually answers — ${answered.length} of 7 ordinary cars land in a tier`,
+      answered.length === 7, `only ${answered.join(", ")} answered`);
+  }
+
+  // (1) A VEHICLE THAT MATCHES CLEANLY, in all three detailers' own words. A
+  // Suburban is the big one everywhere; only the KEY differs.
+  check("18c · a Suburban lands in the big tier, whatever that detailer calls it",
+    suggest("2019 Chevrolet Suburban", THREE) === "large"
+      && suggest("2019 Chevrolet Suburban", TWO) === "big"
+      && suggest("2019 Chevrolet Suburban", FIVE) === "t4",
+    `${suggest("Suburban", THREE)} / ${suggest("Suburban", TWO)} / ${suggest("Suburban", FIVE)}`);
+  check("18d · and the year, the make and the punctuation are all ignorable",
+    ["Suburban", "suburban", "Chevy Suburban", "2019 SUBURBAN", "chevrolet  suburban  "]
+      .every((q) => suggest(q, THREE) === "large"),
+    "the same car typed five ways must be quoted one price");
+
+  // (2) A VEHICLE THAT MATCHES A DIFFERENT TIER — the half that proves 18c is
+  // reading the words rather than answering "the big one" to everything.
+  check("18e · a Camry is not a Suburban",
+    suggest("Camry", THREE) === "small" && suggest("Camry", TWO) === "std",
+    `${suggest("Camry", THREE)} / ${suggest("Camry", TWO)}`);
+  check("18f · and the middle tier exists — a RAV4 is neither",
+    suggest("RAV4", THREE) === "medium" && suggest("2021 Toyota RAV4", THREE) === "medium",
+    "a crossover in the Small tier or the Large tier is a wrong price in both directions");
+  check("18g · five shapes, five different tiers on one five-tier detailer",
+    new Set(["Mustang", "Camry", "RAV4", "Suburban", "Sienna"].map((q) => suggest(q, FIVE))).size === 5,
+    JSON.stringify(["Mustang", "Camry", "RAV4", "Suburban", "Sienna"].map((q) => suggest(q, FIVE))));
+
+  // **SPECIFICITY IS THE WHOLE MECHANISM AND IT IS THE EASIEST THING TO BREAK.**
+  // "small suv" has to be tried before "suv", or a RAV4 lands in the tier whose
+  // words say "large SUV" purely because that tier also contains s-u-v.
+  check("18h · a small SUV does not fall into a Large SUV tier",
+    suggest("RAV4", FIVE) === "t3" && suggest("CR-V", FIVE) === "t3" && suggest("Outback", FIVE) === "t3",
+    `${suggest("RAV4", FIVE)} / ${suggest("CR-V", FIVE)} / ${suggest("Outback", FIVE)}`);
+  check("18i · and a minivan is not merely a van-shaped Large SUV",
+    suggest("Sienna", FIVE) === "t5" && suggest("Honda Odyssey", FIVE) === "t5",
+    `${suggest("Sienna", FIVE)} / ${suggest("Odyssey", FIVE)}`);
+
+  // (3) A TYPO. `suggestVehicleSize` has NO fuzzy matching, on purpose, so a
+  // misspelling suggests nothing — and that is the correct answer rather than a
+  // miss. The typo is absorbed one step earlier: the type-ahead offers the real
+  // car, the customer picks it, and the FIELD is what the tier is read from.
+  // **THIS PAIR IS THE CHAIN, and either half alone proves nothing.**
+  {
+    const VEHICLES = JSON.parse(read("app/src/book/vehicles.json"));
+    for (const [typo, real, tier] of [
+      ["Escallade", "Cadillac Escalade", "large"],
+      ["Xterrra", "Nissan Xterra", "large"],
+      ["Corrolla", "Toyota Corolla", "small"],
+      ["Odysey", "Honda Odyssey", "large"],
+      ["Suburbann", "Chevrolet Suburban", "large"],
+    ]) {
+      check(`18j · "${typo}" suggests no tier on its own`, suggest(typo, THREE) === null,
+        `guessed ${suggest(typo, THREE)} off a misspelling — a price with nobody's tap behind it`);
+      const offered = matchVehicle(typo, VEHICLES)[0] ?? null;
+      check(`18k · ...the type-ahead offers ${real}, and THAT lands in ${tier}`,
+        offered === real && suggest(offered ?? "", THREE) === tier,
+        `offered ${JSON.stringify(offered)} → ${suggest(offered ?? "", THREE)}`);
+    }
+
+    // **AND THE PASS THAT ABSORBS THE TYPO DOES NOT RANK BY HOW CLOSE IT GOT,
+    // WHICH IS A RECORDED DEFECT — found 2026-09-13 while writing this
+    // section.** `matchVehicle`'s five passes are ordered by how sure each one
+    // is and that ordering IS its ranking — but pass 5 holds one-typo and
+    // two-typo hits together and offers them in INDEX order, so an alphabetically
+    // earlier make can outrank the car the customer actually typed. `esclade` is
+    // one letter from Escalade and two from Enclave, and Buick is offered first.
+    //
+    // **IT MATTERS HERE BECAUSE THE FIRST ROW IS THE ONE A THUMB HITS, AND THE
+    // TIER FOLLOWS THE CAR THAT WAS TAKEN.** Escalade is the big tier and
+    // Enclave the middle one, so the customer is quoted the wrong price having
+    // touched nothing but a suggestion. `FOUND.md` § THE TYPO RANKING has the
+    // measurement — 371 of 1,336 synthetic one-letter typos offer a worse match
+    // first, and 156 of those cross a tier. It is `app/src/book/core.js`, so it
+    // is lane B's.
+    //
+    // Pinned to the two named cases so a THIRD shape going wrong is red
+    // immediately; when lane B sorts pass 5 by distance, this check goes red and
+    // whoever fixes it flips these two lines into 18k above.
+    const crossed = [["esclade", "large", "medium"], ["escaape", "medium", "large"]]
+      .filter(([typo, want]) => suggest(matchVehicle(typo, VEHICLES)[0] ?? "", THREE) !== want);
+    check("18kk · two recorded typos are still offered the wrong car first — no more than two",
+      crossed.length === 2,
+      `${crossed.length} of 2 — a change here is either a NEW mispriced typo or the fix; see FOUND.md § THE TYPO RANKING`);
+    for (const [typo, want] of crossed) {
+      const got = matchVehicle(typo, VEHICLES)[0];
+      console.log(`        NOTE  "${typo}" offers ${got} (${suggest(got, THREE)}) before the closer car, which is ${want}`);
+    }
+  }
+
+  // (4) A MAKE WITH NO MODEL. **Toyota makes a Corolla and a Tundra**, so a make
+  // on its own is not evidence of anything and must never reach a price.
+  {
+    const VEHICLES = JSON.parse(read("app/src/book/vehicles.json"));
+    const makes = Object.keys(VEHICLES);
+    check(`18l · every make in the index is checked — ${makes.length} of them`,
+      makes.length >= 40, `${makes.length} makes — count the subjects before believing the line below`);
+    const selfQuoting = makes.filter((mk) => suggest(mk, THREE));
+    // **ONE KNOWN COLLISION, AND IT IS A RECORDED DEFECT RATHER THAN A PASS.**
+    // `Genesis` is a make (G70…GV80) AND a word in the sedan rule, so typing the
+    // make alone quotes the Small tier — on a marque that is half sedans and
+    // half SUVs. `FOUND.md` § THE GENESIS COLLISION has it, and it is lane B's
+    // file. This check is pinned to that ONE name so a NEW collision goes red
+    // the day somebody adds a model whose word is also a make.
+    check("18m · exactly one make self-quotes, and it is the recorded Genesis defect",
+      selfQuoting.length === 1 && selfQuoting[0] === "Genesis",
+      `self-quoting makes: ${JSON.stringify(selfQuoting)} — a make is not a body shape`);
+    if (selfQuoting.length) {
+      console.log(`        NOTE  ${selfQuoting.join(", ")} quotes a tier off the make alone — FOUND.md § THE GENESIS COLLISION`);
+    }
+    check("18n · and a make plus a model is answered by the MODEL",
+      suggest("Toyota Tundra", THREE) === "large" && suggest("Toyota Corolla", THREE) === "small"
+        && suggest("Genesis GV80", THREE) === "large",
+      "the same make, two tiers apart");
+  }
+
+  // (5) TEXT THAT MATCHES NOTHING — **the case that matters most, and the one
+  // where a green line has to prove TWO things: nothing was chosen, and the
+  // customer is not stuck.** A picker that abstains AND blocks is worse than a
+  // wrong guess, because it stops a booking rather than mispricing one.
+  {
+    const NONSENSE = ["", "   ", "the white one", "mi coche", "Zaporozhets 965",
+      "my other car", "2019", "asdfgh", "the one with the dent"];
+    const settings = { vehicle_sizes: FIVE };
+    const base = initialForm(settings, null);
+    for (const q of NONSENSE) {
+      check(`18o · ${JSON.stringify(q)} chooses no tier at all`,
+        suggestVehicleSize(q, FIVE) === null && suggestVehicleSize(q, THREE) === null,
+        JSON.stringify(suggestVehicleSize(q, FIVE)));
+    }
+    // THE SECOND HALF. The form still holds the tenant's OWN first tier — never
+    // ours, never "small" — and the step still lets them through.
+    check("18p · ...the form keeps the DETAILER's first tier, not a guess and not ours",
+      base.vehicleSize === "t1" && base.vehicleSizeChosen === false,
+      `${base.vehicleSize} / chosen=${base.vehicleSizeChosen}`);
+    const stuck = NONSENSE.filter((q) => canAdvance("Vehicle",
+      { form: { ...base, vehicleModel: q }, quote: { total: 100 }, quoting: false, settings }) !== true);
+    check(`18q · ...and the customer can still continue — 0 of ${NONSENSE.length} unrecognised cars block the step`,
+      stuck.length === 0, `blocked on ${JSON.stringify(stuck)}`);
+    check("18r · an empty tier list is silence, never a throw",
+      suggestVehicleSize("Suburban", []) === null && suggestVehicleSize("Suburban", null) === null
+        && suggestVehicleSize("Suburban", undefined) === null,
+      "a tenant site that forgets to pass its tiers gets the plain control, not a white screen");
+    check("18s · tiers with no words are not guessed at either",
+      suggestVehicleSize("Suburban", [{ key: "a", label: "" }, { key: "b", label: "" }]) === null
+        && suggestVehicleSize("Suburban", [{ key: "only", label: "Any vehicle", examples: "" }]) === null,
+      "a detailer who wrote no examples has told us nothing to match against");
+  }
+
+  // (6) TWO TIERS CLAIMING THE SAME WORD STOPS EVERYTHING. Falling through to a
+  // vaguer word would only ever find MORE tiers, and picking the first of two is
+  // a coin toss with somebody's price on it.
+  {
+    const VAGUE = [
+      { key: "a", label: "Tier A", examples: "SUV" },
+      { key: "b", label: "Tier B", examples: "SUV" },
+    ];
+    check("18t · a word two tiers both claim abstains rather than picking one",
+      suggestVehicleSize("RAV4", VAGUE) === null && suggestVehicleSize("Suburban", VAGUE) === null,
+      JSON.stringify(suggestVehicleSize("RAV4", VAGUE)));
+    check("18u · ...and it happens on an ordinary tier list, not only a contrived one",
+      suggestVehicleSize("Camry", [
+        { key: "t1", label: "Compact", examples: "Coupe, hatchback, small sedan" },
+        { key: "t2", label: "Sedan", examples: "Full size sedan, wagon" },
+      ]) === null,
+      "two tiers that both say 'sedan' cannot both be the Camry's tier");
+  }
+
+  // WHAT THE SCREEN PRINTS. Andrew asked for *"Suburban, that's your Large"*,
+  // and the only honest way to write that line is to quote the word actually
+  // recognised — so `matched` is load-bearing copy, not debugging output.
+  check("18v · the matched word is the customer's own, in their own capitals",
+    suggestVehicleSize("2019 Chevy SUBURBAN", THREE)?.matched === "SUBURBAN"
+      && suggestVehicleSize("my wife's minivan", THREE)?.matched === "minivan"
+      && vehicleBodyWords("Honda Odyssey")?.matched === "Odyssey",
+    JSON.stringify([suggestVehicleSize("2019 Chevy SUBURBAN", THREE)?.matched,
+      suggestVehicleSize("my wife's minivan", THREE)?.matched]));
+
+  // A BUSINESS THAT CHARGES ONE PRICE FOR EVERY SIZE IS NEVER ASKED, so the
+  // suggestion has nothing to touch there either. The screen's own guard calls
+  // this function, so this is the rule rather than a restatement of the wiring.
+  {
+    const flat = [svc("s", { vehicle_size_adjustments: {} })];
+    const laddered = [svc("s", { vehicle_size_adjustments: { big: { price: 40 } } })];
+    check("18w · a flat-priced business is never asked the question at all",
+      vehicleSizesMatter(TWO, flat) === false && vehicleSizesMatter(TWO, laddered) === true,
+      "a suggestion into a control nobody is shown is a price change nobody saw");
+    check("18x · and the upcharge is read per tier, off the detailer's own keys",
+      vehicleSizeExtra(laddered, "big") === 40 && vehicleSizeExtra(laddered, "std") === 0,
+      "a key we invented would silently charge 0");
+  }
+
+  // **A SUGGESTION MAY NEVER OVERRULE A PERSON.** `vehicleSizeChosen` is a flag
+  // about WHO chose, not about the size, and the moment a customer taps a tier
+  // every further keystroke has to stop moving it.
+  {
+    const src = read("app/src/book/steps/StepVehicle.jsx");
+    check("18y · the screen stops suggesting once the customer has tapped a tier",
+      /!form\.vehicleSizeChosen/.test(src) && /vehicleSizeChosen:\s*true/.test(src),
+      "without the guard the next keystroke overrules a person, which is the one thing a suggestion may never do");
+    check("18z · and it never suggests into a multi-vehicle booking",
+      /!multi\s*&&\s*sizesMatter\s*&&\s*!form\.vehicleSizeChosen/.test(src),
+      "past one car the sizes are a per-row select and nobody is looking at row 2");
+    check("18aa · the flag is about the screen and reaches no payload",
+      !/vehicleSizeChosen/.test(strip(read("app/src/book/core.js")).split("export function toPayload")[1] ?? ""),
+      "it is a fact about who tapped, not about the booking");
+  }
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

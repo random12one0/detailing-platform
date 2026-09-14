@@ -1179,3 +1179,80 @@ check, and `CLAUDE.md` is the manager's file.** The row it needs:
 section and `docs/check-coverage-gaps-2026-09-13.md` § 1** — and a check nobody
 is told to run is a check nobody runs, which is the same failure as a check that
 tests nothing wearing different clothes.
+
+---
+
+## 1h · PROVEN TONIGHT — lane C, 2026-09-13, the vehicle-to-tier matcher
+
+**THE SUITE THAT DECIDES WHAT SOMEBODY IS CHARGED.** Lane B built
+`suggestVehicleSize` and could not guard it, because `tests/` is not lane B's.
+`tests/booking-core.test.mjs` § 18 is that guard, and it is the only permanent
+check anywhere on the path from *what a customer types* to *the tier they are
+quoted at*.
+
+| what was proven | number | invalidated by a change to |
+|---|---|---|
+| **A vehicle that matches cleanly lands in the same tier on a two-, three- and five-tier detailer**, no two of whom share a key | `booking-core` **281 passed, 0 failed** (was 237 — § 18 is 44 new checks) | `app/src/book/core.js`, `app/src/book/vehicles.json`, `app/src/book/steps/StepVehicle.jsx` |
+| A car in a DIFFERENT tier is quoted differently — five shapes, five distinct keys on one five-tier detailer | § 18e–18i | the same paths |
+| **A typo suggests no tier on its own, and the chain that absorbs it does** — five typos, each resolved by the type-ahead and then tiered | § 18j/18k, 10 checks | the same paths |
+| **A make with no model quotes nothing — checked across all 45 makes in the index** | § 18l/18m, 1 recorded exception (Genesis) | `app/src/book/vehicles.json`, `core.js` |
+| **Text that matches nothing chooses NO tier and blocks NOBODY** — nine unrecognised strings, each proved to leave the detailer's own first tier untouched and `canAdvance("Vehicle")` true | § 18o–18s, 13 checks | `core.js` |
+| A word two tiers both claim abstains rather than picking one | § 18t/18u | `core.js` |
+| The suggestion never overrules a customer's own tap, and never fires into a multi-vehicle booking | § 18y–18aa | `app/src/book/steps/StepVehicle.jsx` |
+
+### BASELINED BY TEN DELIBERATE BREAKS, EVERY ONE RED, EACH BY NAME
+
+**Run in lane C's own `git worktree` at `HEAD`, never in lane B's tree** — the
+rule in `docs/START-HERE.md` § A PORT IS A LANE'S PROPERTY TOO applies to files
+as well as ports, and a worktree at a commit cannot disturb a session that is
+building.
+
+| break | what went red |
+|---|---|
+| the body table emptied | **17 checks**, starting with § 18a's own subject count |
+| the table's rule order reversed | 18n |
+| the body WORDS tried least-specific first | **9 checks** |
+| a word two tiers claim picks the first of them | 18t, 18u |
+| a car no tier claims falls back to the first tier | 18s |
+| an empty tier list silently uses OUR three sizes | 18r |
+| the printed word becomes the whole field | 18v |
+| our three keys returned instead of the detailer's | **5 checks** |
+| the suggestion keeps firing after the customer taps | 18y, 18z |
+| the step refuses to advance until a tier is chosen | 18q, and § 8's own gate check |
+
+### TWO DEFECTS FOUND BY WRITING IT, AND NEITHER IS FIXED HERE
+
+Both are in `app/src/book/core.js`, which is lane B's. `FOUND.md` carries them
+in full and the suite **prints both on every run** rather than hiding them
+behind a green line.
+
+- **THE GENESIS COLLISION.** `Genesis` is a MAKE with six models — three sedans,
+  three SUVs — and also a word in the sedan rule, so typing the make alone quotes
+  the small tier. It is the only one of 45 makes that does this, and § 18m is
+  pinned to that single name.
+- **THE TYPO RANKING.** `matchVehicle`'s pass 5 holds one-typo and two-typo hits
+  together and offers them in alphabetical-make order, so a worse match can be
+  the first row. **371 of 1,336 synthetic one-letter typos offer a worse match
+  first; 156 of those cross a price tier.** `esclade` offers Buick Enclave
+  (medium) ahead of Cadillac Escalade (large).
+
+### AND ONE THING THAT LOOKS LIKE A DEFECT AND IS THE FEATURE
+
+**`suggestVehicleSize` has no fuzzy matching at all, and abstains constantly.**
+A misspelling, an unknown car, a bare make, a tier list with no words, and a
+word two tiers both claim all return null. That is Andrew's own rule — *a wrong
+guess quotes somebody the wrong price, which is worse than not guessing* — so
+none of those is a gap to close later. **Do not "improve" the matcher by making
+it guess more.**
+
+```bash
+git diff --name-only HEAD -- app/src/book/core.js app/src/book/vehicles.json app/src/book/steps/StepVehicle.jsx
+```
+
+## 1i · PROVEN TONIGHT — lane C's stopper cannot touch lane B's port
+
+| what was proven | number | invalidated by a change to |
+|---|---|---|
+| `scripts/stop-my-servers.mjs` **refuses 5173 by name and kills nothing at all**, including the allowed port in the same command | `4173 5173` → one REFUSED line naming lane B, exit **1**, and the live listener on 4173 **still up afterwards** | `scripts/stop-my-servers.mjs` |
+| It really can see and stop its own | a throwaway listener on 4173 was found by pid (66284), stopped, and read back idle | the same file |
+| It counts, rather than merely matching | prints `stopped N, M of K already idle` — a run over zero ports cannot read as a pass | the same file |
