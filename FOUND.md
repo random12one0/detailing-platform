@@ -2653,3 +2653,79 @@ the price editor's behaviour in detail (*"the editor WARNS and never refuses"*),
 and `ROADMAP.md` records a question to Andrew about whether it should refuse.
 **A feature the documentation discusses and the product cannot reach.** Lane B
 owns the screens; whether all eight are wanted is Andrew's call.
+
+---
+
+## A SPANISH DETAILER READS ENGLISH IN SIX `window.confirm` DIALOGS AND ON THE BOOKING RULES SCREEN — lane B, 2026-09-13
+
+**FOUND, NOT FIXED. Reported because the session prompt asked for named faults
+even where they are not fixed; the session was at 91% of its context.**
+
+**`tests/spanish.test.mjs` is 72/0 and cannot see any of these**, which is the
+part that matters: it walks `t("…")` calls, and every string below is a bare
+literal or a template literal that never reaches `t()`. CLAUDE.md trap (l)
+already predicted the first six — *"the easiest string in a product to leave
+untranslated"* — and here they are.
+
+**THE SIX CONFIRMS. Every one is the sentence somebody reads immediately before
+destroying something, and a Spanish detailer gets it in English:**
+
+| file:line | the sentence |
+|---|---|
+| `screens/more/Campaigns.jsx:220` | `Delete ${r.name} for good? Its scans and bookings stop being counted against it.` |
+| `screens/more/Gallery.jsx:64` | `Remove this photo from the gallery?` |
+| `screens/more/Reviews.jsx:100` | `Delete this review from ${r.author} for good? Hiding it keeps the words.` |
+| `screens/more/WebAddress.jsx:105` | `Stop using ${row.domain}? Your links go back to detailingplatform.com.` |
+| `components/BookingDetail.jsx:148` | `Delete this booking? It is hidden, not destroyed, and can be restored by support.` |
+| `components/JobPhotos.jsx:81` | `Delete this photo? A before-photo is what settles an argument about a scratch.` |
+
+**AND THE BOOKING RULES SCREEN HAS THREE FAULTS IN ONE FUNCTION.**
+`screens/more/BookingRules.jsx:83` `ruleSentence()` is the surcharge list read
+back as a sentence and it is **entirely untranslated** — `"when booked within
+{n} hours"` and the joining word `"on"` are both raw English, so the whole list
+renders in English on a Spanish screen. In the same two lines:
+
+- **`${r.within_hours} hours` is an unguarded plural** and `within_hours` takes a
+  typed custom value, so *"+$25 when booked within 1 hours"* is reachable.
+- **`+$${Number(r.amount).toFixed(2)}` bypasses `lib/format.js`'s `money()`**,
+  which is the one-currency-formatter rule, and prints `$40.00` where the rest
+  of the product prints `$40`.
+
+**A FOURTH ON THE SAME SCREEN, `BookingRules.jsx:234`.** The
+`window_exceeds_notice` warning is the only one of the seven warnings on that
+screen written as a raw template literal — the other six all go through `t()` in
+the `WARN` table at :102. It is also **doubly ungrammatical**: `notice` is
+`min_advance_minutes / 60`, so 90 minutes prints *"You take bookings 1.5 hours
+ahead"*, and 60 minutes prints *"1 hours"*.
+
+**AND A LONGER TAIL OF TOASTS AND PLACEHOLDERS, same cause, lower stakes:**
+`BusinessInfo.jsx:109` and `:204`, `Catalog.jsx:323` and `:334`,
+`Campaigns.jsx:201`, `Password.jsx:73` and `:95`, `Team.jsx:100`, `:101` and
+`:160`, `Notifications.jsx:152`, `Payments.jsx:84` (a placeholder),
+`WebAddress.jsx:121` and `:122`, `Reviews.jsx:146`, `:182` and `:184`,
+`WebAddress.jsx:153` and `:161`, `BookingDetail.jsx:238`.
+
+**THE INSTRUMENT IS THE WORK HERE.** Fixing twenty strings by hand leaves the
+twenty-first, and a rule that greps for `t(` cannot see a template literal by
+definition. **A check that finds a user-facing string which never reaches `t()`
+is lane C's, and it is worth more than the fixes.** `Today.jsx:279` is the
+counter-example it has to tolerate: English is deliberately the KEY there and
+`t()` is applied where it is drawn.
+
+## TWO THINGS THE NEW TAP SWEEP MISREPORTS — lane B, 2026-09-13, for lane C
+
+**Neither is a product defect and both were checked by hand.**
+
+- **`admin/Detailers/open` reports 31 `covered` findings at every width in both
+  languages** — 120 of the 249 `covered` findings in a full run. They are the
+  detailer LIST beneath an open drawer. A modal legitimately covers the page
+  under it, and `sweep-tap-targets.mjs` already has the concept: it prints
+  *"[scoped to an open overlay — the page beneath it is not the subject]"* for
+  the tour. It just does not apply it to the admin drawer.
+- **`row-vanished` left NINE settings screens unmeasured at `768/en/business`**
+  in one run and five in the next, and a screen that was never visited reads
+  exactly like a screen that passed. The single `a.cta "See five sites built
+  with it"` covered finding is the same family — measured again on its own it is
+  clean, and the inactive tab panels carry `visibility: hidden` with
+  `checkVisibility() === false`, so it is the landing page's own auto-rotation
+  moving under the probe.
