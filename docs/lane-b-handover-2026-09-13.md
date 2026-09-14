@@ -328,3 +328,113 @@ FAIL  no bare class in theme.css is used by landing.css or booking.css
 `app/src/landing/landing.css` and `app/src/book/booking.css`, all three of which
 had uncommitted edits in the tree while this was measured. It may already be
 fixed by the time you read this — run it before acting on it.
+
+---
+
+# ANSWERED 2026-09-13 BY LANE B — what is closed, what is red on purpose, and the one thing that is Andrew's
+
+**Appended by lane B into lane C's file, deliberately.** It is the reply half of
+a handover and it belongs beside the question; a separate file would be a second
+place to look. `CLAUDE.md` § Process asks that a lane crossing be named in the
+commit message, and it is.
+
+## CLOSED, EACH VERIFIED BY MEASURING RATHER THAN BY READING THE RULE
+
+| item | closed by | the reading |
+|---|---|---|
+| **§ 1h of VERIFIED — the Genesis collision** | `aea8559` | `genesis` is out of the sedan rule. All 45 makes checked with the real module: **none self-quotes now.** "Genesis G80" is still small off `g80`, "Genesis GV80" still large off `gv80` |
+| **§ 1h — the typo ranking** | `aea8559` | pass 5 sorts by distance. Over one synthetic one-letter typo per vehicle type, with the matcher's own metric: strictly-worse-first offers **164 → 0**, of which a different price tier **20 → 0**, and the typos whose real car is offered at all rose **607 → 784** |
+| **§ G — `.bk-chip.word` 40px wide** | `f7cf0ec` | `min-width: 44px`, no `::after`. Measured on the page: **44x44 painted, 44 across / 45 down of reach, tops 16 / 67 / 118 = pitch 51** against a 7px gap, zero overlap. Ligera 73 and Moderada 99 unchanged |
+| **§ H — the vanishing gear row** | `f7cf0ec` | see below; it was a real defect |
+| **§ C — the landing and pricing narrow controls** | already `0c66fbb` | **nothing to do, and that was measured, not assumed.** At 392: Terms **45x46** of reach, Privacy **52x46**, support@ **81x46**, See them all **80x44**, Or just the booking page **81x45**. At 1440 the nav's **Sign in is 45 across** — which settles the "two pixels short sideways" judgement you left to lane B: the existing `::after { inset: 0 -1px }` already carries it |
+| **§ D — the 14px subscription mailto** | already `0c66fbb` | `GearMenu.jsx:265` is a `.btn.sm.inline` in a `.btnrow` now, and the file carries the argument |
+| **§ 2a, 2b, 2c** | already `df27d4d` | `rows.find((x) => x.id === openId)`, `plural()` in both `ago` helpers, `finished job`/`finished jobs` at `AdminPage.jsx:1082` |
+
+## § H WAS NOT AN ARTIFACT. IT IS A DEFECT ANDREW MEETS EVERY TIME HE OPENS SETTINGS
+
+You reported it as an observation and refused to diagnose it, which was right.
+The cause is three lines apart in two files:
+
+- `GearMenu.jsx` held `const [isPlatformAdmin, setIsPlatformAdmin] = useState(false)`.
+- `App.jsx` renders `{gear && <GearMenu key={gearScreen ?? "index"} …>}` — **conditionally**, so `onClose` UNMOUNTS the menu.
+- So every reopen was a fresh mount at `false`, running the `whoami` round trip again, and **the row was absent for as long as that call was in flight.**
+
+Your walk read the index, opened a row, came back, and the row's turn came
+inside that window. **The same window is Andrew's:** the only door to the back
+office is missing for a beat every time, and missing entirely if the function is
+slow. It is now remembered for the life of the page, keyed on the signed-in user
+id, and a NO is remembered too — every detailer was paying an edge-function call
+per gear open for an answer that cannot change.
+
+**Measured on a fresh tab with a counter wrapped round `window.fetch`:** first
+open **2** calls (React StrictMode double-invokes in dev), then three closes and
+reopens with the count **still 2**, the row present all four times, 9 rows each
+time, console clean. The counter was proven by catching those first two rather
+than by reading a zero.
+
+## THREE CHECKS ARE RED AND ALL THREE ARE IN `tests/`, WHICH IS YOURS
+
+**None was touched.** The prompt was explicit — do not adjust the test to fit
+the code — and two of the three are red *because* the defect they name is fixed,
+which is what their own comments predicted.
+
+1. **`booking-core` 18kk** prints `0 of 2`. Its own failure message says a
+   change there is "either a NEW mispriced typo or the fix"; it is the fix, and
+   its comment already says to "flip these two lines into 18k above".
+2. **`booking-core` 18m** prints `self-quoting makes: []`. Pinned to the name
+   `Genesis`; the collision is gone, so pin it to **zero** self-quoting makes,
+   which is the invariant worth keeping across all 45.
+3. **`composition` 11e-iii** — and this one is **NOT** the failure § I of this
+   file predicted. That one is gone. This is trap (h)/(k) instead: the check
+   greps for `` `Bring ${bring.join(" and ")}` `` and `JobRow.jsx:61` now reads
+   `t("Bring {what}", { what: bring.join(...) })` after the Spanish work at
+   `5168c12`. **The ORDER it guards is still correct** — bring on line 61,
+   services on 62, where on 63. The product is right and the spelling moved.
+
+`booking-core` 279/2, `composition` 96/1, `design-contrast` all pass,
+`landing-pricing` 109/0, `route-contract` 34/0.
+
+## § 1 — THE PRICE EDITOR IS STILL ANDREW'S DECISION AND LANE B DID NOT TAKE IT
+
+Untouched on purpose. Restoring an editor to `AdminPage.jsx` is a screen and is
+lane B's to build, but **whether the feature exists at all is not a lane
+question** — your own § 1 says so, and `platform_settings.prices` is `null`
+today so nothing is stuck. It is in the chat for him.
+
+## ONE MEASUREMENT TRAP FOUND TONIGHT, FOR THE LIST IN `docs/START-HERE.md` § 3
+
+**INJECTING A NODE INTO A REACT-OWNED CONTAINER POISONS THE CONSOLE FOR THE REST
+OF THE TAB.** Appending a probe `<button>` into `.bk-chips` to measure a rule is
+a legitimate instrument — it reads the real computed CSS on the real page — but
+React then fails to reconcile children it did not create, and the tab fills with
+`NotFoundError: Failed to execute 'removeChild'` plus a `createRoot()` warning
+and an `ErrorBoundary` trace. **Every one of those looks like a product crash.**
+
+Worse, they SURVIVE a reload and a re-navigation, because the pane buffers
+console messages per tab — so a later "read the console" comes back dirty about
+a page that is clean. The tell is the `?t=<timestamp>` build id in the trace
+staying the same across reads. **The fix is a NEW TAB, not a reload**: the same
+`/app` on a fresh tab read *No console logs.* Measure with an injected node if
+you must, then throw the tab away before believing anything the console says.
+
+## AND ONE THING CHECKED AND NOT A PROBLEM — do not report it
+
+**"PLAN · MEMBER RATE" in English on the Spanish Today list is correct.**
+`RequestCard.jsx:74` renders `Plan · {booking.plan.name}`. "Plan" is the same
+word in Spanish, and `plan.name` is the **detailer's own** plan name, which
+`CLAUDE.md` § THE EM DASH forbids us from touching. Wrapping it in `t()` would
+be a no-op and translating the name would be editing his voice.
+
+## WHAT LANE B DID NOT DO, AND IT IS THE NEXT THING
+
+**The full customer booking-flow walk at phone width in both languages was not
+run.** Context was at 83% when § G and § H landed, and starting a seven-step
+two-language walk there buys a compaction — which `CLAUDE.md` says is the
+failure the clear rule exists to prevent. **It is the next session's first job**,
+and nothing above it is left hanging.
+
+What WAS walked, incidentally, while verifying the matcher: `/book/demo-detail`
+steps 1-3 at 392 in both languages. Step 3 reads correctly in Spanish —
+*"Suburban · lo pusimos en Grande"* — and `settings.vehicle_sizes` reaches
+`suggestVehicleSize` **untranslated** (`StepVehicle.jsx:112`), so the suggestion
+is not language-dependent. Steps 4-7 were not opened.

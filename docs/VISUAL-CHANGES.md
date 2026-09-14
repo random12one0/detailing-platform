@@ -924,3 +924,59 @@ each had a button or a heading still in English.
 and no sentence can say "1 hours" any more.
 
 **Visual: yes.**
+
+---
+
+## 47 · The car you meant, not the car that comes first in the alphabet
+
+**Open:** `localhost:5173/book/demo-detail` → pick any service → Continue →
+Continue → step 3, "Tell us about the vehicle". Type **esclade** in the
+"What are you bringing?" box, then tap the first row offered.
+
+**WAS:** Two ways the box could put a customer in the wrong price band. If you
+misspelled a car, the list was ordered alphabetically by the make rather than by
+how close the guess was — so typing "esclade" offered a Buick Enclave, which is
+a Medium, before the Cadillac Escalade you actually meant, which is a Large. And
+typing just the word **Genesis** set you to the cheapest tier, even though
+Genesis makes big SUVs as well as small sedans.
+
+**NOW:** The closest car is offered first, so "esclade" gives you the Escalade
+and the page says "Escalade · set to Large". Typing a make on its own — Genesis,
+Toyota, anything — no longer picks a size at all, because a make is not a size;
+you choose. Typing the actual car still works exactly as before.
+
+**Visual: yes.**
+
+---
+
+## 48 · The door to your back office stops going missing
+
+**Open:** `localhost:5173/app` → the gear at the top right → close it → open it
+again, a few times. Look for "The website business" at the bottom of the list.
+
+**WAS:** Every time you opened settings, the app asked the server afresh whether
+you are the owner of the platform, and the row that takes you to the back office
+was simply absent until the answer came back. Open and close settings quickly
+and the row was not there; on a slow moment it was not there at all.
+
+**NOW:** It asks once per visit and remembers, so the row is there every time
+you open settings. It also stops every ordinary detailer paying for that same
+question on every single settings open.
+
+**Visual: yes.**
+
+---
+
+## 49 · The little number buttons are big enough to hit
+
+**Open:** `localhost:5173/book/demo-detail` on a business that allows more than
+one car per booking → step 3 → the "How many cars?" row of 1 / 2 / 3.
+
+**WAS:** Those buttons were tall enough for a thumb but not wide enough — 40
+pixels across where everything else in the product is at least 44.
+
+**NOW:** They are square, 44 by 44, with the same gap between them as before, so
+no button can steal the press meant for the one beside it. The word buttons on
+the same step ("Light", "Moderate") are unchanged.
+
+**Visual: no** — it is four pixels, and nothing else moved.
