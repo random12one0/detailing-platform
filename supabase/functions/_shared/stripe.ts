@@ -257,6 +257,54 @@ export async function verifyWebhook(
   return JSON.parse(rawBody) as Record<string, unknown>;
 }
 
+/**
+ * THE SAME CHECK, AGAINST EVERY SECRET THIS DEPLOYMENT HOLDS — lifted out of
+ * `stripe-webhook/index.ts` on 2026-09-14 so a test can RUN it.
+ *
+ * **IT WAS ALREADY CORRECT AND ALREADY UNTESTABLE, which is its own problem.**
+ * The loop lived inside `Deno.serve`, so the credential-free suite could reach
+ * `verifyWebhook` (the primitive) and never the thing that actually decides
+ * whether a connected-account event gets in. CLAUDE.md trap (k): a check that
+ * greps source asserts how something is WRITTEN; only one that runs it asserts
+ * what it DOES.
+ *
+ * TRIED RATHER THAN CHOSEN, and that is the load-bearing sentence. The obvious
+ * version parses `event.account` out of the raw body first and picks a secret
+ * from it — which means an UNVERIFIED field decides which key verifies it. It
+ * is arguably still safe (a forged field just picks a key the signature then
+ * fails against), but it is a sentence somebody has to reason about correctly
+ * every time they read it, and getting it wrong is silent. Two HMACs over a
+ * few hundred bytes is nothing; a subtle authentication argument is not.
+ *
+ * Empty secrets are dropped before the loop: an unset `STRIPE_CONNECT_WEBHOOK_
+ * SECRET` means Connect's endpoint is not switched on yet, not that everything
+ * should fail. With NO secret at all it is a 503 rather than a 400 — nothing
+ * is wrong with the request, and a 400 makes Stripe stop retrying an event we
+ * could have handled once somebody sets the secret.
+ *
+ * The error reported is the FIRST failure, because "no signature header" is
+ * the useful message and a later attempt's failure would only restate it.
+ */
+export async function verifyWebhookAny(
+  rawBody: string,
+  signatureHeader: string | null,
+  secrets: string[],
+  toleranceSeconds = 300,
+  now: number = Math.floor(Date.now() / 1000),
+): Promise<Record<string, unknown>> {
+  const usable = secrets.filter(Boolean);
+  if (!usable.length) throw new StripeError("Webhook secret is not configured.", 503);
+  let firstErr: StripeError | null = null;
+  for (const secret of usable) {
+    try {
+      return await verifyWebhook(rawBody, signatureHeader, secret, toleranceSeconds, now);
+    } catch (err) {
+      firstErr ??= err as StripeError;
+    }
+  }
+  throw firstErr ?? new StripeError("Bad signature.", 400);
+}
+
 // ---------------------------------------------------------------------------
 // CONNECT OAUTH — roadmap 2.20 stage 3
 //

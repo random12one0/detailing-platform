@@ -47,7 +47,7 @@ import {
   BUILD_FEE_LINE, firstChargeCents, isPlan, isTerm, linesFor, ourStatus, planFor, planLabel,
   termEndDate, wholeMonthsBetween,
 } from "../supabase/functions/_shared/platformBilling.ts";
-import { flatten, verifyWebhook } from "../supabase/functions/_shared/stripe.ts";
+import { flatten, verifyWebhook, verifyWebhookAny } from "../supabase/functions/_shared/stripe.ts";
 import { billingEmail } from "../supabase/functions/_shared/emailTemplates.ts";
 import { money } from "../supabase/functions/_shared/emailKit.ts";
 import {
@@ -416,6 +416,62 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
   const spaced = `{ "id": "evt_1", "type": "invoice.paid" }`;
   check("whitespace changes the signature (the raw body is the subject)",
     await rejects(spaced, `t=${now},v1=${await sign(JSON.parse(spaced) && JSON.stringify(JSON.parse(spaced)), SECRET, now)}`));
+
+  // ─── 8b. TWO ENDPOINTS, TWO SIGNING SECRETS ──────────────────────────────
+  //
+  // Andrew created both destinations in Stripe on 2026-09-14 — one scoped to
+  // "Your account", one to "Connected accounts" — and a Stripe endpoint's
+  // "Events from" is CREATE-ONLY, so they can never be one endpoint. Two
+  // endpoints issue two signing secrets, and both point at this one function.
+  //
+  // **THE FAILURE THIS GUARDS IS THE QUIET KIND.** A connected-account event
+  // signed with the Connect secret fails verification against
+  // `STRIPE_WEBHOOK_SECRET` and comes back 400 — which presents as card
+  // payments silently never being recorded, beside a perfectly healthy-looking
+  // platform-billing endpoint.
+  //
+  // It runs `verifyWebhookAny`, the real function the endpoint calls, rather
+  // than asserting the endpoint contains a loop — trap (k): a grep asserts how
+  // something is written, not what it does.
+  const PLATFORM = "whsec_platform_secret";
+  const CONNECT = "whsec_connect_secret";
+  const both = [PLATFORM, CONNECT];
+  // **EVERY CALL GOES THROUGH THESE TWO, AND THAT IS NOT TIDINESS.** Written
+  // as bare `await verifyWebhookAny(...)` inside `check(...)`, a regression
+  // THROWS out of the suite and takes the remaining 200 checks with it —
+  // measured while baselining this section. A check has to go red BY NAME or
+  // the next person reads a stack trace instead of a sentence.
+  const accepts = async (header, secrets = both, raw = body, t = now) => {
+    try { return (await verifyWebhookAny(raw, header, secrets, 300, t)).id === "evt_1"; } catch { return false; }
+  };
+  const anyRejects = async (header, secrets = both, raw = body, t = now) => {
+    try { await verifyWebhookAny(raw, header, secrets, 300, t); return false; } catch { return true; }
+  };
+  const sigFor = async (secret) => `t=${now},v1=${await sign(body, secret, now)}`;
+
+  check("8b-i · signed with the PLATFORM secret is accepted",
+    await accepts(await sigFor(PLATFORM)));
+  check("8b-ii · signed with the CONNECT secret is accepted — the second one is really tried",
+    await accepts(await sigFor(CONNECT)));
+  check("8b-iii · signed with NEITHER secret is refused",
+    await anyRejects(await sigFor("whsec_not_ours")));
+  // ORDER MUST NOT MATTER. If it did, whichever secret happened to be second
+  // would work only by luck of the array's order.
+  check("8b-iv · and the order of the two does not decide it",
+    await accepts(await sigFor(PLATFORM), [CONNECT, PLATFORM])
+      && await accepts(await sigFor(CONNECT), [CONNECT, PLATFORM]));
+  // AN UNSET CONNECT SECRET IS NOT AN ERROR — it means Connect's endpoint is
+  // not switched on yet, which was true of this deployment until today.
+  check("8b-v · an empty second secret is dropped, not treated as a failure",
+    await accepts(await sigFor(PLATFORM), [PLATFORM, ""]));
+  check("8b-vi · no secret configured at all is a 503, never a 400",
+    await (async () => {
+      try { await verifyWebhookAny(body, good, [], 300, now); return false; } catch (e) { return e.status === 503; }
+    })());
+  // AND THE TAMPER CHECK SURVIVES HAVING TWO KEYS. Two chances to verify must
+  // not become two chances to get in.
+  check("8b-vii · a tampered body is refused under both secrets",
+    await anyRejects(await sigFor(CONNECT), both, tampered));
 }
 
 // ─── 9. FORM ENCODING — a mis-nested key is silently ignored by Stripe ─────

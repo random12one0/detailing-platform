@@ -53,7 +53,7 @@ import { supabase } from "../_shared/db.ts";
 import { json } from "../_shared/http.ts";
 import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
 import { PLATFORM_URL } from "../_shared/config.ts";
-import { stripe, verifyWebhook, webhookSecret, connectWebhookSecret, API_VERSION, StripeError } from "../_shared/stripe.ts";
+import { stripe, verifyWebhookAny, webhookSecret, connectWebhookSecret, API_VERSION, StripeError } from "../_shared/stripe.ts";
 import { ourStatus } from "../_shared/platformBilling.ts";
 import { sendTenantEmail } from "../_shared/email.ts";
 import { platformBrand, PLATFORM_NAME } from "../_shared/platformBrand.ts";
@@ -108,26 +108,28 @@ Deno.serve(async (req) => {
   // The PLATFORM secret goes first because it is every event today. The error
   // reported is the FIRST one, because "no signature header" is the useful
   // message and the connect attempt's failure would only ever restate it.
-  const secrets = [webhookSecret(), connectWebhookSecret()].filter(Boolean);
-  let firstErr: StripeError | null = null;
-  for (const secret of secrets) {
-    try {
-      event = await verifyWebhook(raw, req.headers.get("Stripe-Signature"), secret);
-      firstErr = null;
-      break;
-    } catch (err) {
-      firstErr ??= err as StripeError;
-    }
-  }
-  if (firstErr || !secrets.length) {
+  //
+  // **THE LOOP ITSELF MOVED TO `_shared/stripe.ts` ON 2026-09-14, and the only
+  // reason is testability.** Inside `Deno.serve` nothing in the credential-free
+  // suite could run it: `tests/platform-billing.test.mjs` § 8 could reach
+  // `verifyWebhook` and never the thing that actually decides whether a
+  // connected-account event gets in. Behaviour here is unchanged — same two
+  // secrets, same order, same first-error-wins, same 503 when neither is set.
+  try {
+    event = await verifyWebhookAny(
+      raw,
+      req.headers.get("Stripe-Signature"),
+      [webhookSecret(), connectWebhookSecret()],
+    );
+  } catch (err) {
     // No secret configured at all is a 503, not a 400: nothing is wrong with
     // the request, and telling Stripe 400 makes it stop retrying an event we
     // could have handled once somebody sets the secret.
-    const e = firstErr ?? new StripeError("Webhook secret is not configured.", 503);
+    const e = err as StripeError;
+    // NEVER THE SECRET, AND NOT THE SIGNATURE EITHER — only our own sentence.
     console.error("webhook rejected:", e.message);
     return json({ error: e.message }, e.status ?? 400);
   }
-  event = event!;
 
   const id = String(event.id ?? "");
   const type = String(event.type ?? "");
