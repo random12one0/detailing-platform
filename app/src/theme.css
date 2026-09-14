@@ -4873,6 +4873,12 @@ html:not(.lite) .intake .samp-live.samp-move .samp-row { animation: none; }
   overflow: hidden; display: block;
 }
 .advmeter-bar > span { display: block; height: 100%; border-radius: 999px; }
+/* THE SECOND LINE OF A METER ROW — the figures that qualify the one in the
+   value column. It spans every column at both widths on purpose: at a desk it
+   would otherwise land under the name and leave the bar's whole width empty,
+   which reads as two half-rows rather than one row with a footnote.
+   ROADMAP 4.2, the Booking sources block on Money. */
+.advmeter-sub { grid-column: 1 / -1; font-size: 12px; color: var(--text-muted); }
 .advmeter-v { white-space: nowrap; font-size: 13px; }
 
 /* SEVEN COLUMNS. Not a trend — a fixed comparison, which is the distinction

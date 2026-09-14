@@ -390,6 +390,14 @@ export function whereFrom({ campaigns = [], visits = [], bookings = [], period }
       people, visits: mine.length,
       bookings: booked.length,
       revenue: booked.reduce((s, b) => s + paidOf(b), 0),
+      // **EARNED AND REVENUE ARE TWO DIFFERENT NUMBERS AND BOTH ARE RETURNED.**
+      // `revenue` is every live booking the link produced, which is what the
+      // link DID. `earned` is completed jobs only, because money that has not
+      // been earned yet is not money — Money, the client record and Tracking
+      // links all draw that line in the same place, and a fourth definition of
+      // revenue is how two screens start disagreeing about the same flyer.
+      earned: booked.filter((b) => b.status === "completed")
+        .reduce((s, b) => s + paidOf(b), 0),
       // **THE RATE IS BOOKINGS OVER PEOPLE, AND IT CAN EXCEED 100%.** A regular
       // who books twice off one visit is two bookings and one person, which is
       // a good month rather than a bug — so it is not clamped, and the screen

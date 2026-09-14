@@ -72,8 +72,14 @@ export const appEs = {
   "Go to sign in": "Ir a iniciar sesión",
   "How customers reach you": "Cómo te contactan los clientes",
   "Logo and cover photo": "Logo y foto de portada",
-  "Make a separate booking link for a flyer, a QR code or a post. Anyone who uses it gets the discount applied automatically. Each link tracks how many people opened it and how many of them booked.":
-    "Crea un enlace de reservas aparte para un volante, un código QR o una publicación. Quien lo use recibe el descuento automáticamente. Cada enlace registra cuántas personas lo abrieron y cuántas de ellas reservaron.",
+  // ROADMAP 4.2, 2026-09-13 — the blurb leads with the answer now, and the
+  // discount moved down beside its own field. The old sentence is gone.
+  "Each link counts how many people opened it and how many of them booked. Make one for every place you advertise, then post that link instead of your normal booking link.":
+    "Cada enlace cuenta cuántas personas lo abrieron y cuántas de ellas reservaron. Crea uno para cada lugar donde te anuncies y publica ese enlace en vez de tu enlace de reservas normal.",
+  "Make a link": "Crear un enlace",
+  "Discount to apply (optional)": "Descuento a aplicar (opcional)",
+  "You have no active discount codes yet. Make one on Promo codes and sale and it will show up here.":
+    "Todavía no tienes códigos de descuento activos. Crea uno en Códigos y descuentos y aparecerá aquí.",
   "Mobile means you drive to the customer. Drop-off means they come to you. You can offer both. This is the first question your booking page asks.":
     "A domicilio significa que tú vas al cliente. En tu taller significa que el cliente viene a ti. Puedes ofrecer ambos. Esta es la primera pregunta de tu página de reservas.",
   "None": "Ninguno",
@@ -2120,9 +2126,20 @@ export const appEs = {
   "The full picture": "El panorama completo",
   "Where the money went, what each service earns, and what is still owed.":
     "Adónde se fue el dinero, cuánto genera cada servicio y qué falta por cobrar.",
-  "Where your money comes from": "De dónde viene tu dinero",
-  "Make a link for a flyer or a post, then see what it brought in.":
-    "Crea un enlace para un volante o una publicación y mira cuánto trajo.",
+  // ── BOOKING SOURCES ──────────────────────────────────────────────────────
+  // ROADMAP 4.2, 2026-09-13. The one-line door became a block of real figures;
+  // "Where your money comes from" and its sentence went with it.
+  "Booking sources": "De dónde vienen las reservas",
+  "You have no links yet. Make one for each place you advertise and this shows which of them brings in work.":
+    "Todavía no tienes enlaces. Crea uno para cada lugar donde te anuncies y aquí verás cuál te trae trabajo.",
+  "None of your links were opened in this period.":
+    "Nadie abrió tus enlaces en este periodo.",
+  "{percent}% booked": "{percent}% reservaron",
+  "{amount} earned": "{amount} ganados",
+  "{n} of {m} bookings came through a link. Earned counts finished jobs only.":
+    "{n} de {m} reservas llegaron por un enlace. Lo ganado cuenta solo los trabajos terminados.",
+  "Make a link for a flyer, a post or an ad, get its QR code, and see every link you have.":
+    "Crea un enlace para un volante, una publicación o un anuncio, obtén su código QR y mira todos tus enlaces.",
 
   // ── HOW YOU GET PAID ─────────────────────────────────────────────────────
   "Something else": "Otra cosa",

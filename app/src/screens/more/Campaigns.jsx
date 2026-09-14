@@ -61,6 +61,34 @@
 // both draw the line in that same place, and a fourth definition of revenue
 // is how two screens start disagreeing about the same flyer.
 //
+// **REFRAMED 2026-09-13, AND THE ASK WAS THAT IT IS NOT ENOUGH OF A FEATURE.**
+// His words: he wants links he posts on Yelp or Google or an ad, and then *"you
+// could see where your bookings come from... which one has the highest
+// conversion rate or which one gets the most clicks"*, so that if he runs an ad
+// he can tell what came specifically from that ad. His verdict on what was
+// here: it is *"just a tracking link"* and it should be *"more of a feature"*.
+//
+// THREE THINGS CHANGED AND NONE OF THEM IS A NEW NUMBER.
+//
+//   THE ORDER      The screen opened with a three-field FORM, so the first
+//                  thing a detailer met was work rather than an answer. The
+//                  links and their figures lead now; the maker is a
+//                  `details.disclose` fold at the bottom, which is the job
+//                  record's own control rather than a fourth idea.
+//   THE SENTENCE   It led with *"Make a separate booking link"* and put the
+//                  discount second. The discount is the optional extra, so it
+//                  is stated beside its own field inside the fold.
+//   THE COUNTING   `whereFrom` in `lib/moneyAdvanced.js` does it, for this
+//                  screen AND for Money's Booking sources block. It was
+//                  written, tested and had no live caller. Two tallies of the
+//                  same rows is how one screen says 34 and the other says 21 —
+//                  this file counted page loads and `whereFrom` counts PEOPLE,
+//                  which is what the sentence at the top has always claimed.
+//
+// **AND THIS SCREEN IS THE ALL-TIME VIEW, MONEY IS THE PERIOD VIEW.** Same
+// arithmetic, two scopes, both labelled. That is not the two-copies failure;
+// two COUNTS would have been.
+//
 // THE PROMO CODE IS A CODE THEY ALREADY HAVE, chosen from Promo codes rather
 // than typed here. A campaign that invented its own would be a second place
 // discounts are defined, and the one that is not on the Promo codes screen is
@@ -70,6 +98,13 @@ import { Fragment, useCallback, useEffect, useState } from "react";
 import { ChevronDown, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { dateLong, localDate, money } from "../../lib/format.js";
+// ROADMAP 4.2 — ONE ARITHMETIC, TWO SCREENS. Money's Booking sources block
+// and this list are the same figures at two scopes, and until 2026-09-13 this
+// screen counted them itself. Two tallies of the same rows is how one screen
+// says a flyer was opened 34 times and the other says 21 — this one counted
+// page loads and `whereFrom` counts PEOPLE, which is what the sentence at the
+// top of this screen has always claimed to be printing.
+import { whereFrom } from "../../lib/moneyAdvanced.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import BookingLink from "../../components/BookingLink.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
@@ -86,12 +121,19 @@ const slugify = (v) => String(v || "").toLowerCase().trim()
 
 const BLANK = { name: "", slug: "", promo_code: "" };
 
+// THIS SCREEN IS THE ALL-TIME VIEW. Money is the period view of the same
+// rows: a flyer's lifetime total is what tells you whether printing it was
+// worth it, and what it did in September is a different question that the
+// screen with a period control on it already answers.
+const ALL_TIME = { start: "0000-01-01", end: "9999-12-31" };
+
 export default function Campaigns() {
   useAppLocale();
   const { business, siteOrigin } = useBusiness();
   const [rows, setRows] = useState([]);
   const [codes, setCodes] = useState([]);
-  const [stats, setStats] = useState({ visits: {}, bookings: {}, lastOpen: {}, earned: {} });
+  const [visits, setVisits] = useState([]);
+  const [booked, setBooked] = useState([]);
   const [form, setForm] = useState(BLANK);
   const [slugTouched, setSlugTouched] = useState(false);
   const [busy, setBusy] = useState(true);
@@ -111,7 +153,7 @@ export default function Campaigns() {
       // has a handful of campaigns. A view or an RPC would be the right answer
       // at a thousand, and this screen would be the wrong place to find that
       // out — the row count is what tells us, not a guess now.
-      supabase.from("campaign_visits").select("campaign_id, created_at").eq("business_id", business.id),
+      supabase.from("campaign_visits").select("campaign_id, visitor_id, created_at").eq("business_id", business.id),
       supabase.from("bookings").select("campaign_id, status, total_price, final_amount")
         .eq("business_id", business.id)
         .not("campaign_id", "is", null).neq("status", "cancelled").is("deleted_at", null),
@@ -119,30 +161,28 @@ export default function Campaigns() {
     setError(c.error ? (c.error.message || "Could not load your campaign links.") : "");
     if (c.data) setRows(c.data);
     if (p.data) setCodes(p.data.map((x) => x.code));
-    const tally = (list) => (list ?? []).reduce((a, r) => {
-      if (r.campaign_id) a[r.campaign_id] = (a[r.campaign_id] || 0) + 1;
-      return a;
-    }, {});
-    // WHEN IT WAS LAST USED is the number that tells a detailer a flyer has
-    // gone quiet, which none of the totals can: forty scans is the same
-    // forty whether the last one was yesterday or in March.
-    const lastOpen = (v.data ?? []).reduce((a, r) => {
-      if (!r.campaign_id) return a;
-      if (!a[r.campaign_id] || r.created_at > a[r.campaign_id]) a[r.campaign_id] = r.created_at;
-      return a;
-    }, {});
-    // COMPLETED ONLY, and `final_amount` beats `total_price` because the
-    // first is what was actually charged after the job changed on the day.
-    const earned = (b.data ?? []).reduce((a, r) => {
-      if (!r.campaign_id || r.status !== "completed") return a;
-      a[r.campaign_id] = (a[r.campaign_id] || 0) + Number(r.final_amount ?? r.total_price ?? 0);
-      return a;
-    }, {});
-    setStats({ visits: tally(v.data), bookings: tally(b.data), lastOpen, earned });
+    // NO TALLYING HERE ANY MORE. The counting is `whereFrom`'s, so this screen
+    // and Money cannot print two different numbers for the same flyer. All this
+    // does is hand it the rows with a local date on each visit, because
+    // `created_at` is UTC and `moneyAdvanced.js` may not know a timezone.
+    if (v.data) setVisits(v.data.map((x) => ({ ...x, date: localDate(x.created_at, business.timezone) })));
+    if (b.data) setBooked(b.data);
     setBusy(false);
-  }, [business.id]);
+  }, [business.id, business.timezone]);
 
   useEffect(() => { load(); }, [load]);
+
+  const stats = whereFrom({ campaigns: rows, visits, bookings: booked, period: ALL_TIME });
+  const byId = Object.fromEntries(stats.links.map((l) => [l.id, l]));
+  // WHEN IT WAS LAST USED is the number that tells a detailer a flyer has gone
+  // quiet, which none of the totals can: forty opens is the same forty whether
+  // the last one was yesterday or in March. It is a maximum rather than a
+  // count, so there is nothing here that Money could disagree with.
+  const lastOpen = visits.reduce((a, r) => {
+    if (!r.campaign_id) return a;
+    if (!a[r.campaign_id] || r.created_at > a[r.campaign_id]) a[r.campaign_id] = r.created_at;
+    return a;
+  }, {});
 
   const add = async () => {
     const slug = slugify(slugTouched ? form.slug : form.name);
@@ -187,54 +227,23 @@ export default function Campaigns() {
   return (
     <div className="card">
       <div className="thoughts">
-        {/* THE FACT THE LABEL DOES NOT CARRY: what the link DOES when somebody
-            opens it. "Campaign link" reads as tracking; the half that earns
-            its place is that the discount is already on. */}
+        {/* LEAD WITH THE ANSWER, NOT THE PLUMBING — his ask, 2026-09-13.
+            The sentence used to open with *"Make a separate booking link"*,
+            which is the work, and it put the discount second, which is the
+            optional extra. His words for what this screen is for: *"you could
+            see where your bookings come from... which one has the highest
+            conversion rate or which one gets the most clicks"*.
+            THE DISCOUNT IS NOT DELETED, IT IS DEMOTED - it lives beside its
+            own field inside the fold at the bottom, which is where somebody
+            who is setting one up is looking. A fact stated where the control
+            is not is a fact read twice and acted on nowhere.
+            VOICE: short declarative sentences, one fact each, no dash holding
+            two clauses together. See docs/sessions/product.md § THE COPY
+            RULES, which cost two rewrites of one paragraph on Monthly plans. */}
         <p className="quiet" style={{ marginTop: 0 }}>
-          {/* **THE SENTENCE PROMISED A NUMBER THE ROWS DID NOT SHOW — an
-              outside review, 2026-09-11.** It said *"how many bookings each
-              link brought in"* over rows reading `Nobody has opened it yet`.
-              Opens and bookings are two different numbers and the copy named
-              the one it was not printing.
-              The row shows both now, so the sentence can be true. */}
-          {t("Make a separate booking link for a flyer, a QR code or a post. Anyone who uses it gets the discount applied automatically. Each link tracks how many people opened it and how many of them booked.")}
+          {t("Each link counts how many people opened it and how many of them booked. Make one for every place you advertise, then post that link instead of your normal booking link.")}
         </p>
 
-        <label className="field"><span>{t("What is it for")}</span>
-          <input value={form.name} placeholder={t("e.g. Golf course flyer")}
-            onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
-
-        <div className="grid2">
-          <label className="field"><span>{t("The bit on the end of the link")}</span>
-            <input value={slugTouched ? form.slug : previewSlug}
-              placeholder="golf-course-flyer"
-              onChange={(e) => { setSlugTouched(true); setForm({ ...form, slug: e.target.value }); }} /></label>
-          {/* CHOSEN, NOT TYPED. A campaign that invented its own code would be
-              a second place discounts are defined, and the one not on the
-              Promo codes screen is the one nobody remembers to turn off.
-              Mapped, so it is a list of unknown length rather than a
-              two-to-four choice — the case a drop-down is for. */}
-          <label className="field"><span>Discount to apply (optional)</span>
-            <select value={form.promo_code}
-              onChange={(e) => setForm({ ...form, promo_code: e.target.value })}>
-              <option value="">{t("No discount")}</option>
-              {codes.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select></label>
-        </div>
-        {codes.length === 0 && (
-          <p className="muted" style={{ marginTop: "calc(-1 * var(--sp-2))" }}>
-            You have no active discount codes yet — make one on Promo codes &amp; sale
-            and it will show up here.
-          </p>
-        )}
-
-        <div className="btnrow">
-          <button className="btn primary" disabled={!form.name.trim() || !previewSlug} onClick={add}>
-            {t("Make the link")}
-          </button>
-        </div>
-
-        {note && <div className={note.ok ? "ok-box" : "error-box"}>{note.text}</div>}
         {error && <div className="error-box">{error}</div>}
 
         {/* AN EMPTY SCREEN IS ONE SENTENCE, IN THE DETAILER'S TERMS. */}
@@ -244,8 +253,13 @@ export default function Campaigns() {
 
         <div className={`rows rows-stack${busy ? " refreshing" : ""}`} aria-busy={busy || undefined}>
           {rows.map((r) => {
-            const scans = stats.visits[r.id] || 0;
-            const booked = stats.bookings[r.id] || 0;
+            // ONE ARITHMETIC. `whereFrom` counts PEOPLE rather than page
+            // loads, which is what this screen's own sentence has always said
+            // it prints, and it is the same count Money's Booking sources
+            // block draws - so the two cannot disagree about a flyer.
+            const l = byId[r.id] || { people: 0, bookings: 0, earned: 0, rate: 0 };
+            const scans = l.people;
+            const booked = l.bookings;
             const isOpen = open === r.id;
             return (
               // A FRAGMENT, SO `.row-item` STAYS A DIRECT CHILD of the stack.
@@ -285,9 +299,16 @@ export default function Campaigns() {
                         : [
                           t("{n} opened", { n: scans }),
                           t("{n} booked", { n: booked }),
-                          stats.earned[r.id] ? money(stats.earned[r.id]) : null,
+                          l.earned ? t("{amount} earned", { amount: money(l.earned) }) : null,
                         ].filter(Boolean).join(" · ")}
-                      {r.promo_code ? ` · ${r.promo_code}` : ""}
+                      {/* THE CODE IS NOT ON THE ROW ANY MORE. The panel one
+                          tap down already says *"Everyone who opens it gets
+                          SUMMER10"*, which is the same fact in a sentence
+                          that explains it; and in Spanish the fourth part
+                          pushed the row past 392 and ellipsised the code to
+                          "SUM…", which is worse than not printing it. The
+                          discount is the optional extra on this screen now,
+                          not a column. */}
                     </span>
                   </button>
                   <button className="btn sm inline ghost" onClick={() => toggle(r)}>
@@ -315,18 +336,18 @@ export default function Campaigns() {
                         {/* NO RATE WITHOUT A DENOMINATOR. "0%" off zero opens
                             is not a poor conversion rate, it is no data, and
                             the two look identical on a screen. */}
-                        <span className="camp-n">{scans ? `${Math.round((booked / scans) * 100)}%` : "—"}</span>
+                        <span className="camp-n">{scans ? `${Math.round(l.rate * 100)}%` : "—"}</span>
                         <span className="camp-l">{t("booking rate")}</span>
                       </div>
                       <div className="camp-stat">
-                        <span className="camp-n">{money(stats.earned[r.id] || 0)}</span>
+                        <span className="camp-n">{money(l.earned)}</span>
                         <span className="camp-l">{t("earned")}</span>
                       </div>
                     </div>
                     <p className="quiet">
-                      {stats.lastOpen[r.id]
+                      {lastOpen[r.id]
                         ? t("Last opened {when}. Earned counts finished jobs only.", {
-                          when: dateLong(localDate(stats.lastOpen[r.id], business.timezone), getAppLocale()),
+                          when: dateLong(localDate(lastOpen[r.id], business.timezone), getAppLocale()),
                         })
                         : t("Nobody has opened this link yet.")}
                       {r.promo_code ? ` ${t("Everyone who opens it gets {code}.", { code: r.promo_code })}` : ""}
@@ -345,6 +366,59 @@ export default function Campaigns() {
             );
           })}
         </div>
+
+        {/* ── MAKING ONE IS THE PLUMBING, SO IT GOES LAST AND IT FOLDS ─────
+            **HIS ASK, 2026-09-13:** lead with the answer, not the plumbing.
+            This screen opened with a three-field form and put the numbers
+            under it, so the first thing a detailer met was work rather than
+            an answer. The form is unchanged; only its position and its lid
+            are. `details.disclose` is the product's own fold — the job
+            record's delete drawer is the same control — so this is not a
+            fourth idea about how a section hides itself.
+            AND IT IS THE ONLY MAKER. Money links here rather than carrying a
+            second one: two places to make a link is two places the rules
+            about slugs and discounts have to agree. */}
+        <details className="disclose">
+          <summary>{t("Make a link")}</summary>
+        <label className="field"><span>{t("What is it for")}</span>
+          <input value={form.name} placeholder={t("e.g. Golf course flyer")}
+            onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
+
+        <div className="grid2">
+          <label className="field"><span>{t("The bit on the end of the link")}</span>
+            <input value={slugTouched ? form.slug : previewSlug}
+              placeholder="golf-course-flyer"
+              onChange={(e) => { setSlugTouched(true); setForm({ ...form, slug: e.target.value }); }} /></label>
+          {/* CHOSEN, NOT TYPED. A campaign that invented its own code would be
+              a second place discounts are defined, and the one not on the
+              Promo codes screen is the one nobody remembers to turn off.
+              Mapped, so it is a list of unknown length rather than a
+              two-to-four choice — the case a drop-down is for. */}
+          <label className="field"><span>{t("Discount to apply (optional)")}</span>
+            <select value={form.promo_code}
+              onChange={(e) => setForm({ ...form, promo_code: e.target.value })}>
+              <option value="">{t("No discount")}</option>
+              {codes.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select></label>
+        </div>
+        {codes.length === 0 && (
+          <p className="muted" style={{ marginTop: "calc(-1 * var(--sp-2))" }}>
+            {/* TWO FIXES IN ONE LINE, both of them standing rules this line
+                predates: it never went through `t()`, so it sat in English on
+                a Spanish dashboard, and the em dash was a SENTENCE JOINT,
+                which CLAUDE.md says dies and becomes a full stop. */}
+            {t("You have no active discount codes yet. Make one on Promo codes and sale and it will show up here.")}
+          </p>
+        )}
+
+        <div className="btnrow">
+          <button className="btn primary" disabled={!form.name.trim() || !previewSlug} onClick={add}>
+            {t("Make the link")}
+          </button>
+        </div>
+
+        {note && <div className={note.ok ? "ok-box" : "error-box"}>{note.text}</div>}
+        </details>
       </div>
     </div>
   );

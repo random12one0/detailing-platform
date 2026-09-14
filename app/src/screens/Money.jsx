@@ -45,12 +45,15 @@ import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { useBookings, withLocal, BOOKING_SELECT } from "../hooks/useBookings.js";
 import { useWide } from "../hooks/useWide.js";
-import { money, todayLocal } from "../lib/format.js";
+import { localDate, money, todayLocal } from "../lib/format.js";
 import { PERIOD_KINDS, bucketsFor, inPeriod, periodAt } from "../lib/periods.js";
 import { accountantCsv, accountantFilename } from "../lib/accountant-export.js";
 // The floor both money screens obey. See moneyAdvanced.js for why it is one
 // number rather than one per screen.
 import { RATE_FLOOR } from "../lib/moneyAdvanced.js";
+// ROADMAP 4.2 — the same arithmetic Tracking links runs, so the two screens
+// cannot print different numbers for the same flyer. See the block below.
+import { whereFrom } from "../lib/moneyAdvanced.js";
 import { api } from "../lib/api.js";
 import ExpenseModal, { categoryWord } from "../components/ExpenseModal.jsx";
 import BulkJobModal from "../components/BulkJobModal.jsx";
@@ -184,6 +187,10 @@ export default function Money({ onGo }) {
   const [expenses, setExpenses] = useState([]);
   const [lineItems, setLineItems] = useState([]);
   const [unpaid, setUnpaid] = useState([]);
+  // ROADMAP 4.2 — the links themselves and every open of one. Two small reads;
+  // a detailer has a handful of links and a few hundred opens a year.
+  const [campaigns, setCampaigns] = useState([]);
+  const [visits, setVisits] = useState([]);
   const [extrasError, setExtrasError] = useState("");
   const [adding, setAdding] = useState(false);
   // ROADMAP 8.10 — the dealership job, logged after the fact with no
@@ -202,7 +209,7 @@ export default function Money({ onGo }) {
   const [advanced, setAdvanced] = useState(false);
 
   const loadExtras = useCallback(async () => {
-    const [e, li, up] = await Promise.all([
+    const [e, li, up, cp, cv] = await Promise.all([
       // TO THE END OF THE PERIOD, NOT TO TODAY. `to` is clamped to today so
       // that the chart does not read a month that has not happened; an
       // EXPENSE can legitimately be dated forward inside the current one (a
@@ -221,17 +228,30 @@ export default function Money({ onGo }) {
         .eq("business_id", business.id).is("deleted_at", null)
         .eq("status", "completed").in("payment_status", ["pending", "partial"])
         .order("start_at", { ascending: false }),
+      // THE LINKS AND EVERY OPEN OF ONE. Not date-filtered on the server: the
+      // period control on this screen moves, and re-reading the whole table on
+      // every step of the stepper is more round trips than a detailer's few
+      // hundred rows are worth. `whereFrom` does the period filtering.
+      supabase.from("campaigns").select("id, name, slug, is_active")
+        .eq("business_id", business.id),
+      supabase.from("campaign_visits").select("campaign_id, visitor_id, referrer, created_at")
+        .eq("business_id", business.id),
     ]);
     // A FAILED READ MUST NOT LOOK LIKE AN EMPTY MONTH. `data ?? []` on all
     // three of these turned a dropped connection into "no expenses, nothing
     // outstanding, nothing sold on site" — the same defect useBookings
     // carried until stage 3, one file over. The last good figures stay drawn
     // and the message goes above them.
-    const failed = [e.error, li.error, up.error].find(Boolean);
+    const failed = [e.error, li.error, up.error, cp.error, cv.error].find(Boolean);
     setExtrasError(failed ? (failed.message || t("Could not load your expenses.")) : "");
     if (e.data) setExpenses(e.data);
     if (li.data) setLineItems(li.data);
     if (up.data) setUnpaid(up.data.map((b) => withLocal(b, business.timezone)));
+    if (cp.data) setCampaigns(cp.data);
+    // A LOCAL DATE, DERIVED HERE. `created_at` is UTC and the period is a run
+    // of local dates; `moneyAdvanced.js` may not know a timezone, which is why
+    // every caller hands it dates rather than instants.
+    if (cv.data) setVisits(cv.data.map((v) => ({ ...v, date: localDate(v.created_at, business.timezone) })));
   }, [business.id, business.timezone, from, to, period.end]);
 
   useEffect(() => { loadExtras(); }, [loadExtras]);
@@ -298,6 +318,46 @@ export default function Money({ onGo }) {
     () => advancedMoney({ bookings, expenses, lineItems, period, previous }).packages[0] ?? null,
     [bookings, expenses, lineItems, period, previous],
   );
+
+  // ─── WHERE THE BOOKINGS CAME FROM ──────────────────────────────────────
+  //
+  // **HIS ASK, MORE THAN ONCE, MOST RECENTLY 2026-09-13:** *"you could see
+  // where your bookings come from... which one has the highest conversion rate
+  // or which one gets the most clicks"*, so that if he pays for an ad he can
+  // tell what came from that ad. His verdict on what was here before: it is
+  // *"just a tracking link"* and it should be *"more of a feature"*.
+  //
+  // **WHAT WAS HERE WAS A ONE-LINE DOOR AND THE NUMBERS WERE TWO TAPS AWAY.**
+  // The comment it replaces argued for that on the grounds that a second copy
+  // of the figures is how two screens come to disagree. **The argument was
+  // right and the conclusion was wrong** — the fix for two copies is ONE
+  // ARITHMETIC, not one screen. `whereFrom` in `lib/moneyAdvanced.js` is that
+  // arithmetic, it was already written and already tested with no live caller,
+  // and Tracking links now reads through it too. Neither screen counts
+  // anything itself, so neither can be the one that is wrong.
+  //
+  // PERIOD-SCOPED, like every other figure on this screen. The control at the
+  // top governs the whole page and a lifetime number sitting inside it would
+  // be the one thing on Money that ignores the period. Tracking links is the
+  // all-time view of the same rows.
+  const sources = useMemo(
+    () => whereFrom({
+      campaigns,
+      visits,
+      bookings: bookings.filter((b) => inPeriod(b.booking_date, period)),
+      period,
+    }),
+    [campaigns, visits, bookings, period],
+  );
+  // A LINK THAT DID NOTHING IN THIS PERIOD IS NOT DRAWN. Last spring's
+  // postcard on a September screen is a row of dashes that pushes the flyer
+  // that is working further down the page.
+  // A LINK IS DRAWN IF IT DID SOMETHING IN THIS PERIOD, and a link that is
+  // TURNED OFF is drawn only if it still produced a booking. Last spring's
+  // postcard picking up one stray open in September is a row of dashes above
+  // the flyer that is actually working.
+  const active = sources.links.filter((l) => (l.active && l.people > 0) || l.bookings > 0);
+  const maxBooked = Math.max(0, ...active.map((l) => l.bookings));
 
   const markPaid = async (b) => {
     setMarkingPaid(b.id);
@@ -657,24 +717,100 @@ export default function Money({ onGo }) {
         <ChevronRight strokeWidth={2} className="linkdoor-go" />
       </button>
 
-      {/* ── WHERE YOUR MONEY COMES FROM ────────────────────────────────
-          **HIS CALL, 2026-09-11, reversing his own earlier one:** *"the
-          through-your-links thing… should be a different tab or more
-          accessible, because right now it's kind of in the middle of all this
-          stuff… it should all be one GUI, and it should be outside of the
-          advanced pricing. I think that was the wrong call by me."*
-          So it is a door on the everyday screen instead of a block buried
-          eight sections into the advanced one. **A door, not a summary** —
-          Tracking links already prints opens, bookings, conversion and money
-          earned per link, and a second copy of those numbers here is how two
-          screens come to disagree.
-          The sentence is what the feature IS, because "Tracking links" names
-          the control and says nothing about why a detailer would want one. */}
+      {/* ── BOOKING SOURCES ────────────────────────────────────────────
+          **HIS CALL, 2026-09-11:** *"the through-your-links thing… should be a
+          different tab or more accessible, because right now it's kind of in
+          the middle of all this stuff… it should all be one GUI, and it should
+          be outside of the advanced pricing. I think that was the wrong call
+          by me."* So it is on the everyday screen.
+          **AND ON 2026-09-13 HE SAID THE DOOR WAS NOT ENOUGH.** What stood
+          here was one line of text leading to a screen with the numbers behind
+          it, and his verdict was that the whole thing is *"just a tracking
+          link"* when he wants to *"see where your bookings come from… which one
+          has the highest conversion rate or which one gets the most clicks"*.
+          A door cannot be compared at a glance; two rows of figures can.
+          THE OLD COMMENT ARGUED FOR THE DOOR ON THE GROUNDS THAT A SECOND COPY
+          OF THE FIGURES IS HOW TWO SCREENS DISAGREE. That was right about the
+          risk and wrong about the fix: both screens read `whereFrom` now, so
+          there is one arithmetic and two views of it.
+          THE BARS ARE THE POINT, AND THEY ARE THE SAME REGISTER AS "WHERE IT
+          WENT" ON THE ADVANCED SCREEN — the one block on that page he reads
+          fastest. Ranking by eye is the job here; three numbers do not rank. */}
+      <div className="tight" data-tour="sources">
+        <span className="label">{t("Booking sources")}</span>
+        {sources.links.length === 0 ? (
+          /* NO LINKS AT ALL. One sentence, and the door under it is the
+             action — no dashed box, per Part B row 11. */
+          <p className="body">
+            {t("You have no links yet. Make one for each place you advertise and this shows which of them brings in work.")}
+          </p>
+        ) : active.length === 0 ? (
+          <p className="body">
+            {t("None of your links were opened in this period.")}
+          </p>
+        ) : (
+          <div className="sunken">
+            {active.slice(0, 4).map((l) => (
+              <div className="advmeter" key={l.id}>
+                <span className="advmeter-k">{l.name}</span>
+                {/* NO TRACK WHEN NOTHING HAS BEEN BOOKED THROUGH ANY OF THEM.
+                    A row of 2%-wide stubs is a chart of nothing, and it reads
+                    as four links that all did equally badly rather than as no
+                    data yet. */}
+                {maxBooked > 0 && (
+                  <span className="advmeter-bar" aria-hidden="true">
+                    {/* NO STUB AT ZERO. `Math.max(2, …)` is right for an
+                        expense category, which cannot be zero and be in the
+                        list; here a link with no bookings is exactly the row
+                        a detailer needs to see as empty, and a 2% sliver
+                        reads as a small amount rather than as none. */}
+                    {l.bookings > 0 && (
+                      <span style={{ width: `${Math.max(4, Math.round((l.bookings / maxBooked) * 100))}%`,
+                        background: "var(--ac)" }} />
+                    )}
+                  </span>
+                )}
+                {/* NOT `.num`. That is the tabular face and it is right for a
+                    column of money; on "2 booked" it spaces the word away
+                    from its own figure. */}
+                <span className="advmeter-v">
+                  {t("{n} booked", { n: l.bookings })}
+                </span>
+                {/* THE THREE FIGURES HE NAMED, UNDER THE NAME THEY BELONG TO.
+                    A part with no number is dropped rather than printed as a
+                    zero: "0%" off no opens is not a poor conversion rate, it
+                    is no data, and the two look identical on a screen. */}
+                <span className="advmeter-sub">
+                  {[
+                    l.people ? t("{n} opened", { n: l.people }) : null,
+                    l.people ? t("{percent}% booked", { percent: Math.round(l.rate * 100) }) : null,
+                    l.earned ? t("{amount} earned", { amount: money(l.earned) }) : null,
+                  ].filter(Boolean).join(" · ")}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+        {/* HOW MUCH OF THE PICTURE IS ACTUALLY BEING MEASURED. On a dashboard
+            with one link it is 3 of 11, which is the honest reading and the
+            reason to make more of them. */}
+        {sources.bookedAtAll > 0 && (
+          <p className="quiet" style={{ marginTop: 8 }}>
+            {t("{n} of {m} bookings came through a link. Earned counts finished jobs only.",
+              { n: sources.bookedThroughLink, m: sources.bookedAtAll })}
+          </p>
+        )}
+      </div>
+
+      {/* ONE PLACE TO MAKE A LINK, AND IT IS NOT HERE — his ruling, 2026-09-13.
+          A second maker is a second set of rules about slugs and discounts.
+          The sentence says what is behind the door rather than naming the
+          control, which is the pattern "The full picture" above it follows. */}
       <button className="btn ghost linkdoor" onClick={() => onGo?.("campaigns")}>
         <LinkIcon strokeWidth={2} />
         <span>
-          <b>{t("Where your money comes from")}</b>
-          <small>{t("Make a link for a flyer or a post, then see what it brought in.")}</small>
+          <b>{t("Tracking links")}</b>
+          <small>{t("Make a link for a flyer, a post or an ad, get its QR code, and see every link you have.")}</small>
         </span>
         <ChevronRight strokeWidth={2} className="linkdoor-go" />
       </button>

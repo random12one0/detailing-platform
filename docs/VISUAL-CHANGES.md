@@ -650,3 +650,66 @@ each booking ourselves. You will get an email once this time is accepted." A
 business that confirms instantly shows nothing, because nothing needs saying.
 
 **Visual: yes.**
+
+---
+
+## 33 · Money — the top of the page now says where your bookings came from
+
+**Open:** `localhost:5173/app`, sign in, tap **Money**, and scroll past the
+chart and the expenses summary. It sits under "The full picture".
+
+**WAS:** One line of grey text, "Where your money comes from", with a sentence
+under it offering to make a link for a flyer. Nothing else. Every number was
+two taps away on another screen, so there was no way to look at Money and tell
+whether the flyer or the Instagram post was worth the trouble.
+
+**NOW:** A block called "Booking sources" listing each place you advertise, one
+line each, with a green bar so the best one is obvious at a glance. Under every
+name are the three numbers: how many people opened that link, what share of
+them booked, and how much finished work it has earned you. Below the block one
+sentence says how many of this month's bookings came through a link at all. The
+door to the links themselves is still there, under it, for making a new one.
+
+**Visual: yes.**
+
+---
+
+## 34 · Tracking links — the answer first, the form last
+
+**Open:** `localhost:5173/app` → **Business** → **Tracking links**.
+
+**WAS:** The page opened with a three-box form for making a new link, so the
+first thing you met was work. The sentence at the top led with "Make a separate
+booking link", and the second thing it said was that a discount gets applied.
+Your existing links and their numbers were below all of that.
+
+**NOW:** The page opens with your links and what each one did. The sentence at
+the top leads with what the page answers — each link counts who opened it and
+who booked. Making a new one is a "Make a link" fold at the bottom, the same
+kind of fold the job page uses, and the discount is explained beside its own
+box inside that fold rather than in the opening line.
+
+**Also:** the money on each row now says "$850 earned" instead of just "$850",
+and the discount code no longer rides on the row — it is in the panel that
+opens when you tap the link, which already explained it in a sentence.
+
+**Visual: yes.**
+
+---
+
+## 35 · The two screens can no longer disagree about the same flyer
+
+**Open:** compare a link's numbers on Money with the same link on Tracking
+links.
+
+**WAS:** Each screen counted for itself. Tracking links counted page opens, so
+one person deciding over three visits counted as three; Money's block did not
+exist yet.
+
+**NOW:** Both read the same piece of arithmetic, and it counts people rather
+than page loads, which is what the sentence at the top of Tracking links always
+claimed it was showing. Money shows the period you have chosen at the top of
+that screen; Tracking links shows all time.
+
+**Visual: no.** Numbers on Tracking links may read slightly lower than before,
+because a repeat visitor is now one person.
