@@ -48,6 +48,9 @@ import {
   termEndDate, wholeMonthsBetween,
 } from "../supabase/functions/_shared/platformBilling.ts";
 import { flatten, verifyWebhook, verifyWebhookAny } from "../supabase/functions/_shared/stripe.ts";
+import {
+  ALL_LOOKUP_KEYS, priceKeysFor,
+} from "../supabase/functions/_shared/stripePrices.ts";
 import { billingEmail } from "../supabase/functions/_shared/emailTemplates.ts";
 import { money } from "../supabase/functions/_shared/emailKit.ts";
 import {
@@ -1567,6 +1570,84 @@ console.log("\n21. the founding spot is taken at payment (roadmap 8.5)");
   // live subscription silently reprices its renewal.
   check("21i-iii · the release cannot touch a live subscription",
     /not exists \([\s\S]{0,200}platform_subscriptions[\s\S]{0,200}status not in \('incomplete', 'canceled'\)/.test(claim2));
+}
+
+// ─── 22. THE LOOKUP KEYS — which Stripe price a plan resolves to ──────────
+//
+// Andrew's decision, 2026-09-14: the amount comes out of Stripe's catalogue,
+// not out of this repo, because a Stripe price is IMMUTABLE and the founding
+// offer promises a price "locked for the life of the account". The keys are
+// the whole seam, so this section pins WHICH key each plan asks for. Whether
+// those keys exist in Stripe, and what they cost, is
+// `scripts/check-stripe-prices.mjs` — that one needs the key and this one
+// must not.
+{
+  console.log("\n22. the lookup keys");
+
+  // COUNT THE SUBJECTS FIRST. An emptied map would answer undefined to
+  // everything below and every "is not the other ladder" check would pass over
+  // nothing — the hollow-check shape this repo has shipped six times.
+  check("22a · every key the product can ask for is listed — 9 of them",
+    ALL_LOOKUP_KEYS.length === 9 && new Set(ALL_LOOKUP_KEYS).size === 9,
+    `${ALL_LOOKUP_KEYS.length} keys, ${new Set(ALL_LOOKUP_KEYS).size} distinct`);
+
+  // THE FOUNDING LADDER — the five Andrew created first.
+  check("22b · founding, annual paid monthly",
+    priceKeysFor("website", "annual-monthly", true).recurring === "website_dashboard_monthly");
+  check("22c · founding, annual upfront",
+    priceKeysFor("website", "annual-upfront", true).recurring === "website_dashboard_yearly");
+  check("22d · founding, month to month",
+    priceKeysFor("website", "monthly", true).recurring === "website_dashboard_monthly_no_term");
+  check("22e · founding carries the founding build fee",
+    priceKeysFor("website", "annual-monthly", true).setup === "website_build_fee");
+
+  // THE STANDARD LADDER — what a signup resolves to once the founding spots
+  // are gone. `founding` is the DATABASE's answer (`claim_founding_spot()` at
+  // checkout, `founding_offer()` for what /pricing prints), never a query
+  // string's.
+  check("22f · standard, annual paid monthly",
+    priceKeysFor("website", "annual-monthly", false).recurring === "website_dashboard_monthly_standard");
+  check("22g · standard, annual upfront",
+    priceKeysFor("website", "annual-upfront", false).recurring === "website_dashboard_yearly_standard");
+  check("22h · standard, month to month",
+    priceKeysFor("website", "monthly", false).recurring === "website_dashboard_monthly_no_term_standard");
+  check("22i · standard carries the standard build fee",
+    priceKeysFor("website", "annual-monthly", false).setup === "website_build_fee_standard");
+
+  // **THE TWO LADDERS MAY NEVER SHARE A KEY.** One shared key is a founding
+  // detailer paying the list price, or the reverse, and it would look correct
+  // on every screen.
+  {
+    const f = TERMS.map((t) => priceKeysFor("website", t, true).recurring);
+    const s = TERMS.map((t) => priceKeysFor("website", t, false).recurring);
+    check("22j · no key appears in both ladders",
+      f.every((k) => !s.includes(k)) && new Set([...f, ...s]).size === 6,
+      JSON.stringify({ founding: f, standard: s }));
+  }
+
+  // BOOKING-ONLY HAS ONE PRICE AND NO BUILD FEE, whatever term it is handed —
+  // its button carries no `?term=` at all.
+  {
+    const keys = TERMS.map((t) => priceKeysFor("booking", t, false));
+    check("22k · booking-only resolves one key for every term",
+      keys.every((k) => k.recurring === "booking_only_monthly"));
+    check("22l · and never a build fee",
+      keys.every((k) => k.setup === null));
+    check("22m · founding does not change the booking price",
+      priceKeysFor("booking", "monthly", true).recurring === "booking_only_monthly",
+      "the founding ladder is the website plan's — pricing.js says so");
+  }
+
+  // AND NO AMOUNT IS WRITTEN DOWN HERE. The point of the change is that this
+  // repo stopped knowing what anything costs; a cents figure creeping back
+  // into the key map is the old bug wearing the new design's clothes.
+  {
+    const src = read("supabase/functions/_shared/stripePrices.ts");
+    const table = src.match(/export const LOOKUP_KEYS = \{[\s\S]*?\n\} as const;/)?.[0] ?? "";
+    check("22n · the key map holds keys, never amounts",
+      table.length > 100 && !/\b\d{2,}\b/.test(table),
+      "a number in the lookup table means the price lives here again");
+  }
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);
