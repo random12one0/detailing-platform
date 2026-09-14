@@ -1066,3 +1066,102 @@ all thirty is `docs/platform-admin-triage-2026-09-13.md` § 6.
 of `path -> replacement path`, empty by default, so a check whose subject lives
 in another lane can be baselined on a scratchpad copy without writing in that
 lane and without trap (f). Any source-reading suite can take the same two lines.
+
+## 3e · PROVEN TONIGHT — lane C, 2026-09-13: THE 44px TAP FLOOR IS MEASURED NOW
+
+**Nothing in the 58-suite battery had ever checked it.** `docs/START-HERE.md`
+§ 3 puts the floor in front of every session, `docs/BAR.md` has a section on it,
+and a 38px close button shipped with every suite green. Every weekend since
+Friday had been spent measuring tap targets by hand, screen by screen.
+
+**THE INSTRUMENT:** `scripts/lib/tapProbe.mjs` is the measurement,
+`scripts/sweep-tap-targets.mjs` is the walk, and `scripts/sweep-booking-steps.mjs`
+is its second caller. It does not read rectangles and it does not read source.
+From each control's own centre it walks one pixel at a time left, right, up and
+down with `document.elementFromPoint`, stopping at the first pixel that answers
+something else.
+
+**THAT SUBSUMES THE PITCH PROBLEM INSTEAD OF NEEDING A SECOND CHECK.** A walk
+cannot measure through a thief: the moment a pixel answers the neighbour the
+walk stops there, so a control this reports as reaching 44 has 44 pixels nobody
+else is taking.
+
+| what was proven | number | invalidated by a change to |
+|---|---|---|
+| **The whole detailer dashboard clears the floor** — five tabs and every settings screen behind BOTH doors, at 1440 / 768 / 392 / 320, in English AND Spanish | **288 screens, 6,730 controls, 739,340 press probes**, 0 findings on any dashboard screen | `app/src/screens/**`, `app/src/components/**`, `app/src/theme.css`, `app/src/App.jsx` |
+| **`.pa-x` and `.pa-chip` in the back office now pass** — the two controls `docs/lane-b-handover-2026-09-13.md` § 2d reported from SOURCE | measured clean at 1440 / 392 / 320 with the detailer drawer open; `.pa-chip` 29 painted / 44 reachable, pitch 45.4 | `app/src/admin/admin.css` |
+| **`.pa-out` does NOT** — *Sign out* and *See everyone* are **17px tall** | 46 findings, every back-office tab, both languages, all four widths | `app/src/admin/admin.css` |
+| The landing and pricing pages are **14 narrow and 30 short** — the footer links, two `.softlink`s and `.cta.sm` | see § C of the lane B handover for the table | `app/src/landing/**` |
+| The gear's **Your subscription** screen carries a **14px** mailto link | 8 findings, every width, both languages | `app/src/screens/more/**` |
+| **The booking flow clears the floor except the vehicle-count chips** — measured for the first time | **72 step readings, 893 controls**; `.bk-chip.word` "1"/"2"/"3" read **40px wide, 41-42px of reach** at 1920 / 1440 / 768 / 392 | `app/src/book/**` |
+| The exceptions both fire and both are printed every run | `btn.sm.icon` 378 subjects, `seven-column-grid` 240 subjects | `scripts/lib/tapProbe.mjs` |
+
+```bash
+git diff --name-only HEAD -- app/src/screens app/src/components app/src/theme.css app/src/App.jsx app/src/admin app/src/landing app/src/book
+```
+
+### THE INSTRUMENT WAS BROKEN ON PURPOSE FIVE TIMES, AND ONE OF THE FIVE IS THE WHOLE ARGUMENT
+
+`--baseline` shrinks REAL controls on a REAL screen and fails if the check does
+not report its own fault by name. All five seen, all five restored to the exact
+starting reading:
+
+| break | what it did | what came back |
+|---|---|---|
+| `short` | the tab buttons squeezed to 20px tall | `button "Today" — 36px of reach down (rect 20px), floor 44` |
+| `narrow` | the tab buttons squeezed to 18px wide | `button "Today" — 18px of reach across` |
+| `covered` | a transparent sheet over the shell | 38 controls whose centres answer the sheet |
+| **`short_after`** | **ONLY the `::after` extensions removed from `.chip`, `.segmented button`, `.choice`, `.btn.sm`** | **a passing sort chip drops to `37px of reach down (rect 36px)`** |
+| `no-subjects` | every control hidden | the screen reports that it measured nothing |
+
+**`short_after` IS THE ONE THAT MATTERS.** It changes no paint at all — every
+rectangle is byte-identical before and after — so an instrument secretly reading
+rectangles could not produce that number. It is the direct proof that the
+`::after` hit area is being credited, which is the thing that made five
+hand-measured findings false this weekend (§ 2 above).
+
+**AND THE `narrow` BREAK WAS WRONG FIRST, WHICH IS THE REUSABLE PART.** Its
+first version set `width: 18px` on `.tabbar button` and the check reported
+BLIND. The buttons are flex children, so `width` is a BASIS and not a floor and
+they never moved: **the break was the fault not happening.** The instrument's
+own instrument can be wrong, which is why the baseline prints WHAT IT DID and
+not merely whether it saw.
+
+### THE TWO STATED EXCEPTIONS, PRINTED EVERY RUN WHETHER OR NOT THEY FIRE
+
+- **`.btn.sm.icon` at 38 wide.** PRODUCT.md's recorded exception, **Andrew's to
+  reopen and nobody else's.** 378 subjects took it.
+- **The seven-column month grid.** A month is seven columns, so the widest a
+  date can be is the grid's own content width over seven. The floor there is the
+  COLUMN, computed at runtime and printed with its arithmetic, and the HEIGHT
+  floor still applies in full. 240 subjects took it. **Calling it a pass would
+  be a lie and calling it a failure would be a finding nobody could fix.**
+
+### FOUR WAYS THE WALK WAS SILENTLY MEASURING NOTHING, ALL FOUND BY ITS OWN COUNTERS
+
+Every one produced a clean-looking run. **The subject count per screen is what
+made each visible** — a walk that measured nothing prints the same word as one
+that measured everything.
+
+- **The gear button is a TOGGLE**, so re-pressing it after every settings screen
+  CLOSED it and the Business index underneath was read instead. The "gear" list
+  came back as an interleaving of gear rows and Business rows and nothing
+  errored.
+- **The settings index is GROUPED under headings**, and the Business tab draws a
+  one-row setup prompt above it in a box of its own — so both "the first row's
+  parent" and "the container with the most rows" walked a fraction of the index.
+- **Above `--wrap` the index STAYS on screen** beside the opened screen, so a
+  document-wide row count moves under the walk.
+- **Every back-office tab drew 6 controls** — the five tabs and *Sign out* —
+  because a screen waiting on the `platform-admin` round trip is quiet in all
+  three senses `settle()` asks about. It now waits for the panel itself, and
+  Detailers went from 6 controls to 31.
+
+### AND ONE CLASS OF FINDING THAT WAS NOT REAL, RECORDED SO IT IS NOT RE-REPORTED
+
+A run taken while lane B was editing `app/src` reported **42 controls on the
+Spanish calendar at 392 whose centres all answered `main.app-main`** and **13
+settings rows that vanished mid-walk**. **Neither reproduced.** Re-run in
+isolation that screen measures 54 controls and is clean. Vite reloaded the page
+under the walk — CLAUDE.md trap (f), and the script's own source guard named the
+file. **Read that line at the end of a run before believing the rest of it.**

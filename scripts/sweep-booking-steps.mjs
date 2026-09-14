@@ -35,6 +35,15 @@
 // sweep-widths.mjs — but no login, because this page is public.
 import { createRequire } from "node:module";
 import { reportSourceMoved, watchSource } from "./source-guard.mjs";
+// THE 44px TAP FLOOR RIDES THIS WALK RATHER THAN GETTING A SECOND ONE.
+// `scripts/sweep-tap-targets.mjs` measures every other surface in the product
+// and deliberately does NOT walk the booking flow: these steps are behind a
+// live availability call and a three-month calendar search, and this file
+// already does that walk correctly. So the MEASUREMENT is a module
+// (`scripts/lib/tapProbe.mjs`) and this is its second caller. A tap check that
+// needed its own copy of the calendar search would be a second thing to keep
+// working, and it would be the copy that rots.
+import { TAP_PROBE, EXCEPTIONS, FLOOR, CAP } from "./lib/tapProbe.mjs";
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
 // Started BEFORE the browser opens, so anything saved from here on is a
@@ -145,6 +154,19 @@ const REFS = await (async () => {
 const browser = await chromium.launch();
 let failing = 0;
 
+// --- THE TAP FLOOR, ONE READING PER STEP ------------------------------------
+// Collected rather than printed inline: a control that is four pixels short
+// says nothing about whether the step FITS, which is what every other line of
+// this report is about. Printed together at the end, and they fail the run the
+// same as an overflow does.
+const tapFindings = [];
+let tapSubjects = 0, tapScreens = 0;
+const tapCheck = async (page, where) => {
+  const r = await page.evaluate(TAP_PROBE, { floor: FLOOR, cap: CAP, exceptions: EXCEPTIONS });
+  tapScreens++; tapSubjects += r.subjects;
+  for (const f of r.findings) tapFindings.push({ where, ...f });
+};
+
 for (const size of SIZES) {
   console.log(`\n══ ${size.width}x${size.height} ═══════════════════════════════════`);
   const ctx = await browser.newContext({ viewport: size, deviceScaleFactor: 1 });
@@ -178,6 +200,7 @@ for (const size of SIZES) {
       const file = `${SHOTS}/${size.width}x${size.height}${LITE ? "-lite" : ""}-${label.replace(/[^a-z0-9]+/gi, "-")}.png`;
       await page.screenshot({ path: file, fullPage: !gate });
     }
+    await tapCheck(page, `${size.width}x${size.height} ${label}`);
     const { over, vh, blocks } = await page.evaluate(MEASURE);
     const bad = over > 1;
     if (bad && gate) failing++;
@@ -494,5 +517,24 @@ await browser.close();
 console.log(failing
   ? `\n${failing} step${failing === 1 ? "" : "s"} do not fit — W16 is not met`
   : `\nevery step fits at ${SIZES.map((s) => `${s.width}x${s.height}`).join(", ")}`);
+
+// --- THE TAP FLOOR ----------------------------------------------------------
+// COUNT THE SUBJECTS EVERY RUN. A walk that measured four controls prints the
+// same word as one that measured four hundred, and this walk drives a flow
+// whose steps are decided at runtime — so the number moving is the only signal
+// that the flow itself changed shape.
+console.log(`\ntap floor ${FLOOR}px — ${tapScreens} step readings, ${tapSubjects} controls measured`);
+if (!tapFindings.length) console.log("every control reaches the floor");
+else {
+  const seen = new Map();
+  for (const f of tapFindings) {
+    const k = `${f.check}  ${f.el} — ${f.detail}`;
+    if (!seen.has(k)) seen.set(k, []);
+    seen.get(k).push(f.where);
+  }
+  console.log(`${tapFindings.length} findings, ${seen.size} distinct controls`);
+  for (const [k, wheres] of seen) console.log(`  ${k}\n      ${wheres.join("  ")}`);
+  failing++;
+}
 await reportSourceMoved(changedSince, !failing);
 process.exit(failing ? 1 : 0);

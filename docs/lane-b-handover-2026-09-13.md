@@ -161,3 +161,157 @@ one of their suites is green today: `composition` 97/0, `design-contrast` 43/0,
 
 **And nothing about the browser sweeps**, because lane C did not run them —
 `docs/check-coverage-gaps-2026-09-13.md` says exactly which ones and why.
+
+---
+
+# ADDED 2026-09-13, LANE C — THE TAP FLOOR IS MEASURED NOW, AND HERE IS WHAT IT FOUND
+
+**§ 2d of this file said `.pa-x` and `.pa-chip` were under the floor and said so
+as SOURCE evidence, because nothing in this repo could probe a screen. That is
+no longer true.** `scripts/sweep-tap-targets.mjs` walks the real screens and
+measures the real thing — `elementFromPoint`, walked a pixel at a time out from
+each control's centre until a press stops landing on it. Run it yourself:
+
+```bash
+node scripts/sweep-tap-targets.mjs --baseline    # prove the instrument first
+node scripts/sweep-tap-targets.mjs               # the whole product
+node scripts/sweep-tap-targets.mjs --only admin  # one surface
+```
+
+## A · § 2d IS CLOSED, AND YOUR OWN FIX IS WHAT CLOSED IT
+
+**Both controls now pass, measured rather than read.** `df27d4d` ("The back
+office tells you it worked, and its two small controls reach 44") did it, and
+this is the independent confirmation that the fix works on the screen and not
+only in the stylesheet:
+
+| control | § 2d said | measured now |
+|---|---|---|
+| `.pa-x`, the drawer's close button | 30x30, no `::after` anywhere in `admin.css` | `::after { inset: -7px }` — **the open drawer measures clean at 1440, 392 and 320** |
+| `.pa-chip`, the Detailers filters | about 29px, no `min-height` | 29 painted, **44 reachable**, pitch 45.4, tiles exactly |
+
+## B · THE ONE IT MISSED — `.pa-out` IS 17px TALL, AND IT IS THE ONLY WAY OUT
+
+**`app/src/admin/admin.css:86`.** `padding: 0`, `font-size: 12px`, no
+`min-height`, **no `::after`** — so the rule that saved `.pa-x` was not applied
+to its neighbour.
+
+```
+button.pa-out "Sign out"     — 18px of reach down (rect 17px), floor 44
+button.pa-out "See everyone" — 18-19px of reach down (rect 17px), floor 44
+```
+
+**Fifteen findings across 1440 / 392 / 320, on every back-office tab, in both
+languages.** *Sign out* is the only way out of the back office, and it is the
+control at the top right of the one screen that can read every detailer's data.
+
+**It is one rule, not two call sites** — the same shape as `.segmented button`
+at `7aacb02` and `.pa-chip` at `df27d4d`. `.pa-out` is a text button with no box
+of its own, so the fix is `.pa-chip`'s: leave the paint at 17 and add
+`position: relative` plus `::after { content: ""; position: absolute; inset: -14px 0 }`.
+**Check the pitch afterwards** — *Sign out* sits in a header bar and *See
+everyone* sits under a card, so neither has a neighbour within 44px vertically,
+but measure it rather than trusting this sentence.
+
+## C · THE LANDING AND PRICING PAGES — 14 narrow, and the footer is most of it
+
+**`app/src/landing/LandingPage.jsx` and `app/src/landing/landing.css`.** These
+reproduced identically across three separate full runs, so they are not noise.
+
+| control | measured | where |
+|---|---|---|
+| `a "Terms"` (`LandingPage.jsx:1220`) | **36-37px across, 40-41px down** | `/` and `/pricing`, every width |
+| `a "Privacy"` (`:1221`) | **43px across, 40-41px down** | same |
+| `a "support@detailingplatform.com"` | **40-41px down** | same |
+| `a.softlink "See them all"` | **22-23px down** (rect 22) | `/`, every width |
+| `a.softlink "Or just the booking page→"` | **23-24px down** | `/`, every width |
+| `a.cta.sm "Sign up→"` | **38px down** | `/` at 392 and 320 only |
+| `a.lk "Sign in"` | **43px across** (height is fine — `landing.css:348` already sets `min-height: 44px`) | `/` and `/pricing` at 1440 and 768 |
+
+**THE FOOTER IS ONE FIX.** Three bare `<a>`s in a middle-dot-separated line with
+no rule of their own. `.ld .softlink` (`landing.css:1110`) is a second, and
+`.ld .nav .lk` is a third that is **two pixels short sideways only** — that one
+is a judgement call rather than a defect, and it is yours.
+
+**AND `a.lk "Sign in"` IS THE ARGUMENT FOR MEASURING RATHER THAN READING.** Its
+rule already carries `min-height: 44px`, so a source-level check would have
+passed it. It is 42px WIDE.
+
+## D · THE DETAILER DASHBOARD IS CLEAN, AND THAT IS A REAL RESULT
+
+**Every tab and every settings screen behind both doors, at 1440 / 768 / 392 /
+320, in English and Spanish: nothing under 44px of reach.** Your `7aacb02` and
+`df27d4d` rules hold everywhere the sweep can reach. The one dashboard finding
+is not a dashboard screen:
+
+```
+a "support@detailingplatform.com" — 14px of reach down (rect 14px), floor 44
+      gear → Your subscription / Tu suscripción, every width, both languages
+```
+
+A 14px mailto link on the screen a detailer reaches when their billing is
+broken. It is the same footer-link shape as § C and probably the same fix.
+
+## E · WHAT THE SWEEP STILL CANNOT SEE, SAID PLAINLY
+
+- **The booking flow.** Its steps are behind a live availability call and a
+  three-month calendar search; `sweep-booking-steps.mjs` owns that walk. The
+  probe is a module (`scripts/lib/tapProbe.mjs`) precisely so that script can
+  call it, and **that wiring is not done.** Booking steps 1-5 have a row in
+  `docs/VERIFIED.md` § 1 for overlap and sideways scroll, and **no row for the
+  floor.**
+- **Whether a control that reaches 44 is LEGIBLE, or in the right place.** This
+  measures reach and nothing else.
+
+## F · AND ONE WARNING ABOUT WHEN TO RUN IT
+
+**A run taken while you are editing `app/src` is worth nothing, and it does not
+merely go quiet — it invents findings.** One run reported 42 controls on the
+Spanish calendar at 392 whose centres all answered `main.app-main`, and 13
+settings rows that "vanished between listing and opening". **Neither
+reproduced**: re-run in isolation, that screen measures 54 controls and is
+clean. Vite reloaded the page under the walk. The script's own source guard says
+so at the end of every run — read that line before believing the rest.
+
+## G · THE BOOKING FLOW — MEASURED FOR THE FIRST TIME, AND ONE CONTROL IS SHORT
+
+**`sweep-booking-steps.mjs` calls the same probe now**, so the customer's side
+is covered by the same instrument as everything else. 72 step readings, 893
+controls, at 1920 / 1440 / 768 / 392.
+
+**Everything passes except the vehicle-count chips on step 3.**
+
+```
+button.bk-chip.word "1" / "2" / "3" — 40px wide, 41-42px of reach, floor 44
+      every width, in every state of the multi-vehicle step
+```
+
+**`app/src/book/booking.css`, the `.bk-chip.word` rule.** They are 40px square
+number buttons in a row, so the fix is `.chip`'s pattern — but **sideways this
+time, and the gap decides it.** `docs/VERIFIED.md` § 1 records a `.bk-chip.word`
+pitch, and an `::after` that grows each chip past half the gap makes neighbours
+steal each other's presses, which trades a small target for a wrong one. Measure
+the pitch after, not before.
+
+**`docs/VERIFIED.md` § 1 covers booking steps 1-5 for overlap and sideways
+scroll and has never covered the floor.** This is the first reading of it.
+
+## H · A GEAR ROW DISAPPEARS FROM ITS OWN INDEX
+
+**Twice in one clean run, at two different widths and in two languages:**
+
+```
+"The website business — Every detailer, and …"     1440/en/gear
+"El negocio del sitio web — Cada detailer, y …"    392/es/gear
+```
+
+The walk reads the gear index once, then opens each row by its own words. That
+row was in the index when the walk started and was **not there when its turn
+came** — after some earlier row had been opened and closed.
+
+**This is reported as an observation, not a diagnosis.** It is intermittent, it
+is not the Vite-reload artifact (that run's source guard was clean and lane B
+was idle), and the same row measured **0 controls** on an earlier run before
+vanishing entirely on later ones. Something about opening and leaving a settings
+screen is changing what the gear index draws. Worth one look at whatever decides
+that row's visibility.

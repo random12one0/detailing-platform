@@ -217,7 +217,40 @@ nobody here has looked up. **Look it up before raising that limit.**
 *What else here reports success in a way that cannot distinguish working from
 broken?* Two answers this pass, one large and one bounded.
 
-### 1 · NOTHING IN `tests/` ASSERTS THE 44px TAP FLOOR. ANYWHERE.
+### 1 · ~~NOTHING IN `tests/` ASSERTS THE 44px TAP FLOOR. ANYWHERE.~~ CLOSED 2026-09-13 — `scripts/sweep-tap-targets.mjs`
+
+**The gap was real and the entry below is kept in full, because the reasoning in
+it is what decided the shape of the thing that closed it.**
+
+**WHAT WAS BUILT IS NOT THE PROXY THIS ENTRY PROPOSED.** It suggested a
+source-level check that every interactive selector either sets `min-height` or
+declares an `::after` inset, and said in its own words that it *would be a proxy
+and it must say so.* **A proxy was not necessary.** `scripts/sweep-tap-targets.mjs`
+drives the real screens in a real browser and measures the real thing:
+`elementFromPoint`, walked one pixel at a time out from each control's centre
+until a press stops landing on it. `scripts/lib/tapProbe.mjs` is the measurement;
+the sweep is the walk.
+
+**IT WOULD HAVE CAUGHT NOTHING THE PROXY WOULD HAVE CAUGHT, AND EVERYTHING THE
+PROXY WOULD HAVE INVENTED.** A pixel walk cannot be fooled by padding on an
+inline child, cannot be fooled by a wrapping `<label>`, and cannot report a
+control as small because its rectangle is — which is trap (n) and the reason
+`docs/VERIFIED.md` § 2 exists. It also needs no list of selectors to maintain.
+
+**AND IT WAS BROKEN ON PURPOSE BEFORE IT WAS BELIEVED** — `--baseline`, five
+faults, all five seen, all five restored. The decisive one is `short_after`: it
+removes ONLY the `::after` extensions from `.chip`, `.segmented button`,
+`.choice` and `.btn.sm`, which changes no paint and leaves every rectangle
+identical, and a passing sort chip drops from 45 to **37px of reach**. An
+instrument that was secretly reading rectangles could not produce that number.
+
+→ the results, the numbers and what it found: `docs/VERIFIED.md` § 3e.
+
+---
+
+**THE ORIGINAL ENTRY, KEPT:**
+
+**NOTHING IN `tests/` ASSERTS THE 44px TAP FLOOR. ANYWHERE.**
 
 **Measured: `grep -rn '44' tests/composition.test.mjs` returns nothing, and
 `admin.css` is read by exactly one suite (`platform-admin`), which never looks at
