@@ -13,6 +13,23 @@
 // The steps live in ./steps; this file owns the flow, the server quote, and
 // submission. HOW MANY there are is not fixed — see core.js's stepsFor().
 //
+// ---------------------------------------------------------------------------
+// A STANDING RULE FROM ANDREW, 2026-09-13: **NO STEP THAT NEEDS A LOT OF
+// SCROLLING. IF A STEP RUNS MUCH PAST A SCREENFUL, MAKE IT ANOTHER STEP.**
+// ---------------------------------------------------------------------------
+// It is the answer to the obvious way of shortening this flow, which is to
+// merge two steps, and it says: do the opposite. An eighth step costs one tap;
+// a step a customer has to scroll twice costs the choices below the fold,
+// which on the add-ons step is the part of the booking the detailer earns most
+// of the extra money from.
+//
+// **AND IT IS WHY ADD-ONS KEEP THEIR OWN STEP.** Folding them into Services
+// was proposed on the same day and he overruled it in the same breath.
+//
+// `node scripts/sweep-booking-steps.mjs` prints a *spare room* figure per step
+// at each width, and it is the instrument for this rule — a step whose figure
+// goes negative has broken it.
+//
 // THE OLD CRASH: the previous widget called calculate-booking, swallowed any
 // failure with a console.error, and left its price state stale or null. The
 // customer could walk to the final step and submit, which then threw. Here
@@ -90,6 +107,9 @@ function BookingFlow({ notFound = null }) {
   const ctx = useBookingBusiness();
   const { status, business, branding, settings, services, serviceGroups, addOns, plans, brandVars, slug, tx } = ctx;
   const STEPS = useMemo(() => stepsFor(addOns), [addOns]);
+  // WHICH STEP CARRIES THE PLANS CHIP. The add-ons step when there is one, and
+  // Services otherwise — the long note beside the chip itself has the reason.
+  const planDoorStep = STEPS.includes("Extras") ? "Extras" : "Services";
   const [params] = useSearchParams();
 
   // WHO WE ALREADY KNOW, READ ONCE. Lazy state rather than a plain read: the
@@ -557,9 +577,24 @@ function BookingFlow({ notFound = null }) {
                 the row the rail and the step label already share, so its
                 height is the label's height — which matters, because step 1's
                 spare room at 1440x900 is TEN PIXELS and that budget is the
-                detailer's catalogue, not ours. Step 1 only: somebody on step 5
-                has decided, and offering them a plan there is a way out of a
-                form they are most of the way through.
+                detailer's catalogue, not ours.
+
+                **IT IS ON THE ADD-ONS STEP NOW, NOT STEP 1 — Andrew,
+                2026-09-13.** It was the loudest thing on the screen, above the
+                services, before a stranger had seen a single price: an orange
+                chip offering a monthly commitment to somebody who does not yet
+                know what one wash costs. The add-ons step is where a customer
+                is already being shown things to add, so *"or get it every
+                month"* lands as one more option rather than as an interruption.
+
+                **AND THE ADD-ONS STEP KEEPS ITS OWN STEP.** Folding it into
+                step 1 was proposed and he overruled it: a lot of the revenue
+                is in the add-ons and he does not want them skipped past.
+
+                A business with no add-ons has no Extras step, and there the
+                door stays on Services — the alternative is a detailer whose
+                plans are unreachable from the booking page because of a
+                catalogue decision that has nothing to do with plans.
 
                 **AND IT CARRIES A PRICE NOW — his review, 2026-09-11.** *"It's
                 this small little text, probably the majority of people are
@@ -568,7 +603,7 @@ function BookingFlow({ notFound = null }) {
                 stop and read. The cheapest plan, because the number's job here
                 is to say "this is affordable", not to be exact — the page it
                 opens is where the four real prices are. */}
-            {step === 0 && plans.length > 0 && !attachedPlan && (
+            {stepName === planDoorStep && plans.length > 0 && !attachedPlan && (
               <Link className="bk-plans-door" to={`/book/${slug}/plans`}>
                 {/* **TWO WHOLE SENTENCES, NOT A WORD PLUS A PRICE.** The
                     chip has to shorten below 380px, where the rail and "Step 1

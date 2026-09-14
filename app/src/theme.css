@@ -771,6 +771,35 @@ a { color: var(--accent-text); text-decoration: none; }
    sheet"). Check any new bare class name here the same way — and note this
    comment writes the old name without its dot on purpose, so it does not
    trip that grep itself. */
+/* ------------------------------------------------- THE DAY'S WEATHER
+   One line under the date, and everything about it is sized to stay a line.
+   `--t-meta` and `--muted` are the same type the masthead's own subline takes,
+   because it is the same kind of fact: something true of the DAY.
+
+   IT WRAPS RATHER THAN TRUNCATES. The NWS writes its own sentences ("Patchy
+   Fog then Partly Sunny") and they are occasionally long; an ellipsis on a
+   forecast can cut the half that mattered, and a second line on the days that
+   need one is cheaper than a wrong summary. At 392 the ordinary case measures
+   one line.
+
+   THE ICON DOES NOT SHRINK — a 16px lucide glyph in a flex row is the classic
+   place a flex-basis squashes an icon into an oval. */
+.weather-line {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+  margin-top: 6px; font-size: var(--t-meta); color: var(--muted); line-height: 1.4;
+}
+.weather-line > svg { flex: 0 0 auto; color: var(--muted); }
+/* THE OFFER, BEFORE ANYBODY HAS GRANTED A LOCATION. `ghost inline` already
+   makes it borderless and content-width; the negative left margin only pulls
+   the glyph back into line with the sentence above it, so the offer occupies
+   the same column as the forecast it will be replaced by. */
+.weather-line > .btn.sm { margin-left: calc(var(--sp-4) * -1); color: var(--muted); }
+.weather-line > .btn.sm:hover:not(:disabled) { color: var(--text); }
+/* The chance of rain and the permission sentence are both the SECOND thing on
+   the line, so they take the dimmer of the two tones and sit apart from the
+   forecast rather than running into it. */
+.weather-line .quiet { font-size: var(--t-meta); }
+
 .dayrail { position: relative; padding-left: 26px; }
 /* The rail starts BELOW the section label — the label names the run, it is
    not a stop on it — and fades out at the bottom rather than stopping dead,
@@ -2843,8 +2872,20 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
    and "6 months" sets 55.4px against the 55.2px that 6px padding leaves it —
    it wrapped by two tenths of a pixel, and every cell then took the taller
    row. `white-space: normal` stays because the 320 floor still needs it. */
+/* **AND `white-space: normal` HERE WAS A CLIFF, NOT A SETTING — Andrew saw
+   "6 months" on two lines again on 2026-09-13.** The comment above measured the
+   wrap at two tenths of a pixel and bought it back with 2px of padding; a
+   control whose height depends on a 0.2px margin is one font-metric, one
+   translation and one phone width away from wrapping again, and when it does
+   every one of the five cells takes the taller row.
+   So the label is forbidden to break at all, and the 320 floor below is where
+   it is allowed to — down there the cell genuinely cannot hold the word and
+   wrapping is the right answer rather than an accident. */
 .moneyhead > .segmented button {
-  white-space: normal; padding: 8px 4px; line-height: 1.2; text-wrap: balance;
+  white-space: nowrap; padding: 8px 4px; line-height: 1.2;
+}
+@media (max-width: 360px) {
+  .moneyhead > .segmented button { white-space: normal; text-wrap: balance; }
 }
 .moneyhead-when {
   display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); flex: 1 1 auto;

@@ -52,6 +52,7 @@ import BookingCard from "../components/BookingCard.jsx";
 import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
 import BookingLink from "../components/BookingLink.jsx";
 import DaySheet from "../components/DaySheet.jsx";
+import DayWeather from "../components/DayWeather.jsx";
 import FinalizeModal from "../components/FinalizeModal.jsx";
 import JobRow from "../components/JobRow.jsx";
 import NewBookingModal from "../components/NewBookingModal.jsx";
@@ -395,6 +396,24 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
             ? t("nothing booked")
             : t("{left} of {total} still to do", { left: todays.length - done, total: todays.length })}
         </p>
+        {/* THE SKY, UNDER THE DATE — 2026-09-13. It is a fact about the DAY,
+            the same kind of fact as the date above it, and the rail underneath
+            is what makes it worth printing at all.
+
+            **INSIDE THE MASTHEAD BLOCK, NOT A SIBLING OF IT — measured, not
+            chosen.** `.col-1` is a flex column with a 28px gap, so a sibling
+            landed 34px below the line it belongs to: too far to read as part of
+            the date, and 34px of a phone spent on a courtesy. Inside, it is 6px
+            under its own sentence and the gap is paid once.
+
+            The walkthrough's first step frames `[data-tour="day"]`, so on a
+            machine that has granted location that box is one line taller. That
+            is correct rather than a cost — the step is about the day — and the
+            tour is a first-run thing that will almost always meet this absent.
+
+            It renders NOTHING until it has an answer, so on a day it cannot
+            answer this costs the screen no height at all. */}
+        <DayWeather businessId={business.id} />
       </div>
 
       {/* ROADMAP 2.12 FILLS THE SLOT 2.11 BUILT EMPTY. Above everything when

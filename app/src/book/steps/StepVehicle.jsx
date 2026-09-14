@@ -33,12 +33,13 @@
 // every business until a detailer says otherwise, and at 1 this file renders
 // exactly what it rendered before the item.
 
+import { useEffect } from "react";
 import { t } from "../../lib/i18n.js";
 import { useLocale } from "../../hooks/useLocale.js";
 import { money } from "../../lib/format.js";
 import {
   isPlatformSizeText,
-  maxVehicles, setVehicleCount, VEHICLE_CONDITIONS, vehicleCount,
+  maxVehicles, setVehicleCount, suggestVehicleSize, VEHICLE_CONDITIONS, vehicleCount,
   vehicleSizeExtra, vehicleSizesMatter,
 } from "../core.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
@@ -118,7 +119,30 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
   const count = vehicleCount(form);
   const multi = count > 1;
   const asList = multi || sizes.length > SIZE_CARD_CEILING;
-  const pick = (key) => setForm((f) => ({ ...f, vehicleSize: key }));
+  // TOUCHING THE CONTROL ENDS THE SUGGESTING, FOR THE REST OF THE BOOKING.
+  const pick = (key) => setForm((f) => ({ ...f, vehicleSize: key, vehicleSizeChosen: true }));
+
+  // THE SIZE THEIR CAR IMPLIES, IN THE DETAILER'S OWN TIERS — Andrew's ask,
+  // 2026-09-13. `core.js` § suggestVehicleSize carries the whole argument,
+  // including why it fails to null so readily; this is only the wiring.
+  //
+  // **ONE CAR ONLY.** Past one the sizes are a per-row <select> and the models
+  // are typed in a different box each; suggesting into a row somebody is not
+  // looking at is how a customer finds a price they never saw change.
+  const suggested = !multi && sizesMatter && !form.vehicleSizeChosen
+    ? suggestVehicleSize(form.vehicleModel, sizes)
+    : null;
+  const suggestedSize = suggested ? sizes.find((s) => s.key === suggested.key) : null;
+  const suggestedKey = suggested?.key ?? null;
+  useEffect(() => {
+    // `vehicleSizeChosen` stays FALSE here, which is the point: every further
+    // keystroke may still re-suggest, and only the customer's own tap stops it.
+    // Keyed on the KEY rather than on the object — `suggestVehicleSize` returns
+    // a fresh object every render, and an effect on that runs every keystroke.
+    if (suggestedKey) {
+      setForm((f) => (f.vehicleSize === suggestedKey ? f : { ...f, vehicleSize: suggestedKey }));
+    }
+  }, [suggestedKey]);
 
   const setCount = (n) =>
     setForm((f) => ({ ...f, extraVehicles: setVehicleCount(f, n, settings) }));
@@ -319,6 +343,31 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
               placeholder={t("e.g. 2019 Honda Civic")}
               onChange={(v) => setForm((f) => ({ ...f, vehicleModel: v }))}
             />
+            {/* THE "WHY", AND IT SITS UNDER THE BOX THAT CAUSED IT RATHER THAN
+                UNDER THE SIZE IT CHANGED. A customer who types "Suburban" and
+                sees a card light up two blocks above has been given a price
+                with no explanation; the sentence goes where the typing is.
+
+                **IT QUOTES THE WORD THAT WAS RECOGNISED, NOT THE WHOLE FIELD.**
+                "2019 Chevrolet Suburban · set to Large" restates the box one
+                inch above it, which is his standing rule against copy that
+                explains what the control already said — and it wrapped onto two
+                lines at 392. "Suburban · set to Large" is his own sentence, in
+                his own shape, on one line. The tier is named in the DETAILER'S
+                word, so it is true on a business whose sizes are called
+                anything at all.
+
+                NO "change it if that is wrong" AFTER IT. The card is outlined,
+                tappable and two blocks up; the sentence would be telling
+                somebody a control does what it visibly does. */}
+            {suggestedSize && (
+              <p className="bk-muted bk-suggested" role="status">
+                {t("{vehicle} · set to {size}", {
+                  vehicle: suggested.matched,
+                  size: sizeText(suggestedSize, "label", tx),
+                })}
+              </p>
+            )}
           </div>
         </>
       )}

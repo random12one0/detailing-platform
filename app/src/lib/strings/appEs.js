@@ -173,6 +173,11 @@ export const appEs = {
   "nothing booked": "nada agendado",
   "{left} of {total} still to do": "{left} de {total} por hacer",
   "Jobs today": "Trabajos de hoy",
+  // The weather line under the date. The NWS's own words for the sky are NOT
+  // in here on purpose — they arrive in English from a US government service
+  // and a catalogue entry for them would be us inventing a forecast.
+  "Show today’s weather": "Ver el clima de hoy",
+  "{pct}% rain": "{pct}% de lluvia",
   "Expected": "Esperado",
   "{amount} collected": "{amount} cobrado",
   "Nothing collected yet": "Aún no has cobrado nada",

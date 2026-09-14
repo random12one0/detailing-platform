@@ -154,6 +154,7 @@ export const es = {
   "One price for every vehicle.": "Un solo precio para cualquier vehículo.",
   "What are you bringing? (optional)": "¿Qué vehículo traes? (opcional)",
   "e.g. 2019 Honda Civic": "por ejemplo, Honda Civic 2019",
+  "{vehicle} · set to {size}": "{vehicle} · lo pusimos en {size}",
   "How dirty is the inside?": "¿Qué tan sucio está por dentro?",
   "It doesn’t change your price. It tells us what to bring.":
     "No cambia tu precio. Nos dice qué llevar.",

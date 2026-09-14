@@ -12,11 +12,17 @@
 // chooses nothing submits their own words untouched. Nothing here can refuse
 // an answer — a picker that refuses is worse than the text box it replaced.
 //
-// **AND IT NEVER TOUCHES THE SIZE CHOICE ABOVE IT.** The index comes from
-// NHTSA vPIC, which tags a Camry as a car in some model years and an MPV in
-// others; a tier derived from it would quote some customers the wrong price.
-// The size is the detailer's own list and the customer's own answer.
-// `core.js` § matchVehicle carries the reasoning.
+// **THIS FIELD STILL NEVER TOUCHES THE SIZE CHOICE, AND SINCE 2026-09-13 THE
+// STEP AROUND IT DOES — Andrew asked for the auto-detect directly.** The two
+// are not the same thing and the distinction is the whole safety argument:
+// the INDEX is still never consulted about size. It comes from NHTSA vPIC,
+// which tags a Camry as a car in some model years and an MPV in others, so a
+// tier derived from it would quote some customers the wrong price.
+// `core.js` § suggestVehicleSize matches the typed words against a small fixed
+// table of body words and then against the DETAILER'S OWN tier descriptions,
+// suggests visibly, says why, and stops dead the moment the customer touches
+// the control. Nothing it does is silent and nothing it does is derived from
+// this file's data.
 //
 // THE SUGGESTIONS FLOAT RATHER THAN SITTING IN THE FLOW, and that is a
 // measurement rather than a taste: step 3 has 39px of spare room at 392 and

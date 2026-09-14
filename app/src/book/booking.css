@@ -269,6 +269,13 @@
 .bk-choices { display: flex; flex-direction: column; gap: var(--bk-sp-2); }
 .bk-choices > .bk-choices { gap: var(--bk-sp-2); }
 .bk-choices > p.bk-muted { margin-bottom: 2px; }
+/* THE SIZE SUGGESTION'S SENTENCE — Andrew's vehicle auto-detect, 2026-09-13.
+   Six pixels under the box that produced it, and nothing else: it is the same
+   meta type every other hint on this step uses, and giving it a colour or a
+   panel would make a quiet correction look like an error. Step 3 has 39px of
+   spare room at 392 and this line is ~22px of it, spent only on the bookings
+   where a car was actually recognised. */
+.bk-suggested { margin-top: 6px; }
 /* Only where a heading is starting a new group — the first one is already
    under the step's own heading and needs nothing.
    NOT `.group`, which is what this was called for ten minutes: theme.css

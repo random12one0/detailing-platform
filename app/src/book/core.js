@@ -395,6 +395,12 @@ export function initialForm(settings, known) {
     serviceIds: [],
     addOns: [],
     vehicleSize: s.vehicle_sizes[0]?.key ?? "small",
+    // **A FLAG ABOUT WHO CHOSE THE SIZE, NOT ABOUT THE SIZE.** `suggestVehicleSize`
+    // may move this field while the customer is typing their car, and it must
+    // stop the moment they touch the control themselves — otherwise the next
+    // keystroke overrules a person, which is the one thing a suggestion may
+    // never do. It reaches no payload: `toPayload` names its fields.
+    vehicleSizeChosen: false,
     vehicleModel: "",
     // ROADMAP 8.10 — the cars AFTER the first, each { size, model } and, when
     // they are on different days, { date, time } as well. Empty is the
@@ -574,6 +580,170 @@ export const vehicleSizeExtra = (selectedServices, key) =>
 // question it has no answer for.
 export const vehicleSizesMatter = (sizes, selectedServices) =>
   (sizes ?? []).some((s) => vehicleSizeExtra(selectedServices, s.key) !== 0);
+
+// ---------------------------------------------------------------------------
+// WHAT THEY TYPED, MATCHED AGAINST THE DETAILER'S OWN TIERS — Andrew's ask,
+// 2026-09-13: *"detailers have custom tiers, one may have three sizes and
+// another five, each with their own upcharges."*
+// ---------------------------------------------------------------------------
+// **IT SUGGESTS AND IT SHOWS WHY. IT NEVER SILENTLY SETS A PRICE.** The screen
+// prints the vehicle beside the tier it chose and the customer can change it,
+// which is the whole licence for touching a priced field at all.
+//
+// **AND A WRONG GUESS QUOTES SOMEBODY THE WRONG PRICE, WHICH IS WORSE THAN NOT
+// GUESSING — his rule, and it is why everything below fails to null rather
+// than to a best effort.** No fuzzy distance, no "closest tier", no scoring: a
+// term either appears in the detailer's own words or it does not.
+//
+// -- WHY THE MATCH IS AGAINST THEIR WORDS AND NOT AGAINST A TIER NUMBER ------
+// A tier's `examples` is the detailer telling us in their own language what
+// belongs in it — "Coupe, sedan, hatchback", "Truck, large SUV, van". So the
+// question "is a Suburban a Large here" is answered by THEIR text, and a
+// business with five tiers is answered by the same code as one with three.
+// Nothing here assumes three, assumes our keys, or assumes an order.
+//
+// -- AND THIS REVERSES A NOTE IN `VehicleField.jsx`, ON PURPOSE --------------
+// That file said the index must never touch the size choice, because NHTSA
+// vPIC tags a Camry as a car in some model years and an MPV in others, so a
+// tier DERIVED from it would quote some customers the wrong price. That is
+// still true and this does not do it: the table below is a small fixed list of
+// body words written HERE, not read out of the index, and what it produces is
+// a visible suggestion rather than a derivation.
+
+// The body words a model implies, MOST SPECIFIC FIRST — specificity is the
+// whole mechanism. "small suv" has to be tried before "suv", or a RAV4 lands
+// in the tier whose examples say "large SUV" simply because that tier also
+// contains the letters s-u-v.
+//
+// **ONLY MODELS WORTH BEING SURE ABOUT ARE IN HERE.** Anything absent produces
+// no suggestion, which is the correct outcome and not a gap to fill later.
+const VEHICLE_BODIES = [
+  // A customer who types their own body word is answering the question
+  // directly — *"my wife's van"*, *"work truck"*. These run first because it
+  // is the one case where nobody is guessing at all.
+  [/\bminivans?\b/, ["minivan", "van", "large"]],
+  [/\bvans?\b/, ["van", "minivan", "large"]],
+  [/\b(pick ?ups?|trucks?)\b/, ["truck", "pickup", "large"]],
+  [/\b(suvs?|crossovers?)\b/, ["suv", "crossover", "medium"]],
+  [/\bsedans?\b/, ["sedan", "car", "small"]],
+  [/\b(coupes?|hatchbacks?|convertibles?)\b/, ["coupe", "hatchback", "car", "small"]],
+  [/\bwagons?\b/, ["wagon", "estate", "medium"]],
+
+  // MINIVANS AND PASSENGER VANS.
+  [/\b(sienna|odyssey|pacifica|carnival|sedona|quest|voyager|uplander|entourage|routan|freestar|windstar|villager|previa|montana|silhouette|venture|aerostar|grand caravan|caravan|town and country)\b/,
+    ["minivan", "van", "large"]],
+  // CARGO VANS. Bigger again, and a detailer who separates them says so.
+  [/\b(sprinter|promaster|transit|express|savana|metris|econoline|ducato|vandura|e 150|e 250|e 350|e 450|nv200|nv|city express)\b/,
+    ["cargo van", "van", "large"]],
+
+  // FULL-SIZE TRUCKS.
+  [/\b(f ?150|f ?250|f ?350|f ?450|f ?550|silverado|sierra|tundra|titan|ram ?1500|ram ?2500|ram ?3500|cybertruck|r1t|avalanche|lightning)\b/,
+    ["full size truck", "truck", "pickup", "large"]],
+  // MID-SIZE TRUCKS. A three-tier business has no word for this and falls
+  // through to "truck", which is the right answer there.
+  [/\b(tacoma|colorado|canyon|ranger|frontier|ridgeline|maverick|santa cruz|gladiator|dakota|sonoma|sport trac)\b/,
+    ["mid size truck", "midsize truck", "small truck", "truck", "pickup", "medium"]],
+
+  // LARGE SUVS — the three-row and body-on-frame ones.
+  [/\b(suburban|tahoe|yukon|expedition|escalade|navigator|sequoia|armada|wagoneer|land cruiser|lx|qx56|qx80|gx|durango|traverse|telluride|palisade|pilot|highlander|atlas|ascent|explorer|4runner|pathfinder|xterra|montero|r1s|gv80|gls class|gl class)\b/,
+    ["large suv", "full size suv", "3 row suv", "suv", "truck", "large"]],
+  // SMALL AND MID SUVS — the crossovers, which is most of what gets typed.
+  [/\b(rav4|cr v|crv|cx 3|cx 30|cx 5|cx 50|cx 9|cx 70|cx 90|escape|equinox|trax|trailblazer|blazer|edge|bronco|rogue|kicks|murano|forester|crosstrek|outback|tucson|santa fe|kona|venue|sportage|seltos|sorento|soul|niro|tiguan|taos|touareg|compass|cherokee|renegade|patriot|liberty|wrangler|hr v|passport|element|terrain|acadia|envision|encore|enclave|x1|x3|x5|q3|q5|q7|glc class|gla class|glb class|gle class|nx|rx|ux|tx|qx50|qx55|qx60|rdx|mdx|zdx|xt4|xt5|xt6|macan|cayenne|evoque|discovery|range rover|velar|defender|f pace|e pace|xc40|xc60|xc90|ex30|ex40|ex90|model y|model x|ariya|mach e|ioniq 5|ioniq 9|ev6|ev9|id.4|bz4x|solterra|outlander|eclipse cross|rvr|endeavor|vue|rendezvous|journey|nitro|flex|freestyle|venza|corolla cross|c hr|creta|vitara|tribute|mariner)\b/,
+    ["small suv", "compact suv", "mid suv", "midsize suv", "crossover", "suv", "medium"]],
+
+  // WAGONS AND HATCHBACKS.
+  [/\b(golf|gti|sportwagen|alltrack|v60|v70|v90|allroad|regal tourx|impreza|mazda3|mazda2|fit|yaris|rio|versa note|leaf|bolt ev|bolt euv|spark|mirage|prius c|prius v|matrix|vibe|hhr|pt cruiser|cube|xb|xd|500l|i3|veloster|elantra gt)\b/,
+    ["hatchback", "wagon", "compact", "car", "small"]],
+
+  // COUPES, ROADSTERS AND ANYTHING TWO-DOOR.
+  [/\b(mustang|camaro|challenger|corvette|brz|gr86|86|fr s|miata|mx 5|supra|z4|tt|boxster|cayman|911|350z|370z|nissan z|rx 7|rx 8|s2000|solstice|sky|prowler|viper|celica|integra|type r|civic si|gt r|nsx|f type|m2|m4|amg gt|slk class|sl class|slc class|124 spider|eos|cabrio|beetle)\b/,
+    ["coupe", "sports car", "2 door", "car", "small"]],
+
+  // SEDANS — the default shape of a car, and deliberately last of the model
+  // rules so anything above it wins.
+  [/\b(camry|corolla|accord|civic|altima|sentra|maxima|elantra|sonata|accent|azera|optima|k5|k4|forte|cadenza|stinger|mazda6|legacy|malibu|impala|cruze|sonic|cobalt|fusion|focus|taurus|fiesta|charger|300|200|dart|avenger|avalon|crown|passat|arteon|cc|a3|a4|a6|a8|328i|330i|335i|340i|528i|530i|540i|c class|e class|s class|cla class|a class|is|es|gs|ls|ct|tlx|tsx|tl|ilx|rl|q50|q60|q70|g35|g37|model 3|model s|air|polestar 2|ioniq 6|k900|genesis|g70|g80|g90|xe|xf|xj|s60|s80|s90|s40|jetta|versa|lancer|galant|eclipse|sebring|stratus|neon|grand marquis|crown victoria|town car|continental|mkz|milan|sable|regal|lacrosse|lesabre|park avenue|lucerne|century|bonneville|grand prix|grand am|g6|g8|aura|ion|alero|intrigue|aurora|catera|cts|ct4|ct5|ct6|ats|sts|dts|deville|seville|xts)\b/,
+    ["sedan", "saloon", "car", "small"]],
+];
+
+// Lower-cased, hyphens opened out, the model year dropped, and punctuation
+// turned into spaces so `\b` behaves the same on "F-150" and "f 150". The same
+// normalisation runs over the DETAILER's tier text, so "Mid-size SUV" and "mid
+// size SUV" are one thing on both sides of the comparison.
+function normalizeVehicleText(text, keepCase = false) {
+  const s = String(text ?? "");
+  return (keepCase ? s : s.toLowerCase())
+    .replace(VEHICLE_YEAR, " ")
+    .replace(keepCase ? /[^a-zA-Z0-9.]+/g : /[^a-z0-9.]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** The plain body words a typed vehicle implies, most specific first, and the
+ *  piece of their text that produced them.
+ *
+ *  **THE MATCHED PIECE IS NOT DECORATION — it is the sentence the screen
+ *  prints.** Andrew asked for *"Suburban, that's your Large"*, and the only
+ *  honest way to write that line is to quote the word that was actually
+ *  recognised. Echoing the whole field back ("2019 Chevrolet Suburban · set to
+ *  Large") restates a box one inch above it, which is his own standing rule
+ *  against copy that explains what the control already said.
+ *
+ *  `null` when nothing in the table is sure about it — which is most strings. */
+export function vehicleBodyWords(text) {
+  const s = normalizeVehicleText(text);
+  if (!s) return null;
+  // **THEIR CAPITALS, NOT OURS.** Title-casing "suburban" back up is the same
+  // mistake `.advmeter.cap` made with a detailer's expense category: a
+  // display-layer transform cannot tell whose words it is transforming, and it
+  // is wrong in Spanish besides. So the match is FOUND on the lower-cased
+  // string and SLICED out of a copy that kept the customer's own capitals —
+  // both built by the same transform, so the indexes line up.
+  const shown = normalizeVehicleText(text, true);
+  for (const [re, words] of VEHICLE_BODIES) {
+    const m = s.match(re);
+    if (m) return { words, matched: shown.slice(m.index, m.index + m[0].length) || m[0] };
+  }
+  return null;
+}
+
+/** The tier a typed vehicle belongs in, or null.
+ *
+ *  `{ key, matched }` — the tier, and the word in their text that chose it, for
+ *  the sentence the screen prints.
+ *
+ *  Null is the ordinary answer and it is never an error: an unknown model, a
+ *  tier list with no descriptions, and a word two tiers both claim all produce
+ *  it, and the customer then chooses exactly as they do today. */
+export function suggestVehicleSize(text, sizes) {
+  const hit = vehicleBodyWords(text);
+  if (!hit || !(sizes ?? []).length) return null;
+  const { words, matched } = hit;
+
+  // THEIR WORDS, NORMALISED THE SAME WAY OURS ARE. The label is included
+  // because a five-tier detailer often puts the whole answer in it ("Large
+  // SUV / truck") and leaves the examples blank.
+  const tiers = sizes.map((s) => ({
+    key: s.key,
+    text: normalizeVehicleText(`${s.label ?? ""} ${s.examples ?? ""}`),
+  }));
+
+  for (const word of words) {
+    // A word inside a longer phrase still counts — "suv" is in "small suv" —
+    // which is exactly what makes the specific-first order do the work. The
+    // boundary is what stops "car" matching "cargo" and "van" matching
+    // "vanity"; the optional s is there because detailers write plurals.
+    const re = new RegExp(`\\b${word.replace(/\./g, "\\.")}s?\\b`);
+    const hits = tiers.filter((tier) => re.test(tier.text));
+    // **TWO TIERS CLAIMING THE SAME WORD IS THE VAGUE CASE HE NAMED, AND IT
+    // STOPS EVERYTHING.** Falling through to a less specific word would only
+    // ever find more tiers, and picking the first of two is a coin toss with
+    // somebody's price on it.
+    if (hits.length > 1) return null;
+    if (hits.length === 1) return { key: hits[0].key, matched };
+  }
+  return null;
+}
+
 
 // W27 — how dirty it is. INFORMATION, never arithmetic: the trade prices
 // condition after inspection. Words rather than numbers so it reads as a

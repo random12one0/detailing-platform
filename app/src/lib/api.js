@@ -108,6 +108,14 @@ export const api = {
   pushSubscribe: (businessId, subscription) => callFn("owner-push-subscribe", { business_id: businessId, subscription }),
   pushUnsubscribe: (businessId, endpoint) => callFn("owner-push-unsubscribe", { business_id: businessId, endpoint }),
 
+  // WHAT THE SKY IS GOING TO DO. `supabase/functions/forecast` proxies the US
+  // National Weather Service; the point comes from the browser, because nothing
+  // in this product stores a latitude. It is READ-ONLY by Andrew's own refusal —
+  // it blocks no slot, moves no job and messages nobody — and every caller must
+  // treat a failure as silence rather than as an error worth showing.
+  forecast: (businessId, lat, lon) =>
+    callFn("forecast", { business_id: businessId, lat, lon }),
+
   // ROADMAP 8.11 — a customer asks to be forgotten. OWNER ONLY, and the server
   // is what enforces that; the screen hides the control as a courtesy. It
   // forgets the PERSON and keeps the MONEY: the bookings stay, anonymised in

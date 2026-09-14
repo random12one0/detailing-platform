@@ -713,3 +713,84 @@ that screen; Tracking links shows all time.
 
 **Visual: no.** Numbers on Tracking links may read slightly lower than before,
 because a repeat visitor is now one person.
+
+---
+
+## 36 · Today — the weather for the day you are about to work
+
+**Open:** `localhost:5173/app`, the Today tab. It sits under the date.
+
+**WAS:** Nothing. The weather service was built on the server side and no screen
+ever showed it, so it may as well not have existed.
+
+**NOW:** One quiet line under the date — the part of the day, the temperature,
+what the sky is doing and the chance of rain, like *"Tonight · 68° · Patchy Fog
+· 5% rain"*. It is free and it comes from the US National Weather Service.
+
+The first time you open Today it does **not** pop up a location request. It
+shows a small "Show today's weather" you can press, and only then does your
+phone ask. After that it just draws every morning. If you say no, it never asks
+again and the line is simply not there. If anything at all goes wrong — no
+signal, the service is down, you are outside the United States — you get
+nothing rather than an error, and nothing about the day waits for it.
+
+It does not block a time, move a job, warn a customer or cancel anything. It
+only tells you what the sky is going to do.
+
+**Visual: yes.**
+
+---
+
+## 37 · Booking — the monthly-plans offer moved off the first screen
+
+**Open:** `localhost:5173/book/demo-detail`. Look at step 1, then pick a service
+and press Continue to reach step 2.
+
+**WAS:** A bright orange "Plans from $120 a month" button sat at the very top of
+step 1, above the list of services — the loudest thing on the screen, offering a
+stranger a monthly commitment before they had seen a single price.
+
+**NOW:** It is on the Add-ons step instead, which is where a customer is already
+being shown things to add, so "or get it every month" reads as one more option
+rather than an interruption. Step 1 is just the services now. Add-ons keep their
+own step, as you asked.
+
+**Visual: yes.**
+
+---
+
+## 38 · Booking — typing your car picks your vehicle size for you
+
+**Open:** `localhost:5173/book/demo-detail`, pick a service, Continue, Continue
+to reach step 3. Type "Suburban" into "What are you bringing?".
+
+**WAS:** You chose Small, Medium or Large yourself with nothing to help you, and
+a lot of people guess wrong.
+
+**NOW:** Type your car and the right size lights up, with a line under the box
+saying which one and why — *"Suburban · set to Large"*. Tap a different size and
+it takes yours and stops suggesting for the rest of the booking.
+
+It reads the detailer's **own** words for their sizes — "Coupe, sedan,
+hatchback", "Truck, large SUV, van" — so it works whether a business has three
+sizes or five, whatever they have called them. If their wording is too vague to
+be sure, or the car is one it does not recognise, it picks nothing at all and
+you choose as before. **A wrong guess would quote somebody the wrong price, so
+it would rather say nothing.**
+
+**Visual: yes.**
+
+---
+
+## 39 · Money — the "6 months" button stopped going onto two lines
+
+**Open:** `localhost:5173/app`, the Money tab, on a phone.
+
+**WAS:** The words "6 months" broke across two lines inside their own button,
+which made the whole row of Week / Month / 6 months / Year / Lifetime taller
+than it needed to be.
+
+**NOW:** One line, on every phone from 361 pixels wide up. On the very narrowest
+phones it still wraps, because the word genuinely does not fit there.
+
+**Visual: yes.**
