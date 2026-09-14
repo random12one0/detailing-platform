@@ -1008,3 +1008,35 @@ second time.** That is the arithmetic — see `docs/ECONOMY.md`.
 bill** — `FOUND.md` § THE SECOND RUN WENT 89/1 carries the open question, and the
 00:00 run of the same script went **19/10 and then threw**. **The refusal is
 intermittent**, so a single green run is not evidence that it is gone.
+
+## 1n · THE INTERMITTENT BOOKING REFUSAL, RUN TO GROUND — lane C, 2026-09-13, at `80e7c11`
+
+**The subject was the frozen build on `127.0.0.1:4175`, and `git diff
+--name-only 9d88fa2..HEAD -- app/src` was EMPTY**, so that bundle is byte-for-
+byte the committed app source at `80e7c11`. Lane B's three uncommitted edits
+could not reach it — trap (f) and trap (g) both retired rather than dodged.
+
+| what was proven | number | invalidated by a change to |
+|---|---|---|
+| **`available-slots` never offers a time a live booking forbids** | **1,807 offered slots** across 46 days × 2 tenants × 3 durations each, compared against the buffered-conflict rule applied to the rows in the database: **0 clashes** | `supabase/functions/available-slots/**`, `_shared/slotValidation.ts`, `business_settings.buffer_minutes` |
+| **The calendar is asked about the length actually booked**, not the service's base minutes | 90 min asked against a **60**-min base service, 105 against a **75**-min one — the numbers differ, so the check bites; both matched `end_at - start_at` | `app/src/book/steps/StepWhen.jsx`, `app/src/book/BookingPage.jsx`, `supabase/functions/calculate-booking/**` |
+| **The refusal reproduces on demand** — two customers, one slot | first books 200, second **409 "That time is too close to another booking. Please choose a different time."** — byte-identical to the 00:00 run's failure | `supabase/functions/create-booking/**`, `_shared/slotValidation.ts` |
+| **And through the real booking page at 392x844** | the error is drawn, **no** confirmation, the customer is left on **step 7 of 7**, their chip deselected; Back reaches *"Pick a time"* with a re-fetched calendar | `app/src/book/**` |
+| **One booking costs four slots, not one** | demo-riverside, 75-min job, 45-min buffer: the day went from **8 offered times to 4** | `business_settings.buffer_minutes`, `slot_interval_minutes` |
+| **`bookings_no_overlap` is real and bites** — proven by an insert, not by a grep | service-role insert of an overlapping row: **`23P01`**, naming `(business_id, tstzrange(start_at, end_at, '[]'))` | the `bookings` exclusion-constraint migrations |
+| **`e2e-booking`, five consecutive runs after the instrumentation** | **94 passed, 0 failed**, five times (was 89/1) — **all five chose the same day and time**, so this is one scenario five times, not five trials | `scripts/e2e-booking.mjs`, `app/src/book/**`, `supabase/functions/create-booking/**` |
+| **The reschedule DOES move the booking**, so the cancel check asks about the moved time | five runs, five moves, each to the adjacent half-hour (08:00 → 08:30 / 09:00) — `FOUND.md`'s step 2, answered in the output | `scripts/e2e-booking.mjs`, `supabase/functions/reschedule-booking/**` |
+| **`booking-engine` now proves the constraint, and the new checks were baselined red** | **110 passed, 0 failed** (was 105); removing the overlap turns 19b and 19c red and leaves 19a/19d/19e green | `tests/booking-engine.test.mjs` |
+| **The residue sweep works** | *"swept 2 booking(s) a killed run left behind: Smoke 7Z2G9 2026-09-14T13:00, Smoke 88GST 2026-09-14T17:00"* — created 2026-09-11 and live for six days | `scripts/e2e-booking.mjs` |
+
+**THE ROW THAT IS NOT A CLEAN BILL IS THE LAST-BUT-ONE.** Four greens do not
+disprove an intermittent fault — that reasoning has bitten this project twice.
+**What settles it is the reproduction**, which says the refusal needs a writer
+to change the calendar mid-form, and `FOUND.md` § THE INTERMITTENT REFUSAL IS A
+STALENESS RACE carries the whole account.
+
+**AND ONE CHECK IN THIS REPO IS STILL A GREP WHERE A MEASUREMENT NOW EXISTS.**
+`tests/booking-engine.test.mjs` 18a-18e read `create-booking/index.ts` as TEXT
+for its 23P01 handling — trap (k). The constraint itself had never been proven
+by anything; the row above is that proof, taken once so nobody pays for it
+again.

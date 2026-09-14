@@ -5,6 +5,123 @@ Claude Cowork decides what becomes work.
 
 ---
 
+## THE INTERMITTENT REFUSAL IS A STALENESS RACE, NOT AN ENGINE DISAGREEMENT — MEASURED AND REPRODUCED, lane C, 2026-09-13
+
+**THE ANSWER TO THE SECTION BELOW.** It is cause 2's cousin rather than either
+of the two candidates as they were written: `available-slots` and `validateSlot`
+do NOT disagree, and the script does NOT click an unoffered cell. **The slot is
+taken between the calendar being drawn and Confirm being pressed**, which is the
+one window nothing in this product re-checks.
+
+### WHAT WAS MEASURED, in order
+
+**1 · THE TWO ENGINES AGREE, ON 1,807 OFFERED SLOTS.** Every day
+`available-slots` returned across 46 days, on both demo tenants, at three
+durations each (60/90/120 and 75/113/150), compared against the buffered
+conflict rule applied to the live bookings read straight out of the database:
+**zero slots offered that a live booking forbids.** So there is no structural
+hole for a customer to fall into.
+
+**2 · THE CALENDAR IS ASKED ABOUT THE LENGTH ACTUALLY BOOKED.** The most
+plausible structural cause was a short duration on the availability call and a
+long one at submit — a vehicle size or an add-on makes the job longer than the
+service's base minutes. `e2e-booking` now reads the duration off the page's own
+`available-slots` request and compares it with `end_at - start_at` on the stored
+row. **Measured: 90 against a 60-minute base service, and 105 against a
+75-minute one — the numbers differ, so the check is doing real work, and both
+matched.**
+
+**3 · THE REFUSAL REPRODUCES ON DEMAND, AND THE MESSAGE IS BYTE-IDENTICAL.**
+Two customers, one slot, no browser: the first books, the second — whose
+calendar was drawn a moment earlier — gets
+
+```
+HTTP 409 — That time is too close to another booking. Please choose a different time.
+```
+
+which is the exact string the 00:00 run failed on.
+
+**4 · AND THROUGH THE REAL PAGE, at 392x844 on the frozen build.** The customer
+walks all seven steps; the slot is taken while they are on the review step;
+they press Confirm.
+
+| | what happened |
+|---|---|
+| error on the page | *"That time is too close to another booking. Please choose a different time."* |
+| confirmation screen | none — they never leave the form |
+| where they are left | **STEP 7 OF 7**, the review step |
+| their chosen time | deselected |
+| pressing Back | reaches *"Pick a time"* with a **re-fetched** calendar, which correctly offers nothing on that day |
+
+**SO WHAT A REAL CUSTOMER SEES IS: they fill in the whole form, press Confirm,
+and are told in one plain sentence that the time has gone.** No money moves, no
+double booking, and they can go back and pick again. It costs them the form,
+not the booking — **and it is the failure `docs/tenant-site-contract.md` names,
+behaving as well as that failure can behave.**
+
+### WHY THE TEST SAW IT AND THEN DID NOT
+
+**THE DEMO CALENDARS ARE SHARED, MUTABLE AND WERE BEING CHANGED UNDERNEATH THE
+RUN.** Two things were measured today:
+
+- **Two `Smoke` bookings created 2026-09-11 were still live**, holding 09:00 and
+  13:00 on 14 September on demo-riverside. `e2e-booking` deletes its own booking
+  in a `finally`, so an ordinary failure tidies up — **a killed process does
+  not.**
+- **A re-seed landed at 08:04 today**, adding an all-day blockout on 2026-09-17
+  (`Equipment servicing`) that closes the day entirely.
+
+**AND ONE BOOKING COSTS FAR MORE THAN ONE SLOT.** Measured on demo-riverside: a
+single 75-minute job with that tenant's 45-minute buffer took the day's offered
+times from **eight to four**. So residue does not nudge the calendar, it halves
+it — and the day `e2e-booking` picks is simply the first one with room, which
+moves as the density moves. **That is the whole of the intermittency: not a
+flaky engine, a moving subject.**
+
+### WHAT WAS DONE ABOUT IT
+
+- **`e2e-booking` now sweeps its own residue** — any `Smoke ` booking on the
+  tenant older than six hours, before it starts. Proven on the run that
+  followed: *"swept 2 booking(s) a killed run left behind"*. The six-hour floor
+  is so a `--keep` row survives for the human it was kept for.
+- **It prints what it chose beside what it was told**, every run, and asserts
+  the chosen time was on `available-slots`' own list — so the next occurrence
+  says which side was wrong instead of leaving it open for a third session.
+- **On a refusal it now prints both lists and re-asks the endpoint**, which is
+  what separates "the two disagree" from "something took it in between".
+- **The cancel check says whether the reschedule moved the booking** and at what
+  duration it is asking, which is `FOUND.md`'s step 2 answered in the output
+  rather than by a session. Measured on four runs: **the move always happens**,
+  and it lands on the adjacent half-hour (08:00 → 08:30, 08:00 → 09:00).
+
+**FIVE CONSECUTIVE RUNS SINCE: 94 passed, 0 failed, five times** (it was 89/1).
+**AND THAT IS WORTH LESS THAN IT LOOKS, WHICH IS THE POINT OF SAYING SO.** The
+run deletes its own booking, so the calendar returns to the state it started in
+and the next run picks the same day and the same time: all five chose
+`2026-09-16 08:00` and `2026-09-17 08:00`, and all five moved to the adjacent
+half-hour. **That is one scenario exercised five times, not five trials.** It is
+the reproduction above that settles the question; the greens only say nothing
+else broke.
+
+### WHAT IS STILL OPEN
+
+- **WHICH writer changed the calendar during the 00:00 run cannot be recovered.**
+  Another session running the same script, or a re-seed, are both consistent with
+  the evidence and nothing distinguishes them after the fact. The instrumentation
+  above is what makes the next one answerable.
+- **The null-navigation guard is still un-exercised.** Four green runs did not
+  reach it. Unchanged from the section below.
+- **`BookingPage.jsx:369`'s comment says the refusal "send[s] them back to pick
+  again" and the code does not** — it sets the error and leaves them on the
+  review step. Measured, twice. The behaviour is defensible; the comment
+  describes a different product. **Lane B's file, so noticed and not fixed.**
+- **`available-slots` answers `open: true` with `hours: null` and zero slots for
+  a day closed by an all-day blockout** (2026-09-17 on demo-detail, today). Our
+  own page is safe because `core.js`'s `dayIsOpen` reads `slots.length` and not
+  `open` — **but `open` is in the public response a tenant's own bespoke site
+  reads**, and a site that greys days by that flag draws that day as bookable.
+  It is the contract's own failure shape: offer a slot the server then refuses.
+
 ## THE SECOND RUN WENT 89/1, AND THE ONE FAILURE IS THE SAME QUESTION — 2026-09-14
 
 **A free re-run** (`--to=e2e@fixture.test`, same frozen build on 4175) **completed

@@ -950,5 +950,95 @@ console.log("test 18: a plan reaches the price, the row and the request rail");
     /if \(memberErr\) \{[\s\S]{0,300}?from\("businesses"\)\.delete\(\)\.eq\("id", business\.id\)/.test(cbiz));
 }
 
+// ===========================================================================
+// TEST 19 — THE LAST LINE OF DEFENCE, ASKED OF THE DATABASE — lane C, 2026-09-13
+//
+// Test 18a-18e read `create-booking/index.ts` as TEXT for its 23P01 handling.
+// **That asserts the code KNOWS what to do when Postgres refuses an overlap;
+// nothing in this repo had ever asserted that Postgres REFUSES ONE** — trap
+// (k), and on the one rule that stands between a detailer and two customers in
+// the same driveway. Every other guard (`available-slots`, `validateSlot`) is
+// application code that a bespoke tenant site could bypass; this is the one
+// that cannot be.
+//
+// THE POSITIVE CONTROL IS NOT OPTIONAL. A 23P01 proves nothing on its own if
+// the insert path is broken for some other reason — a missing column, a
+// not-null, an RLS refusal all come back as a failed insert too. So the same
+// row shape is inserted twice: once where it must SUCCEED, once where it must
+// be refused. **A run where the first insert fails prints that it could not
+// ask the question, rather than a green tick.**
+{
+  console.log("\ntest 19: the bookings overlap constraint, asked of the database");
+  const biz = (await svc.get("/rest/v1/businesses?slug=eq.demo-detail&select=id")).data?.[0];
+  // Cloned from a real row, so every column this table requires is present
+  // whatever migrations have added since. Naming them here would be a second
+  // copy of the schema, and the copy nobody maintains is the one that rots.
+  const base = biz
+    ? (await svc.get(`/rest/v1/bookings?business_id=eq.${biz.id}&select=*&limit=1`)).data?.[0]
+    : null;
+  if (!base) {
+    check("19 · a demo booking to clone", false, "run scripts/seed-demo.mjs — NOT MEASURED");
+  } else {
+    // Far enough out that it cannot collide with a seed, a sweep or another
+    // session's e2e run, and deleted either way below.
+    const skip = new Set([
+      "id", "created_at", "updated_at", "start_at", "end_at",
+      "customer_name", "customer_phone", "customer_email", "booking_reference", "manage_token",
+    ]);
+    const mk = (start, end) => {
+      const row = {};
+      for (const [k, v] of Object.entries(base)) if (!skip.has(k)) row[k] = v;
+      return {
+        ...row,
+        start_at: start,
+        end_at: end,
+        customer_name: "Overlap Probe",
+        customer_phone: "555-0955",
+        customer_email: "user@example.test",
+      };
+    };
+    const made = [];
+    const first = await svc.post("/rest/v1/bookings", mk("2027-03-02T18:00:00Z", "2027-03-02T20:00:00Z"));
+    if (first.data?.[0]?.id) made.push(first.data[0].id);
+    check("19a · the control insert lands, so the question can be asked at all",
+      first.status === 201 && !!first.data?.[0]?.id,
+      `HTTP ${first.status} — ${JSON.stringify(first.data).slice(0, 200)}`);
+
+    if (first.data?.[0]?.id) {
+      const clash = await svc.post("/rest/v1/bookings", mk("2027-03-02T19:00:00Z", "2027-03-02T21:00:00Z"));
+      if (clash.data?.[0]?.id) made.push(clash.data[0].id);
+      // The CODE, not the sentence: a message is prose and changes; 23P01 is
+      // what `create-booking` itself branches on.
+      check("19b · an overlapping booking is refused by the database itself",
+        clash.status >= 400 && clash.data?.code === "23P01",
+        `HTTP ${clash.status} — ${JSON.stringify(clash.data).slice(0, 200)}`);
+      check("19c · and the constraint names the business and the time range",
+        /business_id/.test(String(clash.data?.details ?? ""))
+          && /tstzrange/.test(String(clash.data?.details ?? "")),
+        String(clash.data?.details ?? "no details").slice(0, 200));
+
+      // A touching pair, because the range is inclusive on both ends (`'[]'`)
+      // and the buffer rules everywhere else treat touching as a conflict too.
+      const touch = await svc.post("/rest/v1/bookings", mk("2027-03-02T20:00:00Z", "2027-03-02T21:00:00Z"));
+      if (touch.data?.[0]?.id) made.push(touch.data[0].id);
+      check("19d · a booking that starts the instant another ends is refused too",
+        touch.data?.code === "23P01",
+        `HTTP ${touch.status} — ${JSON.stringify(touch.data).slice(0, 160)}`);
+
+      // AND A NON-OVERLAPPING ROW MUST STILL GO IN, or 19b-19d are green
+      // because nothing can be inserted rather than because the rule works.
+      const apart = await svc.post("/rest/v1/bookings", mk("2027-03-03T18:00:00Z", "2027-03-03T20:00:00Z"));
+      if (apart.data?.[0]?.id) made.push(apart.data[0].id);
+      check("19e · and a booking that does NOT overlap still lands",
+        apart.status === 201 && !!apart.data?.[0]?.id,
+        `HTTP ${apart.status} — ${JSON.stringify(apart.data).slice(0, 160)}`);
+    } else {
+      check("19b · an overlapping booking is refused by the database itself", false,
+        "the control insert never landed — NOT MEASURED");
+    }
+    for (const id of made) await svc.del(`/rest/v1/bookings?id=eq.${id}`);
+  }
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed === 0 ? 0 : 1);

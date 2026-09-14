@@ -299,6 +299,37 @@ async function loop({ slug, dashboard }) {
     console.error(`\nFAIL  no business with slug ${slug} — run the seed scripts`);
     return;
   }
+  // AND SWEEP THE BOOKINGS EARLIER RUNS LEFT BEHIND — 2026-09-17.
+  //
+  // The cleanup at the bottom of this file runs in a `finally`, so an ordinary
+  // failure tidies up after itself. **A killed process does not**, and two
+  // `Smoke` bookings from 2026-09-11 were still sitting live on
+  // demo-riverside six days later, holding 09:00 and 13:00 on 14 September.
+  //
+  // THAT IS NOT COSMETIC, because one booking costs FAR more than one slot:
+  // measured on demo-riverside, a single 75-minute job with the tenant's
+  // 45-minute buffer took the day's offered times from EIGHT to FOUR. So the
+  // residue makes every later run's chosen day denser, and a denser day is
+  // what produced the intermittent refusal `FOUND.md` § THE SECOND RUN chased
+  // — a run whose calendar is quietly different from the last run's is a
+  // measurement nobody can reproduce.
+  //
+  // `Smoke ` is this script's own prefix and nothing else in the product
+  // writes it; the six-hour floor is so a `--keep` row survives long enough
+  // for the human it was kept for.
+  {
+    const stale = new Date(Date.now() - 6 * 3600_000).toISOString();
+    const left = (await db.get(
+      `/rest/v1/bookings?business_id=eq.${biz.id}&customer_name=like.Smoke%20*`
+      + `&created_at=lt.${stale}&select=id,start_at,customer_name`,
+    )).data ?? [];
+    if (left.length) {
+      for (const r of left) await db.del(`/rest/v1/bookings?id=eq.${r.id}`);
+      console.log(`  swept ${left.length} booking(s) a killed run left behind: `
+        + left.map((r) => `${r.customer_name} ${String(r.start_at).slice(0, 16)}`).join(", "));
+    }
+  }
+
   const settings = (await db.get(
     `/rest/v1/business_settings?business_id=eq.${biz.id}`
     + "&select=booking_mode,cancellation_window_hours,notification_emails",
@@ -345,6 +376,11 @@ async function loop({ slug, dashboard }) {
   // the wrong list is a chip that is not on the screen. Click what is offered
   // and read it back; every later assertion uses that.
   let TIME = null;
+  // The duration the CALENDAR was asked about, read off the page's own request
+  // rather than assumed. A vehicle size or an add-on makes the booked job
+  // longer than the service's base minutes, and a calendar asked about the
+  // short number offers slots the submit gate then refuses.
+  let CHOSE_DURATION = null;
 
   console.log(`\n${"═".repeat(64)}\n${biz.name} (${slug}) · ${settings.booking_mode} mode`
     + ` · cancel window ${settings.cancellation_window_hours}h`);
@@ -360,6 +396,35 @@ async function loop({ slug, dashboard }) {
   const consoleErrors = [];
   page.on("console", (m) => { if (m.type() === "error") consoleErrors.push(m.text()); });
   page.on("pageerror", (e) => consoleErrors.push(`pageerror: ${e}`));
+
+  // WHAT THE PAGE WAS ACTUALLY TOLD — 2026-09-17, FOUND.md § THE SECOND RUN.
+  // The refusal this chases ("that time is too close to another booking") and
+  // its mirror ("the cancelled time is not offered again") are the SAME
+  // disagreement seen from two sides: what `available-slots` listed against
+  // what `validateSlot` allowed. **Re-asking the endpoint afterwards answers a
+  // different question** — a different duration, a different moment, a
+  // different set of bookings — so the only honest record is the answer the
+  // BROWSER got, captured as it lands.
+  const slotCalls = [];
+  page.on("response", async (res) => {
+    if (!/\/functions\/v1\/available-slots(\?|$)/.test(res.url())) return;
+    let req = null, body = null;
+    try { req = JSON.parse(res.request().postData() ?? "null"); } catch { /* not JSON */ }
+    try { body = await res.json(); } catch { /* not JSON */ }
+    slotCalls.push({ req, body });
+  });
+  // The LAST answer the page got that covers this day, and the duration it was
+  // asked about. `null` means the page never asked — which is itself the
+  // finding, and NOT a reason to fall back to a fresh call of our own.
+  const pageOffered = (date) => {
+    for (let i = slotCalls.length - 1; i >= 0; i--) {
+      const { req, body } = slotCalls[i];
+      if (!body?.success) continue;
+      const list = body.days?.[date]?.slots ?? (req?.booking_date === date ? body.slots : null);
+      if (Array.isArray(list)) return { duration: Number(req?.duration_minutes), slots: list };
+    }
+    return null;
+  };
 
   let bookingId = null;
   try {
@@ -414,6 +479,22 @@ async function loop({ slug, dashboard }) {
         const chip = page.locator(".bk-slots .bk-chip").first();
         TIME = time24(await chip.innerText());
         ok(`a time is offered on that day (${TIME})`, !!TIME);
+        {
+          const chips = (await page.locator(".bk-slots .bk-chip").allInnerTexts())
+            .map(time24).filter(Boolean);
+          const told = pageOffered(DATE);
+          CHOSE_DURATION = told?.duration ?? null;
+          console.log(`  chose  ${DATE} ${TIME}`);
+          console.log(`  chips  ${chips.join(" ") || "(none)"}`);
+          console.log(`  told   ${told
+            ? `available-slots @${told.duration}min listed ${told.slots.join(" ") || "(nothing)"}`
+            : "THE PAGE NEVER ASKED available-slots ABOUT THIS DAY"}`);
+          // The one that separates the two candidate causes in a single run.
+          ok(`the chosen time ${TIME} was on available-slots' own list`,
+            !!told && told.slots.includes(TIME),
+            told ? `@${told.duration}min it listed: ${told.slots.join(" ")}`
+              : `no available-slots answer covering ${DATE}`);
+        }
         await chip.click();
         await settle(page, 500);
       } else {
@@ -503,6 +584,21 @@ async function loop({ slug, dashboard }) {
     await settle(page, 1800);
     const submitErr = await page.locator(".bk-error").first().innerText().catch(() => "");
     ok("the booking was not refused", !submitErr, submitErr);
+    if (submitErr) {
+      // A refusal is only a PRODUCT fault if the slot was offered. Printing
+      // both sides here is the difference between "available-slots and
+      // validateSlot disagree" and "the script clicked something nothing
+      // offered", which is the whole question FOUND.md left open.
+      const told = pageOffered(DATE);
+      const now = await fn("available-slots", {
+        business_slug: slug, booking_date: DATE,
+        duration_minutes: CHOSE_DURATION || service.duration_minutes, service_ids: [service.id],
+      });
+      console.log(`  REFUSED ${DATE} ${TIME} — "${submitErr}"`);
+      console.log(`  offered ${told ? `@${told.duration}min ${told.slots.join(" ")}` : "(the page never asked)"}`);
+      console.log(`  now     @${CHOSE_DURATION || service.duration_minutes}min `
+        + JSON.stringify(now.data?.slots ?? now.data ?? null).slice(0, 200));
+    }
 
     const done = await page.locator(".bk-wrap h1").innerText().catch(() => "");
     ok("the confirmation screen says what happened",
@@ -513,6 +609,11 @@ async function loop({ slug, dashboard }) {
     });
     ok("it links to the receipt", !!receiptPath?.startsWith("/booking/"), String(receiptPath));
     bookingId = receiptPath?.split("/").pop() ?? null;
+    // Where the booking STARTED, so the cancel check can say whether it is
+    // asking about the time that was booked or a time the reschedule moved it
+    // to. FOUND.md's step 2: a stale expectation and a product fault look the
+    // same from the failure line alone.
+    const ORIG_DATE = DATE, ORIG_TIME = TIME;
 
     // -----------------------------------------------------------------------
     step("2. and the row says the same thing the screen did");
@@ -533,7 +634,7 @@ async function loop({ slug, dashboard }) {
     };
     const rowOf = async () => (await db.get(
       `/rest/v1/bookings?id=eq.${bookingId}`
-      + "&select=id,status,start_at,total_price,customer_name,customer_email",
+      + "&select=id,status,start_at,end_at,total_price,customer_name,customer_email",
     )).data?.[0];
     let row = await rowOf();
     ok("the booking is in the database", !!row, bookingId ?? "no id");
@@ -547,6 +648,19 @@ async function loop({ slug, dashboard }) {
     // number PRINTED is not a number CHARGED.
     ok("charged what the price bar printed",
       money(row?.total_price) === bar, `bar ${bar}, row ${row?.total_price}`);
+    // THE LENGTH THE JOB ACTUALLY TAKES, which is not the service's own
+    // duration once a vehicle size or an add-on is in play. Every availability
+    // question after this is only meaningful asked at THIS number, and a
+    // calendar asked about a shorter one offers slots the gate then refuses —
+    // the exact failure `docs/tenant-site-contract.md` names.
+    const bookedMinutes = row?.end_at && row?.start_at
+      ? Math.round((new Date(row.end_at) - new Date(row.start_at)) / 60000)
+      : null;
+    console.log(`  length ${bookedMinutes}min booked · ${service.duration_minutes}min base service`
+      + ` · ${CHOSE_DURATION ?? "?"}min the calendar was asked about`);
+    ok("the calendar was asked about the length actually booked",
+      CHOSE_DURATION !== null && CHOSE_DURATION === bookedMinutes,
+      `calendar ${CHOSE_DURATION}, booked ${bookedMinutes}`);
 
     // -----------------------------------------------------------------------
     step("3. both emails leave the building");
@@ -644,7 +758,12 @@ async function loop({ slug, dashboard }) {
     const slotsOn = async (date) => {
       const r = await fn("available-slots", {
         business_slug: slug, booking_date: date,
-        duration_minutes: service.duration_minutes, service_ids: [service.id],
+        // THE BOOKED LENGTH, not the service's base minutes — 2026-09-17.
+        // Asking about a shorter job asks a different and easier question, and
+        // "is this slot free again" is only an answer about the booking that
+        // was actually made.
+        duration_minutes: bookedMinutes || service.duration_minutes,
+        service_ids: [service.id],
       });
       const list = Array.isArray(r.data?.slots) ? r.data.slots : null;
       ok(`available-slots answered for ${date}`, list !== null,
@@ -870,7 +989,11 @@ async function loop({ slug, dashboard }) {
       row = await rowOf();
       ok("and so does the row", row?.status === "cancelled", row?.status);
       free = await slotsOn(DATE);
-      ok(`the cancelled time ${TIME} is offered again`, free.includes(TIME), free.join(" "));
+      const movedHere = DATE !== ORIG_DATE || TIME !== ORIG_TIME;
+      console.log(`  asking ${DATE} ${TIME} @${bookedMinutes || service.duration_minutes}min`
+        + (movedHere ? ` — MOVED here from ${ORIG_DATE} ${ORIG_TIME}` : " — never moved"));
+      ok(`the cancelled time ${TIME} is offered again`, free.includes(TIME),
+        `@${bookedMinutes || service.duration_minutes}min: ${free.join(" ") || "(nothing)"}`);
     }
 
     }  // end: there was a receipt path
