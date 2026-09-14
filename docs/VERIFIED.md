@@ -1165,3 +1165,17 @@ settings rows that vanished mid-walk**. **Neither reproduced.** Re-run in
 isolation that screen measures 54 controls and is clean. Vite reloaded the page
 under the walk — CLAUDE.md trap (f), and the script's own source guard named the
 file. **Read that line at the end of a run before believing the rest of it.**
+
+### ONE THING OWED TO LANE M, WRITTEN DOWN SO IT DOES NOT DIE AT THE CLEAR
+
+**`CLAUDE.md` § Verification's "What to run, and when" table has no row for this
+check, and `CLAUDE.md` is the manager's file.** The row it needs:
+
+| After changing | Run |
+|---|---|
+| Any screen, control or stylesheet | `node scripts/sweep-tap-targets.mjs` (needs the dev server and the demo seed; `--baseline` first if you have not seen it prove itself) |
+
+**Until that row exists, the only thing pointing at the instrument is this
+section and `docs/check-coverage-gaps-2026-09-13.md` § 1** — and a check nobody
+is told to run is a check nobody runs, which is the same failure as a check that
+tests nothing wearing different clothes.
