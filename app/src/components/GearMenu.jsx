@@ -92,6 +92,12 @@ const TOUR_ROWS = {
   tour: "tourrow",
 };
 
+// Whether the signed-in person has a back office, remembered for the life of
+// the PAGE rather than of the menu — see the effect below for why that
+// distinction is the whole point. `uid: null` means nobody has been asked yet;
+// a failed ask writes nothing, so it is retried.
+let adminSeen = { uid: null, yes: false };
+
 export default function GearMenu({ onClose, onTour, initial = null }) {
   useAppLocale();
   const {
@@ -120,7 +126,28 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
       try {
         const { data } = await supabase.auth.getSession();
         const jwt = data?.session?.access_token;
+        const uid = data?.session?.user?.id ?? null;
         if (!jwt) return;
+        // **THE ANSWER SURVIVES THE GEAR CLOSING, and that is a defect fix
+        // rather than a saving.** `App.jsx` renders this menu conditionally,
+        // so closing it UNMOUNTS it and `isPlatformAdmin` goes back to false —
+        // the round trip below then ran again on every single reopen, and for
+        // as long as it was in flight the back-office row was missing from its
+        // own index. Lane C's tap sweep hit it twice in one clean run
+        // (docs/lane-b-handover-2026-09-13.md § H: a gear row that was in the
+        // index when the walk started and gone when its turn came), and it is
+        // the same thing Andrew sees — the only door to the back office is
+        // absent for a beat every time he opens settings, and absent entirely
+        // if the function is slow. The cache reduces that wait to a
+        // localStorage read.
+        //
+        // KEYED ON WHO IS SIGNED IN, because roadmap 8.18 lets two accounts
+        // swap without a page load, and a remembered `true` drawn for the
+        // wrong person would show a door the back office's own rule is built
+        // to keep invisible. A NO is remembered too, which is every detailer:
+        // they were each paying an edge-function call per gear open for an
+        // answer that cannot change.
+        if (adminSeen.uid === uid) { if (live) setIsPlatformAdmin(adminSeen.yes); return; }
         const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/platform-admin`, {
           method: "POST",
           headers: {
@@ -130,8 +157,9 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
           },
           body: JSON.stringify({ action: "whoami" }),
         });
+        adminSeen = { uid, yes: res.ok };
         if (live && res.ok) setIsPlatformAdmin(true);
-      } catch { /* offline, or the function is down: draw no row */ }
+      } catch { /* offline, or the function is down: draw no row, remember nothing */ }
     })();
     return () => { live = false; };
   }, []);

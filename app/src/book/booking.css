@@ -661,10 +661,20 @@
    JetBrains Mono reads as data rather than as an answer. Law 8 asks for the
    mono face on figures, which is what makes this the exception and not a
    drift. */
+/* AND `min-width` BECAUSE A ONE-CHARACTER CHIP IS 40px WIDE — measured by
+   lane C's tap sweep 2026-09-13, at every width, on the multi-vehicle count
+   control: `.bk-chip` already floors the HEIGHT at 44 and nothing floored the
+   WIDTH, so "1", "2" and "3" painted 40px and reached 41-42. There is no
+   `::after` here on purpose: that pattern is for a mark that is DELIBERATELY
+   small (a 7px rail dot), and a number button is not — it should simply be
+   44px, which makes it the square its 44px height already implies. Nothing
+   else wearing this class is anywhere near 40 wide, so the floor only ever
+   fires on the digits. `.bk-chips` gaps 7px, so the pitch is 51 and no two
+   chips can steal each other's presses. */
 .bk-chip.word {
   font-family: var(--bk-f-body); letter-spacing: 0;
   font-variation-settings: "wdth" 96, "wght" 520;
-  padding: 0 var(--bk-sp-4);
+  min-width: 44px; padding: 0 var(--bk-sp-4);
 }
 /* Wraps rather than scrolls: four short words fit one row on a phone and two
    rows on a 320, and either is readable. A sideways scroller with no
