@@ -152,8 +152,8 @@ export function weatherWarnings(period, prefs) {
   // `Number("")` trap `_shared/weather.ts` already records.
   if (p.on.rain && rain && (chance == null || chance >= p.rainChance)) out.push(say("rain"));
 
-  if (p.on.hot && typeof temp === "number" && temp >= p.hotAbove) out.push(say("hot", { temp }));
-  if (p.on.cold && typeof temp === "number" && temp <= p.coldBelow) out.push(say("cold", { temp }));
+  if (p.on.hot && typeof temp === "number" && temp > p.hotAbove) out.push(say("hot", { temp }));
+  if (p.on.cold && typeof temp === "number" && temp < p.coldBelow) out.push(say("cold", { temp }));
 
   const w = windMphOf(period.windSpeed);
   if (p.on.wind && w != null && w >= p.windMph) out.push(say("wind"));
