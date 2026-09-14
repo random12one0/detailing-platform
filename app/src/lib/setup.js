@@ -208,12 +208,25 @@ export const WHY = {
 // and insulting.
 export function setupProgress({ business, branding, settings, counts }) {
   const marked = new Set(settings?.setup?.done ?? []);
-  // **THE NEW STEPS DERIVE NOTHING, and that is deliberate rather than lazy.**
-  // The note above is the reason: derivation cannot tell ANSWERED from BORN,
-  // and every one of the new steps has a seeded or empty-by-default state that
-  // would answer for somebody. An empty gallery is what a new business has AND
-  // what a detailer who has not got round to photos has. Only the three that
-  // cannot exist without somebody making them still derive.
+  // **MOST OF THE REMAINING STEPS NOW DERIVE TOO — Andrew's direct
+  // instruction, 2026-09-14, after reading a business with real hours, real
+  // payment methods and a full vehicle checklist told by the Today notice to
+  // go set all three.** *"Every item must be decided by the real record, not
+  // by whether a setup step was ticked... those two screens must never
+  // disagree."* This reverses part of the 2026-09-06 decision below for
+  // `hours` and `info` specifically — on his own instruction, not silently.
+  //
+  // **`where` AND `templates` ARE STILL LEFT TO `marked`, and that is a
+  // narrower claim than "cannot be derived" for the other two.** `where`
+  // is a straight boolean already defaulted true at birth with no
+  // "customised" state to detect at all — hours and payment methods have
+  // one (Mon-Fri 9-5 default vs. hours actually typed in; no payment method
+  // at all vs. one switched on), so the false-negative Andrew found (a
+  // business with real hours told to go set them) outweighs the smaller
+  // false-positive of crediting a seeded default. `where` has no equivalent
+  // real signal to check. `templates` ships every business the same starter
+  // set, and there is no cheap way to tell a customised one from an unread
+  // one, so it stays marked-only too.
   const has = {
     catalog: (counts?.services ?? 0) > 0,
     // Derived rather than marked, same reason `catalog` is: the checklist
@@ -223,6 +236,21 @@ export function setupProgress({ business, branding, settings, counts }) {
     vehicle_types: vehicleBodyTypeCoverage(settings?.vehicle_sizes).complete,
     promos: (counts?.promos ?? 0) > 0,
     colour: !!branding?.primary_color,
+    // ANY day open counts — the same question `blocked` on Business.jsx and
+    // `bookable()` in core.js already ask of these same rows, so a
+    // "customers cannot book you" fact and a "hours step done" fact cannot
+    // disagree about the same business.
+    hours: (counts?.hoursRows ?? []).some((r) => r.open_time),
+    info: !!business?.contact_phone || !!business?.contact_email,
+    // Any one method switched on is an answer; which methods is Business's
+    // own summary line's job, not this boolean's.
+    payments: !!(settings?.pay_cash || settings?.pay_venmo || settings?.pay_cashapp
+      || settings?.pay_zelle || settings?.pay_paypal || settings?.pay_other),
+    // Same test `describeFaq` (Business.jsx) uses for "nothing on your
+    // website yet" — a row with no answer typed does not count as a question.
+    faq: (settings?.faqs ?? []).some((f) => f?.q && f?.a),
+    reviews: (counts?.reviews ?? 0) > 0,
+    plans: (counts?.plans ?? 0) > 0,
   };
   const done = new Set(STEPS.filter(([k]) => marked.has(k) || has[k]).map(([k]) => k));
   return { done, count: done.size, total: STEPS.length };

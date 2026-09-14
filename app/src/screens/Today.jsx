@@ -76,25 +76,32 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
   // screen a detailer actually opens, so an incomplete setup belongs here
   // rather than only on Business, which nobody visits on their own.
   //
-  // **NO SECOND SOURCE OF TRUTH.** `setupProgress` and `STEPS` are the same
-  // ones Business.jsx reads; the only thing fetched here is the two counts
-  // that function needs and Business.jsx does not already share — services
-  // and promo codes — plus the open-hours check, mirrored from Business.jsx's
-  // own `blocked` variable rather than trusting `setup.done`, because a
-  // wizard step marked "done" and a day that is actually open are two
-  // different facts (Business.jsx already treats them as two facts, for the
-  // same reason).
+  // **NO SECOND SOURCE OF TRUTH.** `setupProgress` and `STEPS` are the exact
+  // ones Business.jsx reads, and `setupProgress` now derives almost every
+  // step from the real record rather than from `setup.done` — Andrew's
+  // correction the same day, after this notice told a business with real
+  // hours, real payment methods and a complete vehicle checklist to go set
+  // all three. What is fetched here is only the counts that function needs
+  // and Business.jsx does not already share via context: hours rows,
+  // services, promo codes, reviews and plans.
   const [setupCounts, setSetupCounts] = useState(null);
   useEffect(() => {
     if (role !== "owner") return;
     let live = true;
     (async () => {
-      const [h, s, p] = await Promise.all([
+      const [h, s, p, rv, pl] = await Promise.all([
         supabase.from("business_hours").select("weekday,open_time").eq("business_id", business.id),
         supabase.from("services").select("id", { count: "exact", head: true }).eq("business_id", business.id).eq("is_active", true),
         supabase.from("promo_codes").select("id", { count: "exact", head: true }).eq("business_id", business.id).eq("is_active", true),
+        supabase.from("testimonials").select("id", { count: "exact", head: true }).eq("business_id", business.id).eq("is_active", true),
+        supabase.from("plans").select("id", { count: "exact", head: true }).eq("business_id", business.id).eq("is_active", true),
       ]);
-      if (live) setSetupCounts({ hoursRows: h.data ?? [], services: s.count, promos: p.count });
+      if (live) {
+        setSetupCounts({
+          hoursRows: h.data ?? [], services: s.count, promos: p.count,
+          reviews: rv.count, plans: pl.count,
+        });
+      }
     })();
     return () => { live = false; };
   }, [business.id, role]);
