@@ -315,3 +315,16 @@ was idle), and the same row measured **0 controls** on an earlier run before
 vanishing entirely on later ones. Something about opening and leaving a settings
 screen is changing what the gear index draws. Worth one look at whatever decides
 that row's visibility.
+
+## I · AND ONE RED CHECK THAT IS YOURS AND IS IN FLIGHT
+
+`node tests/composition.test.mjs` is **96 passed, 1 failed** at `67ba91b`:
+
+```
+FAIL  no bare class in theme.css is used by landing.css or booking.css
+```
+
+**It is not lane C's.** The only files that check reads are `app/src/theme.css`,
+`app/src/landing/landing.css` and `app/src/book/booking.css`, all three of which
+had uncommitted edits in the tree while this was measured. It may already be
+fixed by the time you read this — run it before acting on it.
