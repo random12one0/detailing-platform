@@ -70,7 +70,7 @@ export default function Password() {
     setMsg(null);
     // The same two fields as `/reset`, for the same reason: a typo here is a
     // lockout, and the screen that fixes a lockout is the one you cannot reach.
-    if (password !== again) { setMsg({ ok: false, text: "Those two do not match." }); return; }
+    if (password !== again) { setMsg({ ok: false, text: t("Those two do not match.") }); return; }
     setBusy(true);
 
     // THE CHECK IS A SIGN-IN, and it lives in `lib/password.js` because
@@ -92,7 +92,7 @@ export default function Password() {
     setCurrent("");
     setPassword("");
     setAgain("");
-    setMsg({ ok: true, text: "Changed. This device stays signed in." });
+    setMsg({ ok: true, text: t("Changed. This device stays signed in.") });
   };
 
   return (

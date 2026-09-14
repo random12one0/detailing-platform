@@ -97,7 +97,7 @@ export default function Reviews() {
   };
 
   const remove = async (r) => {
-    if (!confirm(`Delete this review from ${r.author} for good? Hiding it keeps the words.`)) return;
+    if (!confirm(t("Delete this review from {author} for good? Hiding it keeps the words.", { author: r.author }))) return;
     await supabase.from("testimonials").delete().eq("id", r.id).eq("business_id", business.id);
     if (editing === r.id) { setEditing(null); setForm(BLANK); }
     load();
@@ -143,7 +143,7 @@ export default function Reviews() {
         <div className="btnrow">
           <button className="btn primary" onClick={save}
             disabled={!form.author.trim() || !form.quote.trim()}>
-            {editing ? "Save changes" : "Add review"}
+            {editing ? t("Save changes") : t("Add review")}
           </button>
           {editing && (
             <button className="btn" onClick={() => { setEditing(null); setForm(BLANK); }}>{t("Cancel")}</button>
@@ -179,9 +179,9 @@ export default function Reviews() {
                 <span className="sub clamp2">{r.quote}</span>
               </button>
               <button className="btn sm inline ghost" onClick={() => toggle(r)}>
-                {r.is_active ? "Hide" : "Show"}
+                {r.is_active ? t("Hide") : t("Show")}
               </button>
-              <button className="btn sm inline icon ghost" aria-label={`Delete the review from ${r.author}`}
+              <button className="btn sm inline icon ghost" aria-label={t("Delete the review from {author}", { author: r.author })}
                 onClick={() => remove(r)}><X strokeWidth={2} /></button>
             </div>
           ))}

@@ -106,8 +106,7 @@ export default function BusinessInfo() {
       if (badLink(value)) {
         setMsg({
           ok: false,
-          text: `That ${label} review link doesn't look like a web address. `
-            + `Paste the whole thing, starting with https://`,
+          text: t("That {label} review link doesn't look like a web address. Paste the whole thing, starting with https://", { label }),
         });
         return;
       }
@@ -201,7 +200,7 @@ export default function BusinessInfo() {
     try {
       const url = await uploadBusinessPhoto(business.id, file, folder);
       setBrand((b) => ({ ...b, [field]: url }));
-      setMsg({ ok: true, text: "Photo uploaded. Press Save to keep it." });
+      setMsg({ ok: true, text: t("Photo uploaded. Press Save to keep it.") });
     } catch (err) {
       setMsg({ ok: false, text: err.message });
     }

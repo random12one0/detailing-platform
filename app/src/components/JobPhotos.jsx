@@ -78,7 +78,7 @@ export default function JobPhotos({ booking }) {
   }
 
   async function drop(photo) {
-    if (!confirm("Delete this photo? A before-photo is what settles an argument about a scratch.")) return;
+    if (!confirm(t("Delete this photo? A before-photo is what settles an argument about a scratch."))) return;
     setBusy(true);
     try { await removePhoto(photo); await load(); }
     catch (err) { setError(String(err.message ?? err)); }

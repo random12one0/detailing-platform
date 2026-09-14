@@ -97,8 +97,8 @@ export default function Team() {
       setMsg({
         ok: true,
         text: r.emailed
-          ? `Invite sent to ${r.invite.email}. It expires in 7 days.`
-          : `Invite created for ${r.invite.email}. Email is not configured yet, so send them the link below.`,
+          ? t("Invite sent to {email}. It expires in 7 days.", { email: r.invite.email })
+          : t("Invite created for {email}. Email is not configured yet, so send them the link below.", { email: r.invite.email }),
       });
       setForm({ ...form, email: "" });
       load();
@@ -157,7 +157,7 @@ export default function Team() {
       .update({ first_name: nameDraft.trim() || null })
       .eq("business_id", business.id)
       .eq("user_id", session.user.id);
-    setMsg({ ok: true, text: "Name saved." });
+    setMsg({ ok: true, text: t("Name saved.") });
     load();
   };
 

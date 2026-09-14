@@ -22,7 +22,7 @@ import { TriangleAlert, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { api } from "../../lib/api.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
-import { addDays, money, todayLocal } from "../../lib/format.js";
+import { addDays, duration, money, todayLocal } from "../../lib/format.js";
 import Sheet from "../../components/Sheet.jsx";
 import { DurationChoice, Folded, Group, MoneyField, Segmented, Setting, Stepper, Switch } from "../../components/controls.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
@@ -80,14 +80,28 @@ const ruleToForm = (r) => ({
 const DAY_NAMES = () => [0, 1, 2, 3, 4, 5, 6].map((n) => dayName(n, "short"));
 // The rule read back as a sentence, so the list says what it does rather than
 // what it is made of. Same principle as this screen's presets.
+//
+// **THE WHOLE SENTENCE IS THE KEY, NEVER THE PIECES.** Spanish puts the
+// preposition somewhere else, so `${amt} on ${days}` glued together in English
+// word order cannot be translated by any catalogue — which is why this function
+// rendered in English on a Spanish screen while `spanish.test.mjs` read 72/0.
+// And `+$${Number(r.amount).toFixed(2)}` printed `$40.00` where the rest of the
+// product prints `$40`; `money()` is the one currency formatter.
 const ruleSentence = (r) => {
-  const amt = r.is_percent ? `+${r.amount}%` : `+$${Number(r.amount).toFixed(2)}`;
-  if (r.kind === "lead_time") return `${amt} when booked within ${r.within_hours} hours`;
+  const amt = r.is_percent ? `+${r.amount}%` : `+${money(r.amount)}`;
+  if (r.kind === "lead_time") {
+    // `within_hours` takes a typed value, so 1 is reachable and "1 hours" was.
+    return Number(r.within_hours) === 1
+      ? t("{amount} when booked within the hour", { amount: amt })
+      : t("{amount} when booked within {hours} hours", { amount: amt, hours: r.within_hours });
+  }
   const days = Array.isArray(r.weekdays) && r.weekdays.length
     ? r.weekdays.map((d) => DAY_NAMES()[d]).join(", ")
     : t("every day");
-  const hours = r.start_time && r.end_time ? `, ${r.start_time}–${r.end_time}` : "";
-  return `${amt} on ${days}${hours}`;
+  return r.start_time && r.end_time
+    ? t("{amount} on {days}, {from}–{to}",
+      { amount: amt, days, from: r.start_time, to: r.end_time })
+    : t("{amount} on {days}", { amount: amt, days });
 };
 
 // W22. Three states, phrased as the detailer would say them out loud.
@@ -132,7 +146,7 @@ const lead = (mins) => {
 };
 
 export default function BookingRules() {
-  useAppLocale();
+  const lang = useAppLocale();
   const { business, settings, reload } = useBusiness();
   const [form, setForm] = useState(() => ({
     buffer_minutes: settings?.buffer_minutes ?? 0,
@@ -231,12 +245,22 @@ export default function BookingRules() {
     if (change > 0 && notice > 0 && change > notice && !dismissed.window_exceeds_notice) {
       out.push({
         key: "window_exceeds_notice",
-        text: `You take bookings ${notice} hours ahead but close changes ${change} hours ahead, `
-          + "so every new booking is locked as soon as it's made.",
+        // THE ONLY ONE OF THE SEVEN WARNINGS WRITTEN AS A RAW TEMPLATE
+        // LITERAL, so it was the only one that rendered in English on a
+        // Spanish screen — and it divided minutes by sixty and appended
+        // "hours", which printed "1 hours" at sixty minutes and "1.5 hours" at
+        // ninety. `duration()` is the product's own formatter, it is
+        // grammatical at every value, and it takes the language as an
+        // argument.
+        text: t("You take bookings {notice} ahead but close changes {change} ahead, so every new booking is locked as soon as it's made.",
+          {
+            notice: duration(Number(form.min_advance_minutes), lang),
+            change: duration(change * 60, lang),
+          }),
       });
     }
     return out;
-  }, [form, dismissed]);
+  }, [form, dismissed, lang]);
 
   // Both lists are edited in a sheet and saved into the form; the Save button
   // at the foot of the screen is what writes them, like every other setting
@@ -406,8 +430,8 @@ export default function BookingRules() {
                 on the booking page. */}
             <Setting label={t("Travel areas")}
               help={form.travel_zones.length
-                ? "The customer picks one on your booking page and its fee is added."
-                : "Optional. Add areas if you charge different amounts for different distances."}
+                ? t("The customer picks one on your booking page and its fee is added.")
+                : t("Optional. Add areas if you charge different amounts for different distances.")}
               stacked>
               {/* RULED ROWS, NOT CARDS. This list already sits inside a
                   Setting, which is a card — a card holding cards is boxes in
@@ -430,7 +454,7 @@ export default function BookingRules() {
                 ))}
                 <button className="btn inline" style={{ marginTop: "var(--sp-3)" }}
                   onClick={() => setEditing({ kind: "zone", form: { name: "", fee: "" } })}>
-                  + Add an area
+                  + {t("Add an area")}
                 </button>
               </div>
             </Setting>
@@ -479,7 +503,7 @@ export default function BookingRules() {
           help={t("Above ten is a phone call, not a booking form.")}>
           {/* "1 cars" — found by looking at the screen, not by a check. */}
           <Stepper value={form.max_vehicles_per_booking} min={1} max={10}
-            suffix={Number(form.max_vehicles_per_booking) === 1 ? "car" : "cars"}
+            suffix={Number(form.max_vehicles_per_booking) === 1 ? t("car") : t("cars")}
             onChange={(v) => set("max_vehicles_per_booking", v)} />
         </Setting>
 
@@ -510,8 +534,8 @@ export default function BookingRules() {
             reopen a page the platform had darkened for non-payment. */}
         <Setting label={t("Closed until")}
           help={form.closed_until
-            ? "Your page stays up and tells customers when you're back. It reopens itself on the day."
-            : "Going away? Pick the day you're back and the page says so instead of taking bookings."}
+            ? t("Your page stays up and tells customers when you're back. It reopens itself on the day.")
+            : t("Going away? Pick the day you're back and the page says so instead of taking bookings.")}
           stacked>
           <div className="row" style={{ gap: 8, alignItems: "center" }}>
             <input type="date" value={form.closed_until}
@@ -687,7 +711,7 @@ export default function BookingRules() {
           )}
           <button className="btn inline" style={{ marginTop: "var(--sp-3)" }}
             onClick={() => setEditing({ kind: "rule", form: { ...EMPTY_RULE } })}>
-            + Add a surcharge
+            + {t("Add a surcharge")}
           </button>
         </div>
       </Group>

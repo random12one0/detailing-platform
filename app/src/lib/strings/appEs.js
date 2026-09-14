@@ -140,6 +140,15 @@ export const appEs = {
   "6 months": "6 meses",
   "1 year": "1 año",
   "every day": "todos los días",
+  // The surcharge rules read back as sentences. Each is ONE key with
+  // placeholders, never English glued around a value — Spanish puts "on" and
+  // "within" somewhere else, so the pieces cannot be translated separately.
+  "{amount} when booked within the hour": "{amount} si se agenda dentro de la hora",
+  "{amount} when booked within {hours} hours": "{amount} si se agenda dentro de {hours} horas",
+  "{amount} on {days}": "{amount} los {days}",
+  "{amount} on {days}, {from}–{to}": "{amount} los {days}, {from}–{to}",
+  "You take bookings {notice} ahead but close changes {change} ahead, so every new booking is locked as soon as it's made.":
+    "Tomas citas con {notice} de anticipación pero cierras los cambios con {change}, así que cada cita nueva queda bloqueada en cuanto se hace.",
   // The three words every settings screen ends with.
   "Save": "Guardar",
   "Saving…": "Guardando…",
@@ -626,6 +635,14 @@ export const appEs = {
   "The booking page asks about {what}, and a customer who can't provide it is blocked from booking.":
     "La página de citas pregunta por {what}, y un cliente que no lo tenga no puede agendar.",
   "a power outlet": "un tomacorriente",
+  // The other half of the pair above. It rendered as the bare English word
+  // inside a Spanish sentence — "La página de citas pregunta por water" —
+  // because only one of the two `HELP()` callers had a key.
+  "water": "el agua",
+  "Add an area": "Agregar una zona",
+  "Add a surcharge": "Agregar un recargo",
+  "car": "carro",
+  "cars": "carros",
   "the calendar": "el calendario",
   "A {hours}-hour gap between jobs means very few slots each day.":
     "Un espacio de {hours} horas entre trabajos deja muy pocos horarios al día.",
@@ -908,6 +925,10 @@ export const appEs = {
   "You can't remove the last owner.": "No puedes quitar al último dueño.",
   "You can't demote the last owner.": "No puedes bajarle el rango al último dueño.",
   "Name saved.": "Nombre guardado.",
+  "Invite sent to {email}. It expires in 7 days.":
+    "Invitación enviada a {email}. Vence en 7 días.",
+  "Invite created for {email}. Email is not configured yet, so send them the link below.":
+    "Invitación creada para {email}. El correo todavía no está configurado, así que mándales el enlace de abajo.",
   "First name": "Nombre",
   "This is you.": "Este eres tú.",
   "Owner": "Dueño",
@@ -1097,6 +1118,12 @@ export const appEs = {
   "Could not load your reviews.": "No se pudieron cargar tus reseñas.",
   "Could not save your questions.": "No se pudieron guardar tus preguntas.",
   "Could not load your campaign links.": "No se pudieron cargar tus enlaces de campaña.",
+  "Delete the review from {author}": "Eliminar la reseña de {author}",
+  "You already have a link called {slug}.": "Ya tienes un enlace que se llama {slug}.",
+  "Delete this review from {author} for good? Hiding it keeps the words.":
+    "¿Eliminar para siempre esta reseña de {author}? Si la ocultas, las palabras se quedan.",
+  "Delete {name} for good? Its scans and bookings stop being counted against it. Turning it off keeps the numbers.":
+    "¿Eliminar {name} para siempre? Sus escaneos y citas dejan de contarse en su total. Si lo apagas, los números se quedan.",
   "Nobody has opened it yet": "Nadie lo ha abierto todavía",
   "Live": "Activo",
   "Your booking page": "Tu página de citas",
@@ -1110,10 +1137,28 @@ export const appEs = {
     "Aún no responde · los tres pasos de abajo",
   "That address isn't answering yet.": "Esa dirección aún no responde.",
   "Could not load your addresses.": "No se pudieron cargar tus direcciones.",
+  "Stop using {domain}? Your links go back to detailingplatform.com.":
+    "¿Dejar de usar {domain}? Tus enlaces vuelven a detailingplatform.com.",
+  "Your booking page and every link in your customers' emails use {domain}.":
+    "Tu página de citas y cada enlace en los correos de tus clientes usan {domain}.",
+  "Your booking page is detailingplatform.com/book/{slug}, and that is what your customers' emails link to. Put your own address here and they use yours instead.":
+    "Tu página de citas es detailingplatform.com/book/{slug}, y eso es a lo que apuntan los correos de tus clientes. Pon tu propia dirección aquí y usarán la tuya.",
   "You are here": "Estás aquí",
 
   // Maintenance deadlines.
   "Due today": "Vence hoy",
+  "Due in {days} days": "Vence en {days} días",
+  "Delete \"{question}\"?": "¿Eliminar \"{question}\"?",
+  "Missed {days} days ago": "Se pasó hace {days} días",
+  "Done {date}": "Hecho el {date}",
+  "Which car (optional)": "Cuál carro (opcional)",
+  "Then every (months)": "Luego cada (meses)",
+  "Your week · 1 day open": "Tu semana · 1 día abierto",
+  "Your week · {days} days open": "Tu semana · {days} días abiertos",
+  "Owed a visit · {count}": "Les debes una visita · {count}",
+  "{count} cars": "{count} carros",
+  "Bring {what}": "Llevar {what}",
+  "and": "y",
   "Due tomorrow": "Vence mañana",
   "Missed yesterday": "Se pasó ayer",
   "Yesterday": "Ayer",
@@ -1350,6 +1395,10 @@ export const appEs = {
   "Go to dashboard": "Ir al panel",
   "Going to": "Yendo a",
   "Google review link": "Enlace de reseña de Google",
+  "That {label} review link doesn't look like a web address. Paste the whole thing, starting with https://":
+    "Ese enlace de reseña de {label} no parece una dirección web. Pega la dirección completa, empezando con https://",
+  "Sent to {to} · two emails: the one your customer gets, and the one you get.":
+    "Enviado a {to} · dos correos: el que recibe tu cliente y el que recibes tú.",
   "Google, in person, a text…": "Google, en persona, un mensaje…",
   "Guided tour": "Recorrido guiado",
   "Held after every booking, to pack up and drive.":

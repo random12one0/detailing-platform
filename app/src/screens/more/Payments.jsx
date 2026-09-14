@@ -552,7 +552,7 @@ export default function Payments() {
       )}
 
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
-      <button className="btn primary" disabled={busy} onClick={save}>{busy ? "Saving" : "Save"}</button>
+      <button className="btn primary" disabled={busy} onClick={save}>{busy ? t("Saving") : t("Save")}</button>
     </div>
     </>
   );

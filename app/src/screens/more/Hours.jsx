@@ -147,7 +147,7 @@ export default function Hours() {
             <div className="row wrap" style={{ gap: 6 }}>
               {PRESETS.map(([label, days]) => (
                 <button key={label} type="button" className="btn sm inline"
-                  onClick={() => setPicked(days)}>{label}</button>
+                  onClick={() => setPicked(days)}>{t(label)}</button>
               ))}
             </div>
 
@@ -179,7 +179,9 @@ export default function Hours() {
       </div>
 
       <div className="tight">
-        <span className="label">Your week · {openCount} day{openCount === 1 ? "" : "s"} open</span>
+        <span className="label">{openCount === 1
+          ? t("Your week · 1 day open")
+          : t("Your week · {days} days open", { days: openCount })}</span>
         <div className="card">
           {DAYS().map((label, d) => (
             <div key={d}>

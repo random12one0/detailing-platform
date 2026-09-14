@@ -198,7 +198,7 @@ export default function Campaigns() {
       // The (business_id, slug) pair is unique, and "duplicate key" tells a
       // detailer nothing about what to do next.
       setNote({ ok: false, text: /duplicate|unique/i.test(err.message)
-        ? `You already have a link called ${slug}.` : err.message });
+        ? t("You already have a link called {slug}.", { slug }) : err.message });
       return;
     }
     setForm(BLANK);
@@ -217,7 +217,7 @@ export default function Campaigns() {
   // history becomes "organic". `on delete set null` is what makes that quiet
   // rather than an error, which is exactly why the screen has to say it.
   const remove = async (r) => {
-    if (!confirm(`Delete ${r.name} for good? Its scans and bookings stop being counted against it. Turning it off keeps the numbers.`)) return;
+    if (!confirm(t("Delete {name} for good? Its scans and bookings stop being counted against it. Turning it off keeps the numbers.", { name: r.name }))) return;
     await supabase.from("campaigns").delete().eq("id", r.id).eq("business_id", business.id);
     load();
   };

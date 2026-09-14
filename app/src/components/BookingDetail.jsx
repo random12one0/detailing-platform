@@ -145,7 +145,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
 
   const softDelete = () =>
     act(async () => {
-      if (!confirm("Delete this booking? It is hidden, not destroyed, and can be restored by support.")) return;
+      if (!confirm(t("Delete this booking? It is hidden, not destroyed, and can be restored by support."))) return;
       await api.softDeleteBooking(business.id, booking.id);
       onClose?.();
     });
@@ -235,7 +235,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
     ? Number(booking.quoted_amount) : null;
   const respond = (action) =>
     act(() => api.respondToBooking(business.id, booking.id, action),
-      action === "accept" ? "Accepted. They've been emailed." : "Declined. They've been emailed.");
+      action === "accept" ? t("Accepted. They've been emailed.") : t("Declined. They've been emailed."));
 
   return (
     <>

@@ -110,10 +110,24 @@ export function nextDue(d, doneOn) {
   return next.toISOString().slice(0, 10);
 }
 
-/** What a person should read on a row, in the fewest words that are true. */
-export function saySoon(d, today = new Date()) {
+/** What a person should read on a row, in the fewest words that are true.
+ *
+ *  **THE TRANSLATOR IS AN ARGUMENT, BECAUSE THIS FILE HAS NO IMPORTS.** The
+ *  header above is the reason and it is not negotiable: the edge-function copy
+ *  and `tests/maintenance.test.mjs` both load this in Node, where `appI18n.js`
+ *  cannot be imported at all. It is also the rule `duration(mins, lang)` and
+ *  `dateLong(dateStr, lang)` already keep one file over — a shared formatter
+ *  must never read the active locale itself.
+ *
+ *  Both arguments DEFAULT TO ENGLISH, so every existing caller and the whole
+ *  test file are unchanged. The dashboard passes `t` and `appIntlLocale()`;
+ *  until it did, these six sentences rendered in English on a Spanish screen
+ *  and the date inside "Done Jul 13" was hard-coded `en-US`, which is the
+ *  failure no catalogue check can see because there is no string to wrap. */
+const plain = (s, vars) => String(s).replace(/\{(\w+)\}/g, (_, k) => vars?.[k] ?? "");
+export function saySoon(d, today = new Date(), tr = plain, intl = "en-US") {
   const state = stateOf(d, today);
-  if (state === "cancelled") return "No longer applies";
+  if (state === "cancelled") return tr("No longer applies");
   // **NOT THE RAW ISO DATE — an outside review, 2026-09-11.** This printed
   // `Done 2026-07-13` on a screen a detailer reads between jobs, where every
   // other date in the product reads `Friday, September 11` or `Wed, Sep 16`.
@@ -123,14 +137,16 @@ export function saySoon(d, today = new Date()) {
   // product has.
   if (state === "met") {
     const on = d.last_done_on
-      ? new Date(`${d.last_done_on}T12:00:00`).toLocaleDateString("en-US",
+      ? new Date(`${d.last_done_on}T12:00:00`).toLocaleDateString(intl,
         { month: "short", day: "numeric", year: "numeric" })
       : null;
-    return on ? `Done ${on}` : "Done";
+    return on ? tr("Done {date}", { date: on }) : tr("Done");
   }
   const n = daysUntil(d.due_on, today);
-  if (state === "missed") return n === -1 ? "Missed yesterday" : `Missed ${-n} days ago`;
-  if (n === 0) return "Due today";
-  if (n === 1) return "Due tomorrow";
-  return `Due in ${n} days`;
+  if (state === "missed") {
+    return n === -1 ? tr("Missed yesterday") : tr("Missed {days} days ago", { days: -n });
+  }
+  if (n === 0) return tr("Due today");
+  if (n === 1) return tr("Due tomorrow");
+  return tr("Due in {days} days", { days: n });
 }

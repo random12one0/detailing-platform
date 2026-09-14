@@ -29,7 +29,7 @@ import { nextDue, saySoon, stateOf } from "../../lib/maintenance.js";
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
 import { phone } from "../../lib/format.js";
-import { t } from "../../lib/appI18n.js";
+import { appIntlLocale, t } from "../../lib/appI18n.js";
 import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 const BLANK = { customer_id: "", label: "", vehicle: "", due_on: "", repeat_months: "12" };
@@ -141,7 +141,7 @@ export default function Maintenance() {
           <input value={form.label} placeholder={t("e.g. Ceramic Pro annual inspection")}
             onChange={(e) => setForm({ ...form, label: e.target.value })} /></label>
 
-        <label className="field"><span>Which car (optional)</span>
+        <label className="field"><span>{t("Which car (optional)")}</span>
           <input value={form.vehicle} placeholder={t("e.g. 2021 Tacoma")}
             onChange={(e) => setForm({ ...form, vehicle: e.target.value })} /></label>
 
@@ -151,7 +151,7 @@ export default function Maintenance() {
               onChange={(e) => setForm({ ...form, due_on: e.target.value })} /></label>
           {/* MONTHS, NOT A CADENCE PICKER. This is how long until the NEXT one
               once this is done, and blank means it never comes round again. */}
-          <label className="field"><span>Then every (months)</span>
+          <label className="field"><span>{t("Then every (months)")}</span>
             <input type="number" min="1" max="120" value={form.repeat_months}
               placeholder={t("blank = one-off")}
               onChange={(e) => setForm({ ...form, repeat_months: e.target.value })} /></label>
@@ -195,7 +195,7 @@ export default function Maintenance() {
                       row exists to carry. The clipped end is now the car,
                       which the label above usually implies anyway. */}
                   <span className="sub">
-                    {saySoon(d)}
+                    {saySoon(d, new Date(), t, appIntlLocale())}
                     {" · "}{d.customers?.name ?? "a customer"}
                     {d.vehicle ? ` · ${d.vehicle}` : ""}
                   </span>

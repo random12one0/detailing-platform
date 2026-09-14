@@ -673,7 +673,7 @@ export default function Plans() {
               <div className="chiprow wrap">
                 <button className={`chip${owedOnly ? " active" : ""}`} aria-pressed={owedOnly}
                   onClick={() => setOwedOnly((v) => !v)}>
-                  Owed a visit · {owed.length}
+                  {t("Owed a visit · {count}", { count: owed.length })}
                 </button>
               </div>
             )}

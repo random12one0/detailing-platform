@@ -885,3 +885,42 @@ was already 44.
 
 **Visual: yes** — the one thing to look at is the Sign up button in the top bar
 on a phone.
+
+---
+
+## 45 · The delete warnings, in Spanish
+
+**Open:** `localhost:5173/app`, press the gear, set the language to Español,
+then go to Business → Reviews and press the X beside a review. Also Business →
+FAQ, Photo gallery, Your web address, Tracking links, and any job's Delete.
+
+**WAS:** If you had the app in Spanish, every "are you sure?" box that appears
+before you destroy something was written in English — seven of them, including
+the one that deletes a booking and the one that deletes a before-photo. It is
+the last thing you read before something is gone.
+
+**NOW:** All seven are in Spanish, with the name of the thing you are deleting
+in the sentence.
+
+**Visual: yes.**
+
+---
+
+## 46 · Twenty-one more things that were still in English
+
+**Open:** in Spanish — `localhost:5173/app` (the Today list), then Business →
+Booking rules, Hours & days off, Maintenance deadlines, Monthly plans, FAQ,
+How you get paid, Reviews.
+
+**WAS:** With the app set to Spanish, a lot of small English was left sitting
+between the Spanish. Today's list said "3 cars" and "Bring water and power".
+Booking rules printed its whole list of extra charges in English, wrote prices
+as "$40.00" where the rest of the app writes "$40", and had one sentence that
+said "1 hours". Maintenance deadlines showed every date as "Due in 364 days" and
+every field label in English. Hours, Plans, FAQ, Reviews and How you get paid
+each had a button or a heading still in English.
+
+**NOW:** All of it is Spanish, the prices read the way they do everywhere else,
+and no sentence can say "1 hours" any more.
+
+**Visual: yes.**

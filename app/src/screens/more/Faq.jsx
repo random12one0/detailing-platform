@@ -94,7 +94,7 @@ export default function Faq() {
   };
 
   const remove = async (i) => {
-    if (!confirm(`Delete "${rows[i].q}"?`)) return;
+    if (!confirm(t("Delete \"{question}\"?", { question: rows[i].q }))) return;
     if (editing === i) { setEditing(null); setForm(BLANK); }
     await persist(rows.filter((_, j) => j !== i), enabled);
   };
@@ -144,7 +144,7 @@ export default function Faq() {
 
         <div className="btnrow">
           <button className="btn primary" disabled={busy || !form.q.trim() || !form.a.trim()} onClick={save}>
-            {editing === null ? "Add question" : "Save changes"}
+            {editing === null ? t("Add question") : t("Save changes")}
           </button>
           {editing !== null && (
             <button className="btn" onClick={() => { setEditing(null); setForm(BLANK); }}>{t("Cancel")}</button>

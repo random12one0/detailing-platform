@@ -57,8 +57,8 @@ export default function JobRow({ booking, node = "", onClick }) {
         </span>
         <span className="sub">
           {[
-            cars > 1 ? `${cars} cars` : null,
-            bring.length ? `Bring ${bring.join(" and ")}` : null,
+            cars > 1 ? t("{count} cars", { count: cars }) : null,
+            bring.length ? t("Bring {what}", { what: bring.join(` ${t("and")} `) }) : null,
             ...services,
             where,
           ].filter(Boolean).join(" · ")}

@@ -320,7 +320,7 @@ export default function Catalog() {
     setSizes(next);
     const { error } = await supabase.from("business_settings")
       .update({ vehicle_sizes: next }).eq("business_id", business.id);
-    setMsg(error ? { ok: false, text: error.message } : { ok: true, text: "Vehicle sizes saved." });
+    setMsg(error ? { ok: false, text: error.message } : { ok: true, text: t("Vehicle sizes saved.") });
     if (!error) reload();
   };
   const saveSize = async () => {

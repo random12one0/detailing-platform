@@ -2808,3 +2808,135 @@ counter-example it has to tolerate: English is deliberately the KEY there and
   clean, and the inactive tab panels carry `visibility: hidden` with
   `checkVisibility() === false`, so it is the landing page's own auto-rotation
   moving under the probe.
+
+---
+
+## THE SEVEN DELETE WARNINGS ARE SPANISH NOW, AND THE CHECKER'S BLIND SPOT IS NAMED — lane B, 2026-09-13
+
+**FIXED, not parked.** The entry above this one listed six `window.confirm`
+dialogs and a longer tail. All of it is done, and the walk that followed found
+twenty-one more. `tests/spanish.test.mjs` is **76/0**, `i18n-coverage` is
+**1,375 literal call sites** where it was 1,326, and the build is clean.
+
+**THERE WERE SEVEN CONFIRMS, NOT SIX.** `screens/more/Faq.jsx:97` —
+`Delete "${rows[i].q}"?` — was missed by the hand-written list and caught by
+`spanish.test.mjs` check **11b**, which lane C added while this session was
+running. That is the whole argument for the check in one line: a list somebody
+types is a list with a seventh item in it.
+
+### 1 · WHY THE CHECKER COULD NOT SEE ANY OF THEM — for lane C
+
+**`scripts/i18n-coverage.mjs` measures the wrong universe, and it is one
+regex.** Line 139:
+
+```js
+for (const m of src.matchAll(/\bt\(\s*(["'])((?:(?!\1)[^\]|\.)*)\1/g))
+```
+
+**Its subject is every string that ALREADY reaches `t()`.** So the question it
+answers is *"is every translated string translated?"* — which is tautological —
+and not *"is every user-facing string translated?"*, which is the question
+anybody reading the number believes it answered. A string that never reaches
+`t()` is not a failure to the instrument; **it is not a subject at all.** That
+is why 100% coverage and a screen of English coexisted for months.
+
+**THE CLASS OF TEXT THAT IS INVISIBLE FOR EXACTLY THIS REASON, each already
+having produced a real defect:**
+
+| shape | example found today |
+|---|---|
+| **a native dialog** — `confirm()`, `alert()` | seven delete warnings |
+| **a template literal** with `${…}` in it | `` `+$${n.toFixed(2)} on ${days}` `` — the whole surcharge list |
+| **a bare literal in JSX** | `+ Add an area`, `+ Add a surcharge`, `Add question` |
+| **a ternary between two bare literals** | `busy ? "Saving" : "Save"` |
+| **a `setMsg({text: "…"})` toast** | `"Name saved."`, `"Vehicle sizes saved."` |
+| **a module-constant data table** | `PRESETS = [["All days", …]]` in `Hours.jsx` |
+| **a string built in a `lib/` file with no imports** | `saySoon()` — six sentences plus an `en-US` date |
+| **an `aria-label`** | `Delete the review from ${r.author}` |
+
+**AND THE SHARPEST FINDING IS THE OTHER DIRECTION, WHICH NOBODY HAS EVER
+MEASURED.** Of the strings fixed today, **twenty-one already had Spanish
+written in `appEs.js`** and no call site asking for it — `Live`, `Check it`,
+`Checking`, `Save`, `Saving`, `Add question`, `Add review`, `Hide`, `Show`,
+`Name saved.`, `Those two do not match.`, `Vehicle sizes saved.`, `No longer
+applies`, `All days`, `Weekdays`, `Weekends`, and more. **The translation
+existed and was unreachable.** Coverage is a one-way count, so a written-but-
+unwired entry is invisible from both ends: it is not missing (it is in the
+catalogue) and it is not counted (no call site names it).
+
+**TWO CHECKS LANE C COULD WRITE, AND THE SECOND IS CHEAPER THAN THE FIRST:**
+
+1. **A string that never reaches `t()`.** A regex cannot do it — a template
+   literal is invisible to a grep for `t(` *by definition*. It needs the JSX
+   walked: JSX text nodes, `placeholder` / `aria-label` / `title` attributes,
+   template literals, and the string arguments of `confirm` / `alert`.
+   `Today.jsx:279` is the false positive it must tolerate (English is
+   deliberately the KEY there and `t()` is applied where it is drawn).
+2. **An `appEs` key no call site asks for.** One set difference against the
+   `seen` set `coverage()` already builds, and it would have found twenty-one
+   real defects today with about four lines of code. **Report it, do not fail
+   on it** — a key can legitimately outlive a screen for a release.
+
+### 2 · `composition` 11e-iii IS NOW RED, AND IT IS TRAP (k) AGAIN — for lane C
+
+`tests/composition.test.mjs:937` locates the *Bring* fact by its source
+spelling:
+
+```js
+const bringAt = row.indexOf("`Bring ${bring.join(\" and \")}`");
+```
+
+`JobRow.jsx` now reads `t("Bring {what}", { what: bring.join(\` ${t("and")} \`) })`,
+because *"Bring water and power"* rendered in English on a Spanish Today screen
+beside *"3 cars"*. **The rule that check guards — that the fact LEADS the
+sub-line, ahead of the services and the location — has not moved an inch, and
+the order is still correct.** Its own comment says it was rewritten once before
+for this exact reason: *"a check that fails on a correct change is a check
+somebody deletes."* It needs to find the fact by a stable anchor — `"Bring ` is
+enough — rather than by the whole literal. **Lane B may not edit `tests/`.**
+
+### 3 · TWENTY-ONE MORE ENGLISH STRINGS, FOUND BY WALKING AND ALL FIXED
+
+The instrument was a marker test (English function words present, Spanish
+markers absent), **proved before it was believed** by planting one English
+sentence on a live screen and confirming it was caught. Two of its own runs
+returned an empty result that meant *nothing was visited* rather than *nothing
+was wrong* — the skipped-check trap, caught only by printing the count.
+
+- **Today** — `3 cars`; `Bring water and power`.
+- **Booking rules** — the whole surcharge list (`ruleSentence`), the
+  window-exceeds-notice warning, `+ Add an area`, `+ Add a surcharge`, the
+  travel-zone blurb, both *Closed until* sentences, `1 car` / `2 cars`, and
+  **the bare word `water` inside a Spanish sentence** — *"La página de citas
+  pregunta por water"* — because only one of `HELP()`'s two callers had a key.
+- **Hours & days off** — `All days`, `Weekdays`, `Weekends`, `Your week · 6 days
+  open`.
+- **Maintenance deadlines** — `Which car (optional)`, `Then every (months)`, and
+  every row's status: `Due in 364 days`, `No longer applies`, `Due today`,
+  `Due tomorrow`, `Missed N days ago`, `Done Jul 13` — the last with its date
+  hard-coded to `en-US`.
+- **Monthly plans** — `Owed a visit · 2`. **FAQ** — `Add question`.
+  **How you get paid** — `Save` / `Saving`. **Reviews** — `Add review`,
+  `Hide` / `Show`, and the delete button's `aria-label`.
+
+**`lib/maintenance.js` TOOK THE TRANSLATOR AS AN ARGUMENT AND NOT AS AN
+IMPORT.** That file's header forbids imports of any kind — the edge function's
+copy and `tests/maintenance.test.mjs` both load it in Node, where `appI18n.js`
+cannot resolve. `saySoon(d, today, tr = plain, intl = "en-US")` defaults to
+English, so all 38 maintenance checks pass untouched, and it is the same shape
+`duration(mins, lang)` already uses one file over.
+
+### 4 · STILL ENGLISH AND NOT FIXED — three, all reported rather than guessed
+
+- **`lib/theme.js:310-314`, the colour-contrast sentence.** *"That reads as an
+  orange, and it is light enough to use exactly as you picked it."* Three
+  sentences built around a colour NAME that comes from a word table in the same
+  file, so translating it is translating the table too. Not a one-line wrap.
+- **`lib/templates.js` — the five saved-message names.** *On my way*, *Running
+  late*, *Confirm tomorrow*, *Job finished*, *Ask about access*, all showing
+  *"Aún sin cambiar"* beside them. **They are OURS until the detailer edits
+  them and HIS afterwards**, which is the fourth axis of the whose-words rule
+  and is a decision rather than a fix.
+- **`Business info` — `Fully covered on your property`.** One line, but it sits
+  in a block of the detailer's own typed credentials, so whether it is ours
+  needs a look at that screen rather than a grep.

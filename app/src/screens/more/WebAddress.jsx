@@ -102,7 +102,7 @@ export default function WebAddress() {
   };
 
   const remove = async (row) => {
-    if (!confirm(`Stop using ${row.domain}? Your links go back to detailingplatform.com.`)) return;
+    if (!confirm(t("Stop using {domain}? Your links go back to detailingplatform.com.", { domain: row.domain }))) return;
     await supabase.from("business_domains").delete()
       .eq("id", row.id).eq("business_id", business.id);
     load();
@@ -118,8 +118,8 @@ export default function WebAddress() {
             email the platform sends on their behalf. */}
         <p className="quiet" style={{ marginTop: 0 }}>
           {live
-            ? `Your booking page and every link in your customers' emails use ${live.domain}.`
-            : `Your booking page is detailingplatform.com/book/${business.slug}, and that is what your customers' emails link to. Put your own address here and they use yours instead.`}
+            ? t("Your booking page and every link in your customers' emails use {domain}.", { domain: live.domain })
+            : t("Your booking page is detailingplatform.com/book/{slug}, and that is what your customers' emails link to. Put your own address here and they use yours instead.", { slug: business.slug })}
         </p>
 
         <label className="field"><span>{t("Your address")}</span>
@@ -150,7 +150,7 @@ export default function WebAddress() {
               <span className="txt">
                 <span className="nm">{r.domain}</span>
                 <span className="sub">
-                  {r.verified_at ? "Live" : "Not answering yet · the three steps below"}
+                  {r.verified_at ? t("Live") : t("Not answering yet · the three steps below")}
                 </span>
               </span>
               {r.verified_at
@@ -158,7 +158,7 @@ export default function WebAddress() {
                 : (
                   <button className="btn sm inline ghost" disabled={checking === r.id}
                     onClick={() => check(r)}>
-                    {checking === r.id ? "Checking" : "Check it"}
+                    {checking === r.id ? t("Checking") : t("Check it")}
                   </button>
                 )}
               <button className="btn sm inline icon ghost" aria-label={`Remove ${r.domain}`}

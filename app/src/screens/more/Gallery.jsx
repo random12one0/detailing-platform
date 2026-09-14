@@ -61,7 +61,7 @@ export default function Gallery() {
   };
 
   const remove = async (img) => {
-    if (!confirm("Remove this photo from the gallery?")) return;
+    if (!confirm(t("Remove this photo from the gallery?"))) return;
     await supabase.from("gallery_images").delete().eq("id", img.id).eq("business_id", business.id);
     load();
   };
