@@ -36,10 +36,11 @@
 // of screen for a five-job day. Everything else is a row, which makes "one
 // thing lit" a matter of FORM rather than colour.
 
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import { ChevronRight, ListChecks, TriangleAlert } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
+import { STEPS, setupProgress } from "../lib/setup.js";
 // ROADMAP 2.19. The nudge counts with the SAME arithmetic the Clients screen
 // filters with — `tests/client-list.test.mjs` is 31 checks on it — rather than
 // a second rule in SQL that would drift from the chip it sends you to.
@@ -66,9 +67,78 @@ import { useAppLocale } from "../hooks/useAppLocale.js";
 
 export default function Today({ refreshKey = 0, onGo, onSetup }) {
   useAppLocale();
-  const { business, firstName, can, subscription, siteOrigin } = useBusiness();
+  const { business, firstName, can, subscription, siteOrigin, settings, branding, role, reload: reloadBusiness } = useBusiness();
   const today = todayLocal(business.timezone);
   const tomorrow = addDays(today, 1);
+
+  // ---------------------------------------------------------------------------
+  // "YOUR PAGE ISN'T FULLY SET UP" — Andrew's ask, 2026-09-14: Today is the
+  // screen a detailer actually opens, so an incomplete setup belongs here
+  // rather than only on Business, which nobody visits on their own.
+  //
+  // **NO SECOND SOURCE OF TRUTH.** `setupProgress` and `STEPS` are the same
+  // ones Business.jsx reads; the only thing fetched here is the two counts
+  // that function needs and Business.jsx does not already share — services
+  // and promo codes — plus the open-hours check, mirrored from Business.jsx's
+  // own `blocked` variable rather than trusting `setup.done`, because a
+  // wizard step marked "done" and a day that is actually open are two
+  // different facts (Business.jsx already treats them as two facts, for the
+  // same reason).
+  const [setupCounts, setSetupCounts] = useState(null);
+  useEffect(() => {
+    if (role !== "owner") return;
+    let live = true;
+    (async () => {
+      const [h, s, p] = await Promise.all([
+        supabase.from("business_hours").select("weekday,open_time").eq("business_id", business.id),
+        supabase.from("services").select("id", { count: "exact", head: true }).eq("business_id", business.id).eq("is_active", true),
+        supabase.from("promo_codes").select("id", { count: "exact", head: true }).eq("business_id", business.id).eq("is_active", true),
+      ]);
+      if (live) setSetupCounts({ hoursRows: h.data ?? [], services: s.count, promos: p.count });
+    })();
+    return () => { live = false; };
+  }, [business.id, role]);
+  const setup = setupCounts ? setupProgress({ business, branding, settings, counts: setupCounts }) : null;
+  const hoursOpen = (setupCounts?.hoursRows ?? []).some((r) => r.open_time);
+  const missingSteps = setup ? STEPS.filter(([k]) => !setup.done.has(k)) : [];
+
+  // RANKED BY CONSEQUENCE, NOT BY THE ORDER SETUP ASKS THEM IN. Only three
+  // things in this list actually stop a customer booking or paying — no open
+  // hours, nothing to sell, no way to reach the business — and those are the
+  // exact three Business.jsx's own `blocked` row already treats as more
+  // serious than the rest. Everything else is real but cosmetic: a page that
+  // works fine without it, just plainer.
+  const stopsBooking = [];
+  if (!hoursOpen) {
+    stopsBooking.push({ key: "hours", text: t("Customers can't book you until you set your hours.") });
+  }
+  if ((setupCounts?.services ?? 0) === 0) {
+    stopsBooking.push({ key: "catalog", text: t("Customers can't book you until you add at least one service.") });
+  }
+  if (!business.contact_phone && !business.contact_email) {
+    stopsBooking.push({ key: "info", text: t("Customers have no way to reach you — add a phone number or email.") });
+  }
+  const leadKeys = new Set(stopsBooking.map((s) => s.key));
+  const cosmetic = missingSteps.filter(([k]) => !leadKeys.has(k));
+
+  // COLLAPSE TO ONE LINE, REMEMBERED — AND UN-COLLAPSED ONCE SOMETHING NEW
+  // GOES MISSING. `setup.todayCollapsedFor` is the set of keys that were
+  // still missing the moment they last collapsed it; if today's missing set
+  // has anything that was not in that snapshot, the notice reopens on its
+  // own, exactly once, until they collapse it again.
+  const missingKeys = missingSteps.map(([k]) => k);
+  const collapsedFor = settings?.setup?.todayCollapsedFor ?? [];
+  const somethingNew = missingKeys.some((k) => !collapsedFor.includes(k));
+  const collapsed = !!settings?.setup?.todayCollapsed && !somethingNew;
+  const toggleCollapsed = useCallback(async (next) => {
+    const now = settings?.setup ?? {};
+    await supabase.from("business_settings").upsert(
+      { business_id: business.id, setup: { ...now, todayCollapsed: next, todayCollapsedFor: next ? missingKeys : now.todayCollapsedFor } },
+      { onConflict: "business_id" },
+    );
+    reloadBusiness?.();
+  }, [business.id, settings?.setup, missingKeys.join(","), reloadBusiness]);
+  const setupNotice = role === "owner" && setup && missingSteps.length > 0;
   // ---------------------------------------------------------------------------
   // **TODAY IS NOT ONLY TODAY — Andrew, 2026-09-13, and it is the bigger miss.**
   // ---------------------------------------------------------------------------
@@ -503,6 +573,78 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
           <span className="actions">
             <button onClick={() => onGo?.("billing")}>{t("Fix this")}</button>
           </span>
+        </div>
+      )}
+
+      {/* "YOUR PAGE ISN'T FULLY SET UP" — a nudge, never an alarm, so it takes
+          `.warn-box`'s own reading rather than `.error-box`'s: a panel with an
+          edge you can see, ordinary text, the accent only on its own actions.
+          Collapses to one line and remembers that choice; reopens on its own
+          only when something NEW goes missing that was not missing when it
+          was last collapsed. */}
+      {setupNotice && (
+        <div className="warn-box" data-tour="setup-notice">
+          {collapsed ? (
+            <>
+              <span>{t("Your page isn't fully set up.")}</span>
+              <span className="actions">
+                <button onClick={() => toggleCollapsed(false)}>{t("Show")}</button>
+              </span>
+            </>
+          ) : (
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="row between" style={{ alignItems: "flex-start", gap: 8 }}>
+                <strong>{t("Your page isn't fully set up")}</strong>
+                <button onClick={() => toggleCollapsed(true)} style={{
+                  background: "none", border: 0, color: "var(--accent-text)",
+                  fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap",
+                  font: "inherit", fontSize: "var(--t-meta)",
+                }}>{t("Hide")}</button>
+              </div>
+              {/* LEAD WITH WHAT ACTUALLY STOPS A BOOKING OR A PAYMENT — never
+                  more than the three real ones. Everything else is real but
+                  cosmetic and sits behind the fold below. */}
+              <ul style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 6 }}>
+                {stopsBooking.map((s) => (
+                  <li key={s.key}>
+                    <button
+                      onClick={() => onSetup?.(STEPS.findIndex(([k]) => k === s.key))}
+                      style={{
+                        background: "none", border: 0, padding: 0, textAlign: "left",
+                        color: "inherit", textDecoration: "underline", textUnderlineOffset: "3px",
+                        cursor: "pointer", font: "inherit", fontSize: "var(--t-meta)",
+                      }}
+                    >
+                      {s.text}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              {cosmetic.length > 0 && (
+                <details style={{ marginTop: 6 }}>
+                  <summary style={{ cursor: "pointer", fontSize: "var(--t-meta)", color: "var(--text-muted)" }}>
+                    {t("and {count} more", { count: cosmetic.length })}
+                  </summary>
+                  <ul style={{ margin: "6px 0 0", padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 6 }}>
+                    {cosmetic.map(([k, , name]) => (
+                      <li key={k}>
+                        <button
+                          onClick={() => onSetup?.(STEPS.findIndex(([kk]) => kk === k))}
+                          style={{
+                            background: "none", border: 0, padding: 0, textAlign: "left",
+                            color: "var(--text-muted)", textDecoration: "underline", textUnderlineOffset: "3px",
+                            cursor: "pointer", font: "inherit", fontSize: "var(--t-meta)",
+                          }}
+                        >
+                          {t(name)}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              )}
+            </div>
+          )}
         </div>
       )}
 
