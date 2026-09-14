@@ -1040,6 +1040,14 @@
   corner-shape: var(--bk-corner);
   box-shadow: inset 0 0 0 1px var(--bk-hairline);
   color: var(--bk-text); text-decoration: none;
+  /* **THE FOUR LINES A `<button>` NEEDS AND AN `<a>` DOES NOT** — and the
+     first of them is why this rule changed at all. On the plans page a row is
+     a link; inside the booking flow it is a button, because navigating
+     mid-booking throws the form away. A button centres its text and brings its
+     own font, so the identical markup rendered centred under the add-ons and
+     left-aligned on the plans page. Found by screenshotting both, not by
+     reading either. */
+  text-align: left; font: inherit; border: 0; width: 100%; cursor: pointer;
   transition: box-shadow var(--bk-t-hover) var(--bk-e),
               background var(--bk-t-hover) var(--bk-e);
 }
@@ -1118,65 +1126,42 @@
    structure survives the structure, and the width it fires at is the one place
    nobody looks after a rebuild. Found by screenshotting 392, not by reading. */
 
-/* THE STEP-1 DOOR. It rides the row the rail and "Step 1 of 7" already share,
-   so it spends none of W16's budget — the row's height is set by the label,
-   which is 11px type in a 14px line box, and a 13px link fits inside it.
-   `flex-shrink: 0` beside the rail's `flex: 1` means the rail gives up the
-   width, which it can: it is a progress mark, not a measurement. */
-/* ── LOUDER, AND NOT ONE PIXEL TALLER — his review, 2026-09-11 ────────────
-   *"The button to view monthly plans should be a lot more visible and bigger,
-   because it's this small little text — probably the majority of people are
-   going to miss it."*
+/* ── THE PLAN PITCH, UNDER THE ADD-ONS ────────────────────────────────────
+   **THE CHIP THAT LIVED HERE IS GONE — Andrew, 2026-09-13.** It rode the row
+   the step rail and "Step 1 of 7" share, and every rule about it was about
+   costing the step no height. His instruction retires the whole argument:
+   *"it should be underneath the add ons, like, pretty big and pretty
+   visible… not a button to go to the screen, but just the whole screen."*
 
-   **HE IS RIGHT AND A BANNER IS STILL NOT THE ANSWER.** Measured the same
-   morning: step 1 at 1440x900 has TEN PIXELS of spare room. A strip under the
-   heading is about fifty, and CLAUDE.md's rule about that budget is not a
-   guideline — *every step's spare room is the DETAILER's, and a control of
-   ours may not spend it*. A plans door that pushes a tenant's fourth service
-   off the screen has traded one missed thing for another.
+   **SO THIS BLOCK IS ALLOWED TO BE TALL, and that is the decision.** The step
+   budget rule — *every step's spare room is the DETAILER's* — was what kept
+   the offer to 13px twice, and twice he said it was too small to notice. The
+   rows ARE the detailer's own plans, at the detailer's own prices, so this is
+   not our furniture spending his room.
 
-   So it gets LOUD instead of BIG: a filled chip in the tenant's own accent
-   with an arrow on it, where there was underlined grey-blue text. The fill is
-   what the eye catches; the underline never was.
-
-   **AND IT COSTS NOTHING, BY THE TRICK THIS RULE ALREADY USED.** The padding
-   that makes the chip is cancelled by an equal negative margin — exactly how
-   the 34px touch target below was already paid for — so the line box is still
-   13px and step 1 still has its ten pixels. Verified by re-running
-   `sweep-booking-steps.mjs`, not by reasoning about it. */
-.bk-plans-door {
-  flex-shrink: 0; font-size: var(--bk-t-meta); white-space: nowrap;
-  display: inline-flex; align-items: center; gap: 5px;
-  background: var(--bk-accent); color: var(--bk-accent-ink);
-  font-variation-settings: "wdth" 96, "wght" 640;
-  border-radius: var(--bk-r-pill); text-decoration: none;
-  /* THE LINE BOX IS PINNED TO THE ROW'S OWN HEIGHT, and this is measured
-     rather than tidy: the row is 13px tall because `.bk-step-label` is 11px
-     type, and dropping a 13px link into it at the inherited leading took step
-     1 from 10px of spare room to 7px. Three pixels of the TENANT'S budget for
-     a link is not a trade worth making — the whole reason this control is on
-     this row is that the row was already drawn.
-     The padding/margin pair is the touch target, and it is the PRODUCT'S OWN
-     46px now rather than 34 — his review measured this chip at 146x33 on a
-     320px screen, 2026-09-12, and PRODUCT.md's floor is `--tap: 46px` with one
-     recorded exception that is not this control. It still costs the layout
-     nothing, because the negative margin gives every added pixel back. */
-  line-height: 13px;
-  padding: 16.5px 12px; margin: -16.5px 0;
-  transition: filter var(--bk-t-hover) var(--bk-e);
+   IT DRAWS NO BOX OF ITS OWN. `.bk-plan-row` already carries a surface, and a
+   panel around a list of panels is the nested-card tell. A hairline and a
+   heading are what separate it from the add-ons above. */
+.bk-planpitch {
+  border-top: 1px solid var(--bk-hairline);
+  padding-top: var(--bk-sp-5); margin-top: var(--bk-sp-2);
+  display: flex; flex-direction: column; gap: var(--bk-sp-2);
 }
-.bk-plans-door:hover { filter: brightness(1.08); }
-.bk-plans-door svg { width: 13px; height: 13px; flex: none; }
-/* AT 320 THE ROW IS RAIL + "STEP 1 OF 7" + THIS, and three things on one line
-   below 360 is how a rail ends up 8px wide. The words go and the chip keeps
-   its meaning: a price and an arrow is still an offer. */
-.bk-plans-door .narrow { display: none; }
-@media (max-width: 380px) {
-  .bk-plans-door .wide { display: none; }
-  .bk-plans-door .narrow { display: inline; }
-  .bk-plans-door { padding: 16.5px 10px; }
+.bk-planpitch > h3 {
+  font-size: var(--bk-t-strong); font-variation-settings: "wdth" 96, "wght" 620;
+  color: var(--bk-text); margin: 0;
 }
-.bk-plans-door:hover { color: var(--bk-text); }
+.bk-planpitch > .bk-muted { margin: 0; }
+.bk-planpitch .bk-plans { margin-top: var(--bk-sp-2); }
+/* THE CHOSEN ROW WEARS THE ACCENT THE SELECTED CARDS ALREADY WEAR, because
+   pressing a plan here is the same kind of act as pressing a service: it is a
+   CHOICE on this booking, not a link away from it. `.bk-card.selected` is the
+   idiom and this only borrows its edge. */
+.bk-plan-row.picked {
+  border-color: var(--bk-accent);
+  box-shadow: inset 0 0 0 1px var(--bk-accent);
+}
+.bk-plan-row.picked .bk-plan-pick { color: var(--bk-accent-text); }
 
 /* A plan's facts on the member's own page — the same ruled-list idiom as the
    receipt, because a list of records is a ruled list and never a stack of

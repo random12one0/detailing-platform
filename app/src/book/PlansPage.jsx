@@ -25,13 +25,13 @@
 
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { api } from "../lib/api.js";
-import { money, phone } from "../lib/format.js";
-import { cadenceWords, priceParts, termWords, visitWords } from "../lib/plans.js";
+import { phone } from "../lib/format.js";
 import { t } from "../lib/i18n.js";
 import { useLocale } from "../hooks/useLocale.js";
 import LanguagePicker from "./LanguagePicker.jsx";
+import PlanRows from "./PlanRows.jsx";
 import { BookingBusinessProvider, useBookingBusiness } from "./BookingBusinessContext.jsx";
 import "./booking.css";
 
@@ -156,49 +156,14 @@ function PlansInner() {
           //     beside a narrow column, and using it makes the page SHORTER,
           //     which is the old height objection answered rather than
           //     ignored.
-          <div className="bk-plans">
-            {plans.map((p) => (
-              <Link key={p.id} className="bk-plan-row" to={`/book/${slug}?plan=${p.id}`}>
-                <div className="bk-plan-body">
-                  <h3>{tx(p.name)}</h3>
-                  {/* EVERY FACT ITS OWN TOKEN. `.filter(Boolean)` because a
-                      plan with no cadence and no term is a bare discount, and
-                      an empty chip row is worse than none. */}
-                  <div className="bk-plan-chips">
-                    {[
-                      cadenceWords(p, lang),
-                      p.cadence_unit ? t("{visits} each time", { visits: visitWords(p, lang) }) : null,
-                      termWords(p, lang),
-                    ].filter(Boolean).map((chip) => (
-                      <span className="bk-plan-chip" key={chip}>{chip}</span>
-                    ))}
-                  </div>
-                  {p.description && <p className="bk-muted">{tx(p.description)}</p>}
-                </div>
-                {/* **THE PRICE AND THE ACTION SHARE A LINE**, and that is
-                    height as much as meaning: on its own row the price cost
-                    every plan about 30px, which took a phone from 1,041px to
-                    1,339px — a page that had fitted, scrolling by 59% of the
-                    screen. Measured, then fixed. It also reads better: the
-                    number you are deciding on sits beside the thing that acts
-                    on it. */}
-                <span className="bk-plan-foot">
-                  <span className="bk-plan-price">
-                    {/* THE NUMBER IS THE FIGURE AND THE UNIT IS NOT. At title
-                        size "$120.00 a month" wrapped onto two lines and read
-                        as a broken card; the unit belongs underneath it, small,
-                        the way every price in this product is drawn. */}
-                    <span className="amt">{priceParts(p.price_kind, p.price_amount, money, lang).big}</span>
-                    <span className="per">{priceParts(p.price_kind, p.price_amount, money, lang).small}</span>
-                  </span>
-                  <span className="bk-plan-pick">
-                    <span className="label-text">{t("Choose this")}</span>
-                    <ChevronRight className="bk-plan-go" size={17} strokeWidth={2.5} aria-hidden="true" />
-                  </span>
-                </span>
-              </Link>
-            ))}
-          </div>
+          // **THE ROWS THEMSELVES MOVED TO `PlanRows.jsx` — 2026-09-13.**
+          // The booking flow's add-ons step now renders the real pitch inline
+          // rather than a chip that links here (Andrew: *"not a button to go to
+          // the screen, but just the whole screen"*), and two copies of the
+          // same offer is how one of them goes stale. Every design decision the
+          // comment above records lives in that file's header, beside the
+          // markup it explains.
+          <PlanRows plans={plans} lang={lang} tx={tx} to={(p) => `/book/${slug}?plan=${p.id}`} />
         )}
 
         {/* EMAIL IN, LINK OUT. Nothing about the address is reflected back,

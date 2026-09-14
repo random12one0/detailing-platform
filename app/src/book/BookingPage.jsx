@@ -40,6 +40,7 @@
 import { getLocale, t } from "../lib/i18n.js";
 import { useLocale } from "../hooks/useLocale.js";
 import LanguagePicker from "./LanguagePicker.jsx";
+import PlanRows from "./PlanRows.jsx";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -110,7 +111,7 @@ function BookingFlow({ notFound = null }) {
   // WHICH STEP CARRIES THE PLANS CHIP. The add-ons step when there is one, and
   // Services otherwise — the long note beside the chip itself has the reason.
   const planDoorStep = STEPS.includes("Extras") ? "Extras" : "Services";
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
 
   // WHO WE ALREADY KNOW, READ ONCE. Lazy state rather than a plain read: the
   // recognition must not change under the customer mid-flow, and this page
@@ -136,6 +137,15 @@ function BookingFlow({ notFound = null }) {
   // which carries the plan in the address, and the server checks their
   // membership either way.
   const planId = params.get("plan") || "";
+  // **DID THEY ARRIVE ON A PLAN, OR PICK ONE HERE?** The same `?plan=` in the
+  // address means two different things, and only the FIRST one should hide the
+  // list: somebody who came in on an emailed plan link has already chosen, the
+  // price bar names it, and re-offering the four plans invites them to undo
+  // what they arrived having done. Somebody who pressed a row on the add-ons
+  // step is standing in front of that list and must keep it — to change their
+  // mind, or to press the same row again and come off it.
+  // Captured once, on mount, because `planId` itself changes when they pick.
+  const fromLink = useRef(Boolean(params.get("plan"))).current;
 
   const [step, setStep] = useState(0);
   // The shape AND the three tenant defaults are the core's. Pre-filled from
@@ -573,60 +583,29 @@ function BookingFlow({ notFound = null }) {
               ))}
             </div>
             <div className="bk-step-label">{t("Step {n} of {total}", { n: step + 1, total: STEPS.length })}</div>
-            {/* THE DOOR TO THE PLANS, AND IT COSTS THE STEP NOTHING. It rides
-                the row the rail and the step label already share, so its
-                height is the label's height — which matters, because step 1's
-                spare room at 1440x900 is TEN PIXELS and that budget is the
-                detailer's catalogue, not ours.
+            {/* **THE PLAN CHIP THAT USED TO RIDE THIS ROW IS GONE — Andrew,
+                2026-09-13.** It sat beside the step rail, and his words were
+                unambiguous: *"it got put in the top part next to the steps…
+                it should be underneath the add ons, like, pretty big and
+                pretty visible… not a button to go to the screen, but just the
+                whole screen."*
 
-                **IT IS ON THE ADD-ONS STEP NOW, NOT STEP 1 — Andrew,
-                2026-09-13.** It was the loudest thing on the screen, above the
-                services, before a stranger had seen a single price: an orange
-                chip offering a monthly commitment to somebody who does not yet
-                know what one wash costs. The add-ons step is where a customer
-                is already being shown things to add, so *"or get it every
-                month"* lands as one more option rather than as an interruption.
+                **The move is not a demotion, it is the opposite.** A chip in
+                the header is cheap in height and cheap in attention, which is
+                exactly what he objected to twice — *"it's this small little
+                text, probably the majority of people are going to miss it"*
+                (2026-09-11). The real rows, full width, under the add-ons, are
+                the pitch itself rather than a door to it.
 
                 **AND THE ADD-ONS STEP KEEPS ITS OWN STEP.** Folding it into
                 step 1 was proposed and he overruled it: a lot of the revenue
                 is in the add-ons and he does not want them skipped past.
 
-                A business with no add-ons has no Extras step, and there the
-                door stays on Services — the alternative is a detailer whose
-                plans are unreachable from the booking page because of a
-                catalogue decision that has nothing to do with plans.
-
-                **AND IT CARRIES A PRICE NOW — his review, 2026-09-11.** *"It's
-                this small little text, probably the majority of people are
-                going to miss it."* A label is furniture; a price is an offer,
-                and it is the one word that makes somebody who books monthly
-                stop and read. The cheapest plan, because the number's job here
-                is to say "this is affordable", not to be exact — the page it
-                opens is where the four real prices are. */}
-            {stepName === planDoorStep && plans.length > 0 && !attachedPlan && (
-              <Link className="bk-plans-door" to={`/book/${slug}/plans`}>
-                {/* **TWO WHOLE SENTENCES, NOT A WORD PLUS A PRICE.** The
-                    chip has to shorten below 380px, where the rail and "Step 1
-                    of 7" already share the line — and the obvious way, hiding
-                    a `<span>` holding the word "Plans", puts a bare "Plan" in
-                    the catalogue. That word is identical in Spanish, and the
-                    translation checks cannot both be satisfied by it: one
-                    demands an entry for every call site, the other rejects an
-                    entry that equals its source. A sentence has no such
-                    problem, and hiding one of two is the same amount of CSS. */}
-                {cheapestPlan ? (() => {
-                  const price = priceWords(cheapestPlan.price_kind, cheapestPlan.price_amount, money, getLocale());
-                  return (
-                    <>
-                      <span className="wide">{plans.length === 1
-                        ? t("Plan from {price}", { price }) : t("Plans from {price}", { price })}</span>
-                      <span className="narrow">{t("from {price}", { price })}</span>
-                    </>
-                  );
-                })() : (plans.length === 1 ? t("See the plan") : t("See the plans"))}
-                <ArrowRight strokeWidth={2.5} aria-hidden="true" />
-              </Link>
-            )}
+                `planDoorStep` still decides WHICH step carries it, and still
+                falls back to Services for a business with no add-ons — the
+                alternative is a detailer whose plans are unreachable from the
+                booking page because of a catalogue decision that has nothing
+                to do with plans. */}
           </div>
           {/* RECOGNITION IS SPENT ON A LINE THAT IS ALREADY DRAWN. The owner
               asked for a welcome at the top of step 1 — *"a welcome message
@@ -700,6 +679,52 @@ function BookingFlow({ notFound = null }) {
             services={selectedServices} addOns={selectedAddOns}
             promoState={promoState} onApplyPromo={applyPromo}
           />
+        )}
+
+        {/* ── THE MONTHLY PLAN, UNDER THE ADD-ONS, AT FULL WIDTH ────────────
+            Andrew, 2026-09-13: *"it should be underneath the add ons, like,
+            pretty big and pretty visible… like, just in the whole screen,
+            like, not a button to go to the screen, but just the whole
+            screen."*
+
+            **IT IS THE REAL PITCH, NOT A LINK TO ONE.** `PlanRows` is the
+            same component the plans page draws, so the prices, the cadence
+            chips and the detailer's own words are one implementation. Pressing
+            a row ATTACHES the plan here — it does not navigate — because
+            `/book/:slug?plan=<id>` mid-flow would throw away every answer
+            already given.
+
+            **INSIDE `.bk-step`, WHICH IS WHERE THE MOTION IS.** That wrapper
+            is `display: contents` and keyed on the step, so this arrives with
+            the step's own staggered rise and needs no animation of its own —
+            the rule CLAUDE.md § ANYTHING THAT OPENS records as *a component
+            that renders as a child of the arriving container already HAS an
+            entrance*.
+
+            **AND IT IS ABSENT ONCE A PLAN IS ATTACHED FROM ELSEWHERE.**
+            Somebody who arrived on a plan link is already on one; the price
+            bar names it, and offering the list again would invite them to
+            re-choose what they came here having chosen. */}
+        {stepName === planDoorStep && plans.length > 0 && !fromLink && (
+          <div className="bk-planpitch">
+            <h3>{t("Or make it a monthly plan")}</h3>
+            {/* ONE SENTENCE, AND IT SAYS THE THING THE ROWS DO NOT. The rows
+                carry the price, the cadence and the term; what they cannot say
+                is that choosing one changes THIS booking rather than starting
+                a separate purchase. His copy rule: a sentence that repeats the
+                control gets cut, and this one does not repeat it. */}
+            <p className="bk-muted">
+              {t("Regular visits at a set price. Pick one and it applies to this booking.")}
+            </p>
+            <PlanRows plans={plans} lang={getLocale()} tx={tx} chosen={planId || null}
+              onPick={(id) => {
+                const next = new URLSearchParams(params);
+                if (id) next.set("plan", id); else next.delete("plan");
+                // `replace` so the back button still means "the previous
+                // STEP" rather than "undo the plan I just pressed".
+                setParams(next, { replace: true });
+              }} />
+          </div>
         )}
         </div>
 

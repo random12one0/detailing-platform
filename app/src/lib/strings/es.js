@@ -101,9 +101,17 @@ export const es = {
   "from {price}": "desde {price}",
   "Plan from {price}": "Plan desde {price}",
   "Plans from {price}": "Planes desde {price}",
-  // The plans page: one per row, and the words that say the row acts.
+  // The plans page AND the add-ons step: one per row, and the words that say
+  // the row acts. **"On this plan" is the picked state**, which only the
+  // booking flow can reach — on the plans page a row is a link away, here it
+  // is a choice you can press again to come off.
   "Choose this": "Elegir este",
+  "On this plan": "En este plan",
   "See the plans": "Ver los planes",
+  // ── THE PITCH UNDER THE ADD-ONS — Andrew, 2026-09-13 ───────────────────
+  "Or make it a monthly plan": "O conviértelo en un plan mensual",
+  "Regular visits at a set price. Pick one and it applies to this booking.":
+    "Visitas regulares a un precio fijo. Elige uno y se aplica a esta reserva.",
 
   // ── Step: services ─────────────────────────────────────────────────────
   "Choose one or more. You can add extras next.":
