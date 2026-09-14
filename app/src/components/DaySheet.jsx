@@ -36,6 +36,7 @@ import { Segmented, Switch } from "./controls.jsx";
 // translated text: once at the root works only until something is memoised.
 import { appIntlLocale, getAppLocale, t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
+import { useJobWeather } from "../hooks/useJobWeather.js";
 
 const hhmm = (v) => (v ? v.slice(0, 5) : "");
 // An end date typed backwards is a slip, not an instruction to write nothing.
@@ -183,6 +184,9 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
     .delete().eq("id", state.dropoff.id).eq("business_id", business.id));
 
   const active = bookings.filter((b) => b.status !== "cancelled");
+  // WEATHER PER BOOKING — one call for the panel, handed to each row. A day in
+  // the past or past the forecast horizon simply gets nothing back.
+  const { weather, prefs: weatherRules } = useJobWeather(active);
   // W4 — a restriction only means something where there are two things to
   // choose between, so the card is not drawn for a business that only works
   // one way.
@@ -245,7 +249,8 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
               : (
                 <div className="rows">
                   {active.map((b) => (
-                    <JobRow key={b.id} booking={b} onClick={() => onOpenBooking(b)} />
+                    <JobRow key={b.id} booking={b} weather={weather.get(b.id)} weatherRules={weatherRules}
+                      onClick={() => onOpenBooking(b)} />
                   ))}
                 </div>
               )}

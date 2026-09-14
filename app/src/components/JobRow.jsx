@@ -18,8 +18,9 @@ import { money, time12 } from "../lib/format.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`).
 import { t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
+import JobWeather from "./JobWeather.jsx";
 
-export default function JobRow({ booking, node = "", onClick }) {
+export default function JobRow({ booking, node = "", weather, weatherRules, onClick }) {
   useAppLocale();
   const services = (booking.services ?? []).map((s) => s.name_at_booking).filter(Boolean);
   const where = t(booking.service_type === "mobile" ? "Mobile" : "Drop-off");
@@ -64,6 +65,14 @@ export default function JobRow({ booking, node = "", onClick }) {
           ].filter(Boolean).join(" · ")}
         </span>
       </span>
+      {/* WEATHER LIVES BETWEEN THE JOB AND THE MONEY — Andrew, 2026-09-13,
+          pointing at the desk layout: *"the gap between the customer name /
+          vehicle count and the price."* It is handed down as a prop because
+          `useJobWeather` runs ONCE for the list; a row that fetched for itself
+          would be one metered address lookup per row.
+          It renders null on a job with no forecast, so the row is unchanged on
+          a booking past the horizon or at an address nothing could find. */}
+      <JobWeather period={weather} prefs={weatherRules} />
       <span className="figure sm">{money(booking.final_amount ?? booking.total_price)}</span>
     </button>
   );

@@ -182,11 +182,43 @@ export const appEs = {
   "nothing booked": "nada agendado",
   "{left} of {total} still to do": "{left} de {total} por hacer",
   "Jobs today": "Trabajos de hoy",
-  // The weather line under the date. The NWS's own words for the sky are NOT
+  // WEATHER PER BOOKING — 2026-09-13. The NWS's own words for the sky are NOT
   // in here on purpose — they arrive in English from a US government service
   // and a catalogue entry for them would be us inventing a forecast.
-  "Show today’s weather": "Ver el clima de hoy",
-  "{pct}% rain": "{pct}% de lluvia",
+  // (The old "Show today’s weather" and "{pct}% rain" went with the line under
+  // the date; Andrew asked for weather ON A BOOKING instead.)
+  "{pct}% chance of rain": "{pct}% de probabilidad de lluvia",
+  // The six kinds, their shipped wording, and the settings screen.
+  "Thunderstorms": "Tormentas eléctricas",
+  "Rain": "Lluvia",
+  "Snow or ice": "Nieve o hielo",
+  "High wind": "Viento fuerte",
+  "Too hot": "Demasiado calor",
+  "Too cold": "Demasiado frío",
+  "Weather warnings": "Avisos del clima",
+  "{count} of {total} on": "{count} de {total} activados",
+  "Nothing": "Nada",
+  "Each booking shows the forecast for its own date and address. These decide when it also gets a warning.":
+    "Cada reserva muestra el pronóstico de su propia fecha y dirección. Esto decide cuándo además recibe un aviso.",
+  "The sky": "El cielo",
+  "Only when the chance is at least this high.": "Solo cuando la probabilidad llegue a esto.",
+  "Chance of rain": "Probabilidad de lluvia",
+  "Wind speed": "Velocidad del viento",
+  "Temperature": "Temperatura",
+  "Both are in Fahrenheit, and both are about the person doing the work rather than the car.":
+    "Ambos están en Fahrenheit y ambos tratan de la persona que hace el trabajo, no del carro.",
+  "Warn when it is hotter than": "Avisar cuando haga más calor que",
+  "Warn when it is hot": "Avisar cuando haga calor",
+  "Hot above": "Calor por encima de",
+  "Warn when it is colder than": "Avisar cuando haga más frío que",
+  "Warn when it is cold": "Avisar cuando haga frío",
+  "Cold below": "Frío por debajo de",
+  "Your own wording": "Sus propias palabras",
+  "{count} changed": "{count} cambiadas",
+  "The wording we ship": "Las palabras que traemos",
+  "Leave a box empty to use ours. {temp} becomes the temperature.":
+    "Deje una casilla vacía para usar las nuestras. {temp} se convierte en la temperatura.",
+  "Save weather warnings": "Guardar avisos del clima",
   "Expected": "Esperado",
   "{amount} collected": "{amount} cobrado",
   "Nothing collected yet": "Aún no has cobrado nada",

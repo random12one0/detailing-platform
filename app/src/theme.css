@@ -792,34 +792,71 @@ a { color: var(--accent-text); text-decoration: none; }
    sheet"). Check any new bare class name here the same way — and note this
    comment writes the old name without its dot on purpose, so it does not
    trip that grep itself. */
-/* ------------------------------------------------- THE DAY'S WEATHER
-   One line under the date, and everything about it is sized to stay a line.
-   `--t-meta` and `--muted` are the same type the masthead's own subline takes,
-   because it is the same kind of fact: something true of the DAY.
+/* --------------------------------------------- WEATHER, PER BOOKING
+   Andrew, 2026-09-13: *"It was so you could see the weather on your upcoming
+   bookings."* The line that used to live here printed today's sky under the
+   date and is gone — a weather line about the DAY is a worse version of the
+   app already on his phone.
 
-   IT WRAPS RATHER THAN TRUNCATES. The NWS writes its own sentences ("Patchy
-   Fog then Partly Sunny") and they are occasionally long; an ellipsis on a
-   forecast can cut the half that mattered, and a second line on the days that
-   need one is cheaper than a wrong summary. At 392 the ordinary case measures
-   one line.
+   ── THE CHIP, ON A ROW ─────────────────────────────────────────────────────
+   It sits between the job and the price (`JobRow`), so everything about it is
+   sized to take as little of that gap as it can: `--t-meta`, tabular figures
+   so a column of temperatures lines up, and `flex-shrink: 0` because the row's
+   text is what is allowed to truncate, never the number.
 
-   THE ICON DOES NOT SHRINK — a 16px lucide glyph in a flex row is the classic
-   place a flex-basis squashes an icon into an oval. */
-.weather-line {
-  display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
-  margin-top: 6px; font-size: var(--t-meta); color: var(--muted); line-height: 1.4;
+   **A WARNED CHIP IS BRIGHTER, NOT RED.** `--bad` means *this destroys
+   something* in this product (CLAUDE.md § SCREEN RULES) and is on Delete and
+   nothing else. Rain on Thursday is not destruction, so the difference is
+   contrast: quiet is `--muted`, warned is full `--text`. It reads at a glance
+   and spends no colour reserved for something worse.
+
+   THE ICON DOES NOT SHRINK — a lucide glyph in a flex row is the classic place
+   a flex-basis squashes a circle into an oval. */
+.jw {
+  display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0;
+  font-size: var(--t-meta); color: var(--muted); line-height: 1;
 }
-.weather-line > svg { flex: 0 0 auto; color: var(--muted); }
-/* THE OFFER, BEFORE ANYBODY HAS GRANTED A LOCATION. `ghost inline` already
-   makes it borderless and content-width; the negative left margin only pulls
-   the glyph back into line with the sentence above it, so the offer occupies
-   the same column as the forecast it will be replaced by. */
-.weather-line > .btn.sm { margin-left: calc(var(--sp-4) * -1); color: var(--muted); }
-.weather-line > .btn.sm:hover:not(:disabled) { color: var(--text); }
-/* The chance of rain and the permission sentence are both the SECOND thing on
-   the line, so they take the dimmer of the two tones and sit apart from the
-   forecast rather than running into it. */
-.weather-line .quiet { font-size: var(--t-meta); }
+.jw > svg { flex: 0 0 auto; }
+.jw-t { font-family: var(--f-num); font-variant-numeric: tabular-nums; }
+/* The one word, and only when there is one. It is allowed to disappear before
+   the temperature does, because the number is the fact and the word is the
+   flag — and on the narrowest screen the record is a tap away. */
+.jw-w { white-space: nowrap; }
+.jw.warned { color: var(--text); }
+/* ON THE NAME'S OWN LINE, THE SAME 3px THE AMOUNT BESIDE IT TAKES. `.row-item`
+   centres its children across two lines, which put the chip half a line below
+   the name and level with the services underneath — beside the price but not
+   ON it. Measured, not chosen: the figure rule two hundred lines up solved
+   exactly this and the number is its number. */
+.row-item > .jw { align-self: flex-start; margin-top: 3px; }
+
+/* ── THE WORD GOES AT THE 320 FLOOR, AND THE NUMBER STAYS ────────────────────
+   MEASURED at 320, not reasoned about: the chip reads 91px wide with the word
+   on it, and `.row-item .sub`'s ellipsis ate the surname — "Tom Okafor" became
+   "Tom". **A customer's name is the row's primary fact and the weather is a
+   courtesy**, so on the narrowest supported screen the courtesy gives way
+   first. The temperature stays because it is four characters, the icon still
+   says WHICH kind of warning it is, and the record one tap away carries the
+   whole sentence. Nothing is hidden that is not reachable.
+   360 rather than 320 because that is this product's own floor breakpoint
+   (§ THE 320 FLOOR) and a second threshold would be a second layout. */
+@media (max-width: 360px) {
+  .row-item > .jw .jw-w { display: none; }
+}
+
+/* ── THE SAME FORECAST, INSIDE THE RECORD ──────────────────────────────────
+   A row is scanned and a record is read, so this is the form that carries the
+   NWS's own sentence and EVERY warning rather than the most serious one.
+   It wraps rather than truncates: they write their own prose ("Patchy Fog then
+   Partly Sunny") and an ellipsis on a forecast can cut the half that mattered. */
+.jw-full { margin-top: 2px; }
+.jw-line {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+  font-size: var(--t-meta); color: var(--muted); line-height: 1.4;
+}
+.jw-line > svg { flex: 0 0 auto; }
+.jw-line.warned { color: var(--text); }
+.jw-warn { font-size: var(--t-meta); color: var(--text); line-height: 1.4; }
 
 .dayrail { position: relative; padding-left: 26px; }
 /* The rail starts BELOW the section label — the label names the run, it is

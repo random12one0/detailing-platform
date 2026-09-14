@@ -16,7 +16,7 @@
 // Every booking WRITE goes through the update-booking edge function
 // (validation + conflict checks server-side).
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Bell, CalendarPlus, Check, CheckCircle2, CreditCard, MessageSquare, MessageSquareQuote, Navigation, Phone, UserPlus, X } from "lucide-react";
 import { api, icsUrl } from "../lib/api.js";
 import { calendarUrlFor, loadPrefs, saveContact } from "../lib/platform.js";
@@ -32,6 +32,8 @@ import Sheet from "./Sheet.jsx";
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
 import { getAppLocale, t } from "../lib/appI18n.js";
+import JobWeather from "./JobWeather.jsx";
+import { useJobWeather } from "../hooks/useJobWeather.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 
 // One vocabulary for the values a person reads, so the same booking does
@@ -154,6 +156,15 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
     booking.service_type === "mobile" && booking.customer_address
       ? booking.customer_address
       : business.dropoff_address;
+
+  // WEATHER FOR THIS ONE JOB — Andrew, 2026-09-13: *"also inside the booking
+  // details."* One booking is one list of one, so the same hook the day
+  // screens use covers it and the caches are shared: opening a record for a job
+  // whose row already showed a chip costs no request at all.
+  // A stable one-element list. `[booking]` written inline is a new array on
+  // every render, which would restart the hook's effect for ever.
+  const justThis = useMemo(() => [booking], [booking]);
+  const { weather: jobWeather, prefs: weatherRules } = useJobWeather(justThis);
 
   // ── ROADMAP 8.19 / IDEA 06 — "ON MY WAY" IS A BUTTON NOW ─────────────
   //
@@ -338,6 +349,11 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
             <div className="card tight">
               <p>{t(booking.service_type === "mobile" ? "Mobile" : "Drop-off")}</p>
               {address && <p className="quiet">{address}</p>}
+              {/* THE SKY OVER THIS ADDRESS ON THIS DAY, directly under the
+                  address it is about — Andrew, 2026-09-13. The record is where
+                  EVERY warning shows rather than only the most serious one: a
+                  row is scanned and this is read. */}
+              <JobWeather period={jobWeather.get(booking.id)} prefs={weatherRules} full />
               <p className="muted">
                 {(booking.services ?? []).map((s) => s.name_at_booking).join(", ")}
                 {(booking.booking_add_ons ?? []).length > 0 &&

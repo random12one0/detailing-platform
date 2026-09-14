@@ -17,6 +17,7 @@ import { mapsUrl, money, time12 } from "../lib/format.js";
 // translated text: once at the root works only until something is memoised.
 import { t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
+import JobWeather from "./JobWeather.jsx";
 
 const STATUS_LABEL = {
   confirmed: "Confirmed", completed: "Completed",
@@ -38,7 +39,7 @@ const LIVE_LABEL = { now: "Happening now", next: "Up next" };
 
 export default function BookingCard({
   booking, onClick, isNext = false, live = null,
-  onMarkComplete, onFinalize, dense = false, rail = "",
+  onMarkComplete, onFinalize, dense = false, rail = "", weather, weatherRules,
 }) {
   useAppLocale();
   const services = (booking.services ?? []).map((s) => s.name_at_booking).filter(Boolean);
@@ -82,6 +83,12 @@ export default function BookingCard({
               {t(live ? LIVE_LABEL[live] : (STATUS_LABEL[booking.status] ?? booking.status))}
             </span>
             {booking.payment_status === "paid" && <span className="pill paid">{t("Paid")}</span>}
+            {/* THE SKY, IN THE STRIP THAT ALREADY SAYS WHAT KIND OF JOB THIS
+                IS — 2026-09-13. It is the same class of fact as *Mobile* and
+                the status, so it wraps with them rather than opening a line of
+                its own; on a lit job with nothing to warn about it is a
+                temperature and no more. */}
+            <JobWeather period={weather} prefs={weatherRules} />
           </div>
 
           {services.length > 0 && <div className="body">{services.join(" · ")}</div>}

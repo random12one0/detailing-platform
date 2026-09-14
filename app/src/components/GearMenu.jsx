@@ -29,7 +29,7 @@
 // that column from a boolean into the permission's own name.
 
 import { useCallback, useEffect, useState } from "react";
-import { Bell, Building2, ChevronRight, Compass, CreditCard, KeyRound, LifeBuoy, LogOut, MessageSquare, Shield, Smartphone, UserPlus, Users, X } from "lucide-react";
+import { Bell, Building2, ChevronRight, CloudSun, Compass, CreditCard, KeyRound, LifeBuoy, LogOut, MessageSquare, Shield, Smartphone, UserPlus, Users, X } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { GRAND_STEPS } from "./Walkthrough.jsx";
@@ -41,6 +41,7 @@ import { SUPPORT_EMAIL, SUPPORT_SHORT } from "../lib/support.js";
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
 import { appIntlLocale, t } from "../lib/appI18n.js";
+import { WEATHER_KINDS, weatherPrefs } from "../lib/weather.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 import AppLanguagePicker from "./AppLanguagePicker.jsx";
 
@@ -79,6 +80,17 @@ function billingNow(sub) {
   if (!next) return t(yearly ? "{amount} a year" : "{amount} a month", { amount });
   return t(yearly ? "{amount} a year · next {date}" : "{amount} a month · next {date}",
     { amount, date: next });
+}
+
+// WHAT WOULD INTERRUPT YOU, WHICH IS THE FACT SOMEBODY OPENS THAT ROW TO
+// CHECK — and it is deliberately the same shape as Notifications' own summary
+// two rows above it rather than a second way of counting the same thing.
+function weatherNow(settings) {
+  const p = weatherPrefs(settings?.weather_prefs);
+  const on = WEATHER_KINDS.filter((k) => p.on[k.key]).length;
+  return on === 0
+    ? t("Nothing")
+    : t("{count} of {total} on", { count: on, total: WEATHER_KINDS.length });
 }
 
 // See the `settings` block in Walkthrough.jsx. Rows not listed here are not
@@ -190,6 +202,10 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
     ["notifications", "Notifications", Bell,
       emailsOn === null ? "…" : t("{count} of 5 emails on", { count: emailsOn }), "settings"],
     ["templates", "Message templates", MessageSquare, "Texts you send from a job", null],
+    // WEATHER PER BOOKING — 2026-09-13. The summary is the one fact somebody
+    // opens this row to check: WHAT would interrupt them, not "manage your
+    // weather settings", which is the label saying itself twice.
+    ["weather", "Weather warnings", CloudSun, weatherNow(settings), "settings"],
     ["team", "Team", Users,
       team === null ? "—" : t(team === 1 ? "1 person" : "{count} people", { count: team }), "owner"],
     // ROADMAP 2.20 STAGE 2. The row's summary is deliberately the one fact a

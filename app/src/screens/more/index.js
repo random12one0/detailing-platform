@@ -57,6 +57,7 @@ import Billing from "./Billing.jsx";
 import Hours from "./Hours.jsx";
 import BookingRules from "./BookingRules.jsx";
 import Notifications from "./Notifications.jsx";
+import Weather from "./Weather.jsx";
 import MessageTemplates from "./MessageTemplates.jsx";
 import Team from "./Team.jsx";
 import Preferences from "./Preferences.jsx";
@@ -88,6 +89,10 @@ export const SCREENS = {
   hours: [Hours, "Hours & days off"],
   rules: [BookingRules, "Booking rules"],
   notifications: [Notifications, "Notifications"],
+  // WEATHER WARNINGS — Andrew, 2026-09-13. On the GEAR rather than Business,
+  // and it passes that admission test outright: a threshold changes what the
+  // DETAILER is told about their own day and nothing a customer ever meets.
+  weather: [Weather, "Weather warnings"],
   templates: [MessageTemplates, "Message templates"],
   team: [Team, "Team"],
   billing: [Billing, "Your subscription"],
