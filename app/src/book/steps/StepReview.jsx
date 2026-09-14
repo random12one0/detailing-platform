@@ -127,6 +127,43 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
               ? t("Drop-off · {address}", { address: business.dropoff_address })
               : t("Drop-off"))}
         </p>
+        {/* ---------------------------------------------------------------
+            THE SKY, FOR THE HOUR AND THE PLACE THEY JUST PICKED.
+            ---------------------------------------------------------------
+            Andrew's idea, 2026-09-13, and it sits here — under the day, the
+            time and the address — because it is a fact ABOUT that line rather
+            than a new subject.
+
+            **NO WARNINGS ON THE CUSTOMER'S SIDE, AND THIS IS THE ONE RULE TO
+            KEEP.** The detailer's rows say "Too hot" and "Rain" because those
+            change what he loads into the van. A customer reading "rain
+            expected" with their thumb over Confirm is being handed a reason to
+            abandon the booking, about weather that may well have changed by
+            the day. So: the condition and the number, in the National Weather
+            Service's own words, and nothing that reads as a caution.
+            `calculate-booking` returns only those two fields — the warnings
+            are not filtered out here, they never arrive.
+
+            IT IS ABSENT MORE OFTEN THAN PRESENT and that is correct: a booking
+            past about six days out has no forecast, and one at an address
+            nothing has resolved yet has none either. Silence, never a guess
+            and never a "we don't know yet" line. */}
+        {quote?.weather && (
+          <p className="bk-muted" style={{ marginTop: 2 }}>
+            {/* "Forecast · Sunny, 76°" — the word FORECAST is doing real work,
+                and it is the one thing the line could not do without. Without
+                it, "Sunny · 76°" under an address reads as a promise about the
+                day rather than as what somebody currently expects, and a
+                customer who arrives to rain has been told something untrue by
+                us. `shortForecast` stays in the National Weather Service's own
+                words on a Spanish page for the same reason the record does:
+                rewriting it would be inventing a forecast. */}
+            {t("Forecast · {condition}, {temp}°", {
+              condition: quote.weather.shortForecast,
+              temp: quote.weather.temperature,
+            })}
+          </p>
+        )}
       </div>
 
       {/* WHO WE ARE COMING TO, AND WHAT IN — testing loop F-007, 2026-09-06.

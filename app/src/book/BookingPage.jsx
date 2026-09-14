@@ -264,7 +264,12 @@ function BookingFlow({ notFound = null }) {
     try {
       const r = await api.calculateBooking(slug, quoteRequest(form, { planId, promoApplied: promoState.applied }));
       if (!r?.quote) throw new Error(t("We couldn't work out a price for that selection."));
-      setQuote(r.quote);
+      // THE WEATHER RIDES ALONG ON THE QUOTE rather than in a second piece of
+      // state, because it is answered by the same call, changes on exactly the
+      // same facts, and is shown on the same card. `r.weather` is null far more
+      // often than not — a booking past the forecast, or a place nothing has
+      // resolved — and the confirm step renders nothing for it.
+      setQuote({ ...r.quote, weather: r.weather ?? null });
     } catch (e) {
       setQuote(null);
       setQuoteError(e.message || t("We couldn't work out a price just now."));

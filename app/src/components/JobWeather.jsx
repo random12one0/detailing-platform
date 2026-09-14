@@ -29,30 +29,89 @@
 // *unknown* on every job three weeks out is noise, and silence is honest.
 
 import {
-  CloudLightning, CloudRain, CloudSnow, CloudSun, Sun, Thermometer, Wind,
+  Cloud, CloudDrizzle, CloudFog, CloudLightning, CloudMoon, CloudRain, CloudSnow,
+  CloudSun, Moon, Snowflake, Sun, ThermometerSnowflake, ThermometerSun, Wind,
 } from "lucide-react";
 import { weatherWarnings } from "../lib/weather.js";
 import { t } from "../lib/appI18n.js";
 
-// One icon per warning, and a default for a job with nothing to say. The
-// temperature warnings share a thermometer because the distinction that
-// matters (too hot, too cold) is already in the number beside it.
-const ICONS = {
-  storm: CloudLightning, rain: CloudRain, snow: CloudSnow,
-  wind: Wind, hot: Thermometer, cold: Thermometer,
+// ---------------------------------------------------------------------------
+// **ONE ICON PER WARNING KIND, ALL SIX DIFFERENT — Andrew, 2026-09-13.**
+// ---------------------------------------------------------------------------
+// *"Separate graphics and icons for each one."* Hot and cold shared a plain
+// thermometer until then, on the reasoning that the number beside it already
+// said which — but a detailer SCANNING a list is reading the glyph and not the
+// number, and two warnings that draw identically are one warning as far as a
+// glance is concerned. The six here are the six toggles on the Weather screen,
+// one to one.
+const WARN_ICONS = {
+  storm: CloudLightning, rain: CloudRain, snow: Snowflake,
+  wind: Wind, hot: ThermometerSun, cold: ThermometerSnowflake,
 };
+
+// ---------------------------------------------------------------------------
+// **AND EVERY BOOKING SHOWS ITS SKY, WARNING OR NO WARNING — his correction on
+// the same day, and it is the bigger half.**
+// ---------------------------------------------------------------------------
+// *"I still wanted to show the weather for every day. I just wanted [the
+// warning] to be, like, extra… every single one I want to see kind of the
+// weather, like, it'll be sunny, cloudy, rainy, the temperature at the specific
+// time that I'm going in the specific location."*
+//
+// The first build drew a generic sun on every unwarned job — so a quiet row
+// carried a temperature and a decoration, and the CONDITION, which is half of
+// what he asked for, was only visible when something was wrong with it.
+//
+// **FIRST MATCH WINS AND THE ORDER IS THE POINT.** The NWS writes "Partly
+// Sunny", "Mostly Cloudy", "Chance Rain Showers" — every one of which contains
+// a word a later rule also matches, so a set of independent tests would draw
+// "Mostly Sunny" as sun and "Slight Chance Rain Showers" as rain-or-sun
+// depending on nothing. Precipitation is tested before cover, and cover before
+// clear, because the more specific fact is the one worth a glyph.
+const CONDITIONS = [
+  [/thunder|tstorm/i, () => CloudLightning],
+  [/snow|sleet|ice|icy|flurr|blizzard|wintry/i, () => CloudSnow],
+  [/drizzle/i, () => CloudDrizzle],
+  [/rain|shower/i, () => CloudRain],
+  [/fog|haze|mist|smoke/i, () => CloudFog],
+  [/wind|breezy|blustery/i, () => Wind],
+  // "Partly"/"Mostly" is the sky with BOTH in it, so it keeps the paired glyph
+  // whichever noun follows — Partly Cloudy and Mostly Sunny are one picture.
+  [/partly|mostly/i, (day) => (day ? CloudSun : CloudMoon)],
+  [/cloud|overcast/i, () => Cloud],
+];
+
+/** The glyph for the sky itself. Their words are all we have — there is no
+ *  code in an NWS period — so this reads `shortForecast`, which is the phrase
+ *  the record prints underneath in full. */
+function conditionIcon(period) {
+  const words = String(period.shortForecast ?? "");
+  const day = period.isDaytime !== false;
+  for (const [re, pick] of CONDITIONS) if (re.test(words)) return pick(day);
+  return day ? Sun : Moon;
+}
 
 export default function JobWeather({ period, prefs, full = false }) {
   if (!period) return null;
   const warnings = weatherWarnings(period, prefs);
   const first = warnings[0];
-  const Icon = first ? ICONS[first.key] : (period.isDaytime ? Sun : CloudSun);
   const warned = warnings.length > 0;
+  // A WARNED ROW SHOWS THE WARNING'S OWN GLYPH, NOT THE SKY'S. On a wet or
+  // snowy job they are the same picture anyway; on a hot clear one the
+  // thermometer is the fact that changes what the detailer does, and two
+  // glyphs on one row is the banner he asked this not to become. The record
+  // below carries the condition sentence and every warning in full.
+  const Icon = first ? WARN_ICONS[first.key] : conditionIcon(period);
 
   if (!full) {
     return (
       <span className={`jw${warned ? " warned" : ""}`} title={first ? first.text : period.shortForecast}>
-        <Icon size={15} strokeWidth={2} aria-hidden="true" />
+        {/* THE GLYPH IS ITS OWN BOX so a warned chip can invert it into a
+            filled disc — shape as well as colour, which is what makes a
+            warning findable while scrolling rather than findable while
+            reading. `theme.css` § .jw carries the reasoning and the reason it
+            is not `--bad`. */}
+        <span className="jw-i"><Icon size={15} strokeWidth={2} aria-hidden="true" /></span>
         <span className="jw-t">{period.temperature}°</span>
         {/* THE WORD ONLY WHEN THERE IS ONE. A row is scanned, not read, so a
             quiet job gets a number and nothing else; a job worth a second
@@ -67,13 +126,17 @@ export default function JobWeather({ period, prefs, full = false }) {
   return (
     <div className="jw-full">
       <p className={warned ? "jw-line warned" : "jw-line"}>
-        <Icon size={16} strokeWidth={2} aria-hidden="true" />
+        <span className="jw-i"><Icon size={16} strokeWidth={2} aria-hidden="true" /></span>
         {/* THEIR WORDS FOR THE SKY, NOT OURS. `shortForecast` and `name` are
             the National Weather Service's own phrases and do not go through
             `t()`: they arrive in English from a US government service, and
             rewriting them into a catalogue would be inventing a forecast. The
             numbers are numbers and the words around them are ours. */}
-        <span>{period.name} · {period.temperature}° · {period.shortForecast}</span>
+        {/* AN HOURLY PERIOD HAS NO `name` — the twelve-hour one was called
+            "Tuesday" and this one is simply the hour the job starts, which the
+            row above it already says. Empty parts are dropped rather than
+            printed as a leading separator. */}
+        <span>{[period.name, `${period.temperature}°`, period.shortForecast].filter(Boolean).join(" · ")}</span>
       </p>
       {/* TEN, NOT ZERO. The NWS puts 1-4% on a great many cloudless afternoons,
           and *"4% chance of rain"* under a forecast that says Mostly Sunny is a

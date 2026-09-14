@@ -54,7 +54,7 @@ export type Period = {
   startTime: string;       // ISO, carrying the FORECAST POINT's offset, not ours
   endTime: string;
   isDaytime: boolean;
-  temperature: number;     // Fahrenheit — `units: "us"` is what they answer
+  temperature: number;     // Fahrenheit at THIS HOUR — never a day's high
   precipChance: number | null;  // percent, or null when they did not forecast one
   windSpeed: string;       // "5 to 10 mph" — their words, a range, not a number
   shortForecast: string;   // "Patchy Fog then Partly Sunny"
@@ -174,7 +174,17 @@ export async function forecast(
     return { ok: false, reason: "unavailable", status: point.status };
   }
 
-  const url = typeof props.forecast === "string" ? props.forecast : "";
+  // **THE HOURLY FORECAST, NEVER THE TWELVE-HOUR ONE — Andrew, 2026-09-13.**
+  // `props.forecast` answers twelve-hour periods whose `temperature` is that
+  // HALF-DAY'S HIGH, so a 9 AM job read 82° off an afternoon peak while the
+  // 2 PM job beside it read 77° — hotter in the morning than the afternoon,
+  // which is backwards — and the warning was judged on that same high, so a
+  // row could show a number under the detailer's threshold with the warning
+  // that threshold triggers sitting next to it. **One number, and it is the
+  // temperature at the hour the job starts.** `forecastHourly` is the same
+  // grid, the same shape and one call; there is deliberately NO fallback to
+  // the twelve-hour URL, because falling back silently restores the day high.
+  const url = typeof props.forecastHourly === "string" ? props.forecastHourly : "";
   // A 200 that does not carry a forecast URL is a shape we do not understand,
   // which is a failure to find out — not an absence of weather. And it must be
   // THEIR host: the URL we are about to fetch came out of a response body, so

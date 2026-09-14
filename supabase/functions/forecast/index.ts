@@ -53,6 +53,16 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { requireMember } from "../_shared/tenant.ts";
 import { forecast } from "../_shared/weather.ts";
+import { gridWeek } from "../_shared/weatherCache.ts";
+
+// THREE HOURS. The cache is shared by every caller and every tenant, so this
+// is not "how often may a screen ask" — it is how old an answer anybody gets
+// may be. The NWS revises an hourly forecast a few times a day; three hours is
+// inside that and still collapses a whole office's worth of views onto one
+// provider call. `refresh-weather` uses its own, tighter age on the day of a
+// job, and picking the smaller of the two is deliberate: this endpoint serves
+// a person who is looking at the screen right now.
+const VIEW_MAX_AGE_MS = 3 * 60 * 60 * 1000;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
@@ -64,6 +74,20 @@ Deno.serve(async (req) => {
     const member = await requireMember(req, businessId);
     if (!member) return json({ error: "not_found" }, 404);
 
+    // **THE CACHE FIRST, AND IT IS WHY A SECOND VIEW COSTS NOTHING.** Andrew,
+    // 2026-09-13: *"twenty jobs in the same town on the same day must cost ONE
+    // provider call, not twenty."* `gridWeek` rounds the point to about a
+    // kilometre, so the whole town is one row; a hit here never reaches the
+    // National Weather Service at all.
+    const la = Number(body.lat), lo = Number(body.lon);
+    if (Number.isFinite(la) && Number.isFinite(lo) && la >= -90 && la <= 90 && lo >= -180 && lo <= 180) {
+      const week = await gridWeek(la, lo, VIEW_MAX_AGE_MS);
+      if (week) return json({ ok: true, place: week.place, periods: week.periods });
+    }
+
+    // Only a point the cache could not serve — a bad one, or a grid nobody has
+    // asked about yet AND whose fetch just failed — falls through to the seam,
+    // which is where the three honest failures below come from.
     const result = await forecast(body.lat, body.lon);
 
     if (result.ok) return json(result);

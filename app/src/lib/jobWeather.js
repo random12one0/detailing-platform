@@ -42,7 +42,9 @@
 // ---------------------------------------------------------------------------
 // *"Forecasts only reach about 7-14 days out — bookings past that show
 // nothing, not an error and not a made-up number."* The NWS answers roughly
-// seven days of twelve-hour periods. A booking past the last period simply has
+// seven days of ONE-HOUR periods — hourly, so the number on a row is the
+// temperature at the hour the job starts rather than that half-day's high, and
+// the warning is judged on the same number. A booking past the last period has
 // no entry in the map this returns, and every screen renders nothing for it.
 // **There is deliberately no "we don't know yet" chip**: a row that says
 // nothing is honest, and a row that says *unknown* on every job three weeks out

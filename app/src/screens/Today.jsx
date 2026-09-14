@@ -36,7 +36,7 @@
 // of screen for a five-job day. Everything else is a row, which makes "one
 // thing lit" a matter of FORM rather than colour.
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { ChevronRight, ListChecks, TriangleAlert } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
@@ -51,7 +51,6 @@ import { addDays, money, time12, todayLocal } from "../lib/format.js";
 import BookingCard from "../components/BookingCard.jsx";
 import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
 import BookingLink from "../components/BookingLink.jsx";
-import DaySheet from "../components/DaySheet.jsx";
 import { useJobWeather } from "../hooks/useJobWeather.js";
 import FinalizeModal from "../components/FinalizeModal.jsx";
 import JobRow from "../components/JobRow.jsx";
@@ -70,7 +69,27 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
   const { business, firstName, can, subscription, siteOrigin } = useBusiness();
   const today = todayLocal(business.timezone);
   const tomorrow = addDays(today, 1);
-  const { bookings, loading, refreshing, error, reload } = useBookings(today, tomorrow);
+  // ---------------------------------------------------------------------------
+  // **TODAY IS NOT ONLY TODAY — Andrew, 2026-09-13, and it is the bigger miss.**
+  // ---------------------------------------------------------------------------
+  // *"If there's nothing I'm doing today and it's just empty, there's no point.
+  // I'd rather actually see, okay, here's the appointment, here's the
+  // appointment coming up in future days."* And the half that stops this being
+  // an empty state: *"even if I do have some appointments on the day, I still
+  // want to see future ones… I still want to see my upcoming appointments."*
+  //
+  // **SO THE WINDOW WIDENS RATHER THAN A SECOND HOOK APPEARING.** `useBookings`
+  // already takes a range and already pads it; a second call would be a second
+  // read, a second loading flag and a second thing to keep in step. Everything
+  // below still filters by `booking_date`, which is what it did when the window
+  // was two days wide.
+  //
+  // FOURTEEN DAYS, and the number is chosen against the forecast rather than
+  // taste: the NWS reaches about seven, so a fortnight shows a week of jobs
+  // carrying weather and a week carrying none — which is the honest picture of
+  // what is known. Past that a list is a calendar, and the Calendar is a tab.
+  const horizon = addDays(today, 14);
+  const { bookings, loading, refreshing, error, reload } = useBookings(today, horizon);
   // WEATHER PER BOOKING — Andrew, 2026-09-13. ONE call for the whole day's
   // work, handed to each row as a prop; `useJobWeather` is what must never be
   // reached for from inside a row.
@@ -84,7 +103,6 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
   const wide = useWide(1180);   // the future takes a column of its own
   const [selected, setSelected] = useState(null);
   const [finalizing, setFinalizing] = useState(null);
-  const [dayOpen, setDayOpen] = useState(null);
   const [creating, setCreating] = useState(null);
   const [busyId, setBusyId] = useState(null);
   const [slots, setSlots] = useState(null);
@@ -128,7 +146,13 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
   useEffect(() => { if (refreshKey) reload(); }, [refreshKey]);
 
   const todays = bookings.filter((b) => b.booking_date === today && b.status !== "cancelled");
-  const tomorrows = bookings.filter((b) => b.booking_date === tomorrow && b.status !== "cancelled");
+  // EVERYTHING AFTER TODAY, in the order the hook already returned them, and
+  // grouped by day so the separation he asked for is a heading rather than a
+  // rule: *"obviously they'll be separated or whatever."*
+  const upcoming = bookings.filter((b) => b.booking_date > today && b.status !== "cancelled");
+  const upcomingDays = [...new Map(
+    upcoming.map((b) => [b.booking_date, null]),
+  ).keys()].map((d) => [d, upcoming.filter((b) => b.booking_date === d)]);
 
   const expected = todays.reduce((s, b) => s + Number(b.final_amount ?? b.total_price), 0);
   const collected = todays
@@ -328,6 +352,44 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
   // collection of records is; a card is *"for an object you pick between or act
   // on one at a time"*, which is exactly the first one and exactly not the rest.
   // The row opens the record, where Accept and Decline live in its own bar.
+  // ---------------------------------------------------------------------------
+  // **COMING UP — one element, rendered in one of two places.**
+  // ---------------------------------------------------------------------------
+  // The same discipline `requestQueue` keeps six lines below: `!wide` puts it
+  // under the day in the first column, `wide` puts it in the second, and one
+  // document never holds both. Two copies of this JSX is how the desk's and the
+  // phone's drift apart — this file's own header records that happening to
+  // JobRow.
+  //
+  // **IT IS ALWAYS THERE WHEN THERE IS ANYTHING TO PUT IN IT**, which is his
+  // correction: not an empty state, not a fallback for a quiet day. A detailer
+  // with three jobs today still sees what is coming without opening a tab.
+  //
+  // EVERY ROW IS A `JobRow`, WHICH IS WHERE THE WEATHER ALREADY LIVES. The
+  // forecast reaches these rows for free: `useJobWeather` is called once with
+  // the whole `bookings` list, which now spans the fortnight, so an upcoming
+  // list costs no lookup that today's list was not already paying for. The
+  // addresses collapse to one geocode each and the grids to one forecast each.
+  const comingUp = upcomingDays.length > 0 && (
+    <div className="tight" data-tour="comingup">
+      <h2 className="label">{t("Coming up")}</h2>
+      {upcomingDays.map(([date, jobs]) => (
+        <Fragment key={date}>
+          {/* THE DAY IS A ROW OF WORDS, NOT A SECOND EYEBROW. CLAUDE.md
+              § SCREEN RULES: `.lab` is a SECTION eyebrow and one per section —
+              "Coming up" is that eyebrow, and a second one per day would be
+              five more on one screen. This is the date in prose at meta size,
+              the same weight the sub-line under a name takes. */}
+          <p className="jw-day">{date === tomorrow ? t("Tomorrow") : shortDate(date)}</p>
+          {jobs.map((b) => (
+            <JobRow key={b.id} booking={b} weather={weather.get(b.id)}
+              weatherRules={weatherRules} onClick={() => setSelected(b)} />
+          ))}
+        </Fragment>
+      ))}
+    </div>
+  );
+
   const requestQueue = (
     <div className="tight" data-tour="requests">
       <h2 className="label">
@@ -572,7 +634,7 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
       {/* A detailer with no bookings needs the thing that GETS them, not a
           button for typing one in by hand. One sentence and one way forward,
           and it never restates the masthead's own "nothing booked". */}
-      {empty && tomorrows.length === 0 && requests.length === 0 && (
+      {empty && upcoming.length === 0 && requests.length === 0 && (
         /* `emptyscreen` — `docs/final-pass.md` finding 3, measured
            2026-09-06: a brand-new Today ended 256px down a 900px viewport,
            which reads as a screen still loading rather than a day with
@@ -617,17 +679,11 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
           and the point of the rail is that it ends. On a phone it is one row:
           a driveway does not need tomorrow's detail, only that it exists and
           can be looked at. At a desk it is the right column's second block. */}
-      {!wide && tomorrows.length > 0 && (
-        <button className="row-item" onClick={() => setDayOpen(tomorrow)}>
-          <span className="txt">
-            <span className="nm">{t("Tomorrow")}</span>
-            <span className="sub">
-              {tomorrows.length} job{tomorrows.length === 1 ? "" : "s"}, first at {time12(tomorrows[0].start_time)}
-            </span>
-          </span>
-          <ChevronRight size={18} strokeWidth={2} />
-        </button>
-      )}
+      {/* IT REPLACED A ONE-LINE "Tomorrow · 2 jobs, first at 9:00 AM" SUMMARY,
+          rather than sitting under it. Keeping both would print tomorrow's
+          jobs twice on one screen, and the summary's own job — knowing there
+          is something tomorrow — is done better by the jobs themselves. */}
+      {!wide && comingUp}
 
       {/* THE RE-BOOK PROMPT — roadmap 2.19, and it is LAST on purpose. Today
           is the day's work; people who have not been back are not today's
@@ -671,17 +727,12 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
               header records that failure happening to JobRow. One
               `requestQueue`, rendered in one of two places. */}
           {requests.length > 0 && requestQueue}
-          {tomorrows.length > 0 && (
-            <div className="tight">
-              <h2 className="label">{t("Tomorrow")}</h2>
-              {tomorrows.map((b) => (
-                <button className="settled-row" key={b.id} onClick={() => setSelected(b)}>
-                  <span className="nm">{time12(b.start_time)} · {b.customer_name}</span>
-                  <span className="figure sm">{money(b.final_amount ?? b.total_price)}</span>
-                </button>
-              ))}
-            </div>
-          )}
+          {/* THE COLUMN WAS ALREADY "the future" — it held tomorrow and nothing
+              else, so this is the same block reaching further rather than a new
+              one. The compact `.settled-row` it used carried no weather; a
+              `JobRow` does, which is what makes every upcoming row carry its
+              sky the way today's rows do. */}
+          {comingUp}
           {slots !== null && (
             <div className="tight" data-tour="ahead">
               <h2 className="label">{t("The next 7 days")}</h2>
@@ -709,13 +760,6 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
       {finalizing && (
         <FinalizeModal booking={finalizing} onClose={() => setFinalizing(null)}
           onDone={() => { setFinalizing(null); reload(); }} />
-      )}
-      {dayOpen && (
-        <DaySheet date={dayOpen} bookings={tomorrows}
-          onClose={() => setDayOpen(null)}
-          onOpenBooking={(b) => { setDayOpen(null); setSelected(b); }}
-          onNewBooking={(d) => { setDayOpen(null); setCreating(d); }}
-          onChanged={reload} />
       )}
       {creating && (
         <NewBookingModal initialDate={creating} onClose={() => setCreating(null)}

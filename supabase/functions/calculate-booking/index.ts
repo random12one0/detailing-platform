@@ -5,7 +5,7 @@
 //
 // Input: { business_slug, service_ids[], add_ons[], vehicle_size,
 //          applied_promo_code?, service_type?, travel_zone?,
-//          booking_date?, start_time? }
+//          booking_date?, start_time?, customer_address? }
 //
 // The last four arrived with roadmap 2.8c and every one of them is optional,
 // because the price bar is on screen from step 1 and the customer has not
@@ -17,6 +17,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { businessBySlug, getSettings } from "../_shared/tenant.ts";
+import { cachedGrid, jobAddress, periodAt, pointFor } from "../_shared/weatherCache.ts";
 import {
   computeQuote, matchPriceRules, planInputFor, resolveAddOns, resolvePlan,
   resolvePromo, resolveServices, resolveTravel, resolveVehicles, whenContextFor,
@@ -86,8 +87,30 @@ Deno.serve(async (req) => {
       plan: planInputFor(plan),
     });
 
+    // -------------------------------------------------------------------------
+    // THE SKY ON THE CONFIRM STEP — Andrew's idea, 2026-09-13, with one change.
+    // -------------------------------------------------------------------------
+    // **THE CUSTOMER SEES THE CONDITION AND THE TEMPERATURE AND NOTHING ELSE.
+    // No warnings, ever.** The warnings exist to help a DETAILER plan his day;
+    // showing somebody "rain expected" at the exact moment they are about to
+    // press Confirm is an invitation to abandon the booking. Neutral
+    // information, no alarm, no warning icons. That is why this returns two
+    // fields rather than the period, and why `weatherWarnings` is not imported
+    // here — a later session reaching for it has to notice this paragraph.
+    //
+    // **AND IT NEVER CALLS A PROVIDER.** `cachedGrid` reads and does not fetch;
+    // `pointFor` answers from `address_points` and only geocodes an address
+    // nobody has ever resolved — and a customer who picked their address from
+    // this flow's own autocomplete has already put it there. A miss returns
+    // nothing at all, which every screen renders as silence. A public endpoint
+    // that could reach the National Weather Service on demand would be a new
+    // metered surface open to the world; this is the same shared cache the
+    // detailer's own screens read.
+    const weather = await confirmWeather(business, settings, body);
+
     return json({
       success: true,
+      weather,
       quote: {
         base_price: quote.basePrice,
         vehicle_size_fee: quote.sizeAdd,
@@ -132,3 +155,36 @@ Deno.serve(async (req) => {
     return json({ success: false, error: (err as Error).message }, 500);
   }
 });
+
+/** `{ temperature, shortForecast }` for the hour a customer is about to book,
+ *  or null. Cache-only by design — see the block that calls it. */
+async function confirmWeather(
+  // deno-lint-ignore no-explicit-any
+  business: any, _settings: unknown, // deno-lint-ignore no-explicit-any
+  body: any,
+): Promise<{ temperature: number; shortForecast: string } | null> {
+  try {
+    const date = String(body.booking_date ?? "");
+    const time = String(body.start_time ?? "");
+    if (!date || !time) return null;
+
+    const address = jobAddress(
+      { service_type: body.service_type, customer_address: body.customer_address },
+      business.dropoff_address ?? null,
+    );
+    if (!address) return null;
+
+    const point = await pointFor(address);
+    if (!point) return null;
+    const grid = await cachedGrid(point.lat, point.lon);
+    if (!grid) return null;
+
+    const at = localDateTimeToInstant(business.timezone, date, time);
+    const period = periodAt(grid.periods, at.toISOString());
+    if (!period) return null;
+    return { temperature: period.temperature, shortForecast: period.shortForecast };
+  } catch {
+    // A courtesy line about the weather never breaks a quote.
+    return null;
+  }
+}

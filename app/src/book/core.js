@@ -1210,6 +1210,12 @@ export function quoteRequest(form, { planId, promoApplied } = {}) {
     // the surcharge appears with the day it depends on.
     booking_date: form.bookingDate || undefined,
     start_time: form.startTime || undefined,
+    // THE ADDRESS CHANGES NO PRICE — the travel FEE is decided by
+    // `travel_zone` above and always was. This is here for the weather line on
+    // the confirm step, which needs a PLACE as well as an hour, and it is sent
+    // on the same call rather than on a second one because the quote already
+    // re-runs on every fact the confirm step shows.
+    customer_address: form.customerAddress || undefined,
     plan_id: planId || undefined,
     // ROADMAP 8.10. On a split booking the figure on the bar is the SUM of
     // the separate bookings that will be made, so the server has to be told
@@ -1222,6 +1228,13 @@ export function quoteRequest(form, { planId, promoApplied } = {}) {
 export const quoteKey = (form, { planId, promoApplied } = {}) => JSON.stringify([
   form.serviceIds, form.addOns, form.vehicleSize, promoApplied || null,
   form.serviceType, form.travelZone, form.bookingDate, form.startTime, planId || "",
+  // THE ADDRESS, BUT ONLY ONCE A DAY HAS BEEN PICKED. It changes no price —
+  // the travel FEE is `travelZone` two fields back — and it is here solely so
+  // that going BACK to correct the address updates the weather line on the
+  // confirm step. The guard is what stops that being one quote per KEYSTROKE:
+  // the address field updates on every character, and a customer only reaches
+  // a chosen day after they have finished typing it.
+  form.bookingDate ? (form.customerAddress || "") : "",
   // ROADMAP 8.10. A second car changes the price AND the duration, so leaving
   // it out of this list is a stale price on the bar and a stale length handed
   // to `available-slots` — the customer is offered a slot too short for the

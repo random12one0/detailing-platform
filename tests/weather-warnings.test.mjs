@@ -91,5 +91,30 @@ console.log("\n7 · NULL PREFS MEANS THE DEFAULTS WHOLE, never field by field");
   check("7d · a non-numeric threshold falls back", weatherPrefs({ hotAbove: "hot" }).hotAbove === 95);
 }
 
+console.log("\n8 · THE NUMBER SHOWN AND THE NUMBER JUDGED ARE ONE NUMBER");
+// **ANDREW SAW A ROW READING 77° BESIDE "Too hot" UNDER A THRESHOLD OF 80 —
+// 2026-09-13.** The cause was upstream (the twelve-hour forecast hands back the
+// half-day HIGH, so both the chip and the rule read a number that was not the
+// temperature at the booking's hour), but the invariant a screen must never
+// break is this one: whatever temperature a row PRINTS, a hot warning may only
+// sit beside it when that printed number is at or above the detailer's own
+// threshold. This holds it from the judgement side.
+{
+  const hot80 = weatherPrefs({ hotAbove: 80 });
+  const has = (temp) => weatherWarnings({ ...sunny, temperature: temp }, hot80)
+    .some((w) => w.key === "hot");
+  check("8a · 77° under a threshold of 80 is NOT too hot", has(77) === false);
+  check("8b · 79° — one degree under — is NOT too hot", has(79) === false);
+  check("8c · 80° is the threshold and does warn", has(80) === true);
+  check("8d · 82° over the threshold warns", has(82) === true);
+
+  // AND THE PRINTED NUMBER IS THE JUDGED NUMBER. `JobWeather` renders
+  // `period.temperature` and passes the SAME period to `weatherWarnings`, so
+  // the sentence carries the figure the chip shows; a rule reading anything
+  // else would print a threshold-crossing number beside a row showing another.
+  const w = weatherWarnings({ ...sunny, temperature: 96 }, hot80).find((x) => x.key === "hot");
+  check("8e · the warning quotes the same temperature it judged", w?.text.startsWith("96°"));
+}
+
 console.log(`\nweather-warnings: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

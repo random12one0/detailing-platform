@@ -817,18 +817,54 @@ a { color: var(--accent-text); text-decoration: none; }
   font-size: var(--t-meta); color: var(--muted); line-height: 1;
 }
 .jw > svg { flex: 0 0 auto; }
+.jw-i { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+.jw-i > svg { flex: 0 0 auto; }
 .jw-t { font-family: var(--f-num); font-variant-numeric: tabular-nums; }
 /* The one word, and only when there is one. It is allowed to disappear before
    the temperature does, because the number is the fact and the word is the
    flag — and on the narrowest screen the record is a tap away. */
 .jw-w { white-space: nowrap; }
-.jw.warned { color: var(--text); }
+/* ── A WARNED CHIP IS A DIFFERENT SHAPE, NOT JUST A BRIGHTER ONE ────────────
+   ANDREW, 2026-09-13: *"make it super visually obvious that it's a warning…
+   and separate graphics and icons for each one."* Contrast alone was the rule
+   above and it was not enough — a muted chip and a bright chip are the same
+   OBJECT, so finding the warned job meant reading every row instead of seeing
+   one.
+
+   **COLOUR AND SHAPE, NEVER COLOUR ALONE** (his words, and the accessibility
+   floor this product already keeps): the chip gains a pill it did not have,
+   and the glyph inverts into a filled disc. Both are visible to somebody who
+   cannot tell the two greys apart, and the disc is the part that carries at
+   arm's length.
+
+   **AND STILL NOT --bad.** CLAUDE.md § SCREEN RULES: that colour means *this
+   destroys something*, it is on Delete and on nothing else, and rain on
+   Thursday is not destruction. The loudness here is bought with contrast and
+   geometry out of tokens this file already defines — no new colour, and
+   nothing borrowed from a meaning that is spoken for.
+
+   PROPORTIONATE: 20px of disc on a row that is 56px tall. It is still a
+   booking, not an alert. */
+.jw.warned {
+  color: var(--text);
+  background: var(--ink-3);
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  padding: 3px 9px 3px 3px;
+}
+.jw.warned .jw-i {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--bone); color: var(--ink-0);
+}
 /* ON THE NAME'S OWN LINE, THE SAME 3px THE AMOUNT BESIDE IT TAKES. `.row-item`
    centres its children across two lines, which put the chip half a line below
    the name and level with the services underneath — beside the price but not
    ON it. Measured, not chosen: the figure rule two hundred lines up solved
    exactly this and the number is its number. */
 .row-item > .jw { align-self: flex-start; margin-top: 3px; }
+/* The pill brings 3px of padding of its own, so the nudge that levelled a bare
+   glyph with the amount would sit a warned chip 3px low beside a quiet one. */
+.row-item > .jw.warned { margin-top: 0; }
 
 /* ── THE WORD GOES AT THE 320 FLOOR, AND THE NUMBER STAYS ────────────────────
    MEASURED at 320, not reasoned about: the chip reads 91px wide with the word
@@ -849,6 +885,18 @@ a { color: var(--accent-text); text-decoration: none; }
    NWS's own sentence and EVERY warning rather than the most serious one.
    It wraps rather than truncates: they write their own prose ("Patchy Fog then
    Partly Sunny") and an ellipsis on a forecast can cut the half that mattered. */
+/* ── THE DAY A COMING-UP GROUP BELONGS TO ───────────────────────────────────
+   NOT A SECOND `.lab`. CLAUDE.md § SCREEN RULES: the 11px uppercase eyebrow
+   marks where a SECTION begins, one per section — "Coming up" is that eyebrow,
+   and a second one above every day would be five more on one screen, which is
+   the setup-step-4 failure that rule was written about. This is the date in
+   prose at the same size the sub-line under a customer's name takes. */
+.jw-day {
+  margin: 12px 0 4px; font-size: var(--t-meta); color: var(--fog);
+  line-height: 1.2;
+}
+.jw-day:first-of-type { margin-top: 4px; }
+
 .jw-full { margin-top: 2px; }
 .jw-line {
   display: flex; align-items: center; flex-wrap: wrap; gap: 6px;

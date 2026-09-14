@@ -60,7 +60,12 @@ const stub = (script) => {
 
 const POINT_BODY = {
   properties: {
+    // **THE HOURLY URL IS THE ONE THE PRODUCT FOLLOWS.** The twelve-hour
+    // `forecast` stays in the fixture precisely so § 14 can prove it is
+    // ignored — a point body carrying only that one must not silently fall
+    // back to it, because the half-day HIGH is the bug Andrew found.
     forecast: "https://api.weather.gov/gridpoints/LOX/155,32/forecast",
+    forecastHourly: "https://api.weather.gov/gridpoints/LOX/155,32/forecast/hourly",
     relativeLocation: { properties: { city: "Long Beach", state: "CA" } },
   },
 };
@@ -130,7 +135,7 @@ const happy = (periods) => stub({
 // --- 5 · A MISSING RELATIVE LOCATION IS null, NOT A CRASH AND NOT "" -------
 {
   const f = stub({
-    "/points/": { status: 200, body: { properties: { forecast: POINT_BODY.properties.forecast } } },
+    "/points/": { status: 200, body: { properties: { forecastHourly: POINT_BODY.properties.forecastHourly } } },
     "/gridpoints/": { status: 200, body: { properties: { periods: [PERIOD] } } },
   });
   const r = await forecast(33.7701, -118.1937, f);
@@ -222,7 +227,7 @@ const happy = (periods) => stub({
     ["not a string", 42],
   ]) {
     const f = stub({
-      "/points/": { status: 200, body: { properties: { forecast: url } } },
+      "/points/": { status: 200, body: { properties: { forecastHourly: url } } },
       "example.com": { status: 200, body: { properties: { periods: [PERIOD] } } },
     });
     const r = await forecast(33.7701, -118.1937, f);
@@ -276,6 +281,42 @@ const happy = (periods) => stub({
   ok("12c · open-meteo.com is called from nowhere — its free tier is non-commercial",
     meteo.length === 0, meteo.join(", "));
 }
+
+// --- 14 · THE HOUR, NEVER THE HALF-DAY -----------------------------------
+// **ANDREW, 2026-09-13: a 9 AM job read 82° and the 2 PM job beside it read
+// 77° — hotter in the morning than the afternoon, which is backwards.** Both
+// numbers were the TWELVE-HOUR period's `temperature`, which the NWS documents
+// as that half-day's HIGH, so neither was the temperature at the hour the job
+// starts and the warning beside each was judged on the same wrong figure.
+// `properties.forecastHourly` is the fix, and these two checks are what would
+// have caught it: the hourly URL is the one followed, and a point body offering
+// ONLY the twelve-hour URL fails silent rather than falling back to it.
+{
+  const urls = (x) => x.seen.map((c) => c.url).join(" ");
+  const f = stub({
+    "/points/": { status: 200, body: POINT_BODY },
+    "/gridpoints/": { status: 200, body: { properties: { periods: [PERIOD] } } },
+  });
+  const r = await forecast(33.7701, -118.1937, f);
+  ok("14a · the forecast is read", r.ok === true);
+  ok("14b · and the URL followed is the HOURLY one",
+    f.seen.some((c) => c.url.endsWith("/forecast/hourly")), urls(f));
+  ok("14c · the twelve-hour URL is never fetched",
+    !f.seen.some((c) => c.url.endsWith("/gridpoints/LOX/155,32/forecast")), urls(f));
+
+  // NO FALLBACK. A fallback here restores the day high on exactly the points
+  // where nobody would notice, which is worse than no forecast at all.
+  const only12 = stub({
+    "/points/": { status: 200, body: { properties: { forecast: POINT_BODY.properties.forecast } } },
+    "/gridpoints/": { status: 200, body: { properties: { periods: [PERIOD] } } },
+  });
+  const r2 = await forecast(33.7701, -118.1937, only12);
+  ok("14d · a point with only the twelve-hour URL is unavailable, not a day high",
+    r2.ok === false && r2.reason === "unavailable");
+  ok("14e · and nothing is fetched off it", only12.seen.length === 1,
+    `${only12.seen.length} calls`);
+}
+
 
 // --- 13 · THE ENDPOINT'S THREE FAILURES ARE THREE STATUSES -------------
 // There is no Deno here, so the function body cannot be run. The honest thing

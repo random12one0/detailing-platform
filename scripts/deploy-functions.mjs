@@ -43,6 +43,11 @@ const PUBLIC_FUNCTIONS = new Set([
   // credential, and there is no session on that page.
   "accept-quote",
   "send-owner-reminders", // scheduled sweep; manual mode still checks membership itself
+  // THE WEATHER SWEEP, and public for the same reason the sweep above is: pg_cron
+  // calls it with no session. A caller who hammers it can only make it write the
+  // forecast a scheduled run would have written minutes later — no message, no
+  // slot, no money on the other side of it.
+  "refresh-weather",
   "send-email",           // internal relay; gates itself on the service-role key
   "accept-invite",        // invite landing page — the invitee has no session yet
   "booking-ics",          // customers add their own booking to a calendar from email

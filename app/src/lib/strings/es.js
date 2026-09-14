@@ -244,6 +244,7 @@ export const es = {
   "We come to you · {address}": "Vamos a ti · {address}",
   "Drop-off": "Entrega en el local",
   "Drop-off · {address}": "Entrega en el local · {address}",
+  "Forecast · {condition}, {temp}°": "Pronóstico · {condition}, {temp}°",
   "Travel": "Traslado",
   "Travel · {zone}": "Traslado · {zone}",
   "{percent}% off": "{percent}% de descuento",
