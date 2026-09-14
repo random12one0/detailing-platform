@@ -613,24 +613,35 @@ export default function Catalog() {
         </p>
       )}
 
-      {/* THE VEHICLE TYPE CHECKLIST — required before this business goes live.
-          Ticking a body type into a size, in that size's own edit sheet
-          below, is what lets a typed vehicle skip the "what size is it?"
-          question on the booking page: it is matched against these fourteen
-          instead of against whatever this screen's own name and examples say,
-          so "Off-road" or "Tier 1" work exactly as well as "Large SUV". */}
+      {/* THE VEHICLE TYPE CHECKLIST — a nag, never a gate. Ticking a body
+          type into a size, in that size's own edit sheet below, is what lets
+          a typed vehicle skip the "what size is it?" question on the booking
+          page: it is matched against these fourteen instead of against
+          whatever this screen's own name and examples say, so "Off-road" or
+          "Tier 1" work exactly as well as "Large SUV".
+
+          **NOT A BLOCKER, AND NOT STYLED AS ONE — Andrew's correction,
+          2026-09-14, after a first pass wrongly gated the booking page on
+          this.** *"Blocking a detailer's booking page over a setup detail
+          would cost them real bookings. The cure was worse than the
+          disease."* An unassigned type already falls back to the ordinary
+          size question a customer answered before this feature existed —
+          nothing here is broken while it is incomplete, so the copy says
+          what actually happens rather than threatening a consequence that
+          does not exist. `lib/setup.js`'s "Finish setting up" list is where
+          this is tracked as a to-do; this box is only ever information. */}
       {(() => {
         const cov = vehicleBodyTypeCoverage(sizes);
         return (
-          <div className={cov.complete ? "ok-box" : "error-box"} style={{ marginTop: "var(--sp-3)" }}>
+          <div className={cov.complete ? "ok-box" : "muted"} style={{ marginTop: "var(--sp-3)" }}>
             {cov.complete ? (
               t("All 14 vehicle types are assigned to a size. Your booking page can work out most customers' size from what they type.")
             ) : (
               <>
-                {t("{done} of 14 vehicle types are assigned to a size. This has to be finished before your business can go live.",
+                {t("{done} of 14 vehicle types are assigned to a size.",
                   { done: VEHICLE_BODY_TYPES.length - cov.missing.length })}
                 <br />
-                {t("Missing: {list}. Open a size below and tick the ones that belong in it.", {
+                {t("For the rest, a customer just picks their own size the regular way — the same question your booking page always asked. Missing: {list}. Open a size below and tick the ones that belong in it.", {
                   list: cov.missing.map((k) => VEHICLE_BODY_TYPES.find((b) => b.key === k)?.label).join(", "),
                 })}
               </>

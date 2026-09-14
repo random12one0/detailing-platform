@@ -86,9 +86,12 @@ check("every step names a settings screen that exists",
 
 // §13a's order, and the reason is not taste: a detailer who quits after two
 // steps still has a page a customer can book.
+// `vehicle_types` joined 2026-09-14, right after `catalog` — it is the same
+// "what you sell" family (which vehicle shapes belong in which price tier),
+// so it comes before `hours` starts the next group rather than after it.
 check("the order is what-you-sell, then when-you-work",
-  keys[0] === "catalog" && keys[1] === "hours",
-  `got ${keys.slice(0, 2).join(", ")}`);
+  keys[0] === "catalog" && keys[1] === "vehicle_types" && keys[2] === "hours",
+  `got ${keys.slice(0, 3).join(", ")}`);
 
 // STORED IN `business_settings.setup.done` ON EVERY LIVE BUSINESS. Renaming
 // one silently un-does a step somebody finished, which is worse than losing

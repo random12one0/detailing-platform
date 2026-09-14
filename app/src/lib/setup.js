@@ -8,6 +8,12 @@
 // on Business — and it decides whether an established detailer is nagged
 // forever. `tests/setup-progress.test.mjs` can only pin that if it can be
 // imported without a DOM.
+//
+// **THE ONE IMPORT IN THIS FILE, AND IT COSTS NOTHING — 2026-09-14.** `core.js`
+// carries the same "no React and no browser" discipline this file does (it
+// says so of itself), so importing its pure `vehicleBodyTypeCoverage` does not
+// reintroduce the thing this file was written to avoid.
+import { vehicleBodyTypeCoverage } from "../book/core.js";
 
 // key · the question the step asks · the two words under the progress rule
 // (component inventory §1b: "STEP 3 OF 7 · YOUR SERVICES"). The question is
@@ -81,6 +87,15 @@
 // falls from twelve to eleven for everybody at the same moment.
 export const STEPS = [
   ["catalog", "What do you charge for?", "Services", "catalog"],
+  // **ADDED 2026-09-14, AND IT NAGS RATHER THAN BLOCKS — Andrew's correction
+  // the same day, after a first pass wrongly turned this into a gate on the
+  // booking page.** His own words: *"blocking a detailer's booking page over
+  // a setup detail would cost them real bookings. The cure was worse than the
+  // disease."* An unassigned vehicle type already falls back to the ordinary
+  // size question — the ONE customers saw before this feature existed — so
+  // nothing is broken while a detailer has not finished this. This row is
+  // simply where the reminder lives, in the list a detailer already checks.
+  ["vehicle_types", "What sizes are your vehicles?", "Vehicle types", "catalog"],
   ["hours", "When are you open?", "Hours", "hours"],
   ["where", "Where does the work happen?", "Where you work", "rules"],
   ["info", "Who are you?", "Your details", "info"],
@@ -121,6 +136,8 @@ export const STEPS = [
 export const WHY = {
   catalog:
     "The services you add here show on your booking page at the price you set. Add-ons are extras a customer can add to a service.",
+  vehicle_types:
+    "You've told us which vehicle types belong in each of your sizes. Any type you haven't assigned yet just means a customer with that kind of vehicle picks their own size the regular way, instead of it being worked out for them.",
   hours:
     "Customers can only pick times inside these hours. If you close a day here, nobody can book it.",
   where:
@@ -199,6 +216,11 @@ export function setupProgress({ business, branding, settings, counts }) {
   // cannot exist without somebody making them still derive.
   const has = {
     catalog: (counts?.services ?? 0) > 0,
+    // Derived rather than marked, same reason `catalog` is: the checklist
+    // either covers all fourteen or it does not, whether or not this step's
+    // own "done" flag was ever set. `core.js` owns the fourteen and the rule
+    // for what counts as covered — this file only asks the question.
+    vehicle_types: vehicleBodyTypeCoverage(settings?.vehicle_sizes).complete,
     promos: (counts?.promos ?? 0) > 0,
     colour: !!branding?.primary_color,
   };
