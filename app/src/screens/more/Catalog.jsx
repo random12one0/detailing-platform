@@ -27,7 +27,9 @@ import { Segmented, Setting, Switch } from "../../components/controls.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
-import { DEFAULT_VEHICLE_SIZES, isPlatformSizeText } from "../../book/core.js";
+import {
+  DEFAULT_VEHICLE_SIZES, isPlatformSizeText, VEHICLE_BODY_TYPES, vehicleBodyTypeCoverage, guessBodyTypes,
+} from "../../book/core.js";
 import { getAppLocale, t } from "../../lib/appI18n.js";
 import { useAppLocale } from "../../hooks/useAppLocale.js";
 
@@ -334,9 +336,10 @@ export default function Catalog() {
       setMsg({ ok: false, text: `You already have a size called "${label}".` });
       return;
     }
+    const bodyTypes = Array.isArray(f.bodyTypes) ? f.bodyTypes : [];
     const next = [...sizes];
     if (editing.index == null) {
-      next.push({ key: slugKey(label, sizes.map((s) => s.key)), label, examples: f.examples.trim() });
+      next.push({ key: slugKey(label, sizes.map((s) => s.key)), label, examples: f.examples.trim(), bodyTypes });
     } else {
       // **OPENING A TIER AND PRESSING SAVE MUST CHANGE NOTHING.** The box is
       // filled with what the detailer READS — translated, if the text is still
@@ -350,8 +353,23 @@ export default function Catalog() {
         ...cur,
         label: untouched("label", label) ? cur.label : label,
         examples: untouched("examples", f.examples.trim()) ? cur.examples : f.examples.trim(),
+        bodyTypes,
       };
     }
+    // **EVERY BODY TYPE BELONGS IN EXACTLY ONE TIER, ENFORCED BY CONSTRUCTION.**
+    // Ticking a box into this tier takes it OUT of every other tier rather than
+    // letting two tiers claim it — a detailer never sees a "already assigned
+    // elsewhere" refusal, the box just moves. `suggestVehicleSize` still checks
+    // for a double claim rather than trusting this, for a row written before
+    // this screen existed.
+    const claimed = editing.index == null ? next.length - 1 : editing.index;
+    next.forEach((s, i) => {
+      if (i === claimed) return;
+      const theirs = Array.isArray(s.bodyTypes) ? s.bodyTypes : [];
+      if (theirs.some((k) => bodyTypes.includes(k))) {
+        next[i] = { ...s, bodyTypes: theirs.filter((k) => !bodyTypes.includes(k)) };
+      }
+    });
     setEditing(null);
     await saveSizes(next);
   };
@@ -549,7 +567,7 @@ export default function Catalog() {
           columns. Three sections, three skeletons, one ground. */}
       <div className="row wrap between" style={{ marginTop: "var(--sp-5)" }}>
         <h3>{t("Vehicle sizes")}</h3>
-        <button className="btn inline" onClick={() => setEditing({ kind: "size", form: { label: "", examples: "" } })}>+ {t("Add")}</button>
+        <button className="btn inline" onClick={() => setEditing({ kind: "size", form: { label: "", examples: "", bodyTypes: [] } })}>+ {t("Add")}</button>
       </div>
       <p className="muted" style={{ marginBottom: "var(--sp-3)" }}>
         {/* **BARE JSX TEXT IS INVISIBLE TO EVERY CHECK HERE — 2026-09-12.**
@@ -562,7 +580,13 @@ export default function Catalog() {
         {sizes.map((s, i) => (
           <div className={`sizecol${i === 0 ? " base" : ""}`} key={s.key}>
             <button className="sizecol-open"
-              onClick={() => setEditing({ kind: "size", index: i, form: { label: sizeText(s, "label"), examples: sizeText(s, "examples") || "" } })}>
+              onClick={() => setEditing({
+                kind: "size", index: i,
+                form: {
+                  label: sizeText(s, "label"), examples: sizeText(s, "examples") || "",
+                  bodyTypes: Array.isArray(s.bodyTypes) ? s.bodyTypes : [],
+                },
+              })}>
               <span className="label">{i === 0 ? t("Base price") : t("Adds on top")}</span>
               <span className="n">{sizeText(s, "label")}</span>
               <span className="m">{sizeText(s, "examples") || t("No examples yet")}</span>
@@ -589,6 +613,32 @@ export default function Catalog() {
         </p>
       )}
 
+      {/* THE VEHICLE TYPE CHECKLIST — required before this business goes live.
+          Ticking a body type into a size, in that size's own edit sheet
+          below, is what lets a typed vehicle skip the "what size is it?"
+          question on the booking page: it is matched against these fourteen
+          instead of against whatever this screen's own name and examples say,
+          so "Off-road" or "Tier 1" work exactly as well as "Large SUV". */}
+      {(() => {
+        const cov = vehicleBodyTypeCoverage(sizes);
+        return (
+          <div className={cov.complete ? "ok-box" : "error-box"} style={{ marginTop: "var(--sp-3)" }}>
+            {cov.complete ? (
+              t("All 14 vehicle types are assigned to a size. Your booking page can work out most customers' size from what they type.")
+            ) : (
+              <>
+                {t("{done} of 14 vehicle types are assigned to a size. This has to be finished before your business can go live.",
+                  { done: VEHICLE_BODY_TYPES.length - cov.missing.length })}
+                <br />
+                {t("Missing: {list}. Open a size below and tick the ones that belong in it.", {
+                  list: cov.missing.map((k) => VEHICLE_BODY_TYPES.find((b) => b.key === k)?.label).join(", "),
+                })}
+              </>
+            )}
+          </div>
+        );
+      })()}
+
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
 
       {editing && (
@@ -599,15 +649,62 @@ export default function Catalog() {
             <>
               <label className="field"><span>{t("Name")}</span>
                 <input value={editing.form.label} placeholder={t("e.g. Pickup truck")}
-                  onChange={(e) => set({ label: e.target.value })} /></label>
+                  onChange={(e) => {
+                    const label = e.target.value;
+                    // A HEAD START ONLY WHILE NOTHING HAS BEEN TICKED BY HAND —
+                    // the moment a detailer checks or unchecks one box the guess
+                    // stops touching this tier, so it can never overwrite a real
+                    // choice. Pre-ticking is a convenience, never the source of
+                    // truth.
+                    const guess = editing.form.bodyTypes.length === 0
+                      ? guessBodyTypes(label, editing.form.examples) : editing.form.bodyTypes;
+                    set({ label, bodyTypes: guess });
+                  }} /></label>
               <label className="field"><span>{t("Examples (optional)")}</span>
                 <input value={editing.form.examples} placeholder={t("e.g. F-150, Silverado, Ram")}
-                  onChange={(e) => set({ examples: e.target.value })} /></label>
+                  onChange={(e) => {
+                    const examples = e.target.value;
+                    const guess = editing.form.bodyTypes.length === 0
+                      ? guessBodyTypes(editing.form.label, examples) : editing.form.bodyTypes;
+                    set({ examples, bodyTypes: guess });
+                  }} /></label>
               <p className="muted">
                 {editing.index === 0
                   ? t("This is your base size. Every price you set is the price for this one.")
                   : t("You set what this size adds, per service, in each service's own screen.")}
               </p>
+
+              {/* THE CHECKLIST — every one of the fourteen ends up in exactly
+                  one size. Ticking a box here takes it out of whichever other
+                  size holds it now; nothing asks first, because that is
+                  friendlier than refusing and the box can only ever be in one
+                  place once this sheet is saved. */}
+              <p style={{ fontWeight: 600, marginTop: "var(--sp-4)", marginBottom: 6 }}>{t("Vehicle types in this size")}</p>
+              <div className="bodytype-list">
+                {VEHICLE_BODY_TYPES.map((b) => {
+                  const checked = editing.form.bodyTypes.includes(b.key);
+                  const elsewhere = sizes.find((s, i) => i !== editing.index
+                    && Array.isArray(s.bodyTypes) && s.bodyTypes.includes(b.key));
+                  return (
+                    <label key={b.key} className="bodytype-row">
+                      <input type="checkbox" checked={checked}
+                        onChange={() => set({
+                          bodyTypes: checked
+                            ? editing.form.bodyTypes.filter((k) => k !== b.key)
+                            : [...editing.form.bodyTypes, b.key],
+                        })} />
+                      <span>
+                        <strong>{t(b.label)}</strong>{" "}
+                        <span className="muted">{t(b.examples)}</span>
+                        {!checked && elsewhere && (
+                          <span className="muted"> — {t("currently in {size}", { size: sizeText(elsewhere, "label") })}</span>
+                        )}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+
               <button className="btn primary" onClick={saveSize}>{t("Save")}</button>
             </>
           ) : editing.kind === "group" ? (

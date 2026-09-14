@@ -1993,6 +1993,15 @@ button.menu-name { display: flex; flex-direction: column; justify-content: cente
 .row-item .btn.sm.icon,
 .menu-band .btn.sm.icon { width: var(--tap); }
 
+/* THE VEHICLE TYPE CHECKLIST — fourteen rows, each the whole width so the
+   checkbox and its words are one tap target rather than two. */
+.bodytype-list { display: flex; flex-direction: column; gap: 2px; }
+.bodytype-row {
+  display: flex; align-items: center; gap: var(--sp-3);
+  min-height: var(--tap); padding: 6px 4px; cursor: pointer;
+}
+.bodytype-row input[type="checkbox"] { width: 18px; height: 18px; flex-shrink: 0; }
+
 .sizeladder { display: flex; flex-direction: column; gap: var(--sp-1); }
 .sizeladder-row {
   display: grid; grid-template-columns: 1fr 104px; gap: var(--sp-2);

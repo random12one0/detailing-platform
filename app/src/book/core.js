@@ -193,10 +193,17 @@ export function createBookingTransport({ supabaseUrl, anonKey }) {
 //     the page it had.
 // ---------------------------------------------------------------------------
 
+// `bodyTypes` gives a brand-new business (the platform's own three tiers,
+// untouched) a working checklist from the first second — every one of the
+// fourteen accounted for, so `suggestVehicleSize` already has something to
+// match against before a detailer has opened the settings screen once.
 export const DEFAULT_VEHICLE_SIZES = [
-  { key: "small", label: "Small", examples: "Coupe, sedan, hatchback" },
-  { key: "medium", label: "Medium", examples: "Small SUV, crossover, wagon" },
-  { key: "large", label: "Large", examples: "Truck, large SUV, van" },
+  { key: "small", label: "Small", examples: "Coupe, sedan, hatchback",
+    bodyTypes: ["coupe", "sedan", "hatchback", "convertible"] },
+  { key: "medium", label: "Medium", examples: "Small SUV, crossover, wagon",
+    bodyTypes: ["wagon", "small_suv", "mid_suv"] },
+  { key: "large", label: "Large", examples: "Truck, large SUV, van",
+    bodyTypes: ["large_suv", "pickup_standard", "pickup_crew", "minivan", "cargo_van", "sports_exotic", "oversized"] },
 ];
 
 // **IS THIS TIER'S TEXT OURS OR THE DETAILER'S — asked in ONE place, 2026-09-12.**
@@ -402,6 +409,10 @@ export function initialForm(settings, known) {
     // never do. It reaches no payload: `toPayload` names its fields.
     vehicleSizeChosen: false,
     vehicleModel: "",
+    // An estimate is fine — it is for the detailer to judge condition against,
+    // never wired to price. Empty is a real answer here too: some customers
+    // will not know it and the step must not stall them hunting for it.
+    vehicleYear: "",
     // ROADMAP 8.10 — the cars AFTER the first, each { size, model } and, when
     // they are on different days, { date, time } as well. Empty is the
     // ordinary booking and the only state a one-car business can reach.
@@ -610,10 +621,106 @@ export const vehicleSizesMatter = (sizes, selectedServices) =>
 // body words written HERE, not read out of the index, and what it produces is
 // a visible suggestion rather than a derivation.
 
-// The body words a model implies, MOST SPECIFIC FIRST — specificity is the
-// whole mechanism. "small suv" has to be tried before "suv", or a RAV4 lands
-// in the tier whose examples say "large SUV" simply because that tier also
-// contains the letters s-u-v.
+// ---------------------------------------------------------------------------
+// THE FOURTEEN BODY TYPES — Andrew's checklist, approved 2026-09-14, replacing
+// the old design where a suggestion was matched against the DETAILER'S OWN
+// tier text (label + examples). That broke the moment a detailer named a tier
+// "Off-road" or "Tier 1": nothing in those words could ever match anything,
+// and two tiers naming the same word made a coin toss with a customer's price
+// on it. Now a detailer TICKS which of these fourteen belong in each tier —
+// exact, whatever they call the tier — and a typed vehicle is matched to ONE
+// of these fourteen, never straight to a tier. `vehicleBodyTypeCoverage`
+// below is what a settings screen uses to enforce "every one of the fourteen
+// in exactly one tier" and to block going live until it is.
+export const VEHICLE_BODY_TYPES = [
+  { key: "coupe", label: "Coupe (2-door)", examples: "e.g. Honda Civic coupe, Toyota Camry coupe" },
+  { key: "sedan", label: "Sedan", examples: "e.g. Toyota Camry, Honda Accord" },
+  { key: "hatchback", label: "Hatchback", examples: "e.g. VW Golf, Honda Fit" },
+  { key: "convertible", label: "Convertible", examples: "e.g. Mazda Miata, Ford Mustang convertible" },
+  { key: "wagon", label: "Wagon", examples: "e.g. Subaru Outback, Volvo V60" },
+  { key: "small_suv", label: "Small SUV / crossover", examples: "e.g. Toyota RAV4, Honda CR-V" },
+  { key: "mid_suv", label: "Mid-size SUV (2 rows)", examples: "e.g. Ford Explorer, Jeep Grand Cherokee" },
+  { key: "large_suv", label: "Large SUV (3 rows)", examples: "e.g. Chevrolet Suburban, Chevrolet Tahoe" },
+  { key: "pickup_standard", label: "Pickup — standard cab", examples: "e.g. Ford F-150 regular cab" },
+  { key: "pickup_crew", label: "Pickup — crew cab", examples: "e.g. Ford F-150 SuperCrew, Silverado crew cab" },
+  { key: "minivan", label: "Minivan", examples: "e.g. Toyota Sienna, Honda Odyssey" },
+  { key: "cargo_van", label: "Full-size / cargo van", examples: "e.g. Mercedes Sprinter, Ford Transit" },
+  { key: "sports_exotic", label: "Sports or exotic", examples: "e.g. Chevrolet Corvette, Porsche 911" },
+  { key: "oversized", label: "Oversized — lifted, dually, limo", examples: "e.g. lifted trucks, dually trucks, limos" },
+];
+
+/** Every business's `vehicle_sizes` tiers, checked against the fourteen.
+ *  `missing` — a body type no tier has claimed. `duplicated` — a body type
+ *  more than one tier claims (the settings screen prevents this by
+ *  construction, ticking one tier's box unticks it everywhere else, but a
+ *  row written by an older client or a script is still checked here rather
+ *  than trusted). `complete` is what a go-live check reads. */
+export function vehicleBodyTypeCoverage(sizes) {
+  const owner = new Map(); // body type key -> [tier keys that claim it]
+  for (const t of VEHICLE_BODY_TYPES) owner.set(t.key, []);
+  for (const size of sizes ?? []) {
+    for (const bt of Array.isArray(size.bodyTypes) ? size.bodyTypes : []) {
+      if (owner.has(bt)) owner.get(bt).push(size.key);
+    }
+  }
+  const missing = [...owner.entries()].filter(([, tiers]) => tiers.length === 0).map(([k]) => k);
+  const duplicated = [...owner.entries()].filter(([, tiers]) => tiers.length > 1).map(([k]) => k);
+  return { missing, duplicated, complete: missing.length === 0 && duplicated.length === 0 };
+}
+
+// A HEAD START, NEVER THE ANSWER — Andrew's own words: "pre-ticking is a
+// convenience, never the source of truth." When a tier's name is recognisable
+// ("Trucks & Large SUVs") this guesses which boxes it probably means, so a
+// detailer only has to confirm rather than tick fourteen boxes from nothing.
+// Keyword to body type, checked against the tier's own label + examples text;
+// a name that matches nothing guesses nothing, which is the safe direction.
+// **THE SIZE WORD MUST BE NEXT TO "SUV" — bare "small"/"large"/"medium" is
+// deliberately absent.** `DEFAULT_VEHICLE_SIZES` names its OWN three tiers
+// "Small", "Medium" and "Large", so a bare adjective would guess off the
+// tier's own name rather than off what a detailer actually wrote about its
+// contents — "Small" pre-ticking Small SUV/crossover on the platform's own
+// base tier is exactly the false signal this rule exists to avoid.
+const BODY_TYPE_GUESS_WORDS = [
+  [/\b(dually|lifted|oversized|limo)\b/, ["oversized"]],
+  [/\bsports?\b|\bexotic\b/, ["sports_exotic"]],
+  [/\bconvertibles?\b/, ["convertible"]],
+  [/\bwagons?\b/, ["wagon"]],
+  [/\bhatchbacks?\b/, ["hatchback"]],
+  [/\bminivans?\b/, ["minivan"]],
+  [/\bcargo\b/, ["cargo_van"]],
+  [/\bvans?\b/, ["minivan", "cargo_van"]],
+  [/\bpickups?\b|\btrucks?\b/, ["pickup_standard", "pickup_crew"]],
+  [/\bsedans?\b/, ["sedan"]],
+  [/\bcoupes?\b/, ["coupe"]],
+  [/\bcars?\b/, ["sedan", "coupe", "hatchback"]],
+];
+const SUV_QUALIFIED = [
+  [/\blarge\s+suvs?\b|\bfull.?size\s+suvs?\b|\b3.?row\s+suvs?\b/, "large_suv"],
+  [/\bsmall\s+suvs?\b|\bcompact\s+suvs?\b|\bcrossovers?\b/, "small_suv"],
+  [/\bmid.?size\s+suvs?\b|\bmedium\s+suvs?\b|\b2.?row\s+suvs?\b/, "mid_suv"],
+];
+export function guessBodyTypes(label, examples) {
+  const s = `${label ?? ""} ${examples ?? ""}`.toLowerCase();
+  const out = new Set();
+  for (const [re, keys] of BODY_TYPE_GUESS_WORDS) if (re.test(s)) keys.forEach((k) => out.add(k));
+  const qualified = SUV_QUALIFIED.filter(([re]) => re.test(s)).map(([, key]) => key);
+  // A bare "SUV" with no size word next to it guesses all three sizes; once a
+  // QUALIFIED phrase ("Large SUVs") has already answered, the bare word adds
+  // nothing further.
+  if (qualified.length) qualified.forEach((k) => out.add(k));
+  else if (/\bsuvs?\b/.test(s)) ["small_suv", "mid_suv", "large_suv"].forEach((k) => out.add(k));
+  return [...out];
+}
+
+// ---------------------------------------------------------------------------
+// TYPED TEXT -> ONE OF THE FOURTEEN, MOST-CONFIDENT-FIRST.
+//
+// **AND A WRONG GUESS QUOTES SOMEBODY THE WRONG PRICE, WHICH IS WORSE THAN NOT
+// GUESSING — his rule, and it is why everything below fails to null rather
+// than to a best effort.** Where a shape genuinely cannot be told from a make
+// and model alone — a pickup's cab configuration is a trim choice, not a
+// property of the nameplate — this returns null rather than picking one, and
+// the booking step's own fallback is to ask.
 //
 // **ONLY MODELS WORTH BEING SURE ABOUT ARE IN HERE.** Anything absent produces
 // no suggestion, which is the correct outcome and not a gap to fill later.
@@ -624,55 +731,61 @@ export const vehicleSizesMatter = (sizes, selectedServices) =>
 // 2026-09-13 and Genesis sells three sedans and three SUVs, so typing the
 // marque alone quoted the smallest tier. The models stay (`g70`, `gv80`); the
 // marque goes, and `Genesis` alone now suggests nothing.
-// `tests/booking-core.test.mjs` § 18m checks all 45 makes, so the next
-// collision is red the day it is added rather than the day somebody is
-// overcharged.
+//
+// ponytail: the mid-size-vs-large-SUV split below is a first-pass reading of
+// which popular models seat 2 rows vs 3 — several (Explorer, Grand Cherokee,
+// Acadia) have sold as both across model years. Getting one wrong here is
+// still safe: it only changes whether a customer sees the computed size or
+// gets asked, because the tier it lands on is the DETAILER'S OWN checklist
+// answer, not a guess about price. Revisit if a detailer reports a bad match.
+const OVERSIZED_WORDS = /\b(dually|dual rear wheel|drw|lifted|limo(?:usine)?|stretch(?:ed)? limo)\b/;
+const CREW_CAB_WORDS = /\b(crew ?cab|supercrew|super ?crew|crewmax|quad ?cab|double ?cab)\b/;
+const STANDARD_CAB_WORDS = /\b(regular ?cab|reg ?cab|standard ?cab|single ?cab)\b/;
+const TRUCK_MODEL_WORDS = /\b(f ?150|f ?250|f ?350|f ?450|f ?550|silverado|sierra|tundra|titan|ram ?1500|ram ?2500|ram ?3500|cybertruck|r1t|avalanche|lightning|tacoma|colorado|canyon|ranger|frontier|ridgeline|maverick|santa cruz|gladiator|dakota|sonoma|sport trac|pick ?ups?|trucks?)\b/;
+
 const VEHICLE_BODIES = [
   // A customer who types their own body word is answering the question
   // directly — *"my wife's van"*, *"work truck"*. These run first because it
-  // is the one case where nobody is guessing at all.
-  [/\bminivans?\b/, ["minivan", "van", "large"]],
-  [/\bvans?\b/, ["van", "minivan", "large"]],
-  [/\b(pick ?ups?|trucks?)\b/, ["truck", "pickup", "large"]],
-  [/\b(suvs?|crossovers?)\b/, ["suv", "crossover", "medium"]],
-  [/\bsedans?\b/, ["sedan", "car", "small"]],
-  [/\b(coupes?|hatchbacks?|convertibles?)\b/, ["coupe", "hatchback", "car", "small"]],
-  [/\bwagons?\b/, ["wagon", "estate", "medium"]],
+  // is the one case where nobody is guessing at all. Bare "van", "suv" and
+  // "truck"/"pickup" are deliberately absent: the fourteen split what used to
+  // be one bucket into two or three, and a bare generic word cannot say which.
+  [/\bminivans?\b/, "minivan"],
+  [/\b(cargo vans?|box trucks?|panel vans?)\b/, "cargo_van"],
+  [/\bconvertibles?|cabriolets?|roadsters?|drop ?tops?\b/, "convertible"],
+  [/\bwagons?|estates?\b/, "wagon"],
+  [/\bhatchbacks?\b/, "hatchback"],
+  [/\bsedans?\b/, "sedan"],
+  [/\bcoupes?\b/, "coupe"],
+  [/\bcrossovers?\b/, "small_suv"],
 
   // MINIVANS AND PASSENGER VANS.
-  [/\b(sienna|odyssey|pacifica|carnival|sedona|quest|voyager|uplander|entourage|routan|freestar|windstar|villager|previa|montana|silhouette|venture|aerostar|grand caravan|caravan|town and country)\b/,
-    ["minivan", "van", "large"]],
+  [/\b(sienna|odyssey|pacifica|carnival|sedona|quest|voyager|uplander|entourage|routan|freestar|windstar|villager|previa|montana|silhouette|venture|aerostar|grand caravan|caravan|town and country)\b/, "minivan"],
   // CARGO VANS. Bigger again, and a detailer who separates them says so.
-  [/\b(sprinter|promaster|transit|express|savana|metris|econoline|ducato|vandura|e 150|e 250|e 350|e 450|nv200|nv|city express)\b/,
-    ["cargo van", "van", "large"]],
+  [/\b(sprinter|promaster|transit|express|savana|metris|econoline|ducato|vandura|e 150|e 250|e 350|e 450|nv200|nv|city express)\b/, "cargo_van"],
 
-  // FULL-SIZE TRUCKS.
-  [/\b(f ?150|f ?250|f ?350|f ?450|f ?550|silverado|sierra|tundra|titan|ram ?1500|ram ?2500|ram ?3500|cybertruck|r1t|avalanche|lightning)\b/,
-    ["full size truck", "truck", "pickup", "large"]],
-  // MID-SIZE TRUCKS. A three-tier business has no word for this and falls
-  // through to "truck", which is the right answer there.
-  [/\b(tacoma|colorado|canyon|ranger|frontier|ridgeline|maverick|santa cruz|gladiator|dakota|sonoma|sport trac)\b/,
-    ["mid size truck", "midsize truck", "small truck", "truck", "pickup", "medium"]],
+  // LARGE SUVS — three rows standard, or body-on-frame full-size.
+  [/\b(suburban|tahoe|yukon|expedition|escalade|navigator|sequoia|armada|wagoneer|land cruiser|lx|qx56|qx80|gx|durango|traverse|telluride|atlas|palisade|pilot|highlander|pathfinder|r1s|gls class|gl class|q7|discovery|xc90|enclave|mdx|xt6|ioniq 9|ev9|tx)\b/, "large_suv"],
+  // MID-SIZE SUVS — two rows, bigger than a compact crossover.
+  [/\b(4runner|xterra|montero|murano|edge|santa fe|sorento|touareg|passport|cherokee|acadia|gv80|x3|x5|q5|glc class|gle class|nx|rx|qx50|qx55|qx60|rdx|macan|cayenne|velar|f pace|xc60|model y|outlander|venza)\b/, "mid_suv"],
+  // SMALL / COMPACT SUVS AND CROSSOVERS — most of what actually gets typed.
+  [/\b(rav4|cr v|crv|cx 3|cx 30|cx 5|cx 50|blazer|bronco|rogue|kicks|forester|crosstrek|outback|tucson|kona|venue|sportage|seltos|soul|niro|tiguan|taos|compass|renegade|patriot|liberty|wrangler|hr v|element|envision|encore|xt4|evoque|e pace|xc40|ariya|mach e|ioniq 5|ev6|id.4|bz4x|solterra|eclipse cross|rvr|endeavor|vue|rendezvous|journey|nitro|flex|freestyle|corolla cross|c hr|creta|vitara|tribute|mariner|zdx|escape|equinox|trax|trailblazer|terrain|x1|q3|gla class|glb class|ux|ex30|ex40|model x)\b/, "small_suv"],
 
-  // LARGE SUVS — the three-row and body-on-frame ones.
-  [/\b(suburban|tahoe|yukon|expedition|escalade|navigator|sequoia|armada|wagoneer|land cruiser|lx|qx56|qx80|gx|durango|traverse|telluride|palisade|pilot|highlander|atlas|ascent|explorer|4runner|pathfinder|xterra|montero|r1s|gv80|gls class|gl class)\b/,
-    ["large suv", "full size suv", "3 row suv", "suv", "truck", "large"]],
-  // SMALL AND MID SUVS — the crossovers, which is most of what gets typed.
-  [/\b(rav4|cr v|crv|cx 3|cx 30|cx 5|cx 50|cx 9|cx 70|cx 90|escape|equinox|trax|trailblazer|blazer|edge|bronco|rogue|kicks|murano|forester|crosstrek|outback|tucson|santa fe|kona|venue|sportage|seltos|sorento|soul|niro|tiguan|taos|touareg|compass|cherokee|renegade|patriot|liberty|wrangler|hr v|passport|element|terrain|acadia|envision|encore|enclave|x1|x3|x5|q3|q5|q7|glc class|gla class|glb class|gle class|nx|rx|ux|tx|qx50|qx55|qx60|rdx|mdx|zdx|xt4|xt5|xt6|macan|cayenne|evoque|discovery|range rover|velar|defender|f pace|e pace|xc40|xc60|xc90|ex30|ex40|ex90|model y|model x|ariya|mach e|ioniq 5|ioniq 9|ev6|ev9|id.4|bz4x|solterra|outlander|eclipse cross|rvr|endeavor|vue|rendezvous|journey|nitro|flex|freestyle|venza|corolla cross|c hr|creta|vitara|tribute|mariner)\b/,
-    ["small suv", "compact suv", "mid suv", "midsize suv", "crossover", "suv", "medium"]],
+  // WAGONS.
+  [/\b(sportwagen|alltrack|v60|v70|v90|allroad|regal tourx)\b/, "wagon"],
+  // HATCHBACKS.
+  [/\b(golf|gti|impreza|mazda3|mazda2|fit|yaris|rio|versa note|leaf|bolt ev|bolt euv|spark|mirage|prius c|prius v|matrix|vibe|hhr|pt cruiser|cube|xb|xd|500l|i3|veloster|elantra gt)\b/, "hatchback"],
 
-  // WAGONS AND HATCHBACKS.
-  [/\b(golf|gti|sportwagen|alltrack|v60|v70|v90|allroad|regal tourx|impreza|mazda3|mazda2|fit|yaris|rio|versa note|leaf|bolt ev|bolt euv|spark|mirage|prius c|prius v|matrix|vibe|hhr|pt cruiser|cube|xb|xd|500l|i3|veloster|elantra gt)\b/,
-    ["hatchback", "wagon", "compact", "car", "small"]],
-
-  // COUPES, ROADSTERS AND ANYTHING TWO-DOOR.
-  [/\b(mustang|camaro|challenger|corvette|brz|gr86|86|fr s|miata|mx 5|supra|z4|tt|boxster|cayman|911|350z|370z|nissan z|rx 7|rx 8|s2000|solstice|sky|prowler|viper|celica|integra|type r|civic si|gt r|nsx|f type|m2|m4|amg gt|slk class|sl class|slc class|124 spider|eos|cabrio|beetle)\b/,
-    ["coupe", "sports car", "2 door", "car", "small"]],
+  // CONVERTIBLE-FIRST NAMEPLATES.
+  [/\b(miata|mx 5|eos|cabrio|124 spider)\b/, "convertible"],
+  // SPORTS AND EXOTIC — everything else that is unambiguously a performance
+  // two-door, sold as a sports car rather than as ordinary transportation.
+  [/\b(mustang|camaro|challenger|corvette|brz|gr86|86|fr s|supra|z4|tt|boxster|cayman|911|350z|370z|nissan z|rx 7|rx 8|s2000|solstice|sky|prowler|viper|celica|integra|type r|civic si|gt r|nsx|f type|m2|m4|amg gt|slk class|sl class|slc class)\b/, "sports_exotic"],
+  // ORDINARY TWO-DOORS with no separate sporting trim worth naming.
+  [/\bbeetle\b/, "coupe"],
 
   // SEDANS — the default shape of a car, and deliberately last of the model
   // rules so anything above it wins.
-  [/\b(camry|corolla|accord|civic|altima|sentra|maxima|elantra|sonata|accent|azera|optima|k5|k4|forte|cadenza|stinger|mazda6|legacy|malibu|impala|cruze|sonic|cobalt|fusion|focus|taurus|fiesta|charger|300|200|dart|avenger|avalon|crown|passat|arteon|cc|a3|a4|a6|a8|328i|330i|335i|340i|528i|530i|540i|c class|e class|s class|cla class|a class|is|es|gs|ls|ct|tlx|tsx|tl|ilx|rl|q50|q60|q70|g35|g37|model 3|model s|air|polestar 2|ioniq 6|k900|g70|g80|g90|xe|xf|xj|s60|s80|s90|s40|jetta|versa|lancer|galant|eclipse|sebring|stratus|neon|grand marquis|crown victoria|town car|continental|mkz|milan|sable|regal|lacrosse|lesabre|park avenue|lucerne|century|bonneville|grand prix|grand am|g6|g8|aura|ion|alero|intrigue|aurora|catera|cts|ct4|ct5|ct6|ats|sts|dts|deville|seville|xts)\b/,
-    ["sedan", "saloon", "car", "small"]],
+  [/\b(camry|corolla|accord|civic|altima|sentra|maxima|elantra|sonata|accent|azera|optima|k5|k4|forte|cadenza|stinger|mazda6|legacy|malibu|impala|cruze|sonic|cobalt|fusion|focus|taurus|fiesta|charger|300|200|dart|avenger|avalon|crown|passat|arteon|cc|a3|a4|a6|a8|328i|330i|335i|340i|528i|530i|540i|c class|e class|s class|cla class|a class|is|es|gs|ls|ct|tlx|tsx|tl|ilx|rl|q50|q60|q70|g35|g37|model 3|model s|air|polestar 2|ioniq 6|k900|g70|g80|g90|xe|xf|xj|s60|s80|s90|s40|jetta|versa|lancer|galant|eclipse|sebring|stratus|neon|grand marquis|crown victoria|town car|continental|mkz|milan|sable|regal|lacrosse|lesabre|park avenue|lucerne|century|bonneville|grand prix|grand am|g6|g8|aura|ion|alero|intrigue|aurora|catera|cts|ct4|ct5|ct6|ats|sts|dts|deville|seville|xts)\b/, "sedan"],
 ];
 
 // Lower-cased, hyphens opened out, the model year dropped, and punctuation
@@ -688,8 +801,8 @@ function normalizeVehicleText(text, keepCase = false) {
     .trim();
 }
 
-/** The plain body words a typed vehicle implies, most specific first, and the
- *  piece of their text that produced them.
+/** The one body type a typed vehicle implies, or null, plus the piece of
+ *  their text that produced it.
  *
  *  **THE MATCHED PIECE IS NOT DECORATION — it is the sentence the screen
  *  prints.** Andrew asked for *"Suburban, that's your Large"*, and the only
@@ -698,8 +811,9 @@ function normalizeVehicleText(text, keepCase = false) {
  *  Large") restates a box one inch above it, which is his own standing rule
  *  against copy that explains what the control already said.
  *
- *  `null` when nothing in the table is sure about it — which is most strings. */
-export function vehicleBodyWords(text) {
+ *  `null` when nothing here is sure about it — which is most strings, and is
+ *  always the safe answer: the caller's fallback is to ask. */
+export function bodyTypeOf(text) {
   const s = normalizeVehicleText(text);
   if (!s) return null;
   // **THEIR CAPITALS, NOT OURS.** Title-casing "suburban" back up is the same
@@ -709,9 +823,28 @@ export function vehicleBodyWords(text) {
   // string and SLICED out of a copy that kept the customer's own capitals —
   // both built by the same transform, so the indexes line up.
   const shown = normalizeVehicleText(text, true);
-  for (const [re, words] of VEHICLE_BODIES) {
+  const quote = (m) => shown.slice(m.index, m.index + m[0].length) || m[0];
+
+  // OVERSIZED, CHECKED FIRST — it overrides what would otherwise read as an
+  // ordinary pickup or SUV. "Lifted F-250" is oversized, not a crew cab.
+  const over = s.match(OVERSIZED_WORDS);
+  if (over) return { key: "oversized", matched: quote(over) };
+
+  // A PICKUP'S CAB IS A TRIM CHOICE, NOT A PROPERTY OF THE NAMEPLATE — an
+  // F-150 is sold as both. So this only resolves when the text names BOTH a
+  // truck and a cab configuration; a bare "F-150" or "truck" falls to null and
+  // the booking step asks, which is the honest answer to a question the model
+  // name cannot settle.
+  const truck = s.match(TRUCK_MODEL_WORDS);
+  if (truck) {
+    if (CREW_CAB_WORDS.test(s)) return { key: "pickup_crew", matched: quote(truck) };
+    if (STANDARD_CAB_WORDS.test(s)) return { key: "pickup_standard", matched: quote(truck) };
+    return null;
+  }
+
+  for (const [re, key] of VEHICLE_BODIES) {
     const m = s.match(re);
-    if (m) return { words, matched: shown.slice(m.index, m.index + m[0].length) || m[0] };
+    if (m) return { key, matched: quote(m) };
   }
   return null;
 }
@@ -721,37 +854,27 @@ export function vehicleBodyWords(text) {
  *  `{ key, matched }` — the tier, and the word in their text that chose it, for
  *  the sentence the screen prints.
  *
- *  Null is the ordinary answer and it is never an error: an unknown model, a
- *  tier list with no descriptions, and a word two tiers both claim all produce
- *  it, and the customer then chooses exactly as they do today. */
+ *  Matching is now against the DETAILER'S OWN CHECKLIST — which of the
+ *  fourteen body types they ticked into each tier — never against free text
+ *  they happened to type in a tier's name or examples. So "Off-road" and
+ *  "Tier 1" work exactly as well as "Large SUV / truck": the tier's WORDS are
+ *  never read here at all.
+ *
+ *  Null is the ordinary answer and it is never an error: an unrecognised
+ *  vehicle, a body type nobody has assigned to a tier yet (a business that
+ *  has not done the checklist), and a body type two tiers somehow both claim
+ *  all produce it, and the customer then chooses exactly as they do today. */
 export function suggestVehicleSize(text, sizes) {
-  const hit = vehicleBodyWords(text);
+  const hit = bodyTypeOf(text);
   if (!hit || !(sizes ?? []).length) return null;
-  const { words, matched } = hit;
-
-  // THEIR WORDS, NORMALISED THE SAME WAY OURS ARE. The label is included
-  // because a five-tier detailer often puts the whole answer in it ("Large
-  // SUV / truck") and leaves the examples blank.
-  const tiers = sizes.map((s) => ({
-    key: s.key,
-    text: normalizeVehicleText(`${s.label ?? ""} ${s.examples ?? ""}`),
-  }));
-
-  for (const word of words) {
-    // A word inside a longer phrase still counts — "suv" is in "small suv" —
-    // which is exactly what makes the specific-first order do the work. The
-    // boundary is what stops "car" matching "cargo" and "van" matching
-    // "vanity"; the optional s is there because detailers write plurals.
-    const re = new RegExp(`\\b${word.replace(/\./g, "\\.")}s?\\b`);
-    const hits = tiers.filter((tier) => re.test(tier.text));
-    // **TWO TIERS CLAIMING THE SAME WORD IS THE VAGUE CASE HE NAMED, AND IT
-    // STOPS EVERYTHING.** Falling through to a less specific word would only
-    // ever find more tiers, and picking the first of two is a coin toss with
-    // somebody's price on it.
-    if (hits.length > 1) return null;
-    if (hits.length === 1) return { key: hits[0].key, matched };
-  }
-  return null;
+  const matches = sizes.filter((s) => Array.isArray(s.bodyTypes) && s.bodyTypes.includes(hit.key));
+  // TWO TIERS CLAIMING THE SAME BODY TYPE SHOULD NEVER HAPPEN — the settings
+  // screen ticks a body type OUT of every other tier the moment it is ticked
+  // into one — but a row written before this feature, or by a script, is
+  // checked rather than trusted, for the same reason the old vague-word case
+  // stopped everything instead of guessing.
+  if (matches.length !== 1) return null;
+  return { key: matches[0].key, matched: hit.matched };
 }
 
 
@@ -1149,7 +1272,8 @@ export function blockers(stepName, { form, settings, quote, quoting }) {
       else if (!quote) out.push("no-quote");
       break;
     case "Vehicle":
-      if (quoting) out.push("pricing");
+      if (!form.vehicleYear?.trim()) out.push("no-year");
+      else if (quoting) out.push("pricing");
       else if (!quote) out.push("no-quote");
       break;
     case "Location":
@@ -1259,6 +1383,9 @@ export function bookingRequest(form, { planId, promoApplied, campaignSlug, visit
     travel_zone: form.travelZone || null,
     vehicle_size: form.vehicleSize,
     vehicle_model: form.vehicleModel?.trim() || null,
+    // An estimate, for the detailer to judge condition against — never wired
+    // to price, and `_shared/pricing.ts` never reads it.
+    vehicle_year: form.vehicleYear?.trim() || null,
     extra_vehicles: extraVehiclePayload(form) ?? null,
     vehicle_condition: form.vehicleCondition || null,
     service_ids: form.serviceIds,

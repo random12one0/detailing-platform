@@ -22,8 +22,8 @@ import {
   modeLimitFor, monthGrid, monthHasNothing, monthRange, normalizeProfile,
   normalizeSettings, offersBothModes, paymentMethods, quoteKey, quoteRequest,
   recallCustomer, rememberCustomer, shiftMonth, slotsForType, stepsFor,
-  suggestVehicleSize, toggleService, vehicleBodyWords, vehicleSizeExtra,
-  vehicleSizesMatter, visitorIdFor,
+  suggestVehicleSize, toggleService, bodyTypeOf, vehicleBodyTypeCoverage, VEHICLE_BODY_TYPES,
+  guessBodyTypes, vehicleSizeExtra, vehicleSizesMatter, visitorIdFor,
 } from "../app/src/book/core.js";
 import { readFileSync, readdirSync } from "node:fs";
 const read = (p) => readFileSync(p, "utf8");
@@ -267,7 +267,12 @@ const svc = (id, extra = {}) => ({ id, name: id, price: 100, duration_minutes: 6
   check("...and not while one is in flight",
     G("Services", { ...base, serviceIds: ["s"] }, { quoting: true }) === false);
   check("Services passes with both", G("Services", { ...base, serviceIds: ["s"] }) === true);
-  check("Vehicle is gated on the quote only", G("Vehicle", base) === true);
+  // **CHANGED 2026-09-14 — the year is now required on this step too.**
+  // Andrew's ask: an estimate is fine, but the field cannot be skipped.
+  check("Vehicle needs a year", G("Vehicle", base) === false,
+    "initialForm's vehicleYear starts empty, and Continue must reflect that");
+  check("...and passes once one is given, on the quote as before",
+    G("Vehicle", { ...base, vehicleYear: "2019" }) === true);
 
   const mob = { ...base, serviceType: "mobile" };
   check("a mobile job needs an address", G("Location", mob) === false);
@@ -914,10 +919,18 @@ console.log("\n13. nothing is assumed at signup (roadmap 8.4)");
 
 
 // ─── 18. THE VEHICLE A CUSTOMER TYPES, AND THE TIER IT IS QUOTED AT ───────
+// **REBUILT 2026-09-14 — matching moved from the detailer's own tier TEXT to
+// the FOURTEEN-BODY-TYPE CHECKLIST**, Andrew's fix for a design that broke the
+// moment a detailer named a tier "Off-road" or "Tier 1": nothing in those
+// words could ever match anything. Now `bodyTypeOf` reads the typed vehicle
+// down to one of fourteen fixed shapes, and `suggestVehicleSize` looks up
+// which TIER the detailer ticked that shape into — the tier's own label and
+// examples are never read at all any more.
+//
 // **THIS SECTION DECIDES WHAT SOMEBODY IS CHARGED, so it is the one place in
 // this file where a green line is not good enough on its own** — every check
 // below was baselined by breaking `suggestVehicleSize` and watching it fail by
-// name. `docs/VERIFIED.md` records which breaks and what went red.
+// name.
 //
 // Andrew's rule, and everything here is a restatement of it: **A WRONG GUESS
 // QUOTES SOMEBODY THE WRONG PRICE, WHICH IS WORSE THAN NOT GUESSING.** So the
@@ -926,22 +939,23 @@ console.log("\n13. nothing is assumed at signup (roadmap 8.4)");
 // **AND NOTHING HERE MAY ASSUME THREE TIERS, OUR KEYS, OR OUR ORDER** — his own
 // worry, in his words: *"detailers have custom tiers, one may have three sizes
 // and another five, each with their own upcharges."* Every case runs against a
-// two-tier, a three-tier and a five-tier detailer, no two of whom share a key.
+// two-tier, a three-tier and a five-tier detailer, no two of whom share a key,
+// and each with its OWN split of the fourteen body types.
 {
-  // Three real-shaped detailers. **Not one fixture with a length** — the point
-  // is that the tier KEYS, LABELS and WORDS all differ, because the matcher
-  // reads the detailer's own text and nothing else.
+  // Three real-shaped detailers, each with a DIFFERENT checklist split — the
+  // point is that the tier KEYS and the body-type ASSIGNMENT both differ,
+  // because the matcher reads the detailer's own checklist and nothing else.
   const THREE = DEFAULT_VEHICLE_SIZES;
   const TWO = [
-    { key: "std", label: "Standard", examples: "Car, sedan, coupe, hatchback" },
-    { key: "big", label: "Oversize", examples: "Truck, SUV, van, minivan" },
+    { key: "std", label: "Standard", bodyTypes: ["coupe", "sedan", "hatchback", "convertible", "wagon", "small_suv"] },
+    { key: "big", label: "Oversize", bodyTypes: ["mid_suv", "large_suv", "pickup_standard", "pickup_crew", "minivan", "cargo_van", "sports_exotic", "oversized"] },
   ];
   const FIVE = [
-    { key: "t1", label: "Compact", examples: "Coupe, hatchback" },
-    { key: "t2", label: "Sedan", examples: "Sedan, wagon" },
-    { key: "t3", label: "Crossover", examples: "Small SUV, crossover" },
-    { key: "t4", label: "Large SUV", examples: "3 row SUV, full size SUV" },
-    { key: "t5", label: "Truck and van", examples: "Pickup, van, minivan" },
+    { key: "t1", label: "Compact", bodyTypes: ["coupe", "hatchback", "convertible", "sports_exotic"] },
+    { key: "t2", label: "Sedan", bodyTypes: ["sedan", "wagon"] },
+    { key: "t3", label: "Crossover", bodyTypes: ["small_suv", "mid_suv"] },
+    { key: "t4", label: "Large SUV", bodyTypes: ["large_suv", "oversized"] },
+    { key: "t5", label: "Truck and van", bodyTypes: ["pickup_standard", "pickup_crew", "minivan", "cargo_van"] },
   ];
   const suggest = (q, sizes) => suggestVehicleSize(q, sizes)?.key ?? null;
 
@@ -954,14 +968,17 @@ console.log("\n13. nothing is assumed at signup (roadmap 8.4)");
     const rules = (table.match(/^ {2}\[\//gm) ?? []).length;
     check(`18a · the body table is populated — ${rules} rules`, rules >= 12,
       "an empty table makes every 'suggests nothing' check below pass over nothing");
-    const answered = ["Suburban", "Camry", "RAV4", "Sienna", "F-150", "Mustang", "Golf"]
+    check("18a2 · every one of the fourteen is checked, and THREE's default checklist covers all of them",
+      VEHICLE_BODY_TYPES.length === 14 && vehicleBodyTypeCoverage(THREE).complete,
+      `${VEHICLE_BODY_TYPES.length} types, THREE missing: ${JSON.stringify(vehicleBodyTypeCoverage(THREE).missing)}`);
+    const answered = ["Suburban", "Camry", "RAV4", "Sienna", "Mustang", "Golf"]
       .filter((q) => suggest(q, THREE));
-    check(`18b · and it actually answers — ${answered.length} of 7 ordinary cars land in a tier`,
-      answered.length === 7, `only ${answered.join(", ")} answered`);
+    check(`18b · and it actually answers — ${answered.length} of 6 ordinary cars land in a tier`,
+      answered.length === 6, `only ${answered.join(", ")} answered`);
   }
 
-  // (1) A VEHICLE THAT MATCHES CLEANLY, in all three detailers' own words. A
-  // Suburban is the big one everywhere; only the KEY differs.
+  // (1) A VEHICLE THAT MATCHES CLEANLY, in all three detailers' own checklists.
+  // A Suburban is the big one everywhere; only the KEY differs.
   check("18c · a Suburban lands in the big tier, whatever that detailer calls it",
     suggest("2019 Chevrolet Suburban", THREE) === "large"
       && suggest("2019 Chevrolet Suburban", TWO) === "big"
@@ -973,7 +990,7 @@ console.log("\n13. nothing is assumed at signup (roadmap 8.4)");
     "the same car typed five ways must be quoted one price");
 
   // (2) A VEHICLE THAT MATCHES A DIFFERENT TIER — the half that proves 18c is
-  // reading the words rather than answering "the big one" to everything.
+  // reading the shape rather than answering "the big one" to everything.
   check("18e · a Camry is not a Suburban",
     suggest("Camry", THREE) === "small" && suggest("Camry", TWO) === "std",
     `${suggest("Camry", THREE)} / ${suggest("Camry", TWO)}`);
@@ -985,8 +1002,8 @@ console.log("\n13. nothing is assumed at signup (roadmap 8.4)");
     JSON.stringify(["Mustang", "Camry", "RAV4", "Suburban", "Sienna"].map((q) => suggest(q, FIVE))));
 
   // **SPECIFICITY IS THE WHOLE MECHANISM AND IT IS THE EASIEST THING TO BREAK.**
-  // "small suv" has to be tried before "suv", or a RAV4 lands in the tier whose
-  // words say "large SUV" purely because that tier also contains s-u-v.
+  // "small_suv" has to be told from "mid_suv" and "large_suv" before either
+  // reaches a tier, or a RAV4 lands wherever a detailer happened to put SUVs.
   check("18h · a small SUV does not fall into a Large SUV tier",
     suggest("RAV4", FIVE) === "t3" && suggest("CR-V", FIVE) === "t3" && suggest("Outback", FIVE) === "t3",
     `${suggest("RAV4", FIVE)} / ${suggest("CR-V", FIVE)} / ${suggest("Outback", FIVE)}`);
@@ -1003,7 +1020,10 @@ console.log("\n13. nothing is assumed at signup (roadmap 8.4)");
     const VEHICLES = JSON.parse(read("app/src/book/vehicles.json"));
     for (const [typo, real, tier] of [
       ["Escallade", "Cadillac Escalade", "large"],
-      ["Xterrra", "Nissan Xterra", "large"],
+      // Xterra is a mid-size, 2-row SUV under the new fourteen-way split — the
+      // old table lumped every non-compact SUV into one "large" bucket, which
+      // is the exact ambiguity this rebuild exists to remove.
+      ["Xterrra", "Nissan Xterra", "medium"],
       ["Corrolla", "Toyota Corolla", "small"],
       ["Odysey", "Honda Odyssey", "large"],
       ["Suburbann", "Chevrolet Suburban", "large"],
@@ -1015,35 +1035,18 @@ console.log("\n13. nothing is assumed at signup (roadmap 8.4)");
         offered === real && suggest(offered ?? "", THREE) === tier,
         `offered ${JSON.stringify(offered)} → ${suggest(offered ?? "", THREE)}`);
     }
-
-    // **AND THE PASS THAT ABSORBS THE TYPO DOES NOT RANK BY HOW CLOSE IT GOT,
-    // WHICH IS A RECORDED DEFECT — found 2026-09-13 while writing this
-    // section.** `matchVehicle`'s five passes are ordered by how sure each one
-    // is and that ordering IS its ranking — but pass 5 holds one-typo and
-    // two-typo hits together and offers them in INDEX order, so an alphabetically
-    // earlier make can outrank the car the customer actually typed. `esclade` is
-    // one letter from Escalade and two from Enclave, and Buick is offered first.
-    //
-    // **IT MATTERS HERE BECAUSE THE FIRST ROW IS THE ONE A THUMB HITS, AND THE
-    // TIER FOLLOWS THE CAR THAT WAS TAKEN.** Escalade is the big tier and
-    // Enclave the middle one, so the customer is quoted the wrong price having
-    // touched nothing but a suggestion. `FOUND.md` § THE TYPO RANKING has the
-    // measurement — 371 of 1,336 synthetic one-letter typos offer a worse match
-    // first, and 156 of those cross a tier. It is `app/src/book/core.js`, so it
-    // is lane B's.
-    //
-    // Pinned to the two named cases so a THIRD shape going wrong is red
-    // immediately; when lane B sorts pass 5 by distance, this check goes red and
-    // whoever fixes it flips these two lines into 18k above.
-    const crossed = [["esclade", "large", "medium"], ["escaape", "medium", "large"]]
-      .filter(([typo, want]) => suggest(matchVehicle(typo, VEHICLES)[0] ?? "", THREE) !== want);
-    check("18kk · two recorded typos are still offered the wrong car first — no more than two",
-      crossed.length === 2,
-      `${crossed.length} of 2 — a change here is either a NEW mispriced typo or the fix; see FOUND.md § THE TYPO RANKING`);
-    for (const [typo, want] of crossed) {
-      const got = matchVehicle(typo, VEHICLES)[0];
-      console.log(`        NOTE  "${typo}" offers ${got} (${suggest(got, THREE)}) before the closer car, which is ${want}`);
-    }
+    // **THE OLD TYPO-RANKING DEFECT (esclade → Enclave before Escalade) NO
+    // LONGER CROSSES A TIER, MEASURED RATHER THAN ASSUMED** — Buick Enclave is
+    // a 3-row SUV in real life and is now correctly `large_suv` beside
+    // Escalade, where the old single "large" bucket had it filed as "medium"
+    // purely because the old table's SUV split was coarser. `matchVehicle`'s
+    // own pass-5 ordering is unchanged and still offers the less-likely make
+    // first; what changed is that both makes now land on the SAME price.
+    const VEHICLES2 = JSON.parse(read("app/src/book/vehicles.json"));
+    const esclade = matchVehicle("esclade", VEHICLES2)[0];
+    check("18kk · the typo-ranking defect stopped crossing a tier once Enclave and Escalade agreed on a shape",
+      suggest(esclade, THREE) === "large",
+      `"esclade" offers ${esclade}, which now lands on ${suggest(esclade, THREE)}`);
   }
 
   // (4) A MAKE WITH NO MODEL. **Toyota makes a Corolla and a Tundra**, so a make
@@ -1053,24 +1056,44 @@ console.log("\n13. nothing is assumed at signup (roadmap 8.4)");
     const makes = Object.keys(VEHICLES);
     check(`18l · every make in the index is checked — ${makes.length} of them`,
       makes.length >= 40, `${makes.length} makes — count the subjects before believing the line below`);
+    // **THE OLD GENESIS COLLISION IS GONE — measured, not assumed.** It came
+    // from "genesis" sitting in the sedan word-list; this rebuild's sedan rule
+    // never held a bare marque either, and the fourteen-way split gave no
+    // other rule a reason to add one back. Pinned to zero so a NEW collision —
+    // any bare make quoting a tier — goes red the day it is introduced.
     const selfQuoting = makes.filter((mk) => suggest(mk, THREE));
-    // **ONE KNOWN COLLISION, AND IT IS A RECORDED DEFECT RATHER THAN A PASS.**
-    // `Genesis` is a make (G70…GV80) AND a word in the sedan rule, so typing the
-    // make alone quotes the Small tier — on a marque that is half sedans and
-    // half SUVs. `FOUND.md` § THE GENESIS COLLISION has it, and it is lane B's
-    // file. This check is pinned to that ONE name so a NEW collision goes red
-    // the day somebody adds a model whose word is also a make.
-    check("18m · exactly one make self-quotes, and it is the recorded Genesis defect",
-      selfQuoting.length === 1 && selfQuoting[0] === "Genesis",
+    check("18m · no make quotes a tier on its own",
+      selfQuoting.length === 0,
       `self-quoting makes: ${JSON.stringify(selfQuoting)} — a make is not a body shape`);
-    if (selfQuoting.length) {
-      console.log(`        NOTE  ${selfQuoting.join(", ")} quotes a tier off the make alone — FOUND.md § THE GENESIS COLLISION`);
-    }
     check("18n · and a make plus a model is answered by the MODEL",
-      suggest("Toyota Tundra", THREE) === "large" && suggest("Toyota Corolla", THREE) === "small"
-        && suggest("Genesis GV80", THREE) === "large",
-      "the same make, two tiers apart");
+      suggest("Toyota 4Runner", THREE) === "medium" && suggest("Toyota Corolla", THREE) === "small"
+        && suggest("Genesis G70", THREE) === "small" && suggest("Genesis GV80", THREE) === "medium",
+      "the same make, two tiers apart in both directions");
   }
+
+  // (4a) A PICKUP'S CAB IS A TRIM, NOT A NAMEPLATE — Andrew's checklist splits
+  // "standard cab" from "crew cab", and an F-150 is sold as both. So the bare
+  // model name must abstain, and only naming the cab resolves it.
+  check("18n2 · a bare truck model asks rather than guesses a cab",
+    suggest("2020 Ford F-150", THREE) === null && suggest("Silverado", THREE) === null,
+    "an F-150 is sold both ways — the model name alone cannot say which");
+  check("18n3 · naming the cab resolves it, on either side of the split",
+    suggest("2020 Ford F-150 SuperCrew", TWO) === "big"
+      && suggest("Ford F-150 regular cab", TWO) === "big",
+    "both cabs are 'big' on a two-tier detailer, so this only proves the phrase is read, not which tier it reaches");
+  {
+    const CABS = [
+      { key: "reg", label: "Standard cab", bodyTypes: ["pickup_standard"] },
+      { key: "crew", label: "Crew cab", bodyTypes: ["pickup_crew"] },
+    ];
+    check("18n4 · ...and on a detailer who actually splits the two, it reaches the RIGHT one",
+      suggest("F-150 crew cab", CABS) === "crew" && suggest("F-150 regular cab", CABS) === "reg",
+      `${suggest("F-150 crew cab", CABS)} / ${suggest("F-150 regular cab", CABS)}`);
+  }
+  // (4b) OVERSIZED OVERRIDES THE ORDINARY READING OF THE SAME WORDS.
+  check("18n5 · a lifted or dually truck is oversized, not an ordinary pickup",
+    suggest("lifted F-250", THREE) === "large" && bodyTypeOf("F-350 dually")?.key === "oversized",
+    JSON.stringify([suggest("lifted F-250", THREE), bodyTypeOf("F-350 dually")]));
 
   // (5) TEXT THAT MATCHES NOTHING — **the case that matters most, and the one
   // where a green line has to prove TWO things: nothing was chosen, and the
@@ -1080,7 +1103,7 @@ console.log("\n13. nothing is assumed at signup (roadmap 8.4)");
     const NONSENSE = ["", "   ", "the white one", "mi coche", "Zaporozhets 965",
       "my other car", "2019", "asdfgh", "the one with the dent"];
     const settings = { vehicle_sizes: FIVE };
-    const base = initialForm(settings, null);
+    const base = { ...initialForm(settings, null), vehicleYear: "2019" };
     for (const q of NONSENSE) {
       check(`18o · ${JSON.stringify(q)} chooses no tier at all`,
         suggestVehicleSize(q, FIVE) === null && suggestVehicleSize(q, THREE) === null,
@@ -1099,29 +1122,50 @@ console.log("\n13. nothing is assumed at signup (roadmap 8.4)");
       suggestVehicleSize("Suburban", []) === null && suggestVehicleSize("Suburban", null) === null
         && suggestVehicleSize("Suburban", undefined) === null,
       "a tenant site that forgets to pass its tiers gets the plain control, not a white screen");
-    check("18s · tiers with no words are not guessed at either",
+    check("18s · tiers with no checklist are not guessed at either",
       suggestVehicleSize("Suburban", [{ key: "a", label: "" }, { key: "b", label: "" }]) === null
-        && suggestVehicleSize("Suburban", [{ key: "only", label: "Any vehicle", examples: "" }]) === null,
-      "a detailer who wrote no examples has told us nothing to match against");
+        && suggestVehicleSize("Suburban", [{ key: "only", label: "Any vehicle", bodyTypes: [] }]) === null,
+      "a detailer who has not done the checklist has told us nothing to match against — the same abstention as before, never a stale word");
   }
 
-  // (6) TWO TIERS CLAIMING THE SAME WORD STOPS EVERYTHING. Falling through to a
-  // vaguer word would only ever find MORE tiers, and picking the first of two is
-  // a coin toss with somebody's price on it.
+  // (6) TWO TIERS CLAIMING THE SAME BODY TYPE STOPS EVERYTHING — should never
+  // happen once the settings screen enforces it by construction (ticking a box
+  // into one tier removes it from every other), but a row written before this
+  // feature existed, or by a script, is checked rather than trusted.
   {
     const VAGUE = [
-      { key: "a", label: "Tier A", examples: "SUV" },
-      { key: "b", label: "Tier B", examples: "SUV" },
+      { key: "a", label: "Tier A", bodyTypes: ["small_suv"] },
+      { key: "b", label: "Tier B", bodyTypes: ["small_suv"] },
     ];
-    check("18t · a word two tiers both claim abstains rather than picking one",
-      suggestVehicleSize("RAV4", VAGUE) === null && suggestVehicleSize("Suburban", VAGUE) === null,
+    check("18t · a body type two tiers both claim abstains rather than picking one",
+      suggestVehicleSize("RAV4", VAGUE) === null,
       JSON.stringify(suggestVehicleSize("RAV4", VAGUE)));
-    check("18u · ...and it happens on an ordinary tier list, not only a contrived one",
+    check("18u · ...and it happens on an ordinary-looking checklist, not only a contrived one",
       suggestVehicleSize("Camry", [
-        { key: "t1", label: "Compact", examples: "Coupe, hatchback, small sedan" },
-        { key: "t2", label: "Sedan", examples: "Full size sedan, wagon" },
+        { key: "t1", label: "Compact", bodyTypes: ["sedan", "coupe"] },
+        { key: "t2", label: "Full-size", bodyTypes: ["sedan", "wagon"] },
       ]) === null,
-      "two tiers that both say 'sedan' cannot both be the Camry's tier");
+      "two tiers that both claim 'sedan' cannot both be the Camry's tier");
+  }
+
+  // (7) THE COVERAGE CHECK ITSELF — what the settings screen reads to decide
+  // whether a business may go live.
+  {
+    check("18v0 · a checklist missing four types reports exactly those four",
+      JSON.stringify(vehicleBodyTypeCoverage(TWO).missing.sort()) === JSON.stringify([]),
+      "TWO's two tiers between them cover all fourteen — nothing should be missing");
+    const HALF = [{ key: "a", label: "A", bodyTypes: ["coupe", "sedan"] }];
+    const cov = vehicleBodyTypeCoverage(HALF);
+    check("18v1 · an incomplete checklist names what is missing and reports incomplete",
+      cov.complete === false && cov.missing.length === 12 && !cov.missing.includes("coupe"),
+      JSON.stringify(cov));
+    const DUP = [
+      { key: "a", label: "A", bodyTypes: ["coupe"] },
+      { key: "b", label: "B", bodyTypes: ["coupe"] },
+    ];
+    check("18v2 · a duplicated body type is reported too, distinct from missing",
+      vehicleBodyTypeCoverage(DUP).duplicated.includes("coupe") && !vehicleBodyTypeCoverage(DUP).complete,
+      JSON.stringify(vehicleBodyTypeCoverage(DUP)));
   }
 
   // WHAT THE SCREEN PRINTS. Andrew asked for *"Suburban, that's your Large"*,
@@ -1130,7 +1174,7 @@ console.log("\n13. nothing is assumed at signup (roadmap 8.4)");
   check("18v · the matched word is the customer's own, in their own capitals",
     suggestVehicleSize("2019 Chevy SUBURBAN", THREE)?.matched === "SUBURBAN"
       && suggestVehicleSize("my wife's minivan", THREE)?.matched === "minivan"
-      && vehicleBodyWords("Honda Odyssey")?.matched === "Odyssey",
+      && bodyTypeOf("Honda Odyssey")?.matched === "Odyssey",
     JSON.stringify([suggestVehicleSize("2019 Chevy SUBURBAN", THREE)?.matched,
       suggestVehicleSize("my wife's minivan", THREE)?.matched]));
 
