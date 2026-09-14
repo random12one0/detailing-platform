@@ -22,7 +22,7 @@ import { useLocale } from "../../hooks/useLocale.js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { api } from "../../lib/api.js";
-import { phone, time12 } from "../../lib/format.js";
+import { money, phone, time12 } from "../../lib/format.js";
 import {
   businessToday, dayIsOpen, dayRefusesMode, monthGrid, monthHasNothing,
   monthRange, shiftMonth, slotsForType,
@@ -52,10 +52,10 @@ const dow = (locale) => {
 const shortDay = (d, locale) =>
   new Date(`${d}T12:00:00`).toLocaleDateString(locale, { month: "short", day: "numeric" });
 
-export default function StepWhen({ form, setForm, durationMinutes, durations, blocks = [] }) {
+export default function StepWhen({ form, setForm, durationMinutes, durations, surcharges = [], blocks = [] }) {
   useLocale();
   const loc = intlLocale();
-  const { slug, business } = useBookingBusiness();
+  const { slug, business, settings } = useBookingBusiness();
   // THE BUSINESS'S TODAY, never the customer's — somebody booking from
   // another state must not be shown yesterday.
   const today = businessToday(business.timezone);
@@ -293,6 +293,43 @@ export default function StepWhen({ form, setForm, durationMinutes, durations, bl
             ))}
           </div>
           {daySlots.length === 0 && !wrongMode && <p className="bk-muted">{t("Nothing open that day.")}</p>}
+          {/* WHY THE FIGURE IN THE BAR JUST MOVED. The label is the DETAILER'S
+              own name for the rule, out of `business_settings.price_rules`, so
+              it is printed as written and not through `t()` — the same call
+              the receipt on step 7 makes, and the same words, so the customer
+              meets the phrase here and recognises it there.
+              A sign rather than a hard-coded plus: a price rule may be
+              negative, and "+-$10" is how a form loses somebody's trust. */}
+          {/* ONE FLOW CONTAINER FOR BOTH, WHICH IS A HEIGHT DECISION AND NOT A
+              TIDY-UP. Everything inside `legDate &&` is a direct flex child of
+              `.bk-wrap`, so two paragraphs are two page SECTIONS and take the
+              26px section gap twice — the W18 defect, and the same cause as
+              `.bk-choices`, `.bk-cal-block` and `.bk-step-head`. Measured at
+              392 on a Saturday with 19 slots: two loose paragraphs cost 128px
+              of a step that is already scrolling; inside one wrapper they cost
+              102. */}
+          {legTime && (surcharges.length > 0 || settings.booking_mode === "request") && (
+          <div className="bk-when-note">
+          {surcharges.map((a, i) => (
+            <p className="bk-muted" key={`${a.label}-${i}`}>
+              {a.label} · {a.amount < 0 ? "-" : "+"}{money(Math.abs(a.amount))}
+            </p>
+          ))}
+          {/* WHAT PICKING A TIME ACTUALLY BUYS, said where the expectation is
+              formed rather than on the button at the end of the flow. A
+              request-mode business draws the same calendar as a reserve-mode
+              one, and until 2026-09-13 the only place in seven steps that this
+              was a REQUEST was the three words on the final button. A stranger
+              deciding whether to trust a business should not learn that on the
+              press. Absent for a reserve-mode tenant, which is every business
+              the schema defaults. */}
+          {settings.booking_mode === "request" && (
+            <p className="bk-muted">
+              {t("We confirm each booking ourselves. You will get an email once this time is accepted.")}
+            </p>
+          )}
+          </div>
+          )}
         </>
       )}
       {/* **THE THIRD SILENT STEP, AND NOBODY HAD REPORTED IT — 2026-09-12.**

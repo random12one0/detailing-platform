@@ -608,3 +608,45 @@ everywhere else. The eye looks exactly the same size as before; only the area
 around it that responds to a press got bigger.
 
 **Visual: yes.**
+
+---
+
+## 31 · Booking step 5, "Pick a time" — the price stopped moving in silence
+
+**Open:** `localhost:5173/book/demo-detail` → pick any service → Continue →
+Continue → Continue → choose "Drop it off" → Continue. That is step 5 of 7.
+Then pick a **Saturday** and any time.
+
+**WAS:** Picking a Saturday quietly put the total up by thirty dollars. Nothing
+on the screen said so. The words "Weekend rate" did not appear until two steps
+later, on the final receipt, and by then the customer had typed their name,
+their phone and their email. Every other step in the flow already says what it
+costs: a bigger car reads "+$15", a further-out area reads "· +$40", and every
+service and add-on carries its own price. This was the only step that changed
+the number and said nothing.
+
+**NOW:** The moment a time is chosen, the reason for any extra sits in plain
+words right under the times — "Weekend rate · +$30" — using the detailer's own
+name for the rule, which is the same name that appears on the receipt at the
+end. On an ordinary weekday nothing shows, because nothing was added.
+
+**Visual: yes.**
+
+---
+
+## 32 · Booking step 5 — a customer now learns it is a request before they fill the form
+
+**Open:** the same step 5 as above, on `demo-detail`, which is a business that
+accepts requests rather than confirming instantly. Pick a day and a time.
+
+**WAS:** A business that checks each booking by hand draws exactly the same
+calendar as one that confirms on the spot. Nowhere in seven steps did the flow
+say which kind it was. The only clue was the three words on the very last
+button, "Request this time" — after the customer had given their name, their
+phone number, their email and their address.
+
+**NOW:** As soon as a time is picked, one line under the times says "We confirm
+each booking ourselves. You will get an email once this time is accepted." A
+business that confirms instantly shows nothing, because nothing needs saying.
+
+**Visual: yes.**

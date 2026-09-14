@@ -634,6 +634,27 @@ function BookingFlow({ notFound = null }) {
             // truck and a hatchback do not need the same window. Absent on an
             // ordinary booking, and the step falls back to the whole job.
             durations={(quote?.per_vehicle ?? []).map((v) => v.durationMinutes)}
+            // WHAT THE DAY AND THE TIME JUST ADDED. Every other step that
+            // moves the price says so on the control that moves it — a size
+            // card reads "+$15", a travel area reads "· +$40", a service and
+            // an add-on carry their own price. This step was the only one that
+            // changed the figure in the bar and said nothing: measured
+            // 2026-09-13 on the demo, picking Saturday 8:00 AM took the total
+            // from $65 to $95 with the words "Weekend rate" appearing for the
+            // first time two steps later, on the receipt.
+            //
+            // **THE GUARD IS WHAT MAKES THIS HONEST, and it is not tidiness.**
+            // `quote.adjustments` is three kinds of line glued together by
+            // `_shared/pricing.ts` — the extra cars, the day-and-time rules,
+            // and the plan — and only the middle kind was caused by anything
+            // on this step. Slicing by POSITION would couple this file to the
+            // order that array happens to be built in, which is the class of
+            // check CLAUDE.md § (k) is about. So the list is passed only when
+            // the other two kinds provably cannot be in it: one vehicle, no
+            // plan. A split or plan booking shows nothing here, which is
+            // exactly what it showed before.
+            surcharges={quote && quote.vehicle_count === 1 && !quote.plan_name
+              ? (quote.adjustments ?? []) : []}
             blocks={stepBlocks}
           />
         )}

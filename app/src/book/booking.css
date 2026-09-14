@@ -641,6 +641,14 @@
 .bk-chip.selected { background: var(--bk-accent); color: var(--bk-accent-ink); box-shadow: none; font-weight: 500; }
 .bk-chip:disabled { opacity: .35; cursor: default; }
 .bk-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(94px, 1fr)); gap: 7px; }
+
+/* WHAT THE CHOSEN DAY AND TIME JUST DID — the detailer's own surcharge names
+   and, on a request-mode business, what pressing the last button will mean.
+   ONE flex child of .bk-wrap holding both, so the pair takes the 26px section
+   gap once rather than twice: everything inside the `legDate` branch of
+   StepWhen is a direct child of the column, which is the W18 shape. The rows
+   inside sit at the tight spacing, because they are one thought. */
+.bk-when-note { display: grid; gap: 6px; }
 /* A chip whose label is a WORD, not a figure. .bk-chip is set in the mono
    face because every chip on this page until W27 held a time; "Moderate" in
    JetBrains Mono reads as data rather than as an answer. Law 8 asks for the

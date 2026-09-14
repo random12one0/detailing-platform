@@ -206,6 +206,10 @@ export const es = {
   "Next month": "Mes siguiente",
   "Times on {date}": "Horarios del {date}",
   "Nothing open that day.": "No hay nada disponible ese día.",
+  // A request-mode business, said on the step where the time is chosen rather
+  // than on the button at the end — 2026-09-13.
+  "We confirm each booking ourselves. You will get an email once this time is accepted.":
+    "Confirmamos cada reserva nosotros mismos. Recibirás un correo cuando aceptemos esta hora.",
   "No open times this month. Try the next month.":
     "No hay horarios este mes. Prueba el mes siguiente.",
   "No open times this month. Try the next month, or call {phone}.":
