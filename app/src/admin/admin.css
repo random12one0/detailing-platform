@@ -286,7 +286,22 @@
   padding: 10px 13px; font: inherit; font-size: 13px;
 }
 .pa-find:focus { outline: 2px solid var(--ac); outline-offset: 1px; }
-.pa-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+/* **THE MARK STAYS 29, THE TARGET REACHES 44 — the `.chip` pattern from
+   `theme.css`, applied here for the same reason.** Measured at 392 with
+   `elementFromPoint`: painted 29.4px, reachable 29.4px, against a 44 floor.
+   Growing the chip itself would make a 12px pill into a lozenge and change the
+   look of the only filter bar on the Detailers tab; an absolutely positioned
+   `::after` takes no part in layout, so the paint does not move.
+   **VERTICAL ONLY** — the narrowest chip here is 83px wide, and growing
+   sideways across a 6px gap would overlap the neighbour and trade a small
+   target for a WRONG one (CLAUDE.md trap (n)).
+   **AND THE ROW GAP HAD TO OPEN WITH IT.** 29.4 + 6 is a 35.4px pitch, so two
+   45.4px targets on wrapped rows would have overlapped by 10px and stolen each
+   other's presses. 16px makes the pitch 45.4 — the targets tile exactly. The
+   COLUMN gap stays at 6px because width was never the problem. */
+.pa-chips { display: flex; flex-wrap: wrap; gap: 16px 6px; margin-top: 10px; }
+.pa-chip { position: relative; }
+.pa-chip::after { content: ""; position: absolute; inset: -8px 0; }
 .pa-chip {
   background: rgba(255,255,255,.03); border: 0;
   box-shadow: inset 0 0 0 1px var(--line);
@@ -342,6 +357,12 @@
 }
 .pa-col.pa-leaving { animation: pa-col-out var(--t-exit) var(--e-out) both; }
 .pa-swap > * { animation: pa-swap-in var(--t-exit) var(--e-out) backwards; animation-delay: calc(var(--i,0) * 20ms); }
+/* **30px PAINTED, 44px REACHABLE.** This is the only way out of the open
+   detailer that a thumb can find, and it measured 30x30 with nothing carrying
+   it further. Sticky is already a positioned box, so the `::after` resolves
+   against it without a `position: relative`. Probed at 392: no other control
+   sits within 12px in any direction, so the target can grow evenly. */
+.pa-x::after { content: ""; position: absolute; inset: -7px; }
 .pa-x {
   position: sticky; top: 0; float: right; z-index: 1;
   background: var(--ink-2); border: 0; box-shadow: inset 0 0 0 1px var(--line);

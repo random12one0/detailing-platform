@@ -794,3 +794,71 @@ than it needed to be.
 phones it still wraps, because the word genuinely does not fit there.
 
 **Visual: yes.**
+
+---
+
+## 40 · The back office — pressing Suspend now visibly does something
+
+**Open:** `localhost:5173/admin`, sign in as `demo@demo.com`, the Detailers tab,
+tap any detailer to open their panel.
+
+**WAS:** You pressed Suspend, confirmed it, and the panel carried on saying the
+detailer was live and still offered you the Suspend button. Nothing anywhere
+said it had worked, so the natural thing was to press it again.
+
+**NOW:** The panel re-reads that detailer the moment an action finishes, so it
+says "suspended" and offers to put them back. Every button in that panel behaves
+the same way.
+
+**Visual: yes.**
+
+---
+
+## 41 · The back office — "1 hours ago"
+
+**Open:** `localhost:5173/admin`, the Plumbing tab, the "Jobs that run on their
+own" block. Also the Detailers list.
+
+**WAS:** Anything that had happened about an hour ago read *"1 hours ago"*, and
+older things read *"1 months ago"* and *"1 years ago"*.
+
+**NOW:** *"1 hour ago"*, *"1 month ago"*, *"1 year ago"*. It matters most on the
+Plumbing tab, because a scheduled job that has stopped is usually about an hour
+stale the first time you look at it, so the broken-looking sentence was the one
+you were most likely to read.
+
+**Visual: yes.**
+
+---
+
+## 42 · The back office — a detailer's job count says which jobs it means
+
+**Open:** `localhost:5173/admin`, the Detailers tab, the list of businesses.
+
+**WAS:** A row could say *"Booking · last one today"* and, an inch underneath,
+*"0 jobs this month"*. Both were true — the count only ever meant FINISHED jobs
+— but together they read as a broken screen.
+
+**NOW:** The row says *"0 finished jobs this month"*, which is what the number
+has always been, and what the open panel already called it.
+
+**Visual: yes.**
+
+---
+
+## 43 · The back office — two things too small to press on a phone
+
+**Open:** `localhost:5173/admin`, the Detailers tab: the row of filter buttons
+(Everyone, Real detailers, Past due…), and the round × that closes a detailer's
+panel.
+
+**WAS:** Both were about 30 pixels of reachable area, where the standard for
+this product is 44. The × is the only way out of that panel a thumb can find.
+
+**NOW:** Both look exactly the same and both are 44 pixels to press. The filter
+buttons sit a little further apart when they wrap onto a second line, because
+two 44-pixel targets 6 pixels apart would have overlapped and stolen each
+other's taps.
+
+**Visual: yes** — the only thing to look at is the extra breathing room between
+rows of filter buttons.

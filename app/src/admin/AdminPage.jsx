@@ -80,6 +80,8 @@ const call = async (body) => {
   return out;
 };
 
+const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+
 const ago = (iso) => {
   if (!iso) return "never";
   const d = daysSince(iso);
@@ -87,8 +89,8 @@ const ago = (iso) => {
   if (d <= 0) return "today";
   if (d === 1) return "yesterday";
   if (d < 30) return `${d} days ago`;
-  if (d < 365) return `${Math.round(d / 30)} months ago`;
-  return `${Math.round(d / 365)} years ago`;
+  if (d < 365) return `${plural(Math.round(d / 30), "month", "months")} ago`;
+  return `${plural(Math.round(d / 365), "year", "years")} ago`;
 };
 const mins = (iso) => {
   if (!iso) return null;
@@ -98,8 +100,8 @@ const shortAgo = (iso) => {
   const m = mins(iso);
   if (m === null) return "never";
   if (m < 60) return `${m} min ago`;
-  if (m < 48 * 60) return `${Math.round(m / 60)} hours ago`;
-  return `${Math.round(m / 1440)} days ago`;
+  if (m < 48 * 60) return `${plural(Math.round(m / 60), "hour", "hours")} ago`;
+  return `${plural(Math.round(m / 1440), "day", "days")} ago`;
 };
 
 const TABS = [
@@ -458,8 +460,6 @@ export default function AdminPage() {
    there are no detailers yet". A screen that looks broken or blank then teaches
    him it is useless. So every empty state says what it WILL say, which is how
    an empty screen still explains the job. */
-
-const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
 /* The action for each reason `attention.js` can give. The reason is the
    OBSERVATION and lives in `lib/attention.js`; the sentence telling him what to
@@ -991,7 +991,13 @@ function NewBusiness({ reload }) {
 function TabWho({ rows, totals, reload }) {
   const [find, setFind] = useState("");
   const [filter, setFilter] = useState("all");
-  const [open, setOpen] = useState(null);
+  // BY ID, NEVER BY THE ROW OBJECT. `act()` awaits reload(), which replaces
+  // `rows`; a captured row would keep the panel — and the `detail` fetch that
+  // keys on it — showing the state from before the action. Press Suspend and
+  // the drawer still said "live" and still offered Suspend.
+  const [openId, setOpenId] = useState(null);
+  const open = openId ? rows.find((x) => x.id === openId) ?? null : null;
+  const setOpen = (r) => setOpenId(r ? r.id : null);
   const [detail, setDetail] = useState(null);
 
   const shown = useMemo(() => {
@@ -1011,7 +1017,7 @@ function TabWho({ rows, totals, reload }) {
       .then((d) => { if (live) setDetail(d); })
       .catch(() => { if (live) setDetail({ error: true }); });
     return () => { live = false; };
-  }, [open]);
+  }, [openId, rows]);
 
   return (
     <>
@@ -1071,7 +1077,9 @@ function TabWho({ rows, totals, reload }) {
                       {/* `plural`, NOT a bare count. "1 customers" is the
                           unguarded-plural bug CLAUDE.md already names once
                           ("1 visits"), and it was live on three rows here. */}
-                      <span><b>{r.jobs_month}</b> {r.jobs_month === 1 ? "job" : "jobs"} this month</span>
+                      {/* FINISHED jobs — `jobs_month` counts `done`. "0 jobs this month" an inch
+                          under "last one today" reads as a broken screen; both are true. */}
+                      <span><b>{r.jobs_month}</b> {r.jobs_month === 1 ? "finished job" : "finished jobs"} this month</span>
                       <span><b>{money(r.revenue_month)}</b> taken</span>
                       <span><b>{r.customers}</b> {r.customers === 1 ? "customer" : "customers"}</span>
                       <span>setup <b>{sp.count}</b> of {sp.total}</span>
