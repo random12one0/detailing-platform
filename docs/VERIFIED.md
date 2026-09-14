@@ -1040,3 +1040,29 @@ STALENESS RACE carries the whole account.
 for its 23P01 handling — trap (k). The constraint itself had never been proven
 by anything; the row above is that proof, taken once so nobody pays for it
 again.
+
+## 1o · THE PLATFORM-ADMIN CLASSIFICATION — lane C, 2026-09-13, at `a2408f5`
+
+| what was proven | figure | at | invalidated by a change to |
+|---|---|---|---|
+| **The 30 red `platform-admin` checks split 3 real defects / 27 not** | suite went 129/23/7 to **146/3/7** | `691d55a` | `tests/platform-admin.test.mjs`, `app/src/admin/**` |
+| Seventeen re-pointed checks each go RED when their real subject is broken on a scratchpad copy | 17 breaks, 17 reds | `691d55a` | `tests/platform-admin.test.mjs`, `app/src/admin/**` |
+| The three real defects each go GREEN under a plausible fix applied to a copy | suite **149/0/7** | `691d55a` | `app/src/admin/AdminPage.jsx` |
+| `blind-run --only platform-admin` reports zero checks green with the subject blanked | **0** of 372 files' worth | `691d55a` | `tests/platform-admin.test.mjs` |
+| **No suite in `tests/` asserts the 44px tap floor on any surface** | 0 suites | `a2408f5` | `tests/**` |
+| The unguarded-plural class in `app/src` is three in `AdminPage.jsx` plus two minor `t()` strings; five other candidates are guarded and were each opened | 3 + 2 live, 5 clear | `a2408f5` | `app/src/**` |
+
+```bash
+git diff --name-only 691d55a..HEAD -- tests/platform-admin.test.mjs app/src/admin
+```
+
+**THE THREE DEFECTS ARE LANE B'S AND ARE WRITTEN OUT IN FULL** in
+`docs/lane-b-handover-2026-09-13.md` § 2: the open detailer held as a snapshot so
+Suspend leaves the panel lying, `"1 hours ago"` in the two date helpers, and
+F-016 back on the Detailers list as one missing word. The name-by-name split of
+all thirty is `docs/platform-admin-triage-2026-09-13.md` § 6.
+
+**AND `PA_MUT` IS THE REUSABLE PART.** `read()` in that suite honours a JSON map
+of `path -> replacement path`, empty by default, so a check whose subject lives
+in another lane can be baselined on a scratchpad copy without writing in that
+lane and without trap (f). Any source-reading suite can take the same two lines.
