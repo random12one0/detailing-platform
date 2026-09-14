@@ -45,26 +45,112 @@ safety valve.
 delete the feature and the check together. What must not happen is the third
 option — a server action nobody can reach and a red check nobody reads.
 
-## 2 · THE THIRTY IN `platform-admin`, WHICH ARE ALREADY TRIAGED
+## 2 · THE THIRTY IN `platform-admin` ARE NOW THREE, AND HERE IS EACH ONE
 
-`tests/platform-admin.test.mjs` — **130 passed, 30 failed.**
+**RE-CLASSIFIED 2026-09-13 at `af58108`. The suite is 146 passed, 3 failed, 7
+skipped — it was 129 / 23 / 7.** Twenty of the twenty-three were checks naming a
+spelling or a design the rebuild replaced; those are fixed in `tests/`, which is
+lane C's, and the full name-by-name split is
+`docs/platform-admin-triage-2026-09-13.md` § 6.
 
-**THIS NUMBER IS NOT NEW AND NOTHING ABOUT IT CHANGED TODAY.** It was 49 on
-2026-09-13 morning, 43 after the first triage, and 30 after the second.
-**`docs/platform-admin-triage-2026-09-13.md` § 4 is the list**, and its verdict
-is that all thirty name a capability the rebuilt screen does not have.
+**THE THREE BELOW ARE RED ABOUT `app/src` AND ARE YOURS.** Each was proven to go
+GREEN under a plausible fix — the fix applied to a scratchpad copy, suite re-run,
+**149 / 0 / 7** — so none of them is a check you cannot satisfy.
 
-The three biggest, with what was probed:
+### 2a · An action on an open detailer leaves the panel showing stale data
 
-| check | probe | what it means |
+**Check:** `9i · the open detailer is re-read after an action, not left on a snapshot`
+**File:** `app/src/admin/AdminPage.jsx:994`, `:1061`, `:1143`
+
+`TabWho` holds the open detailer as `open` — the row OBJECT captured at
+`setOpen(r)` when the row was clicked. `act()` awaits `reload()`, which refreshes
+`rows` in the parent and **never re-points `open` at the new row**. The `detail`
+fetch is worse: its effect keys on `[open]`, which did not change, so it is never
+re-read either.
+
+**What Andrew sees:** press Suspend, confirm it, and the panel still says the
+detailer is live and still offers Suspend. Nothing anywhere says it worked. He
+presses it again.
+
+**The fix that was measured green:**
+
+```js
+const [openId, setOpenId] = useState(null);
+const open = openId ? rows.find((x) => x.id === openId) ?? null : null;
+const setOpen = (r) => setOpenId(r ? r.id : null);
+```
+
+The check asserts `setOpen(` and `rows.find(`, and says in its own comment that
+it is pinning a SHAPE because source text is the only instrument this repo has
+for a React screen. An id-keyed fix and a re-pointing fix both satisfy it.
+
+### 2b · "1 hours ago", "1 months ago", "1 years ago"
+
+**Check:** `10i-ii · and one of anything is never printed with an s`
+**File:** `app/src/admin/AdminPage.jsx:83`–`:103` (`ago()` and `shortAgo()`)
+
+Both helpers round and then append a bare plural:
+
+| helper | input | prints |
 |---|---|---|
-| `the check has a strip to count` / `seven figures across the top` / `and exactly one of them is the lead` | `pa-strip` ×0, `pa-num` ×0, `pa-lead` ×0 | the Growth strip header is gone; the screen has `pa-top` and no numeral face |
-| `the button warns before it acts` (impersonation) | `confirm(` ×1, `written down` ×0 | **NOT a loss.** Andrew replaced the warning with `/preview`; `AdminPage.jsx:1165` quotes him. **Three checks to retire, not a feature to restore.** |
-| the 12x family — the two-column split, the 1024 collapse, the way back | | the layout the checks describe is not the layout that shipped |
+| `shortAgo`, `hours ago` | 60–89 minutes | **"1 hours ago"** |
+| `ago`, `months ago` | 30–44 days | **"1 months ago"** |
+| `ago`, `years ago` | 365–547 days | **"1 years ago"** |
 
-**SO THE WORK IS A DECISION PER ROW, NOT A REPAIR**: for each, either the
-capability comes back or the check goes. **Lane C will delete any check lane B
-rules obsolete** — say which, and it is one commit in `tests/`.
+**The first one is not a corner case.** `shortAgo` prints the *last ran* figure
+on Plumbing's "Jobs that run on their own", and the reminder sweep's own
+staleness window is 45 minutes — so **60 to 89 minutes is exactly the band a
+stopped sweep is in when he first looks at it.** The string he is most likely to
+read on a broken job is the ungrammatical one.
+
+**The old check held this and the rebuild dropped it**: it pinned the
+`hour`/`hours` ternary, which was the guard itself. `plural()` is already in this
+file and is what the rest of the screen uses.
+
+### 2c · F-016 is back on the Detailers list — one missing word
+
+**Check:** `11i · the jobs figure says the jobs are finished ones, in BOTH places`
+**File:** `app/src/admin/AdminPage.jsx:1074`
+
+The open panel is right — `<Row k="Finished this month" v={row.jobs_month} />`.
+The list row is not: it prints `{r.jobs_month} jobs this month` **directly under**
+the attention sentence, which for a healthy detailer reads
+`Booking · last one today`.
+
+`jobs_month` counts COMPLETED jobs (`platform-admin/index.ts:271` is
+`monthJobs.length` off `done`). So a detailer with work booked and nothing
+finished yet reads **"0 jobs this month"** an inch under **"last one today"**.
+Both are true and together they read as a broken screen — which is F-016's
+original wording exactly.
+
+```jsx
+{r.jobs_month === 1 ? "finished job" : "finished jobs"} this month
+```
+
+## 2d · AND ONE THING NO CHECK IN THIS REPO CAN SEE — the back office tap floor
+
+**Not a `platform-admin` failure, because nothing in `tests/` asserts the 44px
+floor on any surface.** Found by reading `app/src/admin/admin.css` while doing
+the above, and stated as SOURCE evidence rather than a measurement, because the
+dev server is yours and your tree had uncommitted work (trap (f)).
+
+- **`.pa-x` — the drawer's close button — is `width: 30px; height: 30px`**
+  (`admin.css:348`). **There is no `::after` anywhere in `admin.css` except the
+  tab underline**, so nothing can be carrying its hit area to 44. It is the only
+  way out of the open-detailer drawer that a thumb can find.
+- **`.pa-chip` — the Detailers filter chips — has `padding: 6px 12px` at
+  `font-size: 12px` and no `min-height`.** That computes to roughly 29px. It is
+  the same defect, in the same shape, as the Clients and Money sort chips lane B
+  already fixed at `7aacb02` with `.chip`'s vertical-inset `::after`.
+
+**MEASURE BEFORE FIXING** — `docs/START-HERE.md` § 3: a bounding rect cannot
+settle this, the instrument is `elementFromPoint` probed at centre and ±4, ±10,
+±15. What source CAN settle is that no pseudo-element exists to save them.
+
+**`docs/VERIFIED.md` § 1 does NOT cover this.** That row proved *zero overlapping
+pairs and no sideways scroll* on the back office at five widths. It never
+measured the floor, and `.pa-x` at 30px is exactly the control § 3 of
+`START-HERE.md` was written about.
 
 ## 3 · WHAT IS NOT IN HERE, DELIBERATELY
 

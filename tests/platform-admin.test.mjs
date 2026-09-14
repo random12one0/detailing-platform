@@ -98,7 +98,16 @@ const strip = (s) => s
 // a red one said nothing about the product. Migrations keep the old
 // behaviour under its own name.
 const stripSql = (s) => strip(s).replace(/'(?:''|[^'])*'/g, "''");
-const read = (p) => readFileSync(p, "utf8");
+// **`PA_MUT` IS HOW THIS SUITE GETS BASELINED WITHOUT WRITING IN ANOTHER LANE
+// — added 2026-09-13.** `docs/BAR.md` says break a check on purpose before
+// believing it, and every subject this file reads lives under `app/src`, which
+// is lane B's. Editing those files to prove a check can fail is a lane breach
+// AND trap (f) — a measurement taken while somebody else is building. So
+// `PA_MUT` is a JSON map of `path -> replacement path`: copy the real file to
+// the scratchpad, break it there, and point the suite at the copy for one run.
+// Empty by default, so a normal run reads the real tree and this costs nothing.
+const MUT = process.env.PA_MUT ? JSON.parse(process.env.PA_MUT) : {};
+const read = (p) => readFileSync(MUT[p] ?? p, "utf8");
 
 const MIGRATIONS = readdirSync("supabase/migrations").filter((f) => f.endsWith(".sql"));
 const fn = read("supabase/functions/platform-admin/index.ts");
@@ -239,7 +248,16 @@ console.log("\n3. impersonation");
     /admin_id/.test(f) && /admin_email/.test(f) && /business_name/.test(f),
     "if a detailer ever asks 'were you looking at my numbers?', he wants a record rather than a memory");
   check("the link is generated, never emailed", /generateLink/.test(block) && !/sendTenantEmail|send-email/.test(block));
-  check("the button warns before it acts", /confirm\(/.test(page) && /written down/.test(page));
+  // **DELETED 2026-09-13 — A CHECK AGAINST A DESIGN ANDREW REPLACED, NOT A
+  // DROPPED CAPABILITY.** It asserted a browser confirm saying the look was
+  // "written down". Impersonation no longer swaps the session: it opens a
+  // /preview tab that keeps its own session in its own drawer, and
+  // AdminPage.jsx quotes him asking for exactly that — *"I don't even wanna be
+  // signing in as someone to view their dashboard"* — beside the comment "No
+  // warning, because there is nothing left to warn about."
+  // **THE SERVER HALF IS UNTOUCHED AND IS WHAT THIS SECTION IS FOR:** the two
+  // checks above still hold that the action LOGS BEFORE IT ACTS and that a
+  // FAILED LOG STOPS IT. Retiring the warning does not retire the record.
 }
 
 // ─── 4. Every write is logged ─────────────────────────────────────────────
@@ -392,26 +410,41 @@ console.log("\n7. and the things the spec refused");
   // comments, and a `const` of the same name put it in its own temporal dead
   // zone two hundred lines EARLIER — the same shape as `appear()` in
   // sweep-widths.mjs, which CLAUDE.md records twice.
-  const stripBlock = p.slice(p.indexOf('<header className="pa-strip'), p.indexOf("</header>"));
-  const figures = (stripBlock.match(/pa-num"/g) ?? []).length;
-  check("the check has a strip to count — the header was found", stripBlock.length > 200);
-  // SEVEN SINCE 2026-09-06's REBUILD — one LEAD figure plus six — and the
-  // ceiling is what this check is really for. A strip of figures stops being
-  // read somewhere around eight, and "show me everything" taken literally is
-  // the wall of fields `docs/platform-admin-audit-2026-09-06.md` warns
-  // against in its first paragraph. What changed is the HIERARCHY, not the
-  // budget: the lead is set against the ground with no box, the other six are
-  // a ruled row, and six equal cards is a wall wearing a grid.
-  check("seven figures across the top, and never more than eight",
-    figures === 7 && figures <= 8, `${figures} figures`);
-  check("and exactly one of them is the lead",
-    (p.match(/className="pa-lead"/g) ?? []).length === 1);
-  // The jobs label gained the word "finished" on 2026-09-06 — testing loop
-  // F-016, and § 11i is where the reason lives. The claim here is unchanged:
-  // these two are about the PRODUCT rather than the company.
-  check("and the two new ones are about the product, not the business",
-    /jobs finished this month/.test(p) && /through the platform/.test(p),
-    "the other four all answer 'how is my company doing'; these answer 'is it carrying work'");
+  // **RE-POINTED 2026-09-13 — THE STRIP IS GONE AND THE TILES REPLACED IT.**
+  // `<header className="pa-strip">` held one lead figure and six `.pa-num`
+  // companions across the top of a one-screen back office. That screen is five
+  // TABS now, and Today ENDS with `.pa-tiles` — five equal `<Tile>`s under
+  // "Where the business stands", deliberately last and deliberately flat. The
+  // file says why in as many words: *"THE NUMBERS, LAST AND FEW... cut to the
+  // ones that mean something on their own."*
+  const tileAt = p.indexOf('<div className="pa-tiles"');
+  const tileBlock = tileAt < 0 ? "" : p.slice(tileAt, p.indexOf("</div>", tileAt));
+  const figures = (tileBlock.match(/<Tile /g) ?? []).length;
+  check("the check has figures to count — the tile block was found", tileBlock.length > 200);
+  // **THE CEILING IS WHAT SURVIVES THE REBUILD, AND IT IS THE HALF WORTH
+  // KEEPING.** A run of figures stops being read somewhere around eight, and
+  // "show me everything" taken literally is the wall of fields
+  // `docs/platform-admin-audit-2026-09-06.md` warns against in its first
+  // paragraph. The exact count was never the property; the budget was.
+  //
+  // **`and exactly one of them is the lead` WAS DELETED RATHER THAN SOFTENED.**
+  // It asserted a HIERARCHY — one lead figure against the ground, six in a
+  // ruled row — and the rebuild flattened it to five equal tiles on purpose.
+  // A check against a replaced design either goes red for ever or gets watered
+  // down until it cannot fail, and the second is worse.
+  check("no more than eight figures in one run",
+    figures > 0 && figures <= 8, `${figures} figures`);
+  // **ONE OF THE TWO SURVIVED THE REBUILD AND ONE DID NOT — 2026-09-13, and
+  // the dead half is RECORDED rather than asserted.** The money that went
+  // THROUGH the platform is still printed twice, on Today and on Money. The
+  // platform-wide finished-jobs figure is on no tab at all, and
+  // `platform-admin/index.ts:430` still computes `totals.jobs_month` for
+  // nobody — a server field with no reader. That is Andrew's own cut, not a
+  // regression, so this asserts what is true and the dead field is named in
+  // `docs/lane-b-handover-2026-09-13.md` instead of being asserted back.
+  check("the platform's own takings are still on the screen",
+    /went through it\s+this month/.test(p) && /went through the platform this month/.test(p),
+    "the tiles answer 'how is my company doing'; this one answers 'is it carrying work'");
 
   // **"NO CHART STILL HOLDS" USED TO BE HERE AND IT DOES NOT HOLD — 2026-09-13.**
   // The reasoning was *below ten customers every trend line is noise*, and it
@@ -530,11 +563,30 @@ console.log("\n9. taking their data with them");
     /URL\.createObjectURL/.test(p) && /a\.download = /.test(p)
       && !/<pre>\{JSON\.stringify\(r\.export/.test(p));
 
-  // FOUND BY PRESSING A BUTTON AND LOOKING. Every confirmation on this screen
-  // was set and then wiped by the refresh that followed it, in the same tick.
-  check("9i · a confirmation survives the refresh that follows it",
-    /openBusiness\(open, true\)/.test(p) && /if \(!keepMsg\) setMsg\(null\)/.test(p),
-    "the action worked, the list refreshed, and the only thing missing was the sentence saying so");
+  // **RE-POINTED 2026-09-13, AND IT IS STILL RED BECAUSE THE DEFECT IS REAL —
+  // a different one from the defect it was written for.**
+  //
+  // The old `msg`/`keepMsg` pair went with the screen that had it, so a
+  // confirmation wiped in the same tick can no longer happen: there is no
+  // confirmation. What replaced it is worse and is live today. `TabWho` holds
+  // the open detailer as `open`, a SNAPSHOT of the row object taken at
+  // `setOpen(r)`, and `act()` awaits `reload()` — which refreshes `rows` in the
+  // PARENT and never re-points `open` at the new row. **Press Suspend, confirm
+  // it, and the panel still says they are live and still offers Suspend.** The
+  // `detail` fetch is worse again: its effect keys on `[open]`, which did not
+  // change, so it is never re-read either. Nothing on the screen says the
+  // action worked, and the one thing that could have — the state itself — is
+  // the stale copy.
+  //
+  // **SOURCE TEXT IS THE ONLY INSTRUMENT THIS REPO HAS FOR A REACT SCREEN**,
+  // so this pins a SHAPE rather than a computed value, which is trap (k) and is
+  // said out loud here rather than pretended away: the open detailer has to be
+  // looked up out of `rows` rather than carried by value. An id-keyed fix and a
+  // re-pointing fix both satisfy it; nothing that leaves the snapshot does.
+  // Lane B owns it — `docs/lane-b-handover-2026-09-13.md`.
+  check("9i · the open detailer is re-read after an action, not left on a snapshot",
+    /setOpen\(/.test(p) && /rows\.find\(/.test(p),
+    "AdminPage.jsx:994 holds the row by value; reload() refreshes rows and never re-points open, so Suspend leaves the panel saying the detailer is live");
 }
 
 
@@ -584,11 +636,18 @@ console.log("\n10. the jobs that nobody watches");
   // subject. The property is unchanged and the spelling is not; a check that
   // pins an old spelling goes red on a correct change, and one that is left
   // pointing at deleted code goes VACUOUS, which is worse.
-  check("10g · and the screen prints it either way", /jobKeys\.map\(/.test(p)
-    && /pa-bad" : "pa-quiet"/.test(p));
-  // A job that has never reported is what a dropped table looks like too.
+  // RE-POINTED 2026-09-13: the rebuild moved this onto the Plumbing tab and
+  // renamed everything. The heartbeats are mapped straight off `state`, and the
+  // dot's two states are `pa-bad` / `pa-ok` — the property is that EVERY job
+  // the server reports gets a row and a colour, not what the colour is called.
+  check("10g · and the screen prints it either way",
+    /\(state\?\.heartbeats \?\? \[\]\)\.map\(/.test(p)
+      && /pa-bad" : "pa-ok"/.test(p));
+  // A job that has never reported is what a dropped table looks like too, so
+  // `null` has to fall on the BAD side of the comparison rather than skipping
+  // it. RE-POINTED: `if (!beat) return true` became one expression.
   check("10h · a job that has never reported counts as stale",
-    /if \(!beat\) return true;/.test(p));
+    /const bad = m === null \|\| m > limit;/.test(p));
   // AND THE WINDOW IS THE ROW'S. Roadmap 8.12 moved it out of this screen
   // because the emailer needed the same number, and two copies of a threshold
   // is how a screen says a job is fine while the alarm is going off.
@@ -599,9 +658,30 @@ console.log("\n10. the jobs that nobody watches");
     /\.stale_after_seconds/.test(p) && !/45 \* 60_?000/.test(p));
   // `ago()` bottoms out at "today", which says nothing about a job that runs
   // every fifteen minutes — "Reminders LAST RAN today" is what the first
-  // version printed.
+  // version printed. `shortAgo()` is the rebuild's answer and the unit half of
+  // this claim survives: minutes under an hour, hours under two days.
   check("10i · in minutes and hours, not \"today\"",
-    /minutes ago/.test(p) && /hour\$\{h === 1 \? "" : "s"\} ago/.test(p));
+    /return `\$\{m\} min ago`/.test(p)
+      && /hour/.test(p)
+      && /\{shortAgo\(h\.ran_at\)\}/.test(p));
+  // **AND THE PLURAL GUARD DID NOT SURVIVE IT — RED ON PURPOSE, 2026-09-13.**
+  // The old check pinned `hour${h === 1 ? "" : "s"} ago`, which was the guard
+  // itself. `shortAgo()` replaced it with a bare `${Math.round(m / 60)} hours
+  // ago`, so **any job that last ran between 60 and 89 minutes back reads
+  // "1 hours ago"** — and that band is exactly where the reminder sweep sits
+  // when it has stopped, because its own staleness window is 45 minutes. The
+  // string Andrew is most likely to read on a broken job is the ungrammatical
+  // one. Same family as "1 visits", which CLAUDE.md already names once.
+  //
+  // AND IT IS NOT ONLY `shortAgo`. `ago()` has the same hole twice: 30 to 44
+  // days reads "1 months ago" and 365 to 547 days reads "1 years ago", both on
+  // the Detailers list and in the open panel's "Last booking" row. Lane B owns
+  // all three — `docs/lane-b-handover-2026-09-13.md`.
+  check("10i-ii · and one of anything is never printed with an s",
+    !/\$\{Math\.round\(m \/ 60\)\} hours ago/.test(p)
+      && !/\$\{Math\.round\(d \/ 30\)\} months ago/.test(p)
+      && !/\$\{Math\.round\(d \/ 365\)\} years ago/.test(p),
+    "AdminPage.jsx shortAgo() and ago() round to 1 and then append a plural: '1 hours ago', '1 months ago', '1 years ago'");
   // And the day it was installed it must not cry about a nightly job that has
   // simply not come round yet.
   check("10j · both jobs are seeded when the watching starts",
@@ -645,9 +725,15 @@ console.log("\n11. demos are marked and never counted");
 
   // THE SCREEN SAYS SO. A number that silently means something narrower than
   // its label is the same defect one layer up.
-  check("11f · a demo row is tagged in the list", /r\.is_demo && <span className="pa-tag">demo<\/span>/.test(p));
-  check("11g · and the headline says how many were left out",
-    /t\.demo \? `detailers · \$\{t\.demo\} demo` : "detailers"/.test(p));
+  // RE-POINTED 2026-09-13: `pa-tag` became `pa-flag` and the count moved out of
+  // the headline into one sentence under the list. **The property is unchanged
+  // and is the whole point of both** — a fixture is marked where it is read,
+  // and the number left out of every other count is stated once in words.
+  check("11f · a demo row is tagged in the list",
+    /r\.is_demo && <span className="pa-flag">demo<\/span>/.test(p));
+  check("11g · and the screen says how many were left out",
+    /totals\.demo \? `\$\{totals\.demo\} demo or test row/.test(p)
+      && /left out of every count elsewhere/.test(p));
 
   // ─── the month has an end (F-018) ───────────────────────────────────────
   // `start_at >= monthStart` with nothing above it counted a completed job
@@ -699,16 +785,36 @@ console.log("\n11. demos are marked and never counted");
   // ─── the tile says what it counts (F-016) ───────────────────────────────
   // "0 jobs this month" sat beside a row reading "30 bookings, last today".
   // Both were right; together they read as a broken number.
-  check("11i · the jobs tile says the jobs are finished ones",
-    /jobs finished this month/.test(p));
+  //
+  // **F-016 IS BACK, ON THE DETAILERS LIST, AND IT IS THE SAME TWO LINES ONE
+  // INCH APART — RE-POINTED AND STILL RED, 2026-09-13.** The rebuild got the
+  // open panel right (`<Row k="Finished this month" ...>`) and dropped the word
+  // from the list row, which now prints `{r.jobs_month} jobs this month`
+  // directly under a sentence reading `Booking · last one today`. The number
+  // counts COMPLETED jobs — `platform-admin/index.ts:271` is `monthJobs.length`
+  // off `done` — so a detailer with work booked for next week and nothing
+  // finished yet reads "0 jobs this month, last one today". Both true, and
+  // together they read as a broken screen.
+  //
+  // **ONE WORD, IN THE LIST ROW.** Lane B — `docs/lane-b-handover-2026-09-13.md`.
+  // The anchor is the panel row, which proves the file was read even while the
+  // list row is wrong.
+  check("11i · the jobs figure says the jobs are finished ones, in BOTH places",
+    /Finished this month/.test(p)
+      && /r\.jobs_month === 1 \? "finished job" : "finished jobs"/.test(p),
+    "AdminPage.jsx:1074 prints '{r.jobs_month} jobs this month' under 'Booking · last one today'");
 
   // ─── the photo line stops contradicting itself (F-017) ──────────────────
   // "10 MB each for 15 detailers · 154 MB promised" — two independent
   // roundings of the same arithmetic, printed side by side. Under the ceiling
   // the promised figure is exactly share x businesses and says nothing new;
   // over it, it is the whole point.
+  // RE-POINTED 2026-09-13: the comparison was lifted into `overPromised`, so
+  // BOTH halves are asserted — the condition is the right one, and the sentence
+  // hangs off it rather than printing unconditionally.
   check("11j · the promised total is printed only when it is over the ceiling",
-    /committed_bytes > state\.photo_store\.total_bytes\s*&& ` · PROMISED/.test(p));
+    /const overPromised = !!\(store\?\.total_bytes && store\.committed_bytes > store\.total_bytes\);/.test(p)
+      && /\{overPromised && ` PROMISED/.test(p));
 
   // **AND EVERY FIELD IT READS OFF THAT ROW IS A COLUMN THE RPC RETURNS.**
   //
@@ -755,16 +861,30 @@ console.log("\n11. demos are marked and never counted");
   // it was written for — opening a detailer threw the page down past its own
   // figures. So the rule is no longer "scroll to it"; it is "scroll only
   // where it is somewhere else".
-  check("11k · the scroll only happens where the panel is not already beside the list",
-    /matchMedia\("\(min-width: 1024px\)"\)\.matches/.test(p)
-      && /window\.scrollTo\(\{ top: 0/.test(p),
-    "at a desk the two columns are both on screen and any scroll is wrong");
-  check("11l · but a refresh after an action does not move him",
-    /if \(!keepMsg && !window\.matchMedia/.test(p));
+  // **AND 2026-09-13's REBUILD SETTLED IT BY REMOVING THE QUESTION.** The open
+  // detailer is no longer a column in the page flow at any width: it is a fixed
+  // overlay drawer anchored to the right, over a scrim, at `width: min(560px,
+  // 100%)`. **A thing that is `position: fixed` is already in view, so there is
+  // no scroll to get right and none in the file** — which is why 11k and 11l
+  // collapse into one claim about the MECHANISM rather than two about a scroll.
+  // Under 560px the drawer is the full width, so a phone still gets two levels
+  // rather than one long page, which is what 12c asked for.
+  check("11k · the open detailer needs no scroll, because it is not in the flow",
+    /\.pa-open \{ position: fixed; inset: 0;/.test(strip(read("app/src/admin/admin.css")))
+      && /width: min\(560px, 100%\)/.test(strip(read("app/src/admin/admin.css")))
+      && !/window\.scrollTo\(/.test(p),
+    "a fixed overlay is on screen by construction; a scrollTo left behind would be the bug");
 
   // ─── the door says where it is (F-021) ──────────────────────────────────
+  // RE-POINTED 2026-09-13: the heading became the ACTION and the identity moved
+  // to the eyebrow above it, which is CLAUDE.md § SCREEN RULES' own shape —
+  // *a short imperative that names the action* — and F-021's property is
+  // untouched: a stranger who lands here is told whose door it is and that it is
+  // not a detailer's.
   check("11m · the signed-out door names itself",
-    /The back office<\/h1>/.test(p));
+    /Detailing Platform · back office/.test(p)
+      && /<h1>Sign in<\/h1>/.test(p)
+      && /This is the platform&apos;s own screen, not a detailer&apos;s\./.test(p));
   // And still never says WHY a signed-in stranger was refused — the 404 rule
   // this file has held since stage 1.
   // **THE SLICE HAD TO BE GUARDED.** `indexOf` returns -1 when the anchor is
@@ -808,27 +928,44 @@ console.log("\n12. the layout, and the motion the owner asked for");
   const main = read("app/src/main.jsx");
 
   // ── LAYOUT ───────────────────────────────────────────────────────────
-  // TWO COLUMNS AT A DESK. One 900px column at 1920 is a narrow ribbon with
-  // two thirds of the screen empty, and it is what put the open business a
-  // hundred rows below the list (F-015).
-  check("12a · the list and the open business are a two-column split",
-    /\.pa-split \{[\s\S]{0,200}?grid-template-columns: 1fr;/.test(css)
-      && /@media \(min-width: 1024px\)[\s\S]{0,300}?\.pa-split \{ grid-template-columns: minmax\(/.test(css));
+  // **THE SPLIT IS GONE AND A DRAWER REPLACED IT — RE-POINTED 2026-09-13.**
+  // `.pa-split` was a grid that stacked under 1024 and put the open business
+  // beside the list above it, with `.pa-rail`, `.pa-back` and `.pa-rest` as its
+  // three moving parts. The rebuild made the back office five TABS and turned
+  // the open detailer into a fixed overlay drawer over a scrim. **All five of
+  // those class names are gone from both files**, so 12a, 12c, 12d, 12e and 12f
+  // were five checks pinning a layout that no longer exists.
+  //
+  // **WHAT IS ASSERTED NOW IS THE PROPERTY EACH OF THEM WAS FOR**, which the
+  // drawer answers differently and in most cases better:
+  //   12a  F-015 — the open business must not sit a hundred rows below the list.
+  //        A fixed overlay cannot.
+  //   12c  a phone gets two levels, not one long page. `min(560px, 100%)` is
+  //        the full width below 560, so the drawer covers the list.
+  //   12d  the screen knows when something is open — it mounts the drawer.
+  //   12e  there is a way back, and here there are three: the × , the scrim,
+  //        and Escape. **All three are asserted**, because a drawer with only a
+  //        scrim is a trap on a keyboard and one with only an × is a trap for a
+  //        thumb.
+  //   12f  DELETED. It guarded an empty half-screen reading as a failed load.
+  //        There is no resting column to be empty. A check kept alive against a
+  //        deleted surface is the vacuous kind this file spent 2026-09-13
+  //        hunting.
+  check("12a · the open business is over the list, never below it",
+    /\.pa-open \{ position: fixed; inset: 0;/.test(css)
+      && !/\.pa-split/.test(css) && !/pa-split/.test(p),
+    "F-015 was the open business a hundred rows down; a fixed overlay cannot be");
   check("12b · and the width is the product's own, not a second opinion",
     /max-width: var\(--wrap/.test(css) && !/max-width: 900px/.test(css));
-  // ON A PHONE IT IS TWO LEVELS, not one long page. Stacked, the back control
-  // undid nothing you could see.
-  check("12c · below 1024 the open business replaces the list",
-    /@media \(max-width: 1023px\)[\s\S]{0,160}?\.pa-split\.open \.pa-rail \{ display: none; \}/.test(css));
-  check("12d · and the split knows when something is open",
-    /"pa-split" \+ \(open \? " open" : ""\)/.test(p));
-  check("12e · with a way back that only exists where it means something",
-    /className="pa-back"/.test(p)
-      && /@media \(max-width: 1023px\) \{ \.pa-back \{ display: block; \} \}/.test(css));
-  // THE RIGHT-HAND COLUMN IS NEVER BLANK. An empty half-screen reads as a
-  // page that failed to load — the same defect the sign-in gate had.
-  check("12f · the resting state says what the column is for",
-    /className="pa-rest"/.test(p) && /\.pa-rest \{/.test(css));
+  check("12c · below 560 the open business covers the list",
+    /\.pa-col \{[\s\S]{0,120}?width: min\(560px, 100%\);/.test(css));
+  check("12d · and the screen only mounts it when something is open",
+    /\{open && <Business row=\{open\}/.test(p));
+  check("12e · with three ways back, because one is a trap",
+    /className="pa-x" type="button" onClick=\{close\}/.test(p)
+      && /<div className="pa-scrim" onClick=\{close\} \/>/.test(p)
+      && /if \(e\.key === "Escape"\) close\(\);/.test(p),
+    "a scrim alone is a trap on a keyboard and an x alone is a trap for a thumb");
 
   // ── MOTION ───────────────────────────────────────────────────────────
   // The product's three kinds, in this file's own spellings. It shares no
@@ -1289,8 +1426,14 @@ console.log("\n14. the email safety net (roadmap 8.6)");
     /email: \{/.test(admin)
       && /cap: ps\?\.email_daily_cap \?\? 100/.test(admin)
       && /sent: /.test(admin.slice(admin.indexOf("email: {"), admin.indexOf("email: {") + 900)));
+  // RE-POINTED 2026-09-13: `state.email` became the local `mail`, and the line
+  // now appears TWICE — as an alert on Today when it matters, and always as a
+  // Quotas row on Plumbing. Both are asserted, because the alert alone would
+  // mean the figure is unreadable on a quiet day and the row alone would mean
+  // nobody is told on a busy one.
   check("14c-ii · and the screen prints it beside the other silent limits",
-    /Platform emails: \$\{state\.email\.sent\} of \$\{state\.email\.cap\} today/.test(page));
+    /Platform emails: \$\{mail\.sent\} of \$\{mail\.cap\} today/.test(page)
+      && /\{mail\?\.sent \?\? 0\} of \{mail\?\.cap \?\? 0\}/.test(page));
   // **"PLATFORM" IS LOAD-BEARING AND IS NOT A TIDIER LABEL — 2026-09-08,
   // measured by domain.** `sent` comes from `platform_email_days`, a table in
   // THIS project, so it counts what the platform sent. The cap is Resend's
@@ -1308,8 +1451,12 @@ console.log("\n14. the email safety net (roadmap 8.6)");
     "at four fifths of a SHARED cap, the real figure is the one that matters");
   // **AT FOUR FIFTHS, NOT AT THE LIMIT.** A warning that arrives AT the cap is
   // a warning about emails that have already failed.
+  // RE-POINTED 2026-09-13: four fifths is still the trigger and it now fires in
+  // two places — the alert is pushed at `>= cap * 0.8`, and the Quotas meter
+  // turns at `mailPct >= 80`. The THRESHOLD is the property, not the class name.
   check("14c-iii · it goes red before the cap, not at it",
-    /state\.email\.sent >= state\.email\.cap \* 0\.8 \? "pa-bad"/.test(page));
+    /mail\.sent >= mail\.cap \* 0\.8/.test(page)
+      && /mailPct >= 80 \? " pa-warn"/.test(page));
   // **AND THE WAY TO SILENCE IT IS TO RAISE THE CAP** — his own sentence read
   // literally. A dismiss flag silences a true statement and leaves the next
   // busy Saturday exactly where F-025 found it.

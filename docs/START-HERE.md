@@ -162,6 +162,17 @@ DOES.** Assert the shared constant, the component, or a computed value.
   repo is unlinked.
 - **No direction-generating design skill** runs against this product; appliers
   and auditors only. **There is one ground — the light theme is dead.**
+- **THERE IS NO REBUILD CAMPAIGN — Andrew, 2026-09-13.** His screens *"were
+  pretty well made from the start"* and he is *"not really asking to rebuild a
+  ton of stuff."* **The bar for touching a screen is a NAMED FAULT — broken, cut
+  off, unreachable, wrong, or misleading — or a specific improvement you can say
+  in one sentence.** "It could be nicer" is not a reason to open a file.
+  **Judgement still applies:** a screen that genuinely needs rebuilding gets
+  rebuilt, and that is a decision made about THAT screen rather than a policy.
+  **And nothing is ever left half-old and half-new** — a screen touched is a
+  screen finished, because a half-migrated screen is worse than either version
+  of it. The job is **fix, improve, finish the last features, and keep testing
+  until it is nearly perfect**, in that order.
 - **Open-Meteo is banned**: its free tier is non-commercial and this is a
   commercial product. Weather is `api.weather.gov`, and it REQUIRES a
   `User-Agent`.

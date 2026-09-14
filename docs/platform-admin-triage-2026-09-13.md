@@ -296,3 +296,147 @@ EVENTUALLY BE THE ONLY THING STANDING BETWEEN A REGRESSION AND PRODUCTION.**
 Eighteen of this suite's 118 green lines were that, and the way to find out was
 to **take the files away and see who noticed**. Do that to any suite before
 trusting a number it prints — it costs one `read()` replaced by `() => ""`.
+
+---
+
+# 6 · THE CLASSIFICATION, EVERY FAILURE BY NAME — lane C, 2026-09-13, at `af58108`
+
+**ROADMAP § Next 1 asked for 45 classified into real defect or stale assertion.
+The 45 was the morning's figure; two triage passes had already taken it to 30
+before this one started, and 30 is what was red. THE SPLIT IS 3 AND 27.**
+
+| | count |
+|---|---|
+| **REAL DEFECTS** — the product is wrong | **3** |
+| **STALE ASSERTIONS** — the check named a spelling, or a design that was replaced | **20** |
+| **ALREADY-CLASSIFIED SKIPS** — the dead `impersonation.js` family, printing their own reason | **7** |
+| **total** | **30** |
+
+**THE SUITE IS 146 / 3 / 7 NOW**, was 129 / 23 / 7. The three reds are red about
+`app/src` and are lane B's; the twenty are fixed in `tests/`, which is lane C's.
+
+## 6a · THE THREE REAL DEFECTS
+
+**All three go GREEN under a plausible fix** — proven by applying one to a
+scratchpad copy and re-running: **149 / 0 / 7.** So none of the three is a check
+that cannot be satisfied.
+
+### 1 · The open detailer is a SNAPSHOT, so an action leaves the panel lying
+
+`9i · the open detailer is re-read after an action, not left on a snapshot`
+
+`TabWho` keeps the open detailer as `open`, the row OBJECT captured at
+`setOpen(r)` (`AdminPage.jsx:994`, `:1061`). `act()` awaits `reload()`, which
+refreshes `rows` in the parent and **never re-points `open`**. The `detail`
+fetch keys on `[open]`, which did not change, so it is not re-read either.
+
+**Press Suspend, confirm it, and the panel still says the detailer is live and
+still offers Suspend.** Nothing on the screen says the action worked — the old
+screen's confirmation sentence went with the rebuild, and the one thing that
+could have replaced it, the state itself, is the stale copy. Andrew presses it
+twice.
+
+**The fix that was proven green:** hold `openId` and derive
+`open = rows.find((x) => x.id === openId) ?? null`.
+
+### 2 · Three unguarded plurals in two date helpers
+
+`10i-ii · and one of anything is never printed with an s`
+
+`shortAgo()` and `ago()` both round and then append a plural:
+
+| helper | input | prints |
+|---|---|---|
+| `shortAgo`, `hours ago` | 60–89 minutes | **"1 hours ago"** |
+| `ago`, `months ago` | 30–44 days | **"1 months ago"** |
+| `ago`, `years ago` | 365–547 days | **"1 years ago"** |
+
+**The first one is the worst and it is not a corner case.** `shortAgo` prints
+the "last ran" figure on Plumbing's *Jobs that run on their own*, and the
+reminder sweep's own staleness window is 45 minutes — so **the 60-to-89-minute
+band is exactly where a stopped sweep sits when Andrew first looks at it.** The
+string he is most likely to read on a broken job is the ungrammatical one.
+
+`ago()`'s two are on the Detailers list and in the open panel's *Last booking*.
+
+**THE OLD CHECK HELD THIS AND THE REBUILD DROPPED IT** — it pinned the
+`hour` / `hours` ternary, which WAS the guard. Same family as "1 visits", which
+`CLAUDE.md` already names once.
+
+### 3 · F-016 is back, on the Detailers list, in the same two adjacent lines
+
+`11i · the jobs figure says the jobs are finished ones, in BOTH places`
+
+The rebuild got the open panel right — `<Row k="Finished this month" />` — and
+dropped the word from the list row, which prints
+`{r.jobs_month} jobs this month` (`AdminPage.jsx:1074`) **directly under** the
+attention sentence, which for a healthy detailer reads `Booking · last one
+today`.
+
+`jobs_month` counts COMPLETED jobs: `platform-admin/index.ts:271` is
+`monthJobs.length` off `done`. So a detailer with work booked and nothing
+finished yet reads **"0 jobs this month"** an inch under **"last one today"**.
+Both true; together they read as a broken screen. That is F-016 word for word.
+
+**One word, in one row.**
+
+## 6b · THE TWENTY STALE ASSERTIONS, BY NAME
+
+Every one verified by finding the capability under its new spelling, or by
+finding the design Andrew replaced it with. **All twenty are re-pointed or
+deleted in `tests/platform-admin.test.mjs`, and seventeen were baselined by
+breaking the real subject on a scratchpad copy and watching the check go red.**
+
+| # | check | verdict |
+|---|---|---|
+| 1 | `the button warns before it acts` | **DELETED.** Impersonation opens `/preview` instead of swapping the session; `AdminPage.jsx` quotes him asking for that and says "nothing left to warn about". The server half — log before acting, failed log stops it — is untouched and still checked. |
+| 2 | `the check has a strip to count — the header was found` | **RE-POINTED** to `.pa-tiles`. The `pa-strip` header went with the one-screen back office; Today ends with five `<Tile>`s. |
+| 3 | `seven figures across the top, and never more than eight` | **RE-POINTED** to `no more than eight figures in one run`. The CEILING was always the property; the exact count never was. |
+| 4 | `and exactly one of them is the lead` | **DELETED.** It asserted a hierarchy — one lead against the ground, six in a ruled row — that the rebuild flattened to five equal tiles on purpose. Softening it would have made it unfailable. |
+| 5 | `and the two new ones are about the product, not the business` | **RE-POINTED** to the takings line, which survives twice. The platform-wide finished-jobs figure is on no tab, and `platform-admin/index.ts:430` still computes `totals.jobs_month` **for nobody** — a server field with no reader. Andrew's own cut, recorded rather than asserted back. |
+| 6 | `10g · and the screen prints it either way` | **RE-POINTED.** `jobKeys.map(` became a map straight off `state.heartbeats`; `pa-quiet` became `pa-ok`. |
+| 7 | `10h · a job that has never reported counts as stale` | **RE-POINTED.** `if (!beat) return true` became one expression. Null still falls on the bad side, which is the property. |
+| 8 | `10i · in minutes and hours, not "today"` | **RE-POINTED** to `shortAgo()`. The unit claim survives; the plural guard did not — that half is defect 2 above, split out as `10i-ii` so one claim is not two. |
+| 9 | `11f · a demo row is tagged in the list` | **RE-POINTED.** `pa-tag` became `pa-flag`. |
+| 10 | `11g · and the headline says how many were left out` | **RE-POINTED.** The count moved out of the headline into one sentence under the list. |
+| 11 | `11j · the promised total is printed only when it is over the ceiling` | **RE-POINTED.** The comparison was lifted into `overPromised`; both halves are asserted now. |
+| 12 | `11k · the scroll only happens where the panel is not already beside the list` | **MERGED into one claim about the mechanism.** The open detailer is a `position: fixed` drawer at every width, so there is no scroll to get right and none in the file. |
+| 13 | `11l · but a refresh after an action does not move him` | **MERGED into 11k** for the same reason. |
+| 14 | `11m · the signed-out door names itself` | **RE-POINTED.** The heading became the ACTION ("Sign in") and the identity moved to the eyebrow above it, which is § SCREEN RULES' own shape. F-021's property is intact. |
+| 15 | `12a · the list and the open business are a two-column split` | **RE-POINTED** to the drawer. F-015 was the open business a hundred rows down; a fixed overlay cannot be. |
+| 16 | `12c · below 1024 the open business replaces the list` | **RE-POINTED** to `width: min(560px, 100%)` — full width below 560, so a phone still gets two levels. |
+| 17 | `12d · and the split knows when something is open` | **RE-POINTED** to the drawer being mounted only when something is open. |
+| 18 | `12e · with a way back that only exists where it means something` | **RE-POINTED, and STRENGTHENED to three ways back** — the ×, the scrim and Escape — because a drawer with only a scrim is a trap on a keyboard and one with only an × is a trap for a thumb. |
+| 19 | `12f · the resting state says what the column is for` | **DELETED.** It guarded an empty half-screen reading as a failed load. There is no resting column to be empty. |
+| 20 | `14c-ii` and `14c-iii` (the email cap line and its 80% trigger) | **RE-POINTED.** `state.email` became the local `mail`, and both now appear TWICE — an alert on Today when it matters, a Quotas row on Plumbing always. Both are asserted, because the alert alone is unreadable on a quiet day and the row alone tells nobody on a busy one. |
+
+## 6c · `PA_MUT`, AND WHY IT HAD TO EXIST
+
+**`docs/BAR.md` says break a check on purpose before believing it, and every
+subject this suite reads lives in `app/src` — lane B's.** Editing those files to
+prove a check can fail is a lane breach AND trap (f), a measurement taken while
+somebody else is building.
+
+So `read()` now honours `PA_MUT`, a JSON map of `path -> replacement path`.
+Copy the real file to the scratchpad, break it there, point the suite at the
+copy for one run. **Empty by default, so a normal run reads the real tree.**
+
+**Seventeen of the twenty were baselined this way — seventeen breaks, seventeen
+reds.** The other three are the deletions, which have nothing left to break. And
+the three REAL defects were baselined the other way round: the fix applied to a
+copy, all three green, suite 149 / 0 / 7. `blind-run --only platform-admin`
+reports **0 checks green with the subject blanked**, so none of the new ones is
+hollow.
+
+## 6d · THE RULE THIS PASS ADDS TO § 5
+
+**A REBUILD DOES NOT PRODUCE ONE KIND OF FAILURE, IT PRODUCES THREE, AND ONLY
+ONE OF THEM IS A BUG.** Twenty checks named a spelling that changed. Three named
+a property the rebuild genuinely lost. Seven named a module nobody calls any
+more. **A triage that reports them as one number — "30 failures" — tells nobody
+which pile to pick up**, and both earlier passes did exactly that.
+
+**AND THE SPLIT IS NOT GUESSABLE FROM THE FAILURE TEXT.** `11i` and `11f` are
+the same shape on the page — a word on a list row — and one is a defect and one
+is a rename. The only way to tell was to open the screen and read what it says
+now.
