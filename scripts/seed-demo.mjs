@@ -186,9 +186,9 @@ await post("/rest/v1/business_settings", [{
   // state whose layout cannot go wrong.
   //   two that link from a username, one pasted URL, one that must NOT link,
   //   free text long enough to test the wrap, and cash.
-  pay_venmo: "@andrews-detail",
-  pay_cashapp: "andrewsdetail",
-  pay_paypal: "https://paypal.me/andrewsdetail",
+  pay_venmo: "@coastline-demo",
+  pay_cashapp: "coastline-demo",
+  pay_paypal: "https://paypal.me/coastline-demo",
   pay_zelle: "(562) 555-0142",
   pay_other: "Apple Pay, or a check made out to Andrew's Auto Detail",
   pay_cash: true,

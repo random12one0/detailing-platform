@@ -117,7 +117,10 @@ Nothing below this line waits on these. They are asked once, here.
 
 Smallest wave, highest embarrassment cost, all of it confirmed in source.
 
-- [ ] **1.1 — Andrew's real payment handles are on the public demo business.**
+- [x] **1.1 — DONE 2026-09-16. Andrew's real payment handles are out of the demo business.**
+  **Verified:** `grep -rn "andrews-detail|andrewsdetail" scripts/` returns nothing.
+  Now `@coastline-demo` / `coastline-demo` / `paypal.me/coastline-demo`.
+  **Still owed: re-seed the database so the live demo picks them up.**
   **Confirmed in source:** `scripts/seed-demo.mjs:189-191` sets
   `pay_venmo: "@andrews-detail"`, `pay_cashapp: "andrewsdetail"`,
   `pay_paypal: "https://paypal.me/andrewsdetail"`. The demo booking page is
@@ -129,7 +132,13 @@ Smallest wave, highest embarrassment cost, all of it confirmed in source.
   returns only unrelated prose.
   *A2 1.2*
 
-- [ ] **1.2 — Example sites use a real business name and a real brand's certification.**
+- [x] **1.2 — DONE 2026-09-16, XPEL half. Example sites claimed a real brand.**
+  **Verified:** `grep -rc XPEL docs/tenant-sites/*.html` returns zero matches.
+  Six strings across `t-blackline.html` and `y-kinzie.html` now read
+  "Manufacturer-certified film installer" / "CERTIFIED · Film installer".
+  **Left open deliberately:** `/ex5` is still "Tampa Bay Auto Detail" with
+  `info@tampabayautodetail.com`. Renaming a whole site identity is bigger than
+  a string swap and Andrew has not asked for it. **His call.**
   `/ex5` is "Tampa Bay Auto Detail" with `info@tampabayautodetail.com`; `/ex4`
   claims "XPEL certified installer".
   **Andrew, 2026-09-16:** *"those are all example sites… it was like an example
@@ -324,7 +333,7 @@ requested.
   with a next action, and a delivered one is visibly different from "sent".
   *A1 P0-04, § 9*
 
-- [ ] **3.2 — Email sending is capped at 100 a day, shared with Andrew's real business.**
+- [~] **3.2 — DEFERRED by Andrew to ~Dec 2026. Email capped at 100 a day, shared with Andrew's real business.**
   Back office shows "Email today 0 of 100", and `AdminPage.jsx:360` already
   knows the cap is shared with andrewsdetail.com.
   **Fix:** paid Resend plan before any real customer goes live; alert in the
@@ -855,3 +864,74 @@ bug — they are different promo systems; no route returned a 404; team
 permissions and custom roles **exist** and are not missing; "Reminder sent to
 customer" is good immediate feedback and stays; the booking-rule conflict
 warning is correct and gets a better resolution path, not removal.
+
+---
+
+## Andrew's decisions — 2026-09-16, second round
+
+**3.2 email cap — DEFERRED, and the audits' premise was wrong.** Andrew has
+sent 100+ emails in a day with no failure, so the cap is not the hard wall A2
+described. He is not paying ~$60 until there are customers, expected around
+**December 2026**. Revisit then, not before.
+
+**3.3 texting — ONE platform number, not one per detailer.** His words: *"I
+don't need a text message for every single detailer to have their own separate
+messaging software… the same with the phone number."* Exactly how Resend works
+today — the platform sends, from the platform's identity, on the detailer's
+behalf. **This is much cheaper and simpler than per-tenant numbers** and it
+removes per-detailer A2P registration entirely.
+**Provider, researched 2026-09-16:** **Telnyx at $0.0040/SMS** is the cheapest
+credible option — about half Twilio's $0.0083, and Twilio's real cost is nearer
+$0.011–0.013 once carrier surcharges land. **Plivo at $0.0055** is second and
+mirrors Twilio's API if migration ever matters. **Recommendation: Telnyx.**
+US A2P 10DLC registration is required either way — one registration, one
+number, one brand. At a few hundred reminders a month this is **under $5/month**.
+*Sources: [APIScout Twilio vs Plivo vs Telnyx 2026](https://apiscout.dev/guides/twilio-vs-plivo-vs-telnyx-sms-voice-api-2026), [Sinch SMS API comparison](https://sinch.com/blog/the-best-sms-api/).*
+
+**8.2 phone testing — he has an iPhone 15 Pro Max and nothing else.** He asked
+how real teams test phones they do not own. **That research is not done yet and
+is now a task** — see 8.6. Do it before planning the mobile wave.
+
+**0.4 legal — no lawyer. Andrew's ruling:** *"If you could find the templates,
+then just edit them. Then we shouldn't need a lawyer."* Accepted. 7.7 and 7.8
+stay as written and the template work folds into them. **A business entity is
+still worth doing** and is his to start, not ours.
+
+- [ ] **8.6 — Research how to test phones we do not own, then write the method down.**
+  He has one device. Real teams do not own every phone either. Find out what
+  they actually do — device farms, emulation limits, what genuinely cannot be
+  caught without hardware (keyboard behavior, safe-area insets, scroll chaining,
+  Safari's dynamic toolbar). **Write it into `docs/testing/` as a method, not a
+  finding.** Blocks the mobile wave from being planned on guesses.
+
+---
+
+## Adopting the operating-system report
+
+`docs/operating-system-report-2026-09-16.md` is the research Andrew commissioned.
+**Its headline finding independently matches what this repo already knew**: the
+root problem is that a check can print "clean" having tested nothing, which
+makes every other process unsafe. It calls the fix **proof-carrying work** — no
+green verdict without a machine-readable receipt showing targets discovered,
+attempted, completed, assertions run, skips, and a deliberately broken canary
+that had to fail.
+
+**Do not adopt the whole report at once.** Its own § 6 says so, and this repo's
+history of accreting process is exactly what that warning is about. Its
+week-one sequence, which supersedes starting at Wave 1 of this file:
+
+1. Tag the repo before any prune (`pre-doc-prune-2026-09-16`).
+2. Define the verification receipt schema and a validator.
+3. Take one sweep that has lied before — `sweep-widths.mjs` printed *clean* over
+   38 real findings — and add expected target counts, per-route sentinels,
+   fail-on-zero, and a deliberately broken canary.
+4. Make it emit a contact sheet and a receipt.
+5. Use that certified check on one high-risk item from this file.
+6. Build the tenant-isolation matrix next.
+7. **Only then** prune docs and convert the rest of this file into task contracts.
+
+**What is already true here and needs no work:** `CLAUDE.md` is 192 lines
+against its 200-line ceiling; the role/lane system it says to drop is already
+gone; migrations are already append-only. **What it flags that this repo has
+not done:** `docs/archive/` is inside the agent's search space, which the report
+explicitly warns against — git history is the archive. Revisit at step 7.
