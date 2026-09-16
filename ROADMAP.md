@@ -50,37 +50,66 @@ CLAUDE.md § Publishing rather than trusting this paragraph later.
 
 Nothing below this line waits on these. They are asked once, here.
 
-- [ ] **0.1 — Which account did the auditors sign in with?**
-  A2's 1.1 says "the demo login has owner access to `/admin`". This repo has
-  **two** demo accounts on purpose: `demo@detailplatform.com` is the demo
-  *detailer* that every test script signs in as, and a separate address is the
-  platform admin. If the auditors were given the admin one, **1.1 is a false
-  finding and there is nothing to fix.** If the detailer account really opens
-  `/admin`, it is the most serious item in this file.
-  **Andrew: which address did you give them?**
+- [x] **0.1 — RESOLVED. The demo account's dual access is deliberate.**
+  Andrew, 2026-09-16: *"I made one of them just be able to access both because
+  I was tired of switching accounts… literally no one's on the site."*
+  **So A2's 1.1 is not a defect and must not be "fixed".** A session that
+  finds the audit line and not this answer will lock him out of his own back
+  office, which is the exact mistake this repo has made before.
+  **BUT IT IS A LAUNCH BLOCKER AND IT IS NOW TRACKED AS 12.4.** It is safe
+  only while every business in the database is a fixture. The day a real
+  detailer signs up, one guessable `demo123` login reads every detailer's
+  customers. It comes out then, not before.
 
-- [ ] **0.2 — Stripe is blocked and everything touching it is parked.**
-  A1 excludes Stripe from every score on the stated grounds that Andrew cannot
-  set it up yet because of his age. A2 does not, and puts "connect billing end
-  to end" (5.8) in its main list. **A1 is right and A2's Stripe items are moved
-  to Wave 12.** Nothing in Waves 1–10 depends on Stripe.
-  **Andrew: roughly when can Stripe be set up, and in whose name?** It decides
-  whether the deposit feature and real card payment are months away or weeks.
+- [x] **0.2 — RESOLVED. Stripe is three days away, and sandbox works today.**
+  Andrew, 2026-09-16: Stripe can be set up in three days; he is under 18 and
+  expects to be limited.
+  **Researched, and the limit is smaller than feared:**
+  - A **Standard** Stripe account can be created at **13+**. Under 18, a legal
+    guardian must be the account **owner** before it can accept charges or move
+    money to a bank. **Express and Custom Connect require 18.**
+  - **This platform uses Connect Standard over OAuth** — `connect-account/index.ts`
+    calls `oauthToken`/`authorizeUrl`, and `pay-booking/index.ts:19` records
+    `type=standard` with no application fee. **Each detailer brings their own
+    Stripe account**, so their age is their own affair and none of it depends
+    on Andrew's.
+  - **Sandbox needs no activation at all.** Every Stripe path in this product —
+    checkout, webhooks, subscription renewal, failed-payment retry, Connect
+    onboarding — can be built and proved in test mode today.
+  **So Wave 12 is not blocked on Andrew's birthday; it is blocked on three
+  days and a parent's name on the platform account.** Build and test it all in
+  sandbox meanwhile. The only thing that truly waits is taking real money.
+  *Sources: Stripe [account age requirement](https://support.stripe.com/questions/age-requirement-to-create-a-stripe-account), [Connect age requirement](https://support.stripe.com/embedded-connect/questions/age-requirement-to-create-an-account), [sandboxes](https://docs.stripe.com/sandboxes).*
 
-- [ ] **0.3 — Test data: delete or flag?**
-  A2's 1.3 found 15 of 16 detailers in the back office are tests, and "Smoke
-  TPMOY"-style rows in the client list. Deleting is cleaner; flagging is
-  reversible and keeps the fixtures the test suites need.
-  **Recommendation: flag, don't delete.** Several suites sign in as seeded
-  accounts and deleting them breaks the verification battery. Add an
-  `is_test` flag, default every list and count to real accounts only.
+- [ ] **0.3 — Test data: flag, don't delete. Awaiting Andrew's yes.**
+  A2's 1.3 found 15 of 16 back-office detailers are tests, plus "Smoke
+  TPMOY"-style rows in the client list.
+  **Why flagging beats deleting, in plain words:** about 60 automated checks
+  in `tests/` work by signing into a seeded practice business and clicking
+  through it — book a job, send an email, take a payment. They need those fake
+  accounts to exist. Delete the fake data and roughly 60 checks stop being
+  able to run, and a check that cannot run prints something that looks very
+  like a pass. We would lose the safety net that catches mistakes on all 79
+  items below, in exchange for a tidier list.
+  **Fix:** an `is_test` flag; every list and count defaults to real accounts
+  only; an unmistakable DEMO badge where a fixture is shown deliberately. Same
+  clean screens, net still intact.
 
-- [ ] **0.4 — The legal pages need a real adult.**
+- [ ] **0.4 — The legal pages. A lawyer is not the only option.**
   Both audits (A1 P3-09, A2 6.6) flag that terms and privacy say Andrew wrote
-  them, are not lawyer-reviewed, and are in his personal name. This is not
-  something to fix in code. **Andrew: set up a business entity and get the
-  documents reviewed before selling to strangers.** Wave 7 aligns the promises
-  across pages; it does not write legal text.
+  them, are not lawyer-reviewed, and are in his personal name. He asked whether
+  a paid lawyer is really required.
+  **It is not legally required, and there is a free path that is much better
+  than what is live now:** start from a SaaS-specific template written by
+  lawyers rather than from scratch, and fix the promises so they match the
+  product. The live pages' real problem is not that a lawyer has not blessed
+  them — it is that they **contradict the pricing page** (7.7) and **omit data
+  processors the product actually uses** (7.8). Both of those are factual bugs
+  we can fix for nothing.
+  **Recommendation:** do 7.7 and 7.8 now for free, and get paid review only
+  before charging strangers at scale. A business entity still matters more than
+  the review — right now the terms are a contract with a private individual.
+  *Sources: [Promise Legal SaaS ToS template](https://promise.legal/templates/terms-of-service), [ToS Lawyer's US SaaS legal checklist](https://toslawyer.com/legal-checklist-for-u-s-saas-startups-tos-privacy-dpa-sla-and-more/).*
 
 ---
 
@@ -100,14 +129,22 @@ Smallest wave, highest embarrassment cost, all of it confirmed in source.
   returns only unrelated prose.
   *A2 1.2*
 
-- [ ] **1.2 — Example sites use a real business name and a real certification.**
+- [ ] **1.2 — Example sites use a real business name and a real brand's certification.**
   `/ex5` is "Tampa Bay Auto Detail" with `info@tampabayautodetail.com`; `/ex4`
-  claims "XPEL certified installer". Both are real-world entities we have no
-  right to use.
-  **Fix:** clearly invented names and domains; remove third-party
-  certifications from every example.
-  **Done when:** no example carries a name, domain or certification belonging
-  to a real company.
+  claims "XPEL certified installer".
+  **Andrew, 2026-09-16:** *"those are all example sites… it was like an example
+  of someone having an XPEL certification."* Understood, and the intent is
+  obviously innocent.
+  **The risk is not the intent, it is that these pages are public and look
+  real.** XPEL is a live trademark and certifies actual installers; a public
+  page claiming their certification for a business that does not exist is the
+  one thing on these sites a real company could object to. "Tampa Bay Auto
+  Detail" is likely a real firm's name and email domain.
+  **Recommendation, and it costs nothing:** invented certification
+  ("Manufacturer-trained film installer"), invented name, invented domain. The
+  page demonstrates exactly the same thing and the question disappears.
+  **This is Andrew's call, not a defect** — if he would rather leave them, tick
+  this box with that decision written in and move on.
   *A2 1.4*
 
 - [ ] **1.3 — Test accounts appear in production lists and counts.**
@@ -729,17 +766,30 @@ Still open, not covered by either audit.
 
 ---
 
-## Wave 12 — Blocked on Stripe
+## Wave 12 — Stripe, and the launch blockers
 
-Parked until 0.2 is answered. **A1 excludes all of this from every score.**
+**Not blocked any more — see 0.2.** Every item here can be built and proved in
+Stripe's sandbox today, with no activated account. What waits three days is
+only taking real money, and that needs a parent named as owner of the platform
+Stripe account. Detailers bring their own Standard accounts over OAuth, so
+their age is not Andrew's problem.
 
 - [ ] 12.1 Subscription billing end to end: sign-up → pay → renew → failed
-  payment retries → page offline → back when paid. *A2 5.8*
+  payment retries → page offline → back when paid. Sandbox proves all of it.
+  *A2 5.8*
 - [ ] 12.2 Real in-person card payment. Today "Card" only writes the word
   "Card" into the notes, while the home page promises "Take a card payment on
   the driveway." **Until this ships, 10.1 must change the home page wording** —
   a claim the product cannot keep is a copy bug, not a missing feature. *A2 4.6*
 - [ ] 12.3 Optional deposit at booking. *A2 Part 8 item 2*
+- [ ] **12.4 — Split the demo account before the first real detailer signs up.**
+  Deliberate today (see 0.1) and correct while every business is a fixture.
+  **The trigger is the first real signup, not a date.** At that moment one
+  guessable `demo123` login can read every detailer's customers. Split it into
+  a plain demo detailer and a separate owner login with a real password, and
+  restore the `/admin` refusal for non-admins.
+  **Done when:** the demo account is refused at `/admin` and the "The website
+  business" row no longer shows in its settings. Closes A2 1.1 and A2 4.11.
 
 ---
 
@@ -787,9 +837,9 @@ the explanation dies.
 
 | Item | Why it is suspect |
 |---|---|
-| A2 1.1 demo has admin access | Two demo accounts exist by design; the auditor may have used the admin one. **Blocked on 0.1.** |
+| ~~A2 1.1 demo has admin access~~ | **STRUCK — not a defect.** Andrew merged the two logins on purpose because switching accounts was annoying, and nobody is on the site. **Do not "fix" it** — that locks him out of his own back office. It comes out at the first real signup: 12.4. |
 | A2 4.5 link-open counts | A2 marks it not confirmed — may be two different periods. |
-| A2 1.4 example brand names | "Not confirmed" in A2. Confirm each name is real before rewriting five sites. |
+| A2 1.4 example brand names | Andrew says these are illustrative, not claims. Downgraded from a defect to a recommendation — see 1.2. His call. |
 | A1 P1-04 invoices missing | A1 says "needs verification, not a proven missing feature" — the payment was never finalized. |
 | A1 P1-05 raw address accepted | Observed, but the submission consequence was never tested. |
 | A1 P1-10 calendar link | A1 proved **no** vulnerability. It is a review, not a defect. |
