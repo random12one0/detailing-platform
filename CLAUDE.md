@@ -156,7 +156,9 @@ Open a long file only when the work touches its subject.
 |---|---|
 | `docs/README.md` | The map — what every document is and whether it is still true |
 | `PROJECT-STATE.md` | Full state briefing; §1–7 only, the rest is a journal |
-| `ROADMAP.md` / `docs/roadmap.md` | What is next / the long history |
+| `ROADMAP.md` | **The live fix queue — start here.** 79 open items from two audits |
+| `docs/audits/` | The two September 2026 live-site audits the queue is built from |
+| `docs/roadmap.md` | The long build history |
 | `FOUND.md` | Known problems parked, not yet fixed |
 | `DECISIONS.md` | Every judgment call and why. **Start at its index** — it is 186,000 words |
 | `docs/VERIFIED.md` | What has been proven, when, and at which commit |

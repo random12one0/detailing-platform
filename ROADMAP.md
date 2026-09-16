@@ -1,905 +1,807 @@
-# What comes next
+# Roadmap — the fix queue
 
-**THE SINGLE SOURCE OF WHAT IS LEFT, IN ORDER. Created 2026-09-12.**
+This is the live queue. It replaces the old build-phase roadmap, which moved to
+`docs/archive/roadmap-2026-09-13.md` (its still-open items are carried into
+Wave 11 below). The long build history stays at `docs/roadmap.md`.
 
-This file exists because a worklist lived in a conversation and in a file only
-one side could read, and a `/clear` would have taken it. The rules live in
-`CLAUDE.md`, the parked finds live in `FOUND.md`, the history lives in the
-commits, and **what comes next lives here.** One line each, in the order they
-get done. Tick a line by deleting it and letting the commit be the record.
+**Built 2026-09-16 from two independent live-site audits:**
 
-`docs/roadmap.md` is the PRODUCT roadmap, phases 0–9, and still outranks this
-for anything it names. This file is the current run of polish work in front of
-it.
+- `docs/audits/comprehensive-audit-2026-09.md` — scored the product 54/100 for
+  selling to strangers, 67/100 for Andrew moving his own business onto it.
+  Referred to below as **A1**.
+- `docs/audits/fix-list-2026-09-15.md` — a route-by-route checklist.
+  Referred to below as **A2**.
 
----
+## The live site is current — measured, not assumed
 
-## Next, in order — SET BY COWORK AT THE 2026-09-13 BOUNDARY, do these first
+Both audits reviewed `detailingplatform.com`. The repo's old notes claimed live
+was hundreds of commits behind, which would have made most findings stale.
+**It is not.** On 2026-09-16 the live bundle and a fresh local build from `HEAD`
+were byte-identical:
 
-**This order is his, not a guess, and it replaces whatever a session infers
-from the list below.**
+```
+live:  assets/index-CfUTS91_.js   assets/index-DrofU7fn.css
+local: assets/index-CfUTS91_.js   assets/index-DrofU7fn.css
+```
 
-1. **The 45 unclassified `platform-admin` check failures.** Classify each BY
-   NAME into *real defect* or *stale assertion*. **Deliverable: the split as two
-   numbers, and every real defect named.** Proof, not a plausible story —
-   `CLAUDE.md` trap (h) and (k) are the two ways these go wrong, and tonight
-   found three filters that asserted something the code had never returned.
-2. ~~**The Gateway Timeout logged in `FOUND.md`.**~~ **EXPLAINED AND REPAIRED
-   2026-09-13 (`5743291`, `75031a7`). NOT one occurrence and NOT the platform's
-   500 — it is OUR catch block reporting a 504 from PostgREST, which answers
-   ~1.1% of this project's REST calls that way and had for at least a day.**
-   `FOUND.md` § THE "GATEWAY TIMEOUT" IS OUR OWN CATCH BLOCK is the proof and
-   the list of what it is not. `_shared/retryRead.ts` retries 5xx on READS
-   ONLY, three attempts; `tests/gateway-retry.test.mjs` runs the real function,
-   15 checks, baselined by five deliberate breaks.
-   **TWO THREADS STILL OPEN AND NEITHER IS OPTIONAL:**
-   - **NOT DEPLOYED.** The fix changes nothing until
-     `node scripts/deploy-functions.mjs send-owner-reminders` runs **and then
-     `node scripts/check-deployed.mjs`** — what is RUNNING drifts from the repo
-     silently. Until then the sweep is still failing every tick. There is also
-     no Deno on this machine, so the function has been PARSE-checked and never
-     type-checked; the deploy's own bundler is the first real compiler it meets.
-   - **THE LIVE BUSINESS PROJECT HAS NEVER BEEN CHECKED.** `adtlnvihwrcqcasqcjwd`
-     takes real customers' money. The token in `.env` reaches only
-     `kguqylyzgyzfktkfnhjb`, so nobody knows whether the same 1.1% failure is
-     happening there. **Cowork's ruling 2026-09-13: this is Andrew's decision
-     and the check happens with him present — a session must NOT go looking for
-     credentials that would let it in.**
-3. ~~**Translate-on-save.**~~ **BUILT, DEPLOYED AND PROVED 2026-09-13**
-   (`1014830`, `b700bad`). 81 of 81 strings on the demo business, 2,759 of
-   DeepL's million characters, `up_to_date: true`; a second run made zero calls
-   and spent zero characters. `tests/translations.test.mjs` — 67 checks, 0
-   skipped, baselined by nine deliberate breaks.
-   **The dashboard gauge and the first-run review are LANE B and are specified in
-   `docs/handover-translate-lane-b.md`** — that file is the deliverable, not a
-   suggestion.
-   **THE RULE THAT CAME OUT OF IT, and Andrew's words: WE TRANSLATE WHAT A
-   BUSINESS SAYS, NEVER WHAT IT IS CALLED.** The business name, its slug, a
-   custom domain and a promo code are refused by a database trigger, not by a
-   list somebody maintains — *"'Coastline Auto Detailing' is that person's name,
-   it is on their van and their invoices, and a Spanish version of it is simply
-   wrong rather than imperfect."* Service and plan names ARE translated, and they
-   are what the first-run review puts in front of the detailer.
+**So every finding below is against current code and none of it is discounted.**
+It also means a push to `main` publishes. Re-measure with the two commands in
+CLAUDE.md § Publishing rather than trusting this paragraph later.
 
-## WHAT WE NEVER TRANSLATE, AND WHY — two rules, one reason. Andrew, 2026-09-13.
+## How to work this queue
 
-**These are rules about WHOSE WORDS THEY ARE, not about quality.** A bad
-translation of our own copy is a bug to fix. A translation of either of the
-things below is wrong even when it is fluent, which is why neither is a setting,
-a threshold or a review step — both are refusals.
-
-### 1 · WE DO NOT TRANSLATE WHAT A BUSINESS IS CALLED
-
-*"'Coastline Auto Detailing' is that person's name, it is on their van and their
-invoices, and a Spanish version of it is simply wrong rather than imperfect.
-Treat it as a proper noun in the same class as a person's name."*
-
-The business name and anything derived from it — a page title, an email subject
-line, a masthead, a browser tab title, the from-name on an email — stay exactly
-as typed in every language, and so do the other things that are names rather
-than descriptions: the slug, a custom domain, a promo code, a payment handle.
-**Enforced by the `translations_never_a_name` trigger**, because the dangerous
-case is not the obvious field but a sentence built by joining a name to
-translated words — the pattern that hid strings from three sweeps on 2026-09-12.
-
-Service names, add-on names and plan names ARE translated, and they are what the
-first-run review puts in front of the detailer.
-
-### 2 · WE DO NOT TRANSLATE WHAT A REAL PERSON SAID
-
-**Customer reviews and testimonials stay in the language they were written in.**
-`testimonials[].quote`, `testimonials[].author` and `testimonials[].source`
-are on the SKIP list in `supabase/functions/_shared/translatable.ts`, with this
-reason written beside them.
-
-**Andrew's ruling, 2026-09-13:** *"A review is a named person's actual words, and
-machine-translating it puts sentences in their mouth that they never said.
-Record it as a rule with that reason, alongside the business-name rule: we do not
-translate what a real person said, any more than we translate what a business is
-called."*
-
-**AND THE ASYMMETRY IS THE WHOLE ARGUMENT, so do not "improve" this later.** A
-service description translated badly is the detailer's own problem and the
-first-run review is the remedy — he can read it and correct it, because they are
-his words. **A review translated badly is attributed BY NAME to somebody who
-cannot see it, cannot correct it and never agreed to it**, and no review screen
-makes that right. There is no version of a review-translation feature that fixes
-the objection, because the objection is not about accuracy.
-
-A Spanish customer therefore reads English reviews on an otherwise Spanish page.
-That is the correct outcome and it is what every honest site does: the
-alternative is a fabricated quotation.
-
-**THE GENERAL FORM, which is the part that transfers to the next feature:** this
-product already draws a line at whose words a sweep may touch —
-`CLAUDE.md` § THE EM DASH, *"a sweep that reaches a database column holding
-somebody's own words stops there"*, and Cowork's `text-transform` ruling, *"the
-distinction is one the instrument is incapable of making, so it is the wrong
-instrument."* Translation is the same line drawn one step further out: **ours to
-rewrite, the detailer's to offer to rewrite, a third party's to leave alone.**
-
-## ALL THREE API KEYS EXIST — Andrew, 2026-09-13. DO NOT ASK HIM FOR THEM.
-
-**`DEEPL_API_KEY`, `GOOGLE_TRANSLATE_API_KEY` and `GEOAPIFY_API_KEY` are all
-live in the Supabase secret store for `kguqylyzgyzfktkfnhjb`.** He created and
-pasted every one himself and none has passed through a session.
-
-**THE SAME THREE RULES BIND ALL OF THEM:** never echo, never log, never in any
-file under `app/`. They are read only through `Deno.env.get()` inside an edge
-function. `tests/translations.test.mjs` § 7 is the check for the first two, and
-the Geoapify one joins it when that work starts.
-
-**This block exists so that no future session spends a turn asking him for a key
-he has already provided.**
-
-## 4 · ~~THE DOORBELL MUST SAY WHICH SESSION STOPPED~~ — BUILT AND PROVED 2026-09-13
-
-**`20df707` plus the follow-up commit. The spec below is kept as the record of
-what he asked for; everything in it is built.**
-
-### THE NEW URL SHAPE — the thing he asked to be told
-
-Same address, nothing to change in a bookmark:
-
-    curl -s https://kguqylyzgyzfktkfnhjb.supabase.co/functions/v1/session-ping
-
-    { "sessions": [ { "session_id": "...", "label": "DP Cowork",
-                      "at": "...", "ago_seconds": 12 } ],
-      "count": 1, "latest": { ... },
-      "label": "...", "at": "...", "ago_seconds": 12 }
-
-- **`sessions` is one row per session, newest first.** Lane C and lane B each
-  keep their own timestamp and neither overwrites the other.
-- **`latest` and the three top-level fields are the OLD answer, unchanged**, so
-  the blunt bell's existing reader finds something exactly where it left it.
-- **`200 count:0` means nobody has ever pinged. `502 sessions:null` means we
-  cannot tell.** Those two are never the same response.
-- **The readable name is the PANE TITLE he already typed.** Claude Code writes
-  it into the transcript and the hook reads it from there, so he is asked for
-  nothing. A pane he has never renamed shows its id instead — renaming it is the
-  whole fix, and `SESSION_PING_LABEL` still overrides. The label is STICKY: a
-  ping without one keeps the last name rather than erasing it.
-- **The hook goes RED when it cannot ring** — stderr and exit 1, never exit 2
-  (which would block the session from stopping). It refuses to post at all when
-  it cannot say who it is, rather than falling back to a shared name.
-
-**PROVED LIVE**, function v3, `check-deployed` reads `current`. Two sessions
-post two rows with their own timestamps; a label-less ping keeps its name; an
-empty body is 400; the legacy `{label:"dp-builder"}` path still returns ok;
-DELETE is 405. **And the real Stop hook was caught doing it**: lane B's live
-pane posted its own session id, `3a543795-…`, from a genuine end-of-turn event
-rather than a synthetic payload. `tests/session-ping.test.mjs` — **46 checks, 0
-skipped**, baselined by eleven deliberate breaks, one of which the suite MISSED
-first time (`FOUND.md`, the ninth costume).
-
-**ONE THREAD LEFT AND IT IS THIRTY SECONDS OF WORK.** The legacy `dp-builder`
-row is still in the table on purpose, keeping the old signal alive across the
-cutover. Delete it now that real session ids are appearing:
-`delete from public.session_pings where session_id = 'dp-builder';`
+1. **One item at a time, top to bottom.** Waves are ordered by what costs money
+   or trust first. Don't batch.
+2. **Fix, don't rebuild.** Only touch a screen for a problem named here.
+3. **Verify in a real browser before ticking.** Try the case that should work
+   *and* the case that should be refused. Check 1440 wide and 375 wide.
+   A code change alone is not a fix.
+4. **Tick the box and add one line saying how you checked it.** That line is
+   what stops the next session re-doing it.
+5. **When a finding turns out to be wrong, say so and strike it** — don't
+   silently drop it. § Watch list below has the ones already suspect.
+6. **Grep every caller before fixing.** A1's P0-02 was reported on one page and
+   is actually on two; the one-guard fix covers both. Assume the same of
+   anything that looks like a one-off.
 
 ---
 
-**Andrew's words:** *"There are two sessions running again… the Stop hook posts a
-FIXED label, so when the bell rings I cannot tell which of you stopped. That
-makes the signal close to useless with more than one session: I either interrupt
-the wrong one or go and look at the screen anyway, which is the polling the
-doorbell was built to replace."*
-
-**It jumps the queue on his instruction — *"two sessions running blind is worse
-than one session running slowly."*** Lane C.
-
-**WHAT IS THERE TODAY.** `supabase/functions/session-ping/index.ts` keys
-`session_pings` on `label`, and `scripts/session-ping.mjs` posts one constant
-(`dp-builder`), so the second session to stop OVERWRITES the first. One row, one
-timestamp, no way to tell who.
-
-**WHAT HE ASKED FOR, precisely:**
-
-- **Post `session_id` rather than a constant.** The Stop hook already receives it
-  on stdin and `scripts/session-ping.mjs` already parses that JSON for
-  `stop_hook_active` — so the id is free and needs no new plumbing.
-- **The GET returns the most recent stop PER SESSION**, not one global latest.
-  *"I need to see that lane C stopped at one time and lane B at another, not a
-  single timestamp that overwrites whichever finished last."*
-- **A human-readable label alongside the id if there is a clean way to carry
-  one**, otherwise the id alone and he keeps the mapping himself.
-- **IT IS AN INSTRUMENT FROM `FOUND.md`, SO IT FAILS LOUDLY.** It must never
-  quietly return a stale timestamp when it cannot tell, and *"it should be
-  obvious to me when a session has never pinged at all versus stopped long
-  ago."*
-- **DO NOT BREAK THE BLUNT BELL WHILE IMPROVING IT.** *"I would rather have the
-  current blunt bell than no bell."* Keep it working throughout, and **tell him
-  the new URL shape when it is done.**
-
-**THE DESIGN WORKED OUT BEFORE THE CONTEXT BOUNDARY — build this rather than
-re-deriving it:**
-
-- **Identity becomes `session_id`; `label` stays as a nullable extra.**
-  Migration: add the column, backfill `session_id = label`, swap the primary key
-  onto it. The legacy `dp-builder` row is deleted only AFTER the new hook is
-  proven to be posting, which is what keeps the old signal alive across the
-  change.
-- **Identity = `session_id` when the body has one, else `label`.** That one line
-  is what keeps the existing hook working unchanged during the cutover.
-- **THE LABEL IS STICKY, and that is the clean way to carry a readable name.** An
-  upsert whose payload omits `label` does not update that column, so a session
-  names itself ONCE and every automatic ping afterwards keeps the name. A session
-  can discover its own id the way `scripts/context-check.mjs` already does — the
-  newest transcript under `~/.claude/projects/<slug>/` — so naming needs nothing
-  from Andrew.
-- **The GET answers `{ sessions: [{session_id, label, at, ago_seconds}], count,
-  latest }`.** `latest` is kept deliberately so the blunt bell's reader still
-  finds something. **`count: 0` with a 200 means nobody has ever pinged; a 502
-  means we cannot tell — and those two must never be the same response.** A read
-  error returns 502 with `sessions: null`, never an empty array.
-- **`scripts/session-ping.mjs` posts `{session_id}` and adds `label` only when
-  `SESSION_PING_LABEL` is explicitly set**, so the default is an honest id rather
-  than the same name on every session.
-- Its existing properties are load-bearing and must survive the edit: the
-  `stop_hook_active` guard first, `last_assistant_message` never sent, every path
-  exits 0, and no `unref()` / `process.exit()`.
-
-## 5 · ~~THE NATIONAL WEATHER SERVICE WORK~~ — DONE 2026-09-13
-
-Built, deployed and proved. **`docs/weather.md` is the reference.** Geoapify (§ 6) is now next.
-
-## 6 · GEOAPIFY — DO NOT START IT UNTIL TRANSLATION AND THE DOORBELL ARE DONE
-
-**His instruction, 2026-09-13:** *"We now have three features half-built if you
-count the ones Andrew is waiting on, and one finished feature is worth more than
-three in progress."*
-
-### THE ATTRIBUTION IS SETTLED. BUILD EXACTLY THIS AND STOP TREATING IT AS OPEN.
-
-He read Geoapify's terms himself and chose the STRICT reading over the convenient
-one: attribution is mandatory on the free plan, and their terms do not say where
-it goes or how prominent it must be.
-
-- **One line in the FOOTER of the DETAILER'S public website**, small, greyed,
-  deliberately not prominent.
-- The words, exactly: **"Address and map data © OpenStreetMap contributors, via
-  Geoapify"**, with **both names linked**.
-- **ON THE DETAILER'S SITE, NOT ON ANDREW'S OWN PLATFORM PAGES — he corrected
-  this explicitly and asked for it written down rather than remembered.**
-- **ONE COMPONENT, ONE PLACE.** It must be movable or removable in a single edit
-  if he pays or switches provider. **Do not scatter it.**
-- **THE OPENSTREETMAP HALF FOLLOWS THE DATA, NOT THE PROVIDER.** It is a separate
-  obligation, so switching away from Geoapify does not necessarily escape it.
-
-### AND THE KEY MUST NOT REACH THE BROWSER
-
-*"Address autocomplete fires on every keystroke, so the naive implementation puts
-the key in the browser, where anyone can read it and spend his 3,000 a day. Do
-not do that."*
-
-- **Route autocomplete through an edge function**, the same posture as
-  translation, so the key never leaves the server.
-- **DEBOUNCE IT.** *"Every keystroke is a credit, and 3,000 a day sounds like
-  plenty until one booking form burns forty of them spelling out one street."*
-- **LATENCY IS A DESIGN CONSTRAINT, NOT SOMETHING TO DISCOVER LATER.** A
-  suggestion that arrives after the customer has finished typing is worse than
-  none. **If the round trip turns out too slow to be usable, COME BACK AND TELL
-  HIM** rather than quietly putting the key in the client — there are other
-  answers, including a domain-restricted key, and he wants to make that call
-  deliberately.
-
-## ~~EVERY EDGE FUNCTION EXCEPT ONE IS RUNNING WITHOUT THE 504 RETRY~~ — CLOSED 2026-09-13
-
-`node scripts/check-deployed.mjs` reports **34 of 35 STALE**, every one against
-commit `75031a7` at 03:35 UTC. That commit put `retryRead` into
-`_shared/db.ts`, which **almost every function imports** — so the undeployed fix
-item 2 describes is wider than `send-owner-reminders`: nothing carrying the 504
-retry is live except `translate-content`. **The checker is right and this is not
-an artifact** — it resolves each function's real imports transitively rather than
-stamping the whole `_shared` folder.
-
-**ALL 35 ARE CURRENT NOW.** `node scripts/deploy-functions.mjs` then
-`node scripts/check-deployed.mjs` at `184db36`: *"all 35 functions are current"*,
-every one deployed 05:37 UTC. **So `send-owner-reminders` is running the retry at
-last** — which was item 2's open thread in the list above and the reason
-customers' reminder emails had stopped going out on schedule.
-
-**AND THE RETRY IS NOT THE WHOLE FIX. `FOUND.md` § 85 READS DISCARDED THEIR ERROR
-is the other half**: retrying a read shortens the odds, and 81 call sites still
-throw away the error when it fails anyway. `send-owner-reminders:373` is the
-clearest example — `const { data: businesses } = await retryRead(…)`, the retry
-present and its error discarded.
-
-## TWO NEW ITEMS FROM ANDREW — 2026-09-13, CAPTURED NOT STARTED
-
-**His instruction with them: do not build either tonight. They are picked up in
-order.**
-
-### A · THE EMAILS, REVIEWED END TO END — nobody has ever done this
-
-**His questions, and they are the right ones:** are they set up correctly and in
-the right format, can a detailer customise them, do they actually look good, do
-they carry the right information, are there enough of them, **and are there
-emails we should be sending that we are not.**
-
-**THAT LAST ONE IS THE INTERESTING HALF AND IT IS A PRODUCT QUESTION, NOT A BUG
-HUNT.** So the deliverable is two lists:
-
-1. **Every email the system sends today, with a judgement on each.**
-2. **A proposed list of the ones that are MISSING.**
-
-**START FROM "NOBODY HAS EVER READ THESE", NOT FROM "THEY ARE PROBABLY FINE" —
-and tonight is the reason.** The reminder sweep was silently dead for at least
-eighteen hours and nobody noticed, **which means nobody was reading its output
-either.** An email nobody has read is exactly the kind of thing this run keeps
-finding: it looks fine because nothing reports that it is not.
-
-`node scripts/render-emails.mjs` writes `email-preview/*.html`, and CLAUDE.md's
-rule stands — send Andrew the INDIVIDUAL files, never `index.html`, which is
-only a page of links to files he does not have.
-
-### B · THE VEHICLE PICKER
-
-**Specified in full under § FREE THIRD-PARTY SERVICES → 2 · VEHICLE DATA**, and
-it is NOT a list to scroll: a type-ahead that accepts partial and messy input,
-never requires a year, never rejects free text, and still resolves a size tier.
-His test sentence is written there and it is the acceptance criterion.
-
-## FREE THIRD-PARTY SERVICES — SPECIFIED 2026-09-13, READY TO BUILD
-
-**Andrew asked what free outside services would improve the product. This is
-the research, captured so the next session builds rather than repeats it.**
-Every rejection below is recorded WITH ITS REASON, because the rejected options
-are the ones that look cheapest and will otherwise be swapped back in by
-somebody who only sees the price.
-
-### 1 · WEATHER — the US National Weather Service, `api.weather.gov`
-
-**No key, no account, no signup, and commercial use is explicitly permitted.**
-US-only, which is all this product needs.
-
-- **It REQUIRES a `User-Agent` header identifying the application.** A request
-  without one is refused. This is not optional politeness.
-- **Their own docs warn that a key may be introduced later.** So the base URL
-  and the User-Agent go behind **ONE small module** — not scattered `fetch`
-  calls. The day a key arrives, that is a one-file change or a week of grep.
-
-**DO NOT USE OPEN-METEO, AND THIS IS WHY.** It is the obvious choice, it is
-better documented, and it looks free. **Its free tier is NON-COMMERCIAL ONLY
-and this is a commercial product.** Anybody reaching for it later is reaching
-for a licence breach, so the reason is recorded here rather than the decision
-alone.
-
-### 2 · VEHICLE DATA — NHTSA vPIC, and NOT for VINs
-
-**ANDREW'S CONSTRAINT, IN HIS OWN WORDS, AND IT DECIDES THE WHOLE DESIGN:**
-*almost nobody knows their VIN, and a customer booking on a phone will not walk
-out to the dashboard to find one.*
-
-**SO DO NOT BUILD VIN ENTRY FOR CUSTOMERS.** Not as an option, not as an
-"advanced" field. The API supports it and that is not a reason to ask for it.
-
-**The NHTSA vPIC API is still worth using, for a different job.** Free, no
-registration, no daily limit. Use it to supply the **year, make and model
-LISTS** so a customer **chooses from real vehicle data instead of typing free
-text** — which also makes the size tier reliable, because a picked model can be
-mapped and a typed one cannot.
-
-**AND THE PICKER IS A TYPE-AHEAD THAT ACCEPTS MESS — Andrew, 2026-09-13, from
-his own customers rather than from a guess. THIS IS THE DESIGN, not a
-refinement of it.**
-
-**IT MUST NOT BE A LONG LIST ANYBODY SCROLLS.** It narrows as they type, so
-`tund` finds Tundra.
-
-**AND WHAT HE HAS ACTUALLY SEEN IS THE SHARPER HALF: people type "Toyota", or
-just "Outback", with no year at all, and sometimes nothing useful.** So:
-
-- **a model name ALONE must get somewhere** — "Outback" with no make and no year
-  is a real answer, not an incomplete form;
-- **the year is NOT required;**
-- **free text is still accepted when nothing matches** — an unrecognised vehicle
-  must never block the booking;
-- **whatever they give must still resolve to a size tier**, so the price is
-  right.
-
-**THE TEST THE FINISHED THING HAS TO PASS, IN HIS WORDS:** *a booking form that
-refuses to continue because somebody does not know their trim level is worse
-than a slightly imprecise vehicle record.* **Design it so the ideal path is fast
-and the messy path still works.**
-
-**vPIC SUPPLIES THE LISTS AND IS NOT A VALIDATOR. IT MUST NEVER BE USED TO
-REJECT WHAT A CUSTOMER TYPED.** That is the one way this feature turns into a
-booking the customer abandons, and it is the exact shape of mistake that makes
-an API feel like an improvement while costing jobs.
-
-**LICENSE PLATE LOOKUP — WHICH IS WHAT PEOPLE ACTUALLY KNOW — WAS CONSIDERED
-AND IS OUT.** It is not available free anywhere: it needs a paid commercial
-service or state DMV access. Recorded so the next session does not spend an
-evening discovering the same thing.
-
-### 3 · ROUTING, DRIVE TIME AND ADDRESS AUTOCOMPLETE — Geoapify
-
-**One key covers all three**, which is why it beats stitching three services
-together: geocoding, address autocomplete and route matrix. **3,000 credits a
-day free, five requests a second.**
-
-**TWO CONDITIONS, RECORDED HONESTLY BECAUSE ONE OF THEM IS A PRODUCT DECISION:**
-
-- The free tier is **"limited commercial use"** — their words, not a summary.
-- It **REQUIRES VISIBLE ATTRIBUTION**: a *"Powered by Geoapify"* line on the
-  page. **Andrew should SEE that before it ships rather than discover it**, and
-  on a tenant's own website a third party's name in the footer is his call and
-  nobody else's.
-
-**OpenRouteService is the alternative.** Its limits could NOT be verified from
-its own pages, and **no numbers are written here that were not checked.** If it
-is ever needed, that verification is the first task.
-
-**WHY ADDRESS AUTOCOMPLETE MATTERS MORE THAN IT SOUNDS:** a mobile detailer
-driving to a mistyped address is a lost job and a bad review. It is not a
-convenience feature on this product; it is the difference between a booking
-that happens and one that costs money to fail.
-
-**AND THE BACK OFFICE IS FROZEN UNTIL ANDREW LOOKS AT IT — his instruction via
-Cowork, 2026-09-13.** Today, Growth, Money, Detailers and Plumbing are built and
-verified; **he asked for the whole dashboard finished first and to review it
-visually himself.** Do not change those screens further unless he asks. Fixing a
-defect somebody reports is not "changing them further"; redesigning, reordering
-or improving them is.
-
-### THE FROZEN BACK OFFICE'S DEFECT LIST — RECORD ONLY, DO NOT FIX
-
-**This list exists so the freeze does not also freeze the KNOWING.** Anything
-measured on those screens while they are frozen is written here and nowhere
-else: no commit touches them until Andrew has looked. Append to it; do not act
-on it.
-
-**2026-09-13 · ANDREW MEASURED THE BACK OFFICE AT 390px HIMSELF.** His numbers,
-recorded verbatim rather than re-derived:
-
-- **`.pa-chip`, the filter chips on the Detailers tab, genuinely fail the 44px
-  tap floor** — a **29.4px** box with rows **35.4px** apart. **No `::after` and
-  no margin**, so there is nothing carrying the hit area past the paint and
-  nothing opening the pitch either. Both halves of `docs/BAR.md`'s sanctioned
-  exception are absent, which is what makes this a real failure rather than a
-  mark that is deliberately small: 29.4 is what a thumb gets.
-- **Sign out is 17.4px.**
-- **Sign up a detailer, Open a detailer and the mailto link are all 34.1px.**
-
-**AND THE CLEAN HALF, WHICH IS PART OF THE RECORD AND NOT A CONSOLATION:**
-**zero overlapping pairs and no horizontal overflow on any of the five
-back-office tabs at 390.** A defect list with only defects in it invites the
-next session to assume everything unmeasured is broken too.
-
-**THE PITCH IS WHY THE CHIP NUMBER IS WORSE THAN IT LOOKS.** 29.4px boxes on a
-35.4px pitch means the fix cannot be padding alone — `docs/BAR.md` § "the pitch
-has to open with the target" is the case: two 44px targets 35.4px apart overlap
-and steal each other's presses, which trades a small target for a wrong one.
-Whoever unfreezes this opens the row gap as well.
-
-## Next, in order
-
-1. ~~Wave F — the em dash sweep, all three categories.~~ **DONE 2026-09-12.**
-   Zero single em dashes left in any user-facing string; the eight
-   parenthetical pairs stand.
-2. **Setup step 11 and two touch targets.** Step 11 is five 467px template
-   cards, 2,980px and 62 buttons on the last screen of onboarding — one open,
-   four as `Folded` rows reading *"Ask about access · Not changed yet"*. Plus
-   the 28px checkbox row wherever the dashboard renders one (Promo codes, setup
-   step 9), and the unnamed switch on *How you get paid*.
-3. ~~**The platform landing page.**~~ **DONE 2026-09-12** — it grew to five
-   items and then six. The three show-me CTAs, the developer annotation, the
-   four header targets, the 42 figcaptions, the corner labels at both widths.
-4. **The five example sites, floors only — MEASURED BY THE REVIEWER 2026-09-12,
-   all five at phone width.** The sampled guess this line used to carry is
-   replaced by real numbers. **Aesthetic variety is explicitly out of scope;
-   the floors are not aesthetics.** Lane A owns `docs/tenant-sites/`, and
-   Andrew has authorised the crossing — say so in the commit.
-
-   | | horizontal scroll | under 11px | targets under the floor |
-   |---|---|---|---|
-   | ex1 `v-goldenhour` Prime | none | 8, down to 9px | 6 at 22-24px |
-   | ex2 `w-delgado` | none | 15, all 10.5px section labels | 1 at 78x19 |
-   | ex3 `x-ballantyne` | none | 1 at 8.5px | 12, incl. 5 service rows 337x28, wordmark 108x30 |
-   | ex4 `y-kinzie` | **YES, at 377px** | 22, down to 9.5px | 10 at 17px tall |
-   | ex5 `z-tampabay` | none | 10 | 9 |
-
-   **DO THE CONTACT DETAILS FIRST ON ALL FIVE, then the service rows, then the
-   rest. Do not sweep for a pixel value** — his instruction, and the reason is
-   the same disease as the landing page: **on a detailing website the phone
-   number IS the conversion, and on these sites it is the smallest thing on the
-   page.** ex5 renders its number at 10px inside an 11px-tall target and its
-   email at 211x11; ex1's number is 153x24.
-
-   **AND ex4 IS WORSE THAN THE TABLE SAYS — measured here 2026-09-12, not by
-   him: it has ZERO `tel:` and ZERO `mailto:` links.** Its only phone number is
-   plain text in a footer list item, `(312) 555 0148`, spaces and all. So the
-   worst site for tap targets does not have a tap target to fail — there is
-   nothing to press. That is a bigger miss than any figure in the row above it.
-
-   **Two named extras:**
-   - **ex5 writes its number with EN DASHES** — `(813) 402&ndash;7719`, in four
-     places — which is wrong typographically and can defeat click-to-call
-     parsing. Hyphens. (The `href` is already `tel:+18134027719` and correct;
-     it is the visible text that is wrong.)
-   - **ex1's five `font-size: 0` labels** — Services, Extras, Vehicle,
-     Location, When, the booking steps. They read fine to a screen reader and
-     are invisible to everyone else **by accident rather than by design**, so
-     the mechanism is a visually-hidden class, not zero type.
-
-   **ORDER OF WORK, HIS RULING 2026-09-12: ex4's MISSING contact goes FIRST,
-   ahead of every target size on all five sites.** *"A number you cannot tap is
-   not a small target, it is not a control."* So: give ex4 a real `tel:` and a
-   real `mailto:` before touching a single font-size anywhere. Then the rest of
-   the contact pass across the other four, then ex4's sideways scroll at 377px
-   (the only hard-floor break in the set), then the service rows, then the rest.
-
-   **AND THE BLOCKOUT THREAD IS CLOSED — do not re-open it.** Andrew fired the
-   switch himself: `confirm` received the exact sentence, cancelling left the
-   day blocked and nothing was destroyed, and the accessibility tree reads
-   `checkbox "Block this day"`. His method is CLAUDE.md trap (l). The two
-   follow-ups are in `FOUND.md` and neither is this wave's work.
-
-4a. **NOTHING HERE CATCHES A MISSING IMPORT, AND THAT IS THE BIGGEST HOLE IN
-   THE INSTRUMENTS.** Cowork's ask, 2026-09-12, after the previous session
-   forgot an import twice: *"a missing import fails only at runtime, so the
-   suites pass and the page dies."* It is numbered 4a rather than 13 because
-   he ranked it **worth more than most of what is left on this list** — a
-   check that catches a whole CLASS of dead page beats another screen's polish.
-
-   **WHY EVERY EXISTING CHECK IS BLIND TO IT.** `npm run build` succeeds: an
-   undefined identifier is legal JavaScript until it is evaluated, so Rollup
-   bundles `<Folded …/>` with no `Folded` in scope and says nothing. The ten
-   credential-free suites read source as TEXT. There is no React test runner
-   here. The only instrument that has ever caught one is a person opening the
-   page — which is CLAUDE.md trap (k) in its purest form: **every check we own
-   asserts how something is WRITTEN, and this is a fault in what it DOES.**
-
-   **WHAT WOULD CLOSE IT, cheapest first, and do not reach for ESLint by
-   reflex** — it is a new dependency, a config file and a plugin chain for one
-   rule, and this repo has no linter at all today.
-
-   - **A ~60-line script over the AST.** For each `app/src/**/*.{js,jsx}`,
-     collect what the module declares (imports, `const`/`let`/`function`/
-     `class`, parameters, catch bindings) and report every identifier
-     referenced that is neither declared nor on a small browser-globals
-     allowlist. `esbuild` is ALREADY a dependency and parses JSX; `acorn` is
-     not installed but ships inside `rollup`, which is. **Baseline it by
-     deleting one import and watching it name the file.**
-   - ESLint with `no-undef` only, if the script turns out to fight JSX scoping.
-     Correct, and three dependencies heavier.
-
-   **THE ACCEPTANCE TEST IS ONE SENTENCE: delete the `Folded` import from a
-   screen that uses it, and the check must name that file.** A check that
-   passes on a deliberately broken import is this repo's oldest failure — a
-   skipped check reading exactly like a passing one — and there are at least
-   six shipped examples of it. Lane C.
-
-5. ~~**The copy pass that the call-site sweeps never reached.**~~ **DONE
-   2026-09-12.** Every live single em dash in `lib/`, `scripts/` and the
-   dashboard is sorted: 13 middle dots, four colons, three commas, one
-   semicolon, the rest full stops. Six parenthetical pairs stand. The joins are
-   swept too — the step-1 vehicle fee was the step-4 travel fee's unfixed
-   sibling. British spellings gone from the seed (tyres, Odour). **AND THE
-   SWEEP HAD LEFT THE SPANISH HALF OF EVERY STRING IT FIXED: 68 catalogue
-   values still carried the dash their English key had dropped.** What is
-   deliberately left is in `FOUND.md` — the guided tour's remaining copy, the
-   landing page, one attribution dash.
-   ~~Old text, kept so the measurement is not lost:~~
-   User-facing English in this product does NOT only live in `t()` calls in
-   components: `lib/siteIntake.js`, `lib/templates.js`, `lib/emailMessages.js`,
-   `lib/setup.js`, `lib/push.js`, `lib/photo-rules.js`, `lib/adminInsight.js`
-   and `scripts/seed-demo.mjs` all hold prose in plain data tables.
-   **91 em dashes measured there on 2026-09-12**, against zero left in `t()`
-   calls — so the sweep that reported "zero" was true and incomplete. Same
-   blind spot produced the sixth "tap" and the Microfibre seed string. Classify
-   by the four axes and move each Spanish key with its English.
-6. ~~**Spanish: 139 to zero.**~~ **DONE 2026-09-12 — and the count was the
-   floor rather than the total.** 139 translated, coverage 100%, the § 9 ceiling
-   stepped 139 → 0, and § 9 gained the three shape checks that had only ever
-   read `es.js` (placeholders, `usted`, empty) — 63 passed, 0 failed, all four
-   new checks baselined by breaking their subject. **Then a browser walk with
-   the toggle on Spanish found 34 more the count could not see**: the entire
-   36-step guided tour, drawn with `t(sentence)` from a data table. Plus
-   Payments' handle table, Billing's five invoice words, Money's two bare
-   labels, the gear's `aria-label`, and eleven `dateLong()` calls printing
-   English weekdays beside Spanish ones. **THE REMAINING GAP IS A CLASS, NOT A
-   COUNT: a `t()` whose argument is a variable is invisible to every instrument
-   here.** `FOUND.md` names it and says what the honest instrument would be.
-7. **Mileage.**
-8. **Route awareness.**
-9. **Weather.** ~~from open-meteo~~ **DONE 2026-09-13 via `api.weather.gov` — see `docs/weather.md`. OPEN-METEO IS BANNED (its free tier is non-commercial); following the old line is a licence breach.**
-10. **Deposits.**
-11. **Making photos do work.**
-12. **Quote from scratch.**
+## Wave 0 — Decisions and blockers for Andrew
+
+Nothing below this line waits on these. They are asked once, here.
+
+- [ ] **0.1 — Which account did the auditors sign in with?**
+  A2's 1.1 says "the demo login has owner access to `/admin`". This repo has
+  **two** demo accounts on purpose: `demo@detailplatform.com` is the demo
+  *detailer* that every test script signs in as, and a separate address is the
+  platform admin. If the auditors were given the admin one, **1.1 is a false
+  finding and there is nothing to fix.** If the detailer account really opens
+  `/admin`, it is the most serious item in this file.
+  **Andrew: which address did you give them?**
+
+- [ ] **0.2 — Stripe is blocked and everything touching it is parked.**
+  A1 excludes Stripe from every score on the stated grounds that Andrew cannot
+  set it up yet because of his age. A2 does not, and puts "connect billing end
+  to end" (5.8) in its main list. **A1 is right and A2's Stripe items are moved
+  to Wave 12.** Nothing in Waves 1–10 depends on Stripe.
+  **Andrew: roughly when can Stripe be set up, and in whose name?** It decides
+  whether the deposit feature and real card payment are months away or weeks.
+
+- [ ] **0.3 — Test data: delete or flag?**
+  A2's 1.3 found 15 of 16 detailers in the back office are tests, and "Smoke
+  TPMOY"-style rows in the client list. Deleting is cleaner; flagging is
+  reversible and keeps the fixtures the test suites need.
+  **Recommendation: flag, don't delete.** Several suites sign in as seeded
+  accounts and deleting them breaks the verification battery. Add an
+  `is_test` flag, default every list and count to real accounts only.
+
+- [ ] **0.4 — The legal pages need a real adult.**
+  Both audits (A1 P3-09, A2 6.6) flag that terms and privacy say Andrew wrote
+  them, are not lawyer-reviewed, and are in his personal name. This is not
+  something to fix in code. **Andrew: set up a business entity and get the
+  documents reviewed before selling to strangers.** Wave 7 aligns the promises
+  across pages; it does not write legal text.
 
 ---
 
----
+## Wave 1 — Stop exposing Andrew and other people's brands
 
-## PHASE: MAKE THE EDITING SCREENS FEEL LIKE A PRODUCT
+Smallest wave, highest embarrassment cost, all of it confirmed in source.
 
-**Andrew's words, 2026-09-12:** the editing screens feel like *a thousand text
-boxes* rather than something integrated into the product. He wants them
-**visually good and pleasant to use, the way a well-made app feels, not a form.**
+- [ ] **1.1 — Andrew's real payment handles are on the public demo business.**
+  **Confirmed in source:** `scripts/seed-demo.mjs:189-191` sets
+  `pay_venmo: "@andrews-detail"`, `pay_cashapp: "andrewsdetail"`,
+  `pay_paypal: "https://paypal.me/andrewsdetail"`. The demo booking page is
+  linked from the home page, and these handles go onto confirmations and
+  reminders, so a stranger booking the demo is told to pay Andrew personally.
+  **Fix:** made-up handles (`@coastline-demo` and similar). Re-seed.
+  **Done when:** no real handle appears anywhere in the demo account or any
+  email it sends. `grep -rn "andrews-detail\|andrewsdetail" scripts/ app/src`
+  returns only unrelated prose.
+  *A2 1.2*
 
-**WHY THIS COMES AFTER THE CURRENT WORK AND NOT BEFORE.** A beautiful screen
-with a wrong price on it is worse than a plain screen with a right one. A
-detailer who loses a booking to a stale number does not care how the page
-looked, and a defect shipped inside a redesign is twice as hard to find because
-nobody knows whether the look or the logic moved it. Correctness first, then
-this — and this is not optional afterwards.
+- [ ] **1.2 — Example sites use a real business name and a real certification.**
+  `/ex5` is "Tampa Bay Auto Detail" with `info@tampabayautodetail.com`; `/ex4`
+  claims "XPEL certified installer". Both are real-world entities we have no
+  right to use.
+  **Fix:** clearly invented names and domains; remove third-party
+  certifications from every example.
+  **Done when:** no example carries a name, domain or certification belonging
+  to a real company.
+  *A2 1.4*
 
-**AND IT IS THE HONEST WEAK SPOT OF THE RUN THAT PRECEDED IT.** Everything from
-2026-09-11 to 2026-09-12 was correctness: spelling, tap targets, translation,
-stale instruments. **None of it made anything nicer to look at.** That is a real
-gap and not a matter of taste; a detailer meets these screens on their first
-morning and decides then whether this product is serious.
-
-### How to write each screen's item, and it is not "pick a widget"
-
-**Say what the screen should FEEL like and what a detailer should be able to SEE
-at a glance. The widget is the builder's call.** An item that names a component
-has decided the answer before anyone has looked at the problem — and this repo
-already has a kit (`components/controls.jsx`) whose whole point is that the
-answer is usually already in it.
-
-**THE EXHAUSTION TEST STILL GOVERNS AND SO DOES LAW 1** — new or rebuilt work
-takes design-system law 1 in full (`CLAUDE.md` § SCREEN RULES). This phase does
-not license a new visual language; it licenses using the one that exists
-properly.
-
-### The screens, worst first
-
-**1 · SERVICES AND ADD-ONS.** *Agreed, and it is the worst one.* It is the
-screen a detailer spends the most time in and the one their whole business
-hangs off, and it is a stack of inputs.
-**It should feel like looking at your own menu** — a detailer should see the
-shape of what they sell without reading: which categories exist, what each costs
-and how long it takes, what is an add-on rather than a service, and which one is
-the base price. **Today the price ladder and the vehicle tiers are two unrelated
-lists on one page, and the relationship between them — the tier multiplies the
-service — is the single most important fact on the screen and is nowhere on it.**
-
-**2 · VEHICLE SIZES.** *Agreed, with a correction: it is not a separate screen.*
-It lives inside Services and add-ons, so fixing it separately would produce two
-designs on one page. **Treat it as part of item 1.**
-**It should show what a customer will actually pick between** — the same cards,
-in the same order, with the same words, because that IS what the booking page
-draws. A detailer setting up tiers is designing a screen they never see.
-Note: the count is not fixed at three — a detailer can add, remove and reorder —
-so whatever this becomes has to hold two tiers and six.
-
-**3 · THE 21-STEP WEBSITE QUESTIONNAIRE.** *Agreed that it is the longest thing
-any detailer will ever do here. I would argue it is NOT a form march and that
-the diagnosis matters.* It already has: one question per screen, a progress
-rule, its own answer-count, drawn previews of real example sites, and a skip on
-every optional step. **It is the best-structured long form in the product.**
-**What is actually wrong is that it never shows the detailer what they are
-BUILDING.** Twenty-one steps of answering, and the thing being made is not on
-screen at any point. It should feel like watching your website appear, not like
-filling in a questionnaire about one. **That is one idea, not twenty-one screen
-redesigns** — and it is cheaper than rebuilding the form.
-
-**4 · BUSINESS INFO.** *Agreed on importance, disagree on the reason.* It is
-eight labelled fields and an honest line about the mailing address and the law —
-a reviewer walked it and found nothing wrong with it. **It is not a bad screen;
-it is a FIRST screen, which is a different job.** A new detailer meets it before
-they trust the product.
-**It should feel like being set up, not like being processed** — the difference
-between a form and somebody helping you. The cheapest real win: **show what a
-customer sees as it is typed.** Every field on it ends up on a booking page or
-in an email, and none of them says so.
-
-**5 · ONE I WOULD ADD, and it is a bigger miss than Business info.** **The
-customer-facing booking page is the only screen in this product a detailer is
-JUDGED on**, and a detailer cannot see it while setting it up. Every screen
-above is a form whose output is that page, and the product never shows the two
-together. **A live preview of the booking page, beside the settings that change
-it, would do more for "feels like a product" than restyling any single form** —
-and it makes items 1, 2 and 4 land harder because each becomes visibly
-connected to something.
-
-### What finishing this phase means
-
-The exhaustion test passes on every screen above; the detailer can see the
-result of what they are editing without leaving the screen; and Andrew looks at
-it and does not say *a thousand text boxes*. **That last one is the only
-acceptance test that matters and it is a person, not a check** — the same shape
-as the tenant-site work, where five pages passed every automated floor in this
-repo and he still said they looked AI.
-
-## Settled at the compaction, 2026-09-12 — both were mid-flight and both are answered
-
-- **The bare-switch check IS committed and IS baselined.** `composition` test
-  **1b** landed in `ad584c0` and the suite reads **95 passed, 0 failed** on
-  `3803b47`. Baselined the only honest way: Team's `<Switch bare>` had its
-  `label` stripped, 1b failed and named the file, the label went back.
-- **THE UNBLOCK CONFIRMATION STILL WILL NOT FIRE FROM A SCRIPT, AND THAT IS
-  WHERE IT IS BEING LEFT — his instruction.** Both fixes are in the served
-  file and a real click no longer throws, but nothing automation can deliver
-  reaches `onChange`: the input will not take focus in a browser pane whose
-  document is not focused, so click, keypress and `focus()` all no-op. **Andrew
-  will exercise it in a real browser the way he launched the guided tour.**
-  Do not spend another session chasing it. What IS verified: `aria-label` is on
-  the `input[type=checkbox]`, measuring 46x44, on a fresh load; and `own()` no
-  longer throws `TypeError` on the boolean `Switch` passes it.
-
-## Standing checks — run these when the thing they guard changes
-
-- **EVERY CALL TO ACTION ON EVERY MARKETING PAGE LANDS WHERE ITS OWN WORDS
-  PROMISE.** Three of ten large CTAs on the landing page said *"See how booking
-  works"*, *"See it with your name on it"* and *"Look inside the dashboard"*
-  and all three went to `/pricing`. **Nothing errored, which is why it
-  survived** — a dead link looks like a mistake and this looked like a
-  decision. It rots quietly every time somebody adds a button, so check the
-  destinations whenever the marketing copy changes.
-- **THE DEV SERVER IS NOT EVIDENCE; THE BUNDLE IS.** A Vite server left running
-  overnight served a stale CSS transform on 2026-09-12 and cost hours. Restart
-  it at the start of any session that will measure CSS, and settle a
-  "not applying" with the served file and then `app/dist/assets/*.css`.
-  CLAUDE.md trap (g) has the sequence. **If the owner says "the site is not
-  working" and localhost looks wrong, ask how long that tab has been open.**
-
-- **A SWEEP OF ENGLISH STRINGS LEAVES THE SPANISH HALF OF EVERY ONE IT FIXES.**
-  Wave F reported zero single em dashes and was measuring only the keys; 68
-  catalogue values still read `— `. The instrument is one line — compare the
-  dash count of every key against its value — and it belongs beside any copy
-  sweep from here. Run it whenever product punctuation changes.
-- **AND A `t()` WHOSE ARGUMENT IS A VARIABLE IS INVISIBLE TO EVERY CHECK HERE.**
-  Coverage counts `t("literal")` and says so about itself. Four data tables
-  rendering in English were found by walking the dashboard in Spanish in a real
-  browser, which is the only instrument that can see them. `FOUND.md` has it.
-
-- **Sweep the suites for checks coupled to a SPELLING rather than a behaviour.**
-  Three were found and fixed on 2026-09-12 — a renamed CSS property, a
-  hard-coded `minLength`, and a literal CSS rule that gained a declaration —
-  and every one failed on a correct product. CLAUDE.md trap (k). Not started.
-
-## Not ours to decide — waiting on Andrew
-
-- ~~**The unsubscribe page's accent.**~~ **SETTLED AND BUILT 2026-09-12 —
-  Andrew's rule, in his words: THE COLOUR FOLLOWS WHOSE RELATIONSHIP IS
-  ENDING.** A customer unsubscribing from a detailer's emails gets that
-  detailer's colour, because the relationship being ended is with the detailer
-  and the page belongs to them. Both halves shipped: `unsubscribe`'s `get`
-  action now returns `primary_color` from `business_branding`, and
-  `UnsubscribePage.jsx` runs it through `brandVarsFor` — the same legibility
-  correction the booking page uses — onto all four of its `.bk` roots.
-  Measured live: Riverside's stored `#dc2626` paints the button, and the TEXT
-  accent is lifted to `#e04040` to clear 4.5:1, which is the "Your color"
-  screen's promise doing its job on the one preset that fails it. A business
-  with no branding row returns `null` and falls back to house green, which is
-  byte for byte what `booking.css` already declares.
-
-  **THE OTHER ARM IS A RULE, NOT CODE, AND THIS IS WHERE IT LIVES.** A DETAILER
-  unsubscribing from something of OURS gets platform green, `--ac #38E08B`.
-  **There is no detailer-facing unsubscribe page in this product today** —
-  `owner-push-unsubscribe` is a push-subscription delete inside the dashboard
-  and has no page at all — so the branch was deliberately NOT written. A branch
-  with one live arm and one arm nobody can reach is a branch that rots
-  untested. **Whoever builds that page reads this line and paints it green.**
-- ~~"Look inside the dashboard" has nowhere to go.~~ **SETTLED 2026-09-12 by
-  changing the WORDS, not the destination** — the rule is in CLAUDE.md now.
-  There is no signed-out dashboard to look inside and building one to justify a
-  button would be the tail wagging the dog. It reads "See what the dashboard
-  does" and points at the landing page's own pinned dashboard section.
-  **Logged as a TASTE CALL for Andrew's stamp, not a verified fix**, along with
-  "See five sites built with it", which keeps `/examples` and stops promising
-  the visitor their own name on a page showing five other businesses.
-- **The five example sites that nobody has walked.** The six guided tours WERE
-  walked end to end on 2026-09-12 — 36 steps, four findings in `FOUND.md`, one
-  of them a real bug at 1280x800.
+- [ ] **1.3 — Test accounts appear in production lists and counts.**
+  Back office "Everyone" shows 16 rows of which 15 are tests; the client list
+  carries "Smoke TPMOY" with a broken number "(555) 014-2"; "9 gone quiet"
+  counts them.
+  **Fix:** per 0.3 — flag, default every list and count to real only, add an
+  unmistakable DEMO/TEST badge where they are shown deliberately.
+  **Done when:** a support task never requires scanning test rows, and the
+  "gone quiet" count drops to match real customers.
+  *A1 P3-01, A2 1.3*
 
 ---
 
-## Red, and unexplained all day
+## Wave 2 — Booking truth
 
-- **`platform-admin`, 46 failing.** Sampled on 2026-09-11: a mix of checks
-  pointing at source that MOVED (`AdminPage.jsx` 1,436 → 813 lines plus
-  `PreviewEntry.jsx`) and checks enforcing rules the owner has since REVERSED
-  (`check("no chart")` fails because a chart was deliberately built at his
-  request). **Somebody has to sort which is which, one failure at a time** —
-  a suite this red gets ignored wholesale, and the one real regression hiding
-  in 46 stale checks is the reason that matters. Lane C.
-- ~~**`password-reset`.**~~ **GREEN 2026-09-12 — 29 passed, 0 failed.** All
-  three were WRONG TESTS, not wrong code, and a permanently red suite trains
-  everybody to stop reading it. They assert behaviour now: `MIN_PASSWORD` is
-  used in BOTH length fields rather than a hard-coded 8; the sign-in form has
-  an email input, a password input **or** `PasswordInput`, and a submit inside
-  the form. Both rewrites were baselined by breaking their subject.
-  **A fourth failure was mine**, introduced that morning by renaming
-  `padding-left` to `padding-inline` — fixed and baselined too.
+A customer must never be shown one price and charged another, never be handed
+the wrong service, and never book a job we cannot reach.
+
+- [ ] **2.1 — The total rises after the customer has picked the time.**
+  Both audits, independently, with different numbers: $205 → $235 (A1) and
+  $300 → $330 (A2). A $30 weekend rate only appears at the final breakdown.
+  **Fix:** mark affected days in the calendar with "+$30" and add the line to
+  the running total the moment a weekend day is selected. Keep it in the final
+  breakdown too.
+  **Done when:** a customer cannot leave the date/time step without having seen
+  the exact final total and every automatic surcharge.
+  *A1 P0-01, A2 2.3*
+
+- [ ] **2.2 — The summary lines do not add up to the total.**
+  **Confirmed mechanism:** `supabase/functions/_shared/pricing.ts:127-128`
+  rounds the *total* to a `nearest` setting while each discount line rounds
+  separately at lines 270, 475, 506 and 514. A2 saw lines summing to $328 under
+  a $330 total labelled "Rounded up to the nearest dollar", and a 10% member
+  discount taking $275 to $245 where $247.50 was correct.
+  **Fix:** round once, per line, and make the total exactly the sum of the
+  displayed lines. Remove the "rounded up" note.
+  **Done when:** lines sum to the total on every step across several
+  combinations — with and without member rate, weekend, vehicle size, add-ons.
+  This one gets a unit test against `pricing.ts`, not just a browser check.
+  *A2 2.2*
+
+- [ ] **2.3 — A far-away address is accepted with no travel charge.**
+  A San Diego address went through with "Long Beach" selected, no warning and
+  no "+$40 beyond 15 miles". The customer picks their own service area from a
+  list, so they choose whether to pay the travel fee.
+  **Fix:** derive distance from the looked-up address and apply travel cost
+  automatically; remove the customer's area choice or fill it from the address;
+  refuse out-of-area addresses with a phone number; don't let a booking page
+  take bookings until "Where you work" is set.
+  **Done when:** a far address is refused, a 15+ mile address adds the charge
+  visibly, a local address goes through clean.
+  *A2 2.1*
+
+- [ ] **2.4 — A public example booking button crashes.**
+  **Confirmed in source, and it is two pages, not one.**
+  `docs/tenant-sites/v-goldenhour-prices.html:1585` and
+  `v-goldenhour-work.html:1568` both call
+  `document.getElementById("book").scrollIntoView(...)` with no null guard, and
+  `id="book"` exists **only** on `v-goldenhour.html`. So `/ex1/prices` and
+  `/ex1/work` both throw `TypeError: Cannot read properties of null`. A1 found
+  the prices page; nobody found `/ex1/work`.
+  **Fix:** one guard — if `#book` is absent, navigate to the index page's
+  booking anchor by URL instead of scrolling.
+  **Done when:** every booking button on every example opens a valid booking
+  path. An automated check visits every public service CTA across all five
+  examples.
+  *A1 P0-02*
+
+- [ ] **2.5 — One example hands the wrong service into booking.**
+  On `/ex3/prices`, "Book this" under the $200 Interior Refreshment left the
+  $500 Signature Detail selected, and Interior Refreshment was not offered at
+  all in the embedded flow.
+  **Fix:** one service identifier from website card through to booking
+  selection. Refuse to publish a public service whose booking mapping is
+  missing.
+  **Done when:** the automated CTA check from 2.4 also asserts the matching
+  service name and price in booking.
+  *A1 P0-03*
+
+- [ ] **2.6 — Continue is greyed out with no reason (vehicle step).**
+  Size and model filled, Continue stayed dead until a year was typed; the year
+  box is not marked required while the box above it is marked "(optional)".
+  **Fix:** make year optional. More generally: never silently disable Continue
+  — let it be pressed and highlight what is missing in plain words.
+  **Done when:** the step continues without a year, and any genuinely required
+  box says what it wants when Continue is pressed.
+  *A1 P1-06, A2 2.4*
+
+- [ ] **2.7 — Continue is greyed out with no reason (contact step).**
+  The hint says "Add your name and phone number to continue"; Continue stays
+  dead until an email is added. Email may only be required when a plan is
+  attached.
+  **Fix:** the hint states exactly what is required in each case.
+  **Done when:** the hint always matches what validation actually enforces.
+  *A1 P1-06, A2 2.5*
+
+- [ ] **2.8 — Address entry may accept unverified raw text.**
+  Continue became enabled before a suggestion was selected. **A1 marks this
+  "observed, submission consequence untested."**
+  **Fix:** decide whether manual addresses are allowed. If not, require a
+  selection. If yes, label it "Use this address anyway", keep the raw value and
+  flag it for review.
+  **Done when:** tests cover selected, partial, nonexistent, out-of-area,
+  apartment/unit, and manually accepted addresses.
+  *A1 P1-05*
+
+- [ ] **2.9 — The service area is asked too late.**
+  Mobile address and area come at step 4, after services, add-ons and vehicle.
+  **Fix:** ask "Where's the car?" before vehicle details.
+  **Done when:** an out-of-area customer is told inside the first two steps.
+  *A2 2.6*
+
+- [ ] **2.10 — Recurring plans overwhelm a one-time booking.**
+  Four plan cards in a dense two-column set on the add-ons step, before a date
+  is chosen. "Bi-weekly maintenance" is $120/month for two visits; "Monthly
+  two-visit" is $200 for two visits and is tagged "2 visits each time".
+  Choosing "Member rate" never says whether joining costs anything or repeats.
+  **Fix:** move plans off the add-ons step — their own step or a linked page.
+  Each plan states cost, frequency and how to stop. Rename the $200 plan.
+  **Done when:** a one-time customer reaches vehicle details without reading
+  membership terms, and an interested one can still tell what a plan charges.
+  *A1 P1-07, A2 2.7*
+
+- [ ] **2.11 — The last step says nothing about what happens next.**
+  **Not a contradiction with A1 §12, which is about a different step.** A1
+  found the reassurance sentence on the *date/time* step and asked to keep it;
+  A2 wants one above the *final* button. Checked in source: `BookingPage.jsx`
+  around line 806 renders "Request this time" with no adjacent sentence.
+  **Fix:** one line above the button, built from the detailer's own rules:
+  when they reply, and the change/cancel window.
+  **Done when:** the line shows and reflects that business's actual settings.
+  *A2 2.9*
+
+- [ ] **2.12 — Spanish is half-translated.**
+  "Weekend rate", "Member rate · 10% off", "Member rate aplicado" and "That
+  code isn't one of ours" stay English. Service and add-on names stay English.
+  The language choice also leaked across to a different booking link.
+  **Fix:** translate every system-written line; the detailer's own typed
+  service names stay as typed, which is already the rule. Scope the language
+  choice per business.
+  **Done when:** a full Spanish pass through all seven steps shows no
+  system-written English. `node scripts/i18n-survey.mjs` is the instrument, and
+  per `docs/gotchas.md` it has returned a false pass before — break it first.
+  *A1 P2-10, A2 2.8*
+
+- [ ] **2.13 — Both first-step categories say "choose one" when only one is required.**
+  **Fix:** "Optional — choose one" per category, or state the real rule once
+  above them.
+  *A1 P2-07*
+
+- [ ] **2.14 — The promo error hides behind the sticky footer.**
+  **Fix:** scroll it into view, or add bottom space.
+  **Done when:** visible on a 375-wide phone without scrolling.
+  *A2 2.10*
+
+- [ ] **2.15 — The sticky footer can cover the last choice.**
+  **Fix:** bottom padding and a shorter footer; test with browser chrome and
+  the on-screen keyboard up.
+  *A1 P2-08*
 
 ---
 
-## The standing instruments
+## Wave 3 — Communication proof
 
-Run these rather than trusting a number written in prose — every check count in
-this repo has been wrong at least once.
+"Sent" is not "delivered". Today the product proves only that a send was
+requested.
 
-| | |
+- [ ] **3.1 — The owner cannot tell whether emails arrived.**
+  The dashboard says "Reminder sent to customer"; the back office says Resend
+  delivery/bounce tracking is "confirmed possible" and not wired.
+  **Fix:** store and display Resend events for `sent`, `delivered`,
+  `delivery_delayed`, `bounced`, `failed`, `suppressed` and `complained`, each
+  linked to message, booking, detailer and recipient. Alert on permanent
+  failure. Resend documents exactly these event types for webhooks.
+  **Done when:** a deliberately bounced test message appears in the back office
+  with a next action, and a delivered one is visibly different from "sent".
+  *A1 P0-04, § 9*
+
+- [ ] **3.2 — Email sending is capped at 100 a day, shared with Andrew's real business.**
+  Back office shows "Email today 0 of 100", and `AdminPage.jsx:360` already
+  knows the cap is shared with andrewsdetail.com.
+  **Fix:** paid Resend plan before any real customer goes live; alert in the
+  back office as the cap approaches and on any failed send.
+  *A2 3.2*
+
+- [ ] **3.3 — Customers only ever get email, never text.**
+  Settings lists confirmation, reminder and thank-you as email only, while the
+  home page promises "Confirmation when they book, reminder before you drive
+  out."
+  **Fix:** text confirmation and a day-before reminder with "Reply C to
+  confirm", each switchable by the detailer.
+  **Done when:** a test booking sends a real text and a reminder fires on
+  schedule.
+  *A2 3.1, A2 Part 8 item 1 — A2 calls this the single biggest cut to no-shows*
+
+- [ ] **3.4 — Review every email end to end. Nobody has ever done this.**
+  Carried from the old roadmap, and it is the same job A1 § 10 asks for in its
+  lifecycle matrix.
+  **Done when:** confirmation, acceptance, reminder, quote, receipt,
+  cancellation and reschedule have each been sent, received and read.
+  *old roadmap § A*
+
+---
+
+## Wave 4 — State safety
+
+- [ ] **4.1 — One tap completes a job, with no confirmation and no undo.**
+  A1 marked a demo job complete by accident while exploring. This gets used
+  one-handed in a driveway, and completion moves reminders, reports, money and
+  customer status.
+  **Fix:** confirmation showing customer, service and time, then a visible
+  undo. Apply the same review to cancel, no-show, suspend, delete, waive and
+  owner-invite. **The pattern already exists** — the job page's delete-behind-a
+  -fold with `.btn.danger` is this product's reference for a destructive
+  action (`docs/screen-rules.md`). Copy it rather than designing a second one.
+  **Done when:** no consequential state change happens from one accidental tap,
+  and each is recorded in an audit history.
+  *A1 P0-06*
+
+- [ ] **4.2 — Calendar download links need an authorization review.**
+  The link carried a Supabase function URL, a booking id, `audience=owner` and
+  an anonymous API key. **A1 proved no vulnerability** — an anon key can be
+  normal in Supabase — but the endpoint's authorization is untested.
+  **Fix:** test whether altering booking ids or audience exposes another
+  account's data; verify row-level security and server-side authorization;
+  consider signed expiring links.
+  **Done when:** cross-account and altered-link tests fail safely and the
+  result is written into `docs/VERIFIED.md`.
+  *A1 P1-10*
+
+- [ ] **4.3 — Support view needs a read-only banner and an audit record.**
+  "Look at their dashboard" opened a support view that appeared read-only, but
+  nothing said so and nothing recorded it.
+  **Fix:** "Viewing as support — read only" banner, record who opened it and
+  when, block mutations server-side, provide "Return to admin".
+  **Done when:** an attempted state change fails and the access appears in an
+  audit history.
+  *A1 P3-08, § 9*
+
+- [ ] **4.4 — Prove multi-tenant isolation properly.**
+  `tests/tenant-isolation.test.mjs` exists. Per `docs/gotchas.md`, break it on
+  purpose before believing it.
+  **Done when:** cross-detailer access with altered identifiers fails on every
+  customer/business table and storage path, and the run is recorded.
+  *A1 § 9*
+
+---
+
+## Wave 5 — Money truth
+
+Both audits independently reached the same conclusion here, which makes it the
+most corroborated finding in the set.
+
+- [ ] **5.1 — The Money screen calls unpaid work "brought in".**
+  $785 "brought in" − $433 expenses = $352 "net/kept", while $465 of that $785
+  is still owed. Cash actually collected less expenses is **−$113**. The back
+  office repeats the error, calling the $785 "taken".
+  **Fix:** five separate labels and calculations — **Earned**, **Collected**,
+  **Still owed**, **Expenses paid**, **Cash left after paid expenses**. Net is
+  computed from collected money only. Don't let "net" dominate visually.
+  **Done when:** marking a job paid moves money from "Still owed" to
+  "Collected" and net changes only then; and every headline figure reconciles
+  against the visible jobs, payments and expenses.
+  *A1 P1-01, A2 4.1*
+
+- [ ] **5.2 — The mid-month comparison compares half a month to a whole one.**
+  "▼ 52% vs $726 last month" on a half-finished month.
+  **Fix:** compare to the same point last month, or hide until the month ends.
+  *A2 4.2*
+
+- [ ] **5.3 — Receipts and invoices may not be findable.**
+  **A1 marks this "needs verification, not a proven missing feature"** — the
+  payment was never finalized.
+  **Fix:** run a full test payment and inspect every resulting email and
+  record. If the documents exist, make them discoverable; if they don't, narrow
+  the sales claim until they do.
+  **Done when:** an owner can answer "what was sent, when, to whom, did it
+  arrive, can I resend it?" without hunting.
+  *A1 P1-04*
+
+- [ ] **5.4 — Link-open counts may disagree between Money and Business.**
+  Money says "None of your links were opened in this period"; Business says
+  "1 link · 21 opens". **A2 marks this not confirmed** — may be different
+  periods.
+  **Fix:** if the periods differ, label them. If not, fix the count.
+  *A2 4.5*
+
+---
+
+## Wave 6 — Recovery and monitoring
+
+- [ ] **6.1 — There is no proved recovery path for the business's records.**
+  No restore test, restore date, recovery target or outage history exists.
+  Once Andrew runs his livelihood on this, losing a week of bookings is a
+  business-stopping event.
+  **Fix:** define backup frequency and retention, run a restore into a safe
+  environment, record the last successful restore test, write a one-page
+  recovery procedure, enable MFA on the production accounts. Supabase's
+  production checklist covers backups, point-in-time recovery, MFA and RLS.
+  **Done when:** a test copy is restored, opened and checked against a known
+  set of bookings, customers and settings, with the date visible in the back
+  office.
+  *A1 P0-07*
+
+- [ ] **6.2 — The back office cannot prove the product is healthy.**
+  Netlify connected but not read; Supabase needing wiring; email delivery not
+  wired; no outage history. Successful jobs are prominent and green; missing
+  monitoring is faint grey. **"No alarm" is being read as "working."**
+  **Fix:** outside checks for homepage, booking start, booking availability,
+  sign-in and a safe database/function path. Store incidents and recovery
+  times. Show failed background jobs, not only last success. Missing monitoring
+  renders amber or red. Netlify's own docs say native observability has no
+  alerting and limited retention, so an external check is required.
+  **Done when:** a controlled failure raises an alert, appears in incident
+  history, names the affected path, and clears only after a successful check.
+  *A1 P1-03, P3-07, § 9*
+
+- [ ] **6.3 — Alert when an active detailer's booking page cannot work.**
+  No services, no coverage area, no future availability, suspended account, or
+  a public error.
+  *A1 § 9*
+
+- [ ] **6.4 — Weak signal and retry behavior is unknown.**
+  Detailers work in driveways.
+  **Fix:** test current-day viewing after signal loss, safe retry on an
+  interrupted update, no duplicate bookings or duplicate actions after retry,
+  and a printable next-day schedule with customer contacts as an outage
+  fallback.
+  *A1 § 9, § 10*
+
+---
+
+## Wave 7 — Sales proof
+
+- [ ] **7.1 — `/examples` looks like an internal index, not a portfolio.**
+  A plain text list of ex1–ex5: no thumbnails, no menu, no way back, no styles,
+  no phone views, no call to action. **Both audits score this the worst page in
+  the product** — A1 gives it 3/10 — and note the individual examples are among
+  the best-looking parts of it.
+  **Fix:** screenshot cards, one desktop and one phone crop each, a plain-words
+  style label, "View live example" and "Build mine like this", the normal site
+  menu and footer, and no "ex1" labels in customer-facing headings.
+  **Done when:** a prospect understands the range and quality without opening
+  every example.
+  *A1 P2-01, A2 7.1*
+
+- [ ] **7.2 — The public price explanation contradicts itself.**
+  Copy says "every figure is what you pay" and "nothing is added", then allows
+  condition, distance, size and add-ons to change the amount.
+  **Fix:** one honest formula. Only say "nothing added" if it is literally true.
+  **Done when:** a customer can explain every circumstance that changes the
+  displayed amount.
+  *A1 P1-09*
+
+- [ ] **7.3 — Pricing page: the decision is below the photo, and savings look like a charge.**
+  $499, $40 and $80 carry similar visual weight, so the saving reads as a third
+  fee. "SAVE ON THE YEAR $80 a year" reads as if the yearly price is $80.
+  **Fix:** two plain plan cards at the top; separate lines for one-time build
+  cost and repeating cost; "Pay yearly: $400 (save $80)"; commitment choices in
+  the card, not buried; reduce the empty booking-only area; raise terms
+  contrast.
+  **Done when:** in five seconds a visitor can say what each plan includes,
+  what is due now and what repeats.
+  *A1 P2-02, A2 6.1*
+
+- [ ] **7.4 — The home page lists the old price first in the markup.**
+  "$999 to build it, then $60/month" precedes the founding price in the page
+  text, so search results and screen readers may announce the wrong price.
+  **Fix:** mark the struck price as the old price so it is read as crossed out,
+  or hide it from assistive technology. Founding price first.
+  *A2 6.2*
+
+- [ ] **7.5 — Prices count up from low numbers.** "$20 to build it" and
+  "$1/month" are visible mid-count while scrolling past. Show the final price
+  immediately.
+  *A2 6.3*
+
+- [ ] **7.6 — "Unlimited photos" against a 1 GB cap.** The back office shows
+  1 GB total, "10.2 MB promised to each". Raise the storage or change the words.
+  *A2 6.4*
+
+- [ ] **7.7 — Terms contradict pricing.** Terms say data "by asking" and close
+  your account by "Tell us"; pricing says "You export them and go" and "One
+  button… nobody to talk out of it".
+  **Fix:** align the promises, and make sure the export and cancel buttons
+  actually exist.
+  **Done when:** the same promise about data access, ownership, cancellation,
+  export and deletion appears on every page.
+  *A1 P3-09, A2 6.5*
+
+- [ ] **7.8 — The privacy page omits services that receive customer addresses.**
+  It names Supabase, Netlify, Resend, Stripe and Google. The booking address
+  search visibly credits **Geoapify** and **OpenStreetMap**, so typed addresses
+  go somewhere the policy does not mention.
+  **Fix:** inventory every data processor and what each receives — address,
+  weather, maps, analytics, error reporting, email, hosting, storage, support.
+  Separate active processors from planned ones; a future Google Business
+  Profile feature is currently described as if it were live.
+  **Done when:** the configuration inventory and the public policy match, and
+  adding or removing a processor triggers a policy review.
+  *A1 P0-05, P3-10*
+
+- [ ] **7.9 — The home page animation delays the point.**
+  Several long scrolls advance a controlled sequence with large empty black
+  areas; the page is about 13 screens tall; the headline types letter by letter;
+  the hero product shot is too small and dim to judge.
+  **Fix:** show the headline immediately; shorten the DM demonstration to about
+  one screen; a larger brighter real product crop, desktop and phone paired;
+  respect reduced motion; trim repeated sections.
+  **Done when:** the full point is understandable with motion disabled.
+  *A1 P2-03, P2-04, A2 7.4*
+
+- [ ] **7.10 — Example site defects.**
+  `/ex2` Delgado: headline stays faded ~5s and the giant "DELGADO" lettering
+  overlaps it; "Next opening Thu 11 Sep" is in the past; tab title says "Mesa
+  AZ" while the page says Phoenix · Scottsdale · Tempe.
+  `/ex1` Prime: "1 yrs" while counting up.
+  `/ex5` Tampa Bay: the review pill is partly hidden behind the ceramic coating
+  card.
+  `/ex3` Ballantyne: hero is very tall.
+  *A1 § 4, A2 7.2, 7.3*
+
+- [ ] **7.11 — The home page's own example is a different city from the demo.**
+  Home page says "Tacoma, WA"; the demo business is Long Beach, CA.
+  *A2 7.6*
+
+- [ ] **7.12 — Pricing page is blank for about a second, and has no sign-up
+  button in the phone top bar.**
+  *A2 6.7, 6.8*
+
+---
+
+## Wave 8 — Field usability
+
+A1 is explicit that its browser **could not simulate a real phone** and warns:
+do not turn "looked narrow on desktop" into "mobile passed." A2 never checked
+the dashboard or back office at phone width at all.
+
+- [ ] **8.1 — Sweep every dashboard tab and dialog at 375 and 320.**
+  Today, Calendar, Money, Clients, Business, Settings and every pop-up. On "How
+  you get paid" the bottom menu was already seen covering content at medium
+  width. `scripts/sweep-widths.mjs` is the instrument and **it has printed
+  "clean" over 38 real findings before** — break it first.
+  *A2 4.12, 5.7, A1 § 10*
+
+- [ ] **8.2 — Real-device pass on a real iPhone and a real Android.**
+  One-handed, in bright daylight, browser chrome visible, keyboard up. Cover
+  the sticky footer, address suggestions, date picker, dashboard actions,
+  calendar, call/text, photo upload and emergency admin use. Record where
+  thumbs cannot reach and where text becomes unreadable.
+  **This cannot be done from this machine.** It is Andrew's, or a phone he
+  hands to somebody.
+  *A1 § 10*
+
+- [ ] **8.3 — Small grey text is unreadable outdoors.**
+  Both audits, everywhere: body copy, letter-spaced all-caps micro-labels,
+  progress text, tab labels, service details, warnings, "then $40/month $60",
+  labels under the money numbers. In the back office, missing monitoring is
+  quieter than successful jobs.
+  **Fix:** raise contrast and size; simplify micro-label styles; warnings
+  outrank healthy information. WCAG 2.2 wants 4.5:1 for normal text and 3:1 for
+  large.
+  **Done when:** `node scripts/accent-sweep.mjs` and the contrast suite pass,
+  **and** it has been read outdoors — automated checks do not reproduce glare.
+  *A1 P2-05, A2 7.5*
+
+- [ ] **8.4 — Booking choices do not look interactive.**
+  Selection is a thin green border; the details control is a tiny eye icon;
+  prices and descriptions are dim; the progress label is faint.
+  **Fix:** "What's included" as text rather than an eye icon; a checkmark or
+  "Added" on selected cards; stronger card edges; more legible price text; a
+  stronger progress indicator. Also remove the duplicated first bullet
+  ("Everything in the Express Wash" appears as both the sentence and bullet 1).
+  **Done when:** a user can name the selected choice without comparing shades.
+  *A1 P2-06, A2 2.11, 2.12*
+
+- [ ] **8.5 — Keyboard, screen reader, zoom, large text and reduced motion.**
+  Never checked.
+  *A1 § 10*
+
+---
+
+## Wave 9 — Dashboard and back office
+
+- [ ] **9.1 — Setup progress disagrees between the dashboard and the back office.**
+  Business says "10 of 12 done"; the back office says the same account is
+  "4 of 12". CLAUDE.md already states both sides are supposed to run the same
+  `app/src/lib/setup.js`, so this is a live regression against a stated rule.
+  **Done when:** the same account shows the same count everywhere.
+  *A1 P1-02, A2 4.4*
+
+- [ ] **9.2 — The back office says contradictory things about one account.**
+  Growth says a page "cannot take a booking" and also "the page works and
+  nobody has used it". One account appears in setup-incomplete, cannot-book,
+  never-booked and no-website at once.
+  **Fix:** stages — Created → Configured → Bookable → First booking → Active.
+  One furthest stage per account, separate warnings, one primary blocking
+  reason.
+  **Done when:** the counts reconcile and each account has one clear next
+  action.
+  *A1 P1-02, P3-04, A2 5.1*
+
+- [ ] **9.3 — The setup banner shows an empty list and "and 2 more".**
+  **Fix:** show the first blocking task on its own line with a direct button.
+  *A1 P2-11, A2 4.3*
+
+- [ ] **9.4 — Calendar is hard to read at a glance.**
+  Single-letter weekdays make both S days and both T days ambiguous; names
+  truncate; only "Blocked" is explained; the first partial week omits blank
+  cells so the grid is irregular.
+  **Fix:** short weekday names, a complete rectangular month, a full status
+  legend, readable selected-job detail.
+  *A1 P1-08*
+
+- [ ] **9.5 — Late jobs are not flagged.** At 10pm a 2:00 PM job still sits
+  under "Still to do". Mark it late and offer "Mark done" or "Move it".
+  *A2 4.9*
+
+- [ ] **9.6 — Client list has no labels.** Values appear with no headings, so
+  last visit, lifetime spend and phone must be inferred. "9 gone quiet" is
+  vague. Define it with an exact period and give it an action.
+  *A1 P2-12*
+
+- [ ] **9.7 — Client card is missing basics.** No Text button, no vehicle, no
+  address, no "Book again". Add them; "Book again" opens New booking prefilled.
+  *A2 4.7*
+
+- [ ] **9.8 — Manual booking flashes "No active services yet" before loading.**
+  Replace false empty states with a loading skeleton; only show empty after a
+  completed empty response.
+  *A1 P2-14*
+
+- [ ] **9.9 — New booking files "Mobile / Drop-off" under the VEHICLE heading.**
+  Move it under its own "Where" heading.
+  *A2 4.8*
+
+- [ ] **9.10 — Business settings waste the right half of the screen.**
+  Put a live customer-page preview there; stack below on phones.
+  *A1 P2-13*
+
+- [ ] **9.11 — Booking-rule conflict needs a one-click fix.** The product
+  already correctly warns that a 2-hour booking notice plus a 24-hour change
+  cutoff locks a new booking immediately. **Keep the warning** — add an example
+  and a recommended adjustment.
+  *A1 P2-15*
+
+- [ ] **9.12 — Back office: real detailers first, scannable, one action each.**
+  Default to real accounts; replace the three-column card wall with a list —
+  detailer, status, setup, last booking, earned, customers, primary warning,
+  action; open detail in a side panel. "One thing needs you" is good; the
+  duplicate wide card under "What to look at, in order" is not. "Money at risk"
+  shows for an account that pays nothing. "Ring them" shows no phone number.
+  "Booking · last one yesterday" shows for accounts with 0 customers.
+  **Done when:** the owner can find the only account needing attention in under
+  ten seconds.
+  *A1 P3-02, P3-03, A2 5.2, 5.3, 5.6*
+
+- [ ] **9.13 — Zero data is being presented as proof of success.**
+  "$0 went through it this month… it is the proof the product works rather than
+  income."
+  **Fix:** say plainly there is not yet enough production data to judge.
+  *A1 P3-05, A2 5.4*
+
+- [ ] **9.14 — The owner cannot see whether the platform made money.**
+  Subscription revenue is visible; hosting, database, email and domain costs
+  are not. Manual cost entry is fine to start.
+  *A1 P3-06*
+
+- [ ] **9.15 — Onboarding: "Six short tours, up to 37 steps".**
+  Replace with short contextual prompts tied to unfinished setup.
+  *A1 P3-11*
+
+- [ ] **9.16 — Hide the owner-only "The website business" row from detailers.**
+  Depends on 0.1.
+  *A2 4.11*
+
+---
+
+## Wave 10 — Copy
+
+One pass, one list. All of it is the same defect: internal voice reaching
+production. `CLAUDE.md` § Design already forbids it; these are the live
+instances.
+
+- [ ] **10.1 — Remove every developer-voice string.**
+  - "Tallest bar $741." → remove, or a real caption
+  - "This is the sentence that closes a sale — it is real scarcity rather than a tactic"
+  - "$0 went through… it is the proof the product works rather than income"
+  - "The built-in table · nothing is overridden"
+  - "Each line is asked of everybody separately…"
+  - "Log a bulk job" → "Add a fleet job"
+  - "Maintenance deadlines · 1 missed" → "Plan visits · 1 overdue"
+  - "Six short tours, up to 37 steps" → "Quick tours"
+  - "0 of 9 bookings came through a link. Earned counts finished jobs only."
+  - "Add a way to be paidSave" — two buttons with no space between them
+  - Tab name "Plumbing" → "System health"
+  - Raw job names `accrue-plan-visits`, `send-owner-reminders` → plain names
+  - "Something watching from outside" → "External booking check"
+  **Remember:** a string changed here needs its Spanish key changed in the same
+  edit, or it silently falls back to English.
+  *A1 P2-16, P3-04, P3-07, § 7, A2 4.10, 5.4*
+
+- [ ] **10.2 — Cut every back-office explanation paragraph to one line.**
+  *A2 5.5*
+
+---
+
+## Wave 11 — Carried from the old roadmap
+
+Still open, not covered by either audit.
+
+- [ ] **11.1 — Geoapify: address autocomplete, drive time and routing.**
+  Attribution is settled; the key must not reach the browser. **Overlaps 7.8**
+  — the privacy page must name it. *old roadmap § 6, § 3*
+- [ ] **11.2 — The vehicle picker**, on NHTSA vPIC. *old roadmap § B*
+- [ ] **11.3 — The editing screens phase** — make settings feel like a product.
+  Overlaps 9.10. *old roadmap*
+
+---
+
+## Wave 12 — Blocked on Stripe
+
+Parked until 0.2 is answered. **A1 excludes all of this from every score.**
+
+- [ ] 12.1 Subscription billing end to end: sign-up → pay → renew → failed
+  payment retries → page offline → back when paid. *A2 5.8*
+- [ ] 12.2 Real in-person card payment. Today "Card" only writes the word
+  "Card" into the notes, while the home page promises "Take a card payment on
+  the driveway." **Until this ships, 10.1 must change the home page wording** —
+  a claim the product cannot keep is a copy bug, not a missing feature. *A2 4.6*
+- [ ] 12.3 Optional deposit at booking. *A2 Part 8 item 2*
+
+---
+
+## Wave 13 — After the fixes
+
+In A2's stated order. Do not start these while Waves 1–10 are open.
+
+1. Day view in the calendar with drive time between jobs. *A2 Part 8 item 3*
+2. "Book again" and win-back texts for customers who have gone quiet. *item 4*
+3. Before/after photos per job, optionally added to the detailer's gallery.
+   *item 5*
+4. **Move Andrew's own business onto the platform** as the first real account,
+   once 2.3, 2.2, 3.3 and the Stripe wave are done. *item 6*
+
+---
+
+## Release gates
+
+From A1 § 11. Use these rather than "the wave is finished".
+
+- **Gate A — safe private pilot.** Waves 1–4 closed or explicitly risk-accepted
+  with a temporary safeguard. Every example CTA passes an automated mapping
+  check. One complete booking lifecycle passes. Real-device phone pass done.
+  External booking and email-failure alerts work.
+- **Gate B — Andrew runs in parallel.** Money reconciles against his old
+  records. Confirm/undo and audit history work. Daily export and fallback
+  available. Ten real jobs complete with no lost state and no invisible missed
+  message.
+- **Gate C — Andrew retires the old system.** Several weeks of parallel
+  operation reconcile. Restore drill passes. Weak-signal and retry pass.
+  Cancellation/reschedule/quote/receipt lifecycle passes. He can recover
+  tomorrow's schedule during an outage.
+- **Gate D — sell to strangers.** Waves 1–8 closed. Legal pages match reality.
+  `/examples` and pricing communicate without help. Admin spots failures before
+  customers report them. A small group of pilot detailers has completed real
+  jobs and their support failures have been addressed.
+
+---
+
+## Watch list — findings that may be wrong
+
+Do not act on these without checking first. **A wrong diagnosis attached to a
+real observation is still a real observation** — keep the reproduction even if
+the explanation dies.
+
+| Item | Why it is suspect |
 |---|---|
-| `composition`, `design-contrast`, `landing-pricing`, `route-contract` | credential-free, must pass before any wave is finished |
-| `booking-core` | includes § 14, the calendar's stale-answer guard |
-| `spanish` | includes § 9, the coverage ratchet |
-| `scripts/i18n-coverage.mjs` | the count, with `--list` for every gap |
-| `scripts/lane-check.mjs <lane>` | before every `git add` |
+| A2 1.1 demo has admin access | Two demo accounts exist by design; the auditor may have used the admin one. **Blocked on 0.1.** |
+| A2 4.5 link-open counts | A2 marks it not confirmed — may be two different periods. |
+| A2 1.4 example brand names | "Not confirmed" in A2. Confirm each name is real before rewriting five sites. |
+| A1 P1-04 invoices missing | A1 says "needs verification, not a proven missing feature" — the payment was never finalized. |
+| A1 P1-05 raw address accepted | Observed, but the submission consequence was never tested. |
+| A1 P1-10 calendar link | A1 proved **no** vulnerability. It is a review, not a defect. |
+| A2 2.9 vs A1 § 12 | **Already resolved — not a contradiction.** Different steps. See 2.11. |
 
-**`scripts/sweep-widths.mjs:605` still prints "clean" whatever it measures**
-(`found += await say(...)` where `say` returns undefined). Do not trust it
-until that is fixed. Lane C, in `FOUND.md`.
+## Do not reopen these
 
----
-
-## HANDOFF — the DP Website session stood down here, 2026-09-12
-
-**Andrew asked for DP Cowork to be the single building session. Everything
-below is written down because it was agreed in a conversation this session does
-not survive.** Last commit: `3b9f058`. Run range for the accounting:
-`f8a1b2e^..3b9f058`, 76 commits, 118 files, +8,202 / -1,701.
-
-### What was verified, and how
-
-Not "should work" — each of these was measured after the change.
-
-- **A customer's `?lang=` link no longer touches the detailer's language.**
-  Reproduced first as a five-step browser walk (clear both stores → visit
-  `/book/demo-detail?lang=es` → visit `/nothing-here`), which rendered the 404
-  in Spanish to an English visitor; re-ran identically after the fix and it
-  renders English while the booking page stays Spanish.
-- **A detailer's renamed vehicle tier is never translated.** Measured on a
-  throwaway tenant `lang-scratch`, cloned from the demo's rows and **deleted
-  afterwards** — never the demo seed. English: `Compact runabout / Heavy /
-  Large`. Spanish: `Compact runabout / Heavy / Grande`. Examples likewise —
-  the detailer's *"Anything with a tow bar"* passes through, the untouched
-  *"Truck, large SUV, van"* becomes *"Camioneta, SUV grande, van"*. **Zero
-  empty labels in either language.** A service deliberately named **"Travel"**
-  — which IS a catalogue key (`Traslado`) — stayed "Travel" in Spanish, because
-  service names never reach `t()` at all.
-- **Suites at handover:** spanish 70, composition 95, landing-pricing 109,
-  route-contract 33, booking-core 210, setup-progress 32, design-contrast all
-  pairs, `npm run build --prefix app` clean.
-
-### The decision Andrew's reviewer asked for, made explicitly
-
-**`?lang=` SETS THE LANGUAGE FOR THE VISIT, NOT FOR THE DEVICE. Only pressing
-EN/ES persists.** A detailer texts a Spanish link, the customer opens it on the
-household computer, and the next person to book on that machine must not get
-Spanish with no idea why. Following a link is not choosing a language for a
-device; pressing a button is.
-
-**AND IT NEEDS A PER-VISIT STORE RATHER THAN NOTHING AT ALL, WHICH IS THE PART
-THAT IS EASY TO UNDO BY ACCIDENT.** `ManageBookingPage.jsx:336` hands the
-browser to `checkout.stripe.com`, and Stripe returns to `?paid=1` with no
-`lang` on it. A locale held only in module memory would therefore drop a
-Spanish customer into English **mid-payment**. `sessionStorage` is exactly the
-right scope: it survives the redirect and the reload, and it dies with the tab.
-**Do not "simplify" this to no storage.**
-
-### The new checks, and what they are for
-
-`tests/spanish.test.mjs` § 10 — a lane C crossing, on Andrew's instruction
-*"whatever check would have caught this, add it"*, named in `3b9f058`.
-
-- **10a-d** run the real `localeStore` against a stubbed browser (it has no
-  imports, so Node can load it). They fail if a `?lang=` link moves the
-  dashboard scope, if a link's language persists to `localStorage`, or if the
-  picker's choice stops persisting.
-- **10e-g** walk `DEFAULT_VEHICLE_SIZES` itself and fail if a default tier word
-  has no Spanish, or if `StepVehicle` passes a tenant's own text to `t()`.
-- **Both baselined by reintroducing the bug** — 68 passed, 2 failed — then back
-  to 70 / 0. Every check above them asks whether a Spanish string EXISTS;
-  **none could see a Spanish string that is correct and shown to the wrong
-  person**, which is what both of the day's faults were.
-
-### What was deliberately NOT done, and why
-
-- **The already-leaked `dp.lang.app=es` is not healed**, the dashboard has no
-  EN/ES control, `<html lang>` is fought over by two scopes, and `/app/today`
-  mixes languages. All four are in `FOUND.md` under this date with the
-  mechanism for each. They are separate bugs from the leak and need decisions,
-  not a patch.
-- **`.btn.sm`'s 38px exception was left standing** — `PRODUCT.md` records it
-  across 28 call sites and says to reopen it with the owner rather than in
-  passing. Only the one wizard link was raised.
-- **The Spanish `"unos 1 h 15 min"`** was flagged and not changed: the reviewer
-  asked for a native speaker and said explicitly not to act on his say-so.
-- **`app/public/img/`'s twelve untracked files are lane A's** and were left
-  untouched, as `lane-check` reports them.
+A1 § 12 lists things that improved during the review or should not be touched:
+the home page eventually showed founding prices consistently (regression test,
+not an open defect); the date/time step's "the business confirms" wording
+**stays**; promo code `DEMO25` being invalid in customer booking is **not** a
+bug — they are different promo systems; no route returned a 404; team
+permissions and custom roles **exist** and are not missing; "Reminder sent to
+customer" is good immediate feedback and stays; the booking-rule conflict
+warning is correct and gets a better resolution path, not removal.
