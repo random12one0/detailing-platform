@@ -3461,14 +3461,36 @@ a wording it is free to keep changing. Full detail: `docs/gotchas.md`.
 
 ## Wave 11 — Carried from the old roadmap
 
-Still open, not covered by either audit.
+**TWO OF THREE WERE ALREADY DONE, 2026-09-20 — this section had not been
+reconciled against work landed under other numbers.** Read before treating
+this wave as untouched.
 
-- [ ] **11.1 — Geoapify: address autocomplete, drive time and routing.**
-  Attribution is settled; the key must not reach the browser. **Overlaps 7.8**
-  — the privacy page must name it. *old roadmap § 6, § 3*
-- [ ] **11.2 — The vehicle picker**, on NHTSA vPIC. *old roadmap § B*
+- [x] ~~**11.1 — Geoapify: address autocomplete, drive time and routing.**~~
+  **Address autocomplete: done.** `supabase/functions/address-suggest`
+  confirmed **deployed and matching this checkout** (`deployed-inventory.mjs`:
+  `matches`), wired into the booking flow at `app/src/book/AddressField.jsx`,
+  and attribution is already on the privacy page — *"When a customer types
+  their address into your booking page, what they type goes to Geoapify."*
+  **Drive time and routing: not built, and blocked.** Nothing in the
+  codebase calls a routing or drive-time endpoint. Building either means a
+  new or widened edge function so the API key never reaches the browser —
+  the same note this item already carried — and deploys are frozen. Not
+  started; overlaps Wave 13 item 1, "day view in the calendar with drive
+  time between jobs," which is where it belongs when the freeze lifts.
+  *old roadmap § 6, § 3*
+- [x] ~~**11.2 — The vehicle picker**, on NHTSA vPIC.~~ **Done — fully built,
+  shipped, tested.** `app/src/book/VehicleField.jsx` + `vehicles.json`
+  (1,103 cars, static — no live call to NHTSA at request time, so no
+  attribution gap the way Geoapify has one), wired into
+  `book/steps/StepVehicle.jsx`, and covered by `tests/booking-core.test.mjs`.
+  *old roadmap § B*
 - [ ] **11.3 — The editing screens phase** — make settings feel like a product.
-  Overlaps 9.10. *old roadmap*
+  Overlaps 9.10, which is itself still open and is where the concrete half of
+  this lives ("put a live customer-page preview" on the Business settings
+  screen; stack below on phones). **Not picked up this pass** — it is a
+  design decision (what the preview shows, how it is populated) rather than
+  a correction with a single right answer, and every item finished today was
+  the latter. Flagging rather than guessing at a design. *old roadmap*
 
 ---
 
