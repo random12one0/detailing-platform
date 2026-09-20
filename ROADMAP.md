@@ -533,7 +533,17 @@ the wrong service, and never book a job we cannot reach.
   A2 wants one above the *final* button. Checked in source: `BookingPage.jsx`
   around line 806 renders "Request this time" with no adjacent sentence.
   **Fix:** one line above the button, built from the detailer's own rules:
-  when they reply, and the change/cancel window.
+  ~~when they reply,~~ and the change/cancel window.
+  **"WHEN THEY REPLY" IS DECLINED — ANDREW, 2026-09-20. NO SUCH SETTING
+  EXISTS.** The only hour in the product is `request_nudge_hours`, which
+  CHASES THE DETAILER about a request they have not answered; it is not a
+  promise made to the customer and nothing else in the schema is. Writing that
+  sentence would have meant inventing a promise the software cannot keep,
+  which is a worse defect than the silence it replaced. His words: *"writing
+  that sentence would have been inventing a promise the software cannot keep,
+  which is a worse defect than the silence it replaced."* **If a reply-time
+  promise is ever wanted it is a NEW SETTING on the Booking rules screen and
+  its own item, not a sentence this page can compose.**
   **Done when:** the line shows and reflects that business's actual settings.
   **DONE 2026-09-20.** One paragraph at the foot of the review step, above the
   price bar, branching on the SAME condition the button branches on
@@ -629,11 +639,58 @@ the wrong service, and never book a job we cannot reach.
   **Fix:** scroll it into view, or add bottom space.
   **Done when:** visible on a 375-wide phone without scrolling.
   *A2 2.10*
+  **DOES NOT REPRODUCE ON THE CURRENT BUILD — measured 2026-09-20, AND 2.11
+  IS WHY.** The error renders inside the promo block, which used to be the
+  last thing on the review step; 2.11 put a sentence after it, so 83px of
+  page now sits between the error and the bar. Measured at 320 with the
+  worst bar the demo can produce (112px, plan attached), scrolled to the
+  bottom first, which is where a phone actually is when it presses Apply:
+  the error lands **56px clear of the bar and needs no scrolling**. At 392 on
+  `demo-riverside` it is 50px clear.
+  **NOT TICKED. Andrew decides** — an item cured by somebody else's change is
+  his call, not a session's.
 
 - [ ] **2.15 — The sticky footer can cover the last choice.**
   **Fix:** bottom padding and a shorter footer; test with browser chrome and
   the on-screen keyboard up.
   *A1 P2-08*
+  **THE ONE REAL FAULT OF THE THREE, AND IT IS FIXED — 2026-09-20.** 2.14,
+  2.15 and the `FOUND.md` entry about the review step were checked for a
+  shared cause before anything was touched. They have one: **`.bk-wrap`
+  reserved a literal `104px + safe-b` for a bar whose height is content-driven
+  and whose widest line is TEXT THE DETAILER TYPED.** Measured at 320 on
+  `demo-detail`: 73px on step 1, 84px, 98px once the Back button narrows the
+  eyebrow's column, and **112px on the review step**, where the wider
+  "Request this time" label wraps "{plan} applied · 1 hr" onto four lines.
+  112 against a 104px reserve is 8px of the last line under the bar at full
+  scroll, unreachable.
+  **Fixed once, in the shared place, and it DELETES the number rather than
+  automating it:** `.bk` is a column, `.bk-wrap` grows into it, and `.bk-bar`
+  is `position: sticky` instead of `fixed`, so the bar occupies its own
+  height whatever that height is. A page with no bar — confirmation, manage,
+  plans — keeps the old literal exactly, via `:has(> .bk-bar)`.
+  **A ResizeObserver was written first and thrown away**: it would have kept
+  the same fragile "the reserve must equal the height" relationship, and the
+  browser here never advances the rendering loop, so it could not be proven.
+  A fix that cannot be verified is not a fix.
+  **BROKEN ON PURPOSE, as asked.** The eyebrow was replaced with a plan name
+  no detailer would type — "Platinum bi-weekly maintenance and interior
+  protection membership" — taking the bar to **198px, nearly double anything
+  real**. With the fix the last line still clears by 26px. With the old rule
+  re-created on the same page in the same second (`position: fixed` plus a
+  104px reserve) the same line is **94px behind the bar**. The check catches
+  the fault it is supposed to catch.
+  **Verified at 1440x900, 768x1024, 392x844 and 320x844**, console clean on a
+  fresh tab (two React Router v7 future-flag warnings, present on every page
+  of this app and nothing else), all seven steps at 320 with the plan
+  attached, and in `?lite=1`. At every width the bar stays on the floor of the
+  screen, still pins while there is page to scroll, and nothing visible sits
+  under it.
+  **STILL NOT MEASURED, and the audit asked for it:** the on-screen keyboard.
+  A phone keyboard shrinks the visual viewport, not the layout viewport, and
+  no keyboard can be raised in this browser. It is the one half of this item
+  nobody has proven either way.
+  **NOT TICKED — Andrew's call, and the keyboard is the reason to hesitate.**
 
 ---
 

@@ -3496,6 +3496,13 @@ renaming two sites and leaving the rule unwritten for the next one.
 
 ## THE LAST THING ON THE REVIEW STEP SITS BEHIND THE PRICE BAR AT 320 — measured 2026-09-20, NOT FIXED
 
+> **THE NUMBERS BELOW ARE WRONG AND THE CAUSE BELOW IS WRONG — corrected
+> 2026-09-20, same day, while working 2.14.** Read the correction at the end
+> of this entry before you read anything else in it. Andrew could not
+> reproduce it with ordinary content and said so rather than pretending he
+> had seen it; he was right, and for a sharper reason than the one he gave.
+> **Left open, not closed, and not mine to close** — he decides.
+
 **Found while closing ROADMAP 2.11**, which put a sentence at the foot of the
 review step. The sentence is not the cause — whatever is last is clipped.
 
@@ -3523,3 +3530,66 @@ budget on every step at every width, which is what W16 is written against; the
 honest fix is for the padding to follow the bar's real height, and that is the
 pinned bar's geometry rather than this item's sentence. Whoever takes it should
 break it first by forcing a three-line eyebrow.
+
+**THE CORRECTION — 2026-09-20.**
+
+**Every clearance figure above was measured in the same tick as the scroll,
+on a page whose entrance animation had not run.** `.bk-step > *` carries
+`bk-rise` with `animation-fill-mode: backwards`, so before the animation
+starts the element sits at its `from` keyframe: `translateY(20px)`. The
+browser pane this was measured in never advances the animation clock —
+`requestAnimationFrame` never fires there and `getAnimations()[0].currentTime`
+stays at `0` — so **every rect came back 20px lower than the page a person
+sees.** `getBoundingClientRect` includes the transform; `offsetTop` does not,
+and the 20px disagreement between those two is what gave it away.
+`docs/gotchas.md` already lists the family: *a backgrounded tab freezing
+animations*. It cost a false entry in this file anyway.
+
+Re-measured with `document.getAnimations().forEach(a => a.finish())` first,
+which puts the page in its resting state:
+
+| what | claimed above | actually |
+|---|---|---|
+| `demo-riverside`, the promo row, 320 | 14px behind the bar | **6px clear** |
+| `demo-riverside`, 2.11's sentence, 320 | 13px behind the bar | **7px clear** |
+
+**So nothing was behind the bar, and the cause named above — a 104px reserve
+against a 98px bar — was arithmetic that did not even support the claim: 104
+is larger than 98.** It should have been caught by reading the two numbers
+written next to each other.
+
+**THERE IS A REAL FAULT AND IT IS THE SAME FAMILY, FOUND BY GOING BACK.** The
+bar can be TALLER than 104px. At 320, on the review step, with the demo's own
+"Bi-weekly maintenance" plan attached, the eyebrow "{plan} applied · 1 hr"
+wraps to four lines and the bar measures **112px** — the Back button and the
+wider "Request this time" label squeeze the column it wraps in. Against a
+104px reserve that is **8px of the last line under the bar with nothing left
+to scroll**, and the text doing the wrapping is the DETAILER'S own plan name,
+so no literal could ever have been right.
+
+That fault is fixed — the bar is `position: sticky` and takes its own space,
+so there is no reserve to be wrong. **The entry stays open because the fix is
+Andrew's to accept, not because the fault is still there.**
+
+---
+
+## `?lite=1` KILLS THE ANIMATION'S DURATION BUT NOT ITS DELAY — found 2026-09-20, NOT FIXED
+
+Noticed while verifying the sticky bar in reduced motion. The `.lite` block at
+the foot of `booking.css` forces `animation-duration: .01ms` on everything
+under `.bk`, and says so; it does not touch `animation-delay`. The step
+entrance staggers its children with delays of 60, 120, 180, 240 and 300ms, and
+`bk-rise` is `backwards`-filled, so during the delay the element is at its
+`from` keyframe: **`opacity: 0`**.
+
+So a visitor who has asked for reduced motion still waits up to **300ms**
+looking at an empty step, and then everything appears at once. That is not
+what the degradation path is for, and the CSS comment beside it says the
+opposite — *"nothing on this page is ever hidden behind an animation"*.
+
+**Not measured in the browser, and that is deliberate:** the pane used here
+freezes the animation clock, so it cannot tell a 300ms delay from an infinite
+one. Read out of the stylesheet instead — one `animation-delay` line per
+nth-child, and no override in the `.lite` block. Whoever fixes it should add
+`animation-delay: 0ms !important` to that block and then prove it somewhere
+the clock actually runs.

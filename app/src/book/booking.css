@@ -108,6 +108,13 @@
      total sat 16px to the left of every card edge. */
   --bk-col: 600px;
 
+  /* ROADMAP 2.15 — HOW MUCH FOOT OF THE PAGE TO KEEP CLEAR.
+     **This is only a number on a page with NO pinned bar**, and the value is
+     the old literal exactly, so the confirmation screen, the manage screen
+     and the plans page are untouched by this change. A page that HAS the bar
+     overrides it below, because the bar now takes its own space instead of
+     being guessed at. */
+  --bk-bar-clear: calc(104px + var(--safe-b));
   --bk-sp-2: 8px;
   --bk-sp-3: 12px;
   --bk-sp-4: 16px;
@@ -135,6 +142,12 @@
   --bk-t-hover: 180ms;
 
   position: relative;
+  /* ROADMAP 2.15 — A COLUMN, SO THE BAR CAN BE IN THE PAGE RATHER THAN ON
+     TOP OF IT. `.bk-wrap` grows into whatever is left, which is what keeps a
+     two-service step 1 with the bar on the floor of the screen and not
+     halfway up it. Every other public page has no bar and only gains a
+     wrap that fills the height it already occupied. */
+  display: flex; flex-direction: column;
   isolation: isolate;
   min-height: 100dvh;
   background: var(--bk-bg);
@@ -257,8 +270,12 @@
 /* ------------------------------------------------------------ LAYOUT */
 .bk-wrap {
   max-width: calc(var(--bk-col) + 2 * var(--bk-sp-4)); margin: 0 auto;
-  padding: var(--bk-sp-5) var(--bk-sp-4) calc(104px + var(--safe-b));
+  padding: var(--bk-sp-5) var(--bk-sp-4) var(--bk-bar-clear);
   display: flex; flex-direction: column; gap: var(--bk-sp-5);
+  /* Takes the height nothing else wants, so a short step still puts the bar
+     on the floor of the screen. `0 auto` rather than `1 1 auto`: this may
+     grow and must never be shrunk to make room for the bar. */
+  flex: 1 0 auto;
 }
 .bk-step-head { display: flex; flex-direction: column; gap: var(--bk-sp-3); }
 .bk-step-head h2 { margin-top: 2px; }
@@ -973,12 +990,31 @@
    translucency bought almost nothing at 88%. Solid on the ground colour
    also reads better than a lighter strip: content scrolling under it simply
    disappears at the hairline, so the page stays one surface. */
+/* ROADMAP 2.14 / 2.15 — STICKY, NOT FIXED, AND THAT IS THE WHOLE FIX.
+   A fixed bar is outside the page, so the page had to RESERVE room for it:
+   `.bk-wrap` carried a literal `104px + safe-b`. **The bar is not 104px.**
+   Measured at 320 on the demo with the demo's own plan attached, it runs
+   73px on step 1, 98px once the Back button narrows the eyebrow's column,
+   and **112px on the review step**, where the wider "Request this time"
+   label squeezes "{plan} applied · 1 hr" onto four lines — 8px more than the
+   page had reserved, so the last line of the step sat under the bar with
+   nothing left to scroll. And the text in there is THE DETAILER'S: a plan
+   they name "Platinum bi-weekly maintenance" wraps further than anything in
+   the seed, so no literal can ever be right.
+   Sticky, the bar is a flex child at the end of the column: it occupies its
+   own height, whatever that height turns out to be, and still pins to the
+   bottom of the screen while there is page left to scroll. Nothing has to
+   agree with anything.
+   `left/right: 0` went with `fixed` — a flex child is already full width. */
 .bk-bar {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
+  position: sticky; bottom: 0; z-index: 20;
   background: var(--bk-bg);
   border-top: 1px solid var(--bk-hairline);
   padding: var(--bk-sp-3) var(--bk-sp-4) calc(var(--bk-sp-3) + var(--safe-b));
 }
+/* The bar is in the page now, so the wrap above it needs a gap and not a
+   reserve. One section step, the same rhythm as everything else in there. */
+.bk:has(> .bk-bar) { --bk-bar-clear: var(--bk-sp-5); }
 .bk-bar .inner {
   max-width: var(--bk-col); margin: 0 auto;
   display: flex; align-items: center; gap: var(--bk-sp-3);
