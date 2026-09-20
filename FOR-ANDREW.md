@@ -17,6 +17,48 @@ Updated 2026-09-20.
 
 ## Waiting on you now
 
+- [ ] **DECIDE · Nothing is backed up. Deciding this costs money and it is
+  yours to spend. Added 2026-09-20.**
+  **Measured this morning, not assumed.** Your database is on Supabase's
+  **free** plan. That means: **no backups you can restore from, and no
+  point-in-time recovery.** If the database were lost today, nothing Supabase
+  holds would bring it back.
+
+  **Nothing is wrong right now** — there are no real customers on it, as you
+  said yourself. This matters the day you move the real business onto it.
+
+  **What we did instead, so it is not nothing:** we proved the records can be
+  exported to a file and restored from that file, every row identical, and
+  there is now a one-page procedure and a script that does it. Run it before
+  any risky change. It does NOT bring back logins or the actual photo files.
+
+  **Your options, with real prices read off Supabase's own system today:**
+  1. **A paid plan.** Turns on daily backups kept for a week. The cheaper half
+     of the answer and probably the right first step. The plan price is on
+     Supabase's pricing page — I did not want to quote a number from memory.
+  2. **Add point-in-time recovery: $100/month** for 7 days, $200 for 14, $400
+     for 28. Lets you roll back to any moment. Needs a paid plan first.
+  3. **Do nothing yet**, and keep running the export before risky changes.
+
+  **Recommendation: (1) now, (2) when you take a real customer's booking.**
+  Daily backups are the thing that turns a bad day into an inconvenience.
+
+  **Not done and not started:** a proper restore into a separate environment
+  would need a Supabase branch or a second project. Both cost money and both
+  create something inside your account, so neither was touched. If you want
+  that drill, say so and it takes about an hour once you have said yes.
+  *Detail: `docs/recovery.md`. ROADMAP 6.1.*
+
+- [ ] **DO · Turn on two-factor login for the Supabase and Netlify accounts.
+  Added 2026-09-20.**
+  Part of the same recovery item, and **only you can do it** — it is your
+  account and your phone. Right now the database that holds every booking is
+  behind one password.
+
+  Supabase: **Account settings -> Security -> enable MFA.** Netlify has the
+  same under user settings. Ten minutes for both.
+  *ROADMAP 6.1.*
+
 - [ ] **DO · Ten test emails are sitting in your support inbox. They are ours.
   Delete them. Added 2026-09-20.**
   At about **half past six this morning** a session put **ten** messages into

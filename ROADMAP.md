@@ -1625,6 +1625,83 @@ most corroborated finding in the set.
   office.
   *A1 P0-07*
 
+  **MEASURED 2026-09-20 — AND THE ANSWER IS THAT THERE IS NO RESTORE POINT.**
+  `scripts/restore-drill.mjs`, graded by `receipt.mjs`, which **fails the run**
+  and will keep failing until this is fixed. One page of procedure in
+  `docs/recovery.md`.
+
+  **Nobody knew whether this database could be restored, and this file recorded
+  that as an absence rather than as a measurement.** It is now a measurement:
+
+  | | Measured |
+  |---|---|
+  | Supabase plan | **free** |
+  | Point-in-time recovery | **off** |
+  | Restorable backups listed | **0** |
+  | WAL archiving | on, 8,405 segments, **0 failures**, last push minutes before the run |
+  | Last successful restore test | **2026-09-20**, of a logical export |
+
+  **If this database were lost right now, nothing the platform holds would
+  bring it back.**
+
+  **WAL ARCHIVING BEING HEALTHY IS NOT A REPRIEVE, AND IT IS THE TRAP ON THIS
+  ITEM.** Those 8,405 segments with zero failures are Supabase's own
+  infrastructure — it is how they move and upgrade projects. On the free plan
+  nothing customer-facing is built on them: no backup to download, no point in
+  time to roll to. **The archiver is green and the restore path is absent, both
+  at once**, and reading the first as the second is the most dangerous
+  available mistake here.
+
+  **WHAT WAS ACTUALLY PROVED, because an item like this must not be narrowed
+  until it passes.** All 52 tables of `public` — 1,786 rows — exported to a
+  file, restored into a throwaway schema **by reading the rows back off disk**,
+  and compared row by row: **all 52 matched**. Then one value in one restored
+  row was deliberately altered and **the comparison caught it**;
+  `--break=canary` skips the alteration, the canary is correctly MISSED, and
+  the receipt refuses the run. So the business's records can be taken out,
+  written down, put back and come back identical.
+
+  **THREE THINGS THAT DRILL DOES NOT COVER, NAMED RATHER THAN OMITTED:**
+  1. It is **not** a test of Supabase's backups. There are none to test.
+  2. **`auth.users` is not in `public`.** 44 logins live in the `auth` schema:
+     a copy of `public` restores the business and not the ability to sign in.
+  3. **Storage files are not in the database.** 146 objects — the rows are in
+     `storage.objects`, the bytes are in object storage, so a database restore
+     brings back references to photos that may not exist.
+
+  **THE FIRST RUN REPORTED TWO FAILED RESTORES AND BOTH WERE THE INSTRUMENT.**
+  `bookings` and `job_heartbeats` came back with matching row counts and
+  different content. They had not failed: the drill was comparing the restored
+  copy against the **live** table, `job_heartbeats` is written by the cron
+  sweeps every fifteen minutes, and the source moved between the export and the
+  comparison. **A restore drill that compares against a moving target reports
+  somebody else's write as data loss**, which is the most alarming possible way
+  to be wrong. It now fingerprints each table at export time and checks the
+  restore against that; live drift is printed as information and is not a
+  failure. `docs/gotchas.md` has it.
+
+  **WHAT IT WOULD COST TO FIX PROPERLY, read off Supabase's own add-on API:**
+  point-in-time recovery is **$100/month** for 7 days, $200 for 14, $400 for
+  28, and requires a paid plan this organisation does not have. **A paid plan
+  alone turns on daily backups**, which is the cheaper half and the likely
+  first step. **That is Andrew's card and his decision** — `FOR-ANDREW.md`.
+
+  **WHAT IS STILL OPEN, AND THE ITEM STAYS OPEN BECAUSE OF IT:**
+  - **The last-restore date is not visible in the back office**, which this
+    item's own *done when* requires. It is a front-end change and showing it
+    means publishing, which is Andrew's. **Blocked, not dropped.**
+  - **A restore into a genuinely separate environment** — a Supabase branch or
+    a second project — would cost money and create something inside Andrew's
+    organisation. **Not done, not started, nothing put on a card.** The
+    paragraph he can say yes to in ten seconds is on his list.
+  - **MFA on the production accounts** is in this item's fix list and is his
+    alone. On his list.
+
+  **So 6.1 does not close.** What changed is that its central question has an
+  answer and a date instead of a silence, and the answer is bad: **there are no
+  backups.** Andrew would far rather read that this morning than discover it
+  the week he moves his real business onto this.
+
 - [ ] **6.2 — The back office cannot prove the product is healthy.**
   Netlify connected but not read; Supabase needing wiring; email delivery not
   wired; no outage history. Successful jobs are prominent and green; missing

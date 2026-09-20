@@ -1533,3 +1533,28 @@ somebody's judgement.
 before it runs. The moment it is chosen to fit a result it stops being a gate.
 **If a floor looks too high, ask what the check is failing to count before you
 ask whether the floor is wrong.**
+
+## A RESTORE DRILL THAT COMPARES AGAINST THE LIVE TABLE REPORTS SOMEBODY ELSE'S WRITE AS DATA LOSS — 2026-09-20, ROADMAP 6.1
+
+The first run of `scripts/restore-drill.mjs` reported two failed restores:
+`bookings` and `job_heartbeats` came back with **matching row counts and
+different content hashes**. Read literally, that is the worst finding a backup
+check can produce — the rows are all there and the values have changed.
+
+Neither had failed. The drill exported each table, restored it into a
+throwaway schema, and then fingerprinted **the live table** to compare against.
+`job_heartbeats` is written by the cron sweeps every fifteen minutes. The
+source moved between the export and the comparison, so the restored copy was
+being measured against a table that was no longer the one it came from.
+
+**The restored thing is the FILE, so the file is what it must be checked
+against.** The fingerprint is now taken at export time, in the same query as
+the rows. Live drift is measured separately and printed as information, never
+as a failure — a recovery procedure written against a running database needs
+to know which tables move, and that is a different fact from whether the
+restore worked.
+
+**The general shape: any check that snapshots and then verifies must verify
+against the snapshot.** Comparing against the source again measures the
+elapsed time as if it were a defect, and the louder the check, the more
+convincing the wrong answer.

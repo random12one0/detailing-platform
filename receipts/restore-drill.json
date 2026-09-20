@@ -1,0 +1,47 @@
+{
+  "git_sha": "14aaa0047a86f47186168a0a78da567696942366",
+  "environment": "local",
+  "finished_at": "2026-09-20T13:48:56.301Z",
+  "failures": [
+    "THERE IS NO RESTORE POINT A CUSTOMER CAN REACH. Plan is \"free\", point-in-time recovery is off and the backup list is empty. WAL archiving is running (8408 segments, 0 failures) but that is Supabase's own infrastructure, not something Andrew can restore from. If this database were lost right now, nothing the platform holds would bring it back."
+  ],
+  "warnings": [
+    "THIS DRILLS A LOGICAL ROUND TRIP, NOT SUPABASE'S BACKUPS — there are none to test. It does not cover auth.users (the logins, in another schema) or the bytes behind storage.objects. See docs/recovery.md."
+  ],
+  "artifacts": [
+    "artifacts/restore-drill/public-export.json"
+  ],
+  "dimensions": {
+    "project": "kguqylyzgyzfktkfnhjb",
+    "posture": {
+      "plan": "free",
+      "pitr_enabled": false,
+      "listed_backups": 0,
+      "walg_enabled": true,
+      "wal_archived_count": 8408,
+      "wal_last_archived": "2026-09-20 13:45:15.404112+00",
+      "wal_failed_count": 0
+    },
+    "schema": "restore_drill"
+  },
+  "check_id": "restore-drill",
+  "started_at": "2026-09-20T13:46:03.754Z",
+  "status": "fail",
+  "expected_targets": 2,
+  "discovered_targets": 2,
+  "attempted_targets": 2,
+  "completed_targets": 2,
+  "skipped_targets": 0,
+  "assertions_executed": 57,
+  "min_assertions": 40,
+  "canary": {
+    "id": "one row altered in the restored copy · the row comparison must see it",
+    "observed_failure": true,
+    "caught_by": [
+      "row-compare"
+    ],
+    "findings": [
+      "[row-compare] altering a single text value in one restored row changed that table's fingerprint, so 'every table matched' above is a comparison that can fail"
+    ]
+  }
+}
