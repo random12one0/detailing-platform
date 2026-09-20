@@ -1958,3 +1958,40 @@ refused, or it is not a skip and the run does not get to pass on it. The
 evidence is an **act** — a probe that came back empty, a press and a full wait
 that produced no card — never a state observed in passing. And **a run may not
 grade itself on skips it issued**, which is the whole failure in one sentence.
+
+## `git commit <pathspec>` READS THE WORKING TREE, NOT THE INDEX YOU CAREFULLY BUILT — 2026-09-20
+
+A second costume for *"`git add` puts your files in a shared index"*, further
+up this file — same disease, different door in.
+
+Two sessions were both mid-edit on `ROADMAP.md`, in different sections. A
+plain `git add ROADMAP.md` would have staged the other session's uncommitted
+hunk along with mine, so the partial-stage was done properly instead:
+`git diff` to a file, trimmed to the two hunks that were mine, applied with
+`git apply --cached`. `git diff --cached` read back exactly those two hunks —
+proof the index held only what was intended.
+
+**Then `git commit ROADMAP.md FOR-ANDREW.md` threw the careful index away.**
+Naming paths on a commit does not commit the index for those paths — it
+re-adds them from the CURRENT WORKING TREE first, as `--only` in git's own
+docs describes, which for a file another session is still editing is a
+different, larger diff than the one just verified. The commit landed at 112
+insertions against a staged 34, silently carrying the other session's
+half-finished audit into a commit message about something else entirely.
+
+**Caught by checking the committed diff, not the staged one** — `git show
+--stat HEAD` and a grep for the other session's own words, found only because
+the insertion count didn't match what `--cached` had just shown. Undone with
+`git reset --soft HEAD~1`, which moves HEAD back without touching the index
+or the working tree, so nothing already typed by either session was at risk;
+redone as `git apply --cached` followed by a bare `git commit` with **no
+pathspec at all**, which commits the index exactly as it stands.
+
+**The rule the existing one did not cover:** reading back `git diff --cached`
+proves the index at the moment you check it. It proves nothing about the
+commit that follows if that commit command names paths — because naming
+paths is its own silent `git add`. Commit what you staged either by leaving
+the pathspec off entirely, or by re-reading `git show --stat HEAD` /
+`git diff HEAD~1 --stat` **after** the commit, the same way the staged
+content gets read back before it. A commit is not verified until the commit
+itself has been looked at.
