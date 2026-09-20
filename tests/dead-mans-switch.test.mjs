@@ -206,16 +206,22 @@ console.log("3. a monitor that is off must say so");
   check("3a-ii · and it sends the boolean, never the URL",
     (PA.match(/healthcheck_url/g) || []).length === 2
     && /select\("[^"]*healthcheck_url[^"]*"\)/.test(PA));
-  // **RESPELLED 2026-09-13, NOT RELAXED.** The back office was rebuilt around a
+  // **RESPELLED 2026-09-13, NOT RELAXED — and this one still had the trap in
+  // it, found ROADMAP 10.1, 2026-09-20.** The back office was rebuilt around a
   // "Plumbing" tab and these three read the OLD screen's identifiers, so they
   // went red on a screen that still does the job. Trap (k): a check that names
-  // a spelling asserts how something is written. They now assert the state
-  // machine — an idle dot and the word "none" when nothing watches from
-  // outside — which is what the line has to say however it is worded.
+  // a spelling asserts how something is written. The comment already said
+  // they assert the state machine rather than the label — "an idle dot and
+  // the word 'none' when nothing watches from outside, which is what the
+  // line has to say however it is worded" — but the code still pinned the
+  // exact row label alongside it, so a second rename (this one, "Something
+  // watching from outside" to a plainer word for the same row) broke it
+  // exactly the way the comment says a check must not. Now it asserts only
+  // what the comment promised: the boolean and its idle/ok state, not the
+  // words on the row.
   const pipes = ADMIN.slice(ADMIN.indexOf("function TabPipes"));
   check("3b · the back office prints it when it is not set up",
-    /state\?\.watch\?\.outside \? "set up" : "none"/.test(pipes)
-    && /Something watching from outside/.test(pipes));
+    /state\?\.watch\?\.outside \? "set up" : "none"/.test(pipes));
   // NOT RED. A permanently red line is one somebody stops reading in a week,
   // and this one is true every day until he spends ten minutes on it. `pa-idle`
   // rather than `pa-bad` is exactly that distinction, in the class name.
