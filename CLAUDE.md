@@ -56,6 +56,14 @@ repo-wide catastrophe rather than a typo. Corrected 2026-09-20 after
 `booking-engine` fails in the battery and passes **110/0** on its own. A red
 in a full run is a lead, not a verdict — re-run the suite by itself before
 believing it.
+**And the full battery must never run while anything else is measuring the
+demo tenant** — a browser sweep, another session, a screenshot pass. Several
+suites write real rows into `demo-detail` (not just their own isolated
+fixtures), so a booking or a status change mid-sweep moves the surfaces being
+measured and the run reports a difference that is the test battery, not the
+product. Andrew hit this 2026-09-20 running this exact command during a
+twenty-run width sweep; see `docs/gotchas.md`. Confirm nothing else is
+watching the demo tenant first, or run only the suites that do not touch it.
 
 Env-backed scripts need credentials loaded first, or eleven of them print
 `Missing SUPABASE_URL` and it reads as a broken environment rather than as a

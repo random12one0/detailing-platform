@@ -3389,6 +3389,21 @@ One pass, one list. All of it is the same defect: internal voice reaching
 production. `CLAUDE.md` § Design already forbids it; these are the live
 instances.
 
+**A COUPLING FOUND WHILE RUNNING THIS PASS, 2026-09-20 — read before renaming
+anything.** Some of this product's own user-facing strings are load-bearing
+for the instruments that measure it: the width sweep opens a sheet by its
+**visible text**, not by a stable selector, so renaming "Log a bulk job" to
+"Add a fleet job" (10.1, applied and correct) made that screen undiscoverable
+by name and the sweep reported it `NEVER MEASURED`. That is the gate working
+— it named the gap rather than going quiet — but it means a copy pass has to
+be cross-checked against the browser instruments before it runs, not only
+against this repo's own tests. A button label, a sheet title, a tab name or a
+heading a script would plausibly click by text is the shape of string to
+check; plain paragraph prose is not, because nothing clicks a sentence by its
+words. **The fix belongs in the check, not in reverting the string** — give
+the instrument a stable hook (`data-*`, a route, a component name) instead of
+a wording it is free to keep changing. Full detail: `docs/gotchas.md`.
+
 - [ ] **10.1 — Remove every developer-voice string.**
   - "Tallest bar $741." → remove, or a real caption
   - "This is the sentence that closes a sale — it is real scarcity rather than a tactic"

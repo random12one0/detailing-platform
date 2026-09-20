@@ -1857,3 +1857,60 @@ They were relabelled rather than deleted; the runs happened.
 **A SECOND THING THE SAME HOUR, SMALLER AND WORTH ONE LINE:** every row in
 that ledger carries `"sha": ""` and always has. A record whose job is to say
 which code state a run was made against has never once recorded one.
+
+## THE FULL 79-SUITE BATTERY WRITES TO THE SAME DEMO TENANT A BROWSER RUN IS PHOTOGRAPHING — 2026-09-20
+
+`node --test tests/*.test.mjs` was started while the width sweep had a
+twenty-run browser experiment live against `demo-detail`. Andrew stopped it
+himself, for the database half of the same collision his own hold on
+`app/src` already exists to prevent: a booking, a status change or a new row
+written mid-sweep moves the surfaces the sweep is measuring, and the run
+reports a difference that is the test battery, not the product.
+
+**It is a real risk, not a hypothetical one.** `booking-engine.test.mjs` §19
+looks up the real `demo-detail` business by slug and inserts a real booking
+into it — dated far in the future and deleted at the end of the test, but a
+genuine write to the tenant the moment it runs, not to an isolated fixture.
+Most of the battery's ~60 database-touching suites create their own
+throwaway businesses instead (`is_demo: true`, distinctly named — `engine-a`,
+`ics-phx`, `roles-a`, `tz-ny` and so on), and this run's own kill was verified
+against the database rather than assumed: zero rows had landed on
+`demo-detail` in the window, every new booking and customer belonged to one
+of eleven freshly-named test businesses, none of them the tenant.
+
+**Nothing in this repo said the two could not run together, and now this
+does: the full battery must not run while a browser sweep or any other
+process is measuring `demo-detail`.** Run suites that touch the demo tenant
+by name, individually, once you know nothing else is watching it — the same
+rule `app/src` already has for a live browser measurement, one layer down.
+
+## A RENAMED USER-FACING STRING CAN BLIND A CHECK THAT FINDS ITS SCREEN BY THAT STRING — 2026-09-20, ROADMAP 10.1
+
+`app/src/screens/Money.jsx`'s bulk-job button went from "Log a bulk job" to
+"Add a fleet job" — a legitimate copy fix, the Spanish key moved with it, and
+nothing about the change was wrong. The width sweep opens that sheet by its
+**visible text**, not by a stable selector, so the rename made the screen
+undiscoverable by name and the next run reported it `NEVER MEASURED` rather
+than measuring the wrong thing or silently skipping — the gate working
+exactly as built.
+
+**The coupling is real and was not written down anywhere before this.** Some
+of this product's own user-facing strings — a button label, a sheet title, a
+tab name, a heading — are load-bearing for the instruments that measure it,
+the same way a database row can be load-bearing for a query nobody remembered
+depends on it. A copy pass that reads as pure wording to the person writing
+it can be a breaking change to a script that was never mentioned in the same
+sentence.
+
+**What this changes about how a copy pass runs:** before renaming any
+button label, sheet title, tab name or heading, check it against what the
+browser instruments key on by literal text — not only against the product's
+own tests. Wave 10.1's own list, cross-checked this way, split cleanly:
+plain paragraph prose carries no risk here (nothing clicks a sentence by its
+words), but a nav-row label a detailer taps to open a screen is exactly the
+shape of string this gotcha is about. **The fix belongs in the check, not in
+reverting the string** — "Log a bulk job" was a real defect in the product's
+own voice; the sweep not knowing the product renamed something is a gap in
+the sweep, and the right repair is to give it a stable way to find the
+screen (a `data-*` hook, a route, a component name) instead of a string that
+copy is free to keep changing.
