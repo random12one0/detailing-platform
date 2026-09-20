@@ -148,7 +148,11 @@ export function initThread() {
       const final = pre + to.toLocaleString("en-US") + suf;
       el.style.display = "inline-block";
       el.style.minWidth = final.length + "ch";
-      if (LITE) { el.textContent = final; return; }
+      /* `data-still` opts a figure out of the roll entirely — same switch
+         the example sites use for their rating. A car count climbing is
+         decoration; a price a stranger is weighing must not read as a
+         smaller number than it is, even for one frame. ROADMAP 7.5. */
+      if (LITE || el.hasAttribute("data-still")) { el.textContent = final; return; }
       /* A generation token, because the figure can be re-entered while a
          previous count is still running — scroll up and down quickly and
          two loops would otherwise write to the same element and fight. */

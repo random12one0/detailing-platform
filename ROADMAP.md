@@ -2006,9 +2006,9 @@ rather than wording went to Andrew.
   or hide it from assistive technology. Founding price first.
   *A2 6.2*
 
-- [ ] **7.5 — Prices count up from low numbers.** "$20 to build it" and
-  "$1/month" are visible mid-count while scrolling past. Show the final price
-  immediately.
+- [x] ~~**7.5 — Prices count up from low numbers.**~~ **Fixed 2026-09-20.**
+  "$20 to build it" and "$1/month" were visible mid-count while scrolling
+  past, on both the pricing page and the home page's own pricing preview.
 
   **AND IT IS NOT ONLY PRICES, AND NOT ONLY THIS PAGE — 2026-09-20.** `/ex1`
   rolls its rating the same way, so for about half a second an example site
@@ -2017,12 +2017,23 @@ rather than wording went to Andrew.
   that animates reads as a price that moves"* — and the line belongs one step
   further out: **a number a stranger is weighing must not animate through
   values that are not true.** A car count climbing is decoration; a rating or
-  a price climbing is a claim that changes while you read it. Whoever takes
-  7.5 should take the rating with it. **The example sites' half is DONE —
-  2026-09-20, Andrew's ruling, see 7.10.** The platform's own pricing page
-  still counts "$20 to build it" and "$1/month" up from nothing, and that is
-  the harder one, because a price mid-count is a price a stranger can quote
-  back at you.
+  a price climbing is a claim that changes while you read it. **The example
+  sites' half was DONE first — 2026-09-20, Andrew's ruling, see 7.10** — via
+  a `data-still` attribute that opts one figure out of the roll while the
+  rest keep climbing. **This half reuses that same switch rather than
+  inventing a second one.** `app/src/landing/thread.js`'s shared `roll()`
+  now checks `data-still` exactly as the tenant-site template's inline script
+  already did, and it is set on the build-fee and booking-only-monthly spans
+  in both `PricingPage.jsx` and `LandingPage.jsx` — four spans, the only ones
+  on the platform's own site where the animated figure is a price. The
+  decorative stat counters (car count, uptime, years) are untouched and still
+  climb. Verified by reading the DOM at 1440, 768 and 392px: all four spans
+  render their true value the instant they are revealed, with no animation
+  frame ever scheduled — `roll()` returns before `requestAnimationFrame` is
+  ever called when `data-still` is present, so there is no code path left
+  where a low number could appear, not just a fast one. `composition`,
+  `design-contrast`, `landing-pricing` and `route-contract` still pass (143
+  checks).
   *A2 6.3*
 
 - [ ] **7.6 — "Unlimited photos" against a 1 GB cap.** The back office shows

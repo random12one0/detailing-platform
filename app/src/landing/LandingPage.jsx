@@ -1012,7 +1012,7 @@ export default function LandingPage() {
                     discount is live — never an anchor invented to make a
                     number look smaller. */}
                 {founding && <s className="was">${P.website.setup}</s>}
-                <span key={setup} data-count={setup} data-prefix="$">${setup}</span>
+                <span key={setup} data-count={setup} data-prefix="$" data-still>${setup}</span>
                 <small> to build it</small>
               </div>
               <div className="then mono">
@@ -1069,7 +1069,7 @@ export default function LandingPage() {
             <article className="plan" data-rv="lift" style={{ "--i": 1 }}>
               <span className="lab">Booking page only</span>
               <div className="amount">
-                <span data-count={P.bookingOnly.monthly} data-prefix="$">
+                <span data-count={P.bookingOnly.monthly} data-prefix="$" data-still>
                   ${P.bookingOnly.monthly}
                 </span>
                 <small>/month</small>

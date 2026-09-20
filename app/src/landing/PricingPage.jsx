@@ -293,7 +293,7 @@ export default function PricingPage() {
               <span className="lab">To build it</span>
               <div className="amount">
                 {founding && <s className="was">${listP.setup}</s>}
-                <span key={p.setup} data-count={p.setup} data-prefix="$">{fig(`$${p.setup}`)}</span>
+                <span key={p.setup} data-count={p.setup} data-prefix="$" data-still>{fig(`$${p.setup}`)}</span>
               </div>
               <p className="fine">
                 Once, at the start. It is not part of the monthly price and it
@@ -473,7 +473,7 @@ export default function PricingPage() {
           </div>
           <div className="onlybuy" data-rv="lift" style={{ "--i": 1 }}>
             <div className="amount">
-              <span data-count={P.bookingOnly.monthly} data-prefix="$">
+              <span data-count={P.bookingOnly.monthly} data-prefix="$" data-still>
                 ${P.bookingOnly.monthly}
               </span>
               <small>a month</small>
