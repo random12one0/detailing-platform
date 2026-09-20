@@ -946,31 +946,89 @@ the wrong service, and never book a job we cannot reach.
   **Done when:** a full Spanish pass through all seven steps shows no
   system-written English. `node scripts/i18n-survey.mjs` is the instrument, and
   per `docs/gotchas.md` it has returned a false pass before — break it first.
+  **RE-CHECKED 2026-09-20 — two of the four opening claims no longer hold, and
+  one never quite did.** "That code isn't one of ours" is already wrapped in
+  `t()` with a Spanish key in the booking catalogue — fixed by an earlier,
+  unrelated pass, never struck here. "Member rate aplicado" traced to
+  `quote.plan_name`, which is a detailer's own typed monthly-plan name; the
+  rule two lines up already says typed names stay as typed, so a detailer who
+  named their plan "Member rate" in English is not a bug. "Weekend rate" and
+  "Member rate · 10% off" as literal strings do not exist anywhere in the
+  current codebase — not found, not fixed, not confirmed gone, just not
+  where this search looked. **Still open and not attempted:** the language
+  leak across booking links (`dp.lang` in `lib/i18n.js` is one key for the
+  whole browser, not scoped per business) is real and needs its own scoped
+  fix.
   **THREE CONCRETE INSTANCES, FOUND BY LOOKING AT SPANISH SCREENS RATHER THAN
   BY THE SURVEY — 2026-09-19. Logged here, not fixed: both sweep turns were
   instrument-only.**
-  1. **The setup banner on Today** reads "Your page isn't fully set up" and
+  1. [x] ~~**The setup banner on Today** reads "Your page isn't fully set up" and
      "and 3 more" in English beside a Spanish "Ocultar". `lib/setup.js` holds
-     its copy as plain object values. **Dashboard-side, so it is this item's,
-     not the public-surface work's** — checked, because it looked customer-
-     facing and is not.
-  2. **The text-message sheet on a job record** keeps four template names in
-     English on an otherwise Spanish sheet: "Running late", "Confirm tomorrow",
-     "Job finished", "Ask about access" — while "On my way" beside them IS
-     translated. `lib/templates.js`, same plain-object-values cause.
-     `sweep-widths.mjs` declares this one by name and **refuses the declaration
-     the day it is translated**, so the note cannot rot.
+     its copy as plain object values.~~ **FIXED 2026-09-20.** Both sentences
+     and the setup wizard's own seven step-question headings were already
+     wrapped in `t()` — only the Spanish keys were missing (eight added), plus
+     one raw `s.text` at a fallback render site that needed the `t()` wrap
+     itself. `app/src/lib/strings/appEs.js`, `app/src/screens/Today.jsx`.
+  2. [x] ~~**The text-message sheet on a job record** keeps four template names
+     in English on an otherwise Spanish sheet: "Running late", "Confirm
+     tomorrow", "Job finished", "Ask about access" — while "On my way" beside
+     them IS translated.~~ **FIXED 2026-09-20, and the "On my way" half of that
+     sentence was wrong.** Read the demo tenant's actual `message_templates`
+     rows: all five, "On my way" included, sit in English in the database
+     right now. The real cause isn't a missing `t()` call — `label: t(d.label)`
+     already runs at seed time and Spanish keys for all five have existed
+     since 2026-09-12 — it's that the label is translated ONCE, at seeding,
+     and never again; the demo business was seeded before those keys existed
+     and nothing re-translates a stored value. Fixed at the root: the display
+     label is now derived live from the stable template key on every render,
+     never trusted from the stored column — fixes every already-seeded
+     business, including the demo tenant, with **no database write**.
+     `app/src/screens/more/MessageTemplates.jsx`.
+     **`sweep-widths.mjs`'s `KNOWN_ENGLISH` entry keyed `"job record · send a
+     text"` is now wrong and needs removing** — passed to the other session
+     rather than edited here, since `scripts/` is their lane.
+     **HOW THE SPANISH HALF WAS CHECKED, SAID PLAINLY RATHER THAN LEFT
+     IMPLICIT:** Andrew confirmed both fixes render correctly in **English**
+     on the real dashboard, himself, in a browser. He could not confirm the
+     **Spanish** half — this build has no language override on the dashboard,
+     and seeing it would mean changing the business's own stored language,
+     which is a database write he had forbidden for this pass. **The Spanish
+     verification rests on the session's own reading of the rendered page,
+     not on a second pair of eyes** — read live in both languages at
+     1440/768/392/320, console clean, quoted verbatim in commit `50b9948`.
+     Worth knowing exactly which half only one person has actually seen.
   3. **The marketing pages have no Spanish at all** — `LandingPage.jsx`,
      `PricingPage.jsx` and `LegalPage.jsx` import no translation scope and
      contain zero `t("…")` calls. Not a missing string: a missing scope.
+     **SPLIT IN TWO, 2026-09-20, because the two halves are not the same kind
+     of open.** `scripts/sweep-widths.mjs`'s own comment already answers which:
+     *"`legal.js` must never be machine-translated by anybody: it is a
+     contract carrying the AB 2863 disclosures, and a translation nobody
+     qualified has read is a liability rather than a feature. The marketing
+     copy around it is his decision."*
+     - **`terms` / `privacy` (`LegalPage.jsx` + `legal.js`): not open work, a
+       closed ruling that already exists.** Never machine-translate. This half
+       is done by staying undone — striking it here so nobody re-opens it as
+       a gap.
+     - **`landing` / `pricing` (`LandingPage.jsx` + `PricingPage.jsx`):
+       genuinely undecided, and explicitly Andrew's call, not a session's.**
+       Sized rather than started, using the survey's own candidate heuristic
+       run directly against both files (`scripts/` untouched — copied into a
+       scratch script): **278 candidates in `LandingPage.jsx`, 113 in
+       `PricingPage.jsx`, 391 total.** Real count after de-duplication and a
+       human pass would differ; the scale is what matters — an afternoon or
+       more, not a quick pass. **Not started. Waits on his decision, in
+       `FOR-ANDREW.md`.**
 
   **MEASURED 2026-09-19, while sweeping the dashboard in Spanish:** the survey
   reports **76 candidate strings across 11 files**, the worst being
   `screens/SiteIntake.jsx` (21), `lib/moneyAdvanced.js` (14) and
   `lib/weather.js` (6). It calls itself a heuristic "for ordering the work, not
   for signing it off", so that is a queue and not a verdict. **Recorded here
-  rather than as a new item, because this item already owns it.** Nothing was
-  fixed: it is `app/src` work and the sweep turn was instrument-only.
+  rather than as a new item, because this item already owns it.**
+  **RE-MEASURED 2026-09-20, after the setup-banner fix: 74 candidates across 10
+  files.** `lib/setup.js` dropped off the list entirely; the count otherwise
+  stands. Still `app/src` work, still not this pass's to finish in full.
   *A1 P2-10, A2 2.8*
 
 - [x] **2.13 — DONE 2026-09-20. Each category now says "optional, choose one", which is what the rule actually is.**

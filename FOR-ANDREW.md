@@ -117,6 +117,23 @@ Updated 2026-09-20.
 
   **No recommendation attached — this one is genuinely yours, not ours.**
 
+- [ ] **DECIDE · Should the home page and pricing page get Spanish at all?**
+
+  Your legal pages (terms, privacy) are already settled — they will never be
+  machine-translated, because a translation of a contract that nobody
+  qualified has read is a liability, not a feature, and that ruling is
+  written into the code itself. This is the other half: the home page and
+  the pricing page have no Spanish at all, on purpose or not depending on who
+  you ask, and nobody has decided whether they should.
+
+  **The size, so you're deciding with a real number:** roughly 390 pieces of
+  text across both pages — real count would move around after de-duplication
+  and a proper read-through, but the scale is right. That's an afternoon or
+  more of work, not something a session does on the side of another item.
+
+  **No recommendation attached — reaching Spanish-speaking customers on your
+  own marketing pages is a real business call, and the cost is real too.**
+
 - [ ] **DECIDE · Nothing is backed up, and fixing it costs money.**
 
   **Measured, not assumed.** Your database is on the free plan, which means
