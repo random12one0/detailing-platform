@@ -2048,3 +2048,66 @@ matches nothing — **invisible twice over in Spanish.** The comment at the top
 of that array already says exactly this, in those words. The array went stale
 anyway. **A warning above a list does not keep the list current; only a check
 that fails does** — here the expected-count gate, which named the screen.
+
+## A CHECK THAT REPORTS A MISSING TRANSLATION WHEN THE TRANSLATION IS PRESENT — 2026-09-20, ROADMAP 14.14
+
+**This is the worst shape in this file and it belongs at the end of it.** Every
+other entry describes a check that failed to see something. This one describes
+a check that produced a **confident, specific, wrong finding** — and the cost
+is not a missed defect, it is **sending somebody to change a file that was
+already right.** A manager nearly turned it into a work order for another
+session; the string it named had been correct all along.
+
+**What actually happened, in the order it happened, because the order is the
+lesson.**
+
+1. A settings row was renamed from `"Maintenance deadlines"` to `"Visits due"`,
+   and `"Visits due": "Visitas pendientes"` was added to `appEs.js` **in the
+   same edit**. That work was correct and committed.
+2. `sweep-widths.mjs` still named the row by its old English in `BUSINESS_ROWS`.
+3. `NAMED_TEXT("Maintenance deadlines")` looked that up in the catalogue, found
+   nothing, and **silently fell back to the bare English string** — which also
+   matches nothing, because the product no longer renders those words.
+4. The run printed `NEVER MEASURED  Business · Maintenance deadlines`. **That
+   output was TRUE.** The sweep did not measure that surface and said so.
+5. Then a second, ad-hoc check grepped `appEs.js` for each of the seven row
+   names **taken from the sweep's own stale array**, found no key for
+   `"Maintenance deadlines"`, and reported *"the only settings row with no
+   Spanish entry"*.
+
+**Step 5 is the defect and it is not a grep bug.** The second check inherited
+its search term from the first check's wrong input, so it could only ever
+agree. **Two instruments, one shared stale string, and the agreement read as
+corroboration.** `docs/gotchas.md` already says *"two wrong readings pointing
+the same way feel like confirmation and are not"* — this is the sharper
+version, where the readings were never independent because one fed the other.
+
+**THE RULE THAT FALLS OUT OF IT.** When a check reports that something is
+absent, **do not confirm it with a second check built from the same identifier.**
+Go to the artefact a human would open — here, the row in `Business.jsx`, which
+says `["maintenance", "Visits due", …]` and settles it in one line. A
+confirmation is only worth the independence of its input.
+
+**AND THE ENABLING DEFECT IN THE INSTRUMENT, which is the fixable half.**
+`NAMED_TEXT(x)` falls back to bare English whenever the catalogue has no entry
+for `x`. That fallback cannot distinguish:
+
+- `x` is deliberately untranslated, so English is correct; from
+- `x` was renamed, so the array is stale and the pattern matches nothing.
+
+Both produce the same regex and the same silence. **A missing catalogue key is
+not automatically an English string — it is just as likely a stale key**, and
+the check had no way to say which.
+
+**The guard, and it needs no browser:** every row label the sweep names must
+still appear somewhere in `app/src`. `node scripts/sweep-widths.mjs --labels-only`
+runs just that and exits; `SWEEP_LABEL_CANARY=1` injects a label that cannot
+exist. Verified both ways, and verified against the real case: with the array
+holding `"Maintenance deadlines"` the guard flags it, with `"Visits due"` it
+passes. It would have caught this on the first run after the rename.
+
+**The audit that followed, for the size of the problem:** of the **27 strings
+this sweep matches on**, exactly **one** was stale and **none** lacked a Spanish
+key. So the other six settings rows were never in this state — the blast radius
+was one row. That number is worth having, because the fear was that six more
+findings were the same shape and they were not.
