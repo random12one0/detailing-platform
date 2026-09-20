@@ -476,6 +476,66 @@ the wrong service, and never book a job we cannot reach.
   apartment/unit, and manually accepted addresses.
   *A1 P1-05*
 
+  **MEASURED 2026-09-20, WHICH IS WHAT THE WATCH LIST ASKED FOR.** A1 marked
+  this *"observed, submission consequence untested"*, so the consequence was
+  tested before anything was designed. **One real booking was completed on
+  `demo-detail`** with Andrew's standing permission — customer *"ROADMAP 2.8
+  Address Test"*, booking `c4c1f0c8-b2d1-41d6-ad93-e01d89500593`, Friday 25
+  September 8:00 AM, Express Wash $65, status `pending`. Both addresses on it
+  are `@example.com`, which is in `send-email`'s undeliverable-domain guard, so
+  **no mail was sent to anybody**. The row is deliberately left in place —
+  ROADMAP 0.3, flag test data, never delete it.
+
+  The address used: `99999 Nonexistent Parkway, Nowhere Township, ZZ 00000`.
+
+  **1 — IT GOES THROUGH, AND IT NEVER HAD TO PASS ANYTHING.** The step's only
+  rule is `!form.customerAddress?.trim()`, so any text at all satisfies it.
+  Measured: Continue reads `aria-disabled="false"` with nonsense in the box
+  **before the lookup has been asked anything**. Nothing calls the lookup on
+  its own — `find()` runs on the Find button and on Enter, and on nothing
+  else — so a customer who types and presses Continue is never checked and
+  never told.
+
+  **2 — THE PAGE IS HONEST, ONCE, AND ONLY IF ASKED.** Pressing Find on an
+  address with no matches prints *"No matches. We will use the address as you
+  typed it."* **That sentence is the only place in this product that knows.**
+
+  **3 — AND THE FACT DIES ON THAT STEP.** `AddressField` calls `onChange(raw)`
+  when you type and `onChange(row.label)` when you pick a suggestion — the
+  same call, the same kind of string. Nothing records which happened: no field
+  on the form, none in the payload, and **no column on the table**
+  (`customer_address text`, and no verified/source column in any migration).
+
+  **4 — WHAT EVERY DOWNSTREAM SURFACE SHOWS, all measured on that booking:**
+
+  | surface | what it shows |
+  |---|---|
+  | review step, before pressing | `We come to you · 99999 Nonexistent Parkway…` |
+  | confirmation screen | `We'll come to 99999 Nonexistent Parkway…` |
+  | the customer's manage page | the same, and the word "verif" appears nowhere on it |
+  | the detailer's job record | the raw address, **with a Navigate button that hands it straight to a maps URL** |
+  | every email | `jobAddress()` returns the raw string — owner alert, customer confirmation, reminders |
+
+  **5 — THE SERVER NEVER LOOKS AT IT EITHER.** `create-booking` trims and
+  stores; there is no address validation server-side at all. The travel fee
+  comes from a ZONE THE CUSTOMER PICKS FROM A LIST, not from the address, so an
+  unresolvable address does not even move the price — which is why nothing
+  else in the stack ever had a reason to notice.
+
+  **SO THE ANSWER TO THE WATCH LIST IS: YES, IT GOES THROUGH, AND NO, NOTHING
+  ANYWHERE IS MARKED.** The detailer's first sight of a made-up address is on
+  the morning they drive to it.
+
+  **ANDREW'S RULING ON THE FIX, 2026-09-20, GIVEN BEFORE IT WAS BUILT:** *"Do
+  NOT refuse hand-typed addresses. People live in new builds and apartments the
+  lookup has never heard of, and refusing them loses Andrew a real customer to
+  protect him from a rare bad one. Instead the address has to carry the fact
+  that it was never verified, all the way to wherever the detailer reads it
+  before driving out. An honest label beats a locked door."* **So the fix is a
+  flag that travels, not a gate** — and the measurement above says where it
+  has to reach: the job record, the owner's alert, and the manage page.
+  **NOT BUILT YET — the measurement was reported first, as instructed.**
+
 - [x] **2.9 — DONE 2026-09-20. Where the business works is on step 1 now. Nothing moved.**
   Mobile address and area come at step 4, after services, add-ons and vehicle.
   ~~**Fix:** ask "Where's the car?" before vehicle details.~~
@@ -2386,7 +2446,7 @@ the explanation dies.
 | A2 4.5 link-open counts | A2 marks it not confirmed — may be two different periods. |
 | A2 1.4 example brand names | Andrew says these are illustrative, not claims. Downgraded from a defect to a recommendation — see 1.2. His call. |
 | A1 P1-04 invoices missing | A1 says "needs verification, not a proven missing feature" — the payment was never finalized. |
-| A1 P1-05 raw address accepted | Observed, but the submission consequence was never tested. |
+| ~~A1 P1-05 raw address accepted~~ | **TESTED 2026-09-20 — the observation was right and the consequence is worse than it says.** It goes through, the server never looks at it, and no screen or email is marked. One real booking proved it end to end; see 2.8. |
 | A1 P1-10 calendar link | A1 proved **no** vulnerability. It is a review, not a defect. |
 | A2 2.9 vs A1 § 12 | **Already resolved — not a contradiction.** Different steps. See 2.11. |
 
