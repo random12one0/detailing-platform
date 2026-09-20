@@ -3522,6 +3522,20 @@ body:has(.sheet-backdrop:not(.leaving)) .tabbar {
 /* A settings card is a stack of rows divided by hairlines, not a stack of
    separate cards — the group is one object, the rows are its contents. */
 .setting-card { padding: 0; overflow: hidden; }
+/* ROADMAP 8.5a — **THE RING IS DRAWN AND THE CARD CUTS IT OFF.** The rule
+   above clips to the card's rounded corners, which is what it is for; the
+   consequence nobody had measured is that a `.nav-row` sits 1px inside that
+   edge, so its 2px focus outline at +2px offset lands entirely in the clipped
+   region. The ring computes correctly, paints, and cannot be seen — which for
+   a keyboard user is the same as not having one.
+   **THE SAME RING, MOVED INSIDE THE EDGE.** Not a new focus style: the colour,
+   the width and the shape are the product's own; only the offset changes sign
+   so it is drawn where the card will not cut it. Measured by
+   `scripts/keyboard-walk.mjs`, which photographs a frame padded past the ring
+   rather than the element's border box — an outline paints OUTSIDE that box,
+   which is how 53 controls with perfectly good rings were first reported as
+   having none. */
+.setting-card .nav-row:focus-visible { outline-offset: -2px; }
 
 /* AN EMAIL ADDRESS IS ONE WORD AND IT IS SOMEBODY ELSE'S (roadmap 2.13, the
    Team screen). `demo-staff@detailplatform.com` is 227px and has no space in

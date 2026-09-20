@@ -2142,9 +2142,48 @@ the dashboard or back office at phone width at all.
   be left with Escape; no walk re-enters a component it has left; and the
   order follows the reading order.
 
-  **MEASURED 2026-09-20 — `scripts/keyboard-walk.mjs`. 167 focus stops across
-  six screens, both canaries caught 6/6, and 55 of those stops show NOTHING AT
-  ALL when they hold focus.** Not fixed; this is the measurement.
+  **THE FIRST NUMBER WAS 55 AND IT WAS WRONG. CORRECTED 2026-09-20, SAME
+  NIGHT, BEFORE ANYTHING WAS BUILT ON IT.**
+
+  `elementHandle.screenshot()` captures an element's BORDER BOX, and an
+  outline is painted OUTSIDE it. So every control with a perfectly good ring
+  photographed identically focused and blurred, and the walk reported **55
+  defective stops on a product that was drawing a ring on 53 of them.** Found
+  by asking the browser what a keyboard-focused row actually computed —
+  `outline: solid 3px` — instead of believing the picture. The frame is a
+  page-level clip padded past the ring now.
+  **THE APPROVED FIX WAS THEREFORE WRONG AND WAS NOT BUILT.** "One shared
+  focus-visible rule for four classes that never got one" rested on the 55;
+  those classes already have one. Building it would have added a second ring
+  to controls that already draw the product's own.
+
+  **WHAT IS ACTUALLY TRUE, after the correction: 167 stops, both canaries
+  caught 6/6, ONE real defect and ONE finding that is my probe's fault.**
+
+  **THE REAL ONE, FIXED:** `.nav-row` inside `.card.setting-card` — the twelve
+  settings rows on Business. The card is `overflow: hidden` for its rounded
+  corners and the row sits **1px inside that edge**, so a 2px outline at +2px
+  offset lands entirely in the clipped region. **The ring computes, paints and
+  cannot be seen**, which for a keyboard user is the same as not having one —
+  and it is exactly the "rendered but not visible" case this part was told to
+  watch for. Fixed by moving the SAME ring inside the edge
+  (`outline-offset: -2px`); no new focus style was invented.
+
+  **THE ONE I CANNOT STAND BEHIND:** `button.bk-peek` — one of the six
+  "What's included" toggles on booking step 1. The walk still calls it
+  ringless. **Photographed by hand, the ring is plainly there focused and
+  plainly gone blurred** (`artifacts/8-5a-peek-focused.png` and
+  `-blurred.png`). So the walk has a false positive I have not explained.
+
+  **NOT TICKED, AND THE REASON IS THE INSTRUMENT RATHER THAN THE PRODUCT.**
+  This probe has been wrong five times tonight — it stopped at
+  `document.body`; it stopped on a repeated description; it could not tell a
+  ring from a drifting gradient; it photographed a frame too small to contain
+  an outline; and it still reports one control that demonstrably has a ring.
+  **A zero from it would not mean anything yet**, and ticking on the strength
+  of an instrument I have just watched be wrong four times and then a fifth is
+  the exact failure this repo is built around. The product looks close to
+  clean; the check is not ready to say so.
 
   **The two decisions, both made before the first run:**
   1. **Pixels, not computed style.** An `outline` that paints nothing still
@@ -2180,10 +2219,12 @@ the dashboard or back office at phone width at all.
   because 8.5e fixed the delay an hour earlier. Without it, 91 of 167 stops
   were undetermined.
 
-  **THE LIMIT THAT BUYS, STATED:** a focus ring that appears only BY ANIMATION
-  would be invisible to this walk, because the walk turns animation off to see
-  anything at all. Nothing does that today; if something starts, this check
-  will call it missing.
+  **THE LIMIT THAT BUYS, STATED, AND IT TRAVELS WITH THE FIX:** a focus ring
+  that appears only BY ANIMATION is invisible to this walk, because the walk
+  turns animation off in order to see anything at all. **So any clean sheet it
+  ever produces is clean about rings that exist STATICALLY.** Nothing in this
+  product animates a ring today; if something starts, this check will call it
+  missing, and that is the trade that made the measurement possible at all.
 
   **8.5c — ZOOM TO 200%.**
   *Done when:* at 200% zoom, at all four widths, nothing is clipped, no

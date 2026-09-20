@@ -127,18 +127,37 @@ const walk = async (page, label, out) => {
       const h = await page.evaluateHandle(() => document.activeElement);
       const el = h.asElement();
       try {
+        // **THE CLIP MUST INCLUDE THE RING, AND THE FIRST VERSION DID NOT.**
+        // `elementHandle.screenshot()` captures the BORDER BOX. An outline is
+        // painted OUTSIDE it. So a control with a perfectly good 3px ring
+        // photographed identically focused and blurred, and this walk called
+        // 55 stops defective when the product was drawing a ring on every one
+        // of them. Found by asking the browser what a keyboard-focused row
+        // actually computed — `outline: solid 3px` — rather than believing the
+        // picture. A page-level clip, padded past the widest ring this
+        // product draws, is the only honest frame.
+        const pad = 10;
+        const box = await el.boundingBox();
+        if (!box) throw new Error("no box");
+        const clip = {
+          x: Math.max(0, box.x - pad), y: Math.max(0, box.y - pad),
+          width: Math.min(1440 - Math.max(0, box.x - pad), box.width + pad * 2),
+          height: Math.min(900 - Math.max(0, box.y - pad), box.height + pad * 2),
+        };
+        if (clip.width < 2 || clip.height < 2) throw new Error("clip too small");
+        const shot = () => page.screenshot({ clip, timeout: 4000 });
         // A STABILITY BASELINE FIRST, and it is not optional. Any repaint
         // under this element's box — a clock, a weather chip, a spinner —
         // makes "focused differs from blurred" true whether or not a ring was
         // ever drawn, which reads as a PASS. Two shots with nothing changed
         // say whether this box is stable enough to be asked the question.
-        const s1 = await el.screenshot({ timeout: 4000 });
-        const s2 = await el.screenshot({ timeout: 4000 });
+        const s1 = await shot();
+        const s2 = await shot();
         if (Buffer.compare(s1, s2) !== 0) {
           ringVisible = null;          // unstable box; no verdict is honest
         } else {
           await page.evaluate(() => document.activeElement?.blur());
-          const blurred = await el.screenshot({ timeout: 4000 });
+          const blurred = await shot();
           ringVisible = Buffer.compare(s1, blurred) !== 0;
           await el.focus();   // put it back exactly where the walk was
         }
@@ -156,12 +175,16 @@ const walk = async (page, label, out) => {
     const ch = await page.$("#canary-no-ring");
     if (ch) {
       await ch.focus();
-      const a1 = await ch.screenshot({ timeout: 4000 });
-      const a2 = await ch.screenshot({ timeout: 4000 });
+      const cb = await ch.boundingBox();
+      const cclip = cb && { x: Math.max(0, cb.x - 10), y: Math.max(0, cb.y - 10),
+        width: Math.min(1440, cb.width + 20), height: Math.min(900, cb.height + 20) };
+      const cshot = () => page.screenshot({ clip: cclip, timeout: 4000 });
+      const a1 = await cshot();
+      const a2 = await cshot();
       if (Buffer.compare(a1, a2) !== 0) { canarySeen = null; }   // unstable
       else {
         await page.evaluate(() => document.activeElement?.blur());
-        const b2 = await ch.screenshot({ timeout: 4000 });
+        const b2 = await cshot();
         canarySeen = Buffer.compare(a1, b2) === 0;   // identical = no ring = caught
       }
     }
