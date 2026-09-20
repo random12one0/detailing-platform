@@ -286,6 +286,7 @@ were made more than once.
 - **Roadmap 5.2 — the comparison compared half a month to a whole one, and the file doing it had warned against it in its own header** — `lib/periods.js` opens by calling a part-finished period against a whole one *"the classic wrong number"*, and then returned the WHOLE previous period on every render. Measured on the demo business, 18 September: **down $903 vs $853 last month**, where $742 of that $853 was August to the same point and $111 of it had not happened yet. **THE RULING WAS TRIM, NOT HIDE, AND IT WAS CLOSE.** ROADMAP 5.2 offered both. Hiding costs the figure on every day it is worth anything — absent for up to 30 days on Month and 364 on Year, present on the one day a detailer can no longer act on it — and trimming is the borrowed month-to-date convention the file already commits to. Its price is a LABEL: *at this point last month*, shown only while the period runs, because an honest number under a label naming the whole of August is the same defect in the fix's clothes. **DAYS ELAPSED, NOT CALENDAR ARITHMETIC** — one rule for all four kinds rather than four — clamped to the previous period's end, and **a finished period is never trimmed**. **ONE PLACE DECIDES**, which is 14.7's rule kept: `Money.jsx` calls `previousSoFar` once and hands the same object to `advancedMoney` and to `AdvancedMoney`, so the tiles behind *The full picture* cannot compare a different stretch of time from the headline in front of it. **AND THE CHECK'S FIRST DRAFT PASSED TWO SABOTAGES WITH FIFTY-NINE GREEN LINES, WHICH IS THE PART WORTH KEEPING**: it placed its fixture jobs off `previousSoFar`'s own answer, so moving the trim by a day moved the fixture with it and every assertion still held. **A check whose subject is derived from the thing under test has no subject** — the trim dates are worked out from the calendar, by hand, in the check. Two more sabotages needed cases that had to be invented before they could fail: a finished period SHORTER than its predecessor (February on the 28th) makes the "is it over?" guard load-bearing, and a running period that has OUTLASTED its predecessor (30 March against a 28-day February) makes the clamp load-bearing — without them both look like dead code and the check agrees.
 
 - **Roadmap 5.3 — the receipt existed, the job record just never offered it, and the customer was promised an email nothing sends** — a real $195 card was taken end to end and then everything it produced was read back: **zero emails, zero `email_sends` rows.** The defect was a GATE on the wrong job — the only receipt button sat in the `else` branch of `canFinalize`, and paying by card does not set `finalized_at`, so the customer who pays from their own link leaves the detailer looking at *Finalize payment* and no way to send a receipt. Two independent facts (*is this job closed* / *is there a document to send*) had been written as alternatives. **NO NEW COLUMN:** `bookings.invoice_sent_at` was the obvious move and was rejected, because `email_sends` already carries the date AND what became of the message, and a timestamp beside it is a second copy that can disagree; the price is that "already sent" is a subject-and-amount match, so two jobs at one price for one customer share the answer. **MATCHING THE WORD ALONE WAS NOT ENOUGH** — a returning customer's old receipt lit up a job that had never had one, found by moving the canary onto the SAME address as the real payment rather than an unused one. **THE CLAIM WAS NARROWED TWICE:** *"your receipt is on its way by email"* first became a promise about STRIPE's receipt, which is a setting inside the detailer's own account — swapping a claim this product cannot keep for one it cannot check is not a narrowing. **§ 2 of the check asserts the silence on purpose**, so a future webhook that sends the receipt turns it red and the customer's sentence has to move with it. Left undone and parked in `FOUND.md`: the public receipt page still never says it was paid.
+- **The job record should stay open when a status changes — agreed in principle, deliberately NOT built tonight** — pressing ROADMAP 4.1's new undo for the first time showed the record VANISHES on a status change: all six callers close it (`navigate("/app")` on the standalone job route, `setSelected(null)` on Today, Calendar, Money and Clients), so an undo built to catch a wrong press in a driveway is one navigation away rather than one tap, and the *"Marked completed."* notice has never once been on a screen in any language. **The proposal is one rule for all six: the record stays open and shows what just happened.** Andrew's manager agreed in principle — *"that is the version where the undo is actually usable, and it is what Andrew would want at seven in the morning in somebody's driveway with the wrong job marked done"* — and refused it for TIMING, not merit: a behaviour change across six reviewed screens, at four in the morning, when 4.1 cannot close tonight anyway because its audit history is stuck behind the deploy freeze. **Do not re-derive this argument; it is settled in principle and waiting on a calmer hour.**
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -16772,3 +16773,64 @@ same question and it is in `FOUND.md` as its own item rather than riding along
 on somebody else's.
 
 Evidence: `docs/VERIFIED.md` § 5.3.
+
+
+## The job record should stay open when a status changes — agreed in principle, deliberately NOT built tonight
+
+**This is a proposal with a ruling attached, written down so nobody has to
+work the argument out again.** 2026-09-20.
+
+**HOW IT WAS FOUND, WHICH IS THE PART THAT MATTERS.** ROADMAP 4.1 put a
+confirmation on "Mark completed" and an undo beside it. Both read correctly in
+the source. Then the write paths were pressed for real, with permission, on
+the demo tenant — and four seconds after confirming, the record showed no
+undo and no notice. **Not a bug in the undo: the record was gone.** Nothing in
+the code would have said so. Only the press did.
+
+**THE CAUSE, AND IT IS SIX OF SIX:**
+
+```
+screens/JobPage.jsx:85    onChanged={() => navigate("/app")}
+screens/Today.jsx:915     onChanged={() => { reload(); setSelected(null); }}
+screens/Calendar.jsx:410  onChanged={() => { reload(); setSelected(null); }}
+screens/Money.jsx:1037    onChanged={() => { setSelected(null); reload(); loadExtras(); }}
+screens/Clients.jsx:728   onChanged={() => { setSelected(null); load(); ... }}
+book/ManageBookingPage.jsx:91  onChanged={load}   (the customer's side, not this)
+```
+
+The standalone `/job/:id` route is the one a push notification and an email
+link both open — so completing a job from a phone alert throws the detailer
+back to the dashboard. Everywhere else the sheet shuts. **An undo that exists
+to catch a wrong press in a driveway is one navigation back rather than one
+tap**, which is the wrong distance for the only moment it is for.
+
+**IT ALSO THROWS AWAY THE NOTICE.** `act()` in `BookingDetail.jsx` calls
+`setNotice(...)` and then `onChanged()` on the next line, which unmounts the
+element the notice renders into. So *"Marked completed."* has never been
+readable by anybody. It is built as a template string — `` `Marked ${status}.` ``
+— so it is invisible to every extractor here and has no Spanish either: a
+string that exists, is wired up, and has never once been on a screen.
+
+**THE PROPOSAL: one rule for all six call sites — the record stays open on a
+status change and shows what just happened**, carrying the undo and the notice
+where the press happened. The alternative considered and not preferred is
+putting an undo on whatever screen the detailer lands on, which is five
+implementations of one idea and the thing this repo keeps paying for.
+
+**THE RULING — agreed in principle, refused on timing.** Andrew's manager,
+2026-09-20:
+
+> *"In principle you are right, the record should stay open on a status change
+> and show what just happened — that is the version where the undo is actually
+> usable, and it is what Andrew would want at seven in the morning in
+> somebody's driveway with the wrong job marked done. But I am NOT having it
+> built tonight… it is a behaviour change across six screens, 4.1 cannot close
+> tonight anyway because the audit history is stuck behind the deploy freeze,
+> and a six-screen rewrite at four in the morning buys us nothing we can use
+> today while costing a whole class of new risk."*
+
+**So the design question is CLOSED and the work is OPEN.** Whoever picks it up
+should build the rule above rather than re-arguing it, and should expect the
+notice to become readable as a side effect — which means *"Marked completed."*
+needs to become a literal `t()` string with a Spanish key, since it is about
+to be seen for the first time.

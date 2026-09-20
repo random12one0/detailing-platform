@@ -1167,6 +1167,17 @@ requested.
     question, but the demo has no job on Today in a completable state, so that
     surface went unmeasured.
 
+  **TWO THINGS HAVE TO LAND BEFORE THIS CAN CLOSE, AND NEITHER IS A DESIGN
+  QUESTION ANY MORE:**
+  1. **The audit history** — a new append-only table and a write from
+     `update-booking`. A migration AND a deploy, so it waits on the freeze.
+  2. **The record staying open on a status change** — without it the undo is
+     one navigation back rather than one tap, which is not the undo this item
+     asks for. **Agreed in principle by Andrew's manager on 2026-09-20 and
+     deferred on timing, not merit**; the argument, the six call sites and the
+     ruling are written up in `DECISIONS.md` § *"The job record should stay
+     open when a status changes"*. Do not re-derive it.
+
 - [x] **DONE 2026-09-16 — 4.2 Calendar download links need an authorization review.**
   The link carried a Supabase function URL, a booking id, `audience=owner` and
   an anonymous API key. **A1 proved no vulnerability** — an anon key can be
