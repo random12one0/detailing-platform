@@ -4349,11 +4349,80 @@ event id.
   check complete when the check cannot is one somebody reaches for on a bad
   afternoon.
 
-  **STILL OPEN, AND IT IS THE RULE HALF:** **21 scripts declare skips**
-  (`skipped_targets` in their receipts) and only `sweep-widths.mjs` has been
-  read for this. Every one needs the same question asked: *what would have to
-  be true for this skip to be refused, and does anything ask?* A skip nothing
-  can refuse is the finding, wherever it lives.
+  **THE AUDIT IS DONE — ALL 21 READ, 2026-09-20. THE HEADLINE IS THAT THE REPO
+  CAME OUT BETTER THAN THE SWEEP DID.** The question asked of every one was:
+  *what would have to be true for this skip to be refused, and does anything
+  ask?*
+
+  | | scripts |
+  |---|---|
+  | declare `skipped_targets` | **21** |
+  | of those, the grader itself (`receipt.mjs`) | 1 |
+  | **issuers** | **20** |
+  | ever asked to prove a skip before today | **1** |
+  | **never asked** | **19** |
+
+  And what the reading found, which is not what was feared:
+
+  | verdict | scripts | which |
+  |---|---|---|
+  | **Skips reach a receipt and are refusable** | 4 | `american-english`, `link-counts-agree`, `edge-tenant-replay`, `sweep-widths` |
+  | **Skips reach a receipt and were NOT refusable** | **1** | **`tenant-matrix` — fixed today** |
+  | Skip is an anonymous subtraction: refusable, but silent about *which* | 5 | `contrast-insitu`, `keyboard-walk`, `screenreader-structure`, `text-spacing-walk`, `zoom-walk` |
+  | Reports `0`, and every skip path exits non-zero **before** a receipt exists | 10 | the four `e2e-*`, `pinned-bar`, `dashboard-notifies`, `restore-drill`, `deployed-inventory`, `example-ctas`, `example-shots-check` |
+
+  **THE ONE REAL ONE, AND IT WAS HIDING IN PLAIN SIGHT.** `tenant-matrix.mjs`
+  keeps a `skips` array, fills it with written reasons — seeds it could not
+  plant, tables where B owns no row, RPCs whose arguments cannot be
+  synthesised, buckets it could not write to, a realtime publication — prints
+  `${skips.length} skip(s)` into its own HTML report, files every one in
+  `warnings`, **and handed the grader a literal `0`.** So `receipt.mjs`'s rule
+  that *skips are failures unless allowlisted with an expiry* could never fire
+  on the one check in this repo that skips the most. The reasons existed the
+  whole time; only the accounting lied. It now reports `skips.length`, which
+  means **its receipt will fail** until somebody allowlists them with a date
+  they are willing to put their name on, or removes them. That is the intended
+  outcome.
+
+  **PROVED BY BREAKING THE GRADER, NOT BY READING IT.** `tenant-matrix` writes
+  to the demo tenant, so it was not run. Three probes built from its real
+  receipt and fed to `node scripts/receipt.mjs <file>`: `skipped_targets: 0`
+  passes every rule; `5` with no allowlist fails with *"5 target(s) skipped
+  with no `skip_allowlist`"*; `5` under an allowlist dated 2020 fails with
+  *"under an allowlist that expired"*. **The guard fires in both failure
+  directions and stays quiet at zero.**
+
+  **A COUNT GIVEN EARLIER IN THE SAME SESSION WAS WRONG AND IS CORRECTED
+  HERE.** It claimed *five scripts issue coverage claims nothing can refuse*,
+  on the strength of `skipped_targets: 0` sitting beside four identical target
+  counts. Reading the code rather than the receipt line showed the ten
+  `0`-reporting scripts are honest: **every `SKIPPED` path in them exits 1 or
+  2 before any receipt is written**, several with the comment *"A SKIPPED RUN
+  MUST NOT READ LIKE A PASSING ONE"* and one that says *"NOTHING ran and NO
+  receipt was written. This is not a pass."* The wrong count was wrong in the
+  direction that flattered the finding, which is the direction to distrust.
+
+  **AN ADJACENT FINDING, RECORDED BECAUSE IT IS THE SAME DISEASE WEARING A
+  DIFFERENT COAT — and it is NOT a skip, so it is not fixed here.** Three
+  scripts set `expected_targets` to `rows.length` — *what this run produced* —
+  and then set discovered, attempted and completed to the same variable:
+  `dashboard-notifies`, `restore-drill`, `tenant-matrix`. `receipt.mjs`'s
+  "the four counts must agree" rule **cannot fail for them by construction**,
+  and a target that quietly vanishes takes the expectation down with it. That
+  is a gate that follows the data, which CLAUDE.md already names as the thing
+  that can never fail. `deployed-inventory` and `example-shots-check` do the
+  same thing off a structural constant (`dirs.length`, `SITES.length`), which
+  is a real floor and much weaker as a fault.
+
+  **STILL OPEN:** the 5 anonymous-subtraction scripts need words, not
+  refusability — they already fail the grader twice over when the number goes
+  positive, because the four counts stop agreeing at the same moment. What
+  they cannot say is **which** targets went missing or whether the run
+  declined them or failed them. Not edited yet, and the reason is the rule
+  this session has argued all day: **they need a browser and a dev server to
+  break-test, and the other session is back in `app/src`.** Editing five
+  checks I cannot run, and cannot deliberately break, would be exactly the
+  unverified change this item exists to stop.
 
   **Done when:** every `skipped_targets` writer in `scripts/` either routes its
   skips through a probe that can refuse them or stops issuing them — **and**
