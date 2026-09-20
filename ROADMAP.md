@@ -111,6 +111,126 @@ Nothing below this line waits on these. They are asked once, here.
   the review — right now the terms are a contract with a private individual.
   *Sources: [Promise Legal SaaS ToS template](https://promise.legal/templates/terms-of-service), [ToS Lawyer's US SaaS legal checklist](https://toslawyer.com/legal-checklist-for-u-s-saas-startups-tos-privacy-dpa-sla-and-more/).*
 
+- [ ] **0.6 — WHAT IS RUNNING IS NOT WHAT IS COMMITTED, ON 22 OF 39 EDGE
+  FUNCTIONS. Nobody knew. Found 2026-09-20.**
+  **Placed in Wave 0 because it undermines every other item in this file.** A
+  test that reads `supabase/functions/**` has been describing a system that is
+  not the one answering requests, and any deploy of one function silently
+  ships whatever else is sitting on disk beside it.
+
+  **THE NUMBERS, MEASURED BY CONTENT.** `node scripts/deployed-inventory.mjs`
+  fetches each deployed bundle from the Management API and compares it against
+  this checkout. **17 functions match. 22 do not.** The gaps run from a few
+  hours to **7.0 days**, and the deploys sit in two clusters: **13–14
+  September** for most of them, **17 September** for three.
+
+  **AND THE FIRST NUMBER REPORTED WAS WRONG, WHICH IS ITS OWN LESSON.** The
+  session first told the manager "26 stale, some by thirteen days", from
+  `check-deployed.mjs`. That script compares TIMESTAMPS and its own header says
+  it cannot tell a missed deploy from the ordinary change-deploy-verify-commit
+  order, which leaves the deploy stamp earlier than the commit stamp. So its
+  26 means *"26 I cannot vouch for"*, not *"26 running old code"*. The real
+  figures are **22 and 7.0 days**. Both scripts are correct and they answer
+  different questions; only one of them answers this one.
+
+  **ONE FILE CAUSES MOST OF IT.** `_shared/emailTemplates.ts` is stale inside
+  **17 of the 22**. A shared module is bundled into every function that
+  imports it, so one un-deployed edit makes seventeen functions wrong at once
+  and no per-function reasoning will ever find it. The other shared modules
+  behind this: `connect.ts` (5 functions), `stripe.ts` (4), `tenant.ts` (3),
+  `payments.ts` (1), `weatherCache.ts` (1). **Only four functions have a stale
+  `index.ts` of their own** — `cancel-booking`, `create-booking`,
+  `get-booking-receipt`, `stripe-webhook`.
+
+  **THREE TIERS, BECAUSE "6.5 DAYS BEHIND" HIDES THE DIFFERENCE.** The measure
+  that matters is how MUCH of the file is missing from the running bundle:
+
+  1. **RUNNING SOMETHING GENUINELY ANCIENT.**
+     - `report-problem` — **441 of 477** comment lines of `emailTemplates.ts`
+       missing. It is running a copy from **before the 2026-09-03 email
+       rebuild**, i.e. the old design Andrew rejected.
+     - `platform-billing` — **438 of 477** of `emailTemplates.ts` and **77 of
+       77** of `payments.ts`. It is running from before `payments.ts` existed
+       at all, so stage-1 payment handles cannot be in it.
+     - `create-business`, `stripe-webhook`, `watch-jobs` — **88 of 89** of
+       `tenant.ts`. Essentially a different tenant-resolution module, which is
+       the file that decides how a `business_id` is obtained.
+  2. **ONE OR TWO REAL COMMITS BEHIND.** The `emailTemplates.ts` 35-of-477
+     cluster — ROADMAP 2.8 (an address carrying how it was arrived at) and
+     ROADMAP 14.4 (the refund instruction) — across `accept-quote`,
+     `invite-user`, `plan-link`, `platform-admin`, `preview-emails`,
+     `reschedule-booking`, `respond-to-booking`, `send-campaign`,
+     `send-invoice`, `send-owner-reminders`. Plus `connect.ts` at 45 of 152 in
+     five functions and `stripe.ts` at ~20 of 151 in four, the latter from
+     `f243e95` lifting webhook verification out of `Deno.serve` so a check
+     could run it — **so the running webhook does not contain the code the
+     test exercises.**
+  3. **HOURS, AND TRIVIAL.** `forecast` (4 comment lines), `update-booking`
+     (17, and only because the other session committed to
+     `emailTemplates.ts` after this one deployed).
+
+  **WHAT THE MEASUREMENT CANNOT SEE, SAID PLAINLY.** The deployed bundle is
+  TRANSPILED JavaScript with types erased, imports rewritten to absolute URLs
+  and the code re-formatted, so source text cannot be compared without
+  reimplementing Deno's transpiler. **Comments survive verbatim**, so comments
+  are what is compared. A change that touched no comment is invisible to it:
+  a renamed string, a flipped boolean, a corrected operator. **So `DIFFERS` is
+  strong evidence and `matches` is weak** — "nothing I can see says
+  otherwise", not "proven identical". Three wrong methods were tried and
+  discarded before this one, each caught only because the tool said something
+  impossible about a function deployed sixty seconds earlier. Keep an
+  obviously-true case in front of you when building an instrument.
+
+  **HOW IT HAPPENED, AS FAR AS THE EVIDENCE GOES.** Nothing in the repo
+  requires a deploy, and `check-deployed.mjs` is not in CLAUDE.md's
+  before-you-finish list. The 13-September cluster is one session's work that
+  was committed and never pushed to the gateway; every session since has read
+  the committed source and reasoned about it as if it were live.
+
+  **Done when:** every function's deployed bundle matches this checkout, the
+  inventory is clean, and something makes it stay that way — a deploy is not
+  a step somebody has to remember. **Andrew decides what ships and in what
+  order; deploying is gated on him.** The customer-facing hole from 3.4 — a
+  dashboard cancellation telling the customer nothing — is first in that
+  order.
+  *Found while gating a one-file deploy for ROADMAP 3.4; the flag came before
+  the deploy rather than after, which is the whole difference between a near
+  miss and an incident.*
+
+- [ ] **0.7 — The maintenance reminder has no opt-out, and the fix is a
+  product question rather than a template edit. Found 2026-09-20.**
+  `maintenanceDueEmail` in `_shared/emailTemplates.ts` sends *"Your Ceramic Pro
+  annual inspection is due by 12 October. Book it below and we'll take care of
+  it"* with a **Book it in** button, on a cron sweep, to a customer. It carries
+  **no unsubscribe link and no postal address**.
+
+  **THE FILE'S OWN HEADER SAYS THAT EMAIL IS NOT THERE.** Verbatim: *"WHAT IS
+  DELIBERATELY NOT HERE: the re-book / maintenance reminder… it is the one
+  email in the set whose primary purpose is MARKETING — under CAN-SPAM that
+  needs an unsubscribe, a suppression list and a sending reputation the
+  transactional set is exempt from. Its own roadmap item."* It is at line 1324
+  of the same file, and `send-owner-reminders` sends it. The document and its
+  own contents disagree, and the header is the one describing the intent.
+
+  **WHY THIS IS NOT A TEMPLATE EDIT, AND THIS IS THE WHOLE ITEM.** The obvious
+  fix is to give it the footer the campaign already has — `shell`'s `legal`
+  argument takes a `mailingAddress` and an `unsubscribeUrl`, and
+  `send-campaign` **refuses to send at all** when `business.mailing_address` is
+  empty. Wiring that here means **the product needs a postal address from every
+  detailer**, and there is no evidence it collects one: `mailing_address` is a
+  column on `businesses` that the campaign feature checks and nothing in the
+  setup flow appears to require. So the choices are:
+  - require a postal address of every detailer, which is a new setup step and
+    a new blocker on an existing feature; or
+  - stop sending the maintenance reminder until that exists; or
+  - establish that it is transactional rather than commercial, which is a
+    judgment about the product's purpose and not one a session should make.
+
+  **A PLACEHOLDER ADDRESS IN A LEGAL FOOTER IS THE ONE OUTCOME THAT MUST NOT
+  HAPPEN**, which is why this is written up rather than fixed. **For Andrew.**
+  *Found in the ROADMAP 3.4 email audit; the manager's ruling, 2026-09-20:
+  write it up with the reasoning, do not fix it.*
+
 ---
 
 ## Wave 1 — Stop exposing Andrew and other people's brands
