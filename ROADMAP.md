@@ -2140,9 +2140,50 @@ the dashboard or back office at phone width at all.
   *Done when:* focus is visibly located at every step of a Tab walk across the
   five dashboard tabs and all seven booking steps; every sheet and modal can
   be left with Escape; no walk re-enters a component it has left; and the
-  order follows the reading order. **None of that is measured, and it is the
-  half that strands somebody** — a keyboard user who cannot see where focus
-  is, or cannot get out of a sheet, is stopped rather than slowed.
+  order follows the reading order.
+
+  **MEASURED 2026-09-20 — `scripts/keyboard-walk.mjs`. 167 focus stops across
+  six screens, both canaries caught 6/6, and 55 of those stops show NOTHING AT
+  ALL when they hold focus.** Not fixed; this is the measurement.
+
+  **The two decisions, both made before the first run:**
+  1. **Pixels, not computed style.** An `outline` that paints nothing still
+     reads as present in `getComputedStyle`, so each stop is photographed
+     focused, blurred, and compared byte for byte.
+  2. **In view is part of visible.** A ring nobody can see is not visible
+     focus, so the viewport test is taken from the element's rect **the
+     instant it receives focus, before any screenshot** — Playwright's own
+     `elementHandle.screenshot()` scrolls an element into view, which would
+     have silently repaired the fault it was looking for. **Result: zero
+     stops focused out of view.** That half is clean.
+
+  **What has no visible focus, by class rather than by instance:**
+
+  | | where |
+  |---|---|
+  | `button.row-item` | every job row on Today and every client row on Clients |
+  | `button.nav-row` | **every settings row on Business** — twelve of them |
+  | `button.bk-pick` | every service card on the booking page |
+  | `button.bk-peek` | every "What's included" disclosure beside them |
+  | `summary`, and two `div`s with `tabindex` | Today and Money |
+
+  **THE PROBE REPORTED VOID FOUR TIMES BEFORE IT REPORTED A RESULT, and its
+  own canaries are what said so.** Each of these would otherwise have shipped
+  as a clean sheet: it stopped at `document.body` (the first Tab after a load
+  lands there — 0 stops on a screen with 25 controls); it stopped on a
+  repeated DESCRIPTION, so two identical-looking buttons ended the walk; and
+  **it could not tell a focus ring from a moving background** — this product's
+  background animates for ever, so "focused differs from blurred" was true
+  whether or not a ring existed, which is a false PASS. Fixed with a stability
+  baseline (two identical shots first) and by running the walk under
+  `reducedMotion: "reduce"` so the page holds still — which is only possible
+  because 8.5e fixed the delay an hour earlier. Without it, 91 of 167 stops
+  were undetermined.
+
+  **THE LIMIT THAT BUYS, STATED:** a focus ring that appears only BY ANIMATION
+  would be invisible to this walk, because the walk turns animation off to see
+  anything at all. Nothing does that today; if something starts, this check
+  will call it missing.
 
   **8.5c — ZOOM TO 200%.**
   *Done when:* at 200% zoom, at all four widths, nothing is clipped, no
