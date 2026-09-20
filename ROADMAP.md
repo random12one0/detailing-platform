@@ -2242,9 +2242,19 @@ the dashboard or back office at phone width at all.
   *A1 P2-06, A2 2.11, 2.12*
 
 - [ ] **8.5 — Keyboard, screen reader, zoom, large text and reduced motion.**
-  **8.5e, 8.5a, 8.5c and 8.5d are DONE (2026-09-20). 8.5b's structural half
-  is done and clean; the half that closes it needs a person with a screen
-  reader, and is a row in `FOR-ANDREW.md`.**
+
+  **THE STATE OF ALL FIVE PARTS, 2026-09-20:**
+
+  | part | state | waiting on |
+  |---|---|---|
+  | **8.5e** reduced motion | **CLOSED** | nothing |
+  | **8.5a** keyboard | **CLOSED** | nothing |
+  | **8.5c** zoom to 200% | **CLOSED** | nothing |
+  | **8.5d** large text and spacing | **CLOSED**, one gap stated beside the tick | nothing |
+  | **8.5b** screen reader | **OPEN.** Structural half measured and clean, 9 screens | **A person, with a screen reader on, answering whether a booking can be finished by listening.** One row in `FOR-ANDREW.md`, thirty seconds. Nothing else is outstanding and no instrument can close it |
+
+  **The item stays open because 8.5b does**, and 8.5b is waiting on ears
+  rather than on work.
   Never checked.
   *A1 § 10*
 
@@ -2505,9 +2515,15 @@ the dashboard or back office at phone width at all.
   level, anything that changes without a page load is announced, **AND a
   person has walked the booking flow end to end with a screen reader on.**
 
-  **WHAT WAS MEASURED — `scripts/screenreader-structure.mjs`**, 7 of 7 screens,
-  30 assertions, both canaries (a heading that skips a level, an image with no
-  `alt` attribute at all) caught 7/7, receipt PASS.
+  **WHAT WAS MEASURED — `scripts/screenreader-structure.mjs`**, **9 of 9
+  screens, 38 assertions, two clean runs**, both canaries (a heading that
+  skips a level, an image with no `alt` attribute at all) caught 9/9 in each,
+  receipt PASS both times.
+  **The receipt refused the first version** — 16 assertions against a declared
+  floor of 40 — and the fix was to COUNT the landmark and live-region
+  questions that were always being asked, then DERIVE the floor from the
+  declared screen count. **Deriving the floor rather than nudging it down to
+  fit the answer is the difference between a gate and a rubber stamp.**
 
   **AND IT FOUND ONE, ON THE SURFACE A STRANGER USES.** Every dashboard screen
   declares a `<main>` landmark; `App.jsx`, `JobPage.jsx`, `AdminPage.jsx`, the
@@ -2519,18 +2535,41 @@ the dashboard or back office at phone width at all.
   change wearing an accessibility fix's clothes). Re-measured: main=1
   everywhere, 0 findings.
 
-  **NOT MEASURED, NAMED RATHER THAN ASSUMED:** `BookingConfirmed.jsx`,
-  `ManageBookingPage.jsx` and `PlanMemberPage.jsx` share the same `.bk-wrap`
-  container and almost certainly share the omission — **they need a booking or
-  a member id to reach, so this walk could not visit them and they were left
-  alone rather than fixed blind.**
+  **THEN THE WALK WAS SEEDED AND THE PATTERN TURNED OUT TO BE WRONG.** Two
+  more pages became reachable by handing the walk real ids — the manage screen
+  on the booking this session made for 2.8, and a plan member's page on a
+  seeded id. **Both were missing the landmark, as expected. Both were ALSO
+  skipping a heading level, h1 straight to h3, which nothing in the pattern
+  would have suggested** — fixing by pattern would have added the landmark and
+  left a listener navigating by heading landing in a level that does not
+  exist. **Four screens measured, a claim about nine avoided.**
+  Fixed with `aria-level={2}` rather than a different tag: `.bk h3` carries a
+  different size and weight from `.bk h2`, so swapping the element would have
+  redesigned two reviewed screens to fix a structure problem.
+  **The detector had to be corrected for that, and it is not the probe being
+  bent to pass its own fix:** it read the tag and stopped, so it flagged pages
+  that had just been given the right level. A screen reader uses `aria-level`
+  when it is there. The canary heading carries none and is still caught 9/9
+  every run, so its ability to see a real skip is unchanged and proved.
 
-  **AN OBSERVATION FOR THE PERSON, NOT A FINDING:** every screen reports
-  **zero live regions**. Nothing that changes without a page load is announced
-  anywhere — which lines up with `DECISIONS.md` § *"The job record should stay
-  open when a status changes"*, where *"Marked completed."* turns out never to
-  have been readable by anybody. Whether that matters is a question about what
-  a listener actually misses, which is exactly what this check cannot answer.
+  **`BookingConfirmed.jsx` REMAINS UNMEASURED, AND IT IS NOT A MISSING ID:**
+  it is **not a route at all**. It is a state `BookingPage` enters after a
+  submit, so the only way to open it is to make another booking, which this
+  session is not doing. Named, not assumed, not fixed.
+
+  **THE FINDING UNDERNEATH THE COUNT, AND IT IS NOT A COUNT OF MISSING
+  ATTRIBUTES:**
+
+  > **The decisions in this product arrive silently for somebody who is not
+  > looking at it — a price that moves, a step that refuses, a booking that
+  > confirms.**
+
+  Every one of the nine screens reports **zero live regions**. Nothing that
+  changes without a page load is announced anywhere. It lines up exactly with
+  `DECISIONS.md` § *"The job record should stay open when a status changes"*,
+  where *"Marked completed."* turns out never to have been readable by
+  anybody. **Whether a listener can still complete a booking despite it is the
+  question only a person can answer**, and it is the row in `FOR-ANDREW.md`.
 
   **WHY THIS STAYS OPEN: A SCREEN READER IS A PERSON LISTENING TO A MACHINE
   READ A PAGE ALOUD.** Every question that matters — does the order make

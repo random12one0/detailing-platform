@@ -374,12 +374,24 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
         </div>
       </header>
 
-      <div className="bk-wrap" style={{ paddingBottom: 40 }}>
+      {/* ROADMAP 8.5b — the main landmark. Every dashboard screen had one
+          and no booking-surface page did, so "jump to the main content"
+          did nothing on the pages a customer actually opens. */}
+      <div className="bk-wrap" role="main" style={{ paddingBottom: 40 }}>
         <div className="bk-card" style={{ marginTop: 18 }}>
           <div className="bk-step-label">
             {isCancelled ? t("Cancelled") : isRequest ? t("Waiting to be accepted") : t("Confirmed")}
           </div>
-          <h3 style={{ textDecoration: isCancelled ? "line-through" : "none" }}>{dateLabel}</h3>
+          {/* ROADMAP 8.5b — **`aria-level` RATHER THAN A DIFFERENT TAG.** The
+              structure here jumps h1 to h3, so somebody navigating by heading
+              is told a level exists that does not — measured, not assumed:
+              `scripts/screenreader-structure.mjs` reported the skip on this
+              page and on one other. **The tag is carrying the VISUAL style**
+              (`.bk h3` is a different size and weight from `.bk h2`), so
+              swapping it would redesign a screen to fix a structure problem.
+              `aria-level` states the real level and changes nothing anybody
+              can see. */}
+          <h3 aria-level={2} style={{ textDecoration: isCancelled ? "line-through" : "none" }}>{dateLabel}</h3>
           <p className="bk-muted">{time12(booking.start_time)} – {time12(booking.end_time)}</p>
           {/* ROADMAP 14.4 — THEIR MONEY, SAID OUT LOUD. Not translated through
               `t()` on purpose: the sentence is composed by the endpoint, which

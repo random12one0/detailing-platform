@@ -1509,3 +1509,27 @@ the wrong page.
 **The tell, if you are unsure which you have:** at real 200% zoom a responsive
 layout changes its breakpoint — a two-column screen becomes one column. If the
 columns are still side by side and merely larger, you are measuring a lens.
+
+---
+
+## DERIVE A CHECK'S FLOOR FROM WHAT IT DECLARED, NEVER FROM WHAT IT FOUND
+
+**The same mistake this whole project exists to stop, in miniature.**
+2026-09-20: a new check wrote `min_assertions: 40`, ran, and the receipt
+refused it — *"only 16 assertions ran against a declared minimum of 40"*.
+
+**The tempting fix is to change the 40 to a 16.** It takes one character, the
+gate goes green, and the gate now certifies whatever the check happened to do
+— a rubber stamp with a receipt attached.
+
+**What was actually wrong** was that the check asked a landmark question and a
+live-region question on every screen and counted neither. Counting them took
+the real figure to 30, and the floor became `2 * EXPECTED_TARGETS` — **derived
+from the screen count the check declares before it runs**, so a run that
+visits fewer screens than it promised fails on arithmetic rather than on
+somebody's judgement.
+
+**The rule:** a floor is a statement about the work a check MUST do, made
+before it runs. The moment it is chosen to fit a result it stops being a gate.
+**If a floor looks too high, ask what the check is failing to count before you
+ask whether the floor is wrong.**

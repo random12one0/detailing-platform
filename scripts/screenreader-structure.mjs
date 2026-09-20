@@ -33,6 +33,10 @@ import { createRequire } from "node:module";
 const { chromium } = createRequire(import.meta.url)("../app/node_modules/playwright/index.js");
 
 const BASE = "http://localhost:5173";
+// Real rows on the demo tenant: the booking this session created while
+// measuring ROADMAP 2.8, and a seeded plan member. Both are READ only.
+const MANAGE_BOOKING_ID = "c4c1f0c8-b2d1-41d6-ad93-e01d89500593";
+const PLAN_MEMBER_ID = "93f26b2a-8705-4ed7-bde4-52d3340e214c";
 const started_at = new Date().toISOString();
 
 const PROBE = (plantCanary) => {
@@ -71,7 +75,17 @@ const PROBE = (plantCanary) => {
     .filter((h) => h.checkVisibility && h.checkVisibility({ visibilityProperty: true, opacityProperty: true }));
   let prev = 0;
   for (const h of hs) {
-    const lvl = Number(h.tagName[1]);
+    // **`aria-level` WINS OVER THE TAG, BECAUSE THAT IS WHAT A SCREEN READER
+    // USES.** This detector read `h3` and stopped, so it reported a skip on
+    // two pages that had just been given `aria-level="2"` — the level a
+    // listener is actually told. Reading the tag alone would flag every
+    // legitimate use of the attribute for ever.
+    // **THIS IS NOT THE PROBE BEING BENT TO PASS ITS OWN FIX:** the canary
+    // heading carries no `aria-level` and is still caught on every screen, so
+    // the detector's ability to see a real skip is unchanged and proved each
+    // run.
+    const declared = Number(h.getAttribute("aria-level"));
+    const lvl = declared >= 1 && declared <= 6 ? declared : Number(h.tagName[1]);
     out.examined++;
     out.headings.push(lvl + ":" + (h.innerText || "").trim().slice(0, 24));
     if (prev && lvl > prev + 1) {
@@ -117,7 +131,7 @@ await page.click("form button.btn.primary");
 await page.waitForSelector(".tabbar", { timeout: 30000 });
 const tabs = await page.$$eval(".tabbar button, .tabbar a", (e) => e.map((x) => x.innerText.trim()).filter(Boolean));
 
-const EXPECTED_TARGETS = tabs.length + 2;
+const EXPECTED_TARGETS = tabs.length + 4;
 const rows = [];
 let canaryRuns = 0, cHead = 0, cImg = 0, examined = 0;
 const visit = async (label) => {
@@ -137,11 +151,22 @@ for (const t of tabs) {
 }
 await page.goto(BASE + "/book/demo-detail", { waitUntil: "domcontentloaded" });
 await visit("Booking step 1");
-// The other public page reachable without a booking id. The confirmation and
-// manage screens need one and are NOT measured here; they are named in the
-// roadmap note instead of being quietly assumed.
 await page.goto(BASE + "/book/demo-detail/plans", { waitUntil: "domcontentloaded" });
 await visit("Plans page");
+// **SEEDED WITH REAL IDS SO THE LAST TWO REACHABLE PAGES GET VISITED RATHER
+// THAN GUESSED AT.** Both share `.bk-wrap` with the two pages already fixed,
+// which is exactly the situation where a pattern tempts you into a confident
+// claim about a screen nobody has opened.
+//   · the manage screen, on the booking this session made for ROADMAP 2.8
+//   · a plan member's page, on a seeded member id
+// **`BookingConfirmed` STILL CANNOT BE REACHED and is not a missing id:** it
+// is not a route at all — it is a state `BookingPage` enters after a submit,
+// so the only way to see it is to make another booking, which this session is
+// not doing. It stays named and unmeasured.
+await page.goto(BASE + "/booking/" + MANAGE_BOOKING_ID, { waitUntil: "domcontentloaded" });
+await visit("Manage booking");
+await page.goto(BASE + "/plan/" + PLAN_MEMBER_ID, { waitUntil: "domcontentloaded" });
+await visit("Plan member");
 await browser.close();
 
 const fails = [];

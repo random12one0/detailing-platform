@@ -145,12 +145,22 @@ function PlanInner({ data, onChanged }) {
         </div>
       </header>
 
-      <div className="bk-wrap">
+      {/* ROADMAP 8.5b — the main landmark, same as the other public pages. */}
+      <div className="bk-wrap" role="main">
         {/* THE ONE LIT OBJECT: the plan itself. Everything under it is paper —
             the same composition the review step uses for the appointment. */}
         <div className={`bk-card${ended ? "" : " selected"}`}>
           <div className="bk-step-label">{statusWords(ended ? "ended" : member.status, lang)}</div>
-          <h3 style={{ marginTop: 4 }}>{tx(plan.name)}</h3>
+          {/* ROADMAP 8.5b — **`aria-level` RATHER THAN A DIFFERENT TAG.** The
+              structure here jumps h1 to h3, so somebody navigating by heading
+              is told a level exists that does not — measured, not assumed:
+              `scripts/screenreader-structure.mjs` reported the skip on this
+              page and on one other. **The tag is carrying the VISUAL style**
+              (`.bk h3` is a different size and weight from `.bk h2`), so
+              swapping it would redesign a screen to fix a structure problem.
+              `aria-level` states the real level and changes nothing anybody
+              can see. */}
+          <h3 aria-level={2} style={{ marginTop: 4 }}>{tx(plan.name)}</h3>
           <p className="bk-muted" style={{ marginTop: 4 }}>
             {cadenceWords(plan, lang)}
             {plan.cadence_unit ? ` · ${t("{visits} each time", { visits: visitWords(plan, lang) })}` : ""}
