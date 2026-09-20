@@ -23,6 +23,7 @@ import { calendarUrlFor, loadPrefs, saveContact } from "../lib/platform.js";
 import { supabase } from "../lib/supabase.js";
 import { fillTemplate } from "../lib/templates.js";
 import { dateLong, localDate, mapsUrl, money, phoneAsTyped, time12 } from "../lib/format.js";
+import ConfirmTap, { jobDoneQuestion } from "./ConfirmTap.jsx";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import JobPhotos from "./JobPhotos.jsx";
 // ROADMAP 5.3 — the same mail rows the client record draws. One file, so the
@@ -730,9 +731,36 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                 </>
               ) : (
                 <>
+                  {/* ROADMAP 4.1 — asks once, naming the job, from the same
+                      control the card on Today uses. */}
                   {booking.status !== "completed" && (
-                    <button className="btn primary" disabled={busy} onClick={() => setStatus("completed")}>
-                      <CheckCircle2 size={18} strokeWidth={2} /> {t("Mark completed")}
+                    <ConfirmTap
+                      className="btn primary"
+                      disabled={busy}
+                      icon={<CheckCircle2 size={18} strokeWidth={2} />}
+                      label={t("Mark completed")}
+                      question={jobDoneQuestion({
+                        name: booking.customer_name,
+                        service: (booking.services ?? []).map((sv) => sv.name_at_booking).filter(Boolean).join(" · "),
+                        time: time12(booking.start_time),
+                      })}
+                      confirmLabel={t("Yes, it’s done")}
+                      onConfirm={() => setStatus("completed")}
+                    />
+                  )}
+                  {/* **THE UNDO, AND IT NEEDED NO SERVER CHANGE.** `status` is
+                      an ordinary editable field on `update-booking` with no
+                      transition guard, and "Un-cancel" three lines up has
+                      been writing `confirmed` through it all along — so the
+                      way back existed everywhere except on the screen.
+                      Worded as the correction it is, not as an undo button
+                      floating free of what it undoes. It stays for as long as
+                      the job is completed rather than vanishing after a few
+                      seconds: a detailer who taps this by accident in a
+                      driveway finds out at the end of the day. */}
+                  {booking.status === "completed" && (
+                    <button className="btn" disabled={busy} onClick={() => setStatus("confirmed")}>
+                      {t("Not completed after all")}
                     </button>
                   )}
                   {booking.status !== "no_show" && (

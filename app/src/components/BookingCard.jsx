@@ -12,6 +12,7 @@
 
 import { CheckCircle2, CreditCard, MessageSquare, Navigation, Phone } from "lucide-react";
 import { mapsUrl, money, time12 } from "../lib/format.js";
+import ConfirmTap, { jobDoneQuestion } from "./ConfirmTap.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
@@ -125,11 +126,24 @@ export default function BookingCard({
             </div>
           ) : null}
 
+          {/* ROADMAP 4.1 — IT ASKS NOW. This is the accent-filled button on
+              the next job of the day, pressed one-handed in a driveway, and
+              it used to write the status on the first touch. A1 hit it by
+              accident just exploring. */}
           {onMarkComplete && booking.status === "confirmed" && (
-            <button className={`btn${isNext ? " primary" : ""}`} style={{ marginTop: "var(--sp-2)" }}
-              onClick={() => onMarkComplete(booking)}>
-              <CheckCircle2 strokeWidth={2} /> {t("Mark complete")}
-            </button>
+            <ConfirmTap
+              className={`btn${isNext ? " primary" : ""}`}
+              style={{ marginTop: "var(--sp-2)" }}
+              icon={<CheckCircle2 strokeWidth={2} />}
+              label={t("Mark complete")}
+              question={jobDoneQuestion({
+                name: booking.customer_name,
+                service: services.join(" · "),
+                time: time12(booking.start_time),
+              })}
+              confirmLabel={t("Yes, it’s done")}
+              onConfirm={() => onMarkComplete(booking)}
+            />
           )}
           {onFinalize && booking.status === "completed" && !booking.finalized_at && (
             <button className={`btn${isNext ? " primary" : ""}`} style={{ marginTop: "var(--sp-2)" }}

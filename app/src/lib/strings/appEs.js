@@ -2164,6 +2164,18 @@ export const appEs = {
   // ROADMAP 2.8 — on the job record, under the address and above Navigate.
   "Typed by hand. The address lookup found no match for it.":
     "Escrita a mano. El buscador de direcciones no encontró ninguna coincidencia.",
+  // ROADMAP 4.1 — the question a consequential tap asks before it acts, and
+  // the way back afterwards. Both screens that can complete a job share them.
+  "Mark {name}’s {service} at {time} as done?":
+    "¿Marcar como terminado el {service} de {name} de las {time}?",
+  "Mark {name}’s job at {time} as done?":
+    "¿Marcar como terminado el trabajo de {name} de las {time}?",
+  "Yes, it’s done": "Sí, ya está",
+  // NO "Not yet" ENTRY HERE — the catalogue already had one and a second copy
+  // is a duplicate key, which `tests/spanish` § 9f fails on. Caught by running
+  // it: the second definition would have won silently and the first would have
+  // looked maintained while doing nothing.
+  "Not completed after all": "No estaba terminado",
   "Reminders and cancellations": "Recordatorios y cancelaciones",
   "When these reach you": "Cuándo te llegan",
   "{count} days ahead": "{count} días de anticipación",

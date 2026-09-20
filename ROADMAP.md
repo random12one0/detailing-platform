@@ -1057,6 +1057,63 @@ requested.
   and each is recorded in an audit history.
   *A1 P0-06*
 
+  **MEASURED FIRST, 2026-09-20 — WHAT THE TAP ACTUALLY DID.** It wrote
+  `status: 'completed'` through `update-booking` on the first touch, from
+  **two** screens: the card on Today, where it is the accent-filled button on
+  the next job of the day, and the job record. What that press costs:
+  * it does **NOT** email the customer — only a cancellation or a move does;
+  * it does **NOT** silence their reminder — the reminder rule excludes
+    `cancelled` and `pending`, not `completed`;
+  * it **does** push the owner's phone, unlock **Finalize payment**, move the
+    job into Today's "needs paying" pile, and count it as done in Money, the
+    reports and the client's history;
+  * and there was **no way back**: once completed the button vanishes and only
+    "Didn't show up" and "Cancel the job" remain. A cancellation has
+    "Un-cancel"; a completion had nothing.
+
+  **THE UNDO NEEDED NO SERVER CHANGE, which is why this was buildable during
+  the deploy freeze.** `status` is an ordinary editable field on
+  `update-booking` with no transition guard, and "Un-cancel" has been writing
+  `confirmed` through it all along. The way back existed everywhere except on
+  the screen.
+
+  **NOT THE DELETE PATTERN, AND THE RULES SAY WHY.** This item says to copy
+  the job page's delete-behind-a-fold with `.btn.danger`.
+  `docs/screen-rules.md` names that as the reference for a DESTRUCTIVE action
+  and, in the same paragraph, says "Didn't show up" and "Cancel the job"
+  deliberately do NOT take `--bad` because they are outcomes a detailer can
+  live with. Completing a job is the commonest outcome in the product.
+  Painting it as harm would weaken `--bad` everywhere it currently means
+  something, and a fold would tax every correct press to stop a rare wrong
+  one. **So it asks in place instead** — `components/ConfirmTap.jsx`, one
+  control, both screens, no modal, because this is used one-handed in a
+  driveway.
+
+  **VERIFIED AT 1440x900, 768x1024, 392x844 AND 320x844, console clean at
+  each**, signed in as the demo owner on the job record:
+  the tap asks **"Mark Tom Okafor's Full Interior Detail at 9:00 AM as
+  done?"** — customer, service and time, which is this item's own wording;
+  "Yes, it's done" and "Not yet" both appear; the original button is gone
+  while it asks, so there is nothing to double-tap through; "Not yet" puts it
+  back; **and the job was still Confirmed afterwards — nothing was written.**
+  On a job that was already completed, **"Not completed after all" is present
+  and visible at all four widths.**
+
+  **NOT TICKED, AND THREE REASONS — the first is on its own enough:**
+  1. **There is no audit history and this item's own "done when" asks for
+     one.** Nothing anywhere records who completed a job or when. That is a
+     new table and a server write — a migration plus a deployed function — so
+     it is blocked behind the deploy freeze as well as unbuilt.
+  2. **The write paths were not exercised.** Pressing "Yes, it's done" and
+     pressing the undo are both row edits, which this session is not doing.
+     What is proven is that the tap does NOT write until answered; what is not
+     proven is that answering it writes.
+  3. **The card on Today was not seen on a screen.** It uses the same
+     component and the same question, but the demo has no job on Today in a
+     completable state, so the surface itself went unmeasured.
+  **And the sweep this item asks for — cancel, no-show, suspend, delete, waive
+  and owner-invite — has not been started.** Only completion is done.
+
 - [x] **DONE 2026-09-16 — 4.2 Calendar download links need an authorization review.**
   The link carried a Supabase function URL, a booking id, `audience=owner` and
   an anonymous API key. **A1 proved no vulnerability** — an anon key can be
