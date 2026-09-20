@@ -4124,8 +4124,49 @@ event id.
   **Do not `--write-expected` to clear this** — that writes a hold-dependent
   run in as the truth. It is fixed by fixing the walk.
 
+  **RE-ESTABLISHED ON A STABLE TREE, AND FIVE RUNS THROWN AWAY TO DO IT —
+  2026-09-20, at `c4058d3`.** The five runs above were taken between 10:07 and
+  10:25 while another session was editing `app/src`; its commit landed at
+  10:30:35. **Two of the five were caught mid-edit by the sweep's own
+  source-change guard, and the other three simply predate the change** — so
+  all five were discarded rather than averaged with what came after. A rate
+  computed across two versions of the page is the same lie as a receipt that
+  cannot tell stale from failed. Everything below is one tree, zero
+  source-change warnings, both canaries caught.
+
+  | arm | result |
+  |---|---|
+  | `TOUR_WAIT=250`, 20 runs at 1440 | **20 of 20 at 5 steps, one block `[5]`** |
+  | control, 5 runs at 392 @1000ms | 5 of 5 complete, 33 steps, six blocks |
+  | tempo arm, 5 runs at 392 @250ms | **0 of 5**, stopping at 4, 10, 4, 10, 4 |
+  | sweep at 1440, default | pace `273 257 248 251` **`562`** — 5 steps, one block |
+  | sweep at 1440, `SWEEP_TOUR_HOLD=1000` | **34 steps, six blocks**, caps of `1019`, `1007`, `1023` at the crossings |
+
+  **250ms is the measured tempo, not the 300ms stand-in**, and it reproduces
+  everything the stand-in did. The tempo arm is the load-bearing one: the same
+  short wait kills the tour at 392 too, so the subject column is about pressing
+  fast and not about 1440.
+
+  **AND HERE IS THE PART THAT IS WORSE THAN A CAVEAT.** The truncated run does
+  not merely fail to measure steps 6 and 7 — **it declares them unreachable**:
+
+  ```
+  tour · step @1440   5 step(s), ended on the last card it had (5 of 5)
+                      — 2 inventory label(s) this dashboard cannot produce:
+                        tour · step 6, tour · step 7
+  ```
+
+  A declared skip in this repo is supposed to be *a surface proved
+  unreachable*. Here it is asserted off the back of a walk that died, so the
+  sweep **manufactures the justification for its own fault, once per run**, and
+  that is why the default run exits 0 and passes the expected-count gate. It is
+  not that the baseline happens to record seven steps; it is that the
+  instrument re-certifies the truncation as correct every time it runs. Any
+  fix has to make that skip provable or stop it being issued.
+
   **Done when:** the sweep waits for the next card instead of for quiet, and a
   clean twenty-run batch at that tempo shows the tour reaching six blocks at
+  1440 — **and** `tour · step 6`/`7` are no longer issued as declared skips at
   1440 — **and** `sweep-widths.expected.json` carries `tour · step 1`–`34` at
   1440 as a consequence of that walk rather than of a `SWEEP_TOUR_HOLD` run —
   **and**, separately, the plan-growth signature has a fix in

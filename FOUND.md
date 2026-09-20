@@ -4055,3 +4055,43 @@ that has ever run it. The field exists, the writer sets it, and it has always
 been empty. A ledger whose job is to say *how often does this width fail to
 complete* is only useful next to *against which code*, and right now a row
 cannot be dated to anything but a clock.
+
+---
+
+## The browser scripts address 23 controls by their English words, and a copy pass just broke one — 2026-09-20
+
+`c4058d3` renamed *"Log a bulk job"* to *"Add a fleet job"* and moved the
+Spanish key in the same edit, exactly as `CLAUDE.md` requires. It was still
+enough to take a screen out of the width sweep, because `sweep-widths.mjs`
+opens that sheet with `NAMED("Log a bulk job")` — the string, not the
+component. The next run reported `NEVER MEASURED  Money · log a bulk job` and
+exited 1.
+
+**The system worked and that is the good news.** Nothing went silent: the
+expected-count gate named the surface and failed the run, which is the whole
+reason it exists. This is the documented *a check that names a spelling is
+coupled to the spelling, not the behaviour* arriving on schedule.
+
+**The useful artifact is the list**, because more copy changes are queued.
+Twenty-three English strings across `scripts/*.mjs` are load-bearing for a
+browser check — rename any of them and a screen stops being measured:
+
+```
+Accept · Add · Add a line · Add a plan · Add a way to be paid · Change
+Clients · Filter · Finalize payment · Generate QR code · History
+Hot above · How many vehicles? · I'll do this later · Log a bulk job
+Log a member · Month · Not seen in 3 months · Settings · Show me around
+Text · Weather warnings · Your colour
+```
+
+Two notes on reading it. **`Victor Salas` also appears in the scripts and is
+NOT on this list** — it is seeded data from `scripts/seed-demo.mjs`, not
+product copy, so renaming a client in the seed is a different job. And
+**`Your colour` is spelled British on purpose**: it is the setup-step key
+stored on every business, one of the two documented exceptions, and renaming
+it breaks live data.
+
+**Cheapest next move:** cross-check a copy batch against this list before it
+lands, not after. Fixing the coupling properly — addressing controls by a
+shared constant or a test id rather than by their words — is the real answer
+and is a bigger job than any one rename.
