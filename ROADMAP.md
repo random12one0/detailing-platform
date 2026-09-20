@@ -1431,6 +1431,79 @@ requested.
   its way past a real precondition would be proving something about the forgery
   rather than about the product.
 
+
+  ---
+
+  ### 4.4's VERDICT, AGAINST FOUR NUMBERS — **IT DOES NOT CLOSE.** 2026-09-20
+
+  **15–16 RAN · 17–18 REFUSE · 7 PROVED · 6 OUT OF REACH · 1 NEVER CALLED.**
+
+  - **15–16 of 39 genuinely RAN.** Owner A got a 2xx out of them using A's own
+    identifiers, so the function was exercised rather than bounced at its door.
+    A range, because `create-booking` is rate-limited and answers 429 once the
+    replay has been run repeatedly.
+  - **17–18 still REFUSE, and that is DEBT.** A's own call never succeeded
+    either, so their refusal of tenant B proves nothing. Each names the field
+    it rejects on where its own 400 guards name one — *"rejects on
+    `domain_id`, which this harness does not supply"* — and says so plainly
+    where they do not, because a lookup, a permission or a precondition on a
+    row is different work from a missing argument.
+  - **7 PROVED ISOLATION BY REJECTING THE OTHER TENANT**: `accept-invite`,
+    `connect-account`, `delete-customer`, `invite-user`,
+    `owner-push-unsubscribe`, `preview-emails`, `update-booking`. Each works
+    for A with A's own identifiers and refuses B's to **all three** signed-in
+    actors — owner, staff, and a member removed after signing in. **This
+    number did not move across any run.**
+  - **6 are OUT OF THIS CHECK'S REACH, and that is a DECISION**, kept in its
+    own bucket with its own count and a written reason each: `watch-jobs`,
+    `refresh-weather` (cron sweeps with no caller-supplied tenant),
+    `stripe-webhook`, `resend-webhook` (provider payloads carrying the
+    provider's own signature), `translate-content` (text and a language, no
+    tenant). **A thing decided not to be measured and a thing that failed to
+    be measured must not look the same**, or six permanent entries read as
+    unfinished work for ever.
+  - **1 is NEVER CALLED for safety**: `report-problem`. See below.
+
+  **NO LEAK WAS FOUND ON ANY PATH THE REPLAY REACHED**, and nothing of B's
+  moved for A that did not also move for an anonymous stranger.
+
+  **SO IT DOES NOT CLOSE, AND THE REASON IS THE SECOND NUMBER.** Seventeen or
+  eighteen functions have tenant checks that have still never been exercised.
+  Seven proven out of thirty-nine is real progress from a starting point of
+  *"every member-gated function was read and each paired its lookup
+  correctly — but that is a reading, not a test"*, and it is not the item.
+  **An open item with four honest numbers beside it is worth more than a tick.**
+
+  **WHY THE REST CANNOT BE FINISHED TONIGHT.** Several of the remaining
+  refusals need a deployed fixture to get through their own front door —
+  `connect-account` and `pay-booking` want a connected Stripe account,
+  `verify-domain` wants a verified domain. **Deploying is Andrew's and the
+  freeze is whole**, so this was not engineered around: a harness that forged
+  its way past a real precondition would be proving something about the
+  forgery rather than about the product. It is on `FOR-ANDREW.md`.
+
+  **THE OUT-OF-REACH LIST IS CHECKED, NOT BELIEVED, AND IT CAUGHT ITS AUTHOR
+  ON ITS FIRST OUTING.** `send-owner-reminders` was written into it as a
+  15-minute cron sweep — true of what it is FOR — and the structural check
+  threw it straight back out by name: *"listed as out of reach, but it DOES
+  accept a tenant-bearing field (booking_id, business_id)"*. A caller can aim
+  it. An allowlist written from intent hides exactly the thing somebody
+  assumed was not there. `--break=reach` empties the list and moves all six
+  into the skip bucket, which is the proof it is refusable.
+
+  **AND THAT SWITCH SENT A TENTH EMAIL, WHICH IS ITS OWN LESSON.**
+  `report-problem` had been excluded by putting it in the same list, and
+  `--break=reach` empties the list — so the sabotage flag removed a SAFETY
+  rule and one more message reached the platform's support inbox. It now sits
+  in `NEVER_CALL`, consulted first, emptied by nothing. **A `--break` exists
+  to make a check fail on purpose, and a `--break` that can put mail in
+  somebody's inbox is a hazard rather than a control.** Verified: the count
+  stayed at ten across a full `--break=reach` run. `FOUND.md` has the incident.
+
+  **Done when:** the 17–18 get arguments good enough to return a 2xx, so their
+  refusal of B becomes evidence. The 6 out-of-reach never will, by design, and
+  are excluded rather than owed. `report-problem` needs a different
+  instrument.
   **Done when:** the 23 get arguments good enough to return a 2xx, so their
   refusal of B becomes evidence. **Five of them never will from here** — they
   take no tenant identifier, so there is nothing to aim. **Several of the rest
@@ -2584,8 +2657,13 @@ the dashboard or back office at phone width at all.
   > looking at it — a price that moves, a step that refuses, a booking that
   > confirms.**
 
-  Every one of the nine screens reports **zero live regions**. Nothing that
-  changes without a page load is announced anywhere. It lines up exactly with
+  Every one of the eleven screens reports **zero live regions at rest**.
+  **One correction, in the product's favour:** the booking step's refusal line
+  DOES announce, because 8.5a gave it `role="alert"` — it appears on a press
+  rather than at rest, which is why a snapshot counts zero. It is the only
+  one. **Written up with a scope, a cost and a recommendation as its own
+  proposal in `FOUND.md` § "Four things this product does silently"**, rather
+  than left in this note to be rediscovered. It lines up exactly with
   `DECISIONS.md` § *"The job record should stay open when a status changes"*,
   where *"Marked completed."* turns out never to have been readable by
   anybody. **Whether a listener can still complete a booking despite it is the

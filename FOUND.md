@@ -5,7 +5,7 @@ Claude Cowork decides what becomes work.
 
 ---
 
-## INCIDENT — WE PUT NINE TEST MESSAGES IN THE PLATFORM'S OWN SUPPORT INBOX, 2026-09-20 ~06:30
+## INCIDENT — WE PUT TEN TEST MESSAGES IN THE PLATFORM'S OWN SUPPORT INBOX, 2026-09-20
 
 **Not a note in passing. An incident, logged as one**, because how a small one
 is handled decides how a big one will be.
@@ -52,7 +52,24 @@ went from **16 ran / 23 refusing / 7 proved** to **15 / 24 / 6**. A smaller
 number that can be stood behind is worth more than a larger one that cannot.
 Proving isolation on `report-problem` needs a different instrument.
 
-**FOR ANDREW:** the nine messages are in `FOR-ANDREW.md` so he knows what they
+**AND THEN A TENTH, PUT THERE BY THE FIX'S OWN SABOTAGE SWITCH.** The guard
+was implemented by adding `report-problem` to the replay's `OUT_OF_REACH`
+map — the list of functions this instrument can never aim. That map has a
+`--break=reach` switch whose whole job is to empty it and prove the list is
+refusable. Emptying it also removed the only thing stopping `report-problem`
+being called, and one more message went out. **Found by querying
+`email_sends` after the run rather than by assuming the guard held**, which is
+the habit this incident was logged to build.
+
+**A SAFETY EXCLUSION AND A CLASSIFICATION MUST NOT SHARE A SWITCH.** One says
+*this cannot be measured here*; the other says *measuring this has a
+real-world side effect we cannot contain*. A `--break` exists to make a check
+fail on purpose, and **a `--break` that can put mail in somebody's inbox is a
+hazard rather than a control.** `report-problem` now sits in `NEVER_CALL`,
+consulted before anything else, and no flag empties it. Verified: the count
+stayed at ten across a full `--break=reach` run.
+
+**FOR ANDREW:** the ten messages are in `FOR-ANDREW.md` so he knows what they
 are the moment he opens that inbox, rather than having to work out whether
 something in it is real.
 
@@ -3804,3 +3821,45 @@ waiting to name it.
 product defect whose diagnosis is blocked by the freeze**, which is not the
 same thing — holding it would bury a real bug inside an administrative
 decision, and that is the failure mode this whole evening has been about.
+
+---
+
+## PROPOSAL · FOUR THINGS THIS PRODUCT DOES SILENTLY, AND WHAT IT WOULD COST TO SAY THEM
+
+**A proposal with a scope and a cost, not a note.** Measured 2026-09-20 across
+all eleven screens by `scripts/screenreader-structure.mjs`.
+
+**You do not need to know what a "live region" is to rule on this.** A person
+using a screen reader hears the page read aloud. When something on the page
+changes WITHOUT the page reloading, the browser only says so if the page asks
+it to. This product almost never asks. So the decisions in it arrive silently
+for somebody who is not looking at the screen.
+
+**ONE CORRECTION TO THE EARLIER WORDING, which said "nothing anywhere".** That
+is now slightly wrong, and in the product's favour: **the booking step's
+refusal line does announce**, because ROADMAP 8.5a gave it `role="alert"` a
+few hours ago. It is the only one.
+
+**THE FOUR THAT MATTER.** Not a sweep of everything that could carry an
+announcement — these are the four moments where something the customer or the
+detailer needs to know changes on a screen that stays put:
+
+| # | what changes silently | what saying it buys |
+|---|---|---|
+| 1 | **A price that moves.** The total at the foot of the booking page changes as the customer picks a service, a vehicle size, a date with a weekend rate, or a plan | Somebody listening learns the price went from $65 to $95 when they chose Saturday. Today they find out at the end, or not at all |
+| 2 | **An answer to a promo code.** *"That code isn't one of ours"* or *"SUMMER10 applied"* appears under the box with nothing said | They know whether the code worked without hunting for text that may be below them |
+| 3 | **A job marked done in the dashboard.** *"Marked completed."* is written and then destroyed in the next line of code when the record closes — **it has never been readable by anybody, sighted or not** | The detailer hears that the thing they pressed actually happened. See `DECISIONS.md` § *"The job record should stay open when a status changes"*: this one is half of that proposal already |
+| 4 | **A booking going through.** Pressing the last button replaces the whole screen with the confirmation, and nothing says so | The customer knows their booking landed rather than wondering whether the button worked |
+
+**WHAT IT WOULD COST.** All four are front-end only: **no migration, no edge
+function, no deploy, nothing behind the freeze.** Items 1, 2 and 4 are one
+attribute each on an element that already exists. Item 3 is not — the message
+is destroyed before anyone could hear it, so it needs the record to stay open,
+which is the proposal already agreed in principle and deferred on timing.
+
+**WHAT IT WOULD NOT FIX, said plainly:** whether any of it is *understandable*
+to a listener. That is ROADMAP 8.5b and it needs a person with a screen reader
+on, which is a row on Andrew's list.
+
+**RECOMMENDATION: do 1, 2 and 4 together as one small item, and leave 3 where
+it is**, riding on the stays-open decision rather than being fixed twice.
