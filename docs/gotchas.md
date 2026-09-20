@@ -1585,8 +1585,11 @@ Two rules came out of it, and the second is the one that actually holds:
   --name-only`. Not because you forgot what you added, but because your `add`
   was never the last word on it.
 
-**AND READING BACK THE NAMES IS NOT READING BACK THE CONTENT — 2026-09-20,
-the same day, by the session that wrote the rule above.** `git diff
+**THE SECOND RULE ABOVE WAS INSUFFICIENT AS FIRST WRITTEN, AND HERE IS HOW
+THAT WAS CAUGHT — 2026-09-20, the same day, by the session that wrote it.**
+It said to read back what is staged. It did not say to read back the
+CONTENT, and the difference is the whole of it: the names can be exactly
+right while somebody else's lines sit in the index underneath them. `git diff
 --cached --name-only` printed exactly the four files intended, and the commit
 landed with `ROADMAP.md | 147 ++++---` against about forty lines of intended
 change. Five of its six hunks were the other session's American-English work,
@@ -1598,7 +1601,11 @@ but the commit message says nothing about carrying somebody else's work,
 because at the moment it was written there was none to carry.
 
 **The window is between the check and the `add`, and it is as long as you
-leave it.** Two things close it: check the CONTENT — `git diff --cached
+leave it.** Andrew's manager adopted the amendment on the spot — *"reading
+back the staged NAMES is not enough, because the names were exactly the four
+you intended while another session's content was sitting in the index
+underneath them"* — so the rule now has two halves and the first one alone
+does not hold. Two things close it: check the CONTENT — `git diff --cached
 --stat`, and be suspicious of any file whose line count is larger than what
 you wrote — and do the checking and the staging in one breath rather than
 verifying early and staging later.
