@@ -288,6 +288,8 @@ were made more than once.
 - **Roadmap 5.3 — the receipt existed, the job record just never offered it, and the customer was promised an email nothing sends** — a real $195 card was taken end to end and then everything it produced was read back: **zero emails, zero `email_sends` rows.** The defect was a GATE on the wrong job — the only receipt button sat in the `else` branch of `canFinalize`, and paying by card does not set `finalized_at`, so the customer who pays from their own link leaves the detailer looking at *Finalize payment* and no way to send a receipt. Two independent facts (*is this job closed* / *is there a document to send*) had been written as alternatives. **NO NEW COLUMN:** `bookings.invoice_sent_at` was the obvious move and was rejected, because `email_sends` already carries the date AND what became of the message, and a timestamp beside it is a second copy that can disagree; the price is that "already sent" is a subject-and-amount match, so two jobs at one price for one customer share the answer. **MATCHING THE WORD ALONE WAS NOT ENOUGH** — a returning customer's old receipt lit up a job that had never had one, found by moving the canary onto the SAME address as the real payment rather than an unused one. **THE CLAIM WAS NARROWED TWICE:** *"your receipt is on its way by email"* first became a promise about STRIPE's receipt, which is a setting inside the detailer's own account — swapping a claim this product cannot keep for one it cannot check is not a narrowing. **§ 2 of the check asserts the silence on purpose**, so a future webhook that sends the receipt turns it red and the customer's sentence has to move with it. Left undone and parked in `FOUND.md`: the public receipt page still never says it was paid.
 - **The job record should stay open when a status changes — agreed in principle, deliberately NOT built tonight** — pressing ROADMAP 4.1's new undo for the first time showed the record VANISHES on a status change: all six callers close it (`navigate("/app")` on the standalone job route, `setSelected(null)` on Today, Calendar, Money and Clients), so an undo built to catch a wrong press in a driveway is one navigation away rather than one tap, and the *"Marked completed."* notice has never once been on a screen in any language. **The proposal is one rule for all six: the record stays open and shows what just happened.** Andrew's manager agreed in principle — *"that is the version where the undo is actually usable, and it is what Andrew would want at seven in the morning in somebody's driveway with the wrong job marked done"* — and refused it for TIMING, not merit: a behaviour change across six reviewed screens, at four in the morning, when 4.1 cannot close tonight anyway because its audit history is stuck behind the deploy freeze. **Do not re-derive this argument; it is settled in principle and waiting on a calmer hour.**
 - **The width sweep grades a guide on its own plan, and `sweep-widths.mjs` changed hands to do it** — the Today guide walked 5 steps at 1440 and 4 at 392/320 against an inventory expecting 8 and 7, and the expected-count gate reported that in the same words it would use for a screen that had vanished. Measured, not guessed: three `data-tour` targets — `figures`, `job` and `wrapup` — are absent from the demo dashboard this afternoon because **there are no jobs on today's rail**, and `Walkthrough.jsx` drops a step whose target is absent by design, with a comment predicting exactly these three. **Andrew refused the obvious fix**: the inventory is NOT re-pointed at today's data, because *a gate that follows whatever the data happens to be is a gate that can never fail*. Instead each guide is now graded on the "N OF M" its own card prints — reached its last card and the surplus inventory labels become declared skips carrying the plan as their reason; stopped short of its own last card and that is a finding no shorter plan can write off. **Ownership of `sweep-widths.mjs` passed from DP Cowork to DP Cowork2 at 2026-09-20 ~14:20**, when DP Cowork left its own instruments for the legal pages; it had been off-limits all night to keep two sessions out of one file.
+- **Decisions made on Andrew's behalf, 2026-09-20** — the overnight rulings, each with what was decided, why, and what would reopen it: the deploy freeze, the docs prune going ahead while the roadmap rewrite did not, explicit-path commits, typed addresses labelled rather than refused, email required until texting exists, a plan's name being the detailer's data, `connected_accounts` left alone after the premise turned out wrong, decided-not-to-measure kept apart from failed-to-measure, a test switch that must never cause real harm, stale receipts separated from failed ones, expected files widened but never narrowed, an unprovable detector recorded as uncovered, the two questions that went to Andrew with no recommendation, and a broken promise left loud rather than softened.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -16930,3 +16932,308 @@ with a third finding kept deliberately as a lead rather than a verdict: at
 to the inventory is somebody reading a diff, not a script deciding it, so the
 gate now fails loudly on `NOT EXPECTED tour · step 8…33` at 392 and 320. That
 red is the correct state and it is Andrew's to clear.
+
+### Two hours apart, the same file, opposite answers — and how to tell which move you are making
+
+**2026-09-20, ~14:30: NO.** Re-pointing `sweep-widths.expected.json` at
+today's dashboard was refused. The Today guide was walking three steps fewer
+than the file expected because three of its targets are absent, and rewriting
+the file would have moved the expectation to match whatever the data happened
+to be. **A failure would have disappeared.** Andrew: *"a gate that follows
+whatever the data happens to be is a gate that can never fail."*
+
+**2026-09-20, ~16:00: YES.** Rewriting the same file to add twenty-six tour
+steps was approved. Those screens were never in the question at all — the
+sweep's walk stopped at seven presses and the expectation recorded seven
+because seven was all it had ever seen. **The gate had been silently not
+asking about twenty-six screens.** Nothing was failing and nothing
+disappeared; the question was simply narrower than the product.
+
+**They look alike and they are opposites.** Both are `--write-expected` on the
+same file on the same afternoon. The test is not *does the file change*, it is
+**which way the question moves**:
+
+> **Widening the question to cover screens nobody was checking makes the gate
+> stronger. Narrowing it to fit an awkward answer makes it worthless.**
+
+**This is the September gear-screen defect again.** Two `gear · …` screens
+were not missing from the run — they were missing from the *question*, so the
+run's total quietly shrank while every line printed clean, and nothing
+compared the total to anything. That is what the expected-count gate was built
+for, and it had inherited the same blind spot one level up: it could only ask
+about screens the instrument had already managed to reach.
+
+**Before you run `--write-expected`, say out loud which of the two you are
+doing.** If the answer is "so the run goes green", stop — that is the first
+one wearing the second one's clothes. The command refuses to grade the run
+that wrote it, which is the only reason approving it is safe at all: the file
+and the verdict can never come from the same pass.
+
+---
+
+## Decisions made on Andrew's behalf, 2026-09-20
+
+**Why this section exists.** Everything below was decided overnight, on his
+behalf, by two sessions and a manager. **It existed only in two chat windows
+that get cleared.** A decision nobody can find is a decision somebody reopens
+in a month, usually badly, so each one is written here as *what was decided*,
+*why*, and *what would have to change for it to be reopened*.
+
+**Plain words on purpose.** Andrew reads this file.
+
+---
+
+### Nothing goes live until Andrew says so
+
+**Decided:** every deploy is frozen. No edge function was published after
+about 10:00, no code was pushed, nothing was bought, and nothing was created
+inside his Supabase account.
+
+**Why:** publishing is on the short list of things he keeps for himself,
+alongside pushing to GitHub. Making a function live *is* publishing. A session
+deciding that for him because it would fix something it cares about is exactly
+the call it does not get to make — and "it is cheap enough not to count" is
+how that rule dies.
+
+**One thing did go live before the freeze**, and it is named rather than
+buried: `update-booking`, so that a detailer cancelling or moving a job from
+the dashboard now tells the customer. Before that fix the customer was told
+nothing at all and would have waited in for somebody who was not coming.
+
+**Reopened when:** Andrew says what to publish. The recommended order is on
+his list, with what each item fixes and what rides along with it.
+
+---
+
+### The docs archive was deleted; the roadmap rewrite was not
+
+**Decided:** `docs/archive/` — nine files, about 45,000 words — was deleted.
+The plan to restructure `ROADMAP.md` into short task contracts was written up
+as a proposal and left undone.
+
+**Why the first went ahead:** a restore tag was created *before* the work, on
+purpose, and it was checked rather than trusted — all nine files compared
+against it and two recovered in full to prove recovery works. The safety net
+existed first, which is the opposite of the usual situation here.
+
+**Why the second did not:** `ROADMAP.md` is the one file both sessions write
+to, and both were writing to it all night. **A tag cannot protect a file from
+being concurrently rewritten — it can only return a version, and what a
+concurrent rewrite loses is nobody's version.**
+
+**Reopened when:** one session is running, the tree is quiet, a fresh tag is
+made and checked the same way, and it is done in one pass. Andrew rules on
+whether it is worth the hours.
+
+---
+
+### Commits name their files explicitly
+
+**Decided:** every commit lists its file paths on the command line, and
+whoever is committing reads back what is staged first.
+
+**Why:** staging files by name is not enough. **A commit takes the whole
+index**, so anything the other session has already staged goes in with yours.
+It happened twice in one night, in both directions. Naming the paths bypasses
+the index entirely.
+
+**Tested rather than believed:** the index was read back empty, one path was
+committed, and the other session's dirty files were confirmed still untouched
+afterwards.
+
+**Reopened when:** only one session is ever working in this repo, which is not
+the plan.
+
+---
+
+### A hand-typed address is labelled, not refused
+
+**Decided:** when a customer types an address by hand instead of picking one
+from the suggestions, the booking records *which* they did, and nothing is
+blocked.
+
+**Why:** a completely invented address goes all the way through today and is
+printed as fact on the confirmation, the owner's alert and the reminders, with
+nothing anywhere marking it unverified. Refusing typed addresses would break
+every customer whose street the lookup does not know. Recording how the
+address was arrived at lets the screens say *"they typed this one in"* without
+turning a real booking away.
+
+**Reopened when:** the lookup becomes good enough that typing one by hand is
+the rare case rather than a normal one.
+
+---
+
+### Email stays required until text messaging exists
+
+**Decided:** a customer must still give an email address to book.
+
+**Why:** email is currently the only way the product can reach them —
+confirmation, reminder, receipt, cancellation and reschedule all go by email
+and nothing else. Making it optional would create bookings the product cannot
+say anything about.
+
+**Reopened when:** text messaging is live. That needs a Telnyx account and a
+US carrier registration that takes days to weeks, and it is on Andrew's list.
+
+---
+
+### A plan's name is the detailer's data, not our copy
+
+**Decided:** the name a detailer gives their own plan is left exactly as they
+typed it.
+
+**Why:** it is their words about their own business. Our copy sits around
+their words; it does not replace them. The same rule already governs service
+names and the paragraph they add to their emails.
+
+**Reopened when:** never, on current reasoning. A name that breaks a screen is
+a layout problem, not a licence to rewrite what somebody called their own
+product.
+
+---
+
+### `connected_accounts` was going to be tightened, and then was not
+
+**Decided:** the payment-connection table stays exactly as it is.
+
+**Why, and this is the useful part:** a session reported that a security rule
+on that table could never fire. **That was wrong.** The table hands out its
+columns one at a time and deliberately withholds the sensitive one, which the
+tool being used could not see. The tightening had been proposed *and approved*
+while the wrong finding stood, and it was withdrawn along with it.
+
+Andrew, re-deciding after the correction: *"the credential column is already
+ungranted so there is nothing to leak, and what a staff member can see is a
+boolean saying whether card payments work — that is information, not power."*
+
+**Reopened when:** the sensitive column is ever granted to a browser, which
+would change the whole question.
+
+---
+
+### A check that decides not to measure something says so separately
+
+**Decided:** checks now keep two lists — what they *failed* to measure, and
+what they have *decided* is out of their reach — with separate counts.
+
+**Why:** they are different things and they were sharing a list. Six functions
+that can never be aimed at a tenant, because they take no tenant from their
+caller, were sitting in the same bucket as functions whose arguments simply
+need more work. **A thing you decided not to measure and a thing you failed to
+measure must not look the same**, or the first kind reads as unfinished work
+for ever.
+
+**And the list of "out of reach" is checked against the code rather than
+believed.** It caught its own author the first time it ran: a function written
+into it as a scheduled sweep turned out to accept a tenant identifier after
+all, and was thrown out by name.
+
+**Reopened when:** nothing. This one only tightens.
+
+---
+
+### A test switch must never be able to cause real-world harm
+
+**Decided:** the one function that emails a fixed address is now on a list
+that no test flag can empty.
+
+**Why:** it was excluded by putting it on a list that *did* have a test flag —
+one whose whole job is to empty the list and prove it is refusable. Emptying
+it removed the only thing stopping that function being called, and a tenth
+test message went to the support inbox. **A switch exists to make a check fail
+on purpose, and a switch that can put mail in somebody's inbox is a hazard
+rather than a control.**
+
+**Reopened when:** never.
+
+---
+
+### The receipts grader separates "out of date" from "failed"
+
+**Decided:** a receipt written against an older commit, whose every rule
+passed, is reported as *stale* rather than *failed*.
+
+**Why:** they are different facts. A failing check found something. A stale
+one is a valid record of a run that happened and has since been overtaken.
+Printing both as red teaches people to ignore red.
+
+**Reopened when:** nothing.
+
+---
+
+### An expected result may be widened, never narrowed to fit an answer
+
+**Decided:** the file a sweep measures against can be extended to cover more,
+and must never be re-pointed so that a failing run goes green.
+
+**Why:** those two moves look identical in a diff and are opposites. One adds
+coverage; the other deletes a finding and leaves a passing check behind.
+**Before re-writing an expected file, say out loud which of the two you are
+doing** — if the answer is "so the run goes green", that is the second one
+wearing the first one's clothes.
+
+**Reopened when:** nothing.
+
+---
+
+### A detector that cannot be proved is recorded as uncovered, not green
+
+**Decided:** one part of the tenant-isolation work — whether live row updates
+can leak between detailers — prints *"not delivering, detector uncertified"*
+and is deliberately left out of the check's pass conditions.
+
+**Why:** that mechanism does not deliver anything on this project at all, so
+the test cannot tell "correctly isolated" from "nothing happened". Those are
+opposite answers and they must never print the same way. It is **uncovered
+rather than clean**, and nothing is exposed today because nothing is switched
+on — but the day somebody switches it on, this has to be proved before it is
+believed.
+
+**Reopened when:** that mechanism starts delivering, at which point the check
+fails until somebody re-proves it.
+
+---
+
+### Two questions went to Andrew with no recommendation attached
+
+**Decided:** the legal pages' business name, and whether "unlimited photos"
+becomes true or becomes honest, were both put to him with the options and
+**no recommendation**.
+
+**Why:** the first is about which legal person he trades as, which decides his
+own liability. The second depends on what storage costs him against what the
+word is worth on the page. Neither is ours to weigh. **Everything else on his
+list carries a recommendation; these two deliberately do not.**
+
+**Reopened when:** he answers.
+
+---
+
+### A promise the product does not keep was left loud rather than softened
+
+**Decided:** the terms still say a detailer can have a copy of their customers
+"by asking", and the pricing page still says "you export them and go". Neither
+is true — there is no customer export and no photo export.
+
+**Why the wording was not quietly improved:** the honest ways out are to build
+the export or to stop promising it, and both are Andrew's. **Rewording it into
+something vaguer would still be a promise, and it would be harder for the next
+person to notice it is unkept.** A loud wrong sentence gets fixed; a soft one
+survives for years.
+
+**Reopened when:** he chooses build or retract.
+
+---
+
+### The vehicle year became optional
+
+**Decided:** the year on the vehicle step is no longer required to book.
+
+**Why: recorded here as a gap rather than invented.** This was the other
+session's change and the reasoning belongs to it. **Whoever picks this up
+should get the why from that session's own notes rather than from this
+paragraph**, because a reason reconstructed after the fact is exactly the kind
+of thing this file exists to prevent.
+
+**Reopened when:** somebody writes the real reasoning in beside it.

@@ -2007,9 +2007,28 @@ rather than wording went to Andrew.
   Home page says "Tacoma, WA"; the demo business is Long Beach, CA.
   *A2 7.6*
 
-- [ ] **7.12 — Pricing page is blank for about a second, and has no sign-up
-  button in the phone top bar.**
+- [ ] **7.12 — ~~Pricing page is blank for about a second~~, and has no
+  sign-up button in the phone top bar.**
   *A2 6.7, 6.8*
+  **THE OBSERVATION IS RIGHT AND THE DESCRIPTION IS WRONG — corrected
+  2026-09-20.** There IS a window before the page settles; A2 saw it. **The
+  page is not blank in it. It shows the LIST prices** — `$999`, `$600`, `$60`,
+  `$75` — because the founding offer is fetched and the code deliberately
+  renders the higher figures until it answers, rather than advertising a
+  founding spot that may already be taken.
+
+  **That is more specific and more dangerous than blankness, because a wrong
+  price that looks like a price is worse than an obvious gap.** A reader in
+  that window is shown real, confident, wrong numbers with nothing marking
+  them provisional. It cost a false finding the same day: a read taken then
+  reported *"$600 a year"* in the terms against *"$40 a month"* in the ladder,
+  a money contradiction inside the AB 2863 disclosure block, quoted straight
+  from the page and entirely untrue — see `docs/gotchas.md` and the Wave 7
+  verification above.
+
+  **The fix is unchanged in shape and better aimed:** the window needs to show
+  nothing rather than the wrong figures, or to mark them as not yet settled.
+  The sign-up button half of this item is untouched and still open.
 
 ---
 
