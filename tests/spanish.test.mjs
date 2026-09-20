@@ -422,13 +422,46 @@ console.log("6. the emails, where a mistake cannot be taken back");
   // `T(lang)("…")` is the one shape that is not `tt(` — the footer calls it
   // inline because it has no local binding.
   const INLINE = /T\(lang\)\(\s*"((?:[^"\\]|\\.)*)"/g;
+  // **AND THE SENDERS, WHICH THIS CHECK COULD NOT SEE UNTIL 2026-09-20 —
+  // ROADMAP 3.4 findings 4 and 5.**
+  //
+  // It read call sites from exactly two files, `emailTemplates.ts` and
+  // `emailKit.ts`, on the reasonable-sounding assumption that a template is
+  // where an email's words live. **An edge function can look a word up too**,
+  // and `send-invoice` does: it builds the money column's eight labels —
+  // `Booking total`, `Tip`, `Discount`, `Add-on` and four more — and prefixes
+  // them onto the detailer's own line items.
+  //
+  // Those eight were plain English literals, on every Spanish invoice and
+  // every Spanish receipt, for as long as the feature has existed. **This
+  // suite passed 70/76 the whole time**, because the strings were never in its
+  // question: not missing from the catalogue, not orphaned — simply in a file
+  // it did not read. The same missing-from-the-QUESTION shape as the thirty
+  // three tenant tables, the two gear screens and the eleven dialogs.
+  //
+  // The senders are discovered the same way § 6h discovers them, by what they
+  // build rather than by a list, so a new one is covered the day it is written.
+  const FN_ = path.join(ROOT, "supabase/functions");
+  const senderSrc = [];
+  for (const f of walkTs(FN_)) {
+    if (!f.endsWith("index.ts")) continue;
+    const src = strip(readFileSync(f, "utf8"));
+    if (!/\bdateStr:\s/.test(src)) continue;
+    senderSrc.push(src);
+  }
   const mailKeys = new Set();
-  for (const src of [TPL, KIT]) {
+  for (const src of [TPL, KIT, ...senderSrc]) {
     for (const m of src.matchAll(TT)) mailKeys.add(m[1]);
     for (const m of src.matchAll(INLINE)) mailKeys.add(m[1]);
   }
   check("6b · the check has subjects — the templates look words up",
     mailKeys.size > 60, `${mailKeys.size} keys`);
+  // BOTH HALVES NON-ZERO. If the sender walk finds nothing, the orphan check
+  // below silently returns to only knowing about two files and every sender
+  // key reads as dead Spanish — which is how this section would rot back to
+  // where it was.
+  check("6b-iii · the check has subjects — the senders were read for lookups",
+    senderSrc.length >= 6, `${senderSrc.length} sender(s) scanned`);
 
   const ENTRY = /^\s*"((?:[^"\\]|\\.)*)"\s*:/gm;
   const catKeys = new Set();

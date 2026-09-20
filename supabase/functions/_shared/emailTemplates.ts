@@ -624,7 +624,20 @@ export function requestDecisionEmail(
 ): Mail {
   const tt = T(b.lang);
   const dateLong = formatDateLong(b.dateStr, b.lang);
-  const when = `<strong class="c-ink" style="color:${G.ink};">${esc(dateLong)}</strong> at <strong class="c-ink" style="color:${G.ink};">${formatTime12hr(b.startTime)}</strong>`;
+  // **THE WORD BETWEEN THE DATE AND THE TIME IS A TRANSLATABLE STRING, AND IT
+  // WAS ENGLISH UNTIL 2026-09-20 — ROADMAP 3.4 finding 3.** It sat outside the
+  // lookup, in the template literal, so all three Spanish decision emails read
+  // *"…para el jueves, 17 de septiembre de 2026 **at** 10:00 AM"*. The sentence
+  // around it translated perfectly, which is what made it invisible: nothing
+  // was missing, nothing errored, and the one English word was in the middle
+  // of a Spanish paragraph. Spanish says *a las*, not *at*.
+  //
+  // `{date} at {time}` is its own key because `when` is interpolated into
+  // three different sentences below and the joint has to travel with it.
+  const when = tt("{date} at {time}", {
+    date: `<strong class="c-ink" style="color:${G.ink};">${esc(dateLong)}</strong>`,
+    time: `<strong class="c-ink" style="color:${G.ink};">${formatTime12hr(b.startTime)}</strong>`,
+  });
   const host = brand.siteUrl.replace(/^https?:\/\//, "");
 
   const blocks = kind === "quote"
@@ -981,7 +994,13 @@ export function rescheduleEmail(
       ? `<strong class="c-ink" style="color:${G.ink};">${esc(b.customerName)}</strong> moved their booking.`
       : tt("Hi {first}, your booking with {brand} has been moved.",
         { first: esc(firstName(b.customerName)), brand: esc(brand.brandName) })),
-    proseBlock(`<span style="color:${G.fog2}; text-decoration:line-through;">${esc(oldLong)} at ${formatTime12hr(oldStartTime)}</span>`, 24),
+    // ROADMAP 3.4 finding 3, the second of the two sites. The struck-through
+    // OLD time was built entirely outside the lookup, so a Spanish reschedule
+    // read *"sábado, 12 de septiembre de 2026 at 8:00 AM"* — and this is the
+    // line a customer reads to check they are not about to turn up on the
+    // wrong day, which is the one place in the set a half-translated sentence
+    // costs somebody a wasted morning.
+    proseBlock(`<span style="color:${G.fog2}; text-decoration:line-through;">${tt("{date} at {time}", { date: esc(oldLong), time: formatTime12hr(oldStartTime) })}</span>`, 24),
     markBlock(brand, [dateLong, `${formatTime12hr(b.startTime)} &ndash; ${formatTime12hr(b.endTime)}`]),
     factsBlock(jobFacts(brand, b, lang)),
     forOwner ? "" : ownWords(brand, "rescheduled"),

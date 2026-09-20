@@ -40,6 +40,9 @@ import { brandFrom, D, htmlToText, L, money } from "../supabase/functions/_share
 import { refundInstruction, refundOwed } from "../supabase/functions/_shared/connect.ts";
 import * as T from "../supabase/functions/_shared/emailTemplates.ts";
 import { paymentHandles } from "../supabase/functions/_shared/payments.ts";
+// ROADMAP 3.4 — the invoice fixture's own labels go through the product's
+// lookup. Named `translate` because `T` above is the TEMPLATES namespace.
+import { T as translate } from "../supabase/functions/_shared/i18n.ts";
 // Roadmap 2.20 stage 2. The platform's own identity, which is a constant
 // rather than a database read — see the module's header for why it is still a
 // `TenantBrand`.
@@ -206,10 +209,24 @@ const carloadBooking = {
 // invoice prints exactly those terms and the column cannot disagree with the
 // total. No services, no travel, no promo, no site sale, no rounding — all of
 // them are already inside `total_price`.
+// **AND THE LABELS GO THROUGH THE SAME LOOKUP `send-invoice` USES — 2026-09-20,
+// ROADMAP 3.4.** They were three English literals typed here, which made this
+// fixture a SECOND, DIVERGENT COPY of labels the product builds for itself. So
+// when `send-invoice` was putting `Booking total`, `Tip` and `Discount:` into
+// Spanish invoices in English, this page rendered the identical English words
+// from its own hard-coded list and showed nothing wrong. **A fixture that
+// restates the product instead of exercising it cannot fail with it** — the
+// same shape as `vehicleSize: "Mid-size SUV"` further up, which is a string no
+// booking has ever stored and which quietly stops `sizeDisplay` from being
+// drawn at all.
+//
+// `send-invoice` prefixes a category word onto the detailer's own line-item
+// text; the third row reproduces that shape, ours translated and theirs not.
+const tt = translate(LANG);
 const invoiceRows = [
-  { label: "Booking total", qty: 1, lineTotal: 345, kind: "charge" },   // total_price
-  { label: "Tip", qty: 1, lineTotal: 30, kind: "tip" },
-  { label: "Discount: Loyal customer", qty: 1, lineTotal: -15, kind: "discount" },
+  { label: tt("Booking total"), qty: 1, lineTotal: 345, kind: "charge" },   // total_price
+  { label: tt("Tip"), qty: 1, lineTotal: 30, kind: "tip" },
+  { label: `${tt("Discount")}: Loyal customer`, qty: 1, lineTotal: -15, kind: "discount" },
 ];
 const invoiceTotals = {
   chargesSubtotal: 345,

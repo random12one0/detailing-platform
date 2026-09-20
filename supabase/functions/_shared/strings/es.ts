@@ -109,6 +109,14 @@ export const es: Record<string, string> = {
   "We're holding your time while we look at it.":
     "Te estamos guardando el horario mientras la revisamos.",
   "{date} at {time}.": "{date} a las {time}.",
+  // ROADMAP 3.4 finding 3. The joint between a date and a time, WITHOUT the
+  // full stop, because it is interpolated into the middle of four sentences
+  // rather than ending one: the three request-decision emails build their
+  // `when` from it, and the reschedule strikes the old time through with it.
+  // Until 2026-09-20 that joint was the literal English word `at`, sitting
+  // outside the lookup in a template literal, so the sentence around it
+  // translated and the two words in the middle did not.
+  "{date} at {time}": "{date} a las {time}",
 
   // ── 3 · The answer to a request ────────────────────────────────────────
   "Quote": "Presupuesto",
@@ -147,6 +155,28 @@ export const es: Record<string, string> = {
   "Reference": "Referencia",
   "The work": "El trabajo",
   "What you paid": "Lo que pagaste",
+  // ROADMAP 3.4, findings 4 and 5 — THE MONEY COLUMN'S OWN LABELS.
+  //
+  // These eight are written by `send-invoice/index.ts`, not by a detailer, and
+  // they are prefixed onto the line items on every invoice and every receipt.
+  // Until 2026-09-20 they were English on a Spanish invoice, which put
+  // `Booking total` on the largest line of a document whose whole job is to be
+  // checked against a card statement, and made every other line read
+  // `Add-on: Limpieza de motor`.
+  //
+  // **`Service` is already above, at its own entry, and is NOT repeated here**
+  // — one key, one translation, and a second copy is how two spellings of one
+  // word start disagreeing. The other seven are new.
+  "Booking total": "Total de la reserva",
+  "Upgrade": "Mejora",
+  "Add-on": "Extra",
+  "Custom charge": "Cargo personalizado",
+  // The detailer's travel charge. "Traslado" is the word `quoteLines` already
+  // uses for the same fee on the confirmation, and the two documents describe
+  // the same money — so they must not invent two names for it.
+  "Travel / Mobile fee": "Traslado / servicio a domicilio",
+  "Tip": "Propina",
+  "Discount": "Descuento",
   "What is due": "Lo que se debe",
   "Total paid": "Total pagado",
   "Notes": "Notas",

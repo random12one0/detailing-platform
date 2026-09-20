@@ -20,6 +20,9 @@ import { money } from "../_shared/emailKit.ts";
 import { receiptUrl } from "../_shared/config.ts";
 import { siteFor } from "../_shared/tenantSite.ts";
 import { dateStrIn, timeStrIn } from "../_shared/tz.ts";
+// ROADMAP 3.4 findings 4 and 5 — the eight money-column labels this file
+// invents are ours rather than the detailer's, so they go through the lookup.
+import { T } from "../_shared/i18n.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
@@ -92,17 +95,33 @@ Deno.serve(async (req) => {
     // wrong about it.** The work is still NAMED on the invoice; it just does
     // not carry its own prices any more, because those are not what was
     // charged — `total_price` is.
+    // ROADMAP 3.4, findings 4 and 5 — **EIGHT ENGLISH WORDS ON THE MONEY
+    // COLUMN OF EVERY SPANISH INVOICE AND RECEIPT, until 2026-09-20.**
+    //
+    // `invoiceEmail` will never translate these and it is right not to: its
+    // comment says *"THE ROW LABELS ARE THE DETAILER'S OWN LINE ITEMS and stay
+    // as typed"*, and machine-translating a business's own name for its own
+    // work is the one thing this feature must not do. **But these eight are
+    // not the detailer's words. They are ours**, written here, prefixed onto
+    // whatever the detailer typed — so a Spanish receipt read `Add-on:
+    // Limpieza de motor`, half in each language, and the largest line on the
+    // page read `Booking total`.
+    //
+    // The lookup belongs HERE, where the label is invented, rather than in the
+    // template where the detailer's own text arrives. `booking.lang` is the
+    // same column every other customer-facing send reads.
+    const tt = T(booking.lang);
     const CATEGORY_LABELS: Record<string, string> = {
-      service: "Service",
-      upgrade: "Upgrade",
-      add_on: "Add-on",
-      custom: "Custom charge",
-      travel_fee: "Travel / Mobile fee",
-      tip: "Tip",
-      discount: "Discount",
+      service: tt("Service"),
+      upgrade: tt("Upgrade"),
+      add_on: tt("Add-on"),
+      custom: tt("Custom charge"),
+      travel_fee: tt("Travel / Mobile fee"),
+      tip: tt("Tip"),
+      discount: tt("Discount"),
     };
     const rows: InvoiceRow[] = [
-      { label: "Booking total", qty: 1, lineTotal: Number(booking.total_price) || 0, kind: "charge" },
+      { label: tt("Booking total"), qty: 1, lineTotal: Number(booking.total_price) || 0, kind: "charge" },
     ];
     for (const li of lineItemsRes.data ?? []) {
       const qty = parseInt(String(li.quantity || 1), 10) || 1;
