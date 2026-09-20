@@ -17,9 +17,9 @@ Updated 2026-09-20.
 
 ## Waiting on you now
 
-- [ ] **DO · Nine test emails are sitting in your support inbox. They are ours.
+- [ ] **DO · Ten test emails are sitting in your support inbox. They are ours.
   Delete them. Added 2026-09-20.**
-  At about **half past six this morning** a session put **nine** messages into
+  At about **half past six this morning** a session put **ten** messages into
   **`support@detailingplatform.com`**, all with the subject
   **`Problem report · EDGEREPLAY-A-SECRET DETAIL`**.
 
@@ -27,7 +27,7 @@ Updated 2026-09-20.
   part of the back end in turn, to prove one detailer cannot reach another's
   data, was sending all its mail to a throwaway address — except the
   "report a problem" feature, which sends to you no matter what the caller
-  says. Nine calls, nine reports.
+  says. Nine calls, nine reports — and a tenth later, when the fix's own test switch briefly undid it.
 
   **Nothing went to a customer**, and no real person other than you received
   anything. The check now refuses to call anything that mails an address it

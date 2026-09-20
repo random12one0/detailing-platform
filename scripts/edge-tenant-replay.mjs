@@ -175,6 +175,14 @@ async function ensureUser(email, password) {
 const failures = [];
 const rows = [];
 const skips = [];
+// **TWO KINDS OF THING MUST NOT SHARE A LIST.** A function this check FAILED
+// to reach is debt — somebody can go and fix the arguments. A function this
+// check can NEVER reach is a decision, and leaving it in the same bucket
+// leaves five permanent entries reading as unfinished work for ever. The
+// other session applied exactly this to receipts two hours ago, one level
+// down: a thing you decided not to measure and a thing you failed to measure
+// must not look the same.
+const outOfReach = [];
 const notes = [];
 let assertions = 0;
 const say = (m) => failures.push(m);
@@ -232,6 +240,77 @@ function requiredFor(src) {
   }
   return [...out];
 }
+
+// ---------------------------------------------------------------------------
+// OUT OF THIS CHECK'S REACH — named, with a reason each, and PROVED.
+// ---------------------------------------------------------------------------
+// This instrument aims a tenant's identifiers at a function and watches what
+// comes back. A function that takes no tenant identifier from its caller
+// cannot be aimed at all — not "is hard to aim", cannot. A cron sweep has no
+// caller-supplied tenant; a provider webhook carries Stripe's or Resend's own
+// payload and its signature.
+//
+// **AN ALLOWLIST WITH WRITTEN REASONS IS ONLY HONEST IF IT IS REFUSABLE**, so
+// two things hold it in place. Every entry is checked STRUCTURALLY against
+// the same field discovery the rest of the script uses: if a function listed
+// here turns out to have a tenant-bearing field after all, that is a FAILURE
+// naming it, not a quiet pass — the list cannot be used to hide something.
+// And `--break=reach` empties it, which drops all of them back into the
+// ordinary skip list and proves the list is doing work.
+// **`send-owner-reminders` WAS IN THIS LIST AND THE STRUCTURAL CHECK THREW IT
+// OUT, 2026-09-20.** It runs on a 15-minute cron, so it was written down as a
+// sweep with no caller-supplied tenant — from what it is FOR, by assumption.
+// It also accepts `business_id` and `booking_id`, so a caller CAN aim it, and
+// the check said so by name:
+//
+//   listed as out of reach, but it DOES accept a tenant-bearing field
+//   (booking_id, business_id)
+//
+// **That is the entire reason this list is verified against the source rather
+// than believed.** An allowlist written from intent hides exactly the thing
+// somebody assumed was not there, and this one tried to on its first outing.
+// It is back in the ordinary skip bucket, where it answers 500 to its own
+// tenant and is honest debt.
+// ---------------------------------------------------------------------------
+// NEVER CALLED, AND **NOT BREAKABLE** — a safety rule, not a classification.
+// ---------------------------------------------------------------------------
+// **`report-problem` LIVED IN `OUT_OF_REACH` FOR ONE HOUR AND `--break=reach`
+// SENT A TENTH MESSAGE TO THE SUPPORT INBOX.** The sabotage switch empties
+// that map to prove the classification is refusable — which is right — and in
+// doing so it also removed the only thing stopping a function whose recipient
+// this harness cannot aim. The count went 9 -> 10, found by querying
+// `email_sends` after the run rather than by assuming the guard held.
+//
+// **A SAFETY EXCLUSION AND A CLASSIFICATION ARE DIFFERENT THINGS AND MUST NOT
+// SHARE A SWITCH.** One says "this cannot be measured here"; the other says
+// "measuring this has a real-world side effect we cannot contain". A
+// `--break` exists to make a check fail on purpose, and a `--break` that can
+// put mail in somebody's inbox is a hazard rather than a control. This set is
+// consulted before anything else and no flag empties it.
+const NEVER_CALL = {
+  "report-problem":
+    "its recipient comes from Deno.env.get(\"SUPPORT_EMAIL\") rather than from "
+    + "the request, so this harness cannot keep its mail inside the sink. "
+    + "Calling it has already put ten messages in the platform's own support "
+    + "inbox. Proving isolation here needs a different instrument.",
+};
+
+const OUT_OF_REACH = BREAK === "reach" ? {} : {
+  "watch-jobs":
+    "a cron sweep. It takes no input at all and walks every tenant by design; "
+    + "there is no caller-supplied tenant to point at another one.",
+  "refresh-weather":
+    "a cron sweep that refills a weather cache. No tenant in its input.",
+  "stripe-webhook":
+    "a provider webhook. Its body is Stripe's payload and its authority is "
+    + "Stripe's signature, neither of which a tenant supplies.",
+  "resend-webhook":
+    "a provider webhook. Its body is Resend's delivery event, verified by a "
+    + "Svix signature.",
+  "translate-content":
+    "takes text and a target language. No tenant identifier is part of the "
+    + "request, so there is no other tenant to ask it about.",
+};
 
 const dirs = readdirSync(FUNCTIONS, { withFileTypes: true })
   .filter((d) => d.isDirectory() && d.name !== "_shared")
@@ -599,15 +678,32 @@ try {
     // request is one this harness cannot keep inside the sink, so it is not
     // called at all — declared, with the reason. Matching on `report-problem`
     // by name would leave the next one to be discovered the same way.
-    const mailsSomewhereFixed = /Deno\.env\.get\(\s*["'][A-Z_]*EMAIL[A-Z_]*["']|to:\s*[A-Z_]+_TO/
-      .test(strip(src)) && /sendTenantEmail|send-email/.test(strip(src));
-    if (mailsSomewhereFixed) {
-      skips.push(`${fn}: NOT CALLED. Its send target comes from the environment rather than `
-        + `from the request, so this harness cannot keep its mail inside ${SINK}. Calling it `
-        + `once already put 9 messages into a real support inbox. Isolation here needs a `
-        + `different instrument, not this one.`);
-      rows.push({ fn, verdict: "SKIPPED — would mail an address this script cannot aim", detail: "recipient from env" });
-      console.log(`    ${fn.padEnd(24)} SKIPPED — would mail a fixed address, not called`);
+    // -------------------------------------------------------------------
+    // IS THIS FUNCTION OUT OF THIS CHECK'S REACH? — decided, not failed.
+    // -------------------------------------------------------------------
+    // The unbreakable set first. Nothing below this line can undo it.
+    if (NEVER_CALL[fn]) {
+      outOfReach.push(`${fn}: NOT CALLED — ${NEVER_CALL[fn]}`);
+      rows.push({ fn, verdict: "never called (safety)", detail: NEVER_CALL[fn].slice(0, 120) });
+      console.log(`    ${fn.padEnd(24)} never called — would mail an address this script cannot aim`);
+      continue;
+    }
+    const reachReason = OUT_OF_REACH[fn];
+    const hasTenantField = Object.keys(build(bIds)).length > 0;
+    if (reachReason) {
+      // **THE LIST IS CHECKED AGAINST THE SOURCE, NOT TRUSTED.** A function
+      // named here that DOES accept a tenant identifier is a failure by name:
+      // that is the shape an allowlist rots into, and the whole reason this
+      // bucket exists is to stop two different things sharing one list.
+      assertions++;
+      if (hasTenantField && fn !== "report-problem") {
+        say(`edge ${fn}: [edge-reach] listed as out of reach, but it DOES accept a `
+          + `tenant-bearing field (${Object.keys(build(bIds)).join(", ")}). Either the reason `
+          + `is wrong or the function changed; it must not sit in this bucket.`);
+      }
+      outOfReach.push(`${fn}: ${reachReason}`);
+      rows.push({ fn, verdict: "out of reach (by design)", detail: reachReason.slice(0, 120) });
+      console.log(`    ${fn.padEnd(24)} out of reach — ${reachReason.split(".")[0]}`);
       continue;
     }
 
@@ -616,13 +712,15 @@ try {
       : { status: 0, text: "" };
     const ran = BREAK !== "self" && selfRes.status >= 200 && selfRes.status < 300;
 
-    // A function with NO recognised field cannot be aimed at a tenant at all.
-    if (!Object.keys(crossBody).length) {
+    // Not in the list, and still nothing to aim: that IS debt, and it belongs
+    // in the skip bucket rather than the decided one.
+    if (!hasTenantField) {
       skips.push(`${fn}: takes no field this harness can aim at a tenant `
-        + `(fields found: ${fields.length ? fields.join(", ") : "none"}). It was called and `
-        + `refused, but a refusal of a request carrying nothing of B's is not evidence.`);
-      rows.push({ fn, verdict: "SKIPPED — no tenant field in its input", detail: fields.join(", ").slice(0, 90) });
-      console.log(`    ${fn.padEnd(24)} SKIPPED — no tenant field to aim`);
+        + `(fields found: ${fields.length ? fields.join(", ") : "none"}), and it is NOT in the `
+        + `out-of-reach list. Either it belongs there with a written reason, or the field `
+        + `discovery is missing something it accepts.`);
+      rows.push({ fn, verdict: "SKIPPED — nothing to aim, and unclassified", detail: fields.join(", ").slice(0, 90) });
+      console.log(`    ${fn.padEnd(24)} SKIPPED — nothing to aim, and not classified`);
       continue;
     }
 
@@ -820,12 +918,17 @@ const { path: receiptPath } = writeReceipt({
 console.log(`\n${status.toUpperCase()} — ${rows.length} functions, ${assertions} assertions, `
   + `${failures.length} failure(s), ${skips.length} declared skip(s). Receipt ${receiptPath}`);
 console.log(`
-  THE THREE NUMBERS`);
+  THE FOUR NUMBERS`);
 console.log(`  ${exercised} genuinely RAN — owner A got a 2xx out of them with its own tenant.`);
 console.log(`  ${skips.length} still REFUSE — A's own call never succeeded, so their refusal of B`);
-console.log(`     proves nothing. Reasons printed below, one per function.`);
+console.log(`     proves nothing. That is DEBT: reasons below, one per function, each naming`);
+console.log(`     the field it rejects on where its own guards name one.`);
 console.log(`  ${provedByRejection.length} PROVED ISOLATION BY REJECTING the other tenant — they work`);
 console.log(`     for A and refuse B's identifiers to every actor.`);
+console.log(`  ${outOfReach.length} are OUT OF THIS CHECK'S REACH by design — cron sweeps and provider`);
+console.log(`     webhooks take no tenant from a caller, so they can never be aimed. That is a`);
+console.log(`     DECISION, not debt, and it is deliberately not counted in skipped_targets.`);
 for (const f of failures.slice(0, 20)) console.log("  · " + f);
 for (const s of skips.slice(0, 20)) console.log("  skip: " + s);
+for (const o of outOfReach) console.log("  out of reach: " + o);
 process.exit(status === "pass" ? 0 : 1);
