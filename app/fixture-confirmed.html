@@ -1,0 +1,24 @@
+<!doctype html>
+<!--
+  ROADMAP 8.5b — a fixture page for the booking-confirmation screen, which is
+  not a route and so cannot otherwise be opened without writing a booking.
+
+  NOT PART OF THE PRODUCT. It is not in the router, nothing links to it, and
+  it renders one component against a fixture. Vite serves any HTML file in
+  this folder in development; a production build only includes what
+  `index.html` reaches, so this ships nowhere.
+
+  Open: http://localhost:5173/fixture-confirmed.html
+        http://localhost:5173/fixture-confirmed.html?status=confirmed
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fixture · booking confirmed</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/dev/ConfirmedFixture.jsx"></script>
+  </body>
+</html>

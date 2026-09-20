@@ -32,7 +32,13 @@ export default function BookingConfirmed({ booking, form }) {
         </div>
       </header>
 
-      <div className="bk-wrap" style={{ paddingBottom: 40 }}>
+      {/* ROADMAP 8.5b — the main landmark, the last of the booking surface to
+          get one. **This screen had never been measured by anything**: it is
+          not a route, only a state reached after a submit, so the only way to
+          see it was to make a booking. `app/fixture-confirmed.html` mounts it
+          against a fixture instead, and the walk found exactly what the other
+          public pages had — no landmark and a heading skip. */}
+      <div className="bk-wrap" role="main" style={{ paddingBottom: 40 }}>
         <div style={{ textAlign: "center", padding: "26px 0 18px" }}>
           <div style={{
             width: 56, height: 56, borderRadius: "50%", margin: "0 auto 12px",
@@ -58,7 +64,10 @@ export default function BookingConfirmed({ booking, form }) {
 
         <div className="bk-card">
           <div className="bk-step-label">{isRequest ? t("What you asked for") : t("Your appointment")}</div>
-          <h3>{dateLabel}</h3>
+          {/* `aria-level` rather than a different tag: `.bk h3` carries the
+              visual weight this line needs, and the level is the structural
+              claim. Same fix as the manage and plan-member screens. */}
+          <h3 aria-level={2}>{dateLabel}</h3>
           <p className="bk-muted">{time12(booking.start_time)} – {time12(booking.end_time)}</p>
           <p className="bk-muted" style={{ marginTop: 6 }}>
             {form.serviceType === "mobile"

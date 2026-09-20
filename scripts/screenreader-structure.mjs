@@ -131,7 +131,7 @@ await page.click("form button.btn.primary");
 await page.waitForSelector(".tabbar", { timeout: 30000 });
 const tabs = await page.$$eval(".tabbar button, .tabbar a", (e) => e.map((x) => x.innerText.trim()).filter(Boolean));
 
-const EXPECTED_TARGETS = tabs.length + 4;
+const EXPECTED_TARGETS = tabs.length + 6;
 const rows = [];
 let canaryRuns = 0, cHead = 0, cImg = 0, examined = 0;
 const visit = async (label) => {
@@ -167,6 +167,17 @@ await page.goto(BASE + "/booking/" + MANAGE_BOOKING_ID, { waitUntil: "domcontent
 await visit("Manage booking");
 await page.goto(BASE + "/plan/" + PLAN_MEMBER_ID, { waitUntil: "domcontentloaded" });
 await visit("Plan member");
+// **THE ONE PUBLIC PAGE THAT IS NOT A ROUTE.** `BookingConfirmed` is a state
+// `BookingPage` enters after a submit, so it has never been measured by
+// anything — and it is the screen a customer lands on at the moment they have
+// just handed over their money. `app/fixture-confirmed.html` mounts the real
+// component against a fixture booking, inside the REAL provider, so no row is
+// written to look at it. Both branches are walked: a request that is being
+// held, and a booking that is confirmed.
+await page.goto(BASE + "/fixture-confirmed.html", { waitUntil: "domcontentloaded" });
+await visit("Confirmed (request)");
+await page.goto(BASE + "/fixture-confirmed.html?status=confirmed", { waitUntil: "domcontentloaded" });
+await visit("Confirmed (booked)");
 await browser.close();
 
 const fails = [];

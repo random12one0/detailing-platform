@@ -1,7 +1,7 @@
 {
-  "git_sha": "65bed1b3a14a379ca74338b97b31044a27cd7a78",
+  "git_sha": "29a0de0b14bccbbf22f72edc5ee341b092b63d8f",
   "environment": "local",
-  "finished_at": "2026-09-20T13:09:55.548Z",
+  "finished_at": "2026-09-20T13:16:14.028Z",
   "failures": [],
   "warnings": [
     "STRUCTURE ONLY. This check cannot tell whether a page makes sense read aloud, and 8.5b does not close on it."
@@ -21,19 +21,21 @@
       "Booking step 1",
       "Plans page",
       "Manage booking",
-      "Plan member"
+      "Plan member",
+      "Confirmed (request)",
+      "Confirmed (booked)"
     ]
   },
   "check_id": "screenreader-structure",
-  "started_at": "2026-09-20T13:09:33.341Z",
+  "started_at": "2026-09-20T13:15:46.778Z",
   "status": "pass",
-  "expected_targets": 9,
-  "discovered_targets": 9,
-  "attempted_targets": 9,
-  "completed_targets": 9,
+  "expected_targets": 11,
+  "discovered_targets": 11,
+  "attempted_targets": 11,
+  "completed_targets": 11,
   "skipped_targets": 0,
-  "assertions_executed": 38,
-  "min_assertions": 18,
+  "assertions_executed": 48,
+  "min_assertions": 22,
   "canary": {
     "id": "two: a heading that skips a level, an image with no alt attribute",
     "observed_failure": true,
@@ -42,7 +44,7 @@
       "alt attribute"
     ],
     "findings": [
-      "heading 9/9, image 9/9"
+      "heading 11/11, image 11/11"
     ]
   }
 }

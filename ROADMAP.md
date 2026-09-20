@@ -2251,7 +2251,7 @@ the dashboard or back office at phone width at all.
   | **8.5a** keyboard | **CLOSED** | nothing |
   | **8.5c** zoom to 200% | **CLOSED** | nothing |
   | **8.5d** large text and spacing | **CLOSED**, one gap stated beside the tick | nothing |
-  | **8.5b** screen reader | **OPEN.** Structural half measured and clean, 9 screens | **A person, with a screen reader on, answering whether a booking can be finished by listening.** One row in `FOR-ANDREW.md`, thirty seconds. Nothing else is outstanding and no instrument can close it |
+  | **8.5b** screen reader | **OPEN.** Structural half **measured and clean across all 11 public and dashboard screens**, including the confirmation screen that is not a route. Nothing here is unworked | **A person, with a screen reader on, answering whether a booking can be finished by listening.** One row in `FOR-ANDREW.md`, thirty seconds. No instrument can close it |
 
   **The item stays open because 8.5b does**, and 8.5b is waiting on ears
   rather than on work.
@@ -2515,10 +2515,18 @@ the dashboard or back office at phone width at all.
   level, anything that changes without a page load is announced, **AND a
   person has walked the booking flow end to end with a screen reader on.**
 
-  **WHAT WAS MEASURED — `scripts/screenreader-structure.mjs`**, **9 of 9
-  screens, 38 assertions, two clean runs**, both canaries (a heading that
-  skips a level, an image with no `alt` attribute at all) caught 9/9 in each,
-  receipt PASS both times.
+  **THE STRUCTURAL HALF IS MEASURED AND CLEAN ACROSS ELEVEN SCREENS — this
+  item is waiting on a person, NOT on work nobody has done.**
+  `scripts/screenreader-structure.mjs`: **11 of 11 screens, 48 assertions, two
+  clean runs**, both canaries (a heading that skips a level, an image with no
+  `alt` attribute at all) caught 11/11 in each, receipt PASS both times. Every
+  public page in the product is now covered, including the one that is not a
+  route.
+  **The receipt refused the first version** — 16 assertions against a declared
+  floor of 40 — and the fix was to COUNT the landmark and live-region
+  questions that were always being asked, then DERIVE the floor from the
+  declared screen count. **Deriving the floor rather than nudging it down to
+  fit the answer is the difference between a gate and a rubber stamp.**
   **The receipt refused the first version** — 16 assertions against a declared
   floor of 40 — and the fix was to COUNT the landmark and live-region
   questions that were always being asked, then DERIVE the floor from the
@@ -2552,10 +2560,22 @@ the dashboard or back office at phone width at all.
   when it is there. The canary heading carries none and is still caught 9/9
   every run, so its ability to see a real skip is unchanged and proved.
 
-  **`BookingConfirmed.jsx` REMAINS UNMEASURED, AND IT IS NOT A MISSING ID:**
-  it is **not a route at all**. It is a state `BookingPage` enters after a
-  submit, so the only way to open it is to make another booking, which this
-  session is not doing. Named, not assumed, not fixed.
+  **AND THEN THE LAST ONE WAS MEASURED TOO, WITHOUT A DATABASE WRITE.**
+  `BookingConfirmed` is not a route — it is a state `BookingPage` enters after
+  a submit — so it had never been looked at by anything, and it is the screen
+  a customer lands on **at the moment they have just handed over their money.**
+  `app/fixture-confirmed.html` mounts the real component against a fixture
+  booking inside the REAL provider, the way `render-emails.mjs` renders an
+  email without sending one. **Both branches walked**: a request being held
+  and a booking confirmed.
+  **THE PREDICTION WAS DECLARED FIRST AND IT WAS RIGHT** — no landmark, an
+  h1→h3 skip, zero live regions, on both branches. Being right is not the
+  point; it was still measured rather than assumed, and the canaries proved
+  the probe could see before the result was believed.
+  Fixed the same way as the others, then re-measured to 0 findings.
+  **The fixture ships nowhere and that was checked, not claimed:** a
+  production build contains `index.html` and `map.html` only, and no bundle
+  references the fixture module.
 
   **THE FINDING UNDERNEATH THE COUNT, AND IT IS NOT A COUNT OF MISSING
   ATTRIBUTES:**
