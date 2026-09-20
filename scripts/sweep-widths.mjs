@@ -723,6 +723,39 @@ const CERT = [];
 // reachable after all, and a skip declared over a reachable surface is REFUSED
 // and fails the run. A declaration nobody can disprove is worth nothing.
 const SKIPPED = [];
+// **WHAT A GUIDE PLANNED, BESIDE WHAT IT WALKED — 2026-09-20.**
+//
+// A guide drops a step whose target is not on the screen; that is the design,
+// written into `Walkthrough.jsx` beside the filter that does it. So the Today
+// guide is eight steps on a dashboard with a day's work on it and five on one
+// without, and NEITHER of those is a defect. A guide that stops halfway
+// through the steps it planned IS one.
+//
+// Until today the expected-count gate could not tell those two apart. Both
+// arrived as `NEVER MEASURED guide · today 6` and both failed the run, which
+// is the same defect as a receipt that cannot tell stale from broken, one
+// level down: a gate that cannot name which failure it caught is a gate
+// somebody learns to scroll past. Andrew's ruling, 2026-09-20: the inventory
+// is NOT re-pointed at today's dashboard, because a gate that follows the data
+// can never fail. The fix is to give the gate the guide's own plan.
+//
+// Every card carries its own "N OF M". `M` is the plan and `N` is how far in
+// this card sits, so the LAST card a walk saw answers both questions the gate
+// needs — did the guide finish itself, and how long did it mean to be. Nothing
+// here counts the presses and compares that to itself.
+const WALKS = [];
+// Reads the step counter off the card that is up. `{ at, of }` or null.
+const cardPlan = async (page) => {
+  const raw = await page.locator(".tourcard .label").first().innerText().catch(() => "");
+  const m = /(\d+)\s*OF\s*(\d+)/i.exec(String(raw).replace(/\s+/g, " "));
+  return m ? { at: Number(m[1]), of: Number(m[2]) } : null;
+};
+// **THE HOOK THAT BREAKS IT ON PURPOSE.** `SWEEP_GUIDE_CANARY=1` stops every
+// walk one step early, which is exactly the shape of a guide that died
+// halfway. The accounting below must call that a FINDING and must refuse to
+// write it off as a shorter plan. It exits before the receipt so a deliberately
+// broken run can never be filed as a real one.
+const GUIDE_CANARY = process.env.SWEEP_GUIDE_CANARY === "1";
 // **A WIDTH THAT DIED PARTWAY.** Separate from `SKIPPED` on purpose and not a
 // second skip mechanism: a declared skip is a surface PROVED unreachable, and
 // this is the opposite — nobody knows what those surfaces would have said.
@@ -2498,12 +2531,46 @@ for (const w of SIZES) {
       }
     }
 
-    for (let k = 1; k <= 7; k++) {
+    let tourLast = null;
+    let tourWalked = 0;
+    // **SEVEN WAS A NUMBER, NOT A CONDITION — the same defect this file already
+    // records about the guides, still sitting in the tour loop underneath it,
+    // and found on 2026-09-20 by the plan-versus-walk check the moment that
+    // check existed.** At 392 and 320 the tour walked all seven and its last
+    // card still read `3 of 6`: three more cards it never got to, and every
+    // run before this one reported that as seven clean surfaces. Twenty-four is
+    // a bound rather than an expectation, and the walk now says when it hits it
+    // so a short WALK can never be reported as a short GUIDE.
+    // **MEASURED AT 33 ON 2026-09-20** — 4 + 6 + 6 + 5 + 6 + 6, six blocks, ending
+    // cleanly on `6/6`. The old bound of 7 was not a bound, it was the answer:
+    // `sweep-widths.expected.json` lists `tour · step 1` to `7` because seven is
+    // what this loop used to press, so **26 screens of this product had never
+    // been measured at any width** and the gate that exists to catch exactly
+    // that had been seeded from the instrument it was meant to check. Forty-
+    // eight is a ceiling with room in it, and `WALK HIT ITS OWN CEILING` now
+    // says so out loud rather than reporting a short walk as a finished tour.
+    const TOUR_BOUND = Number(process.env.SWEEP_TOUR_BOUND || 48);
+    // The sequence of step counters the walk saw, so the BLOCK STRUCTURE of a
+    // multi-tab tour is readable from the log instead of inferred. `1/4 2/4
+    // 3/4 4/4 1/6 …` is a tour crossing from a four-step tab to a six-step
+    // one; the same pair twice running is a tour that is not advancing.
+    const tourTrail = [];
+    for (let k = 1; k <= TOUR_BOUND; k++) {
       if (!(await page.locator(".tourcard").count())) break;
+      // READ BEFORE THE PRESS. After the click the card is either the next
+      // step or gone, and "how far did this walk get" is a question about the
+      // last card that was actually on the screen.
+      tourLast = (await cardPlan(page)) || tourLast;
+      if (tourLast) tourTrail.push(`${tourLast.at}/${tourLast.of}`);
       await say(`tour · step ${k}`);
+      tourWalked = k;
+      if (GUIDE_CANARY && k >= 2) break;
       await page.locator(".tourcard button.primary").click();
       await settle(page, 1000);
     }
+    console.log(`${"tour · the walk".padEnd(24)} ${tourTrail.join(" ")}`);
+    WALKS.push({ width: w, prefix: "tour · step ", what: "the tour", walked: tourWalked, last: tourLast,
+      hitBound: tourWalked >= TOUR_BOUND && (await page.locator(".tourcard").count()) > 0 });
 
     // ROADMAP 2.24 — THE FOUR TAB GUIDES, walked in the change that built
     // them. This script is the only thing in the repo that opens a tour at
@@ -2594,12 +2661,20 @@ for (const w of SIZES) {
       // Playwright log with no line in it saying "a guide is in the way".
       // Twelve is a bound rather than an expectation, and Escape is what
       // actually guarantees the next iteration can click.
-      for (let k = 1; k <= 12; k++) {
+      let last = null;
+      let walked = 0;
+      const GUIDE_BOUND = 12;
+      for (let k = 1; k <= GUIDE_BOUND; k++) {
         if (!(await page.locator(".tourcard").count())) break;
+        last = (await cardPlan(page)) || last;
         await say(`guide · ${name} ${k}`);
+        walked = k;
+        if (GUIDE_CANARY && k >= 2) break;
         await page.locator(".tourcard button.primary").click();
         await settle(page, 900);
       }
+      WALKS.push({ width: w, prefix: `guide · ${name} `, what: `the ${name} guide`, walked, last,
+        hitBound: walked >= GUIDE_BOUND && (await page.locator(".tourcard").count()) > 0 });
       // BELT AND BRACES, and the belt is the part that matters: a guide left
       // open is not a finding about this tab, it is a failure of every
       // measurement after it.
@@ -2730,6 +2805,104 @@ if (process.argv.includes("--dump-fingerprints")) {
 {
   const perWidth = {};
   for (const c of CERT) (perWidth[c.width] ??= []).push(c.label);
+
+  // 2a · THE GUIDES AND THE TOUR ARE GRADED ON THEIR OWN PLAN, NOT ON THE
+  // INVENTORY — 2026-09-20, Andrew's ruling, and the reason is in `WALKS`.
+  //
+  // Everything else in this file is a fixed list of screens that must exist.
+  // A guide is not that: it is a plan made at runtime against the screen in
+  // front of it, and its length is a fact about the dashboard rather than
+  // about the product. So the inventory keeps every guide label — a label that
+  // leaves that file is a screen nobody checks again — and this block decides
+  // which of them this dashboard could have produced.
+  //
+  // THE RULE, and it is one line: **a guide that reached its own last card
+  // walked everything it meant to; a guide that did not, broke.** The card's
+  // "N OF M" is the guide speaking, not this script counting its own presses
+  // and agreeing with itself.
+  //
+  // **`M` IS THE BLOCK, NOT THE WALK — found by the canary, 2026-09-20.** The
+  // first wording here said "planned M steps", and the broken-on-purpose run
+  // printed `the tour planned 4 step(s)` for a walk the real sweep had taken
+  // SEVEN steps of. A multi-tab tour restarts the counter at each tab, so `M`
+  // is the size of the block the last card sat in and nothing on any card
+  // states the length of the whole walk. Every line below therefore reports
+  // the walk length and the last card separately, and claims no total. The
+  // completeness test is unaffected: `N < M` means the guide had another card
+  // ready and the walk ended anyway, whichever block it was in.
+  //
+  // What this deliberately does NOT do is subtract anything when the guide
+  // stopped short. That is the failure this whole block exists to make
+  // visible, and writing it off as a shorter plan is exactly the nudge the
+  // ruling forbids.
+  if (WALKS.length && !ONLY && !WRITE_EXPECTED && existsSync(EXPECTED_PATH)) {
+    const want = JSON.parse(readFileSync(EXPECTED_PATH, "utf8")).widths || {};
+    for (const k of WALKS) {
+      const owedLabels = (want[String(k.width)] || []).filter((l) => l.startsWith(k.prefix));
+      const got = (perWidth[k.width] || []).filter((l) => l.startsWith(k.prefix));
+      const short = owedLabels.filter((l) => !got.includes(l));
+      const head = `${k.prefix.trim()} @${k.width}`.padEnd(24);
+      if (!k.last) {
+        // No step counter was ever read, so there is no plan to grade against
+        // and nothing may be written off. The gate below still fails on every
+        // label this walk did not produce, which is the correct answer to
+        // "nobody knows how long it was supposed to be".
+        console.log(`${head} NO STEP COUNTER READ — ${k.walked} step(s) walked, plan unknown, nothing written off`);
+        continue;
+      }
+      if (k.hitBound) {
+        // **THE WALK RAN OUT, NOT THE GUIDE.** Reported apart from STOPPED
+        // EARLY on purpose: one of them is a defect in the product and the
+        // other is a number in this file, and a check that prints the same
+        // sentence for both sends somebody to read the wrong code.
+        console.log(`${head} WALK HIT ITS OWN CEILING — ${k.what} was still showing cards after `
+          + `${k.walked} press(es) (last card ${k.last.at} of ${k.last.of}). This is THIS SCRIPT's bound, `
+          + `not a fault in the guide. Raise it, then re-read the expectation diff.`);
+        found++;
+        continue;
+      }
+      if (k.last.at < k.last.of) {
+        // **THE FINDING THIS BLOCK WAS BUILT TO SEPARATE OUT.** The guide said
+        // it had `of` steps and the walk never reached them.
+        console.log(`${head} STOPPED EARLY — ${k.what} walked ${k.walked} step(s) and the last card it `
+          + `showed was ${k.last.at} of ${k.last.of}. It had more to say and the walk ended anyway: that is `
+          + `a broken guide, not a quieter dashboard, and the ${short.length} label(s) it owes are NOT `
+          + `being written off.`);
+        found++;
+        continue;
+      }
+      if (!short.length) {
+        console.log(`${head} ${k.walked} step(s), ended on the last card it had (${k.last.at} of ${k.last.of}) — complete, and the inventory agrees`);
+        continue;
+      }
+      // Reached its own last card, and the inventory wanted more than this
+      // dashboard could offer. Each surplus label becomes a DECLARED skip with
+      // the plan quoted in it, so `skipped_targets` and the receipt carry the
+      // reason rather than the run quietly measuring fewer things.
+      for (const l of short) {
+        SKIPPED.push({
+          width: k.width,
+          label: l,
+          reason: `${k.what} walked ${k.walked} step(s) on this dashboard and ended on the last card it had `
+            + `(${k.last.at} of ${k.last.of}). `
+            + `A step whose target is absent removes itself (Walkthrough.jsx, the plan's presence filter), `
+            + `so this label is a step this dashboard cannot produce — not a step that was missed`,
+        });
+      }
+      console.log(`${head} ${k.walked} step(s), ended on the last card it had (${k.last.at} of ${k.last.of}) — `
+        + `${short.length} inventory label(s) this dashboard cannot produce: ${short.join(", ")}`);
+    }
+  }
+  if (GUIDE_CANARY) {
+    // A run with the hook on is not a measurement of anything. It exists to
+    // prove the paragraph above can still fail, and it stops here so it can
+    // never be filed as a real one.
+    console.log(`
+CANARY RUN — every walk was cut short on purpose. `
+      + `The lines above must say STOPPED EARLY, and ${found} finding(s) are counted so far. `
+      + `No receipt is written and no contact sheet is filed.`);
+    process.exit(found ? 0 : 1);
+  }
   if (WRITE_EXPECTED) {
     // A SEPARATE COMMAND, ON PURPOSE — report § "Discipline", rule 8: the thing
     // that compares against a baseline must never also approve a new one. This

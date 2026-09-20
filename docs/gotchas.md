@@ -1558,3 +1558,89 @@ restore worked.
 against the snapshot.** Comparing against the source again measures the
 elapsed time as if it were a defect, and the louder the check, the more
 convincing the wrong answer.
+
+## `git add` PUTS YOUR FILES IN A SHARED INDEX, AND THE OTHER SESSION'S COMMIT TAKES THEM — 2026-09-20
+
+Two sessions were working in this checkout. One staged two receipts by name
+and was about to commit them; the other committed its own three files in the
+same second. Git has **one index per working tree**, not one per session, so
+`git commit` took everything staged — and both receipts went into
+`45e32fc "ROADMAP 0.4: the privacy page named five companies and eleven
+receive data"`, under a message that has nothing to do with them.
+
+Nothing was lost and no content was wrong. What was lost is the *record*: a
+year from now, the only thing tying those measurements to the run that
+produced them is a commit about a privacy page.
+
+The near cause looks like a race and is not. **`git add` is not a claim on
+those files** — it is a mutation of a structure the other session is also
+writing to, and the window between staging and committing is as long as it
+takes you to compose a message.
+
+Two rules came out of it, and the second is the one that actually holds:
+
+- **Name the paths on the commit itself** — `git commit -F msg.txt -- a b`.
+  That form commits those paths and ignores whatever else is staged.
+- **Read back what is staged before committing** — `git diff --cached
+  --name-only`. Not because you forgot what you added, but because your `add`
+  was never the last word on it.
+
+The same shape bit the lock a minute later: `fatal: Unable to create
+index.lock` is the *polite* version of this failure, the one where git notices.
+**Do not delete the lock.** Wait for it — `until [ ! -f .git/index.lock ]` —
+and bound the wait so a genuinely stuck lock reports itself instead of hanging.
+
+**The general shape: anything one-per-working-tree is shared between sessions,
+whether or not it looks like state.** The index, the lock, the dev server's
+port, `artifacts/`, and a `.env` written by whoever ran last.
+
+## A STEP COUNTER THAT RESTARTS PER SECTION IS NOT A TOTAL, AND IT READS EXACTLY LIKE ONE — 2026-09-20
+
+The width sweep now grades each guide against the `N OF M` its own card
+prints, so that a guide which is legitimately shorter on a quiet dashboard
+stops looking identical to a guide that broke halfway.
+
+The first wording of that check said *"the tour planned M steps"*. The
+broken-on-purpose run printed **`the tour planned 4 step(s)`** for a walk the
+real sweep had taken **seven** steps of.
+
+`M` is the length of the **block the card is in**. A tour that crosses several
+tabs restarts its counter at each one, and **no card anywhere states the
+length of the whole walk**. Read as a total it is wrong by however many blocks
+came before it — and wrong in the safe-looking direction, because a smaller
+number makes a short walk look complete.
+
+The check itself was fine: `N < M` still means the guide had another card
+ready and the walk ended anyway, whichever block that card sat in. **Only the
+sentence was wrong** — which is worse than it sounds, because the sentence is
+the entire product of a check nobody re-derives.
+
+It now reports the walk length and the last card separately and claims no
+total: *walked 7 step(s), ended on the last card it had (4 of 4)*.
+
+**The general shape: before you quote a number a UI printed, find out what it
+is counting.** And the only reason this was caught at all is that the canary
+run prints its findings in full — a canary that returns a bare pass/fail would
+have gone green on a sentence that was false.
+
+## A CHECKSUM AGAINST A GIT BLOB REPORTS LINE ENDINGS AS DATA LOSS — 2026-09-20, step 7
+
+Before pruning `docs/archive/`, every file was checksummed against the
+restore tag to prove the tag genuinely held it. **Five of the nine came back
+different.** Read literally that is the safety net failing: the thing you are
+about to delete is not the thing you can get back.
+
+Nothing was wrong. **The working copies are CRLF and git stores blobs as LF**,
+so `git show <tag>:<path> | md5sum` and `md5sum <path>` disagree on any file
+containing a carriage return — and agree on the ones that happen not to. Strip
+`\r` from both sides and all nine were identical; `git log <tag>..HEAD --
+docs/archive/` confirmed no commit had touched them at all.
+
+**Compare content, not bytes, whenever git is on one side of the comparison**
+— `tr -d '\r'` on both, or `git diff` which already knows. And the second
+measurement is the cheap one that settles it: if no commit touched the path
+since the tag, the content cannot have moved, whatever a checksum says.
+
+This one was caught only because the answer was checkable a second way. On a
+repo where five files had genuinely drifted, the same output would have been
+true, and the difference between those two worlds is one command.

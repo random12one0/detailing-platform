@@ -287,6 +287,7 @@ were made more than once.
 
 - **Roadmap 5.3 — the receipt existed, the job record just never offered it, and the customer was promised an email nothing sends** — a real $195 card was taken end to end and then everything it produced was read back: **zero emails, zero `email_sends` rows.** The defect was a GATE on the wrong job — the only receipt button sat in the `else` branch of `canFinalize`, and paying by card does not set `finalized_at`, so the customer who pays from their own link leaves the detailer looking at *Finalize payment* and no way to send a receipt. Two independent facts (*is this job closed* / *is there a document to send*) had been written as alternatives. **NO NEW COLUMN:** `bookings.invoice_sent_at` was the obvious move and was rejected, because `email_sends` already carries the date AND what became of the message, and a timestamp beside it is a second copy that can disagree; the price is that "already sent" is a subject-and-amount match, so two jobs at one price for one customer share the answer. **MATCHING THE WORD ALONE WAS NOT ENOUGH** — a returning customer's old receipt lit up a job that had never had one, found by moving the canary onto the SAME address as the real payment rather than an unused one. **THE CLAIM WAS NARROWED TWICE:** *"your receipt is on its way by email"* first became a promise about STRIPE's receipt, which is a setting inside the detailer's own account — swapping a claim this product cannot keep for one it cannot check is not a narrowing. **§ 2 of the check asserts the silence on purpose**, so a future webhook that sends the receipt turns it red and the customer's sentence has to move with it. Left undone and parked in `FOUND.md`: the public receipt page still never says it was paid.
 - **The job record should stay open when a status changes — agreed in principle, deliberately NOT built tonight** — pressing ROADMAP 4.1's new undo for the first time showed the record VANISHES on a status change: all six callers close it (`navigate("/app")` on the standalone job route, `setSelected(null)` on Today, Calendar, Money and Clients), so an undo built to catch a wrong press in a driveway is one navigation away rather than one tap, and the *"Marked completed."* notice has never once been on a screen in any language. **The proposal is one rule for all six: the record stays open and shows what just happened.** Andrew's manager agreed in principle — *"that is the version where the undo is actually usable, and it is what Andrew would want at seven in the morning in somebody's driveway with the wrong job marked done"* — and refused it for TIMING, not merit: a behaviour change across six reviewed screens, at four in the morning, when 4.1 cannot close tonight anyway because its audit history is stuck behind the deploy freeze. **Do not re-derive this argument; it is settled in principle and waiting on a calmer hour.**
+- **The width sweep grades a guide on its own plan, and `sweep-widths.mjs` changed hands to do it** — the Today guide walked 5 steps at 1440 and 4 at 392/320 against an inventory expecting 8 and 7, and the expected-count gate reported that in the same words it would use for a screen that had vanished. Measured, not guessed: three `data-tour` targets — `figures`, `job` and `wrapup` — are absent from the demo dashboard this afternoon because **there are no jobs on today's rail**, and `Walkthrough.jsx` drops a step whose target is absent by design, with a comment predicting exactly these three. **Andrew refused the obvious fix**: the inventory is NOT re-pointed at today's data, because *a gate that follows whatever the data happens to be is a gate that can never fail*. Instead each guide is now graded on the "N OF M" its own card prints — reached its last card and the surplus inventory labels become declared skips carrying the plan as their reason; stopped short of its own last card and that is a finding no shorter plan can write off. **Ownership of `sweep-widths.mjs` passed from DP Cowork to DP Cowork2 at 2026-09-20 ~14:20**, when DP Cowork left its own instruments for the legal pages; it had been off-limits all night to keep two sessions out of one file.
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -16834,3 +16835,98 @@ should build the rule above rather than re-arguing it, and should expect the
 notice to become readable as a side effect — which means *"Marked completed."*
 needs to become a literal `t()` string with a Spanish key, since it is about
 to be seen for the first time.
+
+## The width sweep grades a guide on its own plan, and `sweep-widths.mjs` changed hands to do it
+
+**The report.** The 13:57 sweep at 1440, 392 and 320 came back clean on
+geometry — 355 surfaces, 148,950 questions, canary caught at every width — and
+failed its expected-count gate at all three: 117 surfaces against 125 at 1440,
+119 against 125 at each of the other two. Eleven labels printed `NEVER
+MEASURED`, and the last certified run, eleven hours earlier at `2a10b86`, had
+been 125/125/125.
+
+**What it actually was.** Signed in as the demo owner and asked the screen
+directly which of the Today guide's eight targets exist. Three do not:
+`figures`, `job` and `wrapup`. The Today rail has no jobs on it this
+afternoon — the headings on that screen read `WAITING ON YOU · 3`, `COMING UP`
+and `THE NEXT 7 DAYS`, and there is no day rail between them. `wrapup` needs a
+job that has finished today, `job` needs the rail itself, and `figures` needs
+the day's counts. `Walkthrough.jsx` drops a step whose target is absent — that
+is the documented design, and the comment beside the filter says *"on a
+dashboard with nothing on it three of Today's targets are absent"*. It named
+these three before anybody looked.
+
+So the guide was correct, the dashboard was quiet, and the gate called it the
+same thing it would call a screen that had been deleted.
+
+**The decision that was NOT taken.** Re-pointing
+`sweep-widths.expected.json` at today's dashboard would have turned the run
+green in one command. Andrew refused it, 2026-09-20: *"a gate that follows
+whatever the data happens to be is a gate that can never fail... If it turns
+out the guide legitimately walks fewer steps because the dashboard is quieter
+today, that is a fact to encode deliberately, once, with a reason next to it —
+not a number to nudge until the run goes green."* The inventory still lists all
+eight steps, because a label that leaves that file is a screen nobody checks
+again.
+
+**What was built instead.** Every guide card prints its own step counter, `N
+OF M`. `M` is what the guide planned against the screen in front of it; `N` is
+how far in the card sits. The sweep now reads that counter on each card and
+records the last one it saw:
+
+- **Reached its own last card** (`N === M`): the guide walked everything it
+  meant to. The inventory labels above `M` become *declared skips*, each
+  carrying the plan as its written reason, and the receipt reports them in
+  `skipped_targets` rather than the run quietly measuring fewer things.
+- **Stopped short** (`N < M`): the guide said it had more and the walk never
+  got there. That is a finding, it is counted, and **nothing is written off** —
+  which is the whole point, because writing it off is the nudge the ruling
+  forbids.
+- **No counter read at all**: nothing is graded and nothing is subtracted. The
+  gate still fails on every label that walk did not produce, which is the
+  honest answer to "nobody knows how long it was supposed to be".
+
+Nothing here counts the script's own presses and compares that to itself. The
+number being graded against is the guide's, read from the DOM.
+
+**And it is broken on purpose before it is trusted.**
+`SWEEP_GUIDE_CANARY=1` cuts every walk short by design, which is the exact
+shape of a guide that died halfway. The accounting must print `STOPPED EARLY`
+and must refuse to write the missing labels off; the run then exits before the
+receipt, so a deliberately broken run can never be filed as a real one. This
+repo has shipped at least six checks that tested nothing, and this one is a
+check *about* another check's blind spot — the worst possible thing to take on
+faith.
+
+**Why this is the same defect as the receipt grader, one level down.** In
+September the receipt grader could not tell *stale* from *broken*, so
+twenty-two honest records and six real failures printed as twenty-eight red
+lines and everybody learned to scroll past them. A gate that cannot name which
+failure it caught teaches the same habit. Andrew, on the same day: *"A gate
+that cannot tell two different failures apart is the same defect as a receipt
+that cannot tell stale from broken, one level down."*
+
+**Ownership.** `scripts/sweep-widths.mjs` was off-limits to DP Cowork2 all
+night — not because of the file, but because DP Cowork was mid-flight inside
+its own instruments and two sessions in one measurement script is how a
+measurement starts lying. **It passed to DP Cowork2 at roughly 14:20 on
+2026-09-20**, when DP Cowork moved to the legal pages, which touch nothing the
+sweep touches. Recorded here so nobody has to reconstruct it from commit
+timestamps later.
+
+**What it found on its first honest run, within the hour.** The tour was not
+7 steps. The loop that walked it pressed *Next* at most seven times and
+`sweep-widths.expected.json` listed `tour · step 1` to `7` **because seven is
+what that loop produced** — the inventory had recorded the instrument's
+ceiling and called it the product, which is the same failure as re-pointing
+the file at today's data, arrived at from the other direction and years
+earlier. Walked out, the tour is **33 steps in six blocks** (`4 + 6 + 6 + 5 +
+6 + 6`), and one of the twenty-six screens nobody had ever measured has a
+caption 14px outside its own box at 392 and 320. Written up in `FOUND.md`
+with a third finding kept deliberately as a lead rather than a verdict: at
+1440 the tour stops after its first tab, twice out of three runs.
+
+**And the expectation file is still not rewritten.** Adding twenty-six screens
+to the inventory is somebody reading a diff, not a script deciding it, so the
+gate now fails loudly on `NOT EXPECTED tour · step 8…33` at 392 and 320. That
+red is the correct state and it is Andrew's to clear.

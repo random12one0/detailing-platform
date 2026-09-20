@@ -3893,3 +3893,53 @@ it was measured rather than noticed later.**
 
 Whoever picks it up should decide one spacing for the whole list rather than
 enlarging the lead line alone.
+
+## The guided tour is 33 screens, the sweep measured 7 of them, and one of the other 26 is broken on a phone — 2026-09-20
+
+**Found by the plan-versus-walk check the moment it existed** (DECISIONS.md,
+*"The width sweep grades a guide on its own plan"*). Three separate facts, all
+measured, none of them fixed:
+
+**1 · Twenty-six screens had never been measured at any width.** The sweep's
+tour loop pressed *Next* at most seven times, and
+`scripts/sweep-widths.expected.json` lists `tour · step 1` to `tour · step 7`
+because seven is what that loop produced. **The inventory recorded the
+instrument's ceiling and called it the product.** Walked to its end, the tour
+is **33 steps in six blocks** — `4 + 6 + 6 + 5 + 6 + 6`, ending cleanly on
+`6/6`, no loop. The bound is now 48 and a walk that hits its ceiling says so
+in its own words instead of reporting a short walk as a finished tour.
+
+**2 · One of the newly reachable screens has a real geometry defect.** At
+**392px and 320px**, `tour · step 28` — the caption reading *"Your own
+settings live beh…"* — overflows its own parent by **14px**:
+`past-parent +14px p.body.tourline in div`. Clean at 1440. This is a caption
+card on a phone with text outside its box, and it has been shipping for as
+long as the step has existed, because nothing ever pressed Next twenty-eight
+times.
+
+**3 · At 1440 the tour appears to stop after the first tab, and this one is a
+LEAD, NOT A VERDICT.** Three observations, same account, same day:
+
+| Walk bound | 1440 | 392 | 320 |
+|---|---|---|---|
+| 7 | 5 steps, tour ended | 7, still going | 7, still going |
+| 24 | 24 steps | 24 steps | 24 steps |
+| 48 | **5 steps, tour ended** | **33 steps, complete** | **33 steps, complete** |
+
+The 1440 trail reads `1/4 2/5 3/5 4/5 5/5` and stops — one block, then the
+card is gone. At 392 the same press sequence crosses into `1/6` and carries on
+through five more tabs. **But the 24-bound run walked 24 steps at 1440**, so
+1440 is not reliably short; it is short twice out of three. Something
+non-deterministic ends that tour after its first tab on a desktop, and until
+somebody reproduces it deliberately the honest statement is *twice out of
+three*, not *it is broken*.
+
+**Why the new check does not catch #3 by itself.** It grades a guide on
+whether it reached its own last card, and at 1440 the tour genuinely reached
+`5 of 5` — it believes it finished. Only the **cross-width comparison** shows
+that the plan itself was one block instead of six. A per-width check cannot
+see a plan that was truncated before it was printed.
+
+**Nothing here is being fixed in this change**, and the expectation file is
+deliberately NOT rewritten: adding twenty-six screens to the inventory is
+somebody reading a diff, not a script deciding it.
