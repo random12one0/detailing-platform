@@ -1430,3 +1430,54 @@ difference is the entire distance between a measurement and a reassurance.
 **What to do instead when it matters:** drive a real Tab walk and record what
 receives focus, which is what proved both of the above wrong. The walker is
 for finding candidates; the keyboard is for confirming them.
+
+---
+
+## A SCREENSHOT FAR SMALLER THAN ITS NEIGHBOURS MEANS YOU PHOTOGRAPHED SOMETHING UNIFORM
+
+**The cheapest smell test there is, and it settled a fault that two careful
+hypotheses had both got wrong.** 2026-09-20, chasing why one control in a
+focus walk compared equal focused and blurred:
+
+```
+peek #1 ... bytes=10287   differs=true
+peek #2 ...  bytes=9427   differs=true
+...
+peek #6 ...  bytes=1611   differs=false      <- the odd one
+```
+
+A PNG of a busy region is large. **1,611 bytes against ~10,000 means the frame
+was almost all one colour** — and it was: the probe was photographing the
+pinned bar, because the control sat underneath it. Neither of the two theories
+in play (a clip running off the viewport; an element only just scrolled to)
+was right, and **the thing that settled it was a number nobody was looking
+at.**
+
+**So: any probe that compares images should print its byte sizes.** They cost
+nothing, and an outlier in them tells you the frame is wrong before you start
+arguing about the verdict. A run where every frame is small is a run
+photographing a blank page.
+
+---
+
+## A STYLESHEET REVIEW AND A SCROLL CHECK WOULD BOTH HAVE PASSED THIS FOREVER
+
+**Recorded plainly because it is the argument for measuring what a person
+experiences rather than what the source says.** Two real defects found on
+2026-09-20, both invisible to every kind of review that reads code or computed
+style:
+
+- **A focus ring that computes, paints, and cannot be seen.** `.nav-row` sits
+  1px inside a `.card.setting-card`, which is `overflow: hidden` for its own
+  rounded corners. The ring is a real 2px outline at +2px offset, so it lands
+  entirely in the clipped region. `getComputedStyle` reports a perfect focus
+  ring. Twelve settings rows had no visible focus and every audit of the
+  stylesheet would have called it correct.
+- **A control that is in the viewport and underneath something.** A booking
+  toggle at y=873 with a pinned bar starting at y=827. `scrollIntoViewIfNeeded`
+  will not move it, because by its own definition it is visible. Only
+  `elementFromPoint` on the element's own centre knows.
+
+**The rule:** *computed* is not *painted*, *painted* is not *visible*, and *in
+the viewport* is not *on the screen*. Three different questions, and the source
+answers none of them.
