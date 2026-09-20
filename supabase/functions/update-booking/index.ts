@@ -5,6 +5,36 @@
 //
 // Input: { business_id?, booking_id, soft_delete?, add_ons?, ...allowlisted
 //          fields; booking_date/start_time as business-local values }
+//
+// ---------------------------------------------------------------------------
+// AND IT TELLS THE CUSTOMER, WHICH UNTIL 2026-09-20 IT DID NOT — ROADMAP 3.4
+// ---------------------------------------------------------------------------
+// This file's own first line calls it the ONE write path for dashboard
+// changes. It imported no email template and called no sender: a detailer who
+// cancelled a job from the dashboard, or moved it to another day, told the
+// customer **nothing at all**. The customer's last word on the subject stayed
+// their confirmation email saying the appointment was on.
+//
+// **BOTH EMAILS ALREADY EXISTED AND BOTH WERE ALREADY GOOD.** They were
+// reachable from exactly one direction — `cancel-booking` and
+// `reschedule-booking`, the two endpoints the CUSTOMER drives from their own
+// link. When the BUSINESS did the same thing, silence. `BookingDetail.jsx`
+// even names this path in a comment (*"the detailer's own 'Cancel the job'
+// button just below (`update-booking` with `status: \"cancelled\"`)"*) and
+// notes that two of the three cancellation paths send no OWNER email; nobody
+// noticed the CUSTOMER got nothing on this one either.
+//
+// **THE CUSTOMER ONLY, NEVER THE OWNER.** The two sibling endpoints send an
+// owner copy because a customer acted and the detailer needs telling. Here the
+// detailer IS the actor — they pressed the button a second ago and are looking
+// at the result. Mailing somebody a report of what they just did is how a
+// product teaches people to filter its mail.
+//
+// **DECIDED FROM THE ROW, NOT FROM THE PAYLOAD.** `status: "cancelled"` sent
+// twice must email once, and a save that touches neither the status nor the
+// time must email not at all — so both questions are asked as "what is
+// different about this row now", which is the only form that survives a
+// screen deciding to re-send a field it did not change.
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
@@ -13,6 +43,10 @@ import { servicesForBooking } from "../_shared/pricing.ts";
 import { businessById, getSettings, requireMember } from "../_shared/tenant.ts";
 import { validateSlot } from "../_shared/slotValidation.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
+import { buildBrand, extraVehiclesFor, sendTenantEmail } from "../_shared/email.ts";
+import { cancellationEmail, rescheduleEmail } from "../_shared/emailTemplates.ts";
+import { receiptUrl } from "../_shared/config.ts";
+import { siteFor } from "../_shared/tenantSite.ts";
 import { dateStrIn, timeStrIn } from "../_shared/tz.ts";
 
 const EDITABLE_FIELDS = [
@@ -152,6 +186,85 @@ Deno.serve(async (req) => {
         );
         if (addErr) throw addErr;
       }
+    }
+
+    // -----------------------------------------------------------------------
+    // TELL THE CUSTOMER — roadmap 3.4, see this file's header.
+    // -----------------------------------------------------------------------
+    // Both questions are asked of the ROW's before and after, never of the
+    // payload, so a screen re-sending an unchanged field cannot send a second
+    // email and a screen omitting one cannot suppress a real change.
+    const justCancelled = String(data.status) === "cancelled"
+      && String(current.status) !== "cancelled";
+    // `updateData.start_at` is only set when the slot gate above re-validated a
+    // move, and it is already an ISO string; `current.start_at` arrives from
+    // Postgres in its own spelling, so both go through `Date` before they are
+    // compared. A "move" to the same instant is not a move.
+    const movedTo = updateData.start_at as string | undefined;
+    const justMoved = !!movedTo
+      && movedTo !== new Date(current.start_at).toISOString()
+      // A CANCELLED JOB'S NEW TIME IS NOT NEWS. If one call does both, the
+      // cancellation is the only true thing left to say.
+      && String(data.status) !== "cancelled";
+
+    if ((justCancelled || justMoved) && data.customer_email) {
+      // Read from `data` rather than `current`: name, email, address and
+      // vehicle are all editable in the same call, and the email must describe
+      // the booking as it now stands.
+      const settings = await getSettings(member.businessId);
+      const brand = await buildBrand(business, settings);
+      const emailData = {
+        id: data.id,
+        // ROADMAP 8.17 STAGE 2A — the language this customer chose. Absent
+        // means English, which is what every booking predating the column was.
+        lang: data.lang,
+        customerName: data.customer_name,
+        customerPhone: data.customer_phone,
+        customerEmail: data.customer_email,
+        customerAddress: data.customer_address,
+        dateStr: dateStrIn(tz, new Date(data.start_at)),
+        startTime: timeStrIn(tz, new Date(data.start_at)),
+        endTime: timeStrIn(tz, new Date(data.end_at)),
+        serviceType: data.service_type,
+        travelFee: Number(data.travel_fee) || 0,
+        travelZone: data.travel_zone,
+        adjustments: data.price_adjustments ?? [],
+        vehicleSize: data.vehicle_size_label || data.vehicle_size,
+        // ROADMAP 8.10 — the other cars on this same visit, or an empty list.
+        extraVehicles: await extraVehiclesFor(data.id),
+        vehicleModel: data.vehicle_model,
+        customerNotes: data.customer_notes,
+        serviceNames: [],
+        addOnNames: [],
+        subtotal: Number(data.subtotal),
+        siteDiscount: 0,
+        siteDiscountPercent: 0,
+        promoCode: data.applied_promo_code,
+        promoDiscount: Number(data.promo_discount) || 0,
+        total: Number(data.total_price),
+        receiptUrl: receiptUrl(await siteFor(supabase, business.id), data.id),
+        // `refundNote` is owner-facing and the owner gets no copy here, so the
+        // customer's half of `cancellationEmail` never reads it.
+      };
+      const msg = justCancelled
+        ? cancellationEmail(brand, emailData, false)
+        : rescheduleEmail(
+          brand,
+          emailData,
+          dateStrIn(tz, new Date(current.start_at)),
+          timeStrIn(tz, new Date(current.start_at)),
+          false,
+        );
+      // Best-effort by construction: `sendTenantEmail` catches its own errors
+      // and returns a boolean, so a dead relay can never fail a write that has
+      // already happened.
+      await sendTenantEmail({
+        businessId: business.id,
+        to: data.customer_email,
+        subject: msg.subject,
+        html: msg.html,
+        text: msg.text,
+      });
     }
 
     try {
