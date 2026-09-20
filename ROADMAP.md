@@ -586,6 +586,22 @@ the wrong service, and never book a job we cannot reach.
   **So the honest state is: the column is live, the client records the fact,
   the templates print it, and nothing has yet carried one from end to end.**
 
+  **WHY IT IS STUCK, IN PLAIN WORDS — AND IT IS NOT THIS ITEM'S FAULT.**
+  **`create-booking` and `get-booking-receipt`** are the two functions in the
+  middle. They are the pair that WRITES the column and READS it back, and both
+  are running older code than what is committed here. On 2026-09-20 the other
+  session found that **twenty-six edge functions are running code older than
+  the repo believes**, some by thirteen days — so deploying either of these two
+  would ship a fortnight of somebody else's unreviewed work alongside this
+  column. **All deploys are frozen until that backlog is inventoried.** The
+  freeze is not about this item.
+
+  **THIS ITEM GOES GREEN THE MOMENT THOSE TWO SHIP.** Whoever lifts the
+  freeze: deploy `create-booking` and `get-booking-receipt`, make one booking
+  with an address the lookup cannot find, and read `address_source` back off
+  the row. Nothing else is outstanding except looking at the job record on a
+  real screen, which needs a sign-in.
+
 - [x] **2.9 — DONE 2026-09-20. Where the business works is on step 1 now. Nothing moved.**
   Mobile address and area come at step 4, after services, add-ons and vehicle.
   ~~**Fix:** ask "Where's the car?" before vehicle details.~~
