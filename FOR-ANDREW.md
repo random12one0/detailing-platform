@@ -15,6 +15,20 @@ recommendation attached — answer it in one line and a session picks it up.
 was published overnight. The groups below are in the order they are worth your
 attention, not the order they arrived in.
 
+**How a row is written, so the next one looks like these.** One thing you can
+act on in thirty seconds or decide in ten, in plain words, with no internal
+names and no background you do not need. A **DECIDE** carries a recommendation
+unless the answer is genuinely not ours to recommend, and says so when it is
+not. **A row goes in the group that is true of it** — *Urgent* only if
+something is wrong now, *Recorded* if nothing is needed from you yet — and the
+group is the honest answer to "what happens if he does not read this today?"
+
+**Dates are only written on rows that have been waiting.** A row added today
+carries no date; one still sitting here next week says **"waiting since 20
+September"**, so age is visible at a glance instead of every row claiming the
+same birthday. **Nothing needed a date today** — every row below was either
+written or rewritten this morning.
+
 Updated 2026-09-20.
 
 ---

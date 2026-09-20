@@ -7,8 +7,13 @@ functions) back end, Netlify hosting, Resend for email, Stripe for payments.
 
 **Andrew owns this and directs the work. There are no session roles, no lanes
 and no folder ownership — that experiment ended 2026-09-16. Any session can
-work anywhere in the repo.** The old rulebook is kept at
-`docs/archive/CLAUDE-2026-09-16-pre-reset.md` if the history is ever needed.
+work anywhere in the repo.** The old rulebook is no longer a file — it is in
+git history, and `docs/archive/` was pruned on 2026-09-20 (step 7). If you ever
+need it:
+
+```bash
+git show pre-doc-prune-2026-09-16:docs/archive/CLAUDE-2026-09-16-pre-reset.md
+```
 
 ## How we work
 
@@ -139,6 +144,18 @@ somebody real time.
   - The access token in `.env` can currently see **only**
     `kguqylyzgyzfktkfnhjb` — verified 2026-09-19 against the Management API's
     project list. That is a fact about today's token, not a safety mechanism.
+- **COMMIT WITH EXPLICIT PATHS: `git commit <path> …`, never a bare
+  `git commit`.** Staging by name is NOT enough, and this is why: **a commit
+  takes the whole index**, so anything another session has already staged goes
+  in with yours. It happened twice on 2026-09-20 in both directions — one
+  session's commit carried another's roadmap edits, and a commit that ran
+  `git add` on three files by name still swept up two receipts somebody else
+  had staged. Naming the paths on the commit line bypasses the index entirely.
+  **And read back what is staged before you commit** — `git diff --cached
+  --name-only` — rather than assuming your `add` was the last word. *Tested
+  rather than believed: the index was read back empty, one path was committed,
+  and the other session's two dirty files were confirmed still untouched
+  afterwards.*
 - **Migrations are append-only.** Never edit an existing one.
 - **Never commit `app/.env.production` or any credential.** No password, token
   or key goes into a markdown file either — say where it lives, not what it is.

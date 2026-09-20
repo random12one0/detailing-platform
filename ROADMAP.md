@@ -1,8 +1,10 @@
 # Roadmap — the fix queue
 
-This is the live queue. It replaces the old build-phase roadmap, which moved to
-`docs/archive/roadmap-2026-09-13.md` (its still-open items are carried into
-Wave 11 below). The long build history stays at `docs/roadmap.md`.
+This is the live queue. It replaces the old build-phase roadmap, whose
+still-open items are carried into Wave 11 below. That file was pruned on
+2026-09-20 and lives in git history —
+`git show pre-doc-prune-2026-09-16:docs/archive/roadmap-2026-09-13.md`.
+The long build history stays at `docs/roadmap.md`.
 
 **Built 2026-09-16 from two independent live-site audits:**
 
@@ -4021,8 +4023,46 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
    the session that wrote the check, against `kguqylyzgyzfktkfnhjb`. Not
    independently verified.
 
-7. [ ] **Only then** prune docs and convert the rest of this file into task
-   contracts.
+7. [~] **HALF DONE 2026-09-20. The prune is finished; the roadmap
+   restructure is held.**
+
+   **THE PRUNE — DONE.** `docs/archive/` is gone: 9 files, about 45,000 words,
+   whose only remaining purpose was to be searched by a session that should be
+   reading git history. **Nothing was deleted until the tag was proved to hold
+   it.** All nine were compared byte for byte against
+   `pre-doc-prune-2026-09-16`, and two were recovered in full as a rehearsal —
+   the old rulebook at 19,861 words and a retired session brief at 3,911.
+
+   **AND THE FIRST COMPARISON SAID FIVE OF THE NINE DIFFERED FROM THE TAG**,
+   which would have meant the safety net did not hold what it claimed. It was
+   the instrument: the working copies are CRLF and git's blobs are LF, so a
+   checksum over the raw bytes reports a difference that is not there. Once
+   carriage returns were stripped, **all nine were identical and no commit had
+   touched `docs/archive/` since the tag**. Worth knowing before somebody
+   checksums a file against a git blob again.
+
+   **Two live pointers were rewritten rather than left dangling** — `CLAUDE.md`
+   named the old rulebook and this file named the old roadmap. Both now carry
+   the `git show` command instead of a path.
+
+   **WHAT WAS NOT PRUNED, AND WHY.** 38 documents outside `docs/archive/` have
+   no inbound reference from anywhere. **They were left alone.** Most are
+   design renderings and tenant-site explorations, which exist to be LOOKED AT
+   rather than searched — the criterion for pruning does not fit them. And one
+   candidate proved the point: `docs/the-deploy-is-not-the-push-2026-09-08.md`
+   is unreferenced and is **directly relevant to 0.6**, carrying a correction
+   whose own note says *"the reasoning is the lesson"*. Deleting it on a
+   reference count would have destroyed exactly the thing tonight needed.
+   Per-file judgement, not a bulk rule, and not tonight.
+
+   **THE RESTRUCTURE — HELD, and written up instead:**
+   `docs/roadmap-restructure-proposal.md`. What the structure would be, what it
+   buys, what it costs, what would break, and the conditions it should be done
+   under. **The reason it is held is not nerve:** this is the one file both
+   sessions write to, it was edited by both of them repeatedly today, and **a
+   tag cannot protect a file from being concurrently rewritten** — it can only
+   return a version, and what a concurrent rewrite loses is nobody's version.
+   One session, a quiet tree, a fresh tag, one pass. **Andrew rules on it.**
 
 ### Still unanswered after steps 1–4
 
