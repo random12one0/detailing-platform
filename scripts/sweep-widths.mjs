@@ -1786,8 +1786,28 @@ for (const w of SIZES) {
     // thumb on a phone. Its form is a count beside a money field on one row,
     // which is the shape that breaks first at 320 — the same shape the plan
     // form's own comment names.
+    // **THIS LINE IS FIRST AID AND NOT THE FIX, AND THE DIFFERENCE IS THE
+    // FINDING — 2026-09-20.** `c4058d3` renamed this control from *"Log a bulk
+    // job"* to *"Add a fleet job"* in an ordinary copy pass, moved the Spanish
+    // key in the same edit exactly as `CLAUDE.md` requires, and still took a
+    // whole screen out of this sweep — because the sweep opens that sheet by
+    // the WORDS ON IT. Changing the words here restores the measurement and
+    // changes nothing about why it broke.
+    //
+    // **THE REAL ANSWER IS A TEST ID OR A SHARED CONSTANT.** Until this sheet
+    // is addressed by something that does not change when the copy changes,
+    // **every copy change in this product is one rename away from blinding a
+    // check** — and `FOUND.md` lists the twenty-three English strings across
+    // `scripts/*.mjs` that are load-bearing in exactly this way. The gate
+    // caught this one by name and failed the run rather than going quiet,
+    // which is the only reason it cost minutes instead of weeks. That is luck
+    // held in place by one gate, not a property of the design.
+    //
+    // The inventory label keeps its old spelling on purpose: it is the name of
+    // a SURFACE in the expectation file, not the name of the button, and
+    // renaming it would drop a screen out of the baseline to cure a red.
     await openSheet("Money · log a bulk job",
-      page.getByRole("button", { name: NAMED("Log a bulk job") }));
+      page.getByRole("button", { name: NAMED("Add a fleet job") }));
   }
 
   // THE CALENDAR IS THREE SCREENS AND THE SWEEP ONLY EVER SAW ONE. Until
