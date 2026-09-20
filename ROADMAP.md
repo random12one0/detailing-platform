@@ -3607,14 +3607,21 @@ Do not act on these without checking first. **A wrong diagnosis attached to a
 real observation is still a real observation** — keep the reproduction even if
 the explanation dies.
 
+**ALL SEVEN WERE SETTLED ON 2026-09-20 and none is an open maybe any more.**
+Four were struck with the evidence beside them, one was corrected because it
+understated a real vulnerability, and one — P1-04 — was split: two thirds of
+it have been built since the audit and the remaining third is named precisely
+rather than left as a doubt. **Nothing here needs re-deriving before it can be
+acted on.** Every strike keeps its observation, per the rule above.
+
 | Item | Why it is suspect |
 |---|---|
 | ~~A2 1.1 demo has admin access~~ | **STRUCK — not a defect.** Andrew merged the two logins on purpose because switching accounts was annoying, and nobody is on the site. **Do not "fix" it** — that locks him out of his own back office. It comes out at the first real signup: 12.4. |
-| A2 4.5 link-open counts | A2 marks it not confirmed — may be two different periods. |
-| A2 1.4 example brand names | Andrew says these are illustrative, not claims. Downgraded from a defect to a recommendation — see 1.2. His call. |
-| A1 P1-04 invoices missing | A1 says "needs verification, not a proven missing feature" — the payment was never finalized. |
+| ~~A2 4.5 link-open counts~~ | **STRUCK 2026-09-20 — the observation was real and both causes are fixed.** Money said *"None of your links were opened in this period"* while Business said *"1 link · 21 opens"*: real, and it was TWO faults at once. **The audit's guess was half right.** The periods genuinely do differ by design — `whereFrom` takes a period from Money and none from Business, because that screen has no period control — but the disagreement was a second tally: Business counted PAGE LOADS and every visit including switched-off links, where Money counted PEOPLE on live links. **Both screens read one function now** (`whereFrom`, ROADMAP 4.2) and the Business label became **"so far"** under 5.4, chosen to say *all time* without the phrase, precisely so the comparison that opened this item cannot be made wrongly. Verified by reading both call sites, not by trusting the note. |
+| ~~A2 1.4 example brand names~~ | **STRUCK 2026-09-20 — not a finding, and it never needed verifying.** It is a judgment about how much a demo may borrow, and Andrew already downgraded it to a recommendation. It now sits on his list as two plain questions — the example site named after a probably-real firm, and his own domain in the marketing page's mock browser bar — each with a recommendation and a one-word answer. **Waiting on him, not on a measurement.** |
+| A1 P1-04 invoices missing | **VERIFIED 2026-09-20 — two thirds built since the audit, one third genuinely missing.** The auditor opened the dialogs but never finalised a payment, so never saw what exists afterwards. Taking its *done when* a clause at a time: **"what was sent, when, to whom" — EXISTS.** `EmailTrail` on the job record and the client record, reading `email_sends` (14.3). **"did it arrive" — EXISTS BUT HAS NEVER WORKED.** Three states are drawn, and every row says *On its way* for ever because Resend's webhook has never been pointed at us. Three minutes, on Andrew's list. **"can I resend or correct it" — DOES NOT EXIST ANYWHERE.** No resend action on any screen; searched. **That third is a real gap and needs a feature plus a deploy, so it was not built.** The rest of the row is answered. |
 | ~~A1 P1-05 raw address accepted~~ | **TESTED 2026-09-20 — the observation was right and the consequence is worse than it says.** It goes through, the server never looks at it, and no screen or email is marked. One real booking proved it end to end; see 2.8. |
-| A1 P1-10 calendar link | A1 proved **no** vulnerability. It is a review, not a defect. |
+| ~~A1 P1-10 calendar link~~ | **CORRECTED 2026-09-20 — this line understated it, and leaving it would have told the next person to stop looking.** A1 proved no vulnerability *in altering the booking id*, which is true. **A later session found a real one in the other half:** `&audience=owner` was a plain query word with no authentication, and a request with no key and no token at all returned the customer's name, phone, home address and vehicle. Fixed under 14.2. **And tonight the FIX ITSELF was verified live rather than assumed**, which nothing had done: `askedForOwner && await requireMember` is present in the running `booking-ics` bundle fetched from the gateway, not merely committed. Closed. |
 | A2 2.9 vs A1 § 12 | **Already resolved — not a contradiction.** Different steps. See 2.11. |
 
 ## Do not reopen these

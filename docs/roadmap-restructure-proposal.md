@@ -77,12 +77,13 @@ blocked markers added — sometimes minutes apart.
 about what a half-rewritten file means.** One appends a paragraph to an item
 that no longer has paragraphs; the other ticks a box that has moved.
 
-**And no tag protects against that.** The docs prune was safe *because*
+**And no tag protects against that. A tag cannot protect a file from being
+concurrently rewritten — it can only return a version, and what a concurrent
+rewrite loses is nobody's version.** The docs prune was safe *because*
 `pre-doc-prune-2026-09-16` exists and was verified before anything was
 deleted — every pruned file was confirmed byte-identical to the tag and two
-were recovered in full as a rehearsal. **A tag cannot protect a file from
-being concurrently rewritten**; it can only bring back a version, and the
-thing being lost in a concurrent rewrite is nobody's version.
+were recovered in full as a rehearsal. That net works because the thing it
+protects against is deletion. This one is not deletion.
 
 ---
 
