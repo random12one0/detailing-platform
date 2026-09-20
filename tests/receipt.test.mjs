@@ -176,6 +176,39 @@ test("11 · a receipt for another commit is rejected when a SHA is required", ()
   assert.ok(out.problems.join(" ").includes("HEAD is ffffffff"), "should name the commit it wanted");
 });
 
+// ---------------------------------------------------------------------------
+// STALE IS A THIRD ANSWER, NOT A KIND OF FAILURE — 2026-09-20.
+//
+// This repo reached "2 of 23 receipts valid" with one genuinely broken check
+// and twenty-one merely old ones reading identically, which is the same
+// indistinguishability the receipt exists to remove, one level up. The three
+// tests below are the whole of the distinction.
+// ---------------------------------------------------------------------------
+test("11a · a receipt that is merely OLD is stale, not failed", () => {
+  const out = validate(good(), { sha: "f".repeat(40) });
+  assert.equal(out.verdict, "stale", "an out-of-date clean run is not a failure");
+  assert.equal(out.stale, true);
+  assert.ok(out.staleness.includes("now out of date"), "should say what stale means");
+});
+
+test("11b · an OLD receipt that ALSO FAILED is a failure, never stale", () => {
+  // THE ORDER IS THE LOAD-BEARING PART. Asking about staleness first hides a
+  // broken check inside the comfortable pile of old ones — measured: with the
+  // two branches swapped this exact receipt reported "STALE … every rule
+  // passed", and the failure count dropped from 2 to 1.
+  const out = validate({ ...good(), status: "fail", failures: ["a real defect"] },
+    { sha: "f".repeat(40) });
+  assert.equal(out.verdict, "fail", "staleness must never mask a real failure");
+  assert.ok(out.problems.join(" ").includes("1 failure(s) recorded"));
+});
+
+test("11c · a fresh clean receipt is neither", () => {
+  const out = validate(good(), { sha: null });
+  assert.equal(out.verdict, "pass");
+  assert.equal(out.stale, false);
+  assert.equal(out.ok, true);
+});
+
 test("12 · garbage in is rejected without throwing", () => {
   for (const junk of [null, "a string", 42, [], undefined]) {
     const out = v(junk);

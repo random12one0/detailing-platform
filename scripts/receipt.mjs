@@ -161,10 +161,31 @@ export function validate(r, opts = {}) {
 
   if (r.failures.length > 0) bad(r.failures.length + " failure(s) recorded");
 
+  // ---------------------------------------------------------------------
+  // STALE IS NOT FAILED, AND KEEPING THEM APART IS WHY THIS SITS OUTSIDE `p`.
+  // ---------------------------------------------------------------------
+  // A receipt written against an older commit, whose every rule above passed,
+  // is **a valid record of a run that happened, now out of date**. It is not
+  // a defect and it never was. Counting it as one is how this repo arrived at
+  // "2 of 23 receipts valid", where one genuinely broken check and twenty-one
+  // merely old ones read identically — the same indistinguishability the
+  // receipt was invented to remove, one level up.
+  //
+  // **STALENESS NEVER MASKS A FAILURE.** The verdict below asks about real
+  // problems FIRST: an old receipt that also failed is a failure. Getting
+  // that order wrong would hide a broken check inside a comfortable pile of
+  // stale ones, which is worse than the state this replaces.
+  // `tests/receipt.test.mjs` § 11b holds the order down.
+  //
+  // The message still lands in `problems`, so anything already reading that
+  // array keeps seeing it; what changed is that it no longer poisons `status`
+  // grading and no longer counts as a failure.
+  let staleness = null;
   if (opts.sha !== null) {
     const want = opts.sha || gitSha();
     if (want && r.git_sha !== want) {
-      bad(`receipt is for ${String(r.git_sha).slice(0, 8)}, HEAD is ${want.slice(0, 8)}`);
+      staleness = `receipt is for ${String(r.git_sha).slice(0, 8)}, HEAD is ${want.slice(0, 8)}`
+        + " — a valid record of a run that happened, now out of date";
     }
   }
 
@@ -176,7 +197,11 @@ export function validate(r, opts = {}) {
     p.unshift('the check wrote status "pass" and these rules say otherwise:');
   }
 
-  return { ok: p.length === 0, problems: p, receipt: r };
+  const verdict = p.length > 0 ? "fail" : staleness ? "stale" : "pass";
+  const problems = staleness ? [...p, staleness] : p;
+  // `ok` keeps its old meaning — fresh AND clean — so nothing already reading
+  // it changes behaviour. `verdict` is what tells the three apart.
+  return { ok: problems.length === 0, problems, verdict, stale: !!staleness, staleness, receipt: r };
 }
 
 /** Write a receipt, stamping the fields no check should have to remember. */
@@ -219,7 +244,7 @@ if (invokedDirectly) {
     console.error(`No receipts in ${target}. Nothing was validated — this is not a pass.`);
     process.exit(2);
   }
-  let bad = 0;
+  let bad = 0, stale = 0;
   for (const f of files) {
     let r;
     try {
@@ -230,15 +255,25 @@ if (invokedDirectly) {
       continue;
     }
     const v = validate(r);
-    if (v.ok) {
+    if (v.verdict === "pass") {
       console.log(`PASS  ${r.check_id}  ${r.completed_targets}/${r.expected_targets} targets, `
         + `${r.assertions_executed} assertions, canary "${r.canary.id}" failed as required`);
+    } else if (v.verdict === "stale") {
+      stale++;
+      console.log(`STALE ${r.check_id}  every rule passed; ${v.staleness}`);
     } else {
       bad++;
       console.log("FAIL  " + (r.check_id ?? f));
       for (const m of v.problems) console.log("        " + m);
     }
   }
-  console.log(`\n${files.length - bad} of ${files.length} receipt(s) valid.`);
+  const fresh = files.length - bad - stale;
+  console.log(`
+${fresh} valid · ${stale} stale (every rule passed, written at an older commit) · ${bad} failed.`);
+  if (stale && !bad) {
+    console.log("Stale is not broken — re-run those checks when commits have stopped, not before.");
+  }
+  // ONLY A REAL FAILURE EXITS NON-ZERO. An out-of-date record is not a broken
+  // one, and making it exit 1 is what taught everybody to ignore the number.
   process.exit(bad ? 1 : 0);
 }
