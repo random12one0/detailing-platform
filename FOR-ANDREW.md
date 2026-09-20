@@ -17,6 +17,26 @@ Updated 2026-09-20.
 
 ## Waiting on you now
 
+- [ ] **DO · Nine test emails are sitting in your support inbox. They are ours.
+  Delete them. Added 2026-09-20.**
+  At about **half past six this morning** a session put **nine** messages into
+  **`support@detailingplatform.com`**, all with the subject
+  **`Problem report · EDGEREPLAY-A-SECRET DETAIL`**.
+
+  **They are test messages and nothing is wrong.** A check that calls every
+  part of the back end in turn, to prove one detailer cannot reach another's
+  data, was sending all its mail to a throwaway address — except the
+  "report a problem" feature, which sends to you no matter what the caller
+  says. Nine calls, nine reports.
+
+  **Nothing went to a customer**, and no real person other than you received
+  anything. The check now refuses to call anything that mails an address it
+  cannot redirect, so it will not happen again.
+
+  **Nothing to decide. Delete them, and you are done.** The reason this row
+  exists at all is so you do not have to sit and work out whether something in
+  your own inbox is real. *Full write-up in FOUND.md.*
+
 - [ ] **DECIDE · What to put live, and in what order. Added 2026-09-20.**
   **Two minutes of reading. Say yes to a number and a session does the rest.**
 

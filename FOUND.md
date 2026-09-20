@@ -5,6 +5,59 @@ Claude Cowork decides what becomes work.
 
 ---
 
+## INCIDENT — WE PUT NINE TEST MESSAGES IN THE PLATFORM'S OWN SUPPORT INBOX, 2026-09-20 ~06:30
+
+**Not a note in passing. An incident, logged as one**, because how a small one
+is handled decides how a big one will be.
+
+**WHAT HAPPENED.** `scripts/edge-tenant-replay.mjs` calls every edge function
+in turn to test tenant isolation. Every recipient it can control is set to
+`delivered@resend.dev`, the address Resend always accepts and delivers
+nowhere. **`report-problem` does not take its recipient from the request.** It
+reads `Deno.env.get("SUPPORT_EMAIL") || "support@detailingplatform.com"`, so
+the sink address in the body could not redirect it. Nine messages with the
+subject **`Problem report · EDGEREPLAY-A-SECRET DETAIL`** were delivered to
+the platform's own support inbox, `status: sent`.
+
+**WHAT DID NOT HAPPEN.** No customer address was written to. No tenant's mail
+was touched. Nothing went to an address belonging to a member of the public,
+and nothing else in the run escaped the sink — verified afterwards by querying
+`email_sends` for every distinct recipient in the window, which returned the
+support address and nothing else. The three fixture tenants were destroyed and
+verified gone.
+
+**THE ACTUAL FAILURE, NAMED PRECISELY, AND IT IS NOT THE EMAIL.** The session
+**stated that every recipient was the sink before it had checked that this was
+true.** The sink was set correctly on every field the harness controls, and
+the claim was made from that intention rather than from a measurement.
+
+**That is this repo's own disease, performed in prose instead of in code.** A
+check that prints clean having tested nothing, and a sentence that says
+"nothing escaped" having looked at nothing, are the same error in two
+notations. The remedy is the same one CLAUDE.md already states for checks:
+report what you observed, never what should have happened. A claim about where
+mail went is a measurement, and `email_sends` is where the measurement lives.
+
+**THE GUARD, AND WHY IT IS STRUCTURAL RATHER THAN A NAME.** The replay now
+refuses to call any function whose send target comes from the environment or
+from a literal instead of from the request, declared with its reason and
+counted as a skip. **Matching `report-problem` by name would have left the
+next such function to be discovered exactly the same way** — a rule that
+depends on somebody remembering a function's name is not a rule.
+
+**WHAT IT COST, AND THE NUMBER IS THE POINT.** `report-problem` had been one
+of the functions that PROVED isolation by rejecting the other tenant. It is
+now not called at all, so that result is withdrawn: the replay's three numbers
+went from **16 ran / 23 refusing / 7 proved** to **15 / 24 / 6**. A smaller
+number that can be stood behind is worth more than a larger one that cannot.
+Proving isolation on `report-problem` needs a different instrument.
+
+**FOR ANDREW:** the nine messages are in `FOR-ANDREW.md` so he knows what they
+are the moment he opens that inbox, rather than having to work out whether
+something in it is real.
+
+---
+
 ## ~~THE MONEY SCREEN COUNTS THREE CATEGORIES THAT CANNOT EXIST~~ — FIXED 2026-09-17
 
 **Found by running `booking_line_items` for the first time.** The table had
