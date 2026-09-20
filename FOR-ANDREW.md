@@ -43,7 +43,20 @@ Updated 2026-09-20.
   first because it is the most important thing in the list and you should know
   it is done.
 
-  **2 · The Spanish emails.** *Fixes:* ten English words sitting in the middle
+  **2 · The one that tells YOU a booking came in.** *Fixes:* when somebody
+  books, your phone is supposed to buzz. On 19 September a test with a real
+  phone, a real browser and notifications switched on and accepted waited a
+  full minute and **nothing arrived.** The program that sends that buzz is one
+  of the 22 running old code, so we cannot tell whether it is genuinely broken
+  or just running a copy from before it was written. *What publishing it buys:*
+  **an answer.** Either the buzz starts working, or it does not and we have
+  found a real fault with a test already pointing at it. *Rides along:* the
+  change written on 20 September that marks an address the lookup could not
+  find, so your job records start saying "typed by hand" on the ones nobody
+  verified. *Risk:* low — it is the program that takes bookings, it is heavily
+  tested, and the test that covers it is the most exercised thing we have.
+
+  **3 · The Spanish emails.** *Fixes:* ten English words sitting in the middle
   of Spanish emails — the word "at" between a date and a time on four of them,
   and the money column of every invoice and receipt reading "Booking total",
   "Tip", "Discount" in English. *Rides along:* publishing the invoice program
@@ -51,27 +64,34 @@ Updated 2026-09-20.
   was arrived at. *Risk:* low. Nothing about what anyone is charged changes;
   these are labels only, and the English versions are unchanged.
 
-  **3 · The Stripe webhook.** *Fixes:* the running copy predates the change
+  **4 · The Stripe webhook.** *Fixes:* the running copy predates the change
   that made its security check testable, so **the test we trust has been
   checking code that is not the code running.** Nothing is known to be broken;
   we simply cannot vouch for it until the two match. *Rides along:* a week of
   other written-but-unpublished changes to the payment modules. *Risk:* this
   one touches money. Worth doing, worth doing when you are awake.
 
-  **4 · The two that would probably fail if used.** *Fixes:* `platform-billing`
+  **5 · The two that would probably fail if used.** *Fixes:* `platform-billing`
   (the email telling a detailer their card was declined) and `report-problem`
   (the "something is wrong" form) are running from **before parts they depend
   on even existed.** Not "a bit out of date" — they are built from pieces we no
   longer have. If either is triggered, what happens is genuinely unpredictable.
   *Risk:* low to publish, because almost anything is better than what is there.
 
-  **5 · Everything else.** The remaining 17. Mostly one or two small changes
+  **6 · Everything else.** The remaining 17. Mostly one or two small changes
   each, none customer-visible on their own. Cheapest to do in one go once you
   have decided you are happy publishing at all.
 
-  **The recommendation, in one line:** do **2, 4 and 5** together whenever
-  suits you, and do **3** separately when you have a few minutes to watch it,
+  **The recommendation, in one line:** do **2, 3, 5 and 6** together whenever
+  suits you, and do **4** separately when you have a few minutes to watch it,
   because it is the payment one.
+
+  **Why the order is this order.** **1 is first because it is the only one on
+  this list a customer feels** — somebody waiting in a driveway for a job that
+  was cancelled without telling them. **2 is second because what it buys is an
+  ANSWER rather than a fix**: it matters enormously to us and not at all to a
+  customer today. If you disagree with that ranking, say so and it changes —
+  it is a judgement about whose day is worse, not a technical fact.
 
   **What happens if you do nothing:** the same as tonight. Nothing gets worse
   on its own. Items 3 and 4 are risks that are already live, not new ones — so
