@@ -147,6 +147,21 @@ export const es = {
   "Add your phone number to continue.": "Agrega tu teléfono para continuar.",
   "Add your name and phone number to continue.": "Agrega tu nombre y tu teléfono para continuar.",
   "Add the address to continue.": "Agrega la dirección para continuar.",
+  // THE ANSWER TO A REFUSED PRESS. One sentence per thing that can block a
+  // step, from `book/Refusal.jsx` — the four below had no English string at
+  // all until the silent steps were fixed, so they have never been anything
+  // but Spanish and English together.
+  "Choose a service to continue.": "Elige un servicio para continuar.",
+  "We need a price before this can continue. Go back and pick your services again.":
+    "Necesitamos un precio antes de continuar. Regresa y elige tus servicios de nuevo.",
+  "Confirm you can provide an outdoor faucet to continue.":
+    "Confirma que puedes facilitar una llave de agua exterior para continuar.",
+  "Confirm you can provide a power outlet to continue.":
+    "Confirma que puedes facilitar un tomacorriente para continuar.",
+  // The catch-all, for a rule added to the booking core that nobody has
+  // written a sentence for. Vague on purpose and never silent.
+  "Something on this step still needs an answer.":
+    "Falta responder algo en este paso.",
   "Pick a day to continue.": "Elige un día para continuar.",
   "Pick a time to continue.": "Elige una hora para continuar.",
   "Every vehicle needs its own day and time.": "Cada vehículo necesita su propio día y hora.",

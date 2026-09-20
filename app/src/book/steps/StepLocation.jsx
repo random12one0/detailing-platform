@@ -29,6 +29,7 @@ import { useLocale } from "../../hooks/useLocale.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 import { money } from "../../lib/format.js";
 import AddressField from "../AddressField.jsx";
+import Refusal from "../Refusal.jsx";
 
 // `modeLimit` IS A PROP AND WAS NOT TAKEN — the booking page threw
 // `ReferenceError: modeLimit is not defined` for every business offering only
@@ -44,7 +45,7 @@ import AddressField from "../AddressField.jsx";
 // only one got the heading for a narrowed step and the two choice cards
 // anyway — and the "which service decided" message this file was written to
 // print was unreachable in every configuration that did not crash.
-export default function StepLocation({ form, setForm, modeLimit, blocks = [] }) {
+export default function StepLocation({ form, setForm, modeLimit, blocks = [], tried = false }) {
   useLocale();
   // THE RESOLVED SLUG, from the context and never from the URL: on a
   // detailer's own domain there is no slug in the address bar at all.
@@ -203,15 +204,18 @@ export default function StepLocation({ form, setForm, modeLimit, blocks = [] }) 
               use it. **Not a tooltip** — hover is no use on a phone, which is
               where this flow is used — so the reason sits under the field it is
               about, visible without any interaction.
-              **THE OTHER TWO THINGS THAT BLOCK THIS STEP ALREADY EXPLAIN
-              THEMSELVES**: a required faucet or outlet prints *"Without it we
-              can't do this job at your address."* under its own switch. This
-              line is only the gap, not a second system. */}
-          {blocks.includes("no-address") && (
-            <p className="bk-muted" style={{ marginTop: -4, marginBottom: 0 }}>
-              {t("Add the address to continue.")}
-            </p>
-          )}
+              **AND IT ANSWERS THE PRESS NOW, WHICH IT DID NOT.** Andrew
+              found this step himself: pressing Continue with the address
+              empty left this line grey and unchanged, which is the same as
+              saying nothing. The sentence is unmoved and unchanged; what is
+              new is that it goes red and is announced when the button is
+              pressed, from the one component every step now uses.
+              **THE OTHER TWO THINGS THAT BLOCK THIS STEP ARE IN IT TOO.** A
+              required faucet or outlet prints *"Without it we can't do this
+              job at your address."* under its own switch, and that stays —
+              but it is a consequence stated up front, not an answer, and it
+              cannot say which of the two is holding the button. */}
+          <Refusal blocks={blocks} tried={tried} style={{ marginTop: -4, marginBottom: 0 }} />
 
           <Resource
             need={settings.water_requirement}

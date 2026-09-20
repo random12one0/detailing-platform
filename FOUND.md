@@ -3399,7 +3399,7 @@ documented ruling — not the repair of an accident, which is what I called it.
 
 ---
 
-## STEP 4 OF BOOKING REFUSES A PRESS WITHOUT ANSWERING IT — found 2026-09-20 by Andrew, NOT FIXED
+## ~~STEP 4 OF BOOKING REFUSES A PRESS WITHOUT ANSWERING IT~~ — found 2026-09-20 by Andrew, FIXED SAME DAY, ALL FIVE CASES
 
 **Reproduction, at 1440 wide on the demo booking page.** Pick a service,
 Continue, Continue, Continue past the vehicle step, and land on step 4 of 7,
@@ -3424,6 +3424,55 @@ the remaining steps was declined as a separate item. Whoever takes it should
 take all of them at once — step 4 (address), step 5 (date and time) and the
 services step — rather than one at a time, because the fix is the same three
 lines in each and the value is in them agreeing.
+
+---
+
+**TAKEN ALL AT ONCE, AS ASKED — FIXED 2026-09-20.** Andrew: *"Take ALL of them
+as ONE item, not one screen at a time."*
+
+**THE WALK FIRST, BEFORE ANYTHING WAS CHANGED.** Every step of the flow, at
+392, pressing Continue with the step incomplete:
+
+| step | what the press did |
+|---|---|
+| 1 · Services, nothing chosen | **nothing at all** — no text, no colour, no announcement, no scroll |
+| 2 · Add-ons | cannot refuse: the step has no blocker |
+| 3 · Vehicle | cannot refuse in practice: its only blocker is "the price is still being worked out", which clears itself |
+| 4 · Location, no address | **nothing** — the grey hint was already there and did not change. Andrew's find, confirmed |
+| 5 · When, no day | **nothing** — same |
+| 5 · When, no time | **nothing** — same |
+| 6 · Details, name/phone/email | **answered**: the line turned red. The only step that did |
+| 7 · Review | the button submits; there is nothing to refuse |
+
+**So it was three steps and five cases, not four steps** — the services step
+was the loudest silence of all, and the vehicle step's "red state" named in the
+original entry above turns out to be `StepDetails`, which is step 6.
+
+**THE CAUSE WAS ONE LINE AND IT WAS ALREADY SHARED.** 2.6 built the mechanism
+— `Continue` is `aria-disabled` so a press reaches the page, and a `tried`
+flag records it — and the comment beside that flag says *"one flag for every
+step"*. **It was passed to `StepDetails` and to nothing else.** Four steps had
+no way to know a press had happened, so no amount of copy in them could have
+answered one.
+
+**FIXED IN ONE PLACE:** `app/src/book/Refusal.jsx` turns a blocker into a
+sentence, goes red and carries `role="alert"` when the press lands, and every
+step renders it where its own hint already sat — the placement was a
+deliberate 2026-09-12 call (*next to the missing field, because a tooltip is
+no use on a phone*) and none of it moved. `BookingPage.jsx` hands `tried` to
+all five steps and scrolls the answer into view, because a red line below the
+fold is the same silence with a different colour.
+
+**Verified at 1440x900, 768x1024, 392x844 and 320x844**, console clean, in
+English and Spanish and in `?lite=1`. All seven cases above now answer, and
+the one that always answered still says the same words in the same place.
+
+**BROKEN ON PURPOSE:** a blocker no sentence exists for
+(`"a-reason-nobody-wrote-a-sentence-for"`) was pushed into `core.js` and made
+the ONLY thing holding the button. The press still answered — *"Something on
+this step still needs an answer."*, red, announced — rather than going quiet.
+`reasonFor` ends in a fallback instead of returning null for exactly that
+reason: the next blocker somebody adds cannot reintroduce this fault.
 
 ---
 

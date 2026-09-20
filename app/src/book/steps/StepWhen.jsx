@@ -28,6 +28,7 @@ import {
   monthRange, shiftMonth, slotsForType,
 } from "../core.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
+import Refusal from "../Refusal.jsx";
 
 // **THE WEEKDAY LETTERS, THE MONTH NAMES AND THE DATES ARE `Intl`'s JOB, NOT
 // THE CATALOGUE'S — roadmap 8.17.** Translating "Mon" by hand is inventing a
@@ -52,7 +53,7 @@ const dow = (locale) => {
 const shortDay = (d, locale) =>
   new Date(`${d}T12:00:00`).toLocaleDateString(locale, { month: "short", day: "numeric" });
 
-export default function StepWhen({ form, setForm, durationMinutes, durations, surcharges = [], blocks = [] }) {
+export default function StepWhen({ form, setForm, durationMinutes, durations, surcharges = [], blocks = [], tried = false }) {
   useLocale();
   const loc = intlLocale();
   const { slug, business, settings } = useBookingBusiness();
@@ -341,15 +342,11 @@ export default function StepWhen({ form, setForm, durationMinutes, durations, su
           **A DAY BEFORE A TIME**, because that is the order the screen works
           in: naming both at once would tell somebody who has just picked a day
           that they still need one. */}
-      {blocks.includes("no-date") && (
-        <p className="bk-muted" style={{ marginTop: 10 }}>{t("Pick a day to continue.")}</p>
-      )}
-      {blocks.includes("no-time") && (
-        <p className="bk-muted" style={{ marginTop: 10 }}>{t("Pick a time to continue.")}</p>
-      )}
-      {blocks.includes("no-extra-slot") && (
-        <p className="bk-muted" style={{ marginTop: 10 }}>{t("Every vehicle needs its own day and time.")}</p>
-      )}
+      {/* THE SAME THREE SENTENCES, FROM THE PLACE EVERY STEP READS THEM.
+          They were three always-grey paragraphs here and a press did not
+          touch them: measured at 392, pressing Continue with no day picked
+          changed nothing on the page at all. */}
+      <Refusal blocks={blocks} tried={tried} />
     </>
   );
 }

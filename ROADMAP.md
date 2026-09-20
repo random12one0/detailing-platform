@@ -426,13 +426,35 @@ the wrong service, and never book a job we cannot reach.
   left alone deliberately — 2.12 is held until the width sweep is held.
   *A1 P1-06, A2 2.4*
 
-- [ ] **2.7 — Continue is greyed out with no reason (contact step).**
+- [x] **2.7 — Continue is greyed out with no reason (contact step).**
   The hint says "Add your name and phone number to continue"; Continue stays
   dead until an email is added. Email may only be required when a plan is
   attached.
   **Fix:** the hint states exactly what is required in each case.
   **Done when:** the hint always matches what validation actually enforces.
   *A1 P1-06, A2 2.5*
+  **DONE 2026-09-20, AND SAYING SO EXPLICITLY BECAUSE ANDREW ASKED FOR A
+  RULING RATHER THAN AN ASSUMPTION.** The reported symptom was exact: the line
+  under the fields read *"We'll send your confirmation here, with a link to
+  change or cancel."* — a reassurance — while Continue refused because the
+  email was empty. The email sentence existed but was gated on a PRESS, so a
+  customer who had not pressed saw the page say everything was fine while the
+  button said otherwise. **That is now impossible:** the line names whatever is
+  actually blocking, from the moment it blocks, and the reassurance only
+  appears when nothing is. Walked and measured — name and phone empty reads
+  *"Add your name and phone number to continue."*; fill them and it reads
+  *"Add your email to continue. Your confirmation goes there."*; fill that and
+  the reassurance comes back with no refusal element on the page at all.
+  **ONE SENTENCE AT A TIME, NOT A LIST, and that is deliberate:** the order is
+  the order of the form, which is how this step has always behaved and what
+  Andrew reviewed. Naming all three at once needs seven strings for the
+  combinations of three fields.
+  **WHAT THIS DOES *NOT* SETTLE, and it is not a wording question:** whether an
+  email should be required at all when no plan is attached. That is a rules
+  change in `core.js`, nobody has ruled on it, and the hint is truthful either
+  way — it states the rule that is actually in force. **If Andrew wants email
+  optional for a plain booking, that is its own item and this tick does not
+  pre-empt it.**
 
 - [ ] **2.8 — Address entry may accept unverified raw text.**
   Continue became enabled before a suggestion was selected. **A1 marks this
@@ -635,7 +657,7 @@ the wrong service, and never book a job we cannot reach.
   `landing-pricing` 109, `route-contract` 34, 0 failed.
   *A1 P2-07*
 
-- [ ] **2.14 — The promo error hides behind the sticky footer.**
+- [x] **2.14 — The promo error hides behind the sticky footer.**
   **Fix:** scroll it into view, or add bottom space.
   **Done when:** visible on a 375-wide phone without scrolling.
   *A2 2.10*
@@ -647,8 +669,13 @@ the wrong service, and never book a job we cannot reach.
   bottom first, which is where a phone actually is when it presses Apply:
   the error lands **56px clear of the bar and needs no scrolling**. At 392 on
   `demo-riverside` it is 50px clear.
-  **NOT TICKED. Andrew decides** — an item cured by somebody else's change is
-  his call, not a session's.
+  **TICKED 2026-09-20 BY ANDREW, WHO REPRODUCED IT HIMSELF RATHER THAN READING
+  THE TABLE ABOVE.** His walk: a real booking to the last step with the
+  Bi-weekly plan attached so the bar's label wraps to two lines, window shrunk
+  to 320, junk promo code, Apply. *"That code isn't one of ours came back
+  fully visible, well clear of the bar, and the sentence above it was clear
+  too."* Exercised the way a customer hits it, at the width and the bar height
+  where it would fail if it could.
 
 - [ ] **2.15 — The sticky footer can cover the last choice.**
   **Fix:** bottom padding and a shorter footer; test with browser chrome and
@@ -690,7 +717,19 @@ the wrong service, and never book a job we cannot reach.
   A phone keyboard shrinks the visual viewport, not the layout viewport, and
   no keyboard can be raised in this browser. It is the one half of this item
   nobody has proven either way.
-  **NOT TICKED — Andrew's call, and the keyboard is the reason to hesitate.**
+  **LEFT OPEN ON PURPOSE — Andrew, 2026-09-20, accepting the recommendation.**
+  *"A box ticked on an untestable claim is the same lie as a check that prints
+  clean having tested nothing."*
+  **WHAT WOULD CLOSE IT, so nobody has to work this out again:** one run on a
+  real phone — not an emulated viewport — with the on-screen keyboard raised
+  on the two steps that have a text box above the fold, step 4 (the address)
+  and step 6 (name, phone, email). A keyboard shrinks the VISUAL viewport and
+  leaves the LAYOUT viewport alone, which is why no window size reproduces it
+  and why `resize_window` cannot stand in. The question to answer is whether
+  the pinned bar rides up on the keyboard and covers the field being typed
+  into. If it does, `window.visualViewport` is the only thing that can see it
+  and the fix belongs with the bar, not with the step. **Everything else in
+  this item is done and measured above.**
 
 ---
 
@@ -823,6 +862,56 @@ requested.
   `.eq("business_id", member.businessId)` — but that is a reading, not a test.
   **Done when** the suite sweeps all 51 tables rather than 5, and a second pass
   replays each edge function with another tenant's identifiers.
+
+  **STILL OPEN 2026-09-20, AND DELIBERATELY NOT TICKED.** The tenant-isolation
+  matrix (step 6 of the adoption sequence, `scripts/tenant-matrix.mjs`) now
+  covers four boundaries — Data API tables, definer RPCs, storage objects and
+  Realtime — at **77 targets, 729 assertions, 0 failures, four canaries each
+  caught by its own detector**, graded by `receipt.mjs` rather than by its own
+  printed verdict. That satisfies the FIRST half of this item's amended
+  *Done when* and nothing of the second.
+
+  **HOW THE FIRST HALF WAS CHECKED.** The question comes off the schema rather
+  than off a list: every table in `public` is discovered at run time and a
+  tenant-owned table with no seed recipe fails the run by name. Four actors —
+  anonymous, owner A, staff A, and a member removed *after* signing in, whose
+  JWT is still valid. Read, update, delete and forged-tenancy insert, plus a
+  sentinel string that catches a leak through a view or a column nobody named.
+  Storage was added because **`job_photos` passed the table sweep with its
+  photographs never once fetched** — the row holds a path and the bytes sit
+  behind a policy in another schema. Certified by six sabotages, all refused,
+  two of which silence a single detector rather than a whole section.
+
+  **WHAT IT DOES NOT PROVE, AND THIS CAVEAT SITS BESIDE THE WORK RATHER THAN
+  UNDER IT:**
+
+  - **The 39 edge functions are untouched. The matrix calls zero of them.**
+    They run as the service role and bypass RLS *entirely*, so every policy
+    proved above is simply not consulted. Their authorization is hand-written
+    and has been READ, not tested — which is the exact distinction this item
+    was re-specified to close. **This is the whole of what is left of 4.4.**
+  - **`postgres_changes` prints `NOT DELIVERING — detector uncertified`.**
+    Realtime's row-streaming does not deliver on this project at all: a
+    published table with a wide-open policy, a confirmed `SUBSCRIBED`, a live
+    socket proved by hearing its own broadcast back, a row inserted — and
+    nothing arrived across three runs. An empty result is also what perfect
+    isolation looks like, so that detector is **deliberately excluded from the
+    receipt's canary gate**. It is uncovered, not clean. Harmless only while
+    the publication stays empty; the publication detector fails the run the day
+    anybody publishes a tenant-owned table, which forces this to be re-proved
+    before anyone leans on it.
+  - **A channel opened without `private: true` is authorised by nothing.**
+    Proved by having a client with only the anon key and no session receive a
+    signed-in user's broadcast verbatim. Nothing leaks today — the app opens
+    zero channels — but it is a standing risk carried on every receipt, not a
+    thing that has been fixed.
+  - **Self-reported.** Every number came from runs made by the session that
+    wrote the check. Not independently verified.
+
+  **Done when** (unchanged): a second pass replays each of the 39 edge
+  functions with another tenant's identifiers. Until that exists, this item is
+  open and the four-boundary matrix is evidence toward it rather than
+  completion of it.
 
 ---
 

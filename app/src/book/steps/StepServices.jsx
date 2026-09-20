@@ -28,8 +28,9 @@ import { Check, ChevronDown } from "lucide-react";
 import { duration, money, phone } from "../../lib/format.js";
 import { groupServices } from "../core.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
+import Refusal from "../Refusal.jsx";
 
-export default function StepServices({ selected, onToggle }) {
+export default function StepServices({ selected, onToggle, blocks = [], tried = false }) {
   const { services, serviceGroups, business, settings, tx } = useBookingBusiness();
   useLocale();
   // Which cards are showing their full details. Plain state rather than
@@ -233,6 +234,13 @@ export default function StepServices({ selected, onToggle }) {
           })}
         </div>
       ))}
+      {/* **THE FIRST STEP WAS THE MOST SILENT OF ALL.** Pressing Continue
+          with nothing chosen changed not one pixel: no text, no colour, no
+          announcement — measured at 392 before this was written. The price
+          bar's *"Choose a service to start"* is the price slot explaining why
+          there is no figure, it sits at the other end of the screen, and it
+          does not move when the button is pressed. */}
+      <Refusal blocks={blocks} tried={tried} />
     </div>
   );
 }

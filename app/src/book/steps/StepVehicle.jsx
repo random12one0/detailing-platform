@@ -44,6 +44,7 @@ import {
 } from "../core.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 import VehicleField from "../VehicleField.jsx";
+import Refusal from "../Refusal.jsx";
 
 // **ONLY OUR OWN WORDING IS TRANSLATED. A DETAILER'S IS NEVER TOUCHED, AND
 // "IT HAS NO ENTRY" WAS NOT ENOUGH — measured 2026-09-12 on a scratch tenant.**
@@ -104,7 +105,7 @@ export const sizeText = (s, field, tx) =>
 const SIZE_CARD_CEILING = 4;
 
 
-export default function StepVehicle({ form, setForm, selectedServices, blocks = [] }) {
+export default function StepVehicle({ form, setForm, selectedServices, blocks = [], tried = false }) {
   useLocale();
   const { settings, tx } = useBookingBusiness();
   const sizes = settings.vehicle_sizes;
@@ -456,6 +457,12 @@ export default function StepVehicle({ form, setForm, selectedServices, blocks = 
           </p>
         </div>
       )}
+      {/* This step can only be refused while the price is still being worked
+          out, which clears itself in a second — so this is almost never seen.
+          It is here anyway: "almost never" is what made the other four steps
+          silent for months, and a step that can refuse must be able to say
+          so. */}
+      <Refusal blocks={blocks} tried={tried} />
     </>
   );
 }

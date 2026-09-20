@@ -371,6 +371,27 @@ function BookingFlow({ notFound = null }) {
     serviceIds: coreToggleService(f.serviceIds, id, { services, serviceGroups }),
   }));
 
+  // **A RED LINE NOBODY CAN SEE IS THE SAME SILENCE.** The button is pinned
+  // to the floor of the screen and the sentence sits next to the field it is
+  // about, which on a long step — nineteen time chips at 320 — is off the
+  // top of the viewport. So the press turns the answer on AND goes to it.
+  // Queried by class rather than held in a ref: the element belongs to
+  // whichever step is mounted, and one query here beats a ref threaded
+  // through five step files for the same result.
+  //
+  // **INSTANT, NOT SMOOTH, AND THAT IS TWO ARGUMENTS AGREEING.** `go()`
+  // above scrolls smoothly because moving between steps is a journey. This
+  // is not: it is an answer to a press, and a reduced-motion visitor should
+  // not be given an animation to say "you missed a field". The second reason
+  // is the one that settled it — a smooth scroll runs on the browser's
+  // animation loop, and the loop is exactly what could not be relied on when
+  // this was verified, so "smooth" was a line nobody could prove ran. The
+  // default jumps and can be measured.
+  const refuse = () => {
+    setTried(true);
+    document.querySelector(".bk-refusal")?.scrollIntoView({ block: "center" });
+  };
+
   const go = (delta) => {
     setTried(false);
     setStep((s) => Math.max(0, Math.min(STEPS.length - 1, s + delta)));
@@ -660,7 +681,8 @@ function BookingFlow({ notFound = null }) {
             layout: its children stay direct flex items of .bk-wrap. */}
         <div className="bk-step" key={`step-${step}`}>
         {stepName === "Services" && (
-          <StepServices selected={form.serviceIds} onToggle={toggleService} />
+          <StepServices selected={form.serviceIds} onToggle={toggleService}
+            blocks={stepBlocks} tried={tried} />
         )}
         {stepName === "Extras" && (
           <StepExtras
@@ -672,10 +694,10 @@ function BookingFlow({ notFound = null }) {
           />
         )}
         {stepName === "Vehicle" && (
-          <StepVehicle form={form} setForm={setForm} selectedServices={selectedServices} blocks={stepBlocks} />
+          <StepVehicle form={form} setForm={setForm} selectedServices={selectedServices} blocks={stepBlocks} tried={tried} />
         )}
         {stepName === "Location" && (
-          <StepLocation form={form} setForm={setForm} modeLimit={modeLimit} blocks={stepBlocks} />
+          <StepLocation form={form} setForm={setForm} modeLimit={modeLimit} blocks={stepBlocks} tried={tried} />
         )}
         {stepName === "When" && (
           <StepWhen
@@ -707,6 +729,7 @@ function BookingFlow({ notFound = null }) {
             surcharges={quote && quote.vehicle_count === 1 && !quote.plan_name
               ? (quote.adjustments ?? []) : []}
             blocks={stepBlocks}
+            tried={tried}
           />
         )}
         {stepName === "Details" && <StepDetails form={form} setForm={setForm} blocks={stepBlocks} tried={tried} />}
@@ -884,7 +907,7 @@ function BookingFlow({ notFound = null }) {
             </button>
           ) : (
             <button className="bk-btn primary" aria-disabled={!canAdvance}
-              onClick={() => (canAdvance ? go(1) : setTried(true))}>
+              onClick={() => (canAdvance ? go(1) : refuse())}>
               {t("Continue")}
             </button>
           )}
