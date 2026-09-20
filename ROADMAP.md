@@ -2096,60 +2096,80 @@ the dashboard or back office at phone width at all.
   Never checked.
   *A1 § 10*
 
-  **A SPLIT IS PROPOSED, NOT TAKEN — 2026-09-20. Nothing has been built.** This
-  is five unrelated things wearing one number, and they do not share an
-  instrument, a fix or a way of being proved. The parts below are what they
-  split into naturally.
+  **SPLIT ACCEPTED 2026-09-20, five parts, in this order. EACH CARRIES ITS
+  OWN DONE-WHEN so none can be ticked on the strength of another.**
 
-  **WHAT WAS MEASURED FIRST, WITH PREDICTIONS DECLARED BEFORE THE RUN.** Seven
-  screens — the five dashboard tabs, booking step 1 and the booking calendar —
-  **187 interactive elements**, two canaries planted on every screen (a button
-  with no name, and a clickable div nothing can focus), **both caught 7/7**.
+  **What was measured before the split was proposed**, predictions declared
+  first: seven screens, **187 interactive elements**, two canaries on every
+  screen (a button with no name, a clickable div nothing can focus), **both
+  caught 7/7**. Two predictions were wrong IN THE PRODUCT'S FAVOUR — the
+  calendar's day cells ARE keyboard reachable, and every one of the 187
+  controls has an accessible name — and a third "finding" was the probe's own
+  fault: it flagged the booking service card, a `div` with `cursor: pointer`
+  that CONTAINS a `<button aria-pressed>` Tab reaches and Enter operates.
+  Detector corrected, then re-run.
 
-  | predicted | found |
-  |---|---|
-  | the calendar's day cells are DIVs with click handlers, so a keyboard cannot reach them | **WRONG, in the product's favour.** Tab lands on `DIV.cell` "22". They are reachable |
-  | a handful of icon-only controls with no accessible name | **WRONG.** Zero. Every one of the 187 has a name |
-  | — | the service card looked unreachable and **was a fault in my probe**: the card is a `div` with `cursor: pointer` that CONTAINS a `<button aria-pressed>` Tab reaches and Enter operates. Detector corrected, then re-run |
+  **8.5e — REDUCED MOTION: THE DELAY THE `.lite` BLOCK FORGOT. DONE
+  2026-09-20.**
+  *Done when:* a visitor under `prefers-reduced-motion: reduce` sees a step's
+  content as soon as it exists, proved on a clock that is actually advancing.
+  *The defect:* `.lite` forced `animation-duration: .01ms` and never touched
+  `animation-delay`. The entrance staggers children at 60, 120, 180, 240 and
+  300ms and `bk-rise` is `backwards`-filled, so during the delay the element
+  sits at its `from` keyframe — **opacity 0**. Somebody who asked for less
+  movement got no movement AND a blank screen, the one outcome that block
+  exists to prevent.
+  *Fixed:* `animation-delay: 0ms !important; transition-delay: 0ms !important;`
+  beside the duration it already overrode.
+  *PROVED ON A RUNNING CLOCK, NOT FROM THE STYLESHEET.* The browser pane this
+  project usually drives **freezes the animation clock, which is what hid this
+  defect in the first place**, so it was measured in headless Chromium under
+  `reducedMotion: "reduce"` after confirming the clock advanced — document
+  timeline +400ms over a 400ms wait, `requestAnimationFrame` firing. Watching
+  a step's second child frame by frame from the moment it appears: **opacity
+  reached 1 at +82ms before the fix (6 blank frames) and +31ms after it (3
+  frames — React and paint, no animation left in it).** Removing the line
+  reproduced 82ms; restoring it reproduced 31ms. **Measured on the 60ms
+  child** because booking step 1 has three children; the same rule removes
+  **300ms** on any step with six or more. Normal motion is untouched — the
+  second child still computes `0.06s` there.
 
-  **So the keyboard half of this item is in better shape than the audit
-  assumed, and two of my three findings were my own instrument being wrong.**
+  **8.5a — KEYBOARD: REACH, OPERATION, AND GETTING BACK OUT.**
+  *Measured and clean:* 187 controls, all reachable, all named, no positive
+  `tabindex`.
+  *Done when:* focus is visibly located at every step of a Tab walk across the
+  five dashboard tabs and all seven booking steps; every sheet and modal can
+  be left with Escape; no walk re-enters a component it has left; and the
+  order follows the reading order. **None of that is measured, and it is the
+  half that strands somebody** — a keyboard user who cannot see where focus
+  is, or cannot get out of a sheet, is stopped rather than slowed.
 
-  **THE PROPOSED SPLIT:**
+  **8.5c — ZOOM TO 200%.**
+  *Done when:* at 200% zoom, at all four widths, nothing is clipped, no
+  control is unreachable and there is no horizontal scroll — WCAG 1.4.4.
+  Unmeasured.
 
-  * **8.5a — Keyboard: reach, operation, and getting back out.** *Measured
-    and clean:* every control reachable, every control named, no positive
-    `tabindex`. *Not measured:* whether focus is VISIBLE as it moves, whether
-    the sheets and modals trap it, whether Escape closes them, and whether the
-    order makes sense. **That is the half that would actually strand somebody**
-    and it needs a different probe.
-  * **8.5b — Screen reader.** Names are clean; landmarks, heading order and
-    live regions are unmeasured. **The last mile needs a human with a screen
-    reader on** and should be written up as such rather than pretended at.
-  * **8.5c — Zoom to 200%.** Unmeasured. WCAG 1.4.4. One probe, four widths.
-  * **8.5d — Large text and text spacing.** Unmeasured. WCAG 1.4.12 — bump
-    the root size and the spacing overrides and look for clipping and overlap.
-    Different from zoom and fails differently.
-  * **8.5e — Reduced motion. ALREADY HAS A KNOWN DEFECT**, found on
-    2026-09-20 and logged in `FOUND.md`: `.lite` forces
-    `animation-duration: .01ms` but **does not touch `animation-delay`**, and
-    the step entrance staggers children up to 300ms with a `backwards` fill —
-    so a visitor who asked for reduced motion still waits up to a third of a
-    second looking at an empty step. One line to fix, and it needs proving
-    somewhere the animation clock actually runs.
+  **8.5d — LARGE TEXT AND TEXT SPACING.**
+  *Done when:* with the WCAG 1.4.12 overrides applied — line height 1.5×,
+  paragraph spacing 2×, letter 0.12em, word 0.16em — and the root size raised,
+  nothing is clipped or overlapped on any screen. Unmeasured, and it fails
+  differently from zoom: they are not the same test.
 
-  **RECOMMENDED ORDER IF THE SPLIT IS ACCEPTED:** **8.5e** first — it has a
-  named defect, a one-line fix and no instrument to build. Then **8.5a's
-  unmeasured half**, because a keyboard user who cannot see where focus is, or
-  cannot get out of a sheet, is stopped rather than inconvenienced. Then c and
-  d, which share a probe. **8.5b last**, because its last mile is not ours to
-  do alone.
+  **8.5b — SCREEN READER.**
+  *Done when:* every screen has landmarks, headings descend without skipping a
+  level, anything that changes without a page load is announced, **AND a
+  person has walked the booking flow end to end with a screen reader on.** The
+  last mile is not ours to close alone and this part says so rather than being
+  ticked on the machine-checkable half. Names are already clean; nothing else
+  here is measured.
 
-  **THE PROBE'S OWN BLIND SPOT, STATED:** it finds "looks clickable" by
-  `cursor: pointer` or an `onclick` attribute. **A React handler on an element
-  with a default cursor is invisible to it.** That is a real limit, not a
-  quibble — anything relying on this check should know it can only see the
-  clickable things that were styled as clickable.
+  **THE PROBE'S OWN BLIND SPOT, AND IT IS WORTH MORE THAN THE NUMBER IT
+  QUALIFIES:** it finds a clickable thing by its **cursor style or an `onclick`
+  attribute**, so **a React handler on an element with a default cursor is
+  invisible to it**. The clean sheet above is clean about what it can see and
+  no more than that. Also written into `docs/gotchas.md`, because the next
+  person to write an accessibility walker will reach for the same two
+  signals.
 
 ---
 

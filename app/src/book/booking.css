@@ -1099,6 +1099,20 @@
 .lite .bk *, .lite .bk *::before, .lite .bk *::after, .lite .bk::before, .lite .bk::after {
   animation-duration: .01ms !important; animation-iteration-count: 1 !important;
   transition-duration: .01ms !important;
+  /* ROADMAP 8.5e — **AND THE DELAY, WHICH THIS BLOCK FORGOT FOR AS LONG AS IT
+     HAS EXISTED.** Killing the duration is not enough. The step entrance
+     staggers its children with `animation-delay` — 60, 120, 180, 240 and
+     300ms — and `bk-rise` is `backwards`-filled, so during the delay the
+     element is still at its `from` keyframe: **opacity 0**. A visitor who
+     asked for less movement therefore got no movement and up to a third of a
+     second of nothing, which is the one outcome this block exists to prevent;
+     the comment above it says *"every animation here is both-filled and hides
+     nothing"*, and the delay is exactly how it hid something.
+     Measured under `reducedMotion: "reduce"` in a browser whose clock
+     actually advances: before this line the second child of a step computed
+     `animation-delay: 0.06s` with `opacity: 0.00`; after it, every child
+     computes `0s`. */
+  animation-delay: 0ms !important; transition-delay: 0ms !important;
 }
 
 /* The date grid in step 4. A day that cannot be booked is DIM AND FLAT

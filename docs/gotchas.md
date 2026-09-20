@@ -1396,3 +1396,37 @@ judgement. `scripts/contrast-insitu.mjs` does both and is the worked example.
 visited, not only how many things it counted — and if two rows in it agree
 about something they cannot both be right about, the navigation is the first
 thing to doubt.
+
+---
+
+## AN ACCESSIBILITY WALKER CAN ONLY SEE THE CLICKABLE THINGS THAT WERE STYLED AS CLICKABLE
+
+**Write this next to any number such a walker produces, because the number is
+only true about what the walker can see.**
+
+The two signals available to a DOM walk are `cursor: pointer` and an `onclick`
+**attribute**. **React attaches its handlers as props, not as attributes**, so
+an element wired up with `onClick={...}` and left at the default cursor is
+invisible to the walk. A screen can be full of them and the report will say
+nothing at all.
+
+So a clean sheet from this kind of probe means: *nothing clickable-LOOKING was
+unreachable.* It does not mean nothing clickable was unreachable, and the
+difference is the entire distance between a measurement and a reassurance.
+
+**Two more ways the same walk lies, both met on 2026-09-20:**
+
+- **Looking UP the tree is not enough.** The first version skipped an element
+  if it sat inside something focusable. The booking service card is a `div`
+  with `cursor: pointer` that **CONTAINS** a `<button aria-pressed>` which Tab
+  reaches and Enter operates — so the wrapper was reported as a keyboard trap
+  that does not exist. Check for a focusable **descendant** as well as a
+  focusable ancestor.
+- **An inference from the DOM is not a measurement.** The booking calendar's
+  day cells are `div`s, which looked like the same fault; pressing Tab showed
+  they are reachable and always were. **Press the key before writing the
+  finding.**
+
+**What to do instead when it matters:** drive a real Tab walk and record what
+receives focus, which is what proved both of the above wrong. The walker is
+for finding candidates; the keyboard is for confirming them.
