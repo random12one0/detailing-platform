@@ -298,6 +298,35 @@ Updated 2026-09-20.
   other two — it is a two-line change and the check already measures it.
   *Not blocking anything. Answer whenever you next look at a phone.*
 
+- [ ] **DECIDE · Large text on a small phone. Added 2026-09-20.**
+  **One question, and it is about a promise rather than a bug.**
+
+  **What a person sees.** Somebody on a small phone who has turned their text
+  size up to double opens your dashboard. The page now has half as much room
+  as it thinks it has — so on some screens things run off the right-hand edge
+  and they have to drag sideways to read a line. Worst is the calendar, where
+  about a finger's width of the screen is off the edge. The booking page your
+  customers use is very nearly fine; it is the back office that suffers.
+
+  **Why it is a question and not a defect.** We say in our own notes that the
+  narrowest screen this product supports is 320 pixels wide. At double text
+  size on a small phone the page behaves as if it were **160** — half our own
+  floor. So nothing is broken by our own rules; the rules just never
+  considered this person.
+
+  **The two ways:**
+  * **Move the floor.** Make the screens work all the way down. *Costs:* real
+    work on the dashboard, for a setting most people never touch that far.
+  * **Change the promise.** Say plainly that at very large text on a small
+    phone some back-office screens scroll sideways. *Costs:* nothing to build,
+    and somebody in that situation has a worse time of it.
+
+  **My recommendation: change the promise, and fix only the booking page.**
+  That is the screen a CUSTOMER sees, it is 19 pixels from fitting, and a
+  customer with large text should never be dragging your booking form
+  sideways. The dashboard is yours and you can zoom less on it.
+  *Not blocking anything. Answer whenever.*
+
 ---
 
 ## Thirty seconds, outside, in daylight — you are the only instrument for this

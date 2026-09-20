@@ -1481,3 +1481,31 @@ style:
 **The rule:** *computed* is not *painted*, *painted* is not *visible*, and *in
 the viewport* is not *on the screen*. Three different questions, and the source
 answers none of them.
+
+---
+
+## PINCH ZOOM IS NOT BROWSER ZOOM, AND MEASURING IT MEASURES NOTHING
+
+**Third instrument in one night that would have produced a confident zero
+while testing the wrong thing.** 2026-09-20, building the 200% zoom walk.
+
+The obvious call is `Emulation.setPageScaleFactor(2)`, or Playwright's
+device-scale knob. **Neither is browser zoom.** Pinch zoom magnifies the
+rendered page like a lens: **nothing reflows**, no media query re-evaluates,
+no line re-wraps, and a walk over it finds exactly what the unzoomed page had
+— which is a clean sheet about a question nobody asked.
+
+**Browser zoom makes a CSS pixel physically bigger.** A 1440px-wide window at
+200% therefore lays out as a **720 CSS px viewport on a 2x device**:
+
+```js
+browser.newContext({ viewport: { width: 720, height: 450 }, deviceScaleFactor: 2 })
+```
+
+Same layout, same reflow, same breakpoints as a person pressing Ctrl and plus.
+Halve the viewport, double the device scale. Anything else is a photograph of
+the wrong page.
+
+**The tell, if you are unsure which you have:** at real 200% zoom a responsive
+layout changes its breakpoint — a two-column screen becomes one column. If the
+columns are still side by side and merely larger, you are measuring a lens.
