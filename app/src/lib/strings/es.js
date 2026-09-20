@@ -91,6 +91,18 @@ export const es = {
   "Booking…": "Reservando…",
   "Confirm booking": "Confirmar la reserva",
   "See the plan": "Ver el plan",
+  // ROADMAP 2.11 — what pressing the last button does. "Apartar" is holding
+  // something back for somebody; "reservar" is the booking itself — the same
+  // distinction the English makes between held and booked, and the whole point
+  // of the two sentences.
+  "Your time is held from the moment you press this.":
+    "Apartamos tu hora desde el momento en que presionas esto.",
+  "Your time is booked from the moment you press this. Nobody has to accept it.":
+    "Tu hora queda reservada desde el momento en que presionas esto. Nadie tiene que aceptarla.",
+  "You can change or cancel it yourself up to {hours}h before the appointment.":
+    "Puedes cambiarla o cancelarla hasta {hours}h antes de la cita.",
+  "You can change or cancel it yourself any time before the appointment.":
+    "Puedes cambiarla o cancelarla en cualquier momento antes de la cita.",
   // The step-1 door became a filled chip carrying the cheapest price
   // (2026-09-11). "Plan"/"Plans" is the chip's own word; the price is
   // built by `priceParts`, which already speaks both languages.

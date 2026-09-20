@@ -763,6 +763,49 @@ function BookingFlow({ notFound = null }) {
               }} />
           </div>
         )}
+
+        {/* ROADMAP 2.11 — WHAT THE PRESS ACTUALLY DOES, said where the press
+            happens. Seven steps end on a button and nothing on this page said
+            what is on the other side of it.
+
+            **BUILT FROM THE TWO SETTINGS THAT DECIDE IT, and true in both
+            modes because it asks the same question the SERVER asks.**
+            `create-booking` writes `pending` when the mode is request or a
+            plan is being signed up for, and `confirmed` otherwise — so the
+            first sentence branches on exactly what the button already
+            branches on, and a reserve-mode business is never told its
+            customer has to wait. The second sentence is
+            `cancellation_window_hours`, which is the number
+            `cancel-booking` and `reschedule-booking` enforce, not a
+            reassuring round figure.
+
+            **THE PLAN CASE UNDER-PROMISES, DELIBERATELY, exactly as the
+            button does** — see its own note below. A customer who is
+            ALREADY a member gets a confirmed booking in reserve mode, and
+            this page cannot know that; the server can, and the confirmation
+            screen reads the status it wrote. Saying "held" and delivering
+            "booked" is the safe direction.
+
+            **NO WINDOW, NO SENTENCE.** `normalizeSettings` hands back null
+            rather than a guess when the settings row cannot be read, and a
+            promise about changing a booking is not a thing to guess at.
+
+            Inside `.bk-step`, so it arrives with the step's own staggered
+            rise and needs no motion of its own. */}
+        {isLast && (
+          <p className="bk-muted">
+            {settings.booking_mode === "request" || attachedPlan
+              ? t("Your time is held from the moment you press this.")
+              : t("Your time is booked from the moment you press this. Nobody has to accept it.")}
+            {settings.cancellation_window_hours != null && " "}
+            {settings.cancellation_window_hours > 0
+              ? t("You can change or cancel it yourself up to {hours}h before the appointment.",
+                { hours: settings.cancellation_window_hours })
+              : settings.cancellation_window_hours === 0
+                ? t("You can change or cancel it yourself any time before the appointment.")
+                : null}
+          </p>
+        )}
         </div>
 
         {/* A failed price calculation is visible and recoverable — never a

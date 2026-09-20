@@ -3491,3 +3491,35 @@ file name, and `/ex5` took a full pass to do properly. **Andrew's ruling,
 job than that item.** Whoever picks it up should decide the general rule first
 — whether an example site may be named after a real place at all — rather than
 renaming two sites and leaving the rule unwritten for the next one.
+
+---
+
+## THE LAST THING ON THE REVIEW STEP SITS BEHIND THE PRICE BAR AT 320 — measured 2026-09-20, NOT FIXED
+
+**Found while closing ROADMAP 2.11**, which put a sentence at the foot of the
+review step. The sentence is not the cause — whatever is last is clipped.
+
+`booking.css` line 260 pads `.bk-wrap` with a fixed
+`calc(104px + var(--safe-b))` at the bottom, which is the price bar's height
+written down once. **The bar is not always 104px.** At 320 its eyebrow
+(`Estimated total · 1 hr 15 min`) wraps to two lines and the bar renders 98px
+on `demo-riverside` against 84px on `demo-detail` — and the taller bar is the
+one the padding fails to clear.
+
+**Measured at 320x844, scrolled all the way to the bottom, on
+`/book/demo-riverside`:**
+
+| what is last | how far behind the bar |
+|---|---|
+| the promo row, with 2.11's sentence hidden (the baseline) | 14px |
+| 2.11's sentence | 13px |
+
+So it predates 2.11 by exactly one element. On `demo-detail`, whose bar is
+84px, the last element clears the bar by 1px — which is how close the whole
+page is to this either way.
+
+**Not fixed, and not a copy problem.** Raising the 104px would cost vertical
+budget on every step at every width, which is what W16 is written against; the
+honest fix is for the padding to follow the bar's real height, and that is the
+pinned bar's geometry rather than this item's sentence. Whoever takes it should
+break it first by forcing a three-line eyebrow.

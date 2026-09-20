@@ -229,6 +229,13 @@ export function isPlatformSizeText(size, field) {
 export function normalizeSettings(raw) {
   const settings = raw ?? {};
   const askWaterElectric = settings.ask_water_electric ?? true;
+  // ROADMAP 2.11 — the review step tells the customer how long they have to
+  // change their mind, and the number has to be this business's own.
+  // **NULL RATHER THAN A FALLBACK, and that is the same rule as the two
+  // above:** the window is what `cancel-booking` and `reschedule-booking`
+  // enforce, so guessing it is a promise the server may refuse. A settings
+  // row we cannot read drops the sentence instead of inventing one.
+  const cancelWindow = Number(settings.cancellation_window_hours);
   return {
     // **NOT `?? true` — ROADMAP 8.4.** These two are the only settings in this
     // function whose absence is an ANSWER rather than a gap. Since the schema
@@ -255,6 +262,10 @@ export function normalizeSettings(raw) {
     travel_zones: Array.isArray(settings.travel_zones) ? settings.travel_zones : [],
     min_advance_minutes: settings.min_advance_minutes ?? 120,
     booking_mode: settings.booking_mode === "request" ? "request" : "reserve",
+    cancellation_window_hours:
+      settings.cancellation_window_hours == null || !Number.isFinite(cancelWindow)
+        ? null
+        : cancelWindow,
     google_review_url: settings.google_review_url ?? null,
     yelp_review_url: settings.yelp_review_url ?? null,
     // ROADMAP 3.2(b) — contract §6b and §6c. Neither reaches this booking

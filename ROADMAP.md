@@ -527,7 +527,7 @@ the wrong service, and never book a job we cannot reach.
   costs and whether it repeats.
   *A1 P1-07, A2 2.7*
 
-- [ ] **2.11 — The last step says nothing about what happens next.**
+- [x] **2.11 — The last step says nothing about what happens next.**
   **Not a contradiction with A1 §12, which is about a different step.** A1
   found the reassurance sentence on the *date/time* step and asked to keep it;
   A2 wants one above the *final* button. Checked in source: `BookingPage.jsx`
@@ -535,6 +535,33 @@ the wrong service, and never book a job we cannot reach.
   **Fix:** one line above the button, built from the detailer's own rules:
   when they reply, and the change/cancel window.
   **Done when:** the line shows and reflects that business's actual settings.
+  **DONE 2026-09-20.** One paragraph at the foot of the review step, above the
+  price bar, branching on the SAME condition the button branches on
+  (`booking_mode === "request" || attachedPlan`) so it can never disagree with
+  the words on the button, and carrying `cancellation_window_hours` from the
+  public profile — which `normalizeSettings` did not publish until now.
+  **"When they reply" is NOT in the sentence and that is deliberate: no such
+  setting exists.** `request_nudge_hours` is when the DETAILER gets chased, not
+  a promise to the customer, so the line says the time is held and that an
+  email follows acceptance, with no hour attached to it.
+  **Verified by walking both modes to step 7 in a real browser**, at 1440x900,
+  768x1024, 392x844 and 320x844, console read at each and clean:
+  `demo-detail` (request, 24h) reads *"Your time is held from the moment you
+  press this. You can change or cancel it yourself up to 24h before the
+  appointment."* over **Request this time**; `demo-riverside` (reserve, 48h)
+  reads *"Your time is booked from the moment you press this. Nobody has to
+  accept it. You can change or cancel it yourself up to 48h before the
+  appointment."* over **Confirm booking**. **Two different numbers off two
+  different businesses is the proof it is not a literal.**
+  **Broken on purpose three times.** Forcing the window to null dropped the
+  change/cancel clause entirely rather than printing a number — and the FIRST
+  run of that sabotage read "clean" only because Vite's hot reload had bounced
+  the page back to step 1, so it was re-walked. Deleting the Spanish key and
+  dropping `{hours}` from the translation were both named by
+  `tests/spanish.test.mjs` § 1b and § 2b.
+  **Parked, not this item's, in `FOUND.md`:** at 320 the last element on this
+  step sits behind the price bar — 13px for this sentence, and 14px for the
+  promo row that was last before it, so it predates the change.
   *A2 2.9*
 
 - [ ] **2.12 — Spanish is half-translated.**
