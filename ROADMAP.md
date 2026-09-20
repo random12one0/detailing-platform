@@ -1294,9 +1294,10 @@ requested.
   `scripts/edge-tenant-replay.mjs`, graded by `receipt.mjs`, which **refuses
   the run**. Three numbers, and the third is the one that matters:
 
-  - **16 of 39 genuinely RAN.** Owner A got a 2xx out of them with its own
+  - **15-16 of 39 genuinely RAN.** Owner A got a 2xx out of them with its own
     tenant's identifiers, so the function was exercised rather than bounced.
-  - **23 still REFUSE.** A's own call never succeeded either, so their refusal
+    A range, not a figure — see the rate-limiter note below.
+  - **23-24 still REFUSE.** A's own call never succeeded either, so their refusal
     of tenant B proves nothing at all. Grouped: **9 answered 400** (a required
     field this harness cannot synthesise), **5 carry no tenant identifier in
     their input** at all (`watch-jobs`, `refresh-weather`, `stripe-webhook`,
@@ -1397,7 +1398,20 @@ requested.
      missing, the skip says so — the refusal is then a lookup, a permission or
      a precondition on the row, which is a different kind of work.
 
-  **THE THREE NUMBERS AFTER ROUND TWO: 16 RAN · 23 REFUSE · 7 PROVED.**
+  **THE THREE NUMBERS AFTER ROUND TWO: 15-16 RAN · 23-24 REFUSE · 7 PROVED.**
+
+  **A RANGE, BECAUSE TWO CONSECUTIVE RUNS DISAGREED BY ONE AND THE SINGLE
+  FIGURE WAS COMMITTED BEFORE THE SECOND RUN FINISHED.** One foreground run
+  gave 16/23/7 and the next gave 15/24/7. The cause is the product's own rate
+  limiter: `create-booking` answers **429** once the replay has been run
+  repeatedly, so whether it gets through its front door depends on how recently
+  somebody ran this. **The PROVED number — 7 — did not move in either run**,
+  which is the one that matters, because it is the count of functions that
+  demonstrably work for A and refuse B.
+
+  Writing the single figure down first was the same error as the nine emails,
+  one notch smaller: a number stated from one observation as though it were
+  settled. It is a range, and the range is what goes in the file.
 
   **AND THE SAME LESSON COST A RESULT FOR THE THIRD TIME.** Seeding a
   `business_invites` row so `accept-invite` had a token to present made
