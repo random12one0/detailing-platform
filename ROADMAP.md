@@ -1118,20 +1118,54 @@ requested.
   On a job that was already completed, **"Not completed after all" is present
   and visible at all four widths.**
 
-  **NOT TICKED, AND THREE REASONS — the first is on its own enough:**
-  1. **There is no audit history and this item's own "done when" asks for
-     one.** Nothing anywhere records who completed a job or when. That is a
-     new table and a server write — a migration plus a deployed function — so
-     it is blocked behind the deploy freeze as well as unbuilt.
-  2. **The write paths were not exercised.** Pressing "Yes, it's done" and
-     pressing the undo are both row edits, which this session is not doing.
-     What is proven is that the tap does NOT write until answered; what is not
-     proven is that answering it writes.
-  3. **The card on Today was not seen on a screen.** It uses the same
-     component and the same question, but the demo has no job on Today in a
-     completable state, so the surface itself went unmeasured.
-  **And the sweep this item asks for — cancel, no-show, suspend, delete, waive
-  and owner-invite — has not been started.** Only completion is done.
+  **THE WRITE PATHS WERE THEN EXERCISED FOR REAL — permission granted
+  2026-09-20, two row edits on the demo tenant, and here is what the database
+  actually did rather than what was expected.** Booking
+  `7dc20b29-2ed3-449f-b9b4-000cb2d833d0` (Tom Okafor, 22 September), driven
+  through the real UI at 392 wide:
+
+  | when | status | finalized_at | final_amount | updated_at |
+  |---|---|---|---|---|
+  | before | `confirmed` | null | null | `10:07:01.492999+00` |
+  | after "Yes, it's done" | `completed` | null | null | `10:34:56.966339+00` |
+  | after "Not completed after all" | `confirmed` | null | null | `10:35:57.201227+00` |
+
+  **The row is back exactly as it was, and the only thing that moved is
+  `updated_at`, which is what two writes are supposed to leave behind.**
+  Completing touches NEITHER `finalized_at` NOR `final_amount` — it unlocks
+  the Finalize button, it does not settle any money. Console clean through
+  both presses.
+  **A booking created by this session was NOT used, and the reason is worth
+  knowing:** it is `pending`, so the job record offers Accept / Send a quote /
+  Decline and never offers "Mark completed" at all. Accepting it first would
+  have been a third row edit nobody granted.
+
+  **AND THE PRESS FOUND SOMETHING THE REASONING HAD MISSED — see `FOUND.md`.**
+  The undo is real and it works, but it is not on screen at the moment of the
+  mistake: every caller of this record closes it on a change (`navigate("/app")`
+  on the standalone job route, `setSelected(null)` on Today, Calendar, Money
+  and Clients), so confirming a completion takes the record away with it. The
+  undo is one navigation back, not one tap. **Pre-existing behaviour of all six
+  call sites, not introduced here**, and not changed tonight because it is six
+  screens Andrew has reviewed and nobody asked for that.
+
+  **NOT TICKED. WHICH HALF IS DONE, WHICH IS BLOCKED, AND ON WHAT:**
+
+  * **DONE, and proven on a real screen at four widths with the database read
+    before and after:** the confirmation, the wording, and a working undo. **No
+    consequential state change now happens from one accidental tap.**
+  * **BLOCKED, AND THE BLOCKER IS A DEPLOY, NOT A DESIGN:** the audit history
+    this item's own "done when" asks for. Nothing records who completed a job
+    or when. It needs a new append-only table (a migration) **and** a write
+    from `update-booking` (a deployed function), and **all deploys are frozen
+    until Andrew rules in the morning**. The design is not in question and
+    nothing about it is waiting on a decision — it is waiting on the freeze
+    lifting. Whoever picks it up should not re-litigate the approach.
+  * **NOT STARTED:** the sweep this item also asks for over cancel, no-show,
+    suspend, delete, waive and owner-invite. Only completion is done.
+  * **NOT SEEN:** the card on Today. It uses the same component and the same
+    question, but the demo has no job on Today in a completable state, so that
+    surface went unmeasured.
 
 - [x] **DONE 2026-09-16 — 4.2 Calendar download links need an authorization review.**
   The link carried a Supabase function URL, a booking id, `audience=owner` and

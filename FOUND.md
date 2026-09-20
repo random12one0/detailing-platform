@@ -3642,3 +3642,46 @@ one. Read out of the stylesheet instead — one `animation-delay` line per
 nth-child, and no override in the `.lite` block. Whoever fixes it should add
 `animation-delay: 0ms !important` to that block and then prove it somewhere
 the clock actually runs.
+
+---
+
+## CONFIRMING A JOB TAKES THE JOB RECORD AWAY WITH IT — found 2026-09-20 by pressing it, NOT FIXED
+
+**Found the only way it could have been found: by pressing the button.** The
+reasoning said ROADMAP 4.1's undo was a visible undo. Then the write path was
+exercised for real on the demo tenant, and four seconds after "Yes, it's done"
+the record showed no undo and no confirmation notice at all. Not a bug in the
+undo — the record was gone.
+
+**Every caller of `BookingDetail` closes it on a change**, and it is six of
+six:
+
+```
+screens/JobPage.jsx:85    onChanged={() => navigate("/app")}
+screens/Today.jsx:915     onChanged={() => { reload(); setSelected(null); }}
+screens/Calendar.jsx:410  onChanged={() => { reload(); setSelected(null); }}
+screens/Money.jsx:1037    onChanged={() => { setSelected(null); reload(); loadExtras(); }}
+screens/Clients.jsx:728   onChanged={() => { setSelected(null); load(); ... }}
+book/ManageBookingPage.jsx:91  onChanged={load}   (customer side, not this)
+```
+
+So on the standalone job route — the one a push notification and an email link
+both open — completing a job navigates the detailer back to the dashboard. On
+Today, Calendar, Money and Clients it closes the sheet. **The undo is one
+navigation back, not one tap**, which is the wrong distance for the moment it
+exists to serve: a wrong press in a driveway.
+
+**It also throws away the notice.** `act()` sets one (`setNotice`) and then
+calls `onChanged()` in the next line, which unmounts the thing the notice was
+rendered into. Every status change in this product has been silently doing
+that — *"Marked completed."* has never been readable. (And that message is
+built as a template string, `` `Marked ${status}.` ``, so it is invisible to
+every extractor here and has no Spanish either. Same class as the four vehicle
+conditions.)
+
+**NOT FIXED, deliberately.** It is pre-existing in all six call sites, it is
+six screens Andrew has reviewed, and nobody asked for it. **It is also the
+thing that would make 4.1's undo worth what it claims**, so whoever takes it
+should decide one rule for all six rather than patching the job route: either
+the record stays open on a status change and shows what just happened, or the
+screen the detailer lands on carries the undo itself.
