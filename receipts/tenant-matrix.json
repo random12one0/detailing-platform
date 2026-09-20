@@ -1,7 +1,7 @@
 {
-  "git_sha": "2a10b86d811d5a5929c629b2b24de47e9dba8e2e",
+  "git_sha": "d76e54a624494bfef13d8379b65bdcca405cc2c8",
   "environment": "local",
-  "finished_at": "2026-09-20T08:16:34.590Z",
+  "finished_at": "2026-09-20T08:51:14.258Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -28,14 +28,14 @@
     "sabotage": null
   },
   "check_id": "tenant-matrix",
-  "started_at": "2026-09-20T08:15:37.663Z",
+  "started_at": "2026-09-20T08:50:02.923Z",
   "status": "pass",
-  "expected_targets": 51,
-  "discovered_targets": 51,
-  "attempted_targets": 51,
-  "completed_targets": 51,
+  "expected_targets": 71,
+  "discovered_targets": 71,
+  "attempted_targets": 71,
+  "completed_targets": 71,
   "skipped_targets": 0,
-  "assertions_executed": 567,
+  "assertions_executed": 693,
   "min_assertions": 300,
   "canary": {
     "id": "tenant_matrix_canary · a table with \"using (true)\" on select",
@@ -45,6 +45,9 @@
       "sentinel",
       "former"
     ],
+    "rpc_caught_by": [
+      "rpc"
+    ],
     "findings": [
       "[leak] owner A READ 1 of B's rows",
       "[sentinel] owner A saw B's sentinel string in the response body",
@@ -52,7 +55,10 @@
       "[sentinel] staff A saw B's sentinel string in the response body",
       "[leak] former A READ 1 of B's rows",
       "[sentinel] former A saw B's sentinel string in the response body",
-      "[former] former A still reads 2 row(s) after the membership was deleted"
+      "[former] former A still reads 2 row(s) after the membership was deleted",
+      "[rpc] tenant_matrix_canary_rpc() hands B's own data to an ANONYMOUS caller, and it is not one of the endpoints that publish a profile on purpose",
+      "[rpc] tenant_matrix_canary_rpc() hands B's own data to an ANONYMOUS caller, and it is not one of the endpoints that publish a profile on purpose",
+      "[rpc] tenant_matrix_canary_rpc() hands B's own data to an ANONYMOUS caller, and it is not one of the endpoints that publish a profile on purpose"
     ]
   }
 }

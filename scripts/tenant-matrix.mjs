@@ -240,7 +240,13 @@ const RECIPES = {
   booking_vehicles: (t, ids) => ({ booking_id: ids.booking, position: 2, vehicle_size: "sedan", vehicle_size_label: `${S(t)} sedan` }),
   bookings: (t) => ({ customer_name: `${S(t)} customer`, customer_phone: "555-0000", start_at: "2027-03-10T17:00:00Z", end_at: "2027-03-10T19:00:00Z", service_type: "mobile" }),
   business_branding: () => ({}),
-  business_domains: (t) => ({ domain: `${t.toLowerCase()}-matrix.example` }),
+  // **`verified_at` IS NOT DECORATION — IT IS WHAT MAKES THE ROW REACHABLE.**
+  // `get_public_business_profile_by_host` and `business_canonical_host` both
+  // filter on `d.verified_at is not null`, so an unverified fixture domain
+  // made both endpoints answer null and report `ok` having resolved nothing.
+  // A fixture that cannot be found is a target that was never tested.
+  business_domains: (t) => ({ domain: `${t.toLowerCase()}-matrix.example`,
+    verified_at: "2027-01-01T00:00:00Z" }),
   business_hours: () => ({ weekday: 3 }),
   business_invites: (t) => ({ email: `${t.toLowerCase()}-invite@matrix.test` }),
   business_settings: () => ({}),
@@ -294,6 +300,7 @@ const ORDER = [
 // ---------------------------------------------------------------------------
 
 let canaryPresent = false;
+let rpcCanaryPresent = false;
 const PASSWORD = "Matrix-isolation-test-pw!";
 
 async function makeCanary() {
@@ -308,6 +315,51 @@ async function makeCanary() {
              for select to authenticated using (true)`);
   await sql(`grant select on public.${CANARY} to authenticated`);
   canaryPresent = true;
+}
+
+const RPC_CANARY_NAME = "tenant_matrix_canary_rpc";
+
+async function makeRpcCanary() {
+  // A DEFINER FUNCTION THAT DOES THE ONE THING A DEFINER FUNCTION MUST NOT:
+  // it takes a tenant id from its caller and trusts it. RLS is bypassed
+  // because it is `security definer`, which is the entire point of this
+  // negative control — **the table matrix in section 3 cannot see this and
+  // never could**, so a green table matrix beside a broken RPC is exactly the
+  // false comfort this section was added to remove.
+  const ddl = "create or replace function public." + RPC_CANARY_NAME + "(p_business_id uuid)\n"
+    + "  returns setof jsonb language sql security definer set search_path = public as $fn$\n"
+    + "    select to_jsonb(c) from public.customers c where c.business_id = p_business_id\n"
+    + "  $fn$";
+  await sql(ddl);
+  // **`create function` GRANTS EXECUTE TO `PUBLIC` BY DEFAULT.** Without this
+  // revoke the canary is callable by anon as well, which made it leak to
+  // EVERYONE — and the privilege rule below, which asks whether A gets more
+  // than a stranger, correctly answered no. A negative control has to break
+  // in the one way the detector is meant to see. This is also why
+  // `20260913005000_definer_execute_swept.sql` exists for the real functions.
+  await sql("revoke execute on function public." + RPC_CANARY_NAME + "(uuid) from public");
+  await sql("grant execute on function public." + RPC_CANARY_NAME + "(uuid) to authenticated");
+  rpcCanaryPresent = true;
+  await reloadSchemaCache();
+}
+
+// **POSTGREST KEEPS A SCHEMA CACHE AND A FRESHLY CREATED FUNCTION IS NOT IN
+// IT.** Calling one returns `404 PGRST202 … no matches were found in the
+// schema cache`, and **a 404 is indistinguishable from "the leak did not
+// happen"**. The first run of this section reported CANARY NOT CAUGHT for
+// exactly that reason: the negative control was unreachable, not unnoticed.
+// Those are different failures and they must never print the same way — an
+// unreachable canary means the run proved nothing, where a missed canary
+// means the detector is blind.
+async function reloadSchemaCache() {
+  await sql("notify pgrst, 'reload schema'");
+  await new Promise((r) => setTimeout(r, 3000));
+}
+
+async function dropRpcCanary() {
+  if (!rpcCanaryPresent) return;
+  await sql("drop function if exists public." + RPC_CANARY_NAME + "(uuid)");
+  rpcCanaryPresent = false;
 }
 
 async function dropCanary() {
@@ -326,10 +378,11 @@ let A, B, ownerA, ownerB, staffA, formerA, spareA, spareB;
 const seeded = { A: {}, B: {} };
 const canaryFindings = [];
 let canaryDetectors = [];
+let rpcCanaryDetectors = [];
 
 try {
   console.log("1 · discovery");
-  if (BREAK !== "canary") await makeCanary();
+  if (BREAK !== "canary") { await makeCanary(); await makeRpcCanary(); }
   const all = await discoverTables();
   // **POLICY COUNT DECIDES FIRST, NOT `business_id`.** `platform_admin_events`
   // carries a business_id AND has zero policies, on purpose — db-audit.mjs
@@ -560,8 +613,208 @@ try {
     rows.push({ table, verdict: bad ? "LEAK" : "ok (locked)", detail: "" });
     console.log(`    ${table.padEnd(28)} ${bad ? "LEAK" : "ok — nobody reads it"}`);
   }
+
+  // -------------------------------------------------------------------------
+  // 5 · THE DEFINER RPCs — the fourth boundary, and the one where a leak hides
+  // -------------------------------------------------------------------------
+  // The report asks for four boundaries and sections 3 and 4 above cover one:
+  // the Data API against tables. **A `security definer` function bypasses RLS
+  // by design** — it runs as its owner, so every policy proved above is simply
+  // not consulted. That makes these the most likely place for a leak to
+  // survive a green table matrix, and there are 39 of them in this schema.
+  //
+  // **THE SURFACE IS DISCOVERED, AND THE FILTER IS STRUCTURAL RATHER THAN BY
+  // NAME.** 211 functions are executable by a browser role; 192 of them are
+  // `btree_gist` internals and trigger bodies. They are excluded by asking
+  // whether they belong to an EXTENSION (`pg_depend.deptype = 'e'`) and
+  // whether they return `trigger` — not by matching `gbt_%`, which is a
+  // spelling and would break the day somebody installs another extension.
+  // That leaves **19 real application RPCs**.
+  //
+  // **THE INVARIANT: AN ACTOR OF A MUST NOT GET MORE OUT OF AN RPC ABOUT B
+  // THAN AN ANONYMOUS STRANGER GETS.** That is the rule that needs no
+  // per-function specification, and it is the one that handles the public
+  // endpoints correctly without naming them: `get_public_business_profile`
+  // hands B's services to anybody who asks, including anon, so A receiving
+  // them is not a leak — it is the product. The same response reaching A but
+  // NOT anon is a privilege A holds over B, and that is the defect.
+  //
+  // Anon is the baseline rather than a third tenant because it is the weakest
+  // possible caller: anything anon can see is public by definition.
+  const RPC_CANARY = "tenant_matrix_canary_rpc";
+
+  // THE THREE ENDPOINTS THAT PUBLISH A TENANT'S PROFILE ON PURPOSE. Named,
+  // with the reason, because an allowlist nobody has to justify is where
+  // defects go to be forgotten — `docs/gotchas.md`. `--break=allowlist` empties
+  // it, and all three then report as findings, which is the proof that this
+  // list is doing work rather than waving things through.
+  const PUBLIC_BY_DESIGN = BREAK === "allowlist" ? {} : {
+    get_public_business_profile:
+      "the booking page's own profile, fetched by slug before anybody signs in",
+    get_public_business_profile_by_host:
+      "the same profile resolved by a tenant's custom domain",
+    get_business_translations:
+      "the booking page's Spanish, fetched before sign-in for the same reason",
+  };
+
+  console.log("\n5 · the definer RPCs");
+  const fns = await sql(`
+    select p.proname, pg_get_function_identity_arguments(p.oid) as args,
+           p.prosecdef as definer,
+           has_function_privilege('authenticated', p.oid, 'EXECUTE') as auth_x,
+           has_function_privilege('anon', p.oid, 'EXECUTE') as anon_x
+      from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+     where n.nspname = 'public' and p.prokind = 'f'
+       and p.prorettype <> 'trigger'::regtype
+       and not exists (select 1 from pg_depend d where d.objid = p.oid and d.deptype = 'e')
+       and (has_function_privilege('authenticated', p.oid, 'EXECUTE')
+         or has_function_privilege('anon', p.oid, 'EXECUTE'))
+     order by p.proname`);
+  console.log(`    ${fns.length} application RPCs a browser can call`);
+
+  // ARGUMENTS ARE BUILT FROM THE PARAMETER'S OWN NAME AND TYPE, and anything
+  // this cannot answer is a DECLARED SKIP with its reason rather than a
+  // silent pass. A function nobody could call is a function nobody tested.
+  const argFor = (name, type) => {
+    const n = name.toLowerCase();
+    if (/uuid/.test(type)) {
+      if (/business/.test(n)) return B.id;               // ← the attack: B's id, called as A
+      return B.id;
+    }
+    if (/^p_slug$/.test(n)) return "matrix-tenant-b";
+    // **B'S REAL SEEDED DOMAIN, NOT A PLAUSIBLE-LOOKING STRING.** The first
+    // version passed `matrix-tenant-b.example`, which resolves to nothing, so
+    // `get_public_business_profile_by_host` answered empty and was reported
+    // `ok` having been handed an argument that could never return a tenant.
+    // A green line over an endpoint that was never exercised is this repo's
+    // signature failure, arriving through the argument rather than the target.
+    if (/host/.test(n)) return seeded.B.business_domains?.domain ?? null;
+    if (/lang/.test(n)) return "es";
+    if (/permission/.test(n)) return "settings";
+    if (/timezone/.test(n)) return "America/New_York";
+    if (/timestamp/.test(type)) return "2027-03-10T17:00:00Z";
+    if (/date/.test(type)) return "2027-03-10";
+    if (/text/.test(type)) return "matrix-tenant-b";
+    return undefined;                                     // unanswerable → declared skip
+  };
+
+  for (const fn of fns) {
+    const params = String(fn.args || "").split(",").map((s) => s.trim()).filter(Boolean)
+      .map((spec) => {
+        const m = spec.match(/^([a-z_][a-z0-9_]*)\s+(.*)$/i);
+        return m ? { name: m[1], type: m[2] } : { name: null, type: spec };
+      });
+
+    const body = {};
+    let unanswerable = null;
+    for (const p of params) {
+      if (!p.name) { unanswerable = `positional parameter "${p.type}"`; break; }
+      const v = argFor(p.name, p.type);
+      if (v === undefined) { unanswerable = `${p.name} ${p.type}`; break; }
+      body[p.name] = v;
+    }
+    if (unanswerable) {
+      skips.push(`rpc ${fn.proname}: no argument could be synthesised for ${unanswerable}`);
+      rows.push({ table: `rpc · ${fn.proname}`, verdict: "SKIPPED — unanswerable argument", detail: unanswerable });
+      console.log(`    ${("rpc · " + fn.proname).padEnd(34)} SKIPPED — ${unanswerable}`);
+      continue;
+    }
+
+    const call = (actor) => rest("POST", `/rest/v1/rpc/${fn.proname}`,
+      { key: ANON, jwt: actor, body });
+
+    // THE CANARY HAS TO BE REACHABLE BEFORE IT CAN BE TRUSTED TO FAIL.
+    // If it cannot even be called, say THAT, rather than letting it read as
+    // a detector that looked and saw nothing.
+    if (fn.proname === RPC_CANARY) {
+      let reach = await call(ownerA.jwt);
+      for (let i = 0; i < 3 && reach.status === 404; i++) {
+        await reloadSchemaCache();
+        reach = await call(ownerA.jwt);
+      }
+      if (reach.status === 404) {
+        say(`the canary RPC could not be reached at all (404 after 3 schema reloads) — `
+          + `it was never given the chance to leak, so this run proves nothing `
+          + `about the RPC boundary`);
+      }
+    }
+
+    const anonRes = await call(ANON);
+    const anonSaw = !!(anonRes.text && anonRes.text.includes(S("B")));
+
+    const problems = [];
+    const flag = (det, msg) => problems.push({ det, msg });
+
+    for (const [label, jwt] of [["owner A", ownerA.jwt], ["staff A", staffA.jwt], ["former A", formerA.jwt]]) {
+      const r = await call(jwt);
+      const saw = !!(r.text && r.text.includes(S("B")));
+
+      // THE LEAK: A sees B's own text where a stranger does not.
+      assertions++;
+      if (BREAK !== "rpc" && saw && !anonSaw) {
+        flag("rpc", `${label} got B's data from ${fn.proname}() where anon got none`);
+      }
+
+      // **AND THE HOLE THAT RULE LEAVES, WHICH THE CANARY FOUND BY FALLING
+      // THROUGH IT.** "A must not get more than a stranger" says nothing
+      // about a function that hands B's rows to the stranger too. That is a
+      // worse leak, and it passed silently until the canary — briefly
+      // executable by `public`, as every new function is — came back clean
+      // while visibly returning `TENANT-B-SECRET`.
+      //
+      // Three endpoints publish a tenant's profile on purpose; they are the
+      // booking page. Every OTHER function returning a tenant's own text to
+      // an anonymous caller is a finding. The allowlist is three names with
+      // reasons and `--break=allowlist` proves it is refusable.
+      assertions++;
+      if (BREAK !== "rpc" && anonSaw && !PUBLIC_BY_DESIGN[fn.proname]) {
+        flag("rpc", `${fn.proname}() hands B's own data to an ANONYMOUS caller, `
+          + `and it is not one of the endpoints that publish a profile on purpose`);
+      }
+
+      // THE PREDICATE: a definer `is_*`/`has_*` asked about B must not answer
+      // true to somebody who has no relationship with B. This is the shape
+      // that leaks a fact rather than a row — "are you the owner of that
+      // business" answered yes is an authorisation bug with no data in it.
+      if (fn.definer && /^(is_|has_)/.test(fn.proname)) {
+        assertions++;
+        if (BREAK !== "rpc" && (r.data === true || r.text === "true")) {
+          flag("rpc-predicate", `${label} got true from ${fn.proname}() about B`);
+        }
+      }
+    }
+
+    if (fn.proname === RPC_CANARY) {
+      canaryFindings.push(...problems.map((x) => `[${x.det}] ${x.msg}`));
+      rpcCanaryDetectors = [...new Set(problems.map((x) => x.det))];
+      const byRpc = problems.some((x) => x.det === "rpc");
+      rows.push({ table: `rpc · ${fn.proname}`, verdict: byRpc ? "caught (canary)" : "MISSED (canary)",
+                  detail: problems.map((x) => x.msg).join("; ") });
+      console.log(`    ${("rpc · " + fn.proname).padEnd(34)} `
+        + (byRpc ? `canary caught by [rpc]` : "CANARY NOT CAUGHT BY THE RPC DETECTOR"));
+      if (!byRpc) {
+        // A canary that comes back clean is a diagnosis, not a verdict. Print
+        // what it actually answered, or the next person repeats the twenty
+        // minutes this cost.
+        const raw = await call(ownerA.jwt);
+        console.log(`      it was called with ${JSON.stringify(body)}`);
+        console.log(`      owner A got ${raw.status}: ${String(raw.text).slice(0, 200)}`);
+        console.log(`      anon got ${anonRes.status}: ${String(anonRes.text).slice(0, 120)}`);
+      }
+      continue;
+    }
+
+    for (const x of problems) say(`rpc ${fn.proname}: [${x.det}] ${x.msg}`);
+    rows.push({ table: `rpc · ${fn.proname}`, verdict: problems.length ? "LEAK" : "ok",
+                detail: problems.map((x) => x.msg).join("; ") });
+    console.log(`    ${("rpc · " + fn.proname).padEnd(34)} `
+      + (problems.length ? "LEAK — " + problems.map((x) => x.msg).join("; ")
+                         : `ok${anonSaw ? "  (public by design — anon sees it too)" : ""}`));
+  }
+
 } finally {
   await dropCanary().catch((e) => say("could not drop the canary table: " + e.message));
+  await dropRpcCanary().catch((e) => say("could not drop the canary RPC: " + e.message));
   if (!KEEP && A && B) await svc.del("/rest/v1/businesses?slug=in.(matrix-tenant-a,matrix-tenant-b)");
 }
 
@@ -570,8 +823,15 @@ try {
 const canary = {
   id: `${CANARY} · a table with "using (true)" on select`,
   // CAUGHT BY THE RIGHT DETECTOR, not merely caught.
-  observed_failure: canaryDetectors.includes("leak"),
+  // BOTH NEGATIVE CONTROLS, EACH BY ITS OWN DETECTOR. A leaky table must be
+  // caught by `leak`; a leaky `security definer` RPC must be caught by `rpc`.
+  // Either coming back clean voids the whole run. They prove different
+  // boundaries and neither can stand in for the other — the table matrix is
+  // structurally incapable of seeing an RPC leak, because a definer function
+  // bypasses the policies it checks.
+  observed_failure: canaryDetectors.includes("leak") && rpcCanaryDetectors.includes("rpc"),
   caught_by: canaryDetectors,
+  rpc_caught_by: rpcCanaryDetectors,
   findings: canaryFindings,
 };
 

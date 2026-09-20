@@ -1077,3 +1077,129 @@ console; measure geometry in Playwright. And whatever you are measuring
 anywhere, **read `innerHeight` first** — a zero there voids the answer before
 you have finished asking the question. It is the backgrounded-tab entry above,
 arriving through a different door.
+
+---
+
+## `has_table_privilege` answers false for a column-granted table, and a column refusal looks exactly like a row denial
+
+**Cost: a wrong security finding, published, and a migration very nearly
+written on the strength of it — 2026-09-20.**
+
+`scripts/tenant-matrix.mjs` classified `connected_accounts` as unreachable by
+any browser and reported its RLS policy as **inert** — "the protection is an
+accidental missing grant, one `grant select` away from evaporating". Andrew
+decided to tighten the policy on the strength of that. All of it was wrong.
+
+**The probe was `has_table_privilege('authenticated', tbl, 'SELECT')`, and it
+returns FALSE for a table whose columns are granted one at a time.**
+`20260908001000_connected_accounts.sql` does exactly that on purpose:
+
+```sql
+revoke all on public.connected_accounts from authenticated, anon;
+grant select (business_id, stripe_account_id, charges_enabled,
+              card_payments_enabled, connected_at)
+  on public.connected_accounts to authenticated;
+```
+
+`connect_state` — the one-time Connect credential — is deliberately withheld.
+The policy fires perfectly well for the five columns that were granted.
+
+**AND THE SECOND HALF IS THE HALF THAT FOOLED A HUMAN READING THE OUTPUT.**
+Having decided the table was unreachable, the matrix asked it for `select=*`.
+PostgREST was refused — **for the columns, not for the rows** — and the result
+is an empty response that is byte-identical to the one a correct row policy
+produces when it denies you everything. The check then printed *"owner A sees
+none of its own rows"*, which is a true sentence about a false cause.
+
+**Use `has_column_privilege` per column.** Ask each table for exactly the
+columns the role may have, and treat "some columns" as a distinct state from
+"the whole table" and from "nothing":
+
+```sql
+select a.attname
+  from pg_attribute a
+ where a.attrelid = c.oid and a.attnum > 0 and not a.attisdropped
+   and has_column_privilege('authenticated', c.oid, a.attname, 'SELECT')
+```
+
+**And a browser reads a table only if the role holds a grant — possibly per
+column — AND a policy lets the row through.** Keying on either alone is wrong
+in opposite directions, and this schema has one table of each kind:
+`platform_admin_events` has the grant and no policy, `connected_accounts` has
+the policy and only column grants. Counting policies calls the first readable;
+`has_table_privilege` calls the second unreachable.
+
+**The general rule, which is the one to carry away: a permission system can
+refuse you at more than one layer, and the refusals are not distinguishable
+from the outside.** Table grant, column grant, row policy, and the function's
+own `execute` privilege all produce "you got nothing". If a check is going to
+say WHY something was denied, it has to ask each layer separately.
+
+---
+
+## A function you just created 404s through PostgREST, and a 404 reads exactly like "no leak"
+
+**Cost: the first run of the RPC half of `tenant-matrix.mjs` reported
+`CANARY NOT CAUGHT` — 2026-09-20. The canary was fine. It had never been
+called.**
+
+PostgREST keeps a **schema cache**. A function created a moment ago is not in
+it, and `POST /rest/v1/rpc/<name>` answers:
+
+```
+404 {"code":"PGRST202","details":"Searched for the function public.tm_probe …
+     but no matches were found in the schema cache."}
+```
+
+**A check reading that as data sees an empty result, which is the same thing a
+correct denial looks like.** The negative control was unreachable rather than
+unnoticed, and those are opposite diagnoses: one means the detector is blind,
+the other means the run proved nothing at all.
+
+**Fix, and it is two parts.** Reload the cache and wait — measured, the reload
+is not instant:
+
+```sql
+notify pgrst, 'reload schema';
+-- then wait ~3s before the first call
+```
+
+And then **probe the canary for reachability before trusting it to fail.**
+`tenant-matrix.mjs` calls it, retries the reload up to three times on a 404,
+and if it is still 404 says *"the canary RPC could not be reached at all — it
+was never given the chance to leak"* rather than reporting a missed canary.
+
+**The same shape bites the table canary less often only by luck**: it is
+created early and read after the fixtures are seeded, which takes long enough
+that the cache has usually caught up. That is a race this file wins by
+accident, not by design.
+
+---
+
+## `create function` grants EXECUTE to PUBLIC, so a new definer function is anon-callable
+
+Found in the same hour, and it made a deliberately leaky canary come back
+clean **while visibly returning the secret it was leaking.**
+
+The RPC canary was created and granted to `authenticated`. It was ALSO
+executable by `anon`, because Postgres grants `EXECUTE` on a new function to
+`PUBLIC` unless you revoke it. The matrix's rule was *"an actor of A must not
+get more out of an RPC about B than an anonymous stranger gets"* — and since
+anon got B's rows too, A was getting no more than a stranger. **True, and
+clean, and the function was handing every customer of tenant B to the entire
+internet.**
+
+Two lessons, and the second is the bigger one:
+
+1. **A new function needs `revoke execute … from public`**, which is exactly
+   what `20260913005000_definer_execute_swept.sql` does for the real ones.
+2. **"No more than a stranger" is only half an invariant.** It cannot see a
+   leak that reaches everybody. The matrix now also asserts that no function
+   hands a tenant's own text to an anonymous caller *unless it is one of the
+   three endpoints that publish a profile on purpose* — a three-name allowlist
+   with reasons, and `--break=allowlist` empties it and turns all three into
+   findings, which is the proof it is refusable rather than decorative.
+
+**The general form: a comparative assertion has a blind spot exactly where
+both sides are wrong together.** If a check asks "is A worse than B", it will
+never see A and B failing identically.

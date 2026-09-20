@@ -2368,8 +2368,8 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
    level down. Eleven defects found, every one on a surface that was not in the
    question. Three sabotages, each caught by name. See 8.1 above.
 6. [x] **DONE 2026-09-20. The tenant-isolation matrix.**
-   `scripts/tenant-matrix.mjs` — **PASS, 51 tables, 567 assertions, 0
-   failures, 0 skips, canary caught by the leak detector.**
+   `scripts/tenant-matrix.mjs` — **PASS, 71 targets, 693 assertions, 0
+   failures, 0 skips, two canaries, each caught by its own detector.**
    `receipts/tenant-matrix.json` grades it; `artifacts/tenant-matrix/` lists
    every table and verdict. Runs against `kguqylyzgyzfktkfnhjb` on Andrew's
    2026-09-20 approval, and **refuses to run on any other project ref** —
@@ -2451,6 +2451,65 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
    see is a boolean saying whether card payments work — that is information,
    not power."* The deliberate 2026-09-08 ruling stands. **FOUND.md records
    the why, so nobody re-proposes it in a month.**
+
+   **WHO MEASURED THIS, SAID PLAINLY.** Every number above — 71 targets, 693
+   assertions, both canaries, the cleanup — came out of runs made by the
+   session that wrote the check, against `kguqylyzgyzfktkfnhjb`. **It has not
+   been independently verified.** The reviewer could not reach Supabase from
+   where they sat and said so rather than implying otherwise; what they did
+   verify by hand was the source side, and that stands. Andrew intends to look
+   through the Supabase dashboard. **Until he does, treat this as a
+   self-reported measurement with its working shown, not as a second pair of
+   eyes** — which is exactly the distinction `receipt.mjs` exists to make
+   machine-readable, and exactly the distinction a green line in a terminal
+   erases if nobody writes it down.
+
+   **EXTENDED TO THE DEFINER RPCs, 2026-09-20 — the fourth boundary, and the
+   one a table matrix is structurally incapable of seeing.** A `security
+   definer` function runs as its owner, so every policy proved above is never
+   consulted. **PASS — 71 targets, 693 assertions, 0 failures, 0 skips, BOTH
+   canaries caught, each by its own detector.**
+
+   The surface is discovered and filtered structurally: 211 functions are
+   executable by a browser role and 192 of them are `btree_gist` internals or
+   trigger bodies, excluded by asking whether they belong to an EXTENSION and
+   whether they return `trigger` — not by matching `gbt_%`, which is a
+   spelling. **That leaves 19 real application RPCs**, each now called as
+   owner A, staff A and a former member, with tenant B's identifiers.
+
+   **THE SECOND CANARY IS A DEFINER FUNCTION THAT TRUSTS ITS CALLER'S TENANT
+   ID** — `tenant_matrix_canary_rpc(p_business_id uuid)`, handing back B's
+   customers to whoever asks, created and dropped inside the run. It must be
+   caught by the `rpc` detector specifically, and `--break=rpc` proves it.
+
+   **THREE DEFECTS IN THE CHECK, EVERY ONE FOUND BY THE CANARY REFUSING TO BE
+   CAUGHT. Each is now a `docs/gotchas.md` entry:**
+
+   - **PostgREST caches its schema.** The freshly created canary answered
+     `404 PGRST202`, and a 404 reads exactly like an empty, correct denial. It
+     issues `notify pgrst, 'reload schema'`, waits, and then **probes the
+     canary for reachability** — an unreachable canary now says so instead of
+     reporting a missed one. Those are opposite diagnoses: one means the
+     detector is blind, the other means the run proved nothing.
+   - **`create function` grants EXECUTE to PUBLIC**, so the canary was
+     anon-callable too. The rule was *"an actor of A must not get more than an
+     anonymous stranger"*; anon got B's rows as well, so A was getting no
+     more, and **the canary came back clean while visibly returning the secret
+     it was leaking**. A comparative assertion is blind exactly where both
+     sides fail together. The matrix now also refuses any function handing a
+     tenant's own text to an anonymous caller, against a **three-name
+     allowlist with written reasons** — `--break=allowlist` empties it and all
+     three become findings, which is the proof it is refusable rather than
+     decorative.
+   - **`get_public_business_profile_by_host` was reported `ok` having resolved
+     nothing.** The fixture domain carried no `verified_at`, and both host
+     endpoints filter on `d.verified_at is not null`. A fixture that cannot be
+     found is a target that was never tested — the missing-recipe failure
+     arriving through the argument instead of the table.
+
+   **Five sabotages, all refused:** `--break=canary`, `--break=leak`,
+   `--break=rpc`, `--break=allowlist`, `--break=recipe`. Both canaries and
+   both fixture tenants verified gone afterwards, `demo-detail` untouched.
 
    **No leak was found in any of the 38 tenant-owned tables**, by any of the
    four actors, on read, update, delete or forged-tenancy insert.
