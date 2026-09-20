@@ -260,6 +260,32 @@ Updated 2026-09-20.
 
 ---
 
+## Thirty seconds, outside, in daylight — you are the only instrument for this
+
+**ROADMAP 8.3, and it is the only thing left on it.** Everything a machine can
+check is checked: every one of the 1,910 pieces of text on eight screens was
+measured at four widths and one of them was too faint — the little time under
+the message bubble on the home page, 4.20 against a 4.5 floor. It is fixed.
+**Glare is the half no script can reproduce, and that is why this is yours.**
+
+**What to do, once:**
+
+1. **Go outside in daylight.** Not next to a window — actually outside, the
+   way you are when you are standing at a car.
+2. **On your phone, open your dashboard and look at Today.** That one screen.
+3. **Ask one question: which words are hard to read?** Not whether it looks
+   good — whether you can READ it. The small grey lines under the numbers and
+   the little labels above them are the ones to look at.
+
+**Then tell me either "all readable" or the words that were not.** If it is
+all readable, 8.3 closes and there is nothing further to build. If something
+is hard to read, name it and it gets measured and fixed the same way this one
+was.
+
+*Blocking nothing else. 8.3 stays open until you have done it.*
+
+---
+
 ## Done
 
 - [x] **Stripe ownership decided — 2026-09-16.** You, not a parent. December.

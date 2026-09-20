@@ -1856,7 +1856,25 @@ the dashboard or back office at phone width at all.
   not --fog-2 … --fog-2 measures 4.20:1 there"* — and `landing.css` never got
   it. Every other `--fog-2` use on that page sits on a lower ground and passes.
 
-  **THE INSTRUMENT IS THE REAL DELIVERABLE: `scripts/contrast-insitu.mjs`.**
+  **THE INSTRUMENT IS THE REAL DELIVERABLE: `scripts/contrast-insitu.mjs`**,
+  and it now carries the same discipline as everything else — a receipt, a
+  declared target count (the screen/width grid, written down rather than
+  counted from the run, so a walk that visits three screens fails on
+  arithmetic), and a row on `CLAUDE.md`'s before-you-finish list so it runs
+  without anyone remembering it exists.
+  **PROVEN BY PUTTING THE DEFECT BACK IN THE STYLESHEET**, not by runtime
+  trickery: reverting 8.3's one-line fix and running the check normally took
+  the receipt to `FAIL contrast-insitu — 1 failure(s) recorded`, naming the
+  string at 4.2:1; restoring the fix took it back to `PASS — 32/32 targets,
+  1910 assertions, canary failed as required`. `--break` does the same
+  sabotage from the browser side and inverts the verdict, so a run that finds
+  nothing under it is the failure.
+  **`sweep-widths.mjs` WAS DELIBERATELY NOT TOUCHED.** Folding this walk into
+  the width sweep is the obvious move and it was refused: that instrument
+  belongs to the other session and was mid-flight on its own detectors, and
+  two sessions editing one measuring tool produces a tool neither can vouch
+  for. This stays standalone; whoever owns the sweep can fold it in later.
+
   It plants a label nobody can read (2.92:1) before each walk and **prints
   VOID if its own findings do not contain it** — caught on 32 of 32 runs —
   and prints a census of how many strings each screen offered, because a
@@ -1864,6 +1882,11 @@ the dashboard or back office at phone width at all.
   product. An earlier draft of it measured Today four times while reporting
   four screens, because `?tab=` is not how this app switches; it reads the tab
   bar now.
+
+  **OPEN FOR ONE REASON ONLY: everything buildable is built and measured, and
+  the only thing left is a person standing outside in daylight looking at a
+  screen.** It is a row in `FOR-ANDREW.md` — one screen, one question, thirty
+  seconds — not unfinished work.
 
   **NOT TICKED, AND THE REASON IS IN THIS ITEM'S OWN DONE-WHEN: it has not
   been read outdoors.** Both automated halves pass — `accent-sweep.mjs` clean,

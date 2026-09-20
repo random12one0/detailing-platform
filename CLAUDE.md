@@ -66,6 +66,7 @@ set -a; . ./.env; set +a
 |---|---|
 | **Anything, before you finish** | `composition`, `design-contrast`, `landing-pricing`, `route-contract` — credential-free, from repo root |
 | **Anything, before you finish — and this one needs credentials** | `node scripts/deployed-inventory.mjs`. **It exits 1 and names every function that is not running this checkout.** See below; do not deploy to clear it |
+| **Anything a person reads — copy, a colour, a class, a whole screen** | `node scripts/contrast-insitu.mjs` (dev server + seed). **The four credential-free gates cannot see what this sees**: they measure the token PAIRS the system promises, and a pair does not know which surface a label lands on. `--fog-2` is the documented floor for small labels and holds at 4.90:1 on `--ink-1` — on `--ink-3` the same colour is **4.20:1**, and the landing page shipped an 11px label there while every gate printed clean. It walks 1,910 strings across 8 screens at 4 widths, plants a label nobody can read and prints VOID if its own findings do not contain it, and writes a receipt |
 | Color or ground tokens | `node scripts/accent-sweep.mjs` |
 | An edge function | `node scripts/deploy-functions.mjs …` then `node scripts/check-deployed.mjs` **and** `node scripts/deployed-inventory.mjs` |
 | A layout | `node scripts/sweep-widths.mjs` (needs dev server + seed) |

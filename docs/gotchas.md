@@ -1357,3 +1357,42 @@ The teardown itself held: both canaries, the canary bucket, the publication
 entry, every planted object and both fixture tenants were verified gone
 afterwards. **It is the reading that is destroyed, not the database.** Run it
 one at a time.
+
+---
+
+## A SCREEN CENSUS THAT DRIVES THE WRONG TAB SWITCH MEASURES ONE SCREEN AND REPORTS FOUR
+
+**It always looks like success, which is why it keeps coming back.** Third
+instance in this repo: the width sweep once measured nine screens under one
+name, and on 2026-09-20 the contrast walker's first run reported **no failures
+across 1,189 elements** — a clean sheet over a product that had a real defect
+in it.
+
+**The trap:** a dashboard census reaches for `?tab=calendar`, `?tab=money` and
+so on, because that is what a tab bar looks like it should do. **This app does
+not switch tabs by URL.** Every one of those URLs renders Today. The run
+visits four addresses, counts four screens, prints four rows in its census and
+has measured one screen four times.
+
+**How it showed itself, and it was not the count:** the census printed the same
+worst-passing string — *"99999 Nonexistent Parkway…"* — for Today, Calendar,
+Money AND Clients. Four different screens cannot have the same worst string.
+The element totals looked plausible the whole time (63–84 per screen), which is
+why a count alone would not have caught it.
+
+**What to do instead:** **read the tab bar and click it.**
+
+```js
+const tabNames = await page.$$eval(".tabbar button, .tabbar a",
+  (els) => els.map((e) => e.innerText.trim()).filter(Boolean));
+// then click each one by name, and print the list you found
+```
+
+Print the tab names the run actually found, and **declare how many you
+expected** so a tab that disappears fails on arithmetic rather than on
+judgement. `scripts/contrast-insitu.mjs` does both and is the worked example.
+
+**The general rule this is an instance of:** a census must report WHAT it
+visited, not only how many things it counted — and if two rows in it agree
+about something they cannot both be right about, the navigation is the first
+thing to doubt.

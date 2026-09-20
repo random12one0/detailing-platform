@@ -25,11 +25,34 @@
 // URL: `?tab=` is not how this app switches, and an earlier draft measured
 // Today four times while reporting four screens.
 //
-// Usage:  node scripts/contrast-insitu.mjs      (needs the dev server + seed)
+// **IT WRITES A RECEIPT AND DOES NOT GRADE ITSELF.** `receipt.mjs` recomputes
+// the verdict from the counts and ignores the word this file prints — report
+// § "Discipline for trusting a check", rule 10. The declared target count is
+// the screen/width grid: it is written down here, and a run that walks fewer
+// combinations than it promised fails on arithmetic rather than on judgement.
+//
+// **`sweep-widths.mjs` WAS DELIBERATELY NOT TOUCHED.** The obvious move is to
+// fold this walk into the width sweep, which already visits these screens.
+// That instrument belongs to another session and was mid-flight on its own
+// detectors when this was written, and two sessions editing one measuring
+// tool produces a tool neither can vouch for. This stays standalone; whoever
+// owns the sweep can fold it in later if they want it.
+//
+// Usage:  node scripts/contrast-insitu.mjs              (needs dev server + seed)
+//         node scripts/contrast-insitu.mjs --break      (sabotage: re-darken
+//                                                        the label 8.3 fixed
+//                                                        and expect a finding)
+//         node scripts/receipt.mjs receipts/contrast-insitu.json
 
 import { createRequire } from "node:module";
 const { chromium } = createRequire(import.meta.url)("D:/Users/rando/Downloads/claude/detailing-platform/app/node_modules/playwright/index.js");
+import { writeReceipt } from "./receipt.mjs";
+
 const BASE = "http://localhost:5173";
+const started_at = new Date().toISOString();
+// The sabotage: put ROADMAP 8.3's defect back, in the browser, and require
+// the walk to find it. `--break` is a receipt of a SABOTAGE and says so.
+const BREAK = process.argv.includes("--break");
 const WIDTHS = [[1440, 900], [768, 1024], [392, 844], [320, 844]];
 
 const PROBE = () => {
@@ -131,6 +154,13 @@ const tabNames = await page.$$eval(".tabbar button, .tabbar a", (els) =>
 console.log("tabs found in the tab bar:", JSON.stringify(tabNames));
 if (tabNames.length < 3) { console.log("VOID — no tab bar to walk"); process.exit(1); }
 
+// DECLARED, NOT DISCOVERED. If the tab bar grows or loses a tab this number
+// stops matching and the receipt fails on arithmetic — which is the point.
+const TAB_COUNT_EXPECTED = 5;
+if (tabNames.length !== TAB_COUNT_EXPECTED) {
+  console.log(`tab bar has ${tabNames.length} tabs, this check expects ${TAB_COUNT_EXPECTED}`);
+}
+
 const PUBLIC = [["Booking page", `${BASE}/book/demo-detail`],
   ["Landing", `${BASE}/`], ["Pricing", `${BASE}/pricing`]];
 
@@ -158,6 +188,7 @@ for (const [w, h] of WIDTHS) {
     await page.goto(url, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(2800);
     await page.evaluate(() => document.getAnimations().forEach((a) => { try { a.finish(); } catch (e) {} }));
+    if (BREAK) await page.addStyleTag({ content: ".ld .bub .t { color: #7B858A !important; }" });
     const res = await page.evaluate(PROBE);
     checked++;
     census.push({ screen: `${name}@${w}`, examined: res.examined, canaryCaught: res.canaryCaught, worstPass: res.worstPass });
@@ -179,7 +210,64 @@ console.log(`text elements examined: ${totalExamined}`);
 console.log(`canary caught on: ${census.length - canaryMisses.length}/${census.length}` + (canaryMisses.length ? ` — MISSED ON ${canaryMisses.join(", ")}` : ""));
 if (canaryMisses.length || totalExamined < 200) { console.log("VOID — the probe did not prove it can see"); }
 console.log("census:", JSON.stringify(census.map((c) => ({ s: c.screen, n: c.examined, worst: c.worstPass.ratio })), null, 0));
-console.log(`distinct failing styles: ${list.length}`);
-console.log(JSON.stringify(list, null, 1));
+const real = list.filter((r) => !/canary grey on grey/.test(r.text));
+console.log(`distinct failing styles (excluding the canary): ${real.length}`);
+console.log(JSON.stringify(real, null, 1));
 console.log("console errors:", errors.length ? errors.slice(0, 5) : "none");
 await browser.close();
+
+// ---------------------------------------------------------------------------
+// THE RECEIPT. The verdict below is recomputed by `receipt.mjs` from these
+// counts; the word this file prints is ignored on purpose.
+// ---------------------------------------------------------------------------
+// EXPECTED IS WRITTEN DOWN RATHER THAN COUNTED FROM THE RUN. Deriving it from
+// `checked` would make the arithmetic true by construction and a run that
+// silently visited three screens would still balance — which is the exact
+// failure this check exists to catch, applied to itself.
+const EXPECTED_TARGETS = (TAB_COUNT_EXPECTED + PUBLIC.length) * WIDTHS.length;
+const canaryCaughtEverywhere = canaryMisses.length === 0;
+const failures = [
+  ...real.map((r) => `${r.cls || r.tag} "${r.text}" — ${r.ratio}:1 at ${r.size}px, needs ${r.min} (${r.where})`),
+  ...(canaryCaughtEverywhere ? [] : [`canary missed on: ${canaryMisses.join(", ")} — every clean line beside it is void`]),
+  ...(checked === EXPECTED_TARGETS ? [] : [`walked ${checked} screen/width combinations, expected ${EXPECTED_TARGETS}`]),
+  ...(errors.length ? [`console errors during the walk: ${errors.slice(0, 3).join(" | ")}`] : []),
+];
+// A SABOTAGE RUN INVERTS THE TEST: finding nothing is the failure.
+const sabotageFailures = BREAK && real.length === 0
+  ? ["--break put ROADMAP 8.3's defect back and the walk did not find it — this check is blind"]
+  : [];
+const status = (BREAK ? sabotageFailures.length === 0 : failures.length === 0) && canaryCaughtEverywhere
+  ? "pass" : "fail";
+const { path: receiptPath } = writeReceipt({
+  check_id: "contrast-insitu",
+  started_at,
+  status,
+  expected_targets: EXPECTED_TARGETS,
+  discovered_targets: checked,
+  attempted_targets: checked,
+  completed_targets: checked,
+  skipped_targets: EXPECTED_TARGETS - checked,
+  assertions_executed: totalExamined,
+  min_assertions: 600,
+  failures: BREAK ? sabotageFailures : failures,
+  artifacts: ["scripts/contrast-insitu.mjs"],
+  warnings: BREAK
+    ? ["run with --break; this receipt is a sabotage, not a result"]
+    : [],
+  dimensions: {
+    widths: WIDTHS.map(([w]) => w),
+    screens: [...new Set(census.map((c) => c.screen.split("@")[0]))],
+    text_elements: totalExamined,
+    wcag: "4.5:1 normal, 3:1 large (>=24px, or >=18.66px at weight >=700)",
+    sweep_widths_touched: false,
+  },
+  canary: {
+    id: "contrast_insitu_canary · #585D61 on the ground, 2.92:1 at 12px",
+    observed_failure: canaryCaughtEverywhere,
+    caught_by: canaryCaughtEverywhere ? ["walk"] : [],
+    findings: canaryCaughtEverywhere
+      ? [`caught on ${census.length}/${census.length} screen/width combinations`]
+      : [`MISSED on ${canaryMisses.join(", ")}`],
+  },
+});
+console.log(`receipt -> ${receiptPath}`);

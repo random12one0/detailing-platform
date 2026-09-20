@@ -1,0 +1,51 @@
+{
+  "git_sha": "a0e72a719685c00d150498df2a360de2c88b3f86",
+  "environment": "local",
+  "finished_at": "2026-09-20T11:01:27.008Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "scripts/contrast-insitu.mjs"
+  ],
+  "dimensions": {
+    "widths": [
+      1440,
+      768,
+      392,
+      320
+    ],
+    "screens": [
+      "Today",
+      "Calendar",
+      "Money",
+      "Clients",
+      "Business",
+      "Booking page",
+      "Landing",
+      "Pricing"
+    ],
+    "text_elements": 1910,
+    "wcag": "4.5:1 normal, 3:1 large (>=24px, or >=18.66px at weight >=700)",
+    "sweep_widths_touched": false
+  },
+  "check_id": "contrast-insitu",
+  "started_at": "2026-09-20T10:59:51.492Z",
+  "status": "pass",
+  "expected_targets": 32,
+  "discovered_targets": 32,
+  "attempted_targets": 32,
+  "completed_targets": 32,
+  "skipped_targets": 0,
+  "assertions_executed": 1910,
+  "min_assertions": 600,
+  "canary": {
+    "id": "contrast_insitu_canary · #585D61 on the ground, 2.92:1 at 12px",
+    "observed_failure": true,
+    "caught_by": [
+      "walk"
+    ],
+    "findings": [
+      "caught on 32/32 screen/width combinations"
+    ]
+  }
+}
