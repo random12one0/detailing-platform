@@ -1,0 +1,21 @@
+American English, read off the finished page — 2026-09-20T16:44:00.411Z
+
+
+  home          723 strings read, 0 British
+  pricing       252 strings read, 0 British
+  examples      118 strings read, 0 British
+  ex1           408 strings read, 0 British
+  ex1-prices    281 strings read, 0 British
+  ex1-work      208 strings read, 0 British
+  ex2           689 strings read, 0 British
+  ex3           445 strings read, 0 British
+  ex3-prices    420 strings read, 0 British
+  ex4           663 strings read, 0 British
+  ex5           952 strings read, 0 British
+
+  canary: [rendered-text] all 7 planted words were caught, including "cancelled" inside a sentence
+          [positional-exception] the bare "Cancelled" status token and data-step="colour" were NOT flagged, so the exception is about position and not spelling
+
+No British spellings on any page.
+
+Words checked (66): bonnet, boot lid, wing mirror, windscreen, number plate, tyre, tyres, petrol, kerb, kerbside, saloon, estate car, aluminium, microfibre, lorry, colour, colours, coloured, colourway, colourways, favourite, flavour, behaviour, neighbour, neighbours, labour, centre, centres, centred, licence, defence, programme, grey, mould, litre, litres, metre, metres, judgement, travelling, travelled, cancelling, cancelled, enquiry, enquiries, organise, organised, recognise, recognised, realise, realised, apologise, specialise, specialised, customise, customised, optimise, prioritise, summarise, analyse, analysed, fortnightly, whilst, amongst, at weekends, car park

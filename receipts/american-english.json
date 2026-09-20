@@ -1,0 +1,41 @@
+{
+  "git_sha": "fa0e20e607379248257e03b7d0bc84bc4df396e4",
+  "environment": "local",
+  "finished_at": "2026-09-20T16:44:26.651Z",
+  "failures": [],
+  "warnings": [
+    "bare \"wing\" is NOT in the word list — a wing is a real part of an American car — and one of the 36 instances found by hand was exactly that. This check would not have found it.",
+    "written 2026-09-20 because 36 British spellings were found by a person READING the five example sites, and nothing this repo runs would have caught one of them. ROADMAP 7.13."
+  ],
+  "artifacts": [
+    "receipts/american-english-report.txt"
+  ],
+  "dimensions": {
+    "pages": 11,
+    "words": 66,
+    "strings_read": 5159
+  },
+  "check_id": "american-english",
+  "started_at": "2026-09-20T16:44:00.411Z",
+  "status": "pass",
+  "expected_targets": 11,
+  "discovered_targets": 11,
+  "attempted_targets": 11,
+  "completed_targets": 11,
+  "skipped_targets": 0,
+  "assertions_executed": 5581,
+  "min_assertions": 2500,
+  "canary": {
+    "id": "a real page with British prose planted in its live DOM, tested both directions",
+    "observed_failure": true,
+    "caught_by": [
+      "rendered-text",
+      "read-aloud-attributes",
+      "positional-exception"
+    ],
+    "findings": [
+      "[rendered-text] all 7 planted words were caught, including \"cancelled\" inside a sentence",
+      "[positional-exception] the bare \"Cancelled\" status token and data-step=\"colour\" were NOT flagged, so the exception is about position and not spelling"
+    ]
+  }
+}

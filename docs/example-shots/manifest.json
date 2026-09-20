@@ -1,10 +1,10 @@
 {
-  "captured_at": "2026-09-20T16:15:33.498Z",
+  "captured_at": "2026-09-20T16:32:20.392Z",
   "sites": {
     "ex1": {
       "source": "v-goldenhour.html",
       "title": "Prime Mobile Detailing",
-      "fingerprint": "dac6cab9154a35a6",
+      "fingerprint": "6a3964439a7677c6",
       "shots": {
         "desktop": "ex1-desktop.jpg",
         "phone": "ex1-phone.jpg"
@@ -13,7 +13,7 @@
     "ex2": {
       "source": "w-delgado.html",
       "title": "Delgado Mobile Detailing",
-      "fingerprint": "66f7b25c4c0204e2",
+      "fingerprint": "70f9e4f9d3143ef9",
       "shots": {
         "desktop": "ex2-desktop.jpg",
         "phone": "ex2-phone.jpg"

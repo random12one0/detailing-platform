@@ -790,7 +790,7 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
             {/* Ringed, not bare: this is the button that actually does it. */}
             <button className="bk-btn danger" style={{ marginTop: 12 }}
               disabled={busy} onClick={doCancel}>
-              {busy ? t("Cancelling…") : t("Yes, cancel it")}
+              {busy ? t("Canceling…") : t("Yes, cancel it")}
             </button>
             <button className="bk-btn ghost" style={{ marginTop: 8 }} disabled={busy}
               onClick={() => setConfirmCancel(false)}>

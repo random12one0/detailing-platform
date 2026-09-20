@@ -789,7 +789,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                   the only thing on this block that reads like an action. */}
               <summary>{t("Removing it from your records")}</summary>
               <p className="quiet" style={{ margin: "0 0 10px" }}>
-                {t("Cancelling frees the slot and keeps the job in your history. Removing takes it out of your records and your totals as well. It cannot be undone.")}
+                {t("Canceling frees the slot and keeps the job in your history. Removing takes it out of your records and your totals as well. It cannot be undone.")}
               </p>
               <button className="btn danger" disabled={busy} onClick={softDelete}>
                 {t("Remove from records")}

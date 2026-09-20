@@ -1368,9 +1368,9 @@ export const appEs = {
   "Call or text": "Llamar o mandar mensaje",
   "Cancel my subscription": "Cancelar mi suscripción",
   "Cancel the job": "Cancelar el trabajo",
-  "Cancelling frees the slot and keeps the job in your history. Removing takes it out of your records and your totals as well. It cannot be undone.":
+  "Canceling frees the slot and keeps the job in your history. Removing takes it out of your records and your totals as well. It cannot be undone.":
     "Cancelar libera el horario y deja el trabajo en tu historial. Eliminar lo saca de tus registros y de tus totales también. No se puede deshacer.",
-  "Cancelling": "Cancelando",
+  "Canceling": "Cancelando",
   "Card details": "Datos de la tarjeta",
   "Card payments": "Pagos con tarjeta",
   "Card payments are not switched on yet. Nothing for you to do; we will tell you when they are.":
@@ -1800,7 +1800,7 @@ export const appEs = {
   "The last subscription ended after the payments stopped going through. Picking a plan below turns the page back on straight away, and nothing was deleted or is owed from before.":
     "La suscripción anterior terminó después de que los pagos dejaron de pasar. Escoger un plan abajo enciende la página de inmediato, y no se borró nada y no se debe nada de antes.",
   "The money": "El dinero",
-  "The month you have not paid for is still owed. Cancelling stops us trying the card for anything after it.":
+  "The month you have not paid for is still owed. Canceling stops us trying the card for anything after it.":
     "El mes que no has pagado se sigue debiendo. Cancelar hace que dejemos de intentar la tarjeta por lo que venga después.",
   "The password for": "La contraseña de",
   "The phone number or email your Zelle is on":

@@ -567,7 +567,7 @@ export default function PricingPage() {
             <div data-rv="" style={{ "--i": 7 }}>
               <dt>When you leave</dt>
               <dd>
-                Cancelling stops the next charge. Your customers, their numbers
+                Canceling stops the next charge. Your customers, their numbers
                 and your photos are yours. You export them and go. The domain
                 is in your name and leaves with you.
               </dd>

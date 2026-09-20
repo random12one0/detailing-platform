@@ -829,7 +829,7 @@ export default function Billing() {
 
         {error && <div className="error-box">{error}</div>}
 
-        <div className="section-title">{ending ? t("Cancelled") : t("Cancelling")}</div>
+        <div className="section-title">{ending ? t("Cancelled") : t("Canceling")}</div>
         {ending ? (
           <>
             <p className="quiet" style={{ marginTop: 0 }}>
@@ -870,8 +870,8 @@ export default function Billing() {
               {paidThrough
                 ? t("You keep everything until {date}, and this month is not refunded.",
                   { date: dateLong(sub.current_period_end) })
-                : t("The month you have not paid for is still owed. Cancelling stops us trying the card for anything after it.")}
-              {/* THE THING SOMEBODY CANCELLING ACTUALLY WANTS TO KNOW, and the
+                : t("The month you have not paid for is still owed. Canceling stops us trying the card for anything after it.")}
+              {/* THE THING SOMEBODY CANCELING ACTUALLY WANTS TO KNOW, and the
                   confirm was silent about it: what happens to their work. The
                   pricing page already promises it and both billing emails say
                   it; this is the moment the fear is live. */}

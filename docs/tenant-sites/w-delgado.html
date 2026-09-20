@@ -677,7 +677,11 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
       <div class="stats">
         <div><b data-roll="1180">1,180</b><span>cars</span></div>
         <div><b data-roll="6">6</b><span>years</span></div>
-        <div><b data-roll="4.9">4.9</b><span data-from="testimonials">rating</span></div>
+        <!-- NO data-roll ON THE RATING. A count of cars may climb on arrival; a
+             rating may not, because every value on the way up is a number the
+             business does not have. Same defect as "1 yrs" on /ex1, same day,
+             different clothes. Andrew's call, 2026-09-20. -->
+        <div><b>4.9</b><span data-from="testimonials">rating</span></div>
       </div>
     </div>
   </section>
@@ -1323,7 +1327,10 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
   }
 
   /* ── G6 · THE STATS ROLL UP ONCE. Never a price — a price that animates
-     reads as a price that moves. */
+     reads as a price that moves — and never the rating, which is the same
+     rule one step out: a number a stranger is WEIGHING must not animate
+     through values that are not true. Opting out is simply not carrying
+     `data-roll`. Andrew, 2026-09-20. */
   if (!LITE && "IntersectionObserver" in window) {
     var rio = new IntersectionObserver(function(es){
       es.forEach(function(e){

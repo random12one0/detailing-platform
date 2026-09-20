@@ -62,7 +62,7 @@ export const TERMS = {
     ["The twelve-month plan",
      "Only the annual-paid-monthly plan carries a commitment. Leaving it early costs half of the months still to run, charged that day. The other two plans have no term and no exit fee. The exact numbers, and a worked example, are on the pricing page before you are ever asked for a card."],
     ["Renewals",
-     "Every plan renews by itself at the price you signed up at, until you cancel. Cancelling is one button in your own settings, one confirmation, and the fee, if there is one, is printed before you press it. It is never behind an email to us."],
+     "Every plan renews by itself at the price you signed up at, until you cancel. Canceling is one button in your own settings, one confirmation, and the fee, if there is one, is printed before you press it. It is never behind an email to us."],
     ["If a payment fails",
      "We email you each time a payment is retried, for two weeks. If it still has not gone through, your booking page goes offline until it is paid. Nothing is deleted. Your customers, your bookings and your settings are all exactly where you left them, and paying puts the page back."],
     ["Your customers' money",

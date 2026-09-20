@@ -374,7 +374,7 @@ export const es = {
   "Never mind": "Mejor no",
   "Cancel your appointment on {date} at {time}? The time goes back to whoever wants it, so we may not be able to give it back.":
     "¿Cancelar tu cita del {date} a las {time}? La hora queda libre para quien la quiera, así que puede que no podamos devolvértela.",
-  "Cancelling…": "Cancelando…",
+  "Canceling…": "Cancelando…",
   "Yes, cancel it": "Sí, cancélala",
   "Keep my booking": "Mejor la dejo así",
   // ROADMAP 2.8 — the address the lookup could not find, said to the person

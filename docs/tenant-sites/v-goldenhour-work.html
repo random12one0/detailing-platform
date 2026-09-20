@@ -1219,7 +1219,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
     <div class="headstats" data-from="the detailer's completed bookings">
       <div class="stat"><b>1,240</b><span>Cars detailed</span></div>
       <div class="stat"><b>312</b><span>Reviews</span></div>
-      <div class="stat"><b>4.9</b><span>Average</span></div>
+      <div class="stat"><b data-still>4.9</b><span>Average</span></div>
       <div class="stat"><b>6</b><span>Years on the road</span></div>
     </div>
   </header>
@@ -1478,7 +1478,16 @@ var REDUCED = matchMedia("(prefers-reduced-motion:reduce)").matches;
 })();
 
 /* G6 · the stat strip counts up once, on arrival. NEVER on a price — a price
-   that animates reads as a price that moves. */
+   that animates reads as a price that moves.
+
+   AND NEVER ON THE RATING, for the same reason and by the same rule. Andrew,
+   2026-09-20: a number climbing from 0.8 to 4.9 is not showing the rating at
+   any moment of that climb, it is showing a number that is not true yet.
+   That is the SAME DEFECT as the "1 yrs" this strip printed on its way to
+   six, fixed the same day — a counter stating something untrue in passing.
+   It only looked like a matter of taste because the end state is flattering.
+   `data-still` opts an element out: a count of cars may climb, a judgment of
+   the business may not. */
 (function(){
   var strip = document.querySelector(".stats");
   if (!strip || REDUCED || !window.IntersectionObserver) return;
@@ -1486,6 +1495,7 @@ var REDUCED = matchMedia("(prefers-reduced-motion:reduce)").matches;
     if (!rows[0].isIntersecting) return;
     io.disconnect();
     strip.querySelectorAll("b").forEach(function(n){
+      if (n.hasAttribute("data-still")) return;   /* the rating — see above */
       var txt = n.textContent, num = parseFloat(txt.replace(/[^\d.]/g, ""));
       if (!isFinite(num)) return;
       var dec = (txt.split(".")[1] || "").replace(/\D/g, "").length;
