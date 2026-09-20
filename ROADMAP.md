@@ -449,12 +449,22 @@ the wrong service, and never book a job we cannot reach.
   the order of the form, which is how this step has always behaved and what
   Andrew reviewed. Naming all three at once needs seven strings for the
   combinations of three fields.
-  **WHAT THIS DOES *NOT* SETTLE, and it is not a wording question:** whether an
-  email should be required at all when no plan is attached. That is a rules
-  change in `core.js`, nobody has ruled on it, and the hint is truthful either
-  way — it states the rule that is actually in force. **If Andrew wants email
-  optional for a plain booking, that is its own item and this tick does not
-  pre-empt it.**
+  **THE RULES QUESTION UNDERNEATH IT — RULED ON 2026-09-20, AND THE RULING IS
+  THE ITEM. Do not open it as a separate one.** Whether an email should be
+  required at all when no plan is attached had been open since the audits.
+  **EMAIL STAYS REQUIRED**, and the reason has an expiry date on it:
+
+  > **Email is currently the ONLY way this product tells a customer anything.**
+  > There is no texting yet — that is ROADMAP 3.3 and it is open. So a booking
+  > without an email is a booking the customer never hears about: no
+  > confirmation, no reminder, no link to change or cancel, no word when a
+  > request is accepted. That is worse than a customer who has to type an
+  > address into a box. — Andrew, 2026-09-20
+
+  **REVISIT IT THE DAY 3.3 LANDS.** The moment a customer can be reached another
+  way, the reason for this rule is gone and the requirement should be argued
+  again rather than inherited. Anyone reading this after texting ships: the
+  decision above was made when email was the only channel, and it said so.
 
 - [ ] **2.8 — Address entry may accept unverified raw text.**
   Continue became enabled before a suggestion was selected. **A1 marks this
