@@ -108,9 +108,29 @@ function BookingFlow({ notFound = null }) {
   const ctx = useBookingBusiness();
   const { status, business, branding, settings, services, serviceGroups, addOns, plans, brandVars, slug, tx } = ctx;
   const STEPS = useMemo(() => stepsFor(addOns), [addOns]);
-  // WHICH STEP CARRIES THE PLANS CHIP. The add-ons step when there is one, and
-  // Services otherwise — the long note beside the chip itself has the reason.
-  const planDoorStep = STEPS.includes("Extras") ? "Extras" : "Services";
+  // WHICH STEP CARRIES THE PLAN PITCH.
+  //
+  // **IT MOVED OFF THE ADD-ONS STEP — ROADMAP 2.10, 2026-09-20.** It was the
+  // add-ons step, falling back to Services for a business with no add-ons.
+  // The audit's complaint was that four membership cards crowd a one-time
+  // booking before the customer has so much as picked a date, and the numbers
+  // were worse than the words: on the demo tenant the pitch measured 472px
+  // against the add-ons' 241px at 1440x900, and **842px against 211px at 320**
+  // — a full phone screen of membership under three rows of add-ons.
+  //
+  // **WHAT DID NOT CHANGE IS THE PITCH ITSELF**, and that is deliberate.
+  // Andrew's 2026-09-13 instruction — *"underneath the add ons, pretty big and
+  // pretty visible… not a button to go to the screen, but just the whole
+  // screen"* — was given after he twice objected that a small chip would be
+  // missed. Shrinking it, folding it or showing fewer plans would undo exactly
+  // what he asked for. **Only the WHEN moved**: it now appears on the first
+  // step after the date is chosen, so nothing competes with the add-ons and an
+  // interested customer still meets the whole pitch, full width, all of them.
+  //
+  // No fallback is needed any more. `stepsFor` puts "Details" in every flow,
+  // with or without add-ons, so the door cannot go missing the way it could
+  // when it hung off an optional step.
+  const planDoorStep = "Details";
   const [params, setParams] = useSearchParams();
 
   // WHO WE ALREADY KNOW, READ ONCE. Lazy state rather than a plain read: the
@@ -617,11 +637,12 @@ function BookingFlow({ notFound = null }) {
                 step 1 was proposed and he overruled it: a lot of the revenue
                 is in the add-ons and he does not want them skipped past.
 
-                `planDoorStep` still decides WHICH step carries it, and still
-                falls back to Services for a business with no add-ons — the
-                alternative is a detailer whose plans are unreachable from the
-                booking page because of a catalogue decision that has nothing
-                to do with plans. */}
+                `planDoorStep` still decides WHICH step carries it, and
+                ROADMAP 2.10 moved that to the step after the date — see the
+                note on the constant for the measurements and for why the
+                pitch's own size and shape were left exactly as he asked. The
+                old fallback is gone because it is no longer possible for the
+                door to go missing: every flow has a Details step. */}
           </div>
           {/* RECOGNITION IS SPENT ON A LINE THAT IS ALREADY DRAWN. The owner
               asked for a welcome at the top of step 1 — *"a welcome message

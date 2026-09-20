@@ -475,15 +475,56 @@ the wrong service, and never book a job we cannot reach.
   fitting.**
   *A2 2.6*
 
-- [ ] **2.10 — Recurring plans overwhelm a one-time booking.**
+- [x] **2.10 — DONE 2026-09-20. The plan pitch moved to after the date. Nothing about the pitch itself changed.**
   Four plan cards in a dense two-column set on the add-ons step, before a date
-  is chosen. "Bi-weekly maintenance" is $120/month for two visits; "Monthly
-  two-visit" is $200 for two visits and is tagged "2 visits each time".
-  Choosing "Member rate" never says whether joining costs anything or repeats.
-  **Fix:** move plans off the add-ons step — their own step or a linked page.
-  Each plan states cost, frequency and how to stop. Rename the $200 plan.
-  **Done when:** a one-time customer reaches vehicle details without reading
-  membership terms, and an interested one can still tell what a plan charges.
+  is chosen.
+  ~~**Fix:** move plans off the add-ons step — their own step or a linked
+  page.~~ **Neither.** A separate step or a link would undo Andrew's 2026-09-13
+  instruction — *"underneath the add ons, pretty big and pretty visible… not a
+  button to go to the screen, but just the whole screen"* — which he gave after
+  objecting TWICE that a small chip would be missed. **The fault as named is
+  about WHEN, not about size or place: plans competing with add-ons before a
+  date exists.** So the pitch is untouched — full width, all four plans, the
+  real thing — and only the step carrying it changed, from the add-ons step to
+  the first step after the date. One line.
+  **MEASURED BEFORE AND AFTER, on the demo tenant's own menu:**
+
+  | width | add-ons block | pitch on that step | step 2 total | step 2 over the screen |
+  |---|---|---|---|---|
+  | 1440x900 | 241px | ~~472px~~ → 0 | ~~1030px~~ → 900 | ~~130px~~ → **0** |
+  | 768x1024 | 241px | ~~462px~~ → 0 | 1024px | 0 |
+  | 392x844 | 211px | ~~823px~~ → 0 | ~~1320px~~ → 844 | ~~476px~~ → **0** |
+  | 320x844 | 211px | ~~842px~~ → 0 | ~~1357px~~ → 844 | ~~513px~~ → **0** |
+
+  **The pitch was FOUR TIMES the height of the add-ons it sat under on a
+  phone**, and at 320 it was 842px against an 844px screen — a full phone
+  screen of membership under three rows of add-ons. Step 2 is now exactly one
+  screen at both phone widths, with nothing cut.
+  **~~Rename the $200 plan.~~ DECLINED 2026-09-20, and this is the more
+  important half.** **A plan's name is DATA, not copy** — a row in the `plans`
+  table, typed by the detailer about their own business, with live
+  subscriptions pointing at it. The platform renaming it means editing
+  somebody's business for them, and in production it rewrites live rows.
+  **It is also not wrong.** The data says every 1 month, 2 visits per month,
+  $200 a month; "Monthly two-visit" describes that exactly. **The auditor read
+  the chip "2 visits each time" as a per-VISIT claim when it states the plan's
+  frequency** — two visits in each period, which is what the cadence chip
+  beside it already says. Nothing was renamed and the seeded demo copy was left
+  alone as well; re-seeding is DP Cowork's lane.
+  **HOW IT WAS CHECKED:** walked the real booking flow at 1440x900, 768x1024,
+  392x844 and 320x844. The pitch measures 0 on the add-ons step at every width
+  and appears intact on step 6 — 472 / 462 / 823 / 842px, four plans, the same
+  heading — and pressing a row there still attaches the plan: the row flips to
+  "On this plan", the address bar carries the plan id, and the price bar reads
+  "Monthly two-visit applied". No string changed, so no Spanish key moved.
+  Console clean at all four widths. Gates green: `booking-core` 290,
+  `composition` 97, `landing-pricing` 109, `route-contract` 34, 0 failed.
+  **AND THE SWEEP'S EXEMPTION STILL WORKS WITHOUT A CODE CHANGE**, because it
+  was keyed on the `.bk-planpitch` element rather than on a step's name. Its
+  PROSE said "the add-ons step" and would have become a lie; that wording was
+  corrected in the same edit.
+  **Still open and not this item's:** whether "Member rate" says what joining
+  costs and whether it repeats.
   *A1 P1-07, A2 2.7*
 
 - [ ] **2.11 — The last step says nothing about what happens next.**

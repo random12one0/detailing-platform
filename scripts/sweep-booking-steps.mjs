@@ -212,8 +212,8 @@ for (const size of SIZES) {
     const bad = over > 1;
     // **THE ONE EXEMPTION FROM W16, AND IT IS ANDREW'S RULING — 2026-09-19.**
     //
-    // The add-ons step overflows because of `.bk-planpitch`, the monthly-plan
-    // pitch, and its size is a specific instruction quoted three times in
+    // One step overflows because of `.bk-planpitch`, the monthly-plan pitch,
+    // and its size is a specific instruction quoted three times in
     // `BookingPage.jsx` and `PlanRows.jsx`: *"pretty big and pretty visible…
     // like, just in the whole screen, like, not a button to go to the screen,
     // but just the whole screen."* W16 is a general rule that predates that
@@ -223,6 +223,13 @@ for (const size of SIZES) {
     // **NARROW THREE WAYS, ON PURPOSE, so it cannot grow into an excuse:**
     //  1 · It needs `.bk-planpitch` on the page. That element is on one step;
     //      `pitch` is 0 everywhere else, so no other step can reach this.
+    //      **AND IT IS KEYED ON THE ELEMENT, NEVER ON THE STEP'S NAME**, which
+    //      is what let ROADMAP 2.10 move the pitch off the add-ons step to the
+    //      step after the date on 2026-09-20 without touching a line of this
+    //      arithmetic. The prose here said "the add-ons step" and was corrected
+    //      the same day: a check whose words name a place its logic does not is
+    //      `docs/gotchas.md`'s grep-coupled-to-a-spelling trap with the
+    //      coupling in the comment instead of the code.
     //  2 · It is ARITHMETIC, not a name. The step is re-judged with the pitch
     //      discounted and everything else on it is still held to W16 to the
     //      pixel. Measured — without the pitch it fits by **465px at 1920, 342
@@ -606,7 +613,7 @@ for (const size of SIZES) {
 
 await browser.close();
 const exemptNote = exempted
-  ? `\n${exempted} step reading${exempted === 1 ? "" : "s"} EXEMPT from W16 — the add-ons step, whose overflow is entirely .bk-planpitch, full-screen by Andrew's instruction (ROADMAP 8.4). Everything else on that step is still measured and still fits.`
+  ? `\n${exempted} step reading${exempted === 1 ? "" : "s"} EXEMPT from W16 — whichever step carries .bk-planpitch, whose overflow is entirely that pitch, full-screen by Andrew's instruction (ROADMAP 8.4). Everything else on that step is still measured and still fits.`
   : "";
 console.log(failing
   ? `\n${failing} step${failing === 1 ? "" : "s"} do not fit — W16 is not met` + exemptNote
