@@ -82,6 +82,12 @@ Updated 2026-09-20.
 - [ ] **DECIDE · What to put live, and in what order. Added 2026-09-20.**
   **Two minutes of reading. Say yes to a number and a session does the rest.**
 
+  **HOW MUCH THIS ONE DECISION IS HOLDING UP, measured rather than guessed:**
+  the freeze on publishing currently blocks **most of Wave 3, most of Wave 6,
+  the first two items of Wave 9, and the remaining half of item 4.4.** That is
+  not an argument for lifting it — it is what one decision unblocks, put in
+  front of you so the decision is made with the size of it visible.
+
   **The background, in four sentences.** Your site's back end is 39 small
   programs. Each one has to be *published* before a change to it does anything
   — writing the change is not enough. **22 of the 39 are currently running

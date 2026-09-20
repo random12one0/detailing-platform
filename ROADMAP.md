@@ -1697,6 +1697,15 @@ most corroborated finding in the set.
   - **MFA on the production accounts** is in this item's fix list and is his
     alone. On his list.
 
+  **AND THE REAL FINDING IS THE SHAPE, NOT THE PLAN.** The only backup that
+  exists is one somebody has to remember to run. **That is the same disease as
+  the deploy drift wearing a third hat — the system relies on a human
+  remembering, and nobody was.** Twenty-two functions drifted because nothing
+  required a deploy; there are no backups because nothing requires one; and the
+  interim procedure written above is itself a thing a person has to remember.
+  Making it automatic needs something that runs on a schedule, which needs a
+  deploy, which is behind the freeze.
+
   **So 6.1 does not close.** What changed is that its central question has an
   answer and a date instead of a silence, and the answer is bad: **there are no
   backups.** Andrew would far rather read that this morning than discover it
@@ -1714,11 +1723,17 @@ most corroborated finding in the set.
   **Done when:** a controlled failure raises an alert, appears in incident
   history, names the affected path, and clears only after a successful check.
   *A1 P1-03, P3-07, § 9*
+  **BLOCKED BY THE DEPLOY FREEZE, 2026-09-20: an alert needs something running
+  to raise it, and everything that runs is behind the freeze.** Not attempted;
+  naming it rather than proving it again.
 
 - [ ] **6.3 — Alert when an active detailer's booking page cannot work.**
   No services, no coverage area, no future availability, suspended account, or
   a public error.
   *A1 § 9*
+  **BLOCKED BY THE DEPLOY FREEZE, 2026-09-20: an alert needs something running
+  to raise it, and everything that runs is behind the freeze.** Same one-line
+  reason as 6.2. Not attempted.
 
 - [ ] **6.4 — Weak signal and retry behavior is unknown.**
   Detailers work in driveways.
