@@ -117,7 +117,7 @@ export const es = {
   "Choose one or more. You can add extras next.":
     "Elige uno o más. Después puedes agregar extras.",
   "complete on its own": "completo por sí solo",
-  "choose one": "elige uno",
+  "optional, choose one": "opcional, elige uno",
   "from": "desde",
   // **"unos 1 h" — a masculine PLURAL against a singular, on the first screen a
   // Spanish-speaking customer reads.** Corrected 2026-09-12.
@@ -131,6 +131,7 @@ export const es = {
   // Why Continue will not move, said next to the missing field rather than in
   // a tooltip — 2026-09-12.
   "Add your name to continue.": "Agrega tu nombre para continuar.",
+  "Add your email to continue. Your confirmation goes there.": "Agrega tu correo para continuar. Ahí llega tu confirmación.",
   "Add your phone number to continue.": "Agrega tu teléfono para continuar.",
   "Add your name and phone number to continue.": "Agrega tu nombre y tu teléfono para continuar.",
   "Add the address to continue.": "Agrega la dirección para continuar.",
@@ -138,6 +139,11 @@ export const es = {
   "Pick a time to continue.": "Elige una hora para continuar.",
   "Every vehicle needs its own day and time.": "Cada vehículo necesita su propio día y hora.",
   "What's included in {service}": "Qué incluye {service}",
+  // ROADMAP 8.4 — the eye became words, so the words need a key. The aria
+  // label above stays: it names WHICH service, which the visible text does not.
+  "What's included": "Qué incluye",
+  // The mark on a chosen card. `tú`, never `usted` — this file's own rule 1.
+  "Added": "Añadido",
   "{business} hasn’t listed any services online yet.":
     "{business} todavía no tiene servicios publicados en línea.",
   "Please call {phone} to book.": "Llama al {phone} para reservar.",
@@ -161,6 +167,7 @@ export const es = {
   "Included": "Incluido",
   "One price for every vehicle.": "Un solo precio para cualquier vehículo.",
   "What are you bringing? (optional)": "¿Qué vehículo traes? (opcional)",
+  "Year or estimate (optional)": "Año o aproximado (opcional)",
   "e.g. 2019 Honda Civic": "por ejemplo, Honda Civic 2019",
   "{vehicle} · set to {size}": "{vehicle} · lo pusimos en {size}",
   "How dirty is the inside?": "¿Qué tan sucio está por dentro?",
@@ -366,8 +373,13 @@ export const es = {
   "We could not start the payment. Please try again.":
     "No pudimos iniciar el pago. Inténtalo de nuevo.",
   "Paid": "Pagado",
-  "Thank you. Your card payment went through and your receipt is on its way by email.":
-    "Gracias. Tu pago con tarjeta se realizó. Tu recibo va en camino por correo.",
+  // ROADMAP 5.3 — the old pair promised a receipt nothing sent. Replaced,
+  // not edited: the key IS the English sentence, so a changed sentence with
+  // its old key falls back to English with no error anywhere.
+  "Thank you. Your card payment went through.":
+    "Gracias. Tu pago con tarjeta se realizó.",
+  "{business} emails your receipt when they close the job. This page keeps the details either way.":
+    "{business} te manda el recibo cuando cierra el trabajo. Esta página guarda los detalles de todos modos.",
 
   // ── The opt-out, reached from an email ─────────────────────────────────
   "Done": "Listo",

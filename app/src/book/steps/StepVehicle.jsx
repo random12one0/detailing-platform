@@ -108,7 +108,6 @@ export default function StepVehicle({ form, setForm, selectedServices, blocks = 
   useLocale();
   const { settings, tx } = useBookingBusiness();
   const sizes = settings.vehicle_sizes;
-  const needYear = blocks.includes("no-year");
   // **THE QUESTION COMES OUT WHEN THE ANSWER ALREADY CAME FROM WHAT THEY
   // TYPED — Andrew's ask, 2026-09-14.** A confident match against the
   // detailer's own checklist (`core.js` § suggestVehicleSize) means there is
@@ -116,7 +115,6 @@ export default function StepVehicle({ form, setForm, selectedServices, blocks = 
   // the picker back up if it is wrong. Never silent — the sentence below the
   // vehicle field is what makes it not silent.
   const [manualOverride, setManualOverride] = useState(false);
-  const [yearTouched, setYearTouched] = useState(false);
 
   // The size arithmetic, the four-way condition scale and the vehicle count
   // are `core.js`'s — they decide what reaches `bookings`. The CEILING above
@@ -396,35 +394,33 @@ export default function StepVehicle({ form, setForm, selectedServices, blocks = 
         </>
       )}
 
-      {/* ROADMAP — THE YEAR, Andrew's ask 2026-09-14. Required, but an
-          ESTIMATE is fine: the wording says so up front so nobody stalls
-          hunting down the exact number. It is for the detailer to judge
-          condition against, never wired to price — `bookingRequest` sends it
-          straight through and `_shared/pricing.ts` never reads it.
+      {/* **THE YEAR IS OPTIONAL — Andrew, 2026-09-20.** It REPLACES his
+          2026-09-14 ask that made it required, and the reversal is written
+          down rather than quietly applied: it is a nice-to-have that helps him
+          identify the car, and it was never asked for properly — the box above
+          said "(optional)" and this one said nothing, so a customer read
+          neither as required and then met a Continue button that would not
+          move. `core.js` no longer emits `no-year`, so there is nothing left
+          here to refuse with, and the red line and the "have they touched it
+          yet" bookkeeping went with it.
 
-          **AND IT DOES NOT SCOLD ON ARRIVAL — Andrew's correction, 2026-09-14.**
-          `needYear` is true the instant this step renders with nothing typed,
-          because the field starts empty; showing the red box from the first
-          frame told a customer off for something they had not had a chance to
-          do yet. A native `disabled` Continue button fires no click event at
-          all — there is nothing to hook a "they tried" moment onto — so the
-          signal used here is `yearTouched`: they have visited the field and
-          left it. Neutral guidance until then, the same red box after. */}
+          **THE LABEL CARRIES BOTH FACTS.** "or estimate" kills the hunt for
+          the exact number, and "(optional)" is worded and placed exactly like
+          the box above so the two read as one pair rather than as two
+          different kinds of question. The sentence under it stays — it is the
+          one that tells somebody an approximate answer is welcome. */}
       <label className="bk-field bk-year">
-        <span>{t("Year")}</span>
+        <span>{t("Year or estimate (optional)")}</span>
         <input
           inputMode="numeric"
           maxLength={4}
           value={form.vehicleYear}
           placeholder={t("e.g. 2019")}
           onChange={(e) => setForm((f) => ({ ...f, vehicleYear: e.target.value.replace(/[^0-9]/g, "").slice(0, 4) }))}
-          onBlur={() => setYearTouched(true)}
         />
       </label>
-      <p className={needYear && yearTouched ? "bk-error" : "bk-muted"} style={{ marginTop: -8 }}>
-        {needYear && yearTouched
-          ? t("Add a year to continue. An estimate is fine.")
-          : t("An estimate is fine — it does not have to be exact.")}
+      <p className="bk-muted" style={{ marginTop: -8 }}>
+        {t("An estimate is fine — it does not have to be exact.")}
       </p>
 
       {/* W27. One row of four, which is the whole reason it is chips and not

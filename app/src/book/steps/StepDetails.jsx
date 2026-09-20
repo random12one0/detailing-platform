@@ -5,7 +5,7 @@ import { phoneAsTyped } from "../../lib/format.js";
 import { t } from "../../lib/i18n.js";
 import { useLocale } from "../../hooks/useLocale.js";
 
-export default function StepDetails({ form, setForm, blocks = [] }) {
+export default function StepDetails({ form, setForm, blocks = [], tried = false }) {
   useLocale();
   // SAY WHICH FIELD IS WRONG, AND ONLY ONCE THEY HAVE TYPED SOMETHING. An
   // outside review, 2026-09-11: `notanemail` walked through this step, and the
@@ -26,6 +26,15 @@ export default function StepDetails({ form, setForm, blocks = [] }) {
   // The core decides WHAT is missing; this file decides how to say it.
   const needName = blocks.includes("no-name");
   const needPhone = blocks.includes("no-phone");
+  // **ROADMAP 2.6's MECHANISM, NOT 2.7's WORDING.** Continue is pressable now,
+  // and a press with an empty email used to reveal nothing at all here: an
+  // untyped address is not a FAULT, so `emailFault` returns null and this line
+  // stayed on its reassurance while the button refused. One sentence so the
+  // press is never silent. Gated on `tried` because an empty email on arrival
+  // is not a mistake yet — the same rule the year field follows.
+  // **2.7 IS STILL OPEN**: whether an email should be required at all when no
+  // plan is attached is a rules question, and the rules live in `core.js`.
+  const needEmail = blocks.includes("no-email");
   return (
     <>
       <label className="bk-field">
@@ -46,7 +55,7 @@ export default function StepDetails({ form, setForm, blocks = [] }) {
             onChange={(e) => setForm((f) => ({ ...f, customerEmail: e.target.value }))} />
         </label>
       </div>
-      <p className={badEmail ? "bk-error" : "bk-muted"} style={{ marginTop: -4, marginBottom: 14 }}>
+      <p className={badEmail || (needEmail && tried) ? "bk-error" : "bk-muted"} style={{ marginTop: -4, marginBottom: 14 }}>
         {/* **WRITTEN OUT RATHER THAN LOOKED UP IN A MAP, on purpose.** The
             first version held these four in an object and `tests/spanish`
             § 1c caught it within the minute: a string in a data table is
@@ -68,6 +77,8 @@ export default function StepDetails({ form, setForm, blocks = [] }) {
             : needName
               ? t("Add your name to continue.")
               : t("Add your phone number to continue."))
+          : needEmail && tried
+          ? t("Add your email to continue. Your confirmation goes there.")
           : !badEmail
           ? t("We’ll send your confirmation here, with a link to change or cancel.")
           : fault === "missing-at"

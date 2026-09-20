@@ -1272,8 +1272,15 @@ export function blockers(stepName, { form, settings, quote, quoting }) {
       else if (!quote) out.push("no-quote");
       break;
     case "Vehicle":
-      if (!form.vehicleYear?.trim()) out.push("no-year");
-      else if (quoting) out.push("pricing");
+      // **THE YEAR IS OPTIONAL — Andrew, 2026-09-20, and this REVERSES his own
+      // 2026-09-14 ask that made it required.** His words: it is a nice-to-have
+      // that helps him identify the car, and before ROADMAP 2.6 it was not even
+      // asked for properly — the box above it said "(optional)" and this one
+      // said nothing, so a customer read neither as required and then hit a
+      // dead button. **The reversal is the load-bearing part: `no-year` is gone
+      // from this list, not renamed**, so nothing downstream can quietly keep
+      // refusing on it. The year is still sent when it is given.
+      if (quoting) out.push("pricing");
       else if (!quote) out.push("no-quote");
       break;
     case "Location":

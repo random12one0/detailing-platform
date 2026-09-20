@@ -407,9 +407,23 @@
 /* Progress: six marks, the ones behind you filled. Shape and fill, not
    colour alone, so it still reads for a colour-blind customer. */
 .bk-rail { display: flex; gap: 5px; flex: 1; min-width: 0; }
-.bk-step-head .bk-step-label { flex-shrink: 0; }
+/* **AND THE WORDS BESIDE IT SAY WHERE YOU ARE, so they take the brighter of
+   the two type colours.** `--bk-text-2` measures 12.31:1 on the card against
+   `--bk-muted`'s 6.72:1 — both pass, and this one reads at a glance, which is
+   what a progress indicator is for. SCOPED TO `.bk-step-head`: `.bk-step-label`
+   is the section eyebrow on eight other files and `docs/screen-rules.md` is
+   explicit that an eyebrow marks where a section begins. Making every one of
+   them louder would be twenty eyebrows shouting, which is the exact defect
+   that document names. */
+.bk-step-head .bk-step-label { flex-shrink: 0; color: var(--bk-text-2); }
+/* **ROADMAP 8.4 — 5px, NOT 3.** "the progress label is faint" was the report;
+   **measured, the label clears 6.72:1 on the card and 5.67:1 on the lit
+   surface**, so the colour was never under a floor. What was thin was the
+   RAIL: six 3px marks the width of a hairline, against a 3px unfilled track
+   nobody could see behind them. Shape and fill still do the work, so it reads
+   for a colour-blind customer exactly as before — there is just more of it. */
 .bk-rail span {
-  height: 3px; flex: 1; border-radius: var(--bk-r-pill); background: var(--bk-hairline);
+  height: 5px; flex: 1; border-radius: var(--bk-r-pill); background: var(--bk-hairline);
   transition: background var(--bk-t-hover) var(--bk-e);
 }
 .bk-rail span.done { background: var(--bk-accent-line); }
@@ -425,7 +439,14 @@
   border-radius: var(--bk-r-panel); padding: clamp(15px, 3.6vw, 20px);
   corner-shape: var(--bk-corner);
 }
+/* **ROADMAP 8.4 — A CARD YOU CAN CHOOSE HAS A VISIBLE EDGE.** `--bk-hairline`
+   is the decorative line and it is right for a card that only holds text; on
+   a card that is a CONTROL it made the whole step read as a list rather than
+   as a set of choices. `--bk-border` is this file's own "a line that has to be
+   seen". Scoped to `.selectable`, because the confirm, manage and plans pages
+   use `.bk-card` for read-only panels and nothing about those changed. */
 .bk-card.selectable {
+  box-shadow: inset 0 0 0 1px var(--bk-border);
   cursor: pointer;
   transition: box-shadow var(--bk-t-hover) var(--bk-e),
               background var(--bk-t-hover) var(--bk-e),
@@ -447,7 +468,11 @@
   /* The ring is the full accent, not a tint of it: "selected" is a state a
      customer has to be able to see, so it takes the 3:1 non-text floor
      rather than the decorative-hairline exemption. */
-  box-shadow: inset 0 0 0 1px var(--bk-accent),
+  /* 2px, not 1. The resting edge above is stronger now, so a 1px ring would
+     be a smaller step than it used to be — the mark of selection has to grow
+     with whatever it is being told apart from. Still the full accent, so the
+     3:1 non-text floor is untouched. */
+  box-shadow: inset 0 0 0 2px var(--bk-accent),
               0 40px 70px -40px rgba(0, 0, 0, .92);
 }
 /* And the other half of his rule: a selected card's hover moves the SAME way
@@ -455,7 +480,7 @@
    thicker ring and a deeper lift — never a grey one, never a flatter one.
    The ring stays the full accent, so the 3:1 non-text floor is untouched. */
 .bk-card.selected:hover {
-  box-shadow: inset 0 0 0 2px var(--bk-accent),
+  box-shadow: inset 0 0 0 3px var(--bk-accent),
               0 46px 78px -40px rgba(0, 0, 0, .96);
 }
 
@@ -492,23 +517,107 @@
   font-variation-settings: "wdth" 102, "wght" 620; font-size: var(--bk-t-strong);
   font-weight: 400; line-height: 1.3;
 }
+/* **ROADMAP 8.4 — THE PRICE IS THE FACT BEING COMPARED, so it is sized like
+   one.** It was `--bk-t-body`, the same 15px as ordinary copy, which is what
+   "prices are dim" was about: **measured, the colour was never the problem** —
+   `--bk-text` on a card is 16.61:1, far past the 4.5:1 floor. It was
+   hierarchy. 17px and 600 puts it a step above the description beside it
+   without touching a colour token.
+   SCOPED TO CARDS YOU CHOOSE. `.bk-price` is used by eight files — review,
+   confirm, manage, plans — and none of those asked for a louder number. */
+.bk-card.selectable .bk-price {
+  font-size: var(--bk-t-strong); font-weight: 600;
+}
 .bk-svc-money { text-align: right; flex-shrink: 0; }
 .bk-svc-money .bk-muted { display: block; }
-/* His "little eye". Icon-only and on the name's own row, which is the whole
-   point: a worded control would be a row of its own and give back the height
-   this item exists to win. 46px of target, which clears the 44px floor. */
+/* **ROADMAP 8.4 — IT WAS "his little eye" AND IT IS WORDS NOW.** The note this
+   replaces defended the icon on height: a worded control takes a row of its
+   own. That is still true and it is the price of the change — an eye means
+   "look", and it never said that what you get by looking is what the service
+   includes. Andrew asked for the words (two audits, ROADMAP 8.4), so the words
+   win and the row is spent.
+   FULL WIDTH AND 44px TALL: the target is the whole strip under the face, not
+   a 46px square, so it is easier to hit than the eye ever was. It sits inside
+   the card's own padding, level with the name above it. */
+/* **THE PAINT IS SMALL AND THE TARGET IS 44 — Andrew's call, 2026-09-19, after
+   the repaired booking sweep priced the row.** A full 44px band per card cost
+   264px on a six-service step and turned step 1 from fitting at three widths
+   into overflowing at three. `docs/screen-rules.md` already blesses this exact
+   split: *the painted thing is the design and shrinking it to satisfy a floor
+   is the wrong answer — pad the ANCHOR with an absolutely positioned `::after`,
+   which takes no part in layout.*
+   28px of paint, 8px of reach each way, 44px of target.
+   **AND THE TARGETS TILE RATHER THAN FIGHT**, which is the half of that rule
+   that bites: screen-rules says in as many words that *padding alone makes
+   neighbours fight* and that the gap has to open until the boxes tile exactly.
+   Downward, the 8px lands in the 8px gap between cards and stops at the next
+   card's edge. Upward it would land inside `.bk-pick`'s bottom padding, so
+   that padding gives up exactly 8px below — measured, not assumed, and probed
+   afterwards with `elementFromPoint`. */
 .bk-peek {
-  flex: 0 0 auto; width: 46px; align-self: stretch;
-  display: grid; place-items: center;
-  background: none; border: 0; padding: 0; cursor: pointer;
-  color: var(--bk-muted);
+  position: relative;
+  display: flex; align-items: center; gap: 6px;
+  width: 100%; min-height: 0;
+  padding: 0 clamp(15px, 3.6vw, 20px) 12px;
+  background: none; border: 0; cursor: pointer;
+  font-family: var(--bk-f-body); font-size: var(--bk-t-meta); font-weight: 500;
+  text-align: left; color: var(--bk-text-2);
   transition: color var(--bk-t-hover) var(--bk-e);
 }
+/* Takes no part in layout, so the card keeps the height the paint asks for. */
+/* **ASYMMETRIC, AND MEASURED TO BE SO.** A symmetric -8px gave a 42px target,
+   under the floor, and its bottom edge met the next card exactly at 1920 where
+   sub-pixel rounding then counted as a touch. Up 9 into padding that gives way
+   for it; down 8 into an 8px gap, which stops one pixel short of the next
+   card's own box. 27 + 9 + 8 = 44. */
+.bk-peek::after { content: ""; position: absolute; inset: -9px 0 -8px 0; }
+/* The 8px the target reaches upward is 8px this padding no longer claims, so
+   the two boxes meet instead of overlapping. Scoped to the service card. */
+.bk-svc .bk-pick { padding-bottom: calc(clamp(15px, 3.6vw, 20px) - 9px); }
+.bk-peek svg { transition: transform var(--bk-t-hover) var(--bk-e); }
+.bk-peek.on svg { transform: rotate(180deg); }
 .bk-peek:hover, .bk-peek.on { color: var(--bk-accent-text); }
-/* Where a card HAS an eye, the eye's box is the card's right padding — two
-   paddings side by side would push the price 20px in from where it sits on
-   every card that has nothing to disclose. */
-.bk-svc-face:has(.bk-peek) .bk-pick { padding-right: 0; }
+
+/* **THE MARK THAT ANSWERS THE DONE-CONDITION.** "a user can name the selected
+   choice without comparing shades" — so the state says its own name. Beside
+   the service name rather than in a corner, because that is where a person
+   reads to find out what the card IS.
+   The accent as a FILL takes the 3:1 non-text floor, which is what the ring
+   already takes; the WORDS on it are the tenant's `--bk-accent-text` on a tint
+   of their own accent, which is the ground `accent-sweep.mjs` already
+   measures. Nothing here invents a colour. */
+.bk-added {
+  display: inline-flex; align-items: center; gap: 3px;
+  margin-left: 8px; padding: 2px 7px 2px 5px;
+  border-radius: var(--bk-r-pill);
+  background: color-mix(in srgb, var(--bk-accent) 16%, transparent);
+  /* **BONE, NOT THE ACCENT — AND THIS WAS MEASURED AFTER WRITING IT THE OTHER
+     WAY.** The first version printed `--bk-accent-text` on this tint, which is
+     the mistake `docs/design-system.md` names in so many words: *a tint of the
+     accent is a ground*, and the booking text variant is corrected against
+     `--ink-0` only because the file used to print it in two places that were
+     both borderless rows ON the ground. This badge was a third place and a
+     different ground, so that correction did not cover it.
+     Swept across the accent extremes: on a black tenant pick the accent text
+     came out at **3.14:1**, under the 4.5:1 floor — a live defect for any
+     detailer who picks a dark colour. Bone measures 11.93:1 there and 8.42:1
+     at its own worst, across every preset.
+     **The tint still carries the tenant's colour**, which is what makes the
+     badge theirs; it is the WORD that must be readable, and the word is not
+     the place to spend the accent. `accent-sweep.mjs` measures the two places
+     this file already had and would not have caught this one. */
+  color: var(--bk-text);
+  font-family: var(--bk-f-body); font-size: 11px; font-weight: 600;
+  letter-spacing: .01em; text-transform: none; white-space: nowrap;
+  vertical-align: middle;
+}
+/* **DELETED WITH THE EYE — ROADMAP 8.4.** This zeroed `.bk-pick`'s right
+   padding on any card whose face held the eye, because the eye's 46px box WAS
+   that padding. The control is a row of its own now, so the face has no eye in
+   it, `:has()` matches nothing, and the rule would be a selector naming
+   something nothing carries — which this repo's own notes call out as reading
+   like coverage it no longer has. The price gets its padding back, which is
+   where it sits on every card that has nothing to disclose. */
 /* Collapsed to a zero-height grid row rather than unmounted, so it opens and
    closes with one easing. The inner div is load-bearing: a grid item's own
    padding sits OUTSIDE the row height, so padding on this element would
@@ -642,6 +751,14 @@
    available, and not before. */
 .bk-btn.primary:disabled {
   opacity: 1; background: var(--bk-surface); color: var(--bk-muted);
+  box-shadow: inset 0 0 0 1px var(--bk-hairline);
+}
+/* ROADMAP 2.6 — NOT READY YET, BUT STILL PRESSABLE. This reads exactly like
+   the rule above and behaves differently on purpose: the press is what turns
+   the reason on, so the control has to be able to take one. A screen reader
+   announces it dimmed either way. */
+.bk-btn.primary[aria-disabled="true"] {
+  background: var(--bk-surface); color: var(--bk-muted);
   box-shadow: inset 0 0 0 1px var(--bk-hairline);
 }
 

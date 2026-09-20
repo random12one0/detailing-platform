@@ -332,6 +332,16 @@ function BookingFlow({ notFound = null }) {
   // would be no use on a phone, which is where this flow is used.
   const stepBlocks = coreBlockers(STEPS[step], { form, settings, quote, quoting });
   const canAdvance = stepBlocks.length === 0;
+  // **ROADMAP 2.6 — A DISABLED BUTTON CANNOT BE PRESSED, SO IT CANNOT BE
+  // ASKED WHY.** Continue is live on every step now: pressing it with
+  // something missing does not advance, it turns the reason on. That is the
+  // same no-scold-on-arrival rule Andrew set on 2026-09-14 — nothing is red
+  // until the customer has had their turn — but the turn is now PRESSING THE
+  // BUTTON rather than happening to touch one particular field, which is why
+  // the vehicle step could refuse in silence forever.
+  // One flag for every step: each step already names its own missing pieces,
+  // this only decides WHEN they are allowed to speak.
+  const [tried, setTried] = useState(false);
 
   // W25 and roadmap 2.8c's exclusive category — both are `core.js`'s
   // `toggleService`, with the reasoning. This page only decides that a tap
@@ -342,6 +352,7 @@ function BookingFlow({ notFound = null }) {
   }));
 
   const go = (delta) => {
+    setTried(false);
     setStep((s) => Math.max(0, Math.min(STEPS.length - 1, s + delta)));
     topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
@@ -677,7 +688,7 @@ function BookingFlow({ notFound = null }) {
             blocks={stepBlocks}
           />
         )}
-        {stepName === "Details" && <StepDetails form={form} setForm={setForm} blocks={stepBlocks} />}
+        {stepName === "Details" && <StepDetails form={form} setForm={setForm} blocks={stepBlocks} tried={tried} />}
         {stepName === "Review" && (
           <StepReview
             form={form} setForm={setForm} quote={quote}
@@ -808,7 +819,8 @@ function BookingFlow({ notFound = null }) {
                 : (submitting ? t("Booking…") : t("Confirm booking"))}
             </button>
           ) : (
-            <button className="bk-btn primary" disabled={!canAdvance} onClick={() => go(1)}>
+            <button className="bk-btn primary" aria-disabled={!canAdvance}
+              onClick={() => (canAdvance ? go(1) : setTried(true))}>
               {t("Continue")}
             </button>
           )}

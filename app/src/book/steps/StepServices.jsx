@@ -24,13 +24,13 @@
 import { getLocale, t } from "../../lib/i18n.js";
 import { useLocale } from "../../hooks/useLocale.js";
 import { useState } from "react";
-import { Eye } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import { duration, money, phone } from "../../lib/format.js";
 import { groupServices } from "../core.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 
 export default function StepServices({ selected, onToggle }) {
-  const { services, serviceGroups, business, tx } = useBookingBusiness();
+  const { services, serviceGroups, business, settings, tx } = useBookingBusiness();
   useLocale();
   // Which cards are showing their full details. Plain state rather than
   // <details>: the eye has to sit ON the name row to cost zero height, and
@@ -56,8 +56,8 @@ export default function StepServices({ selected, onToggle }) {
   const showHeadings = groups.length > 1 || (groups[0]?.name ?? "") !== "";
   // THE INTRO LINE IS DROPPED WHERE THE CATEGORIES ALREADY SAY IT, and that
   // is a height decision as much as a copy one. With every category labelled
-  // "choose one", the sentence repeats what is written three times further
-  // down the screen — and it is 19px on a desktop and 38px on a phone (it
+  // its own cap (ROADMAP 2.13's "optional, choose one"), the sentence repeats
+  // what is already written further down the screen — and it is 19px on a desktop and 38px on a phone (it
   // wraps), against a step whose whole budget belongs to the tenant.
   // MEASURED: with it, the owner's own six-service menu runs 19px past the
   // bottom at 1440x900; without it, that screen has 8px to spare. It stays
@@ -67,6 +67,27 @@ export default function StepServices({ selected, onToggle }) {
   const intro = allPickOne && showHeadings
     ? null
     : t("Choose one or more. You can add extras next.");
+
+  // **ROADMAP 2.9 — WHERE THIS BUSINESS WORKS, ON THE FIRST SCREEN, 2026-09-20.**
+  // A2's finding is that an out-of-area customer picks services, add-ons and a
+  // vehicle and only meets the question at step 4. **The fault is that they
+  // find out LAST, not that step 4 is in the wrong place** — Andrew's ruling,
+  // and it is why nothing here moves a step or reorders the flow. The step
+  // keeps its job; the fact just stops being a surprise.
+  //
+  // **IT IS THE SENTENCE STEP 4 ALREADY SAYS, SAID EARLIER TOO.** Same key,
+  // already translated, so the two screens cannot drift into two different
+  // claims about the same business — and no new string enters the catalogue
+  // for a fact this product already knows how to phrase.
+  //
+  // Drawn only where it is TRUE and USEFUL: a business that does not travel
+  // has no area to state, and one that travels without naming an area would
+  // get "comes to you" with nothing in it, which tells a customer in the next
+  // county precisely nothing. Both fall through to the page as it was.
+  const area = settings?.mobile_enabled && business.service_area
+    ? t("{business} comes to you, serving {area}.",
+      { business: business.name, area: tx(business.service_area) })
+    : null;
 
   return (
     // W18, and it was a structural bug rather than a taste note. His words:
@@ -79,6 +100,7 @@ export default function StepServices({ selected, onToggle }) {
     // relationship. Same cause as W7 and W11 in roadmap 2.6 — a missing flow
     // container — and the same fix.
     <div className="bk-choices">
+      {area && <p className="bk-muted bk-area">{area}</p>}
       {intro && <p className="bk-muted">{intro}</p>}
       {groups.map((g) => (
         <div key={g.key || "ungrouped"} className="bk-choices">
@@ -95,9 +117,17 @@ export default function StepServices({ selected, onToggle }) {
                     did not expect would be the same complaint again. And 2.8c's
                     exclusive category swaps HARDER — it clears the whole
                     basket — so it has the most to say up front. */}
+                {/* **ROADMAP 2.13 — IT SAID "choose one" AND MEANT "no more
+                    than one", 2026-09-20.** `max_select` is a CAP; nothing on
+                    this step requires a pick from any one category, only at
+                    least one service in total. With two categories on screen
+                    the old line told a customer they had to take an interior
+                    service as well as an exterior one, which is not true and
+                    is the more expensive of the two readings. "optional"
+                    first, because it is the half that was wrong. */}
                 {g.exclusive
                   ? <span className="bk-group-rule"> · {t("complete on its own")}</span>
-                  : g.rule === 1 && <span className="bk-group-rule"> · {t("choose one")}</span>}
+                  : g.rule === 1 && <span className="bk-group-rule"> · {t("optional, choose one")}</span>}
               </div>
               {/* Optional, and empty for every tenant who has not written one:
                   a line here is 19px off a step whose budget is already the
@@ -125,7 +155,22 @@ export default function StepServices({ selected, onToggle }) {
                       it folds a whole line out of every card, which is 19px x
                       however many services the business lists (W16). */}
                   <button type="button" className="bk-pick" aria-pressed={isOn} onClick={() => onToggle(s.id)}>
-                    <span className="bk-h3">{tx(s.name)}</span>
+                    <span className="bk-h3">
+                      {tx(s.name)}
+                      {/* **ROADMAP 8.4 — A MARK, NOT A SHADE.** Selection was an
+                          accent ring and a lift and nothing else, so naming
+                          your own choice meant comparing two cards' edges. The
+                          done-condition for this item is that a customer can
+                          name it WITHOUT that, and a ring cannot meet that bar
+                          however bright it is. The word is translated; the
+                          tick is a symbol and needs no catalogue. */}
+                      {isOn && (
+                        <span className="bk-added">
+                          <Check size={13} strokeWidth={3} aria-hidden="true" />
+                          {t("Added")}
+                        </span>
+                      )}
+                    </span>
                     <span className="bk-svc-money">
                       {/* W9 — "from $220". The number is the same number; what
                           changes is what it claims to be. Every real detailer
@@ -138,19 +183,31 @@ export default function StepServices({ selected, onToggle }) {
                       <span className="bk-muted">{t("about {time}", { time: duration(s.duration_minutes, getLocale()) })}</span>
                     </span>
                   </button>
-                  {hasMore && (
-                    <button
-                      type="button"
-                      className={`bk-peek ${shown ? "on" : ""}`}
-                      aria-expanded={shown}
-                      aria-controls={`svc-more-${s.id}`}
-                      aria-label={t("What's included in {service}", { service: tx(s.name) })}
-                      onClick={() => peek(s.id)}
-                    >
-                      <Eye size={18} strokeWidth={2} />
-                    </button>
-                  )}
                 </div>
+                {/* **ROADMAP 8.4 — THE EYE BECOMES WORDS, AND IT COSTS A ROW.**
+                    The icon was Andrew's own ask and the comment above this
+                    file's imports defends it on exactly that ground: a worded
+                    control takes a line of its own and gives back the height
+                    the eye was there to win. **He has since asked for the
+                    words** (ROADMAP 8.4, from two audits), so the words win —
+                    but the trade is real and is written down here rather than
+                    quietly forgotten. An eye means "look"; it does not say
+                    that what you get by looking is what the service includes.
+                    Out of `.bk-svc-face` as well, so the name and the price
+                    keep the full width they had. */}
+                {hasMore && (
+                  <button
+                    type="button"
+                    className={`bk-peek ${shown ? "on" : ""}`}
+                    aria-expanded={shown}
+                    aria-controls={`svc-more-${s.id}`}
+                    aria-label={t("What's included in {service}", { service: tx(s.name) })}
+                    onClick={() => peek(s.id)}
+                  >
+                    <span>{t("What's included")}</span>
+                    <ChevronDown size={15} strokeWidth={2.4} aria-hidden="true" />
+                  </button>
+                )}
                 {hasMore && (
                   // Collapsed to a zero-height grid row rather than unmounted,
                   // so it opens and closes with the same easing instead of
