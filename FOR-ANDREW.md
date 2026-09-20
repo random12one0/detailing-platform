@@ -361,6 +361,20 @@ Updated 2026-09-20.
   Credits ran out once. A production publish costs 15; **a preview costs zero
   and is a real link you can open on your phone**, so most work needs none.
 
+- [ ] **NOTE · The counters on the pricing page and the home page no longer
+  animate — 2026-09-20.** The build fee, the two monthly prices, and the
+  three figures in the "What the deal is" strip (0%, 24/7, 3) used to count
+  up from zero as you scrolled past them. They now show the real number the
+  instant they appear. **This changes how your own page looks**, and you
+  reviewed that page — the count-up was a choice, not a bug, so you should
+  hear about this before you notice it. The reason: a number climbing from
+  zero is not showing the true value at any point during the climb, and
+  somebody scrolling past can read and quote the wrong one — you ruled this
+  exact thing on the example sites' rating counter yesterday, and this is the
+  same fix applied to the platform's own numbers. **Easy to put back** if you
+  want the motion: it is one attribute per figure, in `LandingPage.jsx` and
+  `PricingPage.jsx`.
+
 ---
 
 ## Done

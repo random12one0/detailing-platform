@@ -555,10 +555,9 @@ export default function LandingPage() {
         </div>
 
         {/* ══ 2b · THE FIGURES ═══════════════════════════════════════════
-            BORROWED FROM voiceflow.com — three numbers that roll up from
-            zero as they arrive. A number is read in a glance; the sentence
-            it replaces takes four seconds, and this page's whole problem
-            is that it asks for too many of those four seconds.
+            BORROWED FROM voiceflow.com — three numbers laid out the way a
+            roll-up strip is, read in a glance instead of the four seconds
+            the sentence it replaces takes.
 
             EVERY ONE OF THESE IS ALREADY CLAIMED IN PROSE FURTHER DOWN.
             That is the point: nothing new is being asserted, three of the
@@ -568,23 +567,28 @@ export default function LandingPage() {
             will not invent — so ours are facts about the deal instead.
 
             THE COUNTER IS THE PAGE'S OWN, `data-count` in thread.js, which
-            already drives the two prices in the pricing section. It starts
-            when the row reveals, so the numbers cannot run before anybody
-            is looking at them. */}
+            already drives the two prices in the pricing section — but all
+            three carry `data-still` and no longer roll. ROADMAP 7.5: a
+            number climbing from zero is not true at any moment during the
+            climb, and these are facts about the business same as the price
+            or a rating is, so they got the same switch. FOR-ANDREW.md has
+            the row — this strip animated on his own review of the page, and
+            the motion is one attribute away from coming back if he wants
+            it. */}
         <section className="figs wrap" aria-label="What the deal is">
           <div className="fig3" data-rv="" data-count-host="">
             <div className="fig3-i">
-              <div className="fig3-n"><span data-count="0" data-suffix="%">0%</span></div>
+              <div className="fig3-n"><span data-count="0" data-suffix="%" data-still>0%</span></div>
               <p className="fig3-c">Commission on every job you take. A fully
                 booked month costs the same as a slow one.</p>
             </div>
             <div className="fig3-i">
-              <div className="fig3-n"><span data-count="24" data-suffix="/7">24/7</span></div>
+              <div className="fig3-n"><span data-count="24" data-suffix="/7" data-still>24/7</span></div>
               <p className="fig3-c">Your page keeps taking bookings while you
                 are under a car, or asleep.</p>
             </div>
             <div className="fig3-i">
-              <div className="fig3-n"><span data-count="3" data-suffix="">3</span></div>
+              <div className="fig3-n"><span data-count="3" data-suffix="" data-still>3</span></div>
               <p className="fig3-c">The site, the booking page and the screen
                 you run both from. One build, one bill.</p>
             </div>
