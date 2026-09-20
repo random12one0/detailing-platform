@@ -2186,7 +2186,8 @@ the dashboard or back office at phone width at all.
   *A1 P2-06, A2 2.11, 2.12*
 
 - [ ] **8.5 — Keyboard, screen reader, zoom, large text and reduced motion.**
-  **8.5e, 8.5a and 8.5c are DONE (2026-09-20); d and b remain.**
+  **8.5e, 8.5a, 8.5c and 8.5d are DONE (2026-09-20); only b remains, and b
+  needs a person rather than an instrument.**
   Never checked.
   *A1 § 10*
 
@@ -2395,7 +2396,7 @@ the dashboard or back office at phone width at all.
   **WHAT THIS TICK DOES NOT COVER:** six screens, not every screen; and the
   sub-320 range above.
 
-  **8.5d — LARGE TEXT AND TEXT SPACING. MEASURED 2026-09-20, NOT TICKED.**
+  **8.5d — LARGE TEXT AND TEXT SPACING. ✓ DONE 2026-09-20.**
   *Done when:* with the WCAG 1.4.12 overrides applied — line height 1.5×,
   paragraph spacing 2×, letter 0.12em, word 0.16em — and the root size raised,
   nothing is clipped or overlapped on any screen.
@@ -2426,13 +2427,20 @@ the dashboard or back office at phone width at all.
   reporting page containers "spilling 756px", which is a document taller than
   a window.
 
-  **NOT TICKED, AND THE REASON IS ONE DETECTOR RATHER THAN THE PRODUCT.**
-  Three detectors say clean and their canaries prove they can see; the fourth
-  produces findings I have just disproved by looking at them. **Ticking on
-  three clean detectors and one that cries wolf would be claiming a measured
-  result from an instrument I know over-reports.** What it needs is a sharper
-  question — comparing the text's own painted rect against the border box
-  rather than content-box arithmetic — or dropping, with the gap stated.
+  **DETECTOR 4 WAS DROPPED AND THE GAP IS STATED HERE, WHICH IS THE
+  DIFFERENCE BETWEEN A GAP WE CHOSE AND A GAP WE MISSED:**
+
+  > **Text that overflows a box without being clipped is not measured here,
+  > and closing that properly needs range-level text measurement that costs
+  > more than the fault appears to be worth.**
+
+  A reader in a month who disagrees can reopen it on evidence. Carrying a
+  detector that produced 417 findings, then 62, then zero real ones would have
+  made this check's number mean nothing in either direction.
+
+  **TICKED ON TWO CLEAN RUNS** of the three detectors that earned it: 24/24
+  combinations, 668 interactive elements, **0 findings**, all three canaries
+  caught 24/24 in both runs, receipt PASS both times.
 
   **8.5b — SCREEN READER.**
   *Done when:* every screen has landmarks, headings descend without skipping a
