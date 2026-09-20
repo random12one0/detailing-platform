@@ -30,6 +30,38 @@ import { fileURLToPath } from "node:url";
 
 export const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 export const RECEIPTS = join(REPO, "receipts");
+export const HOLDS = join(RECEIPTS, "holds.json");
+
+/**
+ * A HOLD IS A RECORDED DECISION THAT SOME FINDINGS CANNOT BE ACTED ON YET.
+ *
+ * It is not a property of a check and it is not written by one: it lives in
+ * `receipts/holds.json` because the decision belongs to a person, and because
+ * the checks it covers belong to other sessions — silencing a finding from
+ * inside would have meant editing somebody else's measuring tool to say their
+ * finding did not matter.
+ *
+ * **IT IS NOT `skip_allowlist` AND THE DIFFERENCE IS THE WHOLE POINT.** A skip
+ * means a target was never tested. `deployed-inventory` tested all 39 of its
+ * targets and found 22 running old code; calling those "skipped" would be a
+ * lie about what the run did. They were measured, they are real, and they are
+ * held.
+ *
+ * **A HOLD CANNOT HIDE A COUNT.** `covers` is how many failures it accounts
+ * for and it is compared, not trusted: one more failure than that and the
+ * receipt fails again, because the extra one is not what anybody agreed to.
+ * The expiry is required and enforced.
+ */
+export function loadHolds() {
+  try {
+    const raw = JSON.parse(readFileSync(HOLDS, "utf8"));
+    return raw && typeof raw.holds === "object" && raw.holds ? raw.holds : {};
+  } catch {
+    // No holds file, or an unreadable one, means NOTHING IS HELD. Failing
+    // open here would let a typo silence the whole repo.
+    return {};
+  }
+}
 
 export const gitSha = () => {
   try {
@@ -197,11 +229,47 @@ export function validate(r, opts = {}) {
     p.unshift('the check wrote status "pass" and these rules say otherwise:');
   }
 
-  const verdict = p.length > 0 ? "fail" : staleness ? "stale" : "pass";
-  const problems = staleness ? [...p, staleness] : p;
+  // ---------------------------------------------------------------------
+  // A HOLD, IF ONE IS RECORDED FOR THIS CHECK — and it has teeth.
+  // ---------------------------------------------------------------------
+  // Three ways a hold does NOT apply, each of them deliberate:
+  //   * it has lapsed — the check goes red and NAMES the hold and its date,
+  //     because a hold that quietly widens is an exemption nobody voted for;
+  //   * the failures outnumber what it `covers` — the extra ones were never
+  //     agreed to and the receipt fails on them;
+  //   * something other than recorded failures is wrong — a hold covers
+  //     findings, never a check that cannot count or has lost its canary.
+  const hold = (opts.holds ?? loadHolds())[r.check_id];
+  let heldBy = null;
+  if (hold) {
+    const lapsed = !(new Date(hold.expires) > new Date());
+    // `p` carries ONE summary line for N recorded failures, so the count to
+    // compare is r.failures.length against the hold's `covers` — done below.
+    // What this asks is narrower: is the failure line the ONLY thing wrong?
+    const failureLines = p.filter((m) => /failure\(s\) recorded/.test(m));
+    const onlyFailures = failureLines.length > 0 && p.every((m) =>
+      /failure\(s\) recorded/.test(m)
+      || m === 'the check wrote status "pass" and these rules say otherwise:');
+    if (lapsed) {
+      bad(`the hold "${hold.reason}" LAPSED on ${hold.expires} — these findings are due again`);
+    } else if (typeof hold.covers !== "number" || r.failures.length > hold.covers) {
+      bad(`${r.failures.length} failure(s) recorded but the hold covers ${hold.covers} — the extra one(s) are not held`);
+    } else if (failureLines.length && onlyFailures) {
+      heldBy = hold;
+    }
+  }
+
+  const realProblems = heldBy ? p.filter((m) => !/failure\(s\) recorded/.test(m)) : p;
+  const verdict = realProblems.length > 0 ? "fail"
+    : heldBy ? "held"
+    : staleness ? "stale" : "pass";
+  const problems = staleness ? [...realProblems, staleness] : realProblems;
   // `ok` keeps its old meaning — fresh AND clean — so nothing already reading
   // it changes behaviour. `verdict` is what tells the three apart.
-  return { ok: problems.length === 0, problems, verdict, stale: !!staleness, staleness, receipt: r };
+  return {
+    ok: problems.length === 0 && !heldBy,
+    problems, verdict, stale: !!staleness, staleness, hold: heldBy, receipt: r,
+  };
 }
 
 /** Write a receipt, stamping the fields no check should have to remember. */
@@ -233,7 +301,7 @@ if (invokedDirectly) {
   let files;
   try {
     files = statSync(target).isDirectory()
-      ? readdirSync(target).filter((f) => f.endsWith(".json")).map((f) => join(target, f))
+      ? readdirSync(target).filter((f) => f.endsWith(".json") && f !== "holds.json").map((f) => join(target, f))
       : [target];
   } catch {
     console.error("No such receipt or directory: " + target);
@@ -244,7 +312,7 @@ if (invokedDirectly) {
     console.error(`No receipts in ${target}. Nothing was validated — this is not a pass.`);
     process.exit(2);
   }
-  let bad = 0, stale = 0;
+  let bad = 0, stale = 0, held = 0;
   for (const f of files) {
     let r;
     try {
@@ -258,6 +326,10 @@ if (invokedDirectly) {
     if (v.verdict === "pass") {
       console.log(`PASS  ${r.check_id}  ${r.completed_targets}/${r.expected_targets} targets, `
         + `${r.assertions_executed} assertions, canary "${r.canary.id}" failed as required`);
+    } else if (v.verdict === "held") {
+      held++;
+      console.log(`HELD  ${r.check_id}  ${r.failures.length} finding(s) held: ${v.hold.reason}`);
+      console.log(`        due again ${v.hold.expires} — the findings are real and are not being disputed`);
     } else if (v.verdict === "stale") {
       stale++;
       console.log(`STALE ${r.check_id}  every rule passed; ${v.staleness}`);
@@ -267,9 +339,10 @@ if (invokedDirectly) {
       for (const m of v.problems) console.log("        " + m);
     }
   }
-  const fresh = files.length - bad - stale;
+  const fresh = files.length - bad - stale - held;
   console.log(`
-${fresh} valid · ${stale} stale (every rule passed, written at an older commit) · ${bad} failed.`);
+${fresh} valid · ${stale} stale (every rule passed, written at an older commit)`
+    + `${held ? ` · ${held} held (real findings, agreed hold, with an expiry)` : ""} · ${bad} failed.`);
   if (stale && !bad) {
     console.log("Stale is not broken — re-run those checks when commits have stopped, not before.");
   }

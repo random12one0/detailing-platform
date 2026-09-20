@@ -209,6 +209,54 @@ test("11c · a fresh clean receipt is neither", () => {
   assert.equal(out.ok, true);
 });
 
+// ---------------------------------------------------------------------------
+// A HOLD IS A RECORDED DECISION WITH AN EXPIRY — 2026-09-20.
+//
+// `deployed-inventory` correctly reports that 22 of 39 edge functions run
+// older code than this checkout. Deploying is frozen until Andrew rules, so
+// those findings are a known hold rather than 23 actionable defects — and a
+// hold that cannot lapse is an exemption nobody voted for. § 13b is the
+// expiry being watched to lapse, which is the only thing that makes it a
+// mechanism rather than a promise.
+// ---------------------------------------------------------------------------
+const HELD = { reason: "held pending a decision", expires: "2999-01-01T00:00:00Z", covers: 2 };
+const failing = () => ({ ...good(), status: "fail", failures: ["one", "two"] });
+
+test("13a · recorded failures under a live hold are HELD, not failed", () => {
+  const out = validate(failing(), { sha: null, holds: { "fixture/v1": HELD } });
+  assert.equal(out.verdict, "held");
+  assert.equal(out.hold.reason, "held pending a decision");
+  assert.equal(out.ok, false, "held is not the same as fine");
+});
+
+test("13b · a LAPSED hold fails and names the hold and its date", () => {
+  const out = validate(failing(), {
+    sha: null,
+    holds: { "fixture/v1": { ...HELD, expires: "2000-01-01T00:00:00Z" } },
+  });
+  assert.equal(out.verdict, "fail", "a hold that has lapsed holds nothing");
+  const said = out.problems.join(" ");
+  assert.ok(said.includes("LAPSED"), "should say it lapsed");
+  assert.ok(said.includes("held pending a decision"), "should name the hold");
+  assert.ok(said.includes("2000-01-01"), "should name the date it lapsed on");
+});
+
+test("13c · failures beyond what the hold covers are not held", () => {
+  const out = validate({ ...failing(), failures: ["one", "two", "a NEW one"] },
+    { sha: null, holds: { "fixture/v1": HELD } });
+  assert.equal(out.verdict, "fail", "a hold must never absorb a finding nobody agreed to");
+  assert.ok(out.problems.join(" ").includes("the hold covers 2"));
+});
+
+test("13d · a hold never covers a check that cannot count", () => {
+  // A hold is about FINDINGS. A check whose targets disagree is broken, and
+  // no decision by anybody makes its numbers add up.
+  const out = validate({ ...failing(), completed_targets: 1 },
+    { sha: null, holds: { "fixture/v1": HELD } });
+  assert.equal(out.verdict, "fail");
+  assert.ok(out.problems.join(" ").includes("target counts disagree"));
+});
+
 test("12 · garbage in is rejected without throwing", () => {
   for (const junk of [null, "a string", 42, [], undefined]) {
     const out = v(junk);

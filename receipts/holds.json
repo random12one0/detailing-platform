@@ -1,0 +1,28 @@
+{
+  "_what_this_is": [
+    "A HOLD IS A RECORDED DECISION, NOT A PROPERTY OF A CHECK. It lives here",
+    "rather than inside any instrument for two reasons. The decision belongs to",
+    "Andrew and not to the script that trips over it; and the scripts it covers",
+    "belong to other sessions, so silencing a finding would have meant editing",
+    "somebody else's measuring tool to say the finding did not matter.",
+    "",
+    "A hold NEVER hides a count. `covers` is the number of failures the hold",
+    "accounts for, and it is checked: one more failure than that and the receipt",
+    "is a failure again, because the extra one is not what anybody agreed to.",
+    "An expiry is required and it is enforced — when it lapses the check goes",
+    "red and names the hold that lapsed. An expiry nobody has watched lapse is a",
+    "promise rather than a mechanism, so this one was watched: see",
+    "tests/receipt.test.mjs § 13b.",
+    "",
+    "Read by scripts/receipt.mjs. Delete an entry the day its reason stops",
+    "being true — an empty file is the healthy state."
+  ],
+  "holds": {
+    "deployed-inventory": {
+      "reason": "held pending Andrew's decision on the deploy backlog, 2026-09-20",
+      "detail": "22 of 39 edge functions are running code older than this checkout, some by 13 days. That is the finding this check exists to make and it is CORRECT — it is not being disputed or silenced. Deploying is frozen for every session until Andrew rules, so the 23 findings are a known and reasoned hold rather than 23 defects anybody can act on tonight. The freeze is not indefinite and it is not the manager's to lift.",
+      "expires": "2026-09-22T00:00:00Z",
+      "covers": 23
+    }
+  }
+}
