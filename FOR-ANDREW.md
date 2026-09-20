@@ -329,6 +329,35 @@ Updated 2026-09-20.
 
 ---
 
+## Thirty seconds, with your phone reading to you — you are the only instrument for this too
+
+**ROADMAP 8.5b, and it is the last piece of the accessibility work.**
+Everything a machine can check is checked and clean: every screen now has a
+proper "main content" marker, headings run in order, and no image is missing
+its description. **What no script can tell us is whether the page makes SENSE
+when it is read out loud** — whether the order is sane, whether it says
+something useful, whether you can find your way back. That needs ears.
+
+**What to do, once:**
+
+1. **Turn your phone's screen reader on.** iPhone: Settings → Accessibility →
+   VoiceOver. Android: Settings → Accessibility → TalkBack. There is a
+   shortcut to turn it straight off again on the same screen — worth noting
+   before you start, because it changes how you tap.
+2. **Open your own booking page and try to book something**, listening rather
+   than looking. One service, any date, then stop before you press the last
+   button.
+3. **One question: could a person who cannot see the screen finish this?**
+   Not whether it sounds elegant — whether they could get to the end.
+
+**Then tell me either "they could" or where you got stuck**, in your own
+words. If you got stuck, that spot gets measured and fixed the way everything
+else tonight was.
+
+*Blocking nothing. 8.5b stays open until somebody has listened to it.*
+
+---
+
 ## Thirty seconds, outside, in daylight — you are the only instrument for this
 
 **ROADMAP 8.3, and it is the only thing left on it.** Everything a machine can

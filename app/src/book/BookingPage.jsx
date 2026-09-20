@@ -625,7 +625,18 @@ function BookingFlow({ notFound = null }) {
         </div>
       </header>
 
-      <div className="bk-wrap">
+      {/* ROADMAP 8.5b — **THE CUSTOMER-FACING SURFACE NEVER DECLARED A MAIN
+          LANDMARK, AND EVERYTHING ELSE IN THE PRODUCT DOES.** `App.jsx`,
+          `JobPage.jsx`, `AdminPage.jsx`, the landing page, pricing and legal
+          all render a real `<main>`; the booking pages render a bare `<div>`.
+          So "jump to the main content" — the first thing a screen-reader user
+          does on any page — does nothing here, on the one surface a STRANGER
+          uses. Measured, not assumed: `scripts/screenreader-structure.mjs`
+          reported main=1 on all five dashboard screens and main=0 here.
+          `role="main"` rather than changing the tag, because the class is
+          doing the layout and a swapped element would be a styling change
+          wearing an accessibility fix's clothes. */}
+      <div className="bk-wrap" role="main">
         {/* One header unit: without the wrapper, bk-wrap's flex gap opens
             28px voids between rail, label and heading. */}
         {/* The rail and the words say the same thing, so they share a line

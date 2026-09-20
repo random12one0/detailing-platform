@@ -2242,8 +2242,9 @@ the dashboard or back office at phone width at all.
   *A1 P2-06, A2 2.11, 2.12*
 
 - [ ] **8.5 — Keyboard, screen reader, zoom, large text and reduced motion.**
-  **8.5e, 8.5a, 8.5c and 8.5d are DONE (2026-09-20); only b remains, and b
-  needs a person rather than an instrument.**
+  **8.5e, 8.5a, 8.5c and 8.5d are DONE (2026-09-20). 8.5b's structural half
+  is done and clean; the half that closes it needs a person with a screen
+  reader, and is a row in `FOR-ANDREW.md`.**
   Never checked.
   *A1 § 10*
 
@@ -2498,13 +2499,45 @@ the dashboard or back office at phone width at all.
   combinations, 668 interactive elements, **0 findings**, all three canaries
   caught 24/24 in both runs, receipt PASS both times.
 
-  **8.5b — SCREEN READER.**
+  **8.5b — SCREEN READER. STRUCTURAL HALF DONE 2026-09-20; NOT TICKED, AND IT
+  CANNOT BE BY ANY INSTRUMENT.**
   *Done when:* every screen has landmarks, headings descend without skipping a
   level, anything that changes without a page load is announced, **AND a
-  person has walked the booking flow end to end with a screen reader on.** The
-  last mile is not ours to close alone and this part says so rather than being
-  ticked on the machine-checkable half. Names are already clean; nothing else
-  here is measured.
+  person has walked the booking flow end to end with a screen reader on.**
+
+  **WHAT WAS MEASURED — `scripts/screenreader-structure.mjs`**, 7 of 7 screens,
+  30 assertions, both canaries (a heading that skips a level, an image with no
+  `alt` attribute at all) caught 7/7, receipt PASS.
+
+  **AND IT FOUND ONE, ON THE SURFACE A STRANGER USES.** Every dashboard screen
+  declares a `<main>` landmark; `App.jsx`, `JobPage.jsx`, `AdminPage.jsx`, the
+  landing page, pricing and legal all render one. **The booking pages rendered
+  a bare `<div>`** — so *"jump to the main content"*, the first thing a
+  screen-reader user does on any page, did nothing on the booking form or the
+  plans page. Fixed with `role="main"` on both (`role` rather than a tag swap:
+  the class is doing the layout, and swapping the element would be a styling
+  change wearing an accessibility fix's clothes). Re-measured: main=1
+  everywhere, 0 findings.
+
+  **NOT MEASURED, NAMED RATHER THAN ASSUMED:** `BookingConfirmed.jsx`,
+  `ManageBookingPage.jsx` and `PlanMemberPage.jsx` share the same `.bk-wrap`
+  container and almost certainly share the omission — **they need a booking or
+  a member id to reach, so this walk could not visit them and they were left
+  alone rather than fixed blind.**
+
+  **AN OBSERVATION FOR THE PERSON, NOT A FINDING:** every screen reports
+  **zero live regions**. Nothing that changes without a page load is announced
+  anywhere — which lines up with `DECISIONS.md` § *"The job record should stay
+  open when a status changes"*, where *"Marked completed."* turns out never to
+  have been readable by anybody. Whether that matters is a question about what
+  a listener actually misses, which is exactly what this check cannot answer.
+
+  **WHY THIS STAYS OPEN: A SCREEN READER IS A PERSON LISTENING TO A MACHINE
+  READ A PAGE ALOUD.** Every question that matters — does the order make
+  sense, does it say something useful, can you find your way back — is about
+  what a listener understands. The structural half is mechanical and is now
+  clean; the half that decides whether this product is usable is in
+  `FOR-ANDREW.md` as one screen, one question, thirty seconds.
 
   **THE PROBE'S OWN BLIND SPOT, AND IT IS WORTH MORE THAN THE NUMBER IT
   QUALIFIES:** it finds a clickable thing by its **cursor style or an `onclick`

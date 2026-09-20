@@ -1,0 +1,46 @@
+{
+  "git_sha": "5428cb8b716c56f576347aff9d96d3ccad4b1c66",
+  "environment": "local",
+  "finished_at": "2026-09-20T12:36:34.849Z",
+  "failures": [],
+  "warnings": [
+    "STRUCTURE ONLY. This check cannot tell whether a page makes sense read aloud, and 8.5b does not close on it."
+  ],
+  "artifacts": [
+    "scripts/screenreader-structure.mjs"
+  ],
+  "dimensions": {
+    "measures": "landmarks, heading order, live-region count, images with no alt attribute",
+    "does_not_measure": "whether any of it is understandable to a listener",
+    "screens": [
+      "Today",
+      "Calendar",
+      "Money",
+      "Clients",
+      "Business",
+      "Booking step 1",
+      "Plans page"
+    ]
+  },
+  "check_id": "screenreader-structure",
+  "started_at": "2026-09-20T12:36:17.310Z",
+  "status": "pass",
+  "expected_targets": 7,
+  "discovered_targets": 7,
+  "attempted_targets": 7,
+  "completed_targets": 7,
+  "skipped_targets": 0,
+  "assertions_executed": 30,
+  "min_assertions": 14,
+  "canary": {
+    "id": "two: a heading that skips a level, an image with no alt attribute",
+    "observed_failure": true,
+    "caught_by": [
+      "heading order",
+      "alt attribute"
+    ],
+    "findings": [
+      "heading 7/7, image 7/7"
+    ]
+  }
+}

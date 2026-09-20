@@ -94,7 +94,8 @@ function PlansInner() {
         </div>
       </header>
 
-      <div className="bk-wrap">
+      {/* ROADMAP 8.5b — the main landmark, same as the booking page. */}
+      <div className="bk-wrap" role="main">
         <div className="bk-step-head">
           {/* **"Regulars get looked after" is gone — an outside review,
               2026-09-11, and it trips his rule twice.** It is a sentence
