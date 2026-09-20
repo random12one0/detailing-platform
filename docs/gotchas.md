@@ -1585,6 +1585,24 @@ Two rules came out of it, and the second is the one that actually holds:
   --name-only`. Not because you forgot what you added, but because your `add`
   was never the last word on it.
 
+**AND READING BACK THE NAMES IS NOT READING BACK THE CONTENT — 2026-09-20,
+the same day, by the session that wrote the rule above.** `git diff
+--cached --name-only` printed exactly the four files intended, and the commit
+landed with `ROADMAP.md | 147 ++++---` against about forty lines of intended
+change. Five of its six hunks were the other session's American-English work,
+written into that file in the minutes between checking it was clean and
+running `git add`.
+
+Nothing was lost and the content was right, which is the arrangement here —
+but the commit message says nothing about carrying somebody else's work,
+because at the moment it was written there was none to carry.
+
+**The window is between the check and the `add`, and it is as long as you
+leave it.** Two things close it: check the CONTENT — `git diff --cached
+--stat`, and be suspicious of any file whose line count is larger than what
+you wrote — and do the checking and the staging in one breath rather than
+verifying early and staging later.
+
 The same shape bit the lock a minute later: `fatal: Unable to create
 index.lock` is the *polite* version of this failure, the one where git notices.
 **Do not delete the lock.** Wait for it — `until [ ! -f .git/index.lock ]` —
