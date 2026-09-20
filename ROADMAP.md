@@ -1812,6 +1812,109 @@ most corroborated finding in the set.
 
 ## Wave 7 — Sales proof
 
+**VERIFIED AGAINST THE SOFTWARE, 2026-09-20 — the pricing page and the five
+examples, read the way the legal pages were: not for prose, but for places the
+page says something the product does not do.**
+
+**THE HONEST FRAME FIRST, because it changes what every finding below is
+worth: none of these pages has ever been read by somebody deciding whether to
+buy.** Zero paying subscriptions, one non-demo business. **So every defect
+here is still free to fix** — nobody has been misled, nobody has paid on a
+wrong number, and the whole of Wave 7 is a debt that has not yet come due.
+
+**THE ONE SENTENCE THAT SAYS WHY THIS WAVE EXISTS:**
+
+> A stranger reading that page today would be told they get unlimited photos
+> and an export, and they would get roughly one photo and no export.
+
+**7.6 IS CONFIRMED INDEPENDENTLY AND IT IS WORSE THAN ITS OWN LINE.** The item
+already records "1 GB total, 10.2 MB promised to each", from the back office.
+Reading it out of the database instead — `photo_total_bytes()` is 1 GB and
+`photo_tenant_share()` is 100, so the cap is 1 GB ÷ 100 — gives the same
+figure, which is the useful part: two independent routes agree. **What the
+item does not say is that it is ENFORCED and how small it is in practice.**
+`JobPhotos.jsx` refuses the file outright — *"Photo storage is full. Remove
+some photos to add more."* — and the `job-photos` bucket accepts a **single
+file of up to 10 MB**. **So one photo the product is willing to take uses 98%
+of that detailer's entire allowance.** A feature sold as unlimited runs out on
+the first job. **Services, bookings and staff logins genuinely are unlimited;
+only "photos" is false.** On Andrew's list with both ways out and no
+recommendation, because the answer depends on what storage costs him.
+
+**7.7 IS WIDER THAN RECORDED: THE EXPORT IS SOLD IN TWO PLACES.** The item
+names the terms and the pricing page. It is also the **home page's** answer to
+*"What happens to my customers if I cancel?"* — *"You export them and go. The
+list was always yours."* That is arguably the worst of the three, because it
+is the direct answer to the question a nervous detailer actually asks. There
+is no customer export and no photo export; the only download is the
+accountant's CSV of jobs and expenses.
+
+**7.10's `/ex5` ENTRY IS STALE.** It calls the site "Tampa Bay" and the
+question about a real company's name is already answered: it is **"Sunglade
+Auto Detail"** with an address on a reserved `.example` domain. "Tampa Bay"
+survives only as a place — *"Mobile detailing across Tampa Bay"* — which is a
+region, not a company. Andrew's list row was closed rather than left for him
+to decide something already done.
+
+**THE EXAMPLES DO NOT OVER-PROMISE, AND THIS WAS THE QUESTION WORTH ASKING.**
+A real tenant site is built bespoke by an agent following
+`docs/tenant-site-kit.md`, so a hand-built example IS the product rather than
+a picture of it. Every headline feature on `/examples` maps to something
+`get_public_business_profile` actually returns, checked key by key:
+
+| What an example demonstrates | What backs it |
+|---|---|
+| ex4's before-and-after slider | `gallery_images.before_url` / `after_url`, published from the job screen by `publishToGallery` |
+| ex5's "pick your vehicle and the prices change" | `services.vehicle_size_adjustments` and `vehicle_sizes` |
+| ex3's "every price on the page" | `services` with `price`, `price_is_from`, `duration_minutes` |
+| ex2's step-by-step walkthrough | `services`, `faqs`, `hours` |
+| ex1's Work and Prices as real tabs | a build choice; the agent writes the pages |
+
+**And the claim on the index page holds too.** It says *"Every price and time
+on these is a placeholder. On a real detailer's site each one comes live from
+their own dashboard."* The examples' booking sections are indeed drawings —
+annotated `data-from="core.js stepsFor(addOns)"`, with no form, no iframe and
+no request — and the kit makes the live half a rule rather than an aspiration:
+*"A price, service, hour or plan hard-coded into the site — **No, and this is
+the one hard no.**"*
+
+**One framing point rather than a defect:** `/examples` describes ex3 as *"in
+three colors you can switch between"*, which reads as a feature of that site.
+It is a design choice Andrew was offered three ways; a real tenant has one
+brand colour from their dashboard. An agent could build a switcher, so nothing
+is promised that cannot be delivered — but the sentence describes an artefact
+of the review rather than a tenant feature.
+
+**7.12'S BLANK SECOND IS WORSE THAN "BLANK" AND IT NEARLY PRODUCED A FALSE
+FINDING.** The item records that the pricing page is blank for about a second.
+**It is not blank — for that moment it shows the LIST prices**, because the
+founding lookup has not answered and the code deliberately does not render a
+founding price optimistically. A read taken in that window showed *"$600 a
+year"* in the terms against *"$40 a month"* in the ladder — a money
+contradiction inside the AB 2863 disclosure block, quoted straight from the
+page, and completely untrue. Re-probing the DOM after it settled gave
+`$400` / `$40` / `$50` and a `$120` worked exit fee, consistent throughout.
+**`docs/gotchas.md` carries it: a page read before its data resolves will hand
+you a confident contradiction between two numbers that never disagreed.**
+
+**AND THE PAGE DOES EXPLAIN ITSELF**, which was the third question and the one
+that needed evidence rather than an opinion. In reading order: *"Two plans.
+Three ways to pay."* → *"FOUNDING PRICE — 3 of 3 spots left. It is locked for
+the life of the account and never rises while that account stays open. When
+the last one goes, this page shows the standard prices instead."* → the build
+fee, the monthly, the saving → *"BEFORE YOU PAY — The terms, in full. Not a
+link to a policy page. This is all of it."* → eight plain clauses including a
+worked example: *"On 12 months at $40 a month, walking away halfway through
+costs $120."* **The one place it can be misread** is the summary strip, where
+`TO BUILD IT $499 once · THEN $40 a month · SAVE ON THE YEAR $80 a year` puts
+two prices and one saving in identical formatting. The label says "SAVE ON",
+so it is defensible; named for whoever owns that screen rather than changed.
+
+**NOTHING IN `app/src` WAS EDITED.** Every finding that needs a screen change
+is written down for its owner, and the two that are promises about the product
+rather than wording went to Andrew.
+
+
 - [ ] **7.1 — `/examples` looks like an internal index, not a portfolio.**
   A plain text list of ex1–ex5: no thumbnails, no menu, no way back, no styles,
   no phone views, no call to action. **Both audits score this the worst page in

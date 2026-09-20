@@ -137,10 +137,16 @@ Updated 2026-09-20.
   database, which costs money and creates something inside your account.
   Neither was touched. Say the word and it takes about an hour.
 
-- [ ] **DECIDE · Your pricing page promises customers can export their data.
-  They cannot.**
-  It says: *"Your customers, their numbers and your photos are yours. **You
-  export them and go.**"*
+- [ ] **DECIDE · Two places where the page sells something the software does
+  not do.**
+
+  **A stranger reading that page today would be told they get unlimited photos
+  and an export, and they would get roughly one photo and no export.**
+
+  **First, the export.** Your pricing page says *"Your customers, their
+  numbers and your photos are yours. **You export them and go.**"* — and so
+  does your home page, as the answer to *"What happens to my customers if I
+  cancel?"*: *"You export them and go. The list was always yours."*
 
   **There is no such button.** The only download today is the accountant's
   spreadsheet of jobs and expenses. No customer list, no photos.
@@ -157,6 +163,25 @@ Updated 2026-09-20.
   **The wording stays exactly as it is until you answer** — deliberately not
   made vaguer, because a vague promise is still a promise and harder for
   anybody to spot later.
+
+  ---
+
+  **Second, "unlimited photos".** The same page lists what you get: *"Unlimited
+  services, bookings, photos and staff logins."* **Services, bookings and staff
+  logins really are unlimited. Photos are capped at about 10 MB per
+  detailer** — and the product will accept a single photo of 10 MB, so one
+  picture can use up almost the whole allowance. Past it, the screen refuses
+  the upload and says *"Photo storage is full."*
+
+  **Two honest ways out, one line each:**
+  1. **Make the allowance real** — raise it so "unlimited" is true, which
+     costs storage.
+  2. **Say what it actually is** — take "photos" off that line, or print the
+     real figure.
+
+  **No recommendation attached, on purpose.** Which way round this goes
+  depends on what storage costs you against what the word is worth on that
+  page, and that is yours to weigh.
 
 - [ ] **DO · What name and what kind of business should your legal pages say?**
 
@@ -233,11 +258,14 @@ Updated 2026-09-20.
   like one that passed. Flagging gets you the same clean screen and keeps the
   safety net. **Answer: "flag" or "delete".**
 
-- [ ] **DECIDE · One example site uses what is probably a real company's name.**
-  The fifth example site is called "Tampa Bay Auto Detail", with a matching
-  email domain. **Recommendation: invent a name and a domain** — the page
-  demonstrates the same thing and the question disappears. Costs nothing.
-  **Answer: "rename" or "leave it".**
+- [x] **ALREADY DONE — the example site with a real company's name was
+  renamed.** This asked you to decide about "Tampa Bay Auto Detail". **It is
+  now "Sunglade Auto Detail"**, and its email address is on a reserved
+  example domain that can never belong to anybody. Checked 2026-09-20.
+
+  The words "Tampa Bay" still appear on it as a *place* — *"Mobile detailing
+  across Tampa Bay"* — which is a region rather than a company, and is not
+  what the question was about. **Nothing for you to answer.**
 
 - [ ] **DECIDE · Your real business domain is on the public marketing page.**
   `andrewsdetail.com` appears in a mock browser bar as the example.
