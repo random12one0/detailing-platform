@@ -3959,7 +3959,7 @@ event id.
   **Done when:** a loop against each of the three writes is refused, and the
   refusal is proved by running the loop.
 
-### 14.10 — 1440px is an unreliable instrument, and nobody was counting
+### 14.10 — the sweep was measuring its own patience, and 1440 was mostly innocent
 
 - [ ] **Five runs of `sweep-widths.mjs` on the afternoon of 2026-09-20, same
   account, same dev server, same seed.** 1440 truncated the guided tour to one
@@ -4026,10 +4026,44 @@ event id.
   second, and `TOUR_WAIT` exists on `tour-runs.mjs` to repeat these twenty runs
   at that pace.
 
-  **Done when:** the plan-growth signature has a fix in `Walkthrough.jsx` that
-  drops the early-death rate measurably over twenty runs, **and** the sweep's
-  consistent one-block truncation is explained separately or shown to be the
-  same fault after all.
+  **THE TEMPO ARM SETTLED IT, AND THE ANSWER IS THE INSTRUMENT — 2026-09-20,
+  `TOUR_WAIT=300 node scripts/tour-runs.mjs 20 1440 392`.** The same twenty
+  runs, pressing *Next* 300ms after each card instead of a flat second,
+  because `settle()` returns after 130ms of quiet and that is the tempo the
+  sweep actually presses at:
+
+  | arm | result |
+  |---|---|
+  | 1440px at 300ms, 20 runs | **20 of 20 stopped at exactly 5 steps, one block `[5]`** |
+  | 392px at 1000ms, 5 control runs | 5 of 5 complete, 33 steps, six blocks |
+  | 392px at 300ms, 5 runs | **0 of 5 complete**, four of them dying at 4 steps |
+
+  **That is the sweep's own line, reproduced twenty times out of twenty:**
+  `tour · the blocks  1 block(s) declaring 5 = 5 step(s); 5 walked`. And the
+  short wait ends the tour at 392 as well — at 4 steps rather than 5, which is
+  exactly the size of that width's first block. **The tour dies on the press
+  that has to carry it to the next TAB, whenever that press comes too soon.**
+  It is not a property of 1440; 1440 is simply where the sweep's timing
+  happened to land.
+
+  **SO THE ITEM SPLITS, AND THE LARGER HALF IS OURS.**
+
+  - **The sweep's consistent truncation is the sweep.** It has been measuring
+    its own patience. `settle()` is a cap on a repaint and the next block's
+    card is not a repaint of this one — the fix is to wait for the next card
+    to exist rather than for the page to go quiet. **Not done here: this
+    session was asked to run the experiment and stop.** No sweep result about
+    the tour above step 5 at 1440 was ever a fact about the product.
+  - **The cold-open failures are real and rare.** 2 of 20 at a full second
+    between presses, both carrying the plan-growth signature — a block opening
+    on a total lower than its real one, `1/3` then `2/6`. That is the product
+    and it is worth fixing. A third short run was neither: the dashboard never
+    finished loading, and the flattering number would have been 3 of 20.
+
+  **Done when:** the sweep waits for the next card instead of for quiet, and a
+  clean twenty-run batch at that tempo shows the tour reaching six blocks at
+  1440 — **and**, separately, the plan-growth signature has a fix in
+  `Walkthrough.jsx` that drops the 2-in-20 cold-open rate measurably.
 
 ---
 

@@ -45,7 +45,7 @@ const BOUND = 48;                       // above the 33 the tour is known to be
 const WAIT = Number(process.env.TOUR_WAIT || 1000);
 const SHOTS = "artifacts/tour-runs";
 
-const once = async (browser, width, tag) => {
+const once = async (browser, width, tag, wait = WAIT) => {
   const ctx = await browser.newContext({ viewport: { width, height: width >= 1180 ? 900 : 844 } });
   const page = await ctx.newPage();
   const errors = [];
@@ -83,7 +83,7 @@ const once = async (browser, width, tag) => {
         out.ended = "the Next press failed: " + String(e.message).split("\n")[0];
       });
       if (out.ended) break;
-      await page.waitForTimeout(WAIT);
+      await page.waitForTimeout(wait);
       const after = await page.locator(".tourcard").count();
       if (before && !after) {
         out.ended = k >= 30 ? "finished" : "the card vanished after the press";
@@ -112,11 +112,17 @@ mkdirSync(SHOTS, { recursive: true });
 
 console.log(`${RUNS} runs at ${SUBJECT}px, ${CONTROL_RUNS} control runs at ${CONTROL}px, ${WAIT}ms between presses
 `);
+// **THE CONTROL IS ALWAYS RUN AT THE SLOW TEMPO, WHATEVER `TOUR_WAIT` SAYS.**
+// Its job is to prove the SCRIPT works, and a control run at the tempo under
+// test cannot do that: if a short wait breaks every width, the control fails,
+// the batch voids itself, and the one result worth having is thrown away as
+// an instrument fault. So the control keeps the known-good second between
+// presses and the tempo gets an arm of its own below.
 const control = [];
 for (let i = 1; i <= CONTROL_RUNS; i++) {
-  const r = await once(browser, CONTROL, `control-${CONTROL}-${i}`);
+  const r = await once(browser, CONTROL, `control-${CONTROL}-${i}`, 1000);
   control.push(r);
-  console.log(`control ${String(i).padStart(2)}  ${CONTROL}px  ${String(r.steps).padStart(2)} step(s), `
+  console.log(`control ${String(i).padStart(2)}  ${CONTROL}px @1000ms  ${String(r.steps).padStart(2)} step(s), `
     + `${r.blocks.length} block(s)  — ${r.ended}`);
 }
 const controlOk = control.filter((r) => r.steps >= 30).length;
@@ -130,11 +136,25 @@ for (let i = 1; i <= RUNS; i++) {
     + `${r.blocks.length} block(s) [${r.blocks.join("+") || "-"}]  — ${r.ended}`
     + (r.errors.length ? `  :: page error: ${r.errors[0].slice(0, 70)}` : ""));
 }
+// **THE TEMPO ARM - the same short wait at the OTHER width.** Without it, a
+// subject that breaks at 300ms cannot be told apart from a tempo that breaks
+// everything: "1440 is fragile" and "pressing fast ends any tour" produce the
+// identical subject column. This arm is the difference between them.
+const tempo = [];
+if (WAIT !== 1000) {
+  console.log("");
+  for (let i = 1; i <= CONTROL_RUNS; i++) {
+    const r = await once(browser, CONTROL, `tempo-${CONTROL}-${i}`, WAIT);
+    tempo.push(r);
+    console.log(`tempo   ${String(i).padStart(2)}  ${CONTROL}px @${WAIT}ms  ${String(r.steps).padStart(2)} step(s), `
+      + `${r.blocks.length} block(s)  - ${r.ended}`);
+  }
+}
 await browser.close();
 
 writeFileSync(`${SHOTS}/runs.json`, JSON.stringify({
   at: new Date().toISOString(), base: BASE, subject: SUBJECT, control: CONTROL,
-  control_runs: control, subject_runs: subject,
+  wait: WAIT, control_runs: control, subject_runs: subject, tempo_runs: tempo,
 }, null, 2) + "\n");
 
 console.log("");
@@ -159,4 +179,13 @@ const reasons = new Map();
 for (const r of subject) if (r.steps < 30) reasons.set(r.ended, (reasons.get(r.ended) || 0) + 1);
 console.log(`\ncomplete: ${complete}/${RUNS}    short: ${RUNS - complete}/${RUNS}`);
 for (const [why, n] of reasons) console.log(`  ${String(n).padStart(2)} x  ${why}`);
+if (tempo.length) {
+  const tOk = tempo.filter((r) => r.steps >= 30).length;
+  console.log(`
+tempo arm: ${CONTROL}px at ${WAIT}ms completed ${tOk}/${tempo.length}. `
+    + (tOk === tempo.length
+      ? `The short wait alone does NOT end a tour, so what ${SUBJECT}px did at ${WAIT}ms is about ${SUBJECT}px.`
+      : `The short wait ends tours at ${CONTROL}px too, so the subject column above is about TEMPO `
+        + `and not about ${SUBJECT}px. A sweep pressing this fast has been measuring its own patience.`));
+}
 console.log(`\nlast frames for every short run: ${SHOTS}/  ·  full record: ${SHOTS}/runs.json`);
