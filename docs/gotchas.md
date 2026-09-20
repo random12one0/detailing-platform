@@ -1995,3 +1995,56 @@ the pathspec off entirely, or by re-reading `git show --stat HEAD` /
 `git diff HEAD~1 --stat` **after** the commit, the same way the staged
 content gets read back before it. A commit is not verified until the commit
 itself has been looked at.
+
+## AN ENGLISH REGEX DOES NOT MISS ON A SPANISH PAGE — IT READS ABSENCE AS PROGRESS AND RUNS AWAY — 2026-09-20, ROADMAP 14.10
+
+Every other entry about language in this file is about a check going **blind**:
+nineteen settings screens unopened, eight labelled screens vanishing, a
+`:has-text()` frozen in English. This one is worse, and it is the reason it has
+its own section. **A word-matcher that fails to match does not always stop. It
+can hand back a value that the code above it reads as good news.**
+
+The width sweep reads the tour card's step counter:
+
+```js
+const m = /(\d+)\s*OF\s*(\d+)/i.exec(raw);   // "3 OF 8"
+return m ? { at: …, of: … } : null;
+```
+
+The card renders `t("{n} of {total}")`, and `appEs.js` maps that to
+`"{n} de {total}"`. **So on every Spanish card this returned `null`.** One line
+up the stack, the wait that decides whether the next card has arrived read
+`null` as *"this is not the card I pressed, so a new one is here"* — and
+returned immediately, every time. The walk therefore never waited, never saw
+the tour end, and pressed *Next* up to its ceiling of 48 on a card that was no
+longer advancing, until a click timed out **and took the entire width with it**:
+`WIDTH ABORTED at 1440px after 124 surface(s)`.
+
+**Two sessions read that as a slow page and a flaky timeout before anybody read
+it as a regex.** It was reproducible — 118 of 152, then 124 of 152 — and both
+times the language was the only thing the English runs did not share.
+
+**THE RULE.** Anything in these instruments that matches on WORDS has to be
+language-aware, or it is only measuring one of the two languages this product
+ships. That means the visible strings, and it also means the **grammar around
+them** — a joining word like `of` is as English as a label is. `NAMED()` and
+`NAMED_TEXT()` exist for the labels; a regex over rendered text has no such
+helper and must carry both spellings itself.
+
+**AND THE PART THAT GENERALISES BEYOND LANGUAGE.** The regex failing was a
+one-line bug. What made it cost a whole width was the caller treating
+*unparseable* as *changed*. Ask of any parser in a check: **what does the code
+above me do when I return nothing, and is that the same thing it does when I
+return something new?** If it is, an unreadable page and a progressing one are
+indistinguishable, and the check will run away rather than stop. The fix keeps
+the raw text as an identity, so a card whose counter cannot be parsed at all
+still compares equal to itself.
+
+**The stale-key half, in the same hour, in the same file.** `BUSINESS_ROWS`
+named a settings row `"Maintenance deadlines"` after it was renamed to
+`"Visits due"`. `NAMED_TEXT()` looks the English up in `appEs.js`, which is
+keyed on the CURRENT English, so a stale key returns the bare old English and
+matches nothing — **invisible twice over in Spanish.** The comment at the top
+of that array already says exactly this, in those words. The array went stale
+anyway. **A warning above a list does not keep the list current; only a check
+that fails does** — here the expected-count gate, which named the screen.

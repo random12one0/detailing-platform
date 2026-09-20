@@ -206,11 +206,23 @@ const BUSINESS_ROWS = ["Business info", "Your color", "Photo gallery", "Reviews"
   // is the whole lesson of the nine times this same gap has been recorded.
   // Its own risk is the paired Venmo / Cash App row at 320, exactly like the
   // plan form's segmented-control-beside-a-number-field.
-  // "Maintenance deadlines" joined 2026-09-06 with roadmap 2.23, in the change
-  // that built it. Its own geometry risk is the `.pair` at the bottom of the
-  // form — a date input beside a number input, which is the same shape that
-  // breaks first on the plan form at 320.
-  "Services & add-ons", "Monthly plans", "Maintenance deadlines", "How you get paid", "Promo codes & sale",
+  // "Visits due" joined 2026-09-06 with roadmap 2.23, in the change that built
+  // it, as "Maintenance deadlines". Its own geometry risk is the `.pair` at
+  // the bottom of the form — a date input beside a number input, which is the
+  // same shape that breaks first on the plan form at 320.
+  //
+  // **RE-POINTED 2026-09-20, AND THE WARNING WAS TWELVE LINES ABOVE IT.** The
+  // other session renamed the row to "Visits due" and moved `"Visits due":
+  // "Visitas pendientes"` into `appEs.js` in the same edit — its half was
+  // correct and committed. This array kept the old English, so `NAMED_TEXT()`
+  // looked up a key `appEs.js` no longer has, got the bare stale English back,
+  // matched nothing, and the screen went unmeasured. The comment at the top of
+  // this array already describes exactly that — *"a stale key returns the bare
+  // English string and cannot match either… invisible TWICE in Spanish"* — and
+  // the array went stale again anyway. **A warning above a list does not keep
+  // the list current; only a check that fails does**, and the expected-count
+  // gate is what failed, by name.
+  "Services & add-ons", "Monthly plans", "Visits due", "How you get paid", "Promo codes & sale",
   "Hours & days off", "Booking rules"];
 // "Your subscription" is NOT in this list and that is deliberate: it is
 // owner-only and it is the one settings screen whose content comes from an
