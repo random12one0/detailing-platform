@@ -679,6 +679,67 @@ const LOUD = [];
 }
 const EXPECTED_PATH = new URL("./sweep-widths.expected.json", import.meta.url);
 const WRITE_EXPECTED = process.argv.includes("--write-expected");
+
+// **THE LEDGER — WHETHER A WIDTH IS FLAKY IS ARITHMETIC, NOT A MEMORY.**
+//
+// 1440 aborted once and truncated its tour three times in five runs on
+// 2026-09-20, and every one of those runs reported itself honestly and in
+// isolation. Nothing anywhere held the five together, so a broken instrument
+// read as a bad afternoon — and the only person who could see the pattern was
+// whoever happened to have watched all five.
+//
+// **IT FAILS ON A RATE, NEVER ON ONE BAD RUN.** Andrew, 2026-09-20: *"one
+// abort is noise, four out of five is a broken instrument, and only a count
+// can tell those apart."* Failing on a single abort would make every transient
+// timeout a red line somebody learns to re-run past, which is the same disease
+// as a receipt that cannot tell stale from broken.
+//
+// The window is the last five runs per width and the bar is MORE THAN TWO of
+// them bad. Five and three because that is the smallest window in which
+// "usually fine, occasionally not" and "usually broken" are different shapes.
+const LEDGER_PATH = new URL("../receipts/sweep-widths-ledger.json", import.meta.url);
+const LEDGER_WINDOW = 5;
+const LEDGER_MAX_BAD = 2;
+// Rows for ONE width, oldest first. Pure, so the canary below can feed it a
+// history that never happened and check the answer.
+const ledgerVerdict = (rows) => {
+  const win = rows.slice(-LEDGER_WINDOW);
+  const bad = win.filter((r) => r.outcome !== "complete");
+  return {
+    runs: win.length,
+    bad: bad.length,
+    // **UNDER FIVE RUNS IT DOES NOT JUDGE, AND IT SAYS SO.** A guard that
+    // skips silently reads exactly like a guard that passed.
+    judged: win.length >= LEDGER_WINDOW,
+    broken: win.length >= LEDGER_WINDOW && bad.length > LEDGER_MAX_BAD,
+    outcomes: win.map((r) => r.outcome),
+  };
+};
+
+// `SWEEP_LEDGER_CANARY=1` — fabricated histories through the SHIPPED function,
+// before any browser starts, so the check costs five seconds rather than nine
+// minutes. Each case names the shape it stands for.
+if (process.env.SWEEP_LEDGER_CANARY === "1") {
+  const C = (name, outcomes, want) => {
+    const v = ledgerVerdict(outcomes.map((o) => ({ outcome: o })));
+    const ok = v.broken === want.broken && v.judged === want.judged;
+    console.log(`${ok ? "ok  " : "FAIL"}  ${name.padEnd(34)} ${outcomes.join(",").padEnd(46)} `
+      + `judged=${v.judged} broken=${v.broken} (${v.bad}/${v.runs} bad)`);
+    return ok;
+  };
+  const all = [
+    C("five clean runs", ["complete", "complete", "complete", "complete", "complete"], { judged: true, broken: false }),
+    C("one abort is noise", ["complete", "complete", "aborted", "complete", "complete"], { judged: true, broken: false }),
+    C("two bad is still noise", ["complete", "aborted", "complete", "short", "complete"], { judged: true, broken: false }),
+    C("three bad is broken", ["complete", "aborted", "short", "complete", "aborted"], { judged: true, broken: true }),
+    C("four of five is broken", ["aborted", "aborted", "short", "complete", "aborted"], { judged: true, broken: true }),
+    C("three runs is not enough", ["aborted", "aborted", "aborted"], { judged: false, broken: false }),
+    C("only the last five count", ["aborted", "aborted", "aborted", "aborted", "complete", "complete", "complete", "complete", "complete"], { judged: true, broken: false }),
+  ];
+  console.log(`\nLEDGER CANARY — ${all.filter(Boolean).length}/${all.length} cases as expected. `
+    + `No browser was started and nothing was measured.`);
+  process.exit(all.every(Boolean) ? 0 : 1);
+}
 // **ONE PATH PER MODE, NOT ONE PATH — 2026-09-19, and it took Andrew opening
 // the page to catch it.** Every mode wrote to `artifacts/sweep-widths` and to a
 // receipt keyed only on the WIDTHS, so an English run and a Spanish run of the
@@ -3144,6 +3205,88 @@ CANARY RUN (${GUIDE_CANARY ? "guide walks cut short" : `the tour cut short at ${
       // be added to the expectation deliberately, by somebody who looked at it.
       for (const l of extra) console.log(`  NOT EXPECTED    ${l}   (new? --write-expected, then read the diff)`);
     }
+  }
+}
+
+// 2c · THE LEDGER — one line per width per run, so flakiness is a number.
+//
+// Everything above this point describes THIS run. A width that aborts, or
+// quietly comes up short, says so honestly and then the run ends and the fact
+// goes with it. Five such runs in an afternoon are five separate bad
+// afternoons unless somebody is keeping count, and on 2026-09-20 nobody was:
+// 1440 aborted once and truncated its tour three times, and the pattern lived
+// only in one session's memory of having watched it happen.
+//
+// **A MODE IS ITS OWN HISTORY.** `?lite=1` and the Spanish pass measure
+// different pages, so mixing their outcomes into one window would let a
+// healthy default mode hide a broken lite one and vice versa.
+if (!ONLY && !WRITE_EXPECTED) {
+  const measuredBy = {};
+  for (const c of CERT) measuredBy[c.width] = (measuredBy[c.width] || 0) + 1;
+  const want = existsSync(EXPECTED_PATH)
+    ? (JSON.parse(readFileSync(EXPECTED_PATH, "utf8")).widths || {}) : {};
+  const rows = existsSync(LEDGER_PATH)
+    ? (JSON.parse(readFileSync(LEDGER_PATH, "utf8")).runs || []) : [];
+  const sha = (process.env.GIT_SHA || "").slice(0, 8);
+  for (const w of SIZES) {
+    const died = ABORTED.find((a) => a.width === w);
+    const expected = (want[String(w)] || []).length;
+    const measured = measuredBy[w] || 0;
+    const declared = SKIPPED.filter((k) => k.width === w).length;
+    // **THREE OUTCOMES AND NO FOURTH.** `short` is the quiet one and the
+    // reason this ledger is not just a crash log: a width that reached every
+    // screen it could name is complete, a width that died is aborted, and a
+    // width that simply came up one screen shy is neither and is exactly what
+    // nobody notices twice.
+    const outcome = died ? "aborted"
+      : (expected && measured + declared < expected) ? "short"
+      : "complete";
+    rows.push({
+      at: new Date().toISOString(), sha, width: w, mode: MODE || "default",
+      outcome, measured, declared, expected,
+      ...(died ? { error: died.error } : {}),
+    });
+  }
+  // Keep it small on purpose: forty rows per width is eight windows of five,
+  // which is more history than any question here needs.
+  const trimmed = [];
+  for (const w of new Set(rows.map((r) => r.width))) {
+    for (const m of new Set(rows.filter((r) => r.width === w).map((r) => r.mode))) {
+      trimmed.push(...rows.filter((r) => r.width === w && r.mode === m).slice(-40));
+    }
+  }
+  trimmed.sort((a, b) => String(a.at).localeCompare(String(b.at)));
+  writeFileSync(LEDGER_PATH, JSON.stringify({
+    note: "One row per width per run. `outcome` is complete | short | aborted. A width fails "
+      + "on a RATE, never on one bad run: more than " + LEDGER_MAX_BAD + " bad in the last "
+      + LEDGER_WINDOW + " runs of the same mode. One abort is noise; four of five is a broken "
+      + "instrument, and only a count can tell those apart.",
+    updated_at: new Date().toISOString(),
+    window: LEDGER_WINDOW,
+    max_bad: LEDGER_MAX_BAD,
+    runs: trimmed,
+  }, null, 2) + "\n");
+  console.log("");
+  for (const w of SIZES) {
+    const mine = trimmed.filter((r) => r.width === w && r.mode === (MODE || "default"));
+    const v = ledgerVerdict(mine);
+    const tail = v.outcomes.join(" ");
+    if (!v.judged) {
+      console.log(`ledger ${String(w).padStart(5)}px  NOT JUDGED — ${v.runs} run(s) on record, `
+        + `${LEDGER_WINDOW} needed before a rate means anything. So far: ${tail}`);
+      continue;
+    }
+    if (v.broken) {
+      console.log(`\nLEDGER: ${w}px IS A BROKEN INSTRUMENT — ${v.bad} of its last ${v.runs} runs `
+        + `did not complete: ${tail}`);
+      console.log(`  One bad run is noise and this is not one bad run. Every measurement this `
+        + `width has reported recently is worth what its worst run is worth, and no single run `
+        + `above can tell you that.`);
+      found++;
+      continue;
+    }
+    console.log(`ledger ${String(w).padStart(5)}px  ${v.bad} of the last ${v.runs} runs `
+      + `did not complete (${tail}) — under the bar of more than ${LEDGER_MAX_BAD}`);
   }
 }
 

@@ -3698,6 +3698,40 @@ event id.
   **Done when:** a loop against each of the three writes is refused, and the
   refusal is proved by running the loop.
 
+### 14.10 — 1440px is an unreliable instrument, and nobody was counting
+
+- [ ] **Five runs of `sweep-widths.mjs` on the afternoon of 2026-09-20, same
+  account, same dev server, same seed.** 1440 truncated the guided tour to one
+  block three times, walked all 33 steps once, and on the fifth **aborted the
+  whole width after 84 of 125 surfaces** on `locator.click: Timeout 15000ms
+  exceeded`. 392 and 320 did neither, in any of the five.
+  **This is its own item because it is an instrument problem, not an inventory
+  one.** Andrew, 2026-09-20: *"Folding it into the inventory work would bury a
+  flaky instrument inside a finished item, and then every future 1440 result
+  carries an asterisk nobody can see."*
+  **Two symptoms, and whether they are one fault is unknown.** A tour that
+  stops after its first tab and a width that dies on a click may share a cause
+  — a click that silently misses, a tab that never finishes arriving — or may
+  be unrelated. Nothing measured so far distinguishes them, and guessing is
+  the tempting move.
+  **The cheapest experiment is a run that does nothing else:** open the tour at
+  1440 twenty times, record how many blocks it reaches each time, and take a
+  screenshot of the frame where it stops. Twenty runs of one tour is a few
+  minutes; a full sweep is nine.
+  **Two detectors already watch for this and neither can close it.** The
+  cross-width check fails whenever the tour's tab count differs by width, but
+  deliberately refuses to say which width is wrong. The ledger
+  (`receipts/sweep-widths-ledger.json`) counts aborts and shortfalls per width
+  and fails when more than two of the last five runs did not complete — so the
+  pattern becomes visible on its own, but neither one explains it.
+  **Note that the ledger records 1440 as `complete` while its tour truncates**,
+  because the truncated steps are accounted for as declared skips. That is
+  correct and worth knowing: the two detectors answer different questions and
+  only one of them is about this fault.
+  **Done when:** the twenty-run experiment names which of the two symptoms is
+  primary, or proves they are independent — and whichever it is has a fix or a
+  written reason it cannot have one.
+
 ---
 
 ## Release gates
