@@ -142,6 +142,25 @@ Nothing below this line waits on these. They are asked once, here.
   `index.ts` of their own** — `cancel-booking`, `create-booking`,
   `get-booking-receipt`, `stripe-webhook`.
 
+  **TWO THINGS IN THIS ARE WORSE THAN THE COUNT, AND THEY ARE THE REASON THE
+  ITEM SITS IN WAVE 0 RATHER THAN BESIDE A DEPLOY CHORE.**
+
+  1. **`stripe-webhook` IS RUNNING CODE THAT PREDATES THE COMMIT WHICH MADE ITS
+     VERIFICATION TESTABLE.** `f243e95` lifted the two-secret check out of
+     `Deno.serve` for the express purpose of letting a test run it. The running
+     copy does not contain that lift. **So the test everybody trusts has been
+     exercising code the gateway does not run — a green line about a system
+     that does not exist**, which is the exact disease this whole project is
+     about, arriving in the one function that handles Stripe's callbacks.
+  2. **`platform-billing` AND `report-problem` ARE NOT "DRIFT".** They are
+     running from before modules they import existed: `platform-billing` is
+     missing **77 of 77** comment lines of `payments.ts`, and `report-problem`
+     **441 of 477** of the 2026-09-03 `emailTemplates.ts`. **That is two
+     functions that would fail unpredictably the first time anyone invoked
+     them.** Not "a week behind" — behind the existence of their own
+     dependencies. Nothing in this repo predicts what they do when called,
+     because what they are made of is not what this repo contains.
+
   **THREE TIERS, BECAUSE "6.5 DAYS BEHIND" HIDES THE DIFFERENCE.** The measure
   that matters is how MUCH of the file is missing from the running bundle:
 

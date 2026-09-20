@@ -11,11 +11,103 @@ and checking it is how you unblock work that is already built and waiting.
 **Two kinds of row.** A **DO** is an action. A **DECIDE** is a question with a
 recommendation attached — answer it in one line and a session picks it up.
 
-Updated 2026-09-18.
+Updated 2026-09-20.
 
 ---
 
 ## Waiting on you now
+
+- [ ] **DECIDE · What to put live, and in what order. Added 2026-09-20.**
+  **Two minutes of reading. Say yes to a number and a session does the rest.**
+
+  **The background, in four sentences.** Your site's back end is 39 small
+  programs. Each one has to be *published* before a change to it does anything
+  — writing the change is not enough. **22 of the 39 are currently running
+  something older than what we have written**, some by a week, because nothing
+  in the project ever forced the publishing step to happen and nobody noticed.
+  **Publishing is yours, the same as pushing to GitHub is yours**, so nothing
+  has gone live tonight and nothing will until you say so.
+
+  **This is the recommended order. You can say "all of it", or a number, or
+  no.** Each one says what it fixes and what else goes along for the ride,
+  because publishing one program always carries whatever else has been written
+  for it since it was last published.
+
+  **1 · The one a customer actually feels.** *Fixes:* right now, when a
+  detailer cancels a job from their dashboard, **the customer is never told
+  anything at all.** Same if the detailer moves the job to another day. The
+  customer's last word on it is the confirmation saying the appointment is on,
+  so they wait in for somebody who is not coming. *Status:* fixed, tested
+  against the live program, and **already published** — this one went live
+  before the freeze, so there is nothing for you to approve. It is listed
+  first because it is the most important thing in the list and you should know
+  it is done.
+
+  **2 · The Spanish emails.** *Fixes:* ten English words sitting in the middle
+  of Spanish emails — the word "at" between a date and a time on four of them,
+  and the money column of every invoice and receipt reading "Booking total",
+  "Tip", "Discount" in English. *Rides along:* publishing the invoice program
+  also carries a change written on 20 September about how a customer's address
+  was arrived at. *Risk:* low. Nothing about what anyone is charged changes;
+  these are labels only, and the English versions are unchanged.
+
+  **3 · The Stripe webhook.** *Fixes:* the running copy predates the change
+  that made its security check testable, so **the test we trust has been
+  checking code that is not the code running.** Nothing is known to be broken;
+  we simply cannot vouch for it until the two match. *Rides along:* a week of
+  other written-but-unpublished changes to the payment modules. *Risk:* this
+  one touches money. Worth doing, worth doing when you are awake.
+
+  **4 · The two that would probably fail if used.** *Fixes:* `platform-billing`
+  (the email telling a detailer their card was declined) and `report-problem`
+  (the "something is wrong" form) are running from **before parts they depend
+  on even existed.** Not "a bit out of date" — they are built from pieces we no
+  longer have. If either is triggered, what happens is genuinely unpredictable.
+  *Risk:* low to publish, because almost anything is better than what is there.
+
+  **5 · Everything else.** The remaining 17. Mostly one or two small changes
+  each, none customer-visible on their own. Cheapest to do in one go once you
+  have decided you are happy publishing at all.
+
+  **The recommendation, in one line:** do **2, 4 and 5** together whenever
+  suits you, and do **3** separately when you have a few minutes to watch it,
+  because it is the payment one.
+
+  **What happens if you do nothing:** the same as tonight. Nothing gets worse
+  on its own. Items 3 and 4 are risks that are already live, not new ones — so
+  "not yet" is a real answer, it just leaves them where they are.
+  *Full technical detail in ROADMAP 0.6. Measured by
+  `node scripts/deployed-inventory.mjs`, which now refuses to pass while any
+  of them are out of date.*
+
+- [ ] **DECIDE · The maintenance reminder needs your postal address, or it
+  needs to stop. Added 2026-09-20.**
+  The product sends customers a "your ceramic coating is due, book it in"
+  email. **US anti-spam law treats that as marketing rather than as a receipt**,
+  and marketing email has to carry an unsubscribe link and a real postal
+  address. Ours carries neither.
+
+  **The campaign feature already does this properly** — it refuses to send at
+  all unless the business has a postal address on file. The maintenance
+  reminder does not ask.
+
+  **The question is not about the email, it is about the product.** To fix it
+  the way the campaign does, **every detailer would have to give us a postal
+  address**, and as far as we can tell nothing in setup asks for one. So:
+  1. **Add a postal address to setup** and make the reminder use it. Correct,
+     but it is a new required question for every detailer including you.
+  2. **Turn the maintenance reminder off** until that exists.
+  3. **Decide it is not marketing** — a judgment about what the product is
+     for, which is yours and not a session's.
+
+  **Recommendation: (2) now, (1) when you next touch setup.** Turning it off
+  costs a feature nobody is relying on yet; leaving it on is a small legal
+  exposure that grows with every detailer who signs up.
+
+  **What a session must NOT do, and why this is a question rather than a fix:**
+  the tempting shortcut is to put a placeholder address in the footer. That
+  would be a false statement in a legal notice, which is worse than the
+  omission. *Full detail in ROADMAP 0.7.*
 
 - [ ] **DO · Turn on Resend's delivery reports (about three minutes).**
   *(ROADMAP 14.3)*

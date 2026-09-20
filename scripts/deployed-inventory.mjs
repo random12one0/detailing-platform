@@ -83,6 +83,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { sharedFor } from "./lib/sharedDeps.mjs";
+import { writeReceipt } from "./receipt.mjs";
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const FUNCTIONS = path.join(ROOT, "supabase", "functions");
@@ -106,6 +107,7 @@ if (!SUPABASE_ACCESS_TOKEN || !SUPABASE_PROJECT_REF) {
 }
 
 const ONLY = (process.argv.find((a) => a.startsWith("--only=")) || "").split("=")[1] || "";
+const started_at = new Date().toISOString();
 
 const lf = (s) => String(s).replace(/\r\n/g, "\n");
 
@@ -290,3 +292,80 @@ console.log(`\nThis compared CONTENT. \`check-deployed.mjs\` compares timestamps
 console.log(`cannot distinguish a missed deploy from the ordinary deploy-then-commit`);
 console.log(`order, which is why its count is higher and is the right count for the`);
 console.log(`question it asks: "can I vouch for this one?"`);
+
+// ---------------------------------------------------------------------------
+// THE RECEIPT — so this is GRADED rather than read.
+// ---------------------------------------------------------------------------
+// ROADMAP 0.6's own lesson is that nothing forced a deploy to happen, so 22
+// functions drifted with nobody noticing. A check nobody has to run is the
+// same shape one step out, which is why this one is in CLAUDE.md's
+// before-you-finish list and why it exits non-zero.
+//
+// **IT FAILS WITH THE COUNT AND THE NAMES, NEVER A SUMMARY LINE.** "22
+// functions differ" tells a session to sigh and move on; the list tells them
+// whether the one they just edited is in it, which is the only question they
+// actually have.
+const differingNames = differing.map((r) => r.fn);
+const failures = differingNames.length
+  ? [
+    `${differingNames.length} function(s) are running something other than this checkout: `
+    + differingNames.join(", "),
+    ...differing.map((r) =>
+      `${r.fn}: ${r.differs.length} file(s) differ — ${r.differs.join(", ")}`
+      + (r.behind ? ` (newest commit is ${(r.behind / day).toFixed(1)}d after the deploy)` : "")
+    ),
+  ]
+  : [];
+
+// THE CANARY, AND IT IS FREE HERE. Every run of this check has a negative
+// control built into the question: **it must find at least one function whose
+// bundle it could actually read and compare.** A token that cannot fetch
+// bodies, a Management API change, or a walk that finds no functions all
+// produce "0 differ" — which is indistinguishable from a clean estate and is
+// the single way this check could lie. So the control is that the comparison
+// demonstrably RAN: at least one function must have had comments to compare.
+const judged = report.filter((r) => r.verdict === "matches" || r.verdict === "DIFFERS");
+const canary = {
+  id: "the comparison must be shown to have run · at least one bundle read and compared",
+  observed_failure: judged.length > 0,
+  caught_by: judged.length > 0 ? ["compared"] : [],
+  findings: judged.length > 0
+    ? [`[compared] ${judged.length} function bundle(s) were fetched and compared, so "0 differ" would be a real answer rather than a silent no-op`]
+    : ["[compared] NOT CAUGHT — no bundle was readable, so this run proves nothing about any function"],
+};
+
+const { path: receiptPath } = writeReceipt({
+  check_id: "deployed-inventory",
+  started_at,
+  status: failures.length === 0 && canary.observed_failure ? "pass" : "fail",
+  expected_targets: dirs.length,
+  discovered_targets: dirs.length,
+  attempted_targets: dirs.length,
+  completed_targets: dirs.length,
+  skipped_targets: 0,
+  assertions_executed: judged.length,
+  min_assertions: 30,
+  failures,
+  artifacts: ["scripts/deployed-inventory.mjs"],
+  warnings: report.filter((r) => r.verdict === "UNJUDGEABLE" || r.verdict === "UNREADABLE" || r.verdict === "NOT DEPLOYED")
+    .map((r) => `${r.fn}: ${r.verdict}`),
+  dimensions: {
+    project: SUPABASE_PROJECT_REF,
+    method: "comment-text comparison against the deployed eszip bundle",
+    matching: matching.map((r) => r.fn),
+    differing: differingNames,
+    widest_gap_days: differing.length
+      ? Number((Math.max(...differing.map((r) => r.behind)) / day).toFixed(1)) : 0,
+  },
+  canary,
+});
+
+if (failures.length) {
+  console.log(`\n${"!".repeat(74)}`);
+  console.log(`FAIL — ${differingNames.length} of ${dirs.length} function(s) are NOT running this checkout.`);
+  console.log(`\n  ${differingNames.join("\n  ")}`);
+  console.log(`\nDeploying is Andrew's to authorise — ROADMAP 0.6. Do not deploy to clear`);
+  console.log(`this. Report it and leave it. Receipt ${receiptPath}`);
+  process.exit(1);
+}
+console.log(`\nPASS — every function is running this checkout's source. Receipt ${receiptPath}`);

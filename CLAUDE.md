@@ -65,14 +65,35 @@ set -a; . ./.env; set +a
 | After changing | Run |
 |---|---|
 | **Anything, before you finish** | `composition`, `design-contrast`, `landing-pricing`, `route-contract` — credential-free, from repo root |
+| **Anything, before you finish — and this one needs credentials** | `node scripts/deployed-inventory.mjs`. **It exits 1 and names every function that is not running this checkout.** See below; do not deploy to clear it |
 | Color or ground tokens | `node scripts/accent-sweep.mjs` |
-| An edge function | `node scripts/deploy-functions.mjs …` then `node scripts/check-deployed.mjs` |
+| An edge function | `node scripts/deploy-functions.mjs …` then `node scripts/check-deployed.mjs` **and** `node scripts/deployed-inventory.mjs` |
 | A layout | `node scripts/sweep-widths.mjs` (needs dev server + seed) |
 | The job record's pinned action bar, or any container it opens in | `node scripts/pinned-bar.mjs` |
 | The booking widget | `node scripts/sweep-booking-steps.mjs` |
 | Anything on a customer's or booking's path | `node scripts/e2e-booking.mjs` |
 | An email | `node scripts/render-emails.mjs` |
 | A migration | `node scripts/db-audit.mjs` |
+
+**WHAT IS RUNNING IS NOT WHAT IS COMMITTED, AND YOU HAVE TO LOOK.** On
+2026-09-20, **22 of 39 edge functions** were running something other than this
+checkout — gaps up to 7 days, and two of them running from before modules they
+import existed. Nobody knew, because **nothing in this repo ever required a
+deploy to happen**, and every session in between read the committed source and
+reasoned about it as though it were live. ROADMAP 0.6 has the full list.
+
+`node scripts/deployed-inventory.mjs` fetches each deployed bundle from the
+Management API and compares it against your checkout by content. **It exits 1
+and prints every function by name**, because "22 functions differ" makes a
+session sigh and move on, while the list answers the only question they have:
+*is the one I just edited in it?* It writes a receipt, so it is graded rather
+than read.
+
+**DO NOT DEPLOY TO MAKE IT GREEN.** Publishing is Andrew's, alongside pushing
+to GitHub — a function going live is publishing, and a session deciding that
+for him because it would fix something is exactly the call it does not get to
+make. Report what it says and leave it. The recommended shipping order lives in
+`FOR-ANDREW.md`.
 
 **Report what you observed, never "this should work."** A skipped check reads
 exactly like a passing one — this repo's single most repeated failure. A guard
