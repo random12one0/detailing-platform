@@ -1294,20 +1294,34 @@ requested.
   `scripts/edge-tenant-replay.mjs`, graded by `receipt.mjs`, which **refuses
   the run**. Three numbers, and the third is the one that matters:
 
-  - **16 of 39 genuinely RAN.** Owner A got a 2xx out of them with its own
+  - **15 of 39 genuinely RAN.** Owner A got a 2xx out of them with its own
     tenant's identifiers, so the function was exercised rather than bounced.
-  - **23 still REFUSE.** A's own call never succeeded either, so their refusal
+  - **24 still REFUSE.** A's own call never succeeded either, so their refusal
     of tenant B proves nothing at all. Grouped: **9 answered 400** (a required
     field this harness cannot synthesise), **5 carry no tenant identifier in
     their input** at all (`watch-jobs`, `refresh-weather`, `stripe-webhook`,
     `resend-webhook`, `translate-content` — cron sweeps and provider
     webhooks), **3 answered 409**, **3 answered 404**, one 500, one 401, one
     429.
-  - **7 PROVED ISOLATION BY REJECTING THE OTHER TENANT**: `connect-account`,
+  - **6 PROVED ISOLATION BY REJECTING THE OTHER TENANT**: `connect-account`,
     `delete-customer`, `invite-user`, `owner-push-unsubscribe`,
-    `preview-emails`, `report-problem`, `update-booking`. Each works for A
-    with A's own identifiers and refuses B's to **all three** signed-in
-    actors — owner, staff, and a member removed after signing in.
+    `preview-emails`, `update-booking`. Each works for A with A's own
+    identifiers and refuses B's to **all three** signed-in actors — owner,
+    staff, and a member removed after signing in.
+
+  **AND ONE OF THOSE SEVEN WAS WITHDRAWN, BECAUSE CALLING IT SENT REAL MAIL.**
+  `report-problem` had proved rejection, and it is now NOT CALLED at all.
+  Its recipient comes from `Deno.env.get("SUPPORT_EMAIL")`, not from the
+  request, so the sink address in the body could not redirect it: the replay
+  put **nine** *"Problem report · EDGEREPLAY-A-SECRET DETAIL"* messages into
+  `support@detailingplatform.com`, the platform's own support inbox. No
+  customer was written to and nothing else escaped, and it still should not
+  have happened — the promise of that script is that its mail lands nowhere.
+  The guard is **structural rather than a name**: any function whose send
+  target comes from the environment or a literal instead of from the request
+  is refused by the harness, because matching `report-problem` by name would
+  leave the next one to be found the same way. Proving isolation there needs a
+  different instrument.
 
   **NO LEAK WAS FOUND ON ANY PATH IT REACHED**, and nothing of B's moved for A
   that did not also move for an anonymous stranger.

@@ -519,6 +519,35 @@ try {
     //                               the cross refusal says nothing. SKIP, with
     //                               A's own status printed, because that is
     //                               the number that explains it.
+    // -------------------------------------------------------------------
+    // **WILL THIS FUNCTION MAIL SOMEWHERE THIS SCRIPT CANNOT AIM? — 2026-09-20**
+    // -------------------------------------------------------------------
+    // `report-problem` takes no recipient from its request: it sends to
+    // `Deno.env.get("SUPPORT_EMAIL") || "support@detailingplatform.com"`. The
+    // sink address in the body could not redirect it, and calling it as part
+    // of the replay put **nine** "Problem report · EDGEREPLAY-A-SECRET DETAIL"
+    // emails into the platform's own support inbox — a real inbox a real
+    // person reads. Nothing went to a customer, and it still should not have
+    // happened, because the whole promise of this script is that its mail
+    // lands nowhere.
+    //
+    // **THE RULE IS STRUCTURAL, NOT A NAME.** A function whose send target
+    // comes from the environment or from a literal rather than from the
+    // request is one this harness cannot keep inside the sink, so it is not
+    // called at all — declared, with the reason. Matching on `report-problem`
+    // by name would leave the next one to be discovered the same way.
+    const mailsSomewhereFixed = /Deno\.env\.get\(\s*["'][A-Z_]*EMAIL[A-Z_]*["']|to:\s*[A-Z_]+_TO/
+      .test(strip(src)) && /sendTenantEmail|send-email/.test(strip(src));
+    if (mailsSomewhereFixed) {
+      skips.push(`${fn}: NOT CALLED. Its send target comes from the environment rather than `
+        + `from the request, so this harness cannot keep its mail inside ${SINK}. Calling it `
+        + `once already put 9 messages into a real support inbox. Isolation here needs a `
+        + `different instrument, not this one.`);
+      rows.push({ fn, verdict: "SKIPPED — would mail an address this script cannot aim", detail: "recipient from env" });
+      console.log(`    ${fn.padEnd(24)} SKIPPED — would mail a fixed address, not called`);
+      continue;
+    }
+
     const selfRes = Object.keys(selfBody).length
       ? await call(fn, ownerA.jwt, selfBody)
       : { status: 0, text: "" };
