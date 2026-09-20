@@ -152,11 +152,29 @@ somebody real time.
   session's commit carried another's roadmap edits, and a commit that ran
   `git add` on three files by name still swept up two receipts somebody else
   had staged. Naming the paths on the commit line bypasses the index entirely.
-  **And read back what is staged before you commit** — `git diff --cached
-  --name-only` — rather than assuming your `add` was the last word. *Tested
-  rather than believed: the index was read back empty, one path was committed,
-  and the other session's two dirty files were confirmed still untouched
-  afterwards.*
+  **And read back the staged CONTENT before you commit** — `git diff --cached`,
+  not `--name-only`.
+
+  **THE FIRST VERSION OF THIS RULE SAID `--name-only` AND IT WAS NOT ENOUGH.**
+  Corrected 2026-09-20, the same day it was written, because the other session
+  proved it: **its four file names were exactly right while another session's
+  content sat in the index underneath them.** A name tells you which file is
+  staged. It does not tell you *which version* of that file, or whose edits
+  are in it. That session only caught it on the next commit's diff, after the
+  wrong content had already gone in.
+
+  It happened to this session too, in the other direction: the index was
+  holding a **pre-edit copy of `ROADMAP.md`** whose name looked perfectly
+  ordinary and whose content would have reverted a night's write-up.
+  `--name-only` shows `ROADMAP.md` either way.
+
+  **The rule is recorded here as it was improved rather than quietly
+  replaced**, because the reason the first version failed is the useful part:
+  it is the same mistake as a check that counts its targets without looking at
+  them. *Tested rather than believed: the index was read back empty, one path
+  was committed, and the other session's two dirty files were confirmed still
+  untouched afterwards — a test that proved the explicit-path half and says
+  nothing about the read-back half, which is exactly how the gap survived.*
 - **Migrations are append-only.** Never edit an existing one.
 - **Never commit `app/.env.production` or any credential.** No password, token
   or key goes into a markdown file either — say where it lives, not what it is.

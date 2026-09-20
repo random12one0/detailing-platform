@@ -17074,6 +17074,47 @@ afterwards.
 **Reopened when:** only one session is ever working in this repo, which is not
 the plan.
 
+**AMENDED THE SAME DAY — see "Reading back the names is not reading back the
+content" below. The read-back half of this ruling was wrong and is corrected
+there rather than edited out here, because the way it failed is the part worth
+keeping.**
+
+---
+
+### Reading back the names is not reading back the content
+
+**Decided:** the read-back before a commit is `git diff --cached` — the staged
+**content**. `git diff --cached --name-only` is not sufficient and the rule no
+longer permits it. The explicit-path half of the earlier ruling stands
+unchanged.
+
+**Why the first version was insufficient, and how that was found:** the other
+session read back its staged file list, **found all four names exactly right,
+and committed content that was not its own** — another session's edits were
+sitting in the index under those same four names. It only discovered it on the
+next commit's diff, after the wrong content had shipped. A name answers *which
+file*. It does not answer *which version of that file, written by whom*.
+
+It caught this session in the other direction within the hour: the index was
+holding a **pre-edit copy of `ROADMAP.md`**, staged before a night's
+write-up. Committing it would have reverted the lot, and `--name-only` prints
+`ROADMAP.md` for the good copy and the stale one alike. It was spotted only
+because a `git status` showed `MM` and the content was read.
+
+**The failure has a shape this repo already knows.** A check that counts its
+targets without looking at them is the thing `receipt.mjs` exists to refuse; a
+read-back that lists names without reading them is the same mistake in a
+different tool. The original ruling was *tested* — but the test exercised the
+explicit-path half and said nothing about the read-back half, which is exactly
+how the gap survived being written down and verified on the same day.
+
+**Recorded as an amendment rather than an edit, deliberately.** Andrew,
+2026-09-20: *"a rule that has been improved in the open is one the next person
+will trust; one that was quietly replaced is not."* The superseded sentence
+stays above with a pointer here.
+
+**Reopened when:** nothing. A stricter read-back costs one flag.
+
 ---
 
 ### A hand-typed address is labelled, not refused
