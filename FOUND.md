@@ -3685,3 +3685,69 @@ thing that would make 4.1's undo worth what it claims**, so whoever takes it
 should decide one rule for all six rather than patching the job route: either
 the record stays open on a status change and shows what just happened, or the
 screen the detailer lands on carries the undo itself.
+
+---
+
+## `e2e-browser-features` IS NOT LYING — IT CAUGHT A REAL SILENCE, AND THE DIAGNOSIS IS BEHIND THE DEPLOY FREEZE — measured 2026-09-20
+
+**FIRST, A CORRECTION TO WHAT I SAID ABOUT IT.** On 2026-09-20 I described this
+check as *"claiming a target it never completed"* and *"a check lying in the
+direction that matters"*. **That was wrong and it was my reading, not the
+check's.** It declared three targets, exercised three, completed two, and said
+so in the receipt. `expected 3, completed 2` is the receipt working exactly as
+designed — a run reporting that it did not finish what it set out to do. The
+grader flags it because those numbers must agree, which is the correct rule.
+Nothing was fabricated.
+
+**WHAT IT ACTUALLY EXERCISES, AGAINST WHAT IT CLAIMS.** Three targets —
+`push`, `subscription`, `invoice` — in a real Edge browser with a persistent
+profile, because Playwright's Chromium cannot do the Push API at all.
+
+| target | claimed | what the run actually did |
+|---|---|---|
+| `subscription` | a detailer pays us on our own Billing screen | **done** — a card typed into Stripe's own iframe, `charged_cents: 3500` on `4242…4242` |
+| `invoice` | the invoice row follows | **done** — `platform_invoices` went 1 → 2 |
+| `push` | the detailer's device shows a notification | **not completed** |
+| canary | a signed-out stranger must not subscribe a device or start a plan | **caught, as required** |
+
+27 assertions ran against a declared floor of 20. The run is not thin.
+
+**THE THIRD TARGET'S OWN EVIDENCE IS THE INTERESTING PART**, kept at
+`artifacts/e2e-browser-features/push-notification.json`:
+
+```json
+{ "notes": [],
+  "state": { "reg": true, "scope": "http://localhost:5173/",
+             "active": true, "subscribed": true, "permission": "granted" } }
+```
+
+**Every precondition on the browser side was in place** — the service worker
+registered and active, the device subscribed, permission granted — and the
+check then polled for **60 seconds** and nothing arrived. So this is not a
+test-setup failure. Something that should have sent a notification did not.
+
+**AND HERE IS WHY IT CANNOT BE DIAGNOSED TONIGHT.** Cross-read against
+`deployed-inventory`:
+
+- **`owner-push-subscribe` is CURRENT** — the leg that registers the device
+  runs this checkout, which is exactly what the artifact shows working.
+- **`create-booking` is STALE** — and `sendOwnerPush()` fires from inside it.
+  **The leg that should have sent the notification was running older code.**
+
+So the 60-second silence is either a real defect in today's `create-booking`
+or an artefact of a deployed version that predates the push code — **and those
+two are indistinguishable while deploys are frozen.** Deploying is the
+measurement, and the measurement is what is held.
+
+**STOPPED HERE DELIBERATELY. NOTHING WAS BUILT AROUND IT.** The next step is
+one command and it is not available tonight: deploy `create-booking`, re-run
+`node scripts/e2e-browser-features.mjs`, and read that same artifact. If the
+notification arrives, the silence was the deploy gap and this closes. If it
+still does not, there is a real defect in the push path and it has a receipt
+waiting to name it.
+
+**DO NOT PUT THIS CHECK UNDER A HOLD.** `deployed-inventory`'s findings are
+*about* the freeze and holding them loses nothing. This one is a **possible
+product defect whose diagnosis is blocked by the freeze**, which is not the
+same thing — holding it would bury a real bug inside an administrative
+decision, and that is the failure mode this whole evening has been about.
