@@ -2395,11 +2395,44 @@ the dashboard or back office at phone width at all.
   **WHAT THIS TICK DOES NOT COVER:** six screens, not every screen; and the
   sub-320 range above.
 
-  **8.5d — LARGE TEXT AND TEXT SPACING.**
+  **8.5d — LARGE TEXT AND TEXT SPACING. MEASURED 2026-09-20, NOT TICKED.**
   *Done when:* with the WCAG 1.4.12 overrides applied — line height 1.5×,
   paragraph spacing 2×, letter 0.12em, word 0.16em — and the root size raised,
-  nothing is clipped or overlapped on any screen. Unmeasured, and it fails
-  differently from zoom: they are not the same test.
+  nothing is clipped or overlapped on any screen.
+
+  **ZOOM SCALES EVERYTHING TOGETHER AND THIS DOES NOT**, which is why 8.5c
+  passing said nothing about it: at 200% the box grows with the words, here
+  the text gets taller and looser while every fixed-height box stays exactly
+  where it was. `scripts/text-spacing-walk.mjs`, 24 of 24 screen/width
+  combinations, 668 interactive elements, **four detectors each with its own
+  planted defect, all four caught 24/24**.
+  **The overrides are verified IN THE PAGE before anything is measured** —
+  root `20px`, letter `1.8px`, word `2.4px`, stylesheet present — because a
+  run that quietly failed to apply them would measure the ordinary product and
+  call it a pass, which is the likeliest way this check could lie.
+
+  **DETECTORS 1–3 ARE CLEAN: 0 findings.** Nothing runs off sideways, nothing
+  is cut off by a box that hides its overflow, no control becomes unreachable.
+
+  **DETECTOR 4 FOUND 62 CANDIDATES AND THEY ARE NOT DEFECTS.** All one shape:
+  a small pill — the Money period chips, `Mark paid`, the calendar's
+  Month/History — whose text measures 4–5px taller than its content box at
+  20px root. **Photographed with and without the overrides
+  (`artifacts/8-5d-large-text.png`, `8-5d-normal.png`): nothing is visibly
+  wrong.** The padding absorbs it; the labels sit inside their pills in both.
+  So `scrollHeight - clientHeight` on a box with visible overflow measures a
+  technicality rather than anything a person sees.
+  **That detector had already been narrowed once**, from 417 findings: it was
+  reporting page containers "spilling 756px", which is a document taller than
+  a window.
+
+  **NOT TICKED, AND THE REASON IS ONE DETECTOR RATHER THAN THE PRODUCT.**
+  Three detectors say clean and their canaries prove they can see; the fourth
+  produces findings I have just disproved by looking at them. **Ticking on
+  three clean detectors and one that cries wolf would be claiming a measured
+  result from an instrument I know over-reports.** What it needs is a sharper
+  question — comparing the text's own painted rect against the border box
+  rather than content-box arithmetic — or dropping, with the gap stated.
 
   **8.5b — SCREEN READER.**
   *Done when:* every screen has landmarks, headings descend without skipping a
