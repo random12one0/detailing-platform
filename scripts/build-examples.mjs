@@ -40,7 +40,7 @@
 // not a number CHARGED* with the two numbers in two codebases. The banner this
 // script injects says the same thing to somebody who is only looking.
 
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -241,44 +241,229 @@ async function main() {
     }
   }
 
-  // AND AN INDEX, because ten URLs he has to remember is nine too many.
+  // ---------------------------------------------------------------------------
+  // THE INDEX — rebuilt 2026-09-20, ROADMAP 7.1.
+  // ---------------------------------------------------------------------------
+  // **BOTH AUDITS SCORED THIS THE WORST PAGE IN THE PRODUCT — A1 GIVES IT
+  // 3/10 — and both note the sites behind it are among the best-looking parts
+  // of it.** It was a text list of five slugs: no pictures, on the one page
+  // whose entire job is showing somebody what their site would look like; no
+  // way back, so it was a dead end reached from a marketing page; and no ask
+  // at the end, at the moment somebody is most persuaded.
+  //
+  // **THE PICTURES ARE REAL SCREENSHOTS OF THE REAL SITES**, captured by
+  // `scripts/capture-examples.mjs` at 1440 and 392 and committed to
+  // `docs/example-shots/`. They are copied in here — a file copy, not a
+  // browser — because THIS SCRIPT RUNS ON EVERY PRODUCTION DEPLOY and a deploy
+  // costs Andrew 15 Netlify credits. `scripts/example-shots-check.mjs` fails
+  // BY NAME when a site changes after its picture was taken, so a committed
+  // capture cannot go stale silently.
+  //
+  // **AND PHOTOGRAPHING THEM FOUND TWO REAL DEFECTS NOBODY HAD FIXED** — a
+  // "next opening" date nine days in the past on ex2, and ex5's review score
+  // clipped behind the ceramic card. Both were in ROADMAP 7.10 and both had
+  // been read past for days; at thumbnail size they are the first thing the
+  // eye lands on. Fixed, then re-photographed. **The examples page was not
+  // merely plain — some of what it was showing was broken.**
+  //
+  // THE TYPE AND THE GROUND ARE THE PLATFORM'S, NOT A TENANT'S. Archivo and
+  // JetBrains Mono on `--ink-0`, the same pair `/` and `/pricing` use, because
+  // this page is us talking about the work rather than one of the sites. The
+  // ground switches to paper for the closing band — `docs/TASTE-NOTES.md` § 3,
+  // rule 4, the device all five of the sites he likes use and none of the
+  // pages he rejected did.
+  //
+  // THE ASK IS AT THE BOTTOM. A "build mine like this" above the evidence is a
+  // request made before anybody has been persuaded of anything.
   try {
-    const list = multi.map(([slug, title, note]) => `
-      <a href="/${slug}">
-        <b>${slug}</b>
-        <span><em>${title}</em>${note}</span>
-      </a>`).join("");
-    await mkdir(path.join(OUT, "examples"), { recursive: true });
+    const shotDir = path.join(ROOT, "docs", "example-shots");
+    await mkdir(path.join(OUT, "examples", "shots"), { recursive: true });
+    let shots = {};
+    try {
+      shots = JSON.parse(await readFile(path.join(shotDir, "manifest.json"), "utf8")).sites ?? {};
+      for (const site of Object.values(shots)) {
+        for (const file of Object.values(site.shots ?? {})) {
+          await copyFile(path.join(shotDir, file), path.join(OUT, "examples", "shots", file));
+        }
+      }
+    } catch {
+      // **A MISSING CAPTURE IS SAID OUT LOUD, NEVER DRAWN AS A GREY BOX.**
+      // Andrew's rule, and the right one: a placeholder on a portfolio is a
+      // worse lie than an empty space, because it looks like a decision.
+      console.log("  the index: NO SCREENSHOTS — docs/example-shots/manifest.json is missing.");
+      console.log("             The page will name the sites and link them, with no pictures.");
+      shots = {};
+    }
+
+    const card = ([slug, title, note], i) => {
+      const s = shots[slug]?.shots ?? {};
+      const pics = s.desktop
+        ? `<div class="shot">
+             <img src="/examples/shots/${s.desktop}" alt="The ${title} site on a desktop screen"
+                  width="1440" height="900" loading="${i < 2 ? "eager" : "lazy"}">
+             ${s.phone ? `<img class="ph" src="/examples/shots/${s.phone}"
+                  alt="The same site on a phone" width="392" height="844" loading="lazy">` : ""}
+           </div>`
+        : "";
+      return `
+      <article class="ex" data-i="${i}">
+        ${pics}
+        <div class="meta">
+          <span class="slug">${slug}</span>
+          <h2>${title}</h2>
+          <p>${note}</p>
+          <a class="go" href="/${slug}">Open the live site <span aria-hidden="true">&rarr;</span></a>
+        </div>
+      </article>`;
+    };
+
     await writeFile(path.join(OUT, "examples", "index.html"), `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Example sites</title>
+<title>Five example sites &mdash; Detailing Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
-  :root{color-scheme:dark}
-  body{margin:0;background:#0B0D0E;color:#F2F1EC;
-    font:16px/1.6 ui-sans-serif,system-ui,-apple-system,sans-serif}
-  .w{max-width:640px;margin:0 auto;padding:56px 20px 80px}
-  h1{font-size:32px;letter-spacing:-.02em;margin:0 0 10px}
-  p.l{color:#CFD2CE;margin:0 0 34px}
-  a{display:flex;gap:16px;align-items:baseline;text-decoration:none;color:inherit;
-    padding:16px 0;border-top:1px solid #272D31}
-  a:hover{background:#111517}
-  a b{color:#38E08B;font-size:14px;min-width:22px;font-variant-numeric:tabular-nums}
-  a span{display:flex;flex-direction:column;gap:3px}
-  a em{font-style:normal;font-weight:600}
-  a span span,a span{color:#8B9499;font-size:14px}
-  a em{color:#F2F1EC;font-size:17px}
-  .n{margin-top:34px;color:#8B9499;font-size:14px;border-top:1px solid #272D31;padding-top:18px}
-</style></head><body><div class="w">
-<h1>Example sites</h1>
-<p class="l">Deliberately unalike detailing sites. Nobody is meant to choose
-between them — they are the range.</p>
-${list}
-<p class="n">Every price and time on these is a placeholder. On a real
-detailer's site each one comes live from their own dashboard, so changing a
-price on a phone changes the website.</p>
-</div></body></html>`, "utf8");
+  :root{color-scheme:dark;--ink-0:#0B0D0E;--ink-1:#111417;--ink-2:#171B1E;
+    --line:#272D31;--fog:#8B9499;--bone:#F2F1EC;--acc:#38E08B;
+    --paper:#EFEEE7;--paper-ink:#12161A;--paper-line:#D2D1C9}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ink-0);color:var(--bone);
+    font:400 16px/1.6 "Archivo",sans-serif;-webkit-font-smoothing:antialiased}
+  .w{max-width:1080px;margin:0 auto;padding:0 20px}
+  a{color:inherit}
+  .mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:500;
+    font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--fog)}
+
+  /* ── the way back. 7.1: this page was a dead end from a marketing page ── */
+  .top{border-bottom:1px solid var(--line);background:var(--ink-0);
+    position:sticky;top:0;z-index:5}
+  .top .w{display:flex;align-items:center;gap:18px;height:58px}
+  .back{display:inline-flex;align-items:center;gap:9px;text-decoration:none;
+    color:var(--fog);font-size:14px;min-height:44px;padding-right:6px}
+  .back:hover{color:var(--bone)}
+  .top .brand{margin-left:auto;font-weight:800;letter-spacing:-.01em;font-size:14px}
+
+  header.hero{padding:74px 0 10px}
+  h1{font-size:clamp(38px,6.4vw,74px);line-height:1.02;letter-spacing:-.03em;
+    font-weight:800;margin:14px 0 18px;max-width:15ch}
+  h1 em{font-style:normal;color:var(--acc)}
+  .lede{color:#CFD2CE;font-size:clamp(17px,2vw,20px);max-width:56ch;margin:0}
+
+  /* NUMBERS AS DECORATION — TASTE-NOTES §3 rule 5, and every one is true. */
+  .stats{display:flex;flex-wrap:wrap;gap:34px;margin:40px 0 0;padding:26px 0 0;
+    border-top:1px solid var(--line)}
+  .stats div{min-width:88px}
+  .stats b{display:block;font-size:30px;font-weight:800;letter-spacing:-.02em}
+  .stats span{font-size:12px}
+
+  /* ── the five. NOT three evenly spaced cards: full-width rows that
+        alternate side, so the eye travels and no two read as a set. ── */
+  .list{padding:60px 0 20px;display:flex;flex-direction:column;gap:78px}
+  .ex{display:grid;grid-template-columns:1.35fr .65fr;gap:38px;align-items:center}
+  .ex[data-i="1"],.ex[data-i="3"]{grid-template-columns:.65fr 1.35fr}
+  .ex[data-i="1"] .shot,.ex[data-i="3"] .shot{order:2}
+  .shot{position:relative;border-radius:14px;overflow:visible}
+  .shot>img:first-child{width:100%;height:auto;display:block;border-radius:14px;
+    border:1px solid var(--line);box-shadow:0 24px 60px rgba(0,0,0,.55)}
+  /* the phone sits ON the desktop shot, which is how anybody actually shows a
+     responsive site. 24% is wide enough to read the headline in it. */
+  .shot .ph{position:absolute;right:-14px;bottom:-26px;width:24%;height:auto;
+    border-radius:9px;border:1px solid var(--line);
+    box-shadow:0 18px 40px rgba(0,0,0,.6)}
+  .meta h2{font-size:clamp(21px,2.4vw,27px);line-height:1.15;letter-spacing:-.02em;
+    font-weight:800;margin:10px 0 10px}
+  .meta p{color:var(--fog);margin:0 0 18px;font-size:15px}
+  .go{display:inline-flex;align-items:center;gap:8px;min-height:44px;
+    text-decoration:none;color:var(--acc);font-weight:600;font-size:15px}
+  .go:hover{text-decoration:underline}
+
+  /* ── the ground switches, and the ask comes last ── */
+  .end{background:var(--paper);color:var(--paper-ink);margin-top:80px;
+    padding:74px 0 80px}
+  .end .mono{color:#5B6469}
+  .end h2{font-size:clamp(27px,4vw,42px);line-height:1.08;letter-spacing:-.025em;
+    font-weight:800;margin:12px 0 14px;max-width:18ch}
+  .end p{color:#4A5358;max-width:52ch;margin:0 0 26px}
+  .cta{display:inline-flex;align-items:center;justify-content:center;gap:10px;
+    min-height:50px;padding:0 26px;border-radius:999px;background:var(--paper-ink);
+    color:var(--paper);text-decoration:none;font-weight:600}
+  .cta:hover{background:#000}
+  /* 44px OF REAL HIT AREA — docs/design-system.md. This was a 15px-tall link
+     inside a sentence, which is a target a thumb misses. It is its own row
+     now, with the height on the anchor rather than on the text around it. */
+  .end .also{display:block;margin-top:10px;color:#5B6469;font-size:14px}
+  .end .also a{display:inline-flex;align-items:center;gap:8px;min-height:44px;
+    color:var(--paper-ink);font-weight:600;text-decoration:none}
+  .end .also a:hover{text-decoration:underline}
+
+  .note{border-top:1px solid var(--paper-line);margin-top:44px;padding-top:20px;
+    color:#5B6469;font-size:13.5px;max-width:64ch}
+
+  @media (max-width:820px){
+    .ex,.ex[data-i="1"],.ex[data-i="3"]{grid-template-columns:1fr;gap:22px}
+    .ex[data-i="1"] .shot,.ex[data-i="3"] .shot{order:0}
+    .list{gap:58px;padding-top:44px}
+    /* 2x2 rather than a flex wrap: at 392 the four stats broke 3-then-1 and
+       left "0 templates" orphaned on its own line. */
+    .stats{display:grid;grid-template-columns:1fr 1fr;gap:26px 20px}
+    /* INSIDE the shot, not hanging off it. At one column the shot reaches the
+       container edge, so a negative offset put the phone 8px past the viewport
+       and the whole page scrolled sideways at 768 — measured, 776 > 768. */
+    .shot .ph{width:22%;right:10px;bottom:-16px}
+    header.hero{padding:44px 0 4px}
+  }
+  @media (max-width:400px){
+    .w{padding:0 16px}
+    .stats{gap:22px}
+    .shot .ph{display:none}   /* below this it is a smudge, not information */
+    /* the sticky bar must stay one line at the narrowest supported width */
+    .back .long{display:none}
+  }
+</style></head><body>
+
+<nav class="top"><div class="w">
+  <a class="back" href="/"><span aria-hidden="true">&larr;</span>
+    Back<span class="long"> to Detailing Platform</span></a>
+  <span class="brand">Detailing&nbsp;Platform</span>
+</div></nav>
+
+<header class="hero"><div class="w">
+  <span class="mono">Example sites</span>
+  <h1>Five real sites, <em>built the same way yours would be.</em></h1>
+  <p class="lede">Deliberately unalike. Nobody is meant to choose between them &mdash;
+  they are the range. Every one is a working page you can open, not a picture of one.</p>
+  <div class="stats">
+    <div><b>5</b><span class="mono">sites</span></div>
+    <div><b>8</b><span class="mono">pages</span></div>
+    <div><b>1</b><span class="mono">booking engine</span></div>
+    <div><b>0</b><span class="mono">templates</span></div>
+  </div>
+</div></header>
+
+<main class="w list">
+${multi.map(card).join("")}
+</main>
+
+<section class="end"><div class="w">
+  <span class="mono">Now that you have seen them</span>
+  <h2>Yours is built for you, not chosen from a list.</h2>
+  <p>You do not pick one of these. We build a site around your work, your prices
+  and your name &mdash; with the booking page inside it, and every price coming
+  live from your own dashboard.</p>
+  <a class="cta" href="/pricing">See what it costs <span aria-hidden="true">&rarr;</span></a>
+  <span class="also"><a href="/book/demo-detail">Or try the booking page, the way a customer would
+  <span aria-hidden="true">&rarr;</span></a></span>
+  <p class="note">Every price and time on these five is a placeholder. On a real
+  detailer's site each one comes live from their own dashboard, so changing a
+  price on a phone changes the website. The screenshots above are real captures
+  of these real sites, and a check fails by name if one of them changes after
+  its picture was taken.</p>
+</div></section>
+
+</body></html>`, "utf8");
   } catch (e) {
     console.log(`  the index: SKIPPED — ${String(e.message).slice(0, 80)}`);
   }

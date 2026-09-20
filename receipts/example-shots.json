@@ -1,0 +1,36 @@
+{
+  "git_sha": "d5f4f5e375c24d6db5f30fb2a457d92a44615d97",
+  "environment": "local",
+  "finished_at": "2026-09-20T15:36:47.665Z",
+  "failures": [],
+  "warnings": [
+    "the thumbnails on /examples are REAL SCREENSHOTS of the real example sites, committed rather than generated because the examples build runs on every paid deploy. This check is what stops them going stale silently."
+  ],
+  "artifacts": [
+    "docs/example-shots/manifest.json"
+  ],
+  "dimensions": {
+    "sites": 5,
+    "captured_at": "2026-09-20T15:29:27.748Z"
+  },
+  "check_id": "example-shots",
+  "started_at": "2026-09-20T15:36:47.568Z",
+  "status": "pass",
+  "expected_targets": 5,
+  "discovered_targets": 5,
+  "attempted_targets": 5,
+  "completed_targets": 5,
+  "skipped_targets": 0,
+  "assertions_executed": 30,
+  "min_assertions": 15,
+  "canary": {
+    "id": "--break=drift · one site's source pretends to have moved",
+    "observed_failure": true,
+    "caught_by": [
+      "declared"
+    ],
+    "findings": [
+      "certified by the --break=drift pass; see that receipt"
+    ]
+  }
+}

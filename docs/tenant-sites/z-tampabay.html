@@ -190,7 +190,17 @@ h1{color:#fff;text-shadow:0 6px 34px rgba(0,0,0,.34)}
 .place{margin-top:16px;font-family:"Azeret Mono",monospace;font-size:11px;
   letter-spacing:.15em;text-transform:uppercase;color:#fff;max-width:none}
 .wipe{display:inline-block;overflow:hidden;padding:0 .04em}
-.hero-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:26px}
+/* THE ROW HAS TO STOP BEFORE THE CERAMIC CARD, AND UNTIL 2026-09-20 IT DID
+   NOT. `.glasscard` is absolutely positioned over this poster at 246px wide,
+   34px from the right — and this row is in normal flow, so at a wide viewport
+   the last chip in it ran underneath the card and the rating was clipped to
+   "FROM 8… REVIEW". Both audits had it (ROADMAP 7.10) and it was found again
+   by PHOTOGRAPHING the site for /examples, where at thumbnail size a clipped
+   review score is the first thing the eye lands on.
+   246 + 34 + a 16px gap. Only above 1024px: the card joins the normal flow
+   below that breakpoint and the clearance would be dead space. */
+.hero-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:26px;
+  padding-right:296px}
 .hero-row .chip{background:rgba(0,0,0,.42);border-color:rgba(255,255,255,.30);
   color:#fff}
 .rating{background:#fff;color:#111;border-radius:var(--r-card);padding:10px 14px;
@@ -217,6 +227,8 @@ h1{color:#fff;text-shadow:0 6px 34px rgba(0,0,0,.34)}
   .eyebrow{position:relative;z-index:1;top:auto;right:auto;text-align:left;
     padding:26px 26px 0;line-height:1.9}
   .glasscard{position:relative;display:block;z-index:1;right:auto;bottom:auto;width:auto;margin:0 26px 26px}
+  /* the card is in the flow here, so the clearance above is dead space */
+  .hero-row{padding-right:0}
   .poster{--tabh:58px}}
 /* 16d - the tab is cut OUT of the poster: the box is taller by --tabh and a
    clip-path (written by script, because a rounded corner cannot be expressed in
