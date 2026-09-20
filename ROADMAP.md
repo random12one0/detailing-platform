@@ -2186,7 +2186,7 @@ the dashboard or back office at phone width at all.
   *A1 P2-06, A2 2.11, 2.12*
 
 - [ ] **8.5 — Keyboard, screen reader, zoom, large text and reduced motion.**
-  **8.5e and 8.5a are DONE (2026-09-20); c, d and b remain.**
+  **8.5e, 8.5a and 8.5c are DONE (2026-09-20); d and b remain.**
   Never checked.
   *A1 § 10*
 
@@ -2352,10 +2352,48 @@ the dashboard or back office at phone width at all.
   product animates a ring today; if something starts, this check will call it
   missing, and that is the trade that made the measurement possible at all.
 
-  **8.5c — ZOOM TO 200%.**
+  **8.5c — ZOOM TO 200%. ✓ DONE 2026-09-20.**
   *Done when:* at 200% zoom, at all four widths, nothing is clipped, no
   control is unreachable and there is no horizontal scroll — WCAG 1.4.4.
-  Unmeasured.
+
+  **200% IS THE SETTING A PERSON REACHES FOR BEFORE THEY REACH FOR A SCREEN
+  READER, so it is measured rather than assumed.** `scripts/zoom-walk.mjs`,
+  two clean runs: **24 of 24 screen/width combinations, 676 interactive
+  elements examined, 0 findings in the supported range**, receipt PASS.
+
+  **HOW ZOOM IS EMULATED:** a 1440px window at 200% lays out as a 720 CSS px
+  viewport on a 2× device, so the walk uses `viewport: 720` with
+  `deviceScaleFactor: 2` — the same layout, reflow and media queries as
+  pressing Ctrl and plus. `setPageScaleFactor` is PINCH zoom, which does not
+  reflow, and would have measured nothing.
+
+  **THE SUB-320 WIDTHS ARE PRINTED AND NOT COUNTED, DECLARED BEFORE THE RUN.**
+  392 at 200% is 196 CSS px and 320 is 160 — both below this product's own
+  320px floor. They do overflow there (up to 107px on the calendar); that is
+  outside the supported range and is recorded rather than scored.
+
+  **THE FIRST ANSWER WAS 28 FINDINGS AND ALL 28 WERE MY PROBE.** Triaged
+  before any of them was reported as a defect:
+  * `div.app-dots cuts off 96px` on four screens — it is `aria-hidden="true"`,
+    empty and childless. **A decorative layer whose whole job is to be
+    clipped**, reported back at the product as a defect.
+  * five `button.cal-cell`s "covered by button." — covered by the **Today
+    button in the pinned bar**, on a page that scrolls. **Covered right now is
+    not unreachable**; a person scrolls and it comes out. Candidates are now
+    scrolled into view and asked again, and only a control still covered after
+    that is counted.
+
+  **AND THE ZERO THAT PRODUCED WAS NOT TRUSTED EITHER.** Tightening two
+  detectors took 28 findings to 0 while the only canary in the run tested the
+  THIRD detector — a zero from a detector nothing has tested is exactly this
+  repo's oldest failure. **There are three canaries now, one per detector**,
+  planted in a validation pass of their own so they cannot pollute the
+  measurement: an element that overflows only under zoom, a box with real text
+  clipped sideways, and a control under a fixed lid that scrolling cannot
+  clear. **All three caught on 24/24 runs, in both runs.**
+
+  **WHAT THIS TICK DOES NOT COVER:** six screens, not every screen; and the
+  sub-320 range above.
 
   **8.5d — LARGE TEXT AND TEXT SPACING.**
   *Done when:* with the WCAG 1.4.12 overrides applied — line height 1.5×,

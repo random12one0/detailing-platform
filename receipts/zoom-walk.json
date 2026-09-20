@@ -1,0 +1,42 @@
+{
+  "git_sha": "915ac7cabe3d24db159f1bdffccc560c48d58c12",
+  "environment": "local",
+  "finished_at": "2026-09-20T12:20:07.417Z",
+  "failures": [],
+  "warnings": [
+    "12 combination(s) below the 320px floor printed but not counted"
+  ],
+  "artifacts": [
+    "scripts/zoom-walk.mjs"
+  ],
+  "dimensions": {
+    "zoom": "200% as viewport/2 at deviceScaleFactor 2",
+    "widths": [
+      "1440->720css",
+      "768->384css",
+      "392->196css",
+      "320->160css"
+    ],
+    "supported_floor_css_px": 320
+  },
+  "check_id": "zoom-walk",
+  "started_at": "2026-09-20T12:19:09.423Z",
+  "status": "pass",
+  "expected_targets": 24,
+  "discovered_targets": 24,
+  "attempted_targets": 24,
+  "completed_targets": 24,
+  "skipped_targets": 0,
+  "assertions_executed": 676,
+  "min_assertions": 300,
+  "canary": {
+    "id": "three: overflow under zoom, text clipped sideways, control under a fixed lid",
+    "observed_failure": true,
+    "caught_by": [
+      "document scrollWidth"
+    ],
+    "findings": [
+      "overflow 24/24, clip 24/24, cover 24/24"
+    ]
+  }
+}
