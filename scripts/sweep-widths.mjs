@@ -976,6 +976,40 @@ for (const w of SIZES) {
       return;
     }
     probed += seen.els; surfaces++;
+    // **EVERY ENTRANCE JUMPED TO ITS END BEFORE THE GEOMETRY IS READ —
+    // 2026-09-20, and it cost a whole item to find out why.**
+    //
+    // `tour · step 28` was reported as `past-parent +14px p.body.tourline in
+    // div` at 392 and 320, reproduced four runs running. There is no overflow.
+    // `theme.css` has `@keyframes step-fwd { from { transform: translate3d(
+    // 14px, 0, 0); } }` on that exact paragraph, `getBoundingClientRect()`
+    // reports the TRANSFORMED box, and a caption read during its entrance is
+    // 14px to the right of where it lives. Measured both ways by
+    // `scripts/tour-caption.mjs`: the keyframe replayed and paused gives
+    // `matrix(1, 0, 0, 1, 14, 0)` and +14px; the same caption with its
+    // animations finished is 302 wide inside a box 302 wide, flush, at both
+    // widths and in `?lite=1`.
+    //
+    // **`settle()` IS NOT ENOUGH AND CANNOT BE.** It returns once nothing is
+    // running and the DOM has been quiet — and an element re-keyed by React
+    // starts its animation on a LATER frame than the mutation that created it,
+    // so the quiet it waits for happens in the gap before the entrance begins.
+    // Waiting longer is not the fix either: that is a race being tuned rather
+    // than removed.
+    //
+    // So the geometry is read from a page whose animations are over, which is
+    // the only state in which an edge comparison means anything.
+    // `screenreader-structure.mjs` has done this since it was written; this
+    // file, which measures nothing BUT edges, did not.
+    await target.evaluate(() => document.getAnimations().forEach((a) => {
+      // An infinite animation — the drifting ground — has no end to jump to,
+      // and `finish()` on one throws. It also never settles, which is why
+      // `settle()` excludes it too.
+      try {
+        const t = a.effect && a.effect.getComputedTiming && a.effect.getComputedTiming();
+        if (!t || t.iterations !== Infinity) a.finish();
+      } catch { /* an animation that cannot be finished is one we leave alone */ }
+    }));
     const { rows, asked, sig } = await target.evaluate(CHECK);
     // **AND IS IT ACTUALLY IN THE LANGUAGE THIS RUN CLAIMS?** Nothing asked
     // that until 2026-09-19, which is how nine surfaces were reported as

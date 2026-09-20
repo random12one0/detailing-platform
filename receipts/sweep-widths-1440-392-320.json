@@ -1,22 +1,8 @@
 {
-  "git_sha": "888078db3205faca2f5f9eb050b062baa4b38e12",
+  "git_sha": "9b5eb099a6fd1220c8deadcc9eea7c4ffc48a8e4",
   "environment": "local",
-  "finished_at": "2026-09-20T15:48:56.848Z",
+  "finished_at": "2026-09-20T16:16:14.618Z",
   "failures": [
-    {
-      "target": "tour · step 28",
-      "width": 392,
-      "findings": [
-        "past-parent    +14px  p.body.tourline in div  «Your own settings live beh»"
-      ]
-    },
-    {
-      "target": "tour · step 28",
-      "width": 320,
-      "findings": [
-        "past-parent    +14px  p.body.tourline in div  «Your own settings live beh»"
-      ]
-    },
     {
       "target": "(not a per-surface geometry finding)",
       "count": 1,
@@ -58,7 +44,7 @@
     ]
   },
   "check_id": "sweep-widths-1440-392-320",
-  "started_at": "2026-09-20T15:41:26.239Z",
+  "started_at": "2026-09-20T16:08:44.249Z",
   "status": "fail",
   "expected_targets": 407,
   "discovered_targets": 407,
@@ -201,7 +187,7 @@
       }
     ]
   },
-  "assertions_executed": 171085,
+  "assertions_executed": 171396,
   "min_assertions": 1628,
   "canary": {
     "id": "sweep-canary-deliberate-overflow",

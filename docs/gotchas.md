@@ -1730,3 +1730,44 @@ check beside an existing one, go and read what the neighbour guards against —
 aborted widths, declared skips, partial runs — because your new check starts
 with none of it and its findings will look exactly as confident as the old
 one's.
+
+## `settle()` CANNOT CATCH AN ANIMATION THAT HAS NOT STARTED YET — 2026-09-20
+
+The width sweep reported, four runs running, at 392px and 320px:
+
+    past-parent  +14px  p.body.tourline in div  «Your own settings live beh»
+
+There was no overflow. `theme.css` carries `@keyframes step-fwd { from {
+transform: translate3d(14px, 0, 0); } }` on that paragraph.
+`getBoundingClientRect()` returns the **transformed** box, so a caption read
+during its entrance is exactly 14px right of where it lives. Two fourteens,
+one cause — and the number was convincing precisely because it was specific.
+
+**The part worth carrying is why the existing guard did not stop it.**
+`settle()` already waits for the DOM to go quiet *and* for every non-infinite
+animation to stop running. It is a good guard and it was not enough:
+
+> A React element with a `key` that changes is **destroyed and recreated**,
+> and its CSS animation begins on a later frame than the mutation that
+> created it. So there is a real window in which the DOM has been quiet for
+> 130ms, nothing is running, `settle()` returns truthfully — and the entrance
+> has not begun.
+
+Waiting longer does not fix this. It tunes the race instead of removing it,
+and the tuning is invisible the day it stops working.
+
+**The fix is to finish, not to wait:** `document.getAnimations().forEach(a =>
+a.finish())` immediately before the geometry is read, skipping infinite ones
+because `finish()` on those throws and they never end anyway. That is the only
+state in which comparing two edges means anything.
+
+**And one file in this repo had been doing it all along.**
+`screenreader-structure.mjs` finishes animations before every probe. The
+script that measures nothing *but* edges did not. A technique that lives in
+one instrument is not a technique the repo has — go and look at what the
+neighbouring check does before trusting your own.
+
+**Three tells that this is what you are looking at**, none of which need a
+rebuild: the finding's number matches a number in a keyframe; it appears in
+the normal path and vanishes under `?lite=1`; and the element carries a
+`key` that changes. Any one of them is worth ten minutes before a fix.

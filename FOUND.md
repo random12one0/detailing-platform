@@ -3910,6 +3910,11 @@ is **33 steps in six blocks** — `4 + 6 + 6 + 5 + 6 + 6`, ending cleanly on
 in its own words instead of reporting a short walk as a finished tour.
 
 **2 · One of the newly reachable screens has a real geometry defect.** At
+**[CORRECTED 2026-09-20 — THERE IS NO OVERFLOW. The paragraph below is what
+the sweep reported and it was wrong; the correction is at the end of this
+item, and the original is left standing because the reversal is the
+load-bearing part.]**
+
 **392px and 320px**, `tour · step 28` — the caption reading *"Your own
 settings live beh…"* — overflows its own parent by **14px**:
 `past-parent +14px p.body.tourline in div`. Clean at 1440. This is a caption
@@ -3968,3 +3973,44 @@ reported that correctly — `expected-count 1440px: NOT GRADED — the width
 aborted` — and the 41 surfaces it never reached are unmeasured rather than
 clean. Whether the truncating tour and the aborting width are one problem or
 two is not known, and guessing which is the tempting move here.
+
+## CORRECTION — the tour step 28 "overflow" was the sweep photographing a moving caption — 2026-09-20
+
+**There is no defect on that screen.** Measured by
+`scripts/tour-caption.mjs`, which walks the tour to step 28 at 392 and 320, in
+the normal path and `?lite=1`, and reads the caption four ways:
+
+| reading | 392px | 320px |
+|---|---|---|
+| the shipped keyframe replayed and paused at its first frame | **+14px**, `matrix(1, 0, 0, 1, 14, 0)` | **+14px**, `matrix(1, 0, 0, 1, 14, 0)` |
+| every animation finished — the layout itself | **0px**, caption 302 in a box of 302 | **0px**, caption 250 in a box of 250 |
+| `?lite=1`, where there is no entrance at all | **0px** | **0px** |
+| the card's own frame | 340x158 at (36, 74) in 392x844 — **fully in frame** | 288x158 at (16, 74) in 320x844 — **fully in frame** |
+
+`theme.css` carries `@keyframes step-fwd { from { opacity: 0; transform:
+translate3d(14px, 0, 0); } }` on that exact paragraph.
+`getBoundingClientRect()` reports the **transformed** box, so a caption read
+during its entrance sits exactly 14px right of where it lives — and "14px past
+its parent" is what that looks like to a probe that only compares edges. Two
+fourteens, one cause.
+
+**The rider is answered too, and it was also nothing.** The card is fully
+inside the viewport at both widths. It is missing from the two screenshots
+because those were taken at a different instant, not because it is off screen.
+
+**THE REAL FAULT WAS IN THE INSTRUMENT, AND IT WAS NOT LIMITED TO THIS
+SCREEN.** `settle()` waits for animations to stop running, and a React element
+re-keyed on a press starts its animation on a **later frame than the mutation
+that created it** — so the quiet it waits for happens in the gap before the
+entrance begins. Waiting longer tunes the race instead of removing it. The
+sweep now finishes every non-infinite animation immediately before reading
+geometry, which is the only state in which an edge comparison means anything;
+`screenreader-structure.mjs` has done this since it was written and the file
+that measures nothing *but* edges did not.
+
+**Before and after, in the sweep's own words.** Before: `past-parent +14px
+p.body.tourline in div` at 392 and 320, four runs running, two geometry
+findings. After: *clean at 1440, 392, 320 — nothing off the screen, nothing
+outside its own box, no boxes touching*, across 407 surfaces and 171,396
+questions, **with the deliberate canary overflow still caught at all three
+widths**, so the clean reading is not a blind one.
