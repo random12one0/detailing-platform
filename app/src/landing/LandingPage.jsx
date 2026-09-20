@@ -903,7 +903,7 @@ export default function LandingPage() {
                 booking, without going home first.
               </p>
               <div className="figlist" data-rv="" style={{ "--i": 3 }}>
-                <div className="figrow"><span>Take a card payment</span><span className="mono">on the driveway</span></div>
+                <div className="figrow"><span>Log a card payment</span><span className="mono">on the driveway</span></div>
                 <div className="figrow"><span>Mark a job complete</span><span className="mono">one tap</span></div>
                 <div className="figrow"><span>Move a booking</span><span className="mono">they get told</span></div>
               </div>
