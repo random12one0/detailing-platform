@@ -3371,6 +3371,24 @@ CANARY RUN (${GUIDE_CANARY ? "guide walks cut short" : `the tour cut short at ${
     }, null, 2) + "\n");
     console.log(`\nEXPECTATION REWRITTEN: ${addedN} added, ${keptN} kept that this run did not reach, ${droppedN} dropped.`);
     console.log(`This run was NOT graded against it - read the diff before committing.`);
+    // **AND WIDEN ONLY WHERE BOTH LANGUAGES AGREE — 2026-09-20, Andrew's
+    // manager, after a Spanish run and an English run disagreed by four
+    // surfaces for four unrelated reasons.** This file is ONE baseline shared
+    // by every mode, so whichever run last held `--write-expected` decides
+    // what the product is expected to be. That is how the 1440 list came to
+    // record a truncated tour as correct in the first place.
+    //
+    // The rule: run English AND Spanish, and add only what both reached. A
+    // baseline written from one language is a fact about that run, not about
+    // the product.
+    //
+    // **And where they legitimately differ, that is a FINDING, never a number
+    // to average.** A surface one language can reach and the other cannot is
+    // either a missing string, a stale label in this file, or a real screen
+    // that only renders in one locale — three different problems, and all
+    // three are invisible the moment somebody splits the difference.
+    console.log(`Widen only where BOTH languages reached it. A surface one language has and the`);
+    console.log(`other does not is a finding, not a number to average - see docs/gotchas.md.`);
   } else if (ONLY) {
     console.log(`\nexpected-count gate SKIPPED — \`--only ${ONLY}\` measures a subset on purpose.`);
   } else if (!existsSync(EXPECTED_PATH)) {

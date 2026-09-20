@@ -2058,6 +2058,22 @@ is not a missed defect, it is **sending somebody to change a file that was
 already right.** A manager nearly turned it into a work order for another
 session; the string it named had been correct all along.
 
+**Say it plainly, because it inverts the usual instinct: a check that reports
+a present translation as missing is WORSE than one that misses a real gap.** A
+missed gap leaves the product exactly as it was and waits to be found again. A
+false one spends somebody's afternoon editing a file that was already correct,
+and — worse — it spends their confidence, because they end up defending work
+that never needed defending. The other session did exactly that today.
+
+**AND NOTE HOW IT WAS CAUGHT, BECAUSE THAT IS THE EXPENSIVE PART.** Not by the
+instrument. **By two sessions disagreeing, and a third party opening the actual
+file and reading line 464.** That is the most costly detection path this repo
+has: it needs two people to be in the loop, one of them to refuse the finding,
+and somebody senior to go and look. It does not scale and it will not happen
+the next time nobody is watching. **The canary below is what makes the same
+catch cost nothing** — one filesystem read, no browser, at the top of every
+run.
+
 **What actually happened, in the order it happened, because the order is the
 lesson.**
 
