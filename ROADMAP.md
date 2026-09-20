@@ -159,13 +159,64 @@ Smallest wave, highest embarrassment cost, all of it confirmed in source.
   it is a public page showing Andrew's real business domain as the example.
   *A2 1.2*
 
-- [x] **1.2 — DONE 2026-09-16, XPEL half. Example sites claimed a real brand.**
+- [x] **1.2 — DONE. XPEL half 2026-09-16, the /ex5 identity 2026-09-20. Example sites claimed a real brand.**
   **Verified:** `grep -rc XPEL docs/tenant-sites/*.html` returns zero matches.
   Six strings across `t-blackline.html` and `y-kinzie.html` now read
   "Manufacturer-certified film installer" / "CERTIFIED · Film installer".
-  **Left open deliberately:** `/ex5` is still "Tampa Bay Auto Detail" with
-  `info@tampabayautodetail.com`. Renaming a whole site identity is bigger than
-  a string swap and Andrew has not asked for it. **His call.**
+  ~~**Left open deliberately:** `/ex5` is still "Tampa Bay Auto Detail" with
+  `info@tampabayautodetail.com`.~~ **RENAMED 2026-09-20 — Andrew's decision,
+  and the whole item is closed now.** His call was: invent a name and a
+  matching domain that are obviously not a real firm, because the page
+  demonstrates the same thing either way and the question disappears for
+  nothing.
+  **What it is now: "Sunglade Auto Detail", `info@sungladeauto.example`.** Four
+  name occurrences and four domain occurrences, in the title, the masthead
+  wordmark, the top contact bar, the footer card and the copyright line. **The
+  domain ends `.example` on purpose** — that suffix is reserved for examples
+  and cannot be registered by anybody, so no real business can ever own it.
+  Swap it for a plain `.com` if it should look conventional instead; it is one
+  line.
+  **The geography stayed.** Tampa Bay, St Petersburg, Clearwater and Brandon
+  are places, not companies, and the page's whole layout rests on a real metro
+  with real drive times. Only the business identity was invented.
+  **HOW IT WAS CHECKED:** rebuilt the example sites and walked `/ex5` at
+  1440x900, 768x1024, 392x844 and 320x844. Zero occurrences of the old name or
+  domain in the rendered page at every width, both mailto links read
+  `info@sungladeauto.example`, no horizontal overflow at 320, and the wordmark
+  still breaks over two lines on the phones exactly as it did. Console clean at
+  all four.
+  **AND THEN THE WHOLE CLASS WAS CLOSED, SAME DAY, ON ANDREW'S RULING** — the
+  first pass fixed one site and reported the rest, he measured what was
+  reported, and one of them was not a maybe:
+  - **`chicagoautopros.com` RESOLVES.** It is a live host, so it is somebody's
+    actual business, and it was named twice in `/ex4`'s source. **It is out.**
+    Both mentions were design-provenance comments rather than anything on the
+    page — but comments ship with the file, and it is served at `/ex4`. The
+    name now lives only in `docs/schemes/kinzie-mobile-detailing-scheme.md`,
+    which is not published. **An invented name was NOT written into those
+    comments**: they record where a measurement came from, and a false
+    provenance note is worse than none.
+  - **`/ex5`'s phone is now `(813) 555-0173`.** The old `(813) 402-7719` was a
+    real Tampa area code and exchange — the same risk as a real name, pointed
+    at a phone. 555-01xx is the range reserved for fiction, which the other
+    four sites already used.
+  - **Every example email is on `.example` now**, `/ex3` and `/ex4` included.
+    Nobody can register that suffix, so the whole question is closed rather
+    than narrowed one site at a time.
+  - **`andrewsdetail.com` stays in `/ex1`. Confirmed by measurement, not by
+    reading:** one occurrence in the served file, inside a CSS comment quoting
+    Andrew's own instruction; zero in the rendered text, zero in any `href` or
+    `src`. It is his own business and nothing links to it.
+  - **The `/ex3` and `/ex4` business NAMES were deliberately left alone** —
+    Ballantyne and Kinzie are place names, not company names, and Andrew ruled
+    renaming them a bigger job than this item. Logged in `FOUND.md` as a
+    question, with the general rule that needs deciding first.
+  **HOW THE SECOND PASS WAS CHECKED:** rebuilt the sites and walked `/ex3`,
+  `/ex4` and `/ex5` at 1440x900, 768x1024, 392x844 and 320x844. Zero
+  occurrences of `chicagoautopros`, `kinziedetail.com`, `ballantynedetail.com`
+  or the old Tampa number in any rendered page at any width; every `mailto`
+  reads `.example` and every `tel:` is a 555 number; no horizontal overflow at
+  320 on any of the three; console clean at all twelve stops.
   `/ex5` is "Tampa Bay Auto Detail" with `info@tampabayautodetail.com`; `/ex4`
   claims "XPEL certified installer".
   **Andrew, 2026-09-16:** *"those are all example sites… it was like an example
@@ -393,10 +444,35 @@ the wrong service, and never book a job we cannot reach.
   apartment/unit, and manually accepted addresses.
   *A1 P1-05*
 
-- [ ] **2.9 — The service area is asked too late.**
+- [x] **2.9 — DONE 2026-09-20. Where the business works is on step 1 now. Nothing moved.**
   Mobile address and area come at step 4, after services, add-ons and vehicle.
-  **Fix:** ask "Where's the car?" before vehicle details.
-  **Done when:** an out-of-area customer is told inside the first two steps.
+  ~~**Fix:** ask "Where's the car?" before vehicle details.~~
+  **THE FAULT IS THAT AN OUT-OF-AREA CUSTOMER FINDS OUT LAST, NOT THAT STEP 4
+  IS IN THE WRONG PLACE — Andrew's ruling, 2026-09-20**, and the reordering the
+  audit proposed was refused with it: these screens work, and the bar for
+  touching one is a named fault rather than a better idea. So the step keeps
+  its job and the fact stops being a surprise.
+  **WHAT SHIPPED:** one line at the top of step 1, above the first category —
+  *"{business} comes to you, serving {area}."* **It is the sentence step 4
+  already says**, the same key, so the two screens cannot drift into two
+  different claims and no new string entered the catalogue. It is drawn only
+  where it is true and useful: a business that does not travel has no area to
+  state, and one that travels without naming an area would render "comes to
+  you" with nothing in it, which tells a customer in the next county nothing.
+  Both of those fall through to the page exactly as it was.
+  **HOW IT WAS CHECKED:** two seeded tenants at 1440x900, 768x1024, 392x844 and
+  320x844. The line reads *"Coastline Auto Detailing comes to you, serving Long
+  Beach & South Bay."* at every width — one line at 1440 and 768, wrapping to
+  two on both phones, no horizontal overflow at 320. Spanish needed no new key
+  and renders *"va a ti. Damos servicio en…"*. Step 1 still advances to step 2.
+  Console clean at all four. Gates green: `booking-core` 290, `composition` 97,
+  `landing-pricing` 109, `route-contract` 34, 0 failed.
+  **THE HEIGHT COST, MEASURED RATHER THAN ASSERTED:** the line is 19px on a
+  desktop and 38px on a phone. On the two-category tenant at 1440x900 step 1
+  was ALREADY 108px taller than the window before this change and is 127px
+  after — it scrolled before and it scrolls now. On the two-service tenant the
+  step still fits with the line in place. **No screen that fitted stopped
+  fitting.**
   *A2 2.6*
 
 - [ ] **2.10 — Recurring plans overwhelm a one-time booking.**
@@ -2324,6 +2400,16 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
    **A browser reads a table only if the role holds a grant — possibly per
    column — AND a policy lets the row through.** Keying on either alone is
    wrong, in opposite directions, one table each.
+
+
+   **AND THE TIGHTEN THAT FINDING WOULD HAVE JUSTIFIED WAS CONSIDERED AND
+   DECLINED, 2026-09-20.** Narrowing `connected_accounts` to owners was
+   proposed and approved while the wrong finding stood, then withdrawn with
+   it. Andrew, re-deciding after the correction: *"the credential column is
+   already ungranted so there is nothing to leak, and what a staff member can
+   see is a boolean saying whether card payments work — that is information,
+   not power."* The deliberate 2026-09-08 ruling stands. **FOUND.md records
+   the why, so nobody re-proposes it in a month.**
 
    **No leak was found in any of the 38 tenant-owned tables**, by any of the
    four actors, on read, update, delete or forged-tenancy insert.

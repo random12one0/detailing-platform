@@ -3424,3 +3424,70 @@ the remaining steps was declined as a separate item. Whoever takes it should
 take all of them at once — step 4 (address), step 5 (date and time) and the
 services step — rather than one at a time, because the fix is the same three
 lines in each and the value is in them agreeing.
+
+---
+
+## Tightening `connected_accounts` to owners: CONSIDERED AND DECLINED, 2026-09-20
+
+**Do not re-propose this without new evidence. It was proposed, approved, and
+then withdrawn on the same night, and the reason it was approved turned out
+not to exist.**
+
+The proposal was to narrow `connected_accounts_select` from "any member of the
+business" to "owners only", on the grounds that the policy was **inert** — a
+permissive rule sitting on a table that only a missing grant was protecting,
+waiting to fire the day somebody added one.
+
+**That premise was false** (see the withdrawn entry above). The table revokes
+and grants its columns back individually; `connect_state` and
+`connect_state_at` are never handed to a browser at all, and the policy has
+been doing its job for the five columns that are.
+
+**Andrew's ruling, 2026-09-20, re-decided after the correction:**
+
+> *"LEAVE THE 2026-09-08 RULING STANDING. The credential column is already
+> ungranted so there is nothing to leak, and what a staff member can see is a
+> boolean saying whether card payments work — that is information, not power.
+> Overturning a deliberate, written-down decision is a big move, and the only
+> reason I was going to make it has just evaporated."*
+
+**So the 2026-09-08 decision stands, in its own words:** *"READ: anybody who
+belongs to the business. Not just `settings` holders — a staff member being
+told 'card payments are on' is information, not power, and the write path is
+closed to all of them equally."*
+
+**What would actually justify revisiting it:** a grant of the whole table to
+`authenticated` appearing in a migration (which would hand over `connect_state`
+and is the real risk), or a business wanting staff who genuinely must not know
+whether the business takes cards. Neither is true today.
+`tenant-matrix.mjs` prints `COLUMN-LIMITED — connected_accounts: 5 of 8
+columns granted to a browser` on every run, so the day that changes, it says so.
+
+---
+
+## TWO EXAMPLE SITES ARE NAMED AFTER REAL PLACES — asked 2026-09-20, NOT CHANGED
+
+**Raised while closing ROADMAP 1.2**, which invented a new identity for `/ex5`
+and moved every example site's email onto the reserved `.example` suffix. Two
+names were deliberately left standing:
+
+- **`/ex3` — "Ballantyne Mobile Detailing".** Ballantyne is a real
+  neighborhood in Charlotte, North Carolina.
+- **`/ex4` — "Kinzie Mobile Detailing".** Kinzie is a real street in Chicago.
+
+**Neither is known to be a company**, and a detailer named after the district
+it works in is the most ordinary name in the trade — which is exactly what
+makes the question live: a real firm in Ballantyne called Ballantyne
+Mobile Detailing is entirely plausible and nobody has checked.
+
+**The email halves are already safe.** Both now read `.example`, a suffix
+nobody can register, so no message can ever reach a real inbox by accident and
+no domain of theirs is being claimed.
+
+**NOT CHANGED, and it is a question rather than a defect:** renaming a site
+means its wordmark, its title, its scheme document, its style guide and its
+file name, and `/ex5` took a full pass to do properly. **Andrew's ruling,
+2026-09-20: place names are not company names and renaming these is a bigger
+job than that item.** Whoever picks it up should decide the general rule first
+— whether an example site may be named after a real place at all — rather than
+renaming two sites and leaving the rule unwritten for the next one.

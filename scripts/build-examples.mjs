@@ -120,7 +120,7 @@ const MULTI = [
   // unless I specifically request it."* So this row IS the delivery mechanism
   // for a tenant site now — `npm run dev` serves it at /ex5 and a build puts
   // it on the domain. Nothing about a tenant page goes out as an artifact.
-  ["ex5", "z-tampabay.html", "Tampa Bay Auto Detail",
+  ["ex5", "z-tampabay.html", "Sunglade Auto Detail",
    "One page, loud · pick your vehicle and the prices change · for a busy shop that wants a customer booked in under a minute", {}],
 ];
 
