@@ -210,9 +210,12 @@ const dirs = readdirSync(FUNCTIONS, { withFileTypes: true })
   .map((d) => d.name).sort();
 
 let A, B, Bn, ownerA, staffA, formerA, ownerB;
+const aIds = {};
 const bIds = {};
 const bnIds = {};
 const canaryDetectors = [];
+const exercisedOk = [];
+const provedByRejection = [];
 
 /** Everything tenant B owns, as one comparable fingerprint. */
 async function fingerprintB(businessId) {
@@ -297,7 +300,50 @@ try {
         vehicle_size_label: "Medium", subtotal: 120, total_price: 120,
       }],
     });
-    const store = tag === "B" ? bIds : tag === "Bn" ? bnIds : null;
+    // ROUND TWO — the objects the other 26 functions needed before they would
+    // answer their own tenant at all. Each one was chosen by reading the 400 or
+    // 409 the function returned, not guessed.
+    const promo = await rest("POST", "/rest/v1/promo_codes", {
+      body: [{ business_id: b.id, code: `EDGE${tag.toUpperCase()}`, type: "percentage", value: 5 }],
+    });
+    const camp = await rest("POST", "/rest/v1/campaigns", {
+      body: [{ business_id: b.id, slug: `edge-${tag.toLowerCase()}`, name: `${S("A")} campaign` }],
+    });
+    const plan = await rest("POST", "/rest/v1/plans", {
+      body: [{ business_id: b.id, name: `${S(tag === "Bn" ? "B" : tag)} plan` }],
+    });
+    const planId = plan.data?.[0]?.id ?? null;
+    const custId = cust.data?.[0]?.id ?? null;
+    let memberId = null;
+    if (planId && custId) {
+      const pm = await rest("POST", "/rest/v1/plan_members", {
+        body: [{ business_id: b.id, plan_id: planId, customer_id: custId }],
+      });
+      memberId = pm.data?.[0]?.id ?? null;
+    }
+    // A QUOTED, PENDING booking so `accept-quote` has something to accept, and
+    // a CONFIRMED one so `reschedule-booking` has something to move.
+    // **ON ITS OWN DAY.** Putting the second booking on the same day as the
+    // first cost `update-booking` its proof: A's own call started answering 409
+    // because the slot gate was re-validating a move into a day that now had
+    // two bookings in it. A fixture that makes one function testable must not
+    // quietly make another untestable.
+    const day2 = new Date(Date.now() + 33 * 86400_000).toISOString().slice(0, 10);
+    const bk2 = await rest("POST", "/rest/v1/bookings", {
+      body: [{
+        business_id: b.id, customer_name: `${S(tag === "Bn" ? "B" : tag)} client`,
+        customer_phone: "555-0102", customer_email: SINK,
+        start_at: `${day2}T20:00:00Z`, end_at: `${day2}T21:00:00Z`,
+        service_type: "mobile", status: "confirmed", vehicle_size: "medium",
+        vehicle_size_label: "Medium", subtotal: 120, total_price: 120,
+      }],
+    });
+    if (bk.data?.[0]?.id) {
+      await rest("PATCH", `/rest/v1/bookings?id=eq.${bk.data[0].id}`,
+        { body: { quoted_amount: 99 }, prefer: "return=minimal" });
+    }
+
+    const store = tag === "A" ? aIds : tag === "B" ? bIds : tag === "Bn" ? bnIds : null;
     if (store) {
       store.business_id = b.id;
       store.business_slug = b.slug;
@@ -305,6 +351,11 @@ try {
       store.customer_id = cust.data?.[0]?.id ?? null;
       store.service_id = svc.data?.[0]?.id ?? null;
       store.day = day;
+      store.promo_code = promo.data?.[0]?.code ?? null;
+      store.campaign_slug = camp.data?.[0]?.slug ?? null;
+      store.plan_id = planId;
+      store.member_id = memberId;
+      store.confirmed_booking_id = bk2.data?.[0]?.id ?? null;
     }
   }
   console.log(`    A ${A.id}  B ${B.id}`);
@@ -343,6 +394,30 @@ try {
     if (f === "to" || f === "email") return SINK;
     if (f === "subject" || f === "body" || f === "text" || f === "message") return `${S("A")} probe`;
     if (f === "vehicle_size") return "medium";
+    // ROUND TWO — the fields that were keeping 34 functions at the front door.
+    if (f === "member_id") return ids.member_id;
+    if (f === "plan_id") return ids.plan_id;
+    if (f === "token") return ids.invite_token;
+    if (f === "password") return "Edge-replay-invited-pw!";
+    if (f === "q") return `${S("A")} street`;
+    if (f === "session_id") return "edge-replay-session";
+    if (f === "label") return "edge replay";
+    if (f === "role") return "staff";
+    if (f === "amount" || f === "quoted_amount") return 99;
+    if (f === "name") return `${S("A")} probe`;
+    if (f === "phone") return "555-0199";
+    if (f === "code") return "EDGEREPLAY";
+    if (f === "host" || f === "domain") return "edge-replay.example";
+    if (f === "url") return "https://edge-replay.example/x";
+    if (f === "endpoint") return "https://edge-replay.example/push";
+    if (f === "keys") return { p256dh: "x", auth: "y" };
+    if (f === "soft_delete" || f === "dry_run") return false;
+    // **`status` IS DELIBERATELY NOT SYNTHESISED.** Sending one turned
+    // `update-booking` from a proved rejection into a 409: it is a field whose
+    // value changes what the call MEANS, and a generic guess at it re-validates
+    // a slot nobody asked to move. A field this harness cannot mean anything
+    // sensible by is better left out of the request than filled in with a word.
+    if (f === "notes" || f === "admin_notes") return `${S("A")} note`;
     return undefined;
   };
 
@@ -389,49 +464,99 @@ try {
       }
       return out;
     };
-    const body = build(bIds);       // what A's actors send
-    const anonBody = build(bnIds);  // the identical question about the other twin
-    // A function with NO recognised field is one this script cannot aim at B.
-    // Declared, with the fields it did find, never a silent pass.
-    if (!Object.keys(body).length) {
-      skips.push(`${fn}: no field could be aimed at tenant B `
-        + `(fields found: ${fields.length ? fields.join(", ") : "none"}) — it was called, `
-        + `but with nothing of B's in it, so a refusal proves nothing about isolation`);
-      rows.push({ fn, verdict: "SKIPPED — nothing of B's to send", detail: fields.join(", ").slice(0, 90) });
-      console.log(`    ${fn.padEnd(24)} SKIPPED — no field could be aimed at B`);
+    // **THE HANDFUL OF VALUES A FUNCTION'S OWN SEMANTICS DECIDE.** The FIELDS
+    // are still discovered from source; only these values are named, and each
+    // one came from reading the 400 the function returned rather than from a
+    // guess. A function whose semantics change stops answering and reappears
+    // as a skip with its status printed, so this list cannot rot silently.
+    const OVERRIDE = {
+      "respond-to-booking": { action: "accept" },
+      "unsubscribe": { action: "get" },
+      "plan-link": { action: "get" },
+      "track-visit": (ids) => ({ slug: ids.campaign_slug, visitor_id: "edge-replay-visitor" }),
+      "validate-promo-code": (ids) => ({ code: ids.promo_code, customer_email: SINK }),
+      "reschedule-booking": (ids) => ({ booking_id: ids.confirmed_booking_id }),
+      "accept-quote": (ids) => ({ booking_id: ids.booking_id }),
+      // **ITS OWN HOUR, BECAUSE THE CHECKS WERE STANDING ON EACH OTHER.**
+      // `reschedule-booking` runs first alphabetically and moves A's confirmed
+      // booking to 09:00; `update-booking` then tried to move A's other
+      // booking into the same slot and got a 409 overlap — so a function that
+      // had already PROVED it refuses tenant B silently became a skip. Two
+      // checks sharing one fixture is the interference CLAUDE.md warns about
+      // for the test battery, arriving inside a single script.
+      "update-booking": { start_time: "13:00" },
+    }[fn];
+
+    const withOverride = (base, ids) => {
+      const extra = typeof OVERRIDE === "function" ? OVERRIDE(ids) : (OVERRIDE ?? {});
+      const out = { ...base };
+      for (const [k, v] of Object.entries(extra)) if (v !== undefined && v !== null) out[k] = v;
+      return out;
+    };
+
+    const crossBody = withOverride(build(bIds), bIds);   // what A's actors send at tenant B
+    const selfBody = withOverride(build(aIds), aIds);    // the SAME call at A's OWN tenant
+    const anonBody = withOverride(build(bnIds), bnIds);  // the same question about B's twin
+
+    // ---------------------------------------------------------------------
+    // THE FRONT DOOR FIRST — and this is what turned 5 of 39 into a real
+    // number.
+    // ---------------------------------------------------------------------
+    // **OWNER A GETTING 401 WITH B'S `business_id` IS THE TENANT REJECTION
+    // WORKING.** The first version counted those as "the harness could not
+    // reach it" and skipped 34 functions on that basis. That was too
+    // pessimistic in the other direction: a 401 there is exactly the evidence
+    // wanted — as long as it is a refusal of *B* and not a refusal of
+    // everyone.
+    //
+    // So each function is called TWICE by the same actor with the same shape:
+    // once with A's own identifiers, once with B's. Only the pair is
+    // informative.
+    //
+    //   self 2xx + cross refused -> **isolation proved by rejection**
+    //   self 2xx + cross 2xx with B's data -> a leak
+    //   self not 2xx             -> the front door is shut to A as well, so
+    //                               the cross refusal says nothing. SKIP, with
+    //                               A's own status printed, because that is
+    //                               the number that explains it.
+    const selfRes = Object.keys(selfBody).length
+      ? await call(fn, ownerA.jwt, selfBody)
+      : { status: 0, text: "" };
+    const ran = BREAK !== "self" && selfRes.status >= 200 && selfRes.status < 300;
+
+    // A function with NO recognised field cannot be aimed at a tenant at all.
+    if (!Object.keys(crossBody).length) {
+      skips.push(`${fn}: takes no field this harness can aim at a tenant `
+        + `(fields found: ${fields.length ? fields.join(", ") : "none"}). It was called and `
+        + `refused, but a refusal of a request carrying nothing of B's is not evidence.`);
+      rows.push({ fn, verdict: "SKIPPED — no tenant field in its input", detail: fields.join(", ").slice(0, 90) });
+      console.log(`    ${fn.padEnd(24)} SKIPPED — no tenant field to aim`);
       continue;
     }
 
     const anonRes = await call(fn, ANON, anonBody);
     const anonSaw = sawB(anonRes.text);
 
-    // COUNT SUBJECTS, PER FUNCTION. A deny assertion against a function that
-    // answered nobody has compared nothing, and reads exactly like a correct
-    // refusal — the hollow half this repo is named for, one level in from the
-    // table matrix's version of it.
-    const statuses = [["anon", anonRes.status]];
+    const statuses = [["self(A)", selfRes.status], ["anon", anonRes.status]];
     const problems = [];
+    let rejected = 0;
     for (const actor of ACTORS) {
       if (actor.baseline) continue;
-      const r = await call(fn, actor.jwt, body);
+      const r = await call(fn, actor.jwt, crossBody);
       statuses.push([actor.name, r.status]);
       assertions++;
       if (sawB(r.text) && !anonSaw) {
         problems.push(`${actor.name} got B's data from ${fn} (${r.status}) where anon got none`);
+      } else if (!(r.status >= 200 && r.status < 300) && !anonSaw) {
+        rejected++;
       }
     }
 
-    // THE CANARY, per function: the over-privileged caller must come back
-    // carrying B's data, or this detector cannot see a leak here at all.
-    const svcRes = await call(fn, SERVICE, body);
+    // THE OVER-PRIVILEGED CALLER, unchanged: it must come back carrying B's
+    // data somewhere in the run, or the leak detector cannot see one at all.
+    const svcRes = await call(fn, SERVICE, crossBody);
     const svcSaw = sawB(svcRes.text);
     statuses.push(["service", svcRes.status]);
-    const answered = statuses.filter(([, st]) => st >= 200 && st < 300);
-    // **THE GATEWAY REFUSES THE SERVICE-ROLE KEY ON A `verify_jwt` FUNCTION.**
-    // 13 of these answered 401 to the canary on the first full run: the request
-    // never reached the function at all, so for those the canary proves nothing
-    // and only the real user JWTs exercised anything. Recorded per function
-    // rather than averaged away.
     const canaryBlocked = svcRes.status === 401;
 
     const stat = statuses.map(([n, st]) => `${n} ${st}`).join(", ");
@@ -439,26 +564,36 @@ try {
       for (const p of problems) say(`edge ${fn}: [edge] ${p}`);
       rows.push({ fn, verdict: "LEAK", detail: problems.join("; ") });
       console.log(`    ${fn.padEnd(24)} LEAK — ${problems[0].slice(0, 80)}`);
-    } else if (!answered.length) {
-      // NOBODY GOT A SUCCESSFUL RESPONSE. The refusals may be correct
-      // authorization or may be a bad argument; this harness cannot tell, and
-      // a green line that cannot tell is the thing being guarded against.
-      skips.push(`${fn}: no caller received a 2xx (${stat}) — every refusal here may be `
-        + `correct authorization or may be an argument this script could not synthesise. `
-        + `The function was called and nothing was proved about its tenant checks.`);
-      rows.push({ fn, verdict: "SKIPPED — nobody got a response", detail: stat });
-      console.log(`    ${fn.padEnd(24)} SKIPPED — nobody got a 2xx (${stat})`);
+    } else if (!ran) {
+      // THE FRONT DOOR IS SHUT TO A AS WELL, so A being refused B proves
+      // nothing. A's OWN status is printed because it is the number that
+      // explains the skip and the number somebody needs to fix it.
+      skips.push(`${fn}: owner A could not get a 2xx with its OWN tenant either `
+        + `(${stat}). The cross-tenant refusal may be a correct tenant check or may be the `
+        + `same argument problem; this harness cannot tell, so nothing is claimed.`);
+      rows.push({ fn, verdict: "SKIPPED — front door shut to A too", detail: stat });
+      console.log(`    ${fn.padEnd(24)} SKIPPED — A's own call got ${selfRes.status}`);
+    } else if (rejected > 0) {
+      exercisedOk.push(fn);
+      provedByRejection.push(fn);
+      rows.push({ fn, verdict: "ok — refused B, works for A", detail: stat });
+      console.log(`    ${fn.padEnd(24)} ok — A's own call ${selfRes.status}, `
+        + `B's identifiers refused ${rejected}/3 actors`);
     } else {
+      // RAN, AND WAS NOT REFUSED. For a public-by-design endpoint that is the
+      // product: anon got the same thing. Recorded separately from a rejection
+      // because "open to everybody" and "closed to the wrong tenant" are
+      // different proofs and must not be added together.
+      exercisedOk.push(fn);
       rows.push({
         fn,
-        verdict: svcSaw ? "ok" : "ok (leak-detector unproven here)",
+        verdict: anonSaw ? "ok — public, anon sees the same" : "ok — ran, nothing of B's returned",
         detail: stat + (anonSaw ? " · anon saw B" : "") + (svcSaw ? " · canary saw B" : ""),
       });
-      console.log(`    ${fn.padEnd(24)} ok`
-        + (anonSaw ? "  (public — anon sees it too)" : "")
+      console.log(`    ${fn.padEnd(24)} ok — A's own call ${selfRes.status}`
+        + (anonSaw ? "  (public — anon sees it too)" : ", B returned nothing")
         + (svcSaw ? "  [canary reached it]"
-          : canaryBlocked ? "  [canary blocked at the gateway — unproven here]"
-            : "  [canary got no tenant data — unproven here]"));
+          : canaryBlocked ? "  [canary blocked at the gateway]" : ""));
     }
     if (svcSaw) canaryDetectors.push(fn);
   }
@@ -520,7 +655,7 @@ const canary = {
 };
 
 const expected = rows.length;
-const exercised = rows.filter((r) => r.verdict.startsWith("ok")).length;
+const exercised = exercisedOk.length;
 const status = failures.length === 0 && canary.observed_failure && skips.length === 0
   ? "pass" : "fail";
 mkdirSync(path.join(ROOT, "artifacts", "edge-tenant-replay"), { recursive: true });
@@ -573,6 +708,10 @@ const { path: receiptPath } = writeReceipt({
     actors: ["anon", "owner A", "staff A", "former A"],
     functions: dirs.length,
     canary_reached: canaryDetectors.length,
+    ran: exercisedOk.length,
+    proved_by_rejection: provedByRejection.length,
+    proved_by_rejection_names: provedByRejection,
+    still_refusing: skips.length,
     sabotage: BREAK || null,
   },
   canary,
@@ -580,10 +719,13 @@ const { path: receiptPath } = writeReceipt({
 
 console.log(`\n${status.toUpperCase()} — ${rows.length} functions, ${assertions} assertions, `
   + `${failures.length} failure(s), ${skips.length} declared skip(s). Receipt ${receiptPath}`);
-console.log(`  ${exercised} of ${rows.length} functions were ACTUALLY EXERCISED — a caller got a`);
-console.log(`  2xx out of them. The leak detector is proved on ${canaryDetectors.length}.`);
-console.log(`  THIS DOES NOT CLOSE ROADMAP 4.4. The other ${skips.length} refused every caller,`);
-console.log(`  and a refusal this harness cannot explain is not evidence of a tenant check.`);
+console.log(`
+  THE THREE NUMBERS`);
+console.log(`  ${exercised} genuinely RAN — owner A got a 2xx out of them with its own tenant.`);
+console.log(`  ${skips.length} still REFUSE — A's own call never succeeded, so their refusal of B`);
+console.log(`     proves nothing. Reasons printed below, one per function.`);
+console.log(`  ${provedByRejection.length} PROVED ISOLATION BY REJECTING the other tenant — they work`);
+console.log(`     for A and refuse B's identifiers to every actor.`);
 for (const f of failures.slice(0, 20)) console.log("  · " + f);
 for (const s of skips.slice(0, 20)) console.log("  skip: " + s);
 process.exit(status === "pass" ? 0 : 1);

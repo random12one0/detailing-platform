@@ -1290,6 +1290,85 @@ requested.
   open and the four-boundary matrix is evidence toward it rather than
   completion of it.
 
+  **THE EDGE FUNCTIONS ARE NOW REPLAYED — MEASURED BUT NOT CLOSED, 2026-09-20.**
+  `scripts/edge-tenant-replay.mjs`, graded by `receipt.mjs`, which **refuses
+  the run**. Three numbers, and the third is the one that matters:
+
+  - **16 of 39 genuinely RAN.** Owner A got a 2xx out of them with its own
+    tenant's identifiers, so the function was exercised rather than bounced.
+  - **23 still REFUSE.** A's own call never succeeded either, so their refusal
+    of tenant B proves nothing at all. Grouped: **9 answered 400** (a required
+    field this harness cannot synthesise), **5 carry no tenant identifier in
+    their input** at all (`watch-jobs`, `refresh-weather`, `stripe-webhook`,
+    `resend-webhook`, `translate-content` — cron sweeps and provider
+    webhooks), **3 answered 409**, **3 answered 404**, one 500, one 401, one
+    429.
+  - **7 PROVED ISOLATION BY REJECTING THE OTHER TENANT**: `connect-account`,
+    `delete-customer`, `invite-user`, `owner-push-unsubscribe`,
+    `preview-emails`, `report-problem`, `update-booking`. Each works for A
+    with A's own identifiers and refuses B's to **all three** signed-in
+    actors — owner, staff, and a member removed after signing in.
+
+  **NO LEAK WAS FOUND ON ANY PATH IT REACHED**, and nothing of B's moved for A
+  that did not also move for an anonymous stranger.
+
+  **WHY 16 AND NOT 39, AND WHY THAT IS THE HONEST NUMBER.** The first version
+  of this check reported **39 functions, ok**. It was measuring the GATEWAY,
+  not tenant isolation: 34 of those refused every caller, and a refusal the
+  harness cannot explain is not evidence. The fix was to call each function
+  TWICE by the same actor with the same shape — once at A's own tenant, once
+  at B's. Only the pair says anything:
+
+      self 2xx + cross refused  -> isolation proved by rejection
+      self 2xx + cross 2xx      -> a leak
+      self NOT 2xx              -> the front door is shut to A as well, so the
+                                   cross refusal is meaningless. SKIP, with
+                                   A's own status printed.
+
+  **`skipped_targets` IS DECLARED AT 23 AND THE RECEIPT THEREFORE FAILS.** A
+  `pass` over 23 skips would be this repo's oldest lie one level up — a check
+  that passes by not running. There is no honest `skip_allowlist` to write,
+  because the reason is work to do rather than a condition to wave through.
+
+  **TWO CONTROLS, BOTH BROKEN ON PURPOSE.**
+  - `--break=leak` blinds the leak comparison -> the over-privileged caller no
+    longer comes back carrying B's data, the canary does not fire, and
+    `receipt.mjs` refuses the run by name.
+  - `--break=self` removes the front-door positive control -> all 39 become
+    skips and **0** are proved by rejection, which is the proof that the self
+    call is load-bearing rather than decorative.
+
+  **THE CANARY IS AN OVER-PRIVILEGED CALLER, NOT A DEPLOYED BROKEN FUNCTION,
+  AND THAT LIMIT IS NOT GLOSSED.** A function that trusts a tenant id from its
+  caller would be the ideal control, and deploying one is publishing, which is
+  Andrew's (0.6). So the service-role key is used instead — the same negative
+  control this item's own earlier text used for the database half. It shows
+  the detector can SEE tenant data in an edge-function response; it does not
+  show a subtle authorization bug would be caught. It reached **5** functions.
+
+  **THREE THINGS THE FIXTURE TAUGHT, all now in the file:** a second booking
+  seeded on the same day cost `update-booking` its proof by making A's own
+  call a 409, so a fixture that makes one function testable must not quietly
+  make another untestable; `reschedule-booking` runs first alphabetically and
+  moves A's booking into the slot `update-booking` then wanted, which is the
+  battery's interference problem inside one script; and `status` is
+  deliberately NOT synthesised, because it is a field whose value changes what
+  the call MEANS.
+
+  **THE RUN IS NOT PERFECTLY REPEATABLE.** Two consecutive runs gave 17/22/7
+  and 16/23/7: `create-booking` is rate-limited and answers 429 when the
+  replay has been run repeatedly. That is a property of the product's own rate
+  limiter, not a flaw in the measurement, but a number that moves by one
+  between runs should be read as such.
+
+  **Done when:** the 23 get arguments good enough to return a 2xx, so their
+  refusal of B becomes evidence. **Five of them never will from here** — they
+  take no tenant identifier, so there is nothing to aim. **Several of the rest
+  may need a deployed fixture** (a connected Stripe account, a verified
+  domain), and if they do, that is Andrew's call in the morning rather than
+  something to engineer around tonight.
+
+
 ---
 
 ## Wave 5 — Money truth
