@@ -437,6 +437,13 @@ export function initialForm(settings, known) {
     // question is never asked.
     serviceType: s.mobile_enabled ? "mobile" : "dropoff",
     customerAddress: "",
+    // ROADMAP 2.8 — HOW THE ADDRESS WAS ARRIVED AT, which until now nothing
+    // recorded. `null` until the customer touches the box: the two things
+    // that can set it are typing ("typed") and taking a suggestion
+    // ("picked"), and a drop-off booking never has either. A screen that
+    // finds `null` prints NOTHING — claiming an address was checked when
+    // nobody checked is the same lie as this item, pointed the other way.
+    addressSource: null,
     travelZone: s.travel_zones[0]?.key ?? "",
     // W22 — two answers where there was one, because water and power vary
     // independently. False is a real answer here, not a missing one.
@@ -1397,6 +1404,12 @@ export function bookingRequest(form, { planId, promoApplied, campaignSlug, visit
     customer_phone: form.customerPhone.trim(),
     customer_email: form.customerEmail.trim(),
     customer_address: form.customerAddress?.trim() || null,
+    // ROADMAP 2.8. Sent on every booking; the SERVER decides whether to keep
+    // it, because a value for a drop-off booking is nonsense and a value this
+    // page invented is worse than none. **Never sent on the QUOTE payload**:
+    // the travel fee comes from a zone the customer picks off a list, so the
+    // price has never depended on the address and must not start now.
+    address_source: form.addressSource ?? null,
     service_type: form.serviceType,
     travel_zone: form.travelZone || null,
     vehicle_size: form.vehicleSize,

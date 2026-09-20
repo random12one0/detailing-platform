@@ -2161,6 +2161,9 @@ export const appEs = {
     "{percent}% de lo que entró se vendió en el trabajo.",
   // The folded settings rows say what they have put away.
   "How far ahead, and how many": "Con cuánta anticipación, y cuántos",
+  // ROADMAP 2.8 — on the job record, under the address and above Navigate.
+  "Typed by hand. The address lookup found no match for it.":
+    "Escrita a mano. El buscador de direcciones no encontró ninguna coincidencia.",
   "Reminders and cancellations": "Recordatorios y cancelaciones",
   "When these reach you": "Cuándo te llegan",
   "{count} days ahead": "{count} días de anticipación",

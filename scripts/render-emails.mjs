@@ -242,6 +242,18 @@ const EMAILS = [
   ["customer-followup", "Customer · thank-you and review request", () => T.followupEmail(brand, "Dana Ortiz", LANG)],
   ["owner-new-booking", "Owner · new booking", () => T.ownerNewBookingEmail(brand, booking, false)],
   ["owner-new-request", "Owner · new request waiting", () => T.ownerNewBookingEmail(brand, booking, true)],
+  // ROADMAP 2.8 — THE SAME EMAIL WITH AN ADDRESS NOBODY COULD FIND, beside
+  // the one above so the pair can be compared on one page. The only
+  // difference between them is `addressSource`, which is the whole claim:
+  // a picked suggestion carries no label, a hand-typed address does.
+  ["owner-new-booking-typed", "Owner · new booking, address typed by hand",
+    () => T.ownerNewBookingEmail(
+      brand,
+      { ...booking, customerAddress: "99999 Nonexistent Parkway, Nowhere Township, ZZ 00000", addressSource: "typed" },
+      false,
+    )],
+  ["owner-new-booking-picked", "Owner · new booking, address picked from the lookup",
+    () => T.ownerNewBookingEmail(brand, { ...booking, addressSource: "picked" }, false)],
   // ROADMAP 8.10. Its own entry rather than a change to the one above,
   // because the ONE-car alert is what nearly every detailer gets and a fixture
   // that only shows three cars cannot reach the ordinary case. Both are drawn.

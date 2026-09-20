@@ -123,6 +123,8 @@ export interface BookingEmailData {
   customerPhone: string;
   customerEmail: string | null;
   customerAddress: string | null;
+  // ROADMAP 2.8 — 'picked', 'typed', or null when nobody recorded it.
+  addressSource?: string | null;
   dateStr: string;       // business-local "YYYY-MM-DD"
   startTime: string;     // business-local "HH:MM"
   endTime: string;       // business-local "HH:MM"
@@ -251,6 +253,43 @@ export function jobAddress(
 ): string {
   if (b.serviceType === "mobile" && b.customerAddress?.trim()) return b.customerAddress;
   return brand.dropoffAddress || "";
+}
+
+/**
+ * ROADMAP 2.8 — THE "WHERE" ROW OF A DETAILER-FACING EMAIL, AND WHETHER
+ * ANYBODY EVER FOUND THAT ADDRESS.
+ *
+ * Measured 2026-09-20: a made-up address went through the whole flow and
+ * arrived in this email looking exactly like a verified one. Nothing in the
+ * stack had a motive to notice — the travel fee comes from a zone the
+ * customer picks off a list, so no price ever depended on resolving it.
+ *
+ * **ONE HELPER BECAUSE THERE ARE TWO EMAILS.** The new-booking alert and the
+ * unanswered-request nudge both print an address a detailer acts on, and two
+ * copies of this rule is how one of them silently keeps the old behaviour.
+ *
+ * Only 'typed' says anything. 'picked' is a suggestion the lookup returned
+ * and the customer chose, so there is nothing to warn about; null is every
+ * booking made before this shipped and every drop-off job, and printing a
+ * reassurance there would be inventing one.
+ *
+ * **A LABEL, NEVER A GATE** — Andrew, 2026-09-20: *"an honest label beats a
+ * locked door."* The booking is real and wanted. This is the one fact that
+ * lets a detailer make a phone call instead of a wasted drive.
+ */
+export function ownerWhereRow(
+  brand: TenantBrand,
+  b: Pick<BookingEmailData, "serviceType" | "customerAddress" | "addressSource">,
+): [string, string] {
+  const unverified = b.serviceType === "mobile" && b.addressSource === "typed";
+  return [
+    "Where",
+    esc(jobAddress(brand, b))
+      + (unverified
+        ? `<br><span style="color:#8A8F98; font-size:13px;">`
+          + `Typed by hand. The address lookup found no match for it.</span>`
+        : ""),
+  ];
 }
 
 /** Every template ends here, so no template can forget the text half. */
@@ -531,7 +570,7 @@ export function ownerNewBookingEmail(
     factsBlock([
       ["Phone", `<a href="tel:${esc(b.customerPhone)}" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(b.customerPhone)}</a>`],
       ...(b.customerEmail ? [["Email", esc(b.customerEmail)] as [string, string]] : []),
-      ["Where", esc(jobAddress(brand, b))],
+      ownerWhereRow(brand, b),
       // **IDEA 11 — WHAT TO LOAD IN THE VAN, in the email that wakes a
       // detailer up.** The job record has printed this since W22; the OWNER'S
       // OWN ALERT never did, which is the real gap — the record is read when
@@ -973,7 +1012,7 @@ export function staleRequestEmail(brand: TenantBrand, b: BookingEmailData, hours
     factsBlock([
       ["Phone", esc(b.customerPhone)],
       ...(b.customerEmail ? [["Email", esc(b.customerEmail)] as [string, string]] : []),
-      ["Where", esc(jobAddress(brand, b))],
+      ownerWhereRow(brand, b),
       ["Asking", money(Number(b.total))],
     ]),
     buttonBlock(brand, "Answer this request", b.receiptUrl),

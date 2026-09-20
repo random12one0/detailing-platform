@@ -195,7 +195,9 @@ export default function StepLocation({ form, setForm, modeLimit, blocks = [], tr
               label={t("Where should we come?")}
               value={form.customerAddress}
               placeholder={t("Street address, city")}
-              onChange={(v) => setForm((f) => ({ ...f, customerAddress: v }))}
+              // ROADMAP 2.8 — the value and HOW IT WAS ARRIVED AT, recorded
+              // together at the only place in the product that can know.
+              onChange={(v, source) => setForm((f) => ({ ...f, customerAddress: v, addressSource: source }))}
             />
           </div>
           {/* **THE ADDRESS WAS THE SILENT ONE — 2026-09-12.** Continue greys out

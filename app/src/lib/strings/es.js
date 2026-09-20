@@ -377,6 +377,12 @@ export const es = {
   "Cancelling…": "Cancelando…",
   "Yes, cancel it": "Sí, cancélala",
   "Keep my booking": "Mejor la dejo así",
+  // ROADMAP 2.8 — the address the lookup could not find, said to the person
+  // who typed it, on the screen where they can still change it. "Buscador"
+  // rather than a literal "lookup": it is what a Spanish-speaking customer
+  // calls the thing that finds an address.
+  "You typed this address in and our lookup had no match for it. If it’s right, there’s nothing to do.":
+    "Escribiste esta dirección a mano y nuestro buscador no encontró ninguna coincidencia. Si está bien, no tienes que hacer nada.",
   "Changes and cancellations close {hours} hours before your appointment, so this one is now locked in.":
     "Los cambios y cancelaciones se cierran {hours} horas antes de la cita, así que esta ya quedó fija.",
   "Get in touch and we'll sort it out:": "Contáctanos y lo resolvemos:",

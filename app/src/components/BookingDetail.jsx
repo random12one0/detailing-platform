@@ -458,6 +458,26 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
             <div className="card tight">
               <p>{t(booking.service_type === "mobile" ? "Mobile" : "Drop-off")}</p>
               {address && <p className="quiet">{address}</p>}
+              {/* ROADMAP 2.8 — **DIRECTLY UNDER THE ADDRESS AND ABOVE THE
+                  NAVIGATE BUTTON**, which is the point: this record is what a
+                  detailer reads on the morning they drive out, and the
+                  Navigate button hands this string straight to a maps app.
+                  Measured 2026-09-20 — a made-up address arrived here looking
+                  exactly like a verified one.
+                  Only when the customer TYPED it and the lookup found nothing.
+                  A picked suggestion says nothing; so does `null`, which is
+                  every booking made before this shipped and every drop-off
+                  job, because nobody recorded it and a reassurance we cannot
+                  support is the same lie the other way round.
+                  **IT IS NOT A WARNING ABOUT THE CUSTOMER.** Andrew's ruling:
+                  a new build the lookup has never heard of is a real booking
+                  he wants, and a detailer who can SEE it was typed by hand
+                  picks up the phone instead of driving. */}
+              {booking.service_type === "mobile" && booking.address_source === "typed" && (
+                <p className="quiet">
+                  {t("Typed by hand. The address lookup found no match for it.")}
+                </p>
+              )}
               {/* THE SKY OVER THIS ADDRESS ON THIS DAY, directly under the
                   address it is about — Andrew, 2026-09-13. The record is where
                   EVERY warning shows rather than only the most serious one: a

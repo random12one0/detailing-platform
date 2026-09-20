@@ -413,6 +413,20 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
                 ? t("Drop-off at {address}", { address: business.dropoff_address })
                 : t("Drop-off"))}
           </p>
+          {/* ROADMAP 2.8 — **THE CUSTOMER IS TOLD TOO, and that is on
+              purpose.** The booking page says *"No matches. We will use the
+              address as you typed it."* once, at the box, and then the fact
+              vanished. It reappears here because this is the screen they come
+              back to, and somebody who typed their address in a hurry can fix
+              it before the van sets off — the Change button is on this page.
+              Worded as a fact about the LOOKUP, never as a doubt about their
+              address: people in new builds have real addresses no lookup
+              knows, and Andrew's ruling is that we want that booking. */}
+          {booking.service_type === "mobile" && booking.address_source === "typed" && (
+            <p className="bk-muted" style={{ marginTop: 6 }}>
+              {t("You typed this address in and our lookup had no match for it. If it’s right, there’s nothing to do.")}
+            </p>
+          )}
           {/* **EVERYTHING THEY ORDERED — his review, 2026-09-11.** *"It looked
               like there was three lines and it barely had any information…
               that preview screen of what you ordered at the last step, that

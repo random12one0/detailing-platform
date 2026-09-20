@@ -534,7 +534,57 @@ the wrong service, and never book a job we cannot reach.
   before driving out. An honest label beats a locked door."* **So the fix is a
   flag that travels, not a gate** — and the measurement above says where it
   has to reach: the job record, the owner's alert, and the manage page.
-  **NOT BUILT YET — the measurement was reported first, as instructed.**
+  **BUILT 2026-09-20. NOT TICKED: ONE LINK IS UNPROVEN AND IT IS NOT A SMALL
+  ONE.** What exists:
+
+  * **The column.** `bookings.address_source`, migration
+    `20260920010000_an_address_carries_how_it_was_arrived_at.sql`, **applied to
+    `kguqylyzgyzfktkfnhjb`** and confirmed against `information_schema`:
+    `text`, nullable, `check (null or 'picked' or 'typed')`. Additive — no
+    backfill, no default, no existing row touched, which is what made it safe
+    to run while another session was mid-measurement.
+  * **The one place that can know.** `AddressField` calls `onChange(value,
+    "typed")` when the customer types and `onChange(value, "picked")` when
+    they take a suggestion. Those two calls were identical before, which is
+    why nothing downstream could ever tell them apart.
+  * **The server decides, not the page.** `create-booking` keeps the value
+    only for a mobile booking with an address and only if it is one of the two
+    known words; anything else stores null.
+  * **Never on the quote.** The travel fee comes from a zone the customer
+    picks, so the price has never depended on the address and must not start.
+  * **The three surfaces:** the job record prints the line under the address
+    and above the Navigate button; the owner's alert prints it under "Where";
+    the manage page tells the customer, because that is the screen with a
+    Change button on it. `get-booking-receipt` names the column in its
+    allow-list on purpose.
+  * **The unanswered-request nudge got it too**, via one shared
+    `ownerWhereRow()` helper — two detailer-facing emails printing the same
+    address is exactly how one of them keeps the old behaviour silently.
+
+  **PROVEN ON A REAL SCREEN, BOTH WAYS:** the owner's alert rendered from the
+  real template for a typed address and a picked one. The typed one carries
+  *"Typed by hand. The address lookup found no match for it."* under the
+  address; the picked one, the plain one and the request nudge carry nothing.
+  The payload was checked the same way: `typed` → `typed`, `picked` →
+  `picked`, an untouched box → `null`, and `address_source` is absent from the
+  quote request entirely.
+
+  **WHAT IS NOT PROVEN, PLAINLY:**
+
+  1. **The two edge functions are NOT DEPLOYED.** `create-booking` and
+     `get-booking-receipt` carry the change in source only — the deploy was
+     refused by this session's own permission gate as a production deploy, and
+     it was not worked around. **Until they are deployed the column is never
+     written**, so a real booking still stores `null` and nothing appears on
+     any screen. Everything else here is ready and waiting on that one step.
+  2. **The detailer's job record was NOT SEEN.** It is behind a password
+     sign-in this session does not perform. The code is written and reviewed;
+     it has not been looked at on a screen, and that is a gap, not a pass.
+  3. **The manage page label was NOT SEEN** for the same reason as (1) — the
+     receipt function has to be deployed before the column reaches it.
+
+  **So the honest state is: the column is live, the client records the fact,
+  the templates print it, and nothing has yet carried one from end to end.**
 
 - [x] **2.9 — DONE 2026-09-20. Where the business works is on step 1 now. Nothing moved.**
   Mobile address and area come at step 4, after services, add-ons and vehicle.

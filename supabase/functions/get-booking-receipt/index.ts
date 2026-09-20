@@ -36,6 +36,12 @@ const BOOKING_COLUMNS = [
   "customer_phone",
   "customer_email",
   "customer_address",
+  // ROADMAP 2.8 — named here ON PURPOSE, which is what this allow-list is
+  // for. The manage page prints "you typed this one in; we could not find it"
+  // beside the address, and it can only do that if the column is sent. It is
+  // the customer's own booking and their own address: nothing here is private
+  // from them.
+  "address_source",
   "customer_notes",
   "vehicle_model",
   "vehicle_size_label",

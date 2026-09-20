@@ -407,6 +407,21 @@ Deno.serve(async (req) => {
         customer_phone: String(body.customer_phone).trim(),
         customer_email: body.customer_email?.trim() || null,
         customer_address: body.customer_address?.trim() || null,
+        // ROADMAP 2.8 — HOW THAT ADDRESS WAS ARRIVED AT, and the server
+        // decides rather than trusting the word sent to it. Only two values
+        // mean anything, only a MOBILE booking can have one at all, and an
+        // address that is not there cannot have a source — so a drop-off
+        // booking, or a payload with something inventive in the field, stores
+        // null, which every screen reads as "nobody recorded it" and prints
+        // nothing for. **A LABEL AND NEVER A GATE:** nothing above refuses a
+        // booking on this, and nothing should start — Andrew, 2026-09-20,
+        // *"an honest label beats a locked door."*
+        address_source:
+          body.service_type === "mobile"
+          && body.customer_address?.trim()
+          && (body.address_source === "picked" || body.address_source === "typed")
+            ? body.address_source
+            : null,
         start_at: check.startAt!.toISOString(),
         end_at: check.endAt!.toISOString(),
         service_type: serviceType,
@@ -611,6 +626,9 @@ Deno.serve(async (req) => {
       customerPhone: booking.customer_phone,
       customerEmail: booking.customer_email,
       customerAddress: booking.customer_address,
+      // ROADMAP 2.8 — the owner's alert is one of the three places the
+      // detailer reads an address before driving to it.
+      addressSource: booking.address_source,
       // ROADMAP 8.17 STAGE 2A — the language the form was filled in in.
       lang,
       dateStr: String(body.booking_date),

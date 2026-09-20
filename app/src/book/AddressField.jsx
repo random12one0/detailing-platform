@@ -71,7 +71,13 @@ export default function AddressField({ slug, value, onChange, placeholder, label
     }
   };
 
-  const take = (row) => { onChange(row.label); setOpen(false); setNote(null); setAsked(addressQuery(row.label)); };
+  // ROADMAP 2.8 — "picked" is the ONE claim this product can honestly make
+  // about an address: the lookup returned this exact string and the customer
+  // chose it. Everything else is "typed".
+  const take = (row) => {
+    onChange(row.label, "picked");
+    setOpen(false); setNote(null); setAsked(addressQuery(row.label));
+  };
 
   return (
     // **THE NOTE AND THE CREDIT SIT OUTSIDE `.bk-typeahead`, AND THAT IS A
@@ -94,7 +100,11 @@ export default function AddressField({ slug, value, onChange, placeholder, label
           autoComplete="street-address"
           value={value ?? ""}
           placeholder={placeholder}
-          onChange={(e) => onChange(e.target.value)}
+          // ROADMAP 2.8 — THE SECOND ARGUMENT IS THE WHOLE FIX. Typing and
+          // taking a suggestion called this with the same kind of string, so
+          // nothing downstream could ever tell them apart. It says which
+          // happened; `take()` below says the other.
+          onChange={(e) => onChange(e.target.value, "typed")}
           // Enter in an address box means "look it up", not "submit the step".
           onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); find(); } }}
         />
