@@ -3959,3 +3959,12 @@ and a screenshot of something uniform. Either would produce this. Whoever
 picks up the 14px overflow should open that step on a phone first and look,
 because if the caption really is out of the frame then the overflow is the
 small half of the problem.
+
+**AND 1440 IS UNSTABLE, WHICH IS PART OF THE SAME PICTURE.** Across five runs
+this afternoon: the tour truncated to one block three times, walked all 33 once
+(under a 24-press ceiling), and on the fifth the whole width **aborted after 84
+of 125 surfaces** on a `locator.click: Timeout 15000ms exceeded`. The sweep
+reported that correctly — `expected-count 1440px: NOT GRADED — the width
+aborted` — and the 41 surfaces it never reached are unmeasured rather than
+clean. Whether the truncating tour and the aborting width are one problem or
+two is not known, and guessing which is the tempting move here.

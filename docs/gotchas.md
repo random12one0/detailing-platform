@@ -1644,3 +1644,89 @@ since the tag, the content cannot have moved, whatever a checksum says.
 This one was caught only because the answer was checkable a second way. On a
 repo where five files had genuinely drifted, the same output would have been
 true, and the difference between those two worlds is one command.
+
+## A PAGE READ BEFORE ITS DATA RESOLVES HANDS YOU A CONFIDENT CONTRADICTION BETWEEN TWO NUMBERS THAT NEVER DISAGREED — 2026-09-20, ROADMAP 7.7
+
+**The first read of `/pricing` showed `$600 a year` in the terms section
+against `$40 a month` in the ladder above it.** That is a money contradiction
+on a public page, inside the AB 2863 disclosure block that exists precisely to
+be accurate before billing details are taken. It was written up as a finding
+and was one sentence away from going to Andrew as one.
+
+**It was not real.** The founding offer is fetched — `api.foundingOffer()` —
+and the component renders list prices until it answers, deliberately: the code
+says advertising a founding spot that may already be taken is the worse
+failure, so `founding` starts `false` and every figure renders at the HIGHER
+number for the first frame. The page was read in that frame. Re-probing the
+DOM afterwards gave `$400` / `$40` / `$50` and a `$120` worked exit fee,
+consistent from the ladder to the terms to the build fee.
+
+**Two numbers that never disagreed, presented as if they did**, with the
+authority of a direct quotation from the page.
+
+**This is the same family as the animated background and the frozen tab** —
+an instrument reporting a moment rather than the thing. It is more dangerous
+than either, because a loading state is *plausible*: a half-resolved page is
+internally consistent with a real defect, and nothing about the output looks
+provisional.
+
+**What caught it was the number looking serious enough to check twice**, which
+is not a method. The method is: **read a page through the DOM after its
+network work has settled, and when a finding rests on two figures on one
+screen, re-read both from the live DOM before writing it down.** `get_page_text`
+and a screenshot both capture a moment; `document.querySelector` at the time of
+asking captures the state.
+
+**Third false alarm from an instrument in one night**, after the black
+screenshot from the browser pane and the restore drill comparing against a live
+table. All three would have been reported as product defects.
+
+## THE COMMAND THAT WIDENS A GATE IS ALSO THE FASTEST WAY TO NARROW ONE — 2026-09-20
+
+`node scripts/sweep-widths.mjs <widths> --write-expected` rewrites the list of
+surfaces every run is graded against. Asked to add twenty-six tour steps that
+had never been measured, it produced **`+26 / -6` per width** — because it
+wrote the set this run could reach, **wholesale**.
+
+The six it removed at each phone width were `job record · finished`,
+`finalize` and `send a text` — labels the gate's own comment says must never
+leave the file, since after about 08:45 they are reachable again — and `guide
+· today 5, 6, 7`, the steps a quiet dashboard cannot produce, **whose deletion
+was the exact move that had been refused two hours earlier.** At 1440 it also
+dropped `tour · step 6` and `7`, which would have written a tour that stops
+after its first tab into the file as the correct answer.
+
+Nobody wrote a bug. A run only ever sees what it could reach today, so every
+declared skip, every quiet dashboard and every truncated walk silently narrows
+the question — and the one command meant to make the gate stronger does it
+while printing nothing but additions on the console.
+
+It now writes the **union**: it names every addition, names every label it is
+KEEPING that the run did not reach, and leaves a width it did not sweep
+untouched. A genuine removal needs `--drop-missing` and prints each one.
+
+**The general shape: a baseline regenerated from one observation inherits
+everything that was accidental about that observation.** Before running any
+`--write-expected`, `--update-snapshot` or `--bless`, say out loud which way
+the question is moving. *Widening it to cover things nobody was checking makes
+the gate stronger; narrowing it to fit an awkward answer makes it worthless.*
+
+## A NEW CHECK DOES NOT INHERIT THE OLD CHECK'S RULE ABOUT ABORTS — 2026-09-20
+
+`sweep-widths.mjs` has carried this rule for weeks, in its own words: *a width
+that aborted is not ninety findings, it is one.* The expected-count gate obeys
+it and prints `NOT GRADED — the width aborted after 84 of 125 surfaces`.
+
+The cross-width comparison written **forty lines below that gate, on the same
+day**, did not. 1440 died on a click timeout before reaching any guide, and
+the new check reported it as six separate product defects: *`guide · today`
+arrived at 392, 320px and never at 1440px*, five times over, plus a tour of
+nought blocks. Every sentence was true. All of them were the abort wearing a
+costume, and any one of them would have sent somebody to read `Walkthrough.jsx`
+looking for a responsive bug that does not exist.
+
+**A rule written in a file is not a rule the file follows.** When you add a
+check beside an existing one, go and read what the neighbour guards against —
+aborted widths, declared skips, partial runs — because your new check starts
+with none of it and its findings will look exactly as confident as the old
+one's.

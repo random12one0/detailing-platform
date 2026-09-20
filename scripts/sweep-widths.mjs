@@ -756,6 +756,14 @@ const cardPlan = async (page) => {
 // write it off as a shorter plan. It exits before the receipt so a deliberately
 // broken run can never be filed as a real one.
 const GUIDE_CANARY = process.env.SWEEP_GUIDE_CANARY === "1";
+// **AND THE HOOK THAT BREAKS THE CROSS-WIDTH CHECK.** `SWEEP_XWIDTH_CANARY=1`
+// cuts the tour short AT THE FIRST WIDTH ONLY, which is the exact shape of the
+// thing that check exists to see: one width reporting a tour that finished
+// while the others walk on. It does not doctor the record afterwards — it
+// truncates the walk itself, so everything downstream is measuring a real
+// short walk rather than a number somebody edited. Same exit as the other
+// canary: no receipt, no contact sheet.
+const XWIDTH_CANARY = process.env.SWEEP_XWIDTH_CANARY === "1";
 // **A WIDTH THAT DIED PARTWAY.** Separate from `SKIPPED` on purpose and not a
 // second skip mechanism: a declared skip is a surface PROVED unreachable, and
 // this is the opposite — nobody knows what those surfaces would have said.
@@ -2565,11 +2573,30 @@ for (const w of SIZES) {
       await say(`tour · step ${k}`);
       tourWalked = k;
       if (GUIDE_CANARY && k >= 2) break;
+      if (XWIDTH_CANARY && w === SIZES[0] && k >= 5) break;
       await page.locator(".tourcard button.primary").click();
       await settle(page, 1000);
     }
+    // The block structure, derived from the trail: a counter that restarts at
+    // 1 is a new tab. `1/4 2/4 3/4 4/4 1/6 …` is [4, 6, …].
+    const tourBlocks = [];
+    for (const pair of tourTrail) {
+      const [at, of_] = pair.split("/").map(Number);
+      if (at === 1) tourBlocks.push(of_); else tourBlocks[tourBlocks.length - 1] = of_;
+    }
     console.log(`${"tour · the walk".padEnd(24)} ${tourTrail.join(" ")}`);
+    // **TWO DIFFERENT NUMBERS, PRINTED APART.** The block sizes are what the
+    // cards DECLARED; `tourWalked` is how many were actually pressed. The
+    // cross-width canary printed `4 + 6 = 5` — true on both halves and
+    // nonsense as an equation — because a walk cut short after the first card
+    // of a six-step block still learns that the block is six. Anywhere those
+    // two numbers disagree is a walk that did not finish, and the line now
+    // says so instead of quietly picking one.
+    const blockSum = tourBlocks.reduce((a, c) => a + c, 0);
+    console.log(`${"tour · the blocks".padEnd(24)} ${tourBlocks.length} block(s) declaring ${tourBlocks.join(" + ")} = ${blockSum} step(s); `
+      + `${tourWalked} walked${blockSum === tourWalked ? "" : " — SHORT BY " + (blockSum - tourWalked)}`);
     WALKS.push({ width: w, prefix: "tour · step ", what: "the tour", walked: tourWalked, last: tourLast,
+      blocks: tourBlocks,
       hitBound: tourWalked >= TOUR_BOUND && (await page.locator(".tourcard").count()) > 0 });
 
     // ROADMAP 2.24 — THE FOUR TAB GUIDES, walked in the change that built
@@ -2893,28 +2920,164 @@ if (process.argv.includes("--dump-fingerprints")) {
         + `${short.length} inventory label(s) this dashboard cannot produce: ${short.join(", ")}`);
     }
   }
-  if (GUIDE_CANARY) {
-    // A run with the hook on is not a measurement of anything. It exists to
-    // prove the paragraph above can still fail, and it stops here so it can
+  // 2b · THE ONE QUESTION A PER-WIDTH CHECK CANNOT ASK — 2026-09-20.
+  //
+  // Everything above asks each width, on its own, whether a guide reached its
+  // own last card. At 1440 the tour reaches `5 of 5` and believes it has
+  // finished; at 392 the same press sequence crosses into `1/6` and runs
+  // through five more tabs. **Both answers are internally consistent and one
+  // of them is a product that stops after its first tab.** A plan truncated
+  // before it was printed is invisible to the width it happened on, and the
+  // only instrument that sees it is the other widths.
+  //
+  // **IT FAILS ON THE DISAGREEMENT AND NAMES EVERY WIDTH. It does not guess
+  // which one is right** — Andrew, 2026-09-20 — because picking a winner here
+  // is the same move as re-pointing the expectation at whichever answer is
+  // convenient, and the evidence for who is correct is not in this run.
+  //
+  // WHAT IS COMPARED IS THE BLOCK COUNT, NOT THE BLOCK SIZES. A tab's guide is
+  // legitimately shorter on a narrow screen — Today is 5 steps at 1440 and 4
+  // at 320, because a target is absent — so comparing sizes would cry wolf on
+  // the very behaviour the check above exists to accept. How many TABS the
+  // tour visits is not a function of screen width, and that is the number
+  // being held to account.
+  // **A WIDTH THAT ABORTED IS NOT A DISAGREEMENT — measured 2026-09-20, the
+  // first graded run after this block was written.** 1440 died on a click
+  // timeout after 84 of 125 surfaces, so it never reached the guides at all,
+  // and this check reported five separate `guide · … never arrived at 1440px`
+  // findings plus a tour of nought blocks. Every one of them was true and all
+  // of them were the abort wearing a costume. The expected-count gate forty
+  // lines above already carries this rule in its own words — *a width that
+  // aborted is not ninety findings, it is one* — and a check written after it
+  // managed not to inherit it. A width with no walks at all is the same
+  // silence and is excluded for the same reason.
+  const LIVE = SIZES.filter((x) => !ABORTED.some((a) => a.width === x)
+    && WALKS.some((k) => k.width === x));
+  if (LIVE.length < SIZES.length) {
+    const out = SIZES.filter((x) => !LIVE.includes(x));
+    console.log(`cross-width    ${out.join(", ")}px left out of the comparison — `
+      + `${ABORTED.length ? "the width aborted" : "no guide or tour ran there"}, so it has nothing to disagree with`);
+  }
+  if (LIVE.length > 1) {
+    const tours = WALKS.filter((k) => k.blocks && k.blocks.length && LIVE.includes(k.width));
+    const shapes = new Map();
+    for (const t of tours) shapes.set(t.width, t.blocks);
+    const counts = new Set([...shapes.values()].map((b) => b.length));
+    if (counts.size > 1) {
+      console.log(`
+CROSS-WIDTH DISAGREEMENT: the tour visits a different number of tabs depending on width.`);
+      for (const [width, b] of shapes) {
+        console.log(`  ${String(width).padStart(5)}px  ${b.length} block(s): ${b.join(" + ")} = ${b.reduce((a, c) => a + c, 0)} step(s)`);
+      }
+      console.log(`  How many tabs a tour visits is not a function of screen width. One of these is a `
+        + `plan that was cut short before it was drawn, and THIS RUN CANNOT SAY WHICH — the width it `
+        + `happened on reports a tour that finished.`);
+      found++;
+    } else if (tours.length) {
+      console.log(`cross-width    the tour visits ${[...counts][0]} tab(s) at every width`);
+    }
+    // The same question about the tab guides, where the answer is presence
+    // rather than shape: a guide that arrives at one width and not another.
+    // Step COUNTS are deliberately not compared, for the reason above.
+    const byGuide = new Map();
+    for (const k of WALKS.filter((x) => x.prefix.startsWith("guide · ") && LIVE.includes(x.width))) {
+      if (!byGuide.has(k.prefix)) byGuide.set(k.prefix, new Set());
+      byGuide.get(k.prefix).add(k.width);
+    }
+    for (const [prefix, widths] of byGuide) {
+      if (widths.size === LIVE.length) continue;
+      const missing = LIVE.filter((x) => !widths.has(x));
+      console.log(`
+CROSS-WIDTH DISAGREEMENT: ${prefix.trim()} arrived at ${[...widths].join(", ")}px `
+        + `and never at ${missing.join(", ")}px. A guide is not a responsive feature.`);
+      found++;
+    }
+  }
+
+  if (GUIDE_CANARY || XWIDTH_CANARY) {
+    // A run with a hook on is not a measurement of anything. It exists to
+    // prove the paragraphs above can still fail, and it stops here so it can
     // never be filed as a real one.
     console.log(`
-CANARY RUN — every walk was cut short on purpose. `
-      + `The lines above must say STOPPED EARLY, and ${found} finding(s) are counted so far. `
-      + `No receipt is written and no contact sheet is filed.`);
+CANARY RUN (${GUIDE_CANARY ? "guide walks cut short" : `the tour cut short at ${SIZES[0]}px only`}) — `
+      + `${GUIDE_CANARY ? "the lines above must say STOPPED EARLY" : "the lines above must report a CROSS-WIDTH DISAGREEMENT naming every width"}, `
+      + `and ${found} finding(s) are counted so far. No receipt is written and no contact sheet is filed.`);
     process.exit(found ? 0 : 1);
   }
   if (WRITE_EXPECTED) {
     // A SEPARATE COMMAND, ON PURPOSE — report § "Discipline", rule 8: the thing
     // that compares against a baseline must never also approve a new one. This
     // flag rewrites the expectation and refuses to grade the run.
+    // **THIS COMMAND ADDS. IT DOES NOT SUBTRACT - 2026-09-20, and it used to
+    // do both in the same file write.**
+    //
+    // Run on 2026-09-20 to add the twenty-six tour steps nobody had ever
+    // measured, it produced `+26 / -6` per width. The twenty-six were the
+    // point. The six were `job record - finished`, `finalize` and `send a
+    // text` - labels the gate comment below says must never leave this file,
+    // because after about 08:45 they are reachable again - and `guide - today
+    // 5, 6, 7`, the steps a quiet dashboard cannot produce, **whose deletion
+    // is precisely the move Andrew had refused two hours earlier.** At 1440 it
+    // also dropped `tour - step 6` and `7`, which would have written a
+    // truncated tour into this file as the correct answer.
+    //
+    // A run only ever sees what it could reach today. Writing that set
+    // WHOLESALE means every declared skip, every quiet dashboard and every
+    // truncated walk silently narrows the question - so the one command meant
+    // to make the gate stronger was the fastest way to make it worthless.
+    // Andrew's test, written up in DECISIONS.md: *widening the question to
+    // cover screens nobody was checking makes the gate stronger; narrowing it
+    // to fit an awkward answer makes it worthless.*
+    //
+    // So this writes the UNION, names every addition, and names every label it
+    // is KEEPING that this run did not reach. A real removal - a screen that
+    // genuinely no longer exists - needs `--drop-missing`, which prints each
+    // one, because deleting a line from this file is how a screen stops being
+    // checked for ever.
+    const DROP_MISSING = process.argv.includes("--drop-missing");
+    const prior = existsSync(EXPECTED_PATH)
+      ? (JSON.parse(readFileSync(EXPECTED_PATH, "utf8")).widths || {})
+      : {};
+    const merged = {};
+    let addedN = 0, keptN = 0, droppedN = 0;
+    for (const w2 of new Set([...Object.keys(prior), ...Object.keys(perWidth)])) {
+      const was = prior[w2] || [];
+      const now = perWidth[w2] || [];
+      const gains = now.filter((l) => !was.includes(l));
+      const misses = was.filter((l) => !now.includes(l));
+      // A width this run did not visit keeps its list untouched - otherwise
+      // `--write-expected 392` would delete every other width's screens.
+      merged[w2] = perWidth[w2]
+        ? [...(DROP_MISSING ? was.filter((l) => now.includes(l)) : was), ...gains]
+        : was;
+      // **AND IT SAYS NOTHING ABOUT A WIDTH IT DID NOT SWEEP.** The first
+      // version of this loop treated every label of an unvisited width as
+      // "not reached this run" and printed 250 KEPT lines for two widths that
+      // were never opened - a true sentence about nothing, burying the 26
+      // lines that were the entire point of the command.
+      if (!perWidth[w2]) {
+        console.log(`    ${String(w2).padStart(5)}px  not swept by this run - all ${was.length} label(s) carried through untouched`);
+        continue;
+      }
+      for (const l of gains) console.log(`  + ${String(w2).padStart(5)}px  ${l}   ADDED - measured this run, never in the question before`);
+      for (const l of misses) {
+        if (DROP_MISSING) console.log(`  - ${String(w2).padStart(5)}px  ${l}   DROPPED - --drop-missing was passed`);
+        else console.log(`    ${String(w2).padStart(5)}px  ${l}   KEPT - not reached this run; a label that leaves this file is a screen nobody checks again`);
+      }
+      addedN += gains.length;
+      keptN += DROP_MISSING ? 0 : misses.length;
+      droppedN += DROP_MISSING ? misses.length : 0;
+    }
     writeFileSync(EXPECTED_PATH, JSON.stringify({
       note: "Every surface a full sweep must measure, per width. Regenerate with "
-        + "`node scripts/sweep-widths.mjs <widths> --write-expected` and READ THE DIFF: "
-        + "a label that disappears from this file is a screen that stopped being checked.",
+        + "`node scripts/sweep-widths.mjs <widths> --write-expected`, which ADDS what the run "
+        + "found and KEEPS what it did not reach. READ THE DIFF: a label that disappears from "
+        + "this file is a screen that stopped being checked, and only --drop-missing removes one.",
       written_at: new Date().toISOString(),
-      widths: perWidth,
+      widths: merged,
     }, null, 2) + "\n");
-    console.log(`\nEXPECTATION REWRITTEN. This run was NOT graded against it — read the diff before committing.`);
+    console.log(`\nEXPECTATION REWRITTEN: ${addedN} added, ${keptN} kept that this run did not reach, ${droppedN} dropped.`);
+    console.log(`This run was NOT graded against it - read the diff before committing.`);
   } else if (ONLY) {
     console.log(`\nexpected-count gate SKIPPED — \`--only ${ONLY}\` measures a subset on purpose.`);
   } else if (!existsSync(EXPECTED_PATH)) {

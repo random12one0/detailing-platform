@@ -1,8 +1,16 @@
 {
-  "git_sha": "2a10b86d811d5a5929c629b2b24de47e9dba8e2e",
+  "git_sha": "d79f0f61d9653655495137eb04576849e3eff8f7",
   "environment": "local",
-  "finished_at": "2026-09-20T06:00:34.971Z",
-  "failures": [],
+  "finished_at": "2026-09-20T15:11:49.946Z",
+  "failures": [
+    {
+      "target": "tour · step 28",
+      "width": 392,
+      "findings": [
+        "past-parent    +14px  p.body.tourline in div  «Your own settings live beh»"
+      ]
+    }
+  ],
   "warnings": [],
   "artifacts": [
     "artifacts/sweep-widths/index.html"
@@ -19,17 +27,32 @@
     ]
   },
   "check_id": "sweep-widths-392",
-  "started_at": "2026-09-20T05:58:06.984Z",
-  "status": "pass",
-  "expected_targets": 125,
-  "discovered_targets": 125,
-  "attempted_targets": 125,
-  "completed_targets": 125,
-  "skipped_targets": 2,
+  "started_at": "2026-09-20T15:09:19.442Z",
+  "status": "fail",
+  "expected_targets": 145,
+  "discovered_targets": 145,
+  "attempted_targets": 145,
+  "completed_targets": 145,
+  "skipped_targets": 5,
   "skip_allowlist": {
     "reason": "Surfaces the demo cannot be in the state for at the hour this ran. Each one declared its own reason in the output and each was probed again before the skip was accepted — a skip over a reachable surface is refused and fails the run (ROADMAP 8.1b).",
     "expires": "2027-01-01",
     "skipped": [
+      {
+        "width": 392,
+        "label": "job record · finished",
+        "reason": "no finished job on today's rail yet. A job is finished once it has ENDED, so before the first shift of the day completes this state cannot exist (ROADMAP 8.1b)"
+      },
+      {
+        "width": 392,
+        "label": "job record · finalize",
+        "reason": "no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)"
+      },
+      {
+        "width": 392,
+        "label": "job record · send a text",
+        "reason": "no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)"
+      },
       {
         "width": 392,
         "label": "gear · subscription, cancelling",
@@ -42,8 +65,8 @@
       }
     ]
   },
-  "assertions_executed": 50595,
-  "min_assertions": 500,
+  "assertions_executed": 57525,
+  "min_assertions": 580,
   "canary": {
     "id": "sweep-canary-deliberate-overflow",
     "observed_failure": true,

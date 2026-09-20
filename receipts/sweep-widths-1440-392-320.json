@@ -1,7 +1,7 @@
 {
-  "git_sha": "fca88ca0fac0a84729199e683bc05518026a85bc",
+  "git_sha": "d5f4f5e375c24d6db5f30fb2a457d92a44615d97",
   "environment": "local",
-  "finished_at": "2026-09-20T14:48:24.931Z",
+  "finished_at": "2026-09-20T15:35:39.817Z",
   "failures": [
     {
       "target": "tour · step 28",
@@ -19,7 +19,7 @@
     },
     {
       "target": "(not a per-surface geometry finding)",
-      "count": 52,
+      "count": 2,
       "captured": [
         "job record · finished NOT MEASURED — no finished job on today's rail yet. A job is finished once it has ENDED, so before the first shift of the day completes this state cannot exist (ROADMAP 8.1b)",
         "job record · finalize NOT MEASURED — no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)",
@@ -36,10 +36,9 @@
         "job record · send a text NOT MEASURED — no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)",
         "gear · subscription, cancelling NOT MEASURED — this demo has no subscription, so there is nothing to cancel. The default seed is deliberately unsubscribed — it draws the checkout ladder instead, which is two surfaces rather than one. `node scripts/seed-demo.mjs --subscription=past_due` swaps which half is measured (ROADMAP 8.1b)",
         "gear · subscription, past due NOT MEASURED — nothing is overdue on this demo, and nothing can be: the default seed writes no subscription at all, so there is no payment to fail. Same either/or as the cancel button above (ROADMAP 8.1b)",
-        "EXPECTED-COUNT GATE FAILED at 392px: expected 125 surfaces, measured 145, 6 declared unreachable",
-        "EXPECTED-COUNT GATE FAILED at 320px: expected 125 surfaces, measured 145, 6 declared unreachable"
+        "EXPECTED-COUNT GATE FAILED at 392px: expected 151 surfaces, measured 144, 6 declared unreachable"
       ],
-      "why": "52 problem(s) raised, 17 line(s) captured. The capture pattern does not know every phrase this script prints; read the run output."
+      "why": "2 problem(s) raised, 16 line(s) captured. The capture pattern does not know every phrase this script prints; read the run output."
     }
   ],
   "warnings": [],
@@ -60,12 +59,12 @@
     ]
   },
   "check_id": "sweep-widths-1440-392-320",
-  "started_at": "2026-09-20T14:40:53.554Z",
+  "started_at": "2026-09-20T15:28:11.164Z",
   "status": "fail",
-  "expected_targets": 355,
-  "discovered_targets": 407,
-  "attempted_targets": 407,
-  "completed_targets": 407,
+  "expected_targets": 407,
+  "discovered_targets": 406,
+  "attempted_targets": 406,
+  "completed_targets": 406,
   "skipped_targets": 26,
   "skip_allowlist": {
     "reason": "Surfaces the demo cannot be in the state for at the hour this ran. Each one declared its own reason in the output and each was probed again before the skip was accepted — a skip over a reachable surface is refused and fails the run (ROADMAP 8.1b).",
@@ -203,8 +202,8 @@
       }
     ]
   },
-  "assertions_executed": 171321,
-  "min_assertions": 1628,
+  "assertions_executed": 170891,
+  "min_assertions": 1624,
   "canary": {
     "id": "sweep-canary-deliberate-overflow",
     "observed_failure": true,
