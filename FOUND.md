@@ -3943,3 +3943,19 @@ see a plan that was truncated before it was printed.
 **Nothing here is being fixed in this change**, and the expectation file is
 deliberately NOT rewritten: adding twenty-six screens to the inventory is
 somebody reading a diff, not a script deciding it.
+
+**A RIDER ON #2, RECORDED BECAUSE IT IS UNEXPLAINED.** The two screenshots of
+`tour · step 28` — `artifacts/sweep-widths/392/229-tour-step-28.png` and
+`320/112-tour-step-28.png` — show the Business settings screen dimmed by the
+tour's overlay **with no caption card anywhere in the 392x844 or 320x844
+frame**. The card is plainly there as far as the geometry probe is concerned:
+it measured `p.body.tourline` and found it 14px past its parent, and the run
+raised no *off the screen* finding, which is a category this sweep checks
+separately. So something is on the page that is not in the picture.
+
+**This is an observation and not a defect.** `docs/gotchas.md` has two
+separate entries about exactly this shape — a screenshot taken mid-animation,
+and a screenshot of something uniform. Either would produce this. Whoever
+picks up the 14px overflow should open that step on a phone first and look,
+because if the caption really is out of the frame then the overflow is the
+small half of the problem.
