@@ -1,0 +1,44 @@
+{
+  "git_sha": "0eadb922f4dd922c988092ff3ef58291d6ab5297",
+  "environment": "local",
+  "finished_at": "2026-09-20T10:11:23.190Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "scripts/dashboard-notifies.mjs"
+  ],
+  "dimensions": {
+    "project": "kguqylyzgyzfktkfnhjb",
+    "endpoint": "update-booking",
+    "recipient": "delivered@resend.dev",
+    "steps": [
+      "a detailer moves the job to another day: ok",
+      "an edit that touches neither status nor time: ok",
+      "a move to the time it is already at: ok",
+      "a detailer cancels the job: ok",
+      "the same cancel sent a second time: ok",
+      "canary · a real second cancellation: caught (canary)",
+      "put back and moved again — the mailer is still alive: ok"
+    ]
+  },
+  "check_id": "dashboard-notifies",
+  "started_at": "2026-09-20T10:10:36.131Z",
+  "status": "pass",
+  "expected_targets": 7,
+  "discovered_targets": 7,
+  "attempted_targets": 7,
+  "completed_targets": 7,
+  "skipped_targets": 0,
+  "assertions_executed": 19,
+  "min_assertions": 15,
+  "canary": {
+    "id": "a second cancellation that really happens · the double-send detector must see it",
+    "observed_failure": true,
+    "caught_by": [
+      "double-send"
+    ],
+    "findings": [
+      "[double-send] a genuine second cancellation was seen, so the silences above are the product's and not the instrument's"
+    ]
+  }
+}
