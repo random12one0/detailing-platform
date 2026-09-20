@@ -67,6 +67,18 @@ const SAMPLE = {
   bookingLink: "detailingplatform.com/booking/8f2a",
 };
 
+// ROADMAP 2.12 — `row.label` is seeded once, in whatever language was active
+// at that moment (`label: t(d.label)` in the insert below), and never
+// re-translated after. A detailer who switches the dashboard to Spanish
+// later still reads whatever got baked in at signup — measured on the demo
+// business, seeded before these five had Spanish keys at all: all five
+// labels sit in English in the database right now, "On my way" included.
+// There is no way to rename a template (only its body is ever saved), so the
+// label is always exactly one of `DEFAULT_TEMPLATES`' five — deriving it
+// fresh from the stable key and translating it live fixes every business
+// already seeded without writing to a single row.
+const templateLabel = (row) => t(DEFAULT_TEMPLATES.find((d) => d.key === row.key)?.label ?? row.label);
+
 export default function MessageTemplates() {
   useAppLocale();
   const { business } = useBusiness();
@@ -110,7 +122,7 @@ export default function MessageTemplates() {
     const { error } = await supabase
       .from("message_templates").update({ body })
       .eq("id", row.id).eq("business_id", business.id);
-    setMsg(error ? { ok: false, text: error.message } : { ok: true, text: `“${row.label}” saved.` });
+    setMsg(error ? { ok: false, text: error.message } : { ok: true, text: `“${templateLabel(row)}” saved.` });
     if (!error) await load();
     return { ok: !error };
   };
@@ -148,7 +160,7 @@ export default function MessageTemplates() {
         const base = DEFAULT_TEMPLATES.find((d) => d.key === row.key);
         const untouched = base ? row.body.trim() === base.body.trim() : false;
         return (
-          <Folded key={row.id} name={row.label}
+          <Folded key={row.id} name={templateLabel(row)}
             now={untouched ? t("Not changed yet") : t("In your own words")}>
             <TemplateCard row={row} business={business} onSave={saveOne} inFold />
           </Folded>
@@ -240,7 +252,7 @@ function TemplateCard({ row, business, onSave, inFold = false }) {
           <div>
             {/* The folded row above already names it; repeating it here is the
                 duplication this screen was criticised for. */}
-            {!inFold && <div className="strong">{row.label}</div>}
+            {!inFold && <div className="strong">{templateLabel(row)}</div>}
             <div className="row" style={{ gap: 6, marginTop: 4 }}>
               <span className="tag">
                 <MessageSquare size={11} strokeWidth={2} style={{ marginRight: 4 }} />

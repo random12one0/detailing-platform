@@ -650,7 +650,7 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
                         cursor: "pointer", font: "inherit", fontSize: "var(--t-meta)",
                       }}
                     >
-                      {s.text}
+                      {t(s.text)}
                     </button>
                   </li>
                 ))}

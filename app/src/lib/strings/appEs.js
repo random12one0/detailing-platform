@@ -1117,6 +1117,11 @@ export const appEs = {
   "Don’t show": "No mostrar",
   "Show": "Mostrar",
   "Hide": "Ocultar",
+  // ROADMAP 2.12 — the Today setup banner. "Your page isn't fully set up"
+  // renders both with and without a trailing period, collapsed vs open.
+  "Your page isn't fully set up.": "Tu página no está completamente configurada.",
+  "Your page isn't fully set up": "Tu página no está completamente configurada",
+  "and {count} more": "y {count} más",
   "Used by every Navigate button.": "Lo usa cada botón de Navegar.",
   "Used by “Add to calendar” on a booking.":
     "Lo usa “Agregar al calendario” en una cita.",
@@ -1497,6 +1502,16 @@ export const appEs = {
   "Generate QR code": "Generar código QR",
   "Getting started": "Empezando",
   "Getting there": "Ya casi",
+  // ROADMAP 2.12 — the setup wizard's own step questions (SetupForm.jsx's
+  // heading) and the one short step name it was missing.
+  "What do you charge for?": "¿Qué cobras?",
+  "What sizes are your vehicles?": "¿De qué tamaño son tus vehículos?",
+  "When are you open?": "¿Cuándo estás abierto?",
+  "Where does the work happen?": "¿Dónde se hace el trabajo?",
+  "Who are you?": "¿Quién eres?",
+  "What color is yours?": "¿De qué color es el tuyo?",
+  "Running a discount?": "¿Tienes un descuento?",
+  "Vehicle types": "Tipos de vehículo",
   "Go back": "Regresar",
   "Go to dashboard": "Ir al panel",
   "Going to": "Yendo a",
