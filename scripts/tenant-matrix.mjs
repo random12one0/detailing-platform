@@ -1441,7 +1441,22 @@ const { path } = writeReceipt({
   discovered_targets: expected,
   attempted_targets: expected,
   completed_targets: expected,
-  skipped_targets: 0,
+  // **THIS SAID `0` WHILE `skips` WAS FULL — 2026-09-20, ROADMAP 14.11.** The
+  // line forty rows above prints `${skips.length} skip(s)` into the report,
+  // every skip carries a written reason, and they are all filed in
+  // `warnings` — and the number handed to the grader was a literal zero. So
+  // `receipt.mjs`'s rule that **skips are failures unless allowlisted with an
+  // expiry** could never fire here, for a check that skips seeds it could not
+  // plant, tables where B owns no row, RPCs whose arguments cannot be
+  // synthesised, buckets it could not write to, and a realtime publication.
+  // The reasons existed the whole time; only the accounting lied.
+  //
+  // It is reported honestly now, which means this receipt FAILS until someone
+  // either allowlists these with an expiry they are willing to put a date on,
+  // or removes the skips. That is the intended outcome: an honest failure is
+  // worth more than a sanctioned silence, and a skip nobody has to re-justify
+  // on a date is a skip that becomes permanent by not being looked at.
+  skipped_targets: skips.length,
   assertions_executed: assertions,
   // **RAISED FROM 300 TO 700 WHEN SECTIONS 6 AND 7 LANDED, AND A FLOOR NOBODY
   // RAISES IS A FLOOR THAT STOPS WORKING.** 300 was slack enough that storage
