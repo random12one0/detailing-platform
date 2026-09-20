@@ -330,8 +330,20 @@ console.log("5. what no running test could notice");
   // client's history, so none of them can be the one that forgot.
   check("5m · every dashboard booking read carries the other cars",
     /vehicles:booking_vehicles\(/.test(read("app/src/hooks/useBookings.js")));
+  // **SILENTLY BROKEN SINCE `9a641f4`, found 2026-09-20 — a test checking a
+  // literal string that a later, legitimate commit localized.** That commit
+  // moved the car-count fragment to `t("{count} cars", { count: cars })` for
+  // Spanish; this regex still pinned the old raw template literal, so it had
+  // been red since and was read three times running as "pre-existing, not
+  // ours" instead of as a check that had stopped asking a real question. It
+  // now asserts the fact that matters — the car count opens the array inside
+  // `.sub`, which is the LAST thing the row's `nowrap` ellipsis eats — rather
+  // than the exact characters that say it, so the next rewording cannot break
+  // it the same way. Proved rather than assumed: fails when the car-count
+  // branch is moved to the end of the array, fails when it is removed
+  // outright, and passes on the file as it stands today.
   check("5n · the row leads with the car count, which truncation eats last",
-    /cars > 1 \? `\$\{cars\} cars` : null,/.test(read("app/src/components/JobRow.jsx")));
+    /<span className="sub">\s*\{\[\s*cars > 1 \?/.test(strip(read("app/src/components/JobRow.jsx"))));
 }
 
 // ─── 6. Against the DEPLOYED functions ────────────────────────────────────
