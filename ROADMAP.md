@@ -1294,18 +1294,18 @@ requested.
   `scripts/edge-tenant-replay.mjs`, graded by `receipt.mjs`, which **refuses
   the run**. Three numbers, and the third is the one that matters:
 
-  - **15 of 39 genuinely RAN.** Owner A got a 2xx out of them with its own
+  - **16 of 39 genuinely RAN.** Owner A got a 2xx out of them with its own
     tenant's identifiers, so the function was exercised rather than bounced.
-  - **24 still REFUSE.** A's own call never succeeded either, so their refusal
+  - **23 still REFUSE.** A's own call never succeeded either, so their refusal
     of tenant B proves nothing at all. Grouped: **9 answered 400** (a required
     field this harness cannot synthesise), **5 carry no tenant identifier in
     their input** at all (`watch-jobs`, `refresh-weather`, `stripe-webhook`,
     `resend-webhook`, `translate-content` — cron sweeps and provider
     webhooks), **3 answered 409**, **3 answered 404**, one 500, one 401, one
     429.
-  - **6 PROVED ISOLATION BY REJECTING THE OTHER TENANT**: `connect-account`,
-    `delete-customer`, `invite-user`, `owner-push-unsubscribe`,
-    `preview-emails`, `update-booking`. Each works for A with A's own
+  - **7 PROVED ISOLATION BY REJECTING THE OTHER TENANT**: `accept-invite`,
+    `connect-account`, `delete-customer`, `invite-user`,
+    `owner-push-unsubscribe`, `preview-emails`, `update-booking`. Each works for A with A's own
     identifiers and refuses B's to **all three** signed-in actors — owner,
     staff, and a member removed after signing in.
 
@@ -1374,6 +1374,48 @@ requested.
   replay has been run repeatedly. That is a property of the product's own rate
   limiter, not a flaw in the measurement, but a number that moves by one
   between runs should be read as such.
+
+
+  **ROUND TWO — READING EACH FUNCTION'S OWN VALIDATION BRANCH, 2026-09-20.**
+  Guessing values by field name got 15 of 39 through the front door and then
+  stopped: the rest answered a bare `400`, which says *you are missing
+  something* and not what. **So the guard that produced it is read instead.**
+  Every one of these functions rejects in the same shape —
+  `if (!thing) return json({ error: … }, 400)` — and the identifiers inside
+  that negation ARE the required fields.
+
+  Two things came out of that, and the second matters more than the first.
+
+  1. **THE BODY IS BUILT FROM THE UNION** of what the function READS (the
+     request shape, discovered from source) and what it INSISTS ON (the 400
+     guards). Neither alone gets through the door: `owner-push-subscribe`
+     takes its subscription as a nested object, so `p256dh` and `auth` never
+     appeared in the destructure, while its own guard names them both.
+  2. **A SKIP NOW NAMES THE FIELD RATHER THAN THE STATUS.** *"rejects on
+     `domain_id`, which this harness does not supply"* is a piece of work
+     somebody can pick up. *"400"* is a shrug. Where the guards name nothing
+     missing, the skip says so — the refusal is then a lookup, a permission or
+     a precondition on the row, which is a different kind of work.
+
+  **THE THREE NUMBERS AFTER ROUND TWO: 16 RAN · 23 REFUSE · 7 PROVED.**
+
+  **AND THE SAME LESSON COST A RESULT FOR THE THIRD TIME.** Seeding a
+  `business_invites` row so `accept-invite` had a token to present made
+  `invite-user` start answering 409 — it invites the sink address too, and an
+  address already invited is a conflict — so a function that had PROVED it
+  refuses tenant B silently became a skip. The seeded invite now uses its own
+  reserved `example.com` address. **Three times in one script: a fixture that
+  makes one function testable must not quietly make another untestable**, and
+  the only reason it was caught each time is that the per-function line prints
+  A's OWN status beside the cross-tenant one.
+
+  **WHERE THIS STOPS, AND IT STOPS AT THE FREEZE.** Several of the remaining
+  refusals need a deployed fixture to get past their own front door —
+  `connect-account` and `pay-booking` want a connected Stripe account,
+  `verify-domain` wants a verified domain. **That is not engineered around.**
+  Deploying is Andrew's, it is already on his list, and a harness that forged
+  its way past a real precondition would be proving something about the forgery
+  rather than about the product.
 
   **Done when:** the 23 get arguments good enough to return a 2xx, so their
   refusal of B becomes evidence. **Five of them never will from here** — they

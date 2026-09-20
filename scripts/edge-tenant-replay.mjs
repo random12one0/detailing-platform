@@ -205,6 +205,34 @@ function fieldsFor(src) {
   return [...out];
 }
 
+// ---------------------------------------------------------------------------
+// WHAT DOES THIS FUNCTION REJECT ON? — read from its own validation branches.
+// ---------------------------------------------------------------------------
+// **GUESSING BY FIELD NAME GOT 15 OF 39 THROUGH THE DOOR AND THEN STOPPED.**
+// The remaining refusals were mostly a plain `400`, which says "you are
+// missing something" and not what. So instead of guessing harder, read the
+// guard that produced it: every one of these functions rejects in the same
+// shape, `if (!thing) return json({ error: … }, 400)`, and the identifiers
+// inside that negation ARE the required fields.
+//
+// This does not synthesise values — it names the field. A skip that says
+// *"rejects on `domain_id`, which this harness has no fixture for"* is a
+// piece of work somebody can pick up; a skip that says *"400"* is a shrug.
+function requiredFor(src) {
+  const s = strip(src);
+  const out = new Set();
+  // `if (!a || !b?.trim() || !c) return json({...}, 400)` — and the same with
+  // `body.` in front, which is the other spelling in this codebase.
+  for (const m of s.matchAll(/if\s*\(([^)]*?)\)\s*return\s+json\([^;]*?,\s*400\s*\)/g)) {
+    for (const id of m[1].matchAll(/!\s*(?:body\??\.)?([a-z_][a-z0-9_]*)/gi)) {
+      const name = id[1];
+      if (["member", "json", "String", "Number", "Array", "UUID"].includes(name)) continue;
+      out.add(name);
+    }
+  }
+  return [...out];
+}
+
 const dirs = readdirSync(FUNCTIONS, { withFileTypes: true })
   .filter((d) => d.isDirectory() && d.name !== "_shared")
   .map((d) => d.name).sort();
@@ -343,6 +371,28 @@ try {
         { body: { quoted_amount: 99 }, prefer: "return=minimal" });
     }
 
+    // ROUND THREE — seeded because the functions' own 400 guards named them.
+    // `send-invoice` rejects on `isFinalized`, so the booking it is pointed at
+    // has to be a finished job with a final amount, not an upcoming one.
+    if (bk2.data?.[0]?.id) {
+      await rest("PATCH", `/rest/v1/bookings?id=eq.${bk2.data[0].id}`, {
+        body: { status: "completed", finalized_at: new Date().toISOString(), final_amount: 120 },
+        prefer: "return=minimal",
+      });
+    }
+    // `accept-invite` rejects on `token`, so one invite is seeded per tenant.
+    //
+    // **ON ITS OWN ADDRESS, AND THAT IS THE THIRD TIME THIS LESSON HAS COST A
+    // RESULT.** Seeding it at the sink address made `invite-user` answer 409
+    // — it invites the sink too, and an address already invited is a conflict
+    // — so a function that had PROVED it refuses tenant B became a skip. A
+    // fixture that makes one function testable must not quietly make another
+    // untestable. No mail is ever sent to this address: the row is inserted
+    // directly, and `example.com` is IANA-reserved and undeliverable anyway.
+    const inv = await rest("POST", "/rest/v1/business_invites", {
+      body: [{ business_id: b.id, email: `edge-replay-seed-${b.slug}@example.com`, role: "staff" }],
+    });
+
     const store = tag === "A" ? aIds : tag === "B" ? bIds : tag === "Bn" ? bnIds : null;
     if (store) {
       store.business_id = b.id;
@@ -356,6 +406,8 @@ try {
       store.plan_id = planId;
       store.member_id = memberId;
       store.confirmed_booking_id = bk2.data?.[0]?.id ?? null;
+      store.finalized_booking_id = bk2.data?.[0]?.id ?? null;
+      store.invite_token = inv.data?.[0]?.token ?? null;
     }
   }
   console.log(`    A ${A.id}  B ${B.id}`);
@@ -409,8 +461,12 @@ try {
     if (f === "code") return "EDGEREPLAY";
     if (f === "host" || f === "domain") return "edge-replay.example";
     if (f === "url") return "https://edge-replay.example/x";
+    // FLAT, NOT NESTED. `owner-push-subscribe` reads `endpoint`, `p256dh` and
+    // `auth` as three top-level fields — its own 400 guard says so — and a
+    // `keys: {…}` object satisfied none of them.
     if (f === "endpoint") return "https://edge-replay.example/push";
-    if (f === "keys") return { p256dh: "x", auth: "y" };
+    if (f === "p256dh") return "BEdgeReplayPublicKeyxxxxxxxxxxxxxxxxxxxxxxxx";
+    if (f === "auth") return "edgeReplayAuthSecret";
     if (f === "soft_delete" || f === "dry_run") return false;
     // **`status` IS DELIBERATELY NOT SYNTHESISED.** Sending one turned
     // `update-booking` from a proved rejection into a 409: it is a field whose
@@ -455,7 +511,13 @@ try {
   for (const fn of dirs) {
     let src;
     try { src = readFileSync(path.join(FUNCTIONS, fn, "index.ts"), "utf8"); } catch { src = ""; }
-    const fields = fieldsFor(src);
+    // **THE UNION, AND THAT IS THE POINT OF READING THE GUARDS.** A field can
+    // be REQUIRED without being visible in the request shape: `owner-push-
+    // subscribe` reads its subscription out of a nested object, so `p256dh`
+    // and `auth` never appeared in the destructure — but its own 400 guard
+    // names them both. Discovery finds what the function reads; the guards
+    // find what it insists on. Neither alone gets through the door.
+    const fields = [...new Set([...fieldsFor(src), ...requiredFor(src)])];
     const build = (ids) => {
       const out = {};
       for (const f of fields) {
@@ -477,6 +539,7 @@ try {
       "validate-promo-code": (ids) => ({ code: ids.promo_code, customer_email: SINK }),
       "reschedule-booking": (ids) => ({ booking_id: ids.confirmed_booking_id }),
       "accept-quote": (ids) => ({ booking_id: ids.booking_id }),
+      "send-invoice": (ids) => ({ booking_id: ids.finalized_booking_id }),
       // **ITS OWN HOUR, BECAUSE THE CHECKS WERE STANDING ON EACH OTHER.**
       // `reschedule-booking` runs first alphabetically and moves A's confirmed
       // booking to 09:00; `update-booking` then tried to move A's other
@@ -597,9 +660,17 @@ try {
       // THE FRONT DOOR IS SHUT TO A AS WELL, so A being refused B proves
       // nothing. A's OWN status is printed because it is the number that
       // explains the skip and the number somebody needs to fix it.
-      skips.push(`${fn}: owner A could not get a 2xx with its OWN tenant either `
-        + `(${stat}). The cross-tenant refusal may be a correct tenant check or may be the `
-        + `same argument problem; this harness cannot tell, so nothing is claimed.`);
+      // NAME THE FIELD, NOT THE STATUS. Read out of the function's own 400
+      // guards; anything it demands that this harness never sent is the thing
+      // standing between here and a real result.
+      const needs = requiredFor(src).filter((f) => !(f in selfBody));
+      skips.push(`${fn}: owner A could not get a 2xx with its OWN tenant either (${stat}).`
+        + (needs.length
+          ? ` It rejects on ${needs.map((f) => `\`${f}\``).join(", ")}, which this harness `
+            + `does not supply.`
+          : ` Its 400 guards name nothing this harness is missing, so the refusal is `
+            + `elsewhere — a lookup, a permission, or a precondition on the row.`)
+        + ` Either way the cross-tenant refusal proves nothing and nothing is claimed.`);
       rows.push({ fn, verdict: "SKIPPED — front door shut to A too", detail: stat });
       console.log(`    ${fn.padEnd(24)} SKIPPED — A's own call got ${selfRes.status}`);
     } else if (rejected > 0) {
