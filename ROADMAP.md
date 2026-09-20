@@ -2452,8 +2452,10 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
    level down. Eleven defects found, every one on a surface that was not in the
    question. Three sabotages, each caught by name. See 8.1 above.
 6. [x] **DONE 2026-09-20. The tenant-isolation matrix.**
-   `scripts/tenant-matrix.mjs` — **PASS, 71 targets, 693 assertions, 0
-   failures, 0 skips, two canaries, each caught by its own detector.**
+   `scripts/tenant-matrix.mjs` — **PASS, 77 targets, 729 assertions, 0
+   failures, four canaries, each caught by its own detector.** All four
+   boundaries the report asks for: the Data API against tables, the definer
+   RPCs, storage objects and Realtime.
    `receipts/tenant-matrix.json` grades it; `artifacts/tenant-matrix/` lists
    every table and verdict. Runs against `kguqylyzgyzfktkfnhjb` on Andrew's
    2026-09-20 approval, and **refuses to run on any other project ref** —
@@ -2597,6 +2599,104 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
 
    **No leak was found in any of the 38 tenant-owned tables**, by any of the
    four actors, on read, update, delete or forged-tenancy insert.
+
+   **EXTENDED TO STORAGE AND REALTIME, 2026-09-20 — the last two of the four
+   boundaries, and step 6 is now complete.** **PASS — 77 targets, 729
+   assertions, 0 failures, FOUR canaries, each caught by its own detector.**
+
+   **WHY IT WAS NOT ALREADY FINISHED, IN ONE SENTENCE ABOUT ONE TABLE.**
+   `job_photos` passed above — every actor of A refused every one of B's photo
+   rows, by four detectors. **The photographs were never fetched once.** The
+   row holds a `path`; the bytes live in a bucket behind a policy on
+   `storage.objects` in another schema that nothing in the table matrix reads.
+   A green `job_photos` reads as coverage of job photos and is coverage of
+   job-photo metadata.
+
+   **6 · STORAGE.** Buckets are discovered from `storage.buckets`, not named,
+   for the same reason tables are. Three buckets each run — `business-media`,
+   `job-photos` and the canary. The invariant is the RPC section's word for
+   word: **an actor of A must not get more out of B's folder than an anonymous
+   stranger gets.** That handles `business-media` correctly without
+   special-casing it — a tenant's logo is served to the whole internet on
+   purpose, so A seeing it is the product and A seeing what anon cannot is the
+   defect. Per bucket: download B's file, list B's folder, list A's folder as a
+   removed member, upload into B's folder, delete B's file, and confirm A can
+   still reach its own. **No leak in either real bucket.**
+
+   **THE CANARY IS A BUCKET WHOSE POLICY SCOPES TO THE BUCKET AND NOTHING
+   ELSE** — the 1am mistake, where every real policy here scopes to the first
+   folder segment, which is the owning business's id. Caught by
+   `[storage-read]` specifically, which is the detector that proves the BYTES
+   crossed rather than that a request was allowed.
+
+   **7 · REALTIME, WHICH IS THREE MECHANISMS WEARING ONE NAME.** The
+   publication decides what streams at all; RLS decides who receives it;
+   and broadcast/presence is guarded by something else entirely. Asking it as
+   one question covers at most a third.
+
+   - **7a, the publication.** Zero tenant-owned tables are published, so
+     nothing streams to anybody. The canary table is published on purpose, or
+     that line would print identically with the query broken.
+   - **7b, delivery.** **Not certified, and said plainly.** The canary table,
+     published with `using (true)`, granted, `replica identity full`, owner A
+     `SUBSCRIBED`, `realtime.subscription` carrying the row server-side, slot
+     active, row inserted — **nothing arrived, three runs, cold slot, 15s
+     each.** `postgres_changes` does not deliver on this project. An empty
+     array is also what perfect isolation looks like, so the probe proves its
+     own socket first by sending itself a broadcast and hearing it back; it
+     did. The verdict prints `NOT DELIVERING — detector uncertified`, rides in
+     `warnings`, and `realtime-stream` is **deliberately left out of the
+     receipt's canary gate**. Uncovered, not clean. Nothing is exposed today —
+     nothing tenant-owned is published and the app opens zero channels — but
+     the day a table is published this must be re-proved first.
+   - **7c, channels. THE ONE REAL FINDING OF THE NIGHT, and it is a standing
+     risk rather than a live defect.** A channel opened **without**
+     `private: true` is authorised by **nothing at all**. Proved by having a
+     client with only the anon key and no session join a plain channel and
+     receive a signed-in user's broadcast verbatim, sentinel and all. The app
+     opens zero channels, so nothing leaks today. **The first
+     `supabase.channel('bookings-' + businessId)` anybody writes is a
+     cross-tenant channel on the day it ships**, because a business id is a
+     guess away. Carried as a warning on every receipt so it cannot quietly
+     stop being said. Private channels **are** closed: `realtime.messages` is
+     RLS-on with zero policies and anon was refused in the same run.
+
+   **SIX SABOTAGES, ALL REFUSED BY `receipt.mjs`, AND TWO OF THEM ARE THE ONLY
+   ONES THAT PROVE ANYTHING.** `--break=storage`, `--break=realtime` and
+   `--break=bucket-allowlist` are blunt: the storage canary trips three
+   detectors, so silencing all three proves the canary can be missed and
+   nothing about *which* detector the gate is on. That is the exact trap the
+   RPC canary sprang on the first pass. So:
+
+   - `--break=storage-read` silences **only** the byte comparison ->
+     `CANARY NOT CAUGHT BY THE STORAGE-READ DETECTOR`, although `storage-list`
+     and `storage-former` still trip on it.
+   - `--break=realtime-pub` silences **only** the publication detector -> the
+     run fails, although `[realtime-broadcast]` is caught.
+   - `--break=bucket-allowlist` -> `business-media` reports as a
+     `[storage-public]` finding, which is the proof the one-name allowlist is
+     refusable rather than decorative.
+
+   **A switch that turns off a whole section is a smoke test. A switch that
+   turns off one detector is a certification.**
+
+   **`min_assertions` RAISED 300 -> 700.** At 300, sections 6 and 7 could be
+   deleted from the file entirely and the receipt would still pass its own
+   assertion rule, because tables and RPCs alone run 693. A floor nobody raises
+   is a floor that stops working.
+
+   **TWO THINGS LEARNED THE HARD WAY, BOTH NOW IN `docs/gotchas.md`:** storage
+   answers `200 []` for "denied" and for "nothing there", so every list is
+   paired with a service-role count of what is actually in the folder; and
+   running two copies of this script at once destroys each other's canaries
+   and reads exactly like a blind detector. The teardown held through that
+   collision — both canaries, the canary bucket, the publication entry, every
+   planted object and both fixture tenants verified gone afterwards.
+
+   **SELF-REPORTED, SAME AS ABOVE.** Every number here came from runs made by
+   the session that wrote the check, against `kguqylyzgyzfktkfnhjb`. Not
+   independently verified.
+
 7. [ ] **Only then** prune docs and convert the rest of this file into task
    contracts.
 

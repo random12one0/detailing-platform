@@ -1203,3 +1203,157 @@ Two lessons, and the second is the bigger one:
 **The general form: a comparative assertion has a blind spot exactly where
 both sides are wrong together.** If a check asks "is A worse than B", it will
 never see A and B failing identically.
+
+## A ROW PROVED ISOLATED SAYS NOTHING ABOUT THE FILE BEHIND IT — 2026-09-20, ROADMAP step 6
+
+`job_photos` passed the tenant matrix. Every actor of tenant A was refused
+every one of tenant B's photo rows, by four detectors, over 71 targets. The
+photographs were never fetched once.
+
+The row holds a `path`. The bytes live in the `job-photos` bucket, behind a
+policy on `storage.objects` in a different schema that nothing in the table
+matrix reads. The two are enforced by separate rules and one being right has
+never implied the other. **A green `job_photos` reads as coverage of job
+photos and is coverage of job-photo metadata.**
+
+The same sentence rewrites for anything with a file, a socket or a cache
+behind it. The question to ask of any isolation result is not "did the check
+pass" but **"which of the things a tenant owns did it actually touch."**
+
+Section 6 of `scripts/tenant-matrix.mjs` carries the same two-tenant fixture
+into every bucket `storage.buckets` reports, and section 7 carries it onto the
+Realtime socket.
+
+## `/object/list` ANSWERS `200 []` FOR "DENIED" AND FOR "NOTHING THERE" — 2026-09-20
+
+Supabase Storage does not refuse a list it is not allowed to serve. It filters
+the rows through RLS and returns what survives, which for a fully denied
+request is an empty array with a `200` on it.
+
+So listing another tenant's folder and getting `[]` proves **nothing**. It is
+the storage spelling of the hollow half that `docs/hollow-checks-2026-09-13.md`
+found in `tenant-isolation` test 5: an assertion that B's folder is invisible
+to A, made against a folder with nothing in it, passes identically whether the
+policy is correct or absent.
+
+Every list in section 6 is therefore paired with a service-role `select` from
+`storage.objects` confirming the file is genuinely sitting there, and a bucket
+where the fixture could not be planted is a DECLARED SKIP carrying the
+upload's own status code, never a pass.
+
+The download half is stronger and is the one the canary is gated on: a `200`
+proves the request was allowed, and only **B's sentinel string in the response
+body** proves B's bytes came back.
+
+## STORAGE REFUSES A DIRECT `delete` FROM SQL — 2026-09-20
+
+Deleting straight out of `storage.objects` or `storage.buckets` raises:
+
+> `42501: Direct deletion from storage tables is not allowed. Use the Storage
+> API instead.` — `storage.protect_delete()`
+
+It exists so a row cannot be removed while its file stays behind in the bucket
+forever. It fires for a one-run canary exactly as it would for a customer's
+photograph, so the canary bucket is created and destroyed through the Storage
+API endpoints instead — create bucket, empty bucket, delete bucket.
+
+The POLICY is still SQL. A policy is not a row of storage data, and
+`create policy … on storage.objects` works normally.
+
+## REALTIME IS THREE MECHANISMS WEARING ONE NAME — 2026-09-20
+
+Asking "is Realtime isolated" as one question gets one answer and covers at
+most a third of it. They are guarded by three different things:
+
+| | what it is | what guards it |
+|---|---|---|
+| `postgres_changes` | row changes streamed from the WAL | the `supabase_realtime` **publication** decides what streams at all, then each table's **RLS** decides who receives it |
+| delivery | a subscriber of A actually receiving a row of B's | RLS — and provable only end to end, over a socket |
+| broadcast / presence | messages between clients that never touch a table | `realtime.messages` RLS — **and only on channels opened as private** |
+
+The third is the one nobody looks at and the one with the hole in it. **A
+channel opened without the private flag is authorised by nothing at all.**
+Measured: a client holding only the anon key, with no session, joined a plain
+channel and received a signed-in user's broadcast verbatim, sentinel string
+and all. The topic name is the only thing standing between two tenants.
+
+Nothing is wrong in this product today — the app opens zero channels. The
+first channel anybody opens named after a business id is a cross-tenant
+channel on the day it ships, because a business id is a guess away. The matrix
+carries that as a standing warning on every receipt rather than as a finding,
+and uses it as the negative control for `[realtime-broadcast]`, because a leak
+you can create on demand is the only honest way to prove a detector sees one.
+
+Private channels **are** closed here: `realtime.messages` is RLS-on with zero
+policies — the same deliberate lock `platform_admin_events` carries — and anon
+was refused in the same run with `Unauthorized: You do not have permissions to
+read from this Channel topic`.
+
+## A SUBSCRIPTION THAT CONNECTED AND HEARD NOTHING LOOKS LIKE ONE THAT NEVER CONNECTED — 2026-09-20
+
+The same shape as *"A function you just created 404s through PostgREST"*
+further up this file, in a second costume, and it cost most of an evening.
+
+`postgres_changes` on this project **does not deliver**. The canary table was
+published to `supabase_realtime`, given `for select to authenticated using
+(true)`, granted to `authenticated`, and set to `replica identity full`. Owner
+A's channel reported `SUBSCRIBED`. `realtime.subscription` carried the row
+server-side with the right entity and the `authenticated` claim. The wal2json
+replication slot was active. A row was inserted. **Nothing arrived, across
+three runs, from a cold slot, fifteen seconds each.**
+
+An empty array is what "perfectly isolated" looks like too. Those are opposite
+findings — one says the boundary holds, the other says the run proved nothing —
+and they must never print the same way.
+
+So the probe proves its own socket first: the same client sends itself a
+broadcast with self-delivery on and must hear it back. Three outcomes, three
+different lines:
+
+- row arrives → `[realtime-stream]` is certified and the boundary is live
+- nothing arrives, socket live → **`NOT DELIVERING — detector uncertified`**,
+  recorded in `warnings`, and `realtime-stream` is deliberately left OUT of the
+  receipt's canary gate. Uncovered, not clean.
+- nothing arrives, socket dead → a failure: the run measured nothing
+
+Leaving that detector out of the gate is the honest reading rather than a
+convenience. Nothing tenant-owned is published and the app opens no channels,
+so nothing is exposed today — but the day somebody publishes a table, this
+detector has to be re-proved before it is believed.
+
+## A BLUNT SABOTAGE SWITCH CANNOT CERTIFY A PER-DETECTOR GATE — 2026-09-20
+
+The storage canary is a bucket whose select policy scopes to the bucket and
+nothing else, and it trips **three** detectors: `storage-read`, `storage-list`
+and `storage-former`. `--break=storage` silences all three at once, so it
+proves the canary can be missed and proves nothing whatever about *which*
+detector the gate is on.
+
+That is precisely the trap the RPC canary sprang on the first pass:
+`--break=leak` PASSED, because "the canary was caught" was true no matter
+which detector was switched off.
+
+So there are two sharp switches beside the blunt ones, and they are the ones
+that carry the certification:
+
+- `--break=storage-read` silences **only** the byte comparison → the canary is
+  MISSED although `storage-list` and `storage-former` still trip on it
+- `--break=realtime-pub` silences **only** the publication detector → the run
+  fails although `[realtime-broadcast]` is caught
+
+**A sabotage switch that turns off a whole section is a smoke test. A switch
+that turns off one detector is a certification.**
+
+## TWO CONCURRENT RUNS OF THE MATRIX DESTROY EACH OTHER'S READING — 2026-09-20
+
+Done by accident, worth recording. A backgrounded run and a foreground run
+share one canary table, one canary bucket, one canary RPC and one pair of
+fixture tenants, and each one's `finally` tears down the other's. The second
+run printed `CANARY NOT CAUGHT` and `owner A cannot download its OWN file from
+job-photos (400)` — which reads exactly like a blind detector beside a broken
+policy, and was neither.
+
+The teardown itself held: both canaries, the canary bucket, the publication
+entry, every planted object and both fixture tenants were verified gone
+afterwards. **It is the reading that is destroyed, not the database.** Run it
+one at a time.

@@ -1,9 +1,12 @@
 {
-  "git_sha": "d76e54a624494bfef13d8379b65bdcca405cc2c8",
+  "git_sha": "52a3d70e5317fdd29734341a021b4409293d7566",
   "environment": "local",
-  "finished_at": "2026-09-20T08:51:14.258Z",
+  "finished_at": "2026-09-20T09:41:14.364Z",
   "failures": [],
-  "warnings": [],
+  "warnings": [
+    "realtime 7c — STANDING RISK, nothing is wrong today: a channel opened without { config: { private: true } } is authorised by NOTHING. This run proved it by having a client with the anon key and no session receive tenant B's message verbatim. The app opens zero channels, so nothing is exposed; the first supabase.channel('something-' + businessId) anybody writes is a cross-tenant channel on the day it ships, because the topic name is the only thing separating two tenants and a business id is a guess away. Private channels ARE closed — realtime.messages is RLS-on with zero policies and anon was refused in the same run.",
+    "realtime 7b: the canary table is published to supabase_realtime with a \"using (true)\" select policy, owner A's subscription reported SUBSCRIBED, the socket was proved live on itself, B's row was inserted — and nothing arrived in 15s. postgres_changes is not delivering on this project, so the [realtime-stream] detector is NOT certified. It is uncovered rather than clean. The publication carries no tenant table (7a) and the app opens no channels, so nothing is exposed today; the day a table is published this detector must be re-proved first."
+  ],
   "artifacts": [
     "artifacts/tenant-matrix/index.html"
   ],
@@ -14,6 +17,12 @@
       "owner A",
       "staff A",
       "former A"
+    ],
+    "boundaries": [
+      "data-api-tables",
+      "definer-rpcs",
+      "storage-objects",
+      "realtime"
     ],
     "tenant_tables": 39,
     "locked_tables": 12,
@@ -28,17 +37,17 @@
     "sabotage": null
   },
   "check_id": "tenant-matrix",
-  "started_at": "2026-09-20T08:50:02.923Z",
+  "started_at": "2026-09-20T09:39:22.237Z",
   "status": "pass",
-  "expected_targets": 71,
-  "discovered_targets": 71,
-  "attempted_targets": 71,
-  "completed_targets": 71,
+  "expected_targets": 77,
+  "discovered_targets": 77,
+  "attempted_targets": 77,
+  "completed_targets": 77,
   "skipped_targets": 0,
-  "assertions_executed": 693,
-  "min_assertions": 300,
+  "assertions_executed": 729,
+  "min_assertions": 700,
   "canary": {
-    "id": "tenant_matrix_canary · a table with \"using (true)\" on select",
+    "id": "four negative controls · a table with \"using (true)\" on select, a definer RPC that trusts a tenant id from its caller, a bucket whose policy scopes to the bucket and nothing else, and a realtime channel authorised by nothing",
     "observed_failure": true,
     "caught_by": [
       "leak",
@@ -47,6 +56,15 @@
     ],
     "rpc_caught_by": [
       "rpc"
+    ],
+    "storage_caught_by": [
+      "storage-read",
+      "storage-list",
+      "storage-former"
+    ],
+    "realtime_caught_by": [
+      "realtime-publication",
+      "realtime-broadcast"
     ],
     "findings": [
       "[leak] owner A READ 1 of B's rows",
@@ -58,7 +76,15 @@
       "[former] former A still reads 2 row(s) after the membership was deleted",
       "[rpc] tenant_matrix_canary_rpc() hands B's own data to an ANONYMOUS caller, and it is not one of the endpoints that publish a profile on purpose",
       "[rpc] tenant_matrix_canary_rpc() hands B's own data to an ANONYMOUS caller, and it is not one of the endpoints that publish a profile on purpose",
-      "[rpc] tenant_matrix_canary_rpc() hands B's own data to an ANONYMOUS caller, and it is not one of the endpoints that publish a profile on purpose"
+      "[rpc] tenant_matrix_canary_rpc() hands B's own data to an ANONYMOUS caller, and it is not one of the endpoints that publish a profile on purpose",
+      "[storage-read] owner A DOWNLOADED B's file from tenant-matrix-canary-bucket where anon got nothing",
+      "[storage-list] owner A LISTED 1 of B's object(s) in tenant-matrix-canary-bucket where anon listed none",
+      "[storage-read] staff A DOWNLOADED B's file from tenant-matrix-canary-bucket where anon got nothing",
+      "[storage-list] staff A LISTED 1 of B's object(s) in tenant-matrix-canary-bucket where anon listed none",
+      "[storage-read] former A DOWNLOADED B's file from tenant-matrix-canary-bucket where anon got nothing",
+      "[storage-list] former A LISTED 1 of B's object(s) in tenant-matrix-canary-bucket where anon listed none",
+      "[storage-former] former A still lists 1 object(s) of A's in tenant-matrix-canary-bucket after the membership was deleted",
+      "[realtime-broadcast] an anonymous client with no session received tenant B's message on a non-private channel"
     ]
   }
 }
