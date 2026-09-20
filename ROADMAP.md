@@ -3404,25 +3404,57 @@ words. **The fix belongs in the check, not in reverting the string** — give
 the instrument a stable hook (`data-*`, a route, a component name) instead of
 a wording it is free to keep changing. Full detail: `docs/gotchas.md`.
 
-- [ ] **10.1 — Remove every developer-voice string.**
-  - "Tallest bar $741." → remove, or a real caption
-  - "This is the sentence that closes a sale — it is real scarcity rather than a tactic"
-  - "$0 went through… it is the proof the product works rather than income"
-  - "The built-in table · nothing is overridden"
-  - "Each line is asked of everybody separately…"
-  - "Log a bulk job" → "Add a fleet job"
-  - "Maintenance deadlines · 1 missed" → "Plan visits · 1 overdue"
-  - "Six short tours, up to 37 steps" → "Quick tours"
-  - "0 of 9 bookings came through a link. Earned counts finished jobs only."
-  - "Add a way to be paidSave" — two buttons with no space between them
+- [x] ~~**10.1 — Remove every developer-voice string.**~~ **Done, 2026-09-20.**
+  - ~~"Tallest bar $741." → remove, or a real caption~~ **Not a fault.** Already
+    a real caption ("Tallest bar {peak}. The line across is zero."), fixed by
+    an earlier, unrelated pass. Left alone.
+  - ~~"This is the sentence that closes a sale…"~~ → "Real scarcity, not a
+    tactic — the count comes from the database and drops every time somebody
+    takes a spot."
+  - ~~"$0 went through… it is the proof the product works…"~~ → "…not ours to
+    spend" / "…it does not count as income" (two occurrences)
+  - ~~"The built-in table · nothing is overridden"~~ → "Custom pricing, set
+    here" / "Standard pricing"
+  - ~~"Each line is asked of everybody separately…"~~ → "A detailer can appear
+    on two lines at once when two different things are true about them —
+    that is not the same name being counted twice."
+  - "Log a bulk job" → "Add a fleet job" — the string the width sweep
+    depended on by name; see the coupling note above, now this item's own
+    example of it
+  - ~~"Maintenance deadlines · 1 missed" → "Plan visits · 1 overdue"~~ →
+    **"Visits due"**, not "Plan visits" (collides with the separate Monthly
+    Plans feature) — Andrew's ruling, 2026-09-20: *"Deadline is a
+    project-management word; a detailer does not have deadlines, they have
+    visits that are due."* Renamed in `Business.jsx` and `more/index.js`,
+    both places it lives, with all six Spanish keys moved
+  - "Six short tours, up to 37 steps" → "Quick tours. Stop any time."
+  - "0 of 9 bookings came through a link. Earned counts finished jobs only." →
+    "…"Earned" only counts jobs you have finished."
+  - "Add a way to be paidSave" — two buttons with no space between them.
+    Reproduced live, not assumed from the audit: a real space character
+    between the two sibling buttons fixes what gets read without moving
+    anything a sighted user sees
   - Tab name "Plumbing" → "System health"
-  - Raw job names `accrue-plan-visits`, `send-owner-reminders` → plain names
-  - "Something watching from outside" → "External booking check"
-  **Remember:** a string changed here needs its Spanish key changed in the same
-  edit, or it silently falls back to English.
+  - Raw job names `accrue-plan-visits`, `send-owner-reminders` → the same
+    plain names the alert email already used ("the nightly plan-visit
+    accrual", "the reminder sweep"), mirrored into the front end
+  - ~~"Something watching from outside" → "External booking check"~~ →
+    **"Dead man's switch"** — the suggested replacement named the wrong
+    feature entirely (this is the job-heartbeat monitor, nothing to do with
+    bookings). Decided by audience: `/admin` is staff-only, checked against
+    every script in `scripts/*.mjs` for a literal reference (zero), so the
+    precise term the code already uses stands rather than a softened one
+  **Every Spanish key moved in the same edit it applied to.**
   *A1 P2-16, P3-04, P3-07, § 7, A2 4.10, 5.4*
 
-- [ ] **10.2 — Cut every back-office explanation paragraph to one line.**
+- [x] ~~**10.2 — Cut every back-office explanation paragraph to one line.**~~
+  **Done, 2026-09-20.** Thirteen paragraphs in `AdminPage.jsx` condensed from
+  two sentences to one, cross-checked against the width sweep's 23
+  load-bearing strings first (zero collisions — body prose isn't clicked by
+  its words) and verified live at 1440/768/392/320: nothing clipped, longest
+  wraps to four lines at 320 with nothing cut off. Broke two of
+  `platform-admin.test.mjs`'s own checks on landing — caught immediately and
+  re-pointed at the underlying fact rather than the wording (`a470f3f`).
   *A2 5.5*
 
 ---
