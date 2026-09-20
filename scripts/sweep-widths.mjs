@@ -751,25 +751,20 @@ if (process.env.SWEEP_LEDGER_CANARY === "1") {
 // A mode that cannot be told apart from another mode in the artifacts is a
 // mode nobody can check. The suffix is part of the identity, so it goes in the
 // directory, the receipt id and the page title.
-// **AND A HELD RUN IS A MODE TOO — 2026-09-20, ROADMAP 14.10, caught in the
-// act.** `SWEEP_TOUR_HOLD` makes the tour walk press more slowly than the
-// sweep ever does, which is how "the sweep truncates because it is impatient"
-// was proved. The first four runs of that experiment went into
-// `sweep-widths-ledger.json` labelled `default`, so the two that only reached
-// six blocks BECAUSE of the hold were indistinguishable from an ordinary run
-// that completed on its own. The ledger's whole job at 1440 is to count runs
-// that did not complete; two rows claiming a completion the sweep cannot
-// actually produce would have read as 1440 recovering. Same failure as the
-// English and Spanish runs overwriting each other above, so it takes the same
-// cure rather than a second one: the tempo is part of the identity.
-const TOUR_HOLD = Number(process.env.SWEEP_TOUR_HOLD || 0);
-const MODE = `${process.env.LANG_APP === "es" ? "-es" : ""}${LITE ? "-lite" : ""}${TOUR_HOLD ? `-hold${TOUR_HOLD}` : ""}`;
+// **A KNOB THAT CAN MANUFACTURE A PASSING RUN MUST NOT OUTLIVE THE EXPERIMENT
+// IT WAS BUILT FOR.** `SWEEP_TOUR_HOLD` held the tour walk at a slower tempo
+// to prove the truncation was this script's own impatience. It proved it, the
+// real fix landed, and it is gone — a switch that makes a check complete when
+// the check cannot is a switch somebody reaches for on a bad afternoon. While
+// it existed it had to be part of `MODE`, because its first four runs went
+// into the ledger labelled `default` and two of them claimed a completion the
+// sweep could not produce. `docs/gotchas.md` keeps that lesson, not the knob.
+const MODE = `${process.env.LANG_APP === "es" ? "-es" : ""}${LITE ? "-lite" : ""}`;
 const ART = `artifacts/sweep-widths${MODE}`;
 // WHAT THE CONTACT SHEET CALLS ITSELF. A page that does not say which run made
 // it is a page somebody reads as whichever run they were thinking of.
 const LANG_ES = process.env.LANG_APP === "es";
-const MODE_WORDS = [LANG_ES ? "Spanish" : "", LITE ? "reduced motion (?lite=1)" : "",
-  TOUR_HOLD ? `tour held ${TOUR_HOLD}ms between presses — NOT the sweep's own tempo` : ""]
+const MODE_WORDS = [LANG_ES ? "Spanish" : "", LITE ? "reduced motion (?lite=1)" : ""]
   .filter(Boolean).join(", ");
 // The measured record: one row per surface the run actually looked at.
 const CERT = [];
@@ -824,6 +819,38 @@ const cardPlan = async (page) => {
   const m = /(\d+)\s*OF\s*(\d+)/i.exec(String(raw).replace(/\s+/g, " "));
   return m ? { at: Number(m[1]), of: Number(m[2]) } : null;
 };
+// **WAIT FOR THE NEXT CARD TO EXIST, NEVER FOR THE PAGE TO GO QUIET — 2026-09-20,
+// ROADMAP 14.11, and it is the sixth time `settle()` has been the wrong
+// instrument in this file.** `settle()` is a cap on a REPAINT. The next tab's
+// card is not a repaint of this one: measured, the page goes quiet ~560ms
+// after the press that crosses to a new tab and the card does not exist yet,
+// so the walk pressed into nothing and the tour ended at step 5, every run.
+//
+// **AND THIS IS ALSO WHERE THE FALSE SKIP CAME FROM.** A card at a tab
+// boundary reads `5 of 5` — at === of — which is indistinguishable from the
+// last card of the whole tour. So the accounting below saw "reached its own
+// last card", found the inventory wanted more, and wrote the rest off as
+// steps the dashboard cannot produce. Waiting for the next card is what turns
+// that guess into evidence: either a different card arrives, or the press and
+// the full wait came back empty and THAT is what a skip is allowed to rest on.
+//
+// Returns `{ arrived, ms }`. A different step counter is a different card; the
+// same counter still on screen means the press has not landed yet.
+const TOUR_WAIT_MS = Number(process.env.SWEEP_TOUR_WAIT || 8000);
+const nextCard = async (page, prev, ms = TOUR_WAIT_MS) => {
+  const t0 = Date.now();
+  for (;;) {
+    if (await page.locator(".tourcard").count()) {
+      const now = await cardPlan(page);
+      if (!prev || !now || now.at !== prev.at || now.of !== prev.of) {
+        return { arrived: true, ms: Date.now() - t0 };
+      }
+    }
+    if (Date.now() - t0 >= ms) return { arrived: false, ms: Date.now() - t0 };
+    await page.waitForTimeout(60);
+  }
+};
+
 // **THE HOOK THAT BREAKS IT ON PURPOSE.** `SWEEP_GUIDE_CANARY=1` stops every
 // walk one step early, which is exactly the shape of a guide that died
 // halfway. The accounting below must call that a FINDING and must refuse to
@@ -2671,19 +2698,20 @@ for (const w of SIZES) {
     // 3/4 4/4 1/6 …` is a tour crossing from a four-step tab to a six-step
     // one; the same pair twice running is a tour that is not advancing.
     const tourTrail = [];
-    // **HOW LONG THE SWEEP ACTUALLY WAITS BETWEEN PRESSES, MEASURED RATHER
-    // THAN REASONED — 2026-09-20, ROADMAP 14.10.** The twenty-run experiment
-    // that produced "the sweep was measuring its own patience" pressed at a
-    // flat 300ms, chosen because `settle()` returns after 130ms of quiet. That
-    // was an inference about this line, never a reading of it. `settle()`
-    // RETURNS the milliseconds it waited and nothing had ever written them
-    // down, so the load-bearing number in that finding was the one number
-    // nobody had measured. `SWEEP_TOUR_SETTLE` moves the cap so the two
-    // readings can be told apart: if these come back on QUIET the cap does not
-    // matter, and if they are pinned at the cap the sweep is not pressing fast
-    // at all.
-    const TOUR_CAP = Number(process.env.SWEEP_TOUR_SETTLE || 1000);
+    // **HOW LONG THE NEXT CARD ACTUALLY TOOK, PRINTED RATHER THAN ASSUMED —
+    // 2026-09-20, ROADMAP 14.10 and 14.11.** This line used to be
+    // `settle(page, 1000)` and threw away the number it returned, so the
+    // figure the whole truncation finding rested on was the one figure nobody
+    // had ever read. Measured, it was ~250ms inside a tab and ~560ms on the
+    // press that crosses to a new tab — quiet, and no card. The pace is kept
+    // because it is what tells a slow load from a dead press: a real wait
+    // ending in `EMPTY` is the tour finishing, and every number before it is
+    // how long the product took to answer.
     const tourPace = [];
+    // Set only by a press whose bounded wait came back EMPTY. A walk that
+    // broke because the card was already gone leaves it false, and false is
+    // what refuses every write-off below.
+    let tourEndProved = false;
     for (let k = 1; k <= TOUR_BOUND; k++) {
       if (!(await page.locator(".tourcard").count())) break;
       // READ BEFORE THE PRESS. After the click the card is either the next
@@ -2696,18 +2724,12 @@ for (const w of SIZES) {
       if (GUIDE_CANARY && k >= 2) break;
       if (XWIDTH_CANARY && w === SIZES[0] && k >= 5) break;
       await page.locator(".tourcard button.primary").click();
-      tourPace.push(await settle(page, TOUR_CAP));
-      // **A KNOB, NOT A FIX.** Default 0, so the sweep's own behaviour is
-      // unchanged. `settle()` is a CAP on quiet, so raising the cap cannot
-      // make this walk press more slowly - the DOM goes quiet at ~250ms and
-      // it returns. Without a way to hold, "the sweep is impatient" and "the
-      // sweep meets the plan-growth bug" produce the identical column, which
-      // is the same trap the tempo arm was built to escape one level up. The
-      // real fix stays what ROADMAP 14.10 says it is: wait for the next CARD
-      // to exist rather than for the page to go quiet.
-      if (TOUR_HOLD) await page.waitForTimeout(TOUR_HOLD);
+      const step = await nextCard(page, tourLast);
+      tourPace.push(step.arrived ? String(step.ms) : step.ms + "=EMPTY");
+      if (!step.arrived) { tourEndProved = true; break; }
     }
-    console.log(`${"tour · the pace".padEnd(24)} cap ${TOUR_CAP}ms, hold ${TOUR_HOLD}ms; settle returned ${tourPace.join(" ") || "-"}`);
+    console.log(`${"tour · the pace".padEnd(24)} waited up to ${TOUR_WAIT_MS}ms per press; `
+      + `the next card took ${tourPace.join(" ") || "-"}`);
     // The block structure, derived from the trail: a counter that restarts at
     // 1 is a new tab. `1/4 2/4 3/4 4/4 1/6 …` is [4, 6, …].
     const tourBlocks = [];
@@ -2727,7 +2749,7 @@ for (const w of SIZES) {
     console.log(`${"tour · the blocks".padEnd(24)} ${tourBlocks.length} block(s) declaring ${tourBlocks.join(" + ")} = ${blockSum} step(s); `
       + `${tourWalked} walked${blockSum === tourWalked ? "" : " — SHORT BY " + (blockSum - tourWalked)}`);
     WALKS.push({ width: w, prefix: "tour · step ", what: "the tour", walked: tourWalked, last: tourLast,
-      blocks: tourBlocks,
+      blocks: tourBlocks, endProved: tourEndProved,
       hitBound: tourWalked >= TOUR_BOUND && (await page.locator(".tourcard").count()) > 0 });
 
     // ROADMAP 2.24 — THE FOUR TAB GUIDES, walked in the change that built
@@ -2821,6 +2843,7 @@ for (const w of SIZES) {
       // actually guarantees the next iteration can click.
       let last = null;
       let walked = 0;
+      let endProved = false;
       const GUIDE_BOUND = 12;
       for (let k = 1; k <= GUIDE_BOUND; k++) {
         if (!(await page.locator(".tourcard").count())) break;
@@ -2829,9 +2852,11 @@ for (const w of SIZES) {
         walked = k;
         if (GUIDE_CANARY && k >= 2) break;
         await page.locator(".tourcard button.primary").click();
-        await settle(page, 900);
+        // Same rule as the tour: a guide's end is a press whose wait came back
+        // empty, never a card that happened to be gone when we looked.
+        if (!(await nextCard(page, last)).arrived) { endProved = true; break; }
       }
-      WALKS.push({ width: w, prefix: `guide · ${name} `, what: `the ${name} guide`, walked, last,
+      WALKS.push({ width: w, prefix: `guide · ${name} `, what: `the ${name} guide`, walked, last, endProved,
         hitBound: walked >= GUIDE_BOUND && (await page.locator(".tourcard").count()) > 0 });
       // BELT AND BRACES, and the belt is the part that matters: a guide left
       // open is not a finding about this tab, it is a failure of every
@@ -3031,6 +3056,29 @@ if (process.argv.includes("--dump-fingerprints")) {
       }
       if (!short.length) {
         console.log(`${head} ${k.walked} step(s), ended on the last card it had (${k.last.at} of ${k.last.of}) — complete, and the inventory agrees`);
+        continue;
+      }
+      // **A SKIP CARRIES THE EVIDENCE THAT THE SURFACE WAS REACHED AND
+      // REFUSED, OR IT IS NOT A SKIP — 2026-09-20, ROADMAP 14.11.** Everything
+      // below writes labels off as steps this dashboard cannot produce. That
+      // is a claim about the PRODUCT, and until today it rested on
+      // `k.last.at === k.last.of` — the walk ended on the last card of a
+      // block. **At a tab boundary that is exactly what a walk that died looks
+      // like**, because the card there reads `5 of 5` too. So the sweep issued
+      // itself a licence for its own truncation, once per run, and the gate
+      // believed it.
+      //
+      // `endProved` is the evidence and nothing else will do: the walk
+      // pressed, waited the full `TOUR_WAIT_MS`, and no new card came. A walk
+      // that stopped because the card was already gone when it looked has
+      // proved nothing about the product, so it writes nothing off and the run
+      // does not get to pass on it.
+      if (!k.endProved) {
+        console.log(`${head} ENDED WITHOUT PROOF — ${k.what} walked ${k.walked} step(s), last card `
+          + `${k.last.at} of ${k.last.of}, and the walk stopped because the card was already gone rather `
+          + `than because a press and a full wait came back empty. Nothing here shows the ${short.length} `
+          + `label(s) it owes are ABSENT rather than MISSED, so none are written off: ${short.join(", ")}`);
+        found++;
         continue;
       }
       // Reached its own last card, and the inventory wanted more than this

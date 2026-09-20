@@ -4187,6 +4187,84 @@ event id.
   **and**, separately, the plan-growth signature has a fix in
   `Walkthrough.jsx` that drops the 2-in-20 cold-open rate measurably.
 
+### 14.11 — a check with a sanctioned word for testing nothing
+
+- [ ] **A declared skip in this repo is supposed to mean a surface proved
+  unreachable, and one of them is really just a walk that died — so the
+  instrument certifies its own fault as correct on every run and the gate
+  believes it. That is the disease at the level above the disease: not a check
+  that tests nothing, but a check that has a sanctioned word for testing
+  nothing.** Andrew's manager, 2026-09-20, on the finding in 14.10.
+  **Split out of 14.10 deliberately and it is the larger item.** 14.10 is one
+  instrument pressing too fast. This is about what the repo is allowed to call
+  a skip, and it reaches every check that has ever declared one.
+
+  **THE INSTANCE, SO THE RULE HAS SOMETHING TO STAND ON.** The width sweep's
+  tour walk ended at step 5 at 1440 and printed:
+
+  ```
+  tour · step @1440   5 step(s), ended on the last card it had (5 of 5)
+                      — 2 inventory label(s) this dashboard cannot produce:
+                        tour · step 6, tour · step 7
+  ```
+
+  *This dashboard cannot produce* is a claim about the **product**. It rested
+  entirely on `last.at === last.of` — the walk ended on the last card of a
+  block. **At a tab boundary that is exactly what a walk that died looks
+  like**, because the card there reads `5 of 5` too. So the run wrote its own
+  truncation off as a property of the dashboard, once per run, and that is why
+  the truncating run **exits 0 and passes the expected-count gate** while the
+  complete walk fails it.
+
+  **AND THE PART THAT MAKES IT AN ITEM RATHER THAN A BUG: THIS REPO ALREADY
+  HAD THE RULE, AND THIS SITE WENT AROUND IT.** `sweep-widths.mjs` has exactly
+  two places that issue a skip. One is `declareSkip(label, reason, reachable)`,
+  which **re-asks a probe and refuses the skip if the surface is actually
+  there** — its own comment says *"the run proves the surface was genuinely
+  out of reach rather than taking the caller's word for it"*, and a refusal is
+  louder than the thing it hid. The other is a bare `SKIPPED.push` in the walk
+  accounting, with no probe and no way to refuse. **The correct pattern was
+  forty lines away and had been for days.** Same shape as the animation fix
+  that lived in `screenreader-structure.mjs` while the script measuring nothing
+  but edges went without: a technique that lives in one instrument is not a
+  technique the repo has.
+
+  **THE RULE, WHICH IS THE DELIVERABLE.** A skip carries the evidence that the
+  surface was **reached and refused**, or it is not a skip and the run does not
+  get to pass on it. Anything that cannot produce that evidence stops being
+  issued as a skip at all and becomes a finding. Three consequences worth
+  writing separately:
+
+  - **The evidence is an ACT, not a state.** `declareSkip` probes. The walk's
+    evidence is that it pressed, waited the full bound, and nothing came.
+    "The thing was not there when I looked" is not evidence — it is the
+    sentence every dead walk also produces.
+  - **A skip that cannot be refused is not a skip.** If no probe could ever
+    contradict it, it is an assertion wearing a measurement's clothes.
+  - **A run may not grade itself on skips it issued.** The truncating run
+    passing its own gate is the whole failure in one line.
+
+  **DONE ON THE INSTANCE, 2026-09-20.** `nextCard()` replaces the
+  wait-for-quiet in both the tour walk and the four tab guides, and
+  `endProved` is set only by a press whose full wait came back empty. A walk
+  that stopped because the card was already gone writes **nothing** off and
+  prints `ENDED WITHOUT PROOF` with the labels it refused to excuse.
+  `SWEEP_TOUR_HOLD` is deleted in the same change — a switch that can make a
+  check complete when the check cannot is one somebody reaches for on a bad
+  afternoon.
+
+  **STILL OPEN, AND IT IS THE RULE HALF:** **21 scripts declare skips**
+  (`skipped_targets` in their receipts) and only `sweep-widths.mjs` has been
+  read for this. Every one needs the same question asked: *what would have to
+  be true for this skip to be refused, and does anything ask?* A skip nothing
+  can refuse is the finding, wherever it lives.
+
+  **Done when:** every `skipped_targets` writer in `scripts/` either routes its
+  skips through a probe that can refuse them or stops issuing them — **and**
+  one skip per script has been refused on purpose to prove the probe fires,
+  **and** `receipt.mjs` fails a receipt whose skips carry no evidence field, so
+  the rule is graded rather than remembered.
+
 ---
 
 ## Release gates

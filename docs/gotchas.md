@@ -1914,3 +1914,47 @@ own voice; the sweep not knowing the product renamed something is a gap in
 the sweep, and the right repair is to give it a stable way to find the
 screen (a `data-*` hook, a route, a component name) instead of a string that
 copy is free to keep changing.
+
+## A SANCTIONED WORD FOR TESTING NOTHING: THE SKIP THAT WAS A WALK THAT DIED — 2026-09-20, ROADMAP 14.11
+
+Every entry above is a check that measured the wrong thing. This one is worse
+and it is the level above: **a check that has an approved vocabulary for not
+measuring at all, and uses it on itself.**
+
+The width sweep's tour walk ended at step 5 at 1440 and printed:
+
+```
+tour · step @1440   5 step(s), ended on the last card it had (5 of 5)
+                    — 2 inventory label(s) this dashboard cannot produce
+```
+
+*This dashboard cannot produce* is a claim about the **product**, and it rested
+on one test: `last.at === last.of`, the walk ended on the last card of a block.
+**At a tab boundary that is exactly what a walk that died looks like** — the
+card there reads `5 of 5` too. So the run wrote its own truncation off as a
+property of the dashboard, **once per run**, which is why the truncating run
+exits 0 and passes the gate while the complete walk fails it.
+
+**THE TELL, AND IT IS THE ONE TO LEARN.** A skip is a POSITIVE claim about the
+world. Ask of any skip you meet: *what act established this, and what could
+have contradicted it?* Here the answer was "the walk stopped" — which is the
+same sentence a broken walk produces, so nothing could ever have contradicted
+it. **A skip nothing can refuse is an assertion wearing a measurement's
+clothes.**
+
+**AND THE REPO ALREADY HAD THE RULE, FORTY LINES AWAY.** `sweep-widths.mjs`
+issues skips in exactly two places. One is `declareSkip(label, reason,
+reachable)`, which re-probes and **refuses** the skip if the surface is
+actually there — *"the run proves the surface was genuinely out of reach rather
+than taking the caller's word for it"*. The other was a bare `SKIPPED.push`
+with no probe at all. Same shape as the animation fix that lived in
+`screenreader-structure.mjs` while the script measuring nothing but edges went
+without: **a technique that lives in one instrument is not a technique the repo
+has.** When you add a skip, go and read how the neighbouring skip proves
+itself.
+
+**The rule now:** a skip carries the evidence that the surface was reached and
+refused, or it is not a skip and the run does not get to pass on it. The
+evidence is an **act** — a probe that came back empty, a press and a full wait
+that produced no card — never a state observed in passing. And **a run may not
+grade itself on skips it issued**, which is the whole failure in one sentence.

@@ -34,15 +34,24 @@ const SUBJECT = nums[1] || 1440;
 const CONTROL = nums[2] || 392;
 const CONTROL_RUNS = Math.max(3, Math.round(RUNS / 4));
 const BOUND = 48;                       // above the 33 the tour is known to be
-// **THE PACING IS A VARIABLE, BECAUSE IT IS THE FIRST SUSPECT.** This script
-// waits a flat second between presses. `sweep-widths.mjs` calls `settle()`
-// with a 1000ms CAP, and settle returns as soon as the DOM has been quiet for
-// 130ms - so on a cached tab it presses far sooner than this does. And a short
-// wait is already known to end a tour early: `tour-caption.mjs` waited 260ms
-// and the tour "ended" at step 4, at 392px, where it otherwise walks 33.
-// TOUR_WAIT repeats the same twenty runs at the sweep's real tempo rather
-// than at a comfortable one.
-const WAIT = Number(process.env.TOUR_WAIT || 1000);
+// **THE PACING WAS THE VARIABLE, AND IT IS NOW SETTLED — READ THIS BEFORE THE
+// PARAGRAPH BELOW IT, WHICH IS HISTORY.** The suspicion was that
+// `sweep-widths.mjs` pressed far sooner than this script's flat second,
+// because `settle()` returns after 130ms of quiet. Measured: ~250ms inside a
+// tab, ~560ms on the press that crosses to a new tab. `TOUR_WAIT` reproduced
+// it — 20 of 20 truncating at 1440, and the same short wait killing the tour
+// at 392 too. The sweep has since been fixed to wait for the next CARD, so a
+// flat wait no longer stands in for it and `TOUR_WAIT` is kept only to re-run
+// those historical arms.
+// **ZERO MEANS "WAIT FOR THE NEXT CARD", WHICH IS WHAT THE SWEEP NOW DOES —
+// 2026-09-20, ROADMAP 14.11.** This script existed to reproduce the sweep's
+// tempo with a flat wait, because the sweep pressed on a flat-ish quiet. The
+// sweep no longer does: it presses, then waits up to 8s for a DIFFERENT card
+// to exist. A flat wait can no longer stand in for it, so the default arm
+// waits the same way and `TOUR_WAIT` is kept only for the historical tempo
+// arms that produced the finding.
+const WAIT = Number(process.env.TOUR_WAIT || 0);
+const CARD_WAIT = 8000;
 const SHOTS = "artifacts/tour-runs";
 
 const once = async (browser, width, tag, wait = WAIT) => {
@@ -83,6 +92,30 @@ const once = async (browser, width, tag, wait = WAIT) => {
         out.ended = "the Next press failed: " + String(e.message).split("\n")[0];
       });
       if (out.ended) break;
+      if (!wait) {
+        // The sweep's real behaviour: press, then wait for a card that is not
+        // the one just pressed. Ending here means a press AND a full wait came
+        // back empty, which is the only thing allowed to count as "the tour is
+        // over" now.
+        const t0 = Date.now();
+        let arrived = false;
+        for (;;) {
+          if (await page.locator(".tourcard").count()) {
+            const lab2 = await page.locator(".tourcard .label").first().innerText().catch(() => "");
+            const m2 = /(\d+)\s*OF\s*(\d+)/i.exec(String(lab2).replace(/\s+/g, " "));
+            const now = m2 ? `${m2[1]}/${m2[2]}` : null;
+            if (!now || !m || now !== `${m[1]}/${m[2]}`) { arrived = true; break; }
+          }
+          if (Date.now() - t0 >= CARD_WAIT) break;
+          await page.waitForTimeout(60);
+        }
+        if (!arrived) {
+          out.ended = k >= 30 ? "finished" : "no card arrived after the press";
+          break;
+        }
+        if (k === BOUND) out.ended = "hit this script's ceiling of " + BOUND;
+        continue;
+      }
       await page.waitForTimeout(wait);
       const after = await page.locator(".tourcard").count();
       if (before && !after) {
@@ -110,7 +143,8 @@ const browser = await chromium.launch();
 const { mkdirSync } = await import("node:fs");
 mkdirSync(SHOTS, { recursive: true });
 
-console.log(`${RUNS} runs at ${SUBJECT}px, ${CONTROL_RUNS} control runs at ${CONTROL}px, ${WAIT}ms between presses
+console.log(`${RUNS} runs at ${SUBJECT}px, ${CONTROL_RUNS} control runs at ${CONTROL}px, `
+  + `${WAIT ? WAIT + "ms between presses" : "waiting for the next card (the sweep's own rule)"}
 `);
 // **THE CONTROL IS ALWAYS RUN AT THE SLOW TEMPO, WHATEVER `TOUR_WAIT` SAYS.**
 // Its job is to prove the SCRIPT works, and a control run at the tempo under
@@ -130,7 +164,7 @@ console.log("");
 
 const subject = [];
 for (let i = 1; i <= RUNS; i++) {
-  const r = await once(browser, SUBJECT, `subject-${SUBJECT}-${i}`);
+  const r = await once(browser, SUBJECT, `subject-${SUBJECT}-${i}`, WAIT);
   subject.push(r);
   console.log(`run ${String(i).padStart(2)}  ${SUBJECT}px  ${String(r.steps).padStart(2)} step(s), `
     + `${r.blocks.length} block(s) [${r.blocks.join("+") || "-"}]  — ${r.ended}`
@@ -141,7 +175,7 @@ for (let i = 1; i <= RUNS; i++) {
 // everything: "1440 is fragile" and "pressing fast ends any tour" produce the
 // identical subject column. This arm is the difference between them.
 const tempo = [];
-if (WAIT !== 1000) {
+if (WAIT && WAIT !== 1000) {
   console.log("");
   for (let i = 1; i <= CONTROL_RUNS; i++) {
     const r = await once(browser, CONTROL, `tempo-${CONTROL}-${i}`, WAIT);
