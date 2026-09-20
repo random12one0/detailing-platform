@@ -245,10 +245,11 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
     // belongs behind the gear by this screen's own admission test: it changes
     // how the app behaves for the DETAILER and nothing a customer meets.
     // Staff keep it; they are the ones most likely to be new.
-    // The row says how long it is. See Walkthrough's GRAND_STEPS for why the
-    // number is computed and why it says "about".
+    // ROADMAP 10.1 — the row used to name the tour count and its step total
+    // (`GRAND_STEPS`), precise language nobody but the person who built the
+    // tours needed. The row it opens still says how long it is.
     ["tour", "Show me around", Compass,
-      t("Six short tours, up to {count} steps. Stop any time.", { count: GRAND_STEPS }), null],
+      t("Quick tours. Stop any time."), null],
     ...(memberships.length > 1
       ? [["switch", "Switch business", Building2, `${memberships.length} businesses`, null]]
       : []),

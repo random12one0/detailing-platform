@@ -369,7 +369,7 @@ export const appEs = {
   "Show fewer": "Mostrar menos",
   "+{count} more in {period}": "+{count} más en {period}",
   "Could not load your expenses.": "No se pudieron cargar tus gastos.",
-  "Log a bulk job": "Registrar trabajo en lote",
+  "Add a fleet job": "Agregar trabajo de flotilla",
   "Export": "Exportar",
   "Add": "Agregar",
 
@@ -2208,8 +2208,8 @@ export const appEs = {
     "El {count} trabajo queda como una entrada anónima, así que tus ingresos y tu exportación contable no cambian.",
   "The {count} jobs stay as anonymous entries, so your takings and your accountant export do not change.":
     "Los {count} trabajos quedan como entradas anónimas, así que tus ingresos y tu exportación contable no cambian.",
-  "Six short tours, up to {count} steps. Stop any time.":
-    "Seis recorridos cortos, hasta {count} pasos. Para cuando quieras.",
+  "Quick tours. Stop any time.":
+    "Recorridos rápidos. Para cuando quieras.",
   // Re-opening a blocked day asks with the reason the detailer typed.
   "This day is closed for {reason}. Re-open it and customers can book.":
     "Este día está cerrado por {reason}. Si lo reabres, los clientes podrán reservar.",
@@ -2319,8 +2319,8 @@ export const appEs = {
     "Nadie abrió tus enlaces en este periodo.",
   "{percent}% booked": "{percent}% reservaron",
   "{amount} earned": "{amount} ganados",
-  "{n} of {m} bookings came through a link. Earned counts finished jobs only.":
-    "{n} de {m} reservas llegaron por un enlace. Lo ganado cuenta solo los trabajos terminados.",
+  "{n} of {m} bookings came through a link. “Earned” only counts jobs you have finished.":
+    "{n} de {m} reservas llegaron por un enlace. “Ganado” solo cuenta los trabajos que ya terminaste.",
   "Make a link for a flyer, a post or an ad, get its QR code, and see every link you have.":
     "Crea un enlace para un volante, una publicación o un anuncio, obtén su código QR y mira todos tus enlaces.",
 

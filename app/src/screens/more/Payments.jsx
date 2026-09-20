@@ -526,6 +526,14 @@ export default function Payments() {
           <Plus strokeWidth={2} /> {t("Add a way to be paid")}
         </button>
       )}
+      {/* ROADMAP 10.1 — with no custom method being edited, this button and
+          the page's own Save button below are adjacent siblings with nothing
+          but CSS margin between them, so anything that reads the page as flat
+          text (a screen reader in some modes, a scraper) ran the two labels
+          together as "Add a way to be paidSave". A real space character does
+          not move anything a sighted user sees, since the margin still holds
+          the visual gap; it only fixes what gets read. */}
+      {" "}
 
       {/* THE SHEET. `Sheet` is the product's one overlay and it brings the
           entrance, the exit, the escape key and the focus trap with it —

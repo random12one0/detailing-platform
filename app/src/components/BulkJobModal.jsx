@@ -114,7 +114,7 @@ export default function BulkJobModal({ onClose, onSaved }) {
   };
 
   return (
-    <Sheet onClose={onClose} title={t("Log a bulk job")} peek={62}>
+    <Sheet onClose={onClose} title={t("Add a fleet job")} peek={62}>
       <label className="field">
         <span>{t("Who for")}</span>
         <input

@@ -885,7 +885,7 @@ export default function Money({ onGo }) {
             reason to make more of them. */}
         {sources.bookedAtAll > 0 && (
           <p className="quiet" style={{ marginTop: 8 }}>
-            {t("{n} of {m} bookings came through a link. Earned counts finished jobs only.",
+            {t("{n} of {m} bookings came through a link. “Earned” only counts jobs you have finished.",
               { n: sources.bookedThroughLink, m: sources.bookedAtAll })}
           </p>
         )}
@@ -1010,7 +1010,7 @@ export default function Money({ onGo }) {
           the weight of something they read every day. */}
       <button className="btn ghost" style={{ marginTop: 12 }}
         onClick={() => setLoggingBulk(true)}>
-        <Plus strokeWidth={2} /> {t("Log a bulk job")}
+        <Plus strokeWidth={2} /> {t("Add a fleet job")}
       </button>
     </>
   );

@@ -109,8 +109,19 @@ const TABS = [
   ["growth", "Growth"],
   ["money", "Money"],
   ["who", "Detailers"],
-  ["pipes", "Plumbing"],
+  ["pipes", "System health"],
 ];
+
+// THE SAME NAMES watch-jobs/index.ts uses for its alert email — mirrored
+// here rather than shared, because one is a two-line Deno map and the two
+// runtimes do not share a module. A job with no entry shows its raw slug,
+// same fallback as the email: telling Andrew a job stopped matters more
+// than every job having a plain name on day one. ROADMAP 10.1.
+const JOB_LABELS = {
+  "send-owner-reminders": "the reminder sweep",
+  "accrue-plan-visits": "the nightly plan-visit accrual",
+};
+const jobLabel = (job) => JOB_LABELS[job] ?? job;
 
 /* ══ THE SIX-MONTH CHART ═══════════════════════════════════════════════════
    ONE SVG, ONE SET OF X-COORDINATES for the bar and its label. The old chart
@@ -335,14 +346,14 @@ export default function AdminPage() {
   const attention = needsALook(rows);
 
   /* WHAT IS ACTUALLY WRONG RIGHT NOW — collected once and used by both the
-     strip on Now and the dot on the Plumbing tab, so the two can never
+     strip on Now and the dot on the System health tab, so the two can never
      disagree about whether something is broken. */
   const alerts = [];
   for (const h of state?.heartbeats ?? []) {
     const m = mins(h.ran_at);
     const limit = Math.round((h.stale_after_seconds ?? 86400) / 60);
     if (m === null || m > limit) {
-      alerts.push(`${h.job} has not finished in ${m === null ? "ever" : `${m} minutes`} (it should every ${limit})`);
+      alerts.push(`${jobLabel(h.job)} has not finished in ${m === null ? "ever" : `${m} minutes`} (it should every ${limit})`);
     }
   }
   const mail = state?.email;
@@ -646,7 +657,7 @@ function TabNow({ state, totals, rows, alerts, attention, onOpen }) {
         </div>
         <p className="pa-sub" style={{ marginTop: 10 }}>
           Recurring is what the platform earns. {money(totals.revenue_month ?? 0)} went through it
-          this month — that is the detailers' money, not ours, and it is the proof the product works.
+          this month — that is the detailers' money, not ours to spend.
         </p>
       </section>
     </>
@@ -769,8 +780,8 @@ function TabGrowth({ rows, totals, onOpen }) {
                   sentence a name on two lines looks like a bug in the screen
                   rather than two true things about one detailer. */}
               <p className="pa-sub pa-act">
-                Each line is asked of everybody separately, so the same name can appear twice. That
-                means two different things are true about them, not that it has been counted twice.
+                A detailer can appear on two lines at once when two different things are true about
+                them — that is not the same name being counted twice.
               </p>
             </div>
           )}
@@ -798,7 +809,7 @@ function TabGrowth({ rows, totals, onOpen }) {
             <p className="pa-act">
               {(totals.founding_left ?? 0) === 0
                 ? "They are gone. Anybody signing up now pays the standard price."
-                : "This is the sentence that closes a sale — it is real scarcity rather than a tactic, because the count comes from the database and goes down when somebody takes one."}
+                : "Real scarcity, not a tactic — the count comes from the database and drops every time somebody takes a spot."}
             </p>
           </div>
         </div>
@@ -1444,7 +1455,7 @@ function TabMoney({ state, totals, rows, reload }) {
         </p>
         <p className="pa-sub">
           {money(totals.revenue_month ?? 0)} went through the platform this month. That is the
-          detailers&apos; money, not ours — it is the proof the product works rather than income.
+          detailers&apos; money, not ours — it does not count as income.
         </p>
       </section>
 
@@ -1511,7 +1522,7 @@ function TabMoney({ state, totals, rows, reload }) {
         <div className="pa-h">
           <h2>What we charge</h2>
           <span className="pa-sub">
-            {p?.current ? "Set here, overriding the built-in table" : "The built-in table · nothing is overridden"}
+            {p?.current ? "Custom pricing, set here" : "Standard pricing"}
           </span>
         </div>
         <div className="pa-card">
@@ -1654,7 +1665,7 @@ function TabPipes({ state, alerts }) {
             const bad = m === null || m > limit;
             return (
               <div className="pa-svc-r" key={h.job}>
-                <span className="pa-svc-n"><i className={`pa-dot ${bad ? "pa-bad" : "pa-ok"}`} />{h.job}</span>
+                <span className="pa-svc-n"><i className={`pa-dot ${bad ? "pa-bad" : "pa-ok"}`} />{jobLabel(h.job)}</span>
                 <span className="pa-v" style={{ fontFamily: "var(--f-num)", fontSize: 12 }}>{shortAgo(h.ran_at)}</span>
                 <span className="pa-svc-d">Counts as stopped after {limit} minutes without finishing.</span>
               </div>
@@ -1663,7 +1674,7 @@ function TabPipes({ state, alerts }) {
           <div className="pa-svc-r">
             <span className="pa-svc-n">
               <i className={`pa-dot ${state?.watch?.outside ? "pa-ok" : "pa-idle"}`} />
-              Something watching from outside
+              Outside monitor
             </span>
             <span className="pa-v" style={{ fontSize: 12 }}>{state?.watch?.outside ? "set up" : "none"}</span>
             <span className="pa-svc-d">
