@@ -4086,6 +4086,19 @@ event id.
     and it is worth fixing. A third short run was neither: the dashboard never
     finished loading, and the flattering number would have been 3 of 20.
 
+    **THIS NUMBER IS NOW IN DOUBT AND MUST BE RE-MEASURED — 2026-09-20,
+    after 14.11.** The 2-in-20 was measured with `tour-runs.mjs` waiting a
+    flat second and then asking whether the card had gone. **That is the same
+    instrument fault as the sweep's, one size smaller**: a card absent at the
+    moment of looking was read as the tour ending. The same script waiting for
+    the next card instead saw **0 of 20** short at 1440, all twenty walking
+    the full 34 steps. Two readings are possible and this cannot choose
+    between them: the product bug is rarer than one in ten and twenty runs
+    missed it, or the flat wait was ending those tours itself. **Nobody may
+    cite "2 of 20 is the product" until it has been re-run on the fixed
+    walk** — and a plan that grows mid-block no longer ends a walk by itself,
+    because a changed counter is exactly what `nextCard()` treats as arrival.
+
   **AND NOW IT IS MEASURED IN THE SWEEP ITSELF RATHER THAN BY PROXY —
   2026-09-20, second session.** Everything above rests on one number nobody
   had ever read: *300ms* was chosen because `settle()` returns after 130ms of
