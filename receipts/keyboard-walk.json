@@ -1,10 +1,8 @@
 {
-  "git_sha": "e79d14f449b904ba42bd0f29d24780210d224668",
+  "git_sha": "56a49b1a6c6db859371081ebbca72b5625d31a54",
   "environment": "local",
-  "finished_at": "2026-09-20T11:51:07.455Z",
-  "failures": [
-    "Booking step 1: button.bk-peek  \"What's included\" holds focus with nothing visible"
-  ],
+  "finished_at": "2026-09-20T12:06:12.563Z",
+  "failures": [],
   "warnings": [],
   "artifacts": [
     "scripts/keyboard-walk.mjs"
@@ -22,8 +20,8 @@
     "in_view_measured_before_any_screenshot": true
   },
   "check_id": "keyboard-walk",
-  "started_at": "2026-09-20T11:50:30.832Z",
-  "status": "fail",
+  "started_at": "2026-09-20T12:05:18.729Z",
+  "status": "pass",
   "expected_targets": 6,
   "discovered_targets": 6,
   "attempted_targets": 6,

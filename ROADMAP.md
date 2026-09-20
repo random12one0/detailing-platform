@@ -2186,6 +2186,7 @@ the dashboard or back office at phone width at all.
   *A1 P2-06, A2 2.11, 2.12*
 
 - [ ] **8.5 — Keyboard, screen reader, zoom, large text and reduced motion.**
+  **8.5e and 8.5a are DONE (2026-09-20); c, d and b remain.**
   Never checked.
   *A1 § 10*
 
@@ -2227,7 +2228,8 @@ the dashboard or back office at phone width at all.
   **300ms** on any step with six or more. Normal motion is untouched — the
   second child still computes `0.06s` there.
 
-  **8.5a — KEYBOARD: REACH, OPERATION, AND GETTING BACK OUT.**
+  **8.5a — KEYBOARD: REACH, OPERATION, AND GETTING BACK OUT. ✓ DONE
+  2026-09-20.**
   *Measured and clean:* 187 controls, all reachable, all named, no positive
   `tabindex`.
   *Done when:* focus is visibly located at every step of a Tab walk across the
@@ -2262,21 +2264,52 @@ the dashboard or back office at phone width at all.
   watch for. Fixed by moving the SAME ring inside the edge
   (`outline-offset: -2px`); no new focus style was invented.
 
-  **THE ONE I CANNOT STAND BEHIND:** `button.bk-peek` — one of the six
-  "What's included" toggles on booking step 1. The walk still calls it
-  ringless. **Photographed by hand, the ring is plainly there focused and
-  plainly gone blurred** (`artifacts/8-5a-peek-focused.png` and
-  `-blurred.png`). So the walk has a false positive I have not explained.
+  **THE ONE I COULD NOT STAND BEHIND WAS A REAL DEFECT AFTER ALL, AND NEITHER
+  OF US HAD GUESSED ITS SHAPE.** `button.bk-peek` — the last "What's included"
+  on booking step 1 — sits at **y=873 while the pinned bar starts at y=827**.
+  Fully inside the viewport, entirely **underneath the bar**. Nothing scrolls,
+  because by every ordinary test it is visible: `scrollIntoViewIfNeeded`
+  leaves it exactly where it is. `document.elementFromPoint` on its own centre
+  returns the bar. **Not scrolled out of view — covered.**
+  **AND THE OCCLUSION CHECK FOUND A SECOND ONE THE MOMENT IT EXISTED:**
+  `button.bk-pick` — the last service card — focused under `div.total`, the
+  bar's own price block.
 
-  **NOT TICKED, AND THE REASON IS THE INSTRUMENT RATHER THAN THE PRODUCT.**
-  This probe has been wrong five times tonight — it stopped at
+  **FIXED WITH THE BROWSER'S OWN ANSWER:**
+  `html:has(.bk > .bk-bar) { scroll-padding-bottom: calc(var(--bk-bar-clear) + 12px) }`.
+  `scroll-padding-bottom` tells scrolling that the bottom of the page is
+  spoken for, and the amount is **the variable ROADMAP 2.15 already keeps in
+  step with the bar's real height** — not a second number that can drift.
+
+  **TICKED 2026-09-20, ON TWO CLEAN RUNS IN A ROW**, which was the bar set for
+  an instrument with this record: one clean run is just the sixth chance to be
+  wrong. Both runs: 167 stops, 0 undetermined, **both canaries caught 6/6**,
+  receipt `PASS — 6/6 targets, 167 assertions`.
+
+  **HOW IT WAS CHECKED:** a real Tab walk over the five dashboard tabs and
+  booking step 1, recording at every stop which element holds focus, whether
+  anything on screen changes when it does (**by pixels**, in a frame padded
+  past the ring, with a stability baseline and motion off), whether the
+  element is in the viewport (**read the instant focus lands, before anything
+  scrolls**) and whether anything is painted over it
+  (**`elementFromPoint` on its own centre**).
+
+  **THE TWO LIMITS, AND THEY TRAVEL WITH THE TICK:**
+  1. **A focus ring that exists only BY ANIMATION is invisible to this walk**,
+     because the walk turns animation off in order to see anything at all. Any
+     clean sheet it produces is clean about rings that exist STATICALLY.
+  2. **The walk sees what it can scroll to.** Controls behind a closed
+     disclosure, inside a sheet nobody opened, or on a screen this walk does
+     not visit are not covered by the tick — six screens were walked, not
+     every screen in the product.
+
+  **THIS PROBE WAS WRONG FIVE TIMES BEFORE IT WAS RIGHT**, and every one of
+  them would have shipped as a clean sheet or a false alarm: it stopped at
   `document.body`; it stopped on a repeated description; it could not tell a
   ring from a drifting gradient; it photographed a frame too small to contain
-  an outline; and it still reports one control that demonstrably has a ring.
-  **A zero from it would not mean anything yet**, and ticking on the strength
-  of an instrument I have just watched be wrong four times and then a fifth is
-  the exact failure this repo is built around. The product looks close to
-  clean; the check is not ready to say so.
+  an outline, reporting **55 defective stops on a product that was drawing a
+  ring on 53 of them**; and it could not tell "covered" from "no ring". The
+  two-run bar exists because of that record.
 
   **The two decisions, both made before the first run:**
   1. **Pixels, not computed style.** An `outline` that paints nothing still

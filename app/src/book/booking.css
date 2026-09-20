@@ -46,6 +46,8 @@
   --safe-b: env(safe-area-inset-bottom, 0px);
 }
 
+html:has(.bk > .bk-bar) { scroll-padding-bottom: calc(var(--bk-bar-clear, 104px) + 12px); }
+
 .bk {
   /* ── The ground ────────────────────────────────────────────────── */
   --bk-bg: #0B0D0E;            /* --ink-0  — must match BOOKING_BG in lib/theme.js */
@@ -1014,6 +1016,18 @@
 }
 /* The bar is in the page now, so the wrap above it needs a gap and not a
    reserve. One section step, the same rhythm as everything else in there. */
+/* ROADMAP 8.5a — **THE BROWSER MUST NOT PARK A FOCUSED CONTROL UNDER THE
+   BAR.** Measured with `scripts/keyboard-walk.mjs`: tabbing down booking step
+   1, the last service card and its "What's included" toggle receive focus at
+   y=873 while the pinned bar starts at y=827 — fully inside the viewport,
+   entirely underneath the bar. `elementFromPoint` on their own centres
+   returns the bar, not them. Nothing scrolls, because by every ordinary test
+   they are visible: `scrollIntoViewIfNeeded` leaves them exactly where they
+   are.
+   `scroll-padding-bottom` is the browser's own answer — it tells scrolling
+   "this much of the bottom is spoken for" — and the amount is already worked
+   out: `--bk-bar-clear` is what 2.15 reserves for the bar, kept in step with
+   it by the same variable rather than by a second number that can drift. */
 .bk:has(> .bk-bar) { --bk-bar-clear: var(--bk-sp-5); }
 .bk-bar .inner {
   max-width: var(--bk-col); margin: 0 auto;

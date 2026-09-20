@@ -98,6 +98,21 @@ const walk = async (page, label, out) => {
         cls: String(a.className || "").slice(0, 36),
         text: (a.innerText || a.value || a.getAttribute("aria-label") || "").trim().slice(0, 22),
         inViewport: r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth,
+        // **IN THE VIEWPORT IS NOT THE SAME AS ON THE SCREEN, and this walk
+        // learned the difference the hard way.** The last "What's included"
+        // on booking step 1 sits at y=873 with the pinned bar starting at
+        // y=827: fully inside the viewport, entirely underneath the bar.
+        // `scrollIntoViewIfNeeded` will not move it, because by its own
+        // definition it is visible. `elementFromPoint` on the element's own
+        // centre is the only thing that knows — the same probe CLAUDE.md
+        // already requires for 44px hit areas, asked about a different fault.
+        coveredBy: (() => {
+          const cx = Math.round(r.left + r.width / 2), cy = Math.round(r.top + r.height / 2);
+          if (cx < 0 || cy < 0 || cx > innerWidth || cy > innerHeight) return null;
+          const top = document.elementFromPoint(cx, cy);
+          if (!top || top === a || a.contains(top) || top.contains(a)) return null;
+          return `${top.tagName.toLowerCase()}.${String(top.className || "").slice(0, 24)}`;
+        })(),
         area: Math.round(r.width * r.height),
       };
     });
@@ -136,15 +151,29 @@ const walk = async (page, label, out) => {
         // actually computed — `outline: solid 3px` — rather than believing the
         // picture. A page-level clip, padded past the widest ring this
         // product draws, is the only honest frame.
+        // **THE WALK CAN ONLY SEE WHAT IT CAN SCROLL TO, AND IT HAS TO SCROLL
+        // FIRST.** A control sitting at y=873 in a 900px viewport has its box
+        // running off the bottom of the screen; the padded clip then ran past
+        // the viewport edge, both shots captured the same clamped strip, and
+        // the walk called a control with an obvious ring ringless. That was
+        // the last of five faults in this probe.
+        // **THE IN-VIEW JUDGEMENT IS ALREADY TAKEN** — `f.inViewport` above,
+        // read the instant focus landed, before anything moved — so scrolling
+        // now cannot launder it. This scroll is for the camera only.
+        await el.scrollIntoViewIfNeeded({ timeout: 4000 });
+        await page.waitForTimeout(90);
         const pad = 10;
         const box = await el.boundingBox();
         if (!box) throw new Error("no box");
+        // Clamped to the viewport on BOTH edges, so a clip can never ask for
+        // pixels that are not on the screen.
+        const x0 = Math.max(0, box.x - pad), y0 = Math.max(0, box.y - pad);
         const clip = {
-          x: Math.max(0, box.x - pad), y: Math.max(0, box.y - pad),
-          width: Math.min(1440 - Math.max(0, box.x - pad), box.width + pad * 2),
-          height: Math.min(900 - Math.max(0, box.y - pad), box.height + pad * 2),
+          x: x0, y: y0,
+          width: Math.max(2, Math.min(1440 - x0, box.width + pad * 2)),
+          height: Math.max(2, Math.min(900 - y0, box.height + pad * 2)),
         };
-        if (clip.width < 2 || clip.height < 2) throw new Error("clip too small");
+        if (clip.width < 4 || clip.height < 4) throw new Error("clip too small");
         const shot = () => page.screenshot({ clip, timeout: 4000 });
         // A STABILITY BASELINE FIRST, and it is not optional. Any repaint
         // under this element's box — a clock, a weather chip, a spinner —
@@ -235,12 +264,14 @@ await walk(page, "Booking step 1", out);
 
 const noRing = [];
 const offScreen = [];
+const covered = [];
 let totalStops = 0, unknown = 0;
 for (const s of out) for (const r of s.rows) {
   totalStops++;
   if (r.ringVisible === null) unknown++;
   else if (!r.ringVisible) noRing.push({ ...r, where: s.label });
   if (!r.inViewport) offScreen.push({ ...r, where: s.label });
+  if (r.coveredBy) covered.push({ ...r, where: s.label });
 }
 const canaryRing = out.filter((s) => s.canarySeen === true).length;
 const canaryUnstable = out.filter((s) => s.canarySeen === null).length;
@@ -275,6 +306,7 @@ const { path: receiptPath } = writeReceipt({
   failures: [
     ...realNoRing.map((r) => `${r.where}: ${r.tag}.${r.cls} "${r.text}" holds focus with nothing visible`),
     ...realOff.map((r) => `${r.where}: ${r.tag}.${r.cls} "${r.text}" focused while out of view`),
+    ...covered.filter((r) => r.id !== "canary-no-ring").map((r) => `${r.where}: ${r.tag}.${r.cls} "${r.text}" focused while covered by ${r.coveredBy}`),
     ...(canariesGood ? [] : ["a canary was not caught — every clean line beside it is void"]),
   ],
   artifacts: ["scripts/keyboard-walk.mjs"],
