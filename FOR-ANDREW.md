@@ -17,6 +17,60 @@ Updated 2026-09-20.
 
 ## Waiting on you now
 
+- [ ] **DECIDE · The pricing page promises customers can export their data.
+  They cannot. Added 2026-09-20. NOT URGENT TODAY — see the note at the end.**
+  Your pricing page says, about leaving: *"Your customers, their numbers and
+  your photos are yours. **You export them and go.**"*
+
+  **There is no such button.** The only thing a detailer can download today is
+  the accountant's spreadsheet of jobs and expenses on the Money screen. There
+  is no customer-list export and no photo export. The terms page says something
+  different again — that you can have a copy *"by asking"* — so the two pages
+  also disagree with each other.
+
+  **Two honest ways out. One line each:**
+  1. **Build it** — a button that downloads their customers and their photos.
+     Then both pages are true and the promise stands.
+  2. **Stop promising it** — change the pricing page to say a copy is available
+     on request, which is what actually happens.
+
+  **Recommendation: (1), when you next have a build day.** It is a small
+  feature, it is the single most reassuring thing on that page for somebody
+  deciding whether to trust you with their customer list, and taking the
+  sentence away would remove one of the better reasons to sign up.
+
+  **The wording is left exactly as it is until you answer** — deliberately not
+  softened into something vaguer, because a vague promise is still a promise
+  and it would be harder for the next person to spot as unkept.
+  *ROADMAP 0.4 / 7.7.*
+
+- [ ] **DO · What name and what kind of business should the legal pages say?
+  Added 2026-09-20. NOT URGENT TODAY — see the note at the end.**
+  Your terms and privacy pages currently name:
+
+  > **Andrew Dietrich, doing business as Detailing Platform**
+
+  **Nobody confirmed that, and it was written as a guess at your paperwork.**
+  The note saying so has been sitting in the code since the pages were built.
+
+  **The question is just: what should it say?** A sole trader, a DBA on your
+  own name, and an LLC are three different legal persons, and only you know
+  which one is actually yours. Reply with the name and the kind, and it is a
+  one-line change.
+
+  **No recommendation attached, on purpose.** Which entity you trade as is a
+  question about your own business and your own liability, and it is not ours
+  to advise on.
+  *ROADMAP 0.4.*
+
+  ---
+
+  **WHY NEITHER OF THOSE TWO IS URGENT THIS MORNING.** Both pages are live and
+  linked in the footer of detailingplatform.com, so anyone can read them — but
+  **there are zero paying subscriptions and one non-demo business**, measured
+  2026-09-20. **Nobody has agreed to either document.** They are blockers for
+  the first real signup, not for today.
+
 - [ ] **DECIDE · Nothing is backed up. Deciding this costs money and it is
   yours to spend. Added 2026-09-20.**
   **Measured this morning, not assumed.** Your database is on Supabase's

@@ -37,7 +37,13 @@ export const ENTITY = "Andrew Dietrich, doing business as Detailing Platform";
 
 // Printed at the top of both pages. It is the date the WORDS last changed, so
 // move it when the words move and not when the file is touched.
-export const EFFECTIVE = "8 September 2026";
+// **20 September, not 8**, because the words moved: ROADMAP 0.4 corrected the
+// processor list on the privacy page, fixed a cancellation clause that
+// contradicted the one four paragraphs above it, and added the build fee and
+// the domain, both of which `/pricing` had been promising in public while this
+// document stayed silent. Moved when the words move, which is the rule two
+// lines up.
+export const EFFECTIVE = "20 September 2026";
 
 export const NOT_YET_LAWYERED =
   "Written in plain English by the person who built this, and not yet reviewed by a lawyer. "
@@ -61,10 +67,44 @@ export const TERMS = {
      "We email you each time a payment is retried, for two weeks. If it still has not gone through, your booking page goes offline until it is paid. Nothing is deleted. Your customers, your bookings and your settings are all exactly where you left them, and paying puts the page back."],
     ["Your customers' money",
      "We are not part of it. What your customers pay you is between you and them; we take nothing from it and hold none of it."],
+    // ── ADDED 2026-09-20, ROADMAP 0.4 ────────────────────────────────────
+    // **TWO COMMITMENTS THE PRICING PAGE HAS BEEN MAKING IN PUBLIC AND THIS
+    // DOCUMENT NEVER MENTIONED**, in a file whose own lede calls itself "the
+    // whole agreement". Neither is new: both are said, in these words, on
+    // `/pricing`, which this page already defers to for every figure. Adding
+    // them invents nothing and promises nothing that was not already promised.
+    ["The build fee",
+     "On the website plan there is a one-off fee to build the site. It is charged once, at the start, and is not part of the subscription. It stops being refundable once work on your site begins, and you are told on the day that happens. The figure is on the pricing page."],
+    ["Your domain",
+     "The domain is in your name. If you leave, it leaves with you."],
+    // **PARKED EXACTLY AS IT IS, 2026-09-20, AND DELIBERATELY NOT SOFTENED.**
+    // `/pricing` says *"Your customers, their numbers and your photos are
+    // yours. You export them and go."* This says "by asking". **Neither
+    // matches the product: there is no customer export and no photo export.**
+    // The only download a detailer has is the accountant CSV of jobs and
+    // expenses on the Money screen.
+    //
+    // The two honest ways out are to BUILD the export or to STOP PROMISING
+    // it, and both are Andrew's — one is a feature, the other retracts a live
+    // public promise. It is on `FOR-ANDREW.md`.
+    //
+    // **It is left loud rather than made vague.** Rewording this into
+    // something softer would still be a promise, and it would be harder for
+    // the next person to notice it is unkept.
     ["Your data is yours",
      "Your customer list, your bookings and your history belong to you, and you can have a copy of them at any time by asking."],
+    // ── CORRECTED 2026-09-20, ROADMAP 0.4 ────────────────────────────────
+    // **THIS CLAUSE CONTRADICTED THE ONE FOUR PARAGRAPHS ABOVE IT.** Renewals
+    // says cancelling "is never behind an email to us"; this said "Tell us".
+    // `/pricing` says "No phone call, no email and nobody to talk out of it".
+    // **The button is real** — `screens/more/Billing.jsx`, "Cancel my
+    // subscription" — so this clause was the one that was wrong, and it made
+    // leaving sound like it needed our permission.
+    //
+    // Deletion genuinely is by asking, which the privacy page already says.
+    // The two are now separated instead of being run together.
     ["Ending it",
-     "You can close your account whenever you like. Tell us and we will delete your data; until you do, it stays where it is."],
+     "Closing your account is the same one button in your own settings as cancelling, and it is never behind an email to us. That stops the billing and leaves your data where it is. If you also want it deleted, email us and we will delete it."],
   ],
 };
 
@@ -102,8 +142,35 @@ export const PRIVACY = {
     // Supabase (`screens/Auth.jsx` reads /auth/v1/settings), and it was
     // switched on. **A count in a heading is a fact that rots** — so the
     // heading no longer carries one.
+    // ── CORRECTED 2026-09-20, ROADMAP 0.4 ────────────────────────────────
+    // **THIS PARAGRAPH NAMED FIVE COMPANIES AND ENDED "Nobody else receives
+    // any of it." THAT SENTENCE WAS FALSE.** Found by listing every external
+    // host the edge functions actually call, rather than by re-reading the
+    // prose. A customer's typed address goes to an address-lookup service, the
+    // coordinates of their home go to a weather service, and their NAME goes
+    // out in the body of a push notification to whichever push service the
+    // detailer's browser uses. Nobody reading the old paragraph would have
+    // known any of that.
+    //
+    // **THE HEADING STILL CARRIES NO COUNT**, for the reason recorded above
+    // when it stopped being "The four companies involved": a number in a
+    // heading is a fact that rots. It would have rotted again here — the push
+    // service is one of three vendors depending on the browser, so any count
+    // is wrong for somebody.
+    //
+    // Every line is what that service ACTUALLY receives, read off the code.
+    // No policy is invented and nothing new is promised.
+    // **TWO SECTIONS, NOT ONE LONG ONE WITH BLANK LINES IN IT.** The first
+    // draft separated these with escaped newlines and that would have shipped
+    // as one run-on block: `inline()` in `LegalPage.jsx` handles bold, links
+    // and email addresses and **nothing else** — its own comment says it is
+    // deliberately not a markdown renderer — and the string lands in a single
+    // `<dd>`, where newlines collapse to spaces. The document's own structure
+    // is one section per idea, so the second idea gets its own section.
     ["The companies involved",
-     "Supabase stores the database and runs the code. Netlify serves the pages. Resend sends the email. Stripe takes the payments. Google confirms who you are, but only if you choose the Google button instead of a password. Nobody else receives any of it, and none of them is paid to use it for anything of their own."],
+     "Supabase stores the database and runs the code. Netlify serves the pages. Resend sends the email, which means the name, email address and booking details of anybody you email through this product. Stripe takes the payments. Google confirms who you are, but only if you choose the Google button instead of a password. None of them is paid to use any of it for anything of their own."],
+    ["And the ones that are easy to miss",
+     "These happen while somebody is typing, so they are worth saying plainly. When a customer types their address into your booking page, **what they type goes to Geoapify**, the service that offers the address suggestions. Once a booking has an address, **its coordinates go to the US National Weather Service**, so we can show you the forecast for that job. If your booking page is being read in Spanish, the words being translated go to **DeepL or to Google's translation service** — a different Google service from the sign-in one above. And if you have turned on phone notifications, the alert we send you **has your customer's name in it**, and it travels through whichever push service your own browser uses: Google's, Mozilla's or Apple's. Nothing here is sold, and none of these is paid to use any of it for anything of their own."],
     // ── GOOGLE SIGN-IN, 2026-09-07 ───────────────────────────────────────
     // GOOGLE ASKS FOR THIS IN WRITING before it will let anybody outside the
     // test list sign in, and the Limited Use sentence is the one its reviewer

@@ -111,6 +111,69 @@ Nothing below this line waits on these. They are asked once, here.
   the review — right now the terms are a contract with a private individual.
   *Sources: [Promise Legal SaaS ToS template](https://promise.legal/templates/terms-of-service), [ToS Lawyer's US SaaS legal checklist](https://toslawyer.com/legal-checklist-for-u-s-saas-startups-tos-privacy-dpa-sla-and-more/).*
 
+  **CHECKED AND PARTLY CORRECTED 2026-09-20 — and the finding is not a list of
+  clauses, it is one sentence.**
+
+  > **The privacy page tells a detailer that five named companies see their
+  > customers' information, and six more do.** A customer's name travels in
+  > the body of a push notification and their typed address goes to an
+  > address-lookup service, and nobody reading that page would know it.
+
+  **That is not a drafting slip. It is the page being wrong about something a
+  person would care about**, and it is exactly the class of defect this item
+  was written for. It was found by listing every external host the edge
+  functions actually call, not by re-reading the prose — the prose reads
+  perfectly well and is false.
+
+  **WHAT ACTUALLY RECEIVES DATA, beyond the five the page named.** A customer's
+  typed address goes to **Geoapify** while they are typing it. The
+  **coordinates of the job address** go to the **US National Weather Service**,
+  rounded to four decimals — about eleven metres. Text being translated goes to
+  **DeepL** or to **Google's translation service**, a second Google service
+  where the page names Google only for sign-in. And the owner's phone alerts
+  carry **the customer's name in the notification body**, which travels through
+  **whichever push service the detailer's browser uses** — Google's, Mozilla's
+  or Apple's. `api.deepl.com` never showed up in a source scan because the
+  host is built from the API key.
+  **The corrected heading still carries no count**, for the reason already
+  recorded in that file: a number in a heading is a fact that rots, and it
+  would have rotted again here, since the push vendor depends on the browser.
+
+  **THE TERMS AGREED WITH NEITHER THE PRICING PAGE NOR THEMSELVES.**
+  - **Cancelling** — §Renewals said it "is never behind an email to us";
+    §Ending it said "Tell us". `/pricing` says "No phone call, no email and
+    nobody to talk out of it". **The button is real**, so §Ending it was the
+    wrong one, and it made leaving sound like it needed our permission.
+    Corrected, with deletion separated from cancellation rather than run
+    together with it.
+  - **The build fee and the domain** were commitments `/pricing` had been
+    making in public while the document calling itself "the whole agreement"
+    never mentioned either. Both added, in the pricing page's own words.
+  - **And one promise the product genuinely keeps**, verified rather than
+    assumed: "the figures are copied onto your subscription and never read
+    again" is true — `recurring_cents` is snapshotted at signup.
+
+  **TWO THINGS WENT TO ANDREW AND NEITHER WAS GUESSED.**
+  - **The export promise.** `/pricing` says "You export them and go"; the terms
+    say "by asking"; **neither matches the product — there is no customer
+    export and no photo export.** The only download is the accountant CSV of
+    jobs and expenses. Build it or stop promising it, both his. **The clause is
+    parked exactly as written and deliberately NOT softened**: a vague promise
+    is still a promise and would be harder for the next person to spot.
+  - **The `ENTITY` line.** "Andrew Dietrich, doing business as Detailing
+    Platform" was never confirmed and the code has said so since it was
+    written. Sole trader, DBA and LLC are three different legal persons.
+    **Asked as a factual question with no recommendation attached** — which
+    entity he trades as is not ours to advise on.
+
+  **NEITHER IS URGENT THIS MORNING, AND HIS LIST SAYS SO.** Both pages are live
+  and linked in the footer, so anyone can read them — but there are **zero
+  paying subscriptions and one non-demo business**, measured. **Nobody has
+  agreed to either document.** They block the first real signup, not today.
+
+  **NOT DONE:** no lawyer, per Andrew's standing ruling, and no template was
+  imported — every correction states something the product already does.
+
 - [ ] **0.6 — WHAT IS RUNNING IS NOT WHAT IS COMMITTED, ON 22 OF 39 EDGE
   FUNCTIONS. Nobody knew. Found 2026-09-20.**
   **Placed in Wave 0 because it undermines every other item in this file.** A
