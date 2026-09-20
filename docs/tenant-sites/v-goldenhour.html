@@ -1073,7 +1073,13 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
       <div class="stats">
         <div class="stat"><b>1,240</b><span>Cars</span></div>
         <div class="stat"><b>4.9</b><span>Rating</span></div>
-        <div class="stat"><b>6 yrs</b><span>On the road</span></div>
+        <!-- THE UNIT LIVES IN THE LABEL, NOT IN THE ANIMATED NUMBER.
+             G6 below counts this <b> up from zero and re-prints it every
+             frame, keeping whatever is not a digit as a suffix - so "6 yrs"
+             showed "1 yrs" in passing. A unit inside the counting element is
+             a plural the counter cannot agree with. The other four sites
+             already keep the unit in the label. -->
+        <div class="stat"><b>6</b><span>Years on the road</span></div>
       </div>
     </div>
 
@@ -1137,7 +1143,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
         looked better than the day I got it.&rdquo;</blockquote>
         <figcaption>Marcus T. &middot; Green Lake</figcaption></figure>
       <figure><blockquote>&ldquo;Turned up on time and worked around my
-        neighbour&rsquo;s car without being asked.&rdquo;</blockquote>
+        neighbor&rsquo;s car without being asked.&rdquo;</blockquote>
         <figcaption>Dana R. &middot; Ballard</figcaption></figure>
       <figure><blockquote>&ldquo;Quoted $219, paid $219. That is rarer than it
         should be.&rdquo;</blockquote>
@@ -1161,7 +1167,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
            the next slot that suits. You will hear from us the night before.</p></details>
       <details><summary>Where do you need to park?</summary>
         <p>Any flat spot with roughly a car&rsquo;s width beside it &mdash; a
-           driveway, a kerb or an office parking lot all work.</p></details>
+           driveway, a curb or an office parking lot all work.</p></details>
       <details><summary>How late can I cancel?</summary>
         <p>Free up to 24 hours before, from the link in your confirmation.
            Inside 24 hours it is 50%, because the slot cannot be refilled.</p></details>

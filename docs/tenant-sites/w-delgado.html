@@ -3,7 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Delgado Mobile Detailing — Mobile paint correction and ceramic coating, Mesa AZ</title>
+<!-- THE TITLE NAMES WHAT THE PAGE LEADS WITH. It said "Mesa AZ" while the
+     hero, the description and the travel rule all lead with Phoenix - Mesa
+     is one of the five towns covered and the base address in the footer,
+     neither of which is what a stranger reads in a tab or a search result.
+     A label that disagrees with its own page reads as carelessness, and
+     this page is selling care. -->
+<title>Delgado Mobile Detailing — mobile paint correction and ceramic coating, Phoenix AZ</title>
 <meta name="description" content="Mobile paint correction and ceramic coating in Phoenix, Scottsdale and Tempe. We come to your driveway, evenings and weekends.">
 
 <!--
@@ -1059,7 +1065,7 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
             <div class="two">
               <label class="fld">Make and model
                 <input type="text" placeholder="2022 Audi RS5"></label>
-              <label class="fld">Paint colour
+              <label class="fld">Paint color
                 <input type="text" placeholder="Black"></label>
             </div>
             <label class="fld">Condition
@@ -1234,6 +1240,16 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
       ".hero-grid > div, .shot, .stats, .area .towns, .beat h2, .diagram," +
       " .pk, .ladder, .job, .rail, .qs, .bk, .ft-grid");
     targets.forEach(function(el, i){
+      /* NOTHING ALREADY ON SCREEN GETS HIDDEN. This script runs after the
+         hero has painted, so hiding what the visitor is already looking at
+         makes the headline appear, disappear and fade back in. Measured
+         2026-09-20: readable at 19ms, hidden again at 126ms, back at 451ms.
+         The audit called it "the headline stays faded" and was right about
+         the symptom - it is a flash, not a slow reveal, and half a second of
+         it is plenty to notice. A reveal that has to undo a flash is worse
+         than no reveal. Below the fold nothing has been seen yet, so those
+         still hide and still arrive on scroll. */
+      if (el.getBoundingClientRect().top < innerHeight) return;
       el.classList.add("dg-hide");
       el.style.transitionDelay = (Math.min(i, 3) * 60) + "ms";
     });

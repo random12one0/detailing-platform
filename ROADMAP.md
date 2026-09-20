@@ -2009,6 +2009,16 @@ rather than wording went to Andrew.
 - [ ] **7.5 — Prices count up from low numbers.** "$20 to build it" and
   "$1/month" are visible mid-count while scrolling past. Show the final price
   immediately.
+
+  **AND IT IS NOT ONLY PRICES, AND NOT ONLY THIS PAGE — 2026-09-20.** `/ex1`
+  rolls its rating the same way, so for about half a second an example site
+  states a **0.8 rating** for a business whose rating is 4.9. That site's own
+  comment already draws the line — the roll is *"NEVER on a price — a price
+  that animates reads as a price that moves"* — and the line belongs one step
+  further out: **a number a stranger is weighing must not animate through
+  values that are not true.** A car count climbing is decoration; a rating or
+  a price climbing is a claim that changes while you read it. Whoever takes
+  7.5 should take the rating with it. See 7.10.
   *A2 6.3*
 
 - [ ] **7.6 — "Unlimited photos" against a 1 GB cap.** The back office shows
@@ -2066,21 +2076,63 @@ rather than wording went to Andrew.
     width above 1024px, and the clearance is dropped below that breakpoint
     where the card rejoins the flow.
 
+  **ALSO FIXED, LATER THE SAME DAY — the three small ones, each
+  re-photographed as it was fixed rather than in a batch at the end:**
+  - ~~`/ex2`: the tab title says "Mesa AZ" while the page says Phoenix ·
+    Scottsdale · Tempe.~~ **Fixed 2026-09-20.** It now reads "…Phoenix AZ".
+    Mesa was not false — it is the footer's base address and one of the five
+    towns covered — but the hero, the search description and the travel rule
+    all lead with Phoenix, so **the one label a stranger meets first named a
+    different place from the page behind it.** Same class as an example site
+    carrying a real firm's name: it reads as carelessness to the only audience
+    that matters, a detailer deciding whether these people know what they are
+    doing.
+  - ~~`/ex1`: "1 yrs" while the counter animates.~~ **Fixed 2026-09-20.** The
+    stat was one string, `6 yrs`, and the count-up parses the number and
+    re-prints it each frame keeping the rest as a suffix — so on the way to
+    six it printed "1 yrs". **The unit moved into the label**, which is what
+    the other four sites already do. Fixing the script instead would have left
+    the same trap for the next person who writes a unit inside a counter.
+    Proven by sampling every frame of the roll, not by watching it once.
+  - ~~`/ex2`: the headline stays faded ~5s.~~ **Fixed 2026-09-20, and the
+    audit was right about the symptom while being wrong about the cause.** It
+    is not a slow reveal, it is a **flash**: measured, the headline is
+    readable at 19ms, **hidden again at 126ms**, and back at 451ms. The reveal
+    adds its hidden state by SCRIPT on purpose, so a dead script cannot leave
+    a blank page — but the script runs after the hero has painted, so it was
+    hiding what the visitor was already looking at. It now skips anything
+    already on screen; below the fold nothing has been seen yet, so those
+    still hide and still arrive on scroll. Checked after: 16 elements still
+    hidden at rest, 19 revealed after a scroll, none left hidden.
+    **The same detector was run over all eight example pages and ex2 was the
+    only one.**
+
   **STILL OPEN, re-checked and still true:**
-  - `/ex2`: **the tab title says "Mesa AZ" while the page says Phoenix ·
-    Scottsdale · Tempe.** Verified in source, unchanged.
-  - `/ex1`: **"1 yrs" while the counter animates.** The final value is "6 yrs";
-    the singular is wrong only in passing. **The committed thumbnail is not
-    affected** — it is captured after the count settles, and shows "1,240 cars
-    · 4.9 · 6 yrs".
   - `/ex3`: **hero is very tall.** Now measured rather than described: it is
     **exactly one viewport — 900px at 1440x900** — against 774px for `/ex1`.
     A full-screen hero is a defensible choice, so this is left as the
     judgment it is, with a number attached for whoever takes it.
-  - `/ex2`: **the headline stays faded ~5s.** Not reproduced at 1.8s, which is
-    when the capture is taken and where the headline is fully drawn. Left open
-    rather than struck: "I did not see it once" is not "it does not happen",
-    and the audit watched the page load rather than sampling it.
+
+  **AND THREE THINGS FOUND WHILE FIXING THOSE, NOT YET TOUCHED:**
+  - `/ex1`: **the rating counts up from 0.8.** The stat strip rolls every
+    number from zero, so for about half a second the page states a 0.8 rating
+    for a business whose rating is 4.9. The site's own comment says the roll
+    is *"NEVER on a price — a price that animates reads as a price that
+    moves"*; by that reasoning a rating that animates reads as a rating that
+    moves, and unlike a car count it is a number a stranger is weighing.
+    **Not changed on anybody's behalf** — it is the same kind of judgment as
+    the watermark below, and it is a deliberate device on a site he approved.
+  - `/ex4`: **no search description at all.** Every other example site has
+    one. Nothing is wrong on the page; there is simply nothing for a search
+    result or a pasted link to show.
+  - **The staleness gate has a blind spot, and this pass walked into it.**
+    `example-shots-check.mjs` fingerprints each site's own HTML, but `/ex3`'s
+    capture also contains the colour switcher, which is **injected by
+    `build-examples.mjs`** and is not fingerprinted. Correcting "Colour" to
+    "Color" in that control changed what the picture should show while the
+    gate went on saying "current". Caught here only because ex3 was being
+    re-shot anyway. **A cheap fix exists** — hash the injected block into the
+    manifest alongside the site's — but it is not built tonight.
 
   **AND ONE IS A DISAGREEMENT RATHER THAN A DEFECT — recorded, not resolved:**
 
@@ -2135,6 +2187,48 @@ rather than wording went to Andrew.
   The sign-up button half of this item is untouched and still open.
 
 ---
+
+- [ ] **7.13 — ~~British spellings on the example sites.~~ FIXED 2026-09-20,
+  and the gap it exposes is still open.**
+  **Thirty-six British words were reaching a visitor across the five example
+  sites — seventeen different ones.** Hood written as *bonnet* (nine times),
+  fender as *wing* (four), microfiber as *microfibre* (four), sedan as
+  *saloon* (three), *fortnightly* (three), *colour* and *Colourway* (three),
+  and one each of *neighbour*, *neighbours*, *kerb*, *grey*, *aluminium*,
+  *cancelled*, *windscreen*, *boot lid* and *at weekends*. `CLAUDE.md` names "hood" by
+  name. All fixed; a rendered sweep of all eight example pages now returns
+  **zero**.
+
+  **THREE OF THEM WERE WHERE PROSE IS EASIEST TO FORGET IT LIVES:**
+  - **Alt text**, which is not decoration — a screen reader says it aloud, so
+    a blind visitor was being told about a *bonnet*.
+  - **A control injected by the build**, not by the site file: the `/ex3`
+    colour switcher, which sits in the corner of every capture and reads
+    "Colour".
+  - **Inside a JavaScript array**, where `"Aluminium tanks and wheels
+    polished"` and `"Windscreen polished"` are service bullets that only
+    render when a visitor opens the right tab. **A source scan that strips
+    `<script>` strips the copy**, and a rendered scan that reads one tab
+    reads one eighth of it. Both instruments were needed; each one alone
+    printed clean over words the other found.
+
+  **THE GAP: NOTHING WE RUN WOULD HAVE CAUGHT ANY OF IT.** These were found by
+  reading the sites, not by a check. Every gate here measures structure,
+  contrast, routes or counts. **A spelling that is wrong for the audience and
+  right for a dictionary passes all of them**, and it will come back the next
+  time somebody writes a page.
+
+  **A cheap check would catch most of it, and is deliberately NOT built
+  tonight:** a word list against the rendered text of every page, with the two
+  documented exceptions — `"cancelled"` as a database value and `"colour"` as
+  a setup-step key — allowed by context rather than by spelling. The cost is
+  the maintenance of a word list, which is exactly the "grep-based check
+  coupled to a spelling rather than a behavior" that `docs/gotchas.md` warns
+  about; the argument for it is that spelling IS the behavior here. **Worth
+  one decision, not worth a session assuming the answer.**
+
+  *Found 2026-09-20 while fixing 7.10. Not from either audit — neither
+  mentions it.*
 
 ## Wave 8 — Field usability
 

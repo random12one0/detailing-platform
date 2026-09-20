@@ -73,6 +73,8 @@ export const SITES = [
 export const fingerprint = (text) =>
   createHash("sha256").update(String(text).replace(/\r/g, "")).digest("hex").slice(0, 16);
 
+const RX_SLUG = /^ex\d$/;
+
 const VIEWS = [
   // Wide enough to be judged as a website, short enough that the card shows
   // the part that sells: the headline and the first photograph.
@@ -83,11 +85,53 @@ const VIEWS = [
 if (import.meta.url === `file://${process.argv[1]}`.replace(/\\/g, "/")
   || process.argv[1]?.endsWith("capture-examples.mjs")) {
   await mkdir(SHOTS, { recursive: true });
+  // ONE SITE AT A TIME: `node scripts/capture-examples.mjs ex1`.
+  // Fixing five sites and photographing them all at the end leaves every
+  // picture showing a state that was already corrected, for as long as the
+  // batch takes. Naming a slug re-shoots that one and MERGES into the
+  // manifest, so the other four keep the fingerprints they were actually
+  // captured at - rewriting them would re-bless four pictures nobody re-took.
+  //
+  // AND THE PAGE IS SERVED FROM `app/public`, NOT FROM `docs/tenant-sites`.
+  // Editing a site and capturing without `build-examples.mjs --dev` in
+  // between photographs the OLD page and records the NEW fingerprint, which
+  // is exactly the silent staleness this gate exists to prevent. It happened
+  // twice on 2026-09-20, both times from an argument this script did not
+  // understand and silently ignored - hence the refusal below.
+  const only = process.argv.slice(2).filter((a) => RX_SLUG.test(a));
+  const unknown = process.argv.slice(2).filter((a) => !RX_SLUG.test(a));
+  if (unknown.length) {
+    console.log(`  ${JSON.stringify(unknown)} is not a site slug, and an argument this script`);
+    console.log(`  does not understand must NOT quietly mean "capture everything".`);
+    console.log(`  Known slugs: ${SITES.map((x) => x[0]).join(", ")}`);
+    process.exit(1);
+  }
+  const todo = only.length ? SITES.filter(([slug]) => only.includes(slug)) : SITES;
+  if (only.length !== todo.length) {
+    // `ex9` LOOKS like a slug and matches nothing. Without this it captured
+    // zero sites, rewrote the manifest's timestamp and exited 0 - a run that
+    // did nothing and reported success, which is this repo's oldest failure.
+    console.log(`  no such site: ${only.filter((k) => !SITES.some(([x]) => x === k)).join(", ")}`);
+    console.log(`  Known slugs: ${SITES.map((x) => x[0]).join(", ")}`);
+    process.exit(1);
+  }
+
+  let manifest = { captured_at: new Date().toISOString(), sites: {} };
+  if (only.length) {
+    try {
+      const prev = JSON.parse(await readFile(path.join(SHOTS, "manifest.json"), "utf8"));
+      manifest.sites = prev.sites ?? {};
+      console.log(`  merging into the existing manifest; re-shooting ${only.join(", ")} only`);
+    } catch {
+      console.log(`  no manifest to merge into - writing a fresh one holding ${only.join(", ")} only.`);
+      console.log(`  THE OTHER SITES WILL HAVE NO RECORD and example-shots-check.mjs will say so.`);
+    }
+  }
+
   const browser = await chromium.launch();
-  const manifest = { captured_at: new Date().toISOString(), sites: {} };
   let failed = 0;
 
-  for (const [slug, src, title] of SITES) {
+  for (const [slug, src, title] of todo) {
     const source = await readFile(path.join(ROOT, "docs", "tenant-sites", src), "utf8");
     const fp = fingerprint(source);
     const shots = {};
@@ -126,7 +170,8 @@ if (import.meta.url === `file://${process.argv[1]}`.replace(/\\/g, "/")
 
   await browser.close();
   await writeFile(path.join(SHOTS, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n", "utf8");
-  console.log(`\n${Object.keys(manifest.sites).length} sites, ${failed} capture(s) failed.`);
+  console.log(`
+${todo.length} site(s) shot, ${Object.keys(manifest.sites).length} in the manifest, ${failed} capture(s) failed.`);
   console.log(`Fingerprints written to docs/example-shots/manifest.json —`);
   console.log(`\`node scripts/example-shots-check.mjs\` fails by name when a site moves.`);
   process.exit(failed ? 1 : 0);

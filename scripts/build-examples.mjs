@@ -182,8 +182,8 @@ const PAINTS = `
   /* it must not sit on top of the phone dock */
   @media (max-width:820px){ .paintpick{bottom:80px} }
 </style>
-<div class="paintpick" role="group" aria-label="Colourway">
-  <b>Colour</b>
+<div class="paintpick" role="group" aria-label="Color">
+  <b>Color</b>
   <button data-paint="a" title="Night" aria-label="Night"></button>
   <button data-paint="b" title="Teal" aria-label="Teal"></button>
   <button data-paint="c" title="Daylight" aria-label="Daylight"></button>
