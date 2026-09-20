@@ -371,10 +371,20 @@ export default function Payments() {
         </div>
       )}
 
-    <div className="card">
-      {/* WHAT THIS SECOND CARD IS FOR, now that there are two. Card is a
-          button a customer presses; these are handles a customer reads and
-          types into another app themselves. */}
+    {/* **AND IT NEEDS A GAP ABOVE IT — ROADMAP 8.1a, 2026-09-19.** These two
+        cards are siblings in `.settings-body`, which is `display: block` with
+        no gap, and both carry `margin: 0` — so they met at exactly 0px and
+        read as one box, with "Card payments" running straight into "Other ways
+        to pay you". Measured: card one ends at 324, card two starts at 324.
+        A margin rather than a `.group` wrapper because
+        `.settings-col > .settings-body > :last-child` selects a direct child,
+        and a new element between them is a change to something nobody asked
+        for. Only when the first card is drawn: with card payments unavailable
+        this is the only card on the screen and a gap above it would be a hole.
+        Card one is a button a customer presses; these are handles a customer
+        reads and types into another app themselves — two different things,
+        which is why the gap has to say so. */}
+    <div className="card" style={showCard ? { marginTop: "var(--sp-5)" } : undefined}>
       {showCard && <div className="section-title" style={{ marginTop: 0 }}>{t("Other ways to pay you")}</div>}
       {/* THE ONE FACT THE FIELDS CANNOT CARRY: which emails these land on. A
           detailer who fills this in and then checks a paid receipt would

@@ -10,7 +10,8 @@
 //
 // Credential-free, no browser, no dev server.
 
-import { advancedMoney, sourceName, whereFrom } from "../app/src/lib/moneyAdvanced.js";
+import { readFileSync } from "node:fs";
+import { ON_SITE, advancedMoney, sourceName, whereFrom } from "../app/src/lib/moneyAdvanced.js";
 
 let passed = 0, failed = 0;
 const check = (name, cond, detail = "") => {
@@ -30,12 +31,12 @@ const eq = (name, got, want) => check(`${name} = ${want}`, near(got, want), `got
    x  Sep 7        Tom     $999          cancelled — must not count anywhere
    0  Aug 20 (prev period) Dana $80  — makes Dana a RETURNING customer
 
-   Collected  = 200 + 100 + 150 + 50 = 500
+   Earned     = 200 + 100 + 150 + 50 = 500   (accrual: Priya has not paid)
    Expenses   = 60 (supplies) + 40 (fuel) = 100
    Net        = 400 · margin = 400/500 = 0.8
    Hours      = (90+60+60+30)/60 = 4 · hourly = 400/4 = 100
    People     = Dana (returning), Marcus (new), Priya (new) = 3 · return rate 1/3
-   Paid       = 200 + 100 + 50 = 350 · owed = 150
+   Collected  = 200 + 100 + 50 = 350 · owed = 150   (cash: only `paid`)
    Packages   = Express Wash 3, Full Detail 1
    Saturday   = 3 jobs / $300 · Wednesday = 1 job / $200
    ──────────────────────────────────────────────────────────────────────── */
@@ -82,10 +83,14 @@ const m = advancedMoney({ bookings, expenses, lineItems, period, previous });
 
 /* ── 1 · what came in ─────────────────────────────────────────────────────── */
 console.log("\n1: what came in");
-eq("collected", m.collected, 500);
+// **THREE WORDS, THREE AMOUNTS — ROADMAP 14.7.** `earned` is every finished
+// job; `collected` is the paid ones only; `owed` is the difference. They were
+// `collected` / `collectedPaid` / `owed`, so the field named *collected* was
+// the one that had not been collected. § 4 checks the other two.
+eq("earned", m.earned, 500);
 eq("jobs", m.jobs, 4);
 eq("average ticket", m.avgTicket, 125);
-// 500 collected − 40 sold on site − 30 of tips = 430 quoted up front
+// 500 earned − 40 sold on site − 30 of tips = 430 quoted up front
 eq("quoted up front", m.quoted, 430);
 eq("added on site", m.onSite, 40);
 eq("jobs with something added", m.upsoldJobs, 1);
@@ -100,8 +105,8 @@ eq("tip rate", m.tipRate, 0.5);
 // tip sitting in the same month: if any figure above counts it, every figure
 // on the screen is wrong in the same direction and none of them looks odd.
 check("a cancelled job reaches nothing",
-  m.collected === 500 && m.tipTotal === 30 && m.jobs === 4,
-  `collected ${m.collected}, tips ${m.tipTotal}, jobs ${m.jobs}`);
+  m.earned === 500 && m.tipTotal === 30 && m.jobs === 4,
+  `earned ${m.earned}, tips ${m.tipTotal}, jobs ${m.jobs}`);
 
 /* ── 2 · what went out ────────────────────────────────────────────────────── */
 console.log("\n2: what went out");
@@ -135,7 +140,7 @@ const noTime = advancedMoney({
 });
 eq("an untimed job adds no hours", noTime.hours, 4);
 eq("and is reported as uncounted", noTime.hoursMissing, 1);
-check("but its money still counts", noTime.collected === 600, `got ${noTime.collected}`);
+check("but its money still counts", noTime.earned === 600, `got ${noTime.earned}`);
 
 // A caller that HAS worked out a duration is believed over the window.
 const stated = advancedMoney({
@@ -147,8 +152,13 @@ eq("an explicit duration wins over the window", stated.hours, 2);
 
 /* ── 4 · who paid ─────────────────────────────────────────────────────────── */
 console.log("\n4: who paid");
-eq("collected and in the bank", m.collectedPaid, 350);
-eq("earned and still owed", m.owed, 150);
+eq("collected — the paid jobs only", m.collected, 350);
+eq("still owed", m.owed, 150);
+// THE IDENTITY, NOT A THIRD TALLY. `owed` is `earned − collected`, so this
+// cannot drift; it is here because a future edit that tallies it separately
+// would pass everything above and fail this.
+check("earned = collected + still owed", m.earned === m.collected + m.owed,
+  `${m.earned} != ${m.collected} + ${m.owed}`);
 
 /* ── 5 · who they are ─────────────────────────────────────────────────────── */
 console.log("\n5: who they are");
@@ -306,6 +316,79 @@ eq("booked at all", w.bookedAtAll, 3);
 check("called with nothing does not throw", (() => {
   try { whereFrom(); return true; } catch { return false; }
 })());
+
+/* ── 10 · THE LIST ITSELF, BECAUSE A SECOND COPY OF IT IS WHAT BROKE ──────── */
+//
+// ROADMAP 14.6 found `moneyAdvanced.js` counting `add_on, upsell, surcharge,
+// adjustment` while `Money.jsx` counted `upgrade, add_on, custom, travel_fee,
+// discount`. **Three of that first four cannot exist** — the database's check
+// constraint refuses them outright — so *"Sold at the job"* meant two different
+// figures on two screens, and the one a detailer actually taps was the right
+// one. The comment in `moneyAdvanced.js` promised the two lists "move
+// together". They did not, for however long it took anybody to put a row in
+// `booking_line_items`, which was until today.
+//
+// These assertions are what stops it coming back: the list must agree with what
+// the DATABASE accepts, it must match Andrew's ruling, and NO OTHER FILE may
+// declare a list of its own.
+console.log("\n10: the on-site list agrees with the database and exists only once");
+
+// Read from the migration rather than retyped here — a third copy of the
+// categories, living in this file, would be the same defect one level up.
+const MIGRATION = readFileSync(
+  new URL("../supabase/migrations/20260827000200_tenant_data.sql", import.meta.url), "utf8");
+const allowed = new Set(
+  (/category\s+text not null check \(category in \(([^)]*)\)\)/.exec(MIGRATION)?.[1] ?? "")
+    .split(",").map((x) => x.trim().replace(/^'|'$/g, "")).filter(Boolean));
+// A REGEX THAT MATCHES NOTHING MUST NOT READ AS A PASS. If the migration is
+// reworded, this goes red rather than quietly approving an empty set.
+check("the migration's own category list was found", allowed.size >= 5,
+  `parsed ${allowed.size} categories from the migration — 0 means the pattern has gone stale`);
+const impossible = [...ON_SITE].filter((c) => !allowed.has(c));
+check("every counted category is one the database will accept", impossible.length === 0,
+  `the database refuses these: ${impossible.join(", ")}`);
+
+// Andrew's ruling, 2026-09-17: anything beyond the base price counts as money
+// made. A tip is not a sale and is reported on its own; `service` IS the base.
+for (const c of ["upgrade", "add_on", "custom", "travel_fee"]) {
+  check(`${c} counts as sold at the job`, ON_SITE.has(c));
+}
+check("a discount nets against it", ON_SITE.has("discount"));
+check("a tip is not counted as sold at the job", !ON_SITE.has("tip"));
+check("the base service is not counted as sold at the job", !ON_SITE.has("service"));
+
+// NO SECOND COPY. This is the assertion that would have caught the original
+// defect on the day it appeared.
+//
+// **AND ROADMAP 14.7 WENT A STEP FURTHER THAN 14.6a.** 14.6a ended the second
+// COPY of the list, by making `Money.jsx` import the one list. 14.7 ended the
+// second USE: every money figure on the everyday screen now comes out of one
+// `advancedMoney()` call, so that screen holds no category list, no revenue
+// reduce and no net of its own — there is nothing left there to keep in step.
+const MONEY_JSX = readFileSync(new URL("../app/src/screens/Money.jsx", import.meta.url), "utf8");
+check("Money.jsx declares no on-site list of its own",
+  !/\bconst ON_SITE\s*=/.test(MONEY_JSX),
+  "Money.jsx has declared an ON_SITE of its own again");
+check("Money.jsx reads its figures from moneyAdvanced",
+  /\badvancedMoney\(/.test(MONEY_JSX),
+  "Money.jsx no longer calls advancedMoney — it has grown its own arithmetic back");
+// THE SHAPE THE OLD SECOND COPY ACTUALLY HAD: a reduce over the booking
+// amount, scoped to the period. `Money.jsx` is allowed exactly ONE money sum
+// of its own and it is the *Waiting on payment* list — which is deliberately
+// not a period figure (who owes you money is not a period question, so
+// `moneyAdvanced` cannot supply it) and is therefore the one sum that has
+// nothing on the screen to disagree with.
+//
+// **COUNTED RATHER THAN FORBIDDEN, AND THE COUNT IS THE ASSERTION.** A second
+// one appearing is the defect; the first one is the design. If somebody adds a
+// period tally back this goes to two and fails, which is the only thing that
+// could have caught the original on the day it was written.
+const moneySums = [...MONEY_JSX.matchAll(/^.*reduce\(.*final_amount.*$/gm)].map((x) => x[0]);
+check("Money.jsx keeps exactly one money sum of its own", moneySums.length === 1,
+  `${moneySums.length} found:\n        ${moneySums.map((l) => l.trim()).join("\n        ")}`);
+check("and it is the unpaid list, not a period figure",
+  moneySums.length === 1 && /\bunpaid\b/.test(moneySums[0]),
+  `it sums: ${(moneySums[0] ?? "nothing").trim()}`);
 
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

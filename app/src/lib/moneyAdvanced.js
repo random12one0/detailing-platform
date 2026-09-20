@@ -37,16 +37,76 @@
 // `tests/money-advanced.test.mjs` with no browser and no credentials — which
 // is the only way fourteen figures ever get checked at all.
 //
+// ---------------------------------------------------------------------------
+// THREE NAMES FOR MONEY, AND `collected` NOW MEANS WHAT IT SAYS — ROADMAP 14.7
+// ---------------------------------------------------------------------------
+// **THIS FILE USED TO RETURN THE ACCRUAL FIGURE UNDER THE NAME `collected`,
+// AND THE CASH FIGURE UNDER `collectedPaid`.** So the field called *collected*
+// counted work finished in the period whether or not a dollar of it had
+// arrived, and `Today.jsx` — one screen over — used the same word for money
+// actually received (`payment_status === "paid"`). Same word, two meanings,
+// two screens. That is ROADMAP 14.6a's defect with a different subject, and it
+// is how 5.1's overstatement survived a fix: whoever came to add a "Collected"
+// cell would reach for `m.collected`, get the accrual number, and ship the
+// overstatement under the one label that promises it cannot happen.
+//
+// THE THREE WORDS THIS PRODUCT USES, AND THEY DIFFER BY DESIGN:
+//
+//   earned     work FINISHED in the period, paid for or not. What the chart,
+//              the month-on-month comparison and the accountant export all
+//              count. Accrual.
+//   collected  of that, the part a customer has actually paid. Cash.
+//   owed       earned − collected. Work done and not paid for.
+//
+// `net` IS `earned − spent` AND STAYS THAT WAY — the contradiction ROADMAP
+// 14.7 was opened to settle. A cash-basis net would disagree with the six-bar
+// chart it is drawn on top of, with the *vs last month* delta beside it and
+// with the CSV an accountant opens, all three of which count the work done in
+// the period. So the maths does not move; the WORDS do. Nothing in this
+// product calls an accrual figure "brought in", "kept" or "taken" any more,
+// and `tests/money-overstatement.test.mjs` fails if one starts to again.
+//
 // **AND NOTHING HERE NEEDED A MIGRATION.** The 8.8 research's most useful
 // finding: tips are already `booking_line_items.category = 'tip'`, expenses
 // already carry `category`, every booking already has `duration_minutes`, and
 // `booking_services` already keeps the name and price of what was sold. The
 // figures were always derivable; nobody had derived them.
 
-// What was sold at the job rather than quoted up front. The same set Money
-// itself uses — imported rather than re-listed would be better, and it lives
-// there as a private constant; if it ever moves, these two move together.
-const ON_SITE = new Set(["add_on", "upsell", "surcharge", "adjustment"]);
+// WHAT WAS SOLD AT THE JOB RATHER THAN QUOTED UP FRONT — THE ONE LIST, AND IT
+// IS EXPORTED SO THERE CAN NEVER BE A SECOND ONE.
+//
+// **THIS USED TO SAY `add_on, upsell, surcharge, adjustment`, AND THREE OF
+// THOSE FOUR CANNOT EXIST.** `booking_line_items_category_check` allows only
+// `service, upgrade, add_on, custom, travel_fee, tip, discount`, so `upsell`,
+// `surcharge` and `adjustment` were refused outright by Postgres — the first
+// insert this repo ever attempted with one came back `23514`. `Money.jsx` held
+// its own correct copy of this list, and the comment that used to sit here said
+// the two "move together". **They did not.** The Money screen's own tile was
+// right and this file's "Sold at the job", its quoted-vs-added bar and its
+// "Sells an extra" were all computed from a set that only `add_on` could ever
+// match. Nobody saw it because the table was empty until ROADMAP 14.6.
+//
+// **ANDREW'S RULING, 2026-09-17:** *"anything beyond the base price — any
+// upgrade of either package, add-on, a travel fee, whatever — counts as more
+// money we made."* So an upgrade, an add-on, a custom charge and a travel fee
+// all count.
+//
+// A DISCOUNT IS IN HERE AND IT IS NEGATIVE ON PURPOSE. It belongs on the same
+// side of the ledger, so money taken off at the car nets against money added
+// at the car rather than hiding somewhere else. `Money.jsx` has always done
+// this; now both do, because both read this.
+//
+// A TIP IS NOT IN HERE AND IS NOT A SALE. It is money the customer chose to
+// give, not work the detailer sold, and this file already reports tips on their
+// own (`tipTotal`, `tipRate`, `avgTip`). Counting a tip here would show the
+// same dollar twice and stop `quoted + onSite + tips = earned` adding up.
+export const ON_SITE = new Set(["upgrade", "add_on", "custom", "travel_fee", "discount"]);
+
+// A DISCOUNT IS NOT A SALE EITHER, EVEN THOUGH ITS MONEY BELONGS ABOVE. It
+// counts towards the TOTAL sold at the job and not towards HOW MANY JOBS were
+// upsold — otherwise a job where the only extra line was $20 off would be
+// reported as a job you sold something on.
+const A_SALE = new Set([...ON_SITE].filter((c) => c !== "discount"));
 
 const num = (v) => {
   const n = Number(v);
@@ -102,8 +162,8 @@ export function advancedMoney({
   const paidOf = (b) => num(b.final_amount ?? b.total_price);
   const sum = (rows, f) => rows.reduce((s, r) => s + f(r), 0);
 
-  const collected = sum(jobs, paidOf);
-  const prevCollected = sum(prevJobs, paidOf);
+  const earned = sum(jobs, paidOf);
+  const prevEarned = sum(prevJobs, paidOf);
 
   // ── what went out ─────────────────────────────────────────────────────────
   const spent = expenses.filter((e) => inRange(e.date, period));
@@ -131,7 +191,11 @@ export function advancedMoney({
 
   const upsellItems = items.filter((li) => ON_SITE.has(li.category));
   const onSite = sum(upsellItems, amountOf);
-  const upsoldJobs = new Set(upsellItems.map((li) => li.booking_id)).size;
+  // COUNTED FROM THE SALES, NOT FROM EVERY LINE — see `A_SALE` above: a job
+  // whose only extra line was a discount is not a job you sold something on.
+  const upsoldJobs = new Set(
+    items.filter((li) => A_SALE.has(li.category)).map((li) => li.booking_id),
+  ).size;
 
   const tipItems = items.filter((li) => li.category === "tip");
   const tipTotal = sum(tipItems, amountOf);
@@ -139,11 +203,11 @@ export function advancedMoney({
 
   // Tips are not a sale, so they sit outside the quoted/added split rather
   // than inflating what was sold at the job.
-  const quoted = Math.max(0, collected - onSite - tipTotal);
+  const quoted = Math.max(0, earned - onSite - tipTotal);
 
   // ── what it was worth ─────────────────────────────────────────────────────
-  const net = collected - outNow;
-  const prevNet = prevCollected - outPrev;
+  const net = earned - outNow;
+  const prevNet = prevEarned - outPrev;
 
   // HOURS ARE THE BOOKED WINDOW, which is the only honest number available:
   // nobody clocks in.
@@ -171,9 +235,21 @@ export function advancedMoney({
   // PAID means the money is in. A completed job with `pending` on it is work
   // done and not yet paid for, and it is the figure his old screen has no
   // answer to.
+  //
+  // **ONLY `paid` COUNTS AS COLLECTED, AND THE OTHER THREE STATES ARE A
+  // DECISION RATHER THAN AN OVERSIGHT — ROADMAP 14.7.** `payment_status` holds
+  // four values. `pending` is nothing received. `partial` means money moved
+  // and NOTHING IN THE DATABASE RECORDS HOW MUCH, so counting it whole would
+  // overstate and counting it zero understates — it sits in `owed`, which is
+  // the safer of the two wrongs and the same call `_shared/connect.ts` makes
+  // about refunds. `waived` is work the detailer gave away: it is earned at
+  // the quoted price and will never be collected, so it stays in `owed` too
+  // rather than being quietly written off where nobody can see it.
+  // `tests/money-overstatement.test.mjs` has one target per state and FAILS if
+  // a fifth ever appears without somebody deciding which side it falls on.
   const paidJobs = jobs.filter((b) => b.payment_status === "paid");
-  const collectedPaid = sum(paidJobs, paidOf);
-  const owed = collected - collectedPaid;
+  const collected = sum(paidJobs, paidOf);
+  const owed = earned - collected;
 
   // ── new against returning ─────────────────────────────────────────────────
   // The key is the phone number, which is what `create-booking` de-duplicates
@@ -249,12 +325,12 @@ export function advancedMoney({
 
   return {
     // what came in
-    collected,
-    prevCollected,
+    earned,
+    prevEarned,
     jobs: jobs.length,
     prevJobs: prevJobs.length,
-    avgTicket: jobs.length > 0 ? collected / jobs.length : 0,
-    prevAvgTicket: prevJobs.length > 0 ? prevCollected / prevJobs.length : 0,
+    avgTicket: jobs.length > 0 ? earned / jobs.length : 0,
+    prevAvgTicket: prevJobs.length > 0 ? prevEarned / prevJobs.length : 0,
     quoted,
     onSite,
     upsoldJobs,
@@ -273,14 +349,14 @@ export function advancedMoney({
     // what it was worth
     net,
     prevNet,
-    margin: collected > 0 ? net / collected : 0,
+    margin: earned > 0 ? net / earned : 0,
     hours,
     hoursKnown: timed.length,
     hoursMissing: jobs.length - timed.length,
     hourly: hours > 0 ? net / hours : 0,
 
     // who paid
-    collectedPaid,
+    collected,
     owed,
     paidJobs: paidJobs.length,
 
@@ -371,7 +447,13 @@ export function sourceName(referrer) {
  * @param period    {start, end}
  */
 export function whereFrom({ campaigns = [], visits = [], bookings = [], period } = {}) {
-  const seen = visits.filter((v) => inRange(v.date, period));
+  // NO PERIOD MEANS ALL TIME, and that is not a convenience default — it is
+  // what the Business screen needs. That screen has no period control on it,
+  // so asking it to invent one would make its summary disagree with itself
+  // every time Money moved. `inRange` itself is untouched: its three other
+  // callers all pass a real period, and widening a shared helper to serve one
+  // caller is how a fourth definition of "this period" gets born.
+  const seen = period ? visits.filter((v) => inRange(v.date, period)) : visits;
   // A PERSON, NOT A PAGE LOAD. Somebody who opens the booking page three times
   // deciding on a package is one person thinking about it, and counting those
   // as three would make every conversion rate on this screen a third of the
@@ -419,9 +501,28 @@ export function whereFrom({ campaigns = [], visits = [], bookings = [], period }
   ).map((r) => ({ source: r.source, people: r.people.size, visits: r.visits }))
     .sort((a, b) => b.people - a.people || b.visits - a.visits);
 
+  // WHAT THE BUSINESS SCREEN'S ONE-LINE SUMMARY NEEDS, COUNTED HERE so there
+  // is still only one arithmetic. That row used to run its own count and it
+  // was wrong three ways at once (ROADMAP 5.4): it counted EVERY row in
+  // `campaign_visits`, including visits that belong to no link at all — which
+  // is the commonest row in that table; it counted visits to links that had
+  // been switched OFF while printing a count of live ones beside them; and it
+  // counted page loads where Money counts people.
+  // MEASURED 2026-09-18, not inferred: across the whole database not one
+  // visit was tagged to a campaign, and a single untagged visit to the plain
+  // booking page was being reported as "1 link · 1 open".
+  // LIVE LINKS ONLY, to match the count of links printed beside it. A row
+  // reading "1 link · 40 people" where 39 of them opened last spring's
+  // switched-off postcard is two figures that do not belong in one sentence.
+  const liveIds = new Set(campaigns.filter((c) => c.is_active !== false).map((c) => c.id));
+  const onLive = seen.filter((v) => v.campaign_id && liveIds.has(v.campaign_id));
+
   return {
     links,
     others,
+    // PEOPLE, not page loads — the same call `peopleIn` exists to make.
+    linkPeople: peopleIn(onLive),
+    linkVisits: onLive.length,
     people: peopleIn(seen),
     visits: seen.length,
     // BOOKINGS THAT CAME THROUGH A LINK, against every booking in the period —

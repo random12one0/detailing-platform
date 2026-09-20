@@ -20,17 +20,37 @@ quietly picking one.
 Andrew is not a programmer. Explain in plain words, define any term the first
 time it appears, and never hand over a decision without what he needs to make
 it: what the thing is, what happens either way, and your recommendation.
+**Every reply is a reply card, and anything visual ends with his browser open
+on it** — `docs/how-we-run.md` §§ "The reply card", "Driving the browser",
+"Handing off". Five slots: a one-line headline, a **Before / After table**,
+**"Look at it"** (the tabs left open and what to check — or "Nothing to look
+at" plus how it was proven instead), **"Your move"**, and **"Next up"**, which
+states the FIX rather than the problem: *right now it's this, we're changing
+it so that, by doing this.* Andrew's asks, 2026-09-18. **It replaced the
+status block and the "What's next" block** — they repeated each other and the
+closing paragraph, so four sentences of news printed three times. Do not
+reintroduce them.
 
 ## Commands
 
 ```bash
 npm run dev --prefix app                  # dev server on :5173
 npm run build --prefix app                # production bundle -> app/dist
-node --test tests/                        # all test suites
+node --test tests/*.test.mjs              # all test suites (the glob is required)
 node scripts/seed-demo.mjs                # demo tenant the suites sign in as
 node scripts/build-examples.mjs --dev     # example tenant sites at /ex1../ex5
 node scripts/context-check.mjs            # real context usage for this session
 ```
+
+**The glob on the test line is not decoration.** `node --test tests/` exits
+`Cannot find module <repo>/tests` on this machine's Node — it reads the
+directory as a module specifier — so the documented command looked like a
+repo-wide catastrophe rather than a typo. Corrected 2026-09-20 after
+`docs/VERIFIED.md` had parked it twice as "somebody's decision".
+**Running all 79 at once shares one seeded database and they interfere**:
+`booking-engine` fails in the battery and passes **110/0** on its own. A red
+in a full run is a lead, not a verdict — re-run the suite by itself before
+believing it.
 
 Env-backed scripts need credentials loaded first, or eleven of them print
 `Missing SUPABASE_URL` and it reads as a broken environment rather than as a
@@ -48,6 +68,7 @@ set -a; . ./.env; set +a
 | Color or ground tokens | `node scripts/accent-sweep.mjs` |
 | An edge function | `node scripts/deploy-functions.mjs …` then `node scripts/check-deployed.mjs` |
 | A layout | `node scripts/sweep-widths.mjs` (needs dev server + seed) |
+| The job record's pinned action bar, or any container it opens in | `node scripts/pinned-bar.mjs` |
 | The booking widget | `node scripts/sweep-booking-steps.mjs` |
 | Anything on a customer's or booking's path | `node scripts/e2e-booking.mjs` |
 | An email | `node scripts/render-emails.mjs` |
@@ -73,9 +94,29 @@ somebody real time.
 
 ## Hard rules
 
-- **Never write to the live business project `adtlnvihwrcqcasqcjwd`.** That is
-  Andrew's real detailing business taking real customers' money. Reads are
-  fine; writes only with his explicit go-ahead for that specific action.
+- **Two Supabase projects, and until 2026-09-19 this rule named only one of
+  them — the one this repo cannot reach.**
+  - **`kguqylyzgyzfktkfnhjb` is this platform's own database, and it is fully
+    usable — read and write, no restrictions.** It is what `.env` points at,
+    what every script here writes to, and **what `detailingplatform.com`
+    itself runs on** (measured: the live bundle's own Supabase host). Andrew,
+    2026-09-19: *"This project has no live customers, no anything… it's just
+    we've been developing so far. Everything on there is just fake accounts
+    and whatnot."* So a seed, a fixture, a migration or a temporary table is
+    fine here. **Say what you are about to write before you write it** — the
+    public site reads this database, so a mistake is visible, even though
+    nobody's money is in it.
+  - **`adtlnvihwrcqcasqcjwd` is the presumed real business database —
+    andrewsdetail.com, Andrew's actual detailing business. Never write to it.**
+    **Its identity is NOT confirmed.** Andrew is certain the real business has
+    its own separate project and is not certain of the ref; he believes it has
+    no Claude connector at all. This ref is the leading candidate because it is
+    the one this rule has always named. Treat it as strong caution, not as
+    fact: **if you ever find yourself connected to a project that is not
+    `kguqylyzgyzfktkfnhjb`, stop and ask**, whatever its ref.
+  - The access token in `.env` can currently see **only**
+    `kguqylyzgyzfktkfnhjb` — verified 2026-09-19 against the Management API's
+    project list. That is a fact about today's token, not a safety mechanism.
 - **Migrations are append-only.** Never edit an existing one.
 - **Never commit `app/.env.production` or any credential.** No password, token
   or key goes into a markdown file either — say where it lives, not what it is.
@@ -157,6 +198,8 @@ Open a long file only when the work touches its subject.
 | `docs/README.md` | The map — what every document is and whether it is still true |
 | `PROJECT-STATE.md` | Full state briefing; §1–7 only, the rest is a journal |
 | `ROADMAP.md` | **The live fix queue — start here.** 79 open items from two audits |
+| `FOR-ANDREW.md` | **Andrew's own list** — accounts to open, keys to paste, calls to make. A session that hits a blocker adds a row and keeps going |
+| `docs/how-we-run.md` | How we work: the speed research folded into the operating-system report, and the five places it contradicts a decision Andrew already made |
 | `docs/audits/` | The two September 2026 live-site audits the queue is built from |
 | `docs/roadmap.md` | The long build history |
 | `FOUND.md` | Known problems parked, not yet fixed |

@@ -5,6 +5,70 @@ Claude Cowork decides what becomes work.
 
 ---
 
+## ~~THE MONEY SCREEN COUNTS THREE CATEGORIES THAT CANNOT EXIST~~ — FIXED 2026-09-17
+
+**Found by running `booking_line_items` for the first time.** The table had
+never held a row, so nothing had ever compared the three lists that have to
+agree, and they do not:
+
+```
+the database allows          service, upgrade, add_on, custom, travel_fee, tip, discount
+FinalizeModal.jsx offers              upgrade, add_on, custom, travel_fee, tip, discount
+moneyAdvanced.js counts as sold-at-the-job     add_on, upsell, surcharge, adjustment
+```
+
+**`upsell`, `surcharge` and `adjustment` are refused outright by the check
+constraint** `booking_line_items_category_check`, so no code path in this
+product can produce one. **The intersection is `add_on` ALONE** — and
+`FinalizeModal`'s own default for a new line is `custom`.
+
+**So a detailer who adds $45 of work at the car the ordinary way has it counted
+as $0** in the Money screen's *"% of what you brought in was sold at the job"*.
+Four of the six categories the form offers — upgrade, custom, travel_fee,
+discount — contribute nothing to that figure. The first attempted insert in
+this repo's history, with `category: "upsell"`, was rejected by Postgres with
+`23514`.
+
+**NOT FIXED, because fixing it means deciding which list is right**, and that
+is a ruling about a number Andrew reads rather than a typo. Three options, none
+obviously correct: widen the constraint to admit `upsell`/`surcharge`/
+`adjustment`; narrow `ON_SITE` to the categories that can exist and decide
+whether `upgrade` and `custom` belong in it; or change the form's default away
+from `custom`. `ON_SITE` lives at `app/src/lib/moneyAdvanced.js:49`, the
+constraint at `supabase/migrations/20260827000200_tenant_data.sql:322`, the
+form's list at `app/src/components/FinalizeModal.jsx:31`.
+
+**FIXED THE SAME DAY, AND THE DIAGNOSIS ABOVE WAS HALF WRONG.** The screen a
+detailer actually taps — the *"Added on site"* tile on `Money.jsx` — was
+**right all along**: it held its own correct list. The wrong list was in
+`moneyAdvanced.js`, which feeds the *"The full picture"* breakdown: its *"Sold
+at the job"*, its quoted-vs-added bar and its *"Sells an extra"* percentage.
+**So the same three words meant two different figures on two screens**, and the
+comment in `moneyAdvanced.js` promising the two lists "move together" was
+untrue for however long it took anybody to put a row in `booking_line_items`.
+
+**Andrew's ruling, 2026-09-17:** *"anything beyond the base price — any
+upgrade of either package, add-on, a travel fee, whatever — counts as more
+money we made."*
+
+**There is one list now and it is exported**, so a second copy cannot appear:
+`upgrade, add_on, custom, travel_fee, discount` in `app/src/lib/moneyAdvanced.js`,
+imported by `Money.jsx`. A discount is negative and nets against the rest. A tip
+stays out — it is not a sale, it is already reported on its own, and counting
+it here would show the same dollar twice and stop `quoted + added + tips`
+adding up to what came in. `upsoldJobs` counts only the sales, so a job whose
+only extra line was a discount is not reported as a job you sold something on.
+
+Proved by `tests/money-advanced.test.mjs` § 10 (the list is checked against the
+migration's own constraint, read from the file rather than retyped, and
+`Money.jsx` is checked for not declaring a list of its own) and by
+`scripts/e2e-ten-features.mjs` § 2, which now adds **an `add_on` AND a
+`custom`** and requires the figure to move by $75. Against the old code that
+section reads $45 and goes red. Seen on the screen: BROUGHT IN $810, QUOTED UP
+FRONT $735, ADDED ON SITE +$75.
+
+---
+
 ## THE GEAR WAS NEVER OPENED IN SPANISH — eight settings screens, never once checked, lane C, 2026-09-13
 
 **`scripts/spanish-dom.mjs` reached the gear by `button[aria-label*="ettings"]`.
@@ -2999,3 +3063,364 @@ English, so all 38 maintenance checks pass untouched, and it is the same shape
 - **`Business info` — `Fully covered on your property`.** One line, but it sits
   in a block of the detailer's own typed credentials, so whether it is ours
   needs a look at that screen rather than a grep.
+
+---
+
+## Found doing ROADMAP 14.7 — 2026-09-17
+
+### 1 · A CHECK'S LEFTOVER ROW IS MOVING THE DEMO BUSINESS'S MONEY FIGURES
+
+`ROADMAP 14.5 CANARY` exists **fifteen times** in `bookings` on the demo
+business. Fourteen carry `deleted_at`; **one does not** — `pending`, `$65`
+(`final_amount` 65 over a `total_price` of 60), dated 2026-09-11, created
+2026-09-17.
+
+**It is correctly flagged rather than deleted, per ROADMAP 0.3.** The problem
+is not the row, it is that **nothing says the row is in the figures**:
+
+- ROADMAP 14.7 measured the Money screen's overstatement at **$230**. With this
+  row present it is **$295**. Both measurements are right; the number moved
+  under the item.
+- The next session to measure this screen against 14.7's note will find a
+  third figure, and has no way to tell whether the product changed or the
+  fixture did.
+
+**Not fixed here, because it is 14.5's row and deleting somebody else's canary
+is exactly the reflex ROADMAP 0.3 forbids.** Two ways out, for whoever owns it:
+give the run's live canary a `deleted_at` when it finishes the way it does for
+the other fourteen, or price the canary at $0 so it cannot move a money figure.
+The second is smaller and cannot regress.
+
+### 2 · `node --test tests/` FROM `CLAUDE.md` § COMMANDS DOES NOT RUN
+
+Documented as *"all test suites"*. What it actually does:
+
+```
+Error: Cannot find module <repo>/tests
+✖ tests (78.2741ms)
+ℹ pass 0
+ℹ fail 1
+```
+
+**These suites are plain Node scripts, not `node:test` files** — they call
+their own `check()` and `process.exit(failed ? 1 : 0)`. Node's test runner
+treats the directory argument as a module to load and fails on the first line.
+So the battery has to be run file by file, and a session that copies the
+documented command gets **one failure that looks like a broken repo rather than
+a wrong command.**
+
+**Not fixed here, because changing a documented command is a decision.** Two
+options: correct the line to a loop over `tests/*.test.mjs`, or add an `npm
+test` script that does it. The loop is one line and needs nothing installed.
+
+*Found while running the battery for 14.7. Neither of these is caused by 14.7's
+change; both were true at `2a10b86`.*
+
+
+---
+
+## THE CUSTOMER'S RECEIPT PAGE NEVER SAYS IT WAS PAID — found 2026-09-18
+
+**Found by paying a real $195 card and then opening the page the customer
+opens.** `get-booking-receipt` lists `payment_status` in its
+`SERVER_ONLY_COLUMNS` — selected so `payability()` can decide whether to draw a
+Pay button, then dropped from the reply. The comment says the three names
+there are *"none of the customer's business"*, which is right about
+`business_id` and `booking_group_id` and is the thing worth re-deciding about
+this one.
+
+**So the only place a customer is ever told the payment worked is the
+`?paid=1` banner Stripe redirects them to, which exists for one visit.** Open
+the same link tomorrow and the page shows the booking, the final total, and
+nothing at all saying it has been settled. The document a customer keeps *as*
+their receipt does not record the receipt's only fact.
+
+**Not fixed with ROADMAP 5.3, deliberately.** It is a change to a PUBLIC
+allow-list — the one `tests/receipt-fields.test.mjs` reads out of the source
+and holds the deployed endpoint to, 60 targets — plus an edge-function deploy
+and a line of copy on a page a stranger reads. 5.3's done-when is about what
+the OWNER can find, and that is finished and proven. This is the customer's
+half of the same question and it deserves its own item rather than a quiet
+ride on somebody else's.
+
+**If it is picked up:** the change is one name moved from `SERVER_ONLY_COLUMNS`
+into `BOOKING_COLUMNS`, the matching line in `receipt-fields.test.mjs`'s
+expected list, a sentence on `ManageBookingPage.jsx` drawn from the row rather
+than from the URL, and a Spanish key. Nothing about it is hard; the care is all
+in it being public.
+
+---
+
+## ~~TWO MORE SCRIPTS CARRY THE DEMO BUSINESS ID THAT NO LONGER EXISTS~~ — FIXED 2026-09-18
+
+`scripts/e2e-browser-features.mjs:103` and `scripts/e2e-ten-features.mjs:81`
+both hold `def6fa3f-5c1f-4eaa-9390-16707a038c26` as a constant. **That row is
+gone.** `seed-demo.mjs` rebuilt the demo tenant on 2026-09-18 and a rebuilt row
+gets a new id; Coastline Auto Detailing is `89f36921-…` today and will be
+something else after the next reseed.
+
+`scripts/e2e-payment.mjs` carried the same constant and died on
+`bookings_business_id_fkey` the moment it was run for ROADMAP 5.3. It now looks
+the id up from the slug `demo-detail`, which a reseed never changes. **The
+other two have not been run and have not been changed** — the fix is the same
+three lines, but an untested edit to two verified browser checks is not
+something to ship on the way past.
+
+*Found while running ROADMAP 5.3. Not caused by it; both were true at
+`2a10b86`.*
+
+**FIXED AND BOTH WERE ACTUALLY RUN — 2026-09-18.** Each file now does what
+`e2e-payment.mjs` does: `let BIZ = null` at the top, and § 0 reads the id from
+`businesses?slug=eq.demo-detail` straight after the owner signs in, throwing by
+name if the row is missing rather than handing `null` to the next insert.
+
+| script | verdict |
+|---|---|
+| `e2e-ten-features.mjs` | **PASS — 6/6 targets, 42 assertions, 0 failures.** `receipt.mjs` agrees and confirms the canary failed as required |
+| `e2e-browser-features.mjs` | **The id fix works** — § 0 resolves `89f36921-…` and §§ 2–4 pass, 27 assertions that had never once run. **§ 1 fails** — see the next entry |
+
+**The guard was broken on purpose before either verdict was trusted.** `SLUG`
+was pointed at `no-such-detailer` and `e2e-ten-features.mjs` re-run: it stopped
+at § 0 with `no business with slug "no-such-detailer"`, **0/6 targets, exit 1**.
+It did not silently continue with no id. The file was then diffed byte-for-byte
+against its pre-sabotage copy and re-run clean.
+
+Nothing else was changed in either file. `tests/money-overstatement.test.mjs:282`
+still names the dead id, but only inside a note string that nothing queries.
+
+---
+
+## THE OWNER'S PHONE NEVER LIGHTS UP WHEN A CUSTOMER BOOKS — found 2026-09-18
+
+`e2e-browser-features.mjs` § 1 fails **the same way on two consecutive runs**:
+the device registers, the customer books, and **nothing arrives in 60 seconds.**
+
+```
+  ok    the server hands out a VAPID public key
+  ok    the browser got a real push endpoint
+  ok    owner-push-subscribe stored it
+  ok    this business now has a registered device
+  ok    a customer booked the job that should raise the alert
+  FAIL  the detailer's device showed a notification   nothing arrived in 60 seconds
+```
+
+**The file's own comment says a single miss is the push service and is worth a
+re-run before an investigation — twice in a row is not that.** That note records
+two misses in six runs; this is two out of two, with the four steps before it
+green both times. The subscription row is written, so the failure is downstream:
+`create-booking:681` guards the send on `settings.push_enabled`, and
+`_shared/ownerPush.ts` needs `OWNER_VAPID_PRIVATE_KEY` and `OWNER_VAPID_SUBJECT`
+on the deployed function — only the PUBLIC key is proven present, by the step
+above that passes. Neither has been checked. **Check those before touching any
+code**, and read the deployed function's log for the booking that was created.
+
+*Found on the first run this script has ever completed. Not caused by the id
+fix — before it, the file died on a foreign key at § 1 and this step had never
+executed at all.*
+
+---
+
+## ~~THE PINNED ACTION BAR GUILLOTINES THE BUTTON UNDER IT ON `/job/:id`~~ — FIXED 2026-09-18
+
+Andrew reported it from his own browser: *"the GUI looks a little weird with
+this like square thing and buttons overlapping"*. It is real, it is measured,
+and it is one missing rule.
+
+`.jobbar` is the six-button action bar at the top of a job record, sticky on
+purpose — step 4's ruling that Call / Text / Navigate must not scroll away
+while a detailer is standing at the car. **It is correct in the slide-up
+sheet and wrong on the standalone page.**
+
+`theme.css:4075` pulls the bar out to the container's edges and re-pads it —
+but the selector is `.sheet-body > .jobbar`. The `/job/:id` page puts the same
+bar inside `.app-main`, which has 18px of side padding and no such rule, so
+the bar renders **724px wide at x=37, square-cornered, `padding: 12px 0`** —
+the exact width, and the exact background (`--surface`, `rgb(23,27,30)`), of
+the `.card` elements beside it, which carry `border-radius: 12px` and
+`padding: 18px`.
+
+**Two symptoms, both from that one fact:**
+
+1. **It reads as a bare square slab.** Same colour and same width as the
+   rounded cards above and below it, with the buttons flush to its left and
+   right edges because its horizontal padding is zero.
+2. **Scrolling slices the blue button in half.** `Finalize payment` passes
+   under a bar painted the same colour as the card it is sitting in, so there
+   is no visible edge to explain the cut — screenshotted at 813px wide, the
+   button is sheared across its middle with its rounded bottom still showing.
+   A sticky bar is supposed to cover content; one that is invisible against
+   what it covers just looks broken.
+
+**Not fixed, and not picked up on the way past.** It is a layout change to the
+container every job record in the product opens in — the sheet, the desk's
+second column and the page — and `sweep-widths.mjs` is the instrument that
+would have to agree the other two are unharmed. That is an item, not an aside.
+
+*Found while Andrew was looking at `ROADMAP 14.5 PAY`, the fixture
+`scripts/e2e-payment.mjs` leaves behind per ROADMAP 0.3. The fixture is doing
+its job; the bar is a defect on every job record, real or test.*
+
+---
+
+**FIXED 2026-09-18, and the diagnosis above was right about the cause and
+short by one symptom.**
+
+`theme.css` no longer describes the sheet on a selector that only the sheet
+matches. `--jobbar-bleed` is how far the bar reaches out to its container's
+padding edge and back in again as padding; `.app-main` and `.sheet-body` set
+it to `--sp-4`, `.record-body` to `0px` because the panel around it holds the
+padding instead. That is symptom 1 — the bar now spans 1,180px in a 1,180px
+scrollport at 1440 and 392px at 392, against cards 36px narrower, with its
+buttons still starting exactly where every other row on the screen starts.
+
+Symptom 2 needed something the entry did not name. **Painting the bar the
+page's own ground does not work, and it was tried first.** `--bg` is
+`#0B0D0E`; the page as rendered there is `rgb(17, 22, 24)`, because
+`.app-shell` puts two atmosphere gradients and a drifting dot lattice on top
+of `--bg`. A flat `--bg` band is a darker rectangle on a lit ground — the same
+slab in another colour — and the geometry check passed it. No flat fill can
+follow a ground that moves, so the bar stops imitating the ground and says it
+is in FRONT of the content instead, with the elevation the tab bar already
+uses (`0 12px 34px -14px rgba(0,0,0,.8)`), character for character. The
+sheet and the desk's record gained the same edge and are better for it.
+
+**Proved by `scripts/pinned-bar.mjs`** — 17 targets, 85 assertions, at 1920 /
+1440x900 / 768x1024 / 392x844, normal and `?lite=1`, in all three containers.
+Before the change it reported 16 failures naming this entry's exact numbers
+(724px of bar in a 760px scrollport; `rgb(23,27,30)` bar on `rgb(23,27,30)`
+cards); after it, 17/17 and a valid receipt. The console at every size is two
+React Router v7 future-flag deprecation warnings from the library and nothing
+else. `docs/gotchas.md` gained two entries for the two ways this measurement
+lied on the way.
+
+### SECOND ROUND, SAME DAY — HE TURNED THE FIRST FIX DOWN, AND HE WAS RIGHT
+
+The repair above made the bar a full-bleed band in all three containers. It
+measured correctly at four widths and he rejected it on sight: *"it's very
+square whereas everything else is like rounded and it just looks a little like
+weird"*, and *"the completed unpaid and planned member rate all like touch
+this kind of box."*
+
+**Both were real and both measured.** The bar's corner radius was **0px on a
+page where every card is 12px** — the only square-cornered thing on the
+screen. And the gap between the two status pills and the bar's top edge was
+**0px, in all three containers**, not just the page.
+
+So the bar is no longer forced wall to wall. **The law is now: a bar that
+reaches its container's edges is a BAND and is square with a hairline; a bar
+level with the cards is an OBJECT and takes their radius.** Only the sheet is
+the first kind. The page and the desk's second column are now rounded cards in
+line with everything under them, all three have 12px of clearance above them,
+and all three keep the elevation that says they are in front.
+
+**`docs/screen-rules.md` has the ruling** — it is a screen-level law, not a
+fact about this one bar. **The check went from five questions to seven**, and
+its canary is now the exact screen he was looking at when he turned it down:
+square corners, no elevation, pills flat on the edge. It catches all three.
+
+---
+
+## Two things `example-ctas.mjs` found that are real and are not ROADMAP 2.4
+
+Found 2026-09-19 while closing 2.4. Both measured, neither fixed — 2.4 is
+booking controls and these are not, and quietly widening an item is how a
+queue stops meaning anything.
+
+**1 · ex3 has three links to a section that does not exist.**
+`x-ballantyne.html` carries two `<a href="#services">Services</a>` and
+`x-ballantyne-prices.html` one `<a href="x-ballantyne.html#services">`. There
+is **no `id="services"` on either page.** Clicking the nav item does nothing
+at all — no error, no movement. It is the same shape as 2.4's "Get a price"
+footer links, one page over, and it is a NAV item rather than a booking
+control, which is the only reason it is here rather than fixed.
+*Found by the static fragment pass at the top of the 2.4 work: every `<a>`
+whose href carries a `#`, resolved against the target page's real ids. Three
+dead, all `#services`, after the two booking ones were repaired.*
+
+**2 · ex4's sticky-nav "Book a detail" is 101x35 at 392 wide.**
+Under the 44px floor `docs/design-system.md` calls an absolute, on a phone,
+on the control that is a visitor's most likely way into the booking widget
+once they have scrolled. Measured with `getBoundingClientRect` after
+scrolling the nav into its `.nav.on` state; the same control is 123x44 at
+1440, so it is the phone rule it breaks, not the desk one. **`elementFromPoint`
+has not been used on it yet** — the design system's own note says a bounding
+rect cannot see a `::after` hit-area extension, so this needs the probe
+before it is called a defect rather than a paint. `sweep-tap-targets.mjs` is
+the instrument; it does not currently sweep `/ex1 … /ex5` at all.
+
+---
+
+## ~~`connected_accounts` is protected by a missing grant, not by its policy~~ — WRONG, WITHDRAWN 2026-09-20, an hour after it was written
+
+**I wrote this entry and it was wrong.** The claim was that
+`connected_accounts` carries a SELECT policy that can never fire, because
+`authenticated` holds no grant on the table. The second half is false, and it
+made the first half false with it.
+
+`20260908001000_connected_accounts.sql` revokes the table and then hands the
+columns back **one at a time**:
+
+```sql
+revoke all on public.connected_accounts from authenticated, anon;
+grant select (business_id, stripe_account_id, charges_enabled,
+              card_payments_enabled, connected_at)
+  on public.connected_accounts to authenticated;
+```
+
+`connect_state` and `connect_state_at` — the flow's one-time credential — are
+deliberately withheld, and the migration says why: *"a value nobody can read
+is a value nobody can leak."* The policy fires normally for the five granted
+columns. **It is not inert. It is a narrower and better-considered arrangement
+than a plain table grant, and the only one of its kind in 52 tables.**
+
+**WHAT ACTUALLY WENT WRONG WAS MY PROBE, AND THE LESSON GENERALISES.**
+`has_table_privilege(role, table, 'SELECT')` answers **false** for a table
+whose columns are granted individually. So `tenant-matrix.mjs` classed the
+table as unreachable, asked it for `select=*`, was refused **for the columns
+rather than for the rows**, and reported "owner A sees none of its own rows".
+**A column refusal and a row denial are indistinguishable from outside**, and I
+read one as the other — then wrote a confident entry about a security posture
+on the strength of it.
+
+`tenant-matrix.mjs` uses `has_column_privilege` per column now, asks each table
+for exactly the columns a browser may have, and prints
+`COLUMN-LIMITED — connected_accounts: 5 of 8 columns granted to a browser`
+every run. With that fixed the table passes the matrix like any other: owner A
+reads its own row, nobody reads B's, 567 assertions, canary caught.
+
+**KEPT RATHER THAN DELETED BECAUSE THE REVERSAL IS THE LOAD-BEARING PART** —
+and because a migration was approved on the strength of the wrong version. The
+real open question underneath it is unchanged and is a genuine one: the
+2026-09-08 migration rules that **any member** of a business may read that the
+business has Stripe connected, on the reasoning that *"a staff member being
+told 'card payments are on' is information, not power"*. Whether that should
+narrow to owners is a live question, but it is a change to a deliberate,
+documented ruling — not the repair of an accident, which is what I called it.
+
+---
+
+## STEP 4 OF BOOKING REFUSES A PRESS WITHOUT ANSWERING IT — found 2026-09-20 by Andrew, NOT FIXED
+
+**Reproduction, at 1440 wide on the demo booking page.** Pick a service,
+Continue, Continue, Continue past the vehicle step, and land on step 4 of 7,
+*"Your address"*. Leave the address box empty and press Continue. The step
+refuses, correctly — and its hint, *"Add the address to continue."*, stays
+exactly as it was: grey, unchanged, saying the same thing before the press and
+after it.
+
+**So the step is not silent, and it is not answering either.** A customer who
+has read that line, done nothing about it, and pressed the button gets no sign
+that the button was pressed at all. The difference matters on a phone, where
+the hint and the button can be a screen apart.
+
+**It is the same family as ROADMAP 2.6 and 2.7 and it is the third of the four
+steps nobody has walked.** 2.6 put the shared mechanism in — Continue is
+pressable on every step now and the page is told when it was pressed — so the
+missing piece here is only that this step does not use it. The vehicle step
+turns red on the press; this one has no red state to turn.
+
+**NOT FIXED, and deliberately not:** it is not 2.6, it is not 2.7, and walking
+the remaining steps was declined as a separate item. Whoever takes it should
+take all of them at once — step 4 (address), step 5 (date and time) and the
+services step — rather than one at a time, because the fix is the same three
+lines in each and the value is in them agreeing.

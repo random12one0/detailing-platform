@@ -102,17 +102,28 @@ export function buildVCard({ name, phone, email, address, org }) {
   ].filter(Boolean).join("\r\n");
 }
 
-// Hands the card to the OS. On iOS Safari this opens the contact card
-// directly; on Android it downloads a .vcf that Contacts imports. There is
-// no web API that writes to the address book, so a file is the only route.
-export function saveContact(contact) {
-  const blob = new Blob([buildVCard(contact)], { type: "text/vcard;charset=utf-8" });
+// Hands a file the app built to the OS, through the only route a browser
+// offers: a link it clicks on your behalf. ROADMAP 14.2 gave this a second
+// caller — the owner's calendar file has to be FETCHED with the owner's
+// session now, so it arrives as a blob rather than as a URL an <a> can point
+// at, and it needs the same four lines the vCard already needed.
+export function downloadBlob(blob, filename) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `${(contact.name || "contact").replace(/[^\w\s-]/g, "")}.vcf`;
+  a.download = filename;
   document.body.appendChild(a);
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 30_000);
+}
+
+// Hands the card to the OS. On iOS Safari this opens the contact card
+// directly; on Android it downloads a .vcf that Contacts imports. There is
+// no web API that writes to the address book, so a file is the only route.
+export function saveContact(contact) {
+  downloadBlob(
+    new Blob([buildVCard(contact)], { type: "text/vcard;charset=utf-8" }),
+    `${(contact.name || "contact").replace(/[^\w\s-]/g, "")}.vcf`,
+  );
 }

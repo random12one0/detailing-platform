@@ -1,0 +1,34 @@
+{
+  "git_sha": "2a10b86d811d5a5929c629b2b24de47e9dba8e2e",
+  "environment": "local",
+  "finished_at": "2026-09-20T08:04:40.982Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/ics-audience/owner-signed-in.ics",
+    "artifacts/ics-audience/customer-anonymous.ics",
+    "artifacts/ics-audience/AFTER-anonymous-owner.ics",
+    "artifacts/ics-audience/BEFORE-anonymous-owner.txt"
+  ],
+  "dimensions": {
+    "endpoint": "booking-ics",
+    "flip": "audience=owner with no apikey and no Authorization",
+    "bookings_probed": 1,
+    "owner_only_lines": 2
+  },
+  "check_id": "ics-audience",
+  "started_at": "2026-09-20T08:04:37.928Z",
+  "status": "pass",
+  "expected_targets": 2,
+  "discovered_targets": 2,
+  "attempted_targets": 2,
+  "completed_targets": 2,
+  "skipped_targets": 0,
+  "assertions_executed": 20,
+  "min_assertions": 18,
+  "canary": {
+    "id": "the-owner-copy-itself-run-through-the-comparator",
+    "observed_failure": true,
+    "reported": 2
+  }
+}

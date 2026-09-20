@@ -12,8 +12,11 @@
 // eighteen are ruled rows, and the four were chosen by asking what question
 // the drawing answers that the number does not:
 //
-//   KEPT vs SPENT     one bar, two segments. "Net $400" is a number; the
+//   LEFT vs SPENT     one bar, two segments. "$400 left" is a number; the
 //                     proportion is the thing he is actually judging.
+//                     **THE WORDS ON IT CHANGED IN ROADMAP 14.7 AND THE
+//                     PICTURE DID NOT.** It said KEPT, and a third of what it
+//                     was drawing had not been paid for.
 //   WHERE IT WENT     a bar per expense category. Ranking by eye is the whole
 //                     job of that block, and five numbers do not rank.
 //   THE WEEK          seven columns. A fixed seven-way comparison is not a
@@ -222,12 +225,12 @@ export default function AdvancedMoney({
   // THE SENTENCE AT THE TOP ANSWERS THE QUESTION HE ACTUALLY HAS, and it has
   // to be true at a loss as well as at a profit — a screen that only reads
   // correctly in a good month is a screen that lies in a bad one.
-  const lede = m.collected === 0
+  const lede = m.earned === 0
     ? t("Nothing came in this period.")
     : m.net >= 0
-      ? t("You brought in {in} and kept {net} of it.", { in: money(m.collected), net: money(m.net) })
-      : t("You brought in {in} and spent {out}, so you are {down} down.",
-        { in: money(m.collected), out: money(m.spent), down: money(Math.abs(m.net)) });
+      ? t("You earned {in} and {net} is left after expenses.", { in: money(m.earned), net: money(m.net) })
+      : t("You earned {in} and spent {out}, so you are {down} down.",
+        { in: money(m.earned), out: money(m.spent), down: money(Math.abs(m.net)) });
 
   const busiest = m.week.reduce((a, d) => Math.max(a, d.jobs), 0);
 
@@ -264,14 +267,33 @@ export default function AdvancedMoney({
       {/* ── THE ANSWER, THEN THE PROPORTION ───────────────────────────── */}
       <div className="tight">
         <p className="advlede">{lede}</p>
-        {m.collected > 0 && (
+        {/* **EVERY ARROW ON THIS SCREEN IS AGAINST THE SAME STRETCH OF TIME,
+            AND WHEN THAT STRETCH IS A PART PERIOD IT SAYS SO — ROADMAP 5.2.**
+            The four tiles under "What it was worth" and the "Earned" tile
+            print a bare "▼ 69%" with nothing beside it naming what the 69% is
+            against; while the period is still running that used to be a whole
+            month, measured against seventeen days. `previous` now arrives cut
+            to the same point, from `previousSoFar` in `lib/periods.js` — one
+            line here rather than a caption per tile, because it is one fact
+            about the whole screen.
+            **AND NOT WHEN THERE ARE NO ARROWS TO EXPLAIN.** Under `THIN` the
+            tiles that carry a change are withheld, so this sentence described
+            nothing that was on the screen — seen on the demo business at four
+            finished jobs, 2026-09-18. A caption for an absent thing is the
+            same kind of claim this item was opened about. */}
+        {previous?.partial && !thin && (
+          <p className="quiet" style={{ marginTop: "var(--sp-2)" }}>
+            {t("Changes are against the same point in the period before.")}
+          </p>
+        )}
+        {m.earned > 0 && (
           <>
             <div className="advsplit" aria-hidden="true">
               <span className="kept" style={{ flex: Math.max(0, m.net) }} />
               <span className="gone" style={{ flex: Math.max(0, m.spent) }} />
             </div>
             <div className="advsplit-k quiet">
-              <span>{t("Kept")} · {money(Math.max(0, m.net))}</span>
+              <span>{t("Left after expenses")} · {money(Math.max(0, m.net))}</span>
               <span>{t("Spent")} · {money(m.spent)}</span>
             </div>
           </>
@@ -283,9 +305,9 @@ export default function AdvancedMoney({
         <Panel title={t("Too few jobs to read rates")}
           says={t("Rates, percentages and best-of-the-week need more finished jobs behind them than this period has. These four are counted, not worked out, so they are the ones worth reading.")}>
           <div className="advkpis">
-            <Kpi label={t("Brought in")} value={money(m.collected)} />
+            <Kpi label={t("Earned")} value={money(m.earned)} />
             <Kpi label={t("Spent")} value={money(m.spent)} />
-            <Kpi label={t("Net")} value={money(m.net)} tone={m.net < 0 ? "bad" : undefined} />
+            <Kpi label={t("Earned less expenses")} value={money(m.net)} tone={m.net < 0 ? "bad" : undefined} />
             <Kpi label={t("Jobs done")} value={String(m.jobs)} />
           </div>
           <p className="advkpi-n" style={{ marginTop: "var(--sp-3)" }}>
@@ -308,7 +330,7 @@ export default function AdvancedMoney({
           a row could never fit and the one that tells a detailer whether to do
           anything. */}
       <Panel title={t("What it was worth")}
-        says={t("What you actually kept after everything you spent.")}>
+        says={t("What is left of what you earned after everything you spent.")}>
         <span className="label">{t("Per hour, after expenses")}</span>
         <div className="figure lead" style={{ marginTop: 4 }}>
           {m.hours > 0 ? money(m.hourly) : "—"}
@@ -324,9 +346,9 @@ export default function AdvancedMoney({
         </p>
         <hr className="rule" />
         <div className="advkpis">
-          <Kpi label={t("Net")} value={money(m.net)} now={m.net} prev={m.prevNet} />
-          <Kpi label={t("Margin")} value={m.collected > 0 ? pct(m.margin) : "—"}
-            note={t("kept of every dollar")} />
+          <Kpi label={t("Earned less expenses")} value={money(m.net)} now={m.net} prev={m.prevNet} />
+          <Kpi label={t("Margin")} value={m.earned > 0 ? pct(m.margin) : "—"}
+            note={t("of every dollar earned")} />
           <Kpi label={t("Jobs done")} value={String(m.jobs)} now={m.jobs} prev={m.prevJobs} unit="count" />
           <Kpi label={t("Average job")} value={money(m.avgTicket)}
             now={m.avgTicket} prev={m.prevAvgTicket} />
@@ -346,7 +368,17 @@ export default function AdvancedMoney({
           ? t("Work you have finished and not been paid for yet.")
           : t("Everything finished in this period has been paid for.")}>
         <div className="advkpis two">
-          <Kpi label={t("In the bank")} value={money(m.collectedPaid)} />
+          {/* **"Collected" RATHER THAN "In the bank" — ROADMAP 14.7.** Not
+              because the old words were false — they were the one honest cash
+              label in this product — but because the everyday Money screen now
+              carries the same pair, and two screens showing one figure under
+              two names is how a detailer ends up believing they are two
+              figures. `m.collected` is the field that means cash; it was
+              called `collectedPaid` until 14.7, beside an accrual field called
+              `collected`, which is how this cell was one keystroke from
+              showing the overstatement under the label that promises it
+              cannot. */}
+          <Kpi label={t("Collected")} value={money(m.collected)} />
           <Kpi label={t("Still owed")} value={money(m.owed)}
             tone={m.owed > 0 ? "bad" : undefined}
             note={m.owed > 0 ? t("work finished, not paid for") : null} />
@@ -368,15 +400,15 @@ export default function AdvancedMoney({
       <Panel title={t("What came in")}
         says={t("Where the money came from: what you quoted, and what you sold once you were there.")}>
         <div className="advkpis two">
-          <Kpi label={t("Brought in")} value={money(m.collected)}
-            now={m.collected} prev={m.prevCollected} />
+          <Kpi label={t("Earned")} value={money(m.earned)}
+            now={m.earned} prev={m.prevEarned} />
           <Kpi label={t("Sold at the job")} value={money(m.onSite)}
             note={m.jobs > 0
               ? t("on {count} of {total}", {
                 count: m.upsoldJobs, total: n(m.jobs, "{count} job", "{count} jobs") })
               : null} />
         </div>
-        {m.collected > 0 && (m.quoted > 0 || m.onSite > 0) && (
+        {m.earned > 0 && (m.quoted > 0 || m.onSite > 0) && (
           <>
             <div className="advsplit" style={{ marginTop: "var(--sp-3)" }} aria-hidden="true">
               <span className="kept" style={{ flex: Math.max(0, m.quoted) }} />

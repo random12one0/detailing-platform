@@ -190,7 +190,7 @@ await post("/rest/v1/business_settings", [{
   pay_cashapp: "coastline-demo",
   pay_paypal: "https://paypal.me/coastline-demo",
   pay_zelle: "(562) 555-0142",
-  pay_other: "Apple Pay, or a check made out to Andrew's Auto Detail",
+  pay_other: "Apple Pay, or a check made out to Coastline Auto Detailing",
   pay_cash: true,
   // ROADMAP 3.2(b), AND THE SAME REASONING ONE SCREEN OVER: the FAQ screen
   // swept empty is the one state whose layout cannot go wrong, and this repo's
@@ -322,11 +322,31 @@ const services = await post("/rest/v1/services", [
     features: ["Two-bucket hand wash", "Wheels, arches and tires", "Bug and tar removal", "Hand dry and tire dressing"],
     group_id: grp("Exterior").id, group_label: "Exterior", sort_order: 0,
   },
+// **ROADMAP 8.4 — THE FIRST BULLET REPEATED THE SENTENCE ABOVE IT. ONE
+// SERVICE, NOT THREE — and the first pass got that wrong.** Wash & Wax says
+// "Everything in the Express Wash, plus protection that lasts the season." and
+// then opened its list with "Everything in the Express Wash". That one is gone.
+//
+// **Interior Deep Clean and Full Interior Detail were NOT the same case and
+// their bullets are still here.** Their descriptions say something else
+// entirely ("For carpets and seats that need more than a vacuum."), so
+// "Everything in the Interior Refresh" is the only place a customer is told
+// the tier builds on the one below — deleting it would have removed a fact
+// rather than a repetition. Checked against the rows in the database, after
+// removing all three and noticing two descriptions did not match their bullet.
+//
+// **FIXED IN THE SEED AND NOT IN THE PRODUCT, deliberately.** A service's
+// description and its feature list are the DETAILER's own words —
+// `docs/gotchas.md` is explicit that a sweep which reaches a column holding
+// somebody's own writing stops there, and a de-duplicating rule in
+// `StepServices.jsx` would be us editing his copy inside his own product. The
+// same file is equally explicit that **the seed is ours**: it is what every
+// demo and every screenshot shows, so it models the writing we would want.
   {
     business_id: business.id, name: "Wash & Wax", price: 140, duration_minutes: 120,
     description: "Everything in the Express Wash, plus protection that lasts the season.",
     price_is_from: false,
-    features: ["Everything in the Express Wash", "Clay bar decontamination", "Machine-applied carnauba wax", "Glass polished inside and out", "Three-month protection"],
+    features: ["Clay bar decontamination", "Machine-applied carnauba wax", "Glass polished inside and out", "Three-month protection"],
     group_id: grp("Exterior").id, group_label: "Exterior", sort_order: 1,
   },
   {
@@ -650,6 +670,38 @@ const PLAN = [
   { day: day2, time: "10:00", who: "Sam Delgado", service: "Ceramic Coating", size: "large", status: "confirmed" },
   { day: day3, time: "11:00", who: "Aisha Rahman", service: "Interior Deep Clean", size: "small", status: "confirmed" },
   { day: day4, time: "13:30", who: "Chris Vogel", service: "Full Interior Detail", size: "medium", status: "confirmed" },
+
+  // **THE ONE FINISHED-AND-UNPAID JOB THAT DOES NOT DEPEND ON THE CLOCK —
+  // ROADMAP 8.1b, 2026-09-19.** `TODAY_SHIFTS` above is right to decide
+  // "completed" by whether a job has ENDED, and the consequence nobody had met
+  // is that **between midnight and the first shift finishing there is no
+  // completed job in the demo at all.** A sweep at 00:45 then reported four
+  // surfaces NEVER MEASURED at three widths — `job record · finished`,
+  // `job record · finalize`, `job record · send a text` and
+  // `Money · an unpaid job` — and the expected-count gate went red **over a
+  // product nobody had touched.** A gate that fails for a procedural reason
+  // nobody can name is a gate people start ignoring.
+  //
+  // The most recent open day BEFORE today has ended at every hour of every
+  // day, so this row is `completed` with no `paid` whatever time the seed is
+  // run. No payment recorded is the state Today lights and the only one that
+  // draws the warn-box; it is what `TODAY_SHIFTS` already produces after
+  // 08:45, so this adds a guarantee rather than a new kind of thing.
+  //
+  // **AND IT IS TRUE OF A REAL BUSINESS**, which is the test this seed is held
+  // to: at one in the morning a detailer has yesterday's last job finished and
+  // not yet written down. That is the whole point of the warn-box.
+  //
+  // **THE RESIDUAL, SAID OUT LOUD:** on the FIRST of a month, before 08:45,
+  // this row is in the previous month and Money's default period is Month, so
+  // `Money · an unpaid job` is still out of reach — about twelve short windows
+  // a year against yesterday's three hundred and sixty five. Closing it
+  // completely would mean dating a completed job in the future, which is the
+  // exact defect the `hasEnded` rule above exists to prevent. Not worth the
+  // lie; 8.1b carries the alternative (teach the gate to accept a declared
+  // skip).
+  { day: openDay(-1, -1), time: "16:00", who: "Dana Ruiz", service: "Express Wash", size: "medium", status: "completed" },
+
   // History — completed, spread over previous months so the chart has shape.
   { day: openDay(-9, -1), time: "09:00", who: "Elena Marsh", service: "Full Interior Detail", size: "medium", status: "completed", paid: 235 },
   { day: openDay(-16, -1), time: "13:00", who: "Chris Vogel", service: "Express Wash", size: "small", status: "completed", paid: 65 },
@@ -1048,6 +1100,27 @@ const LIVE_BUSINESS_REF = "adtlnvihwrcqcasqcjwd";   // never, under any flag
     }]);
     console.log(`  Platform admin granted to the demo owner: ${OWNER.email}`);
   }
+
+  // **THE DEMO HAS NEVER SEEN ITS OWN TOURS — ROADMAP, 2026-09-19.**
+  //
+  // `user_tours` is one row per PERSON saying "I dismissed the guides". The
+  // demo owner had one, written 2026-09-13 by somebody clicking through a
+  // guide while looking at the demo, and it is the whole reason the five
+  // `guide · …` surfaces in `sweep-widths.mjs` printed NOT MEASURED on every
+  // run for six days. **Measured, not deduced:** with the row present a guide
+  // arrived 0 times in 6 attempts; with it gone, 6 of 6.
+  //
+  // **AND CLEARING localStorage COULD NEVER HAVE FIXED IT.** `App.jsx` reads
+  // this row on sign-in and calls `markTourSeen()`, which writes `dp.tour`
+  // straight back — so the sweep's per-tab `removeItem("dp.tours")` was
+  // undone by the app a moment later, every time, in silence. A check can
+  // only clear the near cause; the far one lives here.
+  //
+  // It is deleted on every seed rather than once, because the next person to
+  // click through a guide in the demo writes it again and the guides vanish
+  // again with nothing anywhere saying so.
+  await del(`/rest/v1/user_tours?user_id=eq.${ownerId}`);
+  console.log(`  Tours reset: the demo owner has never dismissed a guide.`);
 }
 
 let adminCreds = null;

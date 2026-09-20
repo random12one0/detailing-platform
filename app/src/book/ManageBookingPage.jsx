@@ -101,6 +101,15 @@ export default function ManageBookingPage() {
 function ManageInner({ booking, receiptBusiness, group = [], card = null, onChanged }) {
   const { business, branding, brandVars, slug, status, tx } = useBookingBusiness();
   const [mode, setMode] = useState(null); // null | "reschedule" | "cancelled"
+  // ROADMAP 14.4 — WHAT THE ENDPOINT SAID ABOUT THEIR MONEY, IF ANYTHING.
+  //
+  // It is held from the cancel response rather than derived from the booking
+  // because the public receipt does not carry `payment_status` and must not
+  // start to — 14.1 narrowed that reply to 31 named fields on purpose. So this
+  // is shown at the moment the customer cancels, which is the moment they are
+  // standing there wondering about it, and not on a later reopen of the link.
+  // The DETAILER's copy has no such gap: it is drawn off the row itself.
+  const [refundMessage, setRefundMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [days, setDays] = useState(null);
@@ -309,7 +318,11 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
     setBusy(true);
     setError("");
     try {
-      await api.cancelBooking(booking.id);
+      const res = await api.cancelBooking(booking.id);
+      // Shown as it arrives, like `pay`'s message below — it is written for a
+      // customer by the endpoint, which is the side that knows whether any
+      // money moved.
+      setRefundMessage(res?.refund?.message || "");
       setMode("cancelled");
     } catch (e) {
       setError(e.message);
@@ -368,6 +381,14 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
           </div>
           <h3 style={{ textDecoration: isCancelled ? "line-through" : "none" }}>{dateLabel}</h3>
           <p className="bk-muted">{time12(booking.start_time)} – {time12(booking.end_time)}</p>
+          {/* ROADMAP 14.4 — THEIR MONEY, SAID OUT LOUD. Not translated through
+              `t()` on purpose: the sentence is composed by the endpoint, which
+              is the only side that knows the business's name and phone, and a
+              key built out of a runtime string would never match. Stage 2a's
+              own rule — the language belongs to whoever writes the sentence. */}
+          {refundMessage && (
+            <p className="bk-muted" style={{ marginTop: 10 }}>{refundMessage}</p>
+          )}
           {/* ROADMAP 8.10 — the other cars on THIS visit. Their money is
               already itemised below as its own line, so this is what they
               ARE: the customer checking that the truck they typed in is on
@@ -634,8 +655,33 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
         {justPaid ? (
           <div className="bk-card" style={{ marginTop: 14 }}>
             <div className="bk-step-label">{t("Paid")}</div>
+            {/* ROADMAP 5.3 — THE SENTENCE WAS NARROWED TO WHAT ACTUALLY
+                HAPPENS, 2026-09-18. It used to say *"your receipt is on its
+                way by email"*, and a payment was run end to end to check: the
+                webhook (`stripe-webhook`'s `handleConnected`) marks the row
+                paid and SENDS NOTHING. The only mail our side sends about a
+                finished job is the one the detailer presses **Email the
+                receipt** for, which may be minutes later or never.
+
+                **AND IT DOES NOT PROMISE STRIPE'S EMAIL EITHER, WHICH WAS
+                THE FIRST ATTEMPT AT THIS SENTENCE.** `pay-booking` hands
+                Stripe the address for exactly that purpose, but whether a
+                receipt actually goes is a setting inside the DETAILER's own
+                Stripe account — off by default in test mode, and theirs to
+                switch either way in live. Swapping one claim this product
+                cannot keep for another one it cannot check is not a
+                narrowing. So the page says what it knows: the money went
+                through, and the person who did the work sends the receipt.
+
+                Reinstate a promise here only when something in this product
+                actually sends the email — today the webhook marks the row and
+                stops. */}
             <p className="bk-body" style={{ marginTop: 6 }}>
-              {t("Thank you. Your card payment went through and your receipt is on its way by email.")}
+              {t("Thank you. Your card payment went through.")}
+            </p>
+            <p className="bk-muted" style={{ marginTop: 6 }}>
+              {t("{business} emails your receipt when they close the job. This page keeps the details either way.",
+                { business: business.name })}
             </p>
           </div>
         ) : card?.ready && !isCancelled ? (

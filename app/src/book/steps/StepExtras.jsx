@@ -13,6 +13,7 @@
 // BookingPage.jsx.
 
 import { t } from "../../lib/i18n.js";
+import { Check } from "lucide-react";
 import { useLocale } from "../../hooks/useLocale.js";
 import { money } from "../../lib/format.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
@@ -40,7 +41,18 @@ export default function StepExtras({ selected, onToggle }) {
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onToggle(a.id); } }}
           >
             <div className="bk-row between">
-              <h3>{tx(a.name)}</h3>
+              {/* ROADMAP 8.4 — the same mark the service cards take. An add-on
+                  is chosen the same way and was told apart the same way, by
+                  an edge, so it gets the same answer rather than a second one. */}
+              <h3>
+                {tx(a.name)}
+                {on && (
+                  <span className="bk-added">
+                    <Check size={13} strokeWidth={3} aria-hidden="true" />
+                    {t("Added")}
+                  </span>
+                )}
+              </h3>
               <span className="bk-price">+{money(a.price)}</span>
             </div>
             {a.description && <p className="bk-muted" style={{ marginTop: 4 }}>{tx(a.description)}</p>}

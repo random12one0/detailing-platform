@@ -99,7 +99,13 @@ const bookingPhx = (await mk("ics-phx", PHX)).data?.booking;
 // ---------------------------------------------------------------------------
 console.log("\ntest 1: the .ics file stamps the business's timezone");
 {
-  const res = await fetch(`${URL_}/functions/v1/booking-ics?id=${bookingA.id}&audience=owner`, { headers: { apikey: ANON } });
+  // ROADMAP 14.2 — THE OWNER'S COPY CARRIES THE OWNER'S SESSION NOW. Until
+  // that item `&audience=owner` was a plain query word anyone could type on
+  // their own confirmation link. `tests/ics-audience.test.mjs` is the check
+  // that proves the flip is refused; this one only has to stop asking for the
+  // owner's copy without being the owner.
+  const res = await fetch(`${URL_}/functions/v1/booking-ics?id=${bookingA.id}&audience=owner`,
+    { headers: { apikey: ANON, Authorization: `Bearer ${owner.jwt}` } });
   const text = await res.text();
   check("served as a calendar file", res.headers.get("content-type")?.includes("text/calendar"), res.headers.get("content-type"));
   check("attachment filename set", (res.headers.get("content-disposition") || "").includes(".ics"));
@@ -129,11 +135,22 @@ console.log("\ntest 2: the customer copy differs, and Phoenix gets no DST");
   check("customer copy is titled with the business", cust.includes("SUMMARY:ICS Test Detailing"));
   check("distinct UID per audience", cust.includes("-customer@") && !cust.includes("-owner@"));
 
-  const phx = await (await fetch(`${URL_}/functions/v1/booking-ics?id=${bookingPhx.id}&audience=owner`, { headers: { apikey: ANON } })).text();
+  // ROADMAP 14.2 — the flip, in one line. The depth is in
+  // `tests/ics-audience.test.mjs`; this is here so a reader of THIS file is
+  // never left thinking `audience=owner` is a free parameter.
+  const flipped = await (await fetch(`${URL_}/functions/v1/booking-ics?id=${bookingA.id}&audience=owner`)).text();
+  check("an anonymous caller typing audience=owner gets the customer's copy",
+    !flipped.includes("555-7100") && !flipped.includes("Customer: Ada Byron"),
+    flipped.match(/DESCRIPTION.*/)?.[0] ?? "");
+
+  // No audience: nobody is a member of the Phoenix fixture, and the timezone
+  // stamp these two assertions are about is identical in both copies.
+  const phx = await (await fetch(`${URL_}/functions/v1/booking-ics?id=${bookingPhx.id}`, { headers: { apikey: ANON } })).text();
   check("Phoenix stamped with its own zone", phx.includes("DTSTART;TZID=America/Phoenix:"));
   check("Phoenix offset is -0700 and marked STANDARD (no DST)",
     phx.includes("TZOFFSETTO:-0700") && phx.includes("BEGIN:STANDARD"), phx.match(/TZOFFSETTO[^\r\n]*/)?.[0]);
-  const ny = await (await fetch(`${URL_}/functions/v1/booking-ics?id=${bookingA.id}&audience=owner`, { headers: { apikey: ANON } })).text();
+  const ny = await (await fetch(`${URL_}/functions/v1/booking-ics?id=${bookingA.id}&audience=owner`,
+    { headers: { apikey: ANON, Authorization: `Bearer ${owner.jwt}` } })).text();
   check("New York in September is marked DAYLIGHT", ny.includes("BEGIN:DAYLIGHT"), ny.match(/BEGIN:(STANDARD|DAYLIGHT)/)?.[0]);
 }
 

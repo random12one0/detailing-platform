@@ -190,8 +190,17 @@ const MIN_DESK_COL = 1000; // the spec requires 1180; 1000 is the floor that say
 // rather than two numbers ("Nobody has opened it yet"), beside a worded button
 // and an icon button, which is why the demo seeds one of each and why this
 // screen is on `.rows-stack`.
-const BUSINESS_ROWS = ["Business info", "Your colour", "Photo gallery", "Reviews", "Common questions",
-  "Your web address", "Campaign links",
+// **THREE OF THESE NAMED SCREENS THAT NO LONGER EXIST — found 2026-09-16.**
+// "Your colour", "Common questions" and "Campaign links" were renamed in the
+// app to "Your color", "FAQ" and "Tracking links". This list was not, so every
+// run since printed three NO SUCH ROW lines and three settings screens went
+// unopened at every width. They were invisible TWICE in Spanish: `NAMED()`
+// looks the English up in `appEs.js`, which is keyed on the CURRENT English,
+// so a stale key returns the bare English string and cannot match either.
+// The check was coupled to a spelling rather than to a behavior —
+// `docs/gotchas.md`, and the reason the expected-count gate below now exists.
+const BUSINESS_ROWS = ["Business info", "Your color", "Photo gallery", "Reviews", "FAQ",
+  "Your web address", "Tracking links",
   // "How you get paid" is roadmap 2.20 stage 1, and it is added in the change
   // that BUILT it rather than in the item that later finds it broken — which
   // is the whole lesson of the nine times this same gap has been recorded.
@@ -212,7 +221,16 @@ const BUSINESS_ROWS = ["Business info", "Your colour", "Photo gallery", "Reviews
 // 7.3's final pass. Its own geometry risk is small (two fields and a
 // button); it is here because a settings screen this list does not name is a
 // screen no width ever opens.
-const GEAR_ROWS = ["Notifications", "Message templates", "Team", "Your password", "This device"];
+// **"Weather warnings" AND "Report a problem" JOINED 2026-09-16, and until
+// then NO WIDTH HAD EVER OPENED EITHER.** They are not renames — they are two
+// settings screens that shipped and were never added here, so they were not
+// missing from the run, they were missing from the QUESTION. "Declare the
+// universe" is the first rule in the operating-system report's § "Discipline
+// for trusting a check", and this line is what it means: a screen this array
+// does not name is a screen no width ever measures, and nothing anywhere
+// prints a word about it.
+const GEAR_ROWS = ["Notifications", "Message templates", "Weather warnings", "Team",
+  "Your password", "This device", "Report a problem"];
 
 // Runs in the page. Boxes are the things with an edge — two of those touching
 // is the defect; two paragraphs touching is just text.
@@ -257,6 +275,10 @@ const CHECK = () => {
   // It is FIRST because when it fires it is the summary of whatever the
   // element checks below are about to say, and often of something they cannot
   // say at all.
+  // **COUNT THE QUESTIONS, NOT JUST THE ANSWERS.** `out.length` is how many
+  // things were WRONG; on a good screen it is zero and says nothing at all
+  // about whether anything was asked. The receipt needs the other number.
+  let asked = 1; // the page-scrolls question, asked once per surface
   const drag = document.documentElement.scrollWidth - document.documentElement.clientWidth;
   if (drag > 1) out.push(`page-scrolls   +${drag}px  the whole page can be dragged sideways`);
   for (const el of document.querySelectorAll("body *")) {
@@ -266,6 +288,10 @@ const CHECK = () => {
     const r = el.getBoundingClientRect();
     if (!r.width || !r.height) continue;
     const txt = (el.textContent || "").trim().slice(0, 26);
+    // TWO QUESTIONS PER VISIBLE ELEMENT: is its right edge past the viewport,
+    // and is it past its own parent (or, with no parent box, scrolling inside
+    // itself). The touching question below is per PAIR, so it counts its own.
+    asked += 2;
     const past = Math.round(r.right - vw);
     if (past > 1 && !clipped(el)) out.push(`past-viewport  +${past}px  ${name(el)}  «${txt}»`);
     // Outside its own parent's content box. Skipped where the answer would be
@@ -296,9 +322,31 @@ const CHECK = () => {
     const n = el.nextElementSibling;
     if (!n || !n.getClientRects().length || !boxy(n)) continue;
     const gap = Math.round(n.getBoundingClientRect().top - r.bottom);
+    asked++;
     if (gap >= 0 && gap < 4) out.push(`touching       ${gap}px gap  ${name(el)} → ${name(n)}  «${txt}»`);
   }
-  return [...new Set(out)];
+  // THE PER-ROUTE SENTINEL'S RAW MATERIAL — what was actually on screen, as
+  // text rather than as pixels. See `say()` for why it is not a screenshot.
+  //
+  // It fingerprints the TOPMOST LAYER, not the page: most of what this script
+  // measures is a sheet or a tour card over a screen that does not change
+  // underneath it, so a fingerprint of the whole page makes every sheet
+  // identical to the screen behind it.
+  //
+  // UNTRUNCATED, and that is the whole difference between this and the first
+  // version. Truncated to 400 characters it reported four healthy pairs as the
+  // same screen, because two different clients' sheets share their first 400
+  // characters of chrome and differ further down.
+  const layers = [...document.querySelectorAll(".tourcard, .sheet, [role='dialog'], .modal")]
+    .filter((el) => el.getClientRects().length);
+  const scope = layers.length ? layers[layers.length - 1] : (document.getElementById("root") || document.body);
+  const sig = [
+    location.pathname + location.search,
+    layers.length ? `layer${layers.length}:${scope.className}` : "page",
+    scope.querySelectorAll("*").length + "el",
+    (scope.innerText || "").replace(/\s+/g, " ").trim(),
+  ].join(" ¶ ");
+  return { rows: [...new Set(out)], asked, sig };
 };
 
 // --- SETTLE, NOT SLEEP ------------------------------------------------------
@@ -424,6 +472,25 @@ const APP_ES = (() => {
   }
 })();
 
+// **THE CUSTOMER'S CATALOGUE, WHICH IS A DIFFERENT ONE — 2026-09-19.**
+// `lib/i18n.js` is the booking surface and `lib/appI18n.js` is the dashboard,
+// and `appI18n.js` says in as many words that the two keys "neither can move
+// the other" — deliberately, so a detailer previewing their own booking page
+// in Spanish does not come back to a Spanish back office. **That design is the
+// reason this sweep measured nine surfaces in English while reporting Spanish:
+// it only ever set the dashboard's key.** Loaded the same way, and the same
+// refusal below if it is empty.
+const BOOK_ES = (() => {
+  try {
+    const src = readFileSync(new URL("../app/src/lib/strings/es.js", import.meta.url), "utf8");
+    return new Map([...src.matchAll(/^\s*"((?:[^"\\]|\\.)*)":\s*"((?:[^"\\]|\\.)*)",?\s*$/gm)]
+      .map((m) => [m[1].replace(/\\"/g, '"'), m[2].replace(/\\"/g, '"')]));
+  } catch (e) {
+    console.error(`BOOKING SPANISH CATALOGUE DID NOT LOAD: ${e}`);
+    return new Map();
+  }
+})();
+
 // And say so out loud when it is empty in a run that asked for Spanish, because
 // "0 entries" is the difference between a Spanish sweep and an English one
 // wearing a Spanish label.
@@ -483,6 +550,216 @@ let found = 0;
 let probed = 0, surfaces = 0;
 let narrow = 0;   // desktop widths whose content column is still phone-sized
 
+// --- CERTIFICATION ---------------------------------------------------------
+// Step 3 of ROADMAP.md § "Adopting the operating-system report". Everything in
+// this block exists because THIS script is the one the report names: it printed
+// `clean` over 38 real findings. The four checks above answer "is anything in
+// the wrong place". None of them answers the question that actually went wrong:
+// **did this run look at everything it was supposed to look at?**
+//
+//   expected counts   a committed list of every surface a full run must measure
+//   sentinels         two labels with the same fingerprint = one was not reached
+//   fail on zero      already partly here; now per width as well as per run
+//   a canary          a defect handed to the finder on purpose, which it must
+//                     catch, or its clean verdict on everything else is void
+//   a receipt         the numbers, written down, graded by `receipt.mjs`
+import { writeReceipt } from "./receipt.mjs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+
+const STARTED = new Date().toISOString();
+
+// **EVERY CONTEXT, NOT THE ONE YOU WERE THINKING OF — 2026-09-19.** The first
+// version of this set the keys on the main context only, and the four sign-in
+// screens stayed English: they are measured in a SEPARATE anonymous context,
+// because they are the signed-out product. The language guard caught it on the
+// very next run — `the way in NOT IN SPANISH — 0 translated phrase(s) against
+// 5 untranslated` — which is the whole argument for having written the guard
+// before trusting the fix.
+//
+// `addInitScript`, so the keys are there for the FIRST paint; a language set
+// after the screen is drawn needs a reload to take, and a reload is a thing to
+// forget.
+const speakSpanish = async (context) => {
+  if (!LANG_ES) return;
+  await context.addInitScript(() => {
+    try {
+      localStorage.setItem("dp.lang", "es");       // the customer's booking surface
+      localStorage.setItem("dp.lang.app", "es");   // the detailer's dashboard
+    } catch { /* private mode */ }
+  });
+};
+
+// **THE FOUR SURFACES THAT CANNOT BE SPANISH, AND IT IS THE PRODUCT'S DOING.**
+// `LandingPage.jsx`, `PricingPage.jsx` and `LegalPage.jsx` import no
+// translation scope and contain ZERO `t("...")` calls between them — they are
+// written in English and there is nothing to switch. Measured, not assumed.
+// Forcing a language onto them would prove nothing; naming them stops the
+// language check calling four correct screens broken, and stops the next
+// person believing the sweep covers them.
+const ENGLISH_ONLY = new Set(["landing", "pricing", "terms", "privacy"]);
+
+// **PRODUCT TRANSLATION GAPS THIS SWEEP HAS SEEN, NAMED RATHER THAN FIXED.**
+// These are `app/src` faults and the sweep turns were instrument-only, so they
+// are logged to ROADMAP 2.12 ("Spanish is half-translated"), which already owns
+// Spanish coverage and already names `i18n-survey.mjs` as its instrument. They
+// are declared here so the run can be honest without being permanently red —
+// and the entry is REFUSED the day the gap closes, so the list cannot become a
+// place defects go to be forgotten.
+const KNOWN_ENGLISH = new Map([
+  ["job record · send a text",
+    "four message-template names stay English on an otherwise Spanish sheet — \"Running late\", "
+    + "\"Confirm tomorrow\", \"Job finished\", \"Ask about access\". `lib/templates.js` holds them as "
+    + "plain object values rather than `t(\"…\")` calls, which is the `docs/gotchas.md` case where a "
+    + "sweep for the CALL finds nothing. ROADMAP 2.12"],
+]);
+
+// A surface is judged against the catalogue for ITS OWN scope: the booking
+// page is the customer's (`lib/i18n.js`), everything else is the dashboard's
+// (`lib/appI18n.js`). Using one catalogue for both would score the booking
+// page against strings it never renders.
+const langCheck = (label, sig) => {
+  if (ENGLISH_ONLY.has(label)) return;
+  const cat = label.startsWith("book") ? BOOK_ES : APP_ES;
+  let en = 0, es = 0;
+  for (const [k, v] of cat) {
+    if (k === v || k.length < 8 || k.includes("{")) continue;
+    if (sig.includes(v)) es++;
+    else if (sig.includes(k)) en++;
+  }
+  // A surface with nothing the catalogue knows either way says nothing about
+  // the language, and must not be turned into a finding: a QR plate and a
+  // month grid are mostly not words.
+  if (es === 0 && en === 0) return;
+  const bad = es === 0 || en > es;
+  const known = KNOWN_ENGLISH.get(label);
+  // **A KNOWN PRODUCT GAP IS DECLARED, NOT SILENCED — and the declaration can
+  // be refused.** Same shape as `declareSkip`: if the surface turns out to be
+  // translated after all, the entry is stale and saying nothing would let this
+  // list rot into a permanent excuse. That is the failure mode of every
+  // allowlist ever written.
+  if (known && !bad) {
+    console.log(`${label.padEnd(24)} GAP CLOSED — declared as a known English patch and it is Spanish `
+      + `now (${es} translated against ${en}). Remove it from KNOWN_ENGLISH.`);
+    found++;
+    return;
+  }
+  if (!bad) return;
+  if (known) {
+    console.log(`${label.padEnd(24)} PARTLY ENGLISH, KNOWN — ${known}`);
+    return;
+  }
+  console.log(`${label.padEnd(24)} NOT IN SPANISH — ${es} translated phrase(s) on screen against `
+    + `${en} untranslated. This run asked for Spanish and this surface did not get it.`);
+  found++;
+};
+
+// **THE RECEIPT COULD NOT SEE MOST OF THIS SCRIPT'S FAILURES — found on its own
+// first certified run, 2026-09-16.** It printed `status: "fail"` beside
+// `failures: []`, because only `say()` returns a per-surface finding; the
+// fifteen other places that raise `found++` — NOT MEASURED, NO SUCH ROW, NO
+// SUCH BUTTON, CRASHED — print a line and vanish. A receipt that says "failed"
+// and cannot say what failed is a receipt nobody can act on.
+//
+// Wrapping the logger costs five lines and no call-site changes. It IS matched
+// on wording, which is the coupling `docs/gotchas.md` warns about — so the
+// wording is not trusted: the run reconciles `LOUD.length` against the counter
+// afterwards and reports the discrepancy. **A new failure phrase this pattern
+// does not know shows up as an unexplained difference, not as silence.**
+const LOUD = [];
+{
+  const real = console.log;
+  console.log = (...a) => {
+    const line = a.join(" ");
+    if (/NOT MEASURED|NO SUCH ROW|NO SUCH BUTTON|CRASHED|NOT CAUGHT|GATE FAILED|SENTINEL FAILED|WIDTH ABORTED|SKIP REFUSED|SKIP CONTRADICTED|NOT GRADED/.test(line)) {
+      LOUD.push(line.trim().replace(/\s+/g, " "));
+    }
+    real(...a);
+  };
+}
+const EXPECTED_PATH = new URL("./sweep-widths.expected.json", import.meta.url);
+const WRITE_EXPECTED = process.argv.includes("--write-expected");
+// **ONE PATH PER MODE, NOT ONE PATH — 2026-09-19, and it took Andrew opening
+// the page to catch it.** Every mode wrote to `artifacts/sweep-widths` and to a
+// receipt keyed only on the WIDTHS, so an English run and a Spanish run of the
+// same width overwrote each other's pictures AND each other's verdict. The
+// contact sheet on screen was whichever ran last, and nothing on the page said
+// which mode it was — **the same ambiguity that made the screenshots
+// untrustworthy earlier the same night, one level up.**
+//
+// A mode that cannot be told apart from another mode in the artifacts is a
+// mode nobody can check. The suffix is part of the identity, so it goes in the
+// directory, the receipt id and the page title.
+const MODE = `${process.env.LANG_APP === "es" ? "-es" : ""}${LITE ? "-lite" : ""}`;
+const ART = `artifacts/sweep-widths${MODE}`;
+// WHAT THE CONTACT SHEET CALLS ITSELF. A page that does not say which run made
+// it is a page somebody reads as whichever run they were thinking of.
+const LANG_ES = process.env.LANG_APP === "es";
+const MODE_WORDS = [LANG_ES ? "Spanish" : "", LITE ? "reduced motion (?lite=1)" : ""]
+  .filter(Boolean).join(", ");
+// The measured record: one row per surface the run actually looked at.
+const CERT = [];
+// **A SURFACE THE DEMO CANNOT BE IN THE STATE FOR — ROADMAP 8.1b, 2026-09-19.**
+//
+// The two `subscription · …` surfaces have done this since they were written:
+// print `NOT MEASURED — <reason>`, raise NO finding, and be absent from the
+// expectation. **That is the mechanism this reuses, and nothing here is a
+// second one** — the only thing added is that the skip is now RECORDED rather
+// than only printed, so the expected-count gate can tell a surface that
+// declared why it was unreachable from one that just went missing.
+//
+// **WHY THE SUBSCRIPTION SHAPE COULD NOT SIMPLY BE COPIED.** Those two labels
+// are absent from `sweep-widths.expected.json` because the run that wrote it
+// never measured them, so nothing anywhere says they are ALLOWED to be absent —
+// it is an accident that reads like a decision. The three below are different:
+// after about 08:45 they are reachable and must be measured, and before it they
+// cannot exist. Deleting them from the expectation would be a screen that
+// stopped being checked, which is the sentence the expectation file's own note
+// warns about.
+//
+// **A SKIP MUST NOT BECOME A QUIET WAY TO NEVER BE MEASURED**, which is the
+// whole risk of adding one. So a skip is not a claim, it is a MEASUREMENT: the
+// caller hands over a probe, the probe re-asks whether the surface was
+// reachable after all, and a skip declared over a reachable surface is REFUSED
+// and fails the run. A declaration nobody can disprove is worth nothing.
+const SKIPPED = [];
+// **A WIDTH THAT DIED PARTWAY.** Separate from `SKIPPED` on purpose and not a
+// second skip mechanism: a declared skip is a surface PROVED unreachable, and
+// this is the opposite — nobody knows what those surfaces would have said.
+// It exists so the gate can report "this width stopped" instead of printing
+// ninety NEVER MEASURED lines that all have one cause.
+const ABORTED = [];
+let assertions = 0;
+const canaries = [];
+const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
+
+// **THE NEGATIVE CONTROL.** A `<div>` deliberately parked past the right edge,
+// handed to `CHECK` on a real screen. If `CHECK` does not report it, `CHECK` is
+// not looking, and every `clean` this run printed means nothing — so the run
+// fails loudly rather than quietly succeeding. Report § "Discipline", rule 6.
+const CANARY_CLASS = "sweep-canary-deliberate-overflow";
+const runCanary = async (page, w) => {
+  await page.evaluate((cls) => {
+    const d = document.createElement("div");
+    d.className = cls;
+    d.textContent = "canary";
+    // Static position, in flow, on `body` so no ancestor can clip it — the
+    // three conditions under which `CHECK` is entitled to stay silent.
+    d.style.cssText = "position:static;display:block;height:14px;background:#f00;"
+      + `width:${document.documentElement.clientWidth + 400}px`;
+    document.body.appendChild(d);
+  }, CANARY_CLASS);
+  const { rows } = await page.evaluate(CHECK);
+  const caught = rows.some((r) => r.includes(CANARY_CLASS));
+  await page.evaluate((cls) => document.querySelector("." + cls)?.remove(), CANARY_CLASS);
+  canaries.push({ width: w, caught });
+  console.log(`${"canary · overflow".padEnd(24)} ${caught
+    ? "caught, as required — the finder is looking at " + w + "px"
+    : "NOT CAUGHT — CHECK missed a defect handed to it on purpose. Every clean line above is void."}`);
+  if (!caught) found++;
+  return caught;
+};
+
 for (const w of SIZES) {
   // A width the caller asked for BY NUMBER is always deep — `sweep-widths 1440`
   // is somebody asking a question about 1440, and answering a narrower one
@@ -490,13 +767,46 @@ for (const w of SIZES) {
   deep = ALL || WIDTHS.length > 0 || FULL_WIDTHS.has(w);
   const widthStart = Date.now();
   console.log(`\n══ ${w}px ══${deep ? "" : " core only, --all for everything "}════════════════════════════════`);
-  const ctx = await browser.newContext({
+  // **ONE WIDTH'S ACCIDENT USED TO END THE RUN — ROADMAP 8.1b's flake,
+  // 2026-09-19.** A click that timed out at 320 threw out of this loop, past
+  // the gate, past the contact sheet and past the receipt: **three widths of
+  // work produced no artifact and no verdict at all**, and the output ended in
+  // a Playwright stack rather than in a number. This file's own Tomorrow block
+  // calls that the most expensive way it can fail.
+  //
+  // So a width is its own unit of work now. It still FAILS — loudly, by name,
+  // and the run exits non-zero — but the other widths finish and everything
+  // downstream still runs on what was measured. **The catch must never make a
+  // width look complete:** the abort is recorded, the gate reports it, and the
+  // receipt's four counts no longer agree, so `receipt.mjs` fails it too
+  // without being told to.
+  //
+  // `ctx` is a `let` above the `try` for one reason: the handler has to close
+  // the browser context. A leaked context per aborted width is how a long run
+  // runs the machine out of memory.
+  let ctx = null;
+  try {
+  ctx = await browser.newContext({
     viewport: { width: w, height: heightFor(w) }, deviceScaleFactor: 1,
     ...(signedIn ? { storageState: signedIn } : {}),
   });
   await ctx.addInitScript(() => {
     Object.defineProperty(navigator, "share", { value: () => Promise.resolve(), configurable: true });
   });
+  // **BOTH LANGUAGE KEYS, BEFORE ANY PAGE RENDERS — 2026-09-19.**
+  //
+  // The dashboard's key was set with the tour flags, a hundred lines below and
+  // AFTER sign-in, so the nine surfaces measured before that point — the
+  // booking page, the four marketing pages and the four sign-in screens — were
+  // English in every "Spanish" run. And `dp.lang` was never set at all: it is
+  // the CUSTOMER's key, a different scope on purpose, and nothing here knew it
+  // existed.
+  //
+  // `addInitScript` rather than a `page.evaluate` after load, because the
+  // question is what the page renders on its FIRST paint. Setting a language
+  // after the screen is drawn needs a reload to take, and a reload is a thing
+  // to forget.
+  await speakSpanish(ctx);
   const page = await ctx.newPage();
   // NOTHING WAITS THIRTY SECONDS. The default makes a run that has gone wrong
   // look like a run that is being thorough, and this script is minutes long
@@ -564,20 +874,223 @@ for (const w of SIZES) {
       return;
     }
     probed += seen.els; surfaces++;
-    const rows = await target.evaluate(CHECK);
+    const { rows, asked, sig } = await target.evaluate(CHECK);
+    // **AND IS IT ACTUALLY IN THE LANGUAGE THIS RUN CLAIMS?** Nothing asked
+    // that until 2026-09-19, which is how nine surfaces were reported as
+    // Spanish while rendering English: the geometry checks do not read words,
+    // so a language that never applied measures exactly like one that did.
+    //
+    // Counting, not sampling: how many strings the catalogue knows appear in
+    // their SPANISH form, against how many appear in their English form. One
+    // hand-picked sentence would be a check coupled to a spelling, which is
+    // this file's most-repeated finding; a tally over the whole surface is a
+    // check on the BEHAVIOUR.
+    if (LANG_ES) langCheck(label, sig);
     found += rows.length;
+    assertions += asked;
+    // THE CONTACT SHEET'S FRAME — step 4 of the report's week-one sequence. A
+    // number in a log is not something a person scans; eighty-three pictures on
+    // one page are. Taken BEFORE the findings print, so a failing surface always
+    // has its own picture sitting beside its own complaint.
+    //
+    // **AND THE PICTURE IS ALSO THE SENTINEL.** The first version of that check
+    // fingerprinted the DOM — pathname, headings, the first 400 characters of
+    // the topmost layer — and reported four healthy pairs as the same screen,
+    // because the text it could reach was identical while the screens plainly
+    // were not (136KB, 102KB and 98KB of visibly different PNG). A check that
+    // fires on a healthy run is a check somebody scrolls past.
+    //
+    // Two labels whose screens rendered to the SAME BYTES are the same screen.
+    // That is not a heuristic about the DOM, it is the thing a person would
+    // compare, and it needs no code of its own — the bytes were already here.
+    // ponytail: the viewport, not the full page. Two long screens that differ
+    // only below the fold would fingerprint alike; switch to `fullPage: true`
+    // if that ever turns out to be a real case rather than a theoretical one.
+    const shot = `${ART}/${w}/${String(CERT.length).padStart(3, "0")}-${slug(label)}.png`;
+    mkdirSync(`${ART}/${w}`, { recursive: true });
+    const png = await target.screenshot({ path: shot }).catch(() => null);
+    // A surface with no screenshot gets a fingerprint that can collide with
+    // nothing. It is already a failure by other means; it must not become a
+    // false sentinel hit on top.
+    const pixelPrint = png ? createHash("sha1").update(png).digest("hex") : `unshot-${CERT.length}`;
+    const fingerprint = createHash("sha1").update(sig).digest("hex");
+    CERT.push({ width: w, label, elements: seen.els, asked, findings: rows, fingerprint, pixelPrint, sig, shot });
     console.log(`${label.padEnd(24)} ${rows.length ? "\n  " + rows.join("\n  ") : "clean"}`);
   };
   // The sheet opens at a 56vh peek. Pull it to full so the rest of the screen
   // is laid out and measurable, not just the part currently on screen.
+  // **CLOSING A PANEL IS A THING TO WAIT FOR, NOT A NUMBER OF MILLISECONDS —
+  // ROADMAP 8.1b's flake, fixed 2026-09-19.**
+  //
+  // A full run died at 320 clicking the Victor Salas row: `<div
+  // class="sheet-backdrop">…</div> intercepts pointer events`. The block before
+  // it pressed Escape twice with `settle(page, 700)` after each.
+  //
+  // **AND THE CAUSE IS NOT THE ONE THE SYMPTOM SUGGESTS.** `settle()` being a
+  // cap on a quiet DOM rather than a wait for a thing is this file's oldest
+  // lesson, so "a 180ms exit animation raced a 700ms pause" is the obvious
+  // reading — and it is wrong, because Playwright then retries a blocked click
+  // for fifteen seconds and would have won. **Measured instead, at 320:**
+  //
+  //   client record open :  1 sheet  "Marcus Webb (562) 555-0142…"
+  //   job opened         :  1 sheet  "Marcus Webb Thursday, October…"
+  //   Escape, +3000ms    :  1 sheet  "Marcus Webb (562) 555-0142…"
+  //   second Escape      :  0 sheets
+  //
+  // **The client record and the job record are ONE sheet whose contents swap,
+  // and the first Escape is a BACK STEP inside it, not a close.** So the old
+  // code's real fault was assuming one press per open thing: press two Escapes
+  // too close together and the second lands mid-transition and is lost, the
+  // sheet stays open for ever, and the click after it can never land. The
+  // 700ms was not too short — the SECOND press was the one that mattered and
+  // nothing checked whether it had worked.
+  //
+  // So this asks for the state the next click actually needs — **nothing
+  // covering the page** — and keeps dismissing until it has it. Bounded, and
+  // loud rather than patient if it cannot get there: an overlay that will not
+  // go is a finding, because every measurement after it is of a screen with
+  // something on top.
+  //
+  // The 900ms inside the loop is a bound on ONE transition, not an assumption
+  // that the job is done — the loop re-asks the real question every time round.
+  // **AND IT HAS TO KNOW BOTH CONTAINERS — caught by the expected-count gate,
+  // 2026-09-19, one run after this helper was written.** The first version
+  // counted `.sheet` only. Above `--wrap` a record is not a sheet, it is
+  // `.col-2.record` (`RecordHost` chooses), so at 1440 this saw zero sheets and
+  // pressed Escape **zero times** where the old code pressed it twice — the
+  // client record stayed open for the rest of the width and the walkthrough
+  // block later measured nothing at all. Seven `tour · step N` surfaces went
+  // missing with no line anywhere saying why, and **the only reason it was not
+  // shipped as a clean run is the gate counting them**. Same two-container
+  // lesson as `inRecord()` in the job-record block, in a second home the same
+  // week.
+  const OVERLAY = ".sheet, .col-2.record";
+  const closeOverlay = async (after = 300, presses = 5) => {
+    for (let i = 0; i < presses; i++) {
+      if (!(await page.locator(OVERLAY).count())) { await settle(page, after); return true; }
+      await page.keyboard.press("Escape");
+      await page.waitForFunction((sel) => document.querySelectorAll(sel).length === 0,
+        OVERLAY, { timeout: 900 }).catch(() => {});
+    }
+    const left = await page.locator(OVERLAY).count();
+    if (left) {
+      console.log(`${"an overlay would not close".padEnd(24)} NOT MEASURED — ${left} panel(s) still open `
+        + `after ${presses} Escapes; everything measured after this is behind one`);
+      found++;
+      await settle(page, after);
+      return false;
+    }
+    await settle(page, after);
+    return true;
+  };
+
   const grow = async () => {
     await page.evaluate(() => { const s = document.querySelector(".sheet"); if (s) s.style.height = "92vh"; });
     await settle(page, 400);
+  };
+  // A NESTED SHEET IS INSIDE ITS PARENT'S DOM, so `querySelector(".sheet")`
+  // returns the RECORD and not the dialog that opened on top of it —
+  // `Sheet.jsx`'s own focus comment says so. `grow()` is left exactly as it
+  // was, because changing it would change what all 84 already-certified
+  // surfaces measure; this is its sibling and only `openSheet` calls it.
+  const growAll = async () => {
+    await page.evaluate(() => document.querySelectorAll(".sheet").forEach((s) => { s.style.height = "92vh"; }));
+    await settle(page, 400);
+  };
+
+  // **A DIALOG IS A SURFACE, AND TWELVE OF THEM HAD NEVER BEEN NAMED — 2026-09-18,
+  // ROADMAP 8.1.** That item asks for "every dashboard tab and dialog … and
+  // every pop-up", and the expectation file answered with five: the day sheet,
+  // the expense form, the quote, the campaign compose and the two plan forms.
+  // The product renders **fourteen** `<Sheet>`s plus a photo lightbox.
+  //
+  // This is the "two gear screens were never in the list" defect from step 3 of
+  // the report's week-one sequence, one shape along: those screens were missing
+  // from the QUESTION rather than from the run, and so were these. A dialog
+  // nobody names comes out clean in exactly the same way.
+  //
+  // **ESCAPE CLOSES BOTH.** `Sheet.jsx` binds its Escape handler to `window`,
+  // not to its own panel, so every open sheet hears the same keypress and a
+  // dialog opened on top of the job record takes the record with it. Hence
+  // `close: false` where the caller needs the parent to survive, and hence the
+  // job-record block below re-opens the record rather than assuming it is still
+  // there — an assumption is how a measurement of the wrong screen gets a name.
+  // **`appear()` WAITS FOR `attached`, NOT `visible`, AND THAT IS NOT A
+  // MISTAKE IN IT — it is the wrong instrument HERE.** A trigger that exists
+  // and cannot be pressed passed this guard, and the click behind it then hung
+  // for fifteen seconds and threw, which took the whole remaining sweep with
+  // it: four widths lost to one hidden `<span>`. That is the most expensive
+  // way this file can fail and its own Tomorrow block says so in as many
+  // words. So this one asks for `visible`, and it CATCHES — a dialog that
+  // cannot be opened is a finding, never the end of the run.
+  // **THE DECLARED SKIP.** Same printed line as the two `subscription · …`
+  // surfaces, same silence in `found` — and one addition: `reachable` is
+  // re-asked here, so the run proves the surface was genuinely out of reach
+  // rather than taking the caller's word for it.
+  //
+  // `reachable()` returns a COUNT, not a boolean, so the refusal can say what
+  // it found. Anything above zero and the skip is refused: that is a caller
+  // claiming a screen could not be reached while it was sitting there, which
+  // is exactly the silent-skip failure this whole certification exists to
+  // stop, and it has to be louder than the thing it was hiding.
+  const declareSkip = async (label, reason, reachable) => {
+    const n = await reachable().catch(() => 0);
+    if (n > 0) {
+      console.log(`${label.padEnd(24)} SKIP REFUSED — declared unreachable, and the probe found ${n}. `
+        + `A skip over a surface that was there is a screen removing itself from the check.`);
+      found++;
+      return false;
+    }
+    SKIPPED.push({ width: w, label, reason });
+    console.log(`${label.padEnd(24)} NOT MEASURED — ${reason}`);
+    return true;
+  };
+
+  const openSheet = async (label, trigger, { close = true, ms = 1200 } = {}) => {
+    const reachable = await trigger.first().waitFor({ state: "visible", timeout: 6000 })
+      .then(() => true).catch(() => false);
+    if (!reachable) {
+      console.log(`${label.padEnd(24)} NO SUCH BUTTON — no visible trigger, so this dialog was never opened`);
+      found++;
+      return false;
+    }
+    // **COUNT THE SHEETS BEFORE AND AFTER, NEVER `appear(".sheet")`.** The
+    // first draft of this guard waited for a `.sheet` to exist, and two of
+    // these dialogs open ON TOP of a sheet — so the thing it waited for was
+    // already on screen before the click and the guard could not fail. A guard
+    // that cannot fail is this repo's subject arriving inside the instrument
+    // written to check for it (`docs/gotchas.md`, and step 2 of the report's
+    // own sequence). One more sheet than there was is the only wording that
+    // means the dialog opened.
+    const before = await page.locator(".sheet").count();
+    const pressed = await trigger.first().click({ timeout: 8000 })
+      .then(() => true).catch((e) => { console.log(`${label.padEnd(24)} NOT MEASURED — the trigger would not take a `
+        + `click: ${String(e).split("\n")[0]}`); found++; return false; });
+    if (!pressed) return false;
+    await settle(page, ms);
+    const arrived = await page.waitForFunction(
+      (n) => document.querySelectorAll(".sheet").length > n, before, { timeout: 5000 },
+    ).then(() => true).catch(() => false);
+    if (!arrived) {
+      console.log(`${label.padEnd(24)} NOT MEASURED — the button was pressed and no new sheet arrived `
+        + `(${before} open before, ${await page.locator(".sheet").count()} after)`);
+      found++;
+      return false;
+    }
+    await growAll();
+    await say(label);
+    if (close) { await page.keyboard.press("Escape"); await settle(page, 700); }
+    return true;
   };
 
   await page.goto(`${BASE}/book/demo-detail${LITE}`, { waitUntil: "domcontentloaded" });
   await settle(page, 3200);
   await say("book · step 1");
+  // THE CANARY GOES HERE AND NOWHERE ELSE: on the first surface of every width,
+  // on a page that is always present, before anything else can have gone wrong.
+  // A negative control at the END of a run is a control that a crash skips —
+  // and a crashed run is exactly when you most need to know the finder works.
+  await runCanary(page, w);
 
   // THE LANDING PAGE, and it had NEVER BEEN MEASURED BY ANYTHING until
   // 2026-09-05 — the page a visitor meets first, and the only surface in the
@@ -651,6 +1164,7 @@ for (const w of SIZES) {
       // 900 at a laptop, never the phone's 844 at a desk width.
       viewport: { width: w, height: heightFor(w) }, deviceScaleFactor: 1,
     });
+    await speakSpanish(anon);
     const p2 = await anon.newPage();
     p2.setDefaultTimeout(15000);
     try {
@@ -812,6 +1326,16 @@ for (const w of SIZES) {
     await say(t);
   }
 
+  // **NEW BOOKING — the one dialog reachable from every dashboard screen, and
+  // it had never been opened at any width.** It is the detailer taking a job
+  // over the phone, so it is the most-used form in the product after the
+  // customer's own, and its geometry risk is the tallest in the app: a service
+  // picker, an add-on list, a date, a time and an address field in one column.
+  // Addressed by `data-tour`, never by the aria-label, for the reason the tab
+  // loop above gives — the label translates and a name-based locator then
+  // stalls fifteen seconds on the first width.
+  await openSheet("new booking", page.locator('[data-tour="new"]'), { ms: 1500 });
+
   // THE JOB RECORD IS A SCREEN AND WAS NEVER SWEPT. 26 of the product's 126
   // capabilities live on it, it is reached from four places, and until
   // roadmap 2.11 step 6 stage 2 rebuilt it nothing here had ever opened it —
@@ -881,10 +1405,54 @@ for (const w of SIZES) {
   // `.row-item`, which in the evening matched a FINISHED job and measured the
   // same record twice under two labels. Tomorrow is the door that is open at
   // any hour, so the still-to-do record comes from there instead.
+  //
+  // **AND "TO DO" STOPPED BEING MEASURED AT ALL — caught 2026-09-18 by reading
+  // the expectation diff rather than the run.** The sweep at 23:23 printed
+  // `none on the rail at this hour — see Tomorrow below` and carried on, so
+  // the label simply left the file: a screen that quietly stops being checked,
+  // which is the exact sentence the expectation file's own note warns about.
+  // And the Tomorrow it defers to has never once opened (see below), so the
+  // deferral pointed at nothing.
+  //
+  // `[data-tour="comingup"]` is the door that is open at every hour — the
+  // confirmed jobs on the days after this one. The rail is still preferred
+  // when the hour provides one, because a job on TODAY is the shape a detailer
+  // meets most; the fallback only decides whether this label exists.
+  const comingUp = page.locator('[data-tour="comingup"] .row-item');
   for (const [label, sel] of [["job record · finished", ".dayrail .row-item.landed"],
                               ["job record · to do", ".dayrail .row-item:not(.landed)"]]) {
-    const job = page.locator(sel).first();
-    if (!(await job.count())) { console.log(`${label.padEnd(24)} none on the rail at this hour — see Tomorrow below`); continue; }
+    let job = page.locator(sel).first();
+    if (label.endsWith("to do") && !(await job.count()) && await comingUp.count()) {
+      console.log(`${"".padEnd(24)}(nothing still to do on today's rail at this hour — using the first Coming up job)`);
+      job = comingUp.first();
+    }
+    if (!(await job.count())) {
+      // **NAME THE CAUSE, BECAUSE THIS ONE READS AS A PRODUCT REGRESSION AND
+      // IS NOT — measured the hard way at 00:07 on 2026-09-19.** A sweep run
+      // in the small hours finds an EMPTY rail: `Today.jsx` draws a job as
+      // finished from its STORED status (`status === "completed" && no
+      // finalized_at`), `seed-demo.mjs` marks a job completed only once it has
+      // ENDED, and before the first shift of the day finishes nothing has.
+      // The gate was right, the product was untouched, and three surfaces went
+      // NEVER MEASURED at three widths.
+      //
+      // **`finished` DECLARES A SKIP; `to do` DOES NOT.** `to do` has a real
+      // fallback two lines up — the first `Coming up` job, which exists at
+      // every hour — so if it still cannot be measured something is actually
+      // wrong and it must fail. A skip is only honest where the state cannot
+      // exist, and for a job still to do it always can.
+      if (label.endsWith("finished")) {
+        await declareSkip(label,
+          "no finished job on today's rail yet. A job is finished once it has ENDED, so before "
+          + "the first shift of the day completes this state cannot exist (ROADMAP 8.1b)",
+          () => page.locator(".dayrail .row-item.landed").count());
+        continue;
+      }
+      console.log(`${label.padEnd(24)} NOT MEASURED — nothing on today's rail and nothing coming up. `
+        + `If the demo was seeded on an earlier DAY, that is the whole reason: re-seed `
+        + `(node scripts/seed-demo.mjs) and run again.`);
+      found++; continue;
+    }
     await job.click();
     await settle(page, 1500);
     await grow();
@@ -893,44 +1461,80 @@ for (const w of SIZES) {
     await settle(page, 700);
   }
 
-  // TOMORROW'S FIRST JOB — a confirmed booking that has not happened, which is
-  // the record shape the rail cannot promise at every hour. Reached the way a
-  // detailer reaches it: the Tomorrow row below --wrap, the second column's
-  // list above it.
-  {
+  // **THE JOB RECORD'S OWN TWO SHEETS.** `Finalize payment` is where a
+  // detailer takes the money and `Send a text` is the message picker, and both
+  // open ON TOP of the record — the only two-deep overlay in the product, and
+  // the one place a 92vh sheet sits inside another 92vh sheet at 320. Neither
+  // had ever been laid out at any width.
+  //
+  // ONE RECORD-OPEN EACH, on purpose. Escape reaches every sheet at once (see
+  // `openSheet`), so the record is gone after the first dialog closes and
+  // carrying on would measure whatever Today drew instead, under this label.
+  // **SCOPED TO THE RECORD, AND THIS IS NOT A TIDINESS POINT — it is the
+  // measured reason the first attempt at this block could not run, 2026-09-18.**
+  // `getByRole("button", { name: "Finalize payment" }).first()` resolves to
+  // TWO buttons at 392: the record's own, and the one on the Today rail card
+  // SITTING BEHIND THE OPEN SHEET. Playwright reported both visible and
+  // `.first()` was the one underneath — the sheet's backdrop is the only
+  // reason it failed loudly instead of pressing a control on a screen nobody
+  // was looking at and filing the result under this label.
+  //
+  // `.sheet` below --wrap, `.col-2.record` above it: `RecordHost` chooses, so
+  // a scope that names only one of them measures nothing at the other half of
+  // the widths — which is the same skipped-check-reads-like-a-passing-one
+  // shape one level down.
+  const inRecord = () => page.locator(".sheet, .col-2.record").last();
+  for (const [label, btn] of [
+    ["job record · finalize", () => inRecord().getByRole("button", { name: NAMED("Finalize payment") })],
+    ["job record · send a text", () => inRecord().getByRole("button", { name: NAMED("Text"), exact: true })],
+  ]) {
     await page.locator(`.tabbar button[data-tour="today"]`).first().click();
     await settle(page, 1400);
-    // TWO DOORS, AND NEITHER IS GUARANTEED — count before clicking. A
-    // `.first().click()` on an empty locator throws after 15s and takes the
-    // WHOLE remaining pass with it, which is the most expensive way this
-    // script can fail: four widths lost to a missing row. It cost a timed run
-    // on 2026-09-03. Nothing in here may assume the demo's shape.
-    const tomorrowRow = page.locator(".row-item", { hasText: NAMED_TEXT("Tomorrow") }).first();
-    const deskRow = page.locator(".col-2 .settled-row").first();
-    let opened = false;
-    if (await tomorrowRow.count()) {
-      await tomorrowRow.click();
-      await settle(page, 1400);
-      await grow();
-      const inSheet = page.locator(".sheet .row-item, .sheet .card [role=button]").first();
-      if (await inSheet.count()) {
-        await inSheet.click();
-        await settle(page, 1400);
-        await grow();
-        opened = true;
-      }
-    } else if (await deskRow.count()) {
-      await deskRow.click();
-      await settle(page, 1500);
-      opened = true;
+    // `.landed` is a finished, unpaid job — the only state that draws Finalize
+    // payment. The same record carries Text, so one door serves both.
+    const job = page.locator(".dayrail .row-item.landed").first();
+    if (!(await job.count())) {
+      // BOTH OF THESE OPEN FROM THE FINISHED JOB'S RECORD, so they are
+      // unreachable for exactly the reason it is — one condition, three
+      // surfaces, and each says so for itself rather than one of them
+      // speaking for the other two.
+      await declareSkip(label,
+        "no finished job on today's rail yet, and this dialog opens from that record. Before the "
+        + "first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)",
+        () => page.locator(".dayrail .row-item.landed").count());
+      continue;
     }
-    if (opened) await say("job record · tomorrow");
-    else console.log("job record · tomorrow".padEnd(24) + "no tomorrow to open (is the demo seeded?)");
+    await job.click();
+    await settle(page, 1500);
+    await grow();
+    await openSheet(label, btn(), { close: false });
     await page.keyboard.press("Escape");
     await settle(page, 700);
-    await page.keyboard.press("Escape");
-    await settle(page, 500);
   }
+
+  // **TOMORROW'S FIRST JOB: DELETED 2026-09-18, AFTER IT FINALLY RAN.**
+  //
+  // This block existed to measure "a confirmed booking that has not happened"
+  // and it had NEVER MEASURED ANYTHING — it looked for a `.row-item` whose
+  // text contained "Tomorrow", and `Today.jsx` draws that word as a `<p
+  // class="jw-day">` SIBLING above the rows. Same shape as the 2026-09-16
+  // setup-row eyebrow: the word is not inside the thing being matched, so no
+  // seed and no width could ever have made it match, and its failure line
+  // asked whether the demo was seeded.
+  //
+  // Pointed at the real door — `[data-tour="comingup"]` — **the sentinel
+  // immediately failed it at 320 and 1440**: `upcoming` in `Today.jsx` filters
+  // on date and `status !== "cancelled"`, so a pending REQUEST dated in the
+  // future is in that list too, and being the furthest out it is the last row.
+  // The block was opening the same record `job record · a request` had already
+  // measured, under a second name. That is the collision the sentinel was
+  // built for, on its first real outing.
+  //
+  // It is deleted rather than re-aimed because its subject is already covered:
+  // `job record · to do` above now falls back to the FIRST "Coming up" job, so
+  // a confirmed booking that has not happened is measured at every hour and by
+  // name. A second selector picking its way around a request card would be a
+  // surface kept alive for the sake of the line in the expectation file.
 
   // MONEY IS FIVE PERIODS, A RECORD AND A MODAL, AND THE SWEEP ONLY EVER SAW
   // ONE OF THEM — the same gap as the job record before stage 2 and the
@@ -1000,6 +1604,14 @@ for (const w of SIZES) {
       await page.keyboard.press("Escape");
       await settle(page, 700);
     }
+    // **LOG A BULK JOB — the second dialog on this screen, and the sweep only
+    // ever knew about the first.** It sits at the very bottom of Money, below
+    // the figures, so it is also the control most likely to be reached with a
+    // thumb on a phone. Its form is a count beside a money field on one row,
+    // which is the shape that breaks first at 320 — the same shape the plan
+    // form's own comment names.
+    await openSheet("Money · log a bulk job",
+      page.getByRole("button", { name: NAMED("Log a bulk job") }));
   }
 
   // THE CALENDAR IS THREE SCREENS AND THE SWEEP ONLY EVER SAW ONE. Until
@@ -1126,7 +1738,16 @@ for (const w of SIZES) {
       // fine print and a WRAPPING WALL OF NAME CHIPS, one per recipient — and
       // a chip wall is the control most likely to run past an edge at 320.
       {
-        const write = page.getByRole("button", { name: /^Email these \d+$/ });
+        // **BY ATTRIBUTE, NOT BY THE WORDS — the first Spanish run, 2026-09-19.**
+        // `/^Email these \d+$/` is a raw English regex and the button says
+        // "Enviar correo a estos 5" in Spanish, so this whole block was skipped
+        // and `Clients · writing to them` went NEVER MEASURED. **Not a
+        // translation gap — `appEs.js` carries "Email these {count}" correctly;
+        // the CHECK was the monolingual one.** And `NAMED_TEXT` could not have
+        // saved it either: the catalogue key holds `{count}`, which never
+        // appears in rendered text. `data-tour="compose"` was already on the
+        // button and has none of these problems.
+        const write = page.locator('[data-tour="compose"]');
         if (await write.count()) {
           await write.first().click();
           await settle(page, 900);
@@ -1140,7 +1761,17 @@ for (const w of SIZES) {
     }
   }
   // The client record is where W7/W8 lived.
-  const client = page.locator(".rows.cols.clients .row-item").first();
+  //
+  // **NOT `.first()`, AND THE SENTINEL IS WHAT FOUND IT — 2026-09-16.** The
+  // bounced-client block below opens Victor Salas by name, and the first row of
+  // the list IS Victor Salas, so these two measurements fingerprinted
+  // identically: the same sheet, measured twice, under two names, both clean.
+  // The block below even predicted it — *"the odds of that being the first row
+  // are nobody's to control"* — and nothing in this script could see that the
+  // odds had come in. An ordinary client and a bounced client are two different
+  // panels and only one of them was ever being drawn.
+  const client = page.locator(".rows.cols.clients .row-item")
+    .filter({ hasNot: page.locator("text=Victor Salas") }).first();
   if (await client.count()) {
     await client.click();
     await settle(page, 1600);
@@ -1154,11 +1785,14 @@ for (const w of SIZES) {
       await settle(page, 1500);
       await grow();
       await say("Clients · a job from the history");
-      await page.keyboard.press("Escape");
-      await settle(page, 700);
+      // **THESE TWO CLOSES ARE WHAT THE VICTOR SALAS CLICK BELOW WAS RACING.**
+      // Both were `Escape` then `settle(page, 700)`; the block below then
+      // clicked into a backdrop that had not finished leaving and the whole
+      // run died at the first width. `closeOverlay()` waits for the thing
+      // rather than for a while — see its own note.
+      await closeOverlay(400);
     }
-    await page.keyboard.press("Escape");
-    await settle(page, 700);
+    await closeOverlay(400);
   }
   // THE CLIENT WHOSE ADDRESS BOUNCED — roadmap 2.20, and it is a SECOND
   // measurement of the same screen rather than a nicety. The record above is
@@ -1215,6 +1849,42 @@ for (const w of SIZES) {
   // the CLIENTS block two hundred lines earlier could not have called it even
   // if somebody had thought to. See its new home for what that cost.
 
+  // **A SETTINGS ROW IS NOT A PLAIN BUTTON, AND `NAMED()` CANNOT CLICK ONE —
+  // measured 2026-09-16 with Playwright, not reasoned about.**
+  //
+  //   getByRole("button", { name: /^(?:Notifications|Notificaciones)$/ })  ->  0
+  //   getByRole("button", { name: "Notifications" })                      ->  1
+  //   locator(".nav-row", { hasText: /Notifications|Notificaciones/ })     ->  1
+  //
+  // `NAMED()` returns an ANCHORED regex whenever the label has a Spanish twin,
+  // and a settings row's accessible name is its label PLUS its description —
+  // "Notifications ⏎ 5 of 5 emails on". Anchored, that matches nothing. Both
+  // call sites carried `.catch(() => {})`, so the click did nothing, quietly,
+  // and the block went on to look for controls on a screen it had never opened.
+  //
+  // **THIS IS THE 2026-09-08 BUG IN ITS THIRD HOME.** The header at `NAMED_TEXT`
+  // records it for `hasText`; the same two-matchers-that-look-interchangeable
+  // mistake was still live for `getByRole({ name })`, and only on rows rather
+  // than on buttons — which is why every other `NAMED()` caller in this file is
+  // correct and must stay anchored ("Change" must not match "Change your
+  // sign-in password").
+  //
+  // `walk` already had the right mechanism. This is `walk`'s first line, made
+  // callable on its own, and it is LOUD rather than silent: a row that is not
+  // there is a finding, because every measurement after it is of the wrong
+  // screen.
+  const openRow = async (key, ms = 1200) => {
+    const row = page.locator(".nav-row", { hasText: NAMED_TEXT(key) });
+    if (!(await appear(row))) {
+      console.log(`${("the " + key + " row").padEnd(24)} NO SUCH ROW — everything measured after this is the wrong screen`);
+      found++;
+      return false;
+    }
+    await row.first().click();
+    await settle(page, ms);
+    return true;
+  };
+
   const walk = async (label, rows) => {
     for (const key of rows) {
       // NAMED, or NINETEEN SETTINGS SCREENS GO UNMEASURED IN SPANISH — which is
@@ -1237,8 +1907,6 @@ for (const w of SIZES) {
   // 1440 and 360. Everything above this line runs at every width.
   if (!deep) {
     console.log(`${"the long tail".padEnd(24)} skipped at ${w} — ${BUSINESS_ROWS.length + GEAR_ROWS.length} settings screens, the gear, setup x7, tour x7`);
-    await ctx.close();
-    widthMs.push([w, Date.now() - widthStart]);
     continue;
   }
 
@@ -1288,7 +1956,12 @@ for (const w of SIZES) {
   // is a different measurement. The rule that keeps arriving is that a state
   // behind a button is not navigation, and this one is behind a button on a
   // screen that did not have it yesterday.
-  const plansQr = page.getByRole("button", { name: /QR code/i });
+  // NAMED, LIKE THE BUSINESS ONE FORTY LINES UP. `/QR code/i` is English and
+  // the button reads "Generar código QR" in Spanish, so this surface went
+  // NEVER MEASURED on the first Spanish run. Same component, same string, and
+  // the other call site had it right all along — which is the tell that this
+  // was a shortcut rather than a decision.
+  const plansQr = page.getByRole("button", { name: NAMED("Generate QR code") });
   if (await plansQr.count()) {
     await plansQr.first().click();
     await settle(page, 900);
@@ -1297,6 +1970,107 @@ for (const w of SIZES) {
   // Escape, not the tab — the same reason the Notifications block below gives.
   await page.keyboard.press("Escape");
   await settle(page, 800);
+
+  // **SEVEN MORE SETTINGS DIALOGS, AND `walk()` COULD NOT HAVE FOUND ONE OF
+  // THEM.** `walk()` opens a settings row, measures the screen and leaves.
+  // Three of those fourteen screens carry editors behind a button — the same
+  // "a state behind a button is not navigation" rule that put Monthly plans'
+  // two forms above and the QR plate before them — and nothing had ever
+  // pressed any of them.
+  //
+  // They are the forms a detailer actually types into: what a service costs,
+  // what an add-on is, how a vehicle size is described, what a travel area
+  // charges, what a surcharge does, and how he gets paid. Each is a column of
+  // fields inside a sheet inside a settings screen, and 320 is where that
+  // decides.
+  //
+  // **ADDRESSED THROUGH THEIR HEADING, NOT BY INDEX.** Two of these buttons
+  // say the single word "Add" on the same screen — add-ons and vehicle sizes —
+  // so `.nth(0)` and `.nth(1)` would work today and would silently swap the
+  // moment somebody reorders the page. `has:` scopes each one to the `<h3>`
+  // above it, which is the thing that actually names it.
+  //
+  // **AND `NAMED()` IS THE WRONG MATCHER FOR EVERY ONE OF THEM — the 2026-09-08
+  // bug in its FOURTH home, found here 2026-09-18.** These buttons are written
+  // `+ {t("Category")}`, so their accessible name is "+ Category". `NAMED()`
+  // anchors (`^(?:Category|Categoria)$`) the moment a Spanish twin exists, and
+  // an `exact: true` string is anchored too — five dialogs printed NO SUCH
+  // BUTTON against five buttons that were plainly on screen. `NAMED_TEXT()`
+  // with no `exact` is the substring form, which is what a label sitting
+  // beside a "+" needs. The heading scope is what keeps it honest: two of
+  // these buttons say only the word "Add".
+  const byHeading = (heading, label) =>
+    page.locator(".row", { has: page.locator("h3", { hasText: NAMED_TEXT(heading) }) })
+      .getByRole("button", { name: NAMED_TEXT(label) });
+
+  // **BACK TO THE INDEX THROUGH ANOTHER TAB, AND BOTH HALVES OF THAT WERE
+  // MEASURED RATHER THAN ASSUMED, 2026-09-18.**
+  //
+  // Draft one assumed the Monthly plans block above had left the Business
+  // index on screen. It had not: a settings screen REPLACES the main area
+  // rather than opening over it, its single Escape closes the plan form and
+  // leaves you standing inside Monthly plans, and all three rows below printed
+  // NO SUCH ROW — seven dialogs unmeasured, announced only by a line that
+  // reads like a renamed control. `walk()` gets away with one Escape because
+  // it opens exactly one thing per row.
+  //
+  // Draft two pressed the Business tab, which is a NO-OP while Business is
+  // already the lit tab, so all three printed NO SUCH ROW a second time and
+  // the fix looked like the problem. Probed both ways: two Escapes gets back
+  // (15 nav-rows, heading "Business") and so does Today → Business. The bounce
+  // is the one that does not have to know how many things are open.
+  const toBusinessIndex = async () => {
+    await page.locator(`.tabbar button[data-tour="today"]`).first().click();
+    await settle(page, 1200);
+    await page.locator(`.tabbar button[data-tour="business"]`).first().click();
+    await settle(page, 1500);
+  };
+  for (const [row, dialogs] of [
+    ["Services & add-ons", [
+      // AN EXISTING SERVICE, NOT A NEW ONE. The add form opens empty; the edit
+      // form opens with the seeded name, description, features box, price and
+      // duration in it, and an empty form is this file's own definition of a
+      // screen swept blank.
+      ["Business · a service", () => page.locator("button.menu-name").first()],
+      ["Business · a category", () => byHeading("Services", "Category")],
+      ["Business · an add-on", () => byHeading("Add-ons", "Add")],
+      ["Business · a vehicle size", () => byHeading("Vehicle sizes", "Add")],
+    ]],
+    ["Booking rules", [
+      ["Business · a travel area", () => page.getByRole("button", { name: NAMED_TEXT("Add an area") })],
+      ["Business · a surcharge", () => page.getByRole("button", { name: NAMED_TEXT("Add a surcharge") })],
+    ]],
+    // A2 4.12 NAMES THIS SCREEN BY NAME — "the bottom menu was already seen
+    // covering content at medium width" — and until now the sweep measured the
+    // screen and never the sheet that opens over it.
+    ["How you get paid", [
+      ["Business · a way to be paid", () => page.getByRole("button", { name: NAMED("Add a way to be paid") })],
+    ]],
+  ]) {
+    await toBusinessIndex();
+    if (!(await openRow(row, 1600))) continue;
+    for (const [label, trigger] of dialogs) await openSheet(label, trigger());
+  }
+  await toBusinessIndex();
+
+  // **THE TWO DIALOGS THIS RUN DOES NOT REACH, SAID OUT LOUD RATHER THAN LEFT
+  // OUT.** Naming a surface it cannot measure is the whole point of the
+  // expectation file; a silent omission is the defect this certification
+  // exists to stop. Neither raises a finding, because neither is a defect in
+  // the product — both are gaps in the demo and in what a sweep may safely do.
+  //
+  //   the photo lightbox   `JobPhotos` draws a full-screen `role="dialog"`
+  //                        over a job's photos. `seed-demo.mjs` attaches no
+  //                        photos to any booking, so there is nothing to open.
+  //                        Fix belongs in the seed, not here.
+  //   the timezone guard   `TimezoneChangeGuard` only appears after the
+  //                        timezone is CHANGED and Save is pressed. The guard
+  //                        itself writes nothing, but the path to it edits a
+  //                        live setting on the demo business mid-sweep, which
+  //                        is a mutation this script has never made and should
+  //                        not start making inside a geometry check.
+  console.log(`${"declared, not reached".padEnd(24)} the photo lightbox (no photos in the seed) and the `
+    + `timezone guard (needs a settings write) — 2 dialogs named and deliberately unmeasured`);
 
   // THE SECOND DOOR. The gear is a destination rather than an overlay, so it
   // takes the main area and its own index has to be measured too — until
@@ -1322,8 +2096,24 @@ for (const w of SIZES) {
   // Guarded rather than assumed: staff never see Notifications, and a future
   // layout may rename the button. A missing button is reported, not skipped —
   // silently measuring nothing is how this gap survived six times.
-  await page.getByRole("button", { name: NAMED("Notifications") }).first().click().catch(() => {});
-  await settle(page, 1200);
+  await openRow("Notifications");
+  // **THE BUTTONS ARE INSIDE A CLOSED `<details>` — found 2026-09-16, and it is
+  // `docs/gotchas.md`'s own entry running the other way.** That entry warns
+  // that a closed `<details>` STILL MEASURES its children; the accessibility
+  // tree is the opposite, and hides them. `Notifications.jsx:351` renders an
+  // "Add a line" button outside the fold only for a message kind that already
+  // HAS a line, and the demo seeds none — so every kind sat in the fold, the
+  // a11y tree held no such button, and the run printed NO SUCH BUTTON on a
+  // screen that was working. Open the fold first: that is what a person does.
+  // AND `.first()` OPENED THE WRONG ONE. There are TWO folds on this screen —
+  // "When these reach you" and "12 other emails you can add a line to" — and
+  // the buttons are in the second. Open EVERY fold rather than guessing which:
+  // a closed `<details>` anywhere on a screen is content no width has measured,
+  // and the geometry inside one is exactly where this script's four checks earn
+  // their keep. Set `open` rather than click it: no race, no ordering, and the
+  // native element fires its own toggle either way.
+  await page.evaluate(() => document.querySelectorAll("details").forEach((d) => { d.open = true; }));
+  await settle(page, 600);
   const addLine = page.getByRole("button", { name: NAMED("Add a line") });
   if (await addLine.count() > 0) {
     await addLine.first().click();
@@ -1347,8 +2137,7 @@ for (const w of SIZES) {
   // The demo seeds two members — an owner and a "Detailer" — so there is
   // always a second "Change" whose card carries the ticks; the first belongs
   // to the owner, whose editor is deliberately shorter (nothing to tick).
-  await page.getByRole("button", { name: NAMED("Team") }).first().click().catch(() => {});
-  await settle(page, 1200);
+  await openRow("Team");
   const change = page.getByRole("button", { name: NAMED("Change") });
   // The member list is a database read too — same race, same fix as the two
   // plan buttons above. `count()` is taken AFTER the wait, because the block
@@ -1427,13 +2216,21 @@ for (const w of SIZES) {
       if (await promoField.count()) {
         await promoField.first().fill("demo25");
         await page.locator("[data-billing-promo-apply]").first().click();
-        await page.locator('[data-billing-promo-apply]:has-text("Remove"), [data-billing-promo-said]')
+        // **`:has-text()` IS A CSS PSEUDO AND TAKES A LITERAL, so this asked for
+        // the English word and got nothing in Spanish — the apply SUCCEEDED and
+        // the check called it refused, printing an empty reason because there
+        // was no error to read.** A false negative, not a product fault:
+        // `appEs.js` has "Remove" -> "Quitar". `.filter({ hasText })` takes the
+        // two-language regex this file already builds.
+        const applyBtn = page.locator("[data-billing-promo-apply]");
+        await applyBtn.filter({ hasText: NAMED_TEXT("Remove") })
+          .or(page.locator("[data-billing-promo-said]"))
           .first().waitFor({ timeout: 15_000 }).catch(() => {});
         await settle(page, 900);
         // A GUARD THAT SKIPS MUST PRINT. If the code was refused the figures
         // are unchanged and this block measures nothing — which is
         // byte-identical to it passing.
-        const applied = await page.locator('[data-billing-promo-apply]:has-text("Remove")').count();
+        const applied = await applyBtn.filter({ hasText: NAMED_TEXT("Remove") }).count();
         if (!applied) {
           const why = await page.locator("[data-billing-promo-said]").textContent().catch(() => "");
           console.log(`${"subscription · promo".padEnd(24)} NOT MEASURED — DEMO25 was refused ("${(why || "").trim()}"). node scripts/seed-demo.mjs`);
@@ -1445,9 +2242,52 @@ for (const w of SIZES) {
         console.log(`${"subscription · promo".padEnd(24)} NOT MEASURED — no promo field on the checkout`);
       }
     } else {
-      console.log(`${"subscription · the rungs".padEnd(24)} NOT MEASURED — this demo has a subscription. Re-seed without --subscription to see the ladder and the consent tick.`);
+      // THE MIRROR OF THE TWO BELOW, and the same treatment. It only prints
+      // under `--subscription=...`, so it is not what the default run trips
+      // over — but it is the identical limbo shape and leaving one of the pair
+      // converted would be the half-fix this file keeps recording. Both labels
+      // are declared, because both states live behind the same ladder.
+      for (const gone of ["gear · subscription, a plan chosen", "gear · subscription, a promo code applied"]) {
+        await declareSkip(gone,
+          "this demo HAS a subscription, so `Billing.jsx` draws the account instead of the checkout "
+          + "ladder and there are no rungs to press. Re-seed without --subscription to measure the "
+          + "ladder and the consent tick (ROADMAP 8.1b)",
+          () => page.locator('[data-billing-rung="annual-monthly"]').count());
+      }
     }
 
+    // **THE LAST TWO LINES IN LIMBO, AND THE EITHER/OR UNDER THEM — measured
+    // 2026-09-19, not assumed.**
+    //
+    // These two printed a bare `NOT MEASURED` on every run: no finding, no
+    // entry in the expectation, nothing counting them. That is the state the
+    // five `guide · …` surfaces were in, and it is where a real gap lives
+    // longest.
+    //
+    // **THEY ARE NOT MUTUALLY EXCLUSIVE WITH EACH OTHER.** That was the first
+    // guess and it is wrong: `seed-demo.mjs --subscription=past_due` produces
+    // BOTH at once — `live` in `Billing.jsx` is true for a past-due
+    // subscription, so the account view draws the cancel button, and the
+    // dunning box draws above it. Run and checked.
+    //
+    // **WHAT THEY ARE EXCLUSIVE WITH IS THE CHECKOUT LADDER**, and that is
+    // structural rather than incidental: a business either has a subscription
+    // or it does not, and `Billing.jsx` draws the account for one and the
+    // rungs for the other. **Measured at 392 with the flag:** +1 surface
+    // (`gear · subscription, cancelling`) and −2 (`… a plan chosen` and
+    // `… a promo code applied`), a net loss, and the two lost are the ladder
+    // and the consent tick — which `seed-demo.mjs`'s own header calls the
+    // riskiest geometry on this screen.
+    //
+    // **SO THE DEFAULT SEED STAYS AND THESE TWO DECLARE THEMSELVES.** It is
+    // also the truthful demo: the demo business does not pay the platform.
+    // The alternative that would measure everything is a SECOND signed-in
+    // business carrying a subscription, which is a second sign-in per width on
+    // a run that is already a quarter of an hour. Named here rather than
+    // built.
+    //
+    // A skip, not a printed line: `declareSkip` re-asks with a probe, so
+    // seeding the state makes the declaration fail rather than pass quietly.
     const cancel = page.locator("[data-billing-cancel]");
     if (await cancel.count()) {
       await cancel.first().click();
@@ -1455,11 +2295,43 @@ for (const w of SIZES) {
       await grow();
       await say("gear · subscription, cancelling");
     } else {
-      console.log(`${"subscription · cancelling".padEnd(24)} NOT MEASURED — no live subscription on this demo. node scripts/seed-demo.mjs --subscription=past_due`);
+      await declareSkip("gear · subscription, cancelling",
+        "this demo has no subscription, so there is nothing to cancel. The default seed is "
+        + "deliberately unsubscribed — it draws the checkout ladder instead, which is two surfaces "
+        + "rather than one. `node scripts/seed-demo.mjs --subscription=past_due` swaps which half is "
+        + "measured (ROADMAP 8.1b)",
+        () => page.locator("[data-billing-cancel]").count());
     }
 
-    if (!(await page.locator("[data-billing-dunning]").count())) {
-      console.log(`${"subscription · past due".padEnd(24)} NOT MEASURED — nothing is overdue on this demo. node scripts/seed-demo.mjs --subscription=past_due`);
+    // **AND THE DUNNING BOX WAS NEVER A SURFACE, EVEN WHEN IT WAS THERE.**
+    // This was a bare presence check with no `else`: under `--subscription=
+    // past_due` the box rendered and NOTHING measured it, so the one run that
+    // could have laid it out at 320 passed over it in silence. It says its own
+    // name now, which is what makes the skip below the real alternative to a
+    // real measurement rather than to nothing.
+    // **AND IT IS NOT A SCREEN OF ITS OWN — THE SENTINEL PROVED IT, 2026-09-19.**
+    // First attempt made it a surface, and the run came back
+    // `gear · subscription, cancelling == gear · subscription, past due`:
+    // identical fingerprints, because the dunning box sits at the TOP of the
+    // account view and everything else on that screen is the same DOM. It is a
+    // STATE OF `gear · Your subscription`, which is already measured with the
+    // box on it — so a second `say()` would be one screen counted twice under
+    // two names, which is exactly what the sentinel exists to refuse.
+    //
+    // So when it is there this is a positive assertion about a surface that WAS
+    // measured, and when it is not it is a declared skip. Neither is a bare
+    // `NOT MEASURED` that counts nothing and declares nothing.
+    if (await page.locator("[data-billing-dunning]").count()) {
+      const level = await page.locator("[data-billing-dunning]").first().getAttribute("data-billing-dunning");
+      console.log(`${"gear · subscription, past due".padEnd(24)} on \`gear · Your subscription\` above `
+        + `(dunning level "${level}") — a state of that screen, not a screen of its own, so it is `
+        + `measured there rather than counted twice`);
+    } else {
+      await declareSkip("gear · subscription, past due",
+        "nothing is overdue on this demo, and nothing can be: the default seed writes no "
+        + "subscription at all, so there is no payment to fail. Same either/or as the cancel "
+        + "button above (ROADMAP 8.1b)",
+        () => page.locator("[data-billing-dunning]").count());
     }
     await page.keyboard.press("Escape");
     await settle(page, 800);
@@ -1492,7 +2364,15 @@ for (const w of SIZES) {
   // cannot see that — there is no spinner and the DOM goes quiet — so the
   // click below raced the fetch and reported NO SUCH ROW. It bit in `--lite`
   // first, because everything settles sooner with no animations running.
-  const finish = page.locator(".nav-row", { hasText: NAMED_TEXT("Finish setting up") });
+  // **THE EYEBROW IS NOT INSIDE THE ROW — found 2026-09-16.** "Finish setting
+  // up" is a `<span class="label">` ABOVE the card; the `.nav-row` itself reads
+  // "Next: <step>" over "N of M done". So `.nav-row` hasText "Finish setting up"
+  // could never match, and every run printed NO SUCH ROW and told the reader to
+  // re-seed — advice that fixes nothing, on a demo that was seeded correctly.
+  // Anchored on the CARD that carries the eyebrow, then its row, which keeps
+  // `NAMED_TEXT` and its Spanish twin and survives the next rename of the step.
+  const finish = page.locator(".tight", { has: page.locator(".label", { hasText: NAMED_TEXT("Finish setting up") }) })
+    .locator(".nav-row");
   await finish.first().waitFor({ timeout: 10000 }).catch(() => {});
   if (!(await finish.count())) {
     console.log(`${"the setup row".padEnd(24)} NO SUCH ROW (re-run scripts/seed-demo.mjs)`);
@@ -1518,7 +2398,19 @@ for (const w of SIZES) {
     for (let k = 0; k < 8; k++) {
       const line = await page.locator(".setupform .label").first().textContent().catch(() => null);
       if (!line) break;                       // the form is gone
-      await say(`setup · ${line.replace(/ · .*/, "").toLowerCase()}`);
+      // **THE LABEL MUST NOT TRANSLATE, AND IT DID.** The form's own step line
+      // reads "Step 1 of 12" in English and "Paso 1 de 12" in Spanish, so a
+      // Spanish run measured all eight screens and filed them under eight names
+      // the expectation has never heard of: eight NEVER MEASURED and eight NOT
+      // EXPECTED, for eight screens that were measured perfectly well.
+      // **A label is the name of a thing, not a rendering of it.** The NUMBERS
+      // are the part that does not translate, so they are what the label is
+      // built from — still read off the form rather than counted by the loop,
+      // which is what the note above is protecting.
+      const nums = (line.match(/\d+/g) || []);
+      await say(nums.length >= 2
+        ? `setup · step ${nums[0]} of ${nums[1]}`
+        : `setup · ${line.replace(/ · .*/, "").toLowerCase()}`);
       const later = page.getByRole("button", { name: NAMED("I'll do this later") });
       if (!(await later.count())) break;
       await later.click();
@@ -1563,10 +2455,34 @@ for (const w of SIZES) {
     // with no keyboard behaviour photographs perfectly. One width is enough:
     // the trap has no layout in it.
     if (w === 392) {
-      const inCard = async () => page.evaluate(() =>
-        !!document.querySelector(".tourcard")?.contains(document.activeElement));
-      if (!(await inCard())) {
-        console.log(`${"tour · focus on open".padEnd(24)} FOCUS IS OUTSIDE THE CAPTION CARD`);
+      // **WAIT FOR THE FOCUS, DO NOT GLANCE AT IT — found by the first `--lite`
+      // run, 2026-09-19, and it is the hazard this file predicted for that
+      // path in writing.** The check asked once, immediately, and under
+      // reduced motion it asked too early: `FOCUS IS OUTSIDE THE CAPTION CARD`
+      // on a product that does nothing wrong.
+      //
+      // **Measured before changing anything, both paths, same page:**
+      //
+      //   NORMAL +200ms card=false   LITE +200ms card=false
+      //   NORMAL +400ms focusInCard=true, active=DIV.tourcard
+      //   LITE   +400ms focusInCard=true, active=DIV.tourcard
+      //
+      // Identical. The card and its focus both arrive at ~400ms either way —
+      // **so this was an INSTRUMENT defect, not an accessibility one**, and
+      // the lite path did exactly what it is for: with nothing animating the
+      // DOM goes quiet sooner, `settle()` returns earlier, and a check that
+      // glances instead of waiting starts losing a race it used to win by
+      // accident.
+      //
+      // A timeout is the right shape here and a longer `settle()` is not: this
+      // must still FAIL if focus never arrives, which is the defect it was
+      // written for.
+      const focused = await page.waitForFunction(
+        () => !!document.querySelector(".tourcard")?.contains(document.activeElement),
+        null, { timeout: 4000 },
+      ).then(() => true).catch(() => false);
+      if (!focused) {
+        console.log(`${"tour · focus on open".padEnd(24)} FOCUS IS OUTSIDE THE CAPTION CARD after 4s`);
         found++;
       }
       for (let k = 0; k < 5; k++) {
@@ -1604,7 +2520,23 @@ for (const w of SIZES) {
     // make a seed change look like a broken tour.
     // The guides were marked seen at sign-in so they could not interrupt the
     // fifty measurements above; this is where they are given back.
-    await page.evaluate(() => { try { localStorage.removeItem("dp.tours"); } catch { /* private mode */ } });
+    //
+    // **AND FOR SIX DAYS THEY WERE NOT — measured 2026-09-19.** Suppression at
+    // sign-in writes TWO keys (`dp.tours` AND `dp.tour`) and this line gave
+    // back ONE, so `seenTours()` — which is an OR over both — stayed true and
+    // no guide could ever arrive. Five surfaces printed NOT MEASURED every run
+    // and nothing anywhere connected the two facts.
+    //
+    // **THE FAR CAUSE WAS NOT HERE AT ALL, AND NO AMOUNT OF CLEARING WOULD
+    // HAVE FOUND IT.** `App.jsx` reads a `user_tours` row for the person on
+    // sign-in and calls `markTourSeen()`, which writes `dp.tour` straight back.
+    // The demo owner had such a row. Probed: with the row present a guide
+    // arrived 0 of 6 times even with BOTH keys cleared; with it gone, 6 of 6.
+    // `seed-demo.mjs` deletes it on every seed now, which is where it belongs —
+    // this file can only clear the near cause.
+    await page.evaluate(() => {
+      try { localStorage.removeItem("dp.tours"); localStorage.removeItem("dp.tour"); } catch { /* private mode */ }
+    });
     // CALENDAR JOINED THE LIST ON 2026-09-10, the day it got a guide at all.
     for (const [tab, name] of [["Today", "today"], ["Calendar", "calendar"],
       ["Money", "money"], ["Clients", "clients"], ["Business", "business"]]) {
@@ -1627,7 +2559,11 @@ for (const w of SIZES) {
       // own Done, writes that name into `dp.tours` and the next guide never
       // arrives. Cleared per tab, so each one is met by a profile that has
       // never seen it — which is the state this block exists to measure.
-      await page.evaluate(() => { try { localStorage.removeItem("dp.tours"); } catch { /* private mode */ } });
+      // BOTH KEYS, for the reason the block header now gives: `seenTours()` is
+      // an OR, so leaving `dp.tour` set makes clearing `dp.tours` a no-op.
+      await page.evaluate(() => {
+        try { localStorage.removeItem("dp.tours"); localStorage.removeItem("dp.tour"); } catch { /* private mode */ }
+      });
       const btn = page.locator(`.tabbar button[data-tour="${name}"]`).first();
       if (!(await btn.count())) {
         // This sweep signs in as the OWNER, who has all four, so a missing tab
@@ -1674,8 +2610,24 @@ for (const w of SIZES) {
     }
   }
 
-  await ctx.close();
-  widthMs.push([w, Date.now() - widthStart]);
+  } catch (e) {
+    // NAMED, COUNTED AND CARRIED — never swallowed. `found++` is what makes the
+    // process exit non-zero; the line is what tells somebody which width and
+    // how far it got, because "it crashed" and "it crashed after four
+    // surfaces" are different problems.
+    const done = CERT.filter((c) => c.width === w).length;
+    const why = String((e && e.message) || e).split("\n")[0];
+    ABORTED.push({ width: w, measured: done, error: why });
+    found++;
+    console.log(`\nWIDTH ABORTED at ${w}px after ${done} surface(s) — ${why}`);
+    console.log(`  The other widths carry on. Everything ${w}px did not reach is unmeasured, not clean.`);
+  } finally {
+    // BOTH EXITS AND THE ABORT COME THROUGH HERE, which is the point: the
+    // shallow-width `continue` above used to close the context itself and a
+    // throw closed nothing at all.
+    await ctx?.close().catch(() => {});
+    widthMs.push([w, Date.now() - widthStart]);
+  }
 }
 
 await browser.close();
@@ -1713,7 +2665,288 @@ if (narrow && !DESKTOP_SPEC_BUILT) {
 // state that never opened has no geometry to be wrong, so it reads as a pass:
 // the baseline run reloaded, lost two states and still printed `clean`.
 // A false clean is worse than a failure, because nothing makes anybody look.
-console.log(`\n${surfaces} surface(s) measured, ${probed} element(s) probed`);
+console.log(`\n${surfaces} surface(s) measured, ${probed} element(s) probed, ${assertions} question(s) asked`);
+
+// ===========================================================================
+// CERTIFICATION — the four gates that turn the word "clean" into a claim worth
+// reading. Step 3 of ROADMAP.md § "Adopting the operating-system report".
+// ===========================================================================
+
+// 0 · THE EVIDENCE FOR THE CHOICE OF FINGERPRINT, on request only.
+if (process.argv.includes("--dump-fingerprints")) {
+  writeFileSync(`${ART}/fingerprints.json`, JSON.stringify(
+    CERT.map((c) => ({ label: c.label, dom: c.fingerprint.slice(0, 12), pixel: c.pixelPrint.slice(0, 12), sigLen: c.sig.length })), null, 2) + "\n");
+  console.log(`fingerprints   ${ART}/fingerprints.json`);
+}
+
+// 1 · THE SENTINEL. Two different labels whose screens rendered to IDENTICAL
+// PIXELS means one of those navigations did not happen, and the previous screen
+// was measured twice — once under a name it does not have. **Nothing above can
+// see this**, because the second measurement is of a real, working screen: it
+// comes out CLEAN, and the reader is told a screen passed that was never
+// opened. That is the precise shape of the `NAMED()` defect found on
+// 2026-09-16, where two silent `.catch(() => {})` clicks meant nine screens
+// were never reached and the run reported on the gear index nine times over.
+{
+  const byPrint = new Map();
+  for (const c of CERT) {
+    const key = `${c.width}::${c.fingerprint}`;
+    if (!byPrint.has(key)) byPrint.set(key, []);
+    byPrint.get(key).push(c.label);
+  }
+  // A walk that returns to an index between screens re-measures that index
+  // under the SAME label, which is honest. Only DIFFERENT labels sharing one
+  // screen are the defect.
+  // ONE DECLARED RE-MEASUREMENT, and it is declared HERE rather than waved
+  // through by a looser rule. The tab walk measures the Clients list as
+  // "Clients"; the Clients block re-clicks the same tab, waits for a row to
+  // actually draw, and measures it as "Clients · the list". They are the same
+  // screen and both are worth keeping — the walk's is early and races the
+  // database, the block's is guarded — so the honest thing is to name the pair
+  // rather than to soften the check that found it or to delete a measurement.
+  // A pair listed here is a pair somebody looked at. Nothing else gets a pass.
+  const DECLARED_SAME = [["Clients", "Clients · the list"]];
+  const declared = (labels) => DECLARED_SAME.some((pair) => {
+    const set = new Set(labels);
+    return set.size === pair.length && pair.every((l) => set.has(l));
+  });
+  const collisions = [...byPrint.values()]
+    .filter((v) => new Set(v).size > 1)
+    .filter((v) => !declared(v));
+  if (collisions.length) {
+    console.log(`\nSENTINEL FAILED: ${collisions.length} set(s) of screens that are one screen under several names.`);
+    console.log("  Each was measured and reported above; at most one of them was actually opened.");
+    for (const v of collisions) console.log(`  ${[...new Set(v)].join("  ==  ")}`);
+    found += collisions.length;
+  } else if (CERT.length) {
+    console.log(`sentinel      ${byPrint.size} distinct screen(s) behind ${CERT.length} measurement(s) — no two names share a screen`);
+  }
+}
+
+// 2 · THE EXPECTED COUNT — the gate this script has never had, and the one that
+// would have caught the three renamed rows and the two never-listed gear
+// screens found on 2026-09-16. Every one of those printed a loud line while the
+// run's total quietly shrank, and NOTHING COMPARED THE TOTAL TO ANYTHING.
+{
+  const perWidth = {};
+  for (const c of CERT) (perWidth[c.width] ??= []).push(c.label);
+  if (WRITE_EXPECTED) {
+    // A SEPARATE COMMAND, ON PURPOSE — report § "Discipline", rule 8: the thing
+    // that compares against a baseline must never also approve a new one. This
+    // flag rewrites the expectation and refuses to grade the run.
+    writeFileSync(EXPECTED_PATH, JSON.stringify({
+      note: "Every surface a full sweep must measure, per width. Regenerate with "
+        + "`node scripts/sweep-widths.mjs <widths> --write-expected` and READ THE DIFF: "
+        + "a label that disappears from this file is a screen that stopped being checked.",
+      written_at: new Date().toISOString(),
+      widths: perWidth,
+    }, null, 2) + "\n");
+    console.log(`\nEXPECTATION REWRITTEN. This run was NOT graded against it — read the diff before committing.`);
+  } else if (ONLY) {
+    console.log(`\nexpected-count gate SKIPPED — \`--only ${ONLY}\` measures a subset on purpose.`);
+  } else if (!existsSync(EXPECTED_PATH)) {
+    console.log("\nEXPECTED-COUNT GATE: no expectation file exists. Nothing compared the surfaces this "
+      + "run measured against the surfaces it should have measured. Create it with --write-expected.");
+    found++;
+  } else {
+    const want = JSON.parse(readFileSync(EXPECTED_PATH, "utf8")).widths || {};
+    for (const w of SIZES) {
+      const expected = want[String(w)];
+      const got = perWidth[w] || [];
+      if (!expected) {
+        console.log(`\nEXPECTED-COUNT GATE: ${w}px has no expectation recorded — it was swept ungraded.`);
+        found++;
+        continue;
+      }
+      // **A DECLARED SKIP IS ACCOUNTED FOR; A SILENT ABSENCE IS NOT — ROADMAP
+      // 8.1b.** This is the whole point of RECORDING the skip rather than only
+      // printing it. A label missing from a run that declared why, at this
+      // width, and whose probe agreed it was unreachable, is accounted for.
+      // Every other missing label is still NEVER MEASURED and still fails.
+      //
+      // **THE EXPECTATION KEEPS THE LABEL.** Deleting these three lines from
+      // the file would also have made the run pass, and it is the wrong fix:
+      // after about 08:45 they are reachable and must be measured, and a label
+      // that leaves that file is a screen nobody checks again.
+      // A WIDTH THAT ABORTED IS NOT NINETY FINDINGS, IT IS ONE. Listing every
+      // label it never reached buries the one fact that matters under its own
+      // consequences — and the abort already counted itself where it happened,
+      // so counting the unreached surfaces again would be the same failure
+      // charged twice.
+      const died = ABORTED.find((a) => a.width === w);
+      if (died) {
+        console.log(`expected-count ${w}px: NOT GRADED — the width aborted after `
+          + `${died.measured} of ${expected.length} surfaces (${died.error}). `
+          + `The ${expected.length - died.measured} it never reached are unmeasured, not clean.`);
+        continue;
+      }
+      const skippedHere = new Set(SKIPPED.filter((k) => k.width === w).map((k) => k.label));
+      const missingAll = expected.filter((l) => !got.includes(l));
+      const declared = missingAll.filter((l) => skippedHere.has(l));
+      const missing = missingAll.filter((l) => !skippedHere.has(l));
+      const extra = got.filter((l) => !expected.includes(l));
+      // DECLARED UNREACHABLE AND MEASURED ANYWAY is a contradiction the run has
+      // to say out loud — one of the two is wrong about the screen, and which
+      // one it is cannot be decided from here.
+      const both = got.filter((l) => skippedHere.has(l));
+      if (both.length) {
+        found += both.length;
+        console.log(`SKIP CONTRADICTED at ${w}px: declared unreachable AND measured — ${both.join(", ")}`);
+      }
+      if (!missing.length && !extra.length) {
+        console.log(`expected-count ${w}px: ${got.length}/${expected.length} surfaces`
+          + (declared.length
+            ? `, ${declared.length} declared unreachable (${declared.join(", ")}), every one accounted for`
+            : ", every one accounted for"));
+        continue;
+      }
+      found += missing.length + extra.length;
+      console.log(`\nEXPECTED-COUNT GATE FAILED at ${w}px: expected ${expected.length} surfaces, measured ${got.length}`
+        + (declared.length ? `, ${declared.length} declared unreachable` : ""));
+      for (const l of missing) console.log(`  NEVER MEASURED  ${l}`);
+      // An extra surface is not a bug; an UNREVIEWED extra surface is. It has to
+      // be added to the expectation deliberately, by somebody who looked at it.
+      for (const l of extra) console.log(`  NOT EXPECTED    ${l}   (new? --write-expected, then read the diff)`);
+    }
+  }
+}
+
+// 3 · THE CONTACT SHEET — one page carrying every screen this run looked at.
+// A count in a log is not something a person scans. Seventy pictures are.
+if (CERT.length) {
+  const esc = (t) => String(t).replace(/[<>&]/g, (m) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[m]));
+  const figures = CERT.map((c) => `<figure class="${c.findings.length ? "bad" : "ok"}">
+  <img loading="lazy" src="${c.shot.replace(ART + "/", "")}" alt="${esc(c.label)}">
+  <figcaption><b>${esc(c.label)}</b><span>${c.width}px · ${c.elements} elements · ${c.asked} questions</span>
+  ${c.findings.length ? `<ul>${c.findings.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>` : ""}
+  </figcaption></figure>`).join("\n");
+  writeFileSync(`${ART}/index.html`, `<!doctype html>
+<meta charset="utf-8">
+<title>Width sweep ${SIZES.join(", ")}${MODE_WORDS ? " " + MODE_WORDS : ""}</title>
+<style>
+  :root { --ink:#e9e6df; --bg:#14140f; --ok:#4a7357; --bad:#c4502f; }
+  body { background:var(--bg); color:var(--ink); margin:0; padding:26px;
+         font:13px/1.55 ui-monospace,"SF Mono",Menlo,Consolas,monospace; }
+  h1 { font-size:19px; font-weight:600; margin:0 0 6px; letter-spacing:-.01em; }
+  .meta { opacity:.55; margin-bottom:26px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:16px; }
+  figure { margin:0; border:1px solid #2b2b23; border-radius:5px; overflow:hidden; background:#1a1a14; }
+  figure.bad { border-color:var(--bad); }
+  figure.ok { border-left:3px solid var(--ok); }
+  img { width:100%; display:block; border-bottom:1px solid #2b2b23; background:#000; }
+  figcaption { padding:8px 10px; }
+  figcaption span { opacity:.5; display:block; font-size:11px; }
+  ul { margin:6px 0 0; padding-left:15px; color:#ff9d84; font-size:11px; }
+</style>
+<h1>Width sweep — ${SIZES.join(", ")}px${MODE_WORDS ? " · " + MODE_WORDS : ""}</h1>
+${LANG_ES ? `<p class="note">Spanish throughout, including the booking page and the sign-in screens — both language keys are set before the first paint (<code>dp.lang</code> for the customer’s surface, <code>dp.lang.app</code> for the dashboard), and every surface here is checked against its own catalogue rather than assumed. The ${ENGLISH_ONLY.size} exceptions are ${[...ENGLISH_ONLY].join(", ")}: those pages import no translation scope and contain no translatable strings at all, so there is nothing to switch — a product gap, logged to ROADMAP 2.12, not something this run can force.</p>` : ""}
+<div class="meta">${STARTED} · ${CERT.length} surfaces · ${assertions} questions asked · ${found} finding(s)
+ · canary: ${canaries.map((c) => `${c.width}px ${c.caught ? "caught" : "MISSED"}`).join(", ") || "none run"}</div>
+<div class="grid">
+${figures}
+</div>
+`);
+  console.log(`contact sheet  ${ART}/index.html`);
+}
+
+// 4 · THE RECEIPT. `scripts/receipt.mjs` recomputes the verdict from these
+// numbers and never trusts the word this script printed.
+{
+  const expectedTotal = (() => {
+    if (ONLY || WRITE_EXPECTED || !existsSync(EXPECTED_PATH)) return CERT.length;
+    const want = JSON.parse(readFileSync(EXPECTED_PATH, "utf8")).widths || {};
+    return SIZES.reduce((n, w) => n + (want[String(w)]?.length ?? 0), 0);
+  })();
+  // **THE FOUR COUNTS STILL HAVE TO AGREE — ROADMAP 8.1b.** `receipt.mjs`
+  // refuses a receipt where expected, discovered, attempted and completed are
+  // not the same number, and it is right to: discovering 16 and completing 3 is
+  // how a sweep reports clean over 38 findings. A declared skip therefore comes
+  // OFF the expected total and is carried in `skipped_targets`, which that file
+  // already understands — "skips are failures unless allowlisted" is its own
+  // rule and is reused here rather than replaced.
+  //
+  // **THE ALLOWLIST EXPIRES ON PURPOSE.** The claim being allowlisted is not
+  // "these three are optional" — it is "a job is finished once it has ENDED, so
+  // before the first shift of the day completes this state cannot exist". That
+  // is a claim about the product that could stop being true, and an expiry is
+  // what makes somebody re-read it instead of inheriting it.
+  // **ONLY A SKIP THE EXPECTATION WAS COUNTING COMES OFF THE TOTAL — 2026-09-19.**
+  // The three job-record labels are in `sweep-widths.expected.json`, so when
+  // they are skipped the run really did measure one fewer thing than it owed
+  // and `expected_targets` has to drop or the four counts stop agreeing. The
+  // two `gear · subscription, …` labels are NOT in that file and never were:
+  // the default demo cannot produce them at all, so they were never owed.
+  // Subtracting those as well would make expected 373 against 375 discovered
+  // and `receipt.mjs` would fail a run that did everything asked of it — the
+  // gate crying wolf, which is the failure this file has written down twice.
+  // They are still reported in `skipped_targets` and still carry their reason.
+  const owed = (() => {
+    if (ONLY || WRITE_EXPECTED || !existsSync(EXPECTED_PATH)) return new Set();
+    const want = JSON.parse(readFileSync(EXPECTED_PATH, "utf8")).widths || {};
+    const set = new Set();
+    for (const w of SIZES) for (const l of want[String(w)] || []) set.add(`${w}|${l}`);
+    return set;
+  })();
+  const countedSkips = SKIPPED.filter((k) => owed.has(`${k.width}|${k.label}`)).length;
+  const reachableTotal = expectedTotal - countedSkips;
+  const { path: rp } = writeReceipt({
+    check_id: `sweep-widths-${SIZES.join("-")}${MODE}`,
+    started_at: STARTED,
+    status: found ? "fail" : "pass",
+    expected_targets: reachableTotal,
+    discovered_targets: CERT.length,
+    attempted_targets: CERT.length,
+    completed_targets: CERT.length,
+    skipped_targets: SKIPPED.length,
+    ...(SKIPPED.length ? {
+      skip_allowlist: {
+        reason: "Surfaces the demo cannot be in the state for at the hour this ran. Each one "
+          + "declared its own reason in the output and each was probed again before the skip was "
+          + "accepted — a skip over a reachable surface is refused and fails the run (ROADMAP 8.1b).",
+        expires: "2027-01-01",
+        skipped: SKIPPED,
+      },
+    } : {}),
+    assertions_executed: assertions,
+    // The floor. Four geometry questions per surface is the least a real
+    // measurement of a real screen can involve — well under a healthy run, and
+    // far above anything a blank page or a crashed screen could produce.
+    min_assertions: Math.max(1, CERT.length * 4),
+    failures: (() => {
+      const geometry = CERT.filter((c) => c.findings.length)
+        .map((c) => ({ target: c.label, width: c.width, findings: c.findings }));
+      const geometryCount = CERT.reduce((n, c) => n + c.findings.length, 0);
+      const other = found - geometryCount;
+      if (other <= 0) return geometry;
+      // The count is authoritative; the captured lines are the evidence for it.
+      // If the capture missed some, `captured` is short of `count` and says so
+      // in the receipt rather than rounding the difference away.
+      return [...geometry, {
+        target: "(not a per-surface geometry finding)",
+        count: other,
+        captured: LOUD,
+        why: other === LOUD.length
+          ? "screens this run could not reach or measure — every one is printed above"
+          : `${other} problem(s) raised, ${LOUD.length} line(s) captured. The capture pattern `
+            + "does not know every phrase this script prints; read the run output.",
+      }];
+    })(),
+    dimensions: {
+      viewports: SIZES,
+      locales: [LITE ? "en?lite=1" : "en"],
+      identities: ["demo-detail-owner"],
+    },
+    artifacts: [`${ART}/index.html`],
+    warnings: [],
+    canary: {
+      id: CANARY_CLASS,
+      observed_failure: canaries.length > 0 && canaries.every((c) => c.caught),
+      per_width: canaries,
+    },
+  });
+  console.log(`receipt        ${rp.split(/[\\/]/).slice(-2).join("/")}   —  validate: node scripts/receipt.mjs`);
+}
+
 // **AND ZERO SURFACES IS A BROKEN INSTRUMENT, NOT A CLEAN RUN.** A run that
 // measured nothing has to say so louder than a run that measured everything
 // and found nothing.

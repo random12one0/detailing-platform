@@ -281,6 +281,11 @@ were made more than once.
 
 - **Both payment events fire for one payment, and the migration comment about it is wrong** — `checkout.session.completed` and `payment_intent.succeeded` are both enabled on the connected-accounts endpoint (his coworker's Update 8, 2026-09-10, after the retrieve found the pair missing entirely). He asked for the interaction to be CHECKED rather than assumed, and it was, against the real database: **writing the same intent twice to the same ROW is not a uniqueness conflict and Postgres accepts both**, which is the opposite of what migration `20260908001000`'s comment claims about its own unique index. **The idempotency is the `payment_status === "paid"` guard**, three lines above the write; the index protects the case it CAN see, the same payment landing on a DIFFERENT booking (a measured 23505), which is the metadata-forgery path. Even in the pure race both writes are identical, the takings are one row's `final_amount` rather than a sum of events, the connected branch sends no email at all, and `reset_reminder_markers_on_edit` — which fires BEFORE UPDATE on every booking and would have re-mailed the customer — keys on none of the three payment columns. **MIGRATIONS ARE APPEND-ONLY, so the wrong comment cannot be corrected in place**: the fact lives in `tests/connect.test.mjs` § 11 instead, next to seven checks that keep the guard alive, because a comment claiming the index does this invites the next reader to delete the guard as redundant. Baselined three ways. **Also: updating `enabled_events` does NOT rotate the signing secret**, and Google's consent screen is "In production" rather than Testing.
 
+- **Roadmap 14.7 — two documents said opposite things about the Money screen's net, and both were right about different halves** — `Money.jsx` said the accrual maths *"has to stay that way"*; ROADMAP 5.1 said to compute net from collected money only. **The ruling: 5.1 wins on the labels, the comment wins on the maths.** The comment's case is that FOUR other things count work done in the period — the six-bar chart the headline is drawn on top of, the *vs last month* delta beside it, the tour step above it and the accountant CSV whose Amount column foots to it — so a cash-basis headline would disagree with the chart underneath it, which is this repo's own two-copies failure with the sign flipped. 5.1's case is that *brought in* and *kept* promise money that had not arrived: $295 of $810 had not. **So the arithmetic did not move and every word did**: *Earned less expenses* for the headline, *Earned* for the total, and **Collected / Still owed put on the screen instead of left implied**. **TWO OF 5.1's FIVE LABELS WERE REFUSED AND THE REFUSALS ARE THE USEFUL PART.** *"Net is computed from collected money only"* is the half overruled above. *"Expenses paid"* was refused because **an expense row has no paid/unpaid column** — that label would be a new unverifiable claim replacing an honest one, which is worse than the label it replaces; a fix that swaps one false word for another is not a fix. **AND THE FIGURE HAD A SECOND COPY, WHICH IS 14.6a AGAIN WITH A NEW SUBJECT**: `Money.jsx` held its own revenue, expense, net, average-job and quoted/added arithmetic over the same rows `moneyAdvanced.js` was already computing for the advanced screen, one hardening amounts with `num()` and the other using a bare `Number()` that turns the whole figure into `NaN`. **The dangerous part was a NAME, not a number**: `moneyAdvanced.js` returned the accrual total as `collected` and the cash total as `collectedPaid`, while `Today.jsx` one screen over uses `collected` for cash — so adding 5.1's *Collected* cell the obvious way would have shipped the overstatement under the one label that promises it cannot. **It nearly happened during this very change**: a two-pass rename turned the cash tile's `m.collectedPaid` into `m.earned`, caught by reading grep output rather than by any test, which is why the check asserts the per-state figures and not only the identity. Now `earned` / `collected` / `owed`, one `advancedMoney()` call for the whole screen including the chart, and the check asserts *accrual net − cash position = what is owed* rather than a dollar amount — because the amount had already moved from $230 to $295 on the leftover ROADMAP 14.5 canary row.
+
+- **Roadmap 5.2 — the comparison compared half a month to a whole one, and the file doing it had warned against it in its own header** — `lib/periods.js` opens by calling a part-finished period against a whole one *"the classic wrong number"*, and then returned the WHOLE previous period on every render. Measured on the demo business, 18 September: **down $903 vs $853 last month**, where $742 of that $853 was August to the same point and $111 of it had not happened yet. **THE RULING WAS TRIM, NOT HIDE, AND IT WAS CLOSE.** ROADMAP 5.2 offered both. Hiding costs the figure on every day it is worth anything — absent for up to 30 days on Month and 364 on Year, present on the one day a detailer can no longer act on it — and trimming is the borrowed month-to-date convention the file already commits to. Its price is a LABEL: *at this point last month*, shown only while the period runs, because an honest number under a label naming the whole of August is the same defect in the fix's clothes. **DAYS ELAPSED, NOT CALENDAR ARITHMETIC** — one rule for all four kinds rather than four — clamped to the previous period's end, and **a finished period is never trimmed**. **ONE PLACE DECIDES**, which is 14.7's rule kept: `Money.jsx` calls `previousSoFar` once and hands the same object to `advancedMoney` and to `AdvancedMoney`, so the tiles behind *The full picture* cannot compare a different stretch of time from the headline in front of it. **AND THE CHECK'S FIRST DRAFT PASSED TWO SABOTAGES WITH FIFTY-NINE GREEN LINES, WHICH IS THE PART WORTH KEEPING**: it placed its fixture jobs off `previousSoFar`'s own answer, so moving the trim by a day moved the fixture with it and every assertion still held. **A check whose subject is derived from the thing under test has no subject** — the trim dates are worked out from the calendar, by hand, in the check. Two more sabotages needed cases that had to be invented before they could fail: a finished period SHORTER than its predecessor (February on the 28th) makes the "is it over?" guard load-bearing, and a running period that has OUTLASTED its predecessor (30 March against a 28-day February) makes the clamp load-bearing — without them both look like dead code and the check agrees.
+
+- **Roadmap 5.3 — the receipt existed, the job record just never offered it, and the customer was promised an email nothing sends** — a real $195 card was taken end to end and then everything it produced was read back: **zero emails, zero `email_sends` rows.** The defect was a GATE on the wrong job — the only receipt button sat in the `else` branch of `canFinalize`, and paying by card does not set `finalized_at`, so the customer who pays from their own link leaves the detailer looking at *Finalize payment* and no way to send a receipt. Two independent facts (*is this job closed* / *is there a document to send*) had been written as alternatives. **NO NEW COLUMN:** `bookings.invoice_sent_at` was the obvious move and was rejected, because `email_sends` already carries the date AND what became of the message, and a timestamp beside it is a second copy that can disagree; the price is that "already sent" is a subject-and-amount match, so two jobs at one price for one customer share the answer. **MATCHING THE WORD ALONE WAS NOT ENOUGH** — a returning customer's old receipt lit up a job that had never had one, found by moving the canary onto the SAME address as the real payment rather than an unused one. **THE CLAIM WAS NARROWED TWICE:** *"your receipt is on its way by email"* first became a promise about STRIPE's receipt, which is a setting inside the detailer's own account — swapping a claim this product cannot keep for one it cannot check is not a narrowing. **§ 2 of the check asserts the silence on purpose**, so a future webhook that sends the receipt turns it red and the customer's sentence has to move with it. Left undone and parked in `FOUND.md`: the public receipt page still never says it was paid.
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -16449,3 +16454,321 @@ users against a 100 cap, so sign-in works for any Google account rather than a
 test list. Every note describing it as blocked on Branding is stale. The 100 is
 a ceiling on an unverified app and matters only as it approaches; Google review
 one (~17–22 Sep) is what lifts it.
+
+
+## Roadmap 14.7 — two documents said opposite things about the Money screen's net
+
+**2026-09-17.** ROADMAP 14.7 existed as its own item rather than as part of 5.1
+for one reason: *"AND THERE IS A DIRECT CONTRADICTION TO RESOLVE."*
+`app/src/screens/Money.jsx` carried a comment saying the accrual maths **"has
+to stay that way"**. ROADMAP 5.1 said **"Net is computed from collected money
+only."** An item settled one way on Tuesday and the other on Thursday is an
+item that comes back, so this was resolved out loud before anything was edited.
+
+### The ruling: 5.1 wins on the labels, the comment wins on the maths
+
+**The comment's case, and it is stronger than it looks.** Four other things in
+this product count work done in the period rather than cash received:
+
+- the six-bar chart the headline figure is drawn directly on top of;
+- the *vs last month* delta printed an inch under it;
+- the tour step above it — *"What is left after expenses, not what came in"*;
+- `lib/accountant-export.js`, whose Amount column foots to exactly that number.
+
+A cash-basis headline would therefore print one figure over a chart drawing a
+different one. **That is this repo's own two-copies failure with the sign
+flipped**, and it would be a worse defect than the one being fixed, because a
+wrong word can be read and a disagreement between a number and the picture
+under it cannot.
+
+**5.1's case, and it was never about arithmetic.** *Brought in* is money that
+came in. *Kept* is money you have. On the demo business $810 was earned and
+$295 of it had not arrived. The 2026-09-13 fix had already moved this once —
+the cell said COLLECTED, was renamed to BROUGHT IN, and the comment argued the
+maths must not move. **The arithmetic argument was right and the new word was
+still a cash claim.** Renaming COLLECTED to BROUGHT IN moved the same false
+promise one word to the left.
+
+**So the arithmetic did not move and every word did.** *Earned less expenses*
+for the headline, *Earned* for the total, *Left after expenses* on the advanced
+screen's bar, *earned* rather than *taken* in the back office, and **Collected
+/ Still owed put on the screen** so the part that has not arrived is named
+rather than implied.
+
+### Two of 5.1's five labels were refused, and the refusals are the useful part
+
+- **"Net is computed from collected money only"** — overruled, above.
+- **"Expenses paid"** — refused because **the `expenses` table has no
+  paid/unpaid column.** Nothing in this product knows whether an expense has
+  cleared, so *Expenses paid* would be a new unverifiable claim standing where
+  an honest one stood. **A fix that swaps one false word for another is not a
+  fix**, and an audit recommendation written without checking the schema is a
+  recommendation, not an instruction. Recorded rather than silently dropped,
+  because the next reader of 5.1 will count five labels and find four.
+
+### And the figure had a second copy — 14.6a again, new subject
+
+The session was told to check for one, because 14.6a had just found the same
+figure computed from two drifted copies of one list. There was one.
+
+`Money.jsx` held its own `revenueIn`, its own expense filter, its own net,
+average job and quoted/added split — **every one a second implementation of a
+figure `lib/moneyAdvanced.js` was already computing from the same rows on the
+same period** for the screen behind *The full picture*. They had begun to
+differ and not in the value: `moneyAdvanced` hardens every amount with `num()`
+(a non-numeric reads as 0) while `Money.jsx` used a bare `Number()` (a
+non-numeric turns the whole figure into `NaN`), and the two named the same
+total `inNow` and `collected`. Nobody had to be careless. They only had to be
+edited on different days.
+
+**THE DANGEROUS PART WAS A NAME, NOT A NUMBER.** `moneyAdvanced.js` returned
+the ACCRUAL total under the name `collected`, and the cash total under
+`collectedPaid`. `Today.jsx`, one screen over, uses `collected` for money
+actually received (`payment_status === "paid"`). So whoever came to add 5.1's
+*Collected* cell would have reached for `m.collected`, got the accrual number,
+and shipped the overstatement **under the one label that promises it cannot
+happen.**
+
+**IT NEARLY HAPPENED DURING THIS VERY CHANGE.** A two-pass rename turned the
+advanced screen's cash tile from `m.collectedPaid` into `m.earned` — the tile
+labelled *In the bank* would have printed the accrual figure. It was caught by
+reading the grep output of the rename, not by any test, and it is the reason
+the check now asserts **the per-state figures** and not only the identity: an
+identity assertion alone holds fine while a UI reads the wrong field.
+
+Now: **`earned` / `collected` / `owed`**, three words and three amounts, `owed`
+derived as `earned − collected` rather than tallied a third time, and one
+`advancedMoney()` call behind every figure on the everyday screen — the
+six-bar chart included, one call per bucket, so a bar a detailer taps cannot
+land on a headline that reads differently.
+
+`ON_SITE` is no longer imported by `Money.jsx` at all, which is a step past
+14.6a: that item ended the second COPY of the category list, this one ended the
+second USE.
+
+### The check asserts an identity, because the amount had already moved
+
+ROADMAP 14.7 recorded the overstatement as **$230**. Measured again at the
+start of this work it was **$295**, and the difference is **ROADMAP 14.5's own
+canary booking** — $65, `pending`, dated 2026-09-11, left in the demo data and
+flagged rather than deleted per ROADMAP 0.3. Fifteen `ROADMAP 14.5 CANARY` rows
+exist; fourteen are soft-deleted and one is live and in the money figures.
+
+**So a check that asserted "$230" would have been red on the day it was
+written, and a check that asserted "$295" would go red the next time anybody
+runs 14.5.** `tests/money-overstatement.test.mjs` asserts instead:
+
+> accrual net − cash position = what is owed
+
+which is true at any dollar figure and false the moment the arithmetic drifts —
+plus a guard that the fixture's overstatement is **non-zero**, or the identity
+holds vacuously and proves nothing. That guard is 14.6's *"assertions that
+could not fail"* lesson applied to this file's own fixture rather than to
+somebody else's, and it is one of the eight sabotages it was proved against.
+
+**Its targets are one per value `bookings.payment_status` is allowed to hold,
+read off the migration's CHECK constraint rather than typed into the file**, so
+a fifth state makes the run discover five, find no decision written for it, and
+fail — and `scripts/receipt.mjs` refuses the receipt for the same reason
+(*target counts disagree: expected 4, discovered 5*). Every assertion's subject
+is the job THIS run built, priced so that no pair of the others sums to a third
+(100 / 200 / 400 / 800).
+
+**Only `paid` counts as collected, and the other three are decisions.**
+`pending` is nothing received. **`partial` means money moved and nothing in the
+database records how much**, so counting it whole would overstate — which is
+the entire defect — and it sits in `owed`, the safer of two wrongs and the same
+call `_shared/connect.ts` already makes about refunds. `waived` is work given
+away: earned at the quoted price, never collectable, and it stays in `owed`
+rather than being written off where nobody can see it.
+
+### And the headline wording is Andrew's, 2026-09-18
+
+He was handed the one taste call this item produced — keep *Earned less
+expenses* as the label on the biggest number on his money screen, or choose
+different words — with the reasoning that it is the only phrasing that cannot
+be read as money already in a bank account. His answer: *"ur recomendation is
+good."* **Recorded because the alternative is a future session reading this
+section, finding a three-word label where a one-word one used to be, and
+"improving" it back.** The label is a ruling now, not a preference inferred
+from a fix list.
+
+---
+
+## Roadmap 5.2 — the comparison compared half a month to a whole one, and the file doing it had warned against it in its own header
+
+**THE DEFECT WAS IN A FILE THAT DOCUMENTS THE DEFECT.** `app/src/lib/periods.js`
+has said since it was written that the comparison is *"the SAME PERIOD, one step
+back — this week vs last week, this year vs last year. That is what every
+dashboard means by 'vs previous', and it is what makes the delta honest:
+comparing a part-finished week against a whole one is the classic wrong
+number."* `Money.jsx` then called `periodAt(kind, today, offset - 1)` and got
+the whole previous period, every render, for as long as the screen has existed.
+
+Measured on the demo business on 18 September 2026 — seventeen days into a
+thirty-day month:
+
+| | |
+|---|---|
+| September 1–18, earned less expenses | **−$50** |
+| the whole of August | **$853** |
+| August 1–18 | **$742** |
+| what the screen said | **down $903 vs $853 last month** |
+| what it says now | **down $792 vs $742 at this point last month** |
+
+$111 of August had not happened yet by the 18th. The error shrinks every day
+until the 30th, which is worse than being wrong steadily: **it reads as a
+recovery.**
+
+### The ruling: trim, not hide, and it was close enough to write down
+
+ROADMAP 5.2 offered both — *"compare to the same point last month, or hide until
+the month ends."*
+
+**HIDING IS THE SAFER-LOOKING OPTION AND IT IS THE WRONG ONE.** It removes the
+figure for up to 30 days at a stretch on Month and 364 on Year, so the one
+number that tells a detailer whether this month is going well would be blank on
+every day they could still do something about it, and appear on the day they
+could not. A screen that answers nothing is not more honest than a screen that
+answers carefully.
+
+**TRIMMING IS ALSO WHAT WAS ALREADY PROMISED.** Month-to-date against the same
+point last month is the borrowed convention `periods.js`'s own header commits
+to. Its one cost is that the sentence has to SAY it is against a part period —
+which is the same lesson as 14.7 arriving from the other direction. There, the
+maths was right and the words were the defect; here the words were right about
+a comparison that was wrong, and fixing the comparison without fixing the words
+would have put **an honest number under a label naming the whole of August**.
+Eight new label keys, nine new Spanish ones.
+
+### Days elapsed, one place, and a finished period left alone
+
+**DAYS ELAPSED RATHER THAN CALENDAR ARITHMETIC**, because one rule then covers
+day-of-week for a week, day-of-month for a month, day of the sixth month for
+6m and day of the year for a year — four calendar rules would be four places to
+be wrong. It differs from a calendar rule in exactly one visible spot: 6m
+trims to 20 March rather than 18 March, because Apr–Sep is 183 days and
+Oct–Mar is 182. That is written into the check rather than smoothed over.
+
+**ONE PLACE DECIDES, WHICH IS 14.7's RULE KEPT RATHER THAN RE-ARGUED.**
+`Money.jsx` calls `previousSoFar` once; `stats` hands that object to
+`advancedMoney` and `AdvancedMoney` receives the same object as a prop. The
+four tiles behind *The full picture* therefore cannot compare a different
+stretch of time from the headline in front of it — which is precisely the
+second-copy failure 14.6a and 14.7 were both about.
+
+**A FINISHED PERIOD IS NEVER TRIMMED**, and `partial` carries which case it is
+so nothing downstream has to re-derive it from dates.
+
+### The check's first draft passed two sabotages with fifty-nine green lines
+
+**THIS IS THE PART TO REMEMBER.** `tests/mid-period-comparison.test.mjs` placed
+its fixture bookings off `previousSoFar`'s own answer — one job dated
+`trimmed.end`, one dated the day after. Move the trim by a day and the fixture
+moved with it: the job on the boundary was still on the boundary, and all
+fifty-nine assertions stayed green over an off-by-one that would have dropped a
+real day of takings out of every comparison on the screen.
+
+**A CHECK WHOSE SUBJECT IS DERIVED FROM THE THING UNDER TEST HAS NO SUBJECT.**
+It is ROADMAP 14.6's *"any row rather than the row this run made"* with dates
+instead of bookings, and it is subtler, because the fixture looks specific. The
+trim dates are now worked out from the calendar, by hand, in the check itself,
+and the receipt's own ladder of distinct powers of two makes every total decode
+to exactly one set of jobs.
+
+**TWO MORE SABOTAGES NEEDED CASES THAT DID NOT EXIST UNTIL THEY WERE INVENTED.**
+Remove the "is this period over?" guard and nothing failed, because 48 days
+elapsed runs past a 31-day July and the clamp puts it back — so the guard
+looked like dead code. It is not: a **finished period SHORTER than the one
+before it** (February 2026 on the 28th; Oct–Mar on 31 March; 2025 against leap
+2024) lands short of the end and trims a period that is complete. Remove the
+clamp and nothing failed either, because on 18 September no kind had outlasted
+its predecessor — but every March it does: on the 30th, 29 days elapsed runs
+past a 28-day February, and an uncapped trim pulls the first two days of March
+into "last month", **counting the same days on both sides of the comparison.**
+
+Nine sabotages in the end, all nine caught, and `scripts/receipt.mjs` refused
+the receipt in all nine — including *target counts disagree: expected 5,
+discovered 6* when a sixth period kind is added with no decision written for it.
+
+### One small thing that is a judgment call rather than a fix
+
+`Changes are against the same point in the period before.` is shown once on the
+advanced screen, under the lede, **and not when the tiles that carry an arrow
+are withheld**. At fewer than eight finished jobs that screen hides every
+changing tile, so the sentence explained nothing that was on it. A caption for
+an absent thing is the same species of claim this item was opened about.
+
+Evidence: `docs/VERIFIED.md` § 5.2.
+
+
+---
+
+## Roadmap 5.3 — the receipt existed, the job record just never offered it, and the customer was promised an email nothing sends
+
+**THE ITEM WAS A QUESTION, NOT A BUG REPORT, AND THE ANSWER CAME FROM A REAL
+$195 PAYMENT.** A1 P1-04 marked receipts and invoices *"needs verification, not
+a proven missing feature"* because nobody had ever finished a payment to look
+at. 14.5 finished one and wrote down, in its own limitations, that
+`handleConnected()` marks the row paid and sends nothing. This item is what
+that sentence implies, measured: **after a card settles, our product sends zero
+emails and writes zero `email_sends` rows.**
+
+**THE DEFECT WAS A GATE, AND IT WAS ON EXACTLY THE WRONG JOB.** The job
+record's only receipt button lived in the `else` branch of `canFinalize`
+(`status = completed && !finalized_at`). Paying by card does not set
+`finalized_at` — the webhook has no business closing a detailer's job — so a
+customer who pays from the link in their own email, which is the whole point of
+the pay button, leaves the detailer looking at **Finalize payment** and no way
+at all to send them a receipt. The two conditions were treated as alternatives
+when they are independent facts: *has this job been closed* and *is there a
+document to send*.
+
+**SO THE RECEIPT GOT ITS OWN SECTION RATHER THAN A BETTER CONDITION.** The
+money block answers what the job costs; this one answers what the customer has
+in their inbox, and the record's own design note says two questions in one box
+leaves somebody working out which one the buttons belong to. Five answers, one
+place: the page the customer opens, the button that emails it, the address it
+goes to, and every email to that address with its date and outcome.
+
+**NO NEW COLUMN, AND THAT WAS THE CLOSE CALL.** The obvious move is
+`bookings.invoice_sent_at`, stamped by `send-invoice` — one migration, one
+line. It was rejected because **`email_sends` already holds that fact plus one
+more**: the row carries the date AND what became of the message, and a
+timestamp beside it would be a second copy that can disagree with the first.
+The screen reads the row instead. The price is named: the "already sent" answer
+is a match on the subject and the amount, so two jobs for one customer at an
+identical price would share it. That is a soft wrong label over a list that
+still shows the truth, which is smaller than a duplicated fact.
+
+**MATCHING THE WORD ALONE WAS NOT ENOUGH, AND SABOTAGE IS WHAT SAID SO.** The
+first version asked whether any receipt had gone to this address. A returning
+customer's old receipt then lit up a job that had never had one — a screen
+telling a detailer their customer is holding something they were never sent.
+The amount went into the match and the canary was moved onto the SAME address
+as the real payment, because a canary on an unused address proves only that a
+screen with no rows claims nothing.
+
+**THE CLAIM ON THE CUSTOMER'S SCREEN WAS NARROWED TWICE.** It said *"your
+receipt is on its way by email"* and nothing sends it. The first replacement
+promised **Stripe's** receipt instead — and that is a setting inside the
+detailer's own Stripe account, off by default in test mode and theirs to switch
+in live. **Swapping a claim this product cannot keep for one it cannot check is
+not a narrowing.** It now says the money went through and that the person who
+did the work sends the receipt.
+
+**AND § 2 OF THE CHECK ASSERTS THE SILENCE ON PURPOSE.** If somebody later
+makes the webhook send the receipt itself, that assertion goes red. That is
+correct and it is the point: the sentence on the customer's screen was narrowed
+to match the silence, and the two have to move together.
+
+**WHAT WAS DELIBERATELY NOT DONE.** The public receipt page still never states
+that it was paid — `payment_status` is withheld from `get-booking-receipt`, so
+the `?paid=1` banner is a customer's only confirmation and it lives for one
+visit. Fixing it means changing a PUBLIC allow-list, the 60-target test that
+reads that list out of the source, an edge-function deploy and copy a stranger
+reads. 5.3's done-when is about the owner; this is the customer's half of the
+same question and it is in `FOUND.md` as its own item rather than riding along
+on somebody else's.
+
+Evidence: `docs/VERIFIED.md` § 5.3.

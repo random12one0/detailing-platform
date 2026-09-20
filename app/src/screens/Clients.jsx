@@ -48,7 +48,7 @@ import { api } from "../lib/api.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import BookingLink from "../components/BookingLink.jsx";
 import { withLocal, BOOKING_SELECT } from "../hooks/useBookings.js";
-import { dateLong, money, phone, todayLocal } from "../lib/format.js";
+import { dateLong, localDate, money, phone, todayLocal } from "../lib/format.js";
 // THE ARITHMETIC IS IN ITS OWN FILE so `tests/client-list.test.mjs` can import
 // it with no browser — the same reason `accountant-export.js` is separate from
 // Money. Three of the four decide something a person acts on: what the screen
@@ -63,6 +63,9 @@ import { cadenceWords, statusWords } from "../lib/plans.js";
 import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
 import CampaignModal from "../components/CampaignModal.jsx";
 import RecordHost from "../components/RecordHost.jsx";
+// ROADMAP 5.3 — the mail rows moved into their own file so the JOB record
+// draws the same ones. The seven-states-to-three mapping lives there now.
+import EmailTrail from "../components/EmailTrail.jsx";
 import { Segmented } from "../components/controls.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
@@ -82,6 +85,10 @@ const SORTS = [["recent", "Recent"], ["spent", "Most spent"], ["away", "Longest 
 const ROW_CAP = 200;
 // A ten-year client's history is the longest list in the record.
 const HISTORY_CAP = 50;
+// ROADMAP 14.3 — the mail we sent this person. Short on purpose: the question
+// it answers is "did the last one arrive", and a detailer scrolling two years
+// of reminders to find it is the failure mode.
+const MAIL_CAP = 12;
 
 const shortDate = (d) => new Date(`${d}T12:00:00`)
   .toLocaleDateString(appIntlLocale(), { weekday: "short", month: "short", day: "numeric" });
@@ -127,6 +134,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
   const [busy, setBusy] = useState(true);
   const [open, setOpen] = useState(null);      // customer
   const [history, setHistory] = useState(null); // null while the record's list loads
+  const [mail, setMail] = useState(null);       // ROADMAP 14.3 — same null-means-loading rule
   const [selected, setSelected] = useState(null);
   const [notes, setNotes] = useState("");
   // WHO IS ON A PLAN — roadmap 2.14, research §3: "a plan badge on the client,
@@ -235,6 +243,18 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
     setOpen(c);
     setNotes(c.notes || "");
     setHistory(null);
+    setMail(null);
+    // ROADMAP 14.3 — READ, NEVER WRITTEN. `email_sends` grants the browser
+    // `select` and nothing else, so this screen cannot mark a bounce as
+    // delivered however hard it tries; the service role writes every row.
+    supabase
+      .from("email_sends")
+      .select("id, subject, to_email, status, detail, sent_at")
+      .eq("business_id", business.id)
+      .eq("customer_id", c.id)
+      .order("sent_at", { ascending: false })
+      .limit(MAIL_CAP)
+      .then(({ data: sends }) => setMail(sends ?? []));
     const { data } = await supabase
       .from("bookings")
       .select(BOOKING_SELECT)
@@ -622,6 +642,30 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
                 <p className="quiet">{HISTORY_CAP} most recent.</p>
               )}
             </div>
+
+            {/* ROADMAP 14.3 — THE EMAILS, AND WHAT BECAME OF THEM.
+                Andrew's ask, 2026-09-16: a row per message saying who it went
+                to and whether it arrived. He raised a full inbox with a
+                preview of each message in the same breath and talked himself
+                out of it — so this is the row. The body is not stored at all;
+                the migration says why.
+
+                IT IS BELOW THE HISTORY BECAUSE OF WHAT IT IS FOR. Nobody opens
+                a client to read their mail log. They open it because somebody
+                said "I never got the confirmation", and by then they are
+                already looking at this record.
+
+                NOT RENDERED AT ALL FOR A CUSTOMER WITH NO ADDRESS: an empty
+                "Emails" heading on somebody we could never email is a section
+                that explains its own absence, which screen-rules § the
+                exhaustion test calls out by name. */}
+            {open.email && (
+              <div className="tight">
+                <span className="label">{t("Emails")}</span>
+                <EmailTrail rows={mail} timezone={business.timezone} cap={MAIL_CAP}
+                  empty="No emails sent to this address yet." />
+              </div>
+            )}
 
             {/* ROADMAP 8.11 — HIS ASK, AND IT IS LAST ON THE RECORD FOR THE
                 REASON EVERY DESTRUCTIVE CONTROL IS: nobody scrolls past their

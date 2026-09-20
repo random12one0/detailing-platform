@@ -1,0 +1,28 @@
+{
+  "git_sha": "2a10b86d811d5a5929c629b2b24de47e9dba8e2e",
+  "environment": "local",
+  "finished_at": "2026-09-19T02:23:45.123Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "D:\\Users\\rando\\Downloads\\claude\\detailing-platform\\artifacts\\link-counts-agree\\what-each-screen-says.txt"
+  ],
+  "dimensions": {
+    "sabotage": null,
+    "live_rows": "4 businesses with links, 0 disagreements"
+  },
+  "check_id": "link-counts-agree",
+  "started_at": "2026-09-19T02:23:44.244Z",
+  "status": "pass",
+  "expected_targets": 5,
+  "discovered_targets": 5,
+  "attempted_targets": 5,
+  "completed_targets": 5,
+  "skipped_targets": 0,
+  "assertions_executed": 11,
+  "min_assertions": 9,
+  "canary": {
+    "id": "old-business-count-every-row",
+    "observed_failure": true
+  }
+}

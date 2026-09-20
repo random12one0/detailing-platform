@@ -1,0 +1,52 @@
+{
+  "git_sha": "2a10b86d811d5a5929c629b2b24de47e9dba8e2e",
+  "environment": "local",
+  "finished_at": "2026-09-20T08:04:41.535Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/money-overstatement/figures.json"
+  ],
+  "dimensions": {
+    "roadmap": "14.7",
+    "payment_states": [
+      "pending",
+      "paid",
+      "partial",
+      "waived"
+    ],
+    "fixture": {
+      "earned": 1500,
+      "collected": 200,
+      "owed": 1300,
+      "spent": 150
+    },
+    "computed": {
+      "earned": 1500,
+      "collected": 200,
+      "owed": 1300,
+      "net": 1350,
+      "cash_net": 50
+    },
+    "contradiction": "5.1 wins on the labels, Money.jsx's comment wins on the maths"
+  },
+  "check_id": "money-overstatement",
+  "started_at": "2026-09-20T08:04:41.432Z",
+  "status": "pass",
+  "expected_targets": 4,
+  "discovered_targets": 4,
+  "attempted_targets": 4,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 48,
+  "min_assertions": 47,
+  "canary": {
+    "id": "collected-computed-with-no-payment-status-filter",
+    "observed_failure": true,
+    "reported": "caught",
+    "figures": {
+      "the_old_way": 1500,
+      "the_right_answer": 200
+    }
+  }
+}

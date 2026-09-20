@@ -1,0 +1,57 @@
+{
+  "git_sha": "2a10b86d811d5a5929c629b2b24de47e9dba8e2e",
+  "environment": "local",
+  "finished_at": "2026-09-20T06:56:17.964Z",
+  "failures": [],
+  "warnings": [
+    "ex5/ 1440x900 \"Book the canary\" — pageerror: canary",
+    "ex5/ 392x844 \"Book the canary\" — pageerror: canary"
+  ],
+  "artifacts": [
+    "artifacts/example-ctas/index.html"
+  ],
+  "dimensions": {
+    "sites": [
+      "ex1",
+      "ex2",
+      "ex3",
+      "ex4",
+      "ex5"
+    ],
+    "pages": [
+      "ex1/",
+      "ex1/work.html",
+      "ex1/prices.html",
+      "ex2/",
+      "ex3/",
+      "ex3/prices.html",
+      "ex4/",
+      "ex5/"
+    ],
+    "viewports": [
+      "1440x900",
+      "392x844"
+    ],
+    "sabotage": null
+  },
+  "check_id": "example-ctas",
+  "started_at": "2026-09-20T06:53:08.690Z",
+  "status": "pass",
+  "expected_targets": 51,
+  "discovered_targets": 51,
+  "attempted_targets": 51,
+  "completed_targets": 51,
+  "skipped_targets": 0,
+  "assertions_executed": 317,
+  "min_assertions": 300,
+  "canary": {
+    "id": "three-injected-ctas",
+    "observed_failure": true,
+    "caught": [
+      "canary · dead target",
+      "canary · wrong service",
+      "canary · throws"
+    ],
+    "missed": []
+  }
+}

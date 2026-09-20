@@ -21,8 +21,11 @@
 // Andrew already typed into the pane is the name on the bell, and he is asked
 // for nothing. `SESSION_PING_LABEL` still wins if it is set.
 //
-// **ONLY THE FIRST 8 KB OF THE TRANSCRIPT IS EVER READ**, which is the header
-// block. Nothing this script touches contains a word of the conversation.
+// **ONLY A BOUNDED WINDOW OF THE TRANSCRIPT IS EVER READ** — the last 256 KB,
+// and inside it only the lines carrying a title record are parsed at all. No
+// line of conversation is parsed, kept or posted. See § titleOf for why the
+// window moved from the head to the tail, and the measurements that decided
+// its size.
 //
 // ---------------------------------------------------------------------------
 // IT FAILS LOUDLY — and this REPLACES the old "every path exits 0"
@@ -56,7 +59,7 @@
 // The URL is public and carries no secret: the function is deployed
 // `verify_jwt=false` precisely so watching it needs no key.
 
-import { openSync, readSync, closeSync } from "node:fs";
+import { openSync, readSync, closeSync, fstatSync } from "node:fs";
 import path from "node:path";
 
 const URL_ = process.env.SESSION_PING_URL
@@ -81,37 +84,89 @@ const read = () => new Promise((resolve) => {
   const timer = setTimeout(finish, 800);
 });
 
-// The pane's own name, off the transcript's header lines. Never throws: a
+// The pane's own name, off the transcript's title records. Never throws: a
 // missing or unreadable transcript costs a readable label, not the ping — and
 // the label is sticky server-side, so a ping without one keeps the last name.
+//
+// ---------------------------------------------------------------------------
+// IT READS THE TAIL, NOT THE HEAD — 2026-09-20, AND IT WAS MEASURED FIRST
+// ---------------------------------------------------------------------------
+// The head-only version below the fold was wrong for any pane that was not
+// named at birth, and the note under it predicted exactly this. Two panes,
+// measured by byte offset before a line was changed:
+//
+//   DP Cowork   first title record at byte 1        → label arrived, always
+//   DP Cowork2  first title record at byte 185,149  → label arrived as null
+//
+// 185,149 is 22x past the 8 KB window, so the second pane's name had never
+// once been visible to this script.
+//
+// **AND THE HEAD WAS THE WRONG END EVEN IF IT COULD SEE THAT FAR.** That pane
+// was called "DP Builder" for its first 430 KB and was renamed "DP Cowork2"
+// after. A first-match-wins scan of the whole file returns the name it used to
+// have. **The LAST record is the pane's name; the earlier ones are its
+// history.** Nothing in the old comment saw this, because the one pane that
+// worked had never been renamed.
+//
+// **THE WINDOW IS 256 KB AND THAT IS NOT A GUESS.** The last title record was
+// measured against the six most recent transcripts on this machine, sizes 844
+// KB to 12.4 MB: it sat 565, 1,279, 12,483, 23,175, 28,913 and 29,830 bytes
+// from the end. Claude Code rewrites the record as the session goes, so it
+// tracks the tail rather than drifting away from it. 256 KB is about eight
+// times the worst case seen.
+//
+// **IT STILL PARSES ONLY THE LINES THAT CARRY A TITLE.** The tail window holds
+// conversation, so every line without the literal `customTitle` or `agentName`
+// is skipped on a substring test and never reaches `JSON.parse`. Only the name
+// itself is kept, and only the name is ever posted.
+//
+// The 8 KB head scan is kept as a fallback for a transcript longer than the
+// window whose only title record is its first line — the shape DP Cowork has
+// today. It cost one call and it is the one shape already proved to work.
+const TITLE_MARKS = ["customTitle", "agentName"];
+const nameOn = (line) => {
+  if (!line.startsWith("{")) return "";
+  if (!TITLE_MARKS.some((m) => line.includes(m))) return "";
+  let o;
+  try { o = JSON.parse(line); } catch { return ""; }
+  return String(o.customTitle || o.agentName || "");
+};
+
+const scan = (fd, from, length, wantLast) => {
+  const buf = Buffer.alloc(length);
+  const n = readSync(fd, buf, 0, length, from);
+  const lines = buf.toString("utf8", 0, n).split("\n");
+  // A window that starts mid-line leaves a fragment at the front; it fails the
+  // `startsWith("{")` test like any other partial line and costs nothing.
+  if (wantLast) {
+    for (let i = lines.length - 1; i >= 0; i--) {
+      const name = nameOn(lines[i]);
+      if (name) return name;
+    }
+    return "";
+  }
+  for (const line of lines) {
+    const name = nameOn(line);
+    if (name) return name;
+  }
+  return "";
+};
+
+const TAIL_WINDOW = 262144;
+const HEAD_WINDOW = 8192;
+
 const titleOf = (file) => {
   if (!file) return "";
   let fd;
   try {
     fd = openSync(file, "r");
-    const buf = Buffer.alloc(8192);
-    const n = readSync(fd, buf, 0, buf.length, 0);
-    for (const line of buf.toString("utf8", 0, n).split("\n")) {
-      if (!line.startsWith("{")) continue;
-      let o;
-      try { o = JSON.parse(line); } catch { continue; }
-      if (o.customTitle) return String(o.customTitle);
-      if (o.agentName) return String(o.agentName);
-    }
-    // **THE SCAN DOES NOT STOP AT THE FIRST TURN, AND THAT IS DELIBERATE.** It
-    // used to, on the reasoning that the title block is the header. Measured
-    // 2026-09-13 against the two panes actually running: one had its title on
-    // line 1 and the other had no title line at all — so the header assumption
-    // held for the session that was easy to look at and was untested for the
-    // one that was not. Dropping the early exit costs nothing inside an 8 KB
-    // read and covers a pane renamed after it started.
-    //
-    // **KNOWN LIMIT, WRITTEN DOWN RATHER THAN LEFT TO BE REDISCOVERED:** a pane
-    // renamed long after it started writes its title past the first 8 KB, and
-    // this will not see it. The id is still correct; only the readable name is
-    // missing, and `SESSION_PING_LABEL` always works. Reading the whole
-    // transcript to chase it would mean reading the conversation, which is the
-    // one thing this script is written not to touch.
+    const size = fstatSync(fd).size;
+    const from = Math.max(0, size - TAIL_WINDOW);
+    const latest = scan(fd, from, Math.min(size, TAIL_WINDOW), true);
+    if (latest) return latest;
+    // Only reachable when the file is longer than the window and carries no
+    // title record inside it — the head is then the only place left to look.
+    if (from > 0) return scan(fd, 0, HEAD_WINDOW, false);
   } catch { /* no title, no problem */ } finally {
     if (fd !== undefined) try { closeSync(fd); } catch { /* nothing */ }
   }

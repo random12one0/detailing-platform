@@ -934,7 +934,16 @@ console.log("\ntest 11: paper, and water and power in all three places");
   // asserts PRESENCE first, because `indexOf(a) < indexOf(b)` is at its
   // greenest when `a` has been deleted.
   {
-    const bringAt = row.indexOf("`Bring ${bring.join(\" and \")}`");
+    // **REWRITTEN AGAIN 2026-09-16, AND FOR THE SECOND TIME THE RULE HAD NOT
+    // MOVED.** It matched the bare template literal `Bring ${bring.join(" and ")}`,
+    // which stopped existing when roadmap 8.17 put the line through `t()` so it
+    // could be read in Spanish — `t("Bring {what}", { what: … })`. The product
+    // got BETTER and this check went red, which is a check somebody deletes.
+    // The new anchor is the translation KEY, and that is the most stable handle
+    // available: `app/src/lib/strings/appEs.js` is keyed on the English text, so
+    // renaming this string without editing the Spanish file silently drops the
+    // line back to English — CLAUDE.md's own rule guards the anchor for us.
+    const bringAt = row.indexOf('t("Bring {what}"');
     const servicesAt = row.indexOf("...services");
     const whereAt = row.indexOf("where,");
     check("11e-iii · and it leads the line, so truncation cannot eat it",

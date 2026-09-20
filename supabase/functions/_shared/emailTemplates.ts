@@ -144,6 +144,20 @@ export interface BookingEmailData {
   // draws nothing rather than claiming the customer has water.
   hasWater?: boolean | null;
   hasPower?: boolean | null;
+  /**
+   * ROADMAP 14.4 — THE DETAILER'S REFUND INSTRUCTION, ALREADY WRITTEN.
+   *
+   * A finished sentence rather than a figure, and that is deliberate: the
+   * words are composed once by `refundInstruction` in `_shared/connect.ts`,
+   * beside the rule that decides whether any money is owed at all. A template
+   * that took the cents and wrote its own sentence would be a second voice
+   * describing one fact, and the job screen would then be a third.
+   *
+   * **OWNER-FACING ONLY.** It names Stripe and it names the detailer's own
+   * balance, so the customer's half of `cancellationEmail` never prints it.
+   * Absent or empty means no money changed hands, which is the ordinary case.
+   */
+  refundNote?: string | null;
   customerNotes: string | null;
   serviceNames: string[];
   addOnNames: string[];
@@ -866,7 +880,19 @@ export function cancellationEmail(brand: TenantBrand, b: BookingEmailData, forOw
         ["Phone", esc(b.customerPhone)],
         ["Was worth", money(Number(b.total))],
       ]),
-    ]
+      // ROADMAP 14.4 — THE MONEY, WHICH THIS EMAIL USED TO SAY NOTHING ABOUT.
+      // A confirmed, already-paid booking could be cancelled by the customer
+      // from their own link and the detailer's only notice was this email,
+      // which told them the slot was free and left a paid job's money sitting
+      // in their Stripe balance with nothing anywhere saying so.
+      //
+      // IT IS AN INSTRUCTION, NOT A REFUND. The charge was a direct charge on
+      // the detailer's own connected account — `_shared/connect.ts` explains
+      // why the platform must not reach into it — so the only correct thing
+      // the product can do is put the sentence in front of the one person who
+      // can act on it.
+      b.refundNote ? noteBlock(`<strong class="c-ink" style="color:${G.ink};">${esc(b.refundNote)}</strong>`) : "",
+    ].filter(Boolean)
     : [
       labBlock(tt("Cancelled"), "bad"),
       headlineBlock(tt("Your booking is cancelled")),

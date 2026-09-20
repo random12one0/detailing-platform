@@ -36,7 +36,8 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import { contrastRatio, emailBrandColors, emailDarkBrandColors } from "../supabase/functions/_shared/brandColor.js";
-import { brandFrom, D, htmlToText, L } from "../supabase/functions/_shared/emailKit.ts";
+import { brandFrom, D, htmlToText, L, money } from "../supabase/functions/_shared/emailKit.ts";
+import { refundInstruction, refundOwed } from "../supabase/functions/_shared/connect.ts";
 import * as T from "../supabase/functions/_shared/emailTemplates.ts";
 import { paymentHandles } from "../supabase/functions/_shared/payments.ts";
 // Roadmap 2.20 stage 2. The platform's own identity, which is a constant
@@ -250,6 +251,18 @@ const EMAILS = [
     () => T.customerConfirmationEmail(brand, carloadBooking)],
   ["owner-reschedule", "Owner · a booking moved", () => T.rescheduleEmail(brand, booking, "2026-09-12", "08:00", true)],
   ["owner-cancellation", "Owner · a booking cancelled", () => T.cancellationEmail(brand, booking, true)],
+  // ROADMAP 14.4 — ITS OWN ENTRY, because the refund instruction is a BRANCH
+  // and the plain cancellation above takes the other side. A fixture that only
+  // ever renders an unpaid cancellation cannot reach the sentence at all, and
+  // this file's own rule is that a check which cannot reach its case reads
+  // exactly like a check that passes. The figure is `final_amount`, not the
+  // quote — the two differ in the fixture on purpose.
+  ["owner-cancellation-paid", "Owner · a PAID booking cancelled",
+    () => T.cancellationEmail(
+      brand,
+      { ...booking, refundNote: refundInstruction(refundOwed({ total_price: 180, final_amount: 195, payment_status: "paid" }), money) },
+      true,
+    )],
   ["owner-stale-request", "Owner · nobody answered a request", () => T.staleRequestEmail(brand, booking, 19)],
   // WITH A LABEL, because roadmap 2.13 made the role's name the detailer's to
   // choose and this sentence is where their customer-facing word first reaches

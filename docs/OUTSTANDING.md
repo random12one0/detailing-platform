@@ -1074,6 +1074,18 @@ contract rather than a change of text.
 
 ### TWO THINGS LEFT, AND THE FIRST IS A DEADLINE RATHER THAN A TASK
 
+> **SUPERSEDED 2026-09-17 — ROADMAP 14.5. Row 1 below is out of date and the
+> deadline in it was met.** `STRIPE_CONNECT_WEBHOOK_SECRET` **is** set, the
+> secret verifies, and this endpoint is listening to the payment events as
+> well as `account.updated` — not the one event the table above records. Three
+> connected-account deliveries were accepted today and none failed:
+> `evt_1UGZ8GQrzxoETEQU…` (`account.updated`, 06:49),
+> `evt_3UGa9SJeoZ7g84se…` (`payment_intent.succeeded`, 07:54) and
+> `evt_1UGa9TJeoZ7g84se…` (`checkout.session.completed`, 07:54), the last two
+> of which marked a real $195 booking paid. Measured through the deployed
+> function rather than read in the dashboard; `docs/VERIFIED.md` § 14.5 has
+> the run. **Row 2 is untouched by this and still stands.**
+
 **1. `STRIPE_CONNECT_WEBHOOK_SECRET` is not set yet.** Until it is, this
 endpoint delivers and the function rejects — correctly, and that is expected
 rather than a bug. **But it is not free to leave.** Stripe retries a failing

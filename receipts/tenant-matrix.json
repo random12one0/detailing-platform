@@ -1,0 +1,58 @@
+{
+  "git_sha": "2a10b86d811d5a5929c629b2b24de47e9dba8e2e",
+  "environment": "local",
+  "finished_at": "2026-09-20T08:16:34.590Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/tenant-matrix/index.html"
+  ],
+  "dimensions": {
+    "project": "kguqylyzgyzfktkfnhjb",
+    "actors": [
+      "anon",
+      "owner A",
+      "staff A",
+      "former A"
+    ],
+    "tenant_tables": 39,
+    "locked_tables": 12,
+    "shared_with_policies": [
+      "businesses",
+      "user_tours"
+    ],
+    "inert_policies": [],
+    "column_limited": [
+      "connected_accounts: 5 of 8 columns readable, withheld = see the migration"
+    ],
+    "sabotage": null
+  },
+  "check_id": "tenant-matrix",
+  "started_at": "2026-09-20T08:15:37.663Z",
+  "status": "pass",
+  "expected_targets": 51,
+  "discovered_targets": 51,
+  "attempted_targets": 51,
+  "completed_targets": 51,
+  "skipped_targets": 0,
+  "assertions_executed": 567,
+  "min_assertions": 300,
+  "canary": {
+    "id": "tenant_matrix_canary · a table with \"using (true)\" on select",
+    "observed_failure": true,
+    "caught_by": [
+      "leak",
+      "sentinel",
+      "former"
+    ],
+    "findings": [
+      "[leak] owner A READ 1 of B's rows",
+      "[sentinel] owner A saw B's sentinel string in the response body",
+      "[leak] staff A READ 1 of B's rows",
+      "[sentinel] staff A saw B's sentinel string in the response body",
+      "[leak] former A READ 1 of B's rows",
+      "[sentinel] former A saw B's sentinel string in the response body",
+      "[former] former A still reads 2 row(s) after the membership was deleted"
+    ]
+  }
+}

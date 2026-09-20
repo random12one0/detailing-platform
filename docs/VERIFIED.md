@@ -1354,3 +1354,1450 @@ BROKEN.** Every run printed `ok` per screen and `clean` at the end. The parser
 did not throw, the walker did not skip, and no count was printed that anybody
 could have compared against the catalogue's own size. **The instrument was
 measuring 70% of its subject and reporting on 100% of it.**
+
+---
+
+## 14.1 · THE PUBLIC RECEIPT NOW SENDS A NAMED LIST — 2026-09-16, at `2a10b86`
+
+**What was proven, in numbers.** `get-booking-receipt` was called on the
+development project (`kguqylyzgyzfktkfnhjb`) with **no `apikey` header of any
+kind** — the booking uuid was the only credential — against two bookings that
+carry a real `admin_notes` value.
+
+| | before | after |
+|---|---|---|
+| keys in the `booking` object | **66** | **31** |
+| `admin_notes` | `"staff note"` / `"phone booking"` | **absent** |
+| fields dropped | — | **35**, listed below |
+
+Dropped: `business_id`, `customer_id`, `vehicle_size`, `has_water_electric`,
+`admin_notes`, `campaign_id`, `payment_status`, `payment_notes`, `finalized_at`,
+`google_calendar_event_id`, `deleted_at`, `owner_reminder_sent_at`,
+`customer_reminder_sent_at`, `owner_nudge_sent_at`, `owner_wrapup_nudge_sent_at`,
+`owner_finalize_nudge_sent_at`, `created_at`, `updated_at`, `has_water`,
+`has_power`, `declined_at`, `owner_request_nudge_sent_at`,
+`customer_reminder_2_sent_at`, `plan_member_id`, `plan_id`, `booking_group_id`,
+`bulk_vehicle_count`, `miles`, `lang`, `stripe_payment_intent`,
+`stripe_session_id`, `paid_online_at`, `weather`, `weather_at`, `vehicle_year`.
+Nothing was added. Raw before/after bodies: `artifacts/receipt-fields/`.
+
+**The two paths that read the row rather than render it still work.** The
+sibling-appointment list was exercised by grouping two real bookings on one
+business: the group came back with **1 sibling** and `booking_group_id` was
+**not** in the reply. Both rows were set back to `null` afterwards. The card
+button reads `payment_status`, which is still selected and still dropped.
+
+**The check, and it was broken on purpose three times before being trusted.**
+`tests/receipt-fields.test.mjs` — 51 assertions, 60 targets (one per column on
+the row, so a migration grows the target count by itself), receipt at
+`receipts/receipt-fields.json`, validated by `node scripts/receipt.mjs`.
+
+| sabotage | what it did | caught |
+|---|---|---|
+| 1 | put `admin_notes` back in the endpoint's list **and deployed it** (v56) | **yes** — 5 red, including the live reply and the note's own text |
+| 2 | restored the `...booking` spread in the reply | **yes** — 5 red |
+| 3 | removed `travel_zone` from the test's own list | **yes** — 5 red |
+
+The receipt validator refused the sabotaged run (`0 of 1 receipt(s) valid`) and
+accepts the clean one. Clean deploy is **v57**.
+
+**Ran green alongside:** `composition` 97, `landing-pricing` 109,
+`route-contract` 34, `design-contrast` all pairs, `connect` 126,
+`booking-page-isolation` 63, `timezone-and-slots` 34.
+
+| surface | proven | at | invalidated by a change to |
+|---|---|---|---|
+| **the public booking receipt's field list** | 31 keys, allow-listed; 35 dropped; anonymous, no key | 2026-09-16, `2a10b86` | `supabase/functions/get-booking-receipt/**`, `app/src/book/ManageBookingPage.jsx`, any migration adding a `bookings` column |
+
+## 14.2 · THE OWNER'S CALENDAR FILE NOW NEEDS THE OWNER'S SESSION — 2026-09-16, at `2a10b86`
+
+**What was proven, on the deployed function, before and after.** `booking-ics`
+on the development project (`kguqylyzgyzfktkfnhjb`) was called with **no
+`apikey` header and no `Authorization` header of any kind** — the booking uuid
+was the only credential — with `&audience=owner` typed on the end, which is the
+whole attack: the customer edits their own confirmation link.
+
+| the anonymous flip returned | before (v50) | after (v51) |
+|---|---|---|
+| `SUMMARY:Chris Vogel · Express Wash` | **present** | **absent** |
+| `Customer: Chris Vogel · 562-555-0447` | **present** | **absent** |
+| the file it hands back | the **owner's** copy | the **customer's** copy, line for line |
+| HTTP status | 200 | 200 |
+
+Raw bodies: `artifacts/ics-audience/BEFORE-anonymous-owner.txt` (taken before
+any change, with `curl`-equivalent), and `AFTER-anonymous-owner.ics`,
+`owner-signed-in.ics`, `customer-anonymous.ics` from the check's own run.
+
+**The two things that had to keep working, both exercised.** A signed-in member
+of that business still gets the private copy — `562-555-0447` present, 200. The
+customer's own link, with no credential at all, still answers 200 with the
+customer's copy; it was never touched.
+
+**The membership is scoped to the booking's own business**, so a detailer's
+session cannot open another detailer's job either. `requireMember(req,
+booking.business_id)` is the same helper every other owner surface uses.
+
+**And the browser's own button was re-proven in the running app**, because the
+fix broke the mechanism it relied on: an `<a href>` cannot send an
+Authorization header, so the dashboard's Calendar control is a `<button>` that
+fetches and hands over the file, the way `saveContact` already hands over a
+vCard. Measured at `localhost:5173/job/<id>` with the session live: the request
+carried the Authorization header, returned 200, and the body contained
+`562-555-0447`. The same URL re-fetched **from the same browser with the header
+removed** returned 200 **without** the phone. With the calendar preference set
+to Google, the button opens `calendar.google.com/calendar/render?...` and
+**never calls our server at all** — that branch builds the event in the URL and
+was unaffected.
+
+**Geometry unchanged by the tag swap.** The control measures **376×38** at 1440
+and **89×38** at 320, identical to the `Contacts` and `Reminder` buttons beside
+it, with **84px of reach down and 395px across** by `elementFromPoint` probe
+(floor 44). No horizontal overflow at 320, 392, 768 or 1440; no console errors
+at any of them.
+
+**Also closed the "no rate limit" half of the item.** The endpoint now takes
+the same blunt `publicCeiling` (600/hour per address) that `pay-booking` takes.
+
+**The check, and it was broken on purpose three times before being trusted.**
+`tests/ics-audience.test.mjs` — 20 assertions, and its targets are **discovered
+by subtraction, never named**: it fetches the owner's copy with a session and
+the customer's copy without one, and every line in the difference becomes a
+target the anonymous flip must not contain. Add an owner-only line to the
+endpoint tomorrow and the check grows a target with nobody editing it. A run
+that finds **zero** owner-only lines is a failure, not a pass. Receipt at
+`receipts/ics-audience.json`, validated by `node scripts/receipt.mjs`.
+
+| sabotage | what it did | caught |
+|---|---|---|
+| 0 | **the real one** — ran the check against the still-deployed v50 | **yes** — 5 red, naming both leaked lines and the phone number |
+| 1 | made the comparator blind (`leaked = () => []`) | **yes** — canary red, and `receipt.mjs` refused the receipt |
+| 2 | made the subtraction yield zero targets | **yes** — 2 red and **no receipt written at all** |
+| 3 | a half-fixed server: phone withheld, name still in `SUMMARY` | **yes** — 2 red, caught by the line-level target the named-value assertion missed |
+
+Sabotage 3 is the one worth keeping: the assertion that looks for
+`Customer: <name>` passed, and only the discovered-by-subtraction target caught
+it. That is the argument for never naming a field.
+
+**`tests/ics-and-notifications.test.mjs` was updated in the same edit** — three
+of its fetches asked for `audience=owner` with an anon key, which is precisely
+what no longer works. It signs the owner in for those, drops the audience from
+the Phoenix fixture nobody is a member of, and carries one new line asserting
+the flip. 33 passed, 0 failed.
+
+**Ran green alongside:** `composition` 97, `landing-pricing` 109,
+`route-contract` 34, `design-contrast` all pairs.
+
+| surface | proven | at | invalidated by a change to |
+|---|---|---|---|
+| **the calendar link's owner view** | anonymous `audience=owner` returns the customer's copy; signed-in member still gets the owner's | 2026-09-16, `2a10b86`, fn v51 | `supabase/functions/booking-ics/**`, `app/src/lib/api.js`, `app/src/components/BookingDetail.jsx` |
+
+## 14.3 · EVERY EMAIL LEAVES A ROW, AND THE ROW SAYS WHAT BECAME OF IT — 2026-09-16, at `2a10b86`
+
+**What was there before, measured.** Nothing. `platform_email_days` is a daily
+counter holding no recipient and no outcome; `send-email` received Resend's
+message id and returned it to its caller without storing it; three of the
+function's exits wrote a `console.warn` or `console.error` and nothing else.
+So *"I never got the confirmation"* had no answer anywhere in the system.
+
+**What was proven, on the deployed functions.** A real product action — the
+detailer pressing **Email invoice** on a finalised demo booking — run three
+times against three different addresses.
+
+| | before | after |
+|---|---|---|
+| rows recorded per send | **0** | **1** |
+| sends the platform counter saw | 4 | 4 |
+| rows written in the same window | **0** | **6** |
+| sends that reached the provider with no record | **all of them** | **0** |
+
+The six rather than four is the point: the two extra are the sends that never
+reached the provider (a reserved domain), which is exactly the half that used
+to be silent. Raw rows: `artifacts/email-sends/rows.json`.
+
+**The reconciliation is the measurement, and it uses two independent records.**
+The check never names an email kind. It reads `platform_email_days` — the
+counter `send-email` has bumped on every send since roadmap 8.6, untouched by
+14.3 — drives real sends, reads it again, and requires a row for each. Add a
+seventeenth template tomorrow and the counter counts it, so the check grows a
+target by itself. Fooling it would mean editing the quota machinery.
+
+**The delivery half, six signed events against the live endpoint.**
+
+| event | result |
+|---|---|
+| `email.delivered`, correctly signed | 200, matched 1, row reads **delivered** |
+| `email.bounced`, correctly signed | 200, matched 1, row reads **bounced** with the provider's words |
+| the same bounce signed with the **wrong secret** | **400 Bad signature**, target row untouched |
+| a genuine signature **six minutes old** | **400 Signature timestamp outside tolerance** |
+| `email.opened` — a type we do not model | 200, acknowledged, nothing written |
+| a **late** `email.delivered` on the bounced row | 200, **matched 0** — the bounce stands |
+
+**And the banner that has existed since 2.20 finally sees a real bounce.**
+`customers.email_failed_at` draws *"This address bounced"* on the client record
+and `send-campaign` filters on it — and it was stamped ONLY when Resend refused
+a message synchronously. **Most bounces are not synchronous**: a mailbox that
+does not exist is usually accepted first and rejected minutes later. So the
+flag was in the right place and could not see the common case. It is now
+stamped from the webhook as well, for `bounced` and deliberately not for
+`complained` (that address works; the person does not want the mail).
+
+**What the screen shows, looked at rather than assumed.** Client record → under
+History → **Emails**: subject, then date · outcome · reason. Measured on the
+running app at **1920, 1440, 768, 392 and 320**: 12 rows, no text clipped
+against its own box, no sideways scroll at any width, and the only console
+output is the two React Router v7 future-flag warnings this app prints on every
+screen. `Delivered` carries a grey tick, `Bounced` and `Not sent` carry the
+fixed red `--bad` alert and the word in red, `On its way` carries neither —
+which is the correct asymmetry, because you only need drawing to the bad ones.
+Shots: `artifacts/email-sends/emails-*.png`.
+
+**One defect found by looking, which nothing in this repo could have caught.**
+At 392 the line read *"that address cannot receive e…"*. `.row-item .sub` clips,
+and `theme.css` carries the warning in its own words — *"Nothing in this repo
+can see this failing: clipped text has a perfectly normal box."* Fixed with the
+existing `.clamp2`, not `.full`: the tail of that line is the PROVIDER's
+wording capped at 200 characters, and an unbounded row is six lines on a phone.
+
+**The body is not stored, and that is a decision.** Every email is generated
+from a template plus the booking, so it is reproducible from data already here
+(`scripts/render-emails.mjs` does it). A stored copy would put the customer's
+name, address and phone into a second table with its own retention question and
+its own leak surface, to show the detailer something they can already see. 14.1
+and 14.2 were both about a reply carrying more than the screen draws.
+
+**The row is read-only to every browser, including the owner's.** RLS chooses
+rows and never columns, so the policy is `for select` alone and
+`insert, update, delete` are revoked from `authenticated` and `anon` — the
+`verified_at` rule from 4.4. Without it a detailer's browser could mark its own
+bounced send as delivered.
+
+**The checks, broken on purpose four times before being trusted.**
+`tests/email-sends.test.mjs` — 33 assertions, 4 discovered targets, receipt
+`receipts/email-sends.json`. `tests/svix-signature.test.mjs` — 21 assertions,
+credential-free, and it **imports `_shared/svix.ts` and runs it** rather than
+grepping it, which is why the verifier lives in its own import-free file
+(CLAUDE.md trap (k), the lesson `_shared/stripe.ts` wrote down).
+
+| sabotage | what it did | caught |
+|---|---|---|
+| 1 | **the 14.3 defect restored** — the successful send stopped recording, **and it was deployed** (v64) | **yes** — 3 red, and the receipt validator refused the run |
+| 2 | the signature check skipped in `resend-webhook`, **deployed** | **yes** — 3 red, and the forged bounce visibly changed a delivered row |
+| 3 | the out-of-order guard removed, **deployed** | **yes** — 2 red; a late `delivered` un-bounced a bounced address |
+| 4 | the RLS policy widened from `for select` to `for all` | **yes** — 1 red |
+
+Sabotage 2 is the one worth keeping: it does not merely fail, it shows the
+damage — a record that said *delivered* was rewritten to *bounced* by a
+stranger's forged event.
+
+**And one assertion in this check was wrong and said so.** The first version
+tested `!/for all/` against the migration and failed on the migration's own
+COMMENT explaining why there is no `for all` policy — a check reading prose as
+if it were code. It now matches the statement. It is written down because it is
+`docs/gotchas.md`'s grep-coupled-to-a-spelling class, caught by the check going
+red rather than by somebody noticing months later.
+
+**Not built, and named rather than left implied:** the message preview Andrew
+raised and talked himself out of in the same breath; the same list in the BACK
+OFFICE, which is what roadmap 3.1 still asks for; the link from a row to its
+BOOKING (the relay is never told which booking it is sending about, so wiring
+that means touching sixteen call sites, not one file); and `delivery_delayed`
+and `suppressed`, which `resend-webhook` explains.
+
+**Andrew has a three-minute job before the delivery half works in production**
+— point Resend's webhooks at the endpoint and paste the signing secret.
+`FOR-ANDREW.md`, first row. Until then nothing breaks: every email still leaves
+a row, the rows simply stay at *"On its way"*.
+
+**Ran green alongside:** `composition` 97, `landing-pricing` 109,
+`route-contract` 34, `design-contrast` all pairs, `campaign` 16,
+`ics-and-notifications` 33, `ics-audience` 20, `receipt-fields` 51, and all
+4 receipts valid.
+
+| surface | proven | at | invalidated by a change to |
+|---|---|---|---|
+| **every send leaves a row** | counter 4, rows 6, unaccounted 0 | 2026-09-16, `2a10b86`, send-email v65 | `supabase/functions/send-email/**`, any new email path that bypasses the relay |
+| **the provider's outcome reaches the row** | 6 signed events, 2 forgeries refused | 2026-09-16, `2a10b86`, resend-webhook v6 | `supabase/functions/resend-webhook/**`, `supabase/functions/_shared/svix.ts` |
+| **the detailer can see it** | 12 rows at 5 widths, nothing clipped | 2026-09-16, `2a10b86` | `app/src/screens/Clients.jsx` |
+
+---
+
+## 14.4 · CANCELLING A PAID BOOKING NOW TELLS SOMEBODY ABOUT THE MONEY — 2026-09-17, at `2a10b86`
+
+**What was there before, measured against the deployed function.** A confirmed
+booking already marked `paid`, worth **$195** at the detailer's agreed final
+amount, cancelled by an **anonymous caller with no apikey and no Authorization
+header** — which is the customer clicking the link in their own email:
+
+```
+POST /functions/v1/cancel-booking   {"booking_id":"dbfb72f9…"}
+200  {"success":true,"booking":{"id":"dbfb72f9…","status":"cancelled"}}
+```
+
+Not a word about money. `payment_status` was `paid` before and `paid` after;
+`final_amount` was 195 before and 195 after. Nothing refunded it, nothing
+flagged it, and nothing told the detailer that $195 was sitting in their Stripe
+balance for work that will not happen. The same call, on the same shape of
+booking, after the fix:
+
+```
+200  {"success":true,"booking":{…"status":"cancelled"},
+      "refund":{"owed":true,"message":"You paid for this booking. Coastline
+      Auto Detailing will arrange your refund directly — call 562-555-0180 if
+      you have not heard from them."}}
+```
+
+Both runs in full: `artifacts/cancelled-refund/before.json` and `after.json`,
+each carrying the row before and the row after. A third run,
+`after-unpaid-control.json`, is the control — an unpaid booking cancelled on the
+same deployed version answers `"refund":{"owed":false,"message":null}`, so a
+clean verdict means the product *decided*, not that it says this to everybody.
+
+**THE FIX IS AN INSTRUCTION, NOT A REFUND, AND THAT IS THE REPO'S OWN
+REASONING.** The charge was a direct charge on the detailer's own connected
+account. `_shared/connect.ts` is entirely about why this platform must never
+hold or move that money — doing so makes it a money transmitter and puts it
+between a detailer and their own customer. So the platform **cannot** give it
+back, and pretending otherwise would be worse than silence. What it can do is
+put the sentence in front of the one person who can act on it. ROADMAP 14.4
+offered blocking the cancellation instead; that was not taken, because a
+customer who wants out should get out.
+
+**THERE ARE THREE CANCEL PATHS, NOT TWO** — the ground read before this work
+named two. Measured: `update-booking` carries `"status"` in its editable-field
+allowlist, so the detailer's own **Cancel the job** button is a third writer,
+alongside `cancel-booking` (the customer's link) and `respond-to-booking`'s
+decline branch. **And the decline branch is genuinely reachable with money on
+it**: `payability()` refuses to charge a `pending` request, but
+`update-booking`'s allowlist also carries `payment_status`, with no status guard
+— so a detailer who takes cash for a request up front, then declines it, lands
+exactly there. Checked rather than assumed.
+
+**Two of the three send the detailer no email at all.** That is why the
+instruction is drawn from the ROW on the job screen rather than passed back by
+whichever endpoint did it — one condition on `status` and `payment_status`
+covers all three, including any fourth added later.
+
+| where | who reads it | says |
+|---|---|---|
+| owner's cancellation email | the detailer, when the customer cancelled | *This was paid. Refund $195 from your own Stripe — the money went straight into your account, so we cannot send it back for you.* |
+| the job screen, pinned bar | the detailer, on all three paths | the same sentence, in `var(--bad)`, above the action buttons |
+| the endpoint's answer | the customer, at the moment they cancel | *You paid for this booking. ‹business› will arrange your refund directly — call ‹phone›…* |
+
+The customer is never handed the detailer's version, and the check asserts it:
+it names Stripe and it names their balance.
+
+**THE FIGURE IS `amountDueCents`, NOT `total_price`.** The fixture is quoted
+$180 and charged $195 on purpose, so a regression to the quote prints a
+different number rather than the same one. Three assertions fail if it moves.
+
+**One defect in this work was found by looking at the screen, not by a test.**
+The first version formatted the money itself with `toFixed(2)` and printed
+*"Refund $195.00"* into an email whose own facts table two rows above says *"Was
+worth $180"*, onto a job screen that says *"charged $195"* an inch below. Both
+of this product's money formatters drop the cents on a whole number, so a third
+rule invented inside `connect.ts` was wrong on every surface at once.
+`refundInstruction` now takes the caller's formatter — CLAUDE.md's *one
+formatter each* — and the check compares against `money(195)` rather than a
+literal, so the two cannot drift.
+
+**Seen, not assumed.** The job screen at **1920, 1440, 768, 392 and 320**, and
+at 392 with `?lite=1`. Nothing clipped, no sideways scroll at any width, the
+instruction 284px wide inside a 320px viewport. Contrast **4.95:1** at 13px on
+the composited background, over the 4.5:1 floor — measured by compositing three
+translucent layers, because a first probe read `color(srgb … / 0.09)` as opaque
+and reported a ratio of 590 million. **Zero console errors** in a clean tab; the
+432 refused loads in the older tab were stale from before the dev server was
+listening, which a fresh tab settled.
+
+**The check, broken on purpose seven times before being trusted.**
+`tests/cancelled-refund.test.mjs` — 48 assertions, 4 targets, receipt
+`receipts/cancelled-refund.json`. Its targets are **every value
+`bookings.payment_status` is allowed to hold**, read off the migration's CHECK
+constraint rather than typed in, so a fifth state added tomorrow is discovered,
+finds no expectation written for it, and fails. It **runs** `connect.ts` and
+**renders** `cancellationEmail` rather than grepping them.
+
+| sabotage | what it did | caught |
+|---|---|---|
+| 1 | **the 14.4 defect itself, live** — the check run against the real unfixed deployment | **yes** — 6 red |
+| 2 | the instruction dropped from the owner's email template | **yes** — 3 red |
+| 3 | `refundOwed` returns "nothing owed" for a paid booking | **yes** — 6 red |
+| 4 | the figure reads `total_price` instead of `final_amount` | **yes** — 3 red; it printed **$180**, fifteen dollars short |
+| 5 | the job screen stops drawing for `partial` | **yes** — 1 red |
+| 6 | **the comparator blinded** — `ownerTellsThem` always true | **yes** — 3 red, and **the canary caught itself** |
+| 7 | a payment state with no expectation written for it | **yes** — 3 red |
+
+Sabotage 6 is the one worth keeping: it proves the canary is load-bearing
+rather than decoration. Sabotage 4 is the other — it fails with a *plausible*
+number, which is the shape that survives review.
+
+**What this does NOT do, named rather than left implied.** A customer who
+reopens their cancelled link **later** is told nothing about their money: the
+sentence is shown at the moment they cancel, because `get-booking-receipt` does
+not carry `payment_status` and must not start to — 14.1 narrowed that reply to
+31 named fields on purpose. The detailer has no such gap; theirs is drawn off
+the row. Nothing was refunded, by design. And `respond-to-booking` grew no owner
+email — the detailer is standing at the screen when they decline, and the screen
+now says it.
+
+**Test data left in place, flagged, per ROADMAP 0.3.** Five bookings named
+`ROADMAP 14.4 TEST …` and `ROADMAP 14.4 CHECK …`. The four CHECK rows are the
+suite's own fixtures and it resets them to `confirmed` on each run rather than
+creating more.
+
+| surface | proven | at | invalidated by a change to |
+|---|---|---|---|
+| **a paid cancellation reaches the detailer** | before/after on the deployed endpoint, $195 | 2026-09-17, `2a10b86`, cancel-booking v68 | `supabase/functions/cancel-booking/**`, `_shared/connect.ts`, `_shared/emailTemplates.ts` |
+| **all four payment states answered correctly** | 4 live cancellations, 48 assertions | 2026-09-17, `2a10b86`, cancel-booking v68 | the `payment_status` CHECK constraint |
+| **the detailer sees it on the job** | 5 widths + `?lite=1`, 4.95:1, 0 console errors | 2026-09-17, `2a10b86` | `app/src/components/BookingDetail.jsx` |
+| **the customer is not handed the detailer's copy** | no `Stripe` anywhere in the public answer | 2026-09-17, `2a10b86`, cancel-booking v68 | `supabase/functions/cancel-booking/**` |
+
+## 14.5 · A PAYMENT HAS NOW ACTUALLY SETTLED — 2026-09-17, at `2a10b86`
+
+**What was true before, counted rather than characterized.** 566 money
+assertions passed in this repo and **not one of them touched a network** —
+`connect.test.mjs` 126, `payments.test.mjs` 83, `platform-billing.test.mjs`
+357, zero `fetch(` between them. They import `payability`, `amountDueCents`,
+`cardStatus` and `verifyWebhook` and exercise them directly, which is good work
+and all of it correct. What none of them could say is whether a payment
+**settles**. Measured in the development database before this work:
+
+| | rows |
+|---|---|
+| `connected_accounts` | **0** |
+| bookings with a `stripe_session_id` | **0** |
+| bookings with a `stripe_payment_intent` | **0** |
+
+**The customer-pays-the-detailer half of this product had never run once, in
+any environment.** The *other* half had — 66 recorded `stripe_events`, all
+subscription and invoice traffic on the platform's own account. That is the
+trap this entry exists to close: a healthy billing endpoint says nothing at all
+about `pay-booking`, which shares a URL with it and almost nothing else.
+
+### THE RUN, WITH ITS NUMBERS
+
+```
+pay-booking   -> https://checkout.stripe.com/c/pay/cs_test_…   amount_cents 19500
+card          4242 4242 4242 4242 typed into Stripe's hosted page
+Stripe        evt_3UGa9SJeoZ7g84se13ptuECc  payment_intent.succeeded    07:54:39
+              evt_1UGa9TJeoZ7g84segAuYMaKN  checkout.session.completed  07:54:39
+booking       payment_status paid · pi_3UGa9SJeoZ7g84se1Torfagi · paid_online_at 07:54:40
+Money screen  waiting on payment  $490 -> $295
+```
+
+Both event ids carry the connected account's own suffix `84se`, so these are
+**connected-account** events reaching `handleConnected()`, not platform ones.
+The customer's receipt page said *"Thank you. Your card payment went through
+and your receipt is on its way by email."* Seen on the Money screen with the
+period on September 2026: **WAITING ON PAYMENT · $295**, three rows — Priya
+Anand $120, Dana Ruiz $110, the canary fixture $65 — and the $195 job absent.
+
+### FOUR THINGS THIS FOUND THAT NO DOCUMENT HERE KNEW
+
+1. **THE CONNECT WEBHOOK IS LIVE AND WAS BELIEVED NOT TO BE.**
+   `docs/OUTSTANDING.md` § 13 records `STRIPE_CONNECT_WEBHOOK_SECRET` as *"not
+   set yet"* with deliveries 0/0, and warns that Stripe disables an endpoint
+   after about three days of failures. It is set, the endpoint is listening to
+   the payment events and not only `account.updated`, and the first delivery it
+   ever accepted was `evt_1UGZ8GQrzxoETEQU…` at 06:49 today. **That section is
+   out of date and the deadline in it has already been met.**
+2. **A CONNECTED ACCOUNT FROM STRIPE'S "USE BLANK ACCOUNT" SHORTCUT CANNOT
+   CHARGE.** The OAuth consent screen in test mode offers *"Skip setup by
+   connecting a blank test account"*; it returns a real `acct_…`, and
+   `charges_enabled` is **false** and stays false. `cardStatus` correctly
+   refuses to show a Pay button for it. Anybody testing Connect by that route
+   will conclude the product is broken. It is not.
+3. **CHECKOUT DOES NOT OPEN ON THE CARD FORM.** This connected account has
+   Link, Cash App, Affirm and Klarna enabled, so Stripe Checkout opens on
+   Link's phone-number step and **the card inputs are not in the document at
+   all**. A script that fills `#cardNumber` on that page fills nothing and
+   Stripe answers *"Payment method Required"* — which reads exactly like a
+   declined card and is nothing of the kind. Cost two runs.
+4. **`pay-booking`'s IDEMPOTENCY KEY MAKES A NAIVE RE-RUN IMPOSSIBLE.** The key
+   is `pay:<booking id>:<cents>`, correct for a customer who double-taps, and
+   it means Stripe answers the same key with the SAME session for 24 hours.
+   Resetting a fixture row to `pending` and running again therefore hands the
+   check a completed session that cannot be paid. The check creates a **new
+   booking every run** and soft-deletes the last one.
+
+### THE CHECK, AND TWO OF ITS SABOTAGES WERE THEMSELVES WORTHLESS
+
+`scripts/e2e-payment.mjs` — six targets, 22 assertions, receipt
+`receipts/e2e-payment.json`, artifacts `artifacts/e2e-payment/`. It refuses any
+project but the development one, and with no credentials it prints SKIPPED and
+writes **no receipt**.
+
+**THE FIRST TWO SABOTAGES PASSED, AND THAT WAS A DEFECT IN THE CHECK.** Both
+merely *loosened an assertion that was already satisfied*: `--break=amount`
+compared the outstanding total against `>= $180` instead of `>= $195`, and the
+demo's other unpaid jobs make both true; `--break=session` accepted any URL,
+and the URL was a real one. **A sabotage has to change what is compared, not
+how loosely.** Both were replaced, and the § 2 assertion they exposed — which
+could not fail — was rewritten to read the figure on that one row.
+
+| sabotage | what it does | caught |
+|---|---|---|
+| `amount` | the check measures against the **$180 quote** instead of the $195 agreed; the product is untouched | **yes** — 3 red, including *"it is priced at $180 got 19500"* |
+| `nopay` | the card is never typed; nothing else changes | **yes** — 5 red across §§ 5 and 6 |
+| `webhook` | § 5 declares the booking paid without waiting for Stripe, **and no payment is made** | **yes** — § 5 goes green on the lie and **§ 6 catches it**, 2 red |
+| `stale` | § 6 compares the after-total against itself, the classic dead delta | **yes** — 1 red, *"it fell by $0"* |
+| `canary` | stands in a product where a **declined** card marks a booking paid | **yes** — and `receipt.mjs` refused the whole run |
+| ~~`amount`, first version~~ | loosened a `>=` that was already true | **NO** — replaced |
+| ~~`session`, first version~~ | accepted any URL, and the URL was valid | **NO** — replaced |
+
+The canary is a real declined payment on the real connected account
+(`4000 0000 0000 0002`), given the same 25 seconds Stripe took to deliver the
+successful one, and the booking must still read `pending`.
+
+### WHAT THIS DOES NOT DO, NAMED RATHER THAN LEFT IMPLIED
+
+- **The connected account was attached by writing the row, not by OAuth.** The
+  handshake itself was exercised end to end earlier the same morning and works
+  — consent screen, `code`, `oauthToken`, `acct_…` stored — but it yields the
+  blank account of finding 2, which cannot charge. So the row was pointed at
+  `acct_1UCMp1JeoZ7g84se`, a Standard test account already present in this
+  Stripe sandbox since 2026-09-08. **`connect-account`'s `refresh` then asked
+  STRIPE**, and Stripe's own answer is what set `charges_enabled` — the value
+  is measured, not typed in. The one leg never run by a machine here is a
+  detailer completing Stripe's onboarding, which is Stripe's screen and not
+  this product's.
+- **Nothing was refunded and no payout was checked.** The money sits in the
+  connected account's test balance. Payouts are Stripe's and are not this
+  product's code.
+- **No email was sent.** `handleConnected()` marks the row and sends nothing.
+- **Test data left in place, flagged, per ROADMAP 0.3.** Bookings named
+  `ROADMAP 14.5 PAY` and `ROADMAP 14.5 CANARY`; every run soft-deletes the
+  previous pair. The demo business is left connected with card payments **on**.
+
+| surface | proven | at | invalidated by a change to |
+|---|---|---|---|
+| **a customer's card actually settles** | `pi_3UGa9SJeoZ7g84se1Torfagi`, $195, Stripe test mode | 2026-09-17, `2a10b86` | `supabase/functions/pay-booking/**`, `_shared/stripe.ts` |
+| **the real webhook marks it paid** | two connected-account events, row paid one second later | 2026-09-17, `2a10b86` | `supabase/functions/stripe-webhook/**`, the Stripe endpoint's event list |
+| **the Money screen moves by the right amount** | $490 to $295, seen on the screen and in its own query | 2026-09-17, `2a10b86` | `app/src/screens/Money.jsx` |
+| **a declined card changes nothing** | canary, `4000…0002`, row still `pending` | 2026-09-17, `2a10b86` | `supabase/functions/stripe-webhook/**` |
+
+
+---
+
+## 14.6 · ALL TEN OF THE NEVER-RUN FEATURES HAVE NOW RUN — 2026-09-17, at `2a10b86`
+
+**THE LIST WAS RE-MEASURED BEFORE IT WAS TRUSTED, AND IT WAS ONE ROW OUT OF
+DATE.** ROADMAP 14.6 named ten tables at zero. Counted again at the start of
+this work:
+
+| table | rows at the start |
+|---|---|
+| `connected_accounts` | **1** — 14.5 put it there the day before |
+| every other one of the ten | **0** |
+
+So **14.5 moved ONE of these ten, not two.** The card payment it proved is
+real, and it is not one of these tables — it lands on
+`bookings.stripe_payment_intent`. Saying "two of the ten ran yesterday" would
+have been half true and would have quietly excused a table that was still
+empty. **Nine were still at zero, and all nine have now run.**
+
+### WHAT "A REAL RUN" WAS HELD TO MEAN, BECAUSE IT IS THE WHOLE VALUE
+
+**NO FEATURE ROW IN EITHER CHECK IS WRITTEN WITH THE SERVICE KEY.** An
+admin-key insert proves the column names and nothing else — it skips
+row-level security, which is the half of these features most likely to be
+wrong and the half no unit test touches. Every row below went in through **the
+demo owner's own signed-in session**, over the same wire calls `supabase-js`
+makes from the dashboard, or through the product's own endpoint. The service
+key appears only for fixture housekeeping and for reading back what the
+customer's side did.
+
+**AND EVERY TARGET ASSERTS THE CONSEQUENCE, NOT ONLY THE ROW.** A row nothing
+reads is not a feature.
+
+| table | the row | and the consequence that was checked |
+|---|---|---|
+| `dropoff_only_periods` | owner's session, 2026-11-04 | `available-slots` returns `dropoff_only: true` and **no mobile time at all**; `create-booking` refuses a mobile job with *"That day is drop-off only"* (409) |
+| `booking_line_items` | an `add_on` $45 **and a `custom` $30**, on a finished job | `advancedMoney` — the Money screen's own function — puts the figure **exactly $75 higher** than the same call without those two lines. The `custom` is the finalize form's own default and was counted as $0 until this item; see finding 1 |
+| `job_photos` | private bucket, owner's session | a signed link serves back **the same 160 bytes**, and the same path answers non-200 without the link |
+| `gallery_images` | public bucket, owner's session | a **signed-out** fetch of the row's own URL returns the photo |
+| `site_intake` | answers + step 3 | reads back the typed answer, keeps a multi-choice answer as a list, resumes at the step, and `submitted_at` is still null — a draft is not a brief |
+| `translations` | 91 rows, `translate-content` for real | `get_business_translations` answers a **signed-out customer** in Spanish, and the business's NAME is not in the table |
+| `owner_push_subscriptions` | a real endpoint on `wns2-by3p.notify.windows.com` | a customer books, and the detailer's device **shows the notification**, naming that customer, tagged with that booking |
+| `platform_subscriptions` | $35 booking plan, `active` | the row carried the plan, the price and the consent sentence **before** the card was typed, and Stripe's own webhook turned it active |
+| `platform_invoices` | `LGOU3CDN-0006`, 3500 cents, `paid` — the first of nine, one per run that paid | Stripe's own document, created after this run began and carrying Stripe's own numbering |
+
+### THE TWO CHECKS, AND EVERY SABOTAGE THEY WERE BROKEN WITH
+
+`scripts/e2e-ten-features.mjs` — six targets, 42 assertions, receipt
+`receipts/e2e-ten-features.json`, artifacts `artifacts/e2e-ten-features/`.
+Credentials only, no dev server. Refuses any project but the development one;
+with no credentials it prints SKIPPED and writes **no receipt**.
+
+`scripts/e2e-browser-features.mjs` — three targets, receipt
+`receipts/e2e-browser-features.json`, artifacts
+`artifacts/e2e-browser-features/`. Needs the dev server and Microsoft Edge, and
+refuses (does not skip quietly) if either is missing.
+
+**14.5 RECORDED THAT TWO OF ITS SEVEN SABOTAGES WERE THEMSELVES WORTHLESS —
+both only loosened an assertion that was already satisfied. Every sabotage
+below changes WHAT IS COMPARED, never how loosely**, and each one was run and
+watched to fail.
+
+| check | sabotage | what it changes | caught |
+|---|---|---|---|
+| ten-features | `otherday` | asks the drop-off question about the day the period does NOT cover; the product still refuses mobile on the 4th | **yes** — 3 red |
+| ten-features | `noitems` | hands the Money screen's own arithmetic an EMPTY line-item list while the row really is in the database | **yes** — 2 red |
+| ten-features | `wrongbytes` | compares the stored photo against a DIFFERENT image of the same length, and asks the gallery for a key nothing uploaded | **yes** — 3 red |
+| ten-features | `wrongnonce` | reads the questionnaire back against a value nobody wrote | **yes** — 1 red |
+| ten-features | `english` | asks the customer's own endpoint for `en`, which is the key the SOURCE is stored under | **yes** — 2 red |
+| ten-features | `canary` | stands in a product whose tables are open to anybody | **yes** — `receipt.mjs` refused the whole run |
+| browser | `nopush` | the device never subscribes; nothing else changes | **yes** — 6 red, including the row count |
+| browser | `wrongcustomer` | looks in the DELIVERED notification for a customer who was never booked | **yes** — 1 red, and see below |
+| browser | `nopay` | the card is never typed; the product is untouched | **yes** — 7 red, and see below |
+| browser | `wrongplan` | measures against the WEBSITE plan's $60 while the product charges the booking plan's $35 | **yes** — 5 red across all three targets |
+| browser | `canary` | stands in a product where a stranger can register a device or start a plan | **yes** — `receipt.mjs` refused the whole run |
+
+Two of them deserve naming, because they are the shape 14.5 got wrong.
+`noitems` and `english` do not touch the product at all — one changes WHAT IS
+SUMMED and the other WHICH LANGUAGE IS ASKED FOR. Neither loosens a comparison
+that was already true, which is what made 14.5's first `amount` and `session`
+sabotages worthless.
+
+**ONE SABOTAGE WAS CONSIDERED AND DELIBERATELY NOT WRITTEN.** The deepest lie
+either check could tell is *writing the feature rows with the service key* —
+the tables would fill identically and every downstream assertion would still
+pass. **Nothing could catch it**, because a row carries no record of which key
+put it there. So it is a limitation stated here rather than a test pretending
+to cover it; what actually holds the claim up is the code path (`own()` for
+every feature row, never `svc()`) and the canary proving row-level security is
+switched on at all.
+
+**AND TWO OF THESE SABOTAGES DID NOT COUNT ON THEIR FIRST RUN, WHICH IS THE
+POINT OF RUNNING THEM.**
+
+- **`wrongcustomer` went red for the wrong reason.** The notification did not
+  arrive at all that run, so the three red lines were the flake in finding 3
+  below and not the assertion under test — it had never been asked whether it
+  could tell one customer's name from another. Counting that as *caught* would
+  have been 14.5's mistake in a new coat. It was re-run until the notification
+  DID arrive, and then it went red on exactly one line: *"it names the customer
+  who booked"*, beside a notification correctly naming the real one.
+- **`nopay` found that THREE OF THIS CHECK'S OWN ASSERTIONS COULD NOT FAIL.**
+  § 3 asked whether the business had an invoice at all and took the newest
+  one — so with no payment made and no invoice created, it went GREEN on an
+  invoice a previous run had left behind. A fourth line, *"it belongs to the
+  subscription that was just paid"*, compared a column `platform_invoices` does
+  not have, guarded by an `||` that made it true whatever happened. The section
+  now demands an invoice created **after this run started**, and asserts
+  Stripe's own invoice number. Re-run against the corrected file, `nopay`
+  produces **7 red** including all four.
+
+Both canaries are the same negative control and it is the one that decides
+whether any of the above is evidence: **a signed-out stranger must be
+refused.** Every green here is a claim about WHO made the row, and that claim
+is worth nothing if anybody could have. Both strangers were refused 401.
+
+### FIVE THINGS THIS FOUND THAT NO DOCUMENT HERE KNEW
+
+1. **TWO COPIES OF THE SAME LIST HAD DRIFTED, AND ONE OF THEM COUNTED THREE
+   CATEGORIES THAT CANNOT EXIST.**
+
+   ```
+   the database allows                 service, upgrade, add_on, custom, travel_fee, tip, discount
+   FinalizeModal.jsx offers                     upgrade, add_on, custom, travel_fee, tip, discount
+   Money.jsx counted (correct)                  upgrade, add_on, custom, travel_fee,      discount
+   moneyAdvanced.js counted (wrong)                      add_on, upsell, surcharge, adjustment
+   ```
+
+   `upsell`, `surcharge` and `adjustment` are refused outright by
+   `booking_line_items_category_check` — the first insert this repo ever
+   attempted with one came back `23514`. **The tile a detailer actually taps,
+   *"Added on site"* on the Money screen, was RIGHT.** The wrong list fed *"The
+   full picture"*: its *"Sold at the job"*, its quoted-vs-added bar and its
+   *"Sells an extra"* percentage. The same three words, two different figures,
+   two screens. The comment in `moneyAdvanced.js` promised the two lists "move
+   together" — they had not, and nothing could tell, because
+   `booking_line_items` was empty until this item put a row in it.
+
+   **AND ON THE DEMO DATA THE WRONG FIGURE WAS NEVER VISIBLE**, because *"The
+   full picture"* hides its rates below eight finished jobs and this business
+   has six. That is why it survived: not hidden in code, hidden behind a floor.
+
+   **FIXED THE SAME DAY, on Andrew's ruling:** *"anything beyond the base price
+   — any upgrade of either package, add-on, a travel fee, whatever — counts as
+   more money we made."* `ON_SITE` is now exported from `moneyAdvanced.js` and
+   imported by `Money.jsx`, so a second copy cannot exist. A discount is
+   negative and nets against the rest; a tip stays out, because it is not a sale
+   and counting it would show the same dollar twice. Recorded at ROADMAP 14.6a,
+   proved by `tests/money-advanced.test.mjs` § 10 (four sabotages, all caught)
+   and by this check's own § 2, which now adds an `add_on` AND a `custom` and
+   requires $75 — against the old code it reads $45 and names the reason.
+   **Seen on the screen at 1440x900 and 392x844, no console errors:** BROUGHT
+   IN $810, QUOTED UP FRONT $735, ADDED ON SITE +$75.
+
+2. **A HEADLESS PUSH TEST NEEDS A BRANDED BROWSER AND A PERSISTENT PROFILE,
+   AND NEITHER IS OPTIONAL.** In order: Playwright's bundled Chromium in an
+   ordinary context prints *"Chrome currently does not support the Push API in
+   incognito mode"* and then `AbortError: Registration failed - permission
+   denied` — every Playwright context is incognito-shaped, so granting the
+   permission does not help. The same Chromium with `launchPersistentContext`
+   clears that and hits `Registration failed - push service not available`:
+   plain Chromium has no push credentials compiled in. `channel: "chrome"` is
+   not installed on this machine. **`channel: "msedge"` with a persistent
+   profile subscribed on Microsoft's own service first time.**
+
+3. **PUSH DELIVERY IS VARIABLE, AND A CHECK THAT READS ONE MISS AS A DEFECT
+   WILL LIE ABOUT THE PRODUCT.** Measured over seven runs against unchanged
+   code: **five delivered in seconds; two delivered nothing inside 36–60
+   seconds.** The run immediately after each miss, with nothing altered,
+   delivered normally. A diagnostic added for the second miss reported the
+   worker **registered, active, subscribed and permitted** at the moment
+   nothing arrived — so the browser half was intact and the variable is
+   Microsoft's push service. **The first explanation offered was that stale
+   device rows from earlier runs were starving the live one, and that was a
+   guess and it was wrong**: one miss happened with four stale rows and one
+   with none. It is written down as wrong because the next person will reach
+   for the same theory. The wait is 60 seconds, and a miss here is worth
+   re-running before it is worth investigating.
+   *(The check does clear its own previous devices, which is ordinary fixture
+   housekeeping — each run is a new throwaway profile — but it is not the
+   fix for this and is no longer described as one.)*
+
+4. **A CHECK THAT NEVER PRESSED THE BUTTON REPORTED A BROKEN PRODUCT.** The
+   first version of the billing section located Pay by its text, clicked
+   something that was not it, and failed sixty seconds later with *"the
+   subscription went active: incomplete"*. `Billing.jsx`'s `confirm()` opens
+   with `if (!stripeRef.current) return;`, so a press that does not land
+   produces **no error, no spinner and no navigation** — it is
+   indistinguishable from a product that ignored the button. The press is now
+   verified against three possible endings (Stripe navigates away, the label
+   turns to *One moment*, or the screen paints a refusal) and the run says so
+   out loud.
+
+5. **AND THE CHECK ITSELF SHIPPED THREE ASSERTIONS THAT COULD NOT FAIL.**
+   Recorded here rather than quietly fixed, because it is the fourth time this
+   repo has found one and the pattern is always the same: **an assertion whose
+   subject is "any row" rather than "the row this run made".** § 3 asked
+   whether the business had an invoice, not whether THIS run produced one, and
+   a previous run's invoice satisfied it. The fix is a `created_at` filter on
+   this run's own start time — there is nothing older for it to fall back on.
+   **A sabotage found it; reading the file twice had not.**
+
+### WHAT THIS DOES NOT DO, NAMED RATHER THAN LEFT IMPLIED
+
+- **Neither file presses the buttons.** Six of these features are written by
+  the browser client, so the wire call is identical — but `FinalizeModal`,
+  `DaySheet`, `SiteIntake`, `Gallery` and `JobPhotos` are not exercised as
+  forms. `shrink()` in `lib/photos.js` is browser-only (canvas plus EXIF
+  orientation) and is skipped: the bytes that go up are a real JPEG, just not
+  one a canvas re-encoded.
+- **The check cannot tell an owner-written row from a service-written one**
+  after the fact, for most of these tables. What makes the claim stand is the
+  code path (`own()` for every feature row, never `svc()`) plus the canary
+  proving row-level security is on at all. A sabotage for this was considered
+  and refused: it would be uncatchable by construction, which makes it a
+  limitation to state rather than a test to write.
+- **Nothing was refunded and no subscription was cancelled at the end.** The
+  demo business finishes subscribed, `active` on the $35 booking plan in Stripe
+  TEST mode. Each run cancels the previous one first, so they do not pile up.
+  Its `plan_tier` was already `founding`, and the booking plan never claims a
+  founding spot, so **none of the three spots was consumed**.
+- **Test data left in place and flagged, per ROADMAP 0.3.** Rows named
+  `ROADMAP 14.6 …`, storage under `roadmap-14-6/`, and a booking named
+  `ROADMAP 14.6 PUSH` that is soft-deleted when the run ends.
+
+| surface | proven | at | invalidated by a change to |
+|---|---|---|---|
+| **a drop-off-only day refuses a mobile booking** | 409, *"That day is drop-off only"*, on 2026-11-04 | 2026-09-17, `2a10b86` | `supabase/functions/_shared/slotValidation.ts` |
+| **work added at the car moves the Money screen** | `advancedMoney` exactly $45 higher with the line than without | 2026-09-17, `2a10b86` | `app/src/lib/moneyAdvanced.js`, the `booking_line_items` constraint |
+| **a job photo survives the round trip** | 160 bytes back through a signed link; non-200 without it | 2026-09-17, `2a10b86` | `app/src/lib/photos.js`, the `job-photos` storage policy |
+| **a gallery photo is public** | signed-out fetch returns the bytes | 2026-09-17, `2a10b86` | `app/src/lib/upload.js`, the `business-media` policy |
+| **the website questionnaire saves and resumes** | answer, list, step 3, `submitted_at` null | 2026-09-17, `2a10b86` | `app/src/screens/SiteIntake.jsx`, `site_intake` policies |
+| **a Spanish customer gets the detailer's own words** | 90 rows; `get_business_translations` answers signed-out | 2026-09-17, `2a10b86` | `supabase/functions/translate-content/**`, `_shared/translate.ts` |
+| **a booking lights up the detailer's phone** | WNS endpoint, notification naming the customer and tagged with the booking | 2026-09-17, `2a10b86` | `app/public/sw.js`, `_shared/ownerPush.ts`, the VAPID secrets |
+| **a detailer can pay us, on our own card form** | `active`, $35 booking plan, Stripe Elements | 2026-09-17, `2a10b86` | `supabase/functions/platform-billing/**`, `app/src/screens/more/Billing.jsx` |
+| **and gets an invoice for it** | `LGOU3CDN-0006`, 3500 cents, `paid` | 2026-09-17, `2a10b86` | `supabase/functions/stripe-webhook/**` |
+| **none of these rows can be written by a stranger** | both canaries refused 401 | 2026-09-17, `2a10b86` | every one of these tables' RLS policies |
+
+---
+
+## 14.7 · THE MONEY SCREEN NO LONGER CALLS UNPAID WORK "BROUGHT IN" — 2026-09-17, at `2a10b86`
+
+**THE CONTRADICTION WAS RESOLVED BEFORE ANYTHING WAS CHANGED, WHICH IS WHY
+THIS ITEM EXISTED AT ALL.** `Money.jsx` carried a comment saying the accrual
+maths *"has to stay that way"*. ROADMAP 5.1 said to compute net from collected
+money only. Both cannot be true, and an item settled one way on Tuesday and the
+other on Thursday is an item that comes back.
+
+**BOTH WERE RIGHT ABOUT DIFFERENT THINGS.** The comment was right that the
+headline figure has to stay accrual: four other things count work done in the
+period — the six-bar chart the headline is drawn on top of, the *vs last month*
+delta beside it, the tour step above it (*"what is left after expenses, not
+what came in"*) and the accountant CSV whose Amount column foots to it. A
+cash-basis headline would disagree with the chart under it, which is this
+repo's own failure mode with the sign flipped. 5.1 was right that the WORDS
+were a false claim: "brought in" is money that came in, and $295 of it had not.
+**So: 5.1 wins on the labels, the comment wins on the maths** — 14.7's own
+recommendation, and the only reading under which nothing on the screen has to
+lie.
+
+### THE FIGURE WAS RE-MEASURED AND IT HAD MOVED, WHICH IS WORTH KEEPING
+
+ROADMAP 14.7 recorded $3,383 / $3,153 / **$230**. Read again at the start of
+this work, on the same business, all time:
+
+| | |
+|---|---|
+| earned — 22 finished jobs | **$4,745** |
+| collected — what customers have paid | **$4,450** |
+| still owed — three jobs | **$295** |
+| expenses | **$1,102** |
+| the screen's *Net, all time* | **$3,643** |
+| cash received less expenses | **$3,348** |
+| **overstatement** | **$295**, to the dollar the amount owed |
+
+**The shape is identical and the dollars moved because ROADMAP 14.5's own
+check left a $65 `pending` booking in the demo data**, named `ROADMAP 14.5
+CANARY` and dated 2026-09-11 — flagged not deleted, per ROADMAP 0.3. So the
+overstatement is $295 today and was $230 before that row existed. **This is why
+the check asserts the identity and not the amount:** *accrual net − cash
+position = what is owed*, which is true at any dollar figure and false the
+moment the arithmetic drifts.
+
+### AND THE FIGURE DID HAVE A SECOND COPY — 14.6a's DEFECT, NEW SUBJECT
+
+`Money.jsx` had its own `revenueIn`, its own expense filter, its own net,
+average job and quoted/added split: **every one a second implementation of a
+figure `lib/moneyAdvanced.js` was already computing from the same rows on the
+same period** for the screen behind *The full picture*. They had already begun
+to differ, and not in the value — `moneyAdvanced` hardens every amount with
+`num()` (a non-numeric reads as 0) while `Money.jsx` used a bare `Number()` (a
+non-numeric turns the whole figure into `NaN`), and the two named the same
+total `inNow` and `collected`. Nobody had to be careless; they only had to be
+edited on different days.
+
+**WORSE, AND THIS IS THE PART THAT WOULD HAVE BITTEN SOMEBODY:**
+`moneyAdvanced.js` returned the ACCRUAL figure under the name `collected`, and
+the cash figure under `collectedPaid`. `Today.jsx`, one screen over, uses
+`collected` for money actually received. So whoever came to add 5.1's
+*Collected* cell would have reached for `m.collected`, got the accrual number,
+and shipped the overstatement under the one label that promises it cannot
+happen. **It nearly happened during this very change** — a two-pass rename
+turned the cash tile's `m.collectedPaid` into `m.earned`, caught by reading the
+grep output rather than by any test, and the reason the check now asserts the
+per-state figures rather than only the identity.
+
+Renamed: **`earned` / `collected` / `owed`**, three words, three amounts, and
+`owed` is `earned − collected` rather than a third tally.
+
+### WHAT CHANGED, AND WHAT DELIBERATELY DID NOT
+
+| | was | now |
+|---|---|---|
+| everyday headline | *Net this month* | *Earned less expenses this month* |
+| everyday cell | *Brought in* | *Earned* |
+| everyday — new | — | *Collected* and *Still owed*, the period's |
+| advanced lede | *You brought in X and kept Y of it.* | *You earned X and Y is left after expenses.* |
+| advanced bar | *Kept · $285* | *Left after expenses · $285* |
+| advanced tiles | *Brought in*, *Net*, *In the bank* | *Earned*, *Earned less expenses*, *Collected* |
+| back office | *$810 taken*, *Taken this month / all time* | *$810 earned*, *Earned this month / all time* |
+| the arithmetic | two copies | one `advancedMoney()` call, the chart included |
+
+- **5.1's *"Expenses paid"* was NOT adopted, on purpose.** There is no
+  paid/unpaid on an expense row — the table has no such column — so *Expenses
+  paid* would be a new unverifiable claim replacing an honest one. It stays
+  *Expenses*. Recorded rather than silently dropped.
+- **Net stays accrual and the CSV foot stays accrual with it.** 5.1's *"Net is
+  computed from collected money only"* is the half 14.7 overruled.
+- **Two scopes for owed money, and they are given different words for that
+  reason.** *Still owed* is the period's; the *Waiting on payment* list below
+  is every period, because who owes you money is not a period question and
+  switching Month to Week used to make last month's unpaid job vanish off the
+  one screen that exists to chase it. A *Still owed* meaning the period in one
+  place and all time in another is 14.6a wearing a new coat.
+- **`ON_SITE` is no longer imported by `Money.jsx` at all**, which is a step
+  past where 14.6a got: that item ended the second COPY of the list, this one
+  ended the second USE. The screen holds no category list to keep in step.
+- **Nine Spanish keys replaced eight in the same edit**, which `appEs.js`
+  requires — it is keyed on the English text, so a renamed label falls back to
+  English with no error anywhere.
+
+### THE CHECK, AND THE EIGHT SABOTAGES IT WAS HELD TO CATCH
+
+`tests/money-overstatement.test.mjs` — credential-free, 48 assertions, one
+target per value `bookings.payment_status` is allowed to hold, **read off the
+migration's CHECK constraint rather than typed into the file**, so a fifth
+state makes the check discover five, find no decision written for it, and fail.
+Every assertion's subject is the job THIS run built, at a price no pair of the
+others can sum to (100 / 200 / 400 / 800) — ROADMAP 14.6's *"any row rather
+than the row this run made"* lesson applied before the fact rather than after.
+
+**BROKEN ON PURPOSE EIGHT WAYS BEFORE IT WAS TRUSTED. ALL EIGHT CAUGHT.**
+
+| sabotage | red |
+|---|---|
+| the original defect — `collected` with no `payment_status` filter | **6** |
+| `owed` tallied separately instead of `earned − collected` | **3** |
+| the cash label put back to *Brought in* on the everyday screen | **2** |
+| the back office back to *Taken this month* | **1** |
+| one Spanish key dropped, so the label silently falls back to English | **1** |
+| the migration's `payment_status` constraint made to parse nothing | **4** |
+| a fifth payment state nobody has decided about | **2** |
+| the everyday screen grows its own period tally back (`money-advanced` § 10) | **2** |
+
+The sixth is the one worth naming: with nothing parsed, the fixture is empty,
+and **the check fails closed** — the *"the fixture actually overstates, so the
+check above can fail"* guard and the canary both fire rather than the run
+reporting clean over nothing. `node scripts/receipt.mjs` also refuses the
+receipt under the seventh (*target counts disagree: expected 4, discovered 5*),
+so the machine-readable verdict fails alongside the human one.
+
+### SEEN ON THE SCREEN
+
+September 2026, English and Spanish, at 1920 / 1440x900 / 768x1024 / 392x844 /
+320, in the normal path and `?lite=1`, **no console errors at any of them**:
+
+- **EARNED LESS EXPENSES THIS MONTH $285** — and $810 − $525 = $285.
+- **EARNED $810 · EXPENSES $525 · COLLECTED $515 · STILL OWED $295** (red, the
+  product's fixed `--bad`, never the tenant's accent) — and $515 + $295 = $810.
+  Cash less expenses is −$10; the headline is +$285; the $295 difference is now
+  named on the screen instead of implied.
+- *The full picture* agrees figure for figure: $810 / $525 / $285 / $515 /
+  $295, under *"You earned $810 and $285 is left after expenses."*
+- The back office lists Coastline at **$810 earned** — the same word and the
+  same number as the detailer's own screen, where it said *$810 taken*.
+- Spanish: **GANADO MENOS GASTOS, ESTE MES · GANADO · COBRADO · TE DEBEN**, and
+  *"Ganaste $810 y quedan $285 después de gastos."* No English fallback on
+  either screen.
+- Every label fits one line at 320px, the narrowest supported width, including
+  the longest new one — *EARNED LESS EXPENSES*.
+
+`composition` 97/0, `design-contrast` all pairs, `landing-pricing` 109/0,
+`route-contract` 34/0, `money-advanced` 80/0, `money-export` 22/0,
+`money-overstatement` 48/0, `admin-insight`, `dead-mans-switch` 51/0,
+`mileage` 32/0, `tours` 24/0. `tests/spanish.test.mjs` is 70/6 and **all six
+pre-date this change** — vehicle-size wording, the plan-price strings and a
+duplicate `"Nothing"` key that is at `2a10b86` too; none names a money string.
+
+| surface | proven | at | invalidated by a change to |
+|---|---|---|---|
+| **accrual net overstates cash by exactly what is owed** | identity holds on a fixture where all five figures differ; a non-zero overstatement is asserted so it cannot hold vacuously | 2026-09-17, `2a10b86` | `app/src/lib/moneyAdvanced.js` |
+| **only `paid` counts as collected** | one target per state, off the migration's constraint; a fifth fails the run AND the receipt | 2026-09-17, `2a10b86` | the `payment_status` CHECK constraint |
+| **no screen calls an accrual figure by a cash name** | 7 forbidden spellings absent, 6 replacements present, across three screens | 2026-09-17, `2a10b86` | `Money.jsx`, `AdvancedMoney.jsx`, `AdminPage.jsx` |
+| **one arithmetic, the chart included** | `Money.jsx` keeps exactly one money sum and it is the unpaid list | 2026-09-17, `2a10b86` | `app/src/screens/Money.jsx` |
+| **nine new Spanish keys exist and render** | asserted by key, and both money screens read in Spanish on a 392px phone | 2026-09-17, `2a10b86` | `app/src/lib/strings/appEs.js` |
+| **marking a job paid moves money between the two** | *Mark paid* on the $65 job: collected $515 → $580, still owed $295 → $230, earned unchanged; row restored to `pending` | 2026-09-17, `2a10b86` | `api.updateBooking`, `app/src/screens/Money.jsx` |
+
+### 5.1's DONE-WHEN WAS PRESSED, NOT ASSUMED
+
+*Mark paid* on the $65 job, in the browser at 1440x900:
+
+| | before | after |
+|---|---|---|
+| COLLECTED | $515 | **$580** |
+| STILL OWED | $295 | **$230** |
+| EARNED | $810 | **$810** — unchanged |
+| EARNED LESS EXPENSES | $285 | **$285** — unchanged, by design |
+| WAITING ON PAYMENT | $295, three rows | **$230**, two rows |
+
+**$65 IS A PRICE NO OTHER UNPAID ROW HAS** — the other two are $110 and $120,
+and no pair of the three sums to a fourth — so the observation could only pass
+for the right reason. That is 14.6's *"the row this run made, not any row"*
+lesson applied to a manual step.
+
+**THE UNCHANGED NET IS THE DEVIATION FROM 5.1 AND IT IS STATED RATHER THAN
+HIDDEN.** 5.1's done-when says *"net changes only then"*. Under 14.7's
+resolution net is accrual, so marking a job paid does not move it; what moves
+is the pair beside it and the cash position it describes (−$10 to +$55). The
+demo row was set back to `pending` and `finalized_at` to null afterwards, and
+the screen re-read at $515 / $295 — the demo data is exactly as it was found.
+
+### TWO THINGS FOUND ON THE WAY AND NOT FIXED HERE
+
+- **A check's leftover row is changing the demo business's money figures.**
+  `ROADMAP 14.5 CANARY` exists **fifteen times** in `bookings`; fourteen are
+  soft-deleted and **one is live**, `pending`, $65, dated 2026-09-11. It is
+  correctly flagged rather than deleted per ROADMAP 0.3 — but it is why 14.7's
+  own $230 read as $295 today, and the next person to measure this screen will
+  hit the same thing. Parked for 14.5's owner, not silently cleaned up.
+- ~~**`node --test tests/` from `CLAUDE.md` § Commands does not run.**~~
+  **RESOLVED 2026-09-20 — decided, and the fix is a glob.** It exited
+  `Cannot find module <repo>/tests` because Node reads the bare directory as a
+  module specifier. `node --test tests/*.test.mjs` runs the whole battery in
+  one command: **79 suites, 68 pass, 11 fail.** `CLAUDE.md` now carries the
+  glob and says why. **The "run it file by file" advice above was right about
+  the workaround and wrong about the cause** — it is not that these are plain
+  scripts rather than `node:test` files; `node --test` runs a plain script
+  perfectly well and counts each file as one test, which is where the 79 comes
+  from. **And file-by-file turns out to matter for a second reason nobody had
+  found:** all 79 share one seeded database and interfere, so
+  `booking-engine` fails in the battery and passes **110/0** alone. A red in a
+  full run is a lead, not a verdict.
+
+---
+
+## 5.2 · THE MONEY SCREEN NO LONGER COMPARES HALF A MONTH TO A WHOLE ONE — 2026-09-18, at `2a10b86`
+
+**THE FILE THAT DID IT HAD WARNED AGAINST IT IN ITS OWN HEADER SINCE THE DAY
+IT WAS WRITTEN.** `app/src/lib/periods.js` opens by saying the comparison is
+"the SAME PERIOD, one step back … comparing a part-finished week against a
+whole one is the classic wrong number", and then handed `Money.jsx` the WHOLE
+previous period on every render. Measured on the demo business
+(`Coastline Auto Detailing`, project `kguqylyzgyzfktkfnhjb`) on 2026-09-18:
+
+| | |
+|---|---|
+| September so far, 1–18, earned less expenses | **−$50** |
+| the whole of August, 1–31 | **$853** |
+| August to the same point, 1–18 | **$742** |
+| **what the screen used to say** | **down $903 vs $853 last month** |
+| **what it says now** | **down $792 vs $742 at this point last month** |
+
+$111 of August had not happened yet by the 18th, and the screen was counting
+it against seventeen days of September. The error shrinks every day until the
+30th, which is worse than being wrong steadily: it reads as a recovery.
+
+### THE CHOICE WAS TRIM OR HIDE, AND IT IS WRITTEN DOWN BECAUSE IT WAS CLOSE
+
+ROADMAP 5.2 offered both: *"compare to the same point last month, or hide until
+the month ends."*
+
+**HIDING LOSES THE FIGURE ON EVERY DAY IT IS WORTH ANYTHING.** On Month it
+would be absent for up to 30 days at a stretch and appear on the 31st; on Year,
+absent for 364 days and present on one. A detailer looks at this screen to
+decide whether to go and find work this week, and the answer would be blank
+until the week it no longer mattered.
+
+**TRIMMING IS ALSO THE BORROWED CONVENTION** this file already commits to —
+month-to-date against the same point last month is what every dashboard means
+by "vs previous". Its one cost is that the sentence must say it is against a
+part period, which is a label, and the labels are checked here too: an honest
+number under a label naming the whole of August is the same defect in the
+fix's clothes.
+
+### ONE PLACE DECIDES, WHICH IS 14.7's RULE KEPT
+
+`previousSoFar(period, previous, today)` in `lib/periods.js`. `Money.jsx` calls
+it once; `stats` passes that object to `advancedMoney`, and `AdvancedMoney` is
+handed the same object as a prop. So the four tiles behind *The full picture*
+cannot compare against a different stretch of time from the headline in front
+of it. **Days elapsed, not calendar arithmetic** — one rule covers day-of-week,
+day-of-month, day of the sixth month and day of the year — **clamped to the
+previous period's own end**, and **a finished period is not trimmed at all**.
+
+| | was | now |
+|---|---|---|
+| the comparison period | the whole of the one before | the same point in it, while this one runs |
+| a finished period | the whole of the one before | unchanged — still the whole of it |
+| the everyday label | *vs $853 last month* | *vs $742 at this point last month* |
+| a flat part period | *Same as last month* | *Same as this point last month* |
+| the advanced screen's arrows | silent, against a whole period | against the same point, and it says so once |
+| Spanish | — | nine new keys, no English fallback |
+
+- **`Changes are against the same point in the period before.` is shown once,
+  under the lede, and NOT when the tiles that carry an arrow are withheld.**
+  Under `THIN` (fewer than eight finished jobs) the advanced screen hides every
+  changing tile, and the sentence described nothing on the screen — seen on the
+  demo business at four finished jobs and gated before this was written up.
+- **Eight label keys rather than a `{when}` placeholder**, for the same reason
+  the four beside them are four: Spanish agrees the demonstrative with the
+  noun's gender, so a placeholder is wrong half the time in a language nobody
+  here can check.
+
+### THE CHECK, AND THE NINE SABOTAGES IT WAS HELD TO CATCH
+
+`tests/mid-period-comparison.test.mjs` — credential-free, 87 assertions, **one
+target per period kind the screen offers, read out of `PERIOD_KINDS` rather
+than typed in**, so a sixth kind makes the check discover six, find no decision
+written for it, and fail. Every fixture price is a distinct power of two times
+$100, so any total decodes to exactly one set of bookings.
+
+**THE FIRST DRAFT PASSED TWO SABOTAGES WITH FIFTY-NINE GREEN LINES AND THAT IS
+THE FINDING WORTH KEEPING.** It placed its fixture jobs off `previousSoFar`'s
+own answer, so moving the trim by a day moved the fixture with it and the
+"job on the boundary" was still on the boundary. **A check whose subject is
+derived from the thing under test has no subject.** The trim dates are now
+worked out from the calendar, by hand, in the check itself.
+
+**BROKEN ON PURPOSE NINE WAYS. ALL NINE CAUGHT, AND `receipt.mjs` REFUSED THE
+RECEIPT IN ALL NINE.**
+
+| sabotage | red |
+|---|---|
+| the original defect — the whole previous period, untrimmed | **17** |
+| off by one — the trim point made exclusive | **8** |
+| the "is this period over?" guard removed | **3** |
+| the clamp removed, so a trim runs into the current period | **1** |
+| `Money.jsx` put back to `periodAt(kind, today, offset - 1)` | **1** |
+| the part period labelled as a whole one again | **1** |
+| one Spanish key dropped, so the label falls back to English | **1** |
+| a sixth period kind nobody has decided about | **4** |
+| the advanced screen stops saying what its arrows are against | **1** |
+
+Two of those only fail because of cases the check had to be taught. The third
+needs a **finished period SHORTER than the one before it** — February 2026 on
+the 28th, where 27 days elapsed reads January only to its 28th of 31; without
+that case the guard looks like dead code and the clamp hides it. The fourth
+needs a **running period that has already outlasted its predecessor** — March
+30th, where 29 days elapsed runs past a 28-day February and an unclamped trim
+would pull the first two days of March into "last month", counting them on
+both sides of the comparison. The eighth also fails the receipt independently:
+*target counts disagree: expected 5, discovered 6*.
+
+### SEEN ON THE SCREEN
+
+Demo business, September 2026, English and Spanish, at 1920 / 1440x900 /
+768x1024 / 392x844 / 320, normal path and `?lite=1`, **no console errors at any
+of them** (the only warnings are the React Router v7 future-flag notices, which
+are on every screen in this product and pre-date this change):
+
+- **down $792 · vs $742 at this point last month** — and $742 is August 1–18
+  read straight from the demo rows, against $853 for the whole month.
+- **The sign flipped, so it prints the distance and not a percentage.** −$50
+  against +$742 is two numbers on opposite sides of zero; the 2026-09-12 rule
+  already in `Delta` caught it, which is that rule working rather than a new
+  one being needed.
+- Spanish: **baja $792 · vs $742 en este punto del mes pasado**. No English
+  fallback on either money screen.
+- **At 320px, the narrowest supported width, the English sentence is 176px
+  wide in a 284px row and fits on one line with 30px to spare** — measured,
+  not eyeballed: natural width 176px against a rendered 176px, nothing
+  clipped, no page overflow.
+- **The worst case wraps rather than clipping.** Spanish + *6 months* —
+  *vs $720 en este punto de los 6 meses anteriores* — takes two lines at 320px
+  (row 39px instead of 20px), nothing clipped, page overflow still 0.
+- *The full picture* on the Year period shows the arrows and the one sentence
+  that explains them; on September, with four finished jobs, the arrows are
+  withheld and so is the sentence.
+
+| surface | proven | at | invalidated by a change to |
+|---|---|---|---|
+| **a running period is compared with the same point, not a whole one** | per kind, against a trim date the check works out itself; a job on the boundary counts and one a day past it does not | 2026-09-18, `2a10b86` | `app/src/lib/periods.js` |
+| **a finished period still gets the whole of the one before it** | February 2026 on the 28th, Oct–Mar on 31 March, 2025 on 31 December — each shorter than its predecessor | 2026-09-18, `2a10b86` | the `today >= period.end` guard |
+| **a trim never reaches into the current period** | 30 March 2026, 29 days elapsed against a 28-day February, capped at 28 February | 2026-09-18, `2a10b86` | the clamp to `previous.end` |
+| **every period kind has a decision written for it** | five targets off `PERIOD_KINDS`; a sixth fails the run AND the receipt | 2026-09-18, `2a10b86` | `PERIOD_KINDS` |
+| **the sentence says which of the two it is showing** | 8 label keys present, the old bare `periodAt` call absent, across two screens | 2026-09-18, `2a10b86` | `Money.jsx`, `AdvancedMoney.jsx` |
+| **nine new Spanish keys exist and render** | asserted by key, and both money screens read in Spanish | 2026-09-18, `2a10b86` | `app/src/lib/strings/appEs.js` |
+| **the headline and the advanced tiles compare the same stretch of time** | one `previousSoFar` call, passed to `advancedMoney` and to `AdvancedMoney` as a prop | 2026-09-18, `2a10b86` | `app/src/screens/Money.jsx` |
+
+`composition` 97/0, `design-contrast` all pairs, `landing-pricing` 109/0,
+`route-contract` 34/0, `money-advanced` 80/0, `money-overstatement` 48/0,
+`money-export` 22/0, `mid-period-comparison` 87/0. `node scripts/receipt.mjs`
+validates **10 of 10** receipts.
+
+### ONE THING FOUND ON THE WAY AND NOT FIXED HERE
+
+**The demo tenant could not reach the Money screen at all before it was
+re-seeded.** Signing in as `demo@detailplatform.com` landed on the website
+brief, and closing it reopened it; `?setup=1` opened the setup form, which the
+rail buttons could not get past either. `node scripts/seed-demo.mjs` cleared it
+in one run. Worth knowing because it costs the next session twenty minutes and
+looks like a broken app rather than a demo whose setup flags have drifted. Not
+investigated further — it is a seed-state question, not this item's.
+
+---
+
+## 5.3 · THE RECEIPT FOR A PAID JOB IS FINDABLE NOW — 2026-09-18, at `2a10b86`
+
+**A1 P1-04 would not call this a defect and was right not to.** It marked
+receipts and invoices *"needs verification, not a proven missing feature"*,
+because the payment it would have been asked about had never been made. 14.5
+made one on 2026-09-17 and stated, in its own "what this does not do" section,
+*"No email was sent. `handleConnected()` marks the row and sends nothing."*
+This entry is the question that follows from that sentence, asked of a real
+payment rather than of the code.
+
+### WHAT THE RUN FOUND, COUNTED RATHER THAN CHARACTERIZED
+
+A $195 test payment was taken through Stripe's own hosted page on the
+development project, settled by the real webhook, and then everything it
+produced was read back.
+
+| after a card settles | |
+|---|---|
+| emails our product sent | **0** |
+| rows in `email_sends` | **0** |
+| `paid_online_at`, `stripe_payment_intent` on the booking | set, correctly |
+| `finalized_at` | **null — paying does not close the job** |
+
+That last row is the whole item. **The job record gated its only receipt
+button on `canFinalize`**, which is `status = completed && !finalized_at`. A
+customer paying from the link in their own email — which is the entire point
+of the pay button — settles the money *before* the detailer closes the job. So
+the record showed **Finalize payment** and nothing else: no receipt, no way to
+send one, and no trace anywhere that a document existed. Measured on this run,
+not inferred.
+
+**THE DOCUMENT ITSELF WAS NEVER MISSING.** `send-invoice` renders a real one
+and its subject is `Receipt · $195 · Coastline Auto Detailing` — the run sent
+it to Resend's `delivered@resend.dev` simulator and it came back accepted with
+a provider id. The receipt page the customer opens (`/booking/:id`) was there
+too. Neither was reachable from the job.
+
+### WHAT CHANGED
+
+- **A `Receipt` section on the job record**, drawn whenever there is a final
+  amount. It carries all five answers the done-when asks for, in one place:
+  the page the customer sees, the button that emails it, the address it goes
+  to, and every email to that address with its date and what became of it.
+- **The send no longer waits for finalizing.** `send-invoice` never required
+  it — only the screen did.
+- **`EmailTrail.jsx`**, because the client record had these rows already and a
+  second copy of the seven-states-to-three mapping is two screens that can
+  disagree about whether an email bounced. One file, both screens.
+- **The button says "Email it again" only for THIS job's receipt**, matched on
+  the subject *and* the amount. Matching the word alone made a returning
+  customer's old receipt light up a job that had never had one — found by
+  sabotage, below.
+- **Three weights, after looking.** The send and the link were both filled
+  blue to begin with, stacked under *Finalize payment*: three equally loud bars
+  on a phone. Seen at 392, changed to filled / ringed / ringless.
+- **`act()` now translates its own notice.** All four callers passed bare
+  English and `appEs.js` has carried Spanish for them since 14.x, so a Spanish
+  dashboard has been answering *"Reminder sent to customer."* in English with
+  the key sitting right there unused. One line, four call sites.
+
+### THE CLAIM THAT WAS NARROWED
+
+The customer's paid screen said **"Thank you. Your card payment went through
+and your receipt is on its way by email."** Nothing sends that email. It now
+says the payment went through, and that the detailer emails the receipt when
+they close the job.
+
+**IT DOES NOT PROMISE STRIPE'S RECEIPT EITHER, AND THAT WAS THE FIRST
+ATTEMPT.** `pay-booking` hands Stripe the address precisely so Stripe can send
+one from the detailer's account — but whether it actually goes is a setting
+inside *their* Stripe account, off by default in test mode. Swapping a claim
+this product cannot keep for one it cannot check is not a narrowing.
+
+### THE THING THAT CANNOT BE ANSWERED YET, AND IT IS THREE MINUTES OF ANDREW'S
+
+**"Did it arrive" stops at "On its way".** Re-measured this run: **every email
+ever sent to `delivered@resend.dev` — an address Resend guarantees accepts
+instantly — is still `sent`.** Not one delivery report has ever arrived. The
+endpoint is deployed on the project and its signing secret is set; what has
+never happened is somebody adding it in Resend's own dashboard, which is row 1
+of `FOR-ANDREW.md`. The check prints this tally every run and asserts nothing
+about it: demanding `delivered` would be red for a reason that is not a defect,
+and skipping the question quietly is this repo's oldest failure.
+
+### THE CHECK, AND TWO OF ITS FOUR SABOTAGES REWROTE IT FIRST
+
+`scripts/e2e-receipt-trail.mjs` — six targets, 21 assertions, receipt
+`receipts/e2e-receipt-trail.json`, artifacts `artifacts/e2e-receipt-trail/`.
+**It makes its own subject**: it runs `e2e-payment.mjs` first, so the payment
+it asks about is a real card on Stripe's hosted page rather than a row somebody
+flipped to `paid`. It refuses any project but the development one, and with no
+credentials it prints SKIPPED and writes no receipt.
+
+| sabotage | what it does | caught |
+|---|---|---|
+| `nopay` | no payment is made; the run asks its questions about whatever paid booking is lying around | **yes** — 0/6 targets |
+| `nosend` | the receipt is never sent; nothing else changes | **yes** — 9 red across §§ 4, 5 and 6 |
+| `screen` | reads the DASHBOARD instead of the job record — a real screen, full of plausible words | **yes** — all 6 of § 6 red |
+| `canary` | stands in a product where an unsent receipt reads as sent | **yes** — and `receipt.mjs` refused the whole run |
+| ~~`nosend`, first version~~ | **left § 6 GREEN.** Yesterday's run had put an identical `Receipt · $195` row on the same address, so the screen still showed a subject and still said "again" | **NO** — the check now clears its own prior rows first |
+| ~~the canary, first version~~ | read the page body for *"on its way"* — which the trail honestly says about the person's OTHER mail. It failed a canary that was behaving perfectly | **NO** — it now reads the BUTTON, which is narrower, not looser |
+
+**The canary is a second paid booking at a price nothing else shares, on the
+SAME address as the real one.** An unused address makes it trivial — of course
+a screen with no rows claims nothing. Sharing the address is what forced the
+product to tell *"a receipt went to this person"* apart from *"a receipt went
+for this job"*, and the first version of the screen could not.
+
+### WHAT THIS DOES NOT DO, NAMED RATHER THAN LEFT IMPLIED
+
+- **The payment still emails nobody, and § 2 asserts that on purpose.** If a
+  future change makes the webhook send the receipt itself, that assertion goes
+  red — correctly: the sentence on the customer's paid screen was narrowed to
+  match this silence and would have to be put back in the same change. It is a
+  tripwire on a decision, not a preference.
+- **The public receipt page still never says it was paid.** `payment_status`
+  is deliberately withheld from `get-booking-receipt`, so a customer reopening
+  their link tomorrow sees no trace of the payment — the `?paid=1` banner lives
+  for one visit. Recorded in `FOUND.md`, not fixed: it is a change to a public
+  allow-list and it is not this item's.
+- **The trail on a job is every email to that ADDRESS, and says so.** It is a
+  stronger match than the customer record, which misses mail sent to a second
+  address the same person booked with — but it is not per-job, and two jobs for
+  one customer at the same price would share a receipt subject.
+- **Test data left in place, flagged, per ROADMAP 0.3.** `ROADMAP 14.5 PAY`,
+  `ROADMAP 14.5 CANARY` and `ROADMAP 5.3 NO RECEIPT`; each run soft-deletes the
+  last set.
+- **`e2e-payment.mjs` had to be repaired before any of this could run**, and
+  the repairs are findings of their own — below.
+
+### THREE THINGS FOUND ON THE WAY, ALL IN THE INSTRUMENTS
+
+1. **14.5'S CHECK WAS ALREADY DEAD, ONE DAY OLD.** It carried the demo
+   business's UUID as a constant. `seed-demo.mjs` had rebuilt the demo tenant
+   overnight and a rebuilt row gets a NEW id, so the run died on
+   `bookings_business_id_fkey`. **A reseed changes the id every time and never
+   changes the slug** — it now resolves `demo-detail` at run time, and
+   re-attaches the sandbox Stripe account if the reseed took that too. What § 1
+   proves is unchanged: `refresh` asks STRIPE, and the assertions read Stripe's
+   answer, never our own row. *(`e2e-browser-features.mjs` and
+   `e2e-ten-features.mjs` carry the same dead constant and are untouched —
+   `FOUND.md`.)*
+2. **STRIPE'S "SAVE MY INFORMATION" TICK COST A RUN.** It is on by default and
+   ticked it reveals a **required phone number** field nothing fills; Stripe
+   then answers the submit with the single word *"Required"*, which reads
+   exactly like a declined card. The old code called `uncheck` once, swallowed
+   the failure and never looked again. It now waits for the control, clicks the
+   label if the input refuses, fills the phone as a last resort, and the
+   pre-submit readback names `phoneNumber` if it is still empty.
+3. **A LITERAL BACKSPACE BYTE IN A REGULAR EXPRESSION, INVISIBLE IN EVERY
+   TOOL.** `\b` written through a script became character 8 in the source, so
+   `/^(receipt|recibo)<BS>/i` matched nothing and the button said "Email the
+   receipt" over a job whose receipt was listed three lines below it. `grep`
+   printed the line looking correct, the served module looked correct in JSON,
+   and the same regex typed by hand into the console returned `true`. It was
+   only found by reading the character codes of the served file. **Worth a
+   `docs/gotchas.md` entry: a source file can contain a control character that
+   no editor, grep or diff will show you.**
+
+| surface | proven | at | invalidated by a change to |
+|---|---|---|---|
+| **a card payment produces no email and no record** | 0 rows in `email_sends` after `paid_online_at` | 2026-09-18, `2a10b86` | `supabase/functions/stripe-webhook/**` |
+| **the receipt exists and can be sent on an unfinalized paid job** | `send-invoice` 200, `Receipt · $195 · …` accepted by Resend | 2026-09-18, `2a10b86` | `supabase/functions/send-invoice/**` |
+| **the row says what, when, to whom** | subject, `sent_at`, `to_email`, provider id, filed on the customer | 2026-09-18, `2a10b86` | `supabase/functions/send-email/**`, migration `20260916010000` |
+| **the owner finds all of it on the job** | six assertions against the rendered record, screenshot in `artifacts/` | 2026-09-18, `2a10b86` | `app/src/components/BookingDetail.jsx`, `EmailTrail.jsx` |
+| **an unsent receipt does not read as sent** | canary at a unique price on the same address | 2026-09-18, `2a10b86` | the subject match in `BookingDetail.jsx` |
+| **no delivery report has ever arrived** | every send to `delivered@resend.dev` still `sent` | 2026-09-18, `2a10b86` | Resend's own webhook list — Andrew's, not ours |
+
+---
+
+## 5.4 · THE TWO SCREENS AGREE ABOUT LINKS NOW — 2026-09-18
+
+**A2 4.5 marked this NOT CONFIRMED and guessed the two screens covered
+different stretches of time.** They did not. The guess was reasonable and
+wrong, and the real answer was worse: one screen was counting things that were
+not link opens at all.
+
+### WHAT THE MEASUREMENT FOUND, COUNTED RATHER THAN CHARACTERIZED
+
+Read from the development database, every business, not a fixture:
+
+| | |
+|---|---|
+| rows in `campaign_visits` for the demo business | **1** |
+| of those, tagged to a tracking link | **0** |
+| of those, belonging to no link at all | **1** |
+| visits tagged to a link **anywhere in the database** | **0** |
+| what Business printed | `1 link · 1 open` |
+| what Money printed about the same rows | *None of your links were opened in this period* |
+
+**Money was right.** The single row is somebody opening the plain booking page
+directly — no link involved. The audit saw `21 opens` because the demo then
+held 21 such rows; a reseed since has left one.
+
+### THE BUSINESS ROW WAS WRONG THREE WAYS AT ONCE
+
+Not one defect with three symptoms — three independent faults in one figure:
+
+1. **It counted visits belonging to NO link.** A head-count of
+   `campaign_visits` filtered on the business and nothing else. That table's
+   commonest row is a plain booking-page visit.
+2. **It counted visits to links that had been SWITCHED OFF** while printing a
+   count of **live** links beside them. The row's own comment argued that a
+   campaign turned off is not a campaign running — and then the figure next to
+   it counted the dead one's traffic.
+3. **It counted page loads where Money counts people.** One person reloading
+   five times was five.
+
+### WHAT CHANGED
+
+- **Both screens read `whereFrom()`.** Business ran its own count; it does not
+  any more. The repo's own argument applies — a second copy of an arithmetic
+  is how two screens come to disagree, and this is that failure happening.
+- **`whereFrom()` gained an all-time mode**, because Business has no period
+  control and never will. `inRange` itself is untouched; its three other
+  callers all pass a real period, and widening a shared helper to suit one
+  caller is how a fourth definition of *this period* gets born.
+- **The row says people, and it says the span.** `1 link · not opened yet`, or
+  `1 link · 3 people so far`. **"So far" is load-bearing, not padding**: Money's
+  figure moves with its period control and this one cannot, so a number here
+  with no span on it invites exactly the comparison that opened the item.
+- **Spanish in the same edit**, per the rule that a renamed English string
+  silently falls back with no error anywhere. The old `{count} open(s)` keys
+  are kept rather than deleted — a key nobody reads costs nothing.
+
+### THE CHECK, AND THE FOUR SABOTAGES
+
+`scripts/link-counts-agree.mjs` — 5 targets, 11 assertions, min 9, receipt
+`receipts/link-counts-agree.json`, artifact
+`artifacts/link-counts-agree/what-each-screen-says.txt` (one line per business,
+both screens side by side).
+
+**The canary is the defect itself**: the old count-every-row arithmetic is run
+against the same fixture every time, and every green verdict is void unless it
+is *seen* to disagree with the truth.
+
+| sabotage | what it reinstates | caught |
+|---|---|---|
+| `untagged` | the old count — every row in the table | **yes** — 1/5 targets, 6 red, **and it reproduced the original symptom on the real data**: *"demo-detail: Business says 1, Money says none opened"* |
+| `inactive` | switched-off links counted again | **yes** — 3/5, 3 red |
+| `loads` | page loads instead of people | **yes** — 2/5, 3 red |
+| `period` | Money ignoring its own period control | **yes** — 4/5, 1 red |
+
+`node scripts/receipt.mjs` recomputes the verdict independently and agrees —
+and **it refused the first version**, which had no artifact: *"there is nothing
+for a person to look at."* The check was not trusted until it produced one.
+
+### WHAT THIS DOES NOT DO, NAMED RATHER THAN LEFT IMPLIED
+
+- **It does not assert that any link has ever been opened**, and that is
+  deliberate. Nobody has made one and used it, so demanding a non-zero would go
+  red for a reason that is not a defect. The artifact prints the zero plainly
+  instead.
+- **The live-rows target SKIPS loudly without credentials** and is recorded as
+  skipped, never as passed. A run with no `.env` prints *"NOTHING was read.
+  This is not a pass."*
+- **`whereFrom`'s `linkVisits` is returned and nothing draws it.** Page loads
+  are the honest denominator for a future "how many opened it more than once",
+  and returning it beside `linkPeople` is what stops a second count appearing
+  when somebody wants that.
+
+### TWO THINGS FOUND ON THE WAY
+
+1. **A SHELL HEREDOC ATE A BACKSLASH, TWICE, IN TWO DIFFERENT FILES.** A regex
+   written through a heredoc arrived as `/^/([A-Za-z]:)/` and the file died on
+   a syntax error. Same family as 5.3's literal backspace byte. The fix both
+   times was to stop escaping anything: `fileURLToPath` instead of a path
+   regex, a plain substring instead of a separator normalizer. **`grep` shows
+   the mangled line looking almost correct.**
+2. **A STALE HOT-RELOAD ERROR READ EXACTLY LIKE A LIVE DEFECT.** The job record
+   threw *"Cannot access 'charged' before initialization"* in the console —
+   with `charged` demonstrably declared before use in the source. It was Vite
+   hot-swapping the module while the page sat open during editing, which
+   `CLAUDE.md` warns about. **Proved stale by opening a FRESH tab, which logged
+   nothing at all**; the old tab keeps its buffer, so re-reading the same tab
+   would have "confirmed" a defect that did not exist.
+
+| surface | proven | at | invalidated by a change to |
+|---|---|---|---|
+| **the two screens agree on every business with a link** | 4 businesses, 0 disagreements, from the real rows | 2026-09-18 | `app/src/lib/moneyAdvanced.js` |
+| **untagged visits are not link opens** | fixture where 2 of 5 rows belong to no link | 2026-09-18 | `whereFrom`'s `onLive` filter |
+| **a switched-off link's traffic is excluded** | turning it back on moves the figure | 2026-09-18 | `app/src/screens/Business.jsx` |
+| **people, not page loads** | a repeat visit does not move it, a new visitor does | 2026-09-18 | `peopleIn` |
+| **Money's period control still filters** | one day of the fixture sees 1 visit, all-time sees 2 | 2026-09-18 | `app/src/screens/Money.jsx` |
+
+## THE JOB RECORD'S PINNED ACTION BAR, IN ALL THREE CONTAINERS — 2026-09-18
+
+`scripts/pinned-bar.mjs`, 17 targets, 119 assertions, receipt
+`receipts/pinned-bar.json` validated by `scripts/receipt.mjs`. Every row
+measured at 1920, 1440x900, 768x1024 and 392x844, normal path and `?lite=1`.
+
+**Broken on purpose in both directions before it was trusted.** Its canary
+target rebuilds, every run, the exact screen Andrew turned down — square
+corners, no elevation, the status pills flat on the bar's top edge — and the
+check is required to catch all three. Run with `--break=canary`, which removes
+that injected defect, the canary goes green, the run reports FAIL and
+`receipt.mjs` rejects the receipt.
+
+| surface | proven | at | invalidated by a change to |
+|---|---|---|---|
+| **nothing sits beside the bar to slide up past it** | 0 cards outside the bar's span, 16 targets | 2026-09-18 | `.jobbar` width, `--jobbar-bleed`, any container's side padding |
+| **a band is square, an object is rounded** | sheet 390px wide over 354px cards at 0px radius; page and desk panel level with their cards at 12px, the same as the cards | 2026-09-18 | `.jobbar`'s radius, `--r-panel` |
+| **the pills are not sitting on the bar** | 12px of clearance in all three containers, up from 0px | 2026-09-18 | `.jobbar`'s `margin-top` |
+| **its buttons start where the cards start** | bar content box within 1px of the first card's left edge, 16 targets | 2026-09-18 | `.jobbar` padding, `.card` |
+| **it is visibly in front of what passes under it** | the strip below it is ~10 levels darker than the same frame with the elevation removed | 2026-09-18 | `.jobbar`'s `box-shadow` |
+| **it really covers, not just overlaps** | `elementFromPoint` at the bar's centre returns the bar in all 16 | 2026-09-18 | `.jobbar`'s `z-index`, any new stacking context |
+| **the sheet and the desk's record were not harmed** | 8 of the 16 targets are those two, all green | 2026-09-18 | `.sheet-body`, `.record-body` |
+| **the console is clean at every size** | 2 distinct messages, both React Router v7 future-flag deprecations from the library | 2026-09-18 | `react-router-dom` |

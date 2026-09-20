@@ -3593,8 +3593,20 @@ label.row:has(> input[type="checkbox"]) { min-height: 44px; }
 /* Segmented — mutually exclusive, and the invalid combination cannot be
    expressed at all. Two to four choices is a segmented control, never a
    native <select> (§ Composition). */
+/* **IT WRAPS — ROADMAP 8.1a, 2026-09-19.** `FinalizeModal`'s "What kind" is
+   the one segmented control in the product with SIX options (Upgrade, Add-on,
+   Custom charge, Travel fee, Tip, Discount), and with `nowrap` on the buttons
+   and no wrap here it ran 136px past the right edge of a 392px phone, taking
+   Tip (+47) and Discount (+132) with it. The comment two lines up says two to
+   four choices; six was already over its own ceiling.
+   **ONE RULE, NOT ONE CALL SITE**, for the same reason the 36px and the 44px
+   target below are here: every segmented control in the product is this
+   selector. Wrapping cannot change a control that already fits — it engages
+   only where the alternative is overflow — and `.choices` below has wrapped a
+   row of choices this way since it was written, so this is the product's own
+   pattern rather than a new one. */
 .segmented {
-  display: inline-flex; padding: 3px; gap: 3px;
+  display: inline-flex; flex-wrap: wrap; padding: 3px; gap: 3px;
   background: var(--surface-sunken); border: 1px solid var(--hairline);
   border-radius: var(--r-pill);
 }
@@ -4065,16 +4077,61 @@ button.warn-box:hover { border-color: var(--fog-2); }
    top: 0 lands the bar on the scrollport's PADDING-box edge, so nothing
    passes above it; what it does NOT cover without help is the container's
    side padding, where text would slide up the gutters beside it. */
+/* AN OBJECT, EXCEPT IN THE SHEET WHERE IT IS A BAND — rewritten twice on
+   2026-09-18 after Andrew looked at each attempt (FOUND.md).
+   The rule used to be `.sheet-body > .jobbar`, which described the SHEET and
+   was written on a selector only the sheet matched. The other two containers
+   got whatever `.jobbar` alone said, and on `/job/:id` that was a bar the
+   exact width and the exact background of the cards around it, so `Finalize
+   payment` scrolled under it and came out sheared in half.
+
+   THE LAW, IN ONE LINE: a bar that reaches its container's edge is a BAND
+   and is square; a bar that sits inside the container's margins is an OBJECT
+   and is rounded like every other object there. Only the sheet is the first
+   kind. Andrew, on the version that made all three a band: "it's very square
+   whereas everything else is like rounded and it just looks a little like
+   weird." He is describing the one square-cornered thing on a screen of
+   12px corners, and he was describing the same thing the first time round.
+
+   WHAT EACH PIECE IS FOR:
+   · margin-top   the two status pills are a separate object and were sitting
+                  flat on the bar's top edge — measured at 0px of gap in all
+                  THREE containers, which is his "they all touch this box".
+   · the shadow   the one the tab bar already uses, character for character.
+                  It is what says the bar is in FRONT, and it is the only
+                  thing that can: painting the page's own ground on the bar
+                  was tried and measured, and it is wrong. `--bg` is #0B0D0E
+                  while the page as rendered is rgb(17,22,24), because
+                  `.app-shell` lays two atmosphere gradients and a drifting
+                  dot lattice over it. A flat fill cannot follow a ground
+                  that moves; it just becomes a darker slab.
+   · the radius   `--r-panel`, the same 12px `.card` takes, so the bar belongs
+                  to the same family as everything under it.
+   · --jobbar-bleed  how far out to the container's padding edge and back in
+                  again as padding. Only the sheet sets it. */
 .jobbar {
   position: sticky; top: 0; z-index: 3;
   background: var(--surface);
   display: flex; flex-direction: column; gap: 8px;
-  padding: var(--sp-3) 0;
-  border-bottom: 1px solid var(--hairline);
+  padding: var(--sp-3) var(--jobbar-bleed, 0px);
+  margin-inline: calc(var(--jobbar-bleed, 0px) * -1);
+  margin-top: var(--sp-3);
+  border-radius: var(--r-panel);
+  corner-shape: var(--corner);
+  box-shadow: 0 12px 34px -14px rgba(0, 0, 0, .8);
 }
+/* THE SHEET IS THE ONE CONTAINER WHERE THE BAR IS THE CONTAINER'S OWN CHROME
+   rather than something sitting in it: it spans the sheet wall to wall, so a
+   radius there would be a corner cut out of a band. It takes the hairline
+   instead, which is the edge a square band is entitled to.
+   IT IS ALSO THE ONLY ONE THAT NEEDS THE VARIABLE. .record-body has no
+   padding of its own — the panel around it holds that — and `.app-main`'s
+   children all live inside its content box, so neither has a gutter for
+   anything to slide up. */
+.sheet-body { --jobbar-bleed: var(--sp-4); }
 .sheet-body > .jobbar {
-  margin-inline: calc(var(--sp-4) * -1);
-  padding-inline: var(--sp-4);
+  border-radius: 0;
+  border-bottom: 1px solid var(--hairline);
 }
 /* AND top: 0 IS NOT ENOUGH ON ITS OWN — MEASURED, twice, before and after.
    A sticky box may not leave its CONTAINING BLOCK, which for a child of
@@ -4180,6 +4237,23 @@ button.warn-box:hover { border-color: var(--fog-2); }
      invalid state — which is the whole reason this is not a <select>. */
   .segmented { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; width: 100%; }
   .segmented button { white-space: normal; padding: 8px 6px; line-height: 1.2; text-wrap: balance; }
+  /* **AND SIX GO IN TWO ROWS — ROADMAP 8.1a, 2026-09-19.** The rule above says
+     "three sentence-length choices" and was written against three; the grid it
+     writes is ONE ROW however many children arrive, and `grid-auto-columns: 1fr`
+     floors each track at min-content, so it cannot shrink its way out either.
+     `FinalizeModal`'s "What kind" has six, and at 320 the last of them —
+     Discount — sat 27px past the right edge of the screen.
+     **`flex-wrap` on the base rule does not reach this**, which is the whole
+     reason this line exists: wrap is a flex property and down here the control
+     is a grid. Measured, not assumed — the buttons ran 23→347 in a box ending
+     at 301 with `flex-wrap: wrap` already applied.
+     **SCOPED TO SIX, so nothing that fits today moves.** The four-option
+     payment-status control on this same sheet measures 23→297 inside 301 and
+     keeps its single row. Two columns gives each label 122px, which is the
+     "a pair becomes a stack" answer this whole block is built on. */
+  .segmented:has(> button:nth-child(6)) {
+    grid-auto-flow: row; grid-template-columns: 1fr 1fr;
+  }
 
   /* The 8px above is not enough down here: three buttons plus two gaps still
      want 237px of the 220px a 320px card gives. Their LABELS are 189px of

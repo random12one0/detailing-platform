@@ -203,6 +203,86 @@ export function amountDueCents(b: PayableBooking | null | undefined): number {
 /** Stripe refuses anything under 50 cents, and says so in a way nobody reads. */
 export const STRIPE_MIN_CHARGE_CENTS = 50;
 
+export interface RefundOwed {
+  /** True when money has changed hands for work that is not going to happen. */
+  owed: boolean;
+  /**
+   * What was taken, in cents — `amountDueCents`, so the detailer's agreed
+   * final amount beats the original quote here exactly as it does everywhere
+   * else. **ZERO WHEN `partial`**, and that is not a bug: nothing in this
+   * database records WHICH part was paid. `payability` already refuses to
+   * guess at it for the same reason. A figure invented here would be a figure
+   * a detailer refunds.
+   */
+  amountCents: number;
+  kind: "paid" | "partial" | "none";
+}
+
+/**
+ * DOES ENDING THIS BOOKING LEAVE MONEY TO SORT OUT — ROADMAP 14.4.
+ *
+ * THREE PLACES SET A BOOKING TO `cancelled` AND NONE OF THEM USED TO ASK:
+ * `cancel-booking` (the customer's own link), `respond-to-booking`'s decline
+ * branch, and `update-booking` with `status: "cancelled"` (the detailer's own
+ * "Cancel the job" button). Asking the question in three places is three
+ * chances for one of them to stop asking, so it is asked here.
+ *
+ * **AND THE ANSWER IS AN INSTRUCTION, NOT A REFUND.** This platform never
+ * holds the money — see the top of this file. On a Stripe Connect direct
+ * charge the customer's money went into the DETAILER's own Stripe account and
+ * the refund is theirs to make from their own balance. A platform that quietly
+ * refunded it would be moving a stranger's money, which is the one thing this
+ * whole design exists to avoid. So the product's job is to say so, loudly, to
+ * the person who can actually do it.
+ *
+ * IT DELIBERATELY DOES NOT LOOK AT `status`. The cancel paths ask BEFORE they
+ * write the row and the screens ask AFTER, and a function that insisted on
+ * `cancelled` would answer "no money owed" to the callers that need it most.
+ * The caller decides when the question is worth asking; this decides the
+ * answer.
+ *
+ * `waived` IS NOT OWED. That is the detailer deciding this one is free — no
+ * money ever moved, so there is nothing to give back.
+ */
+export function refundOwed(b: PayableBooking | null | undefined): RefundOwed {
+  const status = b?.payment_status;
+  if (status === "paid") return { owed: true, amountCents: amountDueCents(b), kind: "paid" };
+  if (status === "partial") return { owed: true, amountCents: 0, kind: "partial" };
+  return { owed: false, amountCents: 0, kind: "none" };
+}
+
+/**
+ * The sentence the DETAILER reads, in their email and on the job. Written once
+ * here so the two surfaces cannot drift into describing one fact two ways.
+ * Never shown to a customer: it names Stripe and it names their balance.
+ *
+ * **IT TAKES THE FORMATTER RATHER THAN OWNING ONE, AND THE FIRST VERSION DID
+ * NOT — caught by looking at the screen.** A `toFixed(2)` here printed
+ * *"Refund $195.00"* into an email whose own facts table two rows above said
+ * *"Was worth $180"*, and onto a job screen that says *"charged $195"* an inch
+ * below. Both of this product's money formatters — `app/src/lib/format.js` and
+ * `_shared/emailKit.ts` — drop the cents on a whole number, so a third rule
+ * invented in this file was wrong on every surface at once.
+ *
+ * CLAUDE.md's rule is ONE FORMATTER EACH, so this does not import one: an
+ * arithmetic module reaching into an email-drawing module is the wrong
+ * direction, and the browser could not follow it anyway. The caller passes its
+ * own, which is the only arrangement where the sentence is written once AND
+ * every surface still speaks in its own voice about money.
+ */
+export function refundInstruction(r: RefundOwed, money: (n: number) => string): string {
+  if (!r.owed) return "";
+  const amount = r.kind === "partial" ? "what they paid" : money(r.amountCents / 100);
+  // A SENTENCE JOINT TAKES A FULL STOP, not an em dash — CLAUDE.md § the em
+  // dash has three shapes, and `tests/em-dash.test.mjs` is the gate. This
+  // sentence exists in FOUR places (here, `BookingDetail.jsx`, and two keys in
+  // `appEs.js`) and the catalogue is keyed on the English, so the punctuation
+  // is load-bearing: change it here alone and the dashboard falls back to
+  // English on a Spanish screen with no error anywhere.
+  return `This was paid. Refund ${amount} from your own Stripe. The money went `
+    + `straight into your account, so we cannot send it back for you.`;
+}
+
 export interface PayabilityInput {
   booking: PayableBooking | null | undefined;
   settings: ConnectSettings | null | undefined;

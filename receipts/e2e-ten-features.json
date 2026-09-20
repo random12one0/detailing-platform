@@ -1,0 +1,62 @@
+{
+  "git_sha": "2a10b86d811d5a5929c629b2b24de47e9dba8e2e",
+  "environment": "local",
+  "finished_at": "2026-09-19T04:44:16.601Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/e2e-ten-features/row-counts-before.json",
+    "artifacts/e2e-ten-features/dropoff-row.json",
+    "artifacts/e2e-ten-features/dropoff-slots.json",
+    "artifacts/e2e-ten-features/dropoff-refusal.json",
+    "artifacts/e2e-ten-features/line-item-row.json",
+    "artifacts/e2e-ten-features/money-with-and-without.json",
+    "artifacts/e2e-ten-features/job-photo-row.json",
+    "artifacts/e2e-ten-features/gallery-row.json",
+    "artifacts/e2e-ten-features/site-intake-row.json",
+    "artifacts/e2e-ten-features/translate-content.json",
+    "artifacts/e2e-ten-features/customer-spanish.json",
+    "artifacts/e2e-ten-features/canary-stranger-write.json",
+    "artifacts/e2e-ten-features/row-counts-after.json"
+  ],
+  "dimensions": {
+    "business": "89f36921-3a27-45a1-8170-8108224a8638",
+    "nonce": "nmu7wke0w",
+    "rows_before": {
+      "dropoff_only_periods": 1,
+      "booking_line_items": 2,
+      "job_photos": 1,
+      "gallery_images": 1,
+      "site_intake": 1,
+      "translations": 82
+    },
+    "rows_after": {
+      "dropoff_only_periods": 1,
+      "booking_line_items": 2,
+      "job_photos": 1,
+      "gallery_images": 1,
+      "site_intake": 1,
+      "translations": 83
+    },
+    "not_covered": [
+      "platform_subscriptions",
+      "platform_invoices",
+      "owner_push_subscriptions"
+    ],
+    "sabotage": null
+  },
+  "check_id": "e2e-ten-features",
+  "started_at": "2026-09-19T04:44:02.431Z",
+  "status": "pass",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 42,
+  "min_assertions": 37,
+  "canary": {
+    "id": "a-signed-out-stranger-must-not-be-able-to-write-these-rows",
+    "observed_failure": true
+  }
+}

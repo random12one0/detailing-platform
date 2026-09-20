@@ -1585,17 +1585,60 @@ var REDUCED = matchMedia("(prefers-reduced-motion:reduce)").matches;
 })();
 
 /* Every other Book control is an ENTRY POINT — it scrolls to the one widget
-   and carries its selection in (tenant-site-contract §2n). */
+   and carries its selection in (tenant-site-contract §2n).
+
+   ROADMAP 2.4 — AND ON A PAGE WITH NO WIDGET IT IS A LINK, NOT A SCROLL.
+   `id="book"` exists only on the index. Work and Prices have none, so this
+   block used to `preventDefault()` a perfectly good href and then throw
+   `Cannot read properties of null` on the very next expression. TWO failures
+   from one missing guard, and the second outlives the first: even with the
+   crash swallowed the button would still do nothing, because the navigation
+   had already been cancelled. A1 found it on Prices; nobody found it on Work.
+
+   THE SELECTION TRAVELS IN THE QUERY STRING rather than being dropped. A
+   customer who presses "Book this" under Express Wash and lands on the index
+   with Full Detail selected — the widget's own `checked` default — has been
+   handed the wrong service, which is ROADMAP 2.5 happening on a different
+   site. The href is rewritten once at bind time rather than on click, so
+   middle-click and "open in new tab" carry it too; `preventDefault` broke
+   both of those on every page, including the one where the scroll worked.
+
+   NO SELECTOR IS BUILT OUT OF THE VALUE. `input[value="' + want + '"]` puts a
+   URL parameter inside a CSS selector on the receiving end; comparing
+   `.value` in a loop cannot be broken by a quote. */
 (function(){
-  document.querySelectorAll("[data-book]").forEach(function(a){
-    a.addEventListener("click", function(e){
-      e.preventDefault();
-      var want = a.getAttribute("data-book");
-      var input = want && document.querySelector('.bk-step input[value="' + want + '"]');
-      if (input) input.checked = true;
-      document.getElementById("book").scrollIntoView({ behavior: "smooth", block: "start" });
+  var widget = document.getElementById("book");
+
+  function pick(want){
+    if (!want) return;
+    [].forEach.call(document.querySelectorAll('.bk-step input[name="svc"]'), function(i){
+      if (i.value === want) i.checked = true;
     });
+  }
+
+  document.querySelectorAll("[data-book]").forEach(function(a){
+    var want = a.getAttribute("data-book");
+    if (widget) {
+      a.addEventListener("click", function(e){
+        e.preventDefault();
+        pick(want);
+        widget.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      return;
+    }
+    var href = a.getAttribute("href");
+    if (!href || !want) return;
+    var cut  = href.indexOf("#");
+    var base = cut < 0 ? href : href.slice(0, cut);
+    var frag = cut < 0 ? "#book" : href.slice(cut);
+    a.setAttribute("href",
+      base + (base.indexOf("?") < 0 ? "?" : "&") + "svc=" + encodeURIComponent(want) + frag);
   });
+
+  /* The other half of the crossing: arriving with `?svc=` preselects. */
+  if (widget) {
+    try { pick(new URLSearchParams(location.search).get("svc")); } catch (e) {}
+  }
 })();
 
 

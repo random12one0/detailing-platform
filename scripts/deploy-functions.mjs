@@ -79,6 +79,13 @@ const PUBLIC_FUNCTIONS = new Set([
   // timestamp tolerance, and `tests/platform-billing.test.mjs` § 8 pins all
   // three. `platform-billing` is NOT here — it is the detailer's own session.
   "stripe-webhook",
+  // ROADMAP 14.3 — Resend telling us what became of a message. Public for
+  // exactly the reason above it is: the provider has no bearer token to
+  // present, and the Svix signature over the raw body IS the authentication.
+  // `_shared/svix.ts` is the check and `tests/svix-signature.test.mjs` runs it
+  // rather than reading it. It only ever UPDATES a row it already sent, so a
+  // signed event for an unknown message id changes nothing.
+  "resend-webhook",
   // ROADMAP 8.12 — the dead man's switch, called by `pg_cron` with no header
   // for exactly the reason `send-owner-reminders` above is: the only key that
   // would satisfy a check is the service-role key, and that must never be

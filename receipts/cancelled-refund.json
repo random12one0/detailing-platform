@@ -1,0 +1,69 @@
+{
+  "git_sha": "2a10b86d811d5a5929c629b2b24de47e9dba8e2e",
+  "environment": "local",
+  "finished_at": "2026-09-19T23:07:23.445Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/cancelled-refund"
+  ],
+  "dimensions": {
+    "endpoint": "cancel-booking",
+    "auth": "none",
+    "payment_states": [
+      "pending",
+      "paid",
+      "partial",
+      "waived"
+    ],
+    "probed": [
+      {
+        "payment_status": "pending",
+        "id": "6925e13a-b369-4de9-9c5c-29608907cba5",
+        "refund": {
+          "owed": false,
+          "message": null
+        }
+      },
+      {
+        "payment_status": "paid",
+        "id": "c0e8b47c-709a-47e5-85b5-1a1f65106c49",
+        "refund": {
+          "owed": true,
+          "message": "You paid for this booking. Phase1 Detailing A will arrange your refund directly — contact them if you have not heard from them."
+        }
+      },
+      {
+        "payment_status": "partial",
+        "id": "f0c2de2c-de86-420b-ac20-cfeb65e8f9d7",
+        "refund": {
+          "owed": true,
+          "message": "You paid for this booking. Phase1 Detailing A will arrange your refund directly — contact them if you have not heard from them."
+        }
+      },
+      {
+        "payment_status": "waived",
+        "id": "81d4aced-f11e-4422-b94b-ef63dae8ace4",
+        "refund": {
+          "owed": false,
+          "message": null
+        }
+      }
+    ]
+  },
+  "check_id": "cancelled-refund",
+  "started_at": "2026-09-19T23:07:14.777Z",
+  "status": "pass",
+  "expected_targets": 4,
+  "discovered_targets": 4,
+  "attempted_targets": 4,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 48,
+  "min_assertions": 36,
+  "canary": {
+    "id": "owner-email-with-the-refund-note-stripped",
+    "observed_failure": true,
+    "reported": "caught"
+  }
+}

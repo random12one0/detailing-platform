@@ -46,10 +46,17 @@ import { useBusiness } from "../context/BusinessContext.jsx";
 import { useBookings, withLocal, BOOKING_SELECT } from "../hooks/useBookings.js";
 import { useWide } from "../hooks/useWide.js";
 import { localDate, money, todayLocal } from "../lib/format.js";
-import { PERIOD_KINDS, bucketsFor, inPeriod, periodAt } from "../lib/periods.js";
+import { PERIOD_KINDS, bucketsFor, inPeriod, periodAt, previousSoFar } from "../lib/periods.js";
 import { accountantCsv, accountantFilename } from "../lib/accountant-export.js";
 // The floor both money screens obey. See moneyAdvanced.js for why it is one
 // number rather than one per screen.
+//
+// **`ON_SITE` USED TO BE IMPORTED HERE TOO AND IS NOT ANY MORE — ROADMAP
+// 14.7, and it is a step further than 14.6a got.** That item ended the second
+// COPY of the list by importing the one list. This screen no longer needs the
+// list at all: the figure it fed — *Added on site* — comes out of the same
+// `advancedMoney` call as every other number on the screen, so there is one
+// list, one place that reads it, and nothing here to keep in step.
 import { RATE_FLOOR } from "../lib/moneyAdvanced.js";
 // ROADMAP 4.2 — the same arithmetic Tracking links runs, so the two screens
 // cannot print different numbers for the same flyer. See the block below.
@@ -84,13 +91,23 @@ import { useAppLocale } from "../hooks/useAppLocale.js";
 // It is the same rule as everywhere else in this file, at the point where it
 // actually costs something: *a placeholder is a whole sentence's worth of
 // freedom, and a translation has to be free to change the words around it.*
+// **THEY SAID "NET" AND A DETAILER READ IT AS "KEPT" — ROADMAP 5.1, SETTLED
+// BY 14.7.** The figure is `earned − expenses` and it counts work finished in
+// the period whether or not a dollar of it has arrived: measured on the demo
+// business on 2026-09-17, *Net, all time* read $3,643 while the cash actually
+// received less expenses was $3,348 — overstated by $295, to the dollar the
+// amount three customers still owe. The maths is right and stays (the chart,
+// the month-on-month delta and the accountant file all count the same way);
+// the WORD was the whole defect. "Earned less expenses" cannot be read as
+// money in a bank account, and *Collected* and *Still owed* now sit in the
+// breakdown under it so the missing part is on the screen rather than implied.
 const NET_NOW = {
-  week: "Net this week", month: "Net this month",
-  "6m": "Net these 6 months", year: "Net this year",
+  week: "Earned less expenses this week", month: "Earned less expenses this month",
+  "6m": "Earned less expenses, these 6 months", year: "Earned less expenses this year",
 };
 const NET_THEN = {
-  week: "Net that week", month: "Net that month",
-  "6m": "Net those 6 months", year: "Net that year",
+  week: "Earned less expenses that week", month: "Earned less expenses that month",
+  "6m": "Earned less expenses, those 6 months", year: "Earned less expenses that year",
 };
 const SAME_AS_LAST = {
   week: "Same as last week", month: "Same as last month",
@@ -100,11 +117,33 @@ const VS_LAST = {
   week: "vs {amount} last week", month: "vs {amount} last month",
   "6m": "vs {amount} the 6 months before", year: "vs {amount} last year",
 };
+// **AND THE SAME TWO SENTENCES AGAIN FOR A PERIOD THAT IS STILL RUNNING —
+// ROADMAP 5.2.** The comparison is now against the same point in the period
+// before (`previousSoFar` in `lib/periods.js`), so it has to say so: "vs $412
+// last month" beside seventeen days of September is a claim about the whole of
+// August, and the whole of August is not what the figure beside it counted.
+// Eight keys rather than a `{when}` placeholder, for the reason the four above
+// are four: Spanish agrees the demonstrative with the noun's gender, so a
+// placeholder produces a sentence that is wrong half the time.
+const SAME_AS_LAST_SO_FAR = {
+  week: "Same as this point last week", month: "Same as this point last month",
+  "6m": "Same as this point in the 6 months before", year: "Same as this point last year",
+};
+const VS_LAST_SO_FAR = {
+  week: "vs {amount} at this point last week", month: "vs {amount} at this point last month",
+  "6m": "vs {amount} at this point in the 6 months before", year: "vs {amount} at this point last year",
+};
 
 // Line-item categories that represent money sold at the job rather than
-// through the booking page. A discount is negative and belongs on the same
-// side of the ledger, so it nets against the upsell rather than hiding.
-const ON_SITE = new Set(["upgrade", "add_on", "custom", "travel_fee", "discount"]);
+// through the booking page.
+//
+// **IMPORTED NOW, NOT RE-LISTED, AND THAT IS THE WHOLE POINT.** This file held
+// its own copy and `moneyAdvanced.js` held another, with a comment there
+// promising the two would "move together". They did not: this one was right and
+// that one listed three categories the database refuses outright, so the same
+// words — *"Sold at the job"* — meant two different figures on two screens.
+// ROADMAP 14.6 found it by putting the first row this product has ever had into
+// `booking_line_items`. One list, one import, no second copy to drift.
 
 // The chart's two halves, as percentages of a 120px box. A −$114 against a
 // +$455 has to be visibly below the line without giving half the chart to the
@@ -172,7 +211,14 @@ export default function Money({ onGo }) {
   // The month and week LABELS come out of `periods.js`, which takes the
   // locale rather than reading it — see that file's header.
   const period = periodAt(kind, today, offset, appIntlLocale());
-  const previous = periodAt(kind, today, offset - 1, appIntlLocale());
+  // ROADMAP 5.2 — TRIMMED TO THE SAME POINT WHILE THIS PERIOD IS STILL
+  // RUNNING, and left whole once it is over. Every comparison on this screen
+  // and on the advanced one behind it comes from this one object: `stats`
+  // passes it to `advancedMoney`, and `AdvancedMoney` gets the same value as a
+  // prop, so the four tiles there cannot compare against a different stretch
+  // of time from the headline here. `.partial` is what the label reads.
+  const previous = previousSoFar(
+    period, periodAt(kind, today, offset - 1, appIntlLocale()), today);
   const buckets = useMemo(() => bucketsFor(kind, today, offset, appIntlLocale()), [kind, today, offset]);
   // Enough range to cover the chart AND the comparison, which is one bucket
   // further back than the leftmost bar when the chart is only one wide.
@@ -259,65 +305,63 @@ export default function Money({ onGo }) {
   // decision onto the next one.
   useEffect(() => { setAllExpenses(false); setSent(""); }, [kind, offset]);
 
+  // ─── ONE ARITHMETIC, NOT TWO — ROADMAP 14.7 ─────────────────────────────
+  //
+  // **THIS BLOCK USED TO ADD THE MONEY UP ITSELF.** It had its own
+  // `revenueIn`, its own expense filter, its own net, its own average job and
+  // its own quoted/added split — every one of them a second implementation of
+  // a figure `lib/moneyAdvanced.js` was already computing for the screen
+  // behind "The full picture", from the same rows, on the same period. Two
+  // copies of one number, which is ROADMAP 14.6a's defect exactly: *the same
+  // figure computed from two copies of one list that had drifted.*
+  //
+  // THEY HAD ALREADY STARTED TO DIFFER, AND NOT IN THE VALUE. `moneyAdvanced`
+  // hardens every amount with `num()` (a non-numeric reads as 0) while this
+  // block used a bare `Number()` (a non-numeric turns the WHOLE figure into
+  // `NaN`), and it named the accrual total `inNow` where that file named it
+  // `collected`. Nobody had to be careless for these to diverge; they only
+  // had to be edited on different days.
+  //
+  // SO THE SCREEN NO LONGER DOES ARITHMETIC. It calls `advancedMoney` — the
+  // one this file already called for the most-booked package, widened to keep
+  // the rest of what it returns instead of throwing it away — and the six-bar
+  // chart calls it once per bucket, so the bar for the selected month and the
+  // headline above it cannot disagree about that month. The comment on the old
+  // `top` call made this argument and then discarded the answer.
   const stats = useMemo(() => {
-    const done = bookings.filter((b) => b.status === "completed");
-    // Every figure below is "money in THIS period", so there is one filter
-    // and nothing on the screen slices the data its own way.
-    const jobsIn = (p) => done.filter((b) => inPeriod(b.booking_date, p));
+    const m = advancedMoney({ bookings, expenses, lineItems, period, previous });
 
-    const revenueIn = (p) => jobsIn(p).reduce((s, b) => s + Number(b.final_amount ?? b.total_price), 0);
-    const spentIn = (p) => expenses.filter((e) => inPeriod(e.date, p))
-      .reduce((s, e) => s + Number(e.amount), 0);
-
-    // Line items joined back to the bookings of the period in question.
-    const itemsFor = (p) => {
-      const ids = new Set(jobsIn(p).map((b) => b.id));
-      return lineItems.filter((li) => ids.has(li.booking_id));
-    };
-    const sumItems = (items, pred) => items
-      .filter(pred)
-      .reduce((s, li) => s + Number(li.amount) * Number(li.quantity ?? 1), 0);
-
-    const items = itemsFor(period);
-    const onSite = sumItems(items, (li) => ON_SITE.has(li.category));
-    const tipTotal = sumItems(items, (li) => li.category === "tip");
-    const tippedJobs = new Set(items.filter((li) => li.category === "tip").map((li) => li.booking_id)).size;
-
-    const inNow = revenueIn(period), inPrev = revenueIn(previous);
-    const outNow = spentIn(period), outPrev = spentIn(previous);
-    const jobsNow = jobsIn(period).length, jobsPrev = jobsIn(previous).length;
-
-    // Everything that wasn't sold on site was quoted up front. Tips are not
-    // sales, so they sit outside the split rather than inflating it.
-    const quoted = Math.max(0, inNow - onSite - tipTotal);
-
+    // THE CHART IS THE SAME FIGURE, SIX TIMES. A bucket is a period, `net` is
+    // the one definition of net, and a bar the detailer can tap to land on a
+    // headline that reads differently is worse than no chart.
     const chart = buckets.map((b) => ({
       key: b.start, label: b.tick, offset: b.offset,
-      value: revenueIn(b) - spentIn(b),
+      value: advancedMoney({ bookings, expenses, lineItems, period: b }).net,
     }));
 
     return {
-      inNow, outNow, jobsNow,
-      netNow: inNow - outNow, netPrev: inPrev - outPrev,
-      avgJob: jobsNow > 0 ? inNow / jobsNow : 0,
-      avgJobPrev: jobsPrev > 0 ? inPrev / jobsPrev : 0,
-      quoted, onSite, tipTotal, tippedJobs,
-      avgTip: tippedJobs > 0 ? tipTotal / tippedJobs : 0,
+      // accrual — work FINISHED in the period, paid for or not
+      earned: m.earned, outNow: m.spent, jobsNow: m.jobs,
+      netNow: m.net, netPrev: m.prevNet,
+      avgJob: m.avgTicket,
+      // cash — of that, what has and has not arrived
+      collected: m.collected, owed: m.owed,
+      quoted: m.quoted, onSite: m.onSite,
+      tipTotal: m.tipTotal, tippedJobs: m.tippedJobs, avgTip: m.avgTip,
+      top: m.packages[0] ?? null,
       chart,
-      jobsDone: jobsIn(period),
+      // The ROWS, for the accountant file — the only thing on this screen that
+      // needs the bookings themselves rather than a total of them.
+      jobsDone: bookings.filter((b) => b.status === "completed"
+        && inPeriod(b.booking_date, period)),
     };
   }, [bookings, expenses, lineItems, period, previous, buckets]);
 
-  // ONE FIGURE OUT OF THE ADVANCED SET, ON THE EVERYDAY SCREEN. Which package
-  // sells most is the only one of those figures that changes what a detailer
-  // does TOMORROW, which is why it earns a place beside four that describe
-  // today. The whole set is one call and the rest is discarded — cheaper than
-  // a second, subtly different tally of the same rows, which is how two
-  // screens start disagreeing about the same fact.
-  const top = useMemo(
-    () => advancedMoney({ bookings, expenses, lineItems, period, previous }).packages[0] ?? null,
-    [bookings, expenses, lineItems, period, previous],
-  );
+  // WHICH PACKAGE SELLS MOST is the only one of the advanced figures that
+  // changes what a detailer does TOMORROW, which is why it earns a place
+  // beside four that describe today. It comes out of the same call as
+  // everything else now rather than out of a second one.
+  const top = stats.top;
 
   // ─── WHERE THE BOOKINGS CAME FROM ──────────────────────────────────────
   //
@@ -519,11 +563,12 @@ export default function Money({ onGo }) {
       <div className="swap" key={`${kind}|${offset}`} data-tour="net">
         <span className="label">
           {kind === "all"
-            ? t("Net, all time")
+            ? t("Earned less expenses, all time")
             : t(offset === 0 ? NET_NOW[kind] : NET_THEN[kind])}
         </span>
         <div className="figure lead" style={{ marginTop: 4 }}>{money(stats.netNow)}</div>
-        <Delta now={stats.netNow} prev={stats.netPrev} kind={kind} hide={kind === "all"} />
+        <Delta now={stats.netNow} prev={stats.netPrev} kind={kind} hide={kind === "all"}
+          soFar={previous.partial} />
 
         {!anything ? (
           <p className="body" style={{ marginTop: 10 }}>
@@ -604,26 +649,66 @@ export default function Money({ onGo }) {
         <div>
         <div className="sunken swap" key={`ctx-${kind}|${offset}`} data-tour="breakdown">
           <div className="paircells">
-            {/* **IT SAID "COLLECTED" AND THE SAME FRAME CONTRADICTED IT —
-                FOUND.md, 2026-09-12, fixed 2026-09-13.** `revenueIn` filters
-                on `status`, never on `payment_status`, so this cell counted
-                work that has been DONE, paid for or not: September read
-                COLLECTED $410 with WAITING ON PAYMENT · $175 an inch below it,
-                and Today's screen said "Nothing collected yet" about the same
-                two jobs. Three screens, one number, two claims.
-                **THE FIGURE IS RIGHT AND THE WORD WAS WRONG.** Net is
-                `brought in − expenses` and has to stay that way — the tour
-                step above it says "what is left after expenses, not what came
-                in", and a cash-basis net would disagree with the chart, the
-                comparison and the accountant file, all of which count the work
-                you did in the period. So the label becomes what the advanced
-                screen's own lede has always called this number: *you brought
-                in {in} and spent {out}*. What has actually LANDED is the
-                unpaid block's question, and it is answered there by name. */}
-            <Cell label={t("Brought in")} value={money(stats.inNow)} />
+            {/* ── THE CONTRADICTION THIS BLOCK USED TO CARRY, AND HOW IT WAS
+                SETTLED — ROADMAP 14.7, 2026-09-17 ──────────────────────────
+                **WHAT STOOD HERE SAID THE MATHS "HAS TO STAY THAT WAY" AND
+                ROADMAP 5.1 SAID TO CHANGE IT. Both could not be right, and
+                that unresolved pair is why 14.7 was opened as its own item
+                rather than folded into 5.1.**
+                THE HISTORY, BECAUSE THE REVERSAL IS THE LOAD-BEARING PART.
+                On 2026-09-12 this cell was labelled COLLECTED while counting
+                work merely FINISHED: September read COLLECTED $410 with
+                WAITING ON PAYMENT · $175 an inch below it, and Today's screen
+                said "Nothing collected yet" about the same two jobs. Three
+                screens, one number, two claims. The 2026-09-13 fix renamed the
+                cell to "Brought in" and argued the arithmetic must not move.
+                **THE ARITHMETIC ARGUMENT WAS RIGHT AND THE NEW WORD WAS STILL
+                A CASH CLAIM.** "Brought in" is money that came in; $295 of it
+                had not. Renaming COLLECTED to BROUGHT IN moved the same false
+                promise one word to the left, and the headline above still said
+                *Net*, which a detailer reads as *kept*.
+                **SO: 5.1 WINS ON THE LABELS, THE OLD COMMENT WINS ON THE
+                MATHS** — 14.7's own recommendation, and it is the only reading
+                under which nothing on this screen has to lie. One accrual
+                figure, kept, because the six-bar chart, the *vs last month*
+                delta, the tour step ("what is left after expenses, not what
+                came in") and the accountant CSV all count work done in the
+                period, and a cash-basis headline would disagree with the chart
+                it is drawn on top of. What changes is every word: EARNED for
+                the accrual total, EARNED LESS EXPENSES for the headline, and
+                the cash pair below put on the screen instead of left implied.
+                WHAT 5.1 ASKED FOR AND DID NOT GET, ON PURPOSE: *Expenses paid*
+                stays *Expenses*. There is no paid/unpaid on an expense row —
+                the table has no such column — so "Expenses paid" would be a
+                new unverifiable claim replacing an honest one, which is worse
+                than the label it replaces. Recorded rather than silently
+                dropped. */}
+            <Cell label={t("Earned")} value={money(stats.earned)} />
             <Cell label={t("Expenses")} value={money(stats.outNow)} />
             <Cell label={t("Avg job")} value={money(stats.avgJob)} />
             <Cell label={t("Jobs done")} value={String(stats.jobsNow)} />
+          </div>
+
+          {/* ── OF WHAT WAS EARNED, WHAT HAS ACTUALLY ARRIVED ─────────────
+              **THE MISSING HALF OF 5.1, AND THE TWO CELLS ADD BACK TO THE ONE
+              ABOVE THEM:** earned = collected + still owed, always, because
+              `moneyAdvanced.js` computes the third from the other two rather
+              than tallying it separately.
+              THIS PAIR IS THE PERIOD'S. The *Waiting on payment* list further
+              down is every period there has ever been — deliberately, because
+              who owes you money is not a period question and switching from
+              Month to Week used to make last month's unpaid job disappear off
+              the one screen that exists to chase it. Two scopes, and the two
+              are given DIFFERENT WORDS for that reason: a "Still owed" that
+              meant the period in one place and all time in another is 14.6a's
+              defect wearing a new coat.
+              NO EXPLANATORY SENTENCE UNDER IT. `docs/screen-rules.md` names
+              copy that restates the label as a never-default, and *Collected*
+              beside *Still owed* under *Earned* is already the sentence. */}
+          <div className="paircells tight-rows" style={{ marginTop: 10 }}>
+            <Cell label={t("Collected")} value={money(stats.collected)} />
+            <Cell label={t("Still owed")} value={money(stats.owed)}
+              tone={stats.owed > 0 ? "bad" : undefined} />
           </div>
 
           <hr className="rule" />
@@ -665,14 +750,18 @@ export default function Money({ onGo }) {
               value={`${stats.onSite >= 0 ? "+" : "−"}${money(Math.abs(stats.onSite))}`}
               tone={stats.onSite > 0 ? "good" : undefined} />
           </div>
-          {stats.jobsNow >= RATE_FLOOR && stats.inNow > 0 && stats.onSite > 0 && (
+          {stats.jobsNow >= RATE_FLOOR && stats.earned > 0 && stats.onSite > 0 && (
             <p className="quiet" style={{ marginTop: 8 }}>
               {/* **IT WAS A BARE LITERAL — FOUND.md, 2026-09-12.** The only
                   sentence on this screen that never went through `t()`, so it
                   sat in English on a Spanish dashboard while everything around
-                  it translated. Nothing else about it changes. */}
-              {t("{percent}% of what you brought in was sold at the job.",
-                { percent: Math.round((stats.onSite / stats.inNow) * 100) })}
+                  it translated.
+                  AND IT SAID "BROUGHT IN" — ROADMAP 14.7. The denominator is
+                  the accrual total, so the sentence carried the same cash
+                  claim as the cell it sat under. "Earned" is what that
+                  denominator is. */}
+              {t("{percent}% of what you earned was sold at the job.",
+                { percent: Math.round((stats.onSite / stats.earned) * 100) })}
             </p>
           )}
 
@@ -1013,9 +1102,13 @@ function Cell({ label, value, tone, wrap }) {
   return (
     <div>
       <span className="label">{label}</span>
+      {/* `bad` is the product's fixed red and never the tenant's accent —
+          law 11b, money moving is meaning rather than identity. The same two
+          tones `Kpi` on the advanced screen already takes, so *Still owed*
+          reads the same on both. */}
       <div className="strong num" style={{
         marginTop: 4,
-        color: tone === "good" ? "var(--ac)" : undefined,
+        color: tone === "good" ? "var(--ac)" : tone === "bad" ? "var(--bad)" : undefined,
         whiteSpace: wrap ? "normal" : undefined,
       }}>
         {value}
@@ -1030,12 +1123,19 @@ function Cell({ label, value, tone, wrap }) {
 //
 // Lifetime has nothing to compare against, so it says nothing rather than
 // inventing a previous lifetime.
-function Delta({ now, prev, kind, hide }) {
+//
+// **`soFar` IS ROADMAP 5.2 AND IT CHANGES ONLY THE WORDS — the arithmetic was
+// already right about the wrong two stretches of time.** `prev` now arrives
+// cut to the same point in the period before, so seventeen days are compared
+// with seventeen days; this flag is what makes the sentence beside the arrow
+// say that, instead of naming a whole month the figure never counted.
+function Delta({ now, prev, kind, hide, soFar }) {
   if (hide) return null;
   if (!prev) return <p className="quiet" style={{ marginTop: 6 }}>{t("No comparison yet")}</p>;
   const diff = now - prev;
   if (Math.abs(diff) < 0.005) {
-    return <p className="quiet" style={{ marginTop: 6 }}>{t(SAME_AS_LAST[kind])}</p>;
+    return <p className="quiet" style={{ marginTop: 6 }}>
+      {t((soFar ? SAME_AS_LAST_SO_FAR : SAME_AS_LAST)[kind])}</p>;
   }
   const up = diff > 0;
   // **A PERCENTAGE ACROSS A SIGN FLIP IS ARITHMETIC WITH NO MEANING —
@@ -1059,7 +1159,7 @@ function Delta({ now, prev, kind, hide }) {
   return (
     <div className="row" style={{ gap: 8, marginTop: 6 }}>
       <span className={`delta ${up ? "up" : "down"}`}>{said}</span>
-      <span className="quiet">{t(VS_LAST[kind], { amount: money(prev) })}</span>
+      <span className="quiet">{t((soFar ? VS_LAST_SO_FAR : VS_LAST)[kind], { amount: money(prev) })}</span>
     </div>
   );
 }

@@ -126,3 +126,44 @@ export function bucketsFor(kind, today, offset, loc) {
 }
 
 export const inPeriod = (dateStr, p) => dateStr >= p.start && dateStr <= p.end;
+
+// A PART-FINISHED PERIOD AGAINST A WHOLE ONE — ROADMAP 5.2.
+//
+// **THE HEADER OF THIS FILE HAS SAID SINCE IT WAS WRITTEN THAT "comparing a
+// part-finished week against a whole one is the classic wrong number", AND
+// THEN THE FILE DID EXACTLY THAT.** `periodAt(kind, today, offset - 1)` hands
+// back the WHOLE previous period. On 2026-09-18 the Money screen read
+// *▼ 69% vs $918 last month* on seventeen days of September — a detailer
+// having an ordinary month is told they have lost two thirds of their income,
+// and the number gets less wrong every day until the 30th, which is worse than
+// being wrong steadily because it looks like a recovery.
+//
+// **THE CHOICE WAS TRIM OR HIDE, AND TRIMMING WON.** Hiding the comparison
+// until the period closes removes it for up to 30 days at a stretch on Month
+// and up to 364 on Year — the figure would be absent on every day a detailer
+// could still act on it, and visible on the one day they cannot. Trimming is
+// also what every dashboard means by month-to-date, so it is the borrowed
+// convention this file's header already commits to. The cost is that the
+// comparison must SAY it is against a part period, which is a label and is
+// `VS_LAST_SO_FAR` in `Money.jsx`.
+//
+// DAYS ELAPSED, NOT CALENDAR ARITHMETIC, because one rule then covers all four
+// comparing kinds — day-of-week for a week, day-of-month for a month, day of
+// the sixth month for 6m, day of the year for a year. Clamped to the previous
+// period's own end so a 31st never runs past the end of February.
+//
+// A FINISHED PERIOD IS NOT TRIMMED. Step back to August and it is compared
+// with the whole of July, because both are over. `partial` says which of the
+// two happened, so nothing has to re-derive it from the dates.
+export function previousSoFar(period, previous, today) {
+  if (!period || !previous) return previous;
+  // Over already: the whole of the period before it is the right comparison.
+  if (today >= period.end) return { ...previous, partial: false };
+  const elapsed = Math.round((parse(today) - parse(period.start)) / 86400000);
+  if (!(elapsed >= 0)) return { ...previous, partial: false };
+  const p = parse(previous.start);
+  const end = ymd(new Date(p.getFullYear(), p.getMonth(), p.getDate() + elapsed));
+  return end < previous.end
+    ? { ...previous, end, partial: true }
+    : { ...previous, partial: false };
+}

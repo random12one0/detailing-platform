@@ -9,6 +9,7 @@ front of you.
 
 | Tier | Meaning |
 |---|---|
+| `HANDOFF-2026-09-19.md` | **LIVE — start here.** The session handoff: what the width and booking sweeps can now be trusted to do, the 8.4 paint/target decision Andrew made, and the one question waiting on him. **Not the same file as `docs/HANDOFF.md`**, which is the architecture page. |
 | **LIVE** | Current. Trust it, and correct it in place when you find it wrong. |
 | **REFERENCE** | A finished piece of research or a spec. Still true, rarely changes, read the section you need. |
 | **HISTORICAL** | An account of something that already happened. **Do not act on it.** Kept because the reasoning is why the code is the shape it is. |

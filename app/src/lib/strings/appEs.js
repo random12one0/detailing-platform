@@ -306,15 +306,21 @@ export const appEs = {
   // demonstrative with the noun's gender — *esta semana*, *este mes* — so
   // `"Net this " + noun` cannot be translated correctly at all. `Money.jsx`
   // carries the four maps; these are their values.
-  "Net this week": "Neto de esta semana",
-  "Net this month": "Neto de este mes",
-  "Net these 6 months": "Neto de estos 6 meses",
-  "Net this year": "Neto de este año",
-  "Net that week": "Neto de esa semana",
-  "Net that month": "Neto de ese mes",
-  "Net those 6 months": "Neto de esos 6 meses",
-  "Net that year": "Neto de ese año",
-  "Net, all time": "Neto, desde siempre",
+  // **THEY SAID "Neto" AND SO DID THE ENGLISH, AND BOTH WERE READ AS "KEPT"
+  // — ROADMAP 5.1, settled by 14.7.** The figure is everything finished in the
+  // period less expenses, paid for or not; on the demo business it read $295
+  // more than the cash. "Ganado menos gastos" is what it is and cannot be read
+  // as money in a bank account. The demonstrative still agrees with the noun's
+  // gender, which is why these are nine keys and not one with a placeholder.
+  "Earned less expenses this week": "Ganado menos gastos, esta semana",
+  "Earned less expenses this month": "Ganado menos gastos, este mes",
+  "Earned less expenses, these 6 months": "Ganado menos gastos, estos 6 meses",
+  "Earned less expenses this year": "Ganado menos gastos, este año",
+  "Earned less expenses that week": "Ganado menos gastos, esa semana",
+  "Earned less expenses that month": "Ganado menos gastos, ese mes",
+  "Earned less expenses, those 6 months": "Ganado menos gastos, esos 6 meses",
+  "Earned less expenses that year": "Ganado menos gastos, ese año",
+  "Earned less expenses, all time": "Ganado menos gastos, desde siempre",
   "Same as last week": "Igual que la semana pasada",
   "Same as last month": "Igual que el mes pasado",
   "Same as the 6 months before": "Igual que los 6 meses anteriores",
@@ -323,17 +329,33 @@ export const appEs = {
   "vs {amount} last month": "vs {amount} el mes pasado",
   "vs {amount} the 6 months before": "vs {amount} los 6 meses anteriores",
   "vs {amount} last year": "vs {amount} el año pasado",
+  // ROADMAP 5.2 — the same eight sentences again, for a period that has not
+  // finished. Trimming the comparison to the same point is what makes the
+  // number honest; these are what make it READ honest.
+  "Same as this point last week": "Igual que en este punto de la semana pasada",
+  "Same as this point last month": "Igual que en este punto del mes pasado",
+  "Same as this point in the 6 months before": "Igual que en este punto de los 6 meses anteriores",
+  "Same as this point last year": "Igual que en este punto del año pasado",
+  "vs {amount} at this point last week": "vs {amount} en este punto de la semana pasada",
+  "vs {amount} at this point last month": "vs {amount} en este punto del mes pasado",
+  "vs {amount} at this point in the 6 months before": "vs {amount} en este punto de los 6 meses anteriores",
+  "vs {amount} at this point last year": "vs {amount} en este punto del año pasado",
+  "Changes are against the same point in the period before.":
+    "Los cambios se comparan con el mismo punto del periodo anterior.",
   "No comparison yet": "Aún no hay con qué comparar",
   "Time range": "Periodo",
   "Previous period": "Periodo anterior",
   "Next period": "Periodo siguiente",
-  // **"Cobrado" MEANS MONEY RECEIVED AND THAT FIGURE IS NOT THAT** — it counts
-  // every job finished in the period, paid for or not (FOUND.md 2026-09-12).
-  // Both screens say "Brought in" from 2026-09-13, and the Spanish takes the
-  // words the advanced screen's own panel title already uses. The "Collected"
-  // key went with the last call site; `"Charged": "Cobrado"` further down is a
-  // different word for a different thing and is untouched.
-  "Brought in": "Lo que entró",
+  // **"Cobrado" MEANS MONEY RECEIVED, AND NOW THERE IS A FIGURE THAT IS
+  // ACTUALLY THAT** — ROADMAP 14.7. The note that stood here said the key had
+  // gone with its last call site because no figure on the screen deserved the
+  // word. One does now: `Collected` is the paid-only total, and it sits beside
+  // `Still owed` under `Earned`, which is the accrual one. So three keys where
+  // there was one, and they are three different amounts on purpose.
+  // `"Charged": "Cobrado"` further down is a different word for a different
+  // thing and is untouched.
+  "Earned": "Ganado",
+  "Collected": "Cobrado",
   "Expenses": "Gastos",
   "Avg job": "Trabajo prom.",
   "Jobs done": "Trabajos hechos",
@@ -385,10 +407,36 @@ export const appEs = {
   "Notes": "Notas",
   "Gate code, dog's name, preferences…": "Código del portón, nombre del perro, preferencias…",
   "Nothing booked yet.": "Nada agendado todavía.",
+
+  // ROADMAP 14.3 — the emails we sent this customer, and what became of them.
+  "Emails": "Correos",
+  "No emails sent to this address yet.": "Todavía no se han enviado correos a esta dirección.",
+  "most recent.": "más recientes.",
+  "Delivered": "Entregado",
+  "On its way": "En camino",
+  "Bounced": "Rebotó",
+  "Marked as spam": "Marcado como spam",
+  "Refused": "Rechazado",
+  // "Our" is the PLATFORM's limit, not the detailer's — the Spanish has to keep
+  // that, or a detailer reads it as a limit they set themselves.
+  "Not sent — our daily limit": "No se envió — límite diario nuestro",
+  "Not sent": "No se envió",
   "Call": "Llamar",
   "Send this to the next person who asks.": "Manda esto a la próxima persona que pregunte.",
   "This address bounced. The last email to it was refused, so check it with them or call instead.":
     "Este correo rebotó. El último mensaje fue rechazado. Confírmalo con ellos, o mejor llama.",
+  // ROADMAP 14.4 — the refund instruction on a cancelled job that was paid.
+  // **"tu propio Stripe" carries the whole point**: the money is in the
+  // detailer's account and not in ours, which is why the product is asking
+  // rather than doing it. A translation that said only *"devuelve el dinero"*
+  // would read as an instruction with no explanation of why it falls to them.
+  // `{amount}` is formatted by `money()` before it arrives, so the figure is
+  // already `$195.00` and the placeholder must survive — spanish.test.mjs
+  // compares the placeholder sets.
+  "This was paid. Refund {amount} from your own Stripe. The money went straight into your account, so we cannot send it back for you.":
+    "Esto ya estaba pagado. Devuelve {amount} desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
+  "Part of this was paid. Refund what they paid from your own Stripe. The money went straight into your account, so we cannot send it back for you.":
+    "Una parte de esto ya estaba pagada. Devuelve lo que pagaron desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
   // Forgetting a customer. The consequence is spelled out because it cannot be
   // undone, and *"Eliminar"* beside *"Mejor no"* is an unambiguous pair.
   "Delete": "Eliminar",
@@ -479,6 +527,14 @@ export const appEs = {
   "{count} links": "{count} enlaces",
   "{count} open": "{count} apertura",
   "{count} opens": "{count} aperturas",
+  // ROADMAP 5.4. "{count} open(s)" above is no longer drawn anywhere — the
+  // Tracking links row counts PEOPLE on live links now. Kept rather than
+  // deleted: a key nobody reads costs nothing, and a missing one falls back
+  // to English with no error anywhere.
+  "{count} person": "{count} persona",
+  "{count} people": "{count} personas",
+  "{links} · {people} so far": "{links} · {people} hasta ahora",
+  "{links} · not opened yet": "{links} · sin aperturas todavía",
   "{count} service": "{count} servicio",
   "{count} services": "{count} servicios",
   "{count} add-on": "{count} extra",
@@ -1066,6 +1122,9 @@ export const appEs = {
   "Used by every Navigate button.": "Lo usa cada botón de Navegar.",
   "Used by “Add to calendar” on a booking.":
     "Lo usa “Agregar al calendario” en una cita.",
+  // ROADMAP 14.2 — the owner's calendar file is fetched with their session
+  // now, so it can fail the way a fetch fails.
+  "Could not build the calendar file.": "No se pudo generar el archivo del calendario.",
   "Used by “Add to contacts” on a job.":
     "Lo usa “Agregar a contactos” en un trabajo.",
   "Sample Customer": "Cliente de ejemplo",
@@ -1398,7 +1457,24 @@ export const appEs = {
   "You will be signed in straight after.": "Iniciarás sesión inmediatamente después.",
   "Eight characters or more. You will be signed in straight after.":
     "Ocho caracteres o más. Vas a entrar justo después.",
-  "Email invoice": "Mandar factura",
+  // ROADMAP 5.3 — the receipt block on the job record. "Email invoice" is
+  // gone: the document this sends calls itself a receipt in its own subject
+  // line, and the record said one word while the email said another.
+  // "Receipt" ITSELF IS NOT REPEATED HERE — the email template already has it
+  // (§ the customer's receipt, above), and `spanish.test.mjs` § 9f fails on a
+  // duplicate key: the second copy silently wins and the first becomes a lie
+  // nobody can see.
+  "Open the customer's receipt page": "Abrir la página del recibo del cliente",
+  "Email the receipt": "Mandar el recibo",
+  "Email it again": "Mandarlo otra vez",
+  "It goes to": "Se manda a",
+  "Emails to this address": "Correos a esta dirección",
+  "Nothing has been emailed to this address yet.": "Todavía no se ha mandado nada a esta dirección.",
+  "No email address on this job, so the receipt cannot be emailed. Add one with Edit above.":
+    "Este trabajo no tiene correo, así que no se puede mandar el recibo. Agrega uno con Editar arriba.",
+  "Receipt sent again.": "Recibo mandado otra vez.",
+  "Receipt + thank-you sent.": "Recibo y agradecimiento mandados.",
+  "Paid by card on {date}": "Pagado con tarjeta el {date}",
   "Email your customers": "Escríbeles a tus clientes",
   "Email": "Correo",
   "Ends": "Termina",
@@ -2081,7 +2157,7 @@ export const appEs = {
   // The one Money sentence that was never wrapped. FOUND.md, 2026-09-12.
   // Reworded 2026-09-13 with the cell above it: "cobraste" is money RECEIVED
   // and this figure counts work done, paid for or not.
-  "{percent}% of what you brought in was sold at the job.":
+  "{percent}% of what you earned was sold at the job.":
     "{percent}% de lo que entró se vendió en el trabajo.",
   // The folded settings rows say what they have put away.
   "How far ahead, and how many": "Con cuánta anticipación, y cuántos",
@@ -2146,32 +2222,38 @@ export const appEs = {
 
   // ── THE ADVANCED MONEY SCREEN ────────────────────────────────────────────
   // The longest single screen in the product and the one most made of labels.
-  // `Kept` and `Spent` name the two halves of one bar, so they are amounts
-  // rather than verbs: "Te quedó" and "Gastado".
+  // `Left after expenses` and `Spent` name the two halves of one bar, so they
+  // are amounts rather than verbs: "Queda tras gastos" and "Gastado".
+  //
+  // **EVERY "te quedaste / te quedó" ON THIS SCREEN WAS A CASH CLAIM —
+  // ROADMAP 14.7.** *Quedarse con algo* is to keep it, and a third of what the
+  // bar was drawing had not been paid for. The Spanish follows the English
+  // into the accrual vocabulary: *ganado* for the work, *cobrado* for the
+  // money, *te deben* for the rest.
   "Nothing came in this period.": "No entró nada en este periodo.",
-  "You brought in {in} and kept {net} of it.": "Ingresaste {in} y te quedaste con {net}.",
-  "You brought in {in} and spent {out}, so you are {down} down.":
-    "Ingresaste {in} y gastaste {out}, así que estás {down} abajo.",
+  "You earned {in} and {net} is left after expenses.":
+    "Ganaste {in} y quedan {net} después de gastos.",
+  "You earned {in} and spent {out}, so you are {down} down.":
+    "Ganaste {in} y gastaste {out}, así que estás {down} abajo.",
   "Back to Money": "Volver a Dinero",
-  "Kept": "Te quedó",
+  "Left after expenses": "Queda tras gastos",
   "Spent": "Gastado",
-  "Net": "Neto",
+  "Earned less expenses": "Ganado menos gastos",
   "What it was worth": "Lo que valió",
-  "What you actually kept after everything you spent.":
-    "Lo que de verdad te quedó después de todo lo que gastaste.",
+  "What is left of what you earned after everything you spent.":
+    "Lo que queda de lo que ganaste después de todo lo que gastaste.",
   "Per hour, after expenses": "Por hora, después de gastos",
   "{net} over {hours} hours booked": "{net} en {hours} horas reservadas",
   "No job in this period has a length on it.":
     "Ningún trabajo de este periodo tiene una duración anotada.",
   "Margin": "Margen",
-  "kept of every dollar": "te queda de cada dólar",
+  "of every dollar earned": "de cada dólar ganado",
   "Average job": "Trabajo promedio",
   "Still to collect": "Por cobrar",
   "Work you have finished and not been paid for yet.":
     "Trabajo que ya terminaste y que todavía no te han pagado.",
   "Everything finished in this period has been paid for.":
     "Todo lo que terminaste en este periodo ya está pagado.",
-  "In the bank": "En el banco",
   "Still owed": "Te deben",
   "work finished, not paid for": "trabajo terminado, sin pagar",
   "What came in": "Lo que entró",

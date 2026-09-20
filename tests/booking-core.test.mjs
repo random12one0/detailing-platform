@@ -267,11 +267,17 @@ const svc = (id, extra = {}) => ({ id, name: id, price: 100, duration_minutes: 6
   check("...and not while one is in flight",
     G("Services", { ...base, serviceIds: ["s"] }, { quoting: true }) === false);
   check("Services passes with both", G("Services", { ...base, serviceIds: ["s"] }) === true);
-  // **CHANGED 2026-09-14 — the year is now required on this step too.**
-  // Andrew's ask: an estimate is fine, but the field cannot be skipped.
-  check("Vehicle needs a year", G("Vehicle", base) === false,
-    "initialForm's vehicleYear starts empty, and Continue must reflect that");
-  check("...and passes once one is given, on the quote as before",
+  // ~~**CHANGED 2026-09-14 — the year is now required on this step too.**~~
+  // ~~Andrew's ask: an estimate is fine, but the field cannot be skipped.~~
+  // **REVERSED 2026-09-20 by Andrew, ROADMAP 2.6.** The year is a nice-to-have
+  // that helps him identify the car, and requiring it produced a dead Continue
+  // button beside a field nothing marked as required. **Kept as a reversal
+  // rather than a rewrite: the line that used to demand a year now proves it
+  // is not demanded**, so a future session that re-reads the September 14 note
+  // finds this one too.
+  check("Vehicle does NOT need a year", G("Vehicle", base) === true,
+    "initialForm's vehicleYear starts empty and the step must still advance");
+  check("...and still passes when one is given",
     G("Vehicle", { ...base, vehicleYear: "2019" }) === true);
 
   const mob = { ...base, serviceType: "mobile" };

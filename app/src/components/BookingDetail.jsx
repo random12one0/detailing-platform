@@ -16,15 +16,18 @@
 // Every booking WRITE goes through the update-booking edge function
 // (validation + conflict checks server-side).
 
-import { useEffect, useMemo, useState } from "react";
-import { Bell, CalendarPlus, Check, CheckCircle2, CreditCard, MessageSquare, MessageSquareQuote, Navigation, Phone, UserPlus, X } from "lucide-react";
-import { api, icsUrl } from "../lib/api.js";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Bell, CalendarPlus, Check, CheckCircle2, CreditCard, ExternalLink, MessageSquare, MessageSquareQuote, Navigation, Phone, Receipt, UserPlus, X } from "lucide-react";
+import { api, downloadOwnerIcs } from "../lib/api.js";
 import { calendarUrlFor, loadPrefs, saveContact } from "../lib/platform.js";
 import { supabase } from "../lib/supabase.js";
 import { fillTemplate } from "../lib/templates.js";
-import { dateLong, mapsUrl, money, phoneAsTyped, time12 } from "../lib/format.js";
+import { dateLong, localDate, mapsUrl, money, phoneAsTyped, time12 } from "../lib/format.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import JobPhotos from "./JobPhotos.jsx";
+// ROADMAP 5.3 — the same mail rows the client record draws. One file, so the
+// two screens cannot disagree about whether an email bounced.
+import EmailTrail from "./EmailTrail.jsx";
 import FinalizeModal from "./FinalizeModal.jsx";
 import QuoteModal from "./QuoteModal.jsx";
 import Sheet from "./Sheet.jsx";
@@ -53,6 +56,10 @@ const PAY_LABELS = {
 // it was taken at (bookings.vehicle_size_label). This map is the fallback for
 // rows taken before that column existed; a key we do not know is de-slugged
 // rather than printed raw.
+// ROADMAP 5.3 — the mail to this job's address. SHORTER THAN THE CLIENT
+// RECORD'S TWELVE on purpose: the question here is "did the receipt go out",
+// and a year of reminders under a job is a list nobody reads to the end.
+const MAIL_CAP = 6;
 const SIZE_LABELS = { small: "Small", medium: "Medium", large: "Large" };
 const sizeLabel = (b) => b.vehicle_size_label
   || SIZE_LABELS[b.vehicle_size]
@@ -85,6 +92,8 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   const [editing, setEditing] = useState(false);
   const [finalizing, setFinalizing] = useState(false);
   const [quoting, setQuoting] = useState(false);
+  const [mail, setMail] = useState(null);   // ROADMAP 5.3 — null means loading
+
   const [form, setForm] = useState({
     customer_name: booking.customer_name,
     customer_phone: booking.customer_phone,
@@ -107,7 +116,12 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
     setNotice("");
     try {
       await fn();
-      if (doneMsg) setNotice(doneMsg);
+      // ROADMAP 5.3 — TRANSLATED HERE, WHERE ALL FOUR CALLERS ROUTE THROUGH.
+      // Every one of them passes a bare English sentence and `appEs.js` has
+      // carried Spanish for them since 14.x — so a Spanish dashboard has been
+      // answering "Reminder sent to customer." in English the whole time, with
+      // a key sitting right there unused. One line, four call sites.
+      if (doneMsg) setNotice(t(doneMsg));
       if (changed) onChanged?.();
     } catch (e) {
       setError(e.message);
@@ -197,6 +211,29 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
     return () => { dead = true; };
   }, [business.id]);
 
+  // ROADMAP 5.3 — READ, NEVER WRITTEN. `email_sends` grants a browser `select`
+  // and nothing else, so this record cannot mark a bounce as delivered however
+  // hard it tries; the service role writes every row and Resend's webhook
+  // updates it. `null` means loading, `[]` means nothing was ever sent — a
+  // spinner is the difference and the two must not collapse.
+  const loadMail = useCallback(async () => {
+    if (!booking.customer_email) { setMail([]); return; }
+    const { data } = await supabase
+      .from("email_sends")
+      .select("id, subject, to_email, status, detail, sent_at")
+      .eq("business_id", business.id)
+      .eq("to_email", booking.customer_email)
+      .order("sent_at", { ascending: false })
+      .limit(MAIL_CAP);
+    setMail(data ?? []);
+  }, [business.id, booking.customer_email]);
+  useEffect(() => { setMail(null); loadMail(); }, [loadMail]);
+
+  // THE PAGE THE CUSTOMER SEES. `siteOrigin` is the tenant's own domain when
+  // they have one, so this opens what they opened and not a second address for
+  // the same booking.
+  const receiptHref = `${siteOrigin || window.location.origin}/booking/${booking.id}`;
+
   const onMyWay = templates.find((x) => x.key === "on_my_way");
   const openTextPicker = () => setPickingText(true);
   const smsHref = (body) =>
@@ -216,7 +253,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
       vehicle: booking.vehicle_model || "",
       // The customer's OWN page for this booking — where they reschedule or
       // cancel it.
-      bookingLink: `${siteOrigin || window.location.origin}/booking/${booking.id}`,
+      bookingLink: receiptHref,
     });
 
   // THE MONEY, and this is Part B row 19. The record printed "Estimated
@@ -225,6 +262,28 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // differ, and then the difference is NAMED rather than left to subtract.
   const quoted = Number(booking.total_price);
   const charged = booking.final_amount == null ? null : Number(booking.final_amount);
+
+  // HAS A RECEIPT FOR **THIS JOB** ALREADY GONE?
+  //
+  // The subject `invoiceEmail` writes is `Receipt · $195 · <business>` — the
+  // product's own word for this document, in whichever language the booking was
+  // taken in, and then THE AMOUNT. Both halves are matched, and the amount is
+  // the half that matters: the rows below are every email to this ADDRESS, and
+  // a returning customer has receipts on them from jobs that are not this one.
+  // Matching the word alone made a job whose receipt had never been sent offer
+  // to send it "again" — a screen telling the detailer their customer is
+  // holding something they have never been sent. Found by sabotaging this
+  // check on 2026-09-18 and watching it stay green.
+  //
+  // ponytail: a subject match rather than a new `bookings.invoice_sent_at`
+  // column. The row already carries the date AND the delivery outcome, which
+  // is two facts a timestamp would not have and could disagree with. Two jobs
+  // for one customer at the identical price share a subject and would share
+  // this answer; that is a soft wrong label over a list that still shows the
+  // truth, and it is a smaller lie than a second copy of the fact.
+  const sentReceipt = (mail ?? []).some((m) =>
+    /^(receipt|recibo)\b/i.test(String(m.subject || ""))
+    && String(m.subject).includes(money(charged)));
   const diff = charged == null ? 0 : Math.round((charged - quoted) * 100) / 100;
   // Same condition as Today's lit card and its "Needs payment" run, so the
   // card and the record it opens cannot disagree about what the job wants
@@ -232,6 +291,26 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // payment" for free: a future job cannot be completed.
   const canFinalize = booking.status === "completed" && !booking.finalized_at;
   const cancelled = booking.status === "cancelled";
+  // ROADMAP 14.4 — A CANCELLED JOB THAT WAS ALREADY PAID FOR.
+  //
+  // THREE PATHS END HERE and this one line covers all three, which is why it
+  // is a fact about the ROW and not a message passed back from whichever
+  // endpoint did it: the customer cancelling from their own link
+  // (`cancel-booking`), the detailer declining a request
+  // (`respond-to-booking`), and the detailer's own "Cancel the job" button
+  // just below (`update-booking` with `status: "cancelled"`). Two of those
+  // three send no owner email at all, so a screen that waited to be told
+  // would stay silent on exactly the paths the detailer drove themselves.
+  //
+  // The rule is `_shared/connect.ts`'s `refundOwed`, restated: `paid` and
+  // `partial` mean money moved, `waived` means the detailer made it free and
+  // `pending` means nothing was ever taken. `partial` carries no figure
+  // because nothing records which part was paid — the same reason
+  // `payability` refuses to guess at it.
+  const refundOwed = cancelled
+    && (booking.payment_status === "paid" || booking.payment_status === "partial");
+  const refundAmount = booking.payment_status === "partial"
+    ? null : money(booking.final_amount ?? booking.total_price);
   // ROADMAP 2.12. A request is answered here as well as on Today, because the
   // owner asked for the accept action on "the page the detailer uses their
   // bookings on" and this record IS that page at /job/:id.
@@ -246,7 +325,8 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
     ? Number(booking.quoted_amount) : null;
   const respond = (action) =>
     act(() => api.respondToBooking(business.id, booking.id, action),
-      action === "accept" ? t("Accepted. They've been emailed.") : t("Declined. They've been emailed."));
+      // NOT WRAPPED IN `t()` ANY MORE — `act` does it for every caller now.
+      action === "accept" ? "Accepted. They've been emailed." : "Declined. They've been emailed.");
 
   return (
     <>
@@ -277,6 +357,23 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
         <div className="jobbar">
           {error && <div className="error-box" role="alert">{error}</div>}
           {notice && <div className="ok-box" role="status">{notice}</div>}
+          {/* ROADMAP 14.4. IT SITS IN THE PINNED BAR, above the buttons and
+              under the two status pills, because it is the one thing about
+              this job that still needs doing and the bar is the part of the
+              record that does not scroll away. `--bad` is the fixed red and
+              does not follow the tenant's colour (law 11b) — the same call
+              the bounced-address line on the client record makes: this is
+              meaning, not identity.
+              IT NAMES THE ACTION. "Paid" on its own is a label; "refund it
+              from your own Stripe" is the thing to go and do, and the reason
+              it is theirs to do is in the sentence rather than left implied. */}
+          {refundOwed && (
+            <div className="error-box" role="status" style={{ color: "var(--bad)" }}>
+              {refundAmount
+                ? t("This was paid. Refund {amount} from your own Stripe. The money went straight into your account, so we cannot send it back for you.", { amount: refundAmount })
+                : t("Part of this was paid. Refund what they paid from your own Stripe. The money went straight into your account, so we cannot send it back for you.")}
+            </div>
+          )}
           <div className="actions-row">
             <a className="btn sm" href={`tel:${booking.customer_phone}`}>
               <Phone size={18} strokeWidth={2} /> {t("Call")}
@@ -300,18 +397,30 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
             )}
           </div>
           <div className="actions-row">
-            <a
+            {/* ROADMAP 14.2 — A BUTTON RATHER THAN A LINK, and it had to
+                become one: the owner's .ics carries the customer's phone, so
+                the server now requires the owner's session for it, and an
+                `<a href>` cannot send one. Google Calendar takes its event in
+                the URL and never touches our server, so that branch still
+                just opens a window — same button, same 44px, same place.
+                Matches the `<button className="btn sm">` beside it. */}
+            <button
               className="btn sm"
-              href={calendarUrlFor(
-                { ...booking, service_name: (booking.services ?? [])[0]?.name_at_booking },
-                icsUrl(booking.id, "owner"),
-              )}
-              {...(loadPrefs().calendar === "google"
-                ? { target: "_blank", rel: "noreferrer" }
-                : {})}
+              onClick={() => {
+                // `null` for the file URL because there is no longer a URL
+                // the owner's file can be reached at — only a fetch. So a
+                // non-Google preference comes back null and falls through to
+                // the download, and the choice still lives in one function.
+                const url = calendarUrlFor(
+                  { ...booking, service_name: (booking.services ?? [])[0]?.name_at_booking },
+                  null,
+                );
+                if (url) window.open(url, "_blank", "noreferrer");
+                else downloadOwnerIcs(booking.id).catch(() => setError(t("Could not build the calendar file.")));
+              }}
             >
               <CalendarPlus size={18} strokeWidth={2} /> {t("Calendar")}
-            </a>
+            </button>
             {loadPrefs().contacts !== "off" && booking.customer_phone && (
               <button
                 className="btn sm"
@@ -447,19 +556,103 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
               )}
               {/* Written by Finalize payment and, until now, printed nowhere. */}
               {booking.payment_notes && <p className="quiet">How they paid: {booking.payment_notes}</p>}
-              {canFinalize ? (
+              {/* ROADMAP 14.4 — paid online, and the money screen already
+                  knows. The record has to say it too, or the detailer's only
+                  way to find out a customer paid by card is that the job
+                  stopped appearing on a list. */}
+              {booking.paid_online_at && (
+                <p className="quiet">
+                  {t("Paid by card on {date}", { date: dateLong(localDate(booking.paid_online_at, business.timezone), getAppLocale()) })}
+                </p>
+              )}
+              {canFinalize && (
                 <button className="btn primary" style={{ marginTop: "var(--sp-1)" }} disabled={busy}
                   onClick={() => setFinalizing(true)}>
                   <CreditCard size={18} strokeWidth={2} /> {t("Finalize payment")}
                 </button>
-              ) : charged != null && booking.customer_email ? (
-                <button className="btn primary" style={{ marginTop: "var(--sp-1)" }} disabled={busy}
-                  onClick={() => act(() => api.sendInvoice(business.id, booking.id),
-                    "Invoice + thank-you sent.", false)}>
-                  {t("Email invoice")}
-                </button>
-              ) : null}
+              )}
             </div>
+
+            {/* ── ROADMAP 5.3 — THE RECEIPT, WHERE THE JOB IS ───────────────
+                The audit asked whether receipts and invoices are findable and
+                the answer, measured on 2026-09-18, was no. A job paid by card
+                is marked paid by Stripe's webhook, which stamps the row and
+                SENDS NOTHING — so there was no receipt anywhere, and the one
+                button that would make one was hidden behind `canFinalize`: a
+                customer who paid from their own link before the detailer
+                finalized got a record offering **Finalize payment** and no way
+                at all to send them what they had just bought.
+
+                So the three answers a detailer needs about a receipt are in
+                one place now: the page the customer sees, the button that
+                sends it, and what happened to the last one that went.
+
+                IT IS ITS OWN SECTION AND NOT PART OF THE MONEY BLOCK. The
+                money block answers "what does this job cost"; this one answers
+                "what does the customer have in their inbox", and the record's
+                own design note says two questions in one box leaves somebody
+                working out which one the buttons belong to. */}
+            {charged != null && (
+              <>
+                <h3 className="section-title">{t("Receipt")}</h3>
+                <div className="card tight">
+                  {/* ── THREE ACTIONS, THREE WEIGHTS — design-system.md §
+                      Composition. Filled is **Finalize payment** in the block
+                      above, which is still the thing this job wants next; this
+                      send is RINGED and the link to the document is RINGLESS.
+                      They were both filled to begin with, which put two loud
+                      blue bars one under the other on a phone with nothing
+                      saying which came first — seen at 392 and fixed. */}
+                  {booking.customer_email ? (
+                    <>
+                      <button className="btn" disabled={busy}
+                        onClick={() => act(() => api.sendInvoice(business.id, booking.id),
+                          sentReceipt ? "Receipt sent again." : "Receipt + thank-you sent.", false)
+                          .then(loadMail)}>
+                        <Receipt size={18} strokeWidth={2} />{" "}
+                        {sentReceipt ? t("Email it again") : t("Email the receipt")}
+                      </button>
+                      {/* THE ADDRESS UNDER THE BUTTON THAT USES IT. A detailer
+                          about to send a receipt is entitled to see where it
+                          is going before they press, not after. */}
+                      <p className="quiet">{t("It goes to")} {booking.customer_email}</p>
+                      {/* THE DOCUMENT ITSELF, and the owner had no link to it
+                          anywhere in the product. It is the page their customer
+                          opens from the email — the same URL the reminder text
+                          already fills in as {bookingLink}. */}
+                      <a className="btn ghost" href={receiptHref} target="_blank" rel="noreferrer">
+                        <ExternalLink size={18} strokeWidth={2} /> {t("Open the customer's receipt page")}
+                      </a>
+                      {/* WHAT WAS SENT, WHEN, AND WHETHER IT ARRIVED —
+                          ROADMAP 5.3's own done-when, answered here rather
+                          than on a different screen. The rows are every email
+                          that went to THIS ADDRESS, which is a stronger match
+                          than the customer record: `send-email` files a row
+                          against a customer only when the address matches one,
+                          so a job booked with a second address has mail the
+                          client record never shows. */}
+                      <div className="tight" style={{ marginTop: "var(--sp-1)" }}>
+                        <span className="label">{t("Emails to this address")}</span>
+                        <EmailTrail rows={mail} timezone={business.timezone} cap={MAIL_CAP}
+                          empty="Nothing has been emailed to this address yet." />
+                      </div>
+                    </>
+                  ) : (
+                    /* NAMED, NOT ABSENT. A missing button with no sentence
+                       beside it reads as a product that forgot, and the
+                       detailer cannot tell that the fix is in their hands. */
+                    <>
+                      <a className="btn ghost" href={receiptHref} target="_blank" rel="noreferrer">
+                        <ExternalLink size={18} strokeWidth={2} /> {t("Open the customer's receipt page")}
+                      </a>
+                      <p className="quiet">
+                        {t("No email address on this job, so the receipt cannot be emailed. Add one with Edit above.")}
+                      </p>
+                    </>
+                  )}
+                </div>
+              </>
+            )}
 
             {/* PHOTOS SIT ABOVE THE NOTES AND BELOW THE MONEY, which is the
                 order a job is read in: what it costs, what it looked like,

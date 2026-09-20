@@ -1,0 +1,56 @@
+{
+  "git_sha": "2a10b86d811d5a5929c629b2b24de47e9dba8e2e",
+  "environment": "local",
+  "finished_at": "2026-09-19T04:42:50.449Z",
+  "failures": [
+    "the detailer's device showed a notification nothing arrived in 60 seconds",
+    "it names the customer who booked []",
+    "and it carries the booking's own tag, so a second alert replaces it []"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/e2e-browser-features/row-counts-before.json",
+    "artifacts/e2e-browser-features/push-subscription.json",
+    "artifacts/e2e-browser-features/push-notification.json",
+    "artifacts/e2e-browser-features/consent-sentence.txt",
+    "artifacts/e2e-browser-features/card-fields.json",
+    "artifacts/e2e-browser-features/pay-press.json",
+    "artifacts/e2e-browser-features/subscription-row.json",
+    "artifacts/e2e-browser-features/billing.png",
+    "artifacts/e2e-browser-features/invoices.json",
+    "artifacts/e2e-browser-features/canary-stranger.json",
+    "artifacts/e2e-browser-features/row-counts-after.json"
+  ],
+  "dimensions": {
+    "business": "89f36921-3a27-45a1-8170-8108224a8638",
+    "browser": "msedge, persistent profile — see the header for why neither is optional",
+    "plan": "booking",
+    "charged_cents": 3500,
+    "card": "4242…4242",
+    "rows_before": {
+      "owner_push_subscriptions": 1,
+      "platform_subscriptions": 1,
+      "platform_invoices": 1
+    },
+    "rows_after": {
+      "owner_push_subscriptions": 1,
+      "platform_subscriptions": 1,
+      "platform_invoices": 2
+    },
+    "sabotage": null
+  },
+  "check_id": "e2e-browser-features",
+  "started_at": "2026-09-19T04:39:25.457Z",
+  "status": "fail",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 2,
+  "skipped_targets": 0,
+  "assertions_executed": 27,
+  "min_assertions": 20,
+  "canary": {
+    "id": "a-signed-out-stranger-must-not-subscribe-a-device-or-start-a-plan",
+    "observed_failure": true
+  }
+}

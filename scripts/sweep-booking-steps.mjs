@@ -93,7 +93,10 @@ const MEASURE = () => {
     .filter((b) => b.h > 0)
     .sort((a, b) => b.h - a.h)
     .slice(0, 3);
-  return { over, vh, blocks };
+  // **THE PLAN PITCH'S OWN HEIGHT, so the add-ons exemption below can do
+  // ARITHMETIC rather than take a step's word for it.** Zero on every other
+  // step, which is what keeps the exemption from reaching them.
+  return { over, vh, blocks, pitch: Math.round(h(".bk-planpitch")) };
 };
 
 // --- SETTLE, NOT SLEEP ------------------------------------------------------
@@ -153,6 +156,10 @@ const REFS = await (async () => {
 
 const browser = await chromium.launch();
 let failing = 0;
+// Steps that overflow ONLY because of a control Andrew ruled must be
+// full-screen. Counted separately and always printed: an exemption nobody
+// sees is an exemption nobody re-reads.
+let exempted = 0;
 
 // --- THE TAP FLOOR, ONE READING PER STEP ------------------------------------
 // Collected rather than printed inline: a control that is four pixels short
@@ -201,19 +208,50 @@ for (const size of SIZES) {
       await page.screenshot({ path: file, fullPage: !gate });
     }
     await tapCheck(page, `${size.width}x${size.height} ${label}`);
-    const { over, vh, blocks } = await page.evaluate(MEASURE);
+    const { over, vh, blocks, pitch } = await page.evaluate(MEASURE);
     const bad = over > 1;
-    if (bad && gate) failing++;
+    // **THE ONE EXEMPTION FROM W16, AND IT IS ANDREW'S RULING — 2026-09-19.**
+    //
+    // The add-ons step overflows because of `.bk-planpitch`, the monthly-plan
+    // pitch, and its size is a specific instruction quoted three times in
+    // `BookingPage.jsx` and `PlanRows.jsx`: *"pretty big and pretty visible…
+    // like, just in the whole screen, like, not a button to go to the screen,
+    // but just the whole screen."* W16 is a general rule that predates that
+    // control. **His decision: the specific instruction wins, so the STEP is
+    // exempt and the CONTROL is not touched.**
+    //
+    // **NARROW THREE WAYS, ON PURPOSE, so it cannot grow into an excuse:**
+    //  1 · It needs `.bk-planpitch` on the page. That element is on one step;
+    //      `pitch` is 0 everywhere else, so no other step can reach this.
+    //  2 · It is ARITHMETIC, not a name. The step is re-judged with the pitch
+    //      discounted and everything else on it is still held to W16 to the
+    //      pixel. Measured — without the pitch it fits by **465px at 1920, 342
+    //      at 1440, 498 at 768 and 347 at 392** — so no tolerance is used and
+    //      none is needed.
+    //  3 · **If another control on this step grows past that margin, or the
+    //      pitch is shrunk and the step still overflows, this stops firing and
+    //      the step fails normally.** It cannot swallow a future regression on
+    //      a different step, or on a different control within add-ons.
+    const withoutPitch = over - pitch;
+    const exemptFit = bad && gate && pitch > 0 && withoutPitch <= 1;
+    if (exemptFit) exempted++;
+    else if (bad && gate) failing++;
     const pct = Math.round((over / vh) * 100);
     console.log(
       // The spare room is reported on purpose. "Fits" is only true of the
       // business that was measured, and a detailer with two more services
       // than the demo has is a different page — the headroom is what says
       // how much more this layout can take before W16 breaks again.
-      `${label.padEnd(22)} ${bad
-        ? `${gate ? "over" : "scrolls"} ${String(over).padStart(4)}px (${pct}% of the screen)`
-        : `fits, ${-over}px spare`}`
-      + (bad && gate ? "\n  tallest: " + blocks.map((b) => `${b.h}px ${b.name} «${b.txt}»`).join("\n           ") : ""),
+      `${label.padEnd(22)} ${exemptFit
+        ? `EXEMPT from W16 — over ${over}px, and .bk-planpitch is ${pitch}px of it`
+        : bad
+          ? `${gate ? "over" : "scrolls"} ${String(over).padStart(4)}px (${pct}% of the screen)`
+          : `fits, ${-over}px spare`}`
+      + (exemptFit
+        ? "\n  Andrew's ruling, 2026-09-19: the plan pitch is full-screen by instruction, so this STEP "
+          + "is exempt and the CONTROL is untouched. Everything else on the step still has to fit, "
+          + `and does — without the pitch it is ${-withoutPitch}px inside the screen. ROADMAP 8.4.`
+        : bad && gate ? "\n  tallest: " + blocks.map((b) => `${b.h}px ${b.name} «${b.txt}»`).join("\n           ") : ""),
     );
   };
 
@@ -329,14 +367,67 @@ for (const size of SIZES) {
     ]) {
       if (await page.locator(sel).count()) await page.locator(sel).fill(value);
     }
-    // The first plain text field on a step: an address on Location, a name on
-    // Details. Both are the only required text on their step.
-    const text = page.locator(".bk-field input:not([type=tel]):not([type=email])").first();
-    if (await text.count() && !(await text.inputValue())) {
-      await text.fill(/reach you/i.test(h) ? "Casey Rivera" : "140 Market Street, Springfield");
+    // **THE YEAR, AND IT IS WHY STEPS 4-7 HAD NEVER BEEN MEASURED — 2026-09-19.**
+    //
+    // The comment this replaces said: *"The first plain text field on a step: an
+    // address on Location, a name on Details. Both are the only required text on
+    // their step."* **The Vehicle step is not in that sentence, and it has TWO
+    // plain text fields** — "What are you bringing? (optional)" first, and the
+    // REQUIRED "Year" second. So `.first()` typed a street address into the
+    // vehicle box, left Year empty, and `core.js`'s `blockers()` correctly
+    // returned `no-year` and correctly kept Continue disabled. **The product was
+    // right and this script was wrong**, and it died there every run, so **steps
+    // 4, 5, 6 and 7 of the booking flow had never been measured at any width.**
+    //
+    // A YEAR FIELD ANNOUNCES ITSELF IN ATTRIBUTES: `inputmode="numeric"` and
+    // `maxlength="4"`. Addressed that way rather than by its label, because the
+    // label translates and this file's siblings have four separate entries in
+    // `docs/gotchas.md` about checks coupled to a spelling.
+    const year = page.locator('.bk-field input[inputmode="numeric"][maxlength="4"]').first();
+    if (await year.count() && !(await year.inputValue())) {
+      await year.fill("2019");
+      await settle(page, 400);
+    }
+    // **AND THE TEXT FIELD IS FILLED ONLY IF THE STEP IS STILL BLOCKED.** It
+    // used to fill unconditionally, which is how a street address ended up in
+    // the vehicle box: a field being first does not make it required. Asking
+    // the product's own gate instead means this cannot invent data for an
+    // optional box again, and it needs no list of which step wants what.
+    // **AND IT HAS TO WAIT FOR THE BUTTON, NOT GLANCE AT IT.** The first
+    // version of this block read `isDisabled()` the instant it arrived and
+    // declared the step stuck — at STEP 1, where Continue is correctly dead
+    // until the server QUOTE lands. The old code never noticed because
+    // `.click()` auto-waits for enabled and was quietly absorbing the round
+    // trip. **`settle()` is a cap on a quiet DOM and is not a wait for a
+    // network answer** — this file's siblings record that lesson six times and
+    // I walked into it inside the guard written to make failures legible.
+    const cont = page.locator(".bk-bar button.bk-btn.primary");
+    const waitEnabled = (ms) => page.waitForFunction(
+      () => { const b = document.querySelector(".bk-bar button.bk-btn.primary"); return !!b && !b.disabled; },
+      null, { timeout: ms },
+    ).then(() => true).catch(() => false);
+    if (!(await waitEnabled(8000))) {
+      const text = page.locator('.bk-field input:not([type=tel]):not([type=email]):not([inputmode="numeric"])').first();
+      if (await text.count() && !(await text.inputValue())) {
+        await text.fill(/reach you/i.test(h) ? "Casey Rivera" : "140 Market Street, Springfield");
+      }
+      await settle(page, 400);
+    }
+    // **NAME THE STEP RATHER THAN DYING ANONYMOUSLY.** This used to click a
+    // disabled button and time out thirty seconds later inside Playwright, with
+    // nothing in the output saying WHICH step or what it wanted — the failure
+    // that hid this bug for as long as it lasted. A step that will not let go
+    // says so, with whatever the page itself gives as the reason.
+    if (!(await waitEnabled(4000))) {
+      const why = (await page.locator(".bk-error").allInnerTexts().catch(() => []))
+        .map((t) => t.replace(/\s+/g, " ").trim()).filter(Boolean);
+      console.log(`${`${n}/${total} ${h.slice(0, 17)}`.padEnd(22)} STUCK — Continue is disabled and this `
+        + `script could not satisfy the step. ${why.length ? `The page says: ${why.join(" | ")}` : "The page shows no reason."}`);
+      failing++;
+      break;
     }
     await settle(page, 400);
-    await page.locator(".bk-bar button.bk-btn.primary").click();
+    await cont.click();
     await settle(page, 1500);
   }
 
@@ -514,9 +605,12 @@ for (const size of SIZES) {
 }
 
 await browser.close();
+const exemptNote = exempted
+  ? `\n${exempted} step reading${exempted === 1 ? "" : "s"} EXEMPT from W16 — the add-ons step, whose overflow is entirely .bk-planpitch, full-screen by Andrew's instruction (ROADMAP 8.4). Everything else on that step is still measured and still fits.`
+  : "";
 console.log(failing
-  ? `\n${failing} step${failing === 1 ? "" : "s"} do not fit — W16 is not met`
-  : `\nevery step fits at ${SIZES.map((s) => `${s.width}x${s.height}`).join(", ")}`);
+  ? `\n${failing} step${failing === 1 ? "" : "s"} do not fit — W16 is not met` + exemptNote
+  : `\nevery step fits at ${SIZES.map((s) => `${s.width}x${s.height}`).join(", ")}${exempted ? ", with one documented exception" : ""}` + exemptNote);
 
 // --- THE TAP FLOOR ----------------------------------------------------------
 // COUNT THE SUBJECTS EVERY RUN. A walk that measured four controls prints the

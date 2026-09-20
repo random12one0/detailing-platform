@@ -10,6 +10,16 @@
 // Input: { business_id, to, subject, body, text?, attachments?, sender_name? }
 // `business_id` is required for every tenant email and optional for the two
 // kinds the PLATFORM sends in its own name (roadmap 2.20 stage 2 and 8.12).
+//
+// ROADMAP 14.3 — AND EVERY ONE OF THEM NOW LEAVES A ROW IN `email_sends`.
+// There are five ways out of this function and until 14.3 three of them were
+// silent: a reserved domain and a missing key each wrote a `console.warn`, and
+// a provider refusal wrote a `console.error` — all three into an edge-function
+// log nobody watches and which expires. So a customer saying "I never got the
+// confirmation" had no answer anywhere in the system. `record()` below is
+// called on all five, it is best-effort exactly like the counter and the
+// bounce flag, and `resend-webhook` later updates the same row with what
+// actually happened to the message.
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
@@ -67,6 +77,66 @@ async function markAddress(
   }
 }
 
+/**
+ * ROADMAP 14.3 — ONE ROW PER ATTEMPTED SEND, whatever became of it.
+ *
+ * BEST-EFFORT, BY THE SAME RULE AS EVERYTHING ELSE IN THIS FILE. A booking must
+ * never fail because bookkeeping about an email did, so this swallows its own
+ * errors the way `markAddress` and `note` already do. A lost row is a gap in a
+ * history; a thrown error here would be a customer with no confirmation.
+ *
+ * THE CUSTOMER LOOKUP IS THE SAME ONE `markAddress` MAKES, and it is what puts
+ * the row on the screen it belongs to. An owner alert matches nothing and
+ * correctly files with a null customer: a detailer's own notification address
+ * is not one of their customers, and attaching it to a customer who happens to
+ * share the address would put somebody else's mail on their record.
+ *
+ * ponytail: one extra indexed read per send, and written AFTER the outcome is
+ * known rather than claimed before and updated after. Two rows of bookkeeping
+ * per email to cover a crash between them is not worth it while the provider
+ * call is a single awaited fetch inside a try; if this function ever grows a
+ * second await after the send, write the row first instead.
+ */
+async function record(
+  businessId: string | null,
+  to: string,
+  subject: string,
+  status: string,
+  detail?: unknown,
+  providerId?: string | null,
+): Promise<void> {
+  try {
+    let customerId: string | null = null;
+    if (businessId) {
+      const { data } = await supabase
+        .from("customers")
+        .select("id")
+        .eq("business_id", businessId)
+        .eq("email", to)
+        .maybeSingle();
+      customerId = data?.id ?? null;
+    }
+    await supabase.from("email_sends").insert({
+      business_id: businessId,
+      customer_id: customerId,
+      to_email: to,
+      subject,
+      status,
+      provider_id: providerId ?? null,
+      // The provider's own words, capped at the same 200 the customer flag uses.
+      detail: detail === undefined || detail === null
+        ? null
+        : String(
+          (detail as { message?: string })?.message
+            ?? (detail as { name?: string })?.name
+            ?? (typeof detail === "string" ? detail : JSON.stringify(detail)),
+        ).slice(0, 200),
+    });
+  } catch (e) {
+    console.error("could not record the send:", e);
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
 
@@ -77,8 +147,14 @@ Deno.serve(async (req) => {
     return json({ error: "Unauthorized" }, 401);
   }
 
+  // HELD OUTSIDE THE TRY so the catch below can still say WHICH email died.
+  // `req.clone()` cannot do this job: a clone has to be taken before the body
+  // is read, and by the time the catch runs it has been.
+  let failedFor: { business_id: string | null; to: string; subject: string } | null = null;
+
   try {
     const { business_id, to, subject, body, text, attachments, sender_name } = await req.json();
+    if (to && subject) failedFor = { business_id: business_id ?? null, to, subject };
     // ROADMAP 2.20 STAGE 2. Set only by platform billing mail, and it changes
     // two things: who the email says it is from, and whether the send result
     // is recorded against a CUSTOMER. A billing email goes to the detailer, so
@@ -111,6 +187,9 @@ Deno.serve(async (req) => {
     const domain = String(to).split("@").pop()?.toLowerCase() ?? "";
     if (/(^|\.)(test|invalid|localhost|example)$/.test(domain) || /^example\.(com|net|org)$/.test(domain)) {
       console.warn("undeliverable domain - email not sent:", { to, subject });
+      // 14.3 — a `console.warn` was the WHOLE record of this until now.
+      await record(business_id ?? null, to, subject, "skipped",
+        "that address cannot receive email");
       return json({ success: true, skipped: "undeliverable_domain" });
     }
 
@@ -152,6 +231,8 @@ Deno.serve(async (req) => {
       // No provider key configured (e.g. a fresh environment): log instead of
       // failing the calling flow — bookings must never depend on email.
       console.warn("RESEND_API_KEY not set — email not sent:", { to, subject });
+      await record(business_id ?? null, to, subject, "skipped",
+        "email is not switched on for this deployment");
       return json({ success: true, skipped: "no_provider_key" });
     }
 
@@ -220,6 +301,11 @@ Deno.serve(async (req) => {
       console.error("DAILY EMAIL BUDGET SPENT - refused before the provider:", {
         to, subject, platform: fromPlatform,
       });
+      // 14.3 — `refused`, NOT `failed`. The provider never saw this one, and a
+      // detailer reading the row needs to know the difference: a failure is
+      // something about the address, a refusal is something about us.
+      await record(business_id ?? null, to, subject, "refused",
+        "the day's email allowance was already spent");
       return json({
         error: "Failed to send email",
         reason: "daily_cap",
@@ -272,6 +358,7 @@ Deno.serve(async (req) => {
       // cap — which is precisely the morning the owner needs to be told
       // BEFORE, not after.
       await note(false);
+      await record(business_id ?? null, to, subject, "failed", data);
       return json({ error: "Failed to send email", details: data }, res.status);
     }
     // A BOUNCE MUST CLEAR ITSELF, unlike `unsubscribed_at`. Otherwise a
@@ -279,8 +366,18 @@ Deno.serve(async (req) => {
     // fixed is broken, and the flag becomes something to ignore.
     if (!fromPlatform) await markAddress(business_id, to, null);
     await note(true);
+    // THE PROVIDER ID IS WHAT THE WEBHOOK LATER FINDS THIS ROW BY. Until 14.3
+    // it was returned to the caller and dropped on the floor.
+    await record(business_id ?? null, to, subject, "sent", null, data.id);
     return json({ success: true, id: data.id });
   } catch (err) {
+    // 14.3 — THE SIXTH EXIT, and the only one that is not a decision this
+    // function made: the fetch to the provider threw. Nothing is recorded when
+    // the request body itself was unreadable, because then there is no
+    // recipient to file it against and an unparseable body is not a send.
+    if (failedFor) {
+      await record(failedFor.business_id, failedFor.to, failedFor.subject, "failed", err);
+    }
     return json({ error: (err as Error).message }, 500);
   }
 });

@@ -8,6 +8,7 @@
 
 import { supabase } from "./supabase.js";
 import { guardWrite } from "./preview.js";
+import { downloadBlob } from "./platform.js";
 import { createBookingTransport, postFunction, slotsForType as coreSlotsForType } from "../book/core.js";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
@@ -42,10 +43,34 @@ async function callFn(name, body) {
   return postFunction(SUPABASE_URL, ANON_KEY, name, body, jwt);
 }
 
-// The .ics endpoint is a plain GET the browser can open directly, so the
-// button behaves like a download rather than a fetch.
-export const icsUrl = (bookingId, audience = "owner") =>
-  `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/booking-ics?id=${bookingId}&audience=${audience}&apikey=${import.meta.env.VITE_SUPABASE_ANON_KEY}`;
+// THE CUSTOMER'S .ics IS A PLAIN LINK and stays one: the person clicking it
+// came from an email, has no account, and the booking's own unguessable uuid
+// is the credential. The default is `customer` now — ROADMAP 14.2 — so a
+// caller who forgets the argument asks for the safe copy rather than the
+// private one.
+export const icsUrl = (bookingId, audience = "customer") =>
+  `${SUPABASE_URL}/functions/v1/booking-ics?id=${bookingId}&audience=${audience}&apikey=${ANON_KEY}`;
+
+// ROADMAP 14.2 — THE OWNER'S COPY CANNOT BE A LINK ANY MORE. It carries the
+// customer's name, phone and note, so the server now requires the owner's
+// session for it, and an `<a href>` cannot send an Authorization header —
+// which is precisely why `&audience=owner` used to work for anybody who typed
+// it. So it is fetched, and the file is handed to the browser the same way
+// `saveContact` hands over a vCard.
+//
+// The server decides, not this function: with no valid session it answers 200
+// with the CUSTOMER's copy. That is deliberate — a stale session downloads a
+// calendar entry missing the phone number rather than an error page.
+export async function downloadOwnerIcs(bookingId) {
+  const { data } = await supabase.auth.getSession();
+  const jwt = data?.session?.access_token;
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/booking-ics?id=${bookingId}&audience=owner`, {
+    headers: { apikey: ANON_KEY, ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}) },
+  });
+  if (!res.ok) throw new Error(`Calendar file failed (${res.status})`);
+  const named = /filename="([^"]+)"/.exec(res.headers.get("content-disposition") || "")?.[1];
+  downloadBlob(await res.blob(), named || "booking.ics");
+}
 
 export const api = {
   // Booking writes — the one write path. Through the core's transport, like

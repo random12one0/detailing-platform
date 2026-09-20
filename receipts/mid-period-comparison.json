@@ -1,0 +1,53 @@
+{
+  "git_sha": "2a10b86d811d5a5929c629b2b24de47e9dba8e2e",
+  "environment": "local",
+  "finished_at": "2026-09-20T08:04:39.950Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/mid-period-comparison/figures.json"
+  ],
+  "dimensions": {
+    "roadmap": "5.2",
+    "today": "2026-09-18",
+    "period_kinds": [
+      "week",
+      "month",
+      "6m",
+      "year",
+      "all"
+    ],
+    "resolution": "trim to the same point, and label it; do not hide until the period ends",
+    "trim_points": {
+      "week": "2026-09-11",
+      "month": "2026-08-18",
+      "6m": "2026-03-20",
+      "year": "2025-09-18",
+      "all": "2026-09-18"
+    }
+  },
+  "check_id": "mid-period-comparison",
+  "started_at": "2026-09-20T08:04:39.827Z",
+  "status": "pass",
+  "expected_targets": 5,
+  "discovered_targets": 5,
+  "attempted_targets": 5,
+  "completed_targets": 5,
+  "skipped_targets": 0,
+  "assertions_executed": 87,
+  "min_assertions": 84,
+  "canary": {
+    "id": "comparison-against-the-whole-previous-period",
+    "observed_failure": true,
+    "reported": "caught",
+    "figures": {
+      "trim_point": "2026-08-18",
+      "the_old_way": 1228800,
+      "the_right_answer": 409600,
+      "the_job_it_wrongly_counts": {
+        "date": "2026-08-19",
+        "amount": 819200
+      }
+    }
+  }
+}

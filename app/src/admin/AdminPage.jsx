@@ -1080,7 +1080,13 @@ function TabWho({ rows, totals, reload }) {
                       {/* FINISHED jobs — `jobs_month` counts `done`. "0 jobs this month" an inch
                           under "last one today" reads as a broken screen; both are true. */}
                       <span><b>{r.jobs_month}</b> {r.jobs_month === 1 ? "finished job" : "finished jobs"} this month</span>
-                      <span><b>{money(r.revenue_month)}</b> taken</span>
+                      {/* **"earned", NOT "taken" — ROADMAP 5.1, settled by 14.7.** This is
+                          `final_amount ?? total_price` over FINISHED jobs, so it
+                          counts work done whether or not the customer has paid.
+                          "Taken" claimed the money had arrived; on the demo
+                          business that claim was $295 too big. The detailer's own
+                          Money screen uses the same word for the same figure now. */}
+                      <span><b>{money(r.revenue_month)}</b> earned</span>
                       <span><b>{r.customers}</b> {r.customers === 1 ? "customer" : "customers"}</span>
                       <span>setup <b>{sp.count}</b> of {sp.total}</span>
                     </span>
@@ -1188,8 +1194,12 @@ function Business({ row, detail, onClose, reload }) {
           <div className="pa-card" style={{ "--i": 2, marginTop: 14 }}>
             <div className="pa-rows">
               <Row k="Finished this month" v={row.jobs_month} />
-              <Row k="Taken this month" v={money(row.revenue_month)} />
-              <Row k="Taken, all time" v={money(row.revenue_total)} />
+              {/* EARNED, NOT TAKEN — ROADMAP 14.7. See `lib/adminInsight.js`
+                  § `paidFor`: this is what was CHARGED, falling back to what was
+                  QUOTED, over finished jobs. Nothing here knows whether it was
+                  paid, and this screen must not imply that it does. */}
+              <Row k="Earned this month" v={money(row.revenue_month)} />
+              <Row k="Earned, all time" v={money(row.revenue_total)} />
               <Row k="Customers" v={row.customers} />
               <Row k="Last booking" v={ago(row.last_booking_at)} />
               <Row k="Requests waiting" v={row.requests_waiting ?? 0} />

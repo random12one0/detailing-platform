@@ -483,11 +483,21 @@ console.log("\n§ 7 — the SECOND webhook secret, without which § 6 is unreach
     /webhookSecret\(\), connectWebhookSecret\(\)/.test(hook),
     "a connected event signed with the connect secret would 400");
 
+  // **BOTH OF THESE READ `shared`, NOT `hook` — corrected 2026-09-16.** The
+  // loop moved out of `stripe-webhook/index.ts` into `_shared/stripe.ts` on
+  // 2026-09-14, for testability, and that file's own comment says so:
+  // *"Behaviour here is unchanged — same two secrets, same order, same
+  // first-error-wins, same 503 when neither is set."* The behaviour never
+  // stopped being true; these two checks just kept reading the file it left.
+  // Both were red for two days on correct code, which is how a red gate stops
+  // being read at all. The chain is still whole: "the webhook tries BOTH
+  // secrets" above still pins `hook` to the call, and these pin what the call
+  // does.
   check("an unset connect secret is skipped, never tried as an empty string",
-    /\.filter\(Boolean\)/.test(hook));
+    /\.filter\(Boolean\)/.test(shared));
 
   check("and no secret configured at all is a 503, not a 400",
-    /Webhook secret is not configured\.", 503/.test(hook),
+    /Webhook secret is not configured\.", 503/.test(shared),
     "a 400 makes Stripe stop retrying an event we could have handled");
 
   // ── BEHAVIOURAL, because everything above reads SOURCE and "tries both" is

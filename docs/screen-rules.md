@@ -157,3 +157,35 @@ behind `.disclose`: two of this product's patterns meeting, not a third idea.
 three hours out" has answered it. A caller that cannot write that sentence
 leaves its settings open instead. If none of the kit fits, ask before building.
 
+
+---
+
+## A PINNED BAR IS A BAND OR AN OBJECT, AND ITS CORNERS SAY WHICH — Andrew, 2026-09-18
+
+He turned down the job record's action bar twice in one day, and the second
+time named the rule the first fix had broken: *"it's very square whereas
+everything else is like rounded and it just looks a little like weird."*
+
+**If it reaches the edges of what it sits in, it is a BAND: square, with a
+hairline under it.** That is the slide-up sheet, where the bar is the sheet's
+own header tray and a radius would be a corner cut out of a wall.
+
+**If it sits inside the margins, level with the cards, it is an OBJECT: it
+takes the same 12px `--r-panel` they take.** That is `/job/:id` and the desk's
+second column. A square box on a screen where everything else is rounded reads
+as broken even when its geometry is perfect — the first repair measured
+correctly at four widths in three containers and he rejected it on sight.
+
+**And whatever is above it gets real clearance.** The two status pills sat flat
+on the bar's top edge, measured at **0px in all three containers** — *"the
+completed unpaid and planned member rate all like touch this kind of box."* A
+pinned bar is a separate object from the thing above it and has to look like
+one before it moves.
+
+**The thing that made this hard to see from code:** which one a bar IS cannot
+be read off its container. `.record-body` carries no padding — the 18px of
+margin a person plainly sees belongs to `.record` outside it — so a check
+asking "does the bar reach its scrollport's edge" called the desk panel's bar
+a band and demanded square corners on the one place he could see they were
+wrong. **Ask the CARDS.** Wider than them is a band; level with them is an
+object. `scripts/pinned-bar.mjs` asks it that way.

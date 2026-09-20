@@ -1,0 +1,42 @@
+{
+  "git_sha": "2a10b86d811d5a5929c629b2b24de47e9dba8e2e",
+  "environment": "local",
+  "finished_at": "2026-09-19T01:30:40.628Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/e2e-payment/connect-status.json",
+    "artifacts/e2e-payment/outstanding-before.json",
+    "artifacts/e2e-payment/pay-booking.json",
+    "artifacts/e2e-payment/paid.png",
+    "artifacts/e2e-payment/card-result.json",
+    "artifacts/e2e-payment/after-webhook.json",
+    "artifacts/e2e-payment/recent-events.json",
+    "artifacts/e2e-payment/outstanding-after.json",
+    "artifacts/e2e-payment/canary-card-result.json",
+    "artifacts/e2e-payment/canary-after.json"
+  ],
+  "dimensions": {
+    "business": "89f36921-3a27-45a1-8170-8108224a8638",
+    "charged_cents": 19500,
+    "cards": {
+      "paid": "4242…4242",
+      "declined": "4000…0002"
+    },
+    "sabotage": null
+  },
+  "check_id": "e2e-payment",
+  "started_at": "2026-09-19T01:28:56.042Z",
+  "status": "pass",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 22,
+  "min_assertions": 16,
+  "canary": {
+    "id": "declined-card-must-not-mark-a-booking-paid",
+    "observed_failure": true
+  }
+}

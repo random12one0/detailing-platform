@@ -341,3 +341,739 @@ a page is being composed; the exhaustion test is about what a finished page
 COSTS to read. Applied to new work they agree. Applied backwards to shipped
 work, law 1 turns into a demand to rewrite screens nobody has complained about,
 which is the opposite of why the exhaustion test was written.
+
+
+---
+
+## A SOURCE FILE CAN HOLD A CONTROL CHARACTER THAT NOTHING WILL SHOW YOU — 2026-09-18, ROADMAP 5.3
+
+**What happened.** A regular expression written into `BookingDetail.jsx`
+through a script came out as `/^(receipt|recibo)<0x08>/i` — a literal
+**backspace byte** where `\b` was meant. It matched nothing, so the job record
+offered to send a receipt that the list three lines below it showed had already
+gone.
+
+**Every tool said the code was fine, and that is the entry.**
+
+- `grep` printed the line and it read `/^(receipt|recibo)\b/i`.
+- Fetching the module Vite was serving and slicing it in the browser console
+  printed `\b` too — because the tool serializing the result as JSON renders
+  character 8 as the escape `\b`, which is exactly what the correct source
+  looks like.
+- Typing the same regex by hand into the console and testing it against the
+  same subject returned `true`, because the hand-typed one was correct.
+- A React fiber walk confirmed the state was right and the derived boolean was
+  wrong, which reads as a React problem and is not one.
+
+**What actually found it:** mapping the served file to character codes.
+
+```js
+[...text].map(c => c.charCodeAt(0) < 32 ? "<" + c.charCodeAt(0) + ">" : c).join("")
+```
+
+**Two rules.**
+
+1. **When code is correct on inspection and wrong at run time, check the
+   BYTES** before you check your reasoning about React, caching or the dev
+   server. Twenty minutes went into those three first.
+2. **After writing source through any script, scan what landed.** A one-line
+   sweep over the files a change touched, failing on any character under 32
+   that is not tab, newline or carriage return:
+
+```js
+[...require("fs").readFileSync(f, "utf8")]
+  .some(c => c.charCodeAt(0) < 32 && ![9, 10, 13].includes(c.charCodeAt(0)))
+```
+
+**And do not trust `grep -P` to do it for you** — the first attempt used
+`grep -cP '[\x00-\x08...]'` with a `|| echo 0` fallback, `-P` is not compiled
+into this machine's grep, and the fallback printed `0` for all eight files. **A
+scan that cannot run printed the same answer as a scan that found nothing**,
+which is this repo's whole subject arriving inside the tool written to check
+for it.
+
+---
+
+## A DECLARED COLOR IS NOT A PAINTED ONE, AND A SCREENSHOT TAKEN TOO SOON IS THE PREVIOUS FRAME — 2026-09-18
+
+Both found in one afternoon, fixing the job record's pinned action bar
+(FOUND.md). Two assertions passed, one over a defect and one over a fix, and
+the only reason either was caught is that somebody opened the PNG.
+
+**(a) `getComputedStyle(el).backgroundColor` TELLS YOU WHAT THE ELEMENT
+DECLARES, NOT WHAT THE PERSON SEES.** The first repair painted the pinned bar
+`var(--bg)` so it would match the page it sits on. `--bg` is `#0B0D0E`. The
+page as rendered at that spot is `rgb(17, 22, 24)`, because `.app-shell`
+carries two atmosphere gradients and a dot lattice ON TOP of `--bg` — so an
+opaque `--bg` band is a visibly DARKER rectangle on a lit ground. A check
+comparing the bar's declared colour against the cards' declared colour said
+they differed and went green over it.
+
+**Sample the image.** Screenshot, `drawImage` onto a canvas,
+`getImageData`. No dependency — the browser you are already driving decodes
+its own PNG.
+
+**And where the answer depends on what is underneath — a shadow, a blur, a
+translucent fill — compare TWO RENDERS OF THE SAME FRAME rather than two
+places in one.** `scripts/pinned-bar.mjs` photographs the bar, injects
+`box-shadow: none`, photographs it again and subtracts. Every pixel that is
+not the shadow is identical in both, so nothing in the content can be mistaken
+for the effect. The version before it read `rgb(141, 142, 140)` off the middle
+of a letter and called a 97-level step a failure.
+
+**(b) A PAINT-ONLY CHANGE ON A COMPOSITED LAYER IS NOT IN THE NEXT
+SCREENSHOT.** The pinned bar has `position: sticky` and `z-index: 3`. Adding
+a stylesheet that removes its `box-shadow` and screenshotting immediately
+returned the frame from BEFORE the change at four targets out of sixteen —
+`0.00 difference` over a shadow that profiles at twenty-one levels when the
+frame is held still. Not all sixteen: it is a race, so it fails
+intermittently, which is worse.
+
+**Take both frames with `screenshot({ animations: "disabled" })`.** It freezes
+the render and settles the compositor, and it kills a second lie in the same
+stroke: the dot lattice DRIFTS, so two ordinary screenshots of the "same"
+frame differ a little no matter what you changed — a floor of noise a real
+failure can sit inside.
+
+---
+
+## A SCREENSHOT TAKEN TO SERVE AN ASSERTION IS NOT A PICTURE OF THE SCREEN — 2026-09-18
+
+`scripts/pinned-bar.mjs` shot the job record at four widths, twice each,
+in three containers — sixteen screenshots, all kept as artifacts, all
+looked at. Andrew then opened the page and named two defects in one
+sentence: the status pills were touching the pinned bar, and the bar was
+square on a screen where everything else is rounded.
+
+**Neither was in a single one of those sixteen frames**, and it was not bad
+luck. The check scrolls 300px before shooting, because its `edge` assertion
+needs content passing under the bar. At that scroll the pills are hidden
+BEHIND the bar, and the bar is flush against the viewport's top edge, where
+corners cannot be seen. The camera was pointed exactly where the assertions
+were and nowhere else.
+
+**Keep the frame a person actually gets, separately, whether or not any
+assertion needs it.** The file now writes `<target>-at-rest.png` before
+anything scrolls, alongside the scrolled frame the numbers came from. Thirty-
+four artifacts instead of seventeen, and the second seventeen are the only
+ones that would have caught what he caught.
+
+**The wider rule, and it is the older failure in this repo wearing a new
+hat:** a check defends the rules somebody thought of. Scrolled geometry was
+measured to four decimal places while corner radius and vertical rhythm had
+no question asked about them at all, so the run came back green and agreed
+with its author. **Ask what the screenshot does NOT contain before believing
+a green run that has one attached.**
+
+
+---
+
+## A GUARD THAT WAITS FOR SOMETHING ALREADY ON SCREEN CANNOT FAIL — 2026-09-19, ROADMAP 8.1
+
+Eleven dialogs were added to `sweep-widths.mjs`, and each one needed a guard
+saying "the dialog actually opened". The first draft was
+`appear(page.locator(".sheet"))`.
+
+**Two of those dialogs open ON TOP of a sheet.** Finalize payment and Send a
+text are opened from the job record, which below `--wrap` is itself a `.sheet`.
+So the thing the guard waited for was on screen **before** the click, and the
+guard returned true whether or not anything happened. A trigger that was
+present but inert would have measured the screen behind it and filed the result
+under the dialog's name.
+
+**Count the subject before and after, never wait for its existence.** The guard
+is `document.querySelectorAll(".sheet").length > n`, where `n` was read before
+the click. Proved by repointing the new-booking trigger at the Today tab — a
+real, visible button that opens nothing:
+
+```
+new booking    NOT MEASURED — the button was pressed and no new sheet arrived (0 open before, 0 after)
+```
+
+**And the general form, which is the one that transfers:** a guard is only a
+guard if you can describe the state in which it fails. If you cannot, it is a
+line of code that makes a run look careful.
+
+---
+
+## A LOCATOR CAN RESOLVE TO THE SCREEN BEHIND THE ONE YOU ARE MEASURING — 2026-09-19
+
+`getByRole("button", { name: "Finalize payment" }).first()` at 392px resolves to
+**two** buttons: the job record's own, and the one on the Today rail card
+**sitting behind the open sheet**. Playwright reported both visible, and
+`.first()` — DOM order — was the one underneath.
+
+**The only reason this failed loudly is that the sheet has a backdrop.** Without
+it the click would have landed on a control on a screen nobody was looking at,
+the run would have gone green, and the label would have been attached to
+whatever Today happened to draw.
+
+**Scope a locator to the container you believe you are in**, and scope it to
+both containers when the product has two:
+
+```js
+const inRecord = () => page.locator(".sheet, .col-2.record").last();
+```
+
+`RecordHost` chooses between them at `--wrap`, so a scope naming one of them
+measures nothing at half the widths — which is the skipped-check-reads-like-a-
+passing-one failure one level down.
+
+---
+
+## `NAMED()` IS THE WRONG MATCHER FOR A LABEL THAT SITS BESIDE A `+` — 2026-09-19, AND THIS IS ITS FOURTH HOME
+
+`Catalog.jsx` writes its buttons as `+ {t("Category")}`, so the accessible name
+is **"+ Category"**. `NAMED()` returns `^(?:Category|Categoría)$` the moment a
+Spanish twin exists, and `{ name: "Category", exact: true }` is anchored too.
+Five dialogs printed `NO SUCH BUTTON` against five buttons plainly on screen.
+
+`NAMED_TEXT()` with no `exact` is the substring form and is what a label joined
+to a character needs. Scope it to the heading above it rather than to an index —
+two of these buttons say only the word "Add", on the same screen, and `.nth(0)` /
+`.nth(1)` would swap the day somebody reorders the page.
+
+**The count so far: `hasText` (2026-09-08), settings rows (2026-09-16),
+`getByRole({name})` on rows (2026-09-16), and now a label with a prefix
+character. Four homes is not four accidents.** Before reaching for either one,
+read the accessible name out of the browser rather than off the JSX.
+
+---
+
+## A SCREEN THAT ONLY EXISTS FOR PART OF THE DAY WILL FAIL A GATE OVER NOTHING — 2026-09-19
+
+`seed-demo.mjs` marks a job completed **once it has ENDED**, which is the only
+rule that cannot print a finished job in the future and is therefore right.
+The consequence nobody had met: between midnight and the first shift finishing,
+**the demo has no completed job at all**.
+
+A sweep at 00:45 then reports four surfaces `NEVER MEASURED` at three widths —
+`job record · finished`, `job record · finalize`, `job record · send a text`,
+`Money · an unpaid job` — and the expected-count gate fails **over a product
+nobody touched**. Two of those four were already in the committed 320 baseline
+from 2026-09-16; nobody had run it at that hour.
+
+**Two rules.**
+
+1. **A baseline is a claim about what must be reachable. Before committing one,
+   ask what time of day it was taken and whether the demo can be in that state
+   at every hour.** A gate that is red for a procedural reason nobody can name
+   is a gate people start ignoring, which is worse than not having it.
+2. **When a check fails for a reason that is not the product, the check has to
+   say so in the failure line.** `NOT MEASURED — nothing on today's rail and
+   nothing coming up. If the demo was seeded on an earlier DAY, that is the
+   whole reason: re-seed and run again.` The same defect with a bare
+   `NOT MEASURED` reads as a regression and costs somebody an hour.
+
+
+---
+
+## A SKIP IS A CLAIM UNTIL SOMETHING RE-ASKS IT — 2026-09-19, ROADMAP 8.1b
+
+Three surfaces genuinely cannot exist before about 08:45: a job is finished
+once it has ENDED, so in the small hours the demo has none, and the
+expected-count gate failed over a product nobody had touched.
+
+The fix was to let a surface declare *"not reachable, here is why"*. **The risk
+that fix carries is worse than the problem it solves** — a screen that can
+excuse itself is a screen that can stop being measured for ever, silently, and
+this repo's whole subject is a check that reads clean having tested nothing.
+
+**So a skip is not a claim, it is a measurement.** The caller hands over a
+probe, the probe re-asks whether the surface was reachable after all, and a
+skip declared over a reachable surface is REFUSED and fails the run:
+
+```
+job record · finished   SKIP REFUSED — declared unreachable, and the probe found 1.
+```
+
+**And the refusal must not merely warn.** Because a refused skip is never
+recorded, the gate that follows still reports `NEVER MEASURED` for that label
+and still fails. Two independent doors, and `receipt.mjs` shuts a third by
+recomputing the counts. **Proved by pointing the locator at a class that does
+not exist** so the skip fired with the row plainly on screen.
+
+**The general form:** any mechanism that lets a check say "this one does not
+count" needs a second mechanism that can call it a liar, and that second
+mechanism has to be exercised on purpose before the first one is trusted. An
+allowlist nobody can disprove is a hole with documentation attached.
+
+**AND A DECLARED SKIP MUST NOT QUIETLY SHRINK THE BASELINE.** The three labels
+stay in `sweep-widths.expected.json`. Deleting them would also have made the
+run pass and is the wrong fix — after 08:45 they are reachable and must be
+measured, and a label that leaves that file is a screen nobody checks again.
+The two `subscription · …` surfaces are absent from it only because the run
+that wrote it never measured them, which is an accident that reads like a
+decision; do not copy that part.
+
+
+---
+
+## A SECOND ESCAPE IS NOT A SECOND CLOSE, AND ONE PRESS PER OPEN THING IS AN ASSUMPTION — 2026-09-19
+
+A run died clicking a client row: `<div class="sheet-backdrop">…</div> intercepts
+pointer events`. The block before it pressed Escape twice with a 700ms pause
+after each.
+
+**The obvious reading is wrong.** A 180ms exit animation racing a 700ms pause
+would be the classic `settle()`-is-not-a-wait failure — except Playwright then
+retries a blocked click for fifteen seconds and would have won. It did not.
+
+**What the measurement said, at 320:**
+
+```
+client record open :  1 sheet   "Marcus Webb (562) 555-0142…"
+job opened         :  1 sheet   "Marcus Webb Thursday, October…"
+Escape, +3000ms    :  1 sheet   "Marcus Webb (562) 555-0142…"
+second Escape      :  0 sheets
+```
+
+**The record and the job inside it are ONE sheet whose contents swap, and the
+first Escape is a BACK STEP.** Press the two too close together and the second
+lands mid-transition and is lost; the sheet then stays open for ever. The pause
+was never too short — **nothing checked whether the press that mattered had
+worked.**
+
+**So do not count presses, ask for the state you need.** The click that follows
+needs *nothing covering the page*, so dismiss until that is true, bounded, and
+make failing to get there a finding rather than a longer wait.
+
+**AND THE CONTAINER IS TWO CONTAINERS.** The first fix counted `.sheet` only.
+Above `--wrap` a record is `.col-2.record`, so at 1440 it pressed Escape **zero**
+times where the old code pressed twice, the record stayed open, and a later
+block measured nothing at all — seven surfaces gone with no line anywhere
+saying why. Only the expected-count gate caught it. **This is the same
+two-container split that bit `inRecord()` days earlier**: `RecordHost` chooses
+between them, so a selector naming one is right at half the widths and silently
+wrong at the others.
+
+---
+
+## ONE WIDTH'S ACCIDENT SHOULD NOT COST THE WHOLE RUN — 2026-09-19
+
+The same dead click threw out of the width loop, past the gate, past the contact
+sheet and past the receipt. **Three widths of work produced no artifact and no
+verdict**, and the output ended in a stack trace rather than a number.
+
+A long check needs its units to fail independently. Each width is now its own
+try/catch: it fails loudly and by name, the run still exits non-zero, and the
+others finish and are graded.
+
+**The catch must not make a failure look like a success.** The abort is
+recorded, the gate prints `NOT GRADED — the N it never reached are unmeasured,
+not clean` instead of listing ninety consequences of one cause, and the
+receipt's four counts no longer agree so `receipt.mjs` fails it without being
+told to. **Verified by throwing on purpose:** 1440 aborted after 40 surfaces
+while 320 and 392 each finished 95/95 and were graded.
+
+
+---
+
+## THE CHECK CLEARED THE NEAR CAUSE AND THE APP PUT IT BACK FROM THE FAR ONE — 2026-09-19
+
+Five `guide · …` surfaces printed `NOT MEASURED — no guide arrived; it has been
+seen on this profile` on **every run for six days**. They raised no finding and
+were absent from the expectation, so they neither measured nor counted — they
+sat in the output looking like weather.
+
+The check was already trying to fix it: before each tab it did
+`localStorage.removeItem("dp.tours")`, with a comment explaining why. **Two
+things were wrong and each one alone was enough to hide the other.**
+
+1. **The gate is an OR over two keys.** `seenTours()` reads `dp.tour` OR a
+   non-empty `dp.tours`. The run suppressed guides by writing BOTH and gave
+   back ONE.
+2. **Underneath that, a database row.** `user_tours` is one row per person
+   saying "I dismissed the guides", and `App.jsx` reads it on sign-in and
+   writes `dp.tour` straight back. **Every `removeItem` the check performed was
+   undone by the app a moment later, in silence.**
+
+**Measured, because the two causes mask each other and reasoning picks one:**
+
+```
+row present, clear dp.tours only  ->  guide arrived 0 of 2
+row present, clear BOTH + reload  ->  guide arrived 0 of 4
+row deleted, clear BOTH           ->  guide arrived 6 of 6
+```
+
+**Two rules.**
+
+1. **When a check clears state to get a behaviour back, ask what else writes
+   that state.** A near cause a check can reach and a far cause it cannot look
+   identical from inside the check — both produce "I cleared it and nothing
+   happened". Clearing is not proof; the behaviour arriving is.
+2. **A bare `NOT MEASURED` that neither counts nor declares is limbo, and limbo
+   is where a real gap lives longest.** Every surface a run names must end up in
+   one of two states: measured, or declared unreachable with a probe that can
+   refuse the declaration. "Prints a line and raises nothing" is the third
+   state and it must not exist — the same sentence, five times a run, is
+   indistinguishable from weather.
+
+**And the tell that it was limbo rather than a known-empty state:** the five
+lines were not even consistent with each other. One run had `guide · today`
+arrive at 1440 and nowhere else, which nobody noticed because the normal output
+was five identical lines nobody read.
+
+
+---
+
+## THE STATE YOU CANNOT REACH MAY NOT BE THE ONE YOU THINK — 2026-09-19
+
+Two surfaces printed `NOT MEASURED — no live subscription on this demo` and
+`… nothing is overdue on this demo` on every run. The obvious reading is that
+cancelling and past-due are mutually exclusive states of one subscription, so
+only one can ever be seen.
+
+**Measured instead, and the reading is wrong.** `Billing.jsx` treats a past-due
+subscription as `live`, so one seed draws the dunning box AND the cancel button
+— `--subscription=past_due` reaches both at once. **The exclusivity is with
+something neither line mentions:** the checkout ladder, because a business
+either has a subscription or it has not.
+
+**So the trade is not the one the lines describe.** Seeding the subscription
+gains one surface and loses two, and the two lost are the price ladder and the
+consent tick — the riskiest geometry on that screen. The right answer was to
+keep the unsubscribed demo and declare the other two.
+
+**Before accepting "these two cannot both exist", find which pair actually
+cannot.** The answer was one seed run away and it moved the decision.
+
+---
+
+## A STATE OF A SCREEN IS NOT A SCREEN — 2026-09-19, and the sentinel is what says so
+
+Making the dunning box its own measured surface produced:
+
+```
+SENTINEL FAILED: gear · subscription, cancelling == gear · subscription, past due
+```
+
+Identical fingerprints, because the box sits at the TOP of the account view and
+everything else on that screen is the same DOM. It is a **state of** a screen
+that was already being measured with the box on it, so a second `say()` was one
+screen counted twice under two names — which inflates the surface count and
+makes the check look more thorough than it is.
+
+**The test is not "is this thing interesting", it is "is this a different
+render".** Where it is not, assert its presence on the surface that already
+measures it and say so in the output. A positive assertion about a measured
+surface is not limbo; a bare `NOT MEASURED` is.
+
+**And this is the sentinel's second real catch**, after `Clients · one client`
+opening the same record as the bounced-email block. Both times it found a
+duplicate that every other check in the file reported as two clean screens.
+
+
+---
+
+## A LABEL IS THE NAME OF A THING, NOT A RENDERING OF IT — 2026-09-19, the first Spanish sweep
+
+The setup form's eight screens were labelled from the form's own step line —
+deliberately, and the comment above it explains why: a loop counter drifts when
+the walk back does not land where it assumed, and a walk that names what it is
+looking at cannot drift. That reasoning is right.
+
+**It is also how eight perfectly measured screens vanished.** The line reads
+"Step 1 of 12" in English and **"Paso 1 de 12"** in Spanish, so a Spanish run
+produced eight labels the expectation had never heard of — **eight NEVER
+MEASURED and eight NOT EXPECTED, for eight screens that were measured
+perfectly well.**
+
+**Read the thing, but name it in the invariant part.** The numbers do not
+translate, so the label is built from those. Still derived from the form,
+still cannot drift, and now stable across languages.
+
+**The general form:** any identifier a check compares across runs — a label, a
+key, a fingerprint — must be built only from parts that cannot change while the
+thing itself stays the same. Copy changes. Numbers, attributes and ids do not.
+
+---
+
+## `:has-text()` TAKES A LITERAL, SO IT IS ENGLISH FOREVER — 2026-09-19
+
+```js
+page.locator('[data-billing-promo-apply]:has-text("Remove")')
+```
+
+`:has-text()` is a CSS pseudo-class and its argument is a literal string, so
+there is no way to hand it the two-language regex this file builds everywhere
+else. In Spanish the button reads "Quitar", the count came back 0, **the promo
+code had applied perfectly and the check reported it refused** — with an empty
+reason, because there was no error on screen to read.
+
+**A false negative that explains itself badly is worse than one that says
+nothing**: `DEMO25 was refused ("")` sends the next person to the seed and the
+promo table, neither of which has anything wrong with it.
+
+`.filter({ hasText: NAMED_TEXT("Remove") })` takes a regex and is the mechanism
+already here. **When a matcher cannot express the thing you need, that is a
+reason to change matcher, not to narrow the question.**
+
+---
+
+## FOUR SPANISH BREAKS, FOUR INSTRUMENT FAULTS, ZERO PRODUCT FAULTS — 2026-09-19
+
+The first Spanish run of the width sweep broke in four places. **Every one was
+the check reaching for an English word, and every one of the three strings
+involved is correctly translated in `appEs.js`.** The product was fine; the
+instrument was monolingual.
+
+**So the first question on a failing Spanish run is not "what is untranslated",
+it is "what did the check ask for in English".** Grep the whole family before
+fixing an instance — `name:` and `hasText:` values that are not `NAMED`/
+`NAMED_TEXT`, plus every `:has-text(` and `text=` locator. There were exactly
+four, and fixing only the one that failed first would have left three to be
+found one slow run at a time.
+
+**A customer's NAME in a locator is not this bug** — `hasText: "Victor Salas"`
+is data, and data does not translate. Know which strings are copy before you
+sweep them.
+
+
+---
+
+## EVERY MODE WROTE TO ONE PATH, SO THE ARTIFACT WAS ALWAYS THE LAST RUN — 2026-09-19
+
+`sweep-widths.mjs` wrote its contact sheet to `artifacts/sweep-widths/` and its
+receipt to a name keyed only on the WIDTHS. English, Spanish and `--lite` all
+landed on the same two paths, so **each run destroyed the previous one's
+pictures and its verdict**, and nothing on the page said which mode had made
+it.
+
+It was caught by somebody opening the page and seeing English screenshots under
+a Spanish claim. **The page had not been overwritten that time** — but nobody
+could tell, which is the whole defect: an artifact that cannot identify itself
+is an artifact nobody can check, and it had already made one report wrong.
+
+**The mode is part of the identity.** It goes in the directory, in the receipt
+id, and in the page's own title and heading — all four, because each one is a
+place somebody arrives without the others.
+
+**This is the timestamp-ambiguity entry from earlier the same night, one level
+up.** There the question was which RUN a PNG came from; here it is which MODE a
+whole contact sheet came from. Same cure: never let two things that must be
+told apart share a name.
+
+---
+
+## A LANGUAGE FLAG THAT ONLY REACHES HALF THE PRODUCT — 2026-09-19
+
+`LANG_APP=es` was reported as sweeping 125 surfaces in Spanish. **The true
+number was 116.** The first nine — the booking page, the four marketing pages
+and the four sign-in screens — are English in a Spanish run and always were:
+
+- `dp.lang.app` is the **dashboard's** key, and `appI18n.js` states that it and
+  the booking page's language *"neither can move the other"*.
+- The sweep applies it **after sign-in**, and those nine are measured before
+  that line runs.
+
+So the flag is doing exactly what it says and the claim was bigger than the
+flag. **Before reporting "swept in language X", check where the switch is
+applied and what was already measured by then** — and count it in the run
+rather than asserting it, which is what the contact sheet's own caveat line now
+does.
+
+**The half that is still unmeasured is the customer's half**, which is the one
+a Spanish-speaking customer actually sees.
+
+---
+
+## `--lite` DOES NOT FIND SLOWER BUGS, IT FINDS RACES YOU WERE WINNING BY LUCK — 2026-09-19
+
+The first reduced-motion sweep reported one problem:
+`tour · focus on open  FOCUS IS OUTSIDE THE CAPTION CARD`. Read cold that is an
+accessibility defect that only appears with motion disabled, which is exactly
+the kind of thing the lite path exists to catch.
+
+**It was the check.** Measured both paths on the same page before changing
+anything:
+
+```
+NORMAL +200ms card=false          LITE +200ms card=false
+NORMAL +400ms focusInCard=true    LITE +400ms focusInCard=true
+```
+
+Identical. The product behaves the same; the check glanced at focus once,
+immediately, and with nothing animating the DOM goes quiet sooner, `settle()`
+returns earlier, and the glance started landing too early.
+
+**So on a `--lite` run, suspect the instrument first** — the opposite of the
+instinct, because lite is advertised as having its own stylesheet rules and
+therefore its own layout defects. Both are true: the geometry findings in lite
+are real product defects, and the TIMING findings are almost always the check.
+Tell them apart by measuring the same thing in both paths before you touch
+either.
+
+**And when you fix one, prove it can still fail.** A wait with a timeout that
+is never reached is indistinguishable from a check that was deleted. Point the
+predicate at something impossible and watch it fail.
+
+
+---
+
+## NOTHING ASKED WHETHER THE RUN WAS IN THE LANGUAGE IT CLAIMED — 2026-09-19
+
+A sweep reported 125 surfaces in Spanish. Nine of them were English. The
+geometry checks could not tell, **and that is not a bug in them**: they measure
+edges and boxes, they do not read words. **A language that never applied
+measures exactly like one that did.**
+
+So the claim "swept in language X" had nothing behind it at all. It was true of
+the flag, not of the pixels.
+
+**Tally the surface against the catalogue, both ways.** How many phrases appear
+in their translated form, against how many appear in their source form. Not one
+hand-picked sentence — that is a check coupled to a spelling, which this file
+records four separate times. A count over the whole surface is a check on the
+behaviour, and it says how confident it is: `0 translated against 4
+untranslated` is a different statement from `2 against 5`.
+
+**Exempt what genuinely has no translation, by name.** Three pages here import
+no translation scope and contain zero translatable strings; scoring them would
+make the guard cry wolf on four correct screens. Naming them also stops the
+next person believing the sweep covers them.
+
+**And declare a known gap rather than silencing it — with a refusal.** One
+surface is legitimately part-translated. It is listed with its reason, and **the
+listing fails the day the gap closes** (`GAP CLOSED — remove it from the list`).
+An allowlist that cannot expire is where defects go to be forgotten.
+
+---
+
+## TWO LANGUAGE KEYS THAT MUST NOT COMPOSE, AND A CHECK THAT KNEW ONE — 2026-09-19
+
+`dp.lang` is the customer's booking surface; `dp.lang.app` is the detailer's
+dashboard. `appI18n.js` states they *"neither can move the other"* **on
+purpose**: a detailer previewing their own booking page in Spanish must not
+come back to a Spanish back office.
+
+The sweep knew one of them. So `LANG_APP=es` translated the dashboard and left
+the customer's half in English, and the run said Spanish.
+
+**When a product deliberately splits a setting by scope, a check that drives it
+has to drive every scope — and the split is usually documented in the file that
+owns it.** Read that file before wiring the flag.
+
+---
+
+## EVERY CONTEXT, NOT THE ONE YOU WERE THINKING OF — 2026-09-19
+
+The language keys were set with `addInitScript` on the main browser context.
+Four surfaces stayed English: the **signed-out** screens are measured in a
+second, anonymous context, because that is what signed-out means.
+
+`grep -n "newContext("` returned two. It always would have.
+
+**A per-context setting has to be applied where contexts are CREATED, not where
+the main one is** — so it belongs in one helper both call sites use, which is
+also the only shape that survives a third context being added later.
+
+**And this was caught by the guard written in the same change**, one run after
+the fix that was supposed to work. That is the argument for building the check
+before trusting the repair, rather than after.
+
+
+---
+
+## THE FIRST FIELD IS NOT THE REQUIRED FIELD — 2026-09-19
+
+`sweep-booking-steps.mjs` filled "the first plain text field on a step", with a
+comment naming the two steps that justified it: *"an address on Location, a name
+on Details. Both are the only required text on their step."*
+
+**The Vehicle step was not in that sentence and has two.** The optional one is
+first. So the script typed a street address into "What are you bringing?", left
+the required Year empty, and the product correctly refused to advance — **every
+run, for as long as the step has existed, so steps 4 to 7 of a seven-step flow
+had never been measured at any width.**
+
+**Two rules.**
+
+1. **Fill by REQUIREMENT, not by position** — and the cheapest way to know what
+   is required is to ask the product: fill what you can identify, then only if
+   the gate is still closed reach for anything else. That needs no list of
+   which step wants what, and it cannot invent data for an optional box.
+2. **A comment that enumerates the cases it covers is a list that will go
+   stale.** This one was accurate when written. The step that broke it was
+   added later and nobody re-read the sentence.
+
+**Identify a field by its attributes, not its label.** A year box is
+`inputmode="numeric"` with `maxlength="4"` in any language; its label is "Year"
+in one.
+
+---
+
+## A GUARD WRITTEN TO MAKE FAILURES LEGIBLE CAN ITSELF GLANCE INSTEAD OF WAIT — 2026-09-19
+
+Replacing a 30-second anonymous Playwright timeout with a named failure meant
+asking `isDisabled()` before clicking Continue. That guard reported **step 1**
+stuck on the very first run.
+
+**Step 1's Continue is correctly disabled until the server quote lands.** The
+old code never noticed because `.click()` AUTO-WAITS for enabled and had been
+quietly absorbing the round trip for as long as the script existed. Reading the
+state directly removed a wait nobody knew was there.
+
+**So: when you replace an action with an assertion, you inherit the action's
+waiting and have to put it back explicitly.** `waitForFunction` up to a bound,
+then declare failure — never a bare read, and never a longer `settle()`.
+
+This file records six earlier instances of "settle is not a wait". This one is
+different and worth its own entry: **the wait that was lost was not in a
+`settle()` at all — it was inside the Playwright call being removed.**
+
+---
+
+## THE SWEEP THAT COULD NOT RUN WAS HIDING THE COST OF A CHANGE — 2026-09-19
+
+The booking sweep had been dying at step 3 for as long as anyone remembers. The
+same week, ROADMAP 8.4 replaced an icon with a worded control — a deliberate,
+requested trade whose cost was written into the code as *"a worded control takes
+a row of its own"*.
+
+**With the sweep repaired, that row measured 264px and turned step 1 from
+fitting at three widths into overflowing at three widths.** Nobody was careless:
+the trade was named, agreed, and documented. **What was missing was the number**,
+and the instrument that produces the number had been broken the whole time.
+
+**A check that cannot run is not neutral.** It is not "no information" — it is
+a change budget nobody is counting against, and the longer it stays broken the
+larger the unmeasured balance. Fix the instrument before, not after, the change
+whose cost it would have priced.
+
+---
+
+## The built-in browser pane cannot scroll, so every scroll measurement in it is void
+
+**Cost: about twenty minutes on 2026-09-19, and it nearly reverted a correct
+fix.** `example-ctas.mjs` reported PASS on ROADMAP 2.4. Opening the same page
+in the desktop app's browser pane to show Andrew, the click landed on
+`/ex1/?svc=express#book` with the right service selected — and the page sat at
+the TOP, widget 1837px below the fold. A passing check over a visibly broken
+page is this repo's defining failure, so the check looked wrong.
+
+**It was not. The pane was.** Three measurements, in order, each one narrowing it:
+
+1. **`innerHeight` was 0.** The pane reports a zero-height viewport when it is
+   hidden or collapsed, and **nothing can ever be "in view" in a viewport of
+   zero height.** `document.documentElement.scrollHeight` read 0 while
+   `document.body.scrollHeight` read 6626 in the same breath, which is the
+   tell. Any in-view test taken here is a guaranteed false negative.
+2. **After `resize_window` to a real 1440x900, it still did not scroll** — on a
+   DIRECT navigation to `#book`, four seconds, reduced-motion off.
+3. **`location.hash = "#book"` did nothing. `scrollIntoView()` did nothing.**
+   `document.scrollingElement.scrollTop` stayed at **0** through both. So
+   programmatic scrolling is inert in the pane for this page, for any anchor,
+   by any method — it is not the fragment, and it is not the page's code.
+
+**The same page in Playwright, same Chromium, no viewport emulation, scrolls
+correctly by both routes** — traced at 250ms intervals, the widget's `top`
+goes `1837 → 1396 → 189 → -9 → -18` and settles, on a click AND on a direct
+navigation to the fragment. That is the real behaviour.
+
+**The rule: never measure a scroll position, a fragment landing, or anything
+"on screen" in the browser pane.** Use it to LOOK at a page and to read the
+console; measure geometry in Playwright. And whatever you are measuring
+anywhere, **read `innerHeight` first** — a zero there voids the answer before
+you have finished asking the question. It is the backgrounded-tab entry above,
+arriving through a different door.

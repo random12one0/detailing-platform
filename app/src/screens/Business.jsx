@@ -56,6 +56,7 @@ import SettingsHost from "../components/SettingsHost.jsx";
 import BookingLink from "../components/BookingLink.jsx";
 import { STEPS, setupProgress } from "../lib/setup.js";
 import { stateOf } from "../lib/maintenance.js";
+import { whereFrom } from "../lib/moneyAdvanced.js";
 import { brandVarsFor } from "../lib/theme.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
@@ -195,9 +196,17 @@ export default function Business({ onSetup, initial = null }) {
       // ROADMAP 4.2. ACTIVE links only — a campaign turned off is not a
       // campaign running, and a row summary that counted it would tell a
       // detailer a flyer is live when it is not.
-      supabase.from("campaigns").select("id", { count: "exact", head: true })
-        .eq("business_id", business.id).eq("is_active", true),
-      supabase.from("campaign_visits").select("id", { count: "exact", head: true })
+      // ROWS, NOT A HEAD COUNT — ROADMAP 5.4. Both of these used to be
+      // `count: exact, head: true`, which is cheaper and was wrong: a count of
+      // rows in `campaign_visits` counts visits belonging to NO link, and to
+      // links that have been switched off. `whereFrom` needs the rows to tell
+      // those apart. Two narrow columns each, for a detailer`s few hundred.
+      // ALL campaigns, not just the live ones: `whereFrom` needs the dead ones
+      // in order to EXCLUDE their visits, and the live count is taken from the
+      // same rows below, so the two figures cannot come from different reads.
+      supabase.from("campaigns").select("id, is_active")
+        .eq("business_id", business.id),
+      supabase.from("campaign_visits").select("campaign_id, visitor_id")
         .eq("business_id", business.id),
       // ROADMAP 2.23. THE COUNT THAT MATTERS IS WHAT IS ABOUT TO BE LOST, not
       // how many deadlines exist: a detailer with nine warranties on the books
@@ -222,7 +231,13 @@ export default function Business({ onSetup, initial = null }) {
       // day is open, which is the same question the blocking row below asks.
       hoursOpen: (h.data ?? []).some((r) => r.open_time),
       domain: dm.data?.[0]?.domain ?? null,
-      campaigns: cp.count, campaignVisits: cv.count,
+      campaigns: cp.data ? cp.data.filter((c) => c.is_active).length : null,
+      // THE SAME FUNCTION MONEY READS, so the two screens cannot disagree
+      // about the same links again — which is the whole of ROADMAP 5.4. No
+      // period: this screen has no period control, so its figure is all time
+      // and the wording below says so.
+      campaignPeople: (cp.data && cv.data)
+        ? whereFrom({ campaigns: cp.data, visits: cv.data }).linkPeople : null,
       // Counted through the SAME function the screen and the reminder use, so
       // three places can never disagree about whether one is missed.
       deadlinesSoon: (md.data ?? []).filter((d) => ["due", "missed"].includes(stateOf(d))).length,
@@ -422,8 +437,25 @@ export default function Business({ onSetup, initial = null }) {
       // the word was doing the damage. A detailer who wants to know whether
       // Yelp is worth it does not go looking for a row called Campaign links.
       ["campaigns", "Tracking links", QrCode,
+        // ROADMAP 5.4 — WHAT THIS ROW SAYS, AND WHY IT IS NOT "OPENS".
+        // "21 opens" was three wrong things in one word: page loads rather
+        // than people, every visit rather than the ones that came through a
+        // link, and switched-off links counted beside a total that claimed to
+        // be live ones. Money said "None of your links were opened" about the
+        // SAME rows and Money was right. It is people on live links now, from
+        // `whereFrom` — the one arithmetic both screens read.
+        // "SO FAR" IS THE LABEL, and it is load-bearing rather than padding.
+        // Money`s figure moves with the period control at the top of that
+        // screen; this one has no control and never will, so a number here
+        // with no span on it invites exactly the comparison that opened this
+        // item. Two words say all time without using the phrase.
         counts ? (counts.campaigns
-          ? `${n(counts.campaigns, "{count} link", "{count} links")} · ${n(counts.campaignVisits, "{count} open", "{count} opens")}`
+          ? (counts.campaignPeople
+            ? t("{links} · {people} so far", {
+              links: n(counts.campaigns, "{count} link", "{count} links"),
+              people: n(counts.campaignPeople, "{count} person", "{count} people") })
+            : t("{links} · not opened yet", {
+              links: n(counts.campaigns, "{count} link", "{count} links") }))
           : "Nothing tracked yet") : "…"],
     ]],
   ];

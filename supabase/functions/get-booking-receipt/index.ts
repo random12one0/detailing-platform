@@ -10,8 +10,70 @@ import { businessById, getSettings } from "../_shared/tenant.ts";
 import { dateStrIn, timeStrIn } from "../_shared/tz.ts";
 import { cardStatus, payability } from "../_shared/connect.ts";
 
+// ROADMAP 14.1 — THE LIST IS WHAT THE CUSTOMER'S PAGE DRAWS, NOT WHAT TO HIDE.
+//
+// This was `select("*")`, which handed an anonymous caller every column on the
+// row. Including `admin_notes` — the box `BookingDetail.jsx` prints to the
+// business under the label **"Private:"**. Measured before the change: an
+// anonymous GET with no API key returned `admin_notes: "staff note"`, plus
+// `payment_notes`, both Stripe ids, and the internal `customer_id`,
+// `business_id`, `campaign_id`, `plan_id` and `plan_member_id`.
+//
+// AN ALLOW-LIST AND NOT A DENY-LIST, BECAUSE THE DENY-LIST IS ALWAYS ONE
+// MIGRATION OUT OF DATE. A column added to `bookings` tomorrow is private
+// until somebody puts its name here on purpose. `business_settings` three
+// screens down already works this way — one setting exposed by name, the rest
+// never sent — and this is the same move applied to the booking row.
+//
+// Every name below is rendered by `app/src/book/ManageBookingPage.jsx`.
+const BOOKING_COLUMNS = [
+  "id",
+  "status",
+  "service_type",
+  "start_at",
+  "end_at",
+  "customer_name",
+  "customer_phone",
+  "customer_email",
+  "customer_address",
+  "customer_notes",
+  "vehicle_model",
+  "vehicle_size_label",
+  "vehicle_size_fee",
+  "vehicle_condition",
+  "subtotal",
+  "total_price",
+  "final_amount",
+  "travel_fee",
+  "travel_zone",
+  "price_adjustments",
+  "promo_discount",
+  "applied_promo_code",
+  "quoted_amount",
+  "quoted_note",
+  "quoted_at",
+];
+
+// READ, AND NEVER SENT. `business_id` and `booking_group_id` find the sibling
+// appointments further down; `payment_status` is what `payability()` reads to
+// decide whether a Pay button is drawn at all. None of the three is any of the
+// customer's business, so they are selected and then dropped.
+const SERVER_ONLY_COLUMNS = ["business_id", "booking_group_id", "payment_status"];
+
+const EMBEDDED = ["services", "add_ons", "vehicles"];
+
+// Derived from the business's timezone in the reply below, never stored.
+const DERIVED = ["booking_date", "start_time", "end_time"];
+
+/**
+ * EVERY KEY THE PUBLIC RECEIPT MAY CARRY. `tests/receipt-fields.test.mjs`
+ * reads this array out of this file and asserts the deployed endpoint's answer
+ * has exactly these keys — the list itself, not the absence of one bad name.
+ */
+export const PUBLIC_BOOKING_FIELDS = [...BOOKING_COLUMNS, ...EMBEDDED, ...DERIVED];
+
 const BOOKING_SELECT = `
-  *,
+  ${[...BOOKING_COLUMNS, ...SERVER_ONLY_COLUMNS].join(", ")},
   services:booking_services(service_id, name_at_booking, price_at_booking, duration_at_booking),
   add_ons:booking_add_ons(add_on_id, add_on:add_ons(id, name, price)),
   vehicles:booking_vehicles(position, vehicle_size_label, vehicle_model)
@@ -38,6 +100,8 @@ Deno.serve(async (req) => {
       .is("deleted_at", null)
       .maybeSingle();
     if (error || !booking) return json({ error: "not_found" }, 404);
+    // deno-lint-ignore no-explicit-any
+    const row = booking as any;
 
     const business = await businessById(booking.business_id);
     const tz = business?.timezone || "UTC";
@@ -116,8 +180,14 @@ Deno.serve(async (req) => {
       // until a customer books two cars on two days.
       group,
       card,
+      // THE SPREAD WAS THE SECOND HALF OF THE LEAK AND IT IS GONE. Narrowing
+      // the select alone still ships `payment_status` and the two ids the
+      // group query needs, so the reply is BUILT from the allow-list rather
+      // than copied from the row and trimmed.
       booking: {
-        ...booking,
+        ...Object.fromEntries(
+          [...BOOKING_COLUMNS, ...EMBEDDED].map((k) => [k, row[k]]),
+        ),
         booking_date: dateStrIn(tz, new Date(booking.start_at)),
         start_time: timeStrIn(tz, new Date(booking.start_at)),
         end_time: timeStrIn(tz, new Date(booking.end_at)),
