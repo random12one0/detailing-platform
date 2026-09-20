@@ -1,0 +1,80 @@
+{
+  "git_sha": "66f9f966452a85ae2b9c7177a3de44f91860e954",
+  "environment": "local",
+  "finished_at": "2026-09-20T11:12:21.219Z",
+  "failures": [],
+  "warnings": [
+    "the canary is an over-privileged CALLER, not a deployed broken function: it proves the detector can see tenant data in a response, not that a subtle authorization bug would be caught. A deployed canary is gated on Andrew — ROADMAP 0.6.",
+    "public by design, measured rather than assumed: an ANONYMOUS caller holding a booking's UUID moved bookings, email_sends on the twin tenant. That is the UUID-bearer model cancel-booking and reschedule-booking are built on — the emailed link is the credential. It is not a tenant leak, and it is worth knowing that the UUID is the only thing protecting those rows.",
+    "accept-invite: no field could be aimed at tenant B (fields found: token, password) — it was called, but with nothing of B's in it, so a refusal proves nothing about isolation",
+    "accept-quote: no caller received a 2xx (anon 409, owner A 409, staff A 409, former A 409, service 409) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "address-suggest: no field could be aimed at tenant B (fields found: q) — it was called, but with nothing of B's in it, so a refusal proves nothing about isolation",
+    "connect-account: no caller received a 2xx (anon 404, owner A 404, staff A 404, former A 404, service 404) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "create-booking: no caller received a 2xx (anon 400, owner A 400, staff A 400, former A 400, service 400) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "create-business: no caller received a 2xx (anon 401, owner A 400, staff A 400, former A 400, service 401) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "delete-customer: no caller received a 2xx (anon 404, owner A 404, staff A 404, former A 404, service 404) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "forecast: no caller received a 2xx (anon 404, owner A 404, staff A 404, former A 404, service 404) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "invite-user: no caller received a 2xx (anon 401, owner A 401, staff A 401, former A 401, service 401) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "owner-push-subscribe: no caller received a 2xx (anon 401, owner A 401, staff A 401, former A 401, service 401) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "owner-push-unsubscribe: no caller received a 2xx (anon 401, owner A 401, staff A 401, former A 401, service 401) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "pay-booking: no caller received a 2xx (anon 409, owner A 409, staff A 409, former A 409, service 409) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "plan-link: no caller received a 2xx (anon 400, owner A 400, staff A 400, former A 400, service 400) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "platform-admin: no caller received a 2xx (anon 404, owner A 404, staff A 404, former A 404, service 404) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "platform-billing: no caller received a 2xx (anon 401, owner A 401, staff A 401, former A 401, service 401) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "preview-emails: no caller received a 2xx (anon 401, owner A 401, staff A 401, former A 401, service 401) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "refresh-weather: no field could be aimed at tenant B (fields found: none) — it was called, but with nothing of B's in it, so a refusal proves nothing about isolation",
+    "report-problem: no caller received a 2xx (anon 404, owner A 404, staff A 404, former A 404, service 404) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "reschedule-booking: no caller received a 2xx (anon 409, owner A 409, staff A 409, former A 409, service 409) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "resend-webhook: no field could be aimed at tenant B (fields found: none) — it was called, but with nothing of B's in it, so a refusal proves nothing about isolation",
+    "respond-to-booking: no caller received a 2xx (anon 401, owner A 401, staff A 401, former A 401, service 401) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "send-campaign: no caller received a 2xx (anon 401, owner A 401, staff A 401, former A 401, service 401) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "send-email: no caller received a 2xx (anon 401, owner A 401, staff A 401, former A 401, service 401) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "send-invoice: no caller received a 2xx (anon 401, owner A 401, staff A 401, former A 401, service 401) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "send-owner-reminders: no caller received a 2xx (anon 401, owner A 401, staff A 401, former A 401, service 401) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "session-ping: no field could be aimed at tenant B (fields found: session_id, label) — it was called, but with nothing of B's in it, so a refusal proves nothing about isolation",
+    "stripe-webhook: no field could be aimed at tenant B (fields found: none) — it was called, but with nothing of B's in it, so a refusal proves nothing about isolation",
+    "track-visit: no caller received a 2xx (anon 400, owner A 400, staff A 400, former A 400, service 400) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "translate-content: no field could be aimed at tenant B (fields found: none) — it was called, but with nothing of B's in it, so a refusal proves nothing about isolation",
+    "unsubscribe: no caller received a 2xx (anon 400, owner A 400, staff A 400, former A 400, service 400) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "update-booking: no caller received a 2xx (anon 401, owner A 401, staff A 401, former A 401, service 401) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "validate-promo-code: no caller received a 2xx (anon 400, owner A 400, staff A 400, former A 400, service 400) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "verify-domain: no caller received a 2xx (anon 401, owner A 401, staff A 401, former A 401, service 401) — every refusal here may be correct authorization or may be an argument this script could not synthesise. The function was called and nothing was proved about its tenant checks.",
+    "watch-jobs: no field could be aimed at tenant B (fields found: none) — it was called, but with nothing of B's in it, so a refusal proves nothing about isolation"
+  ],
+  "artifacts": [
+    "artifacts/edge-tenant-replay/index.html"
+  ],
+  "dimensions": {
+    "project": "kguqylyzgyzfktkfnhjb",
+    "actors": [
+      "anon",
+      "owner A",
+      "staff A",
+      "former A"
+    ],
+    "functions": 39,
+    "canary_reached": 2,
+    "sabotage": null
+  },
+  "check_id": "edge-tenant-replay",
+  "started_at": "2026-09-20T11:09:22.108Z",
+  "status": "fail",
+  "expected_targets": 39,
+  "discovered_targets": 39,
+  "attempted_targets": 39,
+  "completed_targets": 39,
+  "skipped_targets": 34,
+  "assertions_executed": 94,
+  "min_assertions": 60,
+  "canary": {
+    "id": "the over-privileged caller · the service role must come back carrying B's data",
+    "observed_failure": true,
+    "caught_by": [
+      "booking-ics",
+      "get-booking-receipt"
+    ],
+    "findings": [
+      "[edge] 2 function(s) returned B's data to the service role, so a refusal to an actor of A is a real refusal and not an empty response"
+    ]
+  }
+}
