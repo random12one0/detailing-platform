@@ -397,14 +397,14 @@ export default function Business({ onSetup, initial = null }) {
       // that is deliberate: a missed warranty costs a CUSTOMER something,
       // which is worth more than tidiness. `--bad` is the product's fixed red
       // and never the tenant's accent (law 11b).
-      ["maintenance", "Maintenance deadlines", CalendarClock,
-        counts ? (counts.deadlines === 0 ? "Nothing has a deadline"
-          : counts.deadlinesSoon === 0 ? t("{deadlines}, none due", {
-            deadlines: n(counts.deadlines, "{count} deadline", "{count} deadlines") })
+      ["maintenance", "Visits due", CalendarClock,
+        counts ? (counts.deadlines === 0 ? "Nothing scheduled"
+          : counts.deadlinesSoon === 0 ? t("{visits}, none due", {
+            visits: n(counts.deadlines, "{count} visit", "{count} visits") })
             : counts.deadlinesMissed
-              ? `${counts.deadlinesMissed} missed`
-              : t("{deadlines} coming up", {
-                deadlines: n(counts.deadlinesSoon, "{count} deadline", "{count} deadlines") })) : "…",
+              ? `${counts.deadlinesMissed} overdue`
+              : t("{visits} coming up", {
+                visits: n(counts.deadlinesSoon, "{count} visit", "{count} visits") })) : "…",
         // **THE FIFTH SLOT IS THE COLOUR SWATCH AND THIS WAS PUTTING A BOOLEAN
         // IN IT — found 2026-09-12.** `true` reached `brandVarsFor()`, so a
         // business with a missed deadline lost the row's clock icon and grew a

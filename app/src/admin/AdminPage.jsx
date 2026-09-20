@@ -558,8 +558,7 @@ function TabNow({ state, totals, rows, alerts, attention, onOpen }) {
               {alerts.map((a) => <div className="pa-do" key={a}><span className="pa-ev">{a}</span></div>)}
             </div>
             <p className="pa-sub pa-act">
-              These are the platform's own jobs, not a detailer's problem. Open Plumbing to see
-              when each last finished.
+              The platform's own jobs — open System health to see when each last finished.
             </p>
           </div>
         </section>
@@ -578,8 +577,7 @@ function TabNow({ state, totals, rows, alerts, attention, onOpen }) {
               ))}
             </div>
             <p className="pa-sub pa-act">
-              Each one is a customer who asked for a time and has not heard back. If a detailer
-              is not answering, that is the one thing worth interrupting them for.
+              A customer asked for a time and has not heard back — worth interrupting a detailer for.
             </p>
           </div>
         </section>
@@ -599,7 +597,7 @@ function TabNow({ state, totals, rows, alerts, attention, onOpen }) {
             <div className="pa-card">
               <p className="pa-none">
                 {live.length === 0
-                  ? "Nobody yet. When a detailer signs up and stalls — no bookings, setup unfinished, a card that failed — they appear here with the reason and what to do about it."
+                  ? "Nobody yet — a detailer who stalls (no bookings, setup unfinished, a failed card) appears here with the reason and what to do."
                   : "Everybody is taking bookings and nobody is past due."}
               </p>
             </div>
@@ -656,8 +654,8 @@ function TabNow({ state, totals, rows, alerts, attention, onOpen }) {
           <Tile n={totals.founding_left ?? 0} t="Founding spots left" />
         </div>
         <p className="pa-sub" style={{ marginTop: 10 }}>
-          Recurring is what the platform earns. {money(totals.revenue_month ?? 0)} went through it
-          this month — that is the detailers' money, not ours to spend.
+          {money(totals.revenue_month ?? 0)} passed through the platform this month, but only the
+          recurring total above is ours.
         </p>
       </section>
     </>
@@ -758,8 +756,8 @@ function TabGrowth({ rows, totals, onOpen }) {
             <div className="pa-card">
               <p className="pa-none">
                 {live.length === 0
-                  ? "Nothing to be stuck on yet. This fills in with names the moment somebody signs up and stops part-way."
-                  : "Nobody is stuck. Everyone has finished setup, has a page that takes bookings, has taken one, and has booked recently."}
+                  ? "Nothing yet — fills in with names the moment somebody signs up and stalls."
+                  : "Nobody is stuck — everyone has finished setup, taken a booking, and booked recently."}
               </p>
             </div>
           )
@@ -827,8 +825,7 @@ function TabGrowth({ rows, totals, onOpen }) {
             <Row k="How long setup takes on average" v="needs a timestamp per step" />
           </div>
           <p className="pa-sub pa-act">
-            These are missing rather than zero. Until the first one exists this screen can say who is
-            here and who is stuck, and cannot say who has gone.
+            Missing, not zero — this screen can say who is here or stuck, not yet who has left.
           </p>
         </div>
       </section>
@@ -947,8 +944,8 @@ function NewBusiness({ reload }) {
       <form onSubmit={submit}>
         <h2>Sign up a detailer</h2>
         <p className="pa-sub">
-          Creates the business and emails an invite to the owner. The link is
-          shown here too, so you can read it to them.
+          Creates the business, emails the owner an invite, and shows the link here too in case you
+          want to read it to them.
         </p>
         <input className="pa-find" placeholder="Business name" required
                value={form.name} onChange={(e) => setName(e.target.value)} />
@@ -1107,7 +1104,7 @@ function TabWho({ rows, totals, reload }) {
             </div>
           )}
         <p className="pa-sub" style={{ marginTop: 12 }}>
-          Showing {shown.length} of {rows.length}. {totals.demo ? `${totals.demo} demo or test row${totals.demo === 1 ? " is" : "s are"} in this list and left out of every count elsewhere.` : ""}
+          Showing {shown.length} of {rows.length}{totals.demo ? `, including ${totals.demo} demo or test row${totals.demo === 1 ? "" : "s"} left out of every count elsewhere` : ""}.
         </p>
       </section>
 
@@ -1320,8 +1317,8 @@ function Business({ row, detail, onClose, reload }) {
                        onChange={(e) => setInviteTo(e.target.value)} />
               </label>
               <p className="pa-sub" style={{ marginTop: 8 }}>
-                They get a link that signs them in and makes them the owner of {row.name}.
-                Any invite already out to that address stops working.
+                Sends a sign-in link that makes them owner of {row.name}, and cancels any invite
+                already out to that address.
               </p>
               <button className="pa-btn pa-go" type="button" style={{ marginTop: 10 }}
                       disabled={!inviteTo.includes("@") || busy === "resend_invite"}
@@ -1454,8 +1451,8 @@ function TabMoney({ state, totals, rows, reload }) {
             : `${money((totals.mrr_cents ?? 0) / 100)} a month is ours.`}
         </p>
         <p className="pa-sub">
-          {money(totals.revenue_month ?? 0)} went through the platform this month. That is the
-          detailers&apos; money, not ours — it does not count as income.
+          {money(totals.revenue_month ?? 0)} passed through the platform this month — the
+          detailers&apos; money, not income of ours.
         </p>
       </section>
 
@@ -1469,7 +1466,7 @@ function TabMoney({ state, totals, rows, reload }) {
               <p className="pa-none">
                 {totals.businesses
                   ? "Every detailer is paying and nothing has failed."
-                  : "Nobody is paying yet, so there is nothing to lose. This fills in when a card fails, somebody gives notice, or a detailer is on the product for nothing."}
+                  : "Nobody is paying yet, so nothing to lose — fills in on a failed card, a notice, or a free account."}
               </p>
             </div>
           )
@@ -1491,7 +1488,7 @@ function TabMoney({ state, totals, rows, reload }) {
               </div>
               <p className="pa-sub pa-act">
                 {riskCents
-                  ? `${money(riskCents / 100)} a month sits on these ${plural(atRisk.length, "account", "accounts")}. A card that failed is retried automatically; the rest need a phone call.`
+                  ? `${money(riskCents / 100)} a month sits on these ${plural(atRisk.length, "account", "accounts")} — a failed card retries itself, everything else needs a call.`
                   : "None of these is paying anything today, so nothing stops if they leave. They are here because a subscription that never started is a sale that was never finished."}
               </p>
             </div>
@@ -1631,8 +1628,7 @@ function TabMoney({ state, totals, rows, reload }) {
             <Row k="Stripe · payouts, failed charges, disputes" v="needs Stripe connected" />
           </div>
           <p className="pa-sub pa-act">
-            These are missing rather than zero. Until the costs line exists, the figure at the top of
-            this screen is revenue and not profit, and nothing here can tell you the difference.
+            Missing, not zero — until costs exist, the figure above is revenue, not profit.
           </p>
         </div>
       </section>
@@ -1674,7 +1670,7 @@ function TabPipes({ state, alerts }) {
           <div className="pa-svc-r">
             <span className="pa-svc-n">
               <i className={`pa-dot ${state?.watch?.outside ? "pa-ok" : "pa-idle"}`} />
-              Outside monitor
+              Dead man's switch
             </span>
             <span className="pa-v" style={{ fontSize: 12 }}>{state?.watch?.outside ? "set up" : "none"}</span>
             <span className="pa-svc-d">

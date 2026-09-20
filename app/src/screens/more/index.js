@@ -84,7 +84,7 @@ export const SCREENS = {
   catalog: [Catalog, "Services & add-ons"],
   promos: [Promos, "Promo codes & sale"],
   plans: [Plans, "Monthly plans"],
-  maintenance: [Maintenance, "Maintenance deadlines"],
+  maintenance: [Maintenance, "Visits due"],
   payments: [Payments, "How you get paid"],
   hours: [Hours, "Hours & days off"],
   rules: [BookingRules, "Booking rules"],

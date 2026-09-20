@@ -442,8 +442,17 @@ console.log("\n7. and the things the spec refused");
   // nobody — a server field with no reader. That is Andrew's own cut, not a
   // regression, so this asserts what is true and the dead field is named in
   // `docs/lane-b-handover-2026-09-13.md` instead of being asserted back.
+  // **SILENTLY BROKEN BY ROADMAP 10.2, 2026-09-20 — pinned the prose, not the
+  // fact.** The copy condensation changed both tabs' sentences from "went
+  // through" to "passed through", which is the wording this check happened
+  // to name rather than the property it was written to guard: the same
+  // platform-wide revenue figure, on both Today and Money. Re-pointed at the
+  // figure itself, scoped to each tab's own function, so the next copy pass
+  // can reword the sentence around it without going red again.
+  const nowSection = p.slice(p.indexOf("function TabNow"), p.indexOf("function TabGrowth"));
+  const moneySection = p.slice(p.indexOf("function TabMoney"));
   check("the platform's own takings are still on the screen",
-    /went through it\s+this month/.test(p) && /went through the platform this month/.test(p),
+    /money\(totals\.revenue_month/.test(nowSection) && /money\(totals\.revenue_month/.test(moneySection),
     "the tiles answer 'how is my company doing'; this one answers 'is it carrying work'");
 
   // **"NO CHART STILL HOLDS" USED TO BE HERE AND IT DOES NOT HOLD — 2026-09-13.**
@@ -731,8 +740,15 @@ console.log("\n11. demos are marked and never counted");
   // and the number left out of every other count is stated once in words.
   check("11f · a demo row is tagged in the list",
     /r\.is_demo && <span className="pa-flag">demo<\/span>/.test(p));
+  // **SILENTLY BROKEN BY ROADMAP 10.2, 2026-09-20 — pinned the exact prefix
+  // text, not the three facts that matter.** The condensation inserted ",
+  // including " before the count so the sentence reads as one line instead of
+  // two; the backtick-then-interpolation sequence this regex demanded no
+  // longer exists even though the count, the label and the "left out" clause
+  // all still do. Re-pointed at those three independently.
   check("11g · and the screen says how many were left out",
-    /totals\.demo \? `\$\{totals\.demo\} demo or test row/.test(p)
+    /\$\{totals\.demo\}/.test(p)
+      && /demo or test row/.test(p)
       && /left out of every count elsewhere/.test(p));
 
   // ─── the month has an end (F-018) ───────────────────────────────────────
