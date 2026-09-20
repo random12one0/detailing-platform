@@ -2096,6 +2096,61 @@ the dashboard or back office at phone width at all.
   Never checked.
   *A1 § 10*
 
+  **A SPLIT IS PROPOSED, NOT TAKEN — 2026-09-20. Nothing has been built.** This
+  is five unrelated things wearing one number, and they do not share an
+  instrument, a fix or a way of being proved. The parts below are what they
+  split into naturally.
+
+  **WHAT WAS MEASURED FIRST, WITH PREDICTIONS DECLARED BEFORE THE RUN.** Seven
+  screens — the five dashboard tabs, booking step 1 and the booking calendar —
+  **187 interactive elements**, two canaries planted on every screen (a button
+  with no name, and a clickable div nothing can focus), **both caught 7/7**.
+
+  | predicted | found |
+  |---|---|
+  | the calendar's day cells are DIVs with click handlers, so a keyboard cannot reach them | **WRONG, in the product's favour.** Tab lands on `DIV.cell` "22". They are reachable |
+  | a handful of icon-only controls with no accessible name | **WRONG.** Zero. Every one of the 187 has a name |
+  | — | the service card looked unreachable and **was a fault in my probe**: the card is a `div` with `cursor: pointer` that CONTAINS a `<button aria-pressed>` Tab reaches and Enter operates. Detector corrected, then re-run |
+
+  **So the keyboard half of this item is in better shape than the audit
+  assumed, and two of my three findings were my own instrument being wrong.**
+
+  **THE PROPOSED SPLIT:**
+
+  * **8.5a — Keyboard: reach, operation, and getting back out.** *Measured
+    and clean:* every control reachable, every control named, no positive
+    `tabindex`. *Not measured:* whether focus is VISIBLE as it moves, whether
+    the sheets and modals trap it, whether Escape closes them, and whether the
+    order makes sense. **That is the half that would actually strand somebody**
+    and it needs a different probe.
+  * **8.5b — Screen reader.** Names are clean; landmarks, heading order and
+    live regions are unmeasured. **The last mile needs a human with a screen
+    reader on** and should be written up as such rather than pretended at.
+  * **8.5c — Zoom to 200%.** Unmeasured. WCAG 1.4.4. One probe, four widths.
+  * **8.5d — Large text and text spacing.** Unmeasured. WCAG 1.4.12 — bump
+    the root size and the spacing overrides and look for clipping and overlap.
+    Different from zoom and fails differently.
+  * **8.5e — Reduced motion. ALREADY HAS A KNOWN DEFECT**, found on
+    2026-09-20 and logged in `FOUND.md`: `.lite` forces
+    `animation-duration: .01ms` but **does not touch `animation-delay`**, and
+    the step entrance staggers children up to 300ms with a `backwards` fill —
+    so a visitor who asked for reduced motion still waits up to a third of a
+    second looking at an empty step. One line to fix, and it needs proving
+    somewhere the animation clock actually runs.
+
+  **RECOMMENDED ORDER IF THE SPLIT IS ACCEPTED:** **8.5e** first — it has a
+  named defect, a one-line fix and no instrument to build. Then **8.5a's
+  unmeasured half**, because a keyboard user who cannot see where focus is, or
+  cannot get out of a sheet, is stopped rather than inconvenienced. Then c and
+  d, which share a probe. **8.5b last**, because its last mile is not ours to
+  do alone.
+
+  **THE PROBE'S OWN BLIND SPOT, STATED:** it finds "looks clickable" by
+  `cursor: pointer` or an `onclick` attribute. **A React handler on an element
+  with a default cursor is invisible to it.** That is a real limit, not a
+  quibble — anything relying on this check should know it can only see the
+  clickable things that were styled as clickable.
+
 ---
 
 ## Wave 9 — Dashboard and back office
