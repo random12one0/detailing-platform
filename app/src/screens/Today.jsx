@@ -126,7 +126,26 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
     stopsBooking.push({ key: "info", text: t("Customers have no way to reach you — add a phone number or email.") });
   }
   const leadKeys = new Set(stopsBooking.map((s) => s.key));
-  const cosmetic = missingSteps.filter(([k]) => !leadKeys.has(k));
+  const cosmeticAll = missingSteps.filter(([k]) => !leadKeys.has(k));
+
+  // ROADMAP 9.3 — **THERE IS ALWAYS A FIRST LINE, AND "AND" NEVER FOLLOWS
+  // NOTHING.** Measured on the demo, 2026-09-20: with nothing blocking a
+  // booking the notice rendered its heading, an EMPTY `<ul>`, and then a fold
+  // reading *"and 3 more"* — 0 visible items, 3 hidden. A detailer's first
+  // thirty seconds with the product told them something was unfinished, showed
+  // them nothing, and then said "and".
+  //
+  // The three that stop a booking still lead when they exist. When none does,
+  // the FIRST remaining step takes the line instead, so the notice always
+  // names one thing to press. The fold then counts what is genuinely left
+  // after it, so "and 3 more" becomes "and 2 more" — the word is honest
+  // because something now precedes it.
+  const [firstCosmetic, ...restCosmetic] = cosmeticAll;
+  const leadFallback = stopsBooking.length === 0 && firstCosmetic
+    ? [{ key: firstCosmetic[0], text: firstCosmetic[2] }]
+    : [];
+  const lead = stopsBooking.length ? stopsBooking : leadFallback;
+  const cosmetic = stopsBooking.length ? cosmeticAll : restCosmetic;
 
   // COLLAPSE TO ONE LINE, REMEMBERED — AND UN-COLLAPSED ONCE SOMETHING NEW
   // GOES MISSING. `setup.todayCollapsedFor` is the set of keys that were
@@ -621,7 +640,7 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
                   more than the three real ones. Everything else is real but
                   cosmetic and sits behind the fold below. */}
               <ul style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 6 }}>
-                {stopsBooking.map((s) => (
+                {lead.map((s) => (
                   <li key={s.key}>
                     <button
                       onClick={() => onSetup?.(STEPS.findIndex(([k]) => k === s.key))}

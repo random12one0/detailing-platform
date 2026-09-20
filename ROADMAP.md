@@ -2694,6 +2694,17 @@ the dashboard or back office at phone width at all.
   `app/src/lib/setup.js`, so this is a live regression against a stated rule.
   **Done when:** the same account shows the same count everywhere.
   *A1 P1-02, A2 4.4*
+  **DIAGNOSED 2026-09-20, AND IT IS A SHORT JOB ONCE DEPLOYS ARE UNFROZEN.**
+  **The two sides genuinely do call the same `setupProgress()`** — CLAUDE.md's
+  claim is true and this is not a second implementation. **The disagreement is
+  in what each side FEEDS it.** `Today.jsx` and `Business.jsx` pass the whole
+  business and the whole settings row; `platform-admin` sends a trimmed
+  `setup_inputs` carrying only `{ setup }` out of settings and
+  `{ contact_phone, contact_email }` out of the business — while most steps now
+  DERIVE from the real record (Andrew's instruction, 2026-09-14). So the back
+  office cannot see the evidence the dashboard can, and counts fewer.
+  **The fix is to widen what `platform-admin` sends, which is an edge-function
+  deploy — blocked by the freeze, not by the work.**
 
 - [ ] **9.2 — The back office says contradictory things about one account.**
   Growth says a page "cannot take a booking" and also "the page works and
@@ -2706,9 +2717,48 @@ the dashboard or back office at phone width at all.
   action.
   *A1 P1-02, P3-04, A2 5.1*
 
-- [ ] **9.3 — The setup banner shows an empty list and "and 2 more".**
+- [x] **9.3 — The setup banner shows an empty list and "and 2 more". DONE
+  2026-09-20.**
   **Fix:** show the first blocking task on its own line with a direct button.
   *A1 P2-11, A2 4.3*
+
+  **REPRODUCED FIRST, ON THE DEMO.** With nothing blocking a booking the
+  notice rendered its heading, an **empty `<ul>`**, and a fold reading *"and 3
+  more"*: **0 visible items, 3 hidden**. A detailer's first thirty seconds
+  with the product told them something was unfinished, showed them nothing,
+  and then said *"and"*.
+
+  **THE CAUSE:** the visible list is `stopsBooking` — the three things that
+  actually stop a customer booking — and everything else sits behind the fold.
+  When none of the three is missing, the list is empty and the fold's *"and N
+  more"* continues a sentence that was never started.
+
+  **FIXED:** the three still lead when they exist; when none does, **the first
+  remaining step takes the line instead**, so the notice always names one
+  thing to press. The fold then counts what is genuinely left after it — *"and
+  3 more"* became one visible task and *"and 2 more"*, which adds up.
+  **Verified at 1440x900, 768x1024, 392x844 and 320x844, console clean at
+  each**, no horizontal scroll, the lead rendered as a real button at every
+  width. **The blocking path is unchanged by construction**: when
+  `stopsBooking` is non-empty the rendered list IS `stopsBooking`, exactly as
+  before.
+
+  **OVERLAPS 2.12, WHICH IS HELD — SAID RATHER THAN QUIETLY STEPPED AROUND.**
+  The line now promoted to the front of the notice is a step NAME out of
+  `lib/setup.js`, and those are the plain object values 2.12 records as
+  untranslated — rendered raw at the call site, not through `t()`. "Vehicle
+  types" has no Spanish entry at all; "Services", "Hours" and "Where you work"
+  have entries that nothing looks up. **So on a Spanish dashboard this line
+  reads English.** The defect is not new — the fold has always shown these
+  same names untranslated — but 9.3 moves one of them from behind a fold to
+  the most prominent line. **No string was added or changed here**, because
+  fixing that copy is 2.12's job and 2.12 is held until the width sweep is.
+
+  **AND ONE THING MEASURED THAT IS NOT THIS ITEM'S**, in `FOUND.md`: the
+  task links are 19px tall on a 25px pitch, so the 44px rule cannot be met
+  with the `::after` inset CLAUDE.md prescribes — neighbouring targets would
+  overlap. Spacing the list out is a design decision on a reviewed screen and
+  was not taken unilaterally.
 
 - [ ] **9.4 — Calendar is hard to read at a glance.**
   Single-letter weekdays make both S days and both T days ambiguous; names

@@ -3863,3 +3863,33 @@ on, which is a row on Andrew's list.
 
 **RECOMMENDATION: do 1, 2 and 4 together as one small item, and leave 3 where
 it is**, riding on the stays-open decision rather than being fixed twice.
+
+---
+
+## THE SETUP NOTICE'S TASK LINKS ARE 19px TALL WITH A 25px PITCH — measured 2026-09-20, NOT FIXED
+
+**Found while closing ROADMAP 9.3**, which put a task on the notice's first
+visible line. Measured at all four widths: the link is a real button, and it
+is **19px tall**, in a list whose items sit 6px apart — a **25px pitch**.
+
+**CLAUDE.md names 44px of real hit area as an absolute**, with the documented
+escape for a deliberately small mark: keep its size and grow its target with
+an absolutely positioned `::after` negative inset.
+
+**THAT ESCAPE DOES NOT WORK HERE, AND THE REASON IS THE PITCH.** Growing a
+19px target to 44px needs ±13px of inset, and the neighbouring task sits
+25px away — so adjacent targets would overlap by roughly 20px and steal each
+other's presses. CLAUDE.md warns about exactly this: *"check the pitch too, or
+two 32px targets 18px apart steal each other's presses."* **The honest fix is
+therefore to space the list out, which changes the density of a notice
+Andrew has reviewed** — a design decision, not a hit-area trick.
+
+**WHAT 9.3 DID AND DID NOT CHANGE.** The button style is untouched and
+pre-existing: the three blocking tasks have always rendered this way, and so
+has every task behind the fold. What changed is that with nothing blocking a
+booking the visible list used to be EMPTY, so no 19px target was on screen;
+now there is one. **So this is not a new defect, but it is newly visible, and
+it was measured rather than noticed later.**
+
+Whoever picks it up should decide one spacing for the whole list rather than
+enlarging the lead line alone.
