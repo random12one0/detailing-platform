@@ -1,7 +1,7 @@
 {
-  "git_sha": "29a0de0b14bccbbf22f72edc5ee341b092b63d8f",
+  "git_sha": "6097a7e1541511a9ce7f767c3d82cfa18f7a7747",
   "environment": "local",
-  "finished_at": "2026-09-20T13:16:14.028Z",
+  "finished_at": "2026-09-20T23:10:20.340Z",
   "failures": [],
   "warnings": [
     "STRUCTURE ONLY. This check cannot tell whether a page makes sense read aloud, and 8.5b does not close on it."
@@ -27,7 +27,7 @@
     ]
   },
   "check_id": "screenreader-structure",
-  "started_at": "2026-09-20T13:15:46.778Z",
+  "started_at": "2026-09-20T23:09:53.621Z",
   "status": "pass",
   "expected_targets": 11,
   "discovered_targets": 11,

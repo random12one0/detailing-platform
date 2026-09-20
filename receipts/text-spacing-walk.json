@@ -1,7 +1,7 @@
 {
-  "git_sha": "1689643049abace595f87eab45b74a5794cc5dcb",
+  "git_sha": "6097a7e1541511a9ce7f767c3d82cfa18f7a7747",
   "environment": "local",
-  "finished_at": "2026-09-20T12:32:59.298Z",
+  "finished_at": "2026-09-20T23:09:52.909Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -23,14 +23,14 @@
     ]
   },
   "check_id": "text-spacing-walk",
-  "started_at": "2026-09-20T12:32:00.591Z",
+  "started_at": "2026-09-20T23:08:54.205Z",
   "status": "pass",
   "expected_targets": 24,
   "discovered_targets": 24,
   "attempted_targets": 24,
   "completed_targets": 24,
   "skipped_targets": 0,
-  "assertions_executed": 668,
+  "assertions_executed": 672,
   "min_assertions": 300,
   "canary": {
     "id": "three: sideways overflow, text clipped by its box, control under a fixed lid",

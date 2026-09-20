@@ -155,7 +155,23 @@ await page.click("form button.btn.primary");
 await page.waitForSelector(".tabbar", { timeout: 30000 });
 const tabs = await page.$$eval(".tabbar button, .tabbar a", (e) => e.map((x) => x.innerText.trim()).filter(Boolean));
 
-const EXPECTED_TARGETS = (tabs.length + 1) * WIDTHS.length;
+// **THE FLOOR IS DECLARED, NOT COUNTED OFF THE PAGE — 2026-09-20.** This read
+// `tabs.length`, so a tab bar that rendered four buttons instead of five
+// lowered the expectation to match and the run still agreed with itself. That
+// is a gate that follows the data, which `docs/gotchas.md` already names.
+// `contrast-insitu.mjs` has declared this floor as a constant all along.
+const TAB_COUNT_EXPECTED = 5;
+if (tabs.length !== TAB_COUNT_EXPECTED) {
+  console.log(`tab bar has ${tabs.length} tabs, this check expects ${TAB_COUNT_EXPECTED}`);
+}
+const EXPECTED_TARGETS = (TAB_COUNT_EXPECTED + 1) * WIDTHS.length;
+// Every label this run owes, built from the same rule the walk uses below.
+const EXPECTED_LABELS = [];
+for (const [phys] of WIDTHS) {
+  const css = Math.round(phys / 2);
+  for (const t of tabs) EXPECTED_LABELS.push(t + "@" + phys + "->" + css + "css");
+  EXPECTED_LABELS.push("Booking@" + phys + "->" + css + "css");
+}
 const rows = [];
 let canaryRuns = 0, canaryCaught = 0, examined = 0, clipCaught = 0, coverCaught = 0;
 
@@ -207,10 +223,49 @@ console.log("\nBELOW THE SUPPORTED FLOOR, printed not counted:", JSON.stringify(
   unsup.map((r) => r.label + ": overflow " + r.overflow + "px, " + r.clipped.length + " clipped, " + r.unreachable.length + " unreachable"), null, 1));
 console.log("page errors:", errors.length ? errors.slice(0, 3) : "none");
 
+
+// **A SHORTFALL WITH NO NAMES IS A SKIP WITH NO PROOF, ONE LEVEL DOWN —
+// 2026-09-20, ROADMAP 14.11.** `skipped_targets` here is arithmetic:
+// expected minus measured. The number is refusable — when it goes positive
+// the four counts stop agreeing and `receipt.mjs` fails the receipt twice
+// over — but it cannot say WHICH target vanished, or whether this run
+// DECLINED it or FAILED on it. Those are different facts and a bare integer
+// makes them identical. So the missing labels are named, and the line says
+// plainly that nothing here explains them.
+//
+// `SHORTFALL_CANARY=1` drops one measured target on purpose, which is how
+// this line is known to fire rather than assumed to.
+const nameTheShortfall = (expectedLabels, measuredLabels, what) => {
+  const have = new Set(measuredLabels);
+  const missing = expectedLabels.filter((l) => !have.has(l));
+  if (!missing.length) {
+    console.log(`\ncoverage: all ${expectedLabels.length} ${what} were measured — nothing was skipped, declined or lost`);
+    return [];
+  }
+  console.log(`\nSHORTFALL — ${missing.length} of ${expectedLabels.length} ${what} were never measured, `
+    + `and NOTHING HERE SAYS WHY. This is not a declared skip: no probe refused these and no`);
+  console.log(`  reason was recorded. Treat them as unmeasured, never as clean:`);
+  for (const l of missing) console.log(`    NEVER REACHED  ${l}`);
+  return missing;
+};
+// **THE CANARY DROPS A REAL ROW, NOT A LABEL.** The first version sliced the
+// label list only, so `rows.length` never moved: the naming line printed, the
+// four counts still agreed, `skipped_targets` stayed 0 and the receipt passed.
+// It proved the PRINTER and nothing downstream of it, which is the exact
+// shape of canary this repo keeps catching. Dropping the row exercises the
+// whole chain — the line, the count, the receipt's verdict.
+if (process.env.SHORTFALL_CANARY === "1") rows.pop();
+const missingLabels = nameTheShortfall(EXPECTED_LABELS, rows.map((r) => r.label), "screen/width combinations");
+
 const { path } = writeReceipt({
   check_id: "zoom-walk",
   started_at,
-  status: fails.length === 0 && allCanaries ? "pass" : "fail",
+  // **A SHORTFALL IS PART OF THE VERDICT, NOT A FOOTNOTE.** Without
+  // `missingLabels` here the sabotaged run wrote `status: "pass"` while
+  // carrying a recorded failure, and only `receipt.mjs` noticed the
+  // contradiction. A check that grades itself pass while listing a failure is
+  // the same defect as a skip with no proof, wearing the verdict field.
+  status: fails.length === 0 && allCanaries && missingLabels.length === 0 ? "pass" : "fail",
   expected_targets: EXPECTED_TARGETS,
   discovered_targets: rows.length,
   attempted_targets: rows.length,
@@ -218,9 +273,17 @@ const { path } = writeReceipt({
   skipped_targets: EXPECTED_TARGETS - rows.length,
   assertions_executed: examined,
   min_assertions: 300,
-  failures: [...fails, ...(allCanaries ? [] : ["a detector missed its own planted defect - every clean line beside it is void"])],
+  failures: [...fails,
+    ...(allCanaries ? [] : ["a detector missed its own planted defect - every clean line beside it is void"]),
+    // A target nobody reached is not a clean target. It goes in `failures` so
+    // the receipt's own status says so, rather than resting on the reader
+    // noticing that two counts differ by one.
+    ...missingLabels.map((l) => "NEVER REACHED, no reason recorded: " + l)],
   artifacts: ["scripts/zoom-walk.mjs"],
-  warnings: unsup.length ? [unsup.length + " combination(s) below the " + SUPPORTED_FLOOR + "px floor printed but not counted"] : [],
+  warnings: [
+    ...(unsup.length ? [unsup.length + " combination(s) below the " + SUPPORTED_FLOOR + "px floor printed but not counted"] : []),
+    ...(missingLabels.length ? ["NEVER REACHED, no reason recorded: " + missingLabels.join(", ")] : []),
+  ],
   dimensions: {
     zoom: "200% as viewport/2 at deviceScaleFactor 2",
     widths: WIDTHS.map(([p]) => p + "->" + Math.round(p / 2) + "css"),

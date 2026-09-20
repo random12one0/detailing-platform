@@ -252,6 +252,8 @@ await page.waitForSelector(".tabbar", { timeout: 30000 });
 const tabs = await page.$$eval(".tabbar button, .tabbar a", (e) => e.map((x) => x.innerText.trim()).filter(Boolean));
 // DECLARED, NOT COUNTED FROM THE RUN: five dashboard tabs plus booking step 1.
 const EXPECTED_SCREENS = 6;
+// The labels those six screens carry, so a shortfall can name itself.
+const EXPECTED_LABELS = [...tabs, "Booking step 1"];
 const out = [];
 for (const t of tabs) {
   await page.locator(".tabbar button, .tabbar a").filter({ hasText: t }).first().click();
@@ -292,10 +294,38 @@ await browser.close();
 const realNoRing = noRing.filter((r) => r.id !== "canary-no-ring");
 const realOff = offScreen.filter((r) => r.id !== "canary-no-ring");
 const canariesGood = canaryRing === out.length && canaryEsc === out.length;
+
+// **A SHORTFALL WITH NO NAMES IS A SKIP WITH NO PROOF, ONE LEVEL DOWN —
+// 2026-09-20, ROADMAP 14.11.** `skipped_targets` here is arithmetic: expected
+// minus measured. The number is refusable — when it goes positive the four
+// counts stop agreeing and `receipt.mjs` fails the receipt — but it cannot
+// say WHICH target vanished, or whether this run DECLINED it or FAILED on it.
+// Those are different facts and a bare integer makes them identical.
+//
+// `SHORTFALL_CANARY=1` drops a real measured row, so this is known to fire
+// through the line, the count AND the verdict rather than assumed to.
+const nameTheShortfall = (expectedLabels, measuredLabels, what) => {
+  const have = new Set(measuredLabels);
+  const missing = expectedLabels.filter((l) => !have.has(l));
+  if (!missing.length) {
+    console.log(`\ncoverage: all ${expectedLabels.length} ${what} were measured — nothing was skipped, declined or lost`);
+    return [];
+  }
+  console.log(`\nSHORTFALL — ${missing.length} of ${expectedLabels.length} ${what} were never measured, `
+    + `and NOTHING HERE SAYS WHY. No probe refused these and no reason was`);
+  console.log(`  recorded. Treat them as unmeasured, never as clean:`);
+  for (const l of missing) console.log(`    NEVER REACHED  ${l}`);
+  return missing;
+};
+if (process.env.SHORTFALL_CANARY === "1") out.pop();
+const missingLabels = nameTheShortfall(EXPECTED_LABELS, out.map((r) => r.label), "screens");
+
 const { path: receiptPath } = writeReceipt({
   check_id: "keyboard-walk",
   started_at,
-  status: realNoRing.length === 0 && realOff.length === 0 && canariesGood ? "pass" : "fail",
+  // A shortfall is part of the verdict, not a footnote.
+  status: realNoRing.length === 0 && realOff.length === 0 && canariesGood
+    && missingLabels.length === 0 ? "pass" : "fail",
   expected_targets: EXPECTED_SCREENS,
   discovered_targets: out.length,
   attempted_targets: out.length,
@@ -308,6 +338,7 @@ const { path: receiptPath } = writeReceipt({
     ...realOff.map((r) => `${r.where}: ${r.tag}.${r.cls} "${r.text}" focused while out of view`),
     ...covered.filter((r) => r.id !== "canary-no-ring").map((r) => `${r.where}: ${r.tag}.${r.cls} "${r.text}" focused while covered by ${r.coveredBy}`),
     ...(canariesGood ? [] : ["a canary was not caught — every clean line beside it is void"]),
+    ...missingLabels.map((l) => "NEVER REACHED, no reason recorded: " + l),
   ],
   artifacts: ["scripts/keyboard-walk.mjs"],
   warnings: unknown ? [`${unknown} stop(s) undetermined — the box was repainting`] : [],

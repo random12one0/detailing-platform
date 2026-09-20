@@ -131,7 +131,17 @@ await page.click("form button.btn.primary");
 await page.waitForSelector(".tabbar", { timeout: 30000 });
 const tabs = await page.$$eval(".tabbar button, .tabbar a", (e) => e.map((x) => x.innerText.trim()).filter(Boolean));
 
-const EXPECTED_TARGETS = tabs.length + 6;
+// **THE FLOOR IS DECLARED, NOT COUNTED OFF THE PAGE — 2026-09-20.** Reading
+// `tabs.length` let a tab bar that rendered short lower the expectation to
+// match itself, which is a gate that follows the data.
+const TAB_COUNT_EXPECTED = 5;
+if (tabs.length !== TAB_COUNT_EXPECTED) {
+  console.log(`tab bar has ${tabs.length} tabs, this check expects ${TAB_COUNT_EXPECTED}`);
+}
+const PUBLIC_LABELS = ["Booking step 1", "Plans page", "Manage booking",
+  "Plan member", "Confirmed (request)", "Confirmed (booked)"];
+const EXPECTED_TARGETS = TAB_COUNT_EXPECTED + PUBLIC_LABELS.length;
+const EXPECTED_LABELS = [...tabs, ...PUBLIC_LABELS];
 const rows = [];
 let canaryRuns = 0, cHead = 0, cImg = 0, examined = 0;
 const visit = async (label) => {
@@ -203,10 +213,38 @@ console.log("\nfindings: " + fails.length);
 console.log(JSON.stringify(fails, null, 1));
 console.log("page errors:", errors.length ? errors.slice(0, 3) : "none");
 
+
+// **A SHORTFALL WITH NO NAMES IS A SKIP WITH NO PROOF, ONE LEVEL DOWN —
+// 2026-09-20, ROADMAP 14.11.** `skipped_targets` here is arithmetic: expected
+// minus measured. The number is refusable — when it goes positive the four
+// counts stop agreeing and `receipt.mjs` fails the receipt — but it cannot
+// say WHICH target vanished, or whether this run DECLINED it or FAILED on it.
+// Those are different facts and a bare integer makes them identical.
+//
+// `SHORTFALL_CANARY=1` drops a real measured row, so this is known to fire
+// through the line, the count AND the verdict rather than assumed to.
+const nameTheShortfall = (expectedLabels, measuredLabels, what) => {
+  const have = new Set(measuredLabels);
+  const missing = expectedLabels.filter((l) => !have.has(l));
+  if (!missing.length) {
+    console.log(`\ncoverage: all ${expectedLabels.length} ${what} were measured — nothing was skipped, declined or lost`);
+    return [];
+  }
+  console.log(`\nSHORTFALL — ${missing.length} of ${expectedLabels.length} ${what} were never measured, `
+    + `and NOTHING HERE SAYS WHY. No probe refused these and no reason was`);
+  console.log(`  recorded. Treat them as unmeasured, never as clean:`);
+  for (const l of missing) console.log(`    NEVER REACHED  ${l}`);
+  return missing;
+};
+if (process.env.SHORTFALL_CANARY === "1") rows.pop();
+const missingLabels = nameTheShortfall(EXPECTED_LABELS, rows.map((r) => r.label), "screens");
+
 const { path } = writeReceipt({
   check_id: "screenreader-structure",
   started_at,
-  status: fails.length === 0 && allCanaries ? "pass" : "fail",
+  // A shortfall is part of the verdict, not a footnote: without this the
+  // sabotaged run wrote `status: "pass"` while carrying a recorded failure.
+  status: fails.length === 0 && allCanaries && missingLabels.length === 0 ? "pass" : "fail",
   expected_targets: EXPECTED_TARGETS,
   discovered_targets: rows.length,
   attempted_targets: rows.length,
@@ -216,7 +254,9 @@ const { path } = writeReceipt({
   // Every screen must contribute at least its landmark and live-region
   // questions; anything less means a screen was not looked at.
   min_assertions: 2 * EXPECTED_TARGETS,
-  failures: [...fails, ...(allCanaries ? [] : ["a detector missed its own planted defect - every clean line beside it is void"])],
+  failures: [...fails,
+    ...(allCanaries ? [] : ["a detector missed its own planted defect - every clean line beside it is void"]),
+    ...missingLabels.map((l) => "NEVER REACHED, no reason recorded: " + l)],
   artifacts: ["scripts/screenreader-structure.mjs"],
   warnings: ["STRUCTURE ONLY. This check cannot tell whether a page makes sense read aloud, and 8.5b does not close on it."],
   dimensions: {

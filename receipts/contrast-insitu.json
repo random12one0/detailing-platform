@@ -1,7 +1,7 @@
 {
-  "git_sha": "56a49b1a6c6db859371081ebbca72b5625d31a54",
+  "git_sha": "50b9948d8e23010109bdd4fb3031ade81a5d6377",
   "environment": "local",
-  "finished_at": "2026-09-20T12:08:13.477Z",
+  "finished_at": "2026-09-20T23:17:24.296Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -24,19 +24,19 @@
       "Landing",
       "Pricing"
     ],
-    "text_elements": 1910,
+    "text_elements": 1914,
     "wcag": "4.5:1 normal, 3:1 large (>=24px, or >=18.66px at weight >=700)",
     "sweep_widths_touched": false
   },
   "check_id": "contrast-insitu",
-  "started_at": "2026-09-20T12:06:39.447Z",
+  "started_at": "2026-09-20T23:15:48.939Z",
   "status": "pass",
   "expected_targets": 32,
   "discovered_targets": 32,
   "attempted_targets": 32,
   "completed_targets": 32,
   "skipped_targets": 0,
-  "assertions_executed": 1910,
+  "assertions_executed": 1914,
   "min_assertions": 600,
   "canary": {
     "id": "contrast_insitu_canary · #585D61 on the ground, 2.92:1 at 12px",

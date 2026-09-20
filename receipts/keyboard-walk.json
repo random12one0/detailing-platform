@@ -1,7 +1,7 @@
 {
-  "git_sha": "56a49b1a6c6db859371081ebbca72b5625d31a54",
+  "git_sha": "50b9948d8e23010109bdd4fb3031ade81a5d6377",
   "environment": "local",
-  "finished_at": "2026-09-20T12:06:12.563Z",
+  "finished_at": "2026-09-20T23:15:48.497Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -9,7 +9,7 @@
   ],
   "dimensions": {
     "screens": [
-      "Today:23",
+      "Today:24",
       "Calendar:42",
       "Money:31",
       "Clients:29",
@@ -20,14 +20,14 @@
     "in_view_measured_before_any_screenshot": true
   },
   "check_id": "keyboard-walk",
-  "started_at": "2026-09-20T12:05:18.729Z",
+  "started_at": "2026-09-20T23:14:53.552Z",
   "status": "pass",
   "expected_targets": 6,
   "discovered_targets": 6,
   "attempted_targets": 6,
   "completed_targets": 6,
   "skipped_targets": 0,
-  "assertions_executed": 167,
+  "assertions_executed": 168,
   "min_assertions": 100,
   "canary": {
     "id": "a ring styled away, and a dialog that swallows Escape",

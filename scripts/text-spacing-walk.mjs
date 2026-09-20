@@ -195,7 +195,20 @@ if (!applied.sheet || applied.root !== "20px" || !/0\.12/.test(applied.letter) =
 }
 
 const tabs = await page.$$eval(".tabbar button, .tabbar a", (e) => e.map((x) => x.innerText.trim()).filter(Boolean));
-const EXPECTED_TARGETS = (tabs.length + 1) * WIDTHS.length;
+// **THE FLOOR IS DECLARED, NOT COUNTED OFF THE PAGE — 2026-09-20.** Same
+// change as `zoom-walk.mjs`: reading `tabs.length` let a short tab bar lower
+// the expectation to match itself.
+const TAB_COUNT_EXPECTED = 5;
+if (tabs.length !== TAB_COUNT_EXPECTED) {
+  console.log(`tab bar has ${tabs.length} tabs, this check expects ${TAB_COUNT_EXPECTED}`);
+}
+const EXPECTED_TARGETS = (TAB_COUNT_EXPECTED + 1) * WIDTHS.length;
+// Every label this run owes, built from the same rule the walk uses below.
+const EXPECTED_LABELS = [];
+for (const [w] of WIDTHS) {
+  for (const t of tabs) EXPECTED_LABELS.push(t + "@" + w);
+  EXPECTED_LABELS.push("Booking@" + w);
+}
 const rows = [];
 let canaryRuns = 0, cOver = 0, cClip = 0, cCover = 0, examined = 0;
 
@@ -244,10 +257,38 @@ console.log("\nfindings: " + fails.length);
 console.log(JSON.stringify(fails.slice(0, 40), null, 1));
 console.log("page errors:", errors.length ? errors.slice(0, 3) : "none");
 
+
+// **A SHORTFALL WITH NO NAMES IS A SKIP WITH NO PROOF, ONE LEVEL DOWN —
+// 2026-09-20, ROADMAP 14.11.** `skipped_targets` here is arithmetic: expected
+// minus measured. The number is refusable — when it goes positive the four
+// counts stop agreeing and `receipt.mjs` fails the receipt — but it cannot
+// say WHICH target vanished, or whether this run DECLINED it or FAILED on it.
+// Those are different facts and a bare integer makes them identical.
+//
+// `SHORTFALL_CANARY=1` drops a real measured row, so this is known to fire
+// through the line, the count AND the verdict rather than assumed to.
+const nameTheShortfall = (expectedLabels, measuredLabels, what) => {
+  const have = new Set(measuredLabels);
+  const missing = expectedLabels.filter((l) => !have.has(l));
+  if (!missing.length) {
+    console.log(`\ncoverage: all ${expectedLabels.length} ${what} were measured — nothing was skipped, declined or lost`);
+    return [];
+  }
+  console.log(`\nSHORTFALL — ${missing.length} of ${expectedLabels.length} ${what} were never measured, `
+    + `and NOTHING HERE SAYS WHY. No probe refused these and no reason was`);
+  console.log(`  recorded. Treat them as unmeasured, never as clean:`);
+  for (const l of missing) console.log(`    NEVER REACHED  ${l}`);
+  return missing;
+};
+if (process.env.SHORTFALL_CANARY === "1") rows.pop();
+const missingLabels = nameTheShortfall(EXPECTED_LABELS, rows.map((r) => r.label), "screen/width combinations");
+
 const { path } = writeReceipt({
   check_id: "text-spacing-walk",
   started_at,
-  status: fails.length === 0 && allCanaries ? "pass" : "fail",
+  // A shortfall is part of the verdict, not a footnote: without this the
+  // sabotaged run wrote `status: "pass"` while carrying a recorded failure.
+  status: fails.length === 0 && allCanaries && missingLabels.length === 0 ? "pass" : "fail",
   expected_targets: EXPECTED_TARGETS,
   discovered_targets: rows.length,
   attempted_targets: rows.length,
@@ -255,7 +296,9 @@ const { path } = writeReceipt({
   skipped_targets: EXPECTED_TARGETS - rows.length,
   assertions_executed: examined,
   min_assertions: 300,
-  failures: [...fails, ...(allCanaries ? [] : ["a detector missed its own planted defect - every clean line beside it is void"])],
+  failures: [...fails,
+    ...(allCanaries ? [] : ["a detector missed its own planted defect - every clean line beside it is void"]),
+    ...missingLabels.map((l) => "NEVER REACHED, no reason recorded: " + l)],
   artifacts: ["scripts/text-spacing-walk.mjs"],
   warnings: [],
   dimensions: {

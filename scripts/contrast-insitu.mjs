@@ -225,11 +225,50 @@ await browser.close();
 // silently visited three screens would still balance — which is the exact
 // failure this check exists to catch, applied to itself.
 const EXPECTED_TARGETS = (TAB_COUNT_EXPECTED + PUBLIC.length) * WIDTHS.length;
+// Every screen/width label this run owes, built from the same rule the walk
+// above uses. `tabNames` is what the page offered; the floor is what this
+// check DECLARED, so a tab that never rendered shows up as a named absence
+// rather than shrinking the question.
+const EXPECTED_LABELS = [];
+for (const [w] of WIDTHS) {
+  for (const tab of tabNames) EXPECTED_LABELS.push(`${tab}@${w}`);
+  for (const [name] of PUBLIC) EXPECTED_LABELS.push(`${name}@${w}`);
+}
+// **A SHORTFALL WITH NO NAMES IS A SKIP WITH NO PROOF, ONE LEVEL DOWN —
+// 2026-09-20, ROADMAP 14.11.** `skipped_targets` here is arithmetic: expected
+// minus measured. The number is refusable — when it goes positive the four
+// counts stop agreeing and `receipt.mjs` fails the receipt — but it cannot
+// say WHICH target vanished, or whether this run DECLINED it or FAILED on it.
+// Those are different facts and a bare integer makes them identical.
+//
+// `SHORTFALL_CANARY=1` drops a real measured row, so this is known to fire
+// through the line, the count AND the verdict rather than assumed to.
+const nameTheShortfall = (expectedLabels, measuredLabels, what) => {
+  const have = new Set(measuredLabels);
+  const missing = expectedLabels.filter((l) => !have.has(l));
+  if (!missing.length) {
+    console.log(`\ncoverage: all ${expectedLabels.length} ${what} were measured — nothing was skipped, declined or lost`);
+    return [];
+  }
+  console.log(`\nSHORTFALL — ${missing.length} of ${expectedLabels.length} ${what} were never measured, `
+    + `and NOTHING HERE SAYS WHY. No probe refused these and no reason was`);
+  console.log(`  recorded. Treat them as unmeasured, never as clean:`);
+  for (const l of missing) console.log(`    NEVER REACHED  ${l}`);
+  return missing;
+};
+// `checked` drops with the row: it is what `skipped_targets` is derived from,
+// so a canary that moved only the census would prove the printed line and
+// leave the receipt's arithmetic untouched — a canary testing half the chain.
+if (process.env.SHORTFALL_CANARY === "1") { census.pop(); checked--; }
+const missingLabels = nameTheShortfall(EXPECTED_LABELS, census.map((c) => c.screen), "screen/width combinations");
+
 const canaryCaughtEverywhere = canaryMisses.length === 0;
 const failures = [
   ...real.map((r) => `${r.cls || r.tag} "${r.text}" — ${r.ratio}:1 at ${r.size}px, needs ${r.min} (${r.where})`),
   ...(canaryCaughtEverywhere ? [] : [`canary missed on: ${canaryMisses.join(", ")} — every clean line beside it is void`]),
   ...(checked === EXPECTED_TARGETS ? [] : [`walked ${checked} screen/width combinations, expected ${EXPECTED_TARGETS}`]),
+  // NAMED, not just counted: which combinations, and that nothing explains them.
+  ...missingLabels.map((l) => `NEVER REACHED, no reason recorded: ${l}`),
   ...(errors.length ? [`console errors during the walk: ${errors.slice(0, 3).join(" | ")}`] : []),
 ];
 // A SABOTAGE RUN INVERTS THE TEST: finding nothing is the failure.
@@ -238,6 +277,7 @@ const sabotageFailures = BREAK && real.length === 0
   : [];
 const status = (BREAK ? sabotageFailures.length === 0 : failures.length === 0) && canaryCaughtEverywhere
   ? "pass" : "fail";
+
 const { path: receiptPath } = writeReceipt({
   check_id: "contrast-insitu",
   started_at,

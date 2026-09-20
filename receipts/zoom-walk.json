@@ -1,7 +1,7 @@
 {
-  "git_sha": "915ac7cabe3d24db159f1bdffccc560c48d58c12",
+  "git_sha": "6097a7e1541511a9ce7f767c3d82cfa18f7a7747",
   "environment": "local",
-  "finished_at": "2026-09-20T12:20:07.417Z",
+  "finished_at": "2026-09-20T23:05:59.681Z",
   "failures": [],
   "warnings": [
     "12 combination(s) below the 320px floor printed but not counted"
@@ -20,14 +20,14 @@
     "supported_floor_css_px": 320
   },
   "check_id": "zoom-walk",
-  "started_at": "2026-09-20T12:19:09.423Z",
+  "started_at": "2026-09-20T23:05:01.332Z",
   "status": "pass",
   "expected_targets": 24,
   "discovered_targets": 24,
   "attempted_targets": 24,
   "completed_targets": 24,
   "skipped_targets": 0,
-  "assertions_executed": 676,
+  "assertions_executed": 680,
   "min_assertions": 300,
   "canary": {
     "id": "three: overflow under zoom, text clipped sideways, control under a fixed lid",
