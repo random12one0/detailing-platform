@@ -606,13 +606,21 @@ const ENGLISH_ONLY = new Set(["landing", "pricing", "terms", "privacy"]);
 // are declared here so the run can be honest without being permanently red —
 // and the entry is REFUSED the day the gap closes, so the list cannot become a
 // place defects go to be forgotten.
-const KNOWN_ENGLISH = new Map([
-  ["job record · send a text",
-    "four message-template names stay English on an otherwise Spanish sheet — \"Running late\", "
-    + "\"Confirm tomorrow\", \"Job finished\", \"Ask about access\". `lib/templates.js` holds them as "
-    + "plain object values rather than `t(\"…\")` calls, which is the `docs/gotchas.md` case where a "
-    + "sweep for the CALL finds nothing. ROADMAP 2.12"],
-]);
+// **EMPTY, AND THAT IS A RESULT RATHER THAN A DEFAULT — 2026-09-20.** It held
+// one entry: `job record · send a text`, declaring four message-template names
+// as English on an otherwise Spanish sheet. Those names are translated now, so
+// **the entry was STALE, not load-bearing** — it protected no screen and
+// removing it removes no coverage. The difference matters, because in the
+// source a declaration that guards a surface and one that is merely old look
+// identical, and the next person cannot tell them apart without being told.
+//
+// It was not removed on anybody's word. The refusal below is what proved it:
+// the Spanish sweep printed `GAP CLOSED — declared as a known English patch
+// and it is Spanish now (5 translated against 0)` and raised a finding, on a
+// run against regenerated demo data where the surface was actually reachable.
+// An earlier attempt reported `NOT MEASURED — no finished job on today's rail`
+// and would have removed the entry on the strength of a surface nobody saw.
+const KNOWN_ENGLISH = new Map([]);
 
 // A surface is judged against the catalogue for ITS OWN scope: the booking
 // page is the customer's (`lib/i18n.js`), everything else is the dashboard's
@@ -814,10 +822,17 @@ const SKIPPED = [];
 // here counts the presses and compares that to itself.
 const WALKS = [];
 // Reads the step counter off the card that is up. `{ at, of }` or null.
+// **`OF` IS ENGLISH AND THE CARD SAYS `DE` IN SPANISH — 2026-09-20, ROADMAP
+// 14.13, and `docs/gotchas.md` already carried this exact lesson from the
+// first Spanish sweep ("Paso 1 de 12"). The string is `"{n} of {total}"`, and
+// `appEs.js` maps it to `"{n} de {total}"`, so this regex returned NULL on
+// every card of a Spanish run. Both words, and the raw text is kept so a card
+// whose counter cannot be parsed at all still has an identity.
 const cardPlan = async (page) => {
-  const raw = await page.locator(".tourcard .label").first().innerText().catch(() => "");
-  const m = /(\d+)\s*OF\s*(\d+)/i.exec(String(raw).replace(/\s+/g, " "));
-  return m ? { at: Number(m[1]), of: Number(m[2]) } : null;
+  const raw = String(await page.locator(".tourcard .label").first().innerText().catch(() => ""))
+    .replace(/\s+/g, " ").trim();
+  const m = /(\d+)\s*(?:OF|DE)\s*(\d+)/i.exec(raw);
+  return m ? { at: Number(m[1]), of: Number(m[2]), raw } : (raw ? { at: null, of: null, raw } : null);
 };
 // **WAIT FOR THE NEXT CARD TO EXIST, NEVER FOR THE PAGE TO GO QUIET — 2026-09-20,
 // ROADMAP 14.11, and it is the sixth time `settle()` has been the wrong
@@ -842,7 +857,15 @@ const nextCard = async (page, prev, ms = TOUR_WAIT_MS) => {
   for (;;) {
     if (await page.locator(".tourcard").count()) {
       const now = await cardPlan(page);
-      if (!prev || !now || now.at !== prev.at || now.of !== prev.of) {
+      // **A CARD WE CANNOT READ IS NOT A CARD THAT ARRIVED.** The first
+      // version returned `arrived` whenever the plan was null, which in
+      // Spanish was EVERY card — so the walk never waited, never saw the tour
+      // end, and pressed on until a click timed out and took the whole width
+      // with it. Falling back to the raw label keeps an identity even when
+      // the counter cannot be parsed; only a genuinely different card counts.
+      if (!prev || !now) {
+        if (now && (!prev || now.raw !== prev.raw)) return { arrived: true, ms: Date.now() - t0 };
+      } else if (now.raw !== prev.raw) {
         return { arrived: true, ms: Date.now() - t0 };
       }
     }
