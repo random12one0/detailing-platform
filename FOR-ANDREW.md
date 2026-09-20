@@ -11,478 +11,313 @@ and checking it is how you unblock work that is already built and waiting.
 **Two kinds of row.** A **DO** is an action. A **DECIDE** is a question with a
 recommendation attached — answer it in one line and a session picks it up.
 
+**Nothing on this list is on fire.** There are no paying customers and nothing
+was published overnight. The groups below are in the order they are worth your
+attention, not the order they arrived in.
+
 Updated 2026-09-20.
 
 ---
 
-## Waiting on you now
+## Start here — the one decision that unblocks the most
 
-- [ ] **DECIDE · The pricing page promises customers can export their data.
-  They cannot. Added 2026-09-20. NOT URGENT TODAY — see the note at the end.**
-  Your pricing page says, about leaving: *"Your customers, their numbers and
-  your photos are yours. **You export them and go.**"*
+- [ ] **DECIDE · What to put live, and in what order.**
 
-  **There is no such button.** The only thing a detailer can download today is
-  the accountant's spreadsheet of jobs and expenses on the Money screen. There
-  is no customer-list export and no photo export. The terms page says something
-  different again — that you can have a copy *"by asking"* — so the two pages
-  also disagree with each other.
+  **Read this first because it is holding up more than anything else on the
+  list.** Your site's back end is 39 small programs, and each one has to be
+  *published* before a change to it does anything. **22 of the 39 are running
+  something older than what we have written**, some by a week, because nothing
+  ever forced the publishing step to happen and nobody noticed.
 
-  **Two honest ways out. One line each:**
+  **What this one decision unblocks:** most of the communication work, most of
+  the backup and monitoring work, the first two dashboard items, and half of
+  the tenant-security item. You cannot see that from any single row, which is
+  why it is at the top.
+
+  **Publishing is yours, the same as pushing code is yours.** Nothing has gone
+  live and nothing will until you say so.
+
+  **The order we recommend:**
+
+  1. **Already live, nothing to approve.** When a detailer cancelled or moved a
+     job from their dashboard, the customer was never told anything at all —
+     they would have waited in for somebody who was not coming. Fixed and
+     published before the freeze. Listed so you know it is done.
+  2. **The Spanish emails.** Ten English words sitting in the middle of Spanish
+     emails, including the money column of every invoice and receipt. *Risk:
+     low — labels only, nothing about what anyone is charged changes.*
+  3. **The payment webhook.** The running copy is older than the change that
+     made its security check testable, so the test we trust has been checking
+     code that is not the code running. Nothing is known to be broken; we just
+     cannot vouch for it. *This one touches money — do it when you are awake.*
+  4. **Two programs that would probably fail if used.** The "card declined"
+     email and the "report a problem" form are running from before parts they
+     depend on existed. If either is triggered, what happens is unpredictable.
+  5. **Everything else** — the remaining 17, small changes, none
+     customer-visible on their own. Cheapest done in one go.
+
+  **Recommendation: 2, 4 and 5 together whenever suits you; 3 on its own when
+  you have a few minutes to watch it.**
+
+  **If you do nothing:** the same as today. Nothing gets worse on its own. 3
+  and 4 are risks that are already live, not new ones.
+
+---
+
+## Urgent — two minutes when you next open your laptop
+
+- [ ] **DO · Ten test emails are sitting in your support inbox. They are ours.
+  Delete them.**
+  All with the subject **`Problem report · EDGEREPLAY-A-SECRET DETAIL`**, at
+  about half past six this morning.
+
+  **Nothing is wrong.** A check that calls every part of the back end was
+  sending its mail to a throwaway address — except the "report a problem"
+  feature, which sends to you no matter what the caller says. Nine calls, nine
+  reports, and a tenth later when the fix's own test switch briefly undid it.
+
+  **Nothing went to a customer** and no real person but you received anything.
+  It cannot happen again. **Delete them and you are done** — this row exists so
+  you never have to sit and work out whether something in your own inbox is
+  real.
+
+- [ ] **DO · Turn on two-factor login for your Supabase and Netlify accounts.**
+  Ten minutes for both. **Only you can do it** — your account, your phone.
+
+  Right now the database holding every booking is behind one password.
+
+  Supabase: **Account settings → Security → enable MFA.** Netlify has the same
+  under user settings.
+
+---
+
+## Waiting on you — nothing breaks while these wait
+
+- [ ] **DECIDE · Nothing is backed up, and fixing it costs money.**
+
+  **Measured, not assumed.** Your database is on the free plan, which means
+  **no backups you can restore from, and no way to roll back to an earlier
+  moment.** **If the database were lost today, nothing would bring it back.**
+  **Nobody has ever tested a restore, because there has never been anything to
+  restore from.**
+
+  **Nothing is wrong right now** — there are no real customers on it. This
+  matters the day you move the real business onto it.
+
+  **What we did instead:** proved your records can be exported to a file and
+  put back, every row identical, and wrote the procedure down. A session runs
+  it before anything risky. It does **not** bring back logins or the actual
+  photo files.
+
+  **Your options, with prices read off Supabase's own system today:**
+  1. **A paid plan** — turns on daily backups kept for a week. The cheaper half
+     and probably the right first step. The plan price is on Supabase's own
+     pricing page; we did not want to quote a number from memory.
+  2. **Add roll-back-to-any-moment: $100/month** for 7 days, $200 for 14, $400
+     for 28. Needs a paid plan first.
+  3. **Do nothing yet**, and keep running the export before risky changes.
+
+  **Recommendation: (1) now, (2) when you take a real customer's booking.**
+
+  **Not started:** a full restore rehearsal needs a second copy of the
+  database, which costs money and creates something inside your account.
+  Neither was touched. Say the word and it takes about an hour.
+
+- [ ] **DECIDE · Your pricing page promises customers can export their data.
+  They cannot.**
+  It says: *"Your customers, their numbers and your photos are yours. **You
+  export them and go.**"*
+
+  **There is no such button.** The only download today is the accountant's
+  spreadsheet of jobs and expenses. No customer list, no photos.
+
+  **Two honest ways out:**
   1. **Build it** — a button that downloads their customers and their photos.
-     Then both pages are true and the promise stands.
   2. **Stop promising it** — change the pricing page to say a copy is available
      on request, which is what actually happens.
 
-  **Recommendation: (1), when you next have a build day.** It is a small
-  feature, it is the single most reassuring thing on that page for somebody
-  deciding whether to trust you with their customer list, and taking the
-  sentence away would remove one of the better reasons to sign up.
+  **Recommendation: (1), when you next have a build day.** It is small, and it
+  is the most reassuring line on that page for somebody deciding whether to
+  trust you with their customer list.
 
-  **The wording is left exactly as it is until you answer** — deliberately not
-  softened into something vaguer, because a vague promise is still a promise
-  and it would be harder for the next person to spot as unkept.
-  *ROADMAP 0.4 / 7.7.*
+  **The wording stays exactly as it is until you answer** — deliberately not
+  made vaguer, because a vague promise is still a promise and harder for
+  anybody to spot later.
 
-- [ ] **DO · What name and what kind of business should the legal pages say?
-  Added 2026-09-20. NOT URGENT TODAY — see the note at the end.**
-  Your terms and privacy pages currently name:
+- [ ] **DO · What name and what kind of business should your legal pages say?**
 
-  > **Andrew Dietrich, doing business as Detailing Platform**
+  They currently say: **Andrew Dietrich, doing business as Detailing Platform.**
 
-  **Nobody confirmed that, and it was written as a guess at your paperwork.**
-  The note saying so has been sitting in the code since the pages were built.
+  **Nobody confirmed that — it was a guess at your paperwork**, and the note
+  saying so has been in the code since the pages were built. Right now your
+  terms are a contract with you personally rather than with a company.
 
   **The question is just: what should it say?** A sole trader, a DBA on your
   own name, and an LLC are three different legal persons, and only you know
-  which one is actually yours. Reply with the name and the kind, and it is a
-  one-line change.
+  which is yours. Reply with the name and the kind; it is a one-line change.
 
   **No recommendation attached, on purpose.** Which entity you trade as is a
   question about your own business and your own liability, and it is not ours
   to advise on.
-  *ROADMAP 0.4.*
 
-  ---
+  **Neither this nor the export question is urgent.** Both legal pages are live
+  and linked at the bottom of your site, so anyone can read them — but there
+  are **no paying subscriptions and one non-demo business**. **Nobody has
+  agreed to either document.** They block your first real signup, not today.
 
-  **WHY NEITHER OF THOSE TWO IS URGENT THIS MORNING.** Both pages are live and
-  linked in the footer of detailingplatform.com, so anyone can read them — but
-  **there are zero paying subscriptions and one non-demo business**, measured
-  2026-09-20. **Nobody has agreed to either document.** They are blockers for
-  the first real signup, not for today.
+- [ ] **DECIDE · The "your coating is due" email needs a postal address, or it
+  needs to stop.**
+  The product emails customers *"your ceramic coating is due, book it in"*. **US
+  anti-spam law treats that as marketing rather than as a receipt**, and
+  marketing email has to carry an unsubscribe link and a real postal address.
+  Ours carries neither.
 
-- [ ] **DECIDE · Nothing is backed up. Deciding this costs money and it is
-  yours to spend. Added 2026-09-20.**
-  **Measured this morning, not assumed.** Your database is on Supabase's
-  **free** plan. That means: **no backups you can restore from, and no
-  point-in-time recovery.** If the database were lost today, nothing Supabase
-  holds would bring it back.
+  **The question is about the product, not the email.** Fixing it the proper
+  way means **every detailer would have to give us a postal address**, and
+  nothing in setup asks for one.
 
-  **Nothing is wrong right now** — there are no real customers on it, as you
-  said yourself. This matters the day you move the real business onto it.
+  1. **Add a postal address to setup** and use it. Correct, but a new required
+     question for every detailer including you.
+  2. **Turn that email off** until that exists.
+  3. **Decide it is not marketing** — a judgment about what the product is for,
+     which is yours.
 
-  **What we did instead, so it is not nothing:** we proved the records can be
-  exported to a file and restored from that file, every row identical, and
-  there is now a one-page procedure and a script that does it. Run it before
-  any risky change. It does NOT bring back logins or the actual photo files.
+  **Recommendation: (2) now, (1) when you next touch setup.**
 
-  **Your options, with real prices read off Supabase's own system today:**
-  1. **A paid plan.** Turns on daily backups kept for a week. The cheaper half
-     of the answer and probably the right first step. The plan price is on
-     Supabase's pricing page — I did not want to quote a number from memory.
-  2. **Add point-in-time recovery: $100/month** for 7 days, $200 for 14, $400
-     for 28. Lets you roll back to any moment. Needs a paid plan first.
-  3. **Do nothing yet**, and keep running the export before risky changes.
+  **What a session must not do:** put a made-up address in the footer. That
+  would be a false statement in a legal notice, which is worse than the gap.
 
-  **Recommendation: (1) now, (2) when you take a real customer's booking.**
-  Daily backups are the thing that turns a bad day into an inconvenience.
+- [ ] **DO · Turn on Resend's delivery reports. Three minutes.**
+  Your product records every email it sends and shows it on the client's
+  record — who it went to, and whether it arrived. **The "whether it arrived"
+  half has never worked**, because Resend only tells us if you point it at us,
+  and it never has been. Measured again this week: every test email ever sent
+  is still showing *"On its way"* and not one has turned into *"Delivered"*.
 
-  **Not done and not started:** a proper restore into a separate environment
-  would need a Supabase branch or a second project. Both cost money and both
-  create something inside your account, so neither was touched. If you want
-  that drill, say so and it takes about an hour once you have said yes.
-  *Detail: `docs/recovery.md`. ROADMAP 6.1.*
-
-- [ ] **DO · Turn on two-factor login for the Supabase and Netlify accounts.
-  Added 2026-09-20.**
-  Part of the same recovery item, and **only you can do it** — it is your
-  account and your phone. Right now the database that holds every booking is
-  behind one password.
-
-  Supabase: **Account settings -> Security -> enable MFA.** Netlify has the
-  same under user settings. Ten minutes for both.
-  *ROADMAP 6.1.*
-
-- [ ] **DO · Ten test emails are sitting in your support inbox. They are ours.
-  Delete them. Added 2026-09-20.**
-  At about **half past six this morning** a session put **ten** messages into
-  **`support@detailingplatform.com`**, all with the subject
-  **`Problem report · EDGEREPLAY-A-SECRET DETAIL`**.
-
-  **They are test messages and nothing is wrong.** A check that calls every
-  part of the back end in turn, to prove one detailer cannot reach another's
-  data, was sending all its mail to a throwaway address — except the
-  "report a problem" feature, which sends to you no matter what the caller
-  says. Nine calls, nine reports — and a tenth later, when the fix's own test switch briefly undid it.
-
-  **Nothing went to a customer**, and no real person other than you received
-  anything. The check now refuses to call anything that mails an address it
-  cannot redirect, so it will not happen again.
-
-  **Nothing to decide. Delete them, and you are done.** The reason this row
-  exists at all is so you do not have to sit and work out whether something in
-  your own inbox is real. *Full write-up in FOUND.md.*
-
-- [ ] **DECIDE · What to put live, and in what order. Added 2026-09-20.**
-  **Two minutes of reading. Say yes to a number and a session does the rest.**
-
-  **HOW MUCH THIS ONE DECISION IS HOLDING UP, measured rather than guessed:**
-  the freeze on publishing currently blocks **most of Wave 3, most of Wave 6,
-  the first two items of Wave 9, and the remaining half of item 4.4.** That is
-  not an argument for lifting it — it is what one decision unblocks, put in
-  front of you so the decision is made with the size of it visible.
-
-  **The background, in four sentences.** Your site's back end is 39 small
-  programs. Each one has to be *published* before a change to it does anything
-  — writing the change is not enough. **22 of the 39 are currently running
-  something older than what we have written**, some by a week, because nothing
-  in the project ever forced the publishing step to happen and nobody noticed.
-  **Publishing is yours, the same as pushing to GitHub is yours**, so nothing
-  has gone live tonight and nothing will until you say so.
-
-  **This is the recommended order. You can say "all of it", or a number, or
-  no.** Each one says what it fixes and what else goes along for the ride,
-  because publishing one program always carries whatever else has been written
-  for it since it was last published.
-
-  **1 · The one a customer actually feels.** *Fixes:* right now, when a
-  detailer cancels a job from their dashboard, **the customer is never told
-  anything at all.** Same if the detailer moves the job to another day. The
-  customer's last word on it is the confirmation saying the appointment is on,
-  so they wait in for somebody who is not coming. *Status:* fixed, tested
-  against the live program, and **already published** — this one went live
-  before the freeze, so there is nothing for you to approve. It is listed
-  first because it is the most important thing in the list and you should know
-  it is done.
-
-  **2 · The one that tells YOU a booking came in.** *Fixes:* when somebody
-  books, your phone is supposed to buzz. On 19 September a test with a real
-  phone, a real browser and notifications switched on and accepted waited a
-  full minute and **nothing arrived.** The program that sends that buzz is one
-  of the 22 running old code, so we cannot tell whether it is genuinely broken
-  or just running a copy from before it was written. *What publishing it buys:*
-  **an answer.** Either the buzz starts working, or it does not and we have
-  found a real fault with a test already pointing at it. *Rides along:* the
-  change written on 20 September that marks an address the lookup could not
-  find, so your job records start saying "typed by hand" on the ones nobody
-  verified. *Risk:* low — it is the program that takes bookings, it is heavily
-  tested, and the test that covers it is the most exercised thing we have.
-
-  **3 · The Spanish emails.** *Fixes:* ten English words sitting in the middle
-  of Spanish emails — the word "at" between a date and a time on four of them,
-  and the money column of every invoice and receipt reading "Booking total",
-  "Tip", "Discount" in English. *Rides along:* publishing the invoice program
-  also carries a change written on 20 September about how a customer's address
-  was arrived at. *Risk:* low. Nothing about what anyone is charged changes;
-  these are labels only, and the English versions are unchanged.
-
-  **4 · The Stripe webhook.** *Fixes:* the running copy predates the change
-  that made its security check testable, so **the test we trust has been
-  checking code that is not the code running.** Nothing is known to be broken;
-  we simply cannot vouch for it until the two match. *Rides along:* a week of
-  other written-but-unpublished changes to the payment modules. *Risk:* this
-  one touches money. Worth doing, worth doing when you are awake.
-
-  **5 · The two that would probably fail if used.** *Fixes:* `platform-billing`
-  (the email telling a detailer their card was declined) and `report-problem`
-  (the "something is wrong" form) are running from **before parts they depend
-  on even existed.** Not "a bit out of date" — they are built from pieces we no
-  longer have. If either is triggered, what happens is genuinely unpredictable.
-  *Risk:* low to publish, because almost anything is better than what is there.
-
-  **6 · Everything else.** The remaining 17. Mostly one or two small changes
-  each, none customer-visible on their own. Cheapest to do in one go once you
-  have decided you are happy publishing at all.
-
-  **The recommendation, in one line:** do **2, 3, 5 and 6** together whenever
-  suits you, and do **4** separately when you have a few minutes to watch it,
-  because it is the payment one.
-
-  **Why the order is this order.** **1 is first because it is the only one on
-  this list a customer feels** — somebody waiting in a driveway for a job that
-  was cancelled without telling them. **2 is second because what it buys is an
-  ANSWER rather than a fix**: it matters enormously to us and not at all to a
-  customer today. If you disagree with that ranking, say so and it changes —
-  it is a judgement about whose day is worse, not a technical fact.
-
-  **What happens if you do nothing:** the same as tonight. Nothing gets worse
-  on its own. Items 3 and 4 are risks that are already live, not new ones — so
-  "not yet" is a real answer, it just leaves them where they are.
-  *Full technical detail in ROADMAP 0.6. Measured by
-  `node scripts/deployed-inventory.mjs`, which now refuses to pass while any
-  of them are out of date.*
-
-- [ ] **DECIDE · The maintenance reminder needs your postal address, or it
-  needs to stop. Added 2026-09-20.**
-  The product sends customers a "your ceramic coating is due, book it in"
-  email. **US anti-spam law treats that as marketing rather than as a receipt**,
-  and marketing email has to carry an unsubscribe link and a real postal
-  address. Ours carries neither.
-
-  **The campaign feature already does this properly** — it refuses to send at
-  all unless the business has a postal address on file. The maintenance
-  reminder does not ask.
-
-  **The question is not about the email, it is about the product.** To fix it
-  the way the campaign does, **every detailer would have to give us a postal
-  address**, and as far as we can tell nothing in setup asks for one. So:
-  1. **Add a postal address to setup** and make the reminder use it. Correct,
-     but it is a new required question for every detailer including you.
-  2. **Turn the maintenance reminder off** until that exists.
-  3. **Decide it is not marketing** — a judgment about what the product is
-     for, which is yours and not a session's.
-
-  **Recommendation: (2) now, (1) when you next touch setup.** Turning it off
-  costs a feature nobody is relying on yet; leaving it on is a small legal
-  exposure that grows with every detailer who signs up.
-
-  **What a session must NOT do, and why this is a question rather than a fix:**
-  the tempting shortcut is to put a placeholder address in the footer. That
-  would be a false statement in a legal notice, which is worse than the
-  omission. *Full detail in ROADMAP 0.7.*
-
-- [ ] **DO · Turn on Resend's delivery reports (about three minutes).**
-  *(ROADMAP 14.3)*
-  The product now keeps a record of every email it sends and shows it on the
-  client's record — who it went to, and whether it arrived. The "it arrived"
-  half comes from Resend telling us, and Resend only tells us if you point it
-  at us, and as of 2026-09-17 **it has never been pointed at us**.
   1. In Resend, go to **Webhooks** and add an endpoint.
-  2. The address is the line printed below. It is the only one; there is no
-     second "real" project to do this on as well.
-  3. Tick the events **delivered**, **bounced**, **complained** and **failed**.
-     The others are ignored on purpose.
-  4. Resend then shows you a **signing secret** starting `whsec_`. **There is
-     already one set**, from when this was built and proved — so if Resend
-     shows you a DIFFERENT one, it has to replace the stored one or every
-     report will be refused as a forgery. Paste it into the Supabase project's
-     function settings as `RESEND_WEBHOOK_SECRET`. **Do not paste it into a
-     chat, a document or this file** — it is the only thing that stops a
-     stranger posting fake "this address bounced" reports about your customers.
-     If Resend lets you reuse the existing endpoint's secret, nothing needs
-     pasting at all; tell a session and it can prove which case you are in.
-  Until that is done nothing breaks: every email still leaves a row saying it
-  went out. The rows simply stay at *"On its way"* instead of turning into
-  *"Delivered"*.
-
-  **Andrew sent the address on 2026-09-17 and IT IS THE RIGHT ONE. The only
-  thing still missing is the three minutes in Resend.**
+  2. The address is the line below.
+  3. Tick **delivered**, **bounced**, **complained** and **failed**.
+  4. Resend then shows a **signing secret** starting `whsec_`. One is already
+     set. If Resend shows a **different** one it has to replace the stored one
+     — tell a session and it will handle it. **Do not paste it into a chat or a
+     document.**
 
       https://kguqylyzgyzfktkfnhjb.supabase.co/functions/v1/resend-webhook
 
-  A session first told him this was only the "practice" address and that the
-  real business needed a different one. **That was wrong and it is corrected
-  here rather than quietly edited out**, because the mistake is the sort that
-  sends somebody to configure the wrong thing. There is ONE project behind this
-  product, and the live site runs on it: the bundle served by
-  `detailingplatform.com` today was fetched and it talks to
-  `kguqylyzgyzfktkfnhjb`. The other project in `CLAUDE.md`'s hard rule,
-  `adtlnvihwrcqcasqcjwd`, is Andrew's **old, separate** business site
-  (andrewsdetail.com, 22 tables). It does not run this product, so there is
-  nothing about email tracking to install there and never was. It stays
-  read-only for the reason `CLAUDE.md` gives: it takes real money today.
+  **That is the right address.** An earlier note told you this was only the
+  "practice" one and that your real business needed a different one. That was
+  wrong, and it is corrected here rather than quietly removed.
 
-  **Two of the three pieces are already done, checked rather than assumed on
-  2026-09-17.** The part that receives the reports is installed on the project
-  (v9, one of 39), and the signing secret is set there (one of 22).
+  **Nothing is broken while it waits.** Every email still leaves a record; the
+  records just never learn what happened to them.
 
-  **The third is not done, and there is a measurement rather than a guess.**
-  Resend publishes an address, `delivered@resend.dev`, that always accepts mail
-  instantly. **Eighteen** emails have gone to it from this product. Only
-  **eight** ever turned into *"Delivered"* — and those eight are the ones a test
-  reported on by hand. The other **nine are still sitting at "On its way", the
-  oldest for 74 minutes.** If Resend were calling us, all eighteen would have
-  flipped within seconds. So the endpoint has never been added in Resend's own
-  dashboard, which is steps 1-3 above.
+- [ ] **DECIDE · Test accounts — flag them, or delete them?**
+  Your back office lists 16 detailers and 15 are fakes.
+  **Recommendation: flag, don't delete.** About 60 automated checks work by
+  signing into a fake business and clicking through it. Delete the fakes and
+  those checks stop being able to run — and a check that cannot run looks very
+  like one that passed. Flagging gets you the same clean screen and keeps the
+  safety net. **Answer: "flag" or "delete".**
 
-  **RE-MEASURED 2026-09-18, doing ROADMAP 5.3, and it is still not done.**
-  The practice database was rebuilt since the last count, so the old numbers
-  are gone and these are fresh: **every single email this product has sent to
-  Resend’s own always-accepts test address is still sitting at “On its way”.**
-  Not one has ever turned into “Delivered”. If the endpoint were added, they
-  would all flip within seconds. The receipt work finished today puts the
-  emails for a job right on the job’s own screen — what was sent, when, and to
-  whom — and the one column that stays blank is whether it arrived. **Your
-  three minutes in Resend is the only thing missing.**
+- [ ] **DECIDE · One example site uses what is probably a real company's name.**
+  The fifth example site is called "Tampa Bay Auto Detail", with a matching
+  email domain. **Recommendation: invent a name and a domain** — the page
+  demonstrates the same thing and the question disappears. Costs nothing.
+  **Answer: "rename" or "leave it".**
 
-  **Nothing is broken while it waits** — every email still leaves a row saying
-  it went out. The rows just never learn what happened to them, which is the
-  half 14.3 was built for.
+- [ ] **DECIDE · Your real business domain is on the public marketing page.**
+  `andrewsdetail.com` appears in a mock browser bar as the example.
+  **Recommendation: swap it for an invented domain.**
+  **Answer: "swap" or "leave it".**
 
-- [ ] **DECIDE · Test accounts: flag them, or delete them?** *(ROADMAP 0.3)*
-  The back office lists 16 detailers and 15 are fakes, plus rows like "Smoke
-  TPMOY" in the client list. **Recommendation: flag, don't delete.** About 60
-  automated checks work by signing into a seeded fake business and clicking
-  through it. Delete the fakes and roughly 60 checks stop being able to run —
-  and a check that cannot run prints something that looks very like a pass. You
-  would lose the safety net for all 79 roadmap items in exchange for a tidier
-  screen. Flagging gets you the same clean screens and keeps the net.
-  **Answer needed: "flag" or "delete".**
+- [ ] **DECIDE · The buttons at the top of a job look different on a phone.**
+  On the job page and at a desk, the box holding Call / Text / Navigate is a
+  rounded card — the thing you asked for. **On a phone, when you tap a job out
+  of a list, it is still a full-width band with square corners.** That was
+  deliberate: there it runs wall to wall across the panel's own top edge, and a
+  rounded corner cut out of a wall looks like a mistake.
 
-- [ ] **DECIDE · `/ex5` is called "Tampa Bay Auto Detail".** *(ROADMAP 1.2)*
-  It is a public example site using what is probably a real firm's name and
-  email domain. The XPEL half is already fixed. **Recommendation: invent a name
-  and a domain** — the page demonstrates exactly the same thing and the question
-  disappears. Costs nothing. **Answer needed: "rename" or "leave it".**
-
-- [ ] **DECIDE · `andrewsdetail.com` is on the public marketing page.**
-  `LandingPage.jsx:631` shows your real business domain in a mock browser bar as
-  the example. Two other mentions in `AdminPage.jsx` are operational notes that
-  are true and useful, and should stay. **Recommendation: swap the landing-page
-  one for an invented domain.** **Answer needed: "swap" or "leave it".**
-
----
-
-## Scheduled — not blocked, just not yet
-
-- [ ] **DO · Open the Stripe account. December 2026, your 18th birthday.**
-  Yours, not a parent's — confirmed 2026-09-16. Target: live about three months
-  from now.
-  **Nothing is waiting on this.** Every Stripe path in the product — checkout,
-  webhooks, subscription renewal, failed-payment retry, Connect onboarding —
-  can be built and proved in **test mode** today, and that work is not blocked.
-  Each detailer connects **their own** Stripe account, so their age is their own
-  affair and none of it depends on yours.
-  **When you do it, what we will need from you:** the publishable key, the
-  secret key, and two webhook signing secrets (one for platform billing, one for
-  connected accounts). Paste them into `.env` — never into chat.
-
-- [ ] **DO · Sign up for text messaging, and register the number.** *(ROADMAP 3.3)*
-  **Telnyx, at $0.0040 a message** — about half of Twilio's real cost once
-  carrier surcharges land. One platform number for everybody, not one per
-  detailer, which is what you asked for and is much cheaper and simpler.
-  At a few hundred reminders a month this is **under $5/month**.
-  **The slow part is US A2P 10DLC registration** — a one-time carrier
-  registration that can take days to weeks. One registration, one number, one
-  brand. **Start it before you need it.**
-  **When you do it, what we will need:** the Telnyx API key and the phone
-  number. `.env`, not chat.
-
-- [ ] **DO · Decide a business name and set up the entity.**
-  Right now your terms and privacy pages are a contract with you personally,
-  rather than with a company. This matters more than a lawyer does — and you
-  already ruled that we edit lawyer-written templates rather than hire one, so
-  the wording work is ours. **The name and the entity are yours.**
-
-- [ ] **DO · The paid email plan — around December 2026, not before.** *(ROADMAP 3.2)*
-  Roughly $60. **The audits were wrong about this being urgent**: they assumed a
-  hard daily wall, and you have sent 100+ in a day with no failure. Revisit when
-  there are real customers.
-
-- [ ] **DO · Netlify build credits, if publishing matters.**
-  Credits ran out once and the state has flipped twice without anybody noticing.
-  A production deploy costs 15 credits; **a deploy preview costs zero and is a
-  real link you can open on your phone**, so most work needs no credits at all.
-
-- [ ] **DECIDE · The job record's action bar looks different on a phone's
-  slide-up panel, and that was my call rather than yours.** *(FOUND.md, the
-  pinned-bar entry)*
-  On the job page and at a desk, the box holding Call / Text / Navigate is now
-  a rounded card lined up with the cards under it — the thing you asked for on
-  2026-09-18. **On a phone, when you tap a job out of a list, the same box is
-  still a full-width band with square corners.** I left it that way on purpose:
-  there it runs wall to wall across the panel's own top edge, and a rounded
-  corner cut out of a wall looks like a mistake.
   **To see it:** open Money on your phone, tap any job under *Waiting on
   payment*, and look at the top of the panel that slides up.
-  **My recommendation: leave it.** It reads as that panel's own header rather
-  than as a box sitting in it. Say the word and I'll round it to match the
-  other two — it is a two-line change and the check already measures it.
-  *Not blocking anything. Answer whenever you next look at a phone.*
 
-- [ ] **DECIDE · Large text on a small phone. Added 2026-09-20.**
-  **One question, and it is about a promise rather than a bug.**
+  **Recommendation: leave it.** Say the word and it gets rounded to match — a
+  two-line change. **Answer whenever you next look at a phone.**
 
-  **What a person sees.** Somebody on a small phone who has turned their text
-  size up to double opens your dashboard. The page now has half as much room
-  as it thinks it has — so on some screens things run off the right-hand edge
-  and they have to drag sideways to read a line. Worst is the calendar, where
-  about a finger's width of the screen is off the edge. The booking page your
-  customers use is very nearly fine; it is the back office that suffers.
+- [ ] **DECIDE · Large text on a small phone.**
+  Somebody on a small phone with their text size turned up to double opens your
+  dashboard. The page has half the room it thinks it has, so some screens run
+  off the right edge and they have to drag sideways to read a line. Worst is
+  the calendar. **Your booking page is very nearly fine; it is the back office
+  that suffers.**
 
-  **Why it is a question and not a defect.** We say in our own notes that the
-  narrowest screen this product supports is 320 pixels wide. At double text
-  size on a small phone the page behaves as if it were **160** — half our own
-  floor. So nothing is broken by our own rules; the rules just never
-  considered this person.
+  **Why it is a question rather than a bug:** we promise the product works down
+  to a certain width, and at double text size the page behaves as if it were
+  half that. Nothing is broken by our own rules — the rules never considered
+  this person.
 
-  **The two ways:**
-  * **Move the floor.** Make the screens work all the way down. *Costs:* real
-    work on the dashboard, for a setting most people never touch that far.
-  * **Change the promise.** Say plainly that at very large text on a small
-    phone some back-office screens scroll sideways. *Costs:* nothing to build,
-    and somebody in that situation has a worse time of it.
+  1. **Make the screens work all the way down.** Real work on the dashboard,
+     for a setting most people never turn up that far.
+  2. **Change the promise** — say plainly that at very large text some
+     back-office screens scroll sideways.
 
-  **My recommendation: change the promise, and fix only the booking page.**
-  That is the screen a CUSTOMER sees, it is 19 pixels from fitting, and a
-  customer with large text should never be dragging your booking form
-  sideways. The dashboard is yours and you can zoom less on it.
-  *Not blocking anything. Answer whenever.*
+  **Recommendation: (2), and fix only the booking page.** That is the screen a
+  **customer** sees, it is a hair from fitting, and a customer with large text
+  should never be dragging your booking form sideways.
 
 ---
 
-## Thirty seconds, with your phone reading to you — you are the only instrument for this too
+## Two things only you can do, away from the computer
 
-**ROADMAP 8.5b, and it is the last piece of the accessibility work.**
-Everything a machine can check is checked and clean: every screen now has a
-proper "main content" marker, headings run in order, and no image is missing
-its description. **What no script can tell us is whether the page makes SENSE
-when it is read out loud** — whether the order is sane, whether it says
-something useful, whether you can find your way back. That needs ears.
+- [ ] **DO · Thirty seconds with your phone reading the screen to you.**
+  Everything a machine can check is checked and clean. **What no script can
+  tell us is whether the page makes sense when it is read out loud.**
 
-**What to do, once:**
+  1. Turn your phone's screen reader on — iPhone: Settings → Accessibility →
+     VoiceOver. Android: Settings → Accessibility → TalkBack. Note the shortcut
+     to turn it off again before you start; it changes how you tap.
+  2. Open your own booking page and try to book something, **listening rather
+     than looking**. One service, any date, then stop before the last button.
+  3. **One question: could a person who cannot see the screen finish this?**
 
-1. **Turn your phone's screen reader on.** iPhone: Settings → Accessibility →
-   VoiceOver. Android: Settings → Accessibility → TalkBack. There is a
-   shortcut to turn it straight off again on the same screen — worth noting
-   before you start, because it changes how you tap.
-2. **Open your own booking page and try to book something**, listening rather
-   than looking. One service, any date, then stop before you press the last
-   button.
-3. **One question: could a person who cannot see the screen finish this?**
-   Not whether it sounds elegant — whether they could get to the end.
+  **Tell me "they could", or where you got stuck.**
 
-**Then tell me either "they could" or where you got stuck**, in your own
-words. If you got stuck, that spot gets measured and fixed the way everything
-else tonight was.
+- [ ] **DO · Thirty seconds outside, in daylight.**
+  Every piece of text on eight screens was measured and the one that was too
+  faint is fixed. **Glare is the half no script can reproduce.**
 
-*Blocking nothing. 8.5b stays open until somebody has listened to it.*
+  1. Go outside — actually outside, the way you are when you are standing at a
+     car.
+  2. Open your dashboard on your phone and look at **Today**. That one screen.
+  3. **One question: which words are hard to read?**
+
+  **Tell me "all readable", or name the words that were not.**
 
 ---
 
-## Thirty seconds, outside, in daylight — you are the only instrument for this
+## Recorded — nothing needed from you yet
 
-**ROADMAP 8.3, and it is the only thing left on it.** Everything a machine can
-check is checked: every one of the 1,910 pieces of text on eight screens was
-measured at four widths and one of them was too faint — the little time under
-the message bubble on the home page, 4.20 against a 4.5 floor. It is fixed.
-**Glare is the half no script can reproduce, and that is why this is yours.**
+- [ ] **DO · Open the Stripe account. December 2026, your 18th birthday.**
+  Yours, not a parent's. **Nothing is waiting on this** — every payment path
+  can be built and proved in test mode today, and each detailer connects their
+  own account, so their age is their own affair.
+  **When you do it we will need:** the two keys and two webhook secrets. Into
+  the settings file, never into chat.
 
-**What to do, once:**
+- [ ] **DO · Sign up for text messaging and register the number.**
+  **Telnyx, about $0.0040 a message** — roughly half Twilio's real cost. One
+  number for everybody, which is what you asked for. **Under $5/month** at a
+  few hundred reminders.
+  **The slow part is the US carrier registration**, which can take days to
+  weeks. **Start it before you need it.**
+  **When you do it we will need:** the key and the number.
 
-1. **Go outside in daylight.** Not next to a window — actually outside, the
-   way you are when you are standing at a car.
-2. **On your phone, open your dashboard and look at Today.** That one screen.
-3. **Ask one question: which words are hard to read?** Not whether it looks
-   good — whether you can READ it. The small grey lines under the numbers and
-   the little labels above them are the ones to look at.
+- [ ] **DO · The paid email plan — around December 2026, not before.**
+  Roughly $60. **The audits were wrong about this being urgent**: they assumed
+  a hard daily limit, and you have sent 100+ in a day with no failure.
 
-**Then tell me either "all readable" or the words that were not.** If it is
-all readable, 8.3 closes and there is nothing further to build. If something
-is hard to read, name it and it gets measured and fixed the same way this one
-was.
-
-*Blocking nothing else. 8.3 stays open until you have done it.*
+- [ ] **DO · Netlify build credits, if publishing the website matters.**
+  Credits ran out once. A production publish costs 15; **a preview costs zero
+  and is a real link you can open on your phone**, so most work needs none.
 
 ---
 
@@ -494,4 +329,4 @@ was.
 - [x] **Texting is one platform number, not one per detailer — 2026-09-16.**
 - [x] **The demo account's dual access is deliberate — 2026-09-16.** You set it
   up that way on purpose. **It must not be "fixed".** It comes out before the
-  first real detailer signs up, and it is tracked as ROADMAP 12.4 — not before.
+  first real detailer signs up — not before.
