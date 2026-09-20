@@ -3343,6 +3343,14 @@ the dashboard or back office at phone width at all.
 
 - [ ] **9.10 — Business settings waste the right half of the screen.**
   Put a live customer-page preview there; stack below on phones.
+  **Same item as 11.3's concrete half — this is the number that owns it.**
+  11.3 is the vaguer "make settings feel like a product" framing and stays
+  unbuilt on purpose (Andrew's ruling, 2026-09-20: not a named fault, a
+  design decision that is his to make). Whoever picks this up should read
+  11.3 first so the two are not built twice by two people who each think
+  they own it.
+  **Blocked on Andrew: what the preview should show, how it populates, and
+  what it does when the data is thin.** See `FOR-ANDREW.md`.
   *A1 P2-13*
 
 - [ ] **9.11 — Booking-rule conflict needs a one-click fix.** The product
@@ -3485,12 +3493,26 @@ this wave as untouched.
   `book/steps/StepVehicle.jsx`, and covered by `tests/booking-core.test.mjs`.
   *old roadmap § B*
 - [ ] **11.3 — The editing screens phase** — make settings feel like a product.
-  Overlaps 9.10, which is itself still open and is where the concrete half of
-  this lives ("put a live customer-page preview" on the Business settings
-  screen; stack below on phones). **Not picked up this pass** — it is a
-  design decision (what the preview shows, how it is populated) rather than
-  a correction with a single right answer, and every item finished today was
-  the latter. Flagging rather than guessing at a design. *old roadmap*
+  **Ruled on rather than picked up, 2026-09-20, so it does not get re-opened
+  by the next person who reads it as an open item.** Andrew: *"'Make settings
+  feel like a product' is not a named fault, it is a feeling, and the
+  standing rule is that the bar for touching a screen is a specific thing
+  that is wrong rather than a better idea."* A live customer-page preview is
+  a new feature with a dozen judgement calls inside it — what it shows, how
+  it populates, what it does when the data is thin — and none of those have
+  a right answer a session can derive. That makes it his, in a design pass
+  where he can react to something built rather than a fix queue at the end
+  of a day.
+  **The concrete half already has its own number — see 9.10, cross-referenced
+  both ways below, so it is not built twice by two people who each think they
+  own it.**
+  **Checked for a concrete fault hiding inside the vague half, and found
+  none.** The citation itself is just "*old roadmap*", with no section
+  letter the way 11.1 and 11.2 had one, and `docs/roadmap.md` has no fuller
+  version of this line to mine. There is nothing here beyond the one
+  sentence and 9.10's own specific ask — no second item to split out.
+  **FOR-ANDREW.md carries the actual open question**, with no recommendation
+  attached, because this one is not ours to recommend. *old roadmap*
 
 ---
 

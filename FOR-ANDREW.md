@@ -107,6 +107,16 @@ Updated 2026-09-20.
 
 ## Waiting on you — nothing breaks while these wait
 
+- [ ] **DECIDE · What the live preview on Business settings should show.**
+
+  ROADMAP 9.10 wants a live preview of your customer-facing page on the
+  settings screen, where the right half of the screen currently sits empty.
+  Nobody can build it until a person decides what it actually shows, how it
+  updates as you type, and what it looks like before you have anything to
+  show — three separate judgement calls with no single right answer.
+
+  **No recommendation attached — this one is genuinely yours, not ours.**
+
 - [ ] **DECIDE · Nothing is backed up, and fixing it costs money.**
 
   **Measured, not assumed.** Your database is on the free plan, which means
