@@ -4028,3 +4028,30 @@ a defect. It found that the ruler had been bending — every animated element in
 this product measured mid-flight, on old ground as well as new — and that was
 invisible until twenty-six screens nobody was asking about came into the
 question.
+
+---
+
+## Two small things the width sweep says about itself, parked — 2026-09-20
+
+Both found while proving ROADMAP 14.10's tempo finding. Neither is urgent and
+neither is a product defect, so they are here rather than in the queue.
+
+**1. The contact sheet's headline counts findings it does not draw.** Run the
+sweep at 1440 with `SWEEP_TOUR_HOLD=1000` and the page opens with *146
+surfaces · 68,392 questions asked · **27 finding(s)*** — and shows none. Zero
+red rings, nothing in the body, and the run's own log line says *clean at
+1440: nothing off the screen, nothing outside its own box, no boxes touching*.
+Nothing is wrong with the number: `found` is the run's total, and the
+expected-count gate adds `missing + extra` to it, which was 27 `NOT EXPECTED`
+tour steps. But the gate's findings are printed to the console and never
+rendered onto the sheet, so **a run whose only findings are gate findings
+produces an evidence page whose headline has nothing behind it.** The page
+Andrew is meant to open to check our work is the one place that should not
+make him go and read a terminal to find out what the 27 were.
+
+**2. `receipts/sweep-widths-ledger.json` has never recorded a commit.** Every
+row in the file carries `"sha": ""` — all ten of them, across every session
+that has ever run it. The field exists, the writer sets it, and it has always
+been empty. A ledger whose job is to say *how often does this width fail to
+complete* is only useful next to *against which code*, and right now a row
+cannot be dated to anything but a clock.
