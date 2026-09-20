@@ -1796,3 +1796,64 @@ neighbouring check does before trusting your own.
 rebuild: the finding's number matches a number in a keyframe; it appears in
 the normal path and vanishes under `?lite=1`; and the element carries a
 `key` that changes. Any one of them is worth ten minutes before a fix.
+
+**AND IT CANNOT CATCH A CARD THAT DOES NOT EXIST YET EITHER — 2026-09-20,
+ROADMAP 14.10, the same hazard one size up.** The sweep's guided tour walks
+`click` then `settle(page, 1000)`, and at 1440 it stops dead after five steps
+every single run. Measured rather than reasoned: `settle()` comes back at
+223–281ms on a press inside a tab and at **528–630ms on the press that crosses
+to the next tab** — the page has genuinely gone quiet, and the next tab's card
+has not been built. Press again there and the tour ends. Holding a further
+second, changing nothing else, walks all 34 steps.
+
+**The cap is not the safety net it looks like.** On the held run `settle()`
+returned `1007`, `1019` and `1001` — it hit its own 1000ms ceiling at three of
+the five crossings. So "wait for quiet, up to a second" is not a wait for the
+next thing to arrive, at any cap. **Waiting for quiet and waiting for the next
+element are different questions, and only one of them has an answer that
+scales.** Wait for the element.
+
+## A KNOB THAT CHANGES THE INSTRUMENT MUST CHANGE ITS MODE, OR THE DETECTOR FILES YOUR EXPERIMENT AS EVIDENCE — 2026-09-20, ROADMAP 14.10, caught in the act
+
+`sweep-widths.mjs` truncates its guided tour at 1440 to one block, every run.
+Proving that this was the sweep's own impatience rather than the product meant
+running the sweep with a deliberate hold between presses — `SWEEP_TOUR_HOLD`,
+default 0, no change to normal behaviour. It worked: the held run walked all
+34 steps and six blocks where the default run stops at 5.
+
+**And every one of those runs wrote a row into
+`receipts/sweep-widths-ledger.json` saying `"mode": "default"`.**
+
+That ledger exists to do exactly one thing at 1440 — count how many of the last
+five runs failed to complete. Two rows now claimed a completion **the sweep
+cannot actually produce**, and nothing in the row said a knob had been turned.
+The next session to read `0 of the last 5 runs did not complete` would have
+concluded 1440 had recovered, from the evidence of an experiment proving it
+had not. **The instrument's own history had been poisoned by the act of
+measuring it**, and the poison was indistinguishable from good news.
+
+**It is the same failure as the English and Spanish runs overwriting each
+other's contact sheet**, one level up: a run that cannot be told apart from
+another run is a run nobody can check. So it takes the same cure rather than a
+second one — the tempo goes into `MODE`, which already gives `-es` and
+`-lite` their own directory, their own receipt id and their own ledger
+history. One line. A held run is now `-hold1000` and groups only with itself.
+
+**THE RULE, AND IT IS NOT ABOUT THIS KNOB.** Before adding any switch that
+makes a check behave differently — a longer wait, a skipped step, a forced
+state, a different account — ask **which durable record this run is about to
+join, and whether that record can tell it apart from an ordinary one.** A
+ledger, a snapshot, a baseline, a receipt, a trend line. If it cannot, the
+switch is not finished. **A canary that also has to be excluded from the
+tally is half a canary.**
+
+**And the tell that it had already happened:** the two contaminated rows were
+identifiable only by an accident — they measured 146 surfaces where a default
+run measures 117, because walking the whole tour measures 27 more screens. Had
+the knob changed the timing without changing the surface count, nothing in the
+file would have distinguished them and the rows would have been unrecoverable.
+They were relabelled rather than deleted; the runs happened.
+
+**A SECOND THING THE SAME HOUR, SMALLER AND WORTH ONE LINE:** every row in
+that ledger carries `"sha": ""` and always has. A record whose job is to say
+which code state a run was made against has never once recorded one.

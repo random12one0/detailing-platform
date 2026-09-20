@@ -751,12 +751,25 @@ if (process.env.SWEEP_LEDGER_CANARY === "1") {
 // A mode that cannot be told apart from another mode in the artifacts is a
 // mode nobody can check. The suffix is part of the identity, so it goes in the
 // directory, the receipt id and the page title.
-const MODE = `${process.env.LANG_APP === "es" ? "-es" : ""}${LITE ? "-lite" : ""}`;
+// **AND A HELD RUN IS A MODE TOO — 2026-09-20, ROADMAP 14.10, caught in the
+// act.** `SWEEP_TOUR_HOLD` makes the tour walk press more slowly than the
+// sweep ever does, which is how "the sweep truncates because it is impatient"
+// was proved. The first four runs of that experiment went into
+// `sweep-widths-ledger.json` labelled `default`, so the two that only reached
+// six blocks BECAUSE of the hold were indistinguishable from an ordinary run
+// that completed on its own. The ledger's whole job at 1440 is to count runs
+// that did not complete; two rows claiming a completion the sweep cannot
+// actually produce would have read as 1440 recovering. Same failure as the
+// English and Spanish runs overwriting each other above, so it takes the same
+// cure rather than a second one: the tempo is part of the identity.
+const TOUR_HOLD = Number(process.env.SWEEP_TOUR_HOLD || 0);
+const MODE = `${process.env.LANG_APP === "es" ? "-es" : ""}${LITE ? "-lite" : ""}${TOUR_HOLD ? `-hold${TOUR_HOLD}` : ""}`;
 const ART = `artifacts/sweep-widths${MODE}`;
 // WHAT THE CONTACT SHEET CALLS ITSELF. A page that does not say which run made
 // it is a page somebody reads as whichever run they were thinking of.
 const LANG_ES = process.env.LANG_APP === "es";
-const MODE_WORDS = [LANG_ES ? "Spanish" : "", LITE ? "reduced motion (?lite=1)" : ""]
+const MODE_WORDS = [LANG_ES ? "Spanish" : "", LITE ? "reduced motion (?lite=1)" : "",
+  TOUR_HOLD ? `tour held ${TOUR_HOLD}ms between presses — NOT the sweep's own tempo` : ""]
   .filter(Boolean).join(", ");
 // The measured record: one row per surface the run actually looked at.
 const CERT = [];
@@ -2658,6 +2671,19 @@ for (const w of SIZES) {
     // 3/4 4/4 1/6 …` is a tour crossing from a four-step tab to a six-step
     // one; the same pair twice running is a tour that is not advancing.
     const tourTrail = [];
+    // **HOW LONG THE SWEEP ACTUALLY WAITS BETWEEN PRESSES, MEASURED RATHER
+    // THAN REASONED — 2026-09-20, ROADMAP 14.10.** The twenty-run experiment
+    // that produced "the sweep was measuring its own patience" pressed at a
+    // flat 300ms, chosen because `settle()` returns after 130ms of quiet. That
+    // was an inference about this line, never a reading of it. `settle()`
+    // RETURNS the milliseconds it waited and nothing had ever written them
+    // down, so the load-bearing number in that finding was the one number
+    // nobody had measured. `SWEEP_TOUR_SETTLE` moves the cap so the two
+    // readings can be told apart: if these come back on QUIET the cap does not
+    // matter, and if they are pinned at the cap the sweep is not pressing fast
+    // at all.
+    const TOUR_CAP = Number(process.env.SWEEP_TOUR_SETTLE || 1000);
+    const tourPace = [];
     for (let k = 1; k <= TOUR_BOUND; k++) {
       if (!(await page.locator(".tourcard").count())) break;
       // READ BEFORE THE PRESS. After the click the card is either the next
@@ -2670,8 +2696,18 @@ for (const w of SIZES) {
       if (GUIDE_CANARY && k >= 2) break;
       if (XWIDTH_CANARY && w === SIZES[0] && k >= 5) break;
       await page.locator(".tourcard button.primary").click();
-      await settle(page, 1000);
+      tourPace.push(await settle(page, TOUR_CAP));
+      // **A KNOB, NOT A FIX.** Default 0, so the sweep's own behaviour is
+      // unchanged. `settle()` is a CAP on quiet, so raising the cap cannot
+      // make this walk press more slowly - the DOM goes quiet at ~250ms and
+      // it returns. Without a way to hold, "the sweep is impatient" and "the
+      // sweep meets the plan-growth bug" produce the identical column, which
+      // is the same trap the tempo arm was built to escape one level up. The
+      // real fix stays what ROADMAP 14.10 says it is: wait for the next CARD
+      // to exist rather than for the page to go quiet.
+      if (TOUR_HOLD) await page.waitForTimeout(TOUR_HOLD);
     }
+    console.log(`${"tour · the pace".padEnd(24)} cap ${TOUR_CAP}ms, hold ${TOUR_HOLD}ms; settle returned ${tourPace.join(" ") || "-"}`);
     // The block structure, derived from the trail: a counter that restarts at
     // 1 is a new tab. `1/4 2/4 3/4 4/4 1/6 …` is [4, 6, …].
     const tourBlocks = [];

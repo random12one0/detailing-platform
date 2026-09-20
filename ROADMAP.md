@@ -4071,9 +4071,64 @@ event id.
     and it is worth fixing. A third short run was neither: the dashboard never
     finished loading, and the flattering number would have been 3 of 20.
 
+  **AND NOW IT IS MEASURED IN THE SWEEP ITSELF RATHER THAN BY PROXY —
+  2026-09-20, second session.** Everything above rests on one number nobody
+  had ever read: *300ms* was chosen because `settle()` returns after 130ms of
+  quiet. That is an inference about a line of code, not a reading of it.
+  `settle()` RETURNS the milliseconds it waited and the tour walk was throwing
+  that value away, so the load-bearing figure in the finding was the one
+  figure never measured. It now prints — `tour · the pace`.
+
+  **The reproduction argument was also weaker than it read.** At 1440 the
+  blocks are `5+6+6+5+6+6`, so *any* death on the first tab-crossing press
+  produces "5 steps, one block". Twenty out of twenty matching the sweep's
+  line confirms that a tab-crossing press can be killed; on its own it does
+  not confirm that TEMPO is what kills it in the sweep. Four runs of the real
+  sweep at 1440 close that gap directly:
+
+  | run | what changed | `settle()` returned | result |
+  |---|---|---|---|
+  | default | nothing | `223 275 260 255` **`583`** | 5 steps, 1 block |
+  | canary, cap 1ms | `SWEEP_TOUR_SETTLE=1` | `21 21 22 26 21` | 5 steps, 1 block |
+  | held | `SWEEP_TOUR_HOLD=1000` | same ~250, plus a 1s hold | **34 steps, 6 blocks, every one clean** |
+
+  **The sweep's real tempo at 1440 is ~250ms, not 300ms** — 223–281ms on an
+  in-tab press and 528–630ms on the press that crosses to a new tab. Holding
+  a further second between presses, and changing nothing else, walks the
+  whole tour. **The truncation is the sweep's patience, proved inside the
+  sweep.** Reproduced three times; the clean one is 17:19:30, the other two
+  carried a concurrent `app/src` edit and say so.
+
+  **AND THE CAP IS NOT THE CEILING PEOPLE THINK IT IS.** On the held run
+  `settle()` came back at `1007`, `1019` and `1001` — it hit its own 1000ms
+  cap at three of the five tab crossings. So even "wait for quiet, up to a
+  second" is not enough there. This is the documented
+  *`settle()` cannot catch an animation that has not started yet* one level
+  up: it cannot catch a CARD that has not been created yet.
+
+  **ONE HYPOTHESIS TESTED AND KILLED, WHICH IS WHY IT IS WRITTEN DOWN.** The
+  sweep trails `1/4 2/5 3/5 4/5 5/5` where the 300ms script trails
+  `1/5 2/5 …` — the sweep reads the first card declaring FOUR and it corrects
+  to five, which is the plan-growth signature the cold-open deaths carry. It
+  looked like a second cause hiding under an identical summary line. It is
+  not: the `1/4` appears in all four sweep runs **including both that walked
+  the full 34 steps**, so growth on card 1 is survivable and is only the
+  sweep reading the plan a beat earlier than the other script does.
+
+  **THE CONSEQUENCE NOBODY HAD NAMED: the 1440 baseline is a record of the
+  fault.** `sweep-widths.expected.json` lists `tour · step 1`–`7` at 1440 and
+  1–33 elsewhere. The default run truncating at 5 **passed** the expected-count
+  gate and exited 0; the held run walking the real 34 **failed** it with 27
+  `NOT EXPECTED`. So at 1440 the gate has been grading the product against an
+  instrument fault, and the answer it holds as correct is the broken one.
+  **Do not `--write-expected` to clear this** — that writes a hold-dependent
+  run in as the truth. It is fixed by fixing the walk.
+
   **Done when:** the sweep waits for the next card instead of for quiet, and a
   clean twenty-run batch at that tempo shows the tour reaching six blocks at
-  1440 — **and**, separately, the plan-growth signature has a fix in
+  1440 — **and** `sweep-widths.expected.json` carries `tour · step 1`–`34` at
+  1440 as a consequence of that walk rather than of a `SWEEP_TOUR_HOLD` run —
+  **and**, separately, the plan-growth signature has a fix in
   `Walkthrough.jsx` that drops the 2-in-20 cold-open rate measurably.
 
 ---
