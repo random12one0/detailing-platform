@@ -183,6 +183,45 @@ somebody real time.
   was committed, and the other session's two dirty files were confirmed still
   untouched afterwards — a test that proved the explicit-path half and says
   nothing about the read-back half, which is exactly how the gap survived.*
+
+  **AND NOW THE THIRD VERSION, BECAUSE EXPLICIT PATHS FIX CROSS-FILE
+  CONTAMINATION AND DO NOTHING ABOUT SAME-FILE — 2026-09-20, the same day
+  again.** `git commit <path>` takes the **working tree** copy of that path.
+  So naming `ROADMAP.md` keeps the *other* session's other files out of your
+  commit, and sweeps up whatever they have half-written **inside ROADMAP.md
+  itself**. The rule written this morning reads as though it closed the hole.
+  It closed one wall of it.
+
+  **Caught before it wrote, and here is how.** A session read back its own
+  `ROADMAP.md` diff before committing and found it about to **delete six lines
+  of another session's item 11.3** — its working copy was stale, so the other
+  session's addition showed up as a deletion. Nothing in the file name said
+  so; only the content did.
+
+  **And the same file crossed in the other direction in the same hour, which
+  is the part worth reading twice.** That session's own skip-audit block —
+  seventy lines, written and not yet committed — was swept into the other
+  session's commit `4932774` by exactly this mechanism. That commit was then
+  **amended into `a47a9bc`, which dropped the block out of history
+  altogether.** It survived only because it was still sitting in the working
+  tree. **A swept-up edit is not merely misattributed; it can be silently
+  destroyed by the next amend.**
+
+  **THE RULE, and it costs nothing:** **`ROADMAP.md` is edited and COMMITTED
+  in the same turn. Never leave it dirty between turns.** Before editing it,
+  check whether it is already dirty — `git status --porcelain ROADMAP.md`. If
+  it is, and the changes are not yours, **STOP and say so.** Do not commit
+  around them and do not commit through them. That shrinks the window from
+  hours to seconds without anybody asking permission for every edit. The same
+  applies to any long shared document two sessions both append to —
+  `DECISIONS.md`, `FOUND.md`, `FOR-ANDREW.md`, `docs/VERIFIED.md`.
+
+  **Three versions, all kept, because the shape of the correction is the
+  lesson.** `--name-only` missed *which version* of a file was staged.
+  Explicit paths missed *the other session's edits inside your file*. Both
+  failures are the same one this repo keeps meeting: **a check that reads the
+  label instead of the contents.** A rule corrected twice in the open is one
+  the next session will actually read.
 - **Migrations are append-only.** Never edit an existing one.
 - **Never commit `app/.env.production` or any credential.** No password, token
   or key goes into a markdown file either — say where it lives, not what it is.
