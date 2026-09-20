@@ -440,3 +440,46 @@ which pile to pick up**, and both earlier passes did exactly that.
 the same shape on the page — a word on a list row — and one is a defect and one
 is a rename. The only way to tell was to open the screen and read what it says
 now.
+
+## A PREDICTION, WRITTEN BEFORE THE CONFIRMING RUN — 2026-09-20
+
+**Not run yet, deliberately.** The full battery collided with a live browser
+measurement of the demo tenant today and had to be killed (`docs/gotchas.md`),
+and this suite signs into the same tenant, so it waits for the same all-clear.
+This is the question the run has to answer, stated before it runs rather than
+explained after.
+
+**READ FROM SOURCE, NOT RUN:** all three real defects §6a names — the stale
+`open` snapshot, the three unguarded plurals in `ago()`/`shortAgo()`, the
+`jobs_month` wording on the Detailers list — are present in today's
+`AdminPage.jsx` exactly as this triage's proposed fixes describe them. Nothing
+in Wave 10.1's nine already-committed strings appears anywhere in
+`platform-admin.test.mjs` (checked directly, zero matches). **Prediction: this
+suite is at or near 149 / 0 / 7 — clean, matching the state this triage proved
+on a scratchpad copy a week ago — and nothing done today touched it.**
+
+**What would make it something other than that, and how to tell which:**
+
+- **Interference is not a live hypothesis for this run and should not be read
+  as one if the run is red.** Interference is a battery-vs-solo signature —
+  `booking-engine` failing in the full run and passing 110/0 alone is what it
+  looks like. This suite is going to be run ALONE, with nothing else touching
+  the demo tenant, which is exactly the condition that rules interference out
+  by construction. A red result here cannot be blamed on another suite; it has
+  to be one of the other two.
+- **Dead test, if red:** a failing check whose assertion pins an old spelling,
+  structure or component name that a LATER, correct change moved — the same
+  shape as all twenty from the first triage and as today's `dead-mans-switch`
+  and `multi-vehicle` fixes. Confirm by reading the specific assertion against
+  current source and finding the capability under its new name, the way every
+  one of the twenty was confirmed here.
+- **Real defect, if red:** a failing check whose assertion is correct about
+  current behaviour and the product genuinely does not satisfy it — either
+  one of §6a's three fixes did not actually land the way this read of the
+  source suggests, or something changed since 2026-09-13 broke it again. Would
+  mean this document's "already fixed" claim was read wrong; worth re-checking
+  the three fixes above line by line before trusting a red result as new.
+
+**If the run disagrees with the prediction, the disagreement is the finding —
+report what the run actually says rather than which of these three explains
+it away.**
