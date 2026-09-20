@@ -1830,6 +1830,48 @@ the dashboard or back office at phone width at all.
   **and** it has been read outdoors — automated checks do not reproduce glare.
   *A1 P2-05, A2 7.5*
 
+  **MEASURED 2026-09-20, AND THE NUMBERS ARE THE POINT.** Both audits listed
+  this as "everywhere", which is a description rather than a list. So every
+  string on every screen was measured where it is painted — **1,910 text
+  elements across 32 screen/width combinations**: Today, Calendar, Money,
+  Clients and Business signed in as the demo owner, plus the booking page, the
+  landing page and pricing, each at 1440x900, 768x1024, 392x844 and 320x844.
+  Console clean at every one.
+
+  **EXACTLY ONE STRING IN THE PRODUCT FAILS WCAG, AND THE EXISTING GATES
+  COULD NOT SEE IT.** `tests/design-contrast.test.mjs` passes and always did;
+  `accent-sweep.mjs` prints SWEEP CLEAN and always did. Both measure the token
+  PAIRS the system promises, and a pair does not know which surface a label
+  lands on.
+
+  | | |
+  |---|---|
+  | what | the time under a message bubble on the landing page, `.ld .bub .t` |
+  | measured | **4.20:1** — `#7B858A` on `#1E2327`, 11px, weight 400 |
+  | needed | 4.5:1 |
+  | why | `--fog-2` is the documented floor for 10–13px labels and holds where it was measured — 4.90:1 on `--ink-1`, 4.59:1 on `--ink-2`. The bubble is `--ink-3`, the highest surface, where the same colour is 4.20 |
+  | fixed to | `--fog` on the same surface: **5.67:1** |
+
+  **`booking.css` already carried this exact note for its own page** — *"--fog,
+  not --fog-2 … --fog-2 measures 4.20:1 there"* — and `landing.css` never got
+  it. Every other `--fog-2` use on that page sits on a lower ground and passes.
+
+  **THE INSTRUMENT IS THE REAL DELIVERABLE: `scripts/contrast-insitu.mjs`.**
+  It plants a label nobody can read (2.92:1) before each walk and **prints
+  VOID if its own findings do not contain it** — caught on 32 of 32 runs —
+  and prints a census of how many strings each screen offered, because a
+  contrast walker that matches nothing prints the same word as a clean
+  product. An earlier draft of it measured Today four times while reporting
+  four screens, because `?tab=` is not how this app switches; it reads the tab
+  bar now.
+
+  **NOT TICKED, AND THE REASON IS IN THIS ITEM'S OWN DONE-WHEN: it has not
+  been read outdoors.** Both automated halves pass — `accent-sweep.mjs` clean,
+  the contrast suite clean, and now every rendered string measured. Glare is
+  the half no script reproduces and it is Andrew's to do, next to a car, in
+  sunlight. **If he reads it outdoors and it holds, this closes with nothing
+  further to build.**
+
 - [x] **8.4 — DONE 2026-09-19. Booking choices do not look interactive.**
 
   **Done when: "a user can name the selected choice without comparing shades."

@@ -697,7 +697,17 @@
      pile of two texts rather than one becoming the other. */
   opacity: max(0, min(1, calc(1 - var(--f,0) * 1.95)));
 }
-.ld .bub .t { display: block; margin-top: 5px; font-size: 11px; color: var(--fog-2); }
+/* ROADMAP 8.3 — `--fog` HERE, NOT `--fog-2`, AND THE SURFACE IS WHY.
+   `--fog-2` is the floor for 10–13px labels and it holds on the grounds it
+   was measured against: 4.90:1 on `--ink-1`, 4.59:1 on `--ink-2`. **This
+   bubble is `--ink-3`, the highest surface, where the same colour measures
+   4.20:1** — under the 4.5 WCAG asks for at 11px, and Andrew reads these
+   screens in sunlight beside a car. `--fog` on the same surface is 5.67:1.
+   `booking.css` carries this exact note for its own page (*"--fog, not
+   --fog-2 … --fog-2 measures 4.20:1 there"*) and this stylesheet never got
+   it. Measured in place, not from the tokens: the token pairs gate passes
+   either way, because it never knew this label sits on the lit surface. */
+.ld .bub .t { display: block; margin-top: 5px; font-size: 11px; color: var(--fog); }
 
 /* right: the dashboard, rendered from the same array the thread is */
 .ld .dash { border-radius: var(--ld-r-panel); corner-shape: var(--ld-corner); padding: clamp(14px,2vw,20px); background: linear-gradient(178deg, var(--ink-2), var(--ink-1)); box-shadow: inset 0 0 0 1px var(--line); }
