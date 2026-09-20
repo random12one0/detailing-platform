@@ -1915,7 +1915,7 @@ is written down for its owner, and the two that are promises about the product
 rather than wording went to Andrew.
 
 
-- [ ] **7.1 — `/examples` looks like an internal index, not a portfolio.**
+- [x] **7.1 — ~~`/examples` looks like an internal index, not a portfolio.~~**
   A plain text list of ex1–ex5: no thumbnails, no menu, no way back, no styles,
   no phone views, no call to action. **Both audits score this the worst page in
   the product** — A1 gives it 3/10 — and note the individual examples are among
@@ -1926,6 +1926,59 @@ rather than wording went to Andrew.
   **Done when:** a prospect understands the range and quality without opening
   every example.
   *A1 P2-01, A2 7.1*
+
+  **DONE 2026-09-20.** `/examples` now shows the five sites instead of listing
+  them: a real screenshot of each at desktop and phone, a way back, and the ask
+  at the bottom. Built entirely from `scripts/build-examples.mjs`; nothing in
+  `app/src` was touched.
+
+  **AND THE THING WORTH REMEMBERING IS NOT THE PAGE.**
+
+  > **Two of the five example sites were not merely plain. They were broken,
+  > and nobody found that until somebody tried to photograph them.**
+
+  `ex2` was showing *"Next opening Thu 11 Sep"* — **nine days in the past**.
+  `ex5`'s review score was clipped to *"FROM 8… REVIEW"*, cut off behind the
+  ceramic-coating card. Both were already written down in 7.10 below. Both had
+  been read past for days by everybody, including two audits that scored this
+  area and a session that had just finished verifying the page's claims.
+
+  **At thumbnail size they are the first thing the eye lands on.** Shrinking a
+  page to a card is a different instrument from reading it, and it found two
+  faults that reading did not. **That is an argument for the method, not just a
+  result** — and it is why the captures were worth the argument about whether
+  to have them at all.
+
+  Both were fixed before anything was photographed, because photographing
+  around a defect hides it rather than recording it. The date fix is not a new
+  date: **a placeholder for live data must never be a specific date, because a
+  specific date is wrong on every day but one.** It reads "Next opening this
+  week" now, which is how the other four already phrase it.
+
+  **THE PICTURES ARE REAL CAPTURES, AND A CHECK KEEPS THEM HONEST.**
+  `scripts/capture-examples.mjs` takes them at 1440 and 392 and writes a
+  fingerprint of each site's source; `scripts/example-shots-check.mjs` fails
+  **by name** when a site changes after its picture was taken. They are
+  committed rather than generated because **this script runs on every
+  production deploy** — measured: `app/netlify.toml` runs `npm run build`,
+  which `app/package.json` defines as `vite build && node
+  ../scripts/build-examples.mjs`, and a deploy costs 15 Netlify credits. Ten
+  page loads per paid deploy, to redraw pictures that change when one of five
+  files changes, is spending Andrew's money on a thumbnail.
+
+  **The gate was broken on purpose twice, and only the second one counts.** A
+  flag that moves one fingerprint inside the check names `ex3` and only `ex3` —
+  but that is a simulation, the hollow shape this repo keeps catching. So a
+  **real one-byte edit** was made to `y-kinzie.html`: the gate failed naming
+  **ex4 and only ex4**, and reverting restored it.
+
+  **Verified at 1440, 768, 392 and 320 with the console read at each** — no
+  horizontal overflow, no console errors, every tap target at or above 44px.
+  Measuring found three more defects that would otherwise have shipped: an 8px
+  overflow at 768 where the phone shot hung past the viewport, a 15px-tall link
+  in the closing band, and the stat strip breaking 3-then-1 at 392.
+
+
 
 - [ ] **7.2 — The public price explanation contradicts itself.**
   Copy says "every figure is what you pay" and "nothing is added", then allows
@@ -1993,14 +2046,65 @@ rather than wording went to Andrew.
   **Done when:** the full point is understandable with motion disabled.
   *A1 P2-03, P2-04, A2 7.4*
 
-- [ ] **7.10 — Example site defects.**
-  `/ex2` Delgado: headline stays faded ~5s and the giant "DELGADO" lettering
-  overlaps it; "Next opening Thu 11 Sep" is in the past; tab title says "Mesa
-  AZ" while the page says Phoenix · Scottsdale · Tempe.
-  `/ex1` Prime: "1 yrs" while counting up.
-  `/ex5` Tampa Bay: the review pill is partly hidden behind the ceramic coating
-  card.
-  `/ex3` Ballantyne: hero is very tall.
+- [ ] **7.10 — Example site defects. Re-measured 2026-09-20; two fixed, two
+  still open, one is a disagreement.**
+  **This entry described a page and a set of faults that had partly stopped
+  existing**, which is the same trap 7.12 carried: an item describing a
+  vanished screen sends the next person looking for a defect that was fixed,
+  and they conclude the check is broken rather than the note.
+
+  **FIXED — struck with the evidence:**
+  - ~~`/ex2` Delgado: "Next opening Thu 11 Sep" is in the past.~~ **Fixed
+    2026-09-20.** It now reads "Next opening this week". **A placeholder for
+    live data must never be a specific date, because a specific date is wrong
+    on every day but one** — the other four sites already phrased it that way.
+    Found by photographing the site for 7.1; see the finding there.
+  - ~~`/ex5`: the review pill is partly hidden behind the ceramic coating
+    card.~~ **Fixed 2026-09-20.** `.glasscard` is absolutely positioned over a
+    `.hero-row` that is in normal flow, so at a wide viewport the rating ran
+    underneath it and read "FROM 8… REVIEW". The row now clears the card's
+    width above 1024px, and the clearance is dropped below that breakpoint
+    where the card rejoins the flow.
+
+  **STILL OPEN, re-checked and still true:**
+  - `/ex2`: **the tab title says "Mesa AZ" while the page says Phoenix ·
+    Scottsdale · Tempe.** Verified in source, unchanged.
+  - `/ex1`: **"1 yrs" while the counter animates.** The final value is "6 yrs";
+    the singular is wrong only in passing. **The committed thumbnail is not
+    affected** — it is captured after the count settles, and shows "1,240 cars
+    · 4.9 · 6 yrs".
+  - `/ex3`: **hero is very tall.** Now measured rather than described: it is
+    **exactly one viewport — 900px at 1440x900** — against 774px for `/ex1`.
+    A full-screen hero is a defensible choice, so this is left as the
+    judgment it is, with a number attached for whoever takes it.
+  - `/ex2`: **the headline stays faded ~5s.** Not reproduced at 1.8s, which is
+    when the capture is taken and where the headline is fully drawn. Left open
+    rather than struck: "I did not see it once" is not "it does not happen",
+    and the audit watched the page load rather than sampling it.
+
+  **AND ONE IS A DISAGREEMENT RATHER THAN A DEFECT — recorded, not resolved:**
+
+  > ~~`/ex2`: the giant "DELGADO" lettering overlaps the headline.~~
+  > **DISPUTED 2026-09-20. The pixels were deliberately left alone.**
+
+  **The audit's reading:** an enormous outlined wordmark sits behind the
+  headline and collides with it; that is an overlap defect.
+
+  **This session's reading, and the one I believe:** it is the design working.
+  `docs/TASTE-NOTES.md` § 1 describes the first of the five sites Andrew sent
+  unprompted — the evidence file for his own taste — in these words:
+  *"An enormous outlined wordmark sits BEHIND the hero and is cropped by the
+  viewport."* **The audit called a defect the thing his own reference does on
+  purpose.** At card size on `/examples` it reads as a watermark the headline
+  sits on, and removing it would take character out of the site.
+
+  **Why it is written down instead of decided:** quietly editing it out would
+  be a session deciding a design question because an auditor did not recognize
+  a device — and quietly leaving it would be a session deciding the audit was
+  wrong. **Andrew rules.** If he says mistake, this is an item with a
+  reproduction already attached; if he says deliberate, the audit entry is
+  struck with a reason. Either way nobody re-derives it.
+
   *A1 § 4, A2 7.2, 7.3*
 
 - [ ] **7.11 — The home page's own example is a different city from the demo.**

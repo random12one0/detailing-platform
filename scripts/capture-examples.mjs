@@ -33,8 +33,8 @@
 // in it.
 //
 // **`ex3` IS CAPTURED IN ITS DEFAULT COLOUR AND THE CAPTION SAYS SO.** That
-// site ships three colourways a visitor can switch between. A thumbnail that
-// shows a different colour depending on which one somebody felt like
+// site ships three colorways a visitor can switch between. A thumbnail that
+// shows a different color depending on which one somebody felt like
 // photographing is not showing them the site — it is showing them one roll of
 // a dice, on the one page where misrepresenting what a detailer gets matters
 // most. Default, captioned, and the truth does the selling.
@@ -59,7 +59,7 @@ const BASE = process.env.EXAMPLES_BASE || "http://localhost:5173";
 export const SITES = [
   ["ex1", "v-goldenhour.html", "Prime Mobile Detailing"],
   ["ex2", "w-delgado.html", "Delgado Mobile Detailing"],
-  // DEFAULT COLOURWAY ONLY — see the header. `?c=b` is the default the page
+  // DEFAULT COLORWAY ONLY — see the header. `?c=b` is the default the page
   // serves when nobody has chosen, so the capture is what a visitor lands on.
   ["ex3", "x-ballantyne.html", "Ballantyne Mobile Detailing"],
   ["ex4", "y-kinzie.html", "Kinzie Mobile Detailing"],
