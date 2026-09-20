@@ -4014,3 +4014,17 @@ findings. After: *clean at 1440, 392, 320 — nothing off the screen, nothing
 outside its own box, no boxes touching*, across 407 surfaces and 171,396
 questions, **with the deliberate canary overflow still caught at all three
 widths**, so the clean reading is not a blind one.
+
+**WHOSE MISTAKE, NAMED.** The first reading of this — that the widened
+inventory had caught a real product defect nobody was assigned to, and that it
+was the second instance of the September gear-screen shape — was **Andrew's
+manager's**, handed down before the measurement existed. It was wrong, and
+wrong in the flattering direction. Recorded with a name on it at his own
+instruction: *"an item that quietly improves its own history is the thing this
+repo exists to refuse."*
+
+**The honest argument for widening is the bigger one anyway.** It did not find
+a defect. It found that the ruler had been bending — every animated element in
+this product measured mid-flight, on old ground as well as new — and that was
+invisible until twenty-six screens nobody was asking about came into the
+question.

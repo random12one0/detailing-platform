@@ -16963,6 +16963,36 @@ compared the total to anything. That is what the expected-count gate was built
 for, and it had inherited the same blind spot one level up: it could only ask
 about screens the instrument had already managed to reach.
 
+**CORRECTION, SAME DAY, AND IT IS THE HONEST HALF OF THIS ENTRY.** When the
+widening first paid off, the reading handed down was that it had caught **a
+real product defect at `tour · step 28` that nobody was assigned to** — a
+caption 14px outside its own box at 392 and 320 — and that this was the
+second instance of the September gear-screen shape, to be recorded as the
+argument for widening. **That reading was Andrew's manager's, and it was
+wrong.** There is no defect on that screen. The caption is flush at both
+widths, the card is fully in frame, and the 14px was the sweep reading the
+paragraph during its entrance: `theme.css` starts `step-fwd` at
+`translate3d(14px, 0, 0)` and `getBoundingClientRect()` returns the
+transformed box.
+
+It is left here with a name on it rather than quietly replaced, at his
+instruction: *"an item that quietly improves its own history is the thing this
+repo exists to refuse."* It was wrong in the direction that flatters us, which
+is the direction worth being suspicious of, and somebody arguing later that
+widening is not worth the cost should meet the honest evidence rather than the
+sales pitch.
+
+**And the true finding is the larger one.** Covering twenty-six screens nobody
+was asking about exposed a fault in the INSTRUMENT: `settle()` waits for the
+DOM to go quiet and for every animation to stop running, and a React element
+re-keyed on a press begins its animation on a later frame than the mutation
+that created it — so the quiet it waits for falls in the gap before the
+entrance starts. **Every animated element in this product, on old ground and
+new, was being measured mid-flight.** One broken caption would have been worth
+less than that. The widening did not find a defect; it found that the ruler
+had been bending, and it was invisible until screens nobody was checking came
+into the question.
+
 **Before you run `--write-expected`, say out loud which of the two you are
 doing.** If the answer is "so the run goes green", stop — that is the first
 one wearing the second one's clothes. The command refuses to grade the run

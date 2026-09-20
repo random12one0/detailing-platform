@@ -2018,7 +2018,11 @@ rather than wording went to Andrew.
   further out: **a number a stranger is weighing must not animate through
   values that are not true.** A car count climbing is decoration; a rating or
   a price climbing is a claim that changes while you read it. Whoever takes
-  7.5 should take the rating with it. See 7.10.
+  7.5 should take the rating with it. **The example sites' half is DONE —
+  2026-09-20, Andrew's ruling, see 7.10.** The platform's own pricing page
+  still counts "$20 to build it" and "$1/month" up from nothing, and that is
+  the harder one, because a price mid-count is a price a stranger can quote
+  back at you.
   *A2 6.3*
 
 - [ ] **7.6 — "Unlimited photos" against a 1 GB cap.** The back office shows
@@ -2062,6 +2066,17 @@ rather than wording went to Andrew.
   existing**, which is the same trap 7.12 carried: an item describing a
   vanished screen sends the next person looking for a defect that was fixed,
   and they conclude the check is broken rather than the note.
+
+  > **BOTH AUDITS SCORED THAT PAGE WORST AND NEITHER ONE FOUND ANY OF THESE;
+  > THEY FOUND THAT IT WAS PLAIN. IT WAS ALSO WRONG.** Five real defects on
+  > the page a stranger judges this product by — an opening nine days in the
+  > past, a review score clipped in half, a tab naming the wrong city, a
+  > counter flashing one year on its way to six, and a headline that appeared,
+  > vanished and came back — **all five found by trying to photograph it**,
+  > all five fixed and re-photographed. Plus a sixth ruled on the same day
+  > (the rating), and **36 British spellings across three places nobody
+  > thinks of as prose** (7.13). Scoring a page is not the same instrument as
+  > using it.
 
   **FIXED — struck with the evidence:**
   - ~~`/ex2` Delgado: "Next opening Thu 11 Sep" is in the past.~~ **Fixed
@@ -2113,15 +2128,29 @@ rather than wording went to Andrew.
     A full-screen hero is a defensible choice, so this is left as the
     judgment it is, with a number attached for whoever takes it.
 
-  **AND THREE THINGS FOUND WHILE FIXING THOSE, NOT YET TOUCHED:**
-  - `/ex1`: **the rating counts up from 0.8.** The stat strip rolls every
-    number from zero, so for about half a second the page states a 0.8 rating
-    for a business whose rating is 4.9. The site's own comment says the roll
-    is *"NEVER on a price — a price that animates reads as a price that
-    moves"*; by that reasoning a rating that animates reads as a rating that
-    moves, and unlike a car count it is a number a stranger is weighing.
-    **Not changed on anybody's behalf** — it is the same kind of judgment as
-    the watermark below, and it is a deliberate device on a site he approved.
+  **AND ONE MORE FIXED THE SAME DAY, AFTER IT WAS RAISED AS A QUESTION AND
+  RULED ON AS A DEFECT:**
+  - ~~`/ex1` and `/ex2`: the rating counts up from 0.8.~~ **Fixed 2026-09-20.**
+    The stat strip rolled every number from zero, so for about half a second
+    both pages stated a **0.8 rating** for a business whose rating is 4.9.
+    It was raised as a matter of taste and **Andrew ruled that it is not one**:
+    *"A number that climbs from 0.8 to 4.9 while somebody reads it is not
+    showing them the rating at any moment during that climb; it is showing
+    them a number that is not true yet."*
+
+    > **THE RATING AND THE "1 yrs" ARE THE SAME DEFECT WEARING DIFFERENT
+    > CLOTHES** — a counter printing something untrue in passing. The only
+    > reason this one felt like a look-and-feel decision is that **the end
+    > state happens to be flattering.** That is not a difference in kind.
+
+    The counts still climb; a car count is decoration. `/ex1` opts out with
+    `data-still` on the rating, `/ex2` by simply not carrying `data-roll`.
+    Verified by sampling every frame from navigation on all three pages that
+    have a stat strip: the rating reads **exactly one value, 4.9, in every
+    frame**. If Andrew wants the motion back it is one attribute, and then it
+    is his choice rather than an accident.
+
+  **AND TWO THINGS FOUND WHILE FIXING THOSE, NOT YET TOUCHED:**
   - `/ex4`: **no search description at all.** Every other example site has
     one. Nothing is wrong on the page; there is simply nothing for a search
     result or a pasted link to show.
@@ -2188,8 +2217,8 @@ rather than wording went to Andrew.
 
 ---
 
-- [ ] **7.13 — ~~British spellings on the example sites.~~ FIXED 2026-09-20,
-  and the gap it exposes is still open.**
+- [x] **7.13 — ~~British spellings on the example sites, and nothing that
+  could catch them.~~ FIXED 2026-09-20, and the check is built.**
   **Thirty-six British words were reaching a visitor across the five example
   sites — seventeen different ones.** Hood written as *bonnet* (nine times),
   fender as *wing* (four), microfiber as *microfibre* (four), sedan as
@@ -2218,14 +2247,48 @@ rather than wording went to Andrew.
   right for a dictionary passes all of them**, and it will come back the next
   time somebody writes a page.
 
-  **A cheap check would catch most of it, and is deliberately NOT built
-  tonight:** a word list against the rendered text of every page, with the two
-  documented exceptions — `"cancelled"` as a database value and `"colour"` as
-  a setup-step key — allowed by context rather than by spelling. The cost is
-  the maintenance of a word list, which is exactly the "grep-based check
-  coupled to a spelling rather than a behavior" that `docs/gotchas.md` warns
-  about; the argument for it is that spelling IS the behavior here. **Worth
-  one decision, not worth a session assuming the answer.**
+  **AND THE CHECK NOW EXISTS — `scripts/american-english.mjs`, approved and
+  built 2026-09-20.** It reads the FINISHED page rather than the source,
+  because the source was the instrument that printed clean over "Aluminium
+  tanks": it walks every text node in the rendered DOM — on `/ex5` that is
+  32,779 characters against the 7,551 `innerText` returns, because seven of
+  the eight vehicle panels are built and hidden — plus the strings a screen
+  reader says out loud.
+
+  **THE TWO DOCUMENTED EXCEPTIONS ARE ALLOWED BY POSITION, NOT BY SPELLING,
+  and that distinction is the whole check.** An exception written as "allow
+  the word cancelled" would have waved through the exact sentence this was
+  built to catch — `/ex5`'s *"A slot cancelled late cannot be refilled"*. So
+  `cancelled` passes only as the bare status token or inside a key-ish
+  attribute, and `colour` only inside a key-ish attribute.
+
+  **IT WAS BROKEN ON PURPOSE TWICE BEFORE IT WAS TRUSTED**, and each sabotage
+  aims at a different half:
+  - `--break=mute` removes three words from the list. The canary stops firing
+    and `receipt.mjs` refuses the receipt.
+  - `--break=lax` turns the two exceptions back into spelling rules. It then
+    misses "colour" in prose and "cancelled" in a sentence — which is the
+    proof that the positional rule is load-bearing rather than decorative.
+
+  The canary is **a real page, really loaded, with British prose injected into
+  its live DOM** and read by the real scanner — not a flag that pretends. It
+  runs both directions: seven planted words must be caught, and the bare
+  "Cancelled" chip and `data-step="colour"` must NOT be.
+
+  **IT FOUND A 37th INSTANCE ON ITS FIRST RUN, and not on an example site.**
+  The platform's own pricing page said *"Cancelling stops the next charge"* —
+  prose, not a database value. Fixed, along with four more the same word had
+  on screens behind sign-in that the check cannot reach, each with its Spanish
+  key moved in the same edit. **Three remain in developer comments and were
+  left**; they are not what a customer reads.
+
+  **WHAT IT STILL CANNOT DO, said out loud:** bare "wing" is not in the word
+  list, because a wing is a real part of an American car — and bare "wing" was
+  four of the original 36. It scans the 11 pages reachable without signing in;
+  everything behind a login needs a seeded session and is not covered. A word
+  list is maintenance, which is exactly the "grep-based check coupled to a
+  spelling rather than a behavior" `docs/gotchas.md` warns about. **The
+  argument for it is that here, spelling IS the behavior.**
 
   *Found 2026-09-20 while fixing 7.10. Not from either audit — neither
   mentions it.*
@@ -3926,9 +3989,47 @@ event id.
   because the truncated steps are accounted for as declared skips. That is
   correct and worth knowing: the two detectors answer different questions and
   only one of them is about this fault.
-  **Done when:** the twenty-run experiment names which of the two symptoms is
-  primary, or proves they are independent — and whichever it is has a fix or a
-  written reason it cannot have one.
+  **THE TWENTY-RUN EXPERIMENT IS DONE, AND THIS IS A DIFFERENT ITEM FROM THE
+  ONE ABOVE — 2026-09-20, `node scripts/tour-runs.mjs 20 1440 392`.** Twenty
+  cold opens of the tour at 1440, with five control runs at 392 in the same
+  batch. The control completed 5/5, so the walk works and what 1440 did is
+  about 1440.
+
+  | at 1440 | runs |
+  |---|---|
+  | 34 steps, six blocks `5+6+6+5+6+6`, complete | **16** |
+  | 31 steps, six blocks, complete | 1 |
+  | 29 steps, **five** blocks — the first block never happened | 1 |
+  | 11 steps, two blocks | 1 |
+  | 0 steps — the card never arrived | 1 |
+
+  **17 of 20 complete. It is not "the tour dies after its first tab."** That
+  framing came from three sweep runs and no run here reproduced it. The real
+  rate is roughly one in seven, and it has at least three different shapes.
+
+  **AND THERE IS A SIGNATURE, WHICH IS THE USEFUL PART.** Both early deaths
+  show a block opening on a total lower than its real one and then correcting:
+  `1/5 2/5 3/5 4/5 5/5 1/3 2/6 3/6 …` — the second block announced three steps
+  and had six. **2 of 20 runs grew a plan mid-block, and both of them died.
+  All 17 runs without that growth completed. The 392 control grew none.**
+  `Walkthrough.jsx` already documents this exact hazard beside the code that
+  is supposed to prevent it — the count is meant to be taken once the screen
+  has stopped arriving — so the guard exists and is incomplete at 1440.
+
+  **WHAT IS STILL UNEXPLAINED, AND IT IS NOT THE SAME THING.** The sweep
+  reports 1440 at `1 block declaring 5 = 5 steps` **consistently**, not one
+  time in seven. The sweep reaches the tour after roughly eighty surfaces of
+  clicking, sheets and tab switches; this script goes straight to it on a cold
+  sign-in. So the sweep's truncation is a different phenomenon from the
+  intermittent one measured here, and the next probe is the sweep's own tempo:
+  `settle()` returns after 130ms of quiet where this script waits a flat
+  second, and `TOUR_WAIT` exists on `tour-runs.mjs` to repeat these twenty runs
+  at that pace.
+
+  **Done when:** the plan-growth signature has a fix in `Walkthrough.jsx` that
+  drops the early-death rate measurably over twenty runs, **and** the sweep's
+  consistent one-block truncation is explained separately or shown to be the
+  same fault after all.
 
 ---
 
