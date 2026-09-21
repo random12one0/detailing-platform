@@ -2344,13 +2344,43 @@ requested.
   was the new flag. With it off the loop never reached the compose step. With
   it on it composed and then failed at the blocked relay — which is the
   design, not a defect.
-  **AND ONE DIRECTION IS STILL UNPRESSED, WHICH IS WHY 3.4 STAYS OPEN:**
-  "ordinary appointment reminders still go while the flag is off" was **not**
-  proved. Both runs produced zero reminder entries — but
-  `get_bookings_due_for_reminder` returns **0 rows for both `customer` and
-  `owner` right now**, so that silence is a fact about today's data and not
-  about the gate. Proving it needs a booking that is actually due, which is a
-  larger write than this round made.
+  **DIRECTION TWO CLOSED 2026-09-21 — AND IT IS THE ONE THAT MATTERED MOST.**
+  A gate that silences the sales email is worth nothing if it also silences
+  the appointment reminder: a customer who does not know the detailer is
+  coming tomorrow is a worse outcome than the bug this item fixes.
+  The earlier runs proved nothing about it — both produced zero reminder
+  entries, but `get_bookings_due_for_reminder` returned **0 rows for both
+  targets**, so that silence was today's data, not the gate. **A subject was
+  made:** one confirmed future booking's `start_at` was moved from
+  2026-09-22T16:00Z to one hour ahead of the run, which opened its reminder
+  window; the RPC then returned **1**. Restored afterwards.
+
+  **One run, maintenance flag in its normal OFF state, and it shows both
+  halves at once:**
+
+  ```
+  sweep results [
+    {id:"66e794c1…", kind:"owner_reminder",    sent:false, error:"the email relay refused…"},
+    {id:"66e794c1…", kind:"customer_reminder", sent:false, error:"the email relay refused…"}
+  ]
+  ```
+
+  **Both ordinary reminders were produced and handed to the relay, and there
+  is still no `maintenance` entry anywhere in that run.** That is the strongest
+  form this evidence can take: the same sweep, the same tenant, the same
+  moment — **the gate is selective, not a blanket mute.** Neither reminder was
+  marked as sent (`"Not marking it as sent"`), and both markers were confirmed
+  still `null` afterwards.
+
+  **ALL THREE DIRECTIONS ARE NOW PROVEN.** Flag off → no maintenance email.
+  Flag off → ordinary reminders still fire. Flag on → the maintenance email is
+  produced. **No email left the machine in any run** — the relay was
+  unreachable by construction throughout.
+  **WHAT REMAINS BETWEEN THIS AND THE RULING BEING IN FORCE IS ONE STEP AND IT
+  IS NOT A SESSION'S:** the deployed `send-owner-reminders` is still the old
+  copy and the cron is still firing it every fifteen minutes. **Andrew
+  publishing that one function is the whole of it**, and it is already on his
+  list. Nothing here should be deployed to bring it forward.
   **A measurement trap worth recording:** the sweep's HTTP response is a
   SUMMARY (`{success, count, summary:{maintenance_failed:1}}`) and carries no
   `results` array. Reading `results` off the response gives `[]` for every run
