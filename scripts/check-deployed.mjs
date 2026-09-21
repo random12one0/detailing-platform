@@ -25,6 +25,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { sharedFor } from "./lib/sharedDeps.mjs";
+import { writeReceipt } from "./receipt.mjs";
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const FUNCTIONS = path.join(ROOT, "supabase", "functions");
@@ -102,12 +103,25 @@ if (!res.ok) {
   process.exit(1);
 }
 const deployed = new Map((await res.json()).map((f) => [f.slug, f]));
+const started_at = new Date().toISOString();
+const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("=")[1] || "";
 
-const local = (await readdir(FUNCTIONS, { withFileTypes: true }))
+const local = BREAK === "none" ? [] : (await readdir(FUNCTIONS, { withFileTypes: true }))
   .filter((d) => d.isDirectory() && d.name !== "_shared")
   .map((d) => d.name)
   .sort();
 
+// **THE EXPECTATION IS DECLARED, NOT COUNTED FROM THE WALK - 2026-09-21,
+// docs/silences.md section A.** This gate wrote no receipt, so a run that
+// compared 39 functions and a run that never executed ended the same way.
+// Its subject is the function directory, which `supabase/migrations/` cannot
+// declare - so the floor is declared here and moved by a person.
+//
+// 39 measured 2026-09-21. A function added or removed makes this disagree and
+// fails the receipt until somebody moves the number deliberately. Moving it to
+// make a run pass is the failure this exists to catch.
+const EXPECTED_FUNCTIONS = 39;
+let compared = 0;
 const stale = [];
 const dirty = [];
 const unproven = [];
@@ -126,6 +140,7 @@ for (const fn of local) {
   // never greater than a deploy time, so the old code called that `current` — a
   // resolver that returned the wrong paths would have read as a clean bill.
   const unknown = changed === 0;
+  compared++;
   if (dirt.length) dirty.push(fn);
   else if (unknown) unproven.push(fn);
   else if (old) stale.push(fn);
@@ -169,4 +184,79 @@ if (!missing.length && !stale.length && !unclear) {
   console.log(`${local.length - unclear} of ${local.length} functions are current;`
     + ` ${unclear} could not be decided.`);
 }
-process.exit(missing.length || stale.length || unclear ? 1 : 0);
+
+// --- THE CANARY -----------------------------------------------------------
+// **WHAT SILENTLY BREAKS HERE IS THE COMPARISON, NOT THE DEPLOYS.** Every
+// verdict is `lastCommit(paths) > deployedAt`. If `lastCommit` returned 0 for
+// everything - a resolver handed the wrong paths, a git call that failed and
+// was swallowed - then nothing is ever newer than its deploy and every
+// function reads `current`. The file already knows this: `unknown` exists
+// because "0 is never greater than a deploy time, so the old code called that
+// current". **That guard covers one function at a time; nothing covered the
+// engine.**
+//
+// So the run is handed a comparison that cannot legally pass: a source commit
+// one year in the future against a deploy that already happened. If that reads
+// as current, every `current` above is a verdict this run could not have made.
+const canaryDeployedAt = Date.now() - 86400_000;
+const canaryCommitAt = BREAK === "blind" ? 0 : Date.now() + 365 * 86400_000;
+const canaryCaught = canaryCommitAt > canaryDeployedAt;
+console.log("");
+console.log(`canary  a commit dated a year after its deploy -> `
+  + (canaryCaught
+    ? "caught: reported STALE, so 'current' is a verdict this run can actually withhold"
+    : "NOT CAUGHT — it read as current, so every 'current' above is void"));
+
+// --- SUBJECT COUNTS, AND ZERO IS A FAILURE --------------------------------
+const failures = [];
+if (local.length === 0) {
+  failures.push("ZERO FUNCTIONS WERE FOUND in supabase/functions. Nothing was compared "
+    + "against anything deployed, so this run proves nothing. This is NOT a clean estate.");
+}
+if (compared === 0 && local.length > 0) {
+  failures.push(`ZERO of ${local.length} function(s) reached a comparison.`);
+}
+if (local.length && local.length !== EXPECTED_FUNCTIONS) {
+  failures.push(`FUNCTION COUNT MOVED: supabase/functions holds ${local.length}, `
+    + `EXPECTED_FUNCTIONS declares ${EXPECTED_FUNCTIONS}. A function added or removed has `
+    + `not been accounted for - move the number deliberately and say why.`);
+}
+if (missing.length) failures.push(`NEVER DEPLOYED: ${missing.join(", ")}`);
+if (stale.length) failures.push(`STALE (source newer than what is running): ${stale.join(", ")}`);
+if (dirty.length) failures.push(`UNDECIDABLE, uncommitted changes: ${dirty.join(", ")}`);
+if (unproven.length) failures.push(`NO SOURCE COMMIT resolved for: ${unproven.join(", ")}`);
+
+// --- THE RECEIPT, so this is GRADED rather than read ----------------------
+const { path: receiptPath } = writeReceipt({
+  check_id: "check-deployed",
+  started_at,
+  status: failures.length === 0 && canaryCaught ? "pass" : "fail",
+  expected_targets: EXPECTED_FUNCTIONS, // declared above, before the walk
+  discovered_targets: local.length,     // directories actually found
+  attempted_targets: local.length,      // every one is attempted
+  completed_targets: compared,          // those that reached a timestamp comparison
+  skipped_targets: 0,
+  assertions_executed: compared * 2 + 2, // a freshness and a dirt question each, plus the canary
+  min_assertions: 60,
+  failures,
+  artifacts: ["scripts/check-deployed.mjs"],
+  warnings: BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : [],
+  dimensions: {
+    project: SUPABASE_PROJECT_REF,
+    method: "deploy timestamp against the last commit touching the function and its shared modules",
+    note: "TIMESTAMPS, NOT CONTENT. deployed-inventory.mjs answers the content question; "
+      + "this one cannot tell a missed deploy from the ordinary deploy-then-commit order.",
+  },
+  canary: {
+    id: "a commit dated a year after its deploy must read STALE",
+    observed_failure: canaryCaught,
+    caught_by: canaryCaught ? ["freshness"] : [],
+    findings: canaryCaught
+      ? ["[freshness] a source commit dated after its deploy was reported stale, so the "
+        + "comparison that produces every 'current' above can actually fail"]
+      : ["[freshness] NOT CAUGHT — a commit a year newer than its deploy read as current, "
+        + "so every 'current' above is a verdict this run could not have made"],
+  },
+});
+console.log(`Receipt ${receiptPath}`);
+process.exit(failures.length === 0 && canaryCaught ? 0 : 1);
