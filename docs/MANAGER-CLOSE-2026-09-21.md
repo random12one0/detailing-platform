@@ -200,9 +200,97 @@ no delay setting** and is Andrew's GitHub notification config, not ours.
 
 ---
 
-## 4. Publishing order — unchanged, and still Andrew's
+## 4. Publishing — THE FREEZE IS LIFTED, 2026-09-21, and here are his words
 
-22 of 39 edge functions are running code older than the repo. When he says go:
+**Recorded as what he said rather than as permission granted, so the next
+session can check it the way this one did instead of inheriting it.** Asked
+this morning whether to publish:
+
+> *"the publish thing, yeah, sure, you could publish now, and yeah, you could
+> change the order."*
+
+**That is the whole of what was lifted.** Still standing, unchanged and his:
+**no push, no credentials, no writes to `adtlnvihwrcqcasqcjwd`, and the
+payment webhook last and alone.**
+
+**A session asked for this before acting, and that was right.** The written
+rule in § 8 and in `CLAUDE.md` says publishing is Andrew's own press, and a
+manager's summary is not a substitute for it. `FOR-ANDREW.md:287` still
+carried an open `DECIDE` box for the publish order at the moment the freeze
+lifted, which is exactly how a stale document looks when a live decision has
+overtaken it.
+
+### THE SHARED MODULES RIDE ALONG — established from the tooling, not assumed
+
+**`_shared` cannot be deployed on its own and is not a stage.**
+`scripts/deploy-functions.mjs:102` excludes it from the deployable list
+entirely. Each deploy uploads that function's `index.ts` with `../_shared/`
+rewritten to `./_shared/`, **plus every file in the whole `_shared` tree** —
+`sharedFiles` is computed once, above the loop, and all **33** files are
+appended to every function.
+
+**So each function carries the entire shared tree as it stands on disk at the
+moment that function is deployed.** Two consequences, and they are the whole
+of the ordering question:
+
+- **Every stage carries an identical copy, provided the tree does not move
+  mid-publish.** Verified by hashing it before the first deploy —
+  **`3044bdf2b590828b`, 33 files** — and re-checking before each stage. If it
+  moves, later stages ship a different shared copy than earlier ones and the
+  estate splits silently. That is the real hazard, and it is live: another
+  session committed to `_shared` twice on the morning of the 21st.
+- **The estate is split until the last stage lands, and that is inherent.**
+  `_shared/emailTemplates.ts` is imported by **16** functions; a function
+  keeps its old copy until it is itself redeployed. Not a fault — a property
+  of per-function deploys, written down so nobody reports it as one.
+
+### The order, re-cut against 33 — the count moved because we moved it
+
+22 of 39 was the figure when this was written; 24 the night of the 20th; **33
+of 39 at the moment publishing began**, because last night's own commits
+changed the checkout, not the deployments. **Use what `deployed-inventory`
+says when you start, never what a document says.**
+
+### THE PUBLISHING LOG — what actually went out, in order
+
+| stage | what | result |
+|---|---|---|
+| **0 · before** | `deployed-inventory` | **33 of 39 differing, 6 matching.** Receipt committed at `3b9f4d5` as the before |
+| **1 · Spanish email labels** | **`send-invoice` only**, version **70** | **GREEN.** Predicted 32 differing / 7 matching before running; measured **32 / 7**, `send-invoice` moved to matching. `check-deployed` agrees — it is absent from that run's 35 stale names |
+| **2** | **STOPPED — see below** | not started |
+
+**Stage 1 was ONE function, and that is worth knowing before anyone reads
+"Spanish emails" as a group.** The change (`b509671`) touched
+`_shared/emailTemplates.ts`, `_shared/strings/es.ts` and **one** function,
+`send-invoice`. The two shared files ride along with every later deploy, so
+the other **15** importers of `emailTemplates.ts` keep their old copy until
+they are themselves redeployed.
+
+### STAGE 2 NAMES A THING THAT DOES NOT EXIST, AND THE REAL ONE MAY BE STAGE 5
+
+**`card-declined` is not a function.** There is no such directory in
+`supabase/functions/`, and the string appears in exactly two places in the
+whole repository — `FOR-ANDREW.md:291` and **line 257 of this file**. Two
+documents have been carrying a publishing instruction naming something that
+has never existed in code.
+
+**And the reason that matters is not the name.** Tracing what a declined card
+actually touches:
+
+- `_shared/emailTemplates.ts:1303` holds the declined-card amount.
+- **`stripe-webhook/index.ts` is the function that fires on a failed
+  charge** — `invoice.payment_failed`, and the `failure_message` a person
+  reads. **That is the payment webhook: stage 5, last and alone.**
+- `platform-billing/index.ts:133` separately renders *"your card was
+  declined"* for the platform's own billing of detailers.
+
+**So stage 2 as written would either pull a piece of the payment webhook
+forward out of its ruling, or it means `platform-billing` and has always
+been written down under the wrong name.** Not guessed at here. Stopped and
+handed back, because the one thing the publishing order exists to prevent is
+the money path moving early.
+
+When he says go:
 
 1. **Spanish emails** — labels only, lowest risk.
 2. **card-declined + report-a-problem** — both currently running against parts

@@ -1,9 +1,11 @@
 {
-  "git_sha": "85857014f8244ecd38fcd64031a323d9fde51143",
+  "git_sha": "5fe5eff3987433902bdaa1ee35bddc0228d4d4b9",
+  "git_sha_started": "5fe5eff3987433902bdaa1ee35bddc0228d4d4b9",
+  "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-21T08:44:05.969Z",
+  "finished_at": "2026-09-21T16:50:24.599Z",
   "failures": [
-    "STALE (source newer than what is running): accept-invite, accept-quote, available-slots, booking-ics, calculate-booking, cancel-booking, connect-account, create-booking, create-business, delete-customer, forecast, get-booking-receipt, invite-user, owner-push-subscribe, owner-push-unsubscribe, pay-booking, plan-link, platform-admin, platform-billing, preview-emails, refresh-weather, report-problem, reschedule-booking, resend-webhook, respond-to-booking, send-campaign, send-email, send-invoice, send-owner-reminders, stripe-webhook, track-visit, translate-content, update-booking, validate-promo-code, verify-domain, watch-jobs"
+    "STALE (source newer than what is running): accept-invite, accept-quote, available-slots, booking-ics, calculate-booking, cancel-booking, connect-account, create-booking, create-business, delete-customer, forecast, get-booking-receipt, invite-user, owner-push-subscribe, owner-push-unsubscribe, pay-booking, plan-link, platform-admin, platform-billing, preview-emails, refresh-weather, report-problem, reschedule-booking, resend-webhook, respond-to-booking, send-campaign, send-email, send-owner-reminders, stripe-webhook, track-visit, translate-content, update-booking, validate-promo-code, verify-domain, watch-jobs"
   ],
   "warnings": [],
   "artifacts": [
@@ -15,7 +17,7 @@
     "note": "TIMESTAMPS, NOT CONTENT. deployed-inventory.mjs answers the content question; this one cannot tell a missed deploy from the ordinary deploy-then-commit order."
   },
   "check_id": "check-deployed",
-  "started_at": "2026-09-21T08:44:00.067Z",
+  "started_at": "2026-09-21T16:50:17.402Z",
   "status": "fail",
   "expected_targets": 39,
   "discovered_targets": 39,
