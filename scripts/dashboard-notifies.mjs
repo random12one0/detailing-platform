@@ -92,6 +92,7 @@
 // always accepts and delivers nowhere (FOR-ANDREW.md). The fixture business and
 // its booking are created and destroyed inside the run.
 
+import { createHash } from "node:crypto";
 import { writeReceipt } from "./receipt.mjs";
 
 const started_at = new Date().toISOString();
@@ -434,6 +435,48 @@ try {
 
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// WHICH VERSION ANSWERED — and the field says what the run SAW, never what it
+// assumed. This check presses the DEPLOYED `update-booking`, and on 2026-09-21
+// `deployed-inventory.mjs` named it among 24 functions not running this
+// checkout. So a green here certifies the function that is LIVE, and for a
+// while nothing said so: the console, the exit code and the receipt were all
+// silent about which code had answered, and every reader supplied the
+// committed source from their own head.
+//
+// **AN ABSENT FIELD READS AS NOTHING TO REPORT, WHICH IS THE SAME LIE IN
+// SMALLER PRINT.** So every path writes the field. If the bundle cannot be
+// identified the field says that, and says why, and the reason is promoted to
+// a warning so it is visible from the summary rather than only from the JSON.
+//
+// It deliberately does NOT claim whether the deployed bundle equals this
+// checkout. That comparison is `deployed-inventory.mjs`'s job, it needs the
+// shared-module assembly and the sanitiser, and a second implementation of it
+// here would be a second thing to keep true. This records an identity.
+const deployedIdentity = async () => {
+  const get = (p) => fetch(`https://api.supabase.com/v1/projects/${REF}/functions/update-booking${p}`,
+    { headers: { Authorization: `Bearer ${TOKEN}` } });
+  try {
+    const metaRes = await get("");
+    if (!metaRes.ok) return `NOT IDENTIFIED — metadata fetch answered ${metaRes.status}`;
+    const meta = await metaRes.json();
+    const when = new Date(Number(meta.updated_at)).toISOString().slice(0, 16).replace("T", " ");
+    const bodyRes = await get("/body");
+    if (!bodyRes.ok) {
+      return `v${meta.version}, deployed ${when}Z — BODY NOT READ, fetch answered ${bodyRes.status}`;
+    }
+    const body = await bodyRes.text();
+    const sha = createHash("sha256").update(body).digest("hex").slice(0, 12);
+    return `v${meta.version}, deployed ${when}Z, body sha256 ${sha}, ${body.length} bytes`;
+  } catch (e) {
+    return `NOT IDENTIFIED — ${e?.message ?? String(e)}`;
+  }
+};
+const deployedVersion = await deployedIdentity();
+if (!/^v\d+.*sha256/.test(deployedVersion)) {
+  warnings.push(`the deployed update-booking could not be fully identified: ${deployedVersion}`);
+}
+
 // Completed counts the declared steps that actually reached a verdict; a step
 // that errored or never ran is not completed, whatever `rows` happens to hold.
 const ran = new Set(rows.filter((r) => r.verdict !== "ERROR").map((r) => r.step));
@@ -496,12 +539,18 @@ const { path } = writeReceipt({
   dimensions: {
     project: REF,
     endpoint: "update-booking",
+    // What answered this run. Never omitted; see `deployedIdentity` above.
+    endpoint_deployed: deployedVersion,
     recipient: SINK,
     steps: rows.map((r) => `${r.step}: ${r.verdict}`),
   },
   canary,
 });
 
+// PRINTED ABOVE THE VERDICT, NOT BELOW IT. A caveat sitting under a number is
+// read by nobody at the moment they are trusting that number.
+console.log(`\nanswered by the DEPLOYED update-booking: ${deployedVersion}`);
+console.log("  (whether that equals this checkout is deployed-inventory.mjs's question, not this one's)");
 console.log(`\n${status.toUpperCase()} — ${rows.length} steps, ${assertions} assertions, `
   + `${failures.length} failure(s). Receipt ${path}`);
 for (const f of failures) console.log("  · " + f);

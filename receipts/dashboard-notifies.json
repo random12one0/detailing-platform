@@ -1,9 +1,9 @@
 {
-  "git_sha": "e0932868fbb26bb17497573e7e5f3587c4558847",
-  "git_sha_started": "e0932868fbb26bb17497573e7e5f3587c4558847",
+  "git_sha": "0a8caafffb2026e8157b5e6b44470bc6d235b6c5",
+  "git_sha_started": "0a8caafffb2026e8157b5e6b44470bc6d235b6c5",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-21T12:56:58.490Z",
+  "finished_at": "2026-09-21T13:11:27.624Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -12,6 +12,7 @@
   "dimensions": {
     "project": "kguqylyzgyzfktkfnhjb",
     "endpoint": "update-booking",
+    "endpoint_deployed": "v59, deployed 2026-09-20 10:02Z, body sha256 f9502c470e54, 6694466 bytes",
     "recipient": "delivered@resend.dev",
     "steps": [
       "a detailer moves the job to another day: ok",
@@ -24,7 +25,7 @@
     ]
   },
   "check_id": "dashboard-notifies",
-  "started_at": "2026-09-21T12:56:05.239Z",
+  "started_at": "2026-09-21T13:10:31.951Z",
   "status": "pass",
   "expected_targets": 7,
   "discovered_targets": 7,

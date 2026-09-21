@@ -1015,10 +1015,87 @@ the run, the console or the receipt says which version answered.
 instruments:** *what is running is not what is committed, and you have to
 look.* Every session that has read `dashboard-notifies`' green and reasoned
 about the committed source was doing the thing ROADMAP 0.6 exists to stop.
-**Not fixed; named.** The cheap version would be to record the deployed
-bundle's identity in `dimensions` so the receipt says which code it measured —
-offered rather than built, because it is a change to a check that has just
-been proved and re-proving it costs the tenant again.
+
+### FIXED RATHER THAN NAMED, AND RE-PROVED — 2026-09-21
+
+**Andrew's manager ruled: fix it.** The reasoning was the same one applied to
+`git_sha` three hours earlier, and it is worth copying out because it settles
+this class of question: **a receipt that IMPLIES what it measured is the fault
+this whole night has been about, and a caveat written next to a number is read
+by nobody at the moment they are trusting that number.** Ten lines that make
+the receipt state what it saw beat a sentence in a document explaining why it
+cannot.
+
+The receipt now carries `dimensions.endpoint_deployed`, and the run prints it
+**above** the verdict rather than below it. On every run this round it read:
+
+```
+v59, deployed 2026-09-20 10:02Z, body sha256 f9502c470e54, 6694466 bytes
+```
+
+**THE FIELD SAYS WHAT THE RUN SAW, NEVER WHAT IT ASSUMED — including when it
+saw nothing.** An absent field reads as nothing to report, which is the same
+lie in smaller print, so every path writes it. **Proved, not reasoned:** a run
+made with a made-up access token wrote
+
+```
+NOT IDENTIFIED — metadata fetch answered 401
+```
+
+into the field *and* promoted it into `warnings`, so it is visible from the
+summary and not only from the JSON. A body fetch that fails after the metadata
+succeeds has its own wording and keeps the version it did learn.
+
+**It deliberately does not claim whether the deployed bundle equals this
+checkout.** That needs the shared-module assembly and the sanitiser, it is
+`deployed-inventory.mjs`'s job, and a second implementation here would be a
+second thing to keep true. This records an identity; the printed line says so.
+
+### THE RE-PROVE: SIX RUNS, ONE FROZEN FILE, NOTHING DIFFERENT
+
+The file was hashed before the first run and after the last —
+`a35417cdd19c1e3b` both times, so all six judged the same bytes. **Every
+sabotage caught exactly as it did on the first proving; nothing came back
+different, and that is stated as a result rather than as reassurance.**
+
+| run | counts | assertions | canary | vs the first proving |
+|---|---|---|---|---|
+| control | `7 7 7 7` | 19 / 15 | caught | **same** — PASS, exit 0 |
+| `--break=skip` | `7 7 6 6` | 16 / 15 | caught | **same** — counts alone |
+| `--break=step` | `7 6 7 6` | 19 / 15 | caught | **same** |
+| `--break=canary` | `7 7 7 7` | 19 / 15 | false | **same** — canary alone, 0 failures |
+| `--break=none` | `7 7 0 0` | 0 / 15 | false | **same** |
+| `--break=none`, junk token | `7 7 0 0` | 0 / 15 | false | **new** — the not-identified path |
+
+**Tenant left as found**, against a baseline taken before the first of the six:
+nine measures identical by `diff`, **0** dangling rows across all 39
+`business_id` tables, `email_sends` still **300** rows total — so the cascade
+removed every row the six runs created — `auth.users` still **44**, and the
+fixture owner still created 2026-09-20, unchanged.
+
+### A STRUCTURAL PROPERTY OF RECEIPTS, FOUND WHILE DECIDING WHAT ORDER TO COMMIT IN
+
+**A receipt is stale the moment it is committed.** `receipt.mjs` compares
+`git_sha` against **HEAD at grading time**, and the commit that carries a
+receipt moves HEAD past the sha that receipt names. Demonstrated rather than
+argued: `receipts/label-guard.json` was run and graded `PASS` at `e0932868`,
+committed in `e96f624`, and an hour later graded
+
+```
+STALE label-guard  every rule passed; receipt is for e0932868, HEAD is 24e3dc5a
+```
+
+having changed in no way whatsoever.
+
+**What follows is not "stale is bad" — this file already agrees stale is not
+broken.** It is narrower and nobody had written it down: **`pass` is only
+reachable in an uncommitted working tree.** A session that clones this repo
+and grades the receipts directory can never see a valid one, however healthy
+every check is, so the grader's headline `N valid` does not mean what a reader
+assumes it means. It is also the shape CLAUDE.md's commit rule reached at its
+fourth version — **an act of recording that changes the thing being
+recorded.** Named, not fixed: what the staleness rule should compare against
+is a design question about `receipt.mjs`, which is not one check's to settle.
 
 **THE DRIFT FIELD FIRED ON ITS FIRST REAL RUN AND WAS ADJUDICATED, NOT
 IGNORED.** The first control reported `HEAD MOVED DURING THIS RUN: started
