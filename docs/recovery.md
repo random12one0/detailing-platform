@@ -104,8 +104,44 @@ part of this page:**
 1. **Nobody has ever restored one of these files.** Not once. The pipeline
    proves a backup was *written*; it proves nothing about a backup being
    *readable*. **An untested backup is a hypothesis.**
-2. **Where the age private key lives is not recorded anywhere in this repo,**
-   and this page will not guess. CI deliberately does not have it — that is
+2. **CORRECTED 2026-09-21 — IT IS RECORDED, TWICE, AND THIS LINE IS WHY
+   NOBODY FOUND IT.** This said *"where the age private key lives is not
+   recorded anywhere in this repo"*. **It is.** `docs/ops/backups.md` § 4
+   ("What it needs, and who has it") and `docs/google-and-backups-2026-09-07.md`
+   § 6 — the setup session's own record — **both say the same thing in the
+   same words: Andrew's password manager, and deliberately nowhere else.**
+   Written 2026-09-07 and 2026-09-08, by the session that built the pipeline.
+
+   **Andrew was asked this morning and said he does not know, that a previous
+   session set it up for him, and that it is not written down anywhere. The
+   third part is wrong, and this page is the reason** — it is the page
+   somebody checks, and it told them to stop looking.
+
+   **WHAT IS STILL NOT KNOWN, AND THE DISTINCTION IS THE WHOLE VALUE OF THIS
+   ENTRY: a record is not a verification.** No session could have put
+   anything into Andrew's password manager; at best it handed him the key and
+   told him to save it. So the repo records **where it was meant to go**, and
+   **nobody has ever confirmed the entry is there.** The two possibilities are
+   *he saved it and has forgotten*, and *he was told to save it and did not* —
+   and only Andrew can tell them apart, by opening his password manager and
+   searching for it. **That is a lookup, not a hunt.**
+
+   **SEARCHED ON HIS MACHINE 2026-09-21 AND CORRECTLY NOT FOUND**, which is
+   the design working rather than a problem: no file named `key.txt`,
+   `*age-key*`, `*agekey*`, `backup-key*`, `*.age`, `identity.txt` or
+   `*.agekey` anywhere under his two user trees to depth 6; **no file anywhere
+   in the profile containing the age secret-key header** (Desktop, Documents,
+   `.config`, `.ssh`, AppData/Roaming, AppData/Local, OneDrive, Pictures,
+   Videos, Music, ProgramData, `.gnupg`, and the whole `D:` working tree);
+   **no checkout of the backups repo**; **no `backup-key.pub` on disk at all**;
+   and **`age` is not installed**. The one header match was this session's own
+   transcript, which contains the string only because the search typed it —
+   *searching for a secret's header writes that header into your own log, and
+   the log then matches the search.*
+
+   **What a session may still not do:** read, write, move or paste that key,
+   or generate a replacement. If it turns out to be lost, re-keying is a
+   decision with money and risk in it and it goes to Andrew. CI deliberately does not have it — that is
    correct design — but *an encrypted backup whose private key cannot be found
    is not a backup*. **This is now the single most load-bearing unknown in 6.1**
    and it is on `FOR-ANDREW.md` as a question for Andrew, not as a task for a
@@ -172,7 +208,13 @@ It covers `public` only — not `auth`, not storage bytes.
 1. **Restore one nightly dump, end to end, into a throwaway target, and write
    down what came back.** This is the whole of the remaining risk and it costs
    nothing but an hour. It cannot start until item 2 is answered.
-2. **Andrew says where the age private key is.** Blocking item 1 completely.
+2. **Andrew opens his password manager and confirms the entry is there.**
+   Blocking item 1 completely. **This is now a two-minute lookup rather than
+   an open question** — the repo has said since 2026-09-07 that it went there
+   (see blocking item 2 above, corrected 2026-09-21). If it is there, this
+   item closes today. **If it is not there, fifteen nightly backups cannot be
+   opened by anyone, including Andrew, and 6.1 stops being a documentation
+   item and becomes a live data-loss finding.**
 3. **A decision about storage bytes** — either accept that job photos are not
    backed up and say so out loud somewhere a detailer can see, or add them.
    Not started, not priced.

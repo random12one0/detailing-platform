@@ -161,6 +161,47 @@ still knows them.
 
 ## Urgent — two minutes when you next open your laptop
 
+- [ ] **DO · Open your password manager and search it for the backup key. You
+  said this morning that you do not know where it is and that it was never
+  written down. It was written down — twice — and I can tell you exactly
+  where it was meant to go.**
+
+  **What this is.** Every night a copy of the whole database is made and
+  locked with a key, so that if something is ever destroyed it can be brought
+  back. The lock is deliberately one-way: the machine that makes the copy
+  **cannot open it**, which is the right way round, because it means a
+  stolen account still cannot read your customers' names and addresses.
+  **The other half of that is that only you can open them.**
+
+  **What is written down.** Two files from the week the backups were built —
+  the setup write-up of 7 September and the operations page of 8 September —
+  both say, in the same words, that the key went into **your password
+  manager, and deliberately nowhere else**. A third file said it was "not
+  recorded anywhere", which is wrong and is almost certainly why nobody ever
+  found it; that has been corrected today.
+
+  **What I checked, so you do not have to.** I searched your machine this
+  morning: both user folders, your desktop, documents, downloads, the hidden
+  config folders, OneDrive, and the whole project drive. **The key is not on
+  this computer**, and that is correct rather than alarming — it is not
+  supposed to be. The backup tool itself is not installed here either.
+
+  **What only you can do:** open your password manager and search it for
+  "backup", "age", or "detailing backup". **Thirty seconds.**
+
+  - **If it is there** — nothing is wrong. Tell a session it exists (not what
+    it says, just that it is there) and the last real gap in the backup story
+    closes this week.
+  - **If it is not there** — then fifteen nightly backups exist as files that
+    **nobody can ever open, including you**, and we need to talk about it
+    before anything else is done. **Do not let anyone make a new key without
+    deciding that with you first** — replacing it is a decision with money
+    and risk in it, and it is yours.
+
+  **Nobody will read that key out, paste it, or copy it anywhere**, including
+  into this file. If you ever need it somewhere, you move it yourself.
+
+
 - [ ] **DO · Decide what happens to the demo logins before your first real
   detailer signs up. You chose to make them guessable. Nobody told you they
   are also published.**
