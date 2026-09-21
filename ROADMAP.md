@@ -3665,6 +3665,69 @@ rather than wording went to Andrew.
   export and deletion appears on every page.
   *A1 P3-09, A2 6.5*
 
+  **AUDITED 2026-09-21, FROM THE CODE. Nothing was reworded — the table is
+  below and the terms are Andrew's.**
+
+  **THIS ENTRY IS HALF DONE ALREADY AND DOES NOT SAY SO.** Both halves it
+  names were fixed on 2026-09-20 under ROADMAP 0.4. *"Close your account by
+  Tell us"* is gone — `legal.js:106` now reads *"the same one button in your
+  own settings… never behind an email to us"*. The build fee and the
+  twelve-month term, which `/pricing` had been stating in public and the terms
+  never mentioned at all, were added the same day. **What is left is one
+  promise, in three places, and it is not a contradiction between two pages
+  — it is three pages disagreeing with the product.**
+
+  **THE THIRD ANSWER IS THE TRUE ONE, EXACTLY AS PREDICTED.**
+
+  | # | `/pricing` says | Terms say | What the code does | Which is true |
+  |---|---|---|---|---|
+  | 1 | *"Your customers, their numbers and your photos are yours. **You export them and go**."* (`PricingPage.jsx:683`) — and the home page's answer to *"what happens to my customers if I cancel"* repeats it | *"you can have a copy of them at any time **by asking**"* (`legal.js:95`) | **Neither.** The only download is `accountantCsv({ jobs, expenses })` — `Money.jsx:445`, `lib/accountant-export.js:107`, whose own comment reads *"Jobs and expenses, nothing more."* **No customer list, no phone numbers, no photos** | **NONE OF THE THREE.** Two sell a button that does not exist; the third offers a manual process that cannot produce customer data either |
+  | 2 | — | **Privacy**, `legal.js:243`: a customer of a detailer should *"ask them. It is their list, and **they can do both from their own dashboard**"* | **Delete: TRUE** — `Clients.jsx:796`, *"Delete for good"*. **Copy: FALSE** — nothing on that screen produces a file, and the app's only CSV builder is the accountant one | **The page is HALF true**, and the half that is false is a promise made to **somebody else's customer** about a button their detailer has not got |
+  | 3 | *"**Unlimited** services, bookings, photos and staff logins"* (`PricingPage.jsx:379`; home `:1101` says the same) | — | `photo-rules.js:76` `roomFor()` refuses an upload once `used_bytes + bytes > cap_bytes`, **per business** | **The page is wrong on one of the four.** Services, bookings and staff logins genuinely are unlimited |
+
+  **ROW 2 IS NEW.** It is in neither audit, not in this entry, and not on
+  Andrew's list. It reached a different audience from the other two: rows 1
+  and 3 are promises to a detailer deciding whether to buy, and row 2 is a
+  promise to that detailer's customer asking for their own data back.
+
+  **AND FIVE THINGS CHECKED THAT ARE NOT CONTRADICTIONS, said rather than
+  left silent — four of the eight places these pages touch turn out to agree.**
+
+  - **Cancelling.** `/pricing` *"One button… no phone call, no email and
+    nobody to talk out of it"*; terms *"one button in your own settings, one
+    confirmation… never behind an email to us"*; the button is
+    `Billing.jsx:896`, *"Cancel my subscription"*. **All three agree.**
+  - **A failed payment.** `/pricing` says *"the site goes offline"*; the terms
+    say *"your booking page goes offline"*. **Different nouns, one mechanism,
+    and both are true** — both surfaces read `get_public_business_profile`,
+    whose closing line is `where b.slug = p_slug and b.status = 'active'`
+    (migration `20260907002100:192`), and the custom-domain variant delegates
+    straight to it (`20260906000000:74`). A suspended business loses the
+    booking page **and** its own website together. **Nothing else in any edge
+    function checks `paused` at all**, which is what makes that one WHERE
+    clause the whole answer.
+  - **The price staying yours.** Terms: *"copied onto your subscription the
+    day you agree and never read again."* The table is deliberately written
+    twice — `landing/pricing.js` and `_shared/platformBilling.ts` — and
+    `tests/landing-pricing.test.mjs` runs both on the same inputs so the page
+    and the checkout cannot diverge.
+  - **The domain.** Both pages say it is in your name and leaves with you, in
+    almost the same words.
+  - **The marketing-email clause survives Andrew's no-marketing ruling.**
+    `legal.js:239` describes an email *a detailer writes and sends from their
+    own Clients list*, which is real — `lib/api.js:126` → `send-campaign`,
+    and `_shared/emailKit.ts:472` records that it refuses to send without a
+    postal address. His ruling retired the **automated** coating-due email,
+    not this. **Not a contradiction, and it would have looked like one.**
+
+  **NOT REWRITTEN, ON PURPOSE.** The terms name Andrew personally and the
+  wording is his. **Row 1 is already ruled** — `docs/MANAGER-CLOSE-2026-09-21.md`
+  § 2: *"Build the customer export. He considers it one button; it is now a
+  build item, not a question."* **Row 3 is already on his list** with both ways
+  out. **Row 2 is the only one nobody has ruled on**, and it is the smallest:
+  one clause on the privacy page currently tells a stranger they can get a
+  copy of their data from a dashboard that cannot produce one.
+
 - [ ] **7.8 — The privacy page omits services that receive customer addresses.**
   It names Supabase, Netlify, Resend, Stripe and Google. The booking address
   search visibly credits **Geoapify** and **OpenStreetMap**, so typed addresses
