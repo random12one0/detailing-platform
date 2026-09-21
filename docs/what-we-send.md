@@ -15,11 +15,18 @@ Where something is uncertain, it says so.
 
 **Email works. Texting does not — not the way you probably think it does.**
 
-The product sends fourteen kinds of email on its own. It sends **no texts at
-all.** What it has instead is a button that opens the messaging app on *your
-phone*, with the message already typed, and you press send yourself. The text
-then comes from your personal number, lands in your personal sent messages,
-and the product never knows it happened.
+**There are seventeen kinds of email.** Thirteen can reach a customer, three
+come to you, and one goes to someone you add to your team. They are all listed
+in the next section; if you count that table, you should get seventeen.
+
+**Most go out by themselves.** Four only ever go because you did something: an
+invoice, a membership link, a team invitation, and a campaign. Those are
+counted too — they are still messages your business sends.
+
+The product sends **no texts at all.** What it has instead is a button that
+opens the messaging app on *your phone*, with the message already typed, and
+you press send yourself. The text then comes from your personal number, lands
+in your personal sent messages, and the product never knows it happened.
 
 That is worth sitting with, because most of the decisions below hang off it.
 A text from your phone is legally *your* message. A text from the platform
@@ -27,12 +34,13 @@ would be *ours*, and a different and much stricter set of rules would apply.
 
 ---
 
-## 2. What the product sends today, by itself
+## 2. What the product sends today
 
-Eleven of these go to your customer. Three go to you. One goes to a new team
-member.
+**Seventeen in total: thirteen to a customer, three to you, one to a team
+member.** Count the rows — the number above is only worth having if it matches
+them.
 
-### To the customer
+### To the customer — thirteen
 
 | What it is | What sets it off | On or off to start with |
 |---|---|---|
@@ -48,8 +56,9 @@ member.
 | **Membership link** | They join or manage a plan | On when it happens |
 | **Membership cancelled** | A plan ends | On when it happens |
 | **"Your maintenance is due"** | A coating or service reaches its due date | **Off** — and this one is different; see below |
+| **A campaign** | Only when you write one and choose who gets it | On when you send it |
 
-### To you
+### To you — three
 
 | What it is | What sets it off | On or off to start with |
 |---|---|---|
@@ -57,9 +66,12 @@ member.
 | **Your own day-before reminder** | Before a job you're doing | **On** |
 | **Still waiting** | A request has sat unanswered | **On** |
 
-### To a team member
+### To a team member — one
 
 **An invitation**, when you add someone to your business.
+
+**That is 13 + 3 + 1 = 17.** The platform's own emails to you about billing
+and system alerts are not in that number, and section 7 says why.
 
 ### The one that is genuinely different
 
@@ -157,10 +169,24 @@ transactional. A polite "time to book again" is still marketing.
 
 | What the rules ask | Where we stand |
 |---|---|
-| **A marketing email must say who sent it and give a real postal address** | Not done. There is no address in any email footer today. You've said you're fine putting yours in |
-| **A marketing email must have a working unsubscribe, honoured promptly** | An unsubscribe mechanism exists in the product. Whether it covers a marketing send properly has not been checked, and I'm not going to claim it does |
+| **A marketing email must say who sent it and give a real postal address** | **Already built, and stricter than the law.** There is a box for your business's postal address on your Business info screen. A campaign **will not send at all** without it — it stops and tells you to go and fill it in. **One of the sixteen businesses on the system has filled it in.** No other email carries an address, and none needs to |
+| **A marketing email must have a working unsubscribe, honoured promptly** | **Built and working, for campaigns.** Every campaign carries a "Stop getting emails like this" link, the date someone opts out is recorded against them, and the next campaign skips them. **One customer out of forty-eight has used it**, so it is not theoretical |
+| **Unsubscribing must not cut off a customer's transactional mail** | **Correct, and deliberate.** Someone who opts out still gets their confirmations, reminders, receipts and cancellations. Opting out of being sold to is not allowed to become a way of not being told when you are arriving |
 | **You must not mislead in the subject line or the sender name** | Nothing in what goes out today looks like a problem |
 | **Transactional email needs none of the above** | This is why the split matters. Every confirmation, reminder and receipt is clean on this point |
+
+**But there is one email on the wrong side of that line, and it is worth
+knowing before you answer question 3 or question 4.**
+
+**"Your maintenance is due" is marketing, and it carries neither.** No
+postal address and no unsubscribe link, and the opt-out list is not consulted
+before it sends — so a customer who has pressed "stop getting emails like
+this" would still receive it. The campaign email has all three; this one was
+built alongside the ordinary reminders and never got them.
+
+**Today that costs nothing, because the email is switched off everywhere and
+there is no way to switch it on.** It matters the moment either of those
+changes, which is exactly what questions 3 and 4 are about.
 
 ### Texting — and this is the strict one
 
@@ -214,9 +240,10 @@ That doesn't decide whether you want marketing email — it just means you can.
 
 | Option | What it costs you |
 |---|---|
-| **Still none** | Nothing to do. The rules above stay irrelevant |
-| **Only "your maintenance is due"** | One message, to people who bought a coating from you. Needs the address and unsubscribe sorted |
-| **Proper campaigns** | There is already a way to send one. Needs address, unsubscribe, and someone deciding who is on the list and why |
+| **Still none** | Nothing to do. The rules stay irrelevant |
+| **Campaigns** | **Almost nothing to build — this is the surprise.** The address box, the refusal to send without it, the unsubscribe link and the skip-list are all already there and working. The cost is **filling in your postal address once**, and deciding who goes on a list and why |
+| **Only "your maintenance is due"** | **More work than campaigns, not less.** That email has no address, no unsubscribe link, and does not check the opt-out list. All three would have to be added to it before it could go to anybody |
+| **Both** | The two above, together |
 
 ### Question 4 — Should a detailer be able to switch the maintenance email on?
 
@@ -228,8 +255,8 @@ gone with it.**
 | Option | What it costs you |
 |---|---|
 | **Leave it hidden** | Nobody sends it, including you. The message may as well not exist |
-| **Add a switch, off by default** | Small piece of work. Anyone who turns it on is choosing to, which is what makes the address and unsubscribe questions theirs as well as yours |
-| **Add a switch and turn it on** | Sends a sales email by default from people who never asked to — which is exactly the situation that was just fixed |
+| **Add a switch, off by default** | Small on its own — but see section 5: that email has no address, no unsubscribe and does not check the opt-out list, so the switch should not be reachable until those exist. The real cost is those three, not the switch |
+| **Add a switch and turn it on** | Sends a sales email by default from people who never asked to, which is exactly the situation that was just fixed — and today it would go out with no way to stop it |
 
 ### Question 5 — Who is the sender?
 
