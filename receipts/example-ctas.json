@@ -1,7 +1,9 @@
 {
-  "git_sha": "2a10b86d811d5a5929c629b2b24de47e9dba8e2e",
+  "git_sha": "d34795f10dc7fa4c7b94cbdad7aa2d7b684ca940",
+  "git_sha_started": "d34795f10dc7fa4c7b94cbdad7aa2d7b684ca940",
+  "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-20T06:56:17.964Z",
+  "finished_at": "2026-09-21T12:19:20.653Z",
   "failures": [],
   "warnings": [
     "ex5/ 1440x900 \"Book the canary\" — pageerror: canary",
@@ -35,14 +37,14 @@
     "sabotage": null
   },
   "check_id": "example-ctas",
-  "started_at": "2026-09-20T06:53:08.690Z",
+  "started_at": "2026-09-21T12:16:24.032Z",
   "status": "pass",
   "expected_targets": 51,
   "discovered_targets": 51,
   "attempted_targets": 51,
   "completed_targets": 51,
   "skipped_targets": 0,
-  "assertions_executed": 317,
+  "assertions_executed": 477,
   "min_assertions": 300,
   "canary": {
     "id": "three-injected-ctas",

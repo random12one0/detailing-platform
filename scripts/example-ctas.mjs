@@ -156,6 +156,25 @@ const EXPECTED = {
 // predicate coupled to any one of them is a predicate that sees one site.
 const CTA_WORDS = /\b(book|reserve|schedule|get a quote|get a price|get started)\b/i;
 
+// **WHAT EACH SITE IS EXPECTED TO CONTRIBUTE, DECLARED ABOVE THE RUN.**
+// ROADMAP 2.5 states three of these five outright — *"ex3 passes (13
+// controls, 13 options, 13 matches)"* and *"ex2 and ex5 contribute zero
+// controls"* — so they are the spec's numbers, not this run's.
+//
+// **THE WEAKNESS, WRITTEN DOWN RATHER THAN HIDDEN:** the spec gives no figure
+// for `ex1` or `ex4` (*"ex1 passes"*, *"ex4 passes on 1-3"*), so those two
+// came from the first measurement, the same shape as `restore-drill`'s
+// `EXPECTED_TABLES`. What makes them a floor rather than a mirror is that
+// they are committed constants compared every run: a site that loses a
+// service-naming control fails here until a person re-derives the number and
+// says which control went. Moving one to make a run pass is the failure this
+// whole file exists to catch.
+const EXPECTED_NAMING = { ex1: 6, ex2: 0, ex3: 13, ex4: 3, ex5: 0 };
+
+const totalUnmeasured = new Set();
+let namingTotal = 0;
+const namingBySite = new Map();
+
 const CANARIES = [
   { id: "canary · dead target", page: "ex3/", detector: "reach",
     html: '<a href="#no-such-anchor-at-all" data-canary="dead">Book the canary</a>' },
@@ -226,14 +245,62 @@ const discover = (page) => page.evaluate((src) => {
       if (/^(mailto:|tel:|https?:\/\/)/i.test(href)) return false;
       return re.test((a.textContent || "").replace(/\s+/g, " ").trim());
     })
-    .map((a) => ({
-      n: a.getAttribute("data-cta-n"),
-      text: (a.textContent || "").replace(/\s+/g, " ").trim().slice(0, 40),
-      href: a.getAttribute("href"),
-      wants: a.getAttribute("data-book") || a.getAttribute("data-pick") || null,
-      canary: a.getAttribute("data-canary") || null,
-    }));
+    .map((a) => {
+      // THE CARD THIS CONTROL SITS IN — read behaviourally, because the four
+      // sites wrap a service four ways. `article` covers ex3's `.pack` and
+      // ex4's; `li`/`.card`/`section` are the fallbacks. Only ever used for a
+      // control that names a service, so a generic CTA cannot drag a whole
+      // `<section>` in and be judged against it.
+      const card = a.closest("article, .pack, .card, li, section");
+      const heading = card && card.querySelector("h1, h2, h3, h4");
+      const cardPrice = card && (card.textContent.match(/\$\s*[\d,]+/) || [null])[0];
+      return {
+        n: a.getAttribute("data-cta-n"),
+        text: (a.textContent || "").replace(/\s+/g, " ").trim().slice(0, 40),
+        href: a.getAttribute("href"),
+        // THREE SHAPES, MATCHED ON BEHAVIOUR — ROADMAP 2.5's spec, and the
+        // reason it is written there: a scan for `data-book` alone reported
+        // ex4 as having no mechanism when it had one, working, on `data-pick`.
+        // `?svc=` in the href is ex1's cross-page form.
+        wants: a.getAttribute("data-book") || a.getAttribute("data-pick")
+          || (a.getAttribute("href") || "").match(/[?&]svc=([^&#]+)/)?.[1] || null,
+        cardName: heading ? heading.textContent.replace(/\s+/g, " ").trim() : null,
+        cardPrice: cardPrice ? cardPrice.replace(/\s+/g, "") : null,
+        canary: a.getAttribute("data-canary") || null,
+      };
+    });
 }, CTA_WORDS.source);
+
+// ---------------------------------------------------------------------------
+// DOES THIS CONTROL OFFER TO BOOK A **NAMED** SERVICE? — ROADMAP 2.5
+// ---------------------------------------------------------------------------
+// **THE CLAUSE THIS TURNS ON IS THAT `ex2` AND `ex5` MUST COME OUT AT ZERO.**
+// Both carry "Book a detail", and ex5 also carries "Book a coating" — generic
+// offers, naming no service, with nothing to carry. A predicate that counts
+// them reports two correct sites as broken.
+//
+// **AND EQUALITY IS WHAT MAKES THAT WORK, NOT A SUBSTRING.** Measured before
+// this was written: ex5's widget has an option literally called
+// **"Ceramic coating"**, so `"coating"` is a substring of a real option and a
+// loose match would count that control and put ex5 at 1. The spec says zero.
+// Equality gives zero. *This is the whole difference between the item being
+// closed and the item being reopened by the next person who reads the number.*
+//
+// Three ways in, all of them behavioural:
+//   1. it carries an identifier — `data-book`, `data-pick`, or `?svc=`
+//   2. its text is `Book <X>` / `Book a <X>` and `<X>` EQUALS an option name
+//   3. its text is `Book this` and its CARD's heading EQUALS an option name
+const eq = (a, b) => !!a && !!b
+  && String(a).replace(/\s+/g, " ").trim().toLowerCase() === String(b).replace(/\s+/g, " ").trim().toLowerCase();
+
+function namesAService(cta, optionNames) {
+  if (cta.wants) return "identifier";
+  const t = (cta.text || "").replace(/\s*[→>-]+\s*$/, "").trim();
+  if (/^book\s+this$/i.test(t) && optionNames.some((n) => eq(n, cta.cardName))) return "card";
+  const m = /^book\s+(?:a\s+|an\s+|the\s+)?(.+)$/i.exec(t);
+  if (m && optionNames.some((n) => eq(n, m[1]))) return "text";
+  return null;
+}
 
 /** Is the booking widget on screen? POLLED, because three sites scroll smooth
  *  and asking once immediately after the click measures the page the customer
@@ -255,13 +322,70 @@ const widgetInView = async (page, ms = 2500) => {
   }
 };
 
+// ---------------------------------------------------------------------------
+// THE FOUR SABOTAGES ROADMAP 2.5 ASKS FOR, AND THEY PLANT A DEFECT RATHER
+// THAN BLINDING A DETECTOR
+// ---------------------------------------------------------------------------
+// The `--break=` switches above this line turn a detector OFF and check that
+// its canary survives. These four do the opposite: they put a real fault into
+// a real page and require the check to NAME it. **Each must produce exactly
+// its own kind of finding and no other** — which is why assertion 4 compares
+// `.bk-total` against the widget option's price rather than the card's, and
+// why the chain stops at the first break.
+//
+// ONE FIXED TARGET, not "the first control the run meets": the same control
+// at both viewports, reproducible by anyone, for ever. It is the control the
+// item was opened for — "Book this" under Interior Refreshment, $200, on
+// `/ex3/prices`, which shipped selecting the $500 Signature Detail.
+const SABOTAGE_PAGE = "ex3/prices.html";
+const SABOTAGE_ID = "interior-refreshment";
+const PLANTS = {
+  carry: "strips the identifier — expect `carry`, a control naming a service with nothing to carry",
+  resolve: "points it at a service the widget lacks — expect `resolve`",
+  price: "edits the card's printed price — expect `price`",
+  total: "freezes .bk-total after the press — expect `total`",
+};
+
+async function sabotage(page, key) {
+  if (!PLANTS[BREAK] || key !== SABOTAGE_PAGE) return;
+  await page.evaluate(([id, what]) => {
+    const a = document.querySelector(`[data-book="${id}"]`);
+    if (!a) return;
+    if (what === "carry") a.removeAttribute("data-book");
+    if (what === "resolve") a.setAttribute("data-book", "no-such-service-anywhere");
+    if (what === "price") {
+      const card = a.closest("article, .pack, .card, li, section");
+      const el = card && card.querySelector(".price");
+      if (el) el.innerHTML = el.innerHTML.replace(/\d[\d,]*/, "999");
+    }
+  }, [SABOTAGE_ID, BREAK]);
+}
+
 /** One control, at one viewport. Returns whether it could be pressed at all,
  *  and what went wrong if it could. */
-async function tryOne({ ctx, vp }, url, key, cta) {
+async function tryOne({ ctx, vp }, url, key, cta, optionNames = []) {
+  // **IS THE CARD THIS CONTROL SITS IN A *SERVICE* CARD?** — added after the
+  // first run of the name/price assertions produced THREE FALSE FINDINGS, and
+  // this is ROADMAP 2.5's own lesson arriving one level down.
+  //
+  // `ex1/work.html` is a GALLERY. Its cards are past jobs — "1989 Mercedes
+  // 300E", "$299" is what that job cost — and the CTA on each one says
+  // "Book a Full Detail" and carries `?svc=full`, correctly. Comparing a
+  // service option against a car's model name and a past invoice reported
+  // three working controls as broken.
+  //
+  // The precondition is exact and behavioural: the card's heading must equal
+  // one of the widget's own option names. It is NOT tautological — it says
+  // "this card is selling a service", and the assertion that follows says
+  // "and the identifier resolves to THAT service rather than another one",
+  // which is exactly the defect on `/ex3/prices`: card Interior Refreshment,
+  // widget Signature Detail.
+  const serviceCard = optionNames.some((n) => eq(n, cta.cardName));
   const page = await ctx.newPage();
   const errs = watch(page);
   await page.goto(url, { waitUntil: "domcontentloaded" });
   await injectCanary(page, key);
+  await sabotage(page, key);
   await page.evaluate(NUMBER);
 
   // TWO SCROLL STATES, BECAUSE A STICKY NAV IS NOT A DEAD BUTTON.
@@ -303,15 +427,123 @@ async function tryOne({ ctx, vp }, url, key, cta) {
     problems.push("inview: the widget is on the page but not on screen");
   }
 
+  // ---------------------------------------------------------------------
+  // THE FOUR ASSERTIONS ROADMAP 2.5 ASKS FOR — 2026-09-21
+  // ---------------------------------------------------------------------
+  // The item's *Done when* is that this check asserts the matching service
+  // NAME and PRICE in booking. Everything above proves the press LANDS
+  // somewhere with a widget; none of it proves the widget then shows the
+  // thing the customer pressed on. On `/ex3/prices` that gap was the defect:
+  // "Book this" under the $200 Interior Refreshment left the $500 Signature
+  // Detail selected, and every check in this repo said the page was fine.
+  //
+  // **ONE ROOT CAUSE, ONE FINDING.** If the identifier resolves to nothing,
+  // the selection, the name, the price and the total are all consequences of
+  // that, and printing five lines for one fault is what sends the next
+  // session debugging the wrong half. So the chain stops at the first break.
+  const measured = { resolve: null, name: null, price: null, total: null };
+  if (BREAK === "total" && key === SABOTAGE_PAGE && cta.wants === SABOTAGE_ID) {
+    await page.evaluate(() => {
+      const t = document.querySelector(".bk-total");
+      if (t) t.textContent = "$1";
+    });
+  }
   if (cta.wants) {
     assertions++;
-    const picked = await page.evaluate(() => {
-      const el = document.querySelector('input[name="svc"]:checked');
-      return el ? el.value : null;
-    });
-    if (BREAK !== "select" && picked !== cta.wants) {
-      problems.push(`select: asked for "${cta.wants}", widget has "${picked}"`);
+    const opt = await page.evaluate((v) => {
+      const all = [].slice.call(document.querySelectorAll('input[name="svc"]'));
+      const hits = all.filter((i) => i.value === v);
+      const checked = document.querySelector('input[name="svc"]:checked');
+      const totalEl = document.querySelector(".bk-total");
+      const out = {
+        options: all.length, hits: hits.length,
+        picked: checked ? checked.value : null,
+        total: totalEl ? (totalEl.textContent.match(/\$\s*[\d,]+/) || [null])[0] : null,
+        name: null, price: null,
+      };
+      if (hits.length === 1) {
+        const lab = hits[0].closest("label") || hits[0].parentElement;
+        const b = lab && lab.querySelector("b");
+        const em = lab && lab.querySelector("em");
+        out.name = b ? b.textContent.replace(/\s+/g, " ").trim() : null;
+        out.price = em ? (em.textContent.match(/\$\s*[\d,]+/) || [null])[0] : null;
+      }
+      return out;
+    }, cta.wants);
+    if (opt.total) opt.total = opt.total.replace(/\s+/g, "");
+    if (opt.price) opt.price = opt.price.replace(/\s+/g, "");
+
+    // 1 · THE IDENTIFIER RESOLVES.
+    if (BREAK !== "resolve-off" && opt.hits !== 1) {
+      problems.push(`resolve: "${cta.wants}" matches ${opt.hits} of ${opt.options} widget option(s)`
+        + " — the press selects nothing and the default stands, which looks fixed and behaves"
+        + " identically to carrying no identifier at all");
+      measured.resolve = false;
+    } else {
+      measured.resolve = true;
+      // The original 2.4 assertion, and it is a CONSEQUENCE of the above, so
+      // it only speaks once the identifier is known to resolve.
+      assertions++;
+      if (BREAK !== "select" && opt.picked !== cta.wants) {
+        problems.push(`select: asked for "${cta.wants}", widget has "${opt.picked}"`);
+      } else {
+        // 2 · THE NAME MATCHES the service named on the card it was pressed
+        //     from. Unmeasured rather than failed when the card carries no
+        //     heading — this repo's parsers have only ever failed by
+        //     inventing findings out of correct pages.
+        if (serviceCard && opt.name) {
+          assertions++;
+          measured.name = eq(opt.name, cta.cardName);
+          if (BREAK !== "name-off" && !measured.name) {
+            problems.push(`name: the card says "${cta.cardName}", the widget option says "${opt.name}"`);
+          }
+        }
+        // 3 · THE PRICE MATCHES the price printed on that card.
+        if (serviceCard && cta.cardPrice && opt.price) {
+          assertions++;
+          measured.price = cta.cardPrice === opt.price;
+          if (BREAK !== "price-off" && !measured.price) {
+            problems.push(`price: the card prints ${cta.cardPrice}, the widget option prints ${opt.price}`);
+          }
+        }
+        // 4 · THE TOTAL FOLLOWS. Compared against the OPTION's price, not the
+        //     card's, deliberately: against the card's, a wrong card price
+        //     would report TWO findings for one fault and neither sabotage
+        //     below could be told from the other.
+        if (opt.price) {
+          if (opt.total === null) {
+            // **ROADMAP 2.5 PREDICTS THIS AND NAMES THE SITE:** "ex4 passes on
+            // 1-3 and is unmeasured on 4 unless it has a total." A widget with
+            // no `.bk-total` cannot answer assertion 4, and saying nothing
+            // would leave those controls reading as four-for-four.
+            // ONE ENTRY PER CONTROL, NOT PER VIEWPORT. The first version
+            // pushed from inside `tryOne`, which runs twice, and reported
+            // **18** over a list of **9** — a summary number counting
+            // something its own list does not show, which is the opening
+            // test of `docs/silences.md`, committed inside a check built to
+            // that document's standard.
+            totalUnmeasured.add(`${key} "${cta.text}"`);
+            measured.total = "unmeasured";
+          } else {
+            assertions++;
+            measured.total = opt.total === opt.price;
+            if (BREAK !== "total-off" && measured.total !== true) {
+              problems.push(`total: the option prints ${opt.price}, .bk-total prints ${opt.total}`);
+            }
+          }
+        }
+      }
     }
+  } else if (cta.names) {
+    // **NO IDENTIFIER AT ALL — the defect ROADMAP 2.5 was opened for.**
+    // `<a href="#book">Book this</a>` under a named, priced card. The press
+    // lands on the widget and leaves whatever was `checked` selected. It
+    // reaches, it does not throw, and every other assertion in this file
+    // passes it.
+    assertions++;
+    problems.push(`carry: this control offers to book "${cta.cardName ?? cta.text}"`
+      + " and carries no service identifier — no data-book, no data-pick, no ?svc=."
+      + " The press lands on the widget and leaves the default selected.");
   }
 
   assertions++;
@@ -335,8 +567,26 @@ for (const site of SITES) {
     watch(probe);
     await probe.goto(url, { waitUntil: "domcontentloaded" });
     await injectCanary(probe, key);
+    // **THE PROBE HAS TO SEE THE SABOTAGE TOO, and the first version did not.**
+    // The plants were applied in `tryOne` only, so discovery read the CLEAN
+    // DOM: `--break=carry` still captured the identifier it had just removed,
+    // `--break=resolve` captured the good one, and `--break=price` captured
+    // the real price and passed with zero failures. All three then reported
+    // `select` — one detector standing in for three, which is a check that
+    // cannot tell its own sabotages apart.
+    await sabotage(probe, key);
     await probe.evaluate(NUMBER);
     const ctas = await discover(probe);
+    // The widget's option NAMES, read from this page, so "Book a Full Detail"
+    // can be told from "Book a detail" by asking the product rather than by
+    // guessing which words are service-shaped.
+    const optionNames = await probe.evaluate(() =>
+      [].slice.call(document.querySelectorAll('input[name="svc"]')).map((i) => {
+        const lab = i.closest("label") || i.parentElement;
+        const b = lab && lab.querySelector("b");
+        return b ? b.textContent.replace(/\s+/g, " ").trim() : i.value;
+      }));
+    for (const c of ctas) c.names = c.canary ? null : namesAService(c, optionNames);
     await probe.close();
 
     const real = ctas.filter((c) => !c.canary);
@@ -346,14 +596,34 @@ for (const site of SITES) {
     if (want === undefined) failures.push(`${key}: no expected count — a page nobody approved`);
     else if (real.length !== want) failures.push(`${key}: expected ${want} booking CTAs, discovered ${real.length}`);
 
-    console.log(`\n${key.padEnd(18)} ${String(real.length).padStart(2)} CTAs`
+    // **THE SERVICE-NAMING COUNT, AND ZERO IS PRINTED RATHER THAN PASSED
+    // SILENTLY** - this clause IS ROADMAP 2.5's remaining item.
+    // "A site with no service-naming controls is not a site that passed."
+    // `ex2` and `ex5` genuinely have none - they offer "Book a detail" and
+    // "Book a coating", which name nothing and have nothing to carry. Those
+    // pages must come out at `0 naming` and SAY so, because a page that
+    // silently contributes nothing to the subject of a check is the exact
+    // shape this repo keeps shipping: a clean line over an unmeasured screen.
+    const naming = real.filter((c) => c.names);
+    namingTotal += naming.length;
+    namingBySite.set(site.slug, (namingBySite.get(site.slug) ?? 0) + naming.length);
+    console.log(`\n${key.padEnd(18)} ${String(real.length).padStart(2)} CTAs, ${String(naming.length).padStart(2)} naming a service`
       + (ctas.length > real.length ? " + canary" : ""));
+    // **IN THOSE WORDS, because the spec asks for those words.** "0 naming a
+    // service" beside a row of green is still a row of green. `0 controls`
+    // with the reason after it is a sentence a person scrolling past cannot
+    // mistake for a pass.
+    if (naming.length === 0) {
+      console.log(`${" ".repeat(18)}  0 controls — nothing here offers a NAMED service, so this page `
+        + "is UNMEASURED for 2.5 rather than passed. A site with no service-naming controls is "
+        + "not a site that passed.");
+    }
 
     for (const cta of ctas) {
       if (!cta.canary) attempted++;
 
       const seen = [];
-      for (const c of CTXS) seen.push(await tryOne(c, url, key, cta));
+      for (const c of CTXS) seen.push(await tryOne(c, url, key, cta, optionNames));
       for (const s of seen) for (const e of s.errs) consoleNoise.push(`${key} ${s.vp} "${cta.text}" — ${e}`);
 
       const usable = seen.filter((s) => s.pressed);
@@ -388,6 +658,38 @@ for (const site of SITES) {
 await browser.close();
 
 // ---------------------------------------------------------------------------
+
+// **ZERO ACROSS THE WHOLE RUN IS A FAILURE, NOT A CLEAN BILL.** Per-site zero
+// is a fact about that site; zero everywhere means the predicate stopped
+// matching and the four assertions above ran against nothing at all.
+if (namingTotal === 0) {
+  failures.push("ZERO SERVICE-NAMING CONTROLS ACROSS ALL FIVE SITES. The name, price and "
+    + "total assertions ran against nothing, so this run proves nothing about 2.5.");
+}
+for (const [slug, want] of Object.entries(EXPECTED_NAMING)) {
+  const got = namingBySite.get(slug) ?? 0;
+  if (got !== want) {
+    failures.push(`${slug}: expected ${want} service-naming control(s), found ${got}`
+      + (want === 0 ? " — this site offers no NAMED service and must stay at zero" : ""));
+  }
+}
+// `.size`, NOT `.length`. It was `.length` for one commit after the container
+// became a Set, so the guard was `undefined` and this whole block silently
+// never ran — the unmeasured controls went unreported and the run still said
+// PASS. Found by looking for a line that should have been there. A container
+// type changed under a guard that was not changed with it.
+if (totalUnmeasured.size) {
+  const sites = [...new Set([...totalUnmeasured].map((t) => t.split("/")[0]))];
+  console.log(`
+assertion 4 (the total follows) UNMEASURED on ${totalUnmeasured.size} control(s) `
+    + `across ${sites.length} site(s) — ${sites.join(", ")}: their widget prints no .bk-total, so `
+    + `there is nothing to compare. NOT a pass on that assertion. ROADMAP 2.5 predicts this for `
+    + `ex4 and does not mention ex1, which has it too.`);
+}
+console.log(`
+service-naming controls: ${namingTotal} - `
+  + [...namingBySite].map(([k, v]) => `${k} ${v}`).join(", ")
+  + (namingTotal ? "" : "  <- nothing was measured"));
 
 const missed = [...canaryCaught].filter(([, caught]) => !caught).map(([id]) => id);
 const canary = {
