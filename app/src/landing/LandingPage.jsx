@@ -1098,7 +1098,10 @@ export default function LandingPage() {
             <li data-rv=""><span className="k">01</span><span>No setup wizard and no migration. You are bookable the same day, and the site is built out with you from there</span></li>
             <li data-rv="" style={{ "--i": 1 }}><span className="k">02</span><span>No commission. A fully booked month costs the same as a slow one</span></li>
             <li data-rv="" style={{ "--i": 2 }}><span className="k">03</span><span>Your customers and their numbers are yours, always</span></li>
-            <li data-rv="" style={{ "--i": 3 }}><span className="k">04</span><span>Unlimited services, bookings and photos</span></li>
+            {/* "photos" removed 2026-09-21 — the real allowance is 10.24 MB
+                 per detailer (1 GB platform total / 100), about 47 photos at the
+                 measured 229 KB each. See PricingPage.jsx for the full note. */}
+            <li data-rv="" style={{ "--i": 3 }}><span className="k">04</span><span>Unlimited services, bookings and staff logins</span></li>
             <li data-rv="" style={{ "--i": 4 }}><span className="k">05</span><span>Cancel any time; your data leaves with you</span></li>
           </ul>
         </section>

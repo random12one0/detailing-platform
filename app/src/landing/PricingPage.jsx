@@ -376,7 +376,22 @@ export default function PricingPage() {
           <ul className="incl" data-rv="" style={{ "--i": 2 }}>
             <li>A site built for you, not a template you fill in at midnight</li>
             <li>The booking page, the calendar, reminders, receipts and invoices</li>
-            <li>Unlimited services, bookings, photos and staff logins</li>
+            {/* **"PHOTOS" CAME OUT OF THIS LIST — 2026-09-21, MEASURED.** A
+                detailer's photo allowance today is `photo_total_bytes()` /
+                `photo_tenant_share()` = **1 GB / 100 = 10.24 MB**, read off
+                the live database, not off a migration. Measured against what
+                a photo actually weighs through this product's own `shrink()`
+                — 1600px, quality 0.8, **229 KB average over six real camera
+                photographs** — that is about **47 photos**, and then uploads
+                stop. The word on this page was "unlimited".
+                **No number replaces it, on purpose.** The 1 GB is Supabase's
+                free tier and is true only until Cloudflare R2 is connected,
+                at which point the honest figure changes — and
+                `20260906011000_photo_share.sql` exists precisely to stop this
+                page promising storage that does not exist yet. The decision
+                about what the real allowance should be is on Andrew's list
+                with the arithmetic attached. */}
+            <li>Unlimited services, bookings and staff logins</li>
             <li>Changes whenever you ask, for as long as you are on it</li>
             <li>No commission. A booked-out month costs the same as a slow one</li>
           </ul>

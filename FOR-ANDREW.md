@@ -293,6 +293,45 @@ still knows them.
 
 ## Waiting on you — nothing breaks while these wait
 
+- [ ] **DECIDE · How much photo storage a detailer gets. Right now it is
+  about forty-seven photos each, and the pricing page said "unlimited". I
+  have taken that word off the page; the number is yours.**
+
+  **What is true today, measured this morning rather than estimated.** The
+  whole platform has **one gigabyte** of photo space — that is Supabase's
+  free allowance, which is what you are on until Cloudflare is connected —
+  and the product divides it by a hundred detailers. So each detailer gets
+  **about ten megabytes**. I put six real car photographs through the
+  product's own resizer and they came out at **229 kilobytes on average**, so
+  ten megabytes is **about forty-seven photos**. After that, uploads stop.
+
+  **The resizing is already working, so that is not the fix.** Photos are
+  shrunk to 1600 pixels on the long edge before they are sent, which took
+  those six photographs from about 1.7 megabytes each down to 229 kilobytes —
+  roughly a tenth. Nothing is being stored at camera size.
+
+  **The recommendation, with the arithmetic.** A working detailer doing two
+  hundred jobs a year at six to twelve photos a job stores **270 to 540
+  megabytes a year**. So:
+
+  | allowance each | how long it lasts | 100 detailers | rough cost |
+  |---|---|---|---|
+  | **10 MB** (today) | **two to four weeks** | 1 GB | free |
+  | 100 MB | three to five months | 10 GB | free on Cloudflare |
+  | **5 GB** (recommended) | **ten to nineteen years** | 500 GB | **about $7.50 a month** |
+
+  **Five gigabytes each is the right answer and I have not set it**, because
+  the space does not exist yet: it needs Cloudflare connected first, and
+  writing the bigger number today would just move the failure from "upload
+  refused" to "upload lost". **That is the one thing the product was
+  deliberately built not to do.**
+
+  **So there are two steps and only the first is yours right now:** connect
+  Cloudflare for photo storage, then a session sets the allowance in one
+  value. If you would rather a different number than five gigabytes, say it
+  and it is a one-line change either way.
+
+
 - [ ] **DECIDE · One of your five example sites opens with a picture taller
   than the screen. Do you want it changed? No recommendation from us on this
   one.**
