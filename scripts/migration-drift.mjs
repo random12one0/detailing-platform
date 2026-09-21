@@ -427,6 +427,7 @@ const tablesAbsent = [];
 const columnsAbsent = [];
 let tablesCompared = 0;
 let colCanaryCaught = false;
+let colBreakFired = false;
 const typeMismatch = [];
 let typeUnjudged = 0;
 
@@ -443,10 +444,19 @@ for (const [t, want] of tableSubjects) {
   const missing = [...want.cols].filter((c) => c !== COL_CANARY && !have.has(c)).sort();
   assertions += want.cols.size;
   if (canaryTable && t === canaryTable[0]) colCanaryCaught = !have.has(COL_CANARY);
-  if (BREAK === "unappliedcol" && missing.length === 0 && want.cols.size > 1) {
+  // ONE TABLE, ONCE — 2026-09-21. This fired on EVERY iteration, so a
+  // sabotage whose own line says "pretending <table>.<column> never arrived"
+  // printed that 52 times and manufactured 52 findings out of a database that
+  // matches the repo exactly. **That is this file's one historical failure
+  // direction — inventing findings out of a correct database** — reintroduced
+  // by the switch built to test for it. A sabotage that fires 52 times does
+  // not prove the check can see one missing column; it proves it can see a
+  // schema that has been carpet-bombed, which nothing was in doubt about.
+  if (BREAK === "unappliedcol" && !colBreakFired && missing.length === 0 && want.cols.size > 1) {
     const victim = [...want.cols].find((c) => c !== COL_CANARY);
     missing.push(victim);
-    console.log(`--break=unappliedcol: pretending ${t}.${victim} never arrived`);
+    colBreakFired = true;
+    console.log(`--break=unappliedcol: pretending ${t}.${victim} never arrived (one column, once)`);
   }
   // Types, for the columns that are present and whose declared type is known.
   for (const c of want.cols) {

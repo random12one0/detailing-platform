@@ -1,9 +1,9 @@
 {
-  "git_sha": "4a84d8028eb9245559deab1cea1d3409b6b826bc",
-  "git_sha_started": "ea3d6dc5f2b4098e90ed12bd1ea84639837b7867",
-  "head_moved": true,
+  "git_sha": "8ae32e4c8d1e1a9868a682afcf19ca5ad98d4035",
+  "git_sha_started": "8ae32e4c8d1e1a9868a682afcf19ca5ad98d4035",
+  "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-21T10:33:06.016Z",
+  "finished_at": "2026-09-21T10:38:15.114Z",
   "failures": [],
   "warnings": [
     "FUNCTIONS ONLY — this cannot see a migration that adds a table, column, policy, grant or index. There is no applied-migrations ledger in this project to compare against: supabase_migrations.schema_migrations does not exist."
@@ -24,7 +24,7 @@
     "drifted": []
   },
   "check_id": "migration-drift",
-  "started_at": "2026-09-21T10:33:04.321Z",
+  "started_at": "2026-09-21T10:38:13.366Z",
   "status": "pass",
   "expected_targets": 101,
   "discovered_targets": 101,
