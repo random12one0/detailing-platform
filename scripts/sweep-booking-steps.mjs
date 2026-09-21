@@ -81,16 +81,14 @@ const SIZES = (args.length ? args : ["1920x1080", "1440x900", "768x1024", "392x8
 //   6 (demo)   over 88px             over 71px
 //   7          over ~198px           over ~171px
 //
-// **THE SPARE FIGURES IN THAT TABLE ARE DERIVED, NOT READ OFF A RUN.** They
-// are this script's own overflow minus one card — 88 - 110 and 71 - 100 — taken
-// from a reading where step 1 was genuinely overflowing, so they are real. The
-// `fits, Npx spare` line this script prints for a step that FITS is a different
-// number and is capped: `.bk-wrap` is `flex-grow: 1` inside a `100dvh` column,
-// so it stretches to fill whatever is left and reports the same ~73-77px
-// however short the step is. Measured 2026-09-20 — riverside step 1, 58px of
-// content, read as -73 at viewport heights 900, 1200 and 740 alike. Failure is
-// unaffected (a step taller than the screen still measures honestly); only the
-// headroom half of the report is. Do not read a printed spare as room to grow.
+// **THE SPARE FIGURES IN THAT TABLE ARE DERIVED, AND SINCE 2026-09-20 THEY ARE
+// ALSO WHAT A RUN WOULD PRINT.** They are this script's own overflow minus one
+// card — 88 - 110 and 71 - 100 — taken from a reading where step 1 was
+// genuinely overflowing. When the printed `spare` was the stretched column's
+// leftover they were a different KIND of number from the one the report showed,
+// and this comment said so. `MEASURE` now sums the column's content, so a
+// 5-service tenant would print these same 22 and 29 — the derivation and the
+// reading agree, and either can check the other.
 //
 // One service card plus its gap is 110px at 1440 and 100px at 392, and
 // `.bk-choices` is a content-driven flex column — `min-height: auto`, no
@@ -121,8 +119,45 @@ const MEASURE = (bound) => {
     const el = document.querySelector(sel);
     return el ? el.getBoundingClientRect().height : 0;
   };
-  const over = Math.round(h(".bk-header") + h(".bk-wrap") - vh);
   const wrap = document.querySelector(".bk-wrap");
+  // **AND NOT `.bk-wrap`'s RECTANGLE EITHER, WHICH IS THE CORRECTION OF
+  // 2026-09-20.** `.bk-wrap` is `flex: 1 0 auto` inside that `100dvh` column
+  // (it became so at 02:34 that morning, in `52a3d70`, when 2.15 put the bar
+  // in the page's flow), so on any step shorter than the screen the COLUMN
+  // STRETCHES TO FILL IT and its rectangle stops being what the step needs.
+  // The figure saturated: riverside step 1, **58px of content, read -73 at
+  // viewport heights 900, 1200 and 740 alike.** `fits, 73px spare` was not
+  // headroom, it was the leftover the flex layout handed back, and a nearly
+  // empty step and a nearly full one printed the same number.
+  // `docs/spare-figures-2026-09-20.md` classifies the 64 figures written
+  // under the old definition; `docs/silences.md` has why no check could see it.
+  //
+  // **THE FAILING DIRECTION CANNOT MOVE, AND THAT IS STRUCTURAL RATHER THAN
+  // HOPED FOR.** `flex: 1 0 auto` grows and NEVER shrinks, so when the content
+  // is taller than the space the rectangle already equals the content — this
+  // sum and the old one are then the same number to the pixel. It is the only
+  // half of this figure anybody has ever been right to trust, and trading a
+  // known wrong number for an unknown one would be worse than leaving it.
+  //
+  // Margin boxes and the row gap, because `.bk-wrap` is a flex column with
+  // `gap` and a child's margin is real height the rectangle does not carry.
+  // `display: contents` is flattened exactly as `blocks` below flattens it:
+  // such a child is not a flex item, its children are.
+  const need = (el) => {
+    if (!el) return 0;
+    const cs = getComputedStyle(el);
+    const items = [...el.children]
+      .flatMap((k) => (getComputedStyle(k).display === "contents" ? [...k.children] : [k]))
+      .filter((k) => k.getBoundingClientRect().height > 0);
+    const content = items.reduce((a, k) => {
+      const ks = getComputedStyle(k);
+      return a + k.getBoundingClientRect().height
+        + (parseFloat(ks.marginTop) || 0) + (parseFloat(ks.marginBottom) || 0);
+    }, 0);
+    const gap = (parseFloat(cs.rowGap) || 0) * Math.max(0, items.length - 1);
+    return (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0) + content + gap;
+  };
+  const over = Math.round(h(".bk-header") + need(wrap) - vh);
   const blocks = [...(wrap ? wrap.children : [])]
     .flatMap((el) => (getComputedStyle(el).display === "contents" ? [...el.children] : [el]))
     .map((el) => ({
