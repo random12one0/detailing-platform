@@ -181,10 +181,10 @@ run produced (`rows.length`), which is a gate following the data.
 
 | script | `expected_targets` | note |
 |---|---|---|
-| `dashboard-notifies.mjs` | `rows.length` | follows the data |
-| `restore-drill.mjs` | `rows.length` | follows the data |
-| `tenant-matrix.mjs` | `rows.length` | follows the data |
-| `deployed-inventory.mjs` | `dirs.length` | structural floor — much weaker fault. **CONFIRMED BY RUNNING 2026-09-21, not by reading: 39/39/39/39 on a full run and 0/0/0/0 on an empty one. Still open — `completed_targets` could be `judged.length`, which the file already computes. See below.** |
+| `dashboard-notifies.mjs` | `rows.length` | follows the data. **NOT TAKEN 2026-09-21 and the reason is not authorisation:** it needs `SUPABASE_SERVICE_ROLE_KEY`, and its method is to press the buttons a detailer presses - it calls `update-booking` and **cancels and moves real bookings in the demo tenant**. It cannot be run while anything else is measuring that tenant. Needs the tenant to itself, like `tenant-matrix.mjs`. |
+| ~~`restore-drill.mjs`~~ | `rows.length` | **CLOSED 2026-09-21, `bf55bb9`.** Was declaring **2 targets** for a drill over the whole `public` schema - `rows.length` counted the STAGES it finished. Now `expected` is a declared `EXPECTED_TABLES = 52`, `discovered`/`attempted`/`completed` are the live tables found, restored and compared back. Zero tables was a `throw` past `writeReceipt` and is now a graded failure. See below. |
+| `tenant-matrix.mjs` | `rows.length` | follows the data. **Still open, and it is the most valuable of the five** - it is the check that proves one detailer cannot see another's customers. It writes to the demo tenant, so it needs that tenant to itself. |
+| ~~`deployed-inventory.mjs`~~ | `dirs.length` | **CLOSED 2026-09-21, `988e7dd`.** Confirmed by running first - 39/39/39/39 full, 0/0/0/0 empty - then `completed_targets` became `judged.length`, which the file already computed. A function walked but never compared is now a gap: **40/40/40/39**. See below. |
 | ~~`example-shots-check.mjs`~~ | `SITES.length` | **CLOSED 2026-09-20 — see below** |
 
 **One of the five is closed, and the choice was constrained — recorded because
@@ -464,6 +464,61 @@ Neither was in the four rulings, and neither is the fixer's to decide.
   `completed_targets`, which could be the number actually fetched and
   compared** — that is `judged.length`, which the file already computes — and
   then the four counts could disagree, which is the entire point of § B.
+
+
+## SECTION B, TWO OF FIVE CLOSED — 2026-09-21
+
+**The fault in one sentence: a gate that declares it expected exactly as many
+things as it happened to find can never find fewer than it expected, so the
+receipt's own rule that the four counts must AGREE can never fire.**
+
+| check | before | after | the break that proved it |
+|---|---|---|---|
+| `deployed-inventory.mjs` `988e7dd` | `39 39 39 39`, all `dirs.length` | `completed_targets` = `judged.length` | one function walked but never compared → **`40 40 40 39`**, and `receipt.mjs`: *"target counts disagree"* |
+| `restore-drill.mjs` `bf55bb9` | `2 2 2 2`, all `rows.length` — **two targets for a drill over 52 tables** | `expected` declared, the rest measured | `--break=fewer` hides one table → **`52 51 51 51`**, named by the run AND by the grader |
+
+**`rows.length` in `restore-drill` was not even the tables.** It was the number
+of report STAGES the script finished — two — so the receipt said a whole-schema
+restore drill had *two targets*. It now judges the live table count against
+`EXPECTED_TABLES = 52`, declared above the run.
+
+**THE ONE WEAKNESS, WRITTEN DOWN RATHER THAN HIDDEN.** 52 came from a
+measurement taken the same day. A first declaration has to come from somewhere,
+and the W16 bound in `sweep-booking-steps.mjs` has the same shape — measured
+subject, declared bound. What makes it a floor rather than a mirror is that it
+is now a **committed constant**: the live count is measured every run and
+judged against it, and a migration that adds or drops a table fails the receipt
+until a person re-derives it **and says which migration**. Moving it to make a
+run pass is the failure this file exists to catch.
+
+**AND ZERO DISCOVERED WAS A CRASH, NOT A FAILURE.** `restore-drill`'s only
+`try` had a `finally` and no `catch`, so the deliberate `throw` for zero tables
+killed the process **before `writeReceipt`** — the one outcome that proves
+nothing at all left **no receipt to grade**, which in the receipts directory is
+indistinguishable from a run that never happened. A `catch` now records it and
+writes the receipt with the counts as far as the run got. Proved with
+`--break=none`: **`52 0 0 0`**, status `fail`, canary `false`, naming *ZERO
+TABLES* and *THE DRILL DID NOT FINISH*. That fix covers every crash in the
+drill, not only this one.
+
+### The two not taken, and neither reason is authorisation
+
+- **`dashboard-notifies.mjs`** needs `SUPABASE_SERVICE_ROLE_KEY`, and its
+  method is *"press the buttons a detailer presses"* — it calls `update-booking`
+  and **cancels and moves real bookings in the demo tenant**, then reads
+  `email_sends`. Running it while anything else measures that tenant moves the
+  surfaces under the other run, which is CLAUDE.md's own warning.
+- **`tenant-matrix.mjs`** writes to the demo tenant for the same reason. **It is
+  the most valuable of the five** — it proves one detailer cannot see another's
+  customers — and it deserves the tenant to itself rather than the tail of a
+  round.
+
+**`restore-drill` was safe to run and it is worth saying why**, because the
+distinction is the whole of the lane rule: it uses the Management API token,
+not a service-role key, and every write goes into a scratch schema
+`restore_drill` which it drops afterwards. It **reads** `public` and never
+modifies it. Verified after the last run: `restore_drill` **GONE**, `public`
+still **52** tables, unchanged.
 
 ## THE SILENCE NO CHECK IN THIS FILE CAN COVER — added 2026-09-20
 
