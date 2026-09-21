@@ -484,7 +484,7 @@ the wrong service, and never book a job we cannot reach.
   for whoever owns that trade-off, not something to build quietly inside a
   "pick your next item" pass.** Left open rather than attempted.
 
-- [ ] **2.2 — The summary lines do not add up to the total.**
+- [x] **DONE 2026-09-20 — 2.2 The summary lines do not add up to the total.**
   **Confirmed mechanism:** `supabase/functions/_shared/pricing.ts:127-128`
   rounds the *total* to a `nearest` setting while each discount line rounds
   separately at lines 270, 475, 506 and 514. A2 saw lines summing to $328 under
@@ -562,19 +562,71 @@ the wrong service, and never book a job we cannot reach.
   discount line now correctly reads as a $30 member discount rather than
   $28 — the rate the rounding setting actually delivered, not the one
   before an unexplained $2 vanished.
-  **NOT TOUCHED, AND NAMED SO NOBODY WONDERS LATER: `StepReview.jsx`'s own
-  client-side fold.** Once this ships, its `gap` will compute to 0 for
-  every booking that has a site or promo discount (the server now hands it
-  already-reconciled numbers) — the client logic doesn't break, it goes
-  dormant, the same shape this session's CSS fix hit tonight with a dead
-  `max-height` rule. Left alone rather than removed: it is still the
-  correct fallback for the no-discount case, and deleting working code on
-  the strength of "it won't fire often now" is not this item's job.
-  **THE FREEZE HOLDS.** This is `supabase/functions/_shared/pricing.ts`, an
-  edge function. Nothing here has been deployed and nothing will be without
-  Andrew's word — the test is the proof because a browser cannot reach code
-  that isn't live. `create-booking`/`calculate-booking` themselves were not
-  edited; both already call the shared function unmodified.
+  **NOT TOUCHED — AND WHETHER IT BECOMES A NO-OP WAS COMPUTED, NOT
+  REASONED ABOUT, ON EXPLICIT INSTRUCTION.** `StepReview.jsx`'s own
+  client-side fold reads server fields and mutates a discount amount for
+  display; the question was whether it now folds a second time onto a
+  quote the server has already reconciled. `StepReview.jsx:47-81`
+  reproduced verbatim in the test file and run against `computeQuote`'s
+  FIXED output, mapped through the exact field names
+  `calculate-booking/index.ts` sends the client, for one scenario per
+  fold-priority branch the server fix can take — promo alone, site alone,
+  site+promo together, a plan/member discount alone, and no discount at
+  all. **Computed result: the client's own `gap` is exactly 0 in every
+  branch where the server folded**, so no mutation fires and no discount is
+  enlarged twice; in the one branch with nothing to fold into on either
+  side, the client's existing sentence fallback fires correctly and
+  non-destructively, exactly as it already did before this fix. Five more
+  passing tests, not an inference — `tests/pricing-lines-sum.test.mjs`,
+  `client fold against fixed server — *`. Left in place rather than
+  removed: it is still the correct fallback for the no-discount case, and
+  deleting working code on the strength of "it won't fire often now" is
+  not this item's job.
+  **ONE REAL SEAM FOUND ALONG THE WAY, NARROW, PRE-DATING TONIGHT, AND NOT
+  FIXED HERE — its own item below, because a 2.2 commit is not where a
+  copy-and-money mismatch that predates this session belongs.** The site
+  discount's own label, when it is the one the fold lands on, states its
+  own percentage — see that item for what that means and why it is
+  separate from the adjacent finding about the member discount's coverage
+  gap, which is the same seam from the other side.
+  **THE FREEZE HOLDS, AND THIS IS NOT IN PRODUCTION.** This is
+  `supabase/functions/_shared/pricing.ts`, an edge function. **The fix is
+  in this repo's checkout, not on anything a customer can reach** —
+  nothing here has been deployed and nothing will be without Andrew's own
+  word to lift the freeze. A reader finding this tick in a week should not
+  believe a customer has seen the corrected total; the unit test is the
+  proof this is right, not proof it is live.
+  `create-booking`/`calculate-booking` themselves were not edited; both
+  already call the shared function unmodified.
+
+- [ ] **A discount label can state a percentage the folded amount does not
+  match — found fixing 2.2, narrow, pre-dating this session, not fixed
+  here.** `StepReview.jsx:57` — when there is no detailer-written sale
+  name, the site discount's own label reads `t("{percent}% off", {percent:
+  quote.site_discount_percent})`. It states its own size. When the site
+  discount is the line a rounding gap folds into (2.2's own fix, or the
+  client's pre-existing patch before it), the DISPLAYED amount next to
+  that label is no longer exactly `percent`% of anything — it is that
+  percentage plus or minus however much the business's rounding setting
+  needed. Same class as every other entry in this product's own copy
+  rules: a line that promises something the number under it cannot keep.
+  **Narrow, because it only fires when the site discount specifically is
+  the last (or only) discount shown and a rounding gap exists to fold** —
+  a promo code's label (`"Promo {code}"`) and a plan's (`"{name} · {what}"`)
+  do not state a size, so neither makes a claim the fold could break.
+  **The adjacent finding from 2.2 belongs here too, the same seam from the
+  other side:** before 2.2, the client's own fold never reached a
+  plan/member discount at all — covering site and promo only — so a
+  member-rate booking with a rounding gap and no other discount showed
+  unreconciled lines with nothing (client or server) to explain the
+  difference. 2.2's server-side fix now reaches the plan line, closing
+  that half; the label-versus-number mismatch above is the half it does
+  not close, because it is a wording question, not an arithmetic one.
+  **Not fixed tonight.** The fix is presumably rounding the label to match
+  the delivered percentage, or stating the discount as its dollar amount
+  rather than a percentage once a rounding setting is active — a wording
+  and product decision, not a named bug with one answer, and not this
+  item's to make.
 
 - [ ] **2.3 — A far-away address is accepted with no travel charge.**
   A San Diego address went through with "Long Beach" selected, no warning and

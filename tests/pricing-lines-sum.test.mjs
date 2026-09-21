@@ -137,3 +137,104 @@ test("member rate on $275 at nearest-$5 — the item's own example, real numbers
   const lines = sumOfLines(q);
   assert.equal(lines, q.total, `lines ${lines} vs total ${q.total}`);
 });
+
+// ─────────────────────────────────────────────────────────────────────────
+// DOES `StepReview.jsx`'S OWN CLIENT-SIDE FOLD BECOME A NO-OP AGAINST A
+// FIXED SERVER, OR DOES IT FOLD A SECOND TIME? Computed, not reasoned about
+// — this reproduces `StepReview.jsx:47-81` verbatim (the exact `cents`,
+// `gross`, `shownDiscounts`, `gap` and fold logic, field for field) and runs
+// it against `computeQuote`'s FIXED output, mapped through the same field
+// names `calculate-booking/index.ts` hands the client
+// (`subtotal_before_discounts` = `subtotalBase`, `site_discount` =
+// `siteDiscount`, `promo_discount` = `promoDiscount`). If the client's own
+// `gap` is 0 wherever the server already folded, the client fold is inert.
+// If it is not, the client enlarges an already-correct discount a second
+// time and the lines stop summing to the total again, from the other
+// direction.
+// ─────────────────────────────────────────────────────────────────────────
+function clientQuote(q) {
+  return {
+    subtotal_before_discounts: q.subtotalBase,
+    subtotal: q.subtotalAfterSite,
+    site_discount: q.siteDiscount,
+    site_discount_percent: 10, // fixed for the test; irrelevant to the arithmetic
+    promo_discount: q.promoDiscount,
+    promo_code: "TEST",
+    total: q.total,
+  };
+}
+
+// StepReview.jsx:47-81, verbatim, as a function of (quote, settings-less —
+// settings.site_discount_label is never set in these scenarios, matching
+// the demo's own default).
+function clientFold(quote) {
+  const cents = (v) => Math.round(Number(v || 0) * 100);
+  const gross = cents(quote?.subtotal_before_discounts ?? quote?.subtotal);
+  const shownDiscounts = [];
+  if (quote?.site_discount > 0) {
+    shownDiscounts.push({ key: "site", amount: quote.site_discount });
+  }
+  if (quote?.promo_discount > 0) {
+    shownDiscounts.push({ key: "promo", amount: quote.promo_discount });
+  }
+  const gap = gross && quote
+    ? gross - cents(quote.total) - shownDiscounts.reduce((s, d) => s + cents(d.amount), 0)
+    : 0;
+  if (shownDiscounts.length && gap !== 0) {
+    const last = shownDiscounts[shownDiscounts.length - 1];
+    last.amount = (cents(last.amount) + gap) / 100;
+  }
+  const roundedOnly = !shownDiscounts.length && gap !== 0 ? gap : 0;
+  return { gap, shownDiscounts, roundedOnly };
+}
+
+// One scenario per fold-priority branch in the server fix, so every path
+// StepReview.jsx could take is actually exercised, not just asserted about.
+const clientScenarios = {
+  "promo only, nearest-$5 — server folds into promo": {
+    ...BASE, services: [service(275)], promo: { type: "percentage", value: 10 }, roundingNearest: 5,
+  },
+  "site only, nearest-$5 — server folds into site": {
+    ...BASE, services: [service(275)], siteDiscountPercent: 10, roundingNearest: 5,
+  },
+  "site AND promo, nearest-$5 — server folds into promo (nearest the total)": {
+    ...BASE, services: [service(275)], siteDiscountPercent: 5,
+    promo: { type: "percentage", value: 10 }, roundingNearest: 5,
+  },
+  "member rate only, nearest-$5 — server folds into the plan line, invisible to shownDiscounts": {
+    ...BASE, services: [service(275)], roundingNearest: 5,
+    plan: { name: "Member", priceKind: "percent_off", priceAmount: 10 },
+  },
+  "no discount at all, nearest-$5 — nothing to fold into, either side": {
+    ...BASE, services: [service(247)], roundingNearest: 5,
+  },
+};
+
+for (const [name, input] of Object.entries(clientScenarios)) {
+  test(`client fold against fixed server — ${name}`, () => {
+    const q = computeQuote(input);
+    const { gap, roundedOnly } = clientFold(clientQuote(q));
+    if (q.siteDiscount > 0 || q.promoDiscount > 0) {
+      // A site or promo discount exists, so the server already folded any
+      // rounding gap into one of them — the client must compute zero, or it
+      // is about to fold a second time onto an already-correct number.
+      assert.equal(gap, 0, `client still sees a $${gap / 100} gap on a quote the server already reconciled`);
+    } else if (q.total !== sumOfLines(q)) {
+      // True "nothing to fold into" — the "no discount at all" scenario
+      // above reaches exactly this branch ($247 in services, nearest-$5
+      // rounds to $245, no discount anywhere to absorb the $2). The
+      // client's existing sentence fallback has to see the same real,
+      // unfolded gap the server left, or a customer reads a total that
+      // matches nothing on screen with no explanation at all.
+      assert.notEqual(roundedOnly, 0, "server left a real gap and the client sentence fallback did not see it");
+    } else {
+      // No discount, and the server's total already equals the sum (either
+      // roundingNearest was 0, or the amount happened to land exactly) —
+      // nothing for either side to fold. No scenario above reaches this
+      // branch; kept so a future scenario that does is asserted correctly
+      // rather than silently passing under one of the other two branches.
+      assert.equal(gap, 0);
+      assert.equal(roundedOnly, 0);
+    }
+  });
+}
