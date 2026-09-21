@@ -1157,7 +1157,10 @@ the wrong service, and never book a job we cannot reach.
   *A1 P0-02*
   </details>
 
-- [ ] **2.5 — One example hands the wrong service into booking.**
+- [ ] **2.5 — FOUR examples hand nothing into booking, and one of them hands
+  over a service list that does not match its own prices.** Title corrected
+  2026-09-21: it said *"One example"* and the count is **ex2, ex3, ex4 and
+  ex5** — `?svc=` reached `ex1` only.
   On `/ex3/prices`, "Book this" under the $200 Interior Refreshment left the
   $500 Signature Detail selected, and Interior Refreshment was not offered at
   all in the embedded flow.
@@ -1167,6 +1170,85 @@ the wrong service, and never book a job we cannot reach.
   **Done when:** the automated CTA check from 2.4 also asserts the matching
   service name and price in booking.
   *A1 P0-03*
+
+  **PRESSED AND DIAGNOSED 2026-09-21. Nothing fixed — the fix is in
+  `docs/tenant-sites/`, which is not this session's lane.**
+
+  **THE ENTRY'S SYMPTOM IS RIGHT. Checked before believing it, because two
+  entries were wrong about their own symptoms tonight — this one holds,
+  exactly as written.** Clicked *"Book this →"* under **Interior Refreshment,
+  $200**, at 320px, on the real page: the booking step showed **Signature
+  Detail, $500**, a running total of **$500**, and **Interior Refreshment was
+  not among the four services offered.**
+
+  **BUT THE TITLE IS WRONG: IT IS NOT ONE EXAMPLE. Counted across all five.**
+
+  | Site | Service cards | Where they point | Widget options |
+  |---|---|---|---|
+  | `ex1` (3 pages) | 1 per page | **`?svc=…`** — fixed by 2.4 | — |
+  | `ex2/index` | 0 | `#book` ×5 (generic CTAs) | 3, default *Paint Correction* |
+  | **`ex3/prices`** | **13** | **`#book` ×13** | **4**, default *Signature Detail $500* |
+  | **`ex4/index`** | **4** | **`#book` ×4** | **none at all** |
+  | `ex5/index` | 0 | `#book` ×5 | — |
+
+  **`?svc=` and `data-book` exist on `ex1` ONLY.** 2.4 fixed one site and the
+  entry underneath it says so — *"That is 2.5 happening on ex1"* — but nothing
+  carried the fix to the other four, and 2.5 kept its singular title.
+
+  **THE MECHANISM, IN THE FILE.** On `/ex3/prices` every one of the **13**
+  cards ends `<a href="#book">Book this →</a>`. **Thirteen links, one distinct
+  href.** There is no service identifier of any kind on them — no query, no
+  `data-` attribute, nothing. So the anchor scrolls to `id="book"` and the
+  widget shows whatever its own markup says, which is a hard-coded
+  `<input type="radio" name="svc" checked>` on the **first** option. **The
+  card you pressed is not an input to anything.**
+
+  **AND THE SECOND HALF IS A DIFFERENT FAULT WEARING THE SAME SENTENCE.** The
+  page sells **13** services; the embedded widget hard-codes **4**. They are
+  two independently authored lists in one file with nothing joining them, so
+  nine of the thirteen cannot be selected at all — Interior Refreshment among
+  them. **Fixing the hand-over would not fix this**; it would hand over a
+  service the widget has never heard of.
+
+  **THE LABEL THAT MAKES IT LOOK SOLVED.** That widget carries
+  `data-from="get_public_business_profile.services"` — an attribute claiming
+  the list comes from the real service RPC. **It is static HTML with four
+  hand-typed options.** This repo's most repeated finding is a check that
+  reads the label instead of the contents; this is the same fault pointing
+  the other way — **a label asserting a source**, on the one element whose
+  wrongness the label would explain away.
+
+  **ALSO FOUND, AND NOT THIS ITEM'S:** at 320 the injected paint switcher
+  overlaps the primary **"Next — extras"** button — measured, button
+  `148–290 × 700–750`, switcher `168–306 × 730–764`, so **20px of vertical
+  and 122px of horizontal overlap**. `elementFromPoint` at the button's
+  centre still returns the button, so it is pressable; its bottom-right
+  corner is not. The switcher is injected by `scripts/build-examples.mjs`
+  (`slug === "ex3"`), so it is scaffolding rather than product. Recorded, not
+  fixed.
+
+  **HOW IT WAS PRESSED:** 320×844 first, then 1440×900. **No horizontal
+  overflow at either.** `lang="en"` and these are English marketing demos, so
+  there is no Spanish path to walk. **One console warning at both widths and
+  it is NOT this page's** — a React `createRoot` notice left in the tab's
+  buffer by the app shell from an earlier navigation; the example sites are
+  static HTML with no React in them.
+
+  **AND ONE NEAR-MISS WORTH MORE THAN THE FINDING.** The first 320 screenshot
+  showed the booking section **empty** — heading, lede, then blank. It would
+  have gone in this entry as a phone-width defect. It is not one: the form
+  carries a `data-rv` reveal and the capture caught it mid-flight. Measured
+  after it settled — form `296×647`, service grid `260×347`, first option
+  `260×73`, all visible at opacity 1 — and the second screenshot shows the
+  whole widget. **`docs/gotchas.md` already carries this exact trap and it
+  still nearly went in.**
+
+  **HANDOVER:** the fix is one service identifier on the card links plus a
+  widget whose options come from the same list the page prints — both in
+  `docs/tenant-sites/x-ballantyne-prices.html`, and `y-kinzie.html` needs the
+  first half too. **The `2.4` CTA check should assert the matching service
+  name and price on every example, not just `ex1`**, which is what this
+  entry's *Done when* already asks for.
 
 - [x] **2.6 — DONE 2026-09-20. The year is optional, the label says so, and a refused Continue now says why on every step.**
   Size and model filled, Continue stayed dead until a year was typed; the year
