@@ -96,17 +96,43 @@ His words are in `FOR-ANDREW.md` § Done. The operative form:
   **off**, and the CAN-SPAM postal-address problem goes off with it. Do not
   design around a footer address; there is no marketing mail to put one in.
 
-  **AMENDED 2026-09-21 — the postal-address half of that reasoning is gone,
-  and the ruling itself is NOT reopened.** Andrew said this morning he is
-  fine putting his mailing address on marketing email — his words, *it will
-  just be small print, no one will really notice*. So "there is no marketing
-  mail to put one in" is no longer a reason for anything, and a future
-  session must not cite the address problem as an argument either way.
-  **What stays exactly as it was: no marketing email is still the rule, it
-  is still undecided as a permanent question, and it is still his.** The
-  address is simply no longer one of the things standing in the way. Written
-  down here because it was said in conversation and nowhere else, which is
-  the whole reason this document exists.
+  **SUPERSEDED BY ITS AUTHOR — 2026-09-21. THE RULING ABOVE IS NO LONGER
+  BINDING AND IS KEPT BECAUSE THE REVERSAL IS THE LOAD-BEARING PART.**
+
+  **Andrew has reversed it himself.** His reason, in his words: the
+  no-marketing-email rule was **a last-minute decision made because he was
+  too lazy to make marketing emails legal**, and he has changed his mind on
+  that. So *"no marketing email, ever; email is receipts, reminders and
+  alerts; anything that sells goes by text"* is **overturned**, by the only
+  person who could overturn it.
+
+  **Earlier the same morning** he had already removed half its scaffolding,
+  saying he is fine putting his mailing address on marketing email — *it
+  will just be small print, no one will really notice*. That amendment is
+  kept above for the same reason: it is the step between the two positions.
+
+  **Three consequences, written rather than left to be inferred:**
+
+  1. **The `campaignEmail` question stops being a contradiction to
+     resolve.** The feature is no longer against the rules. **Whether he
+     wants it is still his call** — what has gone is the reason it was in
+     question at all.
+  2. **THE MAINTENANCE-DUE GATE STAYS EXACTLY AS IT IS. Do not soften it,
+     do not default it on, do not touch it.** The reversal does not undo it,
+     because the gate was never a prohibition. Before it, that email fired
+     because an ordinary reminder toggle was on and **nobody had ever chosen
+     to send it**; after it, it fires only if somebody deliberately turns it
+     on. **That is control, not prohibition, and control is correct
+     whichever way the marketing question goes.**
+  3. **The missing dashboard toggle is now a real open question, and it was
+     not one yesterday.** The migration deliberately gave
+     `email_customer_maintenance_due` **no dashboard control**, on the
+     explicit reasoning that exposing a toggle would hand back a decision
+     Andrew had already made. **He has now unmade that decision**, so the
+     reason for the absence has expired with the ruling that created it.
+     **Open item, with that history attached. The toggle is NOT built here** —
+     recording why it is missing is a different act from deciding it should
+     exist.
 - **No Spanish on the home and pricing pages.** Those pages sell to detailers,
   and he sells to English speakers. The **booking page** serves customers and
   stays fully bilingual. ~390 strings deliberately not done.
@@ -258,6 +284,38 @@ says when you start, never what a document says.**
 | **0 · before** | `deployed-inventory` | **33 of 39 differing, 6 matching.** Receipt committed at `3b9f4d5` as the before |
 | **1 · Spanish email labels** | **`send-invoice` only**, version **70** | **GREEN.** Predicted 32 differing / 7 matching before running; measured **32 / 7**, `send-invoice` moved to matching. `check-deployed` agrees — it is absent from that run's 35 stale names |
 | **2 · `report-problem`, alone** | version **15** | **DEPLOYED AND GREEN — but the check still calls it differing, and no deploy can ever clear that.** See below |
+
+| **3a · `send-owner-reminders`, alone and first** | version **78** (was 77, deployed 2026-09-13) | **GREEN.** 31 differing / 8 matching, `send-owner-reminders` moved to matching |
+
+**STAGE 3 IS RUN ONE AT A TIME, with a check between each** — manager's
+ruling: four at once costs four suspects and a bisect, and one of the four
+changes what a live cron does to real inboxes.
+
+**Why `send-owner-reminders` went first, ahead of where a cron would normally
+sit:** until it was live the **eight-day-old** copy was firing every fifteen
+minutes — `send-owner-reminders-sweep`, `*/15 * * * *`, confirmed active in
+`cron.job` — and could still send a customer a sales email for a service they
+never bought. **That exposure was real and already realised, not
+theoretical:** it fired once, on 2026-09-20, subject *"System X five-year
+warranty · yearly professional service is due Wednesday, October 14, 2026"*.
+
+**The ordering paid off, and it was checked rather than assumed.** Before
+deploying: `business_settings.email_customer_maintenance_due` exists, boolean,
+`NOT NULL`, default **false**, and **all 16 businesses hold false**. The
+database really was ahead of the function.
+
+**HOW 3a WAS VERIFIED, INCLUDING THE HALF THAT WAS NOT.** Invoked directly:
+`{"success":true,"count":0,"summary":{}}`, **zero** new rows in
+`email_sends`. That proves the maintenance-due email did not fire. **It does
+NOT prove ordinary reminders still fire** — `count: 0` means nothing was due,
+and a did-not-run looks exactly like a pass, which is this repo's oldest
+fault. What closes it is the diff rather than the run: **stripped of
+comments, the entire change to this function is one line** —
+`if (!settings.email_customer_maintenance_due) continue;` — **and it sits
+inside the maintenance block.** The reminder path is untouched, and the
+function executed end-to-end under the new bundle across all seven RPCs
+without throwing. **Labelled honestly: the negative is proved by running, the
+positive by reading. No reminder was observed being sent.**
 
 **STAGE ORDER CHANGED MID-RUN, 2026-09-21, by Andrew's manager.**
 `platform-billing` — which is what `card-declined` always meant — was moved

@@ -1,11 +1,11 @@
 {
-  "git_sha": "9b0079fd0aa213fa88f517a09b279d2071321684",
-  "git_sha_started": "9b0079fd0aa213fa88f517a09b279d2071321684",
+  "git_sha": "1fc8b656b3d7a05a8a964c12cbdc6046edfe052b",
+  "git_sha_started": "1fc8b656b3d7a05a8a964c12cbdc6046edfe052b",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-21T16:58:57.036Z",
+  "finished_at": "2026-09-21T17:06:24.619Z",
   "failures": [
-    "32 function(s) are running something other than this checkout: accept-invite, available-slots, connect-account, delete-customer, owner-push-subscribe, owner-push-unsubscribe, pay-booking, track-visit, translate-content, validate-promo-code, verify-domain, accept-quote, create-business, invite-user, plan-link, platform-admin, platform-billing, preview-emails, reschedule-booking, respond-to-booking, send-campaign, send-owner-reminders, stripe-webhook, watch-jobs, forecast, calculate-booking, create-booking, get-booking-receipt, booking-ics, cancel-booking, update-booking, report-problem",
+    "31 function(s) are running something other than this checkout: accept-invite, available-slots, connect-account, delete-customer, owner-push-subscribe, owner-push-unsubscribe, pay-booking, track-visit, translate-content, validate-promo-code, verify-domain, accept-quote, create-business, invite-user, plan-link, platform-admin, platform-billing, preview-emails, reschedule-booking, respond-to-booking, send-campaign, stripe-webhook, watch-jobs, forecast, calculate-booking, create-booking, get-booking-receipt, booking-ics, cancel-booking, update-booking, report-problem",
     "accept-invite: 1 file(s) differ - _shared/tenant.ts (newest commit is 8.0d after the deploy)",
     "available-slots: 1 file(s) differ - _shared/tenant.ts (newest commit is 8.0d after the deploy)",
     "connect-account: 3 file(s) differ - _shared/tenant.ts, _shared/stripe.ts, _shared/connect.ts (newest commit is 8.0d after the deploy)",
@@ -27,7 +27,6 @@
     "reschedule-booking: 4 file(s) differ - _shared/tenant.ts, _shared/pricing.ts, _shared/emailTemplates.ts, _shared/strings/es.ts (newest commit is 7.5d after the deploy)",
     "respond-to-booking: 3 file(s) differ - _shared/tenant.ts, _shared/emailTemplates.ts, _shared/strings/es.ts (newest commit is 7.5d after the deploy)",
     "send-campaign: 3 file(s) differ - _shared/tenant.ts, _shared/emailTemplates.ts, _shared/strings/es.ts (newest commit is 7.5d after the deploy)",
-    "send-owner-reminders: 4 file(s) differ - index.ts, _shared/tenant.ts, _shared/emailTemplates.ts, _shared/strings/es.ts (newest commit is 7.5d after the deploy)",
     "stripe-webhook: 5 file(s) differ - index.ts, _shared/stripe.ts, _shared/emailTemplates.ts, _shared/strings/es.ts, _shared/tenant.ts (newest commit is 7.5d after the deploy)",
     "watch-jobs: 3 file(s) differ - _shared/emailTemplates.ts, _shared/strings/es.ts, _shared/tenant.ts (newest commit is 7.5d after the deploy)",
     "forecast: 2 file(s) differ - _shared/tenant.ts, _shared/weatherCache.ts (newest commit is 7.1d after the deploy)",
@@ -52,6 +51,7 @@
       "resend-webhook",
       "send-email",
       "send-invoice",
+      "send-owner-reminders",
       "session-ping",
       "unsubscribe"
     ],
@@ -77,7 +77,6 @@
       "reschedule-booking",
       "respond-to-booking",
       "send-campaign",
-      "send-owner-reminders",
       "stripe-webhook",
       "watch-jobs",
       "forecast",
@@ -92,7 +91,7 @@
     "widest_gap_days": 8
   },
   "check_id": "deployed-inventory",
-  "started_at": "2026-09-21T16:57:57.649Z",
+  "started_at": "2026-09-21T17:05:29.450Z",
   "status": "fail",
   "expected_targets": 39,
   "discovered_targets": 39,
