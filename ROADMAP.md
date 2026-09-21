@@ -5383,6 +5383,24 @@ the dashboard or back office at phone width at all.
   `tests/admin-insight.test.mjs` are the only thing standing behind that half.
   **Widths: none.** Nothing here changed a layout; one string got shorter.
 
+  **THE SUSPENDED HALF IS HELD DELIBERATELY, AND IT IS A LANE CALL RATHER
+  THAN A JUDGEMENT ON THE WORK — manager's ruling, 2026-09-21.** Pressing it
+  means pausing a business on the demo tenant, which **darkens that business's
+  booking page for every other check on the machine**, and `e2e-booking` was
+  about to write real bookings into that tenant. **Two assertions standing on
+  a state nobody else can tolerate is worth waiting one round for.** Named,
+  unpressed, and the tenant comes back when that check is done.
+
+  **AND A CORRECTION TO THIS ENTRY'S OWN NOTE ABOVE, found on the way:**
+  `demo-admin@detailplatform.com` **does not exist on the database at all** —
+  `platformAdmin: null` was not a stale file, it was the truth. `/admin`
+  opened because **`demo@detailplatform.com` is itself a row in
+  `platform_admins`**, on Andrew's instruction of 2026-09-13, so the demo
+  detailer's ordinary session is a platform-administrator session. That is
+  deliberate and recorded in the row's own note. **It is also why the back
+  office has never needed `--platform-admin` to be reachable, and why the
+  sweep's `NOT MEASURED` line about that flag describes a path nobody uses.**
+
   **AND HOW THE SCREEN WAS REACHED, because it matters for the next session:**
   **no credential was handled.** `scripts/demo-refs.json` has
   `platformAdmin: null` — the last seed ran without `--platform-admin`, so
