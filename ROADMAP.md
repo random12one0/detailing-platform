@@ -5227,6 +5227,73 @@ the dashboard or back office at phone width at all.
 
   **Held for a ruling.** Nothing here is ticked and nothing here is started.
 
+  **RULED ON AND PART-DONE, 2026-09-21. The entry stays OPEN and unticked:
+  one of the three repairs is in, one is held on a question, one is a build
+  nobody has started.**
+
+  **(a) THE FEED — DONE, commit `099309e`.** `bookabilityOf(r)` in
+  `AdminPage.jsx:704` now names `status` and `booking_mode` off the top level
+  of the row, where `platform-admin` already puts them, and both call sites
+  (`:716`, `:1168`) go through it. No deploy, no copy change, no new data.
+  **Proved old-feed against new-feed on rows shaped exactly as the edge
+  function builds them, 7 assertions:** a suspended page went `ok=true` →
+  `ok=false [suspended]`, a request-only page went `mode=reserve` →
+  `mode=request`, and the healthy and the empty rows came back **byte-identical
+  to before** — the regression half asserted rather than eyeballed. Build
+  clean, the four credential-free suites pass, `label-guard` 45/45.
+
+  **UNPRESSED, AND NAMED RATHER THAN GLOSSED.** Nobody has loaded the screen
+  since. The back office needs a platform-admin sign-in against the demo
+  tenant, and the tenant, the dev server and the browser were the other
+  session's this round. The one case that CAN be pressed is `demo-detail`, the
+  only business set to `request`: its panel should now read *"Takes requests,
+  you answer"* where it read *"Taking bookings"*. **The suspended case cannot
+  be pressed at all today** — no business, real or demo, is paused.
+
+  **NO PERMANENT GUARD.** The check exists in `099309e`'s commit message and
+  nowhere else. It belongs in `tests/admin-insight.test.mjs`, which was not
+  handed out this round. **Until it is written, this fix is protected by
+  nothing.**
+
+  **(b) THE `first` ROW'S ADVICE — STOPPED AND HANDED BACK, NOT ATTEMPTED.**
+  The ruling was to take the subtractive half only and to stop if the honest
+  version needs new words. **It does, and the reason is a pronoun.** The
+  string is:
+
+  > *"The page works and nobody has used it. Ask how they are telling their
+  > own customers about it."*
+
+  The false clause is *"The page works"*. But **both** later `it`s point back
+  at *"The page"*, so deleting the clause orphans them — *"Nobody has used it"*
+  has nothing to refer to. Every purely subtractive edit leaves a dangling
+  pronoun, which is the stop condition. **Two options, with what each one
+  would be claiming:**
+
+  1. *"Nobody has used their page. Ask how they are telling their own
+     customers about it."* — claims only that this detailer has **zero live
+     bookings**, which is exactly what the predicate measures. Says nothing
+     about whether the page works. Keeps the house fact-then-action shape the
+     other four rows use. New words: `their page` replacing `it`, a phrase
+     this same file already uses as the label at `:1243`.
+  2. *"Ask how they are telling their own customers about their booking
+     page."* — **claims nothing at all.** The count is already in the
+     headline above it. New words: `their booking page` replacing `it`,
+     the noun the sibling `open` row's headline already uses.
+
+  Option 2 claims strictly less; option 1 reads more like its neighbours.
+  **Accuracy either way, so this is a pick rather than a taste call** — but
+  neither was taken, and the screen still says *"The page works"* tonight.
+
+  **ONE THING THE PREDICATE ITSELF CANNOT SEE, said rather than buried:**
+  `bookings_total` is the count of **non-cancelled** bookings, so a detailer
+  whose only booking was cancelled reads as *"never taken a booking"*. The
+  headline has always had that shape; neither option above makes it worse or
+  better.
+
+  **(c) THE STAGES REDESIGN — NOT THIS ROUND.** Created → Configured →
+  Bookable → First booking → Active, one furthest stage per account. Named,
+  open, and nobody is on it.
+
 - [x] **9.3 — The setup banner shows an empty list and "and 2 more". DONE
   2026-09-20.**
   **Fix:** show the first blocking task on its own line with a direct button.
