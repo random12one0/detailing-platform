@@ -5294,6 +5294,73 @@ the dashboard or back office at phone width at all.
   Bookable → First booking → Active, one furthest stage per account. Named,
   open, and nobody is on it.
 
+  ---
+
+  **(b) RESOLVED — OPTION 2 TAKEN, commit `5202586`.** The row now reads
+  *"Ask how they are telling their own customers about their booking page."*
+  and claims nothing it did not check.
+
+  **THE REASONING IS RECORDED BESIDE THE ROW ITSELF** (`AdminPage.jsx:719`),
+  not only here, because the next person to notice the shape will be reading
+  that file: **this is the only one of the five rows whose advice has no lead
+  fact, and that is a decision rather than an oversight.** Option 1 — *"Nobody
+  has used their page"* — keeps the house fact-then-action shape, and was
+  rejected because the shape argument runs out exactly here: **the other four
+  rows lead with a fact the headline does NOT carry, and this one would only
+  restate the count two lines above it.** CLAUDE.md's never-defaults name that
+  precisely — *copy that explains what the label already said* — and the cost
+  is that the row stops being read. Consistency was the weaker argument, and
+  it is written down so nobody helpfully restores it.
+
+  **No Spanish key to change, checked rather than assumed:** `AdminPage.jsx`
+  has **zero `t(` calls** and no strings import — the back office is
+  English-only by construction — and neither string appears in `appEs.js`.
+  `label-guard` 45/45.
+
+  **(a) IS NOW GUARDED, commit `c99b2bb`** — the gap this entry recorded as
+  *"protected by nothing"* is closed. `tests/admin-insight.test.mjs` § 10,
+  **eight checks**: the old feed calling a suspended page bookable (the defect
+  itself, pinned), the row shape seeing it, the old feed losing request mode,
+  the row shape keeping it, **and the healthy and empty rows proved
+  unchanged** — without those two a fix that broke every working account would
+  pass. `10g`/`10h` read `AdminPage.jsx` as text, because `10a`-`10f` would
+  all still pass if somebody put `bookability(r.setup_inputs)` back at a call
+  site. **Coupled to the helper's NAME, and the check says so** rather than
+  pretending otherwise.
+
+  **BROKEN ON PURPOSE BEFORE BEING TRUSTED.** Against a doctored copy of
+  `AdminPage.jsx` with the detail-panel call site reverted and `booking_mode`
+  stripped from the helper: **`10g` FAIL (found 2 raw calls), `10h` FAIL,
+  63 passed 2 failed, exit 1.** Against the real file: **65 passed, 0 failed.**
+
+  **AND THE THING FOUND UNDERNEATH IT, WHICH IS BIGGER THAN 9.2 —
+  `tests/admin-insight.test.mjs` PRINTED `FAIL` AND EXITED 0 FROM THE DAY IT
+  WAS WRITTEN.** 57 checks across nine sections and **not one of them could
+  turn the run red**: `check()` counted a failure, printed it, and the script
+  ended. Under `node --test tests/*.test.mjs` a file that exits 0 is a pass,
+  **so all 57 were decoration** — including the privacy checks in § 9, which
+  are the ones guarding *the aggregate is his, the individual customer is
+  theirs*.
+
+  **Measured, not suspected:** a copy of the file with one deliberately false
+  check appended printed `FAIL  CANARY - this must fail` and exited **0**.
+  Fixed by a summary line and `process.exit(failed ? 1 : 0)`. Safe to add
+  because the suite was already **57/57** green, so nothing was hiding behind
+  the silence.
+
+  **THE BLAST RADIUS IS BOUNDED AND WAS COUNTED, NOT ESTIMATED: 1 suite of
+  73.** Seven other suites also never call `process.exit`, and **all seven use
+  `node:test`**, whose runner reports failures itself. `admin-insight` was the
+  only hand-rolled `check()` suite without an exit code. **This belongs in
+  `docs/silences.md`, which was not this session's lane — it is flagged, not
+  written.**
+
+  **STILL UNPRESSED, and the entry stays open for it.** Nobody has loaded the
+  back office since any of this. The confirmation is one page load on
+  `demo-detail`'s panel — *"Takes requests, you answer"* where it read
+  *"Taking bookings"* — and the browser is handed over when the other session
+  is out.
+
 - [x] **9.3 — The setup banner shows an empty list and "and 2 more". DONE
   2026-09-20.**
   **Fix:** show the first blocking task on its own line with a direct button.
