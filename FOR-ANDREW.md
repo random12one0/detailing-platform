@@ -292,14 +292,6 @@ still knows them.
   arrived in your inbox**, and nobody but you can remove them — which is the
   whole reason this row exists.
 
-- [ ] **DO · Turn on two-factor login for your Supabase and Netlify accounts.**
-  Ten minutes for both. **Only you can do it** — your account, your phone.
-
-  Right now the database holding every booking is behind one password.
-
-  Supabase: **Account settings → Security → enable MFA.** Netlify has the same
-  under user settings.
-
 ---
 
 ## Waiting on you — nothing breaks while these wait
@@ -584,38 +576,6 @@ still knows them.
   made vaguer, because a vague promise is still a promise and harder for
   anybody to spot later.
 
-- [ ] **DECIDE · You have a "send all my customers an email" feature, and your
-  own rule forbids it. Which one gives?**
-
-  You ruled: *"Let's just have no emails that will be, you know, marketing at
-  all."* Every email the product sends was read against that this week. One
-  feature sits squarely on the wrong side of it — the campaign sender, the
-  screen where a detailer writes a message and sends it to their whole customer
-  list. Its button says **"Book again"**. It is marketing, and there is no
-  reading of it that is not.
-
-  **It is also the most carefully built thing in the set**, which is why this
-  is a question and not a bug report:
-  - It refuses to send at all unless the business has given a real postal
-    address.
-  - Every one of those emails carries an unsubscribe link and that address —
-    which is exactly what the law asks of marketing email.
-  - Only a signed-in member of the business can fire it, at their own list.
-
-  **So nothing here is broken and nothing is illegal.** The problem is that
-  your rule and your product currently say opposite things, and anyone reading
-  either one on its own would be misled.
-
-  1. **The rule wins** — the feature comes out, along with the unsubscribe
-     plumbing built for it.
-  2. **The feature is an exception** — it stays, and the rule gets written down
-     with its exception attached, so nobody reads "no marketing email, ever"
-     next to a working campaign sender and has to guess.
-
-  **No recommendation attached, on purpose.** This is whether you want to be
-  able to email your customers at all, and that is a decision about your
-  business rather than about the software. **Answer: "remove it" or "keep it".**
-
 - [ ] **DECIDE · What the live preview on Business settings should show.**
 
   ROADMAP 9.10 wants a live preview of your customer-facing page on the
@@ -689,17 +649,6 @@ still knows them.
   3. **One question: could a person who cannot see the screen finish this?**
 
   **Tell me "they could", or where you got stuck.**
-
-- [ ] **DO · Thirty seconds outside, in daylight.**
-  Every piece of text on eight screens was measured and the one that was too
-  faint is fixed. **Glare is the half no script can reproduce.**
-
-  1. Go outside — actually outside, the way you are when you are standing at a
-     car.
-  2. Open your dashboard on your phone and look at **Today**. That one screen.
-  3. **One question: which words are hard to read?**
-
-  **Tell me "all readable", or name the words that were not.**
 
 ---
 
