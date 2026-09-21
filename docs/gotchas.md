@@ -518,6 +518,74 @@ motion has stopped, and say which reading you are quoting.
 
 ---
 
+## A PROBE THAT CANNOT TELL A FAILED READ FROM AN EMPTY ONE REPORTS THE MOST ALARMING ANSWER, CONFIDENTLY — 2026-09-21
+
+**A cleanliness check, written to confirm a tenant had survived a run,
+announced `demo-detail: MISSING`.** The tenant was fine. It had never been
+touched. The probe was wrong, and nothing about its output said so.
+
+**THE MECHANISM, AND IT IS THREE LINES:**
+
+```js
+const d = await q("select slug, is_active from public.businesses where slug='demo-detail'");
+console.log('demo-detail:', d.length ? 'present' : 'MISSING');
+```
+
+`public.businesses` has no `is_active` column — it is called `status`. So the
+query **failed**, the API returned an **error object**, and `.length` on an
+error object is `undefined`. `undefined ? … : 'MISSING'` took the false branch
+and printed the worst sentence available about a live database.
+
+**WHY THIS IS THE GENERAL CASE AND NOT A TYPO.** Every step behaved correctly
+in isolation. The database refused a bad column, which is right. The API
+returned an error, which is right. The probe asked "did I get rows back?" —
+which is a reasonable question, and **it is not the same question as "did the
+read succeed?"** A probe that does not separate those two collapses **three
+outcomes into two**:
+
+| what happened | what the probe saw |
+|---|---|
+| the row exists | present |
+| the row does not exist | MISSING |
+| **the read never happened** | **MISSING** |
+
+**And the collapse is always toward the alarming answer**, because "no rows"
+and "no answer" are both falsy, and the falsy branch is where the scary string
+lives. A probe like this cannot report a boring failure. It reports a
+catastrophe.
+
+**WHAT TO DO INSTEAD, AND IT IS SMALL.** Check the transport before the
+content: if the response is not OK, **throw** — never fall through to a verdict.
+
+```js
+const q = async (t) => {
+  const r = await fetch(url, { ... });
+  const j = await r.json();
+  if (!r.ok) throw new Error("QUERY FAILED: " + JSON.stringify(j).slice(0, 160));
+  return j;
+};
+```
+
+The corrected probe said what the first one should have: `demo-detail
+status=active`, with the real column name, and it failed loudly on the way
+there when the column was wrong.
+
+**THE FAMILY THIS BELONGS TO.** It is the same fault as
+`/object/list` answering `200 []` for "denied" and for "nothing there", and as
+`has_table_privilege` answering false for a column-granted table — both above.
+**Three outcomes, two return values, and the one that is silently borrowed is
+always the failure.** The difference here is that the borrowing happened in the
+*checking* code rather than in the thing being checked, which is worse: a
+product bug gets found, while a probe bug gets believed.
+
+**AND IT IS WHY THIS ONE COST NOTHING.** It was caught within a minute,
+because the answer was too alarming to accept without a second look — a tenant
+vanishing during a run that never wrote to it is not a plausible result.
+**A probe that had reported something boring and wrong would still be wrong
+now.**
+
+---
+
 ## A GUARD THAT WAITS FOR SOMETHING ALREADY ON SCREEN CANNOT FAIL — 2026-09-19, ROADMAP 8.1
 
 Eleven dialogs were added to `sweep-widths.mjs`, and each one needed a guard
