@@ -5225,6 +5225,24 @@ html:not(.lite) .intake .samp-live.samp-move .samp-row { animation: none; }
 .nb-grouplabel { margin: var(--sp-3) 0 var(--sp-2); }
 .nb-group:first-child > .nb-grouplabel { margin-top: 0; }
 
+/* ROADMAP 9.8 — THE SERVICE LIST WHILE IT DOES NOT KNOW YET, NOT WHILE IT
+   KNOWS THERE ARE NONE. Three inert pills standing in for chips that have
+   not arrived, sized off `.chip`'s own box model (36px, `--r-pill`,
+   `--hairline`) rather than composing the class itself, because a skeleton
+   must not answer to `.chip:hover` or `.chip:disabled` and must not be in
+   the tab order — it is a `<div>`, never a `<button>`.
+   NO LOCAL `@media (prefers-reduced-motion)` — same rule as `.foldrow`'s
+   chevron above: the product's one answer to that question is `.lite`,
+   live at the root, and a second copy here is how two answers to it start. */
+.nb-chip-skel {
+  display: inline-block; min-height: 36px; width: var(--w, 84px);
+  border-radius: var(--r-pill); border: 1px solid var(--hairline);
+  background: var(--surface); margin-block: 2px;
+  animation: nb-skel-pulse 1.4s ease-in-out infinite;
+}
+@keyframes nb-skel-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.lite .nb-chip-skel { animation: none; opacity: 0.7; }
+
 /* A SEARCH RESULT IS A BUTTON, so it needs a button's reset and a button's
    press state — `.sunken` alone renders one that looks tappable and gives no
    feedback when tapped. */

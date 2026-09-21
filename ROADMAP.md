@@ -4220,10 +4220,76 @@ the dashboard or back office at phone width at all.
   address, no "Book again". Add them; "Book again" opens New booking prefilled.
   *A2 4.7*
 
-- [ ] **9.8 — Manual booking flashes "No active services yet" before loading.**
-  Replace false empty states with a loading skeleton; only show empty after a
-  completed empty response.
+- [x] **DONE 2026-09-20 — 9.8 Manual booking flashes "No active services yet"
+  before loading.** Replace false empty states with a loading skeleton; only
+  show empty after a completed empty response.
   *A1 P2-14*
+
+  **THE DISTINCTION IS UNKNOWN VERSUS KNOWN-EMPTY, NOT LOADING VERSUS EMPTY —
+  Andrew's framing, and it is the correct one.** `NewBookingModal.jsx`'s
+  `catalog` state started as `{ services: [], addOns: [], groups: [] }`, so
+  `catalog.services.length === 0` read true for the entire time between the
+  component mounting and its fetch answering — indistinguishable from a
+  detailer who genuinely has no active services. A slow connection told every
+  detailer opening this form that their own business sold nothing. The fix
+  is not a prettier empty state; it is making the third state exist at all.
+
+  **BUILT.** A sibling boolean, `catalogLoaded` (`NewBookingModal.jsx`), false
+  until the fetch resolves — not a reshape of `catalog` itself to `null`,
+  because `grouped` (a `useMemo` derived from `catalog.services`/`.groups`)
+  and two other read sites consume it unconditionally on every render
+  including the first; a smaller diff for the same three states. This mirrors
+  the exact idiom already sitting three lines below it in the same file —
+  `slots`, `useState(null) // null = not searched yet` — chosen as a sibling
+  rather than adopting that shape directly, for the reason above.
+
+  While `!catalogLoaded`, three inert pill shapes render in place of both the
+  chip list and the "No active services yet" sentence — new class
+  `.nb-chip-skel` in `theme.css`, sized off `.chip`'s own box model (36px,
+  `--r-pill`, `--hairline`) rather than composing the class itself, because a
+  skeleton must not answer to `.chip:hover`/`:disabled` and must not be in
+  the tab order — a `<div>`, never a `<button>`. No new `@media
+  (prefers-reduced-motion)` block — `.lite .nb-chip-skel { animation: none }`
+  instead, the one answer to that question this file already has (see the
+  `.foldrow` chevron's own comment on why a second copy is how two answers to
+  one question start).
+
+  **VERIFIED ON THE REAL FORM, NOT ASSUMED.** Opened "New booking" on the
+  demo tenant with the fetch's own `Promise.all` given a temporary 8-second
+  delay (removed before committing, never shipped): screenshot shows three
+  pill outlines under SERVICES where the chip list or the "yet" sentence used
+  to be. Removed the delay, reopened on a fresh tab: real services render
+  correctly, chips remain clickable (Express Wash selected and confirmed
+  highlighted), no console error. `tests/composition.test.mjs` — 97/97 — and
+  `scripts/label-guard.mjs` both still pass; no new translatable string was
+  added, so no Spanish key was needed.
+
+  **SIBLINGS FOUND, NOT FIXED — HE ASKED FOR THE COUNT, NOT THE PATCH.**
+  Swept `app/src/` for the same shape: a `useState([])` fed by a component's
+  own fetch, read straight into an unconditional "no X yet" message with
+  nothing distinguishing "has not asked" from "asked and there is nothing."
+  Most of the dashboard already gets this right and says so in its own
+  comments — `Money.jsx` gates its whole render behind `useBookings`'s
+  `loading`; `Clients.jsx`, `MessageTemplates.jsx` and `Business.jsx` all use
+  the `null`-means-loading idiom (`rows`, `counts`, `history`, `mail`); a
+  comment in `Plans.jsx` names this exact defect as one already caught. It is
+  the exception here, not the norm — three found still carrying it:
+  1. **`app/src/screens/more/Catalog.jsx:535`** — "No services yet. Customers
+     can't book until you add one." Same data (`services`), same shape, same
+     missing flag — the detailer's OWN services-management screen, the place
+     they would go to check this, can tell them they have none while still
+     asking.
+  2. **`app/src/screens/more/Campaigns.jsx:410`** — "You have no active
+     discount codes yet…", gating a promo-code dropdown. The more consequential
+     empty state ninety lines above it in the SAME file, SAME load, already
+     checks `!busy` before showing "Nothing here yet"; this second one right
+     next to it in the same component does not — the inconsistency is the
+     tell that this is a gap rather than a pattern nobody thought of.
+  3. **`app/src/components/BookingDetail.jsx:859-860`** — "No templates yet ·
+     the gear, then Message templates," on the job record's own
+     send-a-message picker. Tells a detailer mid-task to go build a template
+     that may already exist, on a screen used constantly, while the network
+     is simply slow.
 
 - [x] **DONE 2026-09-20 — 9.9 New booking files "Mobile / Drop-off" under the
   VEHICLE heading.** Move it under its own "Where" heading.

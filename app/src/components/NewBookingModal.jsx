@@ -73,6 +73,16 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
   const cap = maxVehicles(settings);
 
   const [catalog, setCatalog] = useState({ services: [], addOns: [], groups: [] });
+  // ROADMAP 9.8 — UNKNOWN, NOT EMPTY, UNTIL THE FETCH RETURNS. `catalog`
+  // starts as empty arrays because `grouped` below is a `useMemo` that runs
+  // on every render, including the first one before the effect has asked —
+  // it cannot receive `null` without a guard at every read site. This flag
+  // carries the fact `catalog`'s own shape cannot: the same `null`-until-
+  // fetched idiom `slots` already uses a few lines down, done as a sibling
+  // boolean instead of reshaping `catalog` because `catalog.services` is
+  // read unconditionally by that memo and by three places in the render
+  // below. Same distinction, smaller diff.
+  const [catalogLoaded, setCatalogLoaded] = useState(false);
   const [form, setForm] = useState(() => ({
     ...initialForm(settings),
     bookingDate: initialDate || todayLocal(business.timezone),
@@ -108,6 +118,7 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
         supabase.from("service_groups").select("*").eq("business_id", business.id).order("sort_order"),
       ]);
       setCatalog({ services: sv.data ?? [], addOns: ao.data ?? [], groups: gr.data ?? [] });
+      setCatalogLoaded(true);
     })();
   }, [business.id]);
 
@@ -408,35 +419,53 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
       )}
 
       <Block title={t("Services")}>
-        {/* GROUPED THE WAY THE CUSTOMER'S PAGE GROUPS THEM. A detailer with
-            twenty services had them in one undifferentiated wrap of chips
-            here and in their own categories on their own booking page. */}
-        {grouped.map((g) => (
-          <div key={g.key || "ungrouped"} className="nb-group">
-            {/* `groupServices` returns { key, name, items } — a detailer with
-                no categories gets ONE group whose name is "", and a heading
-                over the only list on screen is the copy rule's own example of
-                a sentence that says what the control already says. */}
-            {grouped.length > 1 && g.name && <p className="quiet nb-grouplabel">{g.name}</p>}
-            <div className="row" style={{ flexWrap: "wrap", gap: 8 }}>
-              {g.items.map((sv) => (
-                <button key={sv.id} className={`chip ${form.serviceIds.includes(sv.id) ? "active" : ""}`}
-                  onClick={() => set({
-                    serviceIds: toggleService(form.serviceIds, sv.id, {
-                      services: catalog.services, serviceGroups: catalog.groups,
-                    }),
-                    startTime: "",
-                  })}>
-                  {sv.name} · {money(sv.price)}
-                </button>
-              ))}
-            </div>
+        {/* ROADMAP 9.8 — UNKNOWN IS NOT THE SAME SCREEN AS KNOWN-EMPTY. Before
+            the fetch answers, `catalog.services` is `[]` for the same reason
+            it would be for a detailer with genuinely no active services —
+            nothing distinguished "has not asked yet" from "asked and there
+            is nothing", so this block told every detailer opening a slow
+            connection that they had no services at all. Three pills instead
+            of the sentence below until `catalogLoaded` is true; the sentence
+            itself only fires once the answer is actually known. */}
+        {!catalogLoaded ? (
+          <div className="row" style={{ flexWrap: "wrap", gap: 8 }}>
+            <div className="nb-chip-skel" style={{ "--w": "92px" }} />
+            <div className="nb-chip-skel" style={{ "--w": "68px" }} />
+            <div className="nb-chip-skel" style={{ "--w": "110px" }} />
           </div>
-        ))}
-        {catalog.services.length === 0 &&
-          <p className="muted">{t("No active services yet. Add them in the More tab under Services.")}</p>}
+        ) : (
+          <>
+            {/* GROUPED THE WAY THE CUSTOMER'S PAGE GROUPS THEM. A detailer with
+                twenty services had them in one undifferentiated wrap of chips
+                here and in their own categories on their own booking page. */}
+            {grouped.map((g) => (
+              <div key={g.key || "ungrouped"} className="nb-group">
+                {/* `groupServices` returns { key, name, items } — a detailer with
+                    no categories gets ONE group whose name is "", and a heading
+                    over the only list on screen is the copy rule's own example of
+                    a sentence that says what the control already says. */}
+                {grouped.length > 1 && g.name && <p className="quiet nb-grouplabel">{g.name}</p>}
+                <div className="row" style={{ flexWrap: "wrap", gap: 8 }}>
+                  {g.items.map((sv) => (
+                    <button key={sv.id} className={`chip ${form.serviceIds.includes(sv.id) ? "active" : ""}`}
+                      onClick={() => set({
+                        serviceIds: toggleService(form.serviceIds, sv.id, {
+                          services: catalog.services, serviceGroups: catalog.groups,
+                        }),
+                        startTime: "",
+                      })}>
+                      {sv.name} · {money(sv.price)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+            {catalog.services.length === 0 &&
+              <p className="muted">{t("No active services yet. Add them in the More tab under Services.")}</p>}
+          </>
+        )}
 
-        {catalog.addOns.length > 0 && (
+        {catalogLoaded && catalog.addOns.length > 0 && (
           <>
             <p className="quiet nb-grouplabel">{t("Add-ons")}</p>
             <div className="row" style={{ flexWrap: "wrap", gap: 8 }}>
