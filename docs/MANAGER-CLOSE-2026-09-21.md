@@ -257,7 +257,57 @@ says when you start, never what a document says.**
 |---|---|---|
 | **0 · before** | `deployed-inventory` | **33 of 39 differing, 6 matching.** Receipt committed at `3b9f4d5` as the before |
 | **1 · Spanish email labels** | **`send-invoice` only**, version **70** | **GREEN.** Predicted 32 differing / 7 matching before running; measured **32 / 7**, `send-invoice` moved to matching. `check-deployed` agrees — it is absent from that run's 35 stale names |
-| **2** | **STOPPED — see below** | not started |
+| **2 · `report-problem`, alone** | version **15** | **DEPLOYED AND GREEN — but the check still calls it differing, and no deploy can ever clear that.** See below |
+
+**STAGE ORDER CHANGED MID-RUN, 2026-09-21, by Andrew's manager.**
+`platform-billing` — which is what `card-declined` always meant — was moved
+out of stage 2 into **its own stage 4.5, alone, immediately before the payment
+webhook**, on the reasoning that a function which charges people does not ride
+along in a low-risk batch. **Stage 2 is therefore `report-problem` alone**,
+and is written that way so it does not read as a stage that quietly lost one.
+Andrew's ruling on the webhook is untouched: last, alone, nothing in flight.
+
+### THE VERIFIER CAN REPORT A PERFECTLY CURRENT FUNCTION AS DIFFERING — 2026-09-21
+
+**Found by stage 2 failing a prediction.** `report-problem` was deployed from
+the frozen tree, came back **version 15, 0h old**, and `deployed-inventory`
+still listed it as differing on **one** file: `_shared/emailTemplates.ts`.
+Predicted 31 differing / 8 matching; measured **32 / 7**.
+
+**The deploy was fine. The check is wrong, and it is wrong in a way that
+deploying can never fix.**
+
+`_shared/email.ts:10` reads `import type { TenantBrand } from
+"./emailTemplates.ts"`. **A type-only import is erased at compile time**, so
+`emailTemplates.ts` is never in the deployed bundle for a function that
+reaches it only through that line. But `sharedFor()` counts it as a
+dependency, so the check reads the file off disk, looks for its comments in
+the bundle, and finds none — **for ever, at every version.**
+
+**Proved by the contrast, not by reasoning alone:** `send-invoice` imports
+`emailTemplates.ts` **directly**, so it is genuinely in that bundle, and
+`send-invoice` **matches**. Same file, same frozen tree, minutes apart — in
+the bundle when really imported, absent when only a type.
+
+**Scale, measured rather than feared: exactly ONE function is a pure false
+positive today** — `report-problem`, whose only differing file is that one.
+Every other differing function has a real cause, overwhelmingly
+`_shared/tenant.ts`: **9** differ on it alone and it appears in nearly every
+other set.
+
+> **A PREDICTION FOR STAGE 6, WRITTEN DOWN NOW SO IT IS NOT DISCOVERED AS A
+> FAILURE LATER: the after-inventory will NOT reach 39 matching.**
+> `report-problem` will still read differing, and any function whose last
+> remaining difference is a type-only-imported file will too. **A non-zero
+> after-count is not a failed publish.**
+
+**NOT FIXED DURING THE RUN, AND THAT IS DELIBERATE.** The fix is one
+condition in `scripts/lib/sharedDeps.mjs` — do not follow `import type` — and
+that file is in this lane. **But changing the verifier in the middle of the
+run it is verifying would mean the before-inventory and the after-inventory
+were produced by two different instruments**, which destroys the one
+comparison the whole publish is built on. It is fixed after stage 6, broken on
+purpose first, and both inventories re-read afterwards.
 
 **Stage 1 was ONE function, and that is worth knowing before anyone reads
 "Spanish emails" as a group.** The change (`b509671`) touched
@@ -290,17 +340,65 @@ been written down under the wrong name.** Not guessed at here. Stopped and
 handed back, because the one thing the publishing order exists to prevent is
 the money path moving early.
 
-When he says go:
+### BOTH NAMES ON THE OLD STAGE-2 LINE WERE WRONG, AND THE OLD LINE IS KEPT
 
-1. **Spanish emails** — labels only, lowest risk.
-2. **card-declined + report-a-problem** — both currently running against parts
-   that did not exist when they were deployed; unpredictable if triggered.
-3. **the remaining 17** — cheapest in one pass.
-4. **the payment webhook LAST and ALONE.** It touches money.
+**The line read: `card-declined + report-a-problem`. Neither is a function.**
+Kept here in its old form rather than silently replaced, **because somebody
+may be holding a note that still says `card-declined` and has to be able to
+recognise it.**
 
-**Run `deployed-inventory.mjs` before and after.** It has never actually been
-run — it reaches the Management API. It is **unproven, not skipped**. Do not
-deploy something just to clear it.
+| the old name | what it actually is |
+|---|---|
+| **`card-declined`** | **`platform-billing`** — no function has ever carried the name `card-declined`; it appears in exactly two markdown files and nowhere in code. `platform-billing/index.ts:133` renders *"your card was declined"* for the platform's own billing of detailers |
+| **`report-a-problem`** | **`report-problem`** — off by one word, and enough to make a copy-paste deploy fail |
+
+**That one line named two functions and got both wrong**, which means it had
+never been checked against `ls supabase/functions/` in its life. The same
+correction is owed to `FOR-ANDREW.md:291`, which is **not this lane** and is
+being carried across by the manager.
+
+### THE ORDER WAS CHANGED MID-RUN, BY THE MANAGER, ON 2026-09-21
+
+**Recorded so a reader comparing any other copy of this order against this one
+finds the difference explained rather than having to work out which is stale.**
+
+`platform-billing` was moved **out of stage 2** and given **its own stage,
+4.5, immediately before the payment webhook and alone.** The manager's
+reasoning, and it is explicitly *not* a weakening of Andrew's ruling:
+
+> the payment webhook still goes last, still alone, still nothing else in
+> flight. What changed is that the reason behind that ruling was applied to
+> the function that turned out to share the property. **A thing that charges
+> people does not ride along in a low-risk batch because a document once put
+> it there.** If publishing it is unremarkable, the cost is one extra stage.
+> If it is not, it is found with nothing else moving.
+
+**So stage 2 is `report-problem` ALONE** — stated that way on purpose, so a
+stage that used to hold two things does not read as one that quietly lost one.
+
+### The order as it now stands
+
+1. **Spanish email labels** — `send-invoice` only. **DONE, version 70.**
+2. **`report-problem`, alone.** Running against parts that did not exist when
+   it was deployed; unpredictable if triggered.
+3. **`create-booking`, `get-booking-receipt`, `platform-admin`,
+   `send-owner-reminders`** — Andrew's approved reorder. The first three
+   unblock finished roadmap items waiting only on being live;
+   `send-owner-reminders` puts the coating-email gate into force, which is
+   the one that can otherwise reach a real customer.
+4. **everything remaining**, in one pass.
+5. **`platform-billing`, ALONE** — stage 4.5, the money path that was hiding
+   under the wrong name.
+6. **the payment webhook LAST and ALONE.** It touches money. Untouched by any
+   of the above; this is Andrew's and it is not being reinterpreted.
+7. **`deployed-inventory` again**, and keep that receipt beside the before.
+
+**Run `deployed-inventory.mjs` before and after** — and **it is no longer
+unproven.** It had never been executed when this was written; it has now run
+repeatedly, including as the stage-0 before-state at `3b9f4d5`. **Use what it
+says at the moment you start, never what this document says**: the figure has
+been 22, then 24, then 33, and each time the earlier number was still sitting
+in a file. Do not deploy something just to clear it.
 
 ---
 
