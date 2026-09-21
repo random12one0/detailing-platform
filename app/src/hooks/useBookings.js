@@ -31,6 +31,26 @@ export function withLocal(b, tz) {
   };
 }
 
+// ROADMAP 4.1 — DECISIONS.md "The job record should stay open when a status
+// changes". `selected`/`open` on every screen that hosts a job record is a
+// SNAPSHOT taken at the moment it was clicked, and a status change updates
+// the row's own list but never that snapshot — so the record kept showing
+// the status it had before the tap that just changed it. One re-fetch, by
+// id, is simpler and more robust than deriving the fresh row from whichever
+// of a screen's several lists it happened to come from (today's jobs,
+// waiting on payment, settled, a client's history — the same booking can
+// be read off any of them). Every caller already has this select through
+// `useBookings`; this is that same query for one row instead of a range.
+export async function fetchBooking(id, businessId, tz) {
+  const { data } = await supabase
+    .from("bookings")
+    .select(BOOKING_SELECT)
+    .eq("id", id)
+    .eq("business_id", businessId)
+    .maybeSingle();
+  return data ? withLocal(data, tz) : null;
+}
+
 // Bookings whose LOCAL date falls in [fromDate, toDate] (inclusive).
 // LOADING IS THE FIRST PAINT ONLY. `loading` used to go true on every read,
 // and all three screens that use this hook answer it by replacing themselves

@@ -8,12 +8,11 @@
 // It predates the rebuild; it surfaced because nothing had ever exercised the
 // way out — the record's own Sheet used to swallow the close.
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
-import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
-import { withLocal, BOOKING_SELECT } from "../hooks/useBookings.js";
+import { fetchBooking } from "../hooks/useBookings.js";
 import Auth from "./Auth.jsx";
 import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
@@ -29,16 +28,11 @@ export default function JobPage() {
   const { session, business, loading } = useBusiness();
   const [booking, setBooking] = useState(undefined);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     if (!business) return;
-    supabase
-      .from("bookings")
-      .select(BOOKING_SELECT)
-      .eq("id", id)
-      .eq("business_id", business.id)
-      .maybeSingle()
-      .then(({ data }) => setBooking(data ? withLocal(data, business.timezone) : null));
+    fetchBooking(id, business.id, business.timezone).then(setBooking);
   }, [business, id]);
+  useEffect(load, [load]);
 
   if (loading) return <div className="center"><div className="spinner" /></div>;
   if (!session) return <Auth />;
@@ -82,7 +76,7 @@ export default function JobPage() {
         <BookingDetail
           booking={booking}
           onClose={() => navigate("/app")}
-          onChanged={() => navigate("/app")}
+          onChanged={load}
         />
       </main>
     </div>

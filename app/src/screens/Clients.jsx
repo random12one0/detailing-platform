@@ -47,7 +47,7 @@ import { supabase } from "../lib/supabase.js";
 import { api } from "../lib/api.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import BookingLink from "../components/BookingLink.jsx";
-import { withLocal, BOOKING_SELECT } from "../hooks/useBookings.js";
+import { fetchBooking, withLocal, BOOKING_SELECT } from "../hooks/useBookings.js";
 import { dateLong, localDate, money, phone, todayLocal } from "../lib/format.js";
 // THE ARITHMETIC IS IN ITS OWN FILE so `tests/client-list.test.mjs` can import
 // it with no browser — the same reason `accountant-export.js` is separate from
@@ -724,8 +724,15 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
           gives, and the reason both go through RecordHost. */}
       {selected && (
         <RecordHost onClose={() => setSelected(null)} {...jobRecordProps(selected)}>
+          {/* ROADMAP 4.1 / DECISIONS.md "the record stays open on a status
+              change" — see Today.jsx for the fuller note; same fix, same
+              reason. `openCustomer` refreshes the client's own history list
+              but not this snapshot, so it is re-fetched by id too. */}
           <BookingDetail booking={selected} onClose={() => setSelected(null)}
-            onChanged={() => { setSelected(null); load(); if (open) openCustomer(open); }} />
+            onChanged={() => {
+              load(); if (open) openCustomer(open);
+              fetchBooking(selected.id, business.id, business.timezone).then(setSelected);
+            }} />
         </RecordHost>
       )}
 

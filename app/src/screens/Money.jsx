@@ -43,7 +43,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BarChart3, ChevronLeft, ChevronRight, Download, Link2 as LinkIcon, Plus } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
-import { useBookings, withLocal, BOOKING_SELECT } from "../hooks/useBookings.js";
+import { fetchBooking, useBookings, withLocal, BOOKING_SELECT } from "../hooks/useBookings.js";
 import { useWide } from "../hooks/useWide.js";
 import { localDate, money, todayLocal } from "../lib/format.js";
 import { PERIOD_KINDS, bucketsFor, inPeriod, periodAt, previousSoFar } from "../lib/periods.js";
@@ -1033,8 +1033,14 @@ export default function Money({ onGo }) {
           the second column, which is where its list is. */}
       {selected && (
         <RecordHost onClose={() => setSelected(null)} {...jobRecordProps(selected)}>
+          {/* ROADMAP 4.1 / DECISIONS.md "the record stays open on a status
+              change" — see Today.jsx for the fuller note; same fix, same
+              reason: `selected` is a snapshot neither reload touches. */}
           <BookingDetail booking={selected} onClose={() => setSelected(null)}
-            onChanged={() => { setSelected(null); reload(); loadExtras(); }} />
+            onChanged={() => {
+              reload(); loadExtras();
+              fetchBooking(selected.id, business.id, business.timezone).then(setSelected);
+            }} />
         </RecordHost>
       )}
     </>

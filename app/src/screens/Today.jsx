@@ -45,7 +45,7 @@ import { STEPS, setupProgress } from "../lib/setup.js";
 // filters with — `tests/client-list.test.mjs` is 31 checks on it — rather than
 // a second rule in SQL that would drift from the chip it sends you to.
 import { arrange, summarise } from "../lib/client-list.js";
-import { useBookings, usePendingRequests } from "../hooks/useBookings.js";
+import { fetchBooking, useBookings, usePendingRequests } from "../hooks/useBookings.js";
 import { useWide } from "../hooks/useWide.js";
 import { api } from "../lib/api.js";
 import { addDays, money, time12, todayLocal } from "../lib/format.js";
@@ -930,8 +930,13 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
 
       {selected && (
         <RecordHost onClose={() => setSelected(null)} {...jobRecordProps(selected)}>
+          {/* ROADMAP 4.1 / DECISIONS.md "the record stays open on a status
+              change" — `reload()` refreshes the day's lists; `selected` is a
+              snapshot none of those reloads touch, so it is re-fetched by id
+              the same way so the record shows what the tap just did instead
+              of closing on it. */}
           <BookingDetail booking={selected} onClose={() => setSelected(null)}
-            onChanged={() => { reload(); setSelected(null); }} />
+            onChanged={() => { reload(); fetchBooking(selected.id, business.id, business.timezone).then(setSelected); }} />
         </RecordHost>
       )}
       {finalizing && (

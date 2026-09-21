@@ -1290,16 +1290,50 @@ requested.
     question, but the demo has no job on Today in a completable state, so that
     surface went unmeasured.
 
-  **TWO THINGS HAVE TO LAND BEFORE THIS CAN CLOSE, AND NEITHER IS A DESIGN
-  QUESTION ANY MORE:**
-  1. **The audit history** — a new append-only table and a write from
-     `update-booking`. A migration AND a deploy, so it waits on the freeze.
-  2. **The record staying open on a status change** — without it the undo is
-     one navigation back rather than one tap, which is not the undo this item
-     asks for. **Agreed in principle by Andrew's manager on 2026-09-20 and
-     deferred on timing, not merit**; the argument, the six call sites and the
-     ruling are written up in `DECISIONS.md` § *"The job record should stay
-     open when a status changes"*. Do not re-derive it.
+  **ONE OF THE TWO THINGS HAS NOW LANDED:**
+  1. **The audit history** — still waiting. A new append-only table and a
+     write from `update-booking`. A migration AND a deploy, so it still waits
+     on the freeze. **This is the only piece left blocking 4.1.**
+  2. **DONE 2026-09-20 — the record staying open on a status change.** Built
+     from the fully-specified ruling in `DECISIONS.md` § *"The job record
+     should stay open when a status changes"*, deferred that morning on
+     timing and un-deferred that same night once the code was ready. One
+     helper, `fetchBooking(id, businessId, tz)` in `useBookings.js`, re-reads
+     the single row by id; every caller's `onChanged` now calls it instead of
+     closing the record. **Walked all five detailer-side call sites, each
+     completed then undone on the real screen with the database read before
+     and after:**
+     - `JobPage.jsx` (the standalone `/job/:id` route) — Elena Marsh's Sept 20
+       2:00 PM booking, `e67e1499-650c-4574-a405-52ca7a197894`: `confirmed` →
+       "Yes, it's done" → `completed` (`23:52:00`) → record stayed on the same
+       URL → "Not completed after all" → `confirmed` (`23:55:18`).
+     - `Today.jsx` and `Calendar.jsx` — verified in an earlier pass the same
+       night.
+     - `Money.jsx` — Elena Marsh's second Sept 20 booking,
+       `af3b671e-a804-4866-9902-f8e8e7f76e22`: `completed` → "Not completed
+       after all" → `confirmed` (`23:56:35`) → "Mark completed" → `completed`
+       (`23:56:53`), record open throughout, notice banner shown both ways.
+     - `Clients.jsx` — Aisha Rahman's Sept 27 booking,
+       `1b1a4433-ee1a-4fa6-bf31-cfb9d309ca9b`, opened from her customer
+       history: `confirmed` → `completed` (`23:57:48`) → `confirmed`
+       (`23:58:00`), record open throughout.
+     Also fixed in the same pass: the "Marked as completed" / "Marked as
+     confirmed" / "Marked as not shown" / "Marked as canceled" notice was
+     never once reachable before, because the old `onChanged` unmounted the
+     record in the same tick it fired — it is now visible on screen (and its
+     Spanish strings added to `appEs.js`), checked at 392px as well as
+     desktop width.
+     **`ManageBookingPage.jsx` (the customer-facing side) was correctly left
+     out — the ruling in `DECISIONS.md` scopes this to the detailer's own
+     five screens, not the customer's.**
+     **A SEPARATE, UNRELATED CONSOLE ERROR was seen on a bare page reload
+     during this pass** — `NotFoundError: removeChild`, caught by
+     `ErrorBoundary`, plus repeated `createRoot() called twice` warnings. The
+     stack cites only `ErrorBoundary`/`Router`/`BrowserRouter`, never any file
+     touched here, and it reproduces on a plain reload with no interaction —
+     it looks like a dev-server HMR collision, plausibly from another
+     session's concurrent edits, not a defect in this fix. Not chased further
+     tonight; worth a look if it turns up again.
 
 - [x] **DONE 2026-09-16 — 4.2 Calendar download links need an authorization review.**
   The link carried a Supabase function URL, a booking id, `audience=owner` and

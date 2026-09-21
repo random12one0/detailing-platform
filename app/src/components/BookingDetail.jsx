@@ -142,8 +142,20 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
     return () => clearTimeout(timer);
   }, [notice]);
 
+  // ROADMAP 4.1 / DECISIONS.md "the record stays open on a status change" —
+  // this notice has never once been on a screen (`onChanged` used to unmount
+  // it in the same tick), so it was never caught not being a real `t()` call.
+  // Four call sites only; an unrecognised status falls back to the raw enum
+  // value rather than inventing a fifth sentence nobody asked for.
+  const STATUS_NOTICE = {
+    confirmed: "Marked as confirmed.",
+    completed: "Marked as completed.",
+    no_show: "Marked as not shown.",
+    cancelled: "Marked as canceled.",
+  };
   const setStatus = (status) =>
-    act(() => api.updateBooking(business.id, { booking_id: booking.id, status }), `Marked ${status}.`);
+    act(() => api.updateBooking(business.id, { booking_id: booking.id, status }),
+      t(STATUS_NOTICE[status] ?? `Marked ${status}.`));
 
   const saveEdit = () =>
     act(async () => {

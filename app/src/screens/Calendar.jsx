@@ -43,7 +43,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Search, SlidersHorizontal, X } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
-import { useBookings } from "../hooks/useBookings.js";
+import { fetchBooking, useBookings } from "../hooks/useBookings.js";
 import { useWide } from "../hooks/useWide.js";
 import { useLeaving } from "../hooks/useLeaving.js";
 import { addDays, dateLong, money, time12, todayLocal } from "../lib/format.js";
@@ -406,8 +406,11 @@ export default function Calendar({ refreshKey = 0 }) {
 
   const record = selected && (
     <RecordHost onClose={() => setSelected(null)} {...jobRecordProps(selected)}>
+      {/* ROADMAP 4.1 / DECISIONS.md "the record stays open on a status
+          change" — see Today.jsx for the fuller note; same fix, same
+          reason: `selected` is a snapshot `reload()` never touches. */}
       <BookingDetail booking={selected} onClose={() => setSelected(null)}
-        onChanged={() => { reload(); setSelected(null); }} />
+        onChanged={() => { reload(); fetchBooking(selected.id, business.id, business.timezone).then(setSelected); }} />
     </RecordHost>
   );
   const newBooking = creating && (

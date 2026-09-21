@@ -1186,6 +1186,11 @@ export const appEs = {
   "Declined. They've been emailed.": "Rechazada. Ya se les mandó correo.",
   "Reminder sent to customer.": "Recordatorio enviado al cliente.",
   "Invoice + thank-you sent.": "Factura y agradecimiento enviados.",
+  // ROADMAP 4.1 — the status-change notice, on screen for the first time.
+  "Marked as confirmed.": "Marcada como confirmada.",
+  "Marked as completed.": "Marcada como completada.",
+  "Marked as not shown.": "Marcada como no presentada.",
+  "Marked as canceled.": "Marcada como cancelada.",
   "They asked for": "Pidieron",
   "Delete this booking? It is hidden, not destroyed, and can be restored by support.":
     "¿Eliminar esta cita? Se oculta, no se destruye, y soporte la puede restaurar.",
