@@ -164,6 +164,66 @@ Updated 2026-09-20.
   database, which costs money and creates something inside your account.
   Neither was touched. Say the word and it takes about an hour.
 
+- [ ] **DECIDE · Do you want travel priced by distance at all?**
+
+  ROADMAP 2.3 says a far-away customer can pick a cheap travel area from a
+  list and pay for it — someone in San Diego can select "Long Beach" and
+  the system never checks. That part is real and confirmed. But the item as
+  written also asks for four things that turn out to be one decision, not
+  four fixes, and building it without you making that decision first would
+  mean guessing at how you want to charge your own customers.
+
+  **What we found before asking.** Your address lookup already returns a
+  map coordinate for a customer's address when they pick one from the
+  suggestions — that part is free, it happens today, and it is just being
+  thrown away right now. **But your OWN business has no stored location at
+  all** — nothing to measure distance FROM — and a travel "area" today is
+  just a name and a flat fee you typed in, with no shape on a map. So
+  "derive the distance automatically" is not a small fix sitting on data we
+  already have; it needs a new way of capturing where you work, and a real
+  decision about what an "area" even means geographically — a radius
+  around your shop, a drawn boundary, a list of ZIP codes.
+
+  **Two branches, and each is a real answer, not a placeholder:**
+
+  1. **Yes, price it by real distance.** This needs your own location
+     stored (typed once, looked up the same way a customer's address is),
+     and a decision on how an "area" is defined on a map. That is a small
+     feature to design, not a bug to fix — genuinely bigger than everything
+     else in this item put together, because it changes how your customers
+     are charged, not just what a screen shows.
+  2. **No, keep areas as named, flat-fee zones the customer picks.** Then
+     the smallest real fix is enough: flag it for you rather than charge it
+     automatically — see below — and 2.3 gets rewritten to ask for that
+     rather than sit open asking for a distance feature nobody has decided
+     to build.
+
+  **The one thing that surprises people either way, so it is worth knowing
+  now rather than later:** a customer who types their address by hand and
+  never presses the "Find" button — which this product deliberately allows
+  and will keep allowing, on purpose, so nobody with an address the lookup
+  has never heard of gets turned away — never has a map coordinate at all.
+  **No branch above can price or flag that address by distance, ever,
+  because there is nothing to measure.** Distance pricing, if you want it,
+  only ever covers the customers who used Find and picked a real
+  suggestion.
+
+  **What lands regardless of your answer, next, not waiting on this
+  decision:** a crude, honest flag — when the area a customer picks
+  doesn't match the words in the address they typed, the detailer sees it
+  on the job record and in the owner's alert, the same way an unverified
+  hand-typed address already gets flagged (ROADMAP 2.8). It does not block
+  the booking and it does not charge anything extra — it is the
+  difference between finding out before you drive and finding out when
+  you arrive. It is crude on purpose: comparing words, not measuring real
+  distance, so it catches "San Diego" typed under a "Long Beach" area and
+  will not catch a street twenty miles off inside the right city. 2.3
+  stays open either way — this flag is a partial, not the fix the item
+  actually asks for.
+
+  **No recommendation attached — this one decides how your customers are
+  charged, and that is yours.**
+
 - [ ] **DECIDE · Two places where the page sells something the software does
   not do.**
 
