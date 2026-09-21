@@ -1,10 +1,12 @@
 {
-  "git_sha": "d4a18aaf8cc79c34c07ed2ebc91c6311dd4bb03e",
-  "git_sha_started": "d4a18aaf8cc79c34c07ed2ebc91c6311dd4bb03e",
+  "git_sha": "5050885967b98d2c09179c1f54a858f2324e7f62",
+  "git_sha_started": "5050885967b98d2c09179c1f54a858f2324e7f62",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-21T10:31:17.955Z",
-  "failures": [],
+  "finished_at": "2026-09-21T12:27:52.852Z",
+  "failures": [
+    "ex4 (Kinzie Mobile Detailing): its picture was taken before a change to y-kinzie.html. Recorded 1779dbd11e8bc0de, the file is now 6a52528f8e6861ad. **The thumbnail on /examples shows a version of this site that no longer exists.** Recapture: node scripts/build-examples.mjs --dev && node scripts/capture-examples.mjs"
+  ],
   "warnings": [
     "the thumbnails on /examples are REAL SCREENSHOTS of the real example sites, committed rather than generated because the examples build runs on every paid deploy. This check is what stops them going stale silently."
   ],
@@ -13,17 +15,19 @@
   ],
   "dimensions": {
     "sites": 5,
-    "captured_at": "2026-09-20T16:32:20.392Z"
+    "injected_blocks": 1,
+    "source_stale": 1,
+    "captured_at": "2026-09-21T12:26:17.293Z"
   },
   "check_id": "example-shots",
-  "started_at": "2026-09-21T10:31:17.852Z",
-  "status": "pass",
+  "started_at": "2026-09-21T12:27:52.761Z",
+  "status": "fail",
   "expected_targets": 5,
   "discovered_targets": 5,
   "attempted_targets": 5,
   "completed_targets": 5,
   "skipped_targets": 0,
-  "assertions_executed": 30,
+  "assertions_executed": 31,
   "min_assertions": 15,
   "canary": {
     "id": "--break=drift · one site's source pretends to have moved",

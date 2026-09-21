@@ -1,5 +1,5 @@
 {
-  "captured_at": "2026-09-20T16:32:20.392Z",
+  "captured_at": "2026-09-21T12:26:17.293Z",
   "sites": {
     "ex1": {
       "source": "v-goldenhour.html",
@@ -23,6 +23,7 @@
       "source": "x-ballantyne.html",
       "title": "Ballantyne Mobile Detailing",
       "fingerprint": "149dc73e66f069be",
+      "injected_fingerprint": "b254a42ed3ea1ab0",
       "shots": {
         "desktop": "ex3-desktop.jpg",
         "phone": "ex3-phone.jpg"

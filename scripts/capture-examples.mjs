@@ -47,6 +47,7 @@ import { createHash } from "node:crypto";
 
 const require_ = createRequire(import.meta.url);
 const { chromium } = require_("./../app/node_modules/playwright/index.js");
+import { injectedFor } from "./build-examples.mjs";
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const SHOTS = path.join(ROOT, "docs", "example-shots");
@@ -56,6 +57,12 @@ const BASE = process.env.EXAMPLES_BASE || "http://localhost:5173";
 // fingerprint is taken of. `build-examples.mjs` owns this mapping; it is
 // repeated here rather than imported because that file runs in the deploy and
 // this one must never be reachable from it.
+// IMPORTED, NOT COPIED, AND THE COMMENT ABOVE USED TO FORBID THIS — 2026-09-21.
+// The rule it states is about the DEPLOY not reaching this file. Importing in
+// the other direction does not do that, and `build-examples.mjs`'s `main()` is
+// now guarded so the import builds nothing. What it buys is that ONE place
+// decides which sites get an injected block: two copies of `slug === "ex3"`
+// is how that block drifted out of the fingerprint in the first place.
 export const SITES = [
   ["ex1", "v-goldenhour.html", "Prime Mobile Detailing"],
   ["ex2", "w-delgado.html", "Delgado Mobile Detailing"],
@@ -165,7 +172,20 @@ if (import.meta.url === `file://${process.argv[1]}`.replace(/\\/g, "/")
       if (ok) console.log(`  ${slug} ${v.key.padEnd(7)} ${v.width}x${v.height} captured`);
     }
 
-    manifest.sites[slug] = { source: src, title, fingerprint: fp, shots };
+    // **THE INJECTED BLOCK IS IN THE PICTURE AND WAS IN NOTHING THE GATE
+    // LOOKED AT.** `build-examples.mjs` puts a paint switcher into ex3 and
+    // only ex3, at build time, immediately before `</body>`. Correcting
+    // "Colour" to "Color" inside that control changed what this thumbnail
+    // should show and `example-shots-check.mjs` went on reporting `current`.
+    // Recorded here, at the moment the photograph is taken, because that is
+    // the only moment at which anybody can honestly say what the picture
+    // contains. `null` for the four sites that get nothing.
+    const inj = injectedFor(slug);
+    manifest.sites[slug] = {
+      source: src, title, fingerprint: fp,
+      injected_fingerprint: inj ? fingerprint(inj) : null,
+      shots,
+    };
   }
 
   await browser.close();

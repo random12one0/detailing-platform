@@ -164,7 +164,20 @@ const MULTI = [
 // three colourways and he could not find a way to change them. It is one
 // small control, out of the corner of the page, and it says what it is.
 // ───────────────────────────────────────────────────────────────────────────
-const PAINTS = `
+// EXPORTED, AND `main()` IS GUARDED BELOW BECAUSE OF IT — 2026-09-21.
+// `example-shots-check.mjs` has to fingerprint this block: it is in the ex3
+// thumbnail and it was in nothing the staleness gate looked at, so correcting
+// "Colour" to "Color" inside it changed what the picture should show and the
+// gate went on saying `current`.
+//
+// **THE ROADMAP SPEC SAID THIS WAS "A ONE-WORD `export`". IT IS NOT, AND THE
+// MISSING HALF IS THE DANGEROUS HALF.** `main()` was called unguarded at the
+// bottom of this file, so ANY `import` of it — from a check, from a test,
+// from a REPL — runs the whole build and writes into `app/public`. Exporting
+// without guarding would have handed every future importer a silent build of
+// another session's tree. The guard is the pattern `capture-examples.mjs`
+// already uses for the same reason, and it prints when it skips.
+export const PAINTS = `
 <style>
   .paintpick{position:fixed;right:14px;bottom:14px;z-index:2147483646;
     display:flex;align-items:center;gap:8px;padding:7px 9px 7px 13px;border-radius:999px;
@@ -231,7 +244,8 @@ async function main() {
       for (const [src, dest] of [[entry, "index.html"], ...Object.entries(extras)]) {
         let html = rewrite(await readFile(path.join(SRC, src), "utf8"));
         // the paint switcher, on the one site that has paints to switch
-        if (slug === "ex3") html = html.replace("</body>", PAINTS + "</body>");
+        const inj = injectedFor(slug);
+        if (inj) html = html.replace("</body>", inj + "</body>");
         await writeFile(path.join(dir, dest), html, "utf8");
       }
       multi.push([slug, title, note, Object.values(extras)]);
@@ -529,7 +543,26 @@ ${multi.map(card).join("")}
   if (DEV) console.log("  dev copy is gitignored; `npm run dev --prefix app` then /ex1");
 }
 
-main().catch((e) => {
-  // See the header: this never fails the build.
-  console.log(`examples skipped — ${String(e.message).slice(0, 100)}`);
-});
+// **ONE PLACE DECIDES WHICH SITES GET AN INJECTION.** The builder and the
+// staleness gate must agree about this by construction; two copies of
+// `slug === "ex3"` is the shape that let the block drift out of the
+// fingerprint in the first place.
+export const injectedFor = (slug) => (slug === "ex3" ? PAINTS : null);
+
+// THE GUARD. True for `node scripts/build-examples.mjs`, for
+// `node ../scripts/build-examples.mjs` (how `app/package.json` calls it in the
+// deploy), and for any absolute path; false only when this file is IMPORTED.
+const runDirectly = import.meta.url === `file://${process.argv[1]}`.replace(/\\/g, "/")
+  || !!process.argv[1]?.endsWith("build-examples.mjs");
+
+if (runDirectly) {
+  main().catch((e) => {
+    // See the header: this never fails the build.
+    console.log(`examples skipped — ${String(e.message).slice(0, 100)}`);
+  });
+} else {
+  // A GUARD THAT SKIPS MUST SAY IT SKIPPED — CLAUDE.md. A build that silently
+  // did not happen is worse than the hole this export was added to close.
+  console.log("build-examples: imported, not run — no site was built. "
+    + `(argv[1] = ${process.argv[1] ?? "none"})`);
+}
