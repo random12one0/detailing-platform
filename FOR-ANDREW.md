@@ -700,6 +700,29 @@ still knows them.
 
 ## Recorded — nothing needed from you yet
 
+- **SETTLED 2026-09-21, so nobody raises them again.** Three answers given
+  this morning, recorded here because a question that keeps coming back costs
+  more than the answer did.
+  - **Two-factor sign-in: a permanent no.** Not "later", not "when there are
+    customers". **Never to be raised again.**
+  - **The demo password living in the repo is your decision, not an
+    outstanding risk.** You remove it at the first real signup, roughly two
+    months out. It is not a finding and should not be written up as one.
+  - **The daylight check is dropped.**
+
+- **REVERSED 2026-09-21: marketing email is allowed again.** The rule that
+  email was only for receipts, reminders and alerts, and that anything selling
+  had to go by text, is **overturned by the person who made it.** Your words:
+  it was a last-minute call made to avoid the work of making marketing email
+  legal, and you have changed your mind. **Nothing in the repo should be
+  treated as settled because that rule shaped it.**
+  **One thing to know before anyone builds on this:** there is **no marketing
+  email feature in the product today.** The screen called "Campaigns" is link
+  tracking — a shareable link, and counts of who opened it and who booked. It
+  sends nothing. So the reversal **opens work rather than switching something
+  back on.**
+
+
 - [ ] **NOTE · Three things are built or decided and have not been looked at in
   a browser yet — 2026-09-21.** Written here so they cannot quietly disappear
   if a session ends. **Nothing is broken by any of them waiting**, and none of
