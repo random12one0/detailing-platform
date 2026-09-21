@@ -42,11 +42,12 @@
 //                thing in the row. A history row is date · what · total.
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ChevronRight, ListChecks, Mail, MessageSquare, Phone } from "lucide-react";
+import { CalendarPlus, ChevronRight, ListChecks, Mail, MessageSquare, Phone } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { api } from "../lib/api.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import BookingLink from "../components/BookingLink.jsx";
+import NewBookingModal from "../components/NewBookingModal.jsx";
 import { fetchBooking, withLocal, BOOKING_SELECT } from "../hooks/useBookings.js";
 import { dateLong, localDate, money, phone, todayLocal } from "../lib/format.js";
 // THE ARITHMETIC IS IN ITS OWN FILE so `tests/client-list.test.mjs` can import
@@ -136,6 +137,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
   const [history, setHistory] = useState(null); // null while the record's list loads
   const [mail, setMail] = useState(null);       // ROADMAP 14.3 — same null-means-loading rule
   const [selected, setSelected] = useState(null);
+  const [booking, setBooking] = useState(null); // ROADMAP 9.7 — customer to open New Booking with, or null
   const [notes, setNotes] = useState("");
   // WHO IS ON A PLAN — roadmap 2.14, research §3: "a plan badge on the client,
   // with the cadence". It is in the RECORD rather than in the row on purpose:
@@ -646,6 +648,22 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
               {open.email && (
                 <a className="btn" href={`mailto:${open.email}`}><Mail size={18} strokeWidth={2} /> {open.email}</a>
               )}
+              {/* ROADMAP 9.7 — "BOOK AGAIN," SCOPED OUT LOUD. Routes into
+                  `NewBookingModal`'s own `pick()` — exactly what runs for a
+                  detailer who types this same customer's name and taps the
+                  search result, never a second version of it. So it carries
+                  exactly what a manual search already carries: name, phone,
+                  email — real data — and their address, which `pick()`
+                  also reads but which is empty for every real customer here,
+                  because `customers.address` is a dead column (this item's
+                  own earlier finding). Does NOT carry their last vehicle or
+                  last service — `pick()` never has, for a manual search
+                  either, and reaching further than it does would be a
+                  second, richer version of the function rather than wiring
+                  into the one that exists. */}
+              <button className="btn" onClick={() => setBooking(open)}>
+                <CalendarPlus size={18} strokeWidth={2} /> {t("Book again")}
+              </button>
               {/* ROADMAP 2.20 — THE ONE PLACE A REJECTED SEND BECOMES VISIBLE.
                   Until this line the provider refusing an address was a
                   `console.error` inside an edge function, so the first symptom
@@ -663,6 +681,18 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
                 </p>
               )}
             </div>
+            {/* ROADMAP 9.7 — same conditional shape App.jsx/Calendar.jsx/
+                Today.jsx already use to open this modal, a fourth instance
+                of it rather than a new mechanism. `onCreated` re-runs the
+                existing `openCustomer` so the record reflects the booking
+                just made instead of going stale. */}
+            {booking && (
+              <NewBookingModal
+                initialCustomer={booking}
+                onClose={() => setBooking(null)}
+                onCreated={() => { setBooking(null); openCustomer(open); }}
+              />
+            )}
 
             <label className="field"><span>{t("Notes")}</span>
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} onBlur={saveNotes}

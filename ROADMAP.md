@@ -4367,7 +4367,59 @@ the dashboard or back office at phone width at all.
   right now. Capitalizing the fallback alone would fix how it looks and
   leave how it translates exactly as broken as today — worth knowing
   before reaching for the smaller-looking fix, which is the whole reason
-  this is written up rather than one-lined.
+  this is written up rather than one-lined. **Andrew's ruling: leave it
+  broken and visible rather than half-fix it** — capitalizing the English
+  alone would make one audience happier and leave the other no better
+  while looking like a fix, which he named as the worst kind of small
+  edit. Held.
+
+  **"BOOK AGAIN" — BUILT, THE FOURTH AND LAST PIECE OF THIS ITEM.**
+  Andrew's ruling on the fork this session stopped at: add the prop, with
+  conditions — a "Book again" that opens a blank form is worse than no
+  button, because it teaches a detailer the feature doesn't work. What
+  made the prop acceptable rather than a design change is that the
+  behaviour already existed: `pick(c)` already sets name, phone, email,
+  looks up the plan. **One optional prop, `initialCustomer`, defaulting to
+  `null`, added to `NewBookingModal.jsx`.** A single effect at mount calls
+  the existing `pick()` with it — not a second version of what `pick`
+  does, the exact function a manual search already runs. The three
+  existing openers (`App.jsx`, `Calendar.jsx`, `Today.jsx`) never pass it,
+  so `initialCustomer` is `null` for all three, exactly as before.
+  **Scope, named out loud, decided before writing any code:**
+  - **Travels:** name, phone, email — real data, exactly what `pick()`
+    already carries for a detailer who types a name and taps a search
+    result. Book again is byte-identical to that same search-and-tap.
+  - **Nominally travels, empty in practice:** address. `pick()` reads
+    `c.address`, and `customers.address` is the dead column this item
+    already found — so Book again inherits the same limitation manual
+    search already has. Considered enriching it with the real address
+    from `history[0]` (the same source "Last address" above uses) and
+    ruled it out: that would make Book again behave differently from
+    manual search for the identical customer, which is a new decision
+    about where data comes from, not the existing function doing what it
+    already does.
+  - **Does not travel:** last vehicle, last service. The detailer picks
+    fresh — `pick()` never touches either field, for a manual search or
+    for this.
+  On the Clients side: one new state variable, one button, and a fourth
+  instance of the exact `{state && <NewBookingModal .../>}` shape the
+  other three call sites already use — not a new pattern. `onCreated`
+  re-runs the existing `openCustomer` so the record reflects the booking
+  just made rather than going stale.
+  **VERIFIED LIVE, 320 first, then 1440.** Marcus Webb, pressed from his
+  record: the modal opened with him already picked (checkmark, no search
+  step), "Customer name / Phone / Email" all pre-filled, and the plan
+  lookup fired too — "On Bi-weekly maintenance. The plan price is applied
+  automatically." Vehicle size sat at its own default ("Small"), unfilled,
+  matching the scope above. **The one check that actually proves the
+  three existing openers are untouched, not just unedited in source:**
+  Today's own "New booking" button, pressed fresh, opened a genuinely
+  blank form — empty search box, no customer picked. `scrollWidth ===
+  clientWidth` at 320 with the modal open; no console error at either
+  width. `tests/composition.test.mjs` 97/97, `scripts/label-guard.mjs`
+  clean. No new translatable string — `t("Book again")` already existed.
+  **Still not ticked** — same standard as 9.11: built and verified by this
+  session, held for Andrew's own press before it goes to `[x]`.
 
 - [x] **DONE 2026-09-20 — 9.8 Manual booking flashes "No active services yet"
   before loading.** Replace false empty states with a loading skeleton; only

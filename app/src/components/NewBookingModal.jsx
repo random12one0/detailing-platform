@@ -65,7 +65,7 @@ function Block({ title, hint, children }) {
   );
 }
 
-export default function NewBookingModal({ onClose, onCreated, initialDate }) {
+export default function NewBookingModal({ onClose, onCreated, initialDate, initialCustomer = null }) {
   useAppLocale();
   const { business, settings } = useBusiness();
   const s = useMemo(() => normalizeSettings(settings), [settings]);
@@ -156,6 +156,20 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
       .neq("status", "ended").limit(1);
     setPlan(data?.[0] ?? null);
   };
+
+  // ROADMAP 9.7 — "BOOK AGAIN," AND IT ROUTES INTO THE SAME FUNCTION A
+  // MANUAL SEARCH ALREADY USES, NOT A SECOND VERSION OF IT. `pick()` is
+  // exactly what runs when a detailer types a name and taps a search
+  // result; this runs it once, at mount, for a customer Clients.jsx
+  // already has in hand, so a "Book again" press is byte-identical to
+  // that same search-and-tap, never a different path with its own rules.
+  // Mount-only (`initialCustomer` does not change while this modal is
+  // open — a fresh open is a fresh mount, the same way `initialDate`
+  // already works two lines up), so there is nothing to reconcile if it
+  // changed mid-session.
+  useEffect(() => {
+    if (initialCustomer) pick(initialCustomer);
+  }, [initialCustomer]);
 
   const clearCustomer = () => {
     setPicked(null);
