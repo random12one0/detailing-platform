@@ -64,6 +64,28 @@
 // payload-driven implementation would have been caught here.
 //
 // ---------------------------------------------------------------------------
+// THE FOUR SABOTAGE SWITCHES, AND WHAT EACH ONE PROVES
+// ---------------------------------------------------------------------------
+//   --break=canary  the booking is not put back to `confirmed`, so the final
+//                   cancel is not a transition, nothing sends, and the canary
+//                   is correctly MISSED. Counts stay 7 7 7 7 — which is the
+//                   point: the counts and the canary are independent guards.
+//   --break=step    a declared step is dropped from the judged list while the
+//                   run still performs it. 7 6 7 6, and it names the step as
+//                   undeclared.
+//   --break=skip    the mirror: the step stays declared and does not run.
+//                   7 7 6 6, and it names the step as never reaching a
+//                   verdict. This is the `missedSteps` branch.
+//   --break=none    the run does not happen at all. 7 7 0 0, and the receipt
+//                   exists — which before 2026-09-21 it did not. Makes no
+//                   network call and writes nothing anywhere.
+//
+// Not built: a switch that empties `EXPECTED_STEPS`. That guard can only trip
+// if somebody deletes a constant by hand, and firing it would cost a full
+// fixture cycle of real writes to demonstrate a consequence `--break=none`
+// already demonstrates. Named here rather than left to be noticed missing.
+//
+// ---------------------------------------------------------------------------
 // NOTHING REACHES A PERSON
 // ---------------------------------------------------------------------------
 // Every recipient is `delivered@resend.dev`, the address Resend publishes that
@@ -207,6 +229,13 @@ async function delta(businessId, before) {
 }
 
 try {
+  // **THE BREAK THAT MATTERS FOR A GATE IS THE ONE WHERE IT DOES NOT RUN.**
+  // It throws here, as the first statement inside the try and before any
+  // request, so this sabotage makes no network call and creates nothing. What
+  // it exercises is the `catch` below: a run that produced no verdict at all
+  // still files a receipt, instead of leaving the last green one to speak for
+  // it. Counts come out `7 7 0 0`.
+  if (BREAK === "none") throw new Error("--break=none: the fixture was never created");
   console.log("1 · fixture");
   // A business that offers nothing to the public and has one booking on it.
   await rest("DELETE", `/rest/v1/businesses?slug=eq.${SLUG}`);
@@ -371,10 +400,32 @@ try {
   await rest("PATCH", `/rest/v1/bookings?id=eq.${bookingId}`,
     { body: { status: "confirmed" }, prefer: "return=minimal" });
   const lastDay = new Date(Date.now() + 54 * 86400_000).toISOString().slice(0, 10);
-  await step("put back and moved again — the mailer is still alive",
-    { booking_date: lastDay, start_time: "11:00" },
-    ["Your booking has been rescheduled"], "liveness");
+  // `--break=skip` leaves this step DECLARED and stops it running, which is
+  // the `missedSteps` side of the comparison. `--break=step` proves the other
+  // side — a step that runs without being declared — so between them both
+  // directions of the declared-versus-ran comparison are exercised. Until
+  // this flag existed `missedSteps` was written and never demonstrated, and
+  // docs/silences.md said so rather than letting it be found as a surprise.
+  if (BREAK !== "skip") {
+    await step("put back and moved again — the mailer is still alive",
+      { booking_date: lastDay, start_time: "11:00" },
+      ["Your booking has been rescheduled"], "liveness");
+  }
 
+} catch (err) {
+  // **A CRASH BEFORE `writeReceipt` LEAVES THE LAST GREEN RECEIPT ON DISK, AND
+  // IN THE RECEIPTS DIRECTORY THAT IS INDISTINGUISHABLE FROM A RUN THAT NEVER
+  // HAPPENED.** Until 2026-09-21 this file had a `finally` and no `catch`,
+  // with four `throw`s inside the try — one of them in `sql()`, which every
+  // step calls twice — so a single bad answer from the Management API killed
+  // the process and the previous run's `pass` stood in for the missing one.
+  //
+  // Same fault, same fix as `restore-drill.mjs` (`bf55bb9`, docs/silences.md
+  // § B). The message is the error's own text rather than a name read off a
+  // list, so the receipt records WHAT CHANGED and not merely that something
+  // did. The `finally` below still runs, so the fixture is still destroyed.
+  failures.push(`THE RUN DID NOT FINISH: ${err?.message ?? String(err)}. Everything `
+    + "recorded here is as far as it got, not a result.");
 } finally {
   if (!KEEP && biz) {
     await rest("DELETE", `/rest/v1/businesses?slug=eq.${SLUG}`);

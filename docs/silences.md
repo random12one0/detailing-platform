@@ -924,7 +924,69 @@ false and the run fails, which shows the two guards are independent.
 never reaches a verdict — has no sabotage that exercises it. `--break=step`
 proves the undeclared side of the same comparison. **The missing side is
 written and not demonstrated**, and it is written here rather than left to be
-discovered as a surprise.
+discovered as a surprise. *(A `--break=skip` now exists for it. It is built and
+has not been run — see the section immediately below, which is the correction
+to this paragraph and to the "closed" above it.)*
+
+### THE SECTION WAS CLOSED AND THE ONE CASE IT COULD NOT TELL FROM SUCCESS WAS STILL OPEN — 2026-09-21
+
+**`330c3e4` fixed the four counts, and the counts were never the case this
+gate could not see.** Three sections up, § A states the rule in its own
+heading: **the break that matters for a gate is the one where it does not
+run.** `dashboard-notifies` had no such break — and the reason was worse than
+a missing flag. **It had a `finally` and no `catch`.**
+
+Four `throw`s sat inside that try: the fixture business, the sign-in, the
+fixture booking, and one inside `sql()` — which **every step calls twice**.
+Any of them killed the process before `writeReceipt`. What stayed on disk was
+the previous run's `pass`, `7 7 7 7`. **A crashed run and a run that never
+happened were byte-identical in the receipts directory**, which is this
+document's subject wearing its plainest spelling.
+
+Same fault and same fix as `restore-drill.mjs` (`bf55bb9`, § B above). It
+survived here because the skip audit at `ROADMAP.md:8186` asked about the
+**skip** paths — which are honest, loud, and exit before any receipt exists —
+and never asked about the **crash** path. *That row still reads as though the
+question was settled for all ten scripts; it was settled for one of their two
+exits.*
+
+**PROVED BY RUNNING BOTH SIDES, NOT BY READING THE DIFF**, because this file
+has accepted a read counterfactual before and said so at the time.
+`HEAD`'s copy of the script was extracted **unmodified** and run against an
+unreachable database, so the crash is a genuine network failure and not a
+planted throw:
+
+| the run | the receipt afterwards |
+|---|---|
+| HEAD's file, `fetch failed` | **UNCHANGED, to the byte** — the 08:25 `pass 7 7 7 7` still stood as the record of a run that never happened |
+| the fixed file, same failure | **`7 7 0 0`**, status `fail`, *"THE RUN DID NOT FINISH: fetch failed"*, exit 1 |
+
+| sabotage | counts | verdict |
+|---|---|---|
+| `--break=none` | **`7 7 0 0`** | **FAIL**, exit 1 — and `receipt.mjs` refuses it on **four independent rules**: counts disagree, 0 assertions against a floor of 15, canary not caught, 3 failures recorded |
+
+**`--break=none` MAKES NO NETWORK CALL AND WRITES NOTHING**, which is the only
+reason it could run while the demo tenant was held by another session. It
+throws as the first statement inside the try. **Measured rather than
+asserted**, the discipline every round tonight has been handed over under:
+`businesses` read **16** before and **16** after, `dash-notify-fixture`
+**absent** both times, `demo-detail` / `demo-riverside` / `demo-ironclad` all
+**`active`** both times.
+
+**`--break=skip` IS BUILT AND HAS NOT BEEN RUN.** It is the `missedSteps`
+side — the step stays declared and does not run, expecting `7 7 6 6` with the
+step named — and it needs the tenant, because it performs the real run minus
+one step. **Built is not proved, and this file exists to keep those two words
+apart.** Still waiting on the tenant with it: the clean control (`7 7 7 7`, 19
+assertions, canary caught), `--break=step` (`7 6 7 6`) and `--break=canary`
+(counts hold, canary false) — the last two re-run not because they changed but
+because a fix trusted on its author's word is what this file refuses.
+
+**One switch was deliberately not built and is named rather than left
+missing:** a sabotage that empties `EXPECTED_STEPS`. That guard can only trip
+if a person deletes a constant by hand, and firing it would cost a full
+fixture cycle of real writes to demonstrate the consequence `--break=none`
+already demonstrates.
 
 ### AND THE REASON THIS ONE WAS DEFERRED WAS WRONG, WHICH IS MINE
 
