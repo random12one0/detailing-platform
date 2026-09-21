@@ -406,6 +406,12 @@ export const appEs = {
   "Last visit": "Última visita",
   "No completed visits yet": "Aún no hay visitas terminadas",
   "lifetime": "en total",
+  // ROADMAP 9.6 — the list row's own figure caption, same two words the
+  // record's ledger already uses two taps away ("visit" / "visits" there
+  // is bare English with no t() wrapper, a separate pre-existing gap not
+  // touched by this edit).
+  "visit": "visita",
+  "visits": "visitas",
   "Plan": "Plan",
   "On a plan": "En un plan",
   "Notes": "Notas",

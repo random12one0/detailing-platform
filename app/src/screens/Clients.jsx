@@ -521,9 +521,20 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
               <span className="c-date">{agoWords(last, today, t)}</span>
               <span className="c-what">{phone(c.phone)}</span>
             </span>
-            {/* Lifetime spend is owner-only; staff get the count, which is
-                what they need and is the same slot (step 4 §8). */}
-            <span className="c-total figure sm">{owner ? money(spend) : visits}</span>
+            {/* ROADMAP 9.6 — THE FIGURE ALONE DOES NOT SAY WHAT IT IS. Same
+                slot shows lifetime spend to an owner and a bare visit count
+                to staff; neither carries a unit. The date beside it reads as
+                a relative-time phrase on its own and the phone number reads
+                as one by its shape — this is the one value on the row that
+                needs a word, not all three. Reuses the exact words the
+                record's own ledger already uses two taps away (`.ledger
+                .lbl`: "lifetime" / "visit(s)") so the two never disagree.
+                Lifetime spend is owner-only; staff get the count (step 4
+                §8). */}
+            <span className="c-total figure sm">
+              {owner ? money(spend) : visits}
+              <span className="c-total-lbl">{owner ? t("lifetime") : (visits === 1 ? t("visit") : t("visits"))}</span>
+            </span>
           </button>
         ))}
       </div>

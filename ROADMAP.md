@@ -4216,6 +4216,41 @@ the dashboard or back office at phone width at all.
   vague. Define it with an exact period and give it an action.
   *A1 P2-12*
 
+  **HALF OF THIS WAS ALREADY TRUE BEFORE TONIGHT, NOT NEW WORK.** The
+  "9 gone quiet" half — an exact period and an action — was done by the
+  2.11 rebuild: `LAPSED_DAYS = 90` in `lib/client-list.js`, "3 months" on
+  the chip, "Text these N" as the action once it's on. Stale audit claim,
+  found by reading the code rather than assumed from the item's own words.
+
+  **THE LABELS HALF, SCOPED RATHER THAN BUILT AS A HEADER ROW.**
+  `theme.css` states outright, for this exact list: *"what these screens
+  need is the hairline, the row rhythm... A table would be a new container
+  with its own edges and its own header row"* — a column-header row is the
+  redesign 9.12 got rejected for, one item over. Read as the person
+  looking at the row: the date reads as a relative-time phrase on its own
+  ("3 weeks ago") and the phone number reads as one by its shape — neither
+  needs a word. The figure does: the same slot shows lifetime spend to an
+  owner and a bare visit count to staff, and nothing on screen says which.
+  **Built:** a caption under the figure, `Clients.jsx`'s `rows.map` row,
+  reusing the exact words the record's own ledger already uses two taps
+  away (`.ledger .lbl`: "lifetime" / "visit(s)") rather than inventing new
+  ones — `.c-total-lbl` in `theme.css`. Spanish added: `"visit"`/`"visits"`
+  had no bare key yet (checked); `"lifetime"` already did and is reused,
+  not duplicated.
+  **Named cost, not hidden:** stacking the caption under the figure rather
+  than beside it makes the row's first line very slightly taller, on every
+  row in the list — the alternative (inline, beside the figure) risked the
+  same narrow-width overflow 9.11 just cost an evening on, with a bare
+  dollar figure and a word competing for one line in a fixed column.
+  **Not done:** date and phone left unlabeled, on the self-describing
+  reading above — if that reading is wrong, this item is not fully closed
+  by this build.
+  **Adjacent, not fixed here:** `Clients.jsx`'s own record card already
+  writes `facts.visits === 1 ? "visit" : "visits"` with no `t()` wrapper —
+  bare English on a translated dashboard, found while adding the same two
+  words correctly a few lines away. Worth its own line, not folded into
+  this commit.
+
 - [ ] **9.7 — Client card is missing basics.** No Text button, no vehicle, no
   address, no "Book again". Add them; "Book again" opens New booking prefilled.
   *A2 4.7*

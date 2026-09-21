@@ -2657,6 +2657,20 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 /* `.row-item > .figure.sm` nudges the amount up 3px to land on the first line
    of Today's two-line row. A grid cell is already on its own line. */
 .rows.cols .row-item .c-total { grid-area: total; align-self: center; margin-top: 0; }
+/* ROADMAP 9.6 — THE CAPTION UNDER THE FIGURE, THE SAME TREATMENT
+   `.ledger .lbl` ALREADY USES for the identical fact two taps away. Stacked
+   rather than inline after the figure: the column is proportioned for a
+   bare number ("$1,234.50"), and "lifetime"/"visits" beside it on one line
+   risks exactly the kind of narrow-width overflow ROADMAP 9.11 just cost an
+   evening to fix — a word made to fit a box rather than the box making
+   room. The honest cost, named rather than left implicit: this makes the
+   row's first line very slightly taller wherever it renders, on every row
+   in the list. `var(--t-meta)` matches `.ledger .lbl`'s own size exactly,
+   not a smaller invented one. */
+.c-total-lbl {
+  display: block; font-size: var(--t-meta); color: var(--text-muted);
+  line-height: 1.2; margin-top: 1px;
+}
 .rows.cols .row-item .c-sub {
   grid-area: sub; min-width: 0;
   display: flex; align-items: baseline; gap: 4px;
