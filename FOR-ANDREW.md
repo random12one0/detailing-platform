@@ -252,6 +252,58 @@ still knows them.
 
 ## Waiting on you — nothing breaks while these wait
 
+- [ ] **READ · One sentence came off your privacy page, and you can have it
+  back the day we build the thing it promised.**
+
+  **What it used to say.** The paragraph telling a customer how to get their
+  own information back ended *"…and they can do both from their own
+  dashboard"* — meaning their detailer could both **delete** them and give
+  them a **copy** of their record.
+
+  **Deleting is true.** That button is real and is on the Clients screen.
+  **The copy was not.** There was no way for a detailer to hand one customer
+  a copy of their own record, and that sentence was on the one page a
+  stranger reads when they want their data back from a business they have no
+  other way of checking.
+
+  **So the clause was removed and nothing was put in its place.** The
+  paragraph now stops at *"It is their list."* Everything left on it is true.
+
+  **This is a correction, not a retreat — and it is reversible.** The moment
+  a detailer can produce a copy for one customer, the sentence goes back
+  exactly as it was. **Nothing reaches anybody until you publish**, as with
+  the rest of that page.
+
+- [ ] **READ · Your customers can now be exported, which three of your pages
+  have been promising all along. One noun in that promise is still unkept.**
+
+  **What is new.** There is a button on the Clients screen — **"Export my
+  customers"** — that hands a detailer a spreadsheet of their whole list:
+  name, phone, email, address, notes, when they first appeared, how many jobs
+  they have had, what they have spent, when they last came in, and whether
+  they have opted out of marketing. **It is their own list and nobody else's**
+  — proved by exporting the demo detailer's and counting: 48 customers exist
+  on that database across 10 businesses, the demo detailer owns 13, and the
+  file had exactly those 13 and none of the other 35.
+
+  **Why it was built tonight rather than queued.** You ruled it a build item
+  on 20 September. What made it urgent is that **`/pricing`, your home page
+  and your terms all already promised it** — *"You export them and go"* is
+  your answer to *"what happens to my customers if I cancel"*, which is the
+  question a nervous detailer actually asks before signing up. The only
+  download in the product was the accountant's jobs-and-expenses file, which
+  has no customer list in it at all.
+
+  **THE PART THAT IS STILL NOT TRUE, and you should know it rather than find
+  it.** That same sentence says *"Your customers, their numbers **and your
+  photos** are yours."* **There is no photo export.** Not a smaller one — none
+  at all. The two honest ways out are to build it or to take the word
+  "photos" out of that sentence, and both are yours. Nothing else on the
+  promise is outstanding.
+
+  **It reaches nobody until you publish.** Like everything else this week, it
+  is in the repository and not on the live site.
+
 - [ ] **READ · Your privacy page now names four things it did not name. The
   words are yours to change; the facts are not.**
 
