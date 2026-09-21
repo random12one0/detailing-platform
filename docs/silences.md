@@ -64,9 +64,9 @@ end with the same summary line.
 
 | script | what its silence looks like | the distinguishing test |
 |---|---|---|
-| `sweep-booking-steps.mjs` | `every control reaches the floor` when `tapFindings` is empty — **including when it visited zero controls** | count controls probed; fail under a floor |
+| ~~`sweep-booking-steps.mjs`~~ | **ROW CORRECTED 2026-09-20 — the claim was wrong, and the truth was worse. See below** | — |
 | `accent-sweep.mjs` | `SWEEP CLEAN — dashboard, booking page and hue families` on `failures === 0` | count tokens/pairs compared; fail on zero |
-| `e2e-booking.mjs` | exits 0 with no subject count | count the steps completed end to end; assert the booking exists afterwards |
+| `e2e-booking.mjs` | exits 0 with no subject count | count the steps completed end to end; assert the booking exists afterwards. **STILL UNPROVEN, and the census mis-scoped it: it needs `SUPABASE_SERVICE_ROLE_KEY` and four other credentials, so it is NOT browser-only** |
 | `render-emails.mjs` | exits 0 with no subject count | count templates rendered; fail below the known template count |
 | `db-audit.mjs` | exits 0 with no subject count | count tables/migrations examined; fail on zero |
 | `check-deployed.mjs` | exits 0 with no subject count | count functions compared; fail on zero (`deployed-inventory.mjs` already does this properly — copy it) |
@@ -87,6 +87,40 @@ form."* The exit code is COMPUTED, so `1` is never adjacent to
 values met, and as `$?` reporting `tail`'s status instead of `node`'s.
 **Before trusting any zero result from a search for a literal, ask whether the
 string could be built rather than typed.**
+
+**`sweep-booking-steps.mjs` — the row was wrong, and correcting it found a
+bigger fault than the one alleged.** The census said it reports clean over
+nothing. **It does not: it dies loudly.** Run on 2026-09-20 it crashed at step
+4 of 7 with a 30-second Playwright timeout and a stack trace naming no step.
+
+The script already had a guard for exactly that — print `STUCK`, name the step,
+quote the page's own reason, break — written under a comment saying it replaced
+a bug where the script *"used to click a disabled button and time out thirty
+seconds later inside Playwright, with nothing in the output saying WHICH step
+or what it wanted."* **The guard could never fire.** It asked
+`!button.disabled`, and `BookingPage.jsx:920` renders Continue as
+`aria-disabled={!canAdvance}` with **no `disabled` attribute** — deliberately,
+since roadmap 2.6, so a press stays receivable and `Refusal.jsx` can explain
+the refusal. `b.disabled` is `false` on a refusing button, so the predicate
+returned true.
+
+**The remediation was written against a spelling the product had already
+moved off, so it never took — and nobody noticed, because a guard's silence
+looks identical to a step that advanced.**
+
+And the consequence was larger than legibility. The same wrong predicate
+skipped the outer branch that fills the address field, so the step could never
+become satisfiable — the check could not complete its walk at all:
+
+```
+before   4 step lines, 1 width, crash at step 4/7, anonymous stack trace
+after    32 step lines, 4 widths, 70 findings across 23 distinct controls
+```
+
+**So the honest correction is: the row named the wrong symptom, and the real
+fault was that this gate had not measured its own subject for some time.** The
+original point still holds one level down — a guard that cannot fire is a
+silence — but it was not where the census said it was.
 
 ### B · Receipts whose numbers cannot disagree — 5
 

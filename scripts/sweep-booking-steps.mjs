@@ -410,7 +410,25 @@ for (const size of SIZES) {
     // I walked into it inside the guard written to make failures legible.
     const cont = page.locator(".bk-bar button.bk-btn.primary");
     const waitEnabled = (ms) => page.waitForFunction(
-      () => { const b = document.querySelector(".bk-bar button.bk-btn.primary"); return !!b && !b.disabled; },
+      // **`disabled` IS THE WRONG QUESTION ON THIS BUTTON, AND HAS BEEN SINCE
+      // ROADMAP 2.6 — found 2026-09-20.** `BookingPage.jsx:920` renders
+      // Continue as `aria-disabled={!canAdvance}` with NO `disabled`
+      // attribute, deliberately: `Refusal.jsx` explains that a press has to be
+      // receivable so it can say why it refused. So `b.disabled` is `false`
+      // even when the button is refusing, this predicate returned TRUE, and
+      // the STUCK guard below — written specifically to stop this script dying
+      // anonymously inside Playwright — could never fire.
+      //
+      // Playwright's own actionability check DOES honour `aria-disabled`, so
+      // `cont.click()` then waited 30s and threw a stack trace naming no step.
+      // **That is the exact failure the comment below says it replaced**: the
+      // replacement was written against `disabled` while the product had
+      // already moved to `aria-disabled`, so it never took, and nobody noticed
+      // because the guard's silence looks the same as a step that advanced.
+      () => {
+        const b = document.querySelector(".bk-bar button.bk-btn.primary");
+        return !!b && !b.disabled && b.getAttribute("aria-disabled") !== "true";
+      },
       null, { timeout: ms },
     ).then(() => true).catch(() => false);
     if (!(await waitEnabled(8000))) {
