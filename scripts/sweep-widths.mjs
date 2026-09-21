@@ -709,12 +709,22 @@ const langCheck = (label, sig) => {
   if (ENGLISH_ONLY.has(label)) return;
   const cat = label.startsWith("book") ? BOOK_ES : APP_ES;
   let en = 0, es = 0;
+  // **WHICH PHRASES, NOT JUST HOW MANY — 2026-09-20.** `appEs.js` is keyed on
+  // the English string, so one English word with two senses collapses to one
+  // entry: `"Light"` is `"Claro"` because a tenant site's Dark/Light theme
+  // toggle reached that key first, and the New booking form's soiling scale
+  // then shows a detailer the word for *pale*. A surface can therefore come
+  // out "Spanish" on a word that means something else entirely — a pass this
+  // certification would give and should not. Recording the matched phrases is
+  // what lets a run SAY whether it leaned on one of those, instead of a
+  // reader having to assume it did not.
+  const hits = [];
   for (const [k, v] of cat) {
     if (k === v || k.length < 8 || k.includes("{")) continue;
-    if (sig.includes(v)) es++;
+    if (sig.includes(v)) { es++; hits.push(v); }
     else if (sig.includes(k)) en++;
   }
-  if (LANG_ES && LANG_CERTIFY.includes(label)) LANG_SEEN.set(label, { es, en });
+  if (LANG_ES && LANG_CERTIFY.includes(label)) LANG_SEEN.set(label, { es, en, hits });
   // A surface with nothing the catalogue knows either way says nothing about
   // the language, and must not be turned into a finding: a QR plate and a
   // month grid are mostly not words.
@@ -3494,7 +3504,15 @@ if (LANG_ES) {
         + `(0 translated, 0 English). A page rendering neither looks exactly like this, and it used to pass`);
       found++;
     } else if (seen.es > seen.en) {
-      console.log(`lang · ${label.padEnd(24)} SPANISH — ${seen.es} translated phrase(s) against ${seen.en} English`);
+      // The soiling scale and the theme toggle share `"Light"`. If a
+      // certification ever rests on one of these, the run says so out loud
+      // rather than letting the count speak for it.
+      const COLLISIONS = ["Claro", "Oscuro"];
+      const leaned = (seen.hits || []).filter((h) => COLLISIONS.includes(h));
+      console.log(`lang · ${label.padEnd(24)} SPANISH — ${seen.es} translated phrase(s) against ${seen.en} English`
+        + (leaned.length ? `  ⚠ INCLUDES A KNOWN AMBIGUOUS KEY: ${leaned.join(", ")} — do not count this surface `
+          + `until that key is settled` : ""));
+      if (leaned.length) found++;
     } else {
       console.log(`lang · ${label.padEnd(24)} NOT SPANISH — ${seen.es} translated against ${seen.en} English. `
         + `\`dp.lang\` is the customer's key and it was set; the screen did not follow`);
