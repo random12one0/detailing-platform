@@ -90,7 +90,7 @@ end with the same summary line.
 | `e2e-booking.mjs` | exits 0 with no subject count | count the steps completed end to end; assert the booking exists afterwards. **STILL UNPROVEN, and the census mis-scoped it: it needs `SUPABASE_SERVICE_ROLE_KEY` and four other credentials, so it is NOT browser-only** |
 | `render-emails.mjs` | exits 0 with no subject count | count templates rendered; fail below the known template count |
 | `db-audit.mjs` | exits 0 with no subject count | count tables/migrations examined; fail on zero |
-| `check-deployed.mjs` | exits 0 with no subject count | count functions compared; fail on zero (`deployed-inventory.mjs` already does this properly — copy it) |
+| `check-deployed.mjs` | exits 0 with no subject count | count functions compared; fail on zero. **DO NOT COPY `deployed-inventory.mjs` FOR THIS — corrected 2026-09-21 after running it. Its count and canary reach the RECEIPT and not the screen: it prints `PASS` and exits 0 having fetched nothing. See the section below.** |
 | `i18n-survey.mjs` | **CLOSED — see below** | — |
 
 **Two of these were misread by a grep first and corrected by reading.** A
@@ -308,6 +308,103 @@ twelve silences named here are unverified claims about unverified checks, and
 that is the honest state of this file on the day it was written.
 
 ---
+
+
+## `deployed-inventory.mjs` WAS RUN FOR THE FIRST TIME, AND IT PRINTS A PASS HAVING FETCHED NOTHING — 2026-09-21
+
+**It had never been executed in its life.** CLAUDE.md puts it in the
+before-you-finish list, ROADMAP 0.6 is built on it, and it gates a publishing
+order Andrew has not authorised. Run, then broken on purpose four ways.
+
+**IT READS. Nothing was deployed, nothing was written to the database.** The
+project reached was `kguqylyzgyzfktkfnhjb` — this platform's own, not the
+presumed-real-business ref.
+
+### What it counted, on a real run
+
+| | |
+|---|---|
+| functions in the repo | **39** |
+| deployed on the project | **39** |
+| bundles fetched and compared | **39** (`assertions_executed`, floor 30) |
+| running this checkout | **15** |
+| **NOT running this checkout** | **24** |
+| widest gap | **7.8 days** |
+| verdict | `fail`, exit 1, all 24 named |
+
+**24, not ROADMAP 0.6's 22** — two more have drifted since it was written. The
+24: `accept-quote`, `calculate-booking`, `cancel-booking`, `connect-account`,
+`create-booking`, `create-business`, `forecast`, `get-booking-receipt`,
+`invite-user`, `pay-booking`, `plan-link`, `platform-admin`,
+`platform-billing`, `preview-emails`, `report-problem`, `reschedule-booking`,
+`respond-to-booking`, `send-campaign`, `send-invoice`, `send-owner-reminders`,
+`stripe-webhook`, `update-booking`, `validate-promo-code`, `watch-jobs`.
+
+### The four breaks
+
+| what was broken | what it did | verdict |
+|---|---|---|
+| `--only=` a function that does not exist | `0 function(s) in the repo` → **`PASS — every function is running this checkout's source`, exit 0** | **NOT CAUGHT on screen** |
+| a repo function never deployed | printed `NOT DEPLOYED`, then **`PASS`**, exit 0 | **NOT CAUGHT on screen** |
+| one comment line altered | `DIFFERS`, `1 of 49 comment lines`, named the exact line, exit 1 | **caught** |
+| sanitiser deleted + `slice(0,64)`→`slice(0,8)`, no comment touched | **`matches — running copy contains this checkout's source`**, exit 0 | **not caught, and documented** |
+
+### The finding, and it is the shape this file exists to name
+
+**The defence exists and it works — in the file nobody reads.** On the
+fetched-nothing run the receipt said `status: fail`, the canary said
+`NOT CAUGHT — no bundle was readable, so this run proves nothing about any
+function`, and `receipt.mjs` said *"only 0 assertions ran against a declared
+minimum of 30"*. **Meanwhile stdout said `PASS` and the exit code was `0`.**
+
+The cause is one line. The verdict and the exit are computed from
+`failures.length` alone; the canary reaches `status` in the receipt and nothing
+else:
+
+- `failures` is built only from `DIFFERS`. `NOT DEPLOYED`, `UNREADABLE` and
+  `UNJUDGEABLE` become `warnings`, which change no verdict and no exit code.
+- So **zero subjects and zero fetches is indistinguishable from a clean
+  estate** to anyone reading the terminal, which is the one way the script's
+  own header says it could lie.
+
+**`--only=<typo>` reaches this in one keystroke**, and `--only=` is the flag a
+session uses to ask the only question it has: *is the one I just edited in the
+list?*
+
+### Two claims already in this file that this corrects
+
+- **Line 93 said `deployed-inventory.mjs` "already does this properly — copy
+  it"**, as the fix for `check-deployed.mjs`. It does it properly in the
+  receipt and not on screen, so copying it would copy the hole. Marked there.
+- It sits in **§ B, receipts whose numbers cannot disagree**, as
+  `dirs.length` / "structural floor — much weaker fault". **Confirmed by
+  running:** `expected`, `discovered`, `attempted` and `completed` were all
+  `39`, and on the empty run all four were `0` — four counts, one variable,
+  agreeing about nothing.
+
+### And the mitigation the header promises is not printed
+
+The header concedes the comment blind spot and answers it: *"The git column
+beside it is what covers that gap, and the two are printed together on purpose
+so neither is read alone."* **For a `matches` verdict there is no git column.**
+`behind` is computed for every function and appended to the output only in the
+`DIFFERS` branch; the receipt carries `widest_gap_days` for differing functions
+only. Measured against the real run: **4 of the 15 `matches` functions have a
+commit newer than their running deploy** — `booking-ics`, `resend-webhook` and
+`send-email` at **3.1 days**, `refresh-weather` marginal. Nothing in stdout or
+the receipt says so.
+
+### Proved, not read
+
+All four breaks were executed against the live Management API and the tree was
+restored and re-verified afterwards (full re-run: 15 / 24 again, identical).
+**One measurement of mine was wrong first and this file already held the
+reason:** the comment-break run reported `EXIT=0` because the command was piped
+to `grep` and `$?` was grep's. Re-run without the pipe: exit 1. That is the
+same trap recorded above for `i18n-survey.mjs` — **never read `$?` through a
+pipe** — hit again, three entries later.
+
+**Nothing was deployed to make anything green. The 24 stand.**
 
 ## THE SILENCE NO CHECK IN THIS FILE CAN COVER — added 2026-09-20
 
