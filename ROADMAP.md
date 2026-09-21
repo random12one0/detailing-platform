@@ -5373,10 +5373,30 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   it after sign-in, and the booking page, the four marketing pages and the four
   sign-in screens are all measured before that line runs. `appI18n.js` puts it
   beyond doubt: the booking page's language and this one *"neither can move the
-  other"*. **So the customer-facing half of the product has still never been
-  swept in Spanish** — which is arguably the half that matters, since it is
-  what a Spanish-speaking CUSTOMER sees. Named, not built. The contact sheet
-  now prints this caveat on itself, with the number counted at run time.
+  other"*. **AT THIS POINT IN THE SAME NIGHT, still true: the customer-facing
+  half had not yet been swept in Spanish, because the sweep only set
+  `dp.lang.app`.** The contact sheet printed that caveat on itself, with the
+  number counted at run time.
+  **SUPERSEDED LATER THE SAME NIGHT — see "THE NINE PUBLIC SURFACES: CLOSED
+  AS FAR AS THE PRODUCT ALLOWS" below. `speakSpanish` was rebuilt to set
+  BOTH `dp.lang` and `dp.lang.app` through `addInitScript`, before
+  `ctx.newPage`, so both surfaces are there for the first paint. Five of the
+  nine public surfaces — the booking page and the four sign-in screens — are
+  measured in Spanish and have been since. The remaining four,
+  `LandingPage.jsx`/`PricingPage.jsx`/`LegalPage.jsx`, are not unmeasured;
+  they are UNDECLARABLE — they import no translation scope and contain zero
+  `t("…")` calls, so there is nothing for a language switch to move. That is
+  a measurement, not an assumption, and it is why they sit in
+  `ENGLISH_ONLY` rather than in a failing check.**
+  **CORRECTED 2026-09-20, BY ANDREW, AFTER THE OLD LINE ABOVE SENT A SESSION
+  AT AN HOUR OF WORK ON A QUESTION ALREADY ANSWERED A FEW HUNDRED LINES
+  DOWN.** *"That is stale, I took it as fact, and I sent a session at an
+  hour of work on it."* The paragraph above is left in place rather than
+  deleted, because the sequence — wrong, then fixed the same night, then
+  read as current a day later — is the part worth keeping. **Do not restore
+  "the customer-facing half has never been swept in Spanish" from this
+  paragraph out of sympathy for how it reads; it was true for a few hours on
+  2026-09-19 and has not been true since.**
 
   **AND THE ARTIFACTS SHARED ONE PATH ACROSS EVERY MODE.** English, Spanish and
   `--lite` all wrote `artifacts/sweep-widths/` and a receipt keyed only on the

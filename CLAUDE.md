@@ -121,6 +121,19 @@ over 38 real findings.
 
 **Don't edit `app/src` while a browser script is running.** Vite reloads the
 page mid-run and the measurement is worth nothing while still reporting clean.
+**And know which directories that protects and which it does not — measured
+2026-09-20, not guessed at, after two sessions spent part of a night
+serialized behind a guess about it.** Vite's watcher covers `app/src` only,
+recursively, every file type — that is the whole reason the rule above
+works: a walk in progress will tell you if that tree moved under it.
+`docs/` and `ROADMAP.md` are outside it, so editing them cannot void a
+running browser script; two sessions may work there and in `app/src` at the
+same time with nothing to serialize. **`scripts/` is watched by nothing at
+all.** If one session edits a script while another is running it, nothing
+anywhere will say so — no reload, no warning, no error. That is the
+dangerous one precisely because it is quiet: lend a `scripts/` file for one
+commit rather than editing it unannounced underneath whoever owns it that
+round.
 
 **`docs/gotchas.md` is fifteen specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
