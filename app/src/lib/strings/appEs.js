@@ -2005,10 +2005,54 @@ export const appEs = {
   "Medium": "Mediano",
   "Large": "Grande",
   "Coupe, sedan, hatchback": "Coupé, sedán, hatchback",
+  // ROADMAP 2.12 — "SUV chica" and "Troca" are DELIBERATELY LEFT AS THEY
+  // ARE, not a fix skipped. VEHICLE_BODY_TYPES below follows `es.js`, the
+  // booking page's own catalogue, which says "SUV pequeña" and "Camioneta"
+  // for the same two concepts — so this app now ships both words for both
+  // ideas at once, on purpose, pending Andrew's ruling in FOR-ANDREW.md on
+  // which side the two lines below should move to. Do not quietly bring
+  // them into line with the words below; that is his call, not a session's.
   "Small SUV, crossover, wagon": "SUV chica, crossover, camioneta",
   "Truck, large SUV, van": "Troca, SUV grande, van",
   "Remove \"{name}\"? Bookings already taken keep the size they were booked at.":
     "¿Quitar \"{name}\"? Las citas ya tomadas conservan el tamaño con el que se agendaron.",
+  // ROADMAP 2.12/9.20 — `book/core.js`'s VEHICLE_BODY_TYPES, the fourteen
+  // body types a detailer maps onto their own Small/Medium/Large tiers in
+  // Catalog.jsx. Checked against `es.js` before writing any of these, the
+  // same method that produced "Ligera": where the booking page already had
+  // a word for the concept, these follow it rather than either inventing a
+  // second one or matching this catalogue's own (different) word for the
+  // same thing two lines up. Three groups, so the next reader can tell
+  // evidence from judgement without opening anything else:
+  //   MATCHED — the whole key or a word inside it already agreed in both
+  //   catalogues: Coupé, Sedán, Hatchback (unchanged loanword), "crossover"
+  //   inside "Small SUV / crossover" (unchanged loanword), "SUV grande"
+  //   inside "Large SUV (3 rows)".
+  //   FROM ES.JS, BY RULING — the booking page's word, not this catalogue's
+  //   own: "SUV pequeña" inside "Small SUV / crossover" (not "SUV chica"),
+  //   "Camioneta" for Wagon and both Pickup keys (not "Troca").
+  //   NEW, NEUTRAL STANDARD SPANISH — no precedent anywhere in either
+  //   catalogue, so no regional dialect was guessed at: Convertible,
+  //   Minivan, "cabina sencilla"/"cabina doble" (pickup cabs — standard
+  //   automotive terms, not slang), "mediana" (mid-size, matching the
+  //   grammatical pattern "pequeña"/"grande" already set by the two SUV
+  //   sizes with real precedent), "Deportivo o exótico", "Sobredimensionado
+  //   — elevado, doble rodada, limusina" ("doble rodada" is the standard
+  //   term for a dually, not a regionalism).
+  "Coupe (2-door)": "Coupé (2 puertas)",
+  "Sedan": "Sedán",
+  "Hatchback": "Hatchback",
+  "Convertible": "Convertible",
+  "Wagon": "Camioneta",
+  "Small SUV / crossover": "SUV pequeña / crossover",
+  "Mid-size SUV (2 rows)": "SUV mediana (2 filas)",
+  "Large SUV (3 rows)": "SUV grande (3 filas)",
+  "Pickup — standard cab": "Camioneta — cabina sencilla",
+  "Pickup — crew cab": "Camioneta — cabina doble",
+  "Minivan": "Minivan",
+  "Full-size / cargo van": "Van grande / de carga",
+  "Sports or exotic": "Deportivo o exótico",
+  "Oversized — lifted, dually, limo": "Sobredimensionado — elevado, doble rodada, limusina",
   // Where a job happens, on every card and record in the product.
   "Mobile": "A domicilio",
   "Drop-off": "En el taller",

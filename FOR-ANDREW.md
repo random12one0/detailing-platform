@@ -333,6 +333,8 @@ Updated 2026-09-20.
   **customer** sees, it is a hair from fitting, and a customer with large text
   should never be dragging your booking form sideways.
 
+- [ ] **DECIDE · The dashboard currently says "Troca" and "SUV chica"; the booking page says "Camioneta" and "SUV pequeña"; the new vehicle-type words just added follow the booking page — bring the two dashboard strings into line with it, or move the whole set the other way?**
+
 ---
 
 ## Two things only you can do, away from the computer

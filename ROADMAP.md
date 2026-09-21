@@ -1142,47 +1142,70 @@ the wrong service, and never book a job we cannot reach.
      does, but it is real, it is `app/src`, and it is fourteen strings in
      one place rather than scattered. Recorded here rather than fixed,
      since it is its own piece of work, not a one-line sibling.
-     **PICKED UP 2026-09-20, AND STOPPED BEFORE WRITING ANY OF THE FOURTEEN
-     — checked against `es.js` first, the way `"Light"` was, and it found a
-     real disagreement rather than a clean match.** `VEHICLE_BODY_TYPES` has
-     no customer-facing call site at all (`grep` across `app/src` finds
-     exactly one consumer, `screens/more/Catalog.jsx`, the dashboard's own
-     size-tier editor) — so unlike the condition scale, there is no live
-     booking-page rendering of these fourteen words to match against
-     directly. But three of `DEFAULT_VEHICLE_SIZES`' own `examples` strings
-     (`core.js:201-206`, the comma-list under Small/Medium/Large) already
-     carry several of the same words, translated in BOTH catalogues, and
-     they do not agree with each other:
-     - **Matched, usable precedent:** Coupe→Coupé, Sedan→Sedán,
-       Hatchback→Hatchback, Crossover→Crossover, Van→Van (all five
-       unchanged loanwords, consistent in both), Wagon→Camioneta,
-       Large SUV→SUV grande — `es.js` and `appEs.js` agree on all seven.
-     - **Disagree, and this is the finding, not a footnote:** "Small SUV" is
-       `"SUV pequeña"` in `es.js` (what a customer reads today) and
-       `"SUV chica"` in `appEs.js` (what the dashboard says elsewhere,
-       right now). "Truck" is `"Camioneta"` in `es.js` and `"Troca"` in
-       `appEs.js` — formal versus regional-colloquial for the same word,
-       and `es.js` separately uses that same `"Camioneta"` for "wagon" in
-       its own translation of a different string, so the booking page's own
-       catalogue is not internally consistent about that word either.
-       Neither of these two exact phrases is one of the fourteen new keys,
-       but "Small SUV / crossover" and the two `Pickup` labels sit in the
-       same category and the choice made here sets the word this repo uses
-       for it going forward.
-     - **No precedent anywhere, in either catalogue:** Convertible, Minivan,
-       Cargo van, Sports/exotic, Oversized/lifted/dually/limo, and "Pickup"
-       itself (only "Truck" existed, not "Pickup") — six of fourteen need a
-       translation decided fresh, with nothing already shipped to check it
-       against.
-     **STOPPED HERE RATHER THAN PICKING A SIDE, ON EXPLICIT INSTRUCTION.**
-     Andrew: *"if one collides, stop and bring it to me rather than picking
-     a side; the last one cost us a ruling and it was worth making
-     properly."* Also unresolved and not attempted: the `examples` field
-     (`"e.g. Honda Civic coupe, Toyota Camry coupe"`) is a sentence, not a
-     word — model names stay as typed, but "coupe", "regular cab", "crew
-     cab", "dually trucks" and "limos" inside those sentences are the same
-     vocabulary question one level down, and whichever word wins above has
-     to be the word used inside these too.
+     **PICKED UP 2026-09-20. Checked against `es.js` first, the way
+     `"Light"` was, found a real disagreement, stopped, brought it to
+     Andrew rather than picking a side, and he ruled — FIXED the same
+     day.** `VEHICLE_BODY_TYPES` has no customer-facing call site at all
+     (the only consumer anywhere in `app/src` is `screens/more/Catalog.jsx`,
+     the dashboard's own size-tier editor), so unlike the condition scale
+     there was no live booking-page rendering of these fourteen words to
+     match directly. But three of `DEFAULT_VEHICLE_SIZES`' own `examples`
+     strings (`core.js:201-206`) already carry overlapping vocabulary in
+     both catalogues, and two of those didn't agree with each other:
+     `"Small SUV"` was `"SUV pequeña"` in `es.js` and `"SUV chica"` in
+     `appEs.js`; `"Truck"` was `"Camioneta"` in `es.js` and `"Troca"` in
+     `appEs.js`.
+     **THE RULING, IN THREE PARTS, ANDREW'S OWN WORDS ON THE REASONING
+     SINCE IT IS THE PART A NUMBER CANNOT CARRY:**
+     1. *"Where `es.js` already has a word for the concept, the fourteen
+        follow `es.js`… a detailer and a customer reading different words
+        for the same vehicle is the exact disease we cured this hour with
+        `Ligera`, and `es.js` is the half a paying customer reads."*
+     2. *"The six with no precedent [use] neutral standard Spanish rather
+        than anything regional… we have no evidence about the market these
+        detailers are in, and choosing regional vocabulary on no evidence
+        is inventing a fact about Andrew's customers."*
+     3. *"Do not quietly fix [`\"SUV chica\"`/`\"Troca\"`] to match. Write the
+        disagreement into ROADMAP.md… and put the actual question in
+        `FOR-ANDREW.md`… That is a question about who his detailers are and
+        only he can answer it."*
+     **WHAT LANDED, `app/src/lib/strings/appEs.js`, split the way the
+     ruling asked so the evidence is tellable from the judgement without
+     opening anything else:**
+     - **Matched — a word or the whole key already agreed in both
+       catalogues:** Coupé, Sedán, Hatchback (unchanged loanword),
+       "crossover" inside `Small SUV / crossover` (unchanged), "SUV grande"
+       inside `Large SUV (3 rows)`.
+     - **From `es.js`, by ruling, not this catalogue's own word two lines
+       up:** `"SUV pequeña"` inside `Small SUV / crossover`; `"Camioneta"`
+       for `Wagon` and both `Pickup` keys.
+     - **New, neutral standard Spanish, no regional dialect guessed at:**
+       `Convertible`, `Minivan` (kept as shipped, near-universal loanwords);
+       `"cabina sencilla"` / `"cabina doble"` for the two pickup cabs
+       (standard automotive terms, not slang); `"mediana"` for mid-size,
+       matching the `pequeña`/`grande` pattern the two real-precedent SUV
+       sizes already set; `"Deportivo o exótico"`; `"Sobredimensionado —
+       elevado, doble rodada, limusina"` (`"doble rodada"` is the standard
+       term for a dually, not a regionalism).
+     **`"SUV chica"` AND `"Troca"` LEFT EXACTLY AS THEY WERE, ON PURPOSE,
+     NOT A FIX SKIPPED.** `appEs.js`'s own `"Small SUV, crossover, wagon"`
+     and `"Truck, large SUV, van"` entries (the `DEFAULT_VEHICLE_SIZES`
+     examples, still live today) now deliberately disagree with the fresh
+     `VEHICLE_BODY_TYPES` entries beside them — a comment sits on both
+     saying so, so a reader six weeks out sees a decision, not an
+     inconsistency nobody noticed. **The actual question — bring the two
+     old strings into line, or move the new set the other way — is
+     `FOR-ANDREW.md`'s to answer, one line, under "Waiting on you."**
+     **A NAMED LEAD, NOT CHASED — the same two-copies-no-guard shape as
+     `scripts/site-brief.mjs` this hour, one level down.** Each of the
+     fourteen `VEHICLE_BODY_TYPES` entries also carries an `examples`
+     sentence (`core.js:654-667`, e.g. `"e.g. Honda Civic coupe, Toyota
+     Camry coupe"`) — car model names stay as typed, but words like
+     "coupe," "regular cab," "crew cab," "dually trucks" and "limos" inside
+     those sentences are the same vocabulary question this pass just
+     settled, one level down, in prose rather than in a bare label. Not
+     started. Whoever picks it up should start from the word choices
+     above rather than re-deriving them.
      **THE SWEEP'S OWN LIMIT, SAID PLAINLY, THE WAY THIS REPO ASKS FOR IT.**
      It can only find a MISSING key. The bug in this item's own headline —
      `"Light"` colliding with the theme toggle — is a key that EXISTS and
