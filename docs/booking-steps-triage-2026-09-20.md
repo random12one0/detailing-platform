@@ -23,6 +23,12 @@ detailer would notice.
 two probe directions (`narrow`, `short`) and four viewport widths. There is no
 second defect hiding in the pile.
 
+**SAY THAT FIRST, BECAUSE THE NUMBER IS THE PROBLEM.** Seventy findings from
+one impossible constraint is **one finding repeated seventy times**. A reader
+who sees 70 and stops reading has drawn exactly the wrong conclusion about how
+much is wrong with this screen — and a gate whose first honest output gets
+dismissed wholesale is a gate that goes back to being ignored.
+
 Separately, and not part of the 70, the same run reports **12 steps do not meet
 W16** with **4 step readings exempt** (the `.bk-planpitch` full-screen pitch,
 Andrew's ruling, ROADMAP 8.4). That family has not been triaged here.
@@ -76,10 +82,21 @@ whole list to be dismissed.
 
 1. **The product one.** The calendar's day cells are 36.4px where this
    product's own design absolute is 44px of real hit area and its own CSS
-   comment expects 47px. A calendar cell cannot use the `::after` negative-inset
-   trick that `CLAUDE.md` allows for a small mark, because the cells are
-   adjacent — growing one steals its neighbour's presses, which the pitch rule
-   forbids. **So the fix is the grid's width, not the cell's.**
+   comment expects 47px.
+
+   **Do not reach for the `::after` negative-inset trick, and here is the
+   reason rather than just the rule.** `CLAUDE.md` allows a deliberately small
+   mark — a 7px rail dot, a colour swatch — to keep its size and grow its
+   target with an absolutely positioned `::after` at a negative inset. That
+   works because those marks sit in space nothing else wants. **Calendar cells
+   are adjacent**, separated by a 5px gap: an `::after` wide enough to reach
+   44px would extend about 4px into each neighbour on both sides, so the 21st
+   and the 22nd would overlap and each would swallow presses meant for the
+   other. `CLAUDE.md`'s own pitch rule names this — *"two 32px targets 18px
+   apart do not both exist"* — and `elementFromPoint` would return the wrong
+   date for a band down the edge of every cell. **That trades a small target
+   for a wrong one, on a date picker, where the wrong answer is a booking on
+   the wrong day.** The fix is the grid's width, not the cell's.
 2. **The instrument one.** The annotation should say *"the floor here is the
    column, at the grid's current width"* rather than *"arithmetically
    impossible"*, or it should suppress the finding and report it once as a
@@ -88,21 +105,79 @@ whole list to be dismissed.
 
 ---
 
-## Needs re-measuring before it is believed
+## SETTLED ON A FRESH LOAD — one fault, not two, and the root cause is named
 
-At **1440x900** the grid was still **285px** with **36.4px** cells, while
-`--bk-col` had correctly grown to **600px** and `.bk-wrap` still measured
-**317px** against its own `max-width: 632px`. If that holds, the booking flow
-renders in roughly half the width it is allowed at desktop, which is a larger
-finding than the tap floor.
+**Re-measured 2026-09-20 with a fresh load at 1440x900, walked to step 5.** The
+earlier caveat is resolved, and in an instructive direction: on step 1 the wrap
+renders at **469px**, on the calendar step at **316.9px**. It varies by step,
+which is the tell — **it is sized by its content, not by its `max-width`.**
 
-**It is NOT being reported as fact**, because that measurement was taken by
-resizing the viewport without reloading. The page did re-layout — `--bk-col`
-moved from 285px to 600px and `.bk` from 392px to 1440px — so it is not
-obviously stale, but the honest test is a fresh load at 1440 and that has not
-been done. **Anyone picking this up: reload at 1440 first.**
+```
+fresh load, 1440x900, step 5 "Pick a time"
+  --bk-col        600px          the column the design allots
+  .bk-wrap        316.9px        against its own max-width: 632px
+  .bk-cal (grid)  284.9px
+  .cell           36.4 x 36.4px
+  .cell max-height 52px          NOT engaged - actual height is 36px
+```
+
+**THE CONSTRAINING ELEMENT, NAMED.** `app/src/book/booking.css:274`:
+
+```css
+.bk-wrap {
+  max-width: calc(var(--bk-col) + 2 * var(--bk-sp-4)); margin: 0 auto;
+  display: flex; flex-direction: column;
+}
+```
+
+`.bk-wrap` is a **flex item** of `.bk` (`display: flex; flex-direction:
+column`). **Auto side margins on a flex item override stretch.** The measured
+proof is `margin-left: 561.547px` — a resolved `auto`, not a declared value. So
+the item never stretches to its container, never reaches its `max-width: 632px`,
+and falls back to shrink-to-fit. `margin: 0 auto` is the correct centring idiom
+for a **block**; on a flex item it silently disables the stretch that would
+have given it its width.
+
+**So the narrow grid and the 36.4px cell are the SAME FAULT seen at two
+widths.** The grid is the widest thing on the calendar step, so the wrap
+shrinks to the grid, the grid's seven `1fr` columns fall to content size, and
+the cell lands at 36.4px. Fix the wrap's width and the cell grows as a
+consequence — **one change, not two.**
+
+**The arithmetic, so the fix can be checked rather than eyeballed:**
+
+| width | wrap today | wrap fixed | grid | column | vs 44px floor |
+|---|---|---|---|---|---|
+| 392 | 316.9 | 392 (under max-width) | 360 | **47.1px** | met |
+| 1440 | 316.9 | 632 (max-width) | 600 | **81.4px** | met, then height capped at 52 |
+
+**47.1px at phone width is exactly the number `booking.css:1151` predicts** —
+*"the column is 360px and a cell lands at 47px — a thumb."* The comment was
+never wrong about the design. It described what the CSS would produce if the
+wrap took its width, and the auto-margin is why it does not.
+
+**And the dead `max-height: 52px` is the corroborating evidence.** That cap
+exists because *"on the 600px column it made an 81px square"* — it was written
+against a grid that filled the column. It does not engage today: the cell is
+36px. **A cap that can never fire is a record of a width the layout used to
+have.**
 
 ---
+
+## Handed over, not fixed — and why the split
+
+This is a CSS change in `app/src`, which the other session owns and is mid-item
+in. **The shape agreed: this session pins the root cause with the numbers, they
+make the change, this session measures it again.** Two people aiming at one
+cause is how a screen gets rebuilt by accident.
+
+**What to check after the change**, at both widths, on a fresh load:
+`.bk-wrap` reaches 392 / 632, `.bk-cal` reaches 360 / 600, the cell reaches
+47.1 / 81.4 minus the 52px height cap, and `sweep-booking-steps.mjs` drops from
+70 tap findings to zero. **Watch the other steps too** — the wrap has been
+shrink-to-fit on every step, so step 1's cards move from 469px to 632px as
+well. That is the intended width, but it is a visible change to five screens,
+not only to the calendar.
 
 ## What was proved and what was read
 
