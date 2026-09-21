@@ -51,6 +51,22 @@ Updated 2026-09-20.
   **Publishing is yours, the same as pushing code is yours.** Nothing has gone
   live and nothing will until you say so.
 
+  **One new ordering rule, added 2026-09-20, and it is strict, not a
+  preference: if you ever publish `create-booking`, the database change
+  below (the one-minute "apply one small database change" row above) has to
+  be applied FIRST, not after, not the same day, first.** `create-booking` is
+  the program that saves every new booking. Tonight's change made it always
+  try to write to a column that does not exist in your database yet. Apply
+  the database change and nothing happens — bookings save exactly as they do
+  today, with one more fact recorded. Publish `create-booking` while that
+  column is still missing, in either order otherwise, and **every single new
+  booking fails**, not just the address-flag part of it — nobody can book at
+  all until you notice and fix it. `create-booking` is already one of the
+  stale programs in the 39 below — running code from before tonight, same as
+  most of the others — so whenever it is swept up in that general publishing
+  pass, this ordering rule is the one thing to check first, not something
+  the list below will flag for you on its own.
+
   **The order we recommend:**
 
   1. **Already live, nothing to approve.** When a detailer cancelled or moved a
@@ -103,8 +119,9 @@ Updated 2026-09-20.
   Supabase: **Account settings → Security → enable MFA.** Netlify has the same
   under user settings.
 
-- [ ] **DO · Apply one small database change — one minute, and nothing is
-  live until you do.**
+- [ ] **DO · Apply one small database change — one minute, and it has to
+  happen before `create-booking` is ever published, not just before you
+  expect to use the flag.**
   This session isn't allowed to change your database directly, on purpose —
   that stays yours to approve. The file is already written:
   `supabase/migrations/20260920020000_a_picked_zone_can_contradict_the_address.sql`.
@@ -116,6 +133,14 @@ Updated 2026-09-20.
   everywhere until this column exists. In the Supabase dashboard: **SQL
   Editor → paste the file's contents → Run.** Or from a terminal with your
   credentials loaded: `node scripts/apply-migrations.mjs 20260920020000_a_picked_zone_can_contradict_the_address.sql`.
+
+  **Apply this and do nothing else: safe, nothing changes for anyone.**
+  **Publish `create-booking` before this is applied: every new booking
+  fails**, because the program that saves bookings now always tries to write
+  to this column. Not a smaller version of the feature not working — nobody
+  can book anything until you catch it and fix it. See the ordering warning
+  in "What to put live, and in what order" above; it applies specifically to
+  this row.
 
 ---
 
