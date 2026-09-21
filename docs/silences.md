@@ -996,6 +996,30 @@ that it is no longer carrying the file on its own.
 **`--break=step` returned `7 6 7 6`, byte-identical to what was recorded before
 the edit**, which is how it is known the change disturbed nothing.
 
+### WHAT A GREEN HERE IS ABOUT, AND IT IS NOT THIS CHECKOUT
+
+**Found at the end of this round, by running `deployed-inventory.mjs` because
+CLAUDE.md says to before finishing.** It exits 1 over **24** functions not
+running this checkout, and **`update-booking` is one of them** — which is the
+single endpoint `dashboard-notifies` presses.
+
+So a passing run certifies the `update-booking` that is **live**, not the one
+in `supabase/functions/update-booking/index.ts`. Those are the same question
+only on a day they were deployed together, and today is not that day. **The
+check is not wrong** — its header says it presses the buttons a detailer
+presses, and the live endpoint is the more useful of the two questions. But
+**a green here must not be read as "the committed fix works"**, and nothing in
+the run, the console or the receipt says which version answered.
+
+**This is the repo's own headline rule pointed at one of its own
+instruments:** *what is running is not what is committed, and you have to
+look.* Every session that has read `dashboard-notifies`' green and reasoned
+about the committed source was doing the thing ROADMAP 0.6 exists to stop.
+**Not fixed; named.** The cheap version would be to record the deployed
+bundle's identity in `dimensions` so the receipt says which code it measured —
+offered rather than built, because it is a change to a check that has just
+been proved and re-proving it costs the tenant again.
+
 **THE DRIFT FIELD FIRED ON ITS FIRST REAL RUN AND WAS ADJUDICATED, NOT
 IGNORED.** The first control reported `HEAD MOVED DURING THIS RUN: started
 5794d677, finished e0932868`. Read rather than waved through: the only commit
