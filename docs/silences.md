@@ -322,8 +322,9 @@ stayed correct and stopped meaning what it says.
 The worked example is `fits, Npx spare` from `scripts/sweep-booking-steps.mjs`.
 On 2026-09-20 at 02:34:23, `52a3d70` gave `.bk-wrap` `flex: 1 0 auto` inside a
 `min-height: 100dvh` column, so the column stretches to fill the screen and the
-figure became a cap — about 54 to 77px — rather than headroom. 58px of content
-reads as 73px spare at viewport heights 900, 1200 and 740 alike. **No receipt,
+figure became a cap — about 54 to 77px — rather than headroom. A step needing
+435px, whose column stretched to 748px, reads as 73px spare at viewport heights
+900, 1200 and 740 alike. **No receipt,
 no gate, no canary and no expected-count file can see this**: the run is clean,
 the arithmetic is right, and the only evidence is that two very different screens
 print the same number.

@@ -125,8 +125,13 @@ const MEASURE = (bound) => {
   // (it became so at 02:34 that morning, in `52a3d70`, when 2.15 put the bar
   // in the page's flow), so on any step shorter than the screen the COLUMN
   // STRETCHES TO FILL IT and its rectangle stops being what the step needs.
-  // The figure saturated: riverside step 1, **58px of content, read -73 at
-  // viewport heights 900, 1200 and 740 alike.** `fits, 73px spare` was not
+  // The figure saturated: riverside step 1 **needs 435px and its rectangle
+  // stretched to 748px, and it read -73 at viewport heights 900, 1200 and 740
+  // alike.** (An earlier probe called that content 58px. It was wrong, by this
+  // file's own trap: `.bk-step` is `display: contents`, so its rect is 0 and a
+  // naive sum of `.bk-wrap`'s children drops the 309px inside it. That is
+  // exactly why `need` below flattens, and why `blocks` always has.)
+  // `fits, 73px spare` was not
   // headroom, it was the leftover the flex layout handed back, and a nearly
   // empty step and a nearly full one printed the same number.
   // `docs/spare-figures-2026-09-20.md` classifies the 64 figures written

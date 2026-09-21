@@ -2293,3 +2293,38 @@ declared constant, why a canary must be a defect nothing could survive, and why
 `docs/silences.md` counts checks that can only fail. **This entry is the same
 principle pointed at the moment of measurement rather than at the design of the
 check.**
+
+## `display: contents` HAS NO BOX, SO A SUM OF CHILDREN SILENTLY DROPS ITS SUBTREE — 2026-09-20
+
+Measuring a column by adding up its children is the obvious thing to do, and it
+undercounts without a word of warning:
+
+```
+.bk-wrap's children at 1440x900, riverside step 1
+  div.bk-step-head   display: flex       rect  58px
+  div.bk-step        display: contents   rect   0px   <- 309px inside it
+```
+
+**A `display: contents` element generates no box**, so `getBoundingClientRect()`
+returns 0 for it while its children are laid out as though they were the
+parent's own. A naive sum read **58px** for a step that actually needs **435px**
+— it dropped 84% of the column, and it looked like a plausible number rather
+than a mistake.
+
+It cost real work: **58px** went into three committed documents as the
+illustration of a different finding, before the flattening version of the same
+measurement contradicted it. The conclusion it illustrated survived, because
+that had been measured directly; the illustration had not. **An illustration
+nobody measured is not evidence, however true the thing it illustrates.**
+
+**The fix is one line, and this repo already had it in the neighbouring code** —
+`sweep-booking-steps.mjs` has flattened contents children for months when it
+names the tallest blocks. The height sum now flattens the same way:
+
+```js
+[...el.children].flatMap((k) =>
+  getComputedStyle(k).display === "contents" ? [...k.children] : [k])
+```
+
+**Ask of any child sum: could one of these be `contents`?** The symptom is a
+total that is suspiciously small and does not move when the page plainly does.

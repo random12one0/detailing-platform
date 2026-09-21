@@ -14,8 +14,8 @@ guessed at", ROADMAP 2.15) gave `.bk-wrap` `flex: 1 0 auto` inside a
 `min-height: 100dvh` column. **From that moment the column stretches to fill the
 screen on any step shorter than it**, and the figure stops being headroom and
 becomes a constant — the leftover the flex layout hands back. Measured:
-riverside step 1, **58px of content, reported −73 at viewport heights 900, 1200
-and 740 alike**; the demo's add-ons step read "77px spare" at 900 and at 740.
+riverside step 1 **needs 435px while its rectangle stretched to 748px, and it
+reported −73 at viewport heights 900, 1200 and 740 alike**; the demo's add-ons step read "77px spare" at 900 and at 740.
 The cap sits between about **54 and 77px** depending on the header. The failing
 direction is unaffected — once content exceeds the box, box equals content and
 the number is honest in both kind and value.
