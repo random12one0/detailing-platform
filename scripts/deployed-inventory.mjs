@@ -154,7 +154,23 @@ const dirs = (await readdir(FUNCTIONS, { withFileTypes: true }))
 const deployed = await api("/functions");
 const bySlug = new Map(deployed.map((f) => [f.slug, f]));
 
-console.log(`${dirs.length} function(s) in the repo, ${deployed.length} deployed on ${SUPABASE_PROJECT_REF}\n`);
+console.log(`${dirs.length} function(s) in the repo, ${deployed.length} deployed on ${SUPABASE_PROJECT_REF}`);
+
+// THE METHOD, IN PLAIN WORDS, ON EVERY RUN - Andrew's manager, 2026-09-21.
+// A reader has to know what this cannot see BEFORE they trust a green, not
+// afterwards in the header. The blind spot below is the METHOD rather than a
+// bug: it was demonstrated by deleting a sanitiser and changing `slice(0, 64)`
+// to `slice(0, 8)` in a function whose comments were untouched, and this check
+// called that `matches`.
+console.log(`
+HOW THIS DECIDES, AND WHAT IT CANNOT SEE
+  It compares the COMMENT TEXT of this checkout against the comments inside the
+  running bundle. Comments survive transpiling; source text does not.
+  A change that alters BEHAVIOUR without touching a comment is INVISIBLE here
+  and will read as "matches".
+  DIFFERS is strong evidence. "matches" means "nothing I can see says
+  otherwise" - never "proven identical". Read the git note beside it.
+`);
 
 const report = [];
 
@@ -244,7 +260,11 @@ for (const fn of dirs) {
     `${fn.padEnd(24)} ${verdict.padEnd(8)} v${String(meta.version).padEnd(4)}`
     + (differs.length
       ? ` running copy is ${ago(deployedAt)} old; ${differs.length} file(s) differ: ${differs.slice(0, 3).join(", ")}${differs.length > 3 ? ` +${differs.length - 3}` : ""}`
-      : ` running copy contains this checkout's source`),
+      : ` running copy contains this checkout's source`
+        + (behind
+          ? ` — BUT its newest commit is ${(behind / day).toFixed(1)}d AFTER the deploy, and a`
+            + ` change touching no comment would be invisible here`
+          : ` — and no commit since the deploy`)),
   );
 }
 
@@ -305,18 +325,6 @@ console.log(`question it asks: "can I vouch for this one?"`);
 // functions differ" tells a session to sigh and move on; the list tells them
 // whether the one they just edited is in it, which is the only question they
 // actually have.
-const differingNames = differing.map((r) => r.fn);
-const failures = differingNames.length
-  ? [
-    `${differingNames.length} function(s) are running something other than this checkout: `
-    + differingNames.join(", "),
-    ...differing.map((r) =>
-      `${r.fn}: ${r.differs.length} file(s) differ — ${r.differs.join(", ")}`
-      + (r.behind ? ` (newest commit is ${(r.behind / day).toFixed(1)}d after the deploy)` : "")
-    ),
-  ]
-  : [];
-
 // THE CANARY, AND IT IS FREE HERE. Every run of this check has a negative
 // control built into the question: **it must find at least one function whose
 // bundle it could actually read and compare.** A token that cannot fetch
@@ -334,6 +342,46 @@ const canary = {
     : ["[compared] NOT CAUGHT — no bundle was readable, so this run proves nothing about any function"],
 };
 
+const differingNames = differing.map((r) => r.fn);
+const notDeployedNames = report.filter((r) => r.verdict === "NOT DEPLOYED").map((r) => r.fn);
+
+// **THREE WAYS TO FAIL, AND UNTIL 2026-09-21 ONLY ONE OF THEM COUNTED.**
+// Broken on purpose and reported to Andrew's manager, who ruled on all three:
+//
+//   1. DIFFERS - the running bundle is not this checkout. Always counted.
+//   2. NOT DEPLOYED - a function that exists here and was never deployed at
+//      all. **This is the purest form of what-is-running-is-not-what-is-
+//      committed, and it used to be a WARNING**, so the instrument built to
+//      catch exactly that could not fail on it.
+//   3. THE COMPARISON DID NOT RUN. `--only=<a name that does not exist>`
+//      printed `0 function(s) in the repo` and then
+//      `PASS - every function is running this checkout's source`, exit 0.
+//      The canary below had already caught it - in the RECEIPT, where the
+//      status said `fail` while the screen said PASS. **A defence that
+//      reaches the file and not the eye is not a defence.**
+const failures = [
+  ...(differingNames.length
+    ? [
+      `${differingNames.length} function(s) are running something other than this checkout: `
+      + differingNames.join(", "),
+      ...differing.map((r) =>
+        `${r.fn}: ${r.differs.length} file(s) differ - ${r.differs.join(", ")}`
+        + (r.behind ? ` (newest commit is ${(r.behind / day).toFixed(1)}d after the deploy)` : "")
+      ),
+    ]
+    : []),
+  ...(notDeployedNames.length
+    ? [`${notDeployedNames.length} function(s) exist in this repo and are NOT DEPLOYED AT ALL: `
+      + notDeployedNames.join(", ")]
+    : []),
+  ...(canary.observed_failure
+    ? []
+    : [`THE COMPARISON DID NOT RUN: 0 bundle(s) were fetched and compared, so this run `
+      + `proves nothing about any function. A pass here would be indistinguishable from a `
+      + `clean estate, which is the one way this check can lie.`]),
+];
+
+
 const { path: receiptPath } = writeReceipt({
   check_id: "deployed-inventory",
   started_at,
@@ -347,7 +395,8 @@ const { path: receiptPath } = writeReceipt({
   min_assertions: 30,
   failures,
   artifacts: ["scripts/deployed-inventory.mjs"],
-  warnings: report.filter((r) => r.verdict === "UNJUDGEABLE" || r.verdict === "UNREADABLE" || r.verdict === "NOT DEPLOYED")
+  // NOT DEPLOYED left this list on 2026-09-21; it is a failure now, not a warning.
+  warnings: report.filter((r) => r.verdict === "UNJUDGEABLE" || r.verdict === "UNREADABLE")
     .map((r) => `${r.fn}: ${r.verdict}`),
   dimensions: {
     project: SUPABASE_PROJECT_REF,
@@ -361,11 +410,32 @@ const { path: receiptPath } = writeReceipt({
 });
 
 if (failures.length) {
-  console.log(`\n${"!".repeat(74)}`);
-  console.log(`FAIL — ${differingNames.length} of ${dirs.length} function(s) are NOT running this checkout.`);
-  console.log(`\n  ${differingNames.join("\n  ")}`);
-  console.log(`\nDeploying is Andrew's to authorise — ROADMAP 0.6. Do not deploy to clear`);
+  console.log("");
+  console.log("!".repeat(74));
+  // **THE SCREEN AGREES WITH THE RECEIPT NOW.** Each reason prints itself, so
+  // a run that fetched nothing cannot look like a run that found nothing.
+  if (!canary.observed_failure) {
+    console.log(`FAIL - THE COMPARISON DID NOT RUN. 0 of ${dirs.length} function(s) were`);
+    console.log("fetched and compared, so this proves nothing about anything.");
+    console.log("This is NOT a clean estate.");
+  }
+  if (differingNames.length) {
+    console.log(`FAIL - ${differingNames.length} of ${dirs.length} function(s) are NOT running this checkout.`);
+    console.log("");
+    for (const n of differingNames) console.log(`  ${n}`);
+  }
+  if (notDeployedNames.length) {
+    console.log("");
+    console.log(`FAIL - ${notDeployedNames.length} function(s) are in this repo and were NEVER DEPLOYED.`);
+    console.log("");
+    for (const n of notDeployedNames) console.log(`  ${n}`);
+  }
+  console.log("");
+  console.log("Deploying is Andrew's to authorise - ROADMAP 0.6. Do not deploy to clear");
   console.log(`this. Report it and leave it. Receipt ${receiptPath}`);
   process.exit(1);
 }
-console.log(`\nPASS — every function is running this checkout's source. Receipt ${receiptPath}`);
+console.log("");
+console.log(`PASS - all ${judged.length} function(s) fetched and compared are running this`);
+console.log("checkout's comments. A change touching no comment would not show here.");
+console.log(`Receipt ${receiptPath}`);
