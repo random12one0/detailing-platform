@@ -122,6 +122,14 @@ fault was that this gate had not measured its own subject for some time.** The
 original point still holds one level down — a guard that cannot fire is a
 silence — but it was not where the census said it was.
 
+**Its first honest output is triaged in
+`docs/booking-steps-triage-2026-09-20.md`:** 70 findings, 23 distinct controls,
+**all 23 the same calendar day grid — one underlying issue, not seventy.** The
+check's own exemption text calls the 44px floor *"arithmetically impossible"*;
+measured, 44px needs a 338px grid and the viewport is 392px, so it is
+impossible only at the grid's current width. The product's own CSS comment
+expects a 47px cell and the delivered cell is 36.4px.
+
 ### B · Receipts whose numbers cannot disagree — 5
 
 These write a receipt, but set `discovered`, `attempted` and `completed` to the
