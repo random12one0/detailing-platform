@@ -41,6 +41,7 @@
 // and slow at five hundred, and it is invisible until it is not.
 
 import { readFileSync } from "node:fs";
+import { writeReceipt } from "./receipt.mjs";
 
 const env = Object.fromEntries(
   readFileSync(new URL("../.env", import.meta.url), "utf8")
@@ -61,7 +62,28 @@ if (!TOKEN || !REF) {
   process.exit(1);
 }
 
+const started_at = new Date().toISOString();
+const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("=")[1] || "";
+
+// **THIS GATE COULD NOT FAIL AND WROTE NO RECEIPT - 2026-09-21,
+// docs/silences.md section A.** It ended on `N to look at` and **had no
+// `process.exit` on findings at all**: the only one in the file guards missing
+// credentials. So it found two real problems, printed them, and exited 0,
+// inside CLAUDE.md's verification table where a session is told to run it
+// after a migration. Nothing graded it and nothing could fail it.
+//
+// 4 checks, measured 2026-09-21: RLS off, locked-with-nothing-to-unlock,
+// open-to-a-caller's-own-schema, and unindexed foreign keys. Declared here so
+// a check that stops running is a failure rather than a smaller audit.
+const EXPECTED_CHECKS = 4;
+let checksRun = 0;
+
 async function q(sql) {
+  // `--break=blind` makes every query come back empty, which is exactly what a
+  // permissions change, a Management API shape change, or the swallowed JSON
+  // parse below would do. Every `say()` then prints `ok` and the audit reads
+  // clean over a database nobody actually looked at.
+  if (BREAK === "blind") return [];
   const res = await fetch(`https://api.supabase.com/v1/projects/${REF}/database/query`, {
     method: "POST",
     headers: { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json" },
@@ -120,6 +142,7 @@ const UNINDEXED_BY_DESIGN = new Set([
 
 let findings = 0;
 const say = (label, rows, fmt) => {
+  checksRun++;
   if (!rows.length) { console.log(`  ok    ${label}`); return; }
   findings += rows.length;
   console.log(`  FOUND ${label} — ${rows.length}`);
@@ -194,4 +217,70 @@ console.log("\n4. every foreign key has an index to look it up by");
     named.filter((x) => !UNINDEXED_BY_DESIGN.has(x)).map((k) => ({ k })), (r) => r.k);
 }
 
-console.log(`\n${findings === 0 ? "clean" : `${findings} to look at`}`);
+// --- THE CANARY -----------------------------------------------------------
+// **WHAT SILENTLY BREAKS HERE IS `q()`, NOT THE SCHEMA.** Every check is
+// `say(label, rows)` where `rows` came back from one query, and `say` prints
+// `ok` on an empty array. So if `q()` returned `[]` for everything — a
+// permissions change, a Management API shape change, or the
+// `catch { return []; }` on its JSON parse — all four checks print `ok` and
+// the audit reads CLEAN over a database nobody looked at.
+//
+// So one query is asked whose answer cannot legally be empty: the `public`
+// tables themselves. If that comes back empty, every `ok` above is a sentence
+// about nothing.
+const canaryRows = await q(`select c.relname as t from pg_class c
+  join pg_namespace n on n.oid = c.relnamespace
+ where n.nspname = 'public' and c.relkind = 'r' limit 5`);
+const canaryCaught = canaryRows.length > 0;
+console.log("");
+console.log(`canary  public must contain tables -> ${canaryRows.length} returned  `
+  + (canaryCaught
+    ? "caught: queries are really answering, so an `ok` above means something"
+    : "NOT CAUGHT — the database answered nothing, so every `ok` above is about nothing"));
+
+// --- SUBJECT COUNTS, AND ZERO IS A FAILURE --------------------------------
+const auditFailures = [];
+if (checksRun === 0) {
+  auditFailures.push("ZERO CHECKS RAN. Nothing was asked of the database, so this audit "
+    + "proves nothing. This is NOT a clean database.");
+} else if (checksRun !== EXPECTED_CHECKS) {
+  auditFailures.push(`CHECK COUNT MOVED: ${checksRun} check(s) ran and EXPECTED_CHECKS `
+    + `declares ${EXPECTED_CHECKS}. A check that stopped running is a failure, not a `
+    + `smaller audit — move the number deliberately and say which check changed.`);
+}
+// **AND THE FINDINGS NOW FAIL THE RUN.** They never did: there was no
+// `process.exit` on them at all, so two real problems printed and exited 0.
+if (findings > 0) {
+  auditFailures.push(`${findings} finding(s) to look at — see FOUND above`);
+}
+
+const { path: receiptPath } = writeReceipt({
+  check_id: "db-audit",
+  started_at,
+  status: auditFailures.length === 0 && canaryCaught ? "pass" : "fail",
+  expected_targets: EXPECTED_CHECKS,
+  discovered_targets: checksRun,
+  attempted_targets: checksRun,
+  completed_targets: checksRun,
+  skipped_targets: 0,
+  assertions_executed: checksRun + 1,
+  min_assertions: 5,
+  failures: auditFailures,
+  artifacts: ["scripts/db-audit.mjs"],
+  warnings: BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : [],
+  dimensions: { project: REF, checks: EXPECTED_CHECKS },
+  canary: {
+    id: "public must contain tables · an empty answer means the queries are not answering",
+    observed_failure: canaryCaught,
+    caught_by: canaryCaught ? ["query-answers"] : [],
+    findings: canaryCaught
+      ? [`[query-answers] ${canaryRows.length} table(s) came back, so an empty result above is a real answer rather than a silent no-op`]
+      : ["[query-answers] NOT CAUGHT — the database returned nothing for a query that cannot legally be empty, so every `ok` above is a sentence about nothing"],
+  },
+});
+
+console.log("");
+console.log(findings === 0 ? "clean" : `${findings} to look at`);
+for (const f of auditFailures) console.log("  · " + f);
+console.log(`Receipt ${receiptPath}`);
+process.exit(auditFailures.length === 0 && canaryCaught ? 0 : 1);
