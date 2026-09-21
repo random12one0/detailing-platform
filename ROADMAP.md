@@ -3653,11 +3653,11 @@ the dashboard or back office at phone width at all.
   legend, readable selected-job detail.
   *A1 P1-08*
 
-- [ ] **9.5 — Late jobs are not flagged.** At 10pm a 2:00 PM job still sits
-  under "Still to do". Mark it late and offer "Mark done" or "Move it".
+- [x] **DONE 2026-09-20 — 9.5 Late jobs are not flagged.** At 10pm a 2:00 PM
+  job still sits under "Still to do". Mark it late and offer "Mark done" or
+  "Move it".
   *A2 4.9*
-  **BUILT 2026-09-20, NOT YET PRESSED — held for the browser on the same
-  instruction as 9.9 and 9.11, not for doubt about the code.** Confirmed the
+  **BUILT 2026-09-20. Confirmed the
   fault before touching anything: `Today.jsx`'s own comment on `still`
   already named it — *"A job whose time has passed and was never marked
   complete stays here, which is true of it"* — true, and unflagged.
@@ -3690,10 +3690,29 @@ the dashboard or back office at phone width at all.
   today, and every other caller defaults `late` to `false` and is
   unchanged. No new component, no new button, no database write, no
   deploy.
-  **Not yet opened on a real screen** — the browser is the other session's
-  tonight, triaging the booking-steps gate. Code-reviewed against the
-  fault's own description, not yet proven live. Do not tick until it has
-  been.
+  **ACCEPTED 2026-09-20, Andrew, live, on the demo tenant.** Today's
+  still-to-do list read *"5:00 PM **Late** Chris Vogel, Express Wash,
+  Mobile, sixty-five dollars"* — the exact done-when this item asked for, a
+  detailer reading it off the screen rather than a script asserting it.
+  **Checked the negative as well as the positive:** Elena Marsh's 2:45
+  booking, also past its time but `completed` and sitting in Needs payment,
+  is not flagged; neither of the two settled jobs is; none of the seven
+  Coming up rows is. Spanish reads `"Atrasada"`, which agrees in gender
+  with `"cita"`, this product's own word for a booking — the key is not
+  just present, it is the right grammatical shape for the noun it
+  describes. The inline coloured word, not a badge, read as the right
+  choice on a list a detailer scans rather than reads.
+  **ONE LIMIT ON WHAT WAS PROVEN, THE SEED'S SHAPE RATHER THAN THE CODE'S
+  FAULT, SAID PLAINLY RATHER THAN LET THE TICK IMPLY OTHERWISE.** Today had
+  exactly one still-to-do job, so the one check this cannot answer for —
+  two open jobs side by side, one whose time has passed and one whose has
+  not, only the first reading `Late` — was never on screen to fail or pass.
+  That is the case that would catch an off-by-one in the comparison.
+  Elena Marsh and the seven Coming up rows are a weaker negative than that,
+  because `completed` and a future `booking_date` may never reach the same
+  branch the still-to-do comparison does. **Whoever's next sweep lands on a
+  day with two open jobs, one already past its time, closes this for
+  free — worth watching for rather than staging on purpose.**
 
 - [ ] **9.6 — Client list has no labels.** Values appear with no headings, so
   last visit, lifetime spend and phone must be inferred. "9 gone quiet" is
@@ -3819,6 +3838,13 @@ the dashboard or back office at phone width at all.
   **Done when:** the owner can find the only account needing attention in under
   ten seconds.
   *A1 P3-02, P3-03, A2 5.2, 5.3, 5.6*
+  **STEPPED PAST 2026-09-20, and the reason is stronger than size, so it is
+  written here rather than left for size to imply: `admin/` is English-only
+  by `appI18n.js`'s own scope comment, it is Andrew's own internal tool, and
+  no detailer ever sees it — this is a redesign of a screen outside the
+  audience the roadmap is sorted for, not merely five real complaints
+  wearing a redesign's clothes. Do not pick this up on a quiet night because
+  it looks meaty; it fails the first criterion before size is even asked.**
 
 - [x] **ALREADY DONE, TICKED 2026-09-20 — 9.13 Zero data is being presented as
   proof of success.** "$0 went through it this month… it is the proof the
