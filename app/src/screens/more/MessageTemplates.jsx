@@ -16,10 +16,27 @@
 //
 // NOTE ON SUBJECT LINES: every template here is an SMS sent from a job, and
 // a text has no subject. Rather than draw an empty subject field that would
-// never send anywhere, the channel is stated on each card. The confirmation
-// and reminder EMAILS are a separate surface (supabase/functions/_shared/
-// emailTemplates.ts) and are not editable yet — that is a real gap, noted
-// in DECISIONS.md, not something this screen silently half-does.
+// never send anywhere, the channel is stated on each card.
+//
+// **THE EMAILS ARE A SEPARATE SURFACE AND THEY *ARE* EDITABLE — CORRECTED
+// 2026-09-21, because this paragraph used to say the opposite and that is a
+// wrong sign on a door rather than a stale comment.** It read: *"The
+// confirmation and reminder EMAILS are a separate surface
+// (supabase/functions/_shared/emailTemplates.ts) and are not editable yet —
+// that is a real gap, noted in DECISIONS.md."* Roadmap 2.18 closed that gap:
+// a detailer attaches one optional paragraph per email under **Notifications
+// → Your own words**, backed by `lib/emailMessages.js` (twelve
+// `MESSAGE_KINDS`). The *design* of those emails is still ours and still not
+// editable, which is the half of the old sentence that was true.
+//
+// **WHY THE CORRECTION IS WORTH SIX LINES.** Somebody came here on
+// 2026-09-21 to add a warning about detailer-written email copy, because the
+// screen is called "Message templates" and this header said the emails lived
+// nowhere else. It was nearly built on the wrong screen — and it would have
+// been the wrong ruling too: Andrew's line is that anything which SELLS goes
+// by text, so a sales pitch is allowed here and forbidden in email. The
+// warning belongs where the EMAIL paragraph is typed, and that is
+// `Notifications.jsx`, not this file. See ROADMAP 3.4b.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MessageSquare, RotateCcw } from "lucide-react";
