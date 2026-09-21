@@ -474,8 +474,8 @@ receipt's own rule that the four counts must AGREE can never fire.**
 
 | check | before | after | the break that proved it |
 |---|---|---|---|
-| `deployed-inventory.mjs` `988e7dd` | `39 39 39 39`, all `dirs.length` | `completed_targets` = `judged.length` | one function walked but never compared → **`40 40 40 39`**, and `receipt.mjs`: *"target counts disagree"* |
-| `restore-drill.mjs` `bf55bb9` | `2 2 2 2`, all `rows.length` — **two targets for a drill over 52 tables** | `expected` declared, the rest measured | `--break=fewer` hides one table → **`52 51 51 51`**, named by the run AND by the grader |
+| `deployed-inventory.mjs` `988e7dd`, `8565266` | `39 39 39 39`, all `dirs.length` | `completed_targets` = `judged.length` | **`--break=unreadable` → `39 39 39 38`**, and `receipt.mjs`: *"target counts disagree"*. See the correction below |
+| `restore-drill.mjs` `bf55bb9`, `6cfe2e8` | `2 2 2 2`, all `rows.length` — **two targets for a drill over 52 tables** | `expected` parsed from `supabase/migrations/`, the rest measured | `--break=fewer` → **`52 51 51 51`** and it **names the table**: *"the migrations declare are NOT in `public`: weather_grids"* |
 
 **`rows.length` in `restore-drill` was not even the tables.** It was the number
 of report STAGES the script finished — two — so the receipt said a whole-schema
@@ -500,6 +500,69 @@ writes the receipt with the counts as far as the run got. Proved with
 `--break=none`: **`52 0 0 0`**, status `fail`, canary `false`, naming *ZERO
 TABLES* and *THE DRILL DID NOT FINISH*. That fix covers every crash in the
 drill, not only this one.
+
+
+### THE FIRST VERSION OF BOTH FIXES WAS WRONG, AND THE CORRECTIONS ARE THE USEFUL PART — 2026-09-21
+
+Both were caught by Andrew's manager reading the receipts on disk rather than
+the report of them. **Kept in the open, because each is the same fault the fix
+was removing, one level up.**
+
+**(1) `39/39/39/39` WAS NOT EVIDENCE.** `completed_targets` became
+`judged.length`, and the receipt offered as proof read `39 39 39 39` — but on a
+full run `judged.length` **is** `dirs.length`, so that receipt demonstrates
+nothing. The empty `--only` run reads `0 0 0 0`, which agrees too, because
+`--only` scopes `dirs` as well. **A number that happens to match is not
+evidence that it can differ.**
+
+The answer is **yes, they can differ** — three states are walked but never
+compared: `NOT DEPLOYED`, `UNREADABLE`, `UNJUDGEABLE`. Proved twice:
+
+| how | counts |
+|---|---|
+| a function directory that was never deployed | **`40 40 40 39`** |
+| **`--break=unreadable`**, one body fetch failed on purpose | **`39 39 39 38`** |
+
+The first needed a write under `supabase/`. The second needs no write anywhere
+and lives in the file, so **the disagreement is reproducible by anyone with one
+flag, for ever**. It stamps its own receipt *"run with `--break=unreadable`;
+this receipt is a sabotage, not a result"*.
+
+**(2) A CONSTANT MEASURED OFF THE LIVE DATABASE IS STILL A GATE FOLLOWING THE
+DATA.** `restore-drill`'s first fix declared `EXPECTED_TABLES = 52` from a live
+count. **If a table were dropped in the live database the number would follow
+it down and the check could not fail** — the same fault this section exists to
+remove, wearing a constant's clothes. `supabase/migrations/` is declared,
+append-only and in the repo, so it is what the live database is supposed to
+match. The check now parses it every run and compares **by name**:
+
+- measured: **53 created − `monthly_plans` dropped = 52**, set-identical to
+  live, no renames
+- `--break=fewer` no longer says *"51 vs 52"* — it says **"1 table(s) the
+  migrations declare are NOT in `public`: `weather_grids`"**
+- `--break=nodeclared` → **`0 52 52 52`**, because an expectation of nothing is
+  how this check would go back to proving nothing
+
+### AND THE DRILL WAS REPEATING A SENTENCE ANDREW HAD ALREADY CORRECTED
+
+`restore-drill`'s one failure read **"THERE IS NO RESTORE POINT A CUSTOMER CAN
+REACH… nothing the platform holds would bring it back."** That is **the exact
+sentence `docs/recovery.md` opened with before Andrew corrected it** — and it
+is false. The check looked only at Supabase and wrote the result down as a fact
+about everywhere. **The same mistake, in the same words, about the same
+subject, hardcoded into a check that would repeat it nightly for ever.**
+
+It now says **"SUPABASE HOLDS NO RESTORE POINT"**, states that this is a fact
+about Supabase only, and names the path that does exist —
+`github.com/random12one0/detailing-platform-backups`, private, nightly 02:10
+Pacific, `pg_dump` custom format, refuses a dump under 50 KB, age-encrypted,
+published as a release asset, 30-day retention keeping the 1st of each month —
+together with its **two real gaps: nobody has ever restored one, and the age
+private key's location is unrecorded.** Not re-measured here; `docs/recovery.md`
+did that release by release.
+
+**The Supabase half was always correct. The scope was not, and nothing in the
+wording admitted a scope** — which is the whole of this file's subject.
 
 ### The two not taken, and neither reason is authorisation
 
