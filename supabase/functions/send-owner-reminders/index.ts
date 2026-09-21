@@ -52,6 +52,16 @@ async function emailDataFor(business: Business, b: BookingRow) {
     customerPhone: b.customer_phone,
     customerEmail: b.customer_email,
     customerAddress: b.customer_address,
+    // ROADMAP 2.8 FOLLOW-UP, 2026-09-20 — found missing, not deliberate.
+    // `ownerWhereRow()` (shared by the owner's evening-before reminder and
+    // the stale-request nudge below) reads these two off exactly the names
+    // used here; without them it always sees `undefined` and both emails
+    // silently print a plain address regardless of the real value. 2.8's own
+    // writeup claimed the request nudge was covered via this shared helper —
+    // it was proven on a screen with a PICKED address, where the row is
+    // correctly blank either way, so the gap was never actually exercised.
+    addressSource: b.address_source,
+    travelZoneAddressMismatch: b.travel_zone_address_mismatch,
     dateStr: dateStrIn(tz, new Date(b.start_at)),
     startTime: timeStrIn(tz, new Date(b.start_at)),
     endTime: timeStrIn(tz, new Date(b.end_at)),

@@ -954,9 +954,12 @@ the wrong service, and never book a job we cannot reach.
     the manage page tells the customer, because that is the screen with a
     Change button on it. `get-booking-receipt` names the column in its
     allow-list on purpose.
-  * **The unanswered-request nudge got it too**, via one shared
-    `ownerWhereRow()` helper — two detailer-facing emails printing the same
-    address is exactly how one of them keeps the old behaviour silently.
+  * **The unanswered-request nudge got it too, via one shared
+    `ownerWhereRow()` helper — CLAIMED, NOT TRUE, SEE THE CORRECTION BELOW.**
+    The intent was right and the helper was shared; the object handed to it
+    from this file's own sweep never carried the fact. Left here rather than
+    edited quietly, because the wrong claim is the reason the gap survived a
+    review.
 
   **PROVEN ON A REAL SCREEN, BOTH WAYS:** the owner's alert rendered from the
   real template for a typed address and a picked one. The typed one carries
@@ -998,6 +1001,34 @@ the wrong service, and never book a job we cannot reach.
   with an address the lookup cannot find, and read `address_source` back off
   the row. Nothing else is outstanding except looking at the job record on a
   real screen, which needs a sign-in.
+
+  **CORRECTION, 2026-09-20 — "the unanswered-request nudge got it too" was
+  wrong, and the proof above did not catch it.** `staleRequestEmail` does
+  call the shared `ownerWhereRow()`, but the object it's handed comes from
+  `emailDataFor()` in `send-owner-reminders/index.ts`, and that function
+  never mapped `address_source` onto it — `addressSource` arrived as
+  `undefined` on every call, always. The proof above only ever rendered the
+  request nudge with a **picked** address, where the row is correctly blank
+  either way, so a payload that would have exposed the gap was never tried.
+  **The same function also builds the owner's own evening-before reminder**
+  (`sendOwnerReminder`, which reuses `ownerNewBookingEmail`), so that email
+  had the identical gap — a second detailer-facing email nobody had named.
+
+  **Checked first whether this was deliberate — it was not.** Nothing near
+  `emailDataFor()` says so, and this item's own text above claims the
+  opposite ("via one shared `ownerWhereRow()` helper"). Fixed at the root:
+  `emailDataFor()` now maps both `addressSource` and (ROADMAP 2.3)
+  `travelZoneAddressMismatch`, which reaches both emails that call it from
+  one change rather than two. Test written first, confirmed failing against
+  the unfixed source (2 of 3 red), then passing after —
+  `tests/owner-reminder-address-flag.test.mjs`, a structural check in the
+  same shape as `customer-reminder.test.mjs` § 2, because this file calls
+  `Deno.serve` at module scope and cannot be imported under Node.
+
+  **Still behind the same freeze as the rest of this item** —
+  `send-owner-reminders` is itself undeployed, so this fix is source-only
+  until whoever lifts the freeze ships it alongside `create-booking` and
+  `get-booking-receipt`.
 
 - [x] **2.9 — DONE 2026-09-20. Where the business works is on step 1 now. Nothing moved.**
   Mobile address and area come at step 4, after services, add-ons and vehicle.
