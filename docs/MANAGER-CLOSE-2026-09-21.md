@@ -24,7 +24,32 @@ commit**:
 | `bookings.travel_zone_address_mismatch` **exists** | Supabase `kguqylyzgyzfktkfnhjb` | night of 09-20 | **Andrew ran the SQL himself** |
 | Resend webhook now subscribes to exactly `delivered`, `bounced`, `complained`, `failed` | Resend, endpoint `…/functions/v1/resend-webhook` | 09-21 | manager, via the Resend API |
 | healthchecks.io "scheduled jobs" grace **30 min → 2 hours** | healthchecks.io | 09-21 | manager |
+| **16 leaked `Smoke ` customer rows removed** from `demo-detail` and `demo-riverside`; the demo tenant's `customers` count went **64 → 48** | Supabase `kguqylyzgyzfktkfnhjb` | 09-21 | DP Cowork2, via the fixed `e2e-booking.mjs` sweep |
 | Nothing was published. Nothing was pushed. | — | — | — |
+
+**THE 64 → 48 IS NOT A PROBLEM AND A LATER SESSION WILL THINK IT IS.** Anyone
+comparing the demo tenant's customer count against a note written before
+2026-09-21 will find sixteen rows missing and go looking for a fault. There
+isn't one. `e2e-booking.mjs`'s cleanup deleted its own test customer by
+`phone=eq.555-0111`; `create-booking` **stores a formatted phone**, so the row
+reads `(555) 011-1` and the filter matched nothing. A PostgREST delete that
+matches zero rows answers `204` with an empty body — **the same answer as one
+that deleted exactly what it meant to** — so the residue was invisible from
+the console, the exit code and the receipt. It accumulated one row per tenant
+per run from 2026-09-11. The cleanup now matches on `Smoke <runId>`, the one
+field the product does not reformat, and the stale sweep reclaims customers as
+well as bookings; it cleared all sixteen on its first fixed run. Six more, made
+by that night's own four runs, were deleted by hand and the count re-read to
+prove it before the sweep ran.
+
+**And one more write that is BY DESIGN and looks alarming.** Every
+`e2e-booking` run deletes the demo tenant's `rate_hits` rows whose bucket
+starts with `booking` — this is **ROADMAP 2.21**, and it is deliberate: the
+script books more times in two minutes than a real customer does in a year
+from one address, so without it the run starts failing at whichever booking
+crosses the throttle and reports it as a broken engine. It clears rather than
+exempting, so the limits stay set by what a real customer does. On 09-21 that
+took the `booking%` bucket from 4 rows to 2.
 
 **The migration being applied retires the ordering trap.** `create-booking`
 always writes that key on insert, so publishing it before the column existed
