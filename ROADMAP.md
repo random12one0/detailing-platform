@@ -496,6 +496,85 @@ the wrong service, and never book a job we cannot reach.
   combinations — with and without member rate, weekend, vehicle size, add-ons.
   This one gets a unit test against `pricing.ts`, not just a browser check.
   *A2 2.2*
+  **BUILT 2026-09-20 — code-only, held for the deploy freeze rather than for
+  doubt about the fix, and proven by a unit test rather than a browser
+  because a browser here can't reach an unfixed deployed function anyway.**
+  **THE BLOCKING QUESTION FIRST, ANSWERED BEFORE ANY LINE OF PRICING.TS WAS
+  TOUCHED.** Does the live estimated total come from the edge function or a
+  second implementation in `app/src`? One implementation.
+  `app/src/book/steps/StepReview.jsx`'s own header states it: *"The quote
+  shown here is the SERVER's (calculate-booking), never a local sum."*
+  `calculate-booking` and `create-booking` both run the same
+  `computeQuote` — `pricing.ts`'s own header: *"so the two can never drift
+  apart."* No second money computation exists in `app/src`.
+  **BUT NOT NOTHING, EITHER, AND IT MATTERS FOR THIS FIX.**
+  `StepReview.jsx` already carries a dated (2026-09-11), reviewed
+  CLIENT-SIDE patch for exactly this complaint — it reads the server's raw
+  `site_discount`/`promo_discount`, computes the same gap this item is
+  about, and folds it into the LAST discount's DISPLAYED amount so the
+  customer's own screen already shows self-consistent lines today. It never
+  touches `quote.total`, so the actual charge was never wrong on this
+  screen — but the fold **does not cover a plan/member discount**, only
+  site and promo, which is exactly the shape of Andrew's own named example.
+  Not a second truth about money — the total has one source — but a second
+  place handling the same rounding problem, with narrower coverage than the
+  server needed. Answered before proceeding; not a stop condition.
+  **TEST WRITTEN FIRST, RUN AGAINST THE UNFIXED CODE, FAILURES CAPTURED
+  BEFORE ANYTHING CHANGED.** `tests/pricing-lines-sum.test.mjs` — pure unit
+  test, `computeQuote` imported directly, no network, no credentials, no
+  deployed function. Eight scenarios plus the item's own named example:
+  with/without member rate, weekend surcharge, vehicle size, add-ons, and
+  all of them at once. **5 of 9 failed on the code as it stood**, with real
+  numbers, not projected ones:
+  - `member rate, 10% off, nearest-$5`: **lines summed to $247, total
+    charged $245 — a $2 gap, customer UNDERcharged** relative to what the
+    lines said (the item's own example, reproduced exactly: `Math.round(275
+    × 10 / 100) = 28`, not the precise `27.50`).
+  - `site sale 10%, nearest-$5` and `promo 10% off, nearest-$5`: same $247
+    vs $245, same direction, same mechanism, different line producing it.
+  - `everything at once — member rate, weekend, size, add-ons, site sale,
+    promo, rounding`: **lines summed to $289, total charged $290 — a $1
+    gap, customer OVERcharged.** The opposite direction from the other four,
+    on the same function, from the same class of bug — confirming
+    Andrew's read that overcharge and undercharge are the same defect to a
+    test and different things to him. Both directions are real and neither
+    is rare enough to assume away.
+  **THE FIX.** After `total` is computed (unchanged — still one
+  `roundToNearest` call, still the business's own `nearest` setting), the
+  gap between the precise pre-rounding amount and `total` is folded into
+  whichever discount sits nearest the total: `promoDiscount` first, else
+  `siteDiscount`, else the last adjustment line with a negative amount
+  (reaching a plan/member discount, which the client-side version never
+  did). Nothing folds into a positive line (a surcharge), on purpose — the
+  reasoning `StepReview.jsx` already wrote down: the customer reads a
+  changed DISCOUNT as their own rate being honoured; a changed SURCHARGE
+  reads as the business moving the price after the fact.
+  `adjustmentsTotal`/`subtotalBase`/`subtotalAfterSite` are recomputed from
+  the (possibly folded) lines afterward, not left stale — `subtotal` is
+  stored on the booking and read by emails and the dashboard, so it has to
+  agree with the fold too, not just the total.
+  **NOTHING TO FOLD IT INTO — the one case left as a sentence, on
+  purpose.** A booking with rounding but no discount at all has nowhere
+  server-side to put the gap either. `StepReview.jsx`'s existing "Rounded
+  up/down to the nearest dollar" sentence already covers exactly this case
+  correctly and needed no change.
+  **ALL 9 TESTS PASS NOW**, including the item's own example, whose
+  discount line now correctly reads as a $30 member discount rather than
+  $28 — the rate the rounding setting actually delivered, not the one
+  before an unexplained $2 vanished.
+  **NOT TOUCHED, AND NAMED SO NOBODY WONDERS LATER: `StepReview.jsx`'s own
+  client-side fold.** Once this ships, its `gap` will compute to 0 for
+  every booking that has a site or promo discount (the server now hands it
+  already-reconciled numbers) — the client logic doesn't break, it goes
+  dormant, the same shape this session's CSS fix hit tonight with a dead
+  `max-height` rule. Left alone rather than removed: it is still the
+  correct fallback for the no-discount case, and deleting working code on
+  the strength of "it won't fire often now" is not this item's job.
+  **THE FREEZE HOLDS.** This is `supabase/functions/_shared/pricing.ts`, an
+  edge function. Nothing here has been deployed and nothing will be without
+  Andrew's word — the test is the proof because a browser cannot reach code
+  that isn't live. `create-booking`/`calculate-booking` themselves were not
+  edited; both already call the shared function unmodified.
 
 - [ ] **2.3 — A far-away address is accepted with no travel charge.**
   A San Diego address went through with "Long Beach" selected, no warning and

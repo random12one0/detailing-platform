@@ -515,17 +515,63 @@ export function computeQuote(inp: QuoteInput): Quote {
     else if (inp.promo.type === "amount") promoDiscount = Math.min(val, subtotal);
   }
 
-  const total = roundToNearest(Math.max(0, subtotal - promoDiscount), inp.roundingNearest);
+  const precise = Math.max(0, subtotal - promoDiscount);
+  const total = roundToNearest(precise, inp.roundingNearest);
+
+  // ROADMAP 2.2 — ROUND ONCE, FOLDED INTO A LINE, RATHER THAN TWICE WITH
+  // NOWHERE FOR THE DIFFERENCE TO SHOW. Every line above rounds itself
+  // (`planLineFor`, a percent rule, `siteDiscount`, `promoDiscount`) and
+  // THEN the total rounds again to the business's own nearest-N setting —
+  // two independent roundings, so the lines a customer is shown and the
+  // amount actually charged could differ by up to half of `roundingNearest`
+  // with no line anywhere accounting for it. `gap` is exactly that
+  // difference — positive means the final rounding took money OFF what the
+  // lines add up to (the customer is undercharged relative to the
+  // breakdown), negative means it added money ON (overcharged) — and it is
+  // folded into whichever discount sits nearest the total, the same choice
+  // `app/src/book/steps/StepReview.jsx` already makes on the client for
+  // site/promo (a dated, reviewed UI decision, 2026-09-11: "the rounding is
+  // folded into the discount and the lines add up... it goes on the LAST
+  // discount shown, because that is the one nearest the total"). Doing it
+  // here means the server's own numbers are correct before the client ever
+  // sees them, and it reaches a plan/member discount, which the client-side
+  // version never did — see the test named after this item.
+  let gap = Math.round((precise - total) * 100) / 100;
+  if (gap !== 0 && promoDiscount !== 0) {
+    promoDiscount += gap;
+    gap = 0;
+  } else if (gap !== 0 && siteDiscount !== 0) {
+    siteDiscount += gap;
+    gap = 0;
+  } else if (gap !== 0) {
+    const lastDiscount = [...adjustmentLines].reverse().find((l) => l.amount < 0);
+    if (lastDiscount) { lastDiscount.amount -= gap; gap = 0; }
+  }
+  // NOTHING TO FOLD IT INTO — a business that rounds and charges no
+  // discount at all on this booking. `gap` stays real and unresolved here;
+  // `StepReview.jsx` already renders exactly this case as a sentence
+  // ("Rounded up/down to the nearest dollar") rather than inventing a line,
+  // and that half did not need porting — it was already correct.
+  //
+  // Recomputed from the (possibly folded) lines above, not assumed: if the
+  // fold changed the last adjustment line, `adjustmentsTotal` and
+  // `subtotalBase` have to agree with it, or this function would fix the
+  // customer's total while quietly breaking the one truth about `subtotal`
+  // every email and the dashboard already read as correct.
+  const adjustmentsTotalFinal = adjustmentLines.reduce((s, l) => s + l.amount, 0);
+  const subtotalBaseFinal = beforeAdjustments + adjustmentsTotalFinal;
+  const subtotalAfterSiteFinal = Math.max(0, subtotalBaseFinal - siteDiscount);
+
   return {
     basePrice,
     sizeAdd,
     addOnsTotal,
     travelFee,
     adjustmentLines,
-    adjustmentsTotal,
-    subtotalBase,
+    adjustmentsTotal: adjustmentsTotalFinal,
+    subtotalBase: subtotalBaseFinal,
     siteDiscount,
-    subtotalAfterSite,
+    subtotalAfterSite: subtotalAfterSiteFinal,
     promoDiscount,
     total,
     totalDurationMinutes,
