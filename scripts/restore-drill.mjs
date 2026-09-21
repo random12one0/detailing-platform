@@ -113,6 +113,28 @@ const failures = [];
 const warnings = [];
 const rows = [];
 let assertions = 0;
+
+// **THE EXPECTATION IS DECLARED HERE, NOT PRODUCED BY THE RUN - 2026-09-21,
+// docs/silences.md section B.** Until today all four target counts were
+// `rows.length`, the number of STAGES this script happened to finish: a drill
+// over the whole `public` schema declaring it had **2 targets**, and four
+// copies of one variable, so the receipt's rule that they must AGREE could
+// never fire. The targets of a restore drill are the TABLES it round-trips.
+//
+// 52 was MEASURED once, on 2026-09-21, by listing `public` on
+// `kguqylyzgyzfktkfnhjb` - and that single measurement is this number's one
+// weakness, so it is written down rather than hidden. From here it is a
+// CONSTANT: the live count is measured every run and judged against this, and
+// a migration that adds or drops a table makes the two disagree and fails the
+// receipt until a person re-derives it. Same shape as W16's stated bound in
+// `sweep-booking-steps.mjs` - measured subject, declared bound.
+//
+// **MOVING THIS NUMBER TO MAKE A RUN PASS IS THE FAILURE THIS FILE EXISTS TO
+// CATCH.** Move it because a migration changed the schema, and say which.
+const EXPECTED_TABLES = 52;
+let discovered = 0;
+let attempted = 0;
+let completed = 0;
 const say = (m) => failures.push(m);
 
 const SCHEMA = "restore_drill";
@@ -172,10 +194,32 @@ try {
     select c.relname as t from pg_class c join pg_namespace n on n.oid = c.relnamespace
      where n.nspname = 'public' and c.relkind = 'r' order by 1`)).map((r) => r.t);
   assertions++;
+  // **THE SABOTAGE THAT PROVES THE EXPECTATION IS A FLOOR AND NOT A MIRROR.**
+  // `--break=fewer` hides one table from the walk. If the declared count were
+  // still produced by the run, this would pass silently with one table never
+  // restored and never compared - which is exactly what the old
+  // `expected = rows.length` did. It must now fail and name the gap.
+  if (BREAK === "fewer") tables.pop();
+  // `--break=none` proves the other half: that the outcome which proves NOTHING
+  // now leaves a receipt behind to grade, instead of throwing past writeReceipt.
+  if (BREAK === "none") tables.length = 0;
+  discovered = tables.length;
+  // **ZERO DISCOVERED IS A FAILURE, AND IT USED TO BE A CRASH.** `throw` here
+  // skipped `writeReceipt` entirely, so the one outcome that proves nothing at
+  // all left NO receipt to grade - an ungraded crash reads, to anyone looking
+  // at the receipts directory, exactly like a run that never happened.
   if (!tables.length) {
-    say("no tables were discovered in `public`; nothing was exported and nothing was proved");
-    throw new Error("no tables");
+    say("ZERO TABLES were discovered in `public`. Nothing was exported, nothing was "
+      + "restored and nothing was proved. This is NOT a clean drill.");
   }
+  // The live count is judged against the number declared at the top, so a
+  // schema that gained or lost a table cannot pass quietly.
+  if (tables.length && tables.length !== EXPECTED_TABLES) {
+    say(`TABLE COUNT MOVED: \`public\` holds ${tables.length} table(s), `
+      + `EXPECTED_TABLES declares ${EXPECTED_TABLES}. Either a migration changed the `
+      + `schema - re-derive the constant and say which migration - or something is missing.`);
+  }
+  if (!tables.length) throw new Error("no tables");
 
   // **THE FINGERPRINT IS TAKEN AT EXPORT TIME, IN THE SAME BREATH AS THE ROWS
   // — AND THE FIRST VERSION TOOK IT AT VERIFY TIME.** That version reported
@@ -221,6 +265,7 @@ try {
   schemaMade = true;
 
   let restored = 0;
+  attempted = tables.length;
   const failedTables = [];
   for (const t of tables) {
     // `LIKE ... INCLUDING ALL` copies columns, types, defaults and checks —
@@ -255,6 +300,9 @@ try {
     const want = atExport[t];
     const got = await fingerprint(SCHEMA, t);
     assertions++;
+    // COMPLETED counts the tables actually compared back, so a verify loop that
+    // stops early can no longer report the same number as one that finished.
+    completed++;
     if (want.n !== got.n || want.h !== got.h) {
       mismatches.push(`${t}: exported ${want.n} rows/${want.h.slice(0, 8)}, `
         + `restored ${got.n}/${got.h.slice(0, 8)}`);
@@ -317,6 +365,14 @@ try {
     }
   }
 
+} catch (e) {
+  // **A CRASH USED TO LEAVE NO RECEIPT AT ALL.** The only `try` here had a
+  // `finally` and no `catch`, so any throw - including the deliberate one for
+  // zero tables - killed the process before `writeReceipt`, and the outcome
+  // that proves least left nothing behind to grade. Now it is recorded and the
+  // receipt is still written, with the counts as far as the run actually got.
+  say(`THE DRILL DID NOT FINISH: ${e.message}. The counts below are how far it got, `
+    + `not a result.`);
 } finally {
   if (schemaMade && !KEEP) {
     await sql(`drop schema if exists ${SCHEMA} cascade`).catch((e) =>
@@ -337,16 +393,17 @@ const canary = {
       + "tell a good restore from a bad one and every match above is void"],
 };
 
-const expected = rows.length;
 const status = failures.length === 0 && canary.observed_failure ? "pass" : "fail";
 const { path: receiptPath } = writeReceipt({
   check_id: "restore-drill",
   started_at,
   status,
-  expected_targets: expected,
-  discovered_targets: expected,
-  attempted_targets: expected,
-  completed_targets: expected,
+  // Four numbers from four different places, so they can disagree - which is
+  // the whole point of the receipt rule that they must agree.
+  expected_targets: EXPECTED_TABLES,  // declared above, before the run
+  discovered_targets: discovered,     // what `public` actually holds
+  attempted_targets: attempted,       // tables we tried to restore
+  completed_targets: completed,       // tables compared back
   skipped_targets: 0,
   assertions_executed: assertions,
   min_assertions: 40,
