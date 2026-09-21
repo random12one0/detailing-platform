@@ -871,6 +871,34 @@ is operated, not a check, so it is Andrew's — recorded here rather than done.*
 
 ---
 
+
+### THE LEDGER IS ANDREW'S CHOICE, NOT A SESSION'S — stated, not argued
+
+**Recorded here rather than in `FOR-ANDREW.md` because that file is the other
+session's lane this round.** It belongs in front of him either way: adopting a
+migration workflow changes how he OPERATES the project, which is a different
+kind of decision from anything a session or a manager gets to make.
+
+**The situation.** Nothing in `kguqylyzgyzfktkfnhjb` records which of the 92
+files in `supabase/migrations/` ever ran. There is no
+`supabase_migrations.schema_migrations` table. Two migrations had already
+silently never run, and the multi-car booking feature reached nobody at any
+setting as a result.
+
+**The two options, and what each costs him:**
+
+| | **Adopt the Supabase CLI migration workflow** | **Keep `migration-drift.mjs` as the answer** |
+|---|---|---|
+| What it gives | A real ledger. "Did this migration run?" becomes a lookup, permanently, for every object type | Functions, tables and columns compared against the repo — nothing else |
+| What it costs | Installing and learning a tool; every future migration goes through `supabase db push` rather than by hand. **The existing 92 have to be reconciled with the ledger once, carefully, or the first run reports all 92 as unapplied** | Nothing new. It already runs |
+| What stays broken | Nothing about migrations | A `grant`, an `update`, a backfill, an index, a policy, a column's TYPE — none of those are visible. **It answers "does the schema match the repo", not "did every migration run"** |
+| Risk of the change itself | A one-time reconciliation against a live database | None — it is read-only |
+
+**Neither option is recommended here.** Both are defensible: the first buys a
+permanent answer for a one-time cost against his live database; the second
+costs nothing and leaves a named, written-down gap. **It is his call and the
+material for making it is above.**
+
 ## `db-audit`'S TWO FINDINGS, INVESTIGATED RATHER THAN ALLOWLISTED — 2026-09-21
 
 They were printed and ignored on every run until findings started failing the

@@ -72,9 +72,14 @@
 // name). 49 functions, 52 tables, 737 assertions on a full run.
 //
 // It STILL cannot see:
-//   * **a column's TYPE, default, or nullability.** Presence only. A migration
-//     that widens `numeric(8,2)` to `numeric(12,2)`, or drops a NOT NULL, is
-//     invisible here and reads as no news.
+//   * **a column's DEFAULT or NULLABILITY.** The TYPE is compared as of
+//     2026-09-21 - 1,213 assertions, `information_schema.columns.data_type`
+//     against the type the migration declares - but only to the FAMILY:
+//     `numeric(8,2)` and `numeric(12,2)` are both `numeric` here, so a
+//     widening is still invisible. **108 declared types map to nothing this
+//     recognises and are counted UNJUDGED rather than guessed at**, which is
+//     deliberate: four separate false positives died building this file and
+//     every one of them was a parser that guessed.
 //   * **policies, grants, RLS enable/force state.** `db-audit.mjs` asks some
 //     of those; this does not ask any of them.
 //   * **indexes, constraints, triggers, views, enum types, extensions.**
@@ -163,7 +168,9 @@ for (const f of files) {
 // `alter table ... add column` adds one, `drop table` removes the table, and
 // `alter table ... drop column` removes one. Last operation wins.
 const intendedTables = new Map(); // name -> { cols:Set, file }
-const COLNAME = /^\s*("?)([a-z_][a-z_0-9]*)\1\s+/i;
+// Name AND declared type. The type runs to the first constraint keyword or
+// the end of the clause, which is enough to compare a family.
+const COLNAME = /^\s*("?)([a-z_][a-z_0-9]*)\1\s+([\s\S]+)$/i;
 for (const f of files) {
   const src = readFileSync(path.join(MIGRATIONS, f), "utf8");
   const events = [];
@@ -232,15 +239,19 @@ for (const f of files) {
     }
     parts.push(part);
     const cols = new Set();
+    const colType = new Map();
     for (const p of parts) {
       const line = p.replace(/--[^\n]*/g, "").trim();
       if (!line) continue;
       // Table-level constraints are not columns.
       if (/^(primary|unique|foreign|check|constraint|exclude|like)\b/i.test(line)) continue;
       const cm = line.match(COLNAME);
-      if (cm) cols.add(cm[2].toLowerCase());
+      if (cm) {
+        cols.add(cm[2].toLowerCase());
+        colType.set(cm[2].toLowerCase(), cm[3].trim().toLowerCase());
+      }
     }
-    intendedTables.set(e.name, { cols, file: f });
+    intendedTables.set(e.name, { cols, types: colType, file: f });
   }
 }
 
@@ -356,13 +367,52 @@ console.log(`canary  ${CANARY} -> `
 
 
 // --- 3b · compare the tables and columns -----------------------------------
-const liveCols = await q(`select table_name as t, column_name as c
+// **THE TYPE IS COMPARED CONSERVATIVELY, AND THAT IS DELIBERATE.** Three
+// separate false positives died building this file, every one of them a parser
+// that guessed. So a declared type is only judged when it maps to a known
+// `information_schema.data_type`; anything unrecognised is counted as
+// UNJUDGEABLE and named, never guessed at. A check that invents failures out
+// of a correct database is worth less than no check.
+const TYPE_FAMILY = new Map(Object.entries({
+  text: "text", varchar: "character varying", "character varying": "character varying",
+  uuid: "uuid", bool: "boolean", boolean: "boolean",
+  int: "integer", int4: "integer", integer: "integer", serial: "integer",
+  int8: "bigint", bigint: "bigint", bigserial: "bigint", smallint: "smallint",
+  numeric: "numeric", decimal: "numeric", real: "real",
+  "double precision": "double precision",
+  json: "json", jsonb: "jsonb", date: "date",
+  timestamptz: "timestamp with time zone",
+  "timestamp with time zone": "timestamp with time zone",
+  timestamp: "timestamp without time zone",
+  "timestamp without time zone": "timestamp without time zone",
+  time: "time without time zone", inet: "inet", bytea: "bytea",
+}));
+// **THE TYPE IS EVERYTHING BEFORE THE FIRST CONSTRAINT WORD, AND THE FIRST
+// VERSION KEPT GOING.** The capture allowed spaces, so `created_at timestamptz
+// not null default now()` yielded a "type" of `timestamptz not null default`
+// and mapped to nothing: 466 columns went UNJUDGED and the check quietly
+// measured almost no types at all. And `included_service_ids uuid[]` lost its
+// brackets, so an array column was reported as a uuid the database held as an
+// array - a false positive out of a correct database, the fourth built into
+// this file and killed before anyone saw it.
+const STOPS = /\b(not\s+null|null|default|primary\s+key|unique|references|check|generated|collate|constraint|on\s+delete|on\s+update)\b/i;
+const declaredFamily = (raw) => {
+  if (!raw) return null;
+  let t = String(raw).split(STOPS)[0].trim();
+  const isArray = /\[\s*\]\s*$/.test(t);
+  t = t.replace(/\[\s*\]\s*$/, "").replace(/\([^)]*\)/g, "").replace(/\s+/g, " ").trim().toLowerCase();
+  if (isArray) return "array";
+  return TYPE_FAMILY.get(t) || null;
+};
+const liveCols = await q(`select table_name as t, column_name as c, data_type as dt
     from information_schema.columns where table_schema = 'public'`);
+const liveType = new Map();
 const liveTable = new Map();
 for (const r of liveCols) {
   const t = r.t.toLowerCase();
   if (!liveTable.has(t)) liveTable.set(t, new Set());
   liveTable.get(t).add(r.c.toLowerCase());
+  liveType.set(`${t}.${r.c.toLowerCase()}`, String(r.dt).toLowerCase());
 }
 
 // The canary for this half: a column no migration could have written, asserted
@@ -377,6 +427,8 @@ const tablesAbsent = [];
 const columnsAbsent = [];
 let tablesCompared = 0;
 let colCanaryCaught = false;
+const typeMismatch = [];
+let typeUnjudged = 0;
 
 for (const [t, want] of tableSubjects) {
   assertions++;
@@ -395,6 +447,21 @@ for (const [t, want] of tableSubjects) {
     const victim = [...want.cols].find((c) => c !== COL_CANARY);
     missing.push(victim);
     console.log(`--break=unappliedcol: pretending ${t}.${victim} never arrived`);
+  }
+  // Types, for the columns that are present and whose declared type is known.
+  for (const c of want.cols) {
+    if (c === COL_CANARY || !have.has(c)) continue;
+    // `--break=wrongtype` declares one column as a type it is not, which is
+    // what a migration that widened a column and never ran would look like.
+    const rawType = (BREAK === "wrongtype" && t === "businesses" && c === "id")
+      ? "text" : (want.types && want.types.get(c));
+    const df = declaredFamily(rawType);
+    if (!df) { typeUnjudged++; continue; }
+    assertions++;
+    const lf = liveType.get(`${t}.${c}`);
+    if (lf && lf !== df) {
+      typeMismatch.push(`${t}.${c} — the repo declares ${df}, the database holds ${lf} (${want.file})`);
+    }
   }
   if (missing.length) {
     for (const c of missing) columnsAbsent.push(`${t}.${c} (declared by ${want.file})`);
@@ -441,6 +508,10 @@ if (tablesAbsent.length) {
   failures.push(`${tablesAbsent.length} table(s) the migrations declare are NOT IN THE DATABASE — `
     + `the migration creating each one has never run: ${tablesAbsent.join(", ")}`);
 }
+if (typeMismatch.length) {
+  failures.push(`${typeMismatch.length} column(s) have a different TYPE in the database than `
+    + `the migrations declare: ${typeMismatch.join("; ")}`);
+}
 if (columnsAbsent.length) {
   failures.push(`${columnsAbsent.length} column(s) the migrations declare are NOT IN THE DATABASE — `
     + `the migration adding each one has never run: ${columnsAbsent.join(", ")}`);
@@ -461,7 +532,7 @@ const { path: receiptPath } = writeReceipt({
   assertions_executed: assertions,
   // 51 functions make ~102 assertions. A floor just under it means losing the
   // whole replay fails the receipt rather than shrinking it quietly.
-  min_assertions: 400,
+  min_assertions: 1000,
   failures,
   artifacts: ["scripts/migration-drift.mjs"],
   warnings: [
@@ -477,6 +548,8 @@ const { path: receiptPath } = writeReceipt({
     tables_declared: intendedTables.size,
     tables_absent: tablesAbsent,
     columns_absent: columnsAbsent,
+    type_mismatch: typeMismatch,
+    types_unjudged: typeUnjudged,
     method: "replay create/drop function in file and statement order; compare body text against pg_get_functiondef",
     absent,
     drifted,
