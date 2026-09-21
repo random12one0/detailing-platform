@@ -845,9 +845,18 @@ footer a:hover{color:var(--ink)}
              capability that does not exist, sold on a page whose job is to
              show a detailer what they would get. ROADMAP 7.17, class 3. -->
         <p class="lead">You see the price before anything is committed.</p>
+        <!-- ROADMAP 7.2 — phases 1 and 2 were right and phase 3 was missing.
+             A price cannot be raised before the work without the customer
+             accepting it: `accept-quote` is the only path from
+             `quoted_amount` to `total_price`. After the work, `FinalizeModal`
+             writes extra line items and `amountDueCents()` charges
+             `final_amount ?? total_price`, so the last sentence is the phase
+             this page did not have. -->
         <p style="margin-top:18px"><b>The figure you are quoted is the figure
           charged.</b> If we get there and the job is bigger than the photos
-          suggested, you are told before a hose comes off the van.</p>
+          suggested, you are told before a hose comes off the van, and a new
+          price is only charged if you accept it. Anything added on the day is
+          itemized on your invoice.</p>
       </div>
 
       <div class="bk">

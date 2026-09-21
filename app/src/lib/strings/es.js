@@ -283,10 +283,10 @@ export const es = {
   "Travel · {zone}": "Traslado · {zone}",
   "{percent}% off": "{percent}% de descuento",
   "Promo {code}": "Código {code}",
-  "Some of this is priced from. We’ll confirm once we’ve seen the vehicle, and we’ll ask before doing anything extra.":
-    "Parte de esto es un precio desde. Lo confirmamos cuando veamos el vehículo, y te preguntamos antes de hacer algo extra.",
-  "An estimate. If the vehicle needs more work, we’ll ask before doing anything extra.":
-    "Es un estimado. Si el vehículo necesita más trabajo, te preguntamos antes de hacer algo extra.",
+  "Some of this is priced from, and we confirm it once we’ve seen the vehicle. A new price is only charged if you accept it. Anything added on the day is itemized on your invoice.":
+    "Parte de esto es un precio desde, y lo confirmamos cuando veamos el vehículo. Un precio nuevo solo se cobra si lo aceptas. Lo que se agregue el día del servicio se detalla en tu factura.",
+  "An estimate. A new price before the work is only charged if you accept it. Anything added on the day is itemized on your invoice.":
+    "Es un estimado. Un precio nuevo antes del trabajo solo se cobra si lo aceptas. Lo que se agregue el día del servicio se detalla en tu factura.",
   "Promo code": "Código de descuento",
   "Have a code?": "¿Tienes un código?",
   "Checking": "Revisando",

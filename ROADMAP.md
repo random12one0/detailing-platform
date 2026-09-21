@@ -4395,13 +4395,76 @@ rather than wording went to Andrew.
 
 
 
-- [ ] **7.2 — The public price explanation contradicts itself.**
-  Copy says "every figure is what you pay" and "nothing is added", then allows
+- [x] **7.2 — DONE 2026-09-21. The public price explanation contradicted
+  itself, and the one false sentence was in the REAL PRODUCT, not on an
+  example site.**
+  Copy said "every figure is what you pay" and "nothing is added", then allowed
   condition, distance, size and add-ons to change the amount.
   **Fix:** one honest formula. Only say "nothing added" if it is literally true.
   **Done when:** a customer can explain every circumstance that changes the
   displayed amount.
   *A1 P1-09*
+
+  **THE CODE HAS THREE PHASES AND NO SURFACE STATED ALL THREE.** Established
+  from `_shared/pricing.ts`, `respond-to-booking`, `accept-quote`,
+  `FinalizeModal.jsx` and `_shared/connect.ts` — never from a page:
+
+  1. **Before you confirm** — `computeQuote`: services + size + add-ons +
+     travel + price-rule surcharges → site sale % → promo → round, plus a
+     plan rate. **Nine levers, all shown.**
+  2. **Before the work** — the detailer may send a new price.
+     `respond-to-booking` writes `quoted_amount` and **never** `total_price`;
+     **`accept-quote` is the only path between them and it needs the button in
+     the customer's email.** A rise here cannot happen without consent, and
+     that is a genuinely strong guarantee nobody was claiming.
+  3. **After the work** — `FinalizeModal` writes `booking_line_items`;
+     `final_amount = total_price + Σ(lines)`; and **`amountDueCents()` returns
+     `final_amount ?? total_price`**, so the card charge follows the
+     detailer's figure. Its own comment: *"the detailer's agreed final amount
+     beats the original quote here exactly as it does everywhere."*
+     **No customer consent step.** The invoice itemises the lines afterwards.
+
+  **13 statements audited across 6 surfaces: 5 true, 4 part-true, 4 false.**
+
+  **THE ONE IN THE REAL PRODUCT, AND IT IS THE FINDING.** `StepReview.jsx`
+  told every customer, in both languages, *"An estimate. If the vehicle needs
+  more work, we'll ask before doing anything extra."* **Nothing enforces
+  "we'll ask."** Phase 3 has no customer step at all. Every example site was a
+  page; this was the product. **Now:** *"An estimate. A new price before the
+  work is only charged if you accept it. Anything added on the day is
+  itemized on your invoice."* — the three phases, in order, in the product's
+  own voice. The from-priced variant carries the same two facts. **The
+  Spanish twins moved in the same edit**, `es.js` being keyed on the English
+  text, so a rename falls back silently with no error anywhere.
+
+  | surface | was | now |
+  |---|---|---|
+  | `StepReview.jsx` ×2 + `es.js` ×2 | "we'll ask before doing anything extra" | the three phases |
+  | ex1 `v-goldenhour-prices.html` lede | "no separate quote step … nothing is added on the day" | "These are estimates. A new price needs your OK before the work…" |
+  | ex1 same, section head | "Every price here is the price you pay." | "…what you would be quoted." |
+  | ex1 `v-goldenhour.html` trust row | "it does not change on the day" | "a new one needs your OK" |
+  | ex3 `x-ballantyne.html` hero | "Every price is on the site" | "Every **package** price is on the site" — add-ons are marked "Quoted" |
+  | ex4 `y-kinzie.html` | phases 1–2 only | phase 3 added |
+  | ex5 `z-tampabay.html` | phases 1–2 only | phase 3 added |
+
+  **PRESSED, NOT READ.** The booking flow was walked to **step 7 of 7** at
+  **320x844 and 1254x720, in English and Spanish** — four walks, all four
+  reaching Review: **0 console errors, 0px horizontal overflow**, the new
+  sentence rendered in both languages. The final confirm was never pressed,
+  so nothing was written to the demo tenant. `american-english` **11/11
+  pages, 5611 assertions, 0 British spellings**; `label-guard` no stale
+  labels; `i18n-survey` shows no untranslated string in `StepReview.jsx`;
+  four credential-free suites pass; build clean.
+
+  **AND THE WALK ITSELF WAS WRONG TWICE BEFORE IT WAS RIGHT, which is why the
+  numbers above are worth anything.** First run reported "step 4 of 7" — it
+  had stalled on *Pick a place* with the address box empty **and Continue
+  enabled**, because `input[type=text]` **does not match an input with no
+  `type` attribute**. Second run reached step 5 and stalled on the calendar:
+  it addressed day cells by position against a live locator, and picking a
+  day re-renders the grid. Both are `docs/gotchas.md` shapes. **A walk that
+  stops early still prints a total and a clean console** — the first two runs
+  said "0 errors" exactly as the real one does.
 
 - [ ] **7.17 — THE RULE: an example site must not show a number the product
   cannot produce.** Three classes of number on the five example sites are

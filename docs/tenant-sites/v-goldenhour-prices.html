@@ -1213,9 +1213,18 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
   <header class="pagehead">
     <p class="crumb"><a href="v-goldenhour.html">Home</a> &rsaquo; Prices</p>
     <h1>Prices, <em>all three sizes.</em></h1>
-    <p class="pagelede">Pick your car&rsquo;s size at the top of the table. Every
-       figure is what you pay &mdash; there is no separate quote step and nothing
-       is added on the day.</p>
+    <!-- ROADMAP 7.2 — THREE FALSE CLAIMS IN ONE SENTENCE, replaced with the
+         three phases the code actually has. "No separate quote step":
+         `respond-to-booking` takes `accept | decline | quote`, and quoting is
+         one of the three primary answers to a request. "Nothing is added on
+         the day": `FinalizeModal` adds line items after the work with no
+         customer step, and `amountDueCents()` charges
+         `final_amount ?? total_price`. "Every figure is what you pay": this
+         product's own booking page calls the number an ESTIMATE, in both
+         languages, from step 1 — measured, not read. -->
+    <p class="pagelede">Pick your car&rsquo;s size at the top of the table. These
+       are estimates. A new price needs your OK before the work, and anything
+       added on the day is itemized on your invoice.</p>
   </header>
 
   <!-- ═══ 4 · PACKAGES · GROUND CHANGE 1 → near-black ════════════════════
@@ -1229,7 +1238,8 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
     <div class="money-in">
       <div class="sechead">
         <h2>Three packages, <em>three sizes.</em></h2>
-        <p>Every price here is the price you pay.</p>
+        <!-- was "Every price here is the price you pay." — see the lede -->
+        <p>Every price here is what you would be quoted.</p>
       </div>
 
       <!-- D7 · the vehicle ladder this product already has in `vehicle_size` -->

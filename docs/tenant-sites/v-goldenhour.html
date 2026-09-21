@@ -1111,7 +1111,14 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
       <div class="trust">
         <span><b>Same-day slots</b> most weeks</span>
         <span class="sep"></span>
-        <span><b>Price before you book</b> — it does not change on the day</span>
+        <!-- ROADMAP 7.2 — "it does not change on the day" was false: the day
+             is exactly when it can change. `FinalizeModal` writes extra line
+             items after the work and `amountDueCents()` charges
+             `final_amount ?? total_price`. What IS guaranteed is the half
+             before the work: a new price needs the customer's acceptance
+             (`accept-quote` is the only path from `quoted_amount` to
+             `total_price`). The claim now states that half only. -->
+        <span><b>Price before you book</b> — a new one needs your OK</span>
         <span class="sep"></span>
         <span><b>Insured to $2m</b></span>
         <a class="cta" href="#book">Book now</a>

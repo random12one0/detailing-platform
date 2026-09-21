@@ -312,9 +312,31 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
               what "from" costs, and it replaces rather than joins the general
               one, because two paragraphs saying the same thing is worse than
               one saying the sharper version. */}
+          {/* **ROADMAP 7.2, 2026-09-21 — "we'll ask" WAS A PROMISE NO CODE
+              KEEPS, and it was the only false price sentence in the real
+              product rather than on an example site.** Both lines used to end
+              *"and we'll ask before doing anything extra"*. Nothing enforces
+              that: `FinalizeModal` lets the detailer add line items after the
+              work with **no customer step at all**, and `amountDueCents()` in
+              `_shared/connect.ts` returns `final_amount ?? total_price`, so
+              the card charge follows the detailer's figure. Its own comment
+              says *"the detailer's agreed final amount beats the original
+              quote here exactly as it does everywhere."*
+
+              **What the software DOES guarantee is the other half, and it is
+              worth saying because it is genuinely strong:** a new price
+              BEFORE the work cannot be charged without the customer. The
+              detailer's `quote` action writes `quoted_amount` and never
+              `total_price`; `accept-quote` is the ONLY place that becomes the
+              price, and it needs the button in the customer's email. So the
+              two sentences now state the three phases the code actually has:
+              an estimate, consent before the work, an itemised change after
+              it. The Spanish twins moved in the same edit — `es.js` is keyed
+              on the English text, so a renamed string silently falls back to
+              English with no error anywhere. */}
           {services.some((s) => s.price_is_from)
-            ? t("Some of this is priced from. We’ll confirm once we’ve seen the vehicle, and we’ll ask before doing anything extra.")
-            : t("An estimate. If the vehicle needs more work, we’ll ask before doing anything extra.")}
+            ? t("Some of this is priced from, and we confirm it once we’ve seen the vehicle. A new price is only charged if you accept it. Anything added on the day is itemized on your invoice.")
+            : t("An estimate. A new price before the work is only charged if you accept it. Anything added on the day is itemized on your invoice.")}
         </p>
       </div>
 

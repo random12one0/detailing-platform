@@ -1322,8 +1322,17 @@ h2 em{font-style:normal;color:var(--accent-text)}
       <h2>Book a detail</h2>
       <p class="sub">Every slot is confirmed by a person. You see the price before
          anything is committed, and nothing is taken now.</p>
+      <!-- ROADMAP 7.2 — this covered phases 1 and 2 correctly and missed
+           phase 3. A price cannot be raised before the work without the
+           customer accepting it — `accept-quote` is the only path from
+           `quoted_amount` to `total_price` — which is what this already said,
+           and it is true. After the work the detailer can add or remove line
+           items and the charge follows that figure. The last sentence is the
+           missing phase. -->
       <p class="disc" style="margin-top:0">The figure you are quoted is the figure
-         charged. If the inspection changes it, you are told before anything starts.</p>
+         charged. If the inspection changes it, you are told before anything starts
+         and the new price is only charged if you accept it. Anything added on the
+         day is itemized on your invoice.</p>
     </div>
 
     <div class="bk">
