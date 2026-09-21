@@ -1157,10 +1157,14 @@ the wrong service, and never book a job we cannot reach.
   *A1 P0-02*
   </details>
 
-- [ ] **2.5 — FOUR examples hand nothing into booking, and one of them hands
-  over a service list that does not match its own prices.** Title corrected
-  2026-09-21: it said *"One example"* and the count is **ex2, ex3, ex4 and
-  ex5** — `?svc=` reached `ex1` only.
+- [ ] **2.5 — One example hands the wrong service into booking. THE PAGE IS
+  FIXED AND PRESSED 2026-09-21; THE ENTRY STAYS OPEN FOR ITS OWN *Done when*.**
+  The defect is gone from `/ex3/prices` and proved on 13 of 13 cards — but this
+  item's *Done when* asks for the **2.4 CTA check** to assert the matching
+  service name and price, that check lives in `scripts/`, and **nothing has
+  been added to it.** A tick here would carry a named unverified gap, which is
+  what ROADMAP 9.11 cost. **The original title was right and a correction I
+  made earlier the same night was wrong — see "MY OWN FALSE FINDING" below.**
   On `/ex3/prices`, "Book this" under the $200 Interior Refreshment left the
   $500 Signature Detail selected, and Interior Refreshment was not offered at
   all in the embedded flow.
@@ -1181,19 +1185,28 @@ the wrong service, and never book a job we cannot reach.
   Detail, $500**, a running total of **$500**, and **Interior Refreshment was
   not among the four services offered.**
 
-  **BUT THE TITLE IS WRONG: IT IS NOT ONE EXAMPLE. Counted across all five.**
+  **MY OWN FALSE FINDING, RETRACTED — AND IT IS THE MOST USEFUL THING IN
+  THIS ENTRY.** Earlier the same night I rewrote this item's title to *"FOUR
+  examples"* and published a table saying `ex2`, `ex3`, `ex4` and `ex5` were
+  all broken. **That was wrong. Only `ex3` ever was.**
 
-  | Site | Service cards | Where they point | Widget options |
-  |---|---|---|---|
-  | `ex1` (3 pages) | 1 per page | **`?svc=…`** — fixed by 2.4 | — |
-  | `ex2/index` | 0 | `#book` ×5 (generic CTAs) | 3, default *Paint Correction* |
-  | **`ex3/prices`** | **13** | **`#book` ×13** | **4**, default *Signature Detail $500* |
-  | **`ex4/index`** | **4** | **`#book` ×4** | **none at all** |
-  | `ex5/index` | 0 | `#book` ×5 | — |
+  **How:** I scanned the five sites for `data-book` and
+  `<input type="radio" name="svc">`. `ex4` carries its service on
+  **`data-pick`** and its widget uses **checkboxes**, so my scan reported it
+  as having no mechanism and no service list when it had both, working. **A
+  grep coupled to a spelling rather than to a behaviour** — which is an entry
+  in `docs/gotchas.md`, and which I had quoted in this very entry one screen
+  earlier while committing it.
 
-  **`?svc=` and `data-book` exist on `ex1` ONLY.** 2.4 fixed one site and the
-  entry underneath it says so — *"That is 2.5 happening on ex1"* — but nothing
-  carried the fix to the other four, and 2.5 kept its singular title.
+  **Counted again, properly — every carry mechanism, radio or checkbox:**
+
+  | Site | "Book this" cards | Carry a service | Widget options | Mechanism |
+  |---|---|---|---|---|
+  | `ex1` | 1 per page | **1** | 3 | `?svc` + `data-book` (2.4) |
+  | `ex2` | 0 | — | 3 | none needed, no per-service cards |
+  | **`ex3/prices`** | **13** | **0** | **4** | **NONE — the defect** |
+  | `ex4` | 3 | **3** | 6 | `data-pick`, **already working** |
+  | `ex5` | 0 | — | 8 | none needed |
 
   **THE MECHANISM, IN THE FILE.** On `/ex3/prices` every one of the **13**
   cards ends `<a href="#book">Book this →</a>`. **Thirteen links, one distinct
@@ -1243,12 +1256,70 @@ the wrong service, and never book a job we cannot reach.
   whole widget. **`docs/gotchas.md` already carries this exact trap and it
   still nearly went in.**
 
-  **HANDOVER:** the fix is one service identifier on the card links plus a
-  widget whose options come from the same list the page prints — both in
-  `docs/tenant-sites/x-ballantyne-prices.html`, and `y-kinzie.html` needs the
-  first half too. **The `2.4` CTA check should assert the matching service
-  name and price on every example, not just `ex1`**, which is what this
-  entry's *Done when* already asks for.
+**FIXED AND PRESSED, commit `8091f05` — `docs/tenant-sites/x-ballantyne-prices.html`
+  only.** `data-book` on each of the 13 links, a matching `value` on each
+  radio, **the widget widened from 4 options to the 13 the page actually
+  sells**, and one `pick()`. **The mechanism is ex1's, not a second one** —
+  `v-goldenhour-prices.html` has carried it since 2.4, and a page that invents
+  its own way of doing this is the next thing to drift. **The running total
+  moves with the choice**, because the right service above a `$500` figure is
+  the same lie one field lower, and the figure is what a customer reads.
+
+  **PRESSED, 320 FIRST. All 13 cards clicked in turn: card name, card price,
+  selected service, selected price and running total match on 13 of 13, zero
+  mismatches.** No horizontal overflow at 320 or 1440. The single console
+  warning belongs to the app shell from an earlier navigation — these are
+  static pages with no React in them.
+
+  **A REGRESSION I INTRODUCED AND REMOVED IN THE SAME ROUND.** The first
+  version copied ex1 exactly, `preventDefault()` and its own
+  `scrollIntoView` included. On this page that **selected the right service
+  and then never scrolled** — press "Book this" and the page sits still.
+  **Caught by pressing it, not by reading it.** The plain anchor already
+  jumped correctly and always had, so both lines came out and the working
+  version is shorter than the broken one. **Copying a working mechanism is not
+  the same as copying the parts of it you need.**
+
+  ── **TWO FALSE FINDINGS IN ONE ITEM, AND THEY FAILED DIFFERENTLY** ────────
+
+  **1 · THE NEAR-MISS. A screenshot one press away from becoming a fact.** The
+  first 320px capture of this page showed the booking section **empty** —
+  heading, lede, then blank — and it was on its way into this entry as a
+  phone-width defect. **It is not one.** The form carries a `data-rv` reveal
+  and the capture caught it mid-flight; measured after it settled, the form is
+  `296×647`, the service grid `260×347` and the first option `260×73`, all
+  visible at opacity 1, and the next screenshot shows the whole widget. **The
+  repo has already paid for one of these tonight** — a pricing page read
+  mid-load produced a money contradiction inside a legal disclosure, quoted
+  straight off the screen and entirely untrue.
+
+  **AND THE PART WORTH MORE THAN THE CATCH: `docs/gotchas.md` ALREADY CARRIES
+  THIS EXACT TRAP, AND IT STILL NEARLY WORKED.** That is a different problem
+  from a gotcha nobody wrote. **A written gotcha that does not stop the thing
+  is not reaching the person at the moment they are about to make the
+  mistake** — it is sixty-five entries deep in a file read *before* the work,
+  and the mistake is made *during* it, with a plausible screenshot in hand and
+  no prompt to go back. The fix is not another entry; it is the entry arriving
+  where the measurement is taken.
+
+  **2 · THE ONE THAT DID NOT MISS — I recorded it, committed it, and it was
+  wrong.** See "MY OWN FALSE FINDING" above: a grep coupled to a spelling.
+  **The near-miss was caught because a screenshot is looked at twice; the
+  false finding was not, because a grep result is looked at once.**
+
+  ── **RECORDED, NOT FIXED: THE PAINT SWITCHER OVERLAPS THE PRIMARY BUTTON** ──
+
+  At **320px**, ex3's colour switcher sits over the `Next — extras` button.
+  Measured: button `148–290 × 700–750`, switcher `168–306 × 730–764` —
+  **20px of vertical overlap and 122px of horizontal**. `elementFromPoint` at
+  the button's centre still returns the button, **so it is pressable; its
+  bottom-right corner is not.**
+
+  **IT IS SCAFFOLDING, NOT PRODUCT, AND THAT IS THE POINT OF SAYING SO.** The
+  switcher is injected at build time by `scripts/build-examples.mjs`
+  (`slug === "ex3"`) and exists in no tenant's real site. **Nobody should
+  spend a morning hunting it in `app/src`.** `scripts/` was not this
+  session's tree.
 
 - [x] **2.6 — DONE 2026-09-20. The year is optional, the label says so, and a refused Continue now says why on every step.**
   Size and model filled, Continue stayed dead until a year was typed; the year
