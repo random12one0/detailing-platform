@@ -2393,7 +2393,31 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 @media (max-width: 520px) {
   .warn-box, .error-box { flex-wrap: wrap; }
   .warn-box .actions, .error-box .actions { margin-left: 0; width: 100%; }
-  .warn-box .actions button, .error-box .actions button { flex: 1; }
+  /* ROADMAP 9.11 FOLLOW-UP — A GRID, NOT A FLEX ROW, THE SAME FIX
+     `.actions-row` ALREADY HAS. `flex: 1` on three `white-space: nowrap`
+     buttons is three columns fighting for a share of 320px, and one of
+     them can carry a derived sentence — "Allow changes until 2 hrs
+     instead" — that was never going to fit on one line at a third of the
+     width. `.actions-row`'s own comment names the shape: "a GRID, not a
+     flex row — one column per child, so it divides rather than
+     overflows" — the job record's three-button bar already proves it at
+     320. Copied rather than reinvented: same `repeat(3, 1fr)` base, same
+     `:has()` drop to two columns when the fix button is absent (`w.fix &&
+     ...`, BookingRules.jsx), because two children in a three-column grid
+     leaves an empty cell rather than two even ones.
+     TEXT IS ALLOWED TO WRAP NOW, WHICH IS THE ACTUAL FIX. `nowrap` was
+     fine when the only words here were "Dismiss" and "Never"; the fix
+     button's label is derived text carrying two real numbers, and
+     shortening it to fit was the one answer ruled out — it is the row
+     that has to make room, not the sentence. */
+  .warn-box .actions, .error-box .actions {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-1);
+  }
+  .warn-box .actions:has(> :last-child:nth-child(2)),
+  .error-box .actions:has(> :last-child:nth-child(2)) { grid-template-columns: repeat(2, 1fr); }
+  .warn-box .actions button, .error-box .actions button {
+    flex: unset; width: 100%; white-space: normal; text-align: center; line-height: 1.25;
+  }
 }
 .error-box { border: 1px solid color-mix(in srgb, var(--bad) 55%, transparent); background: color-mix(in srgb, var(--bad) 9%, transparent); color: var(--bad); }
 /* "It worked" is green and "it failed" is red, for every tenant. On the

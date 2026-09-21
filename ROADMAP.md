@@ -4349,7 +4349,8 @@ the dashboard or back office at phone width at all.
   what it does when the data is thin.** See `FOR-ANDREW.md`.
   *A1 P2-13*
 
-- [x] **DONE 2026-09-20 — 9.11 Booking-rule conflict needs a one-click fix.**
+- [ ] **9.11 — Booking-rule conflict needs a one-click fix. RE-OPENED
+  2026-09-20 — see the correction below; do not re-tick without reading it.**
   The product already correctly warns that a 2-hour booking notice plus a
   24-hour change cutoff locks a new booking immediately. **Keep the
   warning** — add an example and a recommended adjustment.
@@ -4398,6 +4399,87 @@ the dashboard or back office at phone width at all.
   **Not checked at phone width, for the same reason as 9.9's phone
   half — this browser floors at 598px outer**, below what a phone-width
   check needs.
+
+  **CORRECTION, 2026-09-20, AND IT UN-TICKS THE ITEM RATHER THAN JUST
+  ADDING TO IT.** The gap named directly above — no phone-width check —
+  was not a passive omission. Andrew's own account, verbatim, because the
+  next reader should have his words and not a paraphrase: *"I pressed
+  9.11 myself at desktop, I wrote down in plain words that the phone
+  width was unverified because this browser floors at 598 outer, and
+  then I let the box be ticked anyway. The regression is sitting exactly
+  in the gap I named. So the lesson is not that we missed it — we did
+  not miss it, we recorded it and shipped past it. A tick carrying a
+  named unverified gap is still a tick, and this is what one costs."*
+
+  **THE REGRESSION, found by the other session's `sweep-widths` re-run**
+  (the same re-run this repo's own mistake, recorded in `docs/how-we-run.md`
+  § "What you say about the other tree expires the moment you say
+  something new," had already cost once tonight): four geometry failures
+  at 320px, one cause. `w.fix && <button>{w.fix.label}</button>` in
+  `BookingRules.jsx`'s `warnings.map` (~line 755) added a THIRD button to
+  `span.actions`, and `.warn-box .actions button { flex: 1; white-space:
+  nowrap; }` — correct for the two buttons ("Dismiss", "Never") it was
+  written for — gave three `nowrap` buttons a third of the row each,
+  one of them carrying the derived sentence "Allow changes until {hours}
+  instead." Dragged the page 60px sideways at 320 on every surface this
+  warning reaches: Business, Booking rules, a travel area, a surcharge,
+  and setup step 4 of 12.
+
+  **WHY THIS UN-TICKS THE ITEM RATHER THAN JUST GETTING A FOOTNOTE.** The
+  done-when this repo holds every visual change to — screenshot 320,
+  392, 768x1024, 1440x900, read the console at each — is not a separate
+  check 9.11 happened to skip; it is what "done" means here. A ticked
+  item that breaks a supported width is not a finished item with a known
+  gap, it is an unfinished item whose gap had not yet been found. Amending
+  the tick in place would let a future reader see 9.11 marked done and
+  read the correction as trivia rather than as the reason it wasn't.
+  Un-ticked instead, on that reasoning — my call, recorded as mine, since
+  Andrew asked for the choice to be made and named rather than defaulted.
+
+  **FIXED, 2026-09-20, AND VERIFIED AT 320 FIRST — not last, this time.**
+  `theme.css`'s `.warn-box .actions` / `.error-box .actions` at
+  `max-width: 520px` changed from a flex row to a grid, copying
+  `.actions-row`'s own mechanism rather than inventing a second one for
+  the same shape — its own comment already states the law: *"a GRID, not
+  a flex row — one column per child, so it divides rather than
+  overflows,"* proven on the job record's three-button bar at 320.
+  `repeat(3, 1fr)`, dropping to `repeat(2, 1fr)` via the same `:has(>
+  :last-child:nth-child(2))` technique when the fix button is absent.
+  **Text is now allowed to wrap**, which is the actual fix — `nowrap` was
+  harmless when the only words here were "Dismiss" and "Never" and became
+  the defect the moment a derived sentence joined them; the row makes
+  room now rather than the sentence being asked to shrink to fit it,
+  which Andrew ruled out by name (*"Allow changes until 2 hrs instead is
+  derived text that carries two real numbers, and squeezing copy to fit a
+  layout is how a true sentence becomes a vague one"*).
+  Measured, not assumed: at 320, `document.documentElement.scrollWidth`
+  equals `clientWidth` (320 = 320) with the warning open and all three
+  buttons showing, the fix button's label wrapped onto three lines inside
+  its own column, no console error. At the desktop width the same warning
+  renders at (a ~716px settings panel, not the full 1440), `.actions` is
+  still `display: flex` with `gridTemplateColumns: none` — confirmed by
+  reading the computed style directly, since scrolling the nested sheet
+  to a screenshot fought the tooling more than it was worth — meaning the
+  `max-width: 520px` query never touched the width that was already
+  correct, and `scrollWidth === clientWidth` there too. Re-verified
+  `tests/composition.test.mjs` (97/97) and `scripts/label-guard.mjs`
+  (clean) after the change. **Re-checked live at 320 specifically because
+  that is the width this item's own history says was skipped — not out
+  of general caution, but because repeating the check this item already
+  named as missing is the actual fix for what went wrong, not just the
+  CSS.**
+  **The other four named surfaces (Business, a travel area, a surcharge,
+  setup step 4 of 12) were not independently re-screenshotted** — the fix
+  is in the shared `theme.css` classes both `.warn-box` and `.error-box`
+  use everywhere, not in a per-screen copy, so it reaches all of them by
+  construction rather than by five separate edits. Said plainly rather
+  than left to be assumed: this is inferred from the shared class, not
+  five more live checks.
+  **NOT DEPLOYED / not relevant here — app/src only, no edge function
+  touched, nothing to deploy.**
+  **CHECKBOX LEFT OPEN ON PURPOSE.** Verified here is not the bar this item's
+  own history just raised — Andrew presses it himself, 320 first this time,
+  before it goes back to `[x]`.
 
 - [ ] **9.12 — Back office: real detailers first, scannable, one action each.**
   Default to real accounts; replace the three-column card wall with a list —
