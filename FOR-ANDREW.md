@@ -192,9 +192,14 @@ still knows them.
   - **If it is there** — nothing is wrong. Tell a session it exists (not what
     it says, just that it is there) and the last real gap in the backup story
     closes this week.
-  - **If it is not there** — then fifteen nightly backups exist as files that
+  - **If it is not there** — then **ten nightly backups** exist as files that
     **nobody can ever open, including you**, and we need to talk about it
-    before anything else is done. **Do not let anyone make a new key without
+    before anything else is done. *(Ten is the number actually counted, one
+    release at a time, on 20 September, plus one for each night since if the
+    schedule has held. The night of 15 September failed and can never be
+    recovered, for a reason that was GitHub's and not ours. "Fifteen" was the
+    number of nightly **runs**, fourteen of which worked — a different thing,
+    and mine to correct.)* **Do not let anyone make a new key without
     deciding that with you first** — replacing it is a decision with money
     and risk in it, and it is yours.
 
@@ -280,6 +285,12 @@ still knows them.
   It cannot happen again. **Delete them and you are done** — this row exists so
   you never have to sit and work out whether something in your own inbox is
   real.
+
+  **These ten are not the thirteen that were cleared out today.** Those
+  thirteen were rows inside the practice database, left behind by a test, and
+  a session has already deleted them. **These ten are real emails that really
+  arrived in your inbox**, and nobody but you can remove them — which is the
+  whole reason this row exists.
 
 - [ ] **DO · Turn on two-factor login for your Supabase and Netlify accounts.**
   Ten minutes for both. **Only you can do it** — your account, your phone.
@@ -525,31 +536,25 @@ still knows them.
   say if you want different words. **If you are happy with them, this row is
   done and there is nothing to press.**
 
-- [ ] **DO · Tell a session where the key to your backups is kept. This is the
-  most important row on the page.**
+- [x] **~~DO · Tell a session where the key to your backups is kept.~~
+  SUPERSEDED 2026-09-21 — this row said nobody had written the location down,
+  and that turned out to be wrong. The live version is the backup-key row in
+  *Urgent* near the top of this page. Read that one; ignore this one.**
 
-  **Your backups are real and they work** — see Done below; the page that said
-  otherwise was wrong. Every night at 02:10 a copy of your whole database is
-  taken, locked, and stored in your private backups repository. Eleven of them
-  are sitting there right now.
+  **What changed.** This row said *"nothing anywhere records where the key
+  actually is"*. **Two files do**, both written the week the backups were
+  built: the setup write-up of 7 September and the operations page of 8
+  September, in the same words — **your password manager, and deliberately
+  nowhere else.** A third file said it was not recorded anywhere, which is
+  almost certainly why nobody ever found it, and that has been corrected too.
 
-  **They are locked with a key, and the key is deliberately not on GitHub.**
-  That is the right way round — a lock whose key sits next to it is not a lock.
-  **But nothing anywhere records where the key actually is**, and a backup
-  nobody can unlock is not a backup, it is a very tidy pile of noise.
+  **It also said eleven backups. The counted number is ten**, one release at a
+  time on 20 September, plus one a night since if the schedule has held. One
+  night, 15 September, failed and cannot be recovered.
 
-  **What is needed from you is one sentence, not the key itself.** *"It's in my
-  password manager"*, *"it's on the USB stick in my desk"*, *"I don't know
-  where it is"* — any of those is a complete answer and the third is the one
-  worth knowing fastest.
-
-  **Do not paste the key into a chat, a document, or this file.** No session
-  will ask you for it, read it, or move it. Where it lives is the answer; what
-  it is never is.
-
-  **Why it is first:** nobody has ever restored one of those nightly backups,
-  and nobody can until this is answered. Everything else about backups is
-  settled and paid for at zero; this is the whole remaining risk.
+  **What you are actually asked for has got smaller, not bigger:** it is no
+  longer *"tell us where it is"* but *"open your password manager and check
+  that it is there"*. **Thirty seconds, and the Urgent row has it.**
 
 - [ ] **DECIDE · "Unlimited photos" is not true, and it is on your pricing
   page.**
