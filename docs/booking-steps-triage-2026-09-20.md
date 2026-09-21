@@ -507,3 +507,74 @@ added up.
 
 **The one-line description of this whole class, which is Andrew's manager's:**
 **a general fault count wearing a specific sentence.**
+
+---
+
+# THE HANDOVER — the 104px, for whoever takes it, 2026-09-20
+
+**FIRST, A CORRECTION TO THIS DOCUMENT.** It called the 104px *"an unambiguous
+defect"* and *"wrong whether or not the page is allowed to scroll."* **That was
+wrong, and it was wrong because I read the rendered padding and not the rule
+that produced it** — the same mistake, in the same document, that I had just
+corrected about `gate: false`. `booking.css:115` documents the 104px as
+deliberate:
+
+> *"the old literal exactly, so the confirmation screen, the manage screen and
+> the plans page are untouched by this change. A page that HAS the bar
+> overrides it below, because the bar now takes its own space instead of being
+> guessed at."*
+
+It is a **deferred migration**, not an oversight. Roadmap 2.15 changed how the
+bar reserves space, kept the old number as the default so bar-less pages were
+not touched in that change, and overrode it where the bar actually exists.
+
+## The element, the number, and the inversion
+
+Measured on both sides, same width, fresh loads:
+
+```
+/book/demo-detail        HAS .bk-bar (73px tall)    --bk-bar-clear: 26px    wrap padding-bottom: 26px
+/book/demo-detail/plans  NO .bk-bar, no fixed or    --bk-bar-clear: 104px   wrap padding-bottom: 104px
+                         sticky element at all
+```
+
+**The element:** `.bk-wrap`, `padding-bottom: var(--bk-bar-clear)`
+(`booking.css:290`). The variable is set to `calc(104px + var(--safe-b))` on
+`.bk` (line 119) and overridden to `var(--bk-sp-5)` — 26px — by
+`.bk:has(> .bk-bar)` (line 1046).
+
+**Inherited, not content-driven.** It is a custom property on an ancestor. It
+does not vary with what is on the page, which is why it is identical at every
+width and why it did not move when the column width changed.
+
+**The inversion, stated plainly:** *the 104px of bar clearance applies only to
+the pages that have no bar, and the pages that have one use 26px.* Every
+consumer of the 104px default is a page with nothing to clear.
+
+## Why the obvious patch is the wrong one
+
+The obvious patch is to change the default on line 119. **Its blast radius is
+four surfaces, and they are the exact four that were deliberately excluded
+once already**: the plans page, the confirmation screen, the manage-booking
+screen and the unsubscribe page. Three of them currently fit; changing the
+default alters the bottom spacing on all four to fix the one that does not.
+**Repeating a change that a previous item chose not to make, without saying
+why it is safe now, is how a deferred decision becomes an accidental one.**
+
+The narrow alternative — a per-page override for the plans page — buys the
+104px back on one surface and adds a per-page exception to a variable whose
+whole purpose was to stop the number drifting between places.
+
+**So this is a scoping decision, not a repair**, and it wants whoever owns
+`booking.css` to make it rather than a measurement session to smuggle it in.
+What the measurement can say: **104px of a 844px screen — 12% — is reserved on
+the plans page for a control that is not on it**, and removing it takes that
+page's overflow from 312px to about 208px, which does not close it on its own.
+
+## What the rest of the 312px is, so the trade is visible
+
+Content-driven, and unaffected by the above: four `.bk-plan-row` cards at 177px
+stacked in **one column** at 392 (`712px`, 84% of the screen), against a
+two-column `296px 296px` grid at 768 where the same four occupy 370px and the
+page overflows by **zero**. **That half is a list that scrolls, on a surface
+the gate already declares `{ gate: false }` — advisory, not a failure.**

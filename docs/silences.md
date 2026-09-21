@@ -13,6 +13,27 @@ found inside one of the instruments. So the same question was asked of every
 other check: **can it distinguish a pass from a did-not-run, and if not, what
 would make it say which?**
 
+---
+
+## The two sentences to take away, if you read nothing else here
+
+**1. A general fault count wearing a specific sentence.** `failing` in
+`sweep-booking-steps.mjs` was incremented in six places, one of them the W16
+step-fit case, and the summary printed all six as *"N steps do not fit — W16 is
+not met."* It reported **12** over a list of **10**, and it survived a 315px
+layout change without moving **because it was never counting the thing that
+moved.** Split and proved: the twelve were **8 and 4**.
+
+**2. When a summary number and the list under it disagree, the number is not
+rounding — it is counting something the list does not show.** That is the test
+the first sentence implies, and it is cheap: the discrepancy is visible without
+running anything, in any report where a total sits above its own detail.
+
+Those two are the most transferable thing in this file. Everything below is
+evidence for them.
+
+---
+
 **This file is the census, not the fix.** One silence was closed (below). The
 rest are listed with the distinguishing test named, so the next person does not
 have to re-derive it.
@@ -266,17 +287,13 @@ Applying the standard this census exists to enforce.
   The run now names a certification that leaned on a known-ambiguous key; that
   is a filter, not coverage.
 
-**A third reading of a moment that had not finished happening — 2026-09-20.**
-Three in one night, from one session, all the same shape: **an instrument
-answering a question about a moment that was still in progress.** The stale
-console buffer replaying one old error as a repeating one; `$?` after a pipe
-reporting `tail`'s status instead of `node`'s; and a `javascript_tool` read
-taken from a browser pane **mid-reload**, which returned `innerWidth: 0` and
-would have produced a confident nonsense width for the element being
-diagnosed. The third was caught only because `0` is obviously wrong — **a
-viewport of 380 instead of 392 would have been believed.** Before trusting any
-reading from a live surface, check that the surface finished arriving: a
-viewport of zero, a document still loading, a pipe still draining.
+**Three readings of a moment that had not finished happening** — the stale
+console buffer, `$?` reporting `tail`'s status instead of `node`'s, and a
+browser-pane read taken mid-reload that returned `innerWidth: 0`. Three of one
+shape in one night is a rule, and it has its own entry in `docs/gotchas.md`:
+*an instrument will answer a question about a moment that has not finished
+happening.* **The zero was caught only because zero is obviously wrong; a
+viewport of 380 instead of 392 would have been believed.**
 
 **Read, not run — the classification is from source, and could be wrong:**
 

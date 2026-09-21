@@ -2245,3 +2245,51 @@ already in this file, in `(k)`, about source checks versus computed values —
 own lesson: a rule stated abstractly at the top of a long file does not fire
 at the moment somebody types a grep. Three instances now carry the concrete
 shape, and the concrete shape is what a person recognises.
+
+## AN INSTRUMENT WILL ANSWER A QUESTION ABOUT A MOMENT THAT HAS NOT FINISHED HAPPENING — 2026-09-20, three times in one night, which makes it a rule
+
+Three separate readings in one session, from three different instruments, all
+the same shape: **the thing being asked had not finished being itself yet, and
+nothing in the answer said so.**
+
+1. **A browser tab's console log, read across reloads.** One old error, still
+   in the buffer, read as a fresh error recurring on every reload. Two sessions
+   chased a phantom. *(Its own entry above.)*
+2. **`$?` after a pipe.** `node script.mjs | tail -6; echo "exit=$?"` printed
+   `exit=0` over a guard that had correctly exited **1**. `$?` was `tail`'s.
+   *The failure path was working and the instrument measuring it said it was
+   not.*
+3. **A `javascript_tool` read taken from a browser pane mid-reload.** It
+   returned `innerWidth: 0`, and with it `choicesW: 0` and `wrapW: 32` — a
+   complete, confident, structured answer about an element on a page that was
+   not there yet.
+
+**THE THIRD ONE IS THE ONE TO BE FRIGHTENED OF, AND IT IS WHY THIS IS A RULE
+RATHER THAN THREE ANECDOTES.** It was caught **only because zero is obviously
+wrong.** Nothing in the tool's response distinguished it from a real reading —
+no error, no warning, no flag. **Had that same mid-reload moment returned a
+viewport of 380 instead of 392**, the numbers would have been plausible, would
+have been believed, would have gone into a document, and would have been
+argued from. The catch was luck dressed as diligence.
+
+**THE RULE.** Before trusting any reading from a live surface, establish that
+the surface finished arriving. Not "wait a bit" — **check a value that is
+impossible before it has**:
+
+- a **viewport of zero**, or one that does not match what you set;
+- a **`document.readyState`** that is not `complete`;
+- a **`location`** that is not where you navigated;
+- an **exit status read through a pipe** — capture to a file, or
+  `${PIPESTATUS[0]}`, or drop the pipe;
+- a **console buffer** from a tab that was already open.
+
+**And the general form, which is the half that transfers past browsers:** an
+instrument asked about an in-progress state does not usually refuse. **It
+answers.** The answer is well-formed, fully populated and wrong, and it is
+indistinguishable from a good one **except by whether the number is impossible
+on its face.** So build checks whose wrong answers are impossible rather than
+merely improbable — that is the whole reason `expected_targets` must be a
+declared constant, why a canary must be a defect nothing could survive, and why
+`docs/silences.md` counts checks that can only fail. **This entry is the same
+principle pointed at the moment of measurement rather than at the design of the
+check.**
