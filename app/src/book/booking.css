@@ -111,12 +111,32 @@ html:has(.bk > .bk-bar) { scroll-padding-bottom: calc(var(--bk-bar-clear, 104px)
   --bk-col: 600px;
 
   /* ROADMAP 2.15 — HOW MUCH FOOT OF THE PAGE TO KEEP CLEAR.
-     **This is only a number on a page with NO pinned bar**, and the value is
-     the old literal exactly, so the confirmation screen, the manage screen
-     and the plans page are untouched by this change. A page that HAS the bar
-     overrides it below, because the bar now takes its own space instead of
-     being guessed at. */
-  --bk-bar-clear: calc(104px + var(--safe-b));
+     **This is only a number on a page with NO pinned bar.** It was 104px: the
+     pre-2.15 literal, kept deliberately so "the confirmation screen, the
+     manage screen and the plans page are untouched by this change".
+
+     **THAT DEFERRAL WAS PRICED AGAINST THE WRONG SURFACES, MEASURED
+     2026-09-20.** Two of the three it names never receive this number at all
+     — `BookingConfirmed.jsx:41` and `ManageBookingPage.jsx:380` both set an
+     inline `paddingBottom: 40`, which beats a stylesheet shorthand. The
+     unsubscribe page has no `.bk-wrap` to put it on. **It reached exactly two
+     surfaces: the plans page and a member's own plan**, both of which the
+     booking-steps gate reports as `gate: false`. So this never touched a
+     W16-gated screen, and lowering it cannot move one.
+
+     **What 104px bought on those two, at 392x844:** the plans page carried it
+     inside a 312px overflow, and **"your plan" overflowed by 17px — the
+     padding was the entire reason it scrolled at all.** At 768 and up both
+     pages already fit and nothing here changes them. A reserve for a bar that
+     is not on the page is not a bound; it is an old literal with no job.
+
+     `--safe-b` STAYS, and it is the whole reason this is not a bare `26px`.
+     A page WITH the bar lets the bar carry the home-indicator inset (see the
+     `.bk-bar` rule). A page without one has nothing else to carry it, and
+     `env(safe-area-inset-bottom)` is 0 in every desktop browser — so dropping
+     it here would be invisible to every measurement in this repo and wrong on
+     the hardware. */
+  --bk-bar-clear: calc(var(--bk-sp-5) + var(--safe-b));
   --bk-sp-2: 8px;
   --bk-sp-3: 12px;
   --bk-sp-4: 16px;
