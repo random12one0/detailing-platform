@@ -3756,6 +3756,51 @@ rather than wording went to Andrew.
   much detail a reader wants rather than a fact to correct. **Held for his
   ruling on which of the four go on, and in whose words.**
 
+  **ALL FOUR ARE ON THE PAGE, commit `2942f6f`. Manager's ruling 2026-09-21:
+  this is accuracy, not taste** — *"a page that tells a customer their address
+  is typed by them while their address goes to Google Maps… is not badly
+  worded, it is inaccurate, and accuracy on that page is the floor rather than
+  the preference."* **The entry stays open for Andrew's wording, not for the
+  facts.**
+
+  **11 sections became 13.** Two new, two sentences corrected:
+
+  - **"The lettering on every page"** — Google Fonts, and the section opens by
+    saying it needs nobody to do anything, because it is the only flow here
+    that reaches a visitor who never types.
+  - **"The two buttons that hand a job to somebody else"** — Directions and
+    Add to calendar. **Both conditions are stated rather than flattened**, per
+    the ruling, *including the half that is good news*: an Apple or file
+    calendar sends nothing to anybody.
+  - **The Geoapify sentence** now says a saved address goes back once for
+    coordinates. The old wording had the coordinates appearing from nowhere,
+    which is worse than silence — it implies we derive them ourselves.
+  - **The Resend sentence** names the **service address** instead of burying
+    it in "booking details", on the page whose whole subject is what leaves.
+
+  **One sentence added that was true and absent:** only the detailer's own
+  wording reaches the translators. **Nothing invented** — OpenStreetMap is
+  still deliberately unlisted.
+
+  **PRESSED, 320 FIRST.** 320x844: **no horizontal overflow**, widest element
+  right edge **300px** inside 320, both sections readable, console clean.
+  1440x900: both in the two-column list like every other section, title 240px,
+  body 499px at x=403, document scroll width **1425 inside 1440**. **The 1440
+  reading is MEASURED, not seen** — the screenshot returned blank twice at
+  that size; the 320 screenshots were looked at. **13 `<strong>` spans at
+  weight 700 and zero stray asterisks** in the rendered text, which is the
+  check that matters here: `inline()` is not a markdown renderer and a
+  mistyped marker ships as literal asterisks on a legal page.
+
+  **No Spanish key: the page is English-only** — zero `t(` calls, no strings
+  import. Build clean, four credential-free suites pass, `label-guard` 45/45,
+  `admin-insight` 65/65.
+
+  **OPEN ON ANDREW'S WORDING ONLY.** `FOR-ANDREW.md` carries a read-and-say-so
+  row with one line per service. **Nothing reaches a visitor until he
+  publishes**, so the page is accurate now and his sign-off is still intact —
+  which is the right order round.
+
 - [ ] **7.9 — The home page animation delays the point.**
   Several long scrolls advance a controlled sequence with large empty black
   areas; the page is about 13 screens tall; the headline types letter by letter;
