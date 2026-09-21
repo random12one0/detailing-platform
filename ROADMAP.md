@@ -552,10 +552,80 @@ the wrong service, and never book a job we cannot reach.
   the tag instead of on `vehicle_count`/`plan_name`. One field. It is NOT a
   second money computation — it is provenance, not arithmetic — so the
   one-implementation rule is untouched.
+  **Done when:** on the date-and-time step, with a plan attached AND on a
+  booking carrying two or more cars, every automatic day-and-time surcharge
+  is named on screen with its amount, exactly as it already is for a
+  one-car no-plan booking — and the extra-car lines and the plan line are
+  NOT shown there, because neither was caused by anything on that step.
+  Pressed at 320 in both languages, not inferred from the guard. The
+  two-car half needs `max_vehicles_per_booking` raised above 1 on a test
+  tenant to be pressable at all; **do not raise it on `demo-detail`**, whose
+  spare-room figures are measured against 1 (`seed-demo.mjs` says so).
   **Not built 2026-09-21 for two stated reasons, neither of them doubt about
   the fix:** `supabase/` was on loan to another session that round, and it is
   an edge function, so under the deploy freeze it could not reach a customer
   anyway. Hand it to whoever holds `supabase/` next.
+  *Split from A1 P0-01, A2 2.3*
+
+- [ ] **2.1b — The quote cannot price a day until a TIME is also picked, and
+  `calculate-booking`'s own header says otherwise. Found 2026-09-21 answering
+  a question about 2.1; not a fault, and nobody is asking for it to change
+  today.** `whenContextFor` (`_shared/pricing.ts`) opens with
+  `if (!bookingDate || !startTime) return {}`, so no price rule can match on
+  a day alone. Measured on the demo at 320: picking Saturday 26 September and
+  no time left the bar at **$65**; picking 8:00 AM took it to **$95**.
+  **The interesting part is that the layer below is already built for it.**
+  `matchPriceRules` checks `if (!when.startTime) return false` only inside
+  the branch for rules that carry a start AND end time — a day-only rule
+  (the demo's own "Weekend rate", `weekdays: [0,6]` with null times) would
+  match on the weekday alone if it were ever asked. The early return upstream
+  is what stops it being asked. So this reads as **incidental rather than
+  deliberate**: the capability exists and is gated off one layer up.
+  `calculate-booking/index.ts`'s header comment already describes the
+  behaviour this WOULD give — *"the quote starts without it and grows the
+  surcharge when the day is chosen"* — which is not what the code does. One
+  of the two is wrong and it is cheap to make them agree.
+  **Andrew's ruling, 2026-09-21: not a fault.** Nobody can leave the step
+  without picking a time, so the done-when for 2.1 is satisfied either way.
+  **Fix, if it is ever wanted:** let `whenContextFor` return `{ weekday }`
+  when a date is present without a time, so a day-only rule prices on the
+  day. A `lead_time` rule genuinely needs the hour and correctly keeps not
+  matching. **Either that, or correct the header comment** — the one thing
+  not to leave is a comment describing behaviour the function does not have.
+  **Done when:** either the surcharge appears on picking the day, or
+  `calculate-booking`'s header no longer claims it does.
+  **`supabase/` — not this session's to touch.** Recorded, not attempted.
+
+- [ ] **2.1c — The plan line and the extra-car lines are built in English on
+  the server and never meet `t()`, so a Spanish receipt reads them in
+  English. Found 2026-09-21; pre-dates this session and is NOT on the step
+  2.1 touched.** `_shared/pricing.ts` composes `planLineFor`'s label as
+  `` `${plan.name} · ${what}` `` where `what` is one of the literals
+  `"plan rate"`, `"included"` or `` `${amount}% off` ``, and `extraLines`'
+  label as `` `${ORDINALS[i + 1]} vehicle · ${v.label}` `` — "vehicle" and
+  "1st/2nd/3rd" typed in English. Both reach the customer through
+  `quote.adjustments`, which `StepReview.jsx:248` prints verbatim.
+  **The catalogue already has two of these phrases** — `appEs.js` carries
+  `"% off"` and `"{n}% off"` — so the Spanish exists and the server-built
+  copy simply never asks for it.
+  **NOT the same thing as the rule label beside it, and that distinction is
+  the whole point of this entry.** `PriceRule.label` ("Weekend rate") is the
+  DETAILER's own typed data out of `business_settings.price_rules` and is
+  correctly printed as written — the settings screen that collects it
+  translates only the placeholder, `"e.g. Weekend rate"` →
+  `"ej. Tarifa de fin de semana"` (`BookingRules.jsx:787`). Same class as a
+  service name or a travel-zone name, both of which already render in
+  English on the Spanish booking page. **Nothing to fix there.** These three
+  literals are ours.
+  **Fix:** the strings are composed server-side where `t()` does not exist,
+  so either the edge function returns a kind plus its parts and the page
+  composes the label through `t()`, or the catalogue gains server-side
+  equivalents. The first is preferable and **is the same one-field change
+  2.1a already needs**, so these two should be done together.
+  **Done when:** a Spanish booking with a plan, and one with two cars, show
+  those lines in Spanish on the review step, and
+  `node scripts/i18n-survey.mjs` is clean for them.
+  **`supabase/` — not this session's to touch.** Recorded, not attempted.
 
 - [x] **DONE 2026-09-20 — 2.2 The summary lines do not add up to the total.**
   **Confirmed mechanism:** `supabase/functions/_shared/pricing.ts:127-128`
