@@ -104,6 +104,45 @@ Updated 2026-09-21.
 
 ---
 
+## State that changed outside the repo — 2026-09-21 night
+
+**Nothing needed from you in this section except the last line.** It exists
+because four facts about your product changed on the night of the 20th in a
+chat window that no longer exists, and `docs/MANAGER-CLOSE-2026-09-21.md` had
+to be written to recover them. These are tonight's, written down while somebody
+still knows them.
+
+- **A new column now exists on your live database.** On
+  `kguqylyzgyzfktkfnhjb`, `business_settings.email_customer_maintenance_due`,
+  added by the manager on the night of 2026-09-21, run by hand in the SQL
+  editor. It defaults to **off**. It was checked afterwards rather than taken
+  on the success message: your settings table now lists four email switches,
+  three of them on by default and this one off. The written record is
+  `supabase/migrations/20260921010000_the_maintenance_due_email_is_off_where_git_can_see_it.sql`.
+  **Nothing changed for anyone when it ran** — it added a fact your database
+  can hold, and nothing reads it yet.
+
+- **Your scheduled jobs were read the same night. Four of them, all running.**
+  The one that sends reminders runs **every fifteen minutes** and last ran at
+  **1:00 in the morning, Pacific, on 21 September**. That is the fact that made
+  the next row urgent rather than tidy.
+
+- [ ] **DO · Publish one program, and then the "your coating is due" email is
+  actually off.**
+  You ruled on this plainly on 20 September: *"Let's just have no emails that
+  will be, you know, marketing at all."* The coating email is the one that
+  sells — it tells a customer a service is due and asks them to book it.
+
+  **It was never switched off in the software.** It was off in a conversation.
+  The only thing stopping it was your ordinary appointment-reminder setting —
+  so any detailer who wanted reminders was sending the sales email with them,
+  and the job that sends it has been running every fifteen minutes all along.
+
+  **It now has its own off switch, off by default, and the reminder setting can
+  no longer turn it on.** That is built and the database part is applied.
+  **The last step is yours: publish `send-owner-reminders`.** Until you do, the
+  old version is still running and a customer can still receive it.
+
 ---
 
 ## Urgent — two minutes when you next open your laptop
@@ -189,6 +228,38 @@ Updated 2026-09-21.
   made vaguer, because a vague promise is still a promise and harder for
   anybody to spot later.
 
+- [ ] **DECIDE · You have a "send all my customers an email" feature, and your
+  own rule forbids it. Which one gives?**
+
+  You ruled: *"Let's just have no emails that will be, you know, marketing at
+  all."* Every email the product sends was read against that this week. One
+  feature sits squarely on the wrong side of it — the campaign sender, the
+  screen where a detailer writes a message and sends it to their whole customer
+  list. Its button says **"Book again"**. It is marketing, and there is no
+  reading of it that is not.
+
+  **It is also the most carefully built thing in the set**, which is why this
+  is a question and not a bug report:
+  - It refuses to send at all unless the business has given a real postal
+    address.
+  - Every one of those emails carries an unsubscribe link and that address —
+    which is exactly what the law asks of marketing email.
+  - Only a signed-in member of the business can fire it, at their own list.
+
+  **So nothing here is broken and nothing is illegal.** The problem is that
+  your rule and your product currently say opposite things, and anyone reading
+  either one on its own would be misled.
+
+  1. **The rule wins** — the feature comes out, along with the unsubscribe
+     plumbing built for it.
+  2. **The feature is an exception** — it stays, and the rule gets written down
+     with its exception attached, so nobody reads "no marketing email, ever"
+     next to a working campaign sender and has to guess.
+
+  **No recommendation attached, on purpose.** This is whether you want to be
+  able to email your customers at all, and that is a decision about your
+  business rather than about the software. **Answer: "remove it" or "keep it".**
+
 - [ ] **DECIDE · What the live preview on Business settings should show.**
 
   ROADMAP 9.10 wants a live preview of your customer-facing page on the
@@ -242,9 +313,27 @@ Updated 2026-09-21.
 
 ---
 
----
-
 ## Recorded — nothing needed from you yet
+
+- [ ] **NOTE · Three things are built or decided and have not been looked at in
+  a browser yet — 2026-09-21.** Written here so they cannot quietly disappear
+  if a session ends. **Nothing is broken by any of them waiting**, and none of
+  them needs anything from you except the publish already on your list above.
+
+  1. **The price lines on the booking page now say what kind they are.** A
+     customer on a plan, or booking two cars, used to watch the total go up on
+     the date step with nothing on screen saying why — 60 to 85 with no
+     explanation. That is fixed, and the Spanish version of those lines is
+     written. **Built and tested, never opened in a browser.**
+  2. **The "your coating is due" switch** — the row near the top of this list.
+     Built, and the database part is applied. **Waiting on your publish, and
+     then on somebody watching it actually stay silent.**
+  3. **A warning for detailers who write their own paragraph into an email.**
+     A detailer can type anything into their appointment reminder, including a
+     sales pitch, and it goes out inside an email that carries no unsubscribe
+     link. The fix is a plain warning on the screen where they type it — their
+     words stay theirs, nobody filters them. **Decided, written down, not
+     built.**
 
 - [ ] **NOTE · The legal pages name you personally, and that is correct until
   December 2026.** They say **Andrew Dietrich, doing business as Detailing
@@ -325,8 +414,6 @@ Updated 2026-09-21.
   same fix applied to the platform's own numbers. **Easy to put back** if you
   want the motion: it is one attribute per figure, in `LandingPage.jsx` and
   `PricingPage.jsx`.
-
----
 
 ---
 
