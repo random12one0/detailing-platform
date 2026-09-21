@@ -97,6 +97,41 @@ export default function PricingPage() {
   // inside a regex, and CRLF in a byte-exact check - and a character no
   // editor shows is that same trap a third time.
   const fig = (v) => (priced ? v : "\u00A0");
+  // **ROADMAP 7.12, FIRST HALF \u2014 2026-09-21. `fig` FIXED THE LADDER AND LEFT
+  // THE PROSE, AND THE PROSE IS WHERE THE FALSE FINDING CAME FROM.**
+  // Measured rather than read: with the `founding_offer` round trip held open
+  // and the page loaded at 320, the three ladder figures above correctly held
+  // a blank \u2014 and four SENTENCES underneath printed list prices with complete
+  // confidence. `$720 over 12 months` (settles to $480), `$600 a year, $60 a
+  // month, or $75 a month` (settles to $400 / $40 / $50), `on 12 months at
+  // $60 a month \u2026 costs $180` ($40 \u2026 $120), and `The $999 to build the site`
+  // ($499). The second of those is the AB 2863 disclosure block, and it is
+  // verbatim the "money contradiction" a session reported off this screen and
+  // wrote into the record as a defect that never existed.
+  //
+  // **WHY A SENTENCE IS WITHHELD WHOLE RATHER THAN HAVING ITS FIGURES
+  // BLANKED.** Running each number through `fig` keeps the layout perfectly
+  // still and leaves `"  a year,   a month, or   a month, whichever one you
+  // chose above"` on screen \u2014 a malformed clause inside a legal disclosure,
+  // which is not the gap Andrew asked for but a second, stranger claim. His
+  // instruction was *say nothing, or say it is not settled yet*. This says
+  // nothing.
+  //
+  // **AND IT SWAPS THE CONTENTS OF A NODE THAT ALWAYS EXISTS, NEVER ADDING
+  // ONE.** That is forced, not stylistic: this page's `data-rv` reveal list
+  // is collected by ONE `querySelectorAll` at mount, so any node React adds
+  // after the lookup answers is in no list, never gets `.in`, and sits at
+  // opacity 0 for ever \u2014 the defect written up forty lines above. A
+  // conditional `<dd>` here would be invisible permanently instead of
+  // briefly.
+  //
+  // **THE COST, MEASURED AND STATED:** a withheld clause is one blank line
+  // instead of three or four, so the page is shorter during the window and
+  // grows when the answer lands. All four sit below the fold at every width
+  // swept. A reserved height was rejected \u2014 it would need a hard-coded pixel
+  // figure per clause per width, which is the kind of number that goes stale
+  // silently.
+  const clause = (v) => (priced ? v : "\u00A0");
   // ROADMAP 4.4 STAGE 4 — the prices come from the database when the owner has
   // overridden them, and from `pricing.js` otherwise, which is the ordinary
   // case and the fallback for anything malformed. **Every figure on this page
@@ -376,10 +411,12 @@ export default function PricingPage() {
               <div className="rungwhat">
                 <span className="rt">Pay monthly, for a year</span>
                 <span className="rw">
-                  ${p.monthly * 12} over {P.term.months} months. This one
-                  is a {P.term.months}-month commitment, and leaving
-                  early costs half of the months still to run. The other two
-                  do not.
+                  {clause(<>
+                    ${p.monthly * 12} over {P.term.months} months. This one
+                    is a {P.term.months}-month commitment, and leaving
+                    early costs half of the months still to run. The other two
+                    do not.
+                  </>)}
                 </span>
               </div>
               <div className="rungfig">
@@ -515,9 +552,11 @@ export default function PricingPage() {
             <div data-rv="" style={{ "--i": 1 }}>
               <dt>What you will be charged</dt>
               <dd>
-                ${p.annual} a year, ${p.monthly} a month, or ${p.monthToMonth} a
-                month, whichever one you chose above, plus sales tax in the
-                states that charge it. The price does not change on renewal.
+                {clause(<>
+                  ${p.annual} a year, ${p.monthly} a month, or ${p.monthToMonth} a
+                  month, whichever one you chose above, plus sales tax in the
+                  states that charge it. The price does not change on renewal.
+                </>)}
               </dd>
             </div>
             <div data-rv="" style={{ "--i": 2 }}>
@@ -531,10 +570,12 @@ export default function PricingPage() {
             <div data-rv="" style={{ "--i": 3 }}>
               <dt>Leaving that one early</dt>
               <dd>
-                You pay half of the months still to run, charged that day to
-                the card on file. On {P.term.months} months at $
-                {p.monthly} a month, walking away halfway through costs $
-                {exitAtHalfway}. Nothing else, and nothing after it.
+                {clause(<>
+                  You pay half of the months still to run, charged that day to
+                  the card on file. On {P.term.months} months at $
+                  {p.monthly} a month, walking away halfway through costs $
+                  {exitAtHalfway}. Nothing else, and nothing after it.
+                </>)}
               </dd>
             </div>
             <div data-rv="" style={{ "--i": 4 }}>
@@ -549,10 +590,12 @@ export default function PricingPage() {
             <div data-rv="" style={{ "--i": 5 }}>
               <dt>The build fee is separate</dt>
               <dd>
-                The ${p.setup} to build the site is charged once, at the start,
-                and is not part of the subscription. It stops being refundable
-                once work on your site begins, and you are told on the day that
-                happens.
+                {clause(<>
+                  The ${p.setup} to build the site is charged once, at the start,
+                  and is not part of the subscription. It stops being refundable
+                  once work on your site begins, and you are told on the day that
+                  happens.
+                </>)}
               </dd>
             </div>
             <div data-rv="" style={{ "--i": 6 }}>

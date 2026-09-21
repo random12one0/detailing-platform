@@ -3200,6 +3200,78 @@ rather than wording went to Andrew.
   nothing rather than the wrong figures, or to mark them as not yet settled.
   The sign-up button half of this item is untouched and still open.
 
+  **FIRST HALF DONE 2026-09-21 — the window now shows no unsettled price at
+  any width. BOX STAYS OPEN: the sign-up button half is not built and was not
+  asked for this round.**
+
+  **A PARTIAL FIX WAS ALREADY HERE AND IT COVERED THE WRONG HALF.** F-009 had
+  added `priced`/`fig()` to `PricingPage.jsx`, which correctly holds a
+  non-breaking space in the three LADDER figures until `founding_offer`
+  answers. It was applied to eight standalone figures and to none of the
+  prose, **and the prose is where the false finding came from.**
+
+  **MEASURED BY HOLDING THE ROUND TRIP OPEN, NOT BY READING THE DIFF** — a
+  code read cannot see this and neither can a normal page load, because the
+  window is about a second. `window.fetch` was patched to delay
+  `rpc/founding_offer` by 10–12 seconds and the page re-entered through the
+  router. **Inside that window the page printed seven confident figures, three
+  more than this entry named:**
+
+  | On screen in the window | What it settles to |
+  |---|---|
+  | `$720 over 12 months` (annual rung) | **$480** |
+  | `$600 a year, $60 a month, or $75 a month` (AB 2863) | **$400 / $40 / $50** |
+  | `on 12 months at $60 a month … costs $180` | **$40 … $120** |
+  | `The $999 to build the site` | **$499** |
+
+  The AB 2863 row is verbatim the *"money contradiction"* a session reported
+  off this screen and wrote into the record as a defect that never existed.
+  **$35 also appears and is correct** — the booking-only plan does not depend
+  on the founding offer and reads $35 before and after. It is deliberately
+  left showing; blanking a true price would be the same fault inverted.
+
+  **THE FIX: a `clause()` guard beside the existing `fig()`**, withholding a
+  whole SENTENCE that quotes a price until the price is settled. Four call
+  sites. No new copy, no motion, no skeleton, no CSS — `fig`'s own idiom, one
+  floor up.
+  **Why the sentence is withheld whole rather than having its numbers
+  blanked:** running each figure through `fig` keeps the layout perfectly
+  still and leaves `"  a year,   a month, or   a month, whichever one you
+  chose above"` inside a legal disclosure — a malformed clause, which is not
+  a gap but a second, stranger claim.
+  **And why it swaps the contents of nodes that always exist rather than
+  rendering conditional ones:** this page's `data-rv` reveal list is collected
+  by one `querySelectorAll` at mount, so a node React adds after the lookup
+  answers never gets `.in` and sits at opacity 0 **for ever**. That defect is
+  already written up in this file. A conditional `<dd>` would have been
+  invisible permanently instead of briefly.
+
+  **VERIFIED AT FOUR WIDTHS, 320 FIRST, CONSOLE READ AT EACH — the held
+  window, not a normal load:**
+
+  | Width | Money on screen in the window | Clauses quoting a price | Console |
+  |---|---|---|---|
+  | **320** | `$35` only | 0 | clean |
+  | 390 | `$35` only | 0 | clean |
+  | 768 | `$35` only | 0 | clean |
+  | 1440 | `$35` only | 0 | clean |
+
+  Settled state re-checked and unchanged: all twelve figures return, including
+  the struck list prices beside the founding ones.
+  **The probe is not trusted on its own word — it was run against the
+  UNFIXED page first and reported seven figures, then against the fixed page
+  and reported one.** The before-run is the canary.
+  **THE COST, MEASURED AND STATED:** a withheld clause is one blank line
+  instead of three or four, so the page is shorter during the window and grows
+  when the answer lands — **689px at 320, 571px at 390, 351px at 768, 332px at
+  1440**. All four clauses sit below the fold at every width; the nearest is
+  **2,106px down a 5,357px page at 320, about two and a half screens**. A
+  reserved height was rejected: it needs a hard-coded pixel figure per clause
+  per width, which is exactly the kind of number that goes stale in silence.
+  **Four credential-free suites pass, `label-guard` 45/45,
+  `american-english` 11/11 pages — and that one does read this page (254
+  strings), unlike the booking widget it does not reach.**
+
 ---
 
 - [x] **7.13 — ~~British spellings on the example sites, and nothing that
