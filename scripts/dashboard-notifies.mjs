@@ -139,6 +139,32 @@ const rest = async (method, path, { key = SERVICE, jwt, body, prefer } = {}) => 
 };
 
 const failures = [];
+// **THE EXPECTATION IS DECLARED HERE, NOT PRODUCED BY THE RUN - 2026-09-21,
+// docs/silences.md section B, the last of the five.** All four target counts
+// were `rows.length`, so this check declared it expected exactly as many steps
+// as it happened to finish. A run that threw after three steps reported three
+// targets, three completed, and four counts in perfect agreement.
+//
+// These seven are the claim this file makes. Six of them are the fix's actual
+// narrow claim - three of those are assertions that something did NOT happen,
+// each with a positive control beside it - and the seventh is the canary. **A
+// step that stops running has to be a failure, not a smaller run**, which is
+// only possible if the list is written down before the run rather than
+// collected during it.
+const EXPECTED_STEPS = [
+  "a detailer moves the job to another day",
+  "an edit that touches neither status nor time",
+  "a move to the time it is already at",
+  "a detailer cancels the job",
+  "the same cancel sent a second time",
+  "canary · a real second cancellation",
+  "put back and moved again — the mailer is still alive",
+];
+// `--break=step` drops one declared step, which is what a step that silently
+// stopped running looks like from the receipt.
+const DECLARED_STEPS = new Set(
+  BREAK === "step" ? EXPECTED_STEPS.slice(0, -1) : EXPECTED_STEPS);
+
 const rows = [];
 const warnings = [];
 let assertions = 0;
@@ -357,7 +383,28 @@ try {
 
 // ---------------------------------------------------------------------------
 
-const expected = rows.length;
+// Completed counts the declared steps that actually reached a verdict; a step
+// that errored or never ran is not completed, whatever `rows` happens to hold.
+const ran = new Set(rows.filter((r) => r.verdict !== "ERROR").map((r) => r.step));
+const stepsCompleted = [...DECLARED_STEPS].filter((st) => ran.has(st)).length;
+const missedSteps = [...DECLARED_STEPS].filter((st) => !ran.has(st));
+const undeclaredSteps = [...ran].filter((st) => !DECLARED_STEPS.has(st));
+if (DECLARED_STEPS.size === 0) {
+  failures.push("NO STEPS WERE DECLARED, so there is no expectation to judge this run "
+    + "against and it proves nothing.");
+}
+if (stepsCompleted === 0) {
+  failures.push("ZERO DECLARED STEPS COMPLETED. Nothing was asserted about what the "
+    + "dashboard sends. This is NOT a clean run.");
+}
+if (missedSteps.length) {
+  failures.push(`${missedSteps.length} declared step(s) never reached a verdict: `
+    + `${missedSteps.join(", ")}. A step that stops running is a failure, not a smaller run.`);
+}
+if (undeclaredSteps.length) {
+  failures.push(`${undeclaredSteps.length} step(s) ran that are not declared: `
+    + `${undeclaredSteps.join(", ")}. Add them to EXPECTED_STEPS deliberately.`);
+}
 const canary = {
   id: "a second cancellation that really happens · the double-send detector must see it",
   // CAUGHT BY [double-send] SPECIFICALLY, and it is the control that makes the
@@ -381,10 +428,11 @@ const { path } = writeReceipt({
   check_id: "dashboard-notifies",
   started_at,
   status,
-  expected_targets: expected,
-  discovered_targets: expected,
-  attempted_targets: expected,
-  completed_targets: expected,
+  // Four numbers from four places, so they can disagree.
+  expected_targets: EXPECTED_STEPS.length, // declared above, before the run
+  discovered_targets: DECLARED_STEPS.size, // the list this run is judged against
+  attempted_targets: rows.length,          // steps that produced any row at all
+  completed_targets: stepsCompleted,       // declared steps that reached a verdict
   skipped_targets: 0,
   assertions_executed: assertions,
   min_assertions: 15,
