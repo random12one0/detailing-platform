@@ -5147,6 +5147,86 @@ the dashboard or back office at phone width at all.
   action.
   *A1 P1-02, P3-04, A2 5.1*
 
+  **DIAGNOSED 2026-09-21. THERE ARE THREE DIFFERENT THINGS IN HERE AND ONLY
+  ONE OF THEM IS THE SENTENCE PAIR THE AUDIT QUOTED.** Nothing was changed.
+
+  **1 — THE EXACT CONTRADICTION (A2 5.1) IS A HARD-CODED SENTENCE, NOT A
+  DISAGREEING CALCULATION.** `STUCK` in `app/src/admin/AdminPage.jsx:689` is
+  five rows, each a triple: a predicate, a headline built from the count, and
+  **a constant string of advice**. The predicate and the headline are
+  computed. The advice never is.
+
+  - Row `open` (`:694`) is the row that actually evaluates bookability —
+    `bookability(r.setup_inputs).ok` — headline *"N booking pages cannot take
+    a booking"*.
+  - Row `first` (`:698`) tests one number, `(r.bookings_total ?? 0) > 0`, and
+    then its constant advice asserts **"The page works and nobody has used
+    it."**
+
+  So `first` states the very thing `open` has just denied, and it never
+  looked. **The two rows are not disagreeing about a calculation; one of them
+  has no calculation.**
+
+  **TRUE ON SCREEN RIGHT NOW, NOT DERIVED.** Read-only against
+  `kguqylyzgyzfktkfnhjb`, 2026-09-21: there is exactly **one** non-demo
+  business, `Counter Signup Test Detail`. **0 services, 0 bookings**, hours
+  open. `open` fires (reason: no active services); `first` fires (no
+  bookings). Growth therefore prints *"1 booking page cannot take a booking"*
+  and *"1 detailer has never taken a booking — The page works and nobody has
+  used it"* about the same account, four lines apart. Growth filters demos out
+  (`:725`), so that one account **is** the screen.
+
+  **2 — "ONE ACCOUNT IN FOUR ROWS AT ONCE" (P3-04) IS DELIBERATE, AND THE
+  SCREEN ALREADY SAYS SO.** The comment at `:677` and the sentence the product
+  actually renders at `:781` both make the case: each row asks its own
+  question of everybody, because a detailer can be booking steadily with setup
+  half finished, and a funnel would file him under "stuck at setup" and stop
+  counting him. **The overlap is not the defect; the prose is.** One of the
+  rows the audit named — `quiet` — *was* a real contradiction and was fixed
+  2026-09-13 (`:711`), which is why the audit saw four rows and not five.
+
+  **3 — A THIRD CONTRADICTION NOBODY HAS LOGGED, FOUND WHILE DIAGNOSING THIS,
+  AND IT IS 9.1's MECHANISM ONE FUNCTION OVER.** `bookability()` takes
+  `{ business, counts, settings }`; `setupProgress()` takes
+  `{ business, branding, settings, counts }`. **The same parameter shape,
+  different field sets.** `supabase/functions/platform-admin/index.ts:289`
+  builds `setup_inputs` and labels it in its own comment — *"The INPUTS to
+  `setupProgress`, never its answer"* — carrying
+  `business: { contact_phone, contact_email }` and `settings: { setup }`.
+
+  Both call sites hand that object to `bookability` (`:695` and `:1141`), and
+  `bookability` reads **`business.status`** and **`settings.booking_mode`**,
+  neither of which is in it. So wherever the back office speaks about a page:
+
+  - the **"suspended"** reason can never fire. **Not observable today** and
+    said so rather than claimed: no business, real or demo, is paused — 16
+    rows read, all `active`.
+  - `mode` is **always `"reserve"`**. **Observable today.** `demo-detail`
+    (*Coastline Auto Detailing*) is the one business set to `request`. Open
+    its panel and *"Their page"* reads **"Taking bookings"**. The true answer,
+    *"Takes requests, you answer"*, is a string this file already has and can
+    never reach.
+
+  The list row carries **both** fields at the top level already — `status` and
+  `booking_mode` — so nothing is missing from the payload and nothing needs to
+  be added to it. **This half needs no edge-function deploy. That is the one
+  way it differs from 9.1.**
+
+  **WHY NOTHING CAUGHT IT:** `bookability(r.setup_inputs)` reads as obviously
+  right — the object has a `business` key and a `settings` key — and
+  JavaScript charges nothing for the two fields that are absent. The same
+  blindness bit this exact function once before: `:1134` records
+  `bookability(row)` reporting *"no active services, no open days"* about
+  every business alive, hidden behind a `?? "—"`.
+
+  **NOT FIXED. THE THREE REPAIRS ARE THREE DIFFERENT SIZES:**
+  1. the feed — one helper and two call sites, no deploy, no copy change;
+  2. the `first` row's advice — a copy change on a reviewed screen, so
+     `scripts/label-guard.mjs` and the `appEs.js` key rule both apply;
+  3. the stages redesign this entry already asks for — a build.
+
+  **Held for a ruling.** Nothing here is ticked and nothing here is started.
+
 - [x] **9.3 — The setup banner shows an empty list and "and 2 more". DONE
   2026-09-20.**
   **Fix:** show the first blocking task on its own line with a direct button.
