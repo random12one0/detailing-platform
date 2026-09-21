@@ -45,6 +45,7 @@ import { validateSlot } from "../_shared/slotValidation.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
 import { buildBrand, extraVehiclesFor, sendTenantEmail } from "../_shared/email.ts";
 import { cancellationEmail, rescheduleEmail } from "../_shared/emailTemplates.ts";
+import { refundOwed } from "../_shared/connect.ts";
 import { receiptUrl } from "../_shared/config.ts";
 import { siteFor } from "../_shared/tenantSite.ts";
 import { dateStrIn, timeStrIn } from "../_shared/tz.ts";
@@ -245,6 +246,16 @@ Deno.serve(async (req) => {
         receiptUrl: receiptUrl(await siteFor(supabase, business.id), data.id),
         // `refundNote` is owner-facing and the owner gets no copy here, so the
         // customer's half of `cancellationEmail` never reads it.
+        //
+        // ROADMAP 3.4 FOLLOW-UP — `refundOwed` IS READ HERE, THOUGH. This is
+        // the "Cancel the job" button on the detailer's own dashboard, the
+        // third path `_shared/connect.ts` names as writing `status:
+        // "cancelled"` with no refund question asked. `cancel-booking`
+        // already asked it for the customer's own cancel link; this call was
+        // the one still silent about a paid job the DETAILER cancelled.
+        // Computed only for a cancellation — a reschedule has no refund
+        // question, and `rescheduleEmail` does not read this field.
+        refundOwed: justCancelled ? refundOwed(data).owed : false,
       };
       const msg = justCancelled
         ? cancellationEmail(brand, emailData, false)

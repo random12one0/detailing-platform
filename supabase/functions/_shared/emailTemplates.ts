@@ -165,6 +165,23 @@ export interface BookingEmailData {
    * Absent or empty means no money changed hands, which is the ordinary case.
    */
   refundNote?: string | null;
+  /**
+   * ROADMAP 3.4 FOLLOW-UP — WHETHER THE CUSTOMER'S OWN HALF SAYS ANYTHING
+   * ABOUT THEIR MONEY. `refundOwed(booking).owed` from `_shared/connect.ts`,
+   * the SAME test `refundNote` is built from — never re-derived here, because
+   * two computations of one fact is how they disagree.
+   *
+   * **CUSTOMER-SAFE ON PURPOSE, UNLIKE `refundNote`.** It carries no figure
+   * and no mention of Stripe or a balance — only whether to say the sentence
+   * at all. The amount was already shown to them as "Was worth" or in their
+   * own confirmation email; repeating it here would be inventing a number
+   * `cancel-booking`/`update-booking` did not choose to send.
+   *
+   * True only; false or absent means nothing changed hands and nothing is
+   * printed — the same "a check that could not run must never be dressed up
+   * as checked and fine" rule as `travelZoneAddressMismatch` above.
+   */
+  refundOwed?: boolean;
   customerNotes: string | null;
   serviceNames: string[];
   addOnNames: string[];
@@ -964,6 +981,25 @@ export function cancellationEmail(brand: TenantBrand, b: BookingEmailData, forOw
         date: `<strong class="c-ink" style="color:${G.ink};">${esc(dateLong)}</strong>`,
         time: `<strong class="c-ink" style="color:${G.ink};">${formatTime12hr(b.startTime)}</strong>`,
       })),
+      // ROADMAP 3.4 FOLLOW-UP — THE SAME FACT THE OWNER'S HALF ALREADY GETS,
+      // WITHOUT THE FIGURE. `refundOwed` on this row is the SAME test
+      // `refundNote` (above) is built from, so the two halves can never
+      // disagree about whether money is an open question — only about how
+      // much either is told. No amount and no mention of Stripe or a
+      // balance: the customer already saw the number on their own
+      // confirmation email, and inventing a second one here is a sentence
+      // nobody chose to send.
+      b.refundOwed
+        ? noteBlock(
+          `<strong class="c-ink" style="color:${G.ink};">${tt(
+            "You paid for this booking. {brand} will arrange your refund directly.",
+            { brand: esc(brand.brandName) },
+          )}</strong>`
+          + (brand.contactPhone
+            ? ` ${tt("Call {phone} if you have not heard from them.", { phone: esc(brand.contactPhone) })}`
+            : ""),
+        )
+        : "",
       proseBlock(tt("We'd love to see you another time. You can book again at {link}.", {
         link: `<a href="${brand.siteUrl}" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(host)}</a>`,
       })),

@@ -219,6 +219,14 @@ export const es: Record<string, string> = {
   "Your booking is cancelled": "Tu reserva quedó cancelada",
   "Hi {first}, your booking with {brand} for {date} at {time} has been cancelled.":
     "Hola {first}, tu reserva con {brand} para el {date} a las {time} quedó cancelada.",
+  // ROADMAP 3.4 FOLLOW-UP — the customer's half of a cancellation now says
+  // whether their money is an open question, the same fact the detailer's
+  // half already got. No figure and no mention of Stripe — see the column
+  // comment on `BookingEmailData.refundOwed`.
+  "You paid for this booking. {brand} will arrange your refund directly.":
+    "Pagaste por esta reserva. {brand} se encargará de tu reembolso directamente.",
+  "Call {phone} if you have not heard from them.":
+    "Llama al {phone} si no has sabido de ellos.",
   "We'd love to see you another time. You can book again at {link}.":
     "Nos encantaría atenderte en otra ocasión. Puedes reservar otra vez en {link}.",
   "Your booking has been cancelled": "Tu reserva fue cancelada",

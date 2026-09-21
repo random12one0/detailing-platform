@@ -190,10 +190,18 @@ const emailFixture = (payment_status) => ({
   total: 180,
   receiptUrl: "https://detailingplatform.com/b/7f3ab210",
   refundNote: refundInstruction(refundOwed({ ...FIXTURE, payment_status }), money),
+  // ROADMAP 3.4 FOLLOW-UP — the customer-safe half of the same fact.
+  refundOwed: refundOwed({ ...FIXTURE, payment_status }).owed,
 });
 
 /** THE ONE COMPARATOR. § 2, the canary and nothing else all go through it. */
 const ownerTellsThem = (html) => /Refund .* from your own Stripe/.test(html);
+// THE CUSTOMER'S OWN COMPARATOR, FOUND MISSING IN THE ROADMAP 3.4 REVIEW,
+// 2026-09-20. §2 below proved the customer's half never leaks the owner's
+// Stripe instruction; it never asked whether the customer was told ANYTHING
+// in its place. A cancellation email that says nothing about a paid job's
+// money passed every check here until this line existed.
+const customerToldAboutMoney = (html) => /will arrange your refund directly/.test(html);
 
 for (const s of statuses.filter((x) => x in EXPECTED)) {
   const want = EXPECTED[s].owed;
@@ -208,6 +216,14 @@ for (const s of statuses.filter((x) => x in EXPECTED)) {
     check(`\`${s}\` — and the customer's half never names Stripe`,
       !/Stripe/i.test(customer.html),
       "the customer was handed an instruction written for the detailer");
+  }
+  check(`\`${s}\` — the customer's email ${want ? "says" : "does not say"} anything about their money`,
+    customerToldAboutMoney(customer.html) === want,
+    `the rendered customer email ${customerToldAboutMoney(customer.html) ? "does" : "does not"} mention it`);
+  if (want) {
+    check(`\`${s}\` — and it names no figure and no provider to the customer`,
+      !/Stripe/i.test(customer.html) && !new RegExp(money(195).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).test(customer.html),
+      "the customer's sentence invented a number nobody chose to send them");
   }
   // THE FIGURE IS IN THE SENTENCE, NOT ONLY IN THE FACTS TABLE. "Was worth
   // $180" already sat in this email and is the QUOTE; a detailer reading only

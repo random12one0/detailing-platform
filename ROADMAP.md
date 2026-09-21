@@ -1731,6 +1731,182 @@ requested.
   cancellation and reschedule have each been sent, received and read.
   *old roadmap § A*
 
+  **STILL OPEN, AGAINST ITS OWN DONE-WHEN.** That sentence asks for proof that
+  each of seven stages was **sent, received and read** — real delivery, not a
+  read of the source. What exists below is a full source-level review of
+  every template the product sends (sixteen, not seven — the done-when's list
+  undercounts what is actually in the file), which is real work toward this
+  item and is not the same claim. Nothing here was sent to a real inbox and
+  read back. Leaving this open rather than ticking it on a review, however
+  thorough, is the same distinction `docs/silences.md` already makes between a
+  check that ran and a check that was only read.
+
+  **THE HISTORY THIS ITEM ALREADY HAD, NEVER WRITTEN HERE.** An earlier pass
+  tonight found five things and fixed all five, scattered across the files
+  each fix touched, with nothing rolled up under this item's own heading —
+  which is how an item that says "nobody has ever done this" ends up with
+  findings numbered 1 through 5 and no record of 1 through 5 existing.
+  Recorded here now, each checked against its own receipt or test rather than
+  taken on the comment's word:
+  1–2. **The dashboard told the customer nothing on a cancel or a move.**
+     `update-booking`, the one write path for dashboard changes, called no
+     sender. Fixed — `scripts/dashboard-notifies.mjs`, receipt clean, both
+     steps pass.
+  3. **A Spanish date/time joint said the English word "at."** Two sites —
+     the three request-decision emails' `{when}`, and the reschedule's
+     struck-through old time. Fixed — `_shared/strings/es.ts:111,119`, `{date}
+     at {time}` → `{date} a las {time}`.
+  4–5. **Eight English money-column labels on every Spanish invoice and
+     receipt** — `Booking total`, `Add-on`, `Travel / Mobile fee` and five
+     more, written by `send-invoice/index.ts` rather than by a detailer.
+     Fixed — `_shared/strings/es.ts:170-179`, covered by `tests/spanish.test.mjs`.
+
+  **WHAT WAS READ AND FOUND CLEAN, BECAUSE THAT IS MOST OF THE VALUE OF AN
+  ITEM LIKE THIS ONE AND NOBODY EVER WRITES IT DOWN.** All sixteen exported
+  templates in `_shared/emailTemplates.ts` were read in full, end to end —
+  `customerConfirmationEmail`, `ownerNewBookingEmail`, `requestDecisionEmail`
+  (all three branches), `invoiceEmail` (both branches), `followupEmail`,
+  `customerReminderEmail`, `cancellationEmail` (both audiences),
+  `rescheduleEmail` (both audiences), `staleRequestEmail`, `inviteEmail`,
+  `planLinkEmail`, `planCancelledEmail`, `campaignEmail`, `platformAlertEmail`,
+  `billingEmail`, `maintenanceDueEmail` — plus the shared furniture,
+  `ownerWhereRow`, `jobFacts`, `quoteLines`, `paymentBlock`, `keepLink`, and
+  the footer (`reachUs`/`footer` in `_shared/emailKit.ts`).
+
+  Read as the person receiving it — who gets it, what just happened to them,
+  what they need to do next, whether the email says so — thirteen of sixteen
+  read clean: each names its recipient correctly, asks nothing of them they
+  are not told how to do, and does not say the same thing twice in different
+  words. `campaignEmail` already carries the unsubscribe link and postal
+  address CAN-SPAM requires (the one marketing email in the set); every
+  transactional template correctly carries none. The two-audience templates
+  (`cancellationEmail`, `rescheduleEmail`) correctly keep the detailer's half
+  in English regardless of the customer's chosen language, per this file's
+  own header on `BookingEmailData.lang`.
+
+  **THE SPANISH CATALOGUE, `_shared/strings/es.ts`, WAS READ WHOLE — ALL 271
+  LINES — AGAINST THE ENGLISH IT TRANSLATES, NOT JUST GREPPED FOR KEY
+  EXISTENCE.** `tests/spanish.test.mjs` already proves coverage (a key exists
+  for every customer-facing call site); this checked something that test
+  cannot: whether the Spanish SAYS the same thing. It does, throughout — `tú`
+  register held, US Spanish conventions held (`vehículo`, `$1,234.50`), no
+  sentence found saying something different from its English pair. Clean, and
+  worth recording as clean, because 2.12's whole history is keys that are
+  present and wrong, and this item was the chance to say so if that were true
+  here. It was not.
+
+  **THREE NEW FINDINGS, NUMBERED 6-8 CONTINUING THE SEQUENCE ABOVE.** Ordered
+  by who is hurt and how often — not by file order — until Andrew's ruling
+  below reordered them on purpose:
+
+  **6 — RECORDED, NOT FIXED.** The owner's evening-before reminder
+  (`sendOwnerReminder()`, `send-owner-reminders/index.ts:148`)
+  reuses `ownerNewBookingEmail` and changes only the subject line — the
+  body's own `labBlock` heading still reads **"New booking"** for a job the
+  detailer already accepted, possibly days earlier. `ownerNewBookingEmail`
+  already takes a `headingOverride` parameter for exactly this; it is simply
+  not passed here. Hits every business using owner reminders, every time one
+  fires. **Andrew's ruling, 2026-09-20: real but the harm resolves itself in
+  seconds — a detailer briefly misreads a reminder as a new alert and moves
+  on. Held below number 8 on purpose.**
+
+  **7 — RECORDED, NOT FIXED, AND THE SAME QUESTION AS 2.1.** `rescheduleEmail`
+  carries no money line at all, for either audience — the only stage-change
+  template in the set that doesn't. If moving a job changes the total (a
+  weekend surcharge, a different day's pricing), the reschedule email is the
+  moment a customer or detailer would find out, and it says nothing; they
+  would have to click through. **This is the same family as 2.1
+  — "the total rises after the customer has picked the time" — one step
+  later in the same booking's life. 2.1 is already open and already the
+  bigger call (whether the total should move at all); this is what the
+  product tells someone once it does. Andrew's ruling: held, not dropped —
+  say the two are the same question so whoever picks up 2.1 sees this one
+  sitting next to it.**
+
+  **8 — FIXED, ANDREW'S PICK, OVERRIDING FREQUENCY ON PURPOSE.** The
+  customer's half of `cancellationEmail` said nothing about money on a paid
+  booking, while the owner's half — the same event — got an explicit refund
+  instruction. Rarer than 6, but the harm does not resolve on its own: a
+  customer who paid and had the booking cancelled is left to wonder what
+  happens to their money, then to contact someone, and what they remember is
+  that the business went quiet about it. Andrew's own words: *"That person
+  does not shrug — they sit and worry."*
+
+  **What was checked before any sentence was written, per Andrew's hard
+  constraint that the copy say only what the system actually knows:**
+  * **Is a payment ever actually taken before a booking is cancelled?** Yes —
+    `payment_status` can already be `paid` or `partial` at cancellation time;
+    `_shared/connect.ts`'s `refundOwed()` is the existing, already-tested
+    function that answers this from the row.
+  * **Does anything in the product reverse that charge automatically?**
+    No, never. The charge is a Stripe Connect DIRECT charge into the
+    detailer's own account — the platform never holds the money and has no
+    mechanism to move it back. `connect.ts`'s own header: *"A platform that
+    quietly refunded it would be moving a stranger's money, which is the one
+    thing this whole design exists to avoid."*
+  * **Is the detailer's instruction an action the system performs, or
+    advice?** Advice only. `refundInstruction()` composes a sentence telling
+    the DETAILER to refund from their own Stripe balance; nothing calls
+    Stripe on their behalf.
+  * **So the customer's sentence must never imply an automatic refund.** It
+    doesn't: no figure, no mention of Stripe or a balance, and the wording is
+    not new copy — it reuses, unchanged in meaning, the sentence
+    `cancel-booking/index.ts` already composes for its JSON response
+    (`refundMessage`, read by `ManageBookingPage.jsx` after a customer cancels
+    themselves) — proven correct once already; the email now says the same
+    true thing rather than a second, separately-invented one.
+
+  **What was built.** `BookingEmailData.refundOwed?: boolean` —
+  customer-safe, true-only, computed from the same `refundOwed()` call
+  `refundNote` already uses, never re-derived
+  (`_shared/emailTemplates.ts:154-184`).
+  `cancellationEmail`'s customer branch now prints, only when true: *"You
+  paid for this booking. {brand} will arrange your refund directly."* plus,
+  when the business has a phone number, *"Call {phone} if you have not heard
+  from them."* Two new Spanish keys,
+  `_shared/strings/es.ts:226-228` —
+  this is a customer template, so it goes through `tt()` like everything
+  around it, unlike the JSON-response sentence it echoes, which still has no
+  Spanish key at all (a separate, already-logged gap, ROADMAP 2.12 — not
+  fixed here, because giving IT a key is the design call that item already
+  deferred, not a rename).
+
+  **BOTH PATHS THAT CANCEL A PAID BOOKING NOW ASK, NOT JUST ONE.**
+  `cancel-booking/index.ts` (the customer's own link) already computed
+  `refundOwed`; it now also passes it to the email. `update-booking/index.ts`
+  (the detailer's own "Cancel the job" button) computed nothing here before —
+  it is one of the three places `connect.ts` names as writing `status:
+  "cancelled"`, and it was the one still silent. It now imports `refundOwed`
+  and asks the same question, gated to the cancel branch only —
+  `rescheduleEmail`, the other thing this handler can send, does not read the
+  field.
+
+  **TESTED FIRST, ON THE REAL CODE, NOT ASSUMED.** Extended the existing,
+  already-receipted `tests/cancelled-refund.test.mjs` § 2 rather than writing
+  a new file — it already builds and renders both halves of this exact email
+  for all four payment states and already had the comparator infrastructure.
+  Added a positive assertion that was missing: the suite proved the
+  customer's half never leaks the owner's Stripe instruction, but never once
+  checked it said anything in its place — a cancellation email that told a
+  paying customer nothing passed every check in the file until this run.
+  Confirmed the new assertions FAIL against the unfixed source first
+  (`git stash` on the four source files, test run, 2 real failures on `paid`
+  and `partial`, nothing else moved), then restored the fix and confirmed
+  green: **35 of 36 credential-free assertions pass** (§§ 1-3 plus the
+  canary); the one red is § 4, which drives the DEPLOYED `cancel-booking`
+  endpoint and needs live fixture creation unrelated to this change — deploys
+  are frozen and this fix has not shipped, so § 4 cannot and should not be
+  green tonight. `tests/spanish.test.mjs` and `scripts/label-guard.mjs` both
+  still pass; `scripts/render-emails.mjs` still renders all 32 fixtures with
+  no error, though **its own fixture set has a small, real gap worth naming**:
+  it renders "Owner · a PAID booking cancelled" but has no "Customer · a PAID
+  booking cancelled" counterpart, so the visual preview never exercised the
+  exact sentence this fix adds. Noted, not fixed — `scripts/` on a night this
+  file's own lane note keeps it out of.
+
+  **NOT DEPLOYED.** `cancel-booking` and `update-booking` both carry this
+  change in source only, same freeze as everything else tonight.
+
 ---
 
 ## Wave 4 — State safety

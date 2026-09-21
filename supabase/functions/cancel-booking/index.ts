@@ -116,6 +116,8 @@ Deno.serve(async (req) => {
       receiptUrl: receiptUrl(await siteFor(supabase, business.id), booking.id),
       // Owner-facing only — `cancellationEmail` prints it on that half alone.
       refundNote: refundInstruction(refund, money),
+      // ROADMAP 3.4 FOLLOW-UP — the customer-safe half of the same fact.
+      refundOwed: refund.owed,
     };
     if (booking.customer_email) {
       const msg = cancellationEmail(brand, emailData, false);
