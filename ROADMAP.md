@@ -4558,6 +4558,105 @@ rather than wording went to Andrew.
   decision rather than a defect to quietly correct. **Handed over with the
   number attached, which is what the entry asked for in the first place.**
 
+  ── **THE HERO QUESTION IS RE-OPENED, NOT ANSWERED — 2026-09-21** ──────────
+
+  **`docs/tenant-sites/x-ballantyne.html` was handed to this session and the
+  hero was deliberately not touched.** The split is: **the number was wrong
+  and correcting it is accuracy; the height is a design decision on an
+  approved scheme and it is Andrew's.**
+
+  **THE EARLIER JUDGEMENT WAS MADE AGAINST A WRONG FIGURE.** The line above
+  reads *"it is exactly one viewport — 900px at 1440x900"* and concludes *"a
+  full-screen hero is a defensible choice, so this is left as the judgment it
+  is."* **That conclusion follows from the figure**, and the figure is out by
+  **211px**:
+
+  | | recorded here | measured 2026-09-21 |
+  |---|---|---|
+  | `/ex3` hero at 1440x900 | 900px, "exactly one viewport" | **1111px, 1.23 viewports** |
+  | `/ex1` hero at 1440x900 (control) | 774px | **774px** |
+
+  **The control reproduces exactly, so this is not a difference of method** —
+  same selector, same viewport, settled by polling until the height held for
+  six consecutive samples, `min-height: 0px`, height driven by content and not
+  by a `100vh` rule.
+
+  **AND THE CORRECTED NUMBER REMOVES THE ARGUMENT THAT CLOSED IT.** *"Exactly
+  one viewport"* describes a deliberate full-screen hero, which is a style
+  somebody chooses. **1.23 viewports is a hero that pushes about a fifth of
+  itself below the fold** — which is not a style, it is the thing the audit
+  complained about in the first place. **So the question goes back open rather
+  than being inherited**, and it is on `FOR-ANDREW.md` with the corrected
+  number and **no recommendation from anybody here**: `docs/TASTE-NOTES.md`
+  outranks anything a session would infer about what he likes.
+
+  ── **SPEC FOR WHOEVER OWNS `scripts/`: THE PICTURE-STALENESS GATE CAN SAY
+  "CURRENT" OVER A CAPTURE THAT NO LONGER MATCHES. Written to be built without
+  asking this session.** ───────────────────────────────────────────────────
+
+  **Whose:** `scripts/example-shots-check.mjs` and `scripts/capture-examples.mjs`
+  (`fingerprint` and the manifest are exported from the second).
+  **Not blocked by the publish freeze** — no deploy, no migration, nobody's
+  permission.
+
+  **WHAT THE GATE IS FOR.** `/examples` shows a thumbnail per example site.
+  The gate's job is to fail when a picture was taken before a change to the
+  site it shows, because **a stale thumbnail is a screenshot of a product that
+  no longer exists**, shown to the one audience that judges this product by
+  it.
+
+  **THE HOLE, and it is one line.** `example-shots-check.mjs:122-123`
+  computes `fingerprint(readFileSync(file))` where `file` is
+  `docs/tenant-sites/<source>.html`, and compares it to
+  `manifest.sites.<slug>.fingerprint`. **That is the site's own source and
+  nothing else.** But `build-examples.mjs` injects a **paint switcher** —
+  the `PAINTS` const — into `ex3` and only `ex3`, immediately before
+  `</body>`, at build time. **That block is in the picture and not in the
+  fingerprint.**
+
+  **HOW IT WAS FOUND, which is the part that says how bad it is:** correcting
+  "Colour" to "Color" inside that control changed what the ex3 thumbnail
+  should show, and the gate went on reporting `current`. **It was caught only
+  because ex3 happened to be re-shot for another reason.**
+
+  **THE FIX.** Hash the injected block into the manifest alongside the
+  site's: record a second value per site — call it `injected_fingerprint`,
+  `null` for the four sites that get nothing — and fail when **either**
+  differs. `PAINTS` must be importable for that, which is a one-word `export`.
+
+  **THE STRONGER ALTERNATIVE, AND ITS COST, so the choice is deliberate:**
+  fingerprint the **built** page under `app/public/<slug>/index.html` instead,
+  which covers `PAINTS` and anything injected later without a second field.
+  **It costs the gate its independence** — it would then require
+  `build-examples.mjs --dev` to have been run, and today it reads
+  `docs/tenant-sites/` and needs no build. **Pick one on purpose; do not end
+  up with both halves of neither.**
+
+  **WHAT A RIGHT ANSWER LOOKS LIKE.** With nothing edited: every site
+  `current`, and the run prints **how many sites it fingerprinted and how many
+  injected blocks it fingerprinted** — `5 sites, 1 injected block` today. **A
+  count of zero injected blocks must be a failure, not a silent pass**, or the
+  whole fix can rot back out the day somebody renames `PAINTS`.
+
+  **WHAT A WRONG ANSWER LOOKS LIKE — four shapes, and the first is the one
+  that exists today:**
+  1. **Edit the injected block, gate still says `current`.** The live bug.
+  2. **Edit the injected block, gate names the wrong site.** `PAINTS` reaches
+     `ex3` only; a check that fails all five is no more use than one that
+     fails none.
+  3. **Gate fingerprints an injected block that no longer reaches any page.**
+     Green forever, measuring nothing — the `0 injected blocks` case above.
+  4. **Gate needs a build it does not say it needs.** It reports `current` on
+     a machine where `app/public/ex3/` is empty, because the file it hashed
+     was the source and the file in the picture was never generated.
+
+  **CANARIES, since this repo has shipped at least six checks that tested
+  nothing.** `--break=drift` already exists and pretends the SOURCE moved;
+  add `--break=inject`, which pretends the INJECTED block moved. **Each must
+  fail `ex3` and only `ex3`, and `--break=inject` must fail on a gate that
+  has the fix and pass on one that does not** — that is the single assertion
+  proving the hole is closed rather than described.
+
 - [ ] **7.11 — The home page's own example is a different city from the demo.**
   Home page says "Tacoma, WA"; the demo business is Long Beach, CA.
   *A2 7.6*
