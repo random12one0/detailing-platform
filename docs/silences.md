@@ -1094,8 +1094,49 @@ and grades the receipts directory can never see a valid one, however healthy
 every check is, so the grader's headline `N valid` does not mean what a reader
 assumes it means. It is also the shape CLAUDE.md's commit rule reached at its
 fourth version — **an act of recording that changes the thing being
-recorded.** Named, not fixed: what the staleness rule should compare against
-is a design question about `receipt.mjs`, which is not one check's to settle.
+recorded.**
+
+#### THE OPEN QUESTION, SCOPED AND DELIBERATELY NOT STARTED
+
+**Ruled 2026-09-21 by Andrew's manager: leave the grader tonight, hand it
+over as a scoping question.** The reasoning is worth keeping because it is
+the third time the same ruling was made in one night: changing
+`scripts/receipt.mjs` changes the thing **every** check in this repo is
+judged by, and making that change at seven in the morning at the end of a
+long night is the same shape as the two decisions already refused — a shared
+CSS variable, and a mass re-run of forty receipts. CLAUDE.md's own rule
+covers it: **before changing a shared variable, find out whether a previous
+item already decided not to.**
+
+**The proposed fix, written down as scoped rather than as done:** compare
+`git_sha` against **the commit that last touched the check and its subject**,
+not against bare HEAD.
+
+**Why that and not something else.** Staleness is meant to answer *could this
+receipt be out of date about the thing it measured?* Bare HEAD answers a
+different question — *has anything at all happened since?* — and in a repo
+where two sessions commit through the night the answer is always yes. So the
+line fires constantly, for reasons that have nothing to do with the check,
+and **a line readers ignore is worse than no line**: it is a warning that has
+been trained to mean nothing, which is this document's subject in its most
+ordinary form.
+
+**The observation that makes it worth doing at all:** `pass` is not merely
+rare, it is **structurally unreachable in a committed state**. Any clean
+checkout grades `0 valid`, however healthy every check in the repo is.
+
+**What a taker must be careful of, and it is the reason this is not a
+five-minute job.** "The check and its subject" is easy to say and is the
+whole design. `dashboard-notifies`' subject is a **deployed edge function and
+a live database**, neither of which is a path in this tree — and its receipt
+now records the deployed version precisely because the repo could not answer
+that. A rule written only in terms of file paths would call that check fresh
+for ever, which is a worse failure than calling it stale too often. **The
+easy half is the commit range; the hard half is that some subjects are not in
+git at all.**
+
+**Not filed in `ROADMAP.md` by this session** — that file is the other
+session's lane tonight, and the manager is carrying the line across.
 
 **THE DRIFT FIELD FIRED ON ITS FIRST REAL RUN AND WAS ADJUDICATED, NOT
 IGNORED.** The first control reported `HEAD MOVED DURING THIS RUN: started

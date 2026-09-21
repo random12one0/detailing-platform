@@ -39,6 +39,47 @@
 // header says why: a rate typed into a tenant's HTML is *a number PRINTED is
 // not a number CHARGED* with the two numbers in two codebases. The banner this
 // script injects says the same thing to somebody who is only looking.
+//
+// ---------------------------------------------------------------------------
+// AND THE RULE THAT THE PARAGRAPH ABOVE WAS ALREADY BREAKING — ROADMAP 7.17
+// ---------------------------------------------------------------------------
+// **Copied verbatim from ROADMAP 7.17 at its author's request; it is written
+// to survive being moved and must not be paraphrased into something softer.**
+// It is here rather than only in the roadmap because this is the file somebody
+// opens before they build the next example site.
+//
+// The paragraph directly above claims every price carries a `data-from`
+// attribute naming the endpoint that owns it, and calls that "the durable form
+// of the same statement". **It was right, and it was already contradicting
+// itself in writing:** the paragraph advertising `$1.20 a mile` carried
+// `data-from="travel_zones"`, and `travel_zones` is `{key, name, fee}` — a
+// rate per mile cannot come out of it. The attribute that exists to name the
+// owner of a number was sitting two words above the number it disowned.
+//
+//   > **An example site must not show a number the product cannot produce.**
+//   >
+//   > `/ex1`…`/ex5` exist to show a prospective detailer **what they would
+//   > get**, so a figure on one of those pages is **a claim about the
+//   > software**, not decoration. **An example that promises a capability is
+//   > worse than a missing one, because it sells a thing that is not there.**
+//   >
+//   > Before you put a number on an example site, **name the field or endpoint
+//   > that would produce it for a real tenant.** If you cannot name one, the
+//   > number does not go on the page. If the field exists but cannot express
+//   > what you are about to write — a per-mile rate out of a flat-fee zone —
+//   > the number still does not go on the page.
+//   >
+//   > When a claim has to come off, **take it off rather than blurring it.** If
+//   > a block existed only to carry the claim, delete the block and say so
+//   > where somebody diffing the file will read it. A page that has been
+//   > quietly vagued is worse than one with a visible gap, because the gap is
+//   > the only thing that tells the next person a promise was withdrawn.
+//
+// **THIS SCRIPT DOES NOT ENFORCE ANY OF THAT, AND SAYING SO IS THE POINT.** It
+// copies files; it has never read a number on one. 7.17 names the cheapest
+// check that would — a census of all 27 distinct `data-from` values, asking of
+// each whether the field it names can express the number beside it — and
+// records that it has never been run. **Do not read this comment as a guard.**
 
 import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";

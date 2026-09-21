@@ -40,6 +40,42 @@ feature the product is sold on.
 
 The one rule under all of it: **fork the presentation, never the engine.**
 
+### And one rule about the numbers you put on it — ROADMAP 7.17, 2026-09-21
+
+**Carried here verbatim from ROADMAP 7.17, at its author's request, because
+it asks not to be paraphrased into something softer on the way across. It is
+placed before § 1 on purpose: it is a rule you need before you build, not
+after.** It was earned the hard way — two of the five example sites were
+advertising a per-mile travel charge this product cannot compute and, by
+Andrew's ruling of 2026-09-20, never will, plus a review count and rating no
+detailer can enter and a deposit that is a money flow nobody has built.
+
+> **An example site must not show a number the product cannot produce.**
+>
+> `/ex1`…`/ex5` exist to show a prospective detailer **what they would
+> get**, so a figure on one of those pages is **a claim about the
+> software**, not decoration. **An example that promises a capability is
+> worse than a missing one, because it sells a thing that is not there.**
+>
+> Before you put a number on an example site, **name the field or endpoint
+> that would produce it for a real tenant.** If you cannot name one, the
+> number does not go on the page. If the field exists but cannot express
+> what you are about to write — a per-mile rate out of a flat-fee zone —
+> the number still does not go on the page.
+>
+> When a claim has to come off, **take it off rather than blurring it.** If
+> a block existed only to carry the claim, delete the block and say so
+> where somebody diffing the file will read it. A page that has been
+> quietly vagued is worse than one with a visible gap, because the gap is
+> the only thing that tells the next person a promise was withdrawn.
+
+**It applies to a client's real site too, not only to `/ex1`…`/ex5`**, and
+for a sharper reason: on a real site the number is a claim made to that
+detailer's own customers. The `data-from` attribute described in § 2 is the
+mechanism for answering the rule's question — name the endpoint that owns the
+number — and 7.17 records that it was already being written above a number it
+could not own.
+
 ---
 
 ## 1. Read these, in this order
