@@ -303,13 +303,6 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
 
       <Block title={t("Vehicle")}>
         <div className="grid2">
-          {/* Only a business that offers both is asked. */}
-          {s.mobile_enabled && s.dropoff_enabled && (
-            <label className="field"><span>{t("Type")}</span>
-              <Segmented value={form.serviceType}
-                onChange={(v) => set({ serviceType: v, startTime: "" })}
-                options={[["mobile", "Mobile"], ["dropoff", "Drop-off"]]} /></label>
-          )}
           <label className="field"><span>{t("Vehicle size")}</span>
             {/* Segmented up to four, a drop-down past it. Same rule as the
                 customer's booking page and the same reason: a segmented
@@ -363,38 +356,53 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
         )}
       </Block>
 
-      {mobile && (
-        <Block title={t("Location")}>
-          <label className="field"><span>{t("Address")}</span>
-            <input value={form.customerAddress} onChange={(e) => set({ customerAddress: e.target.value })} /></label>
-          {/* The travel charge was simply never applied to a booking made
-              here, so a job forty minutes out was quoted as if it were next
-              door and the detailer read that number to the customer. */}
-          {zones.length > 0 && (
-            <label className="field"><span>{t("Travel zone")}</span>
-              <select value={form.travelZone} onChange={(e) => set({ travelZone: e.target.value })}>
-                {zones.map((z) => (
-                  <option key={z.key} value={z.key}>
-                    {z.label}{z.fee ? ` · ${money(z.fee)}` : ""}
-                  </option>
-                ))}
-              </select></label>
+      {/* ROADMAP 9.9 — the mobile/drop-off choice used to sit under the
+          VEHICLE heading, which answers "what", not "where". It is the
+          first question this block asks now; the address fields below it
+          stay conditional on the answer being Mobile. */}
+      {(s.mobile_enabled && s.dropoff_enabled || mobile) && (
+        <Block title={t("Where")}>
+          {/* Only a business that offers both is asked. */}
+          {s.mobile_enabled && s.dropoff_enabled && (
+            <label className="field"><span>{t("Type")}</span>
+              <Segmented value={form.serviceType}
+                onChange={(v) => set({ serviceType: v, startTime: "" })}
+                options={[["mobile", "Mobile"], ["dropoff", "Drop-off"]]} /></label>
           )}
-          {(askWater || askPower) && (
-            <div className="grid2">
-              {askWater && (
-                <label className="field"><span>{t("Water on site")}</span>
-                  <Segmented value={form.hasWater ? "y" : "n"}
-                    onChange={(v) => set({ hasWater: v === "y" })}
-                    options={[["y", "Yes"], ["n", "No"]]} /></label>
+          {mobile && (
+            <>
+              <label className="field"><span>{t("Address")}</span>
+                <input value={form.customerAddress} onChange={(e) => set({ customerAddress: e.target.value })} /></label>
+              {/* The travel charge was simply never applied to a booking made
+                  here, so a job forty minutes out was quoted as if it were next
+                  door and the detailer read that number to the customer. */}
+              {zones.length > 0 && (
+                <label className="field"><span>{t("Travel zone")}</span>
+                  <select value={form.travelZone} onChange={(e) => set({ travelZone: e.target.value })}>
+                    {zones.map((z) => (
+                      <option key={z.key} value={z.key}>
+                        {z.label}{z.fee ? ` · ${money(z.fee)}` : ""}
+                      </option>
+                    ))}
+                  </select></label>
               )}
-              {askPower && (
-                <label className="field"><span>{t("Power on site")}</span>
-                  <Segmented value={form.hasPower ? "y" : "n"}
-                    onChange={(v) => set({ hasPower: v === "y" })}
-                    options={[["y", "Yes"], ["n", "No"]]} /></label>
+              {(askWater || askPower) && (
+                <div className="grid2">
+                  {askWater && (
+                    <label className="field"><span>{t("Water on site")}</span>
+                      <Segmented value={form.hasWater ? "y" : "n"}
+                        onChange={(v) => set({ hasWater: v === "y" })}
+                        options={[["y", "Yes"], ["n", "No"]]} /></label>
+                  )}
+                  {askPower && (
+                    <label className="field"><span>{t("Power on site")}</span>
+                      <Segmented value={form.hasPower ? "y" : "n"}
+                        onChange={(v) => set({ hasPower: v === "y" })}
+                        options={[["y", "Yes"], ["n", "No"]]} /></label>
+                  )}
+                </div>
               )}
-            </div>
+            </>
           )}
         </Block>
       )}

@@ -1331,14 +1331,23 @@ requested.
      other five which called `navigate(...)` or `setSelected(null)` and
      closed the record. It didn't need this fix because it never had this
      fault.
-     **A SEPARATE, UNRELATED CONSOLE ERROR was seen on a bare page reload
-     during this pass** — `NotFoundError: removeChild`, caught by
-     `ErrorBoundary`, plus repeated `createRoot() called twice` warnings. The
-     stack cites only `ErrorBoundary`/`Router`/`BrowserRouter`, never any file
-     touched here, and it reproduces on a plain reload with no interaction —
-     it looks like a dev-server HMR collision, plausibly from another
-     session's concurrent edits, not a defect in this fix. Not chased further
-     tonight; worth a look if it turns up again.
+     **A SEPARATE, UNRELATED CONSOLE ERROR was seen on one tab during this
+     pass, CORRECTED 2026-09-20 after Andrew asked for the exact string —
+     the first claim here was wrong and this is the fix, not a second
+     finding.** Verbatim: `Uncaught NotFoundError: Failed to execute
+     'removeChild' on 'Node': The node to be removed is not a child of this
+     node.`, thrown from `chunk-PJEEZAML.js` (a Vite dep chunk), caught by
+     `ErrorBoundary`, paired with `Warning: You are calling
+     ReactDOMClient.createRoot() on a container that has already been passed
+     to createRoot() before.` **"Reproduces on a plain reload" was wrong.** A
+     genuinely fresh tab against the (since-restarted) dev server shows none
+     of it; the tab that showed it never cleared its own console buffer
+     across repeated `location.reload()` calls, so the same historical
+     entries kept reprinting and were mistaken for repeated reproduction. It
+     happened once, on one tab, stack citing only
+     `ErrorBoundary`/`Router`/`BrowserRouter`, never a file touched here.
+     Not chased further; if it recurs, catch it on a clean tab before
+     trusting the count.
 
 - [x] **DONE 2026-09-16 — 4.2 Calendar download links need an authorization review.**
   The link carried a Supabase function URL, a booking id, `audience=owner` and
@@ -3434,9 +3443,29 @@ the dashboard or back office at phone width at all.
   completed empty response.
   *A1 P2-14*
 
-- [ ] **9.9 — New booking files "Mobile / Drop-off" under the VEHICLE heading.**
-  Move it under its own "Where" heading.
+- [x] **DONE 2026-09-20 — 9.9 New booking files "Mobile / Drop-off" under the
+  VEHICLE heading.** Move it under its own "Where" heading.
   *A2 4.8*
+  **FIXED in `NewBookingModal.jsx`.** The `Type` segmented control (Mobile /
+  Drop-off) came out of the `Vehicle` block and now heads its own `Where`
+  block — reusing the existing `t("Where")` key (`"Dónde"`, already in
+  `appEs.js`, no new string needed) and matching the customer's own booking
+  page, which already asks "Where should we do it?" as its own step. The
+  address, travel zone and water/power fields stay under it, still
+  conditional on Mobile being picked; the `Where` block itself renders
+  whenever there is a Type choice to make OR an address to take, so a
+  drop-off-only business still sees nothing extra and a mobile-only one still
+  sees its address fields with no Type toggle, exactly as before.
+  **Verified live** on the demo tenant's New booking form (a form-only
+  change, no booking submitted, no database write): the Vehicle block now
+  opens straight on Vehicle size with no Type control in it; a new `Where`
+  section carries the Type toggle; picking Drop-off correctly hides Address
+  and Travel zone under the same heading. Checked at desktop width and
+  392px, and again on a genuinely fresh tab against the dev server after it
+  was restarted mid-session — clean both times, console included. (The
+  removeChild/createRoot line under 4.1 above turned out to be a stuck
+  console buffer on one tab, not a repeating fault — see the correction
+  there.)
 
 - [ ] **9.10 — Business settings waste the right half of the screen.**
   Put a live customer-page preview there; stack below on phones.
