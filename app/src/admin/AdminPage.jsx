@@ -686,13 +686,34 @@ function TabNow({ state, totals, rows, alerts, attention, onOpen }) {
    So each row asks its own question of everybody, and the screen says so in as
    many words. **A detailer can appear on two rows. That is correct** — it means
    two different things are true about them. */
+// **`bookability()` AND `setupProgress()` TAKE THE SAME PARAMETER SHAPE AND
+// DIFFERENT FIELD SETS, AND THAT WAS THE WHOLE BUG — ROADMAP 9.2, fixed
+// 2026-09-21.** `platform-admin` builds `setup_inputs` FOR `setupProgress`
+// and labels it so in its own comment, which is why it carries
+// `business: { contact_phone, contact_email }` and `settings: { setup }`.
+// `bookability` reads `business.status` and `settings.booking_mode` — neither
+// is in there, and JavaScript charges nothing for a missing key. So on both
+// screens that asked, the **"suspended" reason could never fire**, and a
+// detailer who takes REQUESTS read as "Taking bookings".
+//
+// **Nothing new is fetched. The row already carries both fields at the top
+// level**, which is why this needed no edge-function deploy — unlike 9.1,
+// whose fix is on the server. They are named one by one below rather than
+// passing the whole row, because the two fields this function actually reads
+// are the entire point of the defect.
+const bookabilityOf = (r) => bookability({
+  counts: r?.setup_inputs?.counts,
+  business: { status: r?.status },
+  settings: { booking_mode: r?.booking_mode },
+});
+
 const STUCK = [
   ["setup",
    (r) => setupProgress(r.setup_inputs).count >= SETUP_FLOOR,
    (n) => `${plural(n, "detailer has", "detailers have")} not got through setup`,
    `Fewer than ${SETUP_FLOOR} of the steps are done. Ring them and finish it on the phone — every one of these signed up and then stopped.`],
   ["open",
-   (r) => bookability(r.setup_inputs).ok,
+   (r) => bookabilityOf(r).ok,
    (n) => `${plural(n, "booking page", "booking pages")} cannot take a booking`,
    "Nothing to sell, no open days, or the account is suspended. A customer who tries gets nowhere, and neither of you finds out. This is the most expensive thing on the page."],
   ["first",
@@ -1138,7 +1159,13 @@ function Business({ row, detail, onClose, reload }) {
   // Then the screen read `.label`, which this function has never returned, so
   // the `?? "—"` fallback hid the wrong answer behind a dash. **A defect that
   // renders as an em dash is a defect nobody reports.**
-  const book = bookability(row.setup_inputs ?? {});
+  //
+  // **AND PASSING `setup_inputs` WAS STILL WRONG, JUST LESS VISIBLY — ROADMAP
+  // 9.2.** That object is built for `setupProgress` and has no `status` and
+  // no `booking_mode` in it, so this row said "Taking bookings" about a
+  // suspended account and about a request-only one. `bookabilityOf` is the
+  // one place that decides what this function is fed; see its note above.
+  const book = bookabilityOf(row);
   // **`row.owner_email` IS NOT "THEY HAVE AN OWNER ACCOUNT".** The server
   // builds it as `owner?.email ?? contact_email`, so a business somebody typed
   // a contact address for reads as having an owner it does not have — and the
