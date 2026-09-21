@@ -832,6 +832,98 @@ session can act on. **A skip nobody has to re-justify on a condition is a skip
 that becomes permanent by not being looked at**, which is § A's subject, three
 sections up.
 
+
+## THE SILENCE UNDER ALL THE OTHERS: NOTHING HAS EVER RECORDED WHICH MIGRATIONS RAN — 2026-09-21
+
+**`supabase_migrations.schema_migrations` does not exist in
+`kguqylyzgyzfktkfnhjb`.** Measured, not inferred: the query returns
+`42P01 relation "supabase_migrations.schema_migrations" does not exist`, and an
+`information_schema` sweep finds `schema_migrations` in exactly two schemas,
+`auth` and `realtime` — both Supabase's own internals, neither this project's.
+
+**So there is no applied-migrations ledger, and there never has been.** The 92
+files in `supabase/migrations/` are a list of intentions. Nothing in the
+database records which of them ran, when, in what order, or whether one was
+applied by hand and edited on the way in.
+
+### What follows from that, stated plainly
+
+- **Every answer anybody has ever given about this schema was a guess or a
+  direct look.** There was no third option. "That migration is applied" has
+  never been a checkable claim in this project.
+- **It is the silence under the others in this file.** Section A was about
+  gates that cannot tell a run from a no-run. This is a *database* that cannot
+  tell an applied migration from one that never ran.
+- **It is how ROADMAP 8.10a happened.** Two migrations never ran,
+  `get_public_business_profile` stayed old, and the multi-car booking feature
+  reached nobody at any setting. Nothing anywhere would have said so, because
+  there was nothing to say it with.
+- **`scripts/migration-drift.mjs` is the workaround, and it is not the fix.**
+  It infers what ran from what the schema LOOKS like — 49 functions by body,
+  52 tables and their columns by name. **It answers "does the schema match the
+  repo", not "did every migration run", and those are different questions.**
+  Two migrations producing the same end state are indistinguishable to it, and
+  one that ran and was later undone by hand reads as never having run.
+
+**The real fix is a ledger**, which means adopting the Supabase CLI's migration
+workflow or writing an equivalent table. **That is a change to how this project
+is operated, not a check, so it is Andrew's — recorded here rather than done.**
+
+---
+
+## `db-audit`'S TWO FINDINGS, INVESTIGATED RATHER THAN ALLOWLISTED — 2026-09-21
+
+They were printed and ignored on every run until findings started failing the
+gate. **Named, measured, and NOT allowlisted** — and the investigation found
+something bigger than the two tables.
+
+**What they are.** Shared caches, neither carrying a `business_id`:
+
+| table | columns | rows | written by |
+|---|---|---|---|
+| `address_points` | `key, lat, lon, found, resolved_at` | **19** | geocoding, via edge functions |
+| `weather_grids` | `grid_key, lat, lon, periods, place, fetched_at` | **11** | the NWS forecast cache |
+
+**What the check says.** RLS on, zero policies, not on the by-design list —
+"locked with nothing to unlock it".
+
+**What a person would see if it were real: nothing, today.** Proved with the
+anon key against PostgREST rather than reasoned about — both return **HTTP 200
+with 0 rows**, while the Management API shows the tables really hold 19 and 11
+rows. Forced RLS with no policy denies every row. `session_pings`, by contrast,
+returns **HTTP 401 permission denied**.
+
+### But the investigation found the thing worth ruling on, and it is not these two
+
+**`db-audit.mjs`'s own comment is wrong.** It says the by-design tables each
+carry *"`enable`, `force`, and `revoke all from anon, authenticated`"*.
+Measured across all ten:
+
+| tables | grants to anon / authenticated |
+|---|---|
+| `session_pings`, `translation_usage` | **0 / 0 — revoked. A browser is refused outright (401).** |
+| the other **eight**, incl. `platform_admins`, `platform_admin_events`, `platform_settings` | **7 / 7 — every privilege still granted** |
+| `address_points`, `weather_grids` | **7 / 7 — identical to those eight** |
+
+**So the two flagged tables are not anomalous. They are typical** — in exactly
+the state of 8 of the 10 tables the audit already accepts.
+
+**What that costs.** Those eight are held shut by forced-RLS-with-no-policy
+*alone*, with `INSERT`, `UPDATE`, `DELETE` and `TRUNCATE` still granted to
+`anon`. **The day anybody adds one permissive policy to one of them for one
+purpose, the grants are already there** — the policy they wrote to allow a
+`SELECT` opens the writes too. `platform_admin_events` is the audit trail
+"which must not be forgeable", and `anon` holds `INSERT` on it today.
+
+**This is `db-audit`'s own "an inert policy is a trap" lesson, inverted:** a
+grant with no policy reads as safe and is one policy away from not being.
+
+**Two questions for Andrew, and neither is "allowlist these two":**
+1. Should the eight carry `revoke all from anon, authenticated` like the two
+   that do — making the comment true and the lock double?
+2. Should `db-audit` check the GRANT as well as the policy, so the difference
+   between those two groups stops being invisible to it?
+
 ## THE SILENCE NO CHECK IN THIS FILE CAN COVER — added 2026-09-20
 
 **A figure inherited from an instrument whose definition moved is stale in a way
