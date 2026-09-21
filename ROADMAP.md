@@ -1562,6 +1562,32 @@ the wrong service, and never book a job we cannot reach.
   Same shape as the `--name-only` and explicit-path corrections in CLAUDE.md:
   a check that read the right thing in the wrong place.
 
+  **RULED 2026-09-21, AND THE WORDS MATTER: ALL THREE SIT AT EXACTLY 44 WITH
+  2px OF SLACK. THAT IS PASSING-AND-FRAGILE, WHICH IS A DIFFERENT STATE FROM
+  PASSING.** Leave all three alone. Anyone about to adjust a padding, a gap,
+  a margin or a `min-height` anywhere near `.chip`, `.choice` or
+  `.segmented button` needs to find this written down rather than discover it
+  the way the export button was discovered — by a person pressing it.
+
+  **The reasoning, which is the ruling:** they measure 44, which passes, and
+  they have exactly 2px of vertical slack, **measured rather than estimated**.
+  Spending that slack to buy a margin they do not need would leave wrapped
+  rows touching and would repeat the Hours overlap on Hours' own day chips
+  and on 41 controls in Booking rules. **Trading a passing control for a real
+  overlap on 41 others is a worse product.**
+
+  **ONE CORRECTION TO THE RULING'S OWN WORDING, BECAUSE THE NUMBER IS ONLY
+  MEASURED FOR TWO OF THE THREE.** `.chip` and `.choice` have 2px of slack,
+  measured, on Hours and on Booking rules / Promos at 320.
+  **`.segmented button` has no wrapped vertical neighbour on any of the 8
+  screens reached at either width, so its slack is UNMEASURED, not 2px** —
+  and `.segmented` carries `flex-wrap: wrap`, so a wrapped pair can appear
+  the day a label grows or a translation runs long. Its `::after` inset is
+  horizontal-zero, so it has never been tested against a neighbour above it.
+  **Treat it as exactly 44 with slack unknown**, which is the more dangerous
+  of the two states, not the safer one. Recorded this way because the whole
+  point of the entry is that the next person finds the real number.
+
   **THE THREE NAMED CONTROLS ARE NOT CHANGED, ON PURPOSE.** None measures
   short. Each is exactly 44 — **passing, and passing with zero tolerance**,
   which is said here rather than smoothed. And **neither `.chip` nor
@@ -1594,6 +1620,67 @@ the wrong service, and never book a job we cannot reach.
   and the `nav.tabbar` finding is exactly what that hides. Two instruments
   disagreed about one chip (45 centred, 43 in place) and the disagreement was
   the finding.
+
+- [ ] **2.32 — The fixed tab bar eats the bottom of any control that comes
+  to rest under it. Measured, 43px of reachable area against a 44 absolute.**
+  **Found 2026-09-21 while pressing the controls in 2.5, by two instruments
+  disagreeing about one chip.**
+
+  **THE MEASUREMENT, all of it:**
+
+  | | |
+  |---|---|
+  | control | a `.choice` preset chip — the second **"Custom"**, Booking rules |
+  | width | **320x844** |
+  | resting position | **y ≈ 737** |
+  | reachable height | **43px** — against the 44px absolute |
+  | the same chip, scrolled to the centre | **45px** |
+  | what owns the lost rows | **`nav.tabbar`** — named by `elementFromPoint`, not inferred |
+  | at 1254x720 | **45px**, no loss |
+
+  **It is NOT the inset arithmetic of 2.5 and it is not a property of
+  `.choice`.** The chip is legal; the bar is simply painted on top of the
+  bottom of it. **Any control can come to rest there** — a chip, a segment, a
+  small button, a link — so this is a property of the fixed bar and of the
+  scroll clearance beneath it, and the population is "everything in the back
+  office", not one control. It is the fault
+  `scripts/keyboard-walk.mjs` exists for: *the only instrument here that
+  catches a control UNDERNEATH a fixed bar*, visible to every ordinary test.
+
+  **AND IT LANDS ON `--bk-bar-clear`, WHICH IS CLAUDE.md's OWN WORKED EXAMPLE
+  OF THE RULE THAT SAYS STOP.** Roadmap **2.15** kept the old literal
+  **deliberately** — `booking.css:115` records it — *"so the confirmation
+  screen, the manage screen and the plans page are untouched by this
+  change."* The variable reserves 104px, is overridden to 26px on pages that
+  HAVE the bar, and therefore applies its full 104px only to the pages with
+  no bar at all. **It reads as an obvious one-line fix and it is not.**
+
+  **THIS FINDING IS BETTER THAN 2.15's REASON FOR DECLINING, AND STILL DOES
+  NOT JUSTIFY THE LINE.** 2.15 declined on a cosmetic argument. This is a
+  **measured loss of reachable area against a hard absolute**, which is a
+  stronger case — and the honest fix is still not a line, it is a re-measure
+  of every surface that variable protects. **Doing that at six in the morning
+  at the end of a long night is how a deferred decision becomes an accidental
+  one**, which is the exact sentence CLAUDE.md uses about this exact variable.
+
+  **RULED 2026-09-21: DO NOT TOUCH `--bk-bar-clear`. Not tonight, and not
+  without a round of its own.** The ruling is *no*, and the reason is above
+  rather than only the answer.
+
+  **WHAT EVIDENCE WOULD JUSTIFY MOVING IT — and this is the whole job:**
+  **the four protected surfaces re-measured at all widths.** The
+  confirmation screen, the manage screen, the plans page and the pages that
+  override to 26px, each swept at 320 / 392 / 768 / 1440 / 1920, in the
+  normal path and `?lite=1`, with the bottom-most control on each one
+  **pressed with `elementFromPoint`** rather than measured with a rect —
+  because a rect cannot see occlusion any more than it can see a `::after`.
+  Only then is the literal's value a decision rather than a guess.
+
+  **Done when:** no control anywhere in the back office measures under 44px
+  of reachable height at any scroll position at any supported width, and the
+  four surfaces above are recorded as re-measured rather than assumed.
+  **NOT STARTED, AND DELIBERATELY NOT STARTED.** Somebody picks this up
+  fresh and it is a clean afternoon's work. Nobody should pick it up now.
 
 - [x] **2.6 — DONE 2026-09-20. The year is optional, the label says so, and a refused Continue now says why on every step.**
   Size and model filled, Continue stayed dead until a year was typed; the year
