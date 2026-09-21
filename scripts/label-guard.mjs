@@ -1,3 +1,19 @@
+// WHY THIS EXISTS, AND IT IS THE PART THAT DECIDES WHETHER YOU RUN IT.
+// Moved here from CLAUDE.md's verification table on 2026-09-20 — the table
+// names the trigger, this names the case. Three rows there carried 2,382
+// characters of justification between them, which is prose a person only
+// needs once they are already looking at this file.
+//
+// **Credential-free, no browser, no dev server, no tenant — one filesystem
+// read.** 45 controls across `scripts/*.mjs` are addressed by the WORDS on
+// them, so renaming one silently blinds a check: the matcher falls back to
+// bare English, matches nothing, and the screen goes unmeasured while every
+// other line reads normally. It happened twice on 2026-09-20 — `"Log a bulk
+// job"` and `"Maintenance deadlines"` — and the second time it produced a
+// confident wrong finding that nearly became a work order against correct
+// code. It names the stale label, and it says plainly that a stale label is a
+// hole in the QUESTION rather than a screen that failed to load
+//
 // EVERY LABEL A CHECK NAMES MUST STILL EXIST IN THE PRODUCT.
 //
 //   node scripts/label-guard.mjs            # audit every scripts/*.mjs

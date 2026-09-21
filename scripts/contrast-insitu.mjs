@@ -1,3 +1,18 @@
+// WHY THIS EXISTS, AND IT IS THE PART THAT DECIDES WHETHER YOU RUN IT.
+// Moved here from CLAUDE.md's verification table on 2026-09-20 — the table
+// names the trigger, this names the case. Three rows there carried 2,382
+// characters of justification between them, which is prose a person only
+// needs once they are already looking at this file.
+//
+// **The four credential-free gates cannot see what this sees**: they measure
+// the token PAIRS the system promises, and a pair does not know which surface
+// a label lands on. `--fog-2` is the documented floor for small labels and
+// holds at 4.90:1 on `--ink-1` — on `--ink-3` the same colour is **4.20:1**,
+// and the landing page shipped an 11px label there while every gate printed
+// clean. It walks 1,910 strings across 8 screens at 4 widths, plants a label
+// nobody can read and prints VOID if its own findings do not contain it, and
+// writes a receipt
+//
 // ROADMAP 8.3 — EVERY STRING ON EVERY SCREEN, MEASURED WHERE IT IS PAINTED.
 //
 // `tests/design-contrast.test.mjs` measures the token PAIRS the design system

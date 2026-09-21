@@ -1,3 +1,22 @@
+// WHY THIS EXISTS, AND IT IS THE PART THAT DECIDES WHETHER YOU RUN IT.
+// Moved here from CLAUDE.md's verification table on 2026-09-20 — the table
+// names the trigger, this names the case. Three rows there carried 2,382
+// characters of justification between them, which is prose a person only
+// needs once they are already looking at this file.
+//
+// **American English is a rule no other gate can see.** On 2026-09-20 a
+// person reading the five example sites found **36 British spellings in 17
+// words** — nine "bonnet", four "wing", four "microfibre" — reaching
+// visitors, in alt text a screen reader says out loud, in a control the build
+// injects, and inside a JavaScript array that only renders when a tab is
+// opened. Every other check here measures structure, contrast, routes or
+// counts, and a word spelled correctly but wrong for the audience passes all
+// of them. It reads the FINISHED page, not the source — the source scan
+// printed clean over "Aluminium tanks". **The two documented exceptions are
+// allowed by WHERE they appear, never by how they are spelled**:
+// `"cancelled"` passes as the bare status value, not inside a sentence. It
+// found a 37th on its first run, on `/pricing`
+//
 // AMERICAN ENGLISH, READ OFF THE FINISHED PAGE.
 //
 //   npm run dev --prefix app            # the pages must be served
