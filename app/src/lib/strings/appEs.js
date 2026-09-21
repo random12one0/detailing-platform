@@ -2107,6 +2107,16 @@ export const appEs = {
   "Car {n} size": "Tamaño del carro {n}",
   "Car {n} model": "Modelo del carro {n}",
   "Condition": "Condición",
+  // W27's four-word dirtiness scale. "Light" already has a key (line ~2863)
+  // but it belongs to an unrelated dark/light THEME toggle and is not
+  // touched here — see ROADMAP 2.12. These three match the same scale's
+  // already-shipped translation in the booking page's own catalogue,
+  // lib/strings/es.js: "Moderate": "Moderada", "Heavy": "Fuerte",
+  // "Extreme": "Extrema" — so a detailer and a customer read the same word
+  // for the same condition rather than two different ones.
+  "Moderate": "Moderada",
+  "Heavy": "Fuerte",
+  "Extreme": "Extrema",
   "Location": "Ubicación",
   "Travel zone": "Zona de viaje",
   "Water on site": "Agua en el lugar",

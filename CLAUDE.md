@@ -289,7 +289,12 @@ Absolutes:
 
 `docs/screen-rules.md` is Andrew's own rulings from reviewing about 35 screens:
 the exhaustion test, section eyebrows, field sizing, the destructive-action
-pattern, the em-dash rules. Read it before calling a screen finished.
+pattern. Read it before calling a screen finished. **The em-dash rules are in
+`docs/gotchas.md`, not here** — three parts, starting "THE EM DASH HAS THREE
+SHAPES AND THREE TREATMENTS." This line pointed at screen-rules.md, which
+contains the word "dash" only inside "dashboard"; corrected 2026-09-20 after
+the other session went looking for the rule before accusing a screen of
+breaking it and found it was not where CLAUDE.md said.
 
 `docs/TASTE-NOTES.md` is what he actually likes, from sites he sent unprompted.
 It outranks any inference about his taste written anywhere else.

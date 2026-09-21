@@ -1038,6 +1038,69 @@ the wrong service, and never book a job we cannot reach.
        human pass would differ; the scale is what matters — an afternoon or
        more, not a quick pass. **Not started. Waits on his decision, in
        `FOR-ANDREW.md`.**
+  4. **New booking's vehicle-condition scale (`VEHICLE_CONDITIONS` in
+     `book/core.js`) reads Claro, Moderate, Heavy, Extreme on a Spanish
+     dashboard** — one translated, three not. Found live by Andrew, not by
+     the survey: opened New booking with `dp.lang.app=es`. **FIXED
+     2026-09-20, three of four:** the catalogue confirmed it before
+     touching anything — `Small`/`Medium`/`Large`/`Condition` all had keys,
+     `Moderate`/`Heavy`/`Extreme` had none. Added, matching the SAME
+     four-word scale's own already-shipped translation in the booking
+     page's own catalogue (`lib/strings/es.js`: `"Moderate": "Moderada"`,
+     `"Heavy": "Fuerte"`, `"Extreme": "Extrema"`), so a detailer typing a
+     job by hand and a customer booking one read the identical word.
+     `app/src/lib/strings/appEs.js`.
+     **`"Light": "Claro"` NOT TOUCHED, and it is a question for Andrew, not
+     a fix left undone.** It has a key and renders — but that key belongs to
+     an unrelated "Dark, or light?" THEME toggle a few hundred lines away in
+     the same flat catalogue, and "Claro" is the brightness sense, not a
+     dirtiness sense. `lib/strings/es.js`'s own translation of the same
+     scale uses `"Light": "Ligera"` instead, which is real evidence the
+     dashboard's word is wrong — but choosing the correct Spanish word for a
+     dirt-severity scale is a judgment call, not a grep, and it stays
+     exactly as it is until Andrew says which.
+     **THE SWEEP FOR SIBLINGS, asked for in the same turn rather than fixing
+     only what was seen.** A one-off script (scratch, not committed) found
+     every array literal in `app/src` shaped like an option set — `[key,
+     "Label"]` tuples and `{key, label}` objects — in every file that
+     imports either i18n helper, and checked each label against the
+     matching catalogue: **83 files checked, 58 skipped because they import
+     neither helper.** Confirmed by hand against one skip: `admin/
+     AdminPage.jsx`'s own tab list matched the tuple shape but the file
+     imports no i18n at all — a genuine false positive, caught before it was
+     reported, not after.
+     Two more found, both real, neither the same size as this one:
+     - **`screens/more/Preferences.jsx`'s "which map app" control**:
+       `Apple`/`Google` have keys, `Waze` does not. **Cosmetically
+       harmless** — Waze is a brand name and reads the same in both
+       languages either way — but it is the identical missing-key shape and
+       is recorded rather than silently passed over because it happens to
+       look safe today.
+     - **`book/core.js`'s `paymentMethods()`**: `Venmo`/`Cash App`/`Zelle`/
+       `PayPal`/`Cash` have keys, the sixth — `"Also"`, for `pay_other` —
+       does not. **Not currently a live defect**: nothing in `app/src` calls
+       `paymentMethods()` at all right now, so it cannot render anywhere in
+       this app today. Left for whoever wires it up, or for the
+       tenant-site-kit outside this sweep's reach.
+     **AND ONE BIGGER GAP THE SAME SWEEP FOUND THAT IS NOT THE SAME SHAPE,
+     SAID SEPARATELY SO IT IS NOT MISCOUNTED AS A THIRD SIBLING.**
+     `book/core.js`'s `VEHICLE_BODY_TYPES` — the fourteen body types
+     (`Coupe (2-door)`, `Sedan`, `Hatchback`, … `Oversized — lifted, dually,
+     limo`) a detailer maps onto Small/Medium/Large in `screens/more/
+     Catalog.jsx` — is **zero of fourteen** translated, labels and their
+     `examples` subtext both, confirmed live (`t(b.label)`, `t(b.examples)`
+     at `Catalog.jsx:708-709`). That is a full gap, not a partial one —
+     every option reads the same wrong way rather than some looking right
+     and some not — so it does not hide the way this item's own subject
+     does, but it is real, it is `app/src`, and it is fourteen strings in
+     one place rather than scattered. Recorded here rather than fixed,
+     since it is its own piece of work, not a one-line sibling.
+     **THE SWEEP'S OWN LIMIT, SAID PLAINLY, THE WAY THIS REPO ASKS FOR IT.**
+     It can only find a MISSING key. The bug in this item's own headline —
+     `"Light"` colliding with the theme toggle — is a key that EXISTS and
+     points at the wrong meaning, which no automated sweep here can catch:
+     nothing about "the key is present" says whether it is present for the
+     right reason. That has to be read, the way this one was.
 
   **MEASURED 2026-09-19, while sweeping the dashboard in Spanish:** the survey
   reports **76 candidate strings across 11 files**, the worst being
