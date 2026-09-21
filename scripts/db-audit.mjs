@@ -72,10 +72,11 @@ const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("
 // inside CLAUDE.md's verification table where a session is told to run it
 // after a migration. Nothing graded it and nothing could fail it.
 //
-// 4 checks, measured 2026-09-21: RLS off, locked-with-nothing-to-unlock,
-// open-to-a-caller's-own-schema, and unindexed foreign keys. Declared here so
+// 5 checks, counted from the say() call sites in this file: RLS off,
+// locked-with-nothing-to-unlock, open-to-a-caller's-own-schema, unindexed
+// foreign keys, and (2026-09-21) locked-by-RLS-with-grants-still-open. So
 // a check that stops running is a failure rather than a smaller audit.
-const EXPECTED_CHECKS = 4;
+const EXPECTED_CHECKS = 5;
 let checksRun = 0;
 
 async function q(sql) {
@@ -215,6 +216,53 @@ console.log("\n4. every foreign key has an index to look it up by");
   }
   say("no other foreign key is left without one",
     named.filter((x) => !UNINDEXED_BY_DESIGN.has(x)).map((k) => ({ k })), (r) => r.k);
+}
+
+
+// --- 5 · a lock made of TWO parts, and this file only ever read one --------
+// **ADDED 2026-09-21 AFTER THIS AUDIT'S OWN COMMENT TURNED OUT TO BE WRONG.**
+// The `NO_POLICY_BY_DESIGN` list above says each of its tables carries
+// "`enable`, `force`, and `revoke all from anon, authenticated`", so that "a
+// browser cannot reach either one at all". Measured across all ten: **only two
+// of them do.** `session_pings` and `translation_usage` have the grants
+// revoked. The other eight - including `platform_admins`, `platform_settings`
+// and `platform_admin_events`, the audit trail that "must not be forgeable" -
+// still grant all seven privileges to `anon` and `authenticated`.
+//
+// **Both groups look identical to a check that reads only the policy count**,
+// which is what this file did. They are not identical:
+//
+//   revoked  -> PostgREST answers 401 permission denied. Measured.
+//   granted  -> PostgREST answers 200 with an empty array, because forced RLS
+//               with no policy denies every ROW. Also measured.
+//
+// Safe today, both ways. The difference is what happens NEXT: on a granted
+// table, the first permissive policy anybody writes to allow one `select`
+// arrives on top of `INSERT`, `UPDATE`, `DELETE` and `TRUNCATE` that are
+// already there. **`anon` holds `INSERT` on the audit trail today.**
+//
+// This is the "an inert policy is a trap" lesson two sections up, inverted: a
+// GRANT with no policy reads as safe and is one policy away from not being.
+console.log("\n5. a table locked by RLS alone, with its grants still open");
+{
+  const rows = await q(`
+    select c.relname as table,
+           coalesce((select count(*)::int from information_schema.role_table_grants g
+                      where g.table_schema = 'public' and g.table_name = c.relname
+                        and g.grantee in ('anon','authenticated')), 0) as grants
+      from pg_class c
+      join pg_namespace n on n.oid = c.relnamespace
+     where n.nspname = 'public' and c.relkind = 'r'
+       and c.relrowsecurity
+       and (select count(*) from pg_policy p where p.polrelid = c.oid) = 0
+     order by 1`);
+  for (const r of rows.filter((x) => Number(x.grants) === 0)) {
+    console.log(`  ok    ${r.table} — RLS on, no policy, AND the grants revoked: a browser is refused outright`);
+  }
+  const open = rows.filter((x) => Number(x.grants) > 0);
+  say("no table is held shut by RLS alone while its grants stay open to a browser",
+    open, (r) => `${r.table} — ${r.grants} privilege(s) still granted to anon/authenticated; `
+      + `one permissive policy would open the writes too`);
 }
 
 // --- THE CANARY -----------------------------------------------------------
