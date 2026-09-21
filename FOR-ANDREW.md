@@ -29,6 +29,17 @@ not. **A row goes in the group that is true of it** — *Urgent* only if
 something is wrong now, *Recorded* if nothing is needed from you yet — and the
 group is the honest answer to "what happens if he does not read this today?"
 
+**How a row is REMOVED, which is newer and cost more to learn.** A row whose
+premise Andrew has since settled is deleted outright rather than reworded —
+but **check the size of what you are about to delete before you delete it.**
+Cutting from a row's first line to the next `- [ ]` swallowed a section
+heading and everything under it on 2026-09-21: **182 lines instead of 51**,
+taking the survey, a correction and three settled decisions with it. Nothing
+was committed and it was restored from `HEAD`. **A deletion that overruns
+looks exactly like one that worked, because both leave a file that still
+parses** — so the only thing that catches it is expecting a number first. A
+row here is eight to forty lines; refuse anything bigger and look again.
+
 **Dates are only written on rows that have been waiting.** A row added today
 carries no date; one still sitting here next week says **"waiting since 20
 September"**, so age is visible at a glance instead of every row claiming the
@@ -143,14 +154,17 @@ still knows them.
 
 - [ ] **DO · Publish one program, and then the "your coating is due" email is
   actually off.**
-  You ruled on this plainly on 20 September: *"Let's just have no emails that
-  will be, you know, marketing at all."* The coating email is the one that
-  sells — it tells a customer a service is due and asks them to book it.
+  **This is not about the marketing-email rule any more — you overturned that
+  on 21 September, and this row survives it unchanged.** It was never really
+  about whether the message is allowed. It is about **who decides to send it.**
 
-  **It was never switched off in the software.** It was off in a conversation.
-  The only thing stopping it was your ordinary appointment-reminder setting —
-  so any detailer who wanted reminders was sending the sales email with them,
-  and the job that sends it has been running every fifteen minutes all along.
+  The coating email is the one that sells: it tells a customer a service is due
+  and asks them to book. **It used to go out on the back of the ordinary
+  appointment-reminder setting**, so a detailer who wanted reminders was
+  sending a sales email without ever choosing to. That is what is being fixed,
+  and it would still be worth fixing if marketing email had never been
+  questioned. What the law asks of a selling email is set out on the messaging
+  page rather than repeated here.
 
   **It now has its own off switch, off by default, and the reminder setting can
   no longer turn it on.** That is built and the database part is applied.
