@@ -95,6 +95,18 @@ His words are in `FOR-ANDREW.md` § Done. The operative form:
   Anything that sells goes by **text**. The "your coating is due" email is
   **off**, and the CAN-SPAM postal-address problem goes off with it. Do not
   design around a footer address; there is no marketing mail to put one in.
+
+  **AMENDED 2026-09-21 — the postal-address half of that reasoning is gone,
+  and the ruling itself is NOT reopened.** Andrew said this morning he is
+  fine putting his mailing address on marketing email — his words, *it will
+  just be small print, no one will really notice*. So "there is no marketing
+  mail to put one in" is no longer a reason for anything, and a future
+  session must not cite the address problem as an argument either way.
+  **What stays exactly as it was: no marketing email is still the rule, it
+  is still undecided as a permanent question, and it is still his.** The
+  address is simply no longer one of the things standing in the way. Written
+  down here because it was said in conversation and nowhere else, which is
+  the whole reason this document exists.
 - **No Spanish on the home and pricing pages.** Those pages sell to detailers,
   and he sells to English speakers. The **booking page** serves customers and
   stays fully bilingual. ~390 strings deliberately not done.
