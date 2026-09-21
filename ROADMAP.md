@@ -4272,6 +4272,14 @@ the dashboard or back office at phone width at all.
   words correctly a few lines away. Worth its own line, not folded into
   this commit.
 
+  **ANDREW'S OWN PRESS, 2026-09-20: "the list now carries lifetime under
+  every money figure, and the date and phone read as themselves — I agree
+  with your call there."** Same width caveat as 9.7 and 9.11 above — his
+  browser does not reach 320 (pinned at 1414 inner) — so this confirms the
+  build and the date/phone judgement at the width he could reach; the 320
+  evidence for the caption itself is this session's own live browser test
+  in the commit that built it.
+
 - [ ] **9.7 — Client card is missing basics.** No Text button, no vehicle, no
   address, no "Book again". Add them; "Book again" opens New booking prefilled.
   *A2 4.7*
@@ -4325,6 +4333,41 @@ the dashboard or back office at phone width at all.
   `scripts/label-guard.mjs` clean.
   **So 9.7 is not ticked off this build** — three of four, named as such,
   same reasoning as 9.6 staying open on its own unmet half.
+
+  **ANDREW'S OWN PRESS, 2026-09-20.** The record showed visits, lifetime,
+  Last visit, "Last vehicle: large · Ford F-150," "Last address: 1420
+  Pine Ave," and "Plan: bi-weekly maintenance · every 2 weeks" — every one
+  of them labelled. Call, Text and the email link were all present;
+  **hrefs checked rather than pressed**, since pressing would have
+  launched something on his own machine — `tel:`, `sms:` and `mailto:`,
+  all pointed at the right values. **No "Book again," which is correct**
+  — held for his ruling on the prop question, ruling given separately,
+  build not yet applied (see below). Same width caveat as 9.11 above: his
+  own browser's viewport does not reach 320 (pinned at 1414 inner), so
+  this is his press at the width he could reach, not a 320 press; the 320
+  evidence for this item is this session's own live browser test,
+  recorded in the commit that built it.
+
+  **A NIT, NAMED AND HELD RATHER THAN CHASED TONIGHT.** "Last vehicle"
+  read *"large · Ford F-150"* — the raw `vehicle_size` enum value,
+  lowercase, next to a proper noun. The vehicle-size CONTROL itself
+  (`Catalog.jsx`) shows the same tier capitalized, "Large," because it
+  reads a detailer's own configured tier label, not the raw booking
+  column; this Marcus Webb booking's `vehicle_size_label` is empty, so
+  the card falls back to `vehicle_size` unmodified — `{history[0]
+  .vehicle_size_label || history[0].vehicle_size}`, no formatting either
+  way. **Checked what the fix would actually touch, per Andrew's ask,
+  before anyone reaches for one:** this value is not run through `t()` at
+  all today, in either case — a separate, slightly larger fact than the
+  capitalization alone. `appEs.js` already has `"Large": "Grande"` keyed
+  on the capitalized form only; `t()`'s lookup is exact-string, so
+  `t("large")` (lowercase) would silently fall back to English regardless
+  of any capitalization fix, and the CURRENT code does not call `t()`
+  here at all, so it is English either way, on any language dashboard,
+  right now. Capitalizing the fallback alone would fix how it looks and
+  leave how it translates exactly as broken as today — worth knowing
+  before reaching for the smaller-looking fix, which is the whole reason
+  this is written up rather than one-lined.
 
 - [x] **DONE 2026-09-20 — 9.8 Manual booking flashes "No active services yet"
   before loading.** Replace false empty states with a loading skeleton; only
@@ -4586,6 +4629,47 @@ the dashboard or back office at phone width at all.
   **CHECKBOX LEFT OPEN ON PURPOSE.** Verified here is not the bar this item's
   own history just raised — Andrew presses it himself, 320 first this time,
   before it goes back to `[x]`.
+
+  **ANDREW'S OWN PRESS, 2026-09-20, AND IT IS A SOURCE READ FOR THE ONE
+  WIDTH THAT MATTERS MOST — SAID PLAINLY RATHER THAN LEFT TO LOOK LIKE
+  MORE.** At 1440 the warning is intact — full sentence, example, "Allow
+  changes until 2 hrs instead," Dismiss, Never, all present and correct.
+  **320 could not be reached to press.** His own browser's layout viewport
+  is pinned at 1414 regardless of the outer window size — re-tested
+  tonight, outer resized to 620, inner stayed 1414 — and forcing the
+  container itself to 320px with an inline width proves nothing, because a
+  container resize does not fire a `max-width` media query; the row stays
+  `nowrap` because at 1414 it is correctly supposed to. **This is a
+  second, independent instance of the exact class of problem that let the
+  original regression through** — this session's own browser tool floors
+  at 598px outer; Andrew's floors the INNER viewport at 1414 regardless of
+  outer — different mechanism, same shape: neither testing surface can
+  reach the width the fix is actually for.
+  So he read the CSS instead, and it holds: below 520px `.actions` becomes
+  a three-column grid with buttons allowed to wrap, a `:has()` selector
+  dropping to two columns when the fix button is absent, copied from
+  `.actions-row` rather than invented, and the derived label left at full
+  length — no shortening. **Right fix, right reason, confirmed by reading
+  it, not by pressing it.** The 320 pixel-level evidence remains this
+  session's own live browser test (recorded above: `scrollWidth ===
+  clientWidth` at 320, screenshot of the wrapped three-column row) and
+  the sweep's own re-run — never Andrew's, and the entry says so rather
+  than letting a source read pass as a press.
+
+  **THE RECEIPT ON DISK IS STALE AND WOULD MISLEAD ANYONE WHO ONLY READ
+  ITS VERDICT, NOT ITS DATE — FOUND WHILE WRITING THIS UP, CHECKED RATHER
+  THAN ASSUMED.** `receipts/sweep-widths-1920-1440-392-360-320.json`
+  currently reads `"status": "fail"`, the same four findings this item
+  opened with. Its `git_sha` is `8cb604c9`, confirmed by `git
+  merge-base --is-ancestor` to be an ANCESTOR of this fix's own commit
+  (`91dc891`) — the run that produced this receipt happened before the
+  fix existed, not after. **Nobody has re-run `sweep-widths.mjs` against
+  the fixed tree yet.** Until someone does, this file on disk will keep
+  reading as a live failure to anyone who does not check its `git_sha`
+  against `HEAD` first — exactly the "a document is frozen in time, check
+  it against current state" trap this repo's own memory discipline warns
+  about. Named here so the stale receipt is not mistaken for a second
+  regression by whoever looks next.
 
 - [ ] **9.12 — Back office: real detailers first, scannable, one action each.**
   Default to real accounts; replace the three-column card wall with a list —
