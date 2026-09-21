@@ -62,8 +62,12 @@ export function adjustmentLabel(line) {
 
   if (parts.of === "plan") {
     // The plan's NAME is the detailer's; only what it DOES is ours.
+    // `{percent}% off` rather than a new `{n}% off` key: the customer
+    // catalogue already carries this exact string for the site-discount label
+    // on the review step, so reusing it means one phrase in one place instead
+    // of two that can drift.
     const what = parts.benefit === "percent_off"
-      ? t("{n}% off", { n: parts.percent })
+      ? t("{percent}% off", { percent: parts.percent })
       : parts.benefit === "plan_rate"
         ? t("plan rate")
         : t("included");

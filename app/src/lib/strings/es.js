@@ -515,4 +515,25 @@ export const es = {
   "Name": "Nombre",
   "Your note": "Tu nota",
   "Add-on": "Extra",
+  // ROADMAP 2.1c — the words `_shared/pricing.ts` used to bake into an
+  // adjustment line's English label, rebuilt by `book/adjustmentLabel.js` from
+  // the line's `parts`.
+  //
+  // **THESE WERE PUT IN `appEs.js` FIRST AND THAT WAS WRONG — caught by
+  // pressing the page, 2026-09-21, not by any check.** `appEs.js` is the
+  // DASHBOARD's catalogue; the booking page and the manage page read THIS
+  // file. The keys existed, the tests that look for their existence were
+  // satisfied, and the Spanish review step still printed "Member rate · 10%
+  // off" in English because the lookup was never going to reach them.
+  //
+  // The plan's NAME, the vehicle SIZE and the MODEL beside these are the
+  // detailer's and the customer's own words and are never translated.
+  // `{ord}` arrives already spelled for the language — "2nd" or "2.º" —
+  // because `tests/spanish.test.mjs` requires both sides of a pair to carry
+  // the same placeholders, so the ordinal cannot be built inside the template.
+  // The percentage reuses `{percent}% off` above rather than adding a second
+  // key that says the same thing.
+  "plan rate": "precio del plan",
+  "included": "incluido",
+  "{ord} vehicle": "{ord} vehículo",
 };

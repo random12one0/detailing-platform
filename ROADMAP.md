@@ -784,6 +784,64 @@ the wrong service, and never book a job we cannot reach.
   The two-car half also needs a tenant with `max_vehicles_per_booking` above
   1; **`demo-detail` is pinned to 1 on purpose and must not be changed.**
 
+  **PRESSED 2026-09-21. STILL NOT TICKED — 2.1a AND 2.1c BOTH CARRY A NAMED
+  UNVERIFIED GAP, AND THE PRESS FOUND A REAL DEFECT.**
+
+  **THE DEFECT, AND ONLY A PRESS COULD HAVE FOUND IT.** The Spanish review
+  step read **`Member rate · 10% off`** — in English, on an otherwise Spanish
+  page. **The three Spanish keys had been written into `appEs.js`, which is
+  the DASHBOARD's catalogue. The booking page and the manage page read
+  `app/src/lib/strings/es.js`.** The keys existed, every check that asks
+  "does a key exist" was satisfied, and the lookup was never going to reach
+  them.
+  **Worse, `tests/spanish.test.mjs` had been reporting it all along.** Its
+  check `1b` lists call sites with no Spanish entry, and all four of these
+  strings were in that list. The earlier round compared the FAILURE COUNT
+  with and without the keys, saw 6 either way, and concluded they were
+  unrelated — **without reading what 1b actually named.** That is this repo's
+  own documented failure, reading the label instead of the contents,
+  committed while writing about it. The count was identical because 1b was
+  already failing on four unrelated strings.
+  **Fixed:** the three keys moved to `es.js`, and the percentage now reuses
+  the `{percent}% off` key that catalogue already carries for the
+  site-discount label rather than adding a second phrase that can drift. The
+  wrongly-placed keys were removed from `appEs.js`. After the fix, 1b names
+  only its four pre-existing strings and the suite is back to the same six
+  failures it had at the start of the night.
+
+  **WHAT WAS PRESSED — plan booking, four widths, both languages, console read
+  at each:**
+
+  | Width | One car, EN, live server | Plan, ES, review step | Console |
+  |---|---|---|---|
+  | **320** | `$95` · `Weekend rate · +$30` | `Member rate · 10% de descuento` | clean |
+  | 390 | same | same | clean |
+  | 768 | same | same | clean |
+  | 1440 | same | same | clean |
+
+  On the plan booking the date step now shows **`Weekend rate · +$30`** where
+  it previously showed nothing, and the plan line is correctly **absent** from
+  that step — the bar reads `Member rate applied · $85`. The English label is
+  byte-identical to before (`Member rate · 10% off`), so the page and the
+  emailed receipt still agree.
+  *(One console error appeared during the sweep — a React `createRoot`
+  warning — and was chased down rather than reported: it came from this
+  session's own repeated hot reloads. A clean tab shows no errors at all.)*
+
+  **THE TWO NAMED GAPS THAT KEEP BOTH BOXES OPEN:**
+  1. **The tagged response was INJECTED, not served.** The deployed
+     `calculate-booking` still returns untagged `{label, amount}` — measured
+     live this round, `hasSource: false`. So the plan result above proves the
+     **page** code; it does not prove the page against a real deployed
+     function. **What that same measurement DID prove for real is the
+     fallback branch:** an ordinary one-car booking against the live server
+     still shows its surcharge line at all four widths, in both languages —
+     no regression.
+  2. **The two-car case was not pressed at all.** It needs a tenant with
+     `max_vehicles_per_booking` above 1, and `demo-detail` is pinned to 1 on
+     purpose. **Read, never run**, exactly as it was last round.
+  `i18n-survey.mjs`, 2.1c's own done-when, was also not run.
+
   **DEPLOYED-INVENTORY WILL GROW BY SEVEN, NOT ONE — a correction worth
   having.** `_shared/pricing.ts` is a shared module, so every function that
   imports it now differs from what is deployed: `calculate-booking`,
@@ -2182,6 +2240,25 @@ requested.
   `*`, so against a database without the column the field reads `undefined`,
   `!undefined` is true, and the loop `continue`s. Applying the migration and
   deploying the function are independent, and neither order can produce a send.
+
+  **NOT PRESSED AT RUNTIME 2026-09-21, AND THE REASON IS A MISSING TOOLCHAIN
+  RATHER THAN A MISSING TENANT.** The tenant was handed over and the press was
+  attempted first, as instructed. The gate lives in an edge function, and
+  running one needs **Deno or the Supabase CLI — neither is installed on this
+  machine** — while the only other way to execute it is to deploy, which is
+  forbidden and is Andrew's. So neither direction of the gate was exercised:
+  not "flag off, no maintenance email", and not "flag on, email produced".
+  **Nothing was written to the demo tenant, and that was a choice, stated
+  before rather than after.** Flipping the flag on a tenant whose function
+  cannot then be run proves nothing and writes to Andrew's database for no
+  gain, so the write was not made.
+  **What WAS established without credentials, and it is not nothing:**
+  `email_customer_maintenance_due` is **read** in exactly one place and
+  **written nowhere** — not by any edge function, not by anything in
+  `app/src`. Combined with the column's verified `default false`, every row in
+  that table is off today and stays off until somebody writes it by hand.
+  **The runtime press stays owed**, and needs either Deno installed here or
+  the function published.
 
   **Proven by `tests/maintenance-email-off.test.mjs`, 5 assertions, and broken
   on purpose twice** — deleting the gate and flipping the fallback to `true`
