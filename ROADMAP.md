@@ -3656,19 +3656,29 @@ rather than wording went to Andrew.
   1 GB total, "10.2 MB promised to each". Raise the storage or change the words.
   *A2 6.4*
 
-- [ ] **7.7 — Terms contradict pricing.** Terms say data "by asking" and close
-  your account by "Tell us"; pricing says "You export them and go" and "One
-  button… nobody to talk out of it".
-  **Fix:** align the promises, and make sure the export and cancel buttons
-  actually exist.
-  **Done when:** the same promise about data access, ownership, cancellation,
-  export and deletion appears on every page.
+- [ ] **7.7 — Three public pages promise an export. WHAT IS LEFT IS THE
+  PHOTOS.** Headline rewritten 2026-09-21: it described two defects that were
+  **fixed on 2026-09-20** under ROADMAP 0.4 — the *"Tell us"* cancellation
+  clause and the missing money clauses — and the audit block below said so
+  while this line still read as though nothing had happened. **A document
+  that describes itself goes stale silently, because nothing checks prose
+  against the thing it describes** (`docs/gotchas.md`; this was the fourth
+  instance in one night).
+  **What is actually left:** `/pricing` and the home page promise *"Your
+  customers, their numbers **and your photos** are yours. You export them and
+  go."* **The customer half is now built and pressed** (see below). **There
+  is still no photo export anywhere in this product**, so one noun in that
+  sentence is still unkept.
+  **Done when:** every page's promise about data access, ownership,
+  cancellation, export and deletion matches what the product does — which now
+  means either building the photo export or Andrew retracting that word.
   *A1 P3-09, A2 6.5*
 
   **AUDITED 2026-09-21, FROM THE CODE. Nothing was reworded — the table is
   below and the terms are Andrew's.**
 
-  **THIS ENTRY IS HALF DONE ALREADY AND DOES NOT SAY SO.** Both halves it
+  **THIS ENTRY WAS HALF DONE ALREADY AND ITS HEADLINE DID NOT SAY SO — now
+  rewritten, above.** Both halves it
   names were fixed on 2026-09-20 under ROADMAP 0.4. *"Close your account by
   Tell us"* is gone — `legal.js:106` now reads *"the same one button in your
   own settings… never behind an email to us"*. The build fee and the
@@ -3727,6 +3737,42 @@ rather than wording went to Andrew.
   out. **Row 2 is the only one nobody has ruled on**, and it is the smallest:
   one clause on the privacy page currently tells a stranger they can get a
   copy of their data from a dashboard that cannot produce one.
+
+  **ROW 1 IS BUILT AND PRESSED, commit `ac09052`; ROW 2 IS REMOVED, commit
+  `3015414`. 2026-09-21.**
+
+  **Row 1 — the customer export exists.** `lib/customer-export.js` and a
+  button on the Clients screen. **It ignores the screen's own `customers`
+  state on purpose** — that is capped at `ROW_CAP` (200) and re-queried
+  through the search box, so exporting what is on screen would hand a
+  detailer with 400 customers half their list — **and it pages**, because
+  PostgREST caps a response at 1,000 rows and a single `select("*")` is the
+  same truncation one layer down. A failed read never becomes an empty file.
+  `tests/customer-export.test.mjs`, **18 checks, broken on purpose**: dropping
+  one cell while leaving the header alone turns 4 red and exits 1.
+
+  **ISOLATION, MEASURED RATHER THAN ARGUED — the thing that mattered most
+  here.** No new data path: same authenticated browser client, same
+  `business_id` filter, **no edge function and no service key**, so it
+  inherits the policy every other read on that screen inherits. `customers`,
+  `bookings` and `expenses` are RLS-enabled **and forced** with
+  `business_id in (select public.current_business_ids())` (migration
+  `20260827000200:375-405`). Pressed against the demo tenant: **48** customers
+  exist across **10** businesses, `demo-detail` owns **13**, the file had
+  **exactly those 13** — set-identical, 0 extra and 0 missing — and **none of
+  the 35 rows belonging to the other nine businesses.**
+
+  **Row 2 — the clause is gone and nothing replaced it.** `legal.js` now stops
+  at *"It is their list."* **The export built in the same round does not
+  rescue it**, and that is written beside the change because it looks as
+  though it should: the file is the WHOLE list, so giving it to one customer
+  who asked about themselves would hand them everybody else's details.
+
+  **WHAT IS STILL UNKEPT, and it is why this entry is not ticked: THE PHOTOS.**
+  `/pricing` and the home page promise *"Your customers, their numbers **and
+  your photos** are yours."* **There is no photo export anywhere in this
+  product.** Build it or retract the word — both are Andrew's, and the row is
+  on his list.
 
 - [ ] **7.8 — The privacy page omits services that receive customer addresses.**
   It names Supabase, Netlify, Resend, Stripe and Google. The booking address
@@ -5577,6 +5623,30 @@ the dashboard or back office at phone width at all.
   about to write real bookings into that tenant. **Two assertions standing on
   a state nobody else can tolerate is worth waiting one round for.** Named,
   unpressed, and the tenant comes back when that check is done.
+
+  **THE SUSPENDED HALF IS PRESSED. 2026-09-21, after the tenant came back.**
+  Superseding the "held deliberately" note above it.
+
+  **What was written, said before it was written and restored afterwards:**
+  one `UPDATE`, one row, one column — `businesses.status` on `demo-ironclad`
+  (*Ironclad Ceramic Studio*, 7 services, 5 open days, so bookable on every
+  other test) from `active` to `paused`, and back again. **Deliberately not
+  `demo-detail`**, so the main demo booking page stayed up throughout.
+
+  **What the screen said with it paused:** `Their page · **suspended**`, and
+  the panel's action button was **Restore** with no Suspend. **That pairing is
+  the whole defect:** before the fix the same panel would have printed
+  *"Taking bookings"* next to a **Restore** button, because `bookability` was
+  fed an object with no `status` in it and could not tell.
+
+  **RESTORED AND RE-READ TO PROVE IT:** `16` businesses, `{"active":16}`,
+  **nothing paused**, `demo-ironclad` back to `active`. Nothing else moved —
+  customers `48`, bookings `56`, services `27`, expenses `15`, the same
+  figures the tenant was handed over with.
+
+  **9.2 IS NOW PRESSED IN ALL THREE HALVES** — the request-mode line, the
+  `first` row's advice, and the suspension. **The entry stays open only for
+  (c), the stages redesign**, which nobody has started.
 
   **AND A CORRECTION TO THIS ENTRY'S OWN NOTE ABOVE, found on the way:**
   `demo-admin@detailplatform.com` **does not exist on the database at all** —
