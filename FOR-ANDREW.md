@@ -297,6 +297,40 @@ still knows them.
   across Tampa Bay"* — which is a region rather than a company, and is not
   what the question was about. **Nothing for you to answer.**
 
+- [ ] **DO · The "review every page" map on your live site has four dead links
+  on it. Nobody is working on this and nobody should be — it is fixed already
+  and waiting on you to publish.**
+
+  **What you will see if you open it tonight.** Go to
+  `detailingplatform.com/map.html` — the one-screen list of every page in the
+  product, the one you asked for so you could walk the whole thing without
+  getting stopped by a login. Four of those links will open a page that says
+  nothing is there: **a customer's own booking, the same booking as a job, a
+  plan member's page, and the unsubscribe page.** Every other link on that
+  page is fine.
+
+  **Nothing is broken.** Those four links are the only ones on that page that
+  have to point at a real record — a receipt, a membership and an opt-out are
+  addressed by the thing they are about, so the address has to be a real one.
+  The test suites delete and rebuild those records as they run, so the
+  addresses go out of date on their own. The four pages behind them work
+  perfectly; the addresses simply point at rows that no longer exist.
+
+  **This has bitten you personally before.** On 11 September you reviewed the
+  product and wrote *"wasn't able to view it"* and *"nothing showed when
+  clicked on link"* about two pages — **both were working.** The links were
+  stale. That is the exact reason the map was rewritten to refresh itself.
+
+  **It is already fixed in the software.** The correct four addresses were
+  checked against your database tonight and committed. **The copy on your live
+  site is just older than the repo.** The only thing that replaces it is a
+  publish, and publishing is yours — it is the same freeze that is holding the
+  22 edge functions, so this rides along with whatever you publish next and
+  costs nothing extra.
+
+  **Until then:** if a link on that page looks dead, it is one of those four,
+  and the page behind it is fine.
+
 ---
 
 ## Two things only you can do, away from the computer
