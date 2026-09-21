@@ -60,7 +60,7 @@ export const DISLIKED = [
 export const EITHER = [
   ["H1", "Movement, or still?", ["move", "Moves as you scroll"], ["still", "Sits still"]],
   ["H2", "Photos big, or facts big?", ["photo", "The car fills the screen"], ["facts", "Words and numbers lead"]],
-  ["H3", "Dark, or light?", ["dark", "Dark"], ["light", "Light"]],
+  ["H3", "Dark, or light?", ["dark", "Dark background"], ["light", "Light background"]],
 ];
 
 const q = (id, question, type, options, other, extra) =>

@@ -2107,13 +2107,16 @@ export const appEs = {
   "Car {n} size": "Tamaño del carro {n}",
   "Car {n} model": "Modelo del carro {n}",
   "Condition": "Condición",
-  // W27's four-word dirtiness scale. "Light" already has a key (line ~2863)
-  // but it belongs to an unrelated dark/light THEME toggle and is not
-  // touched here — see ROADMAP 2.12. These three match the same scale's
-  // already-shipped translation in the booking page's own catalogue,
-  // lib/strings/es.js: "Moderate": "Moderada", "Heavy": "Fuerte",
-  // "Extreme": "Extrema" — so a detailer and a customer read the same word
-  // for the same condition rather than two different ones.
+  // W27's four-word dirtiness scale, all four now here. ROADMAP 2.12/9.20:
+  // "Light" used to share a key with an unrelated dark/light THEME toggle
+  // elsewhere in this catalogue and read as "Claro" (brightness) on a
+  // filthy-car control. The theme picker's own two words moved to "Dark
+  // background"/"Light background" (see that pair further down), which
+  // freed this word for the sense it actually has here. All four match the
+  // same scale's already-shipped translation in the booking page's own
+  // catalogue, lib/strings/es.js — Moderada/Fuerte/Extrema and, now, Ligera
+  // — so a detailer and a customer read the same word for the same car.
+  "Light": "Ligera",
   "Moderate": "Moderada",
   "Heavy": "Fuerte",
   "Extreme": "Extrema",
@@ -2869,8 +2872,8 @@ export const appEs = {
   "The car fills the screen": "El carro llena la pantalla",
   "Words and numbers lead": "Mandan las palabras y los números",
   "Dark, or light?": "¿Oscuro o claro?",
-  "Dark": "Oscuro",
-  "Light": "Claro",
+  "Dark background": "Fondo oscuro",
+  "Light background": "Fondo claro",
   "A big photo up top. Three pages.": "Una foto grande arriba. Tres páginas.",
   "Dark, with the work drawn out step by step.": "Oscuro, con el trabajo explicado paso a paso.",
   "The whole price list on the page. Three colors to pick from.":

@@ -127,11 +127,19 @@ function brief(biz, row) {
   for (const step of STEPS) {
     const rows = [];
 
+    // THIS IS A SECOND COPY OF `lib/siteIntake.js`'s EITHER ARRAY, KEPT IN
+    // SYNC BY NOTHING AT ALL — found 2026-09-20 fixing ROADMAP 2.12's H3
+    // rename. The comparison below reads the SLUG (`left[0]`/`right[0]`), so
+    // a stale copy here never breaks anything a person could see fail — it
+    // just prints the OLD label into the brief a human reads before building
+    // the site, silently, with no error and no test to catch it. If this
+    // array or `lib/siteIntake.js`'s ever diverge again, this file is
+    // showing an answer nobody actually gave.
     if (step.kind === "either") {
       for (const [id, question, left, right] of [
         ["H1", "Movement, or still?", ["move", "Moves as you scroll"], ["still", "Sits still"]],
         ["H2", "Photos big, or facts big?", ["photo", "The car fills the screen"], ["facts", "Words and numbers lead"]],
-        ["H3", "Dark, or light?", ["dark", "Dark"], ["light", "Light"]],
+        ["H3", "Dark, or light?", ["dark", "Dark background"], ["light", "Light background"]],
       ]) {
         const v = a[id];
         const label = v === "either" ? "no preference"

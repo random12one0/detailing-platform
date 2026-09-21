@@ -1050,15 +1050,62 @@ the wrong service, and never book a job we cannot reach.
      `"Heavy": "Fuerte"`, `"Extreme": "Extrema"`), so a detailer typing a
      job by hand and a customer booking one read the identical word.
      `app/src/lib/strings/appEs.js`.
-     **`"Light": "Claro"` NOT TOUCHED, and it is a question for Andrew, not
-     a fix left undone.** It has a key and renders — but that key belongs to
-     an unrelated "Dark, or light?" THEME toggle a few hundred lines away in
-     the same flat catalogue, and "Claro" is the brightness sense, not a
-     dirtiness sense. `lib/strings/es.js`'s own translation of the same
-     scale uses `"Light": "Ligera"` instead, which is real evidence the
-     dashboard's word is wrong — but choosing the correct Spanish word for a
-     dirt-severity scale is a judgment call, not a grep, and it stays
-     exactly as it is until Andrew says which.
+     **`"Light": "Claro"` — FIXED 2026-09-20, the fourth word, once the real
+     question under it was answered rather than guessed at.** It had a key
+     and rendered — but that key belonged to an unrelated "Dark, or light?"
+     THEME toggle a few hundred lines away in the same flat catalogue
+     (`lib/siteIntake.js`'s `EITHER` array, the tenant-site brief's own
+     either/or questions), and "Claro" is the brightness sense, not a
+     dirtiness one. `lib/strings/es.js`'s own translation of the same
+     four-word scale already used `"Light": "Ligera"` instead — real
+     evidence the dashboard's word was wrong, but not proof of the fix,
+     since `t()` has exactly one argument (`localeStore.js:243`,
+     `function t(english, vars)`) and no context or namespace to disambiguate
+     with — checked, not assumed; the file's own header states it as
+     principle #1 rather than an oversight.
+     **What killed the ambiguity was checking what is actually STORED.**
+     `screens/SiteIntake.jsx:1120-1130` — `[left, right].map(([k, label]) =>
+     …)`: `k` is the slug (`"dark"`/`"light"`), carried into component state,
+     `aria-pressed`, and `set(id, k)`, which is what `SiteIntake.jsx:946`
+     writes into `site_intake.answers` (`supabase/migrations/
+     20260910002000_site_intake.sql`: plain `jsonb`, no enum, no constraint
+     naming a label). `label` reaches exactly one place, `t(label)` inside a
+     `<span>` — display, never comparison. Downstream,
+     `SiteIntake.jsx:774,781` — `pick("H3") === "light"` — compares the same
+     slug again, and `theme.js`'s `accentTriple` never sees `H3` or a label
+     at all; it takes an already-resolved ground string as a parameter. No
+     edge function reads `site_intake` or `H3`. **The label is display-only
+     everywhere it was checked, so the rename touches no stored answer** —
+     unlike `"colour"`, this repo's own settings key that IS the stored
+     value and may never be renamed (this file, Conventions section). Two
+     different shapes, told apart before acting rather than after.
+     **The fix: the theme picker's own words moved, the condition word did
+     not.** `lib/siteIntake.js`: `"Light"` → `"Light background"`, `"Dark"` →
+     `"Dark background"` (both halves of the pair, so it does not read
+     asymmetric — only one side collided, but a two-word answer beside a
+     one-word answer reads like an accident). `appEs.js`: the freed `"Light"`
+     key now reads `"Ligera"`, sitting with the rest of the scale;
+     `"Dark background"`/`"Light background"` get their own two fresh
+     entries. Wording checked against `docs/screen-rules.md` and
+     `docs/TASTE-NOTES.md` before landing — neither contradicts it, and
+     TASTE-NOTES § 4c has Andrew using "background" as his own word for
+     exactly this concept, unprompted, months before this control existed.
+     **A SECOND, UNGUARDED COPY OF THE SAME LABEL FOUND ALONG THE WAY, AND
+     THIS IS WORTH MORE THAN THE TWO WORDS THAT CHANGED.**
+     `scripts/site-brief.mjs:134` carries its own literal copy of the same
+     `EITHER` row, to print into the brief a human reads before building a
+     tenant's site. It compares against the slug, same as everywhere else,
+     so it was never wrong — but it DISPLAYS the label, and nothing anywhere
+     keeps its copy in step with `lib/siteIntake.js`'s. Renaming only the
+     source file would have left the generated brief showing the old word
+     with the dashboard already showing the new one, silently, with no error
+     and no test positioned to catch it — a customer would have had to
+     notice a site brief that didn't match what their own screen said.
+     **Fixed in the same commit as the rename, not as a separate pass**,
+     since splitting one rename across two sessions is exactly how two
+     copies of a string drift apart in the first place — `scripts/` lent for
+     this one commit. A comment now sits on that array naming what it is and
+     why a stale copy would fail silently rather than loudly.
      **THE SWEEP FOR SIBLINGS, asked for in the same turn rather than fixing
      only what was seen.** A one-off script (scratch, not committed) found
      every array literal in `app/src` shaped like an option set — `[key,
@@ -1101,6 +1148,14 @@ the wrong service, and never book a job we cannot reach.
      points at the wrong meaning, which no automated sweep here can catch:
      nothing about "the key is present" says whether it is present for the
      right reason. That has to be read, the way this one was.
+     **A second, smaller instrument fault, same family:** the same sweep
+     counted `"literal"` as a reused, cross-file string. Both hits were a
+     code COMMENT containing the text `t("literal")` as documentation
+     (`Catalog.jsx`, `Promos.jsx`), not a real call — the regex looked for
+     the shape of a call and found it somewhere that meant nothing. Caught
+     reading the output before it was reported, not after, but it belongs in
+     this file's own running list of ways a measurement lies rather than
+     staying a private correction nobody else benefits from.
 
   **MEASURED 2026-09-19, while sweeping the dashboard in Spanish:** the survey
   reports **76 candidate strings across 11 files**, the worst being
@@ -3548,6 +3603,20 @@ the dashboard or back office at phone width at all.
   removeChild/createRoot line under 4.1 above turned out to be a stuck
   console buffer on one tab, not a repeating fault — see the correction
   there.)
+  **ACCEPTED 2026-09-20, and by two different pairs of eyes on two different
+  widths — said plainly rather than left implied, because the two halves
+  are not the same kind of confirmed.** Andrew verified the desktop width
+  himself. The 392px half is the other session's own measurement, not a
+  second pair of eyes on top of the first: it proved the `Where` block
+  actually OPENS before trusting either field inside it — a section that
+  never opens has no fields to lose and would pass by absence — then
+  confirmed Drop-off collapses all four fields (Type, Address, Travel zone,
+  the water/power pair) and Mobile brings them back. Their run also caught,
+  as a free before-picture on the way past: at 392px the English dashboard's
+  vehicle-condition control already read `Light, Moderate, Heavy, Extreme`
+  correctly — the exact control ROADMAP 2.12 item 4 fixed the Spanish half
+  of in the same session. That screenshot is now the last picture of that
+  bug.
 
 - [ ] **9.10 — Business settings waste the right half of the screen.**
   Put a live customer-page preview there; stack below on phones.
