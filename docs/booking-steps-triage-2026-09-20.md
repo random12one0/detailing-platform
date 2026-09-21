@@ -299,3 +299,88 @@ from the flex specification, and they met at the same declaration. Agreement
 between two independent methods is worth more than either result alone — and it
 is the opposite of the failure that nearly issued a work order tonight, where a
 second check inherited the first one's stale input and could only ever agree.
+
+---
+
+# W16's twelve, triaged — 2026-09-20
+
+**The sentence this started from:** *the honest version is that nobody knows
+whether the twelve are the same twelve.* **They are.** Same steps, same widths,
+same overflow to the pixel, before and after a change that widened the column
+by up to 315px on every step.
+
+## The test that was only available for one night
+
+The width fix moved something underneath W16 without touching W16. That made a
+free experiment possible: run the same unchanged gate before and after, and
+compare **every** reading rather than the total.
+
+```
+before (pre-width-fix run)   after (post-fix run)
+  10 failing step readings     10 failing step readings   IDENTICAL, to the pixel
+  38 passing readings          38 passing readings        IDENTICAL, to the pixel
+  tallest-element figures      same 742px / 783px         IDENTICAL
+  tap findings   70       ->   0                          the page DID change
+  cell 36.4x36.4          ->   52x52                      the page DID change
+```
+
+**48 of 48 W16 readings unchanged, while the tap family moved from 70 to 0 on
+the same two runs, on the same pages.** That is either genuine
+width-independence or a check that cannot respond, and the two look identical
+from the output.
+
+## It is genuine. Measured, not assumed.
+
+`.bk-choices` — the element named as `tallest` in every failing reading — is
+**inside** `.bk-wrap`, so the fix did reach it:
+
+```
+1440x900, fresh load, after the fix
+  .bk-wrap      632px     (was 469 on this step)
+  .bk-choices   600px     (was ~437)
+  .bk-choices   783px tall  <- the exact number BOTH runs reported
+```
+
+**The block got about 163px wider and its height did not move by one pixel.**
+It is a vertical stack of service cards whose rows already fit on one line at
+the narrower width, so widening changed nothing vertically. **The check
+responds; this content does not.** Stability, not a dead number.
+
+## How many distinct causes: **three — two product, one instrument**
+
+**Product A — step 1's choices block, 8 of the 10 readings.** `1/7 Pick your
+service` and its three `1/N` variants (`plan attached`, `remembered`,
+`known + plan`), at 1440 and 392. Over by **71–92px**, driven by
+`.bk-choices` at 742–783px against a 844/900px viewport, with
+`div.bk-step-head` second at 52–74px. One cause, four surfaces, two widths.
+
+**Product B — the plans surfaces, 2 of the 10 readings.** `plans page`
+**scrolls 312px (37% of the screen)** at 392, and `your plan` scrolls 17px
+(2%). Different route from the booking flow, and the 37% one is much the worse
+of the two.
+
+**Instrument C — the summary counts things it does not list.** The line says
+**12 steps do not fit** and the run prints **10** failing readings. At
+`sweep-booking-steps.mjs:637` the sentence interpolates `failing`, but
+`failing` is incremented in **six** places and only one of them
+(line 245) is the W16 step-fit case. The others are a stuck step (451), two
+plan-surface faults (582, 608), console errors (628) and the tap-findings block
+(656 — which prints *after* the summary, so it never reaches this total).
+
+**So "12 steps do not fit" is a general fault count wearing a specific
+sentence.** Two of its twelve are not steps and are not W16. This is the same
+family as everything else this week: a number that names one thing and counts
+another, and it is why the line has been read as a known quantity. **Nobody was
+ever going to find the missing two by reading the list, because they are not in
+it.**
+
+## What this does NOT say
+
+The two `1/N` plan-surface readings and the `plans page` scroll are **not**
+retested against a before/after — they were identical across the two runs like
+everything else, but no separate measurement was taken of what drives them, as
+was done for `.bk-choices`. **Product B is named, not diagnosed.**
+
+Nothing here is fixed. The count discrepancy is reported, not corrected —
+correcting it means deciding whether `failing` should be split per fault type,
+which is a design call rather than a repair.
