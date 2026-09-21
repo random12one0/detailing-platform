@@ -24,13 +24,32 @@ commit**:
 | `bookings.travel_zone_address_mismatch` **exists** | Supabase `kguqylyzgyzfktkfnhjb` | night of 09-20 | **Andrew ran the SQL himself** |
 | Resend webhook now subscribes to exactly `delivered`, `bounced`, `complained`, `failed` | Resend, endpoint `…/functions/v1/resend-webhook` | 09-21 | manager, via the Resend API |
 | healthchecks.io "scheduled jobs" grace **30 min → 2 hours** | healthchecks.io | 09-21 | manager |
-| **16 leaked `Smoke ` customer rows removed** from `demo-detail` and `demo-riverside`; the demo tenant's `customers` count went **64 → 48** | Supabase `kguqylyzgyzfktkfnhjb` | 09-21 | DP Cowork2, via the fixed `e2e-booking.mjs` sweep |
+| **16 leaked `Smoke ` customer rows removed** from `demo-detail` and `demo-riverside`; the `customers` **table** went **64 → 48 across all sixteen businesses** — *this row originally said "the demo tenant's customers count", which was wrong; see the correction directly below* | Supabase `kguqylyzgyzfktkfnhjb` | 09-21 | DP Cowork2, via the fixed `e2e-booking.mjs` sweep |
 | Nothing was published. Nothing was pushed. | — | — | — |
 
-**THE 64 → 48 IS NOT A PROBLEM AND A LATER SESSION WILL THINK IT IS.** Anyone
-comparing the demo tenant's customer count against a note written before
-2026-09-21 will find sixteen rows missing and go looking for a fault. There
-isn't one. `e2e-booking.mjs`'s cleanup deleted its own test customer by
+**A TABLE COUNT WAS REPORTED AS A TENANT COUNT, AND THE ERROR IS ANDREW'S
+MANAGER'S — corrected 2026-09-21 by DP Cowork2, measured not reasoned.** The
+figure was given to two sessions as *"the demo tenant's `customers` count went
+64 → 48"*. **48 is the whole `customers` table, across all sixteen
+businesses.** Measured against `kguqylyzgyzfktkfnhjb` on 2026-09-21:
+`customers` table-wide **48**, `demo-detail` **13**. Thirteen is what
+`demo-detail` has and what it always had; nothing left it.
+
+**THE CORRECTION MATTERS MORE THAN THE NUMBER, BECAUSE THE WARNING BELOW WAS
+POINTED AT THE WRONG READER.** It was written to stop a later session seeing
+48 and hunting a fault. But a session doing the more careful thing — checking
+the **tenant** rather than the table, which is what the sentence told it to do
+— would have found **13** against a remembered 64 and panicked considerably
+harder, chasing a loss of fifty-one rows that never happened. **A mis-scoped
+number in a warning does not merely fail to help; it aims the alarm at
+whoever reads most carefully.** The manager's own standing instruction covers
+it: *treat any number the manager hands you as a pointer to where to look, not
+a value to code against.* This is that instruction earning its keep on the
+document that contains it.
+
+**THE 16 IS NOT A PROBLEM AND A LATER SESSION WILL THINK IT IS.** Anyone
+comparing the `customers` table against a note written before 2026-09-21 will
+find sixteen rows missing and go looking for a fault. There isn't one. `e2e-booking.mjs`'s cleanup deleted its own test customer by
 `phone=eq.555-0111`; `create-booking` **stores a formatted phone**, so the row
 reads `(555) 011-1` and the filter matched nothing. A PostgREST delete that
 matches zero rows answers `204` with an empty body — **the same answer as one
@@ -173,7 +192,12 @@ way you'd run `git status` before trusting your memory of the tree.
 
 ---
 
-## 6. The manager got four things wrong. Each is on the record.
+## 6. The manager got five things wrong. Each is on the record.
+
+*(Four when this was written. The fifth was found and corrected the same day,
+by the session it had been handed to — see the last bullet. The count is
+updated rather than left at four, because this repo has already paid for a
+pointer that undersold its own document.)*
 
 Kept because the pattern matters more than the individual errors:
 
@@ -193,6 +217,17 @@ Kept because the pattern matters more than the individual errors:
   should have just done it."* **A session that can press the button presses the
   button.** The only real exceptions are the standing ones — no credentials, no
   spending, no pushing, no publishing, no writes to `adtlnvihwrcqcasqcjwd`.
+- **Gave a whole-table count as a tenant count** — *"the demo tenant's
+  `customers` count went 64 → 48"*, said to two sessions and written into § 1
+  of this file. **48 is the `customers` table across all sixteen businesses;
+  `demo-detail` holds 13 and always did.** Owned by the manager, corrected in
+  § 1 on 2026-09-21 by DP Cowork2 and re-measured there. **It is the same
+  shape as the three misstated numbers above** — a number handed over in
+  conversation carries no scope, and the scope is the half that fails
+  silently. **It was the most dangerous of the five**, because it went into
+  the one document every session is told to read first, and the more careful
+  check it invited — look at the tenant rather than the table — was the one
+  that would have made the panic worse.
 
 ---
 
@@ -218,6 +253,34 @@ menu, this is what it looked like"* — wants 12-hour time and month/day/year),
 the coating-email classification fact-find, the mock-browser-bar replacement,
 the customer export, flagging the test detailers, the Spanish truck words, large
 text on the booking page, and re-checking 9.10's false premise.
+
+### Three head-only notes, added 2026-09-21 — none of these is in any file otherwise
+
+**From the client-screens session, volunteered unprompted:**
+
+- **Roadmap 4.5's probe scripts no longer exist.** They lived in a session
+  temp directory, never in `scripts/`, so they vanish with the session.
+  **Whoever builds 4.5 should rebuild from the six requirements written into
+  that ROADMAP entry rather than hunting for code that is not there.** A
+  session that goes looking will find nothing and cannot tell that from
+  looking in the wrong place.
+- **That session took no baseline of the tenant at its start.** Its
+  "left as found" rests on the counts matching afterwards and on its scripts
+  never submitting a form — **not on a before-and-after diff.** It also
+  created auth sessions for the demo user across roughly a dozen throwaway
+  browser contexts; those are the only rows it caused anywhere and they are
+  not tenant data. **A session declaring its own proof thinner than it
+  sounds, at six in the morning, with nobody asking.** It had an immediate
+  effect: the round that followed took a baseline before its first run
+  *because of this note*, and that baseline is what turned its own
+  as-you-found-it from an assertion into a `diff` — `docs/silences.md`,
+  § "THE TENANT WAS LEFT AS FOUND, AND THIS TIME THERE IS A BASELINE".
+- **Its browser pane had no signed-in session, and it did not type the
+  password in.** It took the evidence from the script and drew the measured
+  hit bands onto the screen instead — **better evidence and no credential
+  handled.** Nobody instructed that. Recorded because § 8's rule is written
+  as a prohibition, and this is what the rule looks like when it is treated
+  as a design constraint rather than an obstacle.
 
 ---
 

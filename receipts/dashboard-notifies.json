@@ -1,7 +1,9 @@
 {
-  "git_sha": "949f63a98e122ef982552f07ba0c14989c016bde",
+  "git_sha": "e0932868fbb26bb17497573e7e5f3587c4558847",
+  "git_sha_started": "e0932868fbb26bb17497573e7e5f3587c4558847",
+  "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-21T08:25:37.975Z",
+  "finished_at": "2026-09-21T12:56:58.490Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -22,7 +24,7 @@
     ]
   },
   "check_id": "dashboard-notifies",
-  "started_at": "2026-09-21T08:24:51.579Z",
+  "started_at": "2026-09-21T12:56:05.239Z",
   "status": "pass",
   "expected_targets": 7,
   "discovered_targets": 7,

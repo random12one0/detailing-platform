@@ -973,20 +973,89 @@ asserted**, the discipline every round tonight has been handed over under:
 **absent** both times, `demo-detail` / `demo-riverside` / `demo-ironclad` all
 **`active`** both times.
 
-**`--break=skip` IS BUILT AND HAS NOT BEEN RUN.** It is the `missedSteps`
-side — the step stays declared and does not run, expecting `7 7 6 6` with the
-step named — and it needs the tenant, because it performs the real run minus
-one step. **Built is not proved, and this file exists to keep those two words
-apart.** Still waiting on the tenant with it: the clean control (`7 7 7 7`, 19
-assertions, canary caught), `--break=step` (`7 6 7 6`) and `--break=canary`
-(counts hold, canary false) — the last two re-run not because they changed but
-because a fix trusted on its author's word is what this file refuses.
+### ALL FOUR RUN, 2026-09-21 — AND THE TWO GUARDS ARE PROVED INDEPENDENT
+
+The tenant was handed over and the remaining three ran, plus the control. **The
+middle two rows are the valuable ones**, because each is refused by exactly one
+guard while the other stays green:
+
+| run | counts | assertions | canary | what refused it |
+|---|---|---|---|---|
+| **control** | **`7 7 7 7`** | 19 / 15 | caught | **nothing — PASS, exit 0** |
+| `--break=skip` | **`7 7 6 6`** | 16 / 15 | **caught** | **the counts alone**, naming *put back and moved again* as never reaching a verdict |
+| `--break=canary` | **`7 7 7 7`** | 19 / 15 | **false** | **the canary alone** — `0` failures recorded, every count in agreement |
+| `--break=step` | **`7 6 7 6`** | 19 / 15 | caught | the counts, naming the same step as *undeclared* |
+| `--break=none` | **`7 7 0 0`** | 0 / 15 | false | **four rules at once** |
+
+**`skip` and `canary` are the pair worth reading twice.** One has a perfect
+canary and disagreeing counts; the other has perfect counts and a blind canary.
+Neither could mask the other. Before tonight the counts could not disagree at
+all, so the canary was the *only* guard — and `--break=skip` is now the proof
+that it is no longer carrying the file on its own.
+
+**`--break=step` returned `7 6 7 6`, byte-identical to what was recorded before
+the edit**, which is how it is known the change disturbed nothing.
+
+**THE DRIFT FIELD FIRED ON ITS FIRST REAL RUN AND WAS ADJUDICATED, NOT
+IGNORED.** The first control reported `HEAD MOVED DURING THIS RUN: started
+5794d677, finished e0932868`. Read rather than waved through: the only commit
+inside that window touched **`ROADMAP.md` only**, and this check's subject is
+the deployed `update-booking` function and the database — it reads no
+front-end source at all, so nothing that landed could move what it measured.
+The run was sound. It was re-run anyway, to `e0932868 → e0932868`, so the
+receipt on disk needs no paragraph attached to it. **The adjudication is
+recorded here because next time the answer may be different, and the field is
+worthless if the habit is to re-run until the line disappears.**
 
 **One switch was deliberately not built and is named rather than left
 missing:** a sabotage that empties `EXPECTED_STEPS`. That guard can only trip
 if a person deletes a constant by hand, and firing it would cost a full
 fixture cycle of real writes to demonstrate the consequence `--break=none`
 already demonstrates.
+
+### THE TENANT WAS LEFT AS FOUND, AND THIS TIME THERE IS A BASELINE TO SAY SO AGAINST
+
+**A baseline was taken BEFORE the first run**, which every previous round
+tonight did without — and the reason it happened here is that the other
+session volunteered, unprompted, that its own as-you-found-it rested on
+counts matching rather than on a before-and-after diff. **That admission is
+why this round has one.**
+
+Nine measures, read before the first run and again after the fifth, and
+`diff` reports them **identical**: `businesses` **16**, `dash-notify-fixture`
+**absent**, `customers` table-wide **48**, `customers` in `demo-detail`
+**13**, `bookings` in `demo-detail` **32**, `public` **52** tables,
+`demo-detail` / `demo-riverside` / `demo-ironclad` all **`active`**,
+**0** suspended, **0** orphaned `business_users`.
+
+**Then the residue question was asked structurally rather than by naming
+tables to check.** All **39** `public` tables carrying a `business_id` were
+swept for rows whose business no longer exists: **0 genuinely dangling rows,
+anywhere.** The mechanism was confirmed rather than inferred —
+`email_sends_business_id_fkey` is **`ON DELETE CASCADE`**, so the fixture's
+sends are destroyed with the fixture. Today's 56 sink-addressed sends belong
+to `demo-detail` and `demo-riverside` between 09:15 and 11:45, which is
+before this round held the tenant.
+
+**AND MY OWN PROBE LIED FIRST, WHICH IS THE THIRD TIME THIS FILE HAS RECORDED
+THAT.** The sweep's first version reported **71 orphans** across
+`email_sends` and `platform_admin_events`. It used `left join … where b.id is
+null`, which matches a row with a **NULL** `business_id` exactly as it matches
+a dangling one. All 71 are platform-level rows with no business, by design;
+the real count is **0**. The tell was in the output already — a
+`count(distinct business_id)` of **0** beside a row count of 61 — and it was
+read rather than skimmed. Same shape as the `is_active`/`status` probe two
+sections up: **a probe written to confirm cleanliness announced the opposite
+because of its own bug.**
+
+**ONE THING DID CHANGE AND IT IS NAMED RATHER THAN OMITTED.** The fixture's
+owner, `dash-notify-owner@isolation.test`, is created outside the business and
+is **not** deleted with it — it is one of a standing family of 14
+`@isolation.test` accounts. It was created **2026-09-20 10:04**, a day before
+this round; the five runs re-signed in as it and moved only its
+`last_sign_in_at`. **No auth user was created tonight.** That is a real
+residue class — the same one that let 22 customer rows leak for ten days — and
+it is inert here only because the account is reused rather than recreated.
 
 ### AND THE REASON THIS ONE WAS DEFERRED WAS WRONG, WHICH IS MINE
 
