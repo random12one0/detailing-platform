@@ -35,6 +35,7 @@
 //     spam-filter defect until 2026-09-03.
 
 import { mkdir, writeFile } from "node:fs/promises";
+import { writeReceipt } from "./receipt.mjs";
 import { contrastRatio, emailBrandColors, emailDarkBrandColors } from "../supabase/functions/_shared/brandColor.js";
 import { brandFrom, D, htmlToText, L, money } from "../supabase/functions/_shared/emailKit.ts";
 import { refundInstruction, refundOwed } from "../supabase/functions/_shared/connect.ts";
@@ -372,6 +373,23 @@ const ROT = [["undefined", /undefined/], ["NaN", /NaN/], ["[object Object]", /\[
 
 await mkdir(OUT, { recursive: true });
 let bad = 0;
+const started_at = new Date().toISOString();
+const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("=")[1] || "";
+
+// **THIS GATE WROTE NO RECEIPT UNTIL 2026-09-21 - docs/silences.md section A.**
+// Two corrections to that census row while adding one: it DOES print a subject
+// count ("32 emails") and it DOES exit 1 on problems, so the row was wrong on
+// both halves. What it had no answer for is a run that never happened, and a
+// run that rendered nothing: EMAILS coming back empty prints "0 emails" and
+// exits 0, which is a clean-looking pass over no email at all.
+//
+// **32 IS COUNTED FROM THE `EMAILS` ARRAY IN THIS FILE, which is repo source**
+// - not from the live system and not from a previous run summary line. It has
+// to be counted by evaluating the array rather than by parsing it: the entries
+// are constructed, so a naive source parse returns 54. Declaring it separately
+// is the point - delete a template from that list and the two numbers stop
+// agreeing.
+const EXPECTED_EMAILS = 32;
 
 // **EVERY TEMPLATE THE PRODUCT EXPORTS HAS TO BE IN `EMAILS`, AND UNTIL
 // 2026-09-13 NOTHING SAID SO.** That list is hand-maintained. A seventeenth
@@ -566,8 +584,66 @@ Every file below is LIGHT by default and swaps to dark under <code>prefers-color
 switch your OS theme to see the other one. Re-run with <code>--accent=#hex</code>, <code>--logo</code>, <code>--lang=es</code>.</p>
 <ul>${cards.join("\n")}</ul></body></html>`);
 
-console.log(`\n${EMAILS.length} emails → ${OUT}/index.html  (accent ${ACCENT})`);
-if (bad) {
-  console.error(`${bad} problem(s) — fix them before believing what you see.`);
+// --- THE CANARY -----------------------------------------------------------
+// **WHAT BREAKS SILENTLY HERE IS THE ROT DETECTOR, NOT THE TEMPLATES.** Every
+// per-email check is `re.test(html)` against the `ROT` patterns plus a
+// plain-text length test. If `ROT` were emptied - a refactor, a bad merge, a
+// filter that matched nothing - every template would pass and this would
+// render 32 clean-looking emails over whatever they actually say.
+//
+// So the run is handed a body that is certainly rotten: the literal strings
+// every ROT pattern exists to catch, through the same patterns.
+const CANARY_BODY = "Hello NaN, your booking on Invalid Date is undefined. $NaN [object Object]";
+const canaryHits = BREAK === "blind" ? [] : ROT.filter(([, re]) => re.test(CANARY_BODY));
+const canaryCaught = canaryHits.length > 0;
+console.log("");
+console.log(`canary  a body containing NaN / Invalid Date / undefined -> `
+  + (canaryCaught
+    ? `caught by ${canaryHits.length} of ${ROT.length} rot pattern(s), so a rotten template is something this run can detect`
+    : `NOT CAUGHT by any of ${ROT.length} pattern(s) - every "ok" above is a test that cannot fail`));
+
+const failures = [];
+if (EMAILS.length === 0) {
+  failures.push("ZERO EMAILS WERE RENDERED. Nothing was checked for rot, plain text or contrast, "
+    + "so this run proves nothing. This is NOT a clean render.");
+} else if (EMAILS.length !== EXPECTED_EMAILS) {
+  failures.push(`EMAIL COUNT MOVED: ${EMAILS.length} rendered and EXPECTED_EMAILS declares `
+    + `${EXPECTED_EMAILS}. A template that stopped being rendered is a failure, not a smaller run `
+    + `- move the number deliberately and say which template changed.`);
+}
+if (bad) failures.push(`${bad} problem(s) in the rendered emails - see FAIL above`);
+
+const { path: receiptPath } = writeReceipt({
+  check_id: "render-emails",
+  started_at,
+  status: failures.length === 0 && canaryCaught ? "pass" : "fail",
+  expected_targets: EXPECTED_EMAILS,
+  discovered_targets: EMAILS.length,
+  attempted_targets: EMAILS.length,
+  completed_targets: cards.length,
+  skipped_targets: 0,
+  assertions_executed: EMAILS.length * (ROT.length + 1) + 1,
+  min_assertions: 100,
+  failures,
+  artifacts: [`${OUT}/index.html`],
+  warnings: BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : [],
+  dimensions: { accent: ACCENT, rot_patterns: ROT.length, out: OUT },
+  canary: {
+    id: "a body full of NaN / Invalid Date / undefined must be caught by the rot patterns",
+    observed_failure: canaryCaught,
+    caught_by: canaryCaught ? canaryHits.map(([n]) => n) : [],
+    findings: canaryCaught
+      ? [`[rot] a deliberately rotten body was caught by ${canaryHits.length} of ${ROT.length} patterns, so the per-email rot test is one that can fail`]
+      : [`[rot] NOT CAUGHT - none of ${ROT.length} patterns matched a body containing NaN, Invalid Date and undefined, so every email passing above proves nothing`],
+  },
+});
+
+console.log("");
+console.log(`${EMAILS.length} emails -> ${OUT}/index.html  (accent ${ACCENT})`);
+if (failures.length || !canaryCaught) {
+  for (const f of failures) console.error("  - " + f);
+  if (!canaryCaught) console.error("  - the canary was not caught, so this run proves nothing");
+  console.error(`Receipt ${receiptPath}`);
   process.exit(1);
 }
+console.log(`Receipt ${receiptPath}`);
