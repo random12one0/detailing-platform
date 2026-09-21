@@ -1,15 +1,55 @@
 # The docs, mapped — read this before opening anything else
 
-**Written 2026-09-08.** This repo holds **4.3 MB of markdown**. Nobody reads it
+**Written 2026-09-08.** This repo holds **6.5 MB of markdown across 113 files
+in `docs/`** — measured 2026-09-21 (`git ls-files '*.md' | xargs wc -c`;
+1,105,000 words). **The figure here said 4.3 MB until then.** Nobody reads it
 end to end and nothing expects you to. This file is the map: what each document
 is, whether it is still TRUE, and which three you actually need for the job in
 front of you.
+
+> ## THIS MAP IS PARTIAL AND TWO OF ITS POINTERS ARE DEAD — measured 2026-09-21
+>
+> **63 of 113 documents in `docs/` are named here. 50 are not.** Counted by
+> testing every `docs/*.md` filename against this file. **So an absence from
+> this map means nothing at all** — not that the document does not exist, and
+> not that it is not load-bearing. Four of the fifty are named in `CLAUDE.md`'s
+> own "Where the knowledge lives" table, including the one it says to read
+> first. They have rows below now; the other forty-six do not.
+>
+> **And two pointers in this file name documents that are not there:**
+>
+> | pointer | what this map says about it | the fact |
+> |---|---|---|
+> | `START-HERE.md` | *"READ IT FIRST"*, *"at Andrew's instruction"* | **Deleted 2026-09-16** in `5924e96`, "Reset the rulebook: drop the lane/role system, cut CLAUDE.md by 93%". Five days dead before anybody noticed. |
+> | `HANDOFF-2026-09-19.md` | *"LIVE — start here"*, in the tier legend | **Never existed in git.** `git log --all --` on that path returns nothing. Not stale — never true. |
+>
+> **Both of them are this map's own "read this first" instruction**, which is
+> the worst place in the repo for a dead link: a session following it finds
+> nothing and has no way to tell whether it was deleted, renamed, or never
+> written. Marked rather than removed, because which of the two happened is the
+> part that teaches — one rotted, the other was wrong on the day it was typed.
+>
+> **A document that describes another document goes stale silently.** This is
+> the fifth instance found on the night of 2026-09-20/21, and the reason the
+> rows added below **quote what each document says about itself** instead of
+> summarising it. A quote cannot drift without the quotation marks becoming a
+> lie somebody can see.
+
+### The four `CLAUDE.md` sends you to that were not on this map — added 2026-09-21
+
+| File | Tier | What it says about itself |
+|---|---|---|
+| `docs/MANAGER-CLOSE-2026-09-21.md` | **LIVE — `CLAUDE.md` says read it first, once, before picking anything up** | *"Read this before picking anything up."* — *"It is the manager's side of the night — the rulings, the state changed **outside** the repo, the corrections, and what each session left on the floor."* Its § 1 is the only record of five changes `git log` cannot show. |
+| `docs/silences.md` | **LIVE — recounted 2026-09-21** | *"The silence census — which checks can tell a pass from a did-not-run"*, opened because a check *"was found to be a check that can only fail"*. **Start at "THE CENSUS RECOUNTED", not at the table under it**; the old numbers are marked superseded rather than corrected. |
+| `docs/gotchas.md` | **REFERENCE** | *"Gotchas — ways a measurement lies to you"* — *"Every one of these produced a false reading in this repo at least once. Read before trusting any browser measurement or grep-based check."* **65 entries**, counted 2026-09-21. |
+| `docs/how-we-run.md` | **LIVE** | *"How we run — speed, without giving up the proof"* — *"Andrew commissioned two pieces of research. They do not carry equal weight and this file says which wins where."* 405 lines. Holds the reply-card spec and the stale-lane rule. |
+
 
 **Three tiers, and the tier is the instruction:**
 
 | Tier | Meaning |
 |---|---|
-| `HANDOFF-2026-09-19.md` | **LIVE — start here.** The session handoff: what the width and booking sweeps can now be trusted to do, the 8.4 paint/target decision Andrew made, and the one question waiting on him. **Not the same file as `docs/HANDOFF.md`**, which is the architecture page. |
+| ~~`HANDOFF-2026-09-19.md`~~ | **THIS FILE NEVER EXISTED — see the banner above.** It is also in the wrong table: the other two rows are tiers, this one is a document, so a legend explaining what LIVE/REFERENCE/HISTORICAL mean opens with a row that is neither. The current handoffs are `docs/HANDOFF-2026-09-20.md` (measurement leg) and `docs/HANDOFF-2026-09-20-clients.md` (client screens). **Not the same file as `docs/HANDOFF.md`**, which is the architecture page. |
 | **LIVE** | Current. Trust it, and correct it in place when you find it wrong. |
 | **REFERENCE** | A finished piece of research or a spec. Still true, rarely changes, read the section you need. |
 | **HISTORICAL** | An account of something that already happened. **Do not act on it.** Kept because the reasoning is why the code is the shape it is. |
@@ -31,7 +71,7 @@ file how you measured it.**
 >
 > | File | Tier | What it is |
 > |---|---|---|
-> | `START-HERE.md` | **LIVE — READ IT FIRST** | 1,730 words carrying only what changes what a session DOES: the lanes, the clearing protocol, the 44px tap floor and its `::after` exception, prove-your-instrument, what is frozen, what is settled about translation. One-line pointers to the long files for when the work touches them. |
+> | ~~`START-HERE.md`~~ | **DELETED 2026-09-16 in `5924e96` — see the banner above. Read `CLAUDE.md` instead.** It carried 1,730 words of what changes what a session DOES: the lanes, the clearing protocol, the 44px tap floor and its `::after` exception, prove-your-instrument, what is frozen, what is settled about translation. One-line pointers to the long files for when the work touches them. |
 > | `VERIFIED.md` | **LIVE — read BEFORE measuring anything** | The checked-off ledger. A row is un-proven by a CHANGE, never by age: `git diff --name-only <row commit>..HEAD -- <row paths>`, and empty output means do not re-measure. Its § 2 is five findings Andrew reported and withdrew — never re-report those. |
 > | `ECONOMY.md` | **LIVE** | Nine rules for spending his usage. Check the ledger before the product; write a finding once; read the smallest thing that answers the question; clear at a section, never at the ceiling. |
 

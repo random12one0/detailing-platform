@@ -424,13 +424,15 @@ It outranks any inference about his taste written anywhere else.
 
 ## Where the knowledge lives
 
-This repo holds about 930,000 words of markdown. Nobody reads it end to end.
+This repo holds **1,105,000 words of markdown** — measured 2026-09-21,
+`git ls-files '*.md' | xargs cat | wc -w`. **This line said 930,000.** Nobody
+reads it end to end.
 Open a long file only when the work touches its subject.
 
 | File | What it is |
 |---|---|
 | `docs/MANAGER-CLOSE-2026-09-21.md` | **Read this first, once, before picking anything up.** Andrew's rulings from the 20th in binding form; the four things that changed OUTSIDE the repo that night, which `git log` cannot show you; the backups correction; the publishing order; and what each session left on the floor |
-| `docs/README.md` | The map — what every document is and whether it is still true |
+| `docs/README.md` | The map — **and it covers 63 of the 113 documents in `docs/`, measured 2026-09-21, so an absence from it means nothing.** Two of its pointers named files that were not there: `START-HERE.md`, deleted 2026-09-16, and `HANDOFF-2026-09-19.md`, which never existed in git. Both are marked in place; the four files this table names that were missing from it now have rows |
 | `PROJECT-STATE.md` | Full state briefing; §1–7 only, the rest is a journal |
 | `ROADMAP.md` | **The live fix queue — start here.** 79 open items from two audits |
 | `FOR-ANDREW.md` | **Andrew's own list** — accounts to open, keys to paste, calls to make. A session that hits a blocker adds a row and keeps going |
