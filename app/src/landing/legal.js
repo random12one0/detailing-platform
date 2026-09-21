@@ -168,9 +168,39 @@ export const PRIVACY = {
     // `<dd>`, where newlines collapse to spaces. The document's own structure
     // is one section per idea, so the second idea gets its own section.
     ["The companies involved",
-     "Supabase stores the database and runs the code. Netlify serves the pages. Resend sends the email, which means the name, email address and booking details of anybody you email through this product. Stripe takes the payments. Google confirms who you are, but only if you choose the Google button instead of a password. None of them is paid to use any of it for anything of their own."],
+     "Supabase stores the database and runs the code. Netlify serves the pages. Resend sends the email, which means the name, email address, **service address** and booking details of anybody you email through this product. Stripe takes the payments. Google confirms who you are, but only if you choose the Google button instead of a password. None of them is paid to use any of it for anything of their own."],
+    // ROADMAP 7.8, 2026-09-21 — TWO SENTENCES HERE WERE HALF TRUE AND THE
+    // HALF THAT WAS MISSING IS THE ONE THIS SECTION EXISTS FOR.
+    //
+    // **The Geoapify line covered the typing and stopped.** A SAVED address
+    // is sent back to Geoapify a second time, per distinct address, to be
+    // turned into coordinates for the forecast — `lib/jobWeather.js`
+    // `pointFor()` and `refresh-weather/index.ts`, which reads
+    // `bookings.customer_address` straight out of the table. A customer who
+    // never saw an autocomplete suggestion still has their address sent
+    // there. And the old wording had the coordinates appearing from nowhere,
+    // which is worse than silence: it implies we derive them ourselves.
+    //
+    // **The Resend line said "booking details"**, with the service address
+    // inside it and unnamed, on the one page whose whole subject is what
+    // leaves this product. `send-invoice/index.ts` and
+    // `send-owner-reminders/index.ts` both pass `customerAddress` by name.
     ["And the ones that are easy to miss",
-     "These happen while somebody is typing, so they are worth saying plainly. When a customer types their address into your booking page, **what they type goes to Geoapify**, the service that offers the address suggestions. Once a booking has an address, **its coordinates go to the US National Weather Service**, so we can show you the forecast for that job. If your booking page is being read in Spanish, the words being translated go to **DeepL or to Google's translation service** — a different Google service from the sign-in one above. And if you have turned on phone notifications, the alert we send you **has your customer's name in it**, and it travels through whichever push service your own browser uses: Google's, Mozilla's or Apple's. Nothing here is sold, and none of these is paid to use any of it for anything of their own."],
+     "These are easy to miss, so they are worth saying plainly. When a customer types their address into your booking page, **what they type goes to Geoapify**, the service that offers the address suggestions. Once a booking has an address, **that address goes back to Geoapify once** to be turned into map coordinates, and **those coordinates go to the US National Weather Service**, so we can show you the forecast for that job — so an address reaches Geoapify even if the customer ignored every suggestion and typed it out themselves. If your booking page is being read in Spanish, the words being translated go to **DeepL or to Google's translation service** — a different Google service from the sign-in one above. Only your own wording is ever sent there: addresses and phone numbers are never translated. And if you have turned on phone notifications, the alert we send you **has your customer's name in it**, and it travels through whichever push service your own browser uses: Google's, Mozilla's or Apple's. Nothing here is sold, and none of these is paid to use any of it for anything of their own."],
+    // ROADMAP 7.8 — THE TWO THE AUDIT NEVER FOUND, ADDED 2026-09-21.
+    //
+    // **They are separated from the section above because they are a
+    // different KIND of fact, and flattening them would have been the same
+    // error as omitting them.** Everything above happens because somebody is
+    // using the product. The fonts happen to a visitor who does nothing at
+    // all, and the two buttons happen only when the detailer presses them.
+    // The manager's instruction, 2026-09-21: *"if any of the four turns out
+    // to be conditional — only when a detailer taps a thing, only on some
+    // pages — say so on the page rather than flattening it."*
+    ["The lettering on every page",
+     "This one needs nobody to do anything, which is why it is worth its own paragraph. Every page here — this one, your dashboard and your booking page — loads its lettering from **Google Fonts**. A visitor's browser asks Google for those two typefaces the moment the page opens, and Google sees the IP address their internet connection is using and which browser it is. It happens on every visit, before anybody types a thing, and there is no way to read the page without it. Nothing about the booking, the customer or you is sent with that request — it asks for lettering and nothing else."],
+    ["The two buttons that hand a job to somebody else",
+     "Both of these are yours to press. Neither happens on its own. **Directions** opens a job's address in a map, and the address is inside the link that opens it, so that company receives it — **Google Maps** unless you have changed it in your settings to **Apple Maps** or **Waze**. **Add to calendar** depends on the same setting. If your calendar is set to Google, the entry it creates carries **your customer's name, their address, their phone number and any notes on the booking** to Google Calendar. If it is set to Apple, or to a calendar file, **nothing leaves this product at all** — you are handed a file and your own computer opens it."],
     // ── GOOGLE SIGN-IN, 2026-09-07 ───────────────────────────────────────
     // GOOGLE ASKS FOR THIS IN WRITING before it will let anybody outside the
     // test list sign in, and the Limited Use sentence is the one its reviewer
