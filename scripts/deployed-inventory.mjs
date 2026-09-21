@@ -107,6 +107,21 @@ if (!SUPABASE_ACCESS_TOKEN || !SUPABASE_PROJECT_REF) {
 }
 
 const ONLY = (process.argv.find((a) => a.startsWith("--only=")) || "").split("=")[1] || "";
+
+// **THE SABOTAGE THAT PROVES `completed_targets` IS NOT DECORATIVE - 2026-09-21.**
+// On a full run every function is fetched and compared, so `dirs.length` and
+// `judged.length` are both 39 and the receipt reads 39/39/39/39 whether or not
+// the counts are capable of disagreeing. **A number that happens to match is
+// not evidence that it can differ**, which is the shape of proof this repo
+// keeps mistaking for the real thing.
+//
+// Three states make a function walked-but-never-compared: NOT DEPLOYED,
+// UNREADABLE and UNJUDGEABLE. NOT DEPLOYED was proved by adding a function
+// directory (40/40/40/39) but that is a write under `supabase/`. This needs no
+// write anywhere and stays in the file, so the disagreement is reproducible by
+// anyone, for ever, with one flag.
+const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("=")[1] || "";
+let breakUsed = false;
 const started_at = new Date().toISOString();
 
 const lf = (s) => String(s).replace(/\r\n/g, "\n");
@@ -184,6 +199,10 @@ for (const fn of dirs) {
 
   let bundle;
   try {
+    if (BREAK === "unreadable" && !breakUsed) {
+      breakUsed = true;
+      throw new Error("--break=unreadable: the body fetch was failed on purpose");
+    }
     bundle = lf(await api(`/functions/${fn}/body`, true));
   } catch (e) {
     report.push({ fn, verdict: "UNREADABLE", differs: [], behind: null, commits: [], note: e.message });
@@ -403,8 +422,10 @@ const { path: receiptPath } = writeReceipt({
   failures,
   artifacts: ["scripts/deployed-inventory.mjs"],
   // NOT DEPLOYED left this list on 2026-09-21; it is a failure now, not a warning.
-  warnings: report.filter((r) => r.verdict === "UNJUDGEABLE" || r.verdict === "UNREADABLE")
-    .map((r) => `${r.fn}: ${r.verdict}`),
+  warnings: [
+    ...(BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : []),
+  ].concat(report.filter((r) => r.verdict === "UNJUDGEABLE" || r.verdict === "UNREADABLE")
+    .map((r) => `${r.fn}: ${r.verdict}`)),
   dimensions: {
     project: SUPABASE_PROJECT_REF,
     method: "comment-text comparison against the deployed eszip bundle",
