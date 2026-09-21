@@ -44,9 +44,50 @@
 :root {
   --safe-t: env(safe-area-inset-top, 0px);
   --safe-b: env(safe-area-inset-bottom, 0px);
+  /* THE PINNED BAR'S OWN HEIGHT, AND IT IS ON :root FOR A REASON — the rule
+     below runs on `html`, and `html` cannot see a custom property declared on
+     `.bk`, which is its descendant. That is not a style preference; it is the
+     whole defect this line used to have. See the block below.
+     73px, measured 2026-09-20 at 320, 360, 392, 768, 1440 and 1920 — stable at
+     every one. The height is set by the Continue button, not by the text, so
+     the eyebrow wrapping to two lines (which `.bk-bar .total > .bk-muted`
+     explicitly allows) takes it to 76px and no further. Measured, not assumed:
+     a long total was forced into it at 320 and the bar grew 3px. */
+  --bk-bar-h: 73px;
 }
 
-html:has(.bk > .bk-bar) { scroll-padding-bottom: calc(var(--bk-bar-clear, 104px) + 12px); }
+/* ROADMAP 8.5a — THE BROWSER MUST NOT PARK A FOCUSED CONTROL UNDER THE BAR,
+   and this line spent its life NOT doing what it said.
+
+   **IT READ `var(--bk-bar-clear, 104px)` AND NEVER ONCE RESOLVED THE
+   VARIABLE.** `--bk-bar-clear` was declared on `.bk`; this rule computes on
+   `html`, and custom properties inherit DOWN. So it always took the fallback
+   and shipped a flat 116px — measured at six widths on 2026-09-20 — while the
+   comment beside it claimed the amount was "kept in step with it by the same
+   variable rather than by a second number that can drift". It WAS the second
+   number, and it had already drifted: the variable it claimed to track reads
+   26px on precisely the pages this rule applies to.
+
+   **AND THE BROKEN REFERENCE WAS LOAD-BEARING, WHICH IS WHY THIS IS WORTH
+   SPELLING OUT.** Had it resolved, the reserve would have been 26 + 12 = 38px
+   against a 73px bar — 35px short, which is 8.5a's defect exactly. A tidy-up
+   that "fixed" the var() would have silently re-broken the thing the line
+   exists for. `scripts/var-scope-guard.mjs` now fails on that shape.
+
+   **WHY THEY WERE EVER ONE NUMBER.** Before 2.15 the bar was not in the page's
+   flow: the foot of the column was padded to hold a space for it, so "how much
+   foot to keep clear" and "how much bottom is spoken for" were genuinely the
+   same quantity and one name was right. 2.15 put the bar in the layout, taking
+   its own space, and the padding's job shrank to plain spacing — but this rule
+   kept pointing at the same name, and the fallback preserved the old behavior
+   so exactly that nothing ever looked. **Two ideas, one name, and the second
+   one an accident of the first.** They are separate now: `--bk-bar-h` is the
+   bar, `--bk-foot` is spacing. Do not re-merge them.
+
+   The amount is the bar plus one small step, which is what the `+ 12px` here
+   always meant — 85px, clearing even the 76px wrapped bar by 9px. `--safe-b`
+   rides along because on hardware the bar sits above the home indicator. */
+html:has(.bk > .bk-bar) { scroll-padding-bottom: calc(var(--bk-bar-h) + 12px + var(--safe-b)); }
 
 .bk {
   /* ── The ground ────────────────────────────────────────────────── */
@@ -136,7 +177,7 @@ html:has(.bk > .bk-bar) { scroll-padding-bottom: calc(var(--bk-bar-clear, 104px)
      `env(safe-area-inset-bottom)` is 0 in every desktop browser — so dropping
      it here would be invisible to every measurement in this repo and wrong on
      the hardware. */
-  --bk-bar-clear: calc(var(--bk-sp-5) + var(--safe-b));
+  --bk-foot: calc(var(--bk-sp-5) + var(--safe-b));
   --bk-sp-2: 8px;
   --bk-sp-3: 12px;
   --bk-sp-4: 16px;
@@ -307,7 +348,7 @@ html:has(.bk > .bk-bar) { scroll-padding-bottom: calc(var(--bk-bar-clear, 104px)
      and the margin were always correct; nothing here was designed narrow. */
   width: 100%;
   max-width: calc(var(--bk-col) + 2 * var(--bk-sp-4)); margin: 0 auto;
-  padding: var(--bk-sp-5) var(--bk-sp-4) var(--bk-bar-clear);
+  padding: var(--bk-sp-5) var(--bk-sp-4) var(--bk-foot);
   display: flex; flex-direction: column; gap: var(--bk-sp-5);
   /* Takes the height nothing else wants, so a short step still puts the bar
      on the floor of the screen. `0 auto` rather than `1 1 auto`: this may
@@ -1051,19 +1092,24 @@ html:has(.bk > .bk-bar) { scroll-padding-bottom: calc(var(--bk-bar-clear, 104px)
 }
 /* The bar is in the page now, so the wrap above it needs a gap and not a
    reserve. One section step, the same rhythm as everything else in there. */
-/* ROADMAP 8.5a — **THE BROWSER MUST NOT PARK A FOCUSED CONTROL UNDER THE
-   BAR.** Measured with `scripts/keyboard-walk.mjs`: tabbing down booking step
-   1, the last service card and its "What's included" toggle receive focus at
-   y=873 while the pinned bar starts at y=827 — fully inside the viewport,
-   entirely underneath the bar. `elementFromPoint` on their own centres
-   returns the bar, not them. Nothing scrolls, because by every ordinary test
-   they are visible: `scrollIntoViewIfNeeded` leaves them exactly where they
-   are.
-   `scroll-padding-bottom` is the browser's own answer — it tells scrolling
-   "this much of the bottom is spoken for" — and the amount is already worked
-   out: `--bk-bar-clear` is what 2.15 reserves for the bar, kept in step with
-   it by the same variable rather than by a second number that can drift. */
-.bk:has(> .bk-bar) { --bk-bar-clear: var(--bk-sp-5); }
+/* ROADMAP 8.5a's ANSWER LIVES AT THE TOP OF THIS FILE, NOT HERE — the
+   `html:has(.bk > .bk-bar)` rule beside `--bk-bar-h`, with the diagnosis of
+   why it spent its life reading a variable it could not see. It is up there
+   because `html` is where it has to compute, and a custom property cannot be
+   read from an ancestor it was declared beneath. **The original defect, kept
+   because it is the reason the rule exists:** tabbing down booking step 1, the
+   last service card and its "What's included" toggle took focus at y=873 while
+   the pinned bar started at y=827 — inside the viewport and entirely under the
+   bar. `elementFromPoint` on their own centres returned the bar. Nothing
+   scrolled, because by every ordinary test they were visible.
+
+   **THE LINE BELOW IS NOT THAT ANSWER AND NEVER WAS.** It is spacing: the bar
+   is in the page's flow now, so the column above it needs a gap rather than a
+   reserve, and it drops `--safe-b` because the bar carries the home-indicator
+   inset itself (see its own padding above). That is the whole of its job. It
+   was called `--bk-bar-clear` and read as though it fed the scroll rule;
+   it never did. */
+.bk:has(> .bk-bar) { --bk-foot: var(--bk-sp-5); }
 .bk-bar .inner {
   max-width: var(--bk-col); margin: 0 auto;
   display: flex; align-items: center; gap: var(--bk-sp-3);
