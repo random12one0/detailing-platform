@@ -90,7 +90,7 @@ end with the same summary line.
 | `e2e-booking.mjs` | exits 0 with no subject count | count the steps completed end to end; assert the booking exists afterwards. **STILL UNPROVEN, and the census mis-scoped it: it needs `SUPABASE_SERVICE_ROLE_KEY` and four other credentials, so it is NOT browser-only** |
 | `render-emails.mjs` | exits 0 with no subject count | count templates rendered; fail below the known template count |
 | `db-audit.mjs` | exits 0 with no subject count | count tables/migrations examined; fail on zero |
-| `check-deployed.mjs` | exits 0 with no subject count | count functions compared; fail on zero. **DO NOT COPY `deployed-inventory.mjs` FOR THIS — corrected 2026-09-21 after running it. Its count and canary reach the RECEIPT and not the screen: it prints `PASS` and exits 0 having fetched nothing. See the section below.** |
+| `check-deployed.mjs` | exits 0 with no subject count | count functions compared; fail on zero. **CORRECTED TWICE ON 2026-09-21, and it is safe to copy again as of `4b804ec`.** It was offered here as the model, then found to print `PASS` and exit 0 having fetched nothing - its count and canary reached the RECEIPT and not the screen. Fixed the same night: the verdict and exit now read the canary. **Copy the fixed shape, and copy the canary WITH the exit check, not without it.** See the section below. |
 | `i18n-survey.mjs` | **CLOSED — see below** | — |
 
 **Two of these were misread by a grep first and corrected by reading.** A
@@ -184,7 +184,7 @@ run produced (`rows.length`), which is a gate following the data.
 | `dashboard-notifies.mjs` | `rows.length` | follows the data |
 | `restore-drill.mjs` | `rows.length` | follows the data |
 | `tenant-matrix.mjs` | `rows.length` | follows the data |
-| `deployed-inventory.mjs` | `dirs.length` | structural floor — much weaker fault |
+| `deployed-inventory.mjs` | `dirs.length` | structural floor — much weaker fault. **CONFIRMED BY RUNNING 2026-09-21, not by reading: 39/39/39/39 on a full run and 0/0/0/0 on an empty one. Still open — `completed_targets` could be `judged.length`, which the file already computes. See below.** |
 | ~~`example-shots-check.mjs`~~ | `SITES.length` | **CLOSED 2026-09-20 — see below** |
 
 **One of the five is closed, and the choice was constrained — recorded because
@@ -405,6 +405,65 @@ same trap recorded above for `i18n-survey.mjs` — **never read `$?` through a
 pipe** — hit again, three entries later.
 
 **Nothing was deployed to make anything green. The 24 stand.**
+
+
+### CLOSED — all four were ruled on and built the same night, `4b804ec`
+
+**The section above is the before-state and is kept as written.** Andrew's
+manager ruled on all four; each was rebuilt and then **re-broken the same way
+it was broken the first time**, because a fix trusted on its author's word is
+the thing this file exists to refuse.
+
+| broken | before | after `4b804ec` |
+|---|---|---|
+| `--only=` a function that does not exist | `PASS`, **exit 0** | **`FAIL - THE COMPARISON DID NOT RUN. 0 of 0 function(s) were fetched`**, exit 1 |
+| a repo function never deployed | `NOT DEPLOYED` then `PASS`, **exit 0** | **named failure, exit 1, `warnings: []`** |
+| one comment line altered | `DIFFERS`, named to the line, exit 1 | unchanged — still caught |
+| behaviour changed, no comment touched | `matches`, exit 0 | **still `matches`** — this is the METHOD, and it is now printed |
+
+**The second one was proved in isolation on purpose.** Run scoped, an
+undeployed function also trips the fetched-nothing rule, so both fixes fire and
+neither is tested. It was run **full**: 39 bundles fetched, canary true, so the
+only rule that could fail the run was the new one. It did.
+
+**What changed, in one line each:** the verdict and exit now read the canary
+the receipt already computed; `NOT DEPLOYED` moved out of `warnings` into
+`failures`; the git note prints on a `matches` verdict, where the header had
+always promised it and the code only ever printed it on `DIFFERS`; and the
+method prints at the top of **every** run including a green one, so a reader
+knows the blind spot before the verdict rather than afterwards in the header.
+
+**The git note was cross-checked rather than eyeballed** — against a separate
+instrument written before the change, on its own code path: same four names,
+same four gaps (`booking-ics` 3.1d, `resend-webhook` 3.1d, `send-email` 3.1d,
+`refresh-weather` marginal). The other 11 print `and no commit since the
+deploy`, so **both branches are exercised on every run**.
+
+**Counts unchanged across the rewrite, which is how it is known nothing broke:**
+39 in the repo, 39 deployed, 39 fetched and compared, 15 matching, 24
+differing, widest gap 7.8 days. Nothing was deployed. The 24 stand.
+
+### TWO RESIDUALS, LEFT OPEN ON PURPOSE AND BOTH BELONG TO THIS CENSUS
+
+Neither was in the four rulings, and neither is the fixer's to decide.
+
+- **A scoped run writes a receipt that `receipt.mjs` must fail.**
+  `--only=session-ping` passes and exits 0 with `assertions_executed: 1`
+  against `min_assertions: 30`, so the check says pass and the grader says
+  *"only 1 assertions ran against a declared minimum of 30"*. **That is the
+  floor working, not breaking** — one function compared really does prove
+  almost nothing about an estate of 39. But it means the honest way to ask
+  *"is the one I just edited in the list?"* produces a receipt that is correct
+  to reject, and nothing tells the reader that. Either `--only` should not
+  write a receipt, or it should declare a floor of its own.
+- **The four target counts are still one variable.** `expected`, `discovered`,
+  `attempted` and `completed` are all `dirs.length` — measured at **39, 39, 39,
+  39** on a full run and **0, 0, 0, 0** on the empty one. This is § B above and
+  the row already says so; it is recorded here only because a run has now
+  confirmed it rather than a reading. **The obvious candidate is
+  `completed_targets`, which could be the number actually fetched and
+  compared** — that is `judged.length`, which the file already computes — and
+  then the four counts could disagree, which is the entire point of § B.
 
 ## THE SILENCE NO CHECK IN THIS FILE CAN COVER — added 2026-09-20
 
