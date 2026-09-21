@@ -3677,6 +3677,85 @@ rather than wording went to Andrew.
   adding or removing a processor triggers a policy review.
   *A1 P0-05, P3-10*
 
+  **AUDITED 2026-09-21, FROM THE CODE. Nothing on the privacy page was
+  changed — the two lists are below and the copy is Andrew's call.**
+
+  **FIRST, THIS ENTRY'S OWN PREMISE IS STALE AND WOULD HAVE SENT THE NEXT
+  PERSON AT THE WRONG THING.** It says the page names Supabase, Netlify,
+  Resend, Stripe and Google. **It already names Geoapify, the US National
+  Weather Service, DeepL and Google's translation service, and the three push
+  services** — `landing/legal.js:173`, a paragraph written specifically about
+  services that receive data *"while somebody is typing"*. The address gap the
+  audit found has been closed since. **Three of the four real gaps below are
+  ones neither audit mentioned.**
+
+  **AND ONE CORRECTION THAT CHANGES WHAT NOT TO DO: OpenStreetMap is not a
+  processor and must not be added as one.** `_shared/geoapify.ts:206` —
+  `ATTRIBUTION` is a licence credit, *"Address and map data © OpenStreetMap
+  contributors, via Geoapify"*, and a link to their copyright page. **No
+  request is ever made to openstreetmap.org.** Geoapify uses their data; the
+  licence requires the credit. Naming it on a privacy page would be the other
+  half of the fault this item is about.
+
+  **LIST A — WHAT ACTUALLY RECEIVES CUSTOMER-IDENTIFYING DATA, and what was
+  read to establish each one.**
+
+  | Receives | What | Read |
+  |---|---|---|
+  | **Geoapify** | Partial addresses as the customer types, **and every saved `customer_address` again later**, geocoded for the forecast | `_shared/geoapify.ts` (the only file allowed to name the host); `jobWeather.js:94-116` `pointFor(address)`; `refresh-weather/index.ts:90,120` |
+  | **US National Weather Service** | Coordinates derived from that address, rounded to ~1km | `_shared/weather.ts:43-49`; `forecast/index.ts:82-91` |
+  | **Resend** | Customer name, email, booking details **and the address explicitly** | `send-invoice/index.ts:149` `customerAddress`; `send-owner-reminders/index.ts:54` |
+  | **Stripe** | Customer email; card details typed on Stripe's own page, never ours | `pay-booking/index.ts:130` `customer_email`, `:144` metadata |
+  | **Supabase** | Everything — it is the database and the functions | `.env`, every `_shared/db.ts` caller |
+  | **Netlify** | Serves every page, so every visitor's IP | hosting |
+  | **Push services (Google / Mozilla / Apple)** | The customer's **name**, inside the alert | already on the page, `legal.js:173` |
+  | **Google sign-in** | The **detailer's** identity, never a customer's | `legal.js:205` |
+  | **DeepL / Google Translate** | **Business copy only.** Addresses and phones are on an explicit never-send list | `_shared/translatable.ts:107-109` — `business.dropoff_address` and `business.phone` are opaque |
+
+  **LIST B — WHAT THE PAGE DOES NOT NAME. Four, and the first is the one that
+  reaches every customer who has never typed anything.**
+
+  1. **Google Fonts — `fonts.googleapis.com` and `fonts.gstatic.com`.**
+     **Every visitor's IP address and browser string, on every page including
+     the public booking page, before they touch a control.** `app/index.html:59-61`,
+     and **confirmed on the live site** rather than inferred: fetched
+     `detailingplatform.com` and both hosts are in the served HTML. Not an
+     address — but it is the broadest flow in the product and the page is
+     silent on it.
+  2. **Google Maps, Apple Maps or Waze — the customer's full address in a URL.**
+     `lib/platform.js:55-61` `mapsUrlFor`, rendered as a directions button on
+     `BookingCard.jsx:111` and `BookingDetail.jsx:408`, both passed
+     `booking.customer_address`. **Google is the default**; Apple and Waze are
+     a detailer preference.
+  3. **Google Calendar — name, address, phone AND free-text notes.**
+     `lib/platform.js:70-79` `calendarUrlFor` puts `customer_address` in
+     `location` and `customer_phone` + `customer_notes` in `details`. **Only
+     when the detailer's calendar preference is Google** — Apple and ICS hand
+     back a local file and no third party is involved. **This is the most
+     sensitive of the four**, because notes are whatever anybody typed.
+  4. **The Geoapify sentence is half true.** The page says what a customer
+     *types* goes to Geoapify. It does not say that a **saved** booking
+     address is sent there again, per distinct address, to get the forecast.
+     Same for Resend: *"name, email address and booking details"* — the
+     address is inside "booking details" and this item's whole subject is
+     addresses.
+
+  **AND A CLEAN NEGATIVE, worth as much as the gaps: there is no analytics,
+  no error reporting, no tag manager and no session recording anywhere in
+  this product.** Searched by name across `app/src`, `supabase/functions` and
+  `app/index.html` for sentry, posthog, plausible, gtag, google-analytics,
+  mixpanel, datadog, bugsnag and logrocket: **zero.** A privacy page that can
+  say that truthfully is worth more than one that lists nine processors.
+
+  **NOTHING IS NAMED ON THE PAGE THAT THE PRODUCT DOES NOT USE.** The Google
+  Business Profile section is the one that would qualify and it **already
+  opens by saying it is not switched on** (`legal.js:207`).
+
+  **NOT WRITTEN, ON PURPOSE.** What goes on a legal page is closer to
+  Andrew's than to ours, and three of the four gaps are a judgement about how
+  much detail a reader wants rather than a fact to correct. **Held for his
+  ruling on which of the four go on, and in whose words.**
+
 - [ ] **7.9 — The home page animation delays the point.**
   Several long scrolls advance a controlled sequence with large empty black
   areas; the page is about 13 screens tall; the headline types letter by letter;
