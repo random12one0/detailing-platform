@@ -2095,7 +2095,40 @@ button.menu-name { display: flex; flex-direction: column; justify-content: cente
    Vertical only, for the reason on `.chip`: these sit in rows with small gaps
    and a sideways box would steal a neighbour's press. */
 .btn.sm { min-height: 38px; font-size: var(--t-meta); padding: 0 var(--sp-4); position: relative; }
-.btn.sm::after { content: ""; position: absolute; inset: -4px 0; }
+/* **AND IT WAS 44 WITH NO TOLERANCE, WHICH IS NOT 44 — 2026-09-21.**
+   `-4px` was arithmetic against the wrong box. `.btn.sm` is `border-box`
+   with a 1px border, so this `::after`'s containing block is the PADDING box
+   — 36px, not 38 — and `inset: -4px 0` computes to **exactly 44px**.
+   Measured: `getComputedStyle(btn,'::after').height` is `44px`.
+
+   **Exactly 44 rounds under.** A button whose top lands on a fractional
+   pixel — `171.61` on the Clients screen — covers 43, 44 or 45 whole pixel
+   rows depending only on where it happens to sit, so an `elementFromPoint`
+   walk returns 43 sometimes and 45 others **on the same control without
+   anything changing**. A hard absolute that is met at some scroll positions
+   and missed at others is missed.
+
+   **FOUND BY SOMEBODY PRESSING IT, NOT BY A CHECK**, and by the one method
+   this repo's own rule names — *"a bounding rect cannot measure this, probe
+   with elementFromPoint"*. The rect says 38. Every check in this repo that
+   asks a rect would report this button as failing; the one that asked the
+   pointer got 43. **Both were wrong about the design and right about the
+   miss.**
+
+   **ONE PIXEL OF SLACK, VERTICAL ONLY, AND THE 2026-09-12 DECISION ABOVE IS
+   UNTOUCHED.** That comment chose vertical-only because *"these sit in rows
+   with small gaps and a sideways box would steal a neighbour's press"* — the
+   horizontal inset stays `0` and none of that reasoning is reopened. This
+   changes the reachable height from 44 to 46, so the worst rounding now
+   yields 45 and the absolute cannot be missed by position.
+
+   **Deliberately on the SHARED declaration and not on the one button that
+   was measured.** All 28 `.btn.sm` call sites carried the same
+   zero-tolerance 44; patching the single control that somebody happened to
+   press would have left 27 of them one rounding away, and hidden the
+   decision inside an exception to the very rule that exists to stop numbers
+   drifting. */
+.btn.sm::after { content: ""; position: absolute; inset: -5px 0; }
 /* Square, for a button whose whole label is its icon — the reorder arrows in
    Catalog (W10). A pill with a chevron in it and .btn's 26px side padding is
    64px wide for a 17px mark, and three of those plus a worded button do not
