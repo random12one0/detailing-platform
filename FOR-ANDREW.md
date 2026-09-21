@@ -252,6 +252,50 @@ still knows them.
 
 ## Waiting on you — nothing breaks while these wait
 
+- [ ] **DECIDE · A recommendation about your publish order, and ten seconds is
+  all it needs. The order is yours and I am not changing it.**
+
+  **Your order stands as you set it:** Spanish email labels first, then
+  card-declined and report-a-problem, then the remaining seventeen, then the
+  payment one last and on its own. **Nothing below reorders anything.** This
+  row exists so one fact is in front of you when you decide, rather than
+  discovered afterwards.
+
+  **The fact.** Two of those seventeen are **`create-booking`** and
+  **`get-booking-receipt`**. Together they are the pair that records *how a
+  customer's address was arrived at* — whether they picked it off the
+  suggestion list or typed it by hand and it matched nothing. **That work is
+  finished and sitting in the repository.** Until those two go out, every
+  booking stores nothing at all for that question, and an address nobody
+  checked looks exactly like one that was checked.
+
+  **Why that matters more than it sounds.** Your detailer's job sheet prints
+  the address and puts a **Navigate** button directly underneath it. So the
+  screen a person reads before driving out presents an unchecked address with
+  the same confidence as a checked one. **The first time anybody finds out is
+  in a van outside the wrong house.**
+
+  **AND THE HONEST OTHER HALF: nobody is outside a wrong house today.** You
+  have no real detailers and no real customers — every account is a test one.
+  **This is not urgent, it is cheap.** It costs nothing to move two names up a
+  list you are going to work through anyway.
+
+  **The comparison, both ways.**
+  - **Move them up:** the wrong-address problem stops existing before your
+    first real detailer ever books anybody. Cost: the review-map fix and the
+    Spanish email labels go out slightly later.
+  - **Leave them where they are:** the map fix and the Spanish labels go
+    first, and the address flag waits its turn in the seventeen. Cost: if a
+    real detailer signs up in between, they can be sent to an address nobody
+    checked with nothing on screen saying so.
+
+  - What is actually being weighed: **four dead links on a review page only
+    you use**, against **a van full of equipment outside the wrong house.**
+
+  **My recommendation: move those two up.** It is a recommendation and the
+  order is yours — say "leave it" and it stays exactly as you wrote it, and
+  nothing is worse off than it is tonight.
+
 - [ ] **READ · One sentence came off your privacy page, and you can have it
   back the day we build the thing it promised.**
 
