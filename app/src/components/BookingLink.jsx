@@ -265,10 +265,15 @@ export default function BookingLink({
               : <><Copy size={18} strokeWidth={2} /> {t("Copy")}</>}
           </button>
           <a className="btn" href={`/book/${slug}${path}`} target="_blank" rel="noreferrer">
-            <ExternalLink size={18} strokeWidth={2} /> {t("Open")}
+            {/* ROADMAP 2.12/9.20 — was t("Open"), sharing a key with an
+                unrelated field label elsewhere whose Spanish didn't fit a
+                button. "Open it" already exists in the catalogue for the
+                identical pattern at SiteIntake.jsx:529 — reused rather than
+                inventing a second correct answer. */}
+            <ExternalLink size={18} strokeWidth={2} /> {t("Open it")}
           </a>
         </div>
-        {/* ITS OWN LINE, never a third button beside Copy and Open — W14.
+        {/* ITS OWN LINE, never a third button beside Copy and Open it — W14.
             The button is REPLACED by what it makes rather than sitting above
             it: once the code is on the screen, “Generate QR code” is a control
             that would do nothing, and the two actions under the image are the

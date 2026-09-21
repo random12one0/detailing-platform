@@ -1703,6 +1703,11 @@ export const appEs = {
   "Open now": "Abierto ahora",
   "Open slots in the next 7 days": "Horarios libres en los próximos 7 días",
   "Open": "Abre",
+  // ROADMAP 2.12/9.20 — the day-row BUTTON that used to share the field
+  // label's key above ("Open": "Abre"), wrong register for a button in a
+  // catalogue that otherwise uses the infinitive (Guardar, Cancelar,
+  // Cerrar). `screens/more/Hours.jsx`.
+  "Reopen": "Reabrir",
   "Opening Stripe": "Abriendo Stripe",
   "Opens a sample.": "Abre una muestra.",
   "Opens": "Abre",

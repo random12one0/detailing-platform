@@ -215,9 +215,15 @@ export default function Hours() {
                 ) : (
                   <>
                     <span className="quiet" style={{ flex: 1 }}>{t("Closed")}</span>
+                    {/* ROADMAP 2.12/9.20 — "Open" here is a BUTTON ("reopen
+                        this day"), not the field label above the bulk time
+                        inputs. Both used to be the same t() key, so the
+                        catalogue's one entry — the label's "Abre" — was
+                        wrong for this button's grammar; renamed rather than
+                        left ambiguous. */}
                     <button className="btn sm inline dayact"
                       onClick={() => { setDay(d, "open", bulk.open); setDay(d, "close", bulk.close); }}>
-                      {t("Open")}
+                      {t("Reopen")}
                     </button>
                   </>
                 )}

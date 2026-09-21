@@ -1156,6 +1156,33 @@ the wrong service, and never book a job we cannot reach.
      reading the output before it was reported, not after, but it belongs in
      this file's own running list of ways a measurement lies rather than
      staying a private correction nobody else benefits from.
+     **A SECOND CROSS-FILE-STRING PASS, ON `t()`'S CALL SITES RATHER THAN
+     THE CATALOGUE, FOUND ONE MORE OF THE SAME SHAPE.** `"Open"` is a field
+     label (opening time, `Hours.jsx:157`, `DaySheet.jsx:423` — consistent,
+     correct) **and** the button that marks a day open (`Hours.jsx:220`)
+     **and** the button that opens the booking link in a new tab
+     (`BookingLink.jsx:268`) — three senses sharing one entry,
+     `"Open": "Abre"`, a form that fits the label loosely and is the wrong
+     register for either button in a catalogue whose own convention is the
+     infinitive (`Guardar`, `Cancelar`, `Cerrar`). **FIXED 2026-09-20, in
+     its own commit, not the theme one — different finding, independently
+     revertible.** The two button call sites moved to distinct English:
+     `Hours.jsx:220` → `t("Reopen")` (new entry, `"Reopen": "Reabrir"`, no
+     prior collision); `BookingLink.jsx:268` → `t("Open it")`, which needed
+     **no new entry at all** — `"Open it": "Ábrelo"` already existed, used
+     by the near-identical pattern at `SiteIntake.jsx:529` (an `<a
+     target="_blank">` plus an `ExternalLink` icon, opening an example site)
+     — the correct answer was already in the catalogue, just not reused
+     here. The field-label sense (`"Open": "Abre"`) is untouched.
+     `"Close"` has the same three-way shape and was checked the same way —
+     label (`Hours.jsx:160`, `DaySheet.jsx:426`), a "mark day closed" button
+     (`Hours.jsx:213`), and eight "close this dialog" buttons across
+     `RecordHost.jsx`, `SettingsHost.jsx`, `Sheet.jsx`, `Plans.jsx`,
+     `SiteIntake.jsx` (×2) and `JobPhotos.jsx` — but its shared entry,
+     `"Close": "Cerrar"`, is already the infinitive, which reads acceptably
+     for both a button and a label. **Left alone on purpose, flagged rather
+     than changed** — a maybe carried forward costs nothing; a confident
+     change nobody needed is the thing this pass was trying not to do.
 
   **MEASURED 2026-09-19, while sweeping the dashboard in Spanish:** the survey
   reports **76 candidate strings across 11 files**, the worst being
