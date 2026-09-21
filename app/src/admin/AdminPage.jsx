@@ -716,10 +716,27 @@ const STUCK = [
    (r) => bookabilityOf(r).ok,
    (n) => `${plural(n, "booking page", "booking pages")} cannot take a booking`,
    "Nothing to sell, no open days, or the account is suspended. A customer who tries gets nowhere, and neither of you finds out. This is the most expensive thing on the page."],
+  // **THIS ROW'S ADVICE IS THE ONLY ONE WITH NO LEAD FACT, AND THAT IS A
+  // DECISION RATHER THAN AN OVERSIGHT — ROADMAP 9.2(b), 2026-09-21. Please do
+  // not helpfully put one back.** It used to open *"The page works and nobody
+  // has used it"*, and **"The page works" was a claim this row never made**:
+  // it tests `bookings_total` and nothing else, while the `open` row four
+  // lines up is the one that actually evaluates bookability. On an account
+  // that fails both — which is every account on this screen today — the two
+  // rows contradicted each other in plain English.
+  //
+  // The obvious repair is *"Nobody has used their page"*, which keeps the
+  // house fact-then-action shape. **It was rejected, and the reason is the
+  // shape argument's own limit:** the other four rows lead with a fact the
+  // headline does NOT carry, and this one would only restate the count two
+  // lines above it — CLAUDE.md's never-defaults name that exactly, *copy that
+  // explains what the label already said*, and the cost is that the row stops
+  // being read. What is left says the only thing on this row a person cannot
+  // already see.
   ["first",
    (r) => (r.bookings_total ?? 0) > 0,
    (n) => `${plural(n, "detailer has", "detailers have")} never taken a booking`,
-   "The page works and nobody has used it. Ask how they are telling their own customers about it."],
+   "Ask how they are telling their own customers about their booking page."],
   // **A DETAILER WHO NEVER BOOKED IS NOT QUIET, AND THIS ROW SAID HE WAS —
   // caught by loading the screen and reading it, 2026-09-13.** With no
   // bookings `days_since_booking` is null, so the plain test made every new
