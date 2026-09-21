@@ -247,12 +247,44 @@ it when you add to it.
   applies to any long shared document two sessions both append to —
   `DECISIONS.md`, `FOUND.md`, `FOR-ANDREW.md`, `docs/VERIFIED.md`.
 
-  **Three versions, all kept, because the shape of the correction is the
+  **AND THE FOURTH VERSION, BECAUSE THE READ-BACK STEP WAS OPENING THE WINDOW
+  THE RULE EXISTS TO CLOSE — 2026-09-21.** `git diff --cached` only shows
+  something once it is staged, so obeying version two meant running `git add`
+  first. **`git add` puts your file in the shared index.** From that moment
+  until your commit lands, any other session running a bare `git commit`
+  takes your file with theirs — which is the exact contamination the whole
+  rule was written to stop. **The rule was manufacturing the hazard it
+  warns about, in its own verification step.**
+
+  **THE FIX IS ONE WORD SHORTER AND TOUCHES NOTHING:** read the content back
+  with **`git diff <path>`**, not `git diff --cached <path>`. It compares the
+  working tree against `HEAD` and prints **byte-for-byte the same content**
+  for a file you were about to stage, while **never touching the index**. The
+  file is never shared, so the window never opens. `git commit <path>` then
+  takes the working-tree copy exactly as before.
+
+  ```bash
+  git diff ROADMAP.md          # read the CONTENT, index untouched
+  git commit ROADMAP.md -m "…" # takes the working tree, not the index
+  ```
+
+  **This session did it wrong an hour before writing this**, which is how the
+  cost is known rather than argued: it ran `git add` on three paths purely to
+  read them back, and left them in the index while it composed a commit
+  message. Nothing went wrong, because the other session happened not to
+  commit in those seconds. **That is luck, not a safeguard**, and a rule whose
+  compliance step depends on luck is not a rule.
+
+  **Four versions, all kept, because the shape of the correction is the
   lesson.** `--name-only` missed *which version* of a file was staged.
-  Explicit paths missed *the other session's edits inside your file*. Both
-  failures are the same one this repo keeps meeting: **a check that reads the
-  label instead of the contents.** A rule corrected twice in the open is one
-  the next session will actually read.
+  Explicit paths missed *the other session's edits inside your file*. The
+  read-back missed that **verifying safely and staying out of the way are two
+  different requirements, and the obvious command does only the first.** All
+  three are the same failure this repo keeps meeting: **a check that reads
+  the label instead of the contents** — and this last one adds the sharper
+  version of it, **a check whose own act of looking changes the thing it is
+  looking at.** A rule corrected three times in the open is one the next
+  session will actually read.
 - **BEFORE CHANGING A SHARED VARIABLE, FIND OUT WHETHER A PREVIOUS ITEM
   ALREADY DECIDED NOT TO.** A default on a token, a CSS custom property, a
   constant every screen reads — changing it is never local, and the reason it
