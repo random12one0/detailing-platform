@@ -384,3 +384,74 @@ was done for `.bk-choices`. **Product B is named, not diagnosed.**
 Nothing here is fixed. The count discrepancy is reported, not corrected —
 correcting it means deciding whether `failing` should be split per fault type,
 which is a design call rather than a repair.
+
+---
+
+# B diagnosed — the plans page's 312px, 2026-09-20
+
+**Reproduced exactly**, fresh load at 392x844: `scrollHeight` 1156 against an
+844 viewport, **overflow 312px**, matching the gate's number to the pixel.
+
+## Two causes, both measured, and neither is the one the row heights suggest
+
+**Cause 1 — four plans stacked in one column. 712px of an 844px screen (84%).**
+
+`.bk-plans` is a grid. At 392 it is one column and the four `.bk-plan-row`
+cards stack: 177px each, 712px total. At 768 the same grid is
+`296px 296px` — two columns — and the four cards occupy **370px**. Same cards,
+same content, **342px of difference**, and at 768 the page overflows by
+**zero**.
+
+**The rows are not the fault and widening them does not help.** Measured at
+768: each row is **181px — four pixels TALLER** than at 392, and the
+description inside is still two lines (38px) even at 600px wide. So the
+`.bk-choices` question does not repeat here: this content's height is not
+width-dependent in the useful direction. **What changes the total is the
+column count, not the column width.**
+
+**Cause 2 — 104px of bottom padding for a bar that is not on the page.**
+
+`.bk-wrap` carries `padding-bottom: var(--bk-bar-clear)`, computed
+`calc(104px + 0px)`, to clear the fixed action bar the booking *steps* have.
+Measured on the plans page: **zero `.bk-bar` elements, and zero fixed or
+sticky elements of any kind.** 104px of an 844px screen — **12%** — reserved
+for a control that does not exist there.
+
+```
+392x844   overflow 312px
+          .bk-plans      712  (4 rows x 177, one column)
+          wrap padTop     26
+          wrap padBottom 104  <- for a bar that is not rendered
+          3 gaps x 26     78
+          other children 171  (head 24, "already on a plan" 99, one-off 48)
+768x844   overflow   0px
+          .bk-plans      370  (2 columns, same four cards)
+```
+
+**Removing cause 2 alone takes 312px to about 208px** — better, still over.
+**The two together are the finding; neither on its own explains it.**
+
+## And a question about the rule, which is Andrew's rather than mine
+
+W16 is the owner's rule about **steps** — *"each step, you shouldn't have to
+scroll"* — and the gate applies it to `plans page`, which is not a step. It is
+a **list**: a customer choosing between four plans. A list that scrolls is
+ordinary; a wizard step that scrolls is the thing the rule was written against.
+
+**So before anyone spends a night making four plan cards fit an 844px screen,
+the question is whether this surface should be under W16 at all.** If it
+should, the honest fix is the column count or the card height, not the width.
+If it should not, the gate should say so the way it already declares the
+`.bk-planpitch` exemption — **a declared exemption with a reason, not a
+silent removal.**
+
+**Cause 2 is worth fixing either way**, and independently of that decision:
+104px of clearance for a control that is not on the page is wrong whether or
+not the page is allowed to scroll.
+
+## Handed over, not fixed
+
+The fix is `app/src`, which is not this session's tree and is occupied by 2.2.
+**The cause goes across, the same way the `.bk-wrap` one did.** What to check
+afterwards: `.bk-plans` column count at 392, `.bk-wrap` `padding-bottom` on a
+page with no `.bk-bar`, and the gate's number for `plans page` — 312 today.
