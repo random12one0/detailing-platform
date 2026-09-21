@@ -1,0 +1,34 @@
+{
+  "git_sha": "d84f5dec32a73ddb3e3706c533ec3b485bdd812b",
+  "environment": "local",
+  "finished_at": "2026-09-21T09:47:34.188Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "scripts/db-audit.mjs"
+  ],
+  "dimensions": {
+    "project": "kguqylyzgyzfktkfnhjb",
+    "checks": 6
+  },
+  "check_id": "db-audit",
+  "started_at": "2026-09-21T09:47:30.021Z",
+  "status": "pass",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 7,
+  "min_assertions": 5,
+  "canary": {
+    "id": "public must contain tables · an empty answer means the queries are not answering",
+    "observed_failure": true,
+    "caught_by": [
+      "query-answers"
+    ],
+    "findings": [
+      "[query-answers] 5 table(s) came back, so an empty result above is a real answer rather than a silent no-op"
+    ]
+  }
+}

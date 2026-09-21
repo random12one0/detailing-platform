@@ -1,0 +1,43 @@
+{
+  "git_sha": "8d33235f18cf15f57b2d27485bae2a94a3c279cd",
+  "environment": "local",
+  "finished_at": "2026-09-21T09:56:30.312Z",
+  "failures": [
+    "3 failing reading(s) — see above"
+  ],
+  "warnings": [
+    "run with --break=blind; this receipt is a sabotage, not a result",
+    "3 reading(s) fail W16; 0 fault(s) are not W16"
+  ],
+  "artifacts": [
+    "scripts/sweep-booking-steps.mjs"
+  ],
+  "dimensions": {
+    "widths": [
+      "1440x900"
+    ],
+    "step_readings": 19,
+    "numbered_step_readings": 8,
+    "controls_measured": 236,
+    "w16_bound_services": 5,
+    "canary_over_px": 788
+  },
+  "check_id": "sweep-booking-steps-1440x900",
+  "started_at": "2026-09-21T09:55:38.555Z",
+  "status": "fail",
+  "expected_targets": 8,
+  "discovered_targets": 8,
+  "attempted_targets": 8,
+  "completed_targets": 8,
+  "skipped_targets": 0,
+  "assertions_executed": 256,
+  "min_assertions": 200,
+  "canary": {
+    "id": "a booking step measured in a 200px-tall window must be reported OVER",
+    "observed_failure": false,
+    "caught_by": [],
+    "findings": [
+      "[over] NOT CAUGHT — a step was called fitting inside a 200px window, so MEASURE is not measuring and every \"fits\" above is void"
+    ]
+  }
+}

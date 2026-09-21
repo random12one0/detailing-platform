@@ -1,0 +1,37 @@
+{
+  "git_sha": "0715dc26124c6d01a1eff44311ad17f5d2e39cb1",
+  "environment": "local",
+  "finished_at": "2026-09-21T09:43:20.034Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "email-preview/index.html"
+  ],
+  "dimensions": {
+    "accent": "#38E08B",
+    "rot_patterns": 4,
+    "out": "email-preview"
+  },
+  "check_id": "render-emails",
+  "started_at": "2026-09-21T09:43:19.882Z",
+  "status": "pass",
+  "expected_targets": 32,
+  "discovered_targets": 32,
+  "attempted_targets": 32,
+  "completed_targets": 32,
+  "skipped_targets": 0,
+  "assertions_executed": 161,
+  "min_assertions": 100,
+  "canary": {
+    "id": "a body full of NaN / Invalid Date / undefined must be caught by the rot patterns",
+    "observed_failure": true,
+    "caught_by": [
+      "undefined",
+      "NaN",
+      "[object Object]"
+    ],
+    "findings": [
+      "[rot] a deliberately rotten body was caught by 3 of 4 patterns, so the per-email rot test is one that can fail"
+    ]
+  }
+}

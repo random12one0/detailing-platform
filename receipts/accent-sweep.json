@@ -1,0 +1,45 @@
+{
+  "git_sha": "d4a18aaf8cc79c34c07ed2ebc91c6311dd4bb03e",
+  "git_sha_started": "d4a18aaf8cc79c34c07ed2ebc91c6311dd4bb03e",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-09-21T10:31:16.600Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "scripts/accent-sweep.mjs"
+  ],
+  "dimensions": {
+    "grounds": [
+      "ink-0",
+      "ink-2",
+      "ink-3"
+    ],
+    "tinted_sites": 4,
+    "floors": {
+      "fill": 3,
+      "text": 4.5
+    },
+    "corrected_against": "#1E2327"
+  },
+  "check_id": "accent-sweep",
+  "started_at": "2026-09-21T10:31:16.470Z",
+  "status": "pass",
+  "expected_targets": 18,
+  "discovered_targets": 18,
+  "attempted_targets": 18,
+  "completed_targets": 18,
+  "skipped_targets": 0,
+  "assertions_executed": 288,
+  "min_assertions": 250,
+  "canary": {
+    "id": "a colour on itself scores 1.00 and must be refused by both floors",
+    "observed_failure": true,
+    "caught_by": [
+      "contrast-floor"
+    ],
+    "findings": [
+      "[contrast-floor] #0B0D0E on itself measured 1.00 and was refused by both floors, so a failing comparison is one this run can actually make"
+    ]
+  }
+}

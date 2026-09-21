@@ -1,0 +1,37 @@
+{
+  "git_sha": "85857014f8244ecd38fcd64031a323d9fde51143",
+  "environment": "local",
+  "finished_at": "2026-09-21T08:44:05.969Z",
+  "failures": [
+    "STALE (source newer than what is running): accept-invite, accept-quote, available-slots, booking-ics, calculate-booking, cancel-booking, connect-account, create-booking, create-business, delete-customer, forecast, get-booking-receipt, invite-user, owner-push-subscribe, owner-push-unsubscribe, pay-booking, plan-link, platform-admin, platform-billing, preview-emails, refresh-weather, report-problem, reschedule-booking, resend-webhook, respond-to-booking, send-campaign, send-email, send-invoice, send-owner-reminders, stripe-webhook, track-visit, translate-content, update-booking, validate-promo-code, verify-domain, watch-jobs"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "scripts/check-deployed.mjs"
+  ],
+  "dimensions": {
+    "project": "kguqylyzgyzfktkfnhjb",
+    "method": "deploy timestamp against the last commit touching the function and its shared modules",
+    "note": "TIMESTAMPS, NOT CONTENT. deployed-inventory.mjs answers the content question; this one cannot tell a missed deploy from the ordinary deploy-then-commit order."
+  },
+  "check_id": "check-deployed",
+  "started_at": "2026-09-21T08:44:00.067Z",
+  "status": "fail",
+  "expected_targets": 39,
+  "discovered_targets": 39,
+  "attempted_targets": 39,
+  "completed_targets": 39,
+  "skipped_targets": 0,
+  "assertions_executed": 80,
+  "min_assertions": 60,
+  "canary": {
+    "id": "a commit dated a year after its deploy must read STALE",
+    "observed_failure": true,
+    "caught_by": [
+      "freshness"
+    ],
+    "findings": [
+      "[freshness] a source commit dated after its deploy was reported stale, so the comparison that produces every 'current' above can actually fail"
+    ]
+  }
+}
