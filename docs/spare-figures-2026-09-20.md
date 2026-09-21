@@ -219,3 +219,66 @@ skipped — blocked, and labelled blocked.**
 
 **Neither file was edited.** `app/src` writes belong to the other session this
 leg; this is a docs-only record of what is stale in files somebody else owns.
+
+---
+
+# TASK ONE, DONE — the two figures that gate open items, re-derived 2026-09-21
+
+**The handoff's task one was: re-derive the spare figures that GATE something,
+not all 64.** Two passed that test, and neither was in `ROADMAP.md` or
+`docs/VERIFIED.md` where the handoff pointed. **Both are in code**, which is
+why the original census could not see them.
+
+Measured against a settled tree with `sweep-booking-steps.mjs`, at both widths,
+after ROADMAP 2.1 landed and after the two migrations the other session
+applied. **Marked, not rewritten** — and in this file rather than in the two
+source files, for the reason at the bottom.
+
+## 1 · `app/src/screens/more/Reviews.jsx:14` — "step 1 has 10px spare at 1440x900"
+
+It is the **stated reason the booking page reads testimonials and does not draw
+them**: *"its steps are on a measured height budget (W16 … step 1 has 10px
+spare at 1440x900), so a block of quotes cannot be dropped into one."*
+
+| | written (2026-09-02) | measured 2026-09-21 |
+|---|---|---|
+| 1440x900 | **10px spare** | **over by 88px** |
+| 392x844 | not stated | **over by 71px** |
+| at W16's declared bound of 5 services | — | 22px inside |
+
+**The figure is dead twice over.** The cap changed what `spare` meant on
+2026-09-20 (`52a3d70`), and separately `demo-detail` now lists **6 services
+against a declared bound of 5**, which is not the catalogue the 10px was taken
+against. **The constraint it defends is STRONGER than when it was written, not
+weaker:** step 1 does not have 10px to spend on quotes, it is already 88px
+over. Nobody should relax that prohibition on the strength of a stale number
+going the other way.
+
+## 2 · `app/src/book/booking.css:1481` — "the 3-car case went from 16px spare to 9px over"
+
+It is the recorded justification for `.bk-lang`'s negative block margins:
+*"putting a chip in that row … spent 25px of EVERY step's spare room: the
+3-car case went from 16px spare to 9px over."*
+
+| `demo-riverside`, step 3 | written (2026-09-07) | 392x844 today | 1440x900 today |
+|---|---|---|---|
+| 1 car | 24px spare | **over 34px** | **over 40px** |
+| 2 cars | 114px spare | fits, 56px spare | fits, 80px spare |
+| **3 cars** | **16px spare → 9px over** | **over 42px** | **over 18px** |
+
+**Every one of the three has moved, and one changed direction**: the 1-car case
+was the roomiest of the three and is now the worst at 1440. **The conclusion the
+comment draws still holds** — the chips cost real height and the margins are
+what pay for it — **but not one of its numbers is current.**
+
+## WHAT WAS NOT DONE, AND WHY
+
+**Neither source file was marked, because `app/src` is the other session's lane
+this round.** The re-derivation is recorded here instead. **Two lines need a
+mark when that lane comes back**, and the marks are the figures above — not a
+rewrite of the prose, which is still correct about everything except its
+numbers.
+
+**The 62 other figures stay untouched and unre-derived.** They gate nothing;
+re-dating them would turn history into a fresh-looking claim, which is the rule
+this ledger opened with.
