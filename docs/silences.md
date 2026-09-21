@@ -89,7 +89,7 @@ end with the same summary line.
 | ~~`sweep-booking-steps.mjs`~~ | **ROW CORRECTED 2026-09-20 — the claim was wrong, and the truth was worse. See below** | — |
 | ~~`accent-sweep.mjs`~~ | `SWEEP CLEAN — dashboard, booking page and hue families` on `failures === 0` | **CLOSED 2026-09-21, `8585701`.** 18 declared accents, 288 comparisons, a canary aimed at the contrast floor, and a receipt. **Breaking it found a real defect: any stray argument was read as a colour**, so `--lite` swept ONE and printed CLEAN. See below. |
 | `e2e-booking.mjs` | exits 0 with no subject count | count the steps completed end to end; assert the booking exists afterwards. **STILL UNPROVEN, and the census mis-scoped it: it needs `SUPABASE_SERVICE_ROLE_KEY` and four other credentials, so it is NOT browser-only** |
-| `render-emails.mjs` | exits 0 with no subject count | count templates rendered; fail below the known template count |
+| ~~`render-emails.mjs`~~ | exits 0 with no subject count | **CLOSED 2026-09-21, `af3b9a8`.** 32 declared emails, 161 assertions, a canary aimed at the ROT patterns, a receipt. **The row was wrong on both halves** — it printed `32 emails` and exited 1 on problems. What it could not tell you was a run that rendered nothing: `0 emails`, exit 0. |
 | ~~`db-audit.mjs`~~ | exits 0 with no subject count | **CLOSED 2026-09-21, `81fc751` — and the row understated it. It had NO `process.exit` on findings at all**, so two real problems printed and returned 0, inside CLAUDE.md's verification table. Findings now fail; 4 declared checks; canary aimed at `q()`. See below. |
 | ~~`check-deployed.mjs`~~ | exits 0 with no subject count | **CLOSED 2026-09-21, `d4ac4ac`.** 39 declared functions, a canary aimed at the freshness comparison, a receipt. **The row was slightly wrong**: it does print `all N functions are current` — but only on a clean run, and no run is clean today. Its earlier correction (it printed `PASS` having fetched nothing, fixed at `4b804ec`) is below. |
 | `i18n-survey.mjs` | **CLOSED — see below** | — |
@@ -182,6 +182,7 @@ taken are a decision with a named blocker rather than a silence.
 | gate | needs | this round |
 |---|---|---|
 | `accent-sweep.mjs` | nothing — fully offline | **TAKEN**, `8585701` |
+| `render-emails.mjs` | `supabase/functions/_shared` to stop moving | **TAKEN 2026-09-21 in the lane swap**, `af3b9a8` — 4 of 7 |
 | `check-deployed.mjs` | Management API read | **TAKEN**, `d4ac4ac` |
 | `db-audit.mjs` | Management API read | **TAKEN**, `81fc751` |
 | `render-emails.mjs` | imports 6 modules from `supabase/functions/_shared` | **DEFERRED** — that lane is the other session's, took 2 commits in 90 minutes with 3 items unpressed, so any reading is against a tree that will move |
