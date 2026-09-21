@@ -1949,6 +1949,112 @@ requested.
   cancellation and reschedule have each been sent, received and read.
   *old roadmap § A*
 
+  ---
+
+  ### FRONT HALF DONE 2026-09-21 — the classification, on the source.
+  ### THE BACK HALF — rendering and end-to-end sending — IS NOT DONE.
+
+  **The question this answers, and it had never been asked.** Andrew's binding
+  ruling: *no marketing email, ever. Email is receipts, reminders and alerts;
+  anything that sells goes by text.* Every template was previously read for
+  whether it is CLEAR. None was read for **which of those four it is**. Nothing
+  was rendered and nothing was sent this round; nothing was fixed, by
+  instruction.
+
+  **HOW EACH CLASSIFICATION WAS ESTABLISHED — evidence, not the function's
+  name.** Four tests, applied to every template: (a) **what the button asks
+  the reader to do**, which is the sharpest single signal — every call-to-action
+  in the file was listed and read together; (b) **whether the subject is a
+  booking that already exists**, or a new one being solicited; (c) **whether it
+  carries a CAN-SPAM legal footer** (`legal:` passed to `shell`), which is the
+  product's own declaration of whether it thinks a mail is marketing; (d) **the
+  trigger function and its gate**, read in the sender rather than assumed from
+  the template.
+
+  | # | Template | Trigger → who receives it | Class | Evidence |
+  |---|---|---|---|---|
+  | 1 | `customerConfirmationEmail` | `create-booking`, `accept-quote` → customer | **Receipt** | "View your booking" — a booking that now exists |
+  | 2 | `invoiceEmail` | `send-invoice` → customer | **Receipt** | money owed or paid for work done; no CTA to buy |
+  | 3 | `requestDecisionEmail` · accepted / declined | `respond-to-booking` → customer | **Receipt** | the answer to a request they made |
+  | 4 | `requestDecisionEmail` · quote | `respond-to-booking` → customer | **Receipt** | "See it and say yes" — a price for a job THEY asked for. A quote is solicited, so it is not a sale |
+  | 5 | `customerReminderEmail` | `send-owner-reminders` sweep → customer | **Reminder** | "View or change your booking" — an appointment already agreed |
+  | 6 | `ownerNewBookingEmail` | `create-booking`, `accept-quote` → detailer | **Alert** | "Open the job" — something needs attention |
+  | 7 | `ownerNewBookingEmail` reused | `send-owner-reminders` evening-before → detailer | **Reminder** | same template, subject swapped; finding 6 above |
+  | 8 | `staleRequestEmail` | `send-owner-reminders` → detailer | **Alert** | "Answer this request" — an unanswered request |
+  | 9 | `cancellationEmail` | `cancel-booking`, `update-booking` → both | **Alert** | a state change on an existing booking |
+  | 10 | `rescheduleEmail` | `reschedule-booking`, `update-booking` → both | **Alert** | as above |
+  | 11 | `planCancelledEmail` | `plan-link` → customer | **Alert** | a plan they held has ended |
+  | 12 | `planLinkEmail` | `plan-link` → customer | **Receipt** | "Open your plan" — sent AFTER sign-up, not to solicit one |
+  | 13 | `inviteEmail` | `invite-user`, `platform-admin` → staff | **Alert** | "Set up your account" — an account action |
+  | 14 | `billingEmail` | `stripe-webhook` → detailer | **Alert** | "Update your card" / "Put your page back online" |
+  | 15 | `platformAlertEmail` | `create-business`, `watch-jobs` → platform owner | **Alert** | internal, to Andrew |
+  | 16 | `followupEmail` | `send-invoice`, gated `email_customer_followup` → customer | **Neither — see D** | asks for a Google/Yelp review |
+  | 17 | `maintenanceDueEmail` | `send-owner-reminders` sweep → customer | **SELLING** | **"Book it in"** for a service not bought |
+  | 18 | `campaignEmail` | `send-campaign` → customer | **SELLING** | **"Book again"**; carries unsubscribe + postal address |
+
+  *(Sixteen exported templates; eighteen rows because `requestDecisionEmail`
+  and `ownerNewBookingEmail` each classify differently depending on branch or
+  caller, which is itself part of the answer.)*
+
+  **IT IS NOT CLEAN. FOUR FINDINGS, NOT FIXED, FOR ANDREW TO RULE ON.**
+
+  **A — `maintenanceDueEmail` sells, is filed with the reminders, and NOTHING
+  IN THIS REPO TURNS IT OFF.** This is the "your coating is due" email that
+  `docs/MANAGER-CLOSE-2026-09-21.md` records as **off**. Read in the sender:
+  its only gate is `settings.email_customer_reminder`
+  (`send-owner-reminders/index.ts:389`) — **the same switch that controls
+  ordinary appointment reminders.** There is no separate flag, no feature
+  gate, and nothing implementing the ruling. Any business with customer
+  reminders switched on sends it to any customer with a row in
+  `maintenance_deadlines` due within 60 days, at 60/30/14/1 days.
+  Its own source comment states the intent plainly: *"the email that gets the
+  job booked is the one with the booking link in it."*
+  **If it is genuinely off today, it is off by DATA or by something outside
+  this repo — a paused schedule, an empty table — and none of that is visible
+  here.** That is exactly the class of fact MANAGER-CLOSE exists to record and
+  `git log` cannot show. **Not touched. Andrew's call.**
+
+  **B — the legal half, and it falls on A rather than on B.**
+  `maintenanceDueEmail` carries **no unsubscribe link and no postal address** —
+  it passes no `legal:` block to `shell`, because it sits in the transactional
+  set. If it is not transactional, that is the CAN-SPAM problem the ruling
+  believed it had retired. It *does* honour suppression (`unsubscribed_at`,
+  `email_failed_at`, checked at `:397`), so a customer who opted out elsewhere
+  is skipped — **but the email soliciting the sale gives them no way to opt
+  out from it.** Suppression honoured, no path offered.
+  By contrast `campaignEmail` is the one template that declares itself
+  marketing and is legally correct about it: member-gated, **refuses to send
+  without a mailing address** (`send-campaign/index.ts:89-90`), and carries
+  both the unsubscribe link and the postal address. It contradicts the ruling
+  by existing; it does not contradict the law.
+
+  **C — THE SHARPEST ONE, AND IT IS NOT A TEMPLATE AT ALL.** `ownWords()`
+  drops a detailer-authored paragraph into **9 call sites across 7 of the 16
+  templates** — `confirmation`, `request_received`, `reminder`, `reminder_2`,
+  `accepted`, `declined`, `quote`, `receipt`, `invoice`, `followup`,
+  `cancelled`, `rescheduled` (12 `MessageKind`s). The text is HTML-escaped and
+  otherwise **unconstrained**. So the classification above is a fact about the
+  FRAME, not about what arrives: a detailer may type a sales pitch into their
+  reminder or their receipt, and the product will deliver it inside a
+  transactional email that carries no unsubscribe path. **Nothing anywhere
+  checks that content.** This is precisely the shape Andrew named — *a
+  reminder that reads as a sale* — and it is the one the ruling cannot reach
+  by deleting a template, because the seller is the tenant.
+
+  **D — `followupEmail` is none of the four.** It thanks the customer and asks
+  for a Google or Yelp review. It sells nothing, so it is not marketing; it is
+  not a receipt, a reminder or an alert either. Gated on
+  `email_customer_followup`, no legal footer. **Named rather than filed**,
+  because forcing it into a category would be the exact "reads the label
+  instead of the contents" error this review exists to avoid. Andrew's ruling
+  needed on whether a review request is email or text.
+
+  **WHAT IS EXPLICITLY NOT DONE.** Nothing was rendered — `render-emails.mjs`
+  was not run, it needs a dev server and the browser was another session's this
+  round. Nothing was sent, received or read in an inbox, which is this item's
+  actual done-when. No fix was applied to any finding. **`supabase/` was read,
+  never edited.** The back half stands untouched and this box stays open.
+
   **STILL OPEN, AGAINST ITS OWN DONE-WHEN.** That sentence asks for proof that
   each of seven stages was **sent, received and read** — real delivery, not a
   read of the source. What exists below is a full source-level review of
