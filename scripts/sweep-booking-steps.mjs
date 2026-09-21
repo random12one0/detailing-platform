@@ -59,6 +59,48 @@ const SIZES = (args.length ? args : ["1920x1080", "1440x900", "768x1024", "392x8
   const [width, height] = s.split("x").map(Number);
   return { width, height };
 });
+// --- W16'S STATED BOUND, DECLARED HERE AND NOWHERE ELSE ---------------------
+//
+// **THE RULING THIS RESTS ON:** this product's booking surfaces are sized by
+// data the DETAILER owns, so a rule phrased "step 1 must fit" is not a rule at
+// all — it is a hope about a number somebody else controls. A check cannot
+// promise that and should not pretend to. W16 now promises something it can
+// keep: **step 1 fits FIVE services, at all four verification widths.**
+//
+// **IT IS A CONSTANT, NOT A READING, AND THAT IS THE WHOLE POINT.** The moment
+// this derives itself from whatever the tenant happens to have, it becomes a
+// gate that can never fail — the exact failure `docs/silences.md` exists to
+// name. The tenant's count is MEASURED; the bound it is judged against is
+// DECLARED, committed, and moved only by a person who re-measures.
+//
+// **WHAT IT ASSUMES, OUT LOUD, so the next reader does not infer it from a
+// passing run** — measured 2026-09-20 against `demo-detail` on the live page:
+//
+//   services   1440x900              392x844
+//   5          fits, ~22px spare     fits, ~29px spare      <- the bound
+//   6 (demo)   over 88px             over 71px
+//   7          over ~198px           over ~171px
+//
+// **THE SPARE FIGURES IN THAT TABLE ARE DERIVED, NOT READ OFF A RUN.** They
+// are this script's own overflow minus one card — 88 - 110 and 71 - 100 — taken
+// from a reading where step 1 was genuinely overflowing, so they are real. The
+// `fits, Npx spare` line this script prints for a step that FITS is a different
+// number and is capped: `.bk-wrap` is `flex-grow: 1` inside a `100dvh` column,
+// so it stretches to fill whatever is left and reports the same ~73-77px
+// however short the step is. Measured 2026-09-20 — riverside step 1, 58px of
+// content, read as -73 at viewport heights 900, 1200 and 740 alike. Failure is
+// unaffected (a step taller than the screen still measures honestly); only the
+// headroom half of the report is. Do not read a printed spare as room to grow.
+//
+// One service card plus its gap is 110px at 1440 and 100px at 392, and
+// `.bk-choices` is a content-driven flex column — `min-height: auto`, no
+// declared height. **There is no fixed card height that satisfies an unbounded
+// service count**, which is why this is a bound and not a CSS fix.
+//
+// SO: a detailer with twelve services is a KNOWN GAP, named by this script in
+// every run, and not a silent pass. Raising this number means re-measuring the
+// table above, not editing the number.
+const W16_SERVICES = 5;
 const BASE = process.env.BASE || "http://localhost:5173";
 const SLUG = "demo-detail";
 const SHOTS = process.argv.find((a) => a.startsWith("--shots="))?.slice(8) ?? "";
@@ -67,7 +109,7 @@ const LITE = process.argv.includes("--lite");
 
 // Runs in the page. `.bk-wrap` is the column; its children are the blocks a
 // step is made of, so naming the tallest three names the thing to fix.
-const MEASURE = () => {
+const MEASURE = (bound) => {
   const vh = window.innerHeight;
   // NOT scrollHeight. `.bk` carries `min-height: 100dvh`, so the document is
   // never shorter than the screen and a step with room to spare reports
@@ -96,7 +138,26 @@ const MEASURE = () => {
   // **THE PLAN PITCH'S OWN HEIGHT, so the add-ons exemption below can do
   // ARITHMETIC rather than take a step's word for it.** Zero on every other
   // step, which is what keeps the exemption from reaching them.
-  return { over, vh, blocks, pitch: Math.round(h(".bk-planpitch")) };
+  // **THE SERVICE COUNT, AND THE HEIGHT THE SERVICES PAST THE BOUND ACCOUNT
+  // FOR**, so the allowance below is ARITHMETIC rather than a step's word for
+  // it. `.bk-svc` is step 1's card and only step 1's — the extras step's cards
+  // are plain `.bk-card.selectable` — so this is keyed on the ELEMENT and can
+  // never reach another step, the same discipline as the plan-pitch exemption.
+  // The SMALLEST excess cards are the ones discounted, so the allowance is the
+  // least height that could honestly be taken off, never the most.
+  const svcCards = [...document.querySelectorAll(".bk-svc")];
+  const excess = svcCards
+    .map((el) => el.getBoundingClientRect().height
+      + (parseFloat(getComputedStyle(el.parentElement).rowGap) || 0))
+    .sort((a, b) => a - b)
+    .slice(0, Math.max(0, svcCards.length - bound))
+    .reduce((a, b) => a + b, 0);
+  return {
+    over, vh, blocks,
+    pitch: Math.round(h(".bk-planpitch")),
+    services: svcCards.length,
+    excess: Math.round(excess),
+  };
 };
 
 // --- SETTLE, NOT SLEEP ------------------------------------------------------
@@ -176,6 +237,12 @@ const fault = (what) => { failing++; OTHER_FAULTS.push(what); };
 // full-screen. Counted separately and always printed: an exemption nobody
 // sees is an exemption nobody re-reads.
 let exempted = 0;
+// **THE STATED BOUND'S OWN TALLIES.** `outsideBound` counts readings the bound
+// covers, and `svcSeen` is the subject count that stops a run which never
+// reached step 1 from reading like a run in which the bound was tested and
+// held. A bound nobody sees exercised is a bound nobody re-reads.
+let outsideBound = 0;
+const svcSeen = new Set();
 
 // --- THE TAP FLOOR, ONE READING PER STEP ------------------------------------
 // Collected rather than printed inline: a control that is four pixels short
@@ -224,7 +291,7 @@ for (const size of SIZES) {
       await page.screenshot({ path: file, fullPage: !gate });
     }
     await tapCheck(page, `${size.width}x${size.height} ${label}`);
-    const { over, vh, blocks, pitch } = await page.evaluate(MEASURE);
+    const { over, vh, blocks, pitch, services, excess } = await page.evaluate(MEASURE, W16_SERVICES);
     const bad = over > 1;
     // **THE ONE EXEMPTION FROM W16, AND IT IS ANDREW'S RULING — 2026-09-19.**
     //
@@ -257,7 +324,34 @@ for (const size of SIZES) {
     //      a different step, or on a different control within add-ons.
     const withoutPitch = over - pitch;
     const exemptFit = bad && gate && pitch > 0 && withoutPitch <= 1;
+    // **AND W16'S STATED BOUND, WHICH IS NOT AN EXEMPTION — IT IS THE RULE'S
+    // SCOPE.** W16 promises `W16_SERVICES` services (declared at the top of
+    // this file, with the measurements it rests on). A tenant listing more is
+    // outside what the rule promises, so the reading is named as a known gap
+    // rather than counted as a failure no CSS change can honestly clear.
+    //
+    // **NARROW THE SAME THREE WAYS AS THE PLAN PITCH ABOVE:**
+    //  1 · It needs `.bk-svc` on the page — step 1's card and only step 1's,
+    //      since the extras step's cards are plain `.bk-card.selectable`. Keyed
+    //      on the ELEMENT, never on a step's name, so it cannot reach another
+    //      step however the flow is rebuilt.
+    //  2 · It is ARITHMETIC. The step is re-judged with the services past the
+    //      bound discounted — the SMALLEST of them, so the least height that
+    //      could honestly come off — and everything else is still held to W16
+    //      to the pixel. **If a heading, an intro line or a new banner pushes
+    //      the step past what those cards explain, `beyondBound` stays positive
+    //      and the step FAILS NORMALLY with the leftover pixels named.**
+    //  3 · A tenant AT or UNDER the bound gets no allowance whatsoever. Its
+    //      step 1 is measured exactly as it was before this existed, and
+    //      `demo-riverside` — two services — is walked below for precisely that
+    //      reason, so the live direction is exercised on every run rather than
+    //      argued for in a comment.
+    if (services) svcSeen.add(services);
+    const overBound = services > W16_SERVICES;
+    const beyondBound = over - excess;
+    const boundGap = bad && gate && !exemptFit && overBound && beyondBound <= 1;
     if (exemptFit) exempted++;
+    else if (boundGap) outsideBound++;
     else if (bad && gate) { failing++; w16Failing++; }
     const pct = Math.round((over / vh) * 100);
     console.log(
@@ -267,6 +361,8 @@ for (const size of SIZES) {
       // how much more this layout can take before W16 breaks again.
       `${label.padEnd(22)} ${exemptFit
         ? `EXEMPT from W16 — over ${over}px, and .bk-planpitch is ${pitch}px of it`
+        : boundGap
+          ? `OUTSIDE W16's STATED BOUND — over ${over}px with ${services} services, bound is ${W16_SERVICES}`
         : bad
           ? `${gate ? "over" : "scrolls"} ${String(over).padStart(4)}px (${pct}% of the screen)`
           : `fits, ${-over}px spare`}`
@@ -274,7 +370,21 @@ for (const size of SIZES) {
         ? "\n  Andrew's ruling, 2026-09-19: the plan pitch is full-screen by instruction, so this STEP "
           + "is exempt and the CONTROL is untouched. Everything else on the step still has to fit, "
           + `and does — without the pitch it is ${-withoutPitch}px inside the screen. ROADMAP 8.4.`
-        : bad && gate ? "\n  tallest: " + blocks.map((b) => `${b.h}px ${b.name} «${b.txt}»`).join("\n           ") : ""),
+        : boundGap
+          ? `\n  W16 is declared to ${W16_SERVICES} services and this tenant lists ${services}. The `
+            + `${services - W16_SERVICES} past the bound are ${excess}px of the overflow; at the bound the `
+            + `step is ${-beyondBound}px inside the screen. A KNOWN GAP, not a pass — a detailer with more `
+            + `than ${W16_SERVICES} services scrolls on step 1 and no CSS change honestly clears it.`
+        : bad && gate
+          ? (overBound
+            ? `\n  and the bound does not explain it: ${services} services against a declared ${W16_SERVICES}, `
+              + `the ${services - W16_SERVICES} past the bound are only ${excess}px of it, leaving ${beyondBound}px over.`
+            : services
+              ? `\n  and the bound does not cover it: ${services} services is within the declared `
+                + `${W16_SERVICES}, so this step gets no allowance and this is a plain W16 failure.`
+              : "")
+            + "\n  tallest: " + blocks.map((b) => `${b.h}px ${b.name} «${b.txt}»`).join("\n           ")
+          : ""),
     );
   };
 
@@ -598,6 +708,18 @@ for (const size of SIZES) {
       fault("the second tenant's booking page did not load");
     } else {
       await settle(p, 1600);
+      const old = page;
+      page = p;
+      // **THE WITHIN-BOUND TENANT, AND IT IS READ HERE ON PURPOSE.** This
+      // page was already being loaded and walked past; measuring its step 1
+      // costs one reading and buys the thing a stated bound most needs — a
+      // subject the bound does NOT cover, measured every run. `demo-riverside`
+      // lists two services against a declared bound of five, so it gets no
+      // allowance at all and its step 1 is held to W16 to the pixel. Without
+      // it, every step-1 reading in the run would be one the bound covers, and
+      // a gate whose every subject is excused is the gate `docs/silences.md`
+      // was written about.
+      await say("riverside step 1");
       // Walk by HEADING rather than by a step number: riverside's flow is a
       // different length from the demo's, and a script that assumes six steps
       // silently measures the wrong screen (the lesson this file already
@@ -612,8 +734,6 @@ for (const size of SIZES) {
         await p.getByRole("button", { name: /continue/i }).first().click();
         await settle(p, 1200);
       }
-      const old = page;
-      page = p;
       // A GUARD THAT SKIPS MUST PRINT. No count control means the limit never
       // reached the page — which is exactly what the public profile's explicit
       // key list produces when a column is not named in it, and it must never
@@ -652,6 +772,24 @@ const exemptNote = exempted
 console.log(w16Failing
   ? `\n${w16Failing} step${w16Failing === 1 ? "" : "s"} do not fit — W16 is not met` + exemptNote
   : `\nevery step fits at ${SIZES.map((s) => `${s.width}x${s.height}`).join(", ")}${exempted ? ", with one documented exception" : ""}` + exemptNote);
+
+// --- WHAT W16 PROMISED THIS RUN, PRINTED WHETHER OR NOT IT MATTERED ---------
+// **The declaration is read out every run, and so is the subject count.** A
+// bound that only speaks when it is breached is a bound the next reader infers
+// from a passing run — which is the thing the constant at the top of this file
+// exists to stop. If no `.bk-svc` card was reached, this says NOT MEASURED
+// rather than staying quiet, because a run that never tested the bound must
+// not read like a run in which it held.
+console.log(`\nW16's stated bound: step 1 is promised to fit ${W16_SERVICES} services `
+  + `at ${SIZES.map((s) => `${s.width}x${s.height}`).join(", ")}. `
+  + (svcSeen.size
+    ? `this run measured ${[...svcSeen].sort((a, b) => a - b).join(" and ")} services.`
+    : "NOT MEASURED — no .bk-svc card was reached, so the bound was never tested this run."));
+if (outsideBound) console.log(
+  `${outsideBound} step reading${outsideBound === 1 ? "" : "s"} OUTSIDE the stated bound — more services `
+  + `than W16 promises, overflowing by no more than those extra services account for. `
+  + `A KNOWN GAP, counted in no failure total and cleared by no CSS change. Everything else on those `
+  + `steps is still measured and still has to fit.`);
 
 // **AND THE FAULTS THAT ARE NOT W16 NAME THEMSELVES.** They used to be folded
 // into the sentence above, which is how a total of 12 sat over a list of 10.
