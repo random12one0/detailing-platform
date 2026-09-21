@@ -99,6 +99,7 @@ export default function Catalog() {
   const [sizes, setSizes] = useState([]);
   const [editing, setEditing] = useState(null); // {kind, id?, form}
   const [msg, setMsg] = useState(null);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     const v = settings?.vehicle_sizes;
@@ -133,6 +134,7 @@ export default function Catalog() {
     setGroups(g.data ?? []);
     setServices(s.data ?? []);
     setAddOns(a.data ?? []);
+    setLoaded(true);
   }, [business.id]);
 
   useEffect(() => { load(); }, [load]);
@@ -532,7 +534,7 @@ export default function Catalog() {
         ))}
       </div>
 
-      {services.length === 0 && <p className="muted">{t("No services yet. Customers can't book until you add one.")}</p>}
+      {loaded && services.length === 0 && <p className="muted">{t("No services yet. Customers can't book until you add one.")}</p>}
 
       <div className="row between" style={{ marginTop: "var(--sp-5)" }}>
         <h3>{t("Add-ons")}</h3>

@@ -401,7 +401,7 @@ export default function Campaigns() {
               {codes.map((c) => <option key={c} value={c}>{c}</option>)}
             </select></label>
         </div>
-        {codes.length === 0 && (
+        {!busy && codes.length === 0 && (
           <p className="muted" style={{ marginTop: "calc(-1 * var(--sp-2))" }}>
             {/* TWO FIXES IN ONE LINE, both of them standing rules this line
                 predates: it never went through `t()`, so it sat in English on

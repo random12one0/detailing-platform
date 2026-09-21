@@ -86,6 +86,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // domain is the seam roadmap 3.3 exists to remove.
   const { business, siteOrigin } = useBusiness();
   const [templates, setTemplates] = useState([]);
+  const [templatesLoaded, setTemplatesLoaded] = useState(false);
   const [pickingText, setPickingText] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -219,7 +220,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
       const { data } = await supabase
         .from("message_templates").select("*")
         .eq("business_id", business.id).order("sort_order");
-      if (!dead) setTemplates(data ?? []);
+      if (!dead) { setTemplates(data ?? []); setTemplatesLoaded(true); }
     })();
     return () => { dead = true; };
   }, [business.id]);
@@ -856,7 +857,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
         {pickingText && (
           <Sheet onClose={() => setPickingText(false)} title={t("Send a text")} peek={48}>
             <div className="tight">
-              {templates.length === 0 && (
+              {templatesLoaded && templates.length === 0 && (
                 <p className="quiet">{t("No templates yet · the gear, then Message templates.")}</p>
               )}
               {templates.map((tpl) => (

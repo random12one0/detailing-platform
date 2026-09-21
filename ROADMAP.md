@@ -4525,6 +4525,33 @@ the dashboard or back office at phone width at all.
   not on reading the diff — a false empty state is a timing bug, invisible
   to a code read.
 
+  **BUILT AND VERIFIED LIVE — 2026-09-20, all three exactly as ruled above.**
+  Campaigns' dropdown now checks `!busy`; Catalog and BookingDetail each got
+  the small sibling flag (`loaded`, `templatesLoaded`). No wording changed,
+  no new translated string, no skeleton added anywhere.
+
+  **PRESSED, not just read, at 320 — all three, on this tenant's real data
+  (6 services, 2 promo codes, 5 message templates), with the request to
+  Supabase held open in the browser so the "still asking" moment was
+  actually on screen, not inferred:** Catalog's services and add-ons panels
+  render nothing during the hold — no "No services yet" — then fill with the
+  real six services once the hold lifts. Campaigns' "Make a link" discount
+  dropdown shows "No discount" alone during the hold, then FIRST20 and
+  SUMMER10 once it resolves. BookingDetail's "Send a text" sheet shows only
+  "Write my own" during the hold, then five real Spanish templates once it
+  resolves. **None of the three ever printed the false empty sentence at any
+  point during the hold**, at 320, which is the one width this repo's own
+  history says a regression already got through once.
+
+  **READ, not re-pressed, at 392×844, 768×1024, 1440×900 and 1920** — the
+  timing logic is a React state gate, not CSS, so it does not vary by width;
+  what was checked at each of those four was the resolved layout and the
+  console, on a fresh tab with no console errors at any of them. The
+  browser's own JS timers are not a substitute for a throttled network and
+  are named here as what they are, not as a network-conditions test.
+  `scripts/deployed-inventory.mjs` was not run — this is a dashboard-only
+  change, no edge function touched.
+
 - [x] **DONE 2026-09-20 — 9.9 New booking files "Mobile / Drop-off" under the
   VEHICLE heading.** Move it under its own "Where" heading.
   *A2 4.8*
