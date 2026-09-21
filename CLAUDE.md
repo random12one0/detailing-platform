@@ -317,6 +317,7 @@ Open a long file only when the work touches its subject.
 | `DECISIONS.md` | Every judgment call and why. **Start at its index** — it is 186,000 words |
 | `docs/VERIFIED.md` | What has been proven, when, and at which commit |
 | `docs/gotchas.md` | How measurements lie |
+| `docs/silences.md` | **Which checks can tell a pass from a did-not-run, and which cannot.** 33 checks censused: 21 are graded by `receipt.mjs`, 7 are gates that write no receipt and print no subject count, 5 write receipts whose four counts cannot disagree. Read it before trusting any check's silence — and it says which entries were proved by running them and which were only read |
 | `docs/screen-rules.md` | Screen-level design rulings |
 | `docs/tenant-site-kit.md` | The brief for building a client's own website |
 

@@ -418,7 +418,23 @@ ${missing.size} wrapped keys with no Spanish — each one is a screen in two lan
 }
 const rows = [];
 const knownRows = [];
+// **ZERO IS THIS SCRIPT'S DESIRED ANSWER, WHICH IS WHY IT HAS TO FAIL CLOSED —
+// 2026-09-20, ROADMAP 14.16.** Every other check here reports zero findings as
+// good news, and that is fine, because its subjects are still counted. This one
+// is a survey of *what is still English*, so `0 candidate strings in 0 files`
+// reads exactly like FINISHED WORK — and it is what a broken walk, a moved
+// `SRC`, or an `--only` filter matching nothing all print. The repo's own rule
+// is that zero discovered targets is a failure and never a pass; this script
+// printed it as a pass.
+//
+// The guard is on FILES SCANNED, not on findings: finding nothing is the goal,
+// scanning nothing is the fault, and conflating those two is the bug.
+// `I18N_SURVEY_CANARY=1` scans nothing on purpose, so the guard is known to
+// fire rather than assumed to.
+let scanned = 0;
 for (const file of walk(SRC)) {
+  if (process.env.I18N_SURVEY_CANARY === "1") break;
+  scanned++;
   const rel = path.relative(SRC, file).split(path.sep).join("/");
   if (only && !rel.includes(only)) continue;
   const found = candidates(readFileSync(file, "utf8"));
@@ -497,4 +513,15 @@ ${n} raw literals that ARE in the catalogue — each is either a key held in a`)
 }
 
 const total = rows.reduce((n, r) => n + r.found.length, 0);
-console.log(`\n${total} candidate strings in ${rows.length} files (heuristic — for ordering the work, not for signing it off)`);
+console.log(`\n${total} candidate strings in ${rows.length} files, from ${scanned} file(s) scanned `
+  + `(heuristic — for ordering the work, not for signing it off)`);
+// A FLOOR, NOT A COUNT. `app/src` holds hundreds of files; anything near zero
+// means the walk failed, never that the dashboard turned out to be translated.
+const SCAN_FLOOR = 50;
+if (scanned < SCAN_FLOOR) {
+  console.log(`\nSCANNED NOTHING — ${scanned} file(s) walked, below the floor of ${SCAN_FLOOR}. This is NOT`);
+  console.log(`"the dashboard is fully translated". It is a survey that did not look. Zero candidate`);
+  console.log(`strings from zero files is the same sentence a finished job prints, which is the whole`);
+  console.log(`reason this exits non-zero rather than reading as good news.`);
+  process.exit(1);
+}
