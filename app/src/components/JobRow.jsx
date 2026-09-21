@@ -20,7 +20,7 @@ import { t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 import JobWeather from "./JobWeather.jsx";
 
-export default function JobRow({ booking, node = "", weather, weatherRules, onClick }) {
+export default function JobRow({ booking, node = "", weather, weatherRules, late = false, onClick }) {
   useAppLocale();
   const services = (booking.services ?? []).map((s) => s.name_at_booking).filter(Boolean);
   const where = t(booking.service_type === "mobile" ? "Mobile" : "Drop-off");
@@ -54,7 +54,14 @@ export default function JobRow({ booking, node = "", weather, weatherRules, onCl
     <button className={`row-item${node ? ` ${node}` : ""}`} onClick={onClick}>
       <span className="txt">
         <span className="nm">
-          <span className="t">{time12(booking.start_time)}</span>{booking.customer_name}
+          <span className="t">{time12(booking.start_time)}</span>
+          {/* ROADMAP 9.5 — the job that has run past its own end time and
+              was never marked complete, distinguished from one that just
+              hasn't started yet. Leads the name for the same reason `bring`
+              and `cars` lead the sub-line below: the first thing read is the
+              last thing truncation eats. */}
+          {late && <span className="late">{t("Late")}</span>}
+          {booking.customer_name}
         </span>
         <span className="sub">
           {[

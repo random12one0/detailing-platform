@@ -615,6 +615,13 @@ a { color: var(--accent-text); text-decoration: none; }
   color: var(--text-muted); font-variant-numeric: tabular-nums;
   margin-right: 8px;
 }
+/* ROADMAP 9.5 — same `--bad` this theme already reserves for a resolved-bad
+   outcome (`.pill.cancelled`, `.pill.no_show`), reused as inline text rather
+   than a pill: this word sits inside the name line's own text flow, not a
+   second row of chips a tight two-line item has no room for. */
+.row-item .late {
+  color: var(--bad); font-weight: 700; margin-right: 6px;
+}
 .row-item > .figure.sm {
   font-size: var(--t-body); color: var(--text-2);
   line-height: 1; flex-shrink: 0;

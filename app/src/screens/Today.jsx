@@ -429,6 +429,14 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
   // a screen reader that gets three runs as unstructured text has no way to
   // skip between them — and `.label` carries the type either way, so it costs
   // nothing. Same for the second column's two.
+  // ROADMAP 9.5 — A CONFIRMED JOB WHOSE END TIME HAS PASSED IS LATE, and
+  // nothing said so: it just sat under "Still to do" next to jobs that
+  // hadn't started yet, with no way to tell the two apart at a glance. Same
+  // condition `lit`/`litLive` above already use for "is this job still
+  // live", one line down: `status === "confirmed"` excludes a resolved
+  // outcome (no_show, a pending request) from being flagged as merely late.
+  // `needsPay` is always `completed`, so this is always false there — no
+  // second branch needed.
   const runRows = (list, node) => list.map((b) => (b.id === lit?.id
     ? (
       <BookingCard key={b.id} booking={b} isNext rail={node} live={litLive}
@@ -438,6 +446,7 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
         onFinalize={setFinalizing} />
     )
     : <JobRow key={b.id} booking={b} node={node} weather={weather.get(b.id)} weatherRules={weatherRules}
+        late={b.status === "confirmed" && b.end_at < nowIso}
         onClick={() => setSelected(b)} />
   ));
 

@@ -3656,6 +3656,44 @@ the dashboard or back office at phone width at all.
 - [ ] **9.5 — Late jobs are not flagged.** At 10pm a 2:00 PM job still sits
   under "Still to do". Mark it late and offer "Mark done" or "Move it".
   *A2 4.9*
+  **BUILT 2026-09-20, NOT YET PRESSED — held for the browser on the same
+  instruction as 9.9 and 9.11, not for doubt about the code.** Confirmed the
+  fault before touching anything: `Today.jsx`'s own comment on `still`
+  already named it — *"A job whose time has passed and was never marked
+  complete stays here, which is true of it"* — true, and unflagged.
+  **The fix is the flag only — "Mark done" and "Move it" are not new
+  buttons.** Both already exist: tapping the row opens the record, where
+  "Mark completed" and "Edit" (the time) already live in
+  `BookingDetail.jsx`, proven working under 4.1 this session. Building a
+  second, inline pair here would be the redesign this pass was warned away
+  from — five real complaints inside 9.12 are still a redesign; one real
+  complaint does not get to become two new buttons on the strength of the
+  word "offer" in the original write-up.
+  **The condition:** `status === "confirmed" && end_at < now` — the exact
+  test `Today.jsx`'s own `lit`/`litLive` already use for "is this job still
+  live," one line up (`screens/Today.jsx`, `runRows`). `status ===
+  "confirmed"` on purpose, not `!== "completed"`: a `no_show` or a pending
+  request sitting past its time is a resolved or a different-kind-of-waiting
+  state, not "still needs doing," and flagging it *late* would be a second,
+  wrong claim next to the first one this item is about.
+  **The flag:** `"Late"`, leading the name in `components/JobRow.jsx`, the
+  same leading-not-trailing placement `bring`/`cars` already use one line
+  down and for the stated reason — truncation eats the end of a line, not
+  the start. Styled in `theme.css` with `--bad`, the same token this theme
+  already reserves for a resolved-bad outcome (`.pill.cancelled`,
+  `.pill.no_show`) — inline text, not a pill, since a tight two-line row has
+  no room for a second row of chips. Spanish added in the same edit:
+  `"Late": "Atrasada"` — checked against both catalogues first, no
+  collision, no existing entry for the word anywhere.
+  **Scope:** `Today.jsx`'s own "Still to do" list only — `JobRow.jsx` is
+  shared with `DaySheet.jsx`'s day panel, which can show any date, not just
+  today, and every other caller defaults `late` to `false` and is
+  unchanged. No new component, no new button, no database write, no
+  deploy.
+  **Not yet opened on a real screen** — the browser is the other session's
+  tonight, triaging the booking-steps gate. Code-reviewed against the
+  fault's own description, not yet proven live. Do not tick until it has
+  been.
 
 - [ ] **9.6 — Client list has no labels.** Values appear with no headings, so
   last visit, lifetime spend and phone must be inferred. "9 gone quiet" is

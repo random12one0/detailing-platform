@@ -2056,6 +2056,9 @@ export const appEs = {
   // Where a job happens, on every card and record in the product.
   "Mobile": "A domicilio",
   "Drop-off": "En el taller",
+  // ROADMAP 9.5 — the flag on a confirmed job whose end time has passed on
+  // Today's own "Still to do" list. `components/JobRow.jsx`.
+  "Late": "Atrasada",
   // The three plan statuses.
   "Active": "Activo",
   "Paused": "En pausa",
