@@ -700,6 +700,102 @@ still knows them.
 
 ## Recorded — nothing needed from you yet
 
+- **THE SURVEY YOU ASKED FOR — eight things that exist but were not thought
+  all the way through, worst first.** Nothing here is on fire and nothing
+  needs answering today. *Worst* means what would hurt a working detailer
+  most, not what is quickest to fix. **Six things I checked and found fine are
+  at the bottom**, because knowing what was looked at is half of what makes a
+  list like this worth reading.
+
+  **1 · Two people cannot work at the same time.**
+  *Today:* the calendar refuses to hold two jobs that overlap, for the whole
+  business, no matter how many people work there. A job is not assigned to
+  anyone, and the booking page has no idea how many of you there are. You sell
+  "unlimited staff logins" and the product means logins, not hands.
+  *What it costs you:* a second van cannot be booked. Anyone who grows past
+  themselves hits a wall on day one, and the only way round it is a second
+  account.
+  *To fix:* **big.** The calendar, the booking page's idea of what is free,
+  and every screen that shows a day. Not an afternoon.
+
+  **2 · Your job photos are not backed up.**
+  *Today:* the nightly backup copies the database — bookings, customers,
+  prices. The photographs themselves live somewhere else and **nothing copies
+  them.** If they were ever lost, the backup would bring back a list of
+  photos that no longer exist.
+  *What it costs you:* the before-and-after shots are the thing you would most
+  want on the day a customer says a scratch was your fault. They are the least
+  protected thing in the product.
+  *To fix:* **medium**, and it needs the photo-storage decision below settled
+  first.
+
+  **3 · The whole platform can send about eighty emails a day.**
+  *Today:* the email service is on a free plan — a hundred a day across every
+  detailer combined, with twenty held back for our own alerts. A booking
+  spends roughly five.
+  *What it costs you:* **about sixteen bookings a day across everybody.** Four
+  busy detailers would use it all, and when it runs out confirmations stop
+  going out.
+  *To fix:* **small — but it needs money.** A paid email plan, roughly
+  **$20 a month** at the first tier. No building.
+
+  **4 · Moving a job never changes the price.**
+  *Today:* you can charge more for weekends, for certain times of day, and for
+  last-minute bookings. Those all work when a customer books. **When a booking
+  is moved, the price stays exactly as it was.**
+  *What it costs you:* a customer books a cheap Tuesday and moves it to a
+  Saturday, and the weekend rate silently does not apply. Nothing tells you.
+  *To fix:* **small.** One recalculation in one place.
+
+  **5 · Photo storage is about forty-seven photos per detailer.**
+  *Today:* one gigabyte for the whole platform, divided by a hundred
+  detailers. Measured against what a photo actually weighs here, that is about
+  forty-seven each. The pricing page said "unlimited"; I have taken that word
+  off.
+  *What it costs you:* a detailer photographing jobs properly is full inside a
+  month.
+  *To fix:* **small once storage exists — and it needs a provider.**
+  Cloudflare object storage, about **$7.50 a month** for five gigabytes each
+  across a hundred detailers. Full detail is in the row further up this list.
+
+  **6 · An expense cannot have a photo of the receipt.**
+  *Today:* you can record what you spent and type a note. There is nowhere to
+  put the receipt, while a job photo has a whole system behind it.
+  *What it costs you:* at tax time the numbers are in the product and the
+  paper is in the van.
+  *To fix:* **small.** The photo machinery already exists; it points at jobs
+  and not at expenses.
+
+  **7 · "Export everything" is two buttons on two screens.**
+  *Today:* customers export from the Clients screen, photos from the Photos
+  screen. The promise on the pricing page is one sentence.
+  *What it costs you:* somebody leaving, or just backing up, has to know to do
+  two things.
+  *To fix:* **small.**
+
+  **8 · Nothing tells a customer you are on your way, or that you have
+  finished.**
+  *Today:* neither message exists, in any form. The product does send **you** a
+  phone alert when a job is starting soon and when it is wrapping up — so it
+  knows the moment; it just never tells them.
+  *What it costs you:* these are the two messages people expect from anyone
+  who comes to their house.
+  *To fix:* **medium**, and it runs straight into the texting question in
+  `docs/what-we-send.md` — these want to be texts, and the product sends no
+  texts.
+
+  **Checked and found fine, so you know what was looked at:** refunds (the
+  product tells you to refund from your own Stripe because the money went
+  straight into your account and we never hold it — a real limit, said
+  plainly); deleting a customer (their bookings are anonymised and their
+  photos deleted, rather than left behind); monthly plans (visits are kept on
+  a proper ledger, not an unchecked number); marking someone a no-show (a real
+  status you can set from the job); a quoted price (it cannot be charged
+  unless the customer presses accept); and the price a customer is quoted
+  being produced by the same code that charges them, so the two cannot drift
+  apart.
+
+
 - **SETTLED 2026-09-21, so nobody raises them again.** Three answers given
   this morning, recorded here because a question that keeps coming back costs
   more than the answer did.
@@ -716,11 +812,19 @@ still knows them.
   it was a last-minute call made to avoid the work of making marketing email
   legal, and you have changed your mind. **Nothing in the repo should be
   treated as settled because that rule shaped it.**
-  **One thing to know before anyone builds on this:** there is **no marketing
-  email feature in the product today.** The screen called "Campaigns" is link
-  tracking — a shareable link, and counts of who opened it and who booked. It
-  sends nothing. So the reversal **opens work rather than switching something
-  back on.**
+  **CORRECTION, 2026-09-21, and it is mine.** I wrote here a few hours ago
+  that *"there is no marketing email feature in the product today"* and that
+  the reversal "opens work rather than switching something back on".
+  **That was wrong, and you should not act on it.** I had read the
+  **Campaigns screen** — which is link tracking, a shareable link and counts
+  of who opened it and who booked — and mistaken it for the whole feature.
+  **Emailing a chosen set of your customers already exists and already
+  works.** It is on the Clients screen, called *"Email your customers"*: you
+  tick the people, write a subject and a message, and it sends. It already
+  refuses to send to anyone with no address, anyone who opted out, and anyone
+  whose last email bounced, and it already refuses to send at all unless your
+  business has a postal address on file. **So the reversal switches something
+  on rather than opening work.**
 
 
 - [ ] **NOTE · Three things are built or decided and have not been looked at in

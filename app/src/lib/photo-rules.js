@@ -42,6 +42,22 @@ export function fit(w, h, maxEdge = MAX_EDGE) {
 // which is why `job_photo_budget()` returns numbers and this decides what they
 // mean. Three states, and deliberately not a percentage on a bar: a detailer
 // does not want a meter, they want to know whether to stop.
+//
+// **`job_photo_budget()` HAS TWO VERSIONS AND THE FIRST ONE IS NOT THE LIVE
+// ONE.** `20260906010000_job_photos.sql` defines it with a **250 MB** default
+// read from `platform_settings.prices -> 'photoCapMb'`. **That version is
+// superseded.** `20260906011000_photo_share.sql` replaces it with
+// `photo_total_bytes() / photo_tenant_share()`, and
+// `20260906011100_photo_total_column.sql` moves the total onto its own column.
+// **Live today: 1 GB / 100 = 10.24 MB a business**, read off the database
+// 2026-09-21, not off a migration.
+//
+// Written here because this is where a reader meets the function's name from
+// the app side, and a migration may never be edited. **Two people read the
+// 250 MB out of the first file on the same morning and both believed it** —
+// the file is complete, correct for its date, and gives no sign that anything
+// came after it. If you are about to quote a number from a `create or replace
+// function`, grep the whole migration folder for that function's name first.
 // ---------------------------------------------------------------------------
 export const WARN_AT = 0.8;
 
