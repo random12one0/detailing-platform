@@ -3721,14 +3721,12 @@ the dashboard or back office at phone width at all.
   what it does when the data is thin.** See `FOR-ANDREW.md`.
   *A1 P2-13*
 
-- [ ] **9.11 — Booking-rule conflict needs a one-click fix.** The product
-  already correctly warns that a 2-hour booking notice plus a 24-hour change
-  cutoff locks a new booking immediately. **Keep the warning** — add an example
-  and a recommended adjustment.
+- [x] **DONE 2026-09-20 — 9.11 Booking-rule conflict needs a one-click fix.**
+  The product already correctly warns that a 2-hour booking notice plus a
+  24-hour change cutoff locks a new booking immediately. **Keep the
+  warning** — add an example and a recommended adjustment.
   *A1 P2-15*
-  **BUILT 2026-09-20, NOT YET VERIFIED LIVE — holding for the browser on
-  Andrew's instruction, not for doubt about the code.** In
-  `screens/more/BookingRules.jsx`'s `window_exceeds_notice` warning (the
+  In `screens/more/BookingRules.jsx`'s `window_exceeds_notice` warning (the
   existing one this item names), the original warning text is unchanged and
   two things were added:
   - **An example**, restating the same conflict as a concrete case: "the
@@ -3749,10 +3747,29 @@ the dashboard or back office at phone width at all.
   numbers stop conflicting, with no separate dismiss needed. Spanish strings
   added in the same edit. **Scope held to the warning; the screen's layout
   was not touched.**
-  **Not yet opened on a real screen** — the browser was the other session's
-  for its baseline runs when this was written, and Andrew asked not to touch
-  it until it's free, so this is code-reviewed, not yet proven live. Do not
-  tick as fully done until it has been.
+  **ACCEPTED 2026-09-20, Andrew, live, desktop width, on the demo tenant,
+  which already carried the exact conflict this item names — 2-hour notice
+  against a 24-hour change window, nothing staged.** The warning and the
+  example read exactly as written above; `duration()` formatted the numbers
+  correctly ("2 hrs," not "2.0 hours" or "1 hours"); the fix button read
+  "Allow changes until 2 hrs instead" — `floor(notice)` off the two numbers
+  actually on screen, not a constant. Pressing it cleared the warning **and**
+  moved the "Reminders and cancellations" summary row from "changes up to
+  24h before" to "changes up to 2h before" in the same render — a
+  consequence the diff alone would not have shown a reader, since the
+  summary row reads the same `cancellation_window_hours` the fix writes.
+  **Confirmed FORM-only, not persisted, by closing the panel unsaved and
+  reopening it:** the row and the warning were both back at 24h, exactly as
+  they were before the press. **Save was not pressed.** Andrew, in his own
+  words on why: *"It would have written booking-rule settings on the tenant
+  the other session is measuring against tonight, and a settings change is
+  a worse thing to leave behind than a booking — it changes what every
+  future run sees rather than one row."* Persisting goes through the same
+  Save button every other control on this screen already uses, so that half
+  is treated as covered by the screen, not independently re-proven here.
+  **Not checked at phone width, for the same reason as 9.9's phone
+  half — this browser floors at 598px outer**, below what a phone-width
+  check needs.
 
 - [ ] **9.12 — Back office: real detailers first, scannable, one action each.**
   Default to real accounts; replace the three-column card wall with a list —
