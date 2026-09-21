@@ -286,6 +286,66 @@ says when you start, never what a document says.**
 | **2 · `report-problem`, alone** | version **15** | **DEPLOYED AND GREEN — but the check still calls it differing, and no deploy can ever clear that.** See below |
 
 | **3a · `send-owner-reminders`, alone and first** | version **78** (was 77, deployed 2026-09-13) | **GREEN.** 31 differing / 8 matching, `send-owner-reminders` moved to matching |
+| **3b · `get-booking-receipt`** | v**60** | GREEN — 30 / 9 |
+| **3c · `create-booking`** | v**83** | GREEN — 29 / 10, and `e2e-booking` **91 passed / 0 failed**, legs `13·13·13·13`, canary caught |
+| **3d · `platform-admin`** | v**60** | GREEN — 28 / 11 |
+| **4 · the remaining 26, one pass** | 26 functions | 28 / 11 → **5 / 34** |
+| **4.5 · `platform-billing`, ALONE** | v**59** | deployed; the residual difference is a phantom, below |
+| **5 · the payment webhook, LAST AND ALONE** | `stripe-webhook` v**46** (was 45, 2026-09-13) | deployed with nothing else in flight. Liveness: an unsigned POST is **refused with HTTP 400**, not a crash |
+| **6 · after-inventory, pre-fix walker** | — | **34 matching / 5 differing — and all 5 deployed 0h earlier, so all 5 were phantoms** |
+| **6b · after-inventory, CORRECTED walker** | — | **39 / 39 MATCHING, 0 differing, status `pass`, exit 0 — the first passing run in this check's life** |
+
+**ALL 39 FUNCTIONS NOW RUN THIS CHECKOUT.** The estate went from **33 of 39
+wrong** to **0**.
+
+### THE WALKER FIX, AND WHY IT WAITED UNTIL AFTER STAGE 6
+
+**`import type` is erased by the compiler, so the module it names is never in
+the deployed bundle.** `sharedFor()` followed it anyway, so
+`deployed-inventory` hunted for comment text in files the bundle legitimately
+cannot contain — reporting **five** perfectly current functions as differing,
+at 0h old, **for ever, at every version.**
+
+**Six such imports exist in `_shared`** and they reach further than they look:
+`create-business` and `watch-jobs` do not mention `tenant.ts` anywhere and
+were being judged against it through `email.ts` and `slotValidation.ts`.
+
+**The count was corrected on the way: it read as ONE phantom before stage 4
+and FIVE after.** Not a change in the code — before stage 4 `tenant.ts`
+genuinely differed almost everywhere, and **a real fault was masking the
+phantom ones.** Fixing the real differences is what made them visible.
+
+**Proved in both directions before it was believed:**
+
+| | |
+|---|---|
+| phantom clears | `report-problem` no longer judged against `emailTemplates.ts`; `create-business` and `watch-jobs` no longer against `tenant.ts` |
+| **counter-canary — a real dependency must survive** | `send-invoice` **keeps** `emailTemplates.ts` and `report-problem` **keeps** `tenant.ts`, both direct imports. **A fix that simply blinded the walker would pass the first test and fail this one** |
+
+**It was deliberately not applied during the run.** Changing the instrument
+while it is the only thing reporting whether a publish worked is how a clean
+run and a broken measurement become indistinguishable.
+
+### THE BEFORE-INVENTORY CANNOT BE RE-READ, AND THAT IS ITSELF A FINDING
+
+The instruction was to re-read **both** inventories through the corrected
+walker so the pair is comparable. **The after was re-read. The before cannot
+be, and saying so is better than manufacturing a comparison.** Two reasons,
+both structural:
+
+- **The before-state no longer exists.** All 39 functions have since been
+  deployed; there is nothing left to measure.
+- **The receipt did not record enough to recompute it.** Stage 0's committed
+  receipt (`3b9f4d5`) carries only `matching` and `differing` **name lists** —
+  `has per-file detail: false`. Without which file differed for each function,
+  the phantom cannot be separated from the real after the fact.
+
+**And the honest reading is that the two numbers were never the same kind of
+number.** The before-count of **33 differing was real** — `tenant.ts` and
+`pricing.ts` had genuinely moved that morning. The phantoms were not hiding
+inside that 33; they only became visible once the real differences were
+published away. **A receipt that recorded which files differed, not just which
+functions, would have made this answerable.** Named, not built.
 
 **STAGE 3 IS RUN ONE AT A TIME, with a check between each** — manager's
 ruling: four at once costs four suspects and a bisect, and one of the four

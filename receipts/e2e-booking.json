@@ -1,9 +1,13 @@
 {
-  "git_sha": "399b310d0ce58ddbd2b008c4f3a5570f76988b54",
+  "git_sha": "d4c4ae5f5c01177c41e95e8c2a615e30609ece42",
+  "git_sha_started": "d4c4ae5f5c01177c41e95e8c2a615e30609ece42",
+  "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-21T10:25:29.740Z",
+  "finished_at": "2026-09-21T17:41:15.232Z",
   "failures": [],
-  "warnings": [],
+  "warnings": [
+    "3 check(s) skipped inside legs that were reached — see the console"
+  ],
   "artifacts": [
     "scripts/e2e-booking.mjs"
   ],
@@ -27,20 +31,20 @@
       "demo-riverside:reschedule",
       "demo-riverside:cancel"
     ],
-    "checks_passed": 94,
+    "checks_passed": 91,
     "checks_failed": 0,
-    "checks_skipped": 0,
+    "checks_skipped": 3,
     "canary_control_slots": 8
   },
   "check_id": "e2e-booking",
-  "started_at": "2026-09-21T10:23:11.597Z",
+  "started_at": "2026-09-21T17:38:48.892Z",
   "status": "pass",
   "expected_targets": 13,
   "discovered_targets": 13,
   "attempted_targets": 13,
   "completed_targets": 13,
   "skipped_targets": 0,
-  "assertions_executed": 95,
+  "assertions_executed": 92,
   "min_assertions": 52,
   "canary": {
     "id": "a day available-slots has just listed must still list times · an empty list is not a negative answer",

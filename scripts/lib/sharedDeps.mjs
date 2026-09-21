@@ -47,7 +47,23 @@ export async function sharedFor(fn, seen = new Set()) {
     const file = stack.pop();
     let src;
     try { src = await readFile(file, "utf8"); } catch { continue; }
-    for (const m of src.matchAll(/["'](\.\.?\/[\w./-]+)["']/g)) {
+    // **`import type` IS ERASED BY THE COMPILER, SO THE MODULE IT NAMES IS
+    // NEVER IN THE DEPLOYED BUNDLE — 2026-09-21, found during the publish.**
+    // Following it made `deployed-inventory` report **five** perfectly current
+    // functions as DIFFERING, at 0h old, for ever, at every version: no deploy
+    // could clear it because the check was hunting for comment text in a file
+    // the bundle legitimately cannot contain. There are six such imports in
+    // `_shared` and they reach far — `create-business` and `watch-jobs` do not
+    // mention `tenant.ts` anywhere, and were being judged against it through
+    // `email.ts` and `slotValidation.ts`.
+    //
+    // **Stripped before matching rather than filtered afterwards**, because by
+    // the time you have the path you cannot tell which kind of import produced
+    // it. `export type ... from` is erased the same way and goes with it.
+    const code = src
+      .replace(/^[ \t]*import[ \t]+type[ \t][^;]*;/gm, "")
+      .replace(/^[ \t]*export[ \t]+type[ \t][^;]*from[^;]*;/gm, "");
+    for (const m of code.matchAll(/["'](\.\.?\/[\w./-]+)["']/g)) {
       const abs = path.resolve(path.dirname(file), m[1]);
       const rel = path.relative(ROOT, abs).split(path.sep).join("/");
       if (!rel.startsWith("supabase/functions/_shared/")) continue;
