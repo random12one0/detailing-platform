@@ -252,6 +252,50 @@ still knows them.
 
 ## Waiting on you — nothing breaks while these wait
 
+- [ ] **READ · Your privacy page now names four things it did not name. The
+  words are yours to change; the facts are not.**
+
+  **Nothing has reached anybody.** This is in the repository and not on the
+  live site — it appears the next time you publish, which is still your press.
+  So there is time to reword it, and that is the only thing being asked of
+  you here.
+
+  **Why it was changed without asking first.** The page told a customer their
+  address goes to the suggestion service *while they type*, and said nothing
+  about three other places their details go. That is not a wording preference,
+  it is the page being wrong, and it names you personally. So it was corrected
+  now and brought to you for the words rather than the other way round.
+
+  **The four, one line each.**
+
+  - **Google Fonts.** Every page here, including your booking page, asks
+    Google for its lettering the moment the page opens — so Google sees the
+    IP address of everybody who visits, before they touch anything. This is
+    the only one that needs nobody to do anything.
+  - **Google Maps, Apple Maps or Waze.** When you tap **Directions** on a
+    job, the customer's address is inside the link that opens — so that
+    company gets it. Google unless you changed it in your settings.
+  - **Google Calendar.** When you tap **Add to calendar** *and your calendar
+    is set to Google*, the entry carries the customer's name, address, phone
+    number and any notes. **If your calendar is set to Apple or to a file,
+    nothing leaves the product** — and the page says that too.
+  - **The address, a second time.** Once a booking is saved, its address goes
+    back to the suggestion service once, to be turned into map coordinates
+    for the weather. The page used to describe only the typing.
+
+  **One more sentence was added because it was true and missing:** the
+  translation services only ever receive your own wording — addresses and
+  phone numbers are never sent to them.
+
+  **Nothing was invented.** OpenStreetMap is credited on your booking page but
+  receives nothing, so it is deliberately not listed. A privacy page naming a
+  service you do not use is as wrong as one missing a service you do.
+
+  **What to do:** read the two new sections on `/privacy` — *"The lettering on
+  every page"* and *"The two buttons that hand a job to somebody else"* — and
+  say if you want different words. **If you are happy with them, this row is
+  done and there is nothing to press.**
+
 - [ ] **DO · Tell a session where the key to your backups is kept. This is the
   most important row on the page.**
 
