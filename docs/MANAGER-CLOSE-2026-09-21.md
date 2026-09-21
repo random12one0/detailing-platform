@@ -277,6 +277,43 @@ of 39 at the moment publishing began**, because last night's own commits
 changed the checkout, not the deployments. **Use what `deployed-inventory`
 says when you start, never what a document says.**
 
+### WHAT THE PUBLIC BOOKING PAGE LOOKED LIKE AFTER ALL 39 WENT LIVE
+
+Walked by Andrew's manager on the demo tenant, cold load, English and Spanish,
+through to the review screen. **The 2.1 fix survived the publish**: the weekend
+surcharge renders above the time chips and moves the bar from $65 to $95, the
+review screen resolves the itemised quote correctly now that the pricing and
+booking functions are live, a customer's details survive stepping backward and
+forward through the flow, and there were no console errors anywhere.
+
+**Three things were found, and NONE of them is a product fault. The reason
+each one is not is the useful part.**
+
+- **"Weekend rate · +$30" renders in English on the Spanish page, in two
+  places** — the chip on the time step and the line item on the review step.
+  **It is the detailer's own text, not ours.** Read from the demo tenant's own
+  settings: `{"label": "Weekend rate", "amount": 30, "weekdays": [0,6]}`,
+  alongside `"Short notice"` at $20. The code passes a rule's label through
+  untouched **deliberately**, exactly like a service name or a travel-zone
+  name, and carries no translatable parts for it "precisely so nobody is
+  tempted". **Tenant data staying English is correct.** Nothing was changed.
+  **And the near-miss is worth keeping: the obvious fix — translate the
+  front-end string — would have changed the chip, left the review screen in
+  English, and passed.** The two places are the same tenant string; there was
+  never a product string to translate.
+- **A junk discount code makes the promo lookup answer 404.** That is this
+  codebase's ordinary "not found" for a lookup miss, not a missing function —
+  the booking and pricing functions answer 404 to an empty body too. The path
+  is correct end to end: junk code in, *"Ese código no es nuestro"* out, in
+  Spanish, no console errors. **Recorded because a status code was read and
+  very nearly reported instead of what it meant.**
+- **The weather line reads "Partly Sunny, 71" in English.** Third-party
+  forecast text, not a product string. A note, not a finding.
+
+**A sweep of the public booking flow for genuinely untranslated product
+strings found none** — 110 files scanned, 90 candidates, and not one of them
+in the booking flow.
+
 ### THE PUBLISHING LOG — what actually went out, in order
 
 | stage | what | result |
