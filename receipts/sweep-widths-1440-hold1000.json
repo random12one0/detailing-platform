@@ -1,0 +1,102 @@
+{
+  "git_sha": "9a4dd5bcc2cf09c3ec038cd661036755c57cffd4",
+  "environment": "local",
+  "finished_at": "2026-09-20T17:43:42.722Z",
+  "failures": [
+    {
+      "target": "(not a per-surface geometry finding)",
+      "count": 29,
+      "captured": [
+        "job record · finished NOT MEASURED — no finished job on today's rail yet. A job is finished once it has ENDED, so before the first shift of the day completes this state cannot exist (ROADMAP 8.1b)",
+        "job record · finalize NOT MEASURED — no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)",
+        "job record · send a text NOT MEASURED — no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)",
+        "Money · log a bulk job NO SUCH BUTTON — no visible trigger, so this dialog was never opened",
+        "gear · subscription, cancelling NOT MEASURED — this demo has no subscription, so there is nothing to cancel. The default seed is deliberately unsubscribed — it draws the checkout ladder instead, which is two surfaces rather than one. `node scripts/seed-demo.mjs --subscription=past_due` swaps which half is measured (ROADMAP 8.1b)",
+        "gear · subscription, past due NOT MEASURED — nothing is overdue on this demo, and nothing can be: the default seed writes no subscription at all, so there is no payment to fail. Same either/or as the cancel button above (ROADMAP 8.1b)",
+        "EXPECTED-COUNT GATE FAILED at 1440px: expected 125 surfaces, measured 145, 6 declared unreachable"
+      ],
+      "why": "29 problem(s) raised, 7 line(s) captured. The capture pattern does not know every phrase this script prints; read the run output."
+    }
+  ],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/sweep-widths-hold1000/index.html"
+  ],
+  "dimensions": {
+    "viewports": [
+      1440
+    ],
+    "locales": [
+      "en"
+    ],
+    "identities": [
+      "demo-detail-owner"
+    ]
+  },
+  "check_id": "sweep-widths-1440-hold1000",
+  "started_at": "2026-09-20T17:40:11.754Z",
+  "status": "fail",
+  "expected_targets": 119,
+  "discovered_targets": 145,
+  "attempted_targets": 145,
+  "completed_targets": 145,
+  "skipped_targets": 8,
+  "skip_allowlist": {
+    "reason": "Surfaces the demo cannot be in the state for at the hour this ran. Each one declared its own reason in the output and each was probed again before the skip was accepted — a skip over a reachable surface is refused and fails the run (ROADMAP 8.1b).",
+    "expires": "2027-01-01",
+    "skipped": [
+      {
+        "width": 1440,
+        "label": "job record · finished",
+        "reason": "no finished job on today's rail yet. A job is finished once it has ENDED, so before the first shift of the day completes this state cannot exist (ROADMAP 8.1b)"
+      },
+      {
+        "width": 1440,
+        "label": "job record · finalize",
+        "reason": "no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)"
+      },
+      {
+        "width": 1440,
+        "label": "job record · send a text",
+        "reason": "no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)"
+      },
+      {
+        "width": 1440,
+        "label": "gear · subscription, cancelling",
+        "reason": "this demo has no subscription, so there is nothing to cancel. The default seed is deliberately unsubscribed — it draws the checkout ladder instead, which is two surfaces rather than one. `node scripts/seed-demo.mjs --subscription=past_due` swaps which half is measured (ROADMAP 8.1b)"
+      },
+      {
+        "width": 1440,
+        "label": "gear · subscription, past due",
+        "reason": "nothing is overdue on this demo, and nothing can be: the default seed writes no subscription at all, so there is no payment to fail. Same either/or as the cancel button above (ROADMAP 8.1b)"
+      },
+      {
+        "width": 1440,
+        "label": "guide · today 6",
+        "reason": "the today guide walked 5 step(s) on this dashboard and ended on the last card it had (5 of 5). A step whose target is absent removes itself (Walkthrough.jsx, the plan's presence filter), so this label is a step this dashboard cannot produce — not a step that was missed"
+      },
+      {
+        "width": 1440,
+        "label": "guide · today 7",
+        "reason": "the today guide walked 5 step(s) on this dashboard and ended on the last card it had (5 of 5). A step whose target is absent removes itself (Walkthrough.jsx, the plan's presence filter), so this label is a step this dashboard cannot produce — not a step that was missed"
+      },
+      {
+        "width": 1440,
+        "label": "guide · today 8",
+        "reason": "the today guide walked 5 step(s) on this dashboard and ended on the last card it had (5 of 5). A step whose target is absent removes itself (Walkthrough.jsx, the plan's presence filter), so this label is a step this dashboard cannot produce — not a step that was missed"
+      }
+    ]
+  },
+  "assertions_executed": 67887,
+  "min_assertions": 580,
+  "canary": {
+    "id": "sweep-canary-deliberate-overflow",
+    "observed_failure": true,
+    "per_width": [
+      {
+        "width": 1440,
+        "caught": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "git_sha": "f867ff584c36f4ac8dcda0696785579ec97c6442",
+  "environment": "local",
+  "finished_at": "2026-09-21T00:10:56.800Z",
+  "failures": [
+    {
+      "target": "(not a per-surface geometry finding)",
+      "count": 5,
+      "captured": [
+        "gear · subscription, cancelling NOT MEASURED — this demo has no subscription, so there is nothing to cancel. The default seed is deliberately unsubscribed — it draws the checkout ladder instead, which is two surfaces rather than one. `node scripts/seed-demo.mjs --subscription=past_due` swaps which half is measured (ROADMAP 8.1b)",
+        "gear · subscription, past due NOT MEASURED — nothing is overdue on this demo, and nothing can be: the default seed writes no subscription at all, so there is no payment to fail. Same either/or as the cancel button above (ROADMAP 8.1b)",
+        "EXPECTED-COUNT GATE FAILED at 1440px: expected 152 surfaces, measured 155"
+      ],
+      "why": "5 problem(s) raised, 3 line(s) captured. The capture pattern does not know every phrase this script prints; read the run output."
+    }
+  ],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/sweep-widths/index.html"
+  ],
+  "dimensions": {
+    "viewports": [
+      1440
+    ],
+    "locales": [
+      "en"
+    ],
+    "identities": [
+      "demo-detail-owner"
+    ]
+  },
+  "check_id": "sweep-widths-1440",
+  "started_at": "2026-09-21T00:07:25.365Z",
+  "status": "fail",
+  "expected_targets": 152,
+  "discovered_targets": 155,
+  "attempted_targets": 155,
+  "completed_targets": 155,
+  "skipped_targets": 2,
+  "skip_allowlist": {
+    "reason": "Surfaces the demo cannot be in the state for at the hour this ran. Each one declared its own reason in the output and each was probed again before the skip was accepted — a skip over a reachable surface is refused and fails the run (ROADMAP 8.1b).",
+    "expires": "2027-01-01",
+    "skipped": [
+      {
+        "width": 1440,
+        "label": "gear · subscription, cancelling",
+        "reason": "this demo has no subscription, so there is nothing to cancel. The default seed is deliberately unsubscribed — it draws the checkout ladder instead, which is two surfaces rather than one. `node scripts/seed-demo.mjs --subscription=past_due` swaps which half is measured (ROADMAP 8.1b)"
+      },
+      {
+        "width": 1440,
+        "label": "gear · subscription, past due",
+        "reason": "nothing is overdue on this demo, and nothing can be: the default seed writes no subscription at all, so there is no payment to fail. Same either/or as the cancel button above (ROADMAP 8.1b)"
+      }
+    ]
+  },
+  "assertions_executed": 74049,
+  "min_assertions": 620,
+  "canary": {
+    "id": "sweep-canary-deliberate-overflow",
+    "observed_failure": true,
+    "per_width": [
+      {
+        "width": 1440,
+        "caught": true
+      }
+    ]
+  }
+}
