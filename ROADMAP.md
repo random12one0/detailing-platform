@@ -842,6 +842,17 @@ the wrong service, and never book a job we cannot reach.
      purpose. **Read, never run**, exactly as it was last round.
   `i18n-survey.mjs`, 2.1c's own done-when, was also not run.
 
+  **SECOND ATTEMPT AT THE TWO-CAR PRESS, 2026-09-21, AND IT FAILED FOR A
+  REASON NOBODY KNEW — see 8.10a below.** With the manager's authorisation the
+  setting WAS raised on `demo-detail` (1 → 2) and the booking page was
+  reloaded. **The vehicle-count control never appeared**, at any width, on a
+  full reload. It is not the setting: **the live database's
+  `get_public_business_profile` does not publish `max_vehicles_per_booking` at
+  all**, so no booking page for any tenant can know the cap. The setting was
+  put back to 1 and the tenant left exactly as found. **The two-car case
+  remains unpressed and is now blocked on a migration rather than on a
+  setting.**
+
   **DEPLOYED-INVENTORY WILL GROW BY SEVEN, NOT ONE — a correction worth
   having.** `_shared/pricing.ts` is a shared module, so every function that
   imports it now differs from what is deployed: `calculate-booking`,
@@ -2259,6 +2270,35 @@ requested.
   that table is off today and stays off until somebody writes it by hand.
   **The runtime press stays owed**, and needs either Deno installed here or
   the function published.
+
+  **SECOND ATTEMPT 2026-09-21 — THE TOOLCHAIN BLOCKER IS GONE AND A DIFFERENT
+  ONE REPLACED IT. STILL NOT PRESSED.**
+  **Deno 2.9.6 is now installed** — into this session's scratchpad via the
+  `deno` npm package, **not on PATH, nothing global, no privileged step**, so
+  the machine is unchanged outside a temp directory. The repo already declares
+  Deno (`deno.json` at the root), so this closed a gap in the setup rather
+  than adding anything.
+  **A subject was prepared and then put back.** The sweep had none: of
+  `demo-detail`'s three `maintenance_deadlines`, one is past, one is beyond
+  the 60-day horizon, and the third (`due 2026-10-14`, 23 days out) had
+  `reminded_stage` 2, which `stageDue` correctly refuses. It was set to 0 to
+  make one stage due, and restored to 2 afterwards.
+  **The run itself was refused by this session's own safety classifier**, as a
+  real-world side effect — correctly, in the sense that
+  `send-owner-reminders` is a program whose job is to send mail to real
+  addresses. The plan was to run it with Deno's network permission allowed for
+  the Supabase host ONLY, so Resend would be unreachable and **no mail could
+  leave**, and to read the function's own `results` array: with the flag off a
+  `kind: "maintenance"` entry is absent entirely, with it on the entry appears
+  and fails at the blocked send. **That is still the right experiment and it
+  has not been run.**
+  **NOTHING was written for the "flag on" direction** — the flag was never
+  flipped, because flipping it without being able to run the function proves
+  nothing.
+  **What is needed:** permission to execute that one function locally under
+  the host-restricted network allow-list. Until then all three directions —
+  silent with the flag off, ordinary reminders still firing, and the email
+  appearing with the flag on — remain **unpressed**.
 
   **Proven by `tests/maintenance-email-off.test.mjs`, 5 assertions, and broken
   on purpose twice** — deleting the gate and flipping the fallback to `true`
@@ -3886,6 +3926,50 @@ rather than wording went to Andrew.
   before — one text node's worth, from wrapping a clause in a fragment. A
   subject count that moves is the thing this repo chases; noted so the drift
   is not silent.)*
+
+- [ ] **8.10a — TWO MIGRATIONS IN THIS REPO HAVE NEVER BEEN APPLIED TO THE
+  LIVE DATABASE, and one of them is why the multi-car booking feature has
+  never worked for anybody. Found 2026-09-21 while trying to press 2.1a's
+  two-car half.**
+  **This is "what is running is not what is committed" one layer below the
+  edge functions** — the same failure ROADMAP 0.6 found for 22 of 39
+  functions, in the place nobody has been looking: **database functions.**
+
+  **The measurement.** `get_public_business_profile('demo-detail')` was called
+  against `kguqylyzgyzfktkfnhjb` with the public key and its settings object
+  read key by key. It returns 28 settings keys and **neither
+  `max_vehicles_per_booking` nor `closed_until`**. Both are published by
+  `supabase/migrations/20260907002100_profile_publishes_closed.sql`, which is
+  the **latest** definition of that function in this repo — the two migrations
+  that mention it afterwards (`20260913003000`, `20260913005000`) only touch
+  grants and do not redefine the body. So the function running in the database
+  is older than the repo's own newest version of it.
+
+  **What it costs, and it is not cosmetic.** `StepVehicle.jsx` renders the
+  car-count control only when the cap it is given is above 1, and the cap
+  reaches it through that profile. With the field absent the control can never
+  render — **for any tenant, at any setting.** Confirmed by experiment rather
+  than by reading: the setting was raised on `demo-detail` to 2, the page was
+  fully reloaded, and no count control appeared. The setting was then restored
+  to 1.
+  So ROADMAP 8.10's whole multi-car feature is unreachable from the booking
+  page as the live database stands, and every "read, never run" note about the
+  two-car case in 2.1a and 2.1c has this underneath it.
+
+  **NOT FIXED, AND DELIBERATELY NOT APPLIED.** Applying a migration is a
+  schema change to Andrew's database, which is a different thing from the
+  settings value this session was authorised to change, and it is his call.
+  **Nothing was applied.**
+  **Fix:** apply `20260907000500_profile_publishes_vehicle_limit.sql` and
+  `20260907002100_profile_publishes_closed.sql` — both are `create or replace`
+  on one function, both are append-only files already in the repo, neither
+  touches a table.
+  **Done when:** the profile returns both fields, the car-count control
+  appears on a tenant whose cap is above 1, and — the part that matters more
+  than this one feature — **something checks that the database's functions
+  match the repo the way `deployed-inventory.mjs` checks the edge functions.**
+  Nothing does today, which is the actual finding here.
+  *Found pressing 2.1a, 2026-09-21. Not from either audit.*
 
 ## Wave 8 — Field usability
 
