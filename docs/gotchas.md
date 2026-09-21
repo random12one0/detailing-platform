@@ -2127,3 +2127,42 @@ this sweep matches on**, exactly **one** was stale and **none** lacked a Spanish
 key. So the other six settings rows were never in this state — the blast radius
 was one row. That number is worth having, because the fear was that six more
 findings were the same shape and they were not.
+
+---
+
+## A BROWSER TAB'S OWN CONSOLE LOG DOES NOT CLEAR ON RELOAD, SO ONE OLD ERROR READS AS A REPEATING ONE — 2026-09-20
+
+**Cost: a wrong claim written into ROADMAP.md and caught only because Andrew
+asked for the exact string before believing it.**
+
+A console error appeared once during a long session — `Uncaught
+NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be
+removed is not a child of this node.`, caught by `ErrorBoundary`, paired with
+`createRoot() called on a container that has already been passed to
+createRoot()`. `location.reload()` was called on the same tab several times to
+see whether it recurred, and every time, the SAME error was still in the
+console output. It was written up as "reproduces on a plain reload with no
+interaction."
+
+**It had not reproduced even once. It had never gone away.** The tool that
+reads a tab's console messages was returning that tab's whole accumulated
+history, not what the current page had just logged, and nothing about a
+`location.reload()` call clears it. A fresh tab, navigated cold to the same
+URL against the same server, showed zero errors. So the "reproduction" on
+every reload was one event from early in the session, read back N times and
+mistaken for N events.
+
+**The tell was there and was not read as a tell:** the entries never moved.
+Same order, same text, every time, with only a manually-logged marker string
+appending after them. A REAL repeating error varies at least in its stack's
+line numbers or its surrounding lines as the app's state drifts; this one was
+byte-identical across every "reproduction."
+
+**The rule:** a claim that something recurs on reload must be proven from a
+FRESH tab — `tabs_create`, navigate cold, read console — never from re-reading
+a tab that has been open and reloaded before. If a console tool's own
+behavior on reload is not documented, assume it accumulates until proven
+otherwise, the same way (g) says assume the dev server is stale until proven
+otherwise. Age a tab the same way you age a dev server: an instrument that has
+been running the whole session is not neutral evidence about what just
+happened.

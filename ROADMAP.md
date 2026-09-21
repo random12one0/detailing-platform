@@ -465,6 +465,25 @@ the wrong service, and never book a job we cannot reach.
   the exact final total and every automatic surcharge.
   *A1 P0-01, A2 2.3*
 
+  **STEPPED PAST 2026-09-20 rather than picked up, and named here on purpose
+  so this does not read as untouched — a session that later sees it still
+  open should not re-spend the time finding out why.** The fix as written
+  ("mark affected days in the calendar") needs the booking page to know WHICH
+  days carry a surcharge and by how much before the customer picks one. It
+  cannot: `get_public_business_profile` in
+  `supabase/migrations/20260831004000_pricing_rules_and_travel_zones.sql`
+  deliberately excludes `business_settings.price_rules` from what the booking
+  page ever receives — that migration's own comment says publishing the rules
+  "would be a second copy to keep in step" with what `calculate-booking`
+  resolves server-side, and the customer "never needs to evaluate one." That
+  is a real, considered decision, not an oversight.
+  Building the fix as specified means one of: querying the pricing function
+  once per visible calendar day (a new call shape nobody has written, and its
+  own cost to prove out), or reopening the decision above to publish the
+  rules after all. **Either is bigger than a single clean item and is a call
+  for whoever owns that trade-off, not something to build quietly inside a
+  "pick your next item" pass.** Left open rather than attempted.
+
 - [ ] **2.2 — The summary lines do not add up to the total.**
   **Confirmed mechanism:** `supabase/functions/_shared/pricing.ts:127-128`
   rounds the *total* to a `nearest` setting while each discount line rounds
