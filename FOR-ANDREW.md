@@ -161,46 +161,69 @@ still knows them.
 
 ## Urgent — two minutes when you next open your laptop
 
-- [ ] **DO · Your GitHub repository is public, and a working master login to
-  your live database is written inside it. You already knew the login was
-  guessable. You may not have known it was published.**
+- [ ] **DO · Decide what happens to the demo logins before your first real
+  detailer signs up. You chose to make them guessable. Nobody told you they
+  are also published.**
 
-  **The facts, each one checked tonight rather than remembered.**
-  `github.com/random12one0/detailing-platform` is **public** — anyone can read
-  it without an account. Inside it, **eight tracked files** carry the demo
-  detailer's email and password in plain text. That account is real: it exists
-  on `kguqylyzgyzfktkfnhjb`, it is confirmed, and it last signed in **today**.
+  **This is not an emergency tonight and this row does not want you out of
+  bed.** There is no real customer, no real money and no real data on that
+  project — every account on it is a fixture. **It stops being true the day
+  the first real detailer signs up**, and that is the only deadline in this
+  row.
 
-  **And it is not just a detailer login — it is a platform administrator.**
-  Your database lists two: the demo detailer, made an admin on your own
-  instruction on 13 September so the back office could be checked, and a
-  second "master login". **The second one's password is typed out in the
-  database's own note field**, next to the words *"Guessable on purpose while
-  nothing real is on the platform — MUST be changed before launch."**
+  **WHAT IS EXPOSED.** Two back-office logins. One is the demo detailer's,
+  which you deliberately made a platform administrator on 13 September so the
+  back office could be checked. The other belongs to no business at all and is
+  already written up as an untracked second master login.
 
-  **So the decision you already made is not the thing to re-open.** You chose
-  guessable deliberately, and with no real customers that was reasonable. The
-  new fact is narrower: **guessable and published are different.** A guessable
-  password needs somebody to try. A published one needs somebody to read.
+  **WHERE IT IS EXPOSED, and this is the part that is new.** Your code
+  repository, `github.com/random12one0/detailing-platform`, is **public** —
+  anyone on the internet can read every file in it without an account. The
+  demo detailer's email and password sit in plain text in **eight** of those
+  files. The second login's password is written into a note **inside your own
+  database**. Both accounts are real and working: one of them signed in
+  **today**.
 
-  **What somebody could actually do today.** Sign in to your back office.
-  Suspend a business, press *"Download everything they own"*, or open *"Look
-  at their dashboard"*. Write rows into the database **that
-  detailingplatform.com itself reads**, so the live site can be changed by a
-  stranger. **No real customer's data is at risk** — every account on that
-  database is a test one, which is the only reason this is a row here and not
-  a phone call.
+  **WHY THAT IS A DIFFERENT THING FROM WHAT YOU AGREED TO.** You decided a
+  guessable password was fine while nothing real is on the platform, and
+  **that decision is still yours and still reasonable.** But a guessable
+  password behind a door nobody can find is a choice. The same password
+  printed in eight files of a public repository is a different object — one
+  needs somebody to try, the other needs somebody to read. **The note in your
+  database says it must be changed "before launch", and it was written by
+  somebody who assumed launch was the deadline. Publication moved it.**
 
-  **What is missing before anything can be done about it.** Changing those
-  passwords, or making the repository private, are both **your** account and
-  **your** decision — no session here will touch a password, and none should.
-  There is also a third option: leave it exactly as it is until launch, which
-  is what the note already says was the plan. **This row exists so that choice
-  is made with the "public" part in front of you, not without it.**
+  **WHAT IT UNLOCKS.** The back office. Somebody signing in could suspend a
+  business, press *"Download everything they own"*, open *"Look at their
+  dashboard"*, change prices, and write rows into the database that
+  **detailingplatform.com itself reads** — so the live site can be altered by
+  a stranger.
 
-  **Where to look, so you are not taking this on trust:** the note is on the
-  `platform_admins` table in Supabase; the plain-text logins are in the
-  `scripts/` folder of the repository. Neither is quoted here on purpose.
+  **WHAT IT DOES NOT UNLOCK, so the size of this is clear.** Not your real
+  business. `andrewsdetail.com` is a separate Supabase project and nothing
+  here can reach it. Not your money — no card, bank or Stripe key is in that
+  repository. Not any real person's data, because there is none. Not your
+  GitHub, Netlify or Supabase accounts themselves.
+
+  **WHAT HAS TO HAPPEN BEFORE THE FIRST REAL DETAILER SIGNS UP.** This is
+  already a tracked job — **ROADMAP 12.4, "Split the demo account before the
+  first real detailer signs up"** — and it is written as something to do
+  eventually. **The publication fact is what makes 12.4 urgent rather than
+  tidy.** It needs: the demo detailer split back into an ordinary demo
+  account with no back-office access, a separate owner login with a real
+  password, the second untracked admin removed, and `/admin` refusing anyone
+  who is not on the list. Item 14.8 is the note about that second login.
+
+  **Nobody here will touch either password — not change one, not read one
+  out, not write one down.** That is yours alone. This row exists so the
+  choice is made with the word "public" in front of you.
+
+  **Where to look, so you are not taking this on trust:** the repository is
+  `github.com/random12one0/detailing-platform` and its setting is
+  Settings → General → Danger Zone. The note is on the `platform_admins`
+  table in Supabase. **Neither password is written anywhere in this file, on
+  purpose.**
+
 
 - [ ] **DO · Ten test emails are sitting in your support inbox. They are ours.
   Delete them.**
