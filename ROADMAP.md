@@ -1657,6 +1657,75 @@ the wrong service, and never book a job we cannot reach.
   until whoever lifts the freeze ships it alongside `create-booking` and
   `get-booking-receipt`.
 
+  ── **RE-ESTABLISHED 2026-09-21, AND THE ANSWER IS THE THIRD ONE** ─────────
+
+  Asked as three possibilities: the address is verified and this entry is
+  stale; the address is unverified and the product knows; the address is
+  unverified and the product **treats it as verified**. **It is the third.**
+  Nothing was built this round.
+
+  **AND THE QUALIFICATION MATTERS MORE THAN THE ANSWER: the product is ONE
+  DEPLOY away from the second.** The machinery that would make it honest was
+  written on 2026-09-20 and is sitting in the repo not running.
+
+  **1 — MEASURED AGAINST THE LIVE MANAGEMENT API, not against the checkout.**
+  The deployed bundles of the three functions that carry this fact contain
+  **zero** occurrences of `address_source`:
+
+  | function | deployed bundle | `address_source` in it | in the committed source |
+  |---|---|---|---|
+  | `create-booking` | 6,736,699 bytes | **0** | 5 |
+  | `get-booking-receipt` | 5,712,220 bytes | **0** | 1 |
+  | `send-owner-reminders` | 6,598,307 bytes | **0** | 1 |
+
+  **2 — AND THE DATABASE AGREES.** `bookings.address_source` exists and is
+  readable. Of **56** bookings on `kguqylyzgyzfktkfnhjb`, **34 are mobile
+  jobs carrying a customer address, and 0 of the 34 have `address_source`
+  set.** Every row is `null`. **The column has never been written to once.**
+
+  **3 — WALKED, 320px FIRST, IN BOTH LANGUAGES.** Booking page, step 4,
+  *"Pick a place / We come to you"*. Continue is `aria-disabled="true"` with
+  the box empty. **Typed 53 characters of nonsense —
+  `99999 Nonexistent Parkway, Nowhere Township, ZZ 00000` — and Continue
+  became `aria-disabled="false"` without the lookup being asked anything.**
+  Step 4 → step 5 went through. The word "verif" appears nowhere on the
+  screen. **Spanish is identical**: `PASO 4 DE 7`, *"Elige el lugar"*,
+  `Continuar` enabled on the same text, no Spanish equivalent of a
+  verification word anywhere. No horizontal overflow at 320 in either
+  language.
+
+  **4 — THE ONE HONEST SENTENCE IS STILL THERE AND STILL OPTIONAL, AND IT IS
+  TRANSLATED.** Pressing **Find** / **Buscar** on that address prints *"No
+  matches. We will use the address as you typed it."* and, in Spanish, *"No
+  encontramos nada. Usamos la dirección como la escribiste."* **Nothing makes
+  a customer press it**, Continue is already enabled without it, and pressing
+  it does not change anything that is stored.
+
+  **SO, PRECISELY: the address is unverified, the product has been taught to
+  notice, and the part that does the noticing is not running.** A booking
+  made right now stores `null` — indistinguishable from a picked address —
+  and the detailer's job record prints the raw line above a Navigate button
+  that hands it straight to a maps URL. **That is a screen presenting an
+  unchecked value with exactly the confidence of a checked one.**
+
+  **WHY THIS IS NOT "BUILD A FIX".** Andrew ruled on the shape on 2026-09-20
+  and the ruling was followed: *"Do NOT refuse hand-typed addresses… the
+  address has to carry the fact that it was never verified."* **A flag that
+  travels, not a gate.** It is built. It does not need designing again, and
+  the travel fee still comes from a zone the customer picks, so nothing here
+  touches pricing or gating — which is the other half of his ruling.
+
+  **WHAT WOULD ACTUALLY CLOSE IT, unchanged from the 2026-09-20 write-up
+  above:** deploy `create-booking` and `get-booking-receipt`, make one
+  booking with an address the lookup cannot find, and read `address_source`
+  back off the row. **Publishing is Andrew's.** The deploy is blocked by the
+  edge-function backlog, not by this item.
+
+  **NOTHING WAS WRITTEN TO THE TENANT THIS ROUND.** The walk stopped at step
+  5 and no booking was submitted; the only writes were to a form in a
+  browser. The 2026-09-20 test booking `c4c1f0c8` is still the evidence for
+  the downstream surfaces and was not disturbed.
+
 - [x] **2.9 — DONE 2026-09-20. Where the business works is on step 1 now. Nothing moved.**
   Mobile address and area come at step 4, after services, add-ons and vehicle.
   ~~**Fix:** ask "Where's the car?" before vehicle details.~~
