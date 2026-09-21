@@ -1138,6 +1138,71 @@ git at all.**
 **Not filed in `ROADMAP.md` by this session** — that file is the other
 session's lane tonight, and the manager is carrying the line across.
 
+#### TAKEN 2026-09-21, AND STOPPED BEFORE ANY EDIT — THE RULE IS RIGHT AND THE REPO CANNOT FEED IT
+
+**The ruling was reversed and the work authorised**, under a standing
+condition: *if the right comparison needs something the receipt does not
+currently record, STOP rather than widen it.* **It does, and this is that
+stop.** `scripts/receipt.mjs` was not edited. What follows was measured with
+a prototype in a scratch directory that implements the scoped rule and grades
+all 44 receipts without touching the grader.
+
+**THE BLOCKER IN ONE LINE: a receipt records its OUTPUTS, not its SUBJECT,
+and most of the outputs are gitignored.** `artifacts` is the only
+path-bearing field — there is no `subject`, `watches`, `inputs` or `sources`
+field in `REQUIRED` or anywhere else — and `.gitignore:174` ignores
+`artifacts/` entirely, as does `email-preview/`.
+
+| of 44 receipts | |
+|---|---|
+| currently graded stale | **44** |
+| the scoped rule **cannot answer** — subject has no git history | **27** |
+| it answers, but the "subject" is **the check's own script** | **15** |
+| it answers against a real, tracked, non-script file | **2** |
+| would flip `stale` → `fresh` | **4** |
+
+**The mechanism works. That was tested and it is not the problem.** The pair
+the manager asked for both behave: `label-guard` — filed by its own commit
+`e96f624`, its subject untouched by it — grades **fresh**, which is the
+entire motivating case; and genuinely-stale receipts stay **stale**
+(`dashboard-notifies`, `e2e-booking`, `db-audit`, `check-deployed`, nine
+more). **The rule is correct. The data underneath it is not there.**
+
+**AND TWO OF THE FOUR FLIPS GO THE DANGEROUS WAY, WHICH IS WHAT TURNS THIS
+FROM "INCOMPLETE" INTO "DO NOT SHIP".** For the 15 whose recorded artifact is
+their own script, `fresh` would mean *nobody edited the check* — not *the
+product has not moved*. Measured:
+
+| check | subject | scoped verdict | commits touching `app/src` since its receipt |
+|---|---|---|---|
+| `keyboard-walk` | `app/src` | **fresh** | **21** (of 134 commits) |
+| `accent-sweep` | `app/src` | **fresh** | **5** (of 44) |
+| `deployed-inventory` | Management API | fresh | 0 — correct |
+| `label-guard` | the label catalogue | fresh | 0 — correct |
+
+**`keyboard-walk` would be certified fresh over twenty-one commits into the
+exact tree it exists to measure.** Today it says `stale`, which is noisy and
+true. The change would make it say `fresh`, which is quiet and false.
+**Trading an over-firing line for a silent one is this document's subject,
+and doing it inside the grader would do it to every check at once.**
+
+**WHAT IS ACTUALLY MISSING, STATED SO THE NEXT PERSON DOES NOT RE-DERIVE IT.**
+One field: each check declaring the paths it measures — `subject_paths` —
+plus a convention for subjects that are not paths at all. `dashboard-notifies`
+already demonstrates both halves of that problem: its subject is a deployed
+edge function and a live database, and it now records
+`dimensions.endpoint_deployed` precisely because git could not answer for it.
+
+**SO THE REAL SHAPE OF THE WORK IS NOT A GRADER CHANGE.** It is a field added
+to 21 graded checks, each of which then has to be re-proved, and a decision
+about what staleness even means for a check whose subject is not in the
+repository. **That is a larger and different piece of work than the one
+authorised**, which is why it stopped here rather than being widened into it.
+The one-line version for whoever picks it up: **add `subject_paths` first,
+change the grader second, and never in the other order** — a grader taught to
+trust `artifacts` would start certifying 15 checks fresh on the day it
+shipped.
+
 **THE DRIFT FIELD FIRED ON ITS FIRST REAL RUN AND WAS ADJUDICATED, NOT
 IGNORED.** The first control reported `HEAD MOVED DURING THIS RUN: started
 5794d677, finished e0932868`. Read rather than waved through: the only commit
