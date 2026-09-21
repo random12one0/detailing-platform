@@ -1324,8 +1324,13 @@ requested.
      Spanish strings added to `appEs.js`), checked at 392px as well as
      desktop width.
      **`ManageBookingPage.jsx` (the customer-facing side) was correctly left
-     out — the ruling in `DECISIONS.md` scopes this to the detailer's own
-     five screens, not the customer's.**
+     out, and here is WHY rather than just that it is — five of six is not a
+     gap.** `DECISIONS.md`'s own catalogue of the six call sites (§ "The job
+     record should stay open when a status changes") shows it was never part
+     of the bug: `onChanged={load}` there already re-fetches, unlike the
+     other five which called `navigate(...)` or `setSelected(null)` and
+     closed the record. It didn't need this fix because it never had this
+     fault.
      **A SEPARATE, UNRELATED CONSOLE ERROR was seen on a bare page reload
      during this pass** — `NotFoundError: removeChild`, caught by
      `ErrorBoundary`, plus repeated `createRoot() called twice` warnings. The
