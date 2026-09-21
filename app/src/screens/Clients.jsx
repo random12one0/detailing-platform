@@ -42,7 +42,7 @@
 //                thing in the row. A history row is date · what · total.
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ChevronRight, ListChecks, Mail, Phone } from "lucide-react";
+import { ChevronRight, ListChecks, Mail, MessageSquare, Phone } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { api } from "../lib/api.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
@@ -581,6 +581,39 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
                 <span className="quiet">{t("Last visit")}</span>
                 <span className="v">{facts.last ? dateLong(facts.last, getAppLocale()) : t("No completed visits yet")}</span>
               </div>
+              {/* ROADMAP 9.7 — NO NEW FETCH. `history` already comes through
+                  BOOKING_SELECT, which is "*", so the vehicle and address
+                  from the most recent visit are already in state; this only
+                  draws them. Gated on `history?.[0]` — loaded AND non-empty —
+                  the same unknown-vs-empty rule ROADMAP 9.8 used tonight:
+                  while `history === null` nothing renders, never a false
+                  "no vehicle on file". Labelled "Last", not bare "Vehicle" /
+                  "Address": a customer with more than one car across their
+                  history is not an edge case in this trade, and showing one
+                  silently is a lie unless the card says which one it is —
+                  Andrew's own words, 2026-09-20. `customers.address` is a
+                  real column that nothing in this codebase ever writes to
+                  (checked: every function and screen that could — grepped,
+                  none does) — a dead half-feature, not a smaller version of
+                  a working one, and left alone here on purpose rather than
+                  read from, so the next reader does not mistake it for the
+                  intended source. Deleting it is a migration and a decision,
+                  neither of which this item makes. */}
+              {history?.[0] && (
+                <div>
+                  <span className="quiet">{t("Last vehicle")}</span>
+                  <span className="v">
+                    {history[0].vehicle_size_label || history[0].vehicle_size}
+                    {history[0].vehicle_model ? ` · ${history[0].vehicle_model}` : ""}
+                  </span>
+                </div>
+              )}
+              {history?.[0]?.customer_address && (
+                <div>
+                  <span className="quiet">{t("Last address")}</span>
+                  <span className="v">{history[0].customer_address}</span>
+                </div>
+              )}
               {planBy.get(open.id) && (
                 <div>
                   <span className="quiet">{t("Plan")}</span>
@@ -600,6 +633,16 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
                 here the row above does not already carry. */}
             <div className="stack" style={{ gap: 8 }}>
               <a className="btn" href={`tel:${open.phone}`}><Phone size={18} strokeWidth={2} /> {t("Call")}</a>
+              {/* ROADMAP 9.7 — THE BARE sms: LINK, NOT THE TEMPLATE PICKER.
+                  BookingDetail.jsx has a "Text" button too, but it opens a
+                  picker that fills tokens from a specific booking ("on my
+                  way," etc.) — there is no active job here to fill them
+                  from, so this is the same shape as Call above: it opens the
+                  phone's own messaging app and pre-fills nothing. Checked
+                  first whether the absence here was a ruling rather than an
+                  oversight — grepped DECISIONS.md, FOUND.md and
+                  docs/roadmap.md for any prior word on it: nothing. */}
+              <a className="btn" href={`sms:${open.phone}`}><MessageSquare size={18} strokeWidth={2} /> {t("Text")}</a>
               {open.email && (
                 <a className="btn" href={`mailto:${open.email}`}><Mail size={18} strokeWidth={2} /> {open.email}</a>
               )}

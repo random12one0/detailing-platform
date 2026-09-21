@@ -404,6 +404,11 @@ export const appEs = {
   "No customers yet. They appear on their own when bookings come in.":
     "Aún no hay clientes. Aparecen solos cuando entran las citas.",
   "Last visit": "Última visita",
+  // ROADMAP 9.7 — the most recent visit's vehicle and address, drawn from
+  // history already in state. "Last", not bare "Vehicle"/"Address": a
+  // customer can have more than one car across their history.
+  "Last vehicle": "Último vehículo",
+  "Last address": "Última dirección",
   "No completed visits yet": "Aún no hay visitas terminadas",
   "lifetime": "en total",
   // ROADMAP 9.6 — the list row's own figure caption, same two words the

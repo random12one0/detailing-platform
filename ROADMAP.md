@@ -4255,6 +4255,56 @@ the dashboard or back office at phone width at all.
   address, no "Book again". Add them; "Book again" opens New booking prefilled.
   *A2 4.7*
 
+  **THREE OF FOUR BUILT, NOT A FULL CLOSE.** Checked each against the real
+  card before building anything, per Andrew's ask — what was actually
+  missing, not what the audit assumed:
+  - **Text button — genuinely missing, not a ruling.** Grepped
+    `DECISIONS.md`, `FOUND.md`, `docs/roadmap.md`: no prior word on it.
+    `BookingDetail.jsx` has a real one, but it opens a template picker
+    filling tokens from a specific booking ("on my way," etc.) — no active
+    job here to fill them from. **Built:** a bare `sms:` link, same shape
+    as Call above it — opens the phone's own app, nothing pre-filled.
+  - **Vehicle, address — missing, and the audit's own frame (data missing)
+    was backwards.** `customers.address` exists as a column
+    (`20260827000200_tenant_data.sql:208`) and nothing in this codebase
+    ever writes to it — grepped every consumer, none. A dead half-feature,
+    left alone on purpose: **wiring the card to it would have read as a
+    fix while showing an empty field on every real customer**, and
+    deleting it is a migration and a decision this item does not make.
+    The real values live on the customer's own booking history, already
+    in state — `history` fetches through `BOOKING_SELECT`, which is `"*"`,
+    so the most recent visit's `vehicle_size`/`vehicle_model`/
+    `customer_address` cost no new fetch, only a render. **Built:** "Last
+    vehicle" / "Last address" in the `.facts` block, gated on `history?.[0]`
+    (loaded AND non-empty — same unknown-vs-empty rule 9.8 used tonight, no
+    false "none on file" flash). Labelled "Last", not bare "Vehicle" /
+    "Address" — Andrew's own instruction: a customer with more than one car
+    across their history is not an edge case in this trade, and a card that
+    silently shows one is a lie unless it says which.
+  - **"Book again" — NOT BUILT. Stopped at a fork, not decided here.**
+    `pick(c)` inside `NewBookingModal.jsx` already does exactly what
+    "prefilled" needs — sets name, phone, email, looks up the plan — but
+    it's private, reachable only from that component's own search click.
+    Reaching it from Clients.jsx means new data has to cross into
+    NewBookingModal, and the only channel for that short of something
+    bigger than wiring (context, a ref) is a prop. `initialDate` is
+    already exactly that shape for the date case; the same shape for a
+    customer would be the smallest form this could take, and it is still
+    a new prop on the shared modal — the fork Andrew named as the stop
+    condition. Two ways forward, neither chosen: (a) add `initialCustomer`,
+    mirroring `initialDate`; (b) "Book again" opens a blank New Booking,
+    satisfies "wiring only," does not satisfy the item's own word
+    "prefilled." Held for Andrew.
+  **VERIFIED LIVE, 320 FIRST, THEN 1440.** Marcus Webb (3 visits, most
+  recent Ceramic Coating): "Last vehicle" read "large · Ford F-150", "Last
+  address" read "1420 Pine Ave, Long Beach, CA", Call and Text both present
+  and stacked cleanly under the facts block at 320 with no horizontal
+  overflow; all four confirmed again at 1440 in the wider record panel. No
+  console error either width. `tests/composition.test.mjs` 97/97,
+  `scripts/label-guard.mjs` clean.
+  **So 9.7 is not ticked off this build** — three of four, named as such,
+  same reasoning as 9.6 staying open on its own unmet half.
+
 - [x] **DONE 2026-09-20 — 9.8 Manual booking flashes "No active services yet"
   before loading.** Replace false empty states with a loading skeleton; only
   show empty after a completed empty response.
