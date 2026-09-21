@@ -252,6 +252,38 @@ still knows them.
 
 ## Waiting on you — nothing breaks while these wait
 
+- [ ] **DECIDE · One of your five example sites opens with a picture taller
+  than the screen. Do you want it changed? No recommendation from us on this
+  one.**
+
+  **Which one:** the Charlotte site, `/ex3` — *Ballantyne Mobile Detailing*,
+  the two-page one with the three colours you can switch between.
+
+  **What is actually happening.** The opening picture — the photograph, the
+  headline and the button over it — is **1,111 pixels tall on a 900-pixel
+  screen**. So about **a fifth of it sits below the bottom edge**, and
+  somebody landing on that page has to scroll before they have seen the whole
+  of the first thing.
+
+  **Why it is being put to you now rather than earlier.** It was looked at on
+  20 September and left alone, on the grounds that the picture was **exactly
+  one screen tall** — which is a deliberate style, and a common one. **That
+  figure was wrong.** Measured again last night it is a quarter of a screen
+  taller than that, which is a different thing: not a full-screen opener, but
+  one that does not quite fit. The reason it was left alone no longer holds,
+  so the question comes back to you rather than staying closed on a mistake.
+
+  **For comparison, measured the same way:** the Seattle site's opening
+  picture is **774 pixels** on the same screen, so it fits with room to spare.
+
+  **Nobody here is recommending either way, on purpose.** How tall an opening
+  picture should be is taste, and yours is the only one that counts —
+  everything we know about what you like comes from the sites you sent us, not
+  from anything we would work out. **Nothing is broken either way**, and the
+  page works perfectly at every size.
+
+  **"Leave it" is a complete answer** and the row closes.
+
 - [ ] **DECIDE · A recommendation about your publish order, and ten seconds is
   all it needs. The order is yours and I am not changing it.**
 
