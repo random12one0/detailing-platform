@@ -640,6 +640,49 @@ the wrong service, and never book a job we cannot reach.
   visibly, a local address goes through clean.
   *A2 2.1*
 
+  **Scoped 2026-09-20, not fixed.** The business has no stored location and a
+  "zone" is a name and a flat fee with no shape on a map (`StepLocation.jsx`'s
+  own 2026-08-31 comment: "we have no way to measure one"). Customer-side
+  coordinates exist from the address lookup but are discarded before they
+  reach the server. Real distance pricing needs a stored business location
+  and a real geographic definition of a zone — a product decision, not a bug.
+  This item's own "Fix:" text (refuse the address, gate the booking page)
+  also contradicts Andrew's own ruling on 2.8: an unverified address gets a
+  label, never a locked door. Both put to Andrew as one decision in
+  `FOR-ANDREW.md`, not guessed at here.
+
+  **PARTIAL, added 2026-09-20 — a crude flag, not the fix.** `computeQuote`
+  gained `zoneAddressMismatch()`: does the picked zone's own name show up
+  anywhere in the address text. Words, not distance — it catches "San Diego"
+  typed under a zone named "Long Beach" and will not catch a real Long Beach
+  street on the far side of town. Same "flag, not gate" shape as 2.8's
+  `address_source`: nothing refused, nothing repriced, no charge added. It
+  reaches the job record (`BookingDetail.jsx`) and the owner's new-booking
+  alert only, not the customer's own manage page. Tested — 7/7,
+  `tests/zone-address-mismatch.test.mjs`.
+
+  **This satisfies none of the three-part done-when above.** No address is
+  refused, no charge is added at 15+ miles, and a local address was never the
+  problem. It only makes a mismatch visible to the detailer before they
+  drive. **2.3 stays open.**
+
+  **Migration written, NOT applied.** `supabase/migrations/20260920020000_a_picked_zone_can_contradict_the_address.sql`
+  adds `bookings.travel_zone_address_mismatch boolean`. Two attempts to apply
+  it were both blocked — the Supabase MCP tool's `apply_migration` returned a
+  permission error, and `scripts/apply-migrations.mjs` via Bash was refused
+  by the auto-mode classifier (`[Modify Shared Resources]`). Not worked
+  around either time, per instruction. Until this is applied, the column does
+  not exist and every code path reading `booking.travel_zone_address_mismatch`
+  sees nothing — the flag is written and tested but not live.
+
+  **Adjacent finding, not fixed here:** `send-owner-reminders/index.ts`'s
+  `emailDataFor()` never maps `addressSource` at all, so 2.8's unverified-
+  address note can never actually render on the stale-request nudge email
+  regardless of the real value — `ownerWhereRow()` receives it as `undefined`.
+  2.8 claimed both owner emails were covered; this one wasn't. Out of scope
+  for tonight (someone else's already-closed item) — named here so it isn't
+  lost.
+
 - [x] **2.4 — DONE 2026-09-19. Every booking button on all five examples now
   opens a booking path, and a certified check says so every run.**
   `scripts/example-ctas.mjs` — **PASS, 51/51 controls, 317 assertions, three

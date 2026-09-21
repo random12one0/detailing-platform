@@ -491,6 +491,22 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                   {t("Typed by hand. The address lookup found no match for it.")}
                 </p>
               )}
+              {/* ROADMAP 2.3 — A CRUDE, HONEST FLAG, NOT DISTANCE AND NOT A
+                  GATE. The customer's picked travel zone and this address are
+                  two independent fields with nothing checking one against the
+                  other; this says only that the zone's own name never turned
+                  up anywhere in the address text — "San Diego" typed under a
+                  zone named "Long Beach", for instance. It does NOT mean the
+                  address is far: a real Long Beach street on the far side of
+                  town from the shop reads as a match and says nothing here.
+                  Same shape as the row above it — a fact for the detailer to
+                  weigh before driving out, never a reason this booking was
+                  refused or repriced. */}
+              {booking.service_type === "mobile" && booking.travel_zone_address_mismatch && (
+                <p className="quiet">
+                  {t("This address doesn't mention the travel area they picked. Worth a quick check before you drive out.")}
+                </p>
+              )}
               {/* THE SKY OVER THIS ADDRESS ON THIS DAY, directly under the
                   address it is about — Andrew, 2026-09-13. The record is where
                   EVERY warning shows rather than only the most serious one: a

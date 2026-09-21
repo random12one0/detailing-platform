@@ -205,6 +205,37 @@ export function resolveTravel(
   return { fee: Number(settings.travel_fee) || 0, zone: null };
 }
 
+// ROADMAP 2.3 — A CRUDE, HONEST FLAG, NOT A GATE, AND NOT DISTANCE. The
+// customer picks a travel zone off a list with nothing checking it against
+// the address they typed a few fields below it — someone in San Diego can
+// pick "Long Beach" and pay its fee, and nothing here or anywhere else
+// notices. Real distance pricing needs a stored business location (there
+// isn't one) and a real geographic definition of what a "zone" is (there
+// isn't one of those either) — a product decision, not a bug, written up
+// for Andrew rather than guessed at here.
+//
+// This is the smaller, honest half: does the zone's OWN NAME show up
+// anywhere in the address text. Nothing more. It catches a customer whose
+// address flatly contradicts the zone they picked ("San Diego" typed under
+// a zone named "Long Beach") and it will NOT catch a street twenty miles
+// off inside a correctly-named city — comparing words is not measuring
+// distance, and a silence from this check is not a promise the address is
+// close. A zone name with nothing but a distance or a generic word in it
+// ("Within 10 miles", "Zone 1") has nothing to compare, so it is skipped
+// rather than guessed at — same rule `readAddressAnswer` already follows:
+// "we could not tell" must never be dressed up as "it's fine".
+const ZONE_WORD_STOPWORDS = new Set([
+  "the", "and", "of", "in", "area", "zone", "within", "miles", "mile", "mi", "km", "radius",
+]);
+export function zoneAddressMismatch(zoneName: string | null | undefined, address: string | null | undefined): boolean {
+  if (!zoneName || !address) return false;
+  const words = zoneName.toLowerCase().match(/[a-z]+/g) ?? [];
+  const meaningful = words.filter((w) => w.length > 2 && !ZONE_WORD_STOPWORDS.has(w));
+  if (!meaningful.length) return false;
+  const addr = address.toLowerCase();
+  return !meaningful.some((w) => addr.includes(w));
+}
+
 // The job's WHEN, as the plain numbers matchPriceRules wants. Returns an empty
 // context when the customer has not picked a day yet, which is most of the
 // booking flow — and an unevaluable rule correctly does not apply.

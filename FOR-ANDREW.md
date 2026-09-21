@@ -103,6 +103,20 @@ Updated 2026-09-20.
   Supabase: **Account settings → Security → enable MFA.** Netlify has the same
   under user settings.
 
+- [ ] **DO · Apply one small database change — one minute, and nothing is
+  live until you do.**
+  This session isn't allowed to change your database directly, on purpose —
+  that stays yours to approve. The file is already written:
+  `supabase/migrations/20260920020000_a_picked_zone_can_contradict_the_address.sql`.
+  It adds one new column to bookings that only ever holds true, false, or
+  nothing — no existing booking is touched, nothing is deleted or renamed.
+
+  It's the crude "does this address match the area they picked" flag from
+  the ROADMAP 2.3 decision above — built and tested tonight, but invisible
+  everywhere until this column exists. In the Supabase dashboard: **SQL
+  Editor → paste the file's contents → Run.** Or from a terminal with your
+  credentials loaded: `node scripts/apply-migrations.mjs 20260920020000_a_picked_zone_can_contradict_the_address.sql`.
+
 ---
 
 ## Waiting on you — nothing breaks while these wait
@@ -208,18 +222,23 @@ Updated 2026-09-20.
   only ever covers the customers who used Find and picked a real
   suggestion.
 
-  **What lands regardless of your answer, next, not waiting on this
-  decision:** a crude, honest flag — when the area a customer picks
-  doesn't match the words in the address they typed, the detailer sees it
-  on the job record and in the owner's alert, the same way an unverified
-  hand-typed address already gets flagged (ROADMAP 2.8). It does not block
-  the booking and it does not charge anything extra — it is the
-  difference between finding out before you drive and finding out when
-  you arrive. It is crude on purpose: comparing words, not measuring real
-  distance, so it catches "San Diego" typed under a "Long Beach" area and
-  will not catch a street twenty miles off inside the right city. 2.3
-  stays open either way — this flag is a partial, not the fix the item
-  actually asks for.
+  **What lands regardless of your answer — built 2026-09-20, not live yet:**
+  a crude, honest flag — when the area a customer picks doesn't match the
+  words in the address they typed, the detailer sees it on the job record
+  and in the owner's alert, the same way an unverified hand-typed address
+  already gets flagged (ROADMAP 2.8). It does not block the booking and it
+  does not charge anything extra — it is the difference between finding out
+  before you drive and finding out when you arrive. It is crude on purpose:
+  comparing words, not measuring real distance, so it catches "San Diego"
+  typed under a "Long Beach" area and will not catch a street twenty miles
+  off inside the right city. 2.3 stays open either way — this flag is a
+  partial, not the fix the item actually asks for.
+
+  **One thing needs you before it goes live: a database change is written
+  but not applied.** It's one new column that only ever holds true, false or
+  nothing — no existing booking is touched. Nobody in this session has
+  permission to apply it, on purpose; that stays yours. Until it's applied,
+  the flag is built and tested but nothing shows up anywhere yet.
 
   **No recommendation attached — this one decides how your customers are
   charged, and that is yours.**

@@ -2251,6 +2251,9 @@ export const appEs = {
   // ROADMAP 2.8 — on the job record, under the address and above Navigate.
   "Typed by hand. The address lookup found no match for it.":
     "Escrita a mano. El buscador de direcciones no encontró ninguna coincidencia.",
+  // ROADMAP 2.3 — the crude zone-versus-address flag, same job record row.
+  "This address doesn't mention the travel area they picked. Worth a quick check before you drive out.":
+    "Esta dirección no menciona la zona de viaje que eligieron. Vale la pena revisarlo antes de salir.",
   // ROADMAP 4.1 — the question a consequential tap asks before it acts, and
   // the way back afterwards. Both screens that can complete a job share them.
   "Mark {name}’s {service} at {time} as done?":

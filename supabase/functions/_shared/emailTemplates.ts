@@ -125,6 +125,11 @@ export interface BookingEmailData {
   customerAddress: string | null;
   // ROADMAP 2.8 — 'picked', 'typed', or null when nobody recorded it.
   addressSource?: string | null;
+  // ROADMAP 2.3 — the crude zone-vs-address word check, `zoneAddressMismatch`
+  // in `_shared/pricing.ts`. true only; null/false print nothing, same rule
+  // as `addressSource` above — a check that could not run must never be
+  // dressed up as "checked and fine".
+  travelZoneAddressMismatch?: boolean | null;
   dateStr: string;       // business-local "YYYY-MM-DD"
   startTime: string;     // business-local "HH:MM"
   endTime: string;       // business-local "HH:MM"
@@ -279,16 +284,21 @@ export function jobAddress(
  */
 export function ownerWhereRow(
   brand: TenantBrand,
-  b: Pick<BookingEmailData, "serviceType" | "customerAddress" | "addressSource">,
+  b: Pick<BookingEmailData, "serviceType" | "customerAddress" | "addressSource" | "travelZoneAddressMismatch">,
 ): [string, string] {
   const unverified = b.serviceType === "mobile" && b.addressSource === "typed";
+  // ROADMAP 2.3 — the same crude flag as the job record, in the same row as
+  // the address it is about. Not distance, not a gate: see the column
+  // comment on `bookings.travel_zone_address_mismatch` for exactly what it
+  // does and does not catch.
+  const zoneMismatch = b.serviceType === "mobile" && b.travelZoneAddressMismatch === true;
+  const note = (text: string) =>
+    `<br><span style="color:#8A8F98; font-size:13px;">${text}</span>`;
   return [
     "Where",
     esc(jobAddress(brand, b))
-      + (unverified
-        ? `<br><span style="color:#8A8F98; font-size:13px;">`
-          + `Typed by hand. The address lookup found no match for it.</span>`
-        : ""),
+      + (unverified ? note("Typed by hand. The address lookup found no match for it.") : "")
+      + (zoneMismatch ? note("Doesn't mention the travel area they picked. Worth a quick check before you drive out.") : ""),
   ];
 }
 

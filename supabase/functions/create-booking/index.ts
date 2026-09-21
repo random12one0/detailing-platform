@@ -28,7 +28,7 @@ import { businessBySlug, getSettings, requireMember } from "../_shared/tenant.ts
 import {
   computeQuote, matchPriceRules, planInputFor, resolveAddOns, resolvePlan,
   resolvePromo, resolveServices, resolveTravel, resolveVehicles, sizeAdjustmentFor,
-  vehicleSizeFee, whenContextFor,
+  vehicleSizeFee, whenContextFor, zoneAddressMismatch,
 } from "../_shared/pricing.ts";
 import { validateSlot } from "../_shared/slotValidation.ts";
 import { ipOf, LIMITS, looksAutomated, withinLimits } from "../_shared/rateLimit.ts";
@@ -422,6 +422,19 @@ Deno.serve(async (req) => {
           && (body.address_source === "picked" || body.address_source === "typed")
             ? body.address_source
             : null,
+        // ROADMAP 2.3 — A CRUDE, HONEST FLAG, NOT A GATE AND NOT DISTANCE.
+        // The customer's picked zone and their address are two independent
+        // fields with nothing between them; this is the smaller half of
+        // that item — see `zoneAddressMismatch` for what it does and does
+        // not catch, and `FOR-ANDREW.md` for the real distance-pricing
+        // decision this does not attempt to make. Same gate as
+        // `address_source` just above: only a mobile booking with an
+        // address can have an opinion, and a business with no zones
+        // configured (`travel.zone` is then null) has nothing to compare.
+        travel_zone_address_mismatch:
+          body.service_type === "mobile" && body.customer_address?.trim() && travel.zone
+            ? zoneAddressMismatch(travel.zone, body.customer_address)
+            : null,
         start_at: check.startAt!.toISOString(),
         end_at: check.endAt!.toISOString(),
         service_type: serviceType,
@@ -629,6 +642,8 @@ Deno.serve(async (req) => {
       // ROADMAP 2.8 — the owner's alert is one of the three places the
       // detailer reads an address before driving to it.
       addressSource: booking.address_source,
+      // ROADMAP 2.3 — same row, the crude zone-vs-address flag.
+      travelZoneAddressMismatch: booking.travel_zone_address_mismatch,
       // ROADMAP 8.17 STAGE 2A — the language the form was filled in in.
       lang,
       dateStr: String(body.booking_date),
