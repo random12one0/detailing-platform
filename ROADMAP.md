@@ -1357,9 +1357,9 @@ the wrong service, and never book a job we cannot reach.
   and the fix belongs with the bar, not with the step. **Everything else in
   this item is done and measured above.**
 
-- [ ] **The booking column has been rendering at under half its own declared
-  width, on every step — the calendar's undersized tap targets are a
-  consequence of it, not a second fault.** Found by the other session's
+- [x] **DONE 2026-09-20 — the booking column had been rendering at under
+  half its own declared width, on every step; the calendar's day cells are
+  52 by 52 now, square, at desktop.** Found by the other session's
   booking-steps triage, 2026-09-20, root-caused on a fresh load rather than
   a resize. **The before number, so the size of this is visible without
   re-measuring anything: `.bk-wrap` rendered at 316.9px against its own
@@ -1428,6 +1428,50 @@ the wrong service, and never book a job we cannot reach.
   is not done, whatever the screen looks like.
   **Built code-only, held for the press — the other session has the browser
   tonight and is the only one who can give this a real before-and-after.**
+  **ACCEPTED 2026-09-20. Andrew pressed all four numbers, not just the
+  screen.** `.bk-wrap` measures **632 exactly** on a fresh load, no resize,
+  against the 316.9 it was. Walked five steps as a customer — service,
+  add-ons, vehicle, place, time — wider column throughout, nothing
+  overflowing, nothing stranded, no line stretched into looking abandoned.
+  **THE 52 IS THE BETTER HALF OF THE STORY, SO IT LEADS THIS ENTRY RATHER
+  THAN THE 632.** Measured independently, in a tab neither session drove:
+  `.bk-cal` at 600px, day cells **52 by 52, square.** This item's own
+  comment named the file's 47px phone-width expectation; what actually
+  happened at desktop is a DIFFERENT rule, `.bk-cal .cell`'s `max-height:
+  52px`, written for a 600px grid and dead the entire time the grid was
+  rendering at ~285px content width. **That rule was never wrong. The width
+  bug kept it unreachable.** Fixing the wrap didn't just widen a grid — it
+  let a second, already-correct rule start being true for the first time.
+  **THE LESSON, WORTH KEEPING FOR ITS OWN SAKE:** a rule that appears to do
+  nothing is not evidence the rule is dead — it can be evidence something
+  upstream is lying to it. The next person who finds a CSS rule with no
+  visible effect should ask what would have to be true for it to fire
+  before deleting it as cruft.
+  **SPANISH HELD AT THE NEW WIDTH — the thing a CSS diff alone could never
+  have shown, checked live rather than assumed from the static sweep
+  above.** *"Paso 5 de 7," "septiembre de 2026,"* the weekday letters *D L
+  M M J V S* across the calendar header, *"Elige un día para continuar,"*
+  *"Total estimado."* Nothing that used to fit one line reflowed to two.
+  **TWO HONEST GAPS, KEPT IN THEIR OWN WORDS RATHER THAN ROUNDED UP TO A
+  PASS.** The other session's matrix covers steps one through five at four
+  widths; it does not cover steps six and seven at any width — for those
+  two the correct sentence is that they have not been compared, not that
+  they look fine. And at 768px the calendar block itself was not
+  captured — recorded as not-captured, not as a result. **W16's twelve
+  steps that do not fit stay untriaged and stay named**, unchanged by
+  anything in this item.
+  **THE SECOND-INSTANCE SWEEP OF `booking.css`, WRITTEN DOWN SO THE NEXT
+  READER DOES NOT HAVE TO REPEAT IT.** Checked every `max-width` in the
+  file against its actual parent's `display`, not assumed from the
+  selector name: `.bk-wrap` was the only max-width-plus-auto-margin
+  element that is itself a flex child with no `width` to let stretch
+  reach it. `.bk-header .inner` and `.bk-bar .inner` carry the identical
+  `max-width` + `margin: 0 auto` pairing, but their parents (`.bk-header`,
+  `.bk-bar`) are plain blocks, not flex containers, so the ordinary CSS
+  centring rule applies correctly there — no cross-axis override, nothing
+  to collapse. `.bk-lang`'s `margin-left: auto` is a different idiom
+  entirely, push-to-edge-within-a-row rather than centre-a-column. **No
+  second instance in this file. Nothing else to chase.**
 
 ---
 
