@@ -468,6 +468,56 @@ a green run that has one attached.**
 
 ---
 
+## A GEOMETRY SWEEP CAN CATCH AN EXIT ANIMATION MID-FLIGHT AND REPORT IT AS AN OVERFLOW — 2026-09-21
+
+**`sweep-widths.mjs` reported seven findings on `guide · calendar 5` at 1920:
+`div.col-2.leaving` **46px past the viewport**, `section.daypanel` and four of
+its children the same, and **the whole page draggable sideways by 51px**. Every
+number was real. The surface has no defect.**
+
+**WHAT IT ACTUALLY CAUGHT.** `.col-2.leaving` is the calendar's day panel on its
+way out. `@keyframes column-out` fades it to `opacity: 0` while translating it
+`14px` right, and `theme.css` re-centres the month grid **the moment `.leaving`
+is set** rather than waiting for the unmount — deliberately, and the rule says
+so. So for about **120 milliseconds** the panel is painted at its old width
+against a layout that has already moved on, and it hangs off the right edge.
+
+**MEASURED, BOTH DIRECTIONS, 2026-09-21 at 1920x1080 against `demo-detail`:**
+
+| when | day panel right edge | page scrollable | opacity |
+|---|---|---|---|
+| open, at rest | **138px INSIDE** the viewport | 0px | 1 |
+| exit + 0 / 30 / 60ms | 138px inside | 0px | 1 |
+| exit + 100ms | **+33px OVER** | **+38px** | **0.081** |
+| exit + 150ms | **+44px OVER** | **+49px** | **0.012** |
+| exit + 220ms onward | element gone | 0px | — |
+
+**The sweep's +46px and +51px sit inside that window.** At the moment it
+measured, the thing it was measuring was **about one percent visible and on its
+way to zero**.
+
+**WHY THE CLASS NAME IS NOT THE EVIDENCE.** `leaving` in the selector is
+suggestive and proves nothing — a class called `leaving` on an element that
+genuinely overflows at rest would be a real finding. **The only thing that
+separates the two is whether it HOLDS STILL**: sample the same geometry
+repeatedly while touching nothing. Three passes at rest read `-138px` and
+`pageScroll 0` every time; the overflow exists only while the animation runs.
+
+**AND THE HONEST RESIDUE, because this is not quite nothing.** The page really
+is horizontally scrollable for those ~120ms. Nobody can see the element causing
+it, but a flick during the window would move the page. That is a different and
+much smaller claim than "the calendar overflows at 1920", which is what the
+findings read as.
+
+**THE TRAP FOR THE NEXT READER.** This is the same family as the two entries
+above — a screenshot taken too soon is the previous frame, a screenshot taken to
+serve an assertion is not a picture of the screen. **All three are an instrument
+answering truthfully about an unfinished moment.** The defence is the same one
+every time: before believing a transient-looking finding, re-ask it after the
+motion has stopped, and say which reading you are quoting.
+
+---
+
 ## A GUARD THAT WAITS FOR SOMETHING ALREADY ON SCREEN CANNOT FAIL — 2026-09-19, ROADMAP 8.1
 
 Eleven dialogs were added to `sweep-widths.mjs`, and each one needed a guard
