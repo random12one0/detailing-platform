@@ -578,3 +578,79 @@ stacked in **one column** at 392 (`712px`, 84% of the screen), against a
 two-column `296px 296px` grid at 768 where the same four occupy 370px and the
 page overflows by **zero**. **That half is a list that scrolls, on a surface
 the gate already declares `{ gate: false }` — advisory, not a failure.**
+
+---
+
+# A diagnosed — and it is a decision too, which makes three in a row
+
+**Reproduced exactly at both widths**, fresh loads:
+
+```
+1440x900   header 80  wrap 908   over 88px    six .bk-card at 102px each
+392x844    header 53  wrap 897   over 71px    six .bk-card at  92px each
+```
+
+## The element, and it is content-driven
+
+`.bk-choices` — `min-height: auto`, no declared height, a flex column whose
+height is the sum of its children. **Nested:** the outer one holds a category
+note, **two inner `.bk-choices` groups** (348px and 360px at 1440 — three
+service cards each), and a refusal line.
+
+**Nothing is inherited. It is six service cards, and the tenant chose six.**
+
+## The number is not a constant — it is a function of the detailer's catalogue
+
+Card + gap is **110px at 1440** and **100px at 392**. The overflow is 88px and
+71px. **At both widths, removing one service clears it:**
+
+| services | 1440x900 | 392x844 |
+|---|---|---|
+| 5 | fits, ~22px spare | fits, ~29px spare |
+| **6 (the demo tenant)** | **over 88px** | **over 71px** |
+| 7 | over ~198px | over ~171px |
+
+**So "step 1 is 88px too tall" is really "step 1 fits five services and this
+detailer has six."** A tenant with four would pass this gate; a tenant with ten
+would fail it by roughly 550px. **The check is measuring the seed's catalogue
+and reporting it as a layout defect.**
+
+## Why there is no card height that fixes it
+
+To fit six at 1440 the card must lose ~15px of its 102. To fit ten it must
+lose ~55px, which is more than half. **There is no fixed card height that
+satisfies an unbounded service count**, so shrinking the card moves the
+threshold from five to six or seven and leaves the same failure waiting for the
+next detailer who adds one.
+
+**And unlike the plans page, this one IS gated.** Step 1 prints `over`, counts
+in `w16Failing`, and fails the run — the product has decided a wizard step must
+not scroll. **That decision and tenant-controlled content cannot both hold.**
+
+## So it is a decision, and here is the shape of it — not a patch
+
+Three honest roads, none of them a repair:
+
+1. **Bound the rule.** W16 becomes *"fits up to N services"* with N stated and
+   the gate seeded at N. Cheapest, and it makes the limit visible instead of
+   discovering it per tenant.
+2. **Change the presentation** so the count stops driving the height —
+   collapsed categories, or a scroll region inside the step with its own
+   affordance, which is a different thing from the page scrolling.
+3. **Exempt step 1** the way `.bk-planpitch` is exempted: declared, with a
+   reason, in the gate.
+
+**What must not happen is a quiet card-height reduction**, because it would
+turn the gate green against this seed while changing nothing about the fault,
+and the next detailer with one more service would re-open it as a new finding.
+
+## Three in a row, and that is the finding about the file rather than in it
+
+`.bk-wrap` was a repair. **These three are not:** the plans page (`gate: false`,
+advisory, already decided), the 104px (a deferred migration a previous item
+declined), and now step 1 (a fixed-viewport rule against tenant-controlled
+content). **The pattern is that this product's booking surfaces are sized by
+data the detailer owns, and a rule phrased as "must fit" cannot hold against
+that without a stated bound.** Every one of the three looked like a one-line
+fix from its number and stopped being one the moment the thing producing the
+number was read.

@@ -236,6 +236,24 @@ somebody real time.
   failures are the same one this repo keeps meeting: **a check that reads the
   label instead of the contents.** A rule corrected twice in the open is one
   the next session will actually read.
+- **BEFORE CHANGING A SHARED VARIABLE, FIND OUT WHETHER A PREVIOUS ITEM
+  ALREADY DECIDED NOT TO.** A default on a token, a CSS custom property, a
+  constant every screen reads — changing it is never local, and the reason it
+  holds an awkward value is often that somebody already looked.
+  **`--bk-bar-clear` is the worked example, 2026-09-20.** It reserves 104px for
+  a fixed bar, is overridden to 26px on pages that HAVE the bar, and therefore
+  applies its full 104px **only to the four pages with no bar at all**. That
+  reads as an obvious one-line fix. It is not: `booking.css:115` records that
+  roadmap 2.15 kept the old literal deliberately *"so the confirmation screen,
+  the manage screen and the plans page are untouched by this change."*
+  **Repeating a change a previous item chose not to make, without saying why it
+  is safe now, is how a deferred decision becomes an accidental one.** The cost
+  is not the four surfaces — it is that **nobody can tell afterwards whether it
+  was overturned or forgotten.** So either say in the commit why it is safe
+  now, or hand it over as a scoping question. A narrower per-page patch is
+  usually worse, not better: it hides the decision inside an exception to the
+  very variable that exists to stop numbers drifting.
+  `docs/booking-steps-triage-2026-09-20.md` § "THE HANDOVER" has the full case.
 - **Migrations are append-only.** Never edit an existing one.
 - **Never commit `app/.env.production` or any credential.** No password, token
   or key goes into a markdown file either — say where it lives, not what it is.
