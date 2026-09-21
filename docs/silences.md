@@ -306,3 +306,28 @@ viewport of 380 instead of 392 would have been believed.**
 **A check nobody has watched fail is a check nobody has verified.** Six of the
 twelve silences named here are unverified claims about unverified checks, and
 that is the honest state of this file on the day it was written.
+
+---
+
+## THE SILENCE NO CHECK IN THIS FILE CAN COVER — added 2026-09-20
+
+**A figure inherited from an instrument whose definition moved is stale in a way
+no check can catch, because the number is still arithmetically correct.**
+
+Everything else censused here is a check that might not have run. This is the
+opposite: the check ran, printed a true number, and the number was written down
+— and then the thing it measured changed underneath the words, so the figure
+stayed correct and stopped meaning what it says.
+
+The worked example is `fits, Npx spare` from `scripts/sweep-booking-steps.mjs`.
+On 2026-09-20 at 02:34:23, `52a3d70` gave `.bk-wrap` `flex: 1 0 auto` inside a
+`min-height: 100dvh` column, so the column stretches to fill the screen and the
+figure became a cap — about 54 to 77px — rather than headroom. 58px of content
+reads as 73px spare at viewport heights 900, 1200 and 740 alike. **No receipt,
+no gate, no canary and no expected-count file can see this**: the run is clean,
+the arithmetic is right, and the only evidence is that two very different screens
+print the same number.
+
+`docs/spare-figures-2026-09-20.md` classifies all 64 written figures against
+that boundary. The reason it was catchable at all is that somebody read the
+thing that produced the number instead of the number.
