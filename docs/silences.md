@@ -88,7 +88,7 @@ end with the same summary line.
 |---|---|---|
 | ~~`sweep-booking-steps.mjs`~~ | **ROW CORRECTED 2026-09-20 — the claim was wrong, and the truth was worse. See below** | **CLOSED 2026-09-21, `b5022b0`.** It had NO canary and no sabotage switch at all. One is now aimed at `MEASURE`: a step read in a 1440x200 window must report OVER, and it reads **788px over**. `16 16 16 16`, 504 assertions, receipt graded. |
 | ~~`accent-sweep.mjs`~~ | `SWEEP CLEAN — dashboard, booking page and hue families` on `failures === 0` | **CLOSED 2026-09-21, `8585701`.** 18 declared accents, 288 comparisons, a canary aimed at the contrast floor, and a receipt. **Breaking it found a real defect: any stray argument was read as a colour**, so `--lite` swept ONE and printed CLEAN. See below. |
-| `e2e-booking.mjs` | exits 0 with no subject count | count the steps completed end to end; assert the booking exists afterwards. **STILL UNPROVEN, and the census mis-scoped it: it needs `SUPABASE_SERVICE_ROLE_KEY` and four other credentials, so it is NOT browser-only** |
+| ~~`e2e-booking.mjs`~~ | exits 0 with no subject count | **CLOSED 2026-09-21 — SECTION A IS NOW SEVEN OF SEVEN.** 13 declared legs, 95 assertions / floor 52, a canary aimed at the availability READ, and a receipt. **Breaking it found a real defect: the cleanup deleted customers by a phone number the product reformats, so 22 rows had been leaking since 2026-09-13.** See below |
 | ~~`render-emails.mjs`~~ | exits 0 with no subject count | **CLOSED 2026-09-21, `af3b9a8`.** 32 declared emails, 161 assertions, a canary aimed at the ROT patterns, a receipt. **The row was wrong on both halves** — it printed `32 emails` and exited 1 on problems. What it could not tell you was a run that rendered nothing: `0 emails`, exit 0. |
 | ~~`db-audit.mjs`~~ | exits 0 with no subject count | **CLOSED 2026-09-21, `81fc751` — and the row understated it. It had NO `process.exit` on findings at all**, so two real problems printed and returned 0, inside CLAUDE.md's verification table. Findings now fail; 4 declared checks; canary aimed at `q()`. See below. |
 | ~~`check-deployed.mjs`~~ | exits 0 with no subject count | **CLOSED 2026-09-21, `d4ac4ac`.** 39 declared functions, a canary aimed at the freshness comparison, a receipt. **The row was slightly wrong**: it does print `all N functions are current` — but only on a clean run, and no run is clean today. Its earlier correction (it printed `PASS` having fetched nothing, fixed at `4b804ec`) is below. |
@@ -174,6 +174,88 @@ that can be fed from more than one place will be read as a count of the thing
 its sentence names.
 
 
+## SECTION A — SEVEN OF SEVEN, 2026-09-21. THE SECTION IS CLOSED
+
+**The header below says three, and it was true when it was written.**
+`render-emails` and `sweep-booking-steps` went in the lane swap that followed,
+and `e2e-booking` — the last one, 1,019 lines with no canary and no count of
+anything — closed on the round after that, once the browser, the dev server,
+the service-role key and the demo tenant were all handed over at once. The
+original header is kept because the four it could not take were a decision
+with a named blocker, and that decision is the useful part.
+
+### `e2e-booking.mjs`, THE LAST OF THE SEVEN
+
+| run | legs (expected · discovered · attempted · completed) | verdict |
+|---|---|---|
+| control | **13 · 13 · 13 · 13**, 94 passed / 0 failed, 95 assertions / floor 52 | **PASS**, canary caught |
+| `--break=blind` | **13 · 13 · 13 · 13** | **FAIL** — canary NOT CAUGHT |
+| `--break=leg` | **13 · 11 · 11 · 11** | **FAIL** — names `demo-detail:cancel`, `demo-riverside:cancel` |
+| `--break=none` | **13 · 0 · 0 · 0** | **FAIL** — four separate rules, before the canary is even reached |
+
+**THE COUNTS PASSING IS NOT THE SAME AS THE RUN MEANING ANYTHING, AND
+`--break=blind` IS THE PROOF.** It makes the availability read answer `[]` for
+everything. The four counts stay perfect at `13 13 13 13` and **four of this
+script's double-booking assertions go green over an empty list** — `08:00 is
+no longer offered` on both tenants, `08:30 is taken`, `09:00 is taken`. Only
+**two** checks go red, and they are the two that read a time that must be
+PRESENT rather than absent, exactly as this file's 2026-09-13 note predicted.
+**The canary is the only thing that refuses the run**, and before 2026-09-21
+there was no canary.
+
+**WHAT THE CANARY IS AIMED AT, AND IT IS THE READ, NOT THE PRODUCT.** The
+2026-09-13 fix stopped a `null` answer being read as an empty list. It did
+nothing about a **200 carrying no slots**, which is lane C queue item 2 — a
+thing that has happened on a live tenant, three months running. In that state
+a missing time in an empty list is indistinguishable from a held slot. So a
+second open day the engine listed seconds earlier is asked again at the same
+duration, with no booking of this run on it. It cannot legally come back
+empty. It is a control, not a second opinion: it asserts no particular time,
+because a stricter test here would invent findings out of a correct database.
+
+**`--break=leg` IS THE QUIET ONE AND THE REASON THE ARITHMETIC EXISTS.** It
+leaves the cancel leg's work running and stops it being counted. The console
+reads `94 passed, 0 failed` — **byte-identical in verdict to the control** —
+and under the old file it exited 0. Only the counts notice, and they name both
+legs.
+
+### AND BREAKING IT FOUND A REAL DEFECT: 22 CUSTOMER ROWS, LEAKING SINCE THE 13th
+
+Not found by a sabotage. Found by **re-reading the tenant afterwards to prove
+the restoration instead of asserting it**, which is the condition the work was
+handed over under.
+
+The cleanup deleted the run's customer with `phone=eq.555-0111`.
+`create-booking` **stores a formatted phone** — the row reads `(555) 011-1` —
+so the filter matched nothing and the customer row survived every run. The
+booking row was deleted correctly, and the stale sweep at the top of the loop
+only ever looked at bookings.
+
+**NOTHING IN THIS REPO COULD HAVE SEEN IT.** A PostgREST delete that matches no
+rows answers `204` with an empty body — the same answer as a delete that
+removed exactly what it meant to. The residue was invisible from the console,
+from the exit code, and from the receipt. It is the file's own subject wearing
+a new spelling: **a success and a no-op that are identical to the caller.**
+
+22 rows, oldest 2026-09-11, one per tenant per run. The cleanup now matches on
+`Smoke <runId>`, the one field the product does not reformat, and the stale
+sweep reclaims customers as well as bookings — it cleared all 16 historical
+rows on the first fixed run.
+
+### THE RECEIPT'S `git_sha` IS STAMPED WHEN THE RUN ENDS, NOT WHEN IT STARTS
+
+Recorded here because it turned up under this work and it is **every receipt in
+this repo, not this one**. HEAD moved under two of the four runs — another
+session committed mid-flight, twice in forty minutes — so the receipt claims a
+commit that landed **after the measurement began**. Tonight both commits
+touched `ROADMAP.md` only, `source-guard.mjs` correctly stayed silent, and the
+run is sound. **But the receipt could not have told anybody that.** What told
+them was `git show --stat`. The source guard's verdict is not carried into the
+receipt, and `receipt.mjs`'s staleness rule compares the stamp to HEAD at
+GRADING time, not to the tree the run actually walked. Not fixed; named.
+
+---
+
 ## SECTION A — THREE OF SEVEN CLOSED, AND THE OTHER FOUR ARE A DECISION — 2026-09-21
 
 **The seven were triaged out loud before any were taken**, so the four not
@@ -184,7 +266,7 @@ taken are a decision with a named blocker rather than a silence.
 | `accent-sweep.mjs` | nothing — fully offline | **TAKEN**, `8585701` |
 | `render-emails.mjs` | `supabase/functions/_shared` to stop moving | **TAKEN 2026-09-21 in the lane swap**, `af3b9a8` — 4 of 7 |
 | `sweep-booking-steps.mjs` | browser + dev server | **TAKEN 2026-09-21 in the lane swap**, `b5022b0` — 5 of 7 |
-| `e2e-booking.mjs` | browser + dev server + service-role + tenant — **all held this round** | **NOT REACHED.** 1,019 lines, zero canary, and it writes real bookings. The round ran out; not started rather than started badly |
+| `e2e-booking.mjs` | browser + dev server + service-role + tenant — **all held that round** | **TAKEN 2026-09-21 on the next round, once all four were handed over — 7 of 7** |
 | `check-deployed.mjs` | Management API read | **TAKEN**, `d4ac4ac` |
 | `db-audit.mjs` | Management API read | **TAKEN**, `81fc751` |
 | `render-emails.mjs` | imports 6 modules from `supabase/functions/_shared` | **DEFERRED** — that lane is the other session's, took 2 commits in 90 minutes with 3 items unpressed, so any reading is against a tree that will move |

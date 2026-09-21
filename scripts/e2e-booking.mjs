@@ -61,6 +61,7 @@
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import { reportSourceMoved, watchSource } from "./source-guard.mjs";
+import { writeReceipt } from "./receipt.mjs";
 import { realMail } from "../tests/_mail.mjs";
 // THE PRODUCT'S OWN FORMATTER, IMPORTED RATHER THAN COPIED — 2026-09-13. This
 // script printed `$105.00` at a price bar reading `$105` and called two equal
@@ -88,6 +89,20 @@ if (!URL_ || !SERVICE || !ANON) {
 }
 
 const BASE = process.env.BASE || "http://localhost:5173";
+// --- THE SABOTAGE SWITCHES -------------------------------------------------
+// Three, and the third is the one this gate could not distinguish from
+// success. **Break a check on purpose before you trust it** — CLAUDE.md.
+//   --break=blind   `slotsOn` answers `[]` for everything. Every "is no longer
+//                   offered" check still prints ok, because a missing time in
+//                   an empty list reads exactly like a held slot. The canary
+//                   is what refuses the run.
+//   --break=leg     the cancel leg runs and is not counted, so the console
+//                   reads like a full pass and only the arithmetic notices.
+//   --break=none    the gate does not run at all. This is the case a gate
+//                   cannot tell from a pass, and the whole reason for the
+//                   receipt: `discovered_targets` 0 against a declared
+//                   expectation is a failure, not a quiet exit 0.
+const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("=")[1] || "";
 const KEEP = process.argv.includes("--keep");
 const HEADED = process.argv.includes("--headed");
 const ONLY = process.argv.find((a) => a.startsWith("--slug="))?.slice(7);
@@ -112,8 +127,60 @@ const TENANTS = [
   { slug: "demo-riverside", dashboard: null },
 ].filter((t) => !ONLY || t.slug === ONLY);
 
+// --- WHAT THIS RUN PROMISES, DECLARED BEFORE IT RUNS -----------------------
+// **THIS GATE COULD NOT TELL A RUN FROM A NO-RUN UNTIL 2026-09-21** —
+// `docs/silences.md` § A, the last of the seven. It printed `N passed, N
+// failed` and exited 0 on a clean pass, and NOTHING anywhere said how many of
+// its legs it had walked. A pass over two tenants and a pass over nothing
+// ended with the same shape of sentence, and no file on disk recorded either.
+//
+// The legs are named HERE, above the run, because an expectation produced BY
+// the run is not an expectation — that is the whole of § B's fault, and
+// deriving "we expected 6 legs" from "we walked 6 legs" would reintroduce it
+// in the fix for it.
+const LEG_ORDER_CUSTOMER = ["book", "row", "email", "slot", "reschedule", "cancel"];
+const LEG_TITLES = {
+  book: "the customer books, in a browser",
+  row: "and the row says the same thing the screen did",
+  email: "both emails leave the building",
+  slot: "the slot is held against the next customer",
+  dashboard: "it shows up on the detailer's dashboard",
+  reschedule: "the customer moves it from the receipt page",
+  cancel: "and cancels it, which gives the slot back",
+};
+// demo-detail gets the dashboard leg after the slot check; demo-riverside has
+// no login and walks the customer's half only. Both lists are structural — a
+// tenant with a dashboard promises 7 legs whether or not the run reaches them.
+const legsFor = (t) => t.dashboard
+  ? [...LEG_ORDER_CUSTOMER.slice(0, 4), "dashboard", ...LEG_ORDER_CUSTOMER.slice(4)]
+  : LEG_ORDER_CUSTOMER;
+const EXPECTED_LEGS = TENANTS.reduce((n, t) => n + legsFor(t).length, 0);
+// A floor per leg rather than one flat number, so `--slug=` narrows the
+// promise visibly instead of sliding under a floor sized for two tenants. A
+// full run does about 79; four is a floor, not a target.
+const ASSERTIONS_PER_LEG = 4;
+
+// DISCOVERED, ATTEMPTED and COMPLETED ARE THREE DIFFERENT QUESTIONS, and the
+// point of separating them is that they can disagree:
+//   discovered  the leg's banner was reached — the run got this far
+//   attempted   at least one check was asked inside it
+//   completed   the run got PAST it, so it did not die halfway through
+// A crash inside leg 4 reads `13 4 4 3`. Deriving all three from one variable
+// is how a receipt agrees with itself over a run that stopped.
+const legsSeen = { discovered: new Set(), attempted: new Set(), completed: new Set() };
+let legKey = null;          // "<slug>:<id>", or null between tenants
+let legTenant = null;
+
+// THE CANARY'S TWO VARIABLES, DECLARED HERE BECAUSE IT IS SET INSIDE THE LOOP
+// AND READ AFTER IT. `canaryControl` is null until leg 4 asks, so "never
+// asked" and "asked and got nothing" stay two different sentences — the
+// distinction this whole file is being repaired for.
+let canaryAsks = 0, canaryBlind = 0;
+let canaryControl = null;
+
 let pass = 0, fail = 0, skip = 0;
 const ok = (name, cond, detail = "") => {
+  if (legKey) legsSeen.attempted.add(legKey);
   if (cond) { pass++; console.log(`  ok    ${name}`); }
   else { fail++; console.error(`  FAIL  ${name}${detail ? ` — ${detail}` : ""}`); }
 };
@@ -121,8 +188,31 @@ const ok = (name, cond, detail = "") => {
 // failure, and the reason the count is carried into the summary line rather
 // than being a `console.log` somebody scrolls past. `n` is how many checks did
 // not get asked, so `passed + failed + skipped` is still the size of the suite.
-const skipped = (n, why) => { skip += n; console.log(`  skip  ${n} check(s) — ${why}`); };
-const step = (s) => console.log(`\n── ${s} ${"─".repeat(Math.max(0, 58 - s.length))}`);
+const skipped = (n, why) => {
+  // A leg that was entered and answered "I could not ask this" WAS attempted.
+  // It is the leg nobody reached at all that must not look like this one.
+  if (legKey) legsSeen.attempted.add(legKey);
+  skip += n; console.log(`  skip  ${n} check(s) — ${why}`);
+};
+// Closing the previous leg is what `step` does FIRST, so "completed" means
+// "the run got past it" rather than "the script said so at the bottom" — a
+// claim a leg that threw cannot make about itself.
+const closeLeg = () => { if (legKey) legsSeen.completed.add(legKey); legKey = null; };
+const step = (id, n) => {
+  closeLeg();
+  // `--break=leg` leaves the leg's WORK running and stops it being counted,
+  // which is the shape that matters: the console still reads like a full pass
+  // and only the arithmetic notices. It is the cheapest imitation of a leg
+  // that quietly stopped being reached.
+  if (BREAK === "leg" && id === "cancel") {
+    console.log(`\n--break=leg: leg "${id}" runs but is not counted`);
+  } else {
+    legKey = `${legTenant}:${id}`;
+    legsSeen.discovered.add(legKey);
+  }
+  const s = `${n}. ${LEG_TITLES[id]}`;
+  console.log(`\n── ${s} ${"─".repeat(Math.max(0, 58 - s.length))}`);
+};
 
 // --- the database, as the service role -------------------------------------
 async function rest(method, path, body) {
@@ -251,29 +341,133 @@ const undeliverable = (addr) =>
 // Started BEFORE the browser opens, so anything saved from here on is a
 // mid-run edit. `source-guard.mjs` explains why that matters.
 const changedSince = watchSource();
-const browser = await chromium.launch({ headless: !HEADED });
+const startedAt = new Date().toISOString();
+// `--break=none` does not even open a browser — "the gate did not run" has to
+// mean it, or the sabotage is proving something smaller than it claims.
+const browser = BREAK === "none" ? null : await chromium.launch({ headless: !HEADED });
 // THE CRASH PATH IS THE POINT. On 2026-09-04 this script did not fail, it
 // THREW — "Cannot navigate to invalid URL" out of a null receipt link — so a
 // diagnosis wired only into the summary below would have printed nothing on
 // the one run that needed it.
+//
+// **AND THE RECEIPT IS NOW ON THAT PATH TOO.** A run that throws is precisely
+// the run whose leg counts disagree, so exiting before `finish()` would lose
+// the one record that says how far it got — `restore-drill`'s fault, where the
+// only outcome proving nothing left no receipt to grade.
+let threw = null;
 try {
-  for (const tenant of TENANTS) await loop(tenant);
+  if (BREAK === "none") {
+    console.log("--break=none: the gate is not running. No tenant is walked, no leg is "
+      + "entered. On the console this is indistinguishable from a pass; the receipt is "
+      + "the only thing that can tell them apart.");
+  } else {
+    for (const tenant of TENANTS) await loop(tenant);
+  }
 } catch (e) {
-  await browser.close();
-  console.error(`\n${pass} passed, ${fail} failed${skip ? `, ${skip} skipped` : ""} — then the run threw:\n${e?.message ?? e}`);
-  await reportSourceMoved(changedSince, false);
-  process.exit(1);
+  threw = e;
 }
-await browser.close();
+closeLeg();
+if (browser) await browser.close();
 
-console.log(`\n${pass} passed, ${fail} failed${skip ? `, ${skip} skipped` : ""}`);
+if (threw) {
+  console.error(`\n${pass} passed, ${fail} failed${skip ? `, ${skip} skipped` : ""} — then the run threw:\n${threw?.message ?? threw}`);
+} else {
+  console.log(`\n${pass} passed, ${fail} failed${skip ? `, ${skip} skipped` : ""}`);
+}
+
+// --- THE CANARY, READ OUT WHETHER OR NOT IT MATTERED -----------------------
+// It is asked inside leg 4; see the comment there for what it is aimed at.
+// **NEVER ASKED IS NOT CAUGHT.** A run that did not reach leg 4 has no
+// evidence that its availability reads meant anything, and this gate's whole
+// defect was letting "did not happen" read like "happened and was fine".
+const canaryCaught = canaryAsks > 0 && canaryBlind === 0;
+console.log(`\ncanary  a day the engine has just listed must still list times`
+  + `  ->  ${canaryControl === null ? "NEVER ASKED" : `${canaryControl} time(s)`}  `
+  + (canaryCaught
+    ? "caught: available-slots answers with content, so an ABSENT time above is a real answer"
+    : canaryControl === null
+      ? "NOT CAUGHT — leg 4 was never reached, so nothing here proves the slot reads meant anything"
+      : "NOT CAUGHT — a day the engine had just listed came back with nothing, so every "
+        + "\"is no longer offered\" above passed on an empty list rather than on a held slot"));
+
+// --- SUBJECT COUNTS, AND A LEG NOBODY REACHED IS NAMED ---------------------
+const declared = TENANTS.flatMap((t) => legsFor(t).map((id) => `${t.slug}:${id}`));
+const missing = (set) => declared.filter((k) => !set.has(k));
+const e2eFailures = [];
+if (legsSeen.discovered.size === 0) {
+  e2eFailures.push(`ZERO LEGS WALKED against ${EXPECTED_LEGS} declared. Nothing was booked, `
+    + "nothing was read back and nothing was cancelled. This is NOT a passing booking loop — "
+    + "it is a run that did not happen.");
+} else {
+  // ONE ROOT CAUSE, ONE LINE. A leg nobody reached is also a leg that asked
+  // nothing and a leg that did not finish, and printing all three sends the
+  // next session looking for three faults — the shape `sweep-booking-steps`
+  // was repaired for. So the later two are asked only of legs that WERE
+  // reached.
+  const never = missing(legsSeen.discovered);
+  if (never.length) e2eFailures.push(`${never.length} leg(s) never reached: ${never.join(", ")}`);
+  const reached = declared.filter((k) => legsSeen.discovered.has(k));
+  for (const [what, set] of [["reached but asked nothing", legsSeen.attempted],
+    ["entered and not finished", legsSeen.completed]]) {
+    const m = reached.filter((k) => !set.has(k));
+    if (m.length) e2eFailures.push(`${m.length} leg(s) ${what}: ${m.join(", ")}`);
+  }
+}
+if (fail) e2eFailures.push(`${fail} failing check(s) — see above`);
+if (threw) e2eFailures.push(`the run threw: ${String(threw?.message ?? threw).slice(0, 200)}`);
+
+const checkId = "e2e-booking" + (ONLY ? `-${ONLY}` : "");
+const minAssertions = ASSERTIONS_PER_LEG * EXPECTED_LEGS;
+const { path: e2eReceiptPath } = writeReceipt({
+  check_id: checkId,
+  started_at: startedAt,
+  status: e2eFailures.length === 0 && canaryCaught ? "pass" : "fail",
+  expected_targets: EXPECTED_LEGS,
+  discovered_targets: legsSeen.discovered.size,
+  attempted_targets: legsSeen.attempted.size,
+  completed_targets: legsSeen.completed.size,
+  skipped_targets: 0,
+  assertions_executed: pass + fail + (canaryControl === null ? 0 : 1),
+  min_assertions: minAssertions,
+  failures: e2eFailures,
+  artifacts: ["scripts/e2e-booking.mjs"],
+  warnings: [
+    ...(BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : []),
+    ...(skip ? [`${skip} check(s) skipped inside legs that were reached — see the console`] : []),
+  ],
+  dimensions: {
+    tenants: TENANTS.map((t) => t.slug),
+    legs_declared: declared,
+    checks_passed: pass,
+    checks_failed: fail,
+    checks_skipped: skip,
+    canary_control_slots: canaryControl,
+  },
+  canary: {
+    id: "a day available-slots has just listed must still list times · an empty list is not a negative answer",
+    observed_failure: canaryCaught,
+    caught_by: canaryCaught ? ["slots-answer"] : [],
+    findings: canaryCaught
+      ? [`[slots-answer] a control day came back with ${canaryControl} time(s), so an absent time `
+        + "above is a statement about a list that had content, not about a list that was empty"]
+      : ["[slots-answer] NOT CAUGHT — the availability read returned nothing for a day the engine "
+        + "had just listed, so every held-slot verdict above passed vacuously"],
+  },
+});
+console.log(`receipt ${e2eReceiptPath}`);
+for (const f of e2eFailures) console.log("  · " + f);
+console.log(`legs  expected ${EXPECTED_LEGS} · discovered ${legsSeen.discovered.size}`
+  + ` · attempted ${legsSeen.attempted.size} · completed ${legsSeen.completed.size}`);
+
 // Unconditional: see sweep-widths.mjs and source-guard.mjs's header. A pass
 // that reloaded mid-run is the case worth shouting about, not the quiet one.
-await reportSourceMoved(changedSince, !fail);
-process.exit(fail ? 1 : 0);
+const clean = e2eFailures.length === 0 && canaryCaught;
+await reportSourceMoved(changedSince, clean);
+process.exit(clean ? 0 : 1);
 
 // ===========================================================================
 async function loop({ slug, dashboard }) {
+  legTenant = slug;
   const runId = Date.now().toString(36).slice(-5).toUpperCase();
   const NAME = `Smoke ${runId}`;
   // Unique per run, because create-booking upserts the customer BY PHONE
@@ -327,6 +521,17 @@ async function loop({ slug, dashboard }) {
       for (const r of left) await db.del(`/rest/v1/bookings?id=eq.${r.id}`);
       console.log(`  swept ${left.length} booking(s) a killed run left behind: `
         + left.map((r) => `${r.customer_name} ${String(r.start_at).slice(0, 16)}`).join(", "));
+    }
+    // AND THE CUSTOMERS, which this sweep never looked at — see the cleanup
+    // at the bottom of this function. A booking-only sweep tidied the visible
+    // half and left the other one growing for eight days.
+    const orphans = (await db.get(
+      `/rest/v1/customers?business_id=eq.${biz.id}&name=like.Smoke%20*`
+      + `&created_at=lt.${stale}&select=id,name`,
+    )).data ?? [];
+    if (orphans.length) {
+      for (const r of orphans) await db.del(`/rest/v1/customers?id=eq.${r.id}`);
+      console.log(`  swept ${orphans.length} customer row(s) a killed or pre-fix run left behind`);
     }
   }
 
@@ -429,7 +634,7 @@ async function loop({ slug, dashboard }) {
   let bookingId = null;
   try {
     // -----------------------------------------------------------------------
-    step("1. the customer books, in a browser");
+    step("book", 1);
     // -----------------------------------------------------------------------
     await page.goto(`${BASE}/book/${slug}`, { waitUntil: "domcontentloaded" });
     await page.waitForSelector(".bk-card, .bk-note", { timeout: 30000 });
@@ -621,7 +826,7 @@ async function loop({ slug, dashboard }) {
     const ORIG_DATE = DATE, ORIG_TIME = TIME;
 
     // -----------------------------------------------------------------------
-    step("2. and the row says the same thing the screen did");
+    step("row", 2);
     // -----------------------------------------------------------------------
     // THE ROW STORES AN INSTANT, NOT A DATE AND A TIME. `bookings` has
     // `start_at timestamptz` and nothing else; every local date and time in
@@ -668,7 +873,7 @@ async function loop({ slug, dashboard }) {
       `calendar ${CHOSE_DURATION}, booked ${bookedMinutes}`);
 
     // -----------------------------------------------------------------------
-    step("3. both emails leave the building");
+    step("email", 3);
     // -----------------------------------------------------------------------
     {
       // Best-effort sending means nothing on any screen can answer this. The
@@ -739,7 +944,7 @@ async function loop({ slug, dashboard }) {
     }
 
     // -----------------------------------------------------------------------
-    step("4. the slot is held against the next customer");
+    step("slot", 4);
     // -----------------------------------------------------------------------
     // AN EMPTY ANSWER IS NOT A NEGATIVE ANSWER — the hollow pass in this file,
     // found 2026-09-13 while auditing the greens rather than the reds.
@@ -773,7 +978,7 @@ async function loop({ slug, dashboard }) {
       const list = Array.isArray(r.data?.slots) ? r.data.slots : null;
       ok(`available-slots answered for ${date}`, list !== null,
         `HTTP ${r.status} — ${JSON.stringify(r.data ?? "").slice(0, 160)}`);
-      return list ?? [];
+      return BREAK === "blind" ? [] : (list ?? []);
     };
     let free = await slotsOn(DATE);
     // ROADMAP 2.12's load-bearing fact, established by NOT writing something:
@@ -782,9 +987,57 @@ async function loop({ slug, dashboard }) {
     ok(`${TIME} is no longer offered${isRequest ? " (a request holds its slot)" : ""}`,
       !free.includes(TIME), free.join(" "));
 
+    // --- THE CANARY ---------------------------------------------------------
+    // **THE HOLE THE 2026-09-13 FIX LEFT OPEN.** That fix stopped a `null`
+    // answer being read as an empty list, and it is the reason `slotsOn` now
+    // asserts `list !== null`. It does nothing about the other shape: a 200
+    // carrying NO slots. `available-slots` answering 200 with no days at all,
+    // three months running on a live tenant, is lane C queue item 2 — a thing
+    // that has happened, not a thing to imagine. In that state `list` is `[]`,
+    // the assertion above it passes, and `!free.includes(TIME)` passes too,
+    // because a missing time in an empty list is indistinguishable from a
+    // held slot. **Both of this script's double-booking guards then go green
+    // over an engine that said nothing.**
+    //
+    // So a day the engine has JUST listed is asked again, at the same
+    // duration the listing used, with no booking of this run on it. It cannot
+    // legally come back empty. If it does, the reader is not reading, and
+    // every "no longer offered" verdict this run made is a sentence about an
+    // empty array.
+    //
+    // **IT IS A CONTROL, NOT A SECOND OPINION.** It does not compare the two
+    // answers and it does not assert any particular time — a stricter test
+    // here would invent findings out of a correct database, which is the one
+    // direction this repo's parsers have ever failed in. The only question is
+    // whether content came back at all.
+    {
+      const [controlDay, controlDecl] = Object.entries(range.data?.days ?? {})
+        .filter(([d, v]) => d !== DATE && v.open && (v.slots ?? []).length > 0)
+        .sort((a, b) => (b[1].slots?.length ?? 0) - (a[1].slots?.length ?? 0))[0] ?? [null, null];
+      if (!controlDay) {
+        console.log("  canary  NOT ASKED — the 45-day range offered no second open day, so the "
+          + "control this leg needs does not exist on this seed");
+      } else {
+        const c = await fn("available-slots", {
+          business_slug: slug, booking_date: controlDay,
+          duration_minutes: service.duration_minutes, service_ids: [service.id],
+        });
+        const got = BREAK === "blind" ? [] : (Array.isArray(c.data?.slots) ? c.data.slots : []);
+        // Across two tenants: one blind read is enough to void the run, so a
+        // later good read must not paper over an earlier bad one. Counted
+        // rather than OR-ed, because `||` over a boolean is how a later pass
+        // hides an earlier failure.
+        canaryAsks++;
+        if (got.length === 0) canaryBlind++;
+        canaryControl = got.length;
+        console.log(`  canary  ${controlDay} was listed with ${controlDecl.slots.length} time(s) `
+          + `moments ago and answers with ${got.length} now`);
+      }
+    }
+
     // -----------------------------------------------------------------------
     if (dashboard) {
-      step("5. it shows up on the detailer's dashboard");
+      step("dashboard", 5);
       // ---------------------------------------------------------------------
       await page.goto(`${BASE}/app`, { waitUntil: "domcontentloaded" });
       await page.waitForSelector("input[type=email], .tabbar", { timeout: 30000 });
@@ -828,7 +1081,7 @@ async function loop({ slug, dashboard }) {
     }
 
     // -----------------------------------------------------------------------
-    step(`${dashboard ? 6 : 5}. the customer moves it from the receipt page`);
+    step("reschedule", dashboard ? 6 : 5);
     // -----------------------------------------------------------------------
     // **A NULL PATH IS A SKIP, NOT A NAVIGATION — 2026-09-14.** When the booking
     // is refused, `receiptPath` is null and this did
@@ -980,7 +1233,7 @@ async function loop({ slug, dashboard }) {
     }
 
     // -----------------------------------------------------------------------
-    step(`${dashboard ? 7 : 6}. and cancels it, which gives the slot back`);
+    step("cancel", dashboard ? 7 : 6);
     // -----------------------------------------------------------------------
     const cancelBtn = page.locator("button", { hasText: /cancel this (booking|request)/i }).first();
     ok("the receipt offers a cancel", await cancelBtn.count() > 0);
@@ -1007,11 +1260,32 @@ async function loop({ slug, dashboard }) {
     // console error is most worth knowing about, so this one still runs.
     ok("no console errors anywhere in the loop", consoleErrors.length === 0,
       consoleErrors.slice(0, 3).join(" | "));
+    // The tenant's walk finished. A leg only counts as completed because the
+    // run got past it; one that threw never reaches here and stays open,
+    // which is exactly the disagreement the receipt is for.
+    closeLeg();
   } finally {
     await ctx.close();
     if (bookingId && !KEEP) {
       await db.del(`/rest/v1/bookings?id=eq.${bookingId}`);
-      await db.del(`/rest/v1/customers?business_id=eq.${biz.id}&phone=eq.${encodeURIComponent(PHONE)}`);
+      // **BY NAME, NOT BY PHONE — 2026-09-21, AND IT HAD BEEN LEAKING SINCE
+      // THE 13th.** This line asked for `phone=eq.555-0111`. `create-booking`
+      // STORES A FORMATTED PHONE — the row comes back `(555) 011-1` — so the
+      // filter matched nothing and the customer row survived every run. The
+      // booking was deleted, the sweep at the top of this loop only ever
+      // looked at bookings, and `Smoke ` customers accumulated one per tenant
+      // per run: 22 of them, the oldest from 2026-09-11, found by re-reading
+      // the tenant after a pass instead of asserting the cleanup had worked.
+      //
+      // **NOTHING COULD HAVE SEEN THIS.** A delete that matches no rows is a
+      // 204 with an empty body — the same answer as a delete that removed
+      // exactly what it meant to. The residue was invisible from the console,
+      // from the exit code and from the receipt.
+      //
+      // `NAME` is `Smoke <runId>`, unique to this tenant's pass and written by
+      // nothing else in the product, so it is the one field this script can
+      // match on that the product does not reformat.
+      await db.del(`/rest/v1/customers?business_id=eq.${biz.id}&name=eq.${encodeURIComponent(NAME)}`);
     } else if (bookingId) {
       console.log(`\nkept: booking ${bookingId} (${NAME}) at ${slug}`);
     }

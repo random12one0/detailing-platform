@@ -1,0 +1,55 @@
+{
+  "git_sha": "399b310d0ce58ddbd2b008c4f3a5570f76988b54",
+  "environment": "local",
+  "finished_at": "2026-09-21T10:25:29.740Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "scripts/e2e-booking.mjs"
+  ],
+  "dimensions": {
+    "tenants": [
+      "demo-detail",
+      "demo-riverside"
+    ],
+    "legs_declared": [
+      "demo-detail:book",
+      "demo-detail:row",
+      "demo-detail:email",
+      "demo-detail:slot",
+      "demo-detail:dashboard",
+      "demo-detail:reschedule",
+      "demo-detail:cancel",
+      "demo-riverside:book",
+      "demo-riverside:row",
+      "demo-riverside:email",
+      "demo-riverside:slot",
+      "demo-riverside:reschedule",
+      "demo-riverside:cancel"
+    ],
+    "checks_passed": 94,
+    "checks_failed": 0,
+    "checks_skipped": 0,
+    "canary_control_slots": 8
+  },
+  "check_id": "e2e-booking",
+  "started_at": "2026-09-21T10:23:11.597Z",
+  "status": "pass",
+  "expected_targets": 13,
+  "discovered_targets": 13,
+  "attempted_targets": 13,
+  "completed_targets": 13,
+  "skipped_targets": 0,
+  "assertions_executed": 95,
+  "min_assertions": 52,
+  "canary": {
+    "id": "a day available-slots has just listed must still list times · an empty list is not a negative answer",
+    "observed_failure": true,
+    "caught_by": [
+      "slots-answer"
+    ],
+    "findings": [
+      "[slots-answer] a control day came back with 8 time(s), so an absent time above is a statement about a list that had content, not about a list that was empty"
+    ]
+  }
+}
