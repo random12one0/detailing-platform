@@ -96,7 +96,8 @@ set -a; . ./.env; set +a
 | The booking widget | `node scripts/sweep-booking-steps.mjs` |
 | Anything on a customer's or booking's path | `node scripts/e2e-booking.mjs` |
 | An email | `node scripts/render-emails.mjs` |
-| A migration | `node scripts/db-audit.mjs` |
+| A migration | `node scripts/db-audit.mjs` **and** `node scripts/migration-drift.mjs` |
+| **Nothing — run it anyway, because a migration can silently never run** | `node scripts/migration-drift.mjs`. **There is NO applied-migrations ledger in this project** — `supabase_migrations.schema_migrations` does not exist, so nothing records which of the 92 files ever ran. This replays `supabase/migrations/` and compares each function against the live database, the way `deployed-inventory.mjs` does for edge functions. **Two migrations had never run and the multi-car feature reached nobody at any setting** (ROADMAP 8.10a). **It reads; it never applies — that is Andrew's.** FUNCTIONS ONLY: it cannot see a migration that adds a table, column, policy, grant or index |
 | **A keyboard path, a focus ring, or anything pinned over the page** | `node scripts/keyboard-walk.mjs` (dev server + seed). **The only instrument here that catches a control focused UNDERNEATH a fixed bar** — it is visible by every ordinary test and `scrollIntoViewIfNeeded` leaves it there. Carries two canaries and names the screens it caught them on |
 | **A CSS custom property — declaring, moving, or "tidying" one** | `node scripts/var-scope-guard.mjs`. Credential-free, one filesystem read. **A `var()` on `html`/`:root` cannot see a property declared on `.bk`** — it takes its fallback forever, so the declaration is decoration and two numbers drift apart. Valid CSS, identical rendering, every browser check green |
 
