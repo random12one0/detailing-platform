@@ -360,7 +360,7 @@
       "Business · Tracking links",
       "Business · Services & add-ons",
       "Business · Monthly plans",
-      "Business · Maintenance deadlines",
+      "Business · Visits due",
       "Business · How you get paid",
       "Business · Promo codes & sale",
       "Business · Hours & days off",
@@ -460,7 +460,10 @@
       "tour · step 31",
       "tour · step 32",
       "tour · step 33",
-      "tour · step 34"
+      "tour · step 34",
+      "tour · step 35",
+      "tour · step 36",
+      "tour · step 37"
     ]
   }
 }
