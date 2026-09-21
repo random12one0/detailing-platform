@@ -382,11 +382,36 @@ Deno.serve(async (req) => {
         try {
           const business = await biz(d.business_id);
           const settings = await getSettings(business.id);
-          // THE SAME SWITCH THAT SILENCES EVERY OTHER CUSTOMER REMINDER. A
+          // **ROADMAP 3.4 FINDING A — ITS OWN SWITCH, AND IT DEFAULTS OFF.**
+          //
+          // This block used to be gated on `email_customer_reminder` alone,
+          // with the reasoning below: the same switch that silences every
+          // other customer reminder should silence this one, because a
           // detailer who turned customer email off did not mean "except this
-          // one", and a product that decides an email is too important to be
-          // switched off has stopped being theirs.
+          // one". That reasoning is still right about REMINDERS. It was wrong
+          // about this email, and the classification pass on 2026-09-21 is
+          // what showed why: **this one is not a reminder, it is a sale.** It
+          // asks the customer to "Book it in" for a service they have not
+          // bought, and the comment forty lines above states the intent —
+          // *"the email that gets the job booked is the one with the booking
+          // link in it."*
+          //
+          // Andrew's ruling is older than this code and binding: **no
+          // marketing email, ever; anything that sells goes by text.** The
+          // "your coating is due" email is off under it. It was off in a chat
+          // log and in nobody's code — so a detailer who simply wanted
+          // appointment reminders was sending a sales email with them, every
+          // fifteen minutes, against a live cron.
+          //
+          // **BOTH, AND IN THIS ORDER, SO THE REMINDER SWITCH CANNOT TURN
+          // THIS ON.** The parent switch still silences it — turning customer
+          // email off must still stop everything. But the parent can no
+          // longer ENABLE it: that now takes
+          // `email_customer_maintenance_due`, which defaults false in the
+          // column, in `getSettings`'s fallback, and is written by no control
+          // in the product.
           if (!settings.email_customer_reminder) continue;
+          if (!settings.email_customer_maintenance_due) continue;
           const { data: customer } = await supabase
             .from("customers")
             .select("name, email, unsubscribed_at, email_failed_at")

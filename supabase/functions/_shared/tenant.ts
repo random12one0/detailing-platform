@@ -86,6 +86,11 @@ export interface BusinessSettings {
   email_customer_confirmation: boolean;
   email_customer_reminder: boolean;
   email_customer_followup: boolean;
+  // ROADMAP 3.4 finding A — the "maintenance due" email, which SELLS a service
+  // the customer has not bought. Its own switch, deliberately NOT folded into
+  // `email_customer_reminder`, and the only email switch on this table that
+  // defaults off. See the migration for Andrew's ruling and why it is here.
+  email_customer_maintenance_due: boolean;
   email_owner_new_booking: boolean;
   email_owner_reminder: boolean;
   push_enabled: boolean;
@@ -206,6 +211,14 @@ export async function getSettings(businessId: string): Promise<BusinessSettings>
     email_customer_confirmation: true,
     email_customer_reminder: true,
     email_customer_followup: true,
+    // ROADMAP 3.4 finding A — FALSE, and it is the only one here that is.
+    // **This fallback matters more than the column default.** It is what
+    // answers when `business_settings` has no row at all for a business, and
+    // a fallback that said `true` would send the sales email to exactly the
+    // tenants whose settings were never written — the ones nobody has looked
+    // at. A default that disagrees with the schema is a second definition of
+    // the rule; this one agrees with it.
+    email_customer_maintenance_due: false,
     email_owner_new_booking: true,
     email_owner_reminder: true,
     push_enabled: true,

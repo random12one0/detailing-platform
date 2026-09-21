@@ -2055,6 +2055,114 @@ requested.
   actual done-when. No fix was applied to any finding. **`supabase/` was read,
   never edited.** The back half stands untouched and this box stays open.
 
+  ---
+
+  ### RULING A — BUILT 2026-09-21. NOT DEPLOYED, NOT PRESSED.
+
+  **The cron was read in the Supabase dashboard and it settles the argument.**
+  Four jobs, all active. `send-owner-reminders-sweep` runs `*/15 * * * *` and
+  last ran **2026-09-21 01:00:00 Pacific**. Also `accrue-plan-visits`
+  (`5 0 * * *`), `watch-jobs` (`7,22,37,52 * * * *`), `refresh-weather`
+  (`7 * * * *`). So the sales email was not hypothetical: it is reachable every
+  fifteen minutes against live data, and the only thing between a customer and
+  a "Book it in" for a service they never bought was one tenant's ordinary
+  appointment-reminder switch.
+
+  **What was built — a switch of its own, defaulting off:**
+  * `supabase/migrations/20260921010000_the_maintenance_due_email_is_off_where_git_can_see_it.sql`
+    — **a NEW file. No existing migration was edited.** Adds
+    `business_settings.email_customer_maintenance_due boolean not null default
+    false`, with a `comment on column` carrying the reason, and it is the only
+    email switch on that table defaulting **false**.
+  * `_shared/tenant.ts` — declared on the type, and `getSettings`'s fallback
+    defaults it **false**. That fallback matters more than the column default:
+    it answers for a business with no `business_settings` row at all, so a
+    `true` there would have sent the sales email to precisely the tenants
+    nobody has ever looked at.
+  * `send-owner-reminders/index.ts` — **two gates, in this order.** The parent
+    `email_customer_reminder` still silences it, because turning customer
+    email off must stop everything. What the parent can no longer do is
+    **enable** it.
+  * **No dashboard toggle was added, and that is a decision rather than an
+    omission.** Exposing a control would hand back the decision Andrew has
+    already made. Whether a detailer may ever switch this on is his call.
+
+  **IT FAILS CLOSED EVEN IF THE MIGRATION NEVER RUNS.** `getSettings` selects
+  `*`, so against a database without the column the field reads `undefined`,
+  `!undefined` is true, and the loop `continue`s. Applying the migration and
+  deploying the function are independent, and neither order can produce a send.
+
+  **Proven by `tests/maintenance-email-off.test.mjs`, 5 assertions, and broken
+  on purpose twice** — deleting the gate and flipping the fallback to `true`
+  each turned 0 failures into 3. It asserts ORDER (the gate's index against the
+  send's, because a guard after a send is not a guard), that exactly one
+  migration adds the column, and that exactly one call site sends the email, so
+  a second sender added later fails rather than quietly bypassing this.
+  **What that test cannot do is prove an email does not send.** Only a press
+  can, and it is queued.
+
+  **NOT LIVE. The deployed function is still the old one and the cron is still
+  firing it every fifteen minutes.** This changes nothing for a real customer
+  until Andrew publishes. `deployed-inventory.mjs` now has a second function
+  differing for this reason — `send-owner-reminders` — which is correct and
+  expected; nothing was deployed and nothing should be deployed to clear it.
+
+- [ ] **3.4a — `campaignEmail` is marketing, and marketing is forbidden. The
+  feature contradicts its owner's own rule by existing. NOT TOUCHED — not a
+  line — because retiring or grandfathering it is Andrew's call.**
+  *Found in the 3.4 classification pass, 2026-09-21.*
+  **The evidence, both halves.** It is unambiguously marketing: the button
+  reads **"Book again"**, the body is the detailer's own sales message, and
+  the trigger is `send-campaign`, which a detailer fires by hand at a list of
+  customers. And it is the **legally careful one** — `send-campaign` is
+  member-gated, **refuses to send without a mailing address**
+  (`send-campaign/index.ts:89-90`), and `campaignEmail` is the single template
+  in the file that passes a `legal:` block to `shell`, carrying both the
+  unsubscribe link and the postal address.
+  **So the contradiction is with the RULING, not with the law:** *"No
+  marketing email, ever. Email is receipts, reminders and alerts. Anything
+  that sells goes by text."* — Andrew, recorded in
+  `docs/MANAGER-CLOSE-2026-09-21.md` § 2 as binding.
+  **Done when:** Andrew has ruled either that the ruling retires the feature —
+  in which case `send-campaign`, `campaignEmail` and the unsubscribe plumbing
+  come out together — or that this one is grandfathered, in which case the
+  ruling is written down with its exception so the next session reading
+  "no marketing email, ever" beside a working campaign sender is not left to
+  guess which is true.
+  **A row for `FOR-ANDREW.md` was NOT added this round**, and that is a lane
+  refusal rather than an oversight: that file had 234 insertions and 307
+  deletions uncommitted from another session, and CLAUDE.md's rule is to stop
+  rather than commit around or through somebody else's work in a shared
+  document. The row still needs adding.
+
+- [ ] **3.4b — A detailer can put a sales pitch inside a transactional email,
+  and nothing warns them. The real finding of the 3.4 pass, and the one the
+  no-marketing ruling cannot reach by deleting a template.**
+  *Found in the 3.4 classification pass, 2026-09-21. Andrew's ruling: a
+  warning, not a content filter — and not built this round.*
+  `ownWords()` (`_shared/emailTemplates.ts:336`) drops a detailer-authored
+  paragraph into **9 call sites across 7 of the 16 templates**, over 12
+  `MessageKind`s: `confirmation`, `request_received`, `reminder`, `reminder_2`,
+  `accepted`, `declined`, `quote`, `receipt`, `invoice`, `followup`,
+  `cancelled`, `rescheduled`. The text is HTML-escaped and **otherwise
+  unconstrained**.
+  **So every classification in the table above is a fact about the FRAME, not
+  about what lands in the inbox.** A detailer types a sales pitch into their
+  appointment reminder and the product delivers it inside a transactional
+  email that carries no unsubscribe link and no postal address — the exact
+  CAN-SPAM exposure the ruling believed it had retired, on the sending domain,
+  which is ours.
+  **THE FIX IS A WARNING, NOT A FILTER — Andrew's ruling.** Their words stay
+  theirs; a content filter would be the product reading a detailer's mail and
+  deciding what it meant. The liability is ours because the domain is ours, so
+  the honest thing is to tell them plainly where they type it.
+  **Done when:** the screen where a detailer writes these paragraphs says, in
+  plain words, that the email it goes into is transactional and must not sell
+  — and that has been **pressed**, at 320 first, with the sentence read on the
+  actual screen rather than in the source.
+  **Not built 2026-09-21:** it needs a press and the demo tenant was another
+  session's. Do not build it without one.
+
   **STILL OPEN, AGAINST ITS OWN DONE-WHEN.** That sentence asks for proof that
   each of seven stages was **sent, received and read** — real delivery, not a
   read of the source. What exists below is a full source-level review of
