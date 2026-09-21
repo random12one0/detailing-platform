@@ -1,7 +1,9 @@
 {
-  "git_sha": "01de95e5a48a64e3eebed52b4a4cdf887b17dfee",
+  "git_sha": "d4a18aaf8cc79c34c07ed2ebc91c6311dd4bb03e",
+  "git_sha_started": "d4a18aaf8cc79c34c07ed2ebc91c6311dd4bb03e",
+  "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-21T00:57:06.838Z",
+  "finished_at": "2026-09-21T10:31:17.955Z",
   "failures": [],
   "warnings": [
     "the thumbnails on /examples are REAL SCREENSHOTS of the real example sites, committed rather than generated because the examples build runs on every paid deploy. This check is what stops them going stale silently."
@@ -14,7 +16,7 @@
     "captured_at": "2026-09-20T16:32:20.392Z"
   },
   "check_id": "example-shots",
-  "started_at": "2026-09-21T00:57:06.744Z",
+  "started_at": "2026-09-21T10:31:17.852Z",
   "status": "pass",
   "expected_targets": 5,
   "discovered_targets": 5,
