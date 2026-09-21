@@ -144,12 +144,19 @@ dangerous one precisely because it is quiet: lend a `scripts/` file for one
 commit rather than editing it unannounced underneath whoever owns it that
 round.
 
-**`docs/gotchas.md` is fifteen specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is SIXTY-FIVE specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
-behavior. Read it before trusting any browser number. Every entry cost
-somebody real time.
+behavior, a geometry sweep catching an exit animation mid-flight, a probe that
+cannot tell a failed read from an empty one. Read it before trusting any
+browser number. Every entry cost somebody real time.
+
+**That line said "fifteen" until 2026-09-21 and the file had 65 entries** —
+counted, not estimated. It was not two stale; it was fifty. **A pointer that
+undersells a document by four times decides whether anybody opens it**, and
+this one is the document a session is sent to before trusting a number. Count
+it when you add to it.
 
 ## Hard rules
 
