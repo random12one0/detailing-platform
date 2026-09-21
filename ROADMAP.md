@@ -1321,6 +1321,75 @@ the wrong service, and never book a job we cannot reach.
   spend a morning hunting it in `app/src`.** `scripts/` was not this
   session's tree.
 
+  ── **WHAT THE 2.4 CTA CHECK STILL HAS TO ASSERT — THE ONLY THING LEFT ON
+  THIS ITEM. Written to be implemented without asking me.** ─────────────────
+
+  **Whose:** `scripts/`, which is not this session's tree. **Do not extend it
+  from here.**
+
+  **THE RULE, in one sentence:** *every control on an example site that offers
+  to book a NAMED service must carry that service's identifier, and the
+  identifier must match an option the booking widget on the landing page
+  actually has.*
+
+  **WHAT TO WALK.** Every page of `ex1`…`ex5` under `app/public/` after
+  `build-examples.mjs --dev`. For each page, find every anchor or button whose
+  text offers to book something specific — today that is `Book this`,
+  `Book <Service Name>` and `Book a <Service Name>`. **A generic `Book`,
+  `Book a slot` or `Get a price` is NOT one of these and must not be
+  counted**; it offers no service, so there is nothing to carry.
+
+  **WHAT A CORRECT CONTROL LOOKS LIKE. There are three shapes in use and a
+  check that knows only one will report working sites as broken — that is not
+  hypothetical, it is what happened in this entry:**
+  - `data-book="<id>"` — `ex1` (`v-goldenhour-*`) and now `ex3`.
+  - `data-pick="<Service Name>"` — `ex4` (`y-kinzie`).
+  - `?svc=<id>` already written into the `href` — `ex1`'s cross-page links.
+  **Match on the BEHAVIOUR — "does this control name a service" — not on one
+  attribute's spelling.**
+
+  **WHAT IT MUST THEN ASSERT, and this is the half that is missing:**
+  1. **The identifier resolves.** The value on the control matches the
+     `value` of exactly one `input[name="svc"]` in that site's widget —
+     **radio OR checkbox**, both are in use.
+  2. **The name matches.** The widget option's `<b>` text equals the service
+     named on the card it was pressed from.
+  3. **The price matches.** The widget option's `<em>` price equals the price
+     printed on that card.
+  4. **The total follows.** After the press, the `.bk-total` figure equals
+     that same price. *(`ex3` does this; the others may not, so a failure
+     here is a finding rather than a bug in the check.)*
+
+  **WHAT A WRONG ONE LOOKS LIKE — the four real shapes, all of which existed
+  on `ex3` this week:**
+  - **No identifier at all.** `<a href="#book">Book this</a>`. The press
+    lands on the widget and leaves whatever was `checked` selected. **This is
+    the defect the item was opened for**, and the tell is *N controls, 1
+    distinct destination*.
+  - **An identifier that resolves to nothing.** The control names a service
+    the widget does not offer; `pick()` silently matches no option and the
+    default stands. **Looks fixed, behaves identically to having no
+    identifier.**
+  - **A short widget.** The page sells 13 and the widget offers 4, so nine
+    cards cannot be satisfied however well the click is carried.
+  - **A stale total.** Right service selected, `$500` still printed under it.
+
+  **THE CANARIES TO BREAK IT WITH, so it is certified rather than read** —
+  this repo has shipped at least six checks that tested nothing:
+  `--break=carry` strips the identifier from one control (expect *no
+  identifier*), `--break=resolve` changes one to a service the widget lacks
+  (expect *resolves to nothing*), `--break=price` edits one card's price
+  (expect *price mismatch*), `--break=total` freezes `.bk-total` (expect
+  *stale total*). **Each disabled detector must let through exactly its own
+  canary and no other.**
+
+  **TODAY'S EXPECTED RESULT, so a first run has something to be graded
+  against:** `ex1` passes, `ex3` passes (13 controls, 13 options, 13 matches),
+  `ex4` passes on 1–3 and is **unmeasured on 4** unless it has a total,
+  `ex2` and `ex5` contribute **zero controls** and the check must say
+  `0 controls` rather than printing a silent pass. **A site with no
+  service-naming controls is not a site that passed.**
+
 - [x] **2.6 — DONE 2026-09-20. The year is optional, the label says so, and a refused Continue now says why on every step.**
   Size and model filled, Continue stayed dead until a year was typed; the year
   box is not marked required while the box above it is marked "(optional)".
