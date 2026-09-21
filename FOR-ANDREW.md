@@ -161,6 +161,47 @@ still knows them.
 
 ## Urgent — two minutes when you next open your laptop
 
+- [ ] **DO · Your GitHub repository is public, and a working master login to
+  your live database is written inside it. You already knew the login was
+  guessable. You may not have known it was published.**
+
+  **The facts, each one checked tonight rather than remembered.**
+  `github.com/random12one0/detailing-platform` is **public** — anyone can read
+  it without an account. Inside it, **eight tracked files** carry the demo
+  detailer's email and password in plain text. That account is real: it exists
+  on `kguqylyzgyzfktkfnhjb`, it is confirmed, and it last signed in **today**.
+
+  **And it is not just a detailer login — it is a platform administrator.**
+  Your database lists two: the demo detailer, made an admin on your own
+  instruction on 13 September so the back office could be checked, and a
+  second "master login". **The second one's password is typed out in the
+  database's own note field**, next to the words *"Guessable on purpose while
+  nothing real is on the platform — MUST be changed before launch."**
+
+  **So the decision you already made is not the thing to re-open.** You chose
+  guessable deliberately, and with no real customers that was reasonable. The
+  new fact is narrower: **guessable and published are different.** A guessable
+  password needs somebody to try. A published one needs somebody to read.
+
+  **What somebody could actually do today.** Sign in to your back office.
+  Suspend a business, press *"Download everything they own"*, or open *"Look
+  at their dashboard"*. Write rows into the database **that
+  detailingplatform.com itself reads**, so the live site can be changed by a
+  stranger. **No real customer's data is at risk** — every account on that
+  database is a test one, which is the only reason this is a row here and not
+  a phone call.
+
+  **What is missing before anything can be done about it.** Changing those
+  passwords, or making the repository private, are both **your** account and
+  **your** decision — no session here will touch a password, and none should.
+  There is also a third option: leave it exactly as it is until launch, which
+  is what the note already says was the plan. **This row exists so that choice
+  is made with the "public" part in front of you, not without it.**
+
+  **Where to look, so you are not taking this on trust:** the note is on the
+  `platform_admins` table in Supabase; the plain-text logins are in the
+  `scripts/` folder of the repository. Neither is quoted here on purpose.
+
 - [ ] **DO · Ten test emails are sitting in your support inbox. They are ours.
   Delete them.**
   All with the subject **`Problem report · EDGEREPLAY-A-SECRET DETAIL`**, at
