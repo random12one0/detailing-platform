@@ -5355,11 +5355,41 @@ the dashboard or back office at phone width at all.
   `docs/silences.md`, which was not this session's lane — it is flagged, not
   written.**
 
-  **STILL UNPRESSED, and the entry stays open for it.** Nobody has loaded the
-  back office since any of this. The confirmation is one page load on
-  `demo-detail`'s panel — *"Takes requests, you answer"* where it read
-  *"Taking bookings"* — and the browser is handed over when the other session
-  is out.
+  **PRESSED AND SEEN, 2026-09-21. Both halves, in a browser, on the real dev
+  server, console clean throughout.** Superseding the "still unpressed" note
+  this block used to carry.
+
+  **(a) — `demo-detail`'s panel now reads `Their page · "Takes requests, you
+  answer"`.** It read *"Taking bookings"* before. Independently corroborated
+  three rows above it on the same panel: **`Requests waiting · 2`** — a
+  business with requests queued is a request-mode business, which is exactly
+  what the line now says and exactly what it could not say while
+  `settings.booking_mode` was invisible to it.
+
+  **(b) — the Growth screen, read top to bottom.** Four rows fire about the
+  one real account, `Counter Signup Test Detail`, and **they no longer
+  contradict each other**:
+
+  > *1 booking page cannot take a booking* — Nothing to sell, no open days…
+  > *1 detailer has never taken a booking* — **Ask how they are telling their
+  > own customers about their booking page.**
+
+  The words *"The page works"* are gone from the screen. One row still
+  evaluates bookability; the other no longer claims anything about it.
+
+  **WHAT WAS NOT PRESSED, named rather than glossed:** the **suspended** case,
+  because there is nothing to press it with — no business on this database,
+  real or demo, is paused (16 rows, all `active`). `10a`/`10b` in
+  `tests/admin-insight.test.mjs` are the only thing standing behind that half.
+  **Widths: none.** Nothing here changed a layout; one string got shorter.
+
+  **AND HOW THE SCREEN WAS REACHED, because it matters for the next session:**
+  **no credential was handled.** `scripts/demo-refs.json` has
+  `platformAdmin: null` — the last seed ran without `--platform-admin`, so
+  **there is no platform-admin password on this checkout at all.** The back
+  office opened on an existing browser session. A session that needs `/admin`
+  and finds no session waiting cannot get in without re-seeding, which is a
+  write to the demo tenant.
 
 - [x] **9.3 — The setup banner shows an empty list and "and 2 more". DONE
   2026-09-20.**
