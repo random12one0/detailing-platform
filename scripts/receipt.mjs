@@ -72,6 +72,39 @@ export const gitSha = () => {
   }
 };
 
+// ---------------------------------------------------------------------------
+// THE COMMIT A RUN STARTED ON, CAPTURED HERE BECAUSE HERE IS THE EARLIEST
+// MOMENT ANY CHECK HAS — 2026-09-21, docs/silences.md.
+// ---------------------------------------------------------------------------
+// **UNTIL TODAY EVERY RECEIPT IN THIS REPO COULD NAME A COMMIT IT HAD NOT
+// MEASURED.** `writeReceipt` stamped `git_sha` when the run ENDED, so a
+// session committing while a check was in flight left the check claiming
+// their commit. It is the same fault as everything else this file guards:
+// **the receipt is the thing we trust INSTEAD of looking, and it could be
+// honestly wrong.**
+//
+// It was found on `e2e-booking`, where HEAD moved under two of four runs —
+// another session committing twice in forty minutes. Those runs were sound,
+// and **the receipt could not have said so.** What said so was
+// `git show --stat`: both commits touched `ROADMAP.md` only, outside the tree
+// `source-guard.mjs` watches. A fact established by looking, about a file
+// whose whole job is to remove the need to look.
+//
+// **WHY MODULE LOAD IS THE RIGHT PLACE, AND WHY IT COST NO EDITS TO 28
+// CHECKS.** ESM evaluates every static import before the importing module's
+// own body runs, and all 28 checks here import this file statically at the
+// top. So this line runs at process start, before the check has navigated a
+// page, opened a database connection or read a file. No check passes a start
+// sha, no check was changed, and no check can forget to.
+//
+// **HEAD MOVING IS NOT A FAILURE AND MUST NOT BECOME ONE.** Most drift is a
+// sibling session committing a document. The receipt's job is to make it
+// VISIBLE rather than to judge it; the reader decides, with `git show --stat`
+// and the check's own source guard. So it is reported the way staleness is —
+// in `problems` for anything already reading that array, and out of the
+// verdict.
+export const SHA_AT_START = gitSha();
+
 /** Every field `validate` requires, with the type it must have. */
 const REQUIRED = {
   check_id: "string",
@@ -221,6 +254,33 @@ export function validate(r, opts = {}) {
     }
   }
 
+  // ---------------------------------------------------------------------
+  // DID HEAD MOVE WHILE THE RUN WAS IN FLIGHT? — outside `p`, like staleness.
+  // ---------------------------------------------------------------------
+  // **STALENESS AND DRIFT ARE DIFFERENT QUESTIONS AND BOTH HAVE TO BE ASKED.**
+  // Stale asks "is this receipt older than HEAD *now*" — a fact about the
+  // present. Drift asks "did the tree move *under the run*" — a fact about the
+  // past, which no later reading can recover. A receipt can be perfectly
+  // fresh and still name a commit that landed halfway through it.
+  //
+  // It does not fail the receipt, deliberately. Most drift is a sibling
+  // session committing a document, and voiding sound runs would teach
+  // everybody to ignore the line — which is precisely what making staleness
+  // fail did, and what that comment above says it cost.
+  let drift = null;
+  let startShaUnknown = false;
+  if (r.head_moved === true) {
+    drift = `HEAD MOVED DURING THIS RUN: started ${String(r.git_sha_started ?? "?").slice(0, 8)}`
+      + `, finished ${String(r.git_sha).slice(0, 8)} — the receipt names a commit it did not`
+      + " measure end to end. NOT automatically void: run `git show --stat` on what landed and"
+      + " check whether the check's own source guard fired. The reader decides.";
+  } else if (!("git_sha_started" in r)) {
+    // NOT A PROBLEM, AND NOT SILENCE EITHER. "We did not record it" is a
+    // third answer, and collapsing it into "it did not move" would be this
+    // file's own subject committed inside the fix for it.
+    startShaUnknown = true;
+  }
+
   // THE `status` FIELD IS GRADED, NOT TRUSTED.
   if (p.length === 0 && r.status !== "pass") {
     bad(`every rule passed but the check wrote status "${r.status}"`);
@@ -263,20 +323,30 @@ export function validate(r, opts = {}) {
   const verdict = realProblems.length > 0 ? "fail"
     : heldBy ? "held"
     : staleness ? "stale" : "pass";
-  const problems = staleness ? [...realProblems, staleness] : realProblems;
+  const problems = [...realProblems, ...(staleness ? [staleness] : []), ...(drift ? [drift] : [])];
   // `ok` keeps its old meaning — fresh AND clean — so nothing already reading
   // it changes behaviour. `verdict` is what tells the three apart.
   return {
     ok: problems.length === 0 && !heldBy,
-    problems, verdict, stale: !!staleness, staleness, hold: heldBy, receipt: r,
+    problems, verdict, stale: !!staleness, staleness,
+    moved: !!drift, drift, startShaUnknown,
+    hold: heldBy, receipt: r,
   };
 }
 
 /** Write a receipt, stamping the fields no check should have to remember. */
 export function writeReceipt(r) {
   mkdirSync(RECEIPTS, { recursive: true });
+  const shaAtEnd = gitSha();
   const full = {
-    git_sha: gitSha(),
+    git_sha: shaAtEnd,
+    // The two are recorded separately and the comparison is recorded too, so
+    // a reader never has to do it and can never forget to. A receipt written
+    // before 2026-09-21 has neither field; `validate` says so rather than
+    // guessing, because "did not record it" and "did not move" are the two
+    // sentences this whole repo exists to keep apart.
+    git_sha_started: SHA_AT_START,
+    head_moved: !!(SHA_AT_START && shaAtEnd && SHA_AT_START !== shaAtEnd),
     environment: process.env.RECEIPT_ENV || "local",
     finished_at: new Date().toISOString(),
     failures: [],
@@ -312,7 +382,7 @@ if (invokedDirectly) {
     console.error(`No receipts in ${target}. Nothing was validated — this is not a pass.`);
     process.exit(2);
   }
-  let bad = 0, stale = 0, held = 0;
+  let bad = 0, stale = 0, held = 0, moved = 0, unknown = 0;
   for (const f of files) {
     let r;
     try {
@@ -338,11 +408,26 @@ if (invokedDirectly) {
       console.log("FAIL  " + (r.check_id ?? f));
       for (const m of v.problems) console.log("        " + m);
     }
+    // PRINTED UNDER EVERY VERDICT, INCLUDING A PASS — which is the whole
+    // point. A run whose tree moved underneath it can pass every rule, and
+    // before 2026-09-21 that was indistinguishable from a run on a still
+    // tree. The line goes under the PASS, where the reader is least expecting
+    // to be told anything.
+    if (v.moved) { moved++; console.log("        " + v.drift); }
+    else if (v.startShaUnknown) {
+      unknown++;
+      console.log("        no start-sha recorded — written before 2026-09-21, so whether the tree "
+        + "moved under this run is UNKNOWN rather than no. Re-run it to find out.");
+    }
   }
   const fresh = files.length - bad - stale - held;
   console.log(`
 ${fresh} valid · ${stale} stale (every rule passed, written at an older commit)`
     + `${held ? ` · ${held} held (real findings, agreed hold, with an expiry)` : ""} · ${bad} failed.`);
+  if (moved || unknown) {
+    console.log(`${moved} written across a moving HEAD · ${unknown} that cannot say either way.`
+      + " Neither is a failure and neither is a pass — they are the third answer.");
+  }
   if (stale && !bad) {
     console.log("Stale is not broken — re-run those checks when commits have stopped, not before.");
   }

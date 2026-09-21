@@ -1,0 +1,48 @@
+{
+  "git_sha": "4a84d8028eb9245559deab1cea1d3409b6b826bc",
+  "git_sha_started": "ea3d6dc5f2b4098e90ed12bd1ea84639837b7867",
+  "head_moved": true,
+  "environment": "local",
+  "finished_at": "2026-09-21T10:33:06.016Z",
+  "failures": [],
+  "warnings": [
+    "FUNCTIONS ONLY — this cannot see a migration that adds a table, column, policy, grant or index. There is no applied-migrations ledger in this project to compare against: supabase_migrations.schema_migrations does not exist."
+  ],
+  "artifacts": [
+    "scripts/migration-drift.mjs"
+  ],
+  "dimensions": {
+    "project": "kguqylyzgyzfktkfnhjb",
+    "migration_files": 93,
+    "tables_declared": 52,
+    "tables_absent": [],
+    "columns_absent": [],
+    "type_mismatch": [],
+    "types_unjudged": 108,
+    "method": "replay create/drop function in file and statement order; compare body text against pg_get_functiondef",
+    "absent": [],
+    "drifted": []
+  },
+  "check_id": "migration-drift",
+  "started_at": "2026-09-21T10:33:04.321Z",
+  "status": "pass",
+  "expected_targets": 101,
+  "discovered_targets": 101,
+  "attempted_targets": 101,
+  "completed_targets": 101,
+  "skipped_targets": 0,
+  "assertions_executed": 1213,
+  "min_assertions": 1000,
+  "canary": {
+    "id": "a function name no migration could have defined must be reported ABSENT",
+    "observed_failure": true,
+    "caught_by": [
+      "absent",
+      "drifted",
+      "column-absent"
+    ],
+    "findings": [
+      "[absent] a fabricated function name was reported absent, so ABSENT is a verdict this comparison can actually reach"
+    ]
+  }
+}
