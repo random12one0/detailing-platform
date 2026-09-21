@@ -3185,6 +3185,88 @@ requested.
   audit history.
   *A1 P3-08, § 9*
 
+  **WORKED 2026-09-21. THE ENTRY DESCRIBED FOUR THINGS; THREE OF THEM ALREADY
+  EXISTED AND ONE OF THOSE THREE COULD NOT BE SEEN BY ANYBODY.**
+
+  | the entry asks for | state, checked |
+  |---|---|
+  | *"Viewing as support — read only"* banner | **Exists**, `App.jsx:455` — *"Looking at X. Nothing here can be changed."* with a Let-me-make-changes toggle. **READ, NOT RUN** — see below |
+  | *record who opened it and when* | **Exists**, `platform_admin_events`, 11 rows, 3 of them `impersonate` |
+  | *the access appears in an audit history* | **BUILT TONIGHT.** The server was already sending it; no screen drew it |
+  | *block mutations server-side* | **Still not done, and `lib/preview.js` says so out loud** |
+  | *"Return to admin"* | **Superseded by Andrew, 2026-09-09** — the preview keeps its session in its own tab and *"closing that tab is the whole exit"* |
+
+  **THE SERVER ALREADY HOLDS THE LINE THIS ITEM ASKS FOR, and it is worth
+  quoting because it is the standard the rest of tonight has been about.**
+  `logIt` is best-effort everywhere — *refusing to suspend a non-paying
+  business because an audit row would not insert is the wrong trade* — **except
+  for `impersonate`, where the row is written BEFORE the sign-in link is
+  generated and a failed write returns 500 and stops the action**, with the
+  words *"Could not write the audit record, so this was not done."* **The
+  action does not quietly proceed.** That was already true; nothing here
+  changed it.
+
+  **WHAT WAS ACTUALLY MISSING: THE READING END.** `platform-admin`'s `detail`
+  action has been sending the last 20 events for each business as `events`
+  since it was written. **`AdminPage.jsx` referenced the word `events` exactly
+  nowhere.** So the audit trail was live, correct, protected by a 500, and
+  **unreadable by the only person it exists for.** A log nobody can read
+  answers no question, which is why the item asks for a *history* and not for
+  *logging*.
+
+  **BUILT AND PRESSED, commit `141c01d`:** a *"Who has opened this account"*
+  card in the detail panel. Plain words for the stored action names, and **an
+  unknown action falls back to its raw name rather than being dropped** — a
+  row nobody has taught the map about is still a row somebody did. **Three
+  states, not two**: `detail` arrives after the drawer opens and may not
+  arrive at all, so *"Reading the record…"* and *"Nothing is recorded"* are
+  separate sentences.
+
+  **AND A DEFECT I SHIPPED INTO THAT CARD AND CAUGHT BY PRESSING IT.** The
+  empty state first read *"Nobody has opened it or changed anything on it."*
+  **Coastline printed exactly that while `platform_admin_events` held FOUR
+  rows naming Coastline Auto Detailing — two impersonations and a
+  suspension.** Those four carry **`business_id = null`**, written before the
+  id was attached to the log, and the server's history is filtered
+  `.eq("business_id", id)`, so they can never appear on any account's panel.
+  **4 of the 11 rows in that table are orphaned this way.** The sentence now
+  states only what the query asked — *"Nothing is recorded against this
+  account."*
+
+  **THAT ORPHANING IS A SEPARATE, SERVER-SIDE ITEM AND IS NOT FIXED.** A
+  back-fill matching on `business_name`, or a history that also matches by
+  name, would recover them. Both are `platform-admin` or a migration, and
+  both are behind the deploy freeze. **Recorded rather than attempted.**
+
+  **PRESSED, 320 FIRST.** `Counter Signup Test Detail`: *"Reading the
+  record…"* before `detail` lands, then *"Created the account ·
+  demo@detailplatform.com · 8 days ago"*. `Coastline`: the corrected empty
+  sentence. **No horizontal overflow at 320 or 1440**; at 1440 the card is
+  477px wide, right edge 1394 inside 1440. No new console errors at either
+  width.
+
+  **NOT PRESSED, AND NAMED RATHER THAN GLOSSED: the read-only banner.** It
+  exists and I have read it; I have not run it. **Reaching a preview tab
+  requires an impersonation token, and generating one is creating a
+  credential** — a standing constraint, not a preference. Whoever presses it
+  should confirm the banner names the business, that the toggle flips the
+  wording, and that a write attempt in `look` mode throws. **The admin screen
+  is English-only by construction** — zero `t()` calls, no strings import — so
+  there is no Spanish path on this surface.
+
+  **WHY THIS ENTRY STAYS OPEN:** its *Done when* is *"an attempted state
+  change fails AND the access appears in an audit history."* The second half
+  is now true and pressed. **The first half is enforced in the browser only**
+  — `lib/supabase.js` wraps `insert/update/upsert/delete` in a preview tab —
+  and `lib/preview.js` states plainly that this *"stops a stray click, not an
+  attacker… no policy anywhere gained a platform-admin clause."* **A tick here
+  would carry a named unverified gap.**
+
+  **AND 12.4 WAS READ FIRST, AS INSTRUCTED. Nothing here touches it.** The
+  demo login's back-office access is deliberate (0.1, 12.4) and this change
+  adds no gate, no policy and no refusal — it draws a list that the server was
+  already sending. **Andrew cannot be locked out of anything by it.**
+
 - [ ] **4.4 — Prove multi-tenant isolation properly.**
   `tests/tenant-isolation.test.mjs` exists. Per `docs/gotchas.md`, break it on
   purpose before believing it.
