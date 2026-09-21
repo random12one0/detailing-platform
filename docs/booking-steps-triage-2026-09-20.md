@@ -190,3 +190,112 @@ reading here before it became a wrong number).
 `booking.css:1151`, and `CLAUDE.md`'s 44px absolute.
 
 **Unconfirmed — measured but under a caveat:** everything in the section above.
+
+---
+
+# THE AFTER — 2026-09-20, measured against the fix in the working tree
+
+**The four numbers asked for:**
+
+| | before | after |
+|---|---|---|
+| `.bk-wrap`, fresh load ≥768 | 316.9px against `max-width: 632px` | **632px** |
+| `.bk-cal .cell` at 392 | 36.4 × 36.4 | **47.1 × 47.1** — clears the 44px floor |
+| `.bk-cal .cell` at 1440 / 1920 | 36.4 × 36.4 | **52 × 52** |
+| `max-height: 52px` gate | never engaged | **ENGAGED at 1440 and 1920** — first time |
+| `sweep-booking-steps` tap findings | **70**, 23 distinct controls | **0** — *"every control reaches the floor"* |
+
+**47.1px is the number `booking.css:1151` predicted eight months of comments
+ago.** Not close to it — it. And the height cap engaging at desktop is the
+second half of the same proof: a rule written for a 600px grid, dead while the
+grid was 285px, doing its job the moment the grid got its width back.
+
+**The zero is a zero from looking, not from not-looking:** the same run reports
+**56 step readings, 599 controls measured** — the same subject count as the run
+that produced 70. Had the walk collapsed, the subject count would have
+collapsed with it.
+
+**The W16 family is unchanged: 12 steps do not fit, before and after.** The
+width fix neither helped nor hurt it. It remains untriaged.
+
+## What this after CANNOT tell you, stated as such
+
+The per-step matrix covers **steps 1–5 at four widths**. It does **not** cover
+**steps 6 and 7 at any width** — the capture stalls on the calendar step, which
+needs a date and a slot chosen before Continue will take. Their diff moves the
+wrap on every step, so steps 6 and 7 changed too.
+
+**For steps 6 and 7 the correct sentence is that they cannot be compared — not
+that they look fine.** There is no before for them and no after either. The
+calendar is the surface the fix was aimed at, it is the one with a real before,
+and it is the only one the claim rests on.
+
+At **768px** the calendar block was not captured (the step was reached, the
+grid was not read). Recorded as not-captured rather than as a result.
+
+## Why there is no proper before, and it is a scheduling error rather than a race
+
+**Andrew's manager, on the record and in his own framing:** *"I told them to
+build and hold the press; I did not tell them to hold the commit, and
+committing at the end of a turn is what that session does every time and has
+done correctly all night. You were told to capture a before while the thing you
+were photographing was already being removed."*
+
+The before capture was commissioned **after** the fix was authorised and while
+it was being written. Vite serves the working tree, so the running app was
+already the after; the first capture came back post-fix.
+
+**The transferable rule: a before must be captured before the fix is
+AUTHORISED, not while it is being built.** A session that has finished its work
+will commit it, and should. Anything else asks one session to hold a correct
+habit so another can photograph a state that is already gone.
+
+**What survived is the calendar-only before**, measured on fresh loads earlier
+the same night and committed at `d94c394` — wrap 316.9, grid 284.9, cell 36.4,
+cap idle, 70 findings. That is enough for the comparison the fix was aimed at
+and not enough for anything else.
+
+## The capture script failed three times, loudly, and that is the point
+
+It is a throwaway in the scratchpad, deliberately **not** in `scripts/` — the
+sweep must not change between a before and an after, or it has measured two
+different things. It got the matrix wrong three times:
+
+1. `.bk-card, .bk-service` — clicked a card and the walk stalled at step 1,
+   producing **four one-row columns**. The handler is on `.bk-pick`, a BUTTON
+   inside the card; a click at the card's centre lands on a div that does not
+   bubble to it. *The card is the thing you see; the button is the thing that
+   listens.*
+2. `input[type=text]` — matches on the **attribute**, and this input carries
+   none. `el.type` reads `"text"` by default either way, which is exactly why
+   it looked right. Same family as `process.exit(cond ? 1 : 0)`: the thing
+   searched for is not written down.
+3. Once, at 1440 only, the service click did not take and that column came back
+   with one row while the other three had four. A flake, recorded because a
+   matrix that is partial at one width and full at three is the most persuasive
+   kind of wrong.
+
+**The first attempt produced a partial matrix that looked like a complete
+one**, which is `docs/silences.md`'s whole subject. It now pushes an
+`INCOMPLETE` row naming the width and the step count, so a short column cannot
+be mistaken for a measured one. **It failed loudly enough to be noticed, which
+is the only reason any of this is a correction rather than a wrong number in a
+report.**
+
+## The strongest evidence of the night: two people, one mechanism, opposite ends
+
+This session **measured** its way to the cause — wrap 316.9 against a declared
+632, a resolved `margin-left: 561.547px` where a declared value should be, the
+width varying by step, the dead `max-height: 52px` as a fossil of a width the
+layout used to have.
+
+The other session **read** its way to the same cause, and its commit comment
+states it in spec terms: *"auto cross-margins absorb the leftover space and
+override `align-items: stretch` for that one item — so instead of stretching
+toward this rule's own `max-width`… `.bk-wrap` shrank to its CONTENT's width."*
+
+**Neither saw the other's work.** One arrived from the rendered pixels, one
+from the flex specification, and they met at the same declaration. Agreement
+between two independent methods is worth more than either result alone — and it
+is the opposite of the failure that nearly issued a work order tonight, where a
+second check inherited the first one's stale input and could only ever agree.
