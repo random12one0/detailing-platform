@@ -84,10 +84,10 @@ gives?** Not an opinion — the evidence on both sides:
    deployed**. Needs: Andrew to publish `send-owner-reminders`, then confirm a
    tenant with reminders **on** and a due deadline sends **no** maintenance
    email while its ordinary reminders **still send**.
-3. **The `ownWords` warning (3.4b)** — **ruled and written up, not built.** A
-   detailer can put a sales pitch inside a transactional email carrying no
-   unsubscribe path. The fix is a plain warning where they type it, not a
-   content filter. It needs a press, so it was not started.
+3. ~~**The `ownWords` warning (3.4b)**~~ — **BUILT AND PRESSED 2026-09-21,
+   ticked.** The warning sits in the *Your own words* blurb on
+   `Notifications.jsx` — not the SMS screen, where selling is allowed. Pressed
+   at 320/390/768/1440 in both languages.
 
 ---
 
@@ -2431,7 +2431,7 @@ requested.
   rather than commit around or through somebody else's work in a shared
   document. The row still needs adding.
 
-- [ ] **3.4b — A detailer can put a sales pitch inside a transactional email,
+- [x] **DONE 2026-09-21 — 3.4b — ~~A detailer can put a sales pitch inside a transactional email,
   and nothing warns them. The real finding of the 3.4 pass, and the one the
   no-marketing ruling cannot reach by deleting a template.**
   *Found in the 3.4 classification pass, 2026-09-21. Andrew's ruling: a
@@ -2458,6 +2458,63 @@ requested.
   actual screen rather than in the source.
   **Not built 2026-09-21:** it needs a press and the demo tenant was another
   session's. Do not build it without one.
+
+  **BUILT AND PRESSED 2026-09-21.**
+
+  **IT IS NOT ON THE SCREEN ANYONE WOULD GUESS, AND THAT IS THE FIRST
+  FINDING.** The obvious home is `screens/more/MessageTemplates.jsx` — the
+  screen called "Message templates". It is the wrong one: **every template
+  there is an SMS**, and its own header says so, adding that the emails "are a
+  separate surface … not editable yet". **That sentence is now stale.** The
+  email paragraphs are edited in `screens/more/Notifications.jsx`, under the
+  group *Your own words*, which is where all twelve `MESSAGE_KINDS` are
+  rendered. **And the distinction is the ruling, not a detail:** Andrew's line
+  is that anything which sells goes BY TEXT, so a sales pitch on the SMS
+  screen is allowed. Warning there would have contradicted him. One screen,
+  argued from the file.
+
+  **THE QUIETEST IDIOM WAS ALREADY THERE.** That group has a `Group` blurb —
+  one `<p class="quiet">` — written on 2026-09-10 in answer to his *"I feel
+  like it's not explained enough on what it actually does"*, saying who reads
+  it, where it lands and that it goes out as typed. **What it is for was
+  already said; only what it is NOT for was missing.** So the warning is a
+  second sentence in that same paragraph. No new component, no new pattern, no
+  motion, no colour, `Group` untouched.
+  **A SECOND `t()` STRING RATHER THAN A LONGER FIRST ONE**, deliberately:
+  editing the reviewed 2026-09-10 sentence would churn its Spanish key and put
+  settled copy back in play to add a fact that is not about what the box does.
+  Two keys, one paragraph.
+  **The Spanish went in the same edit, in the catalogue this screen actually
+  reads** — `appEs.js`, because `Notifications.jsx` imports `appI18n.js`.
+  **Checked rather than assumed**, after the 2.1c round put three keys in the
+  wrong catalogue for exactly this reason.
+
+  > Keep anything that sells out of it. These emails are receipts and
+  > reminders, and a customer cannot unsubscribe from them. An offer or a
+  > discount belongs in a text message instead.
+
+  **PRESSED, 320 FIRST, BOTH LANGUAGES, CONSOLE READ AT EACH:**
+
+  | Width | English | Spanish | Overflow | Console |
+  |---|---|---|---|---|
+  | **320** | ✓ | ✓ | none | clean |
+  | 390 | ✓ | ✓ | none | clean |
+  | 768 | ✓ | ✓ | none | clean |
+  | 1440 | ✓ | ✓ | none | clean |
+
+  Looked at, not only read: screenshots at 320 and 390 show the sentence in
+  place above the *12 other emails you can add a line to* drawer, so a
+  detailer meets it **before** opening a box rather than after.
+  **A measurement note, because it nearly cost a false reading twice:** the
+  first console check showed a `createRoot` warning and a `removeChild`
+  error. Both were artefacts of this session's own hot reloads — a clean tab
+  showed nothing, which is the same way the same artefact was identified
+  earlier tonight. And the pane returned two entirely black screenshots before
+  it began painting; the DOM text and geometry were correct throughout, so a
+  screenshot that fails to paint is not evidence of a blank screen.
+  `label-guard` 45/45, and `spanish.test.mjs` holds at its six pre-existing
+  failures with **`1b` not naming the new string** — read as contents, not as
+  a count.
 
   **STILL OPEN, AGAINST ITS OWN DONE-WHEN.** That sentence asks for proof that
   each of seven stages was **sent, received and read** — real delivery, not a

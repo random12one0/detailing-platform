@@ -335,8 +335,29 @@ export default function Notifications() {
           to know before typing is WHO reads it, WHERE it lands, and that it
           goes out as typed. Three facts, one sentence each, and none of them
           restates a label. */}
+      {/* **ROADMAP 3.4b — WHAT THE BOX IS NOT FOR, SAID ONCE, WHERE IT IS
+          TYPED. 2026-09-21.**
+          The 3.4 email review found that `ownWords()` drops this paragraph into
+          nine call sites across seven of the sixteen templates — confirmations,
+          both reminders, the receipt, the invoice, quotes, cancellations and
+          reschedules. It is escaped for HTML and **unchecked for content**, so
+          a detailer can put a sales pitch inside a transactional email that
+          carries no unsubscribe link, on our sending domain.
+          **ANDREW'S RULING WAS A WARNING, NOT A FILTER**, and the distinction
+          is the whole of it: their words stay theirs. Nothing scans this text,
+          nothing blocks a send, nothing rewrites it. We say what the box is
+          for and what it is not for, once, and then trust them — which is also
+          the only version that works, because the seller is the tenant and a
+          filter would be us reading a detailer's mail and deciding what it
+          meant.
+          **A SECOND STRING RATHER THAN A LONGER FIRST ONE**, deliberately: the
+          sentence above was written to his note of 2026-09-10 (*"I feel like
+          it's not explained enough"*) and reviewed then. Editing it would
+          churn its Spanish key and put a reviewed sentence back in play to add
+          a fact that is not about what the box does. Two keys, one paragraph,
+          `Group` unchanged. */}
       <Group title={t("Your own words")}
-        blurb={t("Your own sentence at the bottom of one of these emails, in a panel of its own under everything we write. The customer reads it exactly as you type it: a gate code, where to park, that you will text when you are on the way. Leave one blank and that email goes out as it always did.")}>
+        blurb={`${t("Your own sentence at the bottom of one of these emails, in a panel of its own under everything we write. The customer reads it exactly as you type it: a gate code, where to park, that you will text when you are on the way. Leave one blank and that email goes out as it always did.")} ${t("Keep anything that sells out of it. These emails are receipts and reminders, and a customer cannot unsubscribe from them. An offer or a discount belongs in a text message instead.")}`}>
         {/* **TWELVE IDENTICAL ROWS, ELEVEN OF THEM EMPTY — 2026-09-12.**
             Every one of these rendered the same *Add a line* button under the
             same two lines of text, so the block was twelve repetitions of one

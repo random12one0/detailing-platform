@@ -1105,6 +1105,13 @@ export const appEs = {
     "Solo afecta los avisos para ti, no para tus clientes.",
   "Your own sentence at the bottom of one of these emails, in a panel of its own under everything we write. The customer reads it exactly as you type it: a gate code, where to park, that you will text when you are on the way. Leave one blank and that email goes out as it always did.":
     "Tu propia frase al final de uno de estos correos, en su propio recuadro debajo de todo lo que escribimos nosotros. El cliente la lee tal cual la escribes: un código de entrada, dónde estacionar, que le vas a escribir cuando vayas en camino. Deja uno en blanco y ese correo sale como siempre.",
+  // ROADMAP 3.4b — what the box is NOT for, beside the sentence saying what it
+  // is. `tú` register held, as everywhere in this file. "Se da de baja" is the
+  // ordinary Spanish for unsubscribing from a mailing list; "cancelar la
+  // suscripción" reads like cancelling a paid plan, which is a different thing
+  // a detailer's customer might actually be doing.
+  "Keep anything that sells out of it. These emails are receipts and reminders, and a customer cannot unsubscribe from them. An offer or a discount belongs in a text message instead.":
+    "No pongas nada que venda. Estos correos son recibos y recordatorios, y el cliente no se puede dar de baja de ellos. Una oferta o un descuento va mejor en un mensaje de texto.",
   "Edit your line": "Editar tu línea",
   "Add a line": "Agregar una línea",
   "Save notifications": "Guardar avisos",
