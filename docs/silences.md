@@ -87,11 +87,11 @@ end with the same summary line.
 | script | what its silence looks like | the distinguishing test |
 |---|---|---|
 | ~~`sweep-booking-steps.mjs`~~ | **ROW CORRECTED 2026-09-20 — the claim was wrong, and the truth was worse. See below** | — |
-| `accent-sweep.mjs` | `SWEEP CLEAN — dashboard, booking page and hue families` on `failures === 0` | count tokens/pairs compared; fail on zero |
+| ~~`accent-sweep.mjs`~~ | `SWEEP CLEAN — dashboard, booking page and hue families` on `failures === 0` | **CLOSED 2026-09-21, `8585701`.** 18 declared accents, 288 comparisons, a canary aimed at the contrast floor, and a receipt. **Breaking it found a real defect: any stray argument was read as a colour**, so `--lite` swept ONE and printed CLEAN. See below. |
 | `e2e-booking.mjs` | exits 0 with no subject count | count the steps completed end to end; assert the booking exists afterwards. **STILL UNPROVEN, and the census mis-scoped it: it needs `SUPABASE_SERVICE_ROLE_KEY` and four other credentials, so it is NOT browser-only** |
 | `render-emails.mjs` | exits 0 with no subject count | count templates rendered; fail below the known template count |
-| `db-audit.mjs` | exits 0 with no subject count | count tables/migrations examined; fail on zero |
-| `check-deployed.mjs` | exits 0 with no subject count | count functions compared; fail on zero. **CORRECTED TWICE ON 2026-09-21, and it is safe to copy again as of `4b804ec`.** It was offered here as the model, then found to print `PASS` and exit 0 having fetched nothing - its count and canary reached the RECEIPT and not the screen. Fixed the same night: the verdict and exit now read the canary. **Copy the fixed shape, and copy the canary WITH the exit check, not without it.** See the section below. |
+| ~~`db-audit.mjs`~~ | exits 0 with no subject count | **CLOSED 2026-09-21, `81fc751` — and the row understated it. It had NO `process.exit` on findings at all**, so two real problems printed and returned 0, inside CLAUDE.md's verification table. Findings now fail; 4 declared checks; canary aimed at `q()`. See below. |
+| ~~`check-deployed.mjs`~~ | exits 0 with no subject count | **CLOSED 2026-09-21, `d4ac4ac`.** 39 declared functions, a canary aimed at the freshness comparison, a receipt. **The row was slightly wrong**: it does print `all N functions are current` — but only on a clean run, and no run is clean today. Its earlier correction (it printed `PASS` having fetched nothing, fixed at `4b804ec`) is below. |
 | `i18n-survey.mjs` | **CLOSED — see below** | — |
 
 **Two of these were misread by a grep first and corrected by reading.** A
@@ -172,6 +172,81 @@ byte-identical across the change.
 disagree, the number is not rounding — **ask what else increments it**. A count
 that can be fed from more than one place will be read as a count of the thing
 its sentence names.
+
+
+## SECTION A — THREE OF SEVEN CLOSED, AND THE OTHER FOUR ARE A DECISION — 2026-09-21
+
+**The seven were triaged out loud before any were taken**, so the four not
+taken are a decision with a named blocker rather than a silence.
+
+| gate | needs | this round |
+|---|---|---|
+| `accent-sweep.mjs` | nothing — fully offline | **TAKEN**, `8585701` |
+| `check-deployed.mjs` | Management API read | **TAKEN**, `d4ac4ac` |
+| `db-audit.mjs` | Management API read | **TAKEN**, `81fc751` |
+| `render-emails.mjs` | imports 6 modules from `supabase/functions/_shared` | **DEFERRED** — that lane is the other session's, took 2 commits in 90 minutes with 3 items unpressed, so any reading is against a tree that will move |
+| `sweep-booking-steps.mjs` | browser + dev server | **DEFERRED** — both held by the other session |
+| `e2e-booking.mjs` | browser + dev server + service-role + tenant | **DEFERRED** — all four held |
+| `i18n-survey.mjs` | — | closed 2026-09-20 |
+
+**Each of the three got the same four things:** an expectation declared before
+the run, zero-discovered as a failure, a receipt `receipt.mjs` grades, and a
+canary it must catch.
+
+| gate | control | the break |
+|---|---|---|
+| `accent-sweep` | **`18 18 18 18`**, 288 comparisons / floor 250 | `--break=blind` → canary MISSED, exit 1 · `--break=none` → **`18 0 0 0`**, three named failures |
+| `check-deployed` | **`39 39 39 39`**, 80 assertions / floor 60 | `--break=blind` → canary MISSED · `--break=none` → **`39 0 0 0`** |
+| `db-audit` | **`4 4 4 4`**, 5 assertions / floor 5 | `--break=blind` → all four checks print `ok`, summary prints `clean`, **run fails anyway** |
+
+### THE BREAK THAT MATTERS FOR A GATE IS THE ONE WHERE IT DOES NOT RUN
+
+That is the case none of the seven could distinguish from success. It is now
+visible, and this is what it looks like:
+
+```
+STALE accent-sweep  every rule passed; receipt is for a59f6480, HEAD is
+85857014 — a valid record of a run that happened, now out of date
+```
+
+**A gate that does not run no longer looks like a gate that passed.** It looks
+like a receipt that has stopped keeping up, and `receipt.mjs` names it.
+
+### TWO OF THE THREE WERE WORSE THAN THE CENSUS SAID, AND ONE WAS BETTER
+
+- **`db-audit` had no `process.exit` on findings at all.** The row said "exits
+  0 with no subject count". The truth: the only `process.exit` in the file
+  guards missing credentials, so it found **2** real problems, printed *"2 to
+  look at"*, and **returned 0** — inside CLAUDE.md's verification table, where
+  a session is told to run it after a migration. **It could not fail.**
+- **`accent-sweep` read any argument as a colour.** `process.argv[2]` was taken
+  as a hex with no validation, so `node scripts/accent-sweep.mjs --lite` swept
+  **one** colour named "custom" whose hex was the string `--lite`, made **12**
+  comparisons instead of **288**, and printed `SWEEP CLEAN`. **Found by
+  breaking the file on purpose — the sabotage flag itself was swallowed as a
+  colour.** A gate that measures one eighteenth of its subject on a typo is
+  this section's disease with a different spelling.
+- **`check-deployed` was slightly better than its row.** It does print
+  `all N functions are current` — the row said it printed no subject count.
+  But it prints **no total at all when anything is stale**, which is every run
+  today, and it wrote nothing to grade. **Recorded because a census that
+  overstates a fault is the same kind of error as one that misses it.**
+
+### WHAT EACH CANARY IS AIMED AT, AND IT IS NEVER THE PRODUCT
+
+All three canaries target **the measuring instrument**, because that is what
+fails silently:
+
+- `accent-sweep` — a colour against itself scores **1.00** and must be refused
+  by both floors. If `contrastRatio` started returning 21, every pair would
+  clear and the sweep would print CLEAN over a product gone black on black.
+- `check-deployed` — a commit dated **a year after** its deploy must read
+  STALE. If `lastCommit` returned 0 for everything, nothing is ever newer than
+  its deploy and every function reads `current`.
+- `db-audit` — `public` must contain tables. Every check is `say(label, rows)`
+  and `say` prints `ok` on an empty array, so `q()` returning `[]` makes all
+  four print `ok`. **Demonstrated:** blinded, all four print `ok`, the summary
+  prints **`clean`**, and only the canary fails the run.
 
 ### B · Receipts whose numbers cannot disagree — 5, ALL FIVE NOW CLOSED (2026-09-21)
 
