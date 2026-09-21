@@ -54,8 +54,17 @@ const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("
 
 // **THE EXPECTATION IS DECLARED, NOT COUNTED FROM WHAT ARRIVED.**
 // `PRESET_COLORS` is the APP's own list, imported from `app/src/lib/theme.js`,
-// so it can change without this file noticing. 18 = 12 presets + 6 extremes,
-// measured 2026-09-21. A preset added or removed makes the two disagree and
+// so it can change without this file noticing.
+//
+// **18 IS COUNTED FROM SOURCE, NOT FROM A RUN — re-derived 2026-09-21 after
+// Andrew's manager set the rule.** `PRESET_COLORS` in `app/src/lib/theme.js`
+// declares **12** entries and `EXTREMES` below declares **6**. The first
+// version of this constant was read off a run's own output, which gives the
+// same 18 today and would have followed the number DOWN the day a preset
+// stopped being swept — a declaration that quietly tracks the thing it is
+// supposed to be checking. The rule: a constant from the REPO is a
+// declaration, because the repo is what the world is supposed to match; a
+// constant from the live system or from the run's own output is not. A preset added or removed makes the two disagree and
 // fails the receipt until somebody re-sweeps and moves the number deliberately.
 const EXPECTED_ACCENTS = 18;
 let assertions = 0;
