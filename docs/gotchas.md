@@ -2176,3 +2176,72 @@ against the old one — the console entries from before the restart are still
 sitting there, now attributed to code that never produced them. **Kill the
 server, start it cold, THEN open a new tab** — reconnecting an old tab to a
 fresh server is not the same as starting fresh.
+
+## A THING ASSEMBLED AT THE POINT OF USE CANNOT BE FOUND BY SEARCHING FOR ITS WRITTEN FORM — 2026-09-20, and this is the THIRD instance in one day
+
+Three separate searches in one day returned a confident wrong answer for the
+same reason: **the string being looked for does not exist anywhere in the
+source. It only comes into existence when the code runs.** A grep can only see
+what somebody typed.
+
+**Instance one, earlier and already recorded above: the em dash that only
+existed after two values met.** A sweep for `t("…")` strings found sixty-five
+dashes and missed `Beyond 15 miles — +$40`, because that dash lives in a
+template literal joining a travel area's NAME to its FEE. The dash is written
+nowhere; it is produced.
+
+**Instance two: `process.exit(cond ? 1 : 0)` escaping a search for
+`process.exit(1)`.** Auditing which gates fail loudly, a grep for
+`process.exit(1)` reported `accent-sweep.mjs` and `sweep-booking-steps.mjs` as
+**never exiting non-zero**. Both do:
+
+```js
+process.exit(failures === 0 ? 0 : 1);      // accent-sweep
+process.exit(failing ? 1 : 0);             // sweep-booking-steps
+```
+
+The exit code is computed. `1` is never adjacent to `process.exit(`. The audit
+had classified two gates as toothless when they had teeth.
+
+**Instance three, in the measurement OF instance two: `$?` after a pipe is the
+LAST command's status.** Proving a new guard, the check was:
+
+```bash
+I18N_SURVEY_CANARY=1 node scripts/i18n-survey.mjs 2>&1 | tail -6; echo "exit=$?"
+```
+
+which printed `exit=0` over a guard that had correctly exited **1**. `$?` was
+`tail`'s. The failure path was working and the instrument measuring it said it
+was not. Re-run without the pipe: `exit=1`. **Never read `$?` through a pipe**
+— capture to a file, or `${PIPESTATUS[0]}`, or drop the pipe.
+
+**BOTH OF MINE WERE WRONG IN THE FLATTERING DIRECTION, WHICH IS THE HALF A
+READER WILL SKIP.** The `process.exit` grep made the repo look worse than it
+was — it manufactured a finding, which is the direction that gets written up
+and acted on. The `$?` reading made my own new guard look broken when it
+worked — the direction that gets a working thing "fixed" until it breaks.
+Neither error was in the direction that would have been caught by somebody
+disagreeing with me, because **an error that flatters your own thesis reads as
+confirmation and an error that indicts your own work reads as honesty.** Both
+survive review.
+
+**THE RULE.** Before trusting any search for a literal, ask: **could this
+string be built rather than typed?** If it could, the grep answers a different
+question than the one asked, and a zero result means nothing. Three shapes seen
+so far, all in this repo:
+
+- **Concatenation and interpolation** — a label joined from two values, an exit
+  code from a ternary, a class name from a template literal.
+- **Indirection** — `button:has-text("${tab}")`, where the real labels are one
+  `const TABS = [...]` away. `scripts/label-guard.mjs` follows exactly one such
+  hop for this reason.
+- **A different process's answer** — `$?` after a pipe, an exit code swallowed
+  by a wrapper, a status read from the wrong end of a chain.
+
+**And the general form, which is the one to carry:** a grep asserts how
+something is WRITTEN. Only running it asserts what it DOES. That sentence is
+already in this file, in `(k)`, about source checks versus computed values —
+**it was written months ago and did not stop any of the three.** Which is its
+own lesson: a rule stated abstractly at the top of a long file does not fire
+at the moment somebody types a grep. Three instances now carry the concrete
+shape, and the concrete shape is what a person recognises.

@@ -79,6 +79,15 @@ as never exiting non-zero. Both do — `process.exit(failures === 0 ? 0 : 1)` an
 expected, which is the reason the table above is written from reading the tails
 rather than from the grep.
 
+**That mistake now has its own entry**, because it happened twice more the same
+day and is one lesson rather than three: `docs/gotchas.md` § *"A thing
+assembled at the point of use cannot be found by searching for its written
+form."* The exit code is COMPUTED, so `1` is never adjacent to
+`process.exit(` — the same shape as the em dash that only existed after two
+values met, and as `$?` reporting `tail`'s status instead of `node`'s.
+**Before trusting any zero result from a search for a literal, ask whether the
+string could be built rather than typed.**
+
 ### B · Receipts whose numbers cannot disagree — 5
 
 These write a receipt, but set `discovered`, `attempted` and `completed` to the
@@ -136,9 +145,24 @@ Applying the standard this census exists to enforce.
 
 - `i18n-survey.mjs` — both directions, exit 0 clean and exit 1 under the canary.
   *(The first attempt read `exit=0` for the canary because the command was
-  piped to `tail` and `$?` was tail's. Re-checked without the pipe.)*
+  piped to `tail` and `$?` was tail's — **the guard was working and the
+  measurement of it was not.** Re-checked without the pipe: exit 1. Written up
+  in `docs/gotchas.md` as the third instance of a value assembled at the point
+  of use; never read `$?` through a pipe.)*
 - `label-guard.mjs` — clean, canary, and against the real historical case.
 - `receipt.mjs`'s skip rule — three probes built from a real receipt.
+- `sweep-widths.mjs`'s Spanish certification — **added since this file was
+  written, and proved.** All five customer-facing surfaces certify SPANISH on a
+  clean run, and under `SWEEP_LANG_CANARY=1` the forgotten surface reports
+  `NOT CERTIFIED` while the other four still certify. That second half is the
+  one that matters: it shows the guard distinguishes *not reached* from *not
+  Spanish*, which is exactly the distinction the twelve silences below cannot
+  make. **What it asserts is that the screen rendered the catalogue's Spanish
+  rather than English — not that the catalogue is right.** `"Light"` maps to
+  `"Claro"` because a theme toggle reached that key before the soiling scale
+  did, so a surface can certify on a word that means something else entirely.
+  The run now names a certification that leaned on a known-ambiguous key; that
+  is a filter, not coverage.
 
 **Read, not run — the classification is from source, and could be wrong:**
 
