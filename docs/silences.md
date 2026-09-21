@@ -40,7 +40,98 @@ have to re-derive it.
 
 ---
 
-## The number
+## THE CENSUS RECOUNTED — 2026-09-21, 03:45
+
+**Everything below this section described a repo that no longer exists.** It
+was written on 2026-09-20 against 33 checks in `scripts/`, seven ungraded
+gates, five hollow receipts and no receipt anywhere that could say what commit
+it had measured. All four of those statements are now false. **The old numbers
+are kept and marked rather than corrected in place**, because in every case so
+far the reversal has been the load-bearing half.
+
+**Recounted against the repo, not against the old table:**
+
+| | 2026-09-20 | now | how it was counted |
+|---|---|---|---|
+| `.mjs` files in `scripts/` | 74 | **76** | `ls scripts/*.mjs` |
+| checks that write a receipt, so `receipt.mjs` grades them | 21 | **28** | files calling `writeReceipt(` |
+| checks carrying a canary in that receipt | 8 | **28** | files passing `observed_failure` |
+| checks carrying a `--break=` sabotage switch | not counted | **21** | files matching `--break=` |
+| **§ A** gates named in `CLAUDE.md` writing **no** receipt | **7** | **0 of those seven** | all seven closed; see § A's header |
+| **§ B** receipts whose four counts could not disagree | **5** | **0** | see "SECTION B, TWO OF FIVE" and the rows after it |
+| receipts on disk | 45, **ten untracked** | **45, all tracked** | `ls receipts/*.json` vs `git status` |
+| receipts that state whether HEAD moved under them | **0 — the field did not exist** | **4** | `git_sha_started` present |
+| `tests/*.test.mjs` | **never censused** | **74** | see "THE CENSUS NEVER LOOKED IN `tests/`" |
+
+### THE FORTY THAT CANNOT SAY, AND WHY THEY ARE STAYING THAT WAY
+
+41 of the 45 receipts on disk carry no start sha, because they were written
+before `receipt.mjs` recorded one. `receipt.mjs` reports **40**, and the one it
+does not is `sweep-widths-ledger.json`, which has no `check_id` and is not a
+receipt at all — `validate` returns on the missing field before it reaches the
+line. *Chased rather than rounded, because a summary that disagrees with the
+list under it is this file's own opening test.*
+
+**LEAVING THEM UNKNOWN IS A DECISION, NOT A BACKLOG, AND THE NEXT PERSON IS
+ASKED NOT TO TIDY IT.** Forty honest unknowns are worth more than forty numbers
+produced by a mass re-run that nobody asked for and no fault prompted. The
+field says what is true: **those runs predate the fix and cannot say whether
+HEAD moved under them.** The count falls on its own as each check is next run
+for its own reasons, and a number arrived at that way means something. **A
+number arrived at by refreshing a field means nothing, and it would look
+identical.** That is the entire subject of this document, so producing one here
+would be the census committing the fault it exists to catch.
+
+### WHAT THE RECOUNT FOUND THAT NOBODY WAS LOOKING FOR
+
+Section A closed its seven. It did not empty the bucket. `CLAUDE.md` names
+**22** real scripts across its verification table and prose; **7 of them write
+no receipt**, and they are not the original seven:
+
+- **4 are not checks at all** — `build-examples`, `context-check`,
+  `deploy-functions`, `seed-demo`. A builder and a seeder have no verdict to
+  grade.
+- **3 are checks**: `decisions-index`, `var-scope-guard`, `i18n-survey`. **Two
+  of them were never on § A's list.**
+
+**All three print a subject count, so none is a silence in this file's sense**
+— measured by running them: `decisions-index` says *144 sections*,
+`var-scope-guard` says *4 stylesheets, 1788 rules, 183 custom-property
+declarations, 24 var() reads*, `i18n-survey` says *109 file(s) scanned*. Only
+`i18n-survey` carries a **floor**; the other two would print a smaller number
+and exit 0 if their walk shrank. That is a weaker gap than § A's and it is
+named here rather than opened as work.
+
+### THE HONEST HEADLINE OF THE NIGHT: THE OPEN COUNT WENT **UP**
+
+**56 → 60, and nothing got worse.** Measured from `ROADMAP.md` at three
+commits rather than taken on trust:
+
+| commit | when | open | ticked | total |
+|---|---|---|---|---|
+| `c024f89` | 09-20 23:59 | **56** | 43 | 99 |
+| `f2dc0fc` | 09-21 01:57 | **62** (the peak) | 44 | 106 |
+| `HEAD` | 09-21 03:41 | **60** | **47** | 107 |
+
+**Eight items were added and four were closed.** The additions are not
+regressions. They are faults that were **already true and already shipped**,
+and they became visible for the first time because somebody finally asked of
+each check *can this fail at all* — which is the question this document was
+opened to ask. Two migrations that had never run. A `db-audit` with no
+`process.exit` on its findings. An `accent-sweep` that read any stray argument
+as a colour and swept one eighteenth of its subject. A suite that printed
+`FAIL` and exited 0 for its entire life. None of those were created on the
+20th; all four were found on it.
+
+**A CENSUS THAT CANNOT SAY THAT ABOUT ITSELF IS THE SAME FAULT IT EXISTS TO
+CATCH.** A queue that only ever shrinks is not a queue that is being worked —
+it is a queue nobody is measuring against the product. The number going up is
+the instrument working, and it is written here in plain words so that the next
+person reading `56 → 60` finds an explanation instead of an alarm.
+
+---
+
+## The number — SUPERSEDED 2026-09-21, kept because the old shape is the lesson
 
 | | |
 |---|---|

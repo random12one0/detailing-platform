@@ -441,7 +441,7 @@ Open a long file only when the work touches its subject.
 | `DECISIONS.md` | Every judgment call and why. **Start at its index** — it is 186,000 words |
 | `docs/VERIFIED.md` | What has been proven, when, and at which commit |
 | `docs/gotchas.md` | How measurements lie |
-| `docs/silences.md` | **Which checks can tell a pass from a did-not-run, and which cannot.** 33 checks censused: 21 are graded by `receipt.mjs`, 7 are gates that write no receipt and print no subject count, 5 write receipts whose four counts cannot disagree. Read it before trusting any check's silence — and it says which entries were proved by running them and which were only read |
+| `docs/silences.md` | **Which checks can tell a pass from a did-not-run, and which cannot.** **RECOUNTED 2026-09-21 — start at "THE CENSUS RECOUNTED", not at the old table under it.** 28 of 76 scripts now write a receipt `receipt.mjs` grades, all 28 carry a canary, 21 carry a `--break=` sabotage switch; section A's 7 ungraded gates and section B's 5 hollow receipts are **all closed**, and every receipt now records the commit it started on as well as the one it finished on. **The old numbers — 33, 21, 7, 5 — are kept and marked rather than corrected, because the reversal is the load-bearing part.** It also carries the night's honest headline: the open count went **UP, 56 → 60**, because four already-shipped faults became visible for the first time. Read it before trusting any check's silence — and it says which entries were proved by running them and which were only read |
 | `docs/screen-rules.md` | Screen-level design rulings |
 | `docs/tenant-site-kit.md` | The brief for building a client's own website |
 
