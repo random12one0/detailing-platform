@@ -684,6 +684,27 @@ const KNOWN_ENGLISH = new Map([]);
 // page is the customer's (`lib/i18n.js`), everything else is the dashboard's
 // (`lib/appI18n.js`). Using one catalogue for both would score the booking
 // page against strings it never renders.
+// **THE SURFACES A SPANISH RUN MUST POSITIVELY CERTIFY — 2026-09-20, ROADMAP
+// 14.15.** Everything below this line is a check that can only FAIL. It says
+// nothing when a surface is correctly Spanish, and it says nothing when a
+// surface holds no catalogue phrase at all — and those two silences are
+// identical in the log. So no run has ever ASSERTED that the customer's half
+// renders Spanish; runs have only failed to assert that it does not.
+//
+// That gap matters most on exactly these five, because they are the surfaces
+// a person who is not our customer yet sees first, and because the customer
+// scope is a DIFFERENT key: `dp.lang` for the booking page and the way in,
+// `dp.lang.app` for the dashboard. `speakSpanish()` sets both — but "sets the
+// key" and "the screen came out Spanish" are two claims, and only one of them
+// has ever been checked.
+//
+// The four marketing pages are deliberately absent: they import no translation
+// scope and contain zero `t()` calls, so there is nothing to certify. That is
+// `ENGLISH_ONLY`, measured rather than assumed.
+const LANG_CERTIFY = ["book · step 1", "the way in", "the way in · new account",
+  "the way in · reset", "the way in · parked"];
+const LANG_SEEN = new Map();
+
 const langCheck = (label, sig) => {
   if (ENGLISH_ONLY.has(label)) return;
   const cat = label.startsWith("book") ? BOOK_ES : APP_ES;
@@ -693,6 +714,7 @@ const langCheck = (label, sig) => {
     if (sig.includes(v)) es++;
     else if (sig.includes(k)) en++;
   }
+  if (LANG_ES && LANG_CERTIFY.includes(label)) LANG_SEEN.set(label, { es, en });
   // A surface with nothing the catalogue knows either way says nothing about
   // the language, and must not be turned into a finding: a QR plate and a
   // month grid are mostly not words.
@@ -3441,6 +3463,42 @@ CANARY RUN (${GUIDE_CANARY ? "guide walks cut short" : `the tour cut short at ${
       // An extra surface is not a bug; an UNREVIEWED extra surface is. It has to
       // be added to the expectation deliberately, by somebody who looked at it.
       for (const l of extra) console.log(`  NOT EXPECTED    ${l}   (new? --write-expected, then read the diff)`);
+    }
+  }
+}
+
+// 2b-ii · **DID THE CUSTOMER'S HALF ACTUALLY COME OUT IN SPANISH?** — 2026-09-20,
+// ROADMAP 14.15. Only runs under `LANG_APP=es`, and it is a POSITIVE
+// assertion: every surface in `LANG_CERTIFY` must be seen, and must hold more
+// translated phrases than English ones. A surface that was never reached is a
+// finding, not an absence; a surface the catalogue recognised nothing on is a
+// finding too, because "no Spanish and no English" is exactly what a page
+// rendering neither looks like, and until now it passed in silence.
+if (LANG_ES) {
+  console.log("");
+  // **THE HOOK THAT BREAKS IT.** `SWEEP_LANG_CANARY=1` forgets one certified
+  // surface, which is the exact shape of a surface the run never reached. The
+  // block below must call that NOT CERTIFIED and raise a finding — if it
+  // prints five SPANISH lines with the canary set, it is reporting the list
+  // rather than the measurement, which is the failure this whole block was
+  // written to stop one level down.
+  if (process.env.SWEEP_LANG_CANARY === "1") LANG_SEEN.delete(LANG_CERTIFY[0]);
+  for (const label of LANG_CERTIFY) {
+    const seen = LANG_SEEN.get(label);
+    if (!seen) {
+      console.log(`lang · ${label.padEnd(24)} NOT CERTIFIED — this surface was never reached, so this run `
+        + `says nothing about whether the customer's half speaks Spanish`);
+      found++;
+    } else if (seen.es === 0 && seen.en === 0) {
+      console.log(`lang · ${label.padEnd(24)} NOT CERTIFIED — the catalogue recognised nothing on it `
+        + `(0 translated, 0 English). A page rendering neither looks exactly like this, and it used to pass`);
+      found++;
+    } else if (seen.es > seen.en) {
+      console.log(`lang · ${label.padEnd(24)} SPANISH — ${seen.es} translated phrase(s) against ${seen.en} English`);
+    } else {
+      console.log(`lang · ${label.padEnd(24)} NOT SPANISH — ${seen.es} translated against ${seen.en} English. `
+        + `\`dp.lang\` is the customer's key and it was set; the screen did not follow`);
+      found++;
     }
   }
 }
