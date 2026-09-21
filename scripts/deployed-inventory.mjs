@@ -389,7 +389,14 @@ const { path: receiptPath } = writeReceipt({
   expected_targets: dirs.length,
   discovered_targets: dirs.length,
   attempted_targets: dirs.length,
-  completed_targets: dirs.length,
+  // **COMPLETED IS WHAT WAS ACTUALLY COMPARED, NOT WHAT WAS WALKED PAST —
+  // 2026-09-21, docs/silences.md section B.** All four of these used to be
+  // `dirs.length`, so they were four copies of one variable and the receipt's
+  // own rule that they must AGREE could never fire. A function that is NOT
+  // DEPLOYED, UNREADABLE or UNJUDGEABLE is walked but never compared, and it
+  // now shows up as a gap between `attempted` and `completed` rather than
+  // vanishing into a count that follows the data.
+  completed_targets: judged.length,
   skipped_targets: 0,
   assertions_executed: judged.length,
   min_assertions: 30,
