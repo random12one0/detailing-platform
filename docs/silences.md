@@ -55,6 +55,12 @@ have to re-derive it.
 than themselves. The remaining 12 are graded by whoever reads the console, and
 the console is where a silence lives.
 
+**AND THE TABLE'S FIRST ROW IS ITS OWN BLIND SPOT — 2026-09-21.** Every number
+above is a count of `scripts/`. **`tests/` was never censused**, and it holds
+**74 more files**, 67 of them hand-rolled suites that set their own exit code.
+One of them had this file's exact fault for its entire life. See "THE CENSUS
+NEVER LOOKED IN `tests/`" below.
+
 ---
 
 ## Why a receipt is most of the answer
@@ -1036,6 +1042,51 @@ grant with no policy reads as safe and is one policy away from not being.
    that do — making the comment true and the lock double?
 2. Should `db-audit` check the GRANT as well as the policy, so the difference
    between those two groups stops being invisible to it?
+
+## THE CENSUS NEVER LOOKED IN `tests/`, AND A SUITE THERE PRINTED `FAIL` AND EXITED 0 FOR ITS WHOLE LIFE — 2026-09-21
+
+**The number at the top of this file is 33, and it is a count of `scripts/`.**
+That was never stated as a scope, so it read as a count of the checks in this
+repo. It is not. `tests/` holds **74 more files**, and `tests/admin-insight.test.mjs`
+had this document's subject in its purest form.
+
+**57 checks in nine sections, and not one of them could turn the run red.**
+`check()` counted a failure, printed `FAIL`, and the file ended. There was no
+`process.exit` on the count. Under `node --test tests/*.test.mjs` **a file that
+exits 0 is a pass**, so all 57 were decoration — the console said `FAIL`, the
+battery said green, and both were telling the truth about different things.
+
+**Measured, not suspected.** A copy of the file with one deliberately false
+check appended printed `FAIL  CANARY` and exited **0**.
+
+**WHAT IT WAS GUARDING MATTERS, WHICH IS WHY THIS IS NOT A FOOTNOTE.**
+Section 9 is the privacy line from `docs/platform-admin-audit-2026-09-06.md`
+§5 — **the aggregate is his, the individual customer is theirs.** It reads
+`app/src/lib/adminInsight.js` as text and asserts the module never touches
+`customer_name`, `customer_phone`, `customer_email` or `customer_address`.
+That promise is made to visitors on the disclosure page. For the whole life of
+the file, a change that broke it would have printed `FAIL` into a green run.
+
+Fixed by the other session in `c99b2bb`, two lines: `process.exit(failed ? 1 : 0)`.
+
+### ONE FILE, NOT A CLASS — AND THAT WAS CHECKED RATHER THAN HOPED
+
+7 of the 74 use `node:test`, where the framework sets the exit code. The other
+**67 are hand-rolled and each must set its own.** All 67 were read. **Every one
+of them now has a failure-driven exit**, so `admin-insight` was the only
+instance and there is no cleanup queued behind this entry.
+
+**THE FIRST ANSWER WAS FOUR FILES AND IT WAS WRONG, BY THIS FILE'S OWN
+FAVOURITE MISTAKE.** A grep for `process.exit(...fail...)` reported
+`deploy-freshness`, `em-dash`, `email-brand` and `money-format` as having no
+failure-driven exit. Read, all four set **`process.exitCode = 1` inside the
+check helper** — correct, and spelled differently. **A search for a spelling
+instead of a behaviour**, which is `docs/gotchas.md` § *"A thing assembled at
+the point of use cannot be found by searching for its written form"* — hit
+while writing the census entry about exactly that trap. The four were cleared
+by reading them, the way the group A table above was.
+
+---
 
 ## THE SILENCE NO CHECK IN THIS FILE CAN COVER — added 2026-09-20
 
