@@ -18,6 +18,7 @@ import { useParams } from "react-router-dom";
 import { CalendarClock, Check, CreditCard, Phone, X } from "lucide-react";
 import { api, icsUrl, slotsForType } from "../lib/api.js";
 import { money, phone, time12 } from "../lib/format.js";
+import { adjustmentLabel } from "./adjustmentLabel.js";
 import { BookingBusinessProvider, useBookingBusiness } from "./BookingBusinessContext.jsx";
 import "./booking.css";
 
@@ -509,7 +510,7 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
                 month's receipt into a blank line. */}
             {(itemised ? adjustments : []).map((adj, i) => (
               <div className="line dim" key={`x${i}`}>
-                <span>{adj.label}</span>
+                <span>{adjustmentLabel(adj)}</span>
                 <span className="bk-price">{money(adj.amount)}</span>
               </div>
             ))}

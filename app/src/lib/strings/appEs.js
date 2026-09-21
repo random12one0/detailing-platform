@@ -1181,6 +1181,17 @@ export const appEs = {
   "A customer who types {code} gets {off}.":
     "Un cliente que escribe {code} recibe {off}.",
   "{n}% off": "{n}% de descuento",
+  // ROADMAP 2.1c — the words `_shared/pricing.ts` used to bake into an
+  // adjustment line's English label, now rebuilt by `lib/adjustmentLabel.js`
+  // from the line's `parts`. `{n}% off` above is the third of them and already
+  // existed. The plan's NAME, the vehicle SIZE and the MODEL beside these are
+  // the detailer's and the customer's own words and are never translated.
+  // `{ord}` arrives already spelled for the language — "2nd" or "2.º" — because
+  // `tests/spanish.test.mjs` requires both sides of a pair to carry the same
+  // placeholders, so the ordinal cannot be built inside the template.
+  "plan rate": "precio del plan",
+  "included": "incluido",
+  "{ord} vehicle": "{ord} vehículo",
   "{amount} off": "{amount} de descuento",
   "{used} of {limit} used": "{used} de {limit} usados",
   "used {n} times": "usado {n} veces",

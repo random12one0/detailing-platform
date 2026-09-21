@@ -567,6 +567,33 @@ the wrong service, and never book a job we cannot reach.
   anyway. Hand it to whoever holds `supabase/` next.
   *Split from A1 P0-01, A2 2.3*
 
+  **BUILT 2026-09-21, TOGETHER WITH 2.1c, AND NOT TICKED — NOTHING HAS BEEN
+  PRESSED IN A BROWSER.** The demo tenant was held by another session for the
+  multi-tenant isolation check, which writes to it, so this round had no
+  browser and no tenant by instruction. Proved by unit test only. What that
+  cannot show is listed under "WAITING ON A PRESS" in 2.1c below; both items
+  stay open until those are pressed.
+
+  **THE FIELD.** `_shared/pricing.ts` — every adjustment line now carries
+  `source: "vehicle" | "rule" | "plan"`, and the page filters on it instead of
+  guessing from `vehicle_count === 1 && !plan_name`. **It is called `source`
+  and not `kind` on purpose:** `emailTemplates.ts` already builds rows with a
+  `kind` of "discount" meaning *which way the money goes*, and a second `kind`
+  meaning *where the line came from* would collide in the one file that reads
+  both.
+  **Additive, so nothing stored breaks.** `label` is unchanged and stays — it
+  is snapshotted onto the booking as `price_adjustments` and read by the
+  receipt, the invoice, every email, the dashboard and the manage page.
+
+  **THE FALLBACK IS THE PART A LATER SESSION MUST NOT DELETE YET.**
+  `BookingPage.jsx` asks whether the lines are tagged at all; untagged, it
+  uses the OLD blunt guard unchanged. That is not caution, it is the deploy
+  freeze: the **deployed** `calculate-booking` still answers with
+  `{ label, amount }`, so a strict `source === "rule"` filter would today
+  blank the surcharge line that currently works — a regression shipped in the
+  name of a fix. It removes itself once the function is published;
+  `deployed-inventory.mjs` is what says when.
+
 - [ ] **2.1b — The quote cannot price a day until a TIME is also picked, and
   `calculate-booking`'s own header says otherwise. Found 2026-09-21 answering
   a question about 2.1; not a fault, and nobody is asking for it to change
@@ -625,7 +652,55 @@ the wrong service, and never book a job we cannot reach.
   **Done when:** a Spanish booking with a plan, and one with two cars, show
   those lines in Spanish on the review step, and
   `node scripts/i18n-survey.mjs` is clean for them.
-  **`supabase/` — not this session's to touch.** Recorded, not attempted.
+
+  **BUILT 2026-09-21 WITH 2.1a — ONE FIELD, ONE JOB, AS SCOPED. NOT TICKED.**
+  Each line now carries `parts` — the same facts as VALUES instead of as a
+  finished English sentence — and `app/src/book/adjustmentLabel.js` rebuilds
+  the displayed name through `t()`. Wired into `StepReview.jsx` and
+  `ManageBookingPage.jsx`, the two customer-facing renderers.
+  **A rule line gets no `parts`, deliberately.** "Weekend rate" is the
+  detailer's own typed text and is printed as written, like a service name.
+  Giving it parts would invite a later session to translate it.
+  **English is byte-identical.** `"2nd vehicle · Large · Ford F-150"` and
+  `"Member rate · 10% off"` render exactly as before, so the page and the
+  emailed receipt cannot disagree about the same booking.
+
+  **THE ORDINAL IS SPELLED BY THE CALLER, AND THAT SHAPE WAS FORCED BY AN
+  EXISTING CHECK.** `tests/spanish.test.mjs` compares the PLACEHOLDER SETS of
+  every English/Spanish pair, so a template cannot read `{ord} vehicle` in one
+  language and `Vehículo {n}` in the other. Passing both languages the same
+  `{ord}`, already spelled ("2nd" / "2.º"), is the one shape that satisfies
+  that check and leaves English untouched. Three Spanish keys added in the
+  same edit: `plan rate`, `included`, `{ord} vehicle`.
+
+  **THE COMPOSER MOVED FROM `lib/` TO `book/` BECAUSE THE GUARD COULD NOT SEE
+  IT THERE — and this was measured, not assumed.** `spanish.test.mjs` walks
+  `app/src/book` plus two named files; a translating file in `app/src/lib`
+  is outside that set. Removing the three keys while it sat in `lib/` produced
+  **no failure at all**. After the move the same removal fails loudly, naming
+  all four strings. *Proved by breaking it deliberately and restoring.*
+
+  **WAITING ON A PRESS — the specific things a unit test cannot show, and the
+  reason neither box is ticked:**
+  1. The surcharge line actually appearing on the date step of a **plan**
+     booking (the $60 → $85 case) and of a **two-car** booking.
+  2. The review step rendering `Member rate · 10% de descuento` in Spanish,
+     and `2.º vehículo · Large` on a two-car booking.
+  3. That nothing regressed for an ordinary one-car booking against the
+     **deployed** function, which is the fallback branch above.
+  4. `node scripts/i18n-survey.mjs`, this item's own done-when, which needs a
+     dev server.
+  The two-car half also needs a tenant with `max_vehicles_per_booking` above
+  1; **`demo-detail` is pinned to 1 on purpose and must not be changed.**
+
+  **DEPLOYED-INVENTORY WILL GROW BY SEVEN, NOT ONE — a correction worth
+  having.** `_shared/pricing.ts` is a shared module, so every function that
+  imports it now differs from what is deployed: `calculate-booking`,
+  `create-booking`, `preview-emails`, `reschedule-booking`, `send-invoice`,
+  `update-booking` and `validate-promo-code`. That is correct and expected.
+  **Nothing was deployed and nothing should be deployed to clear it.**
+  *(Counted from the imports, not from running the script — it reaches
+  credentials, which this session does not use. Reported, not run.)*
 
 - [x] **DONE 2026-09-20 — 2.2 The summary lines do not add up to the total.**
   **Confirmed mechanism:** `supabase/functions/_shared/pricing.ts:127-128`

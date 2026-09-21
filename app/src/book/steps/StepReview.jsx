@@ -8,6 +8,7 @@
 import { getLocale, intlLocale, t } from "../../lib/i18n.js";
 import { useLocale } from "../../hooks/useLocale.js";
 import { duration, money, phone, time12 } from "../../lib/format.js";
+import { adjustmentLabel } from "../adjustmentLabel.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 import { sizeText } from "./StepVehicle.jsx";
 
@@ -245,9 +246,15 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
         {/* Each surcharge on its own line under the detailer’s own name for
             it. A total that moved when the customer picked a Saturday has to
             say WHY on the page that asks them to confirm it. */}
+        {/* ROADMAP 2.1c — `adjustmentLabel` rebuilds the name from the line's
+            own `parts` so a Spanish reader gets Spanish. It falls back to
+            `a.label` for a rule line, whose words are the detailer's, and for
+            any line with no parts — which is every line the currently
+            DEPLOYED function returns, and every booking stored before this
+            change. Both keep reading exactly as they do today. */}
         {!legs && (quote?.adjustments ?? []).map((a, i) => (
           <div className="line dim" key={i}>
-            <span>{a.label}</span>
+            <span>{adjustmentLabel(a)}</span>
             <span className="bk-price">{money(a.amount)}</span>
           </div>
         ))}

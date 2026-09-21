@@ -350,6 +350,28 @@ function BookingFlow({ notFound = null }) {
   // drift: the same call answers both. It is handed to the step so the sentence
   // can sit NEXT TO THE MISSING FIELD rather than in the footer — a tooltip
   // would be no use on a phone, which is where this flow is used.
+  // ROADMAP 2.1a — WHICH MONEY LINES THE DATE STEP MAY SHOW.
+  //
+  // **THE FALLBACK IS NOT BELT-AND-BRACES, IT IS THE ONLY THING KEEPING THIS
+  // WORKING TODAY.** `source` is added by `_shared/pricing.ts` in this
+  // checkout, and edge functions are under the deploy freeze — publishing is
+  // Andrew's. So until `calculate-booking` is deployed, the LIVE function
+  // answers with untagged `{ label, amount }` lines, and a strict
+  // `source === "rule"` filter would match nothing and blank the surcharge
+  // line that works on the demo right now. That would be a regression shipped
+  // in the name of a fix, on the exact screen this item just repaired.
+  //
+  // So: tagged answer → ask the line what it is. Untagged answer → the old
+  // blunt guard, unchanged, with its old behaviour including its own gap.
+  // **It removes itself:** once the function is deployed every line carries a
+  // `source` and the second branch stops being reachable. Delete it then, and
+  // not before — `deployed-inventory.mjs` is what says when.
+  const adjustmentLines = quote?.adjustments ?? [];
+  const linesAreTagged = adjustmentLines.some((a) => a && a.source);
+  const surchargeLines = linesAreTagged
+    ? adjustmentLines.filter((a) => a.source === "rule")
+    : (quote && quote.vehicle_count === 1 && !quote.plan_name ? adjustmentLines : []);
+
   const stepBlocks = coreBlockers(STEPS[step], { form, settings, quote, quoting });
   const canAdvance = stepBlocks.length === 0;
   // **ROADMAP 2.6 — A DISABLED BUTTON CANNOT BE PRESSED, SO IT CANNOT BE
@@ -727,18 +749,19 @@ function BookingFlow({ notFound = null }) {
             // from $65 to $95 with the words "Weekend rate" appearing for the
             // first time two steps later, on the receipt.
             //
-            // **THE GUARD IS WHAT MAKES THIS HONEST, and it is not tidiness.**
-            // `quote.adjustments` is three kinds of line glued together by
-            // `_shared/pricing.ts` — the extra cars, the day-and-time rules,
-            // and the plan — and only the middle kind was caused by anything
-            // on this step. Slicing by POSITION would couple this file to the
-            // order that array happens to be built in, which is the class of
-            // check CLAUDE.md § (k) is about. So the list is passed only when
-            // the other two kinds provably cannot be in it: one vehicle, no
-            // plan. A split or plan booking shows nothing here, which is
-            // exactly what it showed before.
-            surcharges={quote && quote.vehicle_count === 1 && !quote.plan_name
-              ? (quote.adjustments ?? []) : []}
+            // **ROADMAP 2.1a — THE LINE NOW SAYS WHICH KIND IT IS, so this
+            // asks it instead of guessing.** `quote.adjustments` is three
+            // kinds glued together by `_shared/pricing.ts` — the extra cars,
+            // the day-and-time rules, and the plan — and only the middle kind
+            // was caused by anything on this step. Slicing by POSITION was
+            // always refused here, correctly, because it welds this file to
+            // the order that array happens to be built in.
+            // The old guard was `vehicle_count === 1 && !plan_name`: right,
+            // but blunt, so a plan booking or a two-car booking showed
+            // NOTHING. Measured 2026-09-21 with the Member rate plan
+            // attached — picking a Saturday took the bar $60 → $85 with
+            // nothing on screen naming the $25.
+            surcharges={surchargeLines}
             blocks={stepBlocks}
             tried={tried}
           />

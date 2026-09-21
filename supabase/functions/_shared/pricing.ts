@@ -65,6 +65,70 @@ export function sizeAdjustmentFor(service: ServiceRow, vehicleSize: string | nul
 // than clever, and there is no ordinal-suffix arithmetic to get wrong at 11th.
 const ORDINALS = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th"];
 
+// ─────────────────────────────────────────────────────────────────────────────
+// ROADMAP 2.1a + 2.1c — A MONEY LINE SAYS WHAT KIND IT IS AND CARRIES ITS WORDS
+// AS PARTS. 2026-09-21.
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// `adjustmentLines` glues three unrelated things into one array — the extra
+// cars, the day-and-time price rules, and the plan — and until now a line was
+// `{ label, amount }` and nothing else. Two defects fell out of that, and they
+// are the same missing field seen from two sides:
+//
+//   **2.1a** The booking page must show the day-and-time surcharges on the
+//   date step and NOT the other two, because only those were caused by
+//   anything on that step. With no way to tell them apart it guessed from
+//   `vehicle_count === 1 && !plan_name` — correct but blunt, so a plan booking
+//   or a two-car booking showed NOTHING. Measured: with the Member rate plan
+//   attached, picking a Saturday took the bar $60 → $85 with nothing on screen
+//   explaining the $25. Slicing by POSITION was rejected on purpose: it welds
+//   the page to the order this function happens to build the array in.
+//
+//   **2.1c** Two of the three kinds compose their label from ENGLISH written
+//   here — "plan rate", "included", "{n}% off", "2nd vehicle" — where `t()`
+//   does not exist, so a Spanish receipt reads them in English.
+//
+// **`source` IS NOT CALLED `kind`, AND THAT IS NOT A STYLE CHOICE.**
+// `emailTemplates.ts` already builds its own row objects with a `kind` of
+// "discount" or a charge, meaning *which way the money goes*. A second `kind`
+// meaning *where the line came from* would collide in the one file that reads
+// both.
+//
+// **`label` IS UNCHANGED AND STAYS.** It is snapshotted onto the booking as
+// `price_adjustments` and read by the receipt, the invoice, every email, the
+// dashboard and the manage page. This is additive: old stored rows keep
+// rendering, and a caller that does not know about `source` behaves exactly as
+// it did. `parts` is the same words the label already contains, handed over
+// separately so a caller that CAN translate does not have to parse English
+// back out of a finished sentence.
+//
+// **A RULE LINE GETS NO `parts`, ON PURPOSE.** Its label is the DETAILER'S own
+// text out of `business_settings.price_rules` — their data, in their words,
+// printed as written and never translated. That was established 2026-09-21:
+// the settings screen that collects it translates only the placeholder
+// ("e.g. Weekend rate" → "ej. Tarifa de fin de semana") and leaves the typed
+// answer alone, exactly as a service name or a travel-zone name is left alone.
+// Giving a rule line `parts` would invite somebody to translate it.
+export type AdjustmentSource = "vehicle" | "rule" | "plan";
+
+/** What a plan does to the price, as a value rather than as an English phrase. */
+export type PlanBenefit = "included" | "plan_rate" | "percent_off";
+
+export type AdjustmentParts =
+  /** `ordinal` is 1-based over the EXTRA cars, so the second car is 2. */
+  | { of: "vehicle"; ordinal: number; size: string; model?: string }
+  | { of: "plan"; planName: string; benefit: PlanBenefit; percent?: number };
+
+export interface AdjustmentLine {
+  /** English, finished, and exactly what it has always been. The fallback for
+   *  every caller that cannot or need not translate. */
+  label: string;
+  amount: number;
+  source: AdjustmentSource;
+  /** Absent on a rule line. See the block above for why. */
+  parts?: AdjustmentParts;
+}
+
 export const vehicleSizeFee = (services: ServiceRow[], size: string): number =>
   services.reduce((s, sv) => s + sizeAdjustmentFor(sv, size).price, 0);
 
@@ -292,20 +356,27 @@ export function planLineFor(
   plan: PlanInput | null | undefined,
   serviceCost: number,
   jobCost: number,
-): { label: string; amount: number } | null {
+): AdjustmentLine | null {
   if (!plan) return null;
   const amount = Number(plan.priceAmount) || 0;
   let off: number;
   let what: string;
+  // ROADMAP 2.1c — `benefit` is the same decision as `what`, taken once and
+  // carried as a VALUE. `what` stays because it builds the English `label`
+  // every stored booking and every email already renders.
+  let benefit: PlanBenefit;
   if (plan.priceKind === "percent_off") {
     off = Math.round(jobCost * amount / 100);
     what = `${amount}% off`;
+    benefit = "percent_off";
   } else if (plan.priceKind === "per_visit") {
     off = Math.max(0, serviceCost - amount);
     what = "plan rate";
+    benefit = "plan_rate";
   } else {
     off = serviceCost;
     what = "included";
+    benefit = "included";
   }
   // Never past the whole job, and never a line worth nothing — a $0 row on a
   // receipt is a question the customer has to ask somebody.
@@ -314,7 +385,19 @@ export function planLineFor(
   // Same join, same ruling: a plan's NAME against what it covers is a label
   // and its value, not a sentence. Found by grepping template literals rather
   // than strings, alongside the vehicle line below.
-  return { label: `${plan.name} · ${what}`, amount: -off };
+  return {
+    label: `${plan.name} · ${what}`,
+    amount: -off,
+    source: "plan",
+    // The plan's NAME is the detailer's own data and is never translated; the
+    // benefit beside it is ours and always was, which is the whole of 2.1c.
+    parts: {
+      of: "plan",
+      planName: plan.name,
+      benefit,
+      ...(benefit === "percent_off" ? { percent: amount } : {}),
+    },
+  };
 }
 
 export interface QuoteInput {
@@ -357,7 +440,7 @@ export interface Quote {
   sizeAdd: number;           // summed per-service vehicle-size surcharge
   addOnsTotal: number;
   travelFee: number;         // 2.8c — mobile travel, now actually charged
-  adjustmentLines: { label: string; amount: number }[];  // 2.8c, resolved to money
+  adjustmentLines: AdjustmentLine[];  // 2.8c, resolved to money
   adjustmentsTotal: number;
   subtotalBase: number;      // base + size + add-ons + travel + surcharges
   siteDiscount: number;
@@ -488,6 +571,16 @@ export function computeQuote(inp: QuoteInput): Quote {
     label: `${ORDINALS[i + 1] ?? `#${i + 2}`} vehicle · ${v.label}`
       + (v.model ? ` · ${v.model}` : ""),
     amount: basePrice + vehicleSizeFee(inp.services, v.key),
+    source: "vehicle" as const,
+    // The same three values the label above is built from. `ordinal` is the
+    // NUMBER, not "2nd": English ordinals do not survive translation, and a
+    // page that has the number can spell it however its own language does.
+    parts: {
+      of: "vehicle" as const,
+      ordinal: i + 2,
+      size: v.label,
+      ...(v.model ? { model: v.model } : {}),
+    },
   }));
   const extrasTotal = extraLines.reduce((s, l) => s + l.amount, 0);
 
@@ -500,11 +593,13 @@ export function computeQuote(inp: QuoteInput): Quote {
   // Percentages are of everything the job costs before discounts, which is
   // the only reading that does not depend on the order two rules happen to
   // sit in.
+  // No `parts`: `r.label` is the detailer's own words and is never translated.
   const ruleLines = (inp.adjustments ?? []).map((r) => ({
     label: r.label,
     amount: r.is_percent
       ? Math.round(beforeAdjustments * (Number(r.amount) || 0) / 100)
       : Number(r.amount) || 0,
+    source: "rule" as const,
   })).filter((l) => l.amount !== 0);
   // ROADMAP 2.14 — THE PLAN RIDES `price_adjustments`, AND THAT IS THE WHOLE
   // INTEGRATION. It is a labelled amount snapshotted onto the booking, drawn
@@ -518,7 +613,11 @@ export function computeQuote(inp: QuoteInput): Quote {
   // `beforeAdjustments`, so they lead the list and stay out of the total
   // below. Counting them twice would double the price of the second car,
   // which is the shape of defect this file exists to prevent.
-  const adjustmentLines = [...extraLines, ...ruleLines];
+  // Annotated rather than inferred: without this the array's element type is
+  // the union of the two literal shapes above, and pushing the plan line below
+  // stops type-checking. Node strips these types rather than checking them, so
+  // nothing at test time would have told us.
+  const adjustmentLines: AdjustmentLine[] = [...extraLines, ...ruleLines];
   // ROADMAP 8.10 — A PLAN COVERS ONE CAR, NOT THE CARLOAD. The `serviceCost`
   // handed over is the FIRST vehicle's services alone, so "included" and a
   // per-visit rate settle one car and the second is paid for; a percentage
