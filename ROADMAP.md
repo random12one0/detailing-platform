@@ -4403,6 +4403,136 @@ rather than wording went to Andrew.
   displayed amount.
   *A1 P1-09*
 
+- [ ] **7.17 — THE RULE: an example site must not show a number the product
+  cannot produce.** Three classes of number on the five example sites are
+  claims the software cannot honour. **Found 2026-09-21 — the first class by
+  accident, while auditing 7.2; the other two by looking on purpose
+  afterwards.**
+
+  **THE RULE, AND IT IS THE PART WORTH MORE THAN THE PAGES.** `/ex1`…`/ex5`
+  exist to show a prospective detailer **what they would get**. So a figure on
+  one of those pages is **a claim about the software**, not decoration, and
+  **an example that promises a capability is worse than a missing one — it
+  sells a thing that is not there.** Before adding any number to an example
+  site, name the field or endpoint that would produce it for a real tenant. If
+  you cannot name one, the number does not go on the page.
+
+  **THE PROVENANCE MECHANISM FOR THIS ALREADY EXISTS AND NOBODY READ IT.**
+  `scripts/build-examples.mjs` records that *"every price on every one of
+  these pages carries a `data-from` attribute naming the endpoint that owns
+  it, which is the durable form of the same statement."* **It was right, and
+  it was already contradicting itself in writing:** the paragraph advertising
+  `$1.20 a mile` carried `data-from="travel_zones"`, and `travel_zones` is
+  `{key, name, fee}` — **a rate per mile cannot come out of it.** The
+  attribute that exists to name the owner of a number was sitting two words
+  above the number it disowned. **A census of all 27 distinct `data-from`
+  values is the cheapest form of this check and it has never been run.**
+
+  **CLASS 1 — A PER-MILE TRAVEL RATE. The product cannot compute one and,
+  by Andrew's ruling of 2026-09-20, never will.** `resolveTravel`
+  (`supabase/functions/_shared/pricing.ts`) accepts **only** a flat
+  `travel_fee` or a named zone's flat `fee`; the same file says **"NOT
+  DISTANCE"** in its own words and records that real distance pricing needs a
+  stored business location, *"and there isn't one"*. The ruling:
+  *"travel stays named, flat-fee zones — no distance pricing, the geocoding
+  and routing APIs cost money."*
+
+  | site | file | line | what it says | state |
+  |---|---|---|---|---|
+  | ex1 | `v-goldenhour.html` | 1128 | "$1.20 a mile past 12 miles" | **FIXED** |
+  | ex1 | `v-goldenhour.html` | 1286 | booking form option "Outside 12 miles — $1.20 a mile" | **FIXED** |
+  | ex1 | `v-goldenhour-prices.html` | 1336 | row headed **"Distance"**, "Past 12 miles, $1.20 a mile" | **FIXED** — heading and figure both |
+  | ex2 | `w-delgado.html` | 701 | "then $1.50 a mile" | **OPEN** — not granted |
+  | ex2 | `w-delgado.html` | 1095 | booking form option "25 to 40 miles — $1.50 a mile" | **OPEN** — not granted |
+  | ex3 | `x-ballantyne.html` | 851 | "$1.20 a mile" | **OPEN** — not granted |
+
+  **A MILEAGE SENTENCE IS NOT AUTOMATICALLY WRONG, AND THE DISTINCTION IS THE
+  USEFUL PART.** `get_public_business_profile` **does** return
+  `travel_radius_miles`, and nothing prices off it — it is descriptive. So
+  ex2's *"free inside 25 miles of central Phoenix"* is **producible** and
+  correct; only *"then $1.50 a mile"* is not. **The fault is a per-mile RATE,
+  never the word "miles".** Do not sweep the word.
+
+  **CLASS 2 — A REVIEW COUNT, AND AN AGGREGATE RATING.** **There is no
+  review-count column anywhere in the 92 migrations**, and there is **no
+  business-level rating**: `rating` is a **per-testimonial** star value the
+  detailer types in `app/src/screens/more/Reviews.jsx` (`BLANK = { author,
+  quote, rating: 5, source }`). `google_review_url` is **a link the product
+  stores and never reads** — nothing fetches anything from Google.
+
+  | site | file | line | what it says |
+  |---|---|---|---|
+  | ex1 | `v-goldenhour.html` | 1096, 1151 | "**4.9 · 312 reviews**", `data-from="the detailer's Google reviews"` |
+  | ex1 | `v-goldenhour.html` | 1075, 1364 | a standalone **4.9** headline rating |
+  | ex3 | `x-ballantyne.html` | 619 | "**5.0** from **65+** Google reviews" |
+  | ex3 | `x-ballantyne-prices.html` | 551 | "5.0 from 65+ Google reviews" |
+
+  **The `data-from` here names a source that does not exist as a source.**
+  *"The detailer's Google reviews"* is not an endpoint, a table or a field;
+  it is a sentence. **Left open, not fixed** — these are ex1 files this
+  session WAS granted, and they are deliberately not touched, because the
+  answer is a product question rather than a wording one: either the profile
+  gains a count and a rating a detailer can enter, or the example sites stop
+  showing aggregates. **That is Andrew's call, not a session's.**
+
+  **CLASS 3 — A DEPOSIT. It does not exist in this product at all.** Not a
+  column in any of the 92 migrations, not a line in `pricing.ts`,
+  `create-booking`, `calculate-booking` or `core.js`. **Zero occurrences.**
+
+  | site | file | line | what it says |
+  |---|---|---|---|
+  | ex5 | `z-tampabay.html` | 841 | "deposit holds the slot and comes off the bill" |
+  | ex5 | `z-tampabay.html` | 1015 | a receipt line "**Total, before the deposit**" |
+  | ex5 | `z-tampabay.html` | 1038–1039 | "The deposit — **$25** holds a slot and comes off the final bill. **It is not refundable.**" |
+  | ex5 | `z-tampabay.html` | 1052 | "the deposit follows the booking" |
+
+  **This is the worst of the three and it is not close.** The others misstate
+  a figure; this one describes **a money flow with a refund policy attached**
+  — taking a payment, holding a slot with it, netting it off a later bill —
+  and the booking system does none of it. A detailer who sells on that page
+  has promised to take a deposit the software cannot take.
+
+  **ONE MORE, SMALL, AND IT IS THE CHECK FAILING RATHER THAN THE PAGE:**
+  `x-ballantyne-prices.html:481` carries
+  `data-from="get_public_business_profile.addons"`. The real key is
+  **`add_ons`**. The number is fine; **its provenance is unverifiable because
+  the attribute is misspelt**, which is exactly what a census would catch and
+  no human reading will.
+
+  **ANYTHING ELSE? NO — and that is stated rather than implied.** Durations,
+  vehicle-size upcharges, add-on prices, package prices, service areas,
+  business hours, established year, plan terms and visit cadences were all
+  checked against the profile's own key list and **every one of them is
+  producible** (`duration_minutes`, `vehicle_size_adjustments`, `add_ons`,
+  `price`/`price_is_from`, `service_area`, `business_hours`,
+  `established_year`, `term_months`, `visits_per_period`, `cadence_count`).
+  **Three classes found, and no fourth.**
+
+  **Fix:** put the rule where a person meets it before building the next
+  example site — **`docs/tenant-site-kit.md` (the brief) and the header of
+  `scripts/build-examples.mjs`** — then clear the six open rows above.
+  **Neither of those two files was this session's to edit**, so the rule lives
+  here until somebody with that lane copies it across; **saying so is the
+  point, because a rule recorded only in the queue is a rule the next
+  site-builder will not meet.**
+  **Done when:** no example site states a figure whose producing field or
+  endpoint cannot be named, and the rule is in the tenant-site brief.
+
+  **A CHECK FOR THIS IS A REAL POSSIBILITY AND DOES NOT EXIST — said plainly
+  rather than implied.** Nothing in this repo reads `data-from` at all. The
+  cheap version is credential-free and is one filesystem pass: collect every
+  `data-from` value across `docs/tenant-sites/*.html`, and fail any that does
+  not resolve to a key `get_public_business_profile` actually returns, a real
+  edge function, or a real exported symbol — which alone would have caught
+  the `addons` misspelling and the *"the detailer's Google reviews"*
+  sentence-as-a-source. **It would NOT have caught any of the three classes
+  above**, because those numbers carry attributes that name real fields and
+  then state something the field cannot express, and that needs a human
+  asking *can this field produce this number?* **Do not build the cheap one
+  and report the class as covered.**
+  *Raised from 7.2's audit, 2026-09-21. Andrew's ruling of 09-20 applied, not
+  re-opened.*
+
 - [ ] **7.3 — Pricing page: the decision is below the photo, and savings look like a charge.**
   $499, $40 and $80 carry similar visual weight, so the saving reads as a third
   fee. "SAVE ON THE YEAR $80 a year" reads as if the yearly price is $80.

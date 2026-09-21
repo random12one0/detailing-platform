@@ -1332,9 +1332,16 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
         <div><dt>Condition</dt><dd data-from="get_public_business_profile.add_ons">
           Pet hair, heavy tar or a hard-used interior may need an add-on.
           Send three photos when you book and we price it then.</dd></div>
-        <div><dt>Distance</dt><dd data-from="get_public_business_profile.travel_zones">
-          North Seattle <b>$0</b>. Eastside <b>+$18</b>. Past 12 miles,
-          <b>$1.20 a mile</b>.</dd></div>
+        <!-- "Distance" WAS THE WRONG WORD FOR THE WRONG NUMBER — 2026-09-21.
+             The row said "Past 12 miles, $1.20 a mile". The product prices
+             travel as NAMED ZONES WITH A FLAT FEE and has no concept of
+             distance at all: `resolveTravel` reads a zone's `fee` or the flat
+             `travel_fee`, nothing else. So both the figure and the heading
+             are replaced — a row headed "Distance" teaches the reader the
+             wrong model even once its number is right. -->
+        <div><dt>Travel zone</dt><dd data-from="get_public_business_profile.travel_zones">
+          North Seattle <b>$0</b>. Eastside <b>+$18</b>. Everett and Tacoma
+          <b>+$45</b>.</dd></div>
       </dl>
       <p class="pboxend">All three are in the quote before you confirm.</p>
     </aside>

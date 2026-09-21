@@ -1125,8 +1125,19 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
         <span>Lake City</span><span>Shoreline</span><span>Bothell</span><span>Kenmore</span>
       </div>
     </div>
+    <!-- A NAMED ZONE WITH A FLAT FEE, BECAUSE THAT IS WHAT THE PRODUCT DOES.
+         This said "$1.20 a mile past 12 miles" until 2026-09-21. The software
+         cannot compute a per-mile charge and, by Andrew's ruling of 09-20, it
+         never will: `resolveTravel` in `supabase/functions/_shared/pricing.ts`
+         accepts only a flat `travel_fee` or a named zone's flat `fee`, and
+         that file says "NOT DISTANCE" in its own words — real distance pricing
+         needs a stored business location, and there isn't one.
+         **The `data-from` on this very paragraph already said so.**
+         `travel_zones` is `{key, name, fee}`. A rate per mile cannot come out
+         of it, and the attribute that exists to name the owner of a number was
+         sitting two words above the number it disowned. -->
     <p class="areanote" data-from="travel_zones">
-      Outside these? We still come. <b>$1.20 a mile</b> past 12 miles, added to
+      Outside these? We still come. <b>Everett and Tacoma are +$45</b>, added to
       your quote before you confirm &mdash; never after.
     </p>
   </section>
@@ -1283,7 +1294,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
             <select data-from="get_public_business_profile.travel_zones">
               <option>North Seattle &mdash; no travel charge</option>
               <option>Eastside &mdash; +$18</option>
-              <option>Outside 12 miles &mdash; $1.20 a mile</option>
+              <option>Everett &amp; Tacoma &mdash; +$45</option>
             </select></label>
         </div>
 
