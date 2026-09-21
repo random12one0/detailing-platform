@@ -1397,6 +1397,13 @@ export const appEs = {
   "Business name": "Nombre del negocio",
   "Call or text": "Llamar o mandar mensaje",
   "Cancel my subscription": "Cancelar mi suscripción",
+  // ROADMAP 7.7 — the customer export. Added in the same edit as the English,
+  // because this file is keyed on the English text and a missing key falls
+  // back to English with no error anywhere.
+  "Export my customers": "Exportar mis clientes",
+  "Building…": "Preparando…",
+  "Saved {name} — {count} people": "Guardado {name} — {count} personas",
+  "We could not build that file. Please try again.": "No pudimos crear ese archivo. Inténtalo de nuevo.",
   "Cancel the job": "Cancelar el trabajo",
   "Canceling frees the slot and keeps the job in your history. Removing takes it out of your records and your totals as well. It cannot be undone.":
     "Cancelar libera el horario y deja el trabajo en tu historial. Eliminar lo saca de tus registros y de tus totales también. No se puede deshacer.",

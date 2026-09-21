@@ -15,13 +15,13 @@
 // it. An export is the same shape of risk one step later: a file the owner
 // hands to someone who will not check it against the screen.
 
-const q = (v) => {
+export const q = (v) => {
   const s = String(v ?? "");
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 // Plain numbers, no "$": a currency symbol makes the column text in every
 // spreadsheet that opens this, and the point of the file is that it adds up.
-const amount = (n) => (Math.round(Number(n || 0) * 100) / 100).toFixed(2);
+export const amount = (n) => (Math.round(Number(n || 0) * 100) / 100).toFixed(2);
 
 // ROADMAP 8.19 — MILES IS A COLUMN AND IT IS NOT AN AMOUNT.
 //
@@ -117,7 +117,7 @@ export function accountantCsv(input) {
   ].join("\r\n") + "\r\n";
 }
 
-const slug = (s) => String(s ?? "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+export const slug = (s) => String(s ?? "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 // The business and the period live in the FILENAME rather than in a title row
 // above the header, because a title row is the thing that makes a CSV stop

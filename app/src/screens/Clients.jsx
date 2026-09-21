@@ -50,6 +50,10 @@ import BookingLink from "../components/BookingLink.jsx";
 import NewBookingModal from "../components/NewBookingModal.jsx";
 import { fetchBooking, withLocal, BOOKING_SELECT } from "../hooks/useBookings.js";
 import { dateLong, localDate, money, phone, todayLocal } from "../lib/format.js";
+// ROADMAP 7.7 — the file builder is in its own module with no DOM in it, so
+// `tests/customer-export.test.mjs` can assert what lands in the spreadsheet
+// without a browser. Same reason `accountant-export.js` is not inside Money.
+import { customersCsv, customersFilename } from "../lib/customer-export.js";
 // THE ARITHMETIC IS IN ITS OWN FILE so `tests/client-list.test.mjs` can import
 // it with no browser — the same reason `accountant-export.js` is separate from
 // Money. Three of the four decide something a person acts on: what the screen
@@ -318,6 +322,81 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
 
   const capped = !search.trim() && customers.length >= ROW_CAP;
 
+  // ── ROADMAP 7.7 — "YOU EXPORT THEM AND GO", MADE TRUE ──────────────────
+  // Andrew's ruling, `docs/MANAGER-CLOSE-2026-09-21.md` § 2. Three public
+  // pages have promised this for the whole life of the pricing page and the
+  // only download in the product was the accountant's jobs-and-expenses CSV.
+  //
+  // **IT DOES ITS OWN READ AND DELIBERATELY IGNORES `customers`.** That state
+  // is capped at `ROW_CAP` (200) and is re-queried through the search box, so
+  // exporting what the screen holds would hand a detailer with 400 customers
+  // half their list and a detailer mid-search their search results — with
+  // nothing anywhere saying so. `lib/customer-export.js` carries the full
+  // reasoning.
+  //
+  // **AND IT PAGES.** PostgREST caps a response at 1,000 rows, so a single
+  // `select("*")` is the same silent truncation one layer down: the 1,001st
+  // customer would simply not be in the file. `readAll` walks until a short
+  // page comes back.
+  //
+  // **NO NEW DATA PATH.** Same authenticated browser client as every other
+  // read on this screen, same `business_id` filter, no edge function and no
+  // service key — so it inherits the tenant policy rather than needing one of
+  // its own. `customers`, `bookings` and `expenses` are all RLS-enabled AND
+  // forced with `business_id in (select public.current_business_ids())`
+  // (migration `20260827000200`), and `scripts/tenant-matrix.mjs` § 3 proves
+  // a detailer cannot read another detailer's customers.
+  const [exporting, setExporting] = useState("");
+  const exportCustomers = async () => {
+    setExporting("going");
+    const readAll = async (build) => {
+      const out = [];
+      const SIZE = 1000;
+      for (let from = 0; ; from += SIZE) {
+        const r = await build().range(from, from + SIZE - 1);
+        if (r.error) throw new Error(r.error.message);
+        out.push(...(r.data ?? []));
+        if ((r.data?.length ?? 0) < SIZE) return out;
+      }
+    };
+    try {
+      const [all, done] = await Promise.all([
+        readAll(() => supabase.from("customers").select("*")
+          .eq("business_id", business.id).order("name", { ascending: true })),
+        readAll(() => supabase.from("bookings")
+          .select("customer_phone, end_at, final_amount, total_price")
+          .eq("business_id", business.id).is("deleted_at", null)
+          .eq("status", "completed").lte("end_at", new Date().toISOString())),
+      ]);
+      const input = {
+        customers: all,
+        totals: summarise(done, business.timezone),
+        timezone: business.timezone,
+      };
+      const name = customersFilename(business.name);
+      const file = new File([customersCsv(input)], name, { type: "text/csv" });
+      const url = URL.createObjectURL(file);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 30_000);
+      // THE COUNT IS THE POINT OF THE MESSAGE, not the filename. A download on
+      // a desktop is invisible, and "it worked" about a file nobody can see is
+      // the same as silence — the number is what a detailer can check against
+      // the count at the top of this screen.
+      setExporting(t("Saved {name} — {count} people", { name, count: all.length }));
+    } catch (e) {
+      // A FAILED READ MUST NOT BECOME AN EMPTY FILE, and this is the worst
+      // place on the screen for it: a spreadsheet with a header row and
+      // nothing under it is a detailer concluding they have no customers.
+      // Nothing is written at all unless both reads came back.
+      setExporting(e.message || t("We could not build that file. Please try again."));
+    }
+  };
+
   const list = (
     <>
       {/* A masthead, like every other tab. This screen went straight into a
@@ -337,6 +416,21 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
                   ? t("1 person")
                   : t("{count} people", { count: customers.length })}
         </p>
+        {/* ROADMAP 7.7. Hidden until there is something to export, because a
+            button that hands back an empty file is worse than no button.
+            It sits under the count on purpose: the count is the number the
+            file should match, and they are read together. */}
+        {customers.length > 0 && (
+          <p style={{ margin: "10px 0 0" }}>
+            <button className="btn sm" type="button" disabled={exporting === "going"}
+              onClick={exportCustomers}>
+              {exporting === "going" ? t("Building…") : t("Export my customers")}
+            </button>
+            {exporting && exporting !== "going" && (
+              <span className="quiet" style={{ marginLeft: 10 }}>{exporting}</span>
+            )}
+          </p>
+        )}
       </div>
 
       {/* See `answers` above for why this is here and why it is two cells.
