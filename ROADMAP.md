@@ -4242,9 +4242,30 @@ the dashboard or back office at phone width at all.
   row in the list — the alternative (inline, beside the figure) risked the
   same narrow-width overflow 9.11 just cost an evening on, with a bare
   dollar figure and a word competing for one line in a fixed column.
-  **Not done:** date and phone left unlabeled, on the self-describing
-  reading above — if that reading is wrong, this item is not fully closed
-  by this build.
+  **Not done, and the reasoning for it is recorded here rather than left
+  implicit, so the next reader can check it rather than re-decide it blind.**
+  Date and phone stay unlabeled. This is a judgement call, made in this
+  session and accepted by Andrew rather than independently re-derived by
+  him — recorded as that, not as a settled fact:
+  * **The date already reads as a date without help.** `agoWords()` never
+    returns a bare number — "3 weeks ago," "Yesterday," "2 months ago" — and
+    every one of its outputs is grammatically a sentence about time. A
+    reader does not need a "Last visit:" prefix to know what "3 weeks ago"
+    describes; the words themselves carry the fact. Test: read the phrase
+    with no other context on the row — if it still names what it is about,
+    it does not need a label. It does.
+  * **The phone number reads as one by its shape**, formatted with the
+    punctuation a phone number always has (`(562) 555-0142`) and never
+    confused for a date, a count, or money. Same test, same result.
+  * **The figure fails the same test, which is why it alone got a
+    caption.** "$500" or a bare "12" on its own does not say whether it is
+    lifetime spend, this visit's price, a count, or something else — and
+    it changes MEANING depending on who is looking (owner sees money,
+    staff sees a count) with nothing on screen marking the difference.
+  If a future reader disagrees with the date/phone half of this call, the
+  test above is the thing to argue against, not the conclusion — reapply
+  it to whatever the row looks like then, because the row itself is what
+  the test reads.
   **Adjacent, not fixed here:** `Clients.jsx`'s own record card already
   writes `facts.visits === 1 ? "visit" : "visits"` with no `t()` wrapper —
   bare English on a translated dashboard, found while adding the same two
