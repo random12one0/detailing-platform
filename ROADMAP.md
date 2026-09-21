@@ -4491,6 +4491,73 @@ rather than wording went to Andrew.
 
   *A1 § 4, A2 7.2, 7.3*
 
+  ── **RE-MEASURED 2026-09-21. ONE OF THE TWO IS DONE, ONE IS NOT MINE, AND
+  THE "STILL OPEN" NUMBER ABOVE IS WRONG.** ────────────────────────────────
+
+  **1 · `/ex4` HAD NO SEARCH DESCRIPTION. FIXED AND PRESSED.** Re-measured
+  before touching it rather than taken from this entry — **8 example pages,
+  and ex4 was the only one without a `<meta name="description">`**:
+
+  | page | description |
+  |---|---|
+  | `ex1/index` · `ex1/prices` · `ex1/work` | 126 · 152 · 156 chars |
+  | `ex2/index` | 126 chars |
+  | `ex3/index` · `ex3/prices` | 158 · 132 chars |
+  | **`ex4/index`** | **NONE** |
+  | `ex5/index` | 131 chars |
+
+  Its whole `<head>` carried `viewport` and nothing else, where the other four
+  sites carry `viewport, description`. **Nothing was broken on the page, which
+  is exactly why nobody found it by looking at the page** — the defect is
+  entirely in what a search result or a pasted link has to show, which is
+  nothing.
+
+  **Written to the pattern the other four use** — what is sold, where, then
+  one fact a competitor would not also claim — and at **154 chars** it sits
+  inside their 126–158 range. In `docs/tenant-sites/y-kinzie.html`.
+
+  **PRESSED, 320 FIRST, ON A FRESH TAB:** served at 320 and at 1440, 154
+  characters in the DOM at both, **no horizontal overflow at either**, and
+  **`No console logs` at both widths.** That last one is worth its own line:
+  every earlier claim tonight that "the console warning is the app shell's,
+  not this page's" was an inference from a shared tab buffer. **On a tab that
+  had loaded nothing else, these pages produce no console output at all** —
+  so the inference was right, and it is now measured instead of argued.
+
+  **2 · THE STALENESS-GATE BLIND SPOT IS STILL THERE, AND IT IS NOT THIS
+  SESSION'S TREE.** Re-checked: `example-shots-check.mjs:122-123` fingerprints
+  `readFileSync(file)` — **the site's own source and nothing else** — while
+  `/ex3`'s capture also contains the colour switcher that
+  `build-examples.mjs` injects at build time. So an edit to the injected block
+  changes what the picture should show and the gate still says "current".
+  **The cheap fix is unchanged: hash the injected block into the manifest
+  alongside the site's.** `scripts/` was not handed to this session.
+  **BLOCKED BY LANE, not by the publish freeze** — it needs nobody's
+  permission and no deploy, just whoever owns that tree.
+
+  **3 · AND THE "STILL OPEN" HERO NUMBER ABOVE IS WRONG — re-measured after
+  the layout settled, not from a first paint.** This entry says `/ex3`'s hero
+  is *"exactly one viewport — 900px at 1440x900"*, and reasons from that that
+  **a full-screen hero is a defensible choice.**
+
+  **It is 1111px at 1440x900. It overflows the fold by 211px.**
+
+  **The method is not in dispute, because the control reproduces exactly:**
+  measured the same way, at the same size, `/ex1`'s hero comes back at
+  **774px** — the figure this entry already records. Same selector, same
+  viewport, settled by polling until the height stopped changing for six
+  consecutive samples. `min-height` is `0px`; the height is content, not a
+  `100vh` rule.
+
+  **So the judgment resting on that number has to be re-opened.** *"Exactly
+  one viewport"* is a deliberate full-screen hero. **1.23 viewports is a hero
+  that pushes a fifth of itself below the fold**, which is the complaint the
+  audit actually made. **Not changed here:** `/ex3`'s index is
+  `docs/tenant-sites/x-ballantyne.html`, which is not one of the two files
+  this session was given, and hero height on an approved scheme is a design
+  decision rather than a defect to quietly correct. **Handed over with the
+  number attached, which is what the entry asked for in the first place.**
+
 - [ ] **7.11 — The home page's own example is a different city from the demo.**
   Home page says "Tacoma, WA"; the demo business is Long Beach, CA.
   *A2 7.6*
