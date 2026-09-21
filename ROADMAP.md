@@ -3515,11 +3515,26 @@ the dashboard or back office at phone width at all.
   ten seconds.
   *A1 P3-02, P3-03, A2 5.2, 5.3, 5.6*
 
-- [ ] **9.13 — Zero data is being presented as proof of success.**
-  "$0 went through it this month… it is the proof the product works rather than
-  income."
+- [x] **ALREADY DONE, TICKED 2026-09-20 — 9.13 Zero data is being presented as
+  proof of success.** "$0 went through it this month… it is the proof the
+  product works rather than income."
   **Fix:** say plainly there is not yet enough production data to judge.
   *A1 P3-05, A2 5.4*
+  **NOT BUILT TONIGHT — FOUND ALREADY BUILT**, as a side effect of the
+  `AdminPage.jsx` rebuild "to Today's shape" on 2026-09-13 (ROADMAP 4.4's back
+  office). The exact claim the audit quoted — that a $0 figure is "proof the
+  product works" — is not in the file: `grep -i "proof"` against
+  `AdminPage.jsx` returns nothing. **Read live instead of trusting the grep**,
+  signed in as the demo admin: the Today tab reads *"$0 passed through the
+  platform this month, but only the recurring total above is ours"*; the
+  Money tab reads *"Nothing is coming in yet"* and *"$0 passed through the
+  platform this month — the detailers' money, not income of ours"* and
+  *"Nobody is paying yet."* Every one hedges rather than claims — the exact
+  "done when" this item asks for, "zero-data states never claim validation."
+  Checked on a fresh browser tab (console clean) rather than the tab this
+  session had reloaded all night, per the console-buffer gotcha just written
+  up in `docs/gotchas.md`. No code change made because none was needed —
+  ticking a fixed item is not the same as skipping it.
 
 - [ ] **9.14 — The owner cannot see whether the platform made money.**
   Subscription revenue is visible; hosting, database, email and domain costs
