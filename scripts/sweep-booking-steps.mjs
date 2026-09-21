@@ -44,11 +44,26 @@ import { reportSourceMoved, watchSource } from "./source-guard.mjs";
 // needed its own copy of the calendar search would be a second thing to keep
 // working, and it would be the copy that rots.
 import { TAP_PROBE, EXCEPTIONS, FLOOR, CAP } from "./lib/tapProbe.mjs";
+import { writeReceipt } from "./receipt.mjs";
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
 // Started BEFORE the browser opens, so anything saved from here on is a
 // mid-run edit. `source-guard.mjs` explains why that matters.
 const changedSince = watchSource();
+const CANARY_BLIND = process.argv.includes("--break=blind");
+const sbStartedAt = new Date().toISOString();
+// The product promises seven booking steps. Declared here so a flow that
+// silently became six shrinks nothing quietly - it fails the receipt.
+const EXPECTED_BOOKING_STEPS = 7;
+// **AND THE WALK TAKES EIGHT NUMBERED READINGS PER WIDTH, NOT SEVEN.** Step 5
+// is measured twice on purpose - once on the bare calendar and once after the
+// slots have loaded - because the slot grid is the part that can overflow and
+// it does not exist until a day is picked. Declared separately from the flow
+// length above so neither number has to bend to fit the other: 7 is what the
+// product promises a customer, 8 is what this walk reads.
+const EXPECTED_READINGS_PER_WIDTH = 8;
+let stepsDeclared = null;
+let numberedReadings = 0;
 
 const args = process.argv.slice(2).filter((a) => /^\d+x\d+$/.test(a));
 // The four verification sizes from CLAUDE.md § Design, and all four earned
@@ -326,6 +341,13 @@ for (const size of SIZES) {
   // still printed**, because "it scrolls" and "it scrolls by 600px" are
   // different facts and the second one is a design problem.
   const say = async (label, gate = true) => {
+    // **THE TARGETS ARE THE NUMBERED BOOKING STEPS, AND THE FIRST VERSION OF
+    // THIS RECEIPT COUNTED EVERY READING.** 38 readings against an expectation
+    // of 14 is not a finding, it is a mis-specified expectation: the walk also
+    // measures the plans page, the member page, the second tenant and four
+    // multi-car states, none of which the "seven steps" promise covers. Those
+    // are assertions on the same walk, not targets of their own.
+    if (/^\d+\/\d+\s/.test(label)) numberedReadings++;
     if (SHOTS) {
       const file = `${SHOTS}/${size.width}x${size.height}${LITE ? "-lite" : ""}-${label.replace(/[^a-z0-9]+/gi, "-")}.png`;
       await page.screenshot({ path: file, fullPage: !gate });
@@ -435,6 +457,7 @@ for (const size of SIZES) {
   const heading = () => page.locator(".bk-step-head h2").innerText();
   // innerText, so text-transform has already made it "STEP 1 OF 7".
   const total = Number((await page.locator(".bk-step-head .bk-step-label").innerText()).match(/of (\d+)/i)[1]);
+  stepsDeclared = total;
 
   for (let n = 1; n <= total; n++) {
     const h = await heading();
@@ -805,6 +828,43 @@ for (const size of SIZES) {
   await ctx.close();
 }
 
+
+// --- THE CANARY -------------------------------------------------------------
+// **WHAT BREAKS SILENTLY HERE IS `MEASURE`, NOT THE LAYOUT.** Every verdict on
+// this run is `over > 1`, where `over` is `MEASURE` summing the header and the
+// column and subtracting the viewport. If that sum came back 0 - a selector
+// that stopped matching, a `.bk-wrap` that got renamed, a `display: contents`
+// child dropping 84% of the column the way it did on 2026-09-20 - **every step
+// would report "fits" with enormous headroom and this script would print a
+// clean bill over a page nobody could use.**
+//
+// The failing direction is the one that matters and the one nothing else here
+// proves. So one page is measured at a viewport too short for ANY step to fit:
+// if `MEASURE` still says it fits, every "fits" above is a verdict this run
+// could not have made.
+let canaryCaught = false;
+let canaryOver = null;
+{
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 200 }, deviceScaleFactor: 1 });
+  const p = await ctx.newPage();
+  try {
+    await p.goto(`${BASE}/book/demo-detail${LITE ? "?lite=1" : ""}`, { waitUntil: "domcontentloaded" });
+    await p.waitForSelector(".bk-card, .bk-note", { timeout: 20000 });
+    await settle(p, 800);
+    const m = await p.evaluate(MEASURE, W16_SERVICES);
+    canaryOver = m.over;
+    canaryCaught = CANARY_BLIND ? false : m.over > 1;
+    console.log(`\ncanary  step 1 at 1440x200 -> over ${m.over}px  `
+      + (canaryCaught
+        ? "caught: a step too tall for the screen is reported OVER, so `fits` above means something"
+        : "NOT CAUGHT — a step was called fitting in a 200px window, so every `fits` above is void"));
+  } catch (e) {
+    console.log(`\ncanary  COULD NOT RUN — ${e.message.slice(0, 90)}`);
+  } finally {
+    await ctx.close();
+  }
+}
+
 await browser.close();
 const exemptNote = exempted
   ? `\n${exempted} step reading${exempted === 1 ? "" : "s"} EXEMPT from W16 — whichever step carries .bk-planpitch, whose overflow is entirely that pitch, full-screen by Andrew's instruction (ROADMAP 8.4). Everything else on that step is still measured and still fits.`
@@ -861,5 +921,70 @@ else {
   for (const [k, wheres] of seen) console.log(`  ${k}\n      ${wheres.join("  ")}`);
   failing++;
 }
+
+// --- THE RECEIPT, so this is GRADED rather than read ------------------------
+// **THIS GATE WROTE NO RECEIPT AND CARRIED NO CANARY UNTIL 2026-09-21 -
+// docs/silences.md section A.** Its census row was corrected once already
+// (2026-09-20): the claim that it reports clean over nothing was wrong, and the
+// truth was worse - it died loudly at step 4 with a Playwright stack trace
+// naming no step. That is fixed. What was still missing is anything that
+// grades the result, and anything that proves `MEASURE` can still say OVER.
+const receiptFailures = [];
+if (numberedReadings === 0) {
+  receiptFailures.push("ZERO NUMBERED STEP READINGS. The walk measured no step at all, so nothing was "
+    + "compared against W16 and this run proves nothing.");
+}
+if (tapSubjects === 0) {
+  receiptFailures.push("ZERO CONTROLS MEASURED for the 44px tap floor.");
+}
+// The flow declares its own length on every step head. 7 is what the product
+// promises; a flow that silently became six steps is a product change nobody
+// sanctioned, and it would shrink this walk rather than fail it.
+if (stepsDeclared !== null && stepsDeclared !== EXPECTED_BOOKING_STEPS) {
+  receiptFailures.push(`BOOKING FLOW LENGTH MOVED: the page declares ${stepsDeclared} step(s) `
+    + `and EXPECTED_BOOKING_STEPS declares ${EXPECTED_BOOKING_STEPS}. A step added or removed `
+    + `changes what W16 promises - move the number deliberately and say which step changed.`);
+}
+if (failing) receiptFailures.push(`${failing} failing reading(s) — see above`);
+
+const { path: sbReceiptPath } = writeReceipt({
+  check_id: `sweep-booking-steps-${SIZES.map((s) => `${s.width}x${s.height}`).join("-")}${LITE ? "-lite" : ""}`,
+  started_at: sbStartedAt,
+  status: receiptFailures.length === 0 && canaryCaught ? "pass" : "fail",
+  expected_targets: EXPECTED_READINGS_PER_WIDTH * SIZES.length,
+  discovered_targets: numberedReadings,
+  attempted_targets: numberedReadings,
+  completed_targets: numberedReadings,
+  skipped_targets: 0,
+  assertions_executed: tapSubjects + tapScreens + 1,
+  min_assertions: 200,
+  failures: receiptFailures,
+  artifacts: ["scripts/sweep-booking-steps.mjs"],
+  warnings: [
+    ...(CANARY_BLIND ? ["run with --break=blind; this receipt is a sabotage, not a result"] : []),
+    `${w16Failing} reading(s) fail W16; ${OTHER_FAULTS.length} fault(s) are not W16`,
+  ],
+  dimensions: {
+    widths: SIZES.map((s) => `${s.width}x${s.height}`),
+    step_readings: tapScreens,
+    numbered_step_readings: numberedReadings,
+    controls_measured: tapSubjects,
+    w16_bound_services: W16_SERVICES,
+    canary_over_px: canaryOver,
+  },
+  canary: {
+    id: "a booking step measured in a 200px-tall window must be reported OVER",
+    observed_failure: canaryCaught,
+    caught_by: canaryCaught ? ["over"] : [],
+    findings: canaryCaught
+      ? [`[over] step 1 at 1440x200 measured ${canaryOver}px over, so MEASURE can still report a `
+        + `step that does not fit and every "fits" above is a verdict this run could make`]
+      : [`[over] NOT CAUGHT — a step was called fitting inside a 200px window, so MEASURE is not `
+        + `measuring and every "fits" above is void`],
+  },
+});
+console.log(`receipt ${sbReceiptPath}`);
+if (!canaryCaught) { console.log("the canary was not caught, so this run proves nothing."); failing++; }
+
 await reportSourceMoved(changedSince, !failing);
 process.exit(failing ? 1 : 0);
