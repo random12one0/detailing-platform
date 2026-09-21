@@ -2166,3 +2166,13 @@ otherwise, the same way (g) says assume the dev server is stale until proven
 otherwise. Age a tab the same way you age a dev server: an instrument that has
 been running the whole session is not neutral evidence about what just
 happened.
+
+**AND THE TWO STALENESSES COMPOUND, AND THE ORDER MATTERS — the other
+session's addendum, 2026-09-20.** A stale server serves code that is no
+longer on disk; a stale tab misreports what the current code just did.
+Restarting one and not the other still leaves a false reading, because a
+tab reconnected to a fresh server carries forward everything it accumulated
+against the old one — the console entries from before the restart are still
+sitting there, now attributed to code that never produced them. **Kill the
+server, start it cold, THEN open a new tab** — reconnecting an old tab to a
+fresh server is not the same as starting fresh.
