@@ -4721,8 +4721,9 @@ rather than wording went to Andrew.
   1 GB total, "10.2 MB promised to each". Raise the storage or change the words.
   *A2 6.4*
 
-- [ ] **7.7 — Three public pages promise an export. WHAT IS LEFT IS THE
-  PHOTOS.** Headline rewritten 2026-09-21: it described two defects that were
+- [x] **7.7 — DONE 2026-09-21. Both halves of "your customers … and your
+  photos are yours" are now built and pressed.** ~~Three public pages promise
+  an export. WHAT IS LEFT IS THE PHOTOS.~~ Headline rewritten 2026-09-21: it described two defects that were
   **fixed on 2026-09-20** under ROADMAP 0.4 — the *"Tell us"* cancellation
   clause and the missing money clauses — and the audit block below said so
   while this line still read as though nothing had happened. **A document
@@ -4738,6 +4739,63 @@ rather than wording went to Andrew.
   cancellation, export and deletion matches what the product does — which now
   means either building the photo export or Andrew retracting that word.
   *A1 P3-09, A2 6.5*
+
+  **THE PHOTO HALF — BUILT 2026-09-21, Andrew's yes.** `lib/photo-export.js`,
+  `tests/photo-export.test.mjs` (29 checks), and an **Export my photos**
+  button on Business → Photos.
+
+  **IT EXPORTS BOTH PHOTO STORES, because the promise is "your photos" and
+  one table is a subset that satisfies the sentence without keeping it.**
+  `job_photos` (before / after / damage, in the PRIVATE `job-photos` bucket)
+  **and** `gallery_images` (the marketing gallery, in the public
+  `business-media` bucket). A before/after gallery entry is two files and so
+  two manifest rows. The manifest carries the customer, the job date and
+  **the service name as booked** (`booking_services.name_at_booking`), so a
+  photo from two years ago is filed under what the job was called then.
+
+  **A ZIP WITH NO NEW DEPENDENCY.** Every file going in is already a
+  compressed JPEG/PNG/WebP, so the writer is store-method only — about sixty
+  lines instead of a compression library this app does not otherwise need.
+  Proved against the outside world twice: `crc32("123456789")` equals the
+  published check value `0xCBF43926`, and a built archive was **extracted by
+  Windows `Expand-Archive`**, not by my own reader.
+
+  **HOW IT IS KNOWN THAT WHAT COMES OUT BELONGS ONLY TO THE BUSINESS ASKING —
+  established, not asserted, FOUR ways.** A cross-tenant photo was planted on
+  `demo-riverside` on purpose so there was something to miss:
+  1. **It did not come out.** The pressed export contained 3 job photos + 1
+     gallery image + manifest and **no trace of the other tenant's file**, by
+     name or in the manifest.
+  2. **The table refuses it.** Signed in as the demo owner, `job_photos`
+     selected **with the business filter deliberately removed** returned
+     **3 rows — its own — and 0 of the other tenant's**, which the row exists
+     to have failed.
+  3. **The bucket refuses it.** Downloading the other tenant's file **by its
+     exact object path** was refused, and so was asking for a **signed URL**
+     for it — which matters because a signed URL is the second way in.
+  4. **The export refuses it itself.** `assertOwned` throws on a foreign row
+     rather than filtering it out quietly, and `assertPathOwned` throws on a
+     path whose first folder is not this business. **Both proved by
+     sabotage**: making the guard filter instead of throw, and making the zip
+     writer drop a file, turned **7 checks red**.
+
+  **PRESSED:** the button was clicked in the real app as the demo owner; the
+  browser downloaded `coastline-auto-detailing-photos-2026-09-21.zip`, the
+  screen said **"4 photos saved."**, **0 console errors**, and the archive
+  extracted to the four files and a manifest whose rows match them.
+  **The fixture was removed and re-read to prove it**: both demo tenants back
+  to `job_photos 0, gallery_images 0` and **0 storage objects** carrying the
+  marker.
+
+  **A FILE THAT WILL NOT DOWNLOAD IS NAMED, NEVER DROPPED** — it goes in the
+  zip as `could-not-download.txt` with the reason, because an archive quietly
+  one photo short is the same defect as a CSV quietly one customer short and
+  nobody checks an archive against a database.
+
+  **KNOWN AND NOT FIXED:** the two exports are on different screens —
+  customers on Clients, photos on Photos — because there is no "your data"
+  screen and inventing one was not asked for. A detailer told "you export
+  them and go" has to find two buttons. Worth an item; not opened.
 
   **AUDITED 2026-09-21, FROM THE CODE. Nothing was reworded — the table is
   below and the terms are Andrew's.**

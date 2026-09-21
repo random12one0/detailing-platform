@@ -1349,6 +1349,15 @@ export const appEs = {
   "Add expense": "Agregar gasto",
   "Add item": "Agregar concepto",
   "Add photos": "Agregar fotos",
+  // ROADMAP 7.7b — the photo export. The keys move with the English in
+  // the same edit, because this file is keyed on the English text and a
+  // renamed string falls back to English with no error anywhere.
+  "Export my photos": "Exporta mis fotos",
+  "Packing {n} of {total}…": "Empacando {n} de {total}…",
+  "{n} photos saved.": "{n} fotos guardadas.",
+  "{n} photos saved. {m} could not be downloaded and are listed in the zip.":
+    "{n} fotos guardadas. {m} no se pudieron descargar y están en la lista dentro del zip.",
+  "That didn't save. {reason}": "Eso no se guardó. {reason}",
   "Add this address": "Agregar esta dirección",
   "Add your mailing address under Business info first. An email like this has to carry one at the bottom. That is the law, not our rule.":
     "Primero agrega tu dirección postal en Datos del negocio. Un correo así tiene que llevarla abajo. Es la ley, no una regla nuestra.",
