@@ -1,9 +1,9 @@
 {
-  "git_sha": "14aaa0047a86f47186168a0a78da567696942366",
+  "git_sha": "00bdc2844733535103f63d9b13f8e9b692b7f71c",
   "environment": "local",
-  "finished_at": "2026-09-20T13:48:56.301Z",
+  "finished_at": "2026-09-21T07:56:29.422Z",
   "failures": [
-    "THERE IS NO RESTORE POINT A CUSTOMER CAN REACH. Plan is \"free\", point-in-time recovery is off and the backup list is empty. WAL archiving is running (8408 segments, 0 failures) but that is Supabase's own infrastructure, not something Andrew can restore from. If this database were lost right now, nothing the platform holds would bring it back."
+    "SUPABASE HOLDS NO RESTORE POINT. Plan is \"free\", point-in-time recovery is off and the backup list is empty. WAL archiving is running (8857 segments, 0 failures) but that is Supabase's own infrastructure, not something Andrew can restore from. THIS IS A FACT ABOUT SUPABASE ONLY - the restore path that does exist is github.com/random12one0/detailing-platform-backups (private): nightly 02:10 Pacific, pg_dump custom format, refuses a dump under 50 KB, age-encrypted, published as a release asset, 30-day retention keeping the 1st of each month. Its two real gaps: nobody has ever restored one, and the age private key's location is unrecorded. See docs/recovery.md - do not re-measure it here."
   ],
   "warnings": [
     "THIS DRILLS A LOGICAL ROUND TRIP, NOT SUPABASE'S BACKUPS — there are none to test. It does not cover auth.users (the logins, in another schema) or the bytes behind storage.objects. See docs/recovery.md."
@@ -18,21 +18,21 @@
       "pitr_enabled": false,
       "listed_backups": 0,
       "walg_enabled": true,
-      "wal_archived_count": 8408,
-      "wal_last_archived": "2026-09-20 13:45:15.404112+00",
+      "wal_archived_count": 8857,
+      "wal_last_archived": "2026-09-21 07:52:49.955668+00",
       "wal_failed_count": 0
     },
     "schema": "restore_drill"
   },
   "check_id": "restore-drill",
-  "started_at": "2026-09-20T13:46:03.754Z",
+  "started_at": "2026-09-21T07:53:22.209Z",
   "status": "fail",
-  "expected_targets": 2,
-  "discovered_targets": 2,
-  "attempted_targets": 2,
-  "completed_targets": 2,
+  "expected_targets": 52,
+  "discovered_targets": 52,
+  "attempted_targets": 52,
+  "completed_targets": 52,
   "skipped_targets": 0,
-  "assertions_executed": 57,
+  "assertions_executed": 58,
   "min_assertions": 40,
   "canary": {
     "id": "one row altered in the restored copy · the row comparison must see it",

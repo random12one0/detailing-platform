@@ -1,24 +1,18 @@
 {
-  "git_sha": "2a10b86d811d5a5929c629b2b24de47e9dba8e2e",
+  "git_sha": "9a4dd5bcc2cf09c3ec038cd661036755c57cffd4",
   "environment": "local",
-  "finished_at": "2026-09-20T08:04:52.759Z",
+  "finished_at": "2026-09-20T17:44:26.783Z",
   "failures": [
     "invoicing a deliverable address succeeds",
-    "every send the counter saw has a row of its own 1 send(s) reached the provider and left no record",
-    "refused   — the row says who it was to and what it said {\"id\":\"d4008c03-20da-493a-8877-06d4dbc05d66\",\"to_email\":\"delivered@resend.dev\",\"subject\":\"Test-dms-ok9iml has stopped ru",
-    "sent      — the row says who it was to and what it said {\"id\":\"1632d610-f3da-49fd-9515-df000b7d5409\",\"to_email\":\"delivered@resend.dev\",\"subject\":\"Test-dms-ok9iml has stopped ru",
-    "sent      — the row says who it was to and what it said {\"id\":\"8388d9ba-11ab-4033-acf1-ce51f62f3af2\",\"to_email\":\"delivered@resend.dev\",\"subject\":\"Test-dms-ok9iml is running aga",
-    "failed    — the row says who it was to and what it said {\"id\":\"0b3932d4-f134-49de-9057-a7cefa6fca0c\",\"to_email\":\"watchdog-refused-on-purpose\",\"subject\":\"Test-dms-ok9iml has sto",
-    "failed    — the row says who it was to and what it said {\"id\":\"b7f2f605-3951-4eed-98ba-fab3fa70b4e8\",\"to_email\":\"watchdog-refused-on-purpose\",\"subject\":\"Test-dms-ok9iml is runn",
-    "a provider id is kept for every send that reached the provider, and for no other the webhook finds its row by this id, so a missing one is an outcome nobody can record",
+    "invoicing an address that will bounce also succeeds at send time a bounce is asynchronous; the send itself is fine",
+    "every send the counter saw has a row of its own -1 send(s) reached the provider and left no record",
+    "refused   — the row says who it was to and what it said {\"id\":\"c5c4a1fc-ed99-4dd9-9dad-210ad1e95a6c\",\"to_email\":\"delivered@resend.dev\",\"subject\":\"Test-dms-q6zfc6 has stopped ru",
+    "sent      — the row says who it was to and what it said {\"id\":\"9a6f7213-58ef-4845-a8e6-c1cecb18c1ce\",\"to_email\":\"delivered@resend.dev\",\"subject\":\"Test-dms-q6zfc6 has stopped ru",
+    "sent      — the row says who it was to and what it said {\"id\":\"a8f035e1-9de6-4f14-a9c8-7b49286d125f\",\"to_email\":\"delivered@resend.dev\",\"subject\":\"Test-dms-q6zfc6 is running aga",
+    "refused   — the row says who it was to and what it said {\"id\":\"7461d26b-6a1a-4737-b3a6-47ae546c4b0a\",\"to_email\":\"watchdog-refused-on-purpose\",\"subject\":\"Test-dms-q6zfc6 has sto",
     "the rows are filed against the customer, which is the screen they appear on a row with no customer is a row no detailer will ever see",
-    "a signed delivery event is accepted and finds its row {\"status\":400,\"body\":{\"error\":\"Bad signature.\"}}",
-    "and the row now says delivered",
-    "a signed bounce is accepted and finds its row {\"status\":400,\"body\":{\"error\":\"Bad signature.\"}}",
-    "and the row now says bounced, in the provider's own words {\"status\":\"bounced\",\"detail\":\"The recipient's email provider sent a hard bounce message, but didn't specify the reason for the hard bounce. We recommend removing the recipient's email address from your mailing list. Sending messag\"}",
-    "and the row it targeted is untouched a forgery changed a record",
-    "a late delivery event cannot undo a bounce {\"status\":400,\"body\":{\"error\":\"Bad signature.\"}}",
-    "an event type the product does not model is acknowledged, not retried for days {\"status\":400,\"body\":{\"error\":\"Bad signature.\"}}"
+    "there is a sent row for each outcome to report against the sandbox sends did not produce rows with provider ids",
+    "the canary — one missing row is caught by the same reconciliation reported a gap of 0; the check cannot see a send that left no record"
   ],
   "warnings": [],
   "artifacts": [
@@ -27,24 +21,23 @@
   "dimensions": {
     "endpoint": "send-email + resend-webhook",
     "trigger": "send-invoice",
-    "webhook_events_posted": 6,
-    "counter_delta": 5,
-    "rows_written": 23,
-    "statuses": "refused,sent,skipped,bounced,failed"
+    "counter_delta": 1,
+    "rows_written": 17,
+    "statuses": "refused,sent,skipped"
   },
   "check_id": "email-sends",
-  "started_at": "2026-09-20T08:04:34.482Z",
+  "started_at": "2026-09-20T17:44:12.677Z",
   "status": "fail",
-  "expected_targets": 5,
-  "discovered_targets": 5,
-  "attempted_targets": 5,
-  "completed_targets": 5,
+  "expected_targets": 1,
+  "discovered_targets": 1,
+  "attempted_targets": 1,
+  "completed_targets": 1,
   "skipped_targets": 0,
-  "assertions_executed": 50,
+  "assertions_executed": 33,
   "min_assertions": 20,
   "canary": {
     "id": "one-recorded-row-removed-from-the-reconciliation",
-    "observed_failure": true,
-    "reported": 2
+    "observed_failure": false,
+    "reported": 0
   }
 }

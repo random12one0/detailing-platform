@@ -1,8 +1,8 @@
-American English, read off the finished page — 2026-09-20T16:44:00.411Z
+American English, read off the finished page — 2026-09-21T07:50:28.196Z
 
 
-  home          723 strings read, 0 British
-  pricing       252 strings read, 0 British
+  home          728 strings read, 0 British
+  pricing       253 strings read, 0 British
   examples      118 strings read, 0 British
   ex1           408 strings read, 0 British
   ex1-prices    281 strings read, 0 British

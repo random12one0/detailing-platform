@@ -1,8 +1,10 @@
 {
-  "git_sha": "2a10b86d811d5a5929c629b2b24de47e9dba8e2e",
+  "git_sha": "9a4dd5bcc2cf09c3ec038cd661036755c57cffd4",
   "environment": "local",
-  "finished_at": "2026-09-20T08:04:49.512Z",
-  "failures": [],
+  "finished_at": "2026-09-20T17:44:27.919Z",
+  "failures": [
+    "the endpoint's list matches this file's, name for name and in order endpoint has 32, this file expects 31: only there [address_source], only here []"
+  ],
   "warnings": [],
   "artifacts": [
     "artifacts/receipt-fields"
@@ -13,12 +15,12 @@
     "bookings_probed": 1
   },
   "check_id": "receipt-fields",
-  "started_at": "2026-09-20T08:04:48.411Z",
-  "status": "pass",
-  "expected_targets": 60,
-  "discovered_targets": 60,
-  "attempted_targets": 60,
-  "completed_targets": 60,
+  "started_at": "2026-09-20T17:44:26.633Z",
+  "status": "fail",
+  "expected_targets": 61,
+  "discovered_targets": 61,
+  "attempted_targets": 61,
+  "completed_targets": 61,
   "skipped_targets": 0,
   "assertions_executed": 46,
   "min_assertions": 39,

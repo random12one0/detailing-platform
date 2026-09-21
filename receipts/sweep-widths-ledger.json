@@ -1,6 +1,6 @@
 {
   "note": "One row per width per run. `outcome` is complete | short | aborted. A width fails on a RATE, never on one bad run: more than 2 bad in the last 5 runs of the same mode. One abort is noise; four of five is a broken instrument, and only a count can tell those apart.",
-  "updated_at": "2026-09-20T18:21:14.944Z",
+  "updated_at": "2026-09-21T04:49:11.842Z",
   "window": 5,
   "max_bad": 2,
   "runs": [
@@ -153,6 +153,298 @@
       "measured": 145,
       "declared": 8,
       "expected": 152
+    },
+    {
+      "at": "2026-09-20T18:27:28.662Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 146,
+      "declared": 8,
+      "expected": 152
+    },
+    {
+      "at": "2026-09-20T23:19:54.917Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "-es",
+      "outcome": "aborted",
+      "measured": 118,
+      "declared": 5,
+      "expected": 152,
+      "error": "locator.click: Timeout 15000ms exceeded."
+    },
+    {
+      "at": "2026-09-20T23:36:37.362Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "-es",
+      "outcome": "aborted",
+      "measured": 124,
+      "declared": 2,
+      "expected": 152,
+      "error": "locator.click: Timeout 15000ms exceeded."
+    },
+    {
+      "at": "2026-09-20T23:42:23.250Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "-es",
+      "outcome": "complete",
+      "measured": 154,
+      "declared": 2,
+      "expected": 152
+    },
+    {
+      "at": "2026-09-21T00:10:56.699Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 155,
+      "declared": 2,
+      "expected": 152
+    },
+    {
+      "at": "2026-09-21T00:14:30.037Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "-es",
+      "outcome": "complete",
+      "measured": 155,
+      "declared": 2,
+      "expected": 152
+    },
+    {
+      "at": "2026-09-21T00:27:21.588Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "-es",
+      "outcome": "complete",
+      "measured": 155,
+      "declared": 2,
+      "expected": 155
+    },
+    {
+      "at": "2026-09-21T00:40:38.845Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "-es",
+      "outcome": "complete",
+      "measured": 155,
+      "declared": 2,
+      "expected": 155
+    },
+    {
+      "at": "2026-09-21T00:44:12.230Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "-es",
+      "outcome": "complete",
+      "measured": 155,
+      "declared": 2,
+      "expected": 155
+    },
+    {
+      "at": "2026-09-21T02:47:47.582Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "default",
+      "outcome": "short",
+      "measured": 41,
+      "declared": 0,
+      "expected": 155
+    },
+    {
+      "at": "2026-09-21T02:47:47.582Z",
+      "sha": "",
+      "width": 392,
+      "mode": "default",
+      "outcome": "short",
+      "measured": 42,
+      "declared": 0,
+      "expected": 151
+    },
+    {
+      "at": "2026-09-21T02:47:47.582Z",
+      "sha": "",
+      "width": 320,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 153,
+      "declared": 2,
+      "expected": 151
+    },
+    {
+      "at": "2026-09-21T02:47:47.582Z",
+      "sha": "",
+      "width": 1920,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 122,
+      "declared": 2,
+      "expected": 0
+    },
+    {
+      "at": "2026-09-21T02:47:47.582Z",
+      "sha": "",
+      "width": 360,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 42,
+      "declared": 0,
+      "expected": 0
+    },
+    {
+      "at": "2026-09-21T03:07:35.074Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "default",
+      "outcome": "short",
+      "measured": 41,
+      "declared": 0,
+      "expected": 155
+    },
+    {
+      "at": "2026-09-21T03:07:35.074Z",
+      "sha": "",
+      "width": 392,
+      "mode": "default",
+      "outcome": "short",
+      "measured": 42,
+      "declared": 0,
+      "expected": 151
+    },
+    {
+      "at": "2026-09-21T03:07:35.074Z",
+      "sha": "",
+      "width": 320,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 154,
+      "declared": 2,
+      "expected": 151
+    },
+    {
+      "at": "2026-09-21T03:07:35.074Z",
+      "sha": "",
+      "width": 1920,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 155,
+      "declared": 2,
+      "expected": 0
+    },
+    {
+      "at": "2026-09-21T03:07:35.074Z",
+      "sha": "",
+      "width": 360,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 42,
+      "declared": 0,
+      "expected": 0
+    },
+    {
+      "at": "2026-09-21T04:03:52.072Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "default",
+      "outcome": "short",
+      "measured": 41,
+      "declared": 0,
+      "expected": 155
+    },
+    {
+      "at": "2026-09-21T04:03:52.072Z",
+      "sha": "",
+      "width": 392,
+      "mode": "default",
+      "outcome": "short",
+      "measured": 42,
+      "declared": 0,
+      "expected": 151
+    },
+    {
+      "at": "2026-09-21T04:03:52.072Z",
+      "sha": "",
+      "width": 320,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 154,
+      "declared": 2,
+      "expected": 151
+    },
+    {
+      "at": "2026-09-21T04:03:52.072Z",
+      "sha": "",
+      "width": 1920,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 122,
+      "declared": 2,
+      "expected": 0
+    },
+    {
+      "at": "2026-09-21T04:03:52.072Z",
+      "sha": "",
+      "width": 360,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 42,
+      "declared": 0,
+      "expected": 0
+    },
+    {
+      "at": "2026-09-21T04:49:11.826Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "default",
+      "outcome": "short",
+      "measured": 41,
+      "declared": 0,
+      "expected": 155
+    },
+    {
+      "at": "2026-09-21T04:49:11.826Z",
+      "sha": "",
+      "width": 392,
+      "mode": "default",
+      "outcome": "short",
+      "measured": 42,
+      "declared": 0,
+      "expected": 154
+    },
+    {
+      "at": "2026-09-21T04:49:11.826Z",
+      "sha": "",
+      "width": 320,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 154,
+      "declared": 2,
+      "expected": 154
+    },
+    {
+      "at": "2026-09-21T04:49:11.826Z",
+      "sha": "",
+      "width": 1920,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 122,
+      "declared": 2,
+      "expected": 0
+    },
+    {
+      "at": "2026-09-21T04:49:11.826Z",
+      "sha": "",
+      "width": 360,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 42,
+      "declared": 0,
+      "expected": 0
     }
   ]
 }

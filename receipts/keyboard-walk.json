@@ -1,18 +1,20 @@
 {
-  "git_sha": "50b9948d8e23010109bdd4fb3031ade81a5d6377",
+  "git_sha": "bc860fdc301fb80095bbd45ce8b731c5cbd292bf",
   "environment": "local",
-  "finished_at": "2026-09-20T23:15:48.497Z",
-  "failures": [],
+  "finished_at": "2026-09-21T02:54:04.267Z",
+  "failures": [
+    "Business: button.nav-row \"Next: Vehicle types\n9 \" focused while covered by header.topbar"
+  ],
   "warnings": [],
   "artifacts": [
     "scripts/keyboard-walk.mjs"
   ],
   "dimensions": {
     "screens": [
-      "Today:24",
+      "Today:33",
       "Calendar:42",
       "Money:31",
-      "Clients:29",
+      "Clients:28",
       "Business:26",
       "Booking step 1:16"
     ],
@@ -20,14 +22,14 @@
     "in_view_measured_before_any_screenshot": true
   },
   "check_id": "keyboard-walk",
-  "started_at": "2026-09-20T23:14:53.552Z",
+  "started_at": "2026-09-21T02:53:08.178Z",
   "status": "pass",
   "expected_targets": 6,
   "discovered_targets": 6,
   "attempted_targets": 6,
   "completed_targets": 6,
   "skipped_targets": 0,
-  "assertions_executed": 168,
+  "assertions_executed": 176,
   "min_assertions": 100,
   "canary": {
     "id": "a ring styled away, and a dialog that swallows Escape",

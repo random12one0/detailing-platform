@@ -1,7 +1,7 @@
 {
-  "git_sha": "52a3d70e5317fdd29734341a021b4409293d7566",
+  "git_sha": "7d12539047422f1e893701e7643956a7291e05cd",
   "environment": "local",
-  "finished_at": "2026-09-20T09:41:14.364Z",
+  "finished_at": "2026-09-21T08:17:10.583Z",
   "failures": [],
   "warnings": [
     "realtime 7c — STANDING RISK, nothing is wrong today: a channel opened without { config: { private: true } } is authorised by NOTHING. This run proved it by having a client with the anon key and no session receive tenant B's message verbatim. The app opens zero channels, so nothing is exposed; the first supabase.channel('something-' + businessId) anybody writes is a cross-tenant channel on the day it ships, because the topic name is the only thing separating two tenants and a business id is a guess away. Private channels ARE closed — realtime.messages is RLS-on with zero policies and anon was refused in the same run.",
@@ -37,14 +37,14 @@
     "sabotage": null
   },
   "check_id": "tenant-matrix",
-  "started_at": "2026-09-20T09:39:22.237Z",
+  "started_at": "2026-09-21T08:15:06.765Z",
   "status": "pass",
-  "expected_targets": 77,
-  "discovered_targets": 77,
-  "attempted_targets": 77,
-  "completed_targets": 77,
-  "skipped_targets": 0,
-  "assertions_executed": 729,
+  "expected_targets": 39,
+  "discovered_targets": 39,
+  "attempted_targets": 39,
+  "completed_targets": 39,
+  "skipped_targets": 1,
+  "assertions_executed": 733,
   "min_assertions": 700,
   "canary": {
     "id": "four negative controls · a table with \"using (true)\" on select, a definer RPC that trusts a tenant id from its caller, a bucket whose policy scopes to the bucket and nothing else, and a realtime channel authorised by nothing",

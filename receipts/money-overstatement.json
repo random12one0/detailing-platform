@@ -1,7 +1,7 @@
 {
-  "git_sha": "2a10b86d811d5a5929c629b2b24de47e9dba8e2e",
+  "git_sha": "9a4dd5bcc2cf09c3ec038cd661036755c57cffd4",
   "environment": "local",
-  "finished_at": "2026-09-20T08:04:41.535Z",
+  "finished_at": "2026-09-20T17:44:20.227Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -31,7 +31,7 @@
     "contradiction": "5.1 wins on the labels, Money.jsx's comment wins on the maths"
   },
   "check_id": "money-overstatement",
-  "started_at": "2026-09-20T08:04:41.432Z",
+  "started_at": "2026-09-20T17:44:20.122Z",
   "status": "pass",
   "expected_targets": 4,
   "discovered_targets": 4,

@@ -1,7 +1,7 @@
 {
-  "git_sha": "2a10b86d811d5a5929c629b2b24de47e9dba8e2e",
+  "git_sha": "9a4dd5bcc2cf09c3ec038cd661036755c57cffd4",
   "environment": "local",
-  "finished_at": "2026-09-20T08:04:40.982Z",
+  "finished_at": "2026-09-20T17:44:19.923Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -17,7 +17,7 @@
     "owner_only_lines": 2
   },
   "check_id": "ics-audience",
-  "started_at": "2026-09-20T08:04:37.928Z",
+  "started_at": "2026-09-20T17:44:16.208Z",
   "status": "pass",
   "expected_targets": 2,
   "discovered_targets": 2,
