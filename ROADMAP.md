@@ -3267,6 +3267,76 @@ requested.
   adds no gate, no policy and no refusal — it draws a list that the server was
   already sending. **Andrew cannot be locked out of anything by it.**
 
+  ── **THE RULING ON HOW TO KEY THIS, 2026-09-21. READ IT BEFORE TOUCHING THE
+  REMAINING HALF.** ────────────────────────────────────────────────────────
+
+  **DO NOT KEY ANY OF THIS ON WHO THE ACTOR IS. KEY IT ON WHAT THE ACTION
+  IS.** The question is **"is this session acting inside a business that is
+  not its own?"** — never "is this person a platform admin".
+
+  **WHY THE IDENTITY VERSION LOOKS RIGHT AND IS NOT, because the next person
+  will reach for it first exactly as this one nearly did.** The obvious rule
+  is *a platform admin may not write inside a detailer's account*. It fails on
+  the first real user: **`demo@detailplatform.com` is simultaneously a
+  platform admin and a real detailer with a dashboard of its own** (0.1, 12.4,
+  deliberate and not to be fixed). So the identity rule has to carve out *"…
+  unless it is his own business"* — **and an exception is a thing somebody
+  removes later while tidying**, at which point Andrew is locked out of his
+  own product by a policy that reads as though it were doing its job.
+
+  **The location rule needs no exception at all.** Same person, same account,
+  two different answers: acting inside somebody else's business is true for a
+  support view and false for Andrew in his own dashboard, whatever either of
+  them *is*. **It also makes the banner honest — it tells you WHERE you are,
+  not WHO you are**, and where-you-are is the fact the failure mode turns on.
+  Somebody forgetting they are a platform admin harms nothing; somebody
+  forgetting which account they are in is the whole defect.
+
+  **BOTH BUILT HALVES ALREADY SATISFY THIS, checked rather than assumed:**
+  the banner is keyed on `isPreviewTab` — a property of the **tab**, set by
+  the door the back office opened — and not on any identity; and the audit row
+  is written by `platform-admin`'s `impersonate` action, which by construction
+  only ever runs when somebody opens a business through the back office.
+  **Andrew working in his own dashboard touches neither.** Nothing had to
+  change for the ruling; it is recorded because the unbuilt half is where it
+  bites.
+
+  ── **AND THE UNBUILT HALF CANNOT BE AN RLS POLICY. THIS IS STRUCTURAL, NOT
+  A MATTER OF WRITING ONE.** ───────────────────────────────────────────────
+
+  **The database cannot tell a support session from the detailer's own.**
+  `platform-admin` mints an ordinary magic link **for the owner's own email**,
+  so after `verifyOtp` the session's `auth.uid()` **is the owner's**.
+  `current_business_ids()` is literally
+  `select business_id from business_users where user_id = auth.uid()`
+  (`20260827000100:36`), so every policy in the schema sees an ordinary owner
+  working in their own business — **which, at the database, is exactly what is
+  happening.** There is no flag, no claim and no marker anywhere on that
+  session.
+
+  **So "block mutations server-side" is not a policy somebody forgot to
+  write.** It needs the support session to be **distinguishable** first — a
+  claim carried on the token and read by the policies — which is a
+  `platform-admin` change plus an auth hook. **BLOCKED BY THE PUBLISH FREEZE,
+  named rather than half-done.** Until then the guard is `lib/supabase.js`
+  wrapping the four write verbs in a preview tab, and `lib/preview.js` says
+  what that is worth: *"it stops a stray click, not an attacker."*
+
+  ── **THE ORPHANED ROWS — AGREED FIX, NOT STARTED** ────────────────────────
+
+  **4 of 11 rows in `platform_admin_events` name a real account and can never
+  be shown on that account's page** — two impersonations and a suspension
+  among them, all `business_id = null`, all invisible to a history filtered
+  `.eq("business_id", id)`. **"Quietly incomplete" is the phrase that
+  matters:** a history with a hole in it that nothing announces is worse than
+  no history, because somebody reads it and concludes nothing happened — and
+  the hole is precisely over the **oldest and most sensitive** entries.
+
+  **THE FIX: match on `business_name` as well as `business_id`**, so the
+  record is **exactly** incomplete rather than quietly so. It is one `.or()`
+  on the history query in `platform-admin`'s `detail` action. **Behind the
+  same publish freeze, and not started.**
+
 - [ ] **4.4 — Prove multi-tenant isolation properly.**
   `tests/tenant-isolation.test.mjs` exists. Per `docs/gotchas.md`, break it on
   purpose before believing it.
