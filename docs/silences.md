@@ -181,7 +181,7 @@ run produced (`rows.length`), which is a gate following the data.
 
 | script | `expected_targets` | note |
 |---|---|---|
-| `dashboard-notifies.mjs` | `rows.length` | follows the data. **NOT TAKEN 2026-09-21 and the reason is not authorisation:** it needs `SUPABASE_SERVICE_ROLE_KEY`, and its method is to press the buttons a detailer presses - it calls `update-booking` and **cancels and moves real bookings in the demo tenant**. It cannot be run while anything else is measuring that tenant. Needs the tenant to itself, like `tenant-matrix.mjs`. |
+| ~~`dashboard-notifies.mjs`~~ | `rows.length` | **CLOSED 2026-09-21, `330c3e4`.** `EXPECTED_STEPS` names the seven claims before the run; `--break=step` gives **`7 6 7 6`**. **And the reason it was deferred was WRONG** - see the correction below. |
 | ~~`restore-drill.mjs`~~ | `rows.length` | **CLOSED 2026-09-21, `bf55bb9`.** Was declaring **2 targets** for a drill over the whole `public` schema - `rows.length` counted the STAGES it finished. Now `expected` is a declared `EXPECTED_TABLES = 52`, `discovered`/`attempted`/`completed` are the live tables found, restored and compared back. Zero tables was a `throw` past `writeReceipt` and is now a graded failure. See below. |
 | ~~`tenant-matrix.mjs`~~ | `rows.length` | **CLOSED 2026-09-21, `3eda57b`** - the most valuable of the five, the check that proves one detailer cannot see another's customers. `expected` is now the `business_id` tables `supabase/migrations/` declares, compared by name; 39 declared, 39 live, set-identical. `--break=declared` gives **`38 39 39 39`** and names `add_ons`. See below. |
 | ~~`deployed-inventory.mjs`~~ | `dirs.length` | **CLOSED 2026-09-21, `988e7dd`.** Confirmed by running first - 39/39/39/39 full, 0/0/0/0 empty - then `completed_targets` became `judged.length`, which the file already computed. A function walked but never compared is now a gap: **40/40/40/39**. See below. |
@@ -631,6 +631,54 @@ measurement failed, not the thing measured.
 `SUPABASE_SERVICE_ROLE_KEY` and it **cancels and moves real bookings in the
 demo tenant** — it is the one remaining member of § B and it needs that tenant
 to itself.
+
+
+### SECTION B IS CLOSED — five of five, 2026-09-21
+
+| check | commit | the break that proved it |
+|---|---|---|
+| `example-shots-check.mjs` | 2026-09-20 | *(closed before this round)* |
+| `deployed-inventory.mjs` | `988e7dd` `8565266` | `--break=unreadable` → **`39 39 39 38`** |
+| `restore-drill.mjs` | `bf55bb9` `6cfe2e8` | `--break=fewer` → **`52 51 51 51`**, names `weather_grids` |
+| `tenant-matrix.mjs` | `3eda57b` | `--break=leak` → **`CANARY MISSED`**; `--break=declared` → **`38 39 39 39`**, names `add_ons` |
+| `dashboard-notifies.mjs` | `330c3e4` | `--break=step` → **`7 6 7 6`**, names the step |
+
+**`dashboard-notifies` control: `7 7 7 7`, 19 assertions against a floor of 15,
+canary caught.** `EXPECTED_STEPS` writes down the seven claims the file makes
+before the run, so a step that stops running is a failure rather than a smaller
+run. `--break=canary` leaves the counts at `7 7 7 7` while the canary goes
+false and the run fails, which shows the two guards are independent.
+
+**UNPROVEN AND LABELLED:** the `missedSteps` branch — a *declared* step that
+never reaches a verdict — has no sabotage that exercises it. `--break=step`
+proves the undeclared side of the same comparison. **The missing side is
+written and not demonstrated**, and it is written here rather than left to be
+discovered as a surprise.
+
+### AND THE REASON THIS ONE WAS DEFERRED WAS WRONG, WHICH IS MINE
+
+Earlier this same night I reported that `dashboard-notifies.mjs` *"cancels and
+moves real bookings in the demo tenant"*, and it was held back partly on that.
+**It does not.** It creates its own fixture business `dash-notify-fixture`,
+works only on that, deletes it in `finally`, and **the string `demo-detail`
+does not appear anywhere in the file**. Mail goes to `delivered@resend.dev`,
+Resend's own sink address.
+
+**The service-role key requirement was the only correct half of the
+objection** — and that was enough to hold it, so the conclusion survived while
+the stated reason did not. That is the same shape as the 58px/435px correction
+in the second-leg handoff and the `SUPABASE HOLDS NO RESTORE POINT` correction
+above: **a true conclusion resting on an illustration nobody had checked.** I
+had read the header, which says the method is *"press the buttons a detailer
+presses"*, and not the fixture block forty lines further down.
+
+### THE TENANT WAS LEFT AS FOUND
+
+Verified on `kguqylyzgyzfktkfnhjb` after the last run: `dash-notify-fixture`
+**GONE**, both matrix fixtures **GONE**, **16** businesses exactly as before,
+`demo-detail` / `demo-riverside` / `demo-ironclad` all **`status=active`**,
+**zero** suspended, `public` still **52** tables. **`seed-demo` was not run**,
+so this round nominated no re-seeder.
 
 ### The two not taken, and neither reason is authorisation
 
