@@ -149,6 +149,10 @@ export const appEs = {
   "{amount} on {days}, {from}–{to}": "{amount} los {days}, {from}–{to}",
   "You take bookings {notice} ahead but close changes {change} ahead, so every new booking is locked as soon as it's made.":
     "Tomas citas con {notice} de anticipación pero cierras los cambios con {change}, así que cada cita nueva queda bloqueada en cuanto se hace.",
+  // ROADMAP 9.11 — the example and the one-click fix for the warning above.
+  "For example: the earliest a customer can book — {notice} from now — already falls inside your {change} change window, so they would have to call you the moment they book.":
+    "Por ejemplo: la cita más próxima que un cliente puede agendar — dentro de {notice} — ya queda dentro de tu ventana de cambios de {change}, así que tendría que llamarte en cuanto agende.",
+  "Allow changes until {hours} instead": "Permitir cambios hasta {hours} en su lugar",
   // The three words every settings screen ends with.
   "Save": "Guardar",
   "Saving…": "Guardando…",

@@ -243,6 +243,15 @@ export default function BookingRules() {
     const notice = Number(form.min_advance_minutes) / 60;
     const change = Number(form.cancellation_window_hours);
     if (change > 0 && notice > 0 && change > notice && !dismissed.window_exceeds_notice) {
+      // ROADMAP 9.11 — THE EXAMPLE AND THE RECOMMENDATION ARE BOTH READ OFF
+      // THESE SAME TWO NUMBERS, never invented. The recommendation narrows
+      // the change window to the notice period rather than widening notice
+      // to match the window: that is the smaller of the two fixes, because
+      // it leaves how soon anyone can book untouched and only shortens how
+      // close to the job a change still needs a phone call. `floor`, not the
+      // exact fraction, so the recommended hours are never a moment later
+      // than the notice they are supposed to sit inside.
+      const recommendedHours = Math.max(0, Math.floor(notice));
       out.push({
         key: "window_exceeds_notice",
         // THE ONLY ONE OF THE SEVEN WARNINGS WRITTEN AS A RAW TEMPLATE
@@ -257,6 +266,19 @@ export default function BookingRules() {
             notice: duration(Number(form.min_advance_minutes), lang),
             change: duration(change * 60, lang),
           }),
+        example: t("For example: the earliest a customer can book — {notice} from now — already falls inside your {change} change window, so they would have to call you the moment they book.",
+          {
+            notice: duration(Number(form.min_advance_minutes), lang),
+            change: duration(change * 60, lang),
+          }),
+        fix: {
+          // 0 is a real recommendation, not an edge case to dodge — a notice
+          // period under an hour floors to it, and "Any time" is the same
+          // word the preset above already uses for that value.
+          label: t("Allow changes until {hours} instead",
+            { hours: recommendedHours === 0 ? t("Any time") : duration(recommendedHours * 60, lang) }),
+          apply: () => set("cancellation_window_hours", recommendedHours),
+        },
       });
     }
     return out;
@@ -719,8 +741,18 @@ export default function BookingRules() {
       {warnings.map((w) => (
         <div className="warn-box" key={w.key}>
           <TriangleAlert strokeWidth={2} />
-          <span>{w.text}</span>
+          <span>
+            {w.text}
+            {/* The example restates the same conflict in a concrete case
+                rather than adding a second, separate claim — ROADMAP 9.11. */}
+            {w.example && <> {w.example}</>}
+          </span>
           <span className="actions">
+            {/* Applying it only changes FORM state, same as every other
+                control on this screen — it takes the ordinary Save to
+                persist, and the warning clears itself on the next render
+                once the numbers no longer conflict. */}
+            {w.fix && <button onClick={w.fix.apply}>{w.fix.label}</button>}
             <button onClick={() => dismiss(w.key, false)}>{t("Dismiss")}</button>
             <button onClick={() => dismiss(w.key, true)}>{t("Never")}</button>
           </span>

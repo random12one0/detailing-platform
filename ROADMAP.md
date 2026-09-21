@@ -3503,6 +3503,33 @@ the dashboard or back office at phone width at all.
   cutoff locks a new booking immediately. **Keep the warning** — add an example
   and a recommended adjustment.
   *A1 P2-15*
+  **BUILT 2026-09-20, NOT YET VERIFIED LIVE — holding for the browser on
+  Andrew's instruction, not for doubt about the code.** In
+  `screens/more/BookingRules.jsx`'s `window_exceeds_notice` warning (the
+  existing one this item names), the original warning text is unchanged and
+  two things were added:
+  - **An example**, restating the same conflict as a concrete case: "the
+    earliest a customer can book — {notice} from now — already falls inside
+    your {change} change window, so they would have to call you the moment
+    they book." Both numbers are the same `notice`/`change` the warning
+    itself already computes — nothing new is read or guessed.
+  - **A one-click fix**, "Allow changes until {hours} instead," derived the
+    same way: `Math.floor(notice)`, so the recommended cancellation window is
+    always at or under the notice period and the conflict cannot survive
+    applying it. It narrows the change window rather than widening the
+    notice period — the smaller of the two possible fixes, since it leaves
+    how soon anyone can book untouched. Recommending 0 ("Any time") is
+    treated as a real answer, not an edge case dodged, for a notice period
+    under an hour.
+  Clicking it only changes FORM state, same as every other control on this
+  screen — Save still persists it, and the warning clears itself once the
+  numbers stop conflicting, with no separate dismiss needed. Spanish strings
+  added in the same edit. **Scope held to the warning; the screen's layout
+  was not touched.**
+  **Not yet opened on a real screen** — the browser was the other session's
+  for its baseline runs when this was written, and Andrew asked not to touch
+  it until it's free, so this is code-reviewed, not yet proven live. Do not
+  tick as fully done until it has been.
 
 - [ ] **9.12 — Back office: real detailers first, scannable, one action each.**
   Default to real accounts; replace the three-column card wall with a list —
