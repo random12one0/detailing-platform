@@ -123,10 +123,40 @@ His words are in `FOR-ANDREW.md` § Done. The operative form:
   something like failed... I'm not going to do anything about it."* Alerting is
   tuned for silence-unless-real, not for completeness.
 
+### Three more, settled by Andrew the morning of 2026-09-21
+
+**Added because all three are currently sitting in `FOR-ANDREW.md` and
+`ROADMAP.md` as open checkboxes, and a future session meeting them there will
+work them as open questions.** They are not. They are decided.
+
+- **Two-factor login on Supabase and Netlify: NO, permanently.** Not
+  deferred, not "later" — **decided, and not to be raised again.** It is
+  currently `FOR-ANDREW.md:243` (*"DO · Turn on two-factor login…"*) and
+  appears again in `ROADMAP.md:4101` and `:4177` as part of a fix list, and
+  in `docs/audits/comprehensive-audit-2026-09.md:122` as a required change.
+  **An audit recommending it is not the same as an open question**, and the
+  audit lines can stay as the record of what was recommended; what must not
+  stay is a checkbox implying somebody should go and do it.
+- **The demo password in the repo: his call, and he has made it.** He knows
+  it is there, does not consider it urgent, and will remove it when the first
+  real detailer signs up — **roughly two months from now.** Recorded as his
+  decision with his reasoning, **not as an outstanding risk**, because the
+  difference decides whether the next session treats it as work. It lives in
+  `scripts/seed-demo.mjs` (three sites). **Its location is named here and its
+  value is not, per CLAUDE.md's rule that a secret's home goes in a document
+  and never its contents.**
+- **The daylight check: dropped.** He does not want it. `FOR-ANDREW.md:587`
+  (*"DO · Thirty seconds outside, in daylight"*) should come off, and the
+  line below about "the two away-from-the-computer checks" is now **one**.
+
+**None of the three was edited in `FOR-ANDREW.md` or `ROADMAP.md` by this
+session** — neither file is this lane. The line numbers are given so whoever
+holds them can strike the boxes without re-deriving anything.
+
 **Still genuinely open, and short:** where the age private key for the backups
 lives (blocks everything about restore); "unlimited photos" on the pricing page;
-what the Business-settings live preview should show; the two away-from-the-
-computer checks. That is the whole list.
+what the Business-settings live preview should show; **one** away-from-the-
+computer check, the other having been dropped above. That is the whole list.
 
 ---
 
