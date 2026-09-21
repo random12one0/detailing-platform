@@ -302,6 +302,19 @@ it when you add to it.
   version of it, **a check whose own act of looking changes the thing it is
   looking at.** A rule corrected three times in the open is one the next
   session will actually read.
+- **SIZE A BULK PROSE DELETION BEFORE YOU WRITE IT, NOT AFTER.** Cutting from
+  a heading or a list item to "the next one like it" is how a whole section
+  leaves with the row you meant to remove: on 2026-09-21 that swallowed
+  `FOR-ANDREW.md`'s Recorded block — **182 lines instead of 51**, taking a
+  survey, a correction and three settled decisions out of the document Andrew
+  was about to open. Nothing was committed and it came back from `HEAD`, which
+  is luck rather than a safeguard. **A deletion that overruns is
+  indistinguishable from one that worked, because both leave a file that
+  parses and still looks finished** — no error, no red check, nothing to
+  notice. So say how many lines you expect before you cut, refuse the write
+  when the block is bigger than that, and look again. It is the same failure
+  as a check that reads the label instead of the contents, one level out: the
+  edit succeeded, and nobody asked what else it took.
 - **BEFORE CHANGING A SHARED VARIABLE, FIND OUT WHETHER A PREVIOUS ITEM
   ALREADY DECIDED NOT TO.** A default on a token, a CSS custom property, a
   constant every screen reads — changing it is never local, and the reason it
