@@ -117,7 +117,9 @@
 //       on purpose and must be caught by [realtime-publication]; a channel
 //       with no authorisation on it must be caught by [realtime-broadcast].
 
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync, readFileSync, readdirSync } from "node:fs";
+import nodePath from "node:path";
+import { fileURLToPath } from "node:url";
 import { writeReceipt } from "./receipt.mjs";
 
 const KEEP = process.argv.includes("--keep");
@@ -143,6 +145,63 @@ const KEEP = process.argv.includes("--keep");
 //   --break=realtime-pub  silence ONLY the publication detector -> the run
 //                         must fail although [realtime-broadcast] is caught
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("=")[1] || "";
+
+// **THE EXPECTATION COMES FROM THE MIGRATIONS - 2026-09-21, docs/silences.md
+// section B.** Until today all four target counts were `rows.length`: this
+// check declared it expected exactly as many subjects as it happened to find,
+// so it could never come up short - on the one check whose whole job is
+// proving detailer A cannot read detailer B's customers.
+//
+// **AND A CONSTANT MEASURED OFF THE LIVE DATABASE WOULD NOT HAVE FIXED IT.**
+// That was tried in `restore-drill.mjs` the same day and ruled out: if a table
+// were dropped live the expectation would follow it down and the check still
+// could not fail. `supabase/migrations/` is declared, append-only and in the
+// repo, so it is what the live schema is supposed to MATCH.
+//
+// The subject of this file is the table carrying a `business_id`. Measured
+// 2026-09-21: the migrations declare **39** of them and `public` holds the
+// same 39, set-identical, no renames. Compared BY NAME, so a disagreement says
+// WHICH table - a tenant-owned table that exists live and is in no migration
+// is exactly how a leak arrives without a review.
+const MIGRATIONS = nodePath.join(
+  nodePath.dirname(nodePath.dirname(fileURLToPath(import.meta.url))), "supabase", "migrations");
+const declaredBizTables = () => {
+  const bodies = {};
+  const dropped = new Set();
+  const altered = new Set();
+  for (const f of readdirSync(MIGRATIONS).sort()) {
+    if (!f.endsWith(".sql")) continue;
+    const src = readFileSync(nodePath.join(MIGRATIONS, f), "utf8");
+    for (const m of src.matchAll(/create\s+table\s+(?:if\s+not\s+exists\s+)?(?:public\.)?([a-z_]+)\s*\(/gi)) {
+      let i = m.index + m[0].length, depth = 1;
+      while (i < src.length && depth > 0) {
+        if (src[i] === "(") depth++;
+        else if (src[i] === ")") depth--;
+        i++;
+      }
+      bodies[m[1].toLowerCase()] = src.slice(m.index + m[0].length, i);
+    }
+    for (const m of src.matchAll(/drop\s+table\s+(?:if\s+exists\s+)?(?:public\.)?([a-z_]+)/gi)) {
+      dropped.add(m[1].toLowerCase());
+    }
+    // A column added later counts the same as one declared in the body.
+    for (const m of src.matchAll(/alter\s+table\s+(?:if\s+exists\s+)?(?:public\.)?([a-z_]+)\s+add\s+column\s+(?:if\s+not\s+exists\s+)?business_id/gi)) {
+      altered.add(m[1].toLowerCase());
+    }
+  }
+  const out = new Set();
+  for (const [name, body] of Object.entries(bodies)) {
+    if (!dropped.has(name)) if (/(^|[^a-zA-Z0-9_])business_id([^a-zA-Z0-9_]|$)/.test(body)) out.add(name);
+  }
+  for (const name of altered) if (!dropped.has(name)) out.add(name);
+  return out;
+};
+const DECLARED_BIZ = declaredBizTables();
+// Counted over the business_id tables only - the RPC, storage and realtime
+// boundaries are assertions on the same fixture, not targets of their own.
+let bizDiscovered = 0;
+let bizAttempted = 0;
+let bizCompleted = 0;
 const started_at = new Date().toISOString();
 
 const URL_ = process.env.SUPABASE_URL;
@@ -584,6 +643,42 @@ try {
   lockedTables = all.filter((t) => !reachable(t)).map((t) => t.t);
   otherTables = all.filter((t) => !t.has_biz && reachable(t)).map((t) => t.t);
 
+  // **THE DECLARED SUBJECT SET, COMPARED BY NAME.** `CANARY` is ours, made by
+  // this run, so it is excluded - it is judged by the canary rule instead.
+  // `--break=declared` forgets one declared table, which is what a tenant-owned
+  // table arriving in the live schema without a migration looks like from here.
+  if (BREAK === "declared") DECLARED_BIZ.delete([...DECLARED_BIZ].sort()[0]);
+  const liveBiz = all.filter((t) => t.has_biz).map((t) => t.t).filter((t) => t !== CANARY);
+  bizDiscovered = liveBiz.length;
+  bizAttempted = liveBiz.length;
+  assertions++;
+  if (DECLARED_BIZ.size === 0) {
+    say("THE MIGRATIONS DECLARED NO business_id TABLES. Either `supabase/migrations/` is "
+      + "unreadable or the parser stopped matching, and either way there is no expectation "
+      + "to judge anything against. This run proves nothing.");
+  }
+  assertions++;
+  if (bizDiscovered === 0) {
+    say("ZERO TENANT-OWNED TABLES WERE DISCOVERED. Nothing carries a `business_id`, so every "
+      + "isolation question below compared nothing. This is NOT a clean matrix.");
+  }
+  if (DECLARED_BIZ.size > 0) {
+    const liveSet = new Set(liveBiz);
+    const missing = [...DECLARED_BIZ].filter((t) => !liveSet.has(t)).sort();
+    const extra = liveBiz.filter((t) => !DECLARED_BIZ.has(t)).sort();
+    assertions += 2;
+    if (missing.length) {
+      say(`${missing.length} table(s) the migrations declare with a \`business_id\` are NOT in `
+        + `\`public\`: ${missing.join(", ")}. The live schema does not match the repo, so this `
+        + `matrix did not ask about them.`);
+    }
+    if (extra.length) {
+      say(`${extra.length} tenant-owned table(s) exist in \`public\` that NO migration declares: `
+        + `${extra.join(", ")}. A table carrying a business_id that arrived without a migration `
+        + `has had no review, and that is how a leak gets in.`);
+    }
+  }
+
   // **AN INERT POLICY IS A TRAP, NOT A COMFORT.** A table no browser role can
   // select from is safe today whatever its policies say — but a policy sitting
   // on it reads, to the next person, as the thing keeping it safe. It is not.
@@ -761,6 +856,7 @@ try {
     }
 
     for (const x of problems) say(`${table}: [${x.det}] ${x.msg}`);
+    if (table !== CANARY) bizCompleted++;
     rows.push({ table, verdict: problems.length ? "LEAK" : "ok", detail: problems.map((x) => x.msg).join("; ") });
     console.log(`    ${table.padEnd(28)} ${problems.length ? "LEAK — " + problems.map((x) => x.msg).join("; ") : "ok"}`);
   }
@@ -774,6 +870,7 @@ try {
       assertions++;
       if (Array.isArray(r.data) && r.data.length) { bad++; say(`${table}: ${actor.name} read ${r.data.length} row(s) from a table with no policies`); }
     }
+    if (all.some((x) => x.t === table && x.has_biz)) bizCompleted++;
     rows.push({ table, verdict: bad ? "LEAK" : "ok (locked)", detail: "" });
     console.log(`    ${table.padEnd(28)} ${bad ? "LEAK" : "ok — nobody reads it"}`);
   }
@@ -1431,16 +1528,16 @@ ${skips.length} skip(s). Canary ${canary.observed_failure ? "caught" : "MISSED"}
 ${rows.map((r) => `<tr><td>${r.table}</td><td class="${r.verdict.startsWith("ok") ? "ok" : "LEAK"}">${r.verdict}</td><td>${r.detail}</td></tr>`).join("\n")}
 </table>`, "utf8");
 
-const expected = rows.length;
 const status = failures.length === 0 && canary.observed_failure ? "pass" : "fail";
 const { path } = writeReceipt({
   check_id: "tenant-matrix",
   started_at,
   status,
-  expected_targets: expected,
-  discovered_targets: expected,
-  attempted_targets: expected,
-  completed_targets: expected,
+  // Four numbers from four places, so they can disagree.
+  expected_targets: DECLARED_BIZ.size, // from supabase/migrations/, before the run
+  discovered_targets: bizDiscovered,   // business_id tables found in `public`
+  attempted_targets: bizAttempted,     // of those, the ones this run examined
+  completed_targets: bizCompleted,     // of those, the ones that reached a verdict
   // **THIS SAID `0` WHILE `skips` WAS FULL — 2026-09-20, ROADMAP 14.11.** The
   // line forty rows above prints `${skips.length} skip(s)` into the report,
   // every skip carries a written reason, and they are all filed in
