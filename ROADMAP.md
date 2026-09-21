@@ -1390,6 +1390,52 @@ the wrong service, and never book a job we cannot reach.
   `0 controls` rather than printing a silent pass. **A site with no
   service-naming controls is not a site that passed.**
 
+  ── **`?lite=1` AND THE HIT AREA — THE TWO CHECKS THIS SESSION SKIPPED,
+  RUN 2026-09-21 BEFORE STOPPING** ────────────────────────────────────────
+
+  **Both are absolutes in `docs/design-system.md` and neither was run while
+  the work was being done.** Run afterwards rather than recorded as a gap:
+
+  **`?lite=1`, at 320 first, over everything built tonight. No behavioural
+  difference anywhere.**
+
+  | surface | `.lite` on `<html>` | result |
+  |---|---|---|
+  | `/privacy` both new sections | yes | opacity 1, `transform: none`, 13 sections, no overflow |
+  | Clients · **Export my customers** | yes | renders and presses identically |
+  | Back office · audit card | yes | **both states** — *"Reading the record…"* then the row — `animation: none`, `transform: none` |
+  | Growth · the `first` row | yes | the fixed sentence renders, *"The page works"* absent, no overflow |
+
+  **THE HIT AREA, PROBED WITH `elementFromPoint` RATHER THAN A RECT — AND
+  THE RECT WOULD HAVE FAILED IT.**
+
+  - **Bounding rect: 284 × 38px.** By that measure the button **breaks the
+    44px rule.**
+  - **Real target, walked outward from the centre until presses stopped
+    landing: 284 × 44px. It passes.**
+  - **Why:** `.btn`'s `::after` carries `inset: -4px 0px`, which is exactly
+    the pattern CLAUDE.md prescribes — *"a deliberately small mark keeps its
+    size and grows its target with an absolutely positioned `::after`
+    negative inset."*
+  - **Pitch:** nearest interactive control is **29px away** (the *gone quiet*
+    tile). No two targets steal each other's presses.
+
+  **So the control passes, and the interesting part is that the ordinary
+  instrument would have said otherwise.** A check using
+  `getBoundingClientRect` reports 38px and files a defect that does not
+  exist — which is the rule's own warning, confirmed on a live control rather
+  than quoted.
+
+  **ONE THING READ AND NOT RUN, NAMED:** `/ex3`'s reduced-motion path. The
+  page carries `@media (prefers-reduced-motion:reduce){.rv-hidden{opacity:1;
+  transform:none;transition:none}}` at line 282 and gates its reveal script
+  on `matchMedia` at line 586, so the booking widget would be visible
+  immediately — **and the blank-section near-miss earlier in this entry could
+  not have happened on that path at all.** `?lite=1` does not reach it: that
+  flag is set by `main.jsx` on the React app, and the example sites are static
+  HTML. **The browser pane cannot emulate `prefers-reduced-motion`**, so this
+  is read, not run.
+
 - [x] **2.6 — DONE 2026-09-20. The year is optional, the label says so, and a refused Continue now says why on every step.**
   Size and model filled, Continue stayed dead until a year was typed; the year
   box is not marked required while the box above it is marked "(optional)".
@@ -3638,6 +3684,39 @@ requested.
 
 ---
 
+- [ ] **4.5 — The credential-free suites do not reach the back office, and
+  four items tonight cited them as though they did.**
+  **Found 2026-09-21 by a session auditing its own evidence, not by a failure.**
+  The four suites run before every finish — `composition`,
+  `design-contrast`, `landing-pricing`, `route-contract` — and they are
+  quoted in entry after entry as *"the four credential-free suites pass"*.
+  **Measured:** `composition` reads `Clients.jsx`, `landing-pricing` reads
+  `legal.js`, all four read *something* under `app/src` — **and not one of
+  them names `AdminPage.jsx` or `lib/customer-export.js`.**
+
+  **SO THE PHRASE IS TRUE AND ITS MEANING CHANGES PER ITEM.** For a change to
+  `legal.js` it is evidence. For a change to the back office it is a green
+  light from an instrument that was pointed elsewhere — **exactly the shape
+  `docs/silences.md` exists for, one level up: not a check that cannot fail,
+  but a check that cannot fail *for the thing being claimed*.**
+
+  **WHAT THE BACK OFFICE ACTUALLY HAS:** `tests/admin-insight.test.mjs`,
+  which covers `lib/adminInsight.js` and, since § 10, the feed into
+  `bookability` and two source assertions about `AdminPage.jsx`. **Nothing
+  covers the rest of that 1,800-line file**, and `lib/customer-export.js` has
+  `tests/customer-export.test.mjs` — written the same night, 18 checks — which
+  is cover for the file and none for the screen that calls it.
+
+  **Fix:** either widen one of the four to walk the back office, or add a
+  fifth that does, and **make every entry that cites the four name what they
+  looked at.** The second half is the one that stops this recurring, because
+  the phrase will keep being written.
+  **Done when:** a deliberate break in `AdminPage.jsx` fails a
+  credential-free run, and the break is one a person could plausibly make —
+  not a syntax error.
+  **NOT STARTED. It is a build and it was deliberately not begun at six in
+  the morning by the session that found it.**
+
 ## Wave 5 — Money truth
 
 Both audits independently reached the same conclusion here, which makes it the
@@ -4345,8 +4424,15 @@ rather than wording went to Andrew.
   mistyped marker ships as literal asterisks on a legal page.
 
   **No Spanish key: the page is English-only** — zero `t(` calls, no strings
-  import. Build clean, four credential-free suites pass, `label-guard` 45/45,
+  import. Build clean, `label-guard` 45/45,
   `admin-insight` 65/65.
+
+  **AND THE SUITE CLAIM HERE IS SOUND, CHECKED RATHER THAN ASSUMED —
+  2026-09-21.** Unlike 9.2, where the same phrase was decoration,
+  `tests/landing-pricing.test.mjs` **does** read `landing/legal.js`, which
+  is the only file this item changed. So "the suites pass" is evidence here
+  and was not there. **The phrase is not interchangeable between items, and
+  that is the point of writing it down twice.**
 
   **OPEN ON ANDREW'S WORDING ONLY.** `FOR-ANDREW.md` carries a read-and-say-so
   row with one line per service. **Nothing reaches a visitor until he
@@ -6082,7 +6168,19 @@ the dashboard or back office at phone width at all.
   `ok=false [suspended]`, a request-only page went `mode=reserve` →
   `mode=request`, and the healthy and the empty rows came back **byte-identical
   to before** — the regression half asserted rather than eyeballed. Build
-  clean, the four credential-free suites pass, `label-guard` 45/45.
+  clean, `label-guard` 45/45.
+
+  **AND A CORRECTION TO THAT EVIDENCE LINE, 2026-09-21. IT USED TO SAY "the
+  four credential-free suites pass" AND FOR THIS ITEM THAT WAS DECORATION.**
+  Checked afterwards rather than assumed: `composition` reads
+  `Clients.jsx`, `landing-pricing` reads `legal.js` — **and not one of the
+  four names `AdminPage.jsx`**, which is the only file 9.2 touches. They
+  passed; they were not looking. **The real cover for this item is
+  `tests/admin-insight.test.mjs` § 10, eight checks, written in the same
+  round and broken on purpose** — and that pins the `bookability` FEED. The
+  `first` row's advice string and the audit card have **no automated cover at
+  all**; they were pressed in a browser and that is the whole of it. The gap
+  is its own item, 4.5.
 
   **UNPRESSED, AND NAMED RATHER THAN GLOSSED.** Nobody has loaded the screen
   since. The back office needs a platform-admin sign-in against the demo
