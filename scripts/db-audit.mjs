@@ -76,7 +76,7 @@ const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("
 // locked-with-nothing-to-unlock, open-to-a-caller's-own-schema, unindexed
 // foreign keys, and (2026-09-21) locked-by-RLS-with-grants-still-open. So
 // a check that stops running is a failure rather than a smaller audit.
-const EXPECTED_CHECKS = 5;
+const EXPECTED_CHECKS = 6;
 let checksRun = 0;
 
 async function q(sql) {
@@ -123,6 +123,44 @@ const NO_POLICY_BY_DESIGN = new Set([
   // one at all and a policy would be the thing that WEAKENED it.
   "session_pings",          // whether a Claude session is still alive
   "translation_usage",      // the three providers' remaining character allowances
+  // **ADDED 2026-09-21, AND THE EVIDENCE IS THE ENTRY.** Andrew's manager's
+  // ruling, reversing an earlier refusal, and the reason for the reversal is
+  // worth more than the entry: when these two were first flagged they were
+  // "two names nobody could account for", and a finding nobody has explained
+  // must not be quieted. They were then investigated. **An allowlist entry
+  // backed by that is a record of a decision; an entry backed by nothing is
+  // the omission this file exists to prevent.**
+  //
+  // WHAT THEY ARE. Shared caches, and the shape is the point: **neither
+  // carries a `business_id`**, so neither is tenant-owned and there is no
+  // per-tenant row for a policy to select. `address_points` (key, lat, lon,
+  // found, resolved_at — 19 rows) is the geocoding cache;
+  // `weather_grids` (grid_key, lat, lon, periods, place, fetched_at — 11 rows)
+  // is the NWS forecast cache. Written and read ONLY by edge functions:
+  // `calculate-booking`, `refresh-weather` and `_shared/weatherCache.ts`, all
+  // of which import `_shared/db.ts`, whose client is built with
+  // `SERVICE_ROLE_KEY`. **No browser client queries either one** — greps for
+  // both `from('<table>')` and `rest/v1/<table>` across `app/src` return
+  // nothing, and the single `address_points` mention there is a `ponytail:`
+  // comment about a future upgrade.
+  //
+  // WHAT LOCK THEY CARRY INSTEAD OF A POLICY. The same two-part one the ten
+  // above carry as of `20260921000000_revoke_locked_table_grants.sql`: RLS
+  // **enabled and forced** with zero policies, AND **`revoke all from anon,
+  // authenticated`**. Measured after that migration: PostgREST answers
+  // **401 permission denied** to the anon key, where before it answered
+  // **200 with an empty array** — a denial indistinguishable from an empty
+  // table.
+  //
+  // **WHAT VOIDS THESE TWO ENTRIES, and it is enforced rather than promised.**
+  // If either table loses the grant revoke, or gains a reason to need a
+  // policy, the entry is void and the finding returns. Section 2 above
+  // excuses an allowlisted table **only while its grants are still revoked**,
+  // so this condition fires by itself rather than waiting for somebody to
+  // re-read this comment. An allowlist with no expiry condition is a quiet
+  // omission with better manners.
+  "address_points",         // geocoding cache, no business_id, service-role only
+  "weather_grids",          // NWS forecast cache, no business_id, service-role only
 ]);
 
 // **THE FOREIGN KEYS DELIBERATELY LEFT UNINDEXED**, with the reason, so this
@@ -162,16 +200,38 @@ say("no table in public has RLS switched off", await q(`
 console.log("\n2. RLS on, and something to enforce");
 {
   const rows = await q(`
-    select c.relname as table
+    select c.relname as table,
+           coalesce((select count(*)::int from information_schema.role_table_grants g
+                      where g.table_schema = 'public' and g.table_name = c.relname
+                        and g.grantee in ('anon','authenticated')), 0) as grants
       from pg_class c
       join pg_namespace n on n.oid = c.relnamespace
      where n.nspname = 'public' and c.relkind = 'r' and c.relrowsecurity
        and not exists (select 1 from pg_policy p where p.polrelid = c.oid)
      order by 1`);
-  const unexpected = rows.filter((r) => !NO_POLICY_BY_DESIGN.has(r.table));
-  for (const r of rows.filter((x) => NO_POLICY_BY_DESIGN.has(x.table))) {
-    console.log(`  ok    ${r.table} — no policies, and that is the design`);
+  // **THE ALLOWLIST EXCUSES A TABLE ONLY WHILE ITS LOCK IS STILL THERE —
+  // 2026-09-21.** Every entry below is excused because it carries the
+  // two-part lock: forced RLS with no policy, AND the browser grants revoked.
+  // **If a table loses the grant half, being on the list stops excusing it and
+  // the finding comes back by itself.** An allowlist with no expiry condition
+  // is a quiet omission with better manners; this one expires mechanically
+  // rather than in a comment somebody has to remember to read.
+  // `--break=regrant` puts the browser grants back on one allowlisted table in
+  // the READING only - nothing is granted in the database - which is what that
+  // table losing its lock would look like from here.
+  if (BREAK === "regrant") {
+    const victim = rows.find((r) => NO_POLICY_BY_DESIGN.has(r.table));
+    if (victim) { victim.grants = 7; console.log(`--break=regrant: pretending ${victim.table} got its grants back`); }
   }
+  const excused = (r) => NO_POLICY_BY_DESIGN.has(r.table) && Number(r.grants) === 0;
+  const voided = rows.filter((r) => NO_POLICY_BY_DESIGN.has(r.table) && Number(r.grants) > 0);
+  const unexpected = rows.filter((r) => !NO_POLICY_BY_DESIGN.has(r.table));
+  for (const r of rows.filter(excused)) {
+    console.log(`  ok    ${r.table} — no policies, and that is the design (grants revoked, so the lock still holds)`);
+  }
+  say("no allowlisted table has lost the grant lock its entry depends on", voided,
+    (r) => `${r.table} — ALLOWLIST ENTRY VOID: it is excused for having no policy, and its `
+      + `${r.grants} browser grant(s) are back. The condition that entry rests on is gone`);
   say("no other table is locked with nothing to unlock it", unexpected, (r) => r.table);
 }
 
