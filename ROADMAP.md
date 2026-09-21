@@ -5277,6 +5277,27 @@ rather than wording went to Andrew.
   number and **no recommendation from anybody here**: `docs/TASTE-NOTES.md`
   outranks anything a session would infer about what he likes.
 
+  **ANSWERED AND DONE 2026-09-21.** Andrew: *"they are just example sites and
+  it is not that deep, and if it is a small change that makes it better then
+  do it."* **1111px → 903px at 1440x900, 1.23 → 1.00 viewports.** Five values
+  trimmed and nothing restyled: the hero's top padding
+  `clamp(46,9vw,104)` → `clamp(40,6vw,72)`, the gap under the proof line
+  `clamp(30,5vw,54)` → `clamp(24,4vw,36)`, the picture's cap `62vh` → `46vh`,
+  the chip's bottom margin 26 → 18 and the lede's 26 → 20.
+  **Measured at three widths, settled by polling until the height held for
+  six samples**, with `/ex1` as the control: 1440x900 **1.00**, 1920x1080
+  **0.91** (was 1.06), 390x844 **0.78**. `/ex1` unchanged at 0.86 / 0.72 /
+  0.83, which is how the measurement is known to be of the page and not of
+  the method.
+
+  **AND THE FIRST MEASUREMENT AFTER THE EDIT SAID 1111px — UNCHANGED.**
+  `/ex3` is served from the BUILT copy in `app/public`, not from
+  `docs/tenant-sites/`, so editing the source changes nothing until
+  `node scripts/build-examples.mjs --dev` runs. **A source edit that the page
+  does not have is indistinguishable from a change that did not work**, and
+  the honest reading of that first run was "my edit had no effect", not "the
+  number is wrong".
+
   ── **SPEC FOR WHOEVER OWNS `scripts/`: THE PICTURE-STALENESS GATE CAN SAY
   "CURRENT" OVER A CAPTURE THAT NO LONGER MATCHES. Written to be built without
   asking this session.** ───────────────────────────────────────────────────

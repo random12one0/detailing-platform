@@ -245,19 +245,24 @@ a{color:inherit}
 
 
 /* ── 5 · HERO — one genuinely large object, rising and fading in ──────── */
-.hero{padding:clamp(46px,9vw,104px) 0 0;text-align:center}
-.hero .chip{margin-bottom:26px}
+/* ROADMAP 7.10 — the hero measured 1111px at 1440x900, 1.23 viewports,
+   so about a fifth of it sat below the fold. Andrew: they are example
+   sites, not that deep, and a small change that makes it better is worth
+   doing. Three values trimmed, nothing restyled: the top padding, the
+   gap under the proof line, and the picture's viewport cap. */
+.hero{padding:clamp(40px,6vw,72px) 0 0;text-align:center}
+.hero .chip{margin-bottom:18px}
 .hero h1{max-width:15ch;margin-inline:auto}
-.hero .lede{margin:0 auto 26px;text-align:center;max-width:52ch;font-size:17.5px}
+.hero .lede{margin:0 auto 20px;text-align:center;max-width:52ch;font-size:17.5px}
 .hero .acts{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
-.hero .under{font-size:13px;color:var(--ink-3);margin:0 0 clamp(30px,5vw,54px)}
+.hero .under{font-size:13px;color:var(--ink-3);margin:0 0 clamp(24px,4vw,36px)}
 .hero .under b{color:var(--ink);font-weight:600}
 
 /* the object: a 21:9 panel that rises from the bottom of the fold and whose
    TOP edge dissolves into the ground. mask-image is the fade; the panel keeps
    its own 24px corners so the dissolve never eats a corner. */
 .stage{position:relative;border-radius:var(--r-card) var(--r-card) 0 0;overflow:hidden;
-  aspect-ratio:16/8;max-height:62vh;
+  aspect-ratio:16/8;max-height:46vh;
   -webkit-mask-image:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.5) 15%, #000 40%);
   mask-image:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.5) 15%, #000 40%)}
 .stage img{width:100%;height:100%;object-fit:cover;display:block;
