@@ -86,7 +86,7 @@ end with the same summary line.
 
 | script | what its silence looks like | the distinguishing test |
 |---|---|---|
-| ~~`sweep-booking-steps.mjs`~~ | **ROW CORRECTED 2026-09-20 — the claim was wrong, and the truth was worse. See below** | — |
+| ~~`sweep-booking-steps.mjs`~~ | **ROW CORRECTED 2026-09-20 — the claim was wrong, and the truth was worse. See below** | **CLOSED 2026-09-21, `b5022b0`.** It had NO canary and no sabotage switch at all. One is now aimed at `MEASURE`: a step read in a 1440x200 window must report OVER, and it reads **788px over**. `16 16 16 16`, 504 assertions, receipt graded. |
 | ~~`accent-sweep.mjs`~~ | `SWEEP CLEAN — dashboard, booking page and hue families` on `failures === 0` | **CLOSED 2026-09-21, `8585701`.** 18 declared accents, 288 comparisons, a canary aimed at the contrast floor, and a receipt. **Breaking it found a real defect: any stray argument was read as a colour**, so `--lite` swept ONE and printed CLEAN. See below. |
 | `e2e-booking.mjs` | exits 0 with no subject count | count the steps completed end to end; assert the booking exists afterwards. **STILL UNPROVEN, and the census mis-scoped it: it needs `SUPABASE_SERVICE_ROLE_KEY` and four other credentials, so it is NOT browser-only** |
 | ~~`render-emails.mjs`~~ | exits 0 with no subject count | **CLOSED 2026-09-21, `af3b9a8`.** 32 declared emails, 161 assertions, a canary aimed at the ROT patterns, a receipt. **The row was wrong on both halves** — it printed `32 emails` and exited 1 on problems. What it could not tell you was a run that rendered nothing: `0 emails`, exit 0. |
@@ -183,6 +183,8 @@ taken are a decision with a named blocker rather than a silence.
 |---|---|---|
 | `accent-sweep.mjs` | nothing — fully offline | **TAKEN**, `8585701` |
 | `render-emails.mjs` | `supabase/functions/_shared` to stop moving | **TAKEN 2026-09-21 in the lane swap**, `af3b9a8` — 4 of 7 |
+| `sweep-booking-steps.mjs` | browser + dev server | **TAKEN 2026-09-21 in the lane swap**, `b5022b0` — 5 of 7 |
+| `e2e-booking.mjs` | browser + dev server + service-role + tenant — **all held this round** | **NOT REACHED.** 1,019 lines, zero canary, and it writes real bookings. The round ran out; not started rather than started badly |
 | `check-deployed.mjs` | Management API read | **TAKEN**, `d4ac4ac` |
 | `db-audit.mjs` | Management API read | **TAKEN**, `81fc751` |
 | `render-emails.mjs` | imports 6 modules from `supabase/functions/_shared` | **DEFERRED** — that lane is the other session's, took 2 commits in 90 minutes with 3 items unpressed, so any reading is against a tree that will move |
