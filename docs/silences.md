@@ -183,7 +183,7 @@ run produced (`rows.length`), which is a gate following the data.
 |---|---|---|
 | `dashboard-notifies.mjs` | `rows.length` | follows the data. **NOT TAKEN 2026-09-21 and the reason is not authorisation:** it needs `SUPABASE_SERVICE_ROLE_KEY`, and its method is to press the buttons a detailer presses - it calls `update-booking` and **cancels and moves real bookings in the demo tenant**. It cannot be run while anything else is measuring that tenant. Needs the tenant to itself, like `tenant-matrix.mjs`. |
 | ~~`restore-drill.mjs`~~ | `rows.length` | **CLOSED 2026-09-21, `bf55bb9`.** Was declaring **2 targets** for a drill over the whole `public` schema - `rows.length` counted the STAGES it finished. Now `expected` is a declared `EXPECTED_TABLES = 52`, `discovered`/`attempted`/`completed` are the live tables found, restored and compared back. Zero tables was a `throw` past `writeReceipt` and is now a graded failure. See below. |
-| `tenant-matrix.mjs` | `rows.length` | follows the data. **Still open, and it is the most valuable of the five** - it is the check that proves one detailer cannot see another's customers. It writes to the demo tenant, so it needs that tenant to itself. |
+| ~~`tenant-matrix.mjs`~~ | `rows.length` | **CLOSED 2026-09-21, `3eda57b`** - the most valuable of the five, the check that proves one detailer cannot see another's customers. `expected` is now the `business_id` tables `supabase/migrations/` declares, compared by name; 39 declared, 39 live, set-identical. `--break=declared` gives **`38 39 39 39`** and names `add_ons`. See below. |
 | ~~`deployed-inventory.mjs`~~ | `dirs.length` | **CLOSED 2026-09-21, `988e7dd`.** Confirmed by running first - 39/39/39/39 full, 0/0/0/0 empty - then `completed_targets` became `judged.length`, which the file already computed. A function walked but never compared is now a gap: **40/40/40/39**. See below. |
 | ~~`example-shots-check.mjs`~~ | `SITES.length` | **CLOSED 2026-09-20 — see below** |
 
@@ -563,6 +563,74 @@ did that release by release.
 
 **The Supabase half was always correct. The scope was not, and nothing in the
 wording admitted a scope** — which is the whole of this file's subject.
+
+
+### THREE OF FIVE CLOSED — `tenant-matrix.mjs`, 2026-09-21, `3eda57b`
+
+**Most of what this needed was already built, and that is worth saying before
+the fix.** `tenant-matrix.mjs` already carried a **real canary** —
+`public.tenant_matrix_canary`, a real table with a real hole (`for select to
+authenticated using (true)`), created and dropped every run and **discovered by
+the same schema query as every other table**, so it travels the identical code
+path. It also already carried six sabotage switches, per-assertion subject
+counts on both halves, honest `skipped_targets`, and a floor of **700**
+assertions that has been raised when boundaries were added. **The counts were
+the only hollow part of it.**
+
+| | before | after |
+|---|---|---|
+| four counts | `rows.length` ×4 | `expected` from `supabase/migrations/`, the rest measured |
+| declared vs live | not asked | **39 declared, 39 live, set-identical, compared by name** |
+| zero discovered | not asked | its own failure, and so is a zero-size parse |
+
+**The break that matters, and it is the one the manager asked for by name:**
+`--break=leak` stops comparing `business_id`. The deliberately leaky canary
+table then **survives undetected**, and the run reports **`CANARY MISSED`** and
+exits 1 — so a genuine cross-tenant leak is seen, and a blinded detector
+**refuses its own green lines** instead of printing them.
+
+| run | counts | verdict |
+|---|---|---|
+| control | **`39 39 39 39`**, 733 assertions / floor 700 | **PASS**, canary caught |
+| `--break=leak` | `39 39 39 39` | **FAIL** — `CANARY MISSED` |
+| `--break=declared` | **`38 39 39 39`** | **FAIL** — names `add_ons`, and `receipt.mjs`: *"target counts disagree"* |
+
+### THE PARSER RETURNED ZERO AND SAID SO, WHICH IS THE ONLY REASON IT WAS NOT A GREEN
+
+The first version of the migrations parse matched **nothing**. A heredoc turned
+two `\b` word boundaries into **literal backspace characters**, so the regex
+was `/^Hbusiness_id^H/` and it silently matched no table. The run printed *"THE
+MIGRATIONS DECLARED NO business_id TABLES… this run proves nothing"* — **the
+zero-size guard written in the same edit was what caught it.** Without that
+guard the expectation would have been an empty set, and an expectation of
+nothing is exactly the fault this section exists to remove, reintroduced by the
+fix for it.
+
+**`docs/gotchas.md:348` already holds this trap** — *a source file can hold a
+control character that nothing will show you* — and `node --check` passed, the
+diff looked right, and the file read correctly in every tool. Rewritten without
+`\b`; the file is verified to contain zero control characters.
+
+### THE TENANT WAS LEFT AS FOUND, AND ONE OF MY OWN PROBES LIED ABOUT IT
+
+Verified after the last run on `kguqylyzgyzfktkfnhjb`: canary table, canary
+RPC, canary bucket and both fixture tenants **GONE**; `public` still **52**
+tables; `demo-detail`, `demo-riverside` and `demo-ironclad` all
+**`status=active`**; **zero** businesses suspended. `seed-demo` was not run.
+
+**The first version of that verification reported `demo-detail: MISSING`.** It
+selected an `is_active` column, which does not exist — the column is `status` —
+so the query errored and the check counted the length of an *error object*.
+**A probe written to confirm cleanliness announced the opposite because of its
+own bug**, which is the same shape as everything else in this file: the
+measurement failed, not the thing measured.
+
+### THE LAST ONE
+
+`dashboard-notifies.mjs` is the only entry left. It needs
+`SUPABASE_SERVICE_ROLE_KEY` and it **cancels and moves real bookings in the
+demo tenant** — it is the one remaining member of § B and it needs that tenant
+to itself.
 
 ### The two not taken, and neither reason is authorisation
 
