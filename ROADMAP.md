@@ -1436,6 +1436,66 @@ the wrong service, and never book a job we cannot reach.
   HTML. **The browser pane cannot emulate `prefers-reduced-motion`**, so this
   is read, not run.
 
+  ── **AND THE HIT AREA WAS ONE PIXEL SHORT. THE MANAGER FOUND IT BY PRESSING
+  IT — 2026-09-21, and this is recorded rather than quietly corrected.**
+
+  **A tick in this round rested on a control that missed a stated absolute,
+  the miss was found by somebody opening the screen and probing it, and the
+  method that found it was one this session had NAMED as a gap and not yet
+  run.** The section above says *"probed with `elementFromPoint` rather than a
+  rect"* and reports **44**. The manager's own probe, at `1254x720`, returned
+  **43**. **Both numbers were real.**
+
+  **THE ARITHMETIC WAS AGAINST THE WRONG BOX.** `.btn.sm` is `border-box`
+  with a 1px border, so its `::after`'s containing block is the **padding
+  box — 36px, not 38** — and `inset: -4px 0` computes to **exactly 44px**.
+  `getComputedStyle(btn,'::after').height` said `44px` on the nose.
+
+  **EXACTLY 44 ROUNDS UNDER.** The button's top sits at `171.61`, so the
+  whole pixel rows it owns are **43, 44 or 45 depending only on where it
+  happens to sit.** Scrolling one pixel changes the answer. **A hard absolute
+  that is met at some scroll positions and missed at others is missed** — and
+  it is why two honest probes disagreed rather than one of us being careless.
+
+  **FIXED ON THE SHARED DECLARATION**, `inset: -4px 0` → `-5px 0`, vertical
+  only, horizontal still `0` so the 2026-09-12 *"a sideways box would steal a
+  neighbour's press"* decision is untouched. **All 28 `.btn.sm` call sites
+  carried the same zero-tolerance 44**; fixing only the button somebody
+  pressed would have left 27 one rounding away. `.chip` in the same file
+  already used `-5px`, so `.btn.sm` was the outlier rather than the pattern.
+
+  **RE-PROBED, NOT TRUSTED — six scroll positions at each width:**
+
+  | width | press extent, 6 runs | target width | `::after` |
+  |---|---|---|---|
+  | **1254 x 720** | **47, 47, 47, 47, 47, 47** | 963px | 46px |
+  | **320 x 844** | **47, 47, 47, 47, 47, 47** | 284px | 46px |
+
+  **Never below 44 at either**, nearest interactive neighbour still **29px**
+  away at 320, so nothing steals a press. Build clean, four suites, label-guard
+  45/45, admin-insight 65/65, customer-export 18/18.
+
+  **THREE MORE CONTROLS ARE IN THE IDENTICAL POSITION — read off the CSS, not
+  pressed, so named rather than changed:**
+
+  | control | min-height | border | padding box | inset | target |
+  |---|---|---|---|---|---|
+  | `.btn.sm` | 38 | 1px | 36 | **−5** | **46** ✔ fixed |
+  | `.chip` | 36 | 1px | 34 | −5 | **44** — zero tolerance |
+  | `.choice` | 38 | 1px | 36 | −4 | **44** — zero tolerance |
+  | `.segmented button` | 36 | 0 | 36 | −4 | **44** — zero tolerance |
+
+  **Three controls sitting exactly on the absolute, each one rounding away
+  from missing it.** Not touched: they are on screens this session did not
+  press, and the last thing this entry needs is a fourth number changed on
+  arithmetic alone.
+
+  **AND IT IS THE CLEANEST ARGUMENT FOR 4.5 THERE IS.** The suites do not
+  reach the back office — and neither did anything else until a person opened
+  it and pressed the button. **No check in this repo would have caught this**:
+  one asking a bounding rect reports 38 and files a defect that is not there;
+  one asking the pointer reports 43, 44 or 45 and is right every time.
+
 - [x] **2.6 — DONE 2026-09-20. The year is optional, the label says so, and a refused Continue now says why on every step.**
   Size and model filled, Continue stayed dead until a year was typed; the year
   box is not marked required while the box above it is marked "(optional)".
