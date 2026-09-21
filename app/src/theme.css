@@ -2129,6 +2129,42 @@ button.menu-name { display: flex; flex-direction: column; justify-content: cente
    decision inside an exception to the very rule that exists to stop numbers
    drifting. */
 .btn.sm::after { content: ""; position: absolute; inset: -5px 0; }
+/* **AND THE PIXEL OF SLACK ABOVE COST A PIXEL ON HOURS — 2026-09-21, hours
+   after it shipped.** Growing this `::after` from 44 to 46 fixed every
+   `.btn.sm` that has nothing above or below it and broke the one place three
+   of them WRAP.
+
+   **Measured, at 320, on Hours.** "All days", "Weekdays" and "Weekends" sit
+   in a `.row.wrap` that goes to two lines on a phone. `.row`'s gap is
+   `--sp-2` = 6px, so the pitch between the wrapped rows is 38 + 6 = **44** —
+   which a 44px band tiled exactly and a 46px band cannot. The two bands now
+   **overlap by 2px**, Chromium gives the contested rows to the lower button,
+   and `elementFromPoint` on "All days" returns **44, 44, 43, 43** across a
+   pixel of sub-pixel offset while "Weekends" reads a full 46-47. **43 is
+   under the floor**, and the control that lost the pixel is the one a
+   detailer presses to open the whole week at once.
+
+   **This is trap (n) — a small target traded for a WRONG one** — and it is
+   the third time this file has met it. `.chip` met it in 2026-09-12 (*"the
+   probe read 31px on chips with a wrapped neighbour... the two boxes met"*)
+   and `.choice` in 2026-09-13; both answered with a vertical margin that
+   opens the pitch to match the band. This is the same answer, third
+   instance: `margin-block: 1px` makes the pitch 38 + 1 + 1 + 6 = **46**,
+   which the 46px band tiles EXACTLY — each button reaches its neighbour's
+   edge and stops.
+
+   **AND IT IS ON THE SHARED DECLARATION, NOT ON HOURS.** The wrap is a
+   property of `.row.wrap`, not of that screen; any of the 28 call sites can
+   wrap at 320 the day its label grows. A `.row.wrap .btn.sm` exception would
+   hide the decision inside the variable that exists to stop numbers
+   drifting, which CLAUDE.md names as the worse fix.
+
+   **WHY THE ORIGINAL CHANGE DID NOT SEE IT:** it probed Clients, where the
+   nearest neighbour is 29px away, and reported that distance as evidence.
+   A neighbour measured on ONE screen is not a fact about a shared control —
+   the wrapped pair only exists at 320, on a screen that change never
+   opened. */
+.btn.sm { margin-block: 1px; }
 /* Square, for a button whose whole label is its icon — the reorder arrows in
    Catalog (W10). A pill with a chevron in it and .btn's 26px side padding is
    64px wide for a 17px mark, and three of those plus a worded button do not
@@ -2188,6 +2224,17 @@ button.menu-name { display: flex; flex-direction: column; justify-content: cente
    **AND THE GAP HAD TO OPEN WITH IT.** 36 + 6 does not tile a 44 target: the
    probe read 31px of reachable height on chips with a wrapped neighbour above
    or below, because the two boxes met. 8px makes the pitch exactly 44. */
+/* **"8px MAKES THE PITCH EXACTLY 44" IS WRONG BY TWO — 2026-09-21, measured
+   on Hours at 320.** The pitch is **46**: box 36, `margin-block: 2px` each
+   side, `.row`'s `--sp-2` gap of 6, so 36 + 2 + 2 + 6. The band is **44**
+   (`::after` height read live, `44px` — the containing block is the 34px
+   padding box, not the 36px border box). That leaves **SLACK 2**, not 0.
+   A pointer walk returns 44-45 at both 320 and 1254.
+
+   The chip is therefore fine and has exactly two pixels of room. Said out
+   loud because the wrong number reads as *"this already tiles exactly"*,
+   which would stop the next session opening the gap if the band ever grows —
+   and that is the mistake that put `.btn.sm` at 43 on this very screen. */
 .chip { position: relative; margin-block: 2px; }
 .chip::after { content: ""; position: absolute; inset: -5px 0; }
 .chip svg { flex-shrink: 0; width: 1.15em; height: 1.15em; }
@@ -3777,6 +3824,30 @@ label.row:has(> input[type="checkbox"]) { min-height: 44px; }
    steal each other's presses, which is trap (n): a small target traded for a
    WRONG one. Vertical only, because these sit shoulder to shoulder across that
    same 6px sideways. */
+/* **TWO NUMBERS IN THE NOTE ABOVE ARE WRONG, AND THEY ARE WRONG THE SAME WAY
+   ROADMAP 2.5 WAS — 2026-09-21, measured.** It says *"the box is 46"* and
+   *"the pitch is 38 + 1 + 1 + 6 = 46, which the 46px box tiles EXACTLY"*.
+   The pitch is right. The box is not.
+
+   `.choice` is `border-box` with a 1px border, so this `::after`'s containing
+   block is the **padding** box — 36px, not 38 — and `inset: -4px 0` computes
+   to **44px**. Read off the live page, not the arithmetic:
+   `getComputedStyle(el,'::after').height` is `44px`, and a pointer walk
+   returns **45** at both 320 and 1254 across every screen that draws one (41
+   controls on Booking rules, 6 on Promos).
+
+   So the band does NOT tile the pitch: there are **2px of dead space**
+   between wrapped rows, measured as SLACK 2 on Booking rules and Promos at
+   320. That is a pass with two pixels in hand, not an exact fit.
+
+   **The correction is kept next to the claim rather than folded into it**,
+   because the error is the useful part: the same padding-box slip produced a
+   zero-tolerance 44 on `.btn.sm`, and a note that had already reasoned its
+   way to the right SHAPE with the wrong NUMBER is how it survived three
+   reviews. **Anything here that says "the box is N" should be checked
+   against `getComputedStyle(el,'::after').height` before it is believed.**
+   The 2px is also the whole budget: growing this band to 46 would spend all
+   of it and leave the rows touching. */
 .choice { position: relative; margin-block: 1px; }
 .choice::after { content: ""; position: absolute; inset: -4px 0; }
 .choice:hover:not(.on) { border-color: var(--line-2); color: var(--text); }

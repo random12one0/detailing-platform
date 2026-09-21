@@ -1496,6 +1496,105 @@ the wrong service, and never book a job we cannot reach.
   one asking a bounding rect reports 38 and files a defect that is not there;
   one asking the pointer reports 43, 44 or 45 and is right every time.
 
+  ── **THE THREE WERE PRESSED — 2026-09-21. All three pass, all three pass
+  with nothing in hand, and the change that fixed `.btn.sm` put `.btn.sm`
+  itself at 43 on a screen it never opened.**
+
+  **Measured with `elementFromPoint`, every control walked row by row, at
+  320x844 AND 1254x720, each one swept through a full pixel of sub-pixel
+  offset** (`translateY` 0 → 0.9 — a whole-pixel scroll leaves the offset
+  identical and the rounding under test never moves, which is why the first
+  three runs of this probe saw no variation at all).
+
+  | control | `::after` computes | pressed, 320 | pressed, 1254 | vertical slack | sideways |
+  |---|---|---|---|---|---|
+  | `.chip` | **44px** | **44–45** | **44–45** | **2px** (Hours, wrapped) | 4px dead |
+  | `.choice` | **44px** | **45** | **45** | **2px** (Booking rules, Promos) | 4px dead |
+  | `.segmented button` | **44px** (55.19 where it wraps its label at 320) | **45** / 56–57 | **45** | no wrapped pair on any screen reached | 1px dead |
+  | `.btn.sm` | 46px | **43 on Hours**, 46–47 elsewhere | 46–47 | **0px** (Hours) | — |
+
+  **Coverage, because a skipped control reads exactly like a passing one:**
+  41/41 `.choice` on Booking rules, 6/6 on Promos, 11/11 `.segmented button`
+  on Booking rules, 7/7 `.chip` on Hours, 10/10 `.btn.sm` on Hours, at both
+  widths — **0 unmeasured.** The first three runs measured only 12 of the 41
+  `.choice`, and said nothing: **29 of them sit inside two CLOSED
+  `<details class="foldrow">`, which still report full-size rects for their
+  children** (`docs/gotchas.md`). The probe now opens every `<details>` first.
+
+  **THE ARITHMETIC IN THE TABLE ABOVE IS EXACTLY RIGHT AND THE CONCLUSION
+  DRAWN FROM IT IS NOT.** *"Exactly 44 rounds under … 43, 44 or 45 depending
+  only on where it happens to sit"* — **43 is not reachable.** A band of
+  height 44.0 starting at a fractional `y` contains `floor(a+44) − ceil(a) +
+  1` whole pixel rows, which is **44 when `a` is fractional and 45 when it is
+  whole. Never 43.** Tested rather than argued: a synthetic control whose
+  `::after` computes to exactly 44px, dropped into the live page and probed by
+  the same code, read **44,45,45,45,45,45,45,45,45,45** — and a known 46px one
+  read **46,47,…** — at device scale factors **1, 1.25, 1.5, 1.75 and 2**.
+  Fifty readings, no 43.
+
+  **So the manager's 43 was real and its cause is NOT the inset.** The
+  candidate that fits is their own pane: it pins its layout viewport at 1414
+  and displays it smaller, and a scaled ancestor paints a 44px band at 43.x.
+  **Unproven — it is their apparatus, which this session cannot reach.** It
+  changes nothing about the fix; it changes what the next session should
+  believe about the mechanism.
+
+  **AND THE FIX FOR `.btn.sm` BROKE `.btn.sm`.** Growing that band from 44 to
+  46 helped every call site with nothing above or below it, and broke the one
+  place three of them **wrap**. On **Hours at 320**, "All days", "Weekdays"
+  and "Weekends" sit in a `.row.wrap` that goes to two lines on a phone;
+  `.row`'s gap is `--sp-2` = 6px, so the pitch is 38 + 6 = **44**, which a
+  44px band tiled exactly and a 46px band cannot. The two bands **overlapped
+  by 2px**, the lower button won the contested rows, and **"All days"
+  measured 44, 44, 43, 43** across a pixel of offset while "Weekends" read a
+  full 46–47. **That is trap (n) — a small target traded for a WRONG one.**
+  **Fixed** on the shared declaration, third instance of the pattern `.chip`
+  and `.choice` already carry: `.btn.sm { margin-block: 1px }` makes the pitch
+  38 + 1 + 1 + 6 = **46**, which the 46px band tiles exactly. **Re-probed, not
+  trusted:** "All days" now reads **45–46** at every offset, and a full
+  re-sweep of all four controls across 8 screens × 2 widths returns **0 under
+  44**.
+
+  **Why the original change could not see it:** it probed Clients, where the
+  nearest neighbour is 29px away, and offered that distance as evidence. **A
+  neighbour measured on ONE screen is not a fact about a shared control** —
+  the wrapped pair exists only at 320, on a screen that change never opened.
+  Same shape as the `--name-only` and explicit-path corrections in CLAUDE.md:
+  a check that read the right thing in the wrong place.
+
+  **THE THREE NAMED CONTROLS ARE NOT CHANGED, ON PURPOSE.** None measures
+  short. Each is exactly 44 — **passing, and passing with zero tolerance**,
+  which is said here rather than smoothed. And **neither `.chip` nor
+  `.choice` can be given the `.btn.sm` treatment without opening its gap
+  first: both have exactly 2px of vertical slack**, so a move to 46 spends
+  all of it and leaves wrapped rows touching, and anything beyond 46 repeats
+  the Hours overlap on Hours' own day-chips and on 41 controls in Booking
+  rules. **That is the scoping question, and it is Andrew's** — the cost of
+  guessing it is now on the record twice in one day.
+
+  **TWO COMMENTS IN `theme.css` ASSERTED NUMBERS THE MEASUREMENT
+  CONTRADICTS**, both the same padding-box slip this entry is about, both
+  corrected in place next to the claim rather than folded into it:
+  `.choice`'s *"the box is 46 … which the 46px box tiles EXACTLY"* (the band
+  is **44**, the pitch is 46, so there are **2 dead pixels**, not an exact
+  fit) and `.chip`'s *"8px makes the pitch exactly 44"* (the pitch is **46**).
+
+  **ONE MORE THING FOUND WHILE PRESSING, NOT FIXED, NOT MINE:** at 320 a
+  `.choice` that comes to rest at `y≈737` reads **43**, and the rows it loses
+  are owned by **`nav.tabbar`** — the fixed bottom bar, sitting on top of the
+  control's reachable area. It is not the inset and not one of these four
+  controls; **any** control can rest under that bar. It is the fault
+  `scripts/keyboard-walk.mjs` exists for, and it touches `--bk-bar-clear`,
+  which roadmap 2.15 **deliberately** left alone (`booking.css:115`). Handed
+  over rather than fixed.
+
+  **AND EVERY NUMBER ABOVE IS A BEST CASE, WHICH IS THE POINT OF THE LINE
+  BEFORE IT.** The sweep scrolls each control to the CENTRE of the viewport
+  before pressing it, so it measures the control, not the scroll position —
+  and the `nav.tabbar` finding is exactly what that hides. Two instruments
+  disagreed about one chip (45 centred, 43 in place) and the disagreement was
+  the finding.
+
 - [x] **2.6 — DONE 2026-09-20. The year is optional, the label says so, and a refused Continue now says why on every step.**
   Size and model filled, Continue stayed dead until a year was typed; the year
   box is not marked required while the box above it is marked "(optional)".
@@ -3776,6 +3875,37 @@ requested.
   not a syntax error.
   **NOT STARTED. It is a build and it was deliberately not begun at six in
   the morning by the session that found it.**
+
+  **AND HERE IS THE EVIDENCE TO BUILD IT FROM — 2026-09-21.** Four controls
+  were pressed with `elementFromPoint` across **8 back-office screens at two
+  widths** (Clients, Money, Calendar, Today, Hours, Booking rules, Promos,
+  Monthly plans; 320x844 and 1254x720). It found **one control under the 44px
+  absolute** — `.btn.sm` at 43 on Hours at 320 — **introduced by a commit
+  made the same night.** The full numbers and the method are in **2.5**.
+
+  **NONE OF IT WAS REACHABLE BY ANYTHING THIS REPO OWNS.** The four
+  credential-free suites do not open these screens at all. And for anyone
+  tempted to write the cheap version: **a bounding rect reports 36 or 38 on
+  every one of these controls and is wrong every time** — so a rect-based
+  gate files four defects that do not exist and still misses the one that
+  does.
+
+  **WHAT A REAL GATE HAS TO DO — all six learned by getting them wrong first:**
+  1. **Probe the pointer, never the rect.** Non-negotiable; see above.
+  2. **Open every `<details>` first.** 29 of 41 `.choice` controls on Booking
+     rules sit inside two closed foldrows that still report full-size rects.
+     A gate that skips them **prints clean over 71% of its population.**
+  3. **Sweep sub-pixel offsets, not whole-pixel scrolls.** A whole-pixel
+     scroll leaves the fraction identical, so the rounding never moves and
+     the gate measures one position ten times over.
+  4. **Measure the PITCH, not just the size.** The only real defect found was
+     two enlarged bands overlapping — **every individual size was legal.**
+  5. **Carry a calibration target.** A synthetic known-44 and known-46 box in
+     the live page is what proved the probe could tell them apart, and what
+     proved *43 is not reachable for a 44px band at any device scale factor*,
+     correcting the mechanism 2.5 was written on.
+  6. **Say what it did not measure, as `n of N`.** Three separate faults in
+     this session's own probe were invisible until it printed its coverage.
 
 ## Wave 5 — Money truth
 
