@@ -484,6 +484,79 @@ the wrong service, and never book a job we cannot reach.
   for whoever owns that trade-off, not something to build quietly inside a
   "pick your next item" pass.** Left open rather than attempted.
 
+  **PICKED UP 2026-09-21. STILL NOT TICKED, AND THE FIRST THING TO SAY IS THAT
+  MOST OF THIS ITEM WAS ALREADY BUILT AND NOBODY HAD WRITTEN IT DOWN HERE.**
+  The suggested fix above — mark every calendar day with "+$30" — is still
+  correctly refused for the reason the 09-20 note gives. But the DONE-WHEN
+  never needed it. It asks for the price of the ONE day the customer picked,
+  and `calculate-booking` has resolved exactly that since roadmap 2.8c:
+  `core.js`'s `quoteKey` already carries `bookingDate` and `startTime`, so the
+  server quote re-resolves the moment a time is tapped, and `StepWhen.jsx` has
+  taken a `surcharges` prop since 2026-09-13. **No new call was needed, no
+  rules published to the browser, no second money computation.** Anyone
+  reading this entry before today would have believed the step was untouched.
+  **THE MANAGER'S TWO COST QUESTIONS, ANSWERED FROM THE FILES BEFORE BUILDING.**
+  *Is there enough in hand at the date/time step?* Yes — Location is step 4 and
+  When is step 5, so the address is already collected, and price never needed
+  it anyway. *Does calling it there cost anything?* **The call already happens
+  there today, so this change adds exactly zero calls.** There is one real
+  meter on that path and it is worth knowing about: `calculate-booking` →
+  `confirmWeather` → `pointFor` will, on an address nothing has ever resolved,
+  spend a Geoapify credit AND upsert a row into `address_points`. It is
+  pre-existing, it fires for every real customer already, and nothing about
+  this item changed it. **No booking row is written and no availability is
+  held by a quote.**
+  **WHAT WAS ACTUALLY WRONG, AND IT WAS ONLY FOUND BY MEASURING AT 320.** The
+  surcharge line was rendered BELOW the nineteen slot chips. Measured on the
+  demo, Saturday 26 September, after tapping 9:00 AM at 320px: the note's box
+  sat at **836–898px inside an 844px viewport whose fixed bar starts at 771**
+  — off-screen. The customer watched the bar go **$65 → $95** with the only
+  sentence explaining it unreachable without scrolling past all nineteen
+  chips. Correct in the DOM, invisible on a phone, and "it is in the document"
+  does not meet a done-when that says *seen*.
+  **THE FIX: the note moved above the chips.** `StepWhen.jsx` only — no new
+  mechanism, no copy change, no CSS, no server change. It is visible for a
+  measurable reason rather than an aesthetic one: the chip block is 459px and
+  the window above the bar is 771px, so note + gap + chips ≈ 541px still fits,
+  and **any scroll position showing a chip shows the note**. Re-measure that
+  if a tenant ever has enough open slots to push the block past 771px.
+  **Verified live, worst case first:** tapping the LAST slot (5:00 PM) at 320,
+  note at **207–269px against a bar at 771 — fully visible**, bar reads $95.
+  Fully visible at **320, 390, 768 and 1440**. Console clean apart from two
+  pre-existing React Router v7 future-flag warnings. Four credential-free
+  suites pass; `label-guard` 45/45 with no stale labels.
+  **THE COST, STATED NOT HIDDEN:** the note appears on the tap, so chips shift
+  down ~62px under the customer's finger. Taken deliberately — the next thing
+  they press is Continue in the fixed bar, which does not move — and the
+  alternative was a sentence no phone user ever saw.
+
+- [ ] **2.1a — A plan booking and a multi-car booking still show no surcharge
+  line. Split out of 2.1 on 2026-09-21 because it needs a server field and
+  2.1 does not.** `BookingPage.jsx` passes surcharges only when
+  `quote.vehicle_count === 1 && !quote.plan_name`, and that guard is right,
+  not lazy: `adjustmentLines` in `_shared/pricing.ts` glues three different
+  kinds of line together — the extra cars, the day-and-time rules, and the
+  plan — and only the middle kind belongs on this step. Slicing by POSITION
+  would couple the page to the order that array happens to be built in.
+  **PRESSED, NOT REASONED ABOUT.** On the demo at 320 with the Member rate
+  plan attached, picking Saturday 26 September at 8:00 AM took the bar from
+  **$60 to $85 with nothing on the page explaining the $25** — the note
+  container rendered carrying only the request-mode sentence. That is the
+  same defect 2.1 was opened for, surviving in the case 2.1's fix cannot
+  reach.
+  **The multi-car half is READ, NOT RUN.** `demo-detail` pins
+  `max_vehicles_per_booking` to 1 on purpose (`seed-demo.mjs`), so the
+  two-car case cannot be pressed on the booking page without a settings
+  write, and none was made. Claimed from the guard, not from a browser.
+  **Fix:** tag each line in `adjustmentLines` with its kind, then filter on
+  the tag instead of on `vehicle_count`/`plan_name`. One field. It is NOT a
+  second money computation — it is provenance, not arithmetic — so the
+  one-implementation rule is untouched.
+  **Not built 2026-09-21 for two stated reasons, neither of them doubt about
+  the fix:** `supabase/` was on loan to another session that round, and it is
+  an edge function, so under the deploy freeze it could not reach a customer
+  anyway. Hand it to whoever holds `supabase/` next.
+
 - [x] **DONE 2026-09-20 — 2.2 The summary lines do not add up to the total.**
   **Confirmed mechanism:** `supabase/functions/_shared/pricing.ts:127-128`
   rounds the *total* to a `nearest` setting while each discount line rounds

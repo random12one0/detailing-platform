@@ -282,18 +282,32 @@ export default function StepWhen({ form, setForm, durationMinutes, durations, su
                   { business: business.name })}
             </div>
           )}
-          <div className="bk-slots">
-            {daySlots.map((slot) => (
-              <button
-                key={slot}
-                className={`bk-chip ${legTime === slot ? "selected" : ""}`}
-                onClick={() => setLegWhen(legDate, slot)}
-              >
-                {time12(slot)}
-              </button>
-            ))}
-          </div>
-          {daySlots.length === 0 && !wrongMode && <p className="bk-muted">{t("Nothing open that day.")}</p>}
+          {/* **ABOVE THE CHIPS, NOT BELOW THEM — ROADMAP 2.1, 2026-09-21, AND
+              THE REASON IS A MEASUREMENT.** This block was written below the
+              slot grid on 2026-09-13, where it is correct in the DOM and
+              invisible on a phone. Measured at 320 on the demo, Saturday 26
+              September, 19 slots, after tapping 9:00 AM: the note's own box
+              was at 836-898px in an 844px viewport whose fixed bar starts at
+              771 — so the customer watched the bar go $65 -> $95 with the
+              only sentence explaining it entirely off-screen, reachable only
+              by scrolling past all nineteen chips. 2.1's done-when is that
+              they cannot LEAVE this step without having seen the surcharge,
+              and "it is in the document" does not meet it.
+              **WHY ABOVE THE CHIPS IS PROVABLY VISIBLE RATHER THAN JUST
+              BETTER.** The whole chip block measured 459px (545-1004) and the
+              window above the bar is 771px. Note plus gap plus chips is about
+              541px, still under 771 — so ANY scroll position that shows a
+              chip shows this note too. That is an argument from the two
+              numbers, not from where it looks nicer, and it is the thing to
+              re-measure if a tenant ever has enough open slots to push that
+              block past 771px, because then the guarantee lapses.
+              **THE COST, STATED RATHER THAN HIDDEN:** the note appears on the
+              tap, so the chips below it shift down about 62px under the
+              customer's finger. Accepted deliberately — the next thing they
+              press is Continue in the fixed bar, which does not move, and the
+              alternative on offer was a sentence no phone user ever saw.
+              A sticky note was NOT used: pinning a second thing over the page
+              is what `keyboard-walk.mjs` exists to catch. */}
           {/* WHY THE FIGURE IN THE BAR JUST MOVED. The label is the DETAILER'S
               own name for the rule, out of `business_settings.price_rules`, so
               it is printed as written and not through `t()` — the same call
@@ -331,6 +345,18 @@ export default function StepWhen({ form, setForm, durationMinutes, durations, su
           )}
           </div>
           )}
+          <div className="bk-slots">
+            {daySlots.map((slot) => (
+              <button
+                key={slot}
+                className={`bk-chip ${legTime === slot ? "selected" : ""}`}
+                onClick={() => setLegWhen(legDate, slot)}
+              >
+                {time12(slot)}
+              </button>
+            ))}
+          </div>
+          {daySlots.length === 0 && !wrongMode && <p className="bk-muted">{t("Nothing open that day.")}</p>}
         </>
       )}
       {/* **THE THIRD SILENT STEP, AND NOBODY HAD REPORTED IT — 2026-09-12.**
