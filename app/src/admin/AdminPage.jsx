@@ -1397,11 +1397,103 @@ function Business({ row, detail, onClose, reload }) {
               )}
             </div>
           )}
+
+          {/* ══ WHO HAS OPENED THIS ACCOUNT — ROADMAP 4.3, 2026-09-21 ══════
+              **THE RECORD EXISTED AND NO SCREEN DREW IT.** `platform-admin`
+              has logged every back-office action to `platform_admin_events`
+              since it was written, and its `detail` action has been SENDING
+              the last 20 for this business as `events` — and this file
+              referenced the word `events` exactly nowhere. So the audit half
+              of 4.3 was built, live, carrying real rows, and unreadable by
+              the only person it is for. **A log nobody can read answers no
+              question**, which is the whole reason the item asks for a
+              history rather than for logging.
+
+              **THE SERVER ALREADY HOLDS THE LINE THE ITEM ASKS FOR.**
+              `logIt` is best-effort everywhere except `impersonate`, where
+              the row is written BEFORE the sign-in link is made and a failed
+              write returns 500 and stops it — *"Could not write the audit
+              record, so this was not done."* Refusing to suspend a
+              non-paying business over an audit row is the wrong trade;
+              refusing to open somebody's dashboard over one is the right
+              one, because an impersonation nobody can prove happened is
+              exactly what the log is for.
+
+              **THREE STATES, NOT TWO.** `detail` arrives a moment after the
+              drawer opens and may not arrive at all. "We have not read it
+              yet" and "nobody has ever opened this account" are opposite
+              facts, and folding the first into the second would print a
+              clean bill of health over a failed read — this repo's single
+              most repeated defect. Undefined says it is still reading. */}
+          <div className="pa-card" style={{ "--i": 5, marginTop: 10 }}>
+            <div className="pa-h"><h2>Who has opened this account</h2></div>
+            {!detail
+              ? <p className="pa-sub">Reading the record…</p>
+              : detail.events?.length
+                ? (
+                  <div className="pa-rows">
+                    {detail.events.map((e, i) => (
+                      <div className="pa-row" key={`${e.created_at}-${i}`}>
+                        <span className="pa-k">{ADMIN_EVENT_WORDS[e.action] ?? e.action}</span>
+                        <span className="pa-v">
+                          {e.admin_email || "somebody"} · {ago(e.created_at)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )
+                : (
+                  // **"NOBODY HAS OPENED IT" IS A CLAIM THIS SCREEN CANNOT
+                  // MAKE, AND THE FIRST VERSION MADE IT.** Caught by pressing
+                  // it: Coastline's panel printed *"Nobody has opened it"*
+                  // while `platform_admin_events` held **four rows naming
+                  // Coastline Auto Detailing** — two impersonations and a
+                  // suspension among them. They carry `business_id = null`,
+                  // written before the id was attached to the log, and the
+                  // server's history is filtered `.eq("business_id", id)`, so
+                  // they can never appear here.
+                  //
+                  // **An empty list is not the same as an empty history**, and
+                  // a confident negative over orphaned rows is this repo's own
+                  // clean-bill-of-health failure wearing a different hat. The
+                  // sentence now states only what the query actually asked:
+                  // nothing is filed AGAINST THIS ACCOUNT.
+                  <p className="pa-sub">Nothing is recorded against this account.</p>
+                )}
+            {/* SAYING WHERE THE LIST STOPS IS PART OF THE LIST. Twenty rows
+                with nothing saying so reads as "that is all there has ever
+                been", and for a busy account it is the most recent fortnight. */}
+            {detail?.events?.length === 20 && (
+              <p className="pa-sub pa-act">The twenty most recent. Older ones are kept and are not shown here.</p>
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
 }
+
+// PLAIN WORDS FOR THE STORED ACTION NAMES — ROADMAP 4.3. The database keeps
+// machine values because they are compared as strings; a person reading their
+// own audit history should not have to know that `promo_off` is a sentence.
+// **An unknown action falls back to its raw name rather than being dropped**:
+// a row nobody has taught this map about is still a row somebody did, and
+// hiding it would make the history quietly incomplete — which is worse than
+// showing a word.
+const ADMIN_EVENT_WORDS = {
+  impersonate: "Opened their dashboard",
+  export: "Downloaded everything they own",
+  suspend: "Suspended them",
+  restore: "Let them back in",
+  create: "Created the account",
+  note: "Wrote a note",
+  prices: "Changed their prices",
+  promo_new: "Added a promo code",
+  promo_off: "Turned a promo code off",
+  resend_invite: "Sent an owner invite",
+  site: "Set their website address",
+  tier: "Changed their plan",
+};
 
 /* ══ TAB 3 · MONEY ═════════════════════════════════════════════════════════ */
 function TabMoney({ state, totals, rows, reload }) {
