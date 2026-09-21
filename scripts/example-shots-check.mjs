@@ -73,8 +73,27 @@ const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
 console.log(`the /examples thumbnails, against the sites they were taken from`);
 console.log(`captured ${manifest.captured_at}\n`);
 
+// **THE FOUR COUNTS USED TO BE ONE NUMBER — 2026-09-20, docs/silences.md
+// group B.** This receipt reported `SITES.length` four times over, so
+// `receipt.mjs`'s rule that expected, discovered, attempted and completed must
+// AGREE could never fire: four copies of one constant cannot disagree with
+// each other. A site that fell out of the manifest, or whose source file was
+// deleted, still reported as completed. The failures list caught both — but a
+// receipt whose arithmetic cannot fail is a green line wearing a uniform, and
+// it claims to have been graded when the only thing grading it was itself.
+//
+// These are three quantities the loop ALREADY KNOWS, not numbers invented to
+// make a rule fire:
+//   discovered — the manifest has a record for this site at all
+//   attempted  — its source file exists, so a fingerprint could be taken
+//   completed  — it reached the comparison the check exists to make
+// `expected` stays `SITES.length`, a declared constant, which is the one count
+// that must never be derived from what the run happened to find.
+let discovered = 0, attempted = 0, completed = 0;
 for (const [slug, src, title] of SITES) {
-  const recorded = manifest.sites?.[slug];
+  // `--break=norecord` pretends ex4 fell out of the manifest, which is the
+  // exact shape of a site quietly dropping out of the question.
+  const recorded = BREAK === "norecord" && slug === "ex4" ? undefined : manifest.sites?.[slug];
   assertions++;
   if (!recorded) {
     failures.push(`${slug} (${title}): no fingerprint recorded at all — its picture cannot be `
@@ -84,6 +103,7 @@ for (const [slug, src, title] of SITES) {
     continue;
   }
 
+  discovered++;
   const file = path.join(ROOT, "docs", "tenant-sites", src);
   assertions++;
   if (!existsSync(file)) {
@@ -97,6 +117,7 @@ for (const [slug, src, title] of SITES) {
   // `--break=drift` pretends the source moved. The gate must then name this
   // site and only this site: a control that fires on everything is no more
   // use than one that fires on nothing.
+  attempted++;
   const now = BREAK === "drift" && slug === "ex3"
     ? fingerprint(readFileSync(file, "utf8") + "PRETEND-EDIT")
     : fingerprint(readFileSync(file, "utf8"));
@@ -126,6 +147,11 @@ for (const [slug, src, title] of SITES) {
     rows.push({ slug, verdict: "current", detail: recorded.fingerprint });
     console.log(`  ${slug.padEnd(5)} current — ${Object.keys(recorded.shots).length} picture(s), ${src}`);
   }
+  // Reached the comparison this check exists to make. A STALE site is still
+  // COMPLETED — it was measured and found wrong, which is the check working.
+  // Only a site the loop never got to is incomplete, and that is the
+  // difference the four counts are for.
+  completed++;
 }
 
 // THE CANARY. Without `--break=drift` this check has no negative control, and
@@ -153,9 +179,9 @@ const { path: receiptPath } = writeReceipt({
   started_at,
   status,
   expected_targets: SITES.length,
-  discovered_targets: SITES.length,
-  attempted_targets: SITES.length,
-  completed_targets: SITES.length,
+  discovered_targets: discovered,
+  attempted_targets: attempted,
+  completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
   min_assertions: 15,

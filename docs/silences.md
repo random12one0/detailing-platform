@@ -101,9 +101,45 @@ run produced (`rows.length`), which is a gate following the data.
 | `restore-drill.mjs` | `rows.length` | follows the data |
 | `tenant-matrix.mjs` | `rows.length` | follows the data |
 | `deployed-inventory.mjs` | `dirs.length` | structural floor — much weaker fault |
-| `example-shots-check.mjs` | `SITES.length` | structural floor — much weaker fault |
+| ~~`example-shots-check.mjs`~~ | `SITES.length` | **CLOSED 2026-09-20 — see below** |
 
-**The distinguishing test for all five is the same:** derive `expected_targets`
+**One of the five is closed, and the choice was constrained — recorded because
+the reasoning matters more than the pick.** On cost alone the right target was
+`tenant-matrix.mjs`: it is the check that proves one detailer cannot see
+another's customers, so its silent failure is the worst in the repo. **It could
+not be taken.** It needs a service-role key and it writes to the demo tenant,
+and neither was authorised — and a change to the tenant-isolation check that
+nobody has watched fail is precisely what this file refuses to accept from
+anyone else. Four of the five need credentials. **`example-shots-check.mjs` was
+the only one provable under the rules, and it is the lowest-cost of the five.**
+That is an honest account of a compromise, not a claim that it was the best
+available fix. **The highest-cost one remains open and remains unproven.**
+
+What changed: `expected` stays `SITES.length`, a declared constant — the one
+count that must never be derived from what the run found. The other three
+became quantities the loop already knew: `discovered` (the manifest has a
+record at all), `attempted` (the source file exists, so a fingerprint could be
+taken), `completed` (it reached the comparison). **Nothing was invented to make
+a rule fire**, which was the constraint: a site that is STALE still counts as
+completed, because it was measured and found wrong, and that is the check
+working.
+
+```
+clean                     expected 5 discovered 5 attempted 5 completed 5   PASS
+--break=norecord          expected 5 discovered 4 attempted 4 completed 4   FAIL
+                          receipt.mjs: "target counts disagree: expected 5,
+                          discovered 4, attempted 4, completed 4"
+--break=drift (existing)  counts 5/5/5/5, canary observed true             PASS
+```
+
+**The counterfactual is read, not run, and the distinction is worth keeping.**
+Under the old code the same sabotage would have written `5, 5, 5, 5`: the four
+fields were four copies of one constant, so they could not differ from each
+other *by construction*. That is a property visible in the diff rather than
+something a run would add information to — but it is still a claim from
+reading, and it is labelled as one.
+
+**The distinguishing test for the remaining four is the same:** derive `expected_targets`
 from a declared constant or a structural fact, and count the other three for
 real. Their canaries still protect them, which is why this is a list rather
 than an emergency.
@@ -151,6 +187,9 @@ Applying the standard this census exists to enforce.
   of use; never read `$?` through a pipe.)*
 - `label-guard.mjs` — clean, canary, and against the real historical case.
 - `receipt.mjs`'s skip rule — three probes built from a real receipt.
+- `example-shots-check.mjs` — clean, the new `--break=norecord` counter canary,
+  and the existing `--break=drift` canary re-run to confirm the change did not
+  disturb it. Receipt restored clean afterwards.
 - `sweep-widths.mjs`'s Spanish certification — **added since this file was
   written, and proved.** All five customer-facing surfaces certify SPANISH on a
   clean run, and under `SWEEP_LANG_CANARY=1` the forgotten surface reports
