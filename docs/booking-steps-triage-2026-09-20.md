@@ -431,19 +431,29 @@ for a control that does not exist there.
 **Removing cause 2 alone takes 312px to about 208px** — better, still over.
 **The two together are the finding; neither on its own explains it.**
 
-## And a question about the rule, which is Andrew's rather than mine
+## CORRECTION — I posed a question the code had already answered
 
-W16 is the owner's rule about **steps** — *"each step, you shouldn't have to
-scroll"* — and the gate applies it to `plans page`, which is not a step. It is
-a **list**: a customer choosing between four plans. A list that scrolls is
-ordinary; a wizard step that scrolls is the thing the rule was written against.
+**I wrote that the gate applies W16 to `plans page`, which is not a step, and
+asked whether it should. That was wrong and it is corrected here rather than
+edited away.** The gate does not apply W16 to it. `plans page`, `your plan` and
+`stop these emails` are all called with **`{ gate: false }`**
+(`sweep-booking-steps.mjs:528, 559, 570`), and the verdict word differs
+accordingly: gated surfaces print **`over`**, un-gated ones print
+**`scrolls`**. Confirmed by the counter split below — W16 counts **8**, and the
+two `scrolls` readings are in neither that total nor the non-W16 list. They are
+advisory by design.
 
-**So before anyone spends a night making four plan cards fit an 844px screen,
-the question is whether this surface should be under W16 at all.** If it
-should, the honest fix is the column count or the card height, not the width.
-If it should not, the gate should say so the way it already declares the
-`.bk-planpitch` exemption — **a declared exemption with a reason, not a
-silent removal.**
+**So the distinction I asked for already exists**, is deliberate, and is
+visible in one word of the output. I read the number and not the verb. The
+lesson is the one this file keeps finding: *a check that already answers your
+question in a word you skimmed past.*
+
+**What survives of B, and its priority drops:** the 312px is real, it is the
+largest overflow in the run, and it is **not a gate failure**. Cause 2 — 104px
+of clearance for a bar that is not on the page — is still an unambiguous
+defect and is still worth fixing. Cause 1 — four cards in one column at phone
+width — is a list that scrolls, which is ordinary, and the product has already
+decided it is allowed to.
 
 **Cause 2 is worth fixing either way**, and independently of that decision:
 104px of clearance for a control that is not on the page is wrong whether or
@@ -455,3 +465,45 @@ The fix is `app/src`, which is not this session's tree and is occupied by 2.2.
 **The cause goes across, the same way the `.bk-wrap` one did.** What to check
 afterwards: `.bk-plans` column count at 392, `.bk-wrap` `padding-bottom` on a
 page with no `.bk-bar`, and the gate's number for `plans page` — 312 today.
+
+---
+
+# C fixed — the counter split, 2026-09-20
+
+**The answer: the twelve were 8 and 4.**
+
+```
+before   12 steps do not fit — W16 is not met          (over 10 printed readings)
+after     8 steps do not fit — W16 is not met
+          4 fault(s) that are NOT W16 and are NOT steps that do not fit:
+             4 x  no vehicle-count control on the second tenant
+```
+
+**8 + 4 = 12.** The split did not change what is measured — it changed what the
+sentence is allowed to claim. **The four were one fault, counted once per
+width, and it is a missing seed fixture rather than a layout problem**: the
+second tenant has no vehicle-count control, which `seed-two-tenants.mjs`
+provides. A third of that headline number was a seeding gap being reported as
+steps that do not fit.
+
+**Proved both directions, and the second is the one that matters:**
+
+- **A run where the count is right** — this one: 8 named W16 failures, 4 named
+  non-W16 faults, tallied by kind.
+- **A run where it would previously have lied** — the two runs already on disk
+  print `12 steps do not fit` over the same 10 readings. That is the lie,
+  captured before the fix rather than reconstructed after it.
+- **And the measurements are untouched:** all **48** step readings (10 failing,
+  38 passing) are byte-identical between the run before the split and the run
+  after. The split moved no number; it only stopped one number speaking for
+  another.
+
+**`failing` still drives the exit code**, which is correct — every fault should
+fail the run. What changed is that only `w16Failing` may call itself *steps
+that do not fit*, and every other fault names itself through `fault()`. The
+tap-floor block still adds its own after the summary prints, which is now
+stated in the comment rather than being an invisible reason the totals never
+added up.
+
+**The one-line description of this whole class, which is Andrew's manager's:**
+**a general fault count wearing a specific sentence.**

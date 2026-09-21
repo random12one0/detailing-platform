@@ -156,6 +156,22 @@ const REFS = await (async () => {
 
 const browser = await chromium.launch();
 let failing = 0;
+// **`failing` WAS A GENERAL FAULT COUNT WEARING A SPECIFIC SENTENCE — split
+// 2026-09-20.** The summary below printed `${failing} steps do not fit — W16
+// is not met`, and `failing` was incremented in six places of which exactly
+// ONE is the W16 step-fit case. The others are a step that would not advance,
+// a second tenant that did not load, a missing vehicle-count control, console
+// errors, and the tap-floor block — and that last one runs AFTER the summary,
+// so the sentence quoted a total containing things no reader could see in the
+// list above it.
+//
+// It reported "12 steps do not fit" while printing 10 failing step readings,
+// and it survived a 315px layout change without moving, because it was never
+// counting the thing that moved. `w16Failing` counts step-fit failures and
+// nothing else; every other fault names itself through `fault()`.
+let w16Failing = 0;
+const OTHER_FAULTS = [];
+const fault = (what) => { failing++; OTHER_FAULTS.push(what); };
 // Steps that overflow ONLY because of a control Andrew ruled must be
 // full-screen. Counted separately and always printed: an exemption nobody
 // sees is an exemption nobody re-reads.
@@ -242,7 +258,7 @@ for (const size of SIZES) {
     const withoutPitch = over - pitch;
     const exemptFit = bad && gate && pitch > 0 && withoutPitch <= 1;
     if (exemptFit) exempted++;
-    else if (bad && gate) failing++;
+    else if (bad && gate) { failing++; w16Failing++; }
     const pct = Math.round((over / vh) * 100);
     console.log(
       // The spare room is reported on purpose. "Fits" is only true of the
@@ -448,7 +464,7 @@ for (const size of SIZES) {
         .map((t) => t.replace(/\s+/g, " ").trim()).filter(Boolean);
       console.log(`${`${n}/${total} ${h.slice(0, 17)}`.padEnd(22)} STUCK — Continue is disabled and this `
         + `script could not satisfy the step. ${why.length ? `The page says: ${why.join(" | ")}` : "The page shows no reason."}`);
-      failing++;
+      fault(`a step that would not advance (${n}/${total} ${h.slice(0, 17)})`);
       break;
     }
     await settle(page, 400);
@@ -579,7 +595,7 @@ for (const size of SIZES) {
     const chips = () => p.locator(".bk-field", { hasText: "How many vehicles?" }).locator("button");
     if (!ok) {
       console.log("more than one car    NOT MEASURED — /book/demo-riverside did not load");
-      failing++;
+      fault("the second tenant's booking page did not load");
     } else {
       await settle(p, 1600);
       // Walk by HEADING rather than by a step number: riverside's flow is a
@@ -605,7 +621,7 @@ for (const size of SIZES) {
       if (!(await chips().count())) {
         console.log("more than one car    NOT MEASURED — no count control; "
           + "re-seed with `node scripts/seed-two-tenants.mjs`");
-        failing++;
+        fault("no vehicle-count control on the second tenant");
       } else {
         await say("3/N cars · 1");
         await chips().nth(1).click();
@@ -625,7 +641,7 @@ for (const size of SIZES) {
     await p.close();
   }
 
-  if (errors.length) { failing++; console.log(`  console: ${errors.length} error(s)\n  ${errors.join("\n  ")}`); }
+  if (errors.length) { fault(`${errors.length} console error(s)`); console.log(`  console: ${errors.length} error(s)\n  ${errors.join("\n  ")}`); }
   await ctx.close();
 }
 
@@ -633,9 +649,21 @@ await browser.close();
 const exemptNote = exempted
   ? `\n${exempted} step reading${exempted === 1 ? "" : "s"} EXEMPT from W16 — whichever step carries .bk-planpitch, whose overflow is entirely that pitch, full-screen by Andrew's instruction (ROADMAP 8.4). Everything else on that step is still measured and still fits.`
   : "";
-console.log(failing
-  ? `\n${failing} step${failing === 1 ? "" : "s"} do not fit — W16 is not met` + exemptNote
+console.log(w16Failing
+  ? `\n${w16Failing} step${w16Failing === 1 ? "" : "s"} do not fit — W16 is not met` + exemptNote
   : `\nevery step fits at ${SIZES.map((s) => `${s.width}x${s.height}`).join(", ")}${exempted ? ", with one documented exception" : ""}` + exemptNote);
+
+// **AND THE FAULTS THAT ARE NOT W16 NAME THEMSELVES.** They used to be folded
+// into the sentence above, which is how a total of 12 sat over a list of 10.
+// Printed separately so neither number can borrow the other's meaning — and
+// the tap block below adds its own, AFTER this line, which is exactly why it
+// could never have appeared in a total printed here.
+if (OTHER_FAULTS.length) {
+  const tally = new Map();
+  for (const f of OTHER_FAULTS) tally.set(f, (tally.get(f) || 0) + 1);
+  console.log(`\n${OTHER_FAULTS.length} fault(s) that are NOT W16 and are NOT steps that do not fit:`);
+  for (const [what, n] of tally) console.log(`  ${String(n).padStart(2)} x  ${what}`);
+}
 
 // --- THE TAP FLOOR ----------------------------------------------------------
 // COUNT THE SUBJECTS EVERY RUN. A walk that measured four controls prints the

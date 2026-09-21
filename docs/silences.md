@@ -130,6 +130,27 @@ measured, 44px needs a 338px grid and the viewport is 392px, so it is
 impossible only at the grid's current width. The product's own CSS comment
 expects a 47px cell and the delivered cell is 36.4px.
 
+**A GENERAL FAULT COUNT WEARING A SPECIFIC SENTENCE — 2026-09-20, and this is
+the best one-line description of the whole class anybody has produced.**
+Andrew's manager's words, on `sweep-booking-steps.mjs`. Its summary printed
+`12 steps do not fit — W16 is not met`, and `failing` was incremented in **six**
+places of which exactly **one** was the W16 step-fit case. The rest were a step
+that would not advance, a second tenant that did not load, a missing
+vehicle-count control, console errors, and the tap block — **and the tap block
+prints AFTER the summary, so the sentence quoted a total containing things no
+reader could see in the list above it.**
+
+**It was specifically false rather than merely vague**, and that is why it
+looked stable through a 315px layout change: **it was never measuring the thing
+that moved.** Split and proved — the twelve were **8 W16 failures and 4
+instances of one missing seed fixture**, 8 + 4 = 12, with all 48 step readings
+byte-identical across the change.
+
+**The test this adds to the file:** when a summary number and the list under it
+disagree, the number is not rounding — **ask what else increments it**. A count
+that can be fed from more than one place will be read as a count of the thing
+its sentence names.
+
 ### B · Receipts whose numbers cannot disagree — 5
 
 These write a receipt, but set `discovered`, `attempted` and `completed` to the
@@ -244,6 +265,18 @@ Applying the standard this census exists to enforce.
   did, so a surface can certify on a word that means something else entirely.
   The run now names a certification that leaned on a known-ambiguous key; that
   is a filter, not coverage.
+
+**A third reading of a moment that had not finished happening — 2026-09-20.**
+Three in one night, from one session, all the same shape: **an instrument
+answering a question about a moment that was still in progress.** The stale
+console buffer replaying one old error as a repeating one; `$?` after a pipe
+reporting `tail`'s status instead of `node`'s; and a `javascript_tool` read
+taken from a browser pane **mid-reload**, which returned `innerWidth: 0` and
+would have produced a confident nonsense width for the element being
+diagnosed. The third was caught only because `0` is obviously wrong — **a
+viewport of 380 instead of 392 would have been believed.** Before trusting any
+reading from a live surface, check that the surface finished arriving: a
+viewport of zero, a document still loading, a pipe still draining.
 
 **Read, not run — the classification is from source, and could be wrong:**
 
