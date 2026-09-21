@@ -697,8 +697,17 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
       <!-- TRAVEL IS A RADIUS. His note: "most detailers don't really work that
            way, it's more of a radius." -->
       <dl class="facts">
+        <!-- THE RADIUS STAYS, THE RATE GOES — 2026-09-21. This said "then
+             $1.50 a mile". `resolveTravel` reads a flat `travel_fee` or a
+             named zone's flat `fee` and nothing else; `pricing.ts` says "NOT
+             DISTANCE" in its own words, and Andrew ruled on 09-20 that travel
+             stays named flat-fee zones because geocoding and routing cost
+             money. **The 25 miles is NOT the fault and is kept**:
+             `travel_radius_miles` is a real field on the public profile and
+             is descriptive, so "free inside 25 miles" is producible. Only the
+             per-mile RATE is a number no version of this product can make. -->
         <div><dt data-from="travel_zones">Travel</dt>
-             <dd>Free inside 25 miles of central Phoenix, then $1.50 a mile</dd></div>
+             <dd>Free inside 25 miles of central Phoenix, then a flat $40</dd></div>
         <div><dt>Insurance</dt>
              <dd>$2M liability &mdash; certificate on request</dd></div>
         <div><dt data-from="get_public_business_profile.services">Booking</dt>
@@ -1092,7 +1101,7 @@ details p{padding:0 16px 15px;color:var(--fg2);font-size:14px;margin:0;max-width
             <label class="fld">Travel zone
               <select data-from="get_public_business_profile.travel_zones">
                 <option>Inside 25 miles of central Phoenix — no travel charge</option>
-                <option>25 to 40 miles — $1.50 a mile</option>
+                <option>25 to 40 miles — $40</option>
                 <option>Over 40 miles — call us</option>
               </select></label>
           </div>

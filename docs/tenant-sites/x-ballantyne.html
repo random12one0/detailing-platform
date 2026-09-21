@@ -616,7 +616,16 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
         <a class="btn btn-1" href="x-ballantyne-prices.html">See prices and book</a>
         <a class="btn btn-2" href="tel:+17045550142">(704) 555-0142</a>
       </div>
-      <p class="under"><b>5.0</b> from 65+ Google reviews &middot; insured &middot; serving 16 towns</p>
+      <!-- "5.0 from 65+ Google reviews" WITHDRAWN 2026-09-21, not softened.
+           There is NO review-count column in any of the 92 migrations and NO
+           business-level rating: `rating` is a per-testimonial star value the
+           detailer types in `Reviews.jsx`, and `google_review_url` is a link
+           the product stores and never reads — nothing fetches anything from
+           Google. Both halves of that claim were unproducible, so both are
+           gone rather than rounded down. The two survivors are real: insured
+           is the detailer's own fact, and the town count comes from
+           `service_area`. ROADMAP 7.17, class 2. -->
+      <p class="under">Insured &middot; serving 16 towns</p>
     </div>
     <div class="wrap stage-shell">
       <div class="stage">
@@ -847,9 +856,14 @@ footer{padding:0 0 0;position:relative;overflow:hidden}
     <div class="wrap">
       <span class="label" data-rv="0">Service area</span>
       <h2 data-rv="1">Towns we cover</h2>
-      <p class="lede" data-rv="2">No travel charge inside these. Past them it is
-        <b data-from="get_public_business_profile.travel_zones">$1.20 a mile</b> from
-        Ballantyne, quoted with the booking.</p>
+      <!-- A PER-MILE RATE THIS PRODUCT CANNOT COMPUTE — replaced 2026-09-21
+           with what `travel_zones` can actually express: a named zone with a
+           flat fee. See ROADMAP 7.17. The `data-from` on the old figure
+           pointed at `travel_zones`, which is `{key, name, fee}` — the
+           attribute was naming the field that disproves the number. -->
+      <p class="lede" data-rv="2">No travel charge inside these. Past them is
+        the <b data-from="get_public_business_profile.travel_zones">outer zone,
+        a flat $35</b> from Ballantyne, quoted with the booking.</p>
       <div class="towns" data-rv="3">
         <span class="town home">Ballantyne</span><span class="town lit">Uptown</span>
         <span class="town lit">Dilworth</span><span class="town lit">Myers Park</span>

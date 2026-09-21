@@ -4409,6 +4409,29 @@ rather than wording went to Andrew.
   accident, while auditing 7.2; the other two by looking on purpose
   afterwards.**
 
+  **THE RULE, IN THE FORM IT SHOULD APPEAR WHEREVER IT IS CARRIED. Copy it
+  verbatim; it is written to survive being moved and it should not be
+  paraphrased into something softer on the way across:**
+
+  > **An example site must not show a number the product cannot produce.**
+  >
+  > `/ex1`…`/ex5` exist to show a prospective detailer **what they would
+  > get**, so a figure on one of those pages is **a claim about the
+  > software**, not decoration. **An example that promises a capability is
+  > worse than a missing one, because it sells a thing that is not there.**
+  >
+  > Before you put a number on an example site, **name the field or endpoint
+  > that would produce it for a real tenant.** If you cannot name one, the
+  > number does not go on the page. If the field exists but cannot express
+  > what you are about to write — a per-mile rate out of a flat-fee zone —
+  > the number still does not go on the page.
+  >
+  > When a claim has to come off, **take it off rather than blurring it.** If
+  > a block existed only to carry the claim, delete the block and say so
+  > where somebody diffing the file will read it. A page that has been
+  > quietly vagued is worse than one with a visible gap, because the gap is
+  > the only thing that tells the next person a promise was withdrawn.
+
   **THE RULE, AND IT IS THE PART WORTH MORE THAN THE PAGES.** `/ex1`…`/ex5`
   exist to show a prospective detailer **what they would get**. So a figure on
   one of those pages is **a claim about the software**, not decoration, and
@@ -4442,9 +4465,9 @@ rather than wording went to Andrew.
   | ex1 | `v-goldenhour.html` | 1128 | "$1.20 a mile past 12 miles" | **FIXED** |
   | ex1 | `v-goldenhour.html` | 1286 | booking form option "Outside 12 miles — $1.20 a mile" | **FIXED** |
   | ex1 | `v-goldenhour-prices.html` | 1336 | row headed **"Distance"**, "Past 12 miles, $1.20 a mile" | **FIXED** — heading and figure both |
-  | ex2 | `w-delgado.html` | 701 | "then $1.50 a mile" | **OPEN** — not granted |
-  | ex2 | `w-delgado.html` | 1095 | booking form option "25 to 40 miles — $1.50 a mile" | **OPEN** — not granted |
-  | ex3 | `x-ballantyne.html` | 851 | "$1.20 a mile" | **OPEN** — not granted |
+  | ex2 | `w-delgado.html` | 701 | "then $1.50 a mile" | **FIXED** — now a flat $40; the **25 miles is kept**, it is producible |
+  | ex2 | `w-delgado.html` | 1095 | booking form option "25 to 40 miles — $1.50 a mile" | **FIXED** — flat $40 |
+  | ex3 | `x-ballantyne.html` | 851 | "$1.20 a mile" | **FIXED** — a named outer zone, flat $35 |
 
   **A MILEAGE SENTENCE IS NOT AUTOMATICALLY WRONG, AND THE DISTINCTION IS THE
   USEFUL PART.** `get_public_business_profile` **does** return
@@ -4469,11 +4492,33 @@ rather than wording went to Andrew.
 
   **The `data-from` here names a source that does not exist as a source.**
   *"The detailer's Google reviews"* is not an endpoint, a table or a field;
-  it is a sentence. **Left open, not fixed** — these are ex1 files this
-  session WAS granted, and they are deliberately not touched, because the
-  answer is a product question rather than a wording one: either the profile
-  gains a count and a rating a detailer can enter, or the example sites stop
-  showing aggregates. **That is Andrew's call, not a session's.**
+  it is a sentence.
+
+  **RULED AND DONE 2026-09-21: the sites stop claiming them.** The other
+  branch — giving the profile a review count and a rating a detailer can
+  enter — was rejected as the tail wagging the dog: **a field does not get
+  built so that an example page can quote a figure.**
+
+  **WHAT WENT RATHER THAN CHANGED, because a reader diffing these files
+  should be able to see a claim withdrawn:**
+
+  | file | what happened |
+  |---|---|
+  | `v-goldenhour.html` hero stats | the **"4.9 / Rating" tile is GONE**. Cars and Years stay — both producible. `.stats` is `display:flex`, so two tiles sit correctly |
+  | `v-goldenhour.html` review pill | **the whole `<span class="pill pill--rev">` is GONE.** It existed for one purpose, to print "4.9 · 312 reviews" over the hero, and its three stock face photographs proved nothing on their own |
+  | `v-goldenhour.html` testimonial rail | **the lede line is GONE**; the rail and its quotes STAY. `testimonials` is a real key — only the line that aggregated them into "4.9 from 312 reviews" could not be computed |
+  | `v-goldenhour.html` in-form proof | **the whole `<p class="bookproof">` is GONE.** It was the aggregate and nothing else |
+  | `x-ballantyne.html` hero | "5.0 from 65+ Google reviews" removed; **"Insured · serving 16 towns" kept** — insured is the detailer's own fact, the town count comes from `service_area` |
+  | `x-ballantyne-prices.html` booking form | the rating sentence removed; the **cancellation promise kept and given a `data-from`**, because `cancellation_window_hours` is a real key |
+
+  **ONE PLACE THE WITHDRAWAL COSTS THE PAGE SOMETHING, AND IT IS WRITTEN INTO
+  THE FILE RATHER THAN LEFT FOR SOMEBODY TO NOTICE.** `v-goldenhour.html`'s
+  C4 rule is that proof belongs **inside the form, at the moment of
+  commitment**, and that slot is now **empty**. It should be refilled with
+  something the product CAN produce — a single named testimonial out of
+  `testimonials` — and **not** with a softer version of the number that was
+  removed. Left empty deliberately rather than filled badly at a quarter to
+  seven in the morning.
 
   **CLASS 3 — A DEPOSIT. It does not exist in this product at all.** Not a
   column in any of the 92 migrations, not a line in `pricing.ts`,
@@ -4491,6 +4536,21 @@ rather than wording went to Andrew.
   — taking a payment, holding a slot with it, netting it off a later bill —
   and the booking system does none of it. A detailer who sells on that page
   has promised to take a deposit the software cannot take.
+
+  **RULED AND DONE 2026-09-21: GONE, all four places.** There is already a
+  roadmap item for a deposit as a real feature with a real decision behind
+  it; **a deposit does not get built so an example page can quote $25.**
+
+  | line | what happened |
+  |---|---|
+  | 841 | the deposit sentence removed from the booking lede; **"You see the price before anything is committed." kept** |
+  | 1015 | "Total, before the deposit" → **"Total"** |
+  | 1038 | **the whole `<details>` row titled "The deposit" is GONE.** There was no honest version of it to write — every sentence in it was downstream of the thing that does not exist, so the block went rather than being reworded |
+  | 1052 | "Next open day, and the deposit follows the booking." → **"Next open day."** |
+
+  Verified structurally rather than by eye: `z-tampabay.html` lost exactly one
+  `</details>` and exactly two `<div>`/`</div>` pairs against `HEAD`, and the
+  five other edited files' tag counts are **unchanged from `HEAD`**.
 
   **ONE MORE, SMALL, AND IT IS THE CHECK FAILING RATHER THAN THE PAGE:**
   `x-ballantyne-prices.html:481` carries
@@ -4518,6 +4578,10 @@ rather than wording went to Andrew.
   **Done when:** no example site states a figure whose producing field or
   endpoint cannot be named, and the rule is in the tenant-site brief.
 
+  ---
+
+  ### ⚠ READ THIS BEFORE BUILDING THE CHECK — the cheap version does not cover the classes above
+
   **A CHECK FOR THIS IS A REAL POSSIBILITY AND DOES NOT EXIST — said plainly
   rather than implied.** Nothing in this repo reads `data-from` at all. The
   cheap version is credential-free and is one filesystem pass: collect every
@@ -4530,6 +4594,15 @@ rather than wording went to Andrew.
   then state something the field cannot express, and that needs a human
   asking *can this field produce this number?* **Do not build the cheap one
   and report the class as covered.**
+
+  **THIS REPO HAS SHIPPED AT LEAST SIX CHECKS THAT TESTED NOTHING, AND THIS
+  PARAGRAPH EXISTS TO STOP THE SEVENTH BEFORE A LINE OF IT IS WRITTEN.** The
+  cheap `data-from` resolver is a good check and it is worth building. It is
+  **not** this item. A session that builds it and ticks 7.17 will have
+  automated the two typos and left all three classes exactly where they were,
+  with a green gate standing over them — which is strictly worse than today,
+  because today at least nobody believes they are covered. **Whoever builds
+  it: say in its receipt, in words, that it cannot see class 1, 2 or 3.**
   *Raised from 7.2's audit, 2026-09-21. Andrew's ruling of 09-20 applied, not
   re-opened.*
 

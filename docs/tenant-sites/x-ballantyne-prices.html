@@ -546,9 +546,16 @@ footer{padding:26px 0 0;position:relative;overflow:hidden}
           <div class="bk-total" data-from="calculate-booking">$500 <span>Sedan &middot; before add-ons</span></div>
           <a class="btn btn-1" href="#book">Next &mdash; extras</a>
         </div>
-        <!-- proof at the moment of commitment, inside the form -->
+        <!-- proof at the moment of commitment, inside the form.
+             "5.0 from 65+ Google reviews." WITHDRAWN 2026-09-21 — no
+             review-count column exists anywhere and there is no
+             business-level rating; see ROADMAP 7.17 class 2. The cancellation
+             promise stays because it IS producible:
+             `cancellation_window_hours` is a real key on the public profile.
+             The block keeps its job with one claim fewer rather than being
+             padded back to two. -->
         <div class="bk-proof"><i class="dot"></i>
-          <span><b>5.0 from 65+ Google reviews.</b> Free to cancel up to 24 hours before.</span>
+          <span data-from="get_public_business_profile.cancellation_window_hours">Free to cancel up to 24 hours before.</span>
         </div>
       </div>
     </div>

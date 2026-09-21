@@ -837,8 +837,14 @@ footer a:hover{color:var(--ink)}
       <div>
         <span class="cap">Booking</span>
         <h2 style="margin-top:12px">Book a detail.</h2>
-        <p class="lead">You see the price before anything is committed. A $25
-          deposit holds the slot and comes off the bill.</p>
+        <!-- THE DEPOSIT SENTENCE IS GONE — 2026-09-21. "A $25 deposit
+             holds the slot and comes off the bill" described a money flow
+             this product cannot perform: `deposit` appears ZERO times in all
+             92 migrations and nowhere in `pricing.ts`, `create-booking`,
+             `calculate-booking` or `core.js`. Not a mis-stated figure — a
+             capability that does not exist, sold on a page whose job is to
+             show a detailer what they would get. ROADMAP 7.17, class 3. -->
+        <p class="lead">You see the price before anything is committed.</p>
         <p style="margin-top:18px"><b>The figure you are quoted is the figure
           charged.</b> If we get there and the job is bigger than the photos
           suggested, you are told before a hose comes off the van.</p>
@@ -1012,7 +1018,8 @@ footer a:hover{color:var(--ink)}
               <div>Tuesday 15 September, 10:30 am<span>Tampa</span></div>
             </div>
             <div class="bk-foot">
-              <span class="quote">Total, before the deposit<b data-from="calculate-booking">$380</b></span>
+              <!-- was "Total, before the deposit" — there is no deposit -->
+              <span class="quote">Total<b data-from="calculate-booking">$380</b></span>
               <button class="btn" type="button" data-from="create-booking">Confirm booking</button>
             </div>
           </div>
@@ -1035,10 +1042,17 @@ footer a:hover{color:var(--ink)}
     <span class="cap">Before you book</span>
     <h2 style="margin-top:12px">Before you book.</h2>
     <div class="print">
-      <details class="pr"><summary>The deposit</summary>
-        <div class="pr-body"><div><p>$25 holds a slot and comes off the final bill. It is not refundable.
-          A slot canceled late cannot be refilled, and somebody on the waiting
-          list loses their week too.</p></div></div></details>
+      <!-- "THE DEPOSIT" ROW IS GONE ENTIRELY — 2026-09-21, withdrawn, not
+           reworded. The whole <details> existed to explain a $25 deposit that
+           holds a slot, comes off the final bill and is not refundable. The
+           product has no deposit at all, so there was no honest version of
+           this row to write: every sentence in it was downstream of the
+           thing that does not exist. **This is the most serious of the three
+           classes in 7.17** — the other two misstate a figure, this one
+           described taking a customer's money, holding a booking with it,
+           netting it off a later bill, and refusing to give it back. A
+           detailer who sold from this page had promised all four.
+           ROADMAP 7.17, class 3. -->
       <details class="pr"><summary>If we cannot do the job when we arrive</summary>
         <div class="pr-body"><div><p>You are charged the full amount of the booked service. That includes
           nobody being there to let us in. Reschedule instead &mdash; a phone call
@@ -1049,7 +1063,7 @@ footer a:hover{color:var(--ink)}
           the job. You are responsible for anything we are not warned about.</p></div></div></details>
       <details class="pr"><summary>Weather</summary>
         <div class="pr-body"><div><p>We call and move the booking for rain or for heat over about 95&deg;F.
-          Next open day, and the deposit follows the booking.</p></div></div></details>
+          Next open day.</p></div></div></details>
       <details class="pr"><summary>We do not rush a job</summary>
         <div class="pr-body"><div><p>If a detail needs six hours it gets six hours. If the vehicle turns
           out to need more than we quoted, you are told during the work, not on

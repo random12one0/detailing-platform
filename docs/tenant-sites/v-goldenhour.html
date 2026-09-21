@@ -1072,7 +1072,15 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
       <!-- C5 · real figures only. A new detailer's real numbers beat invented ones. -->
       <div class="stats">
         <div class="stat"><b>1,240</b><span>Cars</span></div>
-        <div class="stat"><b data-still>4.9</b><span>Rating</span></div>
+        <!-- THE "4.9 RATING" TILE IS GONE, NOT REDUCED — 2026-09-21.
+             The comment above says "real figures only. A new detailer's real
+             numbers beat invented ones", and this was the one figure on the
+             row the product cannot produce: there is no business-level rating
+             anywhere. `rating` is a per-testimonial star value the detailer
+             types; `google_review_url` is a link nothing reads. Cars comes
+             from completed bookings and years from `established_year`, so
+             both of those stay. `.stats` is `display:flex`, so two tiles sit
+             correctly with no hole. ROADMAP 7.17, class 2. -->
         <!-- THE UNIT LIVES IN THE LABEL, NOT IN THE ANIMATED NUMBER.
              G6 below counts this <b> up from zero and re-prints it every
              frame, keeping whatever is not a digit as a suffix - so "6 yrs"
@@ -1087,14 +1095,18 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
         <span class="dot"></span> Available today &middot; 2 slots
       </span>
 
-      <span class="pill pill--rev" data-from="the detailer's Google reviews">
-        <span class="faces">
-          <i style="background-image:url(https://images.unsplash.com/photo-1494790108377-be9c29b29330?fm=jpg&amp;w=60&amp;h=60&amp;fit=crop&amp;q=60)"></i>
-          <i style="background-image:url(https://images.unsplash.com/photo-1500648767791-00dcc994a43e?fm=jpg&amp;w=60&amp;h=60&amp;fit=crop&amp;q=60)"></i>
-          <i style="background-image:url(https://images.unsplash.com/photo-1534528741775-53994a69daeb?fm=jpg&amp;w=60&amp;h=60&amp;fit=crop&amp;q=60)"></i>
-        </span>
-        4.9 &middot; 312 reviews
-      </span>
+      <!-- THE REVIEW PILL IS GONE ENTIRELY — 2026-09-21, withdrawn rather
+           than softened. It existed for one purpose: to print "4.9 · 312
+           reviews" over the hero, under `data-from="the detailer's Google
+           reviews"` — which is not an endpoint, a table or a field. It is a
+           sentence. The product has NO review count in any of the 92
+           migrations and NO business-level rating, and it never reads
+           anything from Google; it stores `google_review_url` as a link.
+           Three stock face photographs were the rest of the pill, and they
+           were proof of nothing on their own, so the element went with the
+           claim. A reader diffing this file should see a claim WITHDRAWN,
+           which is why this note is longer than the markup it replaces.
+           ROADMAP 7.17, class 2. -->
 
       <div class="trust">
         <span><b>Same-day slots</b> most weeks</span>
@@ -1148,8 +1160,12 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
        section. C5's sibling: proof where somebody is still deciding. -->
   <section class="says" aria-label="What customers say">
     <div class="saysrail" data-from="testimonials">
-      <p class="sayslede"><b>4.9</b> from <span>312 reviews</span>
-         <span class="stars" aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</span></p>
+      <!-- THE RAIL'S LEDE IS GONE — 2026-09-21. The testimonials under it
+           are REAL: `testimonials` is a public-profile key and each row
+           carries the author, quote and a star value the detailer typed. The
+           lede was the one line that aggregated them into "4.9 from 312
+           reviews", which nothing can compute. The quotes stay; the total
+           goes. ROADMAP 7.17, class 2. -->
       <figure><blockquote>&ldquo;Booked Tuesday, done Thursday, and the car
         looked better than the day I got it.&rdquo;</blockquote>
         <figcaption>Marcus T. &middot; Green Lake</figcaption></figure>
@@ -1358,11 +1374,16 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
         </div>
       </div>
 
-      <!-- C4 · the proof sits INSIDE the form, at the moment of commitment. -->
-      <p class="bookproof" data-from="testimonials">
-        <span class="stars" aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
-        <b>4.9</b> from <b>312</b> reviews
-      </p>
+      <!-- C4 · the proof that sat INSIDE the form is GONE — 2026-09-21.
+           It was "★★★★★ 4.9 from 312 reviews" and nothing else, so there was
+           nothing left to keep once the aggregate was withdrawn: the element
+           went with it rather than being padded out with a softer sentence.
+           **This is the one place the withdrawal costs the page something** —
+           C4's rule is that proof belongs at the moment of commitment, and
+           that slot is now empty. It should be refilled with something the
+           product CAN produce (a single named testimonial from
+           `testimonials`, which is a real key) rather than with a vaguer
+           version of the number that was removed. ROADMAP 7.17, class 2. -->
     </div>
   </section>
 
