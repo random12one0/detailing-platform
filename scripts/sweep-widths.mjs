@@ -67,6 +67,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 import { reportSourceMoved, watchSource } from "./source-guard.mjs";
+import { checkLabels } from "./label-guard.mjs";
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
 // Started BEFORE the browser opens, so anything saved from here on is a
@@ -577,39 +578,25 @@ let signedIn = null;
 //
 // `--labels-only` runs just this and exits, so it can be proved without a
 // browser. `SWEEP_LABEL_CANARY=1` injects a label that cannot exist.
-const labelSources = (() => {
-  const out = [];
-  const walk = (d) => {
-    for (const f of readdirSync(d, { withFileTypes: true })) {
-      const q = `${d}/${f.name}`;
-      if (f.isDirectory()) walk(q);
-      else if (/\.jsx?$/.test(f.name) && !q.includes("/strings/")) out.push(readFileSync(q, "utf8"));
-    }
-  };
-  // The URL form, not a relative path: this must not depend on the directory
-  // the run was started from, the way the catalogue read above does not.
-  try { walk(fileURLToPath(new URL("../app/src", import.meta.url))); }
-  catch { /* not a checkout with the sources beside it */ }
-  return out.join("\n");
-})();
 const NAMED_LABELS = [...BUSINESS_ROWS, ...GEAR_ROWS,
   ...(process.env.SWEEP_LABEL_CANARY === "1" ? ["A row that has never existed"] : [])];
-const STALE_LABELS = labelSources
-  ? NAMED_LABELS.filter((l) => !(labelSources.includes(`"${l}"`) || labelSources.includes(`'${l}'`)))
-  : [];
-if (!labelSources) {
-  console.log(`${"labels".padEnd(24)} NOT CHECKED — app/src was not readable from here, so the `
-    + `${NAMED_LABELS.length} row label(s) this run names are unverified against the product`);
-} else if (STALE_LABELS.length) {
+// ONE IMPLEMENTATION, TWO ENTRY POINTS. `scripts/label-guard.mjs` audits every
+// check in the repo and is the gate; this call is the same code guarding this
+// file's own row list at the top of a run, so a stale label is named here
+// rather than three hundred surfaces later.
+const { stale: STALE_LABELS, dynamic: DYNAMIC_LABELS } = checkLabels(NAMED_LABELS);
+if (STALE_LABELS.length) {
   console.log(`
 STALE LABELS — ${STALE_LABELS.length} of ${NAMED_LABELS.length} row label(s) this check `
-    + `names no longer appear anywhere in app/src. A renamed row does not fail loudly:`);
-  console.log(`  NAMED_TEXT() falls back to the bare English, matches nothing, and the screen goes`);
-  console.log(`  unmeasured while every other line reads normally. Re-point these, do not delete them:`);
+    + `names no longer appear anywhere in the product. A renamed row does not fail loudly:`);
+  console.log(`  the matcher falls back to the bare English, matches nothing, and the screen goes`);
+  console.log(`  unmeasured while every other line reads normally. Re-point these, do not delete them.`);
+  console.log(`  This is a hole in the QUESTION, not a screen that failed to load:`);
   for (const l of STALE_LABELS) console.log(`    NO LONGER IN THE PRODUCT  ${l}`);
 } else {
-  console.log(`${"labels".padEnd(24)} all ${NAMED_LABELS.length} row label(s) still exist in app/src`);
+  console.log(`${"labels".padEnd(24)} all ${NAMED_LABELS.length} row label(s) still exist in the product`);
 }
+for (const l of DYNAMIC_LABELS) console.log(`${"labels".padEnd(24)} NOT VERIFIABLE — ${l} is built at run time`);
 if (process.argv.includes("--labels-only")) process.exit(STALE_LABELS.length ? 1 : 0);
 
 const browser = await chromium.launch();

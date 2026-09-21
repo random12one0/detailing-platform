@@ -1,0 +1,43 @@
+{
+  "git_sha": "7a9ed2cad1af24e7f235875bcb9cb39b4b225b3d",
+  "environment": "local",
+  "finished_at": "2026-09-21T00:00:51.769Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "scripts/label-guard.mjs"
+  ],
+  "dimensions": {
+    "patterns": [
+      "NAMED(…)",
+      "NAMED_TEXT(…)",
+      "hasText:",
+      ":has-text(…)",
+      "getByRole(name:)",
+      "getByText(…)",
+      "getByLabel(…)",
+      "getByPlaceholder(…)"
+    ],
+    "sources": "app/src + scripts/seed-demo.mjs"
+  },
+  "check_id": "label-guard",
+  "started_at": "2026-09-21T00:00:51.619Z",
+  "status": "pass",
+  "expected_targets": 45,
+  "discovered_targets": 45,
+  "attempted_targets": 45,
+  "completed_targets": 45,
+  "skipped_targets": 0,
+  "assertions_executed": 45,
+  "min_assertions": 30,
+  "canary": {
+    "id": "a declared label that no product could contain",
+    "observed_failure": true,
+    "caught_by": [
+      "source scan"
+    ],
+    "findings": [
+      "named \"A control that has never existed in this product\""
+    ]
+  }
+}
