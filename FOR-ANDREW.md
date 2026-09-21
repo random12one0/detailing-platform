@@ -293,6 +293,27 @@ still knows them.
 
 ## Waiting on you — nothing breaks while these wait
 
+- [ ] **READ · What we send, and what we don't — the messaging page you asked
+  for. No recommendation in it on purpose; it is the material for a
+  conversation, not a conclusion.**
+
+  It is at `docs/what-we-send.md`. You asked what emails and texts the
+  business sends, because the whole thing was thrown together in a rush and
+  nobody has ever written it down. That page does it: every message that goes
+  out today, what sets it off, who gets it, and whether it starts on or off;
+  the moments where nothing is sent and probably should be; what the law asks
+  for email and the much stricter rules for texting; and five questions that
+  are yours to answer, each with the real options and what each one costs.
+
+  **The one thing to know before you open it:** the product sends **no texts
+  at all**. The text buttons open the messaging app on *your phone* with the
+  message typed out, and you press send. So texts come from your number, and
+  the business keeps no record that any of them happened. Most of the
+  questions on that page hang off whether you want to change that.
+
+  **Nothing on it is ranked or recommended** — you are doing the deciding, so
+  a page that had already decided would be no use.
+
 - [ ] **DECIDE · How much photo storage a detailer gets. Right now it is
   about forty-seven photos each, and the pricing page said "unlimited". I
   have taken that word off the page; the number is yours.**
