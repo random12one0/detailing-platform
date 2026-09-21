@@ -241,3 +241,103 @@ function readSource() {
     .replace(/^\s*\/\/.*$/gm, "");
 }
 
+
+// ─── 10 · WHAT THE SCREEN FEEDS IT ────────────────────────────────────────
+// **ROADMAP 9.2(a), 2026-09-21. Sections 1-9 pin what these functions DO.
+// This one pins what they are GIVEN, and that is where the defect was.**
+//
+// `bookability({ business, counts, settings })` and
+// `setupProgress({ business, branding, settings, counts })` take **the same
+// parameter shape and different field sets**. `platform-admin` builds one
+// object, `setup_inputs`, FOR `setupProgress` — its own comment says so — and
+// it carries `business: { contact_phone, contact_email }` and
+// `settings: { setup }`. Both back-office call sites handed that to
+// `bookability`, which reads `business.status` and `settings.booking_mode`.
+// **Neither is in it, and a missing key costs nothing to read.** So the back
+// office could never report a SUSPENDED page as unbookable, and told him a
+// request-only detailer was "Taking bookings".
+//
+// **This existed for the whole life of the screen and every gate in this repo
+// stayed green**, which is why the guard is here rather than in a commit
+// message. A check that lives in a commit message is a memory.
+console.log("\n10. what the screen feeds bookability");
+{
+  // The row shape `platform-admin` actually sends: `status` and
+  // `booking_mode` at the TOP level, `setup_inputs` underneath.
+  const row = (over) => ({
+    status: "active", booking_mode: "reserve",
+    setup_inputs: {
+      counts: { services: 3, addOns: 0, promos: 0, hoursOpen: true },
+      branding: { primary_color: "#111" },
+      settings: { setup: null },
+      business: { contact_phone: "555", contact_email: "a@b.c" },
+    },
+    ...over,
+  });
+  const OLD = (r) => bookability(r.setup_inputs);          // what shipped
+  const NEW = (r) => bookability({                          // `bookabilityOf`
+    counts: r?.setup_inputs?.counts,
+    business: { status: r?.status },
+    settings: { booking_mode: r?.booking_mode },
+  });
+
+  const suspended = row({ status: "paused" });
+  const request = row({ booking_mode: "request" });
+  const healthy = row({});
+  const empty = row({ setup_inputs: { counts: { services: 0, hoursOpen: false }, settings: {}, business: {} } });
+
+  // THE BUG ITSELF, ASSERTED. If somebody ever makes `setup_inputs` carry
+  // `status`, this line goes red and the right answer is to delete it — not
+  // to widen the payload, which is 9.1's fix on the server and a deploy.
+  check("10a · the OLD feed called a SUSPENDED page bookable", OLD(suspended).ok === true,
+    "this is the defect, pinned so the fix below has something to be better than");
+  check("10b · the row shape sees the suspension", NEW(suspended).ok === false
+    && NEW(suspended).reasons.join() === "suspended");
+
+  check("10c · the OLD feed lost request mode", OLD(request).mode === "reserve");
+  check("10d · the row shape keeps it", NEW(request).mode === "request",
+    'a detailer who takes requests must not read as "Taking bookings"');
+
+  // AND IT MUST NOT MOVE THE TWO ANSWERS THAT WERE ALREADY RIGHT. Without
+  // these, a fix that broke every healthy account would pass 10b and 10d.
+  check("10e · a healthy page is unchanged by the fix",
+    JSON.stringify(NEW(healthy)) === JSON.stringify(OLD(healthy)));
+  check("10f · and so is one with nothing to sell",
+    NEW(empty).reasons.join() === OLD(empty).reasons.join()
+    && NEW(empty).reasons.join() === "no active services,no open days");
+
+  // ── AND THAT THE SCREEN ACTUALLY ROUTES THROUGH IT ──────────────────────
+  // 10a-10f pin the arithmetic and would ALL still pass if somebody put
+  // `bookability(r.setup_inputs)` back at a call site. These two read the
+  // screen's own source.
+  //
+  // **COUPLED TO A NAME, AND SAID SO RATHER THAN PRETENDED OTHERWISE** —
+  // `docs/gotchas.md` on grep-based checks. If `bookabilityOf` is renamed
+  // these go red on working code; the fix then is to update the name here,
+  // not to delete the check. Comments are stripped first for the reason
+  // section 9 records: this file's own prose names the forbidden call.
+  const page = readFileSync(new URL("../app/src/admin/AdminPage.jsx", import.meta.url), "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/^\s*\/\/.*$/gm, "");
+  const raw = page.match(/\bbookability\(/g) ?? [];
+  check("10g · exactly one raw bookability() call in the whole screen", raw.length === 1,
+    `found ${raw.length} — every call site must go through bookabilityOf(row)`);
+  check("10h · and the helper names both fields the object was missing",
+    /const bookabilityOf[\s\S]{0,260}status[\s\S]{0,120}booking_mode/.test(page),
+    "bookabilityOf must read status and booking_mode off the row");
+}
+
+// ─── THE SUITE'S OWN EXIT CODE ────────────────────────────────────────────
+// **THIS FILE PRINTED `FAIL` AND EXITED 0 FROM THE DAY IT WAS WRITTEN UNTIL
+// 2026-09-21.** It has 57 checks in nine sections and not one of them could
+// turn the run red: `check()` counted a failure, printed it, and the script
+// ended. Under `node --test tests/*.test.mjs` a file that exits 0 is a pass,
+// so every one of those 57 was decoration. **Measured, not suspected** — a
+// copy of this file with one deliberately false check appended printed
+// `FAIL  CANARY` and exited **0**.
+//
+// That is `docs/silences.md`'s own subject, one floor down: a check that
+// cannot tell a pass from a did-not-run. It is fixed in the only way that
+// matters, by the two lines below.
+console.log(`\n${passed} passed, ${failed} failed`);
+process.exit(failed ? 1 : 0);
