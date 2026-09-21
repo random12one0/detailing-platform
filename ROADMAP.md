@@ -8402,6 +8402,70 @@ event id.
   | Skip is an anonymous subtraction: refusable, but silent about *which* | 5 | `contrast-insitu`, `keyboard-walk`, `screenreader-structure`, `text-spacing-walk`, `zoom-walk` |
   | Reports `0`, and every skip path exits non-zero **before** a receipt exists | 10 | the four `e2e-*`, `pinned-bar`, `dashboard-notifies`, `restore-drill`, `deployed-inventory`, `example-ctas`, `example-shots-check` |
 
+  **↑ THAT ROW ANSWERS ONE OF TWO EXITS, AND THE OTHER ONE IS THE DANGEROUS
+  ONE — corrected 2026-09-21. Raised by the other session, which found it and
+  would not edit this file; verified here independently before applying,
+  because two sessions agreeing by default is how a wrong thing gets twice the
+  confidence.**
+
+  **The row is TRUE and it is NARROW.** *"Every skip path exits non-zero
+  before a receipt exists"* is a statement about **skips**, which are honest
+  and loud. **A script has a second way out: it can CRASH.** The audit's own
+  question — *what would have to be true for this skip to be refused* — was
+  never asked of the crash path, and the crash path fails in the opposite
+  direction: a skip leaves **no** receipt, a crash leaves the **previous
+  run's PASS** sitting on disk as the record of a run that never happened.
+  **A stale green is worse than a missing one**, and this row reads as though
+  the question were settled for all ten.
+
+  **PROVED ON TWO OF THE TEN, BY RUNNING BOTH SIDES.** `dashboard-notifies`
+  had a `finally` and **no `catch`**, with four `throw`s inside the try — one
+  of them in `sql()`, which every step calls twice. `HEAD`'s copy was
+  extracted **unmodified** and run against an unreachable database, so the
+  crash was a real network failure rather than a planted throw: the receipt
+  afterwards was **unchanged to the byte**, the 08:25 `pass 7 7 7 7` still
+  standing. The fixed file, same failure, wrote **`7 7 0 0`**, status `fail`,
+  *"THE RUN DID NOT FINISH"*, exit 1. Same fault and same fix as
+  `restore-drill.mjs`. Fixed: `bf55bb9`, `330c3e4`.
+
+  **UNASKED ON THE OTHER EIGHT, WHICH IS NOT THE SAME AS CLEAN.** The four
+  `e2e-*`, `pinned-bar`, `deployed-inventory`, `example-ctas` and
+  `example-shots-check` have never been run against a crash. Read, not run:
+  **`example-ctas.mjs` and `example-shots-check.mjs` contain no `catch` at
+  all**, and both have a receipt on disk for a later run to inherit. **That is
+  a lead, not a verdict** — the whole point of the two proofs above is that
+  this repo stopped accepting read counterfactuals about receipts.
+
+  **AND THE HEADLINE COUNTS IN THE TABLE ABOVE ARE STALE — 21 and 20 are now
+  29 and 28.** Counted 2026-09-21: **29 scripts declare `skipped_targets`**,
+  minus `receipt.mjs` itself = **28 issuers**, which is the same number
+  `docs/silences.md` reached independently in its own recount.
+
+  **THE AUDIT WAS COMPLETE WHEN IT WAS WRITTEN, AND THAT IS THE POINT OF
+  RECORDING THE DATES RATHER THAN THE DIFFERENCE.** Of the eight issuers it
+  does not name, **seven gained `skipped_targets` on 2026-09-21**, the day
+  after — `accent-sweep`, `check-deployed`, `db-audit`, `migration-drift`,
+  `render-emails`, `sweep-booking-steps` and `e2e-booking`. The eighth,
+  `label-guard`, gained it at **17:02 on 2026-09-20 — an hour AFTER this
+  audit was committed at 15:58** (`0ca5b2d` vs `807ebbc`). **Nothing was
+  missed. Eight things were added.** Checked before writing, because the
+  obvious reading of "21 should be 29" is that the reader of all 21 skipped
+  eight, and that reading would be an accusation rather than a correction.
+
+  **WHAT THIS ROW SHOULD SAY:** *Reports `0`; every skip path exits non-zero
+  before a receipt exists; **the crash path was not audited, and on two of
+  these ten it left a stale `pass` on disk until `bf55bb9` and `330c3e4`.***
+  The counts above are a reading of 2026-09-20 15:58 and should be read with
+  that timestamp attached rather than as today's census —
+  **`docs/silences.md` § "THE CENSUS RECOUNTED" is the current number.**
+
+  **One pointer that is now wrong and is not this file's to fix:**
+  `docs/silences.md` cites this row as **`ROADMAP.md:8186`**. This session
+  added 217 lines above it earlier tonight, so it is **line 8402** as of
+  `5794d67` and will move again. Flagged for whoever owns `docs/` rather than
+  edited here; a line number into a file two sessions append to is a pointer
+  with a shelf life, and the heading is the durable address.
+
   **THE ONE REAL ONE, AND IT WAS HIDING IN PLAIN SIGHT.** `tenant-matrix.mjs`
   keeps a `skips` array, fills it with written reasons — seeds it could not
   plant, tables where B owns no row, RPCs whose arguments cannot be
