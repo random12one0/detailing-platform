@@ -1,6 +1,32 @@
-# PENDING MIGRATION — revoke the browser grants on ten locked tables
+# ~~PENDING~~ APPLIED MIGRATION — revoke the browser grants on ten locked tables
 
-**NOT APPLIED. NOT EVEN PLACED IN `supabase/migrations/`.** Andrew's manager's
+## APPLIED 2026-09-21, and the public page was walked with it as the only change
+
+`supabase/migrations/20260921000000_revoke_locked_table_grants.sql`. Ten
+statements, `kguqylyzgyzfktkfnhjb`. **The prediction below held exactly:**
+
+| | before | after |
+|---|---|---|
+| tables with grants still open | **10** | **0** |
+| `db-audit.mjs` section 5 | 10 findings | **12 `ok` lines, zero findings** |
+| anon against `platform_settings` | `200` with `[]` | **`401 permission denied`** |
+| anon against `businesses` (untouched) | `200`, 0 rows | `200`, 0 rows |
+| `migration-drift.mjs` | PASS | **PASS — it cannot see a revoke, as written below** |
+
+**The public booking page was walked end to end immediately afterwards**, cold,
+with the revoke as the only thing that had moved: steps 1→6 of 7, six services
+at `$65 / $140 / from $650 / $95 / from $150 / $220`, Express Wash added, price
+bar **$65** unchanged, a live Geoapify geocode of "140 Market Street, Long
+Beach" resolving, October availability loading nineteen slots, and the four
+monthly plans priced at `$120 / $200 / 10% / $1,200`. **Zero console errors at
+every step.** Nothing on that page changed.
+
+The original brief is kept below unedited, because the evidence is what
+justified applying it.
+
+---
+
+**(WRITTEN WHEN IT WAS: NOT APPLIED. NOT EVEN PLACED IN `supabase/migrations/`.)** Andrew's manager's
 ruling, 2026-09-21: the revoke is a live change to a running database and the
 public booking page reads this project, so it is not applied at two in the
 morning on the same round it is written. **It gets applied in a round where
