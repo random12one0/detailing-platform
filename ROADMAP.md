@@ -1,5 +1,96 @@
 # Roadmap — the fix queue
 
+---
+
+## STATE CHANGED OUTSIDE THE REPO — 2026-09-21 night. `git log` cannot show any of this.
+
+**WRITTEN HERE RATHER THAN IN `FOR-ANDREW.md`, AND THAT IS A LANE REFUSAL, NOT
+A PREFERENCE.** This section was commissioned for `FOR-ANDREW.md`. That file
+has **234 insertions and 307 deletions uncommitted from another session** — a
+restructure in progress ("twelve rows moved to Done in one sitting"). Committing
+it with `git commit FOR-ANDREW.md` takes the **working tree** copy, so their
+unfinished work would go into history under this commit's message, and
+CLAUDE.md records that a swept-up edit can then be destroyed by the next amend.
+So it is parked here, where it is committed and safe, **written to be lifted
+into `FOR-ANDREW.md` verbatim** the moment that session's change lands.
+This continues `docs/MANAGER-CLOSE-2026-09-21.md` § 1, which exists because
+facts like these lived in a chat window that no longer exists.
+
+| What | Where | When | By |
+|---|---|---|---|
+| `business_settings.email_customer_maintenance_due` **now exists**, `boolean not null default false` | Supabase `kguqylyzgyzfktkfnhjb` | 2026-09-21 night | **the manager, run by hand in the SQL editor** |
+| Supabase **cron list read**: 4 jobs, all active | same project | same night | the manager |
+| The gate that reads that column is **built and NOT deployed** | this repo, commit `7d12539` | same night | this session |
+
+**1 — The column exists in the live database.** Both statements returned
+Success and it was **verified rather than trusted**: `information_schema` now
+lists four `email_customer_*` columns on `business_settings` —
+`confirmation`, `followup` and `reminder` defaulting **true**, and
+`email_customer_maintenance_due` defaulting **false**.
+**Migration `20260921010000_the_maintenance_due_email_is_off_where_git_can_see_it.sql`
+is the record and is unchanged.** The `comment on column` text in the database
+differs cosmetically from the file — the editor auto-pairs quotes, so the
+apostrophe in "Andrew's" and the quotes around "maintenance due" were dropped
+rather than risk a mangled statement. **The sense is identical; the file is
+canon.**
+**This closed the ordering trap MANAGER-CLOSE § 1 names.** The column has to
+exist *before* the function that reads it is published, or the publish breaks
+every send. It exists now, so the publish is safe in either order.
+
+**2 — The cron, which is the fact that made ruling A urgent.** Four jobs, all
+**active**:
+* `send-owner-reminders-sweep` — `*/15 * * * *`, **last run 2026-09-21
+  01:00:00 Pacific**
+* `accrue-plan-visits` — `5 0 * * *`
+* `watch-jobs` — `7,22,37,52 * * * *`
+* `refresh-weather` — `7 * * * *`
+
+The sales email was therefore reachable **every fifteen minutes against live
+data**, and the only thing standing between a customer and a "Book it in" for a
+service they never bought was one tenant's ordinary appointment-reminder switch.
+
+**3 — THE RULING IS NOT IN FORCE YET, AND THIS IS THE LINE THAT MATTERS MOST.**
+The gate is built and the column exists, but the **deployed** copy of
+`send-owner-reminders` is still the old one, and the cron is still firing it.
+**A customer is still exposed until Andrew publishes.** Publishing is his and it
+is the last step. Nothing here should be deployed to make anything green.
+
+### For Andrew's own list — one decision, evidence only
+
+**`campaignEmail`: the ruling forbids marketing email; the feature ships. Which
+gives?** Not an opinion — the evidence on both sides:
+* **It is marketing.** The button reads **"Book again"**, the body is the
+  detailer's own sales message, and a detailer fires it by hand at a list of
+  customers via `send-campaign`.
+* **It is the legally careful one.** `send-campaign` is member-gated and
+  **refuses to send without a mailing address**; `campaignEmail` is the only
+  template in the file carrying an unsubscribe link and a postal address.
+* **The rule it contradicts is his own**, recorded in
+  `docs/MANAGER-CLOSE-2026-09-21.md` § 2: *"No marketing email, ever. Email is
+  receipts, reminders and alerts. Anything that sells goes by text."*
+* **Either answer is coherent; leaving both standing is not** — a session
+  reading "no marketing email, ever" beside a working campaign sender cannot
+  tell which is true. Full write-up: ROADMAP **3.4a**. **Nothing was touched.**
+
+### Three things are built or ruled and NOT pressed — if this session is cleared, these survive here
+
+1. **2.1a + 2.1c** — money lines carry their kind and their words as parts.
+   Built, unit-tested, **never opened in a browser**. Needs: the surcharge line
+   on the date step for a plan booking ($60 → $85) and a two-car booking; the
+   Spanish review step; no regression against the still-undeployed function;
+   `i18n-survey.mjs`. The two-car case needs a tenant allowing more than one
+   car — **not `demo-detail`**, which is pinned to 1 on purpose.
+2. **The maintenance-due gate (3.4 ruling A)** — built, column applied, **not
+   deployed**. Needs: Andrew to publish `send-owner-reminders`, then confirm a
+   tenant with reminders **on** and a due deadline sends **no** maintenance
+   email while its ordinary reminders **still send**.
+3. **The `ownWords` warning (3.4b)** — **ruled and written up, not built.** A
+   detailer can put a sales pitch inside a transactional email carrying no
+   unsubscribe path. The fix is a plain warning where they type it, not a
+   content filter. It needs a press, so it was not started.
+
+---
+
 This is the live queue. It replaces the old build-phase roadmap, whose
 still-open items are carried into Wave 11 below. That file was pruned on
 2026-09-20 and lives in git history —
