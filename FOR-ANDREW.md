@@ -15,6 +15,12 @@ recommendation attached — answer it in one line and a session picks it up.
 was published overnight. The groups below are in the order they are worth your
 attention, not the order they arrived in.
 
+**2026-09-21 — twelve rows moved to Done in one sitting.** You answered most of
+the Waiting pile out loud, applied the database change yourself, and one row
+turned out to be flatly wrong. Your answers are in **Done** in your own words
+rather than summarised, so a session reads what you actually said. **What is
+left above the line is genuinely still open**, and it is short now.
+
 **How a row is written, so the next one looks like these.** One thing you can
 act on in thirty seconds or decide in ten, in plain words, with no internal
 names and no background you do not need. A **DECIDE** carries a recommendation
@@ -29,7 +35,7 @@ September"**, so age is visible at a glance instead of every row claiming the
 same birthday. **Nothing needed a date today** — every row below was either
 written or rewritten this morning.
 
-Updated 2026-09-20.
+Updated 2026-09-21.
 
 ---
 
@@ -51,21 +57,25 @@ Updated 2026-09-20.
   **Publishing is yours, the same as pushing code is yours.** Nothing has gone
   live and nothing will until you say so.
 
-  **One new ordering rule, added 2026-09-20, and it is strict, not a
-  preference: if you ever publish `create-booking`, the database change
-  below (the one-minute "apply one small database change" row above) has to
-  be applied FIRST, not after, not the same day, first.** `create-booking` is
+  **UPDATE 2026-09-21 — the ordering rule below is now SATISFIED.** You ran
+  the database change yourself on the night of the 20th, so the column exists
+  and `create-booking` is safe to publish whenever it is swept up. The rule is
+  kept here rather than deleted, because it is how the trap is understood if
+  anybody ever wonders why this paragraph existed.
+
+  **The rule, added 2026-09-20, strict rather than a preference: if you ever
+  publish `create-booking`, the database change has to be applied FIRST, not
+  after, not the same day, first.** `create-booking` is
   the program that saves every new booking. Tonight's change made it always
   try to write to a column that does not exist in your database yet. Apply
   the database change and nothing happens — bookings save exactly as they do
   today, with one more fact recorded. Publish `create-booking` while that
-  column is still missing, in either order otherwise, and **every single new
-  booking fails**, not just the address-flag part of it — nobody can book at
-  all until you notice and fix it. `create-booking` is already one of the
-  stale programs in the 39 below — running code from before tonight, same as
-  most of the others — so whenever it is swept up in that general publishing
-  pass, this ordering rule is the one thing to check first, not something
-  the list below will flag for you on its own.
+  column is still missing and **every single new booking fails**, not just the
+  address-flag part of it — nobody can book at all until you notice and fix
+  it. **That window is now closed.** It is written down because the shape of
+  it — a program that always writes a column, published before the column
+  exists — will happen again with some other column some other night, and the
+  next one will not have a paragraph waiting for it.
 
   **The order we recommend:**
 
@@ -94,6 +104,8 @@ Updated 2026-09-20.
 
 ---
 
+---
+
 ## Urgent — two minutes when you next open your laptop
 
 - [ ] **DO · Ten test emails are sitting in your support inbox. They are ours.
@@ -119,32 +131,63 @@ Updated 2026-09-20.
   Supabase: **Account settings → Security → enable MFA.** Netlify has the same
   under user settings.
 
-- [ ] **DO · Apply one small database change — one minute, and it has to
-  happen before `create-booking` is ever published, not just before you
-  expect to use the flag.**
-  This session isn't allowed to change your database directly, on purpose —
-  that stays yours to approve. The file is already written:
-  `supabase/migrations/20260920020000_a_picked_zone_can_contradict_the_address.sql`.
-  It adds one new column to bookings that only ever holds true, false, or
-  nothing — no existing booking is touched, nothing is deleted or renamed.
-
-  It's the crude "does this address match the area they picked" flag from
-  the ROADMAP 2.3 decision above — built and tested tonight, but invisible
-  everywhere until this column exists. In the Supabase dashboard: **SQL
-  Editor → paste the file's contents → Run.** Or from a terminal with your
-  credentials loaded: `node scripts/apply-migrations.mjs 20260920020000_a_picked_zone_can_contradict_the_address.sql`.
-
-  **Apply this and do nothing else: safe, nothing changes for anyone.**
-  **Publish `create-booking` before this is applied: every new booking
-  fails**, because the program that saves bookings now always tries to write
-  to this column. Not a smaller version of the feature not working — nobody
-  can book anything until you catch it and fix it. See the ordering warning
-  in "What to put live, and in what order" above; it applies specifically to
-  this row.
-
 ---
 
 ## Waiting on you — nothing breaks while these wait
+
+- [ ] **DO · Tell a session where the key to your backups is kept. This is the
+  most important row on the page.**
+
+  **Your backups are real and they work** — see Done below; the page that said
+  otherwise was wrong. Every night at 02:10 a copy of your whole database is
+  taken, locked, and stored in your private backups repository. Eleven of them
+  are sitting there right now.
+
+  **They are locked with a key, and the key is deliberately not on GitHub.**
+  That is the right way round — a lock whose key sits next to it is not a lock.
+  **But nothing anywhere records where the key actually is**, and a backup
+  nobody can unlock is not a backup, it is a very tidy pile of noise.
+
+  **What is needed from you is one sentence, not the key itself.** *"It's in my
+  password manager"*, *"it's on the USB stick in my desk"*, *"I don't know
+  where it is"* — any of those is a complete answer and the third is the one
+  worth knowing fastest.
+
+  **Do not paste the key into a chat, a document, or this file.** No session
+  will ask you for it, read it, or move it. Where it lives is the answer; what
+  it is never is.
+
+  **Why it is first:** nobody has ever restored one of those nightly backups,
+  and nobody can until this is answered. Everything else about backups is
+  settled and paid for at zero; this is the whole remaining risk.
+
+- [ ] **DECIDE · "Unlimited photos" is not true, and it is on your pricing
+  page.**
+
+  **The export half of this row is settled** — you asked *"Isn't that just like
+  one button? Is that really gonna be that hard?"* and it is now a build item,
+  not a question. See Done. **This is the other half, and it is still yours.**
+
+  Your pricing page lists what a detailer gets: *"Unlimited services, bookings,
+  photos and staff logins."* **Services, bookings and staff logins really are
+  unlimited. Photos are capped at about 10 MB per detailer** — and the product
+  will accept a single 10 MB photo, so one picture can eat almost the whole
+  allowance. Past it the screen refuses the upload and says *"Photo storage is
+  full."*
+
+  **Two honest ways out, one line each:**
+  1. **Make the allowance real** — raise it so "unlimited" is true, which costs
+     storage.
+  2. **Say what it actually is** — take "photos" off that line, or print the
+     real figure.
+
+  **No recommendation attached, on purpose.** Which way round this goes depends
+  on what storage costs you against what the word is worth on that page, and
+  that is yours to weigh.
+
+  **The wording stays exactly as it is until you answer** — deliberately not
+  made vaguer, because a vague promise is still a promise and harder for
+  anybody to spot later.
 
 - [ ] **DECIDE · What the live preview on Business settings should show.**
 
@@ -156,238 +199,9 @@ Updated 2026-09-20.
 
   **No recommendation attached — this one is genuinely yours, not ours.**
 
-- [ ] **DECIDE · Should the home page and pricing page get Spanish at all?**
-
-  Your legal pages (terms, privacy) are already settled — they will never be
-  machine-translated, because a translation of a contract that nobody
-  qualified has read is a liability, not a feature, and that ruling is
-  written into the code itself. This is the other half: the home page and
-  the pricing page have no Spanish at all, on purpose or not depending on who
-  you ask, and nobody has decided whether they should.
-
-  **The size, so you're deciding with a real number:** roughly 390 pieces of
-  text across both pages — real count would move around after de-duplication
-  and a proper read-through, but the scale is right. That's an afternoon or
-  more of work, not something a session does on the side of another item.
-
-  **No recommendation attached — reaching Spanish-speaking customers on your
-  own marketing pages is a real business call, and the cost is real too.**
-
-- [ ] **DECIDE · Nothing is backed up, and fixing it costs money.**
-
-  **Measured, not assumed.** Your database is on the free plan, which means
-  **no backups you can restore from, and no way to roll back to an earlier
-  moment.** **If the database were lost today, nothing would bring it back.**
-  **Nobody has ever tested a restore, because there has never been anything to
-  restore from.**
-
-  **Nothing is wrong right now** — there are no real customers on it. This
-  matters the day you move the real business onto it.
-
-  **What we did instead:** proved your records can be exported to a file and
-  put back, every row identical, and wrote the procedure down. A session runs
-  it before anything risky. It does **not** bring back logins or the actual
-  photo files.
-
-  **Your options, with prices read off Supabase's own system today:**
-  1. **A paid plan** — turns on daily backups kept for a week. The cheaper half
-     and probably the right first step. The plan price is on Supabase's own
-     pricing page; we did not want to quote a number from memory.
-  2. **Add roll-back-to-any-moment: $100/month** for 7 days, $200 for 14, $400
-     for 28. Needs a paid plan first.
-  3. **Do nothing yet**, and keep running the export before risky changes.
-
-  **Recommendation: (1) now, (2) when you take a real customer's booking.**
-
-  **Not started:** a full restore rehearsal needs a second copy of the
-  database, which costs money and creates something inside your account.
-  Neither was touched. Say the word and it takes about an hour.
-
-- [ ] **DECIDE · Do you want travel priced by distance at all?**
-
-  ROADMAP 2.3 says a far-away customer can pick a cheap travel area from a
-  list and pay for it — someone in San Diego can select "Long Beach" and
-  the system never checks. That part is real and confirmed. But the item as
-  written also asks for four things that turn out to be one decision, not
-  four fixes, and building it without you making that decision first would
-  mean guessing at how you want to charge your own customers.
-
-  **What we found before asking.** Your address lookup already returns a
-  map coordinate for a customer's address when they pick one from the
-  suggestions — that part is free, it happens today, and it is just being
-  thrown away right now. **But your OWN business has no stored location at
-  all** — nothing to measure distance FROM — and a travel "area" today is
-  just a name and a flat fee you typed in, with no shape on a map. So
-  "derive the distance automatically" is not a small fix sitting on data we
-  already have; it needs a new way of capturing where you work, and a real
-  decision about what an "area" even means geographically — a radius
-  around your shop, a drawn boundary, a list of ZIP codes.
-
-  **Two branches, and each is a real answer, not a placeholder:**
-
-  1. **Yes, price it by real distance.** This needs your own location
-     stored (typed once, looked up the same way a customer's address is),
-     and a decision on how an "area" is defined on a map. That is a small
-     feature to design, not a bug to fix — genuinely bigger than everything
-     else in this item put together, because it changes how your customers
-     are charged, not just what a screen shows.
-  2. **No, keep areas as named, flat-fee zones the customer picks.** Then
-     the smallest real fix is enough: flag it for you rather than charge it
-     automatically — see below — and 2.3 gets rewritten to ask for that
-     rather than sit open asking for a distance feature nobody has decided
-     to build.
-
-  **The one thing that surprises people either way, so it is worth knowing
-  now rather than later:** a customer who types their address by hand and
-  never presses the "Find" button — which this product deliberately allows
-  and will keep allowing, on purpose, so nobody with an address the lookup
-  has never heard of gets turned away — never has a map coordinate at all.
-  **No branch above can price or flag that address by distance, ever,
-  because there is nothing to measure.** Distance pricing, if you want it,
-  only ever covers the customers who used Find and picked a real
-  suggestion.
-
-  **What lands regardless of your answer — built 2026-09-20, not live yet:**
-  a crude, honest flag — when the area a customer picks doesn't match the
-  words in the address they typed, the detailer sees it on the job record
-  and in the owner's alert, the same way an unverified hand-typed address
-  already gets flagged (ROADMAP 2.8). It does not block the booking and it
-  does not charge anything extra — it is the difference between finding out
-  before you drive and finding out when you arrive. It is crude on purpose:
-  comparing words, not measuring real distance, so it catches "San Diego"
-  typed under a "Long Beach" area and will not catch a street twenty miles
-  off inside the right city. 2.3 stays open either way — this flag is a
-  partial, not the fix the item actually asks for.
-
-  **One thing needs you before it goes live: a database change is written
-  but not applied.** It's one new column that only ever holds true, false or
-  nothing — no existing booking is touched. Nobody in this session has
-  permission to apply it, on purpose; that stays yours. Until it's applied,
-  the flag is built and tested but nothing shows up anywhere yet.
-
-  **No recommendation attached — this one decides how your customers are
-  charged, and that is yours.**
-
-- [ ] **DECIDE · Two places where the page sells something the software does
-  not do.**
-
-  **A stranger reading that page today would be told they get unlimited photos
-  and an export, and they would get roughly one photo and no export.**
-
-  **First, the export.** Your pricing page says *"Your customers, their
-  numbers and your photos are yours. **You export them and go.**"* — and so
-  does your home page, as the answer to *"What happens to my customers if I
-  cancel?"*: *"You export them and go. The list was always yours."*
-
-  **There is no such button.** The only download today is the accountant's
-  spreadsheet of jobs and expenses. No customer list, no photos.
-
-  **Two honest ways out:**
-  1. **Build it** — a button that downloads their customers and their photos.
-  2. **Stop promising it** — change the pricing page to say a copy is available
-     on request, which is what actually happens.
-
-  **Recommendation: (1), when you next have a build day.** It is small, and it
-  is the most reassuring line on that page for somebody deciding whether to
-  trust you with their customer list.
-
-  **The wording stays exactly as it is until you answer** — deliberately not
-  made vaguer, because a vague promise is still a promise and harder for
-  anybody to spot later.
-
-  ---
-
-  **Second, "unlimited photos".** The same page lists what you get: *"Unlimited
-  services, bookings, photos and staff logins."* **Services, bookings and staff
-  logins really are unlimited. Photos are capped at about 10 MB per
-  detailer** — and the product will accept a single photo of 10 MB, so one
-  picture can use up almost the whole allowance. Past it, the screen refuses
-  the upload and says *"Photo storage is full."*
-
-  **Two honest ways out, one line each:**
-  1. **Make the allowance real** — raise it so "unlimited" is true, which
-     costs storage.
-  2. **Say what it actually is** — take "photos" off that line, or print the
-     real figure.
-
-  **No recommendation attached, on purpose.** Which way round this goes
-  depends on what storage costs you against what the word is worth on that
-  page, and that is yours to weigh.
-
-- [ ] **DO · What name and what kind of business should your legal pages say?**
-
-  They currently say: **Andrew Dietrich, doing business as Detailing Platform.**
-
-  **Nobody confirmed that — it was a guess at your paperwork**, and the note
-  saying so has been in the code since the pages were built. Right now your
-  terms are a contract with you personally rather than with a company.
-
-  **The question is just: what should it say?** A sole trader, a DBA on your
-  own name, and an LLC are three different legal persons, and only you know
-  which is yours. Reply with the name and the kind; it is a one-line change.
-
-  **No recommendation attached, on purpose.** Which entity you trade as is a
-  question about your own business and your own liability, and it is not ours
-  to advise on.
-
-  **Neither this nor the export question is urgent.** Both legal pages are live
-  and linked at the bottom of your site, so anyone can read them — but there
-  are **no paying subscriptions and one non-demo business**. **Nobody has
-  agreed to either document.** They block your first real signup, not today.
-
-- [ ] **DECIDE · The "your coating is due" email needs a postal address, or it
-  needs to stop.**
-  The product emails customers *"your ceramic coating is due, book it in"*. **US
-  anti-spam law treats that as marketing rather than as a receipt**, and
-  marketing email has to carry an unsubscribe link and a real postal address.
-  Ours carries neither.
-
-  **The question is about the product, not the email.** Fixing it the proper
-  way means **every detailer would have to give us a postal address**, and
-  nothing in setup asks for one.
-
-  1. **Add a postal address to setup** and use it. Correct, but a new required
-     question for every detailer including you.
-  2. **Turn that email off** until that exists.
-  3. **Decide it is not marketing** — a judgment about what the product is for,
-     which is yours.
-
-  **Recommendation: (2) now, (1) when you next touch setup.**
-
-  **What a session must not do:** put a made-up address in the footer. That
-  would be a false statement in a legal notice, which is worse than the gap.
-
-- [ ] **DO · Turn on Resend's delivery reports. Three minutes.**
-  Your product records every email it sends and shows it on the client's
-  record — who it went to, and whether it arrived. **The "whether it arrived"
-  half has never worked**, because Resend only tells us if you point it at us,
-  and it never has been. Measured again this week: every test email ever sent
-  is still showing *"On its way"* and not one has turned into *"Delivered"*.
-
-  1. In Resend, go to **Webhooks** and add an endpoint.
-  2. The address is the line below.
-  3. Tick **delivered**, **bounced**, **complained** and **failed**.
-  4. Resend then shows a **signing secret** starting `whsec_`. One is already
-     set. If Resend shows a **different** one it has to replace the stored one
-     — tell a session and it will handle it. **Do not paste it into a chat or a
-     document.**
-
-      https://kguqylyzgyzfktkfnhjb.supabase.co/functions/v1/resend-webhook
-
-  **That is the right address.** An earlier note told you this was only the
-  "practice" one and that your real business needed a different one. That was
-  wrong, and it is corrected here rather than quietly removed.
-
-  **Nothing is broken while it waits.** Every email still leaves a record; the
-  records just never learn what happened to them.
-
-- [ ] **DECIDE · Test accounts — flag them, or delete them?**
-  Your back office lists 16 detailers and 15 are fakes.
-  **Recommendation: flag, don't delete.** About 60 automated checks work by
-  signing into a fake business and clicking through it. Delete the fakes and
-  those checks stop being able to run — and a check that cannot run looks very
-  like one that passed. Flagging gets you the same clean screen and keeps the
-  safety net. **Answer: "flag" or "delete".**
+  **You asked, 2026-09-20: *"why is there an empty half"*.** That is the same
+  empty half — this row is the answer to your question, and it stays open
+  because it is waiting on what you want in it, not on anybody building it.
 
 - [x] **ALREADY DONE — the example site with a real company's name was
   renamed.** This asked you to decide about "Tampa Bay Auto Detail". **It is
@@ -397,47 +211,6 @@ Updated 2026-09-20.
   The words "Tampa Bay" still appear on it as a *place* — *"Mobile detailing
   across Tampa Bay"* — which is a region rather than a company, and is not
   what the question was about. **Nothing for you to answer.**
-
-- [ ] **DECIDE · Your real business domain is on the public marketing page.**
-  `andrewsdetail.com` appears in a mock browser bar as the example.
-  **Recommendation: swap it for an invented domain.**
-  **Answer: "swap" or "leave it".**
-
-- [ ] **DECIDE · The buttons at the top of a job look different on a phone.**
-  On the job page and at a desk, the box holding Call / Text / Navigate is a
-  rounded card — the thing you asked for. **On a phone, when you tap a job out
-  of a list, it is still a full-width band with square corners.** That was
-  deliberate: there it runs wall to wall across the panel's own top edge, and a
-  rounded corner cut out of a wall looks like a mistake.
-
-  **To see it:** open Money on your phone, tap any job under *Waiting on
-  payment*, and look at the top of the panel that slides up.
-
-  **Recommendation: leave it.** Say the word and it gets rounded to match — a
-  two-line change. **Answer whenever you next look at a phone.**
-
-- [ ] **DECIDE · Large text on a small phone.**
-  Somebody on a small phone with their text size turned up to double opens your
-  dashboard. The page has half the room it thinks it has, so some screens run
-  off the right edge and they have to drag sideways to read a line. Worst is
-  the calendar. **Your booking page is very nearly fine; it is the back office
-  that suffers.**
-
-  **Why it is a question rather than a bug:** we promise the product works down
-  to a certain width, and at double text size the page behaves as if it were
-  half that. Nothing is broken by our own rules — the rules never considered
-  this person.
-
-  1. **Make the screens work all the way down.** Real work on the dashboard,
-     for a setting most people never turn up that far.
-  2. **Change the promise** — say plainly that at very large text some
-     back-office screens scroll sideways.
-
-  **Recommendation: (2), and fix only the booking page.** That is the screen a
-  **customer** sees, it is a hair from fitting, and a customer with large text
-  should never be dragging your booking form sideways.
-
-- [ ] **DECIDE · The dashboard currently says "Troca" and "SUV chica"; the booking page says "Camioneta" and "SUV pequeña"; the new vehicle-type words just added follow the booking page — bring the two dashboard strings into line with it, or move the whole set the other way?**
 
 ---
 
@@ -469,7 +242,52 @@ Updated 2026-09-20.
 
 ---
 
+---
+
 ## Recorded — nothing needed from you yet
+
+- [ ] **NOTE · The legal pages name you personally, and that is correct until
+  December 2026.** They say **Andrew Dietrich, doing business as Detailing
+  Platform**, which was originally a guess at your paperwork.
+
+  **You settled it 2026-09-20:** *"I'm not even a registered business yet. I'm
+  waiting until I'm 18"*, and on the DBA, *"doesn't a DBA cost money"* — yes,
+  a county filing fee, and it is not worth paying before there is anything to
+  file it for.
+
+  **So the pages are right as they stand** — a sole trader's terms are a
+  contract with the person, which is what you are today. **Moved out of the
+  decisions pile and parked here with Stripe**, for the same December. **Answer
+  it then with the name and the kind**; it is a one-line change.
+
+  **Nothing is blocked.** Both legal pages are live and linked, there are no
+  paying subscriptions and one non-demo business, and nobody has agreed to
+  either document. They block your first real signup, not today.
+
+- [ ] **NOTE · The alert emails were set to shout, and they have been turned
+  down — 2026-09-21.** You said it plainly: *"usually it's just like a
+  one-time thing that's not serious... if I get an email that something like
+  failed or whatever, I'm not going to do anything about it."*
+
+  **What was happening.** The watcher on your scheduled jobs expected a signal
+  every 15 minutes and complained after 30 — so a single slow minute on
+  GitHub's side became an email. It logged **26 separate "outages" in September
+  alone, 98.5% uptime**, and not one of them was anything.
+
+  **Changed:** that watcher now waits **2 hours** before it says anything. The
+  nightly-backup watcher is untouched at 1 day plus 6 hours, because a missing
+  backup genuinely is worth an email.
+
+  **What is still noisy and cannot be fixed from here.** On the one real
+  failure — Sep 15 — you got **three emails for one blip**: GitHub Actions mails
+  instantly on a red run with no grace at all, then the backup watcher timed
+  out because a failed run doesn't check in, then mailed again when the next
+  night recovered it. **GitHub's own notification has no delay setting.** If it
+  keeps bothering you, the lever is your GitHub notification settings for that
+  one repository, and that is your account.
+
+  **Nothing needed from you.** This is here so the change to your own alerting
+  isn't something you only find out about by not getting an email.
 
 - [ ] **DO · Open the Stripe account. December 2026, your 18th birthday.**
   Yours, not a parent's. **Nothing is waiting on this** — every payment path
@@ -510,6 +328,8 @@ Updated 2026-09-20.
 
 ---
 
+---
+
 ## Done
 
 - [x] **Stripe ownership decided — 2026-09-16.** You, not a parent. December.
@@ -519,3 +339,110 @@ Updated 2026-09-20.
 - [x] **The demo account's dual access is deliberate — 2026-09-16.** You set it
   up that way on purpose. **It must not be "fixed".** It comes out before the
   first real detailer signs up — not before.
+
+### 2026-09-21 — your answers, in your words
+
+- [x] **The database change is applied — you ran it yourself, 2026-09-20.**
+  `travel_zone_address_mismatch` exists on `bookings`. The address-mismatch flag
+  is live in the data from the next booking on, and `create-booking` is now safe
+  to publish. **Your correction is recorded too, and it stuck:** *"If there's
+  something you could have done 100%, you should have just done it."* A session
+  that can press the button presses the button.
+
+- [x] **Resend's delivery reports are on — 2026-09-21, done for you, not by
+  you.** The webhook was already pointed at the right address but subscribed to
+  the wrong list of events: it was listening for `delivery_delayed` (which the
+  code throws away) and not for `delivered` (which is the entire point). It now
+  subscribes to exactly **delivered, bounced, complained, failed** — the four
+  the code actually handles, no more and no fewer. **"On its way" will start
+  turning into "Delivered" on client records from the next email sent.** No
+  signing secret was touched, read, or replaced.
+
+- [x] **Backups: the page saying you had none was WRONG — 2026-09-21.** You
+  said *"we have a GitHub connected to it for backing up. We've already dealt
+  with this... I'm right, just trust me, I know I'm right."* **You were right.**
+  A nightly job has been running the whole time: 02:10 every night, full
+  database copy, locked, stored in your private backups repo, kept 30 days with
+  the 1st of each month kept forever. Verified run by run and release by
+  release, not taken on trust.
+
+  **Why the old page said otherwise, because this is the part worth keeping:**
+  it measured Supabase's dashboard, found nothing there, and wrote that down as
+  a fact about *everywhere*. It never looked outside Supabase. `docs/recovery.md`
+  is rewritten and now opens with that correction.
+
+  **What this changes for you: the paid Supabase plan is no longer urgent.** It
+  buys a better recovery point and a path that doesn't depend on one key — worth
+  it eventually, on your own timetable, not a hole to plug.
+
+  **One night is missing — Sep 15 — and it is not a defect.** GitHub could not
+  hand its own runner the repository that morning; the job died before it ever
+  reached your database. 15 runs, 14 green.
+
+  **What replaced this row:** the key question at the top of "Waiting on you".
+
+- [x] **No Spanish on the home and pricing pages — 2026-09-20.** *"no because
+  I'm only ever going to sell to people who are speaking english"*. Clean
+  answer: your marketing pages sell to detailers, your booking page serves their
+  customers, and only the second one needs both languages. ~390 strings of work
+  not done, on purpose.
+
+- [x] **Travel stays flat-fee zones — no distance pricing — 2026-09-20.**
+  *"no, because it told me that it would... any APIs that you need to like, be
+  able to like find the direction to whatever cost money"*. Correct, and it is
+  branch 2 of that row. **ROADMAP 2.3 gets rewritten to ask for the flag rather
+  than sit open asking for a distance feature nobody is building.** The crude
+  word-comparison flag — "San Diego" typed under a "Long Beach" zone — is built
+  and now has its column, and it labels, it never blocks or charges.
+
+- [x] **Build the customer export — 2026-09-20.** *"Isn't that just like one
+  button? Is that really gonna be that hard? Why do you need my decision for
+  that?"* Fair. Your pricing page and home page both promise *"You export them
+  and go"* and there was no such button; now it is a build item and the promise
+  stays as written. **The "unlimited photos" half of that row is still open** —
+  that one really is a cost question, and it is above.
+
+- [x] **No marketing email at all — ever — 2026-09-20.** *"how about we just
+  leave all marketing things to text?... I just don't wanna deal with my address
+  being on every single person's email... Let's just have no emails that will
+  be, you know, marketing at all."* **So the "your coating is due" email is
+  off**, and the whole postal-address problem goes with it — US anti-spam law
+  requires the address on marketing mail, and there is now no marketing mail.
+  **A clean line a session can apply without asking again:** email is receipts,
+  reminders and alerts; anything selling goes by text. Texting has its own rules
+  (written consent, STOP) and those are handled when the number is registered.
+
+- [x] **Test detailers: flag, don't delete — 2026-09-20.** 15 of your 16
+  detailers are fakes and about 60 automated checks sign into them. Deleting
+  them would stop those checks running, and a check that cannot run looks very
+  like one that passed.
+
+- [x] **Your real domain stays on the marketing page — 2026-09-20.** You are
+  happy promoting `andrewsdetail.com` in the example browser bar. **Separately,
+  you didn't like the mock browser bar itself** — *"I don't even like that mock
+  browser little image too because it kind of looks weird. I'd rather use an
+  like, actual example from one of our websites"* — which is a design item, not
+  a decision, and it is with the session that owns that screen.
+
+- [x] **The job buttons stay square on a phone — 2026-09-20.** Leave it. The
+  band runs wall to wall across the panel's top edge and a rounded corner cut
+  out of a wall looks like a mistake.
+
+- [x] **Large text: fix the booking page only — 2026-09-20.** The customer-facing
+  screen gets to work all the way down; the back office is allowed to scroll
+  sideways at double text size, and the promise says so plainly instead of
+  pretending otherwise.
+
+- [x] **Spanish vehicle words: pick what is best for a Spanish speaker —
+  2026-09-20.** *"whatever is best for Spanish speakers"*. Delegated rather than
+  decided, which is the right call — the dashboard says "Troca" and "SUV chica",
+  the booking page says "Camioneta" and "SUV pequeña", and a session brings the
+  set into line on that test. **Where it lands: one word per idea, across both
+  screens.**
+
+- [x] **The problem-report email reads like a debug dump, and that is being
+  fixed — 2026-09-20.** *"it's too technical with the date and time... Make it
+  just easy American 24, 12 hour format... regular the like month, day, year
+  format. Like just make it look nice... I feel like if I copied a debug menu,
+  this is what it looked like."* With the session that owns those emails.
+  **Nothing for you to answer** — it is here so you know it was heard.

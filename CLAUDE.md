@@ -7,7 +7,14 @@ functions) back end, Netlify hosting, Resend for email, Stripe for payments.
 
 **Andrew owns this and directs the work. There are no session roles, no lanes
 and no folder ownership — that experiment ended 2026-09-16. Any session can
-work anywhere in the repo.** The old rulebook is no longer a file — it is in
+work anywhere in the repo.**
+
+**Starting fresh on or after 2026-09-21? Read
+`docs/MANAGER-CLOSE-2026-09-21.md` first.** A night's decisions, and four
+changes to the live database, Resend and the outage watcher, were settled in a
+chat window that no longer exists. That file is the only place they are
+written down, and several of them are binding rulings you would otherwise
+re-open. The old rulebook is no longer a file — it is in
 git history, and `docs/archive/` was pruned on 2026-09-20 (step 7). If you ever
 need it:
 
@@ -339,6 +346,7 @@ Open a long file only when the work touches its subject.
 
 | File | What it is |
 |---|---|
+| `docs/MANAGER-CLOSE-2026-09-21.md` | **Read this first, once, before picking anything up.** Andrew's rulings from the 20th in binding form; the four things that changed OUTSIDE the repo that night, which `git log` cannot show you; the backups correction; the publishing order; and what each session left on the floor |
 | `docs/README.md` | The map — what every document is and whether it is still true |
 | `PROJECT-STATE.md` | Full state briefing; §1–7 only, the rest is a journal |
 | `ROADMAP.md` | **The live fix queue — start here.** 79 open items from two audits |
