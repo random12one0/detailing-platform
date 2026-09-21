@@ -4291,6 +4291,14 @@ the dashboard or back office at phone width at all.
      that may already exist, on a screen used constantly, while the network
      is simply slow.
 
+  **Said plainly: the same small fix applies to all three** — a sibling
+  boolean next to the existing fetch, a skeleton in place of the message
+  until it flips true, the same shape this item just built for
+  `NewBookingModal.jsx`. **And none of the three is urgent** — each needs a
+  slow connection to ever show, the same condition that made 9.8 itself a
+  years-old, low-severity item rather than a hotfix. They wait for whoever
+  picks them up next.
+
 - [x] **DONE 2026-09-20 — 9.9 New booking files "Mobile / Drop-off" under the
   VEHICLE heading.** Move it under its own "Where" heading.
   *A2 4.8*

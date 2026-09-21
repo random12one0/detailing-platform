@@ -263,6 +263,41 @@ first run — a global hook that crashes is one every project pays for.
 something on that list has been reverted. Check all four before re-adding
 anything.
 
+## What you say about the other tree expires the moment you say something new
+
+**Two sessions can be in this repo at once, and whoever is directing them is
+the only thing keeping their two trees from colliding.** That means every
+sentence describing what the OTHER session is doing — "app/src is quiet
+right now", "booking.css is on loan to the other session" — is a claim about
+a moment, not a fact about the repo. It is true when said and it is not
+self-updating. The failure is not forgetting to check; it is repeating a
+true sentence after the thing that made it true has changed.
+
+**Rule one: a statement that a tree is quiet expires the instant the next
+item is handed out — to EITHER session.** Handing session B a file inside a
+tree you told session A was quiet does not revoke what you told A; it just
+makes it false. So the correction is not A's job to notice and not B's job
+to guess at — it is due the moment the handout happens, in the same breath
+as the handout, to whichever session is now holding the stale sentence. If
+that correction does not go out, a session doing exactly what it was told is
+what breaks a measurement, a commit, or a merge, and it will look from the
+outside like that session's mistake.
+
+**Rule two: a lane is described from what has actually been assigned, not
+from memory of what was assigned an hour ago.** "I believe app/src is free"
+is a guess wearing the clothes of a fact. Before telling any session what is
+theirs to touch, look at what is currently out on loan — not what you last
+said was out on loan — the same way a session is expected to run `git status`
+before trusting its own memory of the tree. If it matters to what somebody is
+about to do, go and look; do not answer from recall.
+
+**Inherit this, don't relearn it.** Neither rule is about being more careful
+in the moment — the moment always feels fine, which is exactly how a true
+sentence outlives the fact it was describing. It is about treating your own
+prior statements to a session as data with a shelf life, the same posture
+this repo already asks of a session reading a stale document: check it
+against the current state before anyone acts on it, including you.
+
 ## Driving the browser — he checks it himself, he does not take your word
 
 **Andrew's ask, 2026-09-18:** *"Whenever there's any visual change or anything
