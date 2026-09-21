@@ -268,6 +268,23 @@ it when you add to it.
   git commit ROADMAP.md -m "…" # takes the working tree, not the index
   ```
 
+  **ONE CASE THIS DOES NOT COVER, FOUND BY HITTING IT TWENTY MINUTES AFTER
+  WRITING THE RULE: A FILE GIT HAS NEVER SEEN.** `git commit <path>` answers
+  *"pathspec … did not match any file(s) known to git"* for an untracked
+  file, and `git diff <path>` prints nothing for one, because there is no
+  `HEAD` copy to compare against. **A new file has to be `git add`ed, so for
+  new files the index window is unavoidable.** Do not pretend otherwise and
+  do not let it push you back to staging everything:
+
+  ```bash
+  git add receipts/new-thing.json && git commit scripts/x.mjs receipts/new-thing.json -m "…"
+  ```
+
+  **One command, so the window is the width of a commit rather than the width
+  of composing a message** — which is the part that actually took minutes in
+  the incident above. Read a brand-new file's content with `cat`; there is
+  nothing to diff it against anyway.
+
   **This session did it wrong an hour before writing this**, which is how the
   cost is known rather than argued: it ran `git add` on three paths purely to
   read them back, and left them in the index while it composed a commit
