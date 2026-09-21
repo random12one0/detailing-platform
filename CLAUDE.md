@@ -263,6 +263,32 @@ somebody real time.
   usually worse, not better: it hides the decision inside an exception to the
   very variable that exists to stop numbers drifting.
   `docs/booking-steps-triage-2026-09-20.md` § "THE HANDOVER" has the full case.
+- **EVERY REALTIME CHANNEL IS PRIVATE. NO EXCEPTIONS.** Any
+  `supabase.channel(...)` must be opened with
+  `{ config: { private: true } }`, and the first session to write one is the
+  one this rule is for — **the fault does not exist until that line is
+  written, and at that moment it is already shipped.**
+
+  **This is measured, not asserted. Proved 2026-09-21 by
+  `scripts/tenant-matrix.mjs`:** a client holding only the **anon key, with no
+  session at all**, joined a channel opened without `private: true` and
+  **received tenant B's message verbatim** — the detector only fires when B's
+  own sentinel string arrives intact. **A channel without `private: true` is
+  authorised by NOTHING.** The topic name is the only thing separating two
+  tenants, and a business id is a guess away, so
+  `supabase.channel('bookings-' + businessId)` is a cross-tenant channel on
+  the day it ships.
+
+  **Private channels ARE closed, and that was proved in the same run** —
+  `realtime.messages` is RLS-on with zero policies, and the anonymous client
+  was refused with `CHANNEL_ERROR … Unauthorized`. So the fix costs one config
+  object; there is nothing to design.
+
+  **The app opens zero channels today, which is exactly why this is a rule and
+  not a finding.** Nothing is exposed right now. There is no bug to point at,
+  no screen to check, and no test that will go red — so the only thing that
+  can stop it is a session reading this before it writes the line.
+  `receipts/tenant-matrix.json` carries the standing-risk note on every run.
 - **Migrations are append-only.** Never edit an existing one.
 - **Never commit `app/.env.production` or any credential.** No password, token
   or key goes into a markdown file either — say where it lives, not what it is.
