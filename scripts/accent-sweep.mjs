@@ -41,6 +41,27 @@ import {
   PRESET_COLORS, correctAccent, accentTextFor, contrastRatio, hueFamily, brandVarsFor,
   DASHBOARD_ACCENT_BG, DASHBOARD_TEXT_TINT, dashboardTextBg,
 } from "../app/src/lib/theme.js";
+import { writeReceipt } from "./receipt.mjs";
+
+// **THIS GATE WROTE NO RECEIPT AND PRINTED NO SUBJECT COUNT UNTIL 2026-09-21 -
+// docs/silences.md section A.** It ended on `SWEEP CLEAN - dashboard, booking
+// page and hue families`, which is the same sentence whether it compared 286
+// pairs or zero. A gate that writes no receipt cannot be told apart from a
+// gate that did not run, and that is this repo's single most repeated and most
+// expensive failure.
+const started_at = new Date().toISOString();
+const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("=")[1] || "";
+
+// **THE EXPECTATION IS DECLARED, NOT COUNTED FROM WHAT ARRIVED.**
+// `PRESET_COLORS` is the APP's own list, imported from `app/src/lib/theme.js`,
+// so it can change without this file noticing. 18 = 12 presets + 6 extremes,
+// measured 2026-09-21. A preset added or removed makes the two disagree and
+// fails the receipt until somebody re-sweeps and moves the number deliberately.
+const EXPECTED_ACCENTS = 18;
+let assertions = 0;
+let attempted = 0;
+let completed = 0;
+const receiptFailures = [];
 
 // A tinted ground, the way color-mix(in srgb, <accent> N%, <ground>) makes it.
 const hex2 = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
@@ -81,15 +102,32 @@ const TINTED = [
 ];
 const FILL_MIN = 3, TEXT_MIN = 4.5;
 
-const argHex = process.argv[2];
+// **ANY ARGUMENT USED TO BE READ AS A COLOUR, AND A TYPO NARROWED THE SWEEP TO
+// ONE - 2026-09-21.** `process.argv[2]` was taken as a hex with no validation,
+// so `node scripts/accent-sweep.mjs --lite` swept a single colour named
+// "custom" whose hex was the string `--lite`, compared 12 pairs instead of 288,
+// and printed `SWEEP CLEAN`. Found by breaking this file on purpose: the
+// sabotage flag itself was swallowed as a colour. **A gate that quietly
+// measures one eighteenth of its subject on a typo is the section A disease
+// with a different spelling.**
+const positional = process.argv.slice(2).filter((a) => !a.startsWith("--"));
+const argHex = positional[0];
+if (argHex !== undefined && !/^#[0-9a-f]{6}$/i.test(argHex)) {
+  console.error(`accent-sweep: "${argHex}" is not a colour. Pass #RRGGBB, or no argument to `
+    + `sweep all ${EXPECTED_ACCENTS}. Nothing was measured.`);
+  process.exit(2);
+}
 const colors = argHex
   ? [{ name: "custom", hex: argHex }]
-  : [...PRESET_COLORS, ...EXTREMES];
+  // `--break=none` sweeps nothing, which is what a broken import of
+  // PRESET_COLORS would look like: the old summary line printed CLEAN for it.
+  : (BREAK === "none" ? [] : [...PRESET_COLORS, ...EXTREMES]);
 
 let failures = 0;
 console.log(`accent sweep — corrected against ${DASHBOARD_ACCENT_BG}\n`);
 
 for (const { name, hex } of colors) {
+  attempted++;
   const fill = correctAccent(hex, DASHBOARD_ACCENT_BG);
   const text = accentTextFor(hex, dashboardTextBg(hex));
   const moved = fill.toLowerCase() !== hex.toLowerCase();
@@ -99,6 +137,7 @@ for (const { name, hex } of colors) {
   for (const [gname, g, why] of GROUNDS) {
     const f = contrastRatio(fill, g), t = contrastRatio(text, g);
     const fok = f >= FILL_MIN, tok = t >= TEXT_MIN;
+    assertions += 2;
     if (!fok || !tok) failures++;
     console.log(
       `   on ${gname}  fill ${f.toFixed(2)} ${fok ? "ok " : "FAIL"} (min ${FILL_MIN})` +
@@ -108,12 +147,14 @@ for (const { name, hex } of colors) {
   for (const [p, g, why] of TINTED) {
     const ground = tint(fill, g, p);
     const t = contrastRatio(text, ground), tok = t >= TEXT_MIN;
+    assertions++;
     if (!tok) failures++;
     console.log(
       `   on ${ground} (${(p * 100).toFixed(0)}% of the accent over ${g})` +
       `   text ${t.toFixed(2)} ${tok ? "ok " : "FAIL"} (min ${TEXT_MIN})   ${why}`,
     );
   }
+  completed++;
   console.log("");
 }
 
@@ -142,16 +183,19 @@ if (!argHex) {
     console.log(`${name.padEnd(9)} ${hex}  ->  fill ${fill}   text ${text}   ink ${ink}`);
     for (const [gname, g, why] of BK) {
       const f = contrastRatio(fill, g), ok = f >= FILL_MIN;
+      assertions++;
       if (!ok) failures++;
       console.log(`   fill on ${gname.padEnd(8)} ${f.toFixed(2)} ${ok ? "ok " : "FAIL"} (min ${FILL_MIN})   ${why}`);
     }
     // The text value is corrected against the ground on purpose — it is only
     // ever printed on borderless rows there — so it is checked only there.
     const t = contrastRatio(text, "#0B0D0E"), tok = t >= TEXT_MIN;
+    assertions++;
     if (!tok) failures++;
     console.log(`   text on bk-bg    ${t.toFixed(2)} ${tok ? "ok " : "FAIL"} (min ${TEXT_MIN})   the two prices, on the ground`);
     // What is drawn ON the fill has to clear the text floor against it.
     const i = contrastRatio(fill, ink), iok = i >= TEXT_MIN;
+    assertions++;
     if (!iok) failures++;
     console.log(`   ink on the fill  ${i.toFixed(2)} ${iok ? "ok " : "FAIL"} (min ${TEXT_MIN})   button and chip labels\n`);
   }
@@ -172,6 +216,7 @@ if (!argHex) {
     ["#000000", "neutral"], ["#0A0A0A", "neutral"],
     ["#D4D7DA", "neutral"], ["#FFFFFF", "neutral"], ["#808080", "neutral"],
   ];
+  assertions += EXPECT.length;
   const wrong = EXPECT.filter(([hex, want]) => hueFamily(hex).family !== want);
   for (const [hex, want] of wrong) {
     console.log(`hueFamily FAIL  ${hex} -> ${hueFamily(hex).family}, expected ${want}`);
@@ -182,11 +227,92 @@ if (!argHex) {
     : `${wrong.length} hue-family classifications wrong`);
 }
 
+// --- THE CANARY -----------------------------------------------------------
+// **WHAT COULD SILENTLY BREAK HERE IS THE DETECTOR, NOT THE COLOURS.** Every
+// line above is `contrastRatio(x, y) >= FLOOR`. If `contrastRatio` started
+// returning 21 for everything, or the floors were read as 0, every pair would
+// clear and the sweep would print CLEAN over a product that had gone black on
+// black. Nothing above can notice that, because a passing comparison and a
+// broken comparison produce the same output.
+//
+// So the run is handed a pair that CANNOT legally pass - a colour against
+// itself, contrast exactly 1.00 - through the same call and the same floor
+// constants. **If that clears the floor, every green line above is void.**
+const CANARY_GROUND = "#0B0D0E";
+const canaryRatio = contrastRatio(CANARY_GROUND, CANARY_GROUND);
+const canaryFloors = BREAK === "blind" ? [0, 0] : [FILL_MIN, TEXT_MIN];
+const canaryCaught = !(canaryRatio >= canaryFloors[0]) && !(canaryRatio >= canaryFloors[1]);
+assertions += 2;
+console.log("");
+console.log(`canary  ${CANARY_GROUND} on itself -> ${canaryRatio.toFixed(2)}  `
+  + (canaryCaught
+    ? `caught: below both floors (${FILL_MIN} / ${TEXT_MIN}), so the comparison can fail`
+    : "NOT CAUGHT — a pair at 1.00 cleared the floor, so every line above is void"));
+
+// --- SUBJECT COUNTS, AND ZERO IS A FAILURE --------------------------------
+if (EXPECTED_ACCENTS !== colors.length && !argHex) {
+  receiptFailures.push(`ACCENT COUNT MOVED: the app offers ${colors.length} accent(s) `
+    + `(PRESET_COLORS + EXTREMES) and EXPECTED_ACCENTS declares ${EXPECTED_ACCENTS}. `
+    + `A preset added or removed has not been swept by anybody - re-sweep and move the `
+    + `number deliberately.`);
+}
+if (colors.length === 0) {
+  receiptFailures.push("ZERO ACCENTS WERE SWEPT. Nothing was compared against any floor, "
+    + "so this run proves nothing. This is NOT a clean sweep.");
+}
+if (completed === 0) {
+  receiptFailures.push("ZERO ACCENTS REACHED A VERDICT, so no ground or tint was measured.");
+}
+if (failures > 0) {
+  receiptFailures.push(`${failures} ground/floor combination(s) are under the floor — see FAIL above`);
+}
+
+// --- THE RECEIPT, so this is GRADED rather than read ----------------------
+// It ended on `SWEEP CLEAN` and exited 0, and that sentence was identical
+// whether it compared 286 pairs or none. Now the count is on the receipt and
+// `receipt.mjs` grades it, which is the only thing that tells a run that
+// examined everything from a run that did not happen.
+const { path: receiptPath } = writeReceipt({
+  check_id: "accent-sweep",
+  started_at,
+  status: receiptFailures.length === 0 && canaryCaught ? "pass" : "fail",
+  expected_targets: argHex ? 1 : EXPECTED_ACCENTS, // declared above, before the run
+  discovered_targets: colors.length,               // what the app actually offers
+  attempted_targets: attempted,                    // accents this run walked
+  completed_targets: completed,                    // accents that reached a verdict
+  skipped_targets: 0,
+  assertions_executed: assertions,
+  // The real run makes 286; a floor just under it means losing a whole section
+  // fails the receipt rather than shrinking it quietly.
+  min_assertions: 250,
+  failures: receiptFailures,
+  artifacts: ["scripts/accent-sweep.mjs"],
+  warnings: BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : [],
+  dimensions: {
+    grounds: GROUNDS.map((g) => g[0]),
+    tinted_sites: TINTED.length,
+    floors: { fill: FILL_MIN, text: TEXT_MIN },
+    corrected_against: DASHBOARD_ACCENT_BG,
+  },
+  canary: {
+    id: "a colour on itself scores 1.00 and must be refused by both floors",
+    observed_failure: canaryCaught,
+    caught_by: canaryCaught ? ["contrast-floor"] : [],
+    findings: canaryCaught
+      ? [`[contrast-floor] ${CANARY_GROUND} on itself measured ${canaryRatio.toFixed(2)} and was `
+        + `refused by both floors, so a failing comparison is one this run can actually make`]
+      : [`[contrast-floor] NOT CAUGHT — ${canaryRatio.toFixed(2)} cleared the floor, so every `
+        + `"ok" above is a comparison that cannot fail and this run proves nothing`],
+  },
+});
+
 // The only line that speaks for the whole run. Every section above reports its
 // own half, and a per-section "all clear" printed before the next section runs
 // is how a green-looking sweep hides a red one.
 console.log("");
-console.log(failures === 0
-  ? "SWEEP CLEAN — dashboard, booking page and hue families"
-  : `SWEEP FAILED — ${failures} problems, see FAIL above`);
-process.exit(failures === 0 ? 0 : 1);
+const clean = receiptFailures.length === 0 && canaryCaught;
+console.log(clean
+  ? `SWEEP CLEAN — ${completed} accent(s), ${assertions} comparisons, canary caught. Receipt ${receiptPath}`
+  : `SWEEP FAILED — ${receiptFailures.length} problem(s), canary ${canaryCaught ? "caught" : "MISSED"}. Receipt ${receiptPath}`);
+for (const f of receiptFailures) console.log("  · " + f);
+process.exit(clean ? 0 : 1);
