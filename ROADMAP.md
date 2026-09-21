@@ -621,7 +621,7 @@ the wrong service, and never book a job we cannot reach.
   they press is Continue in the fixed bar, which does not move — and the
   alternative was a sentence no phone user ever saw.
 
-- [ ] **2.1a — A plan booking and a multi-car booking still show no surcharge
+- [x] **DONE 2026-09-21 — 2.1a — ~~A plan booking and a multi-car booking show no surcharge
   line. Split out of 2.1 on 2026-09-21 because it needs a server field and
   2.1 does not.** `BookingPage.jsx` passes surcharges only when
   `quote.vehicle_count === 1 && !quote.plan_name`, and that guard is right,
@@ -714,7 +714,7 @@ the wrong service, and never book a job we cannot reach.
   `calculate-booking`'s header no longer claims it does.
   **`supabase/` — not this session's to touch.** Recorded, not attempted.
 
-- [ ] **2.1c — The plan line and the extra-car lines are built in English on
+- [x] **DONE 2026-09-21 — 2.1c — ~~The plan line and the extra-car lines are built in English on
   the server and never meet `t()`, so a Spanish receipt reads them in
   English. Found 2026-09-21; pre-dates this session and is NOT on the step
   2.1 touched.** `_shared/pricing.ts` composes `planLineFor`'s label as
@@ -841,6 +841,33 @@ the wrong service, and never book a job we cannot reach.
      `max_vehicles_per_booking` above 1, and `demo-detail` is pinned to 1 on
      purpose. **Read, never run**, exactly as it was last round.
   `i18n-survey.mjs`, 2.1c's own done-when, was also not run.
+
+  **PRESSED IN FULL AND TICKED — third attempt, 2026-09-21, after the two
+  migrations in 8.10a were applied.** Every case, every width, both languages,
+  console clean at each:
+
+  | Case | 320 | 390 | 768 | 1440 |
+  |---|---|---|---|---|
+  | Plan booking · date step names the surcharge | ✓ | ✓ | ✓ | ✓ |
+  | Plan booking · Spanish review `10% de descuento` | ✓ | ✓ | ✓ | ✓ |
+  | **Two cars · date step names the surcharge** | ✓ | ✓ | ✓ | ✓ |
+  | **Two cars · Spanish review `2.º vehículo · Small`** | ✓ | ✓ | ✓ | ✓ |
+  | One car, live server, no regression | ✓ | ✓ | ✓ | ✓ |
+
+  On the two-car booking the bar reads **$160** with `vehicle_count: 2`, the
+  date step shows **only** `Weekend rate · +$30`, and the `2nd vehicle · Small`
+  line is correctly **absent** from that step and present on the receipt. The
+  plan booking reads `Member rate applied · $85` with the same single rule
+  line. `i18n-survey.mjs` flags none of these files.
+  **THE ONE THING STILL NOT TRUE IN PRODUCTION, AND IT IS THE FREEZE RATHER
+  THAN A GAP IN THE WORK:** the deployed `calculate-booking` still returns
+  untagged lines — measured this round, `hasSource: false` — so a real
+  customer's page runs the FALLBACK branch, which was pressed live and shows
+  its surcharge line correctly. The tagged path was pressed against an
+  injected response with the server half proved separately by
+  `tests/adjustment-kinds.test.mjs`. **Reading this tick in a week: do not
+  believe a plan customer sees the named surcharge until Andrew publishes.**
+  Same posture as 2.2, and for the same reason.
 
   **SECOND ATTEMPT AT THE TWO-CAR PRESS, 2026-09-21, AND IT FAILED FOR A
   REASON NOBODY KNEW — see 8.10a below.** With the manager's authorisation the
@@ -2299,6 +2326,37 @@ requested.
   the host-restricted network allow-list. Until then all three directions —
   silent with the flag off, ordinary reminders still firing, and the email
   appearing with the flag on — remain **unpressed**.
+
+  **PRESSED 2026-09-21 — TWO OF THE THREE DIRECTIONS, AND THE GATE HOLDS.**
+  Run under Deno 2.9.6 with `--cached-only` and
+  `--allow-net=kguqylyzgyzfktkfnhjb.supabase.co` **only**, so the mail relay
+  was unreachable by construction. **No email left this machine.** A subject
+  was prepared (`reminded_stage` 2 → 0 on the one deadline inside the 60-day
+  horizon) and restored afterwards.
+
+  | Direction | Same subject, same data, only the flag differs | Result |
+  |---|---|---|
+  | **Flag OFF** (every row today) | `sweep results []` | **no maintenance entry at all** ✓ |
+  | **Flag ON** (demo-detail only) | `sweep results [{kind:"maintenance", sent:false, error:"the email relay refused…"}]` | **the email was produced** ✓ |
+
+  **The contrast IS the proof.** Both runs used the identical deadline, the
+  identical customer and the identical reminder switch; the only difference
+  was the new flag. With it off the loop never reached the compose step. With
+  it on it composed and then failed at the blocked relay — which is the
+  design, not a defect.
+  **AND ONE DIRECTION IS STILL UNPRESSED, WHICH IS WHY 3.4 STAYS OPEN:**
+  "ordinary appointment reminders still go while the flag is off" was **not**
+  proved. Both runs produced zero reminder entries — but
+  `get_bookings_due_for_reminder` returns **0 rows for both `customer` and
+  `owner` right now**, so that silence is a fact about today's data and not
+  about the gate. Proving it needs a booking that is actually due, which is a
+  larger write than this round made.
+  **A measurement trap worth recording:** the sweep's HTTP response is a
+  SUMMARY (`{success, count, summary:{maintenance_failed:1}}`) and carries no
+  `results` array. Reading `results` off the response gives `[]` for every run
+  — including the one that produced the email. The real per-item results are
+  printed to the function's **stdout**. Two runs were briefly misread that way
+  before the server log was read.
 
   **Proven by `tests/maintenance-email-off.test.mjs`, 5 assertions, and broken
   on purpose twice** — deleting the gate and flipping the fallback to `true`
@@ -3956,19 +4014,86 @@ rather than wording went to Andrew.
   page as the live database stands, and every "read, never run" note about the
   two-car case in 2.1a and 2.1c has this underneath it.
 
-  **NOT FIXED, AND DELIBERATELY NOT APPLIED.** Applying a migration is a
-  schema change to Andrew's database, which is a different thing from the
-  settings value this session was authorised to change, and it is his call.
-  **Nothing was applied.**
-  **Fix:** apply `20260907000500_profile_publishes_vehicle_limit.sql` and
-  `20260907002100_profile_publishes_closed.sql` — both are `create or replace`
-  on one function, both are append-only files already in the repo, neither
-  touches a table.
-  **Done when:** the profile returns both fields, the car-count control
-  appears on a tenant whose cap is above 1, and — the part that matters more
-  than this one feature — **something checks that the database's functions
-  match the repo the way `deployed-inventory.mjs` checks the edge functions.**
-  Nothing does today, which is the actual finding here.
+  **APPLIED 2026-09-21 ON THE MANAGER'S EXPLICIT AUTHORISATION. THE LIVE
+  DATABASE HAS MOVED AND `git log` CANNOT SHOW IT** —
+  `FOR-ANDREW.md` § "State that changed outside the repo" carries it.
+  Both files were read end to end first and each contains **exactly one
+  statement**: `CREATE OR REPLACE FUNCTION
+  public.get_public_business_profile(p_slug text)`. No table, no drop, no
+  grant, no DML. Applied in filename order through
+  `scripts/apply-migrations.mjs`.
+  **Verified by reading the database back rather than by the success
+  message:** the profile now returns **29** settings keys where it returned 28,
+  `settings.max_vehicles_per_booking` is present, `business.closed_until` is
+  present, and the shape is otherwise intact — 11 top-level keys, 6 services,
+  the business name unchanged.
+  **And the feature came back the same minute.** With the cap raised to 2 on
+  `demo-detail` the booking page's vehicle-count control appeared (`1 | 2`)
+  for the first time, a two-car booking priced at $160, and 2.1a's two-car
+  half — "read, never run" for two rounds — was finally pressed. The cap was
+  restored to 1.
+
+  **WHAT IS STILL OPEN HERE IS THE INSTRUMENT, AND IT IS THE WHOLE POINT.**
+  Two migrations sat unapplied for two weeks, a shipped feature was
+  unreachable the entire time, and **nothing anywhere would ever have said
+  so** — it was found by accident, while trying to press something else.
+  **Done when:** *(first two clauses met 2026-09-21)* ~~the profile returns
+  both fields~~, ~~the car-count control appears on a tenant whose cap is
+  above 1~~, and — the part that matters more than this one feature —
+  **something checks that the database's applied state matches
+  `supabase/migrations/` the way `deployed-inventory.mjs` checks the edge
+  functions.** Nothing does today. **The box stays open on that third
+  clause.**
+  *Found pressing 2.1a, 2026-09-21. Not from either audit.*
+
+- [ ] **8.10b — THE REPO HAS NO CHECK THAT THE APPLIED MIGRATIONS MATCH THE
+  MIGRATIONS DIRECTORY, and the cost of not having one is a shipped feature
+  nobody could reach. Written up 2026-09-21 to be built by whoever owns
+  `scripts/` — deliberately NOT built here.**
+
+  **THE EVIDENCE IS 8.10a ABOVE, AND IT IS NOT HYPOTHETICAL.** Two migrations
+  — `20260907000500` and `20260907002100`, both dated 7 September — had never
+  been applied to `kguqylyzgyzfktkfnhjb`. For two weeks the live
+  `get_public_business_profile` was an older version of itself, missing two
+  fields the repo's copy publishes. ROADMAP 8.10's multi-car booking feature
+  was **unreachable for every tenant at every setting** the whole time, and
+  the roadmap treated it as built. **Nothing reported it.** It surfaced only
+  because somebody tried to press an unrelated item and the control would not
+  appear.
+
+  **THIS IS THE DATABASE'S VERSION OF ROADMAP 0.6** — "what is running is not
+  what is committed", which found 22 of 39 edge functions stale. That one has
+  an instrument now (`deployed-inventory.mjs`, which fetches each deployed
+  bundle and compares it by content, exits 1, and names every function). **The
+  database has no equivalent, one floor down, and it is the floor the edge
+  functions stand on.**
+
+  **WHAT THE CHECK HAS TO DO, from what this failure actually looked like:**
+  * **Name the drift, not count it.** `deployed-inventory.mjs`'s own lesson:
+    "22 functions differ" makes a session sigh; the list answers the only
+    question they have — *is the one I just edited in it?*
+  * **It cannot rely on a migrations table.** `apply-migrations.mjs`'s header
+    says so plainly: there is no migration tracking here, applying is
+    "CREATE statements … re-running will fail loudly", and nothing records
+    what ran. So the check has to compare **observable database state**
+    against the repo, not a ledger the repo does not keep.
+  * **Functions are the tractable half and the half that bit us.** For every
+    `create or replace function` in `supabase/migrations/`, the current
+    definition is readable from `pg_get_functiondef` and comparable against
+    the last migration that defines it. A mismatch is the exact fault above.
+  * **It must exit non-zero and write a receipt**, like every other graded
+    check here, so a silence can be told from a pass — `docs/silences.md`.
+  * **Break it on purpose before trusting it.** This repo has shipped at
+    least six checks that tested nothing, and this one would have a
+    ready-made canary: the two migrations above, whose "before" state is
+    recorded in 8.10a.
+
+  **Done when:** a check names every database function whose live definition
+  differs from the repo's latest migration for it, exits 1 when any differ,
+  writes a receipt, and has been proved by breaking it.
+  **Not built here on purpose:** `scripts/` belongs to the other session,
+  which spent tonight building instruments of exactly this shape. This entry
+  is meant to be what they build from.
   *Found pressing 2.1a, 2026-09-21. Not from either audit.*
 
 ## Wave 8 — Field usability

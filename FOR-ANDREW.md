@@ -122,6 +122,20 @@ still knows them.
   **Nothing changed for anyone when it ran** — it added a fact your database
   can hold, and nothing reads it yet.
 
+- **Two repairs were applied to your database later the same night.** Two
+  files that were written on 7 September had never actually been run against
+  your database — nobody knew, and nothing anywhere would have told anybody.
+  They were run on 2026-09-21 and then checked by reading the database back.
+  **Neither touches any of your data:** both replace the same single
+  read-only lookup that a customer's booking page asks for your business
+  details. No table was altered, nothing was deleted, no booking was touched.
+  **What it fixes:** the page can now see how many vehicles you allow on one
+  booking. Until tonight it could not, **for any business at any setting** —
+  so the "two cars on one visit" feature has never once worked for anybody,
+  and the fault was invisible because nothing compares your database against
+  what has been written for it. **That missing check is now its own job**, and
+  it is the more important half of this row.
+
 - **Your scheduled jobs were read the same night. Four of them, all running.**
   The one that sends reminders runs **every fifteen minutes** and last ran at
   **1:00 in the morning, Pacific, on 21 September**. That is the fact that made
@@ -320,11 +334,14 @@ still knows them.
   if a session ends. **Nothing is broken by any of them waiting**, and none of
   them needs anything from you except the publish already on your list above.
 
-  1. **The price lines on the booking page now say what kind they are.** A
-     customer on a plan, or booking two cars, used to watch the total go up on
-     the date step with nothing on screen saying why — 60 to 85 with no
-     explanation. That is fixed, and the Spanish version of those lines is
-     written. **Built and tested, never opened in a browser.**
+  1. ~~**The price lines on the booking page now say what kind they are.**~~
+     **Done and checked on screen, 2026-09-21.** A customer on a plan, or
+     booking two cars, used to watch the total go up on the date step with
+     nothing saying why — 60 to 85 with no explanation. It now names the
+     charge, in English and in Spanish, on a phone and on a desktop.
+     **One thing is still true and worth knowing:** like everything else here
+     it is waiting on you to publish, so a real customer will not see it until
+     the programs go live.
   2. **The "your coating is due" switch** — the row near the top of this list.
      Built, and the database part is applied. **Waiting on your publish, and
      then on somebody watching it actually stay silent.**
