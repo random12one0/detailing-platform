@@ -49,6 +49,7 @@ have to re-derive it.
 | write a receipt, so `receipt.mjs` grades them | **21** |
 | named as a gate in `CLAUDE.md` but write **no receipt** | **7** |
 | have a canary block at all | **8** |
+| **§ B members whose four counts could not disagree** | **5 → 0**, closed 2026-09-21 |
 
 **The honest reading of that:** 21 of 33 checks are graded by something other
 than themselves. The remaining 12 are graded by whoever reads the console, and
@@ -172,7 +173,20 @@ disagree, the number is not rounding — **ask what else increments it**. A coun
 that can be fed from more than one place will be read as a count of the thing
 its sentence names.
 
-### B · Receipts whose numbers cannot disagree — 5
+### B · Receipts whose numbers cannot disagree — 5, ALL FIVE NOW CLOSED (2026-09-21)
+
+**Every row below is struck through and every one was broken on purpose before
+it was believed.** The closing evidence is in "SECTION B IS CLOSED" further
+down; the rows are kept as written because **what the fault looked like is the
+half that teaches**. The counts that closed them:
+
+| check | the break | counts |
+|---|---|---|
+| `deployed-inventory.mjs` | `--break=unreadable` | **`39 39 39 38`** |
+| `restore-drill.mjs` | `--break=fewer` | **`52 51 51 51`**, names `weather_grids` |
+| `tenant-matrix.mjs` | `--break=declared` | **`38 39 39 39`**, names `add_ons` |
+| `dashboard-notifies.mjs` | `--break=step` | **`7 6 7 6`**, names the step |
+| `example-shots-check.mjs` | `--break=norecord` | *(closed 2026-09-20)* |
 
 These write a receipt, but set `discovered`, `attempted` and `completed` to the
 **same variable**, so `receipt.mjs`'s "the four counts must agree" rule can
@@ -698,6 +712,50 @@ not a service-role key, and every write goes into a scratch schema
 `restore_drill` which it drops afterwards. It **reads** `public` and never
 modifies it. Verified after the last run: `restore_drill` **GONE**, `public`
 still **52** tables, unchanged.
+
+
+## A LIVE COMMITMENT, NOT A CLOSED ITEM — `tenant-matrix`'s realtime skip, 2026-09-21
+
+**`receipts/tenant-matrix.json` reads `pass` for the first time. It carries one
+declared skip, and that skip is a promise somebody has to keep.**
+
+**WHAT WAS SKIPPED.** The canary table was published to `supabase_realtime`
+with a `using (true)` select policy. Owner A's subscription reported
+`SUBSCRIBED`, the socket was proved live **on itself** (it heard its own
+broadcast back), B's row was inserted — **and nothing arrived in 15 seconds.**
+`postgres_changes` is not delivering on this project, so the
+**`[realtime-stream]` detector was never given the chance to fail.**
+
+**IT IS UNCERTIFIED, NOT CLEAN.** Those are different sentences and only one
+of them is true here. The detector's code ran; the thing it detects never
+happened; so the run says nothing about whether it works.
+
+**WHY IT IS SAFE TODAY, STATED SO NOBODY RELAXES ABOUT THE WRONG PART.** The
+publication carries **no tenant table** (asserted separately as `7a`, and that
+assertion is certified), and the app opens **no channels**. There is nothing
+to leak through a mechanism nothing is using.
+
+> **THE CONDITION THAT RE-OPENS THIS, AND IT IS THE WHOLE POINT OF WRITING IT
+> DOWN: the day any table is published to `supabase_realtime`, the
+> `[realtime-stream]` detector must be re-proved BEFORE anyone trusts a green
+> from this check.** Until then `tenant-matrix` is green on the tables, the
+> RPCs, storage and broadcast — and **silent** on `postgres_changes`.
+
+**The other three realtime canaries ARE certified** and were caught in the same
+run: `[realtime-publication]` (the canary table's own publication entry),
+`[realtime-broadcast]` (an anonymous client with no session receiving tenant
+B's message verbatim on a non-private channel), and the private-channel refusal
+that proves the closed case. The broadcast one is now a **hard rule in
+`CLAUDE.md`** rather than a note here, because the app opens zero channels and
+the fault begins to exist the moment somebody writes the first
+`supabase.channel` line.
+
+**Why this is not filed as a failure.** A skip with a written reason, a probe
+that was actually attempted, and a named condition for re-opening is the
+opposite of a silence — it is the one shape of not-measured that a later
+session can act on. **A skip nobody has to re-justify on a condition is a skip
+that becomes permanent by not being looked at**, which is § A's subject, three
+sections up.
 
 ## THE SILENCE NO CHECK IN THIS FILE CAN COVER — added 2026-09-20
 
