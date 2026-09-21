@@ -1142,6 +1142,47 @@ the wrong service, and never book a job we cannot reach.
      does, but it is real, it is `app/src`, and it is fourteen strings in
      one place rather than scattered. Recorded here rather than fixed,
      since it is its own piece of work, not a one-line sibling.
+     **PICKED UP 2026-09-20, AND STOPPED BEFORE WRITING ANY OF THE FOURTEEN
+     — checked against `es.js` first, the way `"Light"` was, and it found a
+     real disagreement rather than a clean match.** `VEHICLE_BODY_TYPES` has
+     no customer-facing call site at all (`grep` across `app/src` finds
+     exactly one consumer, `screens/more/Catalog.jsx`, the dashboard's own
+     size-tier editor) — so unlike the condition scale, there is no live
+     booking-page rendering of these fourteen words to match against
+     directly. But three of `DEFAULT_VEHICLE_SIZES`' own `examples` strings
+     (`core.js:201-206`, the comma-list under Small/Medium/Large) already
+     carry several of the same words, translated in BOTH catalogues, and
+     they do not agree with each other:
+     - **Matched, usable precedent:** Coupe→Coupé, Sedan→Sedán,
+       Hatchback→Hatchback, Crossover→Crossover, Van→Van (all five
+       unchanged loanwords, consistent in both), Wagon→Camioneta,
+       Large SUV→SUV grande — `es.js` and `appEs.js` agree on all seven.
+     - **Disagree, and this is the finding, not a footnote:** "Small SUV" is
+       `"SUV pequeña"` in `es.js` (what a customer reads today) and
+       `"SUV chica"` in `appEs.js` (what the dashboard says elsewhere,
+       right now). "Truck" is `"Camioneta"` in `es.js` and `"Troca"` in
+       `appEs.js` — formal versus regional-colloquial for the same word,
+       and `es.js` separately uses that same `"Camioneta"` for "wagon" in
+       its own translation of a different string, so the booking page's own
+       catalogue is not internally consistent about that word either.
+       Neither of these two exact phrases is one of the fourteen new keys,
+       but "Small SUV / crossover" and the two `Pickup` labels sit in the
+       same category and the choice made here sets the word this repo uses
+       for it going forward.
+     - **No precedent anywhere, in either catalogue:** Convertible, Minivan,
+       Cargo van, Sports/exotic, Oversized/lifted/dually/limo, and "Pickup"
+       itself (only "Truck" existed, not "Pickup") — six of fourteen need a
+       translation decided fresh, with nothing already shipped to check it
+       against.
+     **STOPPED HERE RATHER THAN PICKING A SIDE, ON EXPLICIT INSTRUCTION.**
+     Andrew: *"if one collides, stop and bring it to me rather than picking
+     a side; the last one cost us a ruling and it was worth making
+     properly."* Also unresolved and not attempted: the `examples` field
+     (`"e.g. Honda Civic coupe, Toyota Camry coupe"`) is a sentence, not a
+     word — model names stay as typed, but "coupe", "regular cab", "crew
+     cab", "dually trucks" and "limos" inside those sentences are the same
+     vocabulary question one level down, and whichever word wins above has
+     to be the word used inside these too.
      **THE SWEEP'S OWN LIMIT, SAID PLAINLY, THE WAY THIS REPO ASKS FOR IT.**
      It can only find a MISSING key. The bug in this item's own headline —
      `"Light"` colliding with the theme toggle — is a key that EXISTS and
