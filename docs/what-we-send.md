@@ -23,6 +23,10 @@ in the next section; if you count that table, you should get seventeen.
 invoice, a membership link, a team invitation, and a campaign. Those are
 counted too — they are still messages your business sends.
 
+**There is also a third channel you may not be counting: thirteen kinds of
+phone alert.** Every one of them is for **you**, not for a customer — they are
+how the product taps you on the shoulder. They are listed in section 2.
+
 The product sends **no texts at all.** What it has instead is a button that
 opens the messaging app on *your phone*, with the message already typed, and
 you press send yourself. The text then comes from your personal number, lands
@@ -72,6 +76,44 @@ them.
 
 **That is 13 + 3 + 1 = 17.** The platform's own emails to you about billing
 and system alerts are not in that number, and section 7 says why.
+
+**What that seventeen is counting, so nobody re-counts it and gives you a
+different answer.** It counts **messages as a person would meet them** — a
+booking confirmation and a "we got your request" are two different messages
+arriving in two different situations, so they are two. Underneath, the code
+has **fourteen** of these written out, because a few are one piece of writing
+used in two situations. Fourteen is the right number if you are counting work
+to be done. **Seventeen is the right number if you are deciding what your
+business sends, which is what this page is for.**
+
+### Push notifications — thirteen, and every single one is for you
+
+**This is a whole channel that is easy to forget, because no customer ever
+sees any of it.** These are the alerts that pop up on your phone or laptop.
+**None of them reaches a customer. Not one.**
+
+They are **on to start with** — all sixteen businesses on the system have them
+switched on — but they only actually arrive once you have allowed
+notifications on a particular device. No device, no alert.
+
+| What pops up | What sets it off |
+|---|---|
+| **New booking** | A customer books straight in |
+| **Booking request** | A customer asks for a time you have to approve |
+| **Quote accepted** | A customer accepts a quote you sent |
+| **Booking cancelled** | A booking is cancelled |
+| **Booking rescheduled** | A booking moves |
+| **Booking updated** | A booking changes some other way |
+| **Starting soon** | A job is about to begin |
+| **Wrapping up soon** | A job is about to finish |
+| **Upcoming job reminder** | Ahead of a job |
+| **Still waiting on you** | A request has been sitting unanswered |
+| **Finalize payment** | A job is done and the money is not settled |
+| **Payment finalized** | It has been settled |
+| **"Today: 3 jobs"** | A daily summary of what is on |
+
+**Thirteen messages from twelve places in the product** — one of those places
+sends either "New booking" or "Booking request" depending on which it was.
 
 ### The one that is genuinely different
 
@@ -136,7 +178,7 @@ missing, not because they should all exist.
 | **The day of the job** | The reminder goes out hours before by a setting; there is no separate morning-of message |
 | **Their card was declined** | The customer is told nothing by the product. There is a message about a declined card, but it is about *your* subscription to the platform, not their payment for a job |
 | **An invoice went unpaid** | Nothing chases it |
-| **"How did we do?"** | The follow-up email exists, but nothing asks for a review or sends them anywhere to leave one |
+| **"How did we do?"** | **This one is built and is sitting idle.** The follow-up email asks for a review and offers a Google button and a Yelp button — but each button only appears if you have pasted that link in, and **only one of the sixteen businesses has.** For everyone else the email goes out as a plain thank-you |
 | **Running late** | Nothing. No way to tell a customer you have slipped an hour |
 | **Bad weather** | The product knows the forecast and shows it to you. It never tells the customer |
 | **They haven't booked in a long time** | Nothing, unless a coating happens to be due |
@@ -144,6 +186,13 @@ missing, not because they should all exist.
 **The first two are the ones a customer would notice.** "On my way" and
 "finished" are the messages people expect from anyone who comes to their
 house.
+
+**And here is the part that makes them cheaper than they look.** The product
+**already knows both of those moments** — it alerts *you* when a job is
+starting and again when it is wrapping up. Those two alerts are in the push
+list above. So this is not a gap in the product knowing when things happen.
+**It is a gap in who gets told.** Whatever is decided about "on my way" and
+"finished", nobody has to build the part that works out when to send them.
 
 ---
 
@@ -258,7 +307,26 @@ gone with it.**
 | **Add a switch, off by default** | Small on its own — but see section 5: that email has no address, no unsubscribe and does not check the opt-out list, so the switch should not be reachable until those exist. The real cost is those three, not the switch |
 | **Add a switch and turn it on** | Sends a sales email by default from people who never asked to, which is exactly the situation that was just fixed — and today it would go out with no way to stop it |
 
-### Question 5 — Who is the sender?
+### Question 5 — Do you want the review request switched on?
+
+**This one is different from the others: it is already built, it is already
+running, and it is doing nothing.** Every customer gets a thank-you email
+after a job. If you have pasted in your Google and Yelp links, that email also
+asks for a review and puts a button under it. If you have not, the ask is
+silently left out — **one of the sixteen businesses has pasted them in.**
+
+**Nothing is broken and no customer has seen a broken email.** The ask and the
+buttons appear and disappear together, so nobody has ever received "a review
+really helps us" with nothing to press.
+
+| Option | What it costs you |
+|---|---|
+| **Paste both links in** | About thirty seconds. Every future thank-you email asks for a review with a button |
+| **Paste one in** | Same, one button. The ask still appears |
+| **Leave it** | The thank-you email stays a plain thank-you, as it is for fifteen of the sixteen |
+| **Take the ask out of the product** | Work, and it removes a thing you may want later |
+
+### Question 6 — Who is the sender?
 
 Every customer email today goes out under the detailer's own business name.
 That is almost certainly right. It is worth saying out loud because it decides

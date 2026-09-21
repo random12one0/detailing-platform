@@ -302,7 +302,7 @@ still knows them.
   nobody has ever written it down. That page does it: every message that goes
   out today, what sets it off, who gets it, and whether it starts on or off;
   the moments where nothing is sent and probably should be; what the law asks
-  for email and the much stricter rules for texting; and five questions that
+  for email and the much stricter rules for texting; and six questions that
   are yours to answer, each with the real options and what each one costs.
 
   **The one thing to know before you open it:** the product sends **no texts
