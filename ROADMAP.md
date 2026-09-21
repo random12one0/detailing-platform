@@ -1357,6 +1357,78 @@ the wrong service, and never book a job we cannot reach.
   and the fix belongs with the bar, not with the step. **Everything else in
   this item is done and measured above.**
 
+- [ ] **The booking column has been rendering at under half its own declared
+  width, on every step — the calendar's undersized tap targets are a
+  consequence of it, not a second fault.** Found by the other session's
+  booking-steps triage, 2026-09-20, root-caused on a fresh load rather than
+  a resize. **The before number, so the size of this is visible without
+  re-measuring anything: `.bk-wrap` rendered at 316.9px against its own
+  declared `max-width` of 632px.**
+  **THE CAUSE.** `.bk-wrap` (`app/src/book/booking.css`) is a flex child of
+  `.bk`, which is `display: flex; flex-direction: column`. `margin: 0 auto`
+  on a flex item puts AUTO margins on its CROSS axis (width, in a
+  column-direction parent) — and per the flex spec, cross-axis auto margins
+  absorb the leftover space and override `align-items: stretch` for that
+  one item. With no `width` declared, `.bk-wrap` never stretched toward the
+  `max-width` it was supposed to be centred WITHIN; it shrank to its
+  content's width instead, and the margin only centred that narrow box.
+  Confirmed structurally before fixing anything: `.bk-header` and
+  `.bk-center`, the other two direct children of `.bk`, do not carry
+  `margin: 0 auto` on themselves and do not have this fault — the max-width
+  pairing that collapses lives one level deeper on `.bk-header .inner`, a
+  plain block rather than a flex item, where the ordinary CSS centring rule
+  applies without a flex parent's cross-axis override.
+  **THE CALENDAR'S CELLS ARE DOWNSTREAM, NOT A SECOND FAULT — checked, not
+  assumed.** `.bk-cal { grid-template-columns: repeat(7, 1fr) }`: proportional
+  columns, no fixed pixel width anywhere in the cell's own rule. A cell's
+  size is entirely a function of `.bk-wrap`'s width, which is why the file's
+  own comment already expects 47px on a 360px phone column and the design
+  absolute is 44px, while the measured width gave 36.4px — one fault seen
+  twice, which is why the fix is the wrap, not the cell.
+  **THE FIX, AND IT IS A FIX RATHER THAN A REDESIGN, SAID IN THOSE WORDS ON
+  PURPOSE.** `width: 100%;` added to `.bk-wrap`, one line, restoring the
+  width the stylesheet has always declared and never reached — the
+  `max-width` and the `margin: 0 auto` were always correct; nothing here
+  was designed narrow. **But it is not a one-screen change and should not be
+  waved through as one:** `.bk-wrap` is shared by all five booking-side
+  pages (`BookingPage.jsx` — all seven steps, `BookingConfirmed.jsx`,
+  `ManageBookingPage.jsx`, `PlanMemberPage.jsx`, `PlansPage.jsx`), so this
+  visibly widens every one of them; step 1 alone moves from 469px to 632px.
+  That is why this is held for a press at four widths rather than accepted
+  on the diff.
+  **SPANISH, CHECKED BEFORE CALLING THIS DONE, EVEN THOUGH THE CHANGE IS
+  CSS.** Swept `booking.css` for anything sized to the narrow, buggy
+  measurement — no literal `316`/`317` anywhere, and every `white-space:
+  nowrap` on the five steps sits on content that either shrinks the risk
+  when the column widens (a mono price, a short pill, a badge) or already
+  wraps its container (`.bk-plan-chips { flex-wrap: wrap }`) rather than
+  overflowing. **This is a static check, not a rendered one** — it rules out
+  a value hard-coded to the broken width, it does not prove Spanish copy
+  looks right at 632px, which the press below still has to do.
+  **ONE THING NOT TO DO, AND IT IS NAMED HERE SO NOBODY REACHES FOR IT ON A
+  QUIET NIGHT — the other session's find, kept in its own words because the
+  reason is the useful part.** Do not fix the day cells with the `::after`
+  negative-inset trick this repo uses elsewhere for a small, isolated mark.
+  Calendar cells sit adjacent with only a 5px gap; a negative inset large
+  enough to reach a 44px target would extend roughly 4px into each
+  neighbour, so the 21st and 22nd of the month would steal each other's
+  presses and `elementFromPoint` would return the wrong date along the edge
+  of every cell. On a date picker that trades a small target for a WRONG
+  one, and the wrong answer here is a booking made on the wrong day. The
+  grid's width is the fix; the cell was never the fault.
+  **FOUR NUMBERS DECIDE WHETHER THIS WORKED, NOT WHAT THE SCREEN LOOKS
+  LIKE, AND ALL FOUR ARE THE OTHER SESSION'S TO RE-MEASURE:** `.bk-wrap` at
+  632px on a fresh load (not a resize); the calendar's day cells clearing
+  44px; the booking-steps gate's roughly seventy tap-target findings going
+  to zero; and `.bk-cal .cell`'s own `max-height: 52px` rule — already
+  written, documented as engaging once a column is wide enough to want a
+  cell bigger than a thumb needs — finally engaging at desktop, for the
+  first time, because desktop has never actually reached that width before.
+  A fix that moves the number but leaves any of these four where they were
+  is not done, whatever the screen looks like.
+  **Built code-only, held for the press — the other session has the browser
+  tonight and is the only one who can give this a real before-and-after.**
+
 ---
 
 ## Wave 3 — Communication proof

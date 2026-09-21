@@ -271,6 +271,21 @@ html:has(.bk > .bk-bar) { scroll-padding-bottom: calc(var(--bk-bar-clear, 104px)
 
 /* ------------------------------------------------------------ LAYOUT */
 .bk-wrap {
+  /* FIX, NOT A REDESIGN — measured 2026-09-20: `.bk-wrap` is a flex CHILD of
+     `.bk` (column-direction, line ~152), and `margin: 0 auto` puts AUTO
+     margins on its cross axis. Per the flex spec, auto cross-margins absorb
+     the leftover space and override `align-items: stretch` for that one
+     item — so instead of stretching toward this rule's own `max-width` and
+     being centred by the margin once it got there, `.bk-wrap` shrank to its
+     CONTENT's width and the margin only centred that narrow box. Measured
+     on a fresh load, not a resize: 316.9px against a declared 632px — the
+     column was rendering at under half of what this file has always said
+     it should be, on every step, and it is why the calendar's day cells
+     measured 36.4px against this file's own 47px comment and the 44px
+     design absolute (ROADMAP, the booking-steps gate). `width: 100%` is the
+     missing half of the "centred max-width column" pattern — the max-width
+     and the margin were always correct; nothing here was designed narrow. */
+  width: 100%;
   max-width: calc(var(--bk-col) + 2 * var(--bk-sp-4)); margin: 0 auto;
   padding: var(--bk-sp-5) var(--bk-sp-4) var(--bk-bar-clear);
   display: flex; flex-direction: column; gap: var(--bk-sp-5);
