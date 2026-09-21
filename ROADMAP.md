@@ -5694,6 +5694,48 @@ event id.
   **and**, separately, the plan-growth signature has a fix in
   `Walkthrough.jsx` that drops the 2-in-20 cold-open rate measurably.
 
+
+  **TWO READINGS FROM 2026-09-21, ADDED SO NOBODY RE-MEASURES TO START. Not
+  chased — this wants a rested session and the numbers are already here.**
+
+  **(1) THE SAME MACHINERY FAILS IN THE OTHER DIRECTION TOO, AND THIS ONE IS
+  NOT RECORDED ANYWHERE ABOVE.** The **Today guide** at 1440 walked **past its
+  own declared length to the hard bound**. Measured in one `--all` run:
+
+  | width | the guide's own label | steps walked |
+  |---|---|---|
+  | 1920 | `TODAY · 1 OF 8` | 8 — stops where it says it will |
+  | **1440** | `TODAY · 1 OF 8` | **12 — `GUIDE_BOUND`, the ceiling** |
+  | 392 / 360 / 320 | `1 OF 7` | 7 |
+
+  `GUIDE_BOUND = 12` in `sweep-widths.mjs` is *"a bound rather than an
+  expectation"*, so 12 does not mean twelve steps exist — it means **the walker
+  was still finding cards when it ran out of permission to look.** A guide that
+  declares eight and yields cards at nine, ten, eleven and twelve is the same
+  family as the tour above: **a declaration that stopped being true**, not a
+  thing that crashed. It is also why `--write-expected` nearly wrote
+  `guide · today 9`–`12` into the baseline as required surfaces — caught by
+  reading the diff, which is the only reason it is a note here and not a gate.
+
+  **(2) AND A CORRECTION TO HOW THIS SESSION FIRST READ THE TOUR FAULT.** An
+  `--all` run at 1440 returned `0 block(s) declaring = 0 step(s); 0 walked`
+  while 1920/392/360/320 walked 37/36/35/36. That was reported upward as a
+  *silent zero-walk* and as a new cause. **It is neither.** It is the
+  `0 steps — the card never arrived` row in the twenty-run table above — the
+  rarest of the five recorded shapes, **1 in 20** — drawn once. The item's own
+  conclusion stands unchanged: *"It is not 'the tour dies after its first
+  tab'... the real rate is roughly one in seven, and it has at least three
+  different shapes."* **A single run cannot tell you which shape it drew, which
+  is precisely what twenty runs were spent establishing.**
+
+  **THE RULE ABOVE WAS FOLLOWED, AND IT IS WHY THE RENAME WAS SAFE.** *"Do not
+  `--write-expected` to clear this"* — `94dadd9` rewrote the expectation at
+  **320 and 392 only**, never 1440, so the 37 tour labels here were carried
+  through untouched (`1440px not swept by this run — all 155 label(s) carried
+  through untouched`, verified against the file afterwards rather than the
+  run's own report). An unscoped `--drop-missing` would have deleted **all 37
+  of them** along with the two rename casualties.
+
 ### 14.11 — a check with a sanctioned word for testing nothing
 
 - [ ] **A declared skip in this repo is supposed to mean a surface proved
