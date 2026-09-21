@@ -3350,6 +3350,86 @@ rather than wording went to Andrew.
   *Found 2026-09-20 while fixing 7.10. Not from either audit — neither
   mentions it.*
 
+---
+
+- [x] **7.16 — ~~The owner's own prices arrive on a second round trip, so the
+  built-in table renders first and swaps underneath him.~~ FIXED 2026-09-21.
+  Its own entry rather than a line under 7.12, because 7.12's box stays open
+  on the sign-up button and an unrelated thing must not hide under it.**
+  Same fault as 7.12, same page, same window, **different source**: `offer`
+  was the only answer anything waited on, so `P` started as the file's
+  `PRICING` table and was replaced when `platform_prices` answered.
+  *Found while fixing 7.12 and named there rather than folded into it.*
+
+  **LATENT, NOT LIVE — said plainly so nobody reads this as a bug a visitor
+  hit.** `platform_prices` returns **null** today (read from the browser, no
+  write of any kind), so the file table IS the truth and nothing visibly
+  swapped. It becomes real the first time a price is overridden. **And no
+  settings write was needed to prove the fix**, because what is being fixed is
+  the ORDER of two answers, which is observable whether or not the values
+  differ. Nothing was written to any tenant.
+
+  **THE FIX IS THE ORDER OF TWO LINES, AND THE SECOND DESIGN WAS MUCH SMALLER
+  THAN THE FIRST.** Both lookups now run in one effect behind `Promise.all`,
+  and `setOffer` is called **after** `setP`. So `offer !== null` means *both
+  answers are in*, and `priced`, `fig`, `clause` and `founding` all tightened
+  without one of them changing.
+  **The first attempt added a `pricesIn` flag and was thrown away.** It needed
+  the same widening in four places, and `tests/landing-pricing.test.mjs` pins
+  three of those lines by their exact source text — `const priced = offer !==
+  null;` (9a), the `fig` definition (9a-ii), and `founding && <s
+  className="was">` (6b-iv). The flag version failed the suite; the ordering
+  version passes it untouched. **`tests/` was not this session's lane, and the
+  better design meant it never needed to be.**
+  Still parallel — both promises are created before either is awaited, so no
+  extra round trip. Both fail to an ANSWER rather than to silence: the offer to
+  no spots, the table to `livePricing(null)`, because a page that cannot reach
+  the server must still print a price, and a rejection that left the promise
+  unsettled would withhold every figure for ever.
+
+  **THREE THINGS 7.12 LEFT, ALL FOUND BY PROBES THAT DID MORE THAN THE LAST
+  ONE DID:**
+  - **The four struck list prices** (`<s className="was">`). They hang on
+    `founding`, which needed only the offer, so between the two answers they
+    printed file figures. **Invisible to the 7.12 probe because it never
+    scrolled**; found by one that did. Closed for free by the ordering fix.
+  - **`monthsFree`** — *the one with no dollar sign*, and that is exactly why
+    it survived: the 7.12 probe matched `/\$[\d,]+/` and cannot see a bare
+    "2". It computes to 2 on both ladders today, so nothing was ever visibly
+    wrong; `monthsFree`'s own comment records that an owner-typed price need
+    not land on a whole number, which is when it would differ.
+  - **`P.term.months`** in the commitment clause — a term LENGTH, not a price,
+    and `livePricing` accepts an owner-supplied value from 0 to 60. A clause
+    stating the length of a commitment is as quotable as one stating its cost.
+
+  **VERIFIED BY HOLDING EACH LOOKUP OPEN SEPARATELY, 320 FIRST, CONSOLE AT
+  EVERY WIDTH:**
+
+  | Width | Settled | `platform_prices` held | `founding_offer` held | Console |
+  |---|---|---|---|---|
+  | **320** | 12 figures | 0 money · 0 struck | 0 money · 0 struck | clean |
+  | 390 | 12 figures | 0 money · 0 struck | — | clean |
+  | 768 | 12 figures | 0 money · 0 struck | — | clean |
+  | 1440 | 12 figures | 0 money · 0 struck | — | clean |
+
+  **THE PROBE PRODUCED A FALSE PASS AND THE CONSOLE IS THE ONLY REASON IT WAS
+  CAUGHT — this is the entry's most useful line.** A stale HMR module left
+  `pricesIn is not defined` throwing inside `<PricingPage>`; the ErrorBoundary
+  swallowed it, the page rendered nothing, and the probe dutifully reported
+  **zero money on screen — a perfect pass from a page that had crashed.** Only
+  `read_console_messages` showed it. Every probe here now also asserts
+  `pageRendered`, so an empty page can no longer impersonate a clean window.
+  **And it caught a second one:** a `$$` inside a `String.replace` replacement
+  collapses to a single `$`, which silently turned the booking-only figure into
+  `35 a month` with no dollar sign. Green tests, no console error, wrong on
+  screen — found only by reading the rendered text.
+
+  Four credential-free suites pass, `label-guard` 45/45, `american-english`
+  11/11 pages. *(That last one reports 5587 assertions where it reported 5588
+  before — one text node's worth, from wrapping a clause in a fragment. A
+  subject count that moves is the thing this repo chases; noted so the drift
+  is not silent.)*
+
 ## Wave 8 — Field usability
 
 A1 is explicit that its browser **could not simulate a real phone** and warns:

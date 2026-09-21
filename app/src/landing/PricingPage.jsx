@@ -64,11 +64,44 @@ export default function PricingPage() {
   // taken is a promise we cannot keep, and "we couldn't reach the server" is
   // not a reason to make one.
   const [offer, setOffer] = useState(null);
+  // **ROADMAP 7.16 — ONE EFFECT FOR BOTH LOOKUPS, AND `setOffer` GOES LAST.**
+  //
+  // The two answers used to arrive in two separate effects, and `offer` was
+  // the only one anything waited on. So the built-in `PRICING` table rendered
+  // first and was replaced when `platform_prices` answered — an owner who had
+  // overridden a price watched the file's figure sit there and then swap
+  // underneath him. Identical fault to 7.12, identical window, different
+  // source.
+  //
+  // **THE WHOLE FIX IS THE ORDER OF THESE TWO LINES.** `offer` is set only
+  // after `P` has been applied, so `offer !== null` now means *both answers
+  // are in* rather than *the founding answer is in*. Every guard downstream —
+  // `priced`, `fig`, `clause`, and `founding` itself, which is what the four
+  // struck list prices hang on — tightens for free and not one of them had to
+  // change. A `pricesIn` flag beside `priced` was built first and thrown away:
+  // it needed the same widening in four places, and `tests/landing-pricing`
+  // pins three of those lines by their exact text.
+  //
+  // **Still parallel, not serial.** Both promises are created before either is
+  // awaited, so this costs no extra round trip; `Promise.all` only decides
+  // when the page is allowed to speak.
+  //
+  // **AND BOTH FAIL TO AN ANSWER RATHER THAN TO SILENCE.** A rejection that
+  // left this promise unsettled would withhold every figure permanently,
+  // which is worse than the bug being fixed — `api.js`'s own rule is that a
+  // marketing page which cannot reach the server must still print a price.
+  // The offer fails CLOSED to no spots; the table fails to `livePricing(null)`,
+  // which is exactly the built-in table.
   useEffect(() => {
     let live = true;
-    api.foundingOffer()
-      .then((o) => { if (live) setOffer(o); })
-      .catch(() => { if (live) setOffer({ total: 0, left: 0 }); });
+    Promise.all([
+      api.foundingOffer().catch(() => ({ total: 0, left: 0 })),
+      api.platformPrices().catch(() => null),
+    ]).then(([o, raw]) => {
+      if (!live) return;
+      setP(livePricing(raw));
+      setOffer(o);
+    });
     return () => { live = false; };
   }, []);
   const founding = offer && offer.left > 0;
@@ -88,6 +121,11 @@ export default function PricingPage() {
   // gone, which is the promise this page fails CLOSED to avoid. So the
   // numbers hold a non-breaking space until the answer is in: the layout is
   // identical, nothing moves, and no wrong number is ever shown.
+  // **ROADMAP 7.16 — THIS LINE IS UNCHANGED AND IT NOW MEANS MORE.** `offer`
+  // is set only after the price table has been applied (see the single effect
+  // above), so `offer !== null` is "both answers are in". The struck list
+  // prices hang on `founding`, which reads the same state, so they tightened
+  // with it rather than needing a guard of their own.
   const priced = offer !== null;
   // A blank that keeps the line's height, so the ladder does not jump when
   // the figures land.
@@ -137,12 +175,10 @@ export default function PricingPage() {
   // case and the fallback for anything malformed. **Every figure on this page
   // reads `P`**; a `PRICING.` left behind would print one number from the file
   // beside another from the row, which is worse than either.
+  // ROADMAP 7.16 — fetched in the single effect at the top of this component,
+  // beside the founding offer, because the page may not print a figure until
+  // BOTH have answered and the order they are applied in is the fix.
   const [P, setP] = useState(PRICING);
-  useEffect(() => {
-    let live = true;
-    api.platformPrices().then((raw) => { if (live) setP(livePricing(raw)); });
-    return () => { live = false; };
-  }, []);
 
 
   useEffect(() => initThread(), []);
@@ -386,9 +422,22 @@ export default function PricingPage() {
                 <span className="bestflag">Most take this</span>
                 <span className="rt">Pay for the year</span>
                 <span className="rw">
-                  One payment for the year. {monthsFree} months free against
-                  paying monthly. No term and no exit fee: the year is already
-                  paid for.
+                  {/* ROADMAP 7.16 — **THE ONE WITH NO DOLLAR SIGN, AND THAT IS
+                      WHY IT SURVIVED 7.12.** `monthsFree` is derived from
+                      `p.monthly` and `p.annual`, so it is as unsettled as any
+                      price here, and the probe that cleared this page looked
+                      for `/\$[\d,]+/` and could not see a bare "2". It happens
+                      to compute to 2 on both the list and the founding ladder
+                      today, so nothing was ever visibly wrong — but the
+                      comment on `monthsFree` itself records that an
+                      owner-typed price need not land on a whole number, which
+                      is precisely when the two would differ. Guarded on the
+                      arithmetic, not on the symptom. */}
+                  {clause(<>
+                    One payment for the year. {monthsFree} months free against
+                    paying monthly. No term and no exit fee: the year is already
+                    paid for.
+                  </>)}
                 </span>
               </div>
               <div className="rungfig">
@@ -510,8 +559,21 @@ export default function PricingPage() {
           </div>
           <div className="onlybuy" data-rv="lift" style={{ "--i": 1 }}>
             <div className="amount">
+              {/* ROADMAP 7.16 — the booking-only price reads `P`, so it is
+                  settled by `platform_prices` and not by the founding offer.
+                  Under 7.12 it was correctly left showing, because the founding
+                  answer cannot move it; under this item it must wait, because
+                  the price table can.
+                  **`data-count` deliberately keeps the real figure.** It is
+                  not visible text — `thread.js` writes `textContent` from it,
+                  and that was measured here holding the window open and
+                  scrolling every count span: the attribute read 999 while the
+                  element on screen stayed blank. Removing the attribute would
+                  be worse than leaving it, because `[data-count]` is one of
+                  the selectors the reveal list is built from at mount, so an
+                  element without it is never revealed at all. */}
               <span data-count={P.bookingOnly.monthly} data-prefix="$" data-still>
-                ${P.bookingOnly.monthly}
+                {fig(`$${P.bookingOnly.monthly}`)}
               </span>
               <small>a month</small>
             </div>
@@ -562,9 +624,16 @@ export default function PricingPage() {
             <div data-rv="" style={{ "--i": 2 }}>
               <dt>Only one plan is a commitment</dt>
               <dd>
-                Annual paid monthly means {P.term.months} months. The
-                other two have no term of any kind: the up-front year is
-                already paid for, and month to month ends whenever you say so.
+                {/* ROADMAP 7.16 — a term LENGTH rather than a price, and it
+                    still reads `P`: `livePricing` accepts an owner-supplied
+                    `term.months` anywhere from 0 to 60. A disclosure clause
+                    that states the length of a commitment is exactly as
+                    quotable as one that states its price. */}
+                {clause(<>
+                  Annual paid monthly means {P.term.months} months. The
+                  other two have no term of any kind: the up-front year is
+                  already paid for, and month to month ends whenever you say so.
+                </>)}
               </dd>
             </div>
             <div data-rv="" style={{ "--i": 3 }}>
