@@ -2328,3 +2328,35 @@ names the tallest blocks. The height sum now flattens the same way:
 
 **Ask of any child sum: could one of these be `contents`?** The symptom is a
 total that is suspiciously small and does not move when the page plainly does.
+
+## A DOCUMENT ABOUT ANOTHER DOCUMENT GOES STALE SILENTLY, BECAUSE NOTHING CHECKS PROSE AGAINST THE THING IT DESCRIBES — 2026-09-20
+
+**Third one caught in one night, which is what makes it a pattern rather than
+a typo.** A sentence that states a fact about a DIFFERENT file — a line
+count, a command, a verdict — has no test watching it, because the thing it
+is wrong about lives somewhere else entirely. Nothing re-reads the target and
+diffs it against the claim; the prose just sits there being believed.
+
+1. **The verification table told people to run a test suite as a script.**
+   `node --test tests/*.test.mjs` read as `node --test tests/` for long
+   enough that `docs/VERIFIED.md` parked the failure twice as "somebody's
+   decision" rather than the missing-glob typo it was. Corrected in
+   `CLAUDE.md`, this repo's own command reference.
+2. **A receipt's stored verdict outlived the commit it was measuring.**
+   `receipts/sweep-widths-1920-1440-392-360-320.json` still reads `"status":
+   "fail"` for four findings a later commit (`91dc891`) fixed — confirmed
+   with `git merge-base --is-ancestor`, not assumed from the word "fail."
+   Stale, not wrong, and indistinguishable from the outside without checking
+   the `git_sha` against the tree.
+3. **This file's own rulebook drifted past the number written about it.**
+   `ROADMAP.md` said `CLAUDE.md` was 192 lines against a 200-line ceiling. It
+   is 382 (`awk 'END{print NR}' CLAUDE.md`, 2026-09-20) — grown 190 lines
+   since whoever wrote that sentence last measured it, and nothing here
+   re-measures a claim like that on its own.
+
+**The fix in each case is the same shape: cite the measurement, not the
+number.** A sentence that says what a file contains should say how and when
+that was checked, the same way every entry in this file is dated — a bare
+claim about another document's line count, status, or wording has no expiry
+date stapled to it, and it will outlive the thing it describes without
+anyone deciding that it should.

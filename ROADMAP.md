@@ -4492,13 +4492,38 @@ the dashboard or back office at phone width at all.
      that may already exist, on a screen used constantly, while the network
      is simply slow.
 
-  **Said plainly: the same small fix applies to all three** — a sibling
-  boolean next to the existing fetch, a skeleton in place of the message
-  until it flips true, the same shape this item just built for
-  `NewBookingModal.jsx`. **And none of the three is urgent** — each needs a
-  slow connection to ever show, the same condition that made 9.8 itself a
-  years-old, low-severity item rather than a hotfix. They wait for whoever
-  picks them up next.
+  **RULING, WRITTEN BEFORE THE BUILD SO IT READS AS A DECISION RATHER THAN
+  AN INCONSISTENCY — 2026-09-20.** All three get the same underlying fix —
+  stop claiming zero until the real answer is back — but not the same
+  costume. **None of the three gets 9.8's skeleton.** A settings picker that
+  has never animated does not need motion introduced onto it to fix a timing
+  bug; that would be a visual change nobody asked for, wearing consistency
+  with 9.8 as its excuse. Instead each takes the quietest thing its own
+  screen already knows how to do:
+  - **Campaigns** reuses the `busy` flag this same file already checks for
+    the sibling "Nothing here yet" ninety lines up. No new state at all —
+    **the marker for this exact case was already built and sitting two
+    lines from where it was needed, just never wired to it.** That is a
+    different, cheaper kind of fault than a missing feature, and it is the
+    second time tonight this repo turned out to already contain what it
+    needed, after 9.7 finding the client card's vehicle and last-service
+    data already sitting in state. Two is a pattern worth naming before a
+    third makes it one.
+  - **BookingDetail** and **Catalog** each get a small sibling boolean next
+    to their own fetch, matching the reasoning `NewBookingModal.jsx` already
+    wrote down for the same shape of problem: their lists are read
+    unconditionally in more than one place, so reshaping the list itself
+    into a loading state — the way `mail` already does elsewhere in
+    `BookingDetail.jsx` — would mean guarding every read instead of adding
+    one flag. No skeleton, no new markup, no new translated string; the
+    message just waits one beat longer before it is allowed to print.
+
+  **None of the three is urgent** — each needs a slow connection to ever
+  show, the same condition that made 9.8 itself a years-old, low-severity
+  item rather than a hotfix. They wait for whoever picks them up next, and
+  the tick on each waits on watching it live through a throttled connection,
+  not on reading the diff — a false empty state is a timing bug, invisible
+  to a code read.
 
 - [x] **DONE 2026-09-20 — 9.9 New booking files "Mobile / Drop-off" under the
   VEHICLE heading.** Move it under its own "Where" heading.
@@ -6582,8 +6607,12 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   them — matches one of the six declared skips the receipt records. No bare
   ones survive at any width.**
 
-**What is already true here and needs no work:** `CLAUDE.md` is 192 lines
-against its 200-line ceiling; the role/lane system it says to drop is already
-gone; migrations are already append-only. **What it flags that this repo has
-not done:** `docs/archive/` is inside the agent's search space, which the report
+**What is already true here and needs no work:** the role/lane system it says
+to drop is already gone; migrations are already append-only. `CLAUDE.md`'s
+line count is NOT one of these — it read 192 lines against a 200-line
+ceiling when this was written and is **382 lines as of 2026-09-20**
+(`awk 'END{print NR}' CLAUDE.md`), the third self-description in this repo
+caught stale rather than checked in one night; see `docs/gotchas.md` §
+"A document about another document goes stale silently." **What it flags
+that this repo has not done:** `docs/archive/` is inside the agent's search space, which the report
 explicitly warns against — git history is the archive. Revisit at step 7.
