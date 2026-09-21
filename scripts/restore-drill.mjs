@@ -65,7 +65,7 @@
 // table is read-modified or written.** The export lands in
 // `artifacts/restore-drill/` as a real file somebody could keep.
 
-import { mkdirSync, writeFileSync, readFileSync, statSync } from "node:fs";
+import { mkdirSync, writeFileSync, readFileSync, statSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { writeReceipt } from "./receipt.mjs";
@@ -114,24 +114,43 @@ const warnings = [];
 const rows = [];
 let assertions = 0;
 
-// **THE EXPECTATION IS DECLARED HERE, NOT PRODUCED BY THE RUN - 2026-09-21,
-// docs/silences.md section B.** Until today all four target counts were
-// `rows.length`, the number of STAGES this script happened to finish: a drill
-// over the whole `public` schema declaring it had **2 targets**, and four
-// copies of one variable, so the receipt's rule that they must AGREE could
-// never fire. The targets of a restore drill are the TABLES it round-trips.
+// **THE EXPECTATION COMES FROM THE MIGRATIONS, NOT FROM THE DATABASE -
+// 2026-09-21, Andrew's manager's ruling, correcting this file's first version
+// the same day.** Until today all four target counts were `rows.length`, the
+// number of STAGES this script happened to finish: a drill over the whole
+// `public` schema declaring it had **2 targets**.
 //
-// 52 was MEASURED once, on 2026-09-21, by listing `public` on
-// `kguqylyzgyzfktkfnhjb` - and that single measurement is this number's one
-// weakness, so it is written down rather than hidden. From here it is a
-// CONSTANT: the live count is measured every run and judged against this, and
-// a migration that adds or drops a table makes the two disagree and fails the
-// receipt until a person re-derives it. Same shape as W16's stated bound in
-// `sweep-booking-steps.mjs` - measured subject, declared bound.
+// The first fix replaced that with a constant measured off the LIVE database,
+// and that was the same fault one level up: **if a table is dropped in the
+// live database the count follows it down and the check cannot fail** - a gate
+// following the data wearing a constant's clothes.
 //
-// **MOVING THIS NUMBER TO MAKE A RUN PASS IS THE FAILURE THIS FILE EXISTS TO
-// CATCH.** Move it because a migration changed the schema, and say which.
-const EXPECTED_TABLES = 52;
+// `supabase/migrations/` is declared, append-only and in the repo, so it is
+// the thing the live database is supposed to MATCH. This reads it every run
+// and compares the two by NAME, not by count, so a disagreement says WHICH
+// table rather than how many. Measured 2026-09-21: 53 created minus
+// `monthly_plans` dropped = **52**, set-identical to live, no renames.
+//
+// **A PARSE THAT FINDS NOTHING IS A FAILURE, NOT AN EMPTY EXPECTATION** - that
+// is how this check would go back to proving nothing.
+const declaredTables = () => {
+  const dir = path.join(ROOT, "supabase", "migrations");
+  const created = new Set();
+  const dropped = new Set();
+  for (const f of readdirSync(dir).sort()) {
+    if (!f.endsWith(".sql")) continue;
+    const src = readFileSync(path.join(dir, f), "utf8");
+    for (const m of src.matchAll(/create\s+table\s+(?:if\s+not\s+exists\s+)?(?:public\.)?([a-z_]+)/gi)) {
+      created.add(m[1].toLowerCase());
+    }
+    for (const m of src.matchAll(/drop\s+table\s+(?:if\s+exists\s+)?(?:public\.)?([a-z_]+)/gi)) {
+      dropped.add(m[1].toLowerCase());
+    }
+  }
+  for (const t of dropped) created.delete(t);
+  return created;
+};
+const DECLARED = declaredTables();
 let discovered = 0;
 let attempted = 0;
 let completed = 0;
@@ -177,15 +196,32 @@ try {
     + `last ${posture.wal_last_archived}`);
 
   // **THE FINDING, STATED EVERY RUN.** Not a warning that scrolls past — a
-  // failure, because a product with no restore point is not a healthy one and
-  // this check exists to say so until it is fixed.
+  // failure, because a product whose own platform holds no restore point is not
+  // a healthy one and this check exists to say so until it is fixed.
+  //
+  // **AND IT SAYS WHAT IT LOOKED AT — CORRECTED 2026-09-21.** This line used to
+  // read *"THERE IS NO RESTORE POINT A CUSTOMER CAN REACH... nothing the
+  // platform holds would bring it back."* **That was false, and it is the exact
+  // sentence `docs/recovery.md` opened with before Andrew corrected it:** a
+  // nightly backup pipeline had been running the whole time in a separate
+  // private repository, and this check looked only at Supabase. **A measurement
+  // of one place written down as a fact about everywhere** — the same mistake,
+  // in the same words, about the same subject, and hardcoded here it would have
+  // repeated itself on every run for ever. The Supabase half was always
+  // correct; the scope was not, and nothing in the wording admitted a scope.
+  // `docs/MANAGER-CLOSE-2026-09-21.md` § 3 has the correction.
   assertions++;
   if (posture.listed_backups === 0 && !posture.pitr_enabled) {
-    say(`THERE IS NO RESTORE POINT A CUSTOMER CAN REACH. Plan is "${posture.plan}", `
-      + `point-in-time recovery is off and the backup list is empty. WAL archiving is `
-      + `running (${posture.wal_archived_count} segments, ${posture.wal_failed_count} failures) `
-      + `but that is Supabase's own infrastructure, not something Andrew can restore from. `
-      + `If this database were lost right now, nothing the platform holds would bring it back.`);
+    say(`SUPABASE HOLDS NO RESTORE POINT. Plan is "${posture.plan}", point-in-time `
+      + `recovery is off and the backup list is empty. WAL archiving is running `
+      + `(${posture.wal_archived_count} segments, ${posture.wal_failed_count} failures) but that `
+      + `is Supabase's own infrastructure, not something Andrew can restore from. `
+      + `THIS IS A FACT ABOUT SUPABASE ONLY - the restore path that does exist is `
+      + `github.com/random12one0/detailing-platform-backups (private): nightly 02:10 `
+      + `Pacific, pg_dump custom format, refuses a dump under 50 KB, age-encrypted, `
+      + `published as a release asset, 30-day retention keeping the 1st of each month. `
+      + `Its two real gaps: nobody has ever restored one, and the age private key's `
+      + `location is unrecorded. See docs/recovery.md - do not re-measure it here.`);
   }
 
   // -------------------------------------------------------------------------
@@ -214,10 +250,28 @@ try {
   }
   // The live count is judged against the number declared at the top, so a
   // schema that gained or lost a table cannot pass quietly.
-  if (tables.length && tables.length !== EXPECTED_TABLES) {
-    say(`TABLE COUNT MOVED: \`public\` holds ${tables.length} table(s), `
-      + `EXPECTED_TABLES declares ${EXPECTED_TABLES}. Either a migration changed the `
-      + `schema - re-derive the constant and say which migration - or something is missing.`);
+  // A parse that finds nothing would be an empty expectation nothing can fail.
+  assertions++;
+  // `--break=nodeclared` empties the parsed expectation, which is what a broken
+  // parser or an unreadable migrations directory would produce.
+  if (BREAK === "nodeclared") DECLARED.clear();
+  if (DECLARED.size === 0) {
+    say("THE MIGRATIONS DECLARED NO TABLES. Either `supabase/migrations/` is unreadable or "
+      + "the parser stopped matching, and either way there is no expectation to judge "
+      + "anything against. This is NOT a clean drill.");
+  } else {
+    // Compared by NAME, so a disagreement says WHICH table rather than how many.
+    const live = new Set(tables.map((t) => t.toLowerCase()));
+    const missing = [...DECLARED].filter((t) => !live.has(t)).sort();
+    const extra = [...live].filter((t) => !DECLARED.has(t)).sort();
+    if (missing.length) {
+      say(`${missing.length} table(s) the migrations declare are NOT in \`public\`: `
+        + `${missing.join(", ")}. The live database does not match the repo.`);
+    }
+    if (extra.length) {
+      say(`${extra.length} table(s) exist in \`public\` that no migration declares: `
+        + `${extra.join(", ")}. Either a migration is missing or something was created by hand.`);
+    }
   }
   if (!tables.length) throw new Error("no tables");
 
@@ -400,7 +454,7 @@ const { path: receiptPath } = writeReceipt({
   status,
   // Four numbers from four different places, so they can disagree - which is
   // the whole point of the receipt rule that they must agree.
-  expected_targets: EXPECTED_TABLES,  // declared above, before the run
+  expected_targets: DECLARED.size,    // from supabase/migrations/, not from the database
   discovered_targets: discovered,     // what `public` actually holds
   attempted_targets: attempted,       // tables we tried to restore
   completed_targets: completed,       // tables compared back
