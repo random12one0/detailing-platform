@@ -240,7 +240,29 @@ export const PRIVACY = {
      "The only email a customer can be sent that they did not ask for is one a detailer writes and sends from their own Clients list. Every one of those carries a postal address and a working opt-out, and the opt-out takes two steps, a page and then a button, so a link scanner cannot unsubscribe somebody who never meant to."],
     ["How long",
      "For as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted."],
+    // ── ROADMAP 7.7(2), 2026-09-21. A CLAUSE WAS REMOVED AND NOTHING WAS
+    // PUT IN ITS PLACE ────────────────────────────────────────────────────
+    // It used to end *"…and they can do BOTH from their own dashboard."*
+    // **Deleting is true** — `screens/Clients.jsx`, *"Delete for good"*.
+    // **Handing one customer a copy of their own record was not**, and this
+    // was the worst page in the product to say it on: it is the paragraph a
+    // stranger reads when they want their data back from a business they do
+    // not control, and they have no way of checking whether the button
+    // exists.
+    //
+    // **THE CUSTOMER EXPORT BUILT IN THIS SAME ROUND DOES NOT RESCUE IT**,
+    // and that is worth saying because it looks as though it should. That
+    // file is the WHOLE list: giving it to one customer who asked about
+    // themselves would hand them everybody else's name, phone number and
+    // address. A per-person copy is a different feature and nobody has
+    // asked for it.
+    //
+    // **Removed rather than reworded.** The sentence either states a thing
+    // the product does or it does not appear; softening it would still be a
+    // promise and would be harder for the next person to notice was unkept.
+    // It goes back the day the capability exists — `FOR-ANDREW.md` carries
+    // that as a correction he can reverse rather than a quiet retreat.
     ["Asking for a copy, or a deletion",
-     "Email the address below. If you are a customer of a detailer rather than a detailer, ask them. It is their list, and they can do both from their own dashboard."],
+     "Email the address below. If you are a customer of a detailer rather than a detailer, ask them. It is their list."],
   ],
 };
