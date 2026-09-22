@@ -1198,6 +1198,52 @@ arriving through a different door.
 
 ---
 
+## The built-in browser pane can refuse to resize at all, and still report success when asked
+
+**Found 2026-09-22, by the manager session trying to verify ROADMAP 7.4 at
+1440x900.** `resize_window` was called for 1440x900, then for 1940x1000 after
+the first looked wrong. **Both calls reported success.** The page's own
+reported viewport stayed at exactly **948 by 859, unchanged, both times.**
+`window.outerWidth` read **0**. `screen.width`/`screen.height` read
+**1920x1080** — the real monitor, not the pane. `devicePixelRatio` was **1**,
+so this is not a scaling artifact hiding the true size.
+
+**So a resize call succeeding is not evidence that the viewport changed.** The
+tool answered success both times while the number that actually matters — what
+the page itself measures as its own window — never moved. This is the same
+family as the entry above (the pane's scroll position lies), arriving through
+a different door: **that entry is about time (a scroll that never happens),
+this one is about space (a width that never changes).** Both share one root
+cause worth naming once: the pane is not a full browser process under this
+session's control the way Playwright's Chromium is, and a call succeeding
+tells you the message was accepted, not that the browser obeyed it.
+
+**What this actually costs.** Everything CLAUDE.md's own absolute rule asks
+for — "screenshot 1920 / 1440x900 / 768x1024 / 392x844, read the console at
+each" — depends on the pane actually being at the width it claims. A session
+whose pane is stuck at 948x859 and does not know it will report "checked at
+1440" honestly and be wrong, the same way a shipped feature nobody could reach
+passed every read-only check that never opened the dashboard (this file's
+"THE STATE YOU CANNOT REACH MAY NOT BE THE ONE YOU THINK"). **This is not
+hypothetical: it is exactly how a real width regression got past a manager
+before** — the last one to trust a browser number without opening the file
+it produced.
+
+**The rule: when a viewport genuinely has to be a specific width — not just
+looked at, but MEASURED — do not trust `resize_window`'s success. Launch
+Playwright directly** (the same `chromium` every script in `scripts/` already
+imports from `app/node_modules/playwright`), set the viewport explicitly in
+`newContext`, and **save real screenshots to disk** rather than returning them
+inline — a file on disk can be opened and looked at by anyone, independent of
+whatever the pane's own viewport happens to be doing that day.
+`receipts/screenshots/` (gitignored, same pattern as `artifacts/`) is where
+this was done for 7.4. Confirm the fix landed by reading the live DOM
+(`el.innerHTML`, `getComputedStyle`) as well — geometry alone would not have
+caught that a struck price still carried no accessible label after its order
+was already correct.
+
+---
+
 ## `has_table_privilege` answers false for a column-granted table, and a column refusal looks exactly like a row denial
 
 **Cost: a wrong security finding, published, and a migration very nearly

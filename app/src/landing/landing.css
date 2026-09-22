@@ -932,6 +932,18 @@
   box-shadow: inset 0 0 0 1px rgba(56,224,139,.3);
   font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: .04em;
 }
+/* ROADMAP 7.4 — a struck price is a VISUAL fact only (text-decoration
+   is not announced by most screen readers at normal verbosity), so a struck
+   price with nothing else marking it announces as a second, unlabeled
+   number. This is the standard visually-hidden pattern — present in the
+   accessibility tree and to search snippets, invisible on screen — used to
+   prefix every struck price with "Old price" rather than hiding the figure
+   from assistive technology entirely, which would remove information a
+   sighted reader still has. */
+.vh {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
 .ld .plan .was { color: var(--fog-2); text-decoration: line-through; text-decoration-thickness: 1px; margin-right: .28em; font-size: .62em; }
 /* ROADMAP 7.4 — .amount now puts the CURRENT price first and the struck
    price second (2026-09-22, to fix reading order), so its .was needs the

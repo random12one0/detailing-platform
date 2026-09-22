@@ -363,8 +363,15 @@ export default function PricingPage() {
             <div className="setupfee" data-rv="lift" style={{ "--i": 1 }}>
               <span className="lab">To build it</span>
               <div className="amount">
-                {founding && <s className="was">${listP.setup}</s>}
+                {/* ROADMAP 7.4 — REORDERED 2026-09-22, same defect as the
+                    home page: the struck list price used to precede the
+                    current one in the DOM. Current price first now, and the
+                    struck price carries a visually-hidden "Old price" label
+                    since a struck-through look is a visual fact only — most
+                    screen readers do not announce <s> at normal verbosity. */}
                 <span key={p.setup} data-count={p.setup} data-prefix="$" data-still>{fig(`$${p.setup}`)}</span>
+                {founding && <span className="vh">Old price </span>}
+                {founding && <s className="was">${listP.setup}</s>}
               </div>
               <p className="fine">
                 Once, at the start. It is not part of the monthly price and it
@@ -461,9 +468,14 @@ export default function PricingPage() {
                     make the other number look smaller. Same rule and same
                     element as the build fee above and the landing page's own
                     pair; `landing-pricing` 6b pins it on all four. */}
-                {founding && <s className="was">${listP.annual}</s>}
+                {/* ROADMAP 7.4 — REORDERED 2026-09-22, same defect as the
+                    home page and the build fee above: current price first,
+                    struck price second with a visually-hidden "Old price"
+                    label (a strikethrough is a visual fact only). */}
                 <span className="mono fig">{fig(`$${p.annual}`)}</span>
                 <small>a year</small>
+                {founding && <span className="vh">Old price </span>}
+                {founding && <s className="was">${listP.annual}</s>}
                 <span className="saves">{fig(`$${p.monthly * 12 - p.annual}`)} less than monthly</span>
               </div>
               <a className="cta gh" href={buy("annual-upfront")} data-glow="">
@@ -489,9 +501,11 @@ export default function PricingPage() {
                     make the other number look smaller. Same rule and same
                     element as the build fee above and the landing page's own
                     pair; `landing-pricing` 6b pins it on all four. */}
-                {founding && <s className="was">${listP.monthly}</s>}
+                {/* ROADMAP 7.4 — REORDERED 2026-09-22, same fix as above. */}
                 <span className="mono fig">{fig(`$${p.monthly}`)}</span>
                 <small>a month</small>
+                {founding && <span className="vh">Old price </span>}
+                {founding && <s className="was">${listP.monthly}</s>}
               </div>
               <a className="cta gh" href={buy("annual-monthly")} data-glow="">
                 Choose this<span className="ar">→</span>
@@ -513,9 +527,11 @@ export default function PricingPage() {
                     make the other number look smaller. Same rule and same
                     element as the build fee above and the landing page's own
                     pair; `landing-pricing` 6b pins it on all four. */}
-                {founding && <s className="was">${listP.monthToMonth}</s>}
+                {/* ROADMAP 7.4 — REORDERED 2026-09-22, same fix as above. */}
                 <span className="mono fig">{fig(`$${p.monthToMonth}`)}</span>
                 <small>a month</small>
+                {founding && <span className="vh">Old price </span>}
+                {founding && <s className="was">${listP.monthToMonth}</s>}
               </div>
               <a className="cta gh" href={buy("monthly")} data-glow="">
                 Choose this<span className="ar">→</span>

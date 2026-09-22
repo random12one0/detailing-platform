@@ -4801,25 +4801,73 @@ rather than wording went to Andrew.
   what is due now and what repeats.
   *A1 P2-02, A2 6.1*
 
-- [x] **7.4 — RESOLVED 2026-09-22. The home page listed the old price first**
-  in the markup: the .amount block put the struck $999 BEFORE the $499
-  founding price in the DOM, so a linear reader hit "$999" before ever
-  reaching the real price. The .then line ("$40/month $60") already had the
-  order right; .amount now matches it — swapped in
-  app/src/landing/LandingPage.jsx, with a matching CSS margin flip in
-  landing.css (.amount .was, mirroring the existing .then .was override).
-  **Checked by measuring the live DOM, not by reasoning about the JSX:**
-  `amount.innerHTML` at localhost:5173 reads
-  `<span>$499</span><s class="was">$999</s><small> to build it</small>` —
-  founding price first, struck price second — at 1440x900, at 392x844, and
-  again on `?lite=1`. Console read clean (no errors, no warnings) at all
-  three. Visually: $499 in the lead position, $999 struck beside it, no
-  overlap or spacing break at either width (screenshots taken).
-  **One thing this did NOT measure:** actual screen-reader audio output
-  (VoiceOver/NVDA) — a headless browser cannot run one. What was measured is
-  the thing that determines what a screen reader announces absent an ARIA
-  override (there is none here): linear DOM order. That order is now
-  founding-price-first.
+- [x] **7.4 — RESOLVED 2026-09-22, SECOND PASS. The Fix line names two
+  requirements and the first pass only did one.** "Mark the struck price as
+  the old price so it is read as crossed out, OR hide it from assistive
+  technology" — the *ordering* fix (below) does neither on its own, and a
+  manager reading the live DOM after the first commit found exactly that: the
+  `<s>` had one attribute, `class="was"`, no `aria-label`, no `aria-hidden`,
+  no visually-hidden text — a screen reader announced "$499 $999 to build it",
+  two bare numbers in a row, only reordered. **Both halves are done now.**
+
+  **HALF ONE — ORDER.** The `.amount` block put the struck $999 before the
+  $499 founding price in the DOM. `.then` already had it right; `.amount` now
+  matches. Swapped in `app/src/landing/LandingPage.jsx`.
+
+  **HALF TWO — LABEL, added this pass.** A struck-through look is a visual
+  fact only; most screen readers do not announce `<s>` at normal verbosity.
+  Chose the visually-hidden label over `aria-hidden` on the merits: hiding the
+  number entirely removes information a sighted user still has, and a sighted
+  and a non-sighted reader should be told the same thing. New `.vh` utility
+  class in `landing.css` (the standard 1px-clip pattern), and every struck
+  price on both pages now carries `{founding && <span className="vh">Old
+  price </span>}` as an independently-guarded sibling immediately before its
+  `<s>` — two separate `founding &&` expressions rather than one wrapped in a
+  fragment, because a fragment broke two assertions in
+  `tests/landing-pricing.test.mjs` that match the literal source pattern
+  `founding && <s className="was">` to prove a strike never renders outside
+  the offer guard. Kept the test as the more precise instrument and changed
+  the markup to satisfy it rather than loosening it.
+
+  **THE SAME PAIR DOES APPEAR ON THE PRICING PAGE, checked because it was
+  asked rather than assumed** — and it carried the *same ordering bug*, not
+  caught by the original audit: `.setupfee .amount` and all three
+  `.rungfig`s (annual, monthly, month-to-month) in
+  `app/src/landing/PricingPage.jsx` struck the list price before the current
+  one, with the comment on all three explicitly noting they follow "the same
+  element as the build fee above and the landing page's own pair" — so the
+  home page's bug was the pricing page's bug too, four more times. All four
+  reordered and labeled the same way. (`app/src/screens/more/Billing.jsx` has
+  two more `.was` instances but is a signed-in dashboard screen, not the home
+  or pricing page this item names, and not one this session can open live —
+  left alone, logged in `FOUND.md` for whoever can sign in to verify it.)
+
+  **CHECKED, both halves, both pages:**
+  - Live DOM read at `localhost:5173`, not reasoned about from the JSX.
+    `.amount.innerHTML` →
+    `<span>$499</span><span class="vh">Old price </span><s class="was">$999</s><small> to build it</small>`.
+    `.then.innerHTML` → `then $40/month <span class="vh">Old price </span><s class="was">$60</s>`.
+    Same pattern confirmed on `/pricing` for `.setupfee .amount` and all
+    three `.rungfig`s.
+  - `getComputedStyle` on `.vh`: `position: absolute; width: 1px; overflow:
+    hidden; clip: rect(0px, 0px, 0px, 0px)` — genuinely invisible, genuinely
+    still in the accessibility tree (no `display:none`, no `aria-hidden`).
+  - Console read clean (no errors, no warnings) on both pages.
+  - The four credential-free suites re-run after the change:
+    `composition`, `design-contrast`, `landing-pricing`, `route-contract` —
+    **all pass**, `landing-pricing` included, with no test file edited.
+  - **Real screenshots, saved to disk rather than described** — the pane
+    this manager session drives cannot be resized (see
+    `docs/gotchas.md` § "The built-in browser pane can refuse to resize at
+    all…", written this same turn), so geometry was captured with Playwright
+    launched directly at exact viewports and written to PNG files:
+    `receipts/screenshots/7.4-2026-09-22/{1920,1440,768,392,320}-{home,pricing-setup,pricing-rungs}.png`,
+    15 files. Gitignored (`screenshots/` pattern), not committed.
+  - **NOT measured, same as the first pass:** actual screen-reader audio
+    (VoiceOver/NVDA) — no headless browser runs one. What was measured is
+    what determines the announcement absent an ARIA override: linear DOM
+    order plus the accessible name each element now carries, and both are
+    confirmed.
   *A2 6.2*
 
 - [x] ~~**7.5 — Prices count up from low numbers.**~~ **Fixed 2026-09-20.**

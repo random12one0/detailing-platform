@@ -4095,3 +4095,29 @@ it breaks live data.
 lands, not after. Fixing the coupling properly — addressing controls by a
 shared constant or a test id rather than by their words — is the real answer
 and is a bigger job than any one rename.
+
+---
+
+## The same unlabeled-struck-price defect ROADMAP 7.4 fixed also sits on a dashboard screen, unfixed — 2026-09-22
+
+`app/src/screens/more/Billing.jsx` strikes the list price before the current
+one in two places (the build-fee line, and each subscription rung's figure),
+with no accessible label on the strike — the identical pair of defects 7.4
+just closed on the home page and the pricing page. Found by grepping for
+every `className="was"` in the repo while checking 7.4's pricing-page
+scope, not by an audit of this screen.
+
+**Left alone rather than fixed in the same pass, on purpose.** 7.4 names the
+home page; this is a signed-in dashboard screen, out of that item's scope.
+It is also one of the screens no session can open live — this repo's own
+structural hole (`docs/gotchas.md`, and the Spanish-sweep finding on the
+same subject): getting in needs a password, and no session may handle one.
+So whoever picks this up cannot verify it by loading the page the way 7.4
+was verified here; it will need the same fix read against the source and
+confirmed by whoever can actually sign in.
+
+The fix is the same one, twice: swap `<s className="was">` to after the
+current price instead of before it, and give it a `.vh`-style visually-hidden
+"Old price " label — `landing.css`'s `.vh` class can be reused if
+Billing.jsx shares a stylesheet with it, or a small local copy if it does
+not.

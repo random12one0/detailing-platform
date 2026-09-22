@@ -1022,6 +1022,7 @@ export default function LandingPage() {
                     while a genuine founding discount is live — never an
                     anchor invented to make a number look smaller. */}
                 <span key={setup} data-count={setup} data-prefix="$" data-still>${setup}</span>
+                {founding && <span className="vh">Old price </span>}
                 {founding && <s className="was">${P.website.setup}</s>}
                 <small> to build it</small>
               </div>
@@ -1030,6 +1031,7 @@ export default function LandingPage() {
                     here as well as the .28em margin on .was, and without it
                     the struck price sits noticeably tighter. */}
                 then ${monthly}/month{" "}
+                {founding && <span className="vh">Old price </span>}
                 {founding && <s className="was">${P.website.monthly}</s>}
               </div>
               <p>
