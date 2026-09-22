@@ -126,8 +126,10 @@ number is about **$1/month**. That buys roughly a thousand texts a day.
 > **Andrew's decision, 2026-09-22.** He does not want to start paying
 > anything monthly while he is **not publishing yet and does not have the
 > business running**. So the **campaign ($15 + $2/month)** and the **number
-> (~$1/month)** wait until launch — and the **API key with them**, because
-> there is nothing to mint one against until a number exists.
+> (~$1/month)** wait until launch — and the **API key waits with them, but
+> for a different reason: it is not blocked.** A Telnyx key is account-level
+> and could be minted today. It waits because **there is no point holding an
+> unused credential for three months**, and minting it later takes a minute.
 >
 > **The $4 brand fee was a one-off and is already spent.** That is why the
 > registration looks half-done: it is paid for and parked, on purpose.
@@ -176,6 +178,11 @@ that is *not* yes is the part worth knowing.
 **REVISIT CLOSER TO DECEMBER** — Andrew's own instruction and his own
 timeframe. At that point the order is: **verify the phone code, start the
 campaign, wait for it to clear, then buy the number and attach it.**
+
+**No reminder exists and none is wanted.** Andrew was explicit that the
+December revisit lives **in this file and nowhere else**. Nothing is scheduled
+and nothing will chase him about it — **this line is the whole mechanism.**
+Do not helpfully add a reminder, a calendar entry or a check that nags.
 
 **Do not create the API key now.** It is free and it would work — but a key
 sitting unused for three months is a liability with no benefit, and it takes
