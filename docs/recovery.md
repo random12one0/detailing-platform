@@ -152,11 +152,43 @@ part of this page:**
    can read, `auth.users` among them — which would close a gap the old page
    named as open. *Should* is doing work in that sentence. It is checkable the
    moment anyone restores one, and not before.
-4. **Storage bytes are definitely not covered.** Rows in `storage.objects` are
-   in the database; the job photos and logos themselves are in object storage
-   and no part of this pipeline touches them. A restore brings back references
-   pointing at files that may not exist. **This gap is real and survives
-   everything else on this page.**
+4. **Storage bytes are definitely not covered, and there are THREE stores,
+   not two.** Rows in `storage.objects` are in the database; the files
+   themselves are in object storage and no part of this pipeline touches them.
+   A restore brings back references pointing at files that may not exist.
+   **This gap is real and survives everything else on this page.**
+
+   **Corrected 2026-09-21** — this item described photos and logos as though
+   those were all of it. Measured against the live project:
+
+   | store | what is in it | files today | carried by the nightly dump |
+   |---|---|---|---|
+   | `business-media` | logos and cover photos; **public** | **123** | **no** |
+   | `job-photos` | before-and-after job photographs; private | **24** | **no** |
+   | `expense-receipts` | photographs of receipts; private | **0** | **no** |
+
+   **The third one is new, and it is the one that matters most on this page.**
+   An `expenses` row carries five columns about its receipt —
+   `receipt_path`, `receipt_bytes`, `receipt_width`, `receipt_height`,
+   `receipt_uploaded_at` — and the image itself sits in `expense-receipts`.
+   The dump carries **rows, not storage bytes**. So a restore hands a detailer
+   back their expense rows, each still pointing at a photograph of a receipt,
+   **and the photographs are not there.** The row will state that a receipt was
+   uploaded, and give its size and its dimensions, next to a path that resolves
+   to nothing.
+
+   **Why that is not the same as losing a job photo.** A job photo is evidence
+   for an occasional dispute. **A receipt is kept for a tax year, every year,
+   because something outside this product requires it to exist** — so the
+   window in which its absence matters is not "until the customer forgets", it
+   is the whole retention period, and it is the product that told the detailer
+   the receipt was safely filed.
+
+   **The exposure is dated rather than hypothetical: `expense-receipts` holds
+   zero files today.** Nothing is currently at risk. It begins the moment the
+   first receipt is uploaded, which is why it is recorded here now rather than
+   after. **This is a statement of what the backup does and does not carry.
+   What to do about it is not this page's to say.**
 
 ---
 
@@ -215,9 +247,17 @@ It covers `public` only — not `auth`, not storage bytes.
    item closes today. **If it is not there, fifteen nightly backups cannot be
    opened by anyone, including Andrew, and 6.1 stops being a documentation
    item and becomes a live data-loss finding.**
-3. **A decision about storage bytes** — either accept that job photos are not
-   backed up and say so out loud somewhere a detailer can see, or add them.
-   Not started, not priced.
+3. **A decision about storage bytes, across all three stores** — logos and
+   cover photos, job photographs, and **photographs of receipts**. None is
+   carried by the nightly dump. Not started, not priced.
+
+   **The three are not one decision, because what their absence costs
+   differs.** A missing logo is re-uploaded in a minute. A missing job photo
+   is evidence for a dispute nobody may ever have. **A missing receipt
+   photograph is a record kept for a tax year because something outside this
+   product requires it**, sitting beside an expense row that still says it was
+   uploaded. Whether that is three decisions or one is not this page's call;
+   what this page can say is that they are not equivalent.
 4. **The last-restore date is still not visible in the back office**, which
    6.1's "done when" requires. Front-end change; publishing is Andrew's.
    **Named as blocked rather than dropped.**
