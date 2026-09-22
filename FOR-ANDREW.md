@@ -310,6 +310,61 @@ still knows them.
 
 ## Waiting on you — nothing breaks while these wait
 
+- [ ] **DECIDE · Your Spanish dashboard has 134 English strings on it, across
+  32 screens. Nothing is broken. You decide whether that is worth a night.**
+
+  **No recommendation on this one, and that is deliberate** — it is a
+  judgement about who your customers are, and you are the only one who can
+  make it.
+
+  **What we found.** When a detailer switches your dashboard to Spanish, 134
+  separate bits of text stay in English. Some are single words sitting inside
+  a Spanish sentence — one screen read *"Visitas pendientes · 1 overdue"*.
+  Some are whole paragraphs, like the note that appears when you pick your
+  brand color.
+
+  **Why nobody knew.** We have one tool whose only job is to find English text
+  that should have been translated. **It skipped anything with a number in
+  it.** A line like "1 overdue" is written in the code as *"[number] overdue"*,
+  and the tool could not see that shape at all — so it kept reporting a clean-
+  ish number while these sat on the screen. That tool is now fixed. **The
+  count went from 90 to 134 the moment it could see properly**, and that jump
+  is the tool getting better, not your product getting worse.
+
+  **What this is, and what it is not.** Nothing crashes. Nothing is broken.
+  **A detailer using it in English sees nothing wrong at all.** What it means
+  is narrower: the Spanish your product offers is partial, and until now
+  nobody could measure how partial.
+
+  **134 is a floor, not a ceiling, and this is the part to hold on to.** The
+  tool still cannot see a message that is written across several lines in the
+  code. So there are more; we do not know how many. **If you decide to fix
+  "all of them", you will finish and then find more** — which is why the
+  number is given as a starting point rather than a total.
+
+  **Most of the 134 are plain English text. A few are not, and those are the
+  only part that needs you:**
+
+  1. **About 23 are example business names** — "Prime Mobile Detailing",
+     "Delgado Mobile Detailing" — used as samples in the website-brief screen.
+     Those are names, not words. Nobody translates a name. **The decision is
+     whether to teach the tool they are names**, so they stop being counted.
+  2. **About 18 are column headings in the files you export** — "First seen",
+     "Jobs", "Opted out", "Job date". **The decision is whether a spreadsheet
+     you send to your accountant should change language with your dashboard**,
+     or always stay in English because of who opens it.
+  3. **Two are the app's own time abbreviations** — the "h" and "min" in
+     something like "1 h 30 min". Those are **already handled properly in
+     Spanish**; the tool is simply wrong about them. **The decision is only
+     whether to quieten it**, so the number stops carrying two that are fine.
+  4. **A handful sit in the photo screens**, which somebody else is working on
+     tonight. **They are listed here so nobody counts them twice**, not
+     because anything needs doing about them.
+
+  **What we have not done:** we have not fixed any of the 134, and we have not
+  opened this as a job. One string was fixed — the "1 overdue" one — because
+  it was the one we found first.
+
 - [ ] **READ · What we send, and what we don't — the messaging page you asked
   for. No recommendation in it on purpose; it is the material for a
   conversation, not a conclusion.**
