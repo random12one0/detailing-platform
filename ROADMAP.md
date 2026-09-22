@@ -7690,9 +7690,12 @@ the dashboard or back office at phone width at all.
   day with two open jobs, one already past its time, closes this for
   free — worth watching for rather than staging on purpose.**
 
-- [ ] **9.6 — Client list has no labels.** Values appear with no headings, so
-  last visit, lifetime spend and phone must be inferred. "9 gone quiet" is
-  vague. Define it with an exact period and give it an action.
+- [x] **9.6 — ~~Client list has no labels.~~ CLOSED 2026-09-22 ON RE-READING,
+  not on new work — both halves already built and already reviewed by
+  Andrew on the real screen before today.** Values appeared with no
+  headings, so last visit, lifetime spend and phone had to be inferred.
+  "9 gone quiet" was vague. Defined with an exact period and given an
+  action.
   *A1 P2-12*
 
   **HALF OF THIS WAS ALREADY TRUE BEFORE TONIGHT, NOT NEW WORK.** The
@@ -7758,6 +7761,71 @@ the dashboard or back office at phone width at all.
   build and the date/phone judgement at the width he could reach; the 320
   evidence for the caption itself is this session's own live browser test
   in the commit that built it.
+
+  **CLOSED, ON RE-READING RATHER THAN ON ANY NEW WORK — the roadmap line
+  and the checkbox were stale, not the screen.** Handed today as an open
+  item ("Label them, and give the '9 gone quiet' line an exact period and
+  an action") that reads exactly like the ORIGINAL, pre-fix audit wording
+  above. Both halves of that wording are already built, both were already
+  reviewed by Andrew on the real screen, and neither happened today.
+
+  **BUT FIRST, THE ACCESS QUESTION THIS ITEM WAS HELD ON — CHECKED BEFORE
+  ANYTHING ELSE, AS INSTRUCTED, BECAUSE IT DECIDES WHETHER THIS SESSION
+  MAY CLOSE ANYTHING ON THIS SCREEN AT ALL.** `docs/gotchas.md` § 6 (the
+  Spanish sweep's structural finding) says a session cannot open a
+  signed-in dashboard: `business_users`' RLS makes a service-role-inserted
+  row invisible to that user's own browser session, and every other route
+  in needs a password, an admin-generated link, or Google sign-in — all
+  three are credentials a session may not handle. **Tried it live rather
+  than trusted the earlier write-up:**
+  - Checked this session's own browser for a leftover authenticated
+    session before navigating anywhere: `localStorage` held one key,
+    `bk.visitor` — a booking-flow visitor id, nothing auth-related — and
+    zero cookies. No session to reuse.
+  - Navigated to `/app` cold. It offers exactly `Email`, `Password`,
+    `Sign in`, `Create an account`, `I forgot my password` — no other
+    door, no Google button rendered at this route today. Every option
+    either requires typing a credential or creating one.
+  - **Stopped there. No password was typed, no account was created, no
+    reset flow was started.** Confirms the earlier finding live rather
+    than repeats it from memory: **the only way into a signed-in
+    dashboard is a credential, exactly as documented, and that is a stop
+    under this session's standing rules, not a workaround to route
+    around.**
+
+  **WHERE THE LINE ACTUALLY FALLS, since that is worth more than any one
+  screen: the DATA is reachable, the RENDERING is not, and nothing in
+  between.** The service-role key already authorised for this project
+  (`kguqylyzgyzfktkfnhjb`, read and write, no restrictions per
+  `CLAUDE.md`) reads `customers` and `bookings` directly — a database
+  credential this session already holds, structurally unrelated to a
+  dashboard USER's password. So a session can confirm what data exists,
+  what a query would return, whether a threshold constant is still what
+  it says it is. **It cannot confirm what a customer's own browser would
+  paint** — spacing, whether a label is visually present versus merely in
+  the JSX, a 44px hit area, whether a fix that changed the source actually
+  changed the screen. Confirmed the one fact on the data side that was
+  cheap and honest to check without touching UI at all: `LAPSED_DAYS` in
+  `lib/client-list.js` is still `90` today, unchanged since 2.11 — so the
+  "3 months" chip and the "Text these N" action this item asks for are
+  still describing a real, current number, not a stale one.
+
+  **WHY THIS ONE CLOSES ANYWAY, AND WHY THAT IS NOT THE SAME THING AS
+  TICKING IT ON A READING.** The item's own body, written before today,
+  already carries the verification this session structurally cannot
+  produce: **Andrew's own press, 2026-09-20 — "the list now carries
+  lifetime under every money figure, and the date and phone read as
+  themselves — I agree with your call there."** That is a person who CAN
+  sign in, looking at the real screen, on record. It is categorically
+  different from a session reasoning from source and calling it seen —
+  the exact failure this entry's own access check exists to catch — and
+  the difference is stated here in those terms on purpose: **nothing
+  about this closure is this session's verification. This session added
+  none today, could not, and is not claiming to have.** What it added is
+  confirming the roadmap line handed down was stale (the work already
+  happened), confirming the underlying threshold is still accurate, and
+  confirming — live, by trying, not by citation — exactly where a
+  session's own reach into this screen ends.
 
 - [ ] **9.7 — Client card is missing basics.** No Text button, no vehicle, no
   address, no "Book again". Add them; "Book again" opens New booking prefilled.
