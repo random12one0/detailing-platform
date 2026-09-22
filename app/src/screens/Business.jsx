@@ -89,7 +89,7 @@ function describeHours(rows) {
     : days.map((d) => DAYS()[d]).join(", ");
   return same
     ? `${label} · ${time12(open[0].open_time)} – ${time12(open[0].close_time)}`
-    : `${label} · hours vary`;
+    : t("{days} · hours vary", { days: label });
 }
 
 // WHICH WAYS TO PAY ARE ON THE EMAILS, said the way a person would say it.
@@ -398,11 +398,26 @@ export default function Business({ onSetup, initial = null }) {
       // which is worth more than tidiness. `--bad` is the product's fixed red
       // and never the tenant's accent (law 11b).
       ["maintenance", "Visits due", CalendarClock,
-        counts ? (counts.deadlines === 0 ? "Nothing scheduled"
+        // **TWO OF THESE FOUR BRANCHES NEVER REACHED THE TRANSLATOR — fixed
+        // 2026-09-21.** The two written as `t(...)` were translated; the bare
+        // literal and the backtick one were not, so a Spanish dashboard read
+        // "Visitas pendientes · 1 overdue". Nothing was missing from the
+        // catalogue: a string that never calls `t()` is not a call site, so
+        // the completeness check has no gap to report, and `i18n-survey.mjs`
+        // matches quoted strings and JSX text WITHOUT interpolations, so a
+        // backtick template is invisible to it as well.
+        counts ? (counts.deadlines === 0 ? t("Nothing scheduled")
           : counts.deadlinesSoon === 0 ? t("{visits}, none due", {
             visits: n(counts.deadlines, "{count} visit", "{count} visits") })
             : counts.deadlinesMissed
-              ? `${counts.deadlinesMissed} overdue`
+              // **A PLURAL PAIR, AND THE REASON IS SPANISH RATHER THAN
+              // ENGLISH.** "overdue" does not inflect, so one key looked
+              // sufficient — but `atrasada`/`atrasadas` does, and a single
+              // key would be wrong for one of the two counts. The noun is
+              // carried so both languages can agree with it; the row's own
+              // label already says "Visits due", so this reads as a
+              // repetition in English only if you read it without the label.
+              ? n(counts.deadlinesMissed, "{count} visit overdue", "{count} visits overdue")
               : t("{visits} coming up", {
                 visits: n(counts.deadlinesSoon, "{count} visit", "{count} visits") })) : "…",
         // **THE FIFTH SLOT IS THE COLOUR SWATCH AND THIS WAS PUTTING A BOOLEAN

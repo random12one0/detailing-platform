@@ -521,6 +521,9 @@ export const appEs = {
   "{members} on {plans}": "{members} en {plans}",
   "{visits}, none due": "{visits}, ninguna pendiente",
   "{visits} coming up": "{visits} por venir",
+  "{count} visit overdue": "{count} visita atrasada",
+  "{count} visits overdue": "{count} visitas atrasadas",
+  "{days} · hours vary": "{days} · el horario varía",
   "Site sale on · {codes}": "Descuento del sitio activo · {codes}",
   "no notice needed": "sin aviso previo",
   "{count} min notice": "{count} min de aviso",
@@ -1094,8 +1097,8 @@ export const appEs = {
   "Timing, and whether there is a second one, are set in Booking rules.":
     "El tiempo, y si hay un segundo, se ajustan en Reglas de citas.",
   "Goes out after you record payment.": "Sale después de que registras el pago.",
-  "Goes out after you record payment. The review ask inside it only appears once you add a Google or Yelp link on Business info.":
-    "Sale después de que registras el pago. La petición de reseña que lleva dentro solo aparece cuando agregas un enlace de Google o de Yelp en Datos del negocio.",
+  "Goes out after you record payment. The review ask needs a Google or Yelp link on Business info.":
+    "Sale después de que registras el pago. La petición de reseña necesita un enlace de Google o de Yelp en Datos del negocio.",
   "A new booking comes in": "Entra una cita nueva",
   "A job is coming up": "Se acerca un trabajo",
   "The day before.": "El día anterior.",

@@ -54,7 +54,7 @@ const CUSTOMER_EMAILS = [
   // sentence is worth reading even once the links are in, because it is the
   // only place that says which screen they live on.
   ["email_customer_followup", "Thank-you and review request",
-    "Goes out after you record payment. The review ask inside it only appears once you add a Google or Yelp link on Business info."],
+    "Goes out after you record payment. The review ask needs a Google or Yelp link on Business info."],
 ];
 const OWNER_EMAILS = [
   ["email_owner_new_booking", "A new booking comes in"],
