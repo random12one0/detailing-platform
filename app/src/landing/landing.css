@@ -366,6 +366,12 @@
    product. 2026-09-12. */
 .ld .nav .burger { display: none; min-width: 44px; min-height: 44px; }
 .ld .navmenu { display: none; }
+/* ROADMAP 7.12, SECOND HALF — the pricing page's own "Sign up" pill,
+   hidden everywhere except beside the burger below. Desktop and tablet keep
+   the page's existing reasoning (the CTA would point at the page it is
+   already on); only below the burger's own breakpoint does the nav go
+   empty enough to need it back. */
+.ld .nav .cta.sm.mobile-signup { display: none; }
 
 @media (max-width: 470px) {
   .ld .nav .lk { display: none; }
@@ -377,6 +383,7 @@
      the box itself has to reach 44. The bar does not grow: the burger beside it
      is already 44. */
   .ld .nav .cta.sm { padding: 9px 15px; font-size: 13px; min-height: 44px; }
+  .ld .nav .cta.sm.mobile-signup { display: inline-flex; align-items: center; }
 
   /* 32px square: at or above the product's tap floor, and narrower than
      any word would be. Two bars rather than three — at this size the third

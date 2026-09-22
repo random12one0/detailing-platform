@@ -180,6 +180,11 @@ export default function PricingPage() {
   // BOTH have answered and the order they are applied in is the fix.
   const [P, setP] = useState(PRICING);
 
+  // ROADMAP 7.12, SECOND HALF. The landing page's own burger + collapsed-
+  // menu state, added here for the first time — this page never had one, so
+  // below 470px `.lk` (What you get, Questions, Sign in) simply vanished with
+  // nothing replacing them, the exact defect the home page fixed 2026-09-06.
+  const [navOpen, setNavOpen] = useState(false);
 
   useEffect(() => initThread(), []);
 
@@ -230,15 +235,42 @@ export default function PricingPage() {
     <div className="ld pricepage" {...(priced ? {} : { "data-loading": "1" })}>
       <Ground />
 
-      {/* The landing page's nav, minus its "Get started" pill: on the page
-          you get started FROM, that button points at itself. */}
+      {/* The landing page's nav, minus its "Get started" pill at desktop and
+          tablet widths — on the page you get started FROM, that button points
+          at itself, and the plan choices are already the content of this page.
+
+          ROADMAP 7.12, SECOND HALF, 2026-09-22. That reasoning stops holding
+          below 470px: the burger below collapses every `.lk` out of the bar
+          exactly as it does on the home page, and unlike the home page this
+          nav had nothing left standing once it did — a phone visitor landing
+          straight on /pricing had a wordmark and nothing to press. So the
+          "Sign up" pill returns HERE, but MOBILE-ONLY (`.mobile-signup`,
+          scoped in landing.css beside the same breakpoint that shows the
+          burger) and pointed at `#website` rather than at `/pricing` —
+          pointing it at this page would be the exact circularity the comment
+          above already ruled out; `#website` is where the real choices
+          start, the same destination the reasoning always meant. */}
       <nav className="nav" id="nav" aria-label="Main">
         <span className="nav__g"><i></i></span>
         <a className="mk" href="/">Detailing Platform</a>
         <a className="lk hide-s" href="/#get">What you get</a>
         <a className="lk hide-s" href="/#faq">Questions</a>
         <a className="lk" href="/app">Sign in</a>
+        <a className="cta sm mobile-signup" href="#website">Sign up<span className="ar">→</span></a>
+        <button className="burger" type="button" aria-label={navOpen ? "Close menu" : "Menu"}
+          aria-expanded={navOpen} aria-controls="navmenu"
+          onClick={() => setNavOpen((v) => !v)}>
+          <i></i><i></i>
+        </button>
       </nav>
+
+      {/* Outside the <nav> so the pill's own width never has to hold it — same
+          reason the landing page keeps it outside. */}
+      <div id="navmenu" className={`navmenu${navOpen ? " on" : ""}`} hidden={!navOpen}>
+        <a className="lk" href="/#get" onClick={() => setNavOpen(false)}>What you get</a>
+        <a className="lk" href="/#faq" onClick={() => setNavOpen(false)}>Questions</a>
+        <a className="lk" href="/app">Sign in</a>
+      </div>
 
       <main id="top">
 

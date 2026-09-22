@@ -5684,7 +5684,7 @@ rather than wording went to Andrew.
   south.' What should that line say?"* — one sentence back from him and it
   is buildable; nobody here is going to guess his service area for him.
 
-- [ ] **7.12 — ~~Pricing page is blank for about a second~~, and has no
+- [x] **7.12 — ~~Pricing page is blank for about a second~~, and has no
   sign-up button in the phone top bar.**
   *A2 6.7, 6.8*
   **THE OBSERVATION IS RIGHT AND THE DESCRIPTION IS WRONG — corrected
@@ -5778,6 +5778,79 @@ rather than wording went to Andrew.
   **Four credential-free suites pass, `label-guard` 45/45,
   `american-english` 11/11 pages — and that one does read this page (254
   strings), unlike the booking widget it does not reach.**
+
+  **SECOND HALF DONE 2026-09-22 — the phone top bar has a sign-up button
+  now, and it matches the home page's own pattern rather than inventing a
+  second one.** Read this whole entry first, including the false
+  AB 2863 finding above, before touching anything — it was the false
+  finding the first half's own paragraphs already describe: a session read
+  the unsettled-price window and reported "$600 a year" against "$40 a
+  month" as a money contradiction, which never existed and was withdrawn
+  the same day it was written.
+
+  **Matched the home page's pattern rather than a new one, checked
+  directly first.** `.ld .nav .cta.sm` "Sign up", kept outside the burger,
+  plus a burger + `#navmenu` holding the links that collapse below 470px —
+  read from `LandingPage.jsx` and its CSS before writing a line of
+  `PricingPage.jsx`. **This is the same "one page had it right and the
+  other did not" shape as 7.4 and 7.11**, a third time in the same batch:
+  the home page fixed this exact gap on 2026-09-06 and the pricing page
+  never got it.
+
+  **The button points at `#website`, not `/pricing`, on purpose.** The
+  desktop nav already omits a "Sign up" pill with the reasoning "on the
+  page you get started FROM, that button points at itself" — pointing a
+  new phone-only copy of it at `/pricing` would be exactly that
+  circularity. `#website` is the plan section this page's own content
+  starts with; the phone-only class (`.mobile-signup`, CSS scoped to the
+  same breakpoint the burger already uses) keeps desktop and tablet
+  unchanged.
+
+  **VERIFIED, both halves of the fix — the button and the menu:**
+  - Live DOM, not the JSX: at 1440 desktop, `.mobile-signup` and `.burger`
+    both compute `display: none` — matches the existing "points at itself"
+    reasoning, nothing added to the page a desktop visitor didn't already
+    have. At 392 and 320, both compute `display: flex`, gap between them
+    measured 12px (no stolen presses).
+  - **`elementFromPoint`, not a bounding rect** — CLAUDE.md's own
+    instruction. Corners of the sign-up pill miss by ~6px (a rounded-pill
+    artifact: `border-radius: 100px` + `overflow: hidden`), but the
+    straight edges and center hit correctly at every point checked, and
+    **the identical corner behavior was confirmed on the home page's own
+    pre-existing, already-shipped Sign-up button** — same numbers, same
+    curve. Not a new defect; the visual shape and the hit shape agree,
+    which is the opposite of the failure the 44px rule exists to catch.
+  - Burger click opens `#navmenu`, `aria-expanded` toggles, all three
+    links (`What you get`, `Questions`, `Sign in`) render with correct
+    `href`s.
+  - Clicking the sign-up button lands `#website` at the top of the
+    viewport (0.28px off), confirmed live.
+  - Console read in full, warnings NOT filtered — only the two known
+    `react-router-dom` future-flag warnings, already logged in
+    `FOUND.md`, no errors, at every width checked.
+  - Four credential-free suites pass, `label-guard` 45/45, all with no
+    test file touched.
+  - Screenshots to disk at all five widths (`1920`, `1440`, `768`, `392`,
+    `320`), each waited for the nav's own reveal to settle before
+    shooting, each passed the same content-variance assertion 7.4
+    established (21–87 across the ten `#nav` captures, 32–33 across the
+    two open-menu captures) — `receipts/screenshots/7.12-2026-09-22/`.
+    Opened `1920-nav.png`, `320-nav.png` and `320-navmenu-open.png`
+    directly: desktop shows the unchanged wordmark/links/no-pill nav,
+    320 shows the wordmark, the sign-up pill and the burger, the open
+    menu shows all three collapsed links.
+
+  **FOUND WHILE BUILDING, NOT PART OF THIS FIX, REPORTED RATHER THAN
+  PATCHED — bigger than a button, per the stop condition for this item.**
+  Matching the home page's pattern exactly also matched a real defect in
+  it: at 320px, the narrowest width this product promises, the burger's
+  own right edge sits past both the nav pill's edge and the viewport
+  itself — visibly, in a full-viewport screenshot, its bars cut off by
+  the screen edge. **Pre-existing on the home page**, confirmed with the
+  identical measurement there (same numbers, same overflow) before this
+  change touched anything. Not present at 392 or wider — a 320-and-near
+  problem specifically. Full account, root cause and why it slipped every
+  previous sweep: `FOUND.md`.
 
 ---
 

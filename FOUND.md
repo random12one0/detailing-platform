@@ -4148,3 +4148,49 @@ bundle. Confirm with `npm run build --prefix app` and serving `app/dist`
 before spending time on either flag. If they do reach production, the fix is
 two booleans on the router's future config — `v7_startTransition` and
 `v7_relativeSplatPath` — named directly in the warning text.
+
+---
+
+## The phone nav burger sits partly off the 320px screen — pre-existing on the home page, now on the pricing page too — 2026-09-22
+
+Found while building ROADMAP 7.12's phone sign-up button, matching the
+home page's own nav pattern as instructed. **The pattern being matched
+turned out to already have a real defect at 320px, the narrowest width
+this product promises to support.**
+
+Measured on the HOME PAGE, which predates this change entirely: at
+exactly 320px, `.burger`'s right edge sits at 323.39px — past the nav
+pill's own right edge (306px) and past the viewport itself (320px).
+Screenshotted, not inferred: the burger's two bars are visibly cut off
+by the edge of the screen, sitting outside the dark pill on the plain
+page background for roughly the last third of their width. **This is
+not something the pricing-page work introduced** — identical numbers
+appear on both pages, because both share the same nav markup and the
+same `.ld .nav` CSS.
+
+**Why it slipped past every previous width sweep:** a screenshot cropped
+to `#nav`'s own bounding box does not show it — the overflowing part of
+the burger paints OUTSIDE that box, so a crop clipped to the element
+itself hides exactly the pixels that are wrong. This session's own first
+screenshot for 7.12 made that identical mistake before a full-viewport
+screenshot caught it.
+
+**Root cause, read from the CSS rather than guessed:** the nav pill is
+`position: fixed` with a computed width of 292px at 320 (independent of
+its children), `display: flex`, `overflow: visible`, and none of its
+children — the wordmark, the sign-up pill, the burger — can shrink
+(`white-space: nowrap`, explicit widths). Their combined natural width
+plus gaps is a few pixels more than the pill has room for, and
+`overflow: visible` lets the last child spill past the edge instead of
+wrapping or shrinking.
+
+**Confirmed narrow to a range, not every phone width:** at 392 the same
+measurement shows the burger comfortably inside both the pill and the
+viewport (burger right 369 vs pill right 378, well within 392). It is a
+320-and-nearby problem specifically.
+
+**Left unfixed, on purpose.** Fixing it means changing the shared
+`.ld .nav` breakpoint CSS that both pages read, which is exactly the
+kind of shared value CLAUDE.md says to check before touching — and this
+is already shipped on the home page, so a fix here is also a change to
+a page nobody asked to revisit today. Logged rather than patched.
