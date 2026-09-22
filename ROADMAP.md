@@ -5311,9 +5311,16 @@ rather than wording went to Andrew.
   page omits Geoapify and OpenStreetMap… Add them") was the roadmap
   line's stale, pre-audit wording, not this entry's own finding, and the
   roadmap line has been wrong twice today already.** Loaded `/privacy`
-  and read it, not the code: Geoapify is named, twice, in "And the ones
-  that are easy to miss" — exactly as this entry says. OpenStreetMap is
-  correctly absent as a processor.
+  and read it, not the code: Geoapify is named — **three times, not two as
+  first counted here; corrected on the manager's own recount, `text.match`
+  against the live page, not memory** — in "And the ones that are easy to
+  miss." **Third small count mismatch today, and a pattern worth naming
+  rather than three coincidences: a count gets quoted from memory of what
+  was read rather than re-derived at the moment of writing it down. All
+  three landed in the safe direction — under-counted, nobody built on the
+  wrong number — but that is luck in the direction, not a reason to keep
+  doing it.** OpenStreetMap is correctly absent as a processor — **zero
+  occurrences, confirmed the same way.**
 
   **AND WENT AND LOOKED AT THE BOOKING PAGE'S OWN CREDIT LINE LIVE, AS
   ASKED, RATHER THAN TRUSTING EITHER DESCRIPTION.** Walked the booking
@@ -5325,7 +5332,8 @@ rather than wording went to Andrew.
   reasoning for leaving it off the privacy page was never that the name
   is absent from the product, it is that **no request is ever made to
   openstreetmap.org and no data of any kind reaches them**; the credit is
-  a licence notice Geoapify's own terms require, not a data flow. That
+  a licence notice Geoapify's own terms require, not a data flow. **The
+  roadmap line asked for a credit the page correctly does not owe.** That
   distinction is already written out for Andrew in `FOR-ANDREW.md`
   ("OpenStreetMap is credited on your booking page but receives nothing,
   so it is deliberately not listed"), so there is nothing new to tell him
@@ -6250,9 +6258,13 @@ rather than wording went to Andrew.
   live and unfixed.** Checked at 320: `Pricing`, `Questions` and `Sign in`
   all compute `display: none`, no `.burger` exists in the DOM at all. A
   phone visitor on `/privacy` — the exact page 7.8 touches next — has a
-  wordmark and nothing else to press. **Not fixed here**, because this item
-  is about the missing CHECK, not a third round of the same by-hand patch;
-  see `FOUND.md` for the confirmed live state.
+  wordmark and nothing else to press. **CONFIRMED A SECOND WAY, INDEPENDENTLY:**
+  the manager read the live DOM directly rather than take the source
+  reading — no `.burger` element and no `#navmenu` element anywhere in
+  the tree, at all, not merely hidden by CSS. Two readings, source and
+  DOM, agree. **Not fixed here**, because this item is about the missing
+  CHECK, not a third round of the same by-hand patch; see `FOUND.md` for
+  the confirmed live state.
 
   **WHAT THE CHECK HAS TO DO.** Source-based, matching the shape of every
   other credential-free suite here, not a live browser sweep:
@@ -6269,14 +6281,26 @@ rather than wording went to Andrew.
     sign-up pill itself is conditional, and the check should read that
     condition from an explicit comment marker rather than assume it.
   * **Break it on purpose before trusting it** — this repo has shipped at
-    least six checks that tested nothing. The ready-made canary is
-    `LegalPage.jsx` itself: run the check against today's file and it
-    should fail exactly where the live measurement above found it failing.
+    least six checks that tested nothing. **The ready-made canary is
+    named explicitly rather than left as "LegalPage.jsx": `/terms` AND
+    `/privacy`, both served by that one file, are the two live URLs this
+    check must report the moment it is written, with no fix required to
+    prove it. Both were confirmed live, twice — once from source, once
+    again by the manager reading the DOM directly** (no `.burger` element
+    and no `#navmenu` element anywhere in the tree; `Pricing`, `Questions`
+    and `Sign in` all carry `hide-s` with nothing standing in for them
+    below 470px — not hidden-but-reachable-another-way, there is no other
+    way in on a phone). **A check that runs clean without naming both of
+    those two URLs by name is not a passing check — it is a broken one,
+    the same way a canary that cannot see a defect already known to exist
+    is not a canary at all.**
 
   **Done when:** a check names every `.ld` page missing the burger,
   `#navmenu`, or a sign-in path inside it, exits 1 when any is missing,
-  and has been proved against `LegalPage.jsx`'s current, unfixed state as
-  its own canary before anything is patched.
+  and has been proved by running it once, unmodified, against today's
+  repo and confirming its output names `/terms` and `/privacy` — not a
+  hypothetical run, the actual one, before anything about `LegalPage.jsx`
+  is patched.
 
   **SIZED HONESTLY: small, not a batch.** Three files exist today, the
   pattern to check is one repeated structural shape already built twice
