@@ -5635,6 +5635,54 @@ rather than wording went to Andrew.
   Home page says "Tacoma, WA"; the demo business is Long Beach, CA.
   *A2 7.6*
 
+  **INVESTIGATED 2026-09-22, NOT RESOLVED — the premise does not hold up,
+  and deciding which way to go from here is not this session's call.**
+
+  **The two things this item compares are not the same entity.** The home
+  page's illustrative browser mockup (`app/src/landing/LandingPage.jsx`,
+  "Your own website" section) is styled as `andrewsdetail.com` — Andrew's
+  own real business, per `CLAUDE.md`'s own description of that domain — with
+  brand name "Andrew's Auto Detail". **The seeded demo tenant is a wholly
+  different, fictional business**: `scripts/seed-demo.mjs` names it
+  "Coastline Auto Detailing", slug `demo-detail`, address "1450 Marina Blvd,
+  Long Beach, CA". Different name, different brand, different fictional
+  history ("Family-run mobile detailing serving Long Beach since 2019.").
+  Nothing ties them together — the mockup is static decoration with no link,
+  no API call, no shared data with any tenant row.
+
+  **The canonical design reference agrees with the current code, not with
+  the audit.** `docs/design-directions/5-the-thread.html` — which
+  `CLAUDE.md` names as authoritative over any document that disagrees with
+  it — carries the identical "Tacoma, WA" / "Andrew's Auto Detail" /
+  `andrewsdetail.com` mockup. So the literal reading of this item's own Fix
+  (change the home page's Tacoma to Long Beach) would make the shipped page
+  **disagree with the reference file it is supposed to match**, on the
+  strength of an audit that appears to have assumed these two "examples"
+  were the same business without checking.
+
+  **Checked whether a real visitor could ever see both side by side,
+  because that would make this a genuine problem regardless of the above:
+  no.** Grepped every city/state mention on `LandingPage.jsx` and
+  `PricingPage.jsx` — "Tacoma, WA" is the only one, appearing twice within
+  the one self-contained mockup (hero line, footer line), consistent with
+  itself. No link anywhere on the home page points at `/ex1`–`/ex5`, at
+  `/book/demo-detail`, or at the demo tenant in any form — a visitor reading
+  the marketing page has no path to see "Long Beach" at all. So there is no
+  visible self-contradiction on the page today, which is different from the
+  audit's premise of one.
+
+  **What is genuinely unknown, and is the actual open question:** whether
+  "Tacoma, WA" is a real fact about Andrew's own business (in which case it
+  is correct and this item should close as a misdiagnosis) or an invented
+  placeholder nobody ever confirmed with him (in which case it is worth
+  fixing, but the fix is confirming his real city, not copying an unrelated
+  fictional tenant's address onto a mockup that is explicitly styled as
+  his own site). **Only Andrew can settle which.**
+  `FOR-ANDREW.md` row: *"The home page shows an example of what your own
+  site could look like, and it says you're in Tacoma, WA. Is that right? If
+  not, tell us the city and we'll fix it — it currently matches the design
+  file too, so both need the same correction if it's wrong."*
+
 - [ ] **7.12 — ~~Pricing page is blank for about a second~~, and has no
   sign-up button in the phone top bar.**
   *A2 6.7, 6.8*
