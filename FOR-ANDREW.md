@@ -343,6 +343,19 @@ still knows them.
   product's own resizer and they came out at **229 kilobytes on average**, so
   ten megabytes is **about forty-seven photos**. After that, uploads stop.
 
+  **CHANGED TONIGHT, AND IT CHANGES WHAT THE NUMBER COUNTS.** Since expenses
+  can now hold a photo of the receipt, **that allowance is shared**: forty-seven
+  is photos **and receipts together**, not forty-seven photos on top of the
+  receipts. A detailer who photographs every receipt is spending his
+  before-and-after budget on pieces of paper.
+
+  **Sharing it was the right call and I would make it again.** The alternative
+  was a second, separate allowance for receipts — and a second store that
+  nothing counts is how a limit quietly stops being a limit: the meter would
+  read comfortable while the storage filled. **One meter tells the truth.** It
+  does mean the number below is smaller in practice than it looks, which is an
+  argument about the number rather than about the design.
+
   **The resizing is already working, so that is not the fix.** Photos are
   shrunk to 1600 pixels on the long edge before they are sent, which took
   those six photographs from about 1.7 megabytes each down to 229 kilobytes —
@@ -686,16 +699,22 @@ still knows them.
   *To fix:* **big.** The calendar, the booking page's idea of what is free,
   and every screen that shows a day. Not an afternoon.
 
-  **2 · Your job photos are not backed up.**
+  **2 · Your job photos are not backed up — and as of tonight, neither are
+  your receipts.**
   *Today:* the nightly backup copies the database — bookings, customers,
   prices. The photographs themselves live somewhere else and **nothing copies
   them.** If they were ever lost, the backup would bring back a list of
-  photos that no longer exist.
+  photos that no longer exist. **The receipts added tonight are kept the same
+  way, so they are in the same position from the day they arrive.**
   *What it costs you:* the before-and-after shots are the thing you would most
-  want on the day a customer says a scratch was your fault. They are the least
-  protected thing in the product.
-  *To fix:* **medium**, and it needs the photo-storage decision below settled
-  first.
+  want on the day a customer says a scratch was your fault. **The receipts may
+  be the sharper loss.** A customer dispute happens occasionally; **a tax year
+  happens every year**, and a restore would hand you back a list of expenses
+  pointing at photographs of receipts that are gone. They are the one thing in
+  here you are expected to keep for years.
+  *To fix:* **medium**, and it is the **same** fix for both — whatever copies
+  one store copies the other. It needs the photo-storage decision below
+  settled first.
 
   **3 · The whole platform can send about eighty emails a day.**
   *Today:* the email service is on a free plan — a hundred a day across every
@@ -765,11 +784,14 @@ still knows them.
   either of the others**, because both need a way for a customer to agree to a
   change in money, and that does not exist yet.
 
-  **5 · Photo storage is about forty-seven photos per detailer.**
+  **5 · Photo storage is about forty-seven photos per detailer — and since
+  tonight that number covers receipts too.**
   *Today:* one gigabyte for the whole platform, divided by a hundred
   detailers. Measured against what a photo actually weighs here, that is about
   forty-seven each. The pricing page said "unlimited"; I have taken that word
-  off.
+  off. **Receipts now share the same allowance**, so it is forty-seven photos
+  and receipts combined — deliberately, because a second store nothing counts
+  is how a limit stops being a limit.
   *What it costs you:* a detailer photographing jobs properly is full inside a
   month.
   *To fix:* **small once storage exists — and it needs a provider.**
