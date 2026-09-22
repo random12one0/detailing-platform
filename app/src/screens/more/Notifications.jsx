@@ -40,8 +40,21 @@ const CUSTOMER_EMAILS = [
     "Sent the moment they book, with their receipt and a link to change it."],
   ["email_customer_reminder", "Appointment reminder",
     "Timing, and whether there is a second one, are set in Booking rules."],
+  // THE SECOND SENTENCE IS NOT A WARNING AND IS NOT CONDITIONAL, 2026-09-21.
+  // This switch reads "Thank-you and review request · on" by default, and the
+  // review half is silently left out unless a Google or Yelp link has been
+  // added — true for 15 of the 16 businesses on the system. So the screen was
+  // asserting something untrue for almost everybody.
+  //
+  // It says what a person needs to know and nothing more. **No badge, no red
+  // mark, no error state**: nothing is broken, the thank-you goes out either
+  // way, and a warning drawn on a working feature teaches a detailer to
+  // distrust the screen. **And it is unconditional** — a line that appears
+  // only while the boxes are empty is a line nobody ever learns, and the
+  // sentence is worth reading even once the links are in, because it is the
+  // only place that says which screen they live on.
   ["email_customer_followup", "Thank-you and review request",
-    "Goes out after you record payment."],
+    "Goes out after you record payment. The review ask inside it only appears once you add a Google or Yelp link on Business info."],
 ];
 const OWNER_EMAILS = [
   ["email_owner_new_booking", "A new booking comes in"],

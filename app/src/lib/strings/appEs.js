@@ -1094,6 +1094,8 @@ export const appEs = {
   "Timing, and whether there is a second one, are set in Booking rules.":
     "El tiempo, y si hay un segundo, se ajustan en Reglas de citas.",
   "Goes out after you record payment.": "Sale después de que registras el pago.",
+  "Goes out after you record payment. The review ask inside it only appears once you add a Google or Yelp link on Business info.":
+    "Sale después de que registras el pago. La petición de reseña que lleva dentro solo aparece cuando agregas un enlace de Google o de Yelp en Datos del negocio.",
   "A new booking comes in": "Entra una cita nueva",
   "A job is coming up": "Se acerca un trabajo",
   "The day before.": "El día anterior.",
