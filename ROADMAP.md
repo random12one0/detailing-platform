@@ -5631,57 +5631,58 @@ rather than wording went to Andrew.
   has the fix and pass on one that does not** — that is the single assertion
   proving the hole is closed rather than described.
 
-- [ ] **7.11 — The home page's own example is a different city from the demo.**
-  Home page says "Tacoma, WA"; the demo business is Long Beach, CA.
-  *A2 7.6*
+- [ ] **7.11 — Andrew's own name and domain are printed on his sales page
+  beside a city, and nobody has ever checked that it's the one he actually
+  works in.** Originally logged as "the home page's own example is a
+  different city from the demo" (Home page says "Tacoma, WA"; the demo
+  business is Long Beach, CA. *A2 7.6*) — **that description is wrong on
+  both of its own claims, not just its premise, corrected 2026-09-22.**
+  There is no Long Beach anywhere on the home page to contradict — greped
+  and confirmed live via `document.body.innerText`, and Long Beach,
+  Coastline, Lakewood and Seattle all return zero matches. **This was never
+  a demo-mismatch item.** The block in question is headed
+  `andrewsdetail.com`, branded "Andrew's Auto Detail" — it was illustrating
+  Andrew's own real business from the start, never the seeded
+  `demo-detail` tenant, which is a wholly different fictional business
+  ("Coastline Auto Detailing", Long Beach, CA — `scripts/seed-demo.mjs`)
+  that nothing on the home page links to or otherwise puts beside this
+  mockup.
 
-  **INVESTIGATED 2026-09-22, NOT RESOLVED — the premise does not hold up,
-  and deciding which way to go from here is not this session's call.**
+  **What it actually is: an unverified fact, not a copy mismatch.** "Tacoma,
+  WA" appears twice in the rendered page — the hero line ("Mobile
+  detailing, Tacoma and south.") and the footer line ("Andrew's Auto Detail
+  · Tacoma, WA · Mon–Sat, 8–6"), both live, both visible
+  (`opacity: 1`, `display: block`, confirmed live) — internally
+  consistent with itself, consistently naming Andrew's real business and
+  his real domain. **The open question is whether that is where he
+  actually works**, which is a fact about a real person's real business
+  that nobody here can look up or infer from the code.
 
-  **The two things this item compares are not the same entity.** The home
-  page's illustrative browser mockup (`app/src/landing/LandingPage.jsx`,
-  "Your own website" section) is styled as `andrewsdetail.com` — Andrew's
-  own real business, per `CLAUDE.md`'s own description of that domain — with
-  brand name "Andrew's Auto Detail". **The seeded demo tenant is a wholly
-  different, fictional business**: `scripts/seed-demo.mjs` names it
-  "Coastline Auto Detailing", slug `demo-detail`, address "1450 Marina Blvd,
-  Long Beach, CA". Different name, different brand, different fictional
-  history ("Family-run mobile detailing serving Long Beach since 2019.").
-  Nothing ties them together — the mockup is static decoration with no link,
-  no API call, no shared data with any tenant row.
+  **THE REFERENCE-DESIGN FILE DOES NOT SETTLE THIS, AND THE EARLIER PASS
+  OF THIS ENTRY WAS WRONG TO LEAN ON IT — struck 2026-09-22, same day it
+  was written.** `docs/design-directions/5-the-thread.html` carrying the
+  identical mockup was offered as evidence the current "Tacoma" is
+  correct. **It is not that kind of evidence.** `CLAUDE.md`'s rule that the
+  reference file wins a disagreement is about LAYOUT and VISUAL TREATMENT —
+  the shape a screen takes, the rules `docs/design-system.md` sets out.
+  **It has no authority over a factual claim about a real, living business
+  Andrew actually runs**, and it cannot, because a design mockup is not
+  where that fact would have been verified in the first place — whoever
+  built the reference file most likely copied the same unconfirmed
+  placeholder into it, not confirmed Andrew's real city and then encoded it
+  twice. **If the city turns out to be wrong, the fix changes both files —
+  the reference follows the correction, not the other way round.** A
+  future session must not close this by pointing at the reference file
+  agreeing with the code; agreement between two files that may share the
+  same unverified origin proves nothing about whether either is true.
 
-  **The canonical design reference agrees with the current code, not with
-  the audit.** `docs/design-directions/5-the-thread.html` — which
-  `CLAUDE.md` names as authoritative over any document that disagrees with
-  it — carries the identical "Tacoma, WA" / "Andrew's Auto Detail" /
-  `andrewsdetail.com` mockup. So the literal reading of this item's own Fix
-  (change the home page's Tacoma to Long Beach) would make the shipped page
-  **disagree with the reference file it is supposed to match**, on the
-  strength of an audit that appears to have assumed these two "examples"
-  were the same business without checking.
-
-  **Checked whether a real visitor could ever see both side by side,
-  because that would make this a genuine problem regardless of the above:
-  no.** Grepped every city/state mention on `LandingPage.jsx` and
-  `PricingPage.jsx` — "Tacoma, WA" is the only one, appearing twice within
-  the one self-contained mockup (hero line, footer line), consistent with
-  itself. No link anywhere on the home page points at `/ex1`–`/ex5`, at
-  `/book/demo-detail`, or at the demo tenant in any form — a visitor reading
-  the marketing page has no path to see "Long Beach" at all. So there is no
-  visible self-contradiction on the page today, which is different from the
-  audit's premise of one.
-
-  **What is genuinely unknown, and is the actual open question:** whether
-  "Tacoma, WA" is a real fact about Andrew's own business (in which case it
-  is correct and this item should close as a misdiagnosis) or an invented
-  placeholder nobody ever confirmed with him (in which case it is worth
-  fixing, but the fix is confirming his real city, not copying an unrelated
-  fictional tenant's address onto a mockup that is explicitly styled as
-  his own site). **Only Andrew can settle which.**
-  `FOR-ANDREW.md` row: *"The home page shows an example of what your own
-  site could look like, and it says you're in Tacoma, WA. Is that right? If
-  not, tell us the city and we'll fix it — it currently matches the design
-  file too, so both need the same correction if it's wrong."*
+  **Done when:** Andrew answers the `FOR-ANDREW.md` row below, and whatever
+  he says becomes the line in both `LandingPage.jsx` and
+  `docs/design-directions/5-the-thread.html`, in the same edit.
+  `FOR-ANDREW.md` row: *"Your business name and andrewsdetail.com are
+  printed on your home page next to the line 'Mobile detailing, Tacoma and
+  south.' What should that line say?"* — one sentence back from him and it
+  is buildable; nobody here is going to guess his service area for him.
 
 - [ ] **7.12 — ~~Pricing page is blank for about a second~~, and has no
   sign-up button in the phone top bar.**

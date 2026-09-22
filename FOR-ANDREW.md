@@ -861,26 +861,27 @@ still knows them.
   **Until then:** if a link on that page looks dead, it is one of those four,
   and the page behind it is fine.
 
-- [ ] **ASK · The home page shows an example of what your own website could
-  look like, and it says the business is in Tacoma, WA. Is that right?**
+- [ ] **ASK · Your business name and andrewsdetail.com are printed on your
+  home page next to the line "Mobile detailing, Tacoma and south." What
+  should that line say?**
 
   This is a picture on your home page, not a real page on the internet —
-  it is a mockup showing a visitor what a website we build could look like,
-  styled to look like your own business, called "Andrew's Auto Detail" with
-  the address andrewsdetail.com written on it. It has always said Tacoma,
+  it is a mockup showing a visitor what a website we build could look
+  like, styled to look like your own business: it says "Andrew's Auto
+  Detail" and "andrewsdetail.com" right on it. It has always said Tacoma,
   including in the original design file, so nobody typed that in by
   accident — but nobody has confirmed it is actually true either.
 
-  **What it is not.** It has nothing to do with your demo account, which is
-  a made-up business called "Coastline Auto Detailing" in Long Beach, used
-  only for testing. Those two are unrelated, and we checked: nowhere on
-  your home page can a visitor see both at once, so there is no visible
-  contradiction today.
+  **What it is not.** It has nothing to do with your demo account, which
+  is a made-up business called "Coastline Auto Detailing" in Long Beach,
+  used only for testing. Those two are unrelated, and we checked: there is
+  no mention of Long Beach anywhere on your home page.
 
-  **What we need from you:** is Tacoma, WA the right city for your real
-  business? If yes, nothing changes. If not, tell us the right city and
-  we will fix it in both places — the home page and the design file it is
-  built from.
+  **What we need from you, and it is one sentence:** your business name
+  and your domain sit next to the words "Mobile detailing, Tacoma and
+  south." What should that sentence actually say? Tell us the words and
+  we will put them in, in both places — the home page and the design file
+  it is built from. We are not going to guess your service area for you.
 
 ---
 
