@@ -162,11 +162,19 @@ service state, keys and account addresses behind all four are in
   messaging profile exists and is on, with **zero numbers and no webhook**.
   **The webhook field stays empty until there is a function to point it at** —
   do not fill it in to tidy it.
-- [ ] **0.9 — The 10DLC campaign registration.** Brand
+- [ ] **0.9 — The 10DLC campaign registration. DEFERRED ON PURPOSE — this is
+  a decision, not an oversight.** Brand
   `4b2001a0-c7e7-ede3-76fa-a67ec4841df8` (TCR `BMKZFBT`) is submitted and
-  **Pending verification**. **Blocked on a six-digit code texted to Andrew's
-  mobile — no campaign can exist until that clears.** $15 review, then
-  $2/month.
+  **Pending verification**, and **that is the expected state.**
+  **Andrew, 2026-09-22: he will not start paying anything monthly while he is
+  not publishing and the business is not running.** So the campaign ($15 then
+  $2/month), the number (~$1/month) and the API key all wait for launch. **The
+  $4 brand fee was a one-off and is already spent**, which is why it looks
+  half-done. **Do not start a subscription to tidy up a "Verify now" banner.**
+  **The one outstanding step is free:** a six-digit code was texted to his
+  mobile and has not been entered, and nothing else can begin until it does.
+  Order: verify phone → campaign → number → key → send function.
+  `docs/services-and-secrets.md` § 4.
 - [ ] **0.10 — OAuth consent-screen verification for `business.manage`.**
   **Not started by anybody.** It is the *second* Google gate; the access
   request (case `9-7552000041929`) does not cover it. Approval of that one is

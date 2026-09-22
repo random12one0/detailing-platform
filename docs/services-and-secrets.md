@@ -67,10 +67,22 @@ Secrets. **Verified by listing the names on 2026-09-22 — 25 of them.**
 | `PLATFORM_URL`, `PLATFORM_FROM_ADDRESS` | not secrets, configuration | — |
 | **`R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`** | **Cloudflare R2 photo storage. Saved 2026-09-22** | Cloudflare → R2 → **Manage R2 API Tokens** |
 
-> **`TELNYX_API_KEY` DOES NOT EXIST YET.** It was described as an empty named
-> box waiting to be filled. **It is not in the list** — checked by name on
-> 2026-09-22. When one is needed it is minted at **Telnyx → API Keys** and
-> added under that name.
+> **`TELNYX_API_KEY` DOES NOT EXIST, AND MUST NOT BE CREATED YET.**
+>
+> It was described in conversation as an empty named box waiting to be
+> filled. **It is not there at all** — checked by name on 2026-09-22 and
+> confirmed independently against the dashboard page.
+>
+> **Do not create it as a placeholder.** There is nothing to put in it: no
+> campaign exists, so no number exists, so there is no key to mint. An empty
+> named secret is a thing a later session sees and tries to fill in. When
+> there is genuinely a value, it is minted at **Telnyx → API Keys**.
+
+**A count that two readings disagree on, recorded rather than picked.** The
+Management API listed **25** names on 2026-09-22; the dashboard page was read
+as **24**. The difference has not been chased and nothing depends on it — it
+is noted because a register that quietly rounds one of two disagreeing numbers
+is the fault this repo names most often.
 
 ## 3. Cloudflare R2 — the photo store
 
@@ -105,6 +117,37 @@ the cap fails silently. **Read that before touching photo storage.**
 
 **Costs after that:** campaign review **$15**, then **$2/month**; a phone
 number is about **$1/month**. That buys roughly a thousand texts a day.
+
+> ### THE REST OF TELNYX IS DELIBERATELY DEFERRED. IT IS NOT UNFINISHED WORK.
+>
+> **Andrew's decision, 2026-09-22.** He does not want to start paying
+> anything monthly while he is **not publishing yet and does not have the
+> business running**. So the **campaign ($15 + $2/month)** and the **number
+> (~$1/month)** wait until launch — and the **API key with them**, because
+> there is nothing to mint one against until a number exists.
+>
+> **The $4 brand fee was a one-off and is already spent.** That is why the
+> registration looks half-done: it is paid for and parked, on purpose.
+>
+> **If you are reading this weeks later and see a Pending verification with a
+> "Verify now" banner: that is the expected state. Do not start a
+> subscription to tidy it up.**
+
+### The order it unblocks in, whenever he decides to launch
+
+**The first step is free, and it is the only thing currently outstanding.**
+
+1. **Verify the phone** — a six-digit code was texted to Andrew's mobile and
+   has **not** been entered. Costs nothing. **Nothing else can begin until
+   this clears.**
+2. **Register the campaign** — $15, then $2/month.
+3. **Buy a number** — about $1/month.
+4. **Mint `TELNYX_API_KEY`** and add it to the Supabase secrets.
+5. **Build the send path and point the messaging profile's webhook at it** —
+   the webhook stays empty until this exists.
+
+**Steps 2 onward are the paid ones and are the part he has deferred. Step 1
+is free and is the gate.**
 
 **A messaging profile called `DetailingPlatform` already exists and is
 switched on**, with **zero numbers** attached and **no webhook**.
