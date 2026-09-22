@@ -681,6 +681,28 @@ still knows them.
 
 ## Recorded — nothing needed from you yet
 
+- **There is a corner of your product your own checks cannot look at, and it
+  is the dashboard.** Everything a customer sees — your booking page, your
+  site, the emails — gets opened, measured and photographed before anyone
+  calls it done. **The screens you sign in to do not**, because getting in
+  needs your password and no session is allowed to touch one. So the words on
+  your own dashboard are the one part of this product that gets checked by
+  being **read** rather than by being **looked at**.
+
+  **Why that matters more than it sounds.** Nothing breaks. A sentence that is
+  two neat lines on a laptop can be four lines of grey on a phone — measured
+  today on one line of help text, and in Spanish it was four lines where the
+  two settings either side of it were two. You would see it in a second; a
+  session reading the file cannot see it at all.
+
+  **What would close it:** a safe, development-only way for a session to open
+  a dashboard — a practice login the product already trusts, never yours and
+  never on the real site. **Nobody is building that without you**, because a
+  new way into a signed-in dashboard is a decision about how people log in,
+  and that is yours rather than ours. Nothing is needed from you today; this
+  is here so it is not discovered as a surprise.
+
+
 - **THE SURVEY YOU ASKED FOR — eight things that exist but were not thought
   all the way through, worst first.** Nothing here is on fire and nothing
   needs answering today. *Worst* means what would hurt a working detailer

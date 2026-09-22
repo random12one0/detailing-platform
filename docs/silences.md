@@ -40,6 +40,26 @@ have to re-derive it.
 
 ---
 
+## THE ONE PART OF THE PRODUCT NO CHECK CAN LOOK AT — 2026-09-21
+
+**A session can change what a detailer reads on the dashboard and cannot see
+it.** Every route into a signed-in dashboard runs through a credential, and no
+session may handle one — so the screens behind the sign-in are the one part of
+this product where *"nothing is done until somebody has opened it and pressed
+it"* has no way to be obeyed. **This is not an inconvenience, it is a hole in
+the rule this repo cares most about**, and its failure mode is the quiet kind:
+not a crash, but a string that has been verified **by reading** for months
+while nobody has seen it render. A line that is two tidy lines in a desktop
+column is four lines of grey on a phone, and in Spanish it is longer again —
+measured, this date, on one sentence of help text: 2 lines at 1254px, 3 at
+390px in English, **4 at 390px in Spanish**, which made that row twice the
+height of both its neighbours. None of that is visible from the source.
+**The fix is a sanctioned dev-only way in — a seeded session the repo already
+trusts — and it is NOT built here on purpose: a new route into a signed-in
+dashboard is an authentication decision and it is Andrew's.** Until it exists,
+dashboard copy is checked by one session asking another to look, which is what
+happened today and does not scale past two people awake at the same time.
+
 ## THE CENSUS RECOUNTED — 2026-09-21, 03:45
 
 **Everything below this section described a repo that no longer exists.** It
