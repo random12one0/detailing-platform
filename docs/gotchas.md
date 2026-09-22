@@ -2709,6 +2709,10 @@ fixture lacked one — so it is a fragility, not a live bug. Same shape as the
 `e2e-booking` customer leak: **a success and a no-op that are identical to the
 caller.**
 
+**6 · SUPERSEDED 2026-09-22 — KEPT VISIBLE, NOT DELETED, BECAUSE THE
+REVERSAL IS THE LOAD-BEARING PART. THIS PARAGRAPH WAS NEVER TESTED AND
+WAS WRONG; READ THE CORRECTION THAT FOLLOWS IT.**
+
 **6 · A SESSION CANNOT OPEN A SIGNED-IN DASHBOARD, AND THIS IS THE STRUCTURAL
 ONE.** `business_users`' select policy is
 `business_id IN (SELECT current_business_ids())`. A row inserted with the
@@ -2719,6 +2723,75 @@ admin-generated sign-in link, and **both are credentials a session may not
 handle.** So dashboard copy can be *changed* by a session and never *seen* by
 one. **The failure mode is not a crash: it is copy verified by reading, for
 months, with nothing anywhere saying that is what happened.**
+
+**6 · CORRECTED 2026-09-22, THE SAME DAY IT WAS ACTED ON TWICE — "A SESSION
+CANNOT OPEN A SIGNED-IN DASHBOARD" WAS NEVER TESTED, AND IT WAS FALSE.**
+Andrew's own words, relayed: *"If I click sign in, it takes me straight to
+it. And if you look at them, it should be able to log in just fine, it has
+its own passwords and ways. There should be nothing blocking it from
+viewing its own code. There's nothing, no password can be blocking it."*
+He was right, and this entry was wrong — not overstated, wrong, and **no
+receipt, script, or test run anywhere in this repo backs the original
+claim.** It reads as reasoning about how RLS should behave, stated as
+something measured.
+
+**Tested rather than argued, by signing in as the demo owner
+programmatically** (`scripts/verify-backoffice-access.mjs`, committed as a
+real, reusable tool rather than a one-off — the next session that doubts
+this should run it, not re-argue it; the credential is read out of
+`scripts/seed-demo.mjs` into memory and never printed, logged, or pasted
+anywhere, per standing rule). The demo owner's
+own `business_users` row is itself inserted by a direct POST to
+`/rest/v1/business_users` using the **service role key**
+(`scripts/seed-demo.mjs:147`) — exactly the scenario this entry claimed was
+invisible to that user's own session. **It was not.** A cold sign-in
+reached the real, live dashboard — "Coastline Auto Detailing," real jobs,
+real figures — and the Clients screen loaded 13 real rows with real names,
+dates, lifetime spend and phone numbers. Screenshotted:
+`receipts/screenshots/backoffice-access-2026-09-22/`.
+
+**Why the wrong claim survived unnoticed for a day: the person who wrote it
+had, in the same session, already signed into this exact account and used
+the exact dashboard it claims is unreachable** — the Spanish sweep that
+ran earlier the same day walked Today, Calendar, Money and Clients through
+this identical login. The claim was written despite direct, contradicting,
+first-hand evidence sitting in the same session's own history. **A
+measurement is not "already known" just because a document says it was
+measured; check the receipt, not the confidence of the sentence.**
+
+**AND A REAL, NARROWER GOTCHA HIDING INSIDE THE FALSE ONE, WORTH KEEPING ON
+ITS OWN: Andrew's browser and a fresh session are not the same starting
+state, and confusing them reads as a contradiction that is not one.**
+Andrew clicking "Sign in" lands him straight inside, because his own
+browser already holds a live session from signing in earlier. A session
+testing the same route cold gets the credential form every time, because
+it has no session to reuse. **Same page, different starting state — not a
+disagreement about whether the route is reachable.** A session reporting
+"the sign-in form appears" and an owner reporting "it opens straight up"
+can both be telling the truth about the same URL.
+
+**WHAT THIS ACTUALLY MEANS FOR THE REST OF THIS REPO, SAID PLAINLY: THE
+DEMO ACCOUNT IS A REAL, WORKING, ANDREW-SANCTIONED DOOR INTO THE SIGNED-IN
+DASHBOARD, AND SESSIONS MAY USE IT.** Andrew, relayed: the demo password
+already being committed in this repo (`scripts/seed-demo.mjs` and
+elsewhere) *"is his own decision rather than a risk"* — he knows it is
+there. **Sign in programmatically, from a script, never by printing or
+pasting the value anywhere — not into a document, not into chat.** The
+part of the original entry that remains true: a **real** detailer's
+password or an admin-generated link for a **real** account are still
+credentials no session may handle. The demo account is the one, specific,
+already-authorised exception, not a general licence to type any password
+found in the repo.
+
+**AND THE COST OF BELIEVING THE FALSE VERSION WAS REAL, NAMED RATHER THAN
+LEFT VAGUE: ROADMAP 9.6 was closed today citing exactly this entry as the
+reason a session could not add its own verification** — it closed
+correctly, on Andrew's own prior, dated, on-screen approval, but the
+session doing the closing believed, wrongly, that it structurally could
+not have checked the screen itself. It could have. The gap cost one
+item's worth of unnecessary caution, not a wrong conclusion — but the
+next item might not have had Andrew's approval already sitting in the
+file to fall back on, and would have stayed open for no real reason.
 
 **Sweep state when this was written:** `i18n-survey.mjs` reads **134 → 128 in
 30 files**; three screens done (the job record, the day sheet, the quote

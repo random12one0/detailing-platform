@@ -7827,6 +7827,19 @@ the dashboard or back office at phone width at all.
   confirming — live, by trying, not by citation — exactly where a
   session's own reach into this screen ends.
 
+  **CORRECTED WITHIN THE HOUR: THAT LAST LINE WAS WRONG, AND SAID SO IN
+  `docs/gotchas.md` § 6.** "Could not" was the belief, not the fact.
+  Andrew: *"There's nothing, no password can be blocking it."* Tested by
+  signing in as the demo owner programmatically
+  (`scripts/verify-backoffice-access.mjs`): the real dashboard, and this
+  exact Clients screen, are both reachable and were re-verified with this
+  session's own eyes minutes later — the labels are there, "lifetime"
+  sits under every money figure, dates and phone numbers read as
+  themselves. The closure above still stands on its own facts; only the
+  "this session could not have checked" sentence was false, and it was
+  false for the whole back office, not only this screen — see the
+  correction for what else that changes.
+
 - [ ] **9.7 — Client card is missing basics.** No Text button, no vehicle, no
   address, no "Book again". Add them; "Book again" opens New booking prefilled.
   *A2 4.7*
