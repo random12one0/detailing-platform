@@ -1,6 +1,34 @@
 // WHAT IS STILL IN ENGLISH, AND WHERE — roadmap 8.17 stage 2b, 2026-09-07.
 //
 // ---------------------------------------------------------------------------
+// THE NUMBER JUMPED ON 2026-09-21 AND IT IS AN INSTRUMENT CHANGE, NOT A
+// REGRESSION. READ THIS BEFORE COMPARING IT TO ANYTHING OLDER.
+// ---------------------------------------------------------------------------
+//
+//   before  ·   90 candidate strings in 13 files, from 111 files scanned
+//   after   ·  134 candidate strings in 32 files, from 111 files scanned
+//
+// **The product did not get worse and nobody added 44 English strings.** This
+// file gained a third pass. Until that day it matched JSX text with a class
+// that EXCLUDES `{` and `}`, plus quoted strings only — so **every string
+// with a value interpolated into it was invisible to it by construction**,
+// and it had been reporting a number that could never have included them.
+//
+// Found from the other end: a detailer's Business index read
+// *"Visitas pendientes · 1 overdue"* on a Spanish dashboard, from
+// `` `${n} overdue` ``, which never calls `t()`. See pass 3 below.
+//
+// **Proved before the number was believed**, both directions:
+//   · `lib/theme.js` — **0** entries before, **3** after, one of them a whole
+//     English paragraph shown when a detailer picks their brand colour.
+//   · `screens/SiteIntake.jsx` — quoted-literal entries **21 before, 21
+//     after**. The older passes are untouched and nothing is double-counted.
+//
+// The first version of pass 3 reported **151**; seventeen of those were code
+// fragments from sliced nested templates and were removed rather than
+// explained away. 134 is the honest figure.
+//
+// ---------------------------------------------------------------------------
 // WHY A SCRIPT RATHER THAN A GREP
 // ---------------------------------------------------------------------------
 // Stage 2b is **all of the dashboard or none of it**: the picker is global,
@@ -348,6 +376,65 @@ function candidates(raw) {
     if (field && !WORDY.test(field[1])) continue;
 
     add(m.index, field ? "field" : attr ? "attr" : "lit", text);
+  }
+
+  // 3 · INTERPOLATED STRINGS — a backtick template with a value in it.
+  //
+  // **THE BLIND SPOT THAT MADE THIS FILE'S OWN NUMBER AN UNDERCOUNT — added
+  // 2026-09-21.** Pass 1 matches JSX text with `>([^<>{}]+)<`, and that
+  // character class EXCLUDES `{` and `}`, so any sentence with a value in it
+  // was skipped by construction. Pass 2 matches `"` and `'` only. **Nothing
+  // in this file had ever looked at a backtick.** So `${n} overdue` was
+  // invisible to the one instrument whose job is to say what is still
+  // English — while rendering on the Business index every day as
+  // *"Visitas pendientes · 1 overdue"*.
+  //
+  // That is this repo's most-repeated failure sitting inside the tool it
+  // would use to find that failure anywhere else: **a check reading the
+  // label instead of the contents.**
+  //
+  // **ONE LINE AT A TIME, ON PURPOSE.** A template may legally span lines,
+  // and a pattern allowing that matches from one backtick to another
+  // hundreds of lines later and reports the code between them as a phrase —
+  // **2441 hits on the first attempt, against 90 real ones.** Copy a person
+  // reads is written on one line; a multi-line template is a document, and
+  // missing those is the cheap half of the trade.
+  //
+  // **NESTED TEMPLATES ARE A KNOWN LIMIT, AND THE FIRST VERSION OF THIS PASS
+  // TURNED THAT LIMIT INTO NOISE.** `` `a ${x ? `b` : `c`} d` `` slices at
+  // the inner backtick, so the outer text arrives in pieces — and in
+  // `Clients.jsx` one of those pieces was
+  // `, ", { when: agoWords(last, today, t).toLowerCase() })}, visit"`, which
+  // is code reported as a phrase. The header of this file says why that is
+  // not acceptable here: a false positive in the one tool whose whole job is
+  // to be believed about what is left.
+  //
+  // **So a candidate is dropped if what survives hole-removal contains a
+  // character copy cannot contain** — a quote, a brace, a semicolon or an
+  // arrow. That keeps the slicing limit as a MISS rather than as a lie,
+  // which is the correct direction for this one: a phrase this tool never
+  // mentions costs a reader nothing, and a phrase it invents costs the tool
+  // its credibility.
+  for (const m of src.matchAll(/`([^`\n]*\$\{[^`\n]*)`/g)) {
+    // The words a reader sees are the ones OUTSIDE the holes. A hole is a
+    // value, and a value is not this tool's subject.
+    const text = m[1].replace(/\$\{[^}]*\}/g, " ").replace(/\s+/g, " ").trim();
+    if (!text) continue;
+    // Characters copy cannot contain — see the note on nested templates above.
+    if (/["'{};]|=>/.test(text)) continue;
+    const before = src.slice(Math.max(0, m.index - 60), m.index);
+
+    // A class list assembled conditionally — `className={`chip ${on && "on"}`}`
+    // — is the single commonest shape here and is not words.
+    if (/class(Name)?\s*=\s*\{?\s*$/.test(before)) continue;
+    const attr = before.match(/([A-Za-z-]+)\s*=\s*\{?\s*$/);
+    if (attr && CODE_ATTRS.has(attr[1])) continue;
+    const call = before.match(/\.?([A-Za-z_$][\w$]*)\s*\(\s*$/);
+    if (call && CODE_CALLS.has(call[1])) continue;
+    // A url, a route, or a media query.
+    if (/:\/\//.test(m[1]) || /^\s*\//.test(m[1]) || /^\s*\(m(in|ax)-width/.test(m[1])) continue;
+
+    add(m.index, "tmpl", text);
   }
 
   out.known = known;
