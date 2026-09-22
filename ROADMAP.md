@@ -5306,6 +5306,69 @@ rather than wording went to Andrew.
   publishes**, so the page is accurate now and his sign-off is still intact —
   which is the right order round.
 
+  **RE-CHECKED 2026-09-22, AGAINST THE LIVE PAGE RATHER THAN THIS ENTRY'S
+  OWN SUMMARY — because the instruction handed down today ("the privacy
+  page omits Geoapify and OpenStreetMap… Add them") was the roadmap
+  line's stale, pre-audit wording, not this entry's own finding, and the
+  roadmap line has been wrong twice today already.** Loaded `/privacy`
+  and read it, not the code: Geoapify is named, twice, in "And the ones
+  that are easy to miss" — exactly as this entry says. OpenStreetMap is
+  correctly absent as a processor.
+
+  **AND WENT AND LOOKED AT THE BOOKING PAGE'S OWN CREDIT LINE LIVE, AS
+  ASKED, RATHER THAN TRUSTING EITHER DESCRIPTION.** Walked the booking
+  flow to the address step and triggered a real search.
+  `.bk-addr-credit`'s live text: *"Address and map data © OpenStreetMap
+  contributors, via Geoapify"*, both names linked
+  (`openstreetmap.org/copyright`, `geoapify.com`). **So OpenStreetMap's
+  NAME genuinely is on screen, exactly as described** — this entry's own
+  reasoning for leaving it off the privacy page was never that the name
+  is absent from the product, it is that **no request is ever made to
+  openstreetmap.org and no data of any kind reaches them**; the credit is
+  a licence notice Geoapify's own terms require, not a data flow. That
+  distinction is already written out for Andrew in `FOR-ANDREW.md`
+  ("OpenStreetMap is credited on your booking page but receives nothing,
+  so it is deliberately not listed"), so there is nothing new to tell him
+  here — confirmed the explanation he already has is the correct one,
+  not a new finding.
+
+  **SWEPT FOR ANYTHING ELSE THE BOOKING FLOW TALKS TO THAT ISN'T ON THE
+  PAGE, per the instruction to check rather than assume — one more real
+  external host found, checked, and cleared.** Every `https://` host
+  referenced anywhere under `supabase/functions/_shared/`: Geoapify,
+  Stripe, weather.gov, Google Translate and OpenStreetMap were all
+  already accounted for above. **Three more — `venmo.com`, `cash.app`,
+  `paypal.me`** (`_shared/payments.ts:73-75`) — are payment-handle links a
+  detailer's invoice can carry. Read the function that builds them: the
+  URL is built from **the detailer's own handle only**
+  (`LINK.venmo(h) => https://venmo.com/u/${h}`), never a customer's name,
+  address or any booking detail — structurally a plain hyperlink to the
+  detailer's own public payment page, the same shape as a Yelp or Google
+  review link already on the product and not treated as a processor.
+  **Not a privacy gap**, and not added.
+
+  **CONFIRMED STILL ENGLISH-ONLY, TODAY.** `grep -c "t("` against
+  `legal.js` and `LegalPage.jsx`: zero real calls (the one match is
+  `initThread(`, not a translation call), no strings import. This page
+  does not carry the booking flow's Spanish-key rule — confirmed rather
+  than assumed, since the two pages are different builds and one being
+  bilingual says nothing about the other.
+
+  **VERIFIED, both the content and the live credit:**
+  - Console read in full, warnings not filtered — the two known
+    `react-router-dom` warnings, no errors, on `/privacy`.
+  - Screenshots to disk at all five widths, each waited for the section's
+    own reveal before shooting and passed the same content-variance
+    assertion (27–39 across all five) —
+    `receipts/screenshots/7.8-2026-09-22/{1920,1440,768,392,320}-geoapify-row.png`.
+    Opened the 1920 and 320 files directly: both show the Geoapify
+    sentence in full, no OpenStreetMap mention, nothing cut off.
+
+  **STILL NOTHING TO ADD, AND STILL NOT MINE TO TICK.** No new copy was
+  written — the four gaps this entry already closed remain the whole
+  answer, confirmed rather than repeated. Status unchanged: **open on
+  Andrew's wording only.**
+
 - [ ] **7.9 — The home page animation delays the point.**
   Several long scrolls advance a controlled sequence with large empty black
   areas; the page is about 13 screens tall; the headline types letter by letter;
