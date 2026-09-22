@@ -1324,6 +1324,33 @@ single run of the demonstration.
 
 ---
 
+## A lazy-loaded image measured before it scrolls into view looks exactly like one that failed to load
+
+**Caught before it was reported as broken, 2026-09-22, checking ROADMAP
+7.11's real screenshot.** `naturalWidth` and `naturalHeight` both read
+**0**, which is the same reading a genuinely failed image request
+produces. The difference was found by not stopping at that first read:
+after scrolling the element into view, the same image read **1920 by
+1140**, 125 KB, HTTP 200 — it had `loading="lazy"`, and a lazy image
+simply has not asked the network for anything yet if nothing has
+scrolled it into the viewport, in a real browser exactly as a script
+driving one.
+
+**`img.complete` does not tell the two apart either — it is `false` for
+both.** The DOM property that sounds like the obvious check ("is this
+image done loading") answers false for "hasn't started" and false for
+"started and failed" and true only once a request has actually resolved,
+which a lazy image with nothing forcing it into view never does.
+
+**The rule: scroll a lazy-loaded image into view before reading
+`naturalWidth`, `naturalHeight`, or `complete`, every time — a zero or a
+false from any of them proves nothing about whether the image is broken
+until that has happened.** This is the same family as the reveal-class
+entries above (a screenshot taken before the signal it is waiting for),
+arriving through the network tab instead of the paint.
+
+---
+
 ## A screenshot cropped to an element's own box cannot show content spilling past it
 
 **Cost: a real, pre-existing overflow at the narrowest supported width
@@ -2783,15 +2810,36 @@ credentials no session may handle. The demo account is the one, specific,
 already-authorised exception, not a general licence to type any password
 found in the repo.
 
-**AND THE COST OF BELIEVING THE FALSE VERSION WAS REAL, NAMED RATHER THAN
-LEFT VAGUE: ROADMAP 9.6 was closed today citing exactly this entry as the
-reason a session could not add its own verification** — it closed
+**THE COST WAS NOT ONE ITEM, IT WAS EVERY ITEM: this claim capped what
+ANY session could verify across the ENTIRE back office, for as long as it
+stood.** Every dashboard screen this repo has ever shipped, changed, or
+planned to change was, by this entry's own words, unseeable by a session
+— not "hard to check," not "needs care," *unseeable*. That is not a
+limitation on one roadmap item. It is a limitation on the single most
+load-bearing verification this repo has: showing Andrew the evidence
+before checking a box. Named concretely rather than left as a general
+claim: ROADMAP 9.6 was closed today citing exactly this entry as the
+reason a session could not add its own verification — it closed
 correctly, on Andrew's own prior, dated, on-screen approval, but the
 session doing the closing believed, wrongly, that it structurally could
-not have checked the screen itself. It could have. The gap cost one
-item's worth of unnecessary caution, not a wrong conclusion — but the
-next item might not have had Andrew's approval already sitting in the
-file to fall back on, and would have stayed open for no real reason.
+not have checked the screen itself. It could have. That item happened to
+survive on a quote already sitting in the file. **The next one might not
+have, and would have stayed open, or been handed to Andrew as a question,
+for a reason that was never true.**
+
+**AND WHY IT SURVIVED A FULL DAY UNCHALLENGED: it was never tested, it
+was INHERITED.** Whoever wrote it did not run it against the account this
+same session had already used successfully hours earlier — the claim
+carried forward from one stretch of work into the next as settled fact,
+the way a conclusion crosses a handoff or a context summary without the
+receipt that produced it crossing along with it. **That is the same
+failure as a check nobody broke on purpose**, one level up: a check
+untested is a claim no different in kind from a person's untested
+assertion, and this repo already has a rule for the first ("break it on
+purpose before trusting it") with no equivalent yet for the second
+("re-run it before repeating it"). Andrew was right, and he was right
+without looking at any of it — the claim had never been tested by anyone
+who did.
 
 **Sweep state when this was written:** `i18n-survey.mjs` reads **134 → 128 in
 30 files**; three screens done (the job record, the day sheet, the quote
