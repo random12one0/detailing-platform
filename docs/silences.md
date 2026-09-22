@@ -1560,3 +1560,69 @@ print the same number.
 `docs/spare-figures-2026-09-20.md` classifies all 64 written figures against
 that boundary. The reason it was catchable at all is that somebody read the
 thing that produced the number instead of the number.
+
+---
+
+## TWO FINDINGS THAT ARE ONE LESSON — THE SPANISH SURVEY, 2026-09-21
+
+**Written together on purpose. Apart they read as two bugs; together they are
+one statement about what that instrument can and cannot see.**
+
+**The symptom.** A detailer's Business index rendered
+*"Visitas pendientes · 1 overdue"* on a Spanish dashboard — one English word
+inside a Spanish line, on a screen used every day.
+
+### Finding one: the translation existed and the code never asked for it
+
+That row's status has **four branches**. Two were written as `t(...)` and were
+translated. Two were not — a bare `"Nothing scheduled"` and a backtick
+`` `${n} overdue` `` — and were therefore never offered to the translator.
+
+**`"Nothing scheduled"` was already in the Spanish catalogue.** It had a
+translation the whole time. The code simply never called `t()` on it.
+
+**So the completeness check could not have caught it.** That check compares
+`t()` call sites against the catalogue. **A string that never calls `t()` is
+not a call site**, so it belongs to neither set: it is not a missing
+translation and it is not an untranslated key. It is outside the question.
+
+### Finding two: the survey that exists to catch that was blind to the shape
+
+`scripts/i18n-survey.mjs` is the one instrument whose whole job is *what is
+still English*. Until today it had **two passes**: JSX text matched with
+`>([^<>{}]+)<` — a class that **excludes `{` and `}`** — and quoted strings.
+**Nothing in it had ever looked at a backtick.** So every string with a value
+interpolated into it was invisible to it **by construction**.
+
+It could report **90 candidates** and the suite **71 passing** while
+**134 strings** rendered English on a detailer's dashboard.
+
+### The lesson, and it is the one this repo names most often
+
+**A check that reads the label instead of the contents** — sitting inside the
+instrument we would use to find that fault anywhere else. Finding one is the
+same thing one level down: a check comparing the catalogue against call sites
+can only ever see strings that asked to be translated, and the ones that
+render English are precisely the ones that did not ask.
+
+**Neither is visible from the other end.** Reading the catalogue finds
+nothing wrong. Reading the call sites finds nothing wrong. **Only opening the
+screen in Spanish and reading it finds it** — which is how both of these were
+found, and it is why the number is now produced by a committed instrument
+rather than by a session's scratch script.
+
+### What was done, and what deliberately was not
+
+- The survey gained a third pass. **`90 in 13 files` → `134 in 32 files`**,
+  same 111 files scanned, proved in both directions before the number was
+  believed: `lib/theme.js` **0 → 3**, `SiteIntake.jsx` quoted literals
+  **21 → 21**. Commit `7584181`, alone, touching nothing else.
+- **The first version of that pass said 151.** Seventeen were code fragments
+  from sliced nested templates. Removed rather than explained away.
+- The one reported string was fixed; **the other 133 were not.** The true
+  number goes to Andrew before anybody spends a night on them, because it is
+  a fact about his product that may change what he wants done.
+- **Four of them are in `lib/format.js` and a previous item already decided
+  not to touch it** — `localeStore.js` names that file as one of two places
+  the rule *a shared formatter must never read the active locale* was written
+  against. Its English `min` is a consequence of a decision, not a miss.
