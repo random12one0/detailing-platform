@@ -9,7 +9,7 @@
 // deliberately thin: resize, upload, insert, sign.
 
 import { supabase } from "./supabase.js";
-import { MAX_EDGE, QUALITY, fit } from "./photo-rules.js";
+import { MAX_EDGE, QUALITY, fit, storagePath } from "./photo-rules.js";
 
 export * from "./photo-rules.js";
 
@@ -40,8 +40,11 @@ export async function shrink(file, { maxEdge = MAX_EDGE, quality = QUALITY } = {
 // file, which costs bytes and shows nobody anything.
 export async function addPhoto({ file, businessId, bookingId, kind, caption = null }) {
   const { blob, width, height } = await shrink(file);
-  const ext = (blob.type || "image/jpeg") === "image/png" ? "png" : "jpg";
-  const path = `${businessId}/${bookingId}/${crypto.randomUUID()}.${ext}`;
+  // The shape is `photo-rules.js`'s, because the first folder IS the bucket
+  // policy's check and it is asserted credential-free over there.
+  const path = storagePath({
+    businessId, ownerId: bookingId, id: crypto.randomUUID(), type: blob.type,
+  });
 
   const up = await supabase.storage.from("job-photos")
     .upload(path, blob, { contentType: blob.type || "image/jpeg", upsert: false });

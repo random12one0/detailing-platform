@@ -18,6 +18,7 @@ import { readFileSync } from "node:fs";
 import {
   MAX_EDGE, QUALITY, WARN_AT, KINDS,
   fit, budgetState, budgetWords, roomFor, mb,
+  storagePath, extForType, firstFolder,
 } from "../app/src/lib/photo-rules.js";
 
 let passed = 0, failed = 0;
@@ -252,6 +253,61 @@ console.log("\n5. the allowance is a share of the whole store");
     /committed_bytes/.test(share) && /businesses\)\s*\*/.test(share));
   check("5g · and the store-wide view is not reachable from a browser",
     /revoke all on function public\.photo_store_state\(\) from public, anon, authenticated/.test(share));
+}
+
+
+// --- 6 . THE STORAGE PATH IS THE ISOLATION, so it is asserted here ---------
+// Both private buckets check `(storage.foldername(name))[1]` against
+// `current_business_ids()`. **The first folder is not a naming habit, it is
+// the guard** - and it is the one line where a perfectly reasonable tidy-up
+// (group by expense, it reads better in a bucket listing) silently changes
+// what the database is comparing. Every cross-tenant probe still passes on
+// the day that edit is made, which is why a pure assertion is the only thing
+// that catches it.
+console.log("\n6. the storage path");
+{
+  const BIZ = "11111111-1111-1111-1111-111111111111";
+  const OWNER = "22222222-2222-2222-2222-222222222222";
+  const ID = "33333333-3333-3333-3333-333333333333";
+  const p = storagePath({ businessId: BIZ, ownerId: OWNER, id: ID, type: "image/jpeg" });
+
+  // THE ONE THAT MATTERS. Written as the POLICY reads it, not as the template
+  // looks: `firstFolder` is the same expression `storage.foldername(name)[1]`
+  // evaluates to.
+  check("6a . THE FIRST FOLDER IS THE BUSINESS ID - what the bucket policy checks",
+    firstFolder(p) === BIZ, p);
+  check("6b . and it is not the owner id, which is the reordering that would pass every cross-tenant test",
+    firstFolder(p) !== OWNER, p);
+  check("6c . three segments, business / owner / file", p.split("/").length === 3, p);
+  check("6d . the owner is the middle segment", p.split("/")[1] === OWNER, p);
+
+  check("6e . a JPEG is stored .jpg", p.endsWith(".jpg"), p);
+  check("6f . a PNG is the one type that survives as itself",
+    storagePath({ businessId: BIZ, ownerId: OWNER, id: ID, type: "image/png" }).endsWith(".png"));
+  check("6g . anything else becomes .jpg, because shrink() re-encodes to JPEG",
+    extForType("image/webp") === "jpg" && extForType(undefined) === "jpg" && extForType("") === "jpg");
+
+  // AN EMPTY FIRST SEGMENT IS THE SILENT VERSION: "/owner/x.jpg" has a first
+  // folder of "", which the policy can never match - fails closed, but only
+  // once somebody uploads. Refusing to build it is cheaper than finding out.
+  const boom = (fn) => { try { fn(); return false; } catch { return true; } };
+  check("6h . a missing business id throws rather than building an empty first folder",
+    boom(() => storagePath({ businessId: "", ownerId: OWNER, id: ID })));
+  check("6i . a missing owner or file id throws too",
+    boom(() => storagePath({ businessId: BIZ, ownerId: null, id: ID }))
+    && boom(() => storagePath({ businessId: BIZ, ownerId: OWNER, id: "" })));
+  check("6j . a segment containing a slash throws - it would invent a fourth segment",
+    boom(() => storagePath({ businessId: BIZ, ownerId: "a/b", id: ID })));
+  check("6k . called with nothing at all it throws, rather than 'undefined/undefined'",
+    boom(() => storagePath()));
+
+  // AND THE POLICY IT IS ASSERTED AGAINST IS READ FROM THE MIGRATION, so this
+  // stops being true the day the check in the database changes shape.
+  const recs = readFileSync(new URL("../supabase/migrations/20260921020000_a_receipt_is_not_a_job_photo.sql", import.meta.url), "utf8");
+  check("6l . the receipts bucket really does test foldername[1] against the business ids",
+    /\(storage\.foldername\(name\)\)\[1\] in \(select public\.current_business_ids\(\)::text\)/.test(recs));
+  check("6m . and that bucket is private",
+    /'expense-receipts', 'expense-receipts', false/.test(recs));
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

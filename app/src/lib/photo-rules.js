@@ -106,3 +106,49 @@ export const KINDS = [
   ["after", "After"],
   ["damage", "Damage"],
 ];
+
+// ---------------------------------------------------------------------------
+// THE STORAGE PATH, AND IT IS THE ISOLATION RATHER THAN A NAMING HABIT.
+//
+// Both private buckets — `job-photos` and `expense-receipts` — carry the same
+// policy: `(storage.foldername(name))[1] in (select current_business_ids())`.
+// **The first folder of the object path is the only thing standing between one
+// detailer and another's files.** It is not a convention somebody remembers;
+// it is the check.
+//
+// **WHICH IS WHY IT IS A FUNCTION HERE AND NOT A TEMPLATE LITERAL THERE.**
+// Written inline, the day somebody reorders it to read `${expenseId}/${
+// businessId}/…` — because that groups better in a bucket listing, and it
+// does — the policy starts comparing an EXPENSE id against a list of business
+// ids, matches nothing, and every upload fails closed. That is the lucky
+// version. The unlucky one is the reverse rename in a bucket whose policy was
+// ever loosened: the guard is off and **nothing fails, no test goes red, and
+// the cross-tenant checks all still pass on the day it is written.** Same
+// shape as an exclusion constraint that stops excluding.
+//
+// `tests/job-photos.test.mjs` asserts the shape the policy expects, and the
+// sabotage that proves the assertion works is swapping the first two segments.
+// ---------------------------------------------------------------------------
+
+/** The stored extension. Only PNG survives as PNG; everything else is JPEG,
+ *  because `shrink()` re-encodes to JPEG. */
+export const extForType = (type) => (String(type || "") === "image/png" ? "png" : "jpg");
+
+/**
+ * `businessId/ownerId/id.ext` — where `ownerId` is the booking for a job photo
+ * and the expense for a receipt. Throws on a missing part rather than
+ * producing a path with an empty segment: `"/abc/x.jpg"` has an EMPTY first
+ * folder, which is exactly the value the policy must never be asked to match.
+ */
+export function storagePath({ businessId, ownerId, id, type } = {}) {
+  for (const [name, v] of [["businessId", businessId], ["ownerId", ownerId], ["id", id]]) {
+    if (!v || !String(v).trim() || String(v).includes("/")) {
+      throw new Error(`storagePath: ${name} is missing or not a single path segment`);
+    }
+  }
+  return `${businessId}/${ownerId}/${id}.${extForType(type)}`;
+}
+
+/** What the bucket policy reads. Kept here so a test can assert against the
+ *  same expression the database uses rather than against a guess. */
+export const firstFolder = (path) => String(path ?? "").split("/")[0];

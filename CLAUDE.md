@@ -184,6 +184,19 @@ it when you add to it.
   - The access token in `.env` can currently see **only**
     `kguqylyzgyzfktkfnhjb` — verified 2026-09-19 against the Management API's
     project list. That is a fact about today's token, not a safety mechanism.
+  - **AND THAT IS ONE OF TWO CREDENTIAL PATHS. THE OTHER ONE REACHES HIS REAL
+    BUSINESS — measured 2026-09-21.** The Supabase **MCP connector** is a
+    different credential from `.env`, and it lists
+    **`adtlnvihwrcqcasqcjwd`** — the live business — **and `practice-rail`,
+    and NOT `kguqylyzgyzfktkfnhjb`.** So the token in `.env` cannot reach the
+    business you must never write to, and the connector cannot reach the one
+    you are working on: **a session that reaches for the connector believing
+    it points at this platform is one `project_id` away from writing to
+    Andrew's real business, and that project is the FIRST row it returns.**
+    Use `.env` and the Management API for this repo's database; if a connector
+    call is the only way to do something, check its project list first. **A
+    rule that describes one of two credential paths reads as complete**, which
+    is why this line exists.
 - **COMMIT WITH EXPLICIT PATHS: `git commit <path> …`, never a bare
   `git commit`.** Staging by name is NOT enough, and this is why: **a commit
   takes the whole index**, so anything another session has already staged goes

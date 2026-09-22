@@ -21,7 +21,7 @@
 
 import { supabase } from "./supabase.js";
 import { shrink, budgetFor, SIGNED_FOR } from "./photos.js";
-import { roomFor } from "./photo-rules.js";
+import { roomFor, storagePath } from "./photo-rules.js";
 
 export const BUCKET = "expense-receipts";
 
@@ -43,11 +43,14 @@ export async function addReceipt({ file, businessId, expenseId }) {
     e.code = "BUDGET_FULL";
     throw e;
   }
-  const ext = (blob.type || "image/jpeg") === "image/png" ? "png" : "jpg";
   // THE FIRST FOLDER IS THE BUSINESS ID, and that is not a convention: the
   // bucket's storage policy checks `(storage.foldername(name))[1]` against
-  // `current_business_ids()`. The path is the isolation.
-  const path = `${businessId}/${expenseId}/${crypto.randomUUID()}.${ext}`;
+  // `current_business_ids()`. The path is the isolation — so it is built by
+  // `photo-rules.js`'s pure `storagePath`, which a credential-free suite
+  // asserts against the shape the policy expects.
+  const path = storagePath({
+    businessId, ownerId: expenseId, id: crypto.randomUUID(), type: blob.type,
+  });
 
   const up = await supabase.storage.from(BUCKET)
     .upload(path, blob, { contentType: blob.type || "image/jpeg", upsert: false });
