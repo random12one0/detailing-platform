@@ -707,13 +707,63 @@ still knows them.
   *To fix:* **small — but it needs money.** A paid email plan, roughly
   **$20 a month** at the first tier. No building.
 
-  **4 · Moving a job never changes the price.**
+  **4 · Moving a job never changes the price — and that turns out to be the
+  safe behaviour rather than the bug I first called it.**
   *Today:* you can charge more for weekends, for certain times of day, and for
-  last-minute bookings. Those all work when a customer books. **When a booking
-  is moved, the price stays exactly as it was.**
-  *What it costs you:* a customer books a cheap Tuesday and moves it to a
-  Saturday, and the weekend rate silently does not apply. Nothing tells you.
-  *To fix:* **small.** One recalculation in one place.
+  last-minute bookings. All of that works when a customer books. **When a
+  booking is moved, the price stays exactly as it was**, and **nothing tells
+  anybody either way** — not a screen, not an email, not you.
+  *What it costs you:* somebody books a cheap Tuesday, moves it to a Saturday,
+  and your weekend rate does not apply. You are not told.
+
+  **I wrote this as a small fix and I was wrong. Correcting it here rather
+  than quietly.** The recalculating part really is small. **What to do with
+  the answer is not**, and it is the part that would have surprised you after
+  the work was done.
+
+  **Three things that are not obvious:**
+
+  - **Re-pricing uses today's rules, not the ones from the day they booked.**
+    A job booked three weeks ago and moved to tomorrow becomes a **last-minute
+    booking** and picks up that surcharge — which has nothing to do with the
+    move. It would also pick up whatever sale is running now, any price you
+    have raised since, and today's rounding.
+  - **A higher price has nowhere to go.** There is no way in the product for a
+    customer to agree to "thirty dollars more on the job you already have".
+    The only thing close to it throws the whole booking back to *waiting*,
+    lets go of their slot and sends the messages that go with that — and a
+    customer pressing a button would not obviously be agreeing to the money.
+  - **A lower price is the one that would catch you out.** Moving a job **off**
+    a Saturday takes the weekend rate away. If they have already paid, that is
+    money owed back. A build that simply re-prices both ways would be issuing
+    refunds nobody asked for.
+
+  **So the honest headline is his, and it is the opposite of a bug report:**
+  **carrying the agreed price forward untouched is the only one of the options
+  that can never charge somebody something they did not agree to.** This is
+  not a fix being put off.
+
+  **The four questions, which are yours:**
+
+  1. When a job moves, should the price be worked out **for the new date
+     only** — or as if the booking were being made today, which drags in
+     today's prices, today's sale and a last-minute fee that has nothing to do
+     with the move?
+  2. If the new price is **higher**, how does a customer agree to it? Nothing
+     in the product does that today.
+  3. If the new price is **lower** and they have already paid, who decides
+     about the money — and should it ever happen without you?
+  4. Should any of this happen **by itself at all**?
+
+  **And there is a cheap third way, which needs none of the above.** Show
+  **you** the difference when you move a job — *"this would now be $30 more"*
+  — and let you decide, one job at a time. **No customer ever sees it, no
+  agreement is needed, and nothing is charged or refunded without you.** It is
+  the only version that needs no new machinery.
+
+  *To fix:* **small if you pick the third way. A real build if you pick
+  either of the others**, because both need a way for a customer to agree to a
+  change in money, and that does not exist yet.
 
   **5 · Photo storage is about forty-seven photos per detailer.**
   *Today:* one gigabyte for the whole platform, divided by a hundred
