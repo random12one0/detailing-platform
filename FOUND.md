@@ -4121,3 +4121,30 @@ current price instead of before it, and give it a `.vh`-style visually-hidden
 "Old price " label — `landing.css`'s `.vh` class can be reused if
 Billing.jsx shares a stylesheet with it, or a small local copy if it does
 not.
+
+---
+
+## Two React Router future-flag warnings on every load of the marketing pages — 2026-09-22
+
+`/pricing?lite=1` (and, on inspection, `/` too) prints two warnings on every
+load, confirmed independently by two sessions with console capture running:
+
+```
+React Router Future Flag Warning: React Router will begin wrapping state
+updates in React.startTransition in v7. Opt in early with v7_startTransition.
+
+React Router Future Flag Warning: Relative route resolution within Splat
+routes is changing in v7. Opt in early with v7_relativeSplatPath.
+```
+
+**Not treated as a 7.4 defect** — they are `react-router-dom`'s own library
+warnings about its next major version, not anything this repo's code did
+wrong, and they were caught only because ROADMAP 7.4's second pass actually
+ran a console check rather than asserting cleanliness from the outcome of
+the DOM fix. **Not yet confirmed against a production build** — both
+sightings were on the dev server (`npm run dev`), and React Router's future-
+flag warnings are commonly dev-only console noise stripped from a production
+bundle. Confirm with `npm run build --prefix app` and serving `app/dist`
+before spending time on either flag. If they do reach production, the fix is
+two booleans on the router's future config — `v7_startTransition` and
+`v7_relativeSplatPath` — named directly in the warning text.

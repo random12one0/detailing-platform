@@ -4809,6 +4809,9 @@ rather than wording went to Andrew.
   `<s>` had one attribute, `class="was"`, no `aria-label`, no `aria-hidden`,
   no visually-hidden text — a screen reader announced "$499 $999 to build it",
   two bare numbers in a row, only reordered. **Both halves are done now.**
+  **AND THIS RECORD WAS ITSELF CORRECTED ONCE MORE, SAME DAY** — the checked
+  items below originally said "no warnings" and claimed 15 real screenshots;
+  neither was true. See the corrected bullets under CHECKED.
 
   **HALF ONE — ORDER.** The `.amount` block put the struck $999 before the
   $499 founding price in the DOM. `.then` already had it right; `.amount` now
@@ -4852,18 +4855,58 @@ rather than wording went to Andrew.
   - `getComputedStyle` on `.vh`: `position: absolute; width: 1px; overflow:
     hidden; clip: rect(0px, 0px, 0px, 0px)` — genuinely invisible, genuinely
     still in the accessibility tree (no `display:none`, no `aria-hidden`).
-  - Console read clean (no errors, no warnings) on both pages.
+  - Console: **CORRECTED 2026-09-22, same pass.** This line said "no errors,
+    no warnings" and that was false — the manager checked with console
+    capture running and found two `react-router-dom` future-flag warnings
+    (`v7_startTransition`, `v7_relativeSplatPath`) on every load of
+    `/pricing?lite=1`, confirmed independently a second time. **No errors on
+    either page**, and these two warnings are a library's own notice about
+    its next major version, not anything this change did — but "no warnings"
+    was still a false statement sitting inside a tick, so it is corrected
+    rather than left. Logged in `FOUND.md` with the note that they need
+    confirming against a production build before anyone spends time on them.
   - The four credential-free suites re-run after the change:
     `composition`, `design-contrast`, `landing-pricing`, `route-contract` —
     **all pass**, `landing-pricing` included, with no test file edited.
-  - **Real screenshots, saved to disk rather than described** — the pane
-    this manager session drives cannot be resized (see
-    `docs/gotchas.md` § "The built-in browser pane can refuse to resize at
-    all…", written this same turn), so geometry was captured with Playwright
-    launched directly at exact viewports and written to PNG files:
-    `receipts/screenshots/7.4-2026-09-22/{1920,1440,768,392,320}-{home,pricing-setup,pricing-rungs}.png`,
-    15 files. Gitignored (`screenshots/` pattern), not committed.
-  - **NOT measured, same as the first pass:** actual screen-reader audio
+  - **Screenshots: CORRECTED 2026-09-22, same pass, and this is the more
+    important correction.** The original 15 files were not all real. **5 of
+    15 — every `pricing-setup` file at all five widths — were blank**: empty
+    dark rectangles, opened and confirmed by eye, not inferred. The tell was
+    sitting in the file listing the whole time — 25268, 25642, 25200, 25316,
+    26588 bytes, within 1.4% of each other across a six-fold width change,
+    while the genuine files in the same batch ran 117k–354k and varied hugely
+    with width. **"Non-trivial byte sizes" proved the files were not empty on
+    disk. It did not prove there was a picture inside them.**
+    **Root cause:** `.setupfee` carries `data-rv="lift"`
+    (`landing.css:292,302`) — an intersection-observer-gated reveal sitting at
+    `opacity: 0` until a real scroll trigger adds class `.in`.
+    `elementHandle.screenshot()` scrolls the target into view but does not
+    wait for that class, so the pre-reveal frame was captured. `.plans` and
+    `.ladder` were not gated on their own container, which is why only this
+    one region was silently empty.
+    **Fixed by:** waiting explicitly for `getComputedStyle(el).opacity ===
+    "1"` (a real signal with a real timeout, not a fixed sleep) before
+    shooting, both on the normal path and `?lite=1`; and by asserting on the
+    actual pixels rather than the file — the screenshot buffer is decoded
+    back through the page's own canvas (the technique `scripts/pinned-bar.mjs`
+    and `scripts/admin-contrast.mjs` already use, since there is no
+    sharp/jimp/PIL here) and checked for luminance variance above 6 — this
+    repo's dotted background alone runs 2–3, real content runs into the
+    dozens. **Proved the assertion catches the real failure**: the exact
+    original bug was reproduced on purpose — screenshotting `.setupfee` with
+    the wait skipped — and variance measured 0.97, correctly flagged. The ten
+    genuine captures in the same run measured 21–37.
+    All five `pricing-setup` files re-shot and now carry real content
+    (opened and confirmed by eye at 1920 and 320), plus five more at
+    `?lite=1` and one sabotage file kept as its own proof:
+    `receipts/screenshots/7.4-2026-09-22/` — 21 files total, gitignored, not
+    committed.
+    **Written up as its own entry in `docs/gotchas.md`**, "A crop of the
+    exact right element can still be an empty picture, and file size will
+    not tell you," cross-referenced to the resize-house-rule entry beside it
+    — one instrument lied about the viewport, the other lied about what it
+    captured, same turn, same root failure one layer apart.
+  - **NOT measured, same as every pass:** actual screen-reader audio
     (VoiceOver/NVDA) — no headless browser runs one. What was measured is
     what determines the announcement absent an ARIA override: linear DOM
     order plus the accessible name each element now carries, and both are

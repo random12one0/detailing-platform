@@ -1198,49 +1198,106 @@ arriving through a different door.
 
 ---
 
-## The built-in browser pane can refuse to resize at all, and still report success when asked
+## In this manager session, resizing the browser pane must not be called — it is a house rule, not a pane defect
 
-**Found 2026-09-22, by the manager session trying to verify ROADMAP 7.4 at
-1440x900.** `resize_window` was called for 1440x900, then for 1940x1000 after
-the first looked wrong. **Both calls reported success.** The page's own
-reported viewport stayed at exactly **948 by 859, unchanged, both times.**
-`window.outerWidth` read **0**. `screen.width`/`screen.height` read
-**1920x1080** — the real monitor, not the pane. `devicePixelRatio` was **1**,
-so this is not a scaling artifact hiding the true size.
+**CORRECTED 2026-09-22, same day it was written.** This entry originally said
+the pane "can refuse to resize at all," reported as a tool limitation. **That
+was wrong about the cause, though right about every number in it.** The
+manager who found it explains why: *"Andrew keeps Chrome in half-screen split
+view across three monitors and my resize calls were moving his window."* This
+session's browser is not an isolated preview surface here — a resize call can
+act on a window that is actually part of Andrew's own live desktop layout.
+**The fix is a standing rule for this manager session — do not call
+`resize_window` at all — not a bug for a future session to go hunting for.**
+A session that reads the original wording and goes looking for a defect in
+the pane itself will find nothing broken, because nothing was.
 
-**So a resize call succeeding is not evidence that the viewport changed.** The
-tool answered success both times while the number that actually matters — what
-the page itself measures as its own window — never moved. This is the same
-family as the entry above (the pane's scroll position lies), arriving through
-a different door: **that entry is about time (a scroll that never happens),
-this one is about space (a width that never changes).** Both share one root
-cause worth naming once: the pane is not a full browser process under this
-session's control the way Playwright's Chromium is, and a call succeeding
-tells you the message was accepted, not that the browser obeyed it.
+**The measured facts stand exactly as recorded, only the explanation changes.**
+`resize_window` was called for 1440x900, then for 1940x1000. **Both calls
+reported success.** The page's own reported viewport stayed at exactly **948
+by 859, unchanged, both times.** `window.outerWidth` read **0**.
+`screen.width`/`screen.height` read **1920x1080** — the real monitor. This is
+consistent with the call reaching a real, shared window rather than a
+sandboxed one: a resize request can be accepted and even acted on, and still
+never show up as a change to the number this session reads back, because the
+number it reads back is not the thing that moved.
 
-**What this actually costs.** Everything CLAUDE.md's own absolute rule asks
-for — "screenshot 1920 / 1440x900 / 768x1024 / 392x844, read the console at
-each" — depends on the pane actually being at the width it claims. A session
-whose pane is stuck at 948x859 and does not know it will report "checked at
-1440" honestly and be wrong, the same way a shipped feature nobody could reach
-passed every read-only check that never opened the dashboard (this file's
-"THE STATE YOU CANNOT REACH MAY NOT BE THE ONE YOU THINK"). **This is not
-hypothetical: it is exactly how a real width regression got past a manager
-before** — the last one to trust a browser number without opening the file
-it produced.
+**What this actually costs, and it is unchanged by the correction.**
+Everything CLAUDE.md's own absolute rule asks for — "screenshot 1920 /
+1440x900 / 768x1024 / 392x844, read the console at each" — still depends on
+being at the width the check claims, and this manager session's pane is
+simply always at whatever width the desktop app's own layout puts it,
+948x859 measured. That is the same family as the entry above (the pane's
+scroll position lies), arriving through a different door: that entry is
+about time, this one is about space, and both share the same lesson — a
+tool answering success is not evidence that the thing you asked for
+happened.
 
-**The rule: when a viewport genuinely has to be a specific width — not just
-looked at, but MEASURED — do not trust `resize_window`'s success. Launch
-Playwright directly** (the same `chromium` every script in `scripts/` already
-imports from `app/node_modules/playwright`), set the viewport explicitly in
-`newContext`, and **save real screenshots to disk** rather than returning them
-inline — a file on disk can be opened and looked at by anyone, independent of
-whatever the pane's own viewport happens to be doing that day.
-`receipts/screenshots/` (gitignored, same pattern as `artifacts/`) is where
-this was done for 7.4. Confirm the fix landed by reading the live DOM
-(`el.innerHTML`, `getComputedStyle`) as well — geometry alone would not have
-caught that a struck price still carried no accessible label after its order
-was already correct.
+**The rule: this manager session does not call `resize_window`, full stop.**
+When a viewport genuinely has to be a specific width — not just looked at,
+but MEASURED — **launch Playwright directly** (the same `chromium` every
+script in `scripts/` already imports from `app/node_modules/playwright`), set
+the viewport explicitly in `newContext`, and **save real screenshots to
+disk** rather than returning them inline, so anyone can open the file
+independent of whatever this session's own pane is doing. See the next entry
+for the failure mode that method has of its own.
+
+---
+
+## A crop of the exact right element can still be an empty picture, and file size will not tell you
+
+**Cost: five of fifteen "real screenshots" handed over as evidence were
+blank, 2026-09-22, the same turn the previous entry was written.** Playwright
+screenshotted `.setupfee` on the pricing page at five widths. All five looked
+identical when only the byte count was checked — **25268, 25642, 25200,
+25316, 26588 bytes, within 1.4% of each other across a six-fold change in
+viewport width** — while the correctly-captured files in the same batch (the
+home page, the pricing rungs) ran from 117k to 354k and varied hugely with
+width, the way real content should. **A near-identical byte count across
+wildly different crop widths is the tell**: a blank or solid-colour PNG
+compresses to almost nothing regardless of its dimensions, so file size stops
+correlating with width the moment there is nothing in the frame to correlate.
+The five files were opened and were, in fact, empty dark rectangles — nothing
+inferred, looked at directly.
+
+**"Non-trivial byte sizes" was offered as proof the files were real,
+and it proved something smaller: that they were not zero-byte files.** It did
+not and could not prove there was a picture inside them. This is the same
+failure this whole file exists to catalogue — a check that passes having
+measured the wrong thing — occurring **inside evidence produced specifically
+to satisfy a demand for evidence**, which is the sharper version: the
+instrument that was supposed to catch instruments lying was itself lying,
+undetected, until somebody opened the file.
+
+**The actual cause, once found: `.setupfee` carries `data-rv="lift"`**
+(`landing.css:292,302`) — an intersection-observer-gated reveal that sits at
+`opacity: 0` until client JS adds a class `.in`, which only happens after a
+real scroll trigger fires. `elementHandle.screenshot()` scrolls the target
+into view but does **not** wait for that class to land, so a reveal-gated
+element gets captured on the frame before it becomes visible — this file's
+own "a screenshot taken too soon is the previous frame," arriving through a
+new instrument. The other two captures in the same run (`.plans`, `.ladder`)
+happened not to be reveal-gated on the container itself, which is the entire
+reason only one of the three regions was silently empty while the other two
+looked convincing.
+
+**The rule: do not trust a screenshot's byte size as evidence of its
+content, and do not trust `elementHandle.screenshot()` to wait for a
+scroll-triggered reveal on its own.** Wait explicitly for the real signal
+(`getComputedStyle(el).opacity === "1"`, or the `.in` class, with a real
+timeout that throws rather than a fixed sleep) before shooting. Then **assert
+on the pixels, not the file**: decode the screenshot buffer back through the
+page's own canvas — the same technique `scripts/pinned-bar.mjs` and
+`scripts/admin-contrast.mjs` already use, because there is no
+sharp/jimp/PIL on this machine (`scripts/tenant-site-image.mjs`'s own
+header) — and check that the captured region has real luminance variance.
+This repo's own dotted background alone produces roughly 2-3 standard
+deviations of luminance; a threshold well above that and well below real
+text/card content (6 was used) separates a blank capture from a real one
+without guessing. **Proved rather than trusted**: the exact original
+failure was reproduced on purpose — screenshotting `.setupfee` with no wait
+for the reveal — and the variance check measured 0.97, correctly flagged as
+blank, against 21-37 for the ten genuine captures taken the same run.
 
 ---
 
