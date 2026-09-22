@@ -587,12 +587,14 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                      this line is the price the CUSTOMER was shown, so the two
                      senses sat one line apart saying opposite things. Seen in
                      the first screenshot of a request record. */
-                  ? <>{waiting ? "They asked for " : "Quoted "}<span className="num">{money(quoted)}</span></>
+                  ? <>{waiting ? t("They asked for") : t("Quoted")}{" "}<span className="num">{money(quoted)}</span></>
                   : diff === 0
                     ? <>{t("Charged")} <span className="num">{money(charged)}</span></>
                     : <>
                         {t("Quoted")} <span className="num">{money(quoted)}</span> {t("· charged")} <strong className="num">{money(charged)}</strong>{" "}
-                        ({diff > 0 ? `+${money(diff)} added on site` : `${money(-diff)} taken off`})
+                        ({diff > 0
+                          ? t("+{amount} added on site", { amount: money(diff) })
+                          : t("{amount} taken off", { amount: money(-diff) })})
                       </>}
               </p>
               {/* ROADMAP 2.12 — A QUOTE IS NOT A PRICE UNTIL THEY SAY YES, and

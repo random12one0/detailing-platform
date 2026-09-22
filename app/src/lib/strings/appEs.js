@@ -1792,6 +1792,9 @@ export const appEs = {
   "Put on my website": "Poner en mi sitio web",
   "Quote sent for": "Cotización enviada por",
   "Quoted": "Cotizado",
+  "They asked for": "Pidieron",
+  "+{amount} added on site": "+{amount} agregado en el lugar",
+  "{amount} taken off": "{amount} menos",
   "Ready": "Listo",
   "Reason": "Motivo",
   "Remind the night before for early jobs":
