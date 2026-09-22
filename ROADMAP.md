@@ -6167,6 +6167,68 @@ rather than wording went to Andrew.
   is meant to be what they build from.
   *Found pressing 2.1a, 2026-09-21. Not from either audit.*
 
+- [ ] **7.18 — There is no check that every `.ld` marketing page carries the
+  same required nav elements, and three separate items today needed a person
+  to notice that one of them didn't.**
+
+  **WHY THIS IS WORTH ITS OWN ITEM RATHER THAN A NOTE.** 7.4, 7.11 and 7.12
+  all turned out to be "one page had the fix and the other did not" — the
+  struck-price margin fixed on `LandingPage.jsx`'s `.was` and not on
+  `PricingPage.jsx`'s own selector; the phone nav's burger and sign-up
+  button built on the home page 2026-09-06 and never carried over to the
+  pricing page. **Every one of those was found by a person opening the
+  second file, not by a check saying so.** `tests/landing-pricing.test.mjs`
+  § 11 ("a phone can reach the nav") is scoped to `LandingPage.jsx` alone —
+  it could not have said *"PricingPage.jsx has no burger"* even in principle,
+  because it never reads that file.
+
+  **AND A THIRD INSTANCE, FOUND WHILE WRITING THIS ITEM RATHER THAN
+  GUESSED AT: `LegalPage.jsx` (`/terms`, `/privacy`) has the identical gap,
+  live and unfixed.** Checked at 320: `Pricing`, `Questions` and `Sign in`
+  all compute `display: none`, no `.burger` exists in the DOM at all. A
+  phone visitor on `/privacy` — the exact page 7.8 touches next — has a
+  wordmark and nothing else to press. **Not fixed here**, because this item
+  is about the missing CHECK, not a third round of the same by-hand patch;
+  see `FOUND.md` for the confirmed live state.
+
+  **WHAT THE CHECK HAS TO DO.** Source-based, matching the shape of every
+  other credential-free suite here, not a live browser sweep:
+  * Enumerate every file under `app/src/landing/` whose root element carries
+    class `ld` (three today: `LandingPage.jsx`, `PricingPage.jsx`,
+    `LegalPage.jsx`) rather than a hand-written list, so a fourth page adds
+    itself to the check by existing.
+  * For each, assert it contains a `<nav>` with `.burger`, `#navmenu`, and
+    at minimum a `Sign in` link inside that menu — the three pieces every
+    page needs a phone visitor to be able to act on. A page that
+    deliberately omits the sign-up pill (the desktop-nav "points at
+    itself" reasoning `PricingPage.jsx` already carries in a comment) is
+    still required to carry the burger and the sign-in path; only the
+    sign-up pill itself is conditional, and the check should read that
+    condition from an explicit comment marker rather than assume it.
+  * **Break it on purpose before trusting it** — this repo has shipped at
+    least six checks that tested nothing. The ready-made canary is
+    `LegalPage.jsx` itself: run the check against today's file and it
+    should fail exactly where the live measurement above found it failing.
+
+  **Done when:** a check names every `.ld` page missing the burger,
+  `#navmenu`, or a sign-in path inside it, exits 1 when any is missing,
+  and has been proved against `LegalPage.jsx`'s current, unfixed state as
+  its own canary before anything is patched.
+
+  **SIZED HONESTLY: small, not a batch.** Three files exist today, the
+  pattern to check is one repeated structural shape already built twice
+  (home page, then pricing page), and the check itself is a source-regex
+  suite in the shape `tests/landing-pricing.test.mjs` already is — closer
+  to one sitting than to a batch. **Fixing `LegalPage.jsx` itself is a
+  second, separate step this item does not include** — the check should
+  exist and fail first, the same order 8.10b (the migration-drift item at
+  the end of this wave) was built in for exactly the same reason: a check
+  that is written after the thing it would have caught is already fixed
+  proves nothing about whether it would have caught it.
+
+  *Found while correcting ROADMAP 7.12, 2026-09-22. Not from either audit —
+  the pattern is the finding.*
+
 ## Wave 8 — Field usability
 
 A1 is explicit that its browser **could not simulate a real phone** and warns:

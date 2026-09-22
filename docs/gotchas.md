@@ -1358,6 +1358,35 @@ literally asked, and the literal question was the wrong one.**
 
 ---
 
+## A full-viewport screenshot of the home page can catch the hero mid-word, and that is the typewriter working, not truncated copy
+
+**Not a defect, caught while verifying something else, 2026-09-22, and
+worth writing down before the next session mistakes it for one.** Two
+full-viewport screenshots of the home page at 320 (`home-BEFORE.png`,
+`home-AFTER.png`, the overflow fix above) both show the hero heading as
+“They look you up befo” with a blinking-caret mark after it — not the
+full sentence, no punctuation, cut off mid-word.
+
+**This is `HERO`'s own typewriter effect, caught between frames, not a
+rendering fault.** The hero types out one of several rotating lines a
+few characters at a time (`chars`, `phase`, `typed = Math.min(chars,
+total)` in `LandingPage.jsx`), and a screenshot is a single instant — it
+will show whatever the animation had reached at that millisecond as
+reliably as it shows anything else. A second screenshot of the same page
+a moment later would show a different partial word, or none, or the
+finished line; none of them is more “correct” than another mid-flight.
+
+**The rule: a partial or word-clipped sentence on the home page's hero
+is not automatically a bug** — check whether the element carries a
+typing/reveal animation before reading it as truncated copy, missing
+translation, or a CSS overflow. This is the same family as the entries
+above about a screenshot taken too soon and a reveal caught before its
+class lands: **an instant capture of a thing that changes over time will
+show you one instant of it**, and that is the capture working as
+intended, not lying.
+
+---
+
 ## `has_table_privilege` answers false for a column-granted table, and a column refusal looks exactly like a row denial
 
 **Cost: a wrong security finding, published, and a migration very nearly

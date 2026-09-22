@@ -4216,3 +4216,20 @@ this the first time (now its own entry in `docs/gotchas.md`):
 `pricing-AFTER.png`, `home-BEFORE.png`, `home-AFTER.png`. The two BEFORE
 files are the same defect, confirmed identical rather than assumed;
 both AFTER files show it closed.
+
+---
+
+## /terms and /privacy have the same missing-phone-nav gap the pricing page had — a third instance, not fixed here — 2026-09-22
+
+`LegalPage.jsx` (serves `/terms` and `/privacy`) never got the burger +
+`#navmenu` pattern either, found while writing ROADMAP 7.18. Confirmed
+live at 320: `Pricing`, `Questions` and `Sign in` all compute
+`display: none`, and no `.burger` exists anywhere in the DOM. A phone
+visitor on `/privacy` — the exact page ROADMAP 7.8 touches next — has a
+wordmark and nothing else to press.
+
+**Not fixed in this pass, on purpose.** ROADMAP 7.18 is about building the
+CHECK that would have caught this on all three pages at once, and fixing
+this by hand now would remove the one canary that check has ready-made to
+prove itself against before anything is patched. Fix it once 7.18 exists
+and can confirm the fix rather than the other way round.
