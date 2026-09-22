@@ -316,8 +316,21 @@ asks for a review and puts a button under it. If you have not, the ask is
 silently left out — **one of the sixteen businesses has pasted them in.**
 
 **Nothing is broken and no customer has seen a broken email.** The ask and the
-buttons appear and disappear together, so nobody has ever received "a review
-really helps us" with nothing to press.
+buttons appear and disappear together — checked by rendering the email with
+both links, with Google only, with Yelp only and with neither. One link gives
+exactly one button and still asks; no links gives no ask at all. **Nobody has
+ever received "a review really helps us" with nothing to press.**
+
+**But there is one thing worth knowing before you answer, and it is the
+uncomfortable part.** Your notifications screen lists a switch called
+**"Thank-you and review request"**, described as going out after you record
+payment, and it is **on**. Reading that screen, you would reasonably conclude
+review requests are going out. **For fifteen of the sixteen businesses they
+are not** — the thank-you goes, the review request inside it is silently left
+out, and nothing on that screen mentions the two links or that they are
+needed. **The product is currently telling detailers a review request is
+switched on while it is doing nothing.** Setup now names the links; that
+screen still does not.
 
 | Option | What it costs you |
 |---|---|
