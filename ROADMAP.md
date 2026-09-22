@@ -164,8 +164,13 @@ service state, keys and account addresses behind all four are in
   do not fill it in to tidy it.
 - [ ] **0.9 — The 10DLC campaign registration. DEFERRED ON PURPOSE — this is
   a decision, not an oversight.** Brand
-  `4b2001a0-c7e7-ede3-76fa-a67ec4841df8` (TCR `BMKZFBT`) is submitted and
-  **Pending verification**, and **that is the expected state.**
+  `4b2001a0-c7e7-ede3-76fa-a67ec4841df8` (TCR `BMKZFBT`) is **VERIFIED** —
+  Andrew entered the phone code on 2026-09-22. **The campaign form is filled
+  in but NOT submitted and NOT paid, parked at the payment step; resume it,
+  do not rebuild it** (`docs/services-and-secrets.md` § 4 lists every answer
+  already entered). **And texting is parked by Andrew's own decision: he
+  wants to settle what the messages say before anything is built** — the
+  design lives in `TEXTING.md`.
   **Andrew, 2026-09-22: he will not start paying anything monthly while he is
   not publishing and the business is not running.** So the campaign ($15 then
   $2/month), the number (~$1/month) and the API key all wait for launch. **The

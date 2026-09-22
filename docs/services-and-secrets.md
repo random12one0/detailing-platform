@@ -19,6 +19,29 @@ get a new one.
 
 ---
 
+## 0. A BOUNDARY, BEFORE ANYTHING ELSE: `andrewsdetail.com` IS NOT OURS
+
+**Our product is `detailingplatform.com`. That is the one this repo builds.**
+
+**`andrewsdetail.com` is Andrew's own detailing business** — a separate
+website with its own booking form. **This project has no access to it and no
+business touching it.** It is not a tenant, not an example, and not a staging
+copy. It appears in this file only because **his Zoho account added that
+domain successfully while refusing ours**, which is how we know the ZeptoMail
+problem is domain-specific rather than account-wide.
+
+**Our own legal pages already exist: `detailingplatform.com/privacy` and
+`detailingplatform.com/terms`.** If something needs a privacy or terms link,
+those are the two, and nothing needs to be created.
+
+> **This is written as a boundary rather than a footnote because it was got
+> wrong on 2026-09-22 and Andrew had to correct it.** The two names look
+> alike and one of them is a live business that is not ours to touch. **See
+> also `CLAUDE.md` § Hard rules on the two Supabase projects — the same shape
+> of mistake, one layer down.**
+
+---
+
 ## 1. Which email address is on which service
 
 **Andrew has several addresses and loses track. He has asked for this twice.**
@@ -109,14 +132,33 @@ the cap fails silently. **Read that before touching photo storage.**
 | | |
 |---|---|
 | Account | **PAID** (went Pretrial → Trial by connecting GitHub) |
-| 10DLC brand | **"Andrew's Auto Detail & Car Wash", SUBMITTED** |
+| 10DLC brand | **"Andrew's Auto Detail & Car Wash"** |
 | Brand id | `4b2001a0-c7e7-ede3-76fa-a67ec4841df8` |
 | TCR id | `BMKZFBT` |
 | Registered | 21 Sep 2026 |
-| Status | **Pending verification** |
+| Status | **VERIFIED** — Andrew entered the phone code. *(Recorded as "Pending verification" earlier on 2026-09-22 from a page that had not been refreshed.)* |
 | Type | **Sole Proprietor — no EIN and no SSN needed** |
-| Paid | **$4** |
-| Blocking step | **a six-digit code was texted to Andrew's mobile. Until that clears, no campaign can exist** |
+| Paid | **$4**, one-off |
+| **Campaign** | **FILLED IN, NOT SUBMITTED, NOT PAID — parked at the payment step** |
+
+### The campaign form is already complete. Do not fill it in again.
+
+**Everything below is entered and saved. It is waiting at the payment step
+and nowhere else**, so anyone picking this up should **resume it, not rebuild
+it**:
+
+- **Use cases:** Customer Care and Account Notification
+- **Vertical:** Professional Services
+- **A full opt-in description**, written
+- **Keywords:** STOP, HELP, START
+- **Three auto-replies**, written
+- **Two sample messages**, written
+- **Every attribute question answered**
+- **Compliance links** pointing at `detailingplatform.com/privacy` and
+  `detailingplatform.com/terms` — **ours, and both already exist**
+
+**The carrier terms preview showed all carriers qualifying, with no manual
+review**, and a **T-Mobile ceiling of 1,000 messages a day.**
 
 **Costs after that:** campaign review **$15**, then **$2/month**; a phone
 number is about **$1/month**. That buys roughly a thousand texts a day.
@@ -134,9 +176,12 @@ number is about **$1/month**. That buys roughly a thousand texts a day.
 > **The $4 brand fee was a one-off and is already spent.** That is why the
 > registration looks half-done: it is paid for and parked, on purpose.
 >
-> **If you are reading this weeks later and see a Pending verification with a
-> "Verify now" banner: that is the expected state. Do not start a
-> subscription to tidy it up.**
+> **If you are reading this weeks later and see a VERIFIED brand with a
+> campaign form that is complete but never submitted: that is the expected
+> state.** The brand is done and paid; the campaign is deliberately parked at
+> the payment step. **Do not submit it, and do not start a subscription, to
+> tidy up something that looks unfinished. It is not unfinished — it is
+> waiting.**
 
 ### WHAT CAN BE BUILT WITHOUT PAYING, AND WHAT CANNOT
 
@@ -179,6 +224,15 @@ that is *not* yes is the part worth knowing.
 timeframe. At that point the order is: **verify the phone code, start the
 campaign, wait for it to clear, then buy the number and attach it.**
 
+> ### AND TEXTING IS PARKED BY ANDREW'S OWN DECISION
+>
+> **He wants to settle what the messages actually say before anything is
+> built.** That is the reason it is stopped — not the money, not the
+> registration, not any technical blocker. **The wording comes first.**
+>
+> **The design for it is in `TEXTING.md`, which is the other session's lane.**
+> Do not build from this file; that one is where the thinking lives.
+
 **No reminder exists and none is wanted.** Andrew was explicit that the
 December revisit lives **in this file and nowhere else**. Nothing is scheduled
 and nothing will chase him about it — **this line is the whole mechanism.**
@@ -190,12 +244,11 @@ one minute later.
 
 ### The order it unblocks in, whenever he decides to launch
 
-**The first step is free, and it is the only thing currently outstanding.**
+**Step 1 is DONE. The next step is the first one that costs money.**
 
-1. **Verify the phone** — a six-digit code was texted to Andrew's mobile and
-   has **not** been entered. Costs nothing. **Nothing else can begin until
-   this clears.**
-2. **Register the campaign** — $15, then $2/month.
+1. ~~**Verify the phone**~~ — **done.** The brand is **VERIFIED**.
+2. **Submit the campaign** — the form is already filled in and parked at the
+   payment step. **$15, then $2/month.**
 3. **Buy a number** — about $1/month.
 4. **Mint `TELNYX_API_KEY`** and add it to the Supabase secrets.
 5. **Build the send path and point the messaging profile's webhook at it** —
