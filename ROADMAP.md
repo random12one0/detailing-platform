@@ -143,6 +143,35 @@ CLAUDE.md § Publishing rather than trusting this paragraph later.
 
 Nothing below this line waits on these. They are asked once, here.
 
+### DECIDED AND NOT BUILT — added 2026-09-22, so they cannot evaporate as intentions
+
+**Four commitments made on the night of 2026-09-21, none of them built.** The
+accounts exist and the decisions are made; what is missing is code. **The
+service state, keys and account addresses behind all four are in
+`docs/services-and-secrets.md`.**
+
+- [ ] **0.7 — Move photo storage to Cloudflare R2.** Buckets already exist and
+  already match the code names. **The allowance goes from 1 GB to 10 GB IN THE
+  SAME CHANGE as the upload switch, never a commit earlier**, so the screen
+  never promises storage that does not exist. **And the move loses the
+  database-enforced tenant isolation** — R2 has no equivalent of the
+  `foldername` policy, so that guard is rebuilt in our own code and has to be
+  right before one real photo is written. Design, arithmetic and the two ways
+  the cap fails silently: `docs/the-photo-allowance.md`.
+- [ ] **0.8 — The SMS send path and the Telnyx webhook.** Account is paid, a
+  messaging profile exists and is on, with **zero numbers and no webhook**.
+  **The webhook field stays empty until there is a function to point it at** —
+  do not fill it in to tidy it.
+- [ ] **0.9 — The 10DLC campaign registration.** Brand
+  `4b2001a0-c7e7-ede3-76fa-a67ec4841df8` (TCR `BMKZFBT`) is submitted and
+  **Pending verification**. **Blocked on a six-digit code texted to Andrew's
+  mobile — no campaign can exist until that clears.** $15 review, then
+  $2/month.
+- [ ] **0.10 — OAuth consent-screen verification for `business.manage`.**
+  **Not started by anybody.** It is the *second* Google gate; the access
+  request (case `9-7552000041929`) does not cover it. Approval of that one is
+  detected by the quota going from 0 to 300, not by an email.
+
 - [x] **0.1 — RESOLVED. The demo account's dual access is deliberate.**
   Andrew, 2026-09-16: *"I made one of them just be able to access both because
   I was tired of switching accounts… literally no one's on the site."*
