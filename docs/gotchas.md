@@ -2478,3 +2478,60 @@ that was checked, the same way every entry in this file is dated — a bare
 claim about another document's line count, status, or wording has no expiry
 date stapled to it, and it will outlive the thing it describes without
 anyone deciding that it should.
+
+---
+
+## SIX THINGS FROM THE 2026-09-22 SPANISH SWEEP, NONE OF THEM WRITTEN DOWN ANYWHERE ELSE
+
+**Recorded at the end of a session rather than lost with it.** Each was
+measured, not reasoned about.
+
+**1 · A whole pocket of the dashboard is Andrew-only and must NOT be
+translated.** `App.jsx`'s six untranslated strings are the **impersonation
+bar**, and the comment above it says *"a detailer can never see it"* — it
+renders only in a back-office preview tab. `i18n-survey.mjs` excludes
+`admin/`, but this bar lives in `App.jsx`, so it slips the net and reads as
+six chores. **English is correct there.**
+
+**2 · The survey's new interpolated-string pass does not exclude URL
+schemes.** `BookingDetail.jsx:254` reports `` `sms: body=` `` as a phrase. The
+pass filters `://`, a leading slash and media queries; **`sms:` and `tel:` get
+through.** One more alternation would fix it. Not done — the instrument was
+not to change while a sweep was running against its number.
+
+**3 · `tests/spanish.test.mjs`'s duplicate-key check does not see a duplicate
+whose VALUE is identical.** Proved by accident: a duplicate
+`"They asked for": "Pidieron"` was added at line 1795 beside the original at
+1221, **and 9f did not report it** — while reporting six others, all of which
+have differing values. **So "no duplicate keys" means "no CONFLICTING
+duplicate keys".**
+
+**4 · An existence check that greps with a trailing space finds nothing.**
+That is how the duplicate above was created: `grep '"They asked for '` misses
+`"They asked for":`. **Check for the key with its colon, or let the Edit tool's
+ambiguous-match refusal be the guard** — which is what actually caught it.
+
+**5 · A settings save can report "Saved." having written nothing.**
+`BusinessInfo.jsx` writes the review links with `.update()`, not an upsert. A
+business with **no `business_settings` row** matches zero rows, PostgREST
+returns no error, and the screen says *Saved.* **Not reachable through normal
+signup** — all 16 real businesses have a settings row and only a hand-made
+fixture lacked one — so it is a fragility, not a live bug. Same shape as the
+`e2e-booking` customer leak: **a success and a no-op that are identical to the
+caller.**
+
+**6 · A SESSION CANNOT OPEN A SIGNED-IN DASHBOARD, AND THIS IS THE STRUCTURAL
+ONE.** `business_users`' select policy is
+`business_id IN (SELECT current_business_ids())`. A row inserted with the
+service role is **not visible to that user's own session**, so a fixture
+business built by script **cannot be opened in the browser** — the app shows
+the create-a-business gate. Every other route in needs a password or an
+admin-generated sign-in link, and **both are credentials a session may not
+handle.** So dashboard copy can be *changed* by a session and never *seen* by
+one. **The failure mode is not a crash: it is copy verified by reading, for
+months, with nothing anywhere saying that is what happened.**
+
+**Sweep state when this was written:** `i18n-survey.mjs` reads **134 → 128 in
+30 files**; three screens done (the job record, the day sheet, the quote
+sheet), each committed separately with the survey re-run after every one and
+the fall matching the fix exactly. Next by frequency: the money screens.
