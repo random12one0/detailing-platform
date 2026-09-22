@@ -861,27 +861,16 @@ still knows them.
   **Until then:** if a link on that page looks dead, it is one of those four,
   and the page behind it is fine.
 
-- [ ] **ASK · Your business name and andrewsdetail.com are printed on your
+- [x] **~~ASK · Your business name and andrewsdetail.com are printed on your
   home page next to the line "Mobile detailing, Tacoma and south." What
-  should that line say?**
-
-  This is a picture on your home page, not a real page on the internet —
-  it is a mockup showing a visitor what a website we build could look
-  like, styled to look like your own business: it says "Andrew's Auto
-  Detail" and "andrewsdetail.com" right on it. It has always said Tacoma,
-  including in the original design file, so nobody typed that in by
-  accident — but nobody has confirmed it is actually true either.
-
-  **What it is not.** It has nothing to do with your demo account, which
-  is a made-up business called "Coastline Auto Detailing" in Long Beach,
-  used only for testing. Those two are unrelated, and we checked: there is
-  no mention of Long Beach anywhere on your home page.
-
-  **What we need from you, and it is one sentence:** your business name
-  and your domain sit next to the words "Mobile detailing, Tacoma and
-  south." What should that sentence actually say? Tell us the words and
-  we will put them in, in both places — the home page and the design file
-  it is built from. We are not going to guess your service area for you.
+  should that line say?~~ ANSWERED 2026-09-22.** You told us directly:
+  *"that's just like fake, whatever, that's like not a real anything...
+  maybe even using an actual example from a website that we built."* The
+  city was never what needed fixing — the whole picture being invented was.
+  It now shows a real screenshot of one of the five example sites
+  ("Prime Mobile Detailing") instead of a made-up business, and your own
+  name and andrewsdetail.com no longer appear on it at all. Nothing left
+  to answer here.
 
 ---
 
