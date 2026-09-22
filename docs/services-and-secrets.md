@@ -73,10 +73,13 @@ Secrets. **Verified by listing the names on 2026-09-22 — 25 of them.**
 > filled. **It is not there at all** — checked by name on 2026-09-22 and
 > confirmed independently against the dashboard page.
 >
-> **Do not create it as a placeholder.** There is nothing to put in it: no
-> campaign exists, so no number exists, so there is no key to mint. An empty
-> named secret is a thing a later session sees and tries to fill in. When
-> there is genuinely a value, it is minted at **Telnyx → API Keys**.
+> **Do not create it as a placeholder, and do not mint a real one either.**
+> A Telnyx key is account-level, so one *could* be minted today without a
+> number — but **a key sitting unused for months is a liability with no
+> benefit**, and minting it later takes a minute. An empty *named* secret is
+> worse again: it is the thing a later session sees and tries to fill in.
+> When there is genuinely something to use it for, it is minted at
+> **Telnyx → API Keys**. See "What can be built without paying" below.
 
 **A count that two readings disagree on, recorded rather than picked.** The
 Management API listed **25** names on 2026-09-22; the dashboard page was read
@@ -132,6 +135,51 @@ number is about **$1/month**. That buys roughly a thousand texts a day.
 > **If you are reading this weeks later and see a Pending verification with a
 > "Verify now" banner: that is the expected state. Do not start a
 > subscription to tidy it up.**
+
+### WHAT CAN BE BUILT WITHOUT PAYING, AND WHAT CANNOT
+
+**Andrew's question, 2026-09-22: can texting be fully wired up and ready, so
+that the day he activates, texts start flowing?** Mostly yes — and the part
+that is *not* yes is the part worth knowing.
+
+**Free, unblocked, and doable at any time:**
+
+- **The phone verification** — the six-digit code. Costs nothing.
+- **The API key itself** — a Telnyx key is account-level and can be minted
+  without a number.
+- **The messaging profile** — `DetailingPlatform` already exists and is on.
+- **All of our own code.** The send function, the inbound webhook, the opt-out
+  state, the per-message row. **None of it costs a cent and none of it is
+  blocked by anything.**
+
+**Costs money, and therefore waits:**
+
+- **The campaign** — $15 review, then $2/month.
+- **A number** — about $1/month.
+
+> ### ⚠ ACTIVATION IS NOT A SWITCH, AND THIS IS THE PART HE DOES NOT KNOW
+>
+> **The campaign is reviewed by the carriers' registry, not by Telnyx.** That
+> is an outside body on its own schedule, and it is **days to a couple of
+> weeks**, not minutes. **A number cannot send until the campaign it is
+> attached to has cleared.**
+>
+> **So "I will turn it on when I launch" does not work if launch day is the
+> day he starts.** The registration has to be **started before the day he
+> wants to send**, or launch day is spent waiting on somebody else's queue.
+>
+> **UNCONFIRMED: the exact review time.** It was not verified against
+> Telnyx's own documentation on the night this was written. **Whoever picks
+> this up should check it rather than quote this page** — the shape of the
+> warning holds either way, but the number in it is second-hand.
+
+**REVISIT CLOSER TO DECEMBER** — Andrew's own instruction and his own
+timeframe. At that point the order is: **verify the phone code, start the
+campaign, wait for it to clear, then buy the number and attach it.**
+
+**Do not create the API key now.** It is free and it would work — but a key
+sitting unused for three months is a liability with no benefit, and it takes
+one minute later.
 
 ### The order it unblocks in, whenever he decides to launch
 
