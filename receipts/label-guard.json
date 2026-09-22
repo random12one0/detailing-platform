@@ -1,9 +1,9 @@
 {
-  "git_sha": "c4b35517901c7aca5c4f670c440bb53a4cc746ba",
-  "git_sha_started": "c4b35517901c7aca5c4f670c440bb53a4cc746ba",
+  "git_sha": "5cfa9d1ec53567ac328e6c670644d1c1ff2dc612",
+  "git_sha_started": "5cfa9d1ec53567ac328e6c670644d1c1ff2dc612",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-22T22:29:14.532Z",
+  "finished_at": "2026-09-22T22:46:19.212Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -23,7 +23,7 @@
     "sources": "app/src + scripts/seed-demo.mjs"
   },
   "check_id": "label-guard",
-  "started_at": "2026-09-22T22:29:13.017Z",
+  "started_at": "2026-09-22T22:46:19.060Z",
   "status": "pass",
   "expected_targets": 45,
   "discovered_targets": 45,

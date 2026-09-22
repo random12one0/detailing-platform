@@ -4809,9 +4809,12 @@ rather than wording went to Andrew.
   `<s>` had one attribute, `class="was"`, no `aria-label`, no `aria-hidden`,
   no visually-hidden text — a screen reader announced "$499 $999 to build it",
   two bare numbers in a row, only reordered. **Both halves are done now.**
-  **AND THIS RECORD WAS ITSELF CORRECTED ONCE MORE, SAME DAY** — the checked
+  **AND THIS RECORD WAS CORRECTED TWICE MORE, SAME DAY** — the checked
   items below originally said "no warnings" and claimed 15 real screenshots;
-  neither was true. See the corrected bullets under CHECKED.
+  neither was true. Then a real spacing defect was found on the pricing page
+  (the two prices were touching, 0px gap), plus a smaller correction to how
+  the fix for the SCREENSHOT bug had been proved. See the corrected bullets
+  under CHECKED.
 
   **HALF ONE — ORDER.** The `.amount` block put the struck $999 before the
   $499 founding price in the DOM. `.then` already had it right; `.amount` now
@@ -4906,6 +4909,43 @@ rather than wording went to Andrew.
     not tell you," cross-referenced to the resize-house-rule entry beside it
     — one instrument lied about the viewport, the other lied about what it
     captured, same turn, same root failure one layer apart.
+  - **A REAL DEFECT, CORRECTED 2026-09-22, THIRD CORRECTION: the founding and
+    struck prices were TOUCHING on the pricing page.** Found by the manager
+    opening the screenshots and then measuring the live boxes, not by either
+    check alone. `.ld .plan .amount .was` (the landing page) got its
+    margin-right-to-margin-left flip when the DOM order changed; `.ld
+    .setupfee .was` (the pricing page's build fee, a different selector
+    entirely) did not — the reorder moved `<s>` after the current price but
+    left its CSS still assuming it came first, so the computed gap was
+    **0px** (`marginLeft: 0px, marginRight: 5.236px`, measured live). Visible
+    at every width as tight, and running together with no gap at all —
+    `$499$999` — in `768-pricing-setup-lite.png`. `.ld .rungfig .was` was
+    checked the same way and found NOT to have this problem: it is
+    `display: block` with its own `margin-bottom`, and live measurement
+    showed a genuine 4.5–6px gap on both sides at every rung, so it was left
+    alone rather than changed on a guess.
+    **Fixed the same way the landing page does it** — `margin-left: .28em;
+    margin-right: 0` — rather than inventing a second rule.
+    **Checked by BOTH means, because measuring alone would have passed
+    this**: the box gap live at `.setupfee .amount [data-count]`'s right edge
+    against `.was`'s left edge (0px before, ~5px after, matching the
+    landing page's own `.28em`), and by eye — `768-pricing-setup.png` and
+    `768-pricing-setup-lite.png` re-shot and opened directly, both show a
+    clear gap between `$499` and the struck `$999`. All five widths'
+    `pricing-setup` files re-shot with the fix in place (variance-checked,
+    21–37 across all ten).
+  - **A FOURTH CORRECTION, FOUND WHILE PROVING THE THIRD ONE, AND IT IS ABOUT
+    THE PROOF ITSELF RATHER THAN THE CODE.** The earlier claim that "the
+    variance check measured 0.97, correctly flagged as blank" was reported
+    as proof the assertion works. **It was one run of a race, not a
+    deterministic demonstration** — repeating the identical no-wait capture
+    8 times fresh found the original bug only 3 of 8 tries; the other 5 the
+    reveal happened to fire before the screenshot regardless. The fix (an
+    explicit wait for `opacity === "1"` before shooting) is still correct —
+    it removes the race by construction rather than by luck — but a single
+    sabotage run "catching" a race-condition bug is weaker evidence than it
+    was presented as. Written up as an addendum to the `docs/gotchas.md`
+    entry rather than left standing as reported.
   - **NOT measured, same as every pass:** actual screen-reader audio
     (VoiceOver/NVDA) — no headless browser runs one. What was measured is
     what determines the announcement absent an ARIA override: linear DOM

@@ -1660,9 +1660,15 @@
   font-size: clamp(34px,4.4vw,46px); line-height: 1; letter-spacing: -.05em;
   margin-top: 12px;
 }
+/* ROADMAP 7.4 — REORDERED 2026-09-22: PricingPage.jsx now puts the current
+   price first and the struck one second, matching the landing page's own
+   .plan .amount .was fix, but this selector's margin was never flipped to
+   match — the two prices sat with a computed 0px gap between them,
+   visibly touching (running together as "$499$999" at 768 in ?lite=1) until
+   this was caught by opening the screenshots and measuring the live boxes. */
 .ld .setupfee .was {
   color: var(--fog-2); text-decoration: line-through; text-decoration-thickness: 1px;
-  margin-right: .28em; font-size: .55em;
+  margin-left: .28em; margin-right: 0; font-size: .55em;
 }
 .ld .setupfee .fine { margin-top: 12px; }
 

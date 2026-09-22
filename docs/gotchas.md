@@ -1253,12 +1253,22 @@ identical when only the byte count was checked — **25268, 25642, 25200,
 25316, 26588 bytes, within 1.4% of each other across a six-fold change in
 viewport width** — while the correctly-captured files in the same batch (the
 home page, the pricing rungs) ran from 117k to 354k and varied hugely with
-width, the way real content should. **A near-identical byte count across
-wildly different crop widths is the tell**: a blank or solid-colour PNG
-compresses to almost nothing regardless of its dimensions, so file size stops
-correlating with width the moment there is nothing in the frame to correlate.
-The five files were opened and were, in fact, empty dark rectangles — nothing
-inferred, looked at directly.
+width, the way real content should. **And once fixed, the real file at 1920
+was SMALLER than the blank one had been — 23,388 bytes against the original
+blank's 25,268.** So this is not merely "file size does not prove content": at
+this specific crop, size points the WRONG way. A reader who keeps a rough
+size floor in their head — "anything over ~20KB is probably fine" — would
+have read both the blank AND the real file as passing, and would have been
+more confident about the WRONG one, because it was bigger. **A near-
+identical byte count across wildly different crop widths is the tell, not a
+large byte count on its own**: a blank or solid-colour PNG compresses
+efficiently regardless of its dimensions, so file size stops correlating
+with WIDTH the moment there is nothing in the frame to correlate — and
+separately, PNG compression rewards a plain, low-contrast card (the real
+content here) with a SMALLER file than a fully empty region can end up
+producing, depending on what the empty region's noise looks like. Neither
+direction is safe to assume. The five files were opened and were, in fact,
+empty dark rectangles — nothing inferred, looked at directly.
 
 **"Non-trivial byte sizes" was offered as proof the files were real,
 and it proved something smaller: that they were not zero-byte files.** It did
@@ -1294,10 +1304,23 @@ header) — and check that the captured region has real luminance variance.
 This repo's own dotted background alone produces roughly 2-3 standard
 deviations of luminance; a threshold well above that and well below real
 text/card content (6 was used) separates a blank capture from a real one
-without guessing. **Proved rather than trusted**: the exact original
-failure was reproduced on purpose — screenshotting `.setupfee` with no wait
-for the reveal — and the variance check measured 0.97, correctly flagged as
-blank, against 21-37 for the ten genuine captures taken the same run.
+without guessing.
+
+**AND ONE MORE LAYER, FOUND CHECKING THE CHECK: the sabotage capture itself
+is a coin flip, not a reliable demonstration.** The first attempt to prove
+the variance assertion catches this bug reproduced it once (0.97, correctly
+flagged) and that was reported as proof. **Repeating the exact same no-wait
+capture 8 times fresh found the bug only 3 of 8 tries** — the other 5 landed
+above the threshold, the reveal having happened to fire before the
+screenshot anyway. **A canary that sometimes fails to reproduce the bug it
+exists to prove is caught is not a regression test, no matter how convincing
+the one run you watched fail was.** The lesson is not that the fix is wrong
+— the explicit wait for `opacity === "1"` removes the race by construction
+regardless of how often the unfixed version happens to get lucky — it is
+that **watching a sabotage fail once is weaker evidence than it feels like**,
+precisely because the underlying bug is a race rather than a deterministic
+wrong answer. Trust the mechanism (why the wait removes the race), not a
+single run of the demonstration.
 
 ---
 
