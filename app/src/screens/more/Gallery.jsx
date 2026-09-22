@@ -225,6 +225,11 @@ export default function Gallery() {
       <button className="btn sm" style={{ marginLeft: 8 }} onClick={exportPhotos} disabled={!!exporting || busy}>
         {exporting || t("Export my photos")}
       </button>
+      {/* SURVEY FINDING 7 — see the note in Clients.jsx. Each export names
+          the other, so "you export them and go" is findable from either. */}
+      <p className="quiet" style={{ margin: "6px 0 0" }}>
+        {t("Your customer list exports separately, from the Clients screen.")}
+      </p>
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
       <div className="gallery-grid" style={{ marginTop: 12 }}>
         {images.map((img) => (

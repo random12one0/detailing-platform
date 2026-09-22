@@ -431,6 +431,15 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
             )}
           </p>
         )}
+        {/* SURVEY FINDING 7 — the promise on the pricing page is one sentence
+            and the product answers it with two buttons on two screens. The
+            smallest honest fix is each one naming the other; a "your data"
+            screen would be a new place to look rather than one fewer. */}
+        {customers.length > 0 && (
+          <p className="quiet" style={{ margin: "6px 0 0" }}>
+            {t("Your photos export separately, from Business → Photos.")}
+          </p>
+        )}
       </div>
 
       {/* See `answers` above for why this is here and why it is two cells.

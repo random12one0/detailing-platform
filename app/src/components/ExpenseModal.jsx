@@ -23,6 +23,7 @@ import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { todayLocal } from "../lib/format.js";
 import Sheet from "./Sheet.jsx";
+import { addReceipt } from "../lib/receipts.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
@@ -85,6 +86,10 @@ export default function ExpenseModal({ onClose, onSaved }) {
   const [date, setDate] = useState(todayLocal(business.timezone));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  // Survey finding 6. The file is HELD until the expense exists, because the
+  // receipt's storage path contains the expense id and there is no id until
+  // the insert comes back.
+  const [receipt, setReceipt] = useState(null);
   const amountRef = useRef(null);
 
   useEffect(() => { amountRef.current?.focus(); }, []);
@@ -99,18 +104,35 @@ export default function ExpenseModal({ onClose, onSaved }) {
     if (!Number(amount) || !category) return;
     setBusy(true);
     setError("");
-    const { error: err } = await supabase.from("expenses").insert({
+    const { data: row, error: err } = await supabase.from("expenses").insert({
       business_id: business.id,
       date,
       category: finalCategory,
       description: description.trim() || finalCategory,
       amount: Number(amount),
       payment_method: "unspecified",
-    });
+    }).select().single();
     if (err) {
       setError(err.message);
       setBusy(false);
       return;
+    }
+    // **THE EXPENSE IS ALREADY SAVED BY HERE, AND IT STAYS SAVED.** If the
+    // receipt will not attach — no room left, a refused upload — the number is
+    // still recorded and the screen says the paper did not go on. Rolling the
+    // expense back because its photograph failed would lose the thing that
+    // matters to keep the thing that supports it.
+    if (receipt) {
+      try {
+        await addReceipt({ file: receipt, businessId: business.id, expenseId: row.id });
+      } catch (e) {
+        setError(e?.code === "BUDGET_FULL"
+          ? t("Expense saved, but photo storage is full so the receipt was not attached.")
+          : t("Expense saved, but the receipt did not upload."));
+        setBusy(false);
+        onSaved?.();
+        return;
+      }
     }
     onSaved?.();
   };
@@ -167,6 +189,14 @@ export default function ExpenseModal({ onClose, onSaved }) {
                 onChange={(e) => setDescription(e.target.value)} /></label>
             <label className="field"><span>{t("Date")}</span>
               <input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></label>
+            {/* Survey finding 6 — the paper behind the number. It goes through
+                the same resize as a job photo and counts against the same
+                allowance, so this cannot become a second, uncounted store. */}
+            <label className="btn ghost" style={{ cursor: "pointer", marginTop: 4 }}>
+              {receipt ? t("Receipt attached — choose another") : t("Add a photo of the receipt")}
+              <input type="file" accept="image/*" hidden
+                onChange={(e) => setReceipt(e.target.files?.[0] ?? null)} />
+            </label>
           </div>
         )}
 
