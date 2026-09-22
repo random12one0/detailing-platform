@@ -1,17 +1,17 @@
-American English, read off the finished page — 2026-09-21T07:50:28.196Z
+American English, read off the finished page — 2026-09-21T16:48:36.435Z
 
 
   home          728 strings read, 0 British
   pricing       253 strings read, 0 British
   examples      118 strings read, 0 British
-  ex1           408 strings read, 0 British
+  ex1           387 strings read, 0 British
   ex1-prices    281 strings read, 0 British
   ex1-work      208 strings read, 0 British
   ex2           689 strings read, 0 British
-  ex3           445 strings read, 0 British
-  ex3-prices    420 strings read, 0 British
-  ex4           663 strings read, 0 British
-  ex5           952 strings read, 0 British
+  ex3           444 strings read, 0 British
+  ex3-prices    491 strings read, 0 British
+  ex4           664 strings read, 0 British
+  ex5           947 strings read, 0 British
 
   canary: [rendered-text] all 7 planted words were caught, including "cancelled" inside a sentence
           [positional-exception] the bare "Cancelled" status token and data-step="colour" were NOT flagged, so the exception is about position and not spelling

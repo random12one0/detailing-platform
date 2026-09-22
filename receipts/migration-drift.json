@@ -1,9 +1,9 @@
 {
-  "git_sha": "8ae32e4c8d1e1a9868a682afcf19ca5ad98d4035",
-  "git_sha_started": "8ae32e4c8d1e1a9868a682afcf19ca5ad98d4035",
+  "git_sha": "8ced05c115b3732dc7481d9beb72dde6ec421a01",
+  "git_sha_started": "8ced05c115b3732dc7481d9beb72dde6ec421a01",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-21T10:38:15.114Z",
+  "finished_at": "2026-09-22T03:30:38.720Z",
   "failures": [],
   "warnings": [
     "FUNCTIONS ONLY — this cannot see a migration that adds a table, column, policy, grant or index. There is no applied-migrations ledger in this project to compare against: supabase_migrations.schema_migrations does not exist."
@@ -13,25 +13,25 @@
   ],
   "dimensions": {
     "project": "kguqylyzgyzfktkfnhjb",
-    "migration_files": 93,
+    "migration_files": 94,
     "tables_declared": 52,
     "tables_absent": [],
     "columns_absent": [],
     "type_mismatch": [],
-    "types_unjudged": 108,
+    "types_unjudged": 113,
     "method": "replay create/drop function in file and statement order; compare body text against pg_get_functiondef",
     "absent": [],
     "drifted": []
   },
   "check_id": "migration-drift",
-  "started_at": "2026-09-21T10:38:13.366Z",
+  "started_at": "2026-09-22T03:30:36.297Z",
   "status": "pass",
   "expected_targets": 101,
   "discovered_targets": 101,
   "attempted_targets": 101,
   "completed_targets": 101,
   "skipped_targets": 0,
-  "assertions_executed": 1213,
+  "assertions_executed": 1218,
   "min_assertions": 1000,
   "canary": {
     "id": "a function name no migration could have defined must be reported ABSENT",

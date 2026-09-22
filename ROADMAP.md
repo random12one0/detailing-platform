@@ -123,6 +123,14 @@ CLAUDE.md § Publishing rather than trusting this paragraph later.
 
 ## How to work this queue
 
+**`docs/BATCHES.md` is the running order — start there, not here.** This file
+is 9,000 lines ordered by risk, which makes it a queue rather than a plan for
+one sitting. `BATCHES.md` groups the open items into session-sized batches,
+marks each one lane **A** (touches `app/src`) or **B** (does not) so two
+sessions can run without colliding, and names the model each batch deserves.
+It re-orders nothing here and duplicates nothing here. **This file stays the
+source of truth for what an item is and why.**
+
 1. **One item at a time, top to bottom.** Waves are ordered by what costs money
    or trust first. Don't batch.
 2. **Fix, don't rebuild.** Only touch a screen for a problem named here.
@@ -145,12 +153,36 @@ Nothing below this line waits on these. They are asked once, here.
 
 ### DECIDED AND NOT BUILT — added 2026-09-22, so they cannot evaporate as intentions
 
-**Four commitments made on the night of 2026-09-21, none of them built.** The
+**Six commitments made on the night of 2026-09-21, none of them built.** The
 accounts exist and the decisions are made; what is missing is code. **The
-service state, keys and account addresses behind all four are in
+service state, keys and account addresses behind all of them are in
 `docs/services-and-secrets.md`.**
 
-- [ ] **0.7 — Move photo storage to Cloudflare R2.** Buckets already exist and
+**RENUMBERED 0.7–0.10 → 0.11–0.16 on 2026-09-22. The old numbers collided:
+there were two items called 0.7** — this block's R2 item and the
+maintenance-reminder opt-out further down, which predates it and keeps its
+number. Nothing outside this file referenced either, checked before the
+change. **0.12 and 0.16 are new rows for two commitments that had no roadmap
+item at all** — the ZeptoMail split, which was recorded in `FOR-ANDREW.md` and
+nowhere else, and the web-filter categorisation.
+
+**ONLY ONE OF THE SIX IS BUILDABLE TODAY, AND THAT IS THE POINT OF LISTING
+THEM TOGETHER.** Written out so nobody picks one up and discovers the wall:
+
+| | Item | Can we build it now? |
+|---|---|---|
+| **0.11** | Photo storage → R2 | **YES. This is the one to do.** Buckets, keys and design all exist |
+| 0.12 | Transactional email → ZeptoMail | **No** — Zoho refuses the domain, so no token exists. Chase support, then build |
+| 0.13 | SMS send path + Telnyx webhook | **No** — Andrew parked it until the message wording is settled (`TEXTING.md`) |
+| 0.14 | 10DLC campaign registration | **No, deliberately** — costs money monthly and waits for launch |
+| 0.15 | Google OAuth consent verification | **No** — waits on Google, detected by the quota, not by an email |
+| 0.16 | Web-filter categorisation | **No** — CAPTCHAs only Andrew can clear |
+
+**So the honest state of this block is: one buildable item and five that are
+correctly waiting.** None of the five is forgotten; each says what it waits on
+and how the wait ends.
+
+- [ ] **0.11 — Move photo storage to Cloudflare R2.** Buckets already exist and
   already match the code names. **The allowance goes from 1 GB to 10 GB IN THE
   SAME CHANGE as the upload switch, never a commit earlier**, so the screen
   never promises storage that does not exist. **And the move loses the
@@ -158,11 +190,40 @@ service state, keys and account addresses behind all four are in
   `foldername` policy, so that guard is rebuilt in our own code and has to be
   right before one real photo is written. Design, arithmetic and the two ways
   the cap fails silently: `docs/the-photo-allowance.md`.
-- [ ] **0.8 — The SMS send path and the Telnyx webhook.** Account is paid, a
+- [ ] **0.12 — Split transactional email onto ZeptoMail, keep Resend for
+  campaigns. NEW ROW, 2026-09-22 — this decision had no roadmap item and lived
+  only in `FOR-ANDREW.md`, which is exactly how a commitment evaporates.**
+  Seventeen transactional emails — confirmations, reminders, receipts — move to
+  **ZeptoMail at $2.50 per ten thousand, no monthly fee**. Resend's free tier
+  stays for campaigns, because **ZeptoMail bans marketing mail outright and
+  will cut the account off for sending it.** Splitting is worth doing on its
+  own merits: a campaign flagged as spam then cannot drag a booking
+  confirmation down with it.
+  **BLOCKED, AND NOT AT OUR END.** Zoho refuses to add
+  `detailingplatform.com` or `email.detailingplatform.com`, answering only
+  *"Domain could not be added. Please contact support@zeptomail.com"* — while
+  `andrewsdetail.com` added fine **on the same account**, so it is that domain,
+  not the account or the plan. Support has been emailed. **No API token exists
+  until a domain verifies, so nothing can be built against it yet.** The secret
+  name reserved for it is `ZEPTOMAIL_TOKEN`; it does not exist and must not be
+  invented.
+  **AND IT IS URGENT RATHER THAN TIDY: Resend's free daily limit has already
+  been exceeded.** There are *"100% of your daily"* and *"200% of your daily"*
+  warnings in Andrew's business inbox from **6 and 7 September**, which predate
+  — and contradict — the note in `docs/how-we-run.md` that deferred a paid
+  email plan to December on the grounds that he had sent 100+ a day with no
+  failure. That note has been corrected.
+  **Done when:** a domain verifies, the token is stored as an edge-function
+  secret by Andrew, the seventeen transactional sends route through ZeptoMail,
+  campaigns still route through Resend, and a deliberately broken send proves
+  the check can fail. `docs/services-and-secrets.md` § 6.
+  **Waits on:** Zoho support. **How the wait ends:** the domain verifies.
+
+- [ ] **0.13 — The SMS send path and the Telnyx webhook.** Account is paid, a
   messaging profile exists and is on, with **zero numbers and no webhook**.
   **The webhook field stays empty until there is a function to point it at** —
   do not fill it in to tidy it.
-- [ ] **0.9 — The 10DLC campaign registration. DEFERRED ON PURPOSE — this is
+- [ ] **0.14 — The 10DLC campaign registration. DEFERRED ON PURPOSE — this is
   a decision, not an oversight.** Brand
   `4b2001a0-c7e7-ede3-76fa-a67ec4841df8` (TCR `BMKZFBT`) is **VERIFIED** —
   Andrew entered the phone code on 2026-09-22. **The campaign form is filled
@@ -180,10 +241,28 @@ service state, keys and account addresses behind all four are in
   mobile and has not been entered, and nothing else can begin until it does.
   Order: verify phone → campaign → number → key → send function.
   `docs/services-and-secrets.md` § 4.
-- [ ] **0.10 — OAuth consent-screen verification for `business.manage`.**
+- [ ] **0.15 — OAuth consent-screen verification for `business.manage`.**
   **Not started by anybody.** It is the *second* Google gate; the access
   request (case `9-7552000041929`) does not cover it. Approval of that one is
   detected by the quota going from 0 to 300, not by an email.
+  **Waits on:** Google, then a verification submission nobody has begun.
+  **How the wait ends:** check the quota; three hundred means the first gate
+  opened. `docs/services-and-secrets.md` § 5.
+
+- [ ] **0.16 — The site is "unrated" by web filters, and that is why some
+  networks block it. NEW ROW, 2026-09-22 — recorded in `FOR-ANDREW.md` and
+  tracked nowhere.** Symantec confirmed `detailingplatform.com` is **unrated**
+  in those words, which is what gets a site blocked on school and office
+  networks — a real obstacle to a detailer opening the link at work.
+  **A categorisation request went in on 2026-09-21** as *Business/Economy* plus
+  *Office/Business Applications*. **FortiGuard and Palo Alto are filled in but
+  stuck behind CAPTCHAs.**
+  **Nothing here is ours to build** — it is three submissions and a wait. It is
+  listed so that "some networks block the site" is never re-diagnosed from
+  scratch as a hosting or DNS fault.
+  **Waits on:** Andrew clearing two CAPTCHAs, then the filters' own review.
+  **Done when:** all three return a category other than unrated.
+  `docs/services-and-secrets.md` § 7.
 
 - [x] **0.1 — RESOLVED. The demo account's dual access is deliberate.**
   Andrew, 2026-09-16: *"I made one of them just be able to access both because
