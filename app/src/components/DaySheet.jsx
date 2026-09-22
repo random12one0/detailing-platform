@@ -444,7 +444,14 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
                           <button className="btn" disabled={busy} onClick={clearHours}>{t("Back to normal")}</button>
                         )}
                         <button className="btn primary" disabled={busy} onClick={saveHours}>
-                          {busy ? "Saving…" : hoursSpan > 1 ? `Save for ${hoursSpan} days` : "Save"}
+                          {/* ONE KEY RATHER THAN A PLURAL PAIR, and the guard
+                              is the reason: this branch only runs when the
+                              span is greater than one, so a singular form
+                              could never render and would be a dead string in
+                              both languages. */}
+                          {busy ? t("Saving…")
+                            : hoursSpan > 1 ? t("Save for {count} days", { count: hoursSpan })
+                              : t("Save")}
                         </button>
                       </div>
                     </div>

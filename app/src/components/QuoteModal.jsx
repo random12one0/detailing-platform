@@ -57,7 +57,7 @@ export default function QuoteModal({ booking, onClose, onSent }) {
 
   return (
     <Sheet onClose={onClose} title={t("Send a quote")}
-      subtitle={`${booking.customer_name} asked for ${money(asked)}`}>
+      subtitle={t("{name} asked for {amount}", { name: booking.customer_name, amount: money(asked) })}>
 
       <label className="field"><span>{t("Your price")}</span>
         <input type="number" inputMode="decimal" value={amount} autoFocus
@@ -67,7 +67,9 @@ export default function QuoteModal({ booking, onClose, onSent }) {
           the job record's money line follows. Absent when there isn't one. */}
       {valid && diff !== 0 && (
         <p className="quiet" style={{ marginTop: "calc(-1 * var(--sp-2))" }}>
-          {diff > 0 ? `${money(diff)} more than they were quoted` : `${money(-diff)} less than they were quoted`}
+          {diff > 0
+            ? t("{amount} more than they were quoted", { amount: money(diff) })
+            : t("{amount} less than they were quoted", { amount: money(-diff) })}
         </p>
       )}
 
