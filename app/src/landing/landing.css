@@ -933,6 +933,10 @@
   font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: .04em;
 }
 .ld .plan .was { color: var(--fog-2); text-decoration: line-through; text-decoration-thickness: 1px; margin-right: .28em; font-size: .62em; }
+/* ROADMAP 7.4 — .amount now puts the CURRENT price first and the struck
+   price second (2026-09-22, to fix reading order), so its .was needs the
+   same left-margin flip .then .was already carries for the same reason. */
+.ld .plan .amount .was { margin-right: 0; margin-left: .28em; }
 .ld .plan .then .was { font-size: 1em; margin-left: .3em; margin-right: 0; }
 .ld .plan .lock { color: var(--fog-2); font-size: 13.5px; margin-top: 12px; }
 .ld .plan .pfoot { margin-top: auto; padding-top: 26px; }

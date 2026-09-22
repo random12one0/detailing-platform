@@ -4801,11 +4801,25 @@ rather than wording went to Andrew.
   what is due now and what repeats.
   *A1 P2-02, A2 6.1*
 
-- [ ] **7.4 — The home page lists the old price first in the markup.**
-  "$999 to build it, then $60/month" precedes the founding price in the page
-  text, so search results and screen readers may announce the wrong price.
-  **Fix:** mark the struck price as the old price so it is read as crossed out,
-  or hide it from assistive technology. Founding price first.
+- [x] **7.4 — RESOLVED 2026-09-22. The home page listed the old price first**
+  in the markup: the .amount block put the struck $999 BEFORE the $499
+  founding price in the DOM, so a linear reader hit "$999" before ever
+  reaching the real price. The .then line ("$40/month $60") already had the
+  order right; .amount now matches it — swapped in
+  app/src/landing/LandingPage.jsx, with a matching CSS margin flip in
+  landing.css (.amount .was, mirroring the existing .then .was override).
+  **Checked by measuring the live DOM, not by reasoning about the JSX:**
+  `amount.innerHTML` at localhost:5173 reads
+  `<span>$499</span><s class="was">$999</s><small> to build it</small>` —
+  founding price first, struck price second — at 1440x900, at 392x844, and
+  again on `?lite=1`. Console read clean (no errors, no warnings) at all
+  three. Visually: $499 in the lead position, $999 struck beside it, no
+  overlap or spacing break at either width (screenshots taken).
+  **One thing this did NOT measure:** actual screen-reader audio output
+  (VoiceOver/NVDA) — a headless browser cannot run one. What was measured is
+  the thing that determines what a screen reader announces absent an ARIA
+  override (there is none here): linear DOM order. That order is now
+  founding-price-first.
   *A2 6.2*
 
 - [x] ~~**7.5 — Prices count up from low numbers.**~~ **Fixed 2026-09-20.**

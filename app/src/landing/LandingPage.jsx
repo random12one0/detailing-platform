@@ -1012,11 +1012,17 @@ export default function LandingPage() {
               )}
               <span className="lab">Website + dashboard</span>
               <div className="amount">
-                {/* The list price is struck ONLY while a genuine founding
-                    discount is live — never an anchor invented to make a
-                    number look smaller. */}
-                {founding && <s className="was">${P.website.setup}</s>}
+                {/* ROADMAP 7.4 — REORDERED 2026-09-22. The struck list price
+                    used to come FIRST in the markup, so a screen reader or a
+                    search snippet reading the first characters of this card
+                    announced "$999" — the price nobody actually pays — before
+                    ever reaching the founding price. The .then line below
+                    already had this right (current price, then the struck
+                    one); this now matches it. The list price is struck ONLY
+                    while a genuine founding discount is live — never an
+                    anchor invented to make a number look smaller. */}
                 <span key={setup} data-count={setup} data-prefix="$" data-still>${setup}</span>
+                {founding && <s className="was">${P.website.setup}</s>}
                 <small> to build it</small>
               </div>
               <div className="then mono">
