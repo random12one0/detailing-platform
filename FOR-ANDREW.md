@@ -155,8 +155,24 @@ about a penny and a half per gigabyte a month.
 > stored.** That is the whole of the discount, and it expires at the first
 > upload.
 
+**What it means for how many photos a detailer gets: about 47 each today,
+about 340 each after the move.** Ten times more, and enough for a solo
+detailer doing before-and-afters without thinking about it.
+
+**One thing deliberately NOT done, so nobody does it kindly:** the allowance
+number has **not** been raised yet. It has to describe storage that actually
+exists, and right now not one byte goes to Cloudflare. **It goes up on the
+same day uploads actually move, not before** — otherwise your screen promises
+space the product cannot give.
+
+**And the cost, so this never needs agonising over again:** past the free ten
+gigabytes it is about a cent and a half per gigabyte a month. **A hundred
+detailers at 200 MB each works out at roughly fifteen cents a month.** Being
+more generous later is one number and costs almost nothing.
+
 Also in `docs/recovery.md`, beside the three stores and what the nightly
-backup does and does not carry.
+backup does and does not carry — and the full working, including how the
+limit would actually be enforced, is in `docs/the-photo-allowance.md`.
 
 ### 2 · Email is splitting in two — and it is blocked
 

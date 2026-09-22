@@ -222,6 +222,12 @@ part of this page:**
    > It is cheap today for exactly one reason — **zero photos are stored** —
    > and that discount expires at the first upload.
 
+   **The allowance and how the cap would be enforced under R2 are written up
+   separately in `docs/the-photo-allowance.md`** — including the one that
+   matters here: the cap has only ever been advisory, because it is checked in
+   the browser, and under R2 an unenforced cap is a bill rather than a plan
+   that stops.
+
    **What that does NOT change:** none of these stores is in the nightly dump,
    before or after the move. R2 has its own retention story and nothing in
    this pipeline touches it. **A restore still hands back rows pointing at
