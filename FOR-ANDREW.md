@@ -115,6 +115,136 @@ Updated 2026-09-21.
 
 ---
 
+## What you set up the night of 2026-09-21 — the record
+
+**Nothing here needs building yet. This is so none of it lives only in your
+memory.** You spent the evening signing up for the things the product has been
+waiting on. Six of them changed, and not one was written down anywhere.
+
+### 1 · Photo storage is solved — Cloudflare R2
+
+**Ten gigabytes free instead of the one you had**, and downloads cost nothing,
+which is the part that makes other storage expensive. Past the free tier it is
+about a penny and a half per gigabyte a month.
+
+**Three buckets already exist and are named to match the code exactly** —
+`job-photos`, `business-media`, `expense-receipts`.
+
+- Account id `3ebc9f9dfd8b21c849e43fcd9e22887c`
+- Endpoint `https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com`
+- **Three keys are saved** in Supabase's edge-function secrets, named
+  `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY`. Verified in
+  the list, timestamped that day. *(Where they live is written here. What they
+  are is not, and must never be.)*
+
+> **⚠ READ THIS BEFORE ANY PHOTO MOVES, BECAUSE IT CHANGES THE SIZE OF THE
+> JOB.** Right now **the database itself refuses to hand one detailer another
+> detailer's photo.** That is not a rule written in our code that could have a
+> gap in it — the database enforces it, and it was proved four separate ways.
+>
+> **R2 is a dumb bucket. It has no idea what a business is.** The moment
+> photos live there, that protection is gone unless it is rebuilt in our own
+> code first.
+>
+> **So the switch is not "change five bucket names". It is five bucket names
+> plus rebuilding the guard that stops one customer seeing another's
+> photographs — and the rebuilt one has to be right before a single real
+> photo goes in.**
+>
+> It is still cheap today for one reason only: **there are zero photos
+> stored.** That is the whole of the discount, and it expires at the first
+> upload.
+
+Also in `docs/recovery.md`, beside the three stores and what the nightly
+backup does and does not carry.
+
+### 2 · Email is splitting in two — and it is blocked
+
+**ZeptoMail for the seventeen transactional emails** — confirmations,
+reminders, receipts — at **$2.50 per ten thousand, no monthly fee**. **Resend's
+free tier kept for campaigns**, because ZeptoMail flatly bans marketing mail
+and will cut you off for sending it.
+
+**Splitting is better anyway, for a reason worth keeping:** a campaign that
+gets flagged as spam cannot drag your booking confirmations down with it.
+
+**It is stuck, and not at your end.** Zoho refuses to add
+`detailingplatform.com` or `email.detailingplatform.com`, answering only
+*"Domain could not be added. Please contact support@zeptomail.com"* —
+while `andrewsdetail.com` added fine **on the same account**, so it is that
+domain rather than the account or the plan. Support has been emailed.
+**No API token exists until a domain verifies**, so nothing can be built
+against it. The secret name reserved for it is `ZEPTOMAIL_TOKEN`.
+
+**And this is why it is urgent rather than tidy: you have already gone over
+Resend's free limit.** There are *"you have reached 100% of your daily"* and
+*"200% of your daily"* warnings sitting in your business inbox from the 6th
+and 7th of September.
+
+### 3 · Texting is Telnyx, and the account is live
+
+The supplier this repo had written down was right, and **nothing in the code
+had assumed it**, so you were free either way.
+
+**Sole Proprietor 10DLC registration needs no EIN and no Social Security
+number** — it verifies with a one-time code to your mobile. **$4 once, $15 for
+the campaign review, then $2 a month, for a thousand texts a day.**
+
+The account went from Pretrial to Trial by connecting GitHub and is now
+**paid**. A messaging profile called **DetailingPlatform** already exists.
+**The brand registration form is filled in and waiting on you to agree the
+$4.**
+
+### 4 · Google — the application went in
+
+**Case 9-7552000041929, opened that night, seven to ten business days.** Filed
+from `andrewswashing@gmail.com` for *Andrew's Auto Detail & Car Wash*, against
+project number `37262651400`.
+
+**How to check without waiting for an email: the quota.** It reads **zero
+requests per minute** now; **three hundred means approved.**
+
+**One thing the research note got wrong, now corrected there.**
+`docs/google-business-profile-research-2026-09-07.md` said everything was
+blocked on you having a mailbox on `detailingplatform.com`. **You have one** —
+`andrew@detailingplatform.com`, the address on your Telnyx account. **What is
+genuinely still not done** is the second gate that note is right about: the
+**OAuth consent screen verification** for the sensitive permission. Nobody has
+started it.
+
+### 5 · The website is "unrated", which is why some networks block it
+
+Symantec confirmed `detailingplatform.com` is **unrated** in those words —
+which is what gets a site blocked on school and office networks. **A
+categorisation request went in that night** as *Business/Economy* plus
+*Office/Business Applications*. **FortiGuard and Palo Alto are filled in but
+stuck behind CAPTCHAs you have to clear yourself.**
+
+### 6 · Which email address is on which service
+
+**You asked for this because you have three addresses and keep losing track.**
+Add to it as you go. **A row marked *unconfirmed* is a row nobody has
+verified — leave it marked rather than guessing**, because one wrong row makes
+the whole table untrustworthy.
+
+| Service | Address on it | |
+|---|---|---|
+| Telnyx (texting) | `andrew@detailingplatform.com` | confirmed |
+| Supabase (the database) | `andrewsauto@andrewsdetail.com` | confirmed |
+| Cloudflare (photo storage) | `Random12one0@yahoo.com` | confirmed |
+| Google Cloud project *detailing-platform* | `ramdom12one0@gmail.com` | confirmed |
+| Google Business Profile *detailing platform* | `ramdom12one0@gmail.com` | confirmed |
+| Google Business Profile *Andrew's Auto Detail & Car Wash* | `andrewswashing@gmail.com` | confirmed |
+| The Google API application | `andrewswashing@gmail.com` | confirmed |
+| Resend (email) | `andrewswashing@gmail.com` | confirmed |
+| GitHub — account `ramdom12one0-sys` | `ramdom12one0@gmail.com` | confirmed |
+| Netlify (the website host) | signs in through GitHub | confirmed |
+| Stripe (payments) — notifications | `ramdom12one0@gmail.com` | confirmed |
+| ZeptoMail — Zoho org *Detailing Platform* | signed in with Google | **which Google address: unconfirmed** |
+| Symantec + FortiGuard submissions | `andrewswashing@gmail.com` | confirmed |
+
+---
+
 ## State that changed outside the repo — 2026-09-21 night
 
 **Nothing needed from you in this section except the last line.** It exists

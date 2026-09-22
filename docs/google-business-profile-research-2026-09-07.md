@@ -74,6 +74,30 @@ app is unverified and the console is lying about whether it needs to be.
 
 ## What this means for roadmap 8.16
 
+> ## CORRECTED 2026-09-21 NIGHT — STEP 1 BELOW IS DONE, AND STEP 2 IS FILED
+>
+> **This page says everything is blocked on a mailbox on
+> `detailingplatform.com`. That is no longer true.** Andrew has one:
+> **`andrew@detailingplatform.com`**, which is the address on his Telnyx
+> account. The mailbox is not the blocker and has not been for some time.
+>
+> **Step 2 is also done.** The Business Profile API access request was
+> submitted on the night of 2026-09-21: **case `9-7552000041929`, seven to
+> ten business days**, filed from `andrewswashing@gmail.com` for *Andrew's
+> Auto Detail & Car Wash*, against project number `37262651400`.
+> **How to check without waiting for mail: the quota reads 0 requests per
+> minute now, and 300 means approved.**
+>
+> **WHAT THIS PAGE IS STILL RIGHT ABOUT, and it is the part that matters:**
+> **step 3, the OAuth consent-screen verification for the sensitive scope,
+> has not been started by anybody.** This page correctly identified it as a
+> second, separate gate, and it remains the real one. Nothing is built
+> against any of this, and nothing should be until the access request is
+> answered.
+>
+> The original text is kept below unedited, because the sequencing argument
+> it makes is still the right argument — only its first premise expired.
+
 **It is not a build question, it is a queue question**, and the queue is:
 
 1. `detailingplatform.com` live, with a mailbox on that domain

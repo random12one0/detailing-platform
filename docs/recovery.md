@@ -190,6 +190,43 @@ part of this page:**
    after. **This is a statement of what the backup does and does not carry.
    What to do about it is not this page's to say.**
 
+   ### THE STORE IS MOVING TO CLOUDFLARE R2 — decided 2026-09-21 night
+
+   **Recorded here because it changes what this section is about.** Andrew has
+   signed up for Cloudflare R2: **10 GB free** against the 1 GB he had, and
+   **no charge for downloads**, which is the part that makes other storage
+   expensive. **Three buckets already exist, named to match the code
+   exactly** — `job-photos`, `business-media`, `expense-receipts`. Three keys
+   are saved in Supabase's edge-function secrets under the names
+   `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY`; **their
+   location is recorded and their contents are not, and must not be.**
+
+   **Nothing has moved. No code points at R2. This is a record, not a
+   migration.**
+
+   > **AND MOVING OFF SUPABASE STORAGE LOSES THE DATABASE-ENFORCED ISOLATION,
+   > WHICH IS THE LARGEST SINGLE FACT ON THIS PAGE.**
+   >
+   > Today **the database itself refuses to serve one tenant another tenant's
+   > photo.** That is not a rule in application code with a gap somewhere; it
+   > is enforced beneath the application, and it was proved four ways.
+   >
+   > **R2 is a dumb bucket with no concept of a business.** The moment objects
+   > live there, that guarantee is gone unless an equivalent is rebuilt in our
+   > own code first.
+   >
+   > **So the switch is not five bucket names. It is five bucket names plus
+   > re-establishing tenant isolation, and the rebuilt guard has to be correct
+   > BEFORE a single real customer photo is written.**
+   >
+   > It is cheap today for exactly one reason — **zero photos are stored** —
+   > and that discount expires at the first upload.
+
+   **What that does NOT change:** none of these stores is in the nightly dump,
+   before or after the move. R2 has its own retention story and nothing in
+   this pipeline touches it. **A restore still hands back rows pointing at
+   files the dump never carried**, and moving providers does not alter that.
+
 ---
 
 ## What is still true from the 2026-09-20 measurements
