@@ -425,6 +425,27 @@
   .ld .navmenu .lk:active { background: rgba(255, 255, 255, .06); }
 }
 
+/* FOUND 2026-09-22 — not a change to a value anything decided on. The
+   built entry for this nav (docs/roadmap.md, ROADMAP 2.26) measured HEIGHT
+   at 320 ("pill stays 56px") and open/close behaviour; it never measured
+   the burger's own right edge against the pill or the viewport, and
+   nothing since has decided the overflow was acceptable — checked first,
+   nothing found. Below 470 the gap (12px) and the sign-up pill's own
+   padding are unchanged from the 620px tier, and three children that
+   cannot shrink (wordmark, sign-up pill, burger) run about 26px past what
+   the pill has room for at 320, the narrowest width this product
+   promises — the burger's own bars sit outside the pill's rounded edge
+   and past the screen edge, confirmed in a full-viewport screenshot (a
+   crop to #nav's own box hides exactly this, which is its own entry in
+   docs/gotchas.md). A SECOND, NARROWER TIER, so 392 and up — already
+   screenshotted and verified — read none of this: only it closes the gap,
+   and by more than the 26px measured, to leave real margin rather than a
+   fix that is exact today and wrong the next time a word changes. */
+@media (max-width: 340px) {
+  .ld .nav { gap: 6px; padding-right: 6px; }
+  .ld .nav .cta.sm { padding-left: 10px; padding-right: 10px; }
+}
+
 /* ── Buttons ─────────────────────────────────────────────────────────── */
 .ld .cta {
   position: relative; display: inline-flex; align-items: center; gap: 10px; overflow: hidden;

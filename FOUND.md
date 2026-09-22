@@ -4151,7 +4151,7 @@ two booleans on the router's future config — `v7_startTransition` and
 
 ---
 
-## The phone nav burger sits partly off the 320px screen — pre-existing on the home page, now on the pricing page too — 2026-09-22
+## FIXED 2026-09-22, SAME DAY. The phone nav burger sat partly off the 320px screen — pre-existing on the home page, also on the pricing page
 
 Found while building ROADMAP 7.12's phone sign-up button, matching the
 home page's own nav pattern as instructed. **The pattern being matched
@@ -4189,8 +4189,30 @@ measurement shows the burger comfortably inside both the pill and the
 viewport (burger right 369 vs pill right 378, well within 392). It is a
 320-and-nearby problem specifically.
 
-**Left unfixed, on purpose.** Fixing it means changing the shared
-`.ld .nav` breakpoint CSS that both pages read, which is exactly the
-kind of shared value CLAUDE.md says to check before touching — and this
-is already shipped on the home page, so a fix here is also a change to
-a page nobody asked to revisit today. Logged rather than patched.
+**Checked for a prior deliberate decision before touching the shared
+value, per CLAUDE.md — found none.** Searched every comment, prior
+ROADMAP item and decision log for anything about this nav pill's width,
+padding, the burger's position, or the 470px breakpoint. The one entry
+that exists (`docs/roadmap.md`, ROADMAP 2.26, the original 2026-09-06
+build) measured HEIGHT at 320 ("pill stays 56px") and open/close
+behaviour, and says nothing about the burger's own right edge against
+the pill or the viewport. Nobody decided this was acceptable; nobody
+had measured it at all.
+
+**Fixed rather than left, on that finding.** A second, narrower
+breakpoint at 340px and below tightens the nav's gap and the sign-up
+pill's own horizontal padding, closing the ~26px overflow with margin
+to spare (measured after: the burger's right edge sits 4.6px inside the
+pill and 18.6px inside the viewport at 320, not merely non-negative).
+**392 and every wider width read from the SAME rule they always did** —
+the new breakpoint sits below all of them, so nothing already
+screenshotted and verified this session was touched; confirmed live
+after the fix (gap still exactly 12px at 392, unchanged).
+
+**Proved with pictures, not just numbers** — full-viewport, not cropped
+to `#nav`, because a crop to the element's own box was exactly what hid
+this the first time (now its own entry in `docs/gotchas.md`):
+`receipts/screenshots/320-overflow-2026-09-22/` — `pricing-BEFORE.png`,
+`pricing-AFTER.png`, `home-BEFORE.png`, `home-AFTER.png`. The two BEFORE
+files are the same defect, confirmed identical rather than assumed;
+both AFTER files show it closed.

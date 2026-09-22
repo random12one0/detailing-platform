@@ -1324,6 +1324,40 @@ single run of the demonstration.
 
 ---
 
+## A screenshot cropped to an element's own box cannot show content spilling past it
+
+**Cost: a real, pre-existing overflow at the narrowest supported width
+went unnoticed by this session's first screenshot of it, 2026-09-22, the
+same day as the entry above.** `.burger`'s right edge sits past the nav
+pill's own right edge at 320px — a real, visible defect, confirmed by a
+full-viewport screenshot. The FIRST screenshot taken of this exact nav,
+minutes earlier for a different purpose (ROADMAP 7.12), was cropped to
+`#nav`'s own bounding box via Playwright's `elementHandle.screenshot()`
+and showed nothing wrong at all.
+
+**The reason is exact, not approximate: an element screenshot crops to
+that element's own layout box, and CSS overflow does not respect layout
+boxes.** `.burger` is a DOM child of `#nav`, but with `overflow: visible`
+on the parent (the default, and explicitly set here) a child can paint
+pixels outside its parent's box — that is what "overflow: visible" means.
+A crop taken of the parent's box only includes the parent's own
+rectangle, so a child spilling past it is cut off from the image before
+anything renders wrong *inside* the frame. **The screenshot is not lying
+about what it captured — it captured exactly its stated box — it is
+answering a narrower question than "does this look right," and mistaking
+the two is the failure.**
+
+**The rule: when checking for overflow, clipping, or anything spilling
+past a boundary, screenshot the VIEWPORT (or a container several levels
+up), never the element whose edge you are checking.** A crop is only safe
+once you already know nothing escapes it — which is exactly the thing an
+overflow check is trying to find out. This is the same family as
+"the shot too soon is the previous frame" and "byte size is not proof of
+content" two entries above: **the instrument answered the question it was
+literally asked, and the literal question was the wrong one.**
+
+---
+
 ## `has_table_privilege` answers false for a column-granted table, and a column refusal looks exactly like a row denial
 
 **Cost: a wrong security finding, published, and a migration very nearly

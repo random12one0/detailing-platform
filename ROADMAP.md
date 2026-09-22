@@ -5658,6 +5658,21 @@ rather than wording went to Andrew.
   actually works**, which is a fact about a real person's real business
   that nobody here can look up or infer from the code.
 
+  **AND "TWICE" IS ITSELF A CORRECTION, WORTH KEEPING FOR WHAT IT SHOWS
+  RATHER THAN AS AN APOLOGY.** The manager first reported Tacoma
+  appearing exactly once, using `indexOf` — which finds the first match
+  and stops — and read a single hit back as a count. Caught by walking
+  every text node instead of searching for one string. **This is the
+  SECOND instance today of a session reporting confidently about
+  something it had only looked at one way**: the first was another
+  session calling a renumbering a revert. Two of the three wrong claims
+  in today's record came from exactly that shape, not from this item.
+  **And the occurrence that was nearly missed is the one that matters
+  more**: the hero line is a slogan; the footer line is Andrew's real
+  business name, a Washington city and his hours sitting on one line
+  together — a stronger, more specific claim than the one a search for
+  "is Tacoma right" would have checked first.
+
   **THE REFERENCE-DESIGN FILE DOES NOT SETTLE THIS, AND THE EARLIER PASS
   OF THIS ENTRY WAS WRONG TO LEAN ON IT — struck 2026-09-22, same day it
   was written.** `docs/design-directions/5-the-thread.html` carrying the
@@ -5780,22 +5795,42 @@ rather than wording went to Andrew.
   strings), unlike the booking widget it does not reach.**
 
   **SECOND HALF DONE 2026-09-22 — the phone top bar has a sign-up button
-  now, and it matches the home page's own pattern rather than inventing a
-  second one.** Read this whole entry first, including the false
+  now. CORRECTED SAME DAY: this line first said it "matches the home
+  page's own pattern," and the manager checked that claim directly and
+  found it false — same VISUAL shape, deliberately different target and
+  visibility, which the paragraph below now says in those words instead
+  of "matches."** Read this whole entry first, including the false
   AB 2863 finding above, before touching anything — it was the false
   finding the first half's own paragraphs already describe: a session read
   the unsettled-price window and reported "$600 a year" against "$40 a
   month" as a money contradiction, which never existed and was withdrawn
   the same day it was written.
 
-  **Matched the home page's pattern rather than a new one, checked
-  directly first.** `.ld .nav .cta.sm` "Sign up", kept outside the burger,
-  plus a burger + `#navmenu` holding the links that collapse below 470px —
-  read from `LandingPage.jsx` and its CSS before writing a line of
-  `PricingPage.jsx`. **This is the same "one page had it right and the
-  other did not" shape as 7.4 and 7.11**, a third time in the same batch:
-  the home page fixed this exact gap on 2026-09-06 and the pricing page
-  never got it.
+  **The SAME VISUAL PATTERN, checked directly first, with two
+  DELIBERATE differences — not a match, and the distinction is the whole
+  reason it is correct.** Read from `LandingPage.jsx` and its CSS before
+  writing a line of `PricingPage.jsx`. **This is the same "one page had
+  it right and the other did not" shape as 7.4 and 7.11**, a third time
+  in the same batch: the home page fixed this exact gap on 2026-09-06
+  and the pricing page never got it. But the two buttons are not
+  identical, measured rather than assumed:
+
+  | | Home page (`LandingPage.jsx`) | Pricing page (`PricingPage.jsx`) |
+  |---|---|---|
+  | Class | `cta sm` | `cta sm mobile-signup` |
+  | `href` | `/pricing` | `#website` |
+  | Visible at 948 wide | yes, `123×51` | no, `display: none` |
+  | Visible below 470 | yes | yes |
+
+  **Both differences are deliberate and both are correct, for one shared
+  reason.** The home page's button is a doorway to the page that does the
+  choosing, so it stays up at every width. The pricing page IS that page
+  — its own desktop nav already omits this exact button with the comment
+  "on the page you get started FROM, that button points at itself," and a
+  phone copy pointing at `/pricing` while already on `/pricing` would be
+  the identical circularity, just narrower. `#website` and phone-only
+  visibility are that same reasoning applied to the one width where the
+  page previously had nothing to press at all.
 
   **The button points at `#website`, not `/pricing`, on purpose.** The
   desktop nav already omits a "Sign up" pill with the reasoning "on the
@@ -5840,17 +5875,28 @@ rather than wording went to Andrew.
     320 shows the wordmark, the sign-up pill and the burger, the open
     menu shows all three collapsed links.
 
-  **FOUND WHILE BUILDING, NOT PART OF THIS FIX, REPORTED RATHER THAN
-  PATCHED — bigger than a button, per the stop condition for this item.**
-  Matching the home page's pattern exactly also matched a real defect in
-  it: at 320px, the narrowest width this product promises, the burger's
-  own right edge sits past both the nav pill's edge and the viewport
-  itself — visibly, in a full-viewport screenshot, its bars cut off by
-  the screen edge. **Pre-existing on the home page**, confirmed with the
-  identical measurement there (same numbers, same overflow) before this
-  change touched anything. Not present at 392 or wider — a 320-and-near
-  problem specifically. Full account, root cause and why it slipped every
-  previous sweep: `FOUND.md`.
+  **FOUND WHILE BUILDING, REPORTED RATHER THAN PATCHED FIRST, THEN
+  FIXED ON THE MANAGER'S OWN DECISION, SAME DAY.** Matching the home
+  page's pattern also matched a real defect in it: at 320px, the
+  narrowest width this product promises, the burger's own right edge sat
+  past both the nav pill's edge and the viewport itself — visibly, in a
+  full-viewport screenshot, its bars cut off by the screen edge.
+  **Pre-existing on the home page**, confirmed with the identical
+  measurement there before this change touched anything, and confirmed a
+  second way after the manager could not reach 320 personally: matching
+  full-viewport BEFORE/AFTER screenshots of both pages, opened directly.
+  Not present at 392 or wider.
+
+  **Checked for a prior deliberate decision before changing the shared
+  CSS, found none** — the original 2026-09-06 build (`docs/roadmap.md`,
+  2.26) measured this nav's height and open/close behaviour at 320, never
+  the burger's own edge against the pill. **Fixed**: a narrower
+  `@media (max-width: 340px)` tier tightens the nav's gap and the sign-up
+  pill's padding, closing the overflow with margin (4.6px inside the
+  pill, 18.6px inside the viewport, measured after) and touching nothing
+  already verified at 392 and up (confirmed unchanged: gap still exactly
+  12px). Full account, the search for a prior decision, and the
+  before/after screenshot paths: `FOUND.md`.
 
 ---
 
