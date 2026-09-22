@@ -154,7 +154,7 @@ export const WHY = {
   // want reviews asked for is entitled to that, and the step is still counted
   // done on a phone number or an email alone.
   info:
-    "Your business name, phone number and email address. This shows at the top of your booking page and at the bottom of every email a customer gets. Open \"Social and review links\" while you are here: paste your Google or Yelp link and the thank-you email every customer gets after a job will ask them for a review, with a button straight to it. Either one on its own works. Leave both empty and that email stays a plain thank-you.",
+    "Your business name, phone number and email address. This shows at the top of your booking page and at the bottom of every email a customer gets. Also open \"Social and review links\": paste a Google or Yelp link, either one, and the thank-you email after each job asks that customer for a review.",
   colour:
     "Pick one color. It is used on your booking page and in this dashboard. Most detailers use the color already on their van or their cards.",
   reviews:

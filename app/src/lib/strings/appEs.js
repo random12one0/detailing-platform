@@ -114,8 +114,8 @@ export const appEs = {
   "Type in reviews customers have already given you somewhere else. Nothing is imported automatically. You decide which ones to show.":
     "Escribe las reseñas que los clientes ya te dieron en otro lugar. No se importa nada automáticamente. Tú decides cuáles mostrar.",
   "Where we email you about new bookings.": "Adonde te escribimos sobre reservas nuevas.",
-  "Your business name, phone number and email address. This shows at the top of your booking page and at the bottom of every email a customer gets. Open \"Social and review links\" while you are here: paste your Google or Yelp link and the thank-you email every customer gets after a job will ask them for a review, with a button straight to it. Either one on its own works. Leave both empty and that email stays a plain thank-you.":
-    "El nombre de tu negocio, tu teléfono y tu correo. Esto aparece arriba en tu página de reservas y al final de cada correo que recibe un cliente. Abre «Enlaces de redes y reseñas» mientras estás aquí: pega tu enlace de Google o de Yelp y el correo de agradecimiento que recibe cada cliente después de un trabajo le pedirá una reseña, con un botón directo. Basta con uno de los dos. Si dejas los dos vacíos, ese correo queda como un simple agradecimiento.",
+  "Your business name, phone number and email address. This shows at the top of your booking page and at the bottom of every email a customer gets. Also open \"Social and review links\": paste a Google or Yelp link, either one, and the thank-you email after each job asks that customer for a review.":
+    "El nombre de tu negocio, tu teléfono y tu correo. Esto aparece arriba en tu página de reservas y al final de cada correo que recibe un cliente. Abre también «Enlaces de redes y reseñas»: pega un enlace de Google o de Yelp, cualquiera de los dos, y el correo de agradecimiento después de cada trabajo le pedirá una reseña a ese cliente.",
   "e.g. car wash membership":
     "ej. membresía de lavado de autos",
   "minutes": "minutos",
