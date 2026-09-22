@@ -142,8 +142,19 @@ export const WHY = {
     "Customers can only pick times inside these hours. If you close a day here, nobody can book it.",
   where:
     "Mobile means you drive to the customer. Drop-off means they come to you. You can offer both. This is the first question your booking page asks.",
+  // THE REVIEW LINKS ARE NAMED HERE BECAUSE NOTHING ELSE NAMES THEM. They sit
+  // in the last two of six boxes inside a fold called "Social and review
+  // links", and that fold is closed unless a link is already saved — so a
+  // detailer setting up has to open it, recognise two field labels among six,
+  // and already know what the product does with them. One of sixteen
+  // businesses had pasted either one in. The email that uses them is correct
+  // and untouched: it asks for a review and shows a button only when a link
+  // exists, so nobody has ever been asked for a review with nothing to press.
+  // **It stays optional and this sentence says so** — a detailer who does not
+  // want reviews asked for is entitled to that, and the step is still counted
+  // done on a phone number or an email alone.
   info:
-    "Your business name, phone number and email address. This shows at the top of your booking page and at the bottom of every email a customer gets.",
+    "Your business name, phone number and email address. This shows at the top of your booking page and at the bottom of every email a customer gets. Open \"Social and review links\" while you are here: paste your Google or Yelp link and the thank-you email every customer gets after a job will ask them for a review, with a button straight to it. Either one on its own works. Leave both empty and that email stays a plain thank-you.",
   colour:
     "Pick one color. It is used on your booking page and in this dashboard. Most detailers use the color already on their van or their cards.",
   reviews:

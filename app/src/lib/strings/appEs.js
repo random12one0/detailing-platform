@@ -114,8 +114,8 @@ export const appEs = {
   "Type in reviews customers have already given you somewhere else. Nothing is imported automatically. You decide which ones to show.":
     "Escribe las reseñas que los clientes ya te dieron en otro lugar. No se importa nada automáticamente. Tú decides cuáles mostrar.",
   "Where we email you about new bookings.": "Adonde te escribimos sobre reservas nuevas.",
-  "Your business name, phone number and email address. This shows at the top of your booking page and at the bottom of every email a customer gets.":
-    "El nombre de tu negocio, tu teléfono y tu correo. Esto aparece arriba en tu página de reservas y al final de cada correo que recibe un cliente.",
+  "Your business name, phone number and email address. This shows at the top of your booking page and at the bottom of every email a customer gets. Open \"Social and review links\" while you are here: paste your Google or Yelp link and the thank-you email every customer gets after a job will ask them for a review, with a button straight to it. Either one on its own works. Leave both empty and that email stays a plain thank-you.":
+    "El nombre de tu negocio, tu teléfono y tu correo. Esto aparece arriba en tu página de reservas y al final de cada correo que recibe un cliente. Abre «Enlaces de redes y reseñas» mientras estás aquí: pega tu enlace de Google o de Yelp y el correo de agradecimiento que recibe cada cliente después de un trabajo le pedirá una reseña, con un botón directo. Basta con uno de los dos. Si dejas los dos vacíos, ese correo queda como un simple agradecimiento.",
   "e.g. car wash membership":
     "ej. membresía de lavado de autos",
   "minutes": "minutos",
@@ -1349,6 +1349,19 @@ export const appEs = {
   "Add expense": "Agregar gasto",
   "Add item": "Agregar concepto",
   "Add photos": "Agregar fotos",
+  // Survey finding 6 — the receipt on an expense. Keys move with the
+  // English in the same edit; this file is keyed on the English text.
+  "Add a photo of the receipt": "Agrega una foto del recibo",
+  // Survey finding 7 — each export names the other.
+  "Your photos export separately, from Business → Photos.":
+    "Tus fotos se exportan por separado, desde Negocio → Fotos.",
+  "Your customer list exports separately, from the Clients screen.":
+    "Tu lista de clientes se exporta por separado, desde la pantalla de Clientes.",
+  "Receipt attached — choose another": "Recibo adjuntado — elige otro",
+  "Expense saved, but the receipt did not upload.":
+    "Se guardó el gasto, pero el recibo no se subió.",
+  "Expense saved, but photo storage is full so the receipt was not attached.":
+    "Se guardó el gasto, pero el espacio de fotos está lleno y el recibo no se adjuntó.",
   // ROADMAP 7.7b — the photo export. The keys move with the English in
   // the same edit, because this file is keyed on the English text and a
   // renamed string falls back to English with no error anywhere.
