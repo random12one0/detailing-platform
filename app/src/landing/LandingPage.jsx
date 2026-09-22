@@ -628,61 +628,50 @@ export default function LandingPage() {
 
             <div>
               <div className="widget-hold" data-parallax="14">
-                {/* A window with an address bar, not a phone. That frame is
-                    the whole argument of the section in one shape. */}
+                {/* ROADMAP 7.11 — REPLACED 2026-09-22. This used to be a
+                    hand-typed mock of a fictional business (Andrew's Auto
+                    Detail / andrewsdetail.com) built entirely in HTML — not
+                    a screenshot of anything real, despite living in a frame
+                    styled like a browser window. Andrew, relayed: "that's
+                    just like fake, whatever, that's like not a real
+                    anything... maybe even using an actual example from a
+                    website that we built." This also closed a second,
+                    separately-queued complaint (docs/MANAGER-CLOSE-
+                    2026-09-21.md): "the mock browser bar... he wants a real
+                    screenshot from one of the sites instead." One fix,
+                    both complaints — they were the same complaint from two
+                    angles: the frame around a real thing is honest; the
+                    frame around an invented thing was not.
+
+                    ANDREWSDETAIL.COM STAYS ON THE MARKETING PAGE PER THE
+                    OLDER RULING — CHECKED, NOT ASSUMED. That name and
+                    "Andrew's Auto Detail" appeared on this page in exactly
+                    one place: this mock-up. `document.body.innerText`,
+                    checked live, returns zero occurrences of either string
+                    anywhere else on the rendered page, including in every
+                    href and attribute. So there is no surviving instance
+                    of the older ruling left to honor here — it superseded
+                    itself the moment the one place it applied to changed.
+
+                    THE SCREENSHOT IS REAL, OF A SITE THIS PLATFORM ACTUALLY
+                    BUILT: /ex1, "Prime Mobile Detailing," captured live at
+                    1280px wide (the real desktop rendering, not the phone
+                    layout that width would trigger inside the app itself)
+                    and shipped as one JPEG rather than reproduced as a
+                    second copy of HTML — matching Andrew's own words,
+                    "a real screenshot," rather than a more accurate fake
+                    one. 1280×760 source, quality 82, 125 KB. */}
                 <div className="site" data-rv="lift">
                   <div className="chrome" aria-hidden="true">
-                    <i></i><i></i><i></i><span className="url">andrewsdetail.com</span>
+                    <i></i><i></i><i></i><span className="url">yoursite.com</span>
                   </div>
                   <div className="scr">
-                    <div className="sitenav">
-                      <span className="biz">Andrew's Auto Detail</span>
-                      <span className="lks"><i>Services</i><i>Gallery</i><i>Book</i></span>
-                    </div>
-                    {/* The one photograph on the page, and the distinction
-                        matters so a later session does not "fix" it by
-                        deleting it: law 10 bans car photography as the
-                        LANDING PAGE's own subject, because we sell software.
-                        This photo is not the landing page's subject — it is
-                        inside a picture of a CLIENT's website, where
-                        photographs of their own work are the single thing a
-                        detailer's site is actually made of. The owner asked
-                        for it directly: the sites he referenced "have tons
-                        of photos".
-                        Unsplash, Deniz Demirci, photo dlJelFmdpOc, 840x270
-                        at q68 = 41 KB. Shipped as a file rather than the
-                        reference page's data URI — that was forced by the
-                        artifact host's CSP, and a real deploy would rather
-                        cache it than inline it into the bundle. */}
-                    <div className="sitehero">
-                      <img
-                        className="shot"
-                        src="/img/tenant-site-hero.jpg"
-                        width="840" height="270" loading="lazy" decoding="async"
-                        alt="A detailer working along the hood of a dark car"
-                      />
-                      <div className="sitehero-t">
-                        <h3>Mobile detailing, Tacoma and south.</h3>
-                        <p>We come to your driveway. Most cars, about three hours.</p>
-                      </div>
-                    </div>
-                    {/* The booking panel, bordered, sitting in the page's own
-                        column — the visible form of "built in, not linked
-                        to". */}
-                    <div className="bd">
-                      <span className="bl">Booking · on this page</span>
-                      <div className="q">What can we do for you?</div>
-                      <div className="svc">
-                        <div><div className="n">Full Detail</div><div className="d">3 hr 30 min · inside and out</div></div>
-                        <div className="p">$240</div>
-                      </div>
-                      <div className="svc">
-                        <div><div className="n">Wash &amp; Wax</div><div className="d">1 hr 30 min</div></div>
-                        <div className="p">$95</div>
-                      </div>
-                      <div className="go">Pick a time</div>
-                    </div>
-                    <div className="sitefoot">Andrew's Auto Detail · Tacoma, WA · Mon–Sat, 8–6</div>
+                    <img
+                      className="realshot"
+                      src="/img/mockup-real-example.jpg"
+                      width="1280" height="760" loading="lazy" decoding="async"
+                      alt="Prime Mobile Detailing, a real website built on this platform: a bold headline over a photo of a car's wheel, a booking panel below it"
+                    />
                   </div>
                 </div>
               </div>

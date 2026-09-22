@@ -885,6 +885,9 @@
   font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: -.01em;
 }
 .ld .site .scr { background: var(--paper); color: var(--paper-ink); overflow: hidden; }
+/* ROADMAP 7.11 — the mock now holds one real screenshot rather than a
+   hand-built fake page, so it just needs to fill the frame cleanly. */
+.ld .site .realshot { display: block; width: 100%; height: auto; }
 .ld .site .sitenav { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; padding: 14px 18px; border-bottom: 1px solid var(--paper-line); }
 .ld .site .biz { font-variation-settings: "wdth" 104, "wght" 700; font-size: 15px; letter-spacing: -.02em; }
 .ld .site .lks { display: flex; gap: 13px; flex: none; }

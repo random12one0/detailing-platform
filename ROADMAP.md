@@ -5702,7 +5702,7 @@ rather than wording went to Andrew.
   has the fix and pass on one that does not** — that is the single assertion
   proving the hole is closed rather than described.
 
-- [ ] **7.11 — Andrew's own name and domain are printed on his sales page
+- [x] **7.11 — Andrew's own name and domain are printed on his sales page
   beside a city, and nobody has ever checked that it's the one he actually
   works in.** Originally logged as "the home page's own example is a
   different city from the demo" (Home page says "Tacoma, WA"; the demo
@@ -5769,6 +5769,80 @@ rather than wording went to Andrew.
   printed on your home page next to the line 'Mobile detailing, Tacoma and
   south.' What should that line say?"* — one sentence back from him and it
   is buildable; nobody here is going to guess his service area for him.
+
+  **RESOLVED 2026-09-22 — ANDREW ANSWERED, AND IT WAS NOT THE QUESTION
+  EITHER READING OF THIS ITEM HAD ASKED.** His words, relayed: *"that's
+  just like fake, whatever, that's like not a real anything. My actual
+  website, if you go to it, andrewsdetail.com, I'm in Lakewood, California.
+  But this was just like a mock-up, mock-up little thing that it made... so
+  if you think that could be improved, change that with a fake company,
+  maybe even using an actual example from a website that we built."* The
+  city was never the point — the whole block being an invented mock-up
+  dressed as something real was. Built the second option, a real example:
+  `/ex1`, "Prime Mobile Detailing," a site this platform actually built.
+
+  **AND THIS CLOSES A SECOND, SEPARATELY-QUEUED COMPLAINT IN THE SAME
+  CHANGE, ON PURPOSE, BECAUSE THEY WERE THE SAME COMPLAINT.**
+  `docs/MANAGER-CLOSE-2026-09-21.md` records: *"The mock browser bar
+  around it is a separate complaint — he wants a real screenshot from one
+  of the sites instead, and that is a design task."* The mock-up and its
+  browser chrome were built and fixed together rather than as two passes.
+
+  **THE TENSION NAMED BEFORE STARTING, RESOLVED RATHER THAN SILENTLY
+  PICKED: MANAGER-CLOSE ALSO CARRIES A BINDING RULING THAT
+  `andrewsdetail.com` STAYS ON THE MARKETING PAGE — "he is happy promoting
+  it."** Checked live, not assumed, before touching anything:
+  `document.body.innerText`, whole rendered home page, both
+  `andrewsdetail.com` and `Andrew's Auto Detail`. **One occurrence of each,
+  and both were inside this one mock-up** — zero anywhere else on the page,
+  including hrefs and attributes. **So today's ruling supersedes the older
+  one, not because a new instruction outranks an old one, but because the
+  older ruling's own subject — the one place the name appeared — is the
+  thing that changed.** There is no surviving instance of "the marketing
+  page promotes andrewsdetail.com" left after this edit; the older ruling
+  is kept below rather than deleted, per the standing rule that the
+  reversal is the load-bearing part.
+
+  > **SUPERSEDED RULING, KEPT VISIBLE:** `docs/MANAGER-CLOSE-2026-09-21.md`
+  > — *"`andrewsdetail.com` stays on the marketing page. He is happy
+  > promoting it. The mock browser bar around it is a separate complaint —
+  > he wants a real screenshot from one of the sites instead, and that is
+  > a design task."* Correct when written; the mock-up it describes no
+  > longer names that domain anywhere.
+
+  **BUILT.** `app/src/landing/LandingPage.jsx`: the entire hand-typed mock
+  (fake nav, fake headline, fake booking panel, fake footer — all of it,
+  not just the two strings this item originally named) replaced with one
+  real screenshot, `/img/mockup-real-example.jpg` — `/ex1` captured live
+  at 1280px (the real desktop rendering), JPEG quality 82, 125 KB. The
+  browser chrome's fake URL changed from `andrewsdetail.com` to
+  `yoursite.com`, echoing this section's own headline ("Your own website,
+  at your own address") rather than inventing a second placeholder
+  convention. `docs/design-directions/5-the-thread.html` updated to match
+  — **except its photo stays a plain file reference rather than the
+  base64 data URI its own header explains it needs** for the artifact
+  viewer Andrew reads it through; noted inline in that file for whoever
+  next re-encodes it, not silently left inconsistent.
+
+  **VERIFIED:**
+  - Live DOM: `.realshot` image `complete: true`, `naturalWidth: 1920`,
+    rendering at the frame's own width via CSS — not merely present in
+    the JSX.
+  - Console read in full, warnings not filtered — the two known
+    `react-router-dom` warnings, no errors.
+  - Four credential-free suites pass, `label-guard` clean, no test file
+    touched (nothing in `tests/landing-pricing.test.mjs` referenced the
+    old mock-up's text).
+  - Screenshots to disk at all five widths (`1920`, `1440`, `768`, `392`,
+    `320`), each waited for the mock's own reveal and the image's own
+    `complete`/`naturalWidth` before shooting, each passed the
+    content-variance assertion (72–77 across all five) —
+    `receipts/screenshots/7.11-2026-09-22/`. **Full-viewport captures at
+    320 and 1440 too**, not just cropped to the mock-up, per the lesson
+    from earlier the same day that a crop to an element's own box hides
+    what spills past it — confirmed no overflow at either. Opened
+    `1440-mockup.png` and `320-mockup.png` directly: real headline, real
+    photo, `yoursite.com` in the chrome bar, no fake content anywhere.
 
 - [x] **7.12 — ~~Pricing page is blank for about a second~~, and has no
   sign-up button in the phone top bar.**
