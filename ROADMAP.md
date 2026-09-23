@@ -1470,10 +1470,36 @@ the wrong service, and never book a job we cannot reach.
   `settings.site_discount_label` on the booking page is always `undefined` and
   the branch reading it could never be taken. **A detailer who wrote their own
   sale name was silently shown ours instead, on the one screen where they are
-  selling.** The server has published it on the quote all along
-  (`calculate-booking/index.ts:135`), which is where the page reads it from
-  now. One word. No new field, no migration, nothing to deploy. **Every other
-  signal in the run said the work was finished.**
+  selling.**
+
+  **WHAT WAS ACTUALLY DONE, CORRECTED 2026-09-22 BECAUSE THE FIRST WORDING
+  DESCRIBED A FIX THAT WAS NOT MADE.** This entry said "one word", next to a
+  sentence about `normalizeSettings`' whitelist — which reads as though the
+  whitelist gained the field. **It did not. `core.js` is untouched, and
+  `site_discount_label` still does not appear anywhere in it.** Andrew grepped
+  for it, found nothing, and was one step from sending the item back as a
+  named-but-unmade fix. What was done is a *route around*: `StepReview.jsx`
+  now takes the detailer's sale name from **`quote.site_discount_label`** —
+  the server's own quote, where `calculate-booking/index.ts:135` has published
+  it all along — instead of from `settings`. No new field, no migration,
+  nothing to deploy, and `normalizeSettings`' whitelist is exactly as it was.
+
+  **WHY THE ROUTE-AROUND IS THE BETTER FIX AND NOT THE LAZIER ONE.** The quote
+  is where the value is decided: `calculate-booking` already gates it on
+  `site_discount_active`, so the page cannot show a sale name for a sale that
+  is switched off. Adding the field to `normalizeSettings` would have put a
+  second copy of that value on the page, ungated, arriving by a different road
+  from the amount it labels — which is the two-sources-for-one-number shape
+  `_shared/pricing.ts` exists to refuse.
+
+  **AND NO DEAD BRANCH WAS LEFT BEHIND — checked rather than assumed.** The
+  only remaining readers of `settings.site_discount_label` are
+  `app/src/screens/more/Promos.jsx:93` and `:134`, which are the DETAILER's
+  own settings screen writing the value. That is a different `settings` object
+  on a different surface and is correct. On the booking page there is now
+  exactly one reader and it is the quote.
+
+  **Every other signal in the run said the work was finished.**
 
   **THE INSTRUMENT: `scripts/discount-label.mjs`.** 15 targets, 90 assertions,
   graded `PASS` by `receipt.mjs`. Six questions per target — `line-present`,

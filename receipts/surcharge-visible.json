@@ -1,9 +1,9 @@
 {
-  "git_sha": "f40b96648f916e5266393bda41f6874650845320",
-  "git_sha_started": "f40b96648f916e5266393bda41f6874650845320",
+  "git_sha": "9314449467766f659f175747e180f45096cfbd77",
+  "git_sha_started": "9314449467766f659f175747e180f45096cfbd77",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-23T03:08:30.292Z",
+  "finished_at": "2026-09-23T04:32:07.912Z",
   "failures": [
     "1920x1080 weekend, first slot: early-named a day is chosen and 19 times are listed, and nothing on the page names a surcharge — the customer is being shown a price that is already wrong",
     "1920x1080 weekend, first slot: early-priced the bar reads $65 with the day chosen and $95 once a time is tapped, so the figure on screen is not the figure that will be charged",
@@ -143,7 +143,7 @@
     "stand_in": null
   },
   "check_id": "surcharge-visible",
-  "started_at": "2026-09-23T03:01:33.039Z",
+  "started_at": "2026-09-23T04:25:02.096Z",
   "status": "fail",
   "expected_targets": 25,
   "discovered_targets": 25,
@@ -152,6 +152,7 @@
   "skipped_targets": 0,
   "assertions_executed": 195,
   "min_assertions": 195,
+  "assertion_floor": "10 weekend targets x 9 questions + 5 weekday controls x 3 + 10 canary runs x 9 = 195. The count is fixed by SIZES x PICKS x the question list, never by what the run finds: a target that cannot render grades as failures rather than dropping out, so the number cannot fall without a diff. It is a tripwire on the code, not a run-time check.",
   "canary": {
     "id": "below-the-chips-and-stripped-from-the-answer",
     "observed_failure": true,

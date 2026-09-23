@@ -140,9 +140,14 @@ const REQUIRED = {
 export function validate(r, opts = {}) {
   const p = [];
   const bad = (m) => p.push(m);
+  // NOTES ARE PRINTED UNDER EVERY VERDICT, INCLUDING A PASS, exactly like the
+  // head-moved line below — a thing a reader is least expecting to be told is
+  // the thing worth telling them.
+  const notes = [];
+  const note = (m) => notes.push(m);
 
   if (r === null || typeof r !== "object" || Array.isArray(r)) {
-    return { ok: false, problems: ["receipt is not a JSON object"], receipt: r };
+    return { ok: false, problems: ["receipt is not a JSON object"], notes: [], receipt: r };
   }
 
   for (const [k, t] of Object.entries(REQUIRED)) {
@@ -158,7 +163,7 @@ export function validate(r, opts = {}) {
   }
   // Nothing below can run on a receipt that is missing its fields, and every
   // rule would report a second, confusing problem for the same cause.
-  if (p.length) return { ok: false, problems: p, receipt: r };
+  if (p.length) return { ok: false, problems: p, notes, receipt: r };
 
   // FAIL CLOSED ON ZERO — report rule 2. A check that discovered nothing has
   // proved nothing. This is the single rule that catches the whole class of
@@ -192,6 +197,41 @@ export function validate(r, opts = {}) {
   if (r.min_assertions <= 0) bad("min_assertions is " + r.min_assertions + "; a floor of zero is not a floor");
   else if (r.assertions_executed < r.min_assertions) {
     bad(`only ${r.assertions_executed} assertions ran against a declared minimum of ${r.min_assertions}`);
+  }
+
+  // **A FLOOR THAT EQUALS THE COUNT IT MEASURES CANNOT EVER BIND, AND FOUR
+  // RECEIPTS IN THIS REPO HAD ONE — 2026-09-22.**
+  //
+  // `min_assertions` exists to catch a run that quietly did less than it used
+  // to. When it is set to exactly what a clean run executes, the two numbers
+  // move together: add a target and both rise, delete half the questions and
+  // both fall. The comparison above is then arithmetic that can only ever
+  // come out true, sitting in the file whose entire purpose is to refuse a
+  // check that grades itself.
+  //
+  // **THIS IS THE SAME SHAPE AS A CONTROL THAT IS QUIETLY AN INSTANCE OF THE
+  // FAULT** — `discount-label.mjs` shipped an "exact" case that was not exact
+  // — and as a canary nobody breaks. It reads as a guard and is a decoration.
+  //
+  // Andrew, 2026-09-22, having raised it twice: *"Either set it genuinely
+  // below, or if it really is a structural count that cannot vary, write one
+  // line in the receipt saying so, and then do that everywhere rather than per
+  // script."* So the rule lives HERE rather than in each check, and a receipt
+  // whose floor cannot bind has to say why in its own words.
+  //
+  // A structural count is a real thing: `targets x questions`, fixed by the
+  // code rather than by what the run found. Declaring it is not an excuse, it
+  // is the difference between "this floor is deliberately a tripwire on the
+  // DIFF" and "somebody typed the number the run happened to print."
+  if (r.min_assertions > 0 && r.assertions_executed === r.min_assertions) {
+    if (typeof r.assertion_floor === "string" && r.assertion_floor.trim().length >= 20) {
+      note(`the assertion floor equals the count it measures, so it cannot bind at run time; `
+        + `declared structural: ${r.assertion_floor.trim()}`);
+    } else {
+      bad(`min_assertions (${r.min_assertions}) equals assertions_executed, so the floor can `
+        + "never bind — both numbers move together. Set it genuinely below, or declare "
+        + "`assertion_floor` with the reason the count cannot vary");
+    }
   }
 
   // ARTIFACTS MUST EXIST ON DISK AND NOT BE EMPTY. A listed path that is not
@@ -329,7 +369,7 @@ export function validate(r, opts = {}) {
   return {
     ok: problems.length === 0 && !heldBy,
     problems, verdict, stale: !!staleness, staleness,
-    moved: !!drift, drift, startShaUnknown,
+    moved: !!drift, drift, startShaUnknown, notes,
     hold: heldBy, receipt: r,
   };
 }
@@ -413,6 +453,7 @@ if (invokedDirectly) {
     // before 2026-09-21 that was indistinguishable from a run on a still
     // tree. The line goes under the PASS, where the reader is least expecting
     // to be told anything.
+    for (const m of v.notes ?? []) console.log("        note: " + m);
     if (v.moved) { moved++; console.log("        " + v.drift); }
     else if (v.startShaUnknown) {
       unknown++;

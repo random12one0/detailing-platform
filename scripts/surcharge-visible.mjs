@@ -829,6 +829,13 @@ const { path } = writeReceipt({
   // 10 weekend x 9 + 5 control x 3 + 10 canary x 9. Lowering it is a visible
   // diff somebody has to justify, which is the only reason a floor exists.
   min_assertions: 195,
+  // **DECLARED BECAUSE THE FLOOR EQUALS THE COUNT, WHICH MEANS IT CANNOT BIND.**
+  // `receipt.mjs` refuses a receipt that does not say why. Andrew raised this twice
+  // before it was fixed: a floor set to exactly what a clean run executes moves with
+  // the thing it is measuring, so the comparison can only ever come out true — the
+  // same shape as a control that is quietly an instance of the fault.
+  assertion_floor:
+    "10 weekend targets x 9 questions + 5 weekday controls x 3 + 10 canary runs x 9 = 195. The count is fixed by SIZES x PICKS x the question list, never by what the run finds: a target that cannot render grades as failures rather than dropping out, so the number cannot fall without a diff. It is a tripwire on the code, not a run-time check.",
   failures: [...failures, ...consoleNoise.map((c) => `console: ${c}`)],
   artifacts,
   warnings: [

@@ -466,6 +466,13 @@ const { path } = writeReceipt({
   assertions_executed: assertions,
   // 10 targets x 6 + 5 canary runs x 6.
   min_assertions: 90,
+  // **DECLARED BECAUSE THE FLOOR EQUALS THE COUNT, WHICH MEANS IT CANNOT BIND.**
+  // `receipt.mjs` refuses a receipt that does not say why. Andrew raised this twice
+  // before it was fixed: a floor set to exactly what a clean run executes moves with
+  // the thing it is measuring, so the comparison can only ever come out true — the
+  // same shape as a control that is quietly an instance of the fault.
+  assertion_floor:
+    "5 widths x 2 cases x 6 questions + 5 canary runs x 6 = 90. The count is fixed by SIZES x CASES x the question list, never by what the run finds: a missing discount line grades as six failures rather than dropping out, so the number cannot fall without a diff. It is a tripwire on the code, not a run-time check.",
   failures: [...failures, ...consoleNoise.map((c) => `console: ${c}`)],
   artifacts,
   warnings: [
