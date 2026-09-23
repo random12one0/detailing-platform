@@ -95,6 +95,7 @@ set -a; . ./.env; set +a
 | The job record's pinned action bar, or any container it opens in | `node scripts/pinned-bar.mjs` |
 | The booking widget | `node scripts/sweep-booking-steps.mjs` |
 | **Anything that prices a DAY or a TIME — the date step, the fixed bar, `price_rules`, `pricing.ts`** | `node scripts/surcharge-visible.mjs` (dev server + seed, no credentials). **A customer must never be shown one price and charged another, and the way that goes wrong here is not arithmetic — it is a correct sentence rendered where no phone can see it.** It walks the public page at five widths, tapping the first slot and the last, and asks whether the bar's RISE equals the lines the page just named, whether those lines sit above the fixed bar by hit-test, and whether their pixels are actually painted |
+| **A money LABEL — a discount, a surcharge, anything whose words state a size** | `node scripts/discount-label.mjs` (dev server + seed, no credentials). **A label that states a percentage is making a claim the figure beside it has to keep**, and the two are composed in different places at different times. It asks whether a stated percentage of the job is EXACTLY the figure shown, and whether the percentage is still stated where it IS true — the second half matters, because a check that only asks the first can be satisfied by deleting every number |
 | Anything on a customer's or booking's path | `node scripts/e2e-booking.mjs` |
 | An email | `node scripts/render-emails.mjs` |
 | A migration | `node scripts/db-audit.mjs` **and** `node scripts/migration-drift.mjs` |

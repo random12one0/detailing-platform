@@ -51,11 +51,29 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
   if (quote?.site_discount > 0) {
     shownDiscounts.push({
       key: "site",
-      // The detailer's own name for their sale where they wrote one — `tx()`;
-      // our fallback sentence where they did not — `t()`.
-      label: settings.site_discount_label
-        ? tx(settings.site_discount_label)
-        : t("{percent}% off", { percent: quote.site_discount_percent }),
+      // **NAMED AFTER THE FOLD, NOT BEFORE IT — 2026-09-22.** This used to
+      // decide its label here, and the label stated a SIZE: `"{percent}% off"`
+      // out of the detailer's advertised rate. The amount beside it is
+      // frequently not that percentage of anything, so the line promised
+      // something the number under it could not keep. Measured against the
+      // engine: `"10% off"` beside **-$5.00 of a $65 job, which is 7.69%**.
+      // The label is now chosen below, once `amount` is final.
+      //
+      // **FROM THE QUOTE, NOT FROM `settings` — AND THIS WAS A SECOND, LIVE
+      // BUG, FOUND 2026-09-22 BY A CANARY THAT REFUSED TO FIRE.**
+      // `discount-label.mjs` stands a canary on a detailer who names their own
+      // sale; it injected the name into the profile and caught nothing, five
+      // times out of five, while every real target was green. The reason:
+      // `normalizeSettings` in `core.js` builds a whitelist and
+      // `site_discount_label` is not in it, so `settings.site_discount_label`
+      // on this page is **always undefined** and this branch could never be
+      // taken. **A detailer who wrote their own sale name was silently shown
+      // ours instead**, on the one screen where they are selling.
+      // The server has published it on the quote all along
+      // (`calculate-booking/index.ts`), which is where it is read from now —
+      // one word, no new field, no migration, nothing to deploy.
+      custom: quote?.site_discount_label ? tx(quote.site_discount_label) : null,
+      percent: Number(quote.site_discount_percent) || 0,
       amount: quote.site_discount,
     });
   }
@@ -75,6 +93,38 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
   if (shownDiscounts.length && gap !== 0) {
     const last = shownDiscounts[shownDiscounts.length - 1];
     last.amount = (cents(last.amount) + gap) / 100;
+  }
+  // **NOW NAME THE SITE LINE, BECAUSE ONLY NOW IS ITS FIGURE FINAL.**
+  //
+  // A label that states a percentage is making a claim a customer can check
+  // with the number beside it, so it is only used when that check passes
+  // EXACTLY. Two independent things make it fail, and the second one is the
+  // reason "it only happens when a rounding gap folds in" is not true:
+  //   1. the engine rounds the discount itself to whole dollars, so 10% of
+  //      $65 is $6.50 and becomes $7 — 10.77% — with no rounding setting
+  //      involved at all;
+  //   2. the rounding gap above then folds into this same line, which is
+  //      2.2's own fix and is what takes that $7 down to $5 on a tenant
+  //      rounding to the nearest $5.
+  //
+  // **WHERE IT CANNOT SAY A PERCENTAGE IT SAYS `Discount`, WHICH IS NOT A NEW
+  // WORD.** `ManageBookingPage.jsx` already names this exact line that way,
+  // and its comment gives the same reason in fewer words — "the row cannot say
+  // which sale it was". So the review step and the receipt the customer gets
+  // afterwards now use the same word for the same line, which they did not
+  // before. No new string, and `es.js` already carries `Descuento`.
+  //
+  // **A DETAILER'S OWN SALE NAME IS PRINTED AS WRITTEN, EVEN IF IT STATES A
+  // RATE.** Those are their words and this product does not rewrite a
+  // detailer's copy — the same rule as a service name or a travel-zone name.
+  // It is a real residual gap, it is deliberate, and `discount-label.mjs`
+  // stands its canary on exactly that case so nobody can forget it is there.
+  for (const d of shownDiscounts) {
+    if (d.label) continue;                       // the promo line names itself
+    const exact = gross > 0 && d.percent > 0
+      && cents(d.amount) === Math.round(gross * d.percent / 100);
+    d.label = d.custom
+      ?? (exact ? t("{percent}% off", { percent: d.percent }) : t("Discount"));
   }
   // NOTHING TO FOLD IT INTO. A business that rounds and is running no discount
   // charges a total that is not the sum of its prices, and the honest thing is

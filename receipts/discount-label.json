@@ -1,21 +1,10 @@
 {
-  "git_sha": "abc8affe2013afd43f8a0533538abb75b990a1f5",
-  "git_sha_started": "abc8affe2013afd43f8a0533538abb75b990a1f5",
+  "git_sha": "f93787aa83e3d6cdfd2cad1d7b5ab71b59e485c7",
+  "git_sha_started": "f93787aa83e3d6cdfd2cad1d7b5ab71b59e485c7",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-23T03:27:31.336Z",
-  "failures": [
-    "1920x1080 mismatch: honest the label «10% off» claims 10%, which of $65.00 would be $6.50, but the figure beside it is $5.00 — that is 7.69%",
-    "1920x1080 mismatch: form this discount is not a whole percentage of the job, so the label should not state one, and it reads «10% off»",
-    "1440x900 mismatch: honest the label «10% off» claims 10%, which of $65.00 would be $6.50, but the figure beside it is $5.00 — that is 7.69%",
-    "1440x900 mismatch: form this discount is not a whole percentage of the job, so the label should not state one, and it reads «10% off»",
-    "768x1024 mismatch: honest the label «10% off» claims 10%, which of $65.00 would be $6.50, but the figure beside it is $5.00 — that is 7.69%",
-    "768x1024 mismatch: form this discount is not a whole percentage of the job, so the label should not state one, and it reads «10% off»",
-    "392x844 mismatch: honest the label «10% off» claims 10%, which of $65.00 would be $6.50, but the figure beside it is $5.00 — that is 7.69%",
-    "392x844 mismatch: form this discount is not a whole percentage of the job, so the label should not state one, and it reads «10% off»",
-    "320x844 mismatch: honest the label «10% off» claims 10%, which of $65.00 would be $6.50, but the figure beside it is $5.00 — that is 7.69%",
-    "320x844 mismatch: form this discount is not a whole percentage of the job, so the label should not state one, and it reads «10% off»"
-  ],
+  "finished_at": "2026-09-23T04:03:05.678Z",
+  "failures": [],
   "warnings": [
     "THE QUOTE IS A DECLARED FIXTURE. demo-detail has site_discount_active = false, so a site-discount line does not render there at all; every target injects one, with computeQuote's own numbers for a tenant configured that way. THE LIVE DISCOUNT PATH WITH site_discount_active = true ON A REAL TENANT WAS NOT EXERCISED, at any width, in any run."
   ],
@@ -52,15 +41,15 @@
       "exact: 20%, rounding 0"
     ],
     "observed": [
-      "1920x1080 mismatch: «10% off» -$5.00 of $65.00 = 7.69% · total $60.00",
+      "1920x1080 mismatch: «Discount» -$5.00 of $65.00 = 7.69% · total $60.00",
       "1920x1080 exact: «20% off» -$13.00 of $65.00 = 20.00% · total $52.00",
-      "1440x900 mismatch: «10% off» -$5.00 of $65.00 = 7.69% · total $60.00",
+      "1440x900 mismatch: «Discount» -$5.00 of $65.00 = 7.69% · total $60.00",
       "1440x900 exact: «20% off» -$13.00 of $65.00 = 20.00% · total $52.00",
-      "768x1024 mismatch: «10% off» -$5.00 of $65.00 = 7.69% · total $60.00",
+      "768x1024 mismatch: «Discount» -$5.00 of $65.00 = 7.69% · total $60.00",
       "768x1024 exact: «20% off» -$13.00 of $65.00 = 20.00% · total $52.00",
-      "392x844 mismatch: «10% off» -$5.00 of $65.00 = 7.69% · total $60.00",
+      "392x844 mismatch: «Discount» -$5.00 of $65.00 = 7.69% · total $60.00",
       "392x844 exact: «20% off» -$13.00 of $65.00 = 20.00% · total $52.00",
-      "320x844 mismatch: «10% off» -$5.00 of $65.00 = 7.69% · total $60.00",
+      "320x844 mismatch: «Discount» -$5.00 of $65.00 = 7.69% · total $60.00",
       "320x844 exact: «20% off» -$13.00 of $65.00 = 20.00% · total $52.00"
     ],
     "delta_floor": 2,
@@ -68,8 +57,8 @@
     "sabotage": null
   },
   "check_id": "discount-label",
-  "started_at": "2026-09-23T03:23:01.258Z",
-  "status": "fail",
+  "started_at": "2026-09-23T03:58:33.864Z",
+  "status": "pass",
   "expected_targets": 15,
   "discovered_targets": 15,
   "attempted_targets": 15,

@@ -164,8 +164,20 @@ const BLANK_CSS = ".bk-receipt .line span:first-child { color: transparent !impo
  * numbers for a tenant configured this way. See the header: the configuration
  * is the fixture, the arithmetic is not.
  */
-const fixture = (page, { percent, nearest, custom }) =>
-  page.route("**/calculate-booking", async (route) => {
+const fixture = async (page, { percent, nearest, custom }) => {
+  // **THE SALE NAME GOES ON THE QUOTE, AND GETTING THAT WRONG IS WHAT FOUND A
+  // SECOND BUG.** The first version of this fixture put it on the PROFILE,
+  // because `StepReview.jsx` read `settings.site_discount_label`. The canary
+  // then caught nothing, 0 out of 5, while all ten real targets were green —
+  // and the cause was not the fixture: `normalizeSettings` in `core.js` never
+  // carried that field, so the branch reading it was unreachable and a
+  // detailer's own sale name could never appear on the review step at all.
+  // The page now reads it off the quote, where the server has always sent it,
+  // and this fixture sets it there.
+  //
+  // **A CANARY THAT WILL NOT FIRE IS EVIDENCE, NOT AN OBSTACLE.** Every other
+  // signal in this run said the work was finished.
+  await page.route("**/calculate-booking", async (route) => {
     const res = await route.fetch();
     let body;
     try { body = await res.json(); } catch { return route.fulfill({ response: res }); }
@@ -192,6 +204,7 @@ const fixture = (page, { percent, nearest, custom }) =>
     q.total = model.total;
     return route.fulfill({ response: res, body: JSON.stringify(body) });
   });
+};
 
 /**
  * Everything the six questions need, read off the live review step in one pass.
@@ -259,7 +272,19 @@ async function target(browser, { w, h }, kase, { label, stem, canary }) {
 
   const out = { rows: [], read: null, spreads: [], discount: null, gross: null, total: null };
   try {
-    if (!(canary && BREAK === "canary")) await fixture(page, kase);
+    // **`--break=canary` REMOVES THE DETAILER'S NAME, NOT THE WHOLE FIXTURE,
+    // AND THE FIRST VERSION GOT THAT WRONG.** Skipping the fixture left the
+    // page with no discount line at all, so every assertion failed and the
+    // canary reported "caught" over a target that was not testing anything —
+    // a sabotage that proves the check can notice an empty page, which nobody
+    // doubted. Removing only the custom label turns the canary target into an
+    // ordinary mismatch target, which the fix handles correctly, so the canary
+    // observes nothing and `receipt.mjs` must reject the receipt. **That is
+    // the sabotage doing its job: it has to fail for the RIGHT reason.**
+    await fixture(page, {
+      ...kase,
+      custom: canary && BREAK === "canary" ? null : kase.custom,
+    });
 
     await page.goto(`${BASE}/book/${SLUG}`, { waitUntil: "domcontentloaded" });
     await page.waitForSelector(".bk-card.selectable", { timeout: 30000 });

@@ -1384,9 +1384,9 @@ the wrong service, and never book a job we cannot reach.
   `create-booking`/`calculate-booking` themselves were not edited; both
   already call the shared function unmodified.
 
-- [ ] **A discount label can state a percentage the folded amount does not
-  match — found fixing 2.2, narrow, pre-dating this session, not fixed
-  here.** `StepReview.jsx:57` — when there is no detailer-written sale
+- [x] **DONE 2026-09-22 — A discount label can state a percentage the folded
+  amount does not match — found fixing 2.2, narrow, pre-dating this session,
+  not fixed here.** `StepReview.jsx:57` — when there is no detailer-written sale
   name, the site discount's own label reads `t("{percent}% off", {percent:
   quote.site_discount_percent})`. It states its own size. When the site
   discount is the line a rounding gap folds into (2.2's own fix, or the
@@ -1412,6 +1412,131 @@ the wrong service, and never book a job we cannot reach.
   rather than a percentage once a rounding setting is active — a wording
   and product decision, not a named bug with one answer, and not this
   item's to make.
+
+  ---
+
+  **FIXED 2026-09-22. `app/src` ONLY — THIS ONE REACHES CUSTOMERS WITH THE
+  NEXT SITE BUILD AND NEEDS NO PUBLISH**, which is the opposite of 2.1 and was
+  checked BEFORE building rather than discovered at the end. The percentage is
+  composed in `StepReview.jsx` in the browser; the server sends the amount and
+  the rate, and both were already right.
+
+  **WHICH NUMBER IS TRUE: THE AMOUNT. Read off the engine, not off the
+  screen.** `adds-up` was green at every width in every run, before and after:
+  the lines sum exactly to the total charged, which is the property 2.2 exists
+  to hold. **So this is a label bug and not money.** Nobody was charged
+  wrongly; they were told a rate the figure beside it contradicted.
+
+  | What the label said | What was beside it | Which it really is |
+  |---|---|---|
+  | `10% off` | **-$5.00 of a $65 job** | **7.69%** |
+  | `10% off` | -$15.00 of a $140 job | 10.71% |
+  | `15% off` | -$15.00 of a $95 job | 15.79% |
+  | `10% off` | -$7.00 of a $65 job, **with no rounding setting at all** | 10.77% |
+
+  **THE ENTRY ABOVE NAMES ONE CAUSE AND THERE ARE TWO — corrected rather than
+  quietly fixed.** It says the mismatch needs "a rounding gap to fold into"
+  the line. **It does not.** `computeQuote` rounds the discount itself to whole
+  dollars first — `Math.round(65 × 0.10)` is 7, and $7 of $65 is 10.77% —
+  before any `price_rounding_nearest` is involved. The fold is the second and
+  larger cause, not the only one. The last row of the table above is the case
+  the old framing said could not happen.
+
+  **DOES THIS AFFECT PROMO CODES? NO, AND HERE IS THE REASON**, because it is
+  the first question anyone reading this will ask. The site discount and the
+  promo discount are computed side by side in `computeQuote` and the same
+  rounding fold touches both — so they do share the arithmetic. But the promo
+  line is labelled `Promo SAVE10`: **it states no size, so it has nothing to
+  contradict.** Same for the plan line (`{name} · {what}`). Today's rate-limit
+  item (14.9) touches `validate-promo-code`, a different program that only
+  checks whether a code is real. **They meet at the quote, not in the code.**
+
+  **THE FIX, AND IT IS ONE DECISION MOVED SIX LINES LATER.** The label was
+  chosen BEFORE the rounding fold ran, so it described a figure that had not
+  finished changing. It is now chosen after, and states a percentage **only
+  when that percentage of the job is exactly the figure beside it**. Where it
+  cannot, it says `Discount` — **not a new word**: `ManageBookingPage.jsx`
+  already names this exact line that way, for the same reason in fewer words
+  ("the row cannot say which sale it was"). So the review step and the receipt
+  the customer gets afterwards now use the same word for the same line, which
+  they did not before. No new string; `es.js` already carries `Descuento`.
+
+  **AND A SECOND, LIVE BUG THE CANARY FOUND BY REFUSING TO FIRE.** The canary
+  stands on a detailer who names their own sale. It injected that name into
+  the profile, caught **0 of 5**, and every one of the ten real targets was
+  green — so a check without a negative control would have reported a clean
+  sweep. The cause was not the fixture: **`normalizeSettings` in `core.js`
+  builds a whitelist and `site_discount_label` is not in it**, so
+  `settings.site_discount_label` on the booking page is always `undefined` and
+  the branch reading it could never be taken. **A detailer who wrote their own
+  sale name was silently shown ours instead, on the one screen where they are
+  selling.** The server has published it on the quote all along
+  (`calculate-booking/index.ts:135`), which is where the page reads it from
+  now. One word. No new field, no migration, nothing to deploy. **Every other
+  signal in the run said the work was finished.**
+
+  **THE INSTRUMENT: `scripts/discount-label.mjs`.** 15 targets, 90 assertions,
+  graded `PASS` by `receipt.mjs`. Six questions per target — `line-present`,
+  `adds-up`, `honest`, `form`, `visible`, `painted`.
+  **`form` exists because `honest` alone can be satisfied by saying less:**
+  deleting every percentage everywhere would pass it, so a second case asserts
+  the percentage IS stated where it is true.
+
+  | Run | Result |
+  |---|---|
+  | **Before the fix** | **FAIL — 10 failures**, `honest` and `form` on the mismatch case at 1920, 1440x900, 768x1024, 392x844 and 320. Committed red on purpose |
+  | The `exact` control, same run | **green at all five widths** — `«20% off» -$13.00 of $65.00 = 20.00%` |
+  | `adds-up`, same run | green everywhere. The money was never wrong |
+  | After the fix | **PASS 15/15** — mismatch reads `«Discount»`, exact still reads `«20% off»` |
+  | `--break=canary` | canary 0/5, receipt **rejected** |
+  | `--break=paint` | 10 of 10 targets caught |
+
+  **THE `exact` CONTROL WAS 10% IN ITS FIRST DRAFT AND THAT WAS NOT EXACT** —
+  10% of $65 is $6.50, which the engine rounds to $7 before any rounding
+  setting is involved. A control that is quietly an instance of the fault
+  proves nothing. Caught by doing the arithmetic rather than by trusting the
+  word "exact" in its own name. It is 20% now: $13.00 of $65.00, to the cent.
+
+  **AND `--break=canary` WAS TOO BLUNT AT FIRST, IN THE SAME WAY.** It skipped
+  the whole fixture, so the page had no discount line at all and every
+  assertion failed — a sabotage that proves the check can notice an empty page,
+  which nobody doubted. It now removes only the detailer's name, turning the
+  canary into an ordinary mismatch target the fix handles, so the canary
+  observes nothing and the receipt is refused. **A sabotage has to fail for the
+  right reason.**
+
+  **SCOPE, AND IT IS IN THE RECEIPT AS WELL AS HERE: THE QUOTE IS A DECLARED
+  FIXTURE.** `demo-detail` has **`site_discount_active = false`** — read off
+  `business_settings` — so this line does not render there at all. Every target
+  injects a site discount, **with `computeQuote`'s own numbers**: the real
+  module, imported, asked what a tenant configured that way would be charged.
+  What is fabricated is the tenant CONFIGURATION, not the arithmetic.
+  **THE LIVE PATH WITH `site_discount_active = true` ON A REAL TENANT WAS NOT
+  EXERCISED, at any width, in any run.**
+  **Andrew's ruling on why a fixture rather than switching the sale on**, and
+  it is a better reason than the one offered to him: *"roughly sixty checks
+  sign into these demo tenants, and `site_discount_active` is a real setting
+  other things are looking at. Flipping it on for the length of a test run is
+  cheap to do, invisible when you forget, and the cost lands on whatever runs
+  next rather than on you. This repo has already paid for that once."*
+
+  **WHAT IS DELIBERATELY NOT FIXED, standing where it can be seen.** A
+  detailer who types "10% off" as their own sale name gets it printed verbatim
+  through `tx()` — their words, the same rule as a service name or a
+  travel-zone name, and this product does not rewrite a detailer's copy. If
+  their rate and the folded figure disagree, the label is wrong again.
+  **That case is the check's standing canary**, so it cannot be forgotten.
+
+  **ONE CLAIM FROM THIS ROUND'S FIRST COMMIT IS CORRECTED HERE.** Its message
+  said the walk was extracted to `scripts/lib/bookingWalk.mjs` "because two
+  money checks with two copies of the same walk is how two money checks start
+  disagreeing". The library exists and `discount-label.mjs` uses it —
+  **`surcharge-visible.mjs` still carries its own copies.** Converting it was
+  attempted and **reverted**: the bulk cut took 219 lines where about 90 were
+  intended and removed its `READ` function with them, which is the deletion
+  CLAUDE.md's own rule says to size before writing. Restored from `HEAD`,
+  nothing committed, and recorded rather than retried at the end of a long
+  session. The duplication is real and is a follow-up.
 
 - [ ] **2.3 — A far-away address is accepted with no travel charge.**
   A San Diego address went through with "Long Beach" selected, no warning and
