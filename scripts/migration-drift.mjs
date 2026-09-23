@@ -63,13 +63,17 @@
 // `get_public_business_profile`: 6,474 characters, contained exactly.
 //
 // ---------------------------------------------------------------------------
-// WHAT IT CANNOT TELL YOU — UPDATED 2026-09-21 WHEN TABLES AND COLUMNS LANDED
+// WHAT IT CANNOT TELL YOU — UPDATED 2026-09-21 WHEN TABLES AND COLUMNS LANDED,
+// UPDATED AGAIN 2026-09-23 WHEN POLICIES LANDED (ROADMAP 8.10b)
 // ---------------------------------------------------------------------------
 // **The limit is kept and narrowed rather than deleted, because the limit is
 // the part that stops somebody trusting a green it did not earn.**
 //
-// It NOW sees: functions (by body), tables (by existence) and columns (by
-// name). 49 functions, 52 tables, 737 assertions on a full run.
+// It NOW sees: functions (by body), tables (by existence), columns (by name
+// and type family), and policies (by existence, on the `public` and
+// `storage` schemas — RLS is where this repo has already been burnt once,
+// the realtime-channel finding, and it is the one of the three CLAUDE.md
+// named that a session is most likely to actually need next).
 //
 // It STILL cannot see:
 //   * **a column's DEFAULT or NULLABILITY.** The TYPE is compared as of
@@ -80,11 +84,21 @@
 //     recognises and are counted UNJUDGED rather than guessed at**, which is
 //     deliberate: four separate false positives died building this file and
 //     every one of them was a parser that guessed.
-//   * **policies, grants, RLS enable/force state.** `db-audit.mjs` asks some
-//     of those; this does not ask any of them.
+//   * **a policy's own USING or WITH CHECK expression.** Existence only, the
+//     same conservative choice tables made first — a general SQL boolean
+//     expression normaliser is exactly the kind of guesser that produced the
+//     four false positives above, and nobody has built or proved one here.
+//   * **grants and RLS enable/force state.** `db-audit.mjs` asks some of
+//     those; this does not ask any of them. ROADMAP 8.10c.
 //   * **indexes, constraints, triggers, views, enum types, extensions.**
+//     ROADMAP 8.10c.
 //   * **a migration whose whole content is a `grant`, an `update`, or a data
 //     backfill.** Nothing about it is visible in the schema afterwards.
+//   * **a dynamically-named policy.** Five migrations generate policies in a
+//     loop (`execute format($p$ create policy %I on public.%I …`) — the
+//     literal source text is `%I`, not a real name, and resolving the loop
+//     variable would mean parsing SQL out of a format string. Counted and
+//     named as UNJUDGEABLE per file rather than silently skipped or guessed.
 //
 // **AND THE BIGGEST ONE, WHICH NO AMOUNT OF PARSING FIXES:** there is still no
 // applied-migrations ledger. This infers what ran from what the schema LOOKS
@@ -252,6 +266,130 @@ for (const f of files) {
       }
     }
     intendedTables.set(e.name, { cols, types: colType, file: f });
+  }
+}
+
+// --- 1c · replay the repo's POLICIES — 2026-09-23, ROADMAP 8.10b -----------
+// **POLICIES, NOT GRANTS OR INDEXES, BECAUSE THIS IS RLS AND RLS IS THE ONE
+// OF THE THREE THIS REPO HAS ALREADY BEEN BURNT BY.** The realtime-channel
+// finding earlier this week (`docs/tenant-matrix.mjs`) was a missing
+// `private: true`, not a missing policy — but the shape of the risk is
+// identical: a security boundary that exists only in a migration file
+// nobody confirmed ran. Grants and indexes remain unbuilt; see 8.10c.
+//
+// EXISTENCE ONLY, LIKE TABLES ABOVE, NOT THE POLICY'S OWN USING/WITH CHECK
+// EXPRESSION. The same reason the table half stayed conservative: a
+// normaliser for arbitrary SQL boolean expressions is exactly the kind of
+// guesser that has produced four false positives building this file already
+// (see the TYPE_FAMILY comment above). Existence answers the actual question
+// 8.10a asked — did the migration that CREATES this policy ever run — without
+// inventing a comparator nobody has proved.
+//
+// **DYNAMIC POLICIES ARE RESOLVED WHEN THAT IS SAFE, AND NAMED RATHER THAN
+// GUESSED AT OTHERWISE — AND LEAVING THEM UNRESOLVED TURNED OUT TO INVENT A
+// FAILURE, NOT JUST MISS ONE.** Five migrations generate policies in a loop:
+//
+//   foreach t in array array['services', 'service_groups', ...] loop
+//     execute format('drop policy if exists %I on public.%I', t || '_tenant_all', t);
+//     execute format($p$ create policy %I on public.%I ... $p$, t || '_member_select', t);
+//   end loop;
+//
+// The first version of this counted every `%I` as UNJUDGEABLE and moved on.
+// **That produced a false positive on the very first run**:
+// `service_groups_tenant_all`, created by one migration, is DROPPED by
+// exactly this pattern in a later one and replaced by
+// `service_groups_member_select` / `service_groups_settings_write` — both
+// confirmed live by a direct query. Skipping the dynamic drop left the old
+// name in `intended` forever, and it was reported ABSENT from a database
+// that is correct. **A check that invents failures out of a correct
+// database is worth less than no check — this file's own oldest lesson,
+// now paid again one object type over.**
+//
+// So: the array literal is genuinely static (every element seen is a quoted
+// string), and the substitution is a plain `t || '_suffix'` concatenation —
+// nothing here requires evaluating arbitrary SQL, only reading a literal
+// array and a literal suffix, which is not the kind of guessing that broke
+// this file four times before. Resolved. What is NOT resolved — a loop
+// whose array is not all literals, a substitution that is not `t ||
+// '_suffix'`, anything this pattern does not match — still falls through to
+// UNJUDGEABLE, named by file, exactly as before.
+const LOOP_RE = /foreach\s+t\s+in\s+array\s+array\s*\[([^\]]*)\]/gi;
+function resolveDynamicPolicyLoops(src) {
+  const resolved = [];
+  const resolvedRanges = []; // [start, end) byte ranges the loop body covered
+  for (const loopM of src.matchAll(LOOP_RE)) {
+    const tableList = [...loopM[1].matchAll(/'([a-z_0-9]+)'/gi)].map((x) => x[1].toLowerCase());
+    if (!tableList.length) continue;
+    const bodyStart = loopM.index + loopM[0].length;
+    const endLoopAt = src.indexOf("end loop", bodyStart);
+    if (endLoopAt < 0) continue;
+    const body = src.slice(bodyStart, endLoopAt);
+    resolvedRanges.push([loopM.index, endLoopAt]);
+    // Each `execute format('drop policy if exists %I on public.%I', t ||
+    // '_suffix', t)` or the create-policy equivalent contributes one suffix,
+    // applied to every table in the loop's own array.
+    for (const dm of body.matchAll(/drop\s+policy\s+if\s+exists\s+%I\s+on\s+public\.%I\s*'?\s*,\s*([\s\S]{0,60}?)\);/gi)) {
+      const suffixM = dm[1].match(/t\s*\|\|\s*'([a-z_]+)'/i);
+      if (!suffixM) continue;
+      for (const t of tableList) {
+        resolved.push({ at: bodyStart + dm.index, kind: "drop", key: `public.${t}.${t}${suffixM[1]}` });
+      }
+    }
+    for (const cm of body.matchAll(/create\s+policy\s+%I\s+on\s+public\.%I[\s\S]*?\$p\$\s*,\s*t\s*\|\|\s*'([a-z_]+)'\s*,\s*t\s*\)/gi)) {
+      for (const t of tableList) {
+        resolved.push({ at: bodyStart + cm.index, kind: "create", key: `public.${t}.${t}${cm[1]}` });
+      }
+    }
+  }
+  return { resolved, resolvedRanges };
+}
+const intendedPolicies = new Map(); // "schema.table.name" -> { file }
+const unjudgeablePolicies = [];
+const POLICY_RE = /(create|drop)\s+policy\s+(?:if\s+exists\s+)?(?:"([^"]+)"|(%I)|([a-z_][a-z_0-9]*))\s+on\s+(?:(public|storage)\.)?(?:"?%I"?|([a-z_][a-z_0-9]*))/gi;
+for (const f of files) {
+  const src = readFileSync(path.join(MIGRATIONS, f), "utf8");
+  const events = [];
+  let dynamicHits = 0;
+  const { resolved, resolvedRanges } = resolveDynamicPolicyLoops(src);
+  const inResolvedRange = (i) => resolvedRanges.some(([s, e]) => i >= s && i < e);
+  for (const e of resolved) events.push(e);
+  for (const m of src.matchAll(POLICY_RE)) {
+    const kind = m[1].toLowerCase() === "create" ? "create" : "drop";
+    const name = m[2] || m[4];
+    const table = m[6];
+    const schema = (m[5] || "public").toLowerCase();
+    if (m[3] || !name || !table) {
+      // Only count it against the check's own honesty if this dynamic
+      // statement was NOT already resolved by the loop parser above.
+      if (!inResolvedRange(m.index)) dynamicHits++;
+      continue;
+    }
+    events.push({ at: m.index, kind, key: `${schema}.${table.toLowerCase()}.${name.toLowerCase()}` });
+  }
+  // **DROPPING A TABLE DROPS EVERY POLICY ON IT — POSTGRES DOES THIS
+  // AUTOMATICALLY AND THE FIRST VERSION OF THIS FILE DID NOT KNOW.** Found
+  // the same run as `service_groups` above: `monthly_plans` gets a
+  // `_tenant_all` policy from the dynamic loop, and the whole table is
+  // dropped nine hours later (`20260827001000_phase2_cleanup_and_storage.
+  // sql:16`, already noted in that file's own comments as deliberate, not
+  // an oversight). Without this, the policy stayed in `intended` forever
+  // and was reported ABSENT from a database that correctly has neither the
+  // table nor the policy. Interleaved by position with the policy events
+  // above so a drop-table between two policy statements in the same file
+  // still lands in the right order.
+  for (const m of src.matchAll(/drop\s+table\s+(?:if\s+exists\s+)?(?:public\.)?([a-z_0-9]+)/gi)) {
+    events.push({ at: m.index, kind: "droptable", name: m[1].toLowerCase() });
+  }
+  events.sort((a, b) => a.at - b.at);
+  for (const e of events) {
+    if (e.kind === "droptable") {
+      for (const key of [...intendedPolicies.keys()]) {
+        if (key.startsWith(`public.${e.name}.`) || key.startsWith(`storage.${e.name}.`)) intendedPolicies.delete(key);
+      }
+      continue;
+    }
+    if (e.kind === "drop") { intendedPolicies.delete(e.key); continue; }
+    intendedPolicies.set(e.key, { file: f });
   }
 }
 
@@ -486,6 +624,52 @@ console.log(`canary  a column no migration could have added -> `
     ? "caught: reported absent, so a MISSING COLUMN is a verdict this comparison can reach"
     : "NOT CAUGHT — a column that cannot exist was not reported absent, so every table line above is void"));
 
+// --- 3c · compare the policies ----------------------------------------------
+const livePolicyRows = await q(`select schemaname, tablename, policyname
+    from pg_policies where schemaname in ('public','storage')`);
+const livePolicies = new Set(
+  livePolicyRows.map((r) => `${r.schemaname}.${r.tablename}.${r.policyname}`.toLowerCase()));
+
+// The canary for this half: a policy name no migration could have written,
+// asserted on a real table this run already knows exists.
+const POLICY_CANARY_NAME = "migration_drift_canary_policy_never_created";
+const policySubjects = [...intendedPolicies.entries()];
+let policyCanaryKey = null;
+if (BREAK !== "canary" && policySubjects.length) {
+  const sampleTable = policySubjects[0][0].split(".").slice(0, 2).join(".");
+  policyCanaryKey = `${sampleTable}.${POLICY_CANARY_NAME}`;
+  intendedPolicies.set(policyCanaryKey, { file: "(the canary)" });
+}
+
+const policiesAbsent = [];
+let policiesCompared = 0;
+let policyCanaryCaught = false;
+let policyBreakFired = false;
+for (const [key, want] of intendedPolicies) {
+  const isCanary = key === policyCanaryKey;
+  assertions++;
+  // `--break=policy` pretends one real policy's migration never ran — the
+  // exact shape of the fault ROADMAP 8.10a found for functions, one object
+  // type over.
+  const missingOnPurpose = BREAK === "policy" && !isCanary && !policyBreakFired
+    && key !== policyCanaryKey && livePolicies.has(key);
+  const have = missingOnPurpose ? false : livePolicies.has(key);
+  if (missingOnPurpose) { policyBreakFired = true; console.log(`--break=policy: pretending ${key} never arrived (one policy, once)`); }
+  if (isCanary) { policyCanaryCaught = !have; continue; }
+  policiesCompared++;
+  if (!have) {
+    policiesAbsent.push(`${key} (declared by ${want.file})`);
+    console.log(`${key.padEnd(60)} POLICY ABSENT — declared by ${want.file}, not in the database`);
+  } else {
+    console.log(`${key.padEnd(60)} matches ${want.file}`);
+  }
+}
+console.log("");
+console.log(`canary  a policy no migration could have created -> `
+  + (policyCanaryCaught
+    ? "caught: reported absent, so a MISSING POLICY is a verdict this comparison can reach"
+    : "NOT CAUGHT — a policy that cannot exist was not reported absent, so every policy line above is void"));
+
 // --- 4 · the receipt -------------------------------------------------------
 const failures = [];
 if (files.length === 0) {
@@ -526,18 +710,34 @@ if (columnsAbsent.length) {
   failures.push(`${columnsAbsent.length} column(s) the migrations declare are NOT IN THE DATABASE — `
     + `the migration adding each one has never run: ${columnsAbsent.join(", ")}`);
 }
+if (intendedPolicies.size <= 1) {
+  // <=1 because the canary itself is always in the map by this point.
+  failures.push("THE REPLAY DECLARED NO POLICIES. Either the migrations are unreadable or the "
+    + "policy parser stopped matching, and there is no expectation to judge anything against.");
+}
+if (policiesCompared === 0 && intendedPolicies.size > 1) {
+  failures.push("ZERO POLICIES REACHED A COMPARISON.");
+}
+if (policiesAbsent.length) {
+  failures.push(`${policiesAbsent.length} polic(y/ies) the migrations declare are NOT IN THE DATABASE — `
+    + `the migration creating each one has never run: ${policiesAbsent.join(", ")}`);
+}
 
+const allCanariesCaught = canaryCaught && bodyCanaryCaught && colCanaryCaught && policyCanaryCaught;
 const { path: receiptPath } = writeReceipt({
   check_id: "migration-drift",
   started_at,
-  status: failures.length === 0 && canaryCaught && bodyCanaryCaught && colCanaryCaught ? "pass" : "fail",
+  status: failures.length === 0 && allCanariesCaught ? "pass" : "fail",
   // Replayed from supabase/migrations/ before the database is asked anything.
   // The repo is what the database is supposed to match, so the repo declares.
-  expected_targets: intended.size + intendedTables.size,
+  // The canary itself is excluded from every count below — it is not a real
+  // migration and was never expected to exist.
+  expected_targets: intended.size + intendedTables.size + (intendedPolicies.size - 1),
   discovered_targets: [...intended.keys()].filter((n) => live.has(n)).length
-    + [...intendedTables.keys()].filter((t) => liveTable.has(t)).length,
-  attempted_targets: intended.size + intendedTables.size,
-  completed_targets: compared + tablesCompared,
+    + [...intendedTables.keys()].filter((t) => liveTable.has(t)).length
+    + policiesCompared - policiesAbsent.length,
+  attempted_targets: intended.size + intendedTables.size + (intendedPolicies.size - 1),
+  completed_targets: compared + tablesCompared + policiesCompared,
   skipped_targets: 0,
   assertions_executed: assertions,
   // 51 functions make ~102 assertions. A floor just under it means losing the
@@ -548,9 +748,21 @@ const { path: receiptPath } = writeReceipt({
   warnings: [
     ...(BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : []),
     ...unjudgeable.map((u) => `UNJUDGEABLE ${u}`),
-    "FUNCTIONS ONLY — this cannot see a migration that adds a table, column, policy, grant "
-    + "or index. There is no applied-migrations ledger in this project to compare against: "
-    + "supabase_migrations.schema_migrations does not exist.",
+    ...unjudgeablePolicies,
+    // CORRECTED 2026-09-23 — this line said "FUNCTIONS ONLY" for two days
+    // after tables and columns were already covered, which is the exact
+    // failure this repo keeps finding in ROADMAP.md one level up, now found
+    // inside a receipt's own warning text. Say precisely what is seen and
+    // what still is not, so the next reader does not have to read the code
+    // to find out.
+    "SEES functions (by body), tables (by existence), columns (by name and "
+    + "type family), policies (by existence, on public and storage schemas). "
+    + "STILL CANNOT SEE: grants, indexes, constraints, triggers, views, enum "
+    + "types, extensions, RLS enable/force state, a policy's own USING/WITH "
+    + "CHECK expression, a column's DEFAULT or NULLABILITY, or a migration "
+    + "whose whole content is a grant/update/backfill with no schema trace. "
+    + "There is no applied-migrations ledger in this project to compare "
+    + "against: supabase_migrations.schema_migrations does not exist.",
   ],
   dimensions: {
     project: REF,
@@ -560,25 +772,35 @@ const { path: receiptPath } = writeReceipt({
     columns_absent: columnsAbsent,
     type_mismatch: typeMismatch,
     types_unjudged: typeUnjudged,
-    method: "replay create/drop function in file and statement order; compare body text against pg_get_functiondef",
+    policies_declared: intendedPolicies.size - 1,
+    policies_absent: policiesAbsent,
+    policies_unjudgeable: unjudgeablePolicies.length,
+    method: "replay create/drop function/table/policy in file and statement order; "
+      + "compare function bodies against pg_get_functiondef, tables/columns/policies by existence",
     absent,
     drifted,
   },
   canary: {
-    id: "a function name no migration could have defined must be reported ABSENT",
-    observed_failure: canaryCaught && bodyCanaryCaught && colCanaryCaught,
-    caught_by: [...(canaryCaught ? ["absent"] : []), ...(bodyCanaryCaught ? ["drifted"] : []), ...(colCanaryCaught ? ["column-absent"] : [])],
-    findings: canaryCaught
-      ? ["[absent] a fabricated function name was reported absent, so ABSENT is a verdict "
-        + "this comparison can actually reach"]
-      : ["[absent] NOT CAUGHT — a function that cannot exist was not reported absent, so every "
-        + "`matches` above is a verdict this run could not have made"],
+    id: "a function name, a column and a policy name no migration could have "
+      + "created must each be reported ABSENT",
+    observed_failure: allCanariesCaught,
+    caught_by: [
+      ...(canaryCaught ? ["function-absent"] : []), ...(bodyCanaryCaught ? ["function-drifted"] : []),
+      ...(colCanaryCaught ? ["column-absent"] : []), ...(policyCanaryCaught ? ["policy-absent"] : []),
+    ],
+    findings: [
+      canaryCaught ? "[function] caught" : "[function] NOT CAUGHT",
+      bodyCanaryCaught ? "[drift] caught" : "[drift] NOT CAUGHT",
+      colCanaryCaught ? "[column] caught" : "[column] NOT CAUGHT",
+      policyCanaryCaught ? "[policy] caught" : "[policy] NOT CAUGHT",
+    ],
   },
 });
 
 console.log("");
-if (failures.length === 0 && canaryCaught && bodyCanaryCaught && colCanaryCaught) {
-  console.log(`PASS — ${compared} function(s) and ${tablesCompared} table(s) compared, every one matches the repo.`);
+if (failures.length === 0 && allCanariesCaught) {
+  console.log(`PASS — ${compared} function(s), ${tablesCompared} table(s) and ${policiesCompared} `
+    + `polic(y/ies) compared, every one matches the repo.`);
   console.log(`Receipt ${receiptPath}`);
   process.exit(0);
 }
@@ -587,6 +809,7 @@ for (const f of failures) console.log("FAIL — " + f);
 if (!canaryCaught) console.log("FAIL — the ABSENT canary was not caught, so this run proves nothing.");
 if (!bodyCanaryCaught) console.log("FAIL — the DRIFTED canary was not caught: the body comparison matches anything.");
 if (!colCanaryCaught) console.log("FAIL — the COLUMN canary was not caught: the column comparison matches anything.");
+if (!policyCanaryCaught) console.log("FAIL — the POLICY canary was not caught: the policy comparison matches anything.");
 console.log("");
 console.log("Applying a migration is a schema change and it is Andrew's to authorise.");
 console.log(`This check reports and never applies. Receipt ${receiptPath}`);

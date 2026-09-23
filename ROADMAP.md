@@ -6447,7 +6447,7 @@ rather than wording went to Andrew.
   subject count that moves is the thing this repo chases; noted so the drift
   is not silent.)*
 
-- [ ] **8.10a — TWO MIGRATIONS IN THIS REPO HAVE NEVER BEEN APPLIED TO THE
+- [x] **8.10a — TWO MIGRATIONS IN THIS REPO HAVE NEVER BEEN APPLIED TO THE
   LIVE DATABASE, and one of them is why the multi-car booking feature has
   never worked for anybody. Found 2026-09-21 while trying to press 2.1a's
   two-car half.**
@@ -6495,7 +6495,7 @@ rather than wording went to Andrew.
   half — "read, never run" for two rounds — was finally pressed. The cap was
   restored to 1.
 
-  **WHAT IS STILL OPEN HERE IS THE INSTRUMENT, AND IT IS THE WHOLE POINT.**
+  **WHAT WAS STILL OPEN HERE WAS THE INSTRUMENT, AND IT IS THE WHOLE POINT.**
   Two migrations sat unapplied for two weeks, a shipped feature was
   unreachable the entire time, and **nothing anywhere would ever have said
   so** — it was found by accident, while trying to press something else.
@@ -6504,11 +6504,20 @@ rather than wording went to Andrew.
   above 1~~, and — the part that matters more than this one feature —
   **something checks that the database's applied state matches
   `supabase/migrations/` the way `deployed-inventory.mjs` checks the edge
-  functions.** Nothing does today. **The box stays open on that third
-  clause.**
+  functions.**
+
+  **THIRD CLAUSE MET, CLOSED 2026-09-23. `scripts/migration-drift.mjs`
+  exists (built 2026-09-21, extended with policies 2026-09-23, ROADMAP
+  8.10b) and is exactly that instrument: it replays `supabase/migrations/`
+  and compares functions, tables, columns and policies against the live
+  database, writes `receipts/migration-drift.json`, and has been broken on
+  purpose repeatedly rather than trusted on sight. Full account in 8.10b,
+  immediately below.** This item's own two migrations
+  (`20260907000500`, `20260907002100`) remain the canary case its evidence
+  is built from.
   *Found pressing 2.1a, 2026-09-21. Not from either audit.*
 
-- [ ] **8.10b — THE REPO HAS NO CHECK THAT THE APPLIED MIGRATIONS MATCH THE
+- [x] **8.10b — THE REPO HAS NO CHECK THAT THE APPLIED MIGRATIONS MATCH THE
   MIGRATIONS DIRECTORY, and the cost of not having one is a shipped feature
   nobody could reach. Written up 2026-09-21 to be built by whoever owns
   `scripts/` — deliberately NOT built here.**
@@ -6556,7 +6565,127 @@ rather than wording went to Andrew.
   **Not built here on purpose:** `scripts/` belongs to the other session,
   which spent tonight building instruments of exactly this shape. This entry
   is meant to be what they build from.
+
+  **CLOSED 2026-09-23. THE ORIGINAL DONE-WHEN WAS MET DAYS AGO AND NEVER
+  TICKED — READ THIS BEFORE ASSUMING NOTHING HAPPENED HERE.** The other
+  session built `scripts/migration-drift.mjs` on 2026-09-21, the same day
+  this item was written, and extended it the SAME DAY to also cover tables
+  and columns (existence, and column type by family) — 49 functions, 52
+  tables, 737 assertions, a receipt, three canaries, all before this
+  session ever opened the file. **This box sat unticked through all of
+  that.** Read rather than assumed: `git log --oneline -- scripts/
+  migration-drift.mjs` shows the last pre-2026-09-23 commit as `700af85`,
+  dated 2026-09-21 — the same day the file's own header comments describe.
+
+  **TODAY'S WORK IS THE FOURTH KIND, POLICIES, PICKED FROM THE FIVE CLAUDE.md
+  NAMES (table, column, policy, grant, index) AS THE ONE THIS REPO HAS
+  ALREADY BEEN BURNT BY.** The realtime-channel finding earlier this week
+  was a missing `private: true`, not a missing policy, but the shape of the
+  risk — a security boundary that exists only in a migration file nobody
+  confirmed ran — is the same one level up, so policies were the honest
+  pick over grants or indexes.
+
+  **WHAT SEES WHAT, STATED IN THE RECEIPT'S OWN WORDS SO NOBODY HAS TO READ
+  CODE TO FIND OUT** (`receipts/migration-drift.json`, `warnings`):
+  *"SEES functions (by body), tables (by existence), columns (by name and
+  type family), policies (by existence, on public and storage schemas).
+  STILL CANNOT SEE: grants, indexes, constraints, triggers, views, enum
+  types, extensions, RLS enable/force state, a policy's own USING/WITH
+  CHECK expression, a column's DEFAULT or NULLABILITY, or a migration
+  whose whole content is a grant/update/backfill with no schema trace."*
+  **This replaces a warning line that had said "FUNCTIONS ONLY" for two
+  days after tables and columns already covered more than that** — a
+  receipt's own warning text going stale the same way a ROADMAP line does,
+  now caught and corrected at the source rather than left to mislead the
+  next reader. The remaining "STILL CANNOT SEE" list is not a promise —
+  it is 8.10c, below, unstarted.
+
+  **BUILDING IT CAUGHT TWO FALSE POSITIVES BEFORE THEY SHIPPED, THE SAME
+  LESSON THIS FILE HAS PAID FOR FOUR TIMES ALREADY, NOW A FIFTH AND SIXTH
+  TIME.** The first real run reported `service_groups_tenant_all` and
+  `monthly_plans_tenant_all` ABSENT — both looked like exactly the fault
+  8.10a exists to catch. Neither was:
+  1. `service_groups_tenant_all` is DROPPED and replaced by
+     `service_groups_member_select` / `service_groups_settings_write` in a
+     later migration's dynamic loop (`execute format($p$ create policy %I
+     on public.%I … $p$, t || '_member_select', t)` over a literal table
+     array). The live database has exactly those two policies, confirmed
+     by a direct query. **Skipping dynamic policy statements as
+     unresolvable left the old name in `intended` forever.** Fixed by
+     resolving the loop when it is genuinely resolvable — a literal array
+     and a `t || '_suffix'` concatenation, not arbitrary SQL — and falling
+     through to UNJUDGEABLE, named by file, for anything that is not.
+  2. `monthly_plans_tenant_all` was created by the same kind of dynamic
+     loop and then the WHOLE TABLE was dropped nine hours later
+     (`20260827001000_phase2_cleanup_and_storage.sql:16`, already noted in
+     that file's own comments as deliberate). **Postgres drops every
+     policy on a table when the table is dropped; this parser did not
+     know that**, so the policy stayed declared after its table was gone.
+     Fixed: a `drop table` event now purges every policy on that table
+     from `intended`, interleaved by position with the policy events in
+     the same file.
+  **Both were found by running the real check against the real database
+  before trusting it, not by reasoning about the migrations from the
+  editor** — matching this file's own header, which already says four
+  false positives died building the function and column halves. This
+  makes six.
+
+  **THE CANARY, RUN FIVE TIMES, NOT ONCE** — the same standard 4.5 set
+  earlier today, applied here because it is read-only and repeatable at no
+  cost: `--break=policy` (a real policy pretended absent) caught 5/5,
+  identically each time (deterministic, no async race the way the
+  browser-driven canary in 4.5 had). `--break=canary` (the fabricated
+  policy name) correctly reads NOT CAUGHT, proving the negative control
+  itself is live. A clean re-run after all five sabotage runs still passes
+  — read-only, so nothing to restore.
+
+  **THE RECEIPT, GRADED BY `receipt.mjs`, NOT BY THE SCRIPT'S OWN
+  VERDICT:**
+  ```
+  PASS  migration-drift  186/186 targets, 1307 assertions, canary "a
+  function name, a column and a policy name no migration could have
+  created must each be reported ABSENT" failed as required
+  ```
+  186 = 49 functions + 52 tables + 85 policies, every one declared by the
+  migrations and confirmed live. 0 policies UNJUDGEABLE — every dynamic
+  loop in this repo turned out to be the resolvable shape. **Path:
+  `receipts/migration-drift.json`.**
+
+  **NOT DONE, NAMED AS ITS OWN ITEM RATHER THAN LEFT INSIDE THIS TICKED
+  ONE: grants, indexes, and everything else the receipt's own "STILL
+  CANNOT SEE" line names — see 8.10c.**
   *Found pressing 2.1a, 2026-09-21. Not from either audit.*
+
+- [ ] **8.10c — `migration-drift.mjs` still cannot see grants, indexes, or
+  five other kinds of schema object CLAUDE.md never named individually.**
+  **Split out of 8.10b, 2026-09-23, on Andrew's own instruction: a check
+  that reports clean over a blindness is worse than one that says what it
+  did not measure, and folding this into a ticked item would have been
+  exactly that.**
+
+  Of CLAUDE.md's five named kinds (table, column, policy, grant, index),
+  three are now seen (table, column, policy — 8.10b) and two are not
+  (grant, index). Beyond those five, `migration-drift.mjs`'s own receipt
+  additionally names: constraints, triggers, views, enum types,
+  extensions, RLS enable/force state, a policy's own USING/WITH CHECK
+  expression (existence only is checked today), a column's DEFAULT or
+  NULLABILITY, and any migration whose whole content is a grant, an
+  update, or a data backfill — none of which leaves a trace this file's
+  replay-and-compare method can see.
+
+  **Not sized or scoped here** — that is exactly the mistake 8.10b's own
+  original text made, writing "what the check has to do" before anyone
+  had tried building the harder half. Grants are readable from
+  `information_schema.role_table_grants` / `has_table_privilege` and are
+  probably the next-most-tractable; indexes from `pg_indexes`; both would
+  want their own canary and their own honest UNJUDGEABLE bucket for
+  whatever in `supabase/migrations/` does not parse cleanly, the same
+  discipline 8.10b was held to.
+  **Done when:** whoever builds it says, in the receipt's own words, which
+  of the remaining kinds it now sees and which it still does not — the
+  same sentence 8.10b's receipt already carries, extended rather than
+  replaced.
+  Not started.
 
 - [ ] **7.18 — There is no check that every `.ld` marketing page carries the
   same required nav elements, and three separate items today needed a person
