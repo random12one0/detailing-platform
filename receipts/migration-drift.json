@@ -1,12 +1,13 @@
 {
-  "git_sha": "7c2fe2bf058d02dae9446ff6467bbecf7854d98a",
-  "git_sha_started": "7c2fe2bf058d02dae9446ff6467bbecf7854d98a",
+  "git_sha": "29e9527a0dcbac109712bc19747cd051f46698de",
+  "git_sha_started": "29e9527a0dcbac109712bc19747cd051f46698de",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-23T00:59:58.907Z",
+  "finished_at": "2026-09-23T01:03:44.045Z",
   "failures": [],
   "warnings": [
-    "SEES functions (by body), tables (by existence), columns (by name and type family), policies (by existence, on public and storage schemas). STILL CANNOT SEE: grants, indexes, constraints, triggers, views, enum types, extensions, RLS enable/force state, a policy's own USING/WITH CHECK expression, a column's DEFAULT or NULLABILITY, or a migration whose whole content is a grant/update/backfill with no schema trace. There is no applied-migrations ledger in this project to compare against: supabase_migrations.schema_migrations does not exist."
+    "SEES functions (by body), tables (by existence), columns (by name and type family), policies (by existence, on public and storage schemas). STILL CANNOT SEE: grants, indexes, constraints, triggers, views, enum types, extensions, RLS enable/force state, a policy's own USING/WITH CHECK expression, a column's DEFAULT or NULLABILITY, or a migration whose whole content is a grant/update/backfill with no schema trace. There is no applied-migrations ledger in this project to compare against: supabase_migrations.schema_migrations does not exist.",
+    "116 of 592 present column(s) had a declared type this check does not recognise and are UNJUDGED for type — counted, not guessed at. \"Columns by name and type family\" above means 476, not 592."
   ],
   "artifacts": [
     "scripts/migration-drift.mjs"
@@ -18,7 +19,6 @@
     "tables_absent": [],
     "columns_absent": [],
     "type_mismatch": [],
-    "types_unjudged": 116,
     "policies_declared": 85,
     "policies_absent": [],
     "policies_unjudgeable": 0,
@@ -27,7 +27,7 @@
     "drifted": []
   },
   "check_id": "migration-drift",
-  "started_at": "2026-09-23T00:59:55.993Z",
+  "started_at": "2026-09-23T01:03:41.055Z",
   "status": "pass",
   "expected_targets": 186,
   "discovered_targets": 186,
