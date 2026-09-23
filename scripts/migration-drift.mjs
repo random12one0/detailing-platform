@@ -568,6 +568,7 @@ let colCanaryCaught = false;
 let colBreakFired = false;
 const typeMismatch = [];
 let typeUnjudged = 0;
+let typeJudged = 0;
 
 for (const [t, want] of tableSubjects) {
   assertions++;
@@ -605,6 +606,7 @@ for (const [t, want] of tableSubjects) {
       ? "text" : (want.types && want.types.get(c));
     const df = declaredFamily(rawType);
     if (!df) { typeUnjudged++; continue; }
+    typeJudged++;
     assertions++;
     const lf = liveType.get(`${t}.${c}`);
     if (lf && lf !== df) {
@@ -763,6 +765,14 @@ const { path: receiptPath } = writeReceipt({
     + "whose whole content is a grant/update/backfill with no schema trace. "
     + "There is no applied-migrations ledger in this project to compare "
     + "against: supabase_migrations.schema_migrations does not exist.",
+    // MOVED HERE FROM `dimensions` 2026-09-23, ANDREW'S OWN CORRECTION: a
+    // bare count with no denominator in `dimensions` reads as neutral
+    // bookkeeping. It is not neutral — it is the twelfth blindness, sitting
+    // beside the eleven named above rather than after them.
+    `${typeUnjudged} of ${typeJudged + typeUnjudged} present column(s) had a `
+    + "declared type this check does not recognise and are UNJUDGED for type "
+    + "— counted, not guessed at. \"Columns by name and type family\" above "
+    + `means ${typeJudged}, not ${typeJudged + typeUnjudged}.`,
   ],
   dimensions: {
     project: REF,
@@ -771,7 +781,6 @@ const { path: receiptPath } = writeReceipt({
     tables_absent: tablesAbsent,
     columns_absent: columnsAbsent,
     type_mismatch: typeMismatch,
-    types_unjudged: typeUnjudged,
     policies_declared: intendedPolicies.size - 1,
     policies_absent: policiesAbsent,
     policies_unjudgeable: unjudgeablePolicies.length,
