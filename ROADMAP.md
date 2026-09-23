@@ -9652,7 +9652,7 @@ event id.
   **Done when:** `platform_admins` contains exactly the accounts a document
   names, and a check fails if it grows a row nobody declared.
 
-### 14.9 — Nine public endpoints have no rate limit
+### 14.9 — ~~Nine~~ was already eight, now four, public endpoints have no rate limit
 
 - [ ] **Measured by counting `withinLimits` in each public function.** These
   have it: `create-booking`, `pay-booking`, `plan-link`, `unsubscribe`,
@@ -9669,6 +9669,81 @@ event id.
   keyed on IP — on the three writes first.
   **Done when:** a loop against each of the three writes is refused, and the
   refusal is proved by running the loop.
+
+  **RECOUNTED 2026-09-23, NOT TRUSTED — AND THE LIST WAS ALREADY STALE BY
+  ONE BEFORE TODAY.** `grep -rl withinLimits supabase/functions/*/index.ts`
+  is the ground truth, every run: `booking-ics` was in this item's own "do
+  **not**" list and already carries `withinLimits`, landed by ROADMAP 14.2
+  (a separate item) after this one was written. So the true split BEFORE
+  today's build was **seven** protected, **eight** not — not six and
+  nine — and today is the third time in this session the roadmap's own
+  words have been stale, not the check that read them.
+
+  **FOUR OF THE EIGHT READS BUILT TODAY — NOT THE THREE WRITES THIS ITEM'S
+  OWN "FIX" LINE NAMES, WHICH REMAIN OPEN.** Andrew asked specifically for
+  `available-slots`, `calculate-booking`, `validate-promo-code`,
+  `get-booking-receipt` — leaked schedule/pricing on a loop, a
+  cost-free promo-code guessing oracle, and a customer's own booking
+  data, in that order of what each one actually exposes. **Checked before
+  wiring anything, per his explicit instruction:** `get-booking-receipt`
+  looks up `bookings.id`, `uuid primary key default gen_random_uuid()`
+  (`supabase/migrations/20260827000200_tenant_data.sql:232`) — a real
+  version-4 UUID, no sequential or predictable component, one lookup, no
+  listing, no pagination. **Not enumerable, so this stays a rate-limit
+  item and not a data-exposure finding.** Same check run against
+  `validate-promo-code`'s own guessing-oracle shape: `promo_codes.code`
+  is plain `text`, not a random token, so a person COULD grind short
+  human-chosen codes — that risk is real but bounded (a found code costs
+  a business its own advertised discount, not a data leak), named in the
+  code's own comment rather than silently accepted, and left as a
+  question for Andrew whether it deserves a tighter, purpose-built limit
+  the way `plan-link` has one for mail-bombing rather than the blunt
+  ceiling.
+
+  **BUILT, MATCHING THE SIX (NOW ELEVEN) WORKING EXAMPLES RATHER THAN
+  INVENTING A SECOND MECHANISM** — checked in `_shared/rateLimit.ts`
+  first: `LIMITS.publicCeiling` (600/hour) is keyed on `ipOf(req)`, i.e.
+  **per caller address, not per business and not global** — the right
+  one for an anonymous booking-widget visitor who has no business context
+  yet, confirmed before reuse rather than copied on the assumption it
+  would fire. All four now call `withinLimits(supabase, [{
+  ...LIMITS.publicCeiling, bucket: "<name>", key: ipOf(req) }])` before
+  any other work, identical shape to `booking-ics`.
+
+  **THE CHECK, `scripts/rate-limit-coverage.mjs`, SAME STANDARD AS
+  MIGRATION-DRIFT AND SWEEP-TAP-TARGETS:** credential-free, reads source
+  only, never deploys or calls a live function. 15 public booking-widget
+  endpoints declared (not derived — the same "declared, not counted from
+  the run" rule every other receipted check here uses), each checked for
+  a real `withinLimits(...LIMITS.\w+...)` call. **Canary: a real
+  protected function (`stripe-webhook`, deliberately NOT one of today's
+  four, so the negative control cannot go quiet exactly when one of
+  today's own functions regresses) with its rate-limit call stripped in
+  memory, run five times — 5/5 caught.** Proved the deliverable gate is
+  real, not decorative, by breaking `get-booking-receipt` on purpose (a
+  real edit, `sed`, then restored, `git diff` confirmed clean after): the
+  check correctly failed, named it by name, and the canary caught
+  independently of that break.
+  ```
+  PASS  rate-limit-coverage  15/15 targets, 20 assertions, canary "a real
+  protected function's withinLimits call stripped in memory must be
+  reported NOT PROTECTED" failed as required
+  ```
+  **Path: `receipts/rate-limit-coverage.json`.**
+
+  **STILL OPEN, NAMED RATHER THAN FOLDED IN:** this item's own three
+  writes (`cancel-booking`, `reschedule-booking`, `accept-quote`) —
+  untouched, its own "Fix" line still describes them accurately.
+  `track-visit`'s header claims *"Service-role only"*; nothing in its
+  source enforces that, so whether it is actually reachable by a stranger
+  is unknown from here rather than guessed at either way. **And one
+  found along the way, not on any list before today:** `accept-invite`
+  (team-invite acceptance) is ALSO public and ALSO has no rate limit.
+  Checked before naming it as a finding rather than a fix: its token is
+  `encode(gen_random_bytes(24), 'hex')`, 192 bits, not guessable — a cost
+  item like the others, not a security finding, and not part of the
+  booking widget this item scopes to, so it is named here rather than
+  silently fixed or silently dropped.
 
 ### 14.10 — the sweep was measuring its own patience, and 1440 was mostly innocent
 

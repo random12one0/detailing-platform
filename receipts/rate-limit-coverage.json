@@ -1,0 +1,134 @@
+{
+  "git_sha": "ca70a5f12ad6f499af9f2fd0f2d331014df92e9b",
+  "git_sha_started": "ca70a5f12ad6f499af9f2fd0f2d331014df92e9b",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-09-23T01:10:37.792Z",
+  "failures": [],
+  "warnings": [
+    "READS SOURCE ONLY — never calls a deployed function, so it cannot observe a live 429; it can only confirm the source calls withinLimits with a real LIMITS config, the same mechanism the working examples use. Applying nothing, deploying nothing.",
+    "4 of 15 declared public endpoints are KNOWN OPEN, not this item's scope: cancel-booking: still open, out of this item's scope; reschedule-booking: still open, out of this item's scope; accept-quote: still open, out of this item's scope; track-visit: still open, out of this item's scope.",
+    "accept-invite (team-invite acceptance) is ALSO public and ALSO has no rate limit, found the same way this list was built. Its token is 192 bits of randomness (encode(gen_random_bytes(24),'hex')), not guessable, so this is a cost item like the others, not a security finding — but it is not in PUBLIC_FUNCTIONS above because it is not part of the booking widget, which is this item's declared scope, and is named here rather than silently fixed or silently dropped."
+  ],
+  "artifacts": [
+    "scripts/rate-limit-coverage.mjs"
+  ],
+  "dimensions": {
+    "functions": [
+      {
+        "name": "create-booking",
+        "found": true,
+        "protected": true
+      },
+      {
+        "name": "pay-booking",
+        "found": true,
+        "protected": true
+      },
+      {
+        "name": "plan-link",
+        "found": true,
+        "protected": true
+      },
+      {
+        "name": "unsubscribe",
+        "found": true,
+        "protected": true
+      },
+      {
+        "name": "address-suggest",
+        "found": true,
+        "protected": true
+      },
+      {
+        "name": "stripe-webhook",
+        "found": true,
+        "protected": true
+      },
+      {
+        "name": "booking-ics",
+        "found": true,
+        "protected": true
+      },
+      {
+        "name": "available-slots",
+        "found": true,
+        "protected": true
+      },
+      {
+        "name": "calculate-booking",
+        "found": true,
+        "protected": true
+      },
+      {
+        "name": "validate-promo-code",
+        "found": true,
+        "protected": true
+      },
+      {
+        "name": "get-booking-receipt",
+        "found": true,
+        "protected": true
+      },
+      {
+        "name": "cancel-booking",
+        "found": true,
+        "protected": false
+      },
+      {
+        "name": "reschedule-booking",
+        "found": true,
+        "protected": false
+      },
+      {
+        "name": "accept-quote",
+        "found": true,
+        "protected": false
+      },
+      {
+        "name": "track-visit",
+        "found": true,
+        "protected": false
+      }
+    ],
+    "known_open": [
+      "cancel-booking",
+      "reschedule-booking",
+      "accept-quote",
+      "track-visit"
+    ],
+    "today_fixed": [
+      "available-slots",
+      "calculate-booking",
+      "validate-promo-code",
+      "get-booking-receipt"
+    ],
+    "already_protected": [
+      "create-booking",
+      "pay-booking",
+      "plan-link",
+      "unsubscribe",
+      "address-suggest",
+      "stripe-webhook",
+      "booking-ics"
+    ],
+    "limit_used": "LIMITS.publicCeiling (per-caller IP, 600/hour) — the same blunt ceiling every other read-only public endpoint uses; per-address, not per-business or global, checked against _shared/rateLimit.ts before reuse because a per-business limit would never fire for a caller with no business context yet."
+  },
+  "check_id": "rate-limit-coverage",
+  "started_at": "2026-09-23T01:10:37.698Z",
+  "status": "pass",
+  "expected_targets": 15,
+  "discovered_targets": 15,
+  "attempted_targets": 15,
+  "completed_targets": 15,
+  "skipped_targets": 0,
+  "assertions_executed": 20,
+  "min_assertions": 20,
+  "canary": {
+    "id": "a real protected function's withinLimits call stripped in memory must be reported NOT PROTECTED",
+    "observed_failure": true,
+    "findings": [
+      "caught 5/5"
+    ]
+  }
+}

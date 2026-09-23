@@ -6,11 +6,26 @@ import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { businessBySlug } from "../_shared/tenant.ts";
 import { resolvePromo } from "../_shared/pricing.ts";
+import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
 
   try {
+    // ROADMAP 14.9 — the blunt ceiling every other public endpoint already
+    // has. NOTE FOR WHOEVER REVISITS THIS: promo codes are plain `text`
+    // (`promo_codes.code`), not a random token, so this endpoint is also a
+    // guessing oracle for short human-chosen codes, a different shape of
+    // risk than the invocation-cost problem the ceiling exists for. The
+    // ceiling still bounds the cost of a loop; whether a code-guessing
+    // pattern deserves a tighter, purpose-built limit the way `plan-link`
+    // has one for mail-bombing is a decision for Andrew, not made here —
+    // matching how the six existing limits every got their own number
+    // because "the numbers are not interchangeable."
+    if (!await withinLimits(supabase, [{ ...LIMITS.publicCeiling, bucket: "validate-promo-code", key: ipOf(req) }])) {
+      return json({ success: false, error: "too_many_requests" }, 429);
+    }
+
     const { business_slug, code, customer_email, customer_phone } = await req.json();
     const business = await businessBySlug(business_slug);
     if (!business) return json({ success: false, error: "unknown_business" }, 404);

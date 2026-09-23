@@ -23,11 +23,20 @@ import {
   resolvePromo, resolveServices, resolveTravel, resolveVehicles, whenContextFor,
 } from "../_shared/pricing.ts";
 import { localDateTimeToInstant, weekdayOf } from "../_shared/tz.ts";
+import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
 
   try {
+    // ROADMAP 14.9 — the blunt ceiling every other public endpoint already
+    // has. This one prices a job and never writes, so the ceiling is all it
+    // wants: a loop cannot spend the project's invocations pulling a
+    // business's price list one combination at a time.
+    if (!await withinLimits(supabase, [{ ...LIMITS.publicCeiling, bucket: "calculate-booking", key: ipOf(req) }])) {
+      return json({ success: false, error: "too_many_requests" }, 429);
+    }
+
     const body = await req.json();
     const business = await businessBySlug(body.business_slug);
     if (!business) return json({ success: false, error: "unknown_business" }, 404);

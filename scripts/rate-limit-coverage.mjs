@@ -1,0 +1,215 @@
+// ROADMAP 14.9 — DOES EVERY PUBLIC BOOKING-WIDGET ENDPOINT CARRY A RATE
+// LIMIT, MEASURED BY READING THE SOURCE RATHER THAN TRUSTED FROM A LIST.
+//
+//   node scripts/rate-limit-coverage.mjs
+//   node scripts/receipt.mjs receipts/rate-limit-coverage.json
+//
+// Credential-free, reads only. It never calls a deployed function — Andrew's
+// standing rule, no deploy — so it cannot observe a live 429. What it CAN
+// observe, honestly, is whether the source calls `withinLimits` with a real
+// `LIMITS.*` config and a per-caller key before doing any work, which is
+// exactly the mechanism the six (now eleven) working examples already use.
+//
+// ---------------------------------------------------------------------------
+// WHY "COUNT IT AGAIN YOURSELF" MATTERED HERE
+// ---------------------------------------------------------------------------
+// ROADMAP 14.9's own text says "nine public endpoints have no rate limit" and
+// names them, including `booking-ics`. Measured today rather than trusted:
+// `booking-ics` already calls `withinLimits` (ROADMAP 14.2, a separate item,
+// landed after 14.9 was written) — so the roadmap's own list was stale by one
+// entry before this session touched anything. `grep -rl withinLimits
+// supabase/functions/*/index.ts` is the actual ground truth, every run.
+//
+// PUBLIC_FUNCTIONS below is DECLARED, not derived from that grep — the same
+// rule `keyboard-walk.mjs` and `sweep-tap-targets.mjs`'s admin section use:
+// a list read off what happened this run can't say a function went missing,
+// only a declared one can. It was built by checking every one of the 39
+// directories under `supabase/functions/` for the absence of `requireMember`
+// / `requireOwner` / `auth.getUser` / a real `Authorization` check, then
+// reading each candidate's own header comment to resolve the false positives
+// that check produces on its own (a dual-purpose function like
+// `create-booking` mentions `Authorization` for its ADMIN half; a webhook
+// like `resend-webhook` authenticates by signature, not a header check this
+// grep recognises; `session-ping`, `refresh-weather` and `watch-jobs` are
+// internal/cron endpoints with no booking-widget audience at all).
+//
+// ONE MORE PUBLIC, UNGUESSABLE-TOKEN ENDPOINT WAS FOUND THE SAME WAY AND IS
+// DELIBERATELY NOT IN THIS LIST: `accept-invite` (team-invite acceptance,
+// token is `encode(gen_random_bytes(24), 'hex')`, 192 bits, not guessable).
+// It has no rate limit either. It is not part of the booking widget's public
+// surface, which is this item's scope, so it is named here and in the
+// receipt rather than silently fixed or silently dropped.
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { writeReceipt } from "./receipt.mjs";
+
+const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+const FUNCS = path.join(ROOT, "supabase", "functions");
+const started_at = new Date().toISOString();
+const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("=")[1] || "";
+
+// **DECLARED, CHECKED AGAINST TODAY'S SOURCE — 2026-09-23.** `already` is
+// what this session found already protected before touching anything;
+// `today` is the four this item was asked to fix.
+const PUBLIC_FUNCTIONS = {
+  already: ["create-booking", "pay-booking", "plan-link", "unsubscribe", "address-suggest", "stripe-webhook", "booking-ics"],
+  today: ["available-slots", "calculate-booking", "validate-promo-code", "get-booking-receipt"],
+  // **NOT THIS ITEM'S SCOPE, NAMED SO THE SILENCE IS NOT READ AS COVERAGE.**
+  // `cancel-booking` / `reschedule-booking` / `accept-quote` are ROADMAP
+  // 14.9's own "three writes" sub-task, not started. `track-visit`'s own
+  // header claims "Service-role only", which — if true — would mean it is
+  // not reachable by a stranger the way the others are and does not need
+  // the same fix; nothing in its source enforces that claim (Supabase can
+  // enforce it at the gateway, outside this repo, and this check cannot see
+  // that from here), so it is left open and named rather than guessed at
+  // either way.
+  knownOpen: ["cancel-booking", "reschedule-booking", "accept-quote", "track-visit"],
+};
+const ALL = [...PUBLIC_FUNCTIONS.already, ...PUBLIC_FUNCTIONS.today, ...PUBLIC_FUNCTIONS.knownOpen];
+// DECLARED, NOT COUNTED — the same reason every other receipted check here
+// writes the number down instead of trusting `ALL.length` to stay right.
+const EXPECTED_COUNT = 15;
+
+const HAS_CALL = /await\s+withinLimits\s*\(\s*[a-zA-Z_]+\s*,\s*\[\s*\{[^}]*\.\.\.\s*LIMITS\.\w+/s;
+
+/** Read one function's source. `override` lets the canary feed a mutated copy without touching disk. */
+function readSource(name, override) {
+  if (override !== undefined) return override;
+  return readFileSync(path.join(FUNCS, name, "index.ts"), "utf8");
+}
+
+function isProtected(name, override) {
+  const src = readSource(name, override);
+  return HAS_CALL.test(src);
+}
+
+if (ALL.length !== EXPECTED_COUNT) {
+  console.error(`THE DECLARED LIST HAS ${ALL.length} NAMES, NOT ${EXPECTED_COUNT} — the constant `
+    + `and the number it is checked against have drifted apart. Fix the file before trusting it.`);
+  process.exit(2);
+}
+
+console.log(`${EXPECTED_COUNT} public booking-widget endpoints declared\n`);
+
+const rows = [];
+let discovered = 0;
+for (const name of ALL) {
+  let src;
+  try {
+    src = readFileSync(path.join(FUNCS, name, "index.ts"), "utf8");
+  } catch (e) {
+    rows.push({ name, found: false, protected: false, error: String(e.message || e) });
+    continue;
+  }
+  discovered++;
+  const protectedNow = HAS_CALL.test(src);
+  rows.push({ name, found: true, protected: protectedNow });
+  console.log(`${name.padEnd(24)} ${protectedNow ? "PROTECTED (withinLimits found)" : "NOT PROTECTED"}`);
+}
+
+// --- the canary, run five times, not once ----------------------------------
+// A mutated COPY of a real, currently-protected file's text, with the
+// `withinLimits` call stripped out exactly as `--break=strip` simulates. The
+// detector must call this NOT PROTECTED every time, proving `HAS_CALL` is
+// actually testing something and not a regex that matches everything.
+console.log("\ncanary — a real protected function with its rate-limit call stripped, in memory only:");
+const CANARY_RUNS = 5;
+let canaryCaught = 0;
+// `stripe-webhook`, ON PURPOSE, NOT ONE OF TODAY'S FOUR. The canary has to
+// stay meaningful even if a future regression breaks one of this item's own
+// deliverables — a canary built from the same function it is also grading
+// would go quiet exactly when it is needed, which very nearly happened
+// while proving this: a manual test that broke `get-booking-receipt` on
+// purpose also broke the canary's own premise, because it was reading that
+// same file. `stripe-webhook` predates this item by weeks and belongs to
+// nobody's today.
+const canarySource = readSource("stripe-webhook");
+const stripped = canarySource.replace(HAS_CALL, "/* withinLimits call removed for the canary */ true");
+if (stripped === canarySource) {
+  console.log("  CANARY COULD NOT BE BUILT — the strip regex did not match the real source. Void.");
+} else {
+  for (let i = 1; i <= CANARY_RUNS; i++) {
+    const caught = !isProtected("stripe-webhook (stripped copy)", stripped);
+    if (caught) canaryCaught++;
+    console.log(`  run ${i}/${CANARY_RUNS}: ${caught ? "CAUGHT" : "MISSED"}`);
+  }
+}
+const canaryOk = canaryCaught === CANARY_RUNS;
+console.log(`canary: caught ${canaryCaught}/${CANARY_RUNS}`);
+
+// --- --break=blind: the detector that would rubber-stamp everything --------
+// Proves the canary itself can fail — the negative control's negative
+// control, `sweep-tap-targets.mjs`'s own `--baseline` pattern one level up.
+const effectivelyProtected = (name, protectedNow) =>
+  BREAK === "blind" ? true : protectedNow;
+
+const failures = [];
+if (discovered === 0) {
+  failures.push("ZERO FUNCTION FILES WERE READ. Nothing was measured — this is not a pass.");
+}
+for (const row of rows) {
+  if (!row.found) { failures.push(`${row.name}: could not read supabase/functions/${row.name}/index.ts — ${row.error}`); continue; }
+  const wantProtected = !PUBLIC_FUNCTIONS.knownOpen.includes(row.name);
+  const got = effectivelyProtected(row.name, row.protected);
+  if (wantProtected && !got) {
+    failures.push(`${row.name}: expected PROTECTED (this item's own deliverable), source shows no withinLimits call`);
+  }
+}
+if (!canaryOk) failures.push(`the strip canary was only caught ${canaryCaught}/${CANARY_RUNS} times`);
+
+const knownOpenReport = PUBLIC_FUNCTIONS.knownOpen.map((n) => {
+  const r = rows.find((x) => x.name === n);
+  return `${n}: ${r && r.protected ? "now protected (update PUBLIC_FUNCTIONS.knownOpen)" : "still open, out of this item's scope"}`;
+});
+
+const status = failures.length === 0 && canaryOk ? "pass" : "fail";
+const { path: receiptPath } = writeReceipt({
+  check_id: "rate-limit-coverage",
+  started_at,
+  status,
+  expected_targets: EXPECTED_COUNT,
+  discovered_targets: discovered,
+  attempted_targets: EXPECTED_COUNT,
+  completed_targets: discovered,
+  skipped_targets: EXPECTED_COUNT - discovered,
+  assertions_executed: rows.length + CANARY_RUNS,
+  min_assertions: EXPECTED_COUNT + CANARY_RUNS,
+  failures,
+  artifacts: ["scripts/rate-limit-coverage.mjs"],
+  warnings: [
+    ...(BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : []),
+    "READS SOURCE ONLY — never calls a deployed function, so it cannot observe a live 429; "
+    + "it can only confirm the source calls withinLimits with a real LIMITS config, the same "
+    + "mechanism the working examples use. Applying nothing, deploying nothing.",
+    `${PUBLIC_FUNCTIONS.knownOpen.length} of ${EXPECTED_COUNT} declared public endpoints are `
+    + `KNOWN OPEN, not this item's scope: ${knownOpenReport.join("; ")}.`,
+    "accept-invite (team-invite acceptance) is ALSO public and ALSO has no rate limit, found "
+    + "the same way this list was built. Its token is 192 bits of randomness (encode(gen_random_"
+    + "bytes(24),'hex')), not guessable, so this is a cost item like the others, not a security "
+    + "finding — but it is not in PUBLIC_FUNCTIONS above because it is not part of the booking "
+    + "widget, which is this item's declared scope, and is named here rather than silently fixed "
+    + "or silently dropped.",
+  ],
+  dimensions: {
+    functions: rows,
+    known_open: PUBLIC_FUNCTIONS.knownOpen,
+    today_fixed: PUBLIC_FUNCTIONS.today,
+    already_protected: PUBLIC_FUNCTIONS.already,
+    limit_used: "LIMITS.publicCeiling (per-caller IP, 600/hour) — the same blunt ceiling every "
+      + "other read-only public endpoint uses; per-address, not per-business or global, checked "
+      + "against _shared/rateLimit.ts before reuse because a per-business limit would never fire "
+      + "for a caller with no business context yet.",
+  },
+  canary: {
+    id: "a real protected function's withinLimits call stripped in memory must be reported NOT PROTECTED",
+    observed_failure: canaryOk,
+    findings: [`caught ${canaryCaught}/${CANARY_RUNS}`],
+  },
+});
+
+console.log(`\n${status.toUpperCase()} — ${discovered}/${EXPECTED_COUNT} functions read, `
+  + `${failures.length} failure(s), canary ${canaryOk ? "caught as required" : "DID NOT CATCH RELIABLY"}.`);
+for (const f of failures) console.log("  · " + f);
+console.log(`Receipt ${receiptPath}`);
+process.exit(status === "pass" ? 0 : 1);

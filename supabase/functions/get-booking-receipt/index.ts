@@ -9,6 +9,7 @@ import { json, preflight } from "../_shared/http.ts";
 import { businessById, getSettings } from "../_shared/tenant.ts";
 import { dateStrIn, timeStrIn } from "../_shared/tz.ts";
 import { cardStatus, payability } from "../_shared/connect.ts";
+import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
 
 // ROADMAP 14.1 — THE LIST IS WHAT THE CUSTOMER'S PAGE DRAWS, NOT WHAT TO HIDE.
 //
@@ -89,6 +90,21 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
 
   try {
+    // ROADMAP 14.9 — the blunt ceiling every other public endpoint already
+    // has. CHECKED BEFORE WIRING THIS IN, NOT ASSUMED: `bookings.id` is
+    // `uuid primary key default gen_random_uuid()` (`supabase/migrations/
+    // 20260827000200_tenant_data.sql:232`), a real version-4 UUID with no
+    // sequential or predictable component, and this handler does one lookup
+    // by that id and nothing that lists or paginates bookings. So a stranger
+    // cannot guess a valid id at any practical rate — this is a cost problem
+    // (a loop spending invocations), not a data-exposure one, and the
+    // ceiling is the right size of fix. Same shape as `booking-ics`, which
+    // already protects the sibling endpoint with the identical access model
+    // ("the unguessable booking UUID is the credential").
+    if (!await withinLimits(supabase, [{ ...LIMITS.publicCeiling, bucket: "get-booking-receipt", key: ipOf(req) }])) {
+      return json({ error: "too_many_requests" }, 429);
+    }
+
     let id: string | null = null;
     if (req.method === "POST") {
       try {
