@@ -239,6 +239,15 @@ const runAdminCanary = async (browser, runs = 5) => {
     await page.waitForSelector(".pa-tabs, .adm", { timeout: 30000 }).catch(() => {});
   }
   await settle(page, 2200);
+  // FOUND CHASING A FLAKY RESTORE-CHECK, 2026-09-23: the Today tab's "who
+  // needs a call" panel is an async fetch that `settle()`'s mutation-quiet
+  // window can miss if the round trip runs past its 2.2s cap — the tap probe
+  // itself caught the deliberate break 8/8 times in testing, every time; only
+  // the BEFORE snapshot was sometimes taken before this unrelated panel had
+  // loaded, so subjects read 6 then 8 for no reason connected to the break.
+  // `networkidle` closes that race without padding a guessed sleep.
+  await page.waitForLoadState("networkidle").catch(() => {});
+  await settle(page, 600);
   const before = await page.evaluate(TAP_PROBE, ARGS);
   console.log(`\nthe real /admin screen first: ${before.subjects} controls, ${before.findings.length} findings`);
   for (let i = 1; i <= runs; i++) {

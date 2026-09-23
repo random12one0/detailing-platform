@@ -4240,6 +4240,27 @@ requested.
   a receipt and the roadmap line that cites it, not drift inside the run
   itself. **Path: `receipts/sweep-tap-targets.json`.**
 
+  **AND THE RE-RUN THAT WROTE THE COMMITTED RECEIPT FOUND A REAL FLAW IN THE
+  CANARY ITSELF — CAUGHT BECAUSE IT WAS RE-RUN, NOT TRUSTED FROM THE FIRST
+  PASS.** Re-running against the just-committed SHA (so the receipt's own
+  commit fields would be honest) failed twice in a row: the break was caught
+  8/8 times across every trial, every time — the tap-probe detection was
+  never in question — but the RESTORE check read `subjects=6` before the
+  break and `subjects=8` after, and called that a fault of its own.
+  **Root cause, found with a 6-trial standalone harness rather than guessed
+  at:** the admin Today tab's "Detailers who need a call" panel is an async
+  fetch, and `settle()`'s 2.2-second cap can return before that round trip
+  lands — so the BEFORE snapshot was sometimes taken early and the AFTER
+  snapshot, five break/undo cycles and several seconds later, was not. Nothing
+  about the break caused the drift; two unrelated, real controls loaded in
+  between. **Fixed with `page.waitForLoadState("networkidle")` before the
+  baseline, not a longer guessed sleep** — 6/6 in the standalone harness
+  after the fix, then 3/3 more on the real check end to end. The earlier
+  report to Andrew this session (five-of-five, "restored cleanly") was true
+  of the runs it was measured on and has now been reproduced reliably rather
+  than left resting on that one pass — the same standard just applied to the
+  "four items" claim, applied to this session's own new code.
+
   **THE FOUR ITEMS — SEARCHED FOR, NOT GUESSED AT, AND THE HONEST ANSWER IS
   ONE, NOT FOUR.** Every citation of "credential-free suites" in
   `ROADMAP.md`, `docs/VERIFIED.md`, `FOUND.md` and `DECISIONS.md`'s index

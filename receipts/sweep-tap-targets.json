@@ -1,0 +1,47 @@
+{
+  "git_sha": "469422a8dc5f99e8012beb4585c762dbeff08668",
+  "git_sha_started": "469422a8dc5f99e8012beb4585c762dbeff08668",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-09-23T00:44:19.772Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "receipts/screenshots/sweep-tap-targets-admin/detailer-drawer-open.png"
+  ],
+  "dimensions": {
+    "scope": "the /admin back office only — this script's dashboard, settings and landing/pricing sections are not represented in this receipt",
+    "admin_widths": [
+      1440,
+      320
+    ],
+    "langs": [
+      "en",
+      "es"
+    ],
+    "expected_screens_per_combo": 6,
+    "canary_repeats": "5/5",
+    "canary_restored": true
+  },
+  "check_id": "sweep-tap-targets",
+  "started_at": "2026-09-23T00:43:25.906Z",
+  "status": "pass",
+  "expected_targets": 24,
+  "discovered_targets": 24,
+  "attempted_targets": 24,
+  "completed_targets": 24,
+  "skipped_targets": 0,
+  "assertions_executed": 29268,
+  "min_assertions": 4800,
+  "canary": {
+    "id": ".pa-tab squeezed to 2px/4px padding and 10px type — a plausible spacing edit, not a syntax error",
+    "observed_failure": true,
+    "findings": [
+      "run 1/5: CAUGHT (8 finding(s) — 37px of reach across (rect 36px), floor 44)",
+      "run 2/5: CAUGHT (8 finding(s) — 37px of reach across (rect 36px), floor 44)",
+      "run 3/5: CAUGHT (8 finding(s) — 37px of reach across (rect 36px), floor 44)",
+      "run 4/5: CAUGHT (8 finding(s) — 37px of reach across (rect 36px), floor 44)",
+      "run 5/5: CAUGHT (8 finding(s) — 37px of reach across (rect 36px), floor 44)"
+    ]
+  }
+}
