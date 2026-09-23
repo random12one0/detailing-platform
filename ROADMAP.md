@@ -689,7 +689,7 @@ Smallest wave, highest embarrassment cost, all of it confirmed in source.
 A customer must never be shown one price and charged another, never be handed
 the wrong service, and never book a job we cannot reach.
 
-- [ ] **2.1 — The total rises after the customer has picked the time.**
+- [x] **DONE 2026-09-22 — 2.1 — The total rises after the customer has picked the time.**
   Both audits, independently, with different numbers: $205 → $235 (A1) and
   $300 → $330 (A2). A $30 weekend rate only appears at the final breakdown.
   **Fix:** mark affected days in the calendar with "+$30" and add the line to
@@ -763,6 +763,90 @@ the wrong service, and never book a job we cannot reach.
   down ~62px under the customer's finger. Taken deliberately — the next thing
   they press is Continue in the fixed bar, which does not move — and the
   alternative was a sentence no phone user ever saw.
+
+  **TICKED 2026-09-22, AFTER AN INDEPENDENT WALK RATHER THAN BY READING THE
+  NOTE ABOVE.** The work was already committed (`9d306d8`) and the box was
+  still open, which is the one state that reads as "untouched" to the next
+  session and costs it the afternoon this entry already warns about.
+
+  **THE ANSWER TO THE QUESTION THE ITEM IS REALLY ASKING, IN ONE SENTENCE:**
+  the price rises because the customer chose a day that costs the detailer
+  more, the page names the rule and the amount at the instant the figure
+  moves, and the figure it lands on is the one the receipt then charges — so
+  this is an honest change, not a wrong price, and the fault 2.1 was opened
+  for was never the arithmetic but the silence around it.
+
+  **WALKED AS A CUSTOMER, DROP-OFF, ONE CAR, NO PLAN, AGAINST THE LIVE EDGE
+  FUNCTION.** Express Wash, Small, drop-off, Saturday 26 September:
+
+  | Moment | The fixed bar | What the page said |
+  |---|---|---|
+  | Service chosen | **$65** | "Estimated total · 1 hr" |
+  | Saturday chosen, no time | **$65** | nothing — 2.1b, and ruled not a fault |
+  | Continue pressed with no time | — | refused, step does not move |
+  | 9:00 AM chosen | **$95** | **`Weekend rate · +$30`**, above the chips |
+  | Review, step 7 | **$95** | `Express Wash $65` + `Weekend rate $30` |
+
+  **AND THE OTHER RULE THE DEMO CARRIES, ON A WEEKDAY, SO NOTHING WEEKEND IS
+  INVOLVED.** `Short notice` is a `lead_time` rule, a different branch of
+  `matchPriceRules`, and the done-when says *every* automatic surcharge.
+  Wednesday 23 September, 8:00 AM, at 392: **$65 → $85** with
+  **`Short notice · +$20`** in the same place. Both rules come back
+  `source: "rule"` from `pricing.ts:602`, so the page's filter reaches them
+  equally; pressed rather than read off that line.
+  Screenshot: `artifacts/surcharge-short-notice-392.png`.
+
+  **THE INSTRUMENT: `scripts/surcharge-visible.mjs`.** 15 targets, 75
+  assertions, graded `PASS` by `node scripts/receipt.mjs`. Five widths —
+  1920, 1440x900, 768x1024, 392x844 and 320 — each walked TWICE, tapping the
+  first slot and the last one, because the note sits above the chips and
+  reaching the last chip on a phone means scrolling. Five questions per
+  target: the step refuses to be left without a time; a line is named; **the
+  bar's rise equals the sum of the lines named**; the line's box is inside
+  the window above the fixed bar AND `elementFromPoint` lands on it; and the
+  PIXELS in that box are not blank. All ten real targets: **$65 → $95,
+  `Weekend rate · +$30`**, console clean at every width with warnings
+  unfiltered apart from the two known React Router v7 flags.
+  Screenshots in `artifacts/surcharge-visible/`.
+
+  **BUILDING IT FOUND THREE FAULTS IN ITSELF BEFORE IT FOUND NONE IN THE
+  PRODUCT, AND THAT IS THE PART WORTH READING.**
+  1. **It raced the network and reported a product defect.** `settle()` ends
+     when the DOM has been quiet for 130ms, and between a chip tap and
+     `calculate-booking`'s answer the DOM is perfectly quiet — so one target
+     in ten printed *"no surcharge line was rendered at all"*. A stopwatch
+     fault wearing a pricing fault's clothes. The first repair,
+     `Promise.race([answer, wait(2500)])`, reads like a wait and behaves like
+     a deadline; it failed once in fifteen, which is the frequency that gets
+     written off as flaky. The page now counts its own quote requests.
+  2. **THE CANARY CAUGHT 0 OF 5 OVER A DEFECT THAT WAS PLAINLY IN ITS OWN
+     SCREENSHOT.** The canary puts the note back below the chips — the exact
+     layout that shipped 09-13 to 09-21 — and it kept passing. The cause was
+     this script's own gate probe: roadmap 2.6 says a refused press turns the
+     reason on AND SCROLLS TO IT, so pressing Continue early left the page at
+     the bottom of a 1,400px step, and everything measured afterwards was
+     measured from a position the script itself created. **A check whose act
+     of looking moves the thing it is looking at** — the same shape as the
+     `git diff --cached` correction in CLAUDE.md. Scroll reset to the top
+     after the probe; the canary now catches **5 of 5**, at y=1074 against a
+     bar at 771.
+  3. **THE PIXEL TEST LET A BLANKED LINE THROUGH AT 392.** The first version
+     measured the standard deviation of luminance inside the line's rect;
+     `--break=paint` caught nine targets and scored **3.49 against a floor of
+     4** on the tenth, because the rect sits on this page's gradient and the
+     spread is mostly BACKGROUND. Replaced with the difference between two
+     renders of the same frame — `pinned-bar.mjs`'s `edge` correction, made a
+     second time in a second file. Real text moves its rect by 4.4 levels at
+     the desk widths and 8.9–9.1 at 320; a blanked one by **0.00 at all ten**.
+
+  **WHAT THIS TICK DOES NOT COVER, SAID PLAINLY.** One car, no plan, English,
+  drop-off. The plan and two-car cases are 2.1a's and are ticked there;
+  Spanish is 2.1c's. **`deployed-inventory` was run and exits 1 — four
+  functions are behind this checkout, `calculate-booking` among them, by 1.3
+  days — but that gap is 14.9's rate-limit work awaiting Andrew's publish and
+  does not touch pricing.** The walk above went through the REAL deployed
+  function, not an injected response, which is the difference between this
+  tick and 2.1a's.
 
 - [x] **DONE 2026-09-21 — 2.1a — ~~A plan booking and a multi-car booking show no surcharge
   line. Split out of 2.1 on 2026-09-21 because it needs a server field and

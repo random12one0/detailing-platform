@@ -1,0 +1,124 @@
+{
+  "git_sha": "b82b021336ab6c7bcec3b8d2bbe7682eb15eb70b",
+  "git_sha_started": "b82b021336ab6c7bcec3b8d2bbe7682eb15eb70b",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-09-23T02:10:47.108Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/surcharge-visible/1920x1080-first.png",
+    "artifacts/surcharge-visible/1920x1080-last.png",
+    "artifacts/surcharge-visible/1440x900-first.png",
+    "artifacts/surcharge-visible/1440x900-last.png",
+    "artifacts/surcharge-visible/768x1024-first.png",
+    "artifacts/surcharge-visible/768x1024-last.png",
+    "artifacts/surcharge-visible/392x844-first.png",
+    "artifacts/surcharge-visible/392x844-last.png",
+    "artifacts/surcharge-visible/320x844-first.png",
+    "artifacts/surcharge-visible/320x844-last.png",
+    "artifacts/surcharge-visible/canary-1.png",
+    "artifacts/surcharge-visible/canary-2.png",
+    "artifacts/surcharge-visible/canary-3.png",
+    "artifacts/surcharge-visible/canary-4.png",
+    "artifacts/surcharge-visible/canary-5.png"
+  ],
+  "dimensions": {
+    "slug": "demo-detail",
+    "sizes": [
+      "1920x1080",
+      "1440x900",
+      "768x1024",
+      "392x844",
+      "320x844"
+    ],
+    "picks": [
+      "first",
+      "last"
+    ],
+    "observed": [
+      "1920x1080 first slot: $65 → $95 · Weekend rate · +$30 · ink 4.4",
+      "1920x1080 last slot: $65 → $95 · Weekend rate · +$30 · ink 4.4",
+      "1440x900 first slot: $65 → $95 · Weekend rate · +$30 · ink 4.4",
+      "1440x900 last slot: $65 → $95 · Weekend rate · +$30 · ink 4.4",
+      "768x1024 first slot: $65 → $95 · Weekend rate · +$30 · ink 4.4",
+      "768x1024 last slot: $65 → $95 · Weekend rate · +$30 · ink 4.4",
+      "392x844 first slot: $65 → $95 · Weekend rate · +$30 · ink 7.4",
+      "392x844 last slot: $65 → $95 · Weekend rate · +$30 · ink 7.4",
+      "320x844 first slot: $65 → $95 · Weekend rate · +$30 · ink 9.1",
+      "320x844 last slot: $65 → $95 · Weekend rate · +$30 · ink 8.9"
+    ],
+    "delta_floor": 2,
+    "canary_runs": 5,
+    "sabotage": null
+  },
+  "check_id": "surcharge-visible",
+  "started_at": "2026-09-23T02:06:45.104Z",
+  "status": "pass",
+  "expected_targets": 15,
+  "discovered_targets": 15,
+  "attempted_targets": 15,
+  "completed_targets": 15,
+  "skipped_targets": 0,
+  "assertions_executed": 75,
+  "min_assertions": 75,
+  "canary": {
+    "id": "the-note-put-back-below-the-chips",
+    "observed_failure": true,
+    "problems": [
+      "run 1: visible «Weekend rate · +$30» at y=1074..1093 against a bar at 771 in a 844px window (scrolled 0); elementFromPoint says nothing",
+      "run 1: painted «Weekend rate · +$30» covers 288px of the screenshot, and blanking its text changes those pixels by 0.00 levels — under the 2 floor, so nothing was painted there",
+      "run 2: visible «Weekend rate · +$30» at y=1074..1093 against a bar at 771 in a 844px window (scrolled 0); elementFromPoint says nothing",
+      "run 2: painted «Weekend rate · +$30» covers 288px of the screenshot, and blanking its text changes those pixels by 0.00 levels — under the 2 floor, so nothing was painted there",
+      "run 3: visible «Weekend rate · +$30» at y=1074..1093 against a bar at 771 in a 844px window (scrolled 0); elementFromPoint says nothing",
+      "run 3: painted «Weekend rate · +$30» covers 288px of the screenshot, and blanking its text changes those pixels by 0.00 levels — under the 2 floor, so nothing was painted there",
+      "run 4: visible «Weekend rate · +$30» at y=1074..1093 against a bar at 771 in a 844px window (scrolled 0); elementFromPoint says nothing",
+      "run 4: painted «Weekend rate · +$30» covers 288px of the screenshot, and blanking its text changes those pixels by 0.00 levels — under the 2 floor, so nothing was painted there",
+      "run 5: visible «Weekend rate · +$30» at y=1074..1093 against a bar at 771 in a 844px window (scrolled 0); elementFromPoint says nothing",
+      "run 5: painted «Weekend rate · +$30» covers 288px of the screenshot, and blanking its text changes those pixels by 0.00 levels — under the 2 floor, so nothing was painted there"
+    ],
+    "runs": [
+      {
+        "run": 1,
+        "caught": true,
+        "problems": [
+          "visible «Weekend rate · +$30» at y=1074..1093 against a bar at 771 in a 844px window (scrolled 0); elementFromPoint says nothing",
+          "painted «Weekend rate · +$30» covers 288px of the screenshot, and blanking its text changes those pixels by 0.00 levels — under the 2 floor, so nothing was painted there"
+        ]
+      },
+      {
+        "run": 2,
+        "caught": true,
+        "problems": [
+          "visible «Weekend rate · +$30» at y=1074..1093 against a bar at 771 in a 844px window (scrolled 0); elementFromPoint says nothing",
+          "painted «Weekend rate · +$30» covers 288px of the screenshot, and blanking its text changes those pixels by 0.00 levels — under the 2 floor, so nothing was painted there"
+        ]
+      },
+      {
+        "run": 3,
+        "caught": true,
+        "problems": [
+          "visible «Weekend rate · +$30» at y=1074..1093 against a bar at 771 in a 844px window (scrolled 0); elementFromPoint says nothing",
+          "painted «Weekend rate · +$30» covers 288px of the screenshot, and blanking its text changes those pixels by 0.00 levels — under the 2 floor, so nothing was painted there"
+        ]
+      },
+      {
+        "run": 4,
+        "caught": true,
+        "problems": [
+          "visible «Weekend rate · +$30» at y=1074..1093 against a bar at 771 in a 844px window (scrolled 0); elementFromPoint says nothing",
+          "painted «Weekend rate · +$30» covers 288px of the screenshot, and blanking its text changes those pixels by 0.00 levels — under the 2 floor, so nothing was painted there"
+        ]
+      },
+      {
+        "run": 5,
+        "caught": true,
+        "problems": [
+          "visible «Weekend rate · +$30» at y=1074..1093 against a bar at 771 in a 844px window (scrolled 0); elementFromPoint says nothing",
+          "painted «Weekend rate · +$30» covers 288px of the screenshot, and blanking its text changes those pixels by 0.00 levels — under the 2 floor, so nothing was painted there"
+        ]
+      }
+    ],
+    "caught": "5/5"
+  }
+}

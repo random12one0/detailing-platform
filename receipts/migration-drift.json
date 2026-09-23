@@ -1,9 +1,9 @@
 {
-  "git_sha": "29e9527a0dcbac109712bc19747cd051f46698de",
-  "git_sha_started": "29e9527a0dcbac109712bc19747cd051f46698de",
+  "git_sha": "b82b021336ab6c7bcec3b8d2bbe7682eb15eb70b",
+  "git_sha_started": "b82b021336ab6c7bcec3b8d2bbe7682eb15eb70b",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-23T01:03:44.045Z",
+  "finished_at": "2026-09-23T02:14:05.641Z",
   "failures": [],
   "warnings": [
     "SEES functions (by body), tables (by existence), columns (by name and type family), policies (by existence, on public and storage schemas). STILL CANNOT SEE: grants, indexes, constraints, triggers, views, enum types, extensions, RLS enable/force state, a policy's own USING/WITH CHECK expression, a column's DEFAULT or NULLABILITY, or a migration whose whole content is a grant/update/backfill with no schema trace. There is no applied-migrations ledger in this project to compare against: supabase_migrations.schema_migrations does not exist.",
@@ -27,7 +27,7 @@
     "drifted": []
   },
   "check_id": "migration-drift",
-  "started_at": "2026-09-23T01:03:41.055Z",
+  "started_at": "2026-09-23T02:14:02.489Z",
   "status": "pass",
   "expected_targets": 186,
   "discovered_targets": 186,
