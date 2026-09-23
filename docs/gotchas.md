@@ -2663,13 +2663,21 @@ names the tallest blocks. The height sum now flattens the same way:
 **Ask of any child sum: could one of these be `contents`?** The symptom is a
 total that is suspiciously small and does not move when the page plainly does.
 
-## A DOCUMENT ABOUT ANOTHER DOCUMENT GOES STALE SILENTLY, BECAUSE NOTHING CHECKS PROSE AGAINST THE THING IT DESCRIBES — 2026-09-20
+## A DOCUMENT ABOUT ANOTHER DOCUMENT GOES STALE SILENTLY, BECAUSE NOTHING CHECKS PROSE AGAINST THE THING IT DESCRIBES — 2026-09-20, BROADENED 2026-09-23
 
 **Third one caught in one night, which is what makes it a pattern rather than
 a typo.** A sentence that states a fact about a DIFFERENT file — a line
 count, a command, a verdict — has no test watching it, because the thing it
 is wrong about lives somewhere else entirely. Nothing re-reads the target and
 diffs it against the claim; the prose just sits there being believed.
+
+**BROADENED 2026-09-23: it is not only documents describing documents.**
+Three days and four more instances later, the same failure showed up
+describing LIVE SYSTEM STATE — a roadmap line counting protected edge
+functions, a receipt's own bookkeeping field, a self-referential floor
+inside a check's own code. The target does not have to be another file for
+this to happen; it only has to be something that can change without the
+sentence noticing.
 
 1. **The verification table told people to run a test suite as a script.**
    `node --test tests/*.test.mjs` read as `node --test tests/` for long
@@ -2687,6 +2695,35 @@ diffs it against the claim; the prose just sits there being believed.
    is 382 (`awk 'END{print NR}' CLAUDE.md`, 2026-09-20) — grown 190 lines
    since whoever wrote that sentence last measured it, and nothing here
    re-measures a claim like that on its own.
+4. **A roadmap item's own title named a count that was already wrong before
+   the session touched it.** ROADMAP 14.9 said "nine public endpoints have
+   no rate limit," naming `booking-ics` among them. A different item, 14.2,
+   had already given `booking-ics` a rate limit — the true count was eight,
+   not nine, and had been for however many days sat between the two items
+   landing. `grep -rl withinLimits supabase/functions/*/index.ts` is the
+   only thing in this repo that has never been wrong about it.
+5. **The same session's own fix created the identical trap one layer up.**
+   Fixing four of those eight and writing "six have it, four do not" beside
+   the old "six have it, nine do not" is two true sentences that add to a
+   false total: 6+4=10, and the real surface was fifteen. Nobody lied;
+   the two numbers were just never designed to be added together, and
+   nothing about how they were written down says so.
+6. **A receipt's own dimensions field carried a bookkeeping number nobody
+   would notice.** `migration-drift.json`'s `types_unjudged: 116` sat beside
+   neutral fields like `tables_declared` with no denominator — 116 of what?
+   116 of 592, it turned out, meaning "columns checked by type" quietly
+   meant 80% of what the receipt's own prose claimed. Moved into `warnings`
+   with the denominator attached; a count with nothing to divide it by
+   reads as bookkeeping even when it is a blindness.
+7. **A check's own pass/fail floor was computed from the same number it
+   was meant to police.** `rate-limit-coverage.mjs` set
+   `min_assertions: EXPECTED_COUNT + CANARY_RUNS` — so shrinking the
+   declared function list and the floor moved together, and the floor could
+   never fail on a shrinkage no matter how large. `receipt.mjs` graded it
+   PASS on a test run with two-thirds of the real list removed. Fixed by
+   making the floor a literal, independent of the constant it is supposed
+   to catch drifting — the same shape `migration-drift.mjs`'s
+   `min_assertions: 1000` already was, copied rather than reinvented.
 
 **The fix in each case is the same shape: cite the measurement, not the
 number.** A sentence that says what a file contains should say how and when
@@ -2694,6 +2731,41 @@ that was checked, the same way every entry in this file is dated — a bare
 claim about another document's line count, status, or wording has no expiry
 date stapled to it, and it will outlive the thing it describes without
 anyone deciding that it should.
+
+**THE PATTERN, ASKED FOR DIRECTLY RATHER THAN LEFT IMPLIED IN SEVEN EXAMPLES:
+is there a class of number in this repo that is systematically unreliable,
+and can a counted number be told from a remembered one by looking at it?**
+Every instance above is a **derived count written down as prose** — a
+tally somebody produced once, by running something or reading something,
+and then typed into a sentence that outlived the act of counting. The
+class is not "numbers in this repo" generally: `LIMITS.publicCeiling`'s
+`600` doesn't drift, because it is a value the CODE reads, not a claim
+ABOUT the code. It is specifically **any count whose only home is a
+sentence** — nine endpoints, 192 lines, six protected, 116 unjudged. That
+class is unreliable not most of the time but **eventually, always**,
+because nothing re-runs the count when the thing counted changes, and nine
+files and 592 columns don't announce their own drift.
+
+**Told apart by looking, honestly: no, not reliably.** "Nine public
+endpoints have no rate limit" and "eight public endpoints have no rate
+limit" are typographically identical in every way that matters — same
+confidence, same font, same absence of a date or a command. The one tell
+that exists is exactly what item 1 above's fix already was: whether the
+sentence names **the command that produced it** and, ideally, **when**.
+`grep -rl withinLimits supabase/functions/*/index.ts` beside a count is a
+number with an expiry test built in — anyone doubting it can re-run four
+words and know. A bare "nine" is not lying, but it is asking to be
+believed rather than checked, and looking at it harder does not help,
+because the sentence that is still true and the sentence that has gone
+stale read exactly the same. **This argues for something this repo does
+not have: a convention that a derived count is never written without the
+command beside it** — not a new tool, not a new check, just the same
+discipline `docs/silences.md` already holds every receipted script to
+(state the method, state the scope, state what it does not cover),
+applied to the sentences in `ROADMAP.md` and `docs/` that quote a number
+without quoting how it was gotten. Nothing here enforces that today, which
+is the honest way to end this rather than claiming the problem is solved
+by writing the seventh example of it down.
 
 ---
 

@@ -174,7 +174,17 @@ const { path: receiptPath } = writeReceipt({
   completed_targets: discovered,
   skipped_targets: EXPECTED_COUNT - discovered,
   assertions_executed: rows.length + CANARY_RUNS,
-  min_assertions: EXPECTED_COUNT + CANARY_RUNS,
+  // A LITERAL, NOT `EXPECTED_COUNT + CANARY_RUNS` — ANDREW'S OWN CORRECTION,
+  // 2026-09-23. `assertions_executed` is always exactly that sum, because
+  // `ALL.length` is guarded to equal `EXPECTED_COUNT` before anything runs.
+  // A floor computed from the same constant it is meant to police moves
+  // with it: shrink `PUBLIC_FUNCTIONS` and `EXPECTED_COUNT` together and
+  // the floor shrinks too, silently, and would still read "PASS" the day
+  // half the endpoints are dropped from the list. `migration-drift.mjs`'s
+  // own `min_assertions: 1000` is the precedent — a number set "just under"
+  // the real count and left alone, so raising it later is a visible diff
+  // somebody has to justify, and so is lowering it.
+  min_assertions: 19,
   failures,
   artifacts: ["scripts/rate-limit-coverage.mjs"],
   warnings: [

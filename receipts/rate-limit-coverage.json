@@ -1,9 +1,9 @@
 {
-  "git_sha": "1f1ca59f36e93bcd0a77f93515cc58b9f85bb480",
-  "git_sha_started": "1f1ca59f36e93bcd0a77f93515cc58b9f85bb480",
+  "git_sha": "b25981ef6ad7d2fe8717f8c3a61b3b56a7e29550",
+  "git_sha_started": "b25981ef6ad7d2fe8717f8c3a61b3b56a7e29550",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-23T01:12:06.561Z",
+  "finished_at": "2026-09-23T01:16:05.054Z",
   "failures": [],
   "warnings": [
     "READS SOURCE ONLY — never calls a deployed function, so it cannot observe a live 429; it can only confirm the source calls withinLimits with a real LIMITS config, the same mechanism the working examples use. Applying nothing, deploying nothing.",
@@ -115,7 +115,7 @@
     "limit_used": "LIMITS.publicCeiling (per-caller IP, 600/hour) — the same blunt ceiling every other read-only public endpoint uses; per-address, not per-business or global, checked against _shared/rateLimit.ts before reuse because a per-business limit would never fire for a caller with no business context yet."
   },
   "check_id": "rate-limit-coverage",
-  "started_at": "2026-09-23T01:12:06.456Z",
+  "started_at": "2026-09-23T01:16:04.964Z",
   "status": "pass",
   "expected_targets": 15,
   "discovered_targets": 15,
@@ -123,7 +123,7 @@
   "completed_targets": 15,
   "skipped_targets": 0,
   "assertions_executed": 20,
-  "min_assertions": 20,
+  "min_assertions": 19,
   "canary": {
     "id": "a real protected function's withinLimits call stripped in memory must be reported NOT PROTECTED",
     "observed_failure": true,

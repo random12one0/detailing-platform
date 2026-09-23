@@ -9676,8 +9676,16 @@ event id.
   **not**" list and already carries `withinLimits`, landed by ROADMAP 14.2
   (a separate item) after this one was written. So the true split BEFORE
   today's build was **seven** protected, **eight** not — not six and
-  nine — and today is the third time in this session the roadmap's own
-  words have been stale, not the check that read them.
+  nine — and today is the fourth stale roadmap number found in this
+  session, and the most consequential one, because of how naturally the
+  wrong total forms: read this item's own original "six have it" beside
+  today's "four fixed" and a reader adds six and four and lands on **ten**
+  — a real-sounding number, built from two true statements, that is
+  simply not the size of the surface. **The surface is fifteen.** The
+  other five — `booking-ics` (already protected, a fact the old six never
+  updated to include), and the four now in 14.12 — are not hidden by
+  anything; they are invisible only because nobody re-added them to a
+  total that had stopped being counted and started being remembered.
 
   **FOUR OF THE EIGHT READS BUILT TODAY — NOT THE THREE WRITES THIS ITEM'S
   OWN "FIX" LINE NAMES, WHICH REMAIN OPEN.** Andrew asked specifically for
@@ -10219,6 +10227,69 @@ event id.
   one skip per script has been refused on purpose to prove the probe fires,
   **and** `receipt.mjs` fails a receipt whose skips carry no evidence field, so
   the rule is graded rather than remembered.
+
+### 14.12 — Four public endpoints 14.9 left open, given their own line rather
+than living only in a receipt's warnings field
+
+- [ ] **`cancel-booking`, `reschedule-booking`, `accept-quote`, `track-visit`
+  still have no rate limit.** Split out of 14.9, 2026-09-23, on Andrew's own
+  instruction: *"a warning inside a passing receipt is a thing nobody
+  opens."* `receipts/rate-limit-coverage.json` names all four in
+  `warnings` and `dimensions.known_open`, and that receipt PASSES — so
+  the four are real, current, and invisible to anyone who only checks the
+  status line.
+  **Three are 14.9's own original scope**, unchanged since that item was
+  written: `cancel-booking`, `reschedule-booking` and `accept-quote` each
+  change a real booking (cancel it, move it, or turn a quote into a
+  price), so the risk is a write a script can spam, not a read a script
+  can scrape. `LIMITS.publicCeiling`, the same per-IP ceiling 14.9's four
+  reads now use, is 14.9's own stated fix for these three — not yet
+  applied.
+  **The fourth, `track-visit`, IS DIFFERENT AND UNVERIFIED, IN THESE OWN
+  WORDS: its header comment claims "Service-role only; campaigns /
+  campaign_visits stay closed to anon," and nothing in its source
+  enforces that claim.** No key check, no header check, no `requireMember`
+  call — `supabase/functions/track-visit/index.ts` reads exactly like the
+  other public functions in this file. If the comment is right and
+  Supabase enforces it at the gateway (`verify_jwt=true`, outside this
+  repo, not written down anywhere in it), this function is not actually
+  reachable by a stranger and needs nothing. **If the comment is wrong,
+  this is a live edge function, callable by anyone with the URL, that
+  writes campaign-attribution rows with no limit at all — and being
+  wrong here is the one of these five where it actually costs something**,
+  because a written row is a row, not a discount somebody didn't get.
+  **This has not been checked against the deployed function or the
+  project's dashboard, and no deploy was made to check it** (standing
+  rule). It is recorded as unverified rather than assumed either way.
+  **Fix:** the same `withinLimits`/`LIMITS.publicCeiling` pattern as
+  14.9's four, on the three writes at minimum; `track-visit` first needs
+  its access model actually confirmed (Andrew, or whoever can read the
+  deployed function's config) before deciding whether it needs the same
+  fix or nothing at all.
+  **Done when:** `scripts/rate-limit-coverage.mjs`'s `known_open` list is
+  empty, or every name remaining on it has a reason recorded here for why
+  it is deliberately not being fixed.
+  Not started.
+
+### 14.13 — `accept-invite` is public with no rate limit, found investigating
+14.9 rather than looked for
+
+- [ ] **Team-invite acceptance (`supabase/functions/accept-invite/index.ts`)
+  is genuinely public — its own header says so — and has no rate limit at
+  all.** Not part of the booking widget, so outside 14.9's own scope; found
+  the same way that item's real function count was found, by reading every
+  one of the 39 `supabase/functions/*` directories rather than trusting a
+  list. **Checked, not assumed, before naming it as a cost item rather than
+  a security one:** the token it runs on is
+  `business_invites.token`, `encode(gen_random_bytes(24), 'hex')` —
+  192 bits of randomness, no sequential or predictable component, the
+  strongest credential of any endpoint this session looked at (stronger
+  than a UUID's 122 bits). Not guessable at any practical rate.
+  **Fix:** the same `LIMITS.publicCeiling` per-IP pattern as 14.9's four,
+  same reasoning — bounds the cost of a loop, nothing to design.
+  **Done when:** `accept-invite` calls `withinLimits` before doing any
+  work, the same shape as the eleven functions that already do.
+  Not started.
 
 ---
 

@@ -145,7 +145,7 @@ dangerous one precisely because it is quiet: lend a `scripts/` file for one
 commit rather than editing it unannounced underneath whoever owns it that
 round.
 
-**`docs/gotchas.md` is SIXTY-FIVE specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is SEVENTY-ONE specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -158,6 +158,16 @@ counted, not estimated. It was not two stale; it was fifty. **A pointer that
 undersells a document by four times decides whether anybody opens it**, and
 this one is the document a session is sent to before trusting a number. Count
 it when you add to it.
+
+**IT SAID "SIXTY-FIVE" AGAIN UNTIL 2026-09-23, AND THE FILE HAD 71 —
+FOUND WHILE WRITING A GOTCHAS ENTRY ABOUT EXACTLY THIS FAILURE, NOT BEFORE
+IT.** `grep -c "^## " docs/gotchas.md`, the same command this line's own
+rule asks for, checked before editing rather than after. The number had
+drifted six entries since 2026-09-21 and nobody had re-counted it in
+between — this line is the same class of unreliable count its own
+neighboring entry in `gotchas.md` describes: a derived tally written into
+prose once and never re-run. Corrected here rather than silently, because
+that is the instruction two paragraphs up.
 
 ## Hard rules
 
