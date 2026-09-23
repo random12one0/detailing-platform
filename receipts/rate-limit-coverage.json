@@ -1,9 +1,9 @@
 {
-  "git_sha": "b25981ef6ad7d2fe8717f8c3a61b3b56a7e29550",
-  "git_sha_started": "b25981ef6ad7d2fe8717f8c3a61b3b56a7e29550",
+  "git_sha": "893c6733f51c04f7c6141170fe6d510b27806ee0",
+  "git_sha_started": "893c6733f51c04f7c6141170fe6d510b27806ee0",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-23T01:16:05.054Z",
+  "finished_at": "2026-09-23T01:18:24.219Z",
   "failures": [],
   "warnings": [
     "READS SOURCE ONLY — never calls a deployed function, so it cannot observe a live 429; it can only confirm the source calls withinLimits with a real LIMITS config, the same mechanism the working examples use. Applying nothing, deploying nothing.",
@@ -115,7 +115,7 @@
     "limit_used": "LIMITS.publicCeiling (per-caller IP, 600/hour) — the same blunt ceiling every other read-only public endpoint uses; per-address, not per-business or global, checked against _shared/rateLimit.ts before reuse because a per-business limit would never fire for a caller with no business context yet."
   },
   "check_id": "rate-limit-coverage",
-  "started_at": "2026-09-23T01:16:04.964Z",
+  "started_at": "2026-09-23T01:18:24.127Z",
   "status": "pass",
   "expected_targets": 15,
   "discovered_targets": 15,
