@@ -8574,6 +8574,31 @@ the dashboard or back office at phone width at all.
   a stale description; it was already correct when the item was written,
   and today's work is the missing proof, not a missing line of code.
 
+  **ANDREW CHECKED THE TWO PICTURES HIMSELF AND FOUND MORE THAN ONE ROW
+  MISSING — CONFIRMED PRE-EXISTING, NOT A SIDE EFFECT OF THIS ITEM.** The
+  staff screenshot is missing "Team" and "Your subscription" from Settings
+  and "Money" from the left rail, not just the one row this item names.
+  **This item made zero code changes** — the fix was already built, so
+  there is no gate here that could have caused it. `git log -1 -L
+  424,425:app/src/App.jsx` (the line hiding the Money tab behind the
+  `"money"` permission) lands on commit `45eaf85`, 2026-09-09, thirteen
+  days before this session touched the repo; `git log --oneline --since
+  2026-09-20 -- app/src/App.jsx app/src/components/GearMenu.jsx
+  app/src/lib/permissions.js app/src/screens/more/Team.jsx
+  app/src/screens/more/Billing.jsx` returns nothing, so none of those
+  files moved at all in the three days before today, let alone in this
+  item. It is roadmap 2.13/2.20's own custom-roles system —
+  `app/src/lib/permissions.js`'s own header names it — where a membership
+  is a name plus a tick list (`money`, `requests`, `settings`,
+  `marketing`) and `TAB_NEEDS` in `App.jsx` hides a whole tab, not one
+  row, when the ticked list doesn't cover it. **So this is not "one row
+  hidden," it is a real permission tier**, already built, already
+  enforced on the database side per that file's own comment ("hiding a
+  tab is never the enforcement — the migration is"), and this item's
+  screenshots happened to be the first time anyone looked at a
+  non-admin, non-owner account's screen in this session and saw the
+  whole shape of it at once.
+
 ---
 
 ## Wave 10 — Copy
