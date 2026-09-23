@@ -1,0 +1,129 @@
+{
+  "git_sha": "abc8affe2013afd43f8a0533538abb75b990a1f5",
+  "git_sha_started": "abc8affe2013afd43f8a0533538abb75b990a1f5",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-09-23T03:27:31.336Z",
+  "failures": [
+    "1920x1080 mismatch: honest the label «10% off» claims 10%, which of $65.00 would be $6.50, but the figure beside it is $5.00 — that is 7.69%",
+    "1920x1080 mismatch: form this discount is not a whole percentage of the job, so the label should not state one, and it reads «10% off»",
+    "1440x900 mismatch: honest the label «10% off» claims 10%, which of $65.00 would be $6.50, but the figure beside it is $5.00 — that is 7.69%",
+    "1440x900 mismatch: form this discount is not a whole percentage of the job, so the label should not state one, and it reads «10% off»",
+    "768x1024 mismatch: honest the label «10% off» claims 10%, which of $65.00 would be $6.50, but the figure beside it is $5.00 — that is 7.69%",
+    "768x1024 mismatch: form this discount is not a whole percentage of the job, so the label should not state one, and it reads «10% off»",
+    "392x844 mismatch: honest the label «10% off» claims 10%, which of $65.00 would be $6.50, but the figure beside it is $5.00 — that is 7.69%",
+    "392x844 mismatch: form this discount is not a whole percentage of the job, so the label should not state one, and it reads «10% off»",
+    "320x844 mismatch: honest the label «10% off» claims 10%, which of $65.00 would be $6.50, but the figure beside it is $5.00 — that is 7.69%",
+    "320x844 mismatch: form this discount is not a whole percentage of the job, so the label should not state one, and it reads «10% off»"
+  ],
+  "warnings": [
+    "THE QUOTE IS A DECLARED FIXTURE. demo-detail has site_discount_active = false, so a site-discount line does not render there at all; every target injects one, with computeQuote's own numbers for a tenant configured that way. THE LIVE DISCOUNT PATH WITH site_discount_active = true ON A REAL TENANT WAS NOT EXERCISED, at any width, in any run."
+  ],
+  "artifacts": [
+    "artifacts/discount-label/1920x1080-mismatch.png",
+    "artifacts/discount-label/1920x1080-exact.png",
+    "artifacts/discount-label/1440x900-mismatch.png",
+    "artifacts/discount-label/1440x900-exact.png",
+    "artifacts/discount-label/768x1024-mismatch.png",
+    "artifacts/discount-label/768x1024-exact.png",
+    "artifacts/discount-label/392x844-mismatch.png",
+    "artifacts/discount-label/392x844-exact.png",
+    "artifacts/discount-label/320x844-mismatch.png",
+    "artifacts/discount-label/320x844-exact.png",
+    "artifacts/discount-label/canary-1.png",
+    "artifacts/discount-label/canary-2.png",
+    "artifacts/discount-label/canary-3.png",
+    "artifacts/discount-label/canary-4.png",
+    "artifacts/discount-label/canary-5.png"
+  ],
+  "dimensions": {
+    "slug": "demo-detail",
+    "scope": "THE QUOTE IS A DECLARED FIXTURE. demo-detail has site_discount_active = false, so a site-discount line does not render there at all; every target injects one, with computeQuote's own numbers for a tenant configured that way. THE LIVE DISCOUNT PATH WITH site_discount_active = true ON A REAL TENANT WAS NOT EXERCISED, at any width, in any run.",
+    "quote_source": "fixture (computeQuote), not the tenant's own settings",
+    "sizes": [
+      "1920x1080",
+      "1440x900",
+      "768x1024",
+      "392x844",
+      "320x844"
+    ],
+    "cases": [
+      "mismatch: 10%, rounding 5",
+      "exact: 20%, rounding 0"
+    ],
+    "observed": [
+      "1920x1080 mismatch: «10% off» -$5.00 of $65.00 = 7.69% · total $60.00",
+      "1920x1080 exact: «20% off» -$13.00 of $65.00 = 20.00% · total $52.00",
+      "1440x900 mismatch: «10% off» -$5.00 of $65.00 = 7.69% · total $60.00",
+      "1440x900 exact: «20% off» -$13.00 of $65.00 = 20.00% · total $52.00",
+      "768x1024 mismatch: «10% off» -$5.00 of $65.00 = 7.69% · total $60.00",
+      "768x1024 exact: «20% off» -$13.00 of $65.00 = 20.00% · total $52.00",
+      "392x844 mismatch: «10% off» -$5.00 of $65.00 = 7.69% · total $60.00",
+      "392x844 exact: «20% off» -$13.00 of $65.00 = 20.00% · total $52.00",
+      "320x844 mismatch: «10% off» -$5.00 of $65.00 = 7.69% · total $60.00",
+      "320x844 exact: «20% off» -$13.00 of $65.00 = 20.00% · total $52.00"
+    ],
+    "delta_floor": 2,
+    "canary_runs": 5,
+    "sabotage": null
+  },
+  "check_id": "discount-label",
+  "started_at": "2026-09-23T03:23:01.258Z",
+  "status": "fail",
+  "expected_targets": 15,
+  "discovered_targets": 15,
+  "attempted_targets": 15,
+  "completed_targets": 15,
+  "skipped_targets": 0,
+  "assertions_executed": 90,
+  "min_assertions": 90,
+  "canary": {
+    "id": "a-detailer-whose-own-sale-name-states-a-rate",
+    "observed_failure": true,
+    "problems": [
+      "run 1: honest the label «10% off» claims 10%, which of $65.00 would be $6.50, but the figure beside it is $5.00 — that is 7.69%",
+      "run 2: honest the label «10% off» claims 10%, which of $65.00 would be $6.50, but the figure beside it is $5.00 — that is 7.69%",
+      "run 3: honest the label «10% off» claims 10%, which of $65.00 would be $6.50, but the figure beside it is $5.00 — that is 7.69%",
+      "run 4: honest the label «10% off» claims 10%, which of $65.00 would be $6.50, but the figure beside it is $5.00 — that is 7.69%",
+      "run 5: honest the label «10% off» claims 10%, which of $65.00 would be $6.50, but the figure beside it is $5.00 — that is 7.69%"
+    ],
+    "runs": [
+      {
+        "run": 1,
+        "caught": true,
+        "problems": [
+          "honest the label «10% off» claims 10%, which of $65.00 would be $6.50, but the figure beside it is $5.00 — that is 7.69%"
+        ]
+      },
+      {
+        "run": 2,
+        "caught": true,
+        "problems": [
+          "honest the label «10% off» claims 10%, which of $65.00 would be $6.50, but the figure beside it is $5.00 — that is 7.69%"
+        ]
+      },
+      {
+        "run": 3,
+        "caught": true,
+        "problems": [
+          "honest the label «10% off» claims 10%, which of $65.00 would be $6.50, but the figure beside it is $5.00 — that is 7.69%"
+        ]
+      },
+      {
+        "run": 4,
+        "caught": true,
+        "problems": [
+          "honest the label «10% off» claims 10%, which of $65.00 would be $6.50, but the figure beside it is $5.00 — that is 7.69%"
+        ]
+      },
+      {
+        "run": 5,
+        "caught": true,
+        "problems": [
+          "honest the label «10% off» claims 10%, which of $65.00 would be $6.50, but the figure beside it is $5.00 — that is 7.69%"
+        ]
+      }
+    ],
+    "caught": "5/5"
+  }
+}
