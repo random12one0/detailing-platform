@@ -4203,6 +4203,43 @@ requested.
   measures inside it, scoped correctly to the overlay per `tapProbe.mjs`'s
   own dialog handling.
 
+  **SENT BACK, AND RIGHTLY: THE FIRST CLOSE DID THE WALK AND SKIPPED THE
+  ARTIFACT.** BATCHES.md's own done-when for this batch is "each one carries
+  a receipt `node scripts/receipt.mjs` grades, and each was broken on
+  purpose first with the break named in the roadmap line" — the canary half
+  was real, the receipt half was not written, and a check about checks that
+  produces no receipt of its own is exactly the kind of gap this batch
+  exists to close. **Fixed: `sweep-tap-targets.mjs` now writes
+  `receipts/sweep-tap-targets.json`** at the end of every admin-section run,
+  scoped to what that invocation actually covered (not the file's
+  dashboard/landing sections, which this item never touched), and
+  **`receipt.mjs` grades it rather than the script reporting its own
+  verdict:**
+
+  ```
+  PASS  sweep-tap-targets  24/24 targets, 29268 assertions, canary
+  ".pa-tab squeezed to 2px/4px padding and 10px type — a plausible spacing
+  edit, not a syntax error" failed as required
+  ```
+
+  **WHAT THE RECEIPT RECORDS, so opening it answers the question rather than
+  requiring a re-run:** 24/24 admin screens (2 widths × 2 languages × the
+  five back-office tabs plus the Detailers drawer, declared up front as
+  `EXPECTED_ADMIN_SCREENS_PER_COMBO`, not counted after the fact), 29,268
+  tap-probe assertions, the five-of-five canary catch with every individual
+  run's own line kept rather than collapsed into one number, a real
+  screenshot of the open detailer drawer as its artifact
+  (`receipts/screenshots/sweep-tap-targets-admin/detailer-drawer-open.png`,
+  180KB, opened and confirmed non-blank), and — per `docs/silences.md`'s
+  "every receipt now records the commit it started on as well as the one it
+  finished on" — both `git_sha_started` and `git_sha`, stamped automatically
+  by `receipt.mjs` rather than by this script, so there is nothing for a
+  future edit here to forget. This entry was written before the receipt's
+  final commit, so those two fields will read as this commit and the one
+  right after it once both land — HEAD moving by exactly one commit between
+  a receipt and the roadmap line that cites it, not drift inside the run
+  itself. **Path: `receipts/sweep-tap-targets.json`.**
+
   **THE FOUR ITEMS — SEARCHED FOR, NOT GUESSED AT, AND THE HONEST ANSWER IS
   ONE, NOT FOUR.** Every citation of "credential-free suites" in
   `ROADMAP.md`, `docs/VERIFIED.md`, `FOUND.md` and `DECISIONS.md`'s index
@@ -4215,14 +4252,15 @@ requested.
   names AdminPage.jsx... The gap is its own item, 4.5.* The other ten
   citations found in ROADMAP.md are about the landing page, the pricing
   page or `Clients.jsx` — screens the four suites genuinely do read, so
-  those citations are accurate, not stale. **This item's own opening line
-  says "four items" and this session cannot find three more that fit the
-  description; rather than manufacture a count, the true number found by
-  a systematic search is reported as one.** If "four" refers to something
-  written only in a chat window that no longer exists (this repo has lost
-  context that way before — `docs/MANAGER-CLOSE-2026-09-21.md`'s own
-  opening section), it is not recoverable from any file this search
-  covered.
+  those citations are accurate, not stale. **This item's own title says
+  "four items" and no file this repo owns can substantiate that number —
+  a systematic search across `ROADMAP.md`, `docs/VERIFIED.md`, `FOUND.md`
+  and `DECISIONS.md`'s index finds one. THE "FOUR" FIGURE CAME FROM A CHAT
+  WINDOW THAT NO LONGER EXISTS, the same way this repo has already lost
+  context before (`docs/MANAGER-CLOSE-2026-09-21.md`'s own opening
+  section names the same failure mode), and it is recorded here as
+  UNSUBSTANTIATED rather than left as a number for the next session to go
+  hunting for again.** The confirmed count is one, named above, closed.
 
   **9.2, THE ONE CONFIRMED CASE — NOW PARTIALLY COVERED, NAMED HONESTLY
   RATHER THAN CALLED CLOSED.** The new admin canary proves the back office

@@ -44,10 +44,15 @@
 // English at every width and **41.9 in Spanish at 320**, because a longer title
 // squeezed a flex row. **An English-only tap-target run cannot see it.**
 import { createRequire } from "node:module";
+import { mkdirSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { reportSourceMoved, watchSource } from "./source-guard.mjs";
+import { writeReceipt } from "./receipt.mjs";
 import { TAP_PROBE, BREAKS, EXCEPTIONS, FLOOR, CAP } from "./lib/tapProbe.mjs";
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
+const started_at = new Date().toISOString();
 const changedSince = watchSource();
 const BASE = process.env.BASE || "http://localhost:5173";
 const argOf = (flag) => { const i = process.argv.indexOf(flag); return i > -1 ? process.argv[i + 1] : null; };
@@ -209,6 +214,57 @@ const indexRows = (page) => page.evaluate(() =>
 const mainText = (page) => page.evaluate(() =>
   (document.querySelector(".app-main, main, .app-shell") || document.body).innerText.length);
 
+// ── THE BACK-OFFICE CANARY, SEPARATE FROM THE FIVE `BREAKS` ABOVE BECAUSE
+// NONE OF THEM TOUCH `/admin` ───────────────────────────────────────────
+// ROADMAP 4.5's own bar: "a deliberate break in AdminPage.jsx fails a
+// credential-free run, and the break is one a person could plausibly make."
+// Shrinking `.pa-tab` — a real control, `admin.css:120` — to a few pixels of
+// padding is exactly that: a spacing edit somebody makes without checking
+// the 44px floor. RUN REPEATEDLY, NOT ONCE — this session's own lesson from
+// earlier today was that a canary caught on a single lucky run is weaker
+// evidence than it feels like: the blank-screenshot canary in this same
+// repo only reproduced 3 of 8 times. Shared by `--baseline` and by the
+// normal admin walk, which writes a receipt from what this returns.
+const runAdminCanary = async (browser, runs = 5) => {
+  let caught = 0;
+  const detail = [];
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const page = await ctx.newPage();
+  await page.goto(`${BASE}/admin`, { waitUntil: "domcontentloaded" });
+  await page.waitForSelector("input[type=email], .pa-tabs, .adm", { timeout: 25000 });
+  if (await page.locator("input[type=email]").count()) {
+    await page.fill("input[type=email]", "demo@detailplatform.com");
+    await page.fill("input[type=password]", "demo123");
+    await page.click("form button[type=submit]");
+    await page.waitForSelector(".pa-tabs, .adm", { timeout: 30000 }).catch(() => {});
+  }
+  await settle(page, 2200);
+  const before = await page.evaluate(TAP_PROBE, ARGS);
+  console.log(`\nthe real /admin screen first: ${before.subjects} controls, ${before.findings.length} findings`);
+  for (let i = 1; i <= runs; i++) {
+    await page.evaluate(() => {
+      const s = document.createElement("style");
+      s.id = "admin-tap-break";
+      s.textContent = ".pa-tab { padding: 2px 4px !important; font-size: 10px !important; min-height: 0 !important }";
+      document.head.appendChild(s);
+    });
+    await settle(page, 500);
+    const after = await page.evaluate(TAP_PROBE, ARGS);
+    const got = after.findings.filter((f) => f.check === "narrow" || f.check === "short");
+    if (got.length) caught++;
+    const line = `run ${i}/${runs}: ${got.length ? "CAUGHT" : "MISSED"} (${got.length} finding(s)${got.length ? " — " + got[0].detail : ""})`;
+    console.log("  " + line);
+    detail.push(line);
+    await page.evaluate(() => document.getElementById("admin-tap-break")?.remove());
+    await settle(page, 500);
+  }
+  const after = await page.evaluate(TAP_PROBE, ARGS);
+  const restored = after.subjects === before.subjects && after.findings.length === before.findings.length;
+  console.log(`admin canary: caught ${caught}/${runs}, restored ${restored ? "cleanly" : "*** NOT CLEANLY ***"}`);
+  await ctx.close();
+  return { caught, runs, restored, before, detail };
+};
+
 // ----------------------------------------------------------------- BASELINE
 if (BASELINE) {
   // ONE SCREEN, ONE WIDTH. An instrument is proved, not surveyed.
@@ -242,55 +298,12 @@ if (BASELINE) {
   }
   await ctx.close();
 
-  // ── THE BACK-OFFICE CANARY, SEPARATELY, BECAUSE THE FIVE BREAKS ABOVE
-  // NEVER TOUCH `/admin` ────────────────────────────────────────────────
-  // ROADMAP 4.5's own bar: "a deliberate break in AdminPage.jsx fails a
-  // credential-free run, and the break is one a person could plausibly
-  // make." Shrinking `.pa-tab` — a real control, `admin.css:120` — to a few
-  // pixels of padding is exactly that: a spacing edit somebody makes without
-  // checking the 44px floor. RUN REPEATEDLY, NOT ONCE — this session's own
-  // lesson from earlier today was that a canary caught on a single lucky run
-  // is weaker evidence than it feels like: the blank-screenshot canary in
-  // this same repo only reproduced 3 of 8 times. The count below is measured
-  // by actually running it several times, not asserted from one pass.
-  {
-    const ADMIN_RUNS = 5;
-    let adminCaught = 0;
-    const adminCtx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-    const adminPage = await adminCtx.newPage();
-    await adminPage.goto(`${BASE}/admin`, { waitUntil: "domcontentloaded" });
-    await adminPage.waitForSelector("input[type=email], .pa-tabs, .adm", { timeout: 25000 });
-    if (await adminPage.locator("input[type=email]").count()) {
-      await adminPage.fill("input[type=email]", "demo@detailplatform.com");
-      await adminPage.fill("input[type=password]", "demo123");
-      await adminPage.click("form button[type=submit]");
-      await adminPage.waitForSelector(".pa-tabs, .adm", { timeout: 30000 }).catch(() => {});
-    }
-    await settle(adminPage, 2200);
-    const adminBefore = await adminPage.evaluate(TAP_PROBE, ARGS);
-    console.log(`\nthe real /admin screen first: ${adminBefore.subjects} controls, ${adminBefore.findings.length} findings`);
-    for (let i = 1; i <= ADMIN_RUNS; i++) {
-      await adminPage.evaluate(() => {
-        const s = document.createElement("style");
-        s.id = "admin-tap-break";
-        s.textContent = ".pa-tab { padding: 2px 4px !important; font-size: 10px !important; min-height: 0 !important }";
-        document.head.appendChild(s);
-      });
-      await settle(adminPage, 500);
-      const after = await adminPage.evaluate(TAP_PROBE, ARGS);
-      const got = after.findings.filter((f) => f.check === "narrow" || f.check === "short");
-      if (got.length) adminCaught++;
-      console.log(`  run ${i}/${ADMIN_RUNS}: ${got.length ? "CAUGHT" : "MISSED"} (${got.length} finding(s)${got.length ? " — " + got[0].detail : ""})`);
-      await adminPage.evaluate(() => document.getElementById("admin-tap-break")?.remove());
-      await settle(adminPage, 500);
-    }
-    const adminAfter = await adminPage.evaluate(TAP_PROBE, ARGS);
-    const restored = adminAfter.subjects === adminBefore.subjects && adminAfter.findings.length === adminBefore.findings.length;
-    console.log(`admin canary: caught ${adminCaught}/${ADMIN_RUNS}, restored ${restored ? "cleanly" : "*** NOT CLEANLY ***"}`);
-    if (adminCaught < ADMIN_RUNS) { blind++; add("baseline", { check: "BASELINE", el: ".pa-tab", detail: `the admin-office break was only caught ${adminCaught}/${ADMIN_RUNS} times` }); }
-    if (!restored) add("baseline", { check: "BASELINE", el: ".pa-tab restore", detail: "undoing the admin break did not restore the screen" });
-    await adminCtx.close();
+  const adminCanary = await runAdminCanary(browser, 5);
+  if (adminCanary.caught < adminCanary.runs) {
+    blind++;
+    add("baseline", { check: "BASELINE", el: ".pa-tab", detail: `the admin-office break was only caught ${adminCanary.caught}/${adminCanary.runs} times` });
   }
+  if (!adminCanary.restored) add("baseline", { check: "BASELINE", el: ".pa-tab restore", detail: "undoing the admin break did not restore the screen" });
 
   await browser.close();
   console.log(`\n${Object.keys(BREAKS).length} checks broken on purpose, ${blind} blind`);
@@ -463,6 +476,16 @@ for (const width of WIDTHS) {
 // `admin.css` and said so as SOURCE evidence, because nothing could probe the
 // screen. This can, and now does it without a second credential path.
 const OWNER_ADMIN = { email: "demo@detailplatform.com", password: "demo123" };
+// DECLARED, NOT COUNTED FROM THE RUN — keyboard-walk.mjs's own rule, § "the
+// count is read once at the index" applies here too: five back-office tabs
+// (Today, Growth, Money, Detailers, System health) plus the Detailers drawer,
+// which opens on every width/lang combo this file has ever measured. A run
+// that finds fewer is a real shortfall the receipt below must report, not a
+// number quietly redefined to match whatever happened.
+const EXPECTED_ADMIN_SCREENS_PER_COMBO = 6;
+const screensBeforeAdmin = screens, probesBeforeAdmin = probes;
+const adminArtifacts = [];
+let adminShotTaken = false;
 if (ONLY && !"admin".includes(ONLY.toLowerCase())) {
   skips.push(`the back office was not walked because --only ${ONLY} does not name it`);
 } else {
@@ -529,6 +552,17 @@ if (ONLY && !"admin".includes(ONLY.toLowerCase())) {
               await row.click();
               await settle(page, 2400);
               await measure(page, `${width}/${lang}/admin/${label}/open`);
+              // ONE REAL SCREENSHOT, THE FIRST TIME THE DRAWER OPENS. A
+              // receipt with no artifact is a receipt nobody can look at
+              // (`receipt.mjs`'s own rule) — this is the evidence, not
+              // decoration.
+              if (!adminShotTaken) {
+                adminShotTaken = true;
+                const shotDir = fileURLToPath(new URL("../receipts/screenshots/sweep-tap-targets-admin/", import.meta.url));
+                mkdirSync(shotDir, { recursive: true });
+                await page.screenshot({ path: join(shotDir, "detailer-drawer-open.png") });
+                adminArtifacts.push("receipts/screenshots/sweep-tap-targets-admin/detailer-drawer-open.png");
+              }
               await page.keyboard.press("Escape");
               await settle(page, 800);
             } else if (/detailer|negocio/i.test(label)) {
@@ -544,6 +578,56 @@ if (ONLY && !"admin".includes(ONLY.toLowerCase())) {
   } catch (e) {
     skips.push(`THE BACK OFFICE WALK THREW BEFORE IT COULD FINISH: ${String(e).split("\n")[0]}`);
   }
+
+  // ── THE RECEIPT — WHAT 4.5 ACTUALLY BUILT, GRADED BY receipt.mjs, NOT BY
+  // THIS SCRIPT'S OWN VERDICT. ─────────────────────────────────────────────
+  // Scoped to the admin section's OWN counts (snapshotted around it above),
+  // not the whole file's dashboard/landing sections too — this receipt
+  // describes what the back-office walk covered in THIS invocation, honestly
+  // including a shorter run if `--only` or `--widths` narrowed it.
+  const adminDiscovered = screens - screensBeforeAdmin;
+  const adminProbesUsed = probes - probesBeforeAdmin;
+  const adminFindings = findings.filter((f) => f.where.includes("/admin"));
+  const adminExpected = ADMIN_WIDTHS.length * LANGS.length * EXPECTED_ADMIN_SCREENS_PER_COMBO;
+  const canary = await runAdminCanary(browser, 5);
+  const canaryOk = canary.caught === canary.runs && canary.restored;
+  const receiptStatus = adminFindings.length === 0 && adminDiscovered === adminExpected && canaryOk
+    ? "pass" : "fail";
+  const { path: receiptPath } = writeReceipt({
+    check_id: "sweep-tap-targets",
+    started_at,
+    status: receiptStatus,
+    expected_targets: adminExpected,
+    discovered_targets: adminDiscovered,
+    attempted_targets: adminDiscovered,
+    completed_targets: adminDiscovered,
+    skipped_targets: Math.max(0, adminExpected - adminDiscovered),
+    assertions_executed: adminProbesUsed,
+    // A generous floor below the ~1,336 probes/screen this walk has actually
+    // measured every run so far — real, not asymptotic, and it scales with
+    // however many screens this particular invocation covered.
+    min_assertions: Math.max(1, adminDiscovered) * 200,
+    failures: [
+      ...adminFindings.map((f) => `${f.where}: ${f.check} — ${f.el} — ${f.detail}`),
+      ...(canaryOk ? [] : [`admin canary only caught ${canary.caught}/${canary.runs}` + (canary.restored ? "" : ", and did not restore cleanly")]),
+    ],
+    artifacts: adminArtifacts,
+    warnings: skips.filter((s) => s.toLowerCase().includes("admin") || s.toLowerCase().includes("back office")),
+    dimensions: {
+      scope: "the /admin back office only — this script's dashboard, settings and landing/pricing sections are not represented in this receipt",
+      admin_widths: ADMIN_WIDTHS,
+      langs: LANGS,
+      expected_screens_per_combo: EXPECTED_ADMIN_SCREENS_PER_COMBO,
+      canary_repeats: `${canary.caught}/${canary.runs}`,
+      canary_restored: canary.restored,
+    },
+    canary: {
+      id: ".pa-tab squeezed to 2px/4px padding and 10px type — a plausible spacing edit, not a syntax error",
+      observed_failure: canaryOk,
+      findings: canary.detail,
+    },
+  });
+  console.log(`\nreceipt (admin section only) -> ${receiptPath}`);
 }
 await browser.close();
 
