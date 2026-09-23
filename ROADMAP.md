@@ -1564,17 +1564,46 @@ the wrong service, and never book a job we cannot reach.
   nothing committed, and recorded rather than retried at the end of a long
   session. The duplication is real and is a follow-up.
 
-- [ ] **2.3 — A far-away address is accepted with no travel charge.**
-  A San Diego address went through with "Long Beach" selected, no warning and
-  no "+$40 beyond 15 miles". The customer picks their own service area from a
-  list, so they choose whether to pay the travel fee.
-  **Fix:** derive distance from the looked-up address and apply travel cost
-  automatically; remove the customer's area choice or fill it from the address;
-  refuse out-of-area addresses with a phone number; don't let a booking page
-  take bookings until "Where you work" is set.
-  **Done when:** a far address is refused, a 15+ mile address adds the charge
-  visibly, a local address goes through clean.
-  *A2 2.1*
+- [ ] **2.3 — A customer can pick the near zone with a far address, and
+  nothing says so. REWRITTEN 2026-09-22 ON ANDREW'S RULING — the old ask was
+  for a feature nobody is building.**
+
+  **THE ASK, IN ITS CURRENT FORM.** Travel is **named, flat-fee zones**, the
+  customer picks their own from a list, and each carries a price. So the
+  failure mode is not a distance calculation coming out wrong — **there is no
+  distance calculation and there is not going to be one.** It is a customer in
+  the far zone choosing the near one, and paying $0 instead of $40. The job is
+  a **flag that notices the address they typed does not match the zone they
+  chose**, shown to the detailer before they drive.
+  **It labels and it never gates:** it does not block a booking, it does not
+  change a price, and it does not argue with the customer.
+  **Done when:** a booking made with a far address under the near zone stores
+  the flag and shows it on the job record; a matching address stores it false
+  and shows nothing; neither is refused and neither is repriced.
+
+  **WHAT THE ITEM USED TO ASK FOR, KEPT BECAUSE THE REVERSAL IS THE
+  LOAD-BEARING PART.** *"Derive distance from the looked-up address and apply
+  travel cost automatically; remove the customer's area choice or fill it from
+  the address; refuse out-of-area addresses with a phone number; don't let a
+  booking page take bookings until 'Where you work' is set."* **Every clause
+  of that is now refused**, and by two separate rulings rather than by a
+  session's judgement:
+  - **No distance pricing.** `docs/MANAGER-CLOSE-2026-09-21.md`: *"Travel
+    stays named, flat-fee zones. No distance pricing — the geocoding and
+    routing APIs cost money. ROADMAP 2.3 must be rewritten to ask for the
+    flag, not left open asking for a distance feature nobody is building."*
+  - **Nothing is refused.** The same ruling: the flag *"labels and never
+    gates: it does not block a booking and does not change a price."* This
+    matches Andrew's own earlier ruling on 2.8 — an unverified address gets a
+    label, never a locked door — which the old text contradicted.
+  *A2 2.1, rewritten on the 2026-09-21 rulings*
+
+  **AND THE ANSWER TO THE ONE QUESTION THAT COULD HAVE STOPPED THIS ITEM:
+  the flag does NOT need a geocode to mean anything.** `zoneAddressMismatch()`
+  is a word comparison — does the chosen zone's own name appear anywhere in
+  the address text — so it costs nothing per booking and calls no API. It
+  catches "San Diego" typed under a zone named "Long Beach". It will not catch
+  a real Long Beach street on the far side of town, and it is not meant to.
 
   **Scoped 2026-09-20, not fixed.** The business has no stored location and a
   "zone" is a name and a flat fee with no shape on a map (`StepLocation.jsx`'s
@@ -1618,6 +1647,63 @@ the wrong service, and never book a job we cannot reach.
   2.8 claimed both owner emails were covered; this one wasn't. Out of scope
   for tonight (someone else's already-closed item) — named here so it isn't
   lost.
+
+  ---
+
+  **MEASURED 2026-09-22, AND IT CHANGES WHAT IS LEFT: THE FLAG HAS NEVER ONCE
+  BEEN WRITTEN.** **32 of 32 bookings on `demo-detail` carry
+  `travel_zone_address_mismatch = null`** — counted, not sampled. Not `false`,
+  which would mean "asked and answered no". `null`, which means **nothing has
+  ever set it, in any environment.** That is Wave 14.6's category — a feature
+  that has never run once — arriving inside an item that reads as half-done.
+
+  **THE COLUMN EXISTS NOW, AND THIS ENTRY SAID IT DID NOT.** The block above
+  records two blocked attempts to apply
+  `20260920020000_a_picked_zone_can_contradict_the_address.sql` and concludes
+  *"until this is applied, the column does not exist"*. **It has been applied
+  since** — `select travel_zone_address_mismatch from bookings` returns 200
+  against the live database. Corrected here rather than silently, because a
+  session reading that sentence would spend its time re-applying a migration
+  that is already in.
+
+  **SO THE WIRING IS WRITTEN END TO END AND UNPROVEN AT EVERY JOINT.**
+  `zoneAddressMismatch()` in `_shared/pricing.ts` (unit-tested 7/7) →
+  `create-booking/index.ts:434` writes the column → `BookingDetail.jsx:506`
+  renders the warning on the job record → `send-owner-reminders` and
+  `emailTemplates.ts` carry it into the owner's mail. **Every one of those is
+  read, and not one is run.** The unit test proves the comparison; nothing
+  proves the column is populated on a real booking, and the evidence above
+  says it never has been.
+
+  **WHAT IS LEFT, AND IT IS SMALL AND UNBUILT AS OF THIS EDIT.** Create one
+  booking with a far address under the near zone and one control with a
+  matching address, assert the stored flag is `true` and `false`, then open
+  the job record at the five widths and assert the warning is painted and
+  visible on the first and absent on the second. **No new product code is
+  expected** — if the wiring works, this item is a verification; if it does
+  not, the failure is the bug 2.3 is really about.
+  **The mail is already solved and must not be re-solved:** `e2e-booking.mjs`
+  books against Resend's `delivered@resend.dev` simulator and takes
+  `--to=e2e@fixture.test` to run free. Use that pattern; do not invent a
+  second one, and do not send real mail to prove a boolean.
+  **The address to use is already resolved, so it costs no Geoapify credit:**
+  `1549 el prado san diego ca 92101 united states of america` is in
+  `address_points` today, as are several Long Beach ones for the control.
+
+  **AND ONE THING LOOKED AT AND FOUND NOT TO BE A FAULT, recorded so the next
+  person does not re-open it.** The zone control on step 4 is a native
+  `<select>`, and the demo tenant has exactly **two** zones in it — "Long
+  Beach" at $0 and "Beyond 15 miles" at +$40. Two options in a dropdown looks
+  like a straight breach of CLAUDE.md's *"two to five mutually exclusive
+  choices is a segmented control, never a native `<select>`"*. **It is not.**
+  That rule's own next clause exempts *"a mapped or searchable list"*, and
+  `composition.test.mjs` test 2 implements exactly that: it skips any
+  `<select>` whose options come from `.map()`. The zones are mapped from
+  tenant data, so the rule, the test and the code all agree.
+  **The tension worth naming rather than fixing:** the exemption is written
+  for a list of UNKNOWN length, and at run time this tenant's length is two —
+  so a customer really does see a two-option dropdown. That is a design
+  question for Andrew, not a rule breach, and it is not 2.3's to settle.
 
 - [x] **2.4 — DONE 2026-09-19. Every booking button on all five examples now
   opens a booking path, and a certified check says so every run.**
