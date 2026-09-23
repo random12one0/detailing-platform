@@ -7914,6 +7914,82 @@ the dashboard or back office at phone width at all.
   false for the whole back office, not only this screen — see the
   correction for what else that changes.
 
+  **REOPENED AND CLOSED AGAIN, SAME DAY, ONCE THE SCREEN ITSELF COULD
+  ACTUALLY BE LOOKED AT.** The closure above rests on Andrew's quote from
+  2026-09-20, and that quote answers exactly one half of this item's own
+  Fix line: *"the list now carries lifetime under every money figure, and
+  the date and phone read as themselves — I agree with your call there."*
+  That is the LABELS half. **He never spoke to the second half — "give 9
+  gone quiet an exact period and an action" — and the screen, once this
+  session could actually open it, showed that half was still missing.**
+  The stat read "5 gone quiet" with no period anywhere on it. A "Not seen
+  in 3 months" filter chip several inches below carries the period and
+  the same underlying action, but a reader looking only at the stat could
+  not tell quiet since when, or what to do about it.
+
+  **SO: STATE THE PROVENANCE HONESTLY, RATHER THAN LET ONE APPROVAL COVER
+  BOTH HALVES BY PROXIMITY.** The labels (lifetime caption, unlabeled
+  date/phone) are Andrew's own sign-off, on the real screen, predating
+  today. **The period-and-action fix below is this session's own build,
+  not reviewed by him** — do not read the quote above as covering it.
+
+  **WHICH NUMBER IS RIGHT: 9 (this item's own Fix line) or 5 (today's
+  screenshots)? Both were right when measured — this is not a data
+  error.** `answers.quiet` is a rolling count: `lib/client-list.js`
+  filters on `daysBetween(r.last, today) >= LAPSED_DAYS`, where `today`
+  is the real calendar date at render time and `r.last` comes from each
+  customer's most recent booking. `scripts/seed-demo.mjs` itself seeds
+  every visit date as an OFFSET from whenever the script last ran
+  (`openDay(-100, -1)` means "100 days before that run," not "100 days
+  before today," per its own comment) — so the count is designed to move
+  both when real days pass without a re-seed and when any session's test
+  suite adds a real booking against the shared demo tenant, which
+  `CLAUDE.md` already warns happens (`booking-engine` and others write
+  real rows into `demo-detail`). **"9" was whatever this item's own audit
+  observed at some earlier point; "5" is today's, confirmed live twice
+  independently** (`scripts/verify-backoffice-access.mjs`, run minutes
+  apart, both read 5). Neither is stale in the sense of being wrong when
+  written — the figure is supposed to move. The defect this item is
+  actually about is that NEITHER number, on its own, tells a reader
+  which period it is counting against — which is exactly what the fix
+  below adds.
+
+  **THE PERIOD, CONFIRMED FROM THE CHIP RATHER THAN ASSUMED.** The filter
+  chip beside the stat reads, live, *"Not seen in 3 months"* — read off
+  the rendered page, not out of `LAPSED_DAYS`'s value converted by hand.
+  `Clients.jsx`'s own comment already ties the two together: *"These
+  words and LAPSED_DAYS in lib/client-list.js are two halves of one fact
+  and must move together."* So the stat now states the same period, in
+  the same words, rather than a second, independently-chosen phrase.
+
+  **BUILT.** `app/src/screens/Clients.jsx`: the stat's label changed from
+  `t("gone quiet")` to `t("gone quiet · 3 months")`, both the populated
+  and the zero-count state, and its `aria-label` from *"Show the {count}
+  who have gone quiet"* to *"Show the {count} not seen in 3 months"* —
+  matching the chip's own wording rather than inventing a second one.
+  **The stat was already the thing you press** — `onClick` has set
+  `lapsed` and `sort` since this control was built — so "make it the
+  thing you press" was already true; what was missing was the label
+  saying what pressing it does. Spanish keys moved in the same edit,
+  `app/src/lib/strings/appEs.js`: `"gone quiet · 3 months"` →
+  `"sin venir · 3 meses"`, `"Show the {count} not seen in 3 months"` →
+  `"Ver los {count} sin venir en 3 meses"`.
+
+  **VERIFIED, signed in as the demo owner, both languages, two widths:**
+  - `i18n-survey.mjs`: still 128 candidate strings — no new gap opened by
+    the rename.
+  - Four credential-free suites pass.
+  - Live at 1440 and 320: English reads *"5 · gone quiet · 3 months"*,
+    Spanish reads *"5 · sin venir · 3 meses"*, confirmed by reading the
+    rendered `textContent` and `aria-label`, not by reasoning about the
+    JSX.
+  - `elementFromPoint` at the button's own center, both widths: resolves
+    to the button itself — still a real, working press, not just a
+    label change that happened to sit inside one.
+  - Screenshots to disk,
+    `receipts/screenshots/9.6-second-half-2026-09-22/{1440,320}-{en,es}.png`,
+    two opened directly.
+
 - [ ] **9.7 — Client card is missing basics.** No Text button, no vehicle, no
   address, no "Book again". Add them; "Book again" opens New booking prefilled.
   *A2 4.7*

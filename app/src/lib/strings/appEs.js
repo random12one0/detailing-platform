@@ -396,8 +396,11 @@ export const appEs = {
   // THE ANSWER STRIP. "gone quiet" is lower case on purpose — it is a `.lbl`
   // under a figure, the same register as "visits" and "lifetime", and Spanish
   // does not capitalise a common noun phrase either.
-  "gone quiet": "sin venir",
-  "Show the {count} who have gone quiet": "Ver los {count} que no han vuelto",
+  // ROADMAP 9.6, SECOND HALF — the period joins the key so a reader in
+  // Spanish gets the same fact a reader in English now does, not a stat
+  // with no period translated correctly beside one that has it.
+  "gone quiet · 3 months": "sin venir · 3 meses",
+  "Show the {count} not seen in 3 months": "Ver los {count} sin venir en 3 meses",
   "Sort by most spent": "Ordenar por más gastado",
   "{name} spends most": "{name} es quien más gasta",
   "Everyone has been in within three months.": "Todos han venido en los últimos tres meses.",

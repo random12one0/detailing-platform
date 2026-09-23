@@ -448,17 +448,26 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
           fact about the business and the list below it is a view. */}
       {customers.length > 0 && (
         <div className={`ledger answers ${answers.top ? "two" : "one"}`}>
+          {/* ROADMAP 9.6, SECOND HALF — 2026-09-22. The figure used to say
+              only "gone quiet", with no period anywhere on the stat itself —
+              a reader had to notice the separate chip below, several inches
+              away, to learn what "quiet" meant. "3 months" here is the
+              SAME fact as the chip's own wording and LAPSED_DAYS in
+              lib/client-list.js, not a second number invented to match it —
+              read from the chip's own live text before writing this. The
+              stat was already the thing you press (onClick has always set
+              lapsed + sort); what was missing was the label saying so. */}
           {answers.quiet > 0 ? (
             <button aria-pressed={lapsed}
-              aria-label={t("Show the {count} who have gone quiet", { count: answers.quiet })}
+              aria-label={t("Show the {count} not seen in 3 months", { count: answers.quiet })}
               onClick={() => { setLapsed(true); setSort("away"); }}>
               <span className="figure">{answers.quiet}</span>
-              <span className="lbl">{t("gone quiet")}</span>
+              <span className="lbl">{t("gone quiet · 3 months")}</span>
             </button>
           ) : (
             <div>
               <span className="figure">0</span>
-              <span className="lbl">{t("gone quiet")}</span>
+              <span className="lbl">{t("gone quiet · 3 months")}</span>
             </div>
           )}
           {answers.top && (
