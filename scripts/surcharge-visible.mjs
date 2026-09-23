@@ -107,6 +107,10 @@ const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playw
 const started_at = new Date().toISOString();
 const HEADED = process.argv.includes("--headed");
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("=")[1] || "";
+// **`--stand-in=server` IS NOT A CLEAN RUN AND THE RECEIPT SAYS SO ON EVERY
+// LINE THAT CAN CARRY IT.** See `standInServer` below for exactly what it
+// stands in for and exactly what it does not prove.
+const STANDIN = (process.argv.find((a) => a.startsWith("--stand-in=")) || "").split("=")[1] || "";
 const BASE = process.env.BASE || "http://localhost:5173";
 
 // THE DEMO BUSINESS BY SLUG, NEVER BY A UUID WRITTEN DOWN HERE — FOUND.md's
@@ -396,6 +400,52 @@ mkdirSync(ART, { recursive: true });
  * that is not there AT ALL — so `named` had never once been observed failing,
  * and an assertion that has never failed is an assertion nobody has tested.
  */
+/**
+ * **THE ONE THING IN THIS FILE THAT IS NOT THE REAL PRODUCT, DECLARED RATHER
+ * THAN BURIED.**
+ *
+ * The booking page calls the DEPLOYED `calculate-booking`. The server half of
+ * the 2.1 fix lives in `_shared/pricing.ts`, so **no browser anywhere can
+ * observe it until Andrew publishes** — and publishing is his. That leaves the
+ * PAGE half (`StepWhen.jsx` naming the surcharge on the day rather than on the
+ * time) with no way to be exercised at all, and an unexercised change is what
+ * this repo punishes hardest.
+ *
+ * So: when the page asks for a quote with a day and no time, this adds a time
+ * to the REQUEST on the way out. The deployed function then prices the day
+ * with its own real `matchPriceRules`, against the real tenant's real rules,
+ * and answers for real. Nothing about the response is invented here.
+ *
+ * **WHAT IT PROVES:** that the page renders an early-priced quote correctly,
+ * in the right place, at every width — and that the live pricing engine
+ * resolves this tenant's `Weekend rate` off the WEEKDAY, since the day is all
+ * that changed between the two requests.
+ *
+ * **WHAT IT DOES NOT PROVE:** the fixed `whenContextFor` itself. A real
+ * day-only context carries `{ weekday }` and nothing else; this one carries a
+ * `startTime` and a `leadHours` too, so a windowed or lead-time rule could
+ * match here that would correctly decline in production.
+ * `tests/price-a-day.test.mjs` is what proves that half, and the two are
+ * deliberately separate.
+ *
+ * **IT CANNOT SILENTLY OVER-REPORT**, which is the reason it is safe to keep:
+ * `early-priced` asserts the early bar EQUALS the late bar, so a rule that
+ * matched only because of the invented hour makes the run red rather than
+ * green. The tenant has no such rule today — `Weekend rate` has `start_time`
+ * and `end_time` null, read off `business_settings` — and if one is ever
+ * added, this goes red the same day.
+ *
+ * MIDDAY, because it is inside no plausible evening window and far from any
+ * lead-time boundary on a day three or more days out.
+ */
+const standInServer = (page) => page.route("**/calculate-booking", async (route) => {
+  const req = route.request();
+  let body;
+  try { body = JSON.parse(req.postData() || "null"); } catch { body = null; }
+  if (!body || !body.booking_date || body.start_time) return route.continue();
+  return route.continue({ postData: JSON.stringify({ ...body, start_time: "12:00" }) });
+});
+
 const stripAdjustments = (page) => page.route("**/calculate-booking", async (route) => {
   const res = await route.fetch();
   let body;
@@ -483,6 +533,7 @@ async function target(browser, { w, h }, { pick, kind, canary, label, stem }) {
   };
   try {
     if (canary === "stripped" && BREAK !== "canary") await stripAdjustments(page);
+    else if (STANDIN === "server") await standInServer(page);
 
     await page.goto(`${BASE}/book/${SLUG}`, { waitUntil: "domcontentloaded" });
     await page.waitForSelector(".bk-card.selectable", { timeout: 30000 });
@@ -780,7 +831,15 @@ const { path } = writeReceipt({
   min_assertions: 195,
   failures: [...failures, ...consoleNoise.map((c) => `console: ${c}`)],
   artifacts,
-  warnings: BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : [],
+  warnings: [
+    ...(BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : []),
+    ...(STANDIN ? [
+      `run with --stand-in=${STANDIN}; the day-only quote was answered by the DEPLOYED `
+      + "function given an invented midday time, because the server half of this fix is "
+      + "not published. This receipt proves the PAGE, not the engine — "
+      + "tests/price-a-day.test.mjs proves the engine.",
+    ] : []),
+  ],
   dimensions: {
     slug: SLUG,
     sizes: SIZES.map((s) => `${s.w}x${s.h}`),
@@ -791,6 +850,7 @@ const { path } = writeReceipt({
     canary_runs: CANARY_RUNS,
     canary_flavours: CANARIES.map((c) => c.flavour),
     sabotage: BREAK || null,
+    stand_in: STANDIN || null,
   },
   canary,
 });

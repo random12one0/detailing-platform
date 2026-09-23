@@ -317,6 +317,38 @@ still knows them.
   **The last step is yours: publish `send-owner-reminders`.** Until you do, the
   old version is still running and a customer can still receive it.
 
+- [ ] **DO · Publish the quote program, and the weekend price stops being a
+  surprise.**
+  **The fault you found on 22 September is fixed in the code and no customer
+  can see the fix yet.** You picked a Sunday, waited, and the page showed nine
+  Sunday times over a total of **$65** with nothing anywhere saying Sunday
+  costs **$30** more. The moment a time was tapped it jumped to **$95**. The
+  thirty dollars was always honest — weekends cost you more and you set that
+  rate yourself — but the customer was told about it one step too late, on the
+  one screen that takes money.
+
+  **What was wrong is that the price was worked out from the DAY and the hour,
+  when your weekend rate does not care about the hour at all.** So the program
+  knew the answer was $95 the instant somebody tapped Sunday, and kept showing
+  $65 while they browsed. It now says so straight away, with the words
+  "Weekend rate · +$30" next to a total that already reads $95.
+
+  **Two things had to change and only one of them reaches people on its own.**
+  The page is fixed and would go out with the next site build. **The pricing
+  program has to be published by you**, and until it is, a real customer sees
+  the old behaviour exactly as you described it.
+
+  **What to publish: `calculate-booking`.** Four others share the same pricing
+  file and will be swept along — `create-booking`, `preview-emails`,
+  `reschedule-booking`, `update-booking`. That is expected. Three more
+  (`available-slots`, `validate-promo-code`, `get-booking-receipt`) are already
+  waiting from the night before, for the spam-limit work, and are unrelated.
+  **Nothing has been published and nothing will be without you.**
+
+  **How you will know it worked:** `node scripts/surcharge-visible.mjs` goes
+  from 40 failures to none. It is red today on purpose and the roadmap says
+  why.
+
 ---
 
 ## Urgent — two minutes when you next open your laptop

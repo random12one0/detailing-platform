@@ -310,7 +310,31 @@ export function whenContextFor(
   localDateTimeToInstant: (tz: string, d: string, t: string) => Date,
   weekdayOf: (d: string) => number,
 ): WhenContext {
-  if (!bookingDate || !startTime) return {};
+  if (!bookingDate) return {};
+  // **A DAY WITH NO TIME STILL PRICES A DAY-ONLY RULE — ROADMAP 2.1, 2026-09-22.**
+  //
+  // This used to be `if (!bookingDate || !startTime) return {}`, and that one
+  // extra clause was the whole of the fault both audits reported. The layer
+  // below has always been ready for this: `matchPriceRules` only demands a
+  // `startTime` INSIDE the branch for a rule that carries a start AND an end
+  // time, and refuses a `lead_time` rule whenever `leadHours` is null. So
+  // returning the weekday alone is not a loosening — every rule that needs
+  // the hour still correctly declines, and this tenant's own
+  // `Weekend rate` (weekdays [0,6], start_time null, end_time null, read off
+  // `business_settings` rather than off a document) finally gets asked.
+  //
+  // **WHY IT MATTERS MORE THAN THE THIRTY DOLLARS.** The surcharge is a
+  // function of the DAY. The hour contributes nothing to it. So the product
+  // knew the price was $95 the instant the customer tapped Sunday and went on
+  // showing $65 while they browsed nine times — a disclosure late by one step
+  // for no reason, on the one screen that takes money. The header comment on
+  // `calculate-booking/index.ts` has described THIS behaviour since 2.8c
+  // ("the quote starts without it and grows the surcharge when the day is
+  // chosen"); the code simply did not do it. They agree now.
+  //
+  // `create-booking` and `preview-emails` are the other callers and neither
+  // can reach this line with a date and no time — a booking has both.
+  if (!startTime) return { weekday: weekdayOf(bookingDate) };
   const start = localDateTimeToInstant(tz, bookingDate, String(startTime).slice(0, 5));
   return {
     weekday: weekdayOf(bookingDate),

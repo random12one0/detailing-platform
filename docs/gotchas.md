@@ -2917,3 +2917,60 @@ who did.
 30 files**; three screens done (the job record, the day sheet, the quote
 sheet), each committed separately with the survey re-run after every one and
 the fall matching the fix exactly. Next by frequency: the money screens.
+
+
+## AN INSTRUMENT THAT DISTURBS THE STATE IT IS INSPECTING — three of them in one day, 2026-09-22
+
+**This is a class, not an incident, and it is named here because all three
+turned up inside a single item (ROADMAP 2.1) and every one of them printed
+CLEAN while measuring nothing.** None is a bug in the product. Each is a check
+whose own act of looking changed, hid or skipped the thing it was looking at.
+
+**One — a walk that closes the gap it is measuring.** `surcharge-visible.mjs`
+walked the booking flow day → time → look, and asked whether the weekend
+surcharge was visible. It was, at fifteen targets, at five widths. **The fault
+lives only in the state BETWEEN the two taps** — a day chosen, no time chosen,
+a bar showing a price the server already knows is wrong — and tapping the time
+is what ends that state. So the instrument destroyed the evidence on its way to
+the measurement, then correctly reported that it found none. Andrew found it in
+minutes by choosing a Sunday and *waiting*. **The check asked "is it visible"
+and needed to ask "is it visible BEFORE the customer can be charged it": one
+word apart, opposite answers.** The fix is to assert on the intermediate state
+explicitly, and to notice that any check which advances a wizard has the same
+hole for every other step.
+
+**Two — a probe that scrolls the page it is about to photograph.** The same
+file pressed Continue early to prove the step refuses to be left without a
+time. Roadmap 2.6 says a refused press turns the reason on **and scrolls to
+it** — so the probe left the page near the bottom of a 1,400px step, and every
+geometry reading afterwards was taken from a scroll position the script itself
+created. Its canary, which rebuilds a real defect (the surcharge note rendered
+below nineteen time chips), then **caught 0 of 5** — the note was in view only
+because the probe had scrolled there. The defect was plainly visible in the
+canary's own saved screenshot the whole time. **A probe that presses something
+is a probe that moves something.** Reset the state it disturbed, or measure
+before you press.
+
+**Three — a canary fired once and called deterministic.** Running a canary a
+single time cannot tell "it caught it" from "it happened to catch it". Five
+runs is the floor, and the catch count goes in the receipt rather than a
+boolean, because 4/5 is a coin and reads identically to 5/5 in any check that
+only records `observed_failure: true`. Related and worse: **a canary flavour
+that exercises only one of a check's assertions leaves the others untested.**
+`surcharge-visible.mjs` had a canary for "the line is in the wrong place" and
+none for "the line is not there at all" — so its `named` assertion had never
+once been observed failing, and an assertion that has never failed is an
+assertion nobody has tested. It grew a second flavour that strips the
+adjustments out of the server's answer.
+
+**WHAT THE THREE HAVE IN COMMON, AND THE QUESTION TO ASK NEXT TIME.** Not
+"does my check look at the right thing" — all three did — but **"does the act
+of looking change what is there?"** A screenshot taken before a reveal
+animation settles, a walk that advances past the state under test, a press that
+scrolls, a canary that only ever tested one branch. `pinned-bar.mjs` learned the
+same lesson from the other end when its `edge` assertion had to become the
+difference between two renders of the same frame, because everything else it
+tried was reading the background instead of the shadow. **CLAUDE.md's
+`git diff --cached` correction is this class in the rulebook rather than in a
+script**: the obvious way to verify a commit safely was to stage it first,
+which opened the exact window the rule existed to close.

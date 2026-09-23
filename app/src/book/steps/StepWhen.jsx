@@ -323,7 +323,20 @@ export default function StepWhen({ form, setForm, durationMinutes, durations, su
               392 on a Saturday with 19 slots: two loose paragraphs cost 128px
               of a step that is already scrolling; inside one wrapper they cost
               102. */}
-          {legTime && (surcharges.length > 0 || settings.booking_mode === "request") && (
+          {/* **ON THE DAY, NOT ON THE TIME — ROADMAP 2.1, RE-OPENED 2026-09-22,
+              AND THIS `legTime &&` WAS HALF THE FAULT.** The surcharge is a
+              function of the DAY; the hour contributes nothing to it. So a
+              customer who tapped Saturday was shown nineteen times and a bar
+              reading $65 with nothing anywhere naming the thirty dollars —
+              the disclosure did not precede the charge, it arrived with it,
+              which is the item's own sentence. The other half was
+              `whenContextFor` refusing to price a day alone; both are needed,
+              and neither is sufficient.
+              **THE REQUEST-MODE SENTENCE KEEPS ITS `legTime`,** because it
+              says "once this TIME is accepted" and there is no time yet. Two
+              conditions in one container rather than two containers: the W18
+              section-gap shape is the reason this block exists at all. */}
+          {(surcharges.length > 0 || (legTime && settings.booking_mode === "request")) && (
           <div className="bk-when-note">
           {surcharges.map((a, i) => (
             <p className="bk-muted" key={`${a.label}-${i}`}>
@@ -338,7 +351,7 @@ export default function StepWhen({ form, setForm, durationMinutes, durations, su
               deciding whether to trust a business should not learn that on the
               press. Absent for a reserve-mode tenant, which is every business
               the schema defaults. */}
-          {settings.booking_mode === "request" && (
+          {legTime && settings.booking_mode === "request" && (
             <p className="bk-muted">
               {t("We confirm each booking ourselves. You will get an email once this time is accepted.")}
             </p>

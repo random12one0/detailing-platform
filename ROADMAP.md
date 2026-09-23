@@ -689,7 +689,7 @@ Smallest wave, highest embarrassment cost, all of it confirmed in source.
 A customer must never be shown one price and charged another, never be handed
 the wrong service, and never book a job we cannot reach.
 
-- [x] **DONE 2026-09-22 — 2.1 — The total rises after the customer has picked the time.**
+- [ ] **2.1 — The total rises after the customer has picked the time.** **RE-OPENED 2026-09-22, THE SAME EVENING IT WAS TICKED. The tick was wrong.**
   Both audits, independently, with different numbers: $205 → $235 (A1) and
   $300 → $330 (A2). A $30 weekend rate only appears at the final breakdown.
   **Fix:** mark affected days in the calendar with "+$30" and add the line to
@@ -848,6 +848,109 @@ the wrong service, and never book a job we cannot reach.
   function, not an injected response, which is the difference between this
   tick and 2.1a's.
 
+  ---
+
+  **UNTICKED THE SAME EVENING. ANDREW REPRODUCED THE WALK ABOVE, THEN DID THE
+  ONE THING IT DOES NOT DO, AND THE ITEM WAS STILL TRUE.** He picked a
+  different open weekend day — Sunday the 27th — and simply waited three and a
+  half seconds without touching a time. `HORARIOS DEL DOMINGO, 27 DE
+  SEPTIEMBRE`. Nine time buttons. `Total estimado · 1 h · $65`. He searched the
+  whole rendered text for "Weekend rate", for "+$30" and for "recargo":
+  **none of them present.** Not below the fold, not late-rendering, not there.
+
+  **THE LABEL I MEASURED IS REAL, AND IT APPEARS IN THE SAME RENDER AS THE
+  PRICE CHANGE. The disclosure does not precede the charge; it arrives with
+  it.** That is this item's own sentence, word for word, and it was still true
+  after the item was ticked.
+
+  **WHY IT MATTERS MORE THAN THE THIRTY DOLLARS.** The surcharge is a function
+  of the DAY. Read off the tenant's own `business_settings` rather than off
+  `MANAGER-CLOSE` — which had already handed out one wrong number that day:
+  `label: "Weekend rate"`, `kind: "time"`, `weekdays: [0, 6]`,
+  **`start_time: null`, `end_time: null`** — no hour anywhere in it. So the
+  product KNOWS the price is $95 the instant the customer taps Sunday, and
+  goes on showing $65 while they browse nine times. Not a limitation. **A
+  disclosure late by one step for no reason, on the one screen that takes
+  money.**
+
+  **AND THE LESSON IS WORTH MORE THAN THE FIX.** `surcharge-visible.mjs` was
+  built to answer *"is the surcharge visible"* and answered **yes, correctly**,
+  at fifteen targets. The question that needed asking was *"is it visible
+  BEFORE the customer can be charged it"*. **One word apart, opposite
+  answers.** A walk that goes day, then time, then look can never see the gap,
+  **because the gap closes on the tap that ends it.** The only state in which
+  the fault exists is the one between the two taps, and the check walked
+  straight through it. Written up in `docs/gotchas.md` with its two siblings
+  from the same day.
+
+  **THE CHECK WAS MADE TO GO RED BEFORE ANYTHING WAS FIXED, AND COMMITTED IN
+  THAT STATE ON PURPOSE — `154742f`** — because a check that has only ever run
+  against fixed code has never proved it can see the bug. Four new assertions
+  per weekend target, asked of the state between the taps: `early-named`,
+  `early-priced`, `early-visible`, `early-painted`.
+
+  | Run, before any fix | Result |
+  |---|---|
+  | The four `early-*`, ten weekend targets | **FAIL — 40 failures**, at 1920, 1440x900, 768x1024, 392x844 and 320 |
+  | The five after-time assertions | green — the first round's work still holds |
+  | **Weekday control, five widths** | **green**, `$65 → $65 → $65`, so the check is not simply always-red |
+  | Canary "order" / canary "stripped" | 5/5 and 5/5 |
+
+  **A SECOND CANARY FLAVOUR WAS ADDED AND IT IS THE INTERESTING ONE.** The old
+  canary puts the note back below the chips, which proves the check can see a
+  line in the wrong PLACE. **Nothing proved it could see a line that is not
+  there at all** — so `named` had never once been observed failing, and an
+  assertion that has never failed is an assertion nobody has tested.
+  `stripped` removes `adjustments` from the server's answer on the way past.
+  Both flavours, five runs each, catch every time.
+
+  **THE FIX IS TWO HALVES AND NEITHER IS SUFFICIENT.**
+  1. **Server — `_shared/pricing.ts`.** `whenContextFor` opened with
+     `if (!bookingDate || !startTime) return {}`. It now returns
+     `{ weekday }` when a day is known and an hour is not. **This is not a
+     loosening:** `matchPriceRules` demands a `startTime` only INSIDE the
+     branch for a rule carrying a start AND an end time, and refuses a
+     `lead_time` rule whenever `leadHours` is null, so every rule that
+     genuinely needs the hour still correctly declines.
+  2. **Page — `StepWhen.jsx`.** The note was gated on `legTime`, so even a
+     priced day would have stayed silent. The surcharge lines now render on
+     the DAY; the request-mode sentence keeps its `legTime`, because it says
+     "once this TIME is accepted" and there is no time yet. **One condition
+     changed, no new copy, no new mechanism, no CSS** — the named fault was
+     the timing of one label and one number, and the fix is that size.
+
+  **THE SERVER HALF IS PROVED BY `tests/price-a-day.test.mjs`** — eight tests
+  against the real module with the tenant's real rules, plus an invented
+  windowed "Evening rate" that must keep declining. **Broken on purpose:** the
+  one line reverted, **4 of 8 fail**, and the four that stay green are the
+  silence assertions, which is the right shape.
+
+  **THE PAGE HALF CANNOT BE PROVED AGAINST PRODUCTION, AND THAT IS THE WHOLE
+  REASON THIS BOX IS STILL OPEN.** The booking page calls the DEPLOYED
+  `calculate-booking`; `supabase functions serve` needs Docker and Docker is
+  not on this machine. So the check gained `--stand-in=server`, which adds a
+  midday time to the day-only REQUEST so that the live function prices the day
+  with its own real `matchPriceRules`, against the real tenant's real rules.
+  It proves the PAGE and the live engine's weekday resolution. **It does not
+  prove the fixed `whenContextFor`**, which is why the unit test above exists
+  and is separate. It cannot silently over-report either: `early-priced`
+  asserts the early bar EQUALS the late bar, so a rule matching only because
+  of the invented hour turns the run red rather than green.
+
+  | Run, after the fix | Weekend targets | Weekday control |
+  |---|---|---|
+  | `--stand-in=server` | **PASS 25/25, 195 assertions** · `no day $65 → day $95 → time $95` at all five widths, `Weekend rate · +$30` named on the DAY | `$65 → $65 → $65`, nothing named |
+  | Clean, no stand-in | **FAIL, 40 failures** — unchanged, because production has not been published | green |
+
+  **SO THE TICK IS BLOCKED ON A PUBLISH, NOT ON WORK, AND THE BOX STAYS OPEN
+  UNTIL THE CLEAN RUN PASSES.** `deployed-inventory` now names **8 of 39**
+  functions behind this checkout, up from 4, because `_shared/pricing.ts` is
+  imported by `calculate-booking`, `create-booking`, `preview-emails`,
+  `reschedule-booking` and `update-booking`. That growth is correct and
+  expected. **Nothing was deployed.** `FOR-ANDREW.md` carries the row.
+  **Done when:** the clean run — no stand-in — passes `early-named`,
+  `early-priced`, `early-visible` and `early-painted` at all five widths.
+
 - [x] **DONE 2026-09-21 — 2.1a — ~~A plan booking and a multi-car booking show no surcharge
   line. Split out of 2.1 on 2026-09-21 because it needs a server field and
   2.1 does not.** `BookingPage.jsx` passes surcharges only when
@@ -932,6 +1035,22 @@ the wrong service, and never book a job we cannot reach.
   of the two is wrong and it is cheap to make them agree.
   **Andrew's ruling, 2026-09-21: not a fault.** Nobody can leave the step
   without picking a time, so the done-when for 2.1 is satisfied either way.
+  **SUPERSEDED 2026-09-22 — AND THIS ENTRY HAD THE FIX WRITTEN DOWN A DAY
+  BEFORE ANYBODY BUILT IT.** The ruling rested on "nobody can leave the step
+  without picking a time", which is true, and which is not the question. The
+  question is what the customer is shown WHILE they are on the step: a list of
+  Sunday times over a bar reading $65, with the product already knowing the
+  answer is $95. **The disclosure has to precede the charge, not arrive with
+  it.** So the fix this entry describes — `whenContextFor` returning
+  `{ weekday }` when a date is present without a time — was built under 2.1 on
+  2026-09-22, exactly as written here, including the observation that
+  `matchPriceRules` was already ready for it and only the layer above was
+  refusing to ask. The header comment on `calculate-booking/index.ts` that
+  this entry flagged as describing behaviour the code did not have is now
+  accurate rather than aspirational. **Kept rather than deleted: an entry that
+  correctly identified a fix, was ruled out of scope, and then turned out to
+  be the load-bearing half of the item above it, is exactly the reversal this
+  file exists to record.**
   **Fix, if it is ever wanted:** let `whenContextFor` return `{ weekday }`
   when a date is present without a time, so a day-only rule prices on the
   day. A `lead_time` rule genuinely needs the hour and correctly keeps not
