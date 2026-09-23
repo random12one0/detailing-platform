@@ -8533,9 +8533,46 @@ the dashboard or back office at phone width at all.
   Replace with short contextual prompts tied to unfinished setup.
   *A1 P3-11*
 
-- [ ] **9.16 — Hide the owner-only "The website business" row from detailers.**
+- [x] **9.16 — Hide the owner-only "The website business" row from detailers.**
   Depends on 0.1.
   *A2 4.11*
+
+  **ALREADY BUILT, TESTED IN BOTH DIRECTIONS TODAY, NOTHING CHANGED.**
+  `app/src/components/GearMenu.jsx` gates the row on `isPlatformAdmin`, a
+  state set only by a real server round trip — the `platform-admin` edge
+  function's `whoami` action, which checks the `platform_admins` table by
+  `user_id` (`supabase/functions/platform-admin/index.ts`). That is the trap
+  this item warns about, already avoided: it is NOT keyed on business role
+  (owner vs. staff), so the demo owner — who is both a platform admin and a
+  detailer's business owner, per 0.1 — was never at risk of losing the row
+  by an over-broad "hide from non-owners" gate, because no such gate exists.
+
+  **BOTH DIRECTIONS, BOTH SIGNED IN PROGRAMMATICALLY, BOTH SCREENSHOTTED,
+  BOTH OPENED.** `scripts/verify-9-16-gear-row.mjs`, using the same
+  Andrew-sanctioned demo-login exception as
+  `scripts/verify-backoffice-access.mjs` (credentials read out of
+  `scripts/seed-demo.mjs` into memory, never printed):
+  - **Owner** (`demo@detailplatform.com`, confirmed live in
+    `platform_admins`): signed in, opened the gear, waited for the
+    `whoami` fetch to settle, "The website business" is present.
+  - **Staff** (`demo-staff@detailplatform.com`, `business_users` role
+    `"staff"`, confirmed NOT in `platform_admins` — read live off the
+    table, not assumed): signed in, opened the gear, waited the same
+    interval, the row is absent. Nothing else about the staff account was
+    invented for this test — it already existed in `seed-demo.mjs` under
+    the same sanctioned exception as OWNER, so this needed no new account
+    and no new credential.
+  - Screenshots: `receipts/screenshots/9-16-gear-row-2026-09-23/{owner,staff}.png`,
+    both opened directly. Owner's reads "Signed in as Owner" with the row
+    at the bottom of the list; staff's reads "Signed in as Detailer" with
+    the list ending at "Show me around" — no trace of the row, not a blank
+    or disabled one.
+
+  **This is the third item today where the roadmap's own instruction
+  described a state that no longer held** (after 7.8 and 9.6's first
+  half) — the difference here is the fix was never built as a reaction to
+  a stale description; it was already correct when the item was written,
+  and today's work is the missing proof, not a missing line of code.
 
 ---
 
