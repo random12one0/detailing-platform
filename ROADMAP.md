@@ -309,6 +309,28 @@ and how the wait ends.
   only; an unmistakable DEMO badge where a fixture is shown deliberately. Same
   clean screens, net still intact.
 
+  **HALF CONFIRMED BUILT 2026-09-23, FROM THE 4.5 ADMIN SCREENSHOT — LEFT
+  UNTICKED BECAUSE THE OTHER HALF IS NOT.** The back-office half of this
+  Fix already exists: `businesses.is_demo` (not the `is_test` name this
+  entry guessed at, same purpose), read by `supabase/functions/
+  platform-admin/index.ts:111,262` and rendered as `<span
+  className="pa-flag">demo</span>` beside the name
+  (`app/src/admin/AdminPage.jsx:1116`) — checked, not assumed: the flag is
+  also stripped out of every count and health list the screen computes
+  (`AdminPage.jsx:523,763,1503,1525` all skip `is_demo` rows). The
+  screenshot `receipts/screenshots/sweep-tap-targets-admin/
+  detailer-drawer-open.png` shows it live: **"Everyone 16", "Real
+  detailers 1"** — 15 flagged, matching this entry's own "15 of 16" almost
+  exactly. **The other half — "'Smoke TPMOY'-style rows in the client
+  list" — is NOT built.** Searched for an `is_test` field or any
+  equivalent on the customer/booking side: none exists anywhere in
+  `app/src` or `supabase`. A detailer's own Clients screen has no flag,
+  no badge and no default-real-accounts filter for its rows. **So this
+  item is half done, not done** — the back-office side can be pointed at
+  today; the client-list side is still open work, unstarted, and ticking
+  the box would hide that half the way a stale roadmap line has hidden
+  other things today.
+
 - [ ] **0.4 — The legal pages. A lawyer is not the only option.**
   Both audits (A1 P3-09, A2 6.6) flag that terms and privacy say Andrew wrote
   them, are not lawyer-reviewed, and are in his personal name. He asked whether
@@ -4304,6 +4326,41 @@ requested.
   separate, real gap. Andrew asked for 4.5 alone this round; all three are
   named so they are not lost, none of them started.
 
+- [ ] **4.6 — `sweep-tap-targets.mjs` writes a receipt for the back office
+  and for nothing else it measures.**
+  **Found answering Andrew's own question about 4.5's receipt scope line,
+  2026-09-23.** The receipt's `dimensions.scope` says plainly: *"the /admin
+  back office only — this script's dashboard, settings and landing/pricing
+  sections are not represented in this receipt."* That sentence is
+  accurate for the run that wrote it (`--only admin`), but it is also
+  true of EVERY invocation of this file, including the default one with
+  no `--only` at all. **`writeReceipt` is called exactly once in the
+  whole file, inside the admin section alone** — checked by grep, not
+  assumed. So a default run genuinely walks the dashboard tabs, both
+  settings doors, and the landing/pricing pages with the same
+  `TAP_PROBE` instrument, prints real findings to the console, and
+  produces **no receipt of any kind** for any of it. This is not new —
+  `sweep-tap-targets.mjs` has existed since 2026-09-13 and has never
+  written a receipt until 4.5 added one, scoped to the one section 4.5
+  was about.
+  **So the answer to "does the receipt undersell the run, or does the
+  detailer's own dashboard genuinely have no receipted coverage": it is
+  the second one.** The back office is now covered by a graded receipt.
+  The detailer's own dashboard — Today, Calendar, Money, Clients,
+  Business, every settings door behind the gear, plus the landing and
+  pricing pages — is measured by this same file and receipted by nothing.
+  **Fix:** either split the receipt-writing into one per section (admin,
+  dashboard+settings, landing/pricing) or widen the existing one to cover
+  whichever sections actually ran in a given invocation, each with its
+  own declared expected count and its own canary — the dashboard already
+  has five (`BREAKS` in `scripts/lib/tapProbe.mjs`), only exercised today
+  through `--baseline`, which itself writes no receipt either.
+  **Done when:** a default run of `sweep-tap-targets.mjs` produces a
+  receipt `receipt.mjs` grades for the dashboard/settings sections, not
+  only for `/admin`.
+  Not started — named so it is not lost inside 4.5, which is ticked and
+  closed for the half it actually built.
+
 ## Wave 5 — Money truth
 
 Both audits independently reached the same conclusion here, which makes it the
@@ -8178,6 +8235,30 @@ the dashboard or back office at phone width at all.
   - Screenshots to disk,
     `receipts/screenshots/9.6-second-half-2026-09-22/{1440,320}-{en,es}.png`,
     two opened directly.
+
+  **A THIRD HALF, RAISED 2026-09-23 FROM THE 4.5 ADMIN SCREENSHOT: "QUIET 21
+  DAYS" ON THE BACK OFFICE vs. "NOT SEEN IN 3 MONTHS" ON CLIENTS — SETTLED
+  HERE, DELIBERATELY DIFFERENT, NOT AN INCONSISTENCY.** Two different
+  periods for what reads as the same word, on two screens of one product,
+  is exactly the shape a session could "fix" by accident into a false
+  unification. Read rather than guessed: `QUIET_DAYS = 21` lives in
+  `app/src/lib/attention.js`, with its own reasoning written down when it
+  was set — *"a detailer booking six jobs a month has quiet fortnights
+  that mean nothing; three weeks with no booking at all is either a
+  holiday or a leaver, and both are worth a message. Below fourteen this
+  list would cry wolf."* `LAPSED_DAYS = 90` lives in
+  `app/src/lib/client-list.js`, unrelated code, a different file, a
+  different relationship. **They are not the same question.** The admin
+  chip asks *"is this detailing BUSINESS still working"* — a business
+  that books jobs weekly going three weeks silent is a real signal. The
+  Clients chip asks *"is this CUSTOMER still coming back"* — a person who
+  gets their car detailed every couple of months is not gone at 21 days,
+  they're on schedule. **Platform-watching-business and
+  business-watching-customer have different natural cadences, and tuning
+  both chips to one number would make one of them wrong on purpose.**
+  Nothing here needed building or changing; this is the write-down Andrew
+  asked for, so a future session sees two different numbers, reads this
+  paragraph, and does not unify them by accident.
 
 - [ ] **9.7 — Client card is missing basics.** No Text button, no vehicle, no
   address, no "Book again". Add them; "Book again" opens New booking prefilled.
