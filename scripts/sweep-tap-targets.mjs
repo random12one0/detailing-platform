@@ -55,7 +55,18 @@ const BASELINE = process.argv.includes("--baseline");
 const ONLY = argOf("--only");
 // 320 IS THE NARROWEST SUPPORTED WIDTH, not 392 — `PRODUCT.md` promises
 // 320→1440 and the dashboard has a layout of its own below 361px.
-const WIDTHS = (argOf("--widths") || "1440,768,392,320").split(",").map(Number);
+const WIDTHS_ARG = argOf("--widths");
+const WIDTHS = (WIDTHS_ARG || "1440,768,392,320").split(",").map(Number);
+// THE BACK-OFFICE WALK ALSO TAKES ONE NON-ROUND WIDTH, ON PURPOSE — ROADMAP
+// 4.5's own build requirement 3: "sweep sub-pixel offsets, not whole-pixel
+// scrolls; a whole-pixel scroll leaves the fraction identical, so the
+// rounding never moves." Four round breakpoints can share the property that
+// every flex/grid division lands on a whole pixel by coincidence; 1254 is the
+// width the one-off evidence run behind this item actually used, and it stays
+// odd on purpose so any column-width or flex-basis rounding has a real chance
+// to show up. Skipped only when the caller explicitly overrides --widths,
+// so a narrow debugging run stays narrow.
+const ADMIN_WIDTHS = WIDTHS_ARG ? WIDTHS : [...WIDTHS, 1254];
 const LANGS = (argOf("--lang") || "en,es").split(",");
 const ARGS = { floor: FLOOR, cap: CAP, exceptions: EXCEPTIONS };
 
@@ -230,6 +241,57 @@ if (BASELINE) {
     if (!same) add("baseline", { check: "BASELINE", el: check, detail: `undoing the "${check}" break did not restore the screen (${before.subjects}/${before.findings.length} → ${back.subjects}/${back.findings.length})` });
   }
   await ctx.close();
+
+  // ── THE BACK-OFFICE CANARY, SEPARATELY, BECAUSE THE FIVE BREAKS ABOVE
+  // NEVER TOUCH `/admin` ────────────────────────────────────────────────
+  // ROADMAP 4.5's own bar: "a deliberate break in AdminPage.jsx fails a
+  // credential-free run, and the break is one a person could plausibly
+  // make." Shrinking `.pa-tab` — a real control, `admin.css:120` — to a few
+  // pixels of padding is exactly that: a spacing edit somebody makes without
+  // checking the 44px floor. RUN REPEATEDLY, NOT ONCE — this session's own
+  // lesson from earlier today was that a canary caught on a single lucky run
+  // is weaker evidence than it feels like: the blank-screenshot canary in
+  // this same repo only reproduced 3 of 8 times. The count below is measured
+  // by actually running it several times, not asserted from one pass.
+  {
+    const ADMIN_RUNS = 5;
+    let adminCaught = 0;
+    const adminCtx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const adminPage = await adminCtx.newPage();
+    await adminPage.goto(`${BASE}/admin`, { waitUntil: "domcontentloaded" });
+    await adminPage.waitForSelector("input[type=email], .pa-tabs, .adm", { timeout: 25000 });
+    if (await adminPage.locator("input[type=email]").count()) {
+      await adminPage.fill("input[type=email]", "demo@detailplatform.com");
+      await adminPage.fill("input[type=password]", "demo123");
+      await adminPage.click("form button[type=submit]");
+      await adminPage.waitForSelector(".pa-tabs, .adm", { timeout: 30000 }).catch(() => {});
+    }
+    await settle(adminPage, 2200);
+    const adminBefore = await adminPage.evaluate(TAP_PROBE, ARGS);
+    console.log(`\nthe real /admin screen first: ${adminBefore.subjects} controls, ${adminBefore.findings.length} findings`);
+    for (let i = 1; i <= ADMIN_RUNS; i++) {
+      await adminPage.evaluate(() => {
+        const s = document.createElement("style");
+        s.id = "admin-tap-break";
+        s.textContent = ".pa-tab { padding: 2px 4px !important; font-size: 10px !important; min-height: 0 !important }";
+        document.head.appendChild(s);
+      });
+      await settle(adminPage, 500);
+      const after = await adminPage.evaluate(TAP_PROBE, ARGS);
+      const got = after.findings.filter((f) => f.check === "narrow" || f.check === "short");
+      if (got.length) adminCaught++;
+      console.log(`  run ${i}/${ADMIN_RUNS}: ${got.length ? "CAUGHT" : "MISSED"} (${got.length} finding(s)${got.length ? " — " + got[0].detail : ""})`);
+      await adminPage.evaluate(() => document.getElementById("admin-tap-break")?.remove());
+      await settle(adminPage, 500);
+    }
+    const adminAfter = await adminPage.evaluate(TAP_PROBE, ARGS);
+    const restored = adminAfter.subjects === adminBefore.subjects && adminAfter.findings.length === adminBefore.findings.length;
+    console.log(`admin canary: caught ${adminCaught}/${ADMIN_RUNS}, restored ${restored ? "cleanly" : "*** NOT CLEANLY ***"}`);
+    if (adminCaught < ADMIN_RUNS) { blind++; add("baseline", { check: "BASELINE", el: ".pa-tab", detail: `the admin-office break was only caught ${adminCaught}/${ADMIN_RUNS} times` }); }
+    if (!restored) add("baseline", { check: "BASELINE", el: ".pa-tab restore", detail: "undoing the admin break did not restore the screen" });
+    await adminCtx.close();
+  }
+
   await browser.close();
   console.log(`\n${Object.keys(BREAKS).length} checks broken on purpose, ${blind} blind`);
   await reportSourceMoved(changedSince, !findings.length);
@@ -378,27 +440,34 @@ for (const width of WIDTHS) {
   }
 }
 
-// THE BACK OFFICE — AND NOT WITH `demo@demo.com`, WHOSE PASSWORD IS
-// DELIBERATELY IN NO FILE. `scripts/admin-account.mjs` makes a throwaway admin
-// from the service key and removes it at the end of the run, which is what
-// `shoot-admin.mjs` already does and the reason that file exists: a fixed
-// password for the one account that can see every tenant, written into a
-// public repository, was the finding it was written to close.
+// THE BACK OFFICE — CREDENTIAL-FREE NOW, WHICH IT WAS NOT WHEN THIS SECTION
+// WAS FIRST WRITTEN. It used to sign in through `scripts/admin-account.mjs`,
+// which mints a throwaway admin from the SERVICE ROLE KEY and drops it when
+// the run ends — built that way because at the time the demo login was
+// deliberately NOT a platform admin (the old CLAUDE.md rule `admin-account.mjs`
+// still quotes: *"Making demo@detailplatform.com an admin would put every
+// detailer's data behind demo123."*). ROADMAP 0.1 recorded Andrew reversing
+// that himself, 2026-09-16 — *"I made one of them just be able to access both
+// because I was tired of switching accounts… literally no one's on the
+// site"* — and today's back-office-access finding (docs/gotchas.md § 6)
+// confirmed live that `demo@detailplatform.com` sits in `platform_admins`
+// right now. So the throwaway-admin machinery is no longer buying anything:
+// the standing demo login already reaches `/admin`, needs no service-role
+// key, no account creation, no teardown, and is the same credential every
+// other script in this file already signs in with two screens up. This
+// closes ROADMAP 4.5's actual "Done when": a run needing nothing but the dev
+// server can now reach `AdminPage.jsx` and fail a real break in it.
 //
 // **THIS IS THE HALF `docs/lane-b-handover-2026-09-13.md` § 2d COULD NOT
 // MEASURE.** It read `.pa-x` at 30px and `.pa-chip` at about 29px out of
 // `admin.css` and said so as SOURCE evidence, because nothing could probe the
-// screen. This can.
+// screen. This can, and now does it without a second credential path.
+const OWNER_ADMIN = { email: "demo@detailplatform.com", password: "demo123" };
 if (ONLY && !"admin".includes(ONLY.toLowerCase())) {
   skips.push(`the back office was not walked because --only ${ONLY} does not name it`);
-} else if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
-  const { makeAdmin, dropAdmin } = await import("./admin-account.mjs");
-  const U = process.env.SUPABASE_URL, K = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const acct = await makeAdmin(U, K, "tapsweep-admin@detailplatform.com");
-  if (!acct) skips.push("THE BACK OFFICE WAS NOT WALKED: the throwaway admin account could not be created.");
-  else {
-    try {
-      for (const width of WIDTHS) {
+} else {
+  try {
+    for (const width of ADMIN_WIDTHS) {
         for (const lang of LANGS) {
           // SAME RULE AS THE SETTINGS WALK: a back office that will not open is
           // a finding about the back office, not a reason to throw away a walk
@@ -412,8 +481,8 @@ if (ONLY && !"admin".includes(ONLY.toLowerCase())) {
           await page.reload({ waitUntil: "domcontentloaded" });
           await page.waitForSelector("input[type=email], .pa-tabs, .adm", { timeout: 25000 });
           if (await page.locator("input[type=email]").count()) {
-            await page.fill("input[type=email]", acct.email);
-            await page.fill("input[type=password]", acct.password);
+            await page.fill("input[type=email]", OWNER_ADMIN.email);
+            await page.fill("input[type=password]", OWNER_ADMIN.password);
             // `form button[type=submit]`, NOT `form button.btn.primary`. The
             // back office has its own kit: its submit is `.pa-btn.pa-go` and
             // `.btn.primary` does not exist anywhere in `admin.css`. The first
@@ -472,12 +541,9 @@ if (ONLY && !"admin".includes(ONLY.toLowerCase())) {
           }
         }
       }
-    } finally { await dropAdmin(U, K, acct.id); }
+  } catch (e) {
+    skips.push(`THE BACK OFFICE WALK THREW BEFORE IT COULD FINISH: ${String(e).split("\n")[0]}`);
   }
-} else {
-  skips.push("THE BACK OFFICE AT /admin WAS NOT WALKED — no SUPABASE_URL / "
-    + "SUPABASE_SERVICE_ROLE_KEY in the environment, so the throwaway admin could "
-    + "not be made. Run `set -a; . ./.env; set +a` first.");
 }
 await browser.close();
 

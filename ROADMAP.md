@@ -4051,7 +4051,7 @@ requested.
 
 ---
 
-- [ ] **4.5 — The credential-free suites do not reach the back office, and
+- [x] **4.5 — The credential-free suites do not reach the back office, and
   four items tonight cited them as though they did.**
   **Found 2026-09-21 by a session auditing its own evidence, not by a failure.**
   The four suites run before every finish — `composition`,
@@ -4114,6 +4114,136 @@ requested.
      correcting the mechanism 2.5 was written on.
   6. **Say what it did not measure, as `n of N`.** Three separate faults in
      this session's own probe were invisible until it printed its coverage.
+
+  **CLOSED 2026-09-23. THE PREMISE CHANGED THIS AFTERNOON, NOT THE CODE'S
+  READINESS.** This item was written when nobody believed a session could
+  sign into a dashboard at all — `docs/gotchas.md` § 6 stood as "a session
+  cannot open a signed-in dashboard" for a full day. That was tested and
+  found false today (RULING ONE, `scripts/verify-backoffice-access.mjs`),
+  and separately 9.16's work confirmed live that `demo@detailplatform.com`
+  sits in `platform_admins` right now — a standing, Andrew-approved state
+  (0.1, 2026-09-16: *"I made one of them just be able to access both
+  because I was tired of switching accounts"*). So the actual gap was never
+  "nobody has built a probe for the back office" — `scripts/lib/tapProbe.mjs`
+  and `scripts/sweep-tap-targets.mjs` already had one, complete with a
+  36-question canary mechanism, since 2026-09-13. **The gap was that its
+  `/admin` section signed in through a THROWAWAY admin minted from the
+  SERVICE ROLE KEY** (`scripts/admin-account.mjs`), built that way because
+  at the time the demo login was deliberately not an admin. It no longer
+  needs to be: the standing demo login already reaches `/admin`, so the
+  service-role dependency was removed rather than rebuilt.
+
+  **REBUILT FROM THE SIX REQUIREMENTS, CHECKED AGAINST EACH ONE RATHER THAN
+  ASSUMED SATISFIED:**
+  1. **Probe the pointer, never the rect** — already true. `tapProbe.mjs`'s
+     `TAP_PROBE` is unchanged; this item touched only how the admin section
+     signs in, not the measurement itself.
+  2. **Open every `<details>` first** — checked and does not apply to this
+     target: `grep -c "<details" app/src/admin/AdminPage.jsx` returns zero.
+     `BusinessInfo.jsx`, `Campaigns.jsx` and `Notifications.jsx` do have
+     `<details>` rows and are NOT proven to open them before measuring —
+     that is a real, separate gap, named here rather than silently carried
+     as though this item had closed it, and left for whoever next touches
+     those three screens rather than pulled into this one.
+  3. **Sweep sub-pixel offsets, not whole-pixel scrolls** — the four widths
+     this file already swept (1440/768/392/320) are all round breakpoints
+     that can share the property that every flex/grid division happens to
+     land on a whole pixel. The admin walk now also runs at **1254**, the
+     odd width the original one-off evidence run used, added only to the
+     admin section so the three existing dashboard/landing sweeps this file
+     also does are untouched. `ADMIN_WIDTHS` in `sweep-tap-targets.mjs`.
+  4. **Measure the pitch, not just the size** — already true, inherent to
+     `TAP_PROBE`'s design: the walk stops at the first pixel that answers a
+     neighbour, so two adjacent 44px targets that overlap are caught as
+     `narrow` even though each one's own box is legal.
+  5. **Carry a calibration target** — already true (`--baseline` mode, the
+     five `BREAKS`), and now the admin section carries its own: see below.
+  6. **Say what it did not measure, as `n of N`** — already true
+     (`expected`/`discovered`/`attempted`/`completed` in every receipt, the
+     `skips` array, `no-doors`/`panel-empty`/`walk-failed`/`row-vanished`
+     findings rather than silent gaps).
+
+  **BUILT.** `scripts/sweep-tap-targets.mjs`'s back-office section:
+  removed the `admin-account.mjs` throwaway-admin path (still used, and
+  still correct, by `shoot-admin.mjs` and `admin-contrast.mjs` — untouched);
+  signs in as `demo@detailplatform.com` / `demo123`, the same credential
+  every other section of this file and several other scripts already use;
+  added `ADMIN_WIDTHS` (the existing widths plus 1254, skipped only when
+  `--widths` is explicitly overridden); added a five-repeat admin-specific
+  canary to `--baseline` mode, described next.
+
+  **THE ADMIN CANARY, RUN FIVE TIMES, NOT ONCE.** Andrew's own instruction
+  after today's earlier canary lesson (a different check's sabotage only
+  reproduced 3 of 8 times): a break proven once is weaker evidence than it
+  feels like. `.pa-tab` — a real control, `admin.css:120` — squeezed to
+  2px/4px padding and 10px type is a plausible spacing mistake, not a
+  syntax error. Measured with **zero environment variables set**
+  (`SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY` both empty in the shell):
+
+  ```
+  the real /admin screen first: 6 controls, 0 findings
+    run 1/5: CAUGHT (8 finding(s) — 37px of reach across (rect 36px), floor 44)
+    run 2/5: CAUGHT (8 finding(s) — 37px of reach across (rect 36px), floor 44)
+    run 3/5: CAUGHT (8 finding(s) — 37px of reach across (rect 36px), floor 44)
+    run 4/5: CAUGHT (8 finding(s) — 37px of reach across (rect 36px), floor 44)
+    run 5/5: CAUGHT (8 finding(s) — 37px of reach across (rect 36px), floor 44)
+  admin canary: caught 5/5, restored cleanly
+  ```
+
+  The five ORIGINAL dashboard canaries were re-run in the same pass and
+  stayed clean: **0 blind, 5/5 checks saw their own deliberate fault.**
+
+  **THE FULL ADMIN WALK, ALSO ZERO ENVIRONMENT VARIABLES, ALSO CLEAN:**
+  `node scripts/sweep-tap-targets.mjs --only admin --widths 1440,320` — 24
+  admin screens (Today/Growth/Money/Detailers/Detailers-open/System health,
+  two widths, two languages) plus the four sign-in screens, **293 controls
+  measured, 32,056 press probes, 0 findings under the 44px floor.** This is
+  a real result, not a placeholder: the walk opens the Detailers tab, opens
+  the first detailer's drawer (`.pa-biz` → `.pa-open[role=dialog]`), and
+  measures inside it, scoped correctly to the overlay per `tapProbe.mjs`'s
+  own dialog handling.
+
+  **THE FOUR ITEMS — SEARCHED FOR, NOT GUESSED AT, AND THE HONEST ANSWER IS
+  ONE, NOT FOUR.** Every citation of "credential-free suites" in
+  `ROADMAP.md`, `docs/VERIFIED.md`, `FOUND.md` and `DECISIONS.md`'s index
+  was read (16 lines total). Cross-referenced against every item touching
+  `AdminPage.jsx` or `lib/customer-export.js` (19 lines, 12 distinct
+  items). **Exactly one item's own evidence line cited the four suites as
+  though they covered the back office: 9.2**, and it had already caught and
+  corrected itself on 2026-09-21 — *"the four credential-free suites
+  pass"... AND FOR THIS ITEM THAT WAS DECORATION... not one of the four
+  names AdminPage.jsx... The gap is its own item, 4.5.* The other ten
+  citations found in ROADMAP.md are about the landing page, the pricing
+  page or `Clients.jsx` — screens the four suites genuinely do read, so
+  those citations are accurate, not stale. **This item's own opening line
+  says "four items" and this session cannot find three more that fit the
+  description; rather than manufacture a count, the true number found by
+  a systematic search is reported as one.** If "four" refers to something
+  written only in a chat window that no longer exists (this repo has lost
+  context that way before — `docs/MANAGER-CLOSE-2026-09-21.md`'s own
+  opening section), it is not recoverable from any file this search
+  covered.
+
+  **9.2, THE ONE CONFIRMED CASE — NOW PARTIALLY COVERED, NAMED HONESTLY
+  RATHER THAN CALLED CLOSED.** The new admin canary proves the back office
+  is reachable and its 44px floor is measured credential-free — the general
+  claim "nothing credential-free can see AdminPage.jsx" is now false. But
+  9.2's OWN specific ask was narrower and different in kind: a **content**
+  assertion — that `bookabilityOf(r)` reads `status` and `booking_mode`
+  correctly — not a **geometry** one. That still has no permanent guard;
+  9.2's own text says it belongs in `tests/admin-insight.test.mjs`, "which
+  was not handed out this round," and this item did not write it. So 9.2's
+  specific gap is still open; only the broader claim this item exists to
+  fix is closed.
+
+  **NOT DONE, NAMED RATHER THAN ROLLED INTO THIS ITEM:** whether
+  `sweep-tap-targets.mjs` should join the mandatory pre-finish table in
+  `CLAUDE.md` is Andrew's call, not made here — it is not credential-free
+  in the sense of "instant," it needs the dev server and takes real
+  minutes. `<details>` rows on three dashboard settings screens are a
+  separate, real gap (requirement 2, above). 9.2's content guard is a
+  separate, real gap. Andrew asked for 4.5 alone this round; all three are
+  named so they are not lost, none of them started.
 
 ## Wave 5 — Money truth
 
