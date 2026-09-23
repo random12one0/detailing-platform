@@ -689,7 +689,33 @@ Smallest wave, highest embarrassment cost, all of it confirmed in source.
 A customer must never be shown one price and charged another, never be handed
 the wrong service, and never book a job we cannot reach.
 
-- [ ] **2.1 — The total rises after the customer has picked the time.** **RE-OPENED 2026-09-22, THE SAME EVENING IT WAS TICKED. The tick was wrong.**
+- [ ] **2.1 — The total rises after the customer has picked the time.**
+  **THE FIX IS WRITTEN AND IT IS NOT LIVE. Nothing a customer sees has changed.
+  The only thing standing between here and a customer being shown the right
+  price is Andrew pressing publish on `calculate-booking`.**
+
+  **What a customer sees TODAY.** They choose Saturday the 26th or Sunday the
+  27th, the page lists the times available that day, and the running total
+  says **$65**. Nothing anywhere on the screen mentions a weekend, a surcharge
+  or thirty dollars. They pick a time and the total becomes **$95**. Walked
+  fresh in a real browser on 2026-09-22 by Andrew, after the fix was written
+  and committed, on both days. **This is still what happens.**
+
+  **What a customer will see AFTER `calculate-booking` is published.** They
+  choose the same Saturday, and the total says **$95** straight away, with the
+  words **`Weekend rate · +$30`** on the screen above the list of times. The
+  price does not move again when they pick a time. A weekday is unaffected and
+  stays at $65 throughout.
+
+  **Why it is not live, in one sentence:** the sum is worked out by a program
+  that runs on Supabase rather than in the browser, that program has to be
+  published to start running the new version, and publishing is Andrew's —
+  the same as pushing code is his. `FOR-ANDREW.md` carries the row.
+
+  **How anyone will know it worked:** `node scripts/surcharge-visible.mjs`
+  goes from 40 failures to zero. It is red today on purpose.
+
+  **RE-OPENED 2026-09-22, THE SAME EVENING IT WAS TICKED. The tick was wrong.**
   Both audits, independently, with different numbers: $205 → $235 (A1) and
   $300 → $330 (A2). A $30 weekend rate only appears at the final breakdown.
   **Fix:** mark affected days in the calendar with "+$30" and add the line to
@@ -950,6 +976,14 @@ the wrong service, and never book a job we cannot reach.
   expected. **Nothing was deployed.** `FOR-ANDREW.md` carries the row.
   **Done when:** the clean run — no stand-in — passes `early-named`,
   `early-priced`, `early-visible` and `early-painted` at all five widths.
+
+  **AND THE SENTENCE TO READ IF YOU READ NOTHING ELSE HERE, because "blocked
+  on deployment" is not something anybody reconstructs six weeks later:**
+  **the work is done and a customer cannot see any of it.** Today they are
+  shown $65 on a Sunday and charged $95. After Andrew publishes
+  `calculate-booking` they are shown $95 on the Sunday, with the reason
+  written next to it, before they choose anything else. Nothing else is
+  needed and nothing else is waiting.
 
 - [x] **DONE 2026-09-21 — 2.1a — ~~A plan booking and a multi-car booking show no surcharge
   line. Split out of 2.1 on 2026-09-21 because it needs a server field and
