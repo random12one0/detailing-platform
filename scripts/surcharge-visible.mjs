@@ -387,10 +387,71 @@ rmSync(ART, { recursive: true, force: true });
 mkdirSync(ART, { recursive: true });
 
 /**
- * One target: walk the public booking page to the date step, pick a weekend
- * day, read the bar, pick a time, read it again, photograph it and grade.
+ * Strip the surcharge lines out of the server's answer on the way past —
+ * canary flavour B.
+ *
+ * **THE CANARY THE FIRST VERSION OF THIS FILE DID NOT HAVE, AND ITS ABSENCE IS
+ * WHY THE FILE PASSED OVER A LIVE FAULT.** The `order: 99` canary proves the
+ * check can see a line in the WRONG PLACE. Nothing proved it could see a line
+ * that is not there AT ALL — so `named` had never once been observed failing,
+ * and an assertion that has never failed is an assertion nobody has tested.
  */
-async function target(browser, { w, h }, pick, { canary = false, label, file }) {
+const stripAdjustments = (page) => page.route("**/calculate-booking", async (route) => {
+  const res = await route.fetch();
+  let body;
+  try { body = await res.json(); } catch { return route.fulfill({ response: res }); }
+  if (body && body.quote) body.quote.adjustments = [];
+  return route.fulfill({ response: res, body: JSON.stringify(body) });
+});
+
+/**
+ * Photograph the frame a person sees, then measure how much of each line's own
+ * rect is actually the line. The second render is never written to disk.
+ */
+async function frame(page, file, lines) {
+  const shot = await page.screenshot({ ...FROZEN, path: ART + file });
+  artifacts.push("artifacts/surcharge-visible/" + file);
+  const tag = await page.addStyleTag({ content: BLANK_CSS });
+  await page.waitForTimeout(150);
+  const flat = await page.screenshot(FROZEN);
+  await tag.evaluate((el) => el.remove());
+  const spreads = [];
+  for (const l of lines) {
+    spreads.push(await page.evaluate(DELTA, {
+      a: shot.toString("base64"), b: flat.toString("base64"), r: l.rect,
+    }));
+  }
+  return spreads;
+}
+
+/**
+ * One target: walk the public booking page to the date step, choose a day,
+ * READ THE PAGE THERE, and only then choose a time and read it again.
+ *
+ * ---------------------------------------------------------------------------
+ * **THE STATE BETWEEN THE TWO TAPS IS THE WHOLE ITEM, AND THE FIRST VERSION OF
+ * THIS FILE WALKED STRAIGHT THROUGH IT.**
+ * ---------------------------------------------------------------------------
+ * That version asked "is the surcharge visible" and answered yes, correctly,
+ * at fifteen targets. The question that needed asking was **"is it visible
+ * BEFORE the customer can be charged it"** — one word apart, opposite answers.
+ * A walk that goes day, then time, then look can never see the gap, because
+ * **the gap closes on the tap that ends it**. Andrew found it by doing the one
+ * thing the script does not: choosing a Sunday and then waiting. Nine times
+ * listed, $65 in the bar, and no mention anywhere in the rendered text of a
+ * weekend, a surcharge or thirty dollars.
+ *
+ * So this now reads the page at BOTH moments, and the early read is the one
+ * that matters. It is also the read with no chip tapped, which is why `pick`
+ * changes nothing about it.
+ *
+ * **AND A CONTROL IN THE OTHER DIRECTION, WHICH NOBODY HAD RUN.** `kind:
+ * "weekday"` picks the furthest-out open weekday and asserts that the page
+ * stays silent and the bar never moves, through both taps. Without it,
+ * "price the day early" has an obvious failure mode nothing would catch:
+ * start charging everybody on a Tuesday.
+ */
+async function target(browser, { w, h }, { pick, kind, canary, label, stem }) {
   const ctx = await browser.newContext({
     viewport: { width: w, height: h }, deviceScaleFactor: 1,
   });
@@ -415,13 +476,19 @@ async function target(browser, { w, h }, pick, { canary = false, label, file }) 
   });
   page.on("pageerror", (e) => consoleNoise.push(`${label} · pageerror · ${String(e.message).slice(0, 180)}`));
 
-  const out = { lines: [], before: null, after: null, gate: null, spreads: [], read: null };
+  const out = {
+    kind, base: null, gate: null, day: null,
+    early: { bar: null, lines: [], spreads: [], read: null },
+    late: { bar: null, lines: [], spreads: [], read: null },
+  };
   try {
+    if (canary === "stripped" && BREAK !== "canary") await stripAdjustments(page);
+
     await page.goto(`${BASE}/book/${SLUG}`, { waitUntil: "domcontentloaded" });
     await page.waitForSelector(".bk-card.selectable", { timeout: 30000 });
     await settle(page);
 
-    if (canary && BREAK !== "canary") await page.addStyleTag({ content: CANARY_CSS });
+    if (canary === "order" && BREAK !== "canary") await page.addStyleTag({ content: CANARY_CSS });
     if (BREAK === "paint") await page.addStyleTag({ content: BLANK_CSS });
 
     // ── to the date step, however many steps that is ──────────────────────
@@ -434,13 +501,24 @@ async function target(browser, { w, h }, pick, { canary = false, label, file }) 
     }
     if (!(await page.locator(".bk-cal").count())) throw new Error("never reached the calendar");
 
-    // ── A WEEKEND DAY, FOUND FROM THE GRID'S OWN GEOMETRY ─────────────────
+    // THE PRICE WITH NO DAY CHOSEN AT ALL — the third reading, and the one
+    // that makes "the bar never moved" a statement rather than a guess.
+    out.base = await barMoney(page);
+
+    // ── THE DAY, FOUND FROM THE GRID'S OWN GEOMETRY ───────────────────────
     // `monthGrid` lays the month out starting on Sunday and pads the lead-in
     // with empty cells, so a cell's COLUMN is its weekday: 0 Sunday, 6
     // Saturday. That is locale-free — it does not read the month name, the
     // weekday letters or the heading, all three of which change language.
-    // The demo's rule is `weekdays: [0, 6]`, so those two columns are the
-    // ones that carry it.
+    // The tenant's rule is `weekdays: [0, 6]`, read off `business_settings`
+    // rather than off a document, with `start_time` and `end_time` both null.
+    //
+    // **THE CONTROL TAKES THE LAST OPEN WEEKDAY, NOT THE FIRST, AND THAT IS
+    // NOT ARBITRARY.** The first is usually tomorrow, and this tenant's second
+    // rule is `Short notice`, `lead_time`, within 24 hours — so a control
+    // built on the nearest weekday would fire a surcharge, fail, and look
+    // exactly like the fix charging people on a Tuesday.
+    const wantWeekend = kind === "weekend";
     let day = null;
     for (let month = 0; month < 3 && !day; month++) {
       if (month) {
@@ -449,31 +527,42 @@ async function target(browser, { w, h }, pick, { canary = false, label, file }) 
       }
       await page.locator(".bk-cal .cell:not(.closed):not(.empty)").first()
         .waitFor({ state: "attached", timeout: 8000 }).catch(() => {});
-      day = await page.evaluate(() => {
+      day = await page.evaluate((wantWeekend) => {
         const grids = document.querySelectorAll(".bk-cal");
         const cells = [...grids[grids.length - 1].querySelectorAll(".cell")];
+        const hits = [];
         for (let i = 0; i < cells.length; i++) {
           const col = i % 7;
-          if (col !== 0 && col !== 6) continue;
+          const isWeekend = col === 0 || col === 6;
+          if (isWeekend !== wantWeekend) continue;
           const c = cells[i];
           if (/closed|empty/.test(c.className) || !c.innerText.trim()) continue;
-          return c.innerText.trim();
+          hits.push(c.innerText.trim());
         }
-        return null;
-      });
+        return hits.length ? (wantWeekend ? hits[0] : hits[hits.length - 1]) : null;
+      }, wantWeekend);
     }
     if (!day) {
       throw new Error(
-        "no open Saturday or Sunday in three months of the demo's calendar, so "
-        + "the surcharge this file measures cannot be produced. Re-seed "
-        + "(node scripts/seed-demo.mjs) and check available-slots by hand.");
+        `no open ${wantWeekend ? "Saturday or Sunday" : "weekday"} in three months of the `
+        + "demo's calendar, so the case this target exists for cannot be produced. "
+        + "Re-seed (node scripts/seed-demo.mjs) and check available-slots by hand.");
     }
+    out.day = day;
 
+    // ── THE DAY IS TAPPED, AND NOTHING ELSE IS ────────────────────────────
+    // `quoted` because the page re-quotes on the day — it always has. The
+    // request was never the missing piece; the ANSWER was.
     const cell = page.locator(".bk-cal .cell", { hasText: new RegExp(`^${day}$`) }).last();
-    await cell.click();
+    await quoted(page, () => cell.click());
     await page.locator(".bk-slots .bk-chip").first()
       .waitFor({ state: "attached", timeout: 8000 }).catch(() => {});
     await settle(page, 2200);
+
+    out.early.bar = await barMoney(page);
+    out.early.read = await page.evaluate(READ);
+    out.early.lines = out.early.read.lines;
+    out.early.spreads = await frame(page, `${stem}-day.png`, out.early.lines);
 
     // ── THE GATE: a day and no time must not be allowed to leave ──────────
     const wasAt = await stepNow(page);
@@ -485,144 +574,185 @@ async function target(browser, { w, h }, pick, { canary = false, label, file }) 
     // **BACK TO THE TOP, AND THIS LINE IS THE REASON THE FIRST CANARY CAUGHT
     // NOTHING — 0 out of 5 over a defect that was plainly in the screenshot.**
     // Roadmap 2.6: a refused press turns the reason on AND SCROLLS TO IT. So
-    // the gate probe two lines up leaves the page near the BOTTOM of a step
-    // that is 1,400px tall at 320 — and everything measured after it is
-    // measured from a scroll position this script itself created. With the
-    // note put back below the chips the canary was then landing at y=710
-    // against a bar at 771: visible, and visible only because of the probe.
+    // the gate probe above leaves the page near the BOTTOM of a step that is
+    // 1,400px tall at 320, and everything measured afterwards is measured from
+    // a scroll position this script itself created. With the note put back
+    // below the chips the canary was landing at y=710 against a bar at 771:
+    // visible, and visible only because of the probe.
     //
-    // THE ORDINARY CUSTOMER DOES NOT PRESS CONTINUE EARLY. They pick a day and
-    // then a time, from the top. Resetting here restores that path, and it is
-    // also the harsher one — it is the position the original 836-898px
-    // measurement was taken in. The scrolled case is not lost: Playwright
-    // scrolls the LAST chip into view by itself, which is the other target at
-    // every width.
+    // THE ORDINARY CUSTOMER DOES NOT PRESS CONTINUE EARLY. Resetting restores
+    // their path, and it is also the harsher one. The scrolled case is not
+    // lost: Playwright scrolls the LAST chip into view by itself.
     await page.evaluate(() => window.scrollTo(0, 0));
     await settle(page, 800);
-
-    // ── THE PRICE BEFORE A TIME IS CHOSEN ─────────────────────────────────
-    out.before = await barMoney(page);
 
     // ── THE TIME ──────────────────────────────────────────────────────────
     const chips = page.locator(".bk-slots .bk-chip");
     const count = await chips.count();
     if (!count) throw new Error(`the ${day}th had no time chips`);
-    // Playwright scrolls it into view the way a thumb would, which is the
-    // whole point of the "last" target. `quoted` because the surcharge is the
-    // SERVER's answer and settle cannot see a network call.
     await quoted(page, () => chips.nth(pick === "last" ? count - 1 : 0).click());
 
-    out.after = await barMoney(page);
-    out.read = await page.evaluate(READ);
-    out.lines = out.read.lines;
-
-    // THE KEPT FRAME IS THE ONE A PERSON SEES. The second render exists only
-    // to be subtracted from it and is never written to disk.
-    const shot = await page.screenshot({ ...FROZEN, path: ART + file });
-    artifacts.push("artifacts/surcharge-visible/" + file);
-    const tag = await page.addStyleTag({ content: BLANK_CSS });
-    await page.waitForTimeout(150);
-    const flat = await page.screenshot(FROZEN);
-    await tag.evaluate((el) => el.remove());
-    for (const l of out.lines) {
-      out.spreads.push(await page.evaluate(DELTA, {
-        a: shot.toString("base64"), b: flat.toString("base64"), r: l.rect,
-      }));
-    }
+    out.late.bar = await barMoney(page);
+    out.late.read = await page.evaluate(READ);
+    out.late.lines = out.late.read.lines;
+    out.late.spreads = await frame(page, `${stem}-time.png`, out.late.lines);
   } finally {
     await ctx.close();
   }
   return out;
 }
 
-/** Grade one target. Five assertions, every one of them or none. */
-function grade(id, o, sink) {
+const dollars = (c) => (c === null || c === undefined ? "—" : `$${(c / 100).toFixed(0)}`);
+
+/** Is every named line painted where a person can see it? */
+function readable(phase) {
+  const hidden = phase.lines.filter((l) => !l.inWindow || !l.onTop);
+  const blank = phase.spreads
+    .map((s, i) => ({ s, l: phase.lines[i] }))
+    .filter((x) => x.s.delta < DELTA_FLOOR);
+  return { hidden, blank };
+}
+
+/**
+ * A weekend target. NINE assertions, and the four with `early-` in front of
+ * them are the item.
+ */
+function gradeWeekend(id, o, sink) {
+  const e = readable(o.early);
+  const l = readable(o.late);
+
+  // ── THE FOUR THAT ARE ROADMAP 2.1 ────────────────────────────────────────
+  sink(id, "early-named", o.early.lines.length > 0,
+    `a day is chosen and ${o.early.read.chips} times are listed, and nothing on the page `
+    + "names a surcharge — the customer is being shown a price that is already wrong");
+  sink(id, "early-priced", o.early.bar !== null && o.early.bar === o.late.bar,
+    `the bar reads ${dollars(o.early.bar)} with the day chosen and ${dollars(o.late.bar)} `
+    + "once a time is tapped, so the figure on screen is not the figure that will be charged");
+  sink(id, "early-visible", o.early.lines.length > 0 && e.hidden.length === 0,
+    e.hidden.map((x) => `«${x.text}» at y=${x.rect.y}..${x.rect.y + x.rect.h} against a bar at `
+      + `${o.early.read.barTop} in a ${o.early.read.viewport.h}px window; elementFromPoint says ${x.hit}`)
+      .join("; "));
+  sink(id, "early-painted",
+    o.early.lines.length > 0 && o.early.spreads.length === o.early.lines.length && e.blank.length === 0,
+    e.blank.map((x) => `«${x.l.text}» covers ${x.s.px}px and blanking its text changes them by `
+      + `${x.s.delta.toFixed(2)} levels, under the ${DELTA_FLOOR} floor`).join("; "));
+
+  // ── THE FIVE FROM THE FIRST ROUND, WHICH ALL STILL HOLD ──────────────────
   sink(id, "gate", o.gate && o.gate.to === o.gate.from,
     `pressing Continue with a day and no time went from step ${o.gate && o.gate.from} `
-    + `to step ${o.gate && o.gate.to} — the customer can leave without seeing the surcharge`);
-
-  const named = o.lines.length > 0;
-  sink(id, "named", named,
-    "no surcharge line was rendered at all, so either the demo's weekend rule is gone "
-    + "or the page stopped naming it — this is a failure and never a skip");
-
-  const sum = o.lines.reduce((a, l) => a + l.cents, 0);
-  const rise = (o.after ?? 0) - (o.before ?? 0);
-  sink(id, "adds-up", named && o.before !== null && o.after !== null && rise === sum,
-    `the bar went ${(o.before / 100).toFixed(2)} → ${(o.after / 100).toFixed(2)}, a rise of `
-    + `${(rise / 100).toFixed(2)}, while the page named ${(sum / 100).toFixed(2)}`);
-
-  const hidden = o.lines.filter((l) => !l.inWindow || !l.onTop);
-  sink(id, "visible", named && hidden.length === 0,
-    hidden.map((l) => `«${l.text}» at y=${l.rect.y}..${l.rect.y + l.rect.h} against a bar at `
-      + `${o.read.barTop} in a ${o.read.viewport.h}px window (scrolled ${o.read.scrollY}); `
-      + `elementFromPoint says ${l.hit}`).join("; "));
-
-  const blank = o.spreads.map((s, i) => ({ s, l: o.lines[i] }))
-    .filter((x) => x.s.delta < DELTA_FLOOR);
-  sink(id, "painted", named && o.spreads.length === o.lines.length && blank.length === 0,
-    blank.map((x) => `«${x.l.text}» covers ${x.s.px}px of the screenshot, and blanking its `
-      + `text changes those pixels by ${x.s.delta.toFixed(2)} levels — under the `
-      + `${DELTA_FLOOR} floor, so nothing was painted there`)
+    + `to step ${o.gate && o.gate.to}`);
+  sink(id, "named", o.late.lines.length > 0,
+    "no surcharge line was rendered after the time was chosen either");
+  const sum = o.late.lines.reduce((a, x) => a + x.cents, 0);
+  const rise = (o.late.bar ?? 0) - (o.base ?? 0);
+  sink(id, "adds-up", o.late.lines.length > 0 && o.base !== null && o.late.bar !== null && rise === sum,
+    `the bar went ${dollars(o.base)} → ${dollars(o.late.bar)}, a rise of ${(rise / 100).toFixed(2)}, `
+    + `while the page named ${(sum / 100).toFixed(2)}`);
+  sink(id, "visible", o.late.lines.length > 0 && l.hidden.length === 0,
+    l.hidden.map((x) => `«${x.text}» at y=${x.rect.y}..${x.rect.y + x.rect.h} against a bar at `
+      + `${o.late.read.barTop} (scrolled ${o.late.read.scrollY}); elementFromPoint says ${x.hit}`)
       .join("; "));
+  sink(id, "painted",
+    o.late.lines.length > 0 && o.late.spreads.length === o.late.lines.length && l.blank.length === 0,
+    l.blank.map((x) => `«${x.l.text}» covers ${x.s.px}px and blanking its text changes them by `
+      + `${x.s.delta.toFixed(2)} levels, under the ${DELTA_FLOOR} floor`).join("; "));
+}
+
+/**
+ * The control. THREE assertions, and it is the half nobody had run: a fix that
+ * prices the day early must not start pricing days that carry no rule.
+ */
+function gradeWeekday(id, o, sink) {
+  sink(id, "quiet-early", o.early.lines.length === 0,
+    `a weekday with no rule named ${o.early.lines.map((l) => `«${l.text}»`).join(", ")} `
+    + "with the day chosen");
+  sink(id, "quiet-late", o.late.lines.length === 0,
+    `a weekday with no rule named ${o.late.lines.map((l) => `«${l.text}»`).join(", ")} `
+    + "after the time was chosen");
+  sink(id, "steady", o.base !== null && o.base === o.early.bar && o.base === o.late.bar,
+    `the bar read ${dollars(o.base)} with no day, ${dollars(o.early.bar)} with the day and `
+    + `${dollars(o.late.bar)} with the time — a weekday moved the price`);
 }
 
 // ---------------------------------------------------------------------------
 const browser = await chromium.launch({ headless: !HEADED });
-let expected = SIZES.length * PICKS.length + CANARY_RUNS;
+const CANARIES = [
+  { flavour: "order", why: "the note put back below the chips" },
+  { flavour: "stripped", why: "the surcharge lines taken out of the server's answer" },
+];
+const expected = SIZES.length * PICKS.length + SIZES.length + CANARIES.length * CANARY_RUNS;
 let discovered = 0, attempted = 0, completed = 0;
-const canary = { id: "the-note-put-back-below-the-chips", observed_failure: false, problems: [], runs: [] };
+const canary = {
+  id: "below-the-chips-and-stripped-from-the-answer",
+  observed_failure: false, problems: [], runs: [],
+};
 
 for (const size of SIZES) {
   for (const pick of PICKS) {
-    const label = `${size.w}x${size.h} ${pick} slot`;
+    const label = `${size.w}x${size.h} weekend, ${pick} slot`;
     console.log(`  ${label}`);
     discovered++; attempted++;
-    const o = await target(browser, size, pick, {
-      label, file: `${size.w}x${size.h}-${pick}.png`,
+    const o = await target(browser, size, {
+      pick, kind: "weekend", canary: null, label,
+      stem: `${size.w}x${size.h}-${pick}`,
     });
-    grade(label, o, check);
-    observed.push(`${label}: $${((o.before ?? 0) / 100).toFixed(0)} → $${((o.after ?? 0) / 100).toFixed(0)}`
-      + ` · ${o.lines.map((l) => l.text).join(" / ") || "(nothing named)"}`
-      + ` · ink ${o.spreads.map((s) => s.delta.toFixed(1)).join("/") || "-"}`);
+    gradeWeekend(label, o, check);
+    observed.push(`${label}: no day ${dollars(o.base)} → day ${dollars(o.early.bar)} → time `
+      + `${dollars(o.late.bar)} · early «${o.early.lines.map((l) => l.text).join(" / ") || "nothing"}»`
+      + ` · late «${o.late.lines.map((l) => l.text).join(" / ") || "nothing"}»`);
+    completed++;
+  }
+  // ── THE CONTROL, ONCE PER WIDTH ─────────────────────────────────────────
+  const label = `${size.w}x${size.h} weekday control`;
+  console.log(`  ${label}`);
+  discovered++; attempted++;
+  const o = await target(browser, size, {
+    pick: "first", kind: "weekday", canary: null, label,
+    stem: `${size.w}x${size.h}-weekday`,
+  });
+  gradeWeekday(label, o, check);
+  observed.push(`${label}: no day ${dollars(o.base)} → day ${dollars(o.early.bar)} → time `
+    + `${dollars(o.late.bar)} · «${o.late.lines.map((l) => l.text).join(" / ") || "nothing named"}»`);
+  completed++;
+}
+
+// ── THE CANARIES, FIVE RUNS EACH, AT THE WIDTH THE DEFECT WAS MEASURED AT ──
+for (const { flavour, why } of CANARIES) {
+  console.log(`  canary "${flavour}" x${CANARY_RUNS} — ${why}; it MUST fail`);
+  for (let run = 1; run <= CANARY_RUNS; run++) {
+    discovered++; attempted++;
+    const problems = [];
+    // **THE FIRST SLOT, NOT THE LAST, AND THE FIRST VERSION GOT IT WRONG —
+    // caught 2 in 5.** Below the chips the note sits at the BOTTOM of the
+    // block, so scrolling to the last chip scrolls the note into view with it
+    // and the defect hides itself. Reproducing a defect means reproducing the
+    // position it was in.
+    const o = await target(browser, { w: 320, h: 844 }, {
+      pick: "first", kind: "weekend", canary: flavour,
+      label: `canary ${flavour} ${run}`, stem: `canary-${flavour}-${run}`,
+    });
+    // ITS FAILURES GO IN THE CANARY, NOT IN `failures` — a negative control
+    // that reddens the run is a negative control nobody keeps.
+    gradeWeekend(`canary ${flavour} ${run}`, o, (t, name, cond, detail) => {
+      assertions++;
+      if (cond) return;
+      problems.push(`${name} ${detail}`.trim());
+    });
+    const caught = problems.length > 0;
+    console.log(`    ${flavour} run ${run}: ${caught ? "caught" : "MISSED"}`
+      + `${caught ? ` — ${problems[0].slice(0, 80)}` : ""}`);
+    canary.runs.push({ flavour, run, caught, problems });
+    canary.problems.push(...problems.map((p) => `${flavour} run ${run}: ${p}`));
     completed++;
   }
 }
-
-// ── THE CANARY, FIVE TIMES, AT THE WIDTH THE DEFECT WAS MEASURED AT ───────
-console.log(`  canary x${CANARY_RUNS} — the note put back below the chips; it MUST fail`);
-for (let run = 1; run <= CANARY_RUNS; run++) {
-  discovered++; attempted++;
-  const problems = [];
-  // **THE FIRST SLOT, NOT THE LAST, AND THE FIRST VERSION OF THIS CANARY GOT
-  // IT WRONG — caught 2 times in 5.** Below the chips, the note sits at the
-  // BOTTOM of the block, so scrolling to the last chip scrolls the note into
-  // view along with it and the defect hides itself. The original measurement
-  // was taken on the FIRST slots, at scroll 0, where nineteen chips stand
-  // between the customer and the sentence: note at 836-898px in an 844px
-  // window. Reproducing a defect means reproducing the position it was in.
-  const o = await target(browser, { w: 320, h: 844 }, "first", {
-    canary: true, label: `canary run ${run}`, file: `canary-${run}.png`,
-  });
-  // ITS FAILURES GO IN THE CANARY, NOT IN `failures` — a negative control that
-  // reddens the run is a negative control nobody keeps.
-  grade(`canary ${run}`, o, (t, name, cond, detail) => {
-    assertions++;
-    if (cond) return;
-    problems.push(`${name} ${detail}`.trim());
-  });
-  const caught = problems.length > 0;
-  console.log(`    run ${run}: ${caught ? "caught" : "MISSED"}${caught ? ` — ${problems[0].slice(0, 90)}` : ""}`);
-  canary.runs.push({ run, caught, problems });
-  canary.problems.push(...problems.map((p) => `run ${run}: ${p}`));
-  completed++;
-}
-const caughtCount = canary.runs.filter((r) => r.caught).length;
-// **EVERY RUN, NOT MOST OF THEM.** A canary caught 4 times in 5 is a coin, and
-// this repo has an open Wave 14 item about a sweep that answered differently
-// five times running.
-canary.observed_failure = caughtCount === CANARY_RUNS;
-canary.caught = `${caughtCount}/${CANARY_RUNS}`;
+// **EVERY RUN OF EVERY FLAVOUR.** A canary caught 4 times in 5 is a coin, and
+// a flavour that never catches is an assertion nobody has tested.
+const caughtBy = Object.fromEntries(CANARIES.map(({ flavour }) => [
+  flavour, canary.runs.filter((r) => r.flavour === flavour && r.caught).length,
+]));
+canary.observed_failure = CANARIES.every(({ flavour }) => caughtBy[flavour] === CANARY_RUNS);
+canary.caught = Object.entries(caughtBy).map(([f, n]) => `${f} ${n}/${CANARY_RUNS}`).join(", ");
 
 await browser.close();
 
@@ -645,9 +775,9 @@ const { path } = writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  // 15 targets x 5 questions. Lowering it is a visible diff somebody has to
-  // justify, which is the only reason a floor is written down at all.
-  min_assertions: 75,
+  // 10 weekend x 9 + 5 control x 3 + 10 canary x 9. Lowering it is a visible
+  // diff somebody has to justify, which is the only reason a floor exists.
+  min_assertions: 195,
   failures: [...failures, ...consoleNoise.map((c) => `console: ${c}`)],
   artifacts,
   warnings: BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : [],
@@ -655,16 +785,17 @@ const { path } = writeReceipt({
     slug: SLUG,
     sizes: SIZES.map((s) => `${s.w}x${s.h}`),
     picks: PICKS,
+    kinds: ["weekend", "weekday control"],
     observed,
     delta_floor: DELTA_FLOOR,
     canary_runs: CANARY_RUNS,
+    canary_flavours: CANARIES.map((c) => c.flavour),
     sabotage: BREAK || null,
   },
   canary,
 });
 
 console.log(`\n${status.toUpperCase()} — ${completed}/${expected} targets, ${assertions} assertions, `
-  + `${failures.length} failure(s), canary caught ${caughtCount}/${CANARY_RUNS}.`
-  + ` Receipt ${path}`);
+  + `${failures.length} failure(s), canary ${canary.caught}. Receipt ${path}`);
 for (const f of failures) console.log("  · " + f);
 process.exit(status === "pass" ? 0 : 1);
