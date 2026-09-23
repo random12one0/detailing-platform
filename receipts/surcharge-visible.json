@@ -1,9 +1,9 @@
 {
-  "git_sha": "b82b021336ab6c7bcec3b8d2bbe7682eb15eb70b",
-  "git_sha_started": "b82b021336ab6c7bcec3b8d2bbe7682eb15eb70b",
+  "git_sha": "3e5dcd0d680a43141c8ad613ba2df897619014d8",
+  "git_sha_started": "3e5dcd0d680a43141c8ad613ba2df897619014d8",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-23T02:10:47.108Z",
+  "finished_at": "2026-09-23T02:20:06.916Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -53,7 +53,7 @@
     "sabotage": null
   },
   "check_id": "surcharge-visible",
-  "started_at": "2026-09-23T02:06:45.104Z",
+  "started_at": "2026-09-23T02:16:02.492Z",
   "status": "pass",
   "expected_targets": 15,
   "discovered_targets": 15,
