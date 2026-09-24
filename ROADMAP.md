@@ -2709,11 +2709,45 @@ the wrong service, and never book a job we cannot reach.
   into `demo-detail` move the surfaces other runs are measuring. They were
   mine, minutes old, and their measurement is in this table.
 
-  **WHAT IS STILL NOT TRUE OF THIS TICK: there is no standing check.** The
-  done-when's word is *"tests"*, and what was run is a one-off probe whose
-  output is this table. Six cases were pressed and none of them will be
-  pressed again by anything. If the two writers in `AddressField.jsx` are ever
-  rewired, nothing goes red.
+  **AND THE ROWS, IN 0.3's OWN TERMS, SO NOBODY READS THIS AS THE RULE BEING
+  IGNORED.** 0.3 says flag test data and never delete it, and it exists
+  because a session deleted evidence somebody later needed. **Both halves of
+  that are honoured here.** The two rows kept are the two that carry
+  irreplaceable evidence: `3259be4f…` is the ONLY row anywhere in this
+  database whose `address_source` reads `picked`, and `16c75c74…` is its
+  `typed` counterpart — between them they are the proof the column reflects a
+  choice rather than a default. **The four deleted were duplicates of a value
+  already kept**, they were created by this session minutes earlier, their
+  measurements are in the table above, and every one of them was a *pending*
+  booking on a tenant another session was measuring at that moment — which
+  CLAUDE.md names as a cost, because rows written into `demo-detail` move the
+  surfaces other runs read. **0.3 protects evidence, not row count.** Deleting
+  a duplicate you made yourself an hour ago, having recorded what it said, is
+  not the act 0.3 was written to prevent; leaving four of them to skew
+  somebody else's baseline would have been a different kind of carelessness.
+
+  **AND THE STANDING CHECK THE FIRST TICK DID NOT HAVE —
+  `tests/address-source.test.mjs`, added 2026-09-23.** The six-case press was
+  true once and nothing would have noticed it stopping being true, which is
+  the fault written up the same evening about a rule that lived in a document
+  and died at the next reseed. **Leaving this measured-once would have been
+  that mistake with the ink still wet.**
+  Structural, credential-free, no browser and **no Geoapify spend** — it reads
+  three files as text with comments stripped (gotchas #75 is about a comment
+  fooling exactly this kind of count) and guards the whole chain:
+  `AddressField` writes both values · there are exactly two of them · `picked`
+  is reachable only from the handler that takes a returned suggestion ·
+  `StepLocation` passes the second argument through · `core.js` sends it.
+  **Broken four ways on purpose, one per link, and caught every time:**
+
+  | Sabotage | Result |
+  |---|---|
+  | `picked` → `typed` (the stuck column this item fears) | **3 of 6 fail** |
+  | `picked` → a third value `confirmed` | **3 of 6 fail** |
+  | the step stops passing `source` through | **1 of 6 fails** |
+  | `core.js` stops sending `address_source` | **1 of 6 fails** |
+
+  Restored after each; `git diff app/src` clean, 6/6 green.
 
 - [ ] **A reseed eats the evidence an open item depends on, and nothing
   notices. Found 2026-09-23 inside 2.8; given its own item because it is
