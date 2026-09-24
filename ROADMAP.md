@@ -715,6 +715,54 @@ the wrong service, and never book a job we cannot reach.
   **How anyone will know it worked:** `node scripts/surcharge-visible.mjs`
   goes from 40 failures to zero. It is red today on purpose.
 
+  **RE-MEASURED 2026-09-23 AND THE BLOCKER IS REAL, NOT STALE.** 2.8's blocker
+  turned out to have expired on the 21st; this one has not, and the difference
+  is the whole reason somebody had to go and look.
+
+  **THE BLOCKER WAS MEASURED AGAIN ON 2026-09-23, BECAUSE A STALE BLOCKER AND
+  A REAL ONE LOOK IDENTICAL FROM THE ROADMAP.** Both 2.1 and 2.8 said the same
+  sentence — *the fix is written, it is not live, only a publish is left* — and
+  only one of them was still true. The bundles were fetched from the Management
+  API with the `.env` token and counted the way 2.8's own 2026-09-21 table
+  counted them, so the numbers sit beside the old ones:
+
+  | Deployed bundle | 2026-09-21 said | 2026-09-23 says |
+  |---|---|---|
+  | `create-booking` v84 | `address_source` **x0** | `body.address_source==="picked"` **x1**, `addressSource:booking.address_source` **x2** |
+  | `get-booking-receipt` v61 | `address_source` **x0** | `"address_source"` in its column list **x1** |
+  | `send-owner-reminders` v79 | `address_source` **x0** | `addressSource:` **x2** |
+  | `calculate-booking` v61 | — | day-only `whenContextFor` return **x0** |
+
+  **COUNTED WITH CODE-ONLY TOKENS, AFTER A COMMENT NEARLY FOOLED THE FIRST
+  ATTEMPT.** `deployed-inventory.mjs`'s own method is comment-text comparison,
+  so **comments survive into the bundle** — and the first probe counted
+  `!bookingDate||!startTime`, which appears in the CHECKOUT once, inside the
+  new comment explaining what the line used to be. Calibrating against the
+  checkout is what caught it. The discriminating token is
+  `if(!startTime)return{weekday:weekdayOf(bookingDate)}`, which exists in the
+  new code and in no comment: **checkout x1, deployed x0.**
+
+  **THE DEPLOYED `calculate-booking` v61 CARRIES THE DAY-ONLY RETURN ZERO
+  TIMES.** So the server still refuses to price a day without an hour, exactly
+  as before, and the page — which does carry its half — has nothing to draw.
+
+  **PRESSED, NOT INFERRED, at the two widths the walk asks for.** Saturday 26
+  September chosen, no time tapped, on the live public page:
+
+  | Width | With the day chosen | After a time is tapped |
+  |---|---|---|
+  | 392x844 | **$65**, nothing naming a weekend | $95 · `Weekend rate · +$30` |
+  | 320x844 | **$65**, nothing naming a weekend | $95 · `Weekend rate · +$30` |
+
+  **And `surcharge-visible.mjs` gives 40 failures — the number this entry
+  predicted, reported here because it was run rather than because it was
+  predicted.** 25/25 targets, 195 assertions, both canary flavours 5/5, the
+  weekday control green at every width. Frames:
+  `artifacts/surcharge-visible/392x844-first-day.png` and `320x844-first-day.png`.
+
+  **2.1 STAYS OPEN. Publishing `calculate-booking` is still the only thing
+  between here and a customer seeing the right price.**
+
   **RE-OPENED 2026-09-22, THE SAME EVENING IT WAS TICKED. The tick was wrong.**
   Both audits, independently, with different numbers: $205 → $235 (A1) and
   $300 → $330 (A2). A $30 weekend rate only appears at the final breakdown.
@@ -2531,7 +2579,71 @@ the wrong service, and never book a job we cannot reach.
   again rather than inherited. Anyone reading this after texting ships: the
   decision above was made when email was the only channel, and it said so.
 
-- [ ] **2.8 — Address entry may accept unverified raw text.**
+- [x] **DONE 2026-09-23 — 2.8 — Address entry may accept unverified raw text.**
+  **THE BLOCKER HAD EXPIRED TWO DAYS EARLIER AND NOBODY HAD LOOKED.** This
+  item sat open against "the fix is written, it is not live". It has been live
+  since the 2026-09-21 publish at 17:03–17:38.
+
+  **THE BLOCKER WAS MEASURED AGAIN ON 2026-09-23, BECAUSE A STALE BLOCKER AND
+  A REAL ONE LOOK IDENTICAL FROM THE ROADMAP.** Both 2.1 and 2.8 said the same
+  sentence — *the fix is written, it is not live, only a publish is left* — and
+  only one of them was still true. The bundles were fetched from the Management
+  API with the `.env` token and counted the way 2.8's own 2026-09-21 table
+  counted them, so the numbers sit beside the old ones:
+
+  | Deployed bundle | 2026-09-21 said | 2026-09-23 says |
+  |---|---|---|
+  | `create-booking` v84 | `address_source` **x0** | `body.address_source==="picked"` **x1**, `addressSource:booking.address_source` **x2** |
+  | `get-booking-receipt` v61 | `address_source` **x0** | `"address_source"` in its column list **x1** |
+  | `send-owner-reminders` v79 | `address_source` **x0** | `addressSource:` **x2** |
+  | `calculate-booking` v61 | — | day-only `whenContextFor` return **x0** |
+
+  **COUNTED WITH CODE-ONLY TOKENS, AFTER A COMMENT NEARLY FOOLED THE FIRST
+  ATTEMPT.** `deployed-inventory.mjs`'s own method is comment-text comparison,
+  so **comments survive into the bundle** — and the first probe counted
+  `!bookingDate||!startTime`, which appears in the CHECKOUT once, inside the
+  new comment explaining what the line used to be. Calibrating against the
+  checkout is what caught it. The discriminating token is
+  `if(!startTime)return{weekday:weekdayOf(bookingDate)}`, which exists in the
+  new code and in no comment: **checkout x1, deployed x0.**
+
+  **THE DONE-WHEN, PRESSED RATHER THAN REASONED.** One booking on
+  `demo-detail`, the same unfindable address the 2026-09-20 test used —
+  `99999 Nonexistent Parkway, Nowhere Township, ZZ 00000` — typed and **never
+  submitted to the lookup**, because `find()` runs on the Find button and on
+  Enter and on nothing else. Read back off the row:
+
+  | | |
+  |---|---|
+  | booking | `16c75c74-b6ef-4e58-81cf-3fdfd0079619` |
+  | `address_source` | **`"typed"`** |
+  | status | `pending` — **not refused** |
+  | total | **$65** — **not repriced** |
+
+  **So the label exists, is stored, and gates nothing**, which is Andrew's own
+  ruling on this item made real. The job record draws it as *"Typed by hand.
+  The address lookup found no match for it."*
+  **It cost nothing:** that address is already in `address_points`, so no
+  Geoapify credit was spent, and mail went to `e2e@fixture.test`.
+  **The row is KEPT** — ROADMAP 0.3, flag test data rather than delete it.
+
+  **AND THE ROW 0.3 TOLD US TO KEEP IS GONE.** Booking
+  `c4c1f0c8-b2d1-41d6-ad93-e01d89500593`, the 2026-09-20 evidence for this
+  item, **no longer exists** — queried by id, no row. The likeliest cause is
+  the 2026-09-20 23:33 reseed, which is when every other booking on this
+  tenant was created. **"Never delete it" survived as an instruction and not as
+  a mechanism**, which is worth more than the row was: a reseed silently ate
+  the evidence for an open money item and nothing anywhere noticed for three
+  days. The booking above replaces it and will go the same way at the next
+  reseed unless something changes.
+
+  **WHAT THIS TICK DOES NOT COVER, because the original done-when asked for
+  more than was measured.** That text asks for tests across *"selected,
+  partial, nonexistent, out-of-area, apartment/unit, and manually accepted"*
+  addresses. **Only `nonexistent` was pressed.** The tick rests on Andrew's own
+  narrowing of 2026-09-23 — *"one booking with an address the lookup cannot
+  find, then read address_source back off the row"* — and not on that matrix,
+  which remains unrun.
   Continue became enabled before a suggestion was selected. **A1 marks this
   "observed, submission consequence untested."**
   **Fix:** decide whether manual addresses are allowed. If not, require a
