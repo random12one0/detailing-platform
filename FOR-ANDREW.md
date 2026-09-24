@@ -52,7 +52,67 @@ Updated 2026-09-21.
 
 ## Start here — the one decision that unblocks the most
 
+- [ ] **DECIDE · Four finished things are waiting on you. Say go, and say when.
+  Written 2026-09-23.**
+
+  **Three need you to press publish. One needs you to paste one line.** They
+  are finished, tested and sitting still. This row exists so that when you do
+  press it, nobody has to work out afterwards what it was for.
+
+  **14 of your 39 back-end programs are running something older than what we
+  have written** — measured 2026-09-23 at 10:23pm, not copied from an older
+  note. The oldest is two and a half days behind. One of those fourteen is our
+  own fix from tonight.
+
+  **What is waiting, and what each one starts doing the moment it lands:**
+
+  1. **A customer is shown $65 and charged $95.** Pick a weekend day, the page
+     says $65, pick a time and it becomes $95 — no mention of a weekend
+     anywhere. **The fix is written and it is not live.** Publishing makes the
+     page say the real price before they choose. *(Roadmap 2.1.)*
+  2. **Your back office under-reports how set up every detailer is.** It says a
+     business is "4 of 12 done" when their own dashboard says 9 of 12, because
+     it was being told about their opening hours under a name the scoring
+     couldn't read. **So the list of who needs a call is wrong for everyone on
+     it.** Fixed tonight; publishing makes the numbers agree. *(Roadmap 9.1.)*
+  3. **Your public pages have no working limit on how fast anyone can hammer
+     them.** The limits are written, and **no running copy has them**, so we
+     have never once seen one actually refuse anybody. Publishing puts the
+     ceilings into force. *(Roadmap 14.9.)*
+  4. **Two of the four new outside checks are switched off** — the ones that
+     watch a booking page loading a detailer's details, and **signing in**.
+     **This one is not a publish.** It is the one-line paste further down this
+     list, because those two checks need a key and no session may handle one.
+
+  **What it costs you:** no money. This is the back end, not the website, so
+  Netlify's build credits are not touched. Call it fifteen minutes and one
+  decision.
+
+  **If you leave it another week:** nothing breaks and nothing gets worse on
+  its own — but every real customer who books a weekend job in that week is
+  shown the wrong price, every call you make off the back-office list is aimed
+  at the wrong detailer, the public pages stay unthrottled, and sign-in stays
+  unwatched. **Four pieces of work that are already paid for keep doing
+  nothing.**
+
+  **The order is already settled — this is restating it, not reopening it.**
+  From the night of 2026-09-21: `report-problem` alone first; then
+  `create-booking`, `get-booking-receipt`, `platform-admin`,
+  `send-owner-reminders` together; then everything remaining in one pass; then
+  `platform-billing` alone; and **the payment webhook LAST and ALONE, because
+  it touches money. That is your ruling and nobody is reinterpreting it.**
+  Run the inventory before and after, and use the number it gives at the
+  moment you start rather than the one written above.
+
+  **Your answer can be one line:** *go, in that order* — or tell us which of
+  the four you want and we hold the rest.
+
 - [ ] **DECIDE · What to put live, and in what order.**
+  **SUPERSEDED 2026-09-23 by the row directly above**, which carries the
+  current count and what is actually waiting. The number in the next paragraph
+  — *22 of the 39* — was true when it was written and is not now; it is left
+  in place rather than edited because the paragraph under it explains the
+  `create-booking` trap, and that is still worth reading.
 
   **Read this first because it is holding up more than anything else on the
   list.** Your site's back end is 39 small programs, and each one has to be
