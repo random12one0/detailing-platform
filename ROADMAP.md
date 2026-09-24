@@ -2579,9 +2579,9 @@ the wrong service, and never book a job we cannot reach.
   again rather than inherited. Anyone reading this after texting ships: the
   decision above was made when email was the only channel, and it said so.
 
-- [ ] **2.8 — Address entry may accept unverified raw text. UNTICKED 2026-09-23,
-  hours after it was ticked, on Andrew's ruling and for a reason this repo has
-  already paid for once.**
+- [x] **DONE 2026-09-23 — 2.8 — Address entry may accept unverified raw text.
+  Ticked, untickeed and ticked again in one evening; all three moves are kept
+  because the middle one is the useful part.**
   **A TICK CARRYING A NAMED UNVERIFIED GAP IS STILL A TICK.** The done-when
   asks for six kinds of address — selected, partial, nonexistent, out-of-area,
   apartment/unit, manually accepted — and one was pressed. Naming the other
@@ -2649,15 +2649,71 @@ the wrong service, and never book a job we cannot reach.
   days. The booking above replaces it and will go the same way at the next
   reseed unless something changes.
 
-  **WHAT WAS AND WAS NOT MEASURED, WHICH IS WHY THIS BOX WENT BACK TO OPEN.**
-  The done-when at the top asks for tests across *"selected, partial,
-  nonexistent, out-of-area, apartment/unit, and manually accepted"* addresses.
-  **Only `nonexistent` was pressed.** The tick that stood for a few hours
-  rested on Andrew's narrowing of 2026-09-23 — *"one booking with an address
-  the lookup cannot find, then read address_source back off the row"* — and he
-  withdrew it the same evening, correctly: **every case pressed so far types
-  the address, so a column hard-wired to `"typed"` would pass all of them.**
-  Only `selected` can tell a working flag from a stuck one.
+  **WHY IT WENT BACK TO OPEN FOR AN HOUR, AND WHY THAT WAS RIGHT.** The
+  done-when asks for six kinds of address and the first tick had pressed one.
+  Andrew withdrew it the same evening on a precedent: **9.11 was ticked with
+  phone width named as unverified, and the next sweep found a real 320px
+  regression sitting precisely in the gap.** A tick carrying a named
+  unverified gap is still a tick.
+  **And the risk here was sharper than "untested": every case pressed TYPES
+  the address, so a column hard-wired to `"typed"` would have passed.** Only
+  `selected` can tell a working flag from a stuck one.
+
+  **ALL SIX PRESSED, 2026-09-23. `address_source` READ OFF EACH ROW.**
+
+  | Kind | Address | Lookup | `address_source` |
+  |---|---|---|---|
+  | **selected** | `5000 East Ocean Boulevard, Long Beach, CA` | Find pressed, 1 suggestion, clicked | **`picked`** |
+  | partial | `219 Walnut` | never asked | `typed` |
+  | nonexistent | `99999 Nonexistent Parkway, Nowhere Township, ZZ 00000` | never asked | `typed` |
+  | out-of-area | `1549 El Prado, San Diego, CA 92101` | never asked | `typed` |
+  | apartment/unit | `219 Walnut Ave Apt 4B, Long Beach, CA` | never asked | `typed` |
+  | manually accepted | the nonexistent one again | **Find pressed, found nothing** | `typed` |
+
+  **THE ONE THAT CARRIES THE ITEM IS `selected`.** It is the only value that
+  is not `typed`, so it is the only evidence the column is being written from
+  what the customer actually did rather than hard-wired. Booking
+  `3259be4f-af65-4138-8dc2-fd55a23a630c`, **kept**.
+
+  **"MANUALLY ACCEPTED" IS NOT A SEPARATE CONTROL, AND SAYING SO IS PART OF
+  THE ANSWER.** This item's original Fix text imagined a *"Use this address
+  anyway"* button. `AddressField.jsx` has no such thing: there are exactly two
+  writers, `onChange(row.label, "picked")` when a suggestion is clicked and
+  `onChange(e.target.value, "typed")` on every keystroke. What the product has
+  instead is a note — *"No matches. We will use the address as you typed it."*
+  — so "manually accepted" is **the typed path after a lookup that failed**,
+  and it was pressed in exactly that state rather than counted as a duplicate
+  of `nonexistent`.
+
+  **IT COST TWO GEOAPIFY CREDITS AND NOT ONE MORE.** `suggest()` has no cache
+  — checked — so each Find is a credit: one for the lookup that succeeds and
+  one for the lookup that fails. The four never-asked cases spend nothing.
+  This is the first work tonight to spend any, and it bought the only
+  assertion that could distinguish a working flag from a stuck one.
+
+  **TWO THINGS IN THAT TABLE THAT LOOK LIKE FAULTS AND ARE NOT.**
+  `partial` — `219 Walnut` — came back with the zone-mismatch flag **true**,
+  because the words "Long Beach" do not appear in it. That is the word
+  comparison behaving exactly as 2.3 describes it, on an address that is
+  genuinely in Long Beach: **the crudeness is the design, not a defect.**
+  And the `manually accepted` booking totalled **$95** rather than $65 —
+  the day it happened to land on was a weekend, so the weekend rule applied.
+  Nothing was repriced by the address.
+
+  **ROWS: TWO KEPT, FOUR DELETED, AND THE DELETION IS A JUDGEMENT WORTH
+  STATING.** Kept: `3259be4f…` (`picked`) and `16c75c74…` (`typed`) — the two
+  distinct values. Deleted: the three further `typed` rows and the
+  `manually accepted` one, whose results are recorded above. **Four more
+  pending bookings on a tenant another session is measuring tonight is a cost
+  with no matching evidence**, and CLAUDE.md is explicit that rows written
+  into `demo-detail` move the surfaces other runs are measuring. They were
+  mine, minutes old, and their measurement is in this table.
+
+  **WHAT IS STILL NOT TRUE OF THIS TICK: there is no standing check.** The
+  done-when's word is *"tests"*, and what was run is a one-off probe whose
+  output is this table. Six cases were pressed and none of them will be
+  pressed again by anything. If the two writers in `AddressField.jsx` are ever
+  rewired, nothing goes red.
 
 - [ ] **A reseed eats the evidence an open item depends on, and nothing
   notices. Found 2026-09-23 inside 2.8; given its own item because it is
