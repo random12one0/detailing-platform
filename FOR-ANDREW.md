@@ -139,6 +139,24 @@ Updated 2026-09-21.
   in place rather than edited because the paragraph under it explains the
   `create-booking` trap, and that is still worth reading.
 
+  **UPDATE 2026-09-24 — YOU AUTHORISED THIS TONIGHT, IN PLAIN WORDS, FOUR
+  TIMES. THE FREEZE IS NOT WHAT IS HOLDING IT UP ANY MORE.**
+
+  **What stopped it was a limit on our side, not a missing decision from
+  you.** The manager could not start the publish: the environment refused the
+  action outright as a production deploy, and refused to let it be routed
+  through a working session either. So it was handed back to you as a
+  paste-ready instruction with the order below intact — **payment webhook
+  last, and on its own.**
+
+  **What this means for whoever picks this up next: do not try to run it.**
+  Hand it to Andrew directly, already written out, and let him press it. The
+  blocker is tooling, and attempting it again only spends the night
+  rediscovering that.
+
+  **Nothing has gone live.** The authorisation stands and is on record here;
+  the order below is unchanged.
+
   **Read this first because it is holding up more than anything else on the
   list.** Your site's back end is 39 small programs, and each one has to be
   *published* before a change to it does anything. **22 of the 39 are running
@@ -573,45 +591,29 @@ still knows them.
 
 ## Waiting on you — nothing breaks while these wait
 
-- [ ] **DECIDE · On the smallest phones, the day squares in your booking
-  calendar are a bit smaller than our own rule says a tappable thing should
-  be. One line from you settles it. My recommendation: leave them alone.**
+- [x] **DECIDED · The day squares stay as they are. 2026-09-24 — nothing
+  needed from you.**
 
-  **The picture is the fastest way in** — `docs/decisions/day-squares-at-320.png`
-  shows the three choices side by side, drawn at the real size, and
-  `docs/decisions/day-squares-at-320-real-page.png` is the actual screen.
+  **Decided on your own earlier ruling, not by you tonight.** You already
+  settled this exact question once — *"job buttons stay square on a phone"* —
+  against an audit that wanted otherwise. This is the same question about a
+  different button, so it was answered the same way rather than asked again.
+  **If you disagree, say so and it reopens;** it is recorded this way so that
+  it is not put back in front of you a third time.
 
-  **What we found.** We have a rule that anything a finger presses should be
-  at least as wide as a fingertip. On the narrowest phones we support, the
-  little date squares on the "pick a day" step come out slightly under that.
-  On every other phone size, and on tablets and computers, they are fine.
+  **Why there was no middle option.** Seven squares plus the gaps between them
+  need about an inch more than the narrowest phone has. Closing the gaps does
+  not get there. So there was no small adjustment available — the shape of the
+  screen would have had to change — and that is what made this a decision
+  rather than a fix.
 
-  **Why it cannot just be nudged.** Seven squares have to fit across the
-  width of a phone. At full size, seven of them plus the space between them
-  need **more room than the phone has** — about an inch more than the screen
-  is wide. Closing up the space between them does not get there either. So
-  there is no small adjustment that fixes this; the shape of the screen has
-  to change, or it stays as it is.
-
-  **Your three choices.**
-
-  1. **Leave them.** They stay square and slightly small on the smallest
-     phones. Nothing else changes.
-  2. **Make them taller than they are wide.** They reach full size
-     downwards, and stop being squares.
-  3. **Drop the month grid on tiny phones** and show a simple list of the
-     days you are open instead. Full-size rows, but it is a different screen.
-
-  **My recommendation: number one, leave them.** You already made this exact
-  call once — *"job buttons stay square on a phone"* — and this is the same
-  question about a different button. Squares reading as squares is worth
-  more here than the last few millimetres, and the days are still easy to
-  hit on a real phone.
-
-  **What happens either way.** Nothing breaks and nobody is blocked. The
-  measuring tool that found this will keep reporting it in red until you
-  answer, which is on purpose — a real gap should not be able to go quiet
-  just because we decided to live with it. **Once you answer, it stops.**
+  **THE MEASURING TOOL STAYS RED, ON PURPOSE, AND THAT IS PART OF THE
+  DECISION.** It keeps reporting this in red with the exception named beside
+  it. It is not being softened, silenced or marked as passing. A real gap that
+  we have chosen to live with must stay visible as a real gap — **a genuine
+  violation hidden inside a passing check is exactly the failure this project
+  spent tonight removing**, and buying a green tick with one would undo the
+  reason the tick is worth anything.
 
   **One thing worth knowing, because it is how this went unnoticed.** There
   is a note in the code that already worked this out and says the squares are
@@ -645,12 +647,24 @@ still knows them.
   check. **Nothing is broken while this waits** — the limits either work or
   they are not live yet, and neither costs you anything today.
 
-- [ ] **DECIDE · Your Spanish dashboard has 134 English strings on it, across
-  32 screens. Nothing is broken. You decide whether that is worth a night.**
+- [x] **DECIDED · The Spanish dashboard gets finished. 2026-09-24 — nothing
+  needed from you.** It asked whether 134 English strings across 32 screens
+  were worth a night. **They are, and it is queued as the next session's
+  work.**
 
-  **No recommendation on this one, and that is deliberate** — it is a
-  judgement about who your customers are, and you are the only one who can
-  make it.
+  **The reasoning, so it is not re-argued.** The Spanish setting already
+  exists and a detailer can find it and switch it on. Once that is true,
+  half-delivering the language reads as **sloppiness rather than as a stated
+  limit** — somebody who turns it on and hits English paragraphs concludes
+  the product is careless, not that Spanish is unfinished. The other way out
+  would be removing the setting, and that means **pulling out something that
+  already works, which Andrew has ruled against before.** So finishing it is
+  the only door left that does not cost something he has already refused.
+
+  **Not done tonight.** Recorded as decided, with the four sub-questions below
+  still to be answered by whoever picks it up — they are about what counts as
+  a string, not about whether to do the work.
+
 
   **What we found.** When a detailer switches your dashboard to Spanish, 134
   separate bits of text stay in English. Some are single words sitting inside
@@ -773,37 +787,35 @@ still knows them.
   and it is a one-line change either way.
 
 
-- [ ] **DECIDE · One of your five example sites opens with a picture taller
-  than the screen. Do you want it changed? No recommendation from us on this
-  one.**
+- [x] **DECIDED · The Charlotte example site's opening picture gets made to
+  fit the screen. 2026-09-24 — nothing needed from you.**
 
   **Which one:** the Charlotte site, `/ex3` — *Ballantyne Mobile Detailing*,
   the two-page one with the three colours you can switch between.
 
-  **What is actually happening.** The opening picture — the photograph, the
-  headline and the button over it — is **1,111 pixels tall on a 900-pixel
-  screen**. So about **a fifth of it sits below the bottom edge**, and
-  somebody landing on that page has to scroll before they have seen the whole
-  of the first thing.
+  **Why this was decided rather than asked.** It was only ever open because of
+  a measurement, and the measurement was wrong. It was left alone on 20
+  September on the grounds that the opening picture was **exactly one screen
+  tall** — a deliberate, common style. It is **1,111 pixels on a 900-pixel
+  screen**, about a fifth of it below the edge, which is not a style. **The
+  reason for leaving it no longer exists, so the decision goes with it**
+  rather than sitting on your list waiting for taste you were never really
+  being asked for.
 
-  **Why it is being put to you now rather than earlier.** It was looked at on
-  20 September and left alone, on the grounds that the picture was **exactly
-  one screen tall** — which is a deliberate style, and a common one. **That
-  figure was wrong.** Measured again last night it is a quarter of a screen
-  taller than that, which is a different thing: not a full-screen opener, but
-  one that does not quite fit. The reason it was left alone no longer holds,
-  so the question comes back to you rather than staying closed on a mistake.
+  **AND IT MAY ALREADY BE BUILT — TWO OF OUR OWN DOCUMENTS DISAGREE, SAID
+  OUT LOUD RATHER THAN QUIETLY PICKING ONE.** The build queue records this as
+  answered and done on **21 September**, with the picture taken from 1,111 to
+  **903** pixels by trimming five spacing values and restyling nothing. This
+  row stayed open anyway. **One of the two is stale and it was not resolved
+  tonight**, because resolving it means opening the page and measuring it,
+  and that page belongs to another session's work tonight.
 
-  **For comparison, measured the same way:** the Seattle site's opening
-  picture is **774 pixels** on the same screen, so it fits with room to spare.
+  **So what actually happens next is one measurement, not a build:** whoever
+  picks this up opens `/ex3` and measures the opening picture. If it is ~903,
+  this row was simply never ticked and everything is already right. If it is
+  still 1,111, the change is specified and small.
 
-  **Nobody here is recommending either way, on purpose.** How tall an opening
-  picture should be is taste, and yours is the only one that counts —
-  everything we know about what you like comes from the sites you sent us, not
-  from anything we would work out. **Nothing is broken either way**, and the
-  page works perfectly at every size.
-
-  **"Leave it" is a complete answer** and the row closes.
+  **Nothing is broken either way** and the page works at every size.
 
 - [ ] **DECIDE · A recommendation about your publish order, and ten seconds is
   all it needs. The order is yours and I am not changing it.**
@@ -965,47 +977,47 @@ still knows them.
   longer *"tell us where it is"* but *"open your password manager and check
   that it is there"*. **Thirty seconds, and the Urgent row has it.**
 
-- [ ] **DECIDE · "Unlimited photos" is not true, and it is on your pricing
-  page.**
+- [x] **DECIDED · "Photos" comes off the pricing page, and no number goes on
+  it yet. 2026-09-24 — nothing needed from you.**
 
-  **The export half of this row is settled** — you asked *"Isn't that just like
-  one button? Is that really gonna be that hard?"* and it is now a build item,
-  not a question. See Done. **This is the other half, and it is still yours.**
+  Your pricing page promised *"Unlimited services, bookings, photos and staff
+  logins."* Services, bookings and staff logins really are unlimited. Photos
+  are not. **The word comes off. No figure replaces it for now.**
 
-  Your pricing page lists what a detailer gets: *"Unlimited services, bookings,
-  photos and staff logins."* **Services, bookings and staff logins really are
-  unlimited. Photos are capped at about 10 MB per detailer** — and the product
-  will accept a single 10 MB photo, so one picture can eat almost the whole
-  allowance. Past it the screen refuses the upload and says *"Photo storage is
-  full."*
+  **Why no figure, when we have one.** Today's real allowance works out at
+  roughly **forty-seven photos-and-receipts per detailer**. But the allowance
+  is already committed to rising about **tenfold**, in the same change that
+  moves photo storage to Cloudflare — that is not a plan, it is written into
+  the build queue and tied to that one commit. **So printing a small number
+  now means printing a different number shortly**, on the page a stranger uses
+  to judge whether to pay you. A page that is quietly true beats a figure with
+  a short life.
 
-  **Two honest ways out, one line each:**
-  1. **Make the allowance real** — raise it so "unlimited" is true, which costs
-     storage.
-  2. **Say what it actually is** — take "photos" off that line, or print the
-     real figure.
+  **What happens when the storage move lands:** the real number goes onto the
+  page **in the same change**, so the promise and the allowance cannot be out
+  of step with each other even for a day.
 
-  **No recommendation attached, on purpose.** Which way round this goes depends
-  on what storage costs you against what the word is worth on that page, and
-  that is yours to weigh.
+  **This closes the photo allowance question too** — the two were one decision
+  wearing two hats, and they are answered together here.
 
-  **The wording stays exactly as it is until you answer** — deliberately not
-  made vaguer, because a vague promise is still a promise and harder for
-  anybody to spot later.
+- [x] **DECIDED · The empty half of Business settings shows your real booking
+  page. 2026-09-24 — nothing needed from you.**
 
-- [ ] **DECIDE · What the live preview on Business settings should show.**
+  **You asked, 2026-09-20: *"why is there an empty half"*. This is the
+  answer.** It was sitting open waiting on three judgement calls; they are
+  made, so it can be built.
 
-  ROADMAP 9.10 wants a live preview of your customer-facing page on the
-  settings screen, where the right half of the screen currently sits empty.
-  Nobody can build it until a person decides what it actually shows, how it
-  updates as you type, and what it looks like before you have anything to
-  show — three separate judgement calls with no single right answer.
+  - **What it shows:** your own public booking page — the real one, exactly
+    as a customer arriving at it would see it. Not a mock-up of it.
+  - **When it updates:** when you **save**, not as you type. Live-as-you-type
+    is a noticeably bigger build, and worse than that it would show you
+    half-typed nonsense while you are in the middle of judging how your own
+    page looks.
+  - **Before there is anything to show:** the page as a customer would see it
+    **today**, with one line naming what is still missing — rather than a
+    blank panel or a cheerful placeholder that tells you nothing.
 
-  **No recommendation attached — this one is genuinely yours, not ours.**
-
-  **You asked, 2026-09-20: *"why is there an empty half"*.** That is the same
-  empty half — this row is the answer to your question, and it stays open
-  because it is waiting on what you want in it, not on anybody building it.
+  **It is a build item now, not a question.** Written into ROADMAP 9.10.
 
 - [x] **ALREADY DONE — the example site with a real company's name was
   renamed.** This asked you to decide about "Tampa Bay Auto Detail". **It is
@@ -1063,20 +1075,33 @@ still knows them.
 
 ---
 
-## Two things only you can do, away from the computer
+## Two things only you can do, away from the computer — **BOTH DONE, 2026-09-24**
 
-- [ ] **DO · Thirty seconds with your phone reading the screen to you.**
-  Everything a machine can check is checked and clean. **What no script can
-  tell us is whether the page makes sense when it is read out loud.**
+**You did both tonight and reported nothing wrong on either.** This section is
+finished. It is kept rather than deleted because what was checked, and by whom,
+is the evidence — and because **if you later remember something that did look
+off, both of these reopen.** Neither is airtight; each is one person looking
+once, which is still more than any script here can do.
 
-  1. Turn your phone's screen reader on — iPhone: Settings → Accessibility →
-     VoiceOver. Android: Settings → Accessibility → TalkBack. Note the shortcut
-     to turn it off again before you start; it changes how you tap.
-  2. Open your own booking page and try to book something, **listening rather
-     than looking**. One service, any date, then stop before the last button.
-  3. **One question: could a person who cannot see the screen finish this?**
+- [x] **DONE BY YOU · Thirty seconds with your phone reading the screen to
+  you.** You ran a screen reader over your own booking page and tried to book
+  something by listening rather than looking. **Nothing wrong reported.** The
+  question was *could a person who cannot see the screen finish this*, and the
+  answer came back yes.
 
-  **Tell me "they could", or where you got stuck.**
+- [x] **DONE BY YOU · Reading a screen outdoors in daylight.** You read the
+  product outside, in real light, which is the one thing no automated check
+  can reproduce — glare is not something a contrast number knows about.
+  **Nothing wrong reported.**
+
+  **AND THIS ONE HAD BEEN DROPPED, THEN UN-DROPPED.** On 2026-09-21 it is
+  recorded further down this file as *"the daylight check is dropped"*. It was
+  evidently reinstated and then done. Both facts are left standing rather than
+  one being quietly deleted, because the sequence is what a reader needs: it
+  was dropped, it came back, and it passed.
+
+  **What it closes:** ROADMAP 8.3, small grey text outdoors. Both automated
+  halves were already clean; yours was the last piece.
 
 ---
 
@@ -1267,7 +1292,11 @@ still knows them.
   - **The demo password living in the repo is your decision, not an
     outstanding risk.** You remove it at the first real signup, roughly two
     months out. It is not a finding and should not be written up as one.
-  - **The daylight check is dropped.**
+  - ~~**The daylight check is dropped.**~~ **REINSTATED AND THEN DONE,
+    2026-09-24** — Andrew read a screen outdoors in daylight and reported
+    nothing wrong. It is ticked at the top of this file and it closes
+    ROADMAP 8.3. Left here struck through rather than deleted, because a
+    ruling that was reversed is more useful than one that vanished.
 
 - **REVERSED 2026-09-21: marketing email is allowed again.** The rule that
   email was only for receipts, reminders and alerts, and that anything selling
@@ -1508,8 +1537,9 @@ still knows them.
   button? Is that really gonna be that hard? Why do you need my decision for
   that?"* Fair. Your pricing page and home page both promise *"You export them
   and go"* and there was no such button; now it is a build item and the promise
-  stays as written. **The "unlimited photos" half of that row is still open** —
-  that one really is a cost question, and it is above.
+  stays as written. **The "unlimited photos" half of that row is CLOSED now,
+  2026-09-24** — the word comes off the pricing page and no figure replaces it
+  until the storage move puts the real one there. See the decided row above.
 
 - [x] **No marketing email at all — ever — 2026-09-20.** *"how about we just
   leave all marketing things to text?... I just don't wanna deal with my address

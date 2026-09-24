@@ -417,6 +417,26 @@ and how the wait ends.
   not the one answering requests, and any deploy of one function silently
   ships whatever else is sitting on disk beside it.
 
+  **STATUS 2026-09-24 — ANDREW AUTHORISED PUBLISHING TONIGHT, IN PLAIN WORDS,
+  FOUR TIMES. THE FREEZE IS NO LONGER WHAT IS BLOCKING THIS.**
+
+  **What blocked it instead was a tooling limit on the MANAGER, not a missing
+  decision.** The manager's own environment **refused the action outright as a
+  production deploy**, and refused to let it be routed through a working
+  session either. So it was handed back to Andrew as a **paste-ready
+  instruction with the order intact — payment webhook last and alone.**
+
+  **INSTRUCTION TO THE NEXT MANAGER: hand it to him directly. Do not try to
+  run it and do not ask a session to.** Both routes are already known to be
+  refused; attempting them again only spends a night rediscovering that. The
+  authorisation is on record and the order is unchanged — `FOR-ANDREW.md`'s
+  publish block carries the same note.
+
+  **Nothing has gone live.** `deployed-inventory.mjs` reported **13 of 39**
+  behind at the last run tonight, `create-booking` and `calculate-booking`
+  among them, so 14.19's money fix is committed and waiting at the same door
+  as everything else here.
+
   **THE NUMBERS, MEASURED BY CONTENT.** `node scripts/deployed-inventory.mjs`
   fetches each deployed bundle from the Management API and compares it against
   this checkout. **17 functions match. 22 do not.** The gaps run from a few
@@ -7927,6 +7947,27 @@ rather than wording went to Andrew.
     A full-screen hero is a defensible choice, so this is left as the
     judgment it is, with a number attached for whoever takes it.
 
+  **~~STILL OPEN~~ — AND EVERY WORD OF THE BULLET ABOVE IS WRONG. The figure
+  is 1111px, not 900.** See the correction later in this file. **DECIDED
+  2026-09-24: the hero is made to fit.** It was only open because of that
+  figure — *"exactly one viewport"* describes a chosen full-screen opener and
+  closed the question; **1.23 viewports is the defect the audit raised.** The
+  reason is gone, so the decision goes with it rather than being put to
+  Andrew as taste he was never really being asked for.
+
+  **AND IT MAY ALREADY BE BUILT — TWO RECORDS DISAGREE AND THIS IS NOT
+  RESOLVED.** The correction block below records it **ANSWERED AND DONE
+  2026-09-21**, 1111px → 903px, five spacing values trimmed and nothing
+  restyled. **`FOR-ANDREW.md` still carried it as an open question until
+  tonight.** One of the two is stale. **It was not settled tonight because
+  settling it means opening `/ex3` and measuring, and that is `app/src`
+  work belonging to another session's tree.**
+
+  **THE NEXT ACTION IS A MEASUREMENT, NOT A BUILD.** Open `/ex3` at 1440x900,
+  settle the layout, measure the hero. **~903px → this was done on the 21st
+  and only the paperwork lagged. Still 1111px → the change is specified,
+  small, and ready to make.** Do not rebuild it before looking.
+
   **AND ONE MORE FIXED THE SAME DAY, AFTER IT WAS RAISED AS A QUESTION AND
   RULED ON AS A DEFECT:**
   - ~~`/ex1` and `/ex2`: the rating counts up from 0.8.~~ **Fixed 2026-09-20.**
@@ -9278,7 +9319,7 @@ the dashboard or back office at phone width at all.
   hands to somebody.
   *A1 § 10*
 
-- [ ] **8.3 — Small grey text is unreadable outdoors.**
+- [x] **8.3 — DONE 2026-09-24. Small grey text is unreadable outdoors.**
   Both audits, everywhere: body copy, letter-spaced all-caps micro-labels,
   progress text, tab labels, service details, warnings, "then $40/month $60",
   labels under the money numbers. In the back office, missing monitoring is
@@ -9348,12 +9389,28 @@ the dashboard or back office at phone width at all.
   screen.** It is a row in `FOR-ANDREW.md` — one screen, one question, thirty
   seconds — not unfinished work.
 
-  **NOT TICKED, AND THE REASON IS IN THIS ITEM'S OWN DONE-WHEN: it has not
-  been read outdoors.** Both automated halves pass — `accent-sweep.mjs` clean,
-  the contrast suite clean, and now every rendered string measured. Glare is
-  the half no script reproduces and it is Andrew's to do, next to a car, in
-  sunlight. **If he reads it outdoors and it holds, this closes with nothing
-  further to build.**
+  **~~NOT TICKED~~ — TICKED 2026-09-24. ANDREW READ IT OUTDOORS IN DAYLIGHT
+  AND REPORTED NOTHING WRONG.** That was the last piece and it is the half no
+  script reproduces: both automated halves were already clean —
+  `accent-sweep.mjs`, the contrast suite, and every rendered string measured —
+  and glare was the only thing left. **This closes with nothing further to
+  build.**
+
+  **IT IS NOT AIRTIGHT AND THE LINE SAYS SO RATHER THAN PRETENDING.** It is
+  one person, one screen, once. **If Andrew later says he did see something,
+  this reopens** — written that way deliberately, because a human check
+  recorded as though it were a measurement is the shape of thing this project
+  spent the night removing.
+
+  **The daylight check had been DROPPED on 2026-09-21** (`FOR-ANDREW.md`,
+  Settled) **and was reinstated before being done.** Both facts are left
+  standing; the sequence is the useful part.
+
+  **The paragraph below is kept as the state it replaced.**
+
+  *Was: not ticked, and the reason is in this item's own done-when — it has
+  not been read outdoors. Both automated halves pass. Glare is the half no
+  script reproduces and it is Andrew's to do, next to a car, in sunlight.*
 
 - [x] **8.4 — DONE 2026-09-19. Booking choices do not look interactive.**
 
@@ -11273,8 +11330,25 @@ the dashboard or back office at phone width at all.
   design decision that is his to make). Whoever picks this up should read
   11.3 first so the two are not built twice by two people who each think
   they own it.
-  **Blocked on Andrew: what the preview should show, how it populates, and
-  what it does when the data is thin.** See `FOR-ANDREW.md`.
+  **~~Blocked on Andrew~~ — DECIDED 2026-09-24, SO IT IS NO LONGER BLOCKED ON
+  A PERSON. It is a build item now.** The three judgement calls it was waiting
+  on are answered, and this is the answer to Andrew's own 2026-09-20 question,
+  *"why is there an empty half"*:
+
+  1. **What it shows:** the detailer's **real public booking page**, as a
+     customer arriving at it would see it today. Not a rendering of the
+     settings, not a mock-up — the actual page.
+  2. **When it refreshes: on SAVE, not as they type.** As-they-type is a
+     materially bigger build, and it is also worse: it shows half-typed
+     nonsense to somebody who is in the middle of judging how their own page
+     looks. Save is the moment they have decided something.
+  3. **Before there is anything to show:** the page **as a customer would see
+     it today**, with **one line naming what is missing**. Not a blank panel
+     and not a placeholder — the honest current state plus the one sentence
+     that makes it actionable.
+
+  **Still `app/src`**, so it belongs to whoever owns that tree when it is
+  picked up.
   *A1 P2-13*
 
 - [ ] **9.11 — Booking-rule conflict needs a one-click fix. RE-OPENED
