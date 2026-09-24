@@ -1,24 +1,12 @@
 {
-  "git_sha": "6ede1f8ffdf038beaa94fc0617212a4dd4058224",
-  "git_sha_started": "6ede1f8ffdf038beaa94fc0617212a4dd4058224",
+  "git_sha": "aab51f96eb06b0577240eca592acc289aae3de55",
+  "git_sha_started": "aab51f96eb06b0577240eca592acc289aae3de55",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-24T03:42:37.526Z",
-  "failures": [
-    "320x844 rules: legal «None» is 38px of hit area with nothing over it (box 38px + 0px overhang); «15 min» is 38px of hit area with nothing over it (box 38px + 0px overhang); «30 min» is 38px of hit area with nothing over it (box 38px + 0px overhang) … and 9 more",
-    "320x844 today: legal «Quote» is 39px of hit area with nothing over it (box 38px + 0px overhang); «Decline» is 39px of hit area with nothing over it (box 38px + 0px overhang)",
-    "392x844 rules: legal «None» is 38px of hit area with nothing over it (box 38px + 0px overhang); «15 min» is 38px of hit area with nothing over it (box 38px + 0px overhang); «30 min» is 38px of hit area with nothing over it (box 38px + 0px overhang) … and 9 more",
-    "392x844 today: legal «Quote» is 38px of hit area with nothing over it (box 38px + 0px overhang); «Decline» is 38px of hit area with nothing over it (box 38px + 0px overhang)",
-    "768x1024 rules: legal «None» is 38px of hit area with nothing over it (box 38px + 0px overhang); «15 min» is 38px of hit area with nothing over it (box 38px + 0px overhang); «30 min» is 38px of hit area with nothing over it (box 38px + 0px overhang) … and 9 more",
-    "768x1024 today: legal «Quote» is 38px of hit area with nothing over it (box 38px + 0px overhang); «Decline» is 38px of hit area with nothing over it (box 38px + 0px overhang)",
-    "1440x900 rules: legal «None» is 38px of hit area with nothing over it (box 38px + 0px overhang); «15 min» is 38px of hit area with nothing over it (box 38px + 0px overhang); «30 min» is 38px of hit area with nothing over it (box 38px + 0px overhang) … and 9 more",
-    "1440x900 today: legal «Quote» is 38px of hit area with nothing over it (box 38px + 0px overhang); «Decline» is 38px of hit area with nothing over it (box 38px + 0px overhang)",
-    "1920x1080 rules: legal «None» is 38px of hit area with nothing over it (box 38px + 0px overhang); «15 min» is 38px of hit area with nothing over it (box 38px + 0px overhang); «30 min» is 38px of hit area with nothing over it (box 38px + 0px overhang) … and 9 more",
-    "1920x1080 today: legal «Quote» is 38px of hit area with nothing over it (box 38px + 0px overhang); «Decline» is 38px of hit area with nothing over it (box 38px + 0px overhang)"
-  ],
+  "finished_at": "2026-09-24T03:50:06.781Z",
+  "failures": [],
   "warnings": [
-    "Measures the HIT AREA — bounding rect plus the overhang read off each element's own ::after — never the rect. A rect-only scan under-measures every control using the negative-inset pattern by its overhang and calls a legal control broken.",
-    "run with --break=rect; this receipt is a sabotage, not a result"
+    "Measures the HIT AREA — bounding rect plus the overhang read off each element's own ::after — never the rect. A rect-only scan under-measures every control using the negative-inset pattern by its overhang and calls a legal control broken."
   ],
   "artifacts": [
     "artifacts/tabbar-clearance/320x844-rules.png",
@@ -53,27 +41,29 @@
     ],
     "absolute": 44,
     "observed": [
-      "320x844 rules: 12 visible control(s) (+29 inside closed folds, not measured), bar top 776, worst reachable 38px",
+      "320x844 rules: 12 visible control(s) (+29 inside closed folds, not measured), bar top 776, worst reachable 45px",
       "320x844 business: 5 visible control(s), bar top 776, worst reachable 45px",
-      "320x844 today: 5 visible control(s), bar top 776, worst reachable 39px",
-      "392x844 rules: 12 visible control(s) (+29 inside closed folds, not measured), bar top 776, worst reachable 38px",
+      "320x844 today: 5 visible control(s), bar top 776, worst reachable 46px",
+      "392x844 rules: 12 visible control(s) (+29 inside closed folds, not measured), bar top 776, worst reachable 45px",
       "392x844 business: 5 visible control(s), bar top 776, worst reachable 45px",
-      "392x844 today: 5 visible control(s), bar top 776, worst reachable 38px",
-      "768x1024 rules: 12 visible control(s) (+29 inside closed folds, not measured), bar top 956, worst reachable 38px",
+      "392x844 today: 5 visible control(s), bar top 776, worst reachable 46px",
+      "768x1024 rules: 12 visible control(s) (+29 inside closed folds, not measured), bar top 956, worst reachable 45px",
       "768x1024 business: 5 visible control(s), bar top 956, worst reachable 45px",
-      "768x1024 today: 5 visible control(s), bar top 956, worst reachable 38px",
-      "1440x900 rules: 12 visible control(s) (+29 inside closed folds, not measured), bar top 309, worst reachable 37px",
+      "768x1024 today: 5 visible control(s), bar top 956, worst reachable 46px",
+      "1440x900 rules: 12 control(s) short of 44px for reasons OTHER than the bar — worst «None» at 42px, lost to {\"app-main\":4} (recorded, not this item's fault)",
+      "1440x900 rules: 12 visible control(s) (+29 inside closed folds, not measured), bar top 309, worst reachable 41px",
       "1440x900 business: 5 visible control(s), bar top 309, worst reachable 46px",
-      "1440x900 today: 5 visible control(s), bar top 309, worst reachable 38px",
-      "1920x1080 rules: 12 visible control(s) (+29 inside closed folds, not measured), bar top 399, worst reachable 37px",
+      "1440x900 today: 5 visible control(s), bar top 309, worst reachable 46px",
+      "1920x1080 rules: 12 control(s) short of 44px for reasons OTHER than the bar — worst «None» at 42px, lost to {\"app-main\":4} (recorded, not this item's fault)",
+      "1920x1080 rules: 12 visible control(s) (+29 inside closed folds, not measured), bar top 399, worst reachable 41px",
       "1920x1080 business: 5 visible control(s), bar top 399, worst reachable 46px",
-      "1920x1080 today: 5 visible control(s), bar top 399, worst reachable 38px"
+      "1920x1080 today: 5 visible control(s), bar top 399, worst reachable 46px"
     ],
-    "sabotage": "rect"
+    "sabotage": null
   },
   "check_id": "tabbar-clearance",
-  "started_at": "2026-09-24T03:41:54.660Z",
-  "status": "fail",
+  "started_at": "2026-09-24T03:49:22.924Z",
+  "status": "pass",
   "expected_targets": 16,
   "discovered_targets": 16,
   "attempted_targets": 16,
@@ -84,9 +74,9 @@
   "assertion_floor": "5 widths x 3 screens x 3 questions + 1 canary x 3 = 48. Fixed by SIZES x SCREENS x the question list, never by what the run finds: a screen with no matching controls grades as three failures rather than dropping out, so the number cannot fall without a diff. A tripwire on the code, not a run-time check.",
   "canary": {
     "id": "the-clearance-taken-away",
-    "observed_failure": false,
+    "observed_failure": true,
     "problems": [
-      "legal «None» is 38px of hit area with nothing over it (box 38px + 0px overhang); «15 min» is 38px of hit area with nothing over it (box 38px + 0px overhang); «30 min» is 38px of hit area with nothing over it (box 38px + 0px overhang) … and 9 more"
+      "reachable «None» is legal at 45px but only 12px survive where the browser puts it (y 806..844, bar top 776), lost to {\"nav.tabbar\":30,\"offscreen\":4}; «15 min» is legal at 45px but only 12px survive where the browser puts it (y 806..844, bar top 776), lost to {\"nav.tabbar\":30,\"offscreen\":4}; «30 min» is legal at 45px but only 12px survive where the browser puts it (y 806..844, bar top 776), lost to {\"nav.tabbar\":30,\"offscreen\":4} … and 9 more"
     ]
   }
 }
