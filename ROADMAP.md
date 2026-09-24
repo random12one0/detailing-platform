@@ -9872,6 +9872,59 @@ the dashboard or back office at phone width at all.
   check.** The *Done when* stands unchanged: the same account shows the same
   count **on the live site**.
 
+  ---
+
+  ### THE CHECK CONFIRMS THE FIX, AND THREE FAULTS IN THE CHECK ITSELF
+
+  **Run rather than assumed, 2026-09-23 after the payload landed:** `PASS —
+  17/17 targets, 18 assertions, canary caught`, graded by `receipt.mjs`. The
+  payload reads `counts{services,promos,reviews,plans,hoursRows}`,
+  `branding{primary_color}`,
+  `settings{setup,vehicle_sizes,faqs,pay_cash,pay_venmo,pay_cashapp,pay_zelle,pay_paypal,pay_other}`,
+  `business{contact_phone,contact_email}` — **12 of 12 from both sides.** The
+  fix was confirmed by the instrument, not by re-measuring anything by hand,
+  which is the whole reason it was built before the fix existed.
+
+  **1 · THE PARSER COULD NOT SEE THROUGH A COMMENT, AND THAT IS THIS CHECK'S
+  OWN SUBJECT ONE LEVEL OUT.** Found by DP Cowork2 hitting it. A comment
+  between a comma and the next key was accumulated into that key's token, the
+  token stopped matching an identifier, and **the key was dropped in silence**
+  — `hoursRows` was invisible until the prose moved above the literal. This
+  check exists because *a reader handed less than it needs answers confidently
+  anyway*; its own parser was doing that to itself. **Two failure directions,
+  and the quiet one is worse:** when the dropped key is the only thing feeding
+  a step, the check falsely accuses the product; when it is one of several
+  feeding the same step — as `contact_email` is — **nothing happens at all**.
+  **Fixed:** comments are stripped before parsing, with strings copied through
+  so a `//` inside one is not a comment. **And it carries a standing
+  self-test** — the REAL literal is read out of `platform-admin`, a comment is
+  injected between a comma and the key after it, and the keys must come back
+  unchanged. Built from the real block so it cannot drift from what that file
+  looks like, and it needs no edit to anybody else's file to prove.
+  `--break=comments` reproduces the original bug exactly: `counts.promos`
+  vanishes and nothing else moves.
+
+  **2 · THE DEAD-FIELD TEST FAILED A CORRECT FIX.** It could only judge a key
+  the fixture fills, and the fixture set one payment column of six, so the
+  other five looked dead the moment they started being sent. The fixture now
+  has every alternative on, **and "dead" and "cannot judge" are reported as
+  different answers** — the second is a statement about the check rather than
+  about the product, and saying which is which is the difference between a
+  finding and a false accusation. Its `FEEDS` row had the same bug from the
+  other side: it cleared one column of an OR across six, so the step stayed
+  satisfied.
+
+  **3 · `receipt.mjs` REFUSED THE RECEIPT TWICE AND WAS RIGHT BOTH TIMES.**
+  The declared target count was one short of what the run walked, one target
+  never marked itself completed, **and a source-only check still owes a person
+  something to look at.** It writes `artifacts/setup-inputs-contract/
+  contract.txt` now — which input feeds which step, and the payload's keys read
+  out of its own source. *"12 of 12"* says nothing about which is which, and
+  that is the whole content of this check.
+
+  **Folded in from `docs/9.1-findings-2026-09-23.md`, which is now deleted.**
+  It existed untracked only because this file was held at the time.
+
 - [ ] **9.2 — The back office says contradictory things about one account.**
   Growth says a page "cannot take a booking" and also "the page works and
   nobody has used it". One account appears in setup-incomplete, cannot-book,
@@ -10683,6 +10736,83 @@ the dashboard or back office at phone width at all.
   clean. No new translatable string — `t("Book again")` already existed.
   **Still not ticked** — same standard as 9.11: built and verified by this
   session, held for Andrew's own press before it goes to `[x]`.
+
+  ---
+
+  ### RE-CHECKED 2026-09-23 BY LOOKING, AND IT GETS A STANDING GUARD
+
+  **Folded in from `docs/9.7-findings-2026-09-23.md`, now deleted** — it
+  existed untracked only because `ROADMAP.md` was held at the time.
+
+  **I NEARLY REPORTED THIS ITEM AS STALE, AND THE NEAR-MISS IS THE PART WORTH
+  KEEPING.** Read a slice, found *"Book again — NOT BUILT. Stopped at a
+  fork"*, checked the source, saw `initialCustomer` wired up — and was one
+  step from calling it stale. It is not: the entry's own later paragraph
+  supersedes that one, with Andrew's ruling, the scope decision and a live
+  verification, and `fdf3d55` updated this file in the same commit that added
+  the prop. **Tonight produced four items whose description really was older
+  than the product, so "stale" was the cheap conclusion and it was sitting
+  right there.** What made it wrong was reading fifty more lines.
+  **That is the cost of this repo's keep-the-correction-below convention:** a
+  reader who stops early gets the opposite of the truth. Still cheaper than
+  deleting the reasoning, but worth naming.
+
+  **WHAT THE CARD ACTUALLY HAS — looked at, five widths, 320 first, console
+  clean at every one.** Dana Ruiz, 3 visits: `sms:` and `tel:` on the same
+  number; *"Last vehicle · medium · Honda Civic"*; *"Last address · 88 Harbor
+  Way, Long Beach, CA"*; and **Book again opening the form already holding her
+  name, number, email and address.** All four are built. Nothing was missing,
+  **so nothing was built.** The lowercase `medium` is still there and still
+  correct to leave, per the ruling above.
+
+  **`scripts/client-card.mjs` — 6 targets, 21 assertions, graded PASS.** Their
+  only guarantee until now was a paragraph in this file and one session's
+  memory of pressing them: four separate features on one screen, each a render
+  a refactor can silently drop, and nothing anywhere asking after them.
+
+  **`book-again` ASSERTS THE FORM IS PREFILLED, NOT THAT A BUTTON EXISTS** —
+  Andrew's own ruling was that a Book again opening a blank form is *worse*
+  than no button, and a presence check would pass exactly that outcome.
+  **The canary is the product's own blank path, not an injection:** the same
+  modal opened from the shell's `+`, which must FAIL the prefill test. It
+  does — the blank form holds one value, today's date. Nothing is stubbed,
+  nothing is submitted, no booking row is written.
+
+  **BROKEN ON PURPOSE THREE WAYS, ALL CAUGHT.** The product, with a real edit
+  — `initialCustomer` renamed in `Clients.jsx` so the prop never arrives: all
+  five widths went red, restored, `git diff` and `git status` both clean.
+  `--break=early`, reading the modal before the mount effect runs `pick()`.
+  `--break=canary`.
+
+  **AND THE CHECK WAS WRONG TWICE BEFORE IT WAS RIGHT, BOTH TIMES CALLING A
+  WORKING PRODUCT BROKEN.** It looked for `input[type=tel]` and
+  `input[type=email]`, borrowed from `discount-label.mjs`, which walks the
+  **public booking page** — this modal is a different form and every field is
+  a plain `type="text"`, so both lookups found nothing and a fully prefilled
+  form read as blank at all five widths. **Fixed by asking the question the
+  other way round:** not *"what is in the phone field"* but *"does any visible
+  field hold this customer's phone number"*, which also avoids addressing
+  fields by their labels. Then it took the customer's name from the record's
+  first line — true at a desk, where the record is a column headed by the
+  name, but at 320 the record is a **sheet** whose title sits outside
+  `.sheet-body`, so the first line inside is the visit count and **the check
+  read «3» as a customer's name.** Now taken from the row that was clicked.
+  **Both are the same fault: one surface's shape assumed to fit another** —
+  which is 9.1's own fault in miniature.
+
+  **PRESSED BY HAND 2026-09-23**, desk width, in Andrew's own browser: the
+  card carried last visit Sun 20 Sep, the vehicle, the address, the plan line,
+  3 visits and $430 lifetime, Call / Text / email / Book again, and the
+  gate-code note. The `+` came up empty as it must. Console clean — the only
+  two messages on the page are from a Chrome extension, not the product.
+  **No window was resized:** Andrew keeps that window in a half-screen split
+  and has asked twice that it stay there, so the other four widths come from
+  screenshots on disk (`docs/shared-resources.md` § 6).
+
+  **STILL OPEN: ONLY ANDREW'S PRESS.** Not a build, not a decision, not
+  anything anybody can clear from a keyboard — and now a green check stands
+  behind it, so if one of the four is later dropped the run goes red and names
+  which.
 
 - [x] **DONE 2026-09-20 — 9.8 Manual booking flashes "No active services yet"
   before loading.** Replace false empty states with a loading skeleton; only
