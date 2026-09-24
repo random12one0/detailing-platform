@@ -6526,6 +6526,37 @@ most corroborated finding in the set.
   Andrew's press and 6.2's outside half never was.** Copying one blocker onto
   two items is how a true sentence and a false one end up looking identical.
 
+  **AND THAT PARAGRAPH IS HALF WRONG, WHICH IS WORTH CATCHING BEFORE ANYBODY
+  BUILDS ON IT — 2026-09-23.** "Extending `watch-jobs` is a deploy" is true.
+  **It does not follow that 6.3 needs a deploy**, because 6.2 has since proved
+  that a `pg_cron` job calling a plain SQL function can ask a question of every
+  tenant and report it, with no function change at all — and 6.3's questions
+  (no services, no coverage area, no future availability, suspended) are all
+  plain reads of tables this database already has. **The deploy was assumed
+  from where the code would naturally go, not from what the work needs.** The
+  one part that may genuinely need a deployed change is *"a public error"*,
+  because nothing in the database records one.
+
+  **THE HARD PART IS NOT THE PLUMBING, IT IS TELLING BROKEN FROM MERELY EMPTY.**
+  6.2's four probes each had an unambiguous failure: a page that does not serve
+  its bundle is broken, full stop. **Every condition in 6.3 has a normal state
+  that looks identical to it.** A detailer with no services may be halfway
+  through setting up. One with no future availability may be on holiday. A
+  suspended account may be suspended on purpose. **Andrew will not act on
+  failure mail**, so a condition that can fire on a normal state must not fire
+  at all — and the honest answer for some of these will be to leave them out
+  and name them rather than ship a guess, exactly as 6.2 did with its fifth
+  path.
+
+  **NOT STARTED.** The blocker is corrected and the shape is written down; the
+  build is next. **It reuses 6.2's machinery wholesale** — `site_probes`,
+  `site_probe_events`, the two-strikes rule and the same healthchecks.io
+  check — so what is left is judgement, not plumbing. **Prove it on a
+  throwaway detailer, never on `demo-detail` while anything else is measuring
+  it** (`docs/shared-resources.md` § 4), and if a suspension is used to force
+  the failure, **put it back**: leaving one on subscription-suspended darkens
+  that booking page for every other check that walks it.
+
 - [ ] **6.4 — Weak signal and retry behavior is unknown.**
   Detailers work in driveways.
   **Fix:** test current-day viewing after signal loss, safe retry on an
