@@ -2579,7 +2579,19 @@ the wrong service, and never book a job we cannot reach.
   again rather than inherited. Anyone reading this after texting ships: the
   decision above was made when email was the only channel, and it said so.
 
-- [x] **DONE 2026-09-23 — 2.8 — Address entry may accept unverified raw text.**
+- [ ] **2.8 — Address entry may accept unverified raw text. UNTICKED 2026-09-23,
+  hours after it was ticked, on Andrew's ruling and for a reason this repo has
+  already paid for once.**
+  **A TICK CARRYING A NAMED UNVERIFIED GAP IS STILL A TICK.** The done-when
+  asks for six kinds of address — selected, partial, nonexistent, out-of-area,
+  apartment/unit, manually accepted — and one was pressed. Naming the other
+  five in the entry does not make them measured.
+  **The precedent is 9.11**, ticked with phone width named as unverified; the
+  next sweep found a real 320px regression sitting precisely in the gap.
+  **And the specific risk here is sharper than "untested":** every case that
+  was pressed types the address, so `address_source` reads `"typed"` on all of
+  them. **A column hard-wired to `"typed"` would pass that test.** Only the
+  `selected` case can tell a working flag from a stuck one.
   **THE BLOCKER HAD EXPIRED TWO DAYS EARLIER AND NOBODY HAD LOOKED.** This
   item sat open against "the fix is written, it is not live". It has been live
   since the 2026-09-21 publish at 17:03–17:38.
@@ -2637,13 +2649,93 @@ the wrong service, and never book a job we cannot reach.
   days. The booking above replaces it and will go the same way at the next
   reseed unless something changes.
 
-  **WHAT THIS TICK DOES NOT COVER, because the original done-when asked for
-  more than was measured.** That text asks for tests across *"selected,
-  partial, nonexistent, out-of-area, apartment/unit, and manually accepted"*
-  addresses. **Only `nonexistent` was pressed.** The tick rests on Andrew's own
-  narrowing of 2026-09-23 — *"one booking with an address the lookup cannot
-  find, then read address_source back off the row"* — and not on that matrix,
-  which remains unrun.
+  **WHAT WAS AND WAS NOT MEASURED, WHICH IS WHY THIS BOX WENT BACK TO OPEN.**
+  The done-when at the top asks for tests across *"selected, partial,
+  nonexistent, out-of-area, apartment/unit, and manually accepted"* addresses.
+  **Only `nonexistent` was pressed.** The tick that stood for a few hours
+  rested on Andrew's narrowing of 2026-09-23 — *"one booking with an address
+  the lookup cannot find, then read address_source back off the row"* — and he
+  withdrew it the same evening, correctly: **every case pressed so far types
+  the address, so a column hard-wired to `"typed"` would pass all of them.**
+  Only `selected` can tell a working flag from a stuck one.
+
+- [ ] **A reseed eats the evidence an open item depends on, and nothing
+  notices. Found 2026-09-23 inside 2.8; given its own item because it is
+  bigger than 2.8.**
+
+  **THE MEASUREMENT.** ROADMAP 0.3 says to flag test data and never delete it.
+  2.8's evidence row — booking `c4c1f0c8-b2d1-41d6-ad93-e01d89500593`,
+  customer *"ROADMAP 2.8 Address Test"*, created 2026-09-20 — **does not
+  exist.** Queried by id against the live database: no row. Every booking now
+  on `demo-detail` was created at **2026-09-20 23:33**, the seed's own
+  timestamp, so the reseed is what took it. **Three days passed and nothing
+  anywhere said so** — not a check, not a receipt, not a failing test. The
+  item went on citing a booking id that had stopped resolving.
+
+  **THE SENTENCE THAT MATTERS: the instruction survived and the mechanism
+  never existed.** "Never delete it" is written in a document that
+  `seed-demo.mjs` does not read and could not obey if it did. **A rule that
+  lives only in a document is not a rule, it is a hope.**
+
+  **AND IT IS ALREADY TRUE AGAIN.** The replacement row created tonight —
+  `16c75c74-b6ef-4e58-81cf-3fdfd0079619` — **will go the same way at the next
+  reseed unless something changes.** Writing that down is not a fix.
+
+  **SHAPES, NOT A CHOICE — deliberately not decided and not built tonight:**
+  1. **The seed preserves flagged rows.** A column or a name convention
+     `seed-demo.mjs` checks before it clears, so the rule lives where the
+     deletion happens.
+  2. **The evidence stops being a row.** An item cites a receipt or a fixture
+     it can regenerate, rather than a live id it cannot defend.
+  3. **Something notices.** A check that resolves every booking id cited in
+     `ROADMAP.md` and goes red when one stops existing — cheap, and it would
+     have caught this on the 21st.
+  4. **Nothing.** Accept that demo rows are disposable and stop writing "never
+     delete it" in documents, because an instruction nobody can obey is worse
+     than no instruction.
+  **Done when:** either a flagged row survives a reseed, or no open item
+  depends on one surviving.
+
+- [ ] **Nothing notices when a blocker goes stale, so an item can sit
+  closed-in-fact and open-on-paper. Found 2026-09-23; Andrew asked for it in
+  its own right.**
+
+  **THE MEASUREMENT.** 2.8 and 2.1 carried the same sentence — *the fix is
+  written, it is not live, the only thing left is a publish.* For 2.8 that
+  stopped being true at **2026-09-21 17:03–17:38**, when the functions were
+  published. **The item stayed open for two days**, and the only reason it
+  moved is that somebody held two documents next to each other and noticed
+  they disagreed. 2.1's identical sentence was still true. **From the roadmap,
+  a stale blocker and a real one are the same words.**
+
+  **WHY NO EXISTING CHECK CAUGHT IT.** `deployed-inventory.mjs` answers *"is
+  this function running this checkout"* — a different question. A function can
+  match the checkout while an item's claim about it is months out of date, and
+  it can differ for a reason that has nothing to do with the item. Nothing
+  reads an item's claim at all.
+
+  **THE ASK, AND IT IS SMALLER THAN A CHECK: a claim about something OUTSIDE
+  the repo carries the date it was measured.** "It is not live" is not a fact
+  about this repository; it is a reading taken at a moment, of a system that
+  changes without a commit. Written undated it reads as permanent. Written
+  **"not live — measured 2026-09-21"** it tells a reader in one glance how much
+  to trust it, and 2.8's two-day gap becomes visible the moment anyone looks.
+  The same applies to anything resting on a deployed bundle, a live setting, a
+  third-party dashboard or a database column.
+
+  **SHAPES, NOT A CHOICE:**
+  1. **A convention only** — every such claim carries its date, enforced by
+     nothing, which is how most of this repo's rules already work.
+  2. **A check that re-asks** — reads the dated claims out of `ROADMAP.md` and
+     re-measures the ones it can, going red when a claim and the world
+     disagree.
+  3. **A staleness budget** — a dated claim older than N days reports as
+     unproven rather than as true, the same way `receipt.mjs` already grades a
+     receipt written at an older commit.
+  **Done when:** no open item's blocker can be two days out of date without a
+  reader being able to see how old the claim is.
+  **The three entries written tonight already carry their dates**, which is
+  the convention being proposed, applied once.
   Continue became enabled before a suggestion was selected. **A1 marks this
   "observed, submission consequence untested."**
   **Fix:** decide whether manual addresses are allowed. If not, require a

@@ -3024,3 +3024,57 @@ and looking idle.
 call** — which is the general rule underneath: *after any input into a page
 you did not watch load, read the field, do not read the tool's return value.*
 The tool is reporting that it typed, not that anything received it.
+
+
+## THE COMMENT DESCRIBING THE FIX CONTAINS THE STRING YOU ARE SEARCHING THE BUNDLE FOR — 2026-09-23
+
+**You want to know whether a deployed edge function carries a fix. You pick a
+distinctive string from the new code, count it in the deployed bundle, and get
+a number. The number can be produced entirely by the comment that explains the
+fix, sitting in the same file.**
+
+`deployed-inventory.mjs` says so in its own header — its method is *"comment-text
+comparison against the deployed eszip bundle"*. **Comments survive into the
+bundle.** So do the comments inside a shared module, once per copy of that
+module the bundle carries.
+
+**THE CASE.** ROADMAP 2.1 changed one line in `whenContextFor`:
+
+```
+-  if (!bookingDate || !startTime) return {};
++  if (!bookingDate) return {};
++  if (!startTime) return { weekday: weekdayOf(bookingDate) };
+```
+
+and the new code carries a comment that reads *"This used to be
+`if (!bookingDate || !startTime) return {}`"*. Searching the bundle for
+`!bookingDate||!startTime` therefore finds the OLD GUARD in an old bundle and
+the NEW COMMENT in a new one, **at the same count**, and answers "not
+deployed" either way. The first probe reported `x2` and looked conclusive.
+
+**WHAT CAUGHT IT: RUNNING THE SAME COUNT AGAINST THE CHECKOUT FIRST.** The
+checkout is the one artifact whose state you already know — it is, by
+definition, the new code. If your token does not come out of the checkout the
+way you expect, the token is wrong, not the bundle. Here the checkout returned
+`x1` for a string that should have been extinct, which is the whole finding in
+one number.
+
+**THE HABIT, AND IT COSTS ONE EXTRA LINE.** Before counting anything in a
+deployed bundle, count it in the file you are comparing against, and state
+both. A token is only usable when the two disagree in the direction you
+expect. The discriminating token here was the new code's own new line —
+`if(!startTime)return{weekday:weekdayOf(bookingDate)}` — which exists in code
+and in no comment: **checkout x1, deployed x0.**
+
+**THE GENERAL SHAPE, because this is not really about eszip.** A search for
+absence is only as good as the guarantee that the string lives in exactly one
+place. Anything that quotes code — a comment, a docstring, a test fixture, a
+changelog, a roadmap entry, a commit message — is a second place. This repo has
+met the same animal as a grep coupled to a spelling rather than a behaviour,
+and as a check that reads the label instead of the contents. Here it wears its
+most convincing costume yet: **the thing that proves the fix is the thing that
+fakes the evidence for it.**
+
+**AND IT FAILS TOWARD "NOT DEPLOYED"**, which is the expensive direction. A
+false "not deployed" leaves a finished item open against a blocker that does
+not exist — which is exactly what had happened to ROADMAP 2.8 for two days.
