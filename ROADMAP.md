@@ -10808,9 +10808,68 @@ than living only in a receipt's warnings field
 ### 14.13 — `accept-invite` is public with no rate limit, found investigating
 14.9 rather than looked for
 
-- [ ] **Team-invite acceptance (`supabase/functions/accept-invite/index.ts`)
+- [x] **DONE 2026-09-23. `accept-invite` carries the ceiling. IT WAS A COST
+  ITEM AND NOT A SECURITY HOLE, AND THAT SENTENCE IS THE POINT OF THIS
+  LINE.**
+
+  **The token is 192 bits of randomness** — `encode(gen_random_bytes(24),
+  'hex')` — so it was never guessable and no amount of looping finds one.
+  **What an unmetered public endpoint costs is the project's invocations: a
+  bill, not a way in.** The guard is written with that stated in the function
+  itself, so nobody reading it in six months mistakes it for a closed
+  vulnerability and back-dates an incident that never happened.
+
+  **Public on purpose, and confirmed from the tooling rather than the
+  header:** `accept-invite` is in `deploy-functions.mjs`'s `PUBLIC_FUNCTIONS`
+  — commented *"invite landing page — the invitee has no session yet"* — so
+  it deploys `verify_jwt=false`. That is correct: an invitee has no session,
+  which is the whole point of an invite landing page.
+
+  **Same shape as the twelve that already had it:** `LIMITS.publicCeiling`
+  keyed on `ipOf(req)`, its own bucket, before any other work.
+
+  **Declared surface 15 → 16.** It is now a declared target of
+  `rate-limit-coverage.mjs` rather than a warning in it — which is the whole
+  lesson of 14.12: *a warning inside a passing receipt is a thing nobody
+  opens.*
+
+  **BROKEN ON PURPOSE, real edit on disk:**
+
+  ```
+  accept-invite            NOT PROTECTED
+  FAIL — 16/16 functions read, 1 failure(s), canary caught as required.
+    · accept-invite: expected PROTECTED (this item's own deliverable),
+      source shows no withinLimits call
+  EXIT=1
+  ```
+
+  Restored, `git diff` shows **0 deletions** — no residue. Clean re-run:
+  **PASS, 16/16, 0 failures, 21 assertions, canary 5/5.**
+
+  ### THREE DEFECTS IN THE RECEIPT, FOUND BY READING IT RATHER THAN THE REPLY
+
+  **All three were the same class: a document that reads fine and says
+  something untrue, inside a receipt that passed.** Fixed in the same change.
+
+  1. **`dimensions.today_fixed` still listed 14.9's four.** Tonight's four
+     were absent, so the receipt named **the wrong day and the wrong
+     functions**. Replaced with `fixed_by_item`, split by item — and **no
+     field is called `today` any more**, because a date-shaped word in a
+     constant is wrong on every day but one.
+  2. **A warning ended `"not this item's scope: ."`** — a dangling colon and
+     a full stop with an empty list behind them, because `knownOpen` had
+     emptied. **An empty list now says so in words**, so a reader can tell
+     *none* from *the string got truncated*.
+  3. **The `accept-invite` warning said it "is not in `PUBLIC_FUNCTIONS`
+     above". That was FALSE** — it IS in `deploy-functions.mjs`'s
+     `PUBLIC_FUNCTIONS`. What was meant was *this check's own declared target
+     list*, a different list with a confusingly similar name. **A false
+     statement about a security-relevant set, sitting inside a passing
+     receipt**, which is exactly the shape 14.12 exists to remove.
+
+  ~~**Team-invite acceptance (`supabase/functions/accept-invite/index.ts`)
   is genuinely public — its own header says so — and has no rate limit at
-  all.** Not part of the booking widget, so outside 14.9's own scope; found
+  all.**~~ Not part of the booking widget, so outside 14.9's own scope; found
   the same way that item's real function count was found, by reading every
   one of the 39 `supabase/functions/*` directories rather than trusting a
   list. **Checked, not assumed, before naming it as a cost item rather than

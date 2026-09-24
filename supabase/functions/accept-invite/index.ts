@@ -9,6 +9,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
+import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
 import { businessById } from "../_shared/tenant.ts";
 
 async function loadInvite(token: string) {
@@ -30,6 +31,21 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
 
   try {
+    // ROADMAP 14.13 — the same blunt per-IP ceiling the other twelve public
+    // endpoints carry. **THIS IS A COST ITEM, NOT A SECURITY HOLE, AND THE
+    // DISTINCTION MATTERS FOR WHOEVER READS THIS NEXT.** The invite token is
+    // 192 bits of randomness — `encode(gen_random_bytes(24),'hex')` — so it
+    // was never guessable and no amount of looping finds one. What an
+    // unmetered public endpoint costs is the project's invocations, which is
+    // a bill rather than a way in. Do not read this guard as closing a hole.
+    //
+    // Public on purpose: `accept-invite` is in `deploy-functions.mjs`'s
+    // `PUBLIC_FUNCTIONS`, so it deploys `verify_jwt=false` — an invitee has
+    // no session yet, which is the whole point of an invite landing page.
+    if (!await withinLimits(supabase, [{ ...LIMITS.publicCeiling, bucket: "accept-invite", key: ipOf(req) }])) {
+      return json({ success: false, error: "too_many_requests" }, 429);
+    }
+
     if (req.method === "GET") {
       const token = new URL(req.url).searchParams.get("token") || "";
       const { invite, error } = await loadInvite(token);

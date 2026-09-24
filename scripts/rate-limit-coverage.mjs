@@ -81,15 +81,22 @@ const PUBLIC_FUNCTIONS = {
   // took the same ceiling as the other three. The false header is corrected
   // in the function itself.
   tonight: ["cancel-booking", "reschedule-booking", "accept-quote", "track-visit"],
+  // **ROADMAP 14.13, 2026-09-23.** Named in this file's own header as
+  // deliberately out of scope, then fixed — so it becomes a declared
+  // target rather than staying a warning nobody opens. It is NOT part of
+  // the booking widget; it is the invite landing page, public because an
+  // invitee has no session yet.
+  inviteLanding: ["accept-invite"],
   // **EMPTY, AND THAT IS A RESULT RATHER THAN A DEFAULT.** Anything genuinely
   // still unprotected goes here and gets named in `warnings`. It is empty
   // because nothing is left on this thread, not because nobody looked.
   knownOpen: [],
 };
-const ALL = [...PUBLIC_FUNCTIONS.already, ...PUBLIC_FUNCTIONS.today, ...PUBLIC_FUNCTIONS.tonight, ...PUBLIC_FUNCTIONS.knownOpen];
+const ALL = [...PUBLIC_FUNCTIONS.already, ...PUBLIC_FUNCTIONS.today, ...PUBLIC_FUNCTIONS.tonight,
+  ...PUBLIC_FUNCTIONS.inviteLanding, ...PUBLIC_FUNCTIONS.knownOpen];
 // DECLARED, NOT COUNTED — the same reason every other receipted check here
 // writes the number down instead of trusting `ALL.length` to stay right.
-const EXPECTED_COUNT = 15;
+const EXPECTED_COUNT = 16;
 
 const HAS_CALL = /await\s+withinLimits\s*\(\s*[a-zA-Z_]+\s*,\s*\[\s*\{[^}]*\.\.\.\s*LIMITS\.\w+/s;
 
@@ -212,19 +219,42 @@ const { path: receiptPath } = writeReceipt({
     "READS SOURCE ONLY — never calls a deployed function, so it cannot observe a live 429; "
     + "it can only confirm the source calls withinLimits with a real LIMITS config, the same "
     + "mechanism the working examples use. Applying nothing, deploying nothing.",
-    `${PUBLIC_FUNCTIONS.knownOpen.length} of ${EXPECTED_COUNT} declared public endpoints are `
-    + `KNOWN OPEN, not this item's scope: ${knownOpenReport.join("; ")}.`,
-    "accept-invite (team-invite acceptance) is ALSO public and ALSO has no rate limit, found "
-    + "the same way this list was built. Its token is 192 bits of randomness (encode(gen_random_"
-    + "bytes(24),'hex')), not guessable, so this is a cost item like the others, not a security "
-    + "finding — but it is not in PUBLIC_FUNCTIONS above because it is not part of the booking "
-    + "widget, which is this item's declared scope, and is named here rather than silently fixed "
-    + "or silently dropped.",
+    // **A SENTENCE, NOT A TRAILING COLON.** This read "KNOWN OPEN, not this
+    // item's scope: ." when the list emptied — a dangling colon and a full
+    // stop with nothing behind them. An empty list has to say so in words,
+    // or a reader cannot tell "none" from "the string got truncated".
+    PUBLIC_FUNCTIONS.knownOpen.length === 0
+      ? `NONE of the ${EXPECTED_COUNT} declared public endpoints is known-open. Every one `
+        + `reads as protected in source. This is a result, not an empty default: anything `
+        + `genuinely unprotected would be listed here by name.`
+      : `${PUBLIC_FUNCTIONS.knownOpen.length} of ${EXPECTED_COUNT} declared public endpoints are `
+        + `KNOWN OPEN, not this item's scope: ${knownOpenReport.join("; ")}.`,
+    // **THIS WARNING USED TO SAY accept-invite "is not in PUBLIC_FUNCTIONS
+    // above". THAT WAS FALSE.** It IS in `PUBLIC_FUNCTIONS` — the set in
+    // `deploy-functions.mjs`, commented "invite landing page — the invitee
+    // has no session yet". What was meant was this file's own declared
+    // target list, a DIFFERENT list with a confusingly similar name. A
+    // false statement about a security-relevant set, inside a passing
+    // receipt, is the exact shape this item exists to remove.
+    // **Moot as of 14.13: it is now a declared target here and protected.**
+    "accept-invite (team-invite acceptance) is public — it is in deploy-functions.mjs's "
+    + "PUBLIC_FUNCTIONS set, so it deploys with verify_jwt=false, because an invitee has no "
+    + "session yet. ROADMAP 14.13, 2026-09-23: it now carries the same LIMITS.publicCeiling "
+    + "guard and is a declared target of this check. Its token is 192 bits of randomness "
+    + "(encode(gen_random_bytes(24),'hex')), so it was never guessable — THIS WAS A COST "
+    + "ITEM, NOT A SECURITY HOLE, and should not be read as one later.",
   ],
   dimensions: {
     functions: rows,
     known_open: PUBLIC_FUNCTIONS.knownOpen,
-    today_fixed: PUBLIC_FUNCTIONS.today,
+    // **THIS SAID `today` AND WAS A DAY OUT OF DATE THE MOMENT 14.12 LANDED.**
+    // `today` is 14.9's four, fixed 2026-09-22. Tonight's four were absent, so
+    // the receipt named the wrong day AND the wrong functions while passing.
+    // Split by item, which is what a reader actually wants, and neither
+    // field is called `today` any more — a date-shaped word in a constant
+    // is wrong on every day but one.
+    fixed_by_item: { "14.9": PUBLIC_FUNCTIONS.today, "14.12": PUBLIC_FUNCTIONS.tonight,
+      "14.13": PUBLIC_FUNCTIONS.inviteLanding },
     already_protected: PUBLIC_FUNCTIONS.already,
     limit_used: "LIMITS.publicCeiling (per-caller IP, 600/hour) — the same blunt ceiling every "
       + "other read-only public endpoint uses; per-address, not per-business or global, checked "

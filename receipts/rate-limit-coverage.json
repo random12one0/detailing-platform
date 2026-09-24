@@ -1,14 +1,14 @@
 {
-  "git_sha": "9be1fdd21cb5c7424a272aac8b602be3e8ebabbc",
-  "git_sha_started": "9be1fdd21cb5c7424a272aac8b602be3e8ebabbc",
+  "git_sha": "5942a0b81d7ca480746f4335625a5af8c083a07b",
+  "git_sha_started": "5942a0b81d7ca480746f4335625a5af8c083a07b",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-24T02:14:35.739Z",
+  "finished_at": "2026-09-24T02:20:47.612Z",
   "failures": [],
   "warnings": [
     "READS SOURCE ONLY — never calls a deployed function, so it cannot observe a live 429; it can only confirm the source calls withinLimits with a real LIMITS config, the same mechanism the working examples use. Applying nothing, deploying nothing.",
-    "0 of 15 declared public endpoints are KNOWN OPEN, not this item's scope: .",
-    "accept-invite (team-invite acceptance) is ALSO public and ALSO has no rate limit, found the same way this list was built. Its token is 192 bits of randomness (encode(gen_random_bytes(24),'hex')), not guessable, so this is a cost item like the others, not a security finding — but it is not in PUBLIC_FUNCTIONS above because it is not part of the booking widget, which is this item's declared scope, and is named here rather than silently fixed or silently dropped."
+    "NONE of the 16 declared public endpoints is known-open. Every one reads as protected in source. This is a result, not an empty default: anything genuinely unprotected would be listed here by name.",
+    "accept-invite (team-invite acceptance) is public — it is in deploy-functions.mjs's PUBLIC_FUNCTIONS set, so it deploys with verify_jwt=false, because an invitee has no session yet. ROADMAP 14.13, 2026-09-23: it now carries the same LIMITS.publicCeiling guard and is a declared target of this check. Its token is 192 bits of randomness (encode(gen_random_bytes(24),'hex')), so it was never guessable — THIS WAS A COST ITEM, NOT A SECURITY HOLE, and should not be read as one later."
   ],
   "artifacts": [
     "scripts/rate-limit-coverage.mjs"
@@ -89,15 +89,31 @@
         "name": "track-visit",
         "found": true,
         "protected": true
+      },
+      {
+        "name": "accept-invite",
+        "found": true,
+        "protected": true
       }
     ],
     "known_open": [],
-    "today_fixed": [
-      "available-slots",
-      "calculate-booking",
-      "validate-promo-code",
-      "get-booking-receipt"
-    ],
+    "fixed_by_item": {
+      "14.9": [
+        "available-slots",
+        "calculate-booking",
+        "validate-promo-code",
+        "get-booking-receipt"
+      ],
+      "14.12": [
+        "cancel-booking",
+        "reschedule-booking",
+        "accept-quote",
+        "track-visit"
+      ],
+      "14.13": [
+        "accept-invite"
+      ]
+    },
     "already_protected": [
       "create-booking",
       "pay-booking",
@@ -110,14 +126,14 @@
     "limit_used": "LIMITS.publicCeiling (per-caller IP, 600/hour) — the same blunt ceiling every other read-only public endpoint uses; per-address, not per-business or global, checked against _shared/rateLimit.ts before reuse because a per-business limit would never fire for a caller with no business context yet."
   },
   "check_id": "rate-limit-coverage",
-  "started_at": "2026-09-24T02:14:35.665Z",
+  "started_at": "2026-09-24T02:20:47.536Z",
   "status": "pass",
-  "expected_targets": 15,
-  "discovered_targets": 15,
-  "attempted_targets": 15,
-  "completed_targets": 15,
+  "expected_targets": 16,
+  "discovered_targets": 16,
+  "attempted_targets": 16,
+  "completed_targets": 16,
   "skipped_targets": 0,
-  "assertions_executed": 20,
+  "assertions_executed": 21,
   "min_assertions": 19,
   "canary": {
     "id": "a real protected function's withinLimits call stripped in memory must be reported NOT PROTECTED",
