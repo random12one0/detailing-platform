@@ -1,9 +1,9 @@
 {
-  "git_sha": "43c7a66982e6473d6252748729fc485ee6b2e623",
-  "git_sha_started": "5942a0b81d7ca480746f4335625a5af8c083a07b",
-  "head_moved": true,
+  "git_sha": "035b0b8bd542f38844f52b5f7de59c0c9779d19f",
+  "git_sha_started": "035b0b8bd542f38844f52b5f7de59c0c9779d19f",
+  "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-24T02:22:32.907Z",
+  "finished_at": "2026-09-24T02:25:28.669Z",
   "failures": [],
   "warnings": [
     "Two real bookings on demo-detail, created through the public page and deleted afterwards. Both addresses were already in address_points, so NO Geoapify credit was spent; mail went to e2e@fixture.test, so the provider leg is deliberately unproven and is not this file's subject. Both bookings picked the SAME zone — the default, near one — so the only difference between them is the address typed. The owner-email path that also carries this flag was NOT exercised."
@@ -48,7 +48,7 @@
     "sabotage": null
   },
   "check_id": "zone-mismatch",
-  "started_at": "2026-09-24T02:21:23.450Z",
+  "started_at": "2026-09-24T02:24:18.409Z",
   "status": "pass",
   "expected_targets": 17,
   "discovered_targets": 17,
