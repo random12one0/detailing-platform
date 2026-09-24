@@ -2464,6 +2464,60 @@ the wrong service, and never book a job we cannot reach.
   without a round of its own.** The ruling is *no*, and the reason is above
   rather than only the answer.
 
+  **GIVEN ITS ROUND 2026-09-23, AND STOPPED BEFORE ANY CODE, BECAUSE THE NAMED
+  LEVER IS THE WRONG ONE TWICE OVER.** Andrew's instruction was to fix it at
+  the variable and to stop and say so if the variable turned out not to be the
+  lever. It is not:
+
+  1. **`--bk-bar-clear` NO LONGER EXISTS.** It survives only in two comments,
+     both past tense. It was renamed `--bk-foot` and **its meaning changed** —
+     `booking.css:1110` records it: *"It is spacing… It was called
+     `--bk-bar-clear` and read as though it fed the scroll rule; it never
+     did."*
+  2. **It was never this surface's variable anyway.** `--bk-` is the BOOKING
+     page. 2.32's measurement is the BACK OFFICE — `nav.tabbar`, the Booking
+     rules screen. The entry above links two unrelated surfaces, which is how
+     a real finding acquired a blocker belonging to somebody else's page.
+
+  **THE BACK OFFICE'S OWN NUMBER IS `--tabclear`** — `theme.css:341`,
+  `calc(96px + var(--safe-b))` on `:root`, read by `.app-main`'s bottom
+  padding and by `.tabscrim`, *"because they are the same strip"*.
+  **AND IT IS ALSO NOT THE LEVER, WHICH IS THE PART WORTH HAVING.** Raised
+  96px → 104px at runtime and re-measured across the entire scroll: **no
+  change at all.** `--tabclear` is a RESERVE — it decides where the scroll
+  ENDS. It cannot decide what is under the bar part-way through one.
+
+  **MEASURED AT 320x844, hit-tested with `elementFromPoint`, bar top 776:**
+  a `.choice` chip at scroll 1443 sits at **y 782..820 — entirely beneath the
+  bar, 0px reachable, all 46px lost to `nav.tabbar`.** Scrolling on clears it,
+  so this is the ordinary behaviour of a fixed bar rather than a second
+  defect; it is recorded because it is what disproved the reserve as a lever.
+
+  **THE RIGHT LEVER IS `scroll-padding-bottom`, AND IT IS NOT A SECOND
+  MECHANISM — IT IS THE ONE THIS REPO ALREADY USES FOR THIS EXACT FAULT ON
+  THE OTHER SURFACE.** `booking.css:90`:
+  `html:has(.bk > .bk-bar) { scroll-padding-bottom: calc(var(--bk-bar-h) + 12px + var(--safe-b)); }`
+  — roadmap 8.5a, *"the browser must not park a focused control under the
+  bar"*. **The back office has no `scroll-padding-bottom` anywhere.**
+  `theme.css` carries `scroll-margin-top` for the topbar and for `.jobbar`,
+  and nothing at all for the bottom. The back office scrolls the document, so
+  the same `html { … }` shape applies, keyed off `--tabclear` rather than a
+  second literal.
+
+  **NOT BUILT. Andrew's stop condition was met and this is the report it asked
+  for.** What remains to decide is only whether the value is `--tabclear` as
+  it stands or `--tabclear` plus the hit-area overhang — see the instrument
+  note below.
+
+  **AN INSTRUMENT NOTE THAT WOULD HAVE MADE THIS MEASUREMENT WRONG.**
+  `.choice`'s rect is **38px**, not 44: the absolute is met by
+  `.choice::after { inset: -4px 0 }`, CLAUDE.md's documented pattern for a
+  deliberately small mark. **A probe that walks the RECT under-measures every
+  chip by 8px and calls a legal control a failure.** The first probe here did
+  exactly that and reported 41 of 41 chips failing. The scan must run
+  `rect-8 … rect+8`. It is also why a clearance sized to the rect leaves the
+  hit area short, which is the shape of the original 43-against-44.
+
   **WHAT EVIDENCE WOULD JUSTIFY MOVING IT — and this is the whole job:**
   **the four protected surfaces re-measured at all widths.** The
   confirmation screen, the manage screen, the plans page and the pages that
