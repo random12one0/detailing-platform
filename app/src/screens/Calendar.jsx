@@ -103,10 +103,25 @@ const shortName = (n) => {
 // is being readable at a glance. Spanish calendars use X for miércoles for
 // exactly that reason. English is untouched and provably so: `narrow` is
 // already S M T W T F S.
-const DOW_OVERRIDE = { es: ["D", "L", "M", "X", "J", "V", "S"] };
-const dowLetters = () => DOW_OVERRIDE[getAppLocale()]
-  ?? Array.from({ length: 7 }, (_, i) => new Date(2023, 0, i + 1)
-    .toLocaleDateString(appIntlLocale(), { weekday: "narrow" }));
+// **ROADMAP 9.4 — `short`, NOT `narrow`, AND THE OVERRIDE GOES WITH IT.**
+// English `narrow` is `S M T W T F S`: two S and two T, on the screen whose
+// whole job is being readable at a glance. `short` is `Sun Mon Tue Wed Thu Fri
+// Sat` — seven distinct labels — and Spanish `short` is `dom lun mar mié jue
+// vie sáb`, which is unambiguous on its own, so the X-for-miércoles override
+// above has nothing left to fix and would now be the ONE column in seven still
+// wearing a single letter. The paragraph above is kept because its measurement
+// is why the override was right while the letters were narrow.
+//
+// **IT FITS, AND THE MARGIN IS THIN ENOUGH TO BE CHECKED RATHER THAN
+// TRUSTED.** The column is 36px at 320 (see `.cal-cell`'s own note on why 44
+// is arithmetically unreachable for a seven-column month) and the widest label
+// measured in situ is the thing `scripts/calendar-legible.mjs` asserts, in
+// BOTH languages, at the narrowest supported width — **failing on the margin
+// rather than on the overflow, because by the time it overflows a person has
+// already seen it.** A font change, a locale change or one longer Spanish
+// string eats a pixel and a half in silence otherwise.
+const dowLetters = () => Array.from({ length: 7 }, (_, i) => new Date(2023, 0, i + 1)
+  .toLocaleDateString(appIntlLocale(), { weekday: "short" }));
 const shortDate = (d) => new Date(`${d}T12:00:00`)
   .toLocaleDateString(appIntlLocale(), { weekday: "short", month: "short", day: "numeric" });
 const monthName = (ym) => {
@@ -251,6 +266,14 @@ export default function Calendar({ refreshKey = 0 }) {
     const out = [];
     for (let i = 0; i < firstDow; i++) out.push(null);
     for (let d = 1; d <= daysInMonth; d++) out.push(`${cursor}-${pad(d)}`);
+    // ROADMAP 9.4 — A COMPLETE RECTANGLE, AND THE AUDIT NAMED THE WRONG END.
+    // It says *"the first partial week omits blank cells"*; the lead-in blanks
+    // were already here (the loop above). What was missing is the TRAILING
+    // ones: September 2026 is 2 + 30 = 32 cells, which is not a multiple of
+    // seven, so the last row stopped after four and the bottom edge was
+    // ragged. Measured at five widths before this line was written — fixing
+    // what the entry literally asks for would have changed nothing.
+    while (out.length % 7) out.push(null);
     return out;
   }, [cursor, y, m]);
 
@@ -294,7 +317,23 @@ export default function Calendar({ refreshKey = 0 }) {
       ["dot block", "Blocked", () => marks.blocked.size > 0],
       ["ring", "One type only", () => marks.dropoff.size > 0],
     ];
-    return rows.filter((row, i) => (writes ? i >= 3 : true) && row[2]());
+    // ROADMAP 9.4 — THE DESK TRIM IS RETIRED, AND THAT IS NOT THE SAME ACT AS
+    // OVERRULING IT. The rule was `writes ? i >= 3 : true`, which dropped
+    // Booked / Done / No show at --wrap and above. **Its stated reason was
+    // that the cell writes those words itself at those widths.** Measured
+    // 2026-09-23 at 1440: a cell's own text reads `"24 | 10:00 AMSam D."` —
+    // the day number, the time and the customer. **There is no status word in
+    // it.** Status is carried by the `.confirmed` / `.completed` class, which
+    // is colour alone, under a legend that explained one thing that is not a
+    // colour.
+    // **Safe now because the premise is measurably false, not because a later
+    // session preferred a different answer** — CLAUDE.md asks for the reason
+    // in the commit, and this is it. The smallest repair for "status is
+    // carried by colour alone" is the legend saying what the colours mean.
+    // The cell is NOT touched: a cell that spells out its own status may be a
+    // better screen, but it is a screen nobody asked for, and the bar here is
+    // a named fault rather than a better idea.
+    return rows.filter((row) => row[2]());
   }, [bookings, marks, writes]);
 
   const openDay = (date, el) => {

@@ -1,0 +1,71 @@
+{
+  "git_sha": "e201aec68791d8a2309c8f14ac7dc9cf926dd957",
+  "git_sha_started": "e201aec68791d8a2309c8f14ac7dc9cf926dd957",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-09-24T05:55:19.506Z",
+  "failures": [],
+  "warnings": [
+    "weekday-fit FAILS ON THE MARGIN (3px), not on the overflow: by the time a label overflows a person has already seen it. Measured in situ the tightest column at 320 has 14px clear in English and 14.3px in Spanish.",
+    "Labels are measured IN SITU with a Range over the span's own contents. A detached probe wearing the `font` shorthand measures a different typeface, because `font` does not carry `font-variation-settings` — which this header uses. That probe reported 34.5px against a true 22.3px and turned a comfortable fit into a reported emergency; `--break=detach` reproduces it.",
+    "It does NOT touch the day-cell width. 44px is arithmetically unreachable for a seven-column month at 320 (`.cal-cell`'s own note) and is a separate, parked decision."
+  ],
+  "artifacts": [
+    "artifacts/calendar-legible/320x844-en.png",
+    "artifacts/calendar-legible/320x844-es.png",
+    "artifacts/calendar-legible/392x844-en.png",
+    "artifacts/calendar-legible/392x844-es.png",
+    "artifacts/calendar-legible/768x1024-en.png",
+    "artifacts/calendar-legible/768x1024-es.png",
+    "artifacts/calendar-legible/1440x900-en.png",
+    "artifacts/calendar-legible/1440x900-es.png",
+    "artifacts/calendar-legible/1920x1080-en.png",
+    "artifacts/calendar-legible/1920x1080-es.png",
+    "artifacts/calendar-legible/canary.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "320x844",
+      "392x844",
+      "768x1024",
+      "1440x900",
+      "1920x1080"
+    ],
+    "langs": [
+      "en",
+      "es"
+    ],
+    "min_margin": 3,
+    "observed": [
+      "320x844 en: [Sun Mon Tue Wed Thu Fri Sat], tightest 14px in a 36.3px column, 35 cells (5 weeks), legend [\"Booked\",\"Done\",\"No show\",\"Blocked\"], statuses present [\"completed\",\"no_show\",\"confirmed\",\"blocked\"]",
+      "320x844 es: [dom lun mar mié jue vie sáb], tightest 14.3px in a 36.3px column, 35 cells (5 weeks), legend [\"Agendado\",\"Terminados\",\"No se presentó\",\"Bloqueado\"], statuses present [\"completed\",\"no_show\",\"confirmed\",\"blocked\"]",
+      "392x844 en: [Sun Mon Tue Wed Thu Fri Sat], tightest 24.2px in a 46.6px column, 35 cells (5 weeks), legend [\"Booked\",\"Done\",\"No show\",\"Blocked\"], statuses present [\"completed\",\"no_show\",\"confirmed\",\"blocked\"]",
+      "392x844 es: [dom lun mar mié jue vie sáb], tightest 24.5px in a 46.6px column, 35 cells (5 weeks), legend [\"Agendado\",\"Terminados\",\"No se presentó\",\"Bloqueado\"], statuses present [\"completed\",\"no_show\",\"confirmed\",\"blocked\"]",
+      "768x1024 en: [Sun Mon Tue Wed Thu Fri Sat], tightest 76.8px in a 99.1px column, 35 cells (5 weeks), legend [\"Booked\",\"Done\",\"No show\",\"Blocked\"], statuses present [\"completed\",\"no_show\",\"confirmed\",\"blocked\"]",
+      "768x1024 es: [dom lun mar mié jue vie sáb], tightest 77.1px in a 99.1px column, 35 cells (5 weeks), legend [\"Agendado\",\"Terminados\",\"No se presentó\",\"Bloqueado\"], statuses present [\"completed\",\"no_show\",\"confirmed\",\"blocked\"]",
+      "1440x900 en: [Sun Mon Tue Wed Thu Fri Sat], tightest 136.8px in a 159.1px column, 35 cells (5 weeks), legend [\"Booked\",\"Done\",\"No show\",\"Blocked\"], statuses present [\"completed\",\"no_show\",\"confirmed\",\"blocked\"]",
+      "1440x900 es: [dom lun mar mié jue vie sáb], tightest 137.1px in a 159.1px column, 35 cells (5 weeks), legend [\"Agendado\",\"Terminados\",\"No se presentó\",\"Bloqueado\"], statuses present [\"completed\",\"no_show\",\"confirmed\",\"blocked\"]",
+      "1920x1080 en: [Sun Mon Tue Wed Thu Fri Sat], tightest 144.2px in a 166.6px column, 35 cells (5 weeks), legend [\"Booked\",\"Done\",\"No show\",\"Blocked\"], statuses present [\"completed\",\"no_show\",\"confirmed\",\"blocked\"]",
+      "1920x1080 es: [dom lun mar mié jue vie sáb], tightest 144.5px in a 166.6px column, 35 cells (5 weeks), legend [\"Agendado\",\"Terminados\",\"No se presentó\",\"Bloqueado\"], statuses present [\"completed\",\"no_show\",\"confirmed\",\"blocked\"]"
+    ],
+    "sabotage": null
+  },
+  "check_id": "calendar-legible",
+  "started_at": "2026-09-24T05:54:48.107Z",
+  "status": "pass",
+  "expected_targets": 11,
+  "discovered_targets": 11,
+  "attempted_targets": 11,
+  "completed_targets": 11,
+  "skipped_targets": 0,
+  "assertions_executed": 55,
+  "min_assertions": 55,
+  "assertion_floor": "5 widths x 2 languages x 5 questions + 1 canary x 5 = 55. Fixed by SIZES x LANGS x the question list, never by what the run finds: a width where the calendar does not render grades as five failures rather than dropping out.",
+  "canary": {
+    "id": "the-single-letter-header-put-back",
+    "observed_failure": true,
+    "problems": [
+      "weekday-distinct the seven columns carry 5 different label(s): [S M T W T F S] — this is 9.4's own fault"
+    ]
+  }
+}

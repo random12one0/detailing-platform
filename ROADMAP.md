@@ -10425,14 +10425,85 @@ the dashboard or back office at phone width at all.
   in both languages rather than a session eyeballing it once, and tight enough
   that a font change breaks it silently.
 
-  **STOPPED HERE, BEFORE ANY CODE, AND THE STOP IS A DECISION RATHER THAN A
-  BLOCKER.** Two of the four are unambiguous and need nobody: the trailing
-  blanks, and the three-letter weekday names. **The legend one is not** — it
-  asks what a cell should say at a desk, which is a design question about the
-  densest screen in the product, and answering it by adding three more legend
-  rows would be a session overruling a deliberate trim on its own authority.
-  The truncation one is 8px at a single width and is probably downstream of
-  whatever the legend question decides.
+  ~~**STOPPED HERE, BEFORE ANY CODE**~~ — **DECIDED AND BUILT 2026-09-23.**
+  The legend question went to the manager and came back with the distinction
+  that settles it: **the trim did not rest on a judgement, it rested on a
+  premise that is measurably false**, and retiring a decision whose stated
+  reason has been disproved is a different act from overruling one. CLAUDE.md
+  asks for the reason in the commit; the reason is one line, and it is above.
+
+  **THREE REPAIRS, AND THE FOURTH TURNED OUT NOT TO BE A FAULT.**
+
+  1. **Weekday names.** `weekday: "narrow"` → `"short"`: `S M T W T F S`
+     becomes `Sun Mon Tue Wed Thu Fri Sat`, seven distinct labels. **The
+     Spanish override goes with it** — `DOW_OVERRIDE` existed because CLDR's
+     Spanish narrow is `D L M M J V S`, two M; short is `dom lun mar mié jue
+     vie sáb`, unambiguous on its own, so the override would now be the one
+     column in seven still wearing a single letter.
+  2. **The grid is a whole number of weeks.** One line: pad trailing `null`s.
+     32 cells → 35.
+  3. **The legend carries every status again**, at every width.
+  4. **Truncation is NOT a fault and nothing was changed for it.**
+     `.writes .cal-cell .jobs > span` already carries `overflow: hidden;
+     text-overflow: ellipsis`, so a long name ellipsizes by design and the day
+     panel shows it in full. The probe that "found" it was reporting
+     `scrollWidth > clientWidth`, which is exactly what an ellipsis does.
+
+  **AND THE CELL WAS NOT TOUCHED.** A cell that spells out its own status may
+  be a better screen; it is also a screen nobody asked for, and the bar here is
+  a named fault rather than a better idea. The named fault was *status is
+  carried by colour alone*, and the smallest repair is the legend saying what
+  the colours mean.
+
+  **THE PARKED DAY SQUARES WERE NOT QUIETLY FOLDED IN, AND THIS SENTENCE IS
+  HERE SO NOBODY LATER THINKS THEY WERE.** The back office cell is 36.3px wide
+  at 320 — narrower than 44, the same arithmetic wall a seven-column month hits
+  on a 320px screen, and `.cal-cell` carries its own note saying 44 is
+  unreachable here. **It is a different component on a different screen, it is
+  not square, and none of the four repairs needed the cell to change width.**
+  The booking page's 37px squares remain parked and remain Andrew's.
+
+  **`scripts/calendar-legible.mjs` — 11 targets, 55 assertions, graded PASS.**
+  Five widths **320 first**, **both languages**, console read at every one.
+  Five questions: `subjects`, `weekday-fit`, `weekday-distinct`, `grid-rect`,
+  `legend-covers`. **The canary is the single-letter header put back at
+  runtime** — nothing else changed — and it must fail `weekday-distinct`.
+
+  **THE NUMBER I REPORTED UPWARD WAS WRONG BY TEN TIMES, IN THE DIRECTION OF
+  PANIC, AND THE CHECK IS WHAT CAUGHT IT.** The first measurement said `"Wed"`
+  needed **34.5px** of a 36.3px column — *a coin balanced on its edge*.
+  Measured **in situ** it needs **22.3px**: the tightest margin is **14px** in
+  English and **14.3px** in Spanish, at every width. The wrong figure came from
+  a detached probe wearing the element's `font` shorthand, and **`font` does
+  not carry `font-variation-settings`** — this header is drawn in a condensed
+  face (`"wdth" var(--wdth-lab)`) and the probe measured the normal one.
+  **`--break=detach` reproduces the original figure to the decimal** — *«Wed»
+  needs 34.5px … 1.8px clear* — which is how that is known rather than argued.
+
+  **THE CHECK STILL FAILS ON THE MARGIN RATHER THAN THE OVERFLOW, and that does
+  not change because the number turned out comfortable.** By the time a label
+  overflows, a person has already seen it.
+
+  **TWO MORE FAULTS IN THE CHECK, BOTH CAUGHT BY RUNNING IT.** It wrote the
+  locale to `localStorage` as JSON when `localeStore.js` stores a bare string,
+  so **every Spanish run silently measured English** while printing `es` on
+  each line — a check testing the same thing twice is the quietest way to have
+  no coverage at all. And it carried its own typed-out Spanish — «Reservada»,
+  «Hecha» — against a catalogue that says «Agendado» and «Terminados»; it
+  imports `appEs` now rather than keeping a second copy of a translation
+  nobody renames.
+
+  **BROKEN ON PURPOSE, restored, `git diff` clean:** the trailing-blank line
+  deleted from `Calendar.jsx` — all ten targets went red on `grid-rect` — then
+  put back, leaving only the three intended edits in the diff.
+
+  **STILL OPEN:** nothing in this item. It stays `[ ]` for Andrew's press, the
+  same standard as 9.7 and 9.11.
+
+  **ONE THING HANDED ON RATHER THAN BUILT:** a cell that names its own status
+  at desk width. It is a better screen and it is not a named fault, so it is
+  not folded in here — if anybody wants it, it gets its own item with the case
+  for it and Andrew decides.
 
 - [x] **DONE 2026-09-20 — 9.5 Late jobs are not flagged.** At 10pm a 2:00 PM
   job still sits under "Still to do". Mark it late and offer "Mark done" or
