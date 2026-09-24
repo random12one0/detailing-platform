@@ -3851,6 +3851,114 @@ the wrong service, and never book a job we cannot reach.
   and the fix belongs with the bar, not with the step. **Everything else in
   this item is done and measured above.**
 
+  **ASKED AGAIN 2026-09-23 WITH THE HIT-AREA INSTRUMENT WARM, BECAUSE THE
+  NIGHT'S OTHER WORK MADE ONE QUESTION ANSWERABLE: IS THIS THE SAME FAULT AS
+  2.32's SPAWN ON THE OTHER SURFACE? IT IS NOT, AND THE DIFFERENCE IS
+  MEASURED RATHER THAN ARGUED.**
+
+  **THE BOOKING PAGE HAS NO INNER SCROLLER. AT ALL.** Seven steps, five
+  widths, thirty-five measurements: `scrollers` comes back **empty every
+  time**. The fault fixed earlier tonight is a container clipping the part of
+  a control that hangs past its own box, and **there is no container here to
+  do it.** Its fix would have been a rule that can never match. *The page
+  scrolls, never a column* is a law this product states, and on this page it
+  is true.
+
+  **AND THE TWO MECHANISMS ARE THE PAIR 2.32 ALREADY SEPARATED, ONE SURFACE
+  ALONG.** 2.15 was a **RESERVE** — `.bk-wrap` held back a literal 104px for a
+  bar whose height is content-driven, and the day a long plan name took the
+  bar to 112px the reserve was 8px short. Tonight's was a **SCROLL
+  BEHAVIOUR** — where the browser PARKS a control that takes focus. 2.15's fix
+  deleted its number (the bar is `sticky`, so it occupies its own height);
+  8.5a's `scroll-padding-bottom` on `html` is this page's scroll behaviour and
+  **is untouched, including its 12px, which is deliberate and is not this
+  item's to spend.**
+
+  **SO NOTHING WAS BUILT IN `app/src` FOR THIS, AND THAT IS THE ANSWER RATHER
+  THAN A SHORTFALL.** What was built is the thing the item never had: a
+  standing check.
+
+  **`scripts/bk-bar-clearance.mjs`** — 36 targets, 168 assertions, all seven
+  steps at 320 / 392 / 768 / 1440 / 1920, console read at each. Four questions
+  per step: `subjects`, `legal`, `reachable`, and **`bar-clear`**, which is
+  2.15 in its own words — *no control loses a single row to `.bk-bar`*.
+
+  | | |
+  |---|---|
+  | `bar-clear`, all 35 step-targets | **green — the footer covers nothing, anywhere** |
+  | bar height measured | **73px** on steps 1–6, **84px** on the review step at 320 |
+  | inner scrollers found | **0**, at every step and every width |
+  | `legal` | **RED at 320 on the calendar step — see the item below** |
+
+  **THE CANARY IS 2.15's OWN SABOTAGE, MADE PERMANENT** — `position: fixed`
+  plus the 104px literal reserve put back at runtime. **AND ITS FIRST VERSION
+  DID NOT BITE, WHICH IS THE ITEM'S OWN LESSON ARRIVING TWICE.** Restoring the
+  old MECHANISM changed nothing, because today's bar is 73–84px and a 104px
+  reserve is comfortably enough. **2.15 never failed because the reserve was a
+  literal; it failed because that literal was SMALLER THAN THE BAR THAT DAY.**
+  The canary now forces the bar tall as well — which is exactly what 2.15's
+  own one-off sabotage did by typing a plan name no detailer would — and it
+  bites hard: *"the footer covers 44px of «Light», leaving 0px of 44."*
+
+  **ONE SABOTAGE IS A DECORATION HERE AND IT IS LABELLED AS ONE.**
+  `--break=rect` was RUN and returned **byte-identical results** — same
+  targets, same assertions, same single failure. That is evidence rather than
+  a broken switch: **every control on the booking page reads an overhang of
+  0**, so rect and hit area are the same measurement on this surface. The
+  negative-inset pattern lives in `theme.css`, so that trap stays guarded
+  where it exists.
+
+  **THE KEYBOARD HALF IS UNTOUCHED AND THE CHECK SAYS SO ON EVERY RUN**, in
+  its receipt's own warnings: a pass here is not an answer about the on-screen
+  keyboard. Andrew's ruling of 2026-09-20 stands and this item stays open.
+
+- [ ] **At 320 the booking calendar's day cells are 37px against the 44px
+  absolute — thirty-two of them, every open day in the month. Found
+  2026-09-23 by `bk-bar-clearance.mjs` on its first run, while answering 2.15;
+  split out rather than folded in, because it is not the footer and not the
+  bar.**
+
+  **THE MEASUREMENT.** Booking page, step 5, **320x844**, hit-tested with
+  `elementFromPoint`: **32 `.bk-cal .cell` controls at 37px** of reachable
+  height, with nothing over them and at full scroll — they fail `legal`, which
+  means the control is too small on its own rather than covered by anything.
+  At **392, 768, 1440 and 1920 the same cells measure 44 or better**, so this
+  is the narrowest supported width only.
+
+  **WHERE IT COMES FROM, AND IT IS ONE LINE OF ARITHMETIC RATHER THAN A BUG.**
+  `booking.css:1231` — `.bk-cal { grid-template-columns: repeat(7, 1fr);
+  gap: 5px }` — and `.bk-cal .cell { aspect-ratio: 1; max-height: 52px }`. A
+  cell is square and its width is entirely a function of the column's width,
+  so `(content − 6 × 5px) ÷ 7`. At 320 the content box is about 289px, which
+  gives 37.
+
+  **THE COMMENT ABOVE THAT RULE ALREADY CLAIMS THIS IS SAFE, AND THE CLAIM IS
+  TRUE AT A WIDTH THAT IS NOT THE NARROWEST ONE.** It says *"`aspect-ratio: 1`
+  alone is right on a phone, where the column is 360px and a cell lands at
+  47px — a thumb"*, and ends *"the cell stays well over the 46px tap floor."*
+  **360 is not the narrowest supported width; 320 is** — CLAUDE.md says so and
+  `sweep-widths.mjs` sweeps it by default. The reasoning was done once, at one
+  width, and then read ever after as a general guarantee. **That is this
+  repo's most repeated shape, in a comment rather than in a check.**
+
+  **WHAT IT IS NOT.** Not the sticky bar (2.15): nothing is over these cells,
+  and `bar-clear` is green on this very step. Not a clip (tonight's other
+  item): there is no inner scroller on this page. Not the rect trap: the cell
+  has no `::after` overhang, measured — `--break=rect` changes nothing here.
+
+  **IT IS WHY `bk-bar-clearance.mjs` SHIPS RED, AND THE RED IS DELIBERATE.**
+  `legal` is graded rather than recorded, because a control under the absolute
+  is a real violation and silencing it inside a check about a different fault
+  is exactly how a check comes to measure less than it says. The failure names
+  the width, the step and the count on every run.
+
+  **Done when:** every day cell reaches 44px of hit area at 320, or the reason
+  it cannot is written down and ruled on. **Not started. The fix is a
+  scoping question rather than a line** — a minimum cell height breaks the
+  square, a smaller gap buys only a few pixels, and letting the month scroll
+  sideways at 320 is a design decision that is Andrew's rather than a
+  session's.
+
 - [x] **DONE 2026-09-20 — the booking column had been rendering at under
   half its own declared width, on every step; the calendar's day cells are
   52 by 52 now, square, at desktop.** Found by the other session's

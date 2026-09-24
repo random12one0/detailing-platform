@@ -55,6 +55,11 @@
 // `rect.bottom + overhang` with the overhang **read off the element's own
 // `::after`**, and `--break=rect` is that bug on purpose.
 //
+// **THE WALK ITSELF LIVES IN `lib/hitArea.mjs`** — extracted 2026-09-23 when
+// `bk-bar-clearance.mjs` needed the same measurement on the booking page. Two
+// checks about the same absolute with two copies of the measurement is how two
+// checks start disagreeing about what a control is.
+//
 // ---------------------------------------------------------------------------
 // WHAT IT ASKS
 // ---------------------------------------------------------------------------
@@ -96,6 +101,7 @@ import { mkdirSync, rmSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { writeReceipt } from "./receipt.mjs";
 import { settle, watchConsole } from "./lib/bookingWalk.mjs";
+import { ABSOLUTE, MEASURE } from "./lib/hitArea.mjs";
 
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
@@ -126,7 +132,6 @@ const SCREENS = [
   },
 ];
 
-const ABSOLUTE = 44;
 // Six: the settings column scrolls at 1440 and 1920, and the record scrolls at
 // every width — as a column at those two and as a sheet at 320, 392 and 768.
 // A floor, not a count: finding MORE is fine, finding fewer means the layout
@@ -147,97 +152,6 @@ const check = (target, name, cond, detail = "") => {
   failures.push(`${target}: ${name} ${detail}`.trim());
   console.error(`    FAIL    ${name}  ${detail}`);
   return false;
-};
-
-const MEASURE = ({ sel, useRect }) => {
-  const px = (v) => (v && v.endsWith("px") ? parseFloat(v) : 0);
-  const overhang = px(getComputedStyle(document.documentElement)
-    .getPropertyValue("--hit-overhang").trim()) || 0;
-
-  const overhangOf = (el) => {
-    if (useRect) return { top: 0, bottom: 0 };
-    const a = getComputedStyle(el, "::after");
-    if (!a || a.content === "none" || a.position !== "absolute") return { top: 0, bottom: 0 };
-    return { top: Math.max(0, -px(a.top)), bottom: Math.max(0, -px(a.bottom)) };
-  };
-
-  const name = (el) => (el.closest(".tabbar") ? "nav.tabbar"
-    : el.closest(".tabscrim") ? ".tabscrim"
-      : (String(el.className || "").split(" ")[0] || el.tagName));
-
-  const rows = (el, top, bottom, x) => {
-    let n = 0;
-    const lost = {};
-    for (let y = Math.ceil(top); y <= Math.floor(bottom); y++) {
-      if (y < 0 || y >= innerHeight) { lost.offscreen = (lost.offscreen || 0) + 1; continue; }
-      const hit = document.elementFromPoint(x, y);
-      if (hit && (hit === el || el.contains(hit))) { n++; continue; }
-      const who = hit ? name(hit) : "nothing";
-      lost[who] = (lost[who] || 0) + 1;
-    }
-    return { n, lost };
-  };
-
-  // EVERY SCROLLING ANCESTOR, FOUND BY BEHAVIOUR RATHER THAN BY CLASS NAME.
-  // `docs/gotchas.md` on a check coupled to a spelling: naming the three
-  // selectors here would stop seeing a fourth scroller the day somebody adds
-  // one, and would go green while doing it.
-  const scrollersOn = (root) => {
-    const out = [];
-    for (const el of root.querySelectorAll("*")) {
-      const cs = getComputedStyle(el);
-      if (!/(auto|scroll)/.test(cs.overflowY)) continue;
-      if (el.scrollHeight <= el.clientHeight + 1) continue;
-      if (el === document.scrollingElement) continue;
-      const r = el.getBoundingClientRect();
-      if (r.height < 40) continue;
-      out.push({
-        cls: String(el.className || el.tagName).slice(0, 40),
-        reserved: px(cs.scrollPaddingBottom),          // `auto` parses to 0, which is the truth
-        raw: cs.scrollPaddingBottom,
-        bottom: Math.round(r.bottom), clientH: el.clientHeight, scrollH: el.scrollHeight,
-      });
-    }
-    return out;
-  };
-
-  const out = [];
-  let hidden = 0;
-  for (const el of document.querySelectorAll(sel)) {
-    const r0 = el.getBoundingClientRect();
-    if (r0.width < 8 || r0.height < 8) continue;
-    if (el.closest(".tabbar")) continue;
-    // A control inside a closed fold keeps a bounding rect while nothing of it
-    // is on the screen — `docs/gotchas.md`'s oldest entry. Counted, never
-    // silently dropped.
-    if (typeof el.checkVisibility === "function"
-      && !el.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true })) { hidden++; continue; }
-
-    const o = overhangOf(el);
-
-    el.scrollIntoView({ block: "center", inline: "nearest" });
-    const rc = el.getBoundingClientRect();
-    const legal = rows(el, rc.top - o.top, rc.bottom + o.bottom,
-      Math.round(rc.left + rc.width / 2)).n;
-
-    // FOCUS, NOT scrollIntoView ALONE. An element already inside the viewport
-    // is "visible" to that call even with something painted over it, so it
-    // scrolls nothing and the canary cannot bite. Focus is the trigger
-    // `scroll-padding-bottom` governs and what a keyboard user does.
-    el.scrollIntoView({ block: "end", inline: "nearest" });
-    if (typeof el.focus === "function") el.focus({ preventScroll: false });
-    const rn = el.getBoundingClientRect();
-    const got = rows(el, rn.top - o.top, rn.bottom + o.bottom,
-      Math.round(rn.left + rn.width / 2));
-
-    out.push({
-      text: (el.innerText || el.getAttribute("aria-label") || "").trim().slice(0, 16),
-      rectH: Math.round(rc.height), overhang: o.top + o.bottom,
-      legal, reachable: got.n, lost: got.lost,
-      top: Math.round(rn.top), bottom: Math.round(rn.bottom),
-    });
-  }
-  return { controls: out, hidden, overhang, scrollers: scrollersOn(document.body) };
 };
 
 // THE CANARY: take the reservation away from every inner scroller. This is the
@@ -338,8 +252,12 @@ for (const size of SIZES) {
     grade(label, m, check);
     scrollersSeen += m.scrollers.length;
     const worst = m.controls.reduce((a, c) => (c.reachable < a ? c.reachable : a), 99);
-    observed.push(`${label}: ${m.controls.length} visible control(s)`
+    const drops = Object.entries(m.dropped).filter(([, n]) => n).map(([k, n]) => `${n} ${k}`);
+    // matched = visible + hidden + dropped, printed so a control cannot leave
+    // the population without saying so.
+    observed.push(`${label}: ${m.controls.length} of ${m.matched} matched control(s)`
       + (m.hidden ? ` (+${m.hidden} inside closed folds, not measured)` : "")
+      + (drops.length ? ` (+${drops.join(", ")}, dropped)` : "")
       + `, worst reachable ${worst === 99 ? "n/a" : worst + "px"}`
       + `, ${m.scrollers.length} inner scroller(s)`
       + (m.scrollers.length ? ` [${m.scrollers.map((s) => `${s.cls}=${s.raw}`).join(", ")}]` : ""));
