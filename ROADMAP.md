@@ -5024,6 +5024,167 @@ requested.
   domain), and if they do, that is Andrew's call in the morning rather than
   something to engineer around tonight.
 
+  ---
+
+  ### ROUND FOUR — **TWELVE OF THE FIFTEEN REFUSALS WERE THIS SCRIPT, NOT THE
+  ### PRODUCT.** 2026-09-23
+
+  **28–29 RAN · 3–4 REFUSE · 17 PROVED · 7 OUT OF REACH.** Re-derived by
+  running it, not read off the lines above — **and the first thing the run said
+  was that the numbers above were already stale.** The recorded figures were
+  15–16 · 23–24 · 7; the baseline measured before a single edit tonight was
+  **18 · 15 · 9**. Two functions had started passing at some point and nobody
+  had re-run it. Treat every count in this item as a reading with a date on it.
+
+  **THE HEADLINE IS NOT THE NUMBERS. IT IS WHAT THE FIFTEEN TURNED OUT TO BE.**
+  They were filed as debt against the product — *"A's own call never succeeded,
+  so their refusal of B proves nothing"* — and read as fifteen functions whose
+  tenant checks might be anything. **Twelve of them were the harness breaking
+  its own fixtures**, and every one produced a skip line that was true, specific
+  and pointed at the wrong thing:
+
+  - **`delete-customer` ran eleventh and deleted tenant A's only customer.**
+    Everything alphabetically after it that needed one answered 404 —
+    `plan-link`, `unsubscribe`, `send-campaign` — and was recorded as refusing
+    on a missing argument. The argument was missing because this script had
+    removed the row, twenty lines earlier. **That is the fixture-interference
+    lesson for the fourth time in one file**, and the first time it cost three
+    results at once.
+  - **`name` was mapped and `customer_name` was not.** `create-booking`
+    answered *"Customer name is required"* and was filed as a function whose
+    guards *"name nothing this harness is missing"*. They named it exactly; the
+    lookup was keyed on the wrong spelling. Same for the phone, the address and
+    the email.
+  - **`owner-push-subscribe` reads a NESTED subscription** and the harness had
+    a comment insisting the fields were flat. Both were right about different
+    functions: its sibling `owner-push-unsubscribe` is flat.
+  - **`accept-quote` needs `quoted_at` as well as `quoted_amount`**, and the
+    fixture set only the amount.
+  - **`reschedule-booking` was pointed at the booking `send-invoice` needed**,
+    which an earlier fixture step had marked `completed` — and a completed job
+    "can no longer be rescheduled online", which is a 409 that reads exactly
+    like a missing argument.
+  - `platform-billing` takes one of six action words and the harness sent
+    `status`; `verify-domain` needed a domain row; `forecast` needed a point.
+
+  **SO THE OLD SKIP LINES WERE NOT LIES AND THEY WERE NOT EVIDENCE EITHER.**
+  Every destructive or state-changing function now gets its own seeded row and
+  no two share one, and **a fixture that fails to insert now fails the run by
+  name** — because a null id is simply omitted from the request, the function
+  answers 400, and the skip blames the function for an argument this script
+  failed to create. That guard was broken on purpose and named all three
+  tenants.
+
+  **`create-business` IS NOW NEVER CALLED, AND THE RULE THAT CAUGHT IT HAD BEEN
+  A CLAIM FOR THREE WEEKS.** The header has said since the `report-problem`
+  incident that the mail exclusion is *structural rather than a name*, "because
+  matching `report-problem` by name would leave the next one to be discovered
+  the same way". It was still a map with one entry in it. The next one was
+  found the same way — by reading the function in order to make it run: on
+  success `create-business` emails `platform_settings.owner_email`, a real
+  address read out of the database that no field in the request can redirect.
+  It is also the one function here that MINTS a tenant rather than addressing
+  one.
+
+  **AND THE LIST IS NO LONGER THE ONLY THING STOPPING IT.** The run now reads
+  `email_sends` for its own window and names any recipient that is both
+  deliverable and was not stopped before the provider. It needs no knowledge of
+  which function sent it, which is the point: **it would have caught
+  `report-problem`'s nine messages on the run that sent them.** It is
+  window-scoped rather than tenant-scoped on purpose — the escapes worth
+  catching carry no tenant at all — so it prints the tenant beside the domain
+  and says plainly it cannot attribute the row. It fired on its first outing on
+  another session's `e2e@fixture.test`, which is a reserved domain that never
+  reached a provider; that is why it now reads the status and the TLD rather
+  than the address alone. `--break=mail` writes a row that looks like an escape
+  and mails nothing.
+
+  **THE REPLAY HAD BEEN SPENDING ANDREW'S DAILY EMAIL ALLOWANCE ON EVERY RUN,
+  AND THAT IS HOW THIS WAS FOUND.** Two functions that answered 200 came back
+  500 and 502 forty seconds later. Neither had changed: the day's tenant share
+  read **sent 80, claimed 80 against a cap of 100 with 20 reserved for the
+  platform**, and `claim_email_send` was refusing. The sink address was
+  `delivered@resend.dev` — chosen because Resend accepts it and delivers it
+  nowhere, which is true of the provider AFTER the send, while this product
+  claims the budget BEFORE it. **`send-email`'s own comment says so above the
+  claim:** *"Above this line are the two ways a send costs the provider
+  nothing: a reserved domain and a missing key. Claiming before those would
+  have every fixture in the repo spending a budget it never touches, which is
+  the opposite of the point."* The intent was written down and this fixture was
+  outside it. The sink is now `@example.com`, refused before the provider;
+  measured after a full run, the day's counters did not move. **It also means
+  this script no longer competes with the other session's booking runs for the
+  same eighty.**
+
+  **`expected_targets` WAS `rows.length`, WHICH IS A NUMBER COMPARED TO
+  ITSELF.** A check cannot discover fewer targets than it discovered. It is now
+  a written floor of 39 and a discovery below it fails the run; broken on
+  purpose by truncating the directory scan to 20, which it named.
+
+  **THE THREE THAT ARE LEFT, EACH READ TO ITS GUARD RATHER THAN SHRUGGED AT:**
+
+  - **`pay-booking` — BLOCKED ON ANDREW.** 409 to every caller because the
+    fixture tenant has no connected Stripe account, and connecting one is
+    publishing. Forging past a real precondition would prove something about
+    the forgery. Already on `FOR-ANDREW.md`.
+  - **`platform-admin` — FIXING IT WOULD MANUFACTURE A WRONG ANSWER.** It
+    answers 404 to owner A because owner A is not a platform admin. The only
+    way to get A's own call to 2xx is to make A a platform admin, and a
+    platform admin legitimately sees every tenant — so the cross-tenant refusal
+    this check looks for could never appear. **Its authorization is real and it
+    needs a different instrument**, the same as `report-problem`.
+  - **`send-email` — NO TENANT BOUNDARY INSIDE IT.** It compares the
+    Authorization header against the service-role key and answers 401 to
+    everything else. Its own comment: callable only with the service key, *"so
+    this can never be abused as an open relay."* No tenant actor can ever get a
+    2xx, by design.
+
+  **AND A FOURTH THAT COMES AND GOES: `address-suggest`.** It answered 429 on
+  the sixth run of the night and 200 on the five before it — its own rate
+  limiter, the same property `create-booking` already has in this item. That is
+  why the headline is a range. **PROVED did not move off 17 in any run**, which
+  is the number that matters, because it is the count of functions that
+  demonstrably work for A and refuse B to all three signed-in actors.
+
+  **NO LEAK WAS FOUND ON ANY PATH, AND NOTHING OF B'S MOVED FOR A THAT DID NOT
+  ALSO MOVE FOR AN ANONYMOUS STRANGER.** 103 assertions, 0 failures, canary
+  caught on 5 functions.
+
+  **AND THIS MEASURES WHAT IS DEPLOYED, NOT WHAT IS COMMITTED — 13 OF THE 39
+  DIFFER TODAY.** The replay calls live URLs, so every verdict above describes
+  the bundle that is running. `deployed-inventory.mjs` on the same night says
+  thirteen functions are running a copy about 2.4 days old, `accept-quote`,
+  `available-slots`, `cancel-booking`, `create-booking` and `update-booking`
+  among them. **For those, "proved" means proved of the deployed code**, and
+  the committed source has not been exercised by anything. That is not a flaw
+  in this check — testing what is live is the right end of the telescope for an
+  isolation question — but it is the difference 0.6 exists to keep visible, and
+  a reader who assumes these seventeen describe the files in this checkout
+  would be assuming exactly the thing 0.6 caught twenty-two functions doing.
+  Deploying is Andrew's and nothing here was deployed.
+
+  **CERTIFIED BY FIVE SABOTAGES.** `--break=leak` blinds the leak comparison
+  and the canary stops firing; `--break=self` removes the front-door positive
+  control and all 39 become skips with 0 proved; `--break=mail` fakes an
+  escaped send and it is named by domain and tenant; and two REAL source
+  edits — nulling a seeded `domain_id` and truncating discovery to 20 — were
+  each named by the guard written for them, then reverted, with the file's
+  checksum confirmed back to its pre-sabotage value and `git diff` read line by
+  line. **`--break=reach` was NOT re-run and that is deliberate:** it empties
+  the out-of-reach list, which calls `watch-jobs`, a cron sweep that walks
+  every tenant and mails owners. Nothing in the reach logic changed tonight,
+  and the entry that matters — `create-business` — sits in `NEVER_CALL`, which
+  is consulted first and which no flag empties.
+
+  **IT STILL DOES NOT CLOSE, AND THE RECEIPT STILL FAILS.** Three or four
+  functions are skipped with no `skip_allowlist`, and there is no honest one to
+  write: two of them are permanent properties of what those functions are, and
+  waving them through with an expiry date would be dressing a decision up as a
+  deadline. **Done when:** `pay-booking` gets a connected Stripe account, which
+  is Andrew's; and `platform-admin` and `send-email` are proved by an
+  instrument that can test a non-tenant gate, which does not exist yet and is
+  not this script. Seventeen proved out of thirty-nine, against nine this
+  morning.
 
 ---
 

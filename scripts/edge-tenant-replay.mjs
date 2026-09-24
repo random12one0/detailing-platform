@@ -124,9 +124,29 @@ if (REF !== ALLOWED) {
   process.exit(2);
 }
 
-// Every address this script can cause mail to reach. Resend always accepts it
-// and delivers it nowhere.
-const SINK = "delivered@resend.dev";
+// Every address this script can cause mail to reach.
+//
+// **IT WAS `delivered@resend.dev` UNTIL 2026-09-23, AND THAT ADDRESS WAS
+// SPENDING ANDREW'S DAILY EMAIL BUDGET ON EVERY RUN.** Resend accepts it and
+// delivers it nowhere, which is why it was chosen — but "delivers it nowhere"
+// is the provider's behaviour AFTER the send, and this product claims the day's
+// allowance BEFORE the send. `resend.dev` is a real domain, so every fixture
+// email this replay caused took one off a cap of 100 with 20 reserved for the
+// platform. The night this was found, the day's tenant share read
+// `sent 80, claimed 80` and two functions that had answered 200 forty seconds
+// earlier came back 500 and 502 — refused by the budget, and recorded by this
+// script as though their own tenant logic had turned them away.
+//
+// **`send-email` SAYS SO IN ITS OWN COMMENT, ABOVE THE CLAIM:** *"Above this
+// line are the two ways a send costs the provider nothing: a reserved domain
+// and a missing key. Claiming before those would have every fixture in the repo
+// spending a budget it never touches, which is the opposite of the point."*
+// The intent was already written down and this fixture was outside it.
+//
+// `example.com` is IANA-reserved, matches that function's own reserved-domain
+// test at `send-email/index.ts:188`, is refused before the provider is ever
+// called, and costs nothing. Nothing can be delivered to it by anyone.
+const SINK = "edge-replay@example.com";
 const S = (t) => `EDGEREPLAY-${t}-SECRET`;
 
 const sql = async (text) => {
@@ -293,6 +313,59 @@ const NEVER_CALL = {
     + "the request, so this harness cannot keep its mail inside the sink. "
     + "Calling it has already put ten messages in the platform's own support "
     + "inbox. Proving isolation here needs a different instrument.",
+  // **THE STRUCTURAL RULE ABOVE HAD A SECOND MEMBER AND NOBODY HAD LISTED IT —
+  // 2026-09-23.** The header has said since the day `report-problem` was caught
+  // that the rule is structural rather than a name, "because matching
+  // `report-problem` by name would leave the next one to be discovered the same
+  // way". It was still a map with one entry in it, and the next one was found
+  // by reading `create-business` in order to make it RUN: on success it mails
+  // `platform_settings.owner_email`, read out of the database, which no field
+  // in the request can redirect. It is guarded by `if (ps?.owner_email)`, so
+  // whether calling it reaches a real person depends on a row nobody in this
+  // script controls — which is the condition, not the safety.
+  "create-business":
+    "on success it emails platform_settings.owner_email — a real address read "
+    + "out of the database, not taken from the request, so this harness cannot "
+    + "keep the message inside the sink. It is also the one function here that "
+    + "MINTS a tenant rather than addressing one: the only cross-tenant question "
+    + "it can be asked is whether A can claim B's slug, and a unique index "
+    + "answers that without any authorization branch being consulted.",
+};
+
+// ---------------------------------------------------------------------------
+// THE THREE THAT ARE LEFT, EACH READ RATHER THAN SHRUGGED AT — 2026-09-23.
+// ---------------------------------------------------------------------------
+// Fifteen functions refused their own tenant before tonight and twelve of them
+// turned out to be this script's fault: a fixture it deleted, a field spelled
+// `name` instead of `customer_name`, a nested object flattened, a booking one
+// step of the fixture had marked `completed` before the next step needed it
+// confirmed. **Those were never evidence about the product and they read
+// exactly like evidence about the product**, which is the whole reason the
+// generic text below ("a lookup, a permission, or a precondition") is not good
+// enough on its own.
+//
+// These three are different. Each was read to the guard that produces the
+// status, and none of them is a missing argument. **This text prints ONLY on a
+// skip**, so the day one of them starts answering 2xx the reason disappears
+// with it and cannot rot into a stale excuse.
+const KNOWN_BLOCKER = {
+  "pay-booking":
+    "BLOCKED ON A DEPLOYED FIXTURE, WHICH IS ANDREW'S. It answers 409 to every "
+    + "caller because the fixture tenant has no connected Stripe account, and "
+    + "connecting one is publishing. Forging past a real precondition would prove "
+    + "something about the forgery.",
+  "platform-admin":
+    "NOT A TENANT GATE AT ALL, so making A's own call succeed would MANUFACTURE A "
+    + "WRONG ANSWER. It answers 404 to owner A because owner A is not a platform "
+    + "admin; the fix would be to make them one, and a platform admin legitimately "
+    + "sees every tenant, so the cross-tenant refusal this check is looking for "
+    + "could never appear. Its authorization needs a different instrument.",
+  "send-email":
+    "INTERNAL RELAY, BY DESIGN. It compares the Authorization header against the "
+    + "service-role key and answers 401 to anything else, so no tenant actor can "
+    + "ever get a 2xx out of it. Its own comment says so: callable only with the "
+    + "service key, 'so this can never be abused as an open relay'. There is no "
+    + "tenant boundary inside it to test.",
 };
 
 const OUT_OF_REACH = BREAK === "reach" ? {} : {
@@ -459,6 +532,74 @@ try {
         prefer: "return=minimal",
       });
     }
+    // ROUND FOUR — 2026-09-23. **THE BIGGEST SINGLE CAUSE OF A SKIP WAS NOT A
+    // MISSING ARGUMENT. IT WAS THIS SCRIPT EATING ITS OWN FIXTURE.**
+    // `delete-customer` runs eleventh and its SELF call deletes tenant A's only
+    // customer. Everything alphabetically after it that needs one then answers
+    // 404 to A and is recorded as debt — `plan-link`, `unsubscribe`,
+    // `send-campaign` — with a reason that reads like a missing field and is
+    // nothing of the kind. Three functions were filed as unreachable because
+    // the harness had removed the row they needed, twenty lines earlier.
+    //
+    // **That is the fixture-interference lesson for the FOURTH time in this one
+    // file**, and it is the same shape each time: a check that succeeds by
+    // destroying what the next check stands on. So every DESTRUCTIVE or
+    // STATE-CHANGING function now gets its own row, and no two share one.
+    const disposable = await rest("POST", "/rest/v1/customers", {
+      body: [{ business_id: b.id, name: `${S(tag === "Bn" ? "B" : tag)} disposable`,
+        phone: "555-0103", email: SINK }],
+    });
+    // `accept-quote` refuses unless BOTH `quoted_at` and `quoted_amount` are
+    // set, and it CONFIRMS the booking it accepts. Pointing it at the shared
+    // pending booking would have moved that booking out from under
+    // `update-booking` and `cancel-booking`, so it gets its own.
+    const day4 = new Date(Date.now() + 39 * 86400_000).toISOString().slice(0, 10);
+    const bkQuoted = await rest("POST", "/rest/v1/bookings", {
+      body: [{
+        business_id: b.id, customer_name: `${S(tag === "Bn" ? "B" : tag)} client`,
+        customer_phone: "555-0104", customer_email: SINK,
+        start_at: `${day4}T14:00:00Z`, end_at: `${day4}T15:00:00Z`,
+        service_type: "mobile", status: "pending", vehicle_size: "medium",
+        vehicle_size_label: "Medium", subtotal: 120, total_price: 120,
+        quoted_amount: 99, quoted_at: new Date().toISOString(),
+      }],
+    });
+    // `respond-to-booking` needs a booking still WAITING to be accepted, and
+    // accepting it is a one-way door.
+    const day5 = new Date(Date.now() + 42 * 86400_000).toISOString().slice(0, 10);
+    const bkPending = await rest("POST", "/rest/v1/bookings", {
+      body: [{
+        business_id: b.id, customer_name: `${S(tag === "Bn" ? "B" : tag)} client`,
+        customer_phone: "555-0105", customer_email: SINK,
+        start_at: `${day5}T16:00:00Z`, end_at: `${day5}T17:00:00Z`,
+        service_type: "mobile", status: "pending", vehicle_size: "medium",
+        vehicle_size_label: "Medium", subtotal: 120, total_price: 120,
+      }],
+    });
+    // `reschedule-booking` needs a CONFIRMED one. It used to be pointed at the
+    // same booking `send-invoice` needed, which that function's own fixture
+    // step then marked `completed` — and a completed job "can no longer be
+    // rescheduled online", which is a 409 that reads exactly like a missing
+    // argument.
+    const day6 = new Date(Date.now() + 45 * 86400_000).toISOString().slice(0, 10);
+    const bkResch = await rest("POST", "/rest/v1/bookings", {
+      body: [{
+        business_id: b.id, customer_name: `${S(tag === "Bn" ? "B" : tag)} client`,
+        customer_phone: "555-0106", customer_email: SINK,
+        start_at: `${day6}T15:00:00Z`, end_at: `${day6}T16:00:00Z`,
+        service_type: "mobile", status: "confirmed", vehicle_size: "medium",
+        vehicle_size_label: "Medium", subtotal: 120, total_price: 120,
+      }],
+    });
+    // Somewhere empty to move it TO. A day nothing else in this script books.
+    const day7 = new Date(Date.now() + 48 * 86400_000).toISOString().slice(0, 10);
+    // `verify-domain` rejects on `domain_id`. The host is under `.example`,
+    // which is IANA-reserved and resolves nowhere, so the function's outbound
+    // check fails honestly and it answers "not verified" rather than writing
+    // anything. Nothing is registered with any provider.
+    const dom = await rest("POST", "/rest/v1/business_domains", {
+      body: [{ business_id: b.id, domain: `edge-replay-${b.slug}.example` }],
+    });
     // `accept-invite` rejects on `token`, so one invite is seeded per tenant.
     //
     // **ON ITS OWN ADDRESS, AND THAT IS THE THIRD TIME THIS LESSON HAS COST A
@@ -487,6 +628,12 @@ try {
       store.confirmed_booking_id = bk2.data?.[0]?.id ?? null;
       store.finalized_booking_id = bk2.data?.[0]?.id ?? null;
       store.invite_token = inv.data?.[0]?.token ?? null;
+      store.disposable_customer_id = disposable.data?.[0]?.id ?? null;
+      store.quoted_booking_id = bkQuoted.data?.[0]?.id ?? null;
+      store.pending_booking_id = bkPending.data?.[0]?.id ?? null;
+      store.reschedule_booking_id = bkResch.data?.[0]?.id ?? null;
+      store.reschedule_day = day7;
+      store.domain_id = dom.data?.[0]?.id ?? null;
     }
   }
   console.log(`    A ${A.id}  B ${B.id}`);
@@ -496,6 +643,22 @@ try {
       + "would have been made against a tenant that owns nothing, which is this repo's "
       + "hollow-check shape. Nothing was measured.");
     throw new Error("fixture incomplete");
+  }
+
+  // **AND EVERY FIXTURE ADDED IN ROUND FOUR IS CHECKED THE SAME WAY, BECAUSE A
+  // FIXTURE THAT FAILED TO INSERT IS INVISIBLE.** A null id is simply omitted
+  // from the request body, the function answers 400 or 404, and the skip line
+  // blames a missing argument — which is true, and points at the function
+  // instead of at this script. That is precisely how `plan-link`,
+  // `unsubscribe` and `send-campaign` sat in the debt column.
+  for (const [name, store] of [["A", aIds], ["B", bIds], ["Bn", bnIds]]) {
+    const missing = ["disposable_customer_id", "quoted_booking_id", "pending_booking_id",
+      "reschedule_booking_id", "domain_id"].filter((k) => !store[k]);
+    if (missing.length) {
+      say(`fixture ${name}: [edge-fixture] ${missing.join(", ")} could not be seeded, so every `
+        + `function that needs one would be recorded as refusing on a missing argument when the `
+        + `argument is missing because THIS script failed to create it.`);
+    }
   }
 
   // The removed member: signed in while a member, then the row deleted.
@@ -547,6 +710,22 @@ try {
     if (f === "p256dh") return "BEdgeReplayPublicKeyxxxxxxxxxxxxxxxxxxxxxxxx";
     if (f === "auth") return "edgeReplayAuthSecret";
     if (f === "soft_delete" || f === "dry_run") return false;
+    // ROUND FOUR — 2026-09-23. **`name` WAS MAPPED AND `customer_name` WAS
+    // NOT**, so `create-booking` answered "Customer name is required" and was
+    // filed for three weeks as a function whose guards "name nothing this
+    // harness is missing". They named it perfectly; the lookup was keyed on
+    // the wrong spelling. The same for the phone, the address and the email.
+    if (f === "customer_name") return "Edge replay client";
+    if (f === "customer_phone") return "555-0199";
+    if (f === "customer_email") return SINK;
+    if (f === "customer_address") return "1 Edge Replay Street, Denver CO";
+    // `forecast` takes a POINT, deliberately — nothing in this product stores
+    // a latitude. Denver, matching the fixture tenants' timezone.
+    if (f === "lat") return 39.7392;
+    if (f === "lon") return -104.9903;
+    if (f === "timezone") return "America/Denver";
+    if (f === "customer_ids") return ids.customer_id ? [ids.customer_id] : [];
+    if (f === "domain_id") return ids.domain_id;
     // **`status` IS DELIBERATELY NOT SYNTHESISED.** Sending one turned
     // `update-booking` from a proved rejection into a 409: it is a field whose
     // value changes what the call MEANS, and a generic guess at it re-validates
@@ -616,9 +795,30 @@ try {
       "plan-link": { action: "get" },
       "track-visit": (ids) => ({ slug: ids.campaign_slug, visitor_id: "edge-replay-visitor" }),
       "validate-promo-code": (ids) => ({ code: ids.promo_code, customer_email: SINK }),
-      "reschedule-booking": (ids) => ({ booking_id: ids.confirmed_booking_id }),
-      "accept-quote": (ids) => ({ booking_id: ids.booking_id }),
+      // ROUND FOUR — each of these now points at a row seeded FOR IT. See the
+      // fixture block: four of the fifteen refusals were this script's own
+      // functions standing on each other's rows.
+      "reschedule-booking": (ids) => ({
+        booking_id: ids.reschedule_booking_id, booking_date: ids.reschedule_day, start_time: "11:00" }),
+      "accept-quote": (ids) => ({ booking_id: ids.quoted_booking_id }),
+      "respond-to-booking": (ids) => ({ action: "accept", booking_id: ids.pending_booking_id }),
+      "delete-customer": (ids) => ({ customer_id: ids.disposable_customer_id }),
       "send-invoice": (ids) => ({ booking_id: ids.finalized_booking_id }),
+      // NESTED, AND THE HEADER ABOVE SAYS FLAT. Both are true and they are
+      // different functions: `owner-push-unsubscribe` reads three top-level
+      // fields, `owner-push-subscribe` reads `subscription.endpoint` and
+      // `subscription.keys.{p256dh,auth}`. Its 400 guard names the three leaf
+      // names, which is what made the flat guess look right.
+      "owner-push-subscribe": {
+        subscription: {
+          endpoint: "https://edge-replay.example/push",
+          keys: { p256dh: "BEdgeReplayPublicKeyxxxxxxxxxxxxxxxxxxxxxxxx", auth: "edgeReplayAuthSecret" },
+        },
+      },
+      // Its switch takes summary/promo/subscribe/portal/cancel/resume and
+      // answers 400 to anything else. `summary` is the only one that reads
+      // without touching Stripe or taking money.
+      "platform-billing": { action: "summary" },
       // **ITS OWN HOUR, BECAUSE THE CHECKS WERE STANDING ON EACH OTHER.**
       // `reschedule-booking` runs first alphabetically and moves A's confirmed
       // booking to 09:00; `update-booking` then tried to move A's other
@@ -763,6 +963,7 @@ try {
       // standing between here and a real result.
       const needs = requiredFor(src).filter((f) => !(f in selfBody));
       skips.push(`${fn}: owner A could not get a 2xx with its OWN tenant either (${stat}).`
+        + (KNOWN_BLOCKER[fn] ? ` ${KNOWN_BLOCKER[fn]}` : "")
         + (needs.length
           ? ` It rejects on ${needs.map((f) => `\`${f}\``).join(", ")}, which this harness `
             + `does not supply.`
@@ -828,6 +1029,70 @@ try {
     console.log(`    (an anonymous caller moved ${movedByAnon.join(", ")} on the twin — the UUID-bearer design)`);
   }
 
+  // ---------------------------------------------------------------------------
+  console.log("\n5 · did any mail escape the sink?");
+  // **THE `NEVER_CALL` RULE WAS A CLAIM, NOT A MEASUREMENT, UNTIL NOW.** The
+  // header has said since `report-problem` that the rule is structural rather
+  // than a name — and the mechanism enforcing it was a hand-written map with
+  // one entry, checked by nobody. `create-business` sat outside it for three
+  // weeks mailing an address out of `platform_settings`.
+  //
+  // A list cannot be made reliable by adding to it. So the outcome is measured
+  // instead: every row this run put in `email_sends`, and any recipient that is
+  // not the sink is named. It needs no knowledge of which function sent it,
+  // which is the entire point — it would have caught `report-problem`'s nine
+  // messages on the run that sent them, and it catches the next one nobody
+  // classified.
+  //
+  // **DOMAINS ONLY, NEVER THE ADDRESS.** CLAUDE.md: say where a thing lives,
+  // not what it is. A stray address is somebody's, and a receipt is a file.
+  //
+  // **IT IS WINDOW-SCOPED, NOT TENANT-SCOPED, AND THAT IS DELIBERATE.** The
+  // escapes worth catching are exactly the ones with NO tenant on them —
+  // `report-problem` and `create-business` both mail a platform address and
+  // write `business_id` NULL — so filtering to this run's three fixture
+  // tenants would blind it to its whole reason for existing. The cost is that
+  // it can see another session's sends too, so it prints the tenant beside the
+  // domain and says plainly that it cannot attribute the row.
+  //
+  // **TWO THINGS MAKE A ROW HARMLESS AND BOTH ARE READ.** A reserved domain
+  // (`.example`, `.test`, `.invalid`, `.localhost`) cannot be delivered to by
+  // definition, and a status of `skipped` or `refused` means this product
+  // stopped the send before Resend ever saw it. Anything else is a message
+  // that left the building.
+  if (BREAK === "mail") {
+    // The sabotage: a row that looks exactly like an escaped send — deliverable
+    // domain, status `sent`. **Nothing is mailed.** The row is written straight
+    // to the table and cascades away with tenant A when the fixtures are torn
+    // down. A `--break` that could put mail in somebody's inbox would be a
+    // hazard rather than a control; that lesson cost this file a tenth email.
+    await rest("POST", "/rest/v1/email_sends", {
+      body: [{ business_id: A.id, to_email: "escape@edge-replay-sabotage.com",
+        subject: "EDGEREPLAY sabotage", status: "sent" }],
+      prefer: "return=minimal",
+    });
+  }
+  const sent = await sql(`select e.to_email, e.status, coalesce(b.slug, '(no tenant)') as slug
+                            from public.email_sends e
+                            left join public.businesses b on b.id = e.business_id
+                           where e.sent_at >= '${started_at}'::timestamptz`);
+  const RESERVED = /@([a-z0-9-]+\.)*(example|test|invalid|localhost)$/i;
+  const NEVER_LEFT = new Set(["skipped", "refused"]);
+  const escaped = sent.filter((r) => r.to_email && r.to_email !== SINK
+    && !RESERVED.test(r.to_email) && !NEVER_LEFT.has(r.status));
+  assertions++;
+  if (escaped.length) {
+    const where = [...new Set(escaped.map((r) => `${r.to_email.split("@").pop()} (${r.slug})`))];
+    say(`edge: [edge-mail] ${escaped.length} message(s) reached a deliverable address during this `
+      + `run, at ${where.join(", ")}. This window covers the whole table, so it may be another `
+      + `session's — check the tenant named. If it is a fixture tenant of this script, a function `
+      + `this harness cannot aim was called: find it and put it in NEVER_CALL before running again.`);
+    console.log(`    ${escaped.length} left the building, at ${where.join(", ")}`);
+  } else {
+    console.log(`    none — all ${sent.length} row(s) in this window went to the sink, a reserved `
+      + `domain, or were stopped before the provider`);
+  }
+
 } finally {
   if (!KEEP && A && B) {
     await rest("DELETE", "/rest/v1/businesses?slug=in.(edge-replay-a,edge-replay-b,edge-replay-bn)");
@@ -852,7 +1117,20 @@ const canary = {
       + "so this run cannot tell a refusal from a detector that is looking at nothing"],
 };
 
-const expected = rows.length;
+// **`expected_targets` WAS `rows.length` AND THAT IS A TAUTOLOGY.** A check
+// cannot find fewer targets than it found. The receipt's whole reason for
+// carrying the field is to catch a discovery that quietly returns less than it
+// should — a renamed directory, a `readdirSync` that throws and is caught, a
+// filter that starts matching nothing — and comparing a number to itself
+// catches none of them. It is now a floor, written down, and moving it is an
+// edit somebody has to make on purpose.
+const EXPECTED_FUNCTIONS = 39;
+if (dirs.length < EXPECTED_FUNCTIONS) {
+  say(`edge: [edge-discovery] only ${dirs.length} edge functions were discovered under `
+    + `supabase/functions and this check expects at least ${EXPECTED_FUNCTIONS}. Either the `
+    + `surface shrank, or discovery is broken and everything above it is measuring a fragment.`);
+}
+const expected = EXPECTED_FUNCTIONS;
 const exercised = exercisedOk.length;
 const status = failures.length === 0 && canary.observed_failure && skips.length === 0
   ? "pass" : "fail";
