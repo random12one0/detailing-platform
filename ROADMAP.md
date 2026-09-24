@@ -2418,8 +2418,9 @@ the wrong service, and never book a job we cannot reach.
   disagreed about one chip (45 centred, 43 in place) and the disagreement was
   the finding.
 
-- [ ] **2.32 — The fixed tab bar eats the bottom of any control that comes
-  to rest under it. Measured, 43px of reachable area against a 44 absolute.**
+- [x] **DONE 2026-09-23 — 2.32 — The fixed tab bar eats the bottom of any
+  control that comes to rest under it. Measured, 43px of reachable area
+  against a 44 absolute.**
   **Found 2026-09-21 while pressing the controls in 2.5, by two instruments
   disagreeing about one chip.**
 
@@ -2443,6 +2444,15 @@ the wrong service, and never book a job we cannot reach.
   office", not one control. It is the fault
   `scripts/keyboard-walk.mjs` exists for: *the only instrument here that
   catches a control UNDERNEATH a fixed bar*, visible to every ordinary test.
+
+  **THE PARAGRAPH BELOW WAS WRONG ABOUT WHICH SURFACE THIS IS, AND IT IS KEPT
+  WITH THE CORRECTION ATTACHED BECAUSE THAT ERROR IS THE INTERESTING PART.**
+  Everything measured in this item is the **BACK OFFICE** — `nav.tabbar`, the
+  Booking rules screen, `theme.css`. `--bk-bar-clear` was a **BOOKING PAGE**
+  variable, `booking.css`, `.bk`. **An item about one surface rested its case
+  on the other's variable, and that is how a real finding came to carry
+  somebody else's blocker for two days.** Corrected 2026-09-23; the original
+  wording follows.
 
   **AND IT LANDS ON `--bk-bar-clear`, WHICH IS CLAUDE.md's OWN WORKED EXAMPLE
   OF THE RULE THAT SAYS STOP.** Roadmap **2.15** kept the old literal
@@ -2508,6 +2518,79 @@ the wrong service, and never book a job we cannot reach.
   for.** What remains to decide is only whether the value is `--tabclear` as
   it stands or `--tabclear` plus the hit-area overhang — see the instrument
   note below.
+
+  **BUILT AND CLOSED 2026-09-23, AFTER THE INSTRUMENT AGREED WITH THE HAND
+  MEASUREMENTS AND NOT BEFORE — that ordering was Andrew's and it earned its
+  keep twice.**
+
+  **THE FIX, THREE LINES IN `theme.css`:**
+  1. `--hit-overhang: 4px` on `:root`, beside `--tabclear`.
+  2. `.choice::after` reads it instead of its old `-4px` literal, so the
+     control's overhang and the clearance that reserves it are **one number**.
+  3. `html:has(.tabbar) { scroll-padding-bottom: calc(var(--tabclear) + var(--hit-overhang)); }`
+
+  **SIZED TO THE HIT AREA, NOT THE BOX, AND THE EXTRA PIXELS ARE NOT
+  GENEROSITY.** `.choice` is a 38px box that presses as 46 because its
+  `::after` reaches 4px past each edge. A clearance sized to the bounding rect
+  leaves those rows — real, pressable control — under the bar **and reports
+  itself finished**. That is 2.32 rebuilt inside its own repair.
+
+  **WHY IT IS SAFE GIVEN WHAT 2.15 DELIBERATELY LEFT ALONE.** 2.15 kept a
+  reserve literal so three booking surfaces were untouched — a decision about
+  how much SPACE a page reserves. This adds a SCROLL BEHAVIOUR. Different
+  mechanisms, and they cannot fight: no length any page reserves is changed,
+  and `:has(.tabbar)` cannot match a page without a tab bar.
+
+  **PROVED, NOT ASSERTED — and the first proof was the wrong instrument.** A
+  byte comparison of the four bar-less pages at five widths said 6 of 20
+  frames differed. **Running the SAME code twice differed on 6 of 20 too, a
+  different six** — those pages are not deterministic frame to frame, so a
+  pixel diff cannot answer this. Re-proved with deterministic values: at all
+  twenty combinations **`.tabbar` x0 and `.choice` x0**, so neither new rule
+  can match. `book-step1` reads `scroll-padding-bottom: 85px` throughout —
+  the BOOKING page's own 8.5a rule, `--bk-bar-h` 73 + 12, untouched, which is
+  the two mechanisms sitting side by side without touching.
+
+  **`scripts/tabbar-clearance.mjs`** — 16 targets, 48 assertions, graded
+  `PASS`. Five widths **320 first**, three back-office screens, three
+  questions each: `subjects`, `legal` (the control's own hit area with nothing
+  over it), `reachable` (what survives where the browser puts it when it takes
+  focus). Console read at every width.
+
+  | | before | after |
+  |---|---|---|
+  | 320x844 rules, worst reachable | **12px** | **45px** |
+  | 392x844 | **12px** | **45px** |
+  | 768x1024 | **12px** | **45px** |
+  | 1440 / 1920 | no loss to the bar | unchanged |
+
+  **WHAT I BROKE ON PURPOSE, AND WHETHER IT CAUGHT IT.**
+  - **`--break=rect`** — scan the bounding box and ignore the `::after`, the
+    exact instrument bug. **Caught: 10 targets fail `legal`**, calling a legal
+    46px chip broken. That is the proof this file measures the overhang rather
+    than claiming to.
+  - **The canary** — `--tabclear: 8px` and `scroll-padding-bottom: 0`.
+    **Caught**, naming a chip legal at 45px with 12px surviving.
+  - **And the instrument was wrong twice before it was right, both caught by
+    its own canary refusing to fire.** First it walked the rect and called
+    **41 of 41 chips broken**; then it counted controls inside closed folds as
+    failures (`docs/gotchas.md`'s oldest entry, a closed `<details>` still
+    measuring its children) — they are now skipped **and counted**, 29 of them
+    on this screen, because a skip that reads like a pass is this repo's most
+    repeated fault. Then `scrollIntoView` turned out to be the wrong trigger:
+    an element already inside the viewport is "visible" to that call even with
+    a bar painted over it, so nothing scrolled, every screen looked clean
+    **and the canary could not bite either**. Focus is the trigger
+    `scroll-padding-bottom` governs. `keyboard-walk.mjs`'s header records the
+    same trap in its own words.
+
+  **ONE THING MEASURED AND DELIBERATELY NOT FIXED:** at 1440 and 1920 twelve
+  chips come up **42px against the 44 absolute**, losing four rows to
+  `.app-main` rather than to the bar. The bar is a left rail at those widths
+  and is not involved, so `scroll-padding-bottom` cannot help. It is recorded
+  by the check on every run as "short for reasons OTHER than the bar" and is
+  **not** graded, because a check that fails for reasons outside its item is a
+  check measuring its own scope. **It is a real finding and it needs an item.**
 
   **AN INSTRUMENT NOTE THAT WOULD HAVE MADE THIS MEASUREMENT WRONG.**
   `.choice`'s rect is **38px**, not 44: the absolute is met by

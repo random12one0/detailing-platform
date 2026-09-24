@@ -1,0 +1,92 @@
+{
+  "git_sha": "6ede1f8ffdf038beaa94fc0617212a4dd4058224",
+  "git_sha_started": "6ede1f8ffdf038beaa94fc0617212a4dd4058224",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-09-24T03:42:37.526Z",
+  "failures": [
+    "320x844 rules: legal «None» is 38px of hit area with nothing over it (box 38px + 0px overhang); «15 min» is 38px of hit area with nothing over it (box 38px + 0px overhang); «30 min» is 38px of hit area with nothing over it (box 38px + 0px overhang) … and 9 more",
+    "320x844 today: legal «Quote» is 39px of hit area with nothing over it (box 38px + 0px overhang); «Decline» is 39px of hit area with nothing over it (box 38px + 0px overhang)",
+    "392x844 rules: legal «None» is 38px of hit area with nothing over it (box 38px + 0px overhang); «15 min» is 38px of hit area with nothing over it (box 38px + 0px overhang); «30 min» is 38px of hit area with nothing over it (box 38px + 0px overhang) … and 9 more",
+    "392x844 today: legal «Quote» is 38px of hit area with nothing over it (box 38px + 0px overhang); «Decline» is 38px of hit area with nothing over it (box 38px + 0px overhang)",
+    "768x1024 rules: legal «None» is 38px of hit area with nothing over it (box 38px + 0px overhang); «15 min» is 38px of hit area with nothing over it (box 38px + 0px overhang); «30 min» is 38px of hit area with nothing over it (box 38px + 0px overhang) … and 9 more",
+    "768x1024 today: legal «Quote» is 38px of hit area with nothing over it (box 38px + 0px overhang); «Decline» is 38px of hit area with nothing over it (box 38px + 0px overhang)",
+    "1440x900 rules: legal «None» is 38px of hit area with nothing over it (box 38px + 0px overhang); «15 min» is 38px of hit area with nothing over it (box 38px + 0px overhang); «30 min» is 38px of hit area with nothing over it (box 38px + 0px overhang) … and 9 more",
+    "1440x900 today: legal «Quote» is 38px of hit area with nothing over it (box 38px + 0px overhang); «Decline» is 38px of hit area with nothing over it (box 38px + 0px overhang)",
+    "1920x1080 rules: legal «None» is 38px of hit area with nothing over it (box 38px + 0px overhang); «15 min» is 38px of hit area with nothing over it (box 38px + 0px overhang); «30 min» is 38px of hit area with nothing over it (box 38px + 0px overhang) … and 9 more",
+    "1920x1080 today: legal «Quote» is 38px of hit area with nothing over it (box 38px + 0px overhang); «Decline» is 38px of hit area with nothing over it (box 38px + 0px overhang)"
+  ],
+  "warnings": [
+    "Measures the HIT AREA — bounding rect plus the overhang read off each element's own ::after — never the rect. A rect-only scan under-measures every control using the negative-inset pattern by its overhang and calls a legal control broken.",
+    "run with --break=rect; this receipt is a sabotage, not a result"
+  ],
+  "artifacts": [
+    "artifacts/tabbar-clearance/320x844-rules.png",
+    "artifacts/tabbar-clearance/320x844-business.png",
+    "artifacts/tabbar-clearance/320x844-today.png",
+    "artifacts/tabbar-clearance/392x844-rules.png",
+    "artifacts/tabbar-clearance/392x844-business.png",
+    "artifacts/tabbar-clearance/392x844-today.png",
+    "artifacts/tabbar-clearance/768x1024-rules.png",
+    "artifacts/tabbar-clearance/768x1024-business.png",
+    "artifacts/tabbar-clearance/768x1024-today.png",
+    "artifacts/tabbar-clearance/1440x900-rules.png",
+    "artifacts/tabbar-clearance/1440x900-business.png",
+    "artifacts/tabbar-clearance/1440x900-today.png",
+    "artifacts/tabbar-clearance/1920x1080-rules.png",
+    "artifacts/tabbar-clearance/1920x1080-business.png",
+    "artifacts/tabbar-clearance/1920x1080-today.png",
+    "artifacts/tabbar-clearance/canary.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "320x844",
+      "392x844",
+      "768x1024",
+      "1440x900",
+      "1920x1080"
+    ],
+    "screens": [
+      "rules",
+      "business",
+      "today"
+    ],
+    "absolute": 44,
+    "observed": [
+      "320x844 rules: 12 visible control(s) (+29 inside closed folds, not measured), bar top 776, worst reachable 38px",
+      "320x844 business: 5 visible control(s), bar top 776, worst reachable 45px",
+      "320x844 today: 5 visible control(s), bar top 776, worst reachable 39px",
+      "392x844 rules: 12 visible control(s) (+29 inside closed folds, not measured), bar top 776, worst reachable 38px",
+      "392x844 business: 5 visible control(s), bar top 776, worst reachable 45px",
+      "392x844 today: 5 visible control(s), bar top 776, worst reachable 38px",
+      "768x1024 rules: 12 visible control(s) (+29 inside closed folds, not measured), bar top 956, worst reachable 38px",
+      "768x1024 business: 5 visible control(s), bar top 956, worst reachable 45px",
+      "768x1024 today: 5 visible control(s), bar top 956, worst reachable 38px",
+      "1440x900 rules: 12 visible control(s) (+29 inside closed folds, not measured), bar top 309, worst reachable 37px",
+      "1440x900 business: 5 visible control(s), bar top 309, worst reachable 46px",
+      "1440x900 today: 5 visible control(s), bar top 309, worst reachable 38px",
+      "1920x1080 rules: 12 visible control(s) (+29 inside closed folds, not measured), bar top 399, worst reachable 37px",
+      "1920x1080 business: 5 visible control(s), bar top 399, worst reachable 46px",
+      "1920x1080 today: 5 visible control(s), bar top 399, worst reachable 38px"
+    ],
+    "sabotage": "rect"
+  },
+  "check_id": "tabbar-clearance",
+  "started_at": "2026-09-24T03:41:54.660Z",
+  "status": "fail",
+  "expected_targets": 16,
+  "discovered_targets": 16,
+  "attempted_targets": 16,
+  "completed_targets": 16,
+  "skipped_targets": 0,
+  "assertions_executed": 48,
+  "min_assertions": 48,
+  "assertion_floor": "5 widths x 3 screens x 3 questions + 1 canary x 3 = 48. Fixed by SIZES x SCREENS x the question list, never by what the run finds: a screen with no matching controls grades as three failures rather than dropping out, so the number cannot fall without a diff. A tripwire on the code, not a run-time check.",
+  "canary": {
+    "id": "the-clearance-taken-away",
+    "observed_failure": false,
+    "problems": [
+      "legal «None» is 38px of hit area with nothing over it (box 38px + 0px overhang); «15 min» is 38px of hit area with nothing over it (box 38px + 0px overhang); «30 min» is 38px of hit area with nothing over it (box 38px + 0px overhang) … and 9 more"
+    ]
+  }
+}

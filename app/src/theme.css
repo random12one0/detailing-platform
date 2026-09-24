@@ -339,6 +339,22 @@
      by `.app-main`'s bottom padding AND by the scrim that covers the same
      strip, because they are the same strip. */
   --tabclear: calc(96px + var(--safe-b));
+
+  /* HOW FAR A CONTROL'S PRESSABLE AREA REACHES PAST ITS OWN BOX — ROADMAP
+     2.32, 2026-09-23.
+
+     CLAUDE.md's absolute is 44px of REAL hit area, and a deliberately small
+     mark keeps its size and grows its target with an absolutely positioned
+     `::after` at a negative inset. `.choice` is exactly that: a 38px box whose
+     `::after` reaches 4px above and below, so it presses as 46px and is legal.
+
+     **IT IS A TOKEN RATHER THAN A LITERAL BECAUSE TWO PLACES NEED THE SAME
+     NUMBER.** The control grows by it, and any clearance that has to keep a
+     control clear of fixed furniture has to reserve it — and those two numbers
+     drifting apart is precisely how a clearance comes to look correct while
+     leaving four rows of pressable control underneath a bar. One number, read
+     by `.choice::after` and by the scroll clearance below it. */
+  --hit-overhang: 4px;
 }
 
 * { box-sizing: border-box; }
@@ -1131,6 +1147,43 @@ a { color: var(--accent-text); text-decoration: none; }
    ONE NUMBER, `--tabclear`, SHARED WITH `.app-main`'s BOTTOM PADDING. The
    space the page reserves and the space the ground covers are the same space;
    two numbers is how one of them drifts. */
+/* THE BROWSER MUST NOT PARK A FOCUSED CONTROL UNDER THE TAB BAR — ROADMAP
+   2.32, 2026-09-23.
+
+   **`--tabclear` COULD NEVER HAVE FIXED THIS AND THAT WAS MEASURED, NOT
+   REASONED.** It is a RESERVE — `.app-main`'s bottom padding — so it decides
+   where the scroll ENDS. Raised 96px → 104px at runtime and re-measured
+   across the whole scroll at 320: no change at all. What puts a control under
+   the bar is the browser scrolling it there when it takes focus, and the only
+   thing that governs that is scroll padding.
+
+   **THIS IS NOT A SECOND MECHANISM. It is the one this repo already uses for
+   this exact fault on the other surface** — `book/booking.css` sets
+   `scroll-padding-bottom` on `html` for the booking bar under roadmap 8.5a,
+   *"the browser must not park a focused control under the bar"*. The back
+   office simply never got it: `theme.css` carries `scroll-margin-top` for the
+   topbar and for `.jobbar`, and nothing at all for the bottom.
+
+   **WHY IT IS SAFE NOW GIVEN WHAT 2.15 DELIBERATELY LEFT ALONE.** 2.15 kept a
+   reserve literal so that the confirmation screen, the manage screen and the
+   plans page were untouched — a decision about how much SPACE those pages
+   reserve. This adds a SCROLL BEHAVIOUR, and the two are different mechanisms
+   that cannot fight: nothing here changes a length any page reserves, and
+   `:has(.tabbar)` cannot match a page that has no tab bar. Those pages are
+   booking surfaces and have none. Proved rather than asserted — four of them
+   captured at five widths before and after and compared byte for byte.
+
+   **AND IT IS SIZED TO THE HIT AREA, NOT THE BOX, WHICH IS THE WHOLE POINT OF
+   THE ITEM.** `.choice` presses as 46px because its `::after` reaches
+   `--hit-overhang` past the box on each side. A clearance sized to the
+   bounding rect would leave those rows — real, pressable control — beneath the
+   bar and report itself finished, which is 2.32 rebuilt inside its own repair.
+   The extra pixels are not generosity; they are the part of the control that
+   a bounding rect cannot see. */
+html:has(.tabbar) {
+  scroll-padding-bottom: calc(var(--tabclear) + var(--hit-overhang));
+}
+
 .tabscrim {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 39;
   /* TALLER THAN THE CLEARANCE, AND SOLID PAST THE BAR'S TOP EDGE. At the
@@ -3849,7 +3902,9 @@ label.row:has(> input[type="checkbox"]) { min-height: 44px; }
    The 2px is also the whole budget: growing this band to 46 would spend all
    of it and leave the rows touching. */
 .choice { position: relative; margin-block: 1px; }
-.choice::after { content: ""; position: absolute; inset: -4px 0; }
+/* The negative inset is `--hit-overhang`, not a literal, so the scroll
+   clearance that has to reserve this overhang cannot drift away from it. */
+.choice::after { content: ""; position: absolute; inset: calc(-1 * var(--hit-overhang)) 0; }
 .choice:hover:not(.on) { border-color: var(--line-2); color: var(--text); }
 .choice:active { transform: scale(0.97); }
 .choice.on {
