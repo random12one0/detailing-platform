@@ -6505,7 +6505,7 @@ most corroborated finding in the set.
   6.2's outside-checks half is lane B, and the two can run at the same time.**
   Waiting on nothing but a session.
 
-- [ ] **6.3 — Alert when an active detailer's booking page cannot work.**
+- [x] **6.3 — Alert when an active detailer's booking page cannot work.**
   No services, no coverage area, no future availability, suspended account, or
   a public error.
   *A1 § 9*
@@ -6575,15 +6575,19 @@ most corroborated finding in the set.
   setting up; one that took bookings last month and has no services today has
   lost something.
 
-  **THE FOUR THAT ARE LEFT OUT, EACH WITH ITS REASON, BECAUSE A GUESS HERE IS
-  WORSE THAN A GAP:**
+  **ALL FIVE CONDITIONS, AND THEY ARE IN FOUR DIFFERENT STATES. THAT
+  DISTINCTION IS THE ITEM.** "One of five watched" reads as four forgotten, and
+  that is not what happened — but **unbuilt and undistinguishable look
+  identical in a roadmap and are not remotely the same thing**, so each is
+  named:
 
-  | named in the item | why it is not alerted on |
-  |---|---|
-  | a suspended account | **Not an outage — the platform did it**, on purpose, for non-payment. Mailing Andrew about a thing Andrew did is the definition of a wolf. Excluded from the sweep. |
-  | no future availability, when deliberate | `businesses.closed_until` and `blockout_dates` are a real feature `available-slots` already reads. **A detailer on holiday has said so**, and is excluded. |
-  | no coverage area | **Measured, not assumed: nothing in the booking path reads `businesses.service_area`.** It is carried through `tenant.ts` and never consulted by `available-slots`, `create-booking` or slot validation. An empty coverage area cannot stop a booking, so this would fire on a normal state. **Left out.** |
-  | a public error | **Nothing in this database records that a visitor saw one.** There is nothing to read. Sentry is the instrument and it is not built — 7.2, and `docs/ops/monitoring.md` § 4 still needs a DSN from Andrew. **Left out.** |
+  | condition | state | why |
+  |---|---|---|
+  | **no services** | **WATCHED** | Arm one. Fired, proved, recovered. |
+  | **no future availability** | **WATCHED** | Arm two, below. Asked rather than inferred. |
+  | **a suspended account** | **BUILT AND DELIBERATELY SILENT** | Not an outage — **the platform did it**, on purpose, for non-payment. Mailing Andrew about a thing Andrew did is the definition of a wolf. Excluded by name in the SQL. |
+  | **no coverage area** | **THE PREMISE IS FALSE** | Not hard to distinguish — **it cannot break a booking page at all.** Measured twice: `service_area` is written at signup, read for display and translation, and **nothing in the booking path ever branches on it.** Alerting on it would fire on a normal state, always. Retired rather than deferred. |
+  | **a public error** | **NOT BUILT, AND NOT BUILDABLE HERE** | **Nothing in this database records that a visitor saw one.** There is nothing to read. Sentry is the instrument; it needs a DSN from Andrew that does not exist yet. **It belongs to 7.2** and `docs/ops/monitoring.md` § 4 — stated here rather than left as a fifth blank. |
 
   **A SECOND IMPLEMENTATION IS DECLARED RATHER THAN HIDDEN.** "Not bookable"
   is the product's own definition, from `adminInsight.js`'s `bookability()`.
@@ -6649,10 +6653,98 @@ most corroborated finding in the set.
   entry by name, so the allowlist is refusable rather than a place to put
   things.
 
-  **STILL OPEN.** One of the five conditions is watched, two are permanently
-  out of scope by design, one needs Sentry, and the sweep has nobody to watch
-  until a real detailer exists. **Done when:** a real detailer who has taken
-  bookings stops being bookable and Andrew hears about it once.
+  ---
+
+  ### ARM TWO — "NO FUTURE AVAILABILITY", ASKED RATHER THAN INFERRED
+
+  **The fifth condition was UNBUILT, not undistinguishable, and the whole
+  reason this item stayed open for one more pass is that those two look the
+  same in a roadmap.** Arm one catches a detailer with **no open days at all**
+  — a structural fact read off `business_hours`. That is not what the item
+  names. **A detailer can have seven open days and nothing anybody can book**,
+  because slots are computed rather than stored: hours, buffer, slot interval,
+  advance windows, vehicle rules, blockouts and existing bookings. Only asking
+  produces the answer.
+
+  So it asks. **One call to `available-slots` per detailer per hour**, across
+  the next fortnight, alerting only when **no day in the whole window has a
+  single slot.** **The window is the guard: nothing on a Tuesday is a Tuesday;
+  nothing across fourteen days is a fault.**
+
+  **FOUR WOLVES SHUT OFF, AND THESE ARE WHY IT WILL STILL BE HONEST IN A
+  MONTH:**
+
+  1. **The same four front conditions as arm one** — mid-setup, suspended,
+     deliberately closed, never having worked. It never fires at somebody
+     still building their page.
+  2. **A detailer arm one already failed is not asked.** Otherwise one broken
+     detailer produces two alarms saying different things about one fact.
+  3. **FULLY BOOKED IS SUCCESS, NOT AN OUTAGE.** A detailer booked solid for a
+     fortnight has no slots and nothing is wrong. **Any booking starting inside
+     the window and the tenant is not alerted on** — one line, and it is the
+     entire difference between *"your page is broken"* and *"you are busy"*.
+  4. **BLOCKED OUT IS DELIBERATE.** `blockout_dates` is a real feature. Any
+     blockout overlapping the window silences this arm for that tenant.
+     **THE COST OF THAT CONSERVATISM IS NAMED RATHER THAN HIDDEN:** a detailer
+     with one blocked afternoon somewhere in the fortnight **and** a genuine
+     fault will not be alerted on. `blockout_dates` carries a `repeat` column,
+     so proving blockouts cover *every* day is real arithmetic, and getting it
+     subtly wrong points at mailing Andrew about somebody on leave. **Under a
+     silence-unless-real ruling that is the right direction to be wrong in**,
+     and arm one still covers that tenant for services and hours.
+
+  **AND THE SERVICE TYPE IS READ, NOT ASSUMED.** Asking a drop-off-only
+  detailer for mobile slots returns nothing — **the monitor would have
+  invented a wolf out of a business working perfectly.** The probe asks for
+  whatever that business actually offers.
+
+  **No credential is sent, and that is measured rather than hoped for.**
+  `available-slots` is public and deployed without JWT verification: called
+  with no `apikey` header at all it answers 200 with real slots. `tenant_watch`
+  holds no key.
+
+  **PROVED ON A THROWAWAY DETAILER, AND THE FIRST ATTEMPT AT THE BREAK WAS
+  ITSELF WRONG.** `max_advance_days = 0` was **refused by the database** — the
+  product will not allow that state, so **a break the product cannot suffer
+  proves nothing.** Switched to `min_advance_minutes = 43200`: a thirty-day
+  minimum notice, which has **no upper bound** and is a realistic fat-finger.
+  Hours intact, nothing blocked, not busy, and no day in the fortnight
+  bookable. Measured:
+
+  - first bad grade → **silent**.
+  - second consecutive bad grade → alert naming the reason and the window:
+    *"nothing bookable in the next 14 days (2026-09-25 to 2026-10-08) — this
+    detailer has taken bookings before"*.
+  - restored → quiet one cycle later, recovery row written.
+  - **Tenant deleted, orphan incident rows cleared**, 16 businesses active,
+    nothing suspended.
+
+  **THE PROOF SENT NO MAIL.** The ping was disconnected for its whole duration
+  and reconnected afterwards — **six emails was the night's limit and it had
+  been reached.** The ping-to-email path this feeds was already proved end to
+  end at 22:33 with arm one; what needed proving here was the decision.
+
+  ---
+
+  ### 6.3 IS MET AND TICKED. 2026-09-23
+
+  **Two conditions watched, one deliberately silent with its reason written
+  down, one retired on a false premise, and the fifth handed to 7.2 where it
+  waits on an instrument that does not exist.** Every one of the five is
+  accounted for by name, which is the thing that was missing when this item
+  was one-of-five.
+
+  **What it does NOT claim:** the sweep watches **zero detailers today**,
+  because every active business is a fixture. That is stated above rather than
+  papered over, and it starts working with no change at all the first time a
+  real business takes a booking.
+
+  **Carried forward, not left behind:** the public error is **7.2**, and the
+  blockout conservatism in arm two is a known, written limit rather than an
+  unknown.
+
+  `migration-drift` passes — 51 functions, 55 tables, 85 policies. `db-audit`
+  is **clean**.
 
 - [ ] **6.4 — Weak signal and retry behavior is unknown.**
   Detailers work in driveways.
