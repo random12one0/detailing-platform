@@ -28,7 +28,16 @@ it improves is by recording where it missed.
 
 ---
 
-## Batch 1A — Easy wins on public pages and small UI · **lane A** · start here
+## Batch 1A — Easy wins · **lane A** · ✅ FIVE OF SIX DONE 2026-09-22/23
+
+**Only `7.8` is left in this batch.** `7.4`, `7.11`, `7.12`, `9.6` and `9.16`
+are all ticked in `ROADMAP.md`. **Batch 1B is fully closed** — `8.10b` and
+`4.5` are ticked; only the unnumbered rate-limit item remains from it, and it
+is carried into Batch 1C below.
+
+**The sizing held.** Six small items took roughly one sitting, which is what
+this file guessed. Keep that as the calibration for "small".
+
 
 **Six items, all small, none touching money logic, booking rules or
 permissions.** This batch exists to take six numbers off a list of 67 in one
@@ -46,9 +55,13 @@ sitting and to prove the whole loop works before anything expensive is tried.
   the phone top bar.** The first half of this item (the unsettled-price window)
   was done on 2026-09-21; **read the entry before touching it** — it carries a
   correction and a false finding that came out of the same paragraph.
-- [ ] **7.8** — The privacy page omits **Geoapify** and **OpenStreetMap**,
+- [ ] **7.8** — ~~The privacy page omits **Geoapify** and **OpenStreetMap**,
   which the booking address search visibly credits, so typed addresses go
-  somewhere the policy does not name. Add them.
+  somewhere the policy does not name. Add them.~~
+  **STALE — the same wording corrected under Batch 1C below. The page already
+  names Geoapify; OpenStreetMap must NOT be added; the four real gaps closed
+  at `2942f6f`. 7.8 is open on Andrew's wording only. Do not build from this
+  line.**
 - [ ] **9.6** — The client list shows values with no headings, so last visit,
   lifetime spend and phone have to be inferred. Label them, and give "9 gone
   quiet" an exact period and an action.
@@ -89,6 +102,78 @@ while measuring nothing, which is this repo's oldest and most expensive fault.
 **Done when:** each one carries a receipt `node scripts/receipt.mjs` grades,
 and each was **broken on purpose first** with the break named in the roadmap
 line.
+
+**✅ 8.10b and 4.5 CLOSED 2026-09-22/23.** The rate-limit item carries over.
+
+---
+
+## Batch 1C — ✅ CLOSED 2026-09-23, both items were already done · added 2026-09-23
+
+> ## ⚠ BATCH 1C IS CLOSED. BOTH ITEMS WERE STALE, AND BOTH WOULD HAVE SENT A
+> ## SESSION TO REBUILD FINISHED WORK — corrected 2026-09-23.
+>
+> **Both original items are kept below, struck through rather than deleted,
+> because somebody may still be holding a note that quotes them.** Do not act
+> on either. **What is actually left on this thread is `14.12` and `14.13`.**
+
+- [x] ~~**7.8 · lane A** — The privacy page omits **Geoapify** and
+  **OpenStreetMap**, which the booking address search visibly credits, so typed
+  addresses go somewhere the policy does not name. Add them.
+  **Sonnet, medium.**~~
+
+  **NOT BUILDABLE AS WRITTEN, and this batch quoted the stale pre-audit
+  roadmap line that `ROADMAP.md` 7.8's own entry had already disproved
+  twice.** Read that entry before touching the privacy page. It says:
+
+  - **The page already names Geoapify** — three times, at
+    `landing/legal.js:173`, in a paragraph written specifically about services
+    that receive data *"while somebody is typing"*. The address gap the audit
+    found **has been closed since**.
+  - **OpenStreetMap must NOT be added.** `_shared/geoapify.ts:206` —
+    `ATTRIBUTION` is a **licence credit**, not a processor.
+    **No request is ever made to `openstreetmap.org` and no data reaches
+    them.** Geoapify uses their data; the licence requires the credit.
+    **Naming them on a privacy page would be the other half of the fault this
+    item is about** — a policy claiming a recipient that receives nothing.
+  - **All four real gaps closed at commit `2942f6f`**, with screenshots at
+    `receipts/screenshots/7.8-2026-09-22/`. **Three of the four were gaps
+    neither audit mentioned.**
+
+  **7.8 stays open on Andrew's wording only.** There is no engineering left in
+  it.
+
+- [x] ~~**The rate-limit gap · lane B** (Wave 14, unnumbered — search
+  `withinLimits`). `create-booking`, `pay-booking`, `plan-link`, `unsubscribe`,
+  `address-suggest` and `stripe-webhook` have rate limiting.
+  **`available-slots`, `calculate-booking`, `validate-promo-code` and
+  `get-booking-receipt` do not.** These are public endpoints; unmetered, they
+  are free load on the database for anybody who finds them.
+  **Opus, high** — public surface plus load behaviour.~~
+
+  **ALREADY BUILT. Counted from the files on 2026-09-23 rather than taken from
+  the batch line:**
+
+  - **13 functions call `withinLimits`, not six.**
+  - **All four named endpoints carry a real `LIMITS.publicCeiling` guard,
+    keyed on `ipOf(req)`, returning `429` before any other work:**
+    `available-slots:82`, `calculate-booking:36`,
+    `validate-promo-code:25`, `get-booking-receipt:104`.
+
+  **What closed it:** those four guards. The batch line described the state
+  before they landed.
+
+> ### WHAT IS ACTUALLY LEFT ON THIS THREAD
+>
+> **`ROADMAP.md` 14.12** — `cancel-booking`, `reschedule-booking`,
+> `accept-quote` and `track-visit` still have no rate limit. **Three of those
+> change a real booking**, so the risk is a write a script can spam rather
+> than a read it can scrape, and `LIMITS.publicCeiling` is 14.9's own stated
+> fix for them. **`track-visit` is different and unverified** — its header
+> claims service-role-only and nothing in its source enforces that claim.
+>
+> **`ROADMAP.md` 14.13** — the rest of that thread.
+>
+> **Those two are the running order here. Not this batch.**
 
 ---
 
