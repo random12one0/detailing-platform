@@ -1564,9 +1564,9 @@ the wrong service, and never book a job we cannot reach.
   nothing committed, and recorded rather than retried at the end of a long
   session. The duplication is real and is a follow-up.
 
-- [ ] **2.3 — A customer can pick the near zone with a far address, and
-  nothing says so. REWRITTEN 2026-09-22 ON ANDREW'S RULING — the old ask was
-  for a feature nobody is building.**
+- [x] **DONE 2026-09-23 — 2.3 — A customer can pick the near zone with a far
+  address, and nothing says so. REWRITTEN 2026-09-22 ON ANDREW'S RULING — the
+  old ask was for a feature nobody is building.**
 
   **THE ASK, IN ITS CURRENT FORM.** Travel is **named, flat-fee zones**, the
   customer picks their own from a list, and each carries a price. So the
@@ -1704,6 +1704,75 @@ the wrong service, and never book a job we cannot reach.
   for a list of UNKNOWN length, and at run time this tenant's length is two —
   so a customer really does see a two-option dropdown. That is a design
   question for Andrew, not a rule breach, and it is not 2.3's to settle.
+
+  ---
+
+  **VERIFIED 2026-09-23. THE WIRING WORKS AT EVERY JOINT AND NO PRODUCT CODE
+  WAS WRITTEN** — which is what the note above predicted and is worth saying
+  plainly, because "it was already built" and "it was already working" are two
+  different claims and only one of them had evidence.
+
+  **THE TWO BOOKINGS DIFFER IN ONE THING.** Both picked the same zone — the
+  default, near one, `Long Beach`, fee $0 — so the only variable is the text
+  typed into the address box:
+
+  | Booking | Address typed | Zone picked | Stored flag | The record says |
+  |---|---|---|---|---|
+  | far | `1549 El Prado, San Diego, CA 92101` | `Long Beach` | **`true`** | *"This address doesn't mention the travel area they picked. Worth a quick check before you drive out."* |
+  | near | `219 Walnut Ave, Long Beach, CA` | `Long Beach` | **`false`** | nothing |
+
+  **AND NEITHER WAS REFUSED OR REPRICED**, which is the half of the ruling that
+  is easy to forget to check: both bookings were created, and both records read
+  **`They asked for $65`**. The far one was not quietly charged the $40.
+
+  **`scripts/zone-mismatch.mjs`** — 17 targets, 62 assertions, graded `PASS` by
+  `receipt.mjs`, canary **5/5**. Four questions per target at 1920, 1440x900,
+  768x1024, 392x844 and 320: `record-open`, `warning` (present **iff** the
+  stored flag is true, both directions in one question), `visible`
+  (hit-tested), `painted` (two-render pixel difference). Plus two one-off
+  assertions on the STORED value, which is the joint that had never been
+  exercised. Console read at every width with warnings unfiltered.
+  **Sabotaged both ways:** `--break=canary` → canary 0/5 and the receipt is
+  refused; `--break=paint` → all five `far` targets caught at 0.00.
+
+  **THE CANARY IS A DATA CANARY.** It intercepts the record's own query and
+  flips the stored flag to `false` on the booking that really has it `true`.
+  The page then correctly draws nothing and the check must notice the warning
+  it expected has gone. A stylesheet canary would only have proved the warning
+  can be hidden, which nobody doubted.
+
+  **WHAT IT COST, DECLARED BECAUSE BOTH COSTS ARE REAL.** **No Geoapify
+  credit** — both addresses were already in `address_points`, checked before
+  they were chosen. **No real mail** — the customer address is
+  `e2e@fixture.test`, `e2e-booking.mjs`'s own free path, so the provider leg is
+  deliberately unproven. **Two rows written and deleted** in a `finally`, the
+  same bargain `e2e-booking.mjs` strikes.
+
+  **ADJACENT FINDING, REAL, AND NOT FIXED HERE — opening a job record spends
+  the ADDRESS-TYPING budget.** The run kept reddening on a console line that
+  said only *"Failed to load resource: the server responded with a status of
+  429"*, naming nothing. Chrome does not give the path, so the instrument was
+  changed to record it — and it is **`/functions/v1/address-suggest`, fired by
+  the JOB RECORD, not by the booking page.**
+  `app/src/lib/jobWeather.js:111` geocodes the job's address through the
+  address-autocomplete endpoint to place the weather strip. That endpoint is
+  budgeted as a **typing** allowance: `addressPerIp` is **60 an hour**, sized
+  in its own comment for *"a person typing several addresses badly"*, over a
+  **2,400-a-day cap shared by every tenant**.
+  **So a detailer who opens job records spends a budget meant for customers
+  typing**, without typing anything, and when it runs out the weather stops
+  with a 429 and nothing on screen says why. Whether that is worth a cache, a
+  separate bucket or nothing at all is a judgement nobody has made yet.
+  **Named here rather than fixed: it is not 2.3, and tonight's instruction was
+  2.3 and nothing else.** The check clears the `address%` buckets before it
+  runs, for the reason `e2e-booking.mjs` gives about the booking buckets — the
+  limits stay sized by what a real customer does and the harness pays for its
+  own noise.
+
+  **A 429 WITH NO PATH IS A FINDING NOBODY CAN ACT ON**, which is why
+  `scripts/lib/bookingWalk.mjs`'s console watcher now records the status AND
+  the path of every refused request. Two runs were spent guessing at a bucket
+  before that line existed; the third named the endpoint immediately.
 
 - [x] **2.4 — DONE 2026-09-19. Every booking button on all five examples now
   opens a booking path, and a certified check says so every run.**

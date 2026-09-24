@@ -1,0 +1,130 @@
+{
+  "git_sha": "43c7a66982e6473d6252748729fc485ee6b2e623",
+  "git_sha_started": "5942a0b81d7ca480746f4335625a5af8c083a07b",
+  "head_moved": true,
+  "environment": "local",
+  "finished_at": "2026-09-24T02:22:32.907Z",
+  "failures": [],
+  "warnings": [
+    "Two real bookings on demo-detail, created through the public page and deleted afterwards. Both addresses were already in address_points, so NO Geoapify credit was spent; mail went to e2e@fixture.test, so the provider leg is deliberately unproven and is not this file's subject. Both bookings picked the SAME zone — the default, near one — so the only difference between them is the address typed. The owner-email path that also carries this flag was NOT exercised."
+  ],
+  "artifacts": [
+    "artifacts/zone-mismatch/1920x1080-far.png",
+    "artifacts/zone-mismatch/1920x1080-near.png",
+    "artifacts/zone-mismatch/1440x900-far.png",
+    "artifacts/zone-mismatch/1440x900-near.png",
+    "artifacts/zone-mismatch/768x1024-far.png",
+    "artifacts/zone-mismatch/768x1024-near.png",
+    "artifacts/zone-mismatch/392x844-far.png",
+    "artifacts/zone-mismatch/392x844-near.png",
+    "artifacts/zone-mismatch/320x844-far.png",
+    "artifacts/zone-mismatch/320x844-near.png",
+    "artifacts/zone-mismatch/canary-1.png",
+    "artifacts/zone-mismatch/canary-2.png",
+    "artifacts/zone-mismatch/canary-3.png",
+    "artifacts/zone-mismatch/canary-4.png",
+    "artifacts/zone-mismatch/canary-5.png"
+  ],
+  "dimensions": {
+    "slug": "demo-detail",
+    "scope": "Two real bookings on demo-detail, created through the public page and deleted afterwards. Both addresses were already in address_points, so NO Geoapify credit was spent; mail went to e2e@fixture.test, so the provider leg is deliberately unproven and is not this file's subject. Both bookings picked the SAME zone — the default, near one — so the only difference between them is the address typed. The owner-email path that also carries this flag was NOT exercised.",
+    "sizes": [
+      "1920x1080",
+      "1440x900",
+      "768x1024",
+      "392x844",
+      "320x844"
+    ],
+    "cases": [
+      "far: a San Diego address under a zone named Long Beach",
+      "near: a Long Beach address under a zone named Long Beach — the control"
+    ],
+    "observed": [
+      "far: zone \"Long Beach\" · address \"1549 El Prado, San Diego, CA 92101, Un\" · stored flag true (expected true)",
+      "near: zone \"Long Beach\" · address \"219 Walnut Ave, Long Beach, CA\" · stored flag false (expected false)"
+    ],
+    "delta_floor": 2,
+    "canary_runs": 5,
+    "sabotage": null
+  },
+  "check_id": "zone-mismatch",
+  "started_at": "2026-09-24T02:21:23.450Z",
+  "status": "pass",
+  "expected_targets": 17,
+  "discovered_targets": 17,
+  "attempted_targets": 17,
+  "completed_targets": 17,
+  "skipped_targets": 0,
+  "assertions_executed": 62,
+  "min_assertions": 62,
+  "assertion_floor": "2 bookings x 1 stored-value assertion + 2 bookings x 5 widths x 4 questions + 5 canary runs x 4 = 62. Fixed by CASES x SIZES x the question list, never by what the run finds: a record that will not open grades as four failures rather than dropping out, so the number cannot fall without a diff. A tripwire on the code, not a run-time check.",
+  "canary": {
+    "id": "the-stored-flag-flipped-to-false-on-the-way-to-the-page",
+    "observed_failure": true,
+    "problems": [
+      "run 1: warning the stored flag is true and the record shows no zone-mismatch warning",
+      "run 1: visible there is no warning to place",
+      "run 1: painted",
+      "run 2: warning the stored flag is true and the record shows no zone-mismatch warning",
+      "run 2: visible there is no warning to place",
+      "run 2: painted",
+      "run 3: warning the stored flag is true and the record shows no zone-mismatch warning",
+      "run 3: visible there is no warning to place",
+      "run 3: painted",
+      "run 4: warning the stored flag is true and the record shows no zone-mismatch warning",
+      "run 4: visible there is no warning to place",
+      "run 4: painted",
+      "run 5: warning the stored flag is true and the record shows no zone-mismatch warning",
+      "run 5: visible there is no warning to place",
+      "run 5: painted"
+    ],
+    "runs": [
+      {
+        "run": 1,
+        "caught": true,
+        "problems": [
+          "warning the stored flag is true and the record shows no zone-mismatch warning",
+          "visible there is no warning to place",
+          "painted"
+        ]
+      },
+      {
+        "run": 2,
+        "caught": true,
+        "problems": [
+          "warning the stored flag is true and the record shows no zone-mismatch warning",
+          "visible there is no warning to place",
+          "painted"
+        ]
+      },
+      {
+        "run": 3,
+        "caught": true,
+        "problems": [
+          "warning the stored flag is true and the record shows no zone-mismatch warning",
+          "visible there is no warning to place",
+          "painted"
+        ]
+      },
+      {
+        "run": 4,
+        "caught": true,
+        "problems": [
+          "warning the stored flag is true and the record shows no zone-mismatch warning",
+          "visible there is no warning to place",
+          "painted"
+        ]
+      },
+      {
+        "run": 5,
+        "caught": true,
+        "problems": [
+          "warning the stored flag is true and the record shows no zone-mismatch warning",
+          "visible there is no warning to place",
+          "painted"
+        ]
+      }
+    ],
+    "caught": "5/5"
+  }
+}

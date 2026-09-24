@@ -289,4 +289,16 @@ export function watchConsole(page, label, sink) {
     sink.push(`${label} · ${msg.type()} · ${text.slice(0, 180)}`);
   });
   page.on("pageerror", (e) => sink.push(`${label} · pageerror · ${String(e.message).slice(0, 180)}`));
+  // **A REFUSED REQUEST IS RECORDED WITH ITS PATH, BECAUSE THE CONSOLE DOES
+  // NOT GIVE ONE.** Chrome prints "Failed to load resource: the server
+  // responded with a status of 429" and names nothing, so a run that trips a
+  // rate limit reports a number nobody can act on — which is a finding shaped
+  // exactly like a skipped check: visible, and useless. The path turns it into
+  // a lead.
+  page.on("response", (res) => {
+    if (res.status() < 400) return;
+    let where = res.url();
+    try { where = new URL(where).pathname; } catch { /* keep the raw string */ }
+    sink.push(`${label} · http ${res.status()} · ${where}`);
+  });
 }

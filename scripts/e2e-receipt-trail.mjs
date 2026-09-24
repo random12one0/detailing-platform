@@ -534,9 +534,28 @@ const { path } = writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  // Declared here and held to it. 20 is what a clean run executes; lowering it
-  // is a visible diff somebody has to justify.
+  // **THIS COMMENT SAID 20 AND THE NUMBER SAID 21, AND THE NUMBER WAS RIGHT —
+  // resolved 2026-09-22 by counting, and the disagreement is kept rather than
+  // tidied away.** Andrew spotted the two disagreeing. There are **21
+  // `check(` call sites in this file**, every one of them unconditional
+  // within its section and not one of them in a loop, so a clean run executes
+  // 21 — which is exactly what the receipt of 2026-09-19 recorded. The "20"
+  // was prose that had drifted from its own number, the same class of
+  // unreliable derived tally `docs/gotchas.md` describes.
+  //
+  // **COUNTED, NOT RUN, AND THE REASON MATTERS: this script drives a real
+  // card payment** (§ 1 shells out to `e2e-payment.mjs`). Re-running it to
+  // settle a comment would have spent money to check arithmetic that reading
+  // answers exactly. Whoever next runs it for its own sake regenerates the
+  // receipt and clears it.
   min_assertions: 21,
+  // **DECLARED BECAUSE A FLOOR EQUAL TO ITS OWN COUNT CANNOT BIND** —
+  // `receipt.mjs` refuses a receipt that does not say why.
+  assertion_floor:
+    "21 unconditional check() call sites, none of them inside a loop, so a clean run "
+    + "executes exactly 21 — confirmed against the 2026-09-19 receipt. The file's own "
+    + "comment said 20 and was wrong; counted 2026-09-22 rather than re-run, because § 1 "
+    + "drives a real card payment. A tripwire on the code, not a run-time check.",
   failures,
   artifacts,
   warnings: BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : [],

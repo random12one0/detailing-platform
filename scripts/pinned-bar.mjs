@@ -543,6 +543,18 @@ const { path } = writeReceipt({
   // 17 targets x 7 questions. Lowering it is a visible diff somebody has to
   // justify — which is the only reason the floor is written down.
   min_assertions: 119,
+  // **DECLARED 2026-09-22, BECAUSE A FLOOR EQUAL TO ITS OWN COUNT CANNOT
+  // BIND** — `receipt.mjs` now refuses a receipt that does not say why.
+  // Read rather than assumed: `ASSERTIONS` names seven questions,
+  // `grade()` asks all seven per target (the `m.missing` path loops the same
+  // seven rather than returning early with fewer), and the target count is
+  // SIZES 4 x MODES 2 x 2 containers + 1 canary = 17. Nothing here varies
+  // with what the run finds.
+  assertion_floor:
+    "4 sizes x 2 modes x 2 containers + 1 canary = 17 targets, x the 7 questions in "
+    + "ASSERTIONS = 119. grade() asks all seven per target including the missing-container "
+    + "path, which loops ASSERTIONS rather than returning short, so the count cannot fall "
+    + "without a diff. A tripwire on the code, not a run-time check.",
   failures,
   artifacts,
   warnings: [

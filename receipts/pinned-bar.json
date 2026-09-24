@@ -1,7 +1,9 @@
 {
-  "git_sha": "2a10b86d811d5a5929c629b2b24de47e9dba8e2e",
+  "git_sha": "9be1fdd21cb5c7424a272aac8b602be3e8ebabbc",
+  "git_sha_started": "9be1fdd21cb5c7424a272aac8b602be3e8ebabbc",
+  "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-19T04:25:16.680Z",
+  "finished_at": "2026-09-24T02:15:08.047Z",
   "failures": [],
   "warnings": [
     "1920x1080 · warning · ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` futur",
@@ -92,7 +94,7 @@
     "artifacts/pinned-bar/sheet-392-lite.png"
   ],
   "dimensions": {
-    "booking": "7bec7020-8bd6-4584-910d-798383f45ed3",
+    "booking": "a1247f93-0914-4c64-a8d7-f44ded881260",
     "sizes": [
       "1920x1080",
       "1440x900",
@@ -111,7 +113,7 @@
     "sabotage": null
   },
   "check_id": "pinned-bar",
-  "started_at": "2026-09-19T04:24:09.742Z",
+  "started_at": "2026-09-24T02:14:04.186Z",
   "status": "pass",
   "expected_targets": 17,
   "discovered_targets": 17,
@@ -120,13 +122,14 @@
   "skipped_targets": 0,
   "assertions_executed": 119,
   "min_assertions": 119,
+  "assertion_floor": "4 sizes x 2 modes x 2 containers + 1 canary = 17 targets, x the 7 questions in ASSERTIONS = 119. grade() asks all seven per target including the missing-container path, which loops ASSERTIONS rather than returning short, so the count cannot fall without a diff. A tripwire on the code, not a run-time check.",
   "canary": {
     "id": "the-page-with-the-old-rule-put-back",
     "observed_failure": true,
     "problems": [
       "rounded it is the same width as the cards under it, so it is an object, but it is 0px where the cards beside it are 12px",
       "clear only 0px between the bar and the row wrap above it",
-      "edge the strip under the bar is 25.67 with the bar's elevation and 25.67 without it — a 0.00 difference"
+      "edge the strip under the bar is 51.45 with the bar's elevation and 51.45 without it — a 0.00 difference"
     ]
   }
 }
