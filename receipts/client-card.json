@@ -1,0 +1,54 @@
+{
+  "git_sha": "a858202827ca181f7b6e9af3421e1c56664d9ffe",
+  "git_sha_started": "95ed7d3e71dd470d6c0b1baecdea2a3873b33052",
+  "head_moved": true,
+  "environment": "local",
+  "finished_at": "2026-09-24T05:27:23.915Z",
+  "failures": [],
+  "warnings": [
+    "`book-again` asserts the form is PREFILLED, not that a button exists — Andrew's ruling was that a Book again opening a blank form is worse than no button, and a presence check would pass exactly that.",
+    "Nothing is submitted: the New booking modal is opened, read and closed, so no booking row is written and no booking-page endpoint is called."
+  ],
+  "artifacts": [
+    "artifacts/client-card/320x844-book-again.png",
+    "artifacts/client-card/392x844-book-again.png",
+    "artifacts/client-card/768x1024-book-again.png",
+    "artifacts/client-card/1440x900-book-again.png",
+    "artifacts/client-card/1920x1080-book-again.png",
+    "artifacts/client-card/canary-blank.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "320x844",
+      "392x844",
+      "768x1024",
+      "1440x900",
+      "1920x1080"
+    ],
+    "max_rows_tried": 6,
+    "observed": [
+      "320x844: «Dana Ruiz» tel=true sms=true vehicle=\"medium · Honda Civic\" address=\"88 Harbor Way, Long Beach, CA\" bookAgain=true prefilled={\"open\":true,\"fields\":10,\"values\":[\"Dana Ruiz\",\"562-555-0198\",\"dana.ruiz@example.com\",\"88 Harbor Way, Long Beach, CA\",\"2026-09-23\",\"Gate code 4471. Friendly dog in the yard.\"]} (1 record(s) opened)",
+      "392x844: «Dana Ruiz» tel=true sms=true vehicle=\"medium · Honda Civic\" address=\"88 Harbor Way, Long Beach, CA\" bookAgain=true prefilled={\"open\":true,\"fields\":10,\"values\":[\"Dana Ruiz\",\"562-555-0198\",\"dana.ruiz@example.com\",\"88 Harbor Way, Long Beach, CA\",\"2026-09-23\",\"Gate code 4471. Friendly dog in the yard.\"]} (1 record(s) opened)",
+      "768x1024: «Dana Ruiz» tel=true sms=true vehicle=\"medium · Honda Civic\" address=\"88 Harbor Way, Long Beach, CA\" bookAgain=true prefilled={\"open\":true,\"fields\":10,\"values\":[\"Dana Ruiz\",\"562-555-0198\",\"dana.ruiz@example.com\",\"88 Harbor Way, Long Beach, CA\",\"2026-09-23\",\"Gate code 4471. Friendly dog in the yard.\"]} (1 record(s) opened)",
+      "1440x900: «Dana Ruiz» tel=true sms=true vehicle=\"medium · Honda Civic\" address=\"88 Harbor Way, Long Beach, CA\" bookAgain=true prefilled={\"open\":true,\"fields\":9,\"values\":[\"Dana Ruiz\",\"562-555-0198\",\"dana.ruiz@example.com\",\"88 Harbor Way, Long Beach, CA\",\"2026-09-23\"]} (1 record(s) opened)",
+      "1920x1080: «Dana Ruiz» tel=true sms=true vehicle=\"medium · Honda Civic\" address=\"88 Harbor Way, Long Beach, CA\" bookAgain=true prefilled={\"open\":true,\"fields\":9,\"values\":[\"Dana Ruiz\",\"562-555-0198\",\"dana.ruiz@example.com\",\"88 Harbor Way, Long Beach, CA\",\"2026-09-23\"]} (1 record(s) opened)"
+    ],
+    "sabotage": null
+  },
+  "check_id": "client-card",
+  "started_at": "2026-09-24T05:25:28.658Z",
+  "status": "pass",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 21,
+  "min_assertions": 21,
+  "assertion_floor": "5 widths x 4 questions + 1 canary = 21. Fixed by SIZES x the question list, never by what the run finds: a width where no record opens grades as four failures rather than dropping out, and a customer with no history fails `subjects` rather than making the two fact questions vacuous.",
+  "canary": {
+    "id": "the-blank-new-booking-form",
+    "observed_failure": true,
+    "problems": []
+  }
+}
