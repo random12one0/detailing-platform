@@ -3257,3 +3257,50 @@ the same night:
 one is a check that *clears* shared state and destroys somebody's floor; this
 one is two checks *competing* for a shared ceiling. Both are invisible to
 everything this repo currently runs. ROADMAP **14.16** carries the fix.
+
+## 80. A SABOTAGE THAT NEVER REACHED THE GUARD REPORTS "THE GUARD DID NOT FIRE" — which is indistinguishable from a real hole
+
+**2026-09-23.** A check constraint had just been added to stop anybody writing
+a credential into a column. Broken on purpose, the way this repo requires, it
+reported: **`!!! ACCEPTED — the constraint does nothing`.**
+
+The constraint was innocent. The sabotage was:
+
+```sql
+update t set headers = headers || '{"apikey":"pretend"}'::jsonb where key = 'homepage';
+```
+
+and that row's `headers` was **`NULL`**. **In Postgres `NULL || anything` is
+`NULL`**, so the statement set the column to `NULL`, which the constraint
+happily allows. **No credential was ever offered to the guard.** The test
+proved nothing and announced the opposite.
+
+Redone three ways — direct assignment carrying `apikey`, the same with
+`Authorization`, and an `INSERT` of a fresh row carrying one — all three were
+refused with `23514`. The guard had been right the whole time.
+
+**WHY THIS IS ITS OWN ENTRY AND NOT A NOTE ABOUT ONE TABLE.** The failure has
+nothing to do with credentials, constraints or jsonb. It is the general shape:
+
+> **"The guard did not fire" and "the guard was never reached" produce the
+> same output, and only one of them is a bug.**
+
+The same trap in other clothes: a `WHERE` clause that matches no rows, so an
+`UPDATE` that should have violated something updates nothing and "passes"; a
+`--break=` flag whose sabotage is applied after the thing it meant to blind
+has already run; a test that posts a malformed body to a route that 404s
+before validation ever happens; a null-propagating expression anywhere in the
+middle of the sabotage.
+
+**THE HABIT, and it costs one line:** after breaking something on purpose,
+**check that the break actually arrived** before believing the result. Read
+back the value you tried to write, or count the rows you tried to touch. If
+the sabotage cannot be shown to have reached the guard, a green is not a green
+and a red is not a red.
+
+**AND THE REASON IT WAS CAUGHT AT ALL** is worth copying: the result was
+*surprising*. A constraint written ten minutes earlier, doing nothing at all,
+is not a plausible outcome — and the instinct to re-test rather than write it
+down is the only thing standing between that and a file recording a hole that
+does not exist. **A check that says the guard is broken deserves exactly as
+much suspicion as one that says it is fine.**

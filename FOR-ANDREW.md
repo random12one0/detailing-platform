@@ -1277,6 +1277,7 @@ still knows them.
   own account, so their age is their own affair.
   **When you do it we will need:** the two keys and two webhook secrets. Into
   the settings file, never into chat.
+
   **ONE SMALL THING IS NOW WAITING ON IT, AND IT IS NOT A PAYMENT — 2026-09-23.**
   We have a check that proves one detailer cannot reach another detailer's
   bookings, customers or money. It now covers 27 of the 39 back-end pieces.
@@ -1289,6 +1290,41 @@ still knows them.
   connected to the practice business, which is a Stripe action and therefore
   yours, not ours. We did not fake one, because a check that fakes its way
   past a real requirement is only testing the fake.
+
+- [ ] **DO · One line that switches on two more outside checks. 2026-09-23.
+  Two minutes, and it is a choice rather than a chore.**
+  We now watch your live site from the outside every five minutes and email you
+  only if something is genuinely broken — not once for a slow moment, and
+  nothing at all while it is fine.
+
+  **What is watched right now, without you doing anything:** your homepage
+  really serving the site, and the booking page's open-slots calculation.
+
+  **What is NOT watched until you run this:** whether a booking page can load a
+  detailer's own details, and whether **signing in** is working. **That second
+  one is the one worth caring about** — the whole product could be sitting
+  behind a broken sign-in and nothing would tell either of us.
+
+  **Why we did not just switch them on:** those two checks need one of your
+  keys, and no session is allowed to create, read out, paste or store a key
+  anywhere — **including into the database.** So the check asks for it by
+  *name*, and only you put the real one in. **This is a rule we broke earlier
+  tonight and then fixed**, which is why it is spelled out.
+
+  **What to do:** in the Supabase dashboard → **SQL Editor**, paste the line
+  below, replacing the part in angle brackets with your project's *publishable*
+  key — the **anon** key from Settings → API, not the service-role one:
+
+  ```sql
+  select vault.create_secret('<paste the anon key here>', 'site_probe_api_key');
+  ```
+
+  **Nothing else changes.** No deploy, no code, no restart — the two checks
+  start reporting on their own within five minutes.
+
+  **If you never run it:** nothing breaks and nothing nags. Those two paths
+  simply stay unwatched, and the monitor says so honestly every time it reports
+  rather than pretending it is covering them.
 
 - [ ] **DO · Sign up for text messaging and register the number.**
   **Telnyx, about $0.0040 a message** — roughly half Twilio's real cost. One
