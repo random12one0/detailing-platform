@@ -149,7 +149,7 @@ dangerous one precisely because it is quiet: lend a `scripts/` file for one
 commit rather than editing it unannounced underneath whoever owns it that
 round.
 
-**`docs/gotchas.md` is SEVENTY-EIGHT specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is SEVENTY-NINE specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a

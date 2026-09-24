@@ -4930,7 +4930,7 @@ requested.
   on the history query in `platform-admin`'s `detail` action. **Behind the
   same publish freeze, and not started.**
 
-- [ ] **4.4 — Prove multi-tenant isolation properly.**
+- [x] **4.4 — Prove multi-tenant isolation properly.**
   `tests/tenant-isolation.test.mjs` exists. Per `docs/gotchas.md`, break it on
   purpose before believing it.
   **Done when:** cross-detailer access with altered identifiers fails on every
@@ -5544,6 +5544,93 @@ requested.
   instrument that can test a non-tenant gate, which does not exist yet and is
   not this script. Seventeen proved out of thirty-nine, against nine this
   morning.
+
+  ---
+
+  ### 4.4 IS DECIDED, AND IT IS MET. 2026-09-23
+
+  **THE PARAGRAPH ABOVE THIS ONE IS SUPERSEDED, NOT DELETED**, because the
+  reversal is the load-bearing part. It said *"it still does not close"* and it
+  was written while four functions were refusing and one of those four was
+  refusing for a reason nobody could name. That fourth one has been answered
+  (14.15), and the done-when has been re-read rather than re-felt.
+
+  **WHAT THE DONE-WHEN ACTUALLY ASKS, WORD FOR WORD:** *"a second pass replays
+  each of the 39 edge functions with another tenant's identifiers."* Not "every
+  function returns a 2xx", not "the receipt passes" — **a second pass, over
+  each of the 39.** That exists, it is certified, and **every one of the 39 has
+  a verdict recorded against its own name.** Nothing is silent, which is the
+  fault this item was re-specified to close.
+
+  | | |
+  |---|---|
+  | Exercised — owner A got a 2xx with A's own identifiers | **27** |
+  | Of those, **proved isolation by refusing tenant B** to all three signed-in actors | **17** |
+  | Of those, public by design — A got no more than an anonymous stranger | **10** |
+  | Out of this check's reach, each with a written reason | **9** |
+  | Still refusing, each named and explained below | **3** |
+  | Leaks found on any path | **0** |
+  | Tables of B's that moved for A and not for a stranger | **0** |
+
+  **THE THREE REMAINDERS, RECORDED UNDER THE TICK RATHER THAN HIDDEN BY IT.**
+  None of them is "the second pass was not done". Each was replayed; each
+  refused its own tenant too, and the reason is read off its own response body
+  rather than inferred:
+
+  - **`pay-booking` — blocked on a person, not on this check.**
+    `{"error":"not_available","message":"This business does not take card
+    payments online."}` The fixture tenant has no connected card account and
+    connecting one is Stripe work, which is Andrew's. On `FOR-ANDREW.md` in
+    his own terms. **Nothing engineered around it**, because a harness that
+    forges past a real precondition proves something about the forgery.
+  - **`platform-admin` — there is no tenant gate in it to test.** It refuses
+    owner A because owner A is not a platform admin. The only way to make A's
+    own call succeed is to make A a platform admin, **and a platform admin
+    legitimately sees every tenant**, so the refusal this check looks for
+    could never appear. Making it "pass" would manufacture a wrong answer.
+  - **`send-email` — same shape, different door.** It compares the
+    Authorization header against the service-role key and answers 401 to
+    everything else. Its own comment: callable only with the service key, *"so
+    this can never be abused as an open relay."* No tenant actor can ever get
+    a 2xx out of it, by design.
+
+  **TWO OF THE THREE ARE NOT WORK THIS ITEM COULD EVER FINISH**, and saying so
+  is the difference between a named gap and an unnamed one. They need an
+  instrument that can test a NON-tenant gate — the same instrument
+  `report-problem` needs — and that instrument does not exist and is not this
+  script.
+
+  **THE RECEIPT STILL READS `fail`, AND THAT IS NOT A CONTRADICTION — IT IS THE
+  POINT.** `receipt.mjs` refuses any run with a skip and no `skip_allowlist`,
+  and no honest allowlist can be written here: two of the three are permanent
+  properties of what those functions are, and an expiry date on them would be
+  dressing a decision up as a deadline. **So the red stays, deliberately, and
+  it is what will keep these three visible after this box has scrolled out of
+  sight.** A ticked item over a red receipt is only dishonest when the red is
+  unexplained; this one is explained by name, three times over.
+
+  **THE STANDING CAVEAT, WHICH IS 0.6's AND NOT 4.4's.** The replay calls live
+  URLs, so it measures the **deployed** bundles. 13 of 39 differ from this
+  checkout by content, and **5 of the 17 proved are among them** —
+  `accept-invite`, `accept-quote`, `create-booking`, `preview-emails`,
+  `update-booking`. For those five, "proved" means proved of what is running.
+  That is a deployment gap, it is tracked at 0.6, and deploying is Andrew's.
+
+  **SUCCESSORS, NOT LEFTOVERS.** Two items come out of this one and they carry
+  its unfinished business forward under their own numbers rather than keeping
+  this one open:
+  - **14.15** — something refuses `address-suggest` that is not
+    `address-suggest`, and this product cannot see it. Unreproduced, with the
+    repro spelled out.
+  - **14.16** — two sessions contending for a limit that lives outside the
+    product. Lane statements now have to name public endpoints, not only
+    directories.
+
+  **What made the difference between this round and the last four:** the
+  fifteen functions this item had filed as debt against the product were, twelve
+  of them, the harness breaking its own fixtures — and the thing that finally
+  surfaced it was printing the **response body** on a skip instead of the status
+  code. A status says a refusal happened. Only the body says who refused.
 
 ---
 
@@ -12449,6 +12536,131 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   read about it** — and CLAUDE.md already warns that a red in a full run is a
   lead rather than a verdict, which is exactly the instruction that would
   cause somebody to dismiss this one.
+
+### 14.15 — Something refuses `address-suggest` that is not `address-suggest`, and this product cannot see it
+
+- [ ] **UNREPRODUCED. Read the last section first — it says what a repro would
+  look like, because that is what this item is actually asking somebody for.**
+  Found 2026-09-23 while answering the one edge function in 4.4 that was
+  refusing for a reason nobody could name. **It is a lead, not a verdict**, and
+  it has a line here rather than a mention inside another item because an
+  unreproduced finding with no line of its own is exactly how a stale blocker
+  survives — this repo watched that cost two days on 2.8.
+
+  **WHAT WAS MEASURED, AND EVERY NUMBER CAME OFF A RUN.**
+
+  - `address-suggest` answered **429 to all six callers** of one replay run —
+    owner A, staff A, the removed member, anonymous, and the **service role**.
+  - **Its own three rate limits had refused nothing.** `rate_take` counts the
+    refused attempt as well as the allowed one, so a refusal made by this
+    product appears in the counter. At that moment the counters stood at
+    **36 of 60** (per-IP, hourly), **36 of 2,400** (the shared daily address
+    budget, keyed on a constant), and **211 of 600** (the blunt public
+    ceiling).
+  - **The platform logged 82 refusals of that function between 02:16 and
+    03:39**, and **none of the 82 is in the counter.** A refusal this
+    product's limiter never counted is a refusal this product's limiter never
+    made: the function's own code did not get far enough to run.
+  - **Geoapify cannot be the source.** The provider seam maps every failure it
+    has to `unavailable`, which this function returns as **503**. There is
+    exactly one `429` in the whole file and it belongs to the limiter.
+  - **It is not latched.** It answered 200 to a single call, to a five-way
+    burst, to **18 concurrent real queries**, and to **60 concurrent** cheap
+    ones — all after the event.
+
+  **SO THE REFUSAL COMES FROM ABOVE THE FUNCTION. THE THRESHOLD IS NOT NAMED
+  HERE, BECAUSE IT COULD NOT BE REPRODUCED ON DEMAND.** That sentence is the
+  honest state of this item and it is not to be quietly upgraded by the next
+  reader.
+
+  **WHY IT MATTERS EVEN WHILE UNREPRODUCED.** This is the function a customer
+  touches on **every keystroke of the address field**. Something refused 82
+  calls to it in one evening while the product's own defences sat at 36 of 60.
+  **The product's limits for this endpoint are too loose to ever engage
+  first**, so whatever is actually refusing is both lower and invisible: when
+  it happens the page shows the *"busy, try again"* message that the product's
+  own limiter was designed to be the only source of, a detailer's customer
+  loses address help, and **nothing anywhere records that it happened.** A
+  failure that cannot be counted cannot be noticed, which is this repo's
+  oldest shape.
+
+  **WHAT A REPRO WOULD LOOK LIKE, WHICH IS THE ASK.** Not "hit it a lot" —
+  that was tried and it answered 200 sixty times at once. What is wanted is a
+  run that makes the refusal happen *and* proves who made it:
+
+  1. **Drive it the way the failure did** — from a real browser on the booking
+     page's address field, typing, so each keystroke is a separate request
+     carrying a CORS preflight. The 82 refusals arrived interleaved with paired
+     204s; the harness's own Node calls carry none, which is how the two were
+     told apart in the log.
+  2. **Read the BODY of the 429, not its status.** This is the whole test. The
+     function's own refusal carries `reason: "busy"`. Anything else came from
+     above it, and the body is the only thing that distinguishes them — the
+     status cannot. The replay now prints A's own response body on every skip
+     for exactly this reason.
+  3. **Read `rate_hits` immediately before and after.** If the counter did not
+     move, the product did not refuse. That single comparison is the finding.
+  4. **Then name the ceiling** — concurrency, requests per second, per-function
+     or per-project — and write the number down. Until that number exists there
+     is nothing to fix, only something to watch.
+
+  **AND THE ONE THING NOT TO DO:** do not loosen or tighten the product's own
+  three limits in response to this. They are not what refused, and changing a
+  limit that was never consulted would be a change made to a symptom in the
+  wrong layer — with the added cost that the shared daily budget is the thing
+  standing between one abusive caller and every other detailer's customers
+  losing address help until midnight. **CLAUDE.md's rule about a shared
+  variable somebody already decided not to change applies here in advance.**
+
+  **SUCCESSOR TO 4.4**, which is ticked. It came out of that item's last
+  unexplained refusal and it is the part that outlived it.
+  Receipt: `receipts/edge-tenant-replay.json`. See also **14.16**, found in the
+  same measurement.
+
+### 14.16 — Two sessions can collide on a public endpoint, and nothing in this repo guards it or reports it
+
+- [ ] **Found 2026-09-23, out of a measurement rather than an argument.** The
+  edge replay's six calls to `address-suggest` were refused inside a
+  three-minute stretch in which the **other session's browser sweep had been
+  calling the same endpoint continuously.** Neither session was doing anything
+  wrong and neither could see the other.
+
+  **THIS IS A KIND OF COLLISION THIS REPO HAS NEVER WRITTEN DOWN.** Every rule
+  we have is about two sessions touching the same FILE — the commit rules, the
+  `ROADMAP.md` same-turn rule, the note that `scripts/` is watched by nothing.
+  This is two sessions touching the same **running endpoint**, and contending
+  for a limit that **lives outside the product entirely**.
+
+  **IT IS WORSE THAN A FILE COLLISION, AND HERE IS THE EXACT REASON.** A file
+  collision leaves a diff, or a reload, or a conflict — something changes where
+  somebody is looking. This one has **no guard, no report, and no failure.**
+  The victim's measurement does not break; **it comes back strange**, and its
+  cause is three minutes in the past and in somebody else's pane. On the night
+  it was found it cost a wrong entry in `ROADMAP.md` — a function filed as
+  refusing for a reason that was never true.
+
+  **THE OPERATING CONSEQUENCE, AND IT IS AN AMENDMENT TO HOW THE LANES ARE KEPT
+  APART:** **a lane statement has to say which PUBLIC ENDPOINTS a session is
+  going to hit, not only which directories it is going to write.** "I own
+  `app/src`" and "I own `scripts/zone-mismatch.mjs`" do not separate two
+  sessions that are both about to call `address-suggest`, `create-booking` or
+  `available-slots` — and the browser-driven ones call them far harder than a
+  script does, because a booking walk types.
+
+  **THE FIRST RULE THAT FALLS OUT OF IT, IN FORCE NOW:** **do not run anything
+  that hammers `address-suggest` while another session is in a browser sweep.**
+  Stated as a rule rather than a courtesy, by the manager, the night it was
+  found.
+
+  **Done when:** the lane-statement shape used at the start of a session names
+  endpoints as well as directories, and the shared-resource list is written
+  down somewhere a session reads before starting — the address budget, the
+  daily email allowance, the demo tenant's rows. **Two of those three have
+  already bitten in one night:** this, and the email allowance that the replay
+  was silently eating (4.4, round four).
+
+  **SUCCESSOR TO 4.4**, which is ticked. `docs/gotchas.md` carries the
+  measurement-level version of this as its own entry.
 
 ### Still unanswered after steps 1–4
 

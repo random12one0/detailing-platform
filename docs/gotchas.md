@@ -3188,3 +3188,72 @@ to run it will see it** rather than in a roadmap entry they have no reason to
 open. `docs/silences.md` is about a check that cannot tell a pass from a
 did-not-run; this is its neighbour: **a check that cannot tell anyone it has
 moved somebody else's floor.**
+
+## 79. TWO SESSIONS CAN COLLIDE ON A PUBLIC ENDPOINT, CONTENDING FOR A LIMIT THAT LIVES OUTSIDE THE PRODUCT — and the victim's measurement does not fail, it comes back strange
+
+**Measured 2026-09-23, not argued.** The edge-tenant replay's six calls to
+`address-suggest` all came back **429**, and the run recorded the function as
+refusing for a reason nobody could name. It was written into `ROADMAP.md` that
+way. The cause was three minutes in the past and in somebody else's pane: the
+other session's browser sweep had been typing into the booking page's address
+field since 03:32, and every keystroke is a call to that same endpoint.
+
+**NEITHER SESSION WAS DOING ANYTHING WRONG AND NEITHER COULD SEE THE OTHER.**
+The lane statement that night was correct and complete by this repo's rules —
+one session owned `app/src`, the other owned its own scripts. **Those rules
+are all about FILES**, and files were never the problem.
+
+**WHY THIS IS WORSE THAN A FILE COLLISION, WHICH IS THE ENTIRE POINT OF THE
+ENTRY.** A file collision leaves something behind where somebody is looking: a
+diff, a reload, a merge conflict, a `git status` that reads oddly. This one
+leaves:
+
+* **no guard** — nothing anywhere checks it,
+* **no report** — neither session is told,
+* **and no failure** — the victim's run completes, prints numbers, and writes
+  a receipt.
+
+The measurement does not break. **It comes back strange**, and "strange" gets
+written down as a fact about the product.
+
+**HOW IT WAS FINALLY TOLD APART, AND THIS IS THE REUSABLE PART.** Three
+readings, none of them the status code:
+
+1. **The product's own counters had not moved.** `rate_take` counts the refused
+   attempt as well as the allowed one, so a refusal this product made shows up
+   in `rate_hits`. The buckets stood at 36 of 60, 36 of 2,400 and 211 of 600 —
+   **nothing had been refused by us at all.**
+2. **The platform's log had 82 refusals in the same window**, none of them in
+   that counter. A refusal the limiter never counted is a refusal the limiter
+   never made.
+3. **A browser and a script look different in the log.** The other session's
+   traffic carries **paired 204 CORS preflights**; a Node client sends none.
+   That is what separated the two sessions' calls in one shared timeline.
+
+**THE OPERATING CONSEQUENCE, AND IT IS AN AMENDMENT TO HOW THE LANES ARE KEPT
+APART:** **a lane statement has to say which PUBLIC ENDPOINTS a session is
+going to hit, not only which directories it is going to write.** *"I own
+`app/src`"* and *"I own `scripts/zone-mismatch.mjs`"* do not separate two
+sessions that are both about to call `address-suggest`, `create-booking` or
+`available-slots` — and **a browser-driven check calls them far harder than a
+script does, because a booking walk types.**
+
+**THE FIRST RULE OUT OF IT, IN FORCE:** do not run anything that hammers
+`address-suggest` while another session is in a browser sweep. A rule, not a
+courtesy.
+
+**THE SHARED THINGS THAT ARE NOT FILES, so far.** Two of these three bit on
+the same night:
+
+* the **address budget** — 60 an hour per IP and 2,400 a day shared by every
+  tenant, and whatever the platform's own unnamed ceiling is (ROADMAP 14.15),
+* the **daily email allowance** — 100 a day with 20 reserved; the replay was
+  silently eating about twenty of the other eighty on every run until it was
+  pointed at a reserved domain,
+* the **demo tenant's rows**, which CLAUDE.md already warns about for the test
+  battery.
+
+**Neighbour to # 78**, which is the same family seen from the other side: that
+one is a check that *clears* shared state and destroys somebody's floor; this
+one is two checks *competing* for a shared ceiling. Both are invisible to
+everything this repo currently runs. ROADMAP **14.16** carries the fix.
