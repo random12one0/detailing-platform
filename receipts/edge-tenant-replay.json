@@ -1,17 +1,16 @@
 {
-  "git_sha": "6ede1f8ffdf038beaa94fc0617212a4dd4058224",
-  "git_sha_started": "6ede1f8ffdf038beaa94fc0617212a4dd4058224",
+  "git_sha": "517486c97066c702a559d00fbd0626c1f9203a63",
+  "git_sha_started": "517486c97066c702a559d00fbd0626c1f9203a63",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-24T03:38:35.133Z",
+  "finished_at": "2026-09-24T04:26:50.778Z",
   "failures": [],
   "warnings": [
     "the canary is an over-privileged CALLER, not a deployed broken function: it proves the detector can see tenant data in a response, not that a subtle authorization bug would be caught. A deployed canary is gated on Andrew — ROADMAP 0.6.",
-    "public by design, measured rather than assumed: an ANONYMOUS caller holding a booking's UUID moved booking_services, bookings, business_invites, business_users, campaign_visits, customers, email_sends on the twin tenant. That is the UUID-bearer model cancel-booking and reschedule-booking are built on — the emailed link is the credential. It is not a tenant leak, and it is worth knowing that the UUID is the only thing protecting those rows.",
-    "address-suggest: owner A could not get a 2xx with its OWN tenant either (self(A) 429, anon 429, owner A 429, staff A 429, former A 429, service 429). Its 400 guards name nothing this harness is missing, so the refusal is elsewhere — a lookup, a permission, or a precondition on the row. Either way the cross-tenant refusal proves nothing and nothing is claimed.",
-    "pay-booking: owner A could not get a 2xx with its OWN tenant either (self(A) 409, anon 409, owner A 409, staff A 409, former A 409, service 409). BLOCKED ON A DEPLOYED FIXTURE, WHICH IS ANDREW'S. It answers 409 to every caller because the fixture tenant has no connected Stripe account, and connecting one is publishing. Forging past a real precondition would prove something about the forgery. Its 400 guards name nothing this harness is missing, so the refusal is elsewhere — a lookup, a permission, or a precondition on the row. Either way the cross-tenant refusal proves nothing and nothing is claimed.",
-    "platform-admin: owner A could not get a 2xx with its OWN tenant either (self(A) 404, anon 404, owner A 404, staff A 404, former A 404, service 404). NOT A TENANT GATE AT ALL, so making A's own call succeed would MANUFACTURE A WRONG ANSWER. It answers 404 to owner A because owner A is not a platform admin; the fix would be to make them one, and a platform admin legitimately sees every tenant, so the cross-tenant refusal this check is looking for could never appear. Its authorization needs a different instrument. Its 400 guards name nothing this harness is missing, so the refusal is elsewhere — a lookup, a permission, or a precondition on the row. Either way the cross-tenant refusal proves nothing and nothing is claimed.",
-    "send-email: owner A could not get a 2xx with its OWN tenant either (self(A) 401, anon 401, owner A 401, staff A 401, former A 401, service 401). INTERNAL RELAY, BY DESIGN. It compares the Authorization header against the service-role key and answers 401 to anything else, so no tenant actor can ever get a 2xx out of it. Its own comment says so: callable only with the service key, 'so this can never be abused as an open relay'. There is no tenant boundary inside it to test. Its 400 guards name nothing this harness is missing, so the refusal is elsewhere — a lookup, a permission, or a precondition on the row. Either way the cross-tenant refusal proves nothing and nothing is claimed."
+    "NOT A LEAK, AND HERE IS WHAT IS ACTUALLY HOLDING THESE ROWS SHUT: on these paths the product has no session to check, so an unguessable secret in the caller's own hand IS the credential — a booking's UUID from the customer's emailed link, or an invite token. Guess the secret and you are the customer. Every write below was made by a caller with NO account at all, which is the product working as designed, and it is worth knowing that the secret is the only thing between a stranger and these rows. By function: accept-invite -> business_invites, business_users; accept-quote -> bookings, email_sends; cancel-booking -> bookings, email_sends; create-booking -> customers; reschedule-booking -> bookings, email_sends; track-visit -> campaign_visits. Run-level union, for anything the per-call fingerprints missed: bookings, business_invites, business_users, campaign_visits, customers, email_sends.",
+    "pay-booking: owner A could not get a 2xx with its OWN tenant either (self(A) 409, anon 409, owner A 409, staff A 409, former A 409, service 409). A's own response said: {\"error\":\"not_available\",\"message\":\"This business does not take card payments online.\"} BLOCKED ON A DEPLOYED FIXTURE, WHICH IS ANDREW'S. It answers 409 to every caller because the fixture tenant has no connected Stripe account, and connecting one is publishing. Forging past a real precondition would prove something about the forgery. Its 400 guards name nothing this harness is missing, so the refusal is elsewhere — a lookup, a permission, or a precondition on the row. Either way the cross-tenant refusal proves nothing and nothing is claimed.",
+    "platform-admin: owner A could not get a 2xx with its OWN tenant either (self(A) 404, anon 404, owner A 404, staff A 404, former A 404, service 404). A's own response said: {\"error\":\"Not found\"} NOT A TENANT GATE AT ALL, so making A's own call succeed would MANUFACTURE A WRONG ANSWER. It answers 404 to owner A because owner A is not a platform admin; the fix would be to make them one, and a platform admin legitimately sees every tenant, so the cross-tenant refusal this check is looking for could never appear. Its authorization needs a different instrument. Its 400 guards name nothing this harness is missing, so the refusal is elsewhere — a lookup, a permission, or a precondition on the row. Either way the cross-tenant refusal proves nothing and nothing is claimed.",
+    "send-email: owner A could not get a 2xx with its OWN tenant either (self(A) 401, anon 401, owner A 401, staff A 401, former A 401, service 401). A's own response said: {\"error\":\"Unauthorized\"} INTERNAL RELAY, BY DESIGN. It compares the Authorization header against the service-role key and answers 401 to anything else, so no tenant actor can ever get a 2xx out of it. Its own comment says so: callable only with the service key, 'so this can never be abused as an open relay'. There is no tenant boundary inside it to test. Its 400 guards name nothing this harness is missing, so the refusal is elsewhere — a lookup, a permission, or a precondition on the row. Either way the cross-tenant refusal proves nothing and nothing is claimed."
   ],
   "artifacts": [
     "artifacts/edge-tenant-replay/index.html"
@@ -26,7 +25,7 @@
     ],
     "functions": 39,
     "canary_reached": 5,
-    "ran": 28,
+    "ran": 27,
     "proved_by_rejection": 17,
     "proved_by_rejection_names": [
       "accept-invite",
@@ -47,18 +46,18 @@
       "update-booking",
       "verify-domain"
     ],
-    "still_refusing": 4,
+    "still_refusing": 3,
     "sabotage": null
   },
   "check_id": "edge-tenant-replay",
-  "started_at": "2026-09-24T03:34:07.762Z",
+  "started_at": "2026-09-24T04:22:25.170Z",
   "status": "fail",
   "expected_targets": 39,
   "discovered_targets": 39,
   "attempted_targets": 39,
   "completed_targets": 39,
-  "skipped_targets": 4,
-  "assertions_executed": 103,
+  "skipped_targets": 3,
+  "assertions_executed": 99,
   "min_assertions": 60,
   "canary": {
     "id": "the over-privileged caller · the service role must come back carrying B's data",

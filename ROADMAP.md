@@ -5354,6 +5354,161 @@ requested.
   ALSO MOVE FOR AN ANONYMOUS STRANGER.** 103 assertions, 0 failures, canary
   caught on 5 functions.
 
+  ---
+
+  ### ROUND FIVE — three things sent back, and the first one caught a wrong
+  ### answer this item had already written down. 2026-09-23
+
+  **27 RAN · 3 REFUSE · 17 PROVED · 9 OUT OF REACH.** The reachable surface is
+  39 minus 9, so 27 of 30. Two functions LEFT the RAN column and that is a
+  correction rather than a regression — see the tenant-bearing test below.
+
+  **1 · "AN ANONYMOUS CALLER MOVED `business_users`" WAS A UNION WRITTEN AS ONE
+  SENTENCE, AND IT WAS THE MOST ALARMING THING IN THE RECEIPT.** The write half
+  fingerprinted tenant B before the replay and after it, so its warning listed
+  every table anything had moved as though one anonymous request had done all
+  of it. `business_users` and `business_invites` in that list either frighten a
+  reader or get waved away as alarmist — and **`accept-invite` writing
+  `business_users` on a 192-bit invite token is a completely different fact
+  from an anonymous caller with a booking UUID writing it.** Nothing in the
+  sentence let you tell which had happened.
+
+  The fingerprint is now taken around **each individual call**, which is
+  affordable because it was rewritten from one query per table into one query
+  for all 39. Measured, this run:
+
+  | Function | Tables an anonymous caller moved |
+  |---|---|
+  | `accept-invite` | `business_invites`, `business_users` |
+  | `accept-quote` | `bookings`, `email_sends` |
+  | `cancel-booking` | `bookings`, `email_sends` |
+  | `create-booking` | `booking_services`, `bookings`, `customers`, `email_sends` |
+  | `reschedule-booking` | `bookings`, `email_sends` |
+  | `track-visit` | `campaign_visits` |
+
+  **So the membership tables were moved by the invite path, on an invite token,
+  and by nothing else.** The run-level union is still computed and still
+  printed, because it is the structural net that catches a function nobody
+  attributed — but it is now the footnote rather than the headline.
+
+  **AND THE HEADLINE IS NOW WHAT THE SECRET IS PROTECTING**, which was the last
+  clause of the old note: *on these paths the product has no session to check,
+  so an unguessable secret in the caller's own hand IS the credential — a
+  booking's UUID from the customer's emailed link, or an invite token. Guess
+  the secret and you are the customer.* That is the fact a reader needs first.
+
+  **2 · TWO INSTRUMENTS APPEARED TO DISAGREE ABOUT THE ESTATE AND ONLY ONE OF
+  THEM WAS BEING READ PROPERLY.** They do not disagree. **`deployed-inventory`
+  compares CONTENT** — it asks whether this checkout's own comment lines are
+  present inside the deployed bundle. `check-deployed` is the one that compares
+  timestamps. The "2.4d old" on a `DIFFERS` line is context printed beside the
+  verdict, not the basis of it.
+
+  **THE NUMBERS, COUNTED RATHER THAN SUMMARISED: 13 of 39 DIFFER by content.
+  26 match.** The earlier write-up named five of the thirteen as examples and a
+  reader could reasonably take five for the total; and the sentence "seventeen
+  are running a copy about two and a half days older" was wrong twice over —
+  **17 was the count of functions that PROVED isolation, which has nothing to
+  do with staleness**, and the verdict is content rather than age. The widest
+  content gap is 2.4 days.
+
+  **THE GUESS THAT A FUNCTION CAN BE OLDER BY DATE AND IDENTICAL BY CONTENT IS
+  CORRECT, AND IT IS TRUE OF THREE OF THEM.** Three of the 26 matching
+  functions have a commit that postdates their deploy — one by 0.0 days, two by
+  3.1 — and the running bundle still contains this checkout's source. They are
+  not stale. The check says so itself in its own line, and it says what it
+  cannot see: a change that altered behaviour without touching a comment would
+  be invisible here and would read as `matches`.
+
+  **THE SHARP VERSION, WHICH IS THE ONE WORTH QUOTING: of the 17 functions
+  proved, 12 are running content that matches this checkout and 5 are not** —
+  `accept-invite`, `accept-quote`, `create-booking`, `preview-emails`,
+  `update-booking`. For those five, "proved" means proved of the deployed
+  bundle, and the committed source has been exercised by nothing.
+
+  **3 · `address-suggest`'s 429 WAS NOT A RATE LIMIT DOING ITS JOB, AND IT WAS
+  NOT THIS PRODUCT'S RATE LIMIT AT ALL.** It was the only refusal here nobody
+  could name, and a 429 handed to every actor including the service role is the
+  shape of a limiter that has latched — on a function a customer touches on
+  every keystroke of the address field. Measured:
+
+  - **The function's own three limits never refused anything today.** `rate_take`
+    counts the refused attempt as well as the allowed one, so a refusal by the
+    product would appear in the counter. At the time of the failing run the
+    per-IP hourly bucket stood at **36 of its 60**, the shared daily budget at
+    **36 of 2,400**, and the blunt public ceiling at **211 of 600**.
+  - **The platform logged 82 refusals of `address-suggest` between 02:16 and
+    03:39.** Those 82 are not in the counter. **A refusal the product's own
+    limiter never counted is a refusal the product's own limiter never made** —
+    the function's code did not get far enough to run.
+  - **Geoapify cannot produce it either.** The provider seam maps every failure
+    it has to `unavailable`, which this function returns as **503**. There is
+    exactly one 429 in the file and it is the limiter's.
+  - **It is not latched.** It answers 200 right now to a single call, to a
+    five-way burst, to 18 concurrent real queries, and to 60 concurrent cheap
+    ones.
+  - **The six 429s in the failing run are at 03:35:28–03:35:30 with no CORS
+    preflights**, which is this harness; they land in the middle of a stretch
+    in which **another session's browser had been calling the same function
+    continuously since 03:32**, and that browser's traffic is unmistakable in
+    the log because it carries paired 204 preflights that a Node client never
+    sends.
+
+  **SO IT IS THE PLATFORM, ABOVE THE FUNCTION, AND THE EXACT THRESHOLD IS NOT
+  NAMED HERE BECAUSE IT COULD NOT BE REPRODUCED ON DEMAND.** That is stated
+  rather than guessed at.
+
+  **THE PART THAT IS A REAL FINDING AND DOES NOT DEPEND ON NAMING THE
+  THRESHOLD:** something refused 82 calls to a customer-facing function today
+  while the product's own defences sat at 36 of 60 and 36 of 2,400. **The
+  product's limits for this function are far too loose to ever engage first,
+  and the product cannot see or count the refusals that are actually
+  happening.** When they happen the page shows the "busy, try again" message
+  that the product's own limiter was meant to be the only source of. A
+  detailer's customer loses address help and nothing in this product records
+  that it happened. **Not fixed here — it is a finding, and it needs its own
+  item.**
+
+  **AND THE INSTRUMENT THAT ANSWERS THIS CLASS FOREVER IS ONE LINE: A SKIP NOW
+  PRINTS A'S OWN RESPONSE BODY, NOT JUST ITS STATUS.** A status says a refusal
+  happened; the body says who refused. It paid for itself on the first run:
+  **`pay-booking`'s skip had been written up in this very item as "no connected
+  Stripe account", confidently, and the body said `{"error":"cancelled"}`** —
+  `cancel-booking` runs earlier in the alphabet and had cancelled the booking
+  `pay-booking` was aimed at. **A fifth instance of one fixture making another
+  function untestable, and the first that produced a plausible WRONG ANSWER
+  rather than a shrug**, which is worse, because nobody goes back to check a
+  reason that reads fine. It now has its own booking and the body says
+  `{"error":"not_available","message":"This business does not take card
+  payments online."}`, which is the Stripe blocker, proved rather than
+  asserted. It is on `FOR-ANDREW.md` in his own terms.
+
+  **A FOURTH THING, FOUND WHILE ANSWERING THE THIRD.** The test for "does this
+  function accept a tenant identifier" was *"did the request body come out
+  non-empty"*, which is a different question. `address-suggest` takes a search
+  string and nothing else — its own header comment says `business_id?` and **its
+  code never reads one** — so the harness was building the identical body for
+  tenant A and tenant B, sending it twice, and counting the function as aimed.
+  It was never aimed at anything. **The test is now the definition itself, with
+  no list to rot: a field is tenant-bearing when its value CHANGES between
+  tenant A and tenant B.** A date, a query string and a phone number are
+  identical in both bodies and carry nothing. That correctly threw out
+  `address-suggest` and `session-ping`, which is why RAN moved 29 → 27: neither
+  had ever been a real target. Nothing false had been claimed — both sat in the
+  RAN column and never in PROVED — but they were filling slots they could not
+  fill.
+
+  **RE-CERTIFIED: four sabotages, one of them a real source edit.**
+  `--break=leak` stops the canary firing and the receipt refuses by name;
+  `--break=self` drops all 39 to skips with 0 proved; `--break=mail` fakes a
+  deliverable send and it is named by domain and tenant; and reverting the
+  tenant-bearing test to its old form made the out-of-reach list fail by name
+  on both `address-suggest` and `session-ping`, which is the proof that the
+  new test is what is holding that list honest. Restored, checksum confirmed
+  back to its pre-sabotage value.
+
+  ---
+
   **AND THIS MEASURES WHAT IS DEPLOYED, NOT WHAT IS COMMITTED — 13 OF THE 39
   DIFFER TODAY.** The replay calls live URLs, so every verdict above describes
   the bundle that is running. `deployed-inventory.mjs` on the same night says

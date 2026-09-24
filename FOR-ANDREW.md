@@ -1231,6 +1231,18 @@ still knows them.
   own account, so their age is their own affair.
   **When you do it we will need:** the two keys and two webhook secrets. Into
   the settings file, never into chat.
+  **ONE SMALL THING IS NOW WAITING ON IT, AND IT IS NOT A PAYMENT — 2026-09-23.**
+  We have a check that proves one detailer cannot reach another detailer's
+  bookings, customers or money. It now covers 27 of the 39 back-end pieces.
+  **The "pay for your booking" piece is the one it cannot test**, because to
+  test it the fake practice business has to have a card account connected to
+  it, and it does not. The function tells us so in its own words: *"This
+  business does not take card payments online."* **Nothing is broken and no
+  customer is affected** — the page simply has not been proved safe the way
+  the other 27 have. **What would fix it:** one test-mode card account
+  connected to the practice business, which is a Stripe action and therefore
+  yours, not ours. We did not fake one, because a check that fakes its way
+  past a real requirement is only testing the fake.
 
 - [ ] **DO · Sign up for text messaging and register the number.**
   **Telnyx, about $0.0040 a message** — roughly half Twilio's real cost. One

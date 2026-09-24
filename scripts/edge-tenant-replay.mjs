@@ -383,6 +383,27 @@ const OUT_OF_REACH = BREAK === "reach" ? {} : {
   "translate-content":
     "takes text and a target language. No tenant identifier is part of the "
     + "request, so there is no other tenant to ask it about.",
+  // **ITS HEADER COMMENT SAYS `business_id?` AND ITS CODE NEVER READS ONE —
+  // 2026-09-23.** The only thing it takes off the request is `q`, the search
+  // string, plus the honeypot field. So the harness was sending the IDENTICAL
+  // body for tenant A and tenant B and counting it as aimed; see the
+  // tenant-bearing test in the loop, which now measures that instead of
+  // assuming it. Nothing false was ever claimed — it sat in the RAN bucket and
+  // never in PROVED — but it was occupying a slot it could not fill.
+  // Found by the same tenant-bearing test on the same night. It records that a
+  // browser session is alive; `session_id` and `label` are its whole input and
+  // its own header says so. Neither changes between tenants, so there is
+  // nothing here to aim at one.
+  "session-ping":
+    "takes a session id and a label and nothing else — its own header says "
+    + "those are the only two fields read off the body. No tenant identifier is "
+    + "part of the request, so there is no other tenant to ask it about.",
+  "address-suggest":
+    "its request is a search string and nothing else. The `business_id?` in its "
+    + "own header comment is not read anywhere in the function, so there is no "
+    + "tenant to point at another one. It is a metered proxy in front of "
+    + "Geoapify and its protections are a length floor, a per-IP hourly limit "
+    + "and a shared daily budget — none of which is a tenant boundary.",
 };
 
 const dirs = readdirSync(FUNCTIONS, { withFileTypes: true })
@@ -396,23 +417,43 @@ const bnIds = {};
 const canaryDetectors = [];
 const exercisedOk = [];
 const provedByRejection = [];
+// Which FUNCTION moved which table, per caller. See the note beside the
+// per-call fingerprints: a union written as one sentence is unreadable.
+const anonWrites = [];
+const actorWrites = [];
 
 /** Everything tenant B owns, as one comparable fingerprint. */
-async function fingerprintB(businessId) {
-  const tables = await sql(`
+// **ONE STATEMENT, NOT ONE PER TABLE — 2026-09-23.** This used to make a round
+// trip for each of the 39 tenant-owned tables, which is fine twice in a run and
+// impossible 70 times. It is called around every individual call now, because
+// the run-level answer ("these seven tables moved for an anonymous caller") is
+// a UNION across the whole replay written as though it were one call, and a
+// reader cannot tell `accept-invite` writing `business_users` on a 192-bit
+// token from an anonymous stranger with a booking UUID writing it. Those are
+// completely different facts and one of them is alarming.
+let TENANT_TABLES = null;
+async function tenantTables() {
+  if (TENANT_TABLES) return TENANT_TABLES;
+  TENANT_TABLES = (await sql(`
     select c.relname as t from pg_class c join pg_namespace n on n.oid = c.relnamespace
      where n.nspname = 'public' and c.relkind = 'r'
        and exists (select 1 from pg_attribute a where a.attrelid = c.oid
                      and a.attname = 'business_id' and a.attnum > 0 and not a.attisdropped)
-     order by 1`);
+     order by 1`)).map((r) => r.t);
+  return TENANT_TABLES;
+}
+async function fingerprintB(businessId) {
+  const tables = await tenantTables();
+  const parts = tables.map((t) =>
+    `select '${t}' as t, count(*)::int as n,
+            coalesce(md5(string_agg(x::text, '|' order by x::text)), '') as h
+       from (select to_jsonb(q) as x from public.${t} q where q.business_id = '${businessId}') s`);
+  const rows = await sql(parts.join("\nunion all\n"));
   const out = {};
-  for (const { t } of tables) {
-    const r = await sql(`select count(*)::int as n, coalesce(md5(string_agg(x::text, '|' order by x::text)), '') as h
-                           from (select to_jsonb(q) as x from public.${t} q where q.business_id = '${businessId}') s`);
-    out[t] = `${r[0]?.n ?? 0}:${r[0]?.h ?? ""}`;
-  }
+  for (const r of rows) out[r.t] = `${r.n ?? 0}:${r.h ?? ""}`;
   return out;
 }
+const movedBetween = (before, after) => Object.keys(after).filter((t) => after[t] !== before[t]);
 
 try {
   console.log("1 · discovery");
@@ -591,6 +632,24 @@ try {
         vehicle_size_label: "Medium", subtotal: 120, total_price: 120,
       }],
     });
+    // **AND `pay-booking` GETS ITS OWN TOO, WHICH THE RESPONSE BODY IS WHAT
+    // REVEALED — 2026-09-23.** Its 409 had been written up as "no connected
+    // Stripe account", confidently and in the roadmap. The body says
+    // `{"error":"cancelled"}`: `cancel-booking` runs earlier in the alphabet
+    // and had cancelled the very booking `pay-booking` was pointed at. **A
+    // fifth instance of one fixture making another function untestable, and
+    // the first one that produced a plausible wrong ANSWER rather than a
+    // shrug** — which is worse, because nobody goes looking for it.
+    const day8 = new Date(Date.now() + 51 * 86400_000).toISOString().slice(0, 10);
+    const bkPay = await rest("POST", "/rest/v1/bookings", {
+      body: [{
+        business_id: b.id, customer_name: `${S(tag === "Bn" ? "B" : tag)} client`,
+        customer_phone: "555-0107", customer_email: SINK,
+        start_at: `${day8}T13:00:00Z`, end_at: `${day8}T14:00:00Z`,
+        service_type: "mobile", status: "confirmed", vehicle_size: "medium",
+        vehicle_size_label: "Medium", subtotal: 120, total_price: 120,
+      }],
+    });
     // Somewhere empty to move it TO. A day nothing else in this script books.
     const day7 = new Date(Date.now() + 48 * 86400_000).toISOString().slice(0, 10);
     // `verify-domain` rejects on `domain_id`. The host is under `.example`,
@@ -634,6 +693,7 @@ try {
       store.reschedule_booking_id = bkResch.data?.[0]?.id ?? null;
       store.reschedule_day = day7;
       store.domain_id = dom.data?.[0]?.id ?? null;
+      store.pay_booking_id = bkPay.data?.[0]?.id ?? null;
     }
   }
   console.log(`    A ${A.id}  B ${B.id}`);
@@ -653,7 +713,7 @@ try {
   // `unsubscribe` and `send-campaign` sat in the debt column.
   for (const [name, store] of [["A", aIds], ["B", bIds], ["Bn", bnIds]]) {
     const missing = ["disposable_customer_id", "quoted_booking_id", "pending_booking_id",
-      "reschedule_booking_id", "domain_id"].filter((k) => !store[k]);
+      "reschedule_booking_id", "domain_id", "pay_booking_id"].filter((k) => !store[k]);
     if (missing.length) {
       say(`fixture ${name}: [edge-fixture] ${missing.join(", ")} could not be seeded, so every `
         + `function that needs one would be recorded as refusing on a missing argument when the `
@@ -803,6 +863,7 @@ try {
       "accept-quote": (ids) => ({ booking_id: ids.quoted_booking_id }),
       "respond-to-booking": (ids) => ({ action: "accept", booking_id: ids.pending_booking_id }),
       "delete-customer": (ids) => ({ customer_id: ids.disposable_customer_id }),
+      "pay-booking": (ids) => ({ booking_id: ids.pay_booking_id }),
       "send-invoice": (ids) => ({ booking_id: ids.finalized_booking_id }),
       // NESTED, AND THE HEADER ABOVE SAYS FLAT. Both are true and they are
       // different functions: `owner-push-unsubscribe` reads three top-level
@@ -889,7 +950,21 @@ try {
       continue;
     }
     const reachReason = OUT_OF_REACH[fn];
-    const hasTenantField = Object.keys(build(bIds)).length > 0;
+    // **"DID THE BODY COME OUT NON-EMPTY" IS NOT THE SAME QUESTION AS "DOES
+    // THIS FUNCTION ACCEPT A TENANT IDENTIFIER" — corrected 2026-09-23.** It
+    // used to be, and `address-suggest` is what it let through: its only input
+    // is a search string, so the harness built `{ q: "…" }` for BOTH tenants,
+    // sent the identical request twice, and counted the function as aimed at a
+    // tenant. It was never aimed at anything. The same would be true of any
+    // function taking only a subject, a name or a message.
+    //
+    // **THE TEST IS NOW THE DEFINITION ITSELF AND THERE IS NO LIST TO ROT:** a
+    // field is tenant-bearing when its value CHANGES between tenant A and
+    // tenant B. A date, a query string and a phone number are identical in both
+    // bodies and carry nothing; a business id, a booking id and an invite token
+    // differ, which is exactly what makes them aimable.
+    const hasTenantField = Object.keys(build(bIds))
+      .some((f) => JSON.stringify(valueFor(f, bIds)) !== JSON.stringify(valueFor(f, aIds)));
     if (reachReason) {
       // **THE LIST IS CHECKED AGAINST THE SOURCE, NOT TRUSTED.** A function
       // named here that DOES accept a tenant identifier is a failure by name:
@@ -924,12 +999,21 @@ try {
       continue;
     }
 
+    // **FINGERPRINTED AROUND EACH CALLER SEPARATELY, so a write can be named.**
+    // The run-level comparison at the end stays — it is the structural net that
+    // catches a function nobody thought about — but on its own it produces one
+    // sentence listing every table anything moved, which reads as though one
+    // anonymous request did all of it.
+    const bnBefore = await fingerprintB(Bn.id);
     const anonRes = await call(fn, ANON, anonBody);
     const anonSaw = sawB(anonRes.text);
+    const anonTouched = movedBetween(bnBefore, await fingerprintB(Bn.id));
+    if (anonTouched.length) anonWrites.push({ fn, tables: anonTouched });
 
     const statuses = [["self(A)", selfRes.status], ["anon", anonRes.status]];
     const problems = [];
     let rejected = 0;
+    const bBefore = await fingerprintB(B.id);
     for (const actor of ACTORS) {
       if (actor.baseline) continue;
       const r = await call(fn, actor.jwt, crossBody);
@@ -941,6 +1025,8 @@ try {
         rejected++;
       }
     }
+    const actorTouched = movedBetween(bBefore, await fingerprintB(B.id));
+    if (actorTouched.length) actorWrites.push({ fn, tables: actorTouched });
 
     // THE OVER-PRIVILEGED CALLER, unchanged: it must come back carrying B's
     // data somewhere in the run, or the leak detector cannot see one at all.
@@ -962,7 +1048,17 @@ try {
       // guards; anything it demands that this harness never sent is the thing
       // standing between here and a real result.
       const needs = requiredFor(src).filter((f) => !(f in selfBody));
+      // **THE STATUS SAYS A REFUSAL HAPPENED. THE BODY SAYS WHO REFUSED — and
+      // that distinction cost a night, 2026-09-23.** `address-suggest` came
+      // back 429 to all six callers and was written up as a rate limit doing
+      // its job. It was not: the function's own three limits had counted 36 of
+      // their 60 and never refused anything, so the 429 was produced ABOVE the
+      // function and the product's code never ran. A status code cannot tell
+      // those apart and the body can — this function's own 429 carries
+      // `reason: "busy"` and nothing else's does.
+      const selfBody_ = (selfRes.text || "").replace(/\s+/g, " ").slice(0, 200);
       skips.push(`${fn}: owner A could not get a 2xx with its OWN tenant either (${stat}).`
+        + (selfBody_ ? ` A's own response said: ${selfBody_}` : ` A's own response had no body.`)
         + (KNOWN_BLOCKER[fn] ? ` ${KNOWN_BLOCKER[fn]}` : "")
         + (needs.length
           ? ` It rejects on ${needs.map((f) => `\`${f}\``).join(", ")}, which this harness `
@@ -1010,23 +1106,42 @@ try {
   // UUID-bearer cancel and reschedule the customer's own emailed link uses.
   const onlyA = movedByA.filter((t) => !movedByAnon.includes(t));
   assertions++;
+  const whoMoved = (list, table) =>
+    list.filter((w) => w.tables.includes(table)).map((w) => w.fn).join(", ") || "not attributed";
   if (onlyA.length) {
     for (const t of onlyA) {
       say(`edge: [edge-write] tenant B's ${t} changed for an actor of A and NOT for an `
         + `anonymous caller making the identical request against the twin tenant `
-        + `(${beforeB[t]} -> ${afterB[t]}) — that is a privilege A holds over B`);
+        + `(${beforeB[t]} -> ${afterB[t]}), via ${whoMoved(actorWrites, t)} — that is a `
+        + `privilege A holds over B`);
     }
     console.log(`    ${onlyA.length} table(s) A moved that a stranger could NOT: ${onlyA.join(", ")}`);
   } else {
     console.log(`    none of B's ${Object.keys(afterB).length} tables moved for A that did not also move for anon`);
   }
   if (movedByAnon.length) {
-    notes.push(`public by design, measured rather than assumed: an ANONYMOUS caller holding a `
-      + `booking's UUID moved ${movedByAnon.join(", ")} on the twin tenant. That is the `
-      + `UUID-bearer model cancel-booking and reschedule-booking are built on — the emailed `
-      + `link is the credential. It is not a tenant leak, and it is worth knowing that the `
-      + `UUID is the only thing protecting those rows.`);
-    console.log(`    (an anonymous caller moved ${movedByAnon.join(", ")} on the twin — the UUID-bearer design)`);
+    // **THE HEADLINE IS WHAT THE SECRET IS PROTECTING, NOT THE LIST OF TABLES.**
+    // The old version of this note was a union across several functions written
+    // as one sentence — "an anonymous caller holding a booking's UUID moved
+    // bookings, business_users, business_invites, …" — and a reader could not
+    // tell which function did which. `accept-invite` writing `business_users`
+    // on a 192-bit invite token is an ordinary product feature; an anonymous
+    // caller holding a booking UUID writing `business_users` would be a serious
+    // fault. As written the two were indistinguishable, so the note either
+    // frightened somebody or got waved away, and neither is information.
+    notes.push(
+      `NOT A LEAK, AND HERE IS WHAT IS ACTUALLY HOLDING THESE ROWS SHUT: on these paths the `
+      + `product has no session to check, so an unguessable secret in the caller's own hand IS `
+      + `the credential — a booking's UUID from the customer's emailed link, or an invite token. `
+      + `Guess the secret and you are the customer. Every write below was made by a caller with `
+      + `NO account at all, which is the product working as designed, and it is worth knowing `
+      + `that the secret is the only thing between a stranger and these rows. `
+      + `By function: `
+      + anonWrites.map((w) => `${w.fn} -> ${w.tables.join(", ")}`).join("; ")
+      + (anonWrites.length ? "" : "(no single call could be attributed)")
+      + `. Run-level union, for anything the per-call fingerprints missed: ${movedByAnon.join(", ")}.`);
+    console.log(`    an anonymous caller moved rows on the twin — by function:`);
+    for (const w of anonWrites) console.log(`      ${w.fn.padEnd(22)} ${w.tables.join(", ")}`);
   }
 
   // ---------------------------------------------------------------------------
