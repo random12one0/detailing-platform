@@ -1,13 +1,13 @@
 {
-  "git_sha": "893c6733f51c04f7c6141170fe6d510b27806ee0",
-  "git_sha_started": "893c6733f51c04f7c6141170fe6d510b27806ee0",
+  "git_sha": "9be1fdd21cb5c7424a272aac8b602be3e8ebabbc",
+  "git_sha_started": "9be1fdd21cb5c7424a272aac8b602be3e8ebabbc",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-23T01:18:24.219Z",
+  "finished_at": "2026-09-24T02:14:35.739Z",
   "failures": [],
   "warnings": [
     "READS SOURCE ONLY — never calls a deployed function, so it cannot observe a live 429; it can only confirm the source calls withinLimits with a real LIMITS config, the same mechanism the working examples use. Applying nothing, deploying nothing.",
-    "4 of 15 declared public endpoints are KNOWN OPEN, not this item's scope: cancel-booking: still open, out of this item's scope; reschedule-booking: still open, out of this item's scope; accept-quote: still open, out of this item's scope; track-visit: still open, out of this item's scope.",
+    "0 of 15 declared public endpoints are KNOWN OPEN, not this item's scope: .",
     "accept-invite (team-invite acceptance) is ALSO public and ALSO has no rate limit, found the same way this list was built. Its token is 192 bits of randomness (encode(gen_random_bytes(24),'hex')), not guessable, so this is a cost item like the others, not a security finding — but it is not in PUBLIC_FUNCTIONS above because it is not part of the booking widget, which is this item's declared scope, and is named here rather than silently fixed or silently dropped."
   ],
   "artifacts": [
@@ -73,30 +73,25 @@
       {
         "name": "cancel-booking",
         "found": true,
-        "protected": false
+        "protected": true
       },
       {
         "name": "reschedule-booking",
         "found": true,
-        "protected": false
+        "protected": true
       },
       {
         "name": "accept-quote",
         "found": true,
-        "protected": false
+        "protected": true
       },
       {
         "name": "track-visit",
         "found": true,
-        "protected": false
+        "protected": true
       }
     ],
-    "known_open": [
-      "cancel-booking",
-      "reschedule-booking",
-      "accept-quote",
-      "track-visit"
-    ],
+    "known_open": [],
     "today_fixed": [
       "available-slots",
       "calculate-booking",
@@ -115,7 +110,7 @@
     "limit_used": "LIMITS.publicCeiling (per-caller IP, 600/hour) — the same blunt ceiling every other read-only public endpoint uses; per-address, not per-business or global, checked against _shared/rateLimit.ts before reuse because a per-business limit would never fire for a caller with no business context yet."
   },
   "check_id": "rate-limit-coverage",
-  "started_at": "2026-09-23T01:18:24.127Z",
+  "started_at": "2026-09-24T02:14:35.665Z",
   "status": "pass",
   "expected_targets": 15,
   "discovered_targets": 15,

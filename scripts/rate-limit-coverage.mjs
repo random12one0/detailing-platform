@@ -55,18 +55,38 @@ const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("
 const PUBLIC_FUNCTIONS = {
   already: ["create-booking", "pay-booking", "plan-link", "unsubscribe", "address-suggest", "stripe-webhook", "booking-ics"],
   today: ["available-slots", "calculate-booking", "validate-promo-code", "get-booking-receipt"],
-  // **NOT THIS ITEM'S SCOPE, NAMED SO THE SILENCE IS NOT READ AS COVERAGE.**
-  // `cancel-booking` / `reschedule-booking` / `accept-quote` are ROADMAP
-  // 14.9's own "three writes" sub-task, not started. `track-visit`'s own
-  // header claims "Service-role only", which — if true — would mean it is
-  // not reachable by a stranger the way the others are and does not need
-  // the same fix; nothing in its source enforces that claim (Supabase can
-  // enforce it at the gateway, outside this repo, and this check cannot see
-  // that from here), so it is left open and named rather than guessed at
-  // either way.
-  knownOpen: ["cancel-booking", "reschedule-booking", "accept-quote", "track-visit"],
+  // **ROADMAP 14.12, CLOSED 2026-09-23.** These four were `knownOpen` until
+  // tonight — named in this file's own `warnings` while the receipt PASSED,
+  // which is the shape Andrew objected to: *a warning inside a passing
+  // receipt is a thing nobody opens.*
+  //
+  // Three are writes — cancel, reschedule and accept-quote each change a real
+  // booking — so the risk was a write a script can spam, not a read it can
+  // scrape. All three took the same `LIMITS.publicCeiling` per-IP ceiling the
+  // rest already carry, on purpose: 14.9 settled that the blunt ceiling is the
+  // right tool, and a tighter per-purpose limit is a separate question.
+  //
+  // **`track-visit` WAS THE ONE THAT NEEDED MEASURING RATHER THAN BUILDING,
+  // AND ITS HEADER WAS WRONG.** That header claimed "Service-role only;
+  // campaigns / campaign_visits stay closed to anon". Measured two ways on
+  // 2026-09-23 and both say otherwise:
+  //   · the DEPLOYED config reads `verify_jwt=false` (Management API, `.env`
+  //     token, project `kguqylyzgyzfktkfnhjb`). **There is no
+  //     `supabase/config.toml` in this repo, so the deployed value is the
+  //     only value there is.**
+  //   · `deploy-functions.mjs` lists `track-visit` in `PUBLIC_FUNCTIONS` and
+  //     sets `verify_jwt: !PUBLIC_FUNCTIONS.has(fn)` — the repo's own tooling
+  //     is what produces that `false`.
+  // So it is reachable by a stranger, every call writes a visit row, and it
+  // took the same ceiling as the other three. The false header is corrected
+  // in the function itself.
+  tonight: ["cancel-booking", "reschedule-booking", "accept-quote", "track-visit"],
+  // **EMPTY, AND THAT IS A RESULT RATHER THAN A DEFAULT.** Anything genuinely
+  // still unprotected goes here and gets named in `warnings`. It is empty
+  // because nothing is left on this thread, not because nobody looked.
+  knownOpen: [],
 };
-const ALL = [...PUBLIC_FUNCTIONS.already, ...PUBLIC_FUNCTIONS.today, ...PUBLIC_FUNCTIONS.knownOpen];
+const ALL = [...PUBLIC_FUNCTIONS.already, ...PUBLIC_FUNCTIONS.today, ...PUBLIC_FUNCTIONS.tonight, ...PUBLIC_FUNCTIONS.knownOpen];
 // DECLARED, NOT COUNTED — the same reason every other receipted check here
 // writes the number down instead of trusting `ALL.length` to stay right.
 const EXPECTED_COUNT = 15;

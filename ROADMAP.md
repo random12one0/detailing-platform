@@ -10705,8 +10705,68 @@ event id.
 ### 14.12 — Four public endpoints 14.9 left open, given their own line rather
 than living only in a receipt's warnings field
 
-- [ ] **`cancel-booking`, `reschedule-booking`, `accept-quote`, `track-visit`
-  still have no rate limit.** Split out of 14.9, 2026-09-23, on Andrew's own
+- [x] **DONE 2026-09-23. All four now carry the ceiling, and `track-visit`
+  turned out to need it — its header was wrong.**
+
+  **The three writes** — `cancel-booking`, `reschedule-booking`,
+  `accept-quote` — took the same `LIMITS.publicCeiling` per-IP shape the other
+  four already carry, one bucket name each, placed before any other work.
+  **The same mechanism on purpose:** 14.9 settled that the blunt ceiling is
+  the right tool here, and a tighter per-purpose limit is a separate question
+  that was not opened tonight.
+
+  **`track-visit` WAS A MEASUREMENT, NOT A BUILD, AND THE ANSWER WAS THE
+  UNCOMFORTABLE ONE.** Its header claimed *"Service-role only; campaigns /
+  campaign_visits stay closed to anon."* **That claim is false.** Two
+  independent sources, both named so the next person can re-run them:
+
+  | source | reading |
+  |---|---|
+  | **Deployed function config**, Management API, `.env` token, project `kguqylyzgyzfktkfnhjb` | **`verify_jwt=false`**, v55, ACTIVE |
+  | **`scripts/deploy-functions.mjs`** | lists `track-visit` in `PUBLIC_FUNCTIONS`, and sets `verify_jwt: !PUBLIC_FUNCTIONS.has(fn)` |
+
+  **There is no `supabase/config.toml` in this repo**, so the deployed value
+  is the only value there is — and the repo's own deploy tooling is what
+  produces it. **So a stranger can reach it, every call writes a visit row,
+  and it took the same ceiling as the other three.** The false header is
+  corrected in the function itself: *a comment asserting a security property
+  that nothing enforces is worse than no comment, because it answers the
+  question a reader came to ask.*
+
+  **The connector was deliberately not used for this.** CLAUDE.md measures
+  that the Supabase MCP connector points at `adtlnvihwrcqcasqcjwd` —
+  Andrew's real live business — and not at this platform at all, with that
+  project the first row it returns.
+
+  **`scripts/rate-limit-coverage.mjs` extended, and `known_open` is now
+  EMPTY** — a result rather than a default, with the group kept so anything
+  genuinely still open has somewhere to be named. 13 → **17** functions call
+  `withinLimits`; the declared list is still 15 and still declared rather
+  than derived.
+
+  **BROKEN ON PURPOSE BEFORE IT WAS BELIEVED, with a real edit on disk rather
+  than a simulation.** `accept-quote`'s guard was deleted from the file and
+  the check re-run:
+
+  ```
+  accept-quote             NOT PROTECTED
+  FAIL — 15/15 functions read, 1 failure(s), canary caught as required.
+    · accept-quote: expected PROTECTED (this item's own deliverable),
+      source shows no withinLimits call
+  EXIT=1
+  ```
+
+  **Caught, named, exit 1.** Restored and confirmed with `git diff` — the
+  file's only change is the intended addition, no residue. Clean re-run:
+  **PASS, 15/15, 0 failures, 20 assertions, canary caught.** The canary is on
+  `stripe-webhook`, **not one of tonight's four**, so it stays meaningful even
+  if one of these regresses.
+
+  **NOT DEPLOYED.** `deployed-inventory.mjs` now reports exactly these four as
+  `DIFFERS`, which is correct and expected — publishing is Andrew's.
+
+  ~~**`cancel-booking`, `reschedule-booking`, `accept-quote`, `track-visit`
+  still have no rate limit.**~~ Split out of 14.9, 2026-09-23, on Andrew's own
   instruction: *"a warning inside a passing receipt is a thing nobody
   opens."* `receipts/rate-limit-coverage.json` names all four in
   `warnings` and `dimensions.known_open`, and that receipt PASSES — so

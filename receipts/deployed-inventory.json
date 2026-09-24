@@ -1,19 +1,22 @@
 {
-  "git_sha": "f93787aa83e3d6cdfd2cad1d7b5ab71b59e485c7",
-  "git_sha_started": "f93787aa83e3d6cdfd2cad1d7b5ab71b59e485c7",
+  "git_sha": "9be1fdd21cb5c7424a272aac8b602be3e8ebabbc",
+  "git_sha_started": "9be1fdd21cb5c7424a272aac8b602be3e8ebabbc",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-23T04:07:25.014Z",
+  "finished_at": "2026-09-24T02:16:16.482Z",
   "failures": [
-    "8 function(s) are running something other than this checkout: create-booking, validate-promo-code, preview-emails, reschedule-booking, calculate-booking, update-booking, get-booking-receipt, available-slots",
+    "11 function(s) are running something other than this checkout: create-booking, validate-promo-code, preview-emails, reschedule-booking, calculate-booking, update-booking, get-booking-receipt, available-slots, accept-quote, cancel-booking, track-visit",
     "create-booking: 1 file(s) differ - _shared/pricing.ts (newest commit is 1.4d after the deploy)",
     "validate-promo-code: 3 file(s) differ - index.ts, _shared/pricing.ts, _shared/rateLimit.ts (newest commit is 1.4d after the deploy)",
     "preview-emails: 1 file(s) differ - _shared/pricing.ts (newest commit is 1.4d after the deploy)",
-    "reschedule-booking: 1 file(s) differ - _shared/pricing.ts (newest commit is 1.4d after the deploy)",
+    "reschedule-booking: 3 file(s) differ - index.ts, _shared/rateLimit.ts, _shared/pricing.ts (newest commit is 1.4d after the deploy)",
     "calculate-booking: 3 file(s) differ - index.ts, _shared/pricing.ts, _shared/rateLimit.ts (newest commit is 1.4d after the deploy)",
     "update-booking: 1 file(s) differ - _shared/pricing.ts (newest commit is 1.4d after the deploy)",
     "get-booking-receipt: 2 file(s) differ - index.ts, _shared/rateLimit.ts (newest commit is 1.3d after the deploy)",
-    "available-slots: 2 file(s) differ - index.ts, _shared/rateLimit.ts (newest commit is 1.3d after the deploy)"
+    "available-slots: 2 file(s) differ - index.ts, _shared/rateLimit.ts (newest commit is 1.3d after the deploy)",
+    "accept-quote: 2 file(s) differ - index.ts, _shared/rateLimit.ts",
+    "cancel-booking: 2 file(s) differ - index.ts, _shared/rateLimit.ts",
+    "track-visit: 2 file(s) differ - index.ts, _shared/rateLimit.ts"
   ],
   "warnings": [],
   "artifacts": [
@@ -24,10 +27,8 @@
     "method": "comment-text comparison against the deployed eszip bundle",
     "matching": [
       "accept-invite",
-      "accept-quote",
       "address-suggest",
       "booking-ics",
-      "cancel-booking",
       "connect-account",
       "create-business",
       "delete-customer",
@@ -49,7 +50,6 @@
       "send-owner-reminders",
       "session-ping",
       "stripe-webhook",
-      "track-visit",
       "translate-content",
       "unsubscribe",
       "verify-domain",
@@ -63,12 +63,15 @@
       "calculate-booking",
       "update-booking",
       "get-booking-receipt",
-      "available-slots"
+      "available-slots",
+      "accept-quote",
+      "cancel-booking",
+      "track-visit"
     ],
     "widest_gap_days": 1.4
   },
   "check_id": "deployed-inventory",
-  "started_at": "2026-09-23T04:06:40.797Z",
+  "started_at": "2026-09-24T02:15:32.542Z",
   "status": "fail",
   "expected_targets": 39,
   "discovered_targets": 39,

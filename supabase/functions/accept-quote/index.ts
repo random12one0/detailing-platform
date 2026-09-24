@@ -28,6 +28,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
+import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
 import { businessById, getSettings } from "../_shared/tenant.ts";
 import { buildBrand, extraVehiclesFor, ownerRecipients, sendTenantEmail } from "../_shared/email.ts";
 import { customerConfirmationEmail, ownerNewBookingEmail } from "../_shared/emailTemplates.ts";
@@ -41,6 +42,17 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
 
   try {
+    // ROADMAP 14.12 — the same blunt per-IP ceiling the other public
+    // endpoints already carry. This one turns a quote into a price, so the risk here is a write a script can
+    // spam rather than a read it can scrape.
+    // **The same mechanism on purpose.** 14.9 settled that the blunt
+    // ceiling is the right tool here; a tighter per-purpose limit is a
+    // separate question and inventing a second mechanism for it would
+    // leave two things to keep true.
+    if (!await withinLimits(supabase, [{ ...LIMITS.publicCeiling, bucket: "accept-quote", key: ipOf(req) }])) {
+      return json({ success: false, error: "too_many_requests" }, 429);
+    }
+
     const { booking_id } = await req.json();
     if (!booking_id || typeof booking_id !== "string") {
       return json({ error: "booking_id is required" }, 400);
