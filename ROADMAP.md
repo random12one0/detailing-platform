@@ -6239,17 +6239,66 @@ most corroborated finding in the set.
   **Done when:** a controlled failure raises an alert, appears in incident
   history, names the affected path, and clears only after a successful check.
   *A1 P1-03, P3-07, § 9*
-  **BLOCKED BY THE DEPLOY FREEZE, 2026-09-20: an alert needs something running
-  to raise it, and everything that runs is behind the freeze.** Not attempted;
-  naming it rather than proving it again.
+  **~~BLOCKED BY THE DEPLOY FREEZE, 2026-09-20~~ — THAT SENTENCE HAD BEEN FALSE
+  FOR TWO DAYS. Corrected 2026-09-23.** The freeze was lifted on **2026-09-21**
+  and all 39 edge functions went live;
+  `docs/MANAGER-CLOSE-2026-09-21.md` § 4 has Andrew's own words and the publish
+  log under them. **The blocker is kept and struck through rather than deleted,
+  because the stale-blocker pattern is the point** — this is the third time in
+  two nights a line stopped a session from even looking at an item, and twice
+  the line was simply out of date. `docs/gotchas.md` 79 and ROADMAP 14.15 are
+  the other two.
+
+  **WHAT IS STILL TRUE, AND IT IS NOT NOTHING.** Publishing is Andrew's own
+  press and **no session deploys** — the 21st was one permission for one
+  publish, not a standing grant. So **anything in 6.2 that needs a NEW thing
+  running is still waiting on him.**
+
+  **WHAT WAS NEVER WAITING ON HIM IS MOST OF THIS ITEM.** The fix asks for
+  *outside* checks — something hitting the live site from outside — and an
+  outside check needs no deploy by definition. **Measured rather than assumed:
+  `pg_cron` and `pg_net` are both installed on this project and already run
+  four scheduled jobs**, so a scheduled outside probe is configuration and SQL,
+  not a release.
+
+  **THIS ITEM IS NOW IN TWO HALVES AND THE SECOND IS 6.2a**, so that a
+  half-finished item cannot read as done. See below for which half closed and
+  what the other is waiting on.
+
+- [ ] **6.2a — "No alarm" reads as "working" on the back-office health line.**
+  Split out of 6.2 on 2026-09-23. **The display half:** successful jobs render
+  prominent and green while missing monitoring renders faint grey, so a
+  monitor that is switched off looks like a monitor with nothing to report.
+  **Fix:** missing monitoring renders amber or red, and failed background jobs
+  are shown rather than only the last success.
+  **Done when:** a monitor that has never reported once is visually
+  distinguishable from one reporting healthy, at every width, and a person who
+  has never seen the screen before can say which is which.
+  **NOT STARTED, AND DELIBERATELY NOT REACHED INTO.** It is `app/src`, which
+  was the other session's tree on the night 6.2 was picked up. **It is lane A;
+  6.2's outside-checks half is lane B, and the two can run at the same time.**
+  Waiting on nothing but a session.
 
 - [ ] **6.3 — Alert when an active detailer's booking page cannot work.**
   No services, no coverage area, no future availability, suspended account, or
   a public error.
   *A1 § 9*
-  **BLOCKED BY THE DEPLOY FREEZE, 2026-09-20: an alert needs something running
-  to raise it, and everything that runs is behind the freeze.** Same one-line
-  reason as 6.2. Not attempted.
+  **~~BLOCKED BY THE DEPLOY FREEZE, 2026-09-20~~ — FALSE SINCE 2026-09-21,
+  corrected 2026-09-23.** Same correction as 6.2 and for the same reason: the
+  freeze lifted on the 21st, all 39 functions are live,
+  `docs/MANAGER-CLOSE-2026-09-21.md` § 4. **What is still true** is that
+  publishing is Andrew's press and no session deploys, so a NEW thing running
+  waits on him.
+
+  **AND THIS ONE IS GENUINELY DIFFERENT FROM 6.2, WHICH THE SHARED BLOCKER WAS
+  HIDING.** 6.2 asks whether the *platform* is up, and an outside prober can
+  answer that. **6.3 asks a question only the database can answer** — whether a
+  particular active detailer has no services, no coverage area, no future
+  availability, a suspended account or a public error. That is a sweep across
+  every tenant, which is what `watch-jobs` already is, and extending it is a
+  function change and therefore a deploy. **So 6.3 really is waiting on
+  Andrew's press and 6.2's outside half never was.** Copying one blocker onto
+  two items is how a true sentence and a false one end up looking identical.
 
 - [ ] **6.4 — Weak signal and retry behavior is unknown.**
   Detailers work in driveways.

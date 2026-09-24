@@ -21,8 +21,8 @@ statement describes the work in hand, not the session.
 
 ## Why this page exists
 
-**Three of the things two sessions share are not files. Two of the three bit on
-the same night — 2026-09-23.**
+**Nothing on this page is a file, and every separation rule this repo has is
+about files. Three of the six bit on one night — 2026-09-23.**
 
 * A browser sweep and a replay contended for the **address budget**. The
   replay's six calls came back 429, and a function was written into
@@ -31,12 +31,15 @@ the same night — 2026-09-23.**
 * The replay had been silently eating about **twenty of the day's eighty
   emails** on every run, and two functions that had answered 200 came back 500
   and 502 when the day ran out. (ROADMAP 4.4, round four.)
+* A sweep resized **Andrew's own browser window** out of the half-screen split
+  he keeps it in and has asked for more than once.
 
-Neither failed. Both came back *strange*.
+None of the three failed. Two came back *strange*, and the third was noticed
+by the person whose screen it was.
 
 ---
 
-## The five
+## The six
 
 ### 1 · The booking page's public endpoints
 
@@ -104,11 +107,27 @@ run **destroys the floor another session is measuring from**, with no trace.
 in its own header; `bk-bar-clearance.mjs` deliberately does not.
 **Does anything report it:** **no.** `docs/gotchas.md` 78 has the near-miss.
 
+### 6 · Andrew's browser window
+
+**What:** the Chrome window on his screen. **He keeps it in a half-screen
+split and has asked more than once that it stay there.**
+**Who spends it:** anything that drives a *visible* window — and a width sweep
+spends it hardest, because resizing is the measurement.
+**When somebody spent it first:** his window is a different size than he left
+it. On 2026-09-23 a sweep resized it to **948 × 859** mid-run. It is the only
+resource on this page whose collision is with **a person**, not another
+session, and the only one that is noticed immediately and resented.
+**Does anything report it:** **no** — and unlike the others, he does.
+**The rule:** drive your own browser context, not his, and **write screenshots
+to disk instead of resizing anything he can see.** If a check must resize, it
+resizes a window he is not looking at.
+
 ---
 
 ## The honest column
 
-**For four of the five, nothing reports the contention.** So:
+**For five of the six, nothing reports the contention** — and the sixth is
+reported by Andrew noticing. So:
 
 > **The absence of an error is not the absence of a collision.**
 
