@@ -13925,63 +13925,91 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   is one of the 14 functions behind this checkout, so this is a fault waiting
   at the same door as everything else on `FOR-ANDREW.md`'s publish row.
 
-### 14.20 — `tests/mail-sink.test.mjs` is RED over 40 undeclared recipient addresses, and 31 of them are measured spenders
+### 14.20 — `tests/mail-sink.test.mjs` is RED over 40 addresses, and 39 of them are a sign-in credential or a word in a comment
 
 - [ ] **Inherited, not caused, 2026-09-23.** Found while running the mail
   guard after 14.19's work; confirmed red at `HEAD` before that session
   touched anything (`git stash -u`, re-run, same 12 passed / 1 failed).
-  **Logged rather than fixed, because an inherited red with no item becomes
-  somebody's stale blocker in two days** — and this one already reads like a
-  broken guard rather than a real finding.
 
-  **THE FIRST REPORT OF THIS WAS WRONG AND THE CORRECTION IS THE USEFUL
-  PART.** It was reported upward as *"40 undeclared addresses in
-  `tests/email-sends.test.mjs`"*. **Eight are in that file.** The other 32 are
-  spread across two more test files and **twenty scripts** — so the shape is
-  not "one bad fixture" but "the default was never applied", which is a
-  different job and a different size. Counted from the guard's own output,
-  not from the first line of it.
+  **THIS ENTRY HAS BEEN WRONG TWICE AND BOTH VERSIONS ARE KEPT, BECAUSE THE
+  SECOND MISTAKE IS THE SAME SHAPE AS 14.19 AND WAS MADE BY THE SESSION THAT
+  HAD JUST FIXED 14.19.**
 
-  **WHY IT IS NOT COSMETIC: 31 OF THE 40 ARE ON `@detailplatform.com`, AND
-  THAT DOMAIN IS CHARGED.** Note the spelling — it is not this product's
-  `detailingplatform.com`. `tests/_mail.mjs`'s own header records the live
-  probe, run 2026-09-13 against the deployed relay:
+  **Wrong the first time:** reported upward as *"40 undeclared addresses in
+  `tests/email-sends.test.mjs`"*. **Eight are in that file.** Corrected
+  unprompted the next turn.
 
-  ```
-  sink-probe@fixture.test        -> {"success":true,"skipped":"undeliverable_domain"}   (free)
-  real-probe@detailplatform.com  -> 429 daily_cap, refused 5 -> 6                        (charged)
-  ```
+  **Wrong the second time, and this is the one worth reading.** The corrected
+  version said *"31 of the 40 are on `@detailplatform.com`, and that domain is
+  charged — so those call sites can spend Andrew's 80 sends a day."* The probe
+  quoted was real. **The conclusion was not, and `tests/_mail.mjs` disproves
+  it three lines below the line that was quoted:**
 
-  So every one of those call sites can claim against **Andrew's 80 tenant
-  sends a day** whenever its script actually sends. `docs/shared-resources.md`
-  § 3 is the collision this feeds: a spent allowance makes functions answer
-  **500 or 502**, which reads exactly like a broken function, minutes after
-  the run that caused it and in somebody else's pane.
+  > *"A fixture LOGIN on a deliverable domain is therefore not a spender; a
+  > fixture RECIPIENT is."*
 
-  **The remaining nine** are `@resend.dev` (a real domain, one send each),
-  one `@demo.com`, one `@edge-replay-sabotage.com` and one
-  `@detailingplatform.com`.
+  **A quote was lifted and the sentence underneath it that disqualified the
+  conclusion was not read.** That is 14.19's own failure — reading the figure
+  and not the meaning — committed while writing up 14.19.
 
-  **WHAT THE FIX IS, AND WHY IT IS NOT A BLIND SWEEP.** `tests/_mail.mjs`
-  already exports both halves: `sink("tag")` for a recipient that cannot
-  cost anything, and `realMail(address, reason)` for one that will, which
-  **prints a line every time it is called** so a run that spends says so in
-  its own output. Most of the 40 want `sink()`. **Some genuinely want
-  `realMail`** — a check that proves the provider leg itself has to reach a
-  deliverable address — so each site needs the question asked rather than the
-  string replaced. That is the whole reason this is an item and not a
-  one-line `sed`.
+  **WHAT THE 40 ACTUALLY ARE, classified by opening each one:**
+  - **25 are `demo@detailplatform.com` sign-ins** — `page.fill("input[type=
+    email]", …)` and `const OWNER = { email, password }`. The demo owner's
+    login, live-confirmed all over this repo. **`mailer_autoconfirm` is true
+    and no custom SMTP is set, so a fixture login sends nothing at all.**
+    Cost: zero.
+  - **14 are addresses written inside COMMENTS**, most of them prose
+    explaining why that address is safe — `dashboard-notifies.mjs:91` is
+    literally inside a block headed *"NOTHING REACHES A PERSON"*, and
+    `edge-tenant-replay.mjs:929` is a comment about a recipient the function
+    takes from an env var. Cost: zero. They are not call sites.
+  - **That leaves at most one** worth a human's attention, and it was not
+    confirmed as a live send either.
 
-  **AND SIX OF THE CALL SITES ARE IN FILES ANOTHER SESSION OWNED THAT NIGHT**
-  (`contrast-insitu`, `scroller-clearance`, `tabbar-clearance`,
-  `calendar-legible`, and two more), which is why nothing was edited.
-  `CLAUDE.md`: `scripts/` is watched by nothing at all, so an unannounced
-  edit there is the quiet collision.
+  **AND `detailplatform.com` IS NOT A TYPO.** It reads like one — this
+  product is `detailingplatform.com`, six characters longer — and that
+  resemblance is worth knowing. But it is the **established demo credential
+  domain**, named in `admin-account.mjs`, ROADMAP 0.1, 9.16 and
+  `platform_admins`, and confirmed live. Calling it a slip in this entry
+  would have put a second wrong fact where the first one had just been
+  removed.
 
-  **Done when:** `node --test tests/mail-sink.test.mjs` exits 0 with every
-  address either on a reserved domain or carrying a stated reason, **and the
-  guard is broken on purpose once** — a declared address undeclared again —
-  to prove it still refuses.
+  **SO THE DEFECT IS IN THE GUARD, NOT IN 40 CALL SITES.**
+  `tests/mail-sink.test.mjs:101-112` reads every file in `tests/` and
+  `scripts/` **line by line as raw text**, matches any `@domain`, and asks
+  only whether the domain is reserved. It does not strip comments and it
+  cannot tell a recipient from a login. So it reports 40 findings of which
+  **at least 39 cost nothing**, which is worse than reporting none:
+
+  > **A guard that cries 40 is a guard nobody reads, and the day a real
+  > undeclared recipient appears it will be item 41 in a list everybody has
+  > learned to walk past.**
+
+  It is the same class as the checks 14.19 got past — **a check measuring the
+  thing that is easy to measure rather than the thing that matters.** Here it
+  is inverted: 14.19's checks were silent when they should have shouted; this
+  one shouts constantly, which buys the same silence.
+
+  **What the fix looks like:** strip comments before matching, and classify
+  by role — an address passed to something that SENDS is a recipient; an
+  address typed into a password form or held in an `OWNER`/`ADMIN` constant
+  is a login and is free. `tests/_mail.mjs` already exports both halves,
+  `sink("tag")` and `realMail(address, reason)`, and `realMail` prints every
+  time it is called. **Not a blanket replace of 40 strings** — that would
+  silence a guard instead of repairing it, and would rewrite 25 working
+  logins to fix nothing.
+
+  **NOT EDITED TONIGHT** because six of the flagged files were another
+  session's (`contrast-insitu`, `scroller-clearance`, `tabbar-clearance`,
+  `calendar-legible` and two more), and `CLAUDE.md` is explicit that
+  `scripts/` is watched by nothing at all, so an unannounced edit there is
+  the quiet collision.
+
+  **Done when:** the guard reports only addresses that can actually cause a
+  send; `node --test tests/mail-sink.test.mjs` exits 0; **and it is broken on
+  purpose twice** — a genuine undeclared recipient added (it must fail) and a
+  login left as it is (it must pass). A guard whose fix is "stop reporting
+  things" has to prove it still reports the one thing it is for.
 
 ### Still unanswered after steps 1–4
 
