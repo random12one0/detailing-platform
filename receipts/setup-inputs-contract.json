@@ -1,18 +1,17 @@
 {
-  "git_sha": "4a3f175cc731814b5d5e0922d72359d514f33255",
-  "git_sha_started": "4a3f175cc731814b5d5e0922d72359d514f33255",
+  "git_sha": "0b75fddb8042d74673c242bd5c02c3fd6dfbbaaa",
+  "git_sha_started": "0b75fddb8042d74673c242bd5c02c3fd6dfbbaaa",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-24T05:00:12.225Z",
-  "failures": [
-    "payload-complete the same business reads 12 of 12 from the dashboard's inputs and 6 of 12 from platform-admin's. Steps it cannot see: vehicle_types, hours, reviews, faq, payments, plans. This is ROADMAP 9.1",
-    "payload-no-dead-fields platform-admin sends field(s) that change no step: counts.addOns (nothing in the fixture fills it), counts.hoursOpen (nothing in the fixture fills it) — dead weight, or a misspelling of one the function does read"
-  ],
+  "finished_at": "2026-09-24T05:31:55.000Z",
+  "failures": [],
   "warnings": [
     "Behavioural, not a grep: which input feeds which step is discovered by REMOVING it and watching the count, so renaming a field cannot blind this check.",
     "It reads platform-admin/index.ts and never writes it. The fix for a red `payload-complete` is an edge-function change plus a deploy, and both belong to somebody else."
   ],
-  "artifacts": [],
+  "artifacts": [
+    "artifacts/setup-inputs-contract/contract.txt"
+  ],
   "dimensions": {
     "steps": [
       "catalog",
@@ -42,21 +41,21 @@
       "promos: fed — blanking it lost [promos]",
       "plans: fed — blanking it lost [plans]",
       "templates: fed — blanking it lost [templates]",
-      "platform-admin sends: counts{services,addOns,promos,hoursOpen} branding{primary_color} settings{setup} business{contact_phone,contact_email}",
-      "fields sent that change nothing: counts.addOns (nothing in the fixture fills it), counts.hoursOpen (nothing in the fixture fills it)"
+      "platform-admin sends: counts{services,promos,reviews,plans,hoursRows} branding{primary_color} settings{setup,vehicle_sizes,faqs,pay_cash,pay_venmo,pay_cashapp,pay_zelle,pay_paypal,pay_other} business{contact_phone,contact_email}",
+      "fields sent that change nothing: none; fields the fixture cannot judge: none"
     ],
     "sabotage": null
   },
   "check_id": "setup-inputs-contract",
-  "started_at": "2026-09-24T05:00:12.132Z",
-  "status": "fail",
-  "expected_targets": 15,
+  "started_at": "2026-09-24T05:31:54.907Z",
+  "status": "pass",
+  "expected_targets": 16,
   "discovered_targets": 16,
   "attempted_targets": 16,
-  "completed_targets": 15,
+  "completed_targets": 16,
   "skipped_targets": 0,
   "assertions_executed": 17,
-  "min_assertions": 16,
+  "min_assertions": 17,
   "assertion_floor": "12 steps + 1 complete-fixture + 1 payload-found + 1 payload-complete + 1 payload-no-dead-fields + the canary = 17. Fixed by STEPS.length and the row list, never by what the run finds: a step added to `STEPS` with no row in FEEDS fails `complete-fixture`, and a payload literal that cannot be found fails `payload-found` rather than passing on an empty set.",
   "canary": {
     "id": "a-step-with-no-input",
