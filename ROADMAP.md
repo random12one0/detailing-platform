@@ -13925,6 +13925,64 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   is one of the 14 functions behind this checkout, so this is a fault waiting
   at the same door as everything else on `FOR-ANDREW.md`'s publish row.
 
+### 14.20 — `tests/mail-sink.test.mjs` is RED over 40 undeclared recipient addresses, and 31 of them are measured spenders
+
+- [ ] **Inherited, not caused, 2026-09-23.** Found while running the mail
+  guard after 14.19's work; confirmed red at `HEAD` before that session
+  touched anything (`git stash -u`, re-run, same 12 passed / 1 failed).
+  **Logged rather than fixed, because an inherited red with no item becomes
+  somebody's stale blocker in two days** — and this one already reads like a
+  broken guard rather than a real finding.
+
+  **THE FIRST REPORT OF THIS WAS WRONG AND THE CORRECTION IS THE USEFUL
+  PART.** It was reported upward as *"40 undeclared addresses in
+  `tests/email-sends.test.mjs`"*. **Eight are in that file.** The other 32 are
+  spread across two more test files and **twenty scripts** — so the shape is
+  not "one bad fixture" but "the default was never applied", which is a
+  different job and a different size. Counted from the guard's own output,
+  not from the first line of it.
+
+  **WHY IT IS NOT COSMETIC: 31 OF THE 40 ARE ON `@detailplatform.com`, AND
+  THAT DOMAIN IS CHARGED.** Note the spelling — it is not this product's
+  `detailingplatform.com`. `tests/_mail.mjs`'s own header records the live
+  probe, run 2026-09-13 against the deployed relay:
+
+  ```
+  sink-probe@fixture.test        -> {"success":true,"skipped":"undeliverable_domain"}   (free)
+  real-probe@detailplatform.com  -> 429 daily_cap, refused 5 -> 6                        (charged)
+  ```
+
+  So every one of those call sites can claim against **Andrew's 80 tenant
+  sends a day** whenever its script actually sends. `docs/shared-resources.md`
+  § 3 is the collision this feeds: a spent allowance makes functions answer
+  **500 or 502**, which reads exactly like a broken function, minutes after
+  the run that caused it and in somebody else's pane.
+
+  **The remaining nine** are `@resend.dev` (a real domain, one send each),
+  one `@demo.com`, one `@edge-replay-sabotage.com` and one
+  `@detailingplatform.com`.
+
+  **WHAT THE FIX IS, AND WHY IT IS NOT A BLIND SWEEP.** `tests/_mail.mjs`
+  already exports both halves: `sink("tag")` for a recipient that cannot
+  cost anything, and `realMail(address, reason)` for one that will, which
+  **prints a line every time it is called** so a run that spends says so in
+  its own output. Most of the 40 want `sink()`. **Some genuinely want
+  `realMail`** — a check that proves the provider leg itself has to reach a
+  deliverable address — so each site needs the question asked rather than the
+  string replaced. That is the whole reason this is an item and not a
+  one-line `sed`.
+
+  **AND SIX OF THE CALL SITES ARE IN FILES ANOTHER SESSION OWNED THAT NIGHT**
+  (`contrast-insitu`, `scroller-clearance`, `tabbar-clearance`,
+  `calendar-legible`, and two more), which is why nothing was edited.
+  `CLAUDE.md`: `scripts/` is watched by nothing at all, so an unannounced
+  edit there is the quiet collision.
+
+  **Done when:** `node --test tests/mail-sink.test.mjs` exits 0 with every
+  address either on a reserved domain or carrying a stated reason, **and the
+  guard is broken on purpose once** — a declared address undeclared again —
+  to prove it still refuses.
+
 ### Still unanswered after steps 1–4
 
 - **RESOLVED 2026-09-19: `composition` is GREEN.** 97 passed, 0 failed,

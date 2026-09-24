@@ -41,6 +41,12 @@ import { brandFrom, D, htmlToText, L, money } from "../supabase/functions/_share
 import { refundInstruction, refundOwed } from "../supabase/functions/_shared/connect.ts";
 import * as T from "../supabase/functions/_shared/emailTemplates.ts";
 import { paymentHandles } from "../supabase/functions/_shared/payments.ts";
+// ROADMAP 14.19 FOLLOW-UP — the carload fixture's money is COMPUTED by the
+// pricing engine instead of typed. Same `.ts`-import idiom as every line
+// above, and `pricing.ts` is dependency-free on purpose ("so tests can run it
+// under Node", its own header), so this costs no credential, no network and
+// no build step. See the fixture for why it had to change.
+import { computeQuote } from "../supabase/functions/_shared/pricing.ts";
 // ROADMAP 3.4 — the invoice fixture's own labels go through the product's
 // lookup. Named `translate` because `T` above is the TEMPLATES namespace.
 import { T as translate } from "../supabase/functions/_shared/i18n.ts";
@@ -185,22 +191,87 @@ const planBooking = {
 // money table at all — so if the fact row names one car, a three-car job looks
 // like a one-car job and the mistake is discovered in somebody's driveway.
 //
-// **THE MONEY LINES ARE HERE TOO, and they are what the tie-out is checked
-// against**: each extra car is a labelled `price_adjustments` amount, exactly
-// as `computeQuote` writes it, so `reconcile()` has to reach 480 from the
-// same lines the customer sees. 240 + 120 + 120 = 480.
+// ─────────────────────────────────────────────────────────────────────────
+// AND THE MONEY IS COMPUTED NOW, NOT TYPED — ROADMAP 14.19's ROOT CAUSE.
+// ─────────────────────────────────────────────────────────────────────────
+//
+// **THIS FIXTURE USED TO BE A DRAWING OF A FIXTURE.** It carried
+// `subtotal: 480, total: 480` — hand-written, and the CORRECT shape — beside
+// a comment reasoning that "240 + 120 + 120 = 480". So while the product was
+// storing a two-car subtotal of 315 against a 215 charge, **this page showed
+// a three-car email that looked perfectly right**, and it is the page a human
+// opens to check exactly that. 14.19 went unseen for two days partly because
+// of this object. The file's own header already names the failure — *"a
+// fixture assembled field by field is a fixture that silently disagrees with
+// production"* — and this was that, in the one fixture where it mattered.
+//
+// **AND THE DRAWING WAS ITSELF WRONG, WHICH NOBODY HAD NOTICED.** Rendered at
+// HEAD, those typed numbers made `quoteLines()` derive a service line of $235
+// — a figure nobody chose — and then `reconcile()` closed the remaining gap
+// with an invented **"Adjustment  $40"** row. A charge with no name, on the
+// preview page, in the product's own house style. It survived because the
+// column adds up: 235 + 25 + 120 + 120 − 20 − 40 + 40 = 480.
+//
+// **THE 120 WAS A NUMBER THE ENGINE CANNOT PRODUCE.** An extra car costs
+// `basePrice + its size fee`, so with a $240 service the second car is $280,
+// never $120. The typed figure was not a stale value; it was never a possible
+// one. That is the tell to look for in any other hand-built fixture here.
+//
+// So the story below is still chosen by a person — the same service, add-ons,
+// travel, surcharge, sale and promo code as the base fixture — and **every
+// figure is produced by running `computeQuote`**, the same function
+// `create-booking` runs. `scripts/.../pricing.ts` and this page can no longer
+// disagree, because there is only one of them now.
+const carloadServices = [{
+  id: "svc-detail",
+  name: "Full Interior + Exterior Detail",
+  price: 240,
+  duration_minutes: 180,
+  // A real size table, so the extra cars are priced rather than assumed — the
+  // F-150 genuinely costs more than the small car, which is the whole reason
+  // `vehicle_size_adjustments` exists.
+  vehicle_size_adjustments: {
+    small: { price: 0, duration_minutes: 0 },
+    suv: { price: 0, duration_minutes: 0 },
+    large: { price: 40, duration_minutes: 30 },
+  },
+}];
+const carloadAddOns = [
+  { id: "ao-pet", name: "Pet hair removal", price: 60, duration_minutes: 45 },
+  { id: "ao-bay", name: "Engine bay clean", price: 60, duration_minutes: 30 },
+];
+// ONE LIST, TWO SHAPES. The engine wants `{ key, label, model }` and the email
+// wants `{ size, model }`; built from the same row so the pictures and the
+// prices cannot name different cars.
+const carloadCars = [
+  { key: "large", label: "Large / SUV", model: "2021 Ford F-150" },
+  { key: "small", label: "Small car", model: null },
+];
+const carloadQuote = computeQuote({
+  services: carloadServices,
+  addOns: carloadAddOns,
+  vehicleSize: "suv",
+  vehicleSizeLabel: booking.vehicleSize,
+  extraVehicles: carloadCars,
+  extraVehicleMinutesSaved: 30,
+  travelFee: booking.travelFee,
+  adjustments: [{ label: "Heavy soiling surcharge", amount: 20 }],
+  siteDiscountPercent: booking.siteDiscountPercent,
+  promo: { type: "amount", value: 40 },
+  roundingNearest: 0,
+  plan: null,
+});
 const carloadBooking = {
   ...booking,
-  extraVehicles: [
-    { size: "Large", model: "2021 Ford F-150" },
-    { size: "Small", model: null },
-  ],
-  adjustments: [
-    { label: "2nd vehicle · Large · 2021 Ford F-150", amount: 120 },
-    { label: "3rd vehicle · Small", amount: 120 },
-  ],
-  subtotal: 480,
-  total: 480,
+  extraVehicles: carloadCars.map((v) => ({ size: v.label, model: v.model })),
+  serviceNames: carloadServices.map((s) => s.name),
+  addOnNames: carloadAddOns.map((a) => a.name),
+  travelFee: carloadQuote.travelFee,
+  adjustments: carloadQuote.adjustmentLines,
+  subtotal: carloadQuote.subtotalAfterSite,
+  siteDiscount: carloadQuote.siteDiscount,
+  promoDiscount: carloadQuote.promoDiscount,
+  total: carloadQuote.total,
 };
 
 // BUILT THE WAY `send-invoice/index.ts` BUILDS IT — AND THAT IS NOW ONE LINE
@@ -459,6 +530,21 @@ for (const [file, label, render] of EMAILS) {
     // figure in the row above is positive. Baselined by removing the sign
     // handling in `quoteLines` — without this row nothing failed.
     ["confirmation, on a plan", T.customerConfirmationEmail(brand, planBooking, false).html, planBooking.total],
+    // ROADMAP 14.19 FOLLOW-UP — AND THE CARLOAD, WHICH THIS BLOCK HAS NEVER
+    // COVERED. Three cases were listed here and the multi-vehicle email was
+    // not one of them, so the one column with extra-vehicle lines in it was
+    // the one column nobody tied out. That is this file's own argument used
+    // against itself: *a check which cannot reach a case reads exactly like a
+    // check that passes.*
+    //
+    // **IT WOULD HAVE PASSED ANYWAY, AND THAT IS THE MORE USEFUL HALF.** With
+    // the old typed fixture this column balanced at 480 — by way of an
+    // invented "Adjustment $40" row that `reconcile()` added to make it. A
+    // tie-out asks whether the lines reach the total, and `reconcile()`'s job
+    // is to guarantee that they do. So this row is worth having and it is NOT
+    // what protects the numbers; `tests/quoted-lines-true.test.mjs` is, by
+    // asking instead whether each line is TRUE.
+    ["confirmation, three cars", T.customerConfirmationEmail(brand, carloadBooking, false).html, carloadBooking.total],
     ["receipt", T.invoiceEmail(brand, booking, invoiceRows, invoiceTotals, "paid", null).html, invoiceTotals.totalPaid],
   ];
   for (const [name, html, total] of cases) {

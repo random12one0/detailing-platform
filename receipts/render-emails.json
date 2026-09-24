@@ -1,7 +1,9 @@
 {
-  "git_sha": "0715dc26124c6d01a1eff44311ad17f5d2e39cb1",
+  "git_sha": "7ef348c8dc2148def25892be880f5bfbdbb7f902",
+  "git_sha_started": "7ef348c8dc2148def25892be880f5bfbdbb7f902",
+  "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-21T09:43:20.034Z",
+  "finished_at": "2026-09-24T06:26:40.881Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -13,7 +15,7 @@
     "out": "email-preview"
   },
   "check_id": "render-emails",
-  "started_at": "2026-09-21T09:43:19.882Z",
+  "started_at": "2026-09-24T06:26:40.734Z",
   "status": "pass",
   "expected_targets": 32,
   "discovered_targets": 32,
