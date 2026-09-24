@@ -3114,3 +3114,39 @@ every result under that floor is a coin. This is the screenshot cousin of
 `docs/silences.md`'s whole subject: **a comparison that cannot fail for the
 reason you care about, failing for another reason, reads exactly like a
 finding.**
+
+## 77. `elementFromPoint` NAMING AN ANCESTOR MEANS A CLIP, NOT SOMETHING ON TOP — and the difference sends you to a different file
+
+**2026-09-23, closing the item 2.32 spawned.** Twelve `.choice` chips on
+Booking rules measured **42px against the 44px absolute** at 1440 and 1920.
+The probe did the right thing and named the thief:
+`elementFromPoint` returned **`.app-main`** for every lost row.
+
+**That reads as "something is painted over the chip", and it is the opposite.**
+`.app-main` is the chip's own ANCESTOR. Nothing can be over a control and be
+its own parent — a parent painted on top would have to be a later sibling or a
+higher layer. What it actually means is that **the chip is not there at all**
+at those rows: its `::after` was **clipped away** by a scroll container
+in between, and `.app-main` is simply what stayed visible behind the hole.
+
+**THE TWO ANSWERS LIVE IN DIFFERENT PLACES.** An occluder is a z-index, a
+fixed bar, a scrim — you go looking for the thing on top. A clip is
+`overflow` on an ancestor, and the fix is `scroll-padding-bottom` **on that
+scroller**, which is a different property on a different element in a
+different rule. The item spent its first suspicion on neither: it suspected
+the **pitch**, because a 6px gap against a 4px overhang per side looks like
+two neighbours trading rows.
+
+**THE TELL THAT SETTLES IT IN ONE READ, AND IT IS FREE.** Print the row-by-row
+map rather than the count.
+
+- **An occluder or a neighbour** takes a run of rows and names a SIBLING, and
+  when two controls trade presses the ownership **alternates**.
+- **A clip** takes a contiguous run at ONE END and names an **ANCESTOR**, and
+  the run stops exactly at that ancestor's edge — here y 856, which was
+  `.settings-body`'s clip edge to the pixel.
+
+**THE HABIT:** when a hit-test names the loser, ask whether the winner is an
+ancestor before you go looking for what is on top. `el.contains(hit)` already
+tells you; the probe just has to say so. The row map is four extra characters
+per row and it answered a question three plausible suspicions could not.
