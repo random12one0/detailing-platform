@@ -11260,6 +11260,46 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
    return a version, and what a concurrent rewrite loses is nobody's version.
    One session, a quiet tree, a fresh tag, one pass. **Andrew rules on it.**
 
+### 14.14 — `tests/receipt-fields.test.mjs` is FAILING at committed HEAD, and it was in no file until now
+
+- [ ] **Found by DP Cowork on 2026-09-23 and reproduced independently before
+  being written down.** The booking-receipt endpoint returns **32** columns
+  where the test expects **31**. **The extra one is `address_source`**, added
+  by **2.8**.
+
+  **The measurement, from a run rather than from a reading:**
+
+  ```
+  48 passed, 3 failed, 51 assertions
+  FAIL  the endpoint's list matches this file's, name for name and in order
+        endpoint has 32, this file expects 31: only there [address_source], only here []
+  FAIL  d7a79912 — the reply carries nothing outside the list sent as well: address_source
+  FAIL  554722f5 — the reply carries nothing outside the list sent as well: address_source
+  ```
+
+  **One cause, three failures.** The list comparison fails once; the
+  per-booking assertion fails once for each of the two bookings it walks. **A
+  reader counting three failures will look for three problems.**
+
+  **NOT FIXED HERE ON PURPOSE.** `address_source` is 2.8's column and 2.8's
+  tree belongs to another session. **Fixing this means adding one name to the
+  expected list** — but doing that from outside 2.8 would be deciding, on
+  2.8's behalf, that the column is meant to be in the receipt's public reply.
+  **That is a question about what a customer's receipt should disclose, not a
+  test that needs quietening.**
+
+  **Done when:** whoever owns 2.8 either adds `address_source` to the expected
+  list, having said why a customer-facing receipt should carry how an address
+  was arrived at — or removes it from the endpoint's reply. **Either way the
+  answer goes in the commit, because a test edited to match an endpoint is the
+  cheapest way in this repo to make a real disclosure change invisible.**
+
+  **Why this is its own item:** it fails at committed `HEAD`, on `main`, right
+  now. **Anything that runs the full battery sees a red and has no file to
+  read about it** — and CLAUDE.md already warns that a red in a full run is a
+  lead rather than a verdict, which is exactly the instruction that would
+  cause somebody to dismiss this one.
+
 ### Still unanswered after steps 1–4
 
 - **RESOLVED 2026-09-19: `composition` is GREEN.** 97 passed, 0 failed,
