@@ -11,6 +11,24 @@
 // dashboard login. No Geoapify spend, no bookings written, nothing deployed.
 //
 // ---------------------------------------------------------------------------
+// **THIS FILE DELETES ROWS FROM `rate_hits`, SO IT CANNOT RUN BESIDE ANYTHING
+// MEASURING THE RATE LIMITS — CHECK BEFORE YOU START IT.**
+// ---------------------------------------------------------------------------
+// Near the bottom it DELETEs every `address%` bucket from `rate_hits` to buy
+// itself an address budget (the note there explains why). That table is shared
+// state, and `edge-tenant-replay.mjs`, `rate-limit-coverage.mjs` and
+// `tenant-matrix.mjs` read it as their evidence. **A run of this file in the
+// middle of one of theirs does not fail anything — it silently changes their
+// numbers**, and nobody afterwards can tell a real result from a cleared
+// bucket. It nearly happened on 2026-09-23: a session wanted this file's green
+// to confirm an unrelated fix while another was mid-investigation into
+// `address-suggest` answering 429, and declined to take it.
+// **Confirm nobody is measuring `rate_hits` before running this, or run the
+// check that does not touch it — `scroller-clearance.mjs` presses the same
+// controls on the same screens and writes nothing.** The general shape is
+// `docs/gotchas.md` #78.
+//
+// ---------------------------------------------------------------------------
 // THE MEASUREMENT IS THE HIT AREA, NEVER THE BOUNDING RECT
 // ---------------------------------------------------------------------------
 // **This is the whole reason the file exists and the thing most likely to be

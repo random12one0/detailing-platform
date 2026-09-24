@@ -3150,3 +3150,41 @@ map rather than the count.
 ancestor before you go looking for what is on top. `el.contains(hit)` already
 tells you; the probe just has to say so. The row map is four extra characters
 per row and it answered a question three plausible suspicions could not.
+
+## 78. A CHECK THAT CLEARS SHARED STATE TO BUY ITSELF A CLEAN RUN DESTROYS WHATEVER ELSE WAS MEASURING THAT STATE — and leaves no trace at all
+
+**2026-09-23.** `scripts/tabbar-clearance.mjs` DELETEs every `address%` bucket
+from `rate_hits` before it starts. That is a defensible bargain on its own
+terms — sixteen screen loads would otherwise exhaust a real customer's hourly
+allowance and redden the run on a console line that is the harness rather than
+the product — and its header says so.
+
+**The bargain is made with a table that belongs to everybody.**
+`edge-tenant-replay.mjs`, `rate-limit-coverage.mjs` and `tenant-matrix.mjs`
+read those rows AS their evidence. Run the two at the same time and the second
+one does not error, does not warn and does not fail. It just returns different
+numbers, and **a cleared bucket is indistinguishable from a limit that was
+never hit.**
+
+**IT IS WORSE THAN A FLAKY TEST, BECAUSE THE DAMAGE LANDS SOMEWHERE ELSE.** A
+flaky check misleads whoever ran it. This misleads whoever did NOT run it,
+while they are looking at their own screen, with no reason to suspect anything
+moved.
+
+**WHAT IT LOOKED LIKE THE NIGHT IT NEARLY HAPPENED.** One session had just
+fixed a hit-area fault and wanted `tabbar-clearance`'s green to confirm an
+ungraded line had gone away — a completely reasonable thing to want, thirty
+seconds of work, and it would have wiped the buckets the other session was
+measuring `address-suggest`'s 429s from. **The green was declined and the same
+evidence taken from a check that writes nothing.** That is the habit: the
+question is not "will this pass", it is "what does this write, and is anybody
+reading it".
+
+**THE HABIT, and it is cheap:** before running a check, ask what it WRITES,
+not only what it reads. If it clears, seeds, deletes or resets anything
+shared — a rate-limit table, a seeded tenant, a queue, a cache — it is not
+safe to run concurrently, and the header must say so **where somebody about
+to run it will see it** rather than in a roadmap entry they have no reason to
+open. `docs/silences.md` is about a check that cannot tell a pass from a
+did-not-run; this is its neighbour: **a check that cannot tell anyone it has
+moved somebody else's floor.**
