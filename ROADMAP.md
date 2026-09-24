@@ -13704,6 +13704,71 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   14.15, which is the same shape seen from the other side: something refusing
   that our limiter never counted, and now our limiter not counting at all.
 
+### 14.19 — A two-car booking's stored `subtotal` counts the second car twice, and nobody has ever been in a position to notice
+
+- [ ] **Found 2026-09-23 by pressing 8.10a's feature end to end instead of
+  re-reading its entry.** 8.10a is correctly closed: both migrations are live,
+  `get_public_business_profile` publishes `max_vehicles_per_booking`, and a
+  real two-car booking goes through. **This is what pressing it found on the
+  way past.**
+
+  **THE MEASUREMENT, from a booking made through the real `create-booking` on
+  a throwaway tenant.** One service at $100, medium vehicle, one extra small
+  vehicle:
+
+  | | one car | two cars |
+  |---|---|---|
+  | `total_price` | 115 | **215** ✔ |
+  | itemised lines | 115 | service 115 + 2nd vehicle 100 = **215** ✔ |
+  | **`subtotal`** | **115** ✔ | **315** ✘ |
+
+  **The total is right and the itemisation is right. `subtotal` alone is wrong,
+  by exactly the price of the extra car** — the second vehicle is inside the
+  subtotal *and* listed again as a `price_adjustments` line
+  (`{"label":"2nd vehicle · Small · Second Car","amount":100,"source":"vehicle"}`).
+  `pricing.ts:655` is where the two meet: `subtotalBase = beforeAdjustments +
+  adjustmentsTotal`, and on this path the extra vehicle is already in
+  `beforeAdjustments`.
+
+  **One car is clean**, so this is specific to the multi-vehicle path.
+
+  **WHY NOBODY HAS SEEN IT, AND WHY THAT IS THE INTERESTING PART.** Multi-car
+  booking was **unreachable for every tenant until 2026-09-21** — that is
+  8.10a's whole finding. **No real two-car booking has ever existed**, so no
+  receipt, invoice or screen has ever had to add these numbers up. The feature
+  shipped, was unreachable, was made reachable, and **the first end-to-end
+  press of it found a money fault in the same hour.**
+
+  **WHAT IS MEASURED AND WHAT IS READ, kept apart.**
+  - **Measured:** the stored row and `get-booking-receipt`'s response both
+    carry `subtotal: 315` against `total_price: 215` with lines summing to 215.
+  - **READ, NOT MEASURED:** `_shared/emailTemplates.ts:436` reconstructs the
+    printed base as `subtotal + siteDiscount − named`, which here is
+    `315 + 0 − 100 = 215`. The correct base is **115**. So the emailed receipt
+    would print a base of $215, a `+$100` second-vehicle line under it, and a
+    charged total of $215 — **lines that do not add up, off by the extra car.**
+    **That is a reading of the template and it has not been rendered.**
+    `node scripts/render-emails.mjs` is the instrument; confirming it is the
+    first thing to do, and if the email is fine then this is a stored-column
+    fault only.
+
+  **THIS IS 2.2's CLASS, NOT 2.2's MECHANISM.** 2.2 — *"the summary lines do
+  not add up to the total"*, closed 2026-09-20 — was **rounding**. This is
+  **double counting**, on a path 2.2 could not have exercised because the
+  feature was unreachable when 2.2 was fixed. The rule 2.2 established is the
+  one being broken.
+
+  **Done when:** a two-car booking's `subtotal` equals the sum of its own
+  itemised lines, on the stored row, in the receipt response and in the
+  rendered email — and a one-car booking is unchanged.
+
+  **Not fixed here.** It is a money path, `_shared/pricing.ts` is imported by
+  seven functions, and changing it needs its own item rather than a
+  same-session repair at the end of a long night. **And it reaches no customer
+  today:** there are no real detailers, and the deployed `calculate-booking`
+  is one of the 14 functions behind this checkout, so this is a fault waiting
+  at the same door as everything else on `FOR-ANDREW.md`'s publish row.
+
 ### Still unanswered after steps 1–4
 
 - **RESOLVED 2026-09-19: `composition` is GREEN.** 97 passed, 0 failed,
