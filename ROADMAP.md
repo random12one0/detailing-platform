@@ -6557,6 +6557,103 @@ most corroborated finding in the set.
   the failure, **put it back**: leaving one on subscription-suspended darkens
   that booking page for every other check that walks it.
 
+  ---
+
+  ### BUILT AND PROVED 2026-09-23 — one condition alerts, four are named and left out
+
+  **`watch_tenant_bookability()`, hourly on `pg_cron`, with its own
+  healthchecks.io check** — *"detailing platform — a detailer's page stopped
+  working"*, one-hour period, three-hour grace. **Its own check on purpose:**
+  one detailer's page going quiet must not take down the alarm that says
+  whether the whole platform is up. Two different alarms, two different
+  sentences. No deploy; no edge function touched.
+
+  **THE ONE THING IT ALERTS ON:** *a detailer who WAS working and has stopped
+  being bookable.* "Was working" is carried by one fact — **they have taken at
+  least one booking.** That single qualifier is the whole answer to *broken vs
+  merely empty*: a business with no services that has never had a booking is
+  setting up; one that took bookings last month and has no services today has
+  lost something.
+
+  **THE FOUR THAT ARE LEFT OUT, EACH WITH ITS REASON, BECAUSE A GUESS HERE IS
+  WORSE THAN A GAP:**
+
+  | named in the item | why it is not alerted on |
+  |---|---|
+  | a suspended account | **Not an outage — the platform did it**, on purpose, for non-payment. Mailing Andrew about a thing Andrew did is the definition of a wolf. Excluded from the sweep. |
+  | no future availability, when deliberate | `businesses.closed_until` and `blockout_dates` are a real feature `available-slots` already reads. **A detailer on holiday has said so**, and is excluded. |
+  | no coverage area | **Measured, not assumed: nothing in the booking path reads `businesses.service_area`.** It is carried through `tenant.ts` and never consulted by `available-slots`, `create-booking` or slot validation. An empty coverage area cannot stop a booking, so this would fire on a normal state. **Left out.** |
+  | a public error | **Nothing in this database records that a visitor saw one.** There is nothing to read. Sentry is the instrument and it is not built — 7.2, and `docs/ops/monitoring.md` § 4 still needs a DSN from Andrew. **Left out.** |
+
+  **A SECOND IMPLEMENTATION IS DECLARED RATHER THAN HIDDEN.** "Not bookable"
+  is the product's own definition, from `adminInsight.js`'s `bookability()`.
+  `pg_cron` cannot call JavaScript, so two of its three arms are restated in
+  SQL. **That is the exact shape 9.1 is**, fixed hours earlier, so it is kept
+  as narrow as possible — two counts, no interpretation — and **if
+  `bookability()` grows a third reason this will not know.** Written down at
+  the moment the cost was incurred.
+
+  **THE FIRST VERSION WOULD HAVE BEEN RED FROM THE HOUR IT SHIPPED, AND ONLY
+  RUNNING IT SAID SO.** Its very first sweep — the one meant to establish a
+  healthy baseline — pinged `/fail` with `roles-a (no open days)`. `roles-a` is
+  a **test fixture** from the roles suite: one booking, one service, no open
+  days. It satisfies every rule this sweep has, because the rules were written
+  about detailers and **a fixture looks exactly like a detailer in every column
+  that matters.** Andrew would have had one email about a business that does
+  not exist and then a permanently red alarm. `is_demo` is now excluded
+  (`20260923070000`).
+
+  **AND THE HONEST CONSEQUENCE: THIS SWEEP WATCHES ZERO DETAILERS TODAY.** All
+  17 active businesses are fixtures except `counter-signup-test-detail`, which
+  has never taken a booking. Not because the sweep is broken — because there
+  are none. It starts working, with no change of any kind, the first time a
+  real business takes a booking.
+
+  **WHEN IT IS WATCHING NOBODY IT PINGS `ok` WITH `looked: 0`, AND THAT IS A
+  SILENCE CHOSEN WITH ITS EYES OPEN.** Withholding the ping turns the check red
+  within its grace and mails Andrew about a monitor with nothing to do — and
+  the next red, a real one, then lands in a mailbox that has learned to ignore
+  this check. Pinging `ok` keeps it green and puts `looked: 0` in the check's
+  own event detail, so the state is printed rather than silent. **If this
+  product ever has detailers and it still says `looked: 0`, that is a fault**,
+  and the number is in the body so somebody can see it.
+
+  **THE CONTROLLED FAILURE, ON A THROWAWAY DETAILER.** A tenant seeded for it —
+  services, hours, one past booking — **never `demo-detail`**. The break was
+  **deactivating that tenant's own service, not a suspension**, chosen so
+  nothing shared was touched: a subscription left suspended darkens a booking
+  page every other check walks. Measured:
+
+  - first bad sweep → ping **ok**, nothing said. **One failure is silent.**
+  - second consecutive bad sweep → ping **`/fail`** carrying
+    `bookability-probe-test (no active services)`, check **up → down**, and an
+    incident row reading *"no active services — this detailer has taken
+    bookings before"*.
+  - service restored → ping **ok**, check **down → up**, recovery row written.
+  - **Tenant deleted afterwards.** Verified: nothing suspended, no service left
+    deactivated, all 16 businesses active, sweep back to `looked: 0`.
+
+  **FOUR MORE REAL EMAILS REACHED ANDREW**, all on the new check, all caused by
+  this work, Pacific on 2026-09-23: **22:30 down** (the fixture bug's own
+  alarm), **22:32 up** (the fixture fix landing), **22:33 down** and
+  **22:33 up** (the deliberate break and its recovery). With the two from 6.2
+  that is **six tonight**. Nothing was ever wrong with the live site.
+
+  **AND A CORRECTION TO THIS SESSION'S OWN EARLIER REPORT.** 6.2's write-up
+  said `db-audit` was left at "2 findings, both older than this work". **That
+  was wrong — both were mine**: `site_probes` and `site_probe_events` were
+  tables locked with nothing to unlock them and no allowlist entry saying why.
+  All three of tonight's tables now have one, with the honest note that
+  `tenant_watch` *does* carry a `business_id` and is still not tenant-owned.
+  **`db-audit` now reports `clean`**, and `--break=regrant` still voids an
+  entry by name, so the allowlist is refusable rather than a place to put
+  things.
+
+  **STILL OPEN.** One of the five conditions is watched, two are permanently
+  out of scope by design, one needs Sentry, and the sweep has nobody to watch
+  until a real detailer exists. **Done when:** a real detailer who has taken
+  bookings stops being bookable and Andrew hears about it once.
+
 - [ ] **6.4 — Weak signal and retry behavior is unknown.**
   Detailers work in driveways.
   **Fix:** test current-day viewing after signal loss, safe retry on an

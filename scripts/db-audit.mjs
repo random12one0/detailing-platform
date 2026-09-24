@@ -161,6 +161,35 @@ const NO_POLICY_BY_DESIGN = new Set([
   // omission with better manners.
   "address_points",         // geocoding cache, no business_id, service-role only
   "weather_grids",          // NWS forecast cache, no business_id, service-role only
+  // **ADDED 2026-09-23 — ROADMAP 6.2 and 6.3's outside monitoring.** Same
+  // shape as the two above, with one honest difference. `site_probes` and
+  // `site_probe_events` carry **no `business_id`** at all, so there is no
+  // per-tenant row for a policy to select. **`tenant_watch` DOES carry one**,
+  // and it is still not tenant-owned: it is the PLATFORM's running note about
+  // a detailer — how many sweeps in a row their page has been unbookable —
+  // and a detailer has no business reading it, any more than they may read
+  // `platform_admin_events`. A policy here would be the thing that weakened
+  // it. Written this out rather than reusing the sentence above, because the
+  // first draft of this entry claimed all three had no `business_id` and one
+  // of them plainly does. Written and read only by `pg_cron`, through
+  // `probe_live_site()` and `watch_tenant_bookability()`, both
+  // `security definer` with a pinned `search_path`. No browser client touches
+  // any of them; nothing in `app/src` names them.
+  //
+  // **AND THIS AUDIT CAUGHT THEM TWICE ON THE NIGHT THEY WERE WRITTEN, WHICH
+  // IS THE ARGUMENT FOR THE ENTRY RATHER THAN AGAINST IT.** First with RLS on
+  // and the grants to `anon` still open — a real hole, one permissive policy
+  // from exposure, on a table whose `headers` column then held an API key
+  // (since removed, `20260923050000`). Then again, correctly, as tables
+  // locked with nothing to unlock them and no entry here to say why. The
+  // first was a fault and was fixed; this is the second being answered.
+  //
+  // **The grant lock is what excuses them and it expires by itself**: the
+  // `excused` test above holds only while `grants === 0`, so if anybody ever
+  // re-grants these, the entry voids and this file says so by name.
+  "site_probes",            // outside-check definitions, no business_id, pg_cron only
+  "site_probe_events",      // outage/recovery history for those checks
+  "tenant_watch",           // per-detailer bookability state, keyed by business_id
 ]);
 
 // **THE FOREIGN KEYS DELIBERATELY LEFT UNINDEXED**, with the reason, so this
