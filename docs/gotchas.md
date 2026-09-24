@@ -2974,3 +2974,53 @@ tried was reading the background instead of the shadow. **CLAUDE.md's
 `git diff --cached` correction is this class in the rulebook rather than in a
 script**: the obvious way to verify a commit safely was to stage it first,
 which opened the exact window the rule existed to close.
+
+## A REMOTE-CONTROL SESSION DOES NOT TIME OUT ON IDLE — MEASURED, 2026-09-23
+
+**Keep-alive pinging a Claude Code session to stop it dying is spent usage
+buying nothing.** This was assumed for some time and never checked.
+
+**What was measured, from two real gaps rather than a test:**
+
+| session | gap since its previous turn | result |
+|---|---|---|
+| DP Cowork | **20 h 08 m** | answered, cold, **first try** |
+| this session | **26 h 33 m** | answered, cold, **first try** |
+
+**Lower bound: 26 hours 33 minutes. No upper bound was found, because nothing
+timed out** — the gaps ended when somebody sent a message, not when anything
+expired.
+
+**So a 20-minute keep-alive ping is buying nothing** and costs real usage
+every time it fires. **Do not add one, and delete one if you find it.**
+
+**Stated honestly: this proves a floor, not a ceiling.** Something may expire
+at some length nobody has reached. What it removes is the belief that a
+session goes stale in minutes or hours, which is the belief the pinging was
+built on.
+
+## TYPING INTO A CLAUDE.AI COMPOSER RIGHT AFTER NAVIGATING GOES NOWHERE — 2026-09-23
+
+**Three dispatches were lost this way in one night before anybody noticed.**
+
+Navigate to a session, type into the composer, press send. **The keystrokes
+are accepted. The box stays empty. No message is sent. Nothing anywhere
+reports an error** — not the type call, not the page, not the console. The
+composer is not ready yet and silently discards the input.
+
+**It is this file's oldest shape: an action that reports success having done
+nothing.** It is worse than most, because the thing lost is an instruction to
+another session, so the failure shows up later as that session doing nothing
+and looking idle.
+
+**THE RELIABLE SHAPE, and it is four steps rather than one:**
+
+1. **Click** the composer.
+2. **Type one throwaway word.**
+3. **Read the box back** and confirm the word is in it.
+4. **Select all, type the real message, read it back again**, then send.
+
+**It was caught by screenshotting the box instead of trusting the type
+call** — which is the general rule underneath: *after any input into a page
+you did not watch load, read the field, do not read the tool's return value.*
+The tool is reporting that it typed, not that anything received it.
