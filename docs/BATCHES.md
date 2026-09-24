@@ -21,6 +21,17 @@ Two A batches cannot** — `scripts/source-guard.mjs` watches `app/src` and a
 browser sweep run against a tree somebody else is editing measures nothing
 while reporting clean.
 
+**AND A AND B ARE ABOUT DIRECTORIES, WHICH IS NOT ENOUGH — 2026-09-23.** A lane
+B session running a script and a lane A session running a browser sweep are
+properly separated on files and can still be spending the same **address
+budget**, the same **daily email allowance**, the same **demo tenant rows** or
+the same **`rate_hits` table**. Nothing guards it and nothing reports it; the
+loser's run does not fail, it comes back *strange*. **Read
+`docs/shared-resources.md` before dispatching a pair**, and make the lane
+statement name the **public endpoints and shared budgets** each session will
+consume as well as the directories it will write. It expires the moment either
+session is given something new. ROADMAP 14.16.
+
 **Keeping this file true.** When a batch finishes, tick it here in the same
 edit that ticks the roadmap. When a batch turns out wrong-sized, say so in one
 line rather than quietly re-cutting it — the sizing is a guess and the only way

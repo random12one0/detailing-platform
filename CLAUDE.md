@@ -149,6 +149,22 @@ dangerous one precisely because it is quiet: lend a `scripts/` file for one
 commit rather than editing it unannounced underneath whoever owns it that
 round.
 
+**AND EVERY RULE ABOVE THIS LINE IS ABOUT FILES, WHICH IS NOT THE ONLY THING
+TWO SESSIONS COLLIDE ON — 2026-09-23.** Two sessions can be perfectly
+separated by directory and still be contending for the **address budget**, the
+**daily email allowance**, the **demo tenant's rows** or the **`rate_hits`
+table**. That collision has **no guard, no report and no failure**: the
+victim's run completes, writes a receipt, and simply comes back *strange*, with
+the cause minutes in the past and in the other session's pane. Two of those
+non-file resources bit on the same night, and one of them put a wrong reason
+into `ROADMAP.md`.
+
+**`docs/shared-resources.md` is the one page to read before starting**, and its
+rule is the amendment: **a lane statement names the public endpoints and shared
+budgets a session will consume, not only the directories it will write**, and
+it expires the moment either session is given something new. `docs/gotchas.md`
+78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
+
 **`docs/gotchas.md` is SEVENTY-NINE specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server

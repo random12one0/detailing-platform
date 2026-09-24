@@ -12619,7 +12619,7 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
 
 ### 14.16 — Two sessions can collide on a public endpoint, and nothing in this repo guards it or reports it
 
-- [ ] **Found 2026-09-23, out of a measurement rather than an argument.** The
+- [x] **Found 2026-09-23, out of a measurement rather than an argument.** The
   edge replay's six calls to `address-suggest` were refused inside a
   three-minute stretch in which the **other session's browser sweep had been
   calling the same endpoint continuously.** Neither session was doing anything
@@ -12661,6 +12661,65 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
 
   **SUCCESSOR TO 4.4**, which is ticked. `docs/gotchas.md` carries the
   measurement-level version of this as its own entry.
+
+  **BUILT 2026-09-23. `docs/shared-resources.md`** — one page, deliberately.
+  The rule is at the top and the five are each given four lines: what it is in
+  plain words, who spends it, what it looks like when somebody spent it first,
+  and **whether anything reports the contention**. That last line is the
+  useful one, because for four of the five the honest answer is **nothing
+  does** — so the page says outright that *the absence of an error is not the
+  absence of a collision*.
+
+  The five are what was actually found, not everything imaginable: the booking
+  page's **six** public endpoints (read off `app/src/book/` rather than
+  guessed — `address-suggest`, `available-slots`, `calculate-booking`,
+  `validate-promo-code`, `create-booking`, `track-visit`), the **Geoapify
+  budget** at 60 an hour per IP under a 2,400 a day shared cap, the **email
+  allowance** at 100 with 80 for tenants, the **demo tenant's rows**, and
+  **`rate_hits`** — with `scripts/tabbar-clearance.mjs` named as the one that
+  deletes from it.
+
+  **Linked from the two places a session actually looks**: CLAUDE.md, beside
+  the `app/src`/`scripts/` collision rules, which now says out loud that every
+  rule above it is about files; and `docs/BATCHES.md`, beside the A/B lane
+  definition, which now says A and B are about directories and that is not
+  enough. **A document nothing points at is a document nobody opens.**
+
+  **NO CHECKER WAS BUILT, AND THAT WAS THE INSTRUCTION.** It is a page a person
+  reads. A half-built guard that reported nothing would be worse than an honest
+  list, because it would be read as cover. The guard is **14.17**, written down
+  and left.
+
+  **Kept honest by its own shape:** the page is one page, and it stays one page.
+  If it grows past what somebody will read at dispatch it has failed in the
+  same way `docs/README.md` covering 63 of 113 documents has failed.
+
+### 14.17 — A guard for the shared resources, deliberately NOT built with the list
+
+- [ ] **Written down and left, 2026-09-23, on the manager's instruction.**
+  `docs/shared-resources.md` is a page a person reads before dispatch, and it
+  says for four of its five entries that **nothing reports the contention**.
+  The obvious next thought is to make something report it. That was held back
+  on purpose: **a half-built guard that reports nothing is worse than an honest
+  list**, because a list admits what it cannot see and a guard gets read as
+  cover for exactly the case it misses.
+
+  **What it would be, when it is built:** a cheap read — no writes — taken
+  before a run and again after, over the handful of counters that already
+  exist. `rate_hits` for the address and public buckets,
+  `platform_email_days` for the day's `claimed` and `refused`, and the row
+  counts on the demo tenant. If a counter moved that this session did not
+  move, say so by name. **It needs no new table and no new mechanism**; every
+  number is already recorded, which is the reason this is worth doing at all.
+
+  **The trap to avoid, named in advance:** the one resource with no counter is
+  the platform ceiling above `address-suggest` (14.15). A guard that reads the
+  four countable ones and stays silent about the fifth would report *clean* on
+  the exact collision that produced this whole line of work. **Whatever is
+  built has to say which resources it cannot see**, in the same breath as its
+  verdict — `docs/silences.md` is the standard.
+
+  **Successor to 14.16**, which is ticked.
 
 ### Still unanswered after steps 1–4
 
