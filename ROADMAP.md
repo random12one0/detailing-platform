@@ -13706,7 +13706,123 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
 
 ### 14.19 — A two-car booking's stored `subtotal` counts the second car twice, and nobody has ever been in a position to notice
 
-- [ ] **Found 2026-09-23 by pressing 8.10a's feature end to end instead of
+- [x] **FIXED 2026-09-23. One line in `_shared/pricing.ts`, and the located
+  change was one line away from where the fault actually lived.**
+
+  **THE ENTRY SAID `pricing.ts:655`. THAT LINE WAS ALREADY CORRECT.** 655 is
+  `subtotalBase = beforeAdjustments + adjustmentsTotal`, and the
+  `adjustmentsTotal` in scope there is `rulesTotal + planLine` — rules and
+  plan only, with the extra cars deliberately left out because
+  `beforeAdjustments` already holds them. Its own comment says so: *"the extra
+  cars are DRAWN with the adjustments and are already COUNTED in
+  `beforeAdjustments`, so they lead the list and stay out of the total
+  below. Counting them twice would double the price of the second car, which
+  is the shape of defect this file exists to prevent."* **That warning was
+  written, was correct, and was obeyed — sixty lines further down, by a
+  different piece of code, it was not.**
+
+  The fault is at **line 715**, added by ROADMAP 2.2's rounding fold:
+
+  ```
+  const adjustmentsTotalFinal = adjustmentLines.reduce((s, l) => s + l.amount, 0);
+  const subtotalBaseFinal = beforeAdjustments + adjustmentsTotalFinal;   // ← extras counted twice
+  ```
+
+  2.2 recomputes the totals after folding a rounding gap into the last
+  discount line, and it recomputes them **from the array**, which contains the
+  extra-vehicle lines. So the same figure `beforeAdjustments` already held was
+  added a second time. **The fix is `- extrasTotal` on that line**, with the
+  reason recorded above it.
+
+  **AND THE NAME IS THE WHOLE TRAP: `adjustmentsTotal` MEANS TWO DIFFERENT
+  THINGS SIXTY LINES APART, AND BOTH ARE RIGHT.** The local one excludes the
+  cars because the cars are already in the base. The **returned** one includes
+  them, because `StepReview.jsx` and `tests/pricing-lines-sum.test.mjs` both
+  sum the lines a customer is *shown*, and `basePrice` describes one car — so
+  a returned figure without the cars would break the line-sum everywhere else.
+  Neither value is wrong; adding the second to `beforeAdjustments` is. The
+  returned field is left exactly as it was.
+
+  **2.2 IS NOT AT FAULT AND ITS FIX STAYS.** The fold was correct when it was
+  written — multi-car did not reach a single tenant until 2026-09-21, so
+  `extraLines` was empty for every booking in existence and `adjustmentsTotal`
+  and `adjustmentsTotalFinal` were the same number. **8.10 then put entries
+  into that array, and the recompute quietly changed meaning without changing
+  a character.** A one-car booking is byte-for-byte unchanged by this fix.
+
+  **CONFIRMED BY RE-RENDERING THE EMAIL, NOT BY REASONING.** The real
+  `customerConfirmationEmail` with engine-produced numbers, the item's own
+  scenario, before and after:
+
+  ```
+  BEFORE (subtotal 315)              AFTER (subtotal 215)
+  shape service            $215      shape service            $115
+  2nd vehicle · Small      $100      2nd vehicle · Small      $100
+  Discount applied        -$100      Estimated total          $215
+  Estimated total          $215
+  ```
+
+  The `Discount applied` line is gone because there is no longer a gap for
+  `reconcile()` to close. **`emailTemplates.ts` was not touched**, as the
+  verdict required.
+
+  **THE CHECK THAT NOW EXISTS: `tests/quoted-lines-true.test.mjs`.**
+  Credential-free, no dev server, no deploy — 14 tests. It runs the real
+  `computeQuote`, builds the payload `create-booking/index.ts:650-676` builds,
+  renders the real customer confirmation and **reads the money column out of
+  the rendered HTML**.
+
+  **It asks the question the existing checks do not.** `quoteLines()` never
+  receives a service price — it DERIVES one, `subtotal + siteDiscount −
+  travel − Σ(lines)`, and prints the answer to a paying customer. So the
+  stored `subtotal` is not a display figure; it is the input to a subtraction.
+  The property asserted is that the derived figure equals what the customer
+  was actually quoted for the work — `basePrice + sizeAdd + addOnsTotal`.
+  That identity survives travel, surcharges, plans, site sales, promo codes
+  and rounding, and it failed on exactly one path. **The old sum is asserted
+  too, in the same test**, because a check that only asked the new half could
+  be satisfied by deleting every number.
+
+  **BROKEN ON PURPOSE, TWICE, BEFORE BEING BELIEVED.**
+  - Reintroducing the fault (`- extrasTotal` removed): **one car stays green,
+    all eleven multi-car scenarios go red**, plus the "invents no discount"
+    test. That is the important one — the fault *balances*, and this is the
+    first check in the repo that sees through a balanced column.
+  - Understating the subtotal by **one dollar**: all fourteen go red,
+    including the one-car control. A $1 error anywhere is caught.
+  Both reverted; 14/14 green at the committed state.
+
+  **WHAT THE EXISTING CHECKS SAID WHILE THE FAULT WAS LIVE**, measured rather
+  than assumed: `tests/pricing-lines-sum.test.mjs` 14/14, `multi-vehicle`
+  63/0 (its item 2d is that same sum by hand),
+  `render-emails.mjs`'s money-column assertion clean. **None of them was
+  wrong. They were all asking whether it adds up.**
+
+  **AND `render-emails.mjs`'S OWN FIXTURE COULD NEVER HAVE CAUGHT IT.**
+  `carloadBooking` is hand-written with `subtotal: 480, total: 480` — the
+  CORRECT shape, typed by a person, never produced by the engine. It is this
+  file's own named failure, in the file that names it: *a fixture that
+  restates the product instead of exercising it cannot fail with it.* The new
+  test computes its fixtures instead. **The hand-written one is left alone**
+  — it is the page a human opens, and changing it is a separate decision.
+
+  **STILL NOT LIVE, AND THAT IS ANDREW'S CALL, NOT A SESSION'S.**
+  `deployed-inventory.mjs` reports **13 of 39** functions not running this
+  checkout, and `create-booking`, `calculate-booking`, `preview-emails` and
+  `get-booking-receipt` are all four on the list. The fix is committed and
+  proven; it reaches nobody until the publish row on `FOR-ANDREW.md` is
+  worked. Nothing was deployed.
+
+  **NOT COVERED, SAID PLAINLY:** `splitDays`. Cars on different days are
+  separate `create-booking` calls, so each car gets its own single-vehicle
+  email and there is no combined payload to render. A fixture that invented
+  one would be testing a message the product never sends.
+
+  ---
+
+  **The original entry, unchanged, from here down.**
+
+  **Found 2026-09-23 by pressing 8.10a's feature end to end instead of
   re-reading its entry.** 8.10a is correctly closed: both migrations are live,
   `get_public_business_profile` publishes `max_vehicles_per_booking`, and a
   real two-car booking goes through. **This is what pressing it found on the

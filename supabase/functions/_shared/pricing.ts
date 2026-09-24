@@ -713,7 +713,25 @@ export function computeQuote(inp: QuoteInput): Quote {
   // customer's total while quietly breaking the one truth about `subtotal`
   // every email and the dashboard already read as correct.
   const adjustmentsTotalFinal = adjustmentLines.reduce((s, l) => s + l.amount, 0);
-  const subtotalBaseFinal = beforeAdjustments + adjustmentsTotalFinal;
+  // ROADMAP 14.19 — AND THE EXTRA CARS COME BACK OUT, BECAUSE
+  // `beforeAdjustments` ALREADY HOLDS THEM. `adjustmentsTotal` means two
+  // different things sixty lines apart and both are right: the LOCAL one
+  // above is rules + plan only, because the cars are already inside
+  // `beforeAdjustments`; the RETURNED one is every drawn line, because
+  // `StepReview.jsx` and `tests/pricing-lines-sum.test.mjs` sum the lines a
+  // customer is SHOWN and the base price describes one car. Adding the
+  // returned figure to `beforeAdjustments` charges the second car twice — a
+  // two-car booking stored `subtotal` 315 against `total_price` 215.
+  //
+  // **AND IT BALANCED, WHICH IS WHY IT SURVIVED.** The email derives the
+  // service line as *subtotal minus every named line*, so the inflated
+  // subtotal printed the service at $215 and then a `Discount applied
+  // −$100` to reach $215 — arithmetic that satisfies every money-column
+  // check in this repo, including `render-emails.mjs`'s own, while telling
+  // the customer they were quoted a price they never saw and given a
+  // discount that does not exist. `tests/quoted-lines-true.test.mjs` is the
+  // check that asks the other question.
+  const subtotalBaseFinal = beforeAdjustments + adjustmentsTotalFinal - extrasTotal;
   const subtotalAfterSiteFinal = Math.max(0, subtotalBaseFinal - siteDiscount);
 
   return {
