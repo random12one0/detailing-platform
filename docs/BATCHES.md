@@ -190,6 +190,39 @@ line.
 
 ## Batch 2 — Booking truth · **lane A** · Opus, high effort
 
+**FIRST IN THIS BATCH, AHEAD OF EVERYTHING ELSE ON THE MONEY THREAD:
+ROADMAP 14.19 — a two-car booking's stored `subtotal` counts the second car
+twice.** Added 2026-09-23.
+
+**IT CANNOT REACH A CUSTOMER TODAY. Read that before reading the rest of this
+paragraph.** There are no real detailers, multi-car booking was unreachable for
+every tenant until 2026-09-21, and the deployed `calculate-booking` is one of
+the 14 functions behind this checkout. **Nothing is bleeding while it waits** —
+this is first because it is the clearest money fault we have, not because it is
+on fire.
+
+**It is first for a reason worth knowing:** the customer's confirmation email
+does not merely print a wrong number, it **balances itself by inventing a
+`Discount applied -$100` line that does not exist** — so the column adds up,
+every money-column check in this repo passes on it, and the customer is told
+they got a discount they never received. **A wrong number that still adds up
+is invisible to every check that only asks whether it adds up.**
+
+**The verdict is already settled, so whoever takes it starts from the answer:**
+the stored column is the bug and the template is faithful. One car is clean at
+`subtotal 115 / total 115`. Two cars give `total 215` correctly, with lines of
+service `115` plus a second-vehicle `100` summing to exactly `215` — and a
+stored `subtotal` of `315`. The fix is in the pricing engine;
+**`emailTemplates.ts` is not to be touched.** `_shared/pricing.ts` is imported
+by seven functions, so this is a sitting of its own.
+
+**It was found by making multi-car reachable** — 8.10a applied the two missing
+migrations on 2026-09-21, and the first end-to-end press of the feature found
+this in the same hour. Nobody had ever added those numbers up because no
+two-car booking had ever existed.
+
+---
+
 **The most corroborated findings in the whole file — both audits reached them
 independently.** A customer must never be shown one price and charged another.
 **Do not mix this batch with anything else**, and do not let a second session

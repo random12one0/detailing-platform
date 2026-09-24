@@ -13742,15 +13742,54 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   **WHAT IS MEASURED AND WHAT IS READ, kept apart.**
   - **Measured:** the stored row and `get-booking-receipt`'s response both
     carry `subtotal: 315` against `total_price: 215` with lines summing to 215.
-  - **READ, NOT MEASURED:** `_shared/emailTemplates.ts:436` reconstructs the
-    printed base as `subtotal + siteDiscount − named`, which here is
-    `315 + 0 − 100 = 215`. The correct base is **115**. So the emailed receipt
-    would print a base of $215, a `+$100` second-vehicle line under it, and a
-    charged total of $215 — **lines that do not add up, off by the extra car.**
-    **That is a reading of the template and it has not been rendered.**
-    `node scripts/render-emails.mjs` is the instrument; confirming it is the
-    first thing to do, and if the email is fine then this is a stored-column
-    fault only.
+  - **NOW MEASURED TOO — the email was rendered, 2026-09-23.** See the verdict
+    below. The earlier reading was right that the base comes out at $215 and
+    wrong about what happens next, which is worse than it guessed.
+
+  ---
+
+  #### THE VERDICT: THE STORED COLUMN IS THE BUG, AND THE TEMPLATE HIDES IT BY INVENTING A DISCOUNT
+
+  **Settled by rendering the real `customerConfirmationEmail` with the real
+  numbers, twice — once with the subtotal the product stored and once with what
+  the template's own contract expects.** The template's contract is written in
+  its own comment: *"`subtotal` already contains travel and every surcharge
+  (2.8c), so the named services cannot simply be summed."* Under that contract
+  a two-car booking with no discounts should store `subtotal = 215`, the same
+  as the total.
+
+  **What the customer's email says with the subtotal the product actually
+  stored (315):**
+
+  ```
+  shape service                      $215
+  2nd vehicle · Small · Second Car   $100
+  Discount applied                  -$100
+  Estimated total                    $215
+  ```
+
+  **What it says with the correct subtotal (215):**
+
+  ```
+  shape service                      $115
+  2nd vehicle · Small · Second Car   $100
+  Estimated total                    $215
+  ```
+
+  **SO: THE TEMPLATE IS FAITHFUL AND THE STORED COLUMN IS WRONG.** The fix
+  belongs in the pricing engine, **not** in `emailTemplates.ts`. Nothing about
+  the template needs to change.
+
+  **AND THE PART THAT MATTERS MORE THAN THE FAULT.** The email **balances**.
+  $215 − $100 + $100 = $215, so **every money-column check in this repo passes
+  on it** — including `render-emails.mjs`'s own assertion that *"every money
+  column reaches its own printed total"*. The arithmetic is self-consistent and
+  **the story is fiction**: the customer is shown a $215 service they were
+  never quoted and told they received a **$100 discount that does not exist**.
+
+  **A wrong number that still adds up is invisible to every check that only
+  asks whether it adds up.** That is this repo's oldest shape, arriving in the
+  one place where the reader is a paying customer rather than a session.
 
   **THIS IS 2.2's CLASS, NOT 2.2's MECHANISM.** 2.2 — *"the summary lines do
   not add up to the total"*, closed 2026-09-20 — was **rounding**. This is
@@ -13758,9 +13797,10 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   feature was unreachable when 2.2 was fixed. The rule 2.2 established is the
   one being broken.
 
-  **Done when:** a two-car booking's `subtotal` equals the sum of its own
-  itemised lines, on the stored row, in the receipt response and in the
-  rendered email — and a one-car booking is unchanged.
+  **Done when:** a two-car booking stores `subtotal` equal to its own total
+  when there are no discounts, the rendered email shows the service at $115
+  and **no `Discount applied` line at all**, and a one-car booking is
+  unchanged at 115/115. **The template is not to be touched.**
 
   **Not fixed here.** It is a money path, `_shared/pricing.ts` is imported by
   seven functions, and changing it needs its own item rather than a
