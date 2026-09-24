@@ -10285,6 +10285,63 @@ the dashboard or back office at phone width at all.
   legend, readable selected-job detail.
   *A1 P1-08*
 
+  **LOOKED AT BEFORE BUILDING, 2026-09-23 — five widths, 320 first, console
+  clean at every one. NOT STALE: all four claims are live, but not one of them
+  is live in the way it is written.** Four items tonight carried a sentence
+  that had stopped being true, so each claim was pressed against the real
+  screen rather than read.
+
+  | the audit's claim | what is actually true |
+  |---|---|
+  | single-letter weekdays are ambiguous | **LIVE at every width.** The header reads `S M T W T F S` — two S, two T. It is localized now (`dowLetters()`, 2026-09-13) but still `weekday: "narrow"` |
+  | names truncate | **LIVE at 1440 only**, and by 8px: two cells clip at `139 < 147`. Nothing clips at 320, 392, 768 or 1920 |
+  | only "Blocked" is explained | **LIVE at 1440 and 1920** — and the reason it was trimmed is not true, see below |
+  | the first partial week omits blank cells | **LIVE, and the description is backwards** — see below |
+
+  **THE GRID IS IRREGULAR AT THE OTHER END FROM THE ONE THE AUDIT NAMES.** The
+  month renders **32 cells: 2 leading blanks + 30 days.** The first partial
+  week already gets its blanks — `cells.map()` renders `<div/>` for a `null`.
+  **What is missing is the TRAILING blanks**: 32 is not a multiple of 7, so
+  the last row stops after four cells and the bottom edge is ragged. Fixing
+  what the audit literally asks for would change nothing, because it is
+  already done.
+
+  **THE LEGEND'S OWN COMMENT RESTS ON SOMETHING THAT IS NOT ON THE SCREEN.**
+  `Calendar.jsx:279` explains the trim: *"At --wrap the first three are words
+  in the cells, so only the two the cell cannot write survive."* **Read off a
+  1440 cell, the text is `"24 | 10:00 AMSam D."`** — the day number, the time
+  and the customer. There is no status word anywhere in it; status is carried
+  by the `.confirmed` / `.completed` class, which is **colour only**. So at a
+  desk a detailer sees coloured entries and a legend that explains one thing
+  that is not a colour. **The fault is live and the reasoning that trimmed it
+  is stale** — which is a different repair from the one the audit asks for,
+  because the question is now *what should the cell say*, not *what should the
+  legend list*.
+
+  **IT DOES NOT TOUCH THE PARKED DAY SQUARES, AND THAT WAS CHECKED RATHER
+  THAN ASSUMED.** The back office cell is **36 x 56 at 320** — narrower than
+  44, the same arithmetic wall seven columns hit on a 320px screen. But it is
+  a **different component on a different screen** (`.cal-cell`, not
+  `.bk-cal .cell`), it is **not square**, so the *"job buttons stay square on
+  a phone"* ruling does not govern it, and — the part that matters —
+  **none of the four repairs needs the cell to change width.**
+
+  **MEASURED, because "short weekday names" is the one that looks like it
+  would:** in the header's own font, `"Sun"` is **31.6px** and the widest,
+  `"Wed"`, is **34.5px**, against a **36px** column at 320. **They fit.**
+  With **1.5px in hand** — which is tight enough that a check must measure it
+  in both languages rather than a session eyeballing it once, and tight enough
+  that a font change breaks it silently.
+
+  **STOPPED HERE, BEFORE ANY CODE, AND THE STOP IS A DECISION RATHER THAN A
+  BLOCKER.** Two of the four are unambiguous and need nobody: the trailing
+  blanks, and the three-letter weekday names. **The legend one is not** — it
+  asks what a cell should say at a desk, which is a design question about the
+  densest screen in the product, and answering it by adding three more legend
+  rows would be a session overruling a deliberate trim on its own authority.
+  The truncation one is 8px at a single width and is probably downstream of
+  whatever the legend question decides.
+
 - [x] **DONE 2026-09-20 — 9.5 Late jobs are not flagged.** At 10pm a 2:00 PM
   job still sits under "Still to do". Mark it late and offer "Mark done" or
   "Move it".
