@@ -1,5 +1,30 @@
 # For Andrew — the things only you can do
 
+> ## Read this first: the six emails tonight are ours. Nothing broke.
+>
+> **You will open your phone to six alerts from healthchecks.io. Every one of
+> them was us, and nothing was wrong with your site at any point.**
+>
+> We built two new alarms tonight and then set each one off on purpose, because
+> an alarm nobody has ever seen ring is not an alarm. Setting them off is what
+> sent the mail.
+>
+> | time (Tue 23rd) | what it said | what it really was |
+> |---|---|---|
+> | **9:55pm** | site check DOWN | us breaking the homepage check on purpose |
+> | **9:56pm** | site check UP | us putting it straight back |
+> | **10:30pm** | detailer check DOWN | **a real mistake of ours** — the new alarm counted a test business as a real one |
+> | **10:32pm** | detailer check UP | us fixing that |
+> | **10:33pm** | detailer check DOWN | us breaking it on purpose, properly this time |
+> | **10:33pm** | detailer check UP | us putting it back |
+>
+> **You do not need to do anything.** Both alarms are green and quiet now.
+>
+> **From here on they only ring for something real** — and we have stopped
+> testing alarms against your inbox. Any future one is worth reading.
+>
+> *Written 2026-09-23.*
+
 **This is your list. Nothing on it can be done by a session.** It is accounts to
 open, money to spend, names to decide, and keys to paste. Everything else in
 this repo is somebody else's job.
