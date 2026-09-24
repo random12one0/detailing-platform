@@ -39,6 +39,39 @@
 // It has no rate limit either. It is not part of the booking widget's public
 // surface, which is this item's scope, so it is named here and in the
 // receipt rather than silently fixed or silently dropped.
+// ---------------------------------------------------------------------------
+// A FIELD WAS REMOVED FROM THE RECEIPT ON PURPOSE — 2026-09-23
+// ---------------------------------------------------------------------------
+// **`dimensions.today_fixed` is gone. It was deleted, not broken.** Saying so
+// here because **a field that vanishes is indistinguishable from a field that
+// broke**, and the person who notices is usually diffing two receipts months
+// apart with no way to tell which happened.
+//
+// It held 14.9's four function names under a key called `today`. **A field
+// called "today" is a lie on every day but one** — by the time 14.12 landed
+// the next evening it was naming the wrong day AND the wrong functions, in a
+// receipt that passed. Correcting the contents would have bought one more
+// correct day and then gone stale again the same way.
+//
+// **Replaced by `dimensions.fixed_by_item`**, keyed on the roadmap item that
+// did the work — `14.9`, `14.12`, `14.13` — which is the question a reader
+// actually has and which cannot rot, because an item number does not move.
+// **What landed when is git's job, and git already answers it.**
+//
+// ---------------------------------------------------------------------------
+// AND THE LIMIT OF THIS WHOLE CHECK, STATED WHERE IT CANNOT BE MISSED
+// ---------------------------------------------------------------------------
+// **This file can tell you every public endpoint calls `withinLimits`. It
+// cannot tell you any of them has ever refused anybody.** It reads source and
+// never calls a deployed function — see the first entry in `warnings`, which
+// says the same thing to anyone reading the receipt instead of the script.
+//
+// **ROADMAP 14.9 is open on exactly that** and on nothing else: the code is
+// complete, the live `429` has never been observed, and it cannot be until
+// Andrew publishes, because the deployed bundles are still the old guardless
+// code. A loop run today would measure their absence and prove nothing about
+// the guards now in source. **14.12 and 14.13 are ticked; the thread is
+// proved in source and unproved in the world.**
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";

@@ -10213,6 +10213,37 @@ event id.
   **Done when:** a loop against each of the three writes is refused, and the
   refusal is proved by running the loop.
 
+  > ## ⚠ 14.9 STAYS OPEN ON EXACTLY ONE THING, AND IT IS THIS DONE-WHEN
+  >
+  > **The code is complete. The live refusal has never been observed. Those
+  > are different things and this item is open on the second one.**
+  >
+  > **14.12 and 14.13 are both ticked, so a reader can easily take the whole
+  > thread as proved end to end. It is not.** It is **proved in source and
+  > unproved in the world.**
+  >
+  > **What IS proved:** all 18 public functions call `withinLimits` with a
+  > real `LIMITS.publicCeiling` config keyed on `ipOf(req)` before doing any
+  > work, read out of the source by `scripts/rate-limit-coverage.mjs` —
+  > 16/16 declared targets, 21 assertions, canary caught 5/5, and four of
+  > those guards deleted on purpose one at a time and each one caught.
+  >
+  > **What is NOT proved: that any endpoint has ever answered `429` to
+  > anybody.** Nothing anywhere has observed one. `rate-limit-coverage.mjs`
+  > says so honestly in its own first warning — *"READS SOURCE ONLY — never
+  > calls a deployed function, so it cannot observe a live 429."*
+  >
+  > **And it cannot be proved tonight, for a reason that is not laziness:
+  > the deployed bundles are still the old code.** A live loop right now
+  > would be hitting functions that have **no guard in them**, so it would
+  > measure the absence of a limit and prove nothing about the one just
+  > written. **Publishing is Andrew's.**
+  >
+  > **So the sequence is: Andrew publishes → the loop is run against each
+  > write → the refusal is observed → 14.9 closes.** Not before, and not by
+  > assuming it happened. **The row that makes that happen rather than being
+  > quietly assumed is on `FOR-ANDREW.md`.**
+
   **RECOUNTED 2026-09-23, NOT TRUSTED — AND THE LIST WAS ALREADY STALE BY
   ONE BEFORE TODAY.** `grep -rl withinLimits supabase/functions/*/index.ts`
   is the ground truth, every run: `booking-ics` was in this item's own "do

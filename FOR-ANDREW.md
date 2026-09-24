@@ -488,6 +488,32 @@ still knows them.
 
 ## Waiting on you — nothing breaks while these wait
 
+- [ ] **DO · When you publish, one five-minute check has to actually be run —
+  and it is the only thing left on the rate-limit work.**
+
+  **What was built.** Eighteen of your back-end programs now refuse a caller
+  who hammers them — someone hitting the same one hundreds of times in an
+  hour gets turned away instead of running up your bill. That is written and
+  checked.
+
+  **What has NOT happened, and this is the row.** **Nobody has ever seen one
+  of them actually refuse anybody.** The check that proves this work reads
+  the code; it has never called a live one. **It cannot, because the versions
+  running on your server are still the old ones without the limit in them** —
+  testing those today would just prove the old code has no limit, which we
+  already know.
+
+  **So: after you publish, somebody runs a quick loop against three of them
+  and confirms each gets turned away.** Five minutes. **Until that happens
+  the work is proved on paper and not in the world, and those are different
+  things.**
+
+  **Why this is a row on your list rather than a note.** Two of the three
+  roadmap items in this thread are already ticked, so it would be very easy
+  for somebody later to read the whole thing as finished and never run the
+  check. **Nothing is broken while this waits** — the limits either work or
+  they are not live yet, and neither costs you anything today.
+
 - [ ] **DECIDE · Your Spanish dashboard has 134 English strings on it, across
   32 screens. Nothing is broken. You decide whether that is worth a night.**
 
