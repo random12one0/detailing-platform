@@ -1184,6 +1184,46 @@ html:has(.tabbar) {
   scroll-padding-bottom: calc(var(--tabclear) + var(--hit-overhang));
 }
 
+/* **AND THE SAME SENTENCE FOR A SCROLLER INSIDE THE PAGE, BECAUSE THE RULE
+   ABOVE CANNOT REACH ONE — 2026-09-23, the item 2.32 spawned.** The rule above
+   is on `html`, so it governs the DOCUMENT scroller and nothing else. At 1440
+   and 1920 the settings column stops at the screen's height and scrolls inside
+   itself, and a control the browser parks flush against that container's
+   bottom edge has the part of it that hangs past its own box **clipped away by
+   the container**.
+
+   **MEASURED, twelve `.choice` chips on Booking rules at 1440x900 and
+   1920x1080: 42px and 41px against the 44px absolute**, every lost row at the
+   bottom, every one owned by `.app-main` — what is visible below the
+   scroller's clip edge. The same chips read 45px at 320, 392 and 768, where
+   the screen is a page and the rule above does the work. The bar is a left
+   rail at those widths and is not involved.
+
+   **THE PITCH WAS SUSPECTED FIRST AND IS INNOCENT.** `.choices` has a 6px gap
+   and each chip a 4px overhang per side, which reads like a 2px overlap
+   between neighbours. The band is 44px on a 46px pitch — 2px of SLACK, per the
+   correction beside `.choice::after` — and the row walk settles it without
+   arithmetic: the lost rows are a contiguous run owned by an ancestor, never
+   an alternating pattern owned by the chip next door. **A gap would have been
+   the wrong change in the wrong place.**
+
+   **ALL THREE SCROLLERS, NOT THE ONE THAT DEMONSTRATED IT.** Only the settings
+   body had a control parked flush the night this was measured, but
+   `scripts/scroller-clearance.mjs` asks the scrollers directly as well as the
+   controls, and the record body and the sheet body reserve nothing either —
+   the same clip, one control away from the same loss. One rule, not three
+   call sites, for the reason the `.choice` note gives.
+
+   **IT RESERVES THE OVERHANG AND NOTHING MORE.** This is not clearance for a
+   bar; there is no bar here. It is the part of a control a bounding rect
+   cannot see, which is why it is `--hit-overhang` itself rather than a
+   literal. */
+.settings-col > .settings-body,
+.record > .record-body,
+.sheet-body {
+  scroll-padding-bottom: var(--hit-overhang);
+}
+
 .tabscrim {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 39;
   /* TALLER THAN THE CLEARANCE, AND SOLID PAST THE BAR'S TOP EDGE. At the

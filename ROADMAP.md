@@ -2592,8 +2592,10 @@ the wrong service, and never book a job we cannot reach.
   **not** graded, because a check that fails for reasons outside its item is a
   check measuring its own scope. **It is a real finding and it needs an item.**
 
-- [ ] **At 1440 and 1920 a preset chip is 42px against the 44 absolute, and
-  the tab bar is not involved. Found 2026-09-23 by `tabbar-clearance.mjs`
+- [x] **DONE 2026-09-23 — At 1440 and 1920 a preset chip was 42px against the
+  44 absolute, and the tab bar is not involved. It was the settings column's
+  OWN scroller clipping the part of the chip that hangs past its box. Found
+  2026-09-23 by `tabbar-clearance.mjs`
   while closing 2.32; split out rather than folded in, because a check that
   fails for reasons outside its own item is a check measuring its own scope.**
 
@@ -2647,8 +2649,93 @@ the wrong service, and never book a job we cannot reach.
   **Done when:** no control anywhere in the back office measures under 44px
   of reachable height at any scroll position at any supported width, and the
   four surfaces above are recorded as re-measured rather than assumed.
-  **NOT STARTED, AND DELIBERATELY NOT STARTED.** Somebody picks this up
-  fresh and it is a clean afternoon's work. Nobody should pick it up now.
+  ~~**NOT STARTED, AND DELIBERATELY NOT STARTED.** Somebody picks this up
+  fresh and it is a clean afternoon's work. Nobody should pick it up now.~~
+  **PICKED UP AND CLOSED 2026-09-23.**
+
+  **THE PITCH WAS THE RECORDED SUSPICION AND IT IS INNOCENT. Cleared by
+  measurement, not by arithmetic, and the arithmetic agrees.** `.choice`'s
+  pressable band is **44px** on a **46px** pitch — `.choice` is `border-box`
+  with a 1px border, so the `::after`'s containing block is the 36px PADDING
+  box and `inset: -4px 0` computes to 44, which the correction already sitting
+  beside `.choice::after` in `theme.css` records. That is **2px of slack
+  between wrapped rows, not 2px of overlap.** And the row-by-row walk settles
+  it without needing the arithmetic at all: **the lost rows are a contiguous
+  run at the BOTTOM of the chip owned by an ANCESTOR**, never an alternating
+  pattern owned by the chip next door. A gap would have been the wrong change
+  in the wrong place, which is the whole reason it was measured first.
+
+  **WHAT WAS ACTUALLY EATING THE FOUR ROWS — the second suspicion on the list,
+  "a clip or `overflow` on the settings container at desk widths".** At 1440
+  and 1920 the settings column stops at the screen's height and **scrolls
+  inside itself** (`.settings-col > .settings-body`, `theme.css:1686`). Its
+  clip edge at 1440x900 is y **856**; `scrollIntoView({block:"end"})` plus
+  focus parks the chip's box bottom at **855.69**, flush against it, and the
+  4px of `::after` that reaches past the box lands **outside the scroller and
+  is clipped**. `elementFromPoint` then names `.app-main` — what is visible
+  below the clip edge — which is exactly what the original measurement
+  reported. At 320, 392 and 768 the same screen is a PAGE, the document is the
+  scroller, and 2.32's `html:has(.tabbar)` rule already reserves the overhang:
+  45px, unchanged.
+
+  **SO 2.32's FIX COULD NOT HAVE HELPED, AND THE REASON IS ONE WORD.** That
+  rule is on `html`. `scroll-padding-bottom` is a property of **the scroller
+  being scrolled**, and at these widths the scroller is not the document.
+
+  **THE FIX — one declaration, three selectors, `theme.css` beside 2.32's:**
+  `.settings-col > .settings-body, .record > .record-body, .sheet-body
+  { scroll-padding-bottom: var(--hit-overhang); }`. It reserves the overhang
+  and nothing else; it is not clearance for a bar, because there is no bar
+  here.
+
+  **ALL THREE SCROLLERS, AND THAT WAS MEASURED RATHER THAN ASSUMED.** Only the
+  settings body had a control parked flush the night this was found. The check
+  asks the **scrollers** as well as the controls, and it found the record body
+  and the sheet body reserving **nothing at all** against a real 4px overhang —
+  the same clip, one control away from the same loss. One rule, not three call
+  sites, for the reason the `.choice` note gives.
+
+  | | before | after |
+  |---|---|---|
+  | 1440x900 Booking rules, worst reachable | **41px** | **45px** |
+  | 1920x1080 Booking rules, worst reachable | **41px** | **45px** |
+  | 320 / 392 / 768 Booking rules | 45px | 45px, unchanged |
+  | scrollers reserving less than the overhang | **7 of 7** | **0 of 7** |
+
+  **`scripts/scroller-clearance.mjs`** — 11 targets, 45 assertions, graded
+  `PASS` by `receipt.mjs`. Five widths **320 first**, two screens, four
+  questions: `subjects`, `legal`, `reachable`, and **`reserved`**, which asks
+  the scrollers directly. Console read at every width, clean at all ten.
+
+  **`reserved` IS THE QUESTION THAT EARNED ITS KEEP, AND IT IS WORTH SAYING
+  WHY.** `reachable` can only fail where some control happens to be parked
+  flush that night. `reserved` asks the mechanism, so a screen that
+  demonstrates nothing still reddens when the rule is deleted — **and on the
+  very first run it found the two scrollers `reachable` could not see.**
+
+  **WHAT WAS BROKEN ON PURPOSE.**
+  - **The product**, with a real edit: `scroll-padding-bottom: 0` in place of
+    the fix. **Caught — 9 failures**, the same nine as before the fix.
+    Restored and confirmed byte-identical against a pre-sabotage copy, with
+    `git diff` showing 40 insertions and no deletions.
+  - **`--break=rect`** — walk the bounding rect and ignore the `::after`, the
+    instrument bug that made 2.32's first probe call 41 of 41 legal chips
+    broken. **Caught: every `.choice` reports 38px and 5 targets fail
+    `legal`.**
+  - **The canary**, the reservation removed at runtime. **Caught**, and it is
+    graded on `reachable` rather than on `reserved`, because `reserved` alone
+    would only prove the CSS moved and not that a control loses rows when it
+    does.
+
+  **ONE CONFIRMATION DELIBERATELY NOT RUN, AND IT IS NOT A SKIPPED CHECK.**
+  Re-running `tabbar-clearance.mjs` would show its ungraded *"short for
+  reasons OTHER than the bar"* line gone. **It was not run**, because that
+  file DELETEs the `address%` rows from `rate_hits` on every run to buy
+  itself an address budget, and on this night another session was measuring
+  exactly those buckets. The same evidence came from this item's own check,
+  which measures the same twelve chips on the same screen and reports 45px.
+  **Worth a note for whoever runs it next: a check that clears a rate-limit
+  table is a check that can quietly destroy another session's evidence.**
 
 - [x] **2.6 — DONE 2026-09-20. The year is optional, the label says so, and a refused Continue now says why on every step.**
   Size and model filled, Continue stayed dead until a year was typed; the year

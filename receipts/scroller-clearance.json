@@ -1,0 +1,73 @@
+{
+  "git_sha": "a33d7bd6eb081bf6169201211b8e04398dc54786",
+  "git_sha_started": "a33d7bd6eb081bf6169201211b8e04398dc54786",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-09-24T04:09:43.757Z",
+  "failures": [],
+  "warnings": [
+    "Measures the HIT AREA — the bounding rect plus the overhang read off each element's own ::after — never the rect. A rect-only scan under-measures every control using the negative-inset pattern by its overhang and calls a legal control broken.",
+    "The pitch of `.choices` was the first suspicion and is innocent: the band is 44px on a 46px pitch, and the lost rows are a contiguous run owned by an ancestor rather than an alternating pattern owned by a neighbour."
+  ],
+  "artifacts": [
+    "artifacts/scroller-clearance/320x844-rules.png",
+    "artifacts/scroller-clearance/320x844-client.png",
+    "artifacts/scroller-clearance/392x844-rules.png",
+    "artifacts/scroller-clearance/392x844-client.png",
+    "artifacts/scroller-clearance/768x1024-rules.png",
+    "artifacts/scroller-clearance/768x1024-client.png",
+    "artifacts/scroller-clearance/1440x900-rules.png",
+    "artifacts/scroller-clearance/1440x900-client.png",
+    "artifacts/scroller-clearance/1920x1080-rules.png",
+    "artifacts/scroller-clearance/1920x1080-client.png",
+    "artifacts/scroller-clearance/canary.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "320x844",
+      "392x844",
+      "768x1024",
+      "1440x900",
+      "1920x1080"
+    ],
+    "screens": [
+      "rules",
+      "client"
+    ],
+    "absolute": 44,
+    "scrollers_found": 7,
+    "scroller_floor": 6,
+    "observed": [
+      "320x844 rules: 12 visible control(s) (+29 inside closed folds, not measured), worst reachable 45px, 0 inner scroller(s)",
+      "320x844 client: 4 visible control(s) (+1 inside closed folds, not measured), worst reachable 46px, 1 inner scroller(s) [sheet-body=4px]",
+      "392x844 rules: 12 visible control(s) (+29 inside closed folds, not measured), worst reachable 45px, 0 inner scroller(s)",
+      "392x844 client: 4 visible control(s) (+1 inside closed folds, not measured), worst reachable 46px, 1 inner scroller(s) [sheet-body=4px]",
+      "768x1024 rules: 12 visible control(s) (+29 inside closed folds, not measured), worst reachable 45px, 0 inner scroller(s)",
+      "768x1024 client: 4 visible control(s) (+1 inside closed folds, not measured), worst reachable 46px, 1 inner scroller(s) [sheet-body=4px]",
+      "1440x900 rules: 12 visible control(s) (+29 inside closed folds, not measured), worst reachable 45px, 1 inner scroller(s) [settings-body=4px]",
+      "1440x900 client: 4 visible control(s) (+1 inside closed folds, not measured), worst reachable 46px, 1 inner scroller(s) [record-body swap=4px]",
+      "1920x1080 rules: 12 visible control(s) (+29 inside closed folds, not measured), worst reachable 45px, 1 inner scroller(s) [settings-body=4px]",
+      "1920x1080 client: 4 visible control(s) (+1 inside closed folds, not measured), worst reachable 46px, 1 inner scroller(s) [record-body swap=4px]"
+    ],
+    "sabotage": null
+  },
+  "check_id": "scroller-clearance",
+  "started_at": "2026-09-24T04:09:11.345Z",
+  "status": "pass",
+  "expected_targets": 11,
+  "discovered_targets": 11,
+  "attempted_targets": 11,
+  "completed_targets": 11,
+  "skipped_targets": 0,
+  "assertions_executed": 45,
+  "min_assertions": 45,
+  "assertion_floor": "5 widths x 2 screens x 4 questions + 1 discovery floor + 1 canary x 4 = 45. Fixed by SIZES x SCREENS x the question list, never by what the run finds: a screen with no matching controls grades as four failures rather than dropping out, and a run that finds no inner scrollers at all fails the floor rather than passing `reserved` vacuously.",
+  "canary": {
+    "id": "the-reservation-taken-away",
+    "observed_failure": true,
+    "problems": [
+      "reachable «None» is legal at 45px but only 42px survive where the browser parks it (y 818..856), lost to {\"app-main\":4}; «15 min» is legal at 45px but only 42px survive where the browser parks it (y 818..856), lost to {\"app-main\":4}; «30 min» is legal at 45px but only 42px survive where the browser parks it (y 818..856), lost to {\"app-main\":4} … and 9 more",
+      "reserved «settings-body» scrolls (2419 in 729) and reserves 0px against a 4px overhang, so a control parked at its bottom edge (y 856) loses the part of itself that hangs past its box"
+    ]
+  }
+}
