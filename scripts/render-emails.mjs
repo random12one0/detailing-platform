@@ -124,14 +124,85 @@ const brand = {
   }),
 };
 
-// THE NUMBERS ARE INTERNALLY CONSISTENT AND THAT IS LOAD-BEARING, not tidiness.
-// A fixture whose parts do not add up cannot tell you whether a template's
-// money table adds up either.
-//   services + add-ons        360
-//   + travel 25 + surcharge 20 = 405  (subtotalBase)
-//   − 5% site sale  20         = 385  (bookings.subtotal, post-sale)
-//   − promo FALL10  40         = 345  (total_price)
-//   + tip 30                   = 375  (final_amount)
+// ─────────────────────────────────────────────────────────────────────────
+// THE MONEY IS COMPUTED, NOT TYPED — ROADMAP 14.19's ROOT CAUSE, FINISHED.
+// ─────────────────────────────────────────────────────────────────────────
+//
+// **THIS BLOCK USED TO BE A COMMENT DOING LONG DIVISION.** It read:
+//
+//     services + add-ons        360
+//     + travel 25 + surcharge 20 = 405  (subtotalBase)
+//     − 5% site sale  20         = 385  (bookings.subtotal, post-sale)
+//     − promo FALL10  40         = 345  (total_price)
+//
+// — and then the same figures were typed into the object below it. **A
+// fixture explaining why it is right instead of being right.** The comment
+// above it called that arithmetic "load-bearing", which it was: thirty of the
+// thirty-two emails on this page draw their money from this object and from
+// `planBooking` under it, so a wrong figure here is a wrong figure on thirty
+// screens, and nothing anywhere would have said so. That is how the carload
+// fixture below sat at a hand-typed `480` through the whole of 14.19.
+//
+// Now one set of service rows feeds `computeQuote`, the same function
+// `create-booking` runs, and every money field on all three fixtures comes
+// out of it. **The story is still chosen by a person; the arithmetic is not.**
+//
+// ONE SET OF ROWS FOR ALL THREE FIXTURES. The carload defined its own
+// duplicates when it was converted an hour before this; two copies of "the
+// same service" is the drift this whole item is about, one level up.
+const fixtureServices = [{
+  id: "svc-detail",
+  name: "Full Interior + Exterior Detail",
+  price: 240,
+  duration_minutes: 180,
+  // A real size table, so extra cars are priced rather than assumed — the
+  // F-150 genuinely costs more than the small car, which is why
+  // `vehicle_size_adjustments` exists. `suv` is the base fixture's own
+  // vehicle and carries no surcharge.
+  vehicle_size_adjustments: {
+    small: { price: 0, duration_minutes: 0 },
+    suv: { price: 0, duration_minutes: 0 },
+    large: { price: 40, duration_minutes: 30 },
+  },
+}];
+const fixtureAddOns = [
+  { id: "ao-pet", name: "Pet hair removal", price: 60, duration_minutes: 45 },
+  { id: "ao-bay", name: "Engine bay clean", price: 60, duration_minutes: 30 },
+];
+
+// The job every fixture on this page is a variation of: one detail, two
+// add-ons, an outer-ring travel fee, the detailer's own soiling surcharge, a
+// 5% site sale and a $40 promo code. `extra` overrides exactly the one thing
+// a given fixture is FOR.
+const fixtureQuote = (extra = {}) => computeQuote({
+  services: fixtureServices,
+  addOns: fixtureAddOns,
+  vehicleSize: "suv",
+  vehicleSizeLabel: "Mid-size SUV",
+  extraVehicles: [],
+  travelFee: 25,
+  adjustments: [{ label: "Heavy soiling surcharge", amount: 20 }],
+  siteDiscountPercent: 5,
+  promo: { type: "amount", value: 40 },
+  roundingNearest: 0,
+  plan: null,
+  ...extra,
+});
+
+// Every field a template reads for money, taken from the quote and from
+// nowhere else. `create-booking/index.ts:650-676` builds the same shape.
+const moneyFrom = (q) => ({
+  serviceNames: fixtureServices.map((s) => s.name),
+  addOnNames: fixtureAddOns.map((a) => a.name),
+  travelFee: q.travelFee,
+  adjustments: q.adjustmentLines,
+  subtotal: q.subtotalAfterSite,
+  siteDiscount: q.siteDiscount,
+  promoDiscount: q.promoDiscount,
+  total: q.total,
+});
+
+const baseQuote = fixtureQuote();
 const booking = {
   id: "7f3ab210-55c1-4e0a-9d2e-31b6c4a90e77",
   lang: LANG,
@@ -152,17 +223,13 @@ const booking = {
   vehicleSize: "Mid-size SUV",
   vehicleModel: "2021 Subaru Outback",
   customerNotes: "Dog hair in the back seats. There's a tap on the side of the house.",
-  serviceNames: ["Full Interior + Exterior Detail"],
-  addOnNames: ["Pet hair removal", "Engine bay clean"],
-  travelFee: 25,
   travelZone: "Outer ring",
-  adjustments: [{ label: "Heavy soiling surcharge", amount: 20 }],
-  subtotal: 385,
-  siteDiscount: 20,
+  // The two figures that are a STATEMENT rather than an amount, so they stay
+  // written here: the sale's headline percentage and the code the customer
+  // typed. Both are inputs to `fixtureQuote` above, not outputs of it.
   siteDiscountPercent: 5,
   promoCode: "FALL10",
-  promoDiscount: 40,
-  total: 345,
+  ...moneyFrom(baseQuote),
   receiptUrl: "https://detailingplatform.com/booking/7f3ab210-55c1-4e0a-9d2e-31b6c4a90e77",
 };
 
@@ -171,20 +238,28 @@ const booking = {
 // `price_adjustments` as a NEGATIVE amount, and every other figure in this file
 // is positive — so without this row the money column's tie-out could not reach
 // the case where it breaks.
-//   services + add-ons        360
-//   + travel 25 + surcharge 20 = 405
-//   − plan "Bi-weekly maintenance · included"  60 = 345  (subtotalBase)
-//   − 5% site sale  20         = 325  (bookings.subtotal, post-sale)
-//   − promo FALL10  40         = 285  (total_price)
-const planBooking = {
-  ...booking,
-  adjustments: [
-    { label: "Heavy soiling surcharge", amount: 20 },
-    { label: "Bi-weekly maintenance · included", amount: -60 },
-  ],
-  subtotal: 325,
-  total: 285,
-};
+// **AND THE TYPED VERSION OF THIS ONE WAS TWO KINDS OF IMPOSSIBLE**, which
+// is exactly what converting it was supposed to find:
+//
+//   1. It read `{ label: "Bi-weekly maintenance · included", amount: -60 }`.
+//      `planLineFor` cannot make that pair. An **included** plan covers the
+//      first car's services outright, so on this $240 detail it is **−240**.
+//      A **−60** line is a per-visit plan rate ($180 against a $240 service)
+//      and `planLineFor` labels that *"plan rate"*, never *"included"*. The
+//      label claimed the plan covered the work; the amount said it took $60
+//      off. **One of the two had to be a lie and nothing could tell you
+//      which** — the same defect as 14.19's discount line, in a fixture.
+//   2. Its site sale was typed as **20**, copied from the base booking. But
+//      the plan makes the job smaller, and 5% of the smaller job is **17**.
+//      A $3 error, on a line whose own label states the percentage.
+//
+// Resolved by keeping the AMOUNT's story — a bi-weekly plan at a member rate
+// of $180 a visit — and letting the engine name it. The label is now true and
+// the sale is recomputed on the job it is actually a percentage of.
+const planQuote = fixtureQuote({
+  plan: { name: "Bi-weekly maintenance", priceKind: "per_visit", priceAmount: 180 },
+});
+const planBooking = { ...booking, ...moneyFrom(planQuote) };
 
 // ROADMAP 8.10 — THREE CARS ON ONE VISIT. The owner's alert is the email a
 // detailer reads while deciding what to put in the van, and it carries no
@@ -222,24 +297,6 @@ const planBooking = {
 // figure is produced by running `computeQuote`**, the same function
 // `create-booking` runs. `scripts/.../pricing.ts` and this page can no longer
 // disagree, because there is only one of them now.
-const carloadServices = [{
-  id: "svc-detail",
-  name: "Full Interior + Exterior Detail",
-  price: 240,
-  duration_minutes: 180,
-  // A real size table, so the extra cars are priced rather than assumed — the
-  // F-150 genuinely costs more than the small car, which is the whole reason
-  // `vehicle_size_adjustments` exists.
-  vehicle_size_adjustments: {
-    small: { price: 0, duration_minutes: 0 },
-    suv: { price: 0, duration_minutes: 0 },
-    large: { price: 40, duration_minutes: 30 },
-  },
-}];
-const carloadAddOns = [
-  { id: "ao-pet", name: "Pet hair removal", price: 60, duration_minutes: 45 },
-  { id: "ao-bay", name: "Engine bay clean", price: 60, duration_minutes: 30 },
-];
 // ONE LIST, TWO SHAPES. The engine wants `{ key, label, model }` and the email
 // wants `{ size, model }`; built from the same row so the pictures and the
 // prices cannot name different cars.
@@ -247,31 +304,14 @@ const carloadCars = [
   { key: "large", label: "Large / SUV", model: "2021 Ford F-150" },
   { key: "small", label: "Small car", model: null },
 ];
-const carloadQuote = computeQuote({
-  services: carloadServices,
-  addOns: carloadAddOns,
-  vehicleSize: "suv",
-  vehicleSizeLabel: booking.vehicleSize,
+const carloadQuote = fixtureQuote({
   extraVehicles: carloadCars,
   extraVehicleMinutesSaved: 30,
-  travelFee: booking.travelFee,
-  adjustments: [{ label: "Heavy soiling surcharge", amount: 20 }],
-  siteDiscountPercent: booking.siteDiscountPercent,
-  promo: { type: "amount", value: 40 },
-  roundingNearest: 0,
-  plan: null,
 });
 const carloadBooking = {
   ...booking,
   extraVehicles: carloadCars.map((v) => ({ size: v.label, model: v.model })),
-  serviceNames: carloadServices.map((s) => s.name),
-  addOnNames: carloadAddOns.map((a) => a.name),
-  travelFee: carloadQuote.travelFee,
-  adjustments: carloadQuote.adjustmentLines,
-  subtotal: carloadQuote.subtotalAfterSite,
-  siteDiscount: carloadQuote.siteDiscount,
-  promoDiscount: carloadQuote.promoDiscount,
-  total: carloadQuote.total,
+  ...moneyFrom(carloadQuote),
 };
 
 // BUILT THE WAY `send-invoice/index.ts` BUILDS IT — AND THAT IS NOW ONE LINE
@@ -295,16 +335,26 @@ const carloadBooking = {
 // `send-invoice` prefixes a category word onto the detailer's own line-item
 // text; the third row reproduces that shape, ours translated and theirs not.
 const tt = translate(LANG);
+// THE TIP AND THE GOODWILL DISCOUNT ARE TYPED, AND THEY SHOULD BE — they are
+// what a person entered in `FinalizeModal` after the job, not anything the
+// pricing engine can produce. **`Booking total` is NOT typed**: it is
+// `total_price`, the engine's own figure, and it was sitting here as a
+// hand-written `345` in two places plus a third in the comment arithmetic —
+// three copies of a number that has an owner. A booking total that disagrees
+// with the booking is the invoice defect this file was written after.
+const TIP = 30;
+const GOODWILL = -15;
 const invoiceRows = [
-  { label: tt("Booking total"), qty: 1, lineTotal: 345, kind: "charge" },   // total_price
-  { label: tt("Tip"), qty: 1, lineTotal: 30, kind: "tip" },
-  { label: `${tt("Discount")}: Loyal customer`, qty: 1, lineTotal: -15, kind: "discount" },
+  { label: tt("Booking total"), qty: 1, lineTotal: booking.total, kind: "charge" },
+  { label: tt("Tip"), qty: 1, lineTotal: TIP, kind: "tip" },
+  { label: `${tt("Discount")}: Loyal customer`, qty: 1, lineTotal: GOODWILL, kind: "discount" },
 ];
 const invoiceTotals = {
-  chargesSubtotal: 345,
-  discountsTotal: -15,
-  tipTotal: 30,
-  totalPaid: 360, // final_amount = 345 + 30 - 15
+  chargesSubtotal: booking.total,
+  discountsTotal: GOODWILL,
+  tipTotal: TIP,
+  // `FinalizeModal` computes `final_amount = total_price + Σ(line items)`.
+  totalPaid: booking.total + TIP + GOODWILL,
 };
 
 // EVERY KIND, INCLUDING THE BRANCHES. `isRequest`, `forOwner` and the three
@@ -315,6 +365,18 @@ const EMAILS = [
   ["customer-confirmation", "Customer · booking confirmed", () => T.customerConfirmationEmail(brand, booking, false)],
   ["customer-request-received", "Customer · request received", () => T.customerConfirmationEmail(brand, booking, true)],
   ["customer-reminder", "Customer · appointment reminder", () => T.customerReminderEmail(brand, booking)],
+  // THE THREE FIGURES ON THIS PAGE THE ENGINE CANNOT PRODUCE, AND THEY ARE
+  // TYPED ON PURPOSE — named here so nobody has to wonder which of the
+  // remaining numbers is an oversight. All three are entered by a PERSON in
+  // the product, not derived from a price:
+  //   * `quotedAmount` below — the detailer's counter-offer to a request.
+  //     Its whole point is that it is NOT the quote the engine gave; the
+  //     note beside it says why. $395 against a $345 job.
+  //   * `TIP` and `GOODWILL` further up — typed into `FinalizeModal` after
+  //     the job is done.
+  //   * `platform-payment-failed`'s $60 — the platform's own subscription
+  //     price, a different subsystem entirely from booking pricing.
+  // Everything else on this page now comes out of `computeQuote`.
   ["customer-quote", "Customer · quote offered", () => T.requestDecisionEmail(brand, booking, "quote", { manageUrl: booking.receiptUrl, quotedAmount: 395, quotedNote: "The pet hair on this one is a bigger job than the photos suggested." })],
   ["customer-accepted", "Customer · request accepted", () => T.requestDecisionEmail(brand, booking, "accepted", { manageUrl: booking.receiptUrl })],
   ["customer-declined", "Customer · request declined", () => T.requestDecisionEmail(brand, booking, "declined", { manageUrl: booking.receiptUrl })],
@@ -361,7 +423,22 @@ const EMAILS = [
   ["owner-cancellation-paid", "Owner · a PAID booking cancelled",
     () => T.cancellationEmail(
       brand,
-      { ...booking, refundNote: refundInstruction(refundOwed({ total_price: 180, final_amount: 195, payment_status: "paid" }), money) },
+      // ROADMAP 14.19 FOLLOW-UP — AND THIS PAIR WAS TYPED AS `180 / 195`
+      // WHILE THE EMAIL AROUND IT SAID `$345`. Rendered, it read *"Was worth
+      // $345. Refund $195"* — two unrelated bookings in one message, on the
+      // page a person opens to check that emails make sense. The comment
+      // above is right that the two figures must DIFFER, and they still do:
+      // `total_price` is the job, `final_amount` is the job plus the tip less
+      // the goodwill discount, which is what the customer actually paid and
+      // therefore what comes back. Both now come from this fixture's own
+      // numbers, so the sentence is about the booking it is attached to.
+      {
+        ...booking,
+        refundNote: refundInstruction(
+          refundOwed({ total_price: booking.total, final_amount: invoiceTotals.totalPaid, payment_status: "paid" }),
+          money,
+        ),
+      },
       true,
     )],
   ["owner-stale-request", "Owner · nobody answered a request", () => T.staleRequestEmail(brand, booking, 19)],

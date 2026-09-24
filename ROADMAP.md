@@ -13818,6 +13818,61 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   email and there is no combined payload to render. A fixture that invented
   one would be testing a message the product never sends.
 
+  **FOLLOW-UP, SAME NIGHT: ALL THREE EMAIL FIXTURES ARE COMPUTED NOW, AND
+  FINISHING THE JOB FOUND TWO MORE IMPOSSIBLE NUMBERS.** The carload fixture
+  was converted first; `booking` and `planBooking` — which every other email
+  on that page is a variation of — were still hand-typed with the arithmetic
+  written out in a comment above them, *a fixture explaining why it is right
+  instead of being right*. One set of service rows now feeds `computeQuote`
+  and all three fixtures take their money from it.
+
+  - **The BASE fixture renders byte-for-byte identically**, which is the
+    result worth having: its typed figures really were correct, so the
+    conversion is provably faithful rather than merely different.
+  - **`planBooking` was wrong twice.** Its plan line read
+    `{ label: "Bi-weekly maintenance · included", amount: -60 }` and
+    **`planLineFor` cannot produce that pair** — an *included* plan covers
+    the first car's services outright, which on this $240 detail is **−240**;
+    a **−60** line is a per-visit plan rate and is labelled *"plan rate"*. The
+    label said the plan covered the work and the amount said it took $60 off,
+    and nothing could tell you which was the lie. **That is 14.19's own
+    defect, sitting in a fixture.** Its site sale was also typed as **20**,
+    copied from the base booking, where 5% of the smaller post-plan job is
+    **17** — a $3 error on a line whose own label states the percentage.
+  - **`owner-cancellation-paid` rendered *"Was worth $345. Refund $195"*** —
+    two unrelated bookings in one message, because the refund pair was typed
+    as `180 / 195`. Both figures come from this fixture now; they still
+    differ on purpose (the tip is refundable), so the branch is preserved.
+  - **The invoice's `Booking total` was a third copy of `345`.** It is
+    `booking.total` now. `TIP`, `GOODWILL`, `quotedAmount` and the platform's
+    own $60 stay typed and are **named in the file as the figures the engine
+    cannot produce**, because one unexplained hand-written number in a
+    computed page is worse than thirty in a drawn one.
+
+  **PROVED BY BREAKING THE ENGINE TWICE AND COUNTING WHAT MOVED — and the
+  count corrected a premise this item was working from.** It was assumed
+  that *"thirty of the thirty-two emails ride on those two bases"* and would
+  therefore all move. **They do ride on them, but only 18 of the 32 print a
+  figure at all**, and what moves depends on WHICH figure breaks:
+  - **A stored-`subtotal` fault moves 5** — the three confirmations, the
+    accepted request and the request-received. Those are the only emails that
+    draw a full money COLUMN, and the column is the only place `subtotal` is
+    read. The base confirmation went from service **$360 → $380** with an
+    invented **"Discount applied −$20"**: 14.19's exact signature on the
+    base path.
+  - **A `total` fault moves 16** — adding the invoice, the receipt, the
+    invoice card and every owner alert. **That is what proves the invoice is
+    live-wired rather than stale:** it prints `total_price` and its own line
+    items, never `subtotal`, so its immunity to the first fault is correct
+    behaviour and not a gap.
+  - **`render-emails.mjs` itself reported PASS under both faults.**
+    `reconcile()` closes any gap, so the money tie-out balances either way.
+    The page SHOWS the fault; the script does not fail on it. Said plainly
+    because the opposite is what a reader will assume.
+
+  Restored after each; the render is byte-identical to the clean snapshot and
+  the run still takes **0.53s**, credential-free.
+
   ---
 
   **The original entry, unchanged, from here down.**
