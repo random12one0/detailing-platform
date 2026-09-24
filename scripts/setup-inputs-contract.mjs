@@ -2,6 +2,7 @@
 //
 //   node scripts/setup-inputs-contract.mjs                  # the check
 //   node scripts/setup-inputs-contract.mjs --break=step     # sabotage: a step nothing feeds
+//   node scripts/setup-inputs-contract.mjs --break=comments # sabotage: stop stripping comments
 //   node scripts/setup-inputs-contract.mjs --break=canary   # sabotage: drop the canary
 //   node scripts/receipt.mjs receipts/setup-inputs-contract.json
 //
@@ -166,39 +167,78 @@ const check = (name, cond, detail = "") => {
  * data under test, and if the block cannot be found the check fails loudly
  * rather than quietly passing on an empty set.
  */
-function adminPayloadKeys() {
-  const src = readFileSync(ADMIN_FN, "utf8");
-  const at = src.indexOf("setup_inputs:");
+/**
+ * **COMMENTS ARE STRIPPED FIRST, AND THAT IS NOT TIDYING — 2026-09-23.**
+ *
+ * The first version scanned characters and never skipped comments, so a `//`
+ * line sitting between a comma and the next key was accumulated into that
+ * key's token, the token stopped matching an identifier, and **the key was
+ * dropped in silence.** `counts.hoursRows` was invisible to this check for
+ * exactly that reason, and DP Cowork2 found it by hitting it rather than by
+ * reading anything — then left a warning above the literal rather than
+ * reaching into this file.
+ *
+ * **IT IS THIS FILE'S OWN SUBJECT, ONE LEVEL OUT.** This check exists because
+ * a reader handed less than it needs answers confidently anyway. Its own
+ * parser was doing that to itself: under-reading its input, and then either
+ * blaming the product for a step it does feed, or — when the dropped key is
+ * one of several feeding the same step, as `contact_email` is — saying
+ * nothing at all. The second is the dangerous one.
+ */
+function stripComments(js) {
+  let out = "", i = 0;
+  while (i < js.length) {
+    const c = js[i], d = js[i + 1];
+    if (c === "/" && d === "/") { while (i < js.length && js[i] !== "\n") i++; continue; }
+    if (c === "/" && d === "*") {
+      i += 2;
+      while (i < js.length && !(js[i] === "*" && js[i + 1] === "/")) i++;
+      i += 2; continue;
+    }
+    // Strings are copied through, so a `//` inside one is not a comment.
+    if (c === '"' || c === "'" || c === "`") {
+      const q = c; out += c; i++;
+      while (i < js.length && js[i] !== q) {
+        if (js[i] === "\\") { out += js[i]; i++; }
+        out += js[i]; i++;
+      }
+      out += q; i++; continue;
+    }
+    out += c; i++;
+  }
+  return out;
+}
+
+/** The `{ … }` after a label, brace-matched so a nested object cannot end it early. */
+function blockAfter(src, label) {
+  const at = src.indexOf(label);
   if (at < 0) return null;
-  // Walk braces from the first `{` after the label so a nested object cannot
-  // end the block early.
   const start = src.indexOf("{", at);
-  let depth = 0, end = -1;
+  if (start < 0) return null;
+  let depth = 0;
   for (let i = start; i < src.length; i++) {
     if (src[i] === "{") depth++;
-    else if (src[i] === "}") { depth--; if (depth === 0) { end = i; break; } }
+    else if (src[i] === "}") { depth--; if (depth === 0) return src.slice(start, i + 1); }
   }
-  if (end < 0) return null;
-  const block = src.slice(start, end + 1);
+  return null;
+}
+
+/**
+ * The keys of a `setup_inputs` literal, group by group.
+ *
+ * **TOP-LEVEL `key:` PAIRS, SCANNED BY CHARACTER RATHER THAN BY LINE.** An
+ * earlier version walked lines and took at most one key from each, so
+ * `{ contact_phone: …, contact_email: … }` — both on one line, which is how
+ * that function writes it — reported ONE field.
+ */
+function keysFromBlock(blockRaw, { keepComments = false } = {}) {
+  if (!blockRaw) return null;
+  const block = keepComments ? blockRaw : stripComments(blockRaw);
   const out = {};
   for (const group of ["counts", "branding", "settings", "business"]) {
-    const g = block.indexOf(`${group}: {`);
-    if (g < 0) { out[group] = []; continue; }
-    let d = 0, e = -1;
-    const s2 = block.indexOf("{", g);
-    for (let i = s2; i < block.length; i++) {
-      if (block[i] === "{") d++;
-      else if (block[i] === "}") { d--; if (d === 0) { e = i; break; } }
-    }
-    const inner = block.slice(s2 + 1, e);
-    // **TOP-LEVEL `key:` PAIRS, SCANNED BY CHARACTER RATHER THAN BY LINE.**
-    // The first version walked lines and took at most one key from each, so
-    // `{ contact_phone: …, contact_email: … }` — both on one line, which is
-    // how that function writes it — reported ONE field and made the payload
-    // read narrower than it is. **A check that mis-reads the thing under test
-    // is this file's own subject, one level out**, and it was caught by the
-    // printed key list disagreeing with the source rather than by any
-    // assertion.
+    const inner0 = blockAfter(block, `${group}:`);
+    if (!inner0) { out[group] = []; continue; }
+    const inner = inner0.slice(1, -1);
     out[group] = [];
     let depth2 = 0, tok = "";
     for (let i = 0; i < inner.length; i++) {
@@ -228,6 +268,15 @@ function adminPayloadKeys() {
   return out;
 }
 
+/** The literal as it stands in `platform-admin`, raw. */
+function adminPayloadBlock() {
+  return blockAfter(readFileSync(ADMIN_FN, "utf8"), "setup_inputs:");
+}
+
+function adminPayloadKeys() {
+  return keysFromBlock(adminPayloadBlock());
+}
+
 // ---------------------------------------------------------------------------
 console.log("  the twelve steps — each one's input removed in turn");
 const base = setupProgress(complete());
@@ -236,7 +285,7 @@ const base = setupProgress(complete());
 // property of the run. **This said +3 and `receipt.mjs` refused the
 // receipt:** 16 discovered against 15 expected, and one target never
 // marked itself completed. The grader caught both, which is what it is for.
-const expectedTargets = STEPS.length + 4;
+const expectedTargets = STEPS.length + 5;
 let discovered = 0, attempted = 0, completed = 0;
 
 check("complete-fixture", base.count === STEPS.length,
@@ -261,6 +310,30 @@ for (const [step, blank] of FEEDS) {
     `blanking ${step}'s input moved the count ${base.count} -> ${got.count} and lost `
     + `[${lost.join(", ")}]; expected exactly [${step}]`);
   observed.push(`${step}: ${ok ? "fed" : "NOT FED"} — blanking it lost [${lost.join(", ") || "nothing"}]`);
+  completed++;
+}
+
+console.log("  the parser, against its own known blind spot");
+attempted++; discovered++;
+{
+  // **THE HOSTILE INPUT IS THE REAL PAYLOAD, NOT A TOY.** The literal is read
+  // out of `platform-admin` and a comment is injected between a comma and the
+  // key after it — the exact position that swallowed `counts.hoursRows` — and
+  // the keys must come back unchanged. Building the fixture from the real
+  // block means this cannot drift away from what that file actually looks
+  // like, and it needs no edit to anybody else's file to prove.
+  const raw = adminPayloadBlock();
+  const NL = String.fromCharCode(10);
+  const hostile = raw
+    ? raw.replace("," + NL,
+      "," + NL + "            // a comment where one used to swallow the next key" + NL)
+    : null;
+  const before = JSON.stringify(adminPayloadKeys());
+  const after = JSON.stringify(keysFromBlock(hostile, { keepComments: BREAK === "comments" }));
+  check("parser-reads-through-comments", !!raw && !!hostile && before === after,
+    "a comment between a comma and the next key changed what the parser read — "
+    + `without it ${before} · with it ${after}`);
+  observed.push(`parser against an injected comment: ${before === after ? "unchanged" : "KEYS LOST"}`);
   completed++;
 }
 
@@ -392,10 +465,10 @@ const { path } = writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: STEPS.length + 5,
+  min_assertions: STEPS.length + 6,
   assertion_floor:
-    "12 steps + 1 complete-fixture + 1 payload-found + 1 payload-complete + 1 payload-no-dead-fields "
-    + "+ the canary = 17. Fixed by STEPS.length and the row list, never by what the run finds: a "
+    "12 steps + 1 complete-fixture + 1 parser-reads-through-comments + 1 payload-found + 1 "
+    + "payload-complete + 1 payload-no-dead-fields + the canary = 18. Fixed by STEPS.length and the row list, never by what the run finds: a "
     + "step added to `STEPS` with no row in FEEDS fails `complete-fixture`, and a payload literal "
     + "that cannot be found fails `payload-found` rather than passing on an empty set.",
   failures,
