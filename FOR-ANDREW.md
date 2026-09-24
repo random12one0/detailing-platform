@@ -1376,40 +1376,36 @@ still knows them.
   yours, not ours. We did not fake one, because a check that fakes its way
   past a real requirement is only testing the fake.
 
-- [ ] **DO · One line that switches on two more outside checks. 2026-09-23.
-  Two minutes, and it is a choice rather than a chore.**
-  We now watch your live site from the outside every five minutes and email you
-  only if something is genuinely broken — not once for a slow moment, and
-  nothing at all while it is fine.
+- [x] **DONE BY YOU · You switched on the two extra outside checks.
+  2026-09-24.** You ran the line, and both of them woke up. **Nothing more to
+  do here.**
 
-  **What is watched right now, without you doing anything:** your homepage
-  really serving the site, and the booking page's open-slots calculation.
+  **All four checks on your live site are now running**, every five minutes:
+  your homepage really serving the site, the booking page's open-slots
+  calculation, a booking page loading a detailer's own details, and
+  **signing in**. That last one is the one worth caring about — the whole
+  product could have been sitting behind a broken sign-in and nothing would
+  have told either of us.
 
-  **What is NOT watched until you run this:** whether a booking page can load a
-  detailer's own details, and whether **signing in** is working. **That second
-  one is the one worth caring about** — the whole product could be sitting
-  behind a broken sign-in and nothing would tell either of us.
+  **Checked, not assumed.** Two full cycles were run and watched. Both new
+  checks came back with a real answer: the details check returned a real set
+  of opening hours, and the sign-in check got the authentication service
+  naming itself. No failures on any of the four, and the monitor no longer
+  reports anything as skipped.
 
-  **Why we did not just switch them on:** those two checks need one of your
-  keys, and no session is allowed to create, read out, paste or store a key
-  anywhere — **including into the database.** So the check asks for it by
-  *name*, and only you put the real one in. **This is a rule we broke earlier
-  tonight and then fixed**, which is why it is spelled out.
+  **And the key you used was the right one.** You used the newer
+  `sb_publishable_` key rather than the older long one, which we were not
+  certain would work — it is sent in two places at once and one of those
+  was designed for the older format. It works in both. **Nothing needs
+  swapping.**
 
-  **What to do:** in the Supabase dashboard → **SQL Editor**, paste the line
-  below, replacing the part in angle brackets with your project's *publishable*
-  key — the **anon** key from Settings → API, not the service-role one:
+  **Your key was never read.** Checking this meant confirming a secret *by
+  that name* exists, and nothing more. The value was not selected, printed,
+  logged or written down anywhere, here or in any other file.
 
-  ```sql
-  select vault.create_secret('<paste the anon key here>', 'site_probe_api_key');
-  ```
-
-  **Nothing else changes.** No deploy, no code, no restart — the two checks
-  start reporting on their own within five minutes.
-
-  **If you never run it:** nothing breaks and nothing nags. Those two paths
-  simply stay unwatched, and the monitor says so honestly every time it reports
-  rather than pretending it is covering them.
+  **Proof the checks are really doing something:** both of those two paths
+  refuse a request that carries no key at all, so before you ran that line
+  they genuinely could not be watched. They are not decorative.
 
 - [ ] **DO · Sign up for text messaging and register the number.**
   **Telnyx, about $0.0040 a message** — roughly half Twilio's real cost. One

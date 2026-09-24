@@ -6444,23 +6444,85 @@ most corroborated finding in the set.
      returns — the same shape the edge functions use with `Deno.env.get`, and
      the same shape `docs/services-and-secrets.md` describes.
 
-  **IT IS EMPTY, AND HERE IS WHO FILLS IT.** `vault.secrets` holds **zero**
-  secrets. **No session will put one there.** Provisioning is **Andrew's**,
-  and it is one statement he runs himself, with the value never passing
-  through a session:
+  **~~IT IS EMPTY~~ — IT HOLDS ONE SECRET NOW, AND HERE IS WHO PUT IT THERE.**
+  `vault.secrets` held **zero** secrets when this was written. **No session
+  will put one there.** Provisioning is **Andrew's**, and it was one statement
+  he ran himself, with the value never passing through a session:
 
   ```sql
   select vault.create_secret('<the publishable anon key>', 'site_probe_api_key');
   ```
 
-  **UNTIL HE DOES, THE MONITOR COVERS TWO PATHS, NOT FOUR — and it says so
-  rather than pretending.** `booking_start` and `sign_in` both need a key;
-  `homepage` and `booking_availability` need none. **A missing credential is
-  reported as SKIPPED, never as DOWN**, because reporting it as an outage
+  **If the stored value ever has to CHANGE, that is a different statement and
+  still his.** `vault.create_secret` refuses a name that already exists, so a
+  replacement is the update form, by id:
+
+  ```sql
+  select vault.update_secret(
+    (select id from vault.secrets where name = 'site_probe_api_key'),
+    '<the new key>');
+  ```
+
+  **HE RAN IT. 2026-09-24, 06:52:29 UTC. THE MONITOR COVERS ALL FOUR PATHS
+  NOW, AND THE PARAGRAPH BELOW IS KEPT AS THE STATE IT REPLACED.**
+
+  `site_probe_api_key` exists — **one row in `vault.secrets`, confirmed by
+  NAME**. Two full cycles were then forced and watched:
+
+  ```
+  {"ping":"ok","graded":4,"failing":[],"skipped":[]}      ×2
+  ```
+
+  **`skipped` is empty and `graded` is 4**, where it was 2 and
+  `["booking_start","sign_in"]` before. Both new paths returned a **200 with
+  real content** — `booking_start` a full set of opening hours out of
+  `get_public_business_profile`, `sign_in` GoTrue naming itself
+  (`{"version":"v2.197.0","name":"GoTrue",…}`). `consecutive_failures` is **0
+  on all four** and neither new probe has ever recorded a failure.
+
+  **`failing: []` WAS NOT TAKEN AS THE ANSWER, AND MUST NOT BE.** `fail_after`
+  is 2, so a probe that failed once is absent from `failing` — the "one
+  failure says nothing" rule that makes this monitor worth having also makes
+  its headline unable to report a first failure. The verdict above comes from
+  the **per-probe `consecutive_failures` counters and the response bodies**,
+  not from the ping.
+
+  **THE PUBLISHABLE KEY FORMAT WORKED, AND THAT WAS THE OPEN QUESTION.** He
+  used a modern **`sb_publishable_`** key, not the legacy `eyJ…` anon JWT, and
+  **the publishable one was what was tried first — it was not a fallback.**
+  The concern was real: `probe_live_site()` sends the credential in **two
+  positions at once**, as `apikey` *and* as `Authorization: Bearer <secret>`,
+  and the Bearer position is the one the legacy JWT was designed for, so a
+  401 on either of these two probes would have been the key format rather than
+  an outage. **It did not happen.** Both endpoints accept the publishable key
+  in both positions. **No swap is needed and none was made** — and had one
+  been, it would have been Andrew's to run, with `vault.update_secret`, since
+  `vault.create_secret` refuses a name that already exists.
+
+  **THE VALUE WAS NEVER READ.** Verification selected `name`, `created_at`
+  and `updated_at` from `vault.secrets` and nothing else. `decrypted_secret`
+  was not queried, not in full and not as a prefix or a predicate. The key
+  format above is known from what Andrew said he pasted and from the probes
+  answering 200 — **not from looking.**
+
+  **AND THE CREDENTIAL IS LOAD-BEARING RATHER THAN DECORATIVE**, which is the
+  difference between "now covered" and a sentence. Measured directly: both
+  paths answer **401 with no credential at all** —
+  `POST /rest/v1/rpc/get_public_business_profile` → 401, `GET /auth/v1/health`
+  → 401. So before 06:52 these two genuinely could not be probed, and the
+  skip was honest rather than a missing feature.
+
+  ---
+
+  **THE STATE THIS REPLACED, KEPT BECAUSE THE DESIGN DECISION IN IT STILL
+  GOVERNS:** *until he does, the monitor covers two paths, not four — and it
+  says so rather than pretending.* `booking_start` and `sign_in` both need a
+  key; `homepage` and `booking_availability` need none. **A missing credential
+  is reported as SKIPPED, never as DOWN**, because reporting it as an outage
   would make the monitor lie in order to make provisioning feel urgent — the
   exact wolf this design exists to avoid. And a skip is not silent: `skipped`
   rides on every ping, so it is visible in the check's own event detail.
-  Measured after the change: `{"ping":"ok","graded":2,"failing":[],
+  Measured before provisioning: `{"ping":"ok","graded":2,"failing":[],
   "skipped":["booking_start","sign_in"]}`.
 
   **`available-slots` NEEDS NO KEY AT ALL, WHICH IS WORTH KNOWING SEPARATELY.**
