@@ -551,11 +551,23 @@ const { path } = writeReceipt({
   min_assertions: 21,
   // **DECLARED BECAUSE A FLOOR EQUAL TO ITS OWN COUNT CANNOT BIND** —
   // `receipt.mjs` refuses a receipt that does not say why.
+  // **AND THE FIRST VERSION OF THIS DECLARATION WAS WRONG, DISPROVED BY THE
+  // VERY NEXT RUN — 2026-09-23.** It said the count "cannot fall without a
+  // diff". It fell to 4 the first time this file was actually run: § 1
+  // catches the payment leg's failure and carries on, so a run that loses its
+  // subject completes, writes a receipt, and executes a fraction of its
+  // assertions. **The floor genuinely binds here**, which is the opposite of
+  // the four checks the new rule was written for — in those a thrown error
+  // aborts before any receipt exists, so a receipt implies the full count.
+  // Kept as a correction rather than rewritten, because "this floor is
+  // decoration" and "this floor is the only thing that catches a half-run"
+  // are opposite claims about the same number.
   assertion_floor:
-    "21 unconditional check() call sites, none of them inside a loop, so a clean run "
-    + "executes exactly 21 — confirmed against the 2026-09-19 receipt. The file's own "
-    + "comment said 20 and was wrong; counted 2026-09-22 rather than re-run, because § 1 "
-    + "drives a real card payment. A tripwire on the code, not a run-time check.",
+    "21 unconditional check() call sites, none inside a loop, so a CLEAN run executes "
+    + "exactly 21 — which is why it equals the count on a pass. It is NOT inert: § 1 "
+    + "catches its own failure and the run continues, so a run that loses its subject "
+    + "completes with far fewer (measured: 4 on 2026-09-23) and the floor is what "
+    + "catches it. Equal on a pass, binding on a half-run.",
   failures,
   artifacts,
   warnings: BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : [],

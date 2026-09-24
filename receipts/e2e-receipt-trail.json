@@ -1,20 +1,17 @@
 {
-  "git_sha": "2a10b86d811d5a5929c629b2b24de47e9dba8e2e",
+  "git_sha": "fd76648b2241b3ce5e7b56d45759bfcd91ee41b9",
+  "git_sha_started": "fd76648b2241b3ce5e7b56d45759bfcd91ee41b9",
+  "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-19T01:31:00.217Z",
-  "failures": [],
+  "finished_at": "2026-09-24T02:31:38.480Z",
+  "failures": [
+    "the payment leg ran and passed e2e-payment.mjs exited non-zero",
+    "there is a booking a card actually paid for []",
+    "it was paid ONLINE, with the moment recorded"
+  ],
   "warnings": [],
   "artifacts": [
-    "artifacts/e2e-receipt-trail/paid-booking.json",
-    "artifacts/e2e-receipt-trail/emails-the-payment-sent.json",
-    "artifacts/e2e-receipt-trail/receipt-endpoint.json",
-    "artifacts/e2e-receipt-trail/send-invoice.json",
-    "artifacts/e2e-receipt-trail/email-rows.json",
-    "artifacts/e2e-receipt-trail/delivery-reports.json",
-    "artifacts/e2e-receipt-trail/job-record.png",
-    "artifacts/e2e-receipt-trail/job-record.txt",
-    "artifacts/e2e-receipt-trail/canary-job-record.txt",
-    "artifacts/e2e-receipt-trail/canary-button.txt"
+    "artifacts/e2e-receipt-trail/paid-booking.json"
   ],
   "dimensions": {
     "slug": "demo-detail",
@@ -22,17 +19,18 @@
     "sabotage": null
   },
   "check_id": "e2e-receipt-trail",
-  "started_at": "2026-09-19T01:28:55.398Z",
-  "status": "pass",
+  "started_at": "2026-09-24T02:31:29.531Z",
+  "status": "fail",
   "expected_targets": 6,
-  "discovered_targets": 6,
-  "attempted_targets": 6,
-  "completed_targets": 6,
+  "discovered_targets": 1,
+  "attempted_targets": 1,
+  "completed_targets": 0,
   "skipped_targets": 0,
-  "assertions_executed": 21,
+  "assertions_executed": 4,
   "min_assertions": 21,
+  "assertion_floor": "21 unconditional check() call sites, none of them inside a loop, so a clean run executes exactly 21 — confirmed against the 2026-09-19 receipt. The file's own comment said 20 and was wrong; counted 2026-09-22 rather than re-run, because § 1 drives a real card payment. A tripwire on the code, not a run-time check.",
   "canary": {
     "id": "an-unsent-receipt-must-not-look-sent",
-    "observed_failure": true
+    "observed_failure": false
   }
 }

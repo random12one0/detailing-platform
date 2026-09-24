@@ -1,9 +1,9 @@
 {
-  "git_sha": "9314449467766f659f175747e180f45096cfbd77",
-  "git_sha_started": "9314449467766f659f175747e180f45096cfbd77",
+  "git_sha": "fd76648b2241b3ce5e7b56d45759bfcd91ee41b9",
+  "git_sha_started": "fd76648b2241b3ce5e7b56d45759bfcd91ee41b9",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-23T04:24:55.883Z",
+  "finished_at": "2026-09-24T02:41:31.823Z",
   "failures": [],
   "warnings": [
     "THE QUOTE IS A DECLARED FIXTURE. demo-detail has site_discount_active = false, so a site-discount line does not render there at all; every target injects one, with computeQuote's own numbers for a tenant configured that way. THE LIVE DISCOUNT PATH WITH site_discount_active = true ON A REAL TENANT WAS NOT EXERCISED, at any width, in any run."
@@ -57,7 +57,7 @@
     "sabotage": null
   },
   "check_id": "discount-label",
-  "started_at": "2026-09-23T04:20:30.246Z",
+  "started_at": "2026-09-24T02:37:08.864Z",
   "status": "pass",
   "expected_targets": 15,
   "discovered_targets": 15,

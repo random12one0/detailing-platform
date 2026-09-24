@@ -1553,6 +1553,20 @@ the wrong service, and never book a job we cannot reach.
   their rate and the folded figure disagree, the label is wrong again.
   **That case is the check's standing canary**, so it cannot be forgotten.
 
+  **BROKEN ON PURPOSE AFTER IT SHIPPED, 2026-09-23, WHICH IS A DIFFERENT TEST
+  FROM THE RED RUN THAT PRECEDED THE FIX.** The red run proved the check could
+  see the ORIGINAL fault. This proves it catches a REGRESSION — somebody later
+  undoing the fix. One clause was reverted in `StepReview.jsx`, the test for
+  whether the percentage actually matches the figure:
+  `const exact = gross > 0 && d.percent > 0` instead of that AND
+  `cents(d.amount) === Math.round(gross * d.percent / 100)`, so the label
+  states the rate again whether or not it is true.
+  **The check caught it: 10 failures, `honest` and `form` on the mismatch case
+  at all five widths**, each naming the numbers — *«10% off» claims 10%, which
+  of $65.00 would be $6.50, but the figure beside it is $5.00 — that is
+  7.69%*. Restored, `git diff` byte-identical to `HEAD`, and **PASS 15/15,
+  canary 5/5** again.
+
   **ONE CLAIM FROM THIS ROUND'S FIRST COMMIT IS CORRECTED HERE.** Its message
   said the walk was extracted to `scripts/lib/bookingWalk.mjs` "because two
   money checks with two copies of the same walk is how two money checks start
@@ -1773,6 +1787,55 @@ the wrong service, and never book a job we cannot reach.
   `scripts/lib/bookingWalk.mjs`'s console watcher now records the status AND
   the path of every refused request. Two runs were spent guessing at a bucket
   before that line existed; the third named the endpoint immediately.
+
+- [ ] **Opening a job record spends the address-TYPING budget, and when it runs
+  out the weather stops with nothing on screen saying why. Found 2026-09-23
+  while verifying 2.3; given its own item on Andrew's instruction.**
+  **UNNUMBERED ON PURPOSE:** it belongs with Wave 14's limits work, and another
+  session was actively writing 14.12 and 14.13 in this file at the time, so
+  taking a 14.x number would have been a guess at somebody else's next one.
+  Number it when the waves are next tidied.
+
+  **THE MEASUREMENT.** `app/src/lib/jobWeather.js:111` geocodes the job's
+  address by calling `api.addressSuggest(null, address)` — the **address
+  autocomplete** endpoint — to place the weather strip on the job record. That
+  endpoint is budgeted as a **typing** allowance:
+  `LIMITS.addressPerIp` is **60 an hour per IP**, and its own comment says why
+  that number: *"Sixty an hour from one address is a person typing several
+  addresses badly; it is not a script, and a debounced field (400ms, four
+  characters) spends about six on a real street."* Above it sits
+  `addressPerDay`, **2,400 a day, keyed `"all"` — one bucket shared by every
+  tenant on the platform.**
+
+  **SO A DETAILER WHO IS NOT TYPING ANYTHING SPENDS A BUDGET SIZED FOR
+  CUSTOMERS WHO ARE.** Working through their own job records costs one call
+  each. When the hour's sixty are gone, `address-suggest` answers **429**, the
+  weather silently stops, and **nothing on the screen says why** — it looks
+  like the weather feature is broken rather than rationed.
+
+  **HOW IT WAS FOUND, because the path matters more than the number.**
+  `zone-mismatch.mjs` kept reddening on a console line that said only
+  *"Failed to load resource: the server responded with a status of 429"* and
+  named nothing. Two runs were spent guessing at buckets — `promo_quote` had
+  97 hits and turned out to belong to `platform-billing`, nothing to do with
+  it. The instrument was changed to record the PATH of every refused request,
+  and the next run named `/functions/v1/address-suggest` immediately, **fired
+  by the job record and not by the booking page.**
+
+  **THREE POSSIBLE SHAPES, AND WHICH ONE IS RIGHT IS A JUDGEMENT NOBODY HAS
+  MADE.** Not decided here and deliberately not built:
+  1. **A cache** — the coordinates for a booking's address do not change, and
+     `address_points` already exists for exactly this kind of lookup.
+  2. **Its own allowance** — a detailer reading their own records is not a
+     stranger typing, and a separate bucket would stop the two competing.
+  3. **Nothing at all** — sixty an hour may simply be more than any real
+     detailer opens, in which case the only defect is the silent failure.
+  **The silent-failure half may be worth separating from the budget half**:
+  whatever the limit ends up being, a weather strip that vanishes without a
+  word is its own small fault.
+  **Done when:** a detailer working through their records does not exhaust an
+  allowance meant for customers typing, or — if the limit stays — the screen
+  says what happened when it is reached.
 
 - [x] **2.4 — DONE 2026-09-19. Every booking button on all five examples now
   opens a booking path, and a certified check says so every run.**
