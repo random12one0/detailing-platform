@@ -126,3 +126,39 @@ afternoon.
 
 **They do not overlap by accident.** Each one is blind to what the next one
 sees, which is why the answer is four small free things rather than one.
+
+---
+
+## UPDATE 2026-09-23 — § 2 is now BUILT, and not with UptimeRobot
+
+Roadmap 6.2. **The "is the website up" check above no longer needs an account
+anywhere, and step 2 is done.** `pg_cron` and `pg_net` were already installed
+on this project, so the probing runs from the database itself every five
+minutes and reports to the healthchecks.io account you already have, as a
+third check called **`detailing platform — live site paths`**.
+
+**It watches four paths**, and each was chosen because it can fail on its own:
+the homepage (asserting the built bundle is really being served, because
+`_redirects` makes *every* URL on that domain return 200), the tenant profile
+the booking page loads first, the open-slots calculation, and the
+authentication service answering. It carries **no credentials**, so nothing
+about one person's account can trip it.
+
+**It will not cry wolf.** A path has to fail twice in a row before anything is
+said, a response that has not arrived yet is not a failure, and if nothing
+could be graded at all the ping is withheld rather than sent — silence, not a
+green light it did not earn.
+
+**When it does fire, the email names the path**, because the failing paths go
+in the body of the failure ping.
+
+**Proved on the day it was built** by breaking the homepage assertion on
+purpose: one failure changed nothing, the second took the check down and sent
+the email, and restoring it brought the check back up. healthchecks.io
+recorded it as one 22-second outage.
+
+**What it still cannot see:** it runs inside Supabase, so if Supabase itself
+stops, it stops pinging rather than reporting. That is what the twenty-minute
+grace window is for — sustained silence becomes one alert instead of four.
+
+**Sentry (§ 4) is still not built and still needs a DSN from you.**

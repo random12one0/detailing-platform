@@ -6312,6 +6312,109 @@ most corroborated finding in the set.
   half-finished item cannot read as done. See below for which half closed and
   what the other is waiting on.
 
+  ---
+
+  ### THE OUTSIDE-CHECKS HALF IS BUILT AND PROVED. 2026-09-23
+
+  **WHICH HALF CLOSED:** outside checks on the live site, incident history,
+  and an alert that names the affected path and clears only on a successful
+  check. **WHICH HALF DID NOT:** the back-office display, which is **6.2a**,
+  is `app/src`, and was another session's tree tonight. **This item stays
+  unticked until 6.2a is done** — a half-finished item must not read as done.
+
+  **WHAT IS RUNNING.** A `pg_cron` job, `probe-live-site`, every five minutes.
+  It probes four live paths through `pg_net`, grades them, records incidents,
+  and pings one healthchecks.io check — `detailing platform — live site
+  paths`, five-minute period, twenty-minute grace, email to Andrew. Schema in
+  `supabase/migrations/20260923040000_outside_checks.sql`; probe rows and the
+  ping URL are configuration, not schema, and are deliberately not in the
+  migration because one carries an API key and the other is a credential.
+
+  **NOTHING WAS DEPLOYED. NO EDGE FUNCTION WAS TOUCHED, PUBLISHED OR CHANGED.**
+
+  **THE FOUR PATHS, AND WHAT EACH ONE DOES AND DOES NOT FIRE ON.** Andrew's
+  ruling governs this table: *"if he gets an email that something failed he is
+  not going to do anything about it"*, so **a check that can cry wolf is worse
+  than no check.**
+
+  | path | what it proves | it fires when | it deliberately does NOT fire when |
+  |---|---|---|---|
+  | `homepage` | Netlify is serving a real build | two cycles in a row where the body does not contain `assets/index-` | one slow fetch; a redeploy changing the hash — the assertion is the prefix, not the hash |
+  | `booking_start` | the tenant profile the booking page loads first — Postgres, a definer RPC, PostgREST | two cycles where the RPC does not return opening hours | a tenant having odd hours; RLS refusing some *other* table |
+  | `booking_availability` | the edge runtime computing real slots | two cycles where the function does not answer `"success":true` | **a fully booked day** — the assertion is on `success`, never on the number of slots, because no free slots is not an outage |
+  | `sign_in` | the authentication service is answering | two cycles where it does not identify itself | a wrong password, a locked account, a rate-limited login — **this probe carries no credentials at all**, so no user-specific failure can trip it |
+
+  **AND THREE WOLVES WERE DESIGNED OUT RATHER THAN LEFT TO BE DISCOVERED:**
+
+  - **A response that has not arrived is INCONCLUSIVE, never a failure.**
+  - **If nothing could be graded, the ping is WITHHELD rather than sent.** A
+    success ping we could not justify is the worst thing available here — a
+    monitor reporting green because it did not look. Observed on the very
+    first run: `{"ping":"withheld — nothing could be graded this cycle"}`.
+  - **The probe body is a template, not a fixture.** A hard-coded future date
+    is in the past a few weeks later and a hard-coded duration breaks the day
+    somebody reseeds the demo tenant — both would start crying wolf about a
+    product that is fine. The date and the duration are substituted each cycle
+    from live data.
+
+  **TWO CANDIDATE PROBES WERE KILLED BY MEASURING THEM.** An anonymous read of
+  `businesses` and of `services` each answer **200 with `[]`**, because RLS
+  refuses them — exactly as 4.4's matrix proved. Either would have been a
+  green light for ever. **And the item asks for five paths where only four can
+  fail independently:** `/book/demo-detail` is served by the same `index.html`
+  as the homepage, so a fifth probe of it could not fail on its own. Said
+  rather than faked. What the item calls "a safe database or function path" is
+  covered separately by `booking_start` (database) and `booking_availability`
+  (function).
+
+  **THE CONTROLLED FAILURE, WHICH IS THE DONE-WHEN.** The homepage probe's
+  content assertion was changed to a marker the page cannot contain —
+  simulating Netlify serving a build without the app bundle, which is a
+  failure that returns **200**, because `_redirects` makes every URL on that
+  domain return 200. Then, from the check's own event log:
+
+  - first failing cycle → the prober pinged **ok**, and healthchecks.io stayed
+    **up**. **One failure says nothing.** This is the assertion that matters
+    most and it is the one a monitor usually gets wrong.
+  - second consecutive failing cycle → the prober pinged **`/fail`** with
+    `{"failing":["homepage"]}`, healthchecks.io went **up → down**, and the
+    email integration to Andrew fired.
+  - an incident row was written naming the path and the reason: *"status 200,
+    expected 200, body did not contain 'THIS-BUILD-MARKER-CANNOT-EXIST'"*.
+  - the assertion was restored → next cycle pinged **ok** → **down → up**, and
+    a recovery row was written. healthchecks.io recorded the whole thing as
+    **1 downtime, 22 seconds, 99.99% uptime.**
+
+  **THE TOLERANCE LIVES IN THE PROBER, NOT IN healthchecks.io** — healthchecks
+  goes down on the first `/fail` it receives, which is correct, because the
+  prober is the only thing that knows the difference between slow and broken.
+
+  **TWO REAL EMAILS REACHED ANDREW DOING THIS** — one "down", one "up", for
+  the new check, at about 21:55 Pacific. They are the proof, and they are also
+  mail he did not ask for; flagged here rather than left for him to puzzle
+  over.
+
+  **IT SPENDS NONE OF THE SHARED BUDGETS ON `docs/shared-resources.md`.** No
+  Geoapify credit, no email allowance, no writes to the demo tenant — every
+  probe is a read. **Measured:** the monitor called `available-slots` eight
+  times and left **no row at all** in `rate_hits`, so it cannot exhaust a
+  session's bucket and a session cannot throttle it. **That absence is itself
+  a finding and it is 14.18**, because the reason is that a caller with no
+  forwarded-for header is not counted by the limiter at all.
+
+  **`scripts/db-audit.mjs` CAUGHT THIS MIGRATION AND IT WAS RIGHT TO.** Both
+  new tables had RLS on and their **grants still open to `anon`** — one
+  permissive policy away from exposure, on a table whose `headers` column
+  holds an API key. Revoked, and the audit went from 4 findings to 2; the
+  remaining 2 are older and not from this work. `migration-drift.mjs` passes:
+  50 functions, 54 tables, 85 policies, all matching the repo, canary caught.
+
+  **Still open for 6.2:** 6.2a, the display. **And the deeper limit, stated:**
+  the prober runs inside Supabase, so it cannot report that Supabase itself is
+  down — it simply stops pinging, and the twenty-minute grace turns that into
+  one alert rather than four. That is the same bootstrap problem the dead
+  man's switch has and is why the grace window exists.
+
 - [ ] **6.2a — "No alarm" reads as "working" on the back-office health line.**
   Split out of 6.2 on 2026-09-23. **The display half:** successful jobs render
   prominent and green while missing monitoring renders faint grey, so a
@@ -12924,6 +13027,46 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   verdict — `docs/silences.md` is the standard.
 
   **Successor to 14.16**, which is ticked.
+
+### 14.18 — A caller with no forwarded-for header is not rate-limited at all
+
+- [ ] **Found 2026-09-23 by an absence, while building 6.2's outside checks.**
+  The new monitor called `available-slots` about eight times through `pg_net`.
+  `available-slots` is rate-limited on `LIMITS.publicCeiling` keyed by
+  `ipOf(req)`, and `rate_take` counts the refused attempt as well as the
+  allowed one — so eight calls should have left a row. **`rate_hits` has no
+  row for that bucket at all.**
+
+  **The mechanism is in the open and is deliberate as far as it goes.**
+  `ipOf` reads `x-forwarded-for` and falls back to `cf-connecting-ip`;
+  `pg_net` sets neither, so the key is blank, and `rate_take`'s first branch
+  says so in its own comment: *"NOTHING TO COUNT AGAINST IS NOT THE SAME AS
+  BEING OVER THE LIMIT. A missing forwarded-for header must not lock out a
+  real customer."* That reasoning is right about a real customer behind a
+  proxy that drops a header. **The consequence nobody has written down is the
+  other half: a caller who can arrive without that header is not counted, and
+  therefore has no ceiling.**
+
+  **THIS IS CONVENIENT FOR 6.2 AND THAT IS EXACTLY WHY IT IS WRITTEN DOWN
+  RATHER THAN ENJOYED.** It is the reason the monitor cannot exhaust a
+  session's bucket or be throttled by one, which is a real benefit — and
+  taking only the convenient half of a measurement is how a finding
+  disappears.
+
+  **WHAT IS NOT KNOWN, AND THE ITEM DOES NOT PRETEND OTHERWISE:** whether a
+  caller from the public internet can reach these functions without that
+  header. Supabase's edge almost certainly sets it on the way in, which would
+  make this harmless and internal-only. **That was not tested** — testing it
+  means probing the live gateway's header handling, and the session that found
+  it was told not to hammer public endpoints.
+
+  **What a check would look like:** call one rate-limited public function from
+  outside with the header absent, and with it forged to a value that is not
+  the caller, and read `rate_hits` after each. If either leaves no row, the
+  per-IP limits are advisory rather than enforced and **14.15's unnamed
+  ceiling is doing more work than this product's own limits are.** Sibling to
+  14.15, which is the same shape seen from the other side: something refusing
+  that our limiter never counted, and now our limiter not counting at all.
 
 ### Still unanswered after steps 1–4
 

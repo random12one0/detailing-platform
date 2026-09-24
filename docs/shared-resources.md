@@ -54,6 +54,12 @@ keystroke in the address field is one call.
 check records the *function* as refusing. The cause is minutes in the past and
 in the other session's pane.
 **Does anything report it:** **no.** Nothing anywhere.
+**Since 2026-09-23 something else is on them too:** the `probe-live-site` cron
+job calls `available-slots` and the tenant-profile RPC **every five minutes,
+for ever** (ROADMAP 6.2). It is read-only, spends no Geoapify credit and no
+email, and — measured — leaves no row in `rate_hits`, so it neither exhausts
+your bucket nor can be throttled by you. Worth knowing it is there when you
+are reading traffic.
 
 ### 2 · The Geoapify address budget
 
