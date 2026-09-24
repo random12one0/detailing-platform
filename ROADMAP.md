@@ -9693,6 +9693,88 @@ the dashboard or back office at phone width at all.
   **The fix is to widen what `platform-admin` sends, which is an edge-function
   deploy — blocked by the freeze, not by the work.**
 
+  ---
+
+  ### FIXED IN THE REPO 2026-09-23 — and NOT yet true for any real detailer
+
+  **Diagnosed by DP Cowork, repaired by DP Cowork2** because the repair is one
+  change inside `supabase/functions/`. Their write-up
+  (`docs/9.1-findings-2026-09-23.md`) is folded in here and the file is gone;
+  it existed untracked only because `ROADMAP.md` was held at the time.
+
+  **THE PAYLOAD MOVED, NOT THE READER, AND THAT WAS THE WHOLE CHOICE.**
+  `setupProgress()` cannot tell *"this business has not done that step"* from
+  *"nobody gave me anything to look at"* — it returns the same confident number
+  either way. Two sides could have been changed and **the reader was the side
+  that was already right**: the detailer's own dashboard scores correctly
+  against it. Teaching `setup.js` to also accept the back office's shapes would
+  have created the second implementation this item exists to prevent. So the
+  sender was widened and `app/src/lib/setup.js` was not touched — which also
+  kept the change out of the other session's tree.
+
+  **WHAT WAS WRONG, MEASURED ON THE SAME BUSINESS IN THE SAME MINUTE:**
+  dashboard **9 of 12**, back office **4 of 12**, identical at all five widths.
+
+  - **One field was sent under a name the reader does not read, and as the
+    wrong type.** `counts.hoursOpen`, a boolean, where `setup.js:254` asks
+    `counts.hoursRows.some((r) => r.open_time)`. `(undefined ?? []).some(...)`
+    is `false`, **so every business with real opening hours scored that step
+    zero.** It was not a typo — `Business.jsx` really does keep a `hoursOpen`
+    boolean in its own counts object for something else, so the name looked
+    right sitting next to the real one.
+  - **Six of the twelve steps had no input at all**: `vehicle_types`, `hours`,
+    `reviews`, `faq`, `payments`, `plans`.
+  - **One field was sent that nothing anywhere reads**: `counts.addOns`.
+    Add-ons and services are one step, `catalog`, fed by `counts.services`
+    alone. **The now-unused `add_ons` query went with it** — it was reading
+    every add-on row of every business to compute a number no screen could
+    spend.
+
+  **Now 12 of 12, and still one query per table across all businesses** — the
+  existing `byBiz` grouper was reused for the hours rows and the existing
+  `tally` for reviews and plans. No per-business round trip was added.
+
+  **THEIR CHECK, WHICH I DID NOT TOUCH:**
+  `node scripts/setup-inputs-contract.mjs`, credential-free, about a second.
+  **`payload-complete` is now green — 12 of 12 from the back office's own
+  inputs, against 6 of 12 before.**
+
+  **AND `payload-no-dead-fields` IS STILL RED ON PURPOSE. This is the one
+  judgement call in the change and it goes against the check.** It names five
+  fields as dead: `pay_venmo`, `pay_cashapp`, `pay_zelle`, `pay_paypal`,
+  `pay_other`. They are not dead — `setup.js:258` reads
+  `pay_cash || pay_venmo || pay_cashapp || pay_zelle || pay_paypal ||
+  pay_other`, and the check's own fixture fills **only `pay_cash`**, so each
+  sibling looks redundant while that one stands. **Dropping them to make the
+  check green would recreate this exact bug for every detailer who does not
+  take cash.** Measured against the real `setupProgress`, not argued:
+
+  | a Venmo-only detailer | score |
+  |---|---|
+  | all six payment fields sent | **11 of 12**, payments scored |
+  | only `pay_cash` sent | **10 of 12**, payments NOT scored |
+
+  **So the red is a limitation of the fixture, not of the payload**, and it is
+  left for DP Cowork to judge rather than silently worked around — their check,
+  their call. Their own findings file asked for all eight settings fields, so
+  this is very likely an oversight in `complete()` rather than a disagreement.
+
+  **AND A SECOND THING FOR THEM, FOUND BY HITTING IT: their parser does not
+  strip comments.** It reads the `setup_inputs` keys straight out of the
+  source, and a comment sitting between a comma and the key after it swallows
+  that key — `hoursRows` was invisible to the check until the prose was moved
+  above the literal. **A check that reads a payload as narrower than it is** is
+  this file's own subject one level out. A warning now sits above the literal
+  so the next person does not lose a field to a sentence.
+
+  **WHAT IS STILL NOT DONE, AND IT IS THE PART THAT MATTERS TO A DETAILER:**
+  **this is repo-only.** The back office that scores a real account runs on
+  Andrew's server and changes only when **he publishes** — 0.6, and
+  `deployed-inventory` counted **13 functions already running something other
+  than this checkout** on 2026-09-23. **Nobody should tick 9.1 on a green
+  check.** The *Done when* stands unchanged: the same account shows the same
+  count **on the live site**.
+
 - [ ] **9.2 — The back office says contradictory things about one account.**
   Growth says a page "cannot take a booking" and also "the page works and
   nobody has used it". One account appears in setup-incomplete, cannot-book,

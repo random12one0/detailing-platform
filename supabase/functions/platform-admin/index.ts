@@ -154,13 +154,32 @@ Deno.serve(async (req) => {
       // sends the same inputs so the back office can run the same function
       // rather than inventing a second completeness number. Two numbers about
       // the same thing is how a support call starts with an argument.
-      const [svcAll, addAll, promoAll, hoursAll, brandAll, setAll] = await Promise.all([
+      // ROADMAP 9.1 — WIDENED 2026-09-23, AND THE READER WAS NOT TOUCHED.
+      // `app/src/lib/setup.js` cannot tell "this business has not done that
+      // step" from "nobody gave me anything to look at" — it returns the same
+      // confident number either way. Six of its twelve steps had no input here
+      // at all and a seventh was sent under a name it does not read, so every
+      // detailer was scored as less set up than they are and the list of who
+      // needs a call was wrong for everyone on it.
+      //
+      // **THE PAYLOAD MOVED, NOT THE FUNCTION.** Changing `setup.js` to accept
+      // this side's shapes would have created the second implementation this
+      // item exists to prevent — and the dashboard is already correct against
+      // it, so the reader was the side that was right.
+      //
+      // Still one query per table across every business, grouped into a Map.
+      // No per-business round trip was added.
+      const [svcAll, promoAll, hoursAll, brandAll, setAll, revAll, planAll] =
+        await Promise.all([
         supabase.from("services").select("business_id, is_active"),
-        supabase.from("add_ons").select("business_id, is_active"),
         supabase.from("promo_codes").select("business_id, is_active"),
         supabase.from("business_hours").select("business_id, open_time"),
         supabase.from("business_branding").select("business_id, primary_color"),
-        supabase.from("business_settings").select("business_id, setup, booking_mode"),
+        supabase.from("business_settings").select(
+          "business_id, setup, booking_mode, vehicle_sizes, faqs, "
+          + "pay_cash, pay_venmo, pay_cashapp, pay_zelle, pay_paypal, pay_other"),
+        supabase.from("testimonials").select("business_id, is_active"),
+        supabase.from("plans").select("business_id, is_active"),
       ]);
       const tally = (rows: { business_id: string }[] | null, keep: (r: any) => boolean) => {
         const m = new Map<string, number>();
@@ -168,9 +187,9 @@ Deno.serve(async (req) => {
         return m;
       };
       const nServices = tally(svcAll.data, (r) => r.is_active);
-      const nAddOns = tally(addAll.data, (r) => r.is_active);
       const nPromos = tally(promoAll.data, (r) => r.is_active);
-      const nOpenDays = tally(hoursAll.data, (r) => !!r.open_time);
+      const nReviews = tally(revAll.data, (r) => r.is_active);
+      const nPlans = tally(planAll.data, (r) => r.is_active);
       const brandBy = new Map((brandAll.data ?? []).map((r) => [r.business_id, r]));
       const setBy = new Map((setAll.data ?? []).map((r) => [r.business_id, r]));
 
@@ -185,6 +204,14 @@ Deno.serve(async (req) => {
       };
       const bookings = byBiz(book.data);
       const members = byBiz(users.data);
+      // ROADMAP 9.1 — THE ROWS, NOT A TALLY. `setup.js:254` asks
+      // `counts.hoursRows.some((r) => r.open_time)`, so a boolean called
+      // `hoursOpen` answered a question nobody was asking: `(undefined ?? [])
+      // .some(...)` is `false`, and a business with real opening hours scored
+      // that step zero. The name was copied from `Business.jsx`'s own counts
+      // object, where a `hoursOpen` boolean genuinely exists and is used for
+      // something else — which is why it looked right and survived.
+      const hoursRowsBy = byBiz(hoursAll.data);
       const subByBiz = new Map((subs.data ?? []).map((s) => [s.business_id, s]));
 
       const nCustomers = new Map<string, number>();
@@ -287,15 +314,46 @@ Deno.serve(async (req) => {
           })(),
           domain_verified: (domAll ?? []).some((d) => d.business_id === b.id && d.verified_at),
           // The INPUTS to `setupProgress`, never its answer — see above.
+          // ROADMAP 9.1, and READ THIS BEFORE ADDING A COMMENT INSIDE THE
+          // OBJECT BELOW. `scripts/setup-inputs-contract.mjs` reads these keys
+          // straight out of this literal and does not strip comments, so a
+          // comment sitting between a comma and the key after it swallows that
+          // key — the check then reports the payload as narrower than it is.
+          // `hoursRows` was invisible to it for exactly that reason once. Put
+          // the prose here, above the literal, and leave the literal plain.
+          //
+          // `counts.hoursRows` is the ROWS, not a tally: `setup.js:254` asks
+          // `.some((r) => r.open_time)`, so the old `hoursOpen` boolean made
+          // `(undefined ?? []).some(...)` — `false` for a business with real
+          // opening hours.
+          // `counts.addOns` IS GONE, measured rather than assumed: no step
+          // reads it. Add-ons and services are one step, `catalog`, fed by
+          // `counts.services` alone.
+          // `settings` now carries the whole row the reader asks for rather
+          // than only `setup`: `vehicle_types`, `faq` and `payments` were
+          // three of the six steps with no input at all. `setup` stays,
+          // because `where` and `templates` are marked-only by design
+          // (`setup.js:230`).
           setup_inputs: {
             counts: {
               services: nServices.get(b.id) ?? 0,
-              addOns: nAddOns.get(b.id) ?? 0,
               promos: nPromos.get(b.id) ?? 0,
-              hoursOpen: (nOpenDays.get(b.id) ?? 0) > 0,
+              reviews: nReviews.get(b.id) ?? 0,
+              plans: nPlans.get(b.id) ?? 0,
+              hoursRows: hoursRowsBy.get(b.id) ?? [],
             },
             branding: { primary_color: brandBy.get(b.id)?.primary_color ?? null },
-            settings: { setup: setBy.get(b.id)?.setup ?? null },
+            settings: {
+              setup: setBy.get(b.id)?.setup ?? null,
+              vehicle_sizes: setBy.get(b.id)?.vehicle_sizes ?? null,
+              faqs: setBy.get(b.id)?.faqs ?? null,
+              pay_cash: setBy.get(b.id)?.pay_cash ?? null,
+              pay_venmo: setBy.get(b.id)?.pay_venmo ?? null,
+              pay_cashapp: setBy.get(b.id)?.pay_cashapp ?? null,
+              pay_zelle: setBy.get(b.id)?.pay_zelle ?? null,
+              pay_paypal: setBy.get(b.id)?.pay_paypal ?? null,
+              pay_other: setBy.get(b.id)?.pay_other ?? null,
+            },
             business: { contact_phone: b.contact_phone ?? null, contact_email: b.contact_email ?? null },
           },
         };
