@@ -3952,12 +3952,59 @@ the wrong service, and never book a job we cannot reach.
   is exactly how a check comes to measure less than it says. The failure names
   the width, the step and the count on every run.
 
-  **Done when:** every day cell reaches 44px of hit area at 320, or the reason
-  it cannot is written down and ruled on. **Not started. The fix is a
-  scoping question rather than a line** — a minimum cell height breaks the
-  square, a smaller gap buys only a few pixels, and letting the month scroll
-  sideways at 320 is a design decision that is Andrew's rather than a
-  session's.
+  **PARKED 2026-09-23, DELIBERATELY, AND HERE IS THE REASONING SO NOBODY
+  REOPENS IT AS AN OVERSIGHT.**
+
+  **IT IS ARITHMETIC, NOT TUNING — and this is the number the whole decision
+  turns on.** Seven 44px cells need **308px** of cell, plus six 5px gaps:
+  **338px**, on a screen that is **320px** wide. That is 18px more than the
+  whole phone and 50px more than the column, which is 288 (320 − 16px of
+  `--bk-sp-4` gutter each side; the measured cell is `(288 − 30) ÷ 7 = 36.9`,
+  which is the 37 the check reports). **So closing the gaps cannot fix it
+  either: with NO GAP AT ALL, seven 44px cells still need 308 and the column
+  has 288.** A seven-column month cannot carry a 44px-wide target on the
+  narrowest phone this product supports, whatever the spacing is. Anything
+  that claims otherwise has changed the layout, not the spacing.
+
+  **SO THERE ARE EXACTLY THREE OPTIONS, AND TWO OF THEM ARE A LOOK RATHER
+  THAN A BEHAVIOUR:**
+
+  | | What it does | What it costs |
+  |---|---|---|
+  | **Leave it** | squares stay 37×37 at 320 | 7px under the absolute, at one width, on a control that is one of 32 identical ones |
+  | **Make them taller** | 37 wide, 44 tall | **they stop being squares** — and see the ruling below |
+  | **Stop showing a month at 320** | a list of open days, full-size rows | changes what the screen IS, not how it looks |
+
+  **ANDREW HAS RULED ON THIS SHAPE ONCE ALREADY, AGAINST AN AUDIT THAT WANTED
+  IT CHANGED.** `docs/MANAGER-CLOSE-2026-09-21.md`: *"Job buttons stay square
+  on a phone. Leave it."* Different control, same question — whether squareness
+  on a phone gives way to a size rule. **A session overturning that by choosing
+  option two on its own is exactly the "deferred decision becoming an
+  accidental one" CLAUDE.md warns about.**
+
+  **THE RECOMMENDATION IS TO LEAVE IT**, and it goes to Andrew as a
+  `FOR-ANDREW.md` row with the number, a picture of what each option does to
+  the calendar, and one line to answer.
+
+  **AND THE CHECK STAYS RED AND STAYS GRADED.** A real violation of the
+  absolute, hidden inside a check about a different fault, is how a check comes
+  to measure less than it claims. `bk-bar-clearance.mjs` fails one assertion,
+  names the width, the step and the count, and will go green the day this is
+  answered — by a fix, or by a hold Andrew signs.
+
+  **THE PART NOBODY HAD, AND IT IS THE REASON THIS SURVIVED.** The comment
+  above the rule already reasons about this and is **correct at 360px** —
+  *"the column is 360px and a cell lands at 47px — a thumb… the cell stays
+  well over the 46px tap floor."* **Nobody re-checked at 320**, which is the
+  narrowest width this product supports, which CLAUDE.md states and which
+  `sweep-widths.mjs` sweeps by default. The reasoning was done once, at one
+  width, and read ever after as a general guarantee. **That is this repo's
+  most repeated shape, sitting in a comment instead of in a check** — and a
+  comment cannot go red.
+
+  **Done when:** Andrew answers the row — either every day cell reaches 44px
+  of hit area at 320, or the reason it cannot is recorded as a hold with his
+  decision on it.
 
 - [x] **DONE 2026-09-20 — the booking column had been rendering at under
   half its own declared width, on every step; the calendar's day cells are

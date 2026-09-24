@@ -488,6 +488,52 @@ still knows them.
 
 ## Waiting on you — nothing breaks while these wait
 
+- [ ] **DECIDE · On the smallest phones, the day squares in your booking
+  calendar are a bit smaller than our own rule says a tappable thing should
+  be. One line from you settles it. My recommendation: leave them alone.**
+
+  **The picture is the fastest way in** — `docs/decisions/day-squares-at-320.png`
+  shows the three choices side by side, drawn at the real size, and
+  `docs/decisions/day-squares-at-320-real-page.png` is the actual screen.
+
+  **What we found.** We have a rule that anything a finger presses should be
+  at least as wide as a fingertip. On the narrowest phones we support, the
+  little date squares on the "pick a day" step come out slightly under that.
+  On every other phone size, and on tablets and computers, they are fine.
+
+  **Why it cannot just be nudged.** Seven squares have to fit across the
+  width of a phone. At full size, seven of them plus the space between them
+  need **more room than the phone has** — about an inch more than the screen
+  is wide. Closing up the space between them does not get there either. So
+  there is no small adjustment that fixes this; the shape of the screen has
+  to change, or it stays as it is.
+
+  **Your three choices.**
+
+  1. **Leave them.** They stay square and slightly small on the smallest
+     phones. Nothing else changes.
+  2. **Make them taller than they are wide.** They reach full size
+     downwards, and stop being squares.
+  3. **Drop the month grid on tiny phones** and show a simple list of the
+     days you are open instead. Full-size rows, but it is a different screen.
+
+  **My recommendation: number one, leave them.** You already made this exact
+  call once — *"job buttons stay square on a phone"* — and this is the same
+  question about a different button. Squares reading as squares is worth
+  more here than the last few millimetres, and the days are still easy to
+  hit on a real phone.
+
+  **What happens either way.** Nothing breaks and nobody is blocked. The
+  measuring tool that found this will keep reporting it in red until you
+  answer, which is on purpose — a real gap should not be able to go quiet
+  just because we decided to live with it. **Once you answer, it stops.**
+
+  **One thing worth knowing, because it is how this went unnoticed.** There
+  is a note in the code that already worked this out and says the squares are
+  comfortably big enough. It is right — for a slightly larger phone. Nobody
+  ever checked the smallest one. The reasoning was done once and then trusted
+  everywhere.
+
 - [ ] **DO · When you publish, one five-minute check has to actually be run —
   and it is the only thing left on the rate-limit work.**
 
