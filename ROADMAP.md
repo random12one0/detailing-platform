@@ -6389,10 +6389,85 @@ most corroborated finding in the set.
   goes down on the first `/fail` it receives, which is correct, because the
   prober is the only thing that knows the difference between slow and broken.
 
-  **TWO REAL EMAILS REACHED ANDREW DOING THIS** — one "down", one "up", for
-  the new check, at about 21:55 Pacific. They are the proof, and they are also
-  mail he did not ask for; flagged here rather than left for him to puzzle
-  over.
+  **TWO REAL EMAILS REACHED ANDREW DOING THIS, AND HERE THEY ARE SO HE DOES
+  NOT HAVE TO ASK.** Both are from healthchecks.io, both about the check named
+  **`detailing platform — live site paths`**, and both were caused on purpose
+  by this work:
+
+  | when (Pacific, 2026-09-23) | what it said | what it was |
+  |---|---|---|
+  | **21:55** | the check went **DOWN** | the deliberate break — the homepage assertion pointed at a marker the page cannot contain |
+  | **21:56** | the check came back **UP** | the assertion restored, one cycle later |
+
+  **Nothing was wrong with the site at any point.** healthchecks.io recorded
+  the pair as one incident lasting **22 seconds**. Any later mail about this
+  check is real.
+
+  ---
+
+  ### AND A SESSION PUT AN API KEY IN A DATABASE COLUMN. IT IS OUT. 2026-09-23
+
+  **Asked directly whether `site_probes.headers` held a key or merely could,
+  the answer was the first one.** This session seeded three of the four probe
+  rows with the project's publishable API key as a literal value — 208
+  characters, plain text, in a table — and then wrote in the migration's own
+  comment that the column *"holds an API key"*, which is how a mistake gets
+  recorded as though it were a design.
+
+  **IT DOES NOT MATTER THAT IT WAS THE PUBLISHABLE KEY**, the one already
+  inside the site's own JavaScript bundle. The rule is absolute and a database
+  column is an "anywhere": **a rule with a judgement call in it is not a
+  rule**, and the next value somebody decides is "not really secret" will be
+  the one that is.
+
+  **WHAT WAS DONE, IN ORDER** —
+  `supabase/migrations/20260923050000_probe_headers_hold_no_credential.sql`:
+
+  1. **The value is gone.** Stripped from every row. It was never in git — the
+     seeding ran from a scratch script that read the key at run time and the
+     migration file never contained it — so the table was the only copy, and
+     there is now none. `net.http_request_queue` holds **0 rows** and no
+     header of that shape survives in `pg_net` either; checked, not assumed.
+  2. **It cannot be put back.** A check constraint refuses any `headers` value
+     carrying `apikey` or `Authorization`. **Broken on purpose three ways** —
+     an update with `apikey`, an update with `Authorization`, and an insert of
+     a fresh row carrying one — and the database refused all three with
+     `23514`. **The first attempt at that sabotage was itself wrong and said
+     the constraint did nothing**: it used `headers || '{...}'`, and
+     `NULL || jsonb` is `NULL` in Postgres, so the update never carried a key
+     at all. The check was innocent and the test was broken — which is this
+     repo's own warning about breaking a check on purpose, arriving from the
+     other direction.
+  3. **The reference, not the value.** The row now carries `secret_name`, a
+     NAME, pointing at Supabase Vault. The prober resolves it at the moment it
+     makes the request into a local variable that is gone when the function
+     returns — the same shape the edge functions use with `Deno.env.get`, and
+     the same shape `docs/services-and-secrets.md` describes.
+
+  **IT IS EMPTY, AND HERE IS WHO FILLS IT.** `vault.secrets` holds **zero**
+  secrets. **No session will put one there.** Provisioning is **Andrew's**,
+  and it is one statement he runs himself, with the value never passing
+  through a session:
+
+  ```sql
+  select vault.create_secret('<the publishable anon key>', 'site_probe_api_key');
+  ```
+
+  **UNTIL HE DOES, THE MONITOR COVERS TWO PATHS, NOT FOUR — and it says so
+  rather than pretending.** `booking_start` and `sign_in` both need a key;
+  `homepage` and `booking_availability` need none. **A missing credential is
+  reported as SKIPPED, never as DOWN**, because reporting it as an outage
+  would make the monitor lie in order to make provisioning feel urgent — the
+  exact wolf this design exists to avoid. And a skip is not silent: `skipped`
+  rides on every ping, so it is visible in the check's own event detail.
+  Measured after the change: `{"ping":"ok","graded":2,"failing":[],
+  "skipped":["booking_start","sign_in"]}`.
+
+  **`available-slots` NEEDS NO KEY AT ALL, WHICH IS WORTH KNOWING SEPARATELY.**
+  Measured: called with no `apikey` header whatsoever it answers 200 with real
+  slots, because it is a public function deployed without JWT verification.
+  That is the product working as intended — the booking page is public — but
+  it had not been written down anywhere.
 
   **IT SPENDS NONE OF THE SHARED BUDGETS ON `docs/shared-resources.md`.** No
   Geoapify credit, no email allowance, no writes to the demo tenant — every
@@ -6404,8 +6479,9 @@ most corroborated finding in the set.
 
   **`scripts/db-audit.mjs` CAUGHT THIS MIGRATION AND IT WAS RIGHT TO.** Both
   new tables had RLS on and their **grants still open to `anon`** — one
-  permissive policy away from exposure, on a table whose `headers` column
-  holds an API key. Revoked, and the audit went from 4 findings to 2; the
+  permissive policy away from exposure, on a table whose `headers` column **at
+  that moment held an API key** — see the section below, which took it out;
+  it holds none now and cannot. Revoked, and the audit went from 4 findings to 2; the
   remaining 2 are older and not from this work. `migration-drift.mjs` passes:
   50 functions, 54 tables, 85 policies, all matching the repo, canary caught.
 
