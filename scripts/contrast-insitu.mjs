@@ -69,6 +69,22 @@ const started_at = new Date().toISOString();
 // the walk to find it. `--break` is a receipt of a SABOTAGE and says so.
 const BREAK = process.argv.includes("--break");
 const WIDTHS = [[1440, 900], [768, 1024], [392, 844], [320, 844]];
+// **BOTH LANGUAGES, ADDED 2026-09-23 — it had only ever asked English.**
+// 8.3's whole argument is that a check measuring one thing cannot speak for
+// another, and this file was making that mistake about the dashboard's second
+// language: 32 combinations, every one of them English, while the item it
+// serves says "everywhere".
+//
+// **TWO KEYS, NOT ONE, AND THAT IS THE TRAP.** The dashboard reads
+// `dp.lang.app` (`lib/appI18n.js`) and the public pages read `dp.lang`
+// (`lib/i18n.js`). Setting one switches five screens and leaves the booking
+// page, the landing page and pricing in English — which would print `es` on
+// every line while measuring English on three of the eight screens.
+// **Both are set, as PLAIN STRINGS**: `localeStore.js` stores the bare locale,
+// so writing JSON leaves the value unrecognised and the page silently falls
+// back — the exact bug `calendar-legible.mjs` shipped and caught the same
+// night.
+const LANGS = ["en", "es"];
 
 const PROBE = () => {
   const px = (v) => parseFloat(v) || 0;
@@ -159,6 +175,14 @@ await page.waitForSelector(".tabbar", { timeout: 30000 });
 const found = new Map();
 const census = [];
 const canaryMisses = [];
+// **THE LANGUAGE PASS HAS TO PROVE IT HAPPENED.** `localeStore.js` stamps the
+// rendered locale onto `<html lang>`, so every target records what it actually
+// rendered and a pass that fell back to English is a FAILURE rather than a
+// line that says `es` beside an English measurement. Without this the second
+// language is a claim, not a dimension — which is precisely the fault
+// `calendar-legible.mjs` shipped the same night: 55 assertions, half of them
+// measuring English twice while printing `es`.
+const langMismatch = [];
 let checked = 0;
 
 // The dashboard tabs are found by reading the tab bar rather than guessed at
@@ -176,46 +200,80 @@ if (tabNames.length !== TAB_COUNT_EXPECTED) {
   console.log(`tab bar has ${tabNames.length} tabs, this check expects ${TAB_COUNT_EXPECTED}`);
 }
 
-const PUBLIC = [["Booking page", `${BASE}/book/demo-detail`],
-  ["Landing", `${BASE}/`], ["Pricing", `${BASE}/pricing`]];
+// **THE THIRD COLUMN IS "DOES THIS PAGE HAVE A SECOND LANGUAGE AT ALL", AND
+// IT WAS FOUND BY THE LANGUAGE GUARD RATHER THAN ASSUMED.** The guard reported
+// Landing and Pricing rendering `lang="en"` during the Spanish pass; `?lang=`
+// did not move them either. `LandingPage.jsx` and `PricingPage.jsx` carry **no
+// `t()` and no i18n import** — they are English-only by design, and `es.js` is
+// the booking side's catalogue. So the Spanish pass SKIPS them by declaration
+// rather than measuring English twice and calling it Spanish coverage.
+const PUBLIC = [["Booking page", `${BASE}/book/demo-detail`, true],
+  ["Landing", `${BASE}/`, false], ["Pricing", `${BASE}/pricing`, false]];
 
+for (const lang of LANGS) {
+// Set before each pass and read on the next load. Both stores, bare strings.
+await page.evaluate((l) => {
+  try { localStorage.setItem("dp.lang.app", l); localStorage.setItem("dp.lang", l); }
+  catch { /* private mode */ }
+}, lang);
 for (const [w, h] of WIDTHS) {
   await page.setViewportSize({ width: w, height: h });
   await page.goto(`${BASE}/app`, { waitUntil: "domcontentloaded" });
   await page.waitForSelector(".tabbar", { timeout: 30000 });
-  for (const tab of tabNames) {
-    const btn = page.locator(".tabbar button, .tabbar a").filter({ hasText: tab }).first();
-    if (!(await btn.count())) { console.log(`skip ${tab}@${w} — tab not present at this width`); continue; }
+  // **TABS ARE FOUND BY POSITION AND LABELLED BY THEIR ENGLISH NAME.** The
+  // first version filtered by the English word, so the Spanish pass matched
+  // nothing — the tab bar reads «Hoy», «Calendario», «Dinero» — and twenty
+  // combinations printed NEVER REACHED. Labelling by the English name keeps
+  // the census readable across both passes; locating by index is what makes
+  // it work in either language.
+  for (let ti = 0; ti < tabNames.length; ti++) {
+    const tab = tabNames[ti];
+    const btn = page.locator(".tabbar button, .tabbar a").nth(ti);
+    if (!(await btn.count())) { console.log(`skip ${tab}@${w}/${lang} — tab not present at this width`); continue; }
     await btn.click();
     await page.waitForTimeout(2600);
     await page.evaluate(() => document.getAnimations().forEach((a) => { try { a.finish(); } catch (e) {} }));
     const res = await page.evaluate(PROBE);
+    const seen = await page.evaluate(() => document.documentElement.lang || "");
+    if (seen !== lang) langMismatch.push(`${tab}@${w}/${lang} rendered lang="${seen}"`);
     checked++;
-    census.push({ screen: `${tab}@${w}`, examined: res.examined, canaryCaught: res.canaryCaught, worstPass: res.worstPass });
-    if (!res.canaryCaught) canaryMisses.push(`${tab}@${w}`);
+    census.push({ screen: `${tab}@${w}/${lang}`, examined: res.examined, canaryCaught: res.canaryCaught, worstPass: res.worstPass });
+    if (!res.canaryCaught) canaryMisses.push(`${tab}@${w}/${lang}`);
     for (const r of res.rows) {
       const key = `${r.cls}|${r.tag}|${r.size}|${r.ratio}`;
       if (!found.has(key)) found.set(key, { ...r, where: new Set() });
-      found.get(key).where.add(`${tab}@${w}`);
+      found.get(key).where.add(`${tab}@${w}/${lang}`);
     }
   }
-  for (const [name, url] of PUBLIC) {
-    await page.goto(url, { waitUntil: "domcontentloaded" });
+  for (const [name, url, bilingual] of PUBLIC) {
+    if (!bilingual && lang !== "en") continue;   // declared above, not a silent skip
+    // **THE PUBLIC PAGES TAKE `?lang=`, NOT THE STORED KEY — measured, after
+    // the language guard caught them.** Writing `dp.lang` switched the
+    // dashboard and the booking page and left Landing and Pricing rendering
+    // `lang="en"` while the census said `/es`: eight of the sixty-four
+    // combinations were English measured twice. `?lang=` is the customer's
+    // own door (`localeStore.js` § the visit layer) and it is the one that
+    // works here.
+    await page.goto(`${url}${url.includes("?") ? "&" : "?"}lang=${lang}`,
+      { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(2800);
     await page.evaluate(() => document.getAnimations().forEach((a) => { try { a.finish(); } catch (e) {} }));
     if (BREAK) await page.addStyleTag({ content: ".ld .bub .t { color: #7B858A !important; }" });
     const res = await page.evaluate(PROBE);
+    const seen = await page.evaluate(() => document.documentElement.lang || "");
+    if (seen !== lang) langMismatch.push(`${name}@${w}/${lang} rendered lang="${seen}"`);
     checked++;
-    census.push({ screen: `${name}@${w}`, examined: res.examined, canaryCaught: res.canaryCaught, worstPass: res.worstPass });
-    if (!res.canaryCaught) canaryMisses.push(`${name}@${w}`);
+    census.push({ screen: `${name}@${w}/${lang}`, examined: res.examined, canaryCaught: res.canaryCaught, worstPass: res.worstPass });
+    if (!res.canaryCaught) canaryMisses.push(`${name}@${w}/${lang}`);
     for (const r of res.rows) {
       const key = `${r.cls}|${r.tag}|${r.size}|${r.ratio}`;
       if (!found.has(key)) found.set(key, { ...r, where: new Set() });
-      found.get(key).where.add(`${name}@${w}`);
+      found.get(key).where.add(`${name}@${w}/${lang}`);
     }
   }
   await page.goto(`${BASE}/app`, { waitUntil: "domcontentloaded" });
   await page.waitForSelector(".tabbar", { timeout: 30000 });
+}
 }
 const list = [...found.values()].sort((a, b) => a.ratio - b.ratio)
   .map((r) => ({ ...r, where: [...r.where].slice(0, 4).join(", ") }));
@@ -228,6 +286,10 @@ console.log("census:", JSON.stringify(census.map((c) => ({ s: c.screen, n: c.exa
 const real = list.filter((r) => !/canary grey on grey/.test(r.text));
 console.log(`distinct failing styles (excluding the canary): ${real.length}`);
 console.log(JSON.stringify(real, null, 1));
+if (langMismatch.length) {
+  console.log(`LANGUAGE NOT APPLIED on ${langMismatch.length} target(s):`);
+  for (const m of langMismatch.slice(0, 6)) console.log("    " + m);
+}
 console.log("console errors:", errors.length ? errors.slice(0, 5) : "none");
 await browser.close();
 
@@ -239,15 +301,22 @@ await browser.close();
 // `checked` would make the arithmetic true by construction and a run that
 // silently visited three screens would still balance — which is the exact
 // failure this check exists to catch, applied to itself.
-const EXPECTED_TARGETS = (TAB_COUNT_EXPECTED + PUBLIC.length) * WIDTHS.length;
+// 5 tabs + 1 bilingual public page, both languages, plus 2 English-only public
+// pages once each — per width. Declared, so a page losing its second language
+// fails on arithmetic rather than quietly halving the coverage.
+const BILINGUAL_PUBLIC = PUBLIC.filter(([, , b]) => b).length;
+const EXPECTED_TARGETS = WIDTHS.length
+  * ((TAB_COUNT_EXPECTED + BILINGUAL_PUBLIC) * LANGS.length + (PUBLIC.length - BILINGUAL_PUBLIC));
 // Every screen/width label this run owes, built from the same rule the walk
 // above uses. `tabNames` is what the page offered; the floor is what this
 // check DECLARED, so a tab that never rendered shows up as a named absence
 // rather than shrinking the question.
 const EXPECTED_LABELS = [];
-for (const [w] of WIDTHS) {
-  for (const tab of tabNames) EXPECTED_LABELS.push(`${tab}@${w}`);
-  for (const [name] of PUBLIC) EXPECTED_LABELS.push(`${name}@${w}`);
+for (const lang of LANGS) for (const [w] of WIDTHS) {
+  for (const tab of tabNames) EXPECTED_LABELS.push(`${tab}@${w}/${lang}`);
+  for (const [name, , bilingual] of PUBLIC) {
+    if (bilingual || lang === "en") EXPECTED_LABELS.push(`${name}@${w}/${lang}`);
+  }
 }
 // **A SHORTFALL WITH NO NAMES IS A SKIP WITH NO PROOF, ONE LEVEL DOWN —
 // 2026-09-20, ROADMAP 14.11.** `skipped_targets` here is arithmetic: expected
@@ -285,6 +354,9 @@ const failures = [
   // NAMED, not just counted: which combinations, and that nothing explains them.
   ...missingLabels.map((l) => `NEVER REACHED, no reason recorded: ${l}`),
   ...(errors.length ? [`console errors during the walk: ${errors.slice(0, 3).join(" | ")}`] : []),
+  // A pass that did not render the language it claims measured the other
+  // one twice. That is no coverage at all, wearing the look of double.
+  ...langMismatch.slice(0, 4).map((m) => `LANGUAGE NOT APPLIED: ${m}`),
 ];
 // A SABOTAGE RUN INVERTS THE TEST: finding nothing is the failure.
 const sabotageFailures = BREAK && real.length === 0
