@@ -101,6 +101,7 @@ set -a; . ./.env; set +a
 | An email | `node scripts/render-emails.mjs` |
 | A migration | `node scripts/db-audit.mjs` **and** `node scripts/migration-drift.mjs` |
 | **Nothing — run it anyway, because a migration can silently never run** | `node scripts/migration-drift.mjs`. **There is NO applied-migrations ledger in this project** — `supabase_migrations.schema_migrations` does not exist, so nothing records which of the 92 files ever ran. This replays `supabase/migrations/` and compares each function against the live database, the way `deployed-inventory.mjs` does for edge functions. **Two migrations had never run and the multi-car feature reached nobody at any setting** (ROADMAP 8.10a). **It reads; it never applies — that is Andrew's.** FUNCTIONS ONLY: it cannot see a migration that adds a table, column, policy, grant or index |
+| **The tab bar, `--tabclear`, `--hit-overhang`, or any control that can come to rest under fixed furniture** | `node scripts/tabbar-clearance.mjs` (dev server + seed + credentials). **It measures the HIT AREA, never the bounding rect** — `.choice` is a 38px box that presses as 46 through a negative-inset `::after`, so a rect-only scan calls a legal control broken, and a clearance sized to the rect leaves four pressable rows under the bar while reporting itself finished. `--break=rect` is that bug, on purpose |
 | **A keyboard path, a focus ring, or anything pinned over the page** | `node scripts/keyboard-walk.mjs` (dev server + seed). **The only instrument here that catches a control focused UNDERNEATH a fixed bar** — it is visible by every ordinary test and `scrollIntoViewIfNeeded` leaves it there. Carries two canaries and names the screens it caught them on |
 | **A CSS custom property — declaring, moving, or "tidying" one** | `node scripts/var-scope-guard.mjs`. Credential-free, one filesystem read. **A `var()` on `html`/`:root` cannot see a property declared on `.bk`** — it takes its fallback forever, so the declaration is decoration and two numbers drift apart. Valid CSS, identical rendering, every browser check green |
 
@@ -148,7 +149,7 @@ dangerous one precisely because it is quiet: lend a `scripts/` file for one
 commit rather than editing it unannounced underneath whoever owns it that
 round.
 
-**`docs/gotchas.md` is SEVENTY-FIVE specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is SEVENTY-SIX specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a

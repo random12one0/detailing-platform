@@ -2592,6 +2592,40 @@ the wrong service, and never book a job we cannot reach.
   **not** graded, because a check that fails for reasons outside its item is a
   check measuring its own scope. **It is a real finding and it needs an item.**
 
+- [ ] **At 1440 and 1920 a preset chip is 42px against the 44 absolute, and
+  the tab bar is not involved. Found 2026-09-23 by `tabbar-clearance.mjs`
+  while closing 2.32; split out rather than folded in, because a check that
+  fails for reasons outside its own item is a check measuring its own scope.**
+
+  **THE MEASUREMENT.** Booking rules, 1440x900 and 1920x1080, hit-tested with
+  `elementFromPoint` over the rect PLUS the `::after` overhang: **twelve
+  `.choice` chips reach 42px where the absolute is 44.** The four missing rows
+  are lost to **`.app-main`**, not to `nav.tabbar` — at these widths the bar is
+  a left rail and is nowhere near them. **`scroll-padding-bottom` cannot help
+  and 2.32's fix does not touch this.**
+
+  **WHAT IT IS PROBABLY NOT.** The same chips measure **45px** at 320, 392 and
+  768, and **45px** at every width when scrolled to the middle of the screen
+  with nothing over them — so the control is legal and the `::after` is
+  working. Something at these widths takes four rows only where the browser
+  parks the chip.
+
+  **WHAT TO SUSPECT FIRST, in order, and none of it is confirmed:** the
+  **pitch** — CLAUDE.md warns that two targets 18px apart steal each other's
+  presses, and `.choices` has `gap: 6px` with a ±4px overhang on each chip, so
+  neighbouring hit areas overlap by 2px and `elementFromPoint` must award the
+  row to one of them; then a clip or `overflow` on the settings container at
+  desk widths; then the chip's own `margin-block: 1px`.
+  **If it is the pitch, it is not a bug in the bar or the clearance — it is
+  the overlap the 44px pattern creates when chips are packed**, and the answer
+  is a gap rather than a clearance.
+
+  **The check records it on every run** as *"short of 44px for reasons OTHER
+  than the bar"* and deliberately does not grade it, so it cannot be lost and
+  cannot redden an item it does not belong to.
+  **Done when:** the four rows are accounted for — either the chips reach 44
+  at every width, or the reason they cannot is written down and ruled on.
+
   **AN INSTRUMENT NOTE THAT WOULD HAVE MADE THIS MEASUREMENT WRONG.**
   `.choice`'s rect is **38px**, not 44: the absolute is met by
   `.choice::after { inset: -4px 0 }`, CLAUDE.md's documented pattern for a

@@ -3078,3 +3078,39 @@ fakes the evidence for it.**
 **AND IT FAILS TOWARD "NOT DEPLOYED"**, which is the expensive direction. A
 false "not deployed" leaves a finished item open against a blocker that does
 not exist — which is exactly what had happened to ROADMAP 2.8 for two days.
+
+
+## A BYTE COMPARISON CANNOT PROVE A PAGE UNCHANGED IF THE PAGE IS NOT DETERMINISTIC — 2026-09-23
+
+**You change some CSS and you want to prove four other pages were untouched.
+Screenshot them before and after and compare the bytes: anything that differs
+is your change. It is the most obviously rigorous thing you can do, and on
+these pages it answers nothing.**
+
+**THE CASE.** ROADMAP 2.32 added a `scroll-padding-bottom` to the back office
+and had to prove four bar-less booking surfaces were unaffected. Four pages at
+five widths, captured before and after with `animations: "disabled"` and
+`reducedMotion: "reduce"`: **6 of 20 frames differed.** That reads as a clear
+verdict — six pages changed.
+
+**THEN THE CONTROL: THE SAME CODE, TWICE.** No edit between the two runs.
+**6 of 20 differed again — a DIFFERENT six.** The pages carry gradients,
+atmosphere layers, weather, a live quote and text that reflows on a
+sub-pixel; frame to frame they simply are not the same image. **The
+before/after diff and the after/after diff had the same failure rate, so the
+first result carried no information at all.**
+
+**WHAT TO DO INSTEAD: COMPARE SOMETHING THAT CANNOT DRIFT.** The question was
+never "do these pages look identical", it was "can the new rules reach these
+pages". That is answerable exactly: at all twenty combinations,
+`document.querySelectorAll(".tabbar").length` is **0** and `".choice"` is
+**0**, so neither new selector can match — and `html`'s computed
+`scroll-padding-bottom` still reads the booking page's own `85px` from roadmap
+8.5a. Three deterministic values, no pixels, and a stronger answer.
+
+**THE HABIT.** Before trusting a pixel diff, run it against itself. If the
+same code twice produces differences, the instrument has a noise floor and
+every result under that floor is a coin. This is the screenshot cousin of
+`docs/silences.md`'s whole subject: **a comparison that cannot fail for the
+reason you care about, failing for another reason, reads exactly like a
+finding.**
