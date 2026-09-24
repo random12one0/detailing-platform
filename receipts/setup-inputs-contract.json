@@ -1,0 +1,66 @@
+{
+  "git_sha": "4a3f175cc731814b5d5e0922d72359d514f33255",
+  "git_sha_started": "4a3f175cc731814b5d5e0922d72359d514f33255",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-09-24T05:00:12.225Z",
+  "failures": [
+    "payload-complete the same business reads 12 of 12 from the dashboard's inputs and 6 of 12 from platform-admin's. Steps it cannot see: vehicle_types, hours, reviews, faq, payments, plans. This is ROADMAP 9.1",
+    "payload-no-dead-fields platform-admin sends field(s) that change no step: counts.addOns (nothing in the fixture fills it), counts.hoursOpen (nothing in the fixture fills it) — dead weight, or a misspelling of one the function does read"
+  ],
+  "warnings": [
+    "Behavioural, not a grep: which input feeds which step is discovered by REMOVING it and watching the count, so renaming a field cannot blind this check.",
+    "It reads platform-admin/index.ts and never writes it. The fix for a red `payload-complete` is an edge-function change plus a deploy, and both belong to somebody else."
+  ],
+  "artifacts": [],
+  "dimensions": {
+    "steps": [
+      "catalog",
+      "vehicle_types",
+      "hours",
+      "where",
+      "info",
+      "colour",
+      "reviews",
+      "faq",
+      "payments",
+      "promos",
+      "plans",
+      "templates"
+    ],
+    "dashboard_count": 12,
+    "observed": [
+      "catalog: fed — blanking it lost [catalog]",
+      "vehicle_types: fed — blanking it lost [vehicle_types]",
+      "hours: fed — blanking it lost [hours]",
+      "where: fed — blanking it lost [where]",
+      "info: fed — blanking it lost [info]",
+      "colour: fed — blanking it lost [colour]",
+      "reviews: fed — blanking it lost [reviews]",
+      "faq: fed — blanking it lost [faq]",
+      "payments: fed — blanking it lost [payments]",
+      "promos: fed — blanking it lost [promos]",
+      "plans: fed — blanking it lost [plans]",
+      "templates: fed — blanking it lost [templates]",
+      "platform-admin sends: counts{services,addOns,promos,hoursOpen} branding{primary_color} settings{setup} business{contact_phone,contact_email}",
+      "fields sent that change nothing: counts.addOns (nothing in the fixture fills it), counts.hoursOpen (nothing in the fixture fills it)"
+    ],
+    "sabotage": null
+  },
+  "check_id": "setup-inputs-contract",
+  "started_at": "2026-09-24T05:00:12.132Z",
+  "status": "fail",
+  "expected_targets": 15,
+  "discovered_targets": 16,
+  "attempted_targets": 16,
+  "completed_targets": 15,
+  "skipped_targets": 0,
+  "assertions_executed": 17,
+  "min_assertions": 16,
+  "assertion_floor": "12 steps + 1 complete-fixture + 1 payload-found + 1 payload-complete + 1 payload-no-dead-fields + the canary = 17. Fixed by STEPS.length and the row list, never by what the run finds: a step added to `STEPS` with no row in FEEDS fails `complete-fixture`, and a payload literal that cannot be found fails `payload-found` rather than passing on an empty set.",
+  "canary": {
+    "id": "a-step-with-no-input",
+    "observed_failure": true,
+    "problems": []
+  }
+}
