@@ -4748,6 +4748,42 @@ the wrong service, and never book a job we cannot reach.
   CHOOSE.** A cap on what a detailer may type is a product decision with a
   number in it. `FOR-ANDREW.md` carries the row and the suggested figure.
 
+  **WORKED THE SAME NIGHT, AND THE ANSWER IS THAT THE LAYOUT IS FINE —
+  2026-09-25, commit `c810e04`.** `bk-bar-clearance.mjs` **extended, not
+  duplicated**: two sweeps to three, 72 targets to 107, 588 assertions to 871.
+
+  | | |
+  |---|---|
+  | the three ceiling questions | **RED, all three, on purpose** — `services.name` and `add_ons.name` at `Catalog.jsx:726` (one shared editor), `businesses.name` at `BusinessInfo.jsx:254`, each named with its file and line |
+  | all three at 120 characters, 5 widths x 7 steps | `bar-clear`, `pressed`, `reserve-tracks`, `nothing-at-rest` **all green** |
+  | `strings/landed` | **35 green** — the stretched strings really were on the page |
+  | `--break=tenantstrings` | **35 red**, as required |
+
+  **NONE OF THESE THREE RENDERS INSIDE `.bk-bar`, SO NO LENGTH OF THEM CAN
+  REPRODUCE 2.15's FAILURE.** That is why `--break=tenantstrings` is the only
+  sabotage that can bite this sweep, and it is said out loud in the file rather
+  than left as a gap somebody later reads as thoroughness. **So the true fix is
+  a length limit, not a layout change**, and it was NOT added: `FOR-ANDREW.md`
+  carries the decision and suggests **60** — the number already on the
+  neighbouring plan-name box, against a longest real name of 21.
+
+  **`strings/landed` EXISTS BECAUSE THE SAME HOLE WAS DUG AND FALLEN INTO
+  EARLIER THE SAME NIGHT**, on 2.15 itself: an intercept wrote a field one level
+  off what the page reads, and five widths of sweep printed green over a case
+  never tested. A sweep whose subject is a long string must prove the long
+  string reached the page.
+
+  **AND THE CEILING READER'S FIRST VERSION GAVE A TRUE VERDICT FOR A FALSE
+  REASON**, which is the more dangerous shape of the two: `join` and `REPO` were
+  never imported, it threw, a bare `catch` swallowed it, and all three fields
+  printed *"file unreadable"* — while the real answer, unbounded, happened to
+  be the same. It looked right. The error now travels.
+
+  **WHAT WAS NOT MEASURED, SAID RATHER THAN IMPLIED:** only the booking page.
+  These names also appear in customer emails and on a detailer's own screens,
+  and nothing has stretched them there. `FOR-ANDREW.md` says so too, so the gap
+  is weighed rather than discovered later.
+
   **Done when** (written 2026-09-25 — this item had no `Done when` line, though it
   has carried the substance since 2026-09-20 under *"WHAT WOULD CLOSE IT"*): **one
   run on a real phone, keyboard raised, on step 4 (the address) and step 6 (name,
