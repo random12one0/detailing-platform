@@ -713,6 +713,38 @@ still knows them.
 
 ## Waiting on you — nothing breaks while these wait
 
+- [ ] **DO · Five minutes with your computer reading the screen out loud. No
+  install, nothing to download, no cost.**
+
+  **Why you and not us:** we can check that every button has a name in the code.
+  **We cannot listen.** Nobody here can tell you whether it actually sounds right,
+  and ticking that off without hearing it is the exact thing this project refuses
+  to do. So it is five minutes of yours.
+
+  **What to do — somebody will start the site for you first and send you the
+  link:**
+
+  1. Press **`Ctrl` + `Windows` + `Enter`** together. Your computer starts reading
+     things out. It is called Narrator and it is already installed.
+  2. Open the **booking page** and go to the step where a customer **picks a
+     date**. Press the **Tab** key over and over, slowly, and listen.
+  3. Open a **job** in your dashboard and Tab along the **row of buttons pinned at
+     the bottom** — Mark completed, Didn't show up, Cancel the job.
+  4. **Tell us about anything that sounds wrong.** Three kinds: it says
+     **nothing at all**; it just says **"button"** with no idea which one; or it
+     says **something different from the words you can see.**
+  5. Press **`Ctrl` + `Windows` + `Enter`** again to turn it off.
+
+  **You do not need to fix or diagnose anything** — *"the third button just said
+  button"* is a complete report.
+
+  **Why it matters:** someone who cannot see the screen uses your booking page by
+  listening to it. Right now nobody has ever heard what it says. **It closes
+  ROADMAP 7.4's last gap**, which is the only unproved gap in the whole ticked-item
+  audit (`docs/ticked-without-proof-2026-09-25.md`).
+
+  **Nothing breaks while this waits.**
+
 - [ ] **DO · Run one command that adds a "this is a test row" tick box to your
   customer list. Everything else for ROADMAP 1.3 is built and proved; this is
   the one step that makes it real, and it is yours because it changes the

@@ -93,9 +93,18 @@ pass had classified 2.1c as resolved and I overrode it by hand.**
 
 **ONE REAL FINDING CAME OUT OF DOING IT ANYWAY, and it is worth more than the
 gap was.** I ran `node scripts/i18n-survey.mjs`: **128 candidate strings in 30
-files, from 111 files scanned, exit 0.** It **exits 0 unconditionally** and says
-so about itself — *"heuristic — for ordering the work, not for signing it
-off."* **So 2.1c's own *Done when* names an instrument that cannot pass or
+files, from 111 files scanned, exit 0.** It describes itself as *"heuristic — for
+ordering the work, not for signing it off."*
+
+**CORRECTED 2026-09-25, SAME NIGHT: "exits 0 unconditionally" was too coarse and
+it was wrong.** The script **has** `process.exit(1)` and a canary —
+`I18N_SURVEY_CANARY=1` exits 1, confirmed by running it. **But the guard is on
+FILES SCANNED, not on findings**, and its own comment says why: *"finding nothing
+is the goal, scanning nothing is the fault, and conflating those two is the
+bug."* Its floor is 50 files and it walked 111. **So it can tell you it ran; it
+cannot tell you the work is done** — which is the finding, stated properly. **The
+fourth time tonight one of my own claims was coarser than the thing it
+described.** **So 2.1c's own *Done when* names an instrument that cannot pass or
 fail.** Running it produces a number and settles nothing. That is not 2.1c's
 fault and it does not unseat its tick — the tick rests on the pressed table —
 but **any future item that names `i18n-survey.mjs` as a done-when is naming a
@@ -305,3 +314,64 @@ day cell an hour earlier — and it missed both of the real ones.**
 proof recorded nowhere — were both found by doing an item, not by scanning for
 one.** That is the strongest evidence that this pass's honest output is a
 procedure and 3 confirmed gaps, not a long list.
+
+---
+
+## APPENDIX — THE MIRROR FAULT, IN THE *OPEN* ITEMS' ACCEPTANCE CRITERIA
+
+**Swept 2026-09-25, on the manager's instruction, after 2.12 turned out to name a
+survey as its gate.** Three distinct faults, and they are not the same thing:
+
+| fault | count | what it does |
+|---|---|---|
+| **A done-when that cannot FAIL** | **1** | the item can be "met" by an instrument that returns 0 regardless |
+| **A done-when that cannot be MET** | **0 found** | — |
+| **No done-when at all** | **25 of 59** | nobody can close the item, because nothing says what closing it would take |
+
+### The one that cannot fail — fixed
+
+**2.12, and it is the only open item whose done-when names any script at all.**
+Rewritten in place; the reasoning is in the entry. `tests/spanish.test.mjs` is now
+the gate — **71 passed / 6 failed today, and all six failures are 2.12's own
+subject** — with the survey demoted to evidence.
+
+### The twenty-five with no acceptance criterion
+
+**0.3, 0.4, 0.7, 0.11, 0.13, 0.14, 0.15, 2.15, 6.4, 7.6, 7.10, 8.2, 9.4, 9.7,
+9.10, 9.11, 9.14, 9.15, 11.3, 12.1, 12.2, 12.3**, and three unnumbered entries.
+
+**NOT all of these are a defect, and saying which is which matters more than the
+number:**
+
+* **Legitimately none yet** — 12.1, 12.2, 12.3 and 9.15 are one-line Wave 12/13
+  stubs carrying an audit reference and nothing else. A stub does not need an
+  acceptance criterion until somebody picks it up.
+* **Waiting on a third party, where the criterion is obvious** — 0.13, 0.14, 0.15
+  each carry `Waits on:` / `How the wait ends:` lines, which do the same job in
+  different words.
+* **The ones worth a done-when, because they are real work somebody will try to
+  close** — **0.11** (the R2 move, whose guard was built tonight and whose
+  remaining halves are named nowhere as criteria), **8.2** (now pointed at a
+  method but with no closing condition), **9.4, 9.7, 9.10, 9.11** (all screens
+  awaiting Andrew's press, with no statement of what a passing press looks like),
+  **2.15**, **7.6** and **7.10**.
+
+**Not written tonight, and deliberately not**: twenty-five acceptance criteria is
+a large write, several of them need Andrew's view of what "done" means, and
+inventing them alone would be this session deciding when other people's items
+close. **Named here so the next sitting can do it as its own item.**
+
+### WHAT THIS SWEEP COULD HAVE MISSED
+
+* **A done-when phrased without the words "done when"** — *"this closes when…"*,
+  *"it is finished once…"*. The scan matched `/Done when/i` across every line of
+  each open item, so a differently-worded criterion reads as absent. **Two of the
+  25 may be false positives for that reason and I did not open all 25.**
+* **A done-when that names a check indirectly** — *"the four credential-free
+  suites"* rather than a filename. Those would not appear in the "names a script"
+  count of 1, so **the true count of criteria-with-instruments is at least 1 and
+  possibly higher.**
+* **An instrument that fails on the wrong thing.** `i18n-survey.mjs` was found
+  only because I ran it. **A script named in a done-when that fails on a floor,
+  a timeout or a canary — but never on its subject — reads as a gate in every
+  document and is not one.** Nobody has checked the others this way.

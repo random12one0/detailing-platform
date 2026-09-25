@@ -4017,9 +4017,42 @@ the wrong service, and never book a job we cannot reach.
   **Fix:** translate every system-written line; the detailer's own typed
   service names stay as typed, which is already the rule. Scope the language
   choice per business.
-  **Done when:** a full Spanish pass through all seven steps shows no
+  **Done when:** ~~a full Spanish pass through all seven steps shows no
   system-written English. `node scripts/i18n-survey.mjs` is the instrument, and
-  per `docs/gotchas.md` it has returned a false pass before — break it first.
+  per `docs/gotchas.md` it has returned a false pass before — break it first.~~
+
+  **DONE-WHEN REWRITTEN 2026-09-25, BECAUSE THE OLD ONE NAMED AN INSTRUMENT THAT
+  CANNOT GO RED ON THIS ITEM'S SUBJECT.** One line for why: **a survey that exits
+  0 whatever it finds tells you how much work is left, which is useful, and tells
+  you nothing about whether the work is done, which is what a done-when is for.**
+  `i18n-survey.mjs` reported **128 candidate strings in 30 files** and **exited
+  0** on 2026-09-25. Under the old wording that run was a pass.
+
+  **Done when, and every clause can fail:**
+  1. **`node --test tests/spanish.test.mjs` exits 0.** It is at **71 passed / 6
+     failed** today, and **all six failures are this item's subject** — call
+     sites with no Spanish entry, Spanish entries describing English that is
+     gone, duplicate keys in `appEs.js`, 10 of 1611 dashboard strings with no
+     entry, and default tier words with no Spanish. **This is the gate: it goes
+     red on the thing 2.12 is about.**
+  2. **A Spanish walk of all seven booking steps records no system-written
+     English**, screen by screen, written down. A human pass, because no script
+     reads a rendered page for tone — and it is falsifiable by anybody repeating
+     it.
+  3. **`node scripts/i18n-survey.mjs` is EVIDENCE, not the gate** — its candidate
+     count is quoted in the closing note so the number is on the record and a
+     later rise is visible. **A count going down is not a pass.**
+
+  **AND A CORRECTION TO THE SENTENCE THAT FOUND THIS, because it was too coarse.**
+  The first report of this said the survey *"exits 0 unconditionally"*. **It does
+  not.** It has `process.exit(1)` and a canary — `I18N_SURVEY_CANARY=1` exits 1,
+  confirmed by running it — but **the guard is on FILES SCANNED, not on
+  findings**, and its own comment says exactly why: *"finding nothing is the goal,
+  scanning nothing is the fault, and conflating those two is the bug."* Its floor
+  is 50 files; it walked 111. **So it can tell you it ran, and it cannot tell you
+  the work is done.** That is the right design for a survey and the wrong job for
+  a done-when. **`i18n-survey.mjs` is not edited and does not need to be** — what
+  was wrong is the job it was given.
   **RE-CHECKED 2026-09-20 — two of the four opening claims no longer hold, and
   one never quite did.** "That code isn't one of ours" is already wrapped in
   `t()` with a Spanish key in the booking catalogue — fixed by an earlier,
@@ -8643,12 +8676,17 @@ rather than wording went to Andrew.
     accessible name on every element — was measured, and that is a narrower claim
     than "a blind user can use this."**
 
-    > **FOR WHOEVER HAS THE BROWSER, five minutes:** with the dev server up, turn
-    > on Windows Narrator (`Ctrl`+`Win`+`Enter`), tab through **(a)** the booking
-    > page's date step and **(b)** the job record's pinned action bar, and write
-    > down any control that announces nothing, announces only "button", or
-    > announces something different from its visible label. Then turn Narrator
-    > off. **No install, no cost, nothing to build.**
+    > **THIS IS ANDREW'S, NOT A SESSION'S — manager's ruling, 2026-09-25.**
+    > Turning on a screen reader and *listening* is not something a session can
+    > do, and putting a tick on a check nobody performed is the whole failure this
+    > repo works against. It is a row in `FOR-ANDREW.md`.
+    >
+    > **Five minutes, no install, no cost:** turn on Windows Narrator with
+    > **`Ctrl` + `Win` + `Enter`**, then press **Tab** through **(a)** the booking
+    > page's **date step** and **(b)** the job record's **pinned action bar**, and
+    > say out loud or write down any control that announces **nothing**,
+    > announces only **"button"**, or announces **something different from its
+    > visible label**. Then turn Narrator off with the same keys.
 
     Same family as 8.3's daylight read and 8.2's phone pass — human-only checks
     no script substitutes for; `docs/testing/phones-we-do-not-own.md` is where
