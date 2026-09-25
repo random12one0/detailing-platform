@@ -4598,6 +4598,83 @@ the wrong service, and never book a job we cannot reach.
   its receipt's own warnings: a pass here is not an answer about the on-screen
   keyboard. Andrew's ruling of 2026-09-20 stands and this item stays open.
 
+  ---
+
+  ### ASKED AGAIN 2026-09-25 EXPECTING STALENESS. IT WAS STALE THE OTHER WAY: THE FAULT WAS LIVE.
+
+  **EVERYTHING ABOVE THIS LINE IS TRUE OF THE DEMO'S OWN STRINGS AND WAS NEVER
+  TRUE OF A TENANT'S.** Andrew, 2026-09-25: *"the footer's height is
+  content-driven and its widest line is text the DETAILER typed — so a tenant
+  with a longer service name is the case that breaks it, not the demo's."*
+  He was right, and nothing here had ever run that case.
+
+  **2.15 DELETED A LITERAL AND A SECOND COPY OF IT SURVIVED ONE PROPERTY
+  ALONG.** `.bk-wrap`'s 104px reserve went and the bar became `sticky`. But
+  `booking.css`'s **`--bk-bar-h: 73px`** stayed, and 8.5a's
+  `scroll-padding-bottom: calc(var(--bk-bar-h) + 12px + var(--safe-b))` is what
+  decides where the browser may park a control that takes focus.
+
+  **THE LITERAL CARRIED A MEASUREMENT THAT USED THE WRONG STRING, AND SAID SO
+  IN ITS OWN COMMENT.** *"The height is set by the Continue button, not by the
+  text"*, so a wrapped eyebrow reaches *"76px and no further"* — proved by
+  forcing a long **total** into the bar at 320, where it grew 3px. **A total is
+  a formatted number. The eyebrow's other half is `plan_name`, free text, and
+  `Plans.jsx` allows 60 characters of it.** A measurement that names its own
+  input is still wrong if the input is not the one that varies.
+
+  | 320x844, 59-character plan name | before | after |
+  |---|---|---|
+  | damage step, bar height | **112px** | 112px |
+  | … footer covers | **21px of Light, Moderate, Heavy, Extreme** | **nothing** |
+  | … a real press on «Extreme» | **landed on the footer** | lands on «Extreme» |
+  | review step, bar height | **184px** | 184px |
+  | … worst reachable | **10px of 44** | **44px** |
+  | … a real press | **lost to the footer** | lands |
+
+  **FIXED WITH 2.15's OWN MOVE, WHERE THE NUMBER SURVIVED: stop asserting the
+  height, measure it.** A callback ref on `.bk-bar` writes its measured height
+  to `--bk-bar-h` on `documentElement` — on `html`, because the rule computes
+  there and a property on `.bk` is invisible to it, which is the defect
+  `booking.css` spends thirty lines on. The literal stays as the first-paint
+  fallback. **The 12px is untouched**; this item had already recorded 8.5a's
+  step as not its to spend, and that still holds — only the number it is added
+  to has changed.
+
+  **WHY A ResizeObserver IS RIGHT HERE HAVING BEEN WRONG ABOVE.** The one this
+  item threw away was for `.bk-wrap`'s padding, rejected because it preserved
+  the fragile *"the reserve must equal the height"* relationship that `sticky`
+  deletes outright. **`scroll-padding-bottom` cannot be expressed relationally
+  in CSS at all**, so here that relationship is not fragile, it is the
+  definition.
+
+  **`bk-bar-clearance.mjs` NOW ASKS THE QUESTION THAT CAUGHT IT.** A second
+  sweep at the 60-character ceiling — the string put on the wire, **nothing
+  written to `plans`** — a `pressed` question that sends a real pointer and
+  reads who the browser handed it to, and a second canary: the same long name
+  against the old reserve. **36 targets to 72, 168 assertions to 420, both
+  canaries bite.**
+
+  **60 IS THE CEILING AND IT IS THE ONLY ENFORCEMENT ANYWHERE.** `maxLength` on
+  one React input. `plans.name` is bare `text` with no check constraint and no
+  edge function in the write path, so PostgREST or an import can exceed it —
+  and the same repo does bound `vehicle_size` and the payment handles.
+  **Recorded, not fixed: a constraint on live data is a migration, and that is
+  Andrew's.**
+
+  **TWO MISTAKES OF MINE, BOTH CAUGHT BY THE CHECK AND NEITHER BY ME.** The
+  intercept first set `body.plan_name` where the page reads
+  `body.quote.plan_name`, so the new sweep ran five widths against the demo's
+  own 21-character name and **printed green over a case it had not tested** —
+  the tell was bar heights byte-identical to the short sweep. And the first fix
+  used `useRef` + `useEffect([])`; **there is no bar on mount**, so it took its
+  early return and never ran again, writing the property zero times while the
+  page looked perfect and nothing errored.
+
+  **THE BOX STAYS OPEN AND THE REASON HAS NOT CHANGED.** The on-screen keyboard
+  is still unmeasured and still unmeasurable here; Andrew's 2026-09-20 ruling
+  governs. What moved is that the clearance half is now true of a string a
+  detailer can actually type, which it was not yesterday.
+
   **Done when** (written 2026-09-25 — this item had no `Done when` line, though it
   has carried the substance since 2026-09-20 under *"WHAT WOULD CLOSE IT"*): **one
   run on a real phone, keyboard raised, on step 4 (the address) and step 6 (name,
@@ -7903,7 +7980,7 @@ most corroborated finding in the set.
   one alert rather than four. That is the same bootstrap problem the dead
   man's switch has and is why the grace window exists.
 
-- [ ] **6.2a — "No alarm" reads as "working" on the back-office health line.**
+- [x] **6.2a — "No alarm" reads as "working" on the back-office health line.**
   Split out of 6.2 on 2026-09-23. **The display half:** successful jobs render
   prominent and green while missing monitoring renders faint grey, so a
   monitor that is switched off looks like a monitor with nothing to report.
@@ -7912,10 +7989,50 @@ most corroborated finding in the set.
   **Done when:** a monitor that has never reported once is visually
   distinguishable from one reporting healthy, at every width, and a person who
   has never seen the screen before can say which is which.
-  **NOT STARTED, AND DELIBERATELY NOT REACHED INTO.** It is `app/src`, which
-  was the other session's tree on the night 6.2 was picked up. **It is lane A;
-  6.2's outside-checks half is lane B, and the two can run at the same time.**
-  Waiting on nothing but a session.
+  **BUILT AND PROVED 2026-09-25, COMMITS `59aa37b` AND `f64ded8`. NO MIGRATION
+  AND NO DEPLOY — THE MARKER WAS ALREADY ON THE WIRE.** `job_heartbeats` is
+  seeded at `now()` so a new install does not cry wolf about a nightly job that
+  has not come round yet, and the seed marks those rows `detail.seeded`.
+  `platform-admin` was already sending `detail`; **the screen received it and
+  threw it away.**
+
+  **THREE STATES, AND THE WORDS CARRY THEM.** `ran 12 min ago` against `not
+  reported yet`, with *"It is not failing — it has not been seen working
+  either."* The dot is a ring rather than a fill, which survives greyscale at
+  7px — colour alone fails a colour-blind reader and fails a phone in sunlight.
+  `pa-idle` was that same rule with the grey FILLED, which is how "switched
+  off" came to look like "nothing to report".
+
+  **QUIET NEVER REACHES THE ALARM**, so a job that has not come round yet
+  cannot pin a red pip to the tab bar for ever. **An empty list no longer
+  prints the all-clear** — a dropped table, a revoked grant and a fresh
+  install all look like zero rows and none of them is good news.
+
+  **`scripts/health-line-honest.mjs`** — 11 targets, 43 assertions, five
+  widths, two canaries, five sabotages, all five caught. The fixture is the
+  argument: two rows handed the IDENTICAL `ran_at`, differing only by `seeded`.
+  Rows are located by the slug the fixture invented, **never by the
+  `data-job-state` the markup carries**, which is the screen's own claim about
+  the thing under test.
+
+  **WHAT WAS AND WAS NOT WATCHED HAPPENING, IN PLAIN WORDS — Andrew's
+  correction, 2026-09-25.** He opened the screen and read the healthy state
+  himself: the accrual *"ran 4 hours ago"*, the reminder sweep *"ran 13 min
+  ago"*, the switch *"set up"*, all in words, console clean. **The
+  never-reported state he could not force by clicking**, and it does not occur
+  in live data — both jobs have genuinely reported, so nothing is seeded any
+  more. That half rests on the script's sabotages and its screenshots, and is
+  written here as such rather than implying somebody watched it happen.
+
+  **AND THE CHECK'S OWN FIXTURE OUTLIVED IT TWICE — `f64ded8`.** `dropAdmin`
+  sat after `browser.close()` with nothing catching a throw between, so two
+  crashed runs each left a live `platform_admins` row: an undeclared account
+  that reads every tenant. DP Cowork2's check caught it within the hour and
+  refused to allowlist it, correctly. **`shoot-admin.mjs` was suspected and is
+  innocent** — its teardown has always been in a `finally`. Wrapped, and
+  `--crash-after-signin` proves it: 2 rows before a deliberate crash, 2 after.
+  **`admin-contrast.mjs` still has the same hole** and carries a `ponytail:`
+  comment admitting it.
 
 - [x] **6.3 — Alert when an active detailer's booking page cannot work.**
   No services, no coverage area, no future availability, suspended account, or
