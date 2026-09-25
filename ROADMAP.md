@@ -805,6 +805,67 @@ Smallest wave, highest embarrassment cost, all of it confirmed in source.
   "gone quiet" count drops to match real customers.
   *A1 P3-01, A2 1.3*
 
+  **BUILT AND PROVED 2026-09-24, COMMIT `3c24a1f`. NEEDS ANDREW: one command
+  — `node scripts/apply-migrations.mjs
+  20260924010000_a_fixture_is_not_a_customer.sql` — because applying a
+  migration is a schema change and that is his.** `FOR-ANDREW.md` § "Waiting
+  on you" carries the row in his own words. **Nothing a detailer sees has
+  changed until he runs it**, which is deliberate: the screen filters on a
+  field the rows do not yet carry, so today it behaves exactly as it always
+  did rather than half-working.
+
+  **The number, before and after, measured on `demo-detail` rather than
+  argued about.** 16 customers, of which 3 are droppings left by test runs —
+  `zone-muew68al`, `ROADMAP 2.8 selected 2026-09-23`, `ROADMAP 2.8 Address
+  Test 2026-09-23`, phones of the shape `(555) 013-3`. None has ever had a
+  completed job, so all three sat inside the headline figure.
+
+  | | today, live | after the command |
+  |---|---|---|
+  | masthead | **16 people** | **13 people** |
+  | "gone quiet · 3 months" | **8** | **5** |
+  | fixtures in the list | 3, unmarked | 0 by default, 3 behind a chip, each **TEST**-marked |
+  | fixture rows deleted | — | **none, anywhere** |
+
+  **What was built.** `customers.is_test` (the column 0.3 asked for, named as
+  0.3 named it rather than after `businesses.is_demo`); one `people` list in
+  `Clients.jsx` that every row, every figure, both button counts and the CSV
+  export read, so the screen can no longer count two populations in two
+  places; a `TEST` mark **ahead of** the name, because `.c-who` ellipsises and
+  these are the longest names in the list; and a chip stating the number it
+  will reveal, absent entirely when there are no fixtures.
+
+  **`scripts/client-fixtures.mjs` is the check** — 6 questions x 5 widths + 1
+  canary = 31 assertions, console read at each width, three `--break=`
+  sabotages all confirmed red. **It supplies `is_test` to the browser using
+  the migration's own backfill predicate**, because the column is not applied
+  yet; it says so in its header and records `column_live` in the receipt, and
+  it becomes a no-op the day the column lands. **So the SCREEN is proved and
+  the COLUMN is not** — `migration-drift.mjs` is the instrument for that half
+  and names it absent today.
+
+  **Two things found on the way, both fixed in the same commit.**
+  `migration-drift.mjs` named the wrong file for an absent column — the file
+  that CREATED the table rather than the one that declares the column, so it
+  said `customers.is_test (declared by 20260827000200_tenant_data.sql)`, an
+  August migration with no such word in it. And CLAUDE.md's table still said
+  that check was **FUNCTIONS ONLY**, which has been untrue since 8.10b and
+  would have stopped a session adding a column from running the one check
+  that catches an unapplied one.
+
+  **STILL OPEN, and it is not this item's scope: the same three fixtures are
+  on the Today screen.** "ROADMAP 2.8 Address Test 2026-09-23" appears in
+  *Waiting on you* there, seen in the browser 2026-09-24. `is_test` is on the
+  CUSTOMER; Today reads BOOKINGS, which carry no such field. Worth its own
+  item.
+
+  **AND THE LEAK IS NAMED RATHER THAN LEFT TO BE DISCOVERED.** The backfill
+  runs once. A dropping created AFTER it lands is not flagged, because the row
+  is inserted by the `create-booking` edge function and nothing in `scripts/`
+  or `app/src` can reach that insert. Closing it is one line in that function
+  — deliberately out of scope tonight (no edge function, no deploy), and
+  written in the migration's own header as well as here.
+
 ---
 
 ## Wave 2 — Booking truth
