@@ -293,8 +293,10 @@ and how the wait ends.
   over the cap with a message naming what is used, what the limit is and that
   deleting old job photos frees it; each `job_photos` row's `bytes` equals **the
   size R2 reports for the stored object**, not the size the client claimed; and the
-  reconcile of `docs/the-photo-allowance.md` § 6 exists and reports drift **as a
-  number on a schedule**.
+  reconcile of `docs/the-photo-allowance.md` § 6 exists, reports drift **as a
+  number**, and **runs from a cron entry the way `refresh-weather` does** — named
+  that way rather than "on a schedule", corrected 2026-09-25, because a stranger
+  cannot check "on a schedule" without being told where schedules live.
   **What failing looks like — both shapes are named in that document and neither
   shows up as an error:** `job_photos.bytes` stopping landing, so the cap is
   compared against zero and **silently becomes unlimited**, surfacing as a bill
@@ -571,11 +573,17 @@ and how the wait ends.
   **NOT DONE:** no lawyer, per Andrew's standing ruling, and no template was
   imported — every correction states something the product already does.
 
-  **Done when** (written 2026-09-25; this item had none): **every promise on
-  `/terms`, `/privacy`, `/pricing` and the home page names something the product
-  actually does**, with the code or the database row that backs it pointed at, one
-  by one — the method that found the privacy page naming five processors where
-  eleven receive data. **And Andrew has answered the two factual questions parked
+  **Done when** (written 2026-09-25; this item had none): **every promise this entry already
+  enumerated names something the product actually does**, with the code or the row
+  that backs it pointed at, one by one: **the export promise** (three places — the
+  terms, `/pricing`, and the home page's answer to *"what happens to my customers
+  if I cancel"*), **cancelling without an email**, **the build fee**, **the
+  domain**, **the figures-copied-at-signup claim**, and **the processor list on
+  `/privacy`** — plus anything a re-run of the same method turns up, which is
+  listing every external host the edge functions call and comparing `/pricing`'s
+  claims against the terms. **Enumerated rather than left as "every promise",
+  corrected 2026-09-25: "every promise" is not something a stranger can execute
+  without first deciding what counts as one.** **And Andrew has answered the two factual questions parked
   for him:** which legal entity trades as Detailing Platform, and whether the
   customer/photo export gets built or the promise gets removed.
   **Paid legal review is explicitly NOT part of this**, per his standing ruling, so
@@ -4597,9 +4605,14 @@ the wrong service, and never book a job we cannot reach.
   keyboard and cover the field being typed into?** — with the answer written here
   either way. **"It does not" is a close.**
   **It is executable now and was not before:** § 5 of
-  `docs/testing/phones-we-do-not-own.md` is the walk, its steps 4–6 are exactly
-  these two fields, and it runs against the dev server over Andrew's own Wi-Fi at
-  no cost. **This item and 8.2 close on the same twenty minutes.**
+  `docs/testing/phones-we-do-not-own.md` is the walk — **and the first version of
+  this sentence was wrong, corrected the same sitting.** Its steps 4–6 cover the
+  **address** field with the keyboard up, and it **did not cover the
+  name/phone/email step at all**; a step was added for that (now § 5 step 7), so the
+  walk asks both of 2.15's questions rather than one. **Claimed coverage the walk
+  did not have would have let Andrew spend all twenty minutes and leave this item
+  exactly where it started.** It runs against the dev server over his own Wi-Fi at
+  no cost, and **this item and 8.2 close on the same twenty minutes.**
   **What failing looks like:** a pass claimed from a resized window. **No window
   size can reproduce it** — a keyboard shrinks the VISUAL viewport and leaves the
   LAYOUT viewport alone, which is why `resize_window` cannot stand in.
@@ -10729,7 +10742,7 @@ the dashboard or back office at phone width at all.
   10px adjacency and 8.3's contrast both did.
 
   **Done when** (written 2026-09-25; this item had none for weeks): **the
-  seventeen numbered steps of § 5 of `docs/testing/phones-we-do-not-own.md` each
+  EIGHTEEN numbered steps of § 5 of `docs/testing/phones-we-do-not-own.md` each
   have an answer written into this entry**, the phone is named, and the Android
   half is answered the same way on a named device. **"Nothing felt wrong" is a
   valid answer to a step and must be recorded as one** — 8.3 closed exactly that
@@ -13348,15 +13361,19 @@ this wave as untouched.
   sentence and 9.10's own specific ask — no second item to split out.
   **FOR-ANDREW.md carries the actual open question**, with no recommendation
   attached, because this one is not ours to recommend. *old roadmap*
-  **Done when** (written 2026-09-25; this item had none): **Andrew has answered
-  the question `FOR-ANDREW.md` carries for it** — whether he wants a settings
-  design pass at all, and if so what he wants to react to — **or** this item is
-  closed as superseded by **9.10**, which owns the only concrete half and now has
-  a criterion of its own. **A decision is a real gate, so this item is queued
-  rather than stalled.**
-  **What failing looks like:** a session building a settings redesign out of the
-  sentence *"make settings feel like a product"*, which is the thing Andrew's
-  2026-09-20 ruling exists to prevent.
+  **Done when** (written 2026-09-25, then corrected the same sitting because the
+  first version pointed at a question that has already been answered): **this item
+  closes as superseded by 9.10.** `FOR-ANDREW.md` carries that row **ticked** —
+  *"DECIDED · The empty half of Business settings shows your real booking…"*,
+  2026-09-24 — which is the same three judgement calls 9.10 now records. **So there
+  is no open question here to wait for**, and the concrete half has a criterion of
+  its own.
+  **What closing it looks like:** 9.10 is built and pressed, and this entry is
+  struck through pointing at it.
+  **What failing looks like:** this item picked up as live work and a settings
+  redesign built from the sentence *"make settings feel like a product"* — which
+  Andrew's 2026-09-20 ruling exists to prevent, and which **a stale pointer to an
+  already-answered question made more likely rather than less.**
 
 ---
 

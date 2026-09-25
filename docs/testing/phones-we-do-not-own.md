@@ -165,33 +165,40 @@ and sends him the `Network:` URL Vite prints. **Phone and PC on the same Wi-Fi.*
    typing, and the button he needs next?** Type three letters of a real address.
 5. With the keyboard still up, **scroll**. Does the page fight him?
 6. Dismiss the keyboard. **Is the layout where it was before?**
-7. Pick a **date**, then a **time**. On the date step the total can change —
+7. **Now the same two questions on the step that asks for name, phone and
+   email.** Tap each box in turn. **With the keyboard up, can he see the box he
+   is typing in AND the button he needs next?** — added 2026-09-25 because
+   ROADMAP 2.15 needs exactly this and the walk did not ask for it. **These are
+   the two steps in the whole flow with a text box above the fold**, and 2.15's
+   open half is whether the pinned bar rides up on the keyboard and covers the
+   field.
+8. Pick a **date**, then a **time**. On the date step the total can change —
    **does it say why, on screen, without scrolling?**
-8. Reach the **fixed bar at the bottom**. **One-handed, thumb only: can he press
+9. Reach the **fixed bar at the bottom**. **One-handed, thumb only: can he press
    it without shifting his grip?**
-9. Complete the booking. On the confirmation, **press every link once.**
+10. Complete the booking. On the confirmation, **press every link once.**
 
 **The dashboard, as the detailer (8 min).** `/app`, signed in as the demo owner —
 whoever starts the server sends him the address; the password is not written down
 here (`docs/platform-admins.md` says where it lives).
 
-10. **Today.** Open a job. **Reach the action bar at the bottom one-handed.**
-11. Press **Mark completed**. It asks first. **Is the question readable, and are
+11. **Today.** Open a job. **Reach the action bar at the bottom one-handed.**
+12. Press **Mark completed**. It asks first. **Is the question readable, and are
     both answers reachable by thumb?** Say no, then yes, then undo it.
-12. **Is anything within about 10px of that button that he could hit by
+13. **Is anything within about 10px of that button that he could hit by
     accident?** This is a known concern (ROADMAP 4.1) and a thumb is the only
     instrument for it.
-13. **Calendar.** Tap a day. **Are the day cells big enough to hit first time?**
-14. **Clients.** Open a customer. Press **Call**, then **Text** — the phone's own
+14. **Calendar.** Tap a day. **Are the day cells big enough to hit first time?**
+15. **Clients.** Open a customer. Press **Call**, then **Text** — the phone's own
     apps should open. Press back.
-15. **Settings → Accessibility → Display & Text Size → Larger Text**, push it up
+16. **Settings → Accessibility → Display & Text Size → Larger Text**, push it up
     two steps, then reopen Today and the job record. **Does anything overlap,
     clip, or become unreadable?** Put it back.
 
 **Finish (2 min).**
 
-16. Turn **Reduce Motion** off.
-17. **One message back, in his own words, per thing that felt wrong.** *"The
+17. Turn **Reduce Motion** off.
+18. **One message back, in his own words, per thing that felt wrong.** *"The
     pinned section glitches out"* was worth more than any screenshot — he does
     not need to diagnose it, only to say what it did.
 
