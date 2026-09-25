@@ -3466,3 +3466,55 @@ edited five minutes earlier.
 directions:** *before trusting a measurement, ask what else writes to the thing
 you are measuring — including things with no keyboard.* A cron job, a webhook,
 a retry queue and a cache warmer are all sessions that never signed in.
+
+## 85. EDITING ONE SHARED MODULE MAKES EVERY FUNCTION THAT IMPORTS IT READ AS STALE — so `deployed-inventory` going UP after a night of work is the signature of work, not of breakage
+
+**If you have just opened `receipts/deployed-inventory.json` and the number is
+worse than you remember, read this before you do anything about it.**
+
+`deployed-inventory.mjs` fetches each deployed bundle and compares it against
+your checkout **by content**. An edge function's bundle contains **its own copy
+of every `_shared` module it imports.** So a one-line change in
+`_shared/emailTemplates.ts` does not make one function differ. **It makes every
+function that imports it differ, all at once, in the same commit.**
+
+**THE NUMBER'S OWN HISTORY, so it is attributable rather than mysterious:**
+
+| when | differing | what moved it |
+|---|---|---|
+| 2026-09-20 | **22 of 39** | the original finding — nothing in the repo had ever required a deploy (ROADMAP 0.6) |
+| night of 2026-09-23 → 24 | **13 of 39** | Andrew had published in between; `_shared/pricing.ts` (ROADMAP 14.19) put some back |
+| evening of 2026-09-24 | **25 of 39** | **two files in one commit, `6ebb435`** |
+
+**THOSE TWO FILES.** `_shared/emailTemplates.ts` — one label added to the
+reschedule email, ROADMAP 3.4 Fault 1 — and `_shared/strings/es.ts`, its Spanish
+key, which had to go in the same edit because `T()` falls back to the English
+string silently. **Twelve functions went from matching to differing on the
+strength of those two edits.** `_shared/photoKey.ts` was added in the same commit
+and contributes **nothing**, because no function imports it yet.
+
+**18 of the 25 name one of those two files among their differences** — and that
+is *not* eighteen newly stale functions. Several were already differing for their
+own reasons; the receipt names `index.ts` on 10, `_shared/rateLimit.ts` on 9 and
+`_shared/pricing.ts` on 6. **A function can be stale twice over, and counting
+the mentions instead of the functions overstates what one night did.**
+
+**SO THE DIRECTION OF THE NUMBER IS NOT A HEALTH SIGNAL.**
+
+> **It goes UP when work is done and DOWN only when Andrew publishes.** A night
+> that fixes something in a shared module is *supposed* to make this worse. A
+> night that leaves it unchanged either touched no edge function or did nothing.
+
+**WHAT WOULD ACTUALLY BE ALARMING**, as against merely higher:
+* a function differing whose files you did **not** touch and whose `_shared`
+  imports nobody touched — that is a deploy from outside this checkout;
+* a function running a copy **older than a module it imports** — two were, on
+  2026-09-20, and that is the state this check was built for;
+* the count going **down without a publish.**
+
+**AND THE ONE THING NOT TO DO IS THE OBVIOUS ONE.** `CLAUDE.md` says it twice:
+**do not deploy to make it green.** Publishing is Andrew's, a function going live
+is publishing, and a session deciding that for him because it would clear a red
+is exactly the call it does not get to make. **Report the number, say which edits
+own it, and leave it.**
+

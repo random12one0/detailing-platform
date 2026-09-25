@@ -166,7 +166,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is EIGHTY-FOUR specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is EIGHTY-FIVE specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -197,6 +197,14 @@ is the only version of this rule that has ever held. `grep -c "^## "
 docs/gotchas.md` answers it in one command and there is no reason to guess.
 **The two corrections above are kept because the pattern is the useful part:
 this number goes stale every time somebody adds an entry and stops there.**
+
+**AND THEN IT HELD, TWICE, WHICH IS WORTH ONE LINE SO NOBODY ADDS A FOURTH
+CORRECTION ASSUMING IT DRIFTED AGAIN.** 83 → 84 → 85 across 2026-09-24, each
+number moved in the same edit as the entry that caused it, by two different
+sessions. **A session about to “fix” this line should run
+`grep -c "^## " docs/gotchas.md` first** — one command, and this session drafted
+a paragraph claiming the line had gone stale again before that command showed it
+had not.
 **84 on 2026-09-24, in the same edit as the entry** — a cron job writing to
 the rows a check is measuring. Counted with the command above, not estimated.
 
