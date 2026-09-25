@@ -46,9 +46,143 @@ one direction and three out of four in the other is not evidence about the rest.
 **What IS reliable is the entry's own admission**, and that is what the list below
 is built from.
 
+### UNJUDGED IS NOT A SYNONYM FOR FINE
+
+**Sixty-four items nobody has read as a stranger is a real number, and this file
+is not a clean bill of health.** It says three gaps are live because three were
+opened and found; it does **not** say the other sixty-four are sound. **It says
+nobody has looked.**
+
+The two cases that started this pass are the reason that distinction matters:
+**2.5 had been ticked-in-fact for three days** while its entry said nothing had
+been added to its check, and **2.15's real fault was fixed on 2026-09-20 with the
+proof recorded nowhere** — and neither was found by an audit. **Both were found by
+somebody picking the item up and discovering the file did not match the world.**
+There is no reason to think the remaining sixty-four are different in kind; the
+only difference is that nobody has picked them up yet.
+
+> **Read this file as an invitation to keep going, not as a result.** § *"The
+> procedure for a later sitting"* is the next shift's work, and the honest
+> estimate is about eleven hours.
+
 ---
 
-## THE LIST — 3 live gaps, with the cheapest thing that settles each
+## THE THREE WERE SETTLED THE SAME NIGHT — AND TWO OF THEM WERE NOT GAPS
+
+**Read this before the list below it. The list was written an hour earlier and
+two of its three entries were wrong.**
+
+Each was given the ten minutes its own "cheapest thing" called for. **Result: one
+live gap, not three. No tick comes off.**
+
+### VERDICT 1 · ROADMAP 2.1c — **THE TICK STANDS. I LISTED IT WRONGLY.**
+
+Both halves of the gap were already closed **inside the same entry**, in a
+paragraph headed *"PRESSED IN FULL AND TICKED — third attempt, 2026-09-21"*:
+
+* **the two-car case WAS pressed** — a five-row table at **320 / 390 / 768 /
+  1440**, both languages, console clean at each, recording the actual Spanish
+  string **`2.º vehículo · Small`** and the bar reading **$160** with
+  `vehicle_count: 2`;
+* **`i18n-survey.mjs` was run** — *"flags none of these files."*
+
+**How I got it wrong: I read the gap sentence and not the paragraph that
+answered it**, forty lines below, while writing a document whose own headline
+says a scan cannot tell a paragraph from its own correction. **The automated
+pass had classified 2.1c as resolved and I overrode it by hand.**
+
+**ONE REAL FINDING CAME OUT OF DOING IT ANYWAY, and it is worth more than the
+gap was.** I ran `node scripts/i18n-survey.mjs`: **128 candidate strings in 30
+files, from 111 files scanned, exit 0.** It **exits 0 unconditionally** and says
+so about itself — *"heuristic — for ordering the work, not for signing it
+off."* **So 2.1c's own *Done when* names an instrument that cannot pass or
+fail.** Running it produces a number and settles nothing. That is not 2.1c's
+fault and it does not unseat its tick — the tick rests on the pressed table —
+but **any future item that names `i18n-survey.mjs` as a done-when is naming a
+survey as a gate.**
+
+### VERDICT 2 · ROADMAP 7.4 — **THE TICK STANDS AND THE GAP IS LIVE.** The only one.
+
+Nothing after it resolves it; the item ends six lines later. Its own words:
+*"**NOT measured, same as every pass:** actual screen-reader audio
+(VoiceOver/NVDA) — no headless browser runs one."*
+
+**The tick is honest and should stay.** What 7.4 claims is narrower than "a blind
+user can use this" — it claims linear DOM order and an accessible name on every
+element, and both were measured. **The gap is a different claim nobody has made.**
+
+**IT CANNOT BE SETTLED FROM THIS LANE.** A screen reader needs the running app,
+which means the dev server and the browser, and those are DP Cowork's.
+
+> **ONE LINE FOR WHOEVER HAS THE BROWSER:** *with the dev server up, turn on
+> Windows Narrator (`Ctrl`+`Win`+`Enter`), then tab through (a) the booking
+> page's date step and (b) the job record's pinned action bar, and write down any
+> control that announces nothing, announces only "button", or announces a
+> different thing from its visible label — five minutes, then turn Narrator
+> off.*
+
+**Zero cost, no install, nothing to build.** It belongs in the family with 8.3's
+daylight read and 8.2's phone pass — human-only checks that no script substitutes
+for — and `docs/testing/phones-we-do-not-own.md` is where that family is written
+down.
+
+### VERDICT 3 · `track-visit` inside 14.12 — **THE TICK STANDS. RESOLVED, AND I RE-CONFIRMED IT MYSELF.**
+
+**The paragraph I quoted was the item's PRE-TICK body** — its original `Fix:`,
+`Done when:` and *"Not started."* — which the tick's headline at the **top** of
+the item supersedes: *"All four now carry the ceiling, and `track-visit` turned
+out to need it — its header was wrong."*
+
+**So reading FORWARD from a gap line is not enough either**, which is a second
+instrument lesson: in this file a resolution can sit **above** the text it
+resolves, because a tick is prepended and the original body is kept below it.
+**The only reliable read is the whole entry.**
+
+**And I did the Management API read rather than trusting the entry — it
+corroborates exactly.** Deployed on `kguqylyzgyzfktkfnhjb`, read
+2026-09-25: **`track-visit` `verify_jwt=False`, v55** — a stranger can reach it —
+alongside `cancel-booking` v70, `reschedule-booking` v71 and `accept-quote` v53,
+all `verify_jwt=False`. The repo's own `scripts/deploy-functions.mjs` sets
+`verify_jwt: !PUBLIC_FUNCTIONS.has(fn)` and lists `track-visit` there, so the
+tooling and the deployment agree. **The item's uncomfortable conclusion — that
+its own header was false — is correct.**
+
+### SO THE CORRECTED COUNT
+
+| | |
+|---|---|
+| gaps listed an hour earlier | **3** |
+| **genuinely live after ten minutes each** | **1** (7.4) |
+| resolved inside their own entry, mis-listed by me | **2** (2.1c, 14.12's `track-visit`) |
+| **ticks that should come off** | **0** |
+
+**The roadmap did not have to go up by two. It would have been fine if it had** —
+the instruction was that a true count moving the wrong way beats a lie — but the
+true count here is that both items were already proved.
+
+### WHAT COULD THIS HAVE MISSED, AND WHAT WOULD IT HAVE LOOKED LIKE
+
+**Asked of the corrected number, because the previous number was wrong.**
+
+* **A gap resolved somewhere OTHER than its own entry** — in `DECISIONS.md`, a
+  receipt, or another item. It would look exactly like a live gap, because I only
+  read the entry. **7.4 is the one at risk: if a screen reader was ever run and
+  written up elsewhere, I would not have seen it.** I searched for
+  `VoiceOver|NVDA|Narrator|screen.reader` across tracked markdown before
+  concluding it was live — the only hits are statements that it has **not** been
+  done.
+* **A tick whose proof names a file that no longer exists.** Not checked for any
+  of the three; the procedure below asks for it and this pass did not do it.
+* **The 64 unjudged.** Unchanged, and still unjudged.
+
+---
+
+## THE ORIGINAL LIST, KEPT — two of its three entries are corrected above
+
+**Kept rather than rewritten, because the shape of the error is the useful part:
+gap sentences read without their answers, in a document warning against that.**
+
+### THE LIST — 3 candidate gaps, with the cheapest thing that settles each
 
 ### 1 · ROADMAP 2.1c — the two-car case has never been run
 

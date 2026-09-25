@@ -8633,6 +8633,26 @@ rather than wording went to Andrew.
     what determines the announcement absent an ARIA override: linear DOM
     order plus the accessible name each element now carries, and both are
     confirmed.
+
+    **CONFIRMED STILL LIVE 2026-09-25, and it is the ONLY live gap the ticked-item
+    audit found** (`docs/ticked-without-proof-2026-09-25.md`). Checked the way
+    that could have shown it already closed: searched every tracked markdown file
+    for `VoiceOver|NVDA|Narrator|screen.reader` — **every hit is reasoning about
+    ARIA and markup; nothing anywhere records a screen reader being run.**
+    **The tick stays, because what this item claims — linear DOM order plus an
+    accessible name on every element — was measured, and that is a narrower claim
+    than "a blind user can use this."**
+
+    > **FOR WHOEVER HAS THE BROWSER, five minutes:** with the dev server up, turn
+    > on Windows Narrator (`Ctrl`+`Win`+`Enter`), tab through **(a)** the booking
+    > page's date step and **(b)** the job record's pinned action bar, and write
+    > down any control that announces nothing, announces only "button", or
+    > announces something different from its visible label. Then turn Narrator
+    > off. **No install, no cost, nothing to build.**
+
+    Same family as 8.3's daylight read and 8.2's phone pass — human-only checks
+    no script substitutes for; `docs/testing/phones-we-do-not-own.md` is where
+    that family is written down.
   *A2 6.2*
 
 - [x] ~~**7.5 — Prices count up from low numbers.**~~ **Fixed 2026-09-20.**
