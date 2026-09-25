@@ -165,9 +165,30 @@ async function run() {
     return !!cond;
   };
 
+  /* ══ THE TEARDOWN GOES IN A `finally`, AND THIS COST A REAL FINDING ═══════
+     The first version of this script called `dropAdmin` on the line after
+     `browser.close()`, with nothing catching a throw in between — exactly the
+     shape `admin-contrast.mjs` already carries a `ponytail:` comment about.
+     **Two runs crashed there on the night this was written** (a viewport key
+     it got wrong, and a route still in flight at close), and each one left a
+     live row in `platform_admins` behind: an undeclared account that can read
+     every tenant through the back office.
+
+     DP Cowork2's new check caught it inside the hour and refused to allowlist
+     it, which is the correct call and the reason it is written down here.
+     `shoot-admin.mjs` never had this bug — its teardown has always been in a
+     `finally`; it was blamed for a while and it was not the cause.
+
+     **A FIXTURE THAT OUTLIVES ITS TASK IS THE REPO'S OWN SUBJECT WEARING A
+     THIRD COAT**: a temporary thing that looks permanent, sitting under a red
+     check that people eventually learn to scroll past. The cleanup now runs
+     whether this finishes, fails, or throws on line one of the browser work.
+     `--crash-after-signin` exists to prove it, and is how it was proved. */
   const browser = await chromium.launch({ headless: !HEADED });
-  const ctx = await browser.newContext({ viewport: { width: SIZES[0].w, height: SIZES[0].h } });
-  const page = await ctx.newPage();
+  let ctx, page;
+  try {
+  ctx = await browser.newContext({ viewport: { width: SIZES[0].w, height: SIZES[0].h } });
+  page = await ctx.newPage();
 
   page.on("console", (m) => {
     const t = m.type();
@@ -241,6 +262,10 @@ async function run() {
     }
   };
   await openHealth();
+
+  // Proves the `finally` above. Throws where the two real crashes threw: after
+  // the admin row exists and before anything tidies it.
+  if (ARGS.includes("--crash-after-signin")) throw new Error("deliberate crash, proving the teardown runs");
 
   // ── TARGET 1 · THE WIRE. The only un-rewritten measurement here. ─────────
   {
@@ -436,9 +461,14 @@ async function run() {
       + `· empty lede said-nothing-heard=${saidNone}`);
   }
 
-  await page.unrouteAll({ behavior: "ignoreErrors" });
-  await browser.close();
-  await dropAdmin(U, K, acct.id);
+  } finally {
+    // NEVER THROWS, AND RUNS ON EVERY PATH. `unrouteAll` first: a request in
+    // flight when the browser closes rejects from the route callback, which
+    // is one of the two crashes that left a row behind.
+    try { await page?.unrouteAll({ behavior: "ignoreErrors" }); } catch { /* closing anyway */ }
+    try { await browser.close(); } catch { /* closing anyway */ }
+    await dropAdmin(U, K, acct.id);
+  }
 
   // A dev-server console error or warning is a defect — CLAUDE.md § Design.
   /* **A GUARD THAT SKIPS MUST PRINT THAT IT SKIPPED.** React Router's two
