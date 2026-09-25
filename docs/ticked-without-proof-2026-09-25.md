@@ -1214,3 +1214,155 @@ entry, which sits immediately after this batch's last item and was not read.
 * **11.1's remainder is owned by Wave 13 item 1, which I confirmed exists and
   did not read.** Whether that item is adequate for what 11.1 handed it is a
   question for whoever judges Wave 13.
+
+---
+
+## BATCH 7 — THE LAST EIGHT, read 2026-09-25. **ALL 77 TICKED ITEMS ARE NOW JUDGED.**
+
+| | |
+|---|---|
+| items in this batch | **8** |
+| carry proof a stranger could check | **8** |
+| could not judge | **0** |
+| **ticks that should come off** | **0** |
+| **judged and nameable** | **77 of 77** |
+| **remaining** | **0** |
+
+**The eight:** `:13974` (14.7, the money contradiction), `:14051` (14.8,
+`platform_admins`), `:14855` (`accept-invite`'s ceiling), `:15022` (8.6, phones
+we do not own), `:15483` (14.14, the 32nd receipt column), `:15702` (the
+shared-endpoint collision), `:15871` (the double-counted second car), `:16147`
+(the mail guard's 40 findings).
+
+### TWO STANDING GUARDS RE-RUN RATHER THAN READ
+
+**These two entries rest on a check that is supposed to keep being true, so both
+were run tonight against the live database** — the only thing in this audit that
+tests whether a tick is still true rather than whether it was true once:
+
+| check | the entry claims | run 2026-09-25 |
+|---|---|---|
+| `tests/platform-admins-declared.test.mjs` | 18 assertions, red on an undeclared row | **18 passed, 0 failed** — and its two sabotage directions both fired |
+| `tests/receipt-fields.test.mjs` | the endpoint's list matches the file's, 32 names | **56 passed, 0 failed, 56 assertions** |
+
+**`receipt-fields` is the one that mattered**, because `:15483` exists *because*
+that test was red at committed `HEAD` for days. **It is green now**, which
+confirms the resolution rather than the write-up of it.
+
+### THE EIGHT, IN ONE LINE EACH
+
+* **14.7** — resolves a contradiction between a code comment and item 5.1 by
+  deciding **which one is right about what** — *"5.1 wins on the labels, the
+  comment wins on the maths"* — and rewriting the comment so it stops
+  contradicting the fix. The done-when was **pressed**: *Mark paid* on the $65
+  job moved collected 515 → 580 and owed 295 → 230, and **$65 is a price no
+  other unpaid row has**, so the observation could only pass for the right
+  reason. Eight sabotages with their red counts listed individually
+  (6/3/2/1/1/4/2 plus 2 elsewhere). It also states its **deviation from 5.1**
+  plainly rather than quietly satisfying a weaker version.
+* **14.8** — the strongest correction-of-its-own-premise in the file. It opened
+  claiming `demo@demo.com` *"is not mentioned in any document in this repo"* and
+  then struck it: the account is named in **thirteen** files. **What was true is
+  narrower and worse — nothing compared the table against any of them, and the
+  two documents that state a count both say one.** *"An account can be described
+  in thirteen files and counted in none of them."* The check reads the document
+  and compares it to the table, **never the other way round**, and its sabotages
+  run against synthetic rosters so no test ever touches the real table.
+* **`accept-invite`'s ceiling** — leads with what it is **not**: 192 bits of
+  randomness, so *"what an unmetered public endpoint costs is the project's
+  invocations: a bill, not a way in"*, written into the function so nobody
+  back-dates an incident that never happened. The sabotage output is quoted
+  verbatim with `EXIT=1`, and the restore is verified as **0 deletions, no
+  residue**. Then three defects **found by reading its own receipt rather than
+  the reply** — including a warning that said `accept-invite` *"is not in
+  `PUBLIC_FUNCTIONS`"* when it is, two lists with confusingly similar names.
+* **8.6** — a research item judged as one. The deliverable exists
+  (`docs/testing/phones-we-do-not-own.md`, **23 numbered steps in it**), the
+  recommendation is costed at zero, and the alternatives are **priced and
+  declined by name** ($29–$49/month, ~100 lifetime minutes, pay-per-minute, and
+  a Mac). **The best paragraph is the one that nearly made it wrong:** four
+  documents recommend a Netlify deploy preview as *"a real URL Andrew can open
+  on his phone"*, and `DECISIONS.md` says the site is deployed from an uploaded
+  build and **not wired to the repo** — in which case previews do not exist. The
+  Wi-Fi route was chosen partly because it needs none of that settled.
+* **14.14 (`:15483`)** — quotes the failing run, then explains that **one cause
+  produced three failures** and says why that matters: *"a reader counting three
+  failures will look for three problems."* It refused to fix it from outside
+  2.8's lane, on the grounds that adding the name would be **deciding what a
+  customer's receipt should disclose** — *"a test edited to match an endpoint is
+  the cheapest way in this repo to make a real disclosure change invisible."*
+* **The shared-endpoint collision (`:15702`)** — the rarest kind of finding
+  here, a collision with **no guard, no report and no failure**: *"the victim's
+  measurement does not break; it comes back strange, and its cause is three
+  minutes in the past and in somebody else's pane."* It cost a wrong entry in
+  `ROADMAP.md`. The deliverable, `docs/shared-resources.md`, **exists**, and its
+  most useful column is *whether anything reports the contention* — for four of
+  the five the answer is nothing.
+* **The double-counted second car (`:15871`)** — the entry that best rewards
+  reading. The reported line **was already correct**; the fault was sixty lines
+  down, where a recompute from the lines array re-added a figure the base
+  already held. **`adjustmentsTotal` means two different things sixty lines
+  apart and both are right.** And 2.2 is exonerated with a mechanism: multi-car
+  reached no tenant until 2026-09-21, so the array was empty and the two figures
+  were the same number — **8.10 then put entries into it and the recompute
+  changed meaning without changing a character.** Confirmed by re-rendering the
+  real email, 315 → 215.
+* **The mail guard (`:16147`)** — **wrong twice, both versions kept**, and the
+  second is the one to read: a quote was lifted from `tests/_mail.mjs` and *"the
+  sentence underneath it that disqualified the conclusion was not read"* —
+  committed by the session that had just finished writing up that exact failure.
+  The forty findings classify as **25 fixture logins that send nothing, 14
+  addresses inside comments, and at most one worth a human's attention**, so the
+  defect is in the guard, not the call sites.
+
+### ONE MORE STALE SENTENCE, THE FOURTH OF THE PATTERN
+
+**14.7 ends:** *"STILL OPEN IN WAVE 5: 5.2 … 5.3 … and 5.4 … are untouched"*,
+then a superseding footnote that updates 5.2 and 5.3 and says **"5.4 is still
+open."** **5.4 is ticked, `DONE 2026-09-18`** — the same date as the footnote.
+Nothing rests on it and no tick moves; it is recorded only because it is the
+fourth instance in this audit of the same shape, after batch 4's three and
+batch 6's 11.1 title. **Four in seventy-seven entries, all found by reading,
+none by a tool.**
+
+---
+
+## THE PASS IS COMPLETE — WHAT SEVENTY-SEVEN ENTRIES ADD UP TO
+
+**Every `- [x]` item in `ROADMAP.md` has now been opened and read as a stranger
+would.** The first pass judged 19 nameable items across two sittings; batches 2
+to 7 judged the remaining 58 in one.
+
+| | |
+|---|---|
+| `- [x]` items | **77** |
+| judged | **77** |
+| **ticks that should come off** | **0** |
+| ticks carrying a **live named gap** | **3** — `:4714` (steps 6 and 7 never compared), 9.5 (two open jobs never on screen), 7.4 (no screen reader, found by the first pass) |
+| gaps named inside a ticked entry that **belong to no item** | **3** — closed `<details>` never opened before tap-target measurement, `admin-contrast.mjs`'s crash-leak, `Clients.jsx:742`'s bare English |
+| defects of **form** — a sentence or title that reads false | **4** |
+| claims **re-measured** rather than re-read | **5**, all of which held |
+
+**THE HEADLINE IS THE ONE NOBODY WANTED AND IT IS WORTH STATING PLAINLY: NOT ONE
+TICK IN SEVENTY-SEVEN WAS FOUND RESTING ON NOTHING.** The pass was commissioned
+on the reasonable suspicion that some were. **It was wrong, and the way it was
+wrong is the useful part** — the two faults that started the whole thing (2.5
+ticked-in-fact for three days, 2.15's proof recorded nowhere) were **both found
+by picking an item up and doing it**, not by auditing one. **Reading seventy-seven
+entries found three live gaps and three unowned ones; doing two items found two
+real faults.** That ratio is the recommendation.
+
+**WHAT THIS PASS IS GOOD FOR, then, stated so the next person does not
+over-order it:** it is a *map*, not a *test*. It says where the gaps are, who
+owns them, and which three need a browser. It cannot say whether the thing each
+entry describes is still true today — **and the two checks re-run in batch 7 are
+the only places in seventy-seven where that question was even asked.** Both were
+green, which is one data point and not a trend.
+
+**THE FIVE RE-MEASUREMENTS, BECAUSE THEY ARE THE ONLY HARD EVIDENCE THIS PASS
+PRODUCED:** 2.8's three booking ids (all three as claimed, including the one
+claimed missing); `vehicles.json` summing to exactly 1,103; the tap probe
+containing the string `details` zero times against 18 files that use it;
+`platform-admins-declared` at 18/0; `receipt-fields` at 56/0. **Five out of
+seventy-seven, and every one of them took under a minute.** If this pass has a
+successor, that is what it should be made of.
