@@ -319,6 +319,15 @@ and how the wait ends.
   messaging profile exists and is on, with **zero numbers and no webhook**.
   **The webhook field stays empty until there is a function to point it at** —
   do not fill it in to tidy it.
+  **Done when** (written 2026-09-25; this item had none): a number exists on the
+  Telnyx messaging profile, a send function is deployed, the profile's webhook
+  points at it, **one message has been sent to Andrew's own mobile and received**,
+  and **the delivery receipt has come back through the webhook and been recorded
+  in this product's own rows** — not read off the Telnyx dashboard.
+  **What failing looks like:** a message that sends and leaves no delivery row,
+  which is the shape every email fault in this repo has had.
+  **Queued behind two things, both named:** 0.14 (there is no number yet) and
+  Andrew settling what the messages say (`TEXTING.md`). **Not stalled — queued.**
 - [ ] **0.14 — The 10DLC campaign registration. DEFERRED ON PURPOSE — this is
   a decision, not an oversight.** Brand
   `4b2001a0-c7e7-ede3-76fa-a67ec4841df8` (TCR `BMKZFBT`) is **VERIFIED** —
@@ -337,6 +346,16 @@ and how the wait ends.
   mobile and has not been entered, and nothing else can begin until it does.
   Order: verify phone → campaign → number → key → send function.
   `docs/services-and-secrets.md` § 4.
+  **Done when** (written 2026-09-25; this item had none): **either** the TCR
+  campaign reads a registered/active state, a number is attached to the messaging
+  profile and the API key is in the vault — **or** this entry carries Andrew's
+  dated decision to leave it parked, which is a real close rather than a deferral,
+  because he has already ruled he will not start a monthly charge before launch.
+  **What failing looks like:** the campaign still sitting at the payment step with
+  nobody having decided either way, which is where it is today.
+  **The one step that is his and costs nothing:** enter the six-digit code that
+  was texted to his mobile. Nothing else in the order above can start until it is
+  in.
 - [ ] **0.15 — OAuth consent-screen verification for `business.manage`.**
   **Not started by anybody.** It is the *second* Google gate; the access
   request (case `9-7552000041929`) does not cover it. Approval of that one is
@@ -344,6 +363,15 @@ and how the wait ends.
   **Waits on:** Google, then a verification submission nobody has begun.
   **How the wait ends:** check the quota; three hundred means the first gate
   opened. `docs/services-and-secrets.md` § 5.
+  **Done when** (written 2026-09-25; this item had none): the `business.manage`
+  quota reads **300** rather than 0 — which is how the first gate announces
+  itself, since no email arrives — **and** a consent-screen verification has been
+  submitted for that scope and come back approved.
+  **What failing looks like:** a quota still at 0, or an approved quota with no
+  verification ever submitted, which would leave the second gate shut while
+  everything looked open.
+  **Whose job:** reading the quota is Andrew's, in the Google Cloud console. **Two
+  gates, and this item is the second one** — do not close it on the first.
 
 - [ ] **0.16 — The site is "unrated" by web filters, and that is why some
   networks block it. NEW ROW, 2026-09-22 — recorded in `FOR-ANDREW.md` and
@@ -8726,6 +8754,19 @@ rather than wording went to Andrew.
 - [ ] **7.6 — "Unlimited photos" against a 1 GB cap.** The back office shows
   1 GB total, "10.2 MB promised to each". Raise the storage or change the words.
   *A2 6.4*
+  **Done when** (written 2026-09-25; this item had none): **no page a detailer or
+  a customer reads promises "unlimited" photos while any cap is in force**, and
+  the figure the back office prints equals `photo_total_bytes()` divided by
+  `photo_tenant_share()` **read from the database rather than typed into the
+  page**.
+  **What failing looks like:** the word surviving on one surface after the others
+  are fixed, or the two numbers drifting once `photo_total_gb` changes — which is
+  exactly what 0.11 will do to it.
+  **WHICH BRANCH IS NOT THIS ITEM'S TO PICK, and that is the point:** 0.11 raises
+  the allowance from 1 GB to 10 GB **in the same change as the upload switch**
+  (`docs/the-photo-allowance.md` § 2). **So this item closes inside that change,
+  not before it** — changing the words now to describe 1 GB means changing them
+  again a week later.
 
 - [x] **7.7 — DONE 2026-09-21. Both halves of "your customers … and your
   photos are yours" are now built and pressed.** ~~Three public pages promise
@@ -12929,10 +12970,27 @@ the dashboard or back office at phone width at all.
   Subscription revenue is visible; hosting, database, email and domain costs
   are not. Manual cost entry is fine to start.
   *A1 P3-06*
+  **Done when** (written 2026-09-25; this item had none): one back-office screen
+  shows subscription revenue for a period **minus** platform costs for the same
+  period; a cost typed in by hand appears in that figure; and **a period with no
+  costs entered reads as "costs not entered" rather than as a profit** — the
+  unknown-versus-known-empty distinction this repo has already paid for twice
+  (9.8, and the setup banner in 9.3).
+  **What failing looks like:** a confident net figure computed from an empty cost
+  list, which would overstate the platform's profit by the whole of its costs and
+  look completely normal on screen.
 
 - [ ] **9.15 — Onboarding: "Six short tours, up to 37 steps".**
   Replace with short contextual prompts tied to unfinished setup.
   *A1 P3-11*
+  **Done when** (written 2026-09-25; this item had none): the 37-step tours no
+  longer run; **every prompt that remains names a specific unfinished setup step
+  and carries a control that goes straight to it**; and **a business with nothing
+  unfinished sees no prompt at all** — pressed on one complete business and one
+  incomplete one, at 320 first.
+  **What failing looks like:** a prompt with nothing to press, or a prompt shown
+  to a business that has finished setting up, which is 9.3's fault in a new
+  place.
 
 - [x] **9.16 — Hide the owner-only "The website business" row from detailers.**
   Depends on 0.1.
@@ -13142,11 +13200,35 @@ their age is not Andrew's problem.
 - [ ] 12.1 Subscription billing end to end: sign-up → pay → renew → failed
   payment retries → page offline → back when paid. Sandbox proves all of it.
   *A2 5.8*
+  **Done when** (written 2026-09-25; this item had none): in Stripe **sandbox**,
+  one account is walked through every transition in that chain, and **each one is
+  observed in this product's own rows and on the actual booking page** — not
+  asserted from the Stripe dashboard. Specifically: the page is reachable after
+  paying, **unreachable after the failed payment**, and reachable again once paid,
+  with the state read off the page rather than off the subscription record.
+  **What failing looks like:** every Stripe event arriving correctly while the
+  booking page never changes state, which is the half only the page can answer.
 - [ ] 12.2 Real in-person card payment. Today "Card" only writes the word
   "Card" into the notes, while the home page promises "Take a card payment on
   the driveway." **Until this ships, 10.1 must change the home page wording** —
   a claim the product cannot keep is a copy bug, not a missing feature. *A2 4.6*
+  **Done when** (written 2026-09-25; this item had none): **either** a real card
+  is taken in person, the booking's payment state is set **by that transaction**
+  rather than by a typed note, and the receipt the customer receives names the
+  card payment — **or** the home page stops promising it. **Both branches close
+  this item and one of them is free**, which is why the second is written down
+  rather than left implied.
+  **What failing looks like:** the page still promising a driveway card payment
+  while "Card" is still only a word in the notes — which is the state today, and
+  is a copy bug rather than a missing feature until somebody chooses a branch.
 - [ ] 12.3 Optional deposit at booking. *A2 Part 8 item 2*
+  **NEEDS A DECISION ABOUT WHAT DONE MEANS — no criterion written 2026-09-25, on
+  purpose.** One line of description is not enough to write a gate a stranger
+  could check, and inventing one would be this session deciding the feature.
+  **The missing piece:** who sets the deposit and in what form — a percentage of
+  the quote or a fixed amount, per business or per service — and what happens to
+  it on a cancellation. **Until that is answered there is nothing to test**, and a
+  plausible-sounding done-when here would have to be un-written later.
 - [ ] **12.4 — Split the demo account before the first real detailer signs up.**
   Deliberate today (see 0.1) and correct while every business is a fixture.
   **The trigger is the first real signup, not a date.** At that moment **TWO**
