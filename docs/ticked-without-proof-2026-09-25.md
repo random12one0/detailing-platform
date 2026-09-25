@@ -1065,3 +1065,152 @@ judge them on the same question anyway.
 * **The correction at the top rests on enumeration, which I did once.** If a
   ticked item is added or removed the numbers move; the command that regenerates
   them is in the table.
+
+---
+
+## BATCH 6 — read 2026-09-25: the copy wave, Wave 11, and the first six unnumbered 14.x entries
+
+| | |
+|---|---|
+| items in this batch | **10** |
+| carry proof a stranger could check | **10** |
+| carry a live named gap of their own | **0** |
+| could not judge | **0** |
+| **ticks that should come off** | **0** |
+| **judged and nameable now** | **69 of 77** |
+| **remaining, and nameable** | **8** |
+
+**The ten, in roadmap order:** 10.1, 10.2, 11.1, and the five 2026-09-16/17
+security-and-money entries plus the ruling that follows them — `:13619` (14.1,
+the private note), `:13642` (14.2, the calendar link), `:13676` (14.3, the email
+row), `:13716` (14.4, the silent cancellation), `:13767` (14.5, the settled
+payment), `:13814` (14.6, the ten never-run tables), `:13932` (the on-site
+money ruling). 11.2 (`:13454`) skipped as already judged — **but see below, its
+headline number was re-measured anyway.**
+
+**THE 14.x ENTRIES ARE A DIFFERENT SHAPE FROM EVERYTHING JUDGED SO FAR AND THEY
+ARE THE BEST-EVIDENCED IN THE FILE.** They predate the roadmap's current
+conventions, and what they have instead of a `Done when:` line is **four
+artifacts each, named by path**: a `docs/VERIFIED.md` section, a receipt, a test
+or script, and a sabotage count. **Every one of those paths was checked and
+every one exists** — `docs/VERIFIED.md` §§ 14.1 through 14.6 at lines 1360,
+1412, 1494, 1624, 1755 and 1882; `receipts/receipt-fields.json`,
+`ics-audience.json`, `email-sends.json`, `e2e-payment.json`,
+`e2e-ten-features.json`; `tests/receipt-fields.test.mjs`,
+`ics-audience.test.mjs`, `email-sends.test.mjs`, `svix-signature.test.mjs`,
+`money-advanced.test.mjs`; `scripts/e2e-payment.mjs`, `e2e-ten-features.mjs`;
+and `artifacts/e2e-payment/`. **Procedure step 3 asks whether a named proof
+still exists. For these six, it does, all of it.**
+
+### 11.2's HEADLINE NUMBER, RE-MEASURED RATHER THAN ACCEPTED
+
+The first pass cleared 11.2 partly because it *"names a component, a 1,103-row
+data file and a covering test"* — a proof-marker count, which is the method that
+pass itself concluded does not work. So the file was read:
+
+```
+node -e "const v=require('./app/src/book/vehicles.json'); …"
+top-level keys: 45   sum of array lengths: 1103
+```
+
+**Exactly 1,103, across 45 makes.** The claim is true to the row. That is the
+second time in this audit a number has been re-taken rather than re-read (2.8's
+booking ids were the first), and **both held** — which is worth recording,
+because this file has spent a lot of words on claims that did not.
+
+### ONE DEFECT OF FORM, AND IT IS THE CHECKBOX ITSELF — 11.1
+
+**`- [x] 11.1 — Geoapify: address autocomplete, drive time and routing.`**
+**One of those three is built.** The body says so plainly — *"Drive time and
+routing: not built, and blocked… Nothing in the codebase calls a routing or
+drive-time endpoint"* — and hands the remainder to **Wave 13 item 1**, *"Day
+view in the calendar with drive time between jobs"*, **which exists at
+`ROADMAP.md:13567`** — checked, not assumed. **So the remainder is owned and no
+tick should come off.**
+
+**What is wrong is the line a person scanning checkboxes reads.** The title
+names three capabilities and carries a tick; only the strikethrough and a
+paragraph forty lines in say that two of them are somebody else's. **This is the
+same class as batch 4's three stale sentences, one notch worse**, because it is
+in the item's own title rather than buried in its body — and a title is what a
+reader sees when they are deciding whether to open an entry at all. **The repair
+is to say "address autocomplete" in the title and let Wave 13 carry the other
+two words.** Not mine to make.
+
+The entry also does the right thing with its own stale blocker and says why:
+*"~~deploys are frozen~~. The freeze ended 2026-09-21; corrected 2026-09-24.
+This item is CLOSED, so the stale line changes nothing here — **it is fixed
+because a reader passing through a ticked item still reads it as the current
+state**."* That sentence is the argument for batch 4's staleness finding, made
+by somebody else first.
+
+### THE STRONGEST EVIDENCE IN THE BATCH
+
+* **14.1** — the fix is a number a stranger can re-take anonymously: **31 named
+  keys instead of 66**, `admin_notes` gone, *"measured anonymously with no API
+  key before and after"*. The done-when is unusually well built — *"a test
+  asserts the LIST rather than the absence"*, which is the difference between a
+  guard that survives a new column and one that does not.
+* **14.2** — measured against the **deployed** function before (v50) and after
+  (v51), with the leaked strings quoted verbatim, and **one of its four
+  sabotages was run against the real unfixed deployment** rather than a local
+  copy. It also states the shape of the hole precisely: *"It is the one link, in
+  the one inbox, that flips"* — not a cross-tenant walk.
+* **14.3** — the counting is the proof. Invoicing a real booking three times
+  moved the send counter by **4** and wrote **6** rows, *"the two extra are the
+  sends that never reached the provider, which is the half that was silent."*
+  Then six signed webhook events including a forgery refused 400, a six-minute-old
+  genuine signature refused 400, and **a late `delivered` that could not
+  un-bounce a bounced row** — an ordering case most tests would never think to
+  try.
+* **14.5** — real money, really settled: Stripe's `4242` card, a named connected
+  account and payment intent, and *"the Money screen's waiting-on-payment fell
+  from $490 to $295 — seen on the screen, not only in its query."* **And it
+  reports that two of its seven sabotages PASSED, which was a defect in the
+  check** — both had only loosened an assertion that was already satisfied. They
+  were replaced. **A check that admits two of its own controls were hollow is
+  more believable than one that reports seven for seven.**
+* **14.6** — a ten-row before/after table where every "now" says *how the row
+  was made*, and a correction to its own premise in the first sentence: the list
+  was **one** row out of date, not two, because 14.5's payment landed on
+  `bookings.stripe_payment_intent` rather than on any of these ten tables.
+* **`:13932`, the on-site money ruling** — Andrew's words quoted, and then the
+  finding that matters more: **the same three words meant two different figures
+  on two screens**, and *"on the demo data the wrong figure was never on
+  screen"* because the panel hides its rates below eight finished jobs and the
+  business has six. **A wrong number nobody can see is still wrong**, and it
+  would have appeared the moment a real detailer passed eight jobs. Four
+  sabotages with the count of red checks each produced.
+* **10.1** — a before/after list of every string, which is the correct evidence
+  for a copy item because a stranger checks it by opening the screen. Two
+  entries are refusals with reasons: *"Tallest bar $741"* was **not a fault**,
+  and *"External booking check"* named the wrong feature entirely. Andrew's
+  ruling on "Visits due" is quoted.
+* **10.2** — thirteen paragraphs condensed, **cross-checked against the width
+  sweep's 23 load-bearing strings first** (zero collisions, because body prose
+  is not clicked by its words), verified at four widths, and it records that it
+  broke two of `platform-admin.test.mjs`'s checks on landing and **re-pointed
+  them at the underlying fact rather than the wording** — commit `a470f3f`.
+
+### THE EIGHT THAT REMAIN
+
+`14051` `platform_admins` holds two rows · `14855` `accept-invite` carries the
+ceiling · `15022` 8.6, phones we do not own · `15483` found by DP Cowork and
+reproduced independently · `15702` found out of a measurement rather than an
+argument · `15871` one line in `_shared/pricing.ts` · `16147` inherited, not
+caused. **That is seven** — the eighth is `13974`, the 14.7 contradiction
+entry, which sits immediately after this batch's last item and was not read.
+
+### WHAT THIS BATCH COULD HAVE MISSED
+
+* **The 14.x entries were judged on their artifacts existing and their bodies
+  reading soundly. I opened none of the receipts and re-ran none of the
+  checks** — so what is established is that the evidence is where it says it is,
+  not that it still says what it said. **`docs/VERIFIED.md` records these at
+  commit `2a10b86`, which is not HEAD**, and nothing here re-confirmed them
+  against today's code.
+* **14.3, 14.5 and 14.6 are long and I read roughly the first half of each**,
+  stopping once the measurement and the sabotage count were read.
+* **11.1's remainder is owned by Wave 13 item 1, which I confirmed exists and
+  did not read.** Whether that item is adequate for what 11.1 handed it is a
+  question for whoever judges Wave 13.
