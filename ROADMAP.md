@@ -368,8 +368,10 @@ and how the wait ends.
   office, which is the exact mistake this repo has made before.
   **BUT IT IS A LAUNCH BLOCKER AND IT IS NOW TRACKED AS 12.4.** It is safe
   only while every business in the database is a fixture. The day a real
-  detailer signs up, one guessable `demo123` login reads every detailer's
-  customers. It comes out then, not before.
+  detailer signs up, **two** guessable logins read every detailer's customers —
+  corrected 2026-09-25 from "one", read from `platform_admins` rather than
+  inferred; `docs/platform-admins.md` names both. They come out then, not
+  before.
 
 - [x] **0.2 — RESOLVED. Stripe is three days away, and sandbox works today.**
   Andrew, 2026-09-16: Stripe can be set up in three days; he is under 18 and
@@ -7098,7 +7100,8 @@ requested.
   **BUILT.** `scripts/sweep-tap-targets.mjs`'s back-office section:
   removed the `admin-account.mjs` throwaway-admin path (still used, and
   still correct, by `shoot-admin.mjs` and `admin-contrast.mjs` — untouched);
-  signs in as `demo@detailplatform.com` / `demo123`, the same credential
+  signs in as the seeded demo owner (address only — the password is not written
+  here; `docs/platform-admins.md` says where it lives), the same credential
   every other section of this file and several other scripts already use;
   added `ADMIN_WIDTHS` (the existing widths plus 1254, skipped only when
   `--widths` is explicitly overridden); added a five-repeat admin-specific
@@ -13054,8 +13057,23 @@ their age is not Andrew's problem.
 - [ ] 12.3 Optional deposit at booking. *A2 Part 8 item 2*
 - [ ] **12.4 — Split the demo account before the first real detailer signs up.**
   Deliberate today (see 0.1) and correct while every business is a fixture.
-  **The trigger is the first real signup, not a date.** At that moment one
-  guessable `demo123` login can read every detailer's customers. Split it into
+  **The trigger is the first real signup, not a date.** At that moment **TWO**
+  guessable logins can read every detailer's customers.
+
+  **SIZING CORRECTED 2026-09-25, and the understatement was the dangerous part.**
+  This entry said **one**. `platform_admins` holds **two** rows — read from the
+  database that day, not inferred: `demo@demo.com`, the master login, which
+  belongs to no business; and `demo@detailplatform.com`, the demo detailer, made
+  an admin deliberately on Andrew's 2026-09-13 ruling so the back office could be
+  verified independently. **Both hold the whole platform. Both come out at the
+  first real signup, not one of them.** **A launch blocker that understates its
+  own size by half is worse than one nobody has written down, because it looks
+  handled.** The roster is `docs/platform-admins.md`; the check that keeps the
+  count honest is `tests/platform-admins-declared.test.mjs`.
+
+  **And the password is no longer written in this sentence** — `CLAUDE.md`'s hard
+  rule, which this entry was breaking while describing the risk of a guessable
+  login. Split it into
   a plain demo detailer and a separate owner login with a real password, and
   restore the `/admin` refusal for non-admins.
   **Done when:** the demo account is refused at `/admin` and the "The website
@@ -13551,17 +13569,73 @@ event id.
 
 ### 14.8 — A second back-office login nobody has written down
 
-- [ ] **`platform_admins` holds two rows, not one.** `demo@detailplatform.com`
+- [x] **DONE 2026-09-25 — `platform_admins` holds two rows, not one, and now a
+  document names both and a check enforces it.** `demo@detailplatform.com`
   is the known deliberate one (0.1, 12.4). The other is **`demo@demo.com`**,
-  which belongs to no business and is not mentioned in any document in this
-  repo. It holds the same full back-office access: every detailer, every
+  which belongs to no business ~~and is not mentioned in any document in this
+  repo~~. It holds the same full back-office access: every detailer, every
   customer, suspend, impersonate, change prices.
+
+  **← THAT CLAIM WAS WRONG, AND CORRECTING IT MAKES THE ITEM SHARPER RATHER THAN
+  SMALLER.** `demo@demo.com` is named in **thirteen** repo files, including
+  `DECISIONS.md`, `docs/overnight-log.md` — which calls it *"A LAUNCH BLOCKER,
+  WRITTEN DOWN RATHER THAN ARGUED"* — `docs/VERIFIED.md`, `docs/standing-work.md`
+  and `docs/whats-left-2026-09-10.md`. **It was never undocumented.** What was
+  true is narrower and worse: **nothing compared the table against any of those
+  documents**, and the two that state a count both say **one**. `docs/roadmap.md`
+  still reads *"`demo@demo.com` is the ONE row in `platform_admins`"*, written
+  while that was true and never re-read. **An account can be described in
+  thirteen files and counted in none of them.**
   **This is not a new risk today** — same as 0.1, every business is a fixture.
-  It is a **sizing** correction: 12.4 says "one guessable `demo123` login" and
+  It is a **sizing** correction: 12.4 said "one guessable login" and
   there are **two** guessable logins, one of which nothing tracks.
   **Fix:** fold into 12.4 — remove or rename both before the first real signup.
   **Done when:** `platform_admins` contains exactly the accounts a document
   names, and a check fails if it grows a row nobody declared.
+
+  **CONFIRMED FROM THE DATABASE, NOT FROM THIS ENTRY — 2026-09-25,
+  `kguqylyzgyzfktkfnhjb`, checked before the first query.** **Exactly 2 rows**,
+  and they are the two named above. `demo@demo.com` created **2026-09-07**, with
+  **zero** `business_users` memberships — it belongs to no business, which is
+  correct for a platform owner. `demo@detailplatform.com` created **2026-09-20**,
+  one membership, the `demo-detail` fixture. **The table has four columns and not
+  one of them is a permission**, so every row is all-or-nothing; there is no
+  narrower admin level to move anybody to.
+
+  **NEITHER ROW WAS TOUCHED.** Removing them is **12.4**, at the first real
+  signup. `/admin` is reached by `demo@demo.com` in roughly sixty checks, and
+  pulling a back-office login out from under them at midnight is the tidy-up that
+  breaks the net rather than the risk.
+
+  **BUILT: the declaration and the check.**
+  * **`docs/platform-admins.md`** — the roster a person maintains on purpose.
+    Both accounts, why each exists, which business each belongs to, where its
+    login lives, and **when it goes**. No credential in it; `CLAUDE.md`'s hard
+    rule, and the check asserts the file still states that rule.
+  * **`tests/platform-admins-declared.test.mjs`** — 18 assertions. **It reads the
+    DOCUMENT and compares it to the table, never the other way round**, because a
+    check that derives its expectation from the thing it is checking agrees with
+    whatever it finds, including a row somebody added at three in the morning.
+    It selects `email` only. **`note` is deliberately never read** — see below.
+    **Broken on purpose in both directions, and both are re-proved on every run
+    from synthetic rosters so no sabotage ever touches the real table**: an
+    undeclared row (red, named) and a declared row that is absent (red, named).
+    Zero rows discovered is an explicit failure.
+
+  **AND ONE THING FOUND BY READING IT THAT IS NOT A ROW PROBLEM.** The `note`
+  column of the master login **contains that account's password in plain text.**
+  Two documents are right that the value is in no repo file — and it is sitting in
+  a database column that anything with service access can read. **The value is
+  not repeated anywhere, including here.** Moving it out of the note and leaving
+  the reason behind is a write to a live table, so it is Andrew's or a granted
+  session's. **NEEDS ANDREW: decide whether the master login's password comes out
+  of `platform_admins.note`.** Not urgent — nothing real is on the platform — and
+  not nothing.
+
+  **A SEPARATE, SMALLER ONE, FIXED HERE:** `docs/standing-work.md` printed a
+  password beside that address as a teaching example. It was **superseded on
+  2026-09-09** and therefore wrong as well as against the rule. Redacted; the
+  example is intact.
 
 ### 14.9 — ~~Nine~~ was already eight, now four, public endpoints have no rate limit
 

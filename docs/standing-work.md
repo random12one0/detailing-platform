@@ -50,7 +50,9 @@ line in `docs/overnight-log.md`, not a commit.
 and none of them is a thing he was asked to approve:
 
 1. **Never re-open a decision he has made** or redesign something he has
-   approved. `demo@demo.com` / `demo` is the standing example: a session that
+   approved. `demo@demo.com` and its password are the standing example (the value is
+   deliberately not written here — `docs/platform-admins.md` says where it
+   lives): a session that
    "improves" it locks him out of his own back office.
 2. **Never write to the live business project** `adtlnvihwrcqcasqcjwd`. Reads
    only. Never deploy to the `andrewsauto` Netlify site.
