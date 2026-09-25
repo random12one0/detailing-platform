@@ -55,7 +55,15 @@ The gate is built and the column exists, but the **deployed** copy of
 **A customer is still exposed until Andrew publishes.** Publishing is his and it
 is the last step. Nothing here should be deployed to make anything green.
 
-### For Andrew's own list — one decision, evidence only
+### ~~For Andrew's own list — one decision, evidence only~~ RESOLVED 2026-09-24. Not a decision any more.
+
+**THE RULING WAS REVERSED BY ITS AUTHOR ON 2026-09-21, WHICH IS THE DAY AFTER
+THIS BLOCK WAS WRITTEN AND THE SAME DAY.** Marketing email is allowed again, so
+`campaignEmail` shipping is not a contradiction and there is nothing here for
+Andrew to decide. **The live version of the rule is
+`docs/MANAGER-CLOSE-2026-09-21.md` § 2** — which carries the reversal, his
+reason for it, and the one carve-out. ROADMAP **3.4a** is closed on that basis.
+**Kept rather than deleted, because the reversal is the load-bearing part.**
 
 **`campaignEmail`: the ruling forbids marketing email; the feature ships. Which
 gives?** Not an opinion — the evidence on both sides:
@@ -65,12 +73,14 @@ gives?** Not an opinion — the evidence on both sides:
 * **It is the legally careful one.** `send-campaign` is member-gated and
   **refuses to send without a mailing address**; `campaignEmail` is the only
   template in the file carrying an unsubscribe link and a postal address.
-* **The rule it contradicts is his own**, recorded in
+* **The rule it contradicted was his own**, recorded in
   `docs/MANAGER-CLOSE-2026-09-21.md` § 2: *"No marketing email, ever. Email is
   receipts, reminders and alerts. Anything that sells goes by text."*
-* **Either answer is coherent; leaving both standing is not** — a session
-  reading "no marketing email, ever" beside a working campaign sender cannot
-  tell which is true. Full write-up: ROADMAP **3.4a**. **Nothing was touched.**
+  **← THAT RULE IS OVERTURNED. Read § 2 itself, not this quotation of it.**
+* **Either answer is coherent; leaving both standing is not** — which is what
+  made this a decision, and **the author removing the rule is one of the two
+  answers.** `campaignEmail` and `send-campaign` stay; nothing was deleted.
+  Full write-up and closure: ROADMAP **3.4a**. **Nothing was touched.**
 
 ### Three things are built or ruled and NOT pressed — if this session is cleared, these survive here
 
@@ -4200,9 +4210,14 @@ requested.
   ### FRONT HALF DONE 2026-09-21 — the classification, on the source.
   ### THE BACK HALF — rendering and end-to-end sending — IS NOT DONE.
 
-  **The question this answers, and it had never been asked.** Andrew's binding
-  ruling: *no marketing email, ever. Email is receipts, reminders and alerts;
-  anything that sells goes by text.* Every template was previously read for
+  **The question this answers, and it had never been asked.** Andrew's ruling at
+  the time, **reversed by him on 2026-09-21 and no longer binding — live version
+  in `docs/MANAGER-CLOSE-2026-09-21.md` § 2**: *no marketing email, ever. Email
+  is receipts, reminders and alerts; anything that sells goes by text.*
+  **The classification below is unaffected and is still worth having** — it
+  records which of the four kinds each template IS, which is a fact about the
+  templates rather than about the rule. What expired is the conclusion that a
+  marketing template must not exist. Every template was previously read for
   whether it is CLEAR. None was read for **which of those four it is**. Nothing
   was rendered and nothing was sent this round; nothing was fixed, by
   instruction.
@@ -4462,9 +4477,10 @@ requested.
   differing for this reason — `send-owner-reminders` — which is correct and
   expected; nothing was deployed and nothing should be deployed to clear it.
 
-- [ ] **3.4a — `campaignEmail` is marketing, and marketing is forbidden. The
-  feature contradicts its owner's own rule by existing. NOT TOUCHED — not a
-  line — because retiring or grandfathering it is Andrew's call.**
+- [x] **3.4a — DONE 2026-09-24. ~~`campaignEmail` is marketing, and marketing is
+  forbidden.~~ THE RULE WAS REVERSED BY ITS AUTHOR ON 2026-09-21, SO THE
+  CONTRADICTION DISSOLVED RATHER THAN BEING RESOLVED. Nothing was deleted; not a
+  line, then or now.**
   *Found in the 3.4 classification pass, 2026-09-21.*
   **The evidence, both halves.** It is unambiguously marketing: the button
   reads **"Book again"**, the body is the detailer's own sales message, and
@@ -4478,6 +4494,10 @@ requested.
   marketing email, ever. Email is receipts, reminders and alerts. Anything
   that sells goes by text."* — Andrew, recorded in
   `docs/MANAGER-CLOSE-2026-09-21.md` § 2 as binding.
+  **↑ NO LONGER BINDING. He reversed it on 2026-09-21 and this item is CLOSED on
+  that basis — see the closure at the bottom of this entry, and § 2 itself for
+  the live version. Marked here rather than only below, because a reader who
+  stops early gets the opposite of the truth.**
   **Done when:** Andrew has ruled either that the ruling retires the feature —
   in which case `send-campaign`, `campaignEmail` and the unsubscribe plumbing
   come out together — or that this one is grandfathered, in which case the
@@ -4489,6 +4509,80 @@ requested.
   deletions uncommitted from another session, and CLAUDE.md's rule is to stop
   rather than commit around or through somebody else's work in a shared
   document. The row still needs adding.
+
+  ---
+
+  #### CLOSED 2026-09-24 ON THE SECOND BRANCH, AND THE ITEM WAS STALE RATHER THAN HARD
+
+  **Its entire premise expired three days before it was read.** This entry asked
+  Andrew to choose between retiring `campaignEmail` and grandfathering it.
+  **He had already removed the reason for the question on 2026-09-21** by
+  reversing the ruling himself. So the item closes on its own second branch:
+  **`campaignEmail` and `send-campaign` stay, the unsubscribe plumbing stays,
+  and nothing was deleted.**
+
+  **THE LIVE VERSION OF THE RULE IS `docs/MANAGER-CLOSE-2026-09-21.md` § 2.**
+  That is the one document to read; it carries the operative form, the reversal,
+  Andrew's reason and the carve-out, in that order. Everywhere else that quotes
+  the old rule now says so and points there — this file's own
+  *"For Andrew's own list"* block near the top, and 3.4's *"binding ruling"*
+  line above, both amended in the same edit as this paragraph. **His own words
+  are in `FOR-ANDREW.md`**, at the *"REVERSED 2026-09-21"* entry.
+
+  **THE RULING, WITH ITS EXCEPTION, WHICH IS WHAT THIS ITEM'S OWN *Done when*
+  ASKED FOR:**
+
+  > **Marketing email is allowed.** The rule that email was only receipts,
+  > reminders and alerts — and that anything selling went by text — is
+  > overturned by the person who made it. His reason: it was a last-minute call
+  > made to avoid the work of making marketing email legal, and he changed his
+  > mind. He is content to put his mailing address in small print.
+  >
+  > **THE ONE EXCEPTION: the maintenance-due gate does not move.**
+  > `email_customer_maintenance_due` stays off by default, with no dashboard
+  > control. **Do not soften it, do not default it on, do not touch it.** The
+  > gate was never a prohibition — before it, that email fired because an
+  > ordinary reminder toggle was on and nobody had ever chosen to send it.
+  > **That is control, not prohibition, and control is correct whichever way the
+  > marketing question goes.** ROADMAP 0.7 does not move.
+
+  **SO A SESSION READING "no marketing email, ever" BESIDE A WORKING CAMPAIGN
+  SENDER NOW HAS ONE PLACE TO GO** — which is this item's *Done when*, verbatim.
+
+  **AND THE `FOR-ANDREW.md` ROW THIS ENTRY SAYS IS STILL OWED IS NO LONGER OWED.
+  Saying so rather than adding it.** The row was to be a decision request:
+  *retire it or grandfather it?* That decision is made. What remains is the
+  different, smaller question of whether Andrew **wants** campaigns now that he
+  may have them — and **that question is already asked, in two places**:
+  `FOR-ANDREW.md`'s own *"REVERSED 2026-09-21"* entry tells him the feature
+  exists and already works (with a correction, by the session that first got it
+  wrong), and `docs/what-we-send.md` § *"Question 3 — Now that marketing email
+  is allowed again, do you want any?"* puts the four options in front of him with
+  what each costs. **A third copy would be a third answer to keep in sync**,
+  which is the fault this whole item is about.
+
+  **WHAT COULD HAVE PROVED THIS WRONG, and what was searched.** The reversal was
+  not taken on the manager's word. Searched: the ruling's own text
+  (`"No marketing email"`) across every `.md`, `.mjs`, `.js`, `.jsx` and `.ts`
+  in the repo — 8 live hits, all accounted for above; reversal vocabulary
+  (`revers*`, `rescind`, `overturn*`, `lifted`, `withdrew`, `allowed again`,
+  `changed his mind`, `no longer binding`, `superseded`) against every line
+  mentioning marketing; and **anything dated 2026-09-22, -23 or -24 that could
+  be a re-reversal**, which is the search that mattered, because a reversal of
+  the reversal would have made every word above wrong. **There is none — and
+  the opposite turned up.** ROADMAP **0.12**, dated 2026-09-22, keeps Resend
+  *"for campaigns, because ZeptoMail bans marketing mail outright and will cut
+  the account off for sending it."* **That is a later decision that only makes
+  sense if marketing email is going to be sent**, so the reversal is not merely
+  recorded, it has been built on. `campaignEmail` and `send-campaign/index.ts`
+  were also confirmed still present, and `git log` since 2026-09-21 shows
+  neither has been touched.
+
+  **Hits deliberately discounted, said out loud because a search that quietly
+  drops matches is the same failure one level out:** `.claude/worktrees/determined-satoshi-936e89/`
+  holds an old copy of `CLAUDE.md` and `DECISIONS.md` and produced a dozen
+  `revers*` matches. It is a stale worktree, not a live file in this checkout,
+  and nothing there was read as evidence either way.
 
 - [x] **DONE 2026-09-21 — 3.4b — ~~A detailer can put a sales pitch inside a transactional email,
   and nothing warns them. The real finding of the 3.4 pass, and the one the

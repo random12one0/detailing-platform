@@ -1541,15 +1541,25 @@ once, which is still more than any script here can do.
   2026-09-24** — the word comes off the pricing page and no figure replaces it
   until the storage move puts the real one there. See the decided row above.
 
-- [x] **No marketing email at all — ever — 2026-09-20.** *"how about we just
+- [x] **~~No marketing email at all — ever~~ — 2026-09-20, AND YOU REVERSED
+  THIS ON 2026-09-21. Kept struck through, not deleted, because you told us the
+  reversal matters more than the rule.** What is true now is further up this
+  file, at *"REVERSED 2026-09-21: marketing email is allowed again"*, and the
+  full version with its one exception is in
+  `docs/MANAGER-CLOSE-2026-09-21.md` § 2. **The one thing the reversal does NOT
+  change: the "your maintenance is due" email stays off unless a detailer
+  deliberately switches it on.** That was never about marketing — it was about
+  nobody having chosen to send it. **The words below are what you said on the
+  20th and are no longer the rule.** *"how about we just
   leave all marketing things to text?... I just don't wanna deal with my address
   being on every single person's email... Let's just have no emails that will
   be, you know, marketing at all."* **So the "your coating is due" email is
   off**, and the whole postal-address problem goes with it — US anti-spam law
   requires the address on marketing mail, and there is now no marketing mail.
-  **A clean line a session can apply without asking again:** email is receipts,
-  reminders and alerts; anything selling goes by text. Texting has its own rules
-  (written consent, STOP) and those are handled when the number is registered.
+  ~~**A clean line a session can apply without asking again:** email is receipts,
+  reminders and alerts; anything selling goes by text.~~ **That line is retired —
+  a session must NOT apply it.** Texting still has its own rules (written
+  consent, STOP) and those are handled when the number is registered.
 
 - [x] **Test detailers: flag, don't delete — 2026-09-20.** 15 of your 16
   detailers are fakes and about 60 automated checks sign into them. Deleting
