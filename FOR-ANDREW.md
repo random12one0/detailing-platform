@@ -699,6 +699,42 @@ still knows them.
 
 ## Waiting on you — nothing breaks while these wait
 
+- [ ] **DO · Run one command that adds a "this is a test row" tick box to your
+  customer list. Everything else for ROADMAP 1.3 is built and proved; this is
+  the one step that makes it real, and it is yours because it changes the
+  shape of the database.**
+
+  ```bash
+  set -a; . ./.env; set +a
+  node scripts/apply-migrations.mjs 20260924010000_a_fixture_is_not_a_customer.sql
+  ```
+
+  **What it does, in plain words.** Your Clients screen currently lists sixteen
+  people for the practice business, and three of them are not people — they are
+  left over from automated checks, with names like *zone-muew68al* and phone
+  numbers like *(555) 013-3* that no phone can ring. They also sit inside the
+  headline figure at the top of the screen: it says **8 have gone quiet** when
+  the true answer for real customers is **5**. This command adds one tick box to
+  every customer, ticks it on the rows that are obviously fixtures, and **the
+  screen then hides them by default** — with a small chip saying *"Show 3 test
+  rows"* if you ever want to look.
+
+  **NOTHING IS DELETED, and that is your own ruling being followed.** About
+  sixty automated checks sign into these fake accounts; a check that cannot run
+  looks exactly like one that passed. Every row stays exactly where it is.
+
+  **It is safe to run twice** — it skips work it has already done. It touches
+  only `kguqylyzgyzfktkfnhjb`, the development database, never your real
+  business.
+
+  **How you will know it worked:** `node scripts/migration-drift.mjs` says
+  `customers.is_test` is absent today and will stop saying it. And
+  `node scripts/client-fixtures.mjs` keeps passing either way, printing
+  `column_live: true` afterwards instead of `false`.
+
+  **Nothing breaks while this waits** — the screen simply goes on showing all
+  sixteen, exactly as it does today.
+
 - [ ] **DO · Open seven emails in your own inbox and tell us whether they read
   right. It is thirty seconds each and it is the last thing standing between
   ROADMAP 3.4 and done.**

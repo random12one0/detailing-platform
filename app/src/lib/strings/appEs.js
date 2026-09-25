@@ -399,6 +399,12 @@ export const appEs = {
   "Search customers": "Buscar clientes",
   "Search name or phone…": "Busca por nombre o teléfono…",
   "Not seen in 3 months": "Sin venir en 3 meses",
+  // ROADMAP 1.3 — the fixture chip. TWO KEYS, never one with an "s" glued on:
+  // the oldest bug in this product. The mark on the row itself reuses the
+  // existing "Test" key further down rather than adding a second word for the
+  // same thing.
+  "Show 1 test row": "Ver 1 fila de prueba",
+  "Show {count} test rows": "Ver {count} filas de prueba",
   // THE ANSWER STRIP. "gone quiet" is lower case on purpose — it is a `.lbl`
   // under a figure, the same register as "visits" and "lifetime", and Spanish
   // does not capitalise a common noun phrase either.

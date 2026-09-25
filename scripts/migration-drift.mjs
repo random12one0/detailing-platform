@@ -220,7 +220,7 @@ for (const f of files) {
     if (e.kind === "droptable") { intendedTables.delete(e.name); continue; }
     if (e.kind === "addcol") {
       const t = intendedTables.get(e.name);
-      if (t) t.cols.add(e.col);
+      if (t) { t.cols.add(e.col); t.colFile.set(e.col, f); }
       continue;
     }
     if (e.kind === "dropcol") {
@@ -265,7 +265,18 @@ for (const f of files) {
         colType.set(cm[2].toLowerCase(), cm[3].trim().toLowerCase());
       }
     }
-    intendedTables.set(e.name, { cols, types: colType, file: f });
+    intendedTables.set(e.name, {
+      cols, types: colType, file: f,
+      // **WHICH FILE DECLARES THIS COLUMN, NOT WHICH FILE CREATED THE TABLE —
+      // 2026-09-24.** The absent list said `customers.is_test (declared by
+      // 20260827000200_tenant_data.sql)`, a migration from August that does
+      // not contain the word `is_test`: the column had been added by a file
+      // from last night. Andrew reads this line and applies the file it names,
+      // which is the wrong file, errors on every statement in it, and concludes
+      // the repo is broken. A report that names the wrong object to act on is
+      // worse than one that names none.
+      colFile: new Map([...cols].map((c) => [c, f])),
+    });
   }
 }
 
@@ -614,7 +625,9 @@ for (const [t, want] of tableSubjects) {
     }
   }
   if (missing.length) {
-    for (const c of missing) columnsAbsent.push(`${t}.${c} (declared by ${want.file})`);
+    for (const c of missing) {
+      columnsAbsent.push(`${t}.${c} (declared by ${want.colFile?.get(c) ?? want.file})`);
+    }
     console.log(`${t.padEnd(42)} ${missing.length} COLUMN(S) ABSENT — ${missing.join(", ")}`);
   } else {
     console.log(`${t.padEnd(42)} matches ${want.file} (${want.cols.size - (canaryTable && t === canaryTable[0] ? 1 : 0)} column(s))`);

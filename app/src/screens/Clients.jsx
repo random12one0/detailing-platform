@@ -133,6 +133,12 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("recent");
   const [lapsed, setLapsed] = useState(intent === "lapsed");
+  // ROADMAP 1.3 — OFF, AND IT IS THE ONLY DEFAULT THAT ANSWERS THE SCREEN'S
+  // QUESTION. A test row is a row a check left behind: `zone-muew68al` with
+  // the number "(555) 013-3", "Smoke TPMOY" with "(555) 014-2". Nobody can
+  // ring them, nobody is worth ringing, and until now they sat in the list
+  // and inside "gone quiet" — on `demo-detail`, three of the eight.
+  const [showTest, setShowTest] = useState(false);
   const [customers, setCustomers] = useState([]);
   const [totals, setTotals] = useState(new Map());
   const [error, setError] = useState("");
@@ -208,9 +214,29 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
 
   useEffect(() => { load(); }, [load]);
 
+  // ROADMAP 1.3 — ONE PLACE DECIDES WHO IS ON THIS SCREEN, AND EVERYTHING
+  // ELSE READS `people`. `customers` is what came back from the database and
+  // is used for exactly two things below: the row cap (a fact about the
+  // QUERY, not about who is real) and the count of fixtures the chip offers.
+  // Every list, every figure, every button's number and the export all take
+  // `people`, because the defect this item is fixing was one screen counting
+  // two different populations in two different places.
+  //
+  // `is_test` IS A COLUMN, NOT A RULE THIS SCREEN APPLIES. The obvious
+  // shortcut — hide anyone whose email ends `.test` — is refused in the
+  // migration's own header: the demo's thirteen seeded personas are
+  // `@example.com`, which is just as reserved, so any rule wide enough to
+  // catch a real dropping is one edit from emptying the demo of its content.
+  // Which rows are fixtures is something somebody KNOWS.
+  const fixtures = useMemo(() => customers.filter((c) => c.is_test).length, [customers]);
+  const people = useMemo(
+    () => (showTest ? customers : customers.filter((c) => !c.is_test)),
+    [customers, showTest],
+  );
+
   const rows = useMemo(
-    () => arrange(customers, totals, { sort, lapsed, today }),
-    [customers, totals, sort, lapsed, today],
+    () => arrange(people, totals, { sort, lapsed, today }),
+    [people, totals, sort, lapsed, today],
   );
 
   // THE ANSWER, RATHER THAN THE LIST YOU WORK THE ANSWER OUT OF.
@@ -235,15 +261,15 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
   // which is the exact failure the five lapsed customers were seeded to end.
   // See docs/VISUAL-CHANGES.md and FOUND.md.
   const answers = useMemo(() => {
-    const quiet = arrange(customers, totals, { sort: "away", lapsed: true, today });
+    const quiet = arrange(people, totals, { sort: "away", lapsed: true, today });
     // `spend > 0` because "spends most" over a business whose customers have
     // all spent nothing names somebody for no reason.
-    const top = arrange(customers, totals, { sort: "spent", lapsed: false, today })[0];
+    const top = arrange(people, totals, { sort: "spent", lapsed: false, today })[0];
     // LIFETIME SPEND IS OWNER-ONLY, here as everywhere else on this screen
     // (the row's third cell and the record's second figure both gate on it).
     // A staff member gets one cell, which `.ledger.one` already draws.
     return { quiet: quiet.length, top: owner && top && top.spend > 0 ? top : null };
-  }, [customers, totals, today, owner]);
+  }, [people, totals, today, owner]);
 
   const openCustomer = async (c) => {
     setOpen(c);
@@ -368,8 +394,15 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
           .eq("business_id", business.id).is("deleted_at", null)
           .eq("status", "completed").lte("end_at", new Date().toISOString())),
       ]);
+      // ROADMAP 1.3 — THE FILE HOLDS WHAT THE SCREEN HOLDS, and it is
+      // filtered HERE rather than in the query on purpose: `.eq("is_test",
+      // false)` is a 400 from PostgREST on any database where the column has
+      // not been applied yet, which would turn a pending migration into a
+      // broken download button. A `.filter` on rows that simply do not carry
+      // the field keeps every one of them, which is the old behaviour
+      // exactly.
       const input = {
-        customers: all,
+        customers: showTest ? all : all.filter((c) => !c.is_test),
         totals: summarise(done, business.timezone),
         timezone: business.timezone,
       };
@@ -387,7 +420,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
       // a desktop is invisible, and "it worked" about a file nobody can see is
       // the same as silence — the number is what a detailer can check against
       // the count at the top of this screen.
-      setExporting(t("Saved {name} — {count} people", { name, count: all.length }));
+      setExporting(t("Saved {name} — {count} people", { name, count: input.customers.length }));
     } catch (e) {
       // A FAILED READ MUST NOT BECOME AN EMPTY FILE, and this is the worst
       // place on the screen for it: a spreadsheet with a header row and
@@ -409,18 +442,18 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
           {search.trim()
             ? `${rows.length} match${rows.length === 1 ? "" : "es"}`
             : lapsed
-              ? t("{shown} of {total}", { shown: rows.length, total: customers.length })
-              : customers.length === 0
+              ? t("{shown} of {total}", { shown: rows.length, total: people.length })
+              : people.length === 0
                 ? t("Nobody yet")
-                : customers.length === 1
+                : people.length === 1
                   ? t("1 person")
-                  : t("{count} people", { count: customers.length })}
+                  : t("{count} people", { count: people.length })}
         </p>
         {/* ROADMAP 7.7. Hidden until there is something to export, because a
             button that hands back an empty file is worse than no button.
             It sits under the count on purpose: the count is the number the
             file should match, and they are read together. */}
-        {customers.length > 0 && (
+        {people.length > 0 && (
           <p style={{ margin: "10px 0 0" }}>
             <button className="btn sm" type="button" disabled={exporting === "going"}
               onClick={exportCustomers}>
@@ -435,7 +468,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
             and the product answers it with two buttons on two screens. The
             smallest honest fix is each one naming the other; a "your data"
             screen would be a new place to look rather than one fewer. */}
-        {customers.length > 0 && (
+        {people.length > 0 && (
           <p className="quiet" style={{ margin: "6px 0 0" }}>
             {t("Your photos export separately, from Business → Photos.")}
           </p>
@@ -446,7 +479,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
           It is drawn from `customers`, not from `rows`, so searching or
           filtering does not change the answer underneath — the strip is a
           fact about the business and the list below it is a view. */}
-      {customers.length > 0 && (
+      {people.length > 0 && (
         <div className={`ledger answers ${answers.top ? "two" : "one"}`}>
           {/* ROADMAP 9.6, SECOND HALF — 2026-09-22. The figure used to say
               only "gone quiet", with no period anywhere on the stat itself —
@@ -490,7 +523,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
       {/* A CONTROL THAT CANNOT CHANGE ANYTHING IS NOISE — the sort is absent
           below three rows (step 4 §8). The chip stays: at two customers you
           can see for yourself, at two hundred it is the screen's second job. */}
-      {customers.length > 0 && (
+      {(people.length > 0 || fixtures > 0) && (
         <div className="clientfilters">
           {/* data-tour — roadmap 2.24. On the wrapper rather than the control:
               `Segmented` is a shared component and marking it there would put
@@ -498,7 +531,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
               elements answering one selector" defect the tour's own header
               warns about. It is conditional (three customers), and a step whose
               target is absent is dropped from the plan. */}
-          {customers.length >= 3 && (
+          {people.length >= 3 && (
             <span data-tour="sort">
               <Segmented label={t("Sort by")} value={sort} options={SORTS} onChange={setSort} />
             </span>
@@ -511,6 +544,21 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
             onClick={() => setLapsed((v) => !v)}>
             {t("Not seen in 3 months")}
           </button>
+          {/* ROADMAP 1.3 — WHERE A FIXTURE IS SHOWN DELIBERATELY, AND THE ONLY
+              PLACE IT IS. Absent entirely when there are none, so a real
+              detailer never meets the word "test" on their own screen. It
+              carries the COUNT because that number is the whole evidence the
+              list underneath it got shorter — a bare "Show test rows" leaves a
+              detailer unable to tell a filter that worked from one that had
+              nothing to do. Pressed, the rows come back with a TEST mark on
+              each; nothing is deleted anywhere, ever (0.3's ruling: about
+              sixty checks sign into these). */}
+          {fixtures > 0 && (
+            <button className={`chip${showTest ? " active" : ""}`} aria-pressed={showTest}
+              onClick={() => setShowTest((v) => !v)}>
+              {n(fixtures, "Show 1 test row", "Show {count} test rows")}
+            </button>
+          )}
         </div>
       )}
 
@@ -583,7 +631,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
           the same fact twice* is about one screen, but a detailer who meets
           both in the same ten minutes should not read one sentence on two
           tabs. */}
-      {customers.length === 0 && !busy && !error && (
+      {people.length === 0 && !busy && !error && (
         <div className="tight emptyscreen">
           <p className="body">{t("No customers yet. They appear on their own when bookings come in.")}</p>
           {sellable === 0 && (
@@ -606,7 +654,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
           )}
         </div>
       )}
-      {customers.length > 0 && rows.length === 0 && (
+      {people.length > 0 && rows.length === 0 && (
         <p className="body">{t("Everyone has been in within three months.")}</p>
       )}
 
@@ -629,8 +677,19 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
           // `querySelector` takes whichever comes first in the document.
           <button key={c.id} className="row-item" data-tour={rowIndex === 0 ? "client" : undefined}
             onClick={() => openCustomer(c)}
-            aria-label={`${c.name}, ${t("last visit {when}", { when: agoWords(last, today, t).toLowerCase() })}, ${owner ? money(spend) : n(visits, "{count} visit", "{count} visits")}, ${phone(c.phone)}`}>
-            <span className="c-who nm">{c.name}</span>
+            aria-label={`${c.is_test ? `${t("Test")}, ` : ""}${c.name}, ${t("last visit {when}", { when: agoWords(last, today, t).toLowerCase() })}, ${owner ? money(spend) : n(visits, "{count} visit", "{count} visits")}, ${phone(c.phone)}`}>
+            {/* ROADMAP 1.3 — THE MARK GOES BEFORE THE NAME, NOT AFTER IT, AND
+                THAT IS THE WHOLE REASON IT IS UNMISTAKABLE. `.c-who` is
+                `nowrap` with an ellipsis, so a mark after the name is the
+                first thing cut at 320px — and these names are the longest in
+                the list ("ROADMAP 2.8 Address Test 2026-09-23"). Ahead of it,
+                it survives every width. `.tag` is the system's own "category
+                that cannot change, quiet, never coloured", which is exactly
+                what this is; nothing new is invented. */}
+            <span className="c-who nm">
+              {c.is_test && <span className="tag c-test">{t("Test")}</span>}
+              <span>{c.name}</span>
+            </span>
             <span className="c-sub">
               <span className="c-date">{agoWords(last, today, t)}</span>
               <span className="c-what">{phone(c.phone)}</span>
