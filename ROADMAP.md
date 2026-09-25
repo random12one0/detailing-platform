@@ -4675,6 +4675,79 @@ the wrong service, and never book a job we cannot reach.
   governs. What moved is that the clearance half is now true of a string a
   detailer can actually type, which it was not yesterday.
 
+  **AND WHAT THE 320 EVIDENCE ACTUALLY IS, IN ANDREW'S OWN WORDS RATHER THAN AS
+  A CAVEAT — 2026-09-25.** He opened the booking page in his own browser at the
+  width Andrew's window actually is and read it: it loads, the last service
+  sits clear of the bar, console clean. **He did not resize the window, because
+  Andrew has twice asked that nobody does**, so for 320 he read the 84 frames in
+  `artifacts/bk-bar-clearance/` instead and opened
+  `320x844 long-plan-step6.png`, where the bar is three lines and about 112px.
+  **So the 320 press itself rests on this check, not on a person.** That is a
+  description of the evidence, not a hedge about it: the presses at 320 were
+  made by `pressed`, which sends a real pointer and reads who the browser
+  handed it to, and nobody has watched a finger do it.
+
+  **HIS QUESTION OFF THAT FRAME, AND THE ANSWER IS "EVERY STEP".** *"Is the
+  page's bottom reserve derived from the measured bar height on every step, or
+  only on the steps where a choice sits last?"* One element carries the bar for
+  the whole flow and the observer is attached for the life of the page, so the
+  answer is the former — but it is now **measured rather than reasoned**, by
+  two questions added to the check on every step and every width:
+  `reserve-tracks` (`--bk-bar-h` equals the bar actually on screen) and
+  `nothing-at-rest` (scrolled to the very bottom, nothing in `.bk-wrap`
+  intersects the bar — **control, heading or sentence**). Step 6 at 320 with the
+  long name: **reserve 113px against a 113px bar, 0 things at rest under it.**
+  What that frame shows is a sticky bar mid-scroll, which is what sticky is
+  for. `bar-clear` only ever measured CONTROLS, so the prose his eye caught was
+  genuinely invisible to this check until `nothing-at-rest` existed.
+
+- [ ] **2.15a — Three tenant strings have no length limit anywhere, and they land on screens nobody has stretched.**
+  Spawned from 2.15 on 2026-09-25, by the work that fixed it. **2.15's fault was
+  a detailer's own words making the footer taller than the number reserved for
+  it. That was `plans.name`, and `plans.name` is the ONLY tenant string in this
+  product with any limit at all** — a single `maxLength={60}` on one React
+  input.
+
+  | string | where it is typed | limit in the UI | limit in the database |
+  |---|---|---|---|
+  | `plans.name` | `Plans.jsx:283` | **60** | none (`text`) |
+  | `services.name` | `Catalog.jsx:765` | **none** | none (`text`) |
+  | `add_ons.name` | `Catalog.jsx:765`, same shared editor | **none** | none (`text`) |
+  | `service_groups.name` | `Catalog.jsx:726` | **none** | none (`text`) |
+  | `businesses.name` | `BusinessInfo.jsx:254` | **none** | none (`text`) |
+
+  **The absence looks deliberate until you look**: the same migrations bound
+  `vehicle_size` to 60 and the payment handles to 120, so the tooling and the
+  habit both exist. These five were simply never given one.
+
+  **WHERE THEY ARE PAINTED**, which is the part that makes this more than
+  tidiness: the service name is the card title beside a right-aligned price
+  (`StepServices.jsx:160`) and a review line (`StepReview.jsx:258`); the group
+  name is a section heading (`:114`); the add-on name is a card
+  (`StepExtras.jsx:48`) and a review line (`StepReview.jsx:267`); and the
+  business name is the page's `<h1>` on the booking page, the confirmation and
+  the manage screen, **and is interpolated into sentences** at
+  `StepServices.jsx:46` and `ManageBookingPage.jsx:603`. None of these has ever
+  been rendered at length by anything.
+
+  **Done when:** `scripts/bk-bar-clearance.mjs` — **extended, not duplicated;
+  two instruments measuring one class is how they drift** — carries a sweep in
+  which `services.name`, `add_ons.name` and `businesses.name` are each set to
+  the longest string the product permits, at 1920, 1440x900, 768x1024, 392x844
+  and 320x844, console read at each, with `legal`, `reachable`, `bar-clear`,
+  `pressed`, `reserve-tracks` and `nothing-at-rest` green on every step; and it
+  goes RED when any one of the three is lengthened past what its screen can
+  hold. **The ceiling is READ FROM THE `maxLength` ON THE INPUT THAT WRITES
+  EACH ONE, never typed into the check** — so the day somebody adds a limit the
+  check tests the new one without being edited, which is the handover's own
+  rule: derive the number from the thing that measures it. **A field with no
+  `maxLength` FAILS the check and is named.** An unbounded field is the
+  finding; it is not a licence to pick a number.
+
+  **THE TRUE FIX IS PROBABLY A LENGTH LIMIT AND THAT IS NOT A SESSION'S TO
+  CHOOSE.** A cap on what a detailer may type is a product decision with a
+  number in it. `FOR-ANDREW.md` carries the row and the suggested figure.
+
   **Done when** (written 2026-09-25 — this item had no `Done when` line, though it
   has carried the substance since 2026-09-20 under *"WHAT WOULD CLOSE IT"*): **one
   run on a real phone, keyboard raised, on step 4 (the address) and step 6 (name,
