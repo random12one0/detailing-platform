@@ -4918,6 +4918,91 @@ requested.
      Not chased further; if it recurs, catch it on a clean tab before
      trusting the count.
 
+  ---
+
+  ### PRESSED 2026-09-23, AND THE FAULT HAS MOVED NEXT DOOR
+
+  **Folded in from `docs/4.1-findings-2026-09-23.md`, now deleted.** Written by
+  DP Cowork, stopped by the manager at the shape stage: **nothing was built, no
+  row was changed, no email was sent.** The diagnosis is complete and measured.
+
+  **THE NAMED FAULT IS STILL FIXED — re-checked rather than trusted.**
+  `components/ConfirmTap.jsx` asks in place — *"Mark Tom Okafor's Full Interior
+  Detail at 9:00 AM as done?"* — and *"Not completed after all"* writes
+  `confirmed` back. Both halves are still on the job record today at 320 and
+  1440, console clean.
+
+  **THE GATE IS ON ONE BUTTON IN A STACK OF THREE.** Hit-tested outward from the
+  bottom edge of «Mark completed» (46px tall), with the control scrolled into
+  view:
+
+  | offset from the button | what a thumb lands on |
+  |---|---|
+  | −24 … −10 | the section title — text, not a control |
+  | −4 | the record's own body |
+  | +4 | the stack |
+  | **+10 … +24** | **«Didn't show up»** |
+
+  **So the nearest control is about 10px below, and it is a consequential write
+  that does NOT ask.**
+
+  ```
+  Mark completed        ConfirmTap — asks, and has a way back
+  Didn't show up        setStatus("no_show")     one tap, no ask
+  Cancel the job        setStatus("cancelled")   one tap, no ask
+  ```
+
+  This item's own Fix line already asked for that sweep — *"Apply the same
+  review to cancel, no-show, suspend, delete, waive and owner-invite."* The
+  review reached `complete` and stopped.
+
+  **AND THE TWO BELOW IT ARE NOT EQUALLY PLACED:**
+
+  * **«Cancel the job» EMAILS THE CUSTOMER** and writes on first tap. This
+    item's own earlier measurement above says completing does not email, *"only
+    a cancellation or a move does."* So the ungated control ten pixels under the
+    gated one sends a real message to a real person on one accidental tap. It
+    does have a way back — «Un-cancel» — but the email has already gone.
+  * **«Didn't show up» IS THE ONLY ONE-WAY DOOR IN THE STACK.**
+    `booking.status !== "no_show"` hides the button once it is set, and **there
+    is no "not a no-show after all" anywhere in the record.** `cancelled` has
+    «Un-cancel»; `completed` has «Not completed after all»; `no_show` has
+    nothing. It is the one of the three a detailer cannot take back, and it is a
+    judgement about a customer.
+
+  **THE ONE THING STILL UNPRESSED, AND IT MUST BE PRESSED FIRST.** That
+  no-way-back claim was **read out of `BookingDetail.jsx` and never pressed** —
+  pressing it needed a `no_show` row, which is a database write nobody granted.
+  **Open a booking that is already `no_show` and look for a way back. If one
+  exists on screen and the source reading is wrong, the whole recommendation
+  below collapses.**
+
+  **THE RULING, given on the measurements above:**
+
+  1. **NO confirmations get added to cancel or no-show.** That taxes every
+     correct press to stop a rare wrong one, and `docs/screen-rules.md` already
+     rules those two out of `--bad` because they are outcomes a detailer can
+     live with.
+  2. **NO button gets moved.** 10px between two 46px targets is real but
+     modest, and it is a screen Andrew has reviewed. Recorded, not acted on.
+  3. **Give `no_show` the way back it is missing** — one control, the same
+     shape as «Un-cancel» and «Not completed after all», both of which write
+     through `update-booking` with no transition guard. **No server change and
+     no deploy**; the mechanism is proven twice on this screen already.
+  4. **Leave `cancelled` alone.** It already has its undo, and the email it
+     sends is a separate and bigger question, not this item's.
+
+  **ONE FAULT IN THE PROBE ITSELF, CAUGHT BY RUNNING IT.** The first adjacency
+  pass reported *"nothing"* at every offset — a control with acres of clear
+  space around it. The button is below the fold at both widths, and
+  **`elementFromPoint` returns null for any point outside the viewport**, so
+  "nothing nearby" and "not measured" print the same word. Scrolling it into
+  view turned eight `nothing`s into the table above. Same family as
+  `docs/gotchas.md` #77.
+
+  **STILL BLOCKED, UNCHANGED:** the audit history this item's own *Done when*
+  asks for needs a migration and a deploy, which is Andrew's.
+
 - [x] **DONE 2026-09-16 — 4.2 Calendar download links need an authorization review.**
   The link carried a Supabase function URL, a booking id, `audience=owner` and
   an anonymous API key. **A1 proved no vulnerability** — an anon key can be
@@ -9412,6 +9497,71 @@ the dashboard or back office at phone width at all.
   not been read outdoors. Both automated halves pass. Glare is the half no
   script reproduces and it is Andrew's to do, next to a car, in sunlight.*
 
+  ---
+
+  ### THE COUNTING PASS, WIDENED TO BOTH LANGUAGES — 2026-09-23
+
+  **Folded in from `docs/8.3-findings-2026-09-23.md`, now deleted.** No color was
+  changed and none needed to be: the fix above had already happened.
+
+  | | |
+  |---|---|
+  | screen/width/language combinations | **56** |
+  | text elements measured where they are painted | **3,755** |
+  | canary caught | **56 of 56** |
+  | **distinct styles failing WCAG** | **0** |
+  | console | clean at every one |
+
+  **SO THERE IS NO SHARED-TOKEN QUESTION TO BRING ANDREW.** A token every
+  failing surface shares does not exist here, because there are no failing
+  surfaces. `--fog-2` is not broken: it is the documented floor for 10–13px
+  labels and it holds at **4.90:1 on `--ink-1`** and **4.59:1 on `--ink-2`**. It
+  measures **4.20:1 on `--ink-3`**, the highest surface, and the one place a
+  label landed there was moved on 2026-09-20. Changing the token would be a
+  rebuild of screens that work.
+
+  **THE INSTRUMENT HAD ONLY EVER ASKED ENGLISH** — 32 combinations, every one of
+  them English, for an item whose audits both said "everywhere". Widening it to
+  both languages produced three findings, all of them about the check:
+
+  1. **A LANGUAGE PASS MUST PROVE IT RENDERED THE LANGUAGE, OR IT MEASURES
+     ENGLISH TWICE.** `localeStore.js` stamps the rendered locale on
+     `<html lang>`, so every target now records what it actually rendered and a
+     pass that fell back is a FAILURE. Without that the run said *64
+     combinations, both languages, all clean* — and **eight of those sixty-four
+     were English measured twice.** Same fault `calendar-legible.mjs` shipped and
+     caught the same night: **no coverage at all, wearing the look of double.**
+  2. **THERE ARE TWO LOCALE KEYS, NOT ONE.** The dashboard reads `dp.lang.app`;
+     the public pages read `dp.lang`. Setting one switches five screens and
+     leaves three in English. Both are set now, **as plain strings** —
+     `localeStore.js` stores the bare locale, so writing JSON leaves it
+     unrecognised and the page silently falls back.
+  3. **THE LANDING AND PRICING PAGES CARRY NO i18n AT ALL.**
+     `LandingPage.jsx` and `PricingPage.jsx` have no `t()` and no i18n import;
+     `?lang=es` does not move them, and `es.js` is the booking side's catalogue.
+     So the Spanish pass **skips them by declaration** rather than measuring
+     English and calling it Spanish coverage. **That is why the declared target
+     count is asymmetric:** `4 widths × ((5 tabs + 1 bilingual public page) × 2
+     languages + 2 English-only pages)` = **56**.
+
+  **And the tab bar is walked by POSITION now, labelled by the English name.**
+  The first version filtered tabs by their English words, so the Spanish pass
+  matched nothing — the bar reads «Hoy», «Calendario», «Dinero» — and twenty
+  combinations printed `NEVER REACHED`.
+
+  **Broken on purpose:** `--break` puts the original 4.20:1 defect back from the
+  browser side and **inverts the verdict**, so a sabotage run that finds nothing
+  is the failure. It found it: *1 distinct failing style, «11:42 PM»*. Restored,
+  the run is `PASS — 56/56, canary failed as required`.
+
+  **ONE THING THAT IS NOT A PRODUCT FAULT AND SHOULD NOT BE READ AS ONE.** An
+  earlier run recorded **two `429`s** in the console while walking the booking
+  page, which made the receipt FAIL. They did not recur. Per
+  `docs/shared-resources.md` § 1 that is the signature of **another session's
+  spend landing in your run**, not of a broken page — and the fix is emphatically
+  not to clear `rate_hits` (`docs/gotchas.md` #78). Recorded rather than
+  explained away.
+
 - [x] **8.4 — DONE 2026-09-19. Booking choices do not look interactive.**
 
   **Done when: "a user can name the selected choice without comparing shades."
@@ -11152,6 +11302,13 @@ the dashboard or back office at phone width at all.
   anything anybody can clear from a keyboard — and now a green check stands
   behind it, so if one of the four is later dropped the run goes red and names
   which.
+
+  **A CORRECTION TO AN INSTRUCTION, recorded 2026-09-23 and folded in here from
+  `docs/8.3-findings-2026-09-23.md`, now deleted.** The manager said earlier that
+  this item's box was a session's to tick, and **withdrew it: 9.7's box is
+  ANDREW's to press, not a session's**, like 9.11 and 9.4. It stays `[ ]` for his
+  press. Kept because a correction to an instruction is worth more than the
+  instruction.
 
 - [x] **DONE 2026-09-20 — 9.8 Manual booking flashes "No active services yet"
   before loading.** Replace false empty states with a loading skeleton; only
