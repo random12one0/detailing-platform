@@ -50,6 +50,7 @@
 // `RESEND_WEBHOOK_SECRET`, and says so rather than quietly passing.
 
 import "./_env.mjs";           // root .env -> process.env, before anything reads it
+import { realMail } from "./_mail.mjs";  // a real send must say so out loud
 
 import { createHmac, randomUUID } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -212,9 +213,11 @@ if (!URL_ || !SERVICE) {
     try {
       // Resend's own sandbox addresses. They exist to be sent to and reach
       // nobody; `bounced@resend.dev` is how a bounce is produced on purpose.
-      await point("delivered@resend.dev");
+      await point(realMail("delivered@resend.dev",
+        "this suite invoices for real; Resend's own sandbox address reaches no person"));
       check("invoicing a deliverable address succeeds", await invoice() === 200);
-      await point("bounced@resend.dev");
+      await point(realMail("bounced@resend.dev",
+        "the bounce branch needs a real bounce, and only Resend can produce one"));
       check("invoicing an address that will bounce also succeeds at send time",
         await invoice() === 200, "a bounce is asynchronous; the send itself is fine");
       // A RESERVED DOMAIN. Never sendable, never attempted, and until 14.3 the

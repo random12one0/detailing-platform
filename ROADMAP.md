@@ -14359,6 +14359,135 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   login left as it is (it must pass). A guard whose fix is "stop reporting
   things" has to prove it still reports the one thing it is for.
 
+  ---
+
+  #### BUILT 2026-09-24. THE GUARD IS FIXED, 40 → 2, AND BOTH SURVIVORS ARE TRUE
+
+  **The fix is the one this entry prescribed, and no call site was blanket
+  replaced.** `tests/mail-sink.test.mjs` now does two things it did not:
+
+  **1 · IT STRIPS COMMENTS IN PLACE.** `codeOnly()` replaces every comment
+  character with a space and keeps every newline, so the text keeps its exact
+  length, its exact columns and its exact line numbers — **a finding still
+  points where it pointed.** Same shape as the stripper
+  `scripts/setup-inputs-contract.mjs` grew on 2026-09-23 for the same reason,
+  copied rather than shared because a test importing from a script another
+  session owns is the quiet collision. **The invariant is asserted, not
+  trusted** (`2b-z`): a stripper that quietly ate code would move real
+  recipients into the free bucket and nothing would say so.
+
+  **2 · IT CLASSIFIES BY ROLE, AND THE DEFAULT IS "RECIPIENT".**
+
+  | role | rule | free? |
+  |---|---|---|
+  | COMMENT | the address is not in the code at all | yes |
+  | LOGIN | `password`/`secret` within one line of it | yes |
+  | READ | `=== "addr"` / `!== "addr"` — a comparison reads a row back | yes |
+  | DECLARED | `realMail(...)` or a `mail-sink: why` comment | yes |
+  | **RECIPIENT** | **everything else** | **no — reported** |
+
+  **The unknown case is "recipient", deliberately.** A guard whose default is
+  "free" gets narrower every time somebody writes something new.
+
+  **THE LOGIN RULE IS PROXIMITY, NOT A PARSE, AND THE CEILING IS NAMED IN THE
+  FILE.** A genuine recipient written within one line of the word "password"
+  would be freed. That was accepted over a per-file allowlist, which is the
+  thing that file's own header spends a paragraph refusing. The upgrade, if it
+  ever bites, is to require the address and the password to be arguments of the
+  same call. **`password` is not `\b`-anchored** because `_` is a word
+  character, so `\bsecret\b` misses `DEMO_SECRET`, which is how two files write
+  it.
+
+  **WHAT THE 237 OCCURRENCES ACTUALLY ARE — measured, not estimated.** `seen`
+  is unchanged at 237, because classification happens on the RAW match and the
+  stripped copy is only asked *"is this in the code?"* — nothing is discarded,
+  so nothing can go missing silently.
+
+  | | before | after |
+  |---|---|---|
+  | free by reserved domain | 168 | 168 |
+  | inside a comment | — | **18** |
+  | fixture login | — | **24** |
+  | read back by `===` | — | **2** |
+  | declared | 29 | 23 |
+  | **undeclared** | **40** | **2** |
+
+  *`declared` fell from 29 to 23 because six of them are now recognised earlier,
+  by role, and no longer need a declaration at all.*
+
+  **TWO CALL SITES WERE DECLARED, AND THEY ARE REAL SENDS.**
+  `tests/email-sends.test.mjs` invoices a finalised demo booking at
+  `delivered@resend.dev` and `bounced@resend.dev`; **`resend.dev` is a real
+  domain and the product claims the day's allowance BEFORE the send**, so those
+  two spend. Both are now `realMail(address, reason)`, which **prints on every
+  call** — so a run that spends the allowance says so in its own output. That is
+  the guard working as designed rather than being quieted.
+
+  **BROKEN ON PURPOSE FOUR WAYS, ON EVERY RUN, NOT ONCE.** § 2a runs four
+  synthetic lines through the classifier **before** it is pointed at the repo —
+  an undeclared recipient that must be CAUGHT, and a comment, a login and a
+  `===` comparison that must all pass — on a charged canary domain that § 2a-z
+  proves the relay calls charged. **A guard that cannot fail and a guard that
+  flags everything are the same useless thing, and those four lines prove it is
+  neither, permanently.**
+
+  **AND BROKEN ON PURPOSE AGAINST THE REAL REPO, four times, 2026-09-24:**
+  - a genuinely undeclared recipient planted in a new `tests/` file — **caught,
+    named at `file:line`**, count went 2 → 3;
+  - a line comment and a **multi-line block comment** — not flagged, the comment
+    bucket rose by 2;
+  - two logins, one with `password` on the same line and one with `SECRET` two
+    lines down — not flagged, the login bucket rose by 2;
+  - a real call site with a **trailing** comment on it — still caught, so
+    "comment" is not "the line has a `//` on it"; a `mail-sink:` declaration one
+    line above a recipient — honoured; and a bare URL with no `@` — not counted.
+
+  The sabotage file was deleted and the run returned to 168 files, 237
+  occurrences, 2 undeclared. § 4 gained two floors — **`4d` comments ≥ 5 and
+  `4e` logins ≥ 15** — because a classifier that quietly stopped recognising a
+  role would otherwise look exactly like a clean run.
+
+  **`node --test tests/mail-sink.test.mjs`: 20 passed, 1 failed.** The four
+  credential-free must-run suites are 4/4 green and `label-guard.mjs` is clean.
+
+  **NOT EXIT 0, AND THE TWO THINGS THAT BLOCK IT ARE IN `scripts/`, WHICH THIS
+  SESSION WAS TOLD NOT TO TOUCH. THAT IS A CONTRADICTION IN THIS ITEM'S OWN
+  *Done when*, SAID OUT LOUD RATHER THAN QUIETLY PICKED.** *Done when* asks for
+  exit 0; the same paragraph asks that `scripts/` be left alone. Both cannot
+  hold while a genuine recipient lives in `scripts/`, and one does:
+
+  1. **`scripts/dashboard-notifies.mjs:126` — `const SINK =
+     "delivered@resend.dev"`. THIS IS NOT PAPERWORK. It is a real spender, and
+     it is the SAME FAULT `edge-tenant-replay.mjs` already fixed on
+     2026-09-23** and wrote up at length in its own header: *"IT WAS
+     `delivered@resend.dev` UNTIL 2026-09-23, AND THAT ADDRESS WAS SPENDING
+     ANDREW'S DAILY EMAIL BUDGET ON EVERY RUN."* That script moved to
+     `edge-replay@example.com`, which is IANA-reserved and refused before the
+     provider is called. `dashboard-notifies.mjs` never did, and **sends to a
+     charged address on every run** — three recipients: `contact_email`,
+     `customer_email` and the receipt's own. **So the entry's prediction that
+     "at most one" was worth a human's attention was right, and that one is a
+     live budget leak rather than a missing comment.**
+     **It is NOT a one-liner and should not be done as one:** its own check at
+     line 339 reads `email_sends` rows back and asserts `g.to_email === SINK`,
+     and a reserved domain lands as `skipped`, so pointing it at `example.com`
+     may move its assertions. That is a scoping question for whoever owns that
+     file.
+  2. **`scripts/edge-tenant-replay.mjs:1185` —
+     `to_email: "escape@edge-replay-sabotage.com"`. Harmless, and one comment
+     line from green.** It is a row written straight into `email_sends` under
+     `--break=mail` to look like an escaped send; its own comment says
+     **"Nothing is mailed."** It needs `// mail-sink: a sabotage row written
+     straight to the table; nothing is sent`. A role rule that freed `to_email:`
+     generally was considered and refused — that is the exact shape a real
+     recipient has.
+
+  **NEEDS A RULING (not Andrew's — a lane question):** may one comment line be
+  added to `edge-tenant-replay.mjs`, and does `dashboard-notifies.mjs` become
+  its own item? With (1) and (2) done the run is exit 0; until then the guard is
+  red on **two true findings instead of forty**, which is a list a person can
+  still read.
+
 ### Still unanswered after steps 1–4
 
 - **RESOLVED 2026-09-19: `composition` is GREEN.** 97 passed, 0 failed,
