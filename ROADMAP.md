@@ -4548,6 +4548,294 @@ requested.
   differing for this reason — `send-owner-reminders` — which is correct and
   expected; nothing was deployed and nothing should be deployed to clear it.
 
+  ---
+
+  ### THE RENDERING HALF — DONE 2026-09-24. 32 fixtures, 16 templates, both languages, 64 documents read.
+
+  **Folded in from `docs/3.4-rendering-findings-2026-09-24.md`, now deleted.**
+  It existed for one reason: `ROADMAP.md` was dirty with another session's
+  uncommitted Wave-14 work when this was written, and `CLAUDE.md` says stop
+  rather than commit around it. That session committed (`0a47faf`) and this
+  folded in the same sitting, so it never spent a night as a separate file.
+
+  **Nothing was sent. Nothing was fixed. No browser, no dev server, no
+  `address-suggest`, no `rate_hits`, no `scripts/` file edited.**
+
+  #### WHAT WAS RENDERED, AND WHAT THAT NUMBER MEANS
+
+  | | |
+  |---|---|
+  | exported templates in `_shared/emailTemplates.ts` | **16** |
+  | fixtures rendered (variants: carload, plan, card-accepted, paid-cancel…) | **32** |
+  | languages | **2** — `en`, `es` |
+  | **documents read** | **64** |
+  | rendered via | `scripts/render-emails.mjs --out=… --lang=en\|es` (existing path, not a second one) |
+  | export coverage | **16 exported, 16 rendered, 0 missing** — the script's own assertion, re-run clean |
+
+  **`render-emails.mjs` NEEDS NO DEV SERVER AND NO CREDENTIALS, and 3.4's own
+  entry says it does.** The entry's *"What is explicitly not done"* paragraph reads
+  *"`render-emails.mjs` was not run, it needs a dev server and the browser was
+  another session's this round."* **It imports the `.ts` templates directly and
+  writes HTML to a directory.** That wrong premise is the only reason the
+  rendering half sat undone for three days. **Standing correction (iv), on this
+  item, about this item.**
+
+  ---
+
+  #### FAULT 1 — THE RESCHEDULE EMAIL TELLS A CUSTOMER WHICH APPOINTMENT TO ATTEND USING A STRIKETHROUGH, AND THE PLAIN-TEXT HALF LOSES IT
+
+  **Template:** `rescheduleEmail` · **customer-facing** · **BOTH languages** ·
+  fixture `customer-reschedule`.
+
+  The plain-text alternative, verbatim, English:
+
+  ```
+  Hi Dana, your booking with Ridgeline Auto Detail has been moved.
+  Saturday, September 12, 2026 at 8:00 AM
+  Thursday, September 17, 2026
+  10:00 AM – 1:30 PM
+  ```
+
+  Spanish, same shape:
+
+  ```
+  Hola Dana, tu reserva con Ridgeline Auto Detail cambió de horario.
+  sábado, 12 de septiembre de 2026 a las 8:00 AM
+  jueves, 17 de septiembre de 2026
+  10:00 AM – 1:30 PM
+  ```
+
+  **Two datetimes, and not one word saying which is the old one.** A customer
+  reads this and cannot tell which day to be home.
+
+  **WHY THE HTML LOOKS FINE AND THE TEXT DOES NOT.** In the HTML the old time is
+  marked **only** by styling:
+
+  ```html
+  <span style="color:#5E6870; text-decoration:line-through;">Saturday, September 12, 2026 at 8:00 AM</span>
+  ```
+
+  `htmlToText` drops both the strikethrough and the grey, because that is what
+  converting to text does. **The meaning was carried entirely by a visual
+  treatment**, so it survives in exactly one of the two halves the product sends.
+  It is also the weaker half for anybody whose client strips styling, and a
+  strikethrough is not reliably announced by a screen reader.
+
+  **This is not a translation fault.** It is identical in English and Spanish, and
+  it would have been found by reading the English alone. Nobody had read either.
+
+  **THE FIX, NOT APPLIED, AND WHY.** One word before the old time — *"Was"* /
+  *"Antes"* — which is a **new** `tt()` string plus its `es.ts` key in the same
+  edit. That is new customer-facing copy on a deployed edge function, not a
+  correction to an existing string, so it is neither the "one-line string with an
+  obvious answer" this sitting was allowed to fix nor something to decide for
+  Andrew. **Named precisely so it is a one-commit job for whoever has the lane.**
+
+  ---
+
+  #### FAULT 2 — THE MAINTENANCE EMAIL'S DATE HAS NEVER BEEN RENDERED THE WAY THE PRODUCT PRODUCES IT
+
+  **Templates:** `maintenanceDueEmail`, fixtures `customer-maintenance-far` and
+  `customer-maintenance-last` · **customer-facing** · **both languages.**
+
+  Spanish, verbatim: **«Tu Ceramic Pro annual inspection de tu 2021 Tacoma vence
+  el 12 October 2026.»** — an **English** date inside a Spanish sentence, and the
+  eyebrow above it reads **«Vence el 12 October 2026»**.
+
+  English, verbatim: *"is due by 12 October 2026"* — **day-month-year**, which
+  this repo explicitly forbids. `i18n.ts` says the locale is `en-US`/`es-US`
+  precisely to keep *"month-before-day. Three things a customer reads as WRONG
+  rather than as translated."*
+
+  **THE PRODUCT IS INNOCENT AND THE FIXTURE IS THE FAULT — checked in the sender
+  rather than assumed.** `send-owner-reminders/index.ts:433` passes
+  `dueOn: formatDateLong(d.due_on, lang)`, and `formatDateLong`
+  (`emailKit.ts:197`) calls `toLocaleDateString(intlLocale(lang), …)`, which
+  produces *"Thursday, September 17, 2026"* and *"jueves, 17 de septiembre de
+  2026"* correctly. **The fixture hard-codes a pre-formatted string,
+  `dueOn: "12 October 2026"`**, so the template receives text it cannot reformat.
+
+  **So the consequence is not a bug shipped — it is that these two templates'
+  date line has never once been looked at as a customer will see it, in either
+  language.** The fixture is in `scripts/render-emails.mjs`, **which this sitting
+  was closed out of**, so it is reported rather than fixed. The change is to pass
+  `formatDateLong("2026-10-12", LANG)` where the literal now sits, at
+  `render-emails.mjs:467` and `:468`.
+
+  ---
+
+  #### FAULT 3 — THE "TOMORROW" MAINTENANCE FIXTURE CONTRADICTS ITSELF, SO THE MOST URGENT VARIANT HAS NEVER BEEN READ
+
+  `customer-maintenance-last` passes **`daysLeft: 1`** with **`dueOn: "12 October
+  2026"`**, about sixty days out. It renders:
+
+  > **Tomorrow is the last day** · *"is due by 12 October 2026"*
+  > **Mañana es el último día** · *«vence el 12 October 2026»*
+
+  **The headline and the body disagree in the same email.** This is the 1-day
+  stage — the last thing a customer is ever sent about a deadline — and the
+  fixture has never produced a coherent version of it, so nobody has read what it
+  actually says. Same file, same lane block, same one-line character: give the
+  1-day fixture a `dueOn` of tomorrow.
+
+  ---
+
+  #### FAULT 4 — SIX OF SIXTEEN TEMPLATES CANNOT TRANSLATE AT ALL, AND THE DETAILER IS THE ONE WHO GETS THEM
+
+  Counted by parsing the module, not by reading names: **6 of 16 templates
+  contain no `T(` call anywhere.**
+
+  | Template | Who reads it |
+  |---|---|
+  | `ownerNewBookingEmail` | the detailer |
+  | `staleRequestEmail` | the detailer |
+  | `planCancelledEmail` | the detailer |
+  | `inviteEmail` | staff being invited |
+  | `billingEmail` | the detailer |
+  | `platformAlertEmail` | Andrew |
+
+  **Measured consequence: 14 of the 32 Spanish HTML renders are BYTE-IDENTICAL to
+  their English twin, and 15 of 32 subjects are identical.** Every one is
+  `owner-*`, `platform-*` or `staff-*`.
+
+  **Two templates that DO translate still come out English on the owner side** —
+  `cancellationEmail` and `rescheduleEmail` each call `T()`, and
+  `owner-cancellation`, `owner-cancellation-paid` and `owner-reschedule` are still
+  identical to English. So the detailer's side is English throughout, whether the
+  template can translate or not.
+
+  **THIS IS A SCOPING QUESTION, NOT A BUG, AND IT IS NOT MINE TO ANSWER.**
+  `docs/MANAGER-CLOSE-2026-09-21.md` § 2 records *"No Spanish on the home and
+  pricing pages — those pages sell to detailers, and he sells to English
+  speakers"*, with the booking page staying bilingual because it serves customers.
+  By that rule English detailer email is correct. **But the DASHBOARD is
+  bilingual** — `appEs.js`, the `dp.lang.app` key, twelve `MESSAGE_KINDS` — so a
+  detailer who set their dashboard to Spanish gets English email about it.
+  **Recorded with both halves; no line changed.**
+
+  ---
+
+  #### FAULT 5 — THE RENDERING INSTRUMENT CANNOT TELL A SPANISH RUN FROM AN ENGLISH ONE. PROVED BY BREAKING IT.
+
+  `node scripts/render-emails.mjs --lang=es` prints **"32 emails"** and exits 0.
+  `--lang=en` prints **"32 emails"** and exits 0. **Nothing in either run
+  distinguishes them, and 14 of the Spanish 32 are English.**
+
+  **THE SABOTAGE.** One Spanish key deleted from
+  `_shared/strings/es.ts` — `"You're booked in · {date}"` — then the Spanish run
+  repeated:
+
+  * **2 output files changed**, so the sabotage genuinely reached the render
+    (`docs/gotchas.md` #80: a sabotage that never arrives reports the same word as
+    a real hole);
+  * the customer subject became **«You're booked in · jueves, 17 de septiembre de
+    2026»** — half English, half Spanish, on a customer-facing email;
+  * **the run printed "32 emails" and exited 0.**
+
+  `T()` is `(cat && cat[english]) || english` — it falls back to the English key
+  and returns successfully, which is the documented mechanism and is why nothing
+  errors. **Same family as `docs/gotchas.md` #82 and 8.3's own finding: a language
+  pass must prove it rendered the language, or it measures English twice.**
+  `es.ts` was restored and the tree confirmed clean.
+
+  **What would close it:** the run asserting a declared count of templates that
+  MUST differ from their English render, the way `contrast-insitu.mjs` was widened
+  on 2026-09-23. That is a `scripts/` change and is not this sitting's.
+
+  ---
+
+  #### TWO MORE SABOTAGES, AND WHAT THEY TESTED INSTEAD OF WHAT I AIMED AT
+
+  **Both were aimed at "can a template come out blank and still look fine". Neither
+  reached that question, and saying so is the point.**
+
+  * **Emptied `customerReminderEmail`'s block list.** The script **crashed**
+    (`render-emails.mjs:391`), exit 1. A loud failure, but by exception rather than
+    by assertion — it tested a template that breaks the code, not one that renders
+    blank.
+  * **Replaced the body with one structurally valid empty paragraph.** Caught, by
+    the `[object Object]` rot pattern — `FAIL Customer · appointment reminder`,
+    exit 1. Also not emptiness: the block shape was wrong, so it tested
+    malformation.
+
+  **So the "valid but says nothing" case remains untested by me**, and I am not
+  claiming otherwise. What the script does hold is a real floor:
+  `if (!text || text.length < 40)` fails any template whose plain-text half is
+  missing or near-empty.
+
+  **AND A FINDING I NEARLY REPORTED THAT WAS MY OWN SABOTAGE'S SHADOW.** The
+  crashed run printed *"ok all **13** exported templates are rendered below"*,
+  against a source comment claiming 16. I was one step from writing up "three
+  templates are exported and never rendered". **The clean run says 16 exported, 16
+  rendered, 0 missing**, confirmed independently by importing the module and
+  counting `*Email` exports myself. **The 13 was caused by my own broken module.**
+  Recorded because a number read out of a sabotage run is not a measurement of the
+  product.
+
+  ---
+
+  #### CHECKED AND WITHDRAWN — things that read as faults and are not
+
+  * **`campaignEmail`'s English subject, headline and body in the Spanish
+    render.** The subject *"Time to get it looking right again?"* and both body
+    paragraphs are **the detailer's own words**, and the source says so above the
+    code: *"translating a person's own message is the one thing this feature must
+    never do."* The chrome DOES follow the reader — «Saludos», «Hola Dana»,
+    «Reservar otra vez», «Dejar de recibir correos como este», «Ya reservaste con
+    nosotros antes». **Correct by design, and well documented.**
+  * **`"Otro | Apple Pay, or a check made out to Ridgeline"`**, the service names
+    (`Full Interior + Exterior Detail`), the customer's own notes (*"Dog hair in
+    the back seats"*), the quote's note and *"Paid by card on the day."* — all
+    detailer or customer data, correctly never translated.
+  * **«Mid-size SUV · 2021 Subaru Outback»** — the vehicle tier label is the
+    detailer's configured text.
+
+  ---
+
+  #### NOT VERIFIED, AND THE REASON IS A RULE RATHER THAN A SHORTAGE OF TIME
+
+  **The money.** Every Spanish and English render shows `5% sale | -$20` /
+  `5% de oferta | -$20` over lines of `$360 + $25 + $20`, where 5% of $405 is
+  **$20.25**. So the label states 5% and the figure beside it is 4.94%.
+
+  **I am not calling that a fault and I am not calling it fine.**
+  `docs/gotchas.md` **#81 is my own entry**: `render-emails.mjs` prints PASS over a
+  wrong subtotal **by design**, because `reconcile()` invents a closing line for
+  any gap, so its money tie-out balances either way. **Its PASS is not evidence
+  about money.** The instrument for this exact question is
+  `scripts/discount-label.mjs` — *"a label that states a percentage is making a
+  claim the figure beside it has to keep"* — and it needs a dev server and a
+  browser, which are DP Cowork's this sitting.
+
+  **What IS worth recording:** the figure is computed by the real pricing engine
+  (`computeQuote`, `siteDiscountPercent: 5`), not typed into the fixture — which is
+  ROADMAP 14.19's lesson already applied here. So the open question is rounding
+  against a stated percentage, not a fabricated number.
+
+  ---
+
+  #### THE OTHER HALF OF 3.4 IS NOT WORK, AND IT NEEDS SAYING IN THE ENTRY
+
+  **"Sent, received and read" is Andrew's, not a session's.** It spends the daily
+  email allowance and it needs his own inbox; no reserved fixture domain can
+  answer it, because the question is whether a real message arrives and reads
+  correctly in a real client.
+
+  **`NEEDS ANDREW: open seven emails in his own inbox — confirmation, acceptance,
+  reminder, quote, receipt, cancellation, reschedule — and say whether each one
+  reads right. It is the whole of 3.4's own Done-when and it cannot be done from a
+  keyboard here.**
+
+  That line belongs under 3.4 and **is not there yet**, because `ROADMAP.md` is
+  held by another session. A `FOR-ANDREW.md` row **has been added** this sitting —
+  that file was clean. **Checked before writing it:** `FOR-ANDREW.md` had no row
+  for this. The only inbox row it carries is *"Ten test emails are sitting in your
+  support inbox. They are ours"* (line 569), which is about clearing mail we sent,
+  not about reading the seven.
+
+  **3.4's box stays `[ ]`.** The rendering half is done and is written above; the
+  sending half is untouched and is his.
+
 - [x] **3.4a — DONE 2026-09-24. ~~`campaignEmail` is marketing, and marketing is
   forbidden.~~ THE RULE WAS REVERSED BY ITS AUTHOR ON 2026-09-21, SO THE
   CONTRADICTION DISSOLVED RATHER THAN BEING RESOLVED. Nothing was deleted; not a

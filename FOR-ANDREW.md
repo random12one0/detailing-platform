@@ -591,6 +591,40 @@ still knows them.
 
 ## Waiting on you — nothing breaks while these wait
 
+- [ ] **DO · Open seven emails in your own inbox and tell us whether they read
+  right. It is thirty seconds each and it is the last thing standing between
+  ROADMAP 3.4 and done.**
+
+  **The seven:** booking confirmed, request accepted, appointment reminder,
+  quote, receipt, cancelled, rescheduled.
+
+  **Why it has to be you.** We have now rendered all sixteen emails the product
+  sends, in English and Spanish — sixty-four documents, read one at a time — and
+  written up what we found. **What nobody here can do is receive one.** A real
+  send costs one of your eighty a day and lands in your inbox, and the question
+  is whether it arrives looking right in a real mail app, which a rendered file
+  cannot answer. Every fixture we use goes to an address that cannot receive
+  anything, on purpose.
+
+  **What we already found by reading, so you are not checking from scratch.**
+  The **rescheduled** email is the one to look at hardest. It shows the old time
+  and the new time one under the other, and the only thing marking which is
+  which is a **line through the old one**. In the plain-text copy that every
+  mail app can fall back to, the line disappears and you get two dates and no
+  words. If your mail app shows you that version, you will see the problem
+  immediately. **The fix is one word — "Was" — and it is not applied, because
+  adding words to a customer's email is yours to approve.**
+
+  **Also worth a glance:** the **"your maintenance is due"** email prints its
+  date as *12 October 2026* rather than *October 12, 2026*, and in Spanish it
+  prints that English date inside a Spanish sentence. **The product itself
+  formats it correctly** — that wrong date is in our own test fixture, not in
+  what a customer would get — but it means nobody has ever looked at that line
+  as a customer will actually see it.
+
+  **Nothing breaks while this waits.** Full write-up:
+  `docs/3.4-rendering-findings-2026-09-24.md`, folding into ROADMAP 3.4.
+
 - [x] **DECIDED · The day squares stay as they are. 2026-09-24 — nothing
   needed from you.**
 
