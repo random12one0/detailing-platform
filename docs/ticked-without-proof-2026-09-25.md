@@ -1366,3 +1366,57 @@ containing the string `details` zero times against 18 files that use it;
 `platform-admins-declared` at 18/0; `receipt-fields` at 56/0. **Five out of
 seventy-seven, and every one of them took under a minute.** If this pass has a
 successor, that is what it should be made of.
+
+---
+
+## TWO THINGS ARE TRUE AT ONCE, AND A LATER READER MUST NOT COLLAPSE THEM
+
+**Written 2026-09-25 on the manager's instruction, after the pass finished,
+because the closing numbers can be read two opposite wrong ways.**
+
+**THE FIRST TRUE THING: this pass is the weaker instrument, and it says so in
+its own results.** Seventy-seven entries read as a stranger produced **zero**
+ticks resting on nothing. The two faults that caused this pass to be
+commissioned — **2.5 ticked-in-fact for three days, and 2.15's proof recorded
+nowhere** — were **both found by picking an item up and doing it.** Neither was
+found by auditing. Reading seventy-seven entries found three live gaps that
+their own entries had already named; doing two items found two faults nobody
+knew about.
+
+**THE SECOND TRUE THING, AND IT IS NOT A CONSOLATION PRIZE: two real, live
+defects came out of this pass anyway**, and neither was in a tick:
+
+* **a teardown that leaves a full platform admin behind on a crash** — now
+  **14.21**, with the population counted at three scripts and one hole;
+* **a bare English string thirty-three rows below the line that translates the
+  same two words** — now **14.22**, verified still present rather than quoted.
+
+**Plus a third that is a coverage hole rather than a defect** — nothing opens a
+closed `<details>` before the tap-target sweep measures, **14.23** — and three
+browser checks collected as **14.24**.
+
+**So: an audit that finds nothing wrong with the ticks but finds two live
+defects on the way past is not a failed audit.** Both sentences go in the same
+paragraph or the file lies in one direction or the other.
+
+### WHAT A LATER READER MUST NOT CONCLUDE
+
+**Not this:** *"seventy-seven ticks were audited and all seventy-seven were
+sound, so the ticked half of this roadmap is fine."*
+
+**What was actually established is narrower, and the difference is the whole
+value of the file.** Each entry was read and asked one question: *could a
+stranger, from what is written, go and check this claim?* **Seventy-seven times
+the answer was yes.** That is a fact about the WRITING. It is not a fact about
+the product.
+
+**Only five claims in seventy-seven were re-taken rather than re-read** — 2.8's
+three booking ids, `vehicles.json`'s 1,103 rows, the tap probe's zero
+occurrences of `details`, `platform-admins-declared` at 18/0 and
+`receipt-fields` at 56/0. **All five held.** Five out of seventy-seven is not a
+sample, it is five. **For the other seventy-two, what is known is that the
+evidence is where the entry says it is — not that it still says what it said.**
+
+**Fifty-eight read as a stranger is a real number. So is the fifty-nine open
+items nobody has read the same way.** Neither cancels the other, and the file
+should be quoted with both or with neither.
