@@ -10498,6 +10498,29 @@ the dashboard or back office at phone width at all.
   hands to somebody.
   *A1 § 10*
 
+  **WHAT IT IS WAITING ON, NAMED 2026-09-25 — it had been “a real iPhone and a
+  real Android” with no method for weeks, which is two unknowns rather than a
+  task.** 8.6 is done and the method is
+  **`docs/testing/phones-we-do-not-own.md`**. In those terms this item now waits
+  on exactly two things, both small:
+
+  1. **The iPhone half — twenty minutes of Andrew's time**, following § 5 of that
+     document: a numbered walk, one-handed, with Reduce Motion and Larger Text
+     toggled at the points where they matter. It runs against **the dev server
+     over his own Wi-Fi**, so it costs nothing, needs no publish and judges this
+     checkout rather than the week-old live site.
+  2. **The Android half — one borrowed mid-range Android for ten minutes.** He
+     owns none; somebody near him does. Failing that, a used one is a **one-off
+     $40–80 and never a subscription**.
+
+  **Neither is a build. Neither costs money. Neither needs a deploy.** Everything
+  this item asks for — sticky footer, address suggestions, date picker, dashboard
+  actions, calendar, call/text — is in the walk, in that order.
+
+  **AND WHAT A DEVICE PASS STILL CANNOT REPLACE:** it is one person, one time. Per
+  the method, anything it finds should become a check — the way ROADMAP 4.1's
+  10px adjacency and 8.3's contrast both did.
+
 - [x] **8.3 — DONE 2026-09-24. Small grey text is unreadable outdoors.**
   Both audits, everywhere: body copy, letter-spaced all-caps micro-labels,
   progress text, tab labels, service details, warnings, "then $40/month $60",
@@ -13651,6 +13674,12 @@ event id.
   **On its first day, the check caught a live full-access admin appearing in the
   middle of an ordinary night's work. That is what nothing was watching for.**
 
+  **THE RED IS A LIVE FINDING WITH AN OWNER, NOT A KNOWN-BROKEN CHECK — manager's
+  ruling, 2026-09-25: DP Cowork clears that row when 6.2a finishes, and 6.2a is
+  not accepted until it does.** Do NOT add it to the declaration to quiet the
+  run. **A temporary fixture that outlives its task is how a real undeclared
+  admin hides behind a red nobody reads any more.**
+
 ### 14.9 — ~~Nine~~ was already eight, now four, public endpoints have no rate limit
 
 - [ ] **Measured by counting `withinLimits` in each public function.** These
@@ -14534,12 +14563,67 @@ then just edit them. Then we shouldn't need a lawyer."* Accepted. 7.7 and 7.8
 stay as written and the template work folds into them. **A business entity is
 still worth doing** and is his to start, not ours.
 
-- [ ] **8.6 — Research how to test phones we do not own, then write the method down.**
+- [x] **8.6 — DONE 2026-09-25. Research how to test phones we do not own, then
+  write the method down.**
   He has one device. Real teams do not own every phone either. Find out what
   they actually do — device farms, emulation limits, what genuinely cannot be
   caught without hardware (keyboard behavior, safe-area insets, scroll chaining,
   Safari's dynamic toolbar). **Write it into `docs/testing/` as a method, not a
   finding.** Blocks the mobile wave from being planned on guesses.
+
+  **→ `docs/testing/phones-we-do-not-own.md`.** A method, not a menu: five
+  hardware-only failure categories, every route judged against them, one
+  recommendation, and a **numbered twenty-minute walk** Andrew can follow without
+  thinking.
+
+  **THE RECOMMENDATION, so it is not buried:** **Andrew, twenty minutes, his own
+  iPhone, pointed at the DEV SERVER OVER HIS OWN WI-FI** —
+  `npm run dev --prefix app -- --host`, then the `Network:` URL on the phone.
+  **Zero cost, no deploy, no Netlify setting, no subscription, and the publishing
+  deferral is irrelevant because the phone is looking at this checkout.** A
+  borrowed Android for ten more minutes closes the other half.
+
+  **THE EVIDENCE IT RESTS ON IS THIS REPO'S OWN, NOT A SEARCH RESULT.** Andrew's
+  iPhone pass on the 1.4 page found **four things no viewport had found**
+  (`DECISIONS.md`): reveals not firing at all behind a 4-second failsafe, scroll
+  weight wrong in two ways, hover-only states — and *"the pinned section just
+  doesn't work on iPhone. **It glitches out**"*, which was a sticky element sized
+  in viewport units plus scroll progress measured against a viewport height that
+  changed as the URL bar hid and returned. **The write-up of that work ends
+  *"This is disclosed as unverified. There is no iPhone here."* That sentence is
+  why 8.6 existed.**
+
+  **WHAT IS NAMED, PRICED AND DELIBERATELY NOT RECOMMENDED.** BrowserStack has
+  **no permanent free tier** — a one-time ~30-minute trial, then **$29–$49/month**
+  for Live with mobile. TestMu AI (formerly LambdaTest) has a free plan of about
+  **100 lifetime automation minutes**, aimed at scripted runs rather than twenty
+  minutes of poking a form. AWS Device Farm and Firebase Test Lab are
+  pay-per-minute. **All real hardware, all reproduce the keyboard and the toolbar,
+  none reproduces thumb reach, one-handed use or glare — and a subscription is
+  the one thing Andrew has said he will not start for this.** The iOS Simulator
+  needs a Mac; named so nobody spends an hour discovering that.
+
+  **AND THE THING THAT NEARLY MADE THE RECOMMENDATION WRONG.**
+  `CLAUDE.md` § Publishing and three other documents say a **Netlify deploy
+  preview is zero credits and “a real URL Andrew can open on his phone”** — which
+  would have been the obvious answer. **`DECISIONS.md` says the Netlify site is
+  deployed from an uploaded build of `app/`, NOT wired to the GitHub repo**, with
+  automatic branch deploys still listed as *“worth doing”*. **If the repo is not
+  connected, deploy previews do not exist**, and four documents recommend a
+  mechanism a fifth says may be absent. Settling it is a 30-second look at
+  Netlify's settings and Netlify is Andrew's. **The Wi-Fi route was chosen partly
+  because it needs none of that confirmed.**
+
+  **WHAT THE METHOD SAYS IT CANNOT DO, in its own words:** nothing about Android
+  until somebody lends a phone; nothing about older or smaller iPhones, and a
+  6.7" screen **hides** thumb-reach problems a 5.4" one shows; and nothing
+  repeatable — a human pass finds things, it does not guard them, so anything it
+  finds should become a check.
+
+  **HONESTLY LABELLED: the Wi-Fi route is UNVERIFIED by this session**, which had
+  no dev server by instruction. The two things that can break it are named in the
+  method (the PC firewall on port 5173, and Vite needing `--host`), both
+  one-time.
 
 ---
 

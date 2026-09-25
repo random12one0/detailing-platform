@@ -3561,3 +3561,43 @@ corrections for the same reason.
 describes — which is the only reason it is a measurement rather than a
 suspicion.*
 
+## 87. A CLEANUP THAT STARTS FROM THE LIST OF VALUES SOMEBODY ALREADY KNEW ABOUT WILL FIND EXACTLY THE VALUES SOMEBODY ALREADY KNEW ABOUT
+
+**2026-09-25.** `CLAUDE.md`'s hard rule — no password in a markdown file — had
+been broken for weeks. The cleanup began from the three credentials that had
+turned up while auditing something else, swept them out of eight files, and
+reported zero remaining.
+
+**It had missed a fourth account's password, and it was found by READING a line
+the cleanup had just rewritten.** A staff login, sitting one line below a
+credential pair that had been redacted seconds earlier. The sweep had walked
+past it, in that file, in that paragraph, because it was not on the list.
+
+> **The list of known values is a record of what has already been noticed. It is
+> the worst possible definition of the thing you are trying to find.**
+
+**WHY IT FEELS SAFE, WHICH IS THE DANGEROUS PART.** Working from known values
+gives a clean, checkable, *countable* result — eight files, twenty-two
+occurrences, zero left — and every one of those numbers was true. **The numbers
+described the sweep, not the repo.** A report that counts its own work reads
+exactly like a report that counts the problem.
+
+**THE FIX IS TO MATCH A SHAPE AND THEN STATE THE SHAPE'S BLIND SPOT.**
+`tests/no-credentials-in-markdown.test.mjs` knows no secret: it matches a
+credential *pair*, an assignment with a cue, a provider key prefix, a JWT, long
+hex, and the `<word><digits>` family this project keeps choosing. **On its first
+run against the supposedly-clean repo it found the fourth credential in two more
+places.** Then it went on to find a fifth thing nobody was looking for.
+
+**AND THE SHAPE VERSION HAS ITS OWN VERSION OF THE SAME FAULT**, which is why
+the header says so out loud: a password that is an ordinary word with no cue
+beside it is invisible to every rule. **Shapes are a bigger net than values, not
+a complete one.** The improvement is real and the claim has to stay narrow.
+
+**THE GENERAL FORM, because this is not about credentials:** any audit that
+enumerates *known instances* rather than *the property* reports its own
+diligence. Same family as #86 — a sweep that counts entries and misses the second
+copy inside one — and as the stale-blocker pass, where reading an entry's own
+sentence back confirms every entry. **Ask what the thing IS, then go looking for
+that. Never start from the list.**
+
