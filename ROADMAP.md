@@ -391,7 +391,14 @@ and how the wait ends.
   sandbox meanwhile. The only thing that truly waits is taking real money.
   *Sources: Stripe [account age requirement](https://support.stripe.com/questions/age-requirement-to-create-a-stripe-account), [Connect age requirement](https://support.stripe.com/embedded-connect/questions/age-requirement-to-create-an-account), [sandboxes](https://docs.stripe.com/sandboxes).*
 
-- [ ] **0.3 — Test data: flag, don't delete. Awaiting Andrew's yes.**
+- [ ] **0.3 — Test data: flag, don't delete.** ~~Awaiting Andrew's yes.~~
+  **HE SAID YES ON 2026-09-20 — the title was four days stale, found by the
+  stale-blocker pass 2026-09-24.** Evidence: `FOR-ANDREW.md` carries it ticked,
+  *"Test detailers: flag, don't delete — 2026-09-20"*, and
+  `docs/MANAGER-CLOSE-2026-09-21.md` § 2 lists it as binding. **This item waits
+  on nobody. The back-office half is built and live (15 of 16 businesses carry
+  `is_demo`, read from the database 2026-09-24); the client-list half is
+  buildable now and is what keeps the box open.**
   A2's 1.3 found 15 of 16 back-office detailers are tests, plus "Smoke
   TPMOY"-style rows in the client list.
   **Why flagging beats deleting, in plain words:** about 60 automated checks
@@ -3340,6 +3347,132 @@ the wrong service, and never book a job we cannot reach.
   reader being able to see how old the claim is.
   **The three entries written tonight already carry their dates**, which is
   the convention being proposed, applied once.
+
+  ---
+
+  #### THE FIRST PASS, BY HAND — 2026-09-24. 23 blockers read, 10 had expired.
+
+  **No instrument was built.** The check belongs in `scripts/`, which was another
+  session's; this is the pass the item is for, done by reading. **Every verdict
+  below rests on something outside the entry that made the claim** — that is the
+  whole method, because a stale blocker and a real one are the same words.
+
+  **THE NUMBERS, and they add up or they are wrong:**
+
+  | | |
+  |---|---|
+  | open items in this file | **61** |
+  | matched a blocker-language scan | **29** |
+  | **false positives — no blocker claimed** | **6** |
+  | **genuinely claim a blocker** | **23** |
+  | checked | **23** |
+  | blocker **HOLDS** | **10** |
+  | blocker **EXPIRED** | **10** (7 found by this pass, 3 already corrected by earlier sessions) |
+  | **CANNOT SETTLE from here** | **3** |
+
+  10 + 10 + 3 = 23. 23 + 6 = 29.
+
+  **THE SIX FALSE POSITIVES ARE REPORTED RATHER THAN QUIETLY DROPPED**, because a
+  scan that silently discards its own misses is the thing this item is about.
+  Two matched the word *"Blocked"* used as a **calendar day label** (9.4) or as
+  prose about staleness itself (the unreproduced-finding entry); two say plainly
+  that they are NOT blocked (9.11 — *"app/src only, no edge function"*; 6.2a —
+  *"waiting on nothing but a session"*); two matched nothing on a second read
+  (the 320 day-cell entry, the width-sweep runs). **A keyword scan cannot tell a
+  blocker from the word for one, which is a reason the eventual check must read
+  a declared field rather than grep prose.**
+
+  ### THE ONE FINDING THAT MATTERS: FOUR ITEMS WERE WAITING ON A FREEZE THAT ENDED THREE DAYS EARLIER
+
+  **`docs/MANAGER-CLOSE-2026-09-21.md` § 4 is titled *"Publishing — THE FREEZE IS
+  LIFTED, 2026-09-21"*.** It carries Andrew's own words and the publish log.
+  **Four open items still named that freeze as a live blocker: 4.1, 4.3, 9.1 and
+  0.6.** All four are corrected in place above, struck through rather than
+  deleted.
+
+  **6.2 had already caught its own copy on 2026-09-23** and its correction says
+  *"this is the third time in two nights a line stopped a session from even
+  looking at an item."* **It was right, and nobody swept the other four.** One
+  grep for `deploy freeze` would have found all five on the 23rd. That is the
+  case for this item better than any argument in it.
+
+  **AND THIS PASS'S OWN FIRST SWEEP THEN MISSED TWO SENTENCES, WHICH IS WORTH
+  MORE THAN THE FOUR IT CAUGHT.** Having just written that one grep would have
+  found them all, the corrections went in item by item — and a re-grep
+  afterwards found **a SECOND freeze sentence inside 4.3** and a *"when the
+  freeze lifts"* in **11.1**, a ticked item. Both are fixed above. **The count of
+  4 is a count of ITEMS, not of sentences: an item can carry the same stale claim
+  twice, and correcting the first one makes the entry look attended to.** Two
+  more sit in closed items (2.1a, 11.1) as past-tense narration and are left,
+  except 11.1's, which told a reader the freeze was still on. **The eventual
+  check must count occurrences, not entries.**
+
+  **AND THE DISTINCTION THE CORRECTIONS PRESERVE, because it is not "they are
+  unblocked":** a *freeze* means nobody may ask. What those items actually wait
+  on is **a publish, which is Andrew's standing arrangement and always was.**
+  `update-booking` and `platform-admin` both carry genuinely unpublished work on
+  2026-09-24, measured. The work is not blocked; it is queued, on a list he has.
+
+  ### HOW THE "NOT LIVE" CLAIMS WERE SETTLED, AND THE TRAP IN DOING IT
+
+  `deployed-inventory.mjs` reported **25 of 39** functions differing tonight.
+  **That number could not be used directly, and this is the trap:** 11 of the 25
+  differ **solely** because of a `_shared/emailTemplates.ts` + `strings/es.ts`
+  edit made this evening, so those 11 were MATCHING before it — an item claiming
+  one of them was "not live" would have been confirmed by a difference its own
+  auditor had just created. Splitting the 25 by which files differ leaves **13
+  genuinely carrying unpublished work**, which is exactly the count read
+  independently the night before.
+
+  **So the verified holds are verified against the 13, not the 25:**
+  * **2.1 HOLDS** — `_shared/pricing.ts` is unpublished on `create-booking`,
+    `update-booking`, `calculate-booking`, `preview-emails`,
+    `reschedule-booking` and `validate-promo-code`.
+  * **the rate-limit block HOLDS** — `_shared/rateLimit.ts` is unpublished on
+    seven functions, so no running copy enforces a ceiling.
+  * **3.4's RULING A sub-claim EXPIRED** — it says the maintenance-due switch was
+    *"BUILT 2026-09-21. NOT DEPLOYED."* `send-owner-reminders` differs tonight
+    **only** because of this evening's shared-module edit, so it was live before
+    it; and the column is real — `business_settings.email_customer_maintenance_due`
+    exists with default `false`, read from the live database 2026-09-24. **The
+    migration ran and the function is live.** The gate is in force today.
+
+  ### THE THREE THAT CANNOT BE SETTLED FROM HERE, AND WHAT WOULD SETTLE THEM
+
+  **0.12** (Zoho refuses the domain), **0.15** (Google OAuth verification),
+  **0.16** (web-filter categorisation). Each rests on a third-party dashboard no
+  session can read. **All three already carry `Waits on:` and `How the wait
+  ends:` lines** — they are the best-formed blockers in the file and need no
+  change. What would settle each: Andrew opening the ZeptoMail domain page, the
+  Google Cloud console, and the two filter review forms respectively.
+
+  ### THE TEN THAT HOLD — and one has a stale PREMISE even though its blocker is real
+
+  0.7, 2.1, 6.1, 7.8, 7.10, 8.5, 9.2, 9.7, the rate-limit block, and this item.
+
+  **0.7 is the one worth naming.** Its blocker — Andrew deciding whether every
+  detailer must give a postal address, stop the maintenance email, or rule it
+  transactional — **is real and unanswered.** But its reasoning rests on a rule
+  that **was reversed on 2026-09-21**: it was written while *"no marketing email,
+  ever"* was binding, and Andrew has since said he is content to put his mailing
+  address in small print, which is one of the three options the entry frames as
+  costly. **A blocker can hold while the argument under it has expired**, and
+  that is a second failure mode this item did not predict. `docs/what-we-send.md`
+  § *"Question 3"* already prices the choice for him.
+
+  ### WHAT COULD HAVE PROVED THIS PASS WRONG
+
+  **Reading each entry's own sentence back would have confirmed all 23 as
+  blocked**, which is the failure this item names. So every verdict was taken
+  from somewhere else: `MANAGER-CLOSE` § 2 and § 4 and `FOR-ANDREW.md`'s ticked
+  rows for the Andrew-decisions, tonight's `deployed-inventory` receipt **split
+  by differing file** for the publish claims, and direct read-only queries
+  against `kguqylyzgyzfktkfnhjb` for the migration and flag claims — the
+  `email_customer_maintenance_due` column and `15 of 16` businesses carrying
+  `is_demo`. **Two of my own first guesses were wrong and the database said so:**
+  0.3's flag is `is_demo`, not the `is_test` the entry guessed at, and
+  `site_probes` has no `name` column. **An entry's own vocabulary is not evidence
+  either.**
   Continue became enabled before a suggestion was selected. **A1 marks this
   "observed, submission consequence untested."**
   **Fix:** decide whether manual addresses are allowed. If not, require a
@@ -3469,7 +3602,14 @@ the wrong service, and never book a job we cannot reach.
   session found that **twenty-six edge functions are running code older than
   the repo believes**, some by thirteen days — so deploying either of these two
   would ship a fortnight of somebody else's unreviewed work alongside this
-  column. **All deploys are frozen until that backlog is inventoried.** The
+  column. **~~All deploys are frozen until that backlog is inventoried.~~ BOTH
+  HALVES OF THAT ARE SPENT — corrected 2026-09-24.** The backlog *was*
+  inventoried, by this very item, and the freeze ended 2026-09-21
+  (`docs/MANAGER-CLOSE-2026-09-21.md` § 4). **And this item's own title still
+  says 22 of 39: the reading on 2026-09-24 is 25 of 39, of which 11 differ only
+  because of a shared-module edit made that evening — so 13 carry genuinely
+  unpublished work, which is what the number meant.** `docs/gotchas.md` 85 has
+  why the count rises when work is done. The
   freeze is not about this item.
 
   **THIS ITEM GOES GREEN THE MOMENT THOSE TWO SHIP.** Whoever lifts the
@@ -3780,7 +3920,11 @@ the wrong service, and never book a job we cannot reach.
        is done by staying undone — striking it here so nobody re-opens it as
        a gap.
      - **`landing` / `pricing` (`LandingPage.jsx` + `PricingPage.jsx`):
-       genuinely undecided, and explicitly Andrew's call, not a session's.**
+       ~~genuinely undecided, and explicitly Andrew's call, not a session's.~~
+       **DECIDED 2026-09-24 — stale blocker, corrected the same day by the
+       stale-blocker pass.** `FOR-ANDREW.md` carries it ticked: *"DECIDED · The
+       Spanish dashboard gets finished. 2026-09-24 — nothing needed from you."*
+       **This half waits on nobody and is workable now.**
        Sized rather than started, using the survey's own candidate heuristic
        run directly against both files (`scripts/` untouched — copied into a
        scratch script): **278 candidates in `LandingPage.jsx`, 113 in
@@ -5602,7 +5746,10 @@ requested.
   * **BLOCKED, AND THE BLOCKER IS A DEPLOY, NOT A DESIGN:** the audit history
     this item's own "done when" asks for. Nothing records who completed a job
     or when. It needs a new append-only table (a migration) **and** a write
-    from `update-booking` (a deployed function), and **all deploys are frozen
+    from `update-booking` (a deployed function), and **← STALE BLOCKER, CORRECTED 2026-09-24 BY THE STALE-BLOCKER PASS. THE FREEZE ENDED 2026-09-21** — `docs/MANAGER-CLOSE-2026-09-21.md` § 4 is titled *"Publishing — THE FREEZE IS LIFTED, 2026-09-21"* and carries Andrew's own words and the publish log. 
+    **What still holds is a PUBLISH, not a freeze:** `update-booking` is one of
+    the 13 functions genuinely carrying unpublished work on 2026-09-24, and the
+    migration has not run. ~~all deploys are frozen
     until Andrew rules in the morning**. The design is not in question and
     nothing about it is waiting on a decision — it is waiting on the freeze
     lifting. Whoever picks it up should not re-litigate the approach.
@@ -5867,7 +6014,10 @@ requested.
   **THAT ORPHANING IS A SEPARATE, SERVER-SIDE ITEM AND IS NOT FIXED.** A
   back-fill matching on `business_name`, or a history that also matches by
   name, would recover them. Both are `platform-admin` or a migration, and
-  both are behind the deploy freeze. **Recorded rather than attempted.**
+  both are ~~behind the deploy freeze~~ **waiting on a publish — the freeze ended
+  2026-09-21 (`docs/MANAGER-CLOSE-2026-09-21.md` § 4). Corrected 2026-09-24; this
+  is the SECOND freeze sentence in this item and the stale-blocker pass's own
+  first sweep missed it.** **Recorded rather than attempted.**
 
   **PRESSED, 320 FIRST.** `Counter Signup Test Detail`: *"Reading the
   record…"* before `detail` lands, then *"Created the account ·
@@ -5948,7 +6098,9 @@ requested.
   **So "block mutations server-side" is not a policy somebody forgot to
   write.** It needs the support session to be **distinguishable** first — a
   claim carried on the token and read by the policies — which is a
-  `platform-admin` change plus an auth hook. **BLOCKED BY THE PUBLISH FREEZE,
+  `platform-admin` change plus an auth hook. **← STALE BLOCKER, CORRECTED 2026-09-24 BY THE STALE-BLOCKER PASS. THE FREEZE ENDED 2026-09-21** — `docs/MANAGER-CLOSE-2026-09-21.md` § 4 is titled *"Publishing — THE FREEZE IS LIFTED, 2026-09-21"* and carries Andrew's own words and the publish log. 
+  **What still holds is a PUBLISH:** `platform-admin` is one of the 13 functions
+  genuinely carrying unpublished work on 2026-09-24, measured. ~~BLOCKED BY THE PUBLISH FREEZE,
   named rather than half-done.** Until then the guard is `lib/supabase.js`
   wrapping the four write verbs in a preview tab, and `lib/preview.js` says
   what that is worth: *"it stops a stray click, not an attacker."*
@@ -10928,7 +11080,11 @@ the dashboard or back office at phone width at all.
   DERIVE from the real record (Andrew's instruction, 2026-09-14). So the back
   office cannot see the evidence the dashboard can, and counts fewer.
   **The fix is to widen what `platform-admin` sends, which is an edge-function
-  deploy — blocked by the freeze, not by the work.**
+  deploy — ~~blocked by the freeze~~, not by the work.**
+  **← STALE BLOCKER, CORRECTED 2026-09-24 BY THE STALE-BLOCKER PASS. THE FREEZE ENDED 2026-09-21** — `docs/MANAGER-CLOSE-2026-09-21.md` § 4 is titled *"Publishing — THE FREEZE IS LIFTED, 2026-09-21"* and carries Andrew's own words and the publish log. **What still holds is a PUBLISH:** `platform-admin` carries
+  genuinely unpublished work on 2026-09-24, measured, so the numbers still do
+  not agree for a real detailer — but nothing is frozen and the publish is on
+  `FOR-ANDREW.md`'s list.
 
   ---
 
@@ -12680,9 +12836,13 @@ this wave as untouched.
   **Drive time and routing: not built, and blocked.** Nothing in the
   codebase calls a routing or drive-time endpoint. Building either means a
   new or widened edge function so the API key never reaches the browser —
-  the same note this item already carried — and deploys are frozen. Not
+  the same note this item already carried — and ~~deploys are frozen~~. **The
+  freeze ended 2026-09-21; corrected 2026-09-24. This item is CLOSED, so the
+  stale line changes nothing here — it is fixed because a reader passing through
+  a ticked item still reads it as the current state.** Not
   started; overlaps Wave 13 item 1, "day view in the calendar with drive
-  time between jobs," which is where it belongs when the freeze lifts.
+  time between jobs," which is where it belongs ~~when the freeze lifts~~
+  whenever somebody picks it up.
   *old roadmap § 6, § 3*
 - [x] ~~**11.2 — The vehicle picker**, on NHTSA vPIC.~~ **Done — fully built,
   shipped, tested.** `app/src/book/VehicleField.jsx` + `vehicles.json`
