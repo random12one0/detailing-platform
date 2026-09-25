@@ -4977,7 +4977,11 @@ requested.
   exists on screen and the source reading is wrong, the whole recommendation
   below collapses.**
 
-  **THE RULING, given on the measurements above:**
+  **THE RULING, AND IT IS A CONFIRMATION OF AN INSTINCT RATHER THAN A FINDING
+  OF ITS OWN — whose instinct it was travels with it.** The reading brought to
+  this item was: **label rather than gate, do not argue with the person, an undo
+  beats a confirmation.** The measurements support that and sharpen it; they did
+  not produce it.
 
   1. **NO confirmations get added to cancel or no-show.** That taxes every
      correct press to stop a rare wrong one, and `docs/screen-rules.md` already
@@ -5002,6 +5006,27 @@ requested.
 
   **STILL BLOCKED, UNCHANGED:** the audit history this item's own *Done when*
   asks for needs a migration and a deploy, which is Andrew's.
+
+  **ONE PARAGRAPH OF THAT FILE WAS DELIBERATELY NOT CARRIED, AND SAYING SO IS
+  THE POINT — TWO DOCUMENTS DISAGREED.** It carried a *"still open"* finding
+  from `FOUND.md`: that every caller closes the record on a status change —
+  `navigate("/app")` on the job route, `setSelected(null)` on Today, Calendar,
+  Money and Clients — so confirming a completion takes the record away with it,
+  leaving the undo one navigation back rather than one tap, across six call
+  sites. **This entry says that was BUILT on 2026-09-20**, in the
+  `fetchBooking(id, businessId, tz)` paragraph above, with all five
+  detailer-side call sites walked and the database read before and after, and
+  `ManageBookingPage.jsx` correctly excluded. **So the findings file, written on
+  the 23rd, described as open something this file records as closed on the
+  20th.** It is not carried because it is superseded — but it is named here
+  rather than silently dropped, because a session reading only the findings file
+  would have rebuilt it.
+
+  **AND ONE PROCESS FACT FROM THAT FILE'S OWN HEADER, WHICH NOW LIVES NOWHERE
+  ELSE:** it was committed rather than left untracked because **an untracked
+  findings file had already vanished once that night — 9.1's**, consumed
+  correctly by the session that acted on it, but with no trace either way. That
+  is the reason findings files get committed here at all.
 
 - [x] **DONE 2026-09-16 — 4.2 Calendar download links need an authorization review.**
   The link carried a Supabase function URL, a booking id, `audience=owner` and
@@ -9518,7 +9543,8 @@ the dashboard or back office at phone width at all.
   labels and it holds at **4.90:1 on `--ink-1`** and **4.59:1 on `--ink-2`**. It
   measures **4.20:1 on `--ink-3`**, the highest surface, and the one place a
   label landed there was moved on 2026-09-20. Changing the token would be a
-  rebuild of screens that work.
+  rebuild of screens that work, **which is Andrew's standing instruction not to
+  do** — the reason, not just the conclusion.
 
   **THE INSTRUMENT HAD ONLY EVER ASKED ENGLISH** — 32 combinations, every one of
   them English, for an item whose audits both said "everywhere". Widening it to
@@ -11303,12 +11329,25 @@ the dashboard or back office at phone width at all.
   behind it, so if one of the four is later dropped the run goes red and names
   which.
 
-  **A CORRECTION TO AN INSTRUCTION, recorded 2026-09-23 and folded in here from
-  `docs/8.3-findings-2026-09-23.md`, now deleted.** The manager said earlier that
-  this item's box was a session's to tick, and **withdrew it: 9.7's box is
-  ANDREW's to press, not a session's**, like 9.11 and 9.4. It stays `[ ]` for his
-  press. Kept because a correction to an instruction is worth more than the
-  instruction.
+  **A CORRECTION TO AN INSTRUCTION, AND IT IS NOT ANYBODY'S TO MAKE QUIETLY.**
+  Recorded 2026-09-23, folded in here from `docs/8.3-findings-2026-09-23.md`,
+  now deleted. **The manager said earlier that 9.7's box was a session's to
+  tick, and then withdrew it.** The reason is the part that has to travel with
+  it: **the convention here is that Andrew presses the visual ones himself.** So
+  9.7 stays `[ ]` for his press, **like 9.11 and now 9.4** — the "now" matters,
+  because 9.4 joined that set the same night. Kept because a correction to an
+  instruction is worth more than the instruction.
+
+  **AND THE FIRST FOLD OF THIS PARAGRAPH DROPPED THAT REASON, 2026-09-24, which
+  is the same failure one level out.** The version written when the findings
+  file was deleted carried *who* withdrew the instruction and *what* the
+  withdrawal was, and not *why* — it said "ANDREW's to press, not a session's"
+  and never said "because he presses the visual ones himself." A reader looking
+  for the convention would not have found it, and the manager grepping for it
+  did not. **The ruling survived; the thing that makes it a ruling rather than a
+  preference did not.** That is this repo's own most repeated failure — reading
+  the label instead of the contents — committed while folding in a paragraph
+  whose whole point was that the reason outranks the instruction.
 
 - [x] **DONE 2026-09-20 — 9.8 Manual booking flashes "No active services yet"
   before loading.** Replace false empty states with a loading skeleton; only
