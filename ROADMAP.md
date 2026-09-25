@@ -16497,6 +16497,274 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   Both script sabotages reverted; `node --check` clean on both files; the four
   classifier canaries fire on every run.
 
+
+### 14.21 — A teardown written AFTER `browser.close()` instead of inside a `finally` leaves a full platform admin behind on a crash
+
+- [ ] **Found 2026-09-25 by the ticked-item audit, in 6.2a's own words. Not
+  built here: it lives in `scripts/`, which was another session's lane.**
+
+  **THE PATTERN, WHICH IS THE PART THAT TRAVELS — read this before the line
+  number.** A script that needs the back office mints a throwaway platform
+  admin, does its work, and drops the row again. **If the drop is written as a
+  top-level statement after `await browser.close()`, it runs on a clean exit
+  and on nothing else.** A throw anywhere above it — a selector that stopped
+  matching, a page that did not load, a `process.exit` on a failure — skips it,
+  **and what is left behind is not a stray fixture row. It is an account that
+  reads every detailer, every customer, and can suspend, impersonate and
+  reprice.** `public.platform_admins` has four columns and not one of them is a
+  permission, so every row is all-or-nothing (14.8).
+
+  **It has already happened twice, on the same night, in the same way.** 6.2a
+  records that `scripts/health-line-honest.mjs` had exactly this shape and **two
+  crashed runs each left a live row**, caught within the hour by
+  `tests/platform-admins-declared.test.mjs` — which correctly refused to
+  allowlist them. **It is a defect that only fires when a run goes wrong, which
+  is when nobody is reading the output.**
+
+  **THE POPULATION IS THREE SCRIPTS AND ONE OF THEM IS WRONG — counted, not
+  assumed.** Everything that mints one goes through `makeAdmin`/`dropAdmin` in
+  `scripts/admin-account.mjs`:
+
+  | script | where the teardown sits | verdict |
+  |---|---|---|
+  | `scripts/shoot-admin.mjs` | inside a `finally` | **safe** — it was suspected during 6.2a and is innocent |
+  | `scripts/health-line-honest.mjs` | inside a `finally`, with `--crash-after-signin` to prove it | **safe, and it is the worked example to copy** |
+  | **`scripts/admin-contrast.mjs`** | **top-level, after `browser.close()`, with a second inline close-then-drop on an earlier exit path** | **UNGUARDED** |
+
+  `scripts/sweep-tap-targets.mjs` no longer mints one at all — 4.5 removed that
+  path deliberately when the standing demo login turned out to reach `/admin` —
+  so it is not in this population. **Three minters, one hole.**
+
+  **THE FILE ALREADY KNOWS.** `admin-contrast.mjs` carries a `ponytail:`
+  comment admitting it, and the comment above that one explains why the drop
+  was moved ABOVE the failure exits — which was a real improvement and is not
+  the same thing as a `finally`. **Fixing the ordering of the exits does not fix
+  a throw**, and the comment says so itself: *"Wrap the whole script if that
+  ever stops being true, which it will the day something else reads that row."*
+  Something else does read that row now: the declared-admins check, which went
+  red on exactly this twice.
+
+  **Fix:** put the browser section in `try { … } finally { await
+  browser.close(); await dropAdmin(…); }`, the shape
+  `health-line-honest.mjs` already uses, and delete the inline close-then-drop
+  on the early exit path so there is one teardown rather than two.
+
+  **Done when:** running
+  `node scripts/admin-contrast.mjs --crash-after-signin` — a flag that has to be
+  added, throwing at the same point the two real crashes threw, **after the
+  sign-in and before the screenshots** — leaves `public.platform_admins` with
+  **the same rows after as before**, read off the table in both directions and
+  printed by the run; **and** `node --test tests/platform-admins-declared.test.mjs`
+  is **18 passed / 0 failed** immediately afterwards with no edit to
+  `docs/platform-admins.md`.
+
+  **What failing looks like:** the table gains a row named something like
+  `contrast-admin@…` that nobody declared, the declared-admins check goes red,
+  and the only way to make it green is to delete the row by hand — which is the
+  state this item exists to make impossible rather than merely detectable.
+
+  **DO NOT CLOSE THIS BY DECLARING THE ROW.** 14.8's rule: a check that absorbs
+  whatever it finds is worthless, and the roster is read by the check and never
+  the reverse.
+
+  **Cost:** one `try`/`finally`, one flag, one run. No migration, no deploy, no
+  browser session a person has to watch — the crash flag does the watching.
+
+### 14.22 — `Clients.jsx` writes two words in bare English thirty-three lines below the line that translates the same two words
+
+- [ ] **Found 2026-09-25 by the ticked-item audit, named inside 9.6's own entry
+  as "worth its own line, not folded into this commit", and verified still
+  present. Not built here: `app/src`.**
+
+  **BOTH LINES, SO THE CONTRADICTION IS ON ONE SCREEN RATHER THAN REDISCOVERED.**
+
+  | | |
+  |---|---|
+  | `app/src/screens/Clients.jsx:709` | `{owner ? t("lifetime") : (visits === 1 ? t("visit") : t("visits"))}` |
+  | **`app/src/screens/Clients.jsx:742`** | **`{facts.visits === 1 ? "visit" : "visits"}`** |
+
+  **The same two words, the same screen, thirty-three rows apart, one wrapped in
+  `t()` and one not.** 709 is the client LIST row, added by 9.6. 742 is the
+  client RECORD card, which predates it. A detailer using the product in Spanish
+  reads `visita`/`visitas` in the list and then **`visit`/`visits`** when they
+  open somebody.
+
+  **WHY IT SURVIVED, AND IT IS THE SAME REASON EVERY TIME.** `appEs.js` is keyed
+  on the English text, so an unwrapped string does not fail — **there is nothing
+  to look up, so there is nothing to miss.** No error, no console line, no red
+  test. `CLAUDE.md` names this exact mechanism for RENAMED strings; this is its
+  other half, a string that was never wrapped at all.
+
+  **Fix:** wrap 742 the way 709 already is. **Check the keys exist before
+  assuming** — 9.6 records that `"visit"`/`"visits"` had no bare key until it
+  added them, and that `"lifetime"` already did and was reused rather than
+  duplicated. If the keys are there, this is one line.
+
+  **Done when:** **no bare `"visit"`/`"visits"` string literal remains in
+  `app/src/screens/Clients.jsx`** — `grep -n '"visits\?"' app/src/screens/Clients.jsx`
+  returns only occurrences inside a `t(` call — **and the client record card is
+  opened on the demo tenant with the language set to Spanish and reads
+  `visita` or `visitas`**, read off the screen, not off the catalogue.
+
+  **What failing looks like:** the grep comes back clean because somebody
+  deleted the word instead of translating it, and the record card now shows a
+  bare number with no noun. **The screen read is the half that catches that**,
+  which is why both clauses are here.
+
+  **THE BROADER NUMBER, SO NOBODY THINKS THIS IS THE ONLY ONE.**
+  `tests/spanish.test.mjs` reports **10 of 1611 dashboard strings with no
+  entry**. Whether this is one of the ten was **not** established — the audit
+  found it by reading 9.6, not by running the test. **Do not close the ten on
+  the strength of this one line.**
+
+### 14.23 — Nothing opens a closed `<details>` before the tap-target sweep measures, and eighteen files use one
+
+- [ ] **Found 2026-09-25 by the ticked-item audit. 4.5 named it as requirement 2
+  and closed without it, deliberately and in writing. Not built here: it needs
+  `scripts/` and the browser.**
+
+  **4.5's own words, from the six requirements it learned by getting them wrong
+  first:** *"Open every `<details>` first. 29 of 41 `.choice` controls on
+  Booking rules sit inside two closed foldrows that still report full-size
+  rects. **A gate that skips them prints clean over 71% of its population.**"*
+  It then closed on `/admin`, where `grep -c "<details" AdminPage.jsx` is zero,
+  and named the leftover: *"`BusinessInfo.jsx`, `Campaigns.jsx` and
+  `Notifications.jsx` do have `<details>` rows and are NOT proven to open them
+  before measuring."*
+
+  **MEASURED, AND IT IS WIDER THAN THREE SCREENS:**
+
+  | | |
+  |---|---|
+  | occurrences of the string `details` in `scripts/sweep-tap-targets.mjs` | **0** |
+  | occurrences in `scripts/lib/tapProbe.mjs` | **0** |
+  | files under `app/src` using `<details>` or `<Folded>` | **18** |
+  | in `BusinessInfo.jsx` / `Campaigns.jsx` / `Notifications.jsx` | **2 / 1 / 5** |
+
+  **WHICH KIND OF FAULT IT IS, STATED PRECISELY, BECAUSE THE TWO KINDS NEED
+  DIFFERENT FIXES.** `tapProbe.mjs` filters candidates through
+  `checkVisibility`, so a control inside a closed fold is **never discovered**
+  rather than measured and wrongly passed. **So this is a silent coverage hole,
+  not a false green** — which is the better of the two and still the thing
+  `docs/silences.md` exists for, because a control that is never discovered
+  also never appears in the `n of N` the probe prints. **Its own coverage
+  numbers cannot show it.**
+
+  **TWO SCRIPTS IN THIS REPO ALREADY SOLVE IT, TWO DIFFERENT WAYS, AND NEITHER
+  IS WIRED IN.** `scripts/sweep-widths.mjs` opens every `<details>` before it
+  measures — its own comment says *"a closed `<details>` anywhere on a screen is
+  content no width has measured"*. `scripts/tabbar-clearance.mjs` refuses to
+  measure them and **counts the refusal into its receipt**. **Either is
+  correct. Having neither is the gap.** Pick one and say why in the commit:
+  opening them measures more, counting them measures honestly, and the wrong
+  answer is a third mechanism.
+
+  **Fix:** in `scripts/sweep-tap-targets.mjs`, before each screen's walk, either
+  open every `<details>` or record the count of controls skipped for sitting
+  inside a closed one — and put that number in the receipt either way.
+
+  **Done when:** a run of `node scripts/sweep-tap-targets.mjs` over the settings
+  doors reports a **discovered-control count that is strictly higher than
+  today's** on at least one of `BusinessInfo`, `Campaigns` and `Notifications`
+  — or, if the counting route is chosen, reports a **non-zero
+  skipped-inside-closed-fold figure** in `receipts/sweep-tap-targets.json` —
+  **and the difference between the two numbers is written into the roadmap
+  line**, because that difference is the population nothing has ever measured.
+  **A run that reports no change on any of the eighteen files is a failure of
+  this item, not a pass**, until somebody explains why.
+
+  > **THE ONE LINE FOR WHOEVER HAS THE BROWSER, before any code is written:**
+  > *with the dev server up and the demo tenant seeded, open the settings doors,
+  > run `document.querySelectorAll("details").forEach(d => d.open = true)` in
+  > the console, and count the focusable controls before and after. The
+  > difference is the size of this item.* Five minutes, and it tells you whether
+  > this is worth an hour or worth a line.
+
+  **What failing looks like:** the fold is opened, the count does not move, and
+  somebody concludes the gap was imaginary — when what actually happened is that
+  the probe opened the fold on a screen that has none. **Name the screen the
+  number came from.**
+
+### 14.24 — Three ticked items each name a gap only a person with the browser can close, and all three are under ten minutes
+
+- [ ] **Assembled 2026-09-25 from the completed ticked-item audit
+  (`docs/ticked-without-proof-2026-09-25.md`). One entry rather than three,
+  because it is one sitting — but each of the three carries its own pass
+  condition and can be struck through independently, so a half-done sitting
+  cannot read as a finished one.**
+
+  **None of these unseats a tick.** All three are gaps the entries themselves
+  name, in their own words, honestly. **The reason they are collected here is
+  that a gap named inside a ticked item is invisible to everything** — no check
+  is red, no list is short, and the box is crossed. 9.11 is the precedent the
+  repo already paid for: ticked with phone width named as unverified, and the
+  next sweep found a real 320px fault sitting precisely in the gap it had named.
+
+  **1 · `ROADMAP.md:4714` — steps 6 and 7 were never compared after the booking
+  column doubled in width.** Its own words: *"the matrix covers steps one
+  through five at four widths; it does not cover steps six and seven at any
+  width… And at 768px the calendar block itself was not captured."* The one-line
+  fix was on `.bk-wrap`, which that entry says is shared by **all five**
+  booking-side pages, so the change reached 6 and 7 and only 1–5 were looked at
+  afterwards.
+  > *Walk the booking flow to **step 6 (the plan pitch)** and **step 7
+  > (review)** at **320, 392, 768 and 1440**, read the console at each, and look
+  > for anything stranded, stretched or overflowing now the column is 632px
+  > instead of 317px. Then at **768 only**, capture the calendar block on step
+  > 5.*
+  > **Passes when:** four widths on both steps recorded with the console clean
+  > and nothing overflowing, and the 768 calendar capture exists. **Fails when:**
+  > anything overflows, or a width is skipped without saying so.
+
+  **2 · 9.5 — the one case that could catch an off-by-one was never on screen.**
+  Its own words: *"Today had exactly one still-to-do job, so the one check this
+  cannot answer for — two open jobs side by side, one whose time has passed and
+  one whose has not, only the first reading `Late` — was never on screen to fail
+  or pass."* The negatives it did get are weaker, because a `completed` job and
+  a future `booking_date` may never reach the same branch the still-to-do
+  comparison does. **The entry hopes a later sweep lands on such a day. It is
+  two rows to stage.**
+  > *Put two `confirmed` bookings on today for the demo tenant — one whose end
+  > time is an hour in the past, one an hour in the future — open Today, and
+  > confirm **only the first** row reads "Late" while both sit in Still to do.
+  > Then delete both rows.*
+  > **Passes when:** exactly one of the two reads `Late`, and it is the past
+  > one. **Fails when:** both do, neither does, or the future one does.
+  > **Cost:** two rows, no Geoapify credit, no mail. **Delete them afterwards** —
+  > `docs/shared-resources.md` § the demo tenant's rows.
+
+  **3 · 7.4 — no screen reader has ever been run.** Its own words: *"**NOT
+  measured, same as every pass:** actual screen-reader audio (VoiceOver/NVDA) —
+  no headless browser runs one."* **The tick is honest and should stay** — 7.4
+  claims linear DOM order and an accessible name on every element, and both were
+  measured. The gap is a different claim nobody has made. Searched before being
+  called live: `VoiceOver|NVDA|Narrator|screen.reader` across tracked markdown
+  returns only statements that it has **not** been done.
+  > *Windows already has Narrator — `Ctrl`+`Win`+`Enter`. Tab through (a) the
+  > booking page's date step and (b) the job record's pinned action bar, and
+  > write down any control that announces nothing, announces only "button", or
+  > announces a different thing from its visible label. Five minutes, then turn
+  > Narrator off.*
+  > **Passes when:** every control on those two screens announces a name that
+  > matches what is written on it. **Fails when:** one does not, and the failing
+  > control is named.
+  > **Zero cost, no install, nothing to build.**
+
+  **Done when:** all three are recorded — each with what was seen, not "looked
+  fine" — **and each of the three parent entries carries a one-line result
+  beside the gap it named**, so the next reader finds the answer where they
+  found the question rather than in a fourth document.
+
+  **What failing looks like:** one of the three comes back "no problems" with no
+  detail. **A human check written up as though it were a measurement is the
+  shape of thing this repo spent a night removing** — 8.3's daylight read is the
+  model: *"one person, one screen, once… if Andrew later says he did see
+  something, this reopens."*
+
+  **These belong to the same family as 8.3's daylight pass and 8.2's phone
+  walk** — human-only checks no script substitutes for.
+  `docs/testing/phones-we-do-not-own.md` is where that family is written down.
+
 ### Still unanswered after steps 1–4
 
 - **RESOLVED 2026-09-19: `composition` is GREEN.** 97 passed, 0 failed,
