@@ -449,3 +449,160 @@ this audit asks, and **not** enough to claim I read the entry. The remaining 400
 lines are its historical diagnosis and its retracted false finding. **If something
 is wrong in 2.5 it is in the part I did not read**, and that is stated rather than
 papered over.
+
+---
+
+## BATCH 2 OF THE FIFTY-THREE — read 2026-09-25, resumed at `ROADMAP.md:3099`
+
+**No pattern, no regex. Each entry opened and read whole, because a resolution
+in this file can sit above the text it resolves as easily as below it.**
+
+| | |
+|---|---|
+| items in this batch | **10** |
+| carry proof a stranger could check | **9** |
+| **carry a LIVE named unverified gap** | **1** (the booking-column width item, `ROADMAP.md:4714`) |
+| could not judge | **0** |
+| **ticks that should come off** | **0** — the one gap is a gap in coverage, not in the fix |
+| **running total judged** | **33 of 76** |
+| **still unjudged** | **43** |
+
+**The ten, in roadmap order:** the scroller-clearance item (`:3099`), 2.6, 2.8,
+2.9, 2.10, 2.11, 2.13, the booking-column width item (`:4714`), 3.4a, 3.4b.
+
+**Two items in that stretch were skipped because they are already judged** —
+2.7 (`:3304`) and 2.14 (`:4466`), both opened in the first pass and both found
+well-evidenced. Their verdicts stand and were not re-derived.
+
+### THE ONE FINDING WORTH A BROWSER — `ROADMAP.md:4714`, the booking column
+
+**The tick is right and the fix is proved.** `.bk-wrap` measures **632 exactly**
+on a fresh load against the **316.9** it was; the calendar's day cells are
+**52 by 52**; Andrew pressed all four numbers himself on 2026-09-20 and the
+Spanish strings are quoted off the screen.
+
+**What it does not cover, in its own words:** *"The other session's matrix covers
+steps one through five at four widths; it does not cover steps six and seven at
+any width — for those two the correct sentence is that they have not been
+compared, not that they look fine. And at 768px the calendar block itself was
+not captured."*
+
+**That gap is still live.** Nothing later in the entry answers it, nothing
+elsewhere in `ROADMAP.md` does, and the entry ends two paragraphs later on the
+second-instance sweep of `booking.css`. **It matters more than "two screens
+unchecked" sounds**, because the one-line fix is on `.bk-wrap`, which the entry
+itself says is shared by **all five** booking-side pages — so the change that
+doubled the column's width reached steps 6 and 7 too, and only steps 1-5 were
+looked at afterwards.
+
+> **ONE LINE FOR WHOEVER HAS THE BROWSER:** *with the dev server up and the demo
+> tenant seeded, walk the booking flow to **step 6 (the plan pitch)** and **step
+> 7 (review)** at **320, 392, 768 and 1440**, read the console at each, and look
+> for anything stranded, stretched or overflowing now the column is 632px
+> instead of 317px — then at **768 only**, capture the calendar block on step 5,
+> which was recorded as not-captured rather than as a result.*
+
+**Ten minutes, no credentials, no spend.** It is the same family as 7.4's
+Narrator pass: cheap, human, and the only thing that can close a gap the entry
+already admits.
+
+### 2.8 — THE PROOF WAS RE-MEASURED, NOT JUST READ, AND IT HELD
+
+**Procedure step 3 says to confirm a named proof still exists, and 2.8 is the
+item where that is not hypothetical** — it records that its own 2026-09-20
+evidence row was eaten by a reseed and warns its replacement will go the same
+way. So the three booking ids it cites were queried by id against
+`kguqylyzgyzfktkfnhjb`, read-only, 2026-09-25:
+
+| booking | entry claims | live database says |
+|---|---|---|
+| `3259be4f…` | kept, `address_source` = `picked` | **exists, `picked`, pending** |
+| `16c75c74…` | kept, `address_source` = `typed` | **exists, `typed`, pending** |
+| `c4c1f0c8…` | **gone**, eaten by the reseed | **gone — no row** |
+
+**All three match, including the one that is supposed to be missing.** The only
+row in this database whose `address_source` reads `picked` is still there, which
+is the single assertion that can tell a working column from one hard-wired to
+`typed`. **2.8 is the first entry in this audit whose evidence was re-taken
+rather than re-read**, and it cost one read and no rows.
+
+### TWO DEFECTS OF FORM, NEITHER OF WHICH UNSEATS A TICK
+
+1. **`ROADMAP.md:3099` carries TWO `Done when:` lines, and the closure answers
+   the first.** The first — *"the four rows are accounted for"* — is met in full:
+   the clip was found, the fix is three selectors, the table reads 41px to 45px at
+   1440 and 1920, and 7 of 7 unreserved scrollers went to 0 of 7. The second —
+   *"no control anywhere in the back office measures under 44px … and the four
+   surfaces above are recorded as re-measured rather than assumed"* — belongs to
+   the **`--bk-bar-clear` 104px literal**, the deferred decision CLAUDE.md uses as
+   its worked example, and **the four protected surfaces were not re-measured.**
+   That is not this item's fix failing; it is a second, larger question folded
+   into the same entry and closed by neither. **A stranger reading forward hits a
+   done-when the closure does not address and cannot tell which of the two the
+   tick rests on.**
+2. **A paragraph headed "STILL OPEN, AGAINST ITS OWN DONE-WHEN" sits inside the
+   ticked 3.4b.** Read in place it says 3.4b is not done. It is not about 3.4b:
+   3.4b's done-when is a warning sentence on the *Your own words* screen, pressed
+   at four widths in both languages and quoted. The paragraph describes **3.4's**
+   done-when — *"confirmation, acceptance, reminder, quote, receipt, cancellation
+   and reschedule have each been sent, received and read"* — and 3.4 is the open
+   parent at `ROADMAP.md:4876`. **The text is filed under the wrong item**, and it
+   is exactly the shape of thing this audit exists to catch: a sentence that reads
+   as a live admission of failure inside an entry that earned its tick.
+
+### THE OTHER EIGHT, IN ONE LINE EACH — what a stranger could go and check
+
+* **`:3099` scroller clearance** — 41px to 45px at 1440 and 1920, 7 of 7 scrollers
+  reserving nothing to 0 of 7, `scripts/scroller-clearance.mjs` (**confirmed on
+  disk**, 11 targets / 45 assertions, receipt `PASS`), three sabotages including
+  `--break=rect` reproducing the instrument's own historic bug.
+* **2.6** — the year box left empty and Continue pressed at four widths, page
+  moves to step 4 of 7 each time, contact step still refuses an empty email out
+  loud; gates quoted with counts. Its two loose ends are **owned elsewhere** —
+  the untranslated *"an estimate is fine"* is 2.12's and 2.7 is named as staying
+  open — so neither is a gap in this tick.
+* **2.8** — six kinds of address pressed, `address_source` read off each row, the
+  `picked` case isolated as the only one that can distinguish a live column from
+  a stuck one, plus `tests/address-source.test.mjs` (**confirmed on disk**)
+  broken four ways, one per link in the chain. Re-verified above.
+* **2.9** — the quoted line *"Coastline Auto Detailing comes to you, serving Long
+  Beach & South Bay."* at four widths, Spanish rendering named, and the height
+  cost measured both ways: 19px desktop, 38px phone, **no screen that fitted
+  stopped fitting**.
+* **2.10** — a four-row before/after table in pixels; the pitch was **842px on an
+  844px phone screen** and is 0 on that step now, intact at 472/462/823/842 on
+  step 6. The refusal to rename the $200 plan is argued from the data, not taste.
+* **2.11** — two tenants read back two different numbers off two different
+  businesses (24h / 48h) with both sentences quoted verbatim, three sabotages,
+  and the 320px overlap parked in `FOUND.md` rather than absorbed.
+* **2.13** — both headings quoted at four widths with no wrap at 320, the
+  behavior pressed as well as the words, the Spanish key **replaced rather than
+  left behind** so no stale entry is created.
+* **3.4a** — a ruling item, judged as one: a dated reversal, its author, its
+  reason, its carve-out, and three named places a stranger can read it. Its
+  counter-search is the good part — it looked for a *re-*reversal dated the 22nd,
+  23rd or 24th, found none, and found **0.12 on 2026-09-22 building on the
+  reversal**, which is corroboration rather than absence. Its pointers were
+  spot-checked: `docs/MANAGER-CLOSE-2026-09-21.md` § 2 exists, `FOR-ANDREW.md`
+  carries the *"REVERSED 2026-09-21"* entry, `docs/what-we-send.md` carries
+  Question 3.
+* **3.4b** — the warning sentence quoted in full, pressed **320 first**, both
+  languages, console read at each, screenshots showing it lands **above** the
+  drawer so a detailer meets it before opening a box; `label-guard` 45/45.
+
+### WHAT THIS BATCH COULD HAVE MISSED
+
+* **`ROADMAP.md:4714` and 2.8 are long and I read them whole; 3.4b is 260 lines
+  and I read about 120 of them** — enough to judge the tick, which is what this
+  audit asks, and not enough to claim I read the entry. **If something is wrong
+  in 3.4b it is in the part I did not read.**
+* **The booking-column gap could have been closed somewhere other than
+  `ROADMAP.md`.** I searched this file for *"steps six and seven"*, *"all seven
+  steps"* and `W16`, and the only later coverage is
+  `scripts/sweep-booking-steps.mjs` sweeping all seven steps from 2026-09-19 —
+  **which is a fit-and-target sweep, not a before/after width comparison of a
+  change made on the 20th.** If somebody compared 6 and 7 and wrote it up in
+  `docs/VERIFIED.md` or a receipt, I did not see it.
+* **I re-measured one item's evidence and eight items' file paths, and nothing
+  else.** No screen was opened, no width was walked, no receipt was re-run. Every
+  other verdict here is a judgement about what is written down.
