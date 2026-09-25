@@ -117,6 +117,9 @@ export const es: Record<string, string> = {
   // outside the lookup in a template literal, so the sentence around it
   // translated and the two words in the middle did not.
   "{date} at {time}": "{date} a las {time}",
+  // ROADMAP 3.4 FAULT 1. The reschedule email's struck-through OLD time. Its
+  // own key, not a prefix on the line above: that one is shared with the quote.
+  "Was {date} at {time}": "Antes: {date} a las {time}",
 
   // ── 3 · The answer to a request ────────────────────────────────────────
   "Quote": "Presupuesto",

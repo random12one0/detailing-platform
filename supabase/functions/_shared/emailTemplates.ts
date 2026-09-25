@@ -1046,7 +1046,21 @@ export function rescheduleEmail(
     // line a customer reads to check they are not about to turn up on the
     // wrong day, which is the one place in the set a half-translated sentence
     // costs somebody a wasted morning.
-    proseBlock(`<span style="color:${G.fog2}; text-decoration:line-through;">${tt("{date} at {time}", { date: esc(oldLong), time: formatTime12hr(oldStartTime) })}</span>`, 24),
+    // **AND IT SAYS "WAS" IN WORDS — ROADMAP 3.4, FAULT 1, fixed 2026-09-24.**
+    // The strikethrough stays, and it is no longer the only thing carrying the
+    // meaning. `htmlToText` drops `text-decoration`, because that is what
+    // converting to text does — so the plain-text half read *"has been moved. /
+    // Saturday, September 12, 2026 at 8:00 AM / Thursday, September 17, 2026"*:
+    // **two datetimes and not one word saying which was the old one.** A
+    // customer reads this line to check they are not about to turn up on the
+    // wrong day, and the half that lost the distinction is the one a plain-text
+    // client, a styles-stripping client and most screen readers get.
+    // **`"Was {date} at {time}"` is its own key rather than a prefix glued onto
+    // `"{date} at {time}"`** — that key is shared with the quote template
+    // (`"We're still holding …"` at line ~664), so editing it would have moved
+    // a sentence this fault has nothing to do with, and Spanish puts the label
+    // somewhere English does not.
+    proseBlock(`<span style="color:${G.fog2}; text-decoration:line-through;">${tt("Was {date} at {time}", { date: esc(oldLong), time: formatTime12hr(oldStartTime) })}</span>`, 24),
     markBlock(brand, [dateLong, `${formatTime12hr(b.startTime)} &ndash; ${formatTime12hr(b.endTime)}`]),
     factsBlock(jobFacts(brand, b, lang)),
     forOwner ? "" : ownWords(brand, "rescheduled"),
