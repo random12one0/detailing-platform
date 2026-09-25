@@ -50,7 +50,7 @@ database this session, not against the seed file:
 
 | Where | What it is |
 |---|---|
-| `scripts/seed-demo.mjs`, `e2e-booking.mjs`, `shoot-dashboard.mjs`, `sweep-widths.mjs`, `spanish-dom.mjs`, `admin-account.mjs`, `final-pass.mjs` | the demo **sign-in identities** (`demo@detailplatform.com` / `demo123`, `demo-staff@…`). A login, not a mailbox. Deleting them takes the verification suite down — CLAUDE.md says so explicitly. |
+| `scripts/seed-demo.mjs`, `e2e-booking.mjs`, `shoot-dashboard.mjs`, `sweep-widths.mjs`, `spanish-dom.mjs`, `admin-account.mjs`, `final-pass.mjs` | the demo **sign-in identities** (`demo@detailplatform.com` (password in `docs/platform-admins.md`), `demo-staff@…`). A login, not a mailbox. Deleting them takes the verification suite down — CLAUDE.md says so explicitly. |
 | `tests/booking-engine.test.mjs`, `platform-admin.test.mjs`, `promo-checkout.test.mjs` | fixture strings inside assertions |
 | `CLAUDE.md`, `DECISIONS.md`, `PROJECT-STATE.md`, `docs/roadmap.md`, `docs/overnight-log.md`, `docs/testing/*` | narrative about the bug and its fix |
 | `app/src/theme.css:2651` | a comment measuring a label's width |

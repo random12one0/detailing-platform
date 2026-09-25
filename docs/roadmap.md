@@ -608,7 +608,7 @@ is kept; the entire visual design restarts from scratch.
       the OLD dashboard behind it. **2.3 is on the branch and NOT on `main`**,
       and `main` is what detailingplatform.com serves. He has not been asked
       whether to publish. A simple demo login now exists so he can look —
-      `demo@detailplatform.com` / `demo123` — see DECISIONS.md, "A guessable
+      `demo@detailplatform.com` (password in `docs/platform-admins.md`) — see DECISIONS.md, "A guessable
       demo login".
 
       ---
@@ -6514,7 +6514,7 @@ is kept; the entire visual design restarts from scratch.
       OWNER.** `seed-demo.mjs --platform-admin` makes a separate account with
       a random password written to the gitignored refs file. The demo login is
       deliberately guessable and lives on the live site; **making it an admin
-      would put every detailer's data behind `demo123`.**
+      would put every detailer's data behind one guessable password.**
 
       **STAGE 2 SHIPPED 2026-09-05 — create a business by hand, and resend an
       invite.** Both are the same support call from two sides: somebody signed
@@ -7192,7 +7192,7 @@ works**, which is one line at the end rather than a pause in the middle.
       sign in and reach the back office BEFORE anything else was removed**,
       then the other three rows were revoked and the two accounts that existed
       only to be admins were deleted. **P-12 is closed by that.** The demo
-      DETAILER login (`demo@detailplatform.com` / `demo123`) is untouched on
+      DETAILER login (`demo@detailplatform.com` (password in `docs/platform-admins.md`)) is untouched on
       purpose — every sweep, every shooter and `e2e-booking` sign in with it.
       **AND IT IS A LAUNCH BLOCKER, recorded rather than argued:** that
       password is on the account that can read every detailer, at a public
@@ -8253,7 +8253,7 @@ recommendation.
   item, in Phase 4, and it decides both directions at once**; it is the single
   biggest unscheduled build left and it also unblocks 2.14's richer shape.
 - **B. THE DEMO LOGIN IS GUESSABLE AND ON THE LIVE SITE.**
-  `demo@detailplatform.com` / `demo123`, deliberately, so the dashboard could be
+  `demo@detailplatform.com` (password in `docs/platform-admins.md`), deliberately, so the dashboard could be
   looked at. **Skipped:** anyone who guesses it edits the demo business — today
   that is nothing, on launch day it is a public account on a product with
   paying tenants. **Recommendation: a Phase 7 item to rotate or remove it, and

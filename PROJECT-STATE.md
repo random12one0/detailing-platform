@@ -15,8 +15,8 @@ product** — *"no one knows about it, only me. And it's not going out until
 everything's finished."* Still ask before merging to `main`; just know the
 answer is usually yes and why. **(2) There is a simple demo login now**, so
 the dashboard can actually be looked at:
-`demo@detailplatform.com` / `demo123` (owner) and
-`demo-staff@detailplatform.com` / `staff123` (staff). Guessable on purpose and
+`demo@detailplatform.com` (password in `docs/platform-admins.md`) (owner) and
+`demo-staff@detailplatform.com` (password in `docs/platform-admins.md`) (staff). Guessable on purpose and
 temporary — they reach the demo business only, and they must change before
 there is a real customer. See DECISIONS.md, "A guessable demo login".
 

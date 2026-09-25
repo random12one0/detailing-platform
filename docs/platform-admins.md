@@ -84,6 +84,41 @@ to do in passing. Raised in ROADMAP's `platform_admins` entry.
 
 ---
 
+## THE CHECK WENT RED ON ITS FIRST DAY, ON A REAL ROW — 2026-09-25
+
+**Forty minutes after this file was written with two accounts,
+`tests/platform-admins-declared.test.mjs` failed:**
+
+```
+undeclared: shoot-admin@detailplatform.com
+the counts agree — table 3, document 2
+```
+
+**It is real, it is a full platform admin, and it is transient.** Created
+**2026-09-25 03:48**, by `scripts/shoot-admin.mjs` / `scripts/admin-account.mjs`,
+which another session was running for ROADMAP 6.2a. Its own `note` says
+*"Temporary — a script is looking at /admin. Removed when it finishes."*
+
+**IT IS DELIBERATELY NOT DECLARED HERE, and the reason is the rule at the top of
+this file.** Declaring it would mean this session deciding that an account it did
+not create and does not own may hold the whole platform — and a declaration
+written to make a run go green is the rubber stamp the check exists to prevent.
+**A red that has found a live, undeclared, full-access admin on the day the check
+shipped is the check working, not failing.**
+
+**HOW THIS CLEARS:** the script removes the row when it finishes, and the check
+goes green with no edit to this file. **If it is still there tomorrow, the script
+did not clean up** — and that is the finding, not a documentation gap. Whoever
+owns `scripts/shoot-admin.mjs` either confirms the teardown or declares the
+account here with a reason and a removal condition.
+
+**WHAT IT PROVES ABOUT THE TABLE:** a row granting every detailer, every
+customer, suspend and impersonate can appear in this table **in the middle of an
+ordinary night's work, from a script, with nobody deciding anything.** That is
+exactly what nothing was watching for until now.
+
+---
+
 ## WHAT THIS FILE IS NOT
 
 It does not grant anything, and editing it changes no access. It is the written

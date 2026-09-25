@@ -33,7 +33,7 @@ read.
 it short. He only reviews things he can look at.
 
 **FIRST, SIGN IN.** Everything under `/app` needs
-`demo@detailplatform.com` / `demo123`. The booking pages need no sign-in.
+`demo@detailplatform.com` (password in `docs/platform-admins.md`). The booking pages need no sign-in.
 
 ---
 

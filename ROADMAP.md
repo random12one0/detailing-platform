@@ -13637,6 +13637,20 @@ event id.
   2026-09-09** and therefore wrong as well as against the rule. Redacted; the
   example is intact.
 
+  **AND THE CHECK WENT RED FORTY MINUTES LATER, ON A ROW THAT WAS NOT THERE WHEN
+  IT WAS WRITTEN.** `shoot-admin@detailplatform.com`, created **2026-09-25
+  03:48** by `scripts/shoot-admin.mjs` for another session's 6.2a work, note
+  *"Temporary — a script is looking at /admin. Removed when it finishes."*
+  **It is a full platform admin and nobody decided anything.** It is
+  **deliberately NOT declared** — declaring an account this session neither
+  created nor owns, to make a run go green, is the rubber stamp the check exists
+  to prevent. **The red stands.** It clears when the script tears the row down,
+  with no edit to any file; if it is still there tomorrow, the script did not
+  clean up and that is the finding. `docs/platform-admins.md`
+  § *"THE CHECK WENT RED ON ITS FIRST DAY"* has it.
+  **On its first day, the check caught a live full-access admin appearing in the
+  middle of an ordinary night's work. That is what nothing was watching for.**
+
 ### 14.9 — ~~Nine~~ was already eight, now four, public endpoints have no rate limit
 
 - [ ] **Measured by counting `withinLimits` in each public function.** These

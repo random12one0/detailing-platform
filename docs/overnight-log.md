@@ -691,7 +691,7 @@ screen where a mistake shows every detailer's data to the wrong person.**
 the platform yet.** There are no real users on the project at all — only test
 ones. Sign up at detailingplatform.com and tell me, and I will add you as an
 admin (one line). I did **not** make the demo login an admin, deliberately:
-that password is `demo123` and it is on the live site, so making it an admin
+that password is guessable (value in `docs/platform-admins.md`) and it is on the live site, so making it an admin
 would put every detailer's data behind it.
 
 **What I verified and what it printed.** `tests/platform-admin.test.mjs` —
@@ -2416,7 +2416,7 @@ admins were deleted outright. **That closes P-12.** His own two addresses keep
 their accounts and simply stop being admins.
 
 **The demo DETAILER login was deliberately left alone** —
-`demo@detailplatform.com` / `demo123`. Every sweep, every screenshot script and
+`demo@detailplatform.com` (password in `docs/platform-admins.md`). Every sweep, every screenshot script and
 the whole booking end-to-end run signs in with it; deleting it would take the
 verification suite down with it. It is a tenant login and reaches no other
 business.

@@ -27,7 +27,7 @@ their own current value, in the Business tab's `.nav-row` pattern (`Folded` in
 
 ## How to get in
 
-Sign in at `/app` as `demo@detailplatform.com` / `demo123`.
+Sign in at `/app` as `demo@detailplatform.com` (password in `docs/platform-admins.md`).
 
 Two doors, and they hold different screens. **Clicking a door's own button while
 its panel is open TOGGLES it shut**, which is worth knowing before you wonder
