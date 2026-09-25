@@ -375,3 +375,77 @@ close. **Named here so the next sitting can do it as its own item.**
   only because I ran it. **A script named in a done-when that fails on a floor,
   a timeout or a canary — but never on its subject — reads as a gate in every
   document and is not one.** Nobody has checked the others this way.
+
+---
+
+## BATCH 1 OF THE SIXTY-FOUR — read 2026-09-25, in roadmap order
+
+**No pattern, no regex. Each entry opened and read.**
+
+| | |
+|---|---|
+| items in this batch | **10** |
+| carry proof a stranger could check | **10** |
+| carry no checkable proof | **0** |
+| could not judge | **0** |
+| **new live gaps found** | **0** |
+| **running total judged** | **23 of 76** — 13 earlier + this batch |
+| **still unjudged** | **53** |
+
+**The ten:** 1.1, 1.2, 2.1a, 2.2, the discount-label item, 2.3, the job-weather
+budget item, 2.4, 2.5, 2.32.
+
+**A QUIET BATCH, AND IT IS A RESULT.** Not one of the ten is a bare tick. What
+they carry, in their own words:
+
+* **1.1** — three measurements, each of which *"fails loudly on zero targets"*:
+  404 string fields scanned, 4 hits before and 0 after, 6 payment handles
+  rendered, and a DOM read of five input `.value`s **because `innerText` does
+  not return an input's value**. It also records that **its own done-when grep
+  was wrong** — matching a spelling, not a behaviour — and hid a fourth leak.
+* **2.2** — the test was **written first and run against the unfixed code**:
+  **5 of 9 failing**, with real figures in **both directions** ($247 vs $245
+  undercharge, $289 vs $290 over). Then 9 passing, plus five more tests
+  *computing* whether the pre-existing client-side fold becomes a double-fold.
+* **2.3** — a two-row table of the **stored** flag (`true` / `false`) with both
+  bookings unrefused and unrepriced, `scripts/zone-mismatch.mjs` at 17 targets /
+  62 assertions / canary 5/5, sabotaged **both** ways, and a declared cost: no
+  Geoapify credit, no real mail, two rows written and deleted in a `finally`.
+* **2.4** — 51/51 controls, 317 assertions, **five** sabotages each naming its
+  own canary and exit code, the pre-fix pages re-served from `HEAD`, and **two
+  defects found in the check itself by disbelieving it**.
+* **2.5** — 51/51 CTAs, 477 assertions, four sabotages that **plant a real
+  defect in the real page** rather than blinding a detector, each producing
+  exactly one failure of its own kind; the assertion count **drops to 469** on
+  the two where the chain stops early, and that difference is visible in the
+  number.
+* **2.32** — before/after tables in pixels (**12px → 45px** at three widths),
+  `--break=rect` reproducing the instrument's own bug on purpose, and a record
+  of the instrument being **wrong twice** before it was right.
+* **1.2, 2.1a, the discount-label item, the job-weather item** — all likewise:
+  greps with their results, widths walked, call-count tables, named receipts.
+
+**THREE THINGS WORTH CARRYING FORWARD FROM THE BATCH:**
+
+1. **Every one of the ten names something it did NOT do.** 1.1 leaves
+   `andrewsdetail.com` on the landing page as a decision; 2.4 logs two defects
+   to `FOUND.md`; 2.32 measures 12 chips at 42px at 1440/1920 and says *"it is a
+   real finding and it needs an item"* — **and it has one, ticked, immediately
+   below it**, which I checked rather than assumed.
+2. **One honest named gap, already owned.** The job-weather item states that the
+   **refused** state *"was not"* pressed by a person — only the working state
+   was, in the manager's own browser, with zero `address-suggest` calls on
+   reopen. The refused state needs the hourly allowance to be gone, so neither a
+   session nor the manager could reach it by clicking. **Evidence is
+   `--break=quiet` at five widths plus screenshots, and the entry says plainly
+   that is not the same as a person seeing it.** Not cheaply settleable; left as
+   written.
+3. **The read cost about ten minutes an item and the estimate holds.** 53 to go,
+   which is roughly nine hours.
+
+**WHAT THIS BATCH COULD HAVE MISSED.** I read nine of the ten in full. **2.5 is
+520 lines and I read the first 120** — enough to judge the tick, which is what
+this audit asks, and **not** enough to claim I read the entry. The remaining 400
+lines are its historical diagnosis and its retracted false finding. **If something
+is wrong in 2.5 it is in the part I did not read**, and that is stated rather than
+papered over.
