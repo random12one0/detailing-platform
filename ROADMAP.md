@@ -1986,6 +1986,19 @@ the wrong service, and never book a job we cannot reach.
   sized for customers typing. Nothing here changes the limit; it changes how
   many times the client asks.
 
+  **WHAT NOBODY HAS PRESSED, SAID PLAINLY RATHER THAN LET PASS — the manager's
+  own words, 2026-09-25.** The **working** state was checked by a person who
+  did not build it: the demo dashboard opened in his own browser, the record
+  for *"ROADMAP 2.8 selected 2026-09-23"* carrying `72° · Cloudy`, closed and
+  reopened with network capture running, **zero calls to `address-suggest`**,
+  console clean apart from one of Andrew's Chrome extensions. **The REFUSED
+  state was not.** It only appears once the hourly allowance is gone, so
+  neither he nor this session could reach it by clicking, and the evidence for
+  it is `--break=quiet` catching a CSS-hidden sentence at all five widths plus
+  the screenshots that run wrote. **That is real evidence and it is not the
+  same as a person seeing it.** Anybody who does reach the refused state in
+  ordinary use should say so here.
+
 - [x] **2.4 — DONE 2026-09-19. Every booking button on all five examples now
   opens a booking path, and a certified check says so every run.**
   `scripts/example-ctas.mjs` — **PASS, 51/51 controls, 317 assertions, three
@@ -2055,8 +2068,64 @@ the wrong service, and never book a job we cannot reach.
   *A1 P0-02*
   </details>
 
-- [ ] **2.5 — One example hands the wrong service into booking. THE PAGE IS
-  FIXED AND PRESSED 2026-09-21; THE ENTRY STAYS OPEN FOR ITS OWN *Done when*.**
+- [x] **2.5 — DONE 2026-09-25. One example handed the wrong service into
+  booking. The page was fixed and pressed 2026-09-21; the check's four
+  assertions landed the same night in commit `5050885`, and this entry went on
+  saying they had not for four days.**
+
+  **THE ENTRY BELOW WAS STALE AND THE TICK IS THE CORRECTION.** The paragraph
+  that follows says *"nothing has been added to it"*. That stopped being true
+  at **05:19 on 2026-09-21**, in a commit whose subject line is literally *"2.5:
+  the CTA check now asserts the service name, the price and the total"*. So
+  this sitting's work was **verifying a claim, not building one**, and the
+  thing that was actually missing was nobody having re-read the file.
+
+  **WHAT `scripts/example-ctas.mjs` ASSERTS PER CONTROL, and it is more than
+  the *Done when* asked for.** For every control that names a service: the
+  identifier **resolves** to exactly one widget option; the widget **selects**
+  that one; the option's **name** equals the card's heading; the option's
+  **price** equals the price printed on that card; and the running **total**
+  follows the option's price. **One root cause, one finding** — the chain stops
+  at the first break, so a dead identifier does not print four findings for one
+  fault.
+
+  **THE COUNTS, from a clean run at 2026-09-25:** **PASS, 51/51 CTAs, 477
+  assertions, 0 failures, all three canaries caught.** 22 service-naming
+  controls — ex1 6, ex2 0, ex3 13, ex4 3, ex5 0 — each compared against
+  `EXPECTED_NAMING`, so a site that stops naming services is a failure rather
+  than a quiet zero. **Zero across all five sites is its own named failure**,
+  and `ex2`/`ex5` print *"0 controls — UNMEASURED for 2.5 rather than passed"*
+  in those words. Assertion 4 is declared **UNMEASURED on 6 controls across
+  ex1 and ex4**, whose widgets print no `.bk-total`; the entry predicted that
+  for ex4 and did not know ex1 had it too.
+
+  **BROKEN ON PURPOSE FOUR WAYS, each planting a real defect into the real
+  page rather than blinding a detector, on one fixed control — "Book this"
+  under Interior Refreshment, $200, on `/ex3/prices`, the control this item was
+  opened for.** Every one produced **exactly one failure, of exactly its own
+  kind, at both viewports, with all three canaries still caught**:
+
+  | sabotage | what it plants | what the check said |
+  |---|---|---|
+  | `--break=price` | rewrites the card's price to $999 | *price: the card prints $999, the widget option prints $200* |
+  | `--break=carry` | strips `data-book` off the link | *carry: this control offers to book "Interior Refreshment" and carries no service identifier* |
+  | `--break=resolve` | points it at a service the widget lacks | *resolve: "no-such-service-anywhere" matches 0 of 13 widget option(s)* |
+  | `--break=total` | freezes `.bk-total` after the press | *total: the option prints $200, .bk-total prints $1* |
+
+  477 assertions on the clean run and on `price` and `total`; **469 on `carry`
+  and `resolve`**, which is the chain stopping early and is the difference
+  being visible in the number.
+
+  **ONE THING FIXED RATHER THAN JUST VERIFIED: the file's own header listed
+  FOUR `--break=` switches when there are EIGHT**, so the price sabotage this
+  item's *Done when* turns on looked as though it did not exist to anybody
+  reading the header before deciding whether the check could fail. The four
+  plants and the four assertion-off switches are now named there, with the
+  verification above beside them. Same failure as a pointer that undersells
+  the document it points at — `CLAUDE.md` has two of those recorded already.
+
+  **What the original entry said, kept because the retraction below it is the
+  load-bearing part:**
   The defect is gone from `/ex3/prices` and proved on 13 of 13 cards — but this
   item's *Done when* asks for the **2.4 CTA check** to assert the matching
   service name and price, that check lives in `scripts/`, and **nothing has

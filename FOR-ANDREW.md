@@ -157,6 +157,102 @@ Updated 2026-09-21.
   **Nothing has gone live.** The authorisation stands and is on record here;
   the order below is unchanged.
 
+  ### THE ACTUAL COMMAND — written down 2026-09-25, because it never was
+
+  **This block said the instruction had been handed over "paste-ready" and then
+  printed no command anywhere in this file.** The paste-ready part lived in a
+  chat window that is gone. Here it is, checked against this machine rather
+  than remembered.
+
+  **First, the thing everybody assumes and it is not true here: there is no
+  `supabase` command on this computer.** Not on the PATH, not in the project,
+  not installed by any package manager — checked in both shells. So every
+  instruction anybody writes starting `supabase functions deploy` is wrong for
+  this machine, and the question of whether that command has an `--exclude`
+  flag never arises. **This project publishes with its own small program**,
+  which talks to Supabase directly and takes the names of the programs you want
+  published.
+
+  **Open Git Bash, then:**
+
+  ```bash
+  cd /d/Users/rando/Downloads/claude/detailing-platform
+  set -a; . ./.env; set +a
+  ```
+
+  That loads the keys. Nothing has happened yet. **Now find out what is
+  actually out of date** — about a minute, and it publishes nothing:
+
+  ```bash
+  node scripts/deployed-inventory.mjs
+  ```
+
+  **It prints every out-of-date program by name, and that list is the only
+  list to trust.** Then publish everything it named **except the payment
+  one**, which this line does for you — it reads the names the check just
+  wrote down and leaves `stripe-webhook` out:
+
+  ```bash
+  node scripts/deploy-functions.mjs $(node -e "console.log(JSON.parse(require('fs').readFileSync('receipts/deployed-inventory.json','utf8')).dimensions.differing.filter(f=>f!=='stripe-webhook').join(' '))")
+  ```
+
+  **Then the payment one, last and on its own, never in a batch with anything
+  else**, so that if something goes wrong there is only one thing it can have
+  been:
+
+  ```bash
+  node scripts/deploy-functions.mjs stripe-webhook
+  ```
+
+  **Then check it took:**
+
+  ```bash
+  node scripts/deployed-inventory.mjs
+  ```
+
+  It should say everything matches. If it still names something, that one did
+  not publish — tell us the name, do not re-run the big line.
+
+  #### WHY THE LINE READS THE LIST INSTEAD OF NAMING NAMES, AND IT IS NOT NEATNESS
+
+  **A typed list of names goes stale in under an hour, and it did, here, in the
+  hour this block was being written.** The first version of this block named
+  **13** programs and told you the payment webhook did not need publishing at
+  all. Both were true when measured at **02:24** and both were **wrong by
+  02:54**: a commit that evening changed two files the programs all share, and
+  the count went **13 → 24 with `stripe-webhook` now among them.** A list that
+  omits the payment webhook while the surrounding paragraph says the payment
+  webhook is fine is exactly the kind of confident wrong instruction this file
+  exists to stop.
+
+  **The count going UP is normal and is not damage** — it rises whenever
+  somebody fixes something in a file the programs share, and falls only when
+  you publish. `docs/gotchas.md` 85 has the full explanation.
+
+  **For the record, as measured at 02:54 on 2026-09-25 — 24 of 39**, and the
+  23 the first line would publish: `accept-invite`, `accept-quote`,
+  `available-slots`, `calculate-booking`, `cancel-booking`, `create-booking`,
+  `create-business`, `get-booking-receipt`, `invite-user`, `plan-link`,
+  `platform-admin`, `platform-billing`, `preview-emails`, `report-problem`,
+  `reschedule-booking`, `respond-to-booking`, `send-campaign`, `send-invoice`,
+  `send-owner-reminders`, `track-visit`, `update-booking`,
+  `validate-promo-code`, `watch-jobs`. **That is a photograph. Run the check
+  and use what it prints.**
+
+  #### THREE THINGS TO KNOW BEFORE YOU PRESS ANYTHING
+
+  **It publishes immediately, for real.** There is no preview and no undo
+  button; the way back is publishing the previous version.
+
+  **It costs no Netlify credits.** That is the website, and this does not touch
+  the website.
+
+  **The old numbered order below is now out of date in one place.** It lists
+  the payment webhook as job 3 and the "report a problem" form as job 4 on the
+  strength of a measurement from the 20th. Both are still out of date today,
+  so the order still holds — but do not read the numbered list as current on
+  its own. The check is what is current.
+
   **Read this first because it is holding up more than anything else on the
   list.** Your site's back end is 39 small programs, and each one has to be
   *published* before a change to it does anything. **22 of the 39 are running

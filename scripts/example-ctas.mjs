@@ -93,6 +93,30 @@
 //   --break=quiet     stop reading the console     → the throwing canary survives
 //   --break=canaries  inject nothing               → the receipt refuses the run
 //
+// **AND FOUR MORE THAT PLANT A REAL DEFECT RATHER THAN BLINDING A DETECTOR.**
+// They are specified in full at § THE FOUR SABOTAGES, and they are listed HERE
+// as well because this header is what a session reads before deciding whether
+// the file can fail — **it listed four switches when there are eight, so the
+// price sabotage ROADMAP 2.5 asks for looked as though it did not exist.**
+// Same failure as a pointer that undersells the document it points at.
+//
+//   --break=carry     strip the identifier off one real control  → expect `carry`
+//   --break=resolve   point it at a service the widget lacks     → expect `resolve`
+//   --break=price     edit that card's printed price to $999     → expect `price`
+//   --break=total     freeze .bk-total after the press           → expect `total`
+//
+// Each must produce EXACTLY its own finding, on the one fixed control
+// ("Book this" under Interior Refreshment on `/ex3/prices`), at both
+// viewports, with all three canaries still caught. **Verified in that form
+// 2026-09-25**: one failure each, four for four, 477 assertions on the clean
+// run and on `price` and `total`, 469 on `carry` and `resolve` — the chain
+// stops at the first break, so a broken identifier costs its own downstream
+// assertions rather than printing four findings for one fault.
+//
+// There are also `--break=resolve-off`, `name-off`, `price-off` and
+// `total-off`, which switch OFF the four assertions 2.5 added, for the same
+// reason the four at the top exist.
+//
 // ---------------------------------------------------------------------------
 // TWO VIEWPORTS, AND THAT IS NOT THOROUGHNESS — IT IS THE ONLY WAY TO ASK
 // ---------------------------------------------------------------------------

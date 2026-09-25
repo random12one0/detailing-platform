@@ -1,9 +1,9 @@
 {
-  "git_sha": "d34795f10dc7fa4c7b94cbdad7aa2d7b684ca940",
-  "git_sha_started": "d34795f10dc7fa4c7b94cbdad7aa2d7b684ca940",
-  "head_moved": false,
+  "git_sha": "9a475a164e2d93c394ed205db5001d26f57992ed",
+  "git_sha_started": "ffacbd1d1ed030d32efce16479ed334c20ab158b",
+  "head_moved": true,
   "environment": "local",
-  "finished_at": "2026-09-21T12:19:20.653Z",
+  "finished_at": "2026-09-25T02:52:36.228Z",
   "failures": [],
   "warnings": [
     "ex5/ 1440x900 \"Book the canary\" — pageerror: canary",
@@ -37,7 +37,7 @@
     "sabotage": null
   },
   "check_id": "example-ctas",
-  "started_at": "2026-09-21T12:16:24.032Z",
+  "started_at": "2026-09-25T02:49:35.407Z",
   "status": "pass",
   "expected_targets": 51,
   "discovered_targets": 51,
