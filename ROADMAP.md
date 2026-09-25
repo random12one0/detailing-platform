@@ -3501,6 +3501,17 @@ the wrong service, and never book a job we cannot reach.
   **The three entries written tonight already carry their dates**, which is
   the convention being proposed, applied once.
 
+  **AND THE MIRROR PASS IS DONE TOO — 2026-09-25:
+  `docs/ticked-without-proof-2026-09-25.md`.** The stale-blocker sweep asked
+  whether OPEN items are still blocked; that one asks which **DONE** items were
+  ticked without the proof being written down. **76 ticked, 12 opened and judged,
+  12 of 12 proved, 64 honestly unjudged, 3 live self-declared gaps with the
+  cheapest settling action for each.** Its headline is that the audit **cannot be
+  done by pattern**: four scans were tried and each was mostly false positives in
+  both directions, while every entry opened by hand turned out well-evidenced.
+  **Kept whole in one file rather than dispersed through this one**, because the
+  procedure is worth more than the findings.
+
   ---
 
   #### THE FIRST PASS, BY HAND — 2026-09-24. 23 blockers read, 10 had expired.

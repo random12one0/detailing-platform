@@ -77,10 +77,44 @@ column of the master login **contains that account's password in plain text.**
 It is not in any repo file — `docs/VERIFIED.md` and
 `docs/product-audit-2026-09-09.md` are both right that the value is in no file —
 **but it is sitting in a database column, and anything holding service access
-reads it.** The value is deliberately not repeated here. **It is worth moving
-the password out of that note and leaving the reason behind**, and that is a
-write to a live table, so it is Andrew's or a granted session's, not something
-to do in passing. Raised in ROADMAP's `platform_admins` entry.
+reads it.** The value is deliberately not repeated here.
+
+### WHERE THE MASTER LOGIN LIVES — this file is the answer, and the note is not
+
+**The address is `demo@demo.com`. The password is held by Andrew, and a copy is
+in that row's own `note`.** That is the whole of what any session needs to know:
+if you need to reach the back office, you ask him. **No session should ever need
+the value, and none should write it anywhere.**
+
+### AND IT WAS NOT DELETED FROM THE DATABASE TONIGHT. THAT IS DELIBERATE, AND
+### THE REASON IS IN THIS REPO'S OWN STANDING RULES.
+
+Clearing plain text out of that `note` looks like an obvious tidy-up. It is the
+one tidy-up this repo has explicitly forbidden:
+
+> `docs/standing-work.md` § 1 — **"Never re-open a decision he has made** or
+> redesign something he has approved. `demo@demo.com` and its password are the
+> **standing example**: a session that 'improves' it **locks him out of his own
+> back office."**
+
+**The note may be the only place that value exists.** Andrew chose the address,
+asked for the password to be changed once, and that note is where the change was
+recorded. **Deleting it to satisfy a rule about markdown files could take his own
+back office away from him**, and nothing this session can read tells it whether
+he has the value anywhere else. **That question is his and only his.**
+
+**NEEDS ANDREW: does he hold the master login's password somewhere other than
+that database note?** If yes, the note's value comes out and the reason stays —
+a one-line update to one row. If no, **it stays exactly where it is** and the
+right fix is the opposite direction: he puts it in his own password manager
+first. **Not urgent** — nothing real is on the platform, and ROADMAP 12.4 changes
+this login at the first real signup anyway, which retires the question.
+
+**What was in scope and IS done:** the value is out of every tracked markdown
+file in the repo — 8 files, 25 occurrences, 0 left, enforced from now on by
+`tests/no-credentials-in-markdown.test.mjs`. **A database column is a different
+surface with a different owner, and conflating the two is how a session talks
+itself into a write nobody sanctioned.**
 
 ---
 
