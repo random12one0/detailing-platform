@@ -606,3 +606,170 @@ rather than re-read**, and it cost one read and no rows.
 * **I re-measured one item's evidence and eight items' file paths, and nothing
   else.** No screen was opened, no width was walked, no receipt was re-run. Every
   other verdict here is a judgement about what is written down.
+
+---
+
+## BATCH 3 OF THE FIFTY-THREE — read 2026-09-25, and the denominator moved
+
+**THE TOTAL IS 77 NOW, NOT 76.** DP Cowork ticked **6.2a** in commit `428e942`
+while this batch was being read. A tick that lands during the audit is by
+definition unjudged, so it was pulled into this batch and read as a stranger the
+same hour it was written — which is the cheapest this job will ever be.
+
+| | |
+|---|---|
+| items in this batch | **10** |
+| carry proof a stranger could check | **10** |
+| carry a live named gap of their own | **0** |
+| could not judge | **0** |
+| **ticks that should come off** | **0** |
+| **running total judged** | **43 of 77** |
+| **still unjudged** | **34** |
+
+**The ten, in roadmap order:** 4.2, 4.4, 4.5, 5.1, 5.2, 5.3, 5.4, 6.2a, 6.3,
+7.1. 7.4 (`:8757`) was skipped as already judged.
+
+**A QUIET BATCH ON THE TICKS AND A LOUD ONE ON WHAT THEY NAME.** Not one of the
+ten rests on nothing, and no tick should come off. **But two of them name a real
+gap that belongs to no item at all**, and both were measured rather than taken
+from the sentence. They are the finding of this batch.
+
+### FINDING 1 · NOTHING OPENS A CLOSED `<details>` BEFORE MEASURING TAP TARGETS, AND EIGHTEEN FILES HAVE ONE
+
+**4.5's own requirement 2 says it plainly** — *"29 of 41 `.choice` controls on
+Booking rules sit inside two closed foldrows that still report full-size rects.
+A gate that skips them **prints clean over 71% of its population**."* It then
+closes on `/admin`, where `grep -c "<details" AdminPage.jsx` is zero, and names
+the leftover: *"`BusinessInfo.jsx`, `Campaigns.jsx` and `Notifications.jsx` do
+have `<details>` rows and are NOT proven to open them before measuring."*
+
+**Measured here rather than believed, and it is worse than three screens:**
+
+| | |
+|---|---|
+| `scripts/sweep-tap-targets.mjs` — occurrences of `details` | **0** |
+| `scripts/lib/tapProbe.mjs` — occurrences of `details` | **0** |
+| files under `app/src` using `<details>` or `<Folded>` | **18** |
+| `BusinessInfo.jsx` / `Campaigns.jsx` / `Notifications.jsx` | **2 / 1 / 5** |
+
+**WHAT KIND OF FAULT IT IS, STATED PRECISELY, BECAUSE THE TWO KINDS ARE NOT THE
+SAME AND THE ENTRY DOES NOT DISTINGUISH THEM.** `tapProbe.mjs` filters its
+candidates through `checkVisibility` (`scripts/lib/tapProbe.mjs:105`), so a
+control inside a closed fold is **never discovered** rather than measured and
+passed. **So this is a silent coverage hole, not a false green** — which is the
+better of the two and still the one `docs/silences.md` exists for, because a
+control that is never discovered also never appears in the `n of N` the probe
+prints. **Two other scripts in this repo already solved it two different ways
+and neither is wired into this one:** `sweep-widths.mjs:2424` opens every
+`<details>` before it measures, and `tabbar-clearance.mjs:181` refuses to
+measure them and **counts the refusal into its receipt**. Either is correct;
+having neither is the gap.
+
+**IT BELONGS TO NO ITEM.** 4.5 is ticked and says so; 4.6 is about receipts, not
+folds; 9.2 is the content-assertion gap and is separate. **Recommend it gets an
+item** — this is a scoping call and the audit does not make it.
+
+> **ONE LINE FOR WHOEVER HAS THE BROWSER, once it has an item:** *run
+> `node scripts/sweep-tap-targets.mjs` against the settings doors with
+> `document.querySelectorAll("details").forEach(d => d.open = true)` applied
+> first, and compare the discovered-control count with and without it — the
+> difference is the population nothing has ever measured.*
+
+### FINDING 2 · `admin-contrast.mjs` CAN STILL LEAVE AN UNDECLARED PLATFORM ADMIN BEHIND
+
+6.2a records that its own check's teardown sat after `browser.close()` with
+nothing catching a throw, so **two crashed runs each left a live
+`platform_admins` row — an undeclared account that reads every tenant.** It was
+wrapped and proved with `--crash-after-signin`. The entry then names the
+leftover: *"`admin-contrast.mjs` still has the same hole and carries a
+`ponytail:` comment admitting it."*
+
+**Confirmed on disk:** `scripts/admin-contrast.mjs:164` — *"ponytail: no
+try/finally around the browser section, so a THROW above this…"*.
+
+**The risk is bounded rather than open**, and saying which matters: the
+`platform-admins-declared` check catches exactly this and caught the real one
+within the hour, refusing to allowlist it. So the consequence of a crash is a
+red check and a row to remove, not a silent one. **The fix is a `finally`, it is
+in DP Cowork's lane, and it has no item.**
+
+### THE TEN, IN ONE LINE EACH — what a stranger could go and check
+
+* **4.2** — the altered-audience attack described with the exact reply it got
+  (*name, phone, home address and vehicle, with no API key and no token at
+  all*), the altered-id case answering `404 not_found`, and the fix recorded in
+  `docs/VERIFIED.md` § 14.2, **which is this item's own done-when and which
+  exists at `docs/VERIFIED.md:1412`** — checked, not assumed.
+* **4.4** — the strongest entry in the batch. A seven-row count table (**27
+  exercised · 17 proved by refusing tenant B · 10 public by design · 9 out of
+  reach · 3 refusing · 0 leaks**), the three remainders named individually with
+  the response body each one returns, two sabotages (`--break=leak`,
+  `--break=self`), and **a receipt that deliberately still reads `fail`** with
+  the reason written out. It also does the thing this audit keeps asking for and
+  rarely finds: it records that its single figures were a **range** because two
+  consecutive runs disagreed by one, and names the rate limiter as the cause.
+* **4.5** — done-when is *"a deliberate break in `AdminPage.jsx` fails a
+  credential-free run, and the break is one a person could plausibly make."*
+  Met, and **run five times rather than once** on Andrew's own instruction:
+  `.pa-tab` squeezed to 2px/4px padding, `CAUGHT 5/5`, with the two credential
+  environment variables printed as empty. The full walk is **293 controls,
+  32,056 press probes, 0 findings**. See Finding 1 for what it leaves behind.
+* **5.1** — the arithmetic is the proof and it is re-checkable: **$810 earned,
+  $515 collected, $295 owed**, $515 + $295 = $810, and *Mark paid* on the $65
+  job moved 515 → 580 and 295 → 230 with earned unchanged, row restored
+  afterwards. Two parts of the original ask are **overruled with reasons**
+  rather than quietly dropped.
+* **5.2** — *"down $903 vs $853 last month"* became *"down $792 vs $742 at this
+  point last month"*, one decision point (`previousSoFar()`), and
+  `tests/mid-period-comparison.test.mjs` — **on disk** — at 87 assertions broken
+  nine ways, nine caught.
+* **5.3** — a real **$195** payment rather than a reading, the finding that it
+  *"sent nothing and recorded nothing"*, and the receipt section built in
+  answer. `scripts/e2e-receipt-trail.mjs` — **on disk** — 6 targets, 21
+  assertions, four sabotages, **two of which rewrote the check itself before
+  they could catch anything**, which is the sort of admission that makes the
+  other two believable.
+* **5.4** — measured against the database rather than argued: **not one visit in
+  the whole table was tagged to a link**, so one screen was right and the other
+  was counting three wrong things at once. `scripts/link-counts-agree.mjs` — **on
+  disk** — 5 targets, 11 assertions, four sabotages.
+* **6.2a** — **judged the hour it was written, and its one honest gap turns out
+  to be checkable after all.** The entry says the never-reported state *"he could
+  not force by clicking"* and that the half rests on the script's sabotages and
+  screenshots. **Those screenshots exist:** `artifacts/health-line-honest/` holds
+  **17 PNGs**, including `320x844-three-states.png`, and
+  `receipts/health-line-honest.json` reads `"status": "pass"` over 11 targets and
+  43 assertions. **So a stranger can open the file and look at the state nobody
+  could click their way to**, which moves this from an admitted gap to a gap with
+  an artifact. The fixture is the good part: two rows handed the identical
+  `ran_at`, differing only by `seeded`, located by the slug the fixture invented
+  and **never by the `data-job-state` the markup carries** — the screen's own
+  claim about the thing under test.
+* **6.3** — a controlled failure with the transitions written down: first bad
+  sweep **silent**, second **`/fail`** with the reason string, check **up →
+  down**, service restored, **down → up**, recovery row, **tenant deleted and
+  verified afterwards** (nothing suspended, 16 businesses active, sweep back to
+  `looked: 0`). **Four real emails with Pacific timestamps.** It also corrects
+  its own earlier write-up — *"`db-audit` was left at 2 findings, both older than
+  this work. That was wrong — both were mine."*
+* **7.1** — the sabotage is the reason to believe it: a flag that moves a
+  fingerprint inside the check was **rejected as a simulation**, and a **real
+  one-byte edit** to `y-kinzie.html` made the gate fail naming **ex4 and only
+  ex4**. Both named scripts are on disk. Four widths with the console read at
+  each, and three further defects found by measuring.
+
+### WHAT THIS BATCH COULD HAVE MISSED
+
+* **4.4 and 4.5 are the two longest entries in this stretch — roughly 700 and
+  300 lines — and I read all of 4.5 and about two thirds of 4.4**, stopping once
+  the closing count table and the three remainders were read. The part I skipped
+  is its round-one/round-two history. **If something is wrong in 4.4 it is in
+  the part I did not read.**
+* **6.2a was judged from the entry, the receipt's `status` field and the
+  directory listing.** I did not open a PNG and I did not re-run the check, so
+  what is proved is that the artifacts exist and the receipt grades `pass` —
+  not that the pixels show what the entry says they show.
+* **Both findings are about things the entries themselves named.** I measured
+  them rather than repeating them, which is the difference between this and a
+  scan — but **neither was found by me reading the code first.** An entry that
+  names no gap at all would have got nothing of this kind from this pass.
