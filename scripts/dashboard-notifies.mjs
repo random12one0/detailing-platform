@@ -86,14 +86,39 @@
 // already demonstrates. Named here rather than left to be noticed missing.
 //
 // ---------------------------------------------------------------------------
-// NOTHING REACHES A PERSON
+// NOTHING REACHES A PERSON, AND SINCE 2026-09-24 NOTHING COSTS ANYTHING EITHER
 // ---------------------------------------------------------------------------
-// Every recipient is `delivered@resend.dev`, the address Resend publishes that
-// always accepts and delivers nowhere (FOR-ANDREW.md). The fixture business and
-// its booking are created and destroyed inside the run.
+// Every recipient is `sink("dashboard-notifies")` from `tests/_mail.mjs`, which
+// resolves to a `.test` address. `.test` is RFC 2606 reserved and can never
+// resolve, so `send-email` refuses it at its own reserved-domain exit BEFORE it
+// claims the day's allowance and before the provider is called. The fixture
+// business and its booking are created and destroyed inside the run.
+//
+// **IT WAS `delivered@resend.dev` UNTIL 2026-09-24, AND THAT ADDRESS WAS
+// SPENDING ANDREW'S DAILY EMAIL BUDGET ON EVERY RUN — THREE SENDS, MEASURED.**
+// Resend accepts it and delivers it nowhere, which is why it was chosen. But
+// "delivers it nowhere" is the provider's behaviour AFTER the send, and this
+// product claims the day's allowance BEFORE it. `resend.dev` is a real domain.
+// **This is the identical fault `scripts/edge-tenant-replay.mjs` found and
+// fixed on 2026-09-23** and it survived here for a day because nothing in the
+// repo connected the two files; `tests/mail-sink.test.mjs` named it on
+// 2026-09-24 once that guard could tell a recipient from a login.
+// ROADMAP 14.20.
+//
+// **WHAT THIS COSTS THE CHECK, SAID PLAINLY RATHER THAN BURIED.** A `skipped`
+// row proves `update-booking` decided to send and `send-email` recorded it. It
+// does NOT prove Resend accepted anything — that leg is
+// `tests/email-sends.test.mjs`, which declares its real sends with
+// `realMail()`. This file's subject was never the provider; it is whether the
+// dashboard's own writes trigger the right mail and no other. The recipient
+// assertion below now also asserts the row is `skipped`, so the reason it was
+// free is measured rather than assumed.
 
 import { createHash } from "node:crypto";
 import { writeReceipt } from "./receipt.mjs";
+// The fixture sink, shared with every suite rather than retyped here. Pure:
+// two exports and no side effects.
+import { sink } from "../tests/_mail.mjs";
 
 const started_at = new Date().toISOString();
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("=")[1] || "";
@@ -121,9 +146,11 @@ if (REF !== ALLOWED) {
   process.exit(2);
 }
 
-// THE ONLY ADDRESS THIS FILE MAY EVER USE. Resend always accepts it and
-// delivers it nowhere; anything resembling a person's inbox is a defect.
-const SINK = "delivered@resend.dev";
+// THE ONLY ADDRESS THIS FILE MAY EVER USE, and it is not written out here on
+// purpose: `sink()` is the repo's one source for a free fixture recipient, so
+// this file cannot drift onto a charged domain the way it already did once.
+// Anything resembling a person's inbox is a defect.
+const SINK = sink("dashboard-notifies");
 
 const sql = async (text) => {
   const r = await fetch(`https://api.supabase.com/v1/projects/${REF}/database/query`, {
@@ -191,6 +218,9 @@ const DECLARED_STEPS = new Set(
 const rows = [];
 const warnings = [];
 let assertions = 0;
+// Rows the [recipient] assertion actually compared. See the loop that
+// increments it for why this is a number and not an adjective.
+let recipientRowsCompared = 0;
 const say = (m) => failures.push(m);
 
 const SLUG = "dash-notify-fixture";
@@ -335,8 +365,20 @@ try {
     assertions++;
     if (extra.length) say(`${name}: [${detector}] sent mail nobody asked for: ${JSON.stringify(extra)}`);
     assertions++;
+    // **COUNTED, AND THE COUNT GOES IN THE RECEIPT — 2026-09-24.** This loop
+    // is the only thing standing between "every recipient was the sink" and
+    // "there were no recipients to check", and those two printed the same
+    // silence. A read-back that compares zero rows is this repo's most
+    // repeated failure wearing a pass. `recipientRowsCompared` is asserted
+    // against a floor below.
     for (const g of got) {
+      recipientRowsCompared++;
       if (g.to_email !== SINK) say(`${name}: [recipient] a send went to ${g.to_email}, which is not the sink address`);
+      // **AND WHY IT COST NOTHING, not just where it went.** `skipped` is the
+      // reserved-domain exit firing. A `sent` row here means the sink address
+      // reached the provider, which is the leak this file had until
+      // 2026-09-24 and would be it coming back.
+      if (g.status !== "skipped") say(`${name}: [recipient] the send to ${g.to_email} is status "${g.status}", not "skipped" — it reached the provider and cost one of the day's allowance`);
     }
 
     const ok = !missing.length && !extra.length;
@@ -542,6 +584,7 @@ const { path } = writeReceipt({
     // What answered this run. Never omitted; see `deployedIdentity` above.
     endpoint_deployed: deployedVersion,
     recipient: SINK,
+    recipient_rows_compared: recipientRowsCompared,
     steps: rows.map((r) => `${r.step}: ${r.verdict}`),
   },
   canary,

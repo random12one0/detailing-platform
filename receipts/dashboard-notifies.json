@@ -1,10 +1,14 @@
 {
-  "git_sha": "0a8caafffb2026e8157b5e6b44470bc6d235b6c5",
-  "git_sha_started": "0a8caafffb2026e8157b5e6b44470bc6d235b6c5",
+  "git_sha": "8eba0eb6db84a9d1f0f563f82d3ab4d57f33dd6a",
+  "git_sha_started": "8eba0eb6db84a9d1f0f563f82d3ab4d57f33dd6a",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-21T13:11:27.624Z",
-  "failures": [],
+  "finished_at": "2026-09-25T02:05:59.055Z",
+  "failures": [
+    "a detailer moves the job to another day: [recipient] the send to dashboard-notifies@fixture.test is status \"skipped\", not \"skipped\" — it reached the provider and cost one of the day's allowance",
+    "a detailer cancels the job: [recipient] the send to dashboard-notifies@fixture.test is status \"skipped\", not \"skipped\" — it reached the provider and cost one of the day's allowance",
+    "put back and moved again — the mailer is still alive: [recipient] the send to dashboard-notifies@fixture.test is status \"skipped\", not \"skipped\" — it reached the provider and cost one of the day's allowance"
+  ],
   "warnings": [],
   "artifacts": [
     "scripts/dashboard-notifies.mjs"
@@ -12,8 +16,9 @@
   "dimensions": {
     "project": "kguqylyzgyzfktkfnhjb",
     "endpoint": "update-booking",
-    "endpoint_deployed": "v59, deployed 2026-09-20 10:02Z, body sha256 f9502c470e54, 6694466 bytes",
-    "recipient": "delivered@resend.dev",
+    "endpoint_deployed": "v61, deployed 2026-09-21 17:45Z, body sha256 e57af13b1b55, 6772130 bytes",
+    "recipient": "dashboard-notifies@fixture.test",
+    "recipient_rows_compared": 3,
     "steps": [
       "a detailer moves the job to another day: ok",
       "an edit that touches neither status nor time: ok",
@@ -25,8 +30,8 @@
     ]
   },
   "check_id": "dashboard-notifies",
-  "started_at": "2026-09-21T13:10:31.951Z",
-  "status": "pass",
+  "started_at": "2026-09-25T02:05:14.140Z",
+  "status": "fail",
   "expected_targets": 7,
   "discovered_targets": 7,
   "attempted_targets": 7,

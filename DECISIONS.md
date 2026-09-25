@@ -289,6 +289,7 @@ were made more than once.
 - **The job record should stay open when a status changes — agreed in principle, deliberately NOT built tonight** — pressing ROADMAP 4.1's new undo for the first time showed the record VANISHES on a status change: all six callers close it (`navigate("/app")` on the standalone job route, `setSelected(null)` on Today, Calendar, Money and Clients), so an undo built to catch a wrong press in a driveway is one navigation away rather than one tap, and the *"Marked completed."* notice has never once been on a screen in any language. **The proposal is one rule for all six: the record stays open and shows what just happened.** Andrew's manager agreed in principle — *"that is the version where the undo is actually usable, and it is what Andrew would want at seven in the morning in somebody's driveway with the wrong job marked done"* — and refused it for TIMING, not merit: a behaviour change across six reviewed screens, at four in the morning, when 4.1 cannot close tonight anyway because its audit history is stuck behind the deploy freeze. **Do not re-derive this argument; it is settled in principle and waiting on a calmer hour.**
 - **The width sweep grades a guide on its own plan, and `sweep-widths.mjs` changed hands to do it** — the Today guide walked 5 steps at 1440 and 4 at 392/320 against an inventory expecting 8 and 7, and the expected-count gate reported that in the same words it would use for a screen that had vanished. Measured, not guessed: three `data-tour` targets — `figures`, `job` and `wrapup` — are absent from the demo dashboard this afternoon because **there are no jobs on today's rail**, and `Walkthrough.jsx` drops a step whose target is absent by design, with a comment predicting exactly these three. **Andrew refused the obvious fix**: the inventory is NOT re-pointed at today's data, because *a gate that follows whatever the data happens to be is a gate that can never fail*. Instead each guide is now graded on the "N OF M" its own card prints — reached its last card and the surplus inventory labels become declared skips carrying the plan as their reason; stopped short of its own last card and that is a finding no shorter plan can write off. **Ownership of `sweep-widths.mjs` passed from DP Cowork to DP Cowork2 at 2026-09-20 ~14:20**, when DP Cowork left its own instruments for the legal pages; it had been off-limits all night to keep two sessions out of one file.
 - **Decisions made on Andrew's behalf, 2026-09-20** — the overnight rulings, each with what was decided, why, and what would reopen it: the deploy freeze, the docs prune going ahead while the roadmap rewrite did not, explicit-path commits, typed addresses labelled rather than refused, email required until texting exists, a plan's name being the detailer's data, `connected_accounts` left alone after the premise turned out wrong, decided-not-to-measure kept apart from failed-to-measure, a test switch that must never cause real harm, stale receipts separated from failed ones, expected files widened but never narrowed, an unprovable detector recorded as uncovered, the two questions that went to Andrew with no recommendation, and a broken promise left loud rather than softened.
+- **The `scripts/` freeze in 14.20 was a moment, not a policy** — the manager lifted it 2026-09-24 with Andrew's yes, scoped to `dashboard-notifies.mjs` and `edge-tenant-replay.mjs` only and expiring with that sitting. Why the two halves of 14.20's own *Done when* could not both hold, why a third file in that directory (DP Cowork's `job-weather-budget.mjs`) is the reason the grant was two files by name, and what the lift bought: three live emails a run, stopped.
 
 <!-- INDEX:END -->
 
@@ -17308,3 +17309,54 @@ paragraph**, because a reason reconstructed after the fact is exactly the kind
 of thing this file exists to prevent.
 
 **Reopened when:** somebody writes the real reasoning in beside it.
+
+## The `scripts/` freeze in 14.20 was a moment, not a policy, and it was lifted for exactly two files
+
+**Ruled 2026-09-24 by the manager with Andrew's yes. Scoped, dated, and already
+expired — that is the whole point of writing it down.**
+
+**WHAT THE CONSTRAINT ACTUALLY WAS.** ROADMAP 14.20 said the mail guard's
+remaining findings were *"NOT EDITED TONIGHT because six of the flagged files
+were another session's"*, and `CLAUDE.md` is explicit that `scripts/` **is
+watched by nothing at all** — no reload, no warning, no error — so an
+unannounced edit there is the quiet collision. Two sessions later that line was
+being read as a standing policy about a directory. **It was never that. It was a
+fact about who was holding six files on the night of 2026-09-23.**
+
+**WHY IT HAD TO BE LIFTED RATHER THAN WORKED AROUND.** 14.20's own *Done when*
+asked for `node --test tests/mail-sink.test.mjs` to exit 0 **and** for
+`scripts/` to be left alone. Once the guard could tell a recipient from a login,
+**both remaining findings were in `scripts/`**, so the two halves of that
+sentence could not both hold. The session said so out loud rather than quietly
+picking one — `CLAUDE.md`, *"If two documents disagree, say so out loud"* — and
+handed it up as a scoping question instead of editing or fudging. **A constraint
+that makes its own exit condition unreachable is a constraint that has to be
+re-scoped by whoever set it, not reinterpreted by whoever hit it.**
+
+**THE GRANT, exactly as given:** two files, `scripts/dashboard-notifies.mjs` and
+`scripts/edge-tenant-replay.mjs`, **nothing else in that directory**, each edit
+announced in the reply, and a standing instruction that **needing a third file
+meant stopping and asking rather than widening the grant.** It expired with that
+sitting. It is not precedent for the next session; the next session asks again.
+
+**AND THE REASON THE ORIGINAL CAUTION WAS RIGHT WAS VISIBLE WHILE THE GRANT WAS
+BEING USED.** DP Cowork created **`scripts/job-weather-budget.mjs`** during the
+same sitting — so the directory had two sessions in it at the moment of the
+edit. That file was neither read nor touched, and it is the concrete reason the
+grant was two files by name rather than "`scripts/` is fine now". **The constraint
+was about a moment, and a different moment was already underway.**
+
+**WHAT THE LIFT BOUGHT, so the trade is on the record.** One real leak closed:
+`dashboard-notifies.mjs` had been sending three live emails per run to
+`delivered@resend.dev`, a charged domain, against an 80-a-day allowance Resend
+had already refused sends on — the identical fault
+`edge-tenant-replay.mjs` had found and fixed a day earlier, surviving because
+nothing in the repo connected the two files. Plus one declaration comment. **The
+read-back was measured either side rather than asserted — 3 rows before, 3
+rows after** — because a reserved domain lands as `skipped` and the check could
+otherwise have gone green by counting nothing.
+
+**Reopened when:** anybody reads 14.20's `scripts/` line as policy again, or a
+session wants a third file in that directory. **The answer to the second is
+always ask**, and it is cheap: the grant above took one sentence.
+

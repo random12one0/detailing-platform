@@ -14312,9 +14312,9 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   is one of the 14 functions behind this checkout, so this is a fault waiting
   at the same door as everything else on `FOR-ANDREW.md`'s publish row.
 
-### 14.20 — `tests/mail-sink.test.mjs` is RED over 40 addresses, and 39 of them are a sign-in credential or a word in a comment
+### 14.20 — ~~`tests/mail-sink.test.mjs` is RED over 40 addresses~~ DONE 2026-09-24. 39 were a credential or a word in a comment; the fortieth was a real leak
 
-- [ ] **Inherited, not caused, 2026-09-23.** Found while running the mail
+- [x] **DONE 2026-09-24. Inherited, not caused, 2026-09-23.** Found while running the mail
   guard after 14.19's work; confirmed red at `HEAD` before that session
   touched anything (`git stash -u`, re-run, same 12 passed / 1 failed).
 
@@ -14521,11 +14521,78 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
      generally was considered and refused — that is the exact shape a real
      recipient has.
 
-  **NEEDS A RULING (not Andrew's — a lane question):** may one comment line be
-  added to `edge-tenant-replay.mjs`, and does `dashboard-notifies.mjs` become
-  its own item? With (1) and (2) done the run is exit 0; until then the guard is
-  red on **two true findings instead of forty**, which is a list a person can
-  still read.
+  ---
+
+  #### CLOSED 2026-09-24. BOTH SURVIVORS GONE, AND THE FORTIETH WAS A REAL LEAK
+
+  **`node --test tests/mail-sink.test.mjs` — 21 passed, 0 failed, exit 0.**
+  169 files, 238 address occurrences: **169 free, 18 in comments, 25 logins,
+  2 read-back, 24 declared, 0 undeclared.**
+
+  **THE RULING THAT UNBLOCKED IT.** The *"leave `scripts/` alone"* line in this
+  entry was **a constraint about a moment, not a policy** — six flagged files
+  belonged to live sessions on 2026-09-23. The manager lifted it on 2026-09-24
+  with Andrew's yes, **scoped to exactly two files and expiring with that
+  sitting**. Written up in `DECISIONS.md` § *"The `scripts/` freeze in 14.20 was
+  a moment, not a policy"*. **A third file in that directory,
+  `scripts/job-weather-budget.mjs`, is DP Cowork's and was not read or
+  touched.**
+
+  **1 · `edge-tenant-replay.mjs:1186` — declared, one comment, no behaviour
+  change.** `// mail-sink: a sabotage row written straight to the table; nothing
+  is sent`. **The first placement was WRONG and the guard caught it:** the
+  comment went two lines above the address, and the guard reads only the
+  address's own line and the one directly above, so it kept reporting. Moved
+  onto the line above the address. **A declaration mechanism that accepted a
+  comment from anywhere in the file would be a declaration mechanism that
+  accepts anything.**
+
+  **2 · `dashboard-notifies.mjs:153` — THE LEAK IS CLOSED, AND IT WAS REAL.**
+  `const SINK = sink("dashboard-notifies")` from `tests/_mail.mjs`, resolving to
+  a `.test` address that `send-email` refuses at its own reserved-domain exit
+  **before** it claims the day's allowance. Identical fault to the one
+  `edge-tenant-replay.mjs` fixed on 2026-09-23; it survived a day here because
+  nothing in the repo connected the two files.
+
+  **THE TRAP WAS NAMED IN ADVANCE AND IT DID NOT FIRE — TWO NUMBERS, NOT AN
+  ADJECTIVE.** A reserved domain lands as `skipped`, so the read-back could have
+  gone green by counting nothing. It counted the same rows either side:
+
+  | | recipient | rows the read-back compared | assertions | steps | status |
+  |---|---|---|---|---|---|
+  | **before** | `delivered@resend.dev` | **3** | 19 | 7/7 | pass |
+  | **after** | `dashboard-notifies@fixture.test` | **3** | 19 | 7/7 | pass |
+
+  **THE BEFORE NUMBER WAS IN NO FILE**, so it was measured rather than reasoned
+  about: the count was instrumented first, then the script was run **once at the
+  charged address** (spending 3 of the day's allowance, the last 3 it will ever
+  spend) and **once at the sink** (spending none). `recipient_rows_compared` is
+  now a permanent field in the receipt, because *"every recipient was the sink"*
+  and *"there were no recipients to check"* printed the same silence before it.
+
+  **RE-SCOPED, NOT JUST RE-POINTED.** The recipient assertion now also asserts
+  `status === "skipped"`, so **the reason it cost nothing is measured rather
+  than assumed** — a `sent` row on the sink address is this leak coming back and
+  now goes red.
+
+  **WHAT THIS COSTS THE CHECK, said rather than buried:** a `skipped` row proves
+  `update-booking` decided to send and `send-email` recorded it. It does **not**
+  prove Resend accepted anything. That leg is `tests/email-sends.test.mjs`,
+  which declares its real sends with `realMail()`. This file's subject was never
+  the provider — it is whether the dashboard's writes trigger the right mail and
+  no other.
+
+  **BROKEN ON PURPOSE, THREE WAYS, ALL CAUGHT:**
+  - the recipient compared against a deliberately wrong address → **3
+    failures**, one per row. That is the trap's own test: an empty read-back
+    produces 0.
+  - the status assertion inverted to demand `sent` → **3 failures**, which
+    proves all three rows really are `skipped` and nothing reached the provider.
+  - an undeclared recipient planted in `tests/` **at the green state** → caught
+    and named at `file:line`. A guard that has just gone green is exactly when
+    to check it can still go red.
+  Both script sabotages reverted; `node --check` clean on both files; the four
+  classifier canaries fire on every run.
 
 ### Still unanswered after steps 1–4
 

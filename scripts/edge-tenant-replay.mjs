@@ -1182,6 +1182,7 @@ try {
     // down. A `--break` that could put mail in somebody's inbox would be a
     // hazard rather than a control; that lesson cost this file a tenth email.
     await rest("POST", "/rest/v1/email_sends", {
+      // mail-sink: a sabotage row written straight to the table; nothing is sent
       body: [{ business_id: A.id, to_email: "escape@edge-replay-sabotage.com",
         subject: "EDGEREPLAY sabotage", status: "sent" }],
       prefer: "return=minimal",
