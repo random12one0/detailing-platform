@@ -174,6 +174,68 @@ const PRESS = async (page) => page.evaluate(() => {
   })));
 });
 
+/* ANDREW'S QUESTION, 2026-09-25, MADE INTO A STANDING MEASUREMENT RATHER THAN
+   ANSWERED IN A SENTENCE: *"Is the page's bottom reserve now derived from the
+   measured bar height on EVERY step, or only on the steps where a choice sits
+   last? If it is the latter, that is the same fault one screen over."*
+
+   It is the former, and these two questions are how that stays true. He asked
+   it after opening `320x844 long-plan-step6.png`, where a three-line bar sits
+   across the line under "Or make it a monthly plan" - and that frame is a
+   fair thing to have worried about, because it shows PROSE under the bar and
+   **`bar-clear` cannot see prose.** Its population is controls.
+
+   `reserve-tracks`   `--bk-bar-h` equals the bar actually on screen. One
+                      element carries the bar for the whole flow and the
+                      observer is attached for the life of the page, so this
+                      is asked at every step and would go red on the step
+                      where it stopped being true.
+   `nothing-at-rest`  scrolled to the very bottom, NOTHING in `.bk-wrap`
+                      intersects the bar - not a control, not a heading, not a
+                      sentence. This is the question the frame raised and the
+                      one the rest of this file was not asking. What that
+                      frame shows is a sticky bar mid-scroll, which is what
+                      sticky is for; what would be a fault is something coming
+                      to REST under it, and this asks exactly that. */
+const RESERVE = async (page) => page.evaluate(() => {
+  const bar = document.querySelector(".bk-bar");
+  const root = document.documentElement;
+  if (!bar) return { ok: false, why: "no bar on this step" };
+  const barH = Math.ceil(bar.getBoundingClientRect().height);
+  const varH = root.style.getPropertyValue("--bk-bar-h");
+  window.scrollTo(0, root.scrollHeight);
+  return new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(() => {
+    const b = document.querySelector(".bk-bar").getBoundingClientRect();
+    const under = [];
+    for (const el of document.querySelectorAll(".bk-wrap *")) {
+      if (el.children.length) continue;                    // leaves only
+      const txt = (el.textContent || "").trim();
+      if (!txt) continue;
+      // **`docs/gotchas.md` ENTRY (a), THE FIRST ONE IN THE FILE, AND THIS
+      // PROBE WALKED STRAIGHT INTO IT.** A CLOSED `<details>` keeps its
+      // children laid out - Chromium hides them with `content-visibility`,
+      // which leaves them measurable and unpainted - so the first version of
+      // this question reported five lines of a collapsed "What'''s included"
+      // panel sitting under the footer on step 1, at four widths, and it was
+      // reading text no eye could see. The file names the fix and this is it.
+      if (typeof el.checkVisibility === "function"
+        && !el.checkVisibility({ checkVisibilityCSS: true, contentVisibilityAuto: true })) continue;
+      const r = el.getBoundingClientRect();
+      if (!r.width || !r.height) continue;
+      if (r.bottom > b.top + 1 && r.top < b.bottom) {
+        under.push({ t: txt.slice(0, 30), by: Math.round(r.bottom - b.top) });
+      }
+    }
+    // A 1px tolerance and no more: `Math.ceil` of a fractional height may sit
+    // one above the rect, which is the SAFE direction. Anything else is drift.
+    const n = parseInt(varH, 10);
+    done({
+      ok: Number.isFinite(n) && n >= barH && n - barH <= 1,
+      varH, barH, under: under.slice(0, 4), underCount: under.length,
+    });
+  })));
+});
+
 // Every control the customer can press, excluding the bar's own buttons, which
 // `lib/hitArea.mjs` drops — a button INSIDE the bar cannot be covered by it.
 const SEL = ".bk-card.selectable, .bk-chip, .bk-btn, .bk-cal .cell, .bk-slots .bk-chip";
@@ -254,6 +316,18 @@ function grade(id, m, sink) {
      bar and so the one at risk — and asks who the browser handed it to. A
      control can measure 44 clear pixels and still lose the press to
      something the measurement did not think to look for. */
+  sink(id, "reserve-tracks", !!(m.reserve && m.reserve.ok),
+    m.reserve
+      ? `\`--bk-bar-h\` is ${m.reserve.varH || "(unset)"} against a bar actually ${m.reserve.barH}px `
+      + "tall, so the reserve this step hands `scroll-padding-bottom` is not the bar this step has"
+      : "the reserve was not read on this step");
+
+  sink(id, "nothing-at-rest", !!(m.reserve && m.reserve.underCount === 0),
+    m.reserve
+      ? `scrolled to the very bottom, ${m.reserve.underCount} thing(s) still sit under the footer: `
+      + m.reserve.under.map((u) => `\u00ab${u.t}\u00bb by ${u.by}px`).join("; ")
+      : "the bottom of the page was never reached on this step");
+
   sink(id, "pressed", !!(m.press && m.press.ok),
     m.press
       ? `pressing «${m.press.text}» at (${m.press.x}, ${m.press.y}) landed on ${m.press.who}`
@@ -311,6 +385,7 @@ async function sweep(browser, size, { canary, planName, label }) {
     const take = async (n) => {
       const m = await page.evaluate(MEASURE, { sel: SEL, useRect: BREAK === "rect" });
       m.press = await PRESS(page);
+      m.reserve = await RESERVE(page);
       const file = `${label0}-step${n}.png`;
       await page.screenshot({ path: ART + file, animations: "disabled" });
       artifacts.push("artifacts/bk-bar-clearance/" + file);
@@ -410,7 +485,9 @@ for (const size of SIZES) {
       + `, worst reachable ${worst === 999 ? "n/a" : worst + "px"}`
       + `, bar ${m.bar ? `${m.bar.position} h${m.bar.height} top ${m.bar.top}` : "none"}`
       + `, ${m.scrollers.length} inner scroller(s)`
-      + `, press ${m.press && m.press.ok ? "landed" : `LOST to ${m.press && m.press.who}`}`);
+      + `, press ${m.press && m.press.ok ? "landed" : `LOST to ${m.press && m.press.who}`}`
+      + `, reserve ${m.reserve ? m.reserve.varH || "unset" : "?"}/${m.reserve ? m.reserve.barH : "?"}px`
+      + `, at rest under the bar: ${m.reserve ? m.reserve.underCount : "?"}`);
     completed++;
   }
 }
@@ -497,10 +574,11 @@ const { path } = writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: 5 * (SIZES.length * STEPS * 2 + 2),
+  min_assertions: 7 * (SIZES.length * STEPS * 2 + 2),
   assertion_floor:
-    "5 questions (subjects, legal, reachable, bar-clear, pressed) x (5 widths x 7 steps x 2 "
-    + "sweeps + 2 canary walks) = 360. Fixed by SIZES x STEPS x passes x the question list, "
+    "7 questions (subjects, legal, reachable, bar-clear, pressed, reserve-tracks, "
+    + "nothing-at-rest) x (5 widths x 7 steps x 2 sweeps + 2 canary walks) = 504. Fixed by "
+    + "SIZES x STEPS x passes x the question list, "
     + "never by what the run finds: a step with no matching controls grades as five failures "
     + "rather than dropping out, and a walk that stops before the review step leaves targets "
     + "missing so the receipt fails on arithmetic.",
@@ -512,6 +590,10 @@ const { path } = writeReceipt({
     `The long-name sweep puts a ${PLAN_UNDER_TEST.length}-character plan name on the wire by `
     + "rewriting the `calculate-booking` response. NOTHING is written to `plans`; the demo "
     + "tenant's own row is untouched and there is nothing to restore if this dies halfway.",
+    "`reserve-tracks` and `nothing-at-rest` are Andrew's question of 2026-09-25 made standing: the "
+    + "reserve is derived from the measured bar on EVERY step, and at full scroll nothing rests "
+    + "under the footer - CONTROL OR PROSE. `bar-clear` only ever measured controls, so a heading "
+    + "or a sentence under the bar was invisible to it until these two existed.",
     "`pressed` sends a real pointer at the last control on each step and reads who the browser "
     + "handed the press to. A capture listener cancels it so the walk is not navigated by the "
     + "measurement - that is the only part that differs from a customer's press, and it has no "
