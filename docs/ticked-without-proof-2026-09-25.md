@@ -773,3 +773,118 @@ in DP Cowork's lane, and it has no item.**
   them rather than repeating them, which is the difference between this and a
   scan — but **neither was found by me reading the code first.** An entry that
   names no gap at all would have got nothing of this kind from this pass.
+
+---
+
+## BATCH 4 OF THE FIFTY-THREE — read 2026-09-25, Wave 7 and the migration pair
+
+| | |
+|---|---|
+| items in this batch | **10** |
+| carry proof a stranger could check | **10** |
+| carry a live named gap of their own | **0** |
+| could not judge | **0** |
+| **ticks that should come off** | **0** |
+| **running total judged** | **53 of 77** |
+| **still unjudged** | **24** |
+
+**The ten, in roadmap order:** 7.2, 7.5, 7.7, 7.11, 7.12, 7.13, 7.16, 8.10a,
+8.10b, 8.1. 7.4 (`:8757`) skipped as already judged.
+
+**A QUIET BATCH, AND THE QUIETEST SO FAR.** Ten of ten. No new gap, nothing
+unowned, nothing that needs a browser. **The only thing worth carrying out of it
+is a pattern in how these entries go stale**, below, and it is a defect of form
+rather than of proof.
+
+### THE STRONGEST EVIDENCE IN THE BATCH, BECAUSE IT IS WORTH COPYING
+
+* **7.12 held the network round trip open on purpose.** A code read cannot see a
+  one-second window and neither can a normal page load, so `window.fetch` was
+  patched to delay `rpc/founding_offer` by 10–12 seconds. **Inside that window
+  the page printed seven confident wrong figures, three more than the item
+  named** — `$720`, `$600 / $60 / $75`, `$180`, `$999` — each with what it
+  settles to beside it. Then a four-width table showing `$35` only, and `$35` is
+  deliberately left showing because blanking a true price would be the same
+  fault inverted. **The probe was run against the unfixed page first and
+  reported seven; that before-run is the canary.**
+* **7.16 admits a false pass and says how it was caught, which is the most
+  useful paragraph in the batch.** A stale HMR module threw inside
+  `<PricingPage>`, the ErrorBoundary swallowed it, the page rendered nothing,
+  and the probe reported **zero money on screen — a perfect pass from a page
+  that had crashed.** Only the console read caught it. Every probe there now
+  asserts `pageRendered`. It caught a second one too: `$$` inside a
+  `String.replace` replacement collapses to one `$`, which turned a figure into
+  `35 a month` with green tests and no console error.
+* **7.7 establishes tenant isolation four independent ways rather than once**, a
+  cross-tenant photo planted on purpose so there was something to miss: the
+  export did not contain it, the table refused it with the business filter
+  *deliberately removed*, the bucket refused both the direct path and a signed
+  URL, and the guard throws rather than filtering — proved by making it filter
+  instead, which turned 7 checks red. The zip was **extracted by Windows
+  `Expand-Archive`**, not by its own reader, and `crc32("123456789")` was
+  checked against the published `0xCBF43926`.
+* **7.13 needed two instruments and says why neither alone works.** A source
+  scan strips `<script>` and so misses `"Aluminium tanks"` inside a JavaScript
+  array; a rendered scan that reads one tab reads one eighth of the copy.
+  **Each printed clean over words the other found.** Its two exceptions are
+  allowed **by position, not by spelling**, because "allow the word cancelled"
+  would have waved through the exact sentence it was built to catch.
+* **8.10a is the only entry in this audit whose fix was confirmed by the
+  feature coming back in the same minute** — profile keys 28 → 29, the
+  vehicle-count control `1 | 2` appearing for the first time, a two-car booking
+  pricing at **$160**, and the cap put back to 1 afterwards.
+* **7.11 is a ruling item and carries Andrew's own words at length**, including
+  the part that reframed the question — *"that's just like fake, whatever…"* —
+  and it refuses to close on the reference-design file agreeing with the code,
+  on the grounds that two files sharing an unverified origin prove nothing.
+  `app/public/img/mockup-real-example.jpg` is **on disk at 125,102 bytes**,
+  which is the 125 KB the entry claims.
+* **7.2, 7.5, 8.10b, 8.1** — a 13-statement audit across 6 surfaces with a
+  before/after table and four walks to step 7 in two languages; a `data-still`
+  mechanism with the argument that **no code path remains** rather than that
+  none was seen; a receipt whose own `warnings` field lists what it **cannot**
+  see, corrected when it went stale; and a sweep that found **eleven dialogs
+  that had never been opened** and four defects in its own instrument, each
+  with the sabotage that proved the gate.
+
+### THE PATTERN WORTH CARRYING: A TICK CLOSES AND ITS OWN SENTENCES DO NOT MOVE
+
+**Three entries in this batch contain a sentence that was true when written and
+is false now, left in place unmarked.** None of them unseats a tick and all
+three are resolved further down the same entry — but a stranger reading forward
+hits the false sentence first, which is precisely the failure mode this audit
+was created for.
+
+| where | the sentence | why it is false now |
+|---|---|---|
+| **7.12**, in its own first half | *"BOX STAYS OPEN: the sign-up button half is not built and was not asked for this round."* | the second half landed **2026-09-22** and the box is ticked; the closure is ~95 lines below |
+| **7.16**, first paragraph | *"7.12's box stays open on the sign-up button"* | same event, in a **different item**, so grepping 7.12 alone would not find it |
+| **7.7**, third paragraph | *"There is still no photo export anywhere in this product"* | the photo half was **built 2026-09-21** and is described eight lines later |
+
+**The repair is one strikethrough each and it is not mine to make** — this audit
+does not edit entries. **The pattern is the point:** this repo's convention of
+prepending the resolution and keeping the body works, and it works *only* when
+the superseded sentence is struck. Three unstruck ones in ten entries is the
+rate, and 3.4b's misfiled *"STILL OPEN"* paragraph in batch 2 is the same fault
+one degree worse.
+
+### ONE NAMED LEFTOVER WITH NO ITEM, LOW SEVERITY
+
+**7.7:** *"the two exports are on different screens — customers on Clients,
+photos on Photos — because there is no 'your data' screen and inventing one was
+not asked for. A detailer told 'you export them and go' has to find two buttons.
+Worth an item; not opened."* It is an inconvenience rather than a false claim,
+both buttons exist and both work, and it is recorded here so it is not lost.
+
+### WHAT THIS BATCH COULD HAVE MISSED
+
+* **7.7 and 7.12 are 300+ lines each and I read roughly the first two thirds of
+  both**, stopping once the build, the press and the sabotages were read. 8.10b
+  likewise. **If something is wrong in those three it is in the part I did not
+  read.**
+* **Every verdict here is a judgement about what is written, plus four file
+  checks** — the mockup JPEG's existence and size, and that the entries' named
+  scripts are on disk. **No page was opened and no check was re-run.**
+* **The staleness table above was found by reading, not by searching.** I did
+  not grep the other 67 ticked entries for the same shape, so **three in ten is
+  the rate in this batch and not a measurement of the file.**
