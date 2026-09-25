@@ -286,6 +286,21 @@ and how the wait ends.
   **So 0.11's box stays `[ ]`.** The dangerous half is done and proved; the switch
   is the rest of the item.
 
+  **Done when** (written 2026-09-25; this item had none): uploads go to R2 through
+  the presigned-URL door and nowhere else; **`photo_total_gb` is 10 in that same
+  change and not a commit earlier**; the door refuses a key belonging to another
+  business (already guarded — `tests/photo-key-isolation.test.mjs`) **and** refuses
+  over the cap with a message naming what is used, what the limit is and that
+  deleting old job photos frees it; each `job_photos` row's `bytes` equals **the
+  size R2 reports for the stored object**, not the size the client claimed; and the
+  reconcile of `docs/the-photo-allowance.md` § 6 exists and reports drift **as a
+  number on a schedule**.
+  **What failing looks like — both shapes are named in that document and neither
+  shows up as an error:** `job_photos.bytes` stopping landing, so the cap is
+  compared against zero and **silently becomes unlimited**, surfacing as a bill
+  rather than a failure; and the recorded size being the client's claim, so a
+  browser that under-reports buys itself unlimited storage.
+
 - [ ] **0.12 — Split transactional email onto ZeptoMail, keep Resend for
   campaigns. NEW ROW, 2026-09-22 — this decision had no roadmap item and lived
   only in `FOR-ANDREW.md`, which is exactly how a commitment evaporates.**
@@ -556,6 +571,20 @@ and how the wait ends.
   **NOT DONE:** no lawyer, per Andrew's standing ruling, and no template was
   imported — every correction states something the product already does.
 
+  **Done when** (written 2026-09-25; this item had none): **every promise on
+  `/terms`, `/privacy`, `/pricing` and the home page names something the product
+  actually does**, with the code or the database row that backs it pointed at, one
+  by one — the method that found the privacy page naming five processors where
+  eleven receive data. **And Andrew has answered the two factual questions parked
+  for him:** which legal entity trades as Detailing Platform, and whether the
+  customer/photo export gets built or the promise gets removed.
+  **Paid legal review is explicitly NOT part of this**, per his standing ruling, so
+  the absence of a lawyer must never hold this box open.
+  **What failing looks like:** a promise with nothing behind it — or worse, a
+  promise **softened** rather than resolved. This entry left the export clause
+  exactly as written for that reason: *"a vague promise is still a promise and
+  would be harder for the next person to spot."*
+
 - [ ] **0.6 — WHAT IS RUNNING IS NOT WHAT IS COMMITTED, ON 22 OF 39 EDGE
   FUNCTIONS. Nobody knew. Found 2026-09-20.**
   **Placed in Wave 0 because it undermines every other item in this file.** A
@@ -791,6 +820,16 @@ and how the wait ends.
   **WHAT WOULD MOVE THIS:** his answer to `what-we-send.md` Question 3. Nothing
   else. **This is NOT a publish deferral** — the 2026-09-24 publishing ruling
   does not touch it, because no code is written and waiting.
+
+  **Done when** (written 2026-09-25; this item had none): **Andrew has answered
+  `docs/what-we-send.md` § Question 3** — whether a detailer must give a postal
+  address before a maintenance reminder can go, or the email stops being sent, or
+  it is ruled transactional — and whichever he picks is carried out. **A decision
+  is a real gate; this item is queued, not stalled.**
+  **What failing looks like, and this entry already names it as the one outcome
+  that must not happen:** **a placeholder address in a legal footer.** It would
+  satisfy any check asking whether a footer exists, while making the product state
+  something untrue to a stranger.
 
 ---
 
@@ -4551,6 +4590,20 @@ the wrong service, and never book a job we cannot reach.
   its receipt's own warnings: a pass here is not an answer about the on-screen
   keyboard. Andrew's ruling of 2026-09-20 stands and this item stays open.
 
+  **Done when** (written 2026-09-25 — this item had no `Done when` line, though it
+  has carried the substance since 2026-09-20 under *"WHAT WOULD CLOSE IT"*): **one
+  run on a real phone, keyboard raised, on step 4 (the address) and step 6 (name,
+  phone, email)**, answering one question — **does the pinned bar ride up on the
+  keyboard and cover the field being typed into?** — with the answer written here
+  either way. **"It does not" is a close.**
+  **It is executable now and was not before:** § 5 of
+  `docs/testing/phones-we-do-not-own.md` is the walk, its steps 4–6 are exactly
+  these two fields, and it runs against the dev server over Andrew's own Wi-Fi at
+  no cost. **This item and 8.2 close on the same twenty minutes.**
+  **What failing looks like:** a pass claimed from a resized window. **No window
+  size can reproduce it** — a keyboard shrinks the VISUAL viewport and leaves the
+  LAYOUT viewport alone, which is why `resize_window` cannot stand in.
+
 - [ ] **At 320 the booking calendar's day cells are 37px against the 44px
   absolute — thirty-two of them, every open day in the month. Found
   2026-09-23 by `bk-bar-clearance.mjs` on its first run, while answering 2.15;
@@ -8100,6 +8153,20 @@ most corroborated finding in the set.
   fallback.
   *A1 § 9, § 10*
 
+  **Done when** (written 2026-09-25; this item had none — one clause per thing the
+  Fix already names, so none of it is invented): with the network cut, **(a)**
+  today's jobs are still readable on a screen that had already loaded; **(b)** an
+  update interrupted mid-flight and retried leaves **one** change, not two;
+  **(c)** a booking submitted twice through a retry leaves **one** booking;
+  **(d)** a next-day schedule carrying customer contacts can be printed or saved
+  **while offline**.
+  **(b) and (c) are read off the ROWS, not the screen** — a count on `bookings`
+  before and after — because a screen showing one booking is exactly what two rows
+  look like to the person who made them.
+  **What failing looks like:** two rows where one was intended. **That is the only
+  one of the four that costs a customer something**, and the only one no screen can
+  show you.
+
 ---
 
 ## Wave 7 — Sales proof
@@ -9516,6 +9583,23 @@ rather than wording went to Andrew.
   fail `ex3` and only `ex3`, and `--break=inject` must fail on a gate that
   has the fix and pass on one that does not** — that is the single assertion
   proving the hole is closed rather than described.
+
+  **Done when** (written 2026-09-25; this item had none, and it has three remaining
+  parts rather than one — each already specified above, so none of this is new
+  scope):
+  1. **`/ex3`'s hero is MEASURED, not rebuilt.** Open it at 1440x900, let the
+     layout settle, read the height. **~903px means the 21st's edit landed and only
+     the paperwork lagged; 1111px means the change is specified and ready.** Two
+     records disagree today and **the next action is a measurement.**
+  2. **The picture-staleness gate fingerprints the INJECTED block as well as the
+     source**, with `--break=inject` failing `ex3` and only `ex3`, and **a count of
+     zero injected blocks failing rather than passing silently.**
+  3. **Andrew has ruled on the `/ex2` wordmark** — deliberate device or overlap
+     defect. `docs/TASTE-NOTES.md` § 1 describes his own reference doing exactly
+     this on purpose, so **no session decides it either way.**
+  **What failing looks like:** the hero rebuilt from the wrong one of two
+  disagreeing records; a gate reporting `current` over a thumbnail that no longer
+  matches, which is the live bug today; or the wordmark quietly edited out.
 
 - [x] **7.11 — Andrew's own name and domain are printed on his sales page
   beside a city, and nobody has ever checked that it's the one he actually
@@ -12034,6 +12118,17 @@ the dashboard or back office at phone width at all.
   not folded in here — if anybody wants it, it gets its own item with the case
   for it and Andrew decides.
 
+  **Done when** (written 2026-09-25; this item said only *"it stays `[ ]` for
+  Andrew's press"*, which is whose rather than what): **Andrew opens the calendar
+  and reports on the three repairs by name** — seven distinct weekday labels
+  (`Sun Mon Tue…`, not `S M T W T F S`), a **rectangular** month with no ragged
+  last row, and a legend explaining **every** status colour rather than only
+  "Blocked". **"Nothing wrong" is a close.**
+  **What failing looks like, and it is the trap 9.11 already fell into:** a press
+  at a width he cannot reach recorded as a press at that width. His browser pins
+  its inner viewport at 1414, so the 320 evidence stays this session's measured run
+  and the entry must keep saying so.
+
 - [x] **DONE 2026-09-20 — 9.5 Late jobs are not flagged.** At 10pm a 2:00 PM
   job still sits under "Still to do". Mark it late and offer "Mark done" or
   "Move it".
@@ -12583,6 +12678,17 @@ the dashboard or back office at phone width at all.
   the label instead of the contents — committed while folding in a paragraph
   whose whole point was that the reason outranks the instruction.
 
+  **Done when** (written 2026-09-25; this item said only *"only Andrew's press"*,
+  which is whose rather than what): **Andrew opens a client record and reports on
+  the four things by name** — a **Text** control beside Call, **Last vehicle**,
+  **Last address**, and **Book again opening the form already holding that
+  customer** rather than blank. **"All four there and Book again was pre-filled" is
+  a close; so is "nothing wrong".**
+  **What failing looks like:** a report that the button merely exists. **Andrew's
+  own ruling is that a Book again opening a blank form is WORSE than no button**,
+  so presence is not the question — `scripts/client-card.mjs` already asserts the
+  prefill rather than the control, and his press has to ask the same thing.
+
 - [x] **DONE 2026-09-20 — 9.8 Manual booking flashes "No active services yet"
   before loading.** Replace false empty states with a loading skeleton; only
   show empty after a completed empty response.
@@ -12965,6 +13071,23 @@ the dashboard or back office at phone width at all.
   it against current state" trap this repo's own memory discipline warns
   about. Named here so the stale receipt is not mistaken for a second
   regression by whoever looks next.
+
+  **Done when** (written 2026-09-25; this item said only *"Andrew presses it
+  himself, 320 first"*, and that is a width his browser cannot reach): **two
+  things, and the first needs nobody.**
+  1. **`sweep-widths.mjs` is re-run against the fixed tree**, so the receipt on
+     disk stops reading `"status": "fail"` over a `git_sha` that is an ANCESTOR of
+     the fix. **Nobody has run it since the fix existed**, so that file reads as a
+     live failure to anyone who does not check its sha against `HEAD`.
+  2. **Either** Andrew presses it below 520px and confirms the three-column wrap,
+     **or** this item closes on the record already written — his 1440 press, this
+     session's measured 320 run and the sweep's re-run — **with the limitation
+     stated in those words.** His browser pins its inner viewport at **1414**
+     regardless of the outer window, re-tested, so *"320 first"* is not something
+     he can do and pretending otherwise is the fault this item is about.
+  **What failing looks like:** the stale receipt read as a second regression —
+  which this entry predicts in its own last sentence — or a source read passing as
+  a press, which it already refused once.
 
 - [ ] **9.12 — Back office: real detailers first, scannable, one action each.**
   Default to real accounts; replace the three-column card wall with a list —
