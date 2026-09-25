@@ -215,3 +215,216 @@ the only pass available, and the run that produces it looks completely normal.
   went and looked.**
 * **0.11, 0.4 and 0.7 are long and I read the closing thirds in full and the
   bodies in part.** 0.6 I read whole.
+
+---
+
+## BATCH 9 — 1.3 through 3.1, and the two findings are both about items nobody edited on purpose
+
+| | |
+|---|---|
+| items in this batch | **10** |
+| state still true | **9** |
+| **state STALE — closed in fact, open on paper** | **1** (`:4770`) |
+| `Done when` a stranger could execute | **8** |
+| **`Done when` MISSING because it was orphaned into the next item** | **1** (2.15) |
+| `Done when` half-executable | **1** (1.3) |
+| **running total** | **20 of 59** |
+
+**The ten:** 1.3, 2.1, 2.1b, the reseed item (`:3514`), the stale-blocker item
+(`:3551`), 2.12, 2.15, 2.15a, the 320 calendar item (`:4770`), 3.1.
+
+**Three claims were re-measured live rather than read, and all three held:**
+
+| claim | where | measured 2026-09-25 |
+|---|---|---|
+| *"the COLUMN is not [applied]"* | 1.3 | **`customers.is_test` does not exist** — the endpoint answers `42703` |
+| *"71 passed / 6 failed today"* | 2.12's gate | **71 passed, 6 failed** — unchanged |
+| *"the only thing standing between here and the right price is publishing `calculate-booking`"* | 2.1 | **`calculate-booking` is in the DIFFERS list** — still not live |
+
+### FINDING 3 · `ROADMAP.md:4770` IS CLOSED IN FACT AND OPEN ON PAPER
+
+**The item:** at 320 the booking calendar's day cells are 37px against the 44px
+absolute, thirty-two of them. It tables three options, notes that Andrew has
+ruled on this shape once already (*"job buttons stay square on a phone"*),
+recommends leaving it, and says the decision *"goes to Andrew as a
+`FOR-ANDREW.md` row"*.
+
+**Its `Done when`, verbatim:** *"Andrew answers the row — **either** every day
+cell reaches 44px of hit area at 320, **or the reason it cannot is recorded as a
+hold with his decision on it**."*
+
+**The second branch was satisfied on 2026-09-24.** `FOR-ANDREW.md:818`:
+
+> **`- [x] DECIDED · The day squares stay as they are. 2026-09-24 — nothing
+> needed from you.`**
+
+It carries the decision, the reason (*"seven squares plus the gaps between them
+need about an inch more than the narrowest phone has"*), the basis (his own
+earlier ruling, applied rather than re-asked), a reopen condition, **and the
+deliberate choice to keep the measuring tool red** — *"a genuine violation
+hidden inside a passing check is exactly the failure this project spent tonight
+removing."*
+
+**That is the hold the criterion asks for, in more detail than it asks for it.
+The box is still `[ ]`.**
+
+**AND THE ITEM THAT SAYS NOBODY WOULD NOTICE THIS IS SIX HUNDRED LINES ABOVE
+IT.** `ROADMAP.md:3551` — *"Nothing notices when a blocker goes stale, so an
+item can sit closed-in-fact and open-on-paper"* — is open, unbuilt, and was
+written after 2.8 sat two days in exactly this state. **This is its second
+confirmed instance, found the same way as the first: by holding two documents
+next to each other.**
+
+**Recommend the tick.** Not taken here — the audit does not move boxes — but
+there is nothing left to do on it, and leaving it open costs somebody a
+re-derivation of a decision Andrew has already made twice.
+
+### FINDING 4 · 2.15's ACCEPTANCE CRITERION IS NOW SITTING INSIDE 2.15a
+
+**A NEW SHAPE, AND IT IS A FILE COLLISION THAT LEFT NO CONFLICT.** Commit
+`780c280` (*"2.15a: three tenant strings with no length limit"*) inserted a new
+item **between 2.15's body and 2.15's `Done when`**. The criterion did not
+move; the heading moved above it.
+
+| | |
+|---|---|
+| 2.15's block today | lines **4486–4703** |
+| `Done when` lines inside it | **0** |
+| 2.15a's block today | lines **4704–4769** |
+| `Done when` lines inside it | **2** — its own at 4733, and 2.15's at **4751–4768** |
+
+**The orphaned text is unmistakably 2.15's and says so three times:** *"does the
+pinned bar ride up on the keyboard and cover the field being typed into?"*,
+*"the walk asks both of **2.15's** questions rather than one"*, and *"**this
+item** and 8.2 close on the same twenty minutes."* **2.15a is about three tenant
+strings with no length limit.**
+
+**TWO CONSEQUENCES AND THE SECOND IS WORSE THAN THE FIRST.**
+1. **2.15 has no acceptance criterion**, which undoes the result recorded in
+   this session's own handover — *"open items with nothing now: 0"*. It was true
+   when written and is not true now.
+2. **2.15a appears to have two**, and a reader taking the second one would try
+   to close a string-length item by **walking a real phone with the keyboard
+   up**. That is not a near-miss; it is a completely different piece of work.
+
+**NOT REPAIRED HERE, AND THE REASON IS THE RULE RATHER THAN CAUTION.** The fix
+is a pure relocation — eighteen contiguous lines, sixty-five lines up, no word
+changed. **But DP Cowork has committed to 2.15 and 2.15a three times in the last
+hour** (`2bd0260`, `428e942`, `780c280`), and CLAUDE.md's fourth-version commit
+rule exists precisely because `git commit <path>` takes the **working tree**
+copy of a shared file — so an eighteen-line move landing underneath a session
+that is still writing there is the same-file contamination the rule spent four
+corrections learning about. **`ROADMAP.md` was clean when this was checked**, so
+the edit is permitted; it is being declined on ownership, not on permission.
+
+> **THE REPAIR, FOR WHOEVER HOLDS 2.15 NEXT — one move, no rewording:** *cut
+> `ROADMAP.md:4751–4768` (from `**Done when** (written 2026-09-25 — this item
+> had no Done when line` to `…which is why `resize_window` cannot stand in.`)
+> and paste it at the end of 2.15's block, immediately before the `- [ ]` that
+> opens 2.15a. Then check that 2.15a's own `Done when` at 4733 is the only one
+> left in its block.*
+
+**AND THE PATTERN IS WORTH MORE THAN THE INSTANCE.** An insertion between an
+item's body and its trailing criterion **produces no merge conflict, no failing
+check and no odd-looking diff** — the diff is a clean block of additions, which
+is what a correct insertion also looks like. **Nothing in this repo can see it**;
+`decisions-index.mjs` guards `DECISIONS.md`'s index and nothing guards an item's
+own boundaries. **It was found by asking a question about 2.15 and getting no
+answer**, not by looking for it.
+
+### THE OTHER EIGHT
+
+* **1.3** — state true and **verified**: the entry says *"the SCREEN is proved
+  and the COLUMN is not"*, and the column really is absent from the live
+  database. Two things to record. **Its `Done when` is half-executable** —
+  *"the 'gone quiet' count drops to match real customers"* is a number somebody
+  can compare; *"a support task never requires scanning test rows"* is not
+  something a stranger can go and do. **And its "switched off until launch"
+  framing is being applied to a MIGRATION**, where Andrew's ruling was coined
+  for publishing. The deferral holds either way — applying a migration is his
+  too — but **the switch is `apply-migrations.mjs`, not a Netlify publish**, and
+  a reader who knows only the publishing ruling will reach for the wrong one.
+  It also names a live gap with no item: **the same three fixture rows appear on
+  the Today screen**, because `is_test` is on the customer and Today reads
+  bookings. *"Worth its own item."*
+* **2.1** — the clearest open item in the file. It says what a customer sees
+  today ($65 on a Sunday, charged $95), what they will see after the publish
+  ($95 with `Weekend rate · +$30` above the times), and that **nothing else is
+  waiting**. Its `Done when` names four assertions at five widths. **Its central
+  claim was checked and holds.**
+* **2.1b** — superseded 2026-09-22 in place, with Andrew's earlier "not a fault"
+  ruling kept above it. Criterion is a two-branch either/or, executable.
+* **`:3514` (a reseed eats the evidence)** — four numbered shapes,
+  *"deliberately not decided"*, and a criterion that can fail: *"either a
+  flagged row survives a reseed, or no open item depends on one surviving."*
+  **Batch 8's finding 2 is this item happening again**, to 0.3's criterion.
+* **`:3551` (nothing notices a stale blocker)** — criterion: *"no open item's
+  blocker can be two days out of date without a…"*. **Finding 3 above is its
+  second instance and should be recorded in it.**
+* **2.12** — the gate was **re-run**: 71 passed, 6 failed, exactly as the entry
+  states. Its three-clause criterion is the best in the batch because every
+  clause can go red, and clause 3 demotes `i18n-survey.mjs` to evidence in
+  writing.
+* **2.15a** — written tonight, state fresh, and its own criterion at 4733 is
+  executable (`bk-bar-clearance.mjs`, *"extended, not duplicated"*). **Its only
+  problem is the eighteen lines that do not belong to it.**
+* **3.1** — half built by 14.3 and says exactly which half: the list exists on
+  the client record and not in the back office, and there is no link to the
+  booking *"because the relay is never told which booking it is sending
+  about"*. Criterion — a deliberately bounced message visible with a next
+  action, and delivered visibly different from sent — is executable and the
+  first half of it is already demonstrated.
+
+### WHAT THIS BATCH COULD HAVE MISSED
+
+* **2.15 is 218 lines and 2.1 is 336; I read 2.15 whole and 2.1's first third
+  plus its closing section.** The finding in 2.15 came from a `Done when` grep
+  returning zero, which is a much cheaper instrument than reading — **and it
+  only works because every other open item has one.** On a file where half the
+  items lacked criteria it would have found nothing.
+* **I did not run the same grep across all 63 open items.** Finding 4 could have
+  more instances. **That is the obvious next measurement and it is one command:**
+  for each open item's block, count `Done when` lines; anything at 0 or ≥2 is a
+  candidate. Not run here because the item boundaries need care — my own earlier
+  scan had exactly that bug — and a wrong boundary produces the false positives
+  this whole audit was warned about.
+
+### THE SCAN WAS RUN AFTER ALL, AND IT BOUNDS THE FINDING RATHER THAN EXTENDING IT
+
+**The paragraph above said the boundary scan was "the obvious next measurement"
+and was not run. It was run immediately afterwards, and saying so beats leaving
+a stale sentence two lines above the result.** Every open item's block was taken
+from its `- [` line to the next one, and its `Done when` lines counted:
+
+| | |
+|---|---|
+| open items scanned | **63** |
+| **zero `Done when` lines** | **2** — **2.15** (finding 4) and **12.3** |
+| three or more | **2** — 4.1 and 8.5, **both benign** |
+
+**12.3 is the known, deliberate one.** This session's own handover records it:
+*"the missing piece is named in the entry — who sets the deposit and in what
+form… until that is answered there is nothing to test. A plausible-sounding
+criterion there would have had to be un-written later."* **So 2.15 is the only
+orphan, and finding 4 is bounded rather than the first of many.**
+
+**BOTH "THREE OR MORE" WERE OPENED RATHER THAN COUNTED.** **8.5** has five and
+all five are its own — one per accessibility dimension (reduced motion, focus,
+zoom, text spacing, landmarks), which is the right shape for that item. **4.1**
+has one real criterion at `:6125` and two prose sentences that merely *mention*
+its done-when. **A count alone would have filed both as suspicious**, which is
+the failure mode this whole audit keeps recording; opening them took two
+minutes.
+
+**ONE THING THE SCAN CANNOT SEE, stated because it is the same blind spot as
+finding 4:** it counts lines containing the words "Done when", so **a criterion
+worded differently — *"this closes when…"*, *"it is finished once…"* — reads as
+absent, and a criterion orphaned into a NEIGHBOURING item still counts as
+present, just in the wrong place.** Finding 4 was caught only because the
+orphaning left 2.15 at **zero**. **Had 2.15 carried a second criterion of its
+own, the same collision would have been invisible to this scan.**
+
+**LINE NUMBERS IN THIS BATCH ARE AS OF COMMIT `5cc6342` AND MOVE UNDER YOU.**
+`780c280` shifted everything below line 4704 down by about seventy lines while
+this batch was being read — 4.2 moved from `:6319` to `:6391` mid-scan. **The
+item titles are stable; the numbers are not.**
