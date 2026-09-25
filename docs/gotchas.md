@@ -3304,3 +3304,118 @@ is not a plausible outcome — and the instinct to re-test rather than write it
 down is the only thing standing between that and a file recording a hole that
 does not exist. **A check that says the guard is broken deserves exactly as
 much suspicion as one that says it is fine.**
+
+## 81. A MONEY TIE-OUT THAT CANNOT FAIL, BECAUSE THE THING IT MEASURES REPAIRS ITSELF FIRST — `render-emails.mjs` prints PASS over a wrong subtotal, BY DESIGN
+
+**2026-09-23, measured twice, with two different faults injected.** The obvious
+question to ask of an emailed bill is *"do the lines add up to the total?"*
+`scripts/render-emails.mjs` asks it. **It can never answer no.**
+
+`reconcile(lines, total)` in `supabase/functions/_shared/emailKit.ts` is a
+deliberate guarantee: **it draws any remainder it finds as its own line**, so
+the column balances whatever the inputs were. That is correct behaviour and it
+is the whole point of the function — `DECISIONS.md` § *"`reconcile()` — the
+guarantee that replaced a promise"* records why it exists. The consequence is
+what nothing said out loud:
+
+> **A wrong `subtotal` produces a wrong service line AND a fabricated closing
+> line — "Discount applied" — and the column adds up perfectly.**
+
+**Both runs printed zero failures while the rendered page in front of the
+script showed nonsense.** Once with ROADMAP 14.19's two-car `subtotal` fault
+put back, and once with a different fault injected into the site discount. The
+render is not lying: **the page SHOWS the fault.** The script simply does not
+fail on it.
+
+**THE SHAPE, WHICH IS NOT THE USUAL ONE.** Most entries in this file are about a
+check that measured nothing. This one measures something real, every run, and
+the property it asserts is **one the product guarantees independently of
+correctness.** An invariant the code enforces is not evidence; asserting it
+proves only that the enforcement ran.
+
+**WHAT TO ASK INSTEAD — and the working example is in the repo.** Ask whether
+each line is **TRUE**, not whether the column reaches the total.
+`tests/quoted-lines-true.test.mjs` (14 tests, credential-free, no dev server)
+renders the real customer confirmation and asks that of every line. It went red
+on 14.19's fault; `render-emails.mjs` did not.
+
+**WHY THIS IS HERE AND NOT ONLY IN A ROADMAP ENTRY.** It was written up inside
+ROADMAP 14.19, which is where the fault was fixed. **The next person does not
+read 14.19; they run the script, see PASS, and stop.** A reader who has been
+told "the money tie-out passes" has been told the thing that is true and not the
+thing that matters, and this file is the one they are sent to before trusting a
+number.
+
+## 82. A MONITOR'S HEADLINE CANNOT REPORT THE THING ITS OWN HYSTERESIS EXISTS TO SUPPRESS — `failing: []` from `probe_live_site()` is not a clean bill of health
+
+**2026-09-21/23.** The outage watcher's ping answers with a `failing` array. It
+came back `[]` and that was one sentence away from being written up as *"all
+four probes green."*
+
+**`fail_after` is 2.** A probe that has failed **once** is deliberately absent
+from `failing`. That is not a bug — the *"one failure says nothing"* rule is
+exactly what makes this monitor worth having, because a single timeout on a
+cold function is noise. **But the same rule makes its headline structurally
+incapable of reporting a first failure**, which is the state you are most likely
+to be looking for when you check.
+
+**READ THE PER-PROBE `consecutive_failures` COUNTERS AND THE RESPONSE BODIES.**
+Not the array. A probe sitting at `consecutive_failures: 1` is failing right
+now and is missing from `failing` by design. ROADMAP 6.2 records the four probes
+verified this way — `0 on all four`, plus the actual body each returned
+(`booking_start` a full set of opening hours, `sign_in` GoTrue naming itself) —
+rather than from the ping.
+
+**THE GENERAL SHAPE:** a summary field whose threshold is tuned for *alerting*
+is the wrong instrument for *asking*. Alerting wants to suppress the first
+failure; a person asking "is it up?" wants to see it. **When a check has a
+debounce, the debounced output is not an answer — it is an answer minus
+whatever the debounce is for.** Same family as #81, one level out: there the
+measured property was guaranteed by the product, here the reported property is
+guaranteed by the threshold.
+
+## 83. "THIS FLOOR CANNOT FALL WITHOUT A DIFF" IS A CLAIM ABOUT A SCRIPT, NOT A FACT ABOUT FLOORS — and it was wrong the first time it was checked
+
+**2026-09-22 into 09-23.** `receipt.mjs` began refusing any receipt whose
+`min_assertions` did not say **why** that number is the number, because *a floor
+equal to its own run's count cannot bind.* Four scripts got a declared
+`assertion_floor`. Most of them said some version of: *the count cannot fall
+without a diff — a tripwire on the code, not a run-time check.*
+
+**`e2e-receipt-trail.mjs` said exactly that, and the very next run disproved
+it.** Its count fell from 21 to **4**, and the receipt was still written:
+**§ 1 catches the payment leg's failure and carries on**, so a run that lost its
+own subject completed, produced a receipt, and executed a fifth of its
+assertions. **The floor was the only thing that caught it.** The comment
+claiming the floor was decoration is kept in that file next to the correction,
+because *"this floor is decoration"* and *"this floor is the only thing that
+catches a half-run"* are opposite claims about one number.
+
+**SO THE TEST IS PER-SCRIPT AND IT IS ONE QUESTION:** *can this script write a
+receipt after losing a subject?* If every failure path throws before
+`writeReceipt`, a receipt implies the full count and the floor really is a
+tripwire on the code. If any path **catches and carries on**, the floor is a
+live guard and must be treated as one.
+
+**Worked both ways, 2026-09-24:**
+
+| script | floor | can it complete short? | so the floor is |
+|---|---|---|---|
+| `e2e-receipt-trail.mjs` | 21 | **yes** — § 1 catches and continues | a live guard; it fired |
+| `pinned-bar.mjs` | 119 | **no** — every early exit is `process.exit(2)` before the receipt, and `grade()`'s missing-container path loops all seven questions rather than returning short | a tripwire on the code, as claimed |
+
+**AND A FLOOR THAT EQUALS THE EXECUTED COUNT IS NOT AUTOMATICALLY THE FAULT.**
+`pinned-bar` reports `min_assertions: 119` beside `assertions_executed: 119`
+and that is the **correct** state: the floor is a **declared literal** fixed by
+structure (4 sizes × 2 modes × 2 containers + 1 canary = 17 targets × 7
+questions), so it binds the moment a container stops being walked. The fault the
+rule was written for is a floor **derived from the run it is checking** — that
+one equals the count by construction and can never bind. **Equality is a
+symptom, not the diagnosis; ask where the number came from.**
+
+*Counted rather than re-run: `e2e-receipt-trail.mjs` has 21 `check(` call sites,
+at lines 190–439, none inside a loop — the loop at 241 contains only DELETEs.
+It was read rather than executed because § 1 shells out to `e2e-payment.mjs`
+and drives a real card payment, so re-running it to settle arithmetic would
+spend money to check something reading answers exactly.*
+

@@ -17,6 +17,29 @@ the only thing two sessions collide on.
 **It expires the moment either session is given something new.** A lane
 statement describes the work in hand, not the session.
 
+## And the other half of it
+
+**Before running a check, ask what it WRITES, not only what it reads.**
+
+A lane statement tells you what the *other* session is consuming. This tells
+you what *you* are about to consume, and it is the half that gets skipped
+because running a check feels like reading. If a check clears, seeds, deletes
+or resets anything on the list below — a rate-limit bucket, the demo tenant's
+rows, a queue, a cache — **it is not safe to run beside anything measuring
+that thing**, and thirty seconds of wanting a green is how the damage gets
+done.
+
+**The damage lands on somebody else's screen, which is why nothing catches
+it.** A flaky check misleads whoever ran it. A check that clears shared state
+misleads whoever did *not* run it, while they are looking at their own numbers
+with no reason to suspect anything moved. `scripts/tabbar-clearance.mjs` is the
+worked example — § 5 below, and `docs/gotchas.md` 78 for the night it nearly
+happened.
+
+**Stated here rather than only in `gotchas.md` because this is the page read at
+dispatch.** A habit written in the file people open *after* a number surprises
+them is not a rule; it is a post-mortem.
+
 ---
 
 ## Why this page exists

@@ -165,7 +165,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is EIGHTY specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is EIGHTY-THREE specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -188,6 +188,14 @@ between — this line is the same class of unreliable count its own
 neighboring entry in `gotchas.md` describes: a derived tally written into
 prose once and never re-run. Corrected here rather than silently, because
 that is the instruction two paragraphs up.
+
+**AND IT SAID "EIGHTY" UNTIL 2026-09-24, WHEN THE FILE HAD 80 — CORRECT ON
+ARRIVAL, AND WRONG BY THREE BEFORE THE SITTING ENDED.** Entries 81, 82 and 83
+were written that night, and the count was updated **in the same edit**, which
+is the only version of this rule that has ever held. `grep -c "^## "
+docs/gotchas.md` answers it in one command and there is no reason to guess.
+**The two corrections above are kept because the pattern is the useful part:
+this number goes stale every time somebody adds an entry and stops there.**
 
 ## Hard rules
 
