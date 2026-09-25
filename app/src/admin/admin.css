@@ -438,7 +438,19 @@
 .pa-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 7px; vertical-align: 1px; }
 .pa-dot.pa-ok   { background: var(--ac); }
 .pa-dot.pa-bad  { background: var(--bad); }
-.pa-dot.pa-idle { background: var(--fog-2); }
+/* QUIET — heard from nobody. A RING, NOT A FILL, and the shape is the whole
+   point: ROADMAP 6.2a asks that "checked recently, all fine" be tellable from
+   "nobody has heard anything" by a colour-blind reader and by somebody holding
+   a phone in sunlight, and neither of those can be done with hue. A hollow
+   mark reads as empty in greyscale, at 7px, in a driveway. The words beside it
+   carry the meaning; this only has to not look like the green one.
+
+   `pa-idle` was this exact rule with `--fog-2` FILLED, which is how "switched
+   off" came to look like "nothing to report" — the fault 6.2a is named after.
+   It had one user, the dead man's switch row, and that row now says so in
+   words. `box-shadow: inset` rather than `border` because `.pa-dot` sets a
+   7px box with no `box-sizing`, and a border would shrink the mark. */
+.pa-dot.pa-quiet { background: none; box-shadow: inset 0 0 0 1.5px var(--fog-2); }
 
 /* ── a meter ──────────────────────────────────────────────────────────── */
 .pa-meter { height: 4px; border-radius: 4px; background: var(--ink-3); overflow: hidden; margin-top: 8px; grid-column: 1 / -1; }

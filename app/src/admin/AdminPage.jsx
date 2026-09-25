@@ -123,6 +123,30 @@ const JOB_LABELS = {
 };
 const jobLabel = (job) => JOB_LABELS[job] ?? job;
 
+/* ══ THREE STATES, NOT TWO ═════════════════════════════════════════════════
+   ROADMAP 6.2a. A job that has NEVER reported once rendered exactly like a
+   job that finished a minute ago, because the seed row carries a fresh
+   `now()` — `20260906006100_seed_job_heartbeats.sql` says so in its own
+   header and marks that row `seeded`. This screen asked the server for
+   `detail`, received the marker, and threw it away. **So the absence of a
+   signal was painted as good news**, which is this repo's oldest fault
+   wearing a different coat, except a person is reading this one.
+
+   `seeded` was already on the wire: no migration, no new column, no deploy.
+
+   QUIET IS NOT AN ALARM, AND THAT IS THE HALF THAT IS EASY TO GET WRONG. A
+   job that has not come round yet is not failing, and Andrew's standing
+   ruling is that a monitor which can cry wolf is worse than none. So `quiet`
+   never reaches `alerts` — it would pin a red pip to the tab bar for ever on
+   a healthy install. It says what it is in WORDS on the health line, and
+   leaves the alarm alone. */
+const jobLimit = (h) => Math.round((h?.stale_after_seconds ?? 86400) / 60);
+const jobState = (h) => {
+  if (!h?.ran_at || h?.detail?.seeded === true) return "quiet";
+  const m = mins(h.ran_at);
+  return m === null || m > jobLimit(h) ? "stopped" : "ok";
+};
+
 /* ══ THE SIX-MONTH CHART ═══════════════════════════════════════════════════
    ONE SVG, ONE SET OF X-COORDINATES for the bar and its label. The old chart
    laid bars out in one flow row and month names in another, so the two
@@ -350,10 +374,13 @@ export default function AdminPage() {
      disagree about whether something is broken. */
   const alerts = [];
   for (const h of state?.heartbeats ?? []) {
-    const m = mins(h.ran_at);
-    const limit = Math.round((h.stale_after_seconds ?? 86400) / 60);
-    if (m === null || m > limit) {
-      alerts.push(`${jobLabel(h.job)} has not finished in ${m === null ? "ever" : `${m} minutes`} (it should every ${limit})`);
+    // `jobState`, not a second copy of the arithmetic. The strip on Now, the
+    // red pip on the tab bar and the health line all ask the one function, so
+    // the three can never disagree about whether something is broken — which
+    // is what the comment above this block promises. A `quiet` job is
+    // deliberately absent here; the note beside `jobState` says why.
+    if (jobState(h) === "stopped") {
+      alerts.push(`${jobLabel(h.job)} has not finished in ${mins(h.ran_at)} minutes (it should every ${jobLimit(h)})`);
     }
   }
   const mail = state?.email;
@@ -1781,36 +1808,83 @@ function TabPipes({ state, alerts }) {
   const usedPct = store?.total_bytes ? Math.min(100, Math.round((store.used_bytes / store.total_bytes) * 100)) : 0;
   const mailPct = mail?.cap ? Math.min(100, Math.round((mail.sent / mail.cap) * 100)) : 0;
   const overPromised = !!(store?.total_bytes && store.committed_bytes > store.total_bytes);
+  const beats = state?.heartbeats ?? [];
+  const quiet = beats.filter((h) => jobState(h) === "quiet").length;
+
+  /* THIS SENTENCE WAS THE WHOLE FAULT, AND IT IS TRUE IN EVERY CASE THAT
+     MATTERS — ROADMAP 6.2a. "Everything that reports in is reporting in" is
+     true of an EMPTY LIST, and it was being printed over one: an all-clear
+     earned by nobody having spoken. It is kept for the case it was written
+     for, and it is no longer the only thing this line can say. */
+  const lede = beats.length === 0
+    ? "Nothing is reporting in at all. No job has been heard from, so there is nothing here to call healthy."
+    : quiet === 0
+      ? "Everything that reports in is reporting in."
+      : `Nothing is failing, and ${quiet === 1 ? "one of these has" : `${quiet} of these have`} never reported — so ${quiet === 1 ? "it is" : "they are"} not being called healthy either.`;
 
   return (
     <>
       {alerts.length === 0 && (
-        <p className="pa-sub" style={{ "--i": 0 }}>Everything that reports in is reporting in.</p>
+        <p className="pa-sub" style={{ "--i": 0 }}>{lede}</p>
       )}
 
       <section className="pa-sec" style={{ "--i": 1 }}>
         <div className="pa-h"><h2>Jobs that run on their own</h2></div>
         <div className="pa-svc">
-          {(state?.heartbeats ?? []).map((h) => {
-            const m = mins(h.ran_at);
-            const limit = Math.round((h.stale_after_seconds ?? 86400) / 60);
-            const bad = m === null || m > limit;
+          {beats.map((h) => {
+            const st = jobState(h);
+            const limit = jobLimit(h);
             return (
-              <div className="pa-svc-r" key={h.job}>
-                <span className="pa-svc-n"><i className={`pa-dot ${bad ? "pa-bad" : "pa-ok"}`} />{jobLabel(h.job)}</span>
-                <span className="pa-v" style={{ fontFamily: "var(--f-num)", fontSize: 12 }}>{shortAgo(h.ran_at)}</span>
-                <span className="pa-svc-d">Counts as stopped after {limit} minutes without finishing.</span>
+              <div className="pa-svc-r" key={h.job} data-job-state={st}>
+                <span className="pa-svc-n">
+                  <i className={`pa-dot ${st === "stopped" ? "pa-bad" : st === "quiet" ? "pa-quiet" : "pa-ok"}`} />
+                  {jobLabel(h.job)}
+                </span>
+                {/* THE WORDS ARE THE FIX; THE DOT IS ONLY NOT-GREEN. A colour
+                    on its own fails a colour-blind reader and fails anyone
+                    holding a phone in sunlight, which is the condition this
+                    product is actually used in. So the two states are told
+                    apart HERE, in the value, before anybody looks at a 7px
+                    mark: `ran 12 min ago` against `not reported yet`. */}
+                <span
+                  className="pa-v"
+                  style={st === "quiet" ? { fontSize: 12 } : { fontFamily: "var(--f-num)", fontSize: 12 }}
+                >
+                  {st === "quiet" ? "not reported yet" : `ran ${shortAgo(h.ran_at)}`}
+                </span>
+                <span className="pa-svc-d">
+                  {st === "quiet"
+                    ? `Nothing has been heard from this one since watching started. It is not failing — it has not been seen working either. It should report every ${limit} minutes.`
+                    : `Counts as stopped after ${limit} minutes without finishing.`}
+                </span>
               </div>
             );
           })}
-          <div className="pa-svc-r">
+          {/* NO ROWS AT ALL IS THE SHARPEST VERSION OF 6.2a AND IT USED TO
+              RENDER AS A CLEAN GREEN SCREEN: the map produced nothing, the
+              alert list was empty, and the page said everything was fine.
+              A dropped table, a revoked grant and a brand-new install all
+              look like this, and none of them is good news. */}
+          {beats.length === 0 && (
+            <div className="pa-svc-r" data-job-state="none">
+              <span className="pa-svc-n"><i className="pa-dot pa-quiet" />No job is reporting</span>
+              <span className="pa-v" style={{ fontSize: 12 }}>nothing heard</span>
+              <span className="pa-svc-d">
+                Not one scheduled job has a record here. That is not the same as everything being
+                fine — it is this screen having nothing to go on.
+              </span>
+            </div>
+          )}
+          <div className="pa-svc-r" data-job-state={state?.watch?.outside ? "ok" : "quiet"}>
             <span className="pa-svc-n">
-              <i className={`pa-dot ${state?.watch?.outside ? "pa-ok" : "pa-idle"}`} />
+              <i className={`pa-dot ${state?.watch?.outside ? "pa-ok" : "pa-quiet"}`} />
               Dead man's switch
             </span>
-            <span className="pa-v" style={{ fontSize: 12 }}>{state?.watch?.outside ? "set up" : "none"}</span>
+            <span className="pa-v" style={{ fontSize: 12 }}>{state?.watch?.outside ? "set up" : "not set up"}</span>
             <span className="pa-svc-d">
-              The only thing that can notice if everything above stops at once.
+              {state?.watch?.outside
+                ? "The only thing that can notice if everything above stops at once."
+                : "This is the only thing that could notice if everything above stopped at once, and it is switched off. Nothing is watching for that."}
             </span>
           </div>
         </div>

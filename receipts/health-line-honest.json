@@ -1,0 +1,80 @@
+{
+  "git_sha": "c42e12ea25a6450208ffc6fa8f1a236d4c311613",
+  "git_sha_started": "c42e12ea25a6450208ffc6fa8f1a236d4c311613",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-09-25T03:49:19.440Z",
+  "failures": [],
+  "warnings": [
+    "The fixtures are injected by rewriting the `platform-admin` response IN THE BROWSER. Nothing is written to `job_heartbeats`, no cron is disturbed and there is nothing to restore if this dies halfway. It measures the DISPLAY, which is all of 6.2a.",
+    "Because of that, target 1 is the real un-rewritten response and asks whether `detail` still arrives. On the day the server stops sending it, every quiet row goes green in silence and the other 42 assertions would keep passing on this script's own fiction.",
+    "Rows are located by the job slug this script invented, never by the `data-job-state` attribute the markup carries — that attribute is the screen's own claim about the thing under test.",
+    "It proves the two states are TOLD APART. It does not prove the wording is the best wording; that is Andrew's call and the screenshots are there for it."
+  ],
+  "artifacts": [
+    "artifacts/health-line-honest/wire-real-screen.png",
+    "artifacts/health-line-honest/canary-words-made-same.png",
+    "artifacts/health-line-honest/1920x1080-three-states.png",
+    "artifacts/health-line-honest/1920x1080-no-dots.png",
+    "artifacts/health-line-honest/1920x1080-empty.png",
+    "artifacts/health-line-honest/1440x900-three-states.png",
+    "artifacts/health-line-honest/1440x900-no-dots.png",
+    "artifacts/health-line-honest/1440x900-empty.png",
+    "artifacts/health-line-honest/768x1024-three-states.png",
+    "artifacts/health-line-honest/768x1024-no-dots.png",
+    "artifacts/health-line-honest/768x1024-empty.png",
+    "artifacts/health-line-honest/392x844-three-states.png",
+    "artifacts/health-line-honest/392x844-no-dots.png",
+    "artifacts/health-line-honest/392x844-empty.png",
+    "artifacts/health-line-honest/320x844-three-states.png",
+    "artifacts/health-line-honest/320x844-no-dots.png",
+    "artifacts/health-line-honest/320x844-empty.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1920x1080",
+      "1440x900",
+      "768x1024",
+      "392x844",
+      "320x844"
+    ],
+    "observed": [
+      "wire: 2 job(s) live, 2 carry `detail`, none still seeded",
+      "1920x1080: never=\"not reported yet\" · healthy=\"ran 0 min ago\" · stopped=\"ran 10 days ago\" · empty lede said-nothing-heard=true",
+      "1440x900: never=\"not reported yet\" · healthy=\"ran 0 min ago\" · stopped=\"ran 10 days ago\" · empty lede said-nothing-heard=true",
+      "768x1024: never=\"not reported yet\" · healthy=\"ran 0 min ago\" · stopped=\"ran 10 days ago\" · empty lede said-nothing-heard=true",
+      "392x844: never=\"not reported yet\" · healthy=\"ran 0 min ago\" · stopped=\"ran 10 days ago\" · empty lede said-nothing-heard=true",
+      "320x844: never=\"not reported yet\" · healthy=\"ran 0 min ago\" · stopped=\"ran 10 days ago\" · empty lede said-nothing-heard=true",
+      "console: 2 React Router future-flag warning(s) FORGIVEN BY NAME — dev-only, router setup, present before this item and not silenced by it"
+    ],
+    "canaries": [
+      "the-unmarked-seed: unmarked never-run reads \"ran 0 min ago\", healthy reads \"ran 0 min ago\" — comparator says SAME",
+      "the-colour-only-difference: quiet row rewritten from \"not reported yet\" to \"ran 0 min ago\", dot left as \"pa-dot pa-quiet\" — word assertions FAILED as required"
+    ],
+    "sabotage": null,
+    "console_errors_and_warnings": [
+      "warning: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+      "warning: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+    ],
+    "console_forgiven_by_name": [
+      "warning: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+      "warning: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+    ]
+  },
+  "check_id": "health-line-honest",
+  "started_at": "2026-09-25T03:48:39.845Z",
+  "status": "pass",
+  "expected_targets": 11,
+  "discovered_targets": 11,
+  "attempted_targets": 11,
+  "completed_targets": 11,
+  "skipped_targets": 0,
+  "assertions_executed": 43,
+  "min_assertions": 43,
+  "assertion_floor": "1 wire question + 5 widths x 8 questions (differ, quiet-says-so, ok-says-when, stopped-apart, quiet-painted, words-carry, not-all-clear, says-so) + 2 canaries = 43. Structural: fixed by the question list, never by what the run finds — a width whose screen never renders books its 8 as failures rather than dropping out, so the count cannot fall.",
+  "canary": {
+    "id": "the-colour-only-difference",
+    "observed_failure": true,
+    "problems": []
+  }
+}
