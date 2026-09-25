@@ -713,6 +713,45 @@ still knows them.
 
 ## Waiting on you — nothing breaks while these wait
 
+- [ ] **DECIDE · How long may a detailer's own words be? Right now the answer is
+  "as long as they like", and that is not a decision anybody made.**
+
+  **What this is.** When a detailer sets up their business they type in their
+  own names for things — the business name, each service, each extra, and the
+  headings they group services under. Four of those five have **no limit at
+  all.** Nothing stops somebody pasting a whole paragraph into the box where
+  "Express Wash" goes. The fifth one, the name of a monthly plan, **does** have
+  a limit: 60 characters. So the rule already exists in the product; it was
+  just never applied to the other four.
+
+  **Why it is on your list and not ours.** A cap on what somebody may type is a
+  product decision with a number in it. Picking that number is yours.
+
+  **What I would suggest, and why: 60 characters, the same as the plan name.**
+  It is not a new number, it is the one already in use on the neighbouring box,
+  so nothing new has to be justified. For scale, the longest name in the demo
+  business today is "Bi-weekly maintenance", which is 21 characters, and
+  "Coastline Auto Detailing and Mobile Valeting" would be 44. Sixty leaves
+  plenty of room and still rules out a paragraph.
+
+  **What is NOT wrong, so you can weigh this properly.** I stretched all of
+  those names to 120 characters — twice what I am suggesting — and walked the
+  booking page at five screen sizes, all seven steps, pressing the controls
+  nearest them. **Nothing broke.** Nothing was covered, nothing became
+  unpressable, nothing spilled off the side. So this is not a bug being
+  reported, and nothing is broken while it waits.
+
+  **What I did not check**, said plainly so the gap is yours to weigh and not a
+  surprise later: I only measured the booking page. Those same names also
+  appear in the emails a customer gets and on a detailer's own screens, and I
+  have not stretched them there.
+
+  **If you would rather not decide tonight**, the honest alternative is to
+  leave it — nothing is failing. The reason I am raising it at all is that
+  "no limit" is currently an accident rather than a choice, and one line in
+  this file turns it into a choice.
+
+
 - [ ] **DO · Five minutes with your computer reading the screen out loud. No
   install, nothing to download, no cost.**
 

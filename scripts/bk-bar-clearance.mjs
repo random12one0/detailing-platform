@@ -93,9 +93,10 @@
 import "../tests/_env.mjs";
 
 import { createRequire } from "node:module";
-import { mkdirSync, rmSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { writeReceipt } from "./receipt.mjs";
+import { join } from "node:path";
+import { REPO, writeReceipt } from "./receipt.mjs";
 import {
   advance, countQuotes, pickDay, quoted, settle, stepNow, toCalendar, watchConsole,
 } from "./lib/bookingWalk.mjs";
@@ -141,6 +142,65 @@ const SIZES = [
    eyebrow wraps on spaces, so a single unbroken token would wrap differently
    from anything a person would ever type and would be a softer test, not a
    harder one. */
+/* ══ ROADMAP 2.15a — THE OTHER TENANT STRINGS, AND THEIR CEILING IS READ ═══
+   2.15 was a detailer's own words making the footer taller than the number
+   reserved for it. That string was `plans.name`, **and it is the only tenant
+   string in this product with any limit at all.**
+
+   **THE CEILING IS READ OFF THE INPUT THAT WRITES EACH ONE, NEVER TYPED HERE.**
+   The handover's rule from the night the publish list went stale inside the
+   hour: derive the number from the thing that measures it. So the day somebody
+   adds a `maxLength`, this check tests the new one without being edited — and
+   a field that still has none **fails and is named**, because an unbounded
+   field is the finding, not a licence to pick a number. */
+const CEILINGS = [
+  { id: "services.name", file: "app/src/screens/more/Catalog.jsx", near: "editing.form.name" },
+  { id: "add_ons.name", file: "app/src/screens/more/Catalog.jsx", near: "editing.form.name" },
+  { id: "businesses.name", file: "app/src/screens/more/BusinessInfo.jsx", near: "biz.name" },
+];
+const readCeiling = (c) => {
+  let src;
+  // **NOT `catch { "file unreadable" }`, AND THE FIRST VERSION WAS EXACTLY
+  // THAT.** `join` and `REPO` were not imported, so this threw a
+  // ReferenceError, the bare catch swallowed it, and all three fields were
+  // reported UNBOUNDED for a reason that was not the true one - while the
+  // true answer (they ARE unbounded) happened to be the same, which is worse,
+  // because the check looked right. `docs/gotchas.md`: a probe that cannot
+  // tell a failed read from an empty one. The error now travels.
+  try { src = readFileSync(join(REPO, c.file), "utf8"); }
+  catch (e) { return { ...c, found: false, why: `could not read ${c.file}: ${e.message.slice(0, 90)}` }; }
+  const lines = src.split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    if (!lines[i].includes(c.near) || !/<input/.test(lines[i])) continue;
+    // The attribute may sit on the same line or the line after — both are the
+    // same element and both are how this repo writes them.
+    const m = (lines[i] + " " + (lines[i + 1] || "")).match(/maxLength=\{(\d+)\}/);
+    if (m) return { ...c, found: true, max: Number(m[1]), line: i + 1 };
+    return { ...c, found: false, why: `\`<input>\` at ${c.file}:${i + 1} carries no \`maxLength\``, line: i + 1 };
+  }
+  return { ...c, found: false, why: `no \`<input>\` bound to \`${c.near}\` in ${c.file}` };
+};
+
+/* THE PROBE LENGTH IS NOT A CEILING AND IS LABELLED AS ONE THING IT IS NOT.
+   With no `maxLength` to read, there is no permitted length to stretch to, so
+   the sweep below runs at a PROBE length to find out what actually breaks.
+   **120 is the product's own most-used text limit** — five `maxLength={120}`
+   in `app/src`, more than any other value — so it is derived from this repo's
+   habit rather than chosen for being a round number. It is reported as a probe
+   everywhere it appears. */
+const PROBE_LEN = 120;
+const probeString = (word, n) => {
+  // Real words with spaces: the layout wraps on spaces, so one unbroken token
+  // would wrap differently from anything a person types and would be a SOFTER
+  // test, not a harder one. Same reasoning as `LONG_PLAN`.
+  let out = word;
+  while (out.length < n) out += " " + word;
+  return out.slice(0, n).trim();
+};
+const LONG_SERVICE = probeString("Full interior and exterior ceramic detail", PROBE_LEN);
+const LONG_ADDON = probeString("Headlight restoration and trim protection", PROBE_LEN);
+const LONG_BIZ = probeString("Coastline Auto Detailing and Mobile Valeting", PROBE_LEN);
+
 const PLAN_60 = "Platinum bi-weekly maintenance and interior protect";  // 50
 const LONG_PLAN = (PLAN_60 + "ion plan").slice(0, 60);                  // 60 exactly
 const LONGER = Number((process.argv.find((a) => a.startsWith("--plan=")) || "").split("=")[1] || 0);
@@ -316,6 +376,13 @@ function grade(id, m, sink) {
      bar and so the one at risk — and asks who the browser handed it to. A
      control can measure 44 clear pixels and still lose the press to
      something the measurement did not think to look for. */
+  if (m.strings) {
+    sink(id, "strings/landed", m.strings.service || m.strings.business,
+      "neither the stretched service name nor the stretched business name is anywhere on this "
+      + "step, so the long-tenant sweep measured the demo's own short strings and its greens "
+      + "mean nothing. Check the `get_public_business_profile` intercept.");
+  }
+
   sink(id, "reserve-tracks", !!(m.reserve && m.reserve.ok),
     m.reserve
       ? `\`--bk-bar-h\` is ${m.reserve.varH || "(unset)"} against a bar actually ${m.reserve.barH}px `
@@ -336,7 +403,7 @@ function grade(id, m, sink) {
 }
 
 /** One width: walk step 1 to the review step, measuring at every step. */
-async function sweep(browser, size, { canary, planName, label }) {
+async function sweep(browser, size, { canary, planName, label, tenantStrings }) {
   const ctx = await browser.newContext({
     viewport: { width: size.w, height: size.h }, deviceScaleFactor: 1,
   });
@@ -350,6 +417,35 @@ async function sweep(browser, size, { canary, planName, label }) {
      if the walk died halfway, which is how this session already left a
      platform-admin row standing tonight. Rewriting the quote gives the real
      render path the real string and mutates nothing. */
+  /* ROADMAP 2.15a. Same rule as the plan name: the strings go ON THE WIRE, not
+     into `services`, `add_ons` or `businesses`. Those are real rows the rest of
+     the battery reads, and a sweep that edited them would be measuring its own
+     write with nothing to restore if the walk died halfway. */
+  // `--break=tenantstrings` skips the intercept so the long-tenant sweep runs
+  // against the demo's own short names. `strings/landed` must then go red 35
+  // times. **This is the only sabotage that can bite this sweep**, and the
+  // reason is worth stating rather than hiding: none of these three strings
+  // renders inside `.bk-bar`, so NO length of them can cover a control the way
+  // the plan name did. The thing that can go wrong here is not the layout, it
+  // is the sweep quietly testing nothing - which is what this catches.
+  if (tenantStrings && BREAK !== "tenantstrings") {
+    await page.route("**/rest/v1/rpc/get_public_business_profile", async (route) => {
+      let res;
+      try { res = await route.fetch(); } catch { return route.abort().catch(() => {}); }
+      let body;
+      try { body = await res.json(); } catch { return route.fulfill({ response: res }); }
+      const fix = (o) => { if (o && typeof o === "object" && typeof o.name === "string") o.name = tenantStrings.service; };
+      if (body && typeof body === "object") {
+        if (body.business && typeof body.business === "object") body.business.name = tenantStrings.business;
+        for (const svc of body.services ?? []) fix(svc);
+        for (const a of body.add_ons ?? []) {
+          if (a && typeof a === "object") a.name = tenantStrings.addon;
+        }
+      }
+      return route.fulfill({ status: res.status(), contentType: "application/json", body: JSON.stringify(body) });
+    });
+  }
+
   if (planName) {
     await page.route("**/functions/v1/calculate-booking", async (route) => {
       let res;
@@ -386,6 +482,18 @@ async function sweep(browser, size, { canary, planName, label }) {
       const m = await page.evaluate(MEASURE, { sel: SEL, useRect: BREAK === "rect" });
       m.press = await PRESS(page);
       m.reserve = await RESERVE(page);
+      /* **DID THE STRETCHED STRINGS ACTUALLY LAND?** Asked because this exact
+         hole was dug and fallen into earlier tonight: the plan-name intercept
+         first wrote `body.plan_name` where the page reads `body.quote.plan_name`,
+         and five widths of sweep printed green over a case never tested. A
+         sweep whose whole subject is a long string MUST prove the long string
+         is on the page, or its greens mean nothing. */
+      if (tenantStrings) {
+        m.strings = await page.evaluate((w) => {
+          const txt = document.body.innerText;
+          return { service: txt.includes(w.svc), business: txt.includes(w.biz) };
+        }, { svc: tenantStrings.service.slice(0, 60), biz: tenantStrings.business.slice(0, 40) });
+      }
       const file = `${label0}-step${n}.png`;
       await page.screenshot({ path: ART + file, animations: "disabled" });
       artifacts.push("artifacts/bk-bar-clearance/" + file);
@@ -446,15 +554,49 @@ const browser = await chromium.launch({ headless: !HEADED });
 const PLAN_UNDER_TEST = LONGER
   ? (LONG_PLAN + " and more words".repeat(30)).slice(0, LONGER)
   : LONG_PLAN;
-const expected = SIZES.length * STEPS * 2 + 2;
+const TENANT_LONG = { service: LONG_SERVICE, addon: LONG_ADDON, business: LONG_BIZ };
+const PASSES = [
+  { planName: null, tag: "" },
+  { planName: PLAN_UNDER_TEST, tag: " long-plan" },
+  // ROADMAP 2.15a — the three strings with no ceiling, at the probe length.
+  { planName: PLAN_UNDER_TEST, tenantStrings: TENANT_LONG, tag: " long-tenant" },
+];
+
+const PASSES_N = PASSES.length;
+
+/* ══ ROADMAP 2.15a, ASKED ONCE, BEFORE ANY BROWSER OPENS ══════════════════
+   Three questions, one per string, and tonight all three are red on purpose.
+   They are not a layout measurement and they must not be confused with one:
+   they ask whether the product bounds what a detailer may type. A field with
+   no bound cannot be swept "at its ceiling", so this is the question that has
+   to be answered before the sweep below means anything, and the sweep runs at
+   a PROBE length in the meantime. */
+const ceilings = CEILINGS.map(readCeiling);
+console.log("\n  2.15a - does the product bound what a detailer may type?");
+for (const c of ceilings) {
+  assertions++;
+  if (c.found) {
+    console.log(`    ok      ceiling/${c.id} - maxLength=${c.max} at ${c.file}:${c.line}`);
+  } else {
+    console.log(`    FAIL    ceiling/${c.id} - ${c.why}`);
+    failures.push(`ceiling/${c.id}: ${c.why}. UNBOUNDED - the sweep below therefore runs at a `
+      + `PROBE length of ${PROBE_LEN}, which is this repo's own most-used text limit, not a `
+      + "ceiling. A cap on what a detailer may type is a product decision with a number in it; "
+      + "see FOR-ANDREW.md.");
+  }
+}
+
+const expected = SIZES.length * STEPS * PASSES_N + 2;
 let discovered = 0, attempted = 0, completed = 0;
 const canary = { id: "the-pre-2.15-bar-put-back", observed_failure: false, problems: [] };
 const canary2 = { id: "the-long-plan-name-against-the-old-reserve", observed_failure: false, problems: [] };
 
-const PASSES = [{ planName: null, tag: "" }, { planName: PLAN_UNDER_TEST, tag: " long-plan" }];
 
 for (const pass of PASSES) {
-if (pass.planName) {
+if (pass.tenantStrings) {
+  console.log(`\n  ROADMAP 2.15a - services.name, add_ons.name and businesses.name at the`);
+  console.log(`  PROBE length of ${PROBE_LEN} chars. NOT a ceiling: these fields have none.`);
+} else if (pass.planName) {
   console.log(`\n  THE LONGEST PLAN NAME THE UI PERMITS - ${pass.planName.length} chars`);
   console.log(`  <<${pass.planName}>>`);
 }
@@ -464,7 +606,7 @@ for (const size of SIZES) {
   attempted += STEPS;
   let seen = [];
   try {
-    seen = await sweep(browser, size, { planName: pass.planName, label });
+    seen = await sweep(browser, size, { planName: pass.planName, tenantStrings: pass.tenantStrings, label });
   } catch (e) {
     // A walk that dies mid-way is NOT a skip. The steps it never reached stay
     // missing from `completed_targets`, so the receipt fails on arithmetic
@@ -574,10 +716,13 @@ const { path } = writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: 7 * (SIZES.length * STEPS * 2 + 2),
+  min_assertions: 7 * (SIZES.length * STEPS * PASSES_N + 2) + CEILINGS.length
+    + SIZES.length * STEPS,
   assertion_floor:
     "7 questions (subjects, legal, reachable, bar-clear, pressed, reserve-tracks, "
-    + "nothing-at-rest) x (5 widths x 7 steps x 2 sweeps + 2 canary walks) = 504. Fixed by "
+    + `nothing-at-rest) x (5 widths x 7 steps x ${PASSES_N} sweeps + 2 canary walks) + `
+    + `${CEILINGS.length} ceiling questions + ${SIZES.length * STEPS} strings/landed `
+    + "(asked only in the long-tenant sweep, where a long string IS the subject). Fixed by "
     + "SIZES x STEPS x passes x the question list, "
     + "never by what the run finds: a step with no matching controls grades as five failures "
     + "rather than dropping out, and a walk that stops before the review step leaves targets "
