@@ -3419,3 +3419,50 @@ It was read rather than executed because § 1 shells out to `e2e-payment.mjs`
 and drives a real card payment, so re-running it to settle arithmetic would
 spend money to check something reading answers exactly.*
 
+
+---
+
+## 84. AN HOURLY SWEEP IS A SECOND WRITER ON THE THING YOU ARE MEASURING — `refresh-weather` filled in the answer mid-run, and the check reported the product broken
+
+**Found 2026-09-24, while building `scripts/job-weather-budget.mjs`.** The
+check asks a job record what it does when the address lookup is refused: it
+stubs a 429 and expects no forecast and one plain sentence. It passed. Ten
+minutes later, with nothing changed but a hardening of its own paint test, it
+reported **five failures at five widths** — *"the lookup was refused and the
+record said NOTHING"* — and the two-line fix looked obviously wrong.
+
+**It was not the fix and it was not the product.** The same runs also reported
+`strip=true`: a **forecast was on the screen** for a booking whose lookup had
+been refused, which is impossible unless the forecast came from somewhere else.
+It had. `refresh-weather` sweeps every future non-cancelled booking **every
+hour** and writes `bookings.weather`; `weather_at` on the demo tenant was
+stamped **one minute and forty seconds** before that run. It had swept the ten
+fixture rows the check had just created, so the record painted a stored
+forecast, never asked anything, and correctly printed no sentence.
+
+**THE INSTRUMENT AND THE SUBJECT HAD TWO WRITERS AND ONLY ONE OF THEM WAS IN
+THE ROOM.** `CLAUDE.md` already warns that two SESSIONS collide on the demo
+tenant's rows. This is the same collision with **no second session**: a
+scheduled job on the server is a writer too, it keeps its own time, and nothing
+in the run says it arrived.
+
+**It also spent real money.** The sweep geocoded ten addresses that exist
+nowhere — ten Geoapify credits out of 3,000 a day shared by every tenant,
+charged to a fixture, invisibly.
+
+**THE FIX IS TO LEAVE THE SWEEP'S RANGE, NOT TO RACE IT.** The fixture rows are
+created `status: "cancelled"`, which `refresh-weather` filters out
+(`.neq("status", "cancelled")`) and which the client path does not read at all
+— `useJobWeather` selects on the date, the address and `weather`. Clearing the
+column before each scenario would only have narrowed the window.
+
+**AND THE CHECK NOW SAYS WHEN IT WAS NOT ASKED THE QUESTION.** A forecast on a
+refused record is graded as `NOT MEASURED — re-run`, in its own words, rather
+than as a missing sentence. **The first version's honest-looking failure was
+worse than a crash**, because it named the product and pointed at the file
+edited five minutes earlier.
+
+**THE GENERAL RULE, and it is the one this file keeps arriving at from new
+directions:** *before trusting a measurement, ask what else writes to the thing
+you are measuring — including things with no keyboard.* A cron job, a webhook,
+a retry queue and a cache warmer are all sessions that never signed in.

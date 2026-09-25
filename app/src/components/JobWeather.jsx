@@ -91,8 +91,29 @@ function conditionIcon(period) {
   return day ? Sun : Moon;
 }
 
-export default function JobWeather({ period, prefs, full = false }) {
-  if (!period) return null;
+export default function JobWeather({ period, prefs, full = false, busy = false }) {
+  // ---------------------------------------------------------------------------
+  // **THE ONE EXCEPTION TO "NO WE-DON'T-KNOW STATE", AND IT IS NARROW ON
+  // PURPOSE — the unnumbered Wave 14 item, 2026-09-24.**
+  // ---------------------------------------------------------------------------
+  // Everything the comment above says still holds: a job past the horizon, an
+  // address nothing could find, a service that was down — all render nothing,
+  // because *unknown* on every row is a column of noise.
+  //
+  // A REFUSED LOOKUP IS DIFFERENT IN TWO WAYS A PERSON CAN FEEL. It clears on
+  // its own, so there is something true to say about the future; and it
+  // happens to a RUN of records at once, so the detailer sees the weather stop
+  // working rather than one quiet job. Without a line they are looking at a
+  // feature that appears to be broken.
+  //
+  // **AND IT IS THE RECORD ONLY.** `full` is the booking someone opened and is
+  // reading. A row is scanned, and a sentence on twenty scanned rows is the
+  // banner Andrew asked this not to become.
+  if (!period) {
+    return full && busy
+      ? <p className="muted jw-none">{t("No weather for this address yet. Address lookups are busy right now; it comes back on its own.")}</p>
+      : null;
+  }
   const warnings = weatherWarnings(period, prefs);
   const first = warnings[0];
   const warned = warnings.length > 0;

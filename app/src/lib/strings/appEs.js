@@ -192,6 +192,12 @@ export const appEs = {
   // (The old "Show today’s weather" and "{pct}% rain" went with the line under
   // the date; Andrew asked for weather ON A BOOKING instead.)
   "{pct}% chance of rain": "{pct}% de probabilidad de lluvia",
+  // The refused-lookup line on the job record — the unnumbered Wave 14 item,
+  // 2026-09-24. It is the ONLY sentence this feature prints when it has
+  // nothing to show, and it exists because a 429 on `address-suggest` clears
+  // by itself: there is a true thing to say about the future.
+  "No weather for this address yet. Address lookups are busy right now; it comes back on its own.":
+    "Todavía no hay clima para esta dirección. Las búsquedas de direcciones están ocupadas ahora mismo; vuelve por sí solo.",
   // The six kinds, their shipped wording, and the settings screen.
   "Thunderstorms": "Tormentas eléctricas",
   "Rain": "Lluvia",

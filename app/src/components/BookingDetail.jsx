@@ -192,7 +192,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // A stable one-element list. `[booking]` written inline is a new array on
   // every render, which would restart the hook's effect for ever.
   const justThis = useMemo(() => [booking], [booking]);
-  const { weather: jobWeather, prefs: weatherRules } = useJobWeather(justThis);
+  const { weather: jobWeather, prefs: weatherRules, busy: weatherBusy } = useJobWeather(justThis);
 
   // ── ROADMAP 8.19 / IDEA 06 — "ON MY WAY" IS A BUTTON NOW ─────────────
   //
@@ -512,7 +512,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                   address it is about — Andrew, 2026-09-13. The record is where
                   EVERY warning shows rather than only the most serious one: a
                   row is scanned and this is read. */}
-              <JobWeather period={jobWeather.get(booking.id)} prefs={weatherRules} full />
+              <JobWeather period={jobWeather.get(booking.id)} prefs={weatherRules} busy={weatherBusy} full />
               <p className="muted">
                 {(booking.services ?? []).map((s) => s.name_at_booking).join(", ")}
                 {(booking.booking_add_ons ?? []).length > 0 &&

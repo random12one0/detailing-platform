@@ -1,0 +1,83 @@
+{
+  "git_sha": "452b97bebbe2f9d9f8652f64463132d23af3055c",
+  "git_sha_started": "452b97bebbe2f9d9f8652f64463132d23af3055c",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-09-25T02:23:41.476Z",
+  "failures": [],
+  "warnings": [
+    "Every address-suggest request is intercepted in the browser and answered here: NO Geoapify credit is spent and NOTHING is written to or cleared from `rate_hits`. Counting the requests is the measurement, and forcing a real 429 would burn sixty calls of a bucket three other checks read as their evidence.",
+    "React.StrictMode doubles every effect in dev, so a path where nothing is cached shows twice the requests a production build would. Only per-open deltas are compared here, never a total.",
+    "Sign-in draws a job list that resolves about eleven addresses of its own. Those are real and are not this check's subject; the counter and both caches are reset after sign-in.",
+    "It proves the CLIENT stops asking. It says nothing about what the limit should be — a separate allowance for the back office would be a change inside an edge function, which is a deploy, which is Andrew's."
+  ],
+  "artifacts": [
+    "artifacts/job-weather-budget/budget-record.png",
+    "artifacts/job-weather-budget/1920x1080-refused.png",
+    "artifacts/job-weather-budget/1920x1080-fine.png",
+    "artifacts/job-weather-budget/1440x900-refused.png",
+    "artifacts/job-weather-budget/1440x900-fine.png",
+    "artifacts/job-weather-budget/768x1024-refused.png",
+    "artifacts/job-weather-budget/768x1024-fine.png",
+    "artifacts/job-weather-budget/392x844-refused.png",
+    "artifacts/job-weather-budget/392x844-fine.png",
+    "artifacts/job-weather-budget/320x844-refused.png",
+    "artifacts/job-weather-budget/320x844-fine.png",
+    "artifacts/job-weather-budget/canary-hidden-sentence.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1920x1080",
+      "1440x900",
+      "768x1024",
+      "392x844",
+      "320x844"
+    ],
+    "budget_size": "1440x900",
+    "records": 10,
+    "observed": [
+      "budget 1440x900: ten records cost 10 calls (1,1,1,1,1,1,1,1,1,1), reopening the first cost 0",
+      "refused 1440x900: per open 1,0,0,0,0,0,0,0,0,0, reopen 0 — 0 call(s) spent after the first refusal",
+      "canary the-unremembered-refusal: with the memo write blocked, 10 call(s) after the first refusal — CAUGHT",
+      "1920x1080 refused: landed=true present=true painted=true strip=false text=\"No weather for this address yet. Address lookups are busy right now; it comes back on its own.\"",
+      "1920x1080 working: sentence=false strip=true",
+      "1440x900 refused: landed=true present=true painted=true strip=false text=\"No weather for this address yet. Address lookups are busy right now; it comes back on its own.\"",
+      "1440x900 working: sentence=false strip=true",
+      "768x1024 refused: landed=true present=true painted=true strip=false text=\"No weather for this address yet. Address lookups are busy right now; it comes back on its own.\"",
+      "768x1024 working: sentence=false strip=true",
+      "392x844 refused: landed=true present=true painted=true strip=false text=\"No weather for this address yet. Address lookups are busy right now; it comes back on its own.\"",
+      "392x844 working: sentence=false strip=true",
+      "320x844 refused: landed=true present=true painted=true strip=false text=\"No weather for this address yet. Address lookups are busy right now; it comes back on its own.\"",
+      "320x844 working: sentence=false strip=true",
+      "canary the-hidden-sentence: present=true painted=false — CAUGHT"
+    ],
+    "sabotage": null,
+    "canaries": {
+      "the-unremembered-refusal": {
+        "cost_after_first_refusal": 10,
+        "caught": true
+      },
+      "the-hidden-sentence": {
+        "present": true,
+        "painted": false,
+        "caught": true
+      }
+    }
+  },
+  "check_id": "job-weather-budget",
+  "started_at": "2026-09-25T02:20:56.940Z",
+  "status": "pass",
+  "expected_targets": 7,
+  "discovered_targets": 7,
+  "attempted_targets": 7,
+  "completed_targets": 7,
+  "skipped_targets": 0,
+  "assertions_executed": 14,
+  "min_assertions": 14,
+  "assertion_floor": "3 budget questions (one-per-address, survives-a-page, refusal-is-kept) + 5 widths x 2 paint questions (says-so, quiet-when-fine) + 1 canary = 14. Fixed by the question list: a width where the record never opens grades as a failure rather than dropping out.",
+  "canary": {
+    "id": "the-unremembered-refusal",
+    "observed_failure": true,
+    "problems": []
+  }
+}

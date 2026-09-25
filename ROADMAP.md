@@ -1866,9 +1866,15 @@ the wrong service, and never book a job we cannot reach.
   the path of every refused request. Two runs were spent guessing at a bucket
   before that line existed; the third named the endpoint immediately.
 
-- [ ] **Opening a job record spends the address-TYPING budget, and when it runs
-  out the weather stops with nothing on screen saying why. Found 2026-09-23
-  while verifying 2.3; given its own item on Andrew's instruction.**
+- [x] **DONE 2026-09-24 for both halves that could be done in `app/src`. A
+  refused lookup is now remembered, so browsing costs ONE call instead of one
+  per record, and the record says so in a sentence instead of the weather strip
+  vanishing. The budget half — giving the back office its own allowance —
+  is NOT done and is Andrew's, because it is a change inside an edge function
+  and that means a deploy. Opening a job record spends the address-TYPING
+  budget, and when it runs out the weather stops with nothing on screen saying
+  why. Found 2026-09-23 while verifying 2.3; given its own item on Andrew's
+  instruction.**
   **UNNUMBERED ON PURPOSE:** it belongs with Wave 14's limits work, and another
   session was actively writing 14.12 and 14.13 in this file at the time, so
   taking a 14.x number would have been a guess at somebody else's next one.
@@ -1914,6 +1920,71 @@ the wrong service, and never book a job we cannot reach.
   **Done when:** a detailer working through their records does not exhaust an
   allowance meant for customers typing, or — if the limit stays — the screen
   says what happened when it is reached.
+
+  ---
+
+  **WHAT WAS BUILT, 2026-09-24 — shapes 1 and the silent-failure half. Shape 2
+  was ruled out for this sitting by the manager: its own allowance means
+  changing limits inside an edge function, which means a deploy, and deploys
+  are Andrew's.**
+
+  **FIRST, THE MEASUREMENT, BECAUSE IT MOVED THE ITEM.** Ten job records at ten
+  addresses, opened one after another as a fresh page each time, then the first
+  one again — `scripts/job-weather-budget.mjs`, at 1440x900, with the endpoint
+  answered in the browser so no Geoapify credit and no hourly bucket was spent.
+
+  | | before | after |
+  |---|---|---|
+  | ten records, lookups working | **10 calls** | **10 calls** |
+  | reopening the first | **0** | **0** |
+  | ten records, lookups REFUSED | **10 calls, every one refused** | **1** |
+  | reopening the first, refused | **1 more** | **0** |
+  | what the record showed when refused | **nothing at all** | one sentence |
+
+  **SO THE CACHE SHAPE 1 ASKS FOR ALREADY EXISTED, AND THAT IS THE USEFUL
+  FINDING.** `dp.weather.points` in `localStorage` has always made a repeat
+  address free, and it survives a page load — measured, not read. **One call
+  per new address is irreducible from inside `app/src`**: `forecast` takes a
+  point and nothing else, and `address-suggest` is the only client-reachable
+  way to turn an address into one. Changing that is shape 2, which is a deploy.
+
+  **THE HOLE WAS THE REFUSAL, AND IT HAD NO CEILING.** `pointFor` cached a
+  positive *"no such place"* for ever and cached **nothing** for a failure, so
+  once the hour's sixty were gone **every further record spent another call
+  that could not possibly succeed** — eleven refusals for eleven opens, and a
+  detailer who keeps working keeps digging. A 429 is about this browser's hour
+  and not about this address, so it is now remembered for **five minutes**, in
+  `localStorage` rather than in the module, because the thing it has to survive
+  is opening the next record. Five minutes is short enough that the weather
+  comes back on its own with nobody reloading anything.
+
+  **AND THE SENTENCE.** *"No weather for this address yet. Address lookups are
+  busy right now; it comes back on its own."* — under the address, in the
+  record only, never on a scanned row, and **only for a refusal**. Every other
+  failure stays silent for the reason `JobWeather.jsx` already gives: a column
+  of *unknown* is noise. A refusal is the one failure with something true to
+  say about the future. Measured at 6.2:1 on its own ground at 13px; Spanish
+  key added in the same edit.
+
+  **PROVED BY BREAKING IT THREE WAYS, each letting through exactly its own
+  failure and no other** — `--break=memo` (10 calls after the first refusal),
+  `--break=cache` (reopening costs 1), `--break=quiet` (the sentence in the DOM
+  and not painted, at all five widths). Two canaries run on every clean pass.
+  Receipt: `receipts/job-weather-budget.json`, 7 targets, 14 assertions.
+
+  **AND THE RUN THAT LIED, because it is the part worth reading.** A mid-run
+  `refresh-weather` sweep filled in `bookings.weather` on the ten fixture rows,
+  so the record painted a stored forecast, never asked anything, and the check
+  reported the product broken at five widths. **A scheduled job on the server
+  is a second writer on the rows being measured and nothing in the run says it
+  arrived** — `docs/gotchas.md` 84. The fixtures are now created `cancelled`,
+  which the sweep filters out and the client path does not read, and a forecast
+  on a refused record is graded *NOT MEASURED — re-run* rather than as a
+  missing sentence.
+
+  **STILL OPEN, AND IT IS ANDREW'S:** the back office still draws on a bucket
+  sized for customers typing. Nothing here changes the limit; it changes how
+  many times the client asks.
 
 - [x] **2.4 — DONE 2026-09-19. Every booking button on all five examples now
   opens a booking path, and a certified check says so every run.**

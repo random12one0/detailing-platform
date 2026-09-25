@@ -54,11 +54,59 @@
 // an address Geoapify has never heard of, a detailer outside the United States
 // — all of them are an absent entry. This is a courtesy line about the
 // weather; an error box about it would be louder than the thing itself.
+//
+// ---------------------------------------------------------------------------
+// **ONE FAILURE IS NOT LIKE THE OTHERS, AND SILENCE MAKES IT WORSE — the
+// unnumbered Wave 14 item, measured 2026-09-24.**
+// ---------------------------------------------------------------------------
+// The geocode above spends the **address-TYPING** allowance: `address-suggest`
+// is budgeted at **60 an hour per IP**, a number sized for a customer typing a
+// street badly, and a detailer working through their own records spends one
+// per address they have not looked at before. When the hour's sixty are gone
+// the endpoint answers **429**, and everything below used to treat that
+// exactly like a dropped connection: nothing was remembered, so **every
+// further record opened spent another call that could not possibly
+// succeed.** Measured on ten job records and then the first one again —
+// **eleven refusals for eleven opens, with no ceiling.**
+//
+// **A REFUSAL IS THE ONE FAILURE THAT REPEATS ITSELF**, because it is about
+// this browser's whole hour and not about this address. So it is remembered —
+// briefly, and in `localStorage` rather than in this module, because the thing
+// it has to survive is a detailer opening the next record, which on a deep
+// link is a fresh page and a fresh module. Five minutes: long enough that
+// browsing costs one call instead of one per record, short enough that the
+// weather comes back on its own without anybody reloading anything.
+//
+// **AND IT IS THE ONE FAILURE THAT EARNS A SENTENCE.** `addressBusy()` is
+// exported for the screen, so the record can say what happened where the sky
+// would have been. Every other failure stays silent, for the reason above:
+// only a throttle clears, so only a throttle is worth telling somebody about.
+// It is NOT cached as "no such place" — a rationed hour must never become a
+// permanent blank.
 
 import { api } from "./api.js";
+import { addressFault } from "../book/core.js";
 
 const POINTS_KEY = "dp.weather.points";
+const BUSY_KEY = "dp.weather.busy";
+const BUSY_MS = 5 * 60 * 1000;
 const FORECAST_TTL = 60 * 60 * 1000;
+
+// The memo, in memory AND in storage: storage is what survives the next page,
+// memory is what keeps working in a private window where storage throws.
+let busyAt = 0;
+const storedBusy = () => {
+  try { return Number(localStorage.getItem(BUSY_KEY)) || 0; } catch { return 0; }
+};
+const markBusy = () => {
+  busyAt = Date.now();
+  try { localStorage.setItem(BUSY_KEY, String(busyAt)); } catch { /* private mode */ }
+};
+
+/** True while the address lookup is refusing this browser. The screen reads
+ *  it to say so; `pointFor` reads it to stop asking. */
+export const addressBusy = () =>
+  Date.now() - Math.max(busyAt, storedBusy()) < BUSY_MS;
 
 // A key that ignores what does not change a place: capitals, punctuation and
 // the number of spaces. "123 Oak St., Apt 4" and "123 oak st apt 4" are one
@@ -103,6 +151,11 @@ async function pointFor(address) {
     return v;
   }
 
+  // THE ONE CALL THIS FILE CAN DECLINE TO MAKE. Everything above answers from
+  // a cache; this is the point where an hour that is already spent would be
+  // spent again, once per record, for as long as the detailer keeps working.
+  if (addressBusy()) return null;
+
   if (inFlightPoint.has(key)) return inFlightPoint.get(key);
   const job = (async () => {
     try {
@@ -118,7 +171,13 @@ async function pointFor(address) {
       }
       if (r?.ok) { points.set(key, null); writePoint(key, null); }
       return null;
-    } catch { return null; }
+    } catch (err) {
+      // `addressFault` is the booking form's own reading of this endpoint's
+      // refusal — one place decides what 429 means, and a screen that branches
+      // on it never has to match an English sentence.
+      if (addressFault(err) === "busy") markBusy();
+      return null;
+    }
     finally { inFlightPoint.delete(key); }
   })();
   inFlightPoint.set(key, job);

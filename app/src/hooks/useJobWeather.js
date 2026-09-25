@@ -17,12 +17,18 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useBusiness } from "../context/BusinessContext.jsx";
-import { jobAddress, loadJobWeather } from "../lib/jobWeather.js";
+import { addressBusy, jobAddress, loadJobWeather } from "../lib/jobWeather.js";
 import { weatherPrefs } from "../lib/weather.js";
 
 export function useJobWeather(bookings) {
   const { business, settings } = useBusiness();
   const [weather, setWeather] = useState(() => new Map());
+  // **AND WHETHER THE LOOKUP REFUSED US, which is the one failure a screen is
+  // allowed to mention.** `lib/jobWeather.js` has the reasoning; the short
+  // version is that a 429 is about this browser's hour rather than about this
+  // address, so it clears on its own and a person can be told to expect that.
+  // Every other failure stays silent and this stays false.
+  const [busy, setBusy] = useState(false);
 
   const prefs = useMemo(() => weatherPrefs(settings?.weather_prefs), [settings?.weather_prefs]);
 
@@ -76,11 +82,15 @@ export function useJobWeather(bookings) {
   const key = jobs.map((j) => `${j.id}|${j.address}|${j.start}`).join("~");
 
   useEffect(() => {
-    if (!business?.id || !jobs.length) { setWeather(new Map()); return; }
+    if (!business?.id || !jobs.length) { setWeather(new Map()); setBusy(false); return; }
     let live = true;
     // NOTHING WAITS FOR THIS. The screen has already painted; the chips arrive
     // when they arrive, and if they never do the rows are the rows.
-    loadJobWeather(business.id, jobs).then((m) => { if (live) setWeather(m); });
+    loadJobWeather(business.id, jobs).then((m) => {
+      if (!live) return;
+      setWeather(m);
+      setBusy(addressBusy());
+    });
     return () => { live = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [business?.id, key]);
@@ -95,5 +105,8 @@ export function useJobWeather(bookings) {
     return m;
   }, [stored, weather]);
 
-  return { weather: merged, prefs };
+  // `busy` is only ever TRUE, never a reason to hide a forecast: a job whose
+  // sky is already known renders it, and the sentence belongs to the jobs that
+  // came back with nothing.
+  return { weather: merged, prefs, busy };
 }
