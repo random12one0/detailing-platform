@@ -1420,3 +1420,10 @@ evidence is where the entry says it is — not that it still says what it said.*
 **Fifty-eight read as a stranger is a real number. So is the fifty-nine open
 items nobody has read the same way.** Neither cancels the other, and the file
 should be quoted with both or with neither.
+
+---
+
+**THE SUCCESSOR PASS IS `docs/open-items-read-as-a-stranger-2026-09-25.md`.**
+The ticked population is finished; the open one is fifty-nine items nobody has
+read the same way. It carries its own arithmetic note, because the instruction
+that started it said forty-nine and the count is fifty-nine.
