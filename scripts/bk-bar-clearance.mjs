@@ -117,6 +117,63 @@ const SIZES = [
   { w: 1440, h: 900 }, { w: 1920, h: 1080 },
 ];
 
+/* ══ THE LONGEST PLAN NAME THE PRODUCT ACTUALLY PERMITS ═══════════════════
+   2.15's fault was never a length in the abstract: it was that `.bk-wrap`
+   reserved a literal 104px for a bar whose widest line is TEXT A DETAILER
+   TYPED. The fix deleted the reserve. **Nothing had ever tested that fix with
+   a long string — only with CSS.** The canary forces height with
+   `min-height: 180px`, and the seeded demo's longest plan name is
+   `Bi-weekly maintenance`, 21 characters. So the 2026-09-20 fix was proved
+   against a stylesheet and against the comfortable case, and the case Andrew
+   asked about — a tenant whose own words are longer than the demo's — had
+   never been run at all.
+
+   **SIXTY IS THE CEILING AND IT IS THE PRODUCT'S OWN.** `Plans.jsx:283`
+   carries `maxLength={60}` on the only input that writes `plans.name`, and
+   that is the entire enforcement anywhere: `plans.name` is bare `text`, with
+   no check constraint and no edge function in the write path, while the same
+   repo does bound `vehicle_size` and the payment handles. So 60 is the widest
+   string a detailer can reach through the UI, and the database would take
+   more — recorded as a finding rather than fixed here, because a constraint
+   on live data is a migration and that is Andrew's.
+
+   The string is REAL WORDS at exactly that ceiling, not sixty `x`s: the
+   eyebrow wraps on spaces, so a single unbroken token would wrap differently
+   from anything a person would ever type and would be a softer test, not a
+   harder one. */
+const PLAN_60 = "Platinum bi-weekly maintenance and interior protect";  // 50
+const LONG_PLAN = (PLAN_60 + "ion plan").slice(0, 60);                  // 60 exactly
+const LONGER = Number((process.argv.find((a) => a.startsWith("--plan=")) || "").split("=")[1] || 0);
+
+/* A REAL PRESS, NOT A LOOK — Andrew's done-when says "pressed, not
+   inspected". The pointer genuinely travels to the control's centre and the
+   browser does its own hit-testing, so anything painted over it wins the
+   press exactly as it would for a customer. A capture-phase listener records
+   who actually received it and cancels it, so the walk is not navigated by
+   the measurement. That is the only part that is not a customer's press, and
+   it is the part that has no bearing on who got hit. */
+const PRESS = async (page) => page.evaluate(() => {
+  const SELP = ".bk-card.selectable, .bk-chip, .bk-btn, .bk-cal .cell, .bk-slots .bk-chip";
+  const all = [...document.querySelectorAll(SELP)].filter((e) => !e.closest(".bk-bar"));
+  const el = all[all.length - 1];
+  if (!el) return { ok: false, why: "no pressable control outside the bar on this step" };
+  el.scrollIntoView({ block: "end", inline: "nearest" });
+  return new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(() => {
+    const r = el.getBoundingClientRect();
+    const x = Math.round(r.left + r.width / 2), y = Math.round(r.top + r.height / 2);
+    const text = (el.textContent || "").trim().slice(0, 24);
+    let got = null;
+    const spy = (ev) => { got = ev.target; ev.preventDefault(); ev.stopPropagation(); };
+    document.addEventListener("click", spy, true);
+    const hit = document.elementFromPoint(x, y);
+    if (hit) hit.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, clientX: x, clientY: y }));
+    document.removeEventListener("click", spy, true);
+    const landed = !!got && (got === el || el.contains(got));
+    const who = got ? (got.closest(".bk-bar") ? "bk-bar" : (String(got.className || "").split(" ")[0] || got.tagName)) : "nothing";
+    done({ ok: landed, text, who, x, y });
+  })));
+});
+
 // Every control the customer can press, excluding the bar's own buttons, which
 // `lib/hitArea.mjs` drops — a button INSIDE the bar cannot be covered by it.
 const SEL = ".bk-card.selectable, .bk-chip, .bk-btn, .bk-cal .cell, .bk-slots .bk-chip";
@@ -191,16 +248,54 @@ function grade(id, m, sink) {
       + `(y ${c.top}..${c.bottom}, bar ${m.bar && m.bar.position} h${m.bar && m.bar.height} `
       + `top ${m.bar && m.bar.top}), leaving ${c.reachable}px of ${c.legal}`).join("; ")
       + (covered.length > 3 ? ` … and ${covered.length - 3} more` : ""));
+
+  /* PRESSED, NOT INSPECTED. Every question above reads geometry; this one
+     sends a pointer at the last control on the step — the one nearest the
+     bar and so the one at risk — and asks who the browser handed it to. A
+     control can measure 44 clear pixels and still lose the press to
+     something the measurement did not think to look for. */
+  sink(id, "pressed", !!(m.press && m.press.ok),
+    m.press
+      ? `pressing «${m.press.text}» at (${m.press.x}, ${m.press.y}) landed on ${m.press.who}`
+      + (m.press.why ? ` — ${m.press.why}` : "")
+      : "no press was attempted on this step");
 }
 
 /** One width: walk step 1 to the review step, measuring at every step. */
-async function sweep(browser, size, { canary }) {
+async function sweep(browser, size, { canary, planName, label }) {
   const ctx = await browser.newContext({
     viewport: { width: size.w, height: size.h }, deviceScaleFactor: 1,
   });
   const page = await ctx.newPage();
   countQuotes(page);
-  const label0 = canary ? "canary" : `${size.w}x${size.h}`;
+  const label0 = label || (canary ? "canary" : `${size.w}x${size.h}`);
+
+  /* THE LONG NAME IS PUT ON THE WIRE, NOT INTO THE DATABASE. `plans.name` is
+     a real row on the demo tenant that other checks read, and a sweep that
+     edited it would be measuring its own write — with nothing to restore it
+     if the walk died halfway, which is how this session already left a
+     platform-admin row standing tonight. Rewriting the quote gives the real
+     render path the real string and mutates nothing. */
+  if (planName) {
+    await page.route("**/functions/v1/calculate-booking", async (route) => {
+      let res;
+      try { res = await route.fetch(); } catch { return route.abort().catch(() => {}); }
+      let body;
+      try { body = await res.json(); } catch { return route.fulfill({ response: res }); }
+      // **`body.quote.plan_name`, NOT `body.plan_name`, AND THE FIRST VERSION
+      // OF THIS LINE HAD IT WRONG.** The page does
+      // `setQuote({ ...r.quote })`, so the quote is NESTED; setting it at the
+      // top level put the string somewhere nothing reads. The sweep then ran
+      // five widths x seven steps against the demo's own 21-character name
+      // and **printed green over a case it had not tested** - the exact fault
+      // this repo is built around, produced by the instrument written to
+      // catch it. The tell was in the output and nearly went past: the bar
+      // measured h73/h84, byte-identical to the short-name sweep.
+      if (body && typeof body.quote === "object" && body.quote) body.quote.plan_name = planName;
+      else if (body && typeof body === "object") body.plan_name = planName;
+      return route.fulfill({ status: res.status(), contentType: "application/json", body: JSON.stringify(body) });
+    });
+  }
   watchConsole(page, label0, consoleNoise);
   const seen = [];
   try {
@@ -215,6 +310,7 @@ async function sweep(browser, size, { canary }) {
 
     const take = async (n) => {
       const m = await page.evaluate(MEASURE, { sel: SEL, useRect: BREAK === "rect" });
+      m.press = await PRESS(page);
       const file = `${label0}-step${n}.png`;
       await page.screenshot({ path: ART + file, animations: "disabled" });
       artifacts.push("artifacts/bk-bar-clearance/" + file);
@@ -264,23 +360,36 @@ async function sweep(browser, size, { canary }) {
     }
     return seen;
   } finally {
+    try { await page.unrouteAll({ behavior: "ignoreErrors" }); } catch { /* closing anyway */ }
     await ctx.close();
   }
 }
 
 // ---------------------------------------------------------------------------
 const browser = await chromium.launch({ headless: !HEADED });
-const expected = SIZES.length * STEPS + 1;
+/* TWO SWEEPS NOW: the demo's own strings, and the longest a detailer can type. */
+const PLAN_UNDER_TEST = LONGER
+  ? (LONG_PLAN + " and more words".repeat(30)).slice(0, LONGER)
+  : LONG_PLAN;
+const expected = SIZES.length * STEPS * 2 + 2;
 let discovered = 0, attempted = 0, completed = 0;
 const canary = { id: "the-pre-2.15-bar-put-back", observed_failure: false, problems: [] };
+const canary2 = { id: "the-long-plan-name-against-the-old-reserve", observed_failure: false, problems: [] };
 
+const PASSES = [{ planName: null, tag: "" }, { planName: PLAN_UNDER_TEST, tag: " long-plan" }];
+
+for (const pass of PASSES) {
+if (pass.planName) {
+  console.log(`\n  THE LONGEST PLAN NAME THE UI PERMITS - ${pass.planName.length} chars`);
+  console.log(`  <<${pass.planName}>>`);
+}
 for (const size of SIZES) {
-  const label = `${size.w}x${size.h}`;
+  const label = `${size.w}x${size.h}${pass.tag}`;
   console.log(`  ${label}`);
   attempted += STEPS;
   let seen = [];
   try {
-    seen = await sweep(browser, size, {});
+    seen = await sweep(browser, size, { planName: pass.planName, label });
   } catch (e) {
     // A walk that dies mid-way is NOT a skip. The steps it never reached stay
     // missing from `completed_targets`, so the receipt fails on arithmetic
@@ -300,9 +409,11 @@ for (const size of SIZES) {
       + (drops.length ? ` (+${drops.join(", ")}, dropped)` : "")
       + `, worst reachable ${worst === 999 ? "n/a" : worst + "px"}`
       + `, bar ${m.bar ? `${m.bar.position} h${m.bar.height} top ${m.bar.top}` : "none"}`
-      + `, ${m.scrollers.length} inner scroller(s)`);
+      + `, ${m.scrollers.length} inner scroller(s)`
+      + `, press ${m.press && m.press.ok ? "landed" : `LOST to ${m.press && m.press.who}`}`);
     completed++;
   }
+}
 }
 
 console.log("  canary — the pre-2.15 bar put back; it MUST fail");
@@ -330,6 +441,40 @@ attempted += 1;
   completed += seen.length ? 1 : 0;
 }
 
+/* CANARY TWO - 2026-09-20's OWN SABOTAGE, DRIVEN BY DATA.
+   Canary one restores the pre-2.15 MECHANISM and forces the bar tall with
+   `min-height: 180px`. That is a stylesheet doing the work, and this file
+   already admits its first version did not bite without it.
+
+   This one supplies the CONDITION the way the product would: the longest plan
+   name a detailer can type, against the old reserve. If it bites, the pair
+   says something neither says alone - THE STRING IS NOT THE DANGER AND THE
+   DELETED RESERVE WAS. The long-name sweep above is green at every width; the
+   same string over the old rule is red. That is 2.15's whole argument,
+   measured twice from opposite sides. */
+console.log("  canary 2 - the longest plan name against the OLD reserve; it MUST fail");
+attempted += 1;
+{
+  let seen = [];
+  try {
+    seen = await sweep(browser, SIZES[0], { canary: true, planName: PLAN_UNDER_TEST, label: "canary2" });
+  } catch (e) {
+    canary2.problems.push(`walk ${e.message}`);
+  }
+  discovered += seen.length ? 1 : 0;
+  for (const { n, m } of seen) {
+    grade(`canary2 step ${n}`, m, (t, name, cond, detail) => {
+      assertions++;
+      if (cond) return;
+      canary2.problems.push(`${name} ${detail}`.trim());
+    });
+  }
+  canary2.observed_failure = canary2.problems.some((p) => p.startsWith("bar-clear"));
+  console.log(`    ${canary2.observed_failure ? "caught" : "MISSED"}`
+    + `${canary2.problems.length ? " - " + canary2.problems[0].slice(0, 110) : ""}`);
+  completed += seen.length ? 1 : 0;
+}
+
 await browser.close();
 
 console.log("\nWhat the steps measured:");
@@ -339,8 +484,8 @@ if (consoleNoise.length) {
   for (const c of consoleNoise) console.log("  " + c);
 }
 
-const status = failures.length === 0 && canary.observed_failure && consoleNoise.length === 0
-  && completed === expected
+const status = failures.length === 0 && canary.observed_failure && canary2.observed_failure
+  && consoleNoise.length === 0 && completed === expected
   ? "pass" : "fail";
 const { path } = writeReceipt({
   check_id: "bk-bar-clearance",
@@ -352,17 +497,29 @@ const { path } = writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: 4 * (SIZES.length * STEPS + 1),
+  min_assertions: 5 * (SIZES.length * STEPS * 2 + 2),
   assertion_floor:
-    "5 widths x 7 steps x 4 questions + 1 canary walk x 4 = 144. Fixed by SIZES x STEPS x the "
-    + "question list, never by what the run finds: a step with no matching controls grades as "
-    + "four failures rather than dropping out, and a walk that stops before the review step "
-    + "leaves targets missing so the receipt fails on arithmetic.",
+    "5 questions (subjects, legal, reachable, bar-clear, pressed) x (5 widths x 7 steps x 2 "
+    + "sweeps + 2 canary walks) = 360. Fixed by SIZES x STEPS x passes x the question list, "
+    + "never by what the run finds: a step with no matching controls grades as five failures "
+    + "rather than dropping out, and a walk that stops before the review step leaves targets "
+    + "missing so the receipt fails on arithmetic.",
   failures: [...failures, ...consoleNoise.map((c) => `console: ${c}`)],
   artifacts,
   warnings: [
     "Measures the HIT AREA — the bounding rect plus the overhang read off each element's own "
     + "::after — never the rect.",
+    `The long-name sweep puts a ${PLAN_UNDER_TEST.length}-character plan name on the wire by `
+    + "rewriting the `calculate-booking` response. NOTHING is written to `plans`; the demo "
+    + "tenant's own row is untouched and there is nothing to restore if this dies halfway.",
+    "`pressed` sends a real pointer at the last control on each step and reads who the browser "
+    + "handed the press to. A capture listener cancels it so the walk is not navigated by the "
+    + "measurement - that is the only part that differs from a customer's press, and it has no "
+    + "bearing on who received it.",
+    "60 is the ceiling the UI enforces (`Plans.jsx` `maxLength={60}`) and it is the ONLY "
+    + "enforcement: `plans.name` is bare `text` with no check constraint and no edge function in "
+    + "the write path, so a direct PostgREST call or an import can exceed it. Recorded, not "
+    + "fixed - a constraint on live data is a migration and that is Andrew's.",
     "THIS SAYS NOTHING ABOUT THE ON-SCREEN KEYBOARD, which is the half of 2.15 that is "
     + "deliberately open. A keyboard shrinks the VISUAL viewport and leaves the LAYOUT viewport "
     + "alone, so no viewport size here can reproduce it. A pass is not an answer about it.",
@@ -376,12 +533,18 @@ const { path } = writeReceipt({
     absolute: ABSOLUTE,
     observed,
     sabotage: BREAK || null,
+    plan_name_under_test: PLAN_UNDER_TEST,
+    plan_name_length: PLAN_UNDER_TEST.length,
+    plan_name_ceiling: "60, from `maxLength` on the one input that writes `plans.name`; the column "
+      + "itself is bare `text` with no constraint, so the database would take more",
+    canary2,
   },
   canary,
 });
 
 console.log(`\n${status.toUpperCase()} — ${completed}/${expected} targets, ${assertions} assertions, `
-  + `${failures.length} failure(s), canary ${canary.observed_failure ? "caught" : "MISSED"}. `
+  + `${failures.length} failure(s), canaries `
+  + `${canary.observed_failure ? "caught" : "MISSED"}/${canary2.observed_failure ? "caught" : "MISSED"}. `
   + `Receipt ${path}`);
 for (const f of failures) console.log("  · " + f);
 process.exit(status === "pass" ? 0 : 1);

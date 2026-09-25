@@ -1,0 +1,49 @@
+{
+  "git_sha": "5a48e5c58825b4dfab8b8ad71b28714c3e0ed3b9",
+  "git_sha_started": "5a48e5c58825b4dfab8b8ad71b28714c3e0ed3b9",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-09-25T04:46:01.914Z",
+  "failures": [
+    "7 failing reading(s) — see above"
+  ],
+  "warnings": [
+    "7 reading(s) fail W16; 0 fault(s) are not W16"
+  ],
+  "artifacts": [
+    "scripts/sweep-booking-steps.mjs"
+  ],
+  "dimensions": {
+    "widths": [
+      "1920x1080",
+      "1440x900",
+      "768x1024",
+      "392x844"
+    ],
+    "step_readings": 76,
+    "numbered_step_readings": 32,
+    "controls_measured": 945,
+    "w16_bound_services": 5,
+    "canary_over_px": 788
+  },
+  "check_id": "sweep-booking-steps-1920x1080-1440x900-768x1024-392x844",
+  "started_at": "2026-09-25T04:42:35.010Z",
+  "status": "fail",
+  "expected_targets": 32,
+  "discovered_targets": 32,
+  "attempted_targets": 32,
+  "completed_targets": 32,
+  "skipped_targets": 0,
+  "assertions_executed": 1022,
+  "min_assertions": 200,
+  "canary": {
+    "id": "a booking step measured in a 200px-tall window must be reported OVER",
+    "observed_failure": true,
+    "caught_by": [
+      "over"
+    ],
+    "findings": [
+      "[over] step 1 at 1440x200 measured 788px over, so MEASURE can still report a step that does not fit and every \"fits\" above is a verdict this run could make"
+    ]
+  }
+}

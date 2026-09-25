@@ -173,6 +173,83 @@ function BookingFlow({ notFound = null }) {
   // own name; empty for everybody else, exactly as before.
   const [form, setForm] = useState(() => initialForm(settings, known));
   const [quote, setQuote] = useState(null);
+
+  /* ── ROADMAP 2.15, THE HALF THAT SURVIVED THE FIX ────────────────────────
+     2.15 deleted a literal: `.bk-wrap` used to RESERVE 104px for a bar whose
+     height is content-driven, and the bar became `position: sticky` so it
+     takes its own space whatever that turns out to be. **A second copy of the
+     same number lived on one property away** — `booking.css`'s
+     `--bk-bar-h: 73px`, which 8.5a's
+     `html:has(.bk > .bk-bar) { scroll-padding-bottom: calc(var(--bk-bar-h) + 12px + var(--safe-b)) }`
+     uses to decide where the browser may park a control that takes focus.
+
+     **THE LITERAL CARRIED A MEASUREMENT THAT USED THE WRONG STRING.** Its
+     comment says the height "is set by the Continue button, not by the text",
+     so a wrapped eyebrow "takes it to 76px and no further" — and records that
+     this was proved by forcing a long TOTAL into the bar at 320, where it grew
+     3px. The total is a formatted number. **The eyebrow's other half is
+     `plan_name`, free text the detailer types, which `Plans.jsx` allows 60
+     characters of.** Measured 2026-09-25 with a 59-character plan name: the
+     bar is **112px on the damage step and 184px on the review step at 320**,
+     not 76. Scroll padding reserved 85px, the browser parked the choices 21px
+     too low, and a real press on «Extreme» landed on the footer.
+
+     **SO THE FIX IS 2.15's OWN MOVE, APPLIED WHERE THE NUMBER SURVIVED: stop
+     asserting the height and measure it.** The literal stays as the
+     first-paint fallback and stops being the authority.
+
+     **WHY A ResizeObserver HERE WHEN 2.15 WROTE ONE AND THREW IT AWAY.** That
+     one was for `.bk-wrap`'s padding, and it was rejected because it would
+     have preserved the fragile "the reserve must equal the height"
+     relationship that `sticky` deletes outright. **`scroll-padding-bottom`
+     cannot be expressed relationally in CSS at all** — it needs a length — so
+     here the relationship is not fragile, it is the definition, and measuring
+     is the only way to make it true.
+
+     **IT IS WRITTEN ON `documentElement`, NOT ON `.bk`, AND THAT IS
+     LOAD-BEARING.** The rule computes on `html`; a property declared on `.bk`
+     is invisible to it and would take the fallback for ever. That is the exact
+     defect `booking.css` spends thirty lines on and `var-scope-guard.mjs`
+     fails on.
+
+     **THE 12px IS NOT TOUCHED.** ROADMAP 2.15 recorded 8.5a's step as
+     deliberate and not its to spend; this changes only which number it is
+     added to.
+
+     **A CALLBACK REF, NOT `useRef` + `useEffect([])`, AND THE FIRST VERSION
+     OF THIS WAS THE SECOND ONE.** It read `barRef.current` inside an effect
+     with an empty dependency list. **On mount there is no bar**: the page
+     renders while the tenant profile is still being fetched, so `current` was
+     null, the effect took its early return, and with no dependencies it never
+     ran again. The property was never written once. The page looked perfect,
+     nothing errored, and `bk-bar-clearance` stayed red with byte-identical
+     numbers — which is the only reason this was noticed rather than shipped
+     as a fix that changed nothing. A callback ref is called by React when the
+     node attaches AND when it detaches, so there is no ordering to get wrong
+     and no dependency list to forget. */
+  const barRO = useRef(null);
+  const barRef = useCallback((el) => {
+    const root = document.documentElement;
+    if (barRO.current) { barRO.current.disconnect(); barRO.current = null; }
+    if (!el) {
+      // Back to the stylesheet's own value. The booking page is not the only
+      // thing this document ever shows.
+      root.style.removeProperty("--bk-bar-h");
+      return;
+    }
+    const write = () => {
+      const h = Math.ceil(el.getBoundingClientRect().height);
+      // A zero height is a bar mid-teardown, never a real measurement — writing
+      // it would hand `scroll-padding-bottom` a 12px reserve and reintroduce
+      // 8.5a on the way out of the page.
+      if (h > 0) root.style.setProperty("--bk-bar-h", h + "px");
+    };
+    write();
+    if (typeof ResizeObserver !== "undefined") {
+      barRO.current = new ResizeObserver(write);
+      barRO.current.observe(el);
+    }
+  }, []);
   const [quoteError, setQuoteError] = useState("");
   const [quoting, setQuoting] = useState(false);
   const [promoState, setPromoState] = useState({ checking: false, error: "", applied: null });
@@ -889,7 +966,7 @@ function BookingFlow({ notFound = null }) {
           control you had to scroll to find.
           Icon-only, because the arrow beside Continue is unambiguous and a
           worded Back competes with the thing to press. */}
-      <div className="bk-bar">
+      <div className="bk-bar" ref={barRef}>
         <div className="inner">
           {step > 0 && (
             <button className="bk-btn ghost back" onClick={() => go(-1)} aria-label={t("Back a step")}>
