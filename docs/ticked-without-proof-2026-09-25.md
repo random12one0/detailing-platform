@@ -888,3 +888,180 @@ both buttons exist and both work, and it is recorded here so it is not lost.
 * **The staleness table above was found by reading, not by searching.** I did
   not grep the other 67 ticked entries for the same shape, so **three in ten is
   the rate in this batch and not a measurement of the file.**
+
+---
+
+## BATCH 5 OF THE FIFTY-THREE — read 2026-09-25, and the running total was wrong
+
+**FIRST, A CORRECTION TO MY OWN THREE PREVIOUS BATCHES, BECAUSE A TALLY THAT
+NOBODY CAN CHECK IS THE THING THIS AUDIT EXISTS TO FIND.** Batches 2, 3 and 4
+reported a running total of **53 of 77**. That was carried forward from the
+first pass's *"13 earlier + this batch"*, and **the 13 was never itemised.**
+
+**Enumerated by line number instead of tallied**, which anybody can repeat with
+`grep -n '^- \[x\]' ROADMAP.md`:
+
+| | |
+|---|---|
+| `- [x]` items in `ROADMAP.md` | **77** |
+| judged, **and nameable**, before this batch | **49** |
+| of those, ones I can attribute to the first pass | **19**, not the 23 it claimed |
+| judged in this batch | **10** |
+| **judged and nameable now** | **59** |
+| **remaining, and nameable — the list is below** | **18** |
+
+**So the honest number was 49, not 53**, and the gap is four items the first
+pass counted and did not name. They may genuinely have been read; there is no
+way to tell from what is written, **which is the same fault, one level up, as a
+tick with no proof.** The enumerated list is the better artifact and replaces
+the tally from here on.
+
+### THIS BATCH
+
+| | |
+|---|---|
+| items in this batch | **10** |
+| carry proof a stranger could check | **9** |
+| **carry a LIVE named gap** | **1** (9.5) |
+| could not judge | **0** |
+| **ticks that should come off** | **0** |
+
+**The ten, in roadmap order:** 8.1a, 8.1b, 8.3, 8.4, 9.5, 9.6, 9.8, 9.9, 9.13,
+9.16. 9.3 (`:12072`) skipped as already judged.
+
+### FINDING 1 · 9.5 — THE ONE CASE THAT COULD CATCH AN OFF-BY-ONE WAS NEVER ON SCREEN
+
+**The tick is right.** Andrew read it off the live screen himself — *"5:00 PM
+**Late** Chris Vogel, Express Wash, Mobile, sixty-five dollars"* — the negatives
+were checked (a `completed` job past its time is not flagged, none of the seven
+Coming up rows is), and the Spanish `"Atrasada"` was checked for gender
+agreement with `"cita"`.
+
+**Its own words on what was not proved:** *"Today had exactly one still-to-do
+job, so the one check this cannot answer for — two open jobs side by side, one
+whose time has passed and one whose has not, only the first reading `Late` —
+was never on screen to fail or pass. That is the case that would catch an
+off-by-one in the comparison."*
+
+**It is live, and the entry is right that the negatives it did get are weaker**:
+`completed` and a future `booking_date` may never reach the same branch the
+still-to-do comparison does. The entry hopes somebody's next sweep lands on such
+a day *"for free — worth watching for rather than staging on purpose."* **A
+hope is not a plan**, and this one is cheap enough to stage.
+
+> **ONE LINE FOR WHOEVER HAS THE BROWSER AND THE SEED:** *put two `confirmed`
+> bookings on today for the demo tenant — one whose end time is an hour in the
+> past, one an hour in the future — open Today, and confirm **only the first**
+> row reads "Late" while both sit in Still to do; then delete both rows.* Two
+> rows, no Geoapify credit, no mail. **It is the only case that distinguishes
+> `end_at < now` from a comparison that flags everything in the list.**
+
+### FINDING 2 · A BARE ENGLISH STRING 9.6 NAMED IS STILL THERE — VERIFIED, NOT QUOTED
+
+9.6 closes cleanly and then names something adjacent: *"`Clients.jsx`'s own
+record card already writes `facts.visits === 1 ? "visit" : "visits"` with no
+`t()` wrapper — bare English on a translated dashboard, found while adding the
+same two words correctly a few lines away. Worth its own line, not folded into
+this commit."*
+
+**Checked rather than repeated. It is still there**, and the contrast with the
+line 33 rows above it is the whole point:
+
+| `app/src/screens/Clients.jsx:709` | `{owner ? t("lifetime") : (visits === 1 ? t("visit") : t("visits"))}` |
+|---|---|
+| **`app/src/screens/Clients.jsx:742`** | **`{facts.visits === 1 ? "visit" : "visits"}`** |
+
+**The same two words, the same screen, one wrapped and one not.** It is one
+line, it is in `app/src` and therefore not this lane's, and **it has no item** —
+2.12 is the Spanish item but its subject is the booking flow and its named
+strings, and nothing points at this. `tests/spanish.test.mjs` reports *10 of
+1611 dashboard strings with no entry*; whether this is one of the ten is not
+established here.
+
+### THE OTHER EIGHT, IN ONE LINE EACH
+
+* **8.1a** — the done-when is a command anybody can run and it is quoted with
+  its result: `sweep-widths.mjs 320 1440 392` exits **0**, **284/284** surfaces
+  (95/94/95), receipt graded **PASS, 123,808 assertions**. Nine of the eleven
+  defects were one shared line, **proved by putting the defect back** — the five
+  New booking findings returned exactly as first reported and vanished again.
+  The eleven are kept as a table with pixel overshoots, *"because the
+  measurement is the record."*
+* **8.1b** — the cleverest fixture in the batch. It did not reason about 1am, it
+  **pinned `Date.now()` to 01:00 for the seed process only** and re-ran the
+  seed, having first established that the three surfaces' reachability is
+  settled entirely by the clock at *seed* time. **92/95 with 3 declared
+  unreachable, then 284/284 with zero skips and no allowlist at all** once
+  re-seeded normally. It also states its own limit — the browser's clock stayed
+  on the real afternoon, so this reproduces the 1am *data*, not a 1am screen.
+* **8.3** — one string in the whole product fails WCAG and **both existing gates
+  were structurally unable to see it**: they measure token pairs, and a pair does
+  not know which surface a label lands on. `--fog-2` is 4.90:1 on `--ink-1` and
+  **4.20:1** on `--ink-3`, where the bubble is. Proved by **reverting the
+  one-line fix in the stylesheet** and watching the receipt go to FAIL naming the
+  string at 4.2:1. Its human half is recorded as exactly what it is: *"one
+  person, one screen, once… if Andrew later says he did see something, this
+  reopens."*
+* **8.4** — the near-miss is the evidence: the "Added" badge first printed
+  `--bk-accent-text` on a tint, which measured **3.14:1 on a black tenant pick**
+  and would have been a live defect for any detailer choosing a dark colour. Ten
+  screenshots claimed in `artifacts/8.4/`; **the directory holds 10 files** —
+  checked.
+* **9.6** — Andrew's own press quoted, and the width caveat stated rather than
+  glossed: *"his browser does not reach 320 (pinned at 1414 inner)"*, so the 320
+  evidence is named as this session's own. Its refusal to label the date and
+  phone is written as **a test a later reader can re-apply** — *read the phrase
+  with no other context; if it still names what it is about, it does not need a
+  label* — rather than as a conclusion.
+* **9.8** — **pressed at 320 with the request to Supabase held open**, so the
+  "still asking" moment was on screen rather than inferred, on real data (6
+  services, 2 promo codes, 5 templates). None of the three sibling screens
+  printed the false empty sentence at any point during the hold. The ruling was
+  **written before the build** so that giving the three siblings a different
+  treatment from 9.8's skeleton reads as a decision and not an inconsistency.
+* **9.9** — two pairs of eyes at two widths, and it says which is which: Andrew
+  at desktop, the other session at 392. That run **proved the `Where` block
+  actually OPENS before trusting any field in it** — *"a section that never
+  opens has no fields to lose and would pass by absence."*
+* **9.13** — a tick on work found already done, and it did not stop at the grep:
+  `grep -i "proof"` returns nothing, **then it read the screens live** and quoted
+  three hedged sentences off them, on a fresh tab per the console-buffer gotcha.
+  *"Ticking a fixed item is not the same as skipping it."*
+* **9.16** — both directions, both signed in programmatically, both
+  screenshotted, and **the screenshots are on disk**:
+  `receipts/screenshots/9-16-gear-row-2026-09-23/{owner,staff}.png` plus a
+  `result.json`. The staff account was confirmed **absent from `platform_admins`
+  by reading the table**, not assumed. Andrew then found more rows missing than
+  the item named, and the entry proves it pre-existing with `git log -1 -L` on
+  the exact line — commit `45eaf85`, thirteen days earlier.
+
+### THE EIGHTEEN THAT REMAIN, BY LINE NUMBER
+
+**So the next sitting does not have to re-derive the list.** Line numbers are as
+of commit `bc9881f`; the item titles are stable, the numbers are not.
+
+`13376` 10.1 · `13419` 10.2 · `13437` 11.1 · `13619` the private note ·
+`13642` the calendar link's password · `13676` every email leaves a row ·
+`13716` a paid booking cancelled silently · `13767` a payment settled ·
+`13814` all ten tables hold a row · `13932` Andrew ruled, one list ·
+`13974` the contradiction settled · `14051` `platform_admins` holds two rows ·
+`14855` `accept-invite` carries the ceiling · `15022` 8.6 phones we do not own ·
+`15483` found by DP Cowork and reproduced · `15702` found out of a measurement ·
+`15871` one line in `_shared/pricing.ts` · `16147` inherited, not caused.
+
+**Nine of the eighteen are the unnumbered 2026-09-16/17 security and money
+entries**, which are a different shape from everything judged so far — they
+predate the roadmap's current conventions. Expect them to read differently and
+judge them on the same question anyway.
+
+### WHAT THIS BATCH COULD HAVE MISSED
+
+* **9.8 and 9.16 are long and I read them in full; 8.3, 8.4 and 9.6 I read in
+  full; 8.1a, 8.1b, 9.5, 9.9 and 9.13 are short enough that "in full" is not a
+  claim worth making.** No entry in this batch was skimmed to a verdict.
+* **Finding 2 was verified in `app/src`, which is not this lane's to change** —
+  reading it is not editing it, and the line number is given so whoever owns
+  that file can confirm it in one command.
+* **The correction at the top rests on enumeration, which I did once.** If a
+  ticked item is added or removed the numbers move; the command that regenerates
+  them is in the table.
