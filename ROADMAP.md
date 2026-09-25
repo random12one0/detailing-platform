@@ -14525,9 +14525,9 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
    return a version, and what a concurrent rewrite loses is nobody's version.
    One session, a quiet tree, a fresh tag, one pass. **Andrew rules on it.**
 
-### 14.14 — `tests/receipt-fields.test.mjs` is FAILING at committed HEAD, and it was in no file until now
+### 14.14 — ~~`tests/receipt-fields.test.mjs` is FAILING at committed HEAD~~ DONE 2026-09-24. The ENDPOINT was right and the TEST was stale
 
-- [ ] **Found by DP Cowork on 2026-09-23 and reproduced independently before
+- [x] **DONE 2026-09-24. Found by DP Cowork on 2026-09-23 and reproduced independently before
   being written down.** The booking-receipt endpoint returns **32** columns
   where the test expects **31**. **The extra one is `address_source`**, added
   by **2.8**.
@@ -14564,6 +14564,91 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   read about it** — and CLAUDE.md already warns that a red in a full run is a
   lead rather than a verdict, which is exactly the instruction that would
   cause somebody to dismiss this one.
+
+  ---
+
+  #### RESOLVED 2026-09-24. WHICH SIDE WAS WRONG WAS ESTABLISHED FIRST.
+
+  **In one sentence: the endpoint is right and the test's list was stale, so the
+  list was updated — and given a reason, so it cannot be updated that way again
+  without one.**
+
+  **INHERITED, NOT CAUSED, and it matters to whoever reads `git log`.** This was
+  red at committed `HEAD` before either session on 2026-09-23 touched anything —
+  confirmed then by `git stash -u` and a re-run producing the same 12 passed /
+  1 failed, and confirmed again from source on 2026-09-24 before any edit this
+  round. **Nothing in this repo's recent history broke it.** It was introduced
+  by ROADMAP 2.8 adding `address_source` to the endpoint and nobody coming to
+  this file, and it sat red for a day because the first session to find it
+  correctly refused to fix another item's column on its behalf.
+
+  **THE TRAP WAS THE OBVIOUS FIX, AND IT WAS REFUSED.** Changing 31 to 32 makes
+  the red go away and teaches the test nothing: **a list edited to match whatever
+  the endpoint currently returns can never again report a column appearing or
+  disappearing, which is the only thing it exists to do.** So the question asked
+  first was not *how do I make this green* but *which of these two is wrong.*
+
+  **THE ENDPOINT IS RIGHT, and it was checked in three places rather than taken
+  from its own comment:**
+  * `get-booking-receipt/index.ts` names `address_source` in `BOOKING_COLUMNS`
+    **on purpose**, in an allow-list whose own header says *"a column added to
+    `bookings` tomorrow is private until somebody puts its name here on
+    purpose"*;
+  * **the customer's own page genuinely draws it** —
+    `app/src/book/ManageBookingPage.jsx:438` renders
+    `booking.address_source === "typed"` to print *"You typed this address in and
+    our lookup had no match for it. If it's right, there's nothing to do."* The
+    endpoint's contract is *"every name below is rendered by
+    `ManageBookingPage.jsx`"*, and this one is. **A column with no consumer would
+    have been the other finding**, and that is what was looked for;
+  * **it discloses nothing private.** It is one of two values describing how the
+    customer's own address was arrived at, on the customer's own booking, read by
+    the customer. `tests/address-source.test.mjs` guards the column's values
+    separately, per `CLAUDE.md`.
+
+  **SO THE TEST WAS STALE AND IS NOW CORRECT — 56 passed, 0 failed, exit 0**,
+  from 48 passed / 3 failed. The three failures were always one cause: the list
+  comparison once, and the per-booking assertion once for each of the two
+  bookings it walks.
+
+  **AND THE LIST NOW SAYS WHY IT IS THE LENGTH IT IS**, the way a receipt's floor
+  has to say why it is its number:
+  * `address_source` carries its own reason where it sits — what draws it, at
+    which line, and why its POSITION is not cosmetic (§ 1 compares name for name
+    **and in order**, so it sits between `customer_address` and `customer_notes`
+    exactly as the endpoint's own array has it);
+  * **`EXPECTED_PUBLIC_FIELDS = 32` and `EXPECTED_SHAPE = { BOOKING_COLUMNS: 26,
+    EMBEDDED: 3, DERIVED: 3 }` are declared**, with the composition written out:
+    26 columns of the row, 3 joined lists (services, add-ons, vehicles), 3 the
+    server derives in the business's timezone (booking_date, start_time,
+    end_time). **26 + 3 + 3 = 32.** § 1 asserts all four numbers.
+  * **So a thirty-third field cannot arrive quietly.** It must be added to the
+    endpoint, added here in the right position, rendered by the customer's page
+    so § 2 passes, and counted into three declared sizes — four places, two
+    languages, two directories. **Two lists agreeing at 33 no longer reads the
+    same as two lists agreeing at 32.**
+
+  **BROKEN ON PURPOSE IN BOTH DIRECTIONS, because a guard that only notices
+  additions is half a guard:**
+
+  | sabotage | result |
+  |---|---|
+  | **ADD** a name the endpoint does not return (`internal_flag`) | **5 red** — the declared total, the list comparison, § 2's "nothing renders it", and both per-booking "never arrived" |
+  | **REMOVE** a name it does return (`address_source`) | **4 red** — and this reproduces 14.14's original failure exactly, with the declared total now naming it in one line instead of three failures from one cause |
+  | **REORDER** — all 32 names present, one in the wrong position | **1 red** |
+
+  **THE THIRD SABOTAGE FOUND A REAL FAULT IN THE CHECK'S OWN MESSAGE.** The
+  reorder went red correctly and reported *"endpoint has 32, this file expects
+  32: only there [], only here []"* — both counts equal, both set differences
+  empty, **because the fault was ORDER and a set difference cannot see order.**
+  A check that goes red without saying what is wrong sends the next person
+  hunting a missing column that is not missing. It now appends **"first
+  difference at position 9: endpoint has \"address_source\", this file has
+  \"customer_notes\""**. Found by breaking it, not by reading it.
+
+  Restored after each; `56 passed, 0 failed` at the end, and the canary — a reply
+  with `admin_notes` put back — still fires.
+
 
 ### 14.15 — Something refuses `address-suggest` that is not `address-suggest`, and this product cannot see it
 

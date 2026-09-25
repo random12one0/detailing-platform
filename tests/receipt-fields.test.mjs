@@ -63,6 +63,20 @@ const ALLOWED = [
   "customer_phone",
   "customer_email",
   "customer_address",
+  // **ROADMAP 14.14, added here 2026-09-24. The ENDPOINT was right and this
+  // list was stale** — `address_source` arrived with ROADMAP 2.8 and nobody
+  // came here. It is public for a stated reason rather than because it turned
+  // up in a reply: `app/src/book/ManageBookingPage.jsx:438` renders
+  // `booking.address_source === "typed"` to print *"You typed this address in
+  // and our lookup had no match for it. If it's right, there's nothing to do."*
+  // beside the address, and it cannot draw that without being sent the column.
+  // It is the customer's own address on the customer's own booking, so there is
+  // nothing here private from the reader. **Its position is not cosmetic:** § 1
+  // compares name for name AND IN ORDER, so this sits where the endpoint's own
+  // `BOOKING_COLUMNS` puts it — between `customer_address` and
+  // `customer_notes`. `tests/address-source.test.mjs` guards the column's two
+  // values separately.
+  "address_source",
   "customer_notes",
   "vehicle_model",
   "vehicle_size_label",
@@ -87,6 +101,34 @@ const ALLOWED = [
   "end_time",
 ];
 
+/**
+ * **WHY THIRTY-TWO, AND NOT "WHATEVER THE ENDPOINT RETURNS TODAY" — the whole
+ * point of ROADMAP 14.14.**
+ *
+ * This file was RED at committed `HEAD` from 2026-09-23 to 2026-09-24 because
+ * the endpoint returned 32 names and this list held 31. **The obvious fix was
+ * to change 31 to 32, and it was refused:** a list edited to match whatever the
+ * endpoint currently sends is a list that can never again report a column
+ * appearing or disappearing, which is the only thing it exists to do. So the
+ * side that was wrong was established first — the endpoint is right,
+ * `address_source` is drawn by the customer's own page — and then the number
+ * was given a reason.
+ *
+ * **The composition, declared rather than counted from a run:** the public
+ * reply is `BOOKING_COLUMNS` (26 columns of the booking row, each one named on
+ * purpose) + `EMBEDDED` (3 joined lists: services, add-ons, vehicles) +
+ * `DERIVED` (3 the server computes in the business's timezone: booking_date,
+ * start_time, end_time). **26 + 3 + 3 = 32.**
+ *
+ * A thirty-third field therefore cannot arrive quietly. It has to be added to
+ * the endpoint, added here in the same position, rendered by
+ * `ManageBookingPage.jsx` so § 2 passes, and **counted into the three sizes
+ * below** — four places, in two languages, across two directories. That
+ * friction is deliberate and it is what `SERVER_ONLY_COLUMNS` exists beside.
+ */
+const EXPECTED_PUBLIC_FIELDS = 32;
+const EXPECTED_SHAPE = { BOOKING_COLUMNS: 26, EMBEDDED: 3, DERIVED: 3 };
+
 /** The comparator every verdict in § 3 and the canary both go through. */
 const offenders = (bookingKeys) => bookingKeys.filter((k) => !ALLOWED.includes(k));
 
@@ -105,12 +147,44 @@ console.log("\n§ 1 — the endpoint's own list is the list this file knows abou
     !!(columns && embedded && derived),
     `columns=${columns?.length} embedded=${embedded?.length} derived=${derived?.length}`);
 
+  // **THE DECLARED SHAPE, CHECKED BEFORE THE LISTS ARE COMPARED.** Without
+  // this, the two lists agreeing at 31 or at 33 would read exactly like the two
+  // lists agreeing at 32 — which is how this file came to be red for a day over
+  // a column that should have been in it. The sizes are written down, so a
+  // field added to one array and mirrored here still has to move a number
+  // somebody has to justify.
+  for (const [name, want] of Object.entries(EXPECTED_SHAPE)) {
+    const got = { BOOKING_COLUMNS: columns, EMBEDDED: embedded, DERIVED: derived }[name];
+    check(`the endpoint's \`${name}\` still holds ${want} name(s)`, got?.length === want,
+      `it holds ${got?.length} — if this is intended, change EXPECTED_SHAPE and say why`);
+  }
+  check(`this file expects ${EXPECTED_PUBLIC_FIELDS} public fields and lists that many`,
+    ALLOWED.length === EXPECTED_PUBLIC_FIELDS,
+    `ALLOWED holds ${ALLOWED.length} — the declared total and the list disagree`);
+
   const theirs = [...(columns ?? []), ...(embedded ?? []), ...(derived ?? [])];
+  // **AND IT SAYS WHERE THEY DIVERGE, not just that they do — found 2026-09-24
+  // by sabotage.** Moving one name to a different position while keeping all 32
+  // went red correctly and reported *"endpoint has 32, this file expects 32:
+  // only there [], only here []"* — both counts equal and both set differences
+  // empty, because the fault was ORDER and a set difference cannot see order. A
+  // check that goes red without saying what is wrong sends the next person
+  // looking for a missing column that is not missing.
+  const firstDivergence = () => {
+    const n = Math.max(theirs.length, ALLOWED.length);
+    for (let i = 0; i < n; i++) {
+      if (theirs[i] !== ALLOWED[i]) {
+        return `first difference at position ${i}: endpoint has `
+          + `${JSON.stringify(theirs[i] ?? null)}, this file has ${JSON.stringify(ALLOWED[i] ?? null)}`;
+      }
+    }
+    return "no positional difference";
+  };
   check("the endpoint's list matches this file's, name for name and in order",
     JSON.stringify(theirs) === JSON.stringify(ALLOWED),
     `endpoint has ${theirs.length}, this file expects ${ALLOWED.length}: `
     + `only there [${theirs.filter((k) => !ALLOWED.includes(k))}], `
-    + `only here [${ALLOWED.filter((k) => !theirs.includes(k))}]`);
+    + `only here [${ALLOWED.filter((k) => !theirs.includes(k))}] — ${firstDivergence()}`);
 
   // THE TWO WAYS THE WHOLE ROW GOT OUT, BOTH SHUT. A narrowed select still
   // leaks if the reply spreads the row, because the select has to keep three
