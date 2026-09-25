@@ -80,14 +80,19 @@ Updated 2026-09-21.
 - [ ] **DECIDE · Four finished things are waiting on you. Say go, and say when.
   Written 2026-09-23.**
 
-  **Three need you to press publish. One needs you to paste one line.** They
+  **Four need you to press publish. One needs you to paste one line.** They
   are finished, tested and sitting still. This row exists so that when you do
   press it, nobody has to work out afterwards what it was for.
 
-  **14 of your 39 back-end programs are running something older than what we
-  have written** — measured 2026-09-23 at 10:23pm, not copied from an older
-  note. The oldest is two and a half days behind. One of those fourteen is our
-  own fix from tonight.
+  **25 of your 39 back-end programs are running something older than what we
+  have written** — measured 2026-09-24 in the evening, not copied from an older
+  note. **It said 14 until tonight, and it went UP rather than down. That is
+  normal and it is not something going wrong.** Several of these programs share
+  one piece of writing between them, so when we correct one sentence in that
+  shared piece, every program that uses it counts as out of date at the same
+  moment. Tonight that was the rescheduled-booking email. **Publishing is the
+  only thing that brings the number down**, and none of it reaches a customer
+  until you do.
 
   **What is waiting, and what each one starts doing the moment it lands:**
 
@@ -104,7 +109,14 @@ Updated 2026-09-21.
      them.** The limits are written, and **no running copy has them**, so we
      have never once seen one actually refuse anybody. Publishing puts the
      ceilings into force. *(Roadmap 14.9.)*
-  4. **Two of the four new outside checks are switched off** — the ones that
+  4. **The rescheduled-booking email did not say which time was the old one.**
+     A customer who got one saw two dates, one under the other, with a line
+     through the old one and nothing else telling them which was which — and in
+     the plain-text version that mail apps fall back to, the line disappears and
+     the words were not there, so it was two dates and no explanation. It now
+     says **"Was"** before the old time, in English and in Spanish. **The fix is
+     written and it is not live.** Publishing makes it real. *(Roadmap 3.4.)*
+  5. **Two of the four new outside checks are switched off** — the ones that
      watch a booking page loading a detailer's details, and **signing in**.
      **This one is not a publish.** It is the one-line paste further down this
      list, because those two checks need a key and no session may handle one.
