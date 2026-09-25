@@ -289,6 +289,7 @@ were made more than once.
 - **The job record should stay open when a status changes — agreed in principle, deliberately NOT built tonight** — pressing ROADMAP 4.1's new undo for the first time showed the record VANISHES on a status change: all six callers close it (`navigate("/app")` on the standalone job route, `setSelected(null)` on Today, Calendar, Money and Clients), so an undo built to catch a wrong press in a driveway is one navigation away rather than one tap, and the *"Marked completed."* notice has never once been on a screen in any language. **The proposal is one rule for all six: the record stays open and shows what just happened.** Andrew's manager agreed in principle — *"that is the version where the undo is actually usable, and it is what Andrew would want at seven in the morning in somebody's driveway with the wrong job marked done"* — and refused it for TIMING, not merit: a behaviour change across six reviewed screens, at four in the morning, when 4.1 cannot close tonight anyway because its audit history is stuck behind the deploy freeze. **Do not re-derive this argument; it is settled in principle and waiting on a calmer hour.**
 - **The width sweep grades a guide on its own plan, and `sweep-widths.mjs` changed hands to do it** — the Today guide walked 5 steps at 1440 and 4 at 392/320 against an inventory expecting 8 and 7, and the expected-count gate reported that in the same words it would use for a screen that had vanished. Measured, not guessed: three `data-tour` targets — `figures`, `job` and `wrapup` — are absent from the demo dashboard this afternoon because **there are no jobs on today's rail**, and `Walkthrough.jsx` drops a step whose target is absent by design, with a comment predicting exactly these three. **Andrew refused the obvious fix**: the inventory is NOT re-pointed at today's data, because *a gate that follows whatever the data happens to be is a gate that can never fail*. Instead each guide is now graded on the "N OF M" its own card prints — reached its last card and the surplus inventory labels become declared skips carrying the plan as their reason; stopped short of its own last card and that is a finding no shorter plan can write off. **Ownership of `sweep-widths.mjs` passed from DP Cowork to DP Cowork2 at 2026-09-20 ~14:20**, when DP Cowork left its own instruments for the legal pages; it had been off-limits all night to keep two sessions out of one file.
 - **Decisions made on Andrew's behalf, 2026-09-20** — the overnight rulings, each with what was decided, why, and what would reopen it: the deploy freeze, the docs prune going ahead while the roadmap rewrite did not, explicit-path commits, typed addresses labelled rather than refused, email required until texting exists, a plan's name being the detailer's data, `connected_accounts` left alone after the premise turned out wrong, decided-not-to-measure kept apart from failed-to-measure, a test switch that must never cause real harm, stale receipts separated from failed ones, expected files widened but never narrowed, an unprovable detector recorded as uncovered, the two questions that went to Andrew with no recommendation, and a broken promise left loud rather than softened.
+- **Publishing is a DEFERRAL, not a blocker** — Andrew, 2026-09-24: he does not care about the live site because nothing is using it, so a program running an older version harms nobody and everything goes up in one go at launch. Changes the HOUSE STYLE for every item whose only remaining step is a publish — *done and correct on disk, switched off until launch*, never *blocked, waiting on you*, because a list of chores he has already declined is a list he stops reading. What does NOT change: `deployed-inventory.mjs` going red stays true and worth knowing, and 0.6's publish command stays written out in full.
 - **The `scripts/` freeze in 14.20 was a moment, not a policy** — the manager lifted it 2026-09-24 with Andrew's yes, scoped to `dashboard-notifies.mjs` and `edge-tenant-replay.mjs` only and expiring with that sitting. Why the two halves of 14.20's own *Done when* could not both hold, why a third file in that directory (DP Cowork's `job-weather-budget.mjs`) is the reason the grant was two files by name, and what the lift bought: three live emails a run, stopped.
 
 <!-- INDEX:END -->
@@ -17359,4 +17360,74 @@ otherwise have gone green by counting nothing.
 **Reopened when:** anybody reads 14.20's `scripts/` line as policy again, or a
 session wants a third file in that directory. **The answer to the second is
 always ask**, and it is cheap: the grant above took one sentence.
+
+## Publishing is a DEFERRAL, not a blocker — Andrew does not care about the live site because nothing is using it
+
+**Andrew's ruling, 2026-09-24. His framing, not ours, because ours had been
+wrong about what kind of thing this is.**
+
+**HIS WORDS, in substance:** he does not care about the live site, because
+nothing is using it. Nothing is launched, nobody is on it, no real money is
+connected to it. **So a program running an older version of itself harms
+nobody**, and everything written between now and launch goes up in one go
+whenever he actually launches.
+
+**THE CHANGE THIS MAKES IS A CHANGE OF CATEGORY, AND IT IS THE WHOLE POINT.**
+
+> **Publishing is a DEFERRAL he has chosen, not a BLOCKER he is failing to
+> clear.**
+
+Every entry in `ROADMAP.md` that said *"the fix is written and it is not live,
+waiting on Andrew"* was describing the same fact and **implying the wrong thing
+about it** — that a person was holding up work. He is not. He has decided the
+live site does not matter yet, which is a decision available to somebody with no
+customers, and it is a reasonable one. **A queue of finished work is not a queue
+of chores for him.**
+
+**WHY THE WORDING MATTERED ENOUGH TO RULE ON IT.** The manager's report: the
+accumulating *"waits on Andrew — publish this"* lines **made him feel chased
+about something he had already decided not to care about yet**, and *a list of
+chores he has already declined is a list he stops reading.* That is a real cost:
+`FOR-ANDREW.md` only works if he opens it, and the surest way to make him stop
+is to fill it with items he has consciously deferred.
+
+**SO THE HOUSE STYLE CHANGES.** An item whose only remaining step is a publish
+now reads:
+
+> **done and correct on disk, switched off until launch** — with the publish
+> named as **the switch**, not as a gate somebody is failing to open.
+
+Not *"blocked"*. Not *"waiting on you"*. Not a `NEEDS ANDREW:` line whose whole
+content is *publish this*.
+
+**THE ONE THING THAT DOES NOT CHANGE, AND IT IS SAID WHEREVER THIS IS APPLIED.**
+
+> **`deployed-inventory.mjs` going red is still TRUE and still worth knowing.**
+
+It stops being **urgent**; it does not stop being **real**. The day he launches,
+that number is the difference between shipping what we wrote and shipping
+something a week old — and the gap only ever grows while the deferral runs. It
+is not noise to be silenced, and nobody should "fix" it by deploying: publishing
+is still his. `docs/gotchas.md` 85 records why the count RISES when work is
+done, which under this ruling is the normal state for as long as the deferral
+lasts.
+
+**AND 0.6 KEEPS ITS "THE ACTUAL COMMAND" BLOCK EXACTLY AS IT IS.** The manager's
+instruction, and the reasoning is worth keeping: **that block is now the thing
+that makes launch day cheap, and it is the only copy of that instruction that
+has ever existed.** Deferring the publish raises the value of knowing precisely
+how to do it in one go. Do not condense it, do not fold it into a pointer, and
+do not let a future tidy-up decide it is stale because nothing has been
+published for a while.
+
+**WHAT WOULD REOPEN THIS:** he launches, or a real customer reaches the live
+site, or money connects to it. **At that moment the deferral ends and every
+deferred publish becomes urgent at once** — which is exactly why the inventory
+keeps being measured and why 0.6's command stays written down.
+
+**WHAT THIS IS NOT.** It is not permission for a session to deploy — publishing
+remains Andrew's alone, unchanged. It is not a statement that the work is
+unimportant. And it does not cover **migrations**, which touch a database that
+really does exist and is read by the public site; those stay their own question
+and were not folded into this ruling.
 

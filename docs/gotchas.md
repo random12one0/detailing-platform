@@ -3518,3 +3518,46 @@ is publishing, and a session deciding that for him because it would clear a red
 is exactly the call it does not get to make. **Report the number, say which edits
 own it, and leave it.**
 
+## 86. A SWEEP THAT COUNTS ENTRIES MISSES THE SECOND COPY INSIDE ONE — and the author missed two while writing the paragraph explaining why nobody else should
+
+**2026-09-24.** Four open roadmap items were found still naming a deploy freeze
+that had been lifted three days earlier. The write-up said, correctly:
+
+> *One grep for `deploy freeze` would have found all five on the 23rd.*
+
+**Then the corrections went in item by item, and a re-grep afterwards found two
+more.** A **second** freeze sentence inside 4.3 — an item that had just been
+corrected — and a *"when the freeze lifts"* inside 11.1, a **ticked** item.
+
+**THE MECHANISM, and it is not carelessness.** The sweep enumerated ITEMS,
+matched each item's body, and recorded a verdict per item. **An item that
+carries the same stale claim twice is one match, one verdict, one correction —
+and the entry then looks attended to.** The second copy is now harder to find
+than it was before, because the item reads as handled: it carries a dated
+correction, a strike-through and an evidence line, three signals that say
+somebody has already been here.
+
+**THE TICKED-ITEM HALF IS WORSE.** 11.1 is closed, so no audit of *open* items
+would ever reach it — and a reader passing through a finished entry reads its
+sentences as the current state of the world, not as history. **A stale claim in
+a closed item has no owner and no scan.**
+
+**THE RULE:**
+
+> **Count OCCURRENCES, not entries, and sweep the closed ones too.** After
+> correcting a claim in place, **re-run the search that found it** — on the
+> whole file, not on the item. The second hit is the one your own correction
+> just camouflaged.
+
+**AND WHY THIS IS HERE RATHER THAN IN THE ITEM'S OWN WRITE-UP.** The failure is
+not about deploy freezes. It is the shape of every per-entry audit this repo
+runs: a stale count, a stale label, a stale blocker, a stale premise. Same for
+`grep -c` tallies, `NEEDS ANDREW:` lines and anything else that can legitimately
+appear twice in one place. Related: #83 on a claim being about a script rather
+than a fact, and `CLAUDE.md`'s own gotchas tally, which has needed four
+corrections for the same reason.
+
+*Reported by the session that made it, in the same commit as the sweep it
+describes — which is the only reason it is a measurement rather than a
+suspicion.*
+

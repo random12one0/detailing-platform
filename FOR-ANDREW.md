@@ -80,9 +80,23 @@ Updated 2026-09-21.
 - [ ] **DECIDE · Four finished things are waiting on you. Say go, and say when.
   Written 2026-09-23.**
 
-  **Four need you to press publish. One needs you to paste one line.** They
-  are finished, tested and sitting still. This row exists so that when you do
-  press it, nobody has to work out afterwards what it was for.
+  **NOTHING HERE IS WAITING ON YOU ANY MORE — rewritten 2026-09-24 on your own
+  ruling.** You said you don't care about the live site because nothing is using
+  it, and that is the right call: nobody is on it, no real money is connected, so
+  a program running last week's version harms nobody. **So this stopped being a
+  list of chores and became a list of switches.**
+
+  **Four things are finished and switched off until you launch. One needs you to
+  paste one line.** They are built, tested and sitting still, and they all go up
+  together in one go whenever you decide to launch. **You do not need to do any
+  of it today.** This row exists so that on the day you do press it, nobody has
+  to work out afterwards what it was for.
+
+  **One thing worth keeping in your head, and then you can forget this page.**
+  The gap between what is written and what is running keeps growing while you
+  wait — that is normal and it is not something going wrong. But on launch day
+  it is the difference between your customers getting what we built and getting
+  something a week old. **So it is not urgent, and it is still real.**
 
   **25 of your 39 back-end programs are running something older than what we
   have written** — measured 2026-09-24 in the evening, not copied from an older

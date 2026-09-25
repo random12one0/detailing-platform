@@ -520,6 +520,28 @@ and how the wait ends.
   not the one answering requests, and any deploy of one function silently
   ships whatever else is sitting on disk beside it.
 
+  **ANDREW'S RULING, 2026-09-24: PUBLISHING IS A DEFERRAL HE HAS CHOSEN, NOT A
+  BLOCKER HE IS FAILING TO CLEAR.** His framing: **he does not care about the
+  live site, because nothing is using it.** Nothing is launched, nobody is on
+  it, no real money is connected — so a program running an older version of
+  itself harms nobody, and everything written between now and launch goes up in
+  **one go** whenever he launches.
+
+  **So an item whose only remaining step is a publish is DONE AND CORRECT ON
+  DISK, SWITCHED OFF UNTIL LAUNCH.** The publish is **the switch**, not a gate
+  somebody is failing to open. It is not "blocked" and it is not "waiting on
+  Andrew" — that wording made him feel chased about something he had already
+  decided not to care about yet, **and a list of chores he has already declined
+  is a list he stops reading.** `DECISIONS.md` § *"Publishing is a DEFERRAL, not
+  a blocker"* has his reasoning and what would reopen it.
+
+  **WHAT DOES NOT CHANGE, AND IT IS THE HALF WORTH KEEPING:**
+  **`deployed-inventory.mjs` going red is still TRUE and still worth knowing.**
+  It stops being urgent; **it does not stop being real.** The day he launches,
+  that number is the difference between shipping what we wrote and shipping
+  something a week old, and the gap only grows while the deferral runs. Nobody
+  "fixes" it by deploying — publishing is still his alone.
+
   **STATUS 2026-09-24 — ANDREW AUTHORISED PUBLISHING TONIGHT, IN PLAIN WORDS,
   FOUR TIMES. THE FREEZE IS NO LONGER WHAT IS BLOCKING THIS.**
 
@@ -672,6 +694,61 @@ and how the wait ends.
   *Found in the ROADMAP 3.4 email audit; the manager's ruling, 2026-09-20:
   write it up with the reasoning, do not fix it.*
 
+  ---
+
+  #### RE-READ 2026-09-24. THE BLOCKER HOLDS AND THE ARGUMENT UNDER IT HAS EXPIRED.
+
+  **This entry was written on 2026-09-20, while *"no marketing email, ever"* was
+  binding. ANDREW REVERSED THAT RULE ON 2026-09-21** —
+  `docs/MANAGER-CLOSE-2026-09-21.md` § 2, superseded in place, with his reason:
+  the no-marketing rule was a last-minute decision made because he was too lazy
+  to make marketing email legal, and he has changed his mind. **Everything above
+  reasons from the retired rule, so it reads as more expensive than it is.**
+
+  **THREE THINGS IT NOW GETS WRONG, and the item's own three options are the
+  place to see it:**
+
+  1. **"Require a postal address of every detailer, which is a new setup step
+     and a new blocker on an existing feature."** That cost was priced against a
+     rule that said no marketing mail would ever exist, so the address bought
+     nothing. **It now buys the whole campaign feature, which already works** —
+     `send-campaign` refuses to send without `businesses.mailing_address`, and
+     `campaignEmail` already carries both the unsubscribe link and the postal
+     address. **The address is needed anyway the moment a detailer wants
+     campaigns.** And Andrew has said of his own: *it will just be small print,
+     no one will really notice.*
+  2. **"Stop sending the maintenance reminder until that exists."** Half of this
+     already happened, by a different route and for a different reason. 3.4's
+     RULING A gave the email **its own switch, defaulting off**
+     (`business_settings.email_customer_maintenance_due`) — **the column exists
+     live with default `false`, read from the database 2026-09-24** — so nothing
+     sends it today unless somebody deliberately turns it on.
+     **MANAGER-CLOSE § 2 consequence 2 is explicit that this gate STAYS, reversal
+     or not:** it was control rather than prohibition, and control is right
+     whichever way the marketing question goes.
+  3. **"Establish that it is transactional rather than commercial."** Unchanged
+     and still not a session's call — but it is now the least likely answer of
+     the three rather than a way of avoiding a rule.
+
+  **SO WHAT THIS ITEM ACTUALLY WAITS ON, TODAY:** not *"may marketing email
+  exist"*, which is answered, but **"does a detailer have to give us a postal
+  address before they can send one."** That is a setup-flow question with a real
+  cost to a detailer, and it is his.
+
+  **AND IT IS ALREADY IN FRONT OF HIM, PRICED, so this item should not add a
+  second copy.** `docs/what-we-send.md` § *"Question 3 — Now that marketing email
+  is allowed again, do you want any?"* lays out four options with what each
+  costs, and it names this one exactly: *"Only 'your maintenance is due' — more
+  work than campaigns, not less. That email has no address, no unsubscribe link,
+  and does not check the opt-out list. All three would have to be added."*
+  **Question 4 on the same page asks the switch question.** No `FOR-ANDREW.md`
+  row is added here; a third copy of a question already asked twice is how the
+  list he reads stops being read.
+
+  **WHAT WOULD MOVE THIS:** his answer to `what-we-send.md` Question 3. Nothing
+  else. **This is NOT a publish deferral** — the 2026-09-24 publishing ruling
+  does not touch it, because no code is written and waiting.
+
 ---
 
 ## Wave 1 — Stop exposing Andrew and other people's brands
@@ -805,7 +882,10 @@ Smallest wave, highest embarrassment cost, all of it confirmed in source.
   "gone quiet" count drops to match real customers.
   *A1 P3-01, A2 1.3*
 
-  **BUILT AND PROVED 2026-09-24, COMMIT `3c24a1f`. NEEDS ANDREW: one command
+  **BUILT AND PROVED 2026-09-24, COMMIT `3c24a1f`. ON DISK, SWITCHED OFF UNTIL
+  LAUNCH — reframed 2026-09-24, and it is NOT a chore for Andrew.** The one
+  command below is **the switch**, run whenever he launches; nothing is waiting
+  on him today. ~~NEEDS ANDREW: one command
   — `node scripts/apply-migrations.mjs
   20260924010000_a_fixture_is_not_a_customer.sql` — because applying a
   migration is a schema change and that is his.** `FOR-ANDREW.md` § "Waiting
@@ -892,9 +972,17 @@ the wrong service, and never book a job we cannot reach.
   stays at $65 throughout.
 
   **Why it is not live, in one sentence:** the sum is worked out by a program
-  that runs on Supabase rather than in the browser, that program has to be
-  published to start running the new version, and publishing is Andrew's —
-  the same as pushing code is his. `FOR-ANDREW.md` carries the row.
+  that runs on Supabase rather than in the browser, and that program has to be
+  published to start running the new version.
+
+  **REFRAMED 2026-09-24 ON ANDREW'S RULING — this is a DEFERRAL, not a blocker.**
+  The fix is **done and correct on disk and switched off until launch.** He does
+  not care about the live site because nothing is using it, so the publish is
+  **the switch**, not a gate he is failing to open. `DECISIONS.md` § *"Publishing
+  is a DEFERRAL, not a blocker"*. **Still true and still worth knowing:**
+  `deployed-inventory.mjs` reports these functions as differing, and on launch
+  day that is the difference between shipping this fix and shipping the old
+  number.
 
   **How anyone will know it worked:** `node scripts/surcharge-visible.mjs`
   goes from 40 failures to zero. It is red today on purpose.
@@ -1200,8 +1288,10 @@ the wrong service, and never book a job we cannot reach.
   | `--stand-in=server` | **PASS 25/25, 195 assertions** · `no day $65 → day $95 → time $95` at all five widths, `Weekend rate · +$30` named on the DAY | `$65 → $65 → $65`, nothing named |
   | Clean, no stand-in | **FAIL, 40 failures** — unchanged, because production has not been published | green |
 
-  **SO THE TICK IS BLOCKED ON A PUBLISH, NOT ON WORK, AND THE BOX STAYS OPEN
-  UNTIL THE CLEAN RUN PASSES.** `deployed-inventory` now names **8 of 39**
+  **SO THE TICK WAITS ON A PUBLISH RATHER THAN ON WORK, AND THE BOX STAYS OPEN
+  UNTIL THE CLEAN RUN PASSES.** ~~BLOCKED~~ — **reframed 2026-09-24: this is
+  done on disk and switched off until launch, not blocked.** `DECISIONS.md`
+  § *"Publishing is a DEFERRAL, not a blocker"*. `deployed-inventory` now names **8 of 39**
   functions behind this checkout, up from 4, because `_shared/pricing.ts` is
   imported by `calculate-booking`, `create-booking`, `preview-emails`,
   `reschedule-booking` and `update-booking`. That growth is correct and
@@ -3768,8 +3858,9 @@ the wrong service, and never book a job we cannot reach.
   **WHAT WOULD ACTUALLY CLOSE IT, unchanged from the 2026-09-20 write-up
   above:** deploy `create-booking` and `get-booking-receipt`, make one
   booking with an address the lookup cannot find, and read `address_source`
-  back off the row. **Publishing is Andrew's.** The deploy is blocked by the
-  edge-function backlog, not by this item.
+  back off the row. **Publishing is Andrew's, and since 2026-09-24 it is a
+  deferral rather than a blocker** — this proof waits for launch day, not for
+  somebody to act. The deploy is not held up by this item.
 
   **NOTHING WAS WRITTEN TO THE TENANT THIS ROUND.** The walk stopped at step
   5 and no booking was submitted; the only writes were to a form in a
@@ -5198,7 +5289,7 @@ requested.
 
   ---
 
-  #### FAULT 1 IS FIXED — 2026-09-24. WRITTEN, NOT LIVE.
+  #### FAULT 1 IS FIXED — 2026-09-24. ON DISK, SWITCHED OFF UNTIL LAUNCH.
 
   **The manager's ruling, and it overrode this session's own recommendation:**
   *"editing is ours, publishing is Andrew's, and the standing pattern in this repo
@@ -5256,7 +5347,13 @@ requested.
   failures recorded on 2026-09-21, so no seventh was added. `label-guard.mjs`
   clean. The four credential-free suites 4/4.
 
-  **NOT LIVE, AND THE NUMBER MOVED BECAUSE OF THIS CHANGE.**
+  **ON DISK AND NOT YET LIVE — WHICH IS A DEFERRAL, NOT A BLOCKER, AND THE NUMBER
+  MOVED BECAUSE OF THIS CHANGE.** Andrew's ruling of 2026-09-24: he does not care
+  about the live site because nothing is using it, so this fix is finished and
+  switched off until launch rather than waiting on anybody.
+  `DECISIONS.md` § *"Publishing is a DEFERRAL, not a blocker"*. **The count below
+  is still true and still worth knowing** — on launch day it is the difference
+  between shipping this sentence and shipping the old one.
   `deployed-inventory.mjs` now reports **25 of 39** functions differing from this
   checkout, and `_shared/emailTemplates.ts` is named on several of them —
   `accept-quote`, `send-invoice`, `respond-to-booking`, `cancel-booking`,
@@ -5810,7 +5907,7 @@ requested.
     from `update-booking` (a deployed function), and **← STALE BLOCKER, CORRECTED 2026-09-24 BY THE STALE-BLOCKER PASS. THE FREEZE ENDED 2026-09-21** — `docs/MANAGER-CLOSE-2026-09-21.md` § 4 is titled *"Publishing — THE FREEZE IS LIFTED, 2026-09-21"* and carries Andrew's own words and the publish log. 
     **What still holds is a PUBLISH, not a freeze:** `update-booking` is one of
     the 13 functions genuinely carrying unpublished work on 2026-09-24, and the
-    migration has not run. ~~all deploys are frozen
+    migration has not run. **And since Andrew's ruling of 2026-09-24 that is a DEFERRAL, not a blocker — done and correct on disk, switched off until launch, the publish being the switch.** `DECISIONS.md` § *"Publishing is a DEFERRAL, not a blocker"*. The inventory's red is still true and still worth knowing; it is just not urgent. ~~all deploys are frozen
     until Andrew rules in the morning**. The design is not in question and
     nothing about it is waiting on a decision — it is waiting on the freeze
     lifting. Whoever picks it up should not re-litigate the approach.
@@ -6075,7 +6172,8 @@ requested.
   **THAT ORPHANING IS A SEPARATE, SERVER-SIDE ITEM AND IS NOT FIXED.** A
   back-fill matching on `business_name`, or a history that also matches by
   name, would recover them. Both are `platform-admin` or a migration, and
-  both are ~~behind the deploy freeze~~ **waiting on a publish — the freeze ended
+  both are ~~behind the deploy freeze~~ **on disk and switched off until launch
+  — the freeze ended
   2026-09-21 (`docs/MANAGER-CLOSE-2026-09-21.md` § 4). Corrected 2026-09-24; this
   is the SECOND freeze sentence in this item and the stale-blocker pass's own
   first sweep missed it.** **Recorded rather than attempted.**
@@ -6161,7 +6259,7 @@ requested.
   claim carried on the token and read by the policies — which is a
   `platform-admin` change plus an auth hook. **← STALE BLOCKER, CORRECTED 2026-09-24 BY THE STALE-BLOCKER PASS. THE FREEZE ENDED 2026-09-21** — `docs/MANAGER-CLOSE-2026-09-21.md` § 4 is titled *"Publishing — THE FREEZE IS LIFTED, 2026-09-21"* and carries Andrew's own words and the publish log. 
   **What still holds is a PUBLISH:** `platform-admin` is one of the 13 functions
-  genuinely carrying unpublished work on 2026-09-24, measured. ~~BLOCKED BY THE PUBLISH FREEZE,
+  genuinely carrying unpublished work on 2026-09-24, measured. **And since Andrew's ruling of 2026-09-24 that is a DEFERRAL, not a blocker — done and correct on disk, switched off until launch, the publish being the switch.** `DECISIONS.md` § *"Publishing is a DEFERRAL, not a blocker"*. The inventory's red is still true and still worth knowing; it is just not urgent. ~~BLOCKED BY THE PUBLISH FREEZE,
   named rather than half-done.** Until then the guard is `lib/supabase.js`
   wrapping the four write verbs in a preview tab, and `lib/preview.js` says
   what that is worth: *"it stops a stray click, not an attacker."*
@@ -7348,7 +7446,9 @@ most corroborated finding in the set.
   **WHAT IS STILL OPEN, AND THE ITEM STAYS OPEN BECAUSE OF IT:**
   - **The last-restore date is not visible in the back office**, which this
     item's own *done when* requires. It is a front-end change and showing it
-    means publishing, which is Andrew's. **Blocked, not dropped.**
+    means publishing. **Not blocked — deferred, 2026-09-24.** It is done on disk
+    and switched off until launch; the publish is the switch. `DECISIONS.md`
+    § *"Publishing is a DEFERRAL, not a blocker"*.
   - **A restore into a genuinely separate environment** — a Supabase branch or
     a second project — would cost money and create something inside Andrew's
     organisation. **Not done, not started, nothing put on a card.** The
@@ -11141,7 +11241,8 @@ the dashboard or back office at phone width at all.
   DERIVE from the real record (Andrew's instruction, 2026-09-14). So the back
   office cannot see the evidence the dashboard can, and counts fewer.
   **The fix is to widen what `platform-admin` sends, which is an edge-function
-  deploy — ~~blocked by the freeze~~, not by the work.**
+  deploy — ~~blocked by the freeze~~ ON DISK AND SWITCHED OFF UNTIL LAUNCH, not
+  by the work.**
   **← STALE BLOCKER, CORRECTED 2026-09-24 BY THE STALE-BLOCKER PASS. THE FREEZE ENDED 2026-09-21** — `docs/MANAGER-CLOSE-2026-09-21.md` § 4 is titled *"Publishing — THE FREEZE IS LIFTED, 2026-09-21"* and carries Andrew's own words and the publish log. **What still holds is a PUBLISH:** `platform-admin` carries
   genuinely unpublished work on 2026-09-24, measured, so the numbers still do
   not agree for a real detailer — but nothing is frozen and the publish is on
@@ -13504,7 +13605,10 @@ event id.
   > the deployed bundles are still the old code.** A live loop right now
   > would be hitting functions that have **no guard in them**, so it would
   > measure the absence of a limit and prove nothing about the one just
-  > written. **Publishing is Andrew's.**
+  > written. **Publishing is Andrew's — and since 2026-09-24 it is a DEFERRAL he
+  > has chosen rather than a blocker: the ceilings are correct on disk and
+  > switched off until launch.** The sequence below is what launch day runs, not
+  > a queue he is holding up.
   >
   > **So the sequence is: Andrew publishes → the loop is run against each
   > write → the refusal is observed → 14.9 closes.** Not before, and not by
