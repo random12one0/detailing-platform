@@ -464,6 +464,19 @@ and how the wait ends.
   the box would hide that half the way a stale roadmap line has hidden
   other things today.
 
+  **Done when** (written 2026-09-25; this item had none): **a detailer's own
+  Clients screen defaults to real customers only**, any fixture row shown
+  deliberately carries an **unmistakable DEMO badge**, and the "Smoke
+  TPMOY"-style rows are **absent from the screen's own counts** — pressed on the
+  demo tenant, **which has such rows today**.
+  **What failing looks like, and the second half matters more than the first:**
+  a Clients count that still includes a fixture — or a pass obtained by pressing
+  a tenant that has no fixture rows at all, so the badge had nothing to appear
+  on and the filter nothing to filter. **Zero fixtures discovered is a failure,
+  never a pass.**
+  **The back-office half is already live and can be pointed at rather than
+  rebuilt:** the admin drawer reads *"Everyone 16, Real detailers 1"*.
+
 - [ ] **0.4 — The legal pages. A lawyer is not the only option.**
   Both audits (A1 P3-09, A2 6.6) flag that terms and privacy say Andrew wrote
   them, are not lawyer-reviewed, and are in his personal name. He asked whether
@@ -10631,6 +10644,20 @@ the dashboard or back office at phone width at all.
   the method, anything it finds should become a check — the way ROADMAP 4.1's
   10px adjacency and 8.3's contrast both did.
 
+  **Done when** (written 2026-09-25; this item had none for weeks): **the
+  seventeen numbered steps of § 5 of `docs/testing/phones-we-do-not-own.md` each
+  have an answer written into this entry**, the phone is named, and the Android
+  half is answered the same way on a named device. **"Nothing felt wrong" is a
+  valid answer to a step and must be recorded as one** — 8.3 closed exactly that
+  way.
+  **What failing looks like:** a tick reading "pressed on a phone" with no
+  per-step record, which is indistinguishable from a tick nobody pressed. That is
+  the whole fault this roadmap spent 2026-09-25 auditing.
+  **Whose job:** the iPhone half is **Andrew's** — twenty minutes, his own phone,
+  against the dev server over his own Wi-Fi. The Android half is **ten minutes on
+  any borrowed mid-range Android**. Neither is a build, neither costs money and
+  neither needs a publish.
+
 - [x] **8.3 — DONE 2026-09-24. Small grey text is unreadable outdoors.**
   Both audits, everywhere: body copy, letter-spaced all-caps micro-labels,
   progress text, tab labels, service details, warnings, "then $40/month $60",
@@ -12753,6 +12780,18 @@ the dashboard or back office at phone width at all.
   **Still `app/src`**, so it belongs to whoever owns that tree when it is
   picked up.
   *A1 P2-13*
+  **Done when** (written 2026-09-25; this item had none — every clause below is
+  one of the three judgement calls answered above, so none of it is invented
+  scope): the right half of Business settings shows the detailer's **real public
+  booking page**; it refreshes **on save and not on a keystroke**; where the page
+  has nothing worth showing yet it renders **the page as a customer would see it
+  today plus one line naming what is missing** — not a blank panel and not a
+  placeholder; and on a phone it **stacks below rather than beside**. Pressed at
+  **320 first** and at 1440, on **one business with settings complete and one with
+  thin settings**, because the thin case is the one all three answers are about.
+  **What failing looks like:** a preview that redraws as somebody types — showing
+  half-typed nonsense to the person judging their own page — or a blank right half
+  on the thin business, which is the exact complaint this item came from.
 
 - [ ] **9.11 — Booking-rule conflict needs a one-click fix. RE-OPENED
   2026-09-20 — see the correction below; do not re-tick without reading it.**
@@ -13186,6 +13225,15 @@ this wave as untouched.
   sentence and 9.10's own specific ask — no second item to split out.
   **FOR-ANDREW.md carries the actual open question**, with no recommendation
   attached, because this one is not ours to recommend. *old roadmap*
+  **Done when** (written 2026-09-25; this item had none): **Andrew has answered
+  the question `FOR-ANDREW.md` carries for it** — whether he wants a settings
+  design pass at all, and if so what he wants to react to — **or** this item is
+  closed as superseded by **9.10**, which owns the only concrete half and now has
+  a criterion of its own. **A decision is a real gate, so this item is queued
+  rather than stalled.**
+  **What failing looks like:** a session building a settings redesign out of the
+  sentence *"make settings feel like a product"*, which is the thing Andrew's
+  2026-09-20 ruling exists to prevent.
 
 ---
 
@@ -15378,6 +15426,20 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   Receipt: `receipts/edge-tenant-replay.json`. See also **14.16**, found in the
   same measurement.
 
+  **Done when** (written 2026-09-25; this item had none): the four steps under
+  *"WHAT A REPRO WOULD LOOK LIKE"* have been **run**, and the outcome written here
+  **either way** — driven from a real browser's address field so each keystroke
+  carries its own preflight; **the BODY of any 429 read rather than its status**,
+  because the function's own refusal carries `reason: "busy"` and the status alone
+  cannot tell the two apart; `rate_hits` read immediately before and after; and
+  **if the counter did not move, the ceiling named with its number.**
+  **A run that cannot reproduce it IS a valid close, provided it says so** — this
+  item is a lead rather than a verdict, and it says so in its own first line.
+  **What failing looks like:** *"unreproduced"* quietly becoming *"fixed"* or
+  *"not a problem"*, or somebody changing one of the product's three limits in
+  response — **none of which was consulted**, which the entry already warns about
+  in advance.
+
 ### 14.16 — Two sessions can collide on a public endpoint, and nothing in this repo guards it or reports it
 
 - [x] **Found 2026-09-23, out of a measurement rather than an argument.** The
@@ -15481,6 +15543,16 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   verdict — `docs/silences.md` is the standard.
 
   **Successor to 14.16**, which is ticked.
+  **Done when** (written 2026-09-25; this item had none): a **read-only** check
+  samples the counters that already exist — `rate_hits` for the address and public
+  buckets, `platform_email_days`' `claimed` and `refused`, and the demo tenant's
+  row counts — **before and after a run**, names by name any counter that moved
+  which this session did not move, and **states in the same output which resources
+  it cannot see**, with the platform ceiling above `address-suggest` (14.15) named
+  explicitly as one of them.
+  **What failing looks like:** a clean verdict on a run whose actual collision was
+  the one uncountable resource — which is precisely the collision that produced
+  this line of work, and the reason `docs/silences.md` is named as the standard.
 
 ### 14.18 — A caller with no forwarded-for header is not rate-limited at all
 
@@ -15521,6 +15593,21 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   ceiling is doing more work than this product's own limits are.** Sibling to
   14.15, which is the same shape seen from the other side: something refusing
   that our limiter never counted, and now our limiter not counting at all.
+
+  **Done when** (written 2026-09-25; this item had none): one rate-limited public
+  function has been called from outside **with `x-forwarded-for` absent**, and
+  again **with it forged to a value that is not the caller**, and `rate_hits` read
+  immediately after each — **with the answer written here either way.**
+  **If either call leaves no row, the per-IP limits are advisory rather than
+  enforced. That is the finding, not a failure of the test**, and it closes this
+  item as much as a clean result would.
+  **What failing looks like:** a conclusion of *"Supabase's edge probably sets the
+  header"* with no counter read — which is exactly what this entry already says it
+  does not know.
+  **Whose job / what it costs:** it means probing the live gateway, and the
+  session that found this was told not to hammer public endpoints. **Two calls,
+  not a loop** — it needs somebody holding permission to touch a public endpoint,
+  not a load test.
 
 ### 14.19 — A two-car booking's stored `subtotal` counts the second car twice, and nobody has ever been in a position to notice
 
