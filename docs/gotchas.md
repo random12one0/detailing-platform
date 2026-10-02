@@ -3660,3 +3660,57 @@ twice in one night in the other direction too:** its own report claimed "five
 numbers for one fact" from reading four entries, and `grep -nE '[0-9]+ of 39'`
 found **twelve occurrences of six values**. Reading found five; grepping found
 six. **Neither instrument is the safe one. Using one of them alone is the fault.**
+
+## 89. A FILTER BUILT ON SUBSTRINGS GETS THE POPULATION WRONG, NOT THE VERDICT — and a wrong population reads exactly as current as a right one
+
+**2026-10-02. `"1.3 —"` matched `"11.3 —"`, so item 11.3 was silently dropped
+from a list of what was left to audit — and 11.3 was the item carrying that
+batch's most interesting finding.**
+
+**THE BUG, in one line.** A script enumerating the unjudged roadmap items held an
+exclusion list of already-done item numbers and tested membership with
+`done.some(d => title.includes(d))`. **`"11.3 — The editing screens phase"`
+contains the substring `"1.3 —"`**, so 11.3 was classed as already judged. The
+script printed **21 remaining**; the answer was **22**.
+
+**WHY THIS IS A DIFFERENT FAULT FROM THE ONES ALREADY IN THIS FILE, and it is
+worth the separate entry.** Most entries here are about a check whose **verdict**
+is wrong — it passed when it should have failed, it measured the rect instead of
+the hit area, it read a comment instead of code. **This one's verdict was
+perfectly correct about every item it looked at.** What was wrong was **which
+items it looked at**. Nothing in the output was false; something was absent.
+
+**AND AN ABSENCE HAS NO SIGNATURE.** `21` and `22` are equally plausible numbers.
+There is no shape to a count that makes a reader suspicious, no formatting
+oddity, no error. **It was caught only because the printed list was read against
+a `grep` for `11.3` for an unrelated reason** — not because the total looked
+wrong. **Had nobody grepped, the batch would have reported ten items read out of
+a population that was quietly one short, and the arithmetic would have closed.**
+
+**THE RULE: anchor the match to the shape of the identifier, not to a substring
+of it.**
+
+```js
+// WRONG — "1.3 —" matches "11.3 —", "21.3 —", "0.11" matches "0.1"
+done.some(d => title.includes(d))
+
+// RIGHT — the number is a whole token with a boundary in front of it
+const id = (title.match(/^\s*\*{0,2}(\d+(?:\.\d+)*[a-z]?)\b/) || [])[1];
+done.has(id)
+```
+
+**It is the same family as the one-term grep in #88** — both are a matcher whose
+negative result is indistinguishable from not having looked — and the same family
+as this repo's `NAMED_TEXT()` substring trap already recorded further up this
+file. **Three instances of one shape, in three different tools, and the dotted
+item numbers in `ROADMAP.md` are a minefield for it specifically: `0.1`/`0.11`,
+`1.3`/`11.3`, `2.1`/`2.15`/`2.1a`, `3.4`/`3.4c`, `8.1`/`8.10c`, `9.1`/`9.11`.**
+**Nearly every number in that file is a prefix of another one.**
+
+**THE GENERAL FORM, because it is not about item numbers:** when a check's job is
+to enumerate a population, **the population is the thing to verify first and
+nobody ever does.** Ask the question two ways and compare the counts — the script
+said 21, `grep -c '^- \[ \]'` minus the judged list said 22 — because **a
+derived tally and the thing it was derived from go stale independently, and the
+tally is the one that gets quoted.** Same lesson as the `docs/gotchas.md` count
+this very file's own pointer has been corrected over four times.
