@@ -1,6 +1,6 @@
 {
   "note": "One row per width per run. `outcome` is complete | short | aborted. A width fails on a RATE, never on one bad run: more than 2 bad in the last 5 runs of the same mode. One abort is noise; four of five is a broken instrument, and only a count can tell those apart.",
-  "updated_at": "2026-09-21T04:49:11.842Z",
+  "updated_at": "2026-10-02T21:24:36.848Z",
   "window": 5,
   "max_bad": 2,
   "runs": [
@@ -445,6 +445,60 @@
       "measured": 42,
       "declared": 0,
       "expected": 0
+    },
+    {
+      "at": "2026-10-02T21:24:36.836Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "default",
+      "outcome": "short",
+      "measured": 41,
+      "declared": 0,
+      "expected": 155
+    },
+    {
+      "at": "2026-10-02T21:24:36.836Z",
+      "sha": "",
+      "width": 392,
+      "mode": "default",
+      "outcome": "aborted",
+      "measured": 28,
+      "declared": 0,
+      "expected": 154,
+      "error": "locator.click: Timeout 15000ms exceeded."
+    },
+    {
+      "at": "2026-10-02T21:24:36.836Z",
+      "sha": "",
+      "width": 320,
+      "mode": "default",
+      "outcome": "aborted",
+      "measured": 28,
+      "declared": 0,
+      "expected": 154,
+      "error": "locator.click: Timeout 15000ms exceeded."
+    },
+    {
+      "at": "2026-10-02T21:24:36.836Z",
+      "sha": "",
+      "width": 1920,
+      "mode": "default",
+      "outcome": "aborted",
+      "measured": 28,
+      "declared": 0,
+      "expected": 0,
+      "error": "locator.click: Timeout 15000ms exceeded."
+    },
+    {
+      "at": "2026-10-02T21:24:36.836Z",
+      "sha": "",
+      "width": 360,
+      "mode": "default",
+      "outcome": "aborted",
+      "measured": 28,
+      "declared": 0,
+      "expected": 0,
+      "error": "locator.click: Timeout 15000ms exceeded."
     }
   ]
 }
