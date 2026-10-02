@@ -291,6 +291,7 @@ were made more than once.
 - **Decisions made on Andrew's behalf, 2026-09-20** — the overnight rulings, each with what was decided, why, and what would reopen it: the deploy freeze, the docs prune going ahead while the roadmap rewrite did not, explicit-path commits, typed addresses labelled rather than refused, email required until texting exists, a plan's name being the detailer's data, `connected_accounts` left alone after the premise turned out wrong, decided-not-to-measure kept apart from failed-to-measure, a test switch that must never cause real harm, stale receipts separated from failed ones, expected files widened but never narrowed, an unprovable detector recorded as uncovered, the two questions that went to Andrew with no recommendation, and a broken promise left loud rather than softened.
 - **Publishing is a DEFERRAL, not a blocker** — Andrew, 2026-09-24: he does not care about the live site because nothing is using it, so a program running an older version harms nobody and everything goes up in one go at launch. Changes the HOUSE STYLE for every item whose only remaining step is a publish — *done and correct on disk, switched off until launch*, never *blocked, waiting on you*, because a list of chores he has already declined is a list he stops reading. What does NOT change: `deployed-inventory.mjs` going red stays true and worth knowing, and 0.6's publish command stays written out in full.
 - **The `scripts/` freeze in 14.20 was a moment, not a policy** — the manager lifted it 2026-09-24 with Andrew's yes, scoped to `dashboard-notifies.mjs` and `edge-tenant-replay.mjs` only and expiring with that sitting. Why the two halves of 14.20's own *Done when* could not both hold, why a third file in that directory (DP Cowork's `job-weather-budget.mjs`) is the reason the grant was two files by name, and what the lift bought: three live emails a run, stopped.
+- **One fact, six numbers, every one of them reading as current** — the edge-function drift count lived in `ROADMAP.md` as 26, 22, 13, 4-to-8 and 25 across twelve occurrences, each true on its day. 0.6's title now names the command instead of a figure, and the live answer is read off `receipts/deployed-inventory.json`. 2026-10-02.
 
 <!-- INDEX:END -->
 
@@ -17431,3 +17432,46 @@ unimportant. And it does not cover **migrations**, which touch a database that
 really does exist and is read by the public site; those stay their own question
 and were not folded into this ruling.
 
+
+
+## One fact, six numbers, every one of them reading as current — so the number stops being typed
+
+**2026-10-02.** `ROADMAP.md` carried the number of edge functions running
+something other than this checkout as **six different values in twelve
+places** — 26, 22, 13, 4-rising-to-8, and 25 — and **every one of them read as
+current**, because each was true on the day it was written and none said so.
+0.6's own title carried **22** for twelve days while the live answer moved four
+times.
+
+**THE DECISION: 0.6's title names the command, not a figure**, and the live
+number is read off `receipts/deployed-inventory.json` (`dimensions.differing`,
+whose length is the count). The six historical values are kept, in a table, each
+**dated** — not deleted, because every one of them was a true measurement and
+the dates are what make the trend legible.
+
+**AND THE 2026-10-02 READING WAS DELIBERATELY NOT WRITTEN IN AS A FIGURE.**
+Adding a seventh number is the fault, not the fix. It sits in the receipt and in
+`docs/open-items-read-as-a-stranger-2026-09-25.md`, both of which carry a date.
+
+**WHY THIS IS A DECISION AND NOT A TIDY-UP.** The obvious alternative — go round
+and correct all twelve to today's number — is what produced the problem. **Twelve
+correct figures become twelve stale figures the next time anybody edits a shared
+module**, and `docs/gotchas.md` 85 says that happens every working night: one
+edit to `_shared/strings/es.ts` moved fifteen functions at once. **A number that
+goes stale by somebody else's correct work cannot be maintained by hand.** So it
+is generated or it is dated; there is no third option.
+
+**THE GENERAL FORM, because this is not about edge functions.** Any count a
+command can produce should be quoted from the command. `CLAUDE.md`'s own
+`docs/gotchas.md` tally has four recorded corrections for exactly this and is
+the worked example of the other answer — kept by hand, moved in the same edit as
+the entry that changes it, which works only because one person touches it at a
+time. **The drift count is touched by everybody, so it gets the generated
+treatment instead.**
+
+**HOW IT WAS FOUND, AND IT IS THE REASON THE SIX IS SIX AND NOT FIVE.** The
+first report said *five* numbers, from reading four entries. `grep -nE '[0-9]+ of
+39|twenty-six edge functions' ROADMAP.md` found **twelve occurrences of six
+values** — including a sixth that already corrected 0.6's title in place at
+another item and never edited the title. **Reading found five, grepping found
+six, and the census in 0.6 is built from the grep.** `docs/gotchas.md` 88.
