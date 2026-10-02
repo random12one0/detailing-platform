@@ -428,3 +428,161 @@ own, the same collision would have been invisible to this scan.**
 `780c280` shifted everything below line 4704 down by about seventy lines while
 this batch was being read — 4.2 moved from `:6319` to `:6391` mid-scan. **The
 item titles are stable; the numbers are not.**
+
+---
+
+## BATCH 10 — 3.3 through 7.17, and the question is now only "could somebody execute this"
+
+**Read 2026-10-02. Resumed at the next open item after 3.1 in roadmap order.
+Four of the ten criteria failed and all four were rewritten in place, commit
+`1db118c`** — this batch had the mandate to fix rather than only record.
+
+| | |
+|---|---|
+| items in this batch | **10** |
+| criterion a stranger could execute | **6** |
+| **criterion rewritten because it could not be** | **4** (3.3, 3.4, 4.1, 4.3) |
+| could not judge | **0** |
+| **running total** | **30 of 59** |
+
+**The ten:** 3.3, 3.4, 3.4c, 4.1, 4.3, 4.6, 6.1, 6.2, 6.4, 7.17.
+
+**THE FOUR FAILED IN FOUR DIFFERENT WAYS, WHICH IS THE USEFUL PART** — they are
+not one fault repeated, so "make criteria more specific" would not have caught
+them. **One was unpressable, one carried a stale count, one named a thing that
+does not exist, and one was perfectly executable and pointed at the wrong
+place.** The last is the dangerous kind and had not been seen before in this
+audit.
+
+### 3.4 · A CRITERION THAT CARRIED A COUNT OF THE THING IT WAS MEASURING
+
+**Old:** *"confirmation, acceptance, reminder, quote, receipt, cancellation and
+reschedule have each been sent, received and read."* **Seven kinds.**
+
+**Measured, not quoted:**
+`grep -cE '^export (const|function) [a-zA-Z]+Email' supabase/functions/_shared/emailTemplates.ts`
+→ **16**.
+
+**And 3.4b had already said so in its own words** — *"sixteen, not seven — the
+done-when's list undercounts what is actually in the file."* **So the correction
+existed in a sibling entry and never reached the criterion**, which is the same
+shape as 0.6's title being corrected at another item while the title kept its
+number. **Twice in one file, found twice by accident.**
+
+**New:** every template that file exports, **sent** to a real inbox, opened, read
+against what it claims, **with the count taken off the file at the time of the
+pass and never typed into the line** — plus each leaving a delivery row.
+**Failing:** a pass claimed from rendering, which is the half this item already
+has; and **a seventeenth template added after the pass**, which a typed number
+cannot notice.
+
+### 4.3 · EXECUTABLE, AND POINTED AT THE WRONG PLACE — THE WORST OF THE FOUR
+
+**Old:** *"an attempted state change fails and the access appears in an audit
+history."* **Anybody can do that today, in a browser, and it would prove
+nothing.** `lib/supabase.js` wraps `insert/update/upsert/delete` in a preview tab
+and `lib/preview.js` says in terms that this *"stops a stray click, not an
+attacker"*. **A press refused in a preview tab satisfies the sentence
+completely.**
+
+**The entry already knew** — its own *"WHY THIS ENTRY STAYS OPEN"* paragraph
+analyses both halves and says the first is enforced in the browser only. **So the
+analysis was right and the criterion was the thing left wrong**, and a stranger
+reading only the criterion would have closed the item on a browser press.
+
+**New:** the refusal must be observed **from the server, with the support
+session's own credentials, not through the dashboard**. **Failing:** a refusal
+that only ever came from client code — *"which looks identical on screen to one
+the database enforced."*
+
+> **THE GENERAL LESSON, AND IT IS NEW TO THIS PASS:** every earlier finding was a
+> criterion somebody **could not** execute. This one was a criterion somebody
+> **could** execute, on the wrong thing, and get a clean result. **A vague
+> criterion stalls; a precise criterion aimed one layer too high closes the item
+> falsely.** Specificity is not the property to optimise for — **the property is
+> whether the thing you can press is the thing the item is about.**
+
+### 3.3 · NO RECIPIENT, NO ROW, NO SCHEDULE, AND HALF ITS OWN FIX MISSING
+
+**Old:** *"a test booking sends a real text and a reminder fires on schedule."*
+Three holes: **to whom**, **recorded where**, and **what schedule** — and the
+Fix's own *"Reply C to confirm"* appeared in no criterion at all, so the inbound
+half could have been skipped entirely by somebody working to the letter.
+
+**New:** one booking produces **two** texts — one at booking, one the day before
+— each **independently switchable**, each **leaving a delivery row**, each
+**stopping when its switch is off**; and **a reply recorded against that
+booking**. **Failing:** a text that arrives and leaves no row, *"the shape every
+email fault in this repo has had"*; or a switch that removes the message from the
+screen while the send still happens, **which reads as working from both ends.**
+
+**And one line was added that neither item had:** **how 3.3 differs from 0.13.**
+0.13 is the **pipe** — one message, any message, with a receipt back through the
+webhook. 3.3 is **the two product messages, their switches and the reply.**
+**0.13 can be finished while 3.3 is untouched; 3.3 cannot start until it is.**
+Without that sentence either one could be read as closing the other.
+
+### 4.1 · "ACCIDENTAL" IS NOT SOMETHING ANYBODY CAN PRESS
+
+**Old:** *"no consequential state change happens from one accidental tap, and
+each is recorded in an audit history."* **Nobody can press "accidental"**, and
+*"an audit history"* named no table, no columns and no list of actions — while
+*"each"* silently referred back to seven verbs in the Fix line.
+
+**New:** for **each of the seven** the Fix names — complete, cancel, no-show,
+suspend, delete, waive, owner-invite — **one press produces a step that names the
+record before anything changes**, and the change is **either reversible from the
+same screen** or **leaves a row saying who did it, what it was before, and
+when** — read off the row, never off the screen.
+
+**Both failure modes are drawn from this item's own history rather than
+imagined.** A confirmation that closes the record, leaving the undo a navigation
+away, **was built and fixed on 2026-09-20 across five call sites** — so it is now
+a **regression** shape, not a hypothetical. And **a row that records the new value
+and not the old one cannot answer *what was this before*, which is the one
+question an undo needs.**
+
+### THE SIX THAT PASSED, AND WHY EACH ONE PASSES
+
+* **3.4c** — names **two literals**, the function they must pass through
+  (`formatDateLong`), the fixture whose date must be one day out, a rendered
+  Spanish email, **and a sabotage requirement**: *"put an English literal back and
+  the run must say so — which today it does not, and that is 3.4's FAULT 5."* A
+  criterion that names its own instrument's current blind spot is the strongest
+  shape in the file.
+* **4.6** — names the command, the receipt, the grader and the sections:
+  *"a default run of `sweep-tap-targets.mjs` produces a receipt `receipt.mjs`
+  grades for the dashboard/settings sections, not only for `/admin`."* Nothing to
+  interpret.
+* **6.1** — restore a copy, open it, check it against a known set of bookings,
+  customers and settings, **with the date visible in the back office.** Four
+  observable things; `restore-drill.mjs` already fails the run and keeps failing.
+* **6.2** — four clauses, each observable: a controlled failure **raises an
+  alert**, **appears in incident history**, **names the affected path**, and
+  **clears only after a successful check.** 6.3 then demonstrated exactly this
+  shape end to end, which is the best evidence a criterion is executable — somebody
+  executed its twin.
+* **6.4** — written 2026-09-25, **one clause per thing the Fix names**, and the
+  clauses carry numbers rather than adjectives: *"an update interrupted mid-flight
+  and retried leaves **one** change, not two"*, *"a booking submitted twice through
+  a retry leaves **one** booking."*
+* **7.17** — *"no example site states a figure whose producing field or endpoint
+  cannot be named, and the rule is in the tenant-site brief."* Both halves are
+  checkable by reading, and the second half is what stops it being re-derived.
+
+### WHAT THIS BATCH COULD HAVE MISSED
+
+* **The zero-criteria scan was re-run after the rewrites and reports one item:
+  12.3**, the deliberately parked deposit design, which is Andrew's and is handled
+  when the audit reaches it in roadmap order. **So no criterion was lost by these
+  edits** — checked, because an edit that fixes four things and drops a fifth is
+  exactly what batch 9 found somebody else doing.
+* **I judged executability by reading, not by executing.** None of the six was
+  run. **6.2's claim is the strongest precisely because its twin WAS run** (6.3),
+  and that is the only one in the batch with that support.
+* **4.1 and 4.3 are 275 and 166 lines; I read 4.1's opening, its measured section
+  and its closing three paragraphs, and 4.3's opening plus its "WHY THIS ENTRY
+  STAYS OPEN" analysis.** The 4.3 finding came out of that analysis paragraph —
+  **the entry diagnosed its own criterion and nobody had acted on it**, which is
+  the third time in this audit that a correction sat in prose and never reached
+  the line it was about.
