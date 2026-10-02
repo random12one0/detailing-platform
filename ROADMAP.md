@@ -8983,8 +8983,22 @@ rather than wording went to Andrew.
   cost and repeating cost; "Pay yearly: $400 (save $80)"; commitment choices in
   the card, not buried; reduce the empty booking-only area; raise terms
   contrast.
-  **Done when:** in five seconds a visitor can say what each plan includes,
-  what is due now and what repeats.
+  **Done when** ~~in five seconds a visitor can say what each plan includes, what
+  is due now and what repeats~~ — **REWRITTEN 2026-10-02: nobody can press five
+  seconds, and "can say" needs a visitor who is not in the room.** The Fix line
+  above is already concrete, so the criterion is taken from it rather than
+  invented:
+  **Done when:** **(a)** the one-time build cost and the repeating cost are on
+  **separate lines**, each labelled as which it is; **(b)** the saving is never
+  rendered as a standalone figure that can be read as a price — *"Pay yearly: $400
+  (save $80)"* is the shape, *"SAVE ON THE YEAR $80 a year"* is the fault; **(c)**
+  the saving does **not** carry the same visual weight as the two prices, measured
+  rather than eyeballed — font size and weight read off the computed style; and
+  **(d)** the commitment choice is inside the plan card, and the terms text clears
+  the contrast floor `contrast-insitu.mjs` enforces.
+  **What failing looks like:** three figures of equal weight on one card, which is
+  the fault as reported — **the saving reading as a third fee** — and it survives
+  any amount of rewording while the weights are equal.
   *A1 P2-02, A2 6.1*
 
 - [x] **7.4 — RESOLVED 2026-09-22, SECOND PASS. The Fix line names two
@@ -9395,8 +9409,19 @@ rather than wording went to Andrew.
   weather, maps, analytics, error reporting, email, hosting, storage, support.
   Separate active processors from planned ones; a future Google Business
   Profile feature is currently described as if it were live.
-  **Done when:** the configuration inventory and the public policy match, and
-  adding or removing a processor triggers a policy review.
+  **Done when** ~~the configuration inventory and the public policy match, and
+  adding or removing a processor triggers a policy review~~ — **FIRST HALF KEPT,
+  SECOND HALF REWRITTEN 2026-10-02: "triggers a policy review" is a process, not
+  something a stranger can observe, and no mechanism was named.**
+  **Done when:** **(a)** every external host the edge functions actually call is
+  named on `/privacy`, and every processor `/privacy` names is one the code calls
+  — both lists derived from the code rather than from memory; and **(b)** a check
+  **fails by name** when those two lists disagree, so adding a processor reddens a
+  run instead of relying on somebody remembering the policy exists.
+  **What failing looks like:** the two lists reconciled once, by hand, on the day
+  somebody looked — which is this item's current state and is why it is still
+  open. **A reconciliation is not a mechanism**, and the next processor arrives
+  without one.
   *A1 P0-05, P3-10*
 
   **AUDITED 2026-09-21, FROM THE CODE. Nothing on the privacy page was
@@ -9608,7 +9633,19 @@ rather than wording went to Andrew.
   **Fix:** show the headline immediately; shorten the DM demonstration to about
   one screen; a larger brighter real product crop, desktop and phone paired;
   respect reduced motion; trim repeated sections.
-  **Done when:** the full point is understandable with motion disabled.
+  **Done when** ~~the full point is understandable with motion disabled~~ —
+  **REWRITTEN 2026-10-02: "understandable" is a judgement nobody can press.**
+  **Done when:** with `prefers-reduced-motion: reduce` **and** with this repo's own
+  `?lite=1`, **every element carrying the page's proposition is present and at full
+  opacity in the FIRST paint** — no element that states the offer waits on an
+  animation, a reveal or a timer having run — **and the page reads in the same
+  order as it does with motion on**, which is the half a static screenshot cannot
+  show and a DOM order read can.
+  **What failing looks like, and it has happened here:** a node added after the
+  `data-rv` reveal list is collected at mount **never gets `.in` and sits at
+  opacity 0 for ever** — written up in 7.12 — so an element can be in the DOM, in
+  the right order, and invisible. **Opacity has to be read, not assumed from
+  presence.**
   *A1 P2-03, P2-04, A2 7.4*
 
 - [ ] **7.10 — Example site defects. Re-measured 2026-09-20; two fixed, two
@@ -10697,10 +10734,27 @@ rather than wording went to Andrew.
   want their own canary and their own honest UNJUDGEABLE bucket for
   whatever in `supabase/migrations/` does not parse cleanly, the same
   discipline 8.10b was held to.
-  **Done when:** whoever builds it says, in the receipt's own words, which
-  of the remaining kinds it now sees and which it still does not — the
-  same sentence 8.10b's receipt already carries, extended rather than
-  replaced.
+  **Done when** ~~whoever builds it says, in the receipt's own words, which of the
+  remaining kinds it now sees and which it still does not~~ — **REWRITTEN
+  2026-10-02 BECAUSE THAT COULD NOT FAIL ON THIS ITEM'S SUBJECT.** A receipt
+  sentence reading *"it still sees none of the remaining kinds"* satisfies the old
+  wording **while the check is unchanged** — so the item closes by documenting its
+  own blindness, which is the whole thing 8.10c exists to stop. **Same fault as
+  2.12's old done-when naming a survey as a gate**, found the same way: by asking
+  what a lazy pass would look like.
+  **Done when:** **`migration-drift.mjs` compares at least GRANTS** — the kind this
+  entry already calls *"probably the next-most-tractable"*, readable from
+  `information_schema.role_table_grants` / `has_table_privilege` — **and names a
+  real difference or a real match per grant in `supabase/migrations/`**, with
+  anything that does not parse going to a declared **UNJUDGEABLE** bucket by file
+  name rather than being skipped; **and it is proved by a sabotage that revokes one
+  grant the migrations declare, which must turn the run red by name.** The receipt
+  then updates its own sees/cannot-see sentence — **which is the paperwork, not the
+  criterion.**
+  **What failing looks like:** a receipt whose sentence grew while the comparison
+  did not, and an UNJUDGEABLE bucket quietly holding every grant in the repo — a
+  pass over zero judged targets, which `receipt.mjs` already refuses elsewhere and
+  must refuse here.
   Not started.
 
 - [ ] **7.18 — There is no check that every `.ld` marketing page carries the
