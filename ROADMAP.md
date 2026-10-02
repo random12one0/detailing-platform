@@ -12133,8 +12133,22 @@ the dashboard or back office at phone width at all.
   **Fix:** stages — Created → Configured → Bookable → First booking → Active.
   One furthest stage per account, separate warnings, one primary blocking
   reason.
-  **Done when:** the counts reconcile and each account has one clear next
-  action.
+  **Done when** ~~the counts reconcile and each account has one clear next
+  action~~ — **REWRITTEN 2026-10-02 for two reasons: "clear" is a judgement
+  nobody can press, and "the counts reconcile" aims at the wrong thing — this
+  entry's own diagnosis says the counts were never the fault.** `STUCK`
+  (`app/src/admin/AdminPage.jsx:689`) is five rows of predicate + computed
+  headline + **a constant string of advice**, and row `first` asserts *"The page
+  works and nobody has used it"* while row `open` has just computed that the page
+  cannot take a booking. **One of the two rows has no calculation.**
+  **Done when:** **no row states a fact it did not compute** — each row's advice
+  is derived from the same predicate that produced its headline, or it says
+  nothing — **and the one live non-demo business cannot produce two rows that
+  contradict each other**, read off the screen and off the rows together.
+  **What failing looks like:** the counts reconciling while the sentences still
+  disagree, which is **exactly today's state and looks completely normal** — one
+  non-demo business, `Counter Signup Test Detail`, 0 services and 0 bookings,
+  firing both rows at once. **A criterion about counts would already be met.**
   *A1 P1-02, P3-04, A2 5.1*
 
   **DIAGNOSED 2026-09-21. THERE ARE THREE DIFFERENT THINGS IN HERE AND ONLY
@@ -13592,8 +13606,20 @@ the dashboard or back office at phone width at all.
   duplicate wide card under "What to look at, in order" is not. "Money at risk"
   shows for an account that pays nothing. "Ring them" shows no phone number.
   "Booking · last one yesterday" shows for accounts with 0 customers.
-  **Done when:** the owner can find the only account needing attention in under
-  ten seconds.
+  **Done when** ~~the owner can find the only account needing attention in under
+  ten seconds~~ — **REWRITTEN 2026-10-02: a stopwatch and "can find" are the same
+  unpressable shape 7.3 carried, and the five real complaints in the paragraph
+  above are already the test.** **Done when:** real detailers list before
+  fixtures by default; **no row shows an action or a line whose precondition is
+  false** — the four named cases ARE the criterion: no *"Money at risk"* on an
+  account that pays nothing, no *"Ring them"* without a phone number, no
+  *"Booking · last one yesterday"* on an account with 0 customers, and no
+  duplicate wide card under *"What to look at, in order"*; and the account
+  needing attention is identifiable **without opening a row**.
+  **What failing looks like:** a prettier list that still offers *"Ring them"*
+  with no number. **The four cases are the item; the list is only the means**, and
+  a redesign that satisfies the layout and keeps the false lines has fixed
+  nothing. **Scope unchanged — this is still stepped past, for the reason below.**
   *A1 P3-02, P3-03, A2 5.2, 5.3, 5.6*
   **STEPPED PAST 2026-09-20, and the reason is stronger than size, so it is
   written here rather than left for size to imply: `admin/` is English-only
