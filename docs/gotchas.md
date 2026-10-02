@@ -3601,3 +3601,62 @@ copy inside one — and as the stale-blocker pass, where reading an entry's own
 sentence back confirms every entry. **Ask what the thing IS, then go looking for
 that. Never start from the list.**
 
+
+## 88. A LINE NUMBER IS NOT A CITATION, AND A ONE-TERM GREP NEARLY TURNED A TRUE CLAIM INTO A FALSE ACCUSATION
+
+**2026-10-02. Both halves happened to the same sentence, in opposite directions,
+and the second is the dangerous one.**
+
+**THE FIRST HALF — THE CITATION WAS THIRTY-NINE LINES OUT.** A session reported
+that ROADMAP's 320-calendar item was closed in fact, citing the hold at
+`FOR-ANDREW.md:818`. **The claim was true and the line was wrong.** Line 818 is
+the seven-emails row; the hold is at **857**. A line number in a file two
+sessions are both appending to is a **pointer to a moving target** — `FOR-ANDREW.md`
+had grown between the read and the report, and nothing anywhere said so.
+
+**So a line number alone is not a citation. A citation is the line number PLUS
+enough of the text to re-find it** — here, *"DECIDED · The day squares stay as
+they are. 2026-09-24"*. **With the quote, a reader who lands on the wrong line
+greps and recovers in one step. With only the number, they land on an unrelated
+row and have to decide whether the claim is false.**
+
+**THE SECOND HALF, AND IT IS WHY THIS IS AN ENTRY RATHER THAN A NOTE.** The
+manager checking the claim grepped `FOR-ANDREW.md` for **`320`** — the width the
+whole item is about — and **got nothing. That string does not appear in the file
+anywhere.** On that evidence the report was about to be written up as false. **The
+row survived only because the grep was widened to `day cell|calendar|square`.**
+
+**A ONE-TERM GREP RETURNING NOTHING IS NOT EVIDENCE THAT THE THING IS ABSENT. It
+is evidence that one word is absent.** The hold was written in the vocabulary of
+the *decision* — squares, phone, thumb — and not in the vocabulary of the
+*measurement*, which is where the number lives. **Those are two different
+vocabularies for one fact, and a document written for Andrew uses the first
+while the roadmap uses the second.** That is not sloppiness; `FOR-ANDREW.md` is
+deliberately free of pixel counts.
+
+**THE RULE, AND IT COSTS ONE EXTRA TERM:** before reporting that something is
+**not** in a file, grep for the **subject** as well as the **number** — two or
+three alternates, joined with `|`. A nil result from a single term is a reason to
+widen, never a finding.
+
+```bash
+grep -niE "day cell|calendar|square|37px|320" FOR-ANDREW.md    # the subject, several ways
+```
+
+**WHAT MAKES THIS WORSE THAN AN ORDINARY MISS:** the failure is **asymmetric and
+confident**. A grep that finds the row tells you the claim is true. A grep that
+finds nothing tells you nothing at all — **but it reads exactly like a
+disproof**, and the natural next action is to report a colleague's finding as
+wrong. **A manufactured false accusation costs more than the original error**,
+because the original error was a wrong line number beside a correct conclusion,
+and the correction would have been a wrong conclusion stated with authority.
+
+**THE FAMILY THIS BELONGS TO.** Same shape as **#87** — an audit that enumerates
+known instances reports its own diligence — and as **#86**, a sweep that counts
+entries and misses the second copy inside one. All three are **a check whose
+negative result is indistinguishable from its not having looked properly**, which
+is the distinction `docs/silences.md` exists for. **And it bit the same session
+twice in one night in the other direction too:** its own report claimed "five
+numbers for one fact" from reading four entries, and `grep -nE '[0-9]+ of 39'`
+found **twelve occurrences of six values**. Reading found five; grepping found
+six. **Neither instrument is the safe one. Using one of them alone is the fault.**

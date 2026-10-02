@@ -167,7 +167,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is EIGHTY-SEVEN specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is EIGHTY-EIGHT specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -208,6 +208,10 @@ a paragraph claiming the line had gone stale again before that command showed it
 had not.
 **84 on 2026-09-24, in the same edit as the entry** — a cron job writing to
 the rows a check is measuring. Counted with the command above, not estimated.
+**87 → 88 on 2026-10-02, same edit again** — a line number cited thirty-nine
+lines out, and a one-term grep that nearly reported the true claim beside it as
+false. `grep -c "^## " docs/gotchas.md` was run before writing this, which is
+the rule and is now four sittings unbroken.
 
 ## Hard rules
 
