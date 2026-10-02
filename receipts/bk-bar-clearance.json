@@ -1,9 +1,9 @@
 {
-  "git_sha": "60beed121a1a955e7067c260433119a275572916",
-  "git_sha_started": "a2a43d5c3367e1ed609a1ee6e15a0bf5f03833d3",
+  "git_sha": "9ce9b65b1fe4f9ccc698273b78caa1771b8eefa4",
+  "git_sha_started": "69b83f2ff4be9967c2ae5534c32ce60e3180f033",
   "head_moved": true,
   "environment": "local",
-  "finished_at": "2026-10-02T21:31:22.923Z",
+  "finished_at": "2026-10-02T22:14:54.645Z",
   "failures": [
     "320x844 step 5: legal «» is 37px of hit area with nothing over it (box 37px + 0px overhang); «» is 37px of hit area with nothing over it (box 37px + 0px overhang); «» is 37px of hit area with nothing over it (box 37px + 0px overhang) … and 32 more",
     "320x844 long-plan step 5: legal «» is 37px of hit area with nothing over it (box 37px + 0px overhang); «» is 37px of hit area with nothing over it (box 37px + 0px overhang); «» is 37px of hit area with nothing over it (box 37px + 0px overhang) … and 32 more",
@@ -195,7 +195,7 @@
       "392x844 step 2: 5 of 7 matched control(s) (+2 inBar, dropped), worst reachable 44px, bar sticky h73 top 771, 0 inner scroller(s), press landed, reserve 73px/73px, at rest under the bar: 0",
       "392x844 step 3: 9 of 11 matched control(s) (+2 inBar, dropped), worst reachable 44px, bar sticky h73 top 771, 0 inner scroller(s), press landed, reserve 73px/73px, at rest under the bar: 0",
       "392x844 step 4: 4 of 6 matched control(s) (+2 inBar, dropped), worst reachable 44px, bar sticky h73 top 771, 0 inner scroller(s), press landed, reserve 73px/73px, at rest under the bar: 0",
-      "392x844 step 5: 4 of 6 matched control(s) (+2 inBar, dropped), worst reachable 44px, bar sticky h73 top 771, 0 inner scroller(s), press landed, reserve 73px/73px, at rest under the bar: 0",
+      "392x844 step 5: 39 of 41 matched control(s) (+2 inBar, dropped), worst reachable 44px, bar sticky h73 top 771, 0 inner scroller(s), press landed, reserve 73px/73px, at rest under the bar: 0",
       "392x844 step 6: 2 of 4 matched control(s) (+2 inBar, dropped), worst reachable 44px, bar sticky h73 top 771, 0 inner scroller(s), press landed, reserve 73px/73px, at rest under the bar: 0",
       "392x844 step 7: 3 of 5 matched control(s) (+2 inBar, dropped), worst reachable 44px, bar sticky h73 top 771, 0 inner scroller(s), press landed, reserve 73px/73px, at rest under the bar: 0",
       "768x1024 step 1: 8 of 9 matched control(s) (+1 inBar, dropped), worst reachable 44px, bar sticky h73 top 951, 0 inner scroller(s), press landed, reserve 73px/73px, at rest under the bar: 0",
@@ -342,7 +342,7 @@
     }
   },
   "check_id": "bk-bar-clearance",
-  "started_at": "2026-10-02T21:25:05.182Z",
+  "started_at": "2026-10-02T22:08:49.273Z",
   "status": "fail",
   "expected_targets": 137,
   "discovered_targets": 137,
