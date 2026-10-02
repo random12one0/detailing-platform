@@ -5188,10 +5188,18 @@ requested.
   when it is made, one the day before the appointment — each of which (a) a
   detailer can switch off independently, (b) leaves a delivery row in this
   product's own tables, and (c) stops being sent when its switch is off.** And
-  **a customer's reply CHANGES THE BOOKING and not merely a log** — *"Reply C to
-  confirm"* means a reply moves the booking into the state the detailer would
-  otherwise have had to set by hand, and the row recording it is the evidence
-  rather than the deliverable.
+  **a customer's reply CHANGES THE BOOKING and not merely a log** — on a
+  **request-mode** booking, *"Reply C to confirm"* moves it to the state
+  `respond-to-booking` would have set, and the row recording the reply is the
+  evidence rather than the deliverable. **On a reserve-mode booking there is
+  nothing to confirm, so the confirmation text does not offer a reply at all** —
+  and that, not a silent pass, is what "done" looks like there.
+  ***SECOND COLD READ, 2026-10-02: the first repair said the reply "moves the
+  booking into the state the detailer would otherwise have had to set by hand"
+  and named neither the state nor the mode.*** `booking_mode` is `request` or
+  `reserve` (`core.js`, falling back to `reserve`), and **in reserve mode nothing
+  needs confirming** — so the clause was unexecutable on half the product and a
+  stranger would have had to ask which half.
   *(This clause said only that the reply be **recorded** until a COLD READ on
   2026-10-02 caught it — `docs/open-items-read-as-a-stranger-2026-09-25.md` batch
   12. **A reply logged and acted on by nobody would have passed**, while the Fix
@@ -9093,10 +9101,16 @@ rather than wording went to Andrew.
   **separate lines**, each labelled as which it is; **(b)** the saving is never
   rendered as a standalone figure that can be read as a price — *"Pay yearly: $400
   (save $80)"* is the shape, *"SAVE ON THE YEAR $80 a year"* is the fault; **(c)**
-  the saving is rendered in the **same computed style as the page's other
-  supporting text and a different one from the two price figures** — read
-  `font-size` and `font-weight` off all three and compare, **anchored to
-  something already on the page rather than to a delta somebody picked.**
+  the saving shares the computed `font-size` **and** `font-weight` of the page's
+  own fine print — **`.ld .fine`, 13px today (`landing.css:472`)** — and shares
+  neither with the price figure, **`.ld .rungfig .fig`**. Three reads, by
+  selector, no delta to pick.
+  ***SECOND COLD READ, 2026-10-02: the first repair of this clause named "the
+  page's other supporting text" and that is an UNNAMED ANCHOR — a stranger has to
+  choose an exemplar, which is the judgement the clause was removing.*** Same
+  substitution 7.9 made in the same sitting: **a judgement word is easiest to
+  replace with another judgement word, and an unset threshold with an unnamed
+  anchor.** Two selectors fix it.
   *(Clause (c) was "does not carry the same visual weight… measured rather than
   eyeballed" until a COLD READ on 2026-10-02 — see
   `docs/open-items-read-as-a-stranger-2026-09-25.md` batch 12. "Not the same" is
