@@ -5126,15 +5126,45 @@ requested.
   out."
   **Fix:** text confirmation and a day-before reminder with "Reply C to
   confirm", each switchable by the detailer.
-  **Done when:** a test booking sends a real text and a reminder fires on
-  schedule.
+  **Done when** ~~a test booking sends a real text and a reminder fires on
+  schedule~~ — **REWRITTEN 2026-10-02: the old wording named no recipient, no
+  row and no schedule anybody could check, and it left out the half of this
+  item's own Fix that takes a reply.** **One booking produces TWO texts — one
+  when it is made, one the day before the appointment — each of which (a) a
+  detailer can switch off independently, (b) leaves a delivery row in this
+  product's own tables, and (c) stops being sent when its switch is off.** And
+  **a customer's reply is recorded against that booking**, because *"Reply C to
+  confirm"* is in the Fix and was in no criterion.
+  **What failing looks like:** a text that arrives and leaves no row — the shape
+  every email fault in this repo has had — or **a switch that removes the message
+  from the screen while the send still happens**, which reads as working from
+  both ends.
+  **HOW THIS DIFFERS FROM 0.13, so neither is closed by the other:** 0.13 is the
+  **pipe** — one message, any message, with a receipt coming back through the
+  webhook. **3.3 is the two product messages, their switches and the reply.**
+  0.13 can be finished while 3.3 is untouched; 3.3 cannot start until it is.
   *A2 3.1, A2 Part 8 item 1 — A2 calls this the single biggest cut to no-shows*
 
 - [ ] **3.4 — Review every email end to end. Nobody has ever done this.**
   Carried from the old roadmap, and it is the same job A1 § 10 asks for in its
   lifecycle matrix.
-  **Done when:** confirmation, acceptance, reminder, quote, receipt,
-  cancellation and reschedule have each been sent, received and read.
+  **Done when** ~~confirmation, acceptance, reminder, quote, receipt,
+  cancellation and reschedule have each been sent, received and read~~ —
+  **REWRITTEN 2026-10-02, AND THE OLD LIST WAS MEASURABLY SHORT.** It named
+  **seven** kinds; `grep -cE '^export (const|function) [a-zA-Z]+Email'
+  supabase/functions/_shared/emailTemplates.ts` returns **16** today, and 3.4b
+  already said so in its own words — *"sixteen, not seven — the done-when's list
+  undercounts what is actually in the file."* **A criterion that carries a count
+  of the thing it is measuring goes stale the next time somebody adds one.**
+  **Done when:** **every template that file exports has been SENT to a real
+  inbox, opened, and read against what it claims** — the count taken from the
+  file at the time of the pass, never typed into this line — **and each one has
+  left a delivery row**, so a template that reached nobody cannot be reported as
+  reaching somebody.
+  **What failing looks like:** a pass claimed from RENDERING rather than sending,
+  which is the front half this item already has and explicitly does not count;
+  and **a seventeenth template added after the pass**, which a typed number
+  cannot notice and a count read off the file can.
   *old roadmap § A*
 
   ---
@@ -6229,8 +6259,21 @@ requested.
   owner-invite. **The pattern already exists** — the job page's delete-behind-a
   -fold with `.btn.danger` is this product's reference for a destructive
   action (`docs/screen-rules.md`). Copy it rather than designing a second one.
-  **Done when:** no consequential state change happens from one accidental tap,
-  and each is recorded in an audit history.
+  **Done when** ~~no consequential state change happens from one accidental tap,
+  and each is recorded in an audit history~~ — **REWRITTEN 2026-10-02 to name a
+  shape rather than a feeling: "accidental" is not something anybody can press,
+  and "an audit history" named no table and no list of actions.** For **each of
+  the seven actions this item's own Fix names** — complete, cancel, no-show,
+  suspend, delete, waive, owner-invite — **one press produces a step that names
+  the record before anything changes**, and the change is **either reversible
+  from the same screen** or **leaves a row saying who did it, what it was
+  before, and when** — read off the row, never off the screen.
+  **What failing looks like, and both have happened here once already:** a
+  confirmation that closes the record, so the undo is a navigation away rather
+  than a tap — built and fixed 2026-09-20 across five call sites, so this is now
+  a REGRESSION shape rather than a hypothetical; and **a row that records the new
+  value and not the old one**, which cannot answer *what was this before*, and
+  is the one question an undo needs.
   *A1 P0-06*
 
   **MEASURED FIRST, 2026-09-20 — WHAT THE TAP ACTUALLY DID.** It wrote
@@ -6527,8 +6570,18 @@ requested.
   nothing said so and nothing recorded it.
   **Fix:** "Viewing as support — read only" banner, record who opened it and
   when, block mutations server-side, provide "Return to admin".
-  **Done when:** an attempted state change fails and the access appears in an
-  audit history.
+  **Done when** ~~an attempted state change fails and the access appears in an
+  audit history~~ — **CLAUSE ONE SHARPENED 2026-10-02, because a stranger could
+  execute the old wording in a browser and this entry says that would be the
+  wrong place:** the refusal must be observed **from the server, with the
+  support session's own credentials, not through the dashboard**, and the access
+  must leave a row naming who looked and at whose records.
+  **The old wording was executable and pointed at the wrong thing**, which is
+  worse than vague — `lib/preview.js` says in terms that the browser wrapper
+  *"stops a stray click, not an attacker"*, so a press that is refused in a
+  preview tab satisfies the sentence and proves nothing about enforcement.
+  **What failing looks like:** a refusal that only ever came from client code,
+  which looks identical on screen to one the database enforced.
   *A1 P3-08, § 9*
 
   **WORKED 2026-09-21. THE ENTRY DESCRIBED FOUR THINGS; THREE OF THEM ALREADY
