@@ -17122,15 +17122,26 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   open every `<details>` or record the count of controls skipped for sitting
   inside a closed one — and put that number in the receipt either way.
 
-  **Done when:** a run of `node scripts/sweep-tap-targets.mjs` over the settings
-  doors reports a **discovered-control count that is strictly higher than
-  today's** on at least one of `BusinessInfo`, `Campaigns` and `Notifications`
-  — or, if the counting route is chosen, reports a **non-zero
-  skipped-inside-closed-fold figure** in `receipts/sweep-tap-targets.json` —
-  **and the difference between the two numbers is written into the roadmap
-  line**, because that difference is the population nothing has ever measured.
-  **A run that reports no change on any of the eighteen files is a failure of
-  this item, not a pass**, until somebody explains why.
+  **Done when:** one run of `node scripts/sweep-tap-targets.mjs` **captures its
+  own baseline** — the settings doors walked **twice in the same run, once
+  without opening closed folds and once with** — and reports **both
+  discovered-control counts**, with the difference named per SCREEN. **The
+  difference is the population nothing has ever measured, and it goes in this
+  roadmap line.** If the counting route is chosen instead, the run reports a
+  **non-zero skipped-inside-closed-fold figure** in
+  `receipts/sweep-tap-targets.json`, by screen, and that figure goes here.
+  **A run reporting zero difference on every screen that has a `<details>` is a
+  failure of this item, not a pass**, until somebody explains why.
+  ***TWO FAULTS FROM A COLD READ, 2026-10-02, ON MY OWN CRITERION.*** It asked
+  for a count *"strictly higher than **today's**"* — **a baseline it never
+  recorded**, so a stranger has no number to compare against and the baseline
+  moves while they look. This repo's own discipline is *"the before number, so
+  the size of this is visible without re-measuring anything"*; capturing both
+  counts in one run makes the comparison self-contained. And it said a run
+  showing no change *"on any of the eighteen files"* — **a category error**: the
+  eighteen are `app/src` files that USE `<details>`, while the sweep reports
+  controls per SCREEN and never mentions a file. **The unit was wrong, which
+  would have made the failure condition unreadable.**
 
   > **THE ONE LINE FOR WHOEVER HAS THE BROWSER, before any code is written:**
   > *with the dev server up and the demo tenant seeded, open the settings doors,
@@ -17209,10 +17220,16 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   > control is named.
   > **Zero cost, no install, nothing to build.**
 
-  **Done when:** all three are recorded — each with what was seen, not "looked
+  **Done when:** all three are recorded **in this entry**, each against **its own
+  *Passes when* line above** — they are not interchangeable and "all three done"
+  is not a reading — each with what was seen, not "looked
   fine" — **and each of the three parent entries carries a one-line result
   beside the gap it named**, so the next reader finds the answer where they
   found the question rather than in a fourth document.
+  *(The "in this entry" and the pointer to the three `Passes when` lines are a
+  cold read's, 2026-10-02: the criterion line alone did not say where the record
+  goes or that the three have separate pass conditions, and a reader who had only
+  the line would have written one verdict for three different checks.)*
 
   **What failing looks like:** one of the three comes back "no problems" with no
   detail. **A human check written up as though it were a measurement is the
