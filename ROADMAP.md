@@ -5234,6 +5234,21 @@ requested.
   which is the front half this item already has and explicitly does not count;
   and **a seventeenth template added after the pass**, which a typed number
   cannot notice and a count read off the file can.
+  **TWO THINGS A COLD READ ADDED, 2026-10-02, because a stranger would have been
+  stopped by both:**
+  **THE COST IS NAMED AND IT IS A SHARED ONE.** Sixteen real sends is sixteen of
+  a **100-a-day allowance with 80 reserved for tenants** —
+  `docs/shared-resources.md`. **The pass goes to the reserved sink addresses, not
+  to a charged domain**, and it is **not run while another session is measuring
+  mail**. A criterion that silently spends a shared budget is how two sessions
+  collide with no guard and no report (14.16).
+  **AND NOT EVERY TEMPLATE CAN BE SENT TODAY, WHICH THE FIRST DRAFT DID NOT
+  ALLOW FOR.** `maintenanceDueEmail` is deliberately gated off (0.7) and
+  `send-email` answers 401 to anything without the service key. **A template that
+  cannot be sent is recorded as NOT SENT, by name, with the reason** — never
+  quietly counted as covered, and never made sendable by softening a gate that
+  exists on purpose. **"Sixteen of sixteen" with two unsendable ones folded in is
+  the lie this clause exists to prevent.**
   *old roadmap § A*
 
   ---
@@ -6334,8 +6349,18 @@ requested.
   and "an audit history" named no table and no list of actions.** For **each of
   the seven actions this item's own Fix names** — complete, cancel, no-show,
   suspend, delete, waive, owner-invite — **one press produces a step that names
-  the record before anything changes**, and the change is **either reversible
-  from the same screen** or **leaves a row saying who did it, what it was
+  the record before anything changes**; **every one of the seven leaves a row
+  saying who did it, what it was before, and when** — read off the row, never off
+  the screen — **and the ones that can be undone are also reversible from the same
+  screen.**
+  ***COLD READ 2026-10-02: this was an OR and the OR was a hole.*** It read
+  *"either reversible from the same screen **or** leaves a row"*, so **any action
+  somebody made reversible needed no audit row at all** — which quietly deleted
+  the half the original criterion was written for, and deleted it hardest on
+  `delete` and `suspend`. **Same shape as this session dropping 3.3's "confirm":
+  a fold that keeps a mechanism and loses the reason it existed.** The row is now
+  required of all seven; reversibility is an additional requirement, not an
+  alternative to it.
   before, and when** — read off the row, never off the screen.
   **What failing looks like, and both have happened here once already:** a
   confirmation that closes the record, so the undo is a navigation away rather
@@ -6643,7 +6668,14 @@ requested.
   audit history~~ — **CLAUSE ONE SHARPENED 2026-10-02, because a stranger could
   execute the old wording in a browser and this entry says that would be the
   wrong place:** the refusal must be observed **from the server, with the
-  support session's own credentials, not through the dashboard**, and the access
+  support session's own credentials, not through the dashboard**, **and it is
+  named WHICH layer refused — the Data API, where RLS decides, or an edge
+  function, which runs as the service role and bypasses RLS entirely (4.4).**
+  *(The layer clause is a cold read's, 2026-10-02: "from the server" was an
+  improvement on "in a browser" and still covers two different enforcement
+  mechanisms, so **a refusal from one proves nothing about the other** — the
+  original fault one step down. If the support view reaches records through both,
+  both are pressed.)* And the access
   must leave a row naming who looked and at whose records.
   **The old wording was executable and pointed at the wrong thing**, which is
   worse than vague — `lib/preview.js` says in terms that the browser wrapper
@@ -9501,6 +9533,17 @@ rather than wording went to Andrew.
   somebody looked — which is this item's current state and is why it is still
   open. **A reconciliation is not a mechanism**, and the next processor arrives
   without one.
+  **TWO CLAUSES ADDED BY A COLD READ, 2026-10-02, because a stranger would have
+  had to ask both:** **(c)** *"external host"* means **a host the product sends
+  customer data to or fetches customer-specific data from** — so Geoapify and
+  Stripe count, and Supabase and Netlify are the platform the product runs ON
+  rather than processors it hands data to; **the rule goes in the check, not in a
+  reviewer's head**, and a host nobody can classify fails the run rather than
+  being dropped. **(d)** the check **declares what it cannot see** — a host
+  reached through a variable, a shared module or a string built at run time is not
+  greppable, and **an undeclared blind spot is how a list check reports a clean
+  match over a processor nobody enumerated.** Same discipline 8.10c now carries
+  for its UNJUDGEABLE bucket.
   *A1 P0-05, P3-10*
 
   **AUDITED 2026-09-21, FROM THE CODE. Nothing on the privacy page was
@@ -9715,11 +9758,17 @@ rather than wording went to Andrew.
   **Done when** ~~the full point is understandable with motion disabled~~ —
   **REWRITTEN 2026-10-02: "understandable" is a judgement nobody can press.**
   **Done when:** with `prefers-reduced-motion: reduce` **and** with this repo's own
-  `?lite=1`, **every element carrying the page's proposition is present and at full
-  opacity in the FIRST paint** — no element that states the offer waits on an
-  animation, a reveal or a timer having run — **and the page reads in the same
-  order as it does with motion on**, which is the half a static screenshot cannot
-  show and a DOM order read can.
+  `?lite=1`, **NO element anywhere on the page is left at opacity 0, or absent from
+  the layout, once the first paint has settled** — stated as a property of the
+  whole page rather than of the elements that matter, **because "the elements that
+  matter" is a judgement and the first draft of this clause said "every element
+  carrying the page's proposition", which is the same fault it was replacing
+  (cold read, 2026-10-02).** Nothing may wait on an animation, a reveal or a timer
+  having run; and the page reads in the same order as it does with motion on.
+  *(The first draft of this clause — *"every element carrying the page's
+  proposition is present and at full opacity in the FIRST paint"* — is quoted
+  above rather than kept struck below, because a struck block with its own bold
+  markers inside it renders as noise and the substitution is already stated.)*
   **What failing looks like, and it has happened here:** a node added after the
   `data-rv` reveal list is collected at mount **never gets `.in` and sits at
   opacity 0 for ever** — written up in 7.12 — so an element can be in the DOM, in
@@ -10827,7 +10876,18 @@ rather than wording went to Andrew.
   real difference or a real match per grant in `supabase/migrations/`**, with
   anything that does not parse going to a declared **UNJUDGEABLE** bucket by file
   name rather than being skipped; **and it is proved by a sabotage that revokes one
-  grant the migrations declare, which must turn the run red by name.** The receipt
+  grant the migrations declare, which must turn the run red by name.**
+  ***COLD READ 2026-10-02 — THIS SABOTAGE WAS ORIGINALLY WRITTEN AS "revokes one
+  grant", WHICH IS A WRITE TO THE LIVE DATABASE AND THE ONLY CRITERION IN THIS
+  FILE THAT TOLD SOMEBODY TO BREAK A RULE.*** Revoking a privilege on
+  `kguqylyzgyzfktkfnhjb` is a schema change, which is Andrew's, and **a run that
+  crashes between revoke and restore leaves the grant off** — 14.21's teardown
+  fault with a privilege instead of an admin row. **So the sabotage is on the REPO
+  side or on a synthetic fixture, never on the live grant:** alter a grant line in
+  a copy of the migration text the check parses, or seed a fixture table with a
+  known-wrong grant, and require the run to name it. **`platform-admins-declared`
+  is the precedent** — its sabotages *"are re-proved on every run from synthetic
+  rosters so no sabotage ever touches the real table"*. The receipt
   then updates its own sees/cannot-see sentence — **which is the paperwork, not the
   criterion.**
   **What failing looks like:** a receipt whose sentence grew while the comparison
