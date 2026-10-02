@@ -1,33 +1,35 @@
 {
-  "git_sha": "94dadd95e7cf06e35f3978f293cd14369a4c5686",
+  "git_sha": "a2a43d5c3367e1ed609a1ee6e15a0bf5f03833d3",
+  "git_sha_started": "a2a43d5c3367e1ed609a1ee6e15a0bf5f03833d3",
+  "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-21T04:49:11.984Z",
+  "finished_at": "2026-10-02T21:24:36.930Z",
   "failures": [
     {
-      "target": "guide · calendar 5",
-      "width": 1920,
-      "findings": [
-        "page-scrolls   +51px  the whole page can be dragged sideways",
-        "past-viewport  +46px  div.col-2.leaving  «Friday, September 41 job1:»",
-        "past-viewport  +46px  section.daypanel  «Friday, September 41 job1:»",
-        "past-viewport  +46px  div.row.between  «Friday, September 41 job»",
-        "past-viewport  +46px  button.x  «»",
-        "past-viewport  +37px  svg  «»",
-        "past-viewport  +46px  div.group  «1:00 PMChris VogelExpress »"
-      ]
-    },
-    {
       "target": "(not a per-surface geometry finding)",
-      "count": 231,
+      "count": 134,
       "captured": [
-        "gear · subscription, cancelling NOT MEASURED — this demo has no subscription, so there is nothing to cancel. The default seed is deliberately unsubscribed — it draws the checkout ladder instead, which is two surfaces rather than one. `node scripts/seed-demo.mjs --subscription=past_due` swaps which half is measured (ROADMAP 8.1b)",
-        "gear · subscription, past due NOT MEASURED — nothing is overdue on this demo, and nothing can be: the default seed writes no subscription at all, so there is no payment to fail. Same either/or as the cancel button above (ROADMAP 8.1b)",
-        "gear · subscription, cancelling NOT MEASURED — this demo has no subscription, so there is nothing to cancel. The default seed is deliberately unsubscribed — it draws the checkout ladder instead, which is two surfaces rather than one. `node scripts/seed-demo.mjs --subscription=past_due` swaps which half is measured (ROADMAP 8.1b)",
-        "gear · subscription, past due NOT MEASURED — nothing is overdue on this demo, and nothing can be: the default seed writes no subscription at all, so there is no payment to fail. Same either/or as the cancel button above (ROADMAP 8.1b)",
+        "Calendar · day, Block this dayNOT MEASURED — no such editor on this day",
+        "Calendar · day, Hours NOT MEASURED — no such editor on this day",
+        "Calendar · day, How this day worksNOT MEASURED — no such editor on this day",
+        "WIDTH ABORTED at 1920px after 28 surface(s) — locator.click: Timeout 15000ms exceeded.",
+        "Calendar · day, Block this dayNOT MEASURED — no such editor on this day",
+        "Calendar · day, Hours NOT MEASURED — no such editor on this day",
+        "Calendar · day, How this day worksNOT MEASURED — no such editor on this day",
+        "WIDTH ABORTED at 392px after 28 surface(s) — locator.click: Timeout 15000ms exceeded.",
+        "Calendar · day, Block this dayNOT MEASURED — no such editor on this day",
+        "Calendar · day, Hours NOT MEASURED — no such editor on this day",
+        "Calendar · day, How this day worksNOT MEASURED — no such editor on this day",
+        "WIDTH ABORTED at 360px after 28 surface(s) — locator.click: Timeout 15000ms exceeded.",
+        "Calendar · day, Block this dayNOT MEASURED — no such editor on this day",
+        "Calendar · day, Hours NOT MEASURED — no such editor on this day",
+        "Calendar · day, How this day worksNOT MEASURED — no such editor on this day",
+        "WIDTH ABORTED at 320px after 28 surface(s) — locator.click: Timeout 15000ms exceeded.",
         "EXPECTED-COUNT GATE FAILED at 1440px: expected 155 surfaces, measured 41",
-        "EXPECTED-COUNT GATE FAILED at 392px: expected 154 surfaces, measured 42"
+        "expected-count 392px: NOT GRADED — the width aborted after 28 of 154 surfaces (locator.click: Timeout 15000ms exceeded.). The 126 it never reached are unmeasured, not clean.",
+        "expected-count 320px: NOT GRADED — the width aborted after 28 of 154 surfaces (locator.click: Timeout 15000ms exceeded.). The 126 it never reached are unmeasured, not clean."
       ],
-      "why": "231 problem(s) raised, 6 line(s) captured. The capture pattern does not know every phrase this script prints; read the run output."
+      "why": "134 problem(s) raised, 19 line(s) captured. The capture pattern does not know every phrase this script prints; read the run output."
     }
   ],
   "warnings": [],
@@ -50,41 +52,15 @@
     ]
   },
   "check_id": "sweep-widths-1920-1440-392-360-320",
-  "started_at": "2026-09-21T04:39:27.830Z",
+  "started_at": "2026-10-02T21:19:58.743Z",
   "status": "fail",
   "expected_targets": 463,
-  "discovered_targets": 401,
-  "attempted_targets": 401,
-  "completed_targets": 401,
-  "skipped_targets": 4,
-  "skip_allowlist": {
-    "reason": "Surfaces the demo cannot be in the state for at the hour this ran. Each one declared its own reason in the output and each was probed again before the skip was accepted — a skip over a reachable surface is refused and fails the run (ROADMAP 8.1b).",
-    "expires": "2027-01-01",
-    "skipped": [
-      {
-        "width": 1920,
-        "label": "gear · subscription, cancelling",
-        "reason": "this demo has no subscription, so there is nothing to cancel. The default seed is deliberately unsubscribed — it draws the checkout ladder instead, which is two surfaces rather than one. `node scripts/seed-demo.mjs --subscription=past_due` swaps which half is measured (ROADMAP 8.1b)"
-      },
-      {
-        "width": 1920,
-        "label": "gear · subscription, past due",
-        "reason": "nothing is overdue on this demo, and nothing can be: the default seed writes no subscription at all, so there is no payment to fail. Same either/or as the cancel button above (ROADMAP 8.1b)"
-      },
-      {
-        "width": 320,
-        "label": "gear · subscription, cancelling",
-        "reason": "this demo has no subscription, so there is nothing to cancel. The default seed is deliberately unsubscribed — it draws the checkout ladder instead, which is two surfaces rather than one. `node scripts/seed-demo.mjs --subscription=past_due` swaps which half is measured (ROADMAP 8.1b)"
-      },
-      {
-        "width": 320,
-        "label": "gear · subscription, past due",
-        "reason": "nothing is overdue on this demo, and nothing can be: the default seed writes no subscription at all, so there is no payment to fail. Same either/or as the cancel button above (ROADMAP 8.1b)"
-      }
-    ]
-  },
-  "assertions_executed": 177329,
-  "min_assertions": 1604,
+  "discovered_targets": 153,
+  "attempted_targets": 153,
+  "completed_targets": 153,
+  "skipped_targets": 0,
+  "assertions_executed": 63842,
+  "min_assertions": 612,
   "canary": {
     "id": "sweep-canary-deliberate-overflow",
     "observed_failure": true,
