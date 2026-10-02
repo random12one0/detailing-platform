@@ -153,10 +153,20 @@ const SIZES = [
    adds a `maxLength`, this check tests the new one without being edited — and
    a field that still has none **fails and is named**, because an unbounded
    field is the finding, not a licence to pick a number. */
+/* ALL FIVE NAME BOXES, AND `nth` IS NOT FUSSiness. `editing.form.name` is the
+   binding on TWO different inputs in `Catalog.jsx` - the group editor and the
+   service/add-on editor - so the first version of this reported both
+   `services.name` and `add_ons.name` at the GROUP editor's line. The verdict
+   happened to be right because neither was bounded, which is the dangerous
+   kind of right: a reader following the file:line would have landed on the
+   wrong control. Services and add-ons genuinely share one editor, and that is
+   said rather than hidden behind two rows that look independent. */
 const CEILINGS = [
-  { id: "services.name", file: "app/src/screens/more/Catalog.jsx", near: "editing.form.name" },
-  { id: "add_ons.name", file: "app/src/screens/more/Catalog.jsx", near: "editing.form.name" },
-  { id: "businesses.name", file: "app/src/screens/more/BusinessInfo.jsx", near: "biz.name" },
+  { id: "service_groups.name", file: "app/src/screens/more/Catalog.jsx", near: "editing.form.name", nth: 1 },
+  { id: "services.name", file: "app/src/screens/more/Catalog.jsx", near: "editing.form.name", nth: 2 },
+  { id: "add_ons.name", file: "app/src/screens/more/Catalog.jsx", near: "editing.form.name", nth: 2, shares: "services.name" },
+  { id: "businesses.name", file: "app/src/screens/more/BusinessInfo.jsx", near: "biz.name", nth: 1 },
+  { id: "plans.name", file: "app/src/screens/more/Plans.jsx", near: "planForm.name", nth: 1 },
 ];
 const readCeiling = (c) => {
   let src;
@@ -170,10 +180,16 @@ const readCeiling = (c) => {
   try { src = readFileSync(join(REPO, c.file), "utf8"); }
   catch (e) { return { ...c, found: false, why: `could not read ${c.file}: ${e.message.slice(0, 90)}` }; }
   const lines = src.split(/\r?\n/);
+  let seen = 0;
   for (let i = 0; i < lines.length; i++) {
     if (!lines[i].includes(c.near) || !/<input/.test(lines[i])) continue;
+    if (++seen < (c.nth ?? 1)) continue;
     // The attribute may sit on the same line or the line after — both are the
     // same element and both are how this repo writes them.
+    // The attribute may sit on the same line or the next - both are the same
+    // element and both are how this repo writes them. The COMMENT above an
+    // input can mention `maxLength={60}` in prose, so only the element's own
+    // two lines are read, never the block above it.
     const m = (lines[i] + " " + (lines[i + 1] || "")).match(/maxLength=\{(\d+)\}/);
     if (m) return { ...c, found: true, max: Number(m[1]), line: i + 1 };
     return { ...c, found: false, why: `\`<input>\` at ${c.file}:${i + 1} carries no \`maxLength\``, line: i + 1 };
@@ -576,7 +592,8 @@ console.log("\n  2.15a - does the product bound what a detailer may type?");
 for (const c of ceilings) {
   assertions++;
   if (c.found) {
-    console.log(`    ok      ceiling/${c.id} - maxLength=${c.max} at ${c.file}:${c.line}`);
+    console.log(`    ok      ceiling/${c.id} - maxLength=${c.max} at ${c.file}:${c.line}`
+      + (c.shares ? ` (one shared editor with ${c.shares})` : ""));
   } else {
     console.log(`    FAIL    ceiling/${c.id} - ${c.why}`);
     failures.push(`ceiling/${c.id}: ${c.why}. UNBOUNDED - the sweep below therefore runs at a `

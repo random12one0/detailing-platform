@@ -251,7 +251,14 @@ export default function BusinessInfo() {
 
       <Group title={t("Your business")}>
         <Setting stacked label={t("Business name")}>
-          <input value={biz.name} onChange={(e) => setBiz({ ...biz, name: e.target.value })} />
+          {/* 60, matching `Plans.jsx`'s monthly-plan name, which has carried it
+              since it was written. The number is the neighbouring box's, not a
+              judgement made here — ROADMAP 2.15a — so it can be moved without
+              re-litigating where it came from. "Coastline Auto Detailing and
+              Mobile Valeting" is 44, so 60 leaves room and still rules out a
+              pasted paragraph. */}
+          <input value={biz.name} maxLength={60}
+            onChange={(e) => setBiz({ ...biz, name: e.target.value })} />
         </Setting>
         <Setting stacked label={t("Tagline")}>
           <input value={brand.tagline} onChange={(e) => setBrand({ ...brand, tagline: e.target.value })} />

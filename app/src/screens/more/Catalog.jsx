@@ -723,7 +723,13 @@ export default function Catalog() {
           ) : editing.kind === "group" ? (
             <>
               <label className="field"><span>{t("Name")}</span>
-                <input value={editing.form.name} placeholder={t("e.g. Interior")}
+                {/* 60, AND THE NUMBER CAME FROM THE BOX NEXT DOOR RATHER THAN FROM
+                    ANYBODY'S JUDGEMENT — `Plans.jsx` has carried `maxLength={60}` on
+                    the monthly-plan name since it was written, and this matches it
+                    rather than inventing a second number. ROADMAP 2.15a. A later
+                    reader may move it without re-litigating where it came from; the
+                    longest real name in the product today is 21 characters. */}
+                <input value={editing.form.name} maxLength={60} placeholder={t("e.g. Interior")}
                   onChange={(e) => set({ name: e.target.value })} /></label>
               <label className="field"><span>{t("Description (optional)")}</span>
                 <input value={editing.form.description} placeholder={t("e.g. Everything inside the car")}
@@ -762,7 +768,14 @@ export default function Catalog() {
           ) : (
             <>
               <label className="field"><span>{t("Name")}</span>
-                <input value={editing.form.name} onChange={(e) => set({ name: e.target.value })} /></label>
+                {/* 60, AND THE NUMBER CAME FROM THE BOX NEXT DOOR RATHER THAN FROM
+                    ANYBODY'S JUDGEMENT — `Plans.jsx` has carried `maxLength={60}` on
+                    the monthly-plan name since it was written, and this matches it
+                    rather than inventing a second number. ROADMAP 2.15a. A later
+                    reader may move it without re-litigating where it came from; the
+                    longest real name in the product today is 21 characters. */}
+                <input value={editing.form.name} maxLength={60}
+                  onChange={(e) => set({ name: e.target.value })} /></label>
               <label className="field"><span>{t("Description")}</span>
                 <textarea value={editing.form.description} onChange={(e) => set({ description: e.target.value })} /></label>
               {/* AN ADD-ON HAS NO SIZE AXIS — it costs what it costs on any
