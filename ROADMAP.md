@@ -14057,8 +14057,19 @@ their age is not Andrew's problem.
   login. Split it into
   a plain demo detailer and a separate owner login with a real password, and
   restore the `/admin` refusal for non-admins.
-  **Done when:** the demo account is refused at `/admin` and the "The website
-  business" row no longer shows in its settings. Closes A2 1.1 and A2 4.11.
+  **Done when** ~~the demo account is refused at `/admin` and the "The website
+  business" row no longer shows in its settings~~ — **CORRECTED 2026-10-02 BY A
+  COLD READ: "the demo account" is singular and there are TWO.** 14.8 established
+  it and sized this item on it — *"12.4 said 'one guessable login' and there are
+  **two** guessable logins, one of which nothing tracks"*. A criterion naming one
+  of two is closed by doing half the work.
+  **Done when:** **both rows in `public.platform_admins` are dealt with** — the
+  roster in `docs/platform-admins.md` names them and is the list to work from —
+  **each is either removed or renamed to something unguessable**, `/admin`
+  refuses whatever remains of the old pair, the "The website business" row no
+  longer shows in their settings, and **`platform-admins-declared` passes against
+  the updated roster** so the table and the document still agree afterwards.
+  Closes A2 1.1 and A2 4.11.
 
 ---
 
@@ -14992,8 +15003,18 @@ event id.
   1440 — **and** `tour · step 6`/`7` are no longer issued as declared skips at
   1440 — **and** `sweep-widths.expected.json` carries `tour · step 1`–`34` at
   1440 as a consequence of that walk rather than of a `SWEEP_TOUR_HOLD` run —
-  **and**, separately, the plan-growth signature has a fix in
-  `Walkthrough.jsx` that drops the 2-in-20 cold-open rate measurably.
+  **and**, separately, the plan-growth signature is closed **deterministically
+  rather than statistically**: the cold-open condition is forced on purpose, the
+  tour still reaches six blocks under it, and the mechanism that was failing is
+  named in `Walkthrough.jsx`.
+  ***REPLACED A STATISTICAL CLAUSE AFTER A COLD READ, 2026-10-02.*** It read
+  *"a fix in `Walkthrough.jsx` that drops the 2-in-20 cold-open rate
+  measurably"*, and **twenty runs cannot measure that drop**: against a 10%
+  base rate, 1-in-20 and 2-in-20 are the same observation. **The clause asked for
+  a measurable change on a sample incapable of measuring it**, so it would have
+  been closed on noise in either direction. **Forcing the condition answers it in
+  one run instead of twenty** — and if the condition cannot be forced, that is
+  the finding and it goes here.
 
 
   **TWO READINGS FROM 2026-09-21, ADDED SO NOBODY RE-MEASURES TO START. Not
@@ -16982,10 +17003,19 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   `node scripts/admin-contrast.mjs --crash-after-signin` — a flag that has to be
   added, throwing at the same point the two real crashes threw, **after the
   sign-in and before the screenshots** — leaves `public.platform_admins` with
-  **the same rows after as before**, read off the table in both directions and
-  printed by the run; **and** `node --test tests/platform-admins-declared.test.mjs`
-  is **18 passed / 0 failed** immediately afterwards with no edit to
-  `docs/platform-admins.md`.
+  **the same rows after as before** — the table read **immediately before the run
+  and immediately after it**, both readings printed by the run — **and**
+  `node --test tests/platform-admins-declared.test.mjs` **passes with zero
+  failures** immediately afterwards, with no edit to
+  `docs/platform-admins.md`. **Its assertion count is read off the run, not
+  quoted here.**
+  ***COLD READ 2026-10-02, ON THIS ENTRY'S OWN CRITERION, WRITTEN HOURS EARLIER
+  BY THE SAME SESSION.*** Two faults. It said **"18 passed / 0 failed"** — **a
+  typed count of the thing being measured**, so adding one assertion to that test
+  makes this criterion unmeetable, which is **exactly the fault diagnosed in 3.4
+  the same day.** And it said *"read off the table in both directions"*, where
+  "both directions" in this repo means **a sabotage proved two ways**, not
+  before-and-after — so the phrase said something other than what was meant.
 
   **What failing looks like:** the table gains a row named something like
   `contrast-admin@…` that nobody declared, the declared-admins check goes red,
