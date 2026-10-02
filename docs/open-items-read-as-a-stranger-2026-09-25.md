@@ -918,3 +918,122 @@ tally.**
 * **11.3's tick is recommended on two reads — the `FOR-ANDREW.md` row and 9.10's
   clauses — and not on a third.** If the three judgement calls differ between
   those two places, I did not catch it.
+
+---
+
+## THE COLD TEST, FINISHED — EIGHT OF EIGHT OPENED COLD, EIGHT FAILED
+
+**2026-10-02. The experiment the manager asked to be finished rather than
+stopped at two, because *"two of eight opened cold, both failed"* and *"eight of
+eight opened cold, N failed"* are different claims and only the second is worth
+anything.**
+
+| | |
+|---|---|
+| criteria rewritten to name a shape | **12** |
+| of those, opened cold by the same ungameable rule | **8** |
+| **failed** | **8** |
+| **passed** | **0** |
+| second drafts then re-opened cold | **2** |
+| **of those, failed** | **2** |
+
+**THE HEADLINE: THE PASS RATE ON SELF-GRADED CRITERIA IS ZERO OUT OF EIGHT.**
+Not low. Zero. **Every single criterion this session wrote and graded itself had
+at least one clause a stranger would have had to ask about.**
+
+### THE EIGHT, AND WHAT EACH ONE'S HOLE WAS
+
+| # | item | what a cold read found |
+|---|---|---|
+| 1 | **3.3** | asked the reply be **recorded**; the Fix says **confirm**. A reply logged and acted on by nobody passes. Plus no hour for "the day before", plus no table named |
+| 2 | **7.3** | *"not the same visual weight"* is satisfied by **one pixel**, fault intact |
+| 3 | **3.4** | **silently spends 16 of a 100-a-day shared allowance**, and makes no provision for a template that **cannot be sent today** (`maintenanceDueEmail` is gated off on purpose; `send-email` answers 401 without the service key) |
+| 4 | **4.1** | *"either reversible **or** leaves a row"* — the **OR was a hole**: any action somebody made reversible needed no audit row at all, which deleted the half the original criterion existed for, hardest on `delete` and `suspend` |
+| 5 | **4.3** | *"from the server"* covers **two enforcement layers** — the Data API where RLS decides, and edge functions which bypass RLS entirely (4.4). A refusal from one proves nothing about the other: **the original fault one step down** |
+| 6 | **7.8** | no **inclusion rule** for what counts as an external host, and no requirement that the check **declare what it cannot see** — a host reached through a variable is not greppable |
+| 7 | **7.9** | replaced *"understandable"* with *"every element carrying the page's proposition"* — **a judgement word swapped for another judgement word** |
+| 8 | **8.10c** | its sabotage said *"revokes one grant"* — **a privilege change on the live database**, the only criterion in this file that told somebody to break a standing rule, and a crash between revoke and restore leaves the grant off (14.21's teardown fault with a privilege instead of an admin row) |
+
+**8.10c is the worst and it is worth separating from the rest.** The other seven
+would have cost somebody an argument or a wasted afternoon. **That one would have
+had a session altering privileges on `kguqylyzgyzfktkfnhjb`** — and it was
+written by the session that had, four hours earlier, documented 14.21 as *a
+teardown that leaves something behind when a run crashes*. **It was repaired to
+be repo-side or synthetic, with `platform-admins-declared`'s own discipline cited
+as the precedent: sabotages re-proved from synthetic fixtures so none ever
+touches the real thing.**
+
+### THE SECOND-ORDER TEST: IT IS TURTLES, AND HERE IS THE EVIDENCE RATHER THAN THE FEELING
+
+**Both second drafts were re-opened cold and both failed.**
+
+* **3.3's repair** said the reply *"moves the booking into the state the detailer
+  would otherwise have had to set by hand"* — **naming neither the state nor the
+  mode.** `booking_mode` is `request` or `reserve` (falling back to `reserve`),
+  and **in reserve mode nothing needs confirming**, so the clause was
+  unexecutable on half the product.
+* **7.3's repair** said the saving must share *"the page's other supporting
+  text"* — **an unnamed anchor.** A stranger has to choose an exemplar, which is
+  the judgement the clause was removing.
+
+**AND THE TWO FAILURES ARE THE SAME MOVE:** *"not the same weight"* became *"the
+page's other supporting text"*; *"understandable"* became *"carrying the page's
+proposition"*. **An unset threshold is easiest to replace with an unnamed anchor,
+and a judgement word with another judgement word.** The repair reaches for the
+nearest thing that *sounds* like an anchor and stops there.
+
+**SO: YES, TURTLES — BUT CONVERGING RATHER THAN INFINITE, and the distinction
+decides what to do about it.** The failures are getting **smaller and more
+specific** each pass:
+
+| pass | kind of hole found |
+|---|---|
+| 1st | a whole missing requirement — no recipient, no table, no cost, an OR that deleted a clause |
+| 2nd | an anchor named too loosely, a mode left unscoped |
+| 3rd (predicted) | which selector when the markup changes; which column `reminder_lead_minutes` sits on |
+
+**Each pass finds less. None finds nothing.** Reading cannot terminate this,
+because the reader and the author share the cadence that caused the hole.
+
+### WHAT WOULD ACTUALLY BREAK THE LOOP — three things, in order of strength
+
+1. **EXECUTE THE CRITERION INSTEAD OF READING IT.** This is the strong one and it
+   is available today. **Every single one of the ten failures was a question you
+   only ask when you try** — *which inbox, which layer, revoke what on which
+   database, which element, which mode*. **Not one would have survived a first
+   attempt to do the thing.** Reading tests whether a sentence sounds complete;
+   executing tests whether it is. **This lane cannot execute most of them** — they
+   need the browser, the dev server, `scripts/` — which is precisely why they were
+   written rather than run, and why the loop stayed closed.
+2. **A DIFFERENT READER.** The only true independence, and the reason the manager
+   checking `FOR-ANDREW.md:857` caught a citation thirty-nine lines out that the
+   author had read past twice. **Costly, and not always available.**
+3. **A MECHANICAL PROPERTY CHECK, which is weaker but author-independent.** Not
+   *is this criterion good* but: does it name **(a)** the thing to do, **(b)**
+   where — a file, selector, table or endpoint, **(c)** with what — a credential,
+   a fixture, a mode, **(d)** what it costs from a shared budget, and **(e)** what
+   counts as failing? **Nine of the ten failures are a missing (b), (c) or (d).**
+   A checklist does not need taste and does not share the author's cadence, which
+   is exactly why it catches what careful re-reading does not.
+
+**AND THE ANTI-FIX, NAMED BECAUSE IT IS WHAT I WOULD HAVE REACHED FOR:** *write
+them more carefully.* **Eight of eight were written carefully.** Care is the thing
+that produces a sentence that sounds finished, which is the exact condition the
+hole hides in.
+
+### WHAT THIS EXPERIMENT COULD STILL BE WRONG ABOUT
+
+* **The cold reads were done by the author on the author's own work, minutes to
+  hours later.** That is not independence; it is **distance**, and the only honest
+  claim is that distance found ten holes. **A real stranger might find more, and
+  might find these eight repairs inadequate too** — which is the point of saying
+  the pass rate is zero rather than that the criteria are now good.
+* **The ten repairs are untested.** Eight have had one cold read; two have had
+  two. **By this experiment's own result, the expected number of surviving holes
+  is not zero.**
+* **The sample is this session's own criteria.** It says nothing about the
+  criteria written by other sessions and already judged executable in batches 8
+  to 12 — **those were graded by a reader who was not their author**, which by the
+  argument above is the stronger test, and **they were not re-opened cold.** If
+  that grading was as generous as self-grading, the executable counts in those
+  batches are soft. **Not checked, and it is the next obvious thing.**
