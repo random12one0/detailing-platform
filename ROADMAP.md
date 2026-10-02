@@ -593,12 +593,52 @@ and how the wait ends.
   exactly as written for that reason: *"a vague promise is still a promise and
   would be harder for the next person to spot."*
 
-- [ ] **0.6 — WHAT IS RUNNING IS NOT WHAT IS COMMITTED, ON 22 OF 39 EDGE
-  FUNCTIONS. Nobody knew. Found 2026-09-20.**
+- [ ] **0.6 — WHAT IS RUNNING IS NOT WHAT IS COMMITTED. The count is NOT
+  typed here — `node scripts/deployed-inventory.mjs` is the number. Nobody knew. Found 2026-09-20, when it was 22 of 39.**
   **Placed in Wave 0 because it undermines every other item in this file.** A
   test that reads `supabase/functions/**` has been describing a system that is
   not the one answering requests, and any deploy of one function silently
   ships whatever else is sitting on disk beside it.
+
+  **THE FIGURE IS GENERATED, NOT WRITTEN DOWN — CHANGED 2026-10-02, AND THE
+  REASON IS THAT THIS ONE FACT EXISTED IN THIS FILE AS SIX DIFFERENT NUMBERS,
+  EVERY ONE OF THEM READING AS CURRENT.** The title carried **22** from
+  2026-09-20 for twelve days while the live answer moved four times. **A derived
+  tally written into prose once and never re-run is the same failure `CLAUDE.md`
+  records about the gotchas count** — and here it is one command away:
+
+  ```bash
+  node scripts/deployed-inventory.mjs   # prints the count, names every function, exits 1
+  ```
+
+  It writes `receipts/deployed-inventory.json`; `dimensions.differing` is the
+  list and its length is the number. **Read that, never this paragraph.**
+
+  **THE CENSUS, GENERATED WITH ONE GREP RATHER THAN REMEMBERED** —
+  `grep -nE '[0-9]+ of 39|twenty-six edge functions' ROADMAP.md`. Twelve
+  occurrences, six distinct values, each true on its own day and none of them
+  today's. Dated here so no later reader has to work out which is live:
+
+  | value | where | when it was true |
+  |---|---|---|
+  | **26** | `:3854` | 2026-09-20, the first inventory |
+  | **22** | this title, `:3861`, `:10378`, `:10459` | 2026-09-20 |
+  | **13** | `:640`, `:7126`, `:7332`, `:16112` | 2026-09-20, after the first deploys |
+  | **4 → 8** | `:1384`–`:1385` | 2026-09-22, when `_shared/pricing.ts` moved |
+  | **25** | `:3670`, `:3861`, `:5727` | 2026-09-24 — of which 11 were one shared-module edit |
+  | **24** | measured 2026-09-25, **in no entry on purpose** | every differing bundle 3.5 days old, so all published together on 2026-09-21 |
+
+  **THE COUNT GOING UP IS WORK HAPPENING, NOT DECAY** — `docs/gotchas.md` 85
+  has why — and **most of a rise is usually one shared module.** On 2026-09-25,
+  15 of the 24 differed chiefly in `_shared/strings/es.ts` and 6 in
+  `_shared/rateLimit.ts`: **a reader seeing "24 functions" imagines
+  twenty-four pieces of work and it is closer to two.** `MANAGER-CLOSE` § 4's
+  shared-modules-ride-along note is the same observation from the publishing side.
+
+  **AND THE 2026-09-25 READING IS DELIBERATELY NOT WRITTEN INTO ANY ENTRY AS A
+  FIGURE**, because adding a seventh number is the fault, not the fix. It is in
+  the receipt and in `docs/open-items-read-as-a-stranger-2026-09-25.md` batch 8,
+  both of which carry their own date.
 
   **ANDREW'S RULING, 2026-09-24: PUBLISHING IS A DEFERRAL HE HAS CHOSEN, NOT A
   BLOCKER HE IS FAILING TO CLEAR.** His framing: **he does not care about the
@@ -4701,6 +4741,25 @@ the wrong service, and never book a job we cannot reach.
   for. `bar-clear` only ever measured CONTROLS, so the prose his eye caught was
   genuinely invisible to this check until `nothing-at-rest` existed.
 
+  **Done when** (written 2026-09-25 — this item had no `Done when` line, though it
+  has carried the substance since 2026-09-20 under *"WHAT WOULD CLOSE IT"*): **one
+  run on a real phone, keyboard raised, on step 4 (the address) and step 6 (name,
+  phone, email)**, answering one question — **does the pinned bar ride up on the
+  keyboard and cover the field being typed into?** — with the answer written here
+  either way. **"It does not" is a close.**
+  **It is executable now and was not before:** § 5 of
+  `docs/testing/phones-we-do-not-own.md` is the walk — **and the first version of
+  this sentence was wrong, corrected the same sitting.** Its steps 4–6 cover the
+  **address** field with the keyboard up, and it **did not cover the
+  name/phone/email step at all**; a step was added for that (now § 5 step 7), so the
+  walk asks both of 2.15's questions rather than one. **Claimed coverage the walk
+  did not have would have let Andrew spend all twenty minutes and leave this item
+  exactly where it started.** It runs against the dev server over his own Wi-Fi at
+  no cost, and **this item and 8.2 close on the same twenty minutes.**
+  **What failing looks like:** a pass claimed from a resized window. **No window
+  size can reproduce it** — a keyboard shrinks the VISUAL viewport and leaves the
+  LAYOUT viewport alone, which is why `resize_window` cannot stand in.
+
 - [ ] **2.15a — Three tenant strings have no length limit anywhere, and they land on screens nobody has stretched.**
   Spawned from 2.15 on 2026-09-25, by the work that fixed it. **2.15's fault was
   a detailer's own words making the footer taller than the number reserved for
@@ -4784,31 +4843,40 @@ the wrong service, and never book a job we cannot reach.
   and nothing has stretched them there. `FOR-ANDREW.md` says so too, so the gap
   is weighed rather than discovered later.
 
-  **Done when** (written 2026-09-25 — this item had no `Done when` line, though it
-  has carried the substance since 2026-09-20 under *"WHAT WOULD CLOSE IT"*): **one
-  run on a real phone, keyboard raised, on step 4 (the address) and step 6 (name,
-  phone, email)**, answering one question — **does the pinned bar ride up on the
-  keyboard and cover the field being typed into?** — with the answer written here
-  either way. **"It does not" is a close.**
-  **It is executable now and was not before:** § 5 of
-  `docs/testing/phones-we-do-not-own.md` is the walk — **and the first version of
-  this sentence was wrong, corrected the same sitting.** Its steps 4–6 cover the
-  **address** field with the keyboard up, and it **did not cover the
-  name/phone/email step at all**; a step was added for that (now § 5 step 7), so the
-  walk asks both of 2.15's questions rather than one. **Claimed coverage the walk
-  did not have would have let Andrew spend all twenty minutes and leave this item
-  exactly where it started.** It runs against the dev server over his own Wi-Fi at
-  no cost, and **this item and 8.2 close on the same twenty minutes.**
-  **What failing looks like:** a pass claimed from a resized window. **No window
-  size can reproduce it** — a keyboard shrinks the VISUAL viewport and leaves the
-  LAYOUT viewport alone, which is why `resize_window` cannot stand in.
-
-- [ ] **At 320 the booking calendar's day cells are 37px against the 44px
+- [x] **At 320 the booking calendar's day cells are 37px against the 44px
   absolute — thirty-two of them, every open day in the month. Found
   2026-09-23 by `bk-bar-clearance.mjs` on its first run, while answering 2.15;
   split out rather than folded in, because it is not the footer and not the
   bar.**
 
+  **TICKED 2026-10-02. THE CRITERION'S SECOND BRANCH WAS MET ON 2026-09-24 AND
+  THE BOX HAD BEEN OPEN FOR EIGHT DAYS.** The `Done when` below asks for one of
+  two things: every day cell reaching 44px at 320, or **the reason it cannot
+  recorded as a hold with Andrew's decision on it.** The second exists —
+  `FOR-ANDREW.md:857`, *"DECIDED · The day squares stay as they are. 2026-09-24
+  — nothing needed from you."* It carries the reason, a reopen condition, and
+  the choice to keep the check red.
+
+  **IT WAS MET BY HIS STANDING RULING, NOT BY ASKING HIM AGAIN, AND THAT
+  DISTINCTION IS THE WHOLE JUSTIFICATION FOR THE TICK.** Nobody put this in
+  front of him. It was answered from *"job buttons stay square on a phone"* —
+  `docs/MANAGER-CLOSE-2026-09-21.md`, his own ruling against an audit that
+  wanted otherwise — because this is the same question about a different
+  button. **If he disagrees it reopens**, which the hold says in those words.
+  A tick resting on an applied standing ruling is only honest while it says so;
+  read as "Andrew was consulted about the calendar" it would be false.
+
+  **AND THE CHECK STAYS RED ON PURPOSE. A LATER READER SEEING A TICK BESIDE A
+  RED CHECK MUST NOT READ IT AS AN OVERSIGHT.** `bk-bar-clearance.mjs` still
+  reports these thirty-two cells at 37px, with the exception named beside them,
+  and that is part of the decision rather than a loose end left behind it. **A
+  real violation we have chosen to live with has to stay visible as a real
+  violation** — buying a green tick by silencing it would undo the reason a
+  green tick is worth anything here. **Do not add this to an allowlist, do not
+  soften the floor, and do not mark it passing.**
+
+  **WHAT WOULD REOPEN THIS:** Andrew saying he does want the cells at 44px, or
+  the narrowest supported width changing from 320. Neither has happened.
   **THE MEASUREMENT.** Booking page, step 5, **320x844**, hit-tested with
   `elementFromPoint`: **32 `.bk-cal .cell` controls at 37px** of reachable
   height, with nothing over them and at full scroll — they fail `legal`, which
@@ -4896,6 +4964,9 @@ the wrong service, and never book a job we cannot reach.
   **Done when:** Andrew answers the row — either every day cell reaches 44px
   of hit area at 320, or the reason it cannot is recorded as a hold with his
   decision on it.
+  **MET 2026-10-02 by the second branch** — `FOR-ANDREW.md:857`, his standing
+  ruling applied rather than a fresh answer. The check stays red by design; see
+  the top of this entry.
 
 - [x] **DONE 2026-09-20 — the booking column had been rendering at under
   half its own declared width, on every step; the calendar's day cells are
