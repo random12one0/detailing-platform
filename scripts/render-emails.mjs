@@ -73,6 +73,39 @@ const ACCENT = arg("accent", "#38E08B");
 const LANG = arg("lang", "en");
 const OUT = arg("out", "email-preview");
 
+/* ══ --long : EVERY TENANT-TYPED NAME AT THE CAP — ROADMAP 2.15a ══════════
+   The names a detailer types for their business, their services and their
+   add-ons land in these emails, and NOTHING HAD EVER RENDERED THEM LONG. The
+   fixtures are 19 to 31 characters; the product now permits 60 on all five
+   name boxes, so every email here has only ever been drawn against the
+   comfortable case.
+
+   This flag is RENDERING ONLY. It makes no assertion and it is not where the
+   answer comes from: `bk-bar-clearance.mjs` opens what this writes and
+   measures it. That split is deliberate - **this script prints PASS over a
+   wrong subtotal by design, because `reconcile()` invents a closing line for
+   any gap (`docs/gotchas.md` 81), so its PASS is not evidence of anything and
+   must never be cited as any.**
+
+   60 exactly, built from real words with spaces, because these layouts wrap on
+   spaces and one unbroken token would wrap differently from anything a person
+   would type - a softer test, not a harder one. */
+const LONG = process.argv.includes("--long");
+const atCap = (words) => {
+  let out = words;
+  while (out.length < 60) out += " " + words;
+  return out.slice(0, 60).trim();
+};
+const LONG_BIZ = atCap("Ridgeline Auto Detailing and Mobile Valeting Co");
+const LONG_SERVICE = atCap("Full interior and exterior ceramic protection detail");
+const LONG_ADDON_A = atCap("Pet hair removal and upholstery shampoo treatment");
+const LONG_ADDON_B = atCap("Engine bay clean and underbonnet degrease service");
+const LONG_PLAN = atCap("Platinum bi-weekly maintenance and interior care");
+if (LONG) {
+  console.log("--long: every tenant-typed name rendered at the 60-character cap (ROADMAP 2.15a)");
+  console.log("        RENDERING ONLY - this script's PASS is not evidence; gotcha 81.");
+}
+
 // THE WORST LOGO A DETAILER CAN UPLOAD: dark artwork on a transparent ground,
 // which is what a logo made for a white website is. On `--ink-0` it would be
 // invisible; the masthead's bone plate is what makes it legible, and this flag
@@ -92,7 +125,7 @@ const LOGO = process.argv.includes("--logo")
 // production, so the fixture cannot drift from it.
 const brand = {
   ...brandFrom({
-    brandName: "Ridgeline Auto Detail",
+    brandName: LONG ? LONG_BIZ : "Ridgeline Auto Detail",
     contactPhone: "(303) 555-0142",
     siteUrl: "https://detailingplatform.com/book/demo-detail",
     logoUrl: LOGO,
@@ -152,7 +185,7 @@ const brand = {
 // same service" is the drift this whole item is about, one level up.
 const fixtureServices = [{
   id: "svc-detail",
-  name: "Full Interior + Exterior Detail",
+  name: LONG ? LONG_SERVICE : "Full Interior + Exterior Detail",
   price: 240,
   duration_minutes: 180,
   // A real size table, so extra cars are priced rather than assumed — the
@@ -166,8 +199,8 @@ const fixtureServices = [{
   },
 }];
 const fixtureAddOns = [
-  { id: "ao-pet", name: "Pet hair removal", price: 60, duration_minutes: 45 },
-  { id: "ao-bay", name: "Engine bay clean", price: 60, duration_minutes: 30 },
+  { id: "ao-pet", name: LONG ? LONG_ADDON_A : "Pet hair removal", price: 60, duration_minutes: 45 },
+  { id: "ao-bay", name: LONG ? LONG_ADDON_B : "Engine bay clean", price: 60, duration_minutes: 30 },
 ];
 
 // The job every fixture on this page is a variation of: one detail, two
@@ -257,7 +290,7 @@ const booking = {
 // of $180 a visit — and letting the engine name it. The label is now true and
 // the sale is recomputed on the job it is actually a percentage of.
 const planQuote = fixtureQuote({
-  plan: { name: "Bi-weekly maintenance", priceKind: "per_visit", priceAmount: 180 },
+  plan: { name: LONG ? LONG_PLAN : "Bi-weekly maintenance", priceKind: "per_visit", priceAmount: 180 },
 });
 const planBooking = { ...booking, ...moneyFrom(planQuote) };
 

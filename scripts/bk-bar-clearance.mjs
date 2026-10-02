@@ -228,11 +228,23 @@ const LONGER = Number((process.argv.find((a) => a.startsWith("--plan=")) || "").
    who actually received it and cancels it, so the walk is not navigated by
    the measurement. That is the only part that is not a customer's press, and
    it is the part that has no bearing on who got hit. */
-const PRESS = async (page) => page.evaluate(() => {
-  const SELP = ".bk-card.selectable, .bk-chip, .bk-btn, .bk-cal .cell, .bk-slots .bk-chip";
+const PRESS = async (page, sel) => page.evaluate((SELP) => {
   const all = [...document.querySelectorAll(SELP)].filter((e) => !e.closest(".bk-bar"));
   const el = all[all.length - 1];
-  if (!el) return { ok: false, why: "no pressable control outside the bar on this step" };
+  /* **ZERO CONTROLS IS A FAILURE, NEVER A QUIET PASS**, and this returned a
+     soft object until 2026-10-02. `PRESS` was handed the BOOKING page's
+     selectors on a detailer's settings screen, matched nothing, returned
+     early, and five widths printed "pressing <<undefined>> at (undefined,
+     undefined)" - a question asked of nothing, dressed as a finding about the
+     product. The selector is named in the message now, because "no control"
+     and "wrong selector" are the two readings and only one of them is about
+     the screen. */
+  if (!el) {
+    return { ok: false, count: 0, text: "(none)", who: "(nothing matched)", x: -1, y: -1,
+      why: `ZERO CONTROLS MATCHED \`${SELP}\` on this surface. That is a failure, not a pass: `
+        + "either the screen genuinely has nothing to press, or this selector belongs to a "
+        + "different surface. Both need a person." };
+  }
   el.scrollIntoView({ block: "end", inline: "nearest" });
   return new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(() => {
     const r = el.getBoundingClientRect();
@@ -248,7 +260,7 @@ const PRESS = async (page) => page.evaluate(() => {
     const who = got ? (got.closest(".bk-bar") ? "bk-bar" : (String(got.className || "").split(" ")[0] || got.tagName)) : "nothing";
     done({ ok: landed, text, who, x, y });
   })));
-});
+}, sel || ".bk-card.selectable, .bk-chip, .bk-btn, .bk-cal .cell, .bk-slots .bk-chip");
 
 /* ANDREW'S QUESTION, 2026-09-25, MADE INTO A STANDING MEASUREMENT RATHER THAN
    ANSWERED IN A SENTENCE: *"Is the page's bottom reserve now derived from the
@@ -603,7 +615,9 @@ for (const c of ceilings) {
   }
 }
 
-const expected = SIZES.length * STEPS * PASSES_N + 2;
+const MAIL_TARGETS = 4 * SIZES.length;      // 4 emails x 5 widths
+const SCREEN_TARGETS = 2 * SIZES.length;    // 2 screens x 5 widths
+const expected = SIZES.length * STEPS * PASSES_N + 2 + MAIL_TARGETS + SCREEN_TARGETS;
 let discovered = 0, attempted = 0, completed = 0;
 const canary = { id: "the-pre-2.15-bar-put-back", observed_failure: false, problems: [] };
 const canary2 = { id: "the-long-plan-name-against-the-old-reserve", observed_failure: false, problems: [] };
@@ -711,6 +725,267 @@ attempted += 1;
   completed += seen.length ? 1 : 0;
 }
 
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ROADMAP 2.15a, PHASE TWO — WHERE ELSE A DETAILER'S OWN WORDS LAND
+   ══════════════════════════════════════════════════════════════════════════
+   Everything above this line measures the BOOKING PAGE. That was the whole of
+   the evidence when the 60-character cap was taken, and it was said at the
+   time that it was not the same as having checked the other surfaces. These
+   are the other surfaces: **the emails a customer receives**, and **the
+   detailer's own screens that list the things they named.**
+
+   ONE INSTRUMENT, NOT TWO. The class under test is "a tenant string rendered
+   at its limit", and it already lives here - the ceiling questions, the
+   long-tenant sweep and the profile intercept are all in this file. A second
+   script measuring the same class is how two instruments drift apart and
+   start disagreeing about which one is right.
+
+   **THE EMAILS ARE RENDERED BY `render-emails.mjs --long` AND GRADED HERE,
+   AND THAT SPLIT IS NOT TIDINESS.** That script prints PASS over a wrong
+   subtotal BY DESIGN - `reconcile()` invents a closing line for any gap,
+   `docs/gotchas.md` 81 - so **its PASS is not evidence of anything and is
+   never read.** It is used for exactly one thing: drawing the HTML. The
+   questions below are asked of the pixels by this file.
+
+   WHAT "BROKEN" MEANS HERE, because it is not what it means above. On the
+   booking page the failure was a control coming to rest under a bar. In an
+   email and on a list screen it is **overflow**: a name wider than the box
+   holding it, which in an email means the body table stops fitting the
+   window and the reader scrolls sideways to finish a sentence. So the
+   question is `scrollWidth` against `clientWidth`, on the element that
+   actually holds the string, plus the document itself.
+
+   **AND IT ASKS WHETHER THE STRING IS THERE FIRST.** `strings/landed` exists
+   three sweeps up for this exact reason and the lesson is not transferable by
+   assertion: a surface that never received the long string reports no
+   overflow, perfectly, for ever. */
+
+const CAP = 60;
+const atCap = (w) => { let o = w; while (o.length < CAP) o += " " + w; return o.slice(0, CAP).trim(); };
+const S_LONG = atCap("Full interior and exterior ceramic protection detail");
+const A_LONG = atCap("Pet hair removal and upholstery shampoo treatment");
+const B_LONG = atCap("Ridgeline Auto Detailing and Mobile Valeting Co");
+const SCREEN_BIZ = atCap("Coastline Auto Detailing and Mobile Valeting Co");
+
+/* THE TWO SABOTAGES ARE ONE UNBROKEN TOKEN, WHICH IS THE POINT. Every long
+   string above wraps on spaces, which is what a person types and is why the
+   cap is survivable. A single 200-character word cannot wrap, so it is the
+   shortest honest way to make a box overflow - and if the check cannot see
+   THAT, it cannot see anything. */
+const UNBREAKABLE = "A".repeat(200);
+
+const EMAILS = [
+  ["customer-confirmation", "the confirmation"],
+  ["customer-receipt", "the receipt"],
+  ["customer-reminder", "the reminder"],
+  ["customer-confirmation-plan", "the confirmation, on a plan"],
+];
+const MAIL_DIR = join(REPO, "artifacts", "tenant-strings", "email-long");
+
+/** scrollWidth vs clientWidth on whatever actually holds the string. */
+const OVERFLOW = async (page, needles) => page.evaluate((needles) => {
+  const root = document.documentElement;
+  const seen = [], bad = [], truncated = [];
+  for (const el of document.querySelectorAll("*")) {
+    if (el.children.length) continue;
+    const t = (el.textContent || "").trim();
+    if (!t) continue;
+    const hit = needles.find((n) => t.includes(n.slice(0, 24)));
+    if (!hit) continue;
+    // `docs/gotchas.md` (a): a closed <details> keeps its children laid out.
+    if (typeof el.checkVisibility === "function"
+      && !el.checkVisibility({ checkVisibilityCSS: true, contentVisibilityAuto: true })) continue;
+    seen.push(t.slice(0, 26));
+    /* **AN ELLIPSIS IS NOT AN OVERFLOW, AND THE FIRST VERSION OF THIS COUNTED
+       IT AS ONE.** `text-overflow: ellipsis` works BY having `scrollWidth`
+       exceed `clientWidth` - that is the mechanism, not the symptom - so a
+       bare `scrollWidth > clientWidth` reported 7 "overflowing" elements on
+       the Services screen at every width, over a screen that was handling the
+       long names exactly as designed. Looking at the screenshot is what
+       settled it; the names read "Full interior and exterior ceramic pr..."
+       and the business name "Coastline Auto Detailin...".
+
+       **So the question is whether the content ESCAPES**: a box that clips,
+       scrolls or truncates is doing its job, and only `overflow-x: visible`
+       with content past its edge is a name spilling out of what holds it. The
+       document's own overflow is asked separately and is the other half. */
+    let node = el, clipped = false;
+    for (let up = 0; up < 4 && node; up++) {
+      const cs = getComputedStyle(node);
+      if (cs.overflowX !== "visible" || cs.textOverflow === "ellipsis") {
+        if (node.scrollWidth - node.clientWidth > 1) clipped = true;
+        break;
+      }
+      const over = node.scrollWidth - node.clientWidth;
+      if (over > 1) { bad.push({ t: t.slice(0, 26), over, tag: node.tagName }); break; }
+      node = node.parentElement;
+    }
+    if (clipped) truncated.push(t.slice(0, 26));
+  }
+  return {
+    landed: seen.length > 0, seenCount: seen.length, seen: seen.slice(0, 2),
+    bad: bad.slice(0, 3), badCount: bad.length,
+    // REPORTED, NEVER GRADED. A detailer who cannot read the whole of their own
+    // service name on their own screen is a design question, and this is not
+    // the item that gets to answer it. Counting it would have made this check
+    // red over a deliberate treatment.
+    truncatedCount: truncated.length, truncated: truncated.slice(0, 2),
+    docOver: root.scrollWidth - root.clientWidth,
+  };
+}, needles);
+
+console.log("\n  2.15a PHASE TWO - the emails, at the 60-character cap");
+const mailCtx = await browser.newContext({ viewport: { width: SIZES[0].w, height: SIZES[0].h } });
+const mailPage = await mailCtx.newPage();
+watchConsole(mailPage, "email", consoleNoise);
+const MAIL_NEEDLES = BREAK === "emaillayout" ? [UNBREAKABLE] : [S_LONG, A_LONG, B_LONG];
+try {
+  for (const [file, label] of EMAILS) {
+    for (const size of SIZES) {
+      const id = `email ${label} ${size.w}x${size.h}`;
+      attempted += 1;
+      await mailPage.setViewportSize({ width: size.w, height: size.h });
+      await mailPage.goto("file:///" + join(MAIL_DIR, file + ".html").replace(/\\/g, "/"),
+        { waitUntil: "domcontentloaded" });
+      if (BREAK === "emaillayout") {
+        // The sabotage replaces the rendered service name with one unbroken
+        // 200-character token - the same string a detailer COULD paste today
+        // if the cap were ever removed.
+        await mailPage.evaluate((w) => {
+          for (const el of document.querySelectorAll("*")) {
+            if (el.children.length) continue;
+            if ((el.textContent || "").includes("Full interior and exterior")) { el.textContent = w; return; }
+          }
+          // nothing matched: put it somewhere so the sabotage cannot silently
+          // become a no-op, which is the failure this whole file is about
+          const host = document.querySelector("td, p, div, body");
+          if (host) host.appendChild(document.createTextNode(w));
+        }, UNBREAKABLE);
+      }
+      const o = await OVERFLOW(mailPage, MAIL_NEEDLES);
+      discovered += 1;
+      await mailPage.screenshot({ path: ART + `email-${file}-${size.w}.png`, fullPage: true });
+      artifacts.push(`artifacts/bk-bar-clearance/email-${file}-${size.w}.png`);
+      check(id, "mail/landed", o.landed,
+        "the capped name is nowhere in this email, so the overflow question below was asked of "
+        + "nothing. `render-emails.mjs --long` is what puts it there.");
+      check(id, "mail/no-overflow", o.badCount === 0 && o.docOver <= 1,
+        `${o.badCount} element(s) wider than the box holding them`
+        + (o.bad.length ? ": " + o.bad.map((b) => `<${b.tag}> «${b.t}» by ${b.over}px`).join("; ") : "")
+        + `, and the document overflows its window by ${o.docOver}px`);
+      observed.push(`${id}: ${o.seenCount} capped name(s) on screen, ${o.badCount} escaping their box, `
+        + `${o.truncatedCount} truncated (reported, not graded), document over by ${o.docOver}px`);
+      completed += 1;
+    }
+  }
+} finally {
+  await mailCtx.close();
+}
+
+/* ── THE DETAILER'S OWN SCREENS ──────────────────────────────────────────
+   `Services & add-ons` and `Business info` are where a detailer sees the
+   words they typed, in lists this product has never drawn long. The strings
+   go ON THE WIRE - PostgREST reads rewritten in the browser - so nothing is
+   written to the demo tenant's rows and there is nothing to restore.
+
+   **THE OWNER'S PASSWORD IS THE REPO'S OWN SEEDED FIXTURE**, identical to the
+   line in `calendar-legible.mjs`, `client-card.mjs` and `client-fixtures.mjs`.
+   It is a fake account on a database with no real data. It is the fifth copy
+   of one string and it should be ONE - see the handover note. */
+console.log("\n  2.15a PHASE TWO - the detailer's own screens, at the cap");
+const OWNER = { email: "demo@detailplatform.com", password: process.env.DEMO_OWNER_PW || "demo123" };
+const SCREENS = [["catalog", "Services & add-ons"], ["info", "Business info"]];
+const appCtx = await browser.newContext({ viewport: { width: SIZES[0].w, height: SIZES[0].h } });
+const appPage = await appCtx.newPage();
+watchConsole(appPage, "screens", consoleNoise);
+const NAME_LONG = BREAK === "screenstring" ? UNBREAKABLE : S_LONG;
+const SCREEN_NEEDLES = BREAK === "screenstring" ? [UNBREAKABLE] : [S_LONG, A_LONG, SCREEN_BIZ];
+try {
+  const rewrite = (rows) => {
+    if (!Array.isArray(rows)) return rows;
+    for (const r of rows) if (r && typeof r === "object" && typeof r.name === "string") r.name = NAME_LONG;
+    return rows;
+  };
+  await appPage.route("**/rest/v1/services*", async (route) => {
+    let res; try { res = await route.fetch(); } catch { return route.abort().catch(() => {}); }
+    let b; try { b = await res.json(); } catch { return route.fulfill({ response: res }); }
+    return route.fulfill({ status: res.status(), contentType: "application/json", body: JSON.stringify(rewrite(b)) });
+  });
+  await appPage.route("**/rest/v1/add_ons*", async (route) => {
+    let res; try { res = await route.fetch(); } catch { return route.abort().catch(() => {}); }
+    let b; try { b = await res.json(); } catch { return route.fulfill({ response: res }); }
+    if (Array.isArray(b)) for (const r of b) if (r && typeof r.name === "string") r.name = BREAK === "screenstring" ? UNBREAKABLE : A_LONG;
+    return route.fulfill({ status: res.status(), contentType: "application/json", body: JSON.stringify(b) });
+  });
+  await appPage.route("**/rest/v1/businesses*", async (route) => {
+    let res; try { res = await route.fetch(); } catch { return route.abort().catch(() => {}); }
+    let b; try { b = await res.json(); } catch { return route.fulfill({ response: res }); }
+    const fix = (o) => { if (o && typeof o === "object" && typeof o.name === "string") o.name = BREAK === "screenstring" ? UNBREAKABLE : SCREEN_BIZ; };
+    if (Array.isArray(b)) b.forEach(fix); else fix(b);
+    return route.fulfill({ status: res.status(), contentType: "application/json", body: JSON.stringify(b) });
+  });
+
+  await appPage.goto(`${BASE}/app`, { waitUntil: "domcontentloaded" });
+  await appPage.waitForSelector("input[type=email], .tabbar", { timeout: 30000 });
+  if (await appPage.locator("input[type=email]").count()) {
+    await appPage.fill("input[type=email]", OWNER.email);
+    await appPage.fill("input[type=password]", OWNER.password);
+    // `form button.btn.primary` - the same selector `client-card.mjs` and
+    // `calendar-legible.mjs` use. A generic `form button` matched the password
+    // reveal toggle and the sign-in never happened.
+    await appPage.click("form button.btn.primary");
+    await appPage.waitForSelector(".tabbar", { timeout: 30000 });
+  }
+  // The guided tours draw over the screens being measured.
+  await appPage.evaluate(() => {
+    try {
+      localStorage.setItem("dp.tours", JSON.stringify(
+        ["shell", "today", "calendar", "money", "clients", "business"]));
+      localStorage.setItem("dp.tour", "1");
+    } catch { /* private mode */ }
+  });
+
+  for (const [key, label] of SCREENS) {
+    for (const size of SIZES) {
+      const id = `screen ${label} ${size.w}x${size.h}`;
+      attempted += 1;
+      await appPage.setViewportSize({ width: size.w, height: size.h });
+      await appPage.goto(`${BASE}/app?settings=${key}`, { waitUntil: "domcontentloaded" });
+      await appPage.waitForTimeout(2500);
+      await settle(appPage, 2000);
+      const o = await OVERFLOW(appPage, SCREEN_NEEDLES);
+      /* **THE BOOKING PAGE'S SELECTORS MATCH NOTHING ON A SETTINGS SCREEN**,
+         and the first version passed them here: `PRESS` found no control,
+         returned early, and the failure printed "pressing <<undefined>> at
+         (undefined, undefined)" at all five widths - a question asked of
+         nothing, reported as a product fault. The app shell uses `.btn` and
+         `.choice`; the bar filter is harmless here because there is no bar. */
+      const press = await PRESS(appPage, ".btn, .choice, button.card, .row button");
+      discovered += 1;
+      await appPage.screenshot({ path: ART + `screen-${key}-${size.w}.png`, fullPage: true });
+      artifacts.push(`artifacts/bk-bar-clearance/screen-${key}-${size.w}.png`);
+      check(id, "screen/landed", o.landed,
+        "the capped name is nowhere on this screen, so the two questions below were asked of "
+        + "nothing. Check the PostgREST intercept.");
+      check(id, "screen/no-overflow", o.badCount === 0 && o.docOver <= 1,
+        `${o.badCount} element(s) wider than the box holding them`
+        + (o.bad.length ? ": " + o.bad.map((b) => `<${b.tag}> «${b.t}» by ${b.over}px`).join("; ") : "")
+        + `, and the document overflows its window by ${o.docOver}px`);
+      check(id, "screen/pressed", !!(press && press.ok),
+        press ? (press.why || `pressing «${press.text}» at (${press.x}, ${press.y}) landed on ${press.who}`)
+          : "no press was attempted on this screen");
+      observed.push(`${id}: ${o.seenCount} capped name(s) on screen, ${o.badCount} escaping their box, `
+        + `${o.truncatedCount} truncated (reported, not graded), document over by ${o.docOver}px, `
+        + `press ${press && press.ok ? "landed" : "LOST to " + (press && press.who)}`);
+      completed += 1;
+    }
+  }
+} finally {
+  try { await appPage.unrouteAll({ behavior: "ignoreErrors" }); } catch { /* closing anyway */ }
+  await appCtx.close();
+}
+
 await browser.close();
 
 console.log("\nWhat the steps measured:");
@@ -734,7 +1009,7 @@ const { path } = writeReceipt({
   skipped_targets: 0,
   assertions_executed: assertions,
   min_assertions: 7 * (SIZES.length * STEPS * PASSES_N + 2) + CEILINGS.length
-    + SIZES.length * STEPS,
+    + SIZES.length * STEPS + MAIL_TARGETS * 2 + SCREEN_TARGETS * 3,
   assertion_floor:
     "7 questions (subjects, legal, reachable, bar-clear, pressed, reserve-tracks, "
     + `nothing-at-rest) x (5 widths x 7 steps x ${PASSES_N} sweeps + 2 canary walks) + `
