@@ -739,3 +739,182 @@ one."*
   executable by somebody other than me.** They were written to the same test and
   the test was applied by the author, which is the weakest link in both batches.
   **The honest check is somebody else reading one and trying it.**
+
+---
+
+## BATCH 12 — the cold test first, and BOTH of my own criteria failed it
+
+**Read 2026-10-02. Rewrites in `a5d3637` (the cold test) and `1a67d3c` (the
+batch).**
+
+| | |
+|---|---|
+| **cold test: criteria opened as a stranger** | **2** |
+| **cold test: failed** | **2** |
+| items in this batch | **10** |
+| criterion a stranger could execute | **8** |
+| **criterion rewritten** | **2** (9.2, 9.12) |
+| closed in fact, open on paper | **1** (11.3) |
+| **running total** | **50 of 62** |
+
+### THE COLD TEST — PICKED BY A RULE I COULD NOT GAME, AND IT CAUGHT ME TWICE
+
+**Eight criteria had been written and graded by the same session, which is a
+check grading itself.** The selection rule was fixed before looking: **the first
+rewrite in roadmap order from each batch** — **3.3** from batch 10, **7.3** from
+batch 11. Each was extracted on its own, with the entry out of view, and the
+only question asked was *what would I have to ask somebody.*
+
+**BOTH FAILED. Here is each, and the second is the better finding.**
+
+#### 3.3 — I kept the mechanism and dropped the thing that made it matter
+
+My clause: *"a customer's reply is **recorded** against that booking, because
+'Reply C to confirm' is in the Fix and was in no criterion."*
+
+**A reply logged and acted on by nobody passes that sentence.** The Fix says
+**confirm** — the reply is supposed to *move the booking*, which is the entire
+point of putting "Reply C" in a text message. **I cited the Fix in the same
+breath as weakening it.**
+
+**This is a fault this session has already written against itself**, in its own
+handover: *"my fold dropped the one clause that made a ruling a ruling… the
+ruling survived; the thing that made it a ruling did not."* **Recorded then,
+repeated eight days later, in a criterion written specifically to stop this
+class of thing.** Writing a lesson down does not install it.
+
+**Two more holes surfaced in the same clause once the first one was pulled:**
+* *"one the day before the appointment"* — **names no hour.** Two people pick
+  two times. **`reminder_lead_minutes` already exists as a column**, so the
+  criterion now uses the detailer's own setting rather than a time invented here.
+* *"leaves a delivery row in this product's own tables"* — **names no table**,
+  and a stranger cannot read a row they cannot find. The SMS table does not
+  exist yet (0.13 builds it), so inventing a name would be worse; it now points
+  at **the shape `email_sends` already has** — one row per attempted send,
+  carrying what became of it. **Confirmed the table is real and live** before
+  citing it as the model.
+
+#### 7.3 — clause (c) could be satisfied by one pixel
+
+My clause (c): *"the saving does **not** carry the same visual weight as the two
+prices, measured rather than eyeballed — font size and weight read off the
+computed style."*
+
+**"Not the same" is satisfied by a one-pixel difference**, with the reported
+fault — *the saving reading as a third fee* — entirely intact. **It is the exact
+trap clause (b) beside it was written to avoid**, and I wrote it one line later.
+**"Measured rather than eyeballed" is what made it feel finished**: naming an
+instrument reads as rigour, and the instrument was pointed at a threshold that
+was never set.
+
+**There is no type-scale token to anchor to** — `theme.css` carries colour
+tokens only, **checked rather than assumed** — so the repair anchors to something
+already on the page instead: **the saving must share the computed `font-size` and
+`font-weight` of the page's other supporting text, and not of the two price
+figures.** Three reads, a comparison, no invented delta.
+
+> **WHAT THE COLD TEST ACTUALLY MEASURED, and it is not \"I write bad criteria\".**
+> Both failures are **one clause inside an otherwise sound criterion**, and both
+> clauses are the one where I stopped thinking because the sentence had started
+> sounding finished. **The failure mode is cadence, not comprehension** — which is
+> why re-reading my own work catches it and writing more carefully does not.
+> **Eight passes would have told me nothing. Two failures told me where to look.**
+
+### THE TEN — 9.2, 9.4, 9.7, 9.10, 9.11, 9.12, 9.14, 9.15, 11.3, 12.1
+
+#### 9.2 · THE CRITERION WAS AIMED AT A THING THE ENTRY SAYS WAS NEVER THE FAULT
+
+**Old:** *"the counts reconcile and each account has one clear next action."*
+Two problems, and the second is structural: **"clear" is a judgement**, and
+**"the counts reconcile" is not what is broken.** The entry's own diagnosis:
+`STUCK` (`AdminPage.jsx:689`) is five rows of **predicate + computed headline +
+a constant string of advice**, and row `first` asserts *"The page works and
+nobody has used it"* while row `open` **has just computed that the page cannot
+take a booking.** *"One of the two rows has no calculation."*
+
+**So a criterion about counts is already met, today, with the contradiction on
+screen** — one non-demo business, `Counter Signup Test Detail`, 0 services, 0
+bookings, firing both rows at once. **New:** no row states a fact it did not
+compute, and the one live non-demo business cannot produce two rows that
+contradict each other.
+
+#### 9.12 · THE SAME STOPWATCH 7.3 CARRIED
+
+**Old:** *"the owner can find the only account needing attention in under ten
+seconds."* **New:** taken from the five real complaints already in the entry —
+**no row shows an action or a line whose precondition is false**, with the four
+named cases as the test: no *"Money at risk"* on an account that pays nothing,
+no *"Ring them"* without a phone number, no *"Booking · last one yesterday"* on
+an account with 0 customers, no duplicate wide card. **Failing:** *"a prettier
+list that still offers 'Ring them' with no number. The four cases are the item;
+the list is only the means."* **Scope unchanged — still stepped past**, for the
+reason the entry already gives.
+
+#### 11.3 · CLOSED IN FACT, OPEN ON PAPER — THE SECOND INSTANCE AFTER THE CALENDAR ITEM
+
+**Its criterion is a disposition rather than a test:** *"this item closes as
+superseded by 9.10"*, because the three judgement calls it was waiting on are
+answered and `FOR-ANDREW.md` carries that row **ticked**.
+
+**Checked rather than taken from the sentence:** `FOR-ANDREW.md:1315` reads
+**`- [x] DECIDED · The empty half of Business settings shows your real
+booking…`**, and 9.10's criterion now carries the same three calls as four
+observable clauses. **So there is nothing left in 11.3 and the box is open.**
+
+**Recommend the tick. Not taken here** — the audit does not move boxes on its own
+and the calendar item only moved on an explicit ruling. **It is the second
+confirmed instance of the fault `ROADMAP.md`'s own stale-blocker item says
+nothing notices**, and both were found the same way: two documents held next to
+each other.
+
+#### THE SIX THAT PASSED, briefly
+
+* **9.4** — three repairs named individually: **seven distinct weekday labels**
+  (`Sun Mon Tue…`, not `S M T W T F S`), a **rectangular** month with no ragged
+  last row, and a legend covering **every** status colour rather than only
+  "Blocked". *"Nothing wrong" is a close.*
+* **9.7** — four named things including **Book again opening the form already
+  holding that customer**, and the failure mode that matters: *"a report that the
+  button merely exists."*
+* **9.10** — four clauses, and the hard one is specified rather than waved at:
+  where the page has nothing worth showing it renders **the page as a customer
+  would see it today plus one line naming what is missing** — *"not a blank panel
+  and not a placeholder."*
+* **9.11** — two parts and **the first needs nobody**: re-run `sweep-widths.mjs`
+  against the fixed tree so the receipt stops reading `"status": "fail"` over a
+  `git_sha` that is an **ancestor** of the fix.
+* **9.14** — carries the unknown-versus-known-empty clause as a criterion rather
+  than as a warning: **a period with no costs entered reads as "costs not
+  entered" rather than as a profit.**
+* **9.15** — three clauses pressed **on one complete business and one incomplete
+  one**, 320 first. The two-business requirement is what makes *"a business with
+  nothing unfinished sees no prompt at all"* checkable.
+* **12.1** — Stripe **sandbox**, every transition **observed in this product's own
+  rows and on the actual booking page**, *"not asserted from the Stripe
+  dashboard"* — reachable after paying, **unreachable after the failed payment**,
+  reachable again once paid.
+
+### A MEASUREMENT NOTE AGAINST MYSELF, BECAUSE IT IS THE SAME TRAP TWICE IN ONE DAY
+
+**The script that enumerated the remaining items reported 21 and the answer is
+22.** Its exclusion list held `"1.3 —"` and `t.includes("1.3 —")` is **true for
+`"11.3 —"`**, so 11.3 was silently dropped — **and 11.3 is the item carrying this
+batch's third finding.** A substring match used where an anchored one was needed,
+which is `docs/gotchas.md`'s oldest family and **the same shape as the one-term
+grep in entry 88 written four hours earlier.** It was caught because the printed
+list was read against a `grep` for `11.3`, not because the count looked wrong —
+**21 and 22 look equally plausible, which is the whole problem with a derived
+tally.**
+
+### WHAT THIS BATCH COULD HAVE MISSED
+
+* **The cold test is two criteria of eight.** Six remain graded only by their
+  author. **The failure rate so far is two of two**, which is a reason to do the
+  other six rather than a reason to assume they are fine.
+* **9.2 and 12.1 are 308 and 11 lines; I read 9.2's diagnosis section and 12.1
+  whole.** 9.2's remaining two "different things" were not read, so **its rewritten
+  criterion covers the contradiction and may not cover all three.** Said rather
+  than implied.
+* **11.3's tick is recommended on two reads — the `FOR-ANDREW.md` row and 9.10's
+  clauses — and not on a third.** If the three judgement calls differ between
+  those two places, I did not catch it.
