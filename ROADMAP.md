@@ -5188,8 +5188,22 @@ requested.
   when it is made, one the day before the appointment — each of which (a) a
   detailer can switch off independently, (b) leaves a delivery row in this
   product's own tables, and (c) stops being sent when its switch is off.** And
-  **a customer's reply is recorded against that booking**, because *"Reply C to
-  confirm"* is in the Fix and was in no criterion.
+  **a customer's reply CHANGES THE BOOKING and not merely a log** — *"Reply C to
+  confirm"* means a reply moves the booking into the state the detailer would
+  otherwise have had to set by hand, and the row recording it is the evidence
+  rather than the deliverable.
+  *(This clause said only that the reply be **recorded** until a COLD READ on
+  2026-10-02 caught it — `docs/open-items-read-as-a-stranger-2026-09-25.md` batch
+  12. **A reply logged and acted on by nobody would have passed**, while the Fix
+  says *confirm*. Same fault this session has recorded against itself before: a
+  fold that keeps the mechanism and drops the thing that made it matter.)*
+  **And the day-before text is sent on the detailer's own existing
+  `reminder_lead_minutes`, not on a time invented here** — the column exists;
+  "the day before" names no hour and two people would pick two.
+  **The delivery row is the shape `email_sends` already has for email** — one row
+  per attempted send, carrying what became of it — named as the model rather than
+  inventing a table here, because the SMS one does not exist yet and 0.13 is
+  where it gets built.
   **What failing looks like:** a text that arrives and leaves no row — the shape
   every email fault in this repo has had — or **a switch that removes the message
   from the screen while the send still happens**, which reads as working from
@@ -9047,8 +9061,18 @@ rather than wording went to Andrew.
   **separate lines**, each labelled as which it is; **(b)** the saving is never
   rendered as a standalone figure that can be read as a price — *"Pay yearly: $400
   (save $80)"* is the shape, *"SAVE ON THE YEAR $80 a year"* is the fault; **(c)**
-  the saving does **not** carry the same visual weight as the two prices, measured
-  rather than eyeballed — font size and weight read off the computed style; and
+  the saving is rendered in the **same computed style as the page's other
+  supporting text and a different one from the two price figures** — read
+  `font-size` and `font-weight` off all three and compare, **anchored to
+  something already on the page rather than to a delta somebody picked.**
+  *(Clause (c) was "does not carry the same visual weight… measured rather than
+  eyeballed" until a COLD READ on 2026-10-02 — see
+  `docs/open-items-read-as-a-stranger-2026-09-25.md` batch 12. "Not the same" is
+  satisfied by **one pixel**, so the clause could pass with the reported fault
+  untouched, which is the exact trap clause (b) above was written to avoid.
+  There is no type-scale token to point at — `theme.css` carries colour tokens
+  only, checked — so it is anchored to the page's own supporting text instead.)*
+  And
   **(d)** the commitment choice is inside the plan card, and the terms text clears
   the contrast floor `contrast-insitu.mjs` enforces.
   **What failing looks like:** three figures of equal weight on one card, which is
