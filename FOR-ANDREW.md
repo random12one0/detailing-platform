@@ -713,6 +713,55 @@ still knows them.
 
 ## Waiting on you — nothing breaks while these wait
 
+
+- [ ] **DECIDE · Do you want a deposit at booking, and if so, four things only
+  you can settle. Nothing is built and nothing is waiting on code.**
+
+  **What this is.** A deposit means the customer pays something at the moment
+  they book, and it comes off what they owe on the day. It is on the list as a
+  thing to build, and **it is the only item left on the whole list with nothing
+  written down about what "done" would even look like** — because nobody can
+  write that until you answer these.
+
+  **The four questions, and none of them is technical:**
+  1. **Who sets the amount?** You, once, for everybody — or each detailer for
+     their own business?
+  2. **A percentage or a fixed amount?** "20% of the quote" or "$25".
+  3. **One figure per business, or a different one per service?** A wash and a
+     full ceramic coating are very different jobs.
+  4. **What happens if the customer cancels?** Do they get it back, and does
+     that depend on how late they cancelled?
+
+  **MY RECOMMENDATION, and the reasons are worth more than the answer:**
+  **each detailer sets it themselves, as a percentage, one figure for their
+  whole business, refunded if the customer cancels inside the window you already
+  let them cancel in.**
+  * **They set it, not us** — every other money setting in the product already
+    works that way: their prices, their travel fee, their cancellation window.
+    One more switch on a screen they already use.
+  * **A percentage, not a fixed figure** — on the demo business alone the jobs
+    run from **$65 to $999**. One fixed number is either pocket change on the
+    big job or a wall in front of the small one.
+  * **One per business, not one per service** — a figure per service multiplies
+    the setting-up you already think is too long, and nobody has asked for it.
+  * **Refunded inside the cancellation window** — because that window already
+    exists, and **the customer has already been told about it in words on the
+    last screen before they book**. Reusing it means we do not have to write a
+    second promise, and two promises about cancelling is how they end up
+    disagreeing.
+
+  **ONE THING TO KNOW BEFORE YOU ANSWER, because it nearly decided this for
+  you.** One of the example websites used to say a deposit was **$25 and not
+  refundable**. That was **deleted on 2026-09-21** along with the ruling that
+  *a deposit does not get built so an example page can quote $25* — so the
+  design is genuinely open and that old sentence is not a vote. **If you happen
+  to prefer $25 and non-refundable, say so and it is yours** — just not because
+  a page you never wrote already said it.
+
+  **What it costs once you answer.** Taking a deposit is taking a card payment,
+  so it needs the card side working — the same connected-account step already
+  on this list. **Nothing can start before your answer, and nothing is stuck
+  behind it either**: everything else on the list moves without this.
 - [ ] **DECIDE · How long may a detailer's own words be? Right now the answer is
   "as long as they like", and that is not a decision anybody made.**
 

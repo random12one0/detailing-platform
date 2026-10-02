@@ -13868,7 +13868,43 @@ their age is not Andrew's problem.
   **What failing looks like:** the page still promising a driveway card payment
   while "Card" is still only a word in the notes — which is the state today, and
   is a copy bug rather than a missing feature until somebody chooses a branch.
-- [ ] 12.3 Optional deposit at booking. *A2 Part 8 item 2*
+- [ ] **12.3 Optional deposit at booking. NEEDS ANDREW — and it is the only open
+  item in this file with no acceptance criterion, deliberately.** *A2 Part 8 item 2*
+
+  **WHY THERE IS NO `Done when` HERE AND WRITING ONE WOULD BE WRONG.** Four
+  things are unsettled and every one of them is a product decision rather than a
+  build question: **who sets the amount** (the platform once, or each detailer),
+  **in what form** (a percentage of the quote or a fixed figure), **at what
+  granularity** (one per business or one per service), and **what happens to it on
+  a cancellation**. Until those are answered there is nothing to test, and a
+  plausible-sounding criterion would have to be un-written later — which is worse
+  than none. Confirmed again 2026-10-02 by the open-items pass: **this is the only
+  one of 62 open items in that state.**
+
+  **ASKED, 2026-10-02 — `FOR-ANDREW.md` § "Waiting on you"** carries the four
+  questions in plain words with a recommendation and the reason behind each part
+  of it: **each detailer sets it, as a percentage, one figure per business,
+  refunded inside the cancellation window they are already promised.** The
+  reasoning, briefly, so it is not re-derived: every other money lever here
+  already belongs to the detailer; the demo tenant alone spans **$65 to $999**, so
+  one fixed figure is pocket change on one job and a wall on another; a
+  per-service figure multiplies a setup flow already thought too long; and
+  `cancellation_window_hours` **already exists and is already quoted to the
+  customer in words on the review step** (2.11), so reusing it avoids inventing a
+  second promise about cancelling.
+
+  **AND THE ONE THING THAT MUST NOT BE TREATED AS A DECISION ALREADY MADE.**
+  `/ex5` used to tell customers the deposit was **$25 and not refundable**. All
+  four places were **deleted 2026-09-21** under 7.17, with the ruling that *"a
+  deposit does not get built so an example page can quote $25"*. **So that design
+  is not a precedent and not a vote** — it is a promise the software could not
+  keep, removed. If Andrew lands on the same answer it is his; it must not arrive
+  by inheritance.
+
+  **WHAT IT WAITS ON AND WHAT IT DOES NOT.** It waits on **one answer** and on the
+  card side working, which is the connected-account step already on his list.
+  **Nothing else in this file is stuck behind it** — said plainly because a
+  `NEEDS ANDREW` with no scope reads like a wall.
   **NEEDS A DECISION ABOUT WHAT DONE MEANS — no criterion written 2026-09-25, on
   purpose.** One line of description is not enough to write a gate a stranger
   could check, and inventing one would be this session deciding the feature.
