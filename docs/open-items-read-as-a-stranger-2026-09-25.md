@@ -586,3 +586,156 @@ question an undo needs.**
   **the entry diagnosed its own criterion and nobody had acted on it**, which is
   the third time in this audit that a correction sat in prose and never reached
   the line it was about.
+
+---
+
+## BATCH 11 — 7.3 through 9.1, and one criterion could not fail at all
+
+**Read 2026-10-02. Four rewritten in commit `de83986`.**
+
+| | |
+|---|---|
+| items in this batch | **10** |
+| criterion a stranger could execute | **6** |
+| **criterion rewritten** | **4** (7.3, 7.8, 7.9, 8.10c) |
+| could not judge | **0** |
+| **running total** | **40 of 59** |
+
+**The ten:** 7.3, 7.6, 7.8, 7.9, 7.10, 8.10c, 7.18, 8.2, 8.5, 9.1.
+
+**EIGHT OF TEN FAILING CRITERIA ACROSS TWO BATCHES SHARE NOTHING BUT THE
+SYMPTOM**, which is worth saying because it rules out a cheap fix. The eight
+kinds so far: unpressable adverb (4.1, 7.3), a count of the thing being measured
+(3.4), a missing recipient and row (3.3), the right test aimed one layer too high
+(4.3), a process rather than an observation (7.8), a judgement word (7.9), and
+now **a criterion satisfiable by writing a sentence (8.10c)**. **No scan finds
+these. They are eight different questions.**
+
+### 8.10c · THE CRITERION COULD NOT FAIL ON ITS OWN SUBJECT
+
+**Old:** *"whoever builds it says, in the receipt's own words, which of the
+remaining kinds it now sees and which it still does not."*
+
+**A receipt sentence reading *"it still sees none of the remaining kinds"*
+satisfies that completely, with `migration-drift.mjs` unchanged.** The item's
+subject is making the check **see** grants and indexes; the criterion asks only
+that somebody **describe** what it sees. **So the item closes by documenting its
+own blindness — which is precisely the thing 8.10c was split out of 8.10b to
+prevent**, and the entry says so in its own opening: *"a check that reports clean
+over a blindness is worse than one that says what it did not measure."*
+
+**IT IS THE SAME FAULT AS 2.12's OLD DONE-WHEN NAMING A SURVEY AS A GATE**, and
+it was found the same way: **by asking what the laziest honest pass would look
+like.** That question is now the only reliable instrument this pass has — eight
+findings, eight different shapes, one question.
+
+**New:** `migration-drift.mjs` **compares at least GRANTS** — which the entry
+itself calls *"probably the next-most-tractable"*, readable from
+`information_schema.role_table_grants` / `has_table_privilege` — **names a real
+match or difference per grant** in `supabase/migrations/`, sends anything
+unparseable to a declared **UNJUDGEABLE bucket by file name**, and **is proved by
+a sabotage that revokes one declared grant and must turn the run red by name.**
+The receipt's sees/cannot-see sentence becomes **the paperwork, not the
+criterion.** **Failing:** a receipt whose sentence grew while the comparison did
+not, and an UNJUDGEABLE bucket quietly holding every grant in the repo — *"a pass
+over zero judged targets, which `receipt.mjs` already refuses elsewhere and must
+refuse here."*
+
+### 7.3 · NOBODY CAN PRESS FIVE SECONDS
+
+**Old:** *"in five seconds a visitor can say what each plan includes, what is due
+now and what repeats."* **Two problems: the stopwatch, and the visitor who is not
+in the room.**
+
+**The repair needed no invention, which is the point worth copying.** 7.3's own
+**Fix** line is already concrete — two plain plan cards, separate lines for
+one-time and repeating cost, *"Pay yearly: $400 (save $80)"*, commitment choices
+in the card, raised terms contrast. **The criterion is taken from the Fix rather
+than composed**, so it cannot widen the item: separate labelled lines; the saving
+never a standalone figure; **the saving not carrying the same visual weight as the
+two prices, read off computed style rather than eyeballed**; the commitment choice
+inside the card; terms text clearing the floor `contrast-insitu.mjs` enforces.
+
+**Failing:** *"three figures of equal weight on one card… the saving reading as a
+third fee — and it survives any amount of rewording while the weights are
+equal."* **That last clause matters: the reported fault is visual, so a criterion
+about words alone could be met with the defect intact.**
+
+### 7.9 · A JUDGEMENT WORD, AND ITS FAILURE MODE WAS ALREADY WRITTEN DOWN ELSEWHERE
+
+**Old:** *"the full point is understandable with motion disabled."*
+
+**New:** under `prefers-reduced-motion: reduce` **and** this repo's own
+`?lite=1`, **every element carrying the page's proposition is present and at full
+opacity in the first paint** — nothing stating the offer waits on an animation, a
+reveal or a timer — **and the page reads in the same order as it does with motion
+on.**
+
+**The failure mode is not hypothetical and did not come from me.** 7.12 records
+it: a node added after the `data-rv` reveal list is collected at mount **never
+gets `.in` and sits at opacity 0 for ever.** **So an element can be in the DOM, in
+the right order, and invisible** — which means presence is not visibility and the
+criterion has to say *opacity*. **A reduced-motion criterion written without that
+clause would pass a blank page.**
+
+### 7.8 · THE FIRST HALF WAS FINE AND THE SECOND HALF WAS A PROCESS
+
+**Old second half:** *"adding or removing a processor triggers a policy review."*
+**Nothing observable, and no mechanism named.** A stranger cannot tell whether a
+review was triggered.
+
+**New:** **(a)** every external host the edge functions call is named on
+`/privacy` and every processor `/privacy` names is one the code calls, **both
+lists derived from the code**; **(b)** a check **fails by name** when they
+disagree. **Failing:** *"the two lists reconciled once, by hand, on the day
+somebody looked — which is this item's current state and is why it is still
+open. A reconciliation is not a mechanism, and the next processor arrives without
+one."*
+
+### THE SIX THAT PASSED
+
+* **7.6** — names the surfaces and the arithmetic: the printed figure must equal
+  `photo_total_bytes()` ÷ `photo_tenant_share()` **read from the database rather
+  than typed into the page.** It also says which branch is not its to pick: 0.11
+  raises the allowance in the same change as the upload switch, so **7.6 closes
+  inside that change, not before it.**
+* **7.10** — three numbered parts, each with a pixel height that decides between
+  two different conclusions: *"~903px means the 21st's edit landed and only the
+  paperwork lagged; 1111px means the change is specified and ready."* **A
+  criterion that tells you what each possible measurement MEANS is rarer than one
+  that tells you what to measure.**
+* **7.18** — the strongest in the batch. It requires the check to be **run once,
+  unmodified, against today's repo, and to name `/terms` and `/privacy`** — *"not
+  a hypothetical run, the actual one, before anything about `LegalPage.jsx` is
+  patched."* **It forbids fixing the subject before proving the instrument**,
+  which is this repo's most repeated lesson written into an acceptance criterion
+  instead of a gotcha.
+* **8.2** — eighteen numbered steps each needing an answer written into the
+  entry, the phone named, the Android half answered on a named device, and —
+  the clause that makes it executable rather than aspirational — **"Nothing felt
+  wrong" is a valid answer to a step and must be recorded as one**, with 8.3 cited
+  as having closed exactly that way.
+* **8.5** — five sub-criteria, one per dimension, each observable: reduced motion,
+  a visible focus location across a Tab walk, 200% zoom at four widths, the WCAG
+  1.4.12 overrides applied with real numbers, and landmarks with headings
+  descending without skipping. **Five criteria on one item is right here** —
+  they are five different disabilities, not five ways of saying one thing.
+* **9.1** — *"the same account shows the same count everywhere"*, later tightened
+  to *"on the live site."* Executable, and **the tightening is a real gate rather
+  than a vague one**: it cannot be met until Andrew publishes, which is a deferral
+  he has chosen, not an ambiguity.
+
+### WHAT THIS BATCH COULD HAVE MISSED
+
+* **8.5 is 373 lines and 7.10 is 352; I read each one's criteria and the
+  paragraphs around them, not the whole entry.** For an item whose criteria are
+  the thing under judgement that is the right read, and it is **not** a claim to
+  have read either entry.
+* **Nothing in this batch was executed.** 7.18's criterion in particular asks for
+  a run I am not able to make — it needs `scripts/`, which is not this lane — so
+  *"executable"* here means *a person with that lane could do it today*, which is
+  the question asked, and not *it has been done*.
+* **I did not check whether the eight rewritten criteria are themselves
+  executable by somebody other than me.** They were written to the same test and
+  the test was applied by the author, which is the weakest link in both batches.
+  **The honest check is somebody else reading one and trying it.**
