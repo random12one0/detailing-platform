@@ -4843,6 +4843,61 @@ the wrong service, and never book a job we cannot reach.
   and nothing has stretched them there. `FOR-ANDREW.md` says so too, so the gap
   is weighed rather than discovered later.
 
+  **THE CAP WAS TAKEN, AND THEN THE GAP ABOVE WAS CLOSED — 2026-10-02, commits
+  `6cb226d` and `a2a43d5`.**
+
+  **60 CHARACTERS ON ALL FIVE NAME BOXES. The number came from the box next
+  door, not from anybody's judgement here** — `Plans.jsx` has carried
+  `maxLength={60}` on the monthly-plan name since it was written, and each new
+  comment says so, so a later reader can move it without re-litigating where it
+  came from. The manager took the decision rather than sending it on: *"it is
+  not a new number … picking the number the neighbouring box already uses is a
+  smaller act than leaving four boxes with no limit at all."* Verified by
+  reading, not asserted: `service_groups.name` `Catalog.jsx:732`,
+  `services.name` and `add_ons.name` `Catalog.jsx:777` (**one shared editor**),
+  `businesses.name` `BusinessInfo.jsx:260`, `plans.name` `Plans.jsx:283`.
+
+  **AND THE CHECK NOW FOLLOWS THE STRINGS OFF THE BOOKING PAGE.** One
+  instrument, not two — the class is *a tenant string at its limit* and it
+  already lived in `bk-bar-clearance.mjs`. **107 targets to 137, 871 assertions
+  to 943.**
+
+  | at the 60-character cap | result |
+  |---|---|
+  | 4 customer emails x 5 widths | **0 escaping their box, 0 truncated, document over by 0px** at every width |
+  | `Services & add-ons`, 320 / 392 / 768 | 0 escaping · **7, 7, 6 truncated with an ellipsis** · press lands |
+  | `Services & add-ons`, 1440 / 1920 | **1 escaping by 5px** · 6 truncated · press lands |
+  | `Business info`, 320 / 392 | 0 escaping · 1 truncated · press lands |
+  | `Business info`, 1440 / 1920 | **1 escaping by 5px** · 0 truncated · press lands |
+  | `--break=emaillayout` | **RED** — documents overflow by 1681 / 1609 / 1233 / 561 / 81px |
+  | `--break=screenstring` | **RED** — 3–4 elements escaping by up to 1980px |
+
+  **THE 5px AT THE TWO WIDEST WIDTHS IS MEASURED AND NOT YET EYEBALLED**, and
+  it is the only thing left open here. It is the business name in a `<div>`
+  whose chain of four ancestors all have `overflow-x: visible`, so content is
+  genuinely past its box — but whether a person sees 5px is a question a person
+  has to answer, and nobody has. It is narrow-widths-fine and wide-widths-red,
+  which is the opposite of the usual shape and worth a look on its own account.
+
+  **THE EMAILS ARE RENDERED BY `render-emails.mjs --long` AND GRADED HERE, AND
+  THAT SPLIT IS LOAD-BEARING RATHER THAN TIDY: that script prints PASS over a
+  wrong subtotal BY DESIGN** — `reconcile()` invents a closing line for any gap,
+  `docs/gotchas.md` 81 — **so its PASS is never read.** It draws the HTML; the
+  questions are asked of the pixels here.
+
+  **TWO MORE DEFECTS OF MINE, BOTH CAUGHT BY LOOKING AND NEITHER BY THE RUN.**
+  `scrollWidth > clientWidth` **is how an ellipsis works**, so the first version
+  counted truncation as overflow and reported 7 "overflowing" elements per width
+  over a screen handling long names exactly as designed; the screenshot settled
+  it. Truncation is now counted and **reported, never graded** — whether a
+  detailer should be able to read their whole service name is a design question
+  and not this item's to answer. And **`PRESS` was handed the booking page's
+  selectors on a settings screen**, matched nothing, and printed *"pressing
+  «undefined» at (undefined, undefined)"* at five widths — a question asked of
+  nothing, dressed as a finding about the product. **Zero controls matched is
+  now a loud failure that names the selector it tried**, because "no control"
+  and "wrong selector" are two readings and only one is about the screen.
+
 - [x] **At 320 the booking calendar's day cells are 37px against the 44px
   absolute — thirty-two of them, every open day in the month. Found
   2026-09-23 by `bk-bar-clearance.mjs` on its first run, while answering 2.15;
