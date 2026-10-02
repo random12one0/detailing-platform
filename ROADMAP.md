@@ -4898,6 +4898,88 @@ the wrong service, and never book a job we cannot reach.
   now a loud failure that names the selector it tried**, because "no control"
   and "wrong selector" are two readings and only one is about the screen.
 
+  **AND THE THREE BOXES THAT WERE NEVER LOOKED AT — 2026-10-02.** The cap was
+  taken on the five NAME boxes. **`tagline`, `about_copy` and `service_area`
+  were not in that decision**, and the tagline sits on the line directly under
+  the business name that now stops at 60. Measured with a **length ladder** in
+  `bk-bar-clearance.mjs --ladder` rather than capped by picking a number: each
+  string stretched through the real profile render path at 40, 60, 80, 120, 200
+  and 400 characters.
+
+  | field | widths | result |
+  |---|---|---|
+  | `tagline` | 1000 / 1440 / 1920 | **clean at every rung to 400 characters** |
+  | `service_area` | 320 / 392 | **clean at every rung to 400 characters** |
+  | `about_copy` | 392 / 1440 | **never renders on this page at any length** — the ladder proved nothing about it and says so on every run |
+
+  **SO THEY STAY UNCAPPED, AND THAT IS A RESULT RATHER THAN A FAILURE** — the
+  same answer `services.name` got on the booking page, for the same reason:
+  nothing breaks, so there is no measurement to cap from. The honest remaining
+  gap is `about_copy`, which belongs to the tenant SITE rather than the booking
+  page; this instrument cannot reach it and does not pretend to.
+
+  **THE LADDER'S FIRST RUN WAS WRONG AND THE SECOND ONE EXPLAINS WHY.** It ran
+  all three fields at 320 and 392 and reported `tagline` as *"not rendered"* at
+  every rung — true, and useless. `booking.css:487` is the reason:
+  `.bk-header .tagline.brand { display: none }` below 1000px, lifted at
+  `min-width: 1000px`. **A ladder run at a width where the thing cannot appear
+  proves nothing and looks exactly like a clean result.** The widths are chosen
+  per field now.
+
+  **ONE THING A PERSON SHOULD RULE ON, NOT A SESSION: a paste into a capped box
+  is cut silently at 60 with no message.** Verified with a real paste, not a
+  simulated one. `maxLength` is doing what the platform specifies; the question
+  is whether the box should say what it did.
+
+- [ ] **9.11b — `sweep-widths.mjs` reported a verdict over a third of its own coverage.**
+  Spawned from 9.11 on 2026-10-02 by closing its first clause. **9.11's first
+  clause is done**: the receipt no longer reads `"fail"` over an ANCESTOR of the
+  commit that fixed it, so nobody reads a live failure that was repaired days
+  ago. **What the fresh run exposed is worse than what it cleared.**
+
+  **MEASURED 2026-10-02: 153 of 463 expected surfaces.** Four of five widths
+  aborted on their **29th** surface with `locator.click: Timeout 15000ms
+  exceeded`; 1440px measured 41 of 155. 36,601 elements probed, 63,842
+  questions asked, 16 problems — **and it printed all of that as a summary.**
+  This is the file CLAUDE.md already names for once printing *clean* over 38
+  real findings, doing a quieter version of the same thing.
+
+  **THE 28 SURFACES AN ABORTED WIDTH REACHED ARE NOT WRONG. THEY ARE
+  UNUSABLE**, which is a different thing and is the whole point: nobody can
+  tell from them whether that width is healthy, because the run never got far
+  enough to say.
+
+  **TWO CHANGES LANDED THE SAME DAY, BOTH IN `sweep-widths.mjs`:**
+  - **An aborted width now contributes nothing to the verdict.** `JUDGED`
+    replaces `CERT` in `discovered_targets`, `attempted_targets` and
+    `completed_targets`, so an all-aborting run discovers **zero** and fails
+    closed on `receipt.mjs`'s oldest rule — *a check that discovered nothing
+    has proved nothing*. Its measurements stay in the contact sheet, where a
+    person can look at them knowing what they are.
+  - **The abort names the surface it died on**, not its own timeout. It used to
+    print *"after 28 surface(s) — locator.click: Timeout 15000ms exceeded"* —
+    the instrument's symptom — so four widths printed an identical sentence and
+    nobody could tell whether they died in the same place. `say()` records the
+    surface before anything can throw.
+
+  **WHAT IS STILL OPEN: what surface 29 is waiting for.** It follows
+  `Calendar · day, How this day works`, and the three Calendar day editors
+  before it all report *"no such editor on this day"* — so the walk opens a day
+  that has nothing on it and the next click has no target. **A strong lead from
+  the same night:** `contrast-insitu.mjs` failed on the identical signature and
+  named the cause — `<div role="dialog" class="tourblock"> intercepts pointer
+  events`. `sweep-widths` deliberately re-enables the guided tour to walk it,
+  so the overlay is a live suspect rather than a guess.
+
+  **Done when:** all five widths complete, **or** an aborting width is named
+  and excluded from the verdict by construction and the receipt refuses to
+  grade the run; the abort line names the surface; `node scripts/receipt.mjs
+  receipts/sweep-widths-1920-1440-392-360-320.json` is run and its verdict
+  reported; and **a sabotage that forces a width to abort proves the run goes
+  RED rather than short.** Zero targets discovered is a failure, never a pass.
+  **DO NOT RAISE THE 15-SECOND TIMEOUT** — that hides the cause rather than
+  finding it.
+
 - [x] **At 320 the booking calendar's day cells are 37px against the 44px
   absolute — thirty-two of them, every open day in the month. Found
   2026-09-23 by `bk-bar-clearance.mjs` on its first run, while answering 2.15;
