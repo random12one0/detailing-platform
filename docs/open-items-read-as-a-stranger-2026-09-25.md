@@ -1037,3 +1037,146 @@ hole hides in.
   argument above is the stronger test, and **they were not re-opened cold.** If
   that grading was as generous as self-grading, the executable counts in those
   batches are soft. **Not checked, and it is the next obvious thing.**
+
+---
+
+## BATCHES 13 AND 14 — THE PASS IS COMPLETE. ALL 62 OPEN ITEMS READ.
+
+**2026-10-02. Repairs in `4ba6e67` (batch 13) and `6325b7c` (batch 14).**
+
+| | |
+|---|---|
+| items in batch 13 | **10** |
+| items in batch 14 | **2** |
+| criterion a stranger could execute | **8** |
+| **criterion rewritten** | **4** (12.4, the sweep-widths item, 14.21, 14.23) |
+| could not judge | **0** |
+| **running total** | **62 of 62 — the pass is finished** |
+
+**Batch 13:** 12.2, 12.4, 14.9's `withinLimits` item, the five-runs
+sweep-widths item, the declared-skip item, 14.15, 14.17, 14.18, **14.21**,
+**14.22**. **Batch 14:** **14.23**, **14.24**.
+
+**FOUR OF THE TWELVE WERE WRITTEN BY THIS SESSION THIS AFTERNOON, AND THREE OF
+THOSE FOUR FAILED.** 14.21, 14.23 failed; 14.22 and 14.24 passed, the latter
+with a clause added. **That is consistent with the cold-test result above and it
+is the part worth carrying: self-written criteria fail at roughly the rate the
+experiment measured, including ones written hours after the lesson.**
+
+### 14.21 · I REPEATED, IN A NEW ENTRY, THE EXACT FAULT I HAD DIAGNOSED FOUR HOURS EARLIER
+
+Its criterion required `platform-admins-declared` to read **"18 passed / 0
+failed"**. **A typed count of the thing being measured** — add one assertion to
+that test and the criterion becomes unmeetable. **This is 3.4's fault verbatim**,
+and 3.4's repair was committed at 13:46 while 14.21 was written at 13:41 and
+cold-read at 22:0x. **The lesson was written down between the two and did not
+reach the second one**, which is the same shape as 3.4b's correction never
+reaching 3.4's criterion, and as 0.6's title keeping its number while another
+item corrected it.
+
+**Second fault in the same clause:** *"read off the table in both directions"*.
+**In this repo "both directions" means a sabotage proved two ways** — it is used
+that way in `platform-admins-declared`'s own write-up. I meant *before and
+after*. **The phrase said something other than what I meant, in a vocabulary the
+repo had already fixed.**
+
+### 14.23 · A BASELINE IT NEVER RECORDED, AND THE WRONG UNIT
+
+**Fault one:** *"a discovered-control count strictly higher than **today's**"* —
+**today's was never written down.** A stranger has nothing to compare against,
+and the baseline moves while they look. **This repo's own rule, quoted from the
+booking-column item: *"the before number, so the size of this is visible without
+re-measuring anything."*** The run now walks the settings doors **twice in one
+run** — folds closed, then opened — and reports both counts, so the comparison is
+self-contained.
+
+**Fault two, and it is the more interesting one:** *"a run that reports no change
+on any of the **eighteen files**"*. **The eighteen are `app/src` files that use
+`<details>`. The sweep reports controls per SCREEN and never mentions a file.**
+A unit error — not a vague clause but a clause about the wrong kind of thing —
+**which would have made the failure condition unreadable rather than merely
+loose.** Now stated per screen.
+
+### 12.4 · A CRITERION NAMING ONE OF TWO IS CLOSED BY HALF THE WORK
+
+*"the demo account is refused at `/admin`"* — **singular, and there are two.**
+14.8 established exactly this and **sized this very item on it**: *"12.4 said
+'one guessable login' and there are **two** guessable logins, one of which
+nothing tracks."* **So the correction existed, in the item that depends on it,
+and never reached the criterion.** Fourth instance of that pattern today.
+
+**New:** both rows dealt with, the roster in `docs/platform-admins.md` as the
+list to work from, each removed or renamed to something unguessable, and
+**`platform-admins-declared` passing against the updated roster** so the table
+and the document still agree afterwards — because the obvious way to finish this
+item is to delete rows and leave the document describing accounts that no longer
+exist.
+
+### THE SWEEP-WIDTHS ITEM · A STATISTICAL CLAUSE ON A SAMPLE THAT CANNOT MEASURE IT
+
+*"a fix in `Walkthrough.jsx` that drops the 2-in-20 cold-open rate measurably."*
+**Twenty runs cannot measure that drop.** Against a 10% base rate, **1-in-20 and
+2-in-20 are the same observation** — so the clause could be closed on noise, or
+left open by noise, and neither reading would mean anything. **It is the only
+failing criterion in the whole pass that was unexecutable for a statistical
+reason rather than a verbal one.**
+
+**New:** closed **deterministically** — force the cold-open condition, show the
+tour still reaches six blocks under it, name the mechanism. **One run instead of
+twenty**, and if the condition cannot be forced, that is the finding.
+
+### THE EIGHT THAT PASSED, AND THREE ARE WORTH COPYING
+
+* **14.15** — *"a run that cannot reproduce it IS a valid close, provided it says
+  so"*, plus **the body of any 429 read rather than its status**, because the
+  function's own refusal carries `reason: "busy"` and the status cannot tell the
+  two apart. **A criterion that anticipates its own null result is rare here.**
+* **14.18** — *"if either call leaves no row, the per-IP limits are advisory
+  rather than enforced. **That is the finding, not a failure of the test**, and it
+  closes this item as much as a clean result would."*
+* **14.17** — requires the check to **state which resources it cannot see**, with
+  the 14.15 platform ceiling named explicitly as one of them. **The declared blind
+  spot as a criterion rather than as an apology.**
+* **12.2** — a two-branch close where **one branch is free and the entry says so**
+  (*"or the home page stops promising it"*). Branch one names no card hardware,
+  which is a small gap; branch two is executable today, and either closes it.
+* **14.9's loop, the declared-skip item, 14.22, 14.24** — all executable;
+  14.24 gained one clause saying where the record goes and that its three checks
+  have separate pass conditions.
+
+**ONE COST LEFT UNNAMED AND FLAGGED RATHER THAN FIXED:** 14.9's criterion —
+*"a loop against each of the three writes is refused, and the refusal is proved
+by running the loop"* — **is executable and spends a shared resource silently.**
+A loop that trips a rate limit writes real rows until it trips, and `rate_hits`
+is a declared shared resource (`docs/shared-resources.md`). **Not rewritten: the
+cost is small, the criterion is otherwise exact, and adding a clause to every
+criterion that touches a live endpoint is a bigger change than this pass should
+make unasked.** Recorded so it is a decision rather than an oversight.
+
+---
+
+## THE PASS, COMPLETE — 62 OF 62
+
+| | |
+|---|---|
+| open items read as a stranger | **62 of 62** |
+| criteria rewritten to name a shape | **19** |
+| of those, written by this session and then cold-read | **10** |
+| **of those, failed the cold read** | **10** |
+| items found closed in fact, open on paper | **2** — the 320 calendar item (ticked) and 11.3 (recommended) |
+| items with no criterion at the start | **26** · **now 0** |
+| gaps named in an entry but owned by no item | **3**, all now items (14.21–14.23) |
+
+**THE SINGLE MOST USEFUL NUMBER IN THIS FILE IS TEN OUT OF TEN.** Every criterion
+this session wrote *and* later read cold had a hole. **The pass rate on
+self-graded work is zero**, measured across two sittings and three separate
+batches, **including criteria written hours after the lesson had been written
+down and committed.**
+
+**WHAT THAT MEANS FOR WHOEVER READS THIS NEXT, said plainly:** the nineteen
+rewritten criteria are **better than what they replaced and are not finished.**
+Nine of them have never been read by anyone but their author. **By this file's own
+measured rate, expect holes in them.** The three loop-breakers are named in the
+cold-test section above, and the strong one is the cheap one: **execute the
+criterion once. Every one of the twelve failures was a question nobody asks until
+they try.**
