@@ -111,6 +111,7 @@ import { createRequire } from "node:module";
 import { mkdirSync, rmSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { writeReceipt } from "./receipt.mjs";
+import { demoOwner } from "./lib/demoOwner.mjs";
 
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
@@ -125,7 +126,7 @@ const SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY;
 // THE DEMO BUSINESS BY SLUG, NEVER BY A UUID WRITTEN DOWN HERE. FOUND.md's
 // other open entry is two scripts holding an id that a reseed threw away.
 const SLUG = "demo-detail";
-const OWNER = { email: "demo@detailplatform.com", password: "demo123" };
+const OWNER = demoOwner();
 
 const ART = fileURLToPath(new URL("../artifacts/pinned-bar/", import.meta.url));
 

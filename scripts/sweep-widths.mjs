@@ -624,6 +624,7 @@ let narrow = 0;   // desktop widths whose content column is still phone-sized
 import { writeReceipt } from "./receipt.mjs";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
+import { demoOwner } from "./lib/demoOwner.mjs";
 
 const STARTED = new Date().toISOString();
 
@@ -983,6 +984,7 @@ const XWIDTH_CANARY = process.env.SWEEP_XWIDTH_CANARY === "1";
 // this is the opposite — nobody knows what those surfaces would have said.
 // It exists so the gate can report "this width stopped" instead of printing
 // ninety NEVER MEASURED lines that all have one cause.
+let ATTEMPTING = null;   // the surface `say()` is on; read by the abort handler
 const ABORTED = [];
 let assertions = 0;
 const canaries = [];
@@ -1094,6 +1096,12 @@ for (const w of SIZES) {
   // were also the four that measured nothing, so no finding ever came out of
   // them to contradict the word "clean".
   const say = async (label, target = page) => {
+    // **THE SURFACE BEING ATTEMPTED, SET BEFORE ANYTHING CAN THROW.** An abort
+    // used to report only the TIMEOUT and a count: "after 28 surface(s) -
+    // locator.click: Timeout 15000ms exceeded". That names the instrument's own
+    // symptom, never the thing it died on, so four widths printed an identical
+    // sentence and nobody could tell whether they died in the same place.
+    ATTEMPTING = label;
     if (ONLY && !label.toLowerCase().includes(ONLY.toLowerCase())) return;
     const broken = await target.evaluate(() => /That didn't load/.test(document.body.innerText));
     if (broken) {
@@ -1541,7 +1549,7 @@ for (const w of SIZES) {
     // which is genuinely signed out — is where that happens.
     await page.fill("input[type=email]", "demo@detailplatform.com");  // mail-sink: a dashboard login, never a recipient
     // Must match scripts/seed-demo.mjs, same as shoot-dashboard.mjs.
-    await page.fill("input[type=password]", "demo123");
+    await page.fill("input[type=password]", demoOwner().password);
     await page.click("form button.btn.primary");
     await page.waitForSelector(".tabbar", { timeout: 30000 });
     // Kept for the remaining widths. The FIRST width still signs in through
@@ -3008,9 +3016,10 @@ for (const w of SIZES) {
     // surfaces" are different problems.
     const done = CERT.filter((c) => c.width === w).length;
     const why = String((e && e.message) || e).split("\n")[0];
-    ABORTED.push({ width: w, measured: done, error: why });
+    ABORTED.push({ width: w, measured: done, error: why, surface: ATTEMPTING, after: CERT.filter((c) => c.width === w).slice(-1)[0]?.label ?? null });
     found++;
-    console.log(`\nWIDTH ABORTED at ${w}px after ${done} surface(s) — ${why}`);
+    console.log(`\nWIDTH ABORTED at ${w}px ON SURFACE «${ATTEMPTING ?? "(none attempted)"}»`
+      + ` — the ${done + 1}th; the last one to complete was «${CERT.filter((c) => c.width === w).slice(-1)[0]?.label ?? "nothing"}» — ${why}`);
     console.log(`  The other widths carry on. Everything ${w}px did not reach is unmeasured, not clean.`);
   } finally {
     // BOTH EXITS AND THE ABORT COME THROUGH HERE, which is the point: the
@@ -3056,7 +3065,33 @@ if (narrow && !DESKTOP_SPEC_BUILT) {
 // state that never opened has no geometry to be wrong, so it reads as a pass:
 // the baseline run reloaded, lost two states and still printed `clean`.
 // A false clean is worse than a failure, because nothing makes anybody look.
-console.log(`\n${surfaces} surface(s) measured, ${probed} element(s) probed, ${assertions} question(s) asked`);
+/* ══ AN ABORTED WIDTH CONTRIBUTES NOTHING TO THE VERDICT ═══════════════════
+   Run 2026-10-02: four of five widths aborted on their 29th surface and this
+   script still printed a summary over the 153 surfaces they HAD reached, out
+   of 463 expected. **A result over a third of its own coverage is the exact
+   failure this repo keeps paying for** - `sweep-widths.mjs` is itself the file
+   CLAUDE.md names for once printing *clean* over 38 real findings.
+
+   The 28 surfaces an aborted width reached are not WRONG. They are unusable,
+   which is different and is the whole point: nobody can tell from them whether
+   the width is healthy, because the run never got far enough to say. So they
+   are dropped from every count below and kept in the contact sheet, where a
+   person can look at them knowing what they are. ROADMAP 9.11b. */
+const ABORTED_W = new Set(ABORTED.map((a) => a.width));
+const JUDGED = CERT.filter((c) => !ABORTED_W.has(c.width));
+if (ABORTED_W.size) {
+  const dropped = CERT.length - JUDGED.length;
+  console.log(`
+${dropped} measurement(s) from ${ABORTED_W.size} aborted width(s) are DROPPED FROM THE`
+    + ` VERDICT - ${[...ABORTED_W].join(", ")}px. They are in the contact sheet and they are not`
+    + " clean, not dirty, and not a result: the width never finished, so nothing it reached can"
+    + " say whether it is healthy.");
+  if (!JUDGED.length) {
+    console.log("NO WIDTH COMPLETED. There is no verdict to give and this run proves nothing.");
+  }
+}
+console.log(`\n${surfaces} surface(s) reached, ${probed} element(s) probed, ${assertions} question(s) asked`);
+console.log(`${JUDGED.length} of those ${CERT.length} measurement(s) count toward the verdict` + (ABORTED_W.size ? " — the rest belong to widths that never finished" : " — every width finished"));
 
 // ===========================================================================
 // CERTIFICATION — the four gates that turn the word "clean" into a claim worth
@@ -3686,9 +3721,15 @@ ${figures}
     started_at: STARTED,
     status: found ? "fail" : "pass",
     expected_targets: reachableTotal,
-    discovered_targets: CERT.length,
-    attempted_targets: CERT.length,
-    completed_targets: CERT.length,
+    // **`JUDGED`, NOT `CERT`** - a width that aborted contributes none of its
+    // partial measurements. With `CERT` the receipt read 153 discovered against
+    // 463 expected and the arithmetic rule in `receipt.mjs` was the only thing
+    // standing between this run and a verdict over a third of its coverage.
+    // Now an all-aborting run discovers ZERO and fails closed on the rule that
+    // exists for exactly it: *a check that discovered nothing has proved nothing*.
+    discovered_targets: JUDGED.length,
+    attempted_targets: JUDGED.length,
+    completed_targets: JUDGED.length,
     skipped_targets: SKIPPED.length,
     ...(SKIPPED.length ? {
       skip_allowlist: {

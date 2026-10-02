@@ -113,13 +113,14 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { watchSource, reportSourceMoved } from "./source-guard.mjs";
+import { demoOwner } from "./lib/demoOwner.mjs";
 
 // Playwright lives in `app/node_modules`, and every browser script in this
 // repo reaches it the same way — there is no dependency at the repo root.
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 const BASE = process.env.BASE || "http://localhost:5173";
 const EMAIL = "demo@detailplatform.com";  // mail-sink: a dashboard login, never a recipient
-const PASSWORD = "demo123";
+const PASSWORD = demoOwner().password;
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 
 // THE CATALOGUE, IMPORTED RATHER THAN PARSED. See blindness (1) in the header:

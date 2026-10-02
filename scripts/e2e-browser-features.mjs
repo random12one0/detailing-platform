@@ -88,6 +88,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { writeReceipt } from "./receipt.mjs";
 import { money } from "../app/src/lib/format.js";
+import { demoOwner } from "./lib/demoOwner.mjs";
 
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
@@ -107,7 +108,7 @@ const APP = "http://localhost:5173";
 // id is resolved at run time in § 0. `e2e-payment.mjs` carries the same fix.
 const SLUG = "demo-detail";   // Coastline Auto Detailing, the demo
 let BIZ = null;
-const OWNER = { email: "demo@detailplatform.com", password: "demo123" };
+const OWNER = demoOwner();
 const TAG = "ROADMAP 14.6";
 
 // Stripe's published test card. It belongs to nobody, exists only in test mode

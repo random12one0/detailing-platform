@@ -81,6 +81,7 @@ import { fileURLToPath } from "node:url";
 import { writeReceipt } from "./receipt.mjs";
 import { settle, watchConsole } from "./lib/bookingWalk.mjs";
 import { appEs } from "../app/src/lib/strings/appEs.js";
+import { demoOwner } from "./lib/demoOwner.mjs";
 
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
@@ -88,7 +89,7 @@ const started_at = new Date().toISOString();
 const HEADED = process.argv.includes("--headed");
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("=")[1] || "";
 const BASE = process.env.BASE || "http://localhost:5173";
-const OWNER = { email: "demo@detailplatform.com", password: "demo123" };
+const OWNER = demoOwner();
 
 // 320 FIRST — it is the only width where the margin is in question at all.
 const SIZES = [

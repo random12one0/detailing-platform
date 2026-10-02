@@ -24,6 +24,7 @@
 import "../tests/_env.mjs";
 
 import { forecast } from "../supabase/functions/_shared/weather.ts";
+import { demoOwner } from "./lib/demoOwner.mjs";
 
 let pass = 0, fail = 0, skipped = 0;
 const ok = (name, cond, detail = "") => {
@@ -95,7 +96,7 @@ console.log("\n3 · the deployed `forecast` function");
     const auth = await fetch(`${URL_}/auth/v1/token?grant_type=password`, {
       method: "POST",
       headers: { "Content-Type": "application/json", apikey: ANON },
-      body: JSON.stringify({ email: "demo@detailplatform.com", password: "demo123" }),  // mail-sink: a dashboard login, never a recipient
+      body: JSON.stringify(demoOwner()),  // mail-sink: a dashboard login, never a recipient
     }).then((r) => r.json()).catch(() => ({}));
 
     if (!auth.access_token) {

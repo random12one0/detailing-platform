@@ -97,6 +97,7 @@ import { mkdirSync, readFileSync, rmSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { REPO, writeReceipt } from "./receipt.mjs";
+import { demoOwner } from "./lib/demoOwner.mjs";
 import {
   advance, countQuotes, pickDay, quoted, settle, stepNow, toCalendar, watchConsole,
 } from "./lib/bookingWalk.mjs";
@@ -761,6 +762,7 @@ attempted += 1;
    assertion: a surface that never received the long string reports no
    overflow, perfectly, for ever. */
 
+const ladderRows = [];
 const CAP = 60;
 const atCap = (w) => { let o = w; while (o.length < CAP) o += " " + w; return o.slice(0, CAP).trim(); };
 const S_LONG = atCap("Full interior and exterior ceramic protection detail");
@@ -835,6 +837,94 @@ const OVERFLOW = async (page, needles) => page.evaluate((needles) => {
   };
 }, needles);
 
+
+/* ══ --ladder : THE THREE BOXES THAT ARE STILL UNBOUNDED ═══════════════════
+   ROADMAP 2.15a took the cap on the five NAME boxes. `tagline`, `about_copy`
+   and `service_area` were never looked at - Andrew's own brief named the
+   tagline specifically, and it sits on the line directly under the business
+   name that now stops at 60.
+
+   **IT DOES NOT PICK A NUMBER. It finds one.** Each string is stretched up a
+   ladder of lengths through the real `get_public_business_profile` render
+   path, at the two narrowest supported widths, and the first length at which
+   something ESCAPES its box or gets TRUNCATED is reported. A cap, if one is
+   warranted, comes from that measurement and says so. **If nothing breaks at
+   any length, that is a result and the honest answer is to leave them
+   uncapped** - the same answer `services.name` got, for the same reason.
+
+   `.bk-header .tagline` is the one to watch: `booking.css:480` records that it
+   fits "by ONE PIXEL" at some width, which is a measurement somebody already
+   took and a reason to expect this one to bite. */
+if (process.argv.includes("--ladder")) {
+  const RUNGS = [40, 60, 80, 120, 200, 400];
+  const FIELDS = [
+    // **THE WIDTHS ARE PER FIELD, AND THE FIRST VERSION GOT THAT WRONG.** It ran
+    // all three at 320 and 392 and reported `tagline` and `about_copy` as "not
+    // rendered" at every rung - which was true and useless. `booking.css:487`
+    // is why: `.bk-header .tagline.brand { display: none }` below 1000px, lifted
+    // at `min-width: 1000px`. So the tagline CANNOT appear at a phone width and
+    // a ladder run there proves nothing about it. Measured where it is visible
+    // instead; the fourth element is the widths.
+    ["tagline", "branding", "tagline", "Mobile detailing that comes to you", [1000, 1440, 1920]],
+    ["about_copy", "branding", "about_copy", "We have been detailing cars in this city for years", [392, 1440]],
+    ["service_area", "business", "service_area", "Long Beach and the South Bay", [320, 392]],
+  ];
+  const grow = (w, n) => { let o = w; while (o.length < n) o += " " + w; return o.slice(0, n).trim(); };
+  let FIELD = null, LEN = 0;
+  const lctx = await browser.newContext({ viewport: { width: 320, height: 844 } });
+  const lp = await lctx.newPage();
+  await lp.route("**/rest/v1/rpc/get_public_business_profile", async (route) => {
+    let res; try { res = await route.fetch(); } catch { return route.abort().catch(() => {}); }
+    let b; try { b = await res.json(); } catch { return route.fulfill({ response: res }); }
+    if (b && FIELD) {
+      const host = b[FIELD[1]];
+      if (host && typeof host === "object") host[FIELD[2]] = grow(FIELD[3], LEN);
+    }
+    return route.fulfill({ status: res.status(), contentType: "application/json", body: JSON.stringify(b) });
+  });
+  console.log("\n  2.15a LADDER - tagline, about_copy and service_area, which are still unbounded");
+  console.log("  Lengths: " + RUNGS.join(", ") + " characters, each field at the widths where it is VISIBLE.");
+  const firstBreak = {};
+  for (const f of FIELDS) {
+    FIELD = f;
+    for (const width of f[4]) {
+      for (const n of RUNGS) {
+        LEN = n;
+        await lp.setViewportSize({ width, height: 844 });
+        await lp.goto(`${BASE}/book/${SLUG}`, { waitUntil: "domcontentloaded" });
+        await lp.waitForSelector(".bk-card.selectable", { timeout: 30000 }).catch(() => {});
+        await settle(lp, 1200);
+        const o = await OVERFLOW(lp, [grow(f[3], n)]);
+        const key = `${f[0]} @${width}`;
+        const verdict = !o.landed ? "not rendered"
+          : o.badCount > 0 ? `ESCAPES by ${o.bad[0] && o.bad[0].over}px`
+            : o.truncatedCount > 0 ? "truncated"
+              : o.docOver > 1 ? `document over by ${o.docOver}px` : "clean";
+        console.log(`    ${f[0].padEnd(13)} ${String(width).padStart(4)}px  ${String(n).padStart(3)} chars  ${verdict}`);
+        if (verdict !== "clean" && verdict !== "not rendered" && !firstBreak[key]) firstBreak[key] = { n, verdict };
+        ladderRows.push({ field: f[0], width, chars: n, verdict, landed: o.landed });
+      }
+    }
+  }
+  await lp.unrouteAll({ behavior: "ignoreErrors" }).catch(() => {});
+  await lctx.close();
+  console.log("\n  FIRST LENGTH THAT IS NOT CLEAN, per field and width:");
+  const keys = Object.keys(firstBreak);
+  if (!keys.length) {
+    console.log("    NONE - every field is clean at every rung up to 400 characters.");
+    console.log("    That is a RESULT, not a failure: these three do not need a cap for this reason.");
+  } else {
+    for (const k of keys) console.log(`    ${k.padEnd(22)} ${firstBreak[k].n} chars - ${firstBreak[k].verdict}`);
+  }
+  const neverRendered = ladderRows.filter((r) => !r.landed).map((r) => r.field);
+  if (neverRendered.length) {
+    console.log(`\n    ${new Set(neverRendered).size} field(s) NEVER RENDERED on this page at any length: `
+      + [...new Set(neverRendered)].join(", ") + ". The ladder proved nothing about those and says so.");
+  }
+  await browser.close();
+  process.exit(0);
+}
+
 console.log("\n  2.15a PHASE TWO - the emails, at the 60-character cap");
 const mailCtx = await browser.newContext({ viewport: { width: SIZES[0].w, height: SIZES[0].h } });
 const mailPage = await mailCtx.newPage();
@@ -894,7 +984,7 @@ try {
    It is a fake account on a database with no real data. It is the fifth copy
    of one string and it should be ONE - see the handover note. */
 console.log("\n  2.15a PHASE TWO - the detailer's own screens, at the cap");
-const OWNER = { email: "demo@detailplatform.com", password: process.env.DEMO_OWNER_PW || "demo123" };
+const OWNER = demoOwner();
 const SCREENS = [["catalog", "Services & add-ons"], ["info", "Business info"]];
 const appCtx = await browser.newContext({ viewport: { width: SIZES[0].w, height: SIZES[0].h } });
 const appPage = await appCtx.newPage();

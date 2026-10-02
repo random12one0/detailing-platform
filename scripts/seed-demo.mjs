@@ -28,8 +28,13 @@ const TZ = "America/Los_Angeles";
 // guesses one can do is scribble on fake data.
 // **Change these before there is a single real customer.** See DECISIONS.md,
 // "A guessable demo login, on purpose and temporarily".
-const OWNER = { email: "demo@detailplatform.com", password: "demo123" };  // mail-sink: a login; autoconfirm is on and no custom SMTP, so no mail
-const STAFF = { email: "demo-staff@detailplatform.com", password: "staff123" };  // mail-sink: a login; autoconfirm is on and no custom SMTP, so no mail
+// **THE TWO PASSWORDS USED TO BE LITERALS ON THESE LINES** - this is the script
+// that CREATES both accounts, so it was the source every other copy pointed at.
+// They are read from the environment now and this file has no credential in it.
+// `.env` is gitignored; CLAUDE.md documents the load line.
+import { demoOwner, demoStaff } from "./lib/demoOwner.mjs";
+const OWNER = demoOwner();  // mail-sink: a login; autoconfirm is on and no custom SMTP, so no mail
+const STAFF = demoStaff();  // mail-sink: a login; autoconfirm is on and no custom SMTP, so no mail
 
 const H = {
   apikey: SERVICE, Authorization: `Bearer ${SERVICE}`,
@@ -1050,7 +1055,7 @@ await post("/rest/v1/blockout_dates", [{
 // most valuable credential in the product — and the demo login is deliberately
 // guessable and sits on the live site (DECISIONS.md, "A guessable demo login,
 // on purpose and temporarily"). **Making `demo@detailplatform.com` an admin  // mail-sink: prose
-// would put every detailer's data behind `demo123`.** So this is a separate
+// would put every detailer's data behind the demo owner's password.** So this is a separate
 // account, off by default, with a RANDOM password that exists only in the
 // gitignored refs file beside the ids the sweeps already read from it.
 //
@@ -1065,7 +1070,7 @@ await post("/rest/v1/blockout_dates", [{
 //
 // **THIS REVERSES A DECISION THIS FILE USED TO CARRY**, and the old reasoning is
 // three paragraphs below: *"Making `demo@detailplatform.com` an admin would put  // mail-sink: prose
-// every detailer's data behind `demo123`."* That was right and it is still right
+// every detailer's data behind the demo owner's password."* That was right and still is
 // ABOUT A REAL DATABASE. It is his call to make for a database whose every
 // business is a fixture, and the guard below is what keeps the two apart.
 //

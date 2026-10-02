@@ -39,6 +39,7 @@
 // can see it.
 
 import { createRequire } from "node:module";
+import { demoOwner } from "./lib/demoOwner.mjs";
 const { chromium } = createRequire(import.meta.url)("../app/node_modules/playwright/index.js");
 
 const BASE = process.env.BASE || "http://localhost:5173";
@@ -84,7 +85,7 @@ const run = async (width, lite) => {
   const q = lite ? "?lite=1" : "";
   await page.goto(`${BASE}/app${q}`, { waitUntil: "domcontentloaded" });
   await page.fill("input[type=email]", "demo@detailplatform.com");
-  await page.fill("input[type=password]", "demo123");
+  await page.fill("input[type=password]", demoOwner().password);
   await page.click("form button.btn.primary");
   await page.waitForSelector(".tabbar", { timeout: 30000 });
   // A guide already seen never arrives; both keys, because `seenTours()` is an

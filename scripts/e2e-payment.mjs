@@ -63,6 +63,7 @@ import { writeReceipt } from "./receipt.mjs";
 // learned this the hard way: a `toFixed(2)` here printed `$195.00` beside a
 // screen reading `$195` and called two equal numbers unequal for a day.
 import { money } from "../app/src/lib/format.js";
+import { demoOwner } from "./lib/demoOwner.mjs";
 
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
@@ -88,7 +89,7 @@ const ANON = process.env.SUPABASE_ANON_KEY;
 // never changes the slug, so the id is resolved at run time below.
 const SLUG = "demo-detail";   // Coastline Auto Detailing, the demo
 let BIZ = null;
-const OWNER = { email: "demo@detailplatform.com", password: "demo123" };
+const OWNER = demoOwner();
 // THE TWO FIXTURES SIT IN DIFFERENT SLOTS ON PURPOSE. Sharing one start time
 // put them in the same hour of the same day, and the second create came back
 // with nothing — a detailer cannot be in two places at once and the database

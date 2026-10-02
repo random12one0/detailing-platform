@@ -40,7 +40,7 @@ import { createRequire } from "node:module";
 
 const BASE = process.env.BASE || "http://localhost:5173";
 const EMAIL = "demo@detailplatform.com";
-const PASSWORD = "demo123";   // matches scripts/seed-demo.mjs
+const PASSWORD = demoOwner().password;   // scripts/lib/demoOwner.mjs
 
 let pass = 0, fail = 0;
 const ok = (name, cond, detail = "") => {

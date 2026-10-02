@@ -58,6 +58,7 @@ import { mkdirSync, rmSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { writeReceipt } from "./receipt.mjs";
 import { settle, watchConsole } from "./lib/bookingWalk.mjs";
+import { demoOwner } from "./lib/demoOwner.mjs";
 
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
@@ -65,7 +66,7 @@ const started_at = new Date().toISOString();
 const HEADED = process.argv.includes("--headed");
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("=")[1] || "";
 const BASE = process.env.BASE || "http://localhost:5173";
-const OWNER = { email: "demo@detailplatform.com", password: "demo123" };
+const OWNER = demoOwner();
 
 // 320 FIRST. The fixture names are the longest in the list — "ROADMAP 2.8
 // Address Test 2026-09-23" — and `.c-who` ellipsises, so 320 is where a mark

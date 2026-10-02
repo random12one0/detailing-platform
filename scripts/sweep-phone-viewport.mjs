@@ -73,6 +73,7 @@
 // sweep-widths.mjs. EXITS NON-ZERO on any finding.
 import { createRequire } from "node:module";
 import { reportSourceMoved, watchSource } from "./source-guard.mjs";
+import { demoOwner } from "./lib/demoOwner.mjs";
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
 const changedSince = watchSource();
@@ -345,7 +346,7 @@ const openDash = async (state, lang) => {
   await page.waitForSelector("input[type=email], .tabbar", { timeout: 25000 });
   if (await page.locator("input[type=email]").count()) {
     await page.fill("input[type=email]", "demo@detailplatform.com");
-    await page.fill("input[type=password]", "demo123");
+    await page.fill("input[type=password]", demoOwner().password);
     await page.click("form button.btn.primary");
     await page.waitForSelector(".tabbar", { timeout: 30000 });
   }

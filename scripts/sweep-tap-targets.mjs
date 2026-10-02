@@ -50,6 +50,7 @@ import { join } from "node:path";
 import { reportSourceMoved, watchSource } from "./source-guard.mjs";
 import { writeReceipt } from "./receipt.mjs";
 import { TAP_PROBE, BREAKS, EXCEPTIONS, FLOOR, CAP } from "./lib/tapProbe.mjs";
+import { demoOwner } from "./lib/demoOwner.mjs";
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
 const started_at = new Date().toISOString();
@@ -148,7 +149,7 @@ const openDash = async (width, lang) => {
     await settle(page, 1200);
     await measure(page, `${width}/${lang}/sign-in`);
     await page.fill("input[type=email]", "demo@detailplatform.com");
-    await page.fill("input[type=password]", "demo123");
+    await page.fill("input[type=password]", demoOwner().password);
     await page.click("form button.btn.primary");
   }
   await page.waitForSelector(".tabbar, .rail", { timeout: 30000 });
@@ -234,7 +235,7 @@ const runAdminCanary = async (browser, runs = 5) => {
   await page.waitForSelector("input[type=email], .pa-tabs, .adm", { timeout: 25000 });
   if (await page.locator("input[type=email]").count()) {
     await page.fill("input[type=email]", "demo@detailplatform.com");
-    await page.fill("input[type=password]", "demo123");
+    await page.fill("input[type=password]", demoOwner().password);
     await page.click("form button[type=submit]");
     await page.waitForSelector(".pa-tabs, .adm", { timeout: 30000 }).catch(() => {});
   }
@@ -468,7 +469,7 @@ for (const width of WIDTHS) {
 // the run ends — built that way because at the time the demo login was
 // deliberately NOT a platform admin (the old CLAUDE.md rule `admin-account.mjs`
 // still quotes: *"Making demo@detailplatform.com an admin would put every
-// detailer's data behind demo123."*). ROADMAP 0.1 recorded Andrew reversing
+// detailer's data behind the demo owner's password."*). ROADMAP 0.1 recorded Andrew reversing
 // that himself, 2026-09-16 — *"I made one of them just be able to access both
 // because I was tired of switching accounts… literally no one's on the
 // site"* — and today's back-office-access finding (docs/gotchas.md § 6)
@@ -484,7 +485,7 @@ for (const width of WIDTHS) {
 // MEASURE.** It read `.pa-x` at 30px and `.pa-chip` at about 29px out of
 // `admin.css` and said so as SOURCE evidence, because nothing could probe the
 // screen. This can, and now does it without a second credential path.
-const OWNER_ADMIN = { email: "demo@detailplatform.com", password: "demo123" };
+const OWNER_ADMIN = demoOwner();
 // DECLARED, NOT COUNTED FROM THE RUN — keyboard-walk.mjs's own rule, § "the
 // count is read once at the index" applies here too: five back-office tabs
 // (Today, Growth, Money, Detailers, System health) plus the Detailers drawer,

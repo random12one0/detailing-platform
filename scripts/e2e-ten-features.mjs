@@ -70,6 +70,7 @@ import { ON_SITE, advancedMoney } from "../app/src/lib/moneyAdvanced.js";
 // period on that derived date. Doing the arithmetic here with the UTC instant
 // would put a 5pm job on the wrong day eight months of the year.
 import { localDate, money } from "../app/src/lib/format.js";
+import { demoOwner } from "./lib/demoOwner.mjs";
 
 const started_at = new Date().toISOString();
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("=")[1] || "";
@@ -86,7 +87,7 @@ const ANON = process.env.SUPABASE_ANON_KEY;
 const SLUG = "demo-detail";   // Coastline Auto Detailing, the demo
 let BIZ = null;
 const TZ = "America/Los_Angeles";              // this business's own, as the row says
-const OWNER = { email: "demo@detailplatform.com", password: "demo123" };
+const OWNER = demoOwner();
 const TAG = "ROADMAP 14.6";
 const FOLDER = "roadmap-14-6";
 

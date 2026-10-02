@@ -107,6 +107,7 @@ import { createRequire } from "node:module";
 import { mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { REPO, writeReceipt } from "./receipt.mjs";
+import { demoOwner } from "./lib/demoOwner.mjs";
 
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
@@ -117,7 +118,7 @@ const HEADED = ARGS.includes("--headed");
 const KEEP = ARGS.includes("--keep");
 const BREAK = (ARGS.find((a) => a.startsWith("--break=")) || "").split("=")[1] || null;
 
-const OWNER = { email: "demo@detailplatform.com", password: "demo123" };
+const OWNER = demoOwner();
 const U = process.env.SUPABASE_URL;
 const K = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!U || !K) {

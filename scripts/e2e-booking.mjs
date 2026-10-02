@@ -71,6 +71,7 @@ import { realMail } from "../tests/_mail.mjs";
 // that goes stale. A read of lane B's file, not a write: if it ever stops
 // importing in Node the script dies loudly, which is the correct outcome.
 import { money } from "../app/src/lib/format.js";
+import { demoOwner } from "./lib/demoOwner.mjs";
 
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
@@ -123,7 +124,7 @@ const CUSTOMER_EMAIL = process.argv.find((a) => a.startsWith("--to="))?.slice(5)
 const MIN_LEAD_DAYS = 3;
 
 const TENANTS = [
-  { slug: "demo-detail", dashboard: { email: "demo@detailplatform.com", password: "demo123" } },  // mail-sink: a dashboard login, never a recipient
+  { slug: "demo-detail", dashboard: demoOwner() },  // mail-sink: a dashboard login, never a recipient
   { slug: "demo-riverside", dashboard: null },
 ].filter((t) => !ONLY || t.slug === ONLY);
 

@@ -13,7 +13,7 @@
 //
 // CLAUDE.md already had the rule and it was only ever applied to the demo:
 // *"Making `demo@detailplatform.com` an admin would put every detailer's data  // mail-sink: prose
-// behind `demo123`."* A screenshot script is the same sentence with a longer
+// behind the demo owner's password."* A screenshot script is the same sentence with a longer
 // password.
 //
 // **TWO CHANGES, AND EACH COVERS THE OTHER'S FAILURE:** the password is random

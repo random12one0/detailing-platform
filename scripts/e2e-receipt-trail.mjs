@@ -60,6 +60,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { writeReceipt } from "./receipt.mjs";
 import { realMail } from "../tests/_mail.mjs";
 import { money } from "../app/src/lib/format.js";
+import { demoOwner } from "./lib/demoOwner.mjs";
 
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
@@ -72,7 +73,7 @@ const SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const ANON = process.env.SUPABASE_ANON_KEY;
 
 const SLUG = "demo-detail";
-const OWNER = { email: "demo@detailplatform.com", password: "demo123" };
+const OWNER = demoOwner();
 const DASH = "http://localhost:5173";
 // Resend's own always-accepts simulator. The receipt in this run is a REAL
 // send to a REAL provider — an `@example.com` address is refused by

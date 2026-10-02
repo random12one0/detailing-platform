@@ -98,6 +98,7 @@ import { mkdirSync, rmSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { writeReceipt } from "./receipt.mjs";
 import {
+import { demoOwner } from "./lib/demoOwner.mjs";
   advance, countQuotes, DELTA_FLOOR, frame, pickDay, quoted, settle,
   stepNow, toCalendar, watchConsole,
 } from "./lib/bookingWalk.mjs";
@@ -111,7 +112,7 @@ const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("
 const BASE = process.env.BASE || "http://localhost:5173";
 
 const SLUG = "demo-detail";
-const OWNER = { email: "demo@detailplatform.com", password: "demo123" };
+const OWNER = demoOwner();
 const CUSTOMER_EMAIL = "e2e@fixture.test";      // e2e-booking.mjs's free path
 
 const SIZES = [

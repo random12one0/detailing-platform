@@ -34,6 +34,7 @@ const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playw
 // mid-run edit. `source-guard.mjs` explains why that matters.
 const changedSince = watchSource();
 import { mkdirSync } from "node:fs";
+import { demoOwner } from "./lib/demoOwner.mjs";
 
 const OUT = process.env.OUT || "shots";
 const BASE = process.env.BASE || "http://localhost:5173";
@@ -218,10 +219,10 @@ for (const [w, h] of WIDTHS) {
   if (await page.locator("input[type=email]").count()) {
     await page.fill("input[type=email]", "demo@detailplatform.com");  // mail-sink: a dashboard login, never a recipient
     // Must match scripts/seed-demo.mjs. It did NOT for a while: the demo
-    // login was simplified to demo123 in commit 1f3f945 and this line kept
+    // login was simplified in commit 1f3f945 and this line kept
     // the old password, so this script — the one thing that opens the
     // dashboard at all — could not sign in. Change both or neither.
-    await page.fill("input[type=password]", "demo123");
+    await page.fill("input[type=password]", demoOwner().password);
     await page.click("form button.btn.primary");
     await page.waitForSelector(".tabbar", { timeout: 30000 });
     signedIn = await ctx.storageState();
