@@ -292,6 +292,8 @@ were made more than once.
 - **Publishing is a DEFERRAL, not a blocker** — Andrew, 2026-09-24: he does not care about the live site because nothing is using it, so a program running an older version harms nobody and everything goes up in one go at launch. Changes the HOUSE STYLE for every item whose only remaining step is a publish — *done and correct on disk, switched off until launch*, never *blocked, waiting on you*, because a list of chores he has already declined is a list he stops reading. What does NOT change: `deployed-inventory.mjs` going red stays true and worth knowing, and 0.6's publish command stays written out in full.
 - **The `scripts/` freeze in 14.20 was a moment, not a policy** — the manager lifted it 2026-09-24 with Andrew's yes, scoped to `dashboard-notifies.mjs` and `edge-tenant-replay.mjs` only and expiring with that sitting. Why the two halves of 14.20's own *Done when* could not both hold, why a third file in that directory (DP Cowork's `job-weather-budget.mjs`) is the reason the grant was two files by name, and what the lift bought: three live emails a run, stopped.
 - **One fact, six numbers, every one of them reading as current** — the edge-function drift count lived in `ROADMAP.md` as 26, 22, 13, 4-to-8 and 25 across twelve occurrences, each true on its day. 0.6's title now names the command instead of a figure, and the live answer is read off `receipts/deployed-inventory.json`. 2026-10-02.
+- **A manager's statement about the other session is a claim about a moment, and mine aged out in under half an hour** — "frozen, nothing has moved in seven days" was true when typed and false twenty minutes later, because the manager woke the other lane and did not say so. Waking or dispatching a lane is announced in the same breath. 2026-10-02.
+- **The doorbell is half-blind — a stop hook that does not fire reads exactly like a session still working** — DP Cowork's last ping stayed at 2026-09-25T05:39:05 through three completed turns. Never wait on a newer timestamp as proof of anything. 2026-10-02.
 
 <!-- INDEX:END -->
 
@@ -17475,3 +17477,80 @@ first report said *five* numbers, from reading four entries. `grep -nE '[0-9]+ o
 values** — including a sixth that already corrected 0.6's title in place at
 another item and never edited the title. **Reading found five, grepping found
 six, and the census in 0.6 is built from the grep.** `docs/gotchas.md` 88.
+
+## A manager's statement about the other session is a claim about a moment, and mine aged out in under half an hour
+
+**2026-10-02, the manager's own entry, recorded at his instruction.**
+
+**What was said:** DP Cowork *"has been frozen mid-turn since 2026-09-25 05:39
+UTC, seven days, nothing on disk has moved since, so it is not committing under
+you."* It was offered as the reason an ownership objection **had gone**, and a
+session declined an eighteen-line move on that objection one turn earlier.
+
+**What was true:** it held when it was typed and **stopped holding about twenty
+minutes later, because the manager woke the other lane and did not say so.**
+DP Cowork committed `6cb226d` at **13:42:06**, twenty-three seconds after the
+session's own first commit of the turn.
+
+**Nothing broke, and that is luck rather than a safeguard.** `6cb226d` touched
+`app/src` and `scripts/` only; `ROADMAP.md` was read clean before and after, and
+the move was intact. **Had it touched `ROADMAP.md` in those twenty-three seconds
+the two edits would have crossed inside one file**, which is the exact
+same-file contamination `CLAUDE.md`'s commit rule took four corrections to
+describe.
+
+**THE RULE: when a lane is woken or dispatched, it is announced in the same
+breath.** A statement about the other session is not a standing fact, it is a
+reading, and **the person who changes it is the only one who can know it
+changed.**
+
+**AND THE CORROLLARY FOR THE SESSION RECEIVING IT, which is the half that saved
+this one:** a lane statement is **checked, not trusted** —
+`git status --porcelain <path>` before writing and `git log` after. The session
+was told the objection had gone, moved anyway because the file was genuinely
+clean, and then **found the live commit by looking at `git log` rather than by
+believing either version.** `docs/shared-resources.md`'s rule that a lane
+statement *"expires the moment either session is given something new"* is the
+same idea; this adds that **it can expire without either session being told.**
+
+## The doorbell is half-blind — a stop hook that does not fire reads exactly like a session still working
+
+**2026-10-02. Structural, and worse than the entry above it, because nothing
+about it is anybody's mistake.**
+
+**The measurement.** DP Cowork's last doorbell ping is
+**`2026-09-25T05:39:05`**. It has **started and finished three turns on
+2026-10-02** in front of the manager. **The hook is not firing for that lane.**
+The other lane's fires normally, so the mechanism works and its coverage does
+not.
+
+**WHY IT IS A TRAP RATHER THAN A NUISANCE.** A watcher that only ever reads a
+**newer** timestamp has exactly one signal and **two conditions map onto its
+absence**:
+
+| what the watcher sees | what it could mean |
+|---|---|
+| no newer ping | the session is **still working** |
+| no newer ping | the session **stopped and the hook did not fire** |
+
+**Those are opposite instructions — wait, or go — and the signal cannot tell
+them apart.** So anything built on waiting for the doorbell **sits forever on
+the lane that has gone quiet**, which is the one case the waiting existed for.
+
+**IT IS THE SAME SHAPE AS THIS REPO'S OLDEST MEASUREMENT FAULT:** a probe that
+cannot tell **a failed read from an empty one** (`docs/gotchas.md`), and a
+skipped check that reads exactly like a passing one. **An absence is not a
+reading.** The fix in every previous instance was the same: make the thing
+report that it ran, separately from what it found — which for a stop hook means
+the watcher needs a **positive liveness signal it can distinguish from
+silence**, not a more recent timestamp.
+
+**WHAT NOT TO DO, named because it is the obvious move:** do not lengthen the
+wait. A longer timeout does not add information; it only delays the same wrong
+answer. **And do not infer liveness from `git log`** — a session can work for an
+hour without committing, so a quiet log is the same half-blind signal with a
+different face.
+
+**STATUS: recorded, not fixed.** The hook is not in this lane's reach, and the
+entry exists so the next person who builds a wait on the doorbell knows it
+cannot carry one.
