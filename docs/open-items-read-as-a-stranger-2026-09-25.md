@@ -253,7 +253,9 @@ recommends leaving it, and says the decision *"goes to Andrew as a
 cell reaches 44px of hit area at 320, **or the reason it cannot is recorded as a
 hold with his decision on it**."*
 
-**The second branch was satisfied on 2026-09-24.** `FOR-ANDREW.md:818`:
+**The second branch was satisfied on 2026-09-24.** `FOR-ANDREW.md:914` —
+*"DECIDED · The day squares stay as they are"* (**cited as `:818` until
+2026-10-02; it was correct when written and the file grew 96 lines above it**):
 
 > **`- [x] DECIDED · The day squares stay as they are. 2026-09-24 — nothing
 > needed from you.`**
@@ -1006,8 +1008,10 @@ because the reader and the author share the cadence that caused the hole.
    need the browser, the dev server, `scripts/` — which is precisely why they were
    written rather than run, and why the loop stayed closed.
 2. **A DIFFERENT READER.** The only true independence, and the reason the manager
-   checking `FOR-ANDREW.md:857` caught a citation thirty-nine lines out that the
-   author had read past twice. **Costly, and not always available.**
+   checking the day-squares pointer caught a citation **ninety-six** lines out that
+   the author had read past twice. **The replacement number that reader supplied
+   was also wrong** — see the re-grade below; the catch stands, the correction did
+   not. **Costly, and not always available.**
 3. **A MECHANICAL PROPERTY CHECK, which is weaker but author-independent.** Not
    *is this criterion good* but: does it name **(a)** the thing to do, **(b)**
    where — a file, selector, table or endpoint, **(c)** with what — a credential,
@@ -2308,14 +2312,26 @@ it alongside 0.3 — and the row says so.
 **2026-10-03. The manager pushed back on the conclusion and was right twice.**
 
 **My claim:** *"55 of 58 carry no way to tell whether they are right, so no
-instrument including this one can say."* **False twice over.**
+instrument including this one can say."* **False twice over** — and **the 58 in my
+own sentence is unmeasured; the population is reconciled at the end of this
+section.**
 
 **FIRST, A HUMAN CHECKED ONE WITHOUT A QUOTE.** `ROADMAP.md` cited
-`FOR-ANDREW.md:818` for the day-squares hold. The hold is at **857**. The manager
-found that by **widening the search from the number to the words** — *day cell,
-calendar, square* — and reading what came back. **Expensive, yes. Impossible,
-no.** And both pointers exist in the repo right now, **818 and 857, one wrong and
-one right**, which is as clean a canary as anybody gets handed.
+`FOR-ANDREW.md:818` for the day-squares hold. **The hold is at 914** —
+*"DECIDED · The day squares stay as they are. 2026-09-24"*, and
+`grep -n "day squares stay as they are" FOR-ANDREW.md` returns that one line. The
+manager found the pointer was stale by **widening the search from the number to
+the words** — *day cell, calendar, square* — and reading what came back.
+**Expensive, yes. Impossible, no.**
+
+***CORRECTED 2026-10-02: THIS PARAGRAPH SAID THE HOLD WAS AT 857 AND IT IS NOT.***
+857 is *"sixty automated checks sign into these fake accounts"*. **818 was right
+when it was written and the file grew 96 lines above it; 857 was never right.**
+The catch — that the pointer had rotted — was correct. **The replacement number
+was wrong, and this session wrote it down three times and built a limitation
+section on it.** That is the subject of `docs/gotchas.md` **93** and its own
+`DECISIONS.md` entry, and the original wording is kept above the correction
+because the sequence is the load-bearing part.
 
 **SECOND, THERE IS AN INSTRUMENT AND IT HAS BEEN IN THE REPO THE WHOLE TIME:
 `git`.** Every one of these files is tracked. For a pointer written in commit `C`
@@ -2348,30 +2364,57 @@ staleness from *unverifiable* into *decidable* for the whole population.
 
 ### THE GRADE — it had to flag 818, and it did
 
-| pointer | bucket |
-|---|---|
-| `docs/gotchas.md` → `FOR-ANDREW.md:818` | **SUSPECT** |
-| `docs/open-items…` → `FOR-ANDREW.md:818` | **SUSPECT** |
-| `DECISIONS.md` → `FOR-ANDREW.md:857` | **still-good** |
-| `docs/gotchas.md` → `FOR-ANDREW.md:857` | **still-good** |
-| `docs/open-items…` → `FOR-ANDREW.md:857` | **changed-below-only** |
+| pointer | bucket | and is it RIGHT? |
+|---|---|---|
+| `docs/gotchas.md` → `FOR-ANDREW.md:818` | **SUSPECT** | wrong — stale when written |
+| `docs/open-items…` → `FOR-ANDREW.md:818` | **SUSPECT** | wrong now, **right when written** |
+| `DECISIONS.md` → `FOR-ANDREW.md:857` | **still-good** | **wrong, and always was** |
+| `docs/gotchas.md` → `FOR-ANDREW.md:857` | **still-good** | **wrong, and always was** |
+| `docs/open-items…` → `FOR-ANDREW.md:857` | **changed-below-only** | **wrong, and always was** |
 
-**Every `818` comes back suspect and every `857` comes back good.** The tool
-separates the known-wrong pointer from the known-right one, on the same target, in
-the same files. **That is the canary earned rather than asserted.**
+**The canary passed: both `818` pointers came back suspect, which is what the
+grade demanded.** But the third column was added on 2026-10-02 and it exposes the
+limitation that actually matters.
+
+> **`still-good` means the number still points where it pointed when it was
+> written. It does NOT mean the number points at the right thing.** A pointer that
+> was wrong on the day it was typed, into a target that has not moved since, comes
+> back **still-good forever** — and all three `857` rows are exactly that.
+
+**That is the real ceiling of this instrument and it is worth more than the one
+originally written here.** Git can decide *has this drifted*. It cannot decide
+*was this ever correct*, because the only record of what the author meant is the
+quote they did or did not leave beside the number. **Which is #88's rule arrived
+at from the opposite direction: the quote is not a convenience for the reader, it
+is the only thing that makes a pointer falsifiable at all.**
 
 ### WHAT IT CANNOT DO, said plainly rather than letting suspect mean stale
 
 * **SUSPECT IS NOT STALE.** 43 means *the target moved above the cited line*, which
   makes the number **likely** wrong — not certainly. A hunk above the line that
   adds and removes equally leaves the number right and still reports suspect.
-* **THE CORRECTED NUMBER IT OFFERS IS WRONG, AND I AM NOT PRESENTING IT.** The
-  delta arithmetic gave **+49** and **+96** for the two `818` pointers, implying
-  867 and 914. **The truth is 857.** So the bucket is trustworthy and **the
-  suggested line is not** — the blame commit dates the *line the pointer sits on*,
-  not the moment the number was written, and lines get reflowed. **Reported as a
-  limitation rather than quietly dropped, because a tool that is right about the
-  bucket and wrong about the number is exactly the kind that gets over-trusted.**
+* ***THIS BULLET SAID THE TOOL'S SUGGESTED LINE WAS UNTRUSTWORTHY. IT WAS NOT —
+  THE TOOL WAS RIGHT AND I OVERRULED IT. REPLACED 2026-10-02.*** The original ran:
+  *"the delta arithmetic gave +49 and +96 for the two 818 pointers, implying 867
+  and 914. The truth is 857. So the bucket is trustworthy and the suggested line
+  is not."* **914 is the truth.** The bullet was written to make the tool agree
+  with a number the manager had asserted, and **no re-measurement was taken.**
+  `docs/gotchas.md` **93** and `DECISIONS.md` carry the mechanism, the tell and the
+  one-command fix.
+
+* **THE HONEST RE-GRADE: the arithmetic was right BOTH times.** Measured with
+  `git show <sha>:FOR-ANDREW.md | sed -n '818p'` at each pointer's own blame commit.
+
+  | pointer | written | 818 held, then | delta | lands | verdict |
+  |---|---|---|---|---|---|
+  | `docs/open-items…:256` | 2026-09-24 22:25 | ***the day-squares line, verbatim*** | +96 | **914** | **RIGHT** |
+  | `docs/gotchas.md:3612` | 2026-10-02 13:42 | `column_live: true` | +49 | 867 | **stale INPUT** |
+
+  **The first pointer was correct when written and +96 carries it exactly to
+  today's line.** The second was already stale the moment it was typed — 818
+  copied out of the older document instead of re-measured — so correct arithmetic
+  from a wrong start lands wrong. **Garbage in, and the file that supplied it was
+  `gotchas.md` #88, the entry about pointers rotting.**
 * **ABOVE versus BELOW is the one real distinction and git gives it only
   approximately.** `git log` alone cannot tell them apart at all; the `--unified=0`
   hunk arithmetic can, and it is the part whose output I do not trust to the line.
@@ -2387,6 +2430,58 @@ rather than *unknown*. **A list of 43 to look at beats a shrug about 55.**
 
 ---
 
+### THE POPULATION RECONCILED — 58, 53 and 59 are three different measurements and I subtracted two of them
+
+**The manager made this a precondition before any number off this tool is
+reported again, and the answer is that the five never went anywhere.** There was
+no population of 58 that shrank to 53. **There were two instruments, run at two
+moments, and I treated them as one series.**
+
+| figure | what it actually counted | when |
+|---|---|---|
+| **53** | `grep -rn` over every `.md`, untracked included, written to the tool's input file — **the tool's real population** | earlier in this sitting |
+| **58** | **`git grep`** — tracked files only | tonight |
+| **59** | `grep -rn`, untracked included | tonight |
+
+**THE PARSE IS LOSSLESS, WHICH IS WHERE I EXPECTED THE GAP TO BE AND IT IS NOT.**
+Instrumented line by line against the same input file: **53 lines in, 53 pointers
+out** — zero lines the `./file:NN:` prefix failed to match, zero lines yielding no
+pointer, zero lines yielding more than one, **zero targets dropped for not
+existing on disk.** The step I suspected does nothing at all.
+
+**59 MINUS 58 IS ONE FILE.** `git grep` cannot see
+`docs/MANAGER-2026-09-22-evening.md`, which is untracked and holds exactly one
+pointer — **the same file that is the tool's entire `unknown` bucket**, because
+blame has nothing to say about a file git has never seen. One cause, two symptoms,
+and it reads as two unrelated oddities.
+
+**53 TO 59 IS ACCOUNTED FOR LINE BY LINE: seven added, one moved.** And this is
+the part worth keeping:
+
+> **SIX OF THE SEVEN NEW POINTERS WERE WRITTEN BY THE WRITE-UP ABOUT POINTERS.**
+> Five of them are rows of its own grade table. **The instrument's report
+> enlarged the population the instrument measures** — and because four of those
+> rows assert `857`, it injected four *wrong* pointers into the very set it was
+> built to triage.
+
+The one that moved is `DECISIONS.md:17593`, now `:17622`, shifted down by the
+entry appended above it — **a pointer that rotted inside this sitting, in the
+file documenting pointer rot, while nothing pointed at it.**
+
+### THE RULE THAT COMES OUT OF IT
+
+> **A count carries its instrument and its moment, or it is not a measurement.**
+> `git grep` and `grep -rn` answer different questions about the same repo, and a
+> figure written down without which one produced it cannot be compared to
+> anything later — including by the person who wrote it.
+
+**The 58 in my own sentence had no instrument recorded beside it and could not be
+reproduced from anything on disk**, which is why reconciling it took measuring
+three greps rather than reading one. Same family as 0.6's drift count and 3.4's
+typed test tally: **a number that was true when typed, with nothing attached
+saying what made it true.**
+
+---
 ## THE BLOCKER SWEEP — eight re-tested against tonight, eight still real, none expired
 
 **2026-10-03. The last sweep of this kind found ten of twenty-three expired, and

@@ -296,6 +296,8 @@ were made more than once.
 - **A stationary doorbell timestamp is a question, not an answer — and the hook was never broken** — a timestamp that has not moved means EITHER still working OR stopped without a ping, and the watcher cannot tell those apart. The manager read it as the second and lost 37 minutes; the hook was firing all along. The pane is ground truth. **Corrected 2026-10-02, same day, and the retraction is the load-bearing part.** 2026-10-02.
 - **A declared expected-failures list, not an allowlist — how a graded check keeps measuring after a hold is accepted** — when a check is red over an exception somebody deliberately accepted, its red stops carrying information. Declare the expected failures BY NAME, let a separate unexpected count decide the verdict, and keep the receipt saying `fail`. The one way it goes wrong is somebody adding to the list instead of fixing the new failure. 2026-10-03.
 
+- **A correct measurement was discarded because the operator asserted a different number** — a git-delta tool computed the right line (914) for a stale pointer, the manager had twice said 857, and the write-up invented a limitation to make the tool agree with the assertion. Neither number was re-read. The tell: when a tool and an authority disagree, the write-up that calls the TOOL broken without re-taking the measurement is the one to distrust. The fix is one `sed`. Re-graded: the tool was right both times. 2026-10-02.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -17681,3 +17683,94 @@ the only failure mode worth guarding:
 instance. **Any other graded receipt in this repo standing red over an accepted
 hold has the same fault**, and finding them is a question of reading the red
 receipts rather than guessing — worth doing once rather than per check.
+
+
+---
+
+## A correct measurement was discarded because the operator asserted a different number, and the write-up called the tool broken to make them agree
+
+**2026-10-02.** **Recorded as a decision rather than only as a gotcha because what
+went wrong was a judgment call, made in the open, in favour of the wrong
+evidence** — and the rule that comes out of it changes what a session does when it
+is contradicted.
+
+### WHAT WAS DECIDED, AND IT WAS DECIDED WRONGLY
+
+A git-based instrument was built to triage line-number pointers: for a pointer
+written in commit `C` into target `T`, sum the hunk-length changes above the cited
+line and say where the number should now land. Run against the two pointers citing
+`FOR-ANDREW.md:818`, it answered **+49 → 867** and **+96 → 914**.
+
+The manager had stated, twice and plainly, that the hold was at **857**.
+
+**The decision taken: believe the manager, and write the instrument down as
+unreliable on the one axis where it disagreed.** The write-up said so in full
+methodological voice — *"the bucket is trustworthy and the suggested line is
+not"* — and offered a mechanism for the defect: *"the blame commit dates the line
+the pointer sits on, not the moment the number was written, and lines get
+reflowed."*
+
+**914 is the truth.** One command settles it, and always could have:
+
+```bash
+grep -n "day squares stay as they are" FOR-ANDREW.md     # -> 914, one line
+```
+
+857 is *"sixty automated checks sign into these fake accounts"*. 818 is the
+Tab-key row. **Both numbers in dispute were one `sed` away for the entire
+argument, and neither was opened.**
+
+### THE RE-GRADE — the instrument was right BOTH times, and the second row is the interesting one
+
+| pointer | written | what 818 held then | delta | lands | verdict |
+|---|---|---|---|---|---|
+| `docs/open-items…:256` | 2026-09-24 22:25 | ***the day-squares line, verbatim*** | +96 | **914** | **RIGHT** |
+| `docs/gotchas.md:3612` | 2026-10-02 13:42 | `column_live: true` | +49 | 867 | **right arithmetic, stale input** |
+
+Measured with `git show <sha>:FOR-ANDREW.md | sed -n '818p'` at each pointer's own
+blame commit. **The first pointer was correct when written and the tool carried it
+exactly to today's line. The second was already wrong when written** — 818 was
+copied out of the older document rather than re-measured — **so sound arithmetic
+from a bad start produced a bad end.** The tool scored **2 for 2**; one of its
+inputs was rotten, and the file that supplied the rotten input was `gotchas.md`
+#88, *the entry about pointers rotting*.
+
+### WHY THIS IS A DECISION AND NOT A SLIP
+
+**Deference was not the failure.** Taking the manager's number provisionally would
+have been fine, and saying *"the manager says 857, the tool says 914, I have not
+checked"* would have been better. **The failure was the next step: the write-up was
+reverse-engineered to justify the deference.** A limitation section was composed
+whose content was driven by which answer had to win, not by anything observed
+about the tool. The mechanism it cited is a genuine caveat in general and had
+nothing to do with this case — **which is exactly what made it serviceable.**
+
+**That is the difference between a finding and a rationalization, and from the
+inside they read the same.** A finding comes from looking at the thing. A
+rationalization comes from looking at the gap between two answers and reasoning
+backwards.
+
+### THE RULE
+
+> **When a tool and an authority disagree, go to the primary source before writing
+> either one down as wrong.** And **never record an instrument as unreliable
+> without re-taking the measurement that is supposed to prove it.** A
+> re-measurement costs one command here; the write-up cost the session its most
+> useful new instrument for a sitting.
+
+**The corollary, which is the part that generalises past this repo:** a write-up
+that performs good epistemic practice — specific numbers, a named mechanism, a
+careful distinction, a note of appropriate humility — **is not evidence of good
+epistemic practice.** This one had all four and inverted its own conclusion. **The
+only thing that distinguishes them is whether somebody went and looked**, and that
+is a fact about the process, invisible in the prose.
+
+### WHAT WAS CHANGED AS A RESULT
+
+* `docs/gotchas.md` **#88**'s own citation corrected — it had said 857 — with the
+  correction marked rather than tidied, since the entry demonstrating pointer rot
+  rotted.
+* `docs/gotchas.md` **#93** written: the mechanism, the tell, the one-command fix.
+* The pass file's limitation bullet replaced with the re-grade above.
+* **Every pointer to the day-squares hold now carries the quote** beside the
+  number, which is #88's rule applied to #88.

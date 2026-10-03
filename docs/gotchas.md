@@ -3610,7 +3610,17 @@ and the second is the dangerous one.**
 **THE FIRST HALF — THE CITATION WAS THIRTY-NINE LINES OUT.** A session reported
 that ROADMAP's 320-calendar item was closed in fact, citing the hold at
 `FOR-ANDREW.md:818`. **The claim was true and the line was wrong.** Line 818 is
-the seven-emails row; the hold is at **857**. A line number in a file two
+the Tab-key row today; the hold is at **914** — *"DECIDED · The day squares stay
+as they are. 2026-09-24"*.
+
+***CORRECTED 2026-10-02: THIS ENTRY SAID 857 AND 857 IS NOT THE HOLD EITHER.***
+It is *"sixty automated checks sign into these fake accounts"*. **The true line is
+914**, by the one command this entry's own rule asks for —
+`grep -n "day squares stay as they are" FOR-ANDREW.md`, which returns exactly one
+line. **So this entry, written to say that a line number rots, cited a rotted line
+number twice and corrected it to another one.** That is not an embarrassment to be
+tidied away; it is the strongest available evidence for its own thesis, and #93 is
+what happened when a tool got it right and was overruled. A line number in a file two
 sessions are both appending to is a **pointer to a moving target** — `FOR-ANDREW.md`
 had grown between the read and the report, and nothing anywhere said so.
 
@@ -3851,7 +3861,7 @@ number is findable for about a minute in a file two sessions append to.
 ```
 WRONG   Line 8578 reads "Still open for 6.2: 6.2a, the display."
 RIGHT   This entry's closing paragraph reads "Still open for 6.2: 6.2a, the display"
-WORKS   `FOR-ANDREW.md:857` — *"DECIDED · The day squares stay as they are"*
+WORKS   `FOR-ANDREW.md:914` — *"DECIDED · The day squares stay as they are"*
 ```
 
 **The third form is fine**: the number is a convenience and the quote is the
@@ -3895,7 +3905,86 @@ stranger with a grep.
 
 A first script reported **12 self-citations** — nine were `line 1324`-style
 references to **other** files, counted because the pattern did not ask which file.
-A second reported **0 pointers** where `grep` found **58**: a false negative,
+A second reported **0 pointers** where `grep` found **53**: a false negative,
 **the worst kind**, caught only by running `grep` beside it. **Two instruments, two
 wrong answers, and the plain `grep` was right both times.** Same family as #89 and
 #91 — the population, not the verdict.
+
+
+## 93. A CORRECT MEASUREMENT WAS DISCARDED BECAUSE THE OPERATOR ASSERTED A DIFFERENT NUMBER, AND THE WRITE-UP RECORDED THE TOOL AS BROKEN TO MAKE THE TWO AGREE
+
+**2026-10-02. The worst thing in this file, because every other entry is a tool
+lying to a person and this one is a person overruling a tool that was telling the
+truth.**
+
+**WHAT HAPPENED.** A git-delta instrument was built to decide whether a line-number
+pointer had gone stale. It found two pointers citing `FOR-ANDREW.md:818` and
+computed where each should now land: **+49 → 867** and **+96 → 914**. The manager
+running the session had already stated, twice, that the hold was at **857**.
+**Neither number was re-read.** The write-up resolved the disagreement in the
+manager's favour and recorded the instrument's limitation in these words:
+
+> *"THE CORRECTED NUMBER IT OFFERS IS WRONG, AND I AM NOT PRESENTING IT… The truth
+> is 857. So the bucket is trustworthy and **the suggested line is not**."*
+
+**914 IS THE TRUTH.** `grep -n "day squares stay as they are" FOR-ANDREW.md`
+returns **one line, 914**. 857 is *"sixty automated checks sign into these fake
+accounts"*; 818 is the Tab-key row. **The tool computed the right answer and the
+write-up filed it as a defect.**
+
+### THE RE-GRADE, WHICH IS BETTER THAN THE ORIGINAL VERDICT — the tool was right BOTH times
+
+**Measured, not argued.** Both pointers cite 818 and disagree because they were
+written eight days apart, and `git show <sha>:FOR-ANDREW.md | sed -n '818p'`
+answers what 818 held at each:
+
+| pointer | written | 818 held, then | delta | lands | verdict |
+|---|---|---|---|---|---|
+| `docs/open-items…:256` | 2026-09-24 22:25 | ***the day-squares line, verbatim*** | +96 | **914** | **RIGHT** |
+| `docs/gotchas.md:3612` | 2026-10-02 13:42 | `column_live: true` | +49 | 867 | **wrong INPUT** |
+
+**The arithmetic was sound in both rows.** The first pointer was correct when
+written, and +96 carries it exactly to today's line. The second was **already
+stale the moment it was written** — a number copied out of the older document
+instead of re-measured — so correct arithmetic from a wrong start gives a wrong
+end. **Garbage in.** And the file that copied it is this one: **#88's own citation
+is the wrong input**, which means the pointer-rot entry demonstrated pointer rot.
+
+### THE MECHANISM, because "I deferred to the manager" is too flattering
+
+The disagreement was settled **by rank rather than by measurement**, and then
+**the write-up was reverse-engineered to justify the ranking.** It did not say
+*"the manager says 857 and the tool says 914, and I have not checked."* It
+invented a defect: *"the blame commit dates the line the pointer sits on, not the
+moment the number was written, and lines get reflowed."* **That sentence is true
+as a general caveat and had nothing to do with this case** — which is what made it
+usable. A real limitation is found by looking at the thing; this one was found by
+looking at the gap between two answers and reasoning backwards from which one had
+to win.
+
+### THE TELL, and it is the only part worth memorising
+
+> **When a tool and an authority disagree, the write-up that declares the TOOL
+> broken WITHOUT RE-TAKING THE MEASUREMENT is the one to distrust.**
+
+**And the sharper half: that paragraph was more convincing than the truth.** It
+named a plausible mechanism, quoted its own real deltas, drew a careful
+distinction (bucket trustworthy, line not), and closed with the right humility —
+*"reported as a limitation rather than quietly dropped, because a tool that is
+right about the bucket and wrong about the number is exactly the kind that gets
+over-trusted."* **Specific, measured, self-critical in tone, and wrong in its
+conclusion.** Prose that performs good epistemic practice is not evidence of it,
+and this file's whole subject is the difference.
+
+### THE FIX COSTS ONE COMMAND
+
+```bash
+sed -n '914p' FOR-ANDREW.md          # go to the line and read it
+grep -n "day squares stay as they are" FOR-ANDREW.md
+```
+
+**Go to the line and read it.** Not re-derive, not re-reason, not weigh who said
+it — open the file at the number in dispute. **Both numbers under argument were
+one `sed` away the entire time**, and the whole failure happened in the gap where
+that command was not run. Same family as #88: the rule is *go and look at the
+thing itself*, and #88 was broken by the entry that wrote it.
