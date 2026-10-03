@@ -121,6 +121,17 @@ const widthMs = [];
 const FULL_WIDTHS = new Set([1920, 320]);
 // True while this width should walk the long tail as well as the core.
 let deep = true;
+/* **WHICH WIDTHS ACTUALLY WALKED DEEP, RECORDED RATHER THAN ASSUMED.**
+   `FULL_WIDTHS` is {1920, 320}, so 1440, 392 and 360 run CORE ONLY unless
+   `--all` is passed - and they say so in their own section header. The
+   expectation file does NOT record the mode it was written in, so a core
+   run of 41 surfaces was being graded against a deep expectation of 155
+   and reported as a 114-surface shortfall. **Nothing was silently
+   skipping. A number written in one mode was being enforced in another**,
+   which is this repo's own subject: a figure recorded once, without the
+   context that made it true, and compared later against something it was
+   never about. Measured 2026-10-03: `--all` takes 1440 from 41 to 122. */
+const RAN_DEEP = new Map();
 const BASE = process.env.BASE || "http://localhost:5173";
 // The verification heights, not the phone's. 1080 is his monitor; 900 is the
 // laptop and the shortest screen this product is checked against.
@@ -1023,6 +1034,7 @@ for (const w of SIZES) {
   // than they asked is the "a skipped check reads like a passing one" family.
   deep = ALL || WIDTHS.length > 0 || FULL_WIDTHS.has(w);
   const widthStart = Date.now();
+  RAN_DEEP.set(w, deep);
   console.log(`\n══ ${w}px ══${deep ? "" : " core only, --all for everything "}════════════════════════════════`);
   // **ONE WIDTH'S ACCIDENT USED TO END THE RUN — ROADMAP 8.1b's flake,
   // 2026-09-19.** A click that timed out at 320 threw out of this loop, past
@@ -1101,6 +1113,14 @@ for (const w of SIZES) {
     // locator.click: Timeout 15000ms exceeded". That names the instrument's own
     // symptom, never the thing it died on, so four widths printed an identical
     // sentence and nobody could tell whether they died in the same place.
+    /* **SWEEP_SHORT_CANARY=1 : THE OTHER HALF OF THE NEGATIVE CONTROL.**
+       An abort and a SHORT run fail differently and have to be proved
+       separately: an abort throws and is caught, while a short width walks to
+       the end having quietly not visited things. This drops one surface at one
+       width without erroring, which is exactly what the real shortfall looks
+       like, and the expected-count gate must then REFUSE that width rather
+       than count its remaining surfaces. ROADMAP 9.11c. */
+    if (process.env.SWEEP_SHORT_CANARY && w === 320 && /Money . Lifetime/.test(label)) return;
     ATTEMPTING = label;
     /* **--break=abort : THE NEGATIVE CONTROL ON THE TWO CHANGES ABOVE.**
        With no abort left in the run, nothing proves that an aborting width
@@ -3117,6 +3137,10 @@ if (narrow && !DESKTOP_SPEC_BUILT) {
    are dropped from every count below and kept in the contact sheet, where a
    person can look at them knowing what they are. ROADMAP 9.11b. */
 const ABORTED_W = new Set(ABORTED.map((a) => a.width));
+// Widths the expected-count gate refused: core-only against a deep number,
+// or short within their own mode. Filled by the gate, which runs below, so
+// `JUDGED` is recomputed there rather than frozen here.
+const UNJUDGED_W = new Set();
 const JUDGED = CERT.filter((c) => !ABORTED_W.has(c.width));
 if (ABORTED_W.size) {
   const dropped = CERT.length - JUDGED.length;
@@ -3520,6 +3544,20 @@ CANARY RUN (${GUIDE_CANARY ? "guide walks cut short" : `the tour cut short at ${
           + `The ${expected.length - died.measured} it never reached are unmeasured, not clean.`);
         continue;
       }
+      /* **A CORE RUN IS NOT GRADED AGAINST A DEEP EXPECTATION.** The two
+         measure different things on purpose and the expectation file carries
+         no mode, so the only honest verdict for a core run against a deep
+         number is REFUSED - not passed, and not failed either, because the
+         surfaces it did not visit were never offered to it. The width is
+         dropped from the verdict exactly as an aborted one is. */
+      if (!RAN_DEEP.get(w) && !ALL) {
+        UNJUDGED_W.add(w);
+        console.log(`\nEXPECTED-COUNT ${w}px: NOT GRADED - this width ran CORE ONLY and the`
+          + ` expectation records ${expected.length} surfaces from a DEEP walk. Run`
+          + ` \`node scripts/sweep-widths.mjs ${w} --all\` to grade it. Its ${got.length}`
+          + " measurement(s) are dropped from the verdict rather than counted as a shortfall.");
+        continue;
+      }
       const skippedHere = new Set(SKIPPED.filter((k) => k.width === w).map((k) => k.label));
       const missingAll = expected.filter((l) => !got.includes(l));
       const declared = missingAll.filter((l) => skippedHere.has(l));
@@ -3540,6 +3578,13 @@ CANARY RUN (${GUIDE_CANARY ? "guide walks cut short" : `the tour cut short at ${
             : ", every one accounted for"));
         continue;
       }
+      /* **AND A WIDTH THAT IS SHORT WITHIN ITS OWN MODE IS REFUSED, NOT
+         MERELY COUNTED.** Before this, a deep width that reached 122 of 155
+         contributed all 122 to the verdict and added 33 to the problem count,
+         so a green could still be assembled out of a walk that missed a fifth
+         of the screen. Same rule as an abort: a run that did not get to the
+         end cannot say the end is healthy. */
+      UNJUDGED_W.add(w);
       found += missing.length + extra.length;
       console.log(`\nEXPECTED-COUNT GATE FAILED at ${w}px: expected ${expected.length} surfaces, measured ${got.length}`
         + (declared.length ? `, ${declared.length} declared unreachable` : ""));
@@ -3755,6 +3800,22 @@ ${figures}
   })();
   const countedSkips = SKIPPED.filter((k) => owed.has(`${k.width}|${k.label}`)).length;
   const reachableTotal = expectedTotal - countedSkips;
+  /* **THE GATE RUNS AFTER `JUDGED` IS BUILT, SO THE SET IS RE-TAKEN HERE.**
+     `JUDGED` above drops aborted widths; the expected-count gate then refuses
+     two more kinds - a core-only width held to a deep number, and a width
+     short within its own mode - and those refusals land in `UNJUDGED_W`
+     afterwards. Reading `JUDGED` straight into the receipt would have let a
+     refused width keep contributing its surfaces, which is the whole fault
+     this pair of changes exists to stop, surviving one scope further in. */
+  const JUDGED_FINAL = JUDGED.filter((c) => !UNJUDGED_W.has(c.width));
+  if (UNJUDGED_W.size) {
+    console.log(`
+${JUDGED.length - JUDGED_FINAL.length} further measurement(s) from `
+      + `${UNJUDGED_W.size} width(s) the expected-count gate REFUSED are out of the verdict: `
+      + `${[...UNJUDGED_W].join(", ")}px.`);
+  }
+  console.log(`VERDICT STANDS ON ${JUDGED_FINAL.length} of ${CERT.length} measurement(s).`
+    + (JUDGED_FINAL.length ? "" : " NOTHING IS JUDGED; this run proves nothing."));
   const { path: rp } = writeReceipt({
     check_id: `sweep-widths-${SIZES.join("-")}${MODE}`,
     started_at: STARTED,
@@ -3766,9 +3827,9 @@ ${figures}
     // standing between this run and a verdict over a third of its coverage.
     // Now an all-aborting run discovers ZERO and fails closed on the rule that
     // exists for exactly it: *a check that discovered nothing has proved nothing*.
-    discovered_targets: JUDGED.length,
-    attempted_targets: JUDGED.length,
-    completed_targets: JUDGED.length,
+    discovered_targets: JUDGED_FINAL.length,
+    attempted_targets: JUDGED_FINAL.length,
+    completed_targets: JUDGED_FINAL.length,
     skipped_targets: SKIPPED.length,
     ...(SKIPPED.length ? {
       skip_allowlist: {
