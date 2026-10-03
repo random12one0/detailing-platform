@@ -17396,6 +17396,68 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   walk** — human-only checks no script substitutes for.
   `docs/testing/phones-we-do-not-own.md` is where that family is written down.
 
+### 14.25 — The credential scanner's population is markdown only, so the file types that actually held a password were never in its net
+
+- [ ] **Found 2026-10-03, by a password sitting in a `.mjs` comment that no check
+  in this repo was ever going to see. Not a verdict fault — a POPULATION fault,
+  which is `docs/gotchas.md` 89's exact shape one level out.**
+
+  **THE MEASUREMENT, one line of the check's own source.**
+  `tests/no-credentials-in-markdown.test.mjs:137`:
+
+  ```js
+  const files = execFileSync("git", ["ls-files", "*.md"], { encoding: "utf8" })
+  ```
+
+  **That is the whole net.** It reports *"165 files · 130,000 lines · 6 rules · 0
+  findings"* on every run, and **every one of those 165 files is markdown.** The
+  six rules are good — they match SHAPES rather than known values, which is why
+  they caught a fourth account's password the first cleanup missed. **The rules
+  were never the problem.**
+
+  **WHAT IT MISSED, AND IT WAS NOT HYPOTHETICAL.**
+  `tests/platform-admin.test.mjs:1303` carried the master login's password inside
+  a comment — a sentence quoting it to explain why that account should not be an
+  admin. **It sat there through every green run of the credential check**, because
+  a `.mjs` file is not in `ls-files *.md`. Removed 2026-10-03; the value is in no
+  file now, and the sentence survives without it.
+
+  **AND TWO CLEANUPS HAVE NOW HAPPENED WITH NO GUARD LEFT BEHIND EITHER TIME
+  — checked, not assumed.** The markdown sweep of 2026-09-25 produced this check,
+  which covers markdown. The `scripts/` sweep of 2026-10-02 (`9ce9b65`, 40-odd
+  files) added **zero** files under `tests/` — `git show --name-only 9ce9b65 |
+  grep -c '^tests/'` returns 0. **So `scripts/` was cleaned and is unguarded, and
+  `tests/` was neither.** A cleanup without a guard is a state, not a property:
+  it is true on the day and nothing keeps it true.
+
+  **Fix:** widen the population to every tracked text file that can hold a
+  literal, and keep the six rules exactly as they are. **Rename the file if it
+  stops being about markdown** — a check called `no-credentials-in-markdown`
+  invites precisely the assumption that let this through.
+
+  **Done when:** the check's population includes **`.mjs`, `.js`, `.jsx`, `.ts`,
+  `.json`, `.yml`/`.yaml`, `.sql`, `.html`, `.css` and `.txt`** as well as `.md`,
+  the file count it prints **rises from 165 to the real number of tracked text
+  files**, and **it has been proved by planting a credential-shaped literal in a
+  `.mjs`, a `.json` and a `.yml` in turn and watching it go RED and name the file
+  and line each time** — then removing all three and watching it go green. **Three
+  plants, three reds, three removals, each printed.** The planted value is a
+  throwaway that exists nowhere else and is never a real login.
+
+  **What failing looks like, and it is the thing this item is about:** the check
+  still printing **0 findings** while its population excludes the file somebody is
+  worried about. **Zero findings over a population that excludes your subject is
+  not a pass — it is a measurement of something else.** The second failure shape:
+  widening the net and letting the three plants pass because a rule keyed on
+  markdown punctuation (a backtick, a table pipe) does not fire in a `//` comment
+  — **which is why the plants are the criterion and the file count alone is not.**
+
+  **One thing it must NOT do.** `.env`, `app/.env.production` and anything
+  git-ignored are outside this: they are not tracked, the rule is about what gets
+  committed, and widening to untracked files would make the check fail on a
+  working credential doing its job. **`git ls-files` is the right spine; only its
+  pattern is wrong.**
+
 ### Still unanswered after steps 1–4
 
 - **RESOLVED 2026-09-19: `composition` is GREEN.** 97 passed, 0 failed,
