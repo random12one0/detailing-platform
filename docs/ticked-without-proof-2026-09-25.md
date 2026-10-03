@@ -11,10 +11,20 @@ proof ever being written down?**
 
 ## THE NUMBERS, and they add up or this file is wrong
 
+> ***RE-RUN 2026-10-02. The two 76s reproduce EXACTLY at this table's own commit
+> `07ea4b8` (2026-09-24 21:06) and are 81 today.*** Both figures stand with their
+> dates; **81 wins only because it is newer.** Re-take:
+> `grep -c '^- \[x\] ' ROADMAP.md`. **The six judgement figures below cannot be
+> re-taken by any command** — they count entries a person opened and ruled on, and
+> a tally of one reading is not a property of the repo. They are a dated snapshot
+> of 2026-09-24. The full ledger is in
+> `docs/open-items-read-as-a-stranger-2026-09-25.md`, “EVERY NUMBER IN THIS FILE
+> AND THE TICKED ONE, RE-RUN”.
+
 | | |
 |---|---|
-| `- [x]` items in `ROADMAP.md` | **76** |
-| scanned by pattern | **76** |
+| `- [x]` items in `ROADMAP.md` | **76** — *81 as of 2026-10-02* |
+| scanned by pattern | **76** — *81 as of 2026-10-02* |
 | **opened and judged as a stranger would** | **12** |
 | of those 12, carry proof a stranger can check | **12** |
 | of those 12, carry **no** checkable proof | **0** |
@@ -1328,6 +1338,14 @@ none by a tool.**
 ---
 
 ## THE PASS IS COMPLETE — WHAT SEVENTY-SEVEN ENTRIES ADD UP TO
+
+> ***SEVENTY-SEVEN WAS EXACT WHEN WRITTEN AND IS 81 AS OF 2026-10-02.*** It
+> reproduces precisely at this section's own commit `dca4c37`; four more items
+> have been ticked since, three of them by this audit. **Both figures stand with
+> their dates.** Re-take: `grep -c '^- [x] ' ROADMAP.md`. **The finding below —
+> not one tick resting on nothing — is about the 77 that were read, and does not
+> extend to the four ticked afterwards.** That is the sentence a later reader needs:
+> a completed audit covers a population, not a file.
 
 **Every `- [x]` item in `ROADMAP.md` has now been opened and read as a stranger
 would.** The first pass judged 19 nameable items across two sittings; batches 2

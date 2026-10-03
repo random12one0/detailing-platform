@@ -930,7 +930,15 @@ stopped at two, because *"two of eight opened cold, both failed"* and *"eight of
 eight opened cold, N failed"* are different claims and only the second is worth
 anything.**
 
-| | |
+> ***ALL FOUR FIGURES BELOW ARE UNREPEATABLE BY CONSTRUCTION, and that is not a
+> defect in the method — it is what a cold read IS.*** **Nothing can be read cold
+> twice.** Re-running this would mean a different reader, which is the experiment's
+> own stated loop-breaker, not a re-take. **Dated snapshot, 2026-10-02.** The
+> figures are kept because the *finding* — eight of eight failed — does not depend
+> on being re-countable, and the eight criteria it condemned are named individually
+> further down, where a reader can check each one against the page.
+
+| | dated snapshot 2026-10-02 — unrepeatable by construction |
 |---|---|
 | criteria rewritten to name a shape | **12** |
 | of those, opened cold by the same ungameable rule | **8** |
@@ -1651,15 +1659,29 @@ dependence on quotes, on screen text, or on `app/src`.
 
 ### THE NUMBERS
 
+> ***RE-RUN 2026-10-02. SIX OF THESE EIGHT FIGURES CANNOT BE RE-TAKEN AT ALL, AND
+> THAT IS THE FINDING.*** The method above says *“for each item number,
+> `git log --grep`”* and that is not tight enough to reproduce a count: **unique
+> commits gives 434 at this table's own commit and 450 today; summing per item
+> with duplicates gives 853 then and 926 now. The claimed 534 is between them and
+> matches neither.** Every figure below it is a filter *of* 534, so none of them
+> can be re-derived either.
+>
+> **The two that CAN be re-taken are marked ① and ② and carry their commands.**
+> **The remaining six are a dated snapshot of 2026-10-02 and nothing more** — not
+> because the data is gone, but because *the scope of the grep was never written
+> down*. **No number here has been edited to agree with the re-run**, per the
+> standing rule.
+
 | | |
 |---|---|
-| open items | **64** — 62 numbered, **2 with no number at all and therefore ungreppable** |
-| **items whose number appears in a commit message** | **62 of 62** |
-| commits naming an open item | **534** |
-| of those, **completion-shaped** subjects (done/fixed/closed/built/lands/no longer/stops…) | **146** |
-| minus this audit's own reporting commits | **101** |
-| minus commits predating the current `ROADMAP.md` | **80**, across **36 items** |
-| **items whose own number LEADS a claimed-fix commit** — the hand-opened set | **19** |
+| ① open items | **64** — 62 numbered, **2 with no number at all and therefore ungreppable** |
+| ② **items whose number appears in a commit message** | **62 of 62** — **re-run 2026-10-02: 65 of 65, still ALL of them.** `for id in $(grep -oE '^- \[ \] \*\*[0-9]+\.[0-9]+' ROADMAP.md); do git log --grep="$id" --format=%H; done` |
+| commits naming an open item | **534** — ***UNRE-TAKEABLE: the grep's scope was never recorded. 434 unique / 853 summed at this table's own commit; neither is 534.*** |
+| of those, **completion-shaped** subjects (done/fixed/closed/built/lands/no longer/stops…) | **146** — *dated snapshot 2026-10-02; a filter of 534, so unre-takeable with it* |
+| minus this audit's own reporting commits | **101** — *dated snapshot 2026-10-02; unre-takeable with 534* |
+| minus commits predating the current `ROADMAP.md` | **80**, across **36 items** — *dated snapshot 2026-10-02; unre-takeable with 534* |
+| **items whose own number LEADS a claimed-fix commit** — the hand-opened set | **19** — *dated snapshot 2026-10-02; a re-run of my best reading gives 11, which is evidence the reading differs, not that 8 commits vanished* |
 | **closed in fact** | **1** (12.2, found earlier by the string sweep; this sweep re-found it independently) |
 | **stale audit** | **2** — 7.8, and **9.2** |
 | **partial fix that named the item and did not finish it** | **9** |
@@ -1774,11 +1796,11 @@ check.**
 
 | | |
 |---|---|
-| open items whose criterion quotes a string **and** names a file | **36** |
-| quoted fragments in those criteria | **247** |
-| **still present in the source** | **125** |
-| not found | **122** |
-| of those, **once in the source and now gone** | **4** |
+| open items whose criterion quotes a string **and** names a file | **36** — **RE-RUN 2026-10-02: 36 at this table's own commit `3f2ca08`, exactly; 37 today, the extra being 14.31 which I added after.** Re-take: the zone+file rule in step 1 above, which reproduces |
+| quoted fragments in those criteria | **247** — ***UNRE-TAKEABLE: step 1's fragment rule is underspecified.*** My faithful reading (straight and curly double quotes, 8–70 chars, must contain a space) gives **274** at this table's own commit. The criteria count above reproduces exactly, so the zone detection is right and *the fragment rule is the part that was never written down* |
+| **still present in the source** | **125** — *unre-takeable with 247; my reading gives 141 at the same commit* |
+| not found | **122** — *unre-takeable with 247; my reading gives 133 at the same commit. 125+122 and 141+133 are each internally consistent, which is how two different rules both look right* |
+| of those, **once in the source and now gone** | **4** — *unre-takeable with 247, and this is the one that matters: the four were named (7.8, 9.2, 12.2 and one prose false positive), so the FINDING survives even though the COUNT cannot be re-taken* |
 | **new misses** | **0** |
 
 **ZERO NEW MISSES, AND THAT IS THE RESULT.** All four hits were already found
@@ -1829,9 +1851,9 @@ citation unambiguous.**
 
 | | **FOUND.md** | **docs/VERIFIED.md** |
 |---|---|---|
-| issues identifiers? | **No numbers at all** — 114 headings, all prose sentences | **Yes**, `## 14.1`-style sections |
-| cited? | **Yes, 14 times**, by heading text | **Yes, 18 times**, by section number |
-| **dangling citations today** | **0** | **0** |
+| issues identifiers? | **No numbers at all** — **114** headings, all prose sentences. **RE-RUN 2026-10-02: 114, unchanged.** `grep -cE '^#+ ' FOUND.md` minus `grep -c '^# ' FOUND.md` | **Yes**, `## 14.1`-style sections — **44 today** |
+| cited? | **Yes, 14 times**, by heading text — ***UNRE-TAKEABLE: cited by heading TEXT, and this section's own closing paragraph records that the text matcher produced three false positives and zero true ones.*** 86 raw `FOUND.md` mentions exist; the 14 was hand-filtered and the filter was not written down | **Yes, 18 times**, by section number — **RE-RUN 2026-10-02: 18, unchanged.** Re-take: match `VERIFIED\.md` followed within 14 non-digits by `N.N` across `git ls-files '*.md'` |
+| **dangling citations today** | **0** — *unre-takeable with the 14, same matcher* | **0** — **RE-RUN 2026-10-02: 0 of 18 dangling.** Every cited section number resolves against the 10 numbered `## N.N` sections `docs/VERIFIED.md` declares |
 
 ### THE ANSWER IS ZERO AND NOTHING GETS BUILT
 
@@ -2113,8 +2135,8 @@ instead of re-arguing. **The command is in this section; it takes five seconds.*
 
 | figure | claimed | measured | verdict |
 |---|---|---|---|
-| gotchas entries | NINETY-ONE | **91** (`grep -c "^## "`) | **correct** |
-| words of markdown | 1,105,000 | **1,297,037** (`git ls-files '*.md' | xargs cat | wc -w`) | **drifted ~192,000, about 17%, in twelve days** |
+| gotchas entries | NINETY-ONE | **91** (`grep -c "^## "`) | **correct when taken.** **RE-RUN 2026-10-02: 93**, after entries 92 and 93 were written. Both figures stand with their dates; 93 wins only because it is newer. Re-take: `grep -c '^## ' docs/gotchas.md` |
+| words of markdown | 1,105,000 | ***1,297,037 — UNRE-TAKEABLE, AND IT IS THE SHARPEST CASE IN THIS SWEEP.*** No revision reproduces it: the commit that states it holds **1,297,672** and that commit's parent holds **1,296,839**, so the figure was taken against an uncommitted intermediate working tree that no tree captures. **And it is self-invalidating — writing a markdown word count INTO a markdown file changes the corpus it counts**, which is `gotchas.md` 92's law applied to a tally instead of an address. Re-run 2026-10-02: **1,310,051** (`git ls-files '*.md' | xargs cat | wc -w`) | **drifted ~192,000, about 17%, in twelve days** |
 
 **The word figure is corrected to 1,297,000 with the date and the command beside
 it, and both previous values are kept** — it has now been wrong twice (930,000,
@@ -2352,7 +2374,7 @@ staleness from *unverifiable* into *decidable* for the whole population.
 
 ### THE THREE NUMBERS
 
-| bucket | count | what it means |
+| bucket | count — ***dated snapshot 2026-10-02; UNRE-TAKEABLE, the tool is gone (ROADMAP 14.31)*** | what it means |
 |---|---|---|
 | **still-good** | **5** | the target has **not changed at all** since the pointer was written. **Provably fine, no quote required** |
 | **changed-below-only** | **4** | the target changed, but **nothing above the cited line**, so the number still lands |
@@ -2554,6 +2576,82 @@ why the first attempt reached for a command that returns 58 today and called tha
 the answer. **It is reproducible now, for ever, because the revision is written
 next to it.** Same family as 0.6's drift count and 3.4's typed test tally: **a
 number that was true when typed, with nothing attached saying what made it true.**
+
+---
+## EVERY NUMBER IN THIS FILE AND THE TICKED ONE, RE-RUN — 44 checked, 5 survived, 8 falsified, 31 unre-takeable
+
+**2026-10-02. The manager's instruction was to do this by the rule written
+tonight rather than by rewriting the numbers, so: no figure anywhere was edited
+to agree with a re-run.** Where a re-run disagreed, **both numbers are on the page
+with a date on each, and the newer one wins only because it is newer.**
+
+**THE POPULATION, STATED BEFORE THE RESULT, because that is the half this repo
+keeps getting wrong:** every numeric figure in the **seven stat tables** of
+`docs/open-items-read-as-a-stranger-2026-09-25.md` and
+`docs/ticked-without-proof-2026-09-25.md` that makes a claim about a countable
+property of the repo — **44 figures.** Counts of *readings* (how many entries I
+opened and judged) are included and classified unre-takeable, because a tally of
+one person's reading is not a property of the repo.
+
+| | |
+|---|---|
+| figures checked | **44** |
+| **survived** — reproduce today | **5** |
+| **falsified** — no longer true | **8** |
+| **unre-takeable** — no command can reproduce them | **31** |
+
+### THE RESULT THAT MATTERS: ALL EIGHT FALSIFIED FIGURES WERE CORRECT WHEN WRITTEN
+
+**Every one of the eight reproduces EXACTLY at the commit of the line that states
+it**, and is false today only because the repository moved — mostly because of
+this audit's own work. 64 open items became 65 when I added 14.31. 2 unnumbered
+items became 0 when they were numbered. 91 gotchas became 93. 76 ticked became 81.
+**Not one was wrong on arrival.**
+
+> **So the disease is not inaccuracy. It is that a correct number with no
+> revision beside it becomes indistinguishable from a wrong one the moment
+> anything changes** — and a reader cannot tell which they are holding.
+
+### AND THE FIVE SURVIVORS SAY WHY, WITHOUT ME HAVING TO ARGUE IT
+
+| survivor | why it survived |
+|---|---|
+| pointer population **58** | **the only figure in either document written with its revision beside it.** Reproduces exactly, for ever |
+| `FOUND.md` headings **114** | measures a file nobody has edited since |
+| `VERIFIED.md` citations **18** | same |
+| `VERIFIED.md` dangling **0** | same |
+| items whose number is in a commit **62 of 62** | **it claims ALL, not a quantity.** 65 of 65 today — a proportion survives what a count cannot |
+
+**Two of the five survived by being pinned or proportional. Three survived by
+luck — nobody touched the file.** That is the whole argument for the rule in one
+table.
+
+### THE THIRTY-ONE, AND WHY EACH CANNOT BE RE-TAKEN — in those words, not approximated
+
+**The constraint was to say plainly when a number cannot be re-taken rather than
+invent an approximate command, because an approximate command is what 2.8 looks
+like a fortnight later.** Four distinct reasons:
+
+| reason | figures | the honest sentence |
+|---|---|---|
+| **the method's scope was never written down** | the commit-grep sweep's 534 and its five filters; the quote sweep's 247 and its four | *“for each item number, `git log --grep`”* does not pin a count: **434 unique / 853 summed at the table's own commit, and 534 is neither.** The quote sweep's criteria count reproduces **exactly at 36**, so its zone rule was recorded and **its fragment rule was not** |
+| **it is a judgement, not a count** | closed-in-fact 1, stale-audit 2, declared-partial 9, and the ticked file's 12 / 12 / 0 / 64 / 26 / 3 | a person opened entries and ruled on them. **No command re-takes a ruling**, and pretending one does is how a reading becomes a measurement |
+| **unrepeatable by construction** | the cold test's 12 / 8 / 8 / 0 | **nothing can be read cold twice.** Re-running means a different reader, which is the experiment's own loop-breaker rather than a re-take |
+| **the instrument is gone** | the pointer tool's 5 / 4 / 43 / 1 | it ran out of a scratch directory that no longer exists. **ROADMAP 14.31** is that gap |
+
+### THE ONE THAT IS ITS OWN CATEGORY — a number no tree has ever held
+
+**`1,297,037` words of markdown cannot be re-taken at any revision, including its
+own.** The commit stating it holds **1,297,672**; that commit's parent holds
+**1,296,839**. The figure sits between them, so it was measured against an
+**uncommitted intermediate working tree that no revision captures.**
+
+**And it is self-invalidating: writing a markdown word count INTO a markdown file
+changes the corpus it counts.** It was true before the sentence stating it
+existed, and false after — **by its own length.** That is `docs/gotchas.md` 92's
+law, which was written about *addresses*, reappearing in a *tally*. **Today it is
+1,310,051, and that figure is wrong by the time you read this sentence**, which is
+the only honest thing to say about it.
 
 ---
 ## THE BLOCKER SWEEP — eight re-tested against tonight, eight still real, none expired
