@@ -14125,6 +14125,34 @@ their age is not Andrew's problem.
   **What failing looks like:** the page still promising a driveway card payment
   while "Card" is still only a word in the notes — which is the state today, and
   is a copy bug rather than a missing feature until somebody chooses a branch.
+
+  **← THAT PARAGRAPH IS FALSE AND HAS BEEN SINCE 2026-09-20. FOUND BY RUNNING A
+  GREP ON 2026-10-03, NOT BY READING THIS ENTRY.** The home page does **not**
+  promise *"Take a card payment on the driveway"*. It says **"Log a card
+  payment" · "on the driveway"** — `LandingPage.jsx:895`, the only
+  card-payment phrase on either public page. **"Log" is exactly what the product
+  does**: `FinalizeModal.jsx` writes the method into `payment_notes`.
+
+  **BRANCH TWO IS THEREFORE MET, AND IT WAS MET BY A COMMIT THAT NAMED THIS
+  ITEM.** `git log -S"Take a card payment"` gives **`6097a7e`, 2026-09-20,
+  *"Home page promised a claim the product cannot keep yet: ROADMAP 12.2"***, and
+  its diff is one line: `Take a card payment` → `Log a card payment`. **The fix
+  landed, said so in its own commit message, and the box stayed open for
+  thirteen days.**
+
+  **AND THE CRITERION WAS WRITTEN FIVE DAYS AFTER THE FIX, ON A FALSE PRESENT
+  TENSE.** The `Done when` below is dated 2026-09-25; *"which is the state
+  today"* describes 2026-09-19. **A reader is told the page still makes the
+  promise. One grep says otherwise.** This is the third closed-in-fact candidate
+  after the 320 calendar item and 11.3 — and the sharpest, because the other two
+  waited on something external while **this item's own fix was already in its own
+  history.**
+
+  **RECOMMEND THE TICK. NOT TAKEN HERE** — closures are the manager's, and the
+  one time this session recommended one on a partial read (11.3) it was wrong.
+  **What a ruling needs:** branch two is *"the home page stops promising it"*,
+  and it has. Branch one (a real card taken in person) remains unbuilt and
+  unneeded — the criterion says **either** branch closes the item.
 - [ ] **12.3 Optional deposit at booking. NEEDS ANDREW — and it is the only open
   item in this file with no acceptance criterion, deliberately.** *A2 Part 8 item 2*
 
