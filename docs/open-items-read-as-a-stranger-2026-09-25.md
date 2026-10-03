@@ -1895,7 +1895,7 @@ dependency on something unbuilt**. The first step is the literal next action.
 | **0.12** | **Zoho** — it refuses the domain; no API token exists until one verifies |
 | **0.13**, **0.14**, **0.15** | **third parties** — a number, a six-digit code, a Google review |
 | **0.4**, **0.7**, **12.3** | **Andrew** — two factual questions, `what-we-send.md` Question 3, the deposit design. All three have a `FOR-ANDREW.md` row with a recommendation |
-| **1.3**, **2.1**, **2.8**'s live half | **a publish or a migration** — Andrew's, and a deferral he chose |
+| **1.3**, **2.1**, **2.1b**, **2.8**'s live half | **BLOCKED-ON-PUBLISH, which is not the same as blocked** — the work is done and correct on disk and switched off until launch. **Nobody is waiting on a person**; it is a deferral Andrew chose. 1.3 additionally waits on one migration, which **does** close it and 0.3 together |
 | **6.1** | **the platform** — point-in-time recovery is OFF and 0 backups are listed on the free plan |
 | **7.6** | **0.11** by design — the allowance moves 1 GB → 10 GB in the same change; fixing the words now means fixing them twice |
 | **8.2**, **9.4**, **9.7**, **9.10**, **9.15** | **Andrew's own eyes** — a phone he owns, a screen he presses |
@@ -2255,3 +2255,48 @@ work.**
 **`EXPECTED_ROWS` moved to 16 in the same edit as the table**, and the check is
 **18 passed / 0 failed**. Rows 15 and 16 are both `app/src`/`supabase` builds with
 re-prove commands that pass today.
+
+---
+
+## 6.2 TICKED, AND THE CITABLE CHECK CAUGHT THE CONSEQUENCE BEFORE I DID
+
+**2026-10-03.** 6.2's tick carries the three things a tick needs here — **the
+criterion verbatim**, **evidence a stranger can re-take**, and **the sentence that
+would falsify it** — plus a fourth that this one needed: **it says out loud that it
+rests on 6.2a's tick.**
+
+**THE EVIDENCE IS STILL RE-TAKEABLE, WHICH IS THE OPPOSITE OF 2.8's POSITION.**
+`site_probe_events` holds **4 rows**, read today: `id 1` `state: "down"` with
+`detail:` *"status 200, expected 200, body did not contain
+'THIS-BUILD-MARKER-CANNOT-EXIST'"* — **the exact string the entry quotes at line
+8411** — and `id 2` `state: "up"`, *"recovered after 3 consecutive failures"*, 22
+seconds later. **One command re-takes it**, and it is in the note.
+
+**THE CHAIN IS NAMED.** Line 8578 says *"Still open for 6.2: 6.2a, the display"*;
+**6.2a is ticked six lines below at 8584.** So 6.2a's tick is **load-bearing** —
+**if it is ever reversed, 6.2 reopens with it**, and the note is where that link
+lives rather than something the next person discovers.
+
+### AND THEN THE CITABLE CHECK WENT RED, IN THE DIRECTION NOBODY PLANS FOR
+
+Ticking 6.2 took it out of the open set — **and took its number collision with
+`docs/roadmap.md` with it.** `every-open-item-is-citable` failed:
+
+> *"18 open items share a number with docs/roadmap.md, declared 19."*
+
+**The guard was written against that number GROWING.** It fired on the number
+**shrinking for a good reason**, which is better evidence than a canary: **a
+declared constant notices any movement, not the movement you anticipated.** Moved
+to 18 with the cause written beside it in the file. **Had it been derived from the
+run it would have silently agreed and I would never have known the tick moved it.**
+
+### 2.1b IS BLOCKED-ON-PUBLISH, WHICH IS NOT THE SAME AS BLOCKED
+
+Its entry now says it in Andrew's frame: **done and correct on disk, switched off
+until launch.** Not `NEEDS ANDREW` — publishing is a deferral he chose, and *a list
+of chores he has already declined is a list he stops reading.*
+
+**The queue's blocked table now distinguishes the two**, because only one of them
+is waiting on a person: **`BLOCKED-ON-PUBLISH` means nobody is waiting on
+anybody.** 1.3 sits in both buckets — publish *and* the one migration that closes
+it alongside 0.3 — and the row says so.

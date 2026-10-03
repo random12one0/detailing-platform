@@ -106,8 +106,16 @@ const OLD_ROADMAP = "docs/roadmap.md";
 const OPEN_FLOOR = 40;
 
 // Declared, not derived — `docs/gotchas.md` 91. Measured 2026-10-03.
-// A twentieth collision should redden this run and be decided on purpose.
-const CROSS_FILE_OVERLAP = 19;
+// A new collision should redden this run and be decided on purpose.
+//
+// **19 → 18 on 2026-10-03, and the check caught it rather than a person.** 6.2
+// was ticked, so it left the open set and took its collision with it. The run
+// went red with *"18 open items share a number with docs/roadmap.md, declared
+// 19"* — **which is the design working in the direction nobody plans for**: the
+// guard was written against the number GROWING, and it fired on the number
+// shrinking for a good reason. **Moved deliberately, with the cause named, which
+// is the whole point of a declared constant over a derived one.**
+const CROSS_FILE_OVERLAP = 18;
 
 const CANARY = process.env.CITABLE_CANARY === "1";
 

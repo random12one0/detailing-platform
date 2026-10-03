@@ -1576,6 +1576,23 @@ the wrong service, and never book a job we cannot reach.
   `calculate-booking`'s header no longer claims it does.
   **`supabase/` — not this session's to touch.** Recorded, not attempted.
 
+  **STATE, 2026-10-03, IN ANDREW'S OWN FRAME: DONE AND CORRECT ON DISK,
+  SWITCHED OFF UNTIL LAUNCH.** The fix this entry describes was **built under
+  2.1 on 2026-09-22**, exactly as written here. `calculate-booking` is still in
+  `deployed-inventory`'s **differing** list, checked against the receipt — so a
+  customer cannot see it yet.
+
+  **THAT IS A DEFERRAL HE CHOSE, NOT A BLOCKER ANYBODY HERE CAN CLEAR**, and it
+  is deliberately **not** written as `NEEDS ANDREW`: publishing is his, he has
+  said he does not care about the live site because nothing is using it, and a
+  list of chores he has already declined is a list he stops reading.
+  `DECISIONS.md` § *"Publishing is a DEFERRAL, not a blocker"*.
+
+  **AND THE DISTINCTION IS NOT PEDANTRY: this reads like an item with an unmet
+  criterion and it is an item whose criterion is met on disk and cannot be
+  observed by a customer.** Only one of those two states is work, and nobody
+  should pick this up expecting to find any.
+
 - [x] **DONE 2026-09-21 — 2.1c — ~~The plan line and the extra-car lines are built in English on
   the server and never meet `t()`, so a Spanish receipt reads them in
   English. Found 2026-09-21; pre-dates this session and is NOT on the step
@@ -8302,7 +8319,7 @@ most corroborated finding in the set.
   backups.** Andrew would far rather read that this morning than discover it
   the week he moves his real business onto this.
 
-- [ ] **6.2 — The back office cannot prove the product is healthy.**
+- [x] **6.2 — The back office cannot prove the product is healthy.**
   Netlify connected but not read; Supabase needing wiring; email delivery not
   wired; no outage history. Successful jobs are prominent and green; missing
   monitoring is faint grey. **"No alarm" is being read as "working."**
@@ -8323,6 +8340,59 @@ most corroborated finding in the set.
   two nights a line stopped a session from even looking at an item, and twice
   the line was simply out of date. `docs/gotchas.md` 79 and ROADMAP 14.15 are
   the other two.
+
+  **TICKED 2026-10-03. Written to be checked off the files rather than read.**
+
+  **1 · THE CRITERION, VERBATIM:** *"a controlled failure raises an alert,
+  appears in incident history, names the affected path, and clears only after a
+  successful check."* Four clauses.
+
+  **2 · THE EVIDENCE, AND A STRANGER CAN RE-TAKE IT IN ONE COMMAND.** The
+  incident rows are still in the database — **`site_probe_events`, 4 rows**, read
+  2026-10-03:
+
+  ```bash
+  set -a; . ./.env; set +a
+  curl -s "$SUPABASE_URL/rest/v1/site_probe_events?select=*" \
+    -H "apikey: $SUPABASE_SECRET_KEY" -H "Authorization: Bearer $SUPABASE_SECRET_KEY"
+  ```
+
+  | clause | what the rows say |
+  |---|---|
+  | raises an alert | `id 1`, `state: "down"`, and the entry records healthchecks.io going **up → down** with the email to Andrew firing |
+  | appears in incident history | **the rows ARE the history** — two of them, 22 seconds apart |
+  | names the affected path | `probe_key: "homepage"`, and `detail:` *"status 200, expected 200, body did not contain 'THIS-BUILD-MARKER-CANNOT-EXIST'"* — **the exact string this entry quotes at line 8411** |
+  | clears only after a successful check | `id 2`, `state: "up"`, `detail:` *"recovered after 3 consecutive failures"*, and **one failure pinged `ok`** — line 8404, the clause a monitor usually gets wrong |
+
+  **This is the opposite of 2.8's position**, which is worth saying because both
+  ticks were examined on the same night: 2.8's cited rows are gone and its tick
+  rests on a measurement nobody can re-take. **6.2's rows are still there.**
+
+  **3 · WHAT WOULD FALSIFY THIS TICK — read it before trusting the two above.**
+  * **`site_probe_events` empty, or holding no `down` row** whose `detail` names a
+    path. Then the history this rests on is gone and the tick needs re-taking,
+    not defending.
+  * **A controlled failure that alerts on the FIRST cycle.** The criterion's
+    fourth clause is about hysteresis; a monitor that cries on one failure
+    satisfies the words and fails the intent, and `id 2`'s *"after 3 consecutive
+    failures"* is the only thing in the record that distinguishes them.
+  * **Anything showing the prober can report that Supabase itself is down.** It
+    cannot — it runs inside Supabase — **and that is a stated limitation rather
+    than an unmet clause.** If somebody proves otherwise, this entry is describing
+    a different system from the one that exists.
+
+  **AND THIS TICK RESTS ON ANOTHER ITEM'S TICK, WHICH IS A CHAIN AND IS SAID HERE
+  RATHER THAN LEFT TO BE DISCOVERED.** Line 8578 reads *"Still open for 6.2: 6.2a,
+  the display."* **6.2a is `- [x]` at line 8584 — six lines below.** So **6.2a's
+  tick is load-bearing for this one**: if 6.2a is ever reversed, **6.2 reopens with
+  it** and this note is where that link is written down. 6.2a's own evidence is
+  `receipts/health-line-honest.json` (`status: pass`, 11 targets, 43 assertions)
+  and 17 screenshots in `artifacts/health-line-honest/`.
+
+  **WHY IT SAT OPEN.** The sentence calling 6.2a the blocker and 6.2a's own tick
+  **are six lines apart on one screen and disagree.** Nothing looks wrong about
+  either alone, which is why three sweeps and two readings missed it and executing
+  the criterion found it.
 
   **WHAT IS STILL TRUE, AND IT IS NOT NOTHING.** Publishing is Andrew's own
   press and **no session deploys** — the 21st was one permission for one
