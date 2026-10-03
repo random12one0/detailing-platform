@@ -1859,6 +1859,8 @@ dependency on something unbuilt**. The first step is the literal next action.
 | **10** | **2.12** | `app/src` | **Fix the six failures in `tests/spanish.test.mjs`**, all of which are 2.12's own subject. It is **71 passed / 6 failed** today, so the gate is already pointing at the work. |
 | **11** | **9.2** | `app/src` | **Audit the other four `STUCK` rows** in `AdminPage.jsx` for advice that states a fact the row never computed. The `first` row **is already fixed** (`5202586`) and must not be re-fixed. |
 | **12** | **7.9** | `app/src` | **Load the home page under `prefers-reduced-motion: reduce` and `?lite=1`** and list every element at opacity 0 or absent from layout after first paint. The list must be empty; 7.12's `data-rv` bug is the known offender. |
+| **13** | **2.15a** | `scripts/` | **Make `receipts/bk-bar-clearance.json` tell the accepted 320 day-cell exception apart from a real failure.** The sweep is already built and reads the ceiling off the element's own `maxLength`; it is `fail` with 7 findings and **all seven are the hold Andrew ruled on**. Six expected, so a seventh is visible. |
+| **14** | **0.11** | `supabase/` + `app/src` | **READY BUT LARGE — the only row here that is not a short job.** Uploads through the presigned R2 door, `photo_total_gb` to 10 **in the same change**, the cap refusing with a message that names what is used, and `job_photos.bytes` equal to **the size R2 reports** rather than the client's claim. The tenant guard is already built and green (`tests/photo-key-isolation.test.mjs`). |
 
 ### BLOCKED, AND ON WHAT
 
@@ -1887,6 +1889,17 @@ means fewest unknowns, not fewest minutes** — #1 is one command and #12 could 
 an afternoon.
 
 ---
+
+## AND A SECOND HABIT, NOT AN INCIDENT — write the file out rather than editing it in place
+
+**Three times on 2026-10-03 a clever in-place edit was worse than rewriting the
+file.** The last one mangled a regex literal inside
+`tests/queue-rows-still-belong.test.mjs` while wiring its parser in — `node --check`
+caught it and the broken version never ran, but the fix was to write the file
+whole, which is what should have happened first. **String surgery on source is a
+guess about the exact bytes in a file; writing it out is a statement about what
+the file should be.** The guard that makes this cheap is already free: **`node
+--check` before trusting any edit to a `.mjs`.**
 
 ## A SMALL RULE, EARNED THREE TIMES TODAY — match by containment, confirm by opening
 
@@ -2079,3 +2092,53 @@ then 1,105,000). **That is `docs/gotchas.md` 91's own shape: a derived tally
 written into prose goes stale every time anybody writes anything**, and in a repo
 whose whole output is markdown, this one goes stale on every commit. **The
 instruction beside it is now to run the command rather than trust the number.**
+
+---
+
+## EXECUTING AGAIN — six criteria, two promoted, two blocked, one bad criterion, one already done
+
+**2026-10-03, scaffolding closed. Every criterion lands in exactly one of three
+places: promoted into `READY NOW` with a first step and a re-prove command,
+blocked with the thing it waits on named, or already done with the evidence.**
+
+| # | criterion | outcome | what the command said |
+|---|---|---|---|
+| 17 | **0.11** tenant guard | **PROMOTED — row 14** | `tests/photo-key-isolation.test.mjs` **passes**, so the dangerous half is done and green; `photo_total_bytes()` is **1073741824** (1 GB), so the allowance clause is untouched |
+| 18 | **0.3** Clients filter | **BLOCKED** | the filter **is built** — `Clients.jsx:233` and `:405` drop `c.is_test`, `:231` counts fixtures — but **`customers.is_test` does not exist in the database** (`42703`). **Built and inert** |
+| 19 | **2.15a** long-string sweep | **BAD CRITERION, amended** | the check is built and red, and **all 7 failures are the accepted 320 day-cell hold** |
+| 20 | **12.4** both admin rows | **BLOCKED** | `platform_admins` holds **2** rows, as declared. Blocked on the first real signup, which is what the item waits for |
+| 21 | **14.26** picked row | **still belongs** | `address_source=eq.picked` returns `[]`. The seed fix has not landed yet |
+| 22 | **9.11** clause 1 | **ALREADY DONE** | recorded earlier — receipt re-run at 02:01, `git_sha 50767da` |
+
+### 0.3 IS THE FINDING — a filter built on a column that does not exist
+
+**`Clients.jsx` already does what 0.3 asks.** It filters `!c.is_test` into the
+default view, keeps a `showTest` toggle, and counts the fixtures separately. The
+entry says the client-list half is *"NOT built"*; **it is.**
+
+**And it cannot work.** `customers.is_test` **does not exist** — the endpoint
+answers `42703`, measured three times today. So `c.is_test` is `undefined`,
+`!undefined` is `true`, **and every row passes the filter including the
+fixtures.** The screen is built, correct, and inert.
+
+**That is the same blocker as 1.3** — whose entry already says *"the SCREEN is
+proved and the COLUMN is not"* — so **0.3 and 1.3 are one migration apart from
+both closing**, and neither entry points at the other. **Blocked, named, and the
+two should be worked together.**
+
+### AND THE CHECK PROVED ITSELF IN PASSING, WHICH IS WORTH ONE LINE
+
+A run where `.env` was sourced **without `set -a`** loaded the variables as shell
+locals rather than exports, so the child never saw them. **Row 4 reported
+*"14.26 needs SUPABASE_SECRET_KEY, which is NOT set"* and failed** — by name,
+**not skipped.** That is the behaviour the row was written for, met by accident
+on a real mistake rather than by a sabotage. **A skipped row reads exactly like a
+passing one; this one did not.**
+
+### THE QUEUE IS NOW 14 ROWS, AND `EXPECTED_ROWS` MOVED IN THE SAME EDIT
+
+**13 · 2.15a** — `scripts/`. Make the receipt tell the accepted exception apart
+from a real failure; six are expected, so a seventh is visible.
+**14 · 0.11** — **READY BUT LARGE, and labelled so**: the only row here that is
+not a short job. **Cheapest-first is about unknowns, not minutes**, and this row
+is the proof — it has no unknowns left and will still take a day.

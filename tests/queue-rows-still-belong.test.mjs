@@ -90,8 +90,9 @@ import { readFileSync } from "node:fs";
 
 const QUEUE_DOC = "docs/open-items-read-as-a-stranger-2026-09-25.md";
 
-// Declared, not derived. 12 rows on 2026-10-03.
-const EXPECTED_ROWS = 12;
+// Declared, not derived. 14 rows on 2026-10-03 — moved in the SAME edit as the
+// two rows added to the document's table, which is the only way this stays true.
+const EXPECTED_ROWS = 14;
 
 const FLIP = process.env.QUEUE_FLIP || "";
 
@@ -134,6 +135,11 @@ const CMD = {
   "9.2": {
     unverifiable:
       "membership is 'do the other four STUCK rows state facts they did not compute?' — five advice strings read against five predicates. No grep expresses it; a command could only confirm the file exists. Re-prove it by opening AdminPage.jsx's STUCK array, which is also the first step of the work.",
+  },
+  "2.15a": { cmd: `node -e 'const r=require("./receipts/bk-bar-clearance.json");process.exit(r.status==="fail"?0:1)'` },
+  "0.11": {
+    needsEnv: "SUPABASE_SECRET_KEY",
+    cmd: `test "$(curl -s -X POST "$SUPABASE_URL/rest/v1/rpc/photo_total_bytes" -H "apikey: $SUPABASE_SECRET_KEY" -H "Authorization: Bearer $SUPABASE_SECRET_KEY" -H "Content-Type: application/json" -d '{}')" != "10737418240"`,
   },
   "7.9": {
     unverifiable:
