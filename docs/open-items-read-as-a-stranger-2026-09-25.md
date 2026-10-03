@@ -2372,6 +2372,11 @@ staleness from *unverifiable* into *decidable* for the whole population.
 | `docs/gotchas.md` → `FOR-ANDREW.md:857` | **still-good** | **wrong, and always was** |
 | `docs/open-items…` → `FOR-ANDREW.md:857` | **changed-below-only** | **wrong, and always was** |
 
+***THE TABLE IS A SNAPSHOT AND ALL FIVE ROWS NO LONGER EXIST AS WRITTEN.***
+Every pointer it grades — both `818`s and all three `857`s — was corrected to **914**
+on 2026-10-02. **Kept as the population the tool was actually fed**, because a
+grade rewritten to match today's repo grades nothing — and because the rows being
+corrected by this very write-up is the observer effect recorded below.
 **The canary passed: both `818` pointers came back suspect, which is what the
 grade demanded.** But the third column was added on 2026-10-02 and it exposes the
 limitation that actually matters.

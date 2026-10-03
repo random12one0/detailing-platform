@@ -17621,7 +17621,8 @@ it was measured and not the only place it applies.**
 A graded check carries a **permanent, deliberately accepted** failure — a hold
 somebody ruled on. `receipts/bk-bar-clearance.json` reports `fail` with **7
 failures, all seven the 320 day cells at 37px**, which Andrew ruled stays as it
-is (`FOR-ANDREW.md:857`) and whose red is **meant** to stay.
+is (`FOR-ANDREW.md:914` — *"DECIDED · The day squares stay as they are"*; this
+cited `:857` until 2026-10-02, see gotchas 93) and whose red is **meant** to stay.
 
 **So the red carries no information.** An eighth, genuine failure arriving
 tomorrow makes it `fail` with 8, **and nobody reads 7 against 8 on a check that
