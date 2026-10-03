@@ -4072,3 +4072,113 @@ it — open the file at the number in dispute. **Both numbers under argument wer
 one `sed` away the entire time**, and the whole failure happened in the gap where
 that command was not run. Same family as #88: the rule is *go and look at the
 thing itself*, and #88 was broken by the entry that wrote it.
+
+
+## 94. A RECORDED NUMBER CARRIES THE COMMAND THAT PRODUCED IT AND THE REVISION IT WAS TAKEN AT, OR IT IS NOT A MEASUREMENT — IT IS A MEMORY
+
+**2026-10-02. Ratified as a standing rule for every lane after 44 recorded
+figures were re-run and 5 survived.** Read this before writing a figure into any
+document in this repo.
+
+### START WITH THE WORST ONE, BECAUSE IT IS THE WHOLE ARGUMENT
+
+`CLAUDE.md` and a pass document both recorded **1,297,037 words of markdown**.
+**That number is reproducible at no revision in this repository, including its
+own.**
+
+| | |
+|---|---|
+| the commit that states it | **1,297,672** |
+| that commit's **parent** | **1,296,839** |
+| the recorded figure | **1,297,037** — *between them* |
+
+So it was measured against an **uncommitted intermediate working tree**, which no
+revision captures and nobody can stand on. **There is nowhere a reader can go to
+see that number be true.** It is not wrong, exactly — it is unfalsifiable, which
+is worse, because a wrong number can be corrected and this one can only be
+believed.
+
+**AND IT IS SELF-INVALIDATING. Writing a markdown word count INTO a markdown file
+changes the corpus it counts.** It was true before the sentence stating it
+existed and false afterwards, **by its own length** — which is #92's law, written
+about *addresses*, reappearing in a *tally*. Today it is **1,310,051**, and that
+figure is wrong by the time anybody reads this line. **A self-referential count
+can only ever be published with a revision beside it; there is no other honest
+form.**
+
+### THE EVIDENCE, 44 FIGURES RE-RUN
+
+| | |
+|---|---|
+| figures checked | **44** |
+| **survived** | **5** |
+| **falsified** | **8** |
+| **unre-takeable** | **31** |
+
+**ALL EIGHT FALSIFIED FIGURES WERE CORRECT WHEN WRITTEN.** Every one reproduces
+exactly at the commit of the line stating it. 64 open items became 65 when an
+item was added; 2 unnumbered became 0 when they were numbered; 91 gotchas became
+93; 76 ticked became 81. **Not one was wrong on arrival.**
+
+> **So the disease is not inaccuracy. It is that a correct number with no
+> revision beside it becomes indistinguishable from a wrong one the moment
+> anything changes, and the reader cannot tell which they are holding.**
+
+### AND THE SURVIVORS NAME THE FIX WITHOUT ANYBODY HAVING TO ARGUE IT
+
+| survivor | why |
+|---|---|
+| pointer population **58** | **the only figure written with its revision beside it.** Reproduces exactly, for ever |
+| items whose number is in a commit **62 of 62** | **claims ALL, not a quantity** — it is **65 of 65** today and still true |
+| `FOUND.md` headings **114**, `VERIFIED.md` citations **18**, dangling **0** | **luck.** Nobody edited the file |
+
+**Two survived by design. Three survived because nothing touched them.** One
+sentence would have saved most of the other thirty-nine.
+
+### THE RULE
+
+> **A recorded number carries the command that produced it AND the revision it
+> was taken at, or it is not a measurement — it is a memory.**
+
+```
+WRONG   58 pointers, 3 self, 55 cross-file.
+RIGHT   58 pointers, 3 self, 55 cross — 2026-10-02 @ 23199db:
+        git grep -nE '(ROADMAP|FOR-ANDREW|DECISIONS|gotchas|VERIFIED|silences)\.md:[0-9]+' 23199db -- '*.md' | wc -l
+```
+
+**A proportion is the second-best form** — *62 of 62*, *all seven*, *zero of
+them* — because it survives the population changing underneath it. **Prefer a
+command with a revision; fall back to a proportion; never publish a bare count.**
+
+### WHEN A NUMBER GENUINELY CANNOT BE RE-TAKEN, SAY SO IN THOSE WORDS
+
+**Do not invent an approximate command.** An approximate command is read as an
+exact one by the next person. Four honest reasons, all of them in use here:
+
+* **the method's scope was never written down** — the commit-grep sweep's 534 is
+  neither the 434 unique nor the 853 summed commits at its own revision. **In the
+  same document, the quote sweep's criteria count reproduced EXACTLY at 36,
+  because that rule WAS written down and the fragment rule was not.** One
+  document, both outcomes, which is the proof that this is fixable rather than
+  inherent.
+* **it is a judgement, not a count** — *closed in fact: 1*. A person opened
+  entries and ruled. **No command re-takes a ruling**, and implying one does is
+  how a reading gets promoted to a measurement.
+* **the instrument is gone** — the pointer tool ran out of a scratch directory.
+  ROADMAP **14.31**.
+* **unrepeatable by construction** — see below, and do not file it with the
+  others.
+
+### THE ONE EXEMPTION, AND IT IS NOT A DEFECT
+
+**A measurement whose subject is a FIRST reading cannot be re-taken, and that is
+an honest property of the experiment rather than a fault in it.** The cold test —
+*eight criteria opened cold, eight failed* — is the case. **Nothing can be read
+cold twice.** Re-running it means a **different reader**, which is the
+experiment's own stated loop-breaker, not a re-take.
+
+**So it must not be counted among the failures of this rule.** The next sweep
+that tallies unre-takeable numbers will otherwise pick it up, and somebody will
+try to make it repeatable — **which would destroy the only thing it measures.**
+Mark it *unrepeatable by construction*, in those words, with its date, and leave
+it alone.

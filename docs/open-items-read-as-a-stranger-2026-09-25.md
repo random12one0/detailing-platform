@@ -937,6 +937,15 @@ anything.**
 > figures are kept because the *finding* — eight of eight failed — does not depend
 > on being re-countable, and the eight criteria it condemned are named individually
 > further down, where a reader can check each one against the page.
+>
+> ***TO THE NEXT SWEEP THAT TALLIES UNRE-TAKEABLE NUMBERS: DO NOT COUNT THESE
+> FOUR AMONG THE FAILURES.*** They are not a number somebody forgot to pin. **An
+> experiment whose subject is a FIRST reading cannot be re-taken, and that is an
+> honest property of the experiment rather than a fault in it.** Filing it with
+> the genuine casualties invites somebody to make it repeatable — **and making it
+> repeatable would destroy the only thing it measures**, because the second
+> reading of a criterion is not a cold one. The standing rule is
+> `docs/gotchas.md` **94**, and this exemption is written into it.
 
 | | dated snapshot 2026-10-02 — unrepeatable by construction |
 |---|---|
@@ -1677,7 +1686,7 @@ dependence on quotes, on screen text, or on `app/src`.
 |---|---|
 | ① open items | **64** — 62 numbered, **2 with no number at all and therefore ungreppable** |
 | ② **items whose number appears in a commit message** | **62 of 62** — **re-run 2026-10-02: 65 of 65, still ALL of them.** `for id in $(grep -oE '^- \[ \] \*\*[0-9]+\.[0-9]+' ROADMAP.md); do git log --grep="$id" --format=%H; done` |
-| commits naming an open item | **534** — ***UNRE-TAKEABLE: the grep's scope was never recorded. 434 unique / 853 summed at this table's own commit; neither is 534.*** |
+| commits naming an open item | **534** — ***UNRE-TAKEABLE: the grep's scope was never recorded. 434 unique / 853 summed at this table's own commit; neither is 534.*** **AND NOW PINNED ALONGSIDE, NOT OVER: 339, taken 2026-10-02 @ `3398470` by `node --test tests/sweep-methods-are-pinned.test.mjs`.** 339 is **not a correction of 534** — it is a different, *reproducible* question (an id bounded by non-digit-non-dot, counted once per commit, no date floor). **Both stand with their own dates; neither was chosen over the other** |
 | of those, **completion-shaped** subjects (done/fixed/closed/built/lands/no longer/stops…) | **146** — *dated snapshot 2026-10-02; a filter of 534, so unre-takeable with it* |
 | minus this audit's own reporting commits | **101** — *dated snapshot 2026-10-02; unre-takeable with 534* |
 | minus commits predating the current `ROADMAP.md` | **80**, across **36 items** — *dated snapshot 2026-10-02; unre-takeable with 534* |
@@ -1796,8 +1805,8 @@ check.**
 
 | | |
 |---|---|
-| open items whose criterion quotes a string **and** names a file | **36** — **RE-RUN 2026-10-02: 36 at this table's own commit `3f2ca08`, exactly; 37 today, the extra being 14.31 which I added after.** Re-take: the zone+file rule in step 1 above, which reproduces |
-| quoted fragments in those criteria | **247** — ***UNRE-TAKEABLE: step 1's fragment rule is underspecified.*** My faithful reading (straight and curly double quotes, 8–70 chars, must contain a space) gives **274** at this table's own commit. The criteria count above reproduces exactly, so the zone detection is right and *the fragment rule is the part that was never written down* |
+| open items whose criterion quotes a string **and** names a file | **36** — **RE-RUN 2026-10-02: 36 at this table's own commit `3f2ca08`, exactly; 37 today, the extra being 14.31 which I added after.** **PINNED: 37, taken 2026-10-02 @ `3398470`** by `node --test tests/sweep-methods-are-pinned.test.mjs`. Both stand |
+| quoted fragments in those criteria | **247** — ***UNRE-TAKEABLE AS WRITTEN: step 1's fragment rule is underspecified.*** **AND NOW PINNED ALONGSIDE: 276, taken 2026-10-02 @ `3398470`** by `node --test tests/sweep-methods-are-pinned.test.mjs`, where a fragment is defined in code — straight or curly DOUBLE quote only (backticks doubled it to 508), 8–70 characters, must contain a space. **274 under the same rule at this table's own commit `3f2ca08`.** **247, 274 and 276 all stand with their dates and revisions. I did not pick one**, because the first cannot be reproduced and the other two answer a rule the page never stated. My faithful reading (straight and curly double quotes, 8–70 chars, must contain a space) gives **274** at this table's own commit. The criteria count above reproduces exactly, so the zone detection is right and *the fragment rule is the part that was never written down* |
 | **still present in the source** | **125** — *unre-takeable with 247; my reading gives 141 at the same commit* |
 | not found | **122** — *unre-takeable with 247; my reading gives 133 at the same commit. 125+122 and 141+133 are each internally consistent, which is how two different rules both look right* |
 | of those, **once in the source and now gone** | **4** — *unre-takeable with 247, and this is the one that matters: the four were named (7.8, 9.2, 12.2 and one prose false positive), so the FINDING survives even though the COUNT cannot be re-taken* |
@@ -2638,6 +2647,30 @@ like a fortnight later.** Four distinct reasons:
 | **it is a judgement, not a count** | closed-in-fact 1, stale-audit 2, declared-partial 9, and the ticked file's 12 / 12 / 0 / 64 / 26 / 3 | a person opened entries and ruled on them. **No command re-takes a ruling**, and pretending one does is how a reading becomes a measurement |
 | **unrepeatable by construction** | the cold test's 12 / 8 / 8 / 0 | **nothing can be read cold twice.** Re-running means a different reader, which is the experiment's own loop-breaker rather than a re-take |
 | **the instrument is gone** | the pointer tool's 5 / 4 / 43 / 1 | it ran out of a scratch directory that no longer exists. **ROADMAP 14.31** is that gap |
+
+### ADDENDUM, SAME DAY — eleven of the thirty-one are re-takeable FROM NOW ON, and the count above is not edited
+
+**The 44 / 5 / 8 / 31 above is a measurement taken on 2026-10-02 and it stays as
+it is.** Rewriting it to credit work done afterwards would be the exact fault the
+whole sweep is about — so this is an addendum with its own date.
+
+`tests/sweep-methods-are-pinned.test.mjs` now **holds both sweep methods as code
+rather than prose**, so the eleven figures that were unre-takeable *because the
+scope was never written down* have a reproducible successor. **The successors are
+not the old numbers**: the pinned commit scope answers 339 where the page records
+534, and the pinned fragment rule answers 276 where the page records 247. **Both
+sets are on the page with their dates and revisions and neither was chosen.**
+
+**It was broken on purpose twice before being trusted**: widening the id match to
+an unbounded one moves the commit count 339 → 452, and dropping the
+“must contain a space” clause moves the fragment count 276 → 301. Both reddened
+the run.
+
+**The other twenty cannot be rescued this way and should not be attempted** —
+nine are judgements, four are a vanished instrument (ROADMAP 14.31), four are the
+cold test, which is unrepeatable by construction and is not a defect, and the
+word count has no tree to stand on. **That is the honest division: a method can
+be pinned, a reading cannot.**
 
 ### THE ONE THAT IS ITS OWN CATEGORY — a number no tree has ever held
 

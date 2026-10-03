@@ -92,6 +92,7 @@ set -a; . ./.env; set +a
 | **Anything, before you finish — and this one needs credentials** | `node scripts/deployed-inventory.mjs`. **It exits 1 and names every function that is not running this checkout.** See below; do not deploy to clear it |
 | **Anything a person reads, before you finish** | `node scripts/american-english.mjs` (dev server, no credentials). **A word spelled correctly but wrong for the audience passes every other gate here.** It reads the FINISHED page, not the source — a source scan printed clean over "Aluminium tanks". The 36 that reached visitors are in the script's header |
 | **Anything a person reads — copy, a colour, a class, a whole screen** | `node scripts/contrast-insitu.mjs` (dev server + seed). **The credential-free gates measure token PAIRS, and a pair does not know which surface a label lands on** — `--fog-2` is 4.90:1 on `--ink-1` and 4.20:1 on `--ink-3`. The case is in the script's header |
+| **Either pass document's sweep figures, or anything that counts commits or quoted fragments** | `node --test tests/sweep-methods-are-pinned.test.mjs`. Credential-free, one `git log`, **0.6s**. **It holds the two sweep methods AS CODE, because a method written as prose produced eleven figures that cannot be re-taken** — *“for each item number, `git log --grep`”* is neither the 434 unique nor the 853 summed commits it was read as. In the same document the rule that WAS written down reproduced exactly at 36. Two `PIN_CANARY=` sabotages |
 | Color or ground tokens | `node scripts/accent-sweep.mjs` |
 | An edge function | `node scripts/deploy-functions.mjs …` then `node scripts/check-deployed.mjs` **and** `node scripts/deployed-inventory.mjs` |
 | A layout | `node scripts/sweep-widths.mjs` (needs dev server + seed) |
@@ -169,7 +170,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is NINETY-THREE specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is NINETY-FOUR specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -232,6 +233,9 @@ sittings unbroken.
 **92 → 93 on 2026-10-02, same edit** — a correct measurement discarded because
 the operator asserted a different number, and the write-up recorded the TOOL as
 broken to make the two agree. Nine sittings unbroken.
+**93 → 94 on 2026-10-02, same edit** — 44 recorded figures re-run, 5 survived; a
+number with no command and no revision beside it is a memory. Ten sittings
+unbroken.
 
 ## Hard rules
 
@@ -446,6 +450,27 @@ broken to make the two agree. Nine sittings unbroken.
   no screen to check, and no test that will go red — so the only thing that
   can stop it is a session reading this before it writes the line.
   `receipts/tenant-matrix.json` carries the standing-risk note on every run.
+- **BEFORE YOU WRITE A FIGURE INTO ANY DOCUMENT, READ `docs/gotchas.md` 94.**
+  **A recorded number carries the command that produced it AND the revision it
+  was taken at, or it is not a measurement — it is a memory.** Ratified
+  2026-10-02 after **44 recorded figures were re-run and 5 survived**: 8 are
+  simply false on pages that read as evidence, and 31 cannot be re-taken at all.
+  **All eight false ones were correct when written** and reproduce exactly at the
+  commit of the line stating them — so the fault is not carelessness, it is that
+  a bare count stops being checkable the moment anything moves.
+
+  **The only figure in either pass document that survived by design is the one
+  written with its revision beside it.** The second-best form is a **proportion**
+  — *62 of 62*, *all seven* — which survives its population changing. **Never
+  publish a bare count.**
+
+  **And when a number genuinely cannot be re-taken, say so in those words rather
+  than inventing an approximate command** — the scope was never recorded, it is a
+  judgement rather than a count, the instrument is gone, or it is
+  **unrepeatable by construction** (a measurement of a FIRST reading, which a
+  re-run destroys rather than repeats). That last one is an honest property, not
+  a defect, and must not be counted as one.
+
 - **Migrations are append-only.** Never edit an existing one.
 - **Never commit `app/.env.production` or any credential.** No password, token
   or key goes into a markdown file either — say where it lives, not what it is.
