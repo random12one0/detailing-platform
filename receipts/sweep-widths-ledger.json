@@ -1,6 +1,6 @@
 {
   "note": "One row per width per run. `outcome` is complete | short | aborted. A width fails on a RATE, never on one bad run: more than 2 bad in the last 5 runs of the same mode. One abort is noise; four of five is a broken instrument, and only a count can tell those apart.",
-  "updated_at": "2026-10-03T00:42:17.933Z",
+  "updated_at": "2026-10-03T02:12:39.077Z",
   "window": 5,
   "max_bad": 2,
   "runs": [
@@ -693,6 +693,218 @@
     },
     {
       "at": "2026-10-03T00:42:17.919Z",
+      "sha": "",
+      "width": 360,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 39,
+      "declared": 0,
+      "expected": 0
+    },
+    {
+      "at": "2026-10-03T01:32:08.077Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "default",
+      "outcome": "short",
+      "measured": 122,
+      "declared": 2,
+      "expected": 155
+    },
+    {
+      "at": "2026-10-03T01:44:07.056Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "default",
+      "outcome": "short",
+      "measured": 41,
+      "declared": 0,
+      "expected": 155
+    },
+    {
+      "at": "2026-10-03T01:44:07.056Z",
+      "sha": "",
+      "width": 392,
+      "mode": "default",
+      "outcome": "short",
+      "measured": 39,
+      "declared": 0,
+      "expected": 154
+    },
+    {
+      "at": "2026-10-03T01:44:07.056Z",
+      "sha": "",
+      "width": 320,
+      "mode": "default",
+      "outcome": "short",
+      "measured": 149,
+      "declared": 4,
+      "expected": 154
+    },
+    {
+      "at": "2026-10-03T01:44:07.056Z",
+      "sha": "",
+      "width": 1920,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 150,
+      "declared": 2,
+      "expected": 0
+    },
+    {
+      "at": "2026-10-03T01:44:07.056Z",
+      "sha": "",
+      "width": 360,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 39,
+      "declared": 0,
+      "expected": 0
+    },
+    {
+      "at": "2026-10-03T01:52:38.958Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "default",
+      "outcome": "aborted",
+      "measured": 31,
+      "declared": 0,
+      "expected": 155,
+      "error": "locator.click: Timeout 15000ms exceeded. | - <div class=\"tourblock\"> intercepts pointer events"
+    },
+    {
+      "at": "2026-10-03T01:52:38.958Z",
+      "sha": "",
+      "width": 392,
+      "mode": "default",
+      "outcome": "short",
+      "measured": 39,
+      "declared": 0,
+      "expected": 154
+    },
+    {
+      "at": "2026-10-03T01:52:38.958Z",
+      "sha": "",
+      "width": 320,
+      "mode": "default",
+      "outcome": "short",
+      "measured": 149,
+      "declared": 4,
+      "expected": 154
+    },
+    {
+      "at": "2026-10-03T01:52:38.958Z",
+      "sha": "",
+      "width": 1920,
+      "mode": "default",
+      "outcome": "aborted",
+      "measured": 84,
+      "declared": 2,
+      "expected": 0,
+      "error": "locator.click: Timeout 15000ms exceeded. | - waiting for locator('.tabbar button[data-tour=\"today\"]').first() | - locator resolved to <button class=\"active\" data-tour=\"today\">…</button> | 2 × waiting for element to be visible, enabled and stable"
+    },
+    {
+      "at": "2026-10-03T01:52:38.958Z",
+      "sha": "",
+      "width": 360,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 39,
+      "declared": 0,
+      "expected": 0
+    },
+    {
+      "at": "2026-10-03T02:01:56.194Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "default",
+      "outcome": "short",
+      "measured": 41,
+      "declared": 0,
+      "expected": 155
+    },
+    {
+      "at": "2026-10-03T02:01:56.194Z",
+      "sha": "",
+      "width": 392,
+      "mode": "default",
+      "outcome": "short",
+      "measured": 39,
+      "declared": 0,
+      "expected": 154
+    },
+    {
+      "at": "2026-10-03T02:01:56.194Z",
+      "sha": "",
+      "width": 320,
+      "mode": "default",
+      "outcome": "short",
+      "measured": 148,
+      "declared": 4,
+      "expected": 154
+    },
+    {
+      "at": "2026-10-03T02:01:56.194Z",
+      "sha": "",
+      "width": 1920,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 119,
+      "declared": 2,
+      "expected": 0
+    },
+    {
+      "at": "2026-10-03T02:01:56.194Z",
+      "sha": "",
+      "width": 360,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 39,
+      "declared": 0,
+      "expected": 0
+    },
+    {
+      "at": "2026-10-03T02:12:39.063Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "default",
+      "outcome": "short",
+      "measured": 41,
+      "declared": 0,
+      "expected": 155
+    },
+    {
+      "at": "2026-10-03T02:12:39.063Z",
+      "sha": "",
+      "width": 392,
+      "mode": "default",
+      "outcome": "short",
+      "measured": 39,
+      "declared": 0,
+      "expected": 154
+    },
+    {
+      "at": "2026-10-03T02:12:39.063Z",
+      "sha": "",
+      "width": 320,
+      "mode": "default",
+      "outcome": "short",
+      "measured": 149,
+      "declared": 4,
+      "expected": 154
+    },
+    {
+      "at": "2026-10-03T02:12:39.063Z",
+      "sha": "",
+      "width": 1920,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 150,
+      "declared": 2,
+      "expected": 0
+    },
+    {
+      "at": "2026-10-03T02:12:39.063Z",
       "sha": "",
       "width": 360,
       "mode": "default",
