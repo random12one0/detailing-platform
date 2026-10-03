@@ -5088,6 +5088,66 @@ the wrong service, and never book a job we cannot reach.
   simulated one. `maxLength` is doing what the platform specifies; the question
   is whether the box should say what it did.
 
+- [ ] **9.11d — Seven scripts save evidence frames that can be wrong, on one named condition.**
+  fullPage: true paints a position: fixed element at the wrong place. Measured
+  2026-10-03 at 1440: the app shell's rail is at x 24–96 in the DOM and x ~445 in
+  the fullPage PNG, a 420px shift straight across the settings list, while the
+  viewport capture of the same instant has it at the far left and live
+  elementFromPoint reports 0 rows covered. A person reported it as a product fault
+  from the frame, which is how the condition was found.
+
+  THE CONDITION, AND IT IS NARROW: a position: fixed element and a page taller
+  than the viewport. Neither alone does it. Frames of the booking page are
+  unaffected — its bar is sticky.
+
+  THE SEVEN: e2e-browser-features, e2e-payment, e2e-receipt-trail,
+  health-line-honest, shoot-dashboard, shoot-manage, sweep-widths (13 call sites;
+  bk-bar-clearance was fixed in 7a2c84e).
+
+  What a person runs to tell a real finding from a shifted one — capture both
+  modes at the same instant and compare, then ask the DOM rather than the picture:
+  take page.screenshot({path:'a-viewport.png'}) and
+  page.screenshot({path:'a-full.png',fullPage:true}) back to back. If the two
+  differ in where fixed furniture sits, the fullPage frame is lying. The authority
+  is document.elementFromPoint at the row's own centre, never the image.
+
+  Done when: every one of the seven either captures at viewport size, or carries a
+  comment naming why fullPage is safe there (no fixed element, or no scroll); and
+  bk-bar-clearance's screen/furniture-clear pattern — a hit-test against every
+  fixed element — is asked by any check whose subject is a screen with furniture
+  on it.
+
+  Red proof: inject a position: fixed bar over a scrolling page and show the
+  hit-test catches it while a fullPage frame does not.
+
+  ***EVERYTHING ABOVE THIS LINE IS DP COWORK'S WORDING, LANDED VERBATIM ON
+  2026-10-02 AT THE MANAGER'S INSTRUCTION — "word for word, with no edits from me
+  or you". The three paragraphs below are this session's and are marked so nobody
+  later mistakes them for the measurement.***
+
+  **THIS ITEM IS ALSO THE EXPLANATION OF A FALSE REPORT MADE EARLIER THE SAME
+  NIGHT, AND THAT IS WHY IT CARRIES MORE WEIGHT THAN A SCRIPT FIX.** The manager
+  read a `fullPage` PNG, saw the nav rail sitting 420px across the settings list,
+  and reported a product fault. **There was no product fault.** The rail is at
+  x 24–96 in the DOM, the viewport capture of the same instant shows it at the far
+  left, and `elementFromPoint` reports 0 rows covered. **The frame invented the
+  defect and the frame was the evidence**, so nothing in the report looked wrong:
+  a real instrument, saved to disk, read carefully, and false.
+
+  **So the seven scripts are not merely saving imperfect pictures — they are
+  manufacturing findings that pass review.** A shifted frame is worse than a
+  missing one, exactly as `docs/gotchas.md` 92's wrong-but-real line numbers are
+  worse than a dangling pointer: **it is wrong in a way that looks right, and it
+  fails only for the person who goes and checks the DOM.** The `Done when` above
+  is the fix; this paragraph is the cost of not having it.
+
+  **ONE CONVENTION CONFLICT, SAID OUT LOUD RATHER THAN QUIETLY PICKED.** The
+  verbatim text contains *"centre"*, and `CLAUDE.md` requires American English in
+  everything a person reads. **The verbatim instruction was explicit, so the
+  spelling stands and the conflict is reported instead of resolved** — the
+  manager's call, not a session's. Nothing automated will catch it:
+  `american-english.mjs` reads the rendered page, not `ROADMAP.md`.
+
 - [ ] **9.11b — `sweep-widths.mjs` reported a verdict over a third of its own coverage.**
   Spawned from 9.11 on 2026-10-02 by closing its first clause. **9.11's first
   clause is done**: the receipt no longer reads `"fail"` over an ANCESTOR of the
