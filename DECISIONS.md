@@ -294,6 +294,7 @@ were made more than once.
 - **One fact, six numbers, every one of them reading as current** — the edge-function drift count lived in `ROADMAP.md` as 26, 22, 13, 4-to-8 and 25 across twelve occurrences, each true on its day. 0.6's title now names the command instead of a figure, and the live answer is read off `receipts/deployed-inventory.json`. 2026-10-02.
 - **A manager's statement about the other session is a claim about a moment, and mine aged out in under half an hour** — "frozen, nothing has moved in seven days" was true when typed and false twenty minutes later, because the manager woke the other lane and did not say so. Waking or dispatching a lane is announced in the same breath. 2026-10-02.
 - **A stationary doorbell timestamp is a question, not an answer — and the hook was never broken** — a timestamp that has not moved means EITHER still working OR stopped without a ping, and the watcher cannot tell those apart. The manager read it as the second and lost 37 minutes; the hook was firing all along. The pane is ground truth. **Corrected 2026-10-02, same day, and the retraction is the load-bearing part.** 2026-10-02.
+- **A declared expected-failures list, not an allowlist — how a graded check keeps measuring after a hold is accepted** — when a check is red over an exception somebody deliberately accepted, its red stops carrying information. Declare the expected failures BY NAME, let a separate unexpected count decide the verdict, and keep the receipt saying `fail`. The one way it goes wrong is somebody adding to the list instead of fixing the new failure. 2026-10-03.
 
 <!-- INDEX:END -->
 
@@ -17577,3 +17578,77 @@ either instance.
 
 **STATUS: nothing to fix in the hook, because nothing is broken in it.** What
 remains is the reading method above, and it is now in use.
+
+
+## A declared expected-failures list, not an allowlist — how a graded check keeps measuring after a hold is accepted
+
+**2026-10-03. Written as a pattern because `bk-bar-clearance` is the first place
+it was measured and not the only place it applies.**
+
+### WHAT IT IS
+
+A graded check carries a **permanent, deliberately accepted** failure — a hold
+somebody ruled on. `receipts/bk-bar-clearance.json` reports `fail` with **7
+failures, all seven the 320 day cells at 37px**, which Andrew ruled stays as it
+is (`FOR-ANDREW.md:857`) and whose red is **meant** to stay.
+
+**So the red carries no information.** An eighth, genuine failure arriving
+tomorrow makes it `fail` with 8, **and nobody reads 7 against 8 on a check that
+has been red for days.** The check is still correct and has stopped being
+useful.
+
+### THE SHAPE
+
+1. **A declared `expected_failures` list, BY TARGET NAME** — not a count.
+2. **A separate count of failures not on that list**, and **the verdict is
+   decided by that number alone.**
+3. **The receipt still reports `fail`**, so the accepted hold stays visible in
+   every run rather than disappearing.
+4. **Proved by planting a failure of a different kind** and watching the
+   unexpected count go 0 → 1 while the expected list stays where it is.
+
+### WHY IT IS NOT AN ALLOWLIST, which is the whole point
+
+**An allowlist swallows the seven and the check goes green.** That is *a genuine
+violation hidden inside a passing check* — the exact phrase the hold's own
+wording uses to forbid it. **Green is a claim about the product. `fail` with
+`unexpected: 0` is a claim about the check**, and only the second one is true
+here.
+
+**The difference is what a stranger sees.** Under an allowlist they see a green
+check and conclude the 44px floor is met everywhere. Under this shape they see
+`fail`, read the seven, find the ruling, and know exactly what has been accepted
+and by whom.
+
+### WHEN TO REACH FOR IT
+
+**When a red has been standing for more than a day and everybody knows why.**
+That is the signal: the moment a team can recite the reason a check is red, the
+red has stopped being a signal and the check needs this. **Not** for a flaky
+failure, **not** for something somebody intends to fix this week, and **not** as
+a way to stop a noisy check complaining — the exception has to be a decision with
+a name on it.
+
+### THE ONE WAY IT GOES WRONG
+
+**Somebody adds the eighth failure to `expected_failures` instead of fixing it.**
+The run goes back to `unexpected: 0`, the diff is one line, and it looks exactly
+like maintenance. **That is the allowlist arriving by instalments**, and it is
+the only failure mode worth guarding:
+
+* **every entry on the list names the ruling that accepted it** — a decision, a
+  date, a person. An entry with no ruling behind it is a bug being filed as
+  furniture;
+* **the list is a declaration a person edits on purpose**, never generated from
+  the run, for the same reason `platform-admins-declared` reads a document and
+  not the table: a check that derives its expectation from what it finds agrees
+  with whatever it finds;
+* **and the list getting longer is itself worth a look**, because the honest
+  direction for it is shorter.
+
+### WHERE IT APPLIES NEXT
+
+**Not built, and not scoped here.** ROADMAP **14.30** is `bk-bar-clearance`'s
+instance. **Any other graded receipt in this repo standing red over an accepted
+hold has the same fault**, and finding them is a question of reading the red
+receipts rather than guessing — worth doing once rather than per check.
