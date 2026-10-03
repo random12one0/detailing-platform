@@ -1,36 +1,10 @@
 {
-  "git_sha": "7e63de7e3bf35750cfbaac418f36113f4bc3ffc1",
-  "git_sha_started": "7e63de7e3bf35750cfbaac418f36113f4bc3ffc1",
-  "head_moved": false,
+  "git_sha": "2674ba6c0e6f0e5b9934d80e802b623fc5dc69bf",
+  "git_sha_started": "3398470d99e8ffdf18e581ba3a80dce2c59485f3",
+  "head_moved": true,
   "environment": "local",
-  "finished_at": "2026-10-03T03:46:32.513Z",
-  "failures": [
-    {
-      "target": "guide · calendar 5",
-      "width": 1920,
-      "findings": [
-        "page-scrolls   +51px  the whole page can be dragged sideways",
-        "past-viewport  +46px  div.col-2.leaving  «Thursday, October 11 job4:»",
-        "past-viewport  +46px  section.daypanel  «Thursday, October 11 job4:»",
-        "past-viewport  +46px  div.row.between  «Thursday, October 11 job»",
-        "past-viewport  +46px  button.x  «»",
-        "past-viewport  +37px  svg  «»",
-        "past-viewport  +46px  div.group  «4:00 PMDana RuizExpress Wa»"
-      ]
-    },
-    {
-      "target": "(not a per-surface geometry finding)",
-      "count": 38,
-      "captured": [
-        "gear · subscription, cancelling NOT MEASURED — this demo has no subscription, so there is nothing to cancel. The default seed is deliberately unsubscribed — it draws the checkout ladder instead, which is two surfaces rather than one. `node scripts/seed-demo.mjs --subscription=past_due` swaps which half is measured (ROADMAP 8.1b)",
-        "gear · subscription, past due NOT MEASURED — nothing is overdue on this demo, and nothing can be: the default seed writes no subscription at all, so there is no payment to fail. Same either/or as the cancel button above (ROADMAP 8.1b)",
-        "gear · subscription, cancelling NOT MEASURED — this demo has no subscription, so there is nothing to cancel. The default seed is deliberately unsubscribed — it draws the checkout ladder instead, which is two surfaces rather than one. `node scripts/seed-demo.mjs --subscription=past_due` swaps which half is measured (ROADMAP 8.1b)",
-        "gear · subscription, past due NOT MEASURED — nothing is overdue on this demo, and nothing can be: the default seed writes no subscription at all, so there is no payment to fail. Same either/or as the cancel button above (ROADMAP 8.1b)",
-        "EXPECTED-COUNT GATE FAILED at 1920px: expected 158 surfaces, measured 122"
-      ],
-      "why": "38 problem(s) raised, 5 line(s) captured. The capture pattern does not know every phrase this script prints; read the run output."
-    }
-  ],
+  "finished_at": "2026-10-03T04:11:16.409Z",
+  "failures": [],
   "warnings": [],
   "artifacts": [
     "artifacts/sweep-widths/index.html"
@@ -51,13 +25,13 @@
     ]
   },
   "check_id": "sweep-widths-1920-1440-392-360-320",
-  "started_at": "2026-10-03T03:36:36.369Z",
-  "status": "fail",
-  "expected_targets": 435,
-  "discovered_targets": 277,
-  "attempted_targets": 277,
-  "completed_targets": 277,
-  "skipped_targets": 6,
+  "started_at": "2026-10-03T04:01:00.852Z",
+  "status": "pass",
+  "expected_targets": 430,
+  "discovered_targets": 430,
+  "attempted_targets": 430,
+  "completed_targets": 430,
+  "skipped_targets": 11,
   "skip_allowlist": {
     "reason": "Surfaces the demo cannot be in the state for at the hour this ran. Each one declared its own reason in the output and each was probed again before the skip was accepted — a skip over a reachable surface is refused and fails the run (ROADMAP 8.1b).",
     "expires": "2027-01-01",
@@ -83,6 +57,31 @@
         "reason": "nothing is overdue on this demo, and nothing can be: the default seed writes no subscription at all, so there is no payment to fail. Same either/or as the cancel button above (ROADMAP 8.1b)"
       },
       {
+        "width": 1920,
+        "label": "guide · today 8",
+        "reason": "the today guide walked 7 step(s) on this dashboard and ended on the last card it had (7 of 7). A step whose target is absent removes itself (Walkthrough.jsx, the plan's presence filter), so this label is a step this dashboard cannot produce — not a step that was missed"
+      },
+      {
+        "width": 1920,
+        "label": "guide · today 9",
+        "reason": "the today guide walked 7 step(s) on this dashboard and ended on the last card it had (7 of 7). A step whose target is absent removes itself (Walkthrough.jsx, the plan's presence filter), so this label is a step this dashboard cannot produce — not a step that was missed"
+      },
+      {
+        "width": 1920,
+        "label": "guide · today 10",
+        "reason": "the today guide walked 7 step(s) on this dashboard and ended on the last card it had (7 of 7). A step whose target is absent removes itself (Walkthrough.jsx, the plan's presence filter), so this label is a step this dashboard cannot produce — not a step that was missed"
+      },
+      {
+        "width": 1920,
+        "label": "guide · today 11",
+        "reason": "the today guide walked 7 step(s) on this dashboard and ended on the last card it had (7 of 7). A step whose target is absent removes itself (Walkthrough.jsx, the plan's presence filter), so this label is a step this dashboard cannot produce — not a step that was missed"
+      },
+      {
+        "width": 1920,
+        "label": "guide · today 12",
+        "reason": "the today guide walked 7 step(s) on this dashboard and ended on the last card it had (7 of 7). A step whose target is absent removes itself (Walkthrough.jsx, the plan's presence filter), so this label is a step this dashboard cannot produce — not a step that was missed"
+      },
+      {
         "width": 320,
         "label": "tour · step 36",
         "reason": "the tour walked 35 step(s) on this dashboard and ended on the last card it had (6 of 6). A step whose target is absent removes itself (Walkthrough.jsx, the plan's presence filter), so this label is a step this dashboard cannot produce — not a step that was missed"
@@ -94,8 +93,8 @@
       }
     ]
   },
-  "assertions_executed": 177239,
-  "min_assertions": 1596,
+  "assertions_executed": 191049,
+  "min_assertions": 1720,
   "canary": {
     "id": "sweep-canary-deliberate-overflow",
     "observed_failure": true,

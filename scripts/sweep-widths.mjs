@@ -1143,6 +1143,12 @@ for (const w of SIZES) {
        than count its remaining surfaces. ROADMAP 9.11c. */
     if (process.env.SWEEP_SHORT_CANARY && w === 320 && /Money . Lifetime/.test(label)) return;
     ATTEMPTING = label;
+    /* **AND CLEARED WHEN THE SURFACE IS DONE**, because leaving it set made the
+       abort line say "ON SURFACE X ... the last one to complete was X" - the
+       same name twice, which reads as "it died measuring X" when what actually
+       happened is that it died in the NAVIGATION after X. The 1920 abort said
+       `setup · step 8 of 12` twice and the real failure was a tab click two
+       sections later. A label that is almost right is worse than none. */
     /* **--break=abort : THE NEGATIVE CONTROL ON THE TWO CHANGES ABOVE.**
        With no abort left in the run, nothing proves that an aborting width
        is excluded from the verdict or that its surface gets named - a guard
@@ -1263,6 +1269,7 @@ for (const w of SIZES) {
     const pixelPrint = png ? createHash("sha1").update(png).digest("hex") : `unshot-${CERT.length}`;
     const fingerprint = createHash("sha1").update(sig).digest("hex");
     CERT.push({ width: w, label, elements: seen.els, asked, findings: rows, fingerprint, pixelPrint, sig, shot });
+    ATTEMPTING = null;
     console.log(`${label.padEnd(24)} ${rows.length ? "\n  " + rows.join("\n  ") : "clean"}`);
   };
   // The sheet opens at a 56vh peek. Pull it to full so the rest of the screen
@@ -3053,7 +3060,57 @@ for (const w of SIZES) {
         console.log(`guide · ${name}`.padEnd(24) + "NOT MEASURED — no such tab for this account");
         found++; continue;
       }
-      await btn.click();
+      /* ══ THE INTERMITTENT 1920 ABORT LIVES ON THIS LINE ══════════════════
+         Caught 2026-10-03 by `SWEEP_ABORT_CANARY`, which was aimed at a
+         different width entirely - **an unplanted catch, and the only evidence
+         a check ever has that it works on something nobody anticipated.**
+
+         What the call log said, once the abort stopped printing only its first
+         line: `waiting for locator('.tabbar button[data-tour="today"]')` ->
+         `locator resolved to <button class="active" data-tour="today">` ->
+         `2 x waiting for element to be visible, enabled and stable`.
+
+         **SO IT IS NOT COVERED AND IT IS NOT MISSING. IT IS MOVING.** Playwright
+         fails `stable` when the bounding box changes between two animation
+         frames, and it waited the full timeout - which is not a 180ms leave
+         animation, it is something that never settles. `say()` finishes every
+         FINITE animation before measuring and deliberately leaves infinite ones
+         alone (`finish()` on one throws), so an infinite animation on or above
+         the tab bar would do exactly this, and would do it only on the runs
+         where it happens to be running here.
+
+         **THIS DOES NOT RETRY.** A retry would convert an intermittent defect
+         into a green run, which is this repo's entire subject. It catches the
+         failure, records what was animating and what owns the pixel under the
+         button, prints it, and rethrows so the width still aborts. The next
+         occurrence arrives as evidence instead of as a timeout. */
+      try {
+        await btn.click();
+      } catch (clickErr) {
+        const why = await page.evaluate(() => {
+          const b = document.querySelector('.tabbar button[data-tour="today"]');
+          const r = b && b.getBoundingClientRect();
+          const anims = document.getAnimations().map((a) => {
+            const t = a.effect && a.effect.getComputedTiming ? a.effect.getComputedTiming() : {};
+            return {
+              name: (a.animationName || (a.effect && a.effect.target && a.effect.target.className) || "?").toString().slice(0, 40),
+              state: a.playState,
+              infinite: !Number.isFinite(t.endTime),
+              on: (a.effect && a.effect.target && a.effect.target.tagName) || "?",
+            };
+          });
+          const hit = r ? document.elementFromPoint(Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2)) : null;
+          return {
+            rect: r ? { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) } : null,
+            ownsThePixel: hit ? (hit.tagName + "." + String(hit.className).split(" ")[0]) : "nothing",
+            running: anims.filter((a) => a.state === "running"),
+            infiniteRunning: anims.filter((a) => a.state === "running" && a.infinite),
+          };
+        }).catch(() => null);
+        console.log(`\nGUIDE CLICK FAILED at ${w}px on the ${name} tab - FORENSICS, not a retry:`);
+        console.log("  " + JSON.stringify(why));
+        throw clickErr;
+      }
       // `settle()` IS THE WRONG INSTRUMENT AGAIN, and this is the fifth time
       // in this file. The guide is started on a 900ms timer — deliberately,
       // so it plans against a drawn screen rather than a loading one — and
@@ -3122,8 +3179,13 @@ for (const w of SIZES) {
       || rawErr.split("\n")[0];
     ABORTED.push({ width: w, measured: done, error: why, surface: ATTEMPTING, after: CERT.filter((c) => c.width === w).slice(-1)[0]?.label ?? null });
     found++;
-    console.log(`\nWIDTH ABORTED at ${w}px ON SURFACE «${ATTEMPTING ?? "(none attempted)"}»`
-      + ` — the ${done + 1}th; the last one to complete was «${CERT.filter((c) => c.width === w).slice(-1)[0]?.label ?? "nothing"}» — ${why}`);
+    const lastDone = CERT.filter((c) => c.width === w).slice(-1)[0]?.label ?? "nothing";
+    console.log(ATTEMPTING
+      ? `
+WIDTH ABORTED at ${w}px MEASURING «${ATTEMPTING}» — the ${done + 1}th — ${why}`
+      : `
+WIDTH ABORTED at ${w}px BETWEEN SURFACES, after «${lastDone}» completed (the ${done}th). `
+        + `It was navigating, not measuring — ${why}`);
     console.log(`  The other widths carry on. Everything ${w}px did not reach is unmeasured, not clean.`);
   } finally {
     // BOTH EXITS AND THE ABORT COME THROUGH HERE, which is the point: the
