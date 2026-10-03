@@ -17580,6 +17580,35 @@ either instance.
 remains is the reading method above, and it is now in use.
 
 
+
+### AND A BETTER LIVENESS GAUGE THAN ANY TIMESTAMP — THE DIFF GROWING
+
+**Added 2026-10-03. The manager's own method, recorded because it is the thing
+that actually works and it is nowhere else in this repo.**
+
+**A stationary timestamp cannot tell *still working* from *stopped without a
+ping*. A GROWING DIFF can.** The manager watched DP Cowork's uncommitted diff go
+from **538 insertions / 150 deletions to 632 / 160 between two checks** and
+concluded it was working rather than hung — **a conclusion the doorbell could not
+have supported at all**, because the session was seven minutes inside one task
+and its timestamp had not moved.
+
+```bash
+git diff --shortstat        # run it twice, a minute apart
+```
+
+**Why it beats the timestamp: it measures the WORK rather than the EVENT.** A
+ping fires at a boundary — turn start, turn end — and says nothing in between,
+which is exactly the window a long task lives in. **A diff changes continuously
+while somebody is writing into files.**
+
+**What it cannot do, so it does not get over-trusted:** a session that is
+thinking, running a long browser sweep, or working entirely in a scratch
+directory moves **no** diff and is perfectly alive — **so a static diff is not
+evidence of a stall either.** It is a POSITIVE signal only: **growing means
+alive; not growing means go and look at the pane.** Same asymmetry as the
+doorbell in the opposite direction, and the two together cover more than either
+alone.
 ## A declared expected-failures list, not an allowlist — how a graded check keeps measuring after a hold is accepted
 
 **2026-10-03. Written as a pattern because `bk-bar-clearance` is the first place

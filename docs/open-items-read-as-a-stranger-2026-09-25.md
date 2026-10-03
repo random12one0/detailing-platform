@@ -2300,3 +2300,87 @@ of chores he has already declined is a list he stops reading.*
 is waiting on a person: **`BLOCKED-ON-PUBLISH` means nobody is waiting on
 anybody.** 1.3 sits in both buckets — publish *and* the one migration that closes
 it alongside 0.3 — and the row says so.
+
+---
+
+## I WAS WRONG THAT 55 POINTERS WERE UNVERIFIABLE — git decides them, and here are the three numbers
+
+**2026-10-03. The manager pushed back on the conclusion and was right twice.**
+
+**My claim:** *"55 of 58 carry no way to tell whether they are right, so no
+instrument including this one can say."* **False twice over.**
+
+**FIRST, A HUMAN CHECKED ONE WITHOUT A QUOTE.** `ROADMAP.md` cited
+`FOR-ANDREW.md:818` for the day-squares hold. The hold is at **857**. The manager
+found that by **widening the search from the number to the words** — *day cell,
+calendar, square* — and reading what came back. **Expensive, yes. Impossible,
+no.** And both pointers exist in the repo right now, **818 and 857, one wrong and
+one right**, which is as clean a canary as anybody gets handed.
+
+**SECOND, THERE IS AN INSTRUMENT AND IT HAS BEEN IN THE REPO THE WHOLE TIME:
+`git`.** Every one of these files is tracked. For a pointer written in commit `C`
+into target `T`, **git can say whether `T` changed after `C`** — and if it did
+not, **the pointer is still good with no quote needed at all.** That turns
+staleness from *unverifiable* into *decidable* for the whole population.
+
+### THE METHOD
+
+1. `grep` the pointers — **ground truth, after my own script returned 0 where
+   grep returned 53.**
+2. **Date each pointer**: `git blame -L<at>,<at> --porcelain <citing file>` gives
+   the commit that introduced the line the pointer sits on.
+3. **Ask whether the target moved since**: `git log <sha>..HEAD -- <target>`.
+4. **And whether it moved ABOVE the cited line**: `git diff --unified=0
+   <sha>..HEAD -- <target>`, summing hunk length changes where the hunk's old
+   start is at or before the cited line.
+
+### THE THREE NUMBERS
+
+| bucket | count | what it means |
+|---|---|---|
+| **still-good** | **5** | the target has **not changed at all** since the pointer was written. **Provably fine, no quote required** |
+| **changed-below-only** | **4** | the target changed, but **nothing above the cited line**, so the number still lands |
+| **SUSPECT** | **43** | lines were added or removed **above** the cited line. **Needs a human look** |
+| **unknown** | **1** | could not date it — `docs/MANAGER-2026-09-22-evening.md` is untracked, so blame has nothing to say |
+
+**53 pointers, and 9 are decided without anybody reading a word of prose.** The
+43 are not *stale* — they are *suspect*, and the distinction is the point.
+
+### THE GRADE — it had to flag 818, and it did
+
+| pointer | bucket |
+|---|---|
+| `docs/gotchas.md` → `FOR-ANDREW.md:818` | **SUSPECT** |
+| `docs/open-items…` → `FOR-ANDREW.md:818` | **SUSPECT** |
+| `DECISIONS.md` → `FOR-ANDREW.md:857` | **still-good** |
+| `docs/gotchas.md` → `FOR-ANDREW.md:857` | **still-good** |
+| `docs/open-items…` → `FOR-ANDREW.md:857` | **changed-below-only** |
+
+**Every `818` comes back suspect and every `857` comes back good.** The tool
+separates the known-wrong pointer from the known-right one, on the same target, in
+the same files. **That is the canary earned rather than asserted.**
+
+### WHAT IT CANNOT DO, said plainly rather than letting suspect mean stale
+
+* **SUSPECT IS NOT STALE.** 43 means *the target moved above the cited line*, which
+  makes the number **likely** wrong — not certainly. A hunk above the line that
+  adds and removes equally leaves the number right and still reports suspect.
+* **THE CORRECTED NUMBER IT OFFERS IS WRONG, AND I AM NOT PRESENTING IT.** The
+  delta arithmetic gave **+49** and **+96** for the two `818` pointers, implying
+  867 and 914. **The truth is 857.** So the bucket is trustworthy and **the
+  suggested line is not** — the blame commit dates the *line the pointer sits on*,
+  not the moment the number was written, and lines get reflowed. **Reported as a
+  limitation rather than quietly dropped, because a tool that is right about the
+  bucket and wrong about the number is exactly the kind that gets over-trusted.**
+* **ABOVE versus BELOW is the one real distinction and git gives it only
+  approximately.** `git log` alone cannot tell them apart at all; the `--unified=0`
+  hunk arithmetic can, and it is the part whose output I do not trust to the line.
+* **A pointer into an untracked file cannot be dated.** One of 53.
+
+### SO THE RULE STANDS AND THE CONCLUSION NARROWS
+
+**Still write the quote beside the number** — that is what makes a pointer
+re-findable by a person, and the manager's own widening search is the proof that a
+person can recover without it only at cost. **But "unverifiable" was wrong**: nine
+of 53 are decided by git with no prose at all, and the other 43 are *triaged*
+rather than *unknown*. **A list of 43 to look at beats a shrug about 55.**
